@@ -1972,6 +1972,42 @@ describe('<Field.Root />', () => {
       expect(screen.getByTestId('root')).not.toHaveAttribute('data-invalid');
     });
 
+    it('keeps a pending debounced validation when the control is disabled', async () => {
+      const validate = vi.fn(() => 'error');
+
+      function App({ disabled }: { disabled: boolean }) {
+        return (
+          <Field.Root
+            data-testid="root"
+            validationDebounceTime={100}
+            validationMode="onChange"
+            validate={validate}
+            disabled={disabled}
+          >
+            <Field.Control data-testid="control" />
+            <Field.Error data-testid="error" />
+          </Field.Root>
+        );
+      }
+
+      const { setProps } = await renderFakeTimers(<App disabled={false} />);
+
+      fireEvent.change(screen.getByTestId('control'), { target: { value: 'abc' } });
+
+      clock.tick(99);
+
+      await setProps({ disabled: true });
+
+      clock.tick(100);
+
+      expect(validate).toHaveBeenCalledTimes(1);
+
+      await setProps({ disabled: false });
+
+      expect(screen.getByTestId('error')).toHaveTextContent('error');
+      expect(screen.getByTestId('root')).toHaveAttribute('data-invalid', '');
+    });
+
     it('ignores async validation results superseded during debounce', async () => {
       const resolvers: Record<string, (value: string | null) => void> = {};
       const validate = vi.fn((value) => {

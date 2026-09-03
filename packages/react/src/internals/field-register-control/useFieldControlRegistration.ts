@@ -134,8 +134,8 @@ export function useFieldControlRegistration(params: UseFieldControlRegistrationP
     (source: symbol, registration: FieldControlRegistration | undefined, unmounted = false) => {
       if (!registration) {
         if (activeFieldControlSourceRef.current === source) {
-          // A disabled control keeps ownership: its pending validation publishes once re-enabled,
-          // and a later unmount or replacement can still identify and drop that work.
+          // A disabled control keeps ownership: its pending result still publishes (and shows once
+          // re-enabled), and a later unmount or replacement can still identify and drop that work.
           if (unmounted) {
             activeFieldControlSourceRef.current = null;
             change(undefined, true);
