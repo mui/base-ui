@@ -101,7 +101,7 @@ export default function ExampleAsyncMenuFilter() {
                   No results found.
                 </Menu.FilterEmpty>
               )}
-              <Menu.FilterList className="max-h-[min(22rem,var(--available-height))] overflow-y-auto py-1 outline-hidden scroll-py-1 empty:py-0">
+              <Menu.List className="max-h-[min(22rem,var(--available-height))] overflow-y-auto py-1 outline-hidden scroll-py-1 empty:py-0">
                 {searchResults.groups.map((group) => (
                   <Menu.Group key={group.label}>
                     <Menu.GroupLabel className="pt-1.5 pr-8 pb-1 pl-4 text-xs leading-4 font-medium text-neutral-500 select-none dark:text-neutral-400">
@@ -117,7 +117,7 @@ export default function ExampleAsyncMenuFilter() {
                     ))}
                   </Menu.Group>
                 ))}
-              </Menu.FilterList>
+              </Menu.List>
               <Menu.FilterStatus className="border-t border-neutral-300 px-3 py-2 text-xs leading-4 text-neutral-500 dark:border-neutral-700 dark:text-neutral-400">
                 {status}
               </Menu.FilterStatus>

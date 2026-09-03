@@ -52,7 +52,7 @@ export default function ExampleMenuCommandPalette() {
                         No results found.
                       </Menu.FilterEmpty>
 
-                      <Menu.FilterList
+                      <Menu.List
                         className="py-1 not-has-[>:not([hidden])]:py-0"
                         aria-label="Commands"
                       >
@@ -76,7 +76,7 @@ export default function ExampleMenuCommandPalette() {
                             ))}
                           </Menu.Group>
                         ))}
-                      </Menu.FilterList>
+                      </Menu.List>
                     </ScrollArea.Content>
                   </ScrollArea.Viewport>
                   <ScrollArea.Scrollbar className="flex w-4 justify-center bg-black/12 dark:bg-white/12">

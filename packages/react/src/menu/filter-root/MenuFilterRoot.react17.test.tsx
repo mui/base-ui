@@ -28,9 +28,9 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider> with the React
             <Menu.Positioner>
               <Menu.Popup>
                 <Menu.FilterInput aria-label="Filter actions" />
-                <Menu.FilterList>
+                <Menu.List>
                   <Menu.Item>Rename</Menu.Item>
-                </Menu.FilterList>
+                </Menu.List>
               </Menu.Popup>
             </Menu.Positioner>
           </Menu.Portal>
@@ -65,7 +65,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider> with the React
             <Menu.Positioner>
               <Menu.Popup>
                 <Menu.FilterInput aria-label="Filter actions" />
-                <Menu.FilterList>
+                <Menu.List>
                   <Menu.FilterProvider>
                     <Menu.SubmenuRoot>
                       <Menu.SubmenuTrigger>More actions</Menu.SubmenuTrigger>
@@ -73,15 +73,15 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider> with the React
                         <Menu.Positioner>
                           <Menu.Popup>
                             <Menu.FilterInput aria-label="Filter more actions" />
-                            <Menu.FilterList>
+                            <Menu.List>
                               <Menu.Item>Share</Menu.Item>
-                            </Menu.FilterList>
+                            </Menu.List>
                           </Menu.Popup>
                         </Menu.Positioner>
                       </Menu.Portal>
                     </Menu.SubmenuRoot>
                   </Menu.FilterProvider>
-                </Menu.FilterList>
+                </Menu.List>
               </Menu.Popup>
             </Menu.Positioner>
           </Menu.Portal>

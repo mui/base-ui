@@ -16,14 +16,14 @@ describe('<Menu.Group />', () => {
             <Menu.Positioner>
               <Menu.Popup>
                 <Menu.FilterInput aria-label="Filter actions" />
-                <Menu.FilterList>
+                <Menu.List>
                   <Menu.Item>Rename</Menu.Item>
                   <Menu.RadioGroup data-testid="sort-group" defaultValue="date">
                     <Menu.GroupLabel>Sort by</Menu.GroupLabel>
                     <Menu.RadioItem value="date">Date modified</Menu.RadioItem>
                     <Menu.RadioItem value="size">Size</Menu.RadioItem>
                   </Menu.RadioGroup>
-                </Menu.FilterList>
+                </Menu.List>
               </Menu.Popup>
             </Menu.Positioner>
           </Menu.Portal>
