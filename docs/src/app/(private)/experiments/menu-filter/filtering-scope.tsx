@@ -36,7 +36,7 @@ export default function MenuFilteringScopeExperiment() {
       <div className={classes.Examples}>
         <section className={classes.Example}>
           <h2>Root input only</h2>
-          <p>The root input filters its own items. The submenu list owns virtual focus.</p>
+          <p>The root input filters its own items. The submenu is a plain menu.</p>
           <RootFilterOnly autoHighlight={autoHighlight} />
         </section>
 
@@ -68,21 +68,19 @@ function RootFilterOnly(props: { autoHighlight: boolean }) {
             <Menu.FilterInput className={classes.Input} aria-label="Filter root actions" />
             <Menu.FilterList className={classes.List}>
               <Menu.Item className={classes.Item}>Rename</Menu.Item>
-              <Menu.FilterSubmenuRoot>
+              <Menu.SubmenuRoot>
                 <Menu.SubmenuTrigger className={classes.Item}>
                   Share <span aria-hidden>›</span>
                 </Menu.SubmenuTrigger>
                 <Menu.Portal>
                   <Menu.Positioner className={classes.Positioner} sideOffset={4}>
                     <Menu.Popup className={classes.Popup}>
-                      <Menu.FilterList className={classes.List}>
-                        <Menu.Item className={classes.Item}>Email</Menu.Item>
-                        <Menu.Item className={classes.Item}>Copy link</Menu.Item>
-                      </Menu.FilterList>
+                      <Menu.Item className={classes.Item}>Email</Menu.Item>
+                      <Menu.Item className={classes.Item}>Copy link</Menu.Item>
                     </Menu.Popup>
                   </Menu.Positioner>
                 </Menu.Portal>
-              </Menu.FilterSubmenuRoot>
+              </Menu.SubmenuRoot>
               <Menu.Item className={classes.Item}>Delete</Menu.Item>
             </Menu.FilterList>
           </Menu.Popup>
