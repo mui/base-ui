@@ -3,10 +3,12 @@ import * as React from 'react';
 import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, isJSDOM } from '#test-utils';
 import { Autocomplete } from '@base-ui/react/autocomplete';
+import { Dialog } from '@base-ui/react/dialog';
 import { Field } from '@base-ui/react/field';
 import { Form } from '@base-ui/react/form';
 import { Input } from '@base-ui/react/input';
 import { Switch } from '@base-ui/react/switch';
+import { REASONS } from '../../internals/reasons';
 
 describe('<Autocomplete.Root />', () => {
   beforeEach(() => {
@@ -1508,6 +1510,97 @@ describe('<Autocomplete.Root />', () => {
 
       expect(submitValue).toBe('alpha');
       expect(submitCount).toBe(1);
+    });
+
+    it('submits the selected value from an inline list', async () => {
+      let submitValue: string | null = null;
+
+      const handleSubmit: React.FormEventHandler<HTMLFormElement> = (event) => {
+        event.preventDefault();
+        submitValue = new FormData(event.currentTarget).get('q') as string;
+      };
+
+      const { user } = await render(
+        <form onSubmit={handleSubmit}>
+          <Field.Root name="q">
+            <Autocomplete.Root items={['alpha', 'alpine']} inline open submitOnItemClick>
+              <Autocomplete.Input />
+              <Autocomplete.List>
+                {(item) => (
+                  <Autocomplete.Item key={item} value={item}>
+                    {item}
+                  </Autocomplete.Item>
+                )}
+              </Autocomplete.List>
+            </Autocomplete.Root>
+          </Field.Root>
+        </form>,
+      );
+
+      const input = screen.getByRole<HTMLInputElement>('combobox');
+      await user.type(input, 'al');
+      await user.click(screen.getByRole('option', { name: 'alpha' }));
+
+      expect(submitValue).toBe('alpha');
+      expect(input).toHaveValue('alpha');
+    });
+
+    it('commits and submits the selected value when an inline dialog closes', async () => {
+      let submitValue: string | null = null;
+      const onValueChange = vi.fn();
+
+      function Test() {
+        const [open, setOpen] = React.useState(true);
+
+        return (
+          <React.Fragment>
+            <form
+              id="search-form"
+              onSubmit={(event) => {
+                event.preventDefault();
+                submitValue = new FormData(event.currentTarget).get('q') as string;
+              }}
+            />
+            <Autocomplete.Root
+              items={['alpha', 'alpine']}
+              name="q"
+              form="search-form"
+              inline
+              open={open}
+              onOpenChange={setOpen}
+              onValueChange={onValueChange}
+              submitOnItemClick
+            >
+              <Dialog.Root open={open} onOpenChange={setOpen}>
+                <Dialog.Portal keepMounted>
+                  <Dialog.Popup>
+                    <Autocomplete.Input />
+                    <Autocomplete.List>
+                      {(item) => (
+                        <Autocomplete.Item key={item} value={item}>
+                          {item}
+                        </Autocomplete.Item>
+                      )}
+                    </Autocomplete.List>
+                  </Dialog.Popup>
+                </Dialog.Portal>
+              </Dialog.Root>
+            </Autocomplete.Root>
+          </React.Fragment>
+        );
+      }
+
+      const { user } = await render(<Test />);
+      const input = screen.getByRole<HTMLInputElement>('combobox');
+      await user.type(input, 'al');
+      onValueChange.mockClear();
+      await user.click(screen.getByRole('option', { name: 'alpha' }));
+
+      expect(onValueChange).toHaveBeenCalledWith(
+        'alpha',
+        expect.objectContaining({ reason: REASONS.itemPress }),
+      );
+      expect(submitValue).toBe('alpha');
     });
 
     it.skipIf(isJSDOM)(
