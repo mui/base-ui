@@ -32,6 +32,7 @@ import type {
   VirtualizerRenderRowParameters,
   VirtualizerRow,
 } from '../internals/virtualization/types';
+import type { RowsGeometry } from './geometry';
 import { EMPTY_SCROLLPORT_PADDING, getScrollportPadding } from './scrollport';
 import { useAdaptiveEstimate, useAdaptiveEstimateRefresh } from './useAdaptiveEstimate';
 import { useEngineMode } from './useEngineMode';
@@ -277,6 +278,12 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
   const renderZoneVirtualEndRef = React.useRef<number | null>(null);
   const scrollTopRef = React.useRef(0);
   const muiApiRef = React.useRef<MuiVirtualizer['api'] | null>(null);
+  // The concerns below are handed the engine operations they use, in this component's vocabulary,
+  // and nothing more: this is the only file that knows the engine. Read through the ref, since
+  // the gesture concern is declared before the engine is.
+  const settleGeometry = useStableCallback(() => {
+    muiApiRef.current?.rowsMeta.hydrateRowsMeta();
+  });
   /**
    * The scrollport's own block padding. Rows begin below it, scroll through it, and the virtual
    * content covers it, matching how a plain scrolling list treats its padding. The engine's
@@ -292,7 +299,7 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
 
   const scrollportPaddingTotal = scrollportPadding.start + scrollportPadding.end;
 
-  const gesture = useScrollGesture({ apiRef: muiApiRef, scrollElementRef });
+  const gesture = useScrollGesture({ scrollElementRef, settleGeometry });
   const adaptive = useAdaptiveEstimate({
     rows,
     staticEstimatedItemHeight: itemHeightEstimate.staticEstimatedItemHeight,
@@ -572,6 +579,62 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
   const positionerProps = virtualizer.store.use(LayoutList.selectors.positionerProps);
   const renderContext = virtualizer.store.use(Virtualization.selectors.renderContext);
 
+  const isModeApplied = useStableCallback((windowed: boolean) => {
+    const mode = virtualizer.store.state.virtualization;
+    return (
+      mode.enabled === windowed &&
+      mode.enabledForRows === windowed &&
+      mode.enabledForColumns === false
+    );
+  });
+  const setMode = useStableCallback((windowed: boolean) => {
+    virtualizer.store.set('virtualization', {
+      ...virtualizer.store.state.virtualization,
+      enabled: windowed,
+      enabledForColumns: false,
+      enabledForRows: windowed,
+    });
+  });
+  const scheduleWindowUpdate = useStableCallback(() =>
+    virtualizer.api.scheduleUpdateRenderContext(),
+  );
+  const forceWindowUpdate = useStableCallback(() => virtualizer.api.forceUpdateRenderContext());
+  const getViewportHeight = useStableCallback(() => virtualizer.store.state.rootSize.height);
+  const setViewportHeight = useStableCallback((height: number) => {
+    // The engine stores the ResizeObserver content-box height; keep that box model.
+    virtualizer.store.set('rootSize', { ...virtualizer.store.state.rootSize, height });
+    virtualizer.api.updateDimensions();
+  });
+  const isRowMeasured = useStableCallback(
+    (rowId: React.Key) => !virtualizer.api.rowsMeta.getRowHeightEntry(rowId).needsFirstMeasurement,
+  );
+  const readRowsGeometry = useStableCallback((): RowsGeometry => virtualizer.store.state.rowsMeta);
+  const readMeasuredHeight = useStableCallback((rowId: React.Key): number | null => {
+    const entry = (virtualizer.store.state.rowHeights as Map<React.Key, HeightEntry>).get(rowId);
+    return entry == null || entry.needsFirstMeasurement ? null : entry.content;
+  });
+  const readMeasuredHeights = useStableCallback(function* readMeasuredHeights() {
+    for (const [rowId, entry] of virtualizer.store.state.rowHeights as Map<
+      React.Key,
+      HeightEntry
+    >) {
+      if (!entry.needsFirstMeasurement) {
+        yield [rowId, entry.content] as [React.Key, number];
+      }
+    }
+  });
+  // Reaches into the engine's height cache: it has `resetRowHeights` for every row but no way to
+  // send one row back to its estimate, which the adaptive refresh needs for rows measured under a
+  // transient layout. The entries are plain mutable objects, so this is what a per-row reset
+  // would do; it is the one place that knows so.
+  const demoteRowHeight = useStableCallback((rowId: React.Key, height: number) => {
+    const entry = (virtualizer.store.state.rowHeights as Map<React.Key, HeightEntry>).get(rowId);
+    if (entry != null) {
+      entry.content = height;
+      entry.needsFirstMeasurement = true;
+    }
+  });
+
   if (process.env.NODE_ENV !== 'production') {
     // NODE_ENV doesn't change at runtime
     // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -622,24 +685,27 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
   // Declared before the mode publication below, which arms it: the request then lands on the
   // commit that publication already schedules.
   const viewportRestore = useViewportRestore({
-    api: virtualizer.api,
     dimensionsReady: dimensions.isReady,
     enabled,
+    forceWindowUpdate,
+    getViewportHeight,
     renderContext,
-    rootSize,
     rowCount: rows.length,
     scrollElementRef,
     scrollportPaddingTotal,
-    store: virtualizer.store,
+    setViewportHeight,
     totalSize,
+    viewportMeasurement: rootSize,
   });
 
   useEngineMode({
-    api: virtualizer.api,
     enabled,
+    forceWindowUpdate,
+    isModeApplied,
     onWindowingResumed: viewportRestore.arm,
     onWindowingSuspended: viewportRestore.disarm,
-    store: virtualizer.store,
+    scheduleWindowUpdate,
+    setMode,
   });
 
   // The scrollport's padding is only read when its box changes, so unpadded lists never pay for
@@ -664,8 +730,8 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
   // opens is applied against the enabled window.
   const pendingScroll = usePendingScroll<VirtualizerItemRowModel<Value>>({
     adaptive,
-    api: virtualizer.api,
     enabled,
+    isRowMeasured,
     onScrollApplied: (scrollTop) => handleScrollChange({ top: scrollTop }),
     refreshWindow,
     refreshWindowAfterCorrectiveScroll,
@@ -676,8 +742,8 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
     scrollElementRef,
     scrollportPadding,
     scrollToRowAlignment,
+    readRowsGeometry,
     scrollToRowIndex,
-    store: virtualizer.store,
     trailingHeight,
   });
   pendingScrollRef.current = pendingScroll;
@@ -795,10 +861,10 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
     refreshWindowAfterCorrectiveScroll,
     renderZoneRef,
     rows,
+    readRowsGeometry,
     rowsMeta,
     scrollElementRef,
     scrollportPaddingTotal,
-    store: virtualizer.store,
     trailingHeight,
     updateRenderZoneTransform,
   });
@@ -922,13 +988,15 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
   // viewport, and anchoring compensates for that on the resulting commit.
   useAdaptiveEstimateRefresh<VirtualizerItemRowModel<Value>>({
     adaptive,
-    apiRef: muiApiRef,
     defaultEstimatedItemHeight,
+    demoteRowHeight,
     gesture,
+    readMeasuredHeight,
+    readMeasuredHeights,
     renderContext: overscannedRenderContext,
     rows,
     rowsMeta,
-    store: virtualizer.store,
+    settleGeometry,
   });
 
   // Declared last: anchoring reads an outstanding request while it still stands, and a request
@@ -947,7 +1015,9 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
         firstRowIndex: 0,
         lastRowIndex: rows.length,
       };
-  const renderedRows = virtualizer.api.getters.getRows({
+  // Reaches into the engine's getters, which its typings leave as `any`: there is no declared way
+  // to ask for the rows of a given window. This is the one call that depends on that shape.
+  const renderedRows: React.ReactNode = virtualizer.api.getters.getRows({
     renderContext: rowsRenderContext,
   });
 

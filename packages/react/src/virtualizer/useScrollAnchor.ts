@@ -2,13 +2,12 @@
 import * as React from 'react';
 import { clamp } from '@base-ui/utils/clamp';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import type { Virtualizer as MuiVirtualizer } from '@mui/x-virtualizer';
 import { getMaxScrollOffset } from '../utils/scrollEdges';
 import type { VirtualizerRow } from '../internals/virtualization/types';
 import type { PendingScroll } from './usePendingScroll';
 import type { ScrollGesture } from './useScrollGesture';
 
-type RowsMeta = MuiVirtualizer['store']['state']['rowsMeta'];
+import type { RowsGeometry } from './geometry';
 
 /**
  * Where the content was, the last time the viewport and the geometry agreed.
@@ -23,7 +22,7 @@ export interface ScrollAnchorSnapshot<RowModel> {
   scrollTop: number;
   /** The anchor's position in the engine's coordinates, used when its element is recycled. */
   virtualOffset: number | null;
-  rowsMeta: RowsMeta;
+  rowsMeta: RowsGeometry;
   rows: VirtualizerRow<RowModel>[];
 }
 
@@ -49,10 +48,14 @@ export interface UseScrollAnchorParameters<RowModel> {
   renderZoneRef: React.RefObject<HTMLElement | null>;
   rows: VirtualizerRow<RowModel>[];
   /** The engine's row geometry as of this render. */
-  rowsMeta: RowsMeta;
+  rowsMeta: RowsGeometry;
   scrollElementRef: React.RefObject<HTMLElement | null>;
   scrollportPaddingTotal: number;
-  store: MuiVirtualizer['store'];
+  /**
+   * The engine's latest row geometry, read when the effect runs. The engine publishes it before
+   * React commits the matching row positions, so it can be ahead of `rowsMeta`.
+   */
+  readRowsGeometry: () => RowsGeometry;
   trailingHeight: number;
   /** Stacks the rendered rows for the position they are rendered for, before anything measures. */
   updateRenderZoneTransform: () => void;
@@ -76,9 +79,12 @@ export interface UseScrollAnchorParameters<RowModel> {
  * fresh geometry and so supersedes anchoring, and before `useAdaptiveEstimateRefresh`, whose
  * rewrites this compensates for on the resulting commit.
  *
- * TODO: If this proves to be an improvement, move it upstream into @mui/x-virtualizer (next to
- * `hydrateRowsMeta`, where it can set `ignoreNextScrollEvent` and avoid the redundant
- * scroll-event round trip that an external `scrollTop` write causes).
+ * A candidate for the engine itself: beside `hydrateRowsMeta` it could set `ignoreNextScrollEvent`
+ * and skip the scroll-event round trip that an external `scrollTop` write costs. What it should
+ * anchor on is not settled, though — it holds the topmost visible row, and once the adaptive
+ * estimate has settled that lets a selection lower in the viewport drift under a geometry rewrite
+ * (see the alignment test kept on `Virtualizer.combobox.test.tsx`). Resolve that before proposing
+ * it upstream.
  */
 export function useScrollAnchor<RowModel>(
   parameters: UseScrollAnchorParameters<RowModel>,
@@ -93,8 +99,8 @@ export function useScrollAnchor<RowModel>(
     rows,
     rowsMeta,
     scrollElementRef,
+    readRowsGeometry,
     scrollportPaddingTotal,
-    store,
     trailingHeight,
     updateRenderZoneTransform,
   } = parameters;
@@ -120,7 +126,7 @@ export function useScrollAnchor<RowModel>(
       return;
     }
 
-    const latestRowsMeta = store.state.rowsMeta;
+    const latestRowsMeta = readRowsGeometry();
     // MUI publishes the store update before React commits the matching row positions. We can still
     // compensate from the logical row offsets, but must not snapshot the stale DOM in that commit.
     const hasPendingRowsMeta = rowsMeta !== latestRowsMeta;

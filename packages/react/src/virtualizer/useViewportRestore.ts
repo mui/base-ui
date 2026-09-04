@@ -2,26 +2,31 @@
 import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import type { RenderContext, Virtualizer as MuiVirtualizer } from '@mui/x-virtualizer';
+import type { RowWindow } from './geometry';
 import { getContentHeight } from './scrollport';
 
-type RootSize = MuiVirtualizer['store']['state']['rootSize'];
-
 export interface UseViewportRestoreParameters {
-  api: MuiVirtualizer['api'];
   /** Whether the engine has measured its dimensions yet. */
   dimensionsReady: boolean;
   enabled: boolean;
+  /** Forces the rendered window to be recomputed now. */
+  forceWindowUpdate: () => void;
+  /** The viewport height the engine last recorded, in the box model its observer reports. */
+  getViewportHeight: () => number;
   /** The window the engine currently publishes. */
-  renderContext: RenderContext;
-  /** The viewport size the engine last recorded, in the box model its observer reports. */
-  rootSize: RootSize;
+  renderContext: RowWindow;
   rowCount: number;
   scrollElementRef: React.RefObject<HTMLElement | null>;
   scrollportPaddingTotal: number;
-  store: MuiVirtualizer['store'];
+  /** Records a viewport height taken from the element, in the same box model the observer uses. */
+  setViewportHeight: (height: number) => void;
   /** The engine's virtual content height. */
   totalSize: number;
+  /**
+   * The engine's viewport measurement as of this render, as an opaque token: it republishes
+   * whenever the observer re-measures, which is when a pending restore gets its chance.
+   */
+  viewportMeasurement: unknown;
 }
 
 export interface ViewportRestore {
@@ -49,16 +54,17 @@ export interface ViewportRestore {
  */
 export function useViewportRestore(parameters: UseViewportRestoreParameters): ViewportRestore {
   const {
-    api,
     dimensionsReady,
     enabled,
+    forceWindowUpdate,
+    getViewportHeight,
     renderContext,
-    rootSize,
     rowCount,
     scrollElementRef,
     scrollportPaddingTotal,
-    store,
+    setViewportHeight,
     totalSize,
+    viewportMeasurement,
   } = parameters;
 
   const armedRef = React.useRef(false);
@@ -87,19 +93,23 @@ export function useViewportRestore(parameters: UseViewportRestoreParameters): Vi
     // would overwrite every later ResizeObserver update.
     armedRef.current = false;
 
-    if (Math.abs(rootSize.height - viewportHeight) < 1) {
+    if (Math.abs(getViewportHeight() - viewportHeight) < 1) {
       return;
     }
 
     // MUI Virtualizer stores the ResizeObserver content-box height. Preserve that same box model even if a
     // preceding render-all pass temporarily expanded the observed content box.
-    store.set('rootSize', {
-      ...rootSize,
-      height: viewportHeight,
-    });
-    api.updateDimensions();
-    api.forceUpdateRenderContext();
-  }, [api, enabled, revision, rootSize, scrollElementRef, store]);
+    setViewportHeight(viewportHeight);
+    forceWindowUpdate();
+  }, [
+    enabled,
+    forceWindowUpdate,
+    getViewportHeight,
+    revision,
+    scrollElementRef,
+    setViewportHeight,
+    viewportMeasurement,
+  ]);
 
   const staleRangeRef = React.useRef<string | null>(null);
 
@@ -131,10 +141,10 @@ export function useViewportRestore(parameters: UseViewportRestoreParameters): Vi
     // Enabling while hidden can make the scheduled update run before dimensions are ready.
     // Retry after a constrained viewport renders so reopening cannot retain the render-all range.
     staleRangeRef.current = refreshKey;
-    api.forceUpdateRenderContext();
+    forceWindowUpdate();
   }, [
-    api,
     dimensionsReady,
+    forceWindowUpdate,
     enabled,
     renderContext.firstRowIndex,
     renderContext.lastRowIndex,

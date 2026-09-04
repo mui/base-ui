@@ -5,7 +5,7 @@ import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
 import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import type { RenderContext, Virtualizer as MuiVirtualizer } from '@mui/x-virtualizer';
+import type { RowWindow, RowsGeometry } from './geometry';
 import { getMaxScrollOffset } from '../utils/scrollEdges';
 import type {
   VirtualizerScrollAlignment,
@@ -46,8 +46,9 @@ export interface PendingScroll {
 
 export interface UsePendingScrollParameters<RowModel> {
   adaptive: AdaptiveEstimate;
-  api: MuiVirtualizer['api'];
   enabled: boolean;
+  /** Whether a row's height has been measured, as opposed to estimated. */
+  isRowMeasured: (rowId: React.Key) => boolean;
   /**
    * Realigns the sticky render zone for a position written here. The native scroll event is
    * asynchronous, so the rows must be told about the new position before it arrives.
@@ -61,7 +62,7 @@ export interface UsePendingScrollParameters<RowModel> {
    */
   refreshWindowAfterCorrectiveScroll: (scrollTop: number) => void;
   /** The window this commit rendered, as of the latest render. */
-  renderContextRef: React.RefObject<RenderContext>;
+  renderContextRef: React.RefObject<RowWindow>;
   renderZoneRef: React.RefObject<HTMLElement | null>;
   rows: VirtualizerRow<RowModel>[];
   rowsRef: React.RefObject<VirtualizerRow<RowModel>[]>;
@@ -69,7 +70,8 @@ export interface UsePendingScrollParameters<RowModel> {
   scrollportPadding: { start: number; end: number };
   scrollToRowAlignment: VirtualizerScrollAlignment;
   scrollToRowIndex: number | undefined;
-  store: MuiVirtualizer['store'];
+  /** The engine's current row geometry, read when asked rather than captured at render. */
+  readRowsGeometry: () => RowsGeometry;
   trailingHeight: number;
 }
 
@@ -91,8 +93,8 @@ export function usePendingScroll<RowModel>(
 ): PendingScroll {
   const {
     adaptive,
-    api,
     enabled,
+    isRowMeasured,
     onScrollApplied,
     refreshWindow,
     refreshWindowAfterCorrectiveScroll,
@@ -103,8 +105,8 @@ export function usePendingScroll<RowModel>(
     scrollElementRef,
     scrollportPadding,
     scrollToRowAlignment,
+    readRowsGeometry,
     scrollToRowIndex,
-    store,
     trailingHeight,
   } = parameters;
 
@@ -187,7 +189,7 @@ export function usePendingScroll<RowModel>(
         return false;
       }
 
-      const measured = !api.rowsMeta.getRowHeightEntry(row.id).needsFirstMeasurement;
+      const measured = isRowMeasured(row.id);
 
       // The first pass may scroll using estimates so the destination mounts. The retry waits for
       // the real row measurement; treating an estimated position as final can leave only the
@@ -196,7 +198,7 @@ export function usePendingScroll<RowModel>(
         return false;
       }
 
-      const currentRowsMeta = store.state.rowsMeta;
+      const currentRowsMeta = readRowsGeometry();
       const rowStart = currentRowsMeta.positions[rowIndex];
       const rowEnd =
         currentRowsMeta.positions[rowIndex + 1] ?? currentRowsMeta.currentPageTotalHeight;
@@ -454,7 +456,7 @@ export function usePendingScroll<RowModel>(
 export interface UsePendingScrollRetryParameters<RowModel> {
   pendingScroll: PendingScroll;
   /** The window this commit rendered. A different one can move the destination. */
-  renderContext: RenderContext;
+  renderContext: RowWindow;
   rows: VirtualizerRow<RowModel>[];
   /** The engine's row geometry, which republishes whenever a measurement lands. */
   rowsMeta: unknown;
