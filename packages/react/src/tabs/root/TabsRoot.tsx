@@ -23,8 +23,8 @@ import { REASONS } from '../../internals/reasons';
  *
  * Documentation: [Base UI Tabs](https://base-ui.com/react/components/tabs)
  */
-export const TabsRoot = React.forwardRef(function TabsRoot(
-  componentProps: TabsRoot.Props,
+export const TabsRoot = React.forwardRef(function TabsRoot<Value = any>(
+  componentProps: TabsRoot.Props<Value>,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
@@ -347,7 +347,9 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
       <CompositeList<TabsPanel.Metadata> elementsRef={tabPanelRefs}>{element}</CompositeList>
     </TabsRootContext.Provider>
   );
-});
+}) as {
+  <Value = any>(props: TabsRoot.Props<Value>): React.JSX.Element;
+};
 
 function findTabElement(
   tabMap: Map<Node, CompositeMetadata<TabsTab.Metadata>>,
@@ -420,18 +422,18 @@ export interface TabsRootState {
   tabActivationDirection: TabsTab.ActivationDirection;
 }
 
-export interface TabsRootProps extends BaseUIComponentProps<'div', TabsRootState> {
+export interface TabsRootProps<Value = any> extends BaseUIComponentProps<'div', TabsRootState> {
   /**
    * The value of the currently active `Tab`. Use when the component is controlled.
    * When the value is `null`, no Tab will be active.
    */
-  value?: TabsTab.Value | undefined;
+  value?: Value | null | undefined;
   /**
    * The default value. Use when the component is not controlled.
    * When the value is `null`, no Tab will be active.
    * @default 0
    */
-  defaultValue?: TabsTab.Value | undefined;
+  defaultValue?: Value | null | undefined;
   /**
    * The component orientation (layout flow direction).
    * @default 'horizontal'
@@ -456,7 +458,7 @@ export interface TabsRootProps extends BaseUIComponentProps<'div', TabsRootState
    * `'initial'`, `'disabled'`, or `'missing'` has no effect.
    */
   onValueChange?:
-    ((value: TabsTab.Value, eventDetails: TabsRoot.ChangeEventDetails) => void) | undefined;
+    ((value: Value | null, eventDetails: TabsRoot.ChangeEventDetails) => void) | undefined;
 }
 
 export type TabsRootChangeEventReason =
@@ -468,7 +470,8 @@ export type TabsRootChangeEventDetails = BaseUIChangeEventDetails<
 
 export namespace TabsRoot {
   export type State = TabsRootState;
-  export type Props = TabsRootProps;
+  export type Props<TValue = any> = TabsRootProps<TValue>;
+  export type Value<TValue = any> = TValue | null;
   export type Orientation = TabsRootOrientation;
   export type ChangeEventReason = TabsRootChangeEventReason;
   export type ChangeEventDetails = TabsRootChangeEventDetails;
