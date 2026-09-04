@@ -129,36 +129,43 @@ export default function ExampleCreatableCombobox() {
             Labels
           </label>
           <Combobox.InputGroup className="flex min-h-8 w-64 cursor-text flex-wrap items-center gap-0.5 border border-neutral-950 bg-white dark:bg-neutral-950 px-2 py-1 focus-within:outline-2 focus-within:-outline-offset-1 focus-within:outline-neutral-950 dark:focus-within:outline-white has-[button]:px-1 dark:border-white min-[32rem]:w-[22rem]">
-            <Combobox.Chips className="flex w-full flex-wrap items-center gap-1">
-              <Combobox.Value>
-                {(value: LabelItem[]) => (
-                  <React.Fragment>
-                    {value.map((label) => (
-                      <Combobox.Chip
-                        key={label.id}
-                        className="group flex min-h-[calc(1.5rem-2px)] cursor-default items-center gap-1 overflow-hidden bg-neutral-100 py-0 pr-[0.2rem] pl-[0.4rem] text-sm leading-none text-neutral-950 outline-none focus-within:bg-neutral-950 focus-within:text-white [@media(hover:hover)]:data-highlighted:bg-neutral-950 [@media(hover:hover)]:data-highlighted:text-white dark:bg-neutral-800 dark:text-white dark:focus-within:bg-white dark:focus-within:text-neutral-950 dark:[@media(hover:hover)]:data-highlighted:bg-white dark:[@media(hover:hover)]:data-highlighted:text-neutral-950"
-                        aria-label={label.value}
+            <Combobox.Value>
+              {(value: LabelItem[]) => (
+                <Combobox.Chips
+                  className="flex w-full flex-wrap items-center gap-1"
+                  aria-label={value.length > 0 ? 'Selected labels' : undefined}
+                >
+                  {value.map((label) => (
+                    <Combobox.Chip
+                      key={label.id}
+                      className="group flex min-h-[calc(1.5rem-2px)] cursor-default items-center gap-1 overflow-hidden bg-neutral-100 py-0 pr-[0.2rem] pl-[0.4rem] text-sm leading-none text-neutral-950 outline-none focus-within:bg-neutral-950 focus-within:text-white [@media(hover:hover)]:data-highlighted:bg-neutral-950 [@media(hover:hover)]:data-highlighted:text-white dark:bg-neutral-800 dark:text-white dark:focus-within:bg-white dark:focus-within:text-neutral-950 dark:[@media(hover:hover)]:data-highlighted:bg-white dark:[@media(hover:hover)]:data-highlighted:text-neutral-950"
+                      aria-label={label.value}
+                      aria-description="Press Backspace or Delete to remove"
+                    >
+                      {label.value}
+                      <Combobox.ChipRemove
+                        className="flex size-4 items-center justify-center border-0 bg-transparent p-0 text-inherit hover:bg-neutral-200 group-focus-within:hover:bg-neutral-700 dark:hover:bg-neutral-700 dark:group-focus-within:hover:bg-neutral-200"
+                        aria-label={`Remove ${label.value}`}
                       >
-                        {label.value}
-                        <Combobox.ChipRemove
-                          className="flex size-4 items-center justify-center border-0 bg-transparent p-0 text-inherit hover:bg-neutral-200 group-focus-within:hover:bg-neutral-700 dark:hover:bg-neutral-700 dark:group-focus-within:hover:bg-neutral-200"
-                          aria-label={`Remove ${label.value}`}
-                        >
-                          <XIcon />
-                        </Combobox.ChipRemove>
-                      </Combobox.Chip>
-                    ))}
-                    <Combobox.Input
-                      ref={comboboxInputRef}
-                      id={id}
-                      placeholder={value.length > 0 ? '' : 'e.g. bug'}
-                      className="h-[calc(1.5rem-2px)] min-w-12 flex-1 border-0 bg-white p-0 text-sm any-pointer-coarse:text-base dark:bg-neutral-950 font-normal text-neutral-950 outline-none placeholder:text-neutral-500 dark:placeholder:text-neutral-400 dark:text-white"
-                      onKeyDown={handleInputKeyDown}
-                    />
-                  </React.Fragment>
-                )}
-              </Combobox.Value>
-            </Combobox.Chips>
+                        <XIcon />
+                      </Combobox.ChipRemove>
+                    </Combobox.Chip>
+                  ))}
+                  <Combobox.Input
+                    ref={comboboxInputRef}
+                    id={id}
+                    placeholder={value.length > 0 ? '' : 'e.g. bug'}
+                    aria-description={
+                      value.length > 0
+                        ? `${value.length} selected. From the start of the input, press Left Arrow to focus the selected items`
+                        : undefined
+                    }
+                    className="h-[calc(1.5rem-2px)] min-w-12 flex-1 border-0 bg-white p-0 text-sm any-pointer-coarse:text-base dark:bg-neutral-950 font-normal text-neutral-950 outline-none placeholder:text-neutral-500 dark:placeholder:text-neutral-400 dark:text-white"
+                    onKeyDown={handleInputKeyDown}
+                  />
+                </Combobox.Chips>
+              )}
+            </Combobox.Value>
           </Combobox.InputGroup>
         </div>
 
