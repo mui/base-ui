@@ -343,10 +343,33 @@ import { DemoMenuDetachedTriggersFull } from './demos/detached-triggers-full';
 ### Filtering
 
 Wrap `<Menu.Root>` in `<Menu.FilterProvider>` to add a search field that filters the items.
-The filter parts are `<Menu.FilterInput>`, `<Menu.List>`, `<Menu.FilterClear>`, `<Menu.FilterEmpty>`, and `<Menu.FilterStatus>`; every other part stays the same.
-A filterable popup is a dialog that contains the input and a `menu` list, so the items go inside `<Menu.List>`.
-Give the input an accessible name with `aria-label`, `aria-labelledby`, or a visible native `<label>`.
-Only `<Menu.FilterProvider>` imports the filtering code, so menus that don't filter don't bundle it.
+Only the provider imports the filtering code, so menus that don't filter don't bundle it.
+
+Render `<Menu.FilterInput>` inside the popup and place the items inside `<Menu.List>`.
+The popup becomes a dialog that contains the input and the list; every other part stays the same.
+
+```jsx title="Filterable menu anatomy"
+<Menu.FilterProvider>
+  <Menu.Root>
+    <Menu.Trigger />
+    <Menu.Portal>
+      <Menu.Positioner>
+        <Menu.Popup>
+          <Menu.FilterInput aria-label="Filter actions" />
+          <Menu.FilterClear />
+          <Menu.FilterEmpty />
+          <Menu.List>
+            <Menu.Item />
+          </Menu.List>
+          <Menu.FilterStatus />
+        </Menu.Popup>
+      </Menu.Positioner>
+    </Menu.Portal>
+  </Menu.Root>
+</Menu.FilterProvider>
+```
+
+Give the input an accessible name with `aria-label`, `aria-labelledby`, or a visible `<label>`.
 
 import { DemoMenuFilter } from './demos/filter';
 
@@ -404,12 +427,13 @@ import { DemoMenuFilterAsync } from './demos/filter-async';
 
 #### Filterable submenus
 
-Wrap `<Menu.SubmenuRoot>` in its own `<Menu.FilterProvider>` to give a submenu a search field, independently of whether the parent filters.
-A submenu doesn't inherit the parent's provider: an unwrapped `<Menu.SubmenuRoot>` inside a filterable menu keeps its ordinary menu semantics, and its trigger still filters with the parent's query.
+Wrap `<Menu.SubmenuRoot>` in its own `<Menu.FilterProvider>` to give a submenu a search field.
+This works whether or not the parent filters.
+A submenu doesn't inherit the parent's provider: an unwrapped submenu inside a filterable menu stays a plain menu, and its trigger still filters with the parent's query.
 
 Hovering a submenu trigger opens the submenu without moving focus.
-Focus follows the pointer: it moves to the submenu's input once the pointer enters the submenu, and back to the parent's input when the pointer returns.
-Clicking the trigger or opening the submenu with the keyboard also focuses its input.
+Focus moves to the submenu's input once the pointer enters the submenu, and back to the parent's input when the pointer returns.
+Clicking the trigger or opening the submenu with the keyboard focuses its input right away.
 Add `autoFocus` to the submenu's `<Menu.FilterInput>` to focus it as soon as the submenu opens.
 
 ```jsx title="A filterable submenu"
