@@ -882,6 +882,10 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
           if (closeType === 'keyboard') {
             focusOptions.focusVisible = true;
           }
+          // Focus handed back by a closing floating element is not the user focusing
+          // that element. Announce it so interactions that open on focus can tell the
+          // two apart, whatever closed the popup.
+          events.emit('returnfocus', { element: tabbableReturnElement });
           tabbableReturnElement.focus(focusOptions);
         }
 
