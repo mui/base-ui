@@ -4,7 +4,7 @@
 
 <!-- generated comparing v1.7.0...master -->
 
-_Sep 3, 2026_
+_Sep 4, 2026_
 
 ### General changes
 
@@ -135,7 +135,7 @@ _Sep 3, 2026_
 
 ### Toast
 
-- Allow updating custom toast data with a function (#5464, #5611) by @chuganzy and @michaldudak
+- Allow functional toast updates derived from the current toast (#5464, #5611, #5629) by @chuganzy and @michaldudak
 
 ### Tooltip
 
