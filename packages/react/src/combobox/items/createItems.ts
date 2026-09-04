@@ -89,6 +89,7 @@ export interface CreateComboboxItemsOptions<
  * @returns A collection whose selection value is the `getValue` accessor's return value.
  */
 export function createComboboxItems<Item, Value extends ComboboxPrimitiveValue>(
+  /** @type ComboboxItemsData<Item> | undefined */
   data: (ComboboxItemsData<Item> & RejectGroupShapedItems<Item>) | undefined,
   options: CreateComboboxItemsOptions<Item, Value>,
 ): ComboboxItemCollection<Item, Value> {
