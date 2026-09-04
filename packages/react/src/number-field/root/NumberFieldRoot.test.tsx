@@ -2720,6 +2720,33 @@ describe('<NumberField />', () => {
       expect(onValueChange.mock.calls[0][0]).toBe(1234567.89);
     });
 
+    it('rejects implausibly grouped text instead of diverging from the visible value', async () => {
+      // `1.2.3` is not a plausible number in any locale, but `parseNumber` collapses it
+      // to 12.3. Accepting it would display `1.2.3` while the value and the hidden
+      // input submit 12.3 until blur.
+      const onValueChange = vi.fn();
+
+      await render(<NumberField name="n" defaultValue={5} onValueChange={onValueChange} />);
+
+      const input = screen.getByRole('textbox');
+      const hiddenInput = document.querySelector<HTMLInputElement>(
+        'input[type="number"][name="n"]',
+      )!;
+
+      fireEvent.change(input, { target: { value: '1.2.3' } });
+
+      expect(onValueChange.mock.calls.length).toBe(0);
+      expect(input).toHaveValue('5');
+      expect(hiddenInput).toHaveValue(5);
+
+      // Plausible grouping is still accepted through the same path.
+      fireEvent.change(input, { target: { value: '1.234.567.89' } });
+
+      expect(onValueChange.mock.calls.length).toBe(1);
+      expect(onValueChange.mock.calls[0][0]).toBe(1234567.89);
+      expect(input).toHaveValue('1.234.567.89');
+    });
+
     it('allows composition key events (IME) without preventing default', async () => {
       await render(<NumberField />);
 
