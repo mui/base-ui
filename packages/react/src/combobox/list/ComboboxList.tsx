@@ -12,6 +12,7 @@ import {
 import { useComboboxPositionerContext } from '../positioner/ComboboxPositionerContext';
 import { ComboboxCollection } from '../collection/ComboboxCollection';
 import { CompositeList } from '../../internals/composite/list/CompositeList';
+import { shouldScrollActiveIntoView } from '../../internals/list/scrollActivation';
 import { stopEvent } from '../../floating-ui-react/utils';
 import { clickHighlightedItem } from '../utils/parts';
 import {
@@ -113,8 +114,7 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
     () => ({
       activeIndex,
       items: flatFilteredItems,
-      // Pointer highlights follow the cursor; scrolling to them would move the list under it.
-      scrollActiveIntoView: highlightType !== 'pointer',
+      scrollActiveIntoView: shouldScrollActiveIntoView(highlightType),
       // Combobox mounts the whole collection so autofill can read rendered labels; the virtualizer
       // only needs to know that windowing is off for the duration.
       windowingSuspended: renderAllRows,

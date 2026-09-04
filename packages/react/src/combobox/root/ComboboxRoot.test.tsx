@@ -2051,6 +2051,67 @@ describe('<Combobox.Root />', () => {
         });
       });
 
+      it('reaches items outside an external virtualizer window through isItemDisabled', async () => {
+        // An external virtualizer leaves most items unmounted and registers no built-in
+        // virtualizer, so the root has no element to consult for them. Navigation must still
+        // reach them: the consumer predicate classifies unmounted items, and a missing element
+        // on its own is not disabled in a windowed list.
+        const items = Array.from(
+          { length: 30 },
+          (_, index) => `item-${String(index).padStart(2, '0')}`,
+        );
+        const onItemHighlighted = vi.fn();
+
+        function WindowedItems() {
+          const filteredItems = Combobox.useFilteredItems<string>();
+          // A fixed window: everything past index 9 stays unmounted for the whole test.
+          return filteredItems.slice(0, 10).map((item, index) => (
+            <Combobox.Item key={item} value={item} index={index}>
+              {item}
+            </Combobox.Item>
+          ));
+        }
+
+        const { user } = await render(
+          <Combobox.Root
+            items={items}
+            virtualized
+            isItemDisabled={(item) => item === 'item-10'}
+            onItemHighlighted={onItemHighlighted}
+          >
+            <Combobox.Input data-testid="input" />
+            <Combobox.Portal>
+              <Combobox.Positioner>
+                <Combobox.Popup>
+                  <Combobox.List>
+                    <WindowedItems />
+                  </Combobox.List>
+                </Combobox.Popup>
+              </Combobox.Positioner>
+            </Combobox.Portal>
+          </Combobox.Root>,
+        );
+
+        const input = screen.getByTestId('input');
+        await user.click(input);
+        await screen.findByRole('option', { name: 'item-09' });
+
+        // Ten presses land on the last mounted item.
+        await user.keyboard('{ArrowDown}'.repeat(10));
+        expect(onItemHighlighted).toHaveBeenLastCalledWith(
+          'item-09',
+          expect.objectContaining({ index: 9 }),
+        );
+
+        // The next press must skip the disabled, unmounted item-10 and land on the enabled,
+        // unmounted item-11 — not stop at 9 because nothing past the window has an element.
+        await user.keyboard('{ArrowDown}');
+        expect(onItemHighlighted).toHaveBeenLastCalledWith(
+          'item-11',
+          expect.objectContaining({ index: 11 }),
+        );
+      });
+
       it.skipIf(isJSDOM)(
         'restores the selected item through an externally virtualized list',
         async () => {

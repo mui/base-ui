@@ -9,7 +9,6 @@ import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { visuallyHidden, visuallyHiddenInput } from '@base-ui/utils/visuallyHidden';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
-import { isElementDisabled } from '@base-ui/utils/isElementDisabled';
 import { warn } from '@base-ui/utils/warn';
 import { ReactStore } from '@base-ui/utils/store';
 import { EMPTY_ARRAY, EMPTY_OBJECT } from '@base-ui/utils/empty';
@@ -77,6 +76,8 @@ import {
 import { INITIAL_LAST_HIGHLIGHT, NO_ACTIVE_VALUE } from './utils/constants';
 import { useDirection } from '../../internals/direction-context/DirectionContext';
 import { createListVirtualizationRegistry } from '../../internals/virtualization/ListVirtualizationRegistry';
+import { useDisabledIndex } from '../../internals/list/useDisabledIndex';
+import { shouldScrollItemIntoView } from '../../internals/list/scrollActivation';
 import {
   findCollectionItem,
   type ComboboxItemCollection,
@@ -676,27 +677,13 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
     },
   );
 
-  const isIndexDisabled = useStableCallback((index: number) => {
-    if (!hasItems && !(index in valuesRef.current)) {
-      return true;
-    }
-
-    const itemValue = hasItems ? flatFilteredValues[index] : valuesRef.current[index];
-    const itemElement = listRef.current[index];
-    return (
-      isItemDisabled?.(itemValue, index) === true ||
-      (itemElement != null && isElementDisabled(itemElement))
-    );
-  });
-
-  const getFirstEnabledIndex = useStableCallback((itemCount: number) => {
-    for (let index = 0; index < itemCount; index += 1) {
-      if (!isIndexDisabled(index)) {
-        return index;
-      }
-    }
-
-    return null;
+  const { getFirstEnabledIndex, isIndexDisabled } = useDisabledIndex({
+    // With an `items` prop the navigable collection is the filtered one; without it, the values
+    // the rendered items registered.
+    getItemValue: (index) => (hasItems ? flatFilteredValues[index] : valuesRef.current[index]),
+    hasItemCollection: hasItems,
+    isItemDisabled,
+    listRef,
   });
 
   const setInputValue = useStableCallback(
@@ -1424,12 +1411,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
     rtl: direction === 'rtl',
     disabledIndices: isItemDisabled ? isIndexDisabled : EMPTY_ARRAY,
     grid: grid ? gridNavigation : undefined,
-    // An enabled built-in virtualizer owns the scroll position and scrolls highlighted rows
-    // itself. The DOM scroll here is deferred by a frame, so it can read a stale window layout and
-    // drag the scroll position away from where the virtualizer just placed it. A disabled
-    // virtualizer renders the whole collection and scrolls no rows, so it must keep the DOM scroll
-    // that static lists rely on.
-    scrollItemIntoView: () => store.context.virtualizationRegistry.virtualizer?.enabled !== true,
+    scrollItemIntoView: () => shouldScrollItemIntoView(store.context.virtualizationRegistry),
     onNavigate(nextActiveIndex, event) {
       // Retain the highlight only while actually transitioning out or closed.
       if ((!event && !open) || transitionStatus === 'ending') {
