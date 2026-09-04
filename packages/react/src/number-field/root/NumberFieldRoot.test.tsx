@@ -2720,6 +2720,39 @@ describe('<NumberField />', () => {
       expect(onValueChange.mock.calls[0][0]).toBe(1234567.89);
     });
 
+    it('does not commit a value the input never showed for implausibly dotted text', async () => {
+      const onValueChange = vi.fn();
+      function App() {
+        const [value, setValue] = React.useState<number | null>(5);
+        return (
+          <NumberField
+            name="n"
+            value={value}
+            onValueChange={(v) => {
+              onValueChange(v);
+              setValue(v);
+            }}
+          />
+        );
+      }
+
+      await render(<App />);
+
+      const input = screen.getByRole('textbox');
+      fireEvent.change(input, { target: { value: '1.2.3' } });
+
+      // `1.2.3` is not a number in any locale, so nothing is committed and the value the form
+      // would submit is still the one the user last saw.
+      expect(onValueChange.mock.calls.length).toBe(0);
+      expect(input).toHaveValue('1.2.3');
+
+      const hiddenInput = document.querySelector<HTMLInputElement>(
+        'input[aria-hidden][type=number]',
+      );
+      expect(hiddenInput).not.toBe(null);
+      expect(hiddenInput!.value).toBe('5');
+    });
+
     it('allows composition key events (IME) without preventing default', async () => {
       await render(<NumberField />);
 
