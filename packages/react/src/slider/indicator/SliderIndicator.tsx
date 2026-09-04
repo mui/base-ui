@@ -4,7 +4,7 @@ import type { BaseUIComponentProps } from '../../internals/types';
 import { valueToPercent } from '../../utils/valueToPercent';
 import { useIsHydrating } from '../../utils/useIsHydrating';
 import { useRenderElement } from '../../internals/useRenderElement';
-import { useSliderRootContext } from '../root/SliderRootContext';
+import { useSliderRootContext, useSliderRootPropsContext } from '../root/SliderRootContext';
 import { sliderStateAttributesMapping } from '../root/stateAttributesMapping';
 import type { SliderRootState } from '../root/SliderRoot';
 
@@ -56,8 +56,10 @@ export const SliderIndicator = React.forwardRef(function SliderIndicator(
 ) {
   const { render, className, style: styleProp, ...elementProps } = componentProps;
 
-  const { indicatorPosition, inset, max, min, orientation, renderBeforeHydration, state, values } =
-    useSliderRootContext();
+  const store = useSliderRootContext();
+  const indicatorPosition = store.useState('indicatorPosition');
+  const { inset, renderBeforeHydration, state } = useSliderRootPropsContext();
+  const { max, min, orientation, values } = state;
 
   const isHydrating = useIsHydrating();
 

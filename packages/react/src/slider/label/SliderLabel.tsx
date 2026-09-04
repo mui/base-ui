@@ -6,7 +6,7 @@ import { focusElementWithVisible, useLabel } from '../../internals/labelable-pro
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import type { SliderRoot } from '../root/SliderRoot';
-import { useSliderRootContext } from '../root/SliderRootContext';
+import { useSliderRootContext, useSliderRootPropsContext } from '../root/SliderRootContext';
 import { sliderStateAttributesMapping } from '../root/stateAttributesMapping';
 
 /**
@@ -24,7 +24,8 @@ export const SliderLabel = React.forwardRef(function SliderLabel(
   const elementPropsWithoutId = elementProps as typeof elementProps & { id?: string | undefined };
   delete elementPropsWithoutId.id;
 
-  const { state, setLabelId, controlRef, rootLabelId } = useSliderRootContext();
+  const store = useSliderRootContext();
+  const { rootLabelId, state } = useSliderRootPropsContext();
 
   function focusControl(event: React.MouseEvent, controlId: string | undefined) {
     if (controlId) {
@@ -35,7 +36,8 @@ export const SliderLabel = React.forwardRef(function SliderLabel(
       }
     }
 
-    const fallbackInputs = controlRef.current?.querySelectorAll('input[type="range"]');
+    const fallbackInputs =
+      store.context.controlRef.current?.querySelectorAll('input[type="range"]');
     const fallbackInput = fallbackInputs?.length === 1 ? fallbackInputs[0] : null;
     if (isHTMLElement(fallbackInput)) {
       focusElementWithVisible(fallbackInput);
@@ -44,7 +46,7 @@ export const SliderLabel = React.forwardRef(function SliderLabel(
 
   const labelProps = useLabel({
     id: rootLabelId,
-    setLabelId,
+    setLabelId: store.setLabelId,
     focusControl,
   });
 

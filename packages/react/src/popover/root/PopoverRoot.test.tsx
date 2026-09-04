@@ -94,6 +94,21 @@ describe('<Popover.Root />', () => {
     });
 
     describe('controlled open', () => {
+      it('falls back to the internal open state when the open prop is removed', async () => {
+        const { setProps } = await render(<TestPopover rootProps={{ open: true }} />);
+        expect(screen.getByText('Content')).not.toBe(null);
+
+        await expect(async () => {
+          await setProps({ rootProps: { open: undefined } });
+        }).toErrorDev([
+          'A component is changing the controlled state of openProp to be uncontrolled. Elements should not switch from uncontrolled to controlled (or vice versa).',
+        ]);
+
+        await waitFor(() => {
+          expect(screen.queryByText('Content')).toBe(null);
+        });
+      });
+
       it('should call onChange when the open state changes', async () => {
         const handleChange = vi.fn();
 

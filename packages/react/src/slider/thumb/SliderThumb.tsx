@@ -36,7 +36,7 @@ import { getMidpoint } from '../utils/getMidpoint';
 import { getSliderValue } from '../utils/getSliderValue';
 import { getDecimalPrecision, roundValueToStep } from '../utils/roundValueToStep';
 import type { SliderRootState } from '../root/SliderRoot';
-import { useSliderRootContext } from '../root/SliderRootContext';
+import { useSliderRootContext, useSliderRootPropsContext } from '../root/SliderRootContext';
 import { sliderStateAttributesMapping } from '../root/stateAttributesMapping';
 import * as SliderThumbDataAttributes from './SliderThumbDataAttributes';
 
@@ -113,34 +113,30 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
 
   const id = useBaseUiId(idProp);
 
+  const store = useSliderRootContext();
+  const lastUsedThumbIndex = store.useState('lastUsedThumbIndex');
   const {
-    active: activeIndex,
-    lastUsedThumbIndex,
-    controlRef,
     disabled: contextDisabled,
     validation,
     format,
-    handleInputChange,
     inset,
     labelId,
     largeStep,
     locale,
+    form,
+    name,
+    renderBeforeHydration,
+    state,
+  } = useSliderRootPropsContext();
+  const {
+    activeThumbIndex: activeIndex,
     max,
     min,
     minStepsBetweenValues,
-    form,
-    name,
     orientation,
-    pressedThumbCenterOffsetRef,
-    pressedThumbIndexRef,
-    renderBeforeHydration,
-    setActive,
-    setIndicatorPosition,
-    state,
     step,
-    thumbRefs,
     values: sliderValues,
-  } = useSliderRootContext();
+  } = state;
 
   const direction = useDirection();
 
@@ -199,7 +195,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     lastUsedThumbIndex >= 0 && lastUsedThumbIndex < sliderValues.length ? lastUsedThumbIndex : -1;
 
   const getInsetPosition = useStableCallback(() => {
-    const control = controlRef.current;
+    const control = store.context.controlRef.current;
     const thumb = thumbRef.current;
     if (!control || !thumb) {
       return;
@@ -222,9 +218,9 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     setPositionPercent(nextInsetPosition);
 
     if (index === 0) {
-      setIndicatorPosition((prevPosition) => [nextInsetPosition, prevPosition[1]]);
+      store.setIndicatorPosition(0, nextInsetPosition);
     } else if (last) {
-      setIndicatorPosition((prevPosition) => [prevPosition[0], nextInsetPosition]);
+      store.setIndicatorPosition(1, nextInsetPosition);
     }
   });
 
@@ -245,7 +241,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
       return undefined;
     }
 
-    const control = controlRef.current;
+    const control = store.context.controlRef.current;
     const thumb = thumbRef.current;
 
     if (!control || !thumb) {
@@ -265,7 +261,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     return () => {
       resizeObserver.disconnect();
     };
-  }, [controlRef, getInsetPosition, inset]);
+  }, [store.context.controlRef, getInsetPosition, inset]);
 
   const startEdge = vertical ? 'bottom' : 'insetInlineStart';
   const crossOffsetProperty = vertical ? 'left' : 'top';
@@ -327,12 +323,12 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
       min,
       name,
       onChange(event) {
-        handleInputChange(event.currentTarget.valueAsNumber, index, event);
+        store.handleInputChange(event.currentTarget.valueAsNumber, index, event);
       },
       onFocus(event) {
         const isRestoringFocusVisible = restoringFocusVisibleRef.current;
         restoringFocusVisibleRef.current = false;
-        setActive(index);
+        store.setActive(index);
         setFocused(true);
 
         if (isRestoringFocusVisible) {
@@ -345,11 +341,11 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
           return;
         }
 
-        setActive(-1);
+        store.setActive(-1);
 
         // Keep field-level blur logic from running while focus moves to another thumb
         // of the same slider, so validation doesn't commit mid-interaction.
-        if (thumbRefs.current.some((thumb) => contains(thumb, event.relatedTarget))) {
+        if (store.context.thumbRefs.current.some((thumb) => contains(thumb, event.relatedTarget))) {
           return;
         }
 
@@ -432,7 +428,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
             });
           }
 
-          handleInputChange(newValue, index, event);
+          store.handleInputChange(newValue, index, event);
           event.preventDefault();
         }
       },
@@ -477,9 +473,9 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
             return;
           }
 
-          pressedThumbIndexRef.current = index;
+          store.context.pressedThumbIndexRef.current = index;
           const midpoint = getMidpoint(event.currentTarget, vertical);
-          pressedThumbCenterOffsetRef.current =
+          store.context.pressedThumbCenterOffsetRef.current =
             (vertical ? event.clientY : event.clientX) - midpoint;
         },
         style: thumbStyle,
