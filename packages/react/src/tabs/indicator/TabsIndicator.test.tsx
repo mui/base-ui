@@ -443,6 +443,66 @@ describe('<Tabs.Indicator />', () => {
       await waitForBubbleToOverlapActiveTab(bubble, activeTab);
     });
 
+    it.each([
+      { wrapper: true, style: { transform: 'translateX(20px)' } },
+      { wrapper: true, style: { transform: 'translate3d(20px, 4px, 0)' } },
+      { wrapper: false, style: { translate: 'calc(50% - 2px) 4px' } },
+      { wrapper: false, style: { translate: '20px', rotate: 'x 0deg' } },
+      { wrapper: false, style: { translate: '20px', rotate: '360deg' } },
+    ])('follows translated tabs with $style (wrapper: $wrapper)', async ({ wrapper, style }) => {
+      const tab = (
+        <Tabs.Tab value={1} style={{ width: 100, height: 32, ...(!wrapper && style) }}>
+          One
+        </Tabs.Tab>
+      );
+
+      await render(
+        <Tabs.Root value={1}>
+          <style>{STYLED_INDICATOR_CSS}</style>
+          <Tabs.List style={{ display: 'flex', position: 'relative' }}>
+            {wrapper ? <div style={style}>{tab}</div> : tab}
+            <Tabs.Indicator data-testid="bubble" />
+          </Tabs.List>
+        </Tabs.Root>,
+      );
+
+      await waitForBubbleToOverlapActiveTab(screen.getByTestId('bubble'), screen.getByRole('tab'));
+    });
+
+    it.each([
+      { wrapper: false, style: { transform: 'scale(0.8)' } },
+      { wrapper: false, style: { scale: '0.8' } },
+      { wrapper: true, style: { transform: 'scale(0.8)' } },
+    ])(
+      'keeps the indicator centered under a scaled tab with $style (wrapper: $wrapper)',
+      async ({ wrapper, style }) => {
+        const tab = (
+          <Tabs.Tab value={1} style={{ width: 100, height: 32, ...(!wrapper && style) }}>
+            One
+          </Tabs.Tab>
+        );
+
+        await render(
+          <Tabs.Root value={1}>
+            <style>{STYLED_INDICATOR_CSS}</style>
+            <Tabs.List style={{ display: 'flex', position: 'relative' }}>
+              {wrapper ? <div style={style}>{tab}</div> : tab}
+              <Tabs.Indicator data-testid="bubble" />
+            </Tabs.List>
+          </Tabs.Root>,
+        );
+
+        await waitFor(() => {
+          const tabRect = screen.getByRole('tab').getBoundingClientRect();
+          const indicatorRect = screen.getByTestId('bubble').getBoundingClientRect();
+          expect(indicatorRect.left + indicatorRect.width / 2).toBeCloseTo(
+            tabRect.left + tabRect.width / 2,
+            1,
+          );
+        });
+      },
+    );
+
     it('follows the active tab when it uses the translate longhand', async () => {
       await render(
         <React.Fragment>
@@ -873,6 +933,7 @@ describe('<Tabs.Indicator />', () => {
     function renderServerMarkup({
       hidden = false,
       activeTabStyle = 'width: 100px; height: 40px;',
+      wrapperStyle = '',
     } = {}) {
       host = document.createElement('div');
       if (hidden) {
@@ -890,6 +951,13 @@ describe('<Tabs.Indicator />', () => {
       const activeTab = host.querySelector<HTMLElement>('[data-active]')!;
       const indicator = host.querySelector<HTMLElement>('span')!;
 
+      if (wrapperStyle) {
+        const wrapper = document.createElement('div');
+        wrapper.style.cssText = `display: inline-block; ${wrapperStyle}`;
+        activeTab.before(wrapper);
+        wrapper.appendChild(activeTab);
+      }
+
       const scriptElement = document.createElement('script');
       scriptElement.textContent = generatedPrehydrationScript;
       // Appending an inline script executes it synchronously with `document.currentScript` set.
@@ -897,6 +965,12 @@ describe('<Tabs.Indicator />', () => {
 
       return { tabsList, activeTab, indicator };
     }
+
+    it('leaves a translated wrapper for hydration to position', () => {
+      const { indicator } = renderServerMarkup({ wrapperStyle: 'transform: translateX(20px)' });
+
+      expect(indicator).toHaveAttribute('hidden');
+    });
 
     it('positions the indicator once a hidden streamed segment becomes visible', async () => {
       const { activeTab, indicator } = renderServerMarkup({ hidden: true });

@@ -14,18 +14,20 @@
     return;
   }
 
-  // When the active tab carries its own transform, the layout offset below can't reflect
-  // its visual position, and the hydrated component may follow it. Skip the pre-hydration
+  // When the active tab or a wrapper below the list carries a transform, the layout offset
+  // below can't reflect its visual position. Skip the pre-hydration
   // paint and let the component position the indicator on hydration; this avoids painting
   // at the wrong spot and then jumping. Keep this in sync with `TabsIndicator.tsx`.
-  const activeTabStyle = getComputedStyle(activeTab);
-  if (
-    activeTabStyle.transform !== 'none' ||
-    activeTabStyle.translate !== 'none' ||
-    activeTabStyle.rotate !== 'none' ||
-    activeTabStyle.scale !== 'none'
-  ) {
-    return;
+  for (let node = activeTab; node && node !== tabsList; node = node.parentElement) {
+    const style = getComputedStyle(node);
+    if (
+      style.transform !== 'none' ||
+      style.translate !== 'none' ||
+      style.rotate !== 'none' ||
+      style.scale !== 'none'
+    ) {
+      return;
+    }
   }
 
   function getCssDimensions(element) {
