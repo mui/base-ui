@@ -1,7 +1,6 @@
 'use client';
 import * as React from 'react';
 import { inertValue } from '@base-ui/utils/inertValue';
-import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { FloatingNode, useFloatingNodeId } from '../../floating-ui-react';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
 import { PopoverPositionerContext } from './PopoverPositionerContext';
@@ -16,7 +15,7 @@ import { usePopoverPortalContext } from '../portal/PopoverPortalContext';
 import { InternalBackdrop } from '../../utils/InternalBackdrop';
 import { REASONS } from '../../internals/reasons';
 import { POPUP_COLLISION_AVOIDANCE } from '../../internals/constants';
-import { useAnimationsFinished } from '../../internals/useAnimationsFinished';
+import { useTriggerSwitchTransition } from '../../internals/useTriggerSwitchTransition';
 import { usePositioner } from '../../utils/usePositioner';
 import { useAnchoredPopupScrollLock } from '../../utils/useAnchoredPopupScrollLock';
 
@@ -67,10 +66,6 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
   const transitionStatus = store.useState('transitionStatus');
   const adaptiveOrigin = store.useState('adaptiveOrigin');
 
-  const prevTriggerElementRef = React.useRef<Element | null>(null);
-
-  const runOnceAnimationsFinish = useAnimationsFinished(positionerElement);
-
   const positioning = useAnchorPositioning({
     anchor,
     floatingRootContext,
@@ -93,34 +88,12 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
 
   const domReference = floatingRootContext.useState('domReferenceElement');
 
-  // When the current trigger element changes, enable transitions on the
-  // positioner temporarily
-  useIsoLayoutEffect(() => {
-    const currentTriggerElement = domReference;
-    const prevTriggerElement = prevTriggerElementRef.current;
-
-    if (currentTriggerElement) {
-      prevTriggerElementRef.current = currentTriggerElement;
-    }
-
-    if (
-      prevTriggerElement &&
-      currentTriggerElement &&
-      currentTriggerElement !== prevTriggerElement
-    ) {
-      store.set('instantType', undefined);
-      const ac = new AbortController();
-      runOnceAnimationsFinish(() => {
-        store.set('instantType', 'trigger-change');
-      }, ac.signal);
-
-      return () => {
-        ac.abort();
-      };
-    }
-
-    return undefined;
-  }, [domReference, runOnceAnimationsFinish, store]);
+  useTriggerSwitchTransition({
+    store,
+    domReference,
+    positionerElement,
+    open,
+  });
 
   const trueModalNonHover = modal === true && openReason !== REASONS.triggerHover;
 
