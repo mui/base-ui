@@ -7,6 +7,7 @@ import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useTimeout } from '@base-ui/utils/useTimeout';
 import { type FieldRootState } from '../root/FieldRoot';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
+import { useSetFieldFocused } from '../../internals/field-root-context/useSetFieldFocused';
 import { useRegisterFieldControl } from '../../internals/field-register-control/useRegisterFieldControl';
 import { useFormContext } from '../../internals/form-context/FormContext';
 import { useLabelableContext } from '../../internals/labelable-provider/LabelableContext';
@@ -55,7 +56,6 @@ export const FieldControl = React.forwardRef(function FieldControl(
     setTouched,
     setDirty,
     validityData,
-    setFocused,
     setFilled,
     validationMode,
     validation,
@@ -64,6 +64,8 @@ export const FieldControl = React.forwardRef(function FieldControl(
 
   const disabled = fieldDisabled || disabledProp;
   const name = fieldName ?? nameProp;
+
+  const setFocused = useSetFieldFocused(disabled);
 
   const state: FieldControlState = {
     ...fieldState,

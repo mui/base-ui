@@ -943,6 +943,212 @@ describe('<RadioGroup />', () => {
       expect(input).toHaveAttribute('name', 'test');
     });
 
+    describe('[data-focused] without a blur event', () => {
+      function Groups(props: { firstMounted?: boolean; firstDisabled?: boolean }) {
+        const { firstMounted = true, firstDisabled = false } = props;
+        return (
+          <Field.Root data-testid="field">
+            {firstMounted && (
+              <RadioGroup data-testid="first" disabled={firstDisabled}>
+                <Radio.Root value="a" data-testid="first-radio" />
+              </RadioGroup>
+            )}
+          </Field.Root>
+        );
+      }
+
+      it('is removed when the focused group becomes disabled', async () => {
+        const { setProps } = await render(<Groups />);
+
+        act(() => {
+          screen.getByTestId('first-radio').focus();
+        });
+
+        expect(screen.getByTestId('field')).toHaveAttribute('data-focused', '');
+
+        await setProps({ firstDisabled: true });
+
+        expect(screen.getByTestId('field')).not.toHaveAttribute('data-focused');
+      });
+
+      it('is removed when the focused group unmounts', async () => {
+        const { setProps } = await render(<Groups />);
+
+        act(() => {
+          screen.getByTestId('first-radio').focus();
+        });
+
+        expect(screen.getByTestId('field')).toHaveAttribute('data-focused', '');
+
+        await setProps({ firstMounted: false });
+
+        expect(screen.getByTestId('field')).not.toHaveAttribute('data-focused');
+      });
+
+      it('is kept when a previously focused radio unmounts after focus moves to a sibling', async () => {
+        function TestCase(props: { firstMounted?: boolean }) {
+          const { firstMounted = true } = props;
+          return (
+            <Field.Root data-testid="field">
+              <RadioGroup>
+                {firstMounted && <Radio.Root key="first" value="a" data-testid="first-radio" />}
+                <Radio.Root key="second" value="b" data-testid="second-radio" />
+              </RadioGroup>
+            </Field.Root>
+          );
+        }
+
+        const { setProps } = await render(<TestCase />);
+        const first = screen.getByTestId('first-radio');
+        const second = screen.getByTestId('second-radio');
+
+        act(() => {
+          first.focus();
+        });
+        act(() => {
+          second.focus();
+        });
+
+        expect(second).toHaveFocus();
+        expect(screen.getByTestId('field')).toHaveAttribute('data-focused', '');
+
+        await setProps({ firstMounted: false });
+
+        expect(second).toHaveFocus();
+        expect(screen.getByTestId('field')).toHaveAttribute('data-focused', '');
+      });
+
+      it('is removed when the focused radio unmounts but its group remains', async () => {
+        function TestCase(props: { firstMounted?: boolean }) {
+          const { firstMounted = true } = props;
+          return (
+            <Field.Root data-testid="field">
+              <RadioGroup>
+                {firstMounted && <Radio.Root value="a" data-testid="first-radio" />}
+                <Radio.Root value="b" />
+              </RadioGroup>
+            </Field.Root>
+          );
+        }
+
+        const { setProps } = await render(<TestCase />);
+
+        act(() => {
+          screen.getByTestId('first-radio').focus();
+        });
+        expect(screen.getByTestId('field')).toHaveAttribute('data-focused', '');
+
+        await setProps({ firstMounted: false });
+
+        expect(screen.getByTestId('field')).not.toHaveAttribute('data-focused');
+      });
+
+      it('is not acquired when focus lands on a disabled radio', async () => {
+        await render(
+          <Field.Root data-testid="field">
+            <RadioGroup>
+              <Radio.Root value="a" disabled data-testid="disabled-radio" />
+              <Radio.Root value="b" />
+            </RadioGroup>
+          </Field.Root>,
+        );
+
+        act(() => {
+          screen.getByTestId('disabled-radio').focus();
+        });
+
+        expect(screen.getByTestId('disabled-radio')).toHaveFocus();
+        expect(screen.getByTestId('field')).not.toHaveAttribute('data-focused');
+      });
+
+      it('is not reacquired when a radio disabled while focused is refocused', async () => {
+        function TestCase(props: { firstDisabled?: boolean }) {
+          const { firstDisabled = false } = props;
+          return (
+            <Field.Root data-testid="field">
+              <RadioGroup>
+                <Radio.Root value="a" disabled={firstDisabled} data-testid="first-radio" />
+                <Radio.Root value="b" />
+              </RadioGroup>
+            </Field.Root>
+          );
+        }
+
+        const { setProps } = await render(<TestCase />);
+        const first = screen.getByTestId('first-radio');
+
+        act(() => {
+          first.focus();
+        });
+        expect(screen.getByTestId('field')).toHaveAttribute('data-focused', '');
+
+        await setProps({ firstDisabled: true });
+        expect(screen.getByTestId('field')).not.toHaveAttribute('data-focused');
+
+        act(() => {
+          first.blur();
+        });
+        act(() => {
+          first.focus();
+        });
+
+        expect(first).toHaveFocus();
+        expect(screen.getByTestId('field')).not.toHaveAttribute('data-focused');
+      });
+
+      it('is not acquired when a radio inherits disabled from Field.Item', async () => {
+        await render(
+          <Field.Root data-testid="field">
+            <RadioGroup>
+              <Field.Item disabled>
+                <Radio.Root value="a" data-testid="disabled-radio" />
+              </Field.Item>
+              <Field.Item>
+                <Radio.Root value="b" />
+              </Field.Item>
+            </RadioGroup>
+          </Field.Root>,
+        );
+
+        act(() => {
+          screen.getByTestId('disabled-radio').focus();
+        });
+
+        expect(screen.getByTestId('field')).not.toHaveAttribute('data-focused');
+      });
+
+      it('is reacquired when an arrow key moves focus from a disabled radio to an enabled sibling', async () => {
+        function TestCase(props: { firstDisabled?: boolean }) {
+          const { firstDisabled = false } = props;
+          return (
+            <Field.Root data-testid="field">
+              <RadioGroup>
+                <Radio.Root value="a" disabled={firstDisabled} data-testid="first-radio" />
+                <Radio.Root value="b" data-testid="second-radio" />
+              </RadioGroup>
+            </Field.Root>
+          );
+        }
+
+        const { setProps, user } = await render(<TestCase />);
+        const first = screen.getByTestId('first-radio');
+        const second = screen.getByTestId('second-radio');
+
+        act(() => {
+          first.focus();
+        });
+        expect(screen.getByTestId('field')).toHaveAttribute('data-focused', '');
+
+        await setProps({ firstDisabled: true });
+        expect(screen.getByTestId('field')).not.toHaveAttribute('data-focused');
+
+        await user.keyboard('{ArrowDown}');
+
+        expect(second).toHaveFocus();
+        expect(screen.getByTestId('field')).toHaveAttribute('data-focused', '');
+      });
+    });
+
     describe('Field.Root', () => {
       it('should receive disabled prop from Field.Root', async () => {
         await render(

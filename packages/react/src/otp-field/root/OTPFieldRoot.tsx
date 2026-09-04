@@ -83,7 +83,7 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
     state: fieldState,
     validation,
     validationMode,
-    setFocused,
+    setFocused: setFieldFocused,
     setTouched,
   } = useFieldRootContext();
   const { clearErrors } = useFormContext();
@@ -277,8 +277,6 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
       }
 
       setFocusedIndex(index);
-      setFocusedState(true);
-      setFocused(true);
       event.currentTarget.select();
     },
   );
@@ -290,7 +288,7 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
 
     setTouched(true);
     setFocusedState(false);
-    setFocused(false);
+    setFieldFocused(false);
 
     if (validationMode === 'onBlur') {
       validation.commit(valueRef.current);
@@ -345,6 +343,7 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
       required,
       normalizeValue,
       setValue,
+      setFocused: setFocusedState,
       state,
       validationType,
       value,
@@ -370,6 +369,7 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
       required,
       normalizeValue,
       setValue,
+      setFocusedState,
       state,
       validationType,
       value,
