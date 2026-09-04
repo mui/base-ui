@@ -1,10 +1,8 @@
 'use client';
 import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import type { Virtualizer as MuiVirtualizer } from '@mui/x-virtualizer';
 
 export interface UseEngineModeParameters {
-  api: MuiVirtualizer['api'];
   /**
    * Whether the engine windows the collection. `false` mounts every row, which is what a list
    * asks for while it temporarily needs the whole collection in the DOM.
@@ -21,7 +19,14 @@ export interface UseEngineModeParameters {
    * so nothing can stay armed across a suspension that never ends.
    */
   onWindowingSuspended: () => void;
-  store: MuiVirtualizer['store'];
+  /** Forces the rendered window to be recomputed now. */
+  forceWindowUpdate: () => void;
+  /** Whether the engine is already in the given mode, so publishing it again would be a no-op. */
+  isModeApplied: (windowed: boolean) => boolean;
+  /** Asks the engine to recompute the rendered window on its next pass. */
+  scheduleWindowUpdate: () => void;
+  /** Publishes the mode to the engine. */
+  setMode: (windowed: boolean) => void;
 }
 
 /**
@@ -33,7 +38,15 @@ export interface UseEngineModeParameters {
  * before the render context can be forced against the new mode.
  */
 export function useEngineMode(parameters: UseEngineModeParameters) {
-  const { api, enabled, onWindowingResumed, onWindowingSuspended, store } = parameters;
+  const {
+    enabled,
+    forceWindowUpdate,
+    isModeApplied,
+    onWindowingResumed,
+    onWindowingSuspended,
+    scheduleWindowUpdate,
+    setMode,
+  } = parameters;
 
   // The revision is read as a dependency below, so it stays a counter rather than a bare
   // re-render trigger.
@@ -41,17 +54,11 @@ export function useEngineMode(parameters: UseEngineModeParameters) {
   const pendingUpdateRef = React.useRef(false);
 
   useIsoLayoutEffect(() => {
-    const virtualization = store.state.virtualization;
-
     if (!enabled) {
       onWindowingSuspended();
     }
 
-    if (
-      virtualization.enabled === enabled &&
-      virtualization.enabledForRows === enabled &&
-      virtualization.enabledForColumns === false
-    ) {
+    if (isModeApplied(enabled)) {
       return;
     }
 
@@ -62,17 +69,19 @@ export function useEngineMode(parameters: UseEngineModeParameters) {
     // Updating the store flag alone does not recompute the rendered range. Schedule the MUI Virtualizer
     // render-context update before publishing the new virtualization mode.
     pendingUpdateRef.current = true;
-    api.scheduleUpdateRenderContext();
-    store.set('virtualization', {
-      ...virtualization,
-      enabled,
-      enabledForColumns: false,
-      enabledForRows: enabled,
-    });
+    scheduleWindowUpdate();
+    setMode(enabled);
     // The mode fields are consumed inside the MUI Virtualizer hook. Guarantee another render before forcing
     // the update so the API closes over the new enabled state.
     bumpRevision();
-  }, [api, enabled, onWindowingResumed, onWindowingSuspended, store]);
+  }, [
+    enabled,
+    isModeApplied,
+    onWindowingResumed,
+    onWindowingSuspended,
+    scheduleWindowUpdate,
+    setMode,
+  ]);
 
   useIsoLayoutEffect(() => {
     if (!pendingUpdateRef.current) {
@@ -80,6 +89,6 @@ export function useEngineMode(parameters: UseEngineModeParameters) {
     }
 
     pendingUpdateRef.current = false;
-    api.forceUpdateRenderContext();
-  }, [api, revision]);
+    forceWindowUpdate();
+  }, [forceWindowUpdate, revision]);
 }

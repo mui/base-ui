@@ -5,7 +5,6 @@ import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useTimeout } from '@base-ui/utils/useTimeout';
-import type { Virtualizer as MuiVirtualizer } from '@mui/x-virtualizer';
 
 /**
  * How long after the last scroll position change a gesture is considered finished. Refreshing the
@@ -31,8 +30,12 @@ export interface ScrollInputEvidence {
 }
 
 export interface UseScrollGestureParameters {
-  apiRef: React.RefObject<MuiVirtualizer['api'] | null>;
   scrollElementRef: React.RefObject<HTMLElement | null>;
+  /**
+   * Commits the row heights collected so far in one geometry update. Called once a scrollbar drag
+   * releases, so the heights deferred during the drag land together rather than under the pointer.
+   */
+  settleGeometry: () => void;
 }
 
 /**
@@ -80,7 +83,7 @@ export interface ScrollGesture {
  * under the pointer.
  */
 export function useScrollGesture(parameters: UseScrollGestureParameters): ScrollGesture {
-  const { apiRef, scrollElementRef } = parameters;
+  const { scrollElementRef, settleGeometry } = parameters;
 
   // Scrolling is treated as ongoing until this long without a scroll position change, so that
   // geometry rewrites can be held back for the duration of a gesture.
@@ -139,7 +142,7 @@ export function useScrollGesture(parameters: UseScrollGestureParameters): Scroll
       isScrollbarDragRef.current = false;
       releaseScrollbarDragFrame.request(() => {
         // Commit real heights collected during the drag in one geometry update after release.
-        apiRef.current?.rowsMeta.hydrateRowsMeta();
+        settleGeometry();
         bumpSettledRevision();
       });
     };
@@ -179,7 +182,7 @@ export function useScrollGesture(parameters: UseScrollGestureParameters): Scroll
       doc.removeEventListener('mouseup', endScrollbarDrag, options);
       win.removeEventListener('blur', endScrollbarDrag);
     };
-  }, [apiRef, deferredRowHeightsRef, releaseScrollbarDragFrame, scrollElementRef]);
+  }, [settleGeometry, deferredRowHeightsRef, releaseScrollbarDragFrame, scrollElementRef]);
 
   // The engine calls the row-height hooks while it renders, and the window computation reads the
   // gesture during render, so these must stay callable there: they only read refs.

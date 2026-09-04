@@ -4,7 +4,7 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useTimeout } from '@base-ui/utils/useTimeout';
-import type { HeightEntry, RenderContext, Virtualizer as MuiVirtualizer } from '@mui/x-virtualizer';
+import type { RowWindow } from './geometry';
 import type { VirtualizerRow } from '../internals/virtualization/types';
 import { SCROLL_IDLE_MS, type ScrollGesture } from './useScrollGesture';
 
@@ -215,19 +215,28 @@ export function useAdaptiveEstimate<RowModel>(
 
 export interface UseAdaptiveEstimateRefreshParameters<RowModel> {
   adaptive: AdaptiveEstimate;
-  apiRef: React.RefObject<MuiVirtualizer['api'] | null>;
   /**
    * The estimate a row falls back to without a running average. Carried so a change to it starts
    * a fresh sampling pass.
    */
   defaultEstimatedItemHeight: number;
   gesture: ScrollGesture;
+  /**
+   * Replaces a row's cached height with an estimate and marks it unmeasured, so a height taken
+   * under a transient layout stops standing in for the row until it is measured again.
+   */
+  demoteRowHeight: (rowId: React.Key, height: number) => void;
+  /** A row's measured height, or `null` while it has only an estimate. */
+  readMeasuredHeight: (rowId: React.Key) => number | null;
+  /** Every row the engine holds a measured height for, whether or not it is mounted. */
+  readMeasuredHeights: () => Iterable<[React.Key, number]>;
   /** The window the sample is taken from. Only settled rendered rows are trusted. */
-  renderContext: RenderContext;
+  renderContext: RowWindow;
   rows: VirtualizerRow<RowModel>[];
   /** The engine's row geometry, which republishes on every hydration. */
   rowsMeta: unknown;
-  store: MuiVirtualizer['store'];
+  /** Commits the refreshed estimate to the engine's geometry in one update. */
+  settleGeometry: () => void;
 }
 
 /**
@@ -247,13 +256,15 @@ export function useAdaptiveEstimateRefresh<RowModel>(
 ): void {
   const {
     adaptive,
-    apiRef,
+    demoteRowHeight,
     defaultEstimatedItemHeight,
     gesture,
     renderContext,
     rows,
+    readMeasuredHeight,
+    readMeasuredHeights,
     rowsMeta,
-    store,
+    settleGeometry,
   } = parameters;
   const {
     estimateRef,
@@ -289,16 +300,15 @@ export function useAdaptiveEstimateRefresh<RowModel>(
     // Only sample the settled rendered range. MUI's cache retains measurements after rows unmount,
     // including transient measurements taken while a popup is initially resolving its width.
     // Treating every cached entry as authoritative biases the estimate long after the DOM settles.
-    const heightCache = store.state.rowHeights as Map<React.Key, HeightEntry>;
     for (let rowIndex = firstRowIndex; rowIndex < lastRowIndex; rowIndex += 1) {
       const row = rows[rowIndex];
-      const entry = row == null ? undefined : heightCache.get(row.id);
+      const measuredHeight = row == null ? null : readMeasuredHeight(row.id);
       // A zero height is a row that is not laid out, never a measurement of it.
-      if (row != null && entry != null && !entry.needsFirstMeasurement && entry.content > 0) {
+      if (row != null && measuredHeight != null && measuredHeight > 0) {
         const previousHeight = measurements.heights.get(row.id);
-        if (previousHeight !== entry.content) {
-          measurements.heights.set(row.id, entry.content);
-          measurements.total += entry.content - (previousHeight ?? 0);
+        if (previousHeight !== measuredHeight) {
+          measurements.heights.set(row.id, measuredHeight);
+          measurements.total += measuredHeight - (previousHeight ?? 0);
         }
       }
     }
@@ -321,10 +331,9 @@ export function useAdaptiveEstimateRefresh<RowModel>(
     // Rows measured during a transient layout or an active gesture were deliberately excluded from
     // the settled sample above. Do not let those stale entries continue overriding the new estimate
     // in the collection total; they will be measured again if they re-enter the rendered window.
-    for (const [rowId, entry] of heightCache) {
-      if (!entry.needsFirstMeasurement && !measurements.heights.has(rowId)) {
-        entry.content = average;
-        entry.needsFirstMeasurement = true;
+    for (const [rowId] of readMeasuredHeights()) {
+      if (!measurements.heights.has(rowId)) {
+        demoteRowHeight(rowId, average);
         // A demoted row's real height is no longer part of the geometry. Leaving it marked as
         // measured would let a remeasurement commit that height mid-drag, moving the scrollbar
         // under the pointer — the drag deferral trusts this set to skip already-settled rows.
@@ -333,9 +342,9 @@ export function useAdaptiveEstimateRefresh<RowModel>(
     }
 
     estimateRef.current = average;
-    apiRef.current?.rowsMeta.hydrateRowsMeta();
+    settleGeometry();
   }, [
-    apiRef,
+    demoteRowHeight,
     defaultEstimatedItemHeight,
     enabled,
     estimateRef,
@@ -350,6 +359,8 @@ export function useAdaptiveEstimateRefresh<RowModel>(
     noteMeasurements,
     rows,
     rowsMeta,
-    store,
+    readMeasuredHeight,
+    readMeasuredHeights,
+    settleGeometry,
   ]);
 }

@@ -1,8 +1,7 @@
 import * as React from 'react';
-import { expect, describe, beforeEach, it } from 'vitest';
+import { expect, describe, beforeEach, it, type Mock } from 'vitest';
 import { fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import type { Virtualizer as MuiVirtualizer } from '@mui/x-virtualizer';
 import { advanceReactClock, createRenderer, firePointer } from '#test-utils';
 import { SCROLL_IDLE_MS, useScrollGesture, type ScrollGesture } from './useScrollGesture';
 
@@ -17,14 +16,14 @@ describe('useScrollGesture', () => {
   clock.withFakeTimers();
 
   let gesture: ScrollGesture;
-  let hydrateRowsMeta: ReturnType<typeof vi.fn>;
+  let hydrateRowsMeta: Mock<() => void>;
 
   function Probe() {
     const scrollElementRef = React.useRef<HTMLDivElement | null>(null);
-    const apiRef = React.useRef({
-      rowsMeta: { hydrateRowsMeta },
-    } as unknown as MuiVirtualizer['api']);
-    const resolved = useScrollGesture({ apiRef, scrollElementRef });
+    const resolved = useScrollGesture({
+      scrollElementRef,
+      settleGeometry: hydrateRowsMeta,
+    });
 
     useIsoLayoutEffect(() => {
       gesture = resolved;
