@@ -2,117 +2,22 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { expect, vi } from 'vitest';
 import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
-import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { createRenderer, isJSDOM, createDOMRect, setElementClientHeight } from '#test-utils';
 import {
-  ListVirtualizationHostContext,
-  ListVirtualizationListStateContext,
-  type ListVirtualizationHost,
-  type ListVirtualizationListState,
-} from '../internals/virtualization/ListVirtualizationHostContext';
-import {
-  createListVirtualizationRegistry,
-  type VirtualizerHandle,
-} from '../internals/virtualization/ListVirtualizationRegistry';
-import type { VirtualizerItemMetadata } from '../internals/virtualization/types';
+  createRenderer,
+  isJSDOM,
+  createDOMRect,
+  mockResizeObserver,
+  setElementClientHeight,
+  setElementScrollState,
+  TestListItem,
+  TestVirtualizedList,
+  createVirtualizerItems as createItems,
+  renderVirtualizerItem as renderItem,
+  renderVirtualizerItemOf as renderItemOf,
+  type VirtualizerTestItem as TestItem,
+} from '#test-utils';
+import type { VirtualizerHandle } from '../internals/virtualization/ListVirtualizationRegistry';
 import { Virtualizer } from './Virtualizer';
-
-interface TestItem {
-  label: string;
-  /** Overrides the identity derived from the label, for tests that vary row identity. */
-  key?: string | number | undefined;
-}
-
-const TestVirtualItemContext = React.createContext<VirtualizerItemMetadata | undefined>(undefined);
-
-/**
- * Stands in for a list's `<Item>`: applies the collection metadata the virtualizer supplies and
- * registers itself as the single item rendered for its row.
- */
-function TestListItem(props: { children: React.ReactNode; style?: React.CSSProperties }) {
-  const virtualItem = React.useContext(TestVirtualItemContext);
-
-  useIsoLayoutEffect(() => virtualItem?.registerItem?.(), [virtualItem]);
-
-  return (
-    <div role="listitem" {...virtualItem?.props} style={props.style}>
-      {props.children}
-    </div>
-  );
-}
-
-/**
- * Minimal list host, standing in for a component like `<Combobox.List>`. It keeps these tests on
- * the windowing behavior itself, and doubles as a check that the host contract is implementable
- * outside of the components that ship with it.
- */
-function TestVirtualizedList(
-  props: {
-    /** Row retained outside the rendered window. Mapped to a pointer highlight, which never scrolls. */
-    pinnedRowIndex?: number | undefined;
-    /** Row that should be scrolled into view. Mapped to a keyboard highlight. */
-    scrollToRowIndex?: number | undefined;
-    /** Receives the imperative handle the virtualizer registers with the list. */
-    apiRef?: React.RefObject<VirtualizerHandle | null> | undefined;
-    /**
-     * Published verbatim, so a host that omits the field can be compared against one that
-     * publishes `false`.
-     */
-    windowingSuspended?: boolean | undefined;
-    items: TestItem[];
-    children: (item: TestItem, index: number) => React.ReactElement;
-    getItemKey?: ((item: TestItem) => string | number) | undefined;
-  } & Omit<Virtualizer.Props<TestItem>, 'children' | 'getItemKey'>,
-) {
-  const {
-    apiRef,
-    getItemKey,
-    items,
-    pinnedRowIndex,
-    scrollToRowIndex,
-    windowingSuspended,
-    ...virtualizerProps
-  } = props;
-
-  const registry = React.useRef(createListVirtualizationRegistry()).current;
-
-  const host = React.useMemo<ListVirtualizationHost>(
-    () => ({
-      componentName: 'Combobox',
-      registry,
-      virtualItemContext: TestVirtualItemContext,
-    }),
-    [registry],
-  );
-
-  const listState = React.useMemo<ListVirtualizationListState>(
-    () => ({
-      activeIndex: scrollToRowIndex ?? pinnedRowIndex ?? null,
-      items,
-      // A pinned row is kept mounted without being scrolled to; a scroll target is scrolled to.
-      scrollActiveIntoView: scrollToRowIndex != null,
-      windowingSuspended,
-    }),
-    [items, pinnedRowIndex, scrollToRowIndex, windowingSuspended],
-  );
-
-  React.useImperativeHandle<VirtualizerHandle | null, VirtualizerHandle | null>(
-    apiRef,
-    () => registry.virtualizer,
-    [registry],
-  );
-
-  return (
-    <ListVirtualizationHostContext.Provider value={host}>
-      <ListVirtualizationListStateContext.Provider value={listState}>
-        <Virtualizer<TestItem>
-          getItemKey={getItemKey ?? ((item) => item.key ?? item.label)}
-          {...virtualizerProps}
-        />
-      </ListVirtualizationListStateContext.Provider>
-    </ListVirtualizationHostContext.Provider>
-  );
-}
 
 describe('<Virtualizer /> windowing', () => {
   const { render } = createRenderer();
@@ -1234,23 +1139,624 @@ describe('<Virtualizer /> windowing', () => {
     await waitFor(() => expect(scrollTop).toBe(200));
     expect(renderZone?.style.transform).toContain('-20px');
   });
+  it('exposes imperative scrolling by logical item index', async () => {
+    const actionsRef = React.createRef<Virtualizer.Actions>();
+    const handleScrollTo = vi.fn();
+
+    await render(
+      <TestVirtualizedList
+        actionsRef={actionsRef}
+        estimatedItemHeight={20}
+        overscanPx={0}
+        render={
+          <div
+            ref={setElementScrollState({
+              clientHeight: 60,
+              getScrollTop: () => 0,
+              scrollTo: handleScrollTo,
+            })}
+          />
+        }
+        items={createItems(100)}
+      >
+        {renderItem}
+      </TestVirtualizedList>,
+    );
+
+    act(() => actionsRef.current?.scrollToIndex(50, { align: 'end' }));
+
+    expect(handleScrollTo).toHaveBeenLastCalledWith({ behavior: 'instant', top: 960 });
+  });
+
+  it.skipIf(!isJSDOM)('updates estimated size when the prop changes', async () => {
+    function Test(props: { estimatedItemHeight: number }) {
+      return (
+        <TestVirtualizedList
+          estimatedItemHeight={props.estimatedItemHeight}
+          render={<div ref={setElementClientHeight(20)} data-testid="virtualizer" />}
+          items={createItems(3)}
+        >
+          {(item: TestItem) => <TestListItem>{item.label}</TestListItem>}
+        </TestVirtualizedList>
+      );
+    }
+
+    const { rerender } = await render(<Test estimatedItemHeight={20} />);
+    const virtualizer = screen.getByTestId('virtualizer');
+
+    await waitFor(() => expect(virtualizer.style.getPropertyValue('--total-size')).toBe('60px'));
+
+    await rerender(<Test estimatedItemHeight={40} />);
+
+    await waitFor(() => expect(virtualizer.style.getPropertyValue('--total-size')).toBe('120px'));
+  });
+
+  it.skipIf(isJSDOM)('uses real browser geometry to measure and window rows', async () => {
+    vi.restoreAllMocks();
+
+    await render(
+      <TestVirtualizedList
+        estimatedItemHeight={20}
+        overscanPx={0}
+        render={<div data-testid="virtualizer" style={{ height: 60, width: 200 }} />}
+        items={createItems(100)}
+      >
+        {(item: TestItem) => (
+          <TestListItem style={{ display: 'block', height: 20 }}>{item.label}</TestListItem>
+        )}
+      </TestVirtualizedList>,
+    );
+
+    const virtualizer = screen.getByTestId('virtualizer');
+    await waitFor(() => expect(virtualizer.style.getPropertyValue('--total-size')).toBe('2000px'));
+    await waitFor(() => expect(screen.getAllByRole('listitem').length).toBeLessThan(100));
+
+    virtualizer.scrollTop = 200;
+    fireEvent.scroll(virtualizer);
+
+    await waitFor(() => expect(screen.queryByText('Item 1')).toBe(null));
+    expect(screen.getByText('Item 11')).not.toBe(null);
+  });
+
+  it.skipIf(isJSDOM)('supports a max-height constraint without an explicit height', async () => {
+    vi.restoreAllMocks();
+
+    await render(
+      <TestVirtualizedList
+        estimatedItemHeight={20}
+        render={<div data-testid="virtualizer" style={{ maxHeight: 60, width: 200 }} />}
+        items={createItems(100)}
+      >
+        {(item: TestItem) => (
+          <TestListItem style={{ display: 'block', height: 20 }}>{item.label}</TestListItem>
+        )}
+      </TestVirtualizedList>,
+    );
+
+    const virtualizer = screen.getByTestId('virtualizer');
+    await waitFor(() => expect(virtualizer.clientHeight).toBe(60));
+    expect(screen.getAllByRole('listitem').length).toBeLessThan(100);
+  });
+
+  it.skipIf(isJSDOM)(
+    'keeps the viewport covered before scroll events update the window',
+    async () => {
+      vi.restoreAllMocks();
+
+      await render(
+        <TestVirtualizedList
+          estimatedItemHeight={32}
+          overscanPx={64}
+          render={<div data-testid="virtualizer" style={{ height: 360, width: 200 }} />}
+          items={createItems(1000)}
+        >
+          {(item: TestItem) => (
+            <TestListItem style={{ display: 'block', height: 32 }}>{item.label}</TestListItem>
+          )}
+        </TestVirtualizedList>,
+      );
+
+      const virtualizer = screen.getByTestId('virtualizer');
+      await waitFor(() =>
+        expect(virtualizer.style.getPropertyValue('--total-size')).toBe('32000px'),
+      );
+      await waitFor(() => expect(screen.getAllByRole('listitem').length).toBeLessThan(1000));
+
+      virtualizer.scrollTop = 128;
+
+      const viewportRect = virtualizer.getBoundingClientRect();
+      const initiallyRenderedItems = screen.getAllByRole('listitem');
+      const lastInitiallyRenderedItem = initiallyRenderedItems.at(-1) as HTMLElement;
+      expect(lastInitiallyRenderedItem.getBoundingClientRect().bottom).toBeGreaterThanOrEqual(
+        viewportRect.bottom,
+      );
+
+      fireEvent.scroll(virtualizer);
+      await waitFor(() => expect(screen.queryByText('Item 1')).toBe(null));
+      expect(screen.getAllByRole('listitem').length).toBeLessThan(20);
+
+      virtualizer.scrollTop = 0;
+
+      const firstDownwardItem = screen.getAllByRole('listitem')[0];
+      expect(firstDownwardItem.getBoundingClientRect().top).toBeLessThanOrEqual(viewportRect.top);
+    },
+  );
+
+  it.skipIf(isJSDOM)(
+    'keeps the viewport covered when measured rows are shorter than their estimate',
+    async () => {
+      vi.restoreAllMocks();
+
+      await render(
+        <TestVirtualizedList
+          estimatedItemHeight={100}
+          overscanPx={0}
+          render={<div data-testid="virtualizer" style={{ height: 60, width: 200 }} />}
+          items={createItems(100)}
+        >
+          {(item: TestItem) => (
+            <TestListItem style={{ display: 'block', height: 10 }}>{item.label}</TestListItem>
+          )}
+        </TestVirtualizedList>,
+      );
+
+      const virtualizer = screen.getByTestId('virtualizer');
+      const viewportRect = virtualizer.getBoundingClientRect();
+      await waitFor(() =>
+        expect(virtualizer.style.getPropertyValue('--total-size')).toBe('1000px'),
+      );
+      await waitFor(() => {
+        const renderedItems = screen.getAllByRole('listitem');
+        const lastRenderedItem = renderedItems.at(-1) as HTMLElement;
+        expect(lastRenderedItem.getBoundingClientRect().bottom).toBeGreaterThanOrEqual(
+          viewportRect.bottom + 10,
+        );
+      });
+
+      virtualizer.scrollTop = 1;
+      fireEvent.scroll(virtualizer);
+      virtualizer.scrollTop = 20;
+      fireEvent.scroll(virtualizer);
+
+      const renderedItems = screen.getAllByRole('listitem');
+      const lastRenderedItem = renderedItems.at(-1) as HTMLElement;
+      expect(lastRenderedItem.getBoundingClientRect().bottom).toBeGreaterThanOrEqual(
+        viewportRect.bottom,
+      );
+    },
+  );
+
+  it('updates the rendered items when scrolled', async () => {
+    let scrollTop = 0;
+
+    await render(
+      <TestVirtualizedList
+        estimatedItemHeight={20}
+        overscanPx={0}
+        render={
+          <div
+            ref={setElementScrollState({
+              clientHeight: 60,
+              getScrollTop: () => scrollTop,
+              scrollTo: vi.fn(),
+            })}
+            data-testid="virtualizer"
+          />
+        }
+        items={createItems(100)}
+      >
+        {(item: TestItem) => <TestListItem>{item.label}</TestListItem>}
+      </TestVirtualizedList>,
+    );
+
+    const virtualizer = screen.getByTestId('virtualizer');
+    scrollTop = 200;
+    fireEvent.scroll(virtualizer);
+
+    await waitFor(() => expect(screen.queryByText('Item 1')).toBe(null));
+    expect(screen.getByText('Item 11')).not.toBe(null);
+  });
+
+  it.skipIf(isJSDOM)(
+    'corrects keyboard scrolling after the highlighted row is measured',
+    async () => {
+      const resizeObserver = mockResizeObserver();
+      let scrollTop = 0;
+      const handleScrollTo = vi.fn((options: ScrollToOptions) => {
+        scrollTop = options.top ?? scrollTop;
+      });
+      const items = createItems(100);
+
+      // Re-rendered with a fresh collection array each time: array identity may change without the
+      // logical destination changing, and the pending correction has to survive that.
+      function Test(props: { pass: number }) {
+        return (
+          <TestVirtualizedList
+            data-pass={props.pass}
+            estimatedItemHeight={() => 20}
+            overscanPx={0}
+            scrollToRowIndex={99}
+            render={
+              <div
+                ref={setElementScrollState({
+                  clientHeight: 60,
+                  getScrollTop: () => scrollTop,
+                  scrollTo: handleScrollTo,
+                })}
+                data-testid="virtualizer"
+              />
+            }
+            items={[...items]}
+          >
+            {(item: TestItem) => <TestListItem style={{ height: 100 }}>{item.label}</TestListItem>}
+          </TestVirtualizedList>
+        );
+      }
+
+      try {
+        const { rerender } = await render(<Test pass={1} />);
+        const virtualizer = screen.getByTestId('virtualizer');
+
+        await waitFor(() => expect(handleScrollTo).toHaveBeenCalled());
+        const estimatedScrollTop = handleScrollTo.mock.lastCall?.[0].top ?? 0;
+
+        fireEvent.scroll(virtualizer);
+
+        const getActiveRow = () => virtualizer.querySelector<HTMLElement>('[data-row-index="99"]');
+        await waitFor(() => expect(getActiveRow()).not.toHaveStyle({ position: 'absolute' }));
+        expect(getActiveRow()).toHaveTextContent('Item 100');
+
+        await rerender(<Test pass={2} />);
+        handleScrollTo.mockClear();
+
+        await act(async () => resizeObserver.notify(getActiveRow() as HTMLElement, 100));
+
+        await waitFor(() => expect(handleScrollTo).toHaveBeenCalled());
+        const correctedScrollTop = handleScrollTo.mock.lastCall?.[0].top ?? 0;
+        expect(correctedScrollTop).toBeGreaterThan(estimatedScrollTop);
+      } finally {
+        resizeObserver.restore();
+      }
+    },
+  );
+
+  it('scrolls the highlighted item into view', async () => {
+    let scrollTop = 0;
+    const handleScrollTo = vi.fn((options: ScrollToOptions) => {
+      scrollTop = options.top ?? scrollTop;
+    });
+
+    await render(
+      <TestVirtualizedList
+        estimatedItemHeight={20}
+        overscanPx={20}
+        scrollToRowIndex={2}
+        render={
+          <div
+            ref={setElementScrollState({
+              clientHeight: 40,
+              getScrollTop: () => scrollTop,
+              scrollTo: handleScrollTo,
+            })}
+          />
+        }
+        items={createItems(10)}
+      >
+        {renderItem}
+      </TestVirtualizedList>,
+    );
+
+    await waitFor(() =>
+      expect(handleScrollTo).toHaveBeenLastCalledWith({
+        behavior: 'instant',
+        top: 20,
+      }),
+    );
+    expect(scrollTop).toBe(20);
+  });
+
+  it('uses computed CSS scroll padding when scrolling the highlighted item', async () => {
+    let scrollTop = 0;
+    const handleScrollTo = vi.fn((options: ScrollToOptions) => {
+      scrollTop = options.top ?? scrollTop;
+    });
+
+    await render(
+      <TestVirtualizedList
+        estimatedItemHeight={20}
+        overscanPx={0}
+        scrollToRowIndex={2}
+        style={{ scrollPaddingBottom: 8, scrollPaddingTop: 8 }}
+        render={
+          <div
+            ref={setElementScrollState({
+              clientHeight: 40,
+              getScrollTop: () => scrollTop,
+              scrollTo: handleScrollTo,
+            })}
+          />
+        }
+        items={createItems(10)}
+      >
+        {renderItem}
+      </TestVirtualizedList>,
+    );
+
+    await waitFor(() =>
+      expect(handleScrollTo).toHaveBeenLastCalledWith({
+        behavior: 'instant',
+        top: 28,
+      }),
+    );
+    expect(scrollTop).toBe(28);
+  });
+
+  it('aligns an oversized highlighted item with the start of the viewport', async () => {
+    vi.mocked(HTMLElement.prototype.getBoundingClientRect).mockImplementation(function mockRect(
+      this: HTMLElement,
+    ) {
+      if (this.hasAttribute('data-row-index')) {
+        return createDOMRect({ height: 80, width: 200 });
+      }
+
+      return createDOMRect({ height: 40, width: 200 });
+    });
+
+    let scrollTop = 0;
+    const handleScrollTo = vi.fn((options: ScrollToOptions) => {
+      scrollTop = options.top ?? scrollTop;
+    });
+
+    await render(
+      <TestVirtualizedList
+        estimatedItemHeight={80}
+        overscanPx={0}
+        scrollToRowIndex={0}
+        render={
+          <div
+            ref={setElementScrollState({
+              clientHeight: 40,
+              getScrollTop: () => scrollTop,
+              scrollTo: handleScrollTo,
+            })}
+          />
+        }
+        items={createItems(3)}
+      >
+        {renderItemOf(80)}
+      </TestVirtualizedList>,
+    );
+
+    await waitFor(() => expect(handleScrollTo).toHaveBeenCalled());
+    expect(scrollTop).toBe(0);
+  });
+
+  it('passes the item and filtered index to estimatedItemHeight', async () => {
+    const estimatedItemHeight = vi.fn((item: string, index: number) => item.length + index + 10);
+
+    await render(
+      <TestVirtualizedList<string>
+        estimatedItemHeight={estimatedItemHeight}
+        items={['a', 'longer']}
+      >
+        {(item) => <TestListItem>{item}</TestListItem>}
+      </TestVirtualizedList>,
+    );
+
+    await waitFor(() => expect(estimatedItemHeight).toHaveBeenCalledWith('a', 0));
+    expect(estimatedItemHeight).toHaveBeenCalledWith('longer', 1);
+  });
+
+  it('does not expose totalSize as a data attribute', async () => {
+    await render(
+      <TestVirtualizedList estimatedItemHeight={20} data-testid="virtualizer" items={[]}>
+        {renderItem}
+      </TestVirtualizedList>,
+    );
+
+    const virtualizer = screen.getByTestId('virtualizer');
+    expect(virtualizer).toHaveAttribute('data-empty');
+    expect(virtualizer).not.toHaveAttribute('data-totalsize');
+  });
+
+  it('warns when the virtualizer is not height-constrained', async () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+    try {
+      await render(
+        <TestVirtualizedList
+          estimatedItemHeight={20}
+          render={<div ref={setElementClientHeight(2000)} />}
+          items={createItems(100)}
+        >
+          {(item: TestItem) => <TestListItem>{item.label}</TestListItem>}
+        </TestVirtualizedList>,
+      );
+
+      await waitFor(() =>
+        expect(
+          warnSpy.mock.calls.some(([message]) =>
+            String(message).includes('must have a constrained height or maximum height'),
+          ),
+        ).toBe(true),
+      );
+    } finally {
+      warnSpy.mockRestore();
+    }
+  });
+
+  describe.skipIf(isJSDOM)('actionsRef: remeasure', () => {
+    it('applies a changed estimate callback once remeasure announces it', async () => {
+      vi.restoreAllMocks();
+      const items = createItems(100);
+      const actionsRef = React.createRef<Virtualizer.Actions>();
+
+      function Test(props: { estimatedItemHeight: number }) {
+        return (
+          <TestVirtualizedList
+            actionsRef={actionsRef}
+            estimatedItemHeight={() => props.estimatedItemHeight}
+            overscanPx={0}
+            render={<div data-testid="virtualizer" style={{ height: 60, width: 200 }} />}
+            items={items}
+          >
+            {(item: TestItem) => (
+              <TestListItem style={{ display: 'block', height: 20 }}>{item.label}</TestListItem>
+            )}
+          </TestVirtualizedList>
+        );
+      }
+
+      const { rerender } = await render(<Test estimatedItemHeight={20} />);
+      const virtualizer = screen.getByTestId('virtualizer');
+
+      // Every item is 20px tall and estimated at 20px, measured or not.
+      await waitFor(() => expect(virtualizer.scrollHeight).toBe(2000));
+
+      // The estimate is derived per collection, so a callback returning something else is not by
+      // itself a change the virtualizer goes looking for.
+      await rerender(<Test estimatedItemHeight={40} />);
+      expect(virtualizer.scrollHeight).toBe(2000);
+
+      await act(async () => {
+        actionsRef.current?.remeasure();
+      });
+
+      // The handful of mounted items measure 20px; the rest now carry the 40px estimate.
+      await waitFor(() => expect(virtualizer.scrollHeight).toBeGreaterThan(3500));
+      expect(virtualizer.scrollHeight).toBeLessThanOrEqual(4000);
+    });
+
+    it('applies changed per-index estimates once remeasure announces them', async () => {
+      vi.restoreAllMocks();
+      const items = createItems(100);
+      const actionsRef = React.createRef<Virtualizer.Actions>();
+
+      function Test(props: { laterItemHeight: number }) {
+        return (
+          <TestVirtualizedList
+            actionsRef={actionsRef}
+            estimatedItemHeight={(_, index) => (index === 0 ? 20 : props.laterItemHeight)}
+            overscanPx={0}
+            render={<div data-testid="virtualizer" style={{ height: 60, width: 200 }} />}
+            items={items}
+          >
+            {(item: TestItem) => (
+              <TestListItem style={{ display: 'block', height: 20 }}>{item.label}</TestListItem>
+            )}
+          </TestVirtualizedList>
+        );
+      }
+
+      const { rerender } = await render(<Test laterItemHeight={20} />);
+      const virtualizer = screen.getByTestId('virtualizer');
+
+      await waitFor(() => expect(virtualizer.scrollHeight).toBe(2000));
+
+      await rerender(<Test laterItemHeight={40} />);
+      await act(async () => {
+        actionsRef.current?.remeasure();
+      });
+
+      await waitFor(() => expect(virtualizer.scrollHeight).toBeGreaterThan(3500));
+      expect(virtualizer.scrollHeight).toBeLessThanOrEqual(4000);
+    });
+
+    it('re-measures items against the layout they are in now', async () => {
+      vi.restoreAllMocks();
+      const items = createItems(200);
+      const actionsRef = React.createRef<Virtualizer.Actions>();
+
+      function Test(props: { itemHeight: number }) {
+        return (
+          <TestVirtualizedList
+            actionsRef={actionsRef}
+            estimatedItemHeight={20}
+            overscanPx={0}
+            render={<div data-testid="virtualizer" style={{ height: 120, width: 200 }} />}
+            items={items}
+          >
+            {(item: TestItem) => (
+              <TestListItem style={{ display: 'block', height: props.itemHeight }}>
+                {item.label}
+              </TestListItem>
+            )}
+          </TestVirtualizedList>
+        );
+      }
+
+      const { rerender } = await render(<Test itemHeight={60} />);
+      const virtualizer = screen.getByTestId('virtualizer');
+
+      // The running average learns 60px from the mounted rows and applies it to the rest.
+      await waitFor(() => expect(virtualizer.scrollHeight).toBeGreaterThanOrEqual(11900));
+
+      // Scroll away from the top, so the items that measured 60px are no longer mounted and only
+      // their cached heights describe them.
+      virtualizer.scrollTop = 3000;
+      fireEvent.scroll(virtualizer);
+      await waitFor(() => expect(virtualizer.scrollTop).toBe(3000));
+
+      await rerender(<Test itemHeight={30} />);
+
+      await act(async () => {
+        actionsRef.current?.remeasure();
+      });
+
+      // Every cached 60px is discarded, so the total converges on the layout in force now.
+      await waitFor(() => expect(virtualizer.scrollHeight).toBeGreaterThanOrEqual(5900), {
+        timeout: 3000,
+      });
+      expect(virtualizer.scrollHeight).toBeLessThanOrEqual(6100);
+      // And the viewport stayed where the user left it, which is what remounting to drop the
+      // caches would have lost.
+      expect(virtualizer.scrollTop).toBeGreaterThan(0);
+    });
+  });
+
+  describe('prop: enabled', () => {
+    it('renders all items when disabled', async () => {
+      await render(
+        <TestVirtualizedList
+          enabled={false}
+          estimatedItemHeight={20}
+          render={<div ref={setElementClientHeight(40)} />}
+          items={createItems(20)}
+        >
+          {(item: TestItem) => <TestListItem>{item.label}</TestListItem>}
+        </TestVirtualizedList>,
+      );
+
+      await waitFor(() => expect(screen.getAllByRole('listitem')).toHaveLength(20));
+    });
+
+    it('updates the rendered items when enabled changes', async () => {
+      function Test(props: { enabled: boolean }) {
+        return (
+          <TestVirtualizedList
+            enabled={props.enabled}
+            estimatedItemHeight={20}
+            overscanPx={0}
+            render={<div ref={setElementClientHeight(40)} />}
+            items={createItems(20)}
+          >
+            {(item: TestItem) => <TestListItem>{item.label}</TestListItem>}
+          </TestVirtualizedList>
+        );
+      }
+
+      const { rerender } = await render(<Test enabled />);
+
+      await waitFor(() => expect(screen.queryByText('Item 20')).toBe(null));
+
+      await rerender(<Test enabled={false} />);
+      await waitFor(() => expect(screen.getByText('Item 20')).not.toBe(null));
+
+      await rerender(<Test enabled />);
+      await waitFor(() => expect(screen.queryByText('Item 20')).toBe(null));
+    });
+  });
 });
-
-function createItems(count: number): TestItem[] {
-  return Array.from({ length: count }, (_, index) => ({
-    label: `Item ${index + 1}`,
-  }));
-}
-
-function renderItem(item: TestItem, _index: number) {
-  return <TestListItem style={{ height: 20 }}>{item.label}</TestListItem>;
-}
-
-function renderItemOf(height: number) {
-  return function renderMeasuredItem(item: TestItem) {
-    return <TestListItem style={{ height }}>{item.label}</TestListItem>;
-  };
-}
 
 function renderTallItem(item: TestItem) {
   return <TestListItem style={{ height: 60 }}>{item.label}</TestListItem>;
