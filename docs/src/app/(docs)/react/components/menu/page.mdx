@@ -427,14 +427,11 @@ import { DemoMenuFilterAsync } from './demos/filter-async';
 
 #### Filterable submenus
 
-Wrap `<Menu.SubmenuRoot>` in its own `<Menu.FilterProvider>` to give a submenu a search field.
-This works whether or not the parent filters.
-A submenu doesn't inherit the parent's provider: an unwrapped submenu inside a filterable menu stays a plain menu, and its trigger still filters with the parent's query.
+Wrap `<Menu.SubmenuRoot>` in its own `<Menu.FilterProvider>` to give it a search field.
+Submenus don't inherit the parent's provider; an unwrapped submenu stays a plain menu.
 
-Hovering a submenu trigger opens the submenu without moving focus.
-Focus moves to the submenu's input once the pointer enters the submenu, and back to the parent's input when the pointer returns.
-Clicking the trigger or opening the submenu with the keyboard focuses its input right away.
-Add `autoFocus` to the submenu's `<Menu.FilterInput>` to focus it as soon as the submenu opens.
+Focus follows the pointer between the parent's input and the submenu's input.
+Opening the submenu by click or keyboard focuses its input; add `autoFocus` to its `<Menu.FilterInput>` to focus it on hover as well.
 
 ```jsx title="A filterable submenu"
 <Menu.FilterProvider>
