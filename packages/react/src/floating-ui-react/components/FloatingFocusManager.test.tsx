@@ -1576,6 +1576,51 @@ describe('FloatingFocusManager', () => {
         }
       });
 
+      test('preserves the last pointer modality when a click has an empty pointer type', async () => {
+        const finalFocus = vi.fn((_closeType: InteractionType) => true);
+
+        function App() {
+          const [isOpen, setIsOpen] = React.useState(false);
+
+          const { refs, context } = useFloating({
+            open: isOpen,
+            onOpenChange: setIsOpen,
+          });
+
+          const click = useClick(context);
+          const { getReferenceProps, getFloatingProps } = useTestInteractions([click]);
+
+          return (
+            <>
+              <button data-testid="reference" ref={refs.setReference} {...getReferenceProps()} />
+              <FloatingFocusManager context={context} disabled={!isOpen} returnFocus={finalFocus}>
+                <div ref={refs.setFloating} {...getFloatingProps()}>
+                  <button data-testid="child" />
+                </div>
+              </FloatingFocusManager>
+            </>
+          );
+        }
+
+        render(<App />);
+
+        const reference = screen.getByTestId('reference');
+        await userEvent.click(reference);
+        await waitFor(() => {
+          expect(screen.getByTestId('child')).toHaveFocus();
+        });
+
+        fireEvent.pointerDown(reference, { pointerType: 'mouse' });
+        fireEvent(
+          reference,
+          new PointerEvent('click', { bubbles: true, cancelable: true, pointerType: '' }),
+        );
+
+        await waitFor(() => {
+          expect(finalFocus).toHaveBeenCalledWith('mouse');
+        });
+      });
+
       test('preserves keyboard close modality when reopening before focus restoration', async () => {
         function App() {
           const [isOpen, setIsOpen] = React.useState(false);

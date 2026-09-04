@@ -57,7 +57,9 @@ function getEventType(event: Event, lastInteractionType?: InteractionType): Inte
     return lastInteractionType || 'keyboard';
   }
   if ('pointerType' in event) {
-    return (event.pointerType as React.PointerEvent['pointerType']) || 'keyboard';
+    return (
+      (event.pointerType as React.PointerEvent['pointerType']) || lastInteractionType || 'keyboard'
+    );
   }
   if ('touches' in event) {
     return 'touch';
