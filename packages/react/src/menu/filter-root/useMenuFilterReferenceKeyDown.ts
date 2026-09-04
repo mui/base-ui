@@ -3,10 +3,7 @@ import * as React from 'react';
 import { ownerWindow } from '@base-ui/utils/owner';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { isHTMLElement } from '@floating-ui/utils/dom';
-import {
-  useFilterDropdownItemContext,
-  useFilterDropdownRootContext,
-} from '../../filter-dropdown/root/FilterDropdownRootContext';
+import { useFilterDropdownItemContext } from '../../filter-dropdown/root/FilterDropdownRootContext';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { useDirection } from '../../internals/direction-context/DirectionContext';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
@@ -26,7 +23,6 @@ import {
  */
 export function useMenuFilterReferenceKeyDown() {
   const { listRef, store: filterStore } = useFilterDropdownItemContext();
-  const { inline } = useFilterDropdownRootContext();
   const { orientation, store: menuStore } = useMenuRootContext();
   const direction = useDirection();
 
@@ -41,7 +37,7 @@ export function useMenuFilterReferenceKeyDown() {
       // Mirror the plain menu: Shift+Tab closes the popup and returns focus to the trigger.
       // The generic close branch in `useListNavigation` skips virtual focus, and a forward Tab
       // already closes through focus-out once focus leaves the popup.
-      if (event.shiftKey && !inline) {
+      if (event.shiftKey) {
         stopEvent(event);
         const trigger = menuStore.state.activeTriggerElement;
         menuStore.setOpen(false, createChangeEventDetails(REASONS.focusOut, event.nativeEvent));

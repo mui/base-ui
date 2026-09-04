@@ -13,7 +13,6 @@ export type FilterDropdownFilter = (text: string, query: string) => boolean;
 
 export interface FilterDropdownRootContext {
   open: boolean;
-  inline: boolean;
   disabled: boolean;
   inputFocusVisible: boolean;
   setInputFocusVisible: (visible: boolean) => void;
