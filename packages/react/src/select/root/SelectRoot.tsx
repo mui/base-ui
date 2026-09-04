@@ -5,7 +5,6 @@ import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { useOnFirstRender } from '@base-ui/utils/useOnFirstRender';
 import { usePreviousValue } from '@base-ui/utils/usePreviousValue';
-import { isElementDisabled } from '@base-ui/utils/isElementDisabled';
 import { warn } from '@base-ui/utils/warn';
 import { useControlled } from '@base-ui/utils/useControlled';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
@@ -37,6 +36,8 @@ import {
 } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
+import { useDisabledIndex } from '../../internals/list/useDisabledIndex';
+import { shouldScrollItemIntoView } from '../../internals/list/scrollActivation';
 import { useFormContext } from '../../internals/form-context/FormContext';
 import { type Group, stringifyAsLabel, stringifyAsValue } from '../../internals/resolveValueLabel';
 import {
@@ -640,27 +641,15 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     store.set('scrollDownArrowVisible', shouldShowDown);
   });
 
-  /**
-   * Whether the item at a logical index is unavailable to keyboard navigation and typeahead.
-   *
-   * Reads the root predicate first, so an item that is not rendered can still be skipped, and
-   * falls back to the DOM state of a rendered one.
-   */
-  const isIndexDisabled = useStableCallback((index: number) => {
-    if (isItemDisabled?.(valuesRef.current[index], index) === true) {
-      return true;
-    }
-
-    const itemElement = listRef.current[index];
-    if (itemElement == null) {
-      // A windowed list leaves most rows unmounted, and a missing element there means "not
-      // rendered yet", not "disabled" — reading it as disabled would make every row outside the
-      // window unreachable. A static list keeps the original reading, where `isElementDisabled`
-      // treats a missing element as disabled.
-      return virtualizationRegistry.virtualizer == null;
-    }
-
-    return isElementDisabled(itemElement);
+  // Shared with Combobox: the consumer predicate answers for items that are not rendered, and a
+  // missing element is only disabled in a list that discovers its items from the DOM. With an
+  // `items` prop an index exists before its element does — outside a virtualizer's window, or not
+  // registered yet when the popup opens — so it stays reachable.
+  const { isIndexDisabled } = useDisabledIndex({
+    getItemValue: (index) => valuesRef.current[index],
+    hasItemCollection: items != null,
+    isItemDisabled,
+    listRef,
   });
 
   const floatingContext = useFloatingRootContext({
@@ -690,12 +679,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     // Without the prop this stays `EMPTY_ARRAY`, which is what keeps attribute-disabled items
     // being skipped on open by the hook's own DOM check (see mui/base-ui#2604).
     disabledIndices: isItemDisabled ? isIndexDisabled : EMPTY_ARRAY,
-    // An enabled virtualizer owns the scroll position and scrolls highlighted rows itself. The DOM
-    // scroll here is deferred by a frame, so it can read a stale window layout — or the retained
-    // focus proxy, which sits outside the scrollport entirely — and drag the position away from
-    // where the virtualizer just placed it. A disabled virtualizer renders every row and scrolls
-    // none, so it must keep the DOM scroll that static lists rely on.
-    scrollItemIntoView: () => virtualizationRegistry.virtualizer?.enabled !== true,
+    scrollItemIntoView: () => shouldScrollItemIntoView(virtualizationRegistry),
     onNavigate(nextActiveIndex, event) {
       // Retain the highlight while transitioning out.
       if (nextActiveIndex === null && !open) {

@@ -7,6 +7,7 @@ import { useSelectRootContext, useSelectRootPropsContext } from '../root/SelectR
 import { useSelectVirtualizer } from '../root/SelectVirtualizationContext';
 import { useSelectPositionerContext } from '../positioner/SelectPositionerContext';
 import { useRenderElement } from '../../internals/useRenderElement';
+import { shouldScrollActiveIntoView } from '../../internals/list/scrollActivation';
 import { mergeProps } from '../../merge-props';
 import { styleDisableScrollbar } from '../../utils/styles';
 import { LIST_FUNCTIONAL_STYLES, SCROLLPORT_FUNCTIONAL_STYLES } from '../popup/utils';
@@ -176,8 +177,7 @@ function SelectVirtualizationState(props: SelectVirtualizationStateProps) {
     () => ({
       activeIndex,
       items: collection.items,
-      // A pointer highlight follows the cursor, so scrolling to it would move the list under it.
-      scrollActiveIntoView: highlightType !== 'pointer',
+      scrollActiveIntoView: shouldScrollActiveIntoView(highlightType),
       // `Select` never suspends windowing: its autofill matches against the values and labels the
       // root derives from `items`, so it never needs every row mounted.
       scrollportProps,
