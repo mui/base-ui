@@ -26,12 +26,20 @@ export type State<Payload> = PopupStoreState<Payload> & {
   role: 'dialog' | 'alertdialog';
 };
 
+export interface NestedDialogCounts {
+  dialogCount: number;
+  drawerCount: number;
+}
+
 type Context = PopupStoreContext<DialogRoot.ChangeEventDetails> & {
   readonly popupRef: React.RefObject<HTMLElement | null>;
   readonly backdropRef: React.RefObject<HTMLDivElement | null>;
   readonly internalBackdropRef: React.RefObject<HTMLDivElement | null>;
   readonly outsidePressEnabledRef: React.MutableRefObject<boolean>;
-  readonly onNestedDialogOpen?: ((dialogCount: number, drawerCount: number) => void) | undefined;
+  readonly nestedDialogs: Map<symbol, NestedDialogCounts>;
+  readonly onNestedDialogOpen?:
+    | ((childKey: symbol, counts: NestedDialogCounts | null) => void)
+    | undefined;
 };
 
 const selectors = {
@@ -142,6 +150,7 @@ function createInitialContext(triggerElements: PopupTriggerMap): Context {
     backdropRef: React.createRef<HTMLDivElement>(),
     internalBackdropRef: React.createRef<HTMLDivElement>(),
     outsidePressEnabledRef: { current: true },
+    nestedDialogs: new Map(),
     triggerElements,
     onOpenChange: undefined,
     onOpenChangeComplete: undefined,

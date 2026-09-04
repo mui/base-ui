@@ -858,6 +858,118 @@ describe('<Dialog.Popup />', () => {
       expect(computedStyles.getPropertyValue('--nested-dialogs')).toBe('0');
     });
 
+    it('counts sibling nested dialogs independently', async () => {
+      const { user } = await render(
+        <Dialog.Root modal={false}>
+          <Dialog.Trigger>Trigger 0</Dialog.Trigger>
+          <Dialog.Portal>
+            <Dialog.Popup data-testid="popup0">
+              <Dialog.Root modal={false} disablePointerDismissal>
+                <Dialog.Trigger>Trigger A</Dialog.Trigger>
+                <Dialog.Portal>
+                  <Dialog.Popup data-testid="popupA">A</Dialog.Popup>
+                </Dialog.Portal>
+              </Dialog.Root>
+              <Dialog.Root modal={false} disablePointerDismissal>
+                <Dialog.Trigger>Trigger B</Dialog.Trigger>
+                <Dialog.Portal>
+                  <Dialog.Popup data-testid="popupB">
+                    <Dialog.Close>Close B</Dialog.Close>
+                  </Dialog.Popup>
+                </Dialog.Portal>
+              </Dialog.Root>
+            </Dialog.Popup>
+          </Dialog.Portal>
+        </Dialog.Root>,
+      );
+
+      await user.click(screen.getByRole('button', { name: 'Trigger 0' }));
+
+      await waitFor(() => {
+        expect(screen.getByTestId('popup0')).not.toBe(null);
+      });
+
+      const computedStyles = getComputedStyle(screen.getByTestId('popup0'));
+
+      await user.click(screen.getByRole('button', { name: 'Trigger A' }));
+
+      await waitFor(() => {
+        expect(screen.getByTestId('popupA')).not.toBe(null);
+      });
+
+      expect(computedStyles.getPropertyValue('--nested-dialogs')).toBe('1');
+
+      await user.click(screen.getByRole('button', { name: 'Trigger B' }));
+
+      await waitFor(() => {
+        expect(screen.getByTestId('popupB')).not.toBe(null);
+      });
+
+      // Both siblings are open, so each contributes to the count.
+      expect(computedStyles.getPropertyValue('--nested-dialogs')).toBe('2');
+
+      await user.click(screen.getByRole('button', { name: 'Close B' }));
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('popupB')).toBe(null);
+      });
+
+      // A is still open, so closing B must not zero the count.
+      expect(computedStyles.getPropertyValue('--nested-dialogs')).toBe('1');
+      expect(screen.getByTestId('popup0')).toHaveAttribute('data-nested-dialog-open');
+    });
+
+    it('keeps the parent non-topmost when one of two sibling nested dialogs closes', async () => {
+      const onParentOpenChange = vi.fn();
+
+      const { user } = await render(
+        <React.Fragment>
+          <button>outside</button>
+          <Dialog.Root modal={false} onOpenChange={onParentOpenChange}>
+            <Dialog.Trigger>Trigger 0</Dialog.Trigger>
+            <Dialog.Portal>
+              <Dialog.Popup data-testid="popup0">
+                <Dialog.Root modal={false} disablePointerDismissal>
+                  <Dialog.Trigger>Trigger A</Dialog.Trigger>
+                  <Dialog.Portal>
+                    <Dialog.Popup data-testid="popupA">A</Dialog.Popup>
+                  </Dialog.Portal>
+                </Dialog.Root>
+                <Dialog.Root modal={false} disablePointerDismissal>
+                  <Dialog.Trigger>Trigger B</Dialog.Trigger>
+                  <Dialog.Portal>
+                    <Dialog.Popup data-testid="popupB">
+                      <Dialog.Close>Close B</Dialog.Close>
+                    </Dialog.Popup>
+                  </Dialog.Portal>
+                </Dialog.Root>
+              </Dialog.Popup>
+            </Dialog.Portal>
+          </Dialog.Root>
+        </React.Fragment>,
+      );
+
+      await user.click(screen.getByRole('button', { name: 'Trigger 0' }));
+      await user.click(screen.getByRole('button', { name: 'Trigger A' }));
+      await user.click(screen.getByRole('button', { name: 'Trigger B' }));
+      await user.click(screen.getByRole('button', { name: 'Close B' }));
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('popupB')).toBe(null);
+      });
+
+      onParentOpenChange.mockClear();
+
+      await user.click(screen.getByRole('button', { name: 'outside', hidden: true }));
+
+      // A is still open, so the parent is not topmost and must ignore the outside press.
+      expect(
+        onParentOpenChange.mock.calls.filter(
+          (call) => call[0] === false && call[1]?.reason === 'outside-press',
+        ),
+      ).toHaveLength(0);
+    });
+
     it('does not change the count when a closed nested dialog is unmounted', async () => {
       function App() {
         const [showNested, setShowNested] = React.useState(true);
