@@ -29,6 +29,18 @@ describe('<Collapsible.Trigger />', () => {
     },
   }));
 
+  it('renders the disabled attribute when disabled', async () => {
+    await render(
+      <Collapsible.Root disabled>
+        <Collapsible.Trigger>Trigger</Collapsible.Trigger>
+      </Collapsible.Root>,
+    );
+
+    const trigger = screen.getByRole('button', { name: 'Trigger' });
+    expect(trigger).toBeDisabled();
+    expect(trigger).not.toHaveAttribute('aria-disabled');
+  });
+
   it('forwards the id prop', async () => {
     await render(
       <Collapsible.Root>
