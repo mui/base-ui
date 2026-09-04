@@ -397,6 +397,31 @@ describe('<ContextMenu.Trigger />', () => {
       expect(screen.queryByRole('menu')).not.toBe(null);
     });
 
+    it('does not mark the popup as instant when opened by a long press', async () => {
+      await render(
+        <ContextMenu.Root>
+          <ContextMenu.Trigger data-testid="trigger">Long press me</ContextMenu.Trigger>
+          <ContextMenu.Portal>
+            <ContextMenu.Positioner>
+              <ContextMenu.Popup data-testid="popup" />
+            </ContextMenu.Positioner>
+          </ContextMenu.Portal>
+        </ContextMenu.Root>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+
+      fireEvent.touchStart(trigger, {
+        touches: [new Touch({ identifier: 0, target: trigger, clientX: 100, clientY: 100 })],
+      });
+
+      clock.tick(500);
+
+      // The long-press timer opens the menu with a `TouchEvent`, which reports `detail === 0`
+      // like a keyboard click; it is a pointer gesture and must not suppress transitions.
+      expect(screen.getByTestId('popup')).not.toHaveAttribute('data-instant');
+    });
+
     it('should cancel long press when touch moves beyond threshold', async () => {
       const onOpenChange = vi.fn();
 

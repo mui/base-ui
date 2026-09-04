@@ -370,9 +370,22 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
       // Keyboard and assistive-technology activations produce `detail === 0` clicks;
       // mouse-gesture clicks (including the synthesized drag-release click from
       // `useMenuItemCommonProps`) carry `detail >= 1`.
+      //
+      // A Context Menu also opens through `triggerPress`, but its native event is a
+      // `contextmenu` MouseEvent or a long-press `TouchEvent`, both of which report
+      // `detail === 0` even though a pointer drove them. Only a `contextmenu` raised
+      // from the keyboard (Shift+F10 / the Menu key) is a real keyboard activation; a
+      // mouse right-click sets `button === 2` and macOS Ctrl+click sets `ctrlKey`.
+      const eventType = nativeEvent?.type;
+      const isPointerContextMenu =
+        eventType === 'contextmenu' &&
+        ((nativeEvent as MouseEvent).button !== 0 || (nativeEvent as MouseEvent).ctrlKey);
+      const isTouchPress = eventType != null && eventType.startsWith('touch');
       const isKeyboardClick =
         (reason === REASONS.triggerPress || reason === REASONS.itemPress) &&
-        (nativeEvent as MouseEvent).detail === 0;
+        (nativeEvent as MouseEvent).detail === 0 &&
+        !isPointerContextMenu &&
+        !isTouchPress;
       const isDismissClose = !nextOpen && (reason === REASONS.escapeKey || reason == null);
 
       openEventRef.current = eventDetails.event;
