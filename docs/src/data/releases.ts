@@ -15,7 +15,7 @@ export const releases: Release[] = [
     highlights: [
       'New `createItems` collection API for `Combobox`.',
       'Browse `Autocomplete`, `Combobox`, and `Select` popups while read-only.',
-      'Add `keepMounted` to `<Avatar.Image>`.',
+      'Add `keepMounted` to `<Avatar.Image>` to support native lazy-loading and optimized images',
       'Many accessibility, focus, validation, and interaction fixes.',
     ],
   },
