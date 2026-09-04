@@ -14,8 +14,9 @@ export const releases: Release[] = [
     date: '2026-09-04',
     highlights: [
       'New `createItems` collection API for `Combobox`.',
-      'Browse `Autocomplete`, `Combobox`, and `Select` popups while read-only.',
-      'Add `keepMounted` to `<Avatar.Image>` to support native lazy-loading and optimized images',
+      'Derive Toast updates from the current toast with a function.',
+      'Add `keepMounted` to `<Avatar.Image>` to support native lazy-loading and optimized images.',
+      'Mount Menu and Popover triggers faster.',
       'Many accessibility, focus, validation, and interaction fixes.',
     ],
   },
