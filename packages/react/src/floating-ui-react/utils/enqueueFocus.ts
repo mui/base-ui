@@ -6,11 +6,13 @@ interface Options {
   sync?: boolean | undefined;
   // Called when the frame runs to decide whether focus should still be applied.
   shouldFocus?: (() => boolean) | undefined;
+  // Called with the element right after it was focused, in the same frame.
+  onFocused?: ((element: FocusableElement) => void) | undefined;
 }
 
 let rafId = 0;
 export function enqueueFocus(el: FocusableElement | null, options: Options = {}) {
-  const { preventScroll = false, sync = false, shouldFocus } = options;
+  const { preventScroll = false, sync = false, shouldFocus, onFocused } = options;
 
   cancelAnimationFrame(rafId);
 
@@ -19,6 +21,9 @@ export function enqueueFocus(el: FocusableElement | null, options: Options = {})
       return;
     }
     el?.focus({ preventScroll });
+    if (el && onFocused) {
+      onFocused(el);
+    }
   }
 
   if (sync) {
