@@ -25,6 +25,7 @@ export interface FieldRootContext {
   registerFieldControl: (
     source: symbol,
     registration: FieldControlRegistration | undefined,
+    keepOwnership?: boolean,
   ) => void;
   validation: UseFieldValidationReturnValue;
 }

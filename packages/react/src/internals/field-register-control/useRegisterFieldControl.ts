@@ -22,7 +22,7 @@ export function useRegisterFieldControl(
     const source = sourceRef.current;
 
     if (!enabled) {
-      registerFieldControl(source, undefined);
+      registerFieldControl(source, undefined, true);
       return;
     }
 
