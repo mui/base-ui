@@ -25,7 +25,6 @@ export function MenuFilterProvider(props: MenuFilterProvider.Props): React.JSX.E
     onInputValueChange,
     autoHighlight,
     locale,
-    inline,
   } = props;
 
   const value = React.useMemo(
@@ -39,10 +38,9 @@ export function MenuFilterProvider(props: MenuFilterProvider.Props): React.JSX.E
         onInputValueChange,
         autoHighlight,
         locale,
-        inline,
       },
     }),
-    [filter, inputValue, defaultInputValue, onInputValueChange, autoHighlight, locale, inline],
+    [filter, inputValue, defaultInputValue, onInputValueChange, autoHighlight, locale],
   );
 
   return (
@@ -53,19 +51,6 @@ export function MenuFilterProvider(props: MenuFilterProvider.Props): React.JSX.E
 }
 
 export interface MenuFilterProviderProps extends MenuFilterRootFilterProps {
-  /**
-   * Whether the list is rendered inline without using the menu's own popup.
-   *
-   * Specify `open` unconditionally on the root in conjunction with this prop so the list is
-   * considered visible: `<Menu.FilterProvider inline><Menu.Root open>`
-   *
-   * In a `Dialog.Root` > `Menu.Root` composition, bind the menu's `open` and `onOpenChange` props
-   * to the `Dialog`'s `open` and `onOpenChange` state instead so the component resets its
-   * transient state (filter query and highlighted item) when the dialog closes. Without that, a
-   * `Dialog.Portal` with `keepMounted` reopens with the previous query.
-   * @default false
-   */
-  inline?: boolean | undefined;
   children?: React.ReactNode;
 }
 

@@ -32,7 +32,6 @@ export function MenuFilterRoot<Payload>(props: MenuFilterRoot.Props<Payload>): R
     filter,
     autoHighlight = false,
     locale,
-    inline = false,
     handle,
     ...menuProps
   } = props;
@@ -101,7 +100,6 @@ export function MenuFilterRoot<Payload>(props: MenuFilterRoot.Props<Payload>): R
       open={open}
       onOpenChange={handleOpenChange}
       onOpenChangeComplete={closeQuery.handleOpenChangeComplete}
-      inline={inline}
       virtualFocus
       webkitItemSelected={webkitItemSelected}
       virtualFocusRef={focusOwnerRef}
@@ -119,7 +117,6 @@ export function MenuFilterRoot<Payload>(props: MenuFilterRoot.Props<Payload>): R
             filter={filter}
             autoHighlight={autoHighlight}
             locale={locale}
-            inline={inline}
             inputProps={inputProps}
             onValueChange={handleInputValueChange}
             onInputAutoFocusChange={setInputAutoFocus}
@@ -153,10 +150,6 @@ export type MenuFilterRootProps<Payload = unknown> = Omit<
      * A handle that associates the menu with detached triggers.
      */
     handle?: MenuHandle<Payload> | undefined;
-    /**
-     * @ignore
-     */
-    inline?: boolean | undefined;
     /**
      * Event handler called when the menu is opened or closed.
      */

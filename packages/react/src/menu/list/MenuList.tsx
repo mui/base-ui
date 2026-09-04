@@ -1,7 +1,6 @@
 'use client';
 import * as React from 'react';
 import { ownerWindow } from '@base-ui/utils/owner';
-import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import {
@@ -12,7 +11,6 @@ import {
 import { mergeProps } from '../../merge-props';
 import { useMenuFilterReferenceKeyDown } from '../filter-root/useMenuFilterReferenceKeyDown';
 import { useMenuRootContext } from '../root/MenuRootContext';
-import { CompositeList } from '../../internals/composite/list/CompositeList';
 import { useCompositeListContext } from '../../internals/composite/list/CompositeListContext';
 import {
   useFilterDropdownItemContext,
@@ -32,8 +30,8 @@ export const MenuList = React.forwardRef(function MenuList(
   componentProps: MenuList.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { store: menuStore, syncHighlightedItem } = useMenuRootContext();
-  const { inline, onItemsChange, focusOwnerRef } = useFilterDropdownRootContext();
+  const { syncHighlightedItem } = useMenuRootContext();
+  const { onItemsChange, focusOwnerRef } = useFilterDropdownRootContext();
   const { store: filterStore } = useFilterDropdownItemContext();
   const { subscribeMapChange } = useCompositeListContext();
   const handleReferenceKeyDown = useMenuFilterReferenceKeyDown();
@@ -103,46 +101,18 @@ export const MenuList = React.forwardRef(function MenuList(
   });
 
   useIsoLayoutEffect(() => {
-    return inline ? undefined : subscribeMapChange(handleItemMapChange);
-  }, [inline, subscribeMapChange, handleItemMapChange]);
-
-  const setInlinePopupElement = useStableCallback((element: HTMLDivElement | null) => {
-    menuStore.context.popupRef.current = element;
-    menuStore.set('popupElement', element);
-  });
-  const mergedRef = useMergedRefs(forwardedRef, inline ? setInlinePopupElement : null);
-
-  // The inline list registers as the menu's floating element but doesn't spread the full
-  // floating props. Pointer-modality tracking lives in the floating `onPointerMove`; without
-  // it, leaving the list after keyboard navigation retains a stale highlight.
-  const handleInlinePointerMove = useStableCallback((event: React.PointerEvent<HTMLDivElement>) => {
-    menuStore.select('popupProps').onPointerMove?.(event);
-  });
+    return subscribeMapChange(handleItemMapChange);
+  }, [subscribeMapChange, handleItemMapChange]);
 
   const listProps = mergeProps<typeof FilterDropdownList>(
     {
       role: 'menu',
       onKeyDown: handleKeyDown,
-      onPointerMove: inline ? handleInlinePointerMove : undefined,
     },
     componentProps,
   );
 
-  const element = <FilterDropdownList {...listProps} ref={mergedRef} />;
-
-  if (!inline) {
-    return element;
-  }
-
-  return (
-    <CompositeList
-      elementsRef={menuStore.context.itemDomElements}
-      labelsRef={menuStore.context.itemLabels}
-      onMapChange={handleItemMapChange}
-    >
-      {element}
-    </CompositeList>
-  );
+  return <FilterDropdownList {...listProps} ref={forwardedRef} />;
 });
 
 export interface MenuListState extends FilterDropdownListState {}

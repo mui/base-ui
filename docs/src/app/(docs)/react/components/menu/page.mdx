@@ -405,16 +405,6 @@ It receives the item's text and each keyword individually, together with the tri
 Pass `filter={null}` when you filter the items yourself and render only the results, such as when a server returns them.
 `Menu.useFilter` returns the same collator-based matching for that purpose.
 
-#### Command palette
-
-Combine a filterable menu with [Dialog](/react/components/dialog) to create a command palette.
-The `inline` prop on the provider renders the list directly inside the dialog without the menu's own popup parts; specify `open` on the root together with it so the list is considered visible.
-`autoHighlight="always"` keeps the first match highlighted so Enter always runs a command.
-
-import { DemoMenuCommandPalette } from './demos/command-palette';
-
-<DemoMenuCommandPalette />
-
 #### Async search
 
 Pass `filter={null}` and fetch matches yourself to search a source too large to render, such as a server-side index.

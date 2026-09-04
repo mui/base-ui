@@ -52,11 +52,6 @@ import {
 interface MenuRootInternalProps<Payload> extends MenuRoot.Props<Payload> {
   /**
    * @ignore
-   * Uses the popup element as the Floating UI surface without requiring a positioner.
-   */
-  inline?: boolean | undefined;
-  /**
-   * @ignore
    * Marks this root as a submenu of the enclosing menu.
    */
   isSubmenu?: boolean | undefined;
@@ -119,7 +114,6 @@ const MenuRootImpl = fastComponent(function MenuRoot<Payload>(props: MenuRoot.Pr
     defaultTriggerId: defaultTriggerIdProp = null,
     highlightItemOnHover = true,
     isSubmenu = false,
-    inline = false,
     virtualFocus = false,
     virtualFocusRef,
     allowEscape = true,
@@ -487,7 +481,6 @@ const MenuRootImpl = fastComponent(function MenuRoot<Payload>(props: MenuRoot.Pr
 
   const floatingRootContext = useSyncedFloatingRootContext({
     popupStore: store,
-    treatPopupAsFloatingElement: inline,
     floatingRootContext: store.state.floatingRootContext,
     floatingId,
     nested: floatingParentNodeIdFromContext != null,
@@ -539,7 +532,7 @@ const MenuRootImpl = fastComponent(function MenuRoot<Payload>(props: MenuRoot.Pr
   React.useImperativeHandle(ctx?.actionsRef, () => ({ setOpen }), [setOpen]);
 
   const dismiss = useDismiss(floatingRootContext, {
-    enabled: !disabled && !inline,
+    enabled: !disabled,
     bubbles: { escapeKey: closeParentOnEsc && parent.type === 'menu' },
     outsidePress() {
       if (parent.type !== 'context-menu' || openEventRef.current?.type === 'contextmenu') {
