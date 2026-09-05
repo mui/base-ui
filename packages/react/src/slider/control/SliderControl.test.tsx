@@ -5,6 +5,17 @@ import { Slider } from '@base-ui/react/slider';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { createTouches, getHorizontalSliderRect } from '../utils/test-utils';
 
+// jsdom has no pointer capture API.
+function stubPointerCapture(control: HTMLElement) {
+  const releasePointerCapture = vi.fn();
+  Object.defineProperties(control, {
+    setPointerCapture: { configurable: true, value: vi.fn() },
+    hasPointerCapture: { configurable: true, value: () => true },
+    releasePointerCapture: { configurable: true, value: releasePointerCapture },
+  });
+  return releasePointerCapture;
+}
+
 describe('<Slider.Control />', () => {
   const { render } = createRenderer();
 
@@ -203,6 +214,137 @@ describe('<Slider.Control />', () => {
 
     expect(releasePointerCapture).toHaveBeenCalledWith(7);
   });
+
+  it('does not commit a cancelled drag on the next unrelated pointerup', async () => {
+    const onValueCommitted = vi.fn();
+
+    await render(
+      <Slider.Root defaultValue={20} onValueCommitted={onValueCommitted}>
+        <Slider.Control data-testid="control">
+          <Slider.Thumb />
+        </Slider.Control>
+      </Slider.Root>,
+    );
+
+    const control = screen.getByTestId('control');
+    vi.spyOn(control, 'getBoundingClientRect').mockImplementation(getHorizontalSliderRect);
+    const releasePointerCapture = stubPointerCapture(control);
+
+    const touch = { pointerId: 3, pointerType: 'touch' };
+    fireEvent.pointerDown(control, { ...touch, button: 0, buttons: 1, clientX: 20 });
+    fireEvent.pointerMove(document.body, { ...touch, buttons: 1, clientX: 70 });
+    expect(control).toHaveAttribute('data-dragging');
+
+    fireEvent.pointerCancel(document.body, { ...touch, buttons: 0, clientX: 70 });
+
+    expect(onValueCommitted).not.toHaveBeenCalled();
+    expect(releasePointerCapture).toHaveBeenCalledWith(3);
+    expect(control).not.toHaveAttribute('data-dragging');
+
+    // Tap somewhere else on the page.
+    fireEvent.pointerUp(document.body, { ...touch, buttons: 0, clientX: 90 });
+
+    expect(onValueCommitted).not.toHaveBeenCalled();
+  });
+
+  it('starts a fresh drag after a cancelled one and commits it once', async () => {
+    const onValueCommitted = vi.fn();
+
+    await render(
+      <Slider.Root defaultValue={20} onValueCommitted={onValueCommitted}>
+        <Slider.Control data-testid="control">
+          <Slider.Thumb />
+        </Slider.Control>
+      </Slider.Root>,
+    );
+
+    const control = screen.getByTestId('control');
+    vi.spyOn(control, 'getBoundingClientRect').mockImplementation(getHorizontalSliderRect);
+    stubPointerCapture(control);
+
+    fireEvent.pointerDown(control, { button: 0, buttons: 1, clientX: 20 });
+    fireEvent.pointerMove(document.body, { buttons: 1, clientX: 70 });
+    // Browsers may deliver the cancellation more than once (pointercancel + touchcancel).
+    fireEvent.pointerCancel(document.body, { buttons: 0, clientX: 70 });
+    fireEvent.pointerCancel(document.body, { buttons: 0, clientX: 70 });
+    // Tap somewhere else on the page.
+    fireEvent.pointerUp(document.body, { buttons: 0, clientX: 90 });
+
+    expect(onValueCommitted).not.toHaveBeenCalled();
+
+    fireEvent.pointerDown(control, { button: 0, buttons: 1, clientX: 30 });
+    fireEvent.pointerMove(document.body, { buttons: 1, clientX: 40 });
+    fireEvent.pointerUp(document.body, { buttons: 0, clientX: 40 });
+
+    expect(onValueCommitted).toHaveBeenCalledTimes(1);
+    expect(onValueCommitted).toHaveBeenCalledWith(40, expect.objectContaining({ reason: 'drag' }));
+  });
+
+  it('commits a released drag exactly once', async () => {
+    const onValueCommitted = vi.fn();
+
+    await render(
+      <Slider.Root defaultValue={20} onValueCommitted={onValueCommitted}>
+        <Slider.Control data-testid="control">
+          <Slider.Thumb />
+        </Slider.Control>
+      </Slider.Root>,
+    );
+
+    const control = screen.getByTestId('control');
+    vi.spyOn(control, 'getBoundingClientRect').mockImplementation(getHorizontalSliderRect);
+    stubPointerCapture(control);
+
+    fireEvent.pointerDown(control, { button: 0, buttons: 1, clientX: 20 });
+    fireEvent.pointerMove(document.body, { buttons: 1, clientX: 70 });
+    fireEvent.pointerUp(document.body, { buttons: 0, clientX: 70 });
+
+    expect(onValueCommitted).toHaveBeenCalledTimes(1);
+    expect(onValueCommitted).toHaveBeenCalledWith(70, expect.objectContaining({ reason: 'drag' }));
+
+    fireEvent.pointerCancel(document.body, { buttons: 0, clientX: 70 });
+    fireEvent.pointerUp(document.body, { buttons: 0, clientX: 90 });
+
+    expect(onValueCommitted).toHaveBeenCalledTimes(1);
+  });
+
+  it.skipIf(isJSDOM || typeof Touch === 'undefined')(
+    'does not commit a drag ended by touchcancel on the next unrelated touchend',
+    async () => {
+      const onValueCommitted = vi.fn();
+
+      await render(
+        <Slider.Root defaultValue={20} onValueCommitted={onValueCommitted}>
+          <Slider.Control data-testid="control">
+            <Slider.Thumb />
+          </Slider.Control>
+        </Slider.Root>,
+      );
+
+      const control = screen.getByTestId('control');
+      vi.spyOn(control, 'getBoundingClientRect').mockImplementation(getHorizontalSliderRect);
+
+      fireEvent.touchStart(control, createTouches([{ identifier: 1, clientX: 20, clientY: 0 }]));
+      fireEvent.touchMove(
+        document.body,
+        createTouches([{ identifier: 1, clientX: 70, clientY: 0 }]),
+      );
+      fireEvent.touchCancel(
+        document.body,
+        createTouches([{ identifier: 1, clientX: 70, clientY: 0 }]),
+      );
+
+      expect(onValueCommitted).not.toHaveBeenCalled();
+
+      fireEvent.touchEnd(
+        document.body,
+        createTouches([{ identifier: 2, clientX: 90, clientY: 0 }]),
+      );
+      fireEvent.pointerUp(document.body, { pointerType: 'touch', buttons: 0, clientX: 90 });
+
+      expect(onValueCommitted).not.toHaveBeenCalled();
+    },
+  );
 
   it('degrades safely when a custom render function drops the control ref', async () => {
     const onValueChange = vi.fn();

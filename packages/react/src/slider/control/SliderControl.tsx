@@ -151,6 +151,13 @@ export const SliderControl = React.forwardRef(function SliderControl(
     pressedThumbCenterOffsetRef.current = null;
   }
 
+  function releaseCapture(nativeEvent: TouchEvent | PointerEvent) {
+    const control = controlRef.current;
+    if ('pointerType' in nativeEvent && control?.hasPointerCapture(nativeEvent.pointerId)) {
+      control.releasePointerCapture(nativeEvent.pointerId);
+    }
+  }
+
   function isTargetDisabledThumb(target: EventTarget | null) {
     if (!isElement(target)) {
       return false;
@@ -365,14 +372,23 @@ export const SliderControl = React.forwardRef(function SliderControl(
       );
     }
 
-    if (
-      'pointerType' in nativeEvent &&
-      controlRef.current?.hasPointerCapture(nativeEvent.pointerId)
-    ) {
-      controlRef.current?.releasePointerCapture(nativeEvent.pointerId);
-    }
+    releaseCapture(nativeEvent);
 
     pressedThumbIndexRef.current = -1;
+    touchIdRef.current = null;
+    // eslint-disable-next-line @typescript-eslint/no-use-before-define
+    stopListening();
+  });
+
+  // The browser took the touch away (scroll, system gesture, second finger). End the
+  // interaction without committing; the next unrelated tap must not commit the drag value.
+  const handleTouchCancel = useStableCallback((nativeEvent: TouchEvent | PointerEvent) => {
+    setActive(-1);
+    setDragging(false);
+
+    releaseCapture(nativeEvent);
+
+    resetPressedThumb();
     touchIdRef.current = null;
     // eslint-disable-next-line @typescript-eslint/no-use-before-define
     stopListening();
@@ -411,14 +427,17 @@ export const SliderControl = React.forwardRef(function SliderControl(
     const doc = ownerDocument(controlRef.current);
     doc.addEventListener('touchmove', handleTouchMove, { passive: true });
     doc.addEventListener('touchend', handleTouchEnd, { passive: true });
+    doc.addEventListener('touchcancel', handleTouchCancel, { passive: true });
   });
 
   const stopListening = useStableCallback(() => {
     const doc = ownerDocument(controlRef.current);
     doc.removeEventListener('pointermove', handleTouchMove);
     doc.removeEventListener('pointerup', handleTouchEnd);
+    doc.removeEventListener('pointercancel', handleTouchCancel);
     doc.removeEventListener('touchmove', handleTouchMove);
     doc.removeEventListener('touchend', handleTouchEnd);
+    doc.removeEventListener('touchcancel', handleTouchCancel);
     pressedValuesRef.current = null;
     currentInteractionValueRef.current = null;
   });
@@ -512,6 +531,7 @@ export const SliderControl = React.forwardRef(function SliderControl(
           const doc = ownerDocument(control);
           doc.addEventListener('pointermove', handleTouchMove, { passive: true });
           doc.addEventListener('pointerup', handleTouchEnd, { once: true });
+          doc.addEventListener('pointercancel', handleTouchCancel, { once: true });
         },
       },
       elementProps,
