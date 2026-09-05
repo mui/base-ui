@@ -138,30 +138,41 @@ export default function ExampleAsyncMultipleCombobox() {
           Assign reviewers
         </label>
         <Combobox.InputGroup className={styles.InputGroup}>
-          <Combobox.Chips className={styles.Chips}>
-            <Combobox.Value>
-              {(value: DirectoryUser[]) => (
-                <React.Fragment>
-                  {value.map((user) => (
-                    <Combobox.Chip key={user.id} className={styles.Chip} aria-label={user.name}>
-                      {user.name}
-                      <Combobox.ChipRemove
-                        className={styles.ChipRemove}
-                        aria-label={`Remove ${user.name}`}
-                      >
-                        <XIcon />
-                      </Combobox.ChipRemove>
-                    </Combobox.Chip>
-                  ))}
-                  <Combobox.Input
-                    id={id}
-                    placeholder={value.length > 0 ? '' : 'e.g. Michael'}
-                    className={styles.Input}
-                  />
-                </React.Fragment>
-              )}
-            </Combobox.Value>
-          </Combobox.Chips>
+          <Combobox.Value>
+            {(value: DirectoryUser[]) => (
+              <Combobox.Chips
+                className={styles.Chips}
+                aria-label={value.length > 0 ? 'Selected reviewers' : undefined}
+              >
+                {value.map((user) => (
+                  <Combobox.Chip
+                    key={user.id}
+                    className={styles.Chip}
+                    aria-label={user.name}
+                    aria-description="Press Backspace or Delete to remove"
+                  >
+                    {user.name}
+                    <Combobox.ChipRemove
+                      className={styles.ChipRemove}
+                      aria-label={`Remove ${user.name}`}
+                    >
+                      <XIcon />
+                    </Combobox.ChipRemove>
+                  </Combobox.Chip>
+                ))}
+                <Combobox.Input
+                  id={id}
+                  placeholder={value.length > 0 ? '' : 'e.g. Michael'}
+                  aria-description={
+                    value.length > 0
+                      ? `${value.length} selected. From the start of the input, press Left Arrow to focus the selected items`
+                      : undefined
+                  }
+                  className={styles.Input}
+                />
+              </Combobox.Chips>
+            )}
+          </Combobox.Value>
         </Combobox.InputGroup>
       </div>
 
