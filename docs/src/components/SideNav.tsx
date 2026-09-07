@@ -57,7 +57,8 @@ export function Item(props: ItemProps) {
   const { children, className, href, external, icon, ...other } = props;
   const ref = React.useRef<HTMLLIElement>(null);
   const pathname = usePathname();
-  const active = pathname === href || pathname.startsWith(`${href}/`);
+  const exactActive = pathname === href;
+  const active = exactActive || pathname.startsWith(`${href}/`);
   const rem = React.useRef(16);
 
   React.useEffect(() => {
@@ -90,17 +91,18 @@ export function Item(props: ItemProps) {
   }, [active]);
 
   const LinkComponent = external ? 'a' : NextLink;
+  const ariaCurrent = exactActive ? 'page' : 'location';
 
   return (
     <li ref={ref} {...other} className={clsx('SideNavItem', className)}>
       <LinkComponent
         className="SideNavLink"
         href={href}
-        scroll={external ? undefined : !active}
-        {...(active
+        scroll={external ? undefined : !exactActive}
+        data-active={active || undefined}
+        aria-current={active ? ariaCurrent : undefined}
+        {...(exactActive
           ? {
-              'aria-current': true,
-              'data-active': true,
               onClick: () => {
                 // Scroll to top smoothly when clicking on the currently active item
                 window.scrollTo({ top: 0, behavior: 'smooth' });
