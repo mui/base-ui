@@ -32,7 +32,7 @@ import type {
   VirtualizerRenderRowParameters,
   VirtualizerRow,
 } from '../internals/virtualization/types';
-import type { RowsGeometry } from './geometry';
+import type { RowsGeometry, RowWindow } from './geometry';
 import { EMPTY_SCROLLPORT_PADDING, getScrollportPadding } from './scrollport';
 import { useAdaptiveEstimate, useAdaptiveEstimateRefresh } from './useAdaptiveEstimate';
 import { useEngineMode } from './useEngineMode';
@@ -194,6 +194,61 @@ function getOverscannedRenderContext(
     firstRowIndex,
     lastRowIndex,
   };
+}
+
+/**
+ * The element rendered for one row of the window.
+ */
+type RenderVirtualRow = (params: {
+  id: React.Key;
+  model: MuiVirtualizerRow;
+  rowIndex: number;
+  isVirtualFocusRow: boolean;
+}) => React.ReactElement;
+
+/**
+ * Renders the rows of a half-open window, plus the pinned row when it falls outside the window.
+ *
+ * This is what the engine's own row getter does for a flat list, written here so the component
+ * owns the element tree it mounts: the getter's typings are `any`, and it also carries the grid
+ * machinery (pinned sections, detail panels, column spans) this list never enables. The pinned
+ * row keeps the engine's rule — it is spliced in before the window when it lies above it and
+ * after it when it lies beyond the exclusive end, and it is the focus proxy only in those
+ * positions; a pinned row inside the window is an ordinary row.
+ */
+function renderRowWindow<RowModel>(
+  window: RowWindow,
+  pinnedRowIndex: number | undefined,
+  rows: VirtualizerRow<RowModel>[],
+  renderRow: RenderVirtualRow,
+): React.ReactNode {
+  const firstRowIndex = Math.max(0, window.firstRowIndex);
+  const lastRowIndex = Math.min(window.lastRowIndex, rows.length);
+  const elements: React.ReactElement[] = [];
+
+  const renderAt = (rowIndex: number, isVirtualFocusRow: boolean) => {
+    const row = rows[rowIndex];
+    elements.push(
+      renderRow({ id: row.id, model: row.model as MuiVirtualizerRow, rowIndex, isVirtualFocusRow }),
+    );
+  };
+
+  const hasPinnedRow =
+    pinnedRowIndex != null && pinnedRowIndex >= 0 && pinnedRowIndex < rows.length;
+
+  if (hasPinnedRow && pinnedRowIndex < firstRowIndex) {
+    renderAt(pinnedRowIndex, true);
+  }
+
+  for (let rowIndex = firstRowIndex; rowIndex < lastRowIndex; rowIndex += 1) {
+    renderAt(rowIndex, false);
+  }
+
+  if (hasPinnedRow && pinnedRowIndex > lastRowIndex) {
+    renderAt(pinnedRowIndex, true);
+  }
+
+  return elements;
 }
 
 const stateAttributesMapping: StateAttributesMapping<VirtualizerState> = {
@@ -1008,18 +1063,10 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
     rowsMeta,
   });
 
-  const rowsRenderContext: RenderContext = enabled
+  const rowsWindow: RowWindow = enabled
     ? overscannedRenderContext
-    : {
-        ...overscannedRenderContext,
-        firstRowIndex: 0,
-        lastRowIndex: rows.length,
-      };
-  // Reaches into the engine's getters, which its typings leave as `any`: there is no declared way
-  // to ask for the rows of a given window. This is the one call that depends on that shape.
-  const renderedRows: React.ReactNode = virtualizer.api.getters.getRows({
-    renderContext: rowsRenderContext,
-  });
+    : { firstRowIndex: 0, lastRowIndex: rows.length };
+  const renderedRows = renderRowWindow(rowsWindow, validPinnedRowIndex, rows, renderRow);
 
   const { ref: containerRef, style: containerStyle, ...restContainerProps } = containerProps;
   const { style: contentStyle, ...restContentProps } = contentProps;
