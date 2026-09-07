@@ -4,7 +4,7 @@ import { toString } from 'hast-util-to-string';
 import { visit, CONTINUE, EXIT } from 'unist-util-visit';
 import { stringToUrl } from './rehypeSlug.mjs';
 
-export function rehypeConcatHeadings() {
+export default function rehypeConcatHeadings() {
   return (tree) => {
     /**
      * Forms page: prefix <h3>s under React Hook Form/TanStack Form with the library name

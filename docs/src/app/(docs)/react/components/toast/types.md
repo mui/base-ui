@@ -21,15 +21,15 @@ Renders a `<div>` element.
 
 **Root Data Attributes:**
 
-| Attribute            | Type                                  | Description                                                    |
-| :------------------- | :------------------------------------ | :------------------------------------------------------------- |
-| data-expanded        | `boolean`                             | Present when the toast is expanded in the viewport.            |
-| data-limited         | `boolean`                             | Present when the toast was removed due to exceeding the limit. |
-| data-swipe-direction | `'up' \| 'down' \| 'left' \| 'right'` | The direction the toast was swiped.                            |
-| data-swiping         | `boolean`                             | Present when the toast is being swiped.                        |
-| data-type            | `string`                              | The type of the toast.                                         |
-| data-starting-style  | -                                     | Present when the toast is animating in.                        |
-| data-ending-style    | -                                     | Present when the toast is animating out.                       |
+| Attribute            | Type                                  | Description                                                              |
+| :------------------- | :------------------------------------ | :----------------------------------------------------------------------- |
+| data-expanded        | `boolean`                             | Present when the toast is expanded in the viewport.                      |
+| data-limited         | `boolean`                             | Present when the toast was limited because the toast limit was exceeded. |
+| data-swipe-direction | `'up' \| 'down' \| 'left' \| 'right'` | The direction the toast was swiped.                                      |
+| data-swiping         | `boolean`                             | Present when the toast is being swiped.                                  |
+| data-type            | `string`                              | The type of the toast.                                                   |
+| data-starting-style  | -                                     | Present when the toast begins animating in.                              |
+| data-ending-style    | -                                     | Present when the toast is animating out.                                 |
 
 **Root CSS Variables:**
 
@@ -53,7 +53,7 @@ type ToastRootState = {
   transitionStatus: TransitionStatus;
   /** Whether the toasts in the viewport are expanded. */
   expanded: boolean;
-  /** Whether the toast was removed due to exceeding the limit. */
+  /** Whether the toast was limited because the toast limit was exceeded. */
   limited: boolean;
   /** The type of the toast. */
   type: string | undefined;
@@ -98,7 +98,7 @@ type ToastRootToastObject<Data extends {} = any> = {
   transitionStatus?: 'starting' | 'ending';
   /** A counter that increments whenever the toast is updated or upserted. */
   updateKey?: number;
-  /** Determines if the toast was closed due to the limit being reached. */
+  /** Determines if the toast was limited because the toast limit was exceeded. */
   limited?: boolean;
   /** The height of the toast. */
   height?: number;
@@ -124,12 +124,12 @@ Provides a context for creating and managing toasts.
 
 **Provider Props:**
 
-| Prop         | Type              | Default | Description                                                                                                                                               |
-| :----------- | :---------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| limit        | `number`          | `3`     | The maximum number of toasts that can be displayed at once.&#xA;When the limit is reached, the oldest toast will be removed to make room for the new one. |
-| toastManager | `ToastManager`    | -       | A global manager for toasts to use outside of a React component.                                                                                          |
-| timeout      | `number`          | `5000`  | The default amount of time (in ms) before a toast is auto dismissed.&#xA;A value of `0` will prevent the toast from being dismissed automatically.        |
-| children     | `React.ReactNode` | -       | -                                                                                                                                                         |
+| Prop         | Type              | Default | Description                                                                                                                                                                                                                              |
+| :----------- | :---------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| limit        | `number`          | `3`     | The maximum number of toasts that can be displayed at once.&#xA;When the limit is exceeded, the oldest toasts are marked as `limited` (via the `data-limited`&#xA;attribute) rather than removed, so they can be hidden or animated out. |
+| toastManager | `ToastManager`    | -       | A global manager for toasts to use outside of a React component.                                                                                                                                                                         |
+| timeout      | `number`          | `5000`  | The default amount of time (in ms) before a toast is auto dismissed.&#xA;A value of `0` will prevent the toast from being dismissed automatically.                                                                                       |
+| children     | `React.ReactNode` | -       | -                                                                                                                                                                                                                                        |
 
 ### Provider.Props
 
@@ -149,12 +149,12 @@ Renders a `<div>` element.
 
 **Portal Props:**
 
-| Prop      | Type                                                                                      | Default | Description                                                                                                                                                                                   |
-| :-------- | :---------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| container | `HTMLElement \| ShadowRoot \| React.RefObject<HTMLElement \| ShadowRoot \| null> \| null` | -       | A parent element to render the portal element into.                                                                                                                                           |
-| className | `string \| ((state: any) => string \| undefined)`                                         | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
-| style     | `React.CSSProperties \| ((state: any) => React.CSSProperties \| undefined)`               | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
-| render    | `ReactElement \| ((props: HTMLProps, state: any) => ReactElement)`                        | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop      | Type                                                                                       | Default | Description                                                                                                                                                                                   |
+| :-------- | :----------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| container | `HTMLElement \| ShadowRoot \| React.RefObject<HTMLElement \| ShadowRoot \| null> \| null`  | -       | A parent element to render the portal element into.                                                                                                                                           |
+| className | `string \| ((state: Toast.Portal.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
+| style     | `React.CSSProperties \| ((state: Toast.Portal.State) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
+| render    | `ReactElement \| ((props: HTMLProps, state: Toast.Portal.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
 ### Portal.Props
 
@@ -557,7 +557,7 @@ type ToastObject<Data extends {}> = {
   transitionStatus?: 'starting' | 'ending';
   /** A counter that increments whenever the toast is updated or upserted. */
   updateKey?: number;
-  /** Determines if the toast was closed due to the limit being reached. */
+  /** Determines if the toast was limited because the toast limit was exceeded. */
   limited?: boolean;
   /** The height of the toast. */
   height?: number;
@@ -584,7 +584,11 @@ type ToastManager<Data extends {} = any> = {
   ' subscribe': (listener: (data: ToastManagerEvent) => void) => () => void;
   add: <T extends Data = Data>(options: ToastManagerAddOptions<T>) => string;
   close: (id?: string) => void;
-  update: <T extends Data = Data>(id: string, updates: ToastManagerUpdateOptions<T>) => void;
+  update: <T extends Data = Data>(
+    id: string,
+    updates:
+      ToastManagerUpdateOptions<T> | ((prevToast: ToastObject<T>) => ToastManagerUpdateOptions<T>),
+  ) => void;
   promise: <Value, T extends Data = Data>(
     promiseValue: Promise<Value>,
     options: ToastManagerPromiseOptions<Value, T>,
@@ -658,8 +662,7 @@ type ToastManagerPositionerProps = {
    * returns a style object based on the component's state.
    */
   style?:
-    | React.CSSProperties
-    | ((state: Toast.Positioner.State) => React.CSSProperties | undefined);
+    React.CSSProperties | ((state: Toast.Positioner.State) => React.CSSProperties | undefined);
   /**
    * CSS class applied to the element, or a function that
    * returns a class based on the component's state.
@@ -868,7 +871,11 @@ type UseToastManagerReturnValue<Data extends {} = any> = {
   toasts: ToastObject<Data>[];
   add: <T extends Data = Data>(options: ToastManagerAddOptions<T>) => string;
   close: (toastId?: string) => void;
-  update: <T extends Data = Data>(toastId: string, options: ToastManagerUpdateOptions<T>) => void;
+  update: <T extends Data = Data>(
+    toastId: string,
+    options:
+      ToastManagerUpdateOptions<T> | ((prevToast: ToastObject<T>) => ToastManagerUpdateOptions<T>),
+  ) => void;
   promise: <Value, T extends Data = Data>(
     promise: Promise<Value>,
     options: ToastManagerPromiseOptions<Value, T>,

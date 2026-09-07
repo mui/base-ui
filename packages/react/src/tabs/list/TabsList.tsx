@@ -1,13 +1,13 @@
 'use client';
 import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { EMPTY_ARRAY } from '@base-ui/utils/empty';
 import { BaseUIComponentProps, HTMLProps } from '../../internals/types';
-import type { TabsRoot, TabsRootState } from '../root/TabsRoot';
+import type { TabsRootState } from '../root/TabsRoot';
 import { CompositeRoot } from '../../internals/composite/root/CompositeRoot';
 import { tabsStateAttributesMapping } from '../root/stateAttributesMapping';
 import { useTabsRootContext } from '../root/TabsRootContext';
-import type { TabsTab } from '../tab/TabsTab';
 import { TabsListContext } from './TabsListContext';
 
 /**
@@ -29,8 +29,7 @@ export const TabsList = React.forwardRef(function TabsList(
     ...elementProps
   } = componentProps;
 
-  const { onValueChange, orientation, value, setTabMap, tabActivationDirection } =
-    useTabsRootContext();
+  const { orientation, setTabMap, tabActivationDirection } = useTabsRootContext();
 
   const [highlightedTabIndex, setHighlightedTabIndex] = React.useState(0);
   const [tabsListElement, setTabsListElement] = React.useState<HTMLElement | null>(null);
@@ -39,22 +38,15 @@ export const TabsList = React.forwardRef(function TabsList(
   const tabResizeObserverElementsRef = React.useRef(new Set<HTMLElement>());
   const resizeObserverRef = React.useRef<ResizeObserver | null>(null);
 
-  const notifyIndicatorUpdateListeners = useStableCallback(() => {
-    indicatorUpdateListenersRef.current.forEach((listener) => {
-      listener();
-    });
-  });
-
-  React.useEffect(() => {
+  useIsoLayoutEffect(() => {
     if (typeof ResizeObserver === 'undefined') {
       return undefined;
     }
 
     const resizeObserver = new ResizeObserver(() => {
-      if (!indicatorUpdateListenersRef.current.size) {
-        return;
-      }
-      notifyIndicatorUpdateListeners();
+      indicatorUpdateListenersRef.current.forEach((listener) => {
+        listener();
+      });
     });
 
     resizeObserverRef.current = resizeObserver;
@@ -71,7 +63,7 @@ export const TabsList = React.forwardRef(function TabsList(
       resizeObserver.disconnect();
       resizeObserverRef.current = null;
     };
-  }, [tabsListElement, notifyIndicatorUpdateListeners]);
+  }, [tabsListElement]);
 
   const registerIndicatorUpdateListener = useStableCallback((listener: () => void) => {
     indicatorUpdateListenersRef.current.add(listener);
@@ -89,14 +81,6 @@ export const TabsList = React.forwardRef(function TabsList(
     };
   });
 
-  const onTabActivation = useStableCallback(
-    (newValue: TabsTab.Value, eventDetails: TabsRoot.ChangeEventDetails) => {
-      if (newValue !== value) {
-        onValueChange(newValue, eventDetails);
-      }
-    },
-  );
-
   const state: TabsListState = {
     orientation,
     tabActivationDirection,
@@ -110,20 +94,14 @@ export const TabsList = React.forwardRef(function TabsList(
   const tabsListContextValue: TabsListContext = React.useMemo(
     () => ({
       activateOnFocus,
-      highlightedTabIndex,
       registerIndicatorUpdateListener,
       registerTabResizeObserverElement,
-      onTabActivation,
-      setHighlightedTabIndex,
       tabsListElement,
     }),
     [
       activateOnFocus,
-      highlightedTabIndex,
       registerIndicatorUpdateListener,
       registerTabResizeObserverElement,
-      onTabActivation,
-      setHighlightedTabIndex,
       tabsListElement,
     ],
   );
@@ -144,7 +122,7 @@ export const TabsList = React.forwardRef(function TabsList(
         orientation={orientation}
         onHighlightedIndexChange={setHighlightedTabIndex}
         onMapChange={setTabMap}
-        disabledIndices={EMPTY_ARRAY as number[]}
+        disabledIndices={EMPTY_ARRAY}
       />
     </TabsListContext.Provider>
   );

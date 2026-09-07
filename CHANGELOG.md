@@ -1,10 +1,712 @@
 # Versions
 
+## v1.8.0
+
+<!-- generated comparing v1.7.0...master -->
+
+_Sep 4, 2026_
+
+### General changes
+
+- Fix label association when a control unregisters (#5456) by @atomiks
+- Reduce animation completion work (#5535) by @atomiks
+- Fix prop and ref merging for lazy render elements (#5562) by @atomiks
+- Fix roving focus when items are added or removed (#5447) by @atomiks
+- Fix hover and focus interaction issues (#5037) by @atomiks
+- Improve trigger mount performance (#5426) by @atomiks
+- Fix disabled anchor tracking on scroll (#5478) by @atomiks
+- Fix transform origin for start/end alignment (#5015) by @atomiks
+- Remove duplicate options key from arrow middleware (#5606) by @atomiks
+- Register passive touch listeners (#5572) by @wanxiankai
+
+### Alert Dialog
+
+- Ignore outside clicks from presses that began before open (#5378) by @michaldudak
+
+### Autocomplete
+
+- Render groups with the rowgroup role in grid mode (#5564) by @atomiks
+- Allow opening and browsing the popup while `readOnly` (#5541) by @vikuscz
+- Move `aria-orientation` to the role owners (#5551) by @gonzoblasco
+- Hide group labels and scrollbars from the accessibility tree (#5598) by @azeng4499
+
+### Avatar
+
+- Add `keepMounted` prop to `<Avatar.Image>` (#5536) by @atomiks
+
+### Checkbox
+
+- Fix stale and duplicated control IDs (#5457) by @atomiks
+- Fix controlled blur validation and stale filled state (#5563) by @atomiks
+
+### Checkbox Group
+
+- Fix stale and duplicated control IDs (#5457) by @atomiks
+
+### Combobox
+
+- Fix applying `data-readonly` to `<Combobox.Trigger>` (#5418) by @sai6855
+- Add `createItems` collection API (#5326) by @atomiks
+- Fix cancellation when preserving the filter after selection (#5362) by @atomiks
+- Render groups with the rowgroup role in grid mode (#5564) by @atomiks
+- Allow opening and browsing the popup while `readOnly` (#5541) by @vikuscz
+- Move `aria-orientation` to the role owners (#5551) by @gonzoblasco
+- Fix record item label lookup reading from `Object.prototype` (#5518) by @XionWCFM
+- Anchor multiple selection to the first selected item with a linear lookup (#5573, #5613) by @atomiks and @michaldudak
+- Hide group labels and scrollbars from the accessibility tree (#5598) by @azeng4499
+
+### Dialog
+
+- Ignore outside clicks from presses that began before open (#5378) by @michaldudak
+
+### Drawer
+
+- Ignore swipes without an attributed direction when using snap points (#5477) by @atomiks
+- Respect canceled snap point dismissal (#5571) by @radist2s
+- Ignore the page scroller when starting a swipe (#5567) by @flaviendelangle
+
+### Field
+
+- Fix custom validity ownership and validation lifecycle (#5449) by @atomiks
+- Sync controlled value changes with field state (#5460) by @atomiks
+- Fix stale and duplicated control IDs (#5457) by @atomiks
+- Validate once on Enter inside a Form (#5459) by @atomiks
+- Publish neutral validity while async validation is in flight (#5600) by @atomiks
+- Fix controlled blur validation and stale filled state (#5563) by @atomiks
+
+### Form
+
+- Fix `clearErrors` dropping updates when multiple fields change at once (#5446) by @sai6855
+
+### Menu
+
+- Play the enter transition for an initially open submenu (#4383) by @michaldudak
+- Move `aria-orientation` to the role owners (#5551) by @gonzoblasco
+- Hide group labels and scrollbars from the accessibility tree (#5598) by @azeng4499
+
+### Menubar
+
+- Fix menubar accessibility tree to satisfy `aria-required-children` (#5058) by @michaldudak
+
+### Navigation Menu
+
+- Fix pointer-events lock when sweeping quickly across a trigger (#5454) by @edwardhorsey
+- Keep focus on trigger when opening (#5479) by @atomiks
+- Add disabled data attribute to `<NavigationMenu.Trigger>` (#5521) by @sai6855
+
+### Number Field
+
+- Stop incrementing when disabled during press-and-hold (#5435) by @alex-js-ltd
+- Prevent scrubbing on horizontal wheel events (#5463) by @sai6855
+- Preserve native and consumer-controlled selection when focusing the input (#5578, #5619) by @atomiks
+
+### Popover
+
+- Ignore outside clicks from presses that began before open (#5378) by @michaldudak
+- Fix detached trigger store migration (#5442) by @atomiks
+
+### Scroll Area
+
+- Hide group labels and scrollbars from the accessibility tree (#5598) by @azeng4499
+- Prevent scrollbars from stealing focus (#5430) by @marwenilo
+
+### Select
+
+- Move `aria-orientation` to the role owners (#5551) by @gonzoblasco
+- Anchor multiple selection to the first selected item with a linear lookup (#5573, #5613) by @atomiks and @michaldudak
+- Hide group labels and scrollbars from the accessibility tree (#5598) by @azeng4499
+- Fix the root ID being ignored inside a Field (#5461) by @atomiks
+- Remove redundant size check in `<Select.Positioner>` (#5469) by @sai6855
+- Allow opening and browsing the popup while `readOnly` (#5531) by @vikuscz
+- Fix record item label lookup reading from `Object.prototype` (#5518) by @XionWCFM
+
+### Slider
+
+- Prevent update loops from unstable refs (#5441) by @atomiks
+
+### Switch
+
+- Fix controlled blur validation and stale filled state (#5563) by @atomiks
+
+### Tabs
+
+- Prevent update loops from unstable refs (#5441) by @atomiks
+- Consider 3D transforms when positioning the indicator (#4852) by @michaldudak
+
+### Toast
+
+- Allow functional toast updates derived from the current toast (#5464, #5611, #5629) by @chuganzy and @michaldudak
+
+### Tooltip
+
+- Respect trigger delay with zero provider delay (#5444) by @atomiks
+
+All contributors of this release in alphabetical order: @alex-js-ltd, @atomiks, @azeng4499, @chuganzy, @edwardhorsey, @flaviendelangle, @gilsmt, @gonzoblasco, @jjenzz, @marwenilo, @michaldudak, @radist2s, @sai6855, @vikuscz, @wanxiankai, @XionWCFM
+
+## v1.7.0
+
+_Aug 4, 2026_
+
+### General changes
+
+- Restore visible focus after keyboard close in Safari and Firefox (#5093) by @lyzno1
+- Type `render` callback props based on the rendered element (#5104) by @atomiks
+- Reduce popup bundle size (#5233) by @atomiks
+- Reduce store bundle size (#5250) by @atomiks
+- Keep unpositioned popups at the viewport origin (#5299) by @flaviendelangle
+- Correct layout and passive effect timing (#5337) by @atomiks
+- Remove redundant lifecycle synchronization (#5341) by @atomiks
+- Prevent stale cleanup from clearing registered part IDs (#5340) by @atomiks
+- Complete popup unmounting after a canceled exit transition (#5401) by @atomiks
+- Fix rendered trigger ID ownership (#5110) by @atomiks
+- Prevent unwanted flip with capped scrollable content (#5120) by @atomiks
+- Fix `collisionPadding` off-by-one on the biased side (#5143) by @atomiks
+- Reduce shared popup bundle size (#5192) by @atomiks
+- Mount popup subtrees synchronously when opening in React 17 (#5309) by @atomiks
+- Fix auto-resize origin for left-anchored popups (#5370) by @sai6855
+- Avoid redundant re-renders during lazy flipping (#5372) by @mdm317
+- Strip implementation-only types from published `.d.ts` files (#5165) by @michaldudak
+- Fix `usePreviousValue` equality comparison (#5264) by @lyzno1
+
+### Accordion
+
+- Remove the implicit `dir` attribute from `<Accordion.Root>` (#5117) by @chuganzy
+
+### Alert Dialog
+
+- Prevent `<AlertDialog.Root>` from reopening after remounting with a reused handle (#5109) by @michaldudak
+
+### Autocomplete
+
+- Respect locale when filtering (#5195) by @atomiks
+- Add `input-press` to change event details (#5356) by @chuganzy
+- Add `cancel-open` to change event details (#5376) by @chuganzy
+- Reset list scroll position on filter (#5231) by @atomiks
+- Remove dead code and deduplicate handlers (#5194) by @atomiks
+- Fix listbox separator semantics (#5399) by @sarthakmalik0810
+
+### Avatar
+
+- Show `<Avatar.Fallback>` immediately when `delay={0}` (#5147) by @chuganzy
+
+### Button
+
+- Fix keyboard click handling for custom elements (#4838) by @atomiks
+
+### Checkbox
+
+- Remove redundant validation input ref (#5188) by @nami8824
+- Stop internal input clicks from reaching ancestors (#5176) by @atomiks
+- Reduce bundle size (#5223) by @atomiks
+
+### Checkbox Group
+
+- Focus invalid checkbox (#5216) by @atomiks
+- Align form values with native submission (#5218) by @atomiks
+- Reduce bundle size (#5223) by @atomiks
+
+### Combobox
+
+- Add `input-press` to change event details (#5356) by @chuganzy
+- Add `cancel-open` to change event details (#5376) by @chuganzy
+- Stop filtering grouped items after limit (#5086) by @lyzno1
+- Remove leaky value registry (#5198) by @atomiks
+- Set initial highlight in inline combobox (#5230) by @atomiks
+- Return highlight to selected item on query clear (#5232) by @atomiks
+- Expose `expanded` state for inline comboboxes (#5332) by @sarthakmalik0810
+- Keep portalled popup content open (#5334) by @obeattie
+- Reset list scroll position on filter (#5231) by @atomiks
+- Fix hovered item stealing highlight when the list scrolls in Safari (#5265) by @arikchakma
+- Inherit the disabled state from `<Combobox.Root>` in `<Combobox.Item>` (#5365) by @chuganzy
+- Widen trigger slip-out release tolerance (#5159) by @atomiks
+- Remove dead code and deduplicate handlers (#5194) by @atomiks
+- Fix listbox separator semantics (#5399) by @sarthakmalik0810
+
+### Composite
+
+- Fix nested list reorder detection (#5156) by @jjenzz
+- Always skip natively disabled items during list navigation (#5185) by @atomiks
+- Fix scroll alignment for RTL direction in `scrollIntoViewIfNeeded` (#5234) by @sai6855
+- Simplify keyboard bookkeeping (#5249) by @atomiks
+
+### Dialog
+
+- Fix touch outside-press dismissal without a backdrop (#5096) by @atomiks
+- Prevent `<Dialog.Root>` from reopening after remounting with a reused handle (#5109) by @michaldudak
+- Fix scroll lock handoff with external overlays (#4665) by @atomiks
+- Reduce bundle size (#5193) by @atomiks
+
+### Drawer
+
+- Prevent `<Drawer.Root>` from reopening after remounting with a reused handle (#5109) by @michaldudak
+- Fix unreliable swipe-to-open gestures (#5105) by @atomiks
+- Fix popup flashing fully open for a frame on swipe area re-grab (#5112) by @atomiks
+- Deduplicate swipe math to reduce bundle size (#5181) by @atomiks
+- Fix scroll handling when focus moves while the virtual keyboard is open (#5179) by @atomiks
+- Fix cross-axis scroll blocked on iOS below the touchmove slop (#5257) by @atomiks
+- Fix snap point jump when pinned pointer moves leave the drag offset unchanged (#5308) by @atomiks
+- Fix Shadow DOM swipe gestures (#5360) by @atomiks
+
+### Field
+
+- Keep invalid state on disabled fields (#5116) by @atomiks
+- Reduce bundle size (#5225) by @atomiks
+- Fix `data-dirty` tracking for null-valued controls (#5290) by @sai6855
+
+### Fieldset
+
+- Reduce bundle size (#5225) by @atomiks
+
+### Form
+
+- Reduce bundle size (#5225) by @atomiks
+- Focus the first invalid field in document order (#5287) by @atomiks
+
+### Menu
+
+- Ignore pinch-zoom shifting (#4485) by @atomiks
+- Cancel stale submenu hover-open when Chrome drops mouseleave (#5153) by @atomiks
+- Fix exit animation not running on uncheck of item (#5252) by @sai6855
+- Fix duplicate `onOpenChange` calls when closing a submenu (#5178) by @atomiks
+- Fix VoiceOver announcement when opening a submenu (#5342) by @atomiks
+- Propagate disabled state to items (#5363) by @chuganzy
+- Open submenus on Android TalkBack press (#5384) by @atomiks
+- Prevent `<Menu.Root>` from reopening after remounting with a reused handle (#5149) by @michaldudak
+- Widen trigger slip-out release tolerance (#5159) by @atomiks
+
+### Meter
+
+- Format clamped values (#5409) by @atomiks
+- Reduce bundle size (#5224) by @atomiks
+
+### Navigation Menu
+
+- Fix frozen menu when the open trigger unmounts (#5240) by @DreierF
+- Ignore pinch-zoom shifting (#4485) by @atomiks
+
+### Number Field
+
+- Fix keyboard editing with multi-character format symbols (#5111) by @atomiks
+- Reduce bundle size (#5220) by @atomiks
+
+### OTP Field
+
+- Keep focus on the invalid field when `autoSubmit` is blocked (#5089) by @lyzno1
+
+### Popover
+
+- Prevent `<Popover.Root>` from reopening after remounting with a reused handle (#5149) by @michaldudak
+- Reduce bundle size (#5193) by @atomiks
+
+### Preview Card
+
+- Prevent `<PreviewCard.Root>` from reopening after remounting with a reused handle (#5149) by @michaldudak
+
+### Progress
+
+- Fix custom `min`/`max` semantics to match the indicator (#5095) by @atomiks
+- Reduce bundle size (#5224) by @atomiks
+
+### Radio Group
+
+- Remove unnecessary ARIA attributes from `<Radio.Root>` (#5213) by @sai6855
+- Stop internal input clicks from reaching ancestors (#5176) by @atomiks
+- Align form values with native submission (#5238) by @atomiks
+- Reduce bundle size (#5223) by @atomiks
+
+### Scroll Area
+
+- Fix thumb-drag divide-by-zero and per-scroll re-render (#5099) by @atomiks
+- Fix scrollbar visibility during touch scrolling on iOS (#5157) by @atomiks
+- Add WebKit overscroll feedback to `<ScrollArea.Thumb>` (#5145) by @atomiks
+- Reduce bundle size (#5217) by @atomiks
+- Prevent scroll snapping while dragging the thumb (#5259) by @atomiks
+- End thumb drag when the primary button is no longer held (#5374) by @atomiks
+
+### Select
+
+- Fix hovered item stealing highlight when the list scrolls in Safari (#5265) by @arikchakma
+- Inherit the disabled state from `<Select.Root>` in `<Select.Item>` (#5365) by @chuganzy
+- Widen trigger slip-out release tolerance (#5159) by @atomiks
+- Do not force-mount the popup on programmatic value changes (#5119) by @atomiks
+- Remove dead code and deduplicate handlers (#5194) by @atomiks
+- Fix listbox separator semantics (#5399) by @sarthakmalik0810
+
+### Slider
+
+- Fix assorted issues (#5097) by @atomiks
+- Reduce bundle size (#5222) by @atomiks
+- Exclude the prehydration script from client bundles (#5003) by @michaldudak
+
+### Switch
+
+- Stop internal input clicks from reaching ancestors (#5176) by @atomiks
+- Reduce bundle size (#5223) by @atomiks
+
+### Tabs
+
+- Position pre-hydration indicator inside streamed Suspense (#5171) by @brijeshb42
+- Exclude the prehydration script from client bundles (#5003) by @michaldudak
+- Reduce bundle size (#5221) by @atomiks
+
+### Toast
+
+- Fix remaining toast timer calculation (#5261) by @sai6855
+- Reduce bundle size (#5219) by @atomiks
+- Render content passed through the `render` prop in `<Toast.Title>`, `<Toast.Description>`, and `<Toast.Action>` (#5210) by @m2na7
+- Fix re-adding a closing toast (#5258) by @atomiks
+- Fix swipe direction locking for two-axis swipes (#5295) by @sai6855
+- Fix `<Toast.Provider>` prop effect ordering (#5338) by @atomiks
+
+### Toggle Group
+
+- Reduce bundle size (#5224) by @atomiks
+
+### Toolbar
+
+- Reduce bundle size (#5221) by @atomiks
+
+### Tooltip
+
+- Prevent `<Tooltip.Root>` from reopening after remounting with a reused handle (#5149) by @michaldudak
+
+All contributors of this release in alphabetical order: @arikchakma, @atomiks, @bernardobelchior, @brijeshb42, @chuganzy, @DiegoAndai, @DreierF, @flaviendelangle, @jjenzz, @lyzno1, @m2na7, @mdm317, @michaldudak, @nami8824, @obeattie, @sai6855, @sarthakmalik0810
+
+## v1.6.0
+
+_Jun 18, 2026_
+
+### General changes
+
+- Correct inaccurate prop JSDoc (#5036) by @atomiks
+- Update the hook value when store/arguments change (#4866) by @chuganzy
+- Restore viewport morphing after reopen for kept-mounted popups (#5010) by @atomiks
+- Fix pseudo-element bounds in dev mode (#5000) by @atomiks
+
+### Accordion
+
+- Fix trigger behavior bugs (#4833) by @atomiks
+- Remove region role from `Accordion.Root` (#4961) by @chuganzy
+- Align keyboard navigation with APG (#4965) by @chuganzy
+
+### Alert Dialog
+
+- Fix programmatic focus return (#4849) by @atomiks
+
+### Autocomplete
+
+- Keep ArrowLeft/ArrowRight on the input caret in grid mode (#4948) by @spokodev
+- Document `open` requirement for the `inline` prop (#5069) by @atomiks
+
+### Avatar
+
+- Fix image status edge cases (#4835) by @atomiks
+
+### Checkbox
+
+- Fix parent group cancellation and indeterminate state (#4941) by @atomiks
+- Ignore `data-focused` Field attribute when disabled (#4998) by @atomiks
+- Fix extra `validate` fn calls (#4911) by @mj12albert
+
+### Checkbox Group
+
+- Fix parent group cancellation and indeterminate state (#4941) by @atomiks
+- Fix parent checkbox with custom `validate` fn (#4912) by @mj12albert
+- Fix validation with multiple required checkboxes (#4958) by @atomiks
+- Forward group ids (#4997) by @atomiks
+
+### Collapsible
+
+- Fix trigger and panel state bugs (#4848) by @atomiks
+
+### Combobox
+
+- Fix chip context error (#4877) by @lyzno1
+- Keep ArrowLeft/ArrowRight on the input caret in grid mode (#4948) by @spokodev
+- Avoid re-rendering every item on each keystroke (#4964) by @flaviendelangle
+- Fix autofill and selected state edge cases (#4972) by @atomiks
+- Document `open` requirement for the `inline` prop (#5069) by @atomiks
+
+### Dialog
+
+- Fix confirmation return focus (#5024) by @atomiks
+- Fix programmatic focus return (#4849) by @atomiks
+- Fix positioning and viewport edge cases (#4925) by @atomiks
+- Fix non-modal focus-out close and tabindex management (#5030) by @atomiks
+
+### Drawer
+
+- Fix confirmation return focus (#5024) by @atomiks
+- Improve swipe dismiss drag performance (#4867) by @atomiks
+- Drive swipe gestures natively to stop per-frame re-rasterization (#4980) by @atomiks
+- Add virtual keyboard provider (#4353) by @atomiks
+- Commit swipe on primary-button release (#5057) by @atomiks
+
+### Field
+
+- Fix form validation bugs (#4873) by @atomiks
+- Reflect disabled `Field.Item` state in `Field.Label` (#4916) by @chuganzy
+- Reflect disabled `Field.Item` state in `Field.Description` (#4960) by @chuganzy
+- Fix valueMissing revalidation (#4995) by @atomiks
+- Fix validation bugs (#4894) by @atomiks
+
+### Fieldset
+
+- Fix disabled fieldset form bugs (#4890) by @atomiks
+
+### Form
+
+- Fix form validation bugs (#4873) by @atomiks
+
+### Menu
+
+- Fix submenu trigger interactions (#4892) by @atomiks
+- Open submenus on hover after a plain delay (#4990) by @atomiks
+- Fix controlled hover leave close (#4893) by @atomiks
+- Fix positioning and viewport edge cases (#4925) by @atomiks
+
+### Menubar
+
+- Fix vertical menu focus behavior (#4922) by @atomiks
+
+### Meter
+
+- Sync value text with indicator (#4904) by @atomiks
+
+### Navigation Menu
+
+- Preserve exit transition when controlled (#4855) by @mattrothenberg
+- Fix interaction, value, and styling-hook bugs (#4942) by @atomiks
+
+### Number Field
+
+- Handle unreadable clipboard paste (#4876) by @lyzno1
+- Fix committed values and keyboard stepping (#4905) by @atomiks
+- Respect Intl rounding options on blur (#4804) by @atomiks
+- Fix formatter locale cache (#4999) by @atomiks
+- Preserve numeric precision while keeping default display formatting (#5040) by @atomiks
+- Fix input and scrub edge cases (#5046) by @atomiks
+
+### OTP Field
+
+- 🚨 **Breaking change:** Unmark preview<br />
+  the namespace export is renamed `OTPFieldPreview` → `OTPField` and should be imported as: `{ OTPField } from '@base-ui/react/otp-field'` (#5029) by @atomiks
+- Avoid password manager bubbles after first input (#4868) by @atomiks
+
+### Popover
+
+- Fix controlled hover leave close (#4893) by @atomiks
+- Fix programmatic focus return (#4849) by @atomiks
+- Fix positioning and viewport edge cases (#4925) by @atomiks
+- Fix non-modal focus-out close and tabindex management (#5030) by @atomiks
+
+### Preview Card
+
+- Fix controlled hover leave close (#4893) by @atomiks
+- Fix positioning and viewport edge cases (#4925) by @atomiks
+- Keep inline preview anchored while open (#4836) by @atomiks
+- Close when active trigger unmounts (#4886) by @michaldudak
+
+### Radio Group
+
+- Forward group ids (#4997) by @atomiks
+- Fix selection on space key press (#4930) by @chuganzy
+- Fix disabled selected form submission (#4926) by @atomiks
+- Honor canceled value changes (#4996) by @atomiks
+
+### Scroll Area
+
+- Fix overflow and scrolling state (#4936) by @atomiks
+- Add scrolling state to Thumb (#4982) by @aarongarciah
+
+### Select
+
+- Fix autofill and selected state edge cases (#4934) by @atomiks
+- Fix dirty state not clearing in multiple mode (#4971) by @atomiks
+- Skip disabled items in typeahead and fix multiple-mode serialization (#5025) by @atomiks
+
+### Slider
+
+- Fix extra `validate` fn calls (#4911) by @mj12albert
+- Fix interaction edge cases (#4937) by @atomiks
+- Fix touchend listener accumulation leak (#5070) by @atomiks
+
+### Switch
+
+- Fix extra `validate` fn calls (#4911) by @mj12albert
+
+### Tabs
+
+- Fix state edge cases (#4935) by @atomiks
+- Fix suspended panel activation (#4903) by @atomiks
+
+### Toast
+
+- Fix timer and limit edge cases (#4933) by @atomiks
+
+### Toggle
+
+- Fix grouped cancelation and JSDoc (#4940) by @atomiks
+
+### Toggle Group
+
+- Fix grouped cancelation and JSDoc (#4940) by @atomiks
+- Remove invalid `aria-orientation` from `role="group"` element (#4628) by @sernstberger
+- Fix disabled state and roving focus bugs (#4968) by @atomiks
+
+### Toolbar
+
+- Do not forward `disabled` to default toolbar button (#4967) by @mj12albert
+- Fix disabled state and roving focus bugs (#4968) by @atomiks
+
+### Tooltip
+
+- Fix positioning and viewport edge cases (#4925) by @atomiks
+- Fix provider delay group lifecycle (#4887) by @michaldudak
+- Reset preventUnmountOnClose on reopen (#4885) by @michaldudak
+- Close when active trigger unmounts (#4886) by @michaldudak
+
+All contributors of this release in alphabetical order: @aarongarciah, @atomiks, @chuganzy, @flaviendelangle, @lyzno1, @mattrothenberg, @michaldudak, @mj12albert, @sernstberger, @spokodev
+
+## v1.5.0
+
+_May 19, 2026_
+
+### General changes
+
+- Improve mount performance with interaction splitting, including closed popup mount performance by up to 50% and unmounting performance by up to 85% (#4661) by @atomiks
+- Use local document for virtual arrow (#4662) by @lyzno1
+- Fix macOS Safari and Firefox minimizing fullscreen when closing popups with <kbd>Esc</kbd> (#4695) by @arturbien
+- Drop unnecessary memoization (#4693) by @flaviendelangle
+- Do not use `Math.random()` in `useStableCallback()` (#4732) by @michaldudak
+- Fix return focus when reference disconnects (#4655) by @atomiks
+- Don't steal initial focus if focus already moved inside a popup (#4775) by @stefee
+
+### Alert Dialog
+
+- Fix handle defaults (#4834) by @atomiks
+
+### Autocomplete
+
+- Fix native `FormData` for popup inputs (#4725) by @lunaxislu
+
+### Checkbox
+
+- Submit the associated form when pressing <kbd>Enter</kbd> (#4713) by @michaldudak
+
+### Combobox
+
+- Expose clear visibility state (#4664) by @atomiks
+- Fix popup input form submit (#4687) by @atomiks
+- Preserve `closeQuery` when closing multiple input-inside-popup combobox (#4715) by @mj12albert
+- Fix RTL component behavior (#4840) by @atomiks
+- Ignore hidden-input changes while readonly or disabled (#4810) by @lunaxislu
+
+### Dialog
+
+- Consider the controlled `open` prop for open state detection (#4712) by @michaldudak
+
+### Drawer
+
+- Forward `style` prop in `<Drawer.Viewport>` (#4841) by @atomiks
+
+### Field
+
+- Avoid `flushSync` during validation (#4685) by @atomiks
+
+### Form
+
+- Avoid `flushSync` during validation (#4685) by @atomiks
+
+### Menu
+
+- Fix submenu pointer-events scope for `keepMounted` portals (#4723) by @twillhorn
+- Support `<Menu.GroupLabel>` in `<Menu.RadioGroup>` (#4826) by @nami8824
+- Consider the controlled `open` prop for open state detection (#4712) by @michaldudak
+
+### Navigation Menu
+
+- Fix RTL component behavior (#4840) by @atomiks
+- Fix `keepMounted` content sizing (#4817) by @atomiks
+
+### Number Field
+
+- Allow Persian digits in keyboard input (#4719) by @lunaxislu
+- Sync pasted input during step interactions (#4824) by @lunaxislu
+
+### OTP Field
+
+- **Breaking change:** Rename `sanitizeValue()` to `normalizeValue()` and allow composing with validation (#4717) by @atomiks
+- Avoid `flushSync` during validation (#4685) by @atomiks
+- Support <kbd>Ctrl</kbd> and <kbd>Cmd</kbd> shortcuts (#4606) by @atomiks
+- Fire `onValueComplete()` for full paste (#4690) by @atomiks
+- Fix vertical arrow slot navigation (#4844) by @atomiks
+- Ignore hidden input changes while readonly or disabled (#4806) by @lunaxislu
+- Prevent locked hidden autofill validation (#4827) by @lunaxislu
+- Fix RTL arrow navigation (#4847) by @atomiks
+
+### Popover
+
+- Fix RTL component behavior (#4840) by @atomiks
+- Preserve active trigger on close press (#4741) by @mj12albert
+- Consider the controlled `open` prop for open state detection (#4712) by @michaldudak
+
+### Preview Card
+
+- Consider the controlled `open` prop for open state detection (#4712) by @michaldudak
+- Integrate inline positioning (#2074) by @atomiks
+
+### Scroll Area
+
+- Fix RTL component behavior (#4840) by @atomiks
+
+### Select
+
+- Clear stale item text ref (#4683) by @atomiks
+- Add `data-popup-side` to trigger (#4671) by @mj12albert
+- Allow mouse selection without highlight (#4699) by @atomiks
+- Ignore hidden-input changes while readonly or disabled (#4810) by @lunaxislu
+- Fix nested Select requiring extra outside clicks to dismiss parent (#4820) by @mattrothenberg
+
+### Tabs
+
+- Fire `onValueChange()` for automatic tab selection (#4704) by @michaldudak
+
+### Toast
+
+- Re-use `getElementTransform()` and remove local implementation (#4749) by @sai6855
+- Fix stuck drag state on release (#4742) by @aeterno-caspian
+- Remove memoized selector (#4751) by @atomiks
+
+### Tooltip
+
+- Consider the controlled `open` prop for open state detection (#4712) by @michaldudak
+- Fix flickering when nesting tooltip inside another tooltip's trigger (#4501) by @michaldudak
+
+All contributors of this release in alphabetical order: @aeterno-caspian, @arturbien, @atomiks, @flaviendelangle, @Janpot, @lunaxislu, @lyzno1, @mattrothenberg, @michaldudak, @mj12albert, @nami8824, @sai6855, @stefee, @twillhorn
+
+## v1.4.1
+
+_Apr 20, 2026_
+
+### General changes
+
+- Clear highlight on pointer leave when item is clipped by scroll container (#4604) by @atomiks
+- Fix `display: contents` tabbability (#4642) by @atomiks
+- Fix multi-argument event handler forwarding in `mergeProps` (#4598) by @atomiks
+- Mark `date-fns` peer dependencies as optional (#4639) by @LukasTy
+
+### Navigation Menu
+
+- Fix stale popup size on rapid trigger hover (#4646) by @atomiks
+
+All contributors of this release in alphabetical order: @atomiks, @LukasTy
+
 ## v1.4.0
 
 _Apr 13, 2026_
 
-### General Changes
+### General changes
 
 - Improve `render` prop warning accuracy (#4324, #4363) by @atomiks
 - Fix `preventBaseUIHandler` runtime wrapping (#4330) by @atomiks
@@ -129,13 +831,13 @@ _Apr 13, 2026_
 
 - Fix incorrect keyboard nav on cross axis (#4488) by @mj12albert
 
-All contributors of this release in alphabetical order : @arturbien, @atomiks, @CiscoFran10, @devxoul, @flaviendelangle, @kyrregjerstad, @LukasTy, @lunaxislu, @mattrothenberg, @mdm317, @michaldudak, @mj12albert, @Profesor08, @ryanrhee, @sai6855, @tsbehlman
+All contributors of this release in alphabetical order: @arturbien, @atomiks, @CiscoFran10, @devxoul, @flaviendelangle, @kyrregjerstad, @LukasTy, @lunaxislu, @mattrothenberg, @mdm317, @michaldudak, @mj12albert, @Profesor08, @ryanrhee, @sai6855, @tsbehlman
 
 ## v1.3.0
 
 _Mar 12, 2026_
 
-### General Changes
+### General changes
 
 - Warn when a component function is rendered directly (#4077) by @atomiks
 - Reset `openMethod` after close transition (#4128) by @atomiks
@@ -276,7 +978,7 @@ _Mar 12, 2026_
 
 - Add `closeOnClick` prop (#4140) by @atomiks
 
-All contributors of this release in alphabetical order : @aarongarciah, @atomiks, @cgatian, @chuganzy, @CiscoFran10, @dmitri-gb, @flaviendelangle, @jijiseong, @michaldudak, @mj12albert, @obeattie, @vcode-sh
+All contributors of this release in alphabetical order: @aarongarciah, @atomiks, @cgatian, @chuganzy, @CiscoFran10, @dmitri-gb, @flaviendelangle, @jijiseong, @michaldudak, @mj12albert, @obeattie, @vcode-sh
 
 ## v1.2.0
 
@@ -449,7 +1151,7 @@ _Feb 12, 2026_
 - Fix broken scale transition with detached triggers (#3810) by @michaldudak
 - Fix disabled prop on Triggers (#4049) by @michaldudak
 
-All contributors of this release in alphabetical order : @antonfrolovsky, @arturbien, @atomiks, @CiscoFran10, @CrawlerCode, @flaviendelangle, @guisehn, @jijiseong, @LukasTy, @markocupic024, @mattrothenberg, @mdm317, @michaelhazan, @michaldudak, @mj12albert, @obeattie, @OliverSpeir, @oliviertassinari, @sai6855, @sarthakmalik0810, @solastley, @ZeeshanTamboli
+All contributors of this release in alphabetical order: @antonfrolovsky, @arturbien, @atomiks, @CiscoFran10, @CrawlerCode, @flaviendelangle, @guisehn, @jijiseong, @LukasTy, @markocupic024, @mattrothenberg, @mdm317, @michaelhazan, @michaldudak, @mj12albert, @obeattie, @OliverSpeir, @oliviertassinari, @sai6855, @sarthakmalik0810, @solastley, @ZeeshanTamboli
 
 ## v1.1.0
 
@@ -1212,6 +1914,7 @@ _Sep 3, 2025_
   Custom event callbacks provide BaseUIEventDetails object as their second parameter.
   This object contains the source event, reason and methods to customize the behavior (where applicable).
   For example, `onOpenChange(open, event, reason)` becomes `onOpenChange(open, eventDetails)`, where `eventDetails` contains `event` and `reason` properties.
+
   ```diff
   -onOpenChange: (open, event, reason) => {
   +onOpenChange: (open, eventDetails) => {
@@ -1221,6 +1924,7 @@ _Sep 3, 2025_
      }
    }
   ```
+
   (#2382) by @atomiks
 
 ### Alert Dialog
@@ -2082,7 +2786,7 @@ _Mar 20, 2025_
 - Mention Progress.Value in API reference (#1429) @aarongarciah
 - Update release instructions (#1417) @michaldudak
 
-### Core
+### Internal
 
 - [code-infra] Polish VS Code DX (#1238) @oliviertassinari
 - [code-infra] Fix build:types not copying on some setups (#1482) @Janpot

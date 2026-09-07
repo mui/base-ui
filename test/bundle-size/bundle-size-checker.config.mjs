@@ -47,7 +47,7 @@ async function getUtilsExports() {
         return false;
       }
       // Exclude test files
-      if (file.includes('.test.')) {
+      if (file.includes('.test.') || file.includes('.spec.')) {
         return false;
       }
       return true;

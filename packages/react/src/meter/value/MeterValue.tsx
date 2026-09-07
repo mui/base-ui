@@ -24,10 +24,7 @@ export const MeterValue = React.forwardRef(function MeterValue(
     props: [
       {
         'aria-hidden': true,
-        children:
-          typeof children === 'function'
-            ? children(formattedValue, value)
-            : ((formattedValue || value) ?? ''),
+        children: typeof children === 'function' ? children(formattedValue, value) : formattedValue,
       },
       elementProps,
     ],

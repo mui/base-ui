@@ -77,6 +77,7 @@
   line-height: 1.5rem;
   background-color: transparent;
   color: var(--color-gray-900);
+  -webkit-user-select: none;
   user-select: none;
 
   &:focus-visible {
@@ -118,6 +119,7 @@
   border-radius: 0.25rem;
   background-color: transparent;
   color: var(--color-gray-600);
+  -webkit-user-select: none;
   user-select: none;
 
   &:focus-visible {
@@ -171,6 +173,7 @@
   font-weight: 500;
   line-height: 1.5rem;
   color: var(--color-gray-900);
+  -webkit-user-select: none;
   user-select: none;
 
   @media (hover: hover) {

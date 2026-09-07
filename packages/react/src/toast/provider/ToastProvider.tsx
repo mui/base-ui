@@ -2,6 +2,7 @@
 import * as React from 'react';
 import { useOnMount } from '@base-ui/utils/useOnMount';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { ToastContext } from './ToastProviderContext';
 import type { ToastManager } from '../createToastManager';
 import { ToastStore } from '../store';
@@ -42,7 +43,7 @@ export const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvid
         if (action === 'promise' && options.promise) {
           store.promiseToast(options.promise, options);
         } else if (action === 'update' && id) {
-          store.updateToast(id, options);
+          store.updateToast(id, options.updates);
         } else if (action === 'close') {
           store.closeToast(id);
         } else {
@@ -52,13 +53,32 @@ export const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvid
 
       return unsubscribe;
     },
-    [store, timeout, toastManager],
+    [store, toastManager],
   );
 
-  store.useSyncedValues({ timeout, limit });
-
-  return <ToastContext.Provider value={store}>{children}</ToastContext.Provider>;
+  return (
+    <ToastContext.Provider value={store}>
+      <ToastProviderPropsSynchronizer store={store} timeout={timeout} limit={limit} />
+      {children}
+    </ToastContext.Provider>
+  );
 };
+
+function ToastProviderPropsSynchronizer(props: {
+  store: ToastStore;
+  timeout: number;
+  limit: number;
+}) {
+  const { store, timeout, limit } = props;
+
+  // `limit` needs custom syncing because changing it must also recompute each
+  // toast's `limited` flag; `useSyncedValues` would only update the raw value.
+  useIsoLayoutEffect(() => {
+    store.syncProviderProps(timeout, limit);
+  }, [store, timeout, limit]);
+
+  return null;
+}
 
 export interface ToastProviderState {}
 
@@ -72,7 +92,8 @@ export interface ToastProviderProps {
   timeout?: number | undefined;
   /**
    * The maximum number of toasts that can be displayed at once.
-   * When the limit is reached, the oldest toast will be removed to make room for the new one.
+   * When the limit is exceeded, the oldest toasts are marked as `limited` (via the `data-limited`
+   * attribute) rather than removed, so they can be hidden or animated out.
    * @default 3
    */
   limit?: number | undefined;

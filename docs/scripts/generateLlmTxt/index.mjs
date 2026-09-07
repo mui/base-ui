@@ -11,6 +11,7 @@ import remarkParse from 'remark-parse';
 import remarkGfm from 'remark-gfm';
 import remarkStringify from 'remark-stringify';
 import { visit } from 'unist-util-visit';
+import { createFileContent } from './createFileContent.mjs';
 import { mdxToMarkdown } from './mdxToMarkdown.mjs';
 import { resolveUrl, isAbsoluteUrl } from './resolver.mjs';
 
@@ -34,6 +35,10 @@ function incrementHeaders(increment = 1) {
       node.depth = Math.min(node.depth + increment, 6); // Cap at h6
     });
   };
+}
+
+function inlineCodeHtmlTags(text) {
+  return text.replace(/<\/?[a-zA-Z][^>]*>/g, '`$&`');
 }
 
 function githubSlugify(text) {
@@ -216,7 +221,11 @@ async function generateLlmsTxt() {
     // Page rendering functions - focused only on their unique logic
     const renderPageAsLink = (page) => {
       const resolvedUrl = resolveUrl(page.mdUrlPath, BASE_URL);
-      return [`- [${page.title}](${resolvedUrl}): ${page.description}`];
+      return [`- [${page.title}](${resolvedUrl}): ${inlineCodeHtmlTags(page.description)}`];
+    };
+    const renderPageAsRelativeLink = (page) => {
+      const relativeUrl = `.${page.mdUrlPath}`;
+      return [`- [${page.title}](${relativeUrl}): ${inlineCodeHtmlTags(page.description)}`];
     };
     const renderPageAsInline = async (page) => {
       const content = await prepareForInlineMarkdown(page.fullMarkdown, 2, metadataByUrl);
@@ -260,37 +269,14 @@ async function generateLlmsTxt() {
       ],
     };
 
-    const createFile = async (filename, pageRenderer) => {
-      // Generate sections with shared logic
-      const sections = [];
-
-      for (const section of structure.sections) {
-        if (section.pages.length === 0) {
-          continue;
-        }
-
-        const sectionContent = [`## ${section.title}`, ''];
-
-        // Use the page renderer for each page (handle async renderers)
-        for (const page of section.pages) {
-          const renderedPage = await pageRenderer(page);
-          sectionContent.push(...renderedPage);
-        }
-
-        sectionContent.push(''); // Add empty line after section
-        sections.push(...sectionContent);
-      }
-
-      let content = [...preamble, ...sections].join('\n');
-
-      // Apply prettier formatting
+    const createFile = async (filename, pageRenderer, { formatPages = false } = {}) => {
       const filePath = path.join(OUTPUT_BASE_DIR, filename);
-      const prettierOptions = await prettier.resolveConfig(filePath);
-
-      content = await prettier.format(content, {
-        ...prettierOptions,
-        filepath: filePath,
-        parser: 'markdown',
+      const content = await createFileContent({
+        structure,
+        preamble,
+        pageRenderer,
+        filePath,
+        formatPages,
       });
 
       await fs.writeFile(filePath, content, 'utf-8');
@@ -299,10 +285,15 @@ async function generateLlmsTxt() {
     // Generate both files in parallel
     await Promise.all([
       createFile('llms.txt', renderPageAsLink),
-      createFile('llms-full.txt', renderPageAsInline),
+      // Format each page separately: formatting the multi-megabyte aggregate in one pass makes
+      // Prettier retain several gigabytes of Markdown AST and document nodes.
+      createFile('llms-full.txt', renderPageAsInline, { formatPages: true }),
+      createFile('index.md', renderPageAsRelativeLink),
     ]);
 
-    console.log(`Successfully generated ${totalFiles} markdown files, llms.txt, and llms-full.txt`);
+    console.log(
+      `Successfully generated ${totalFiles} markdown files, llms.txt, llms-full.txt, and index.md`,
+    );
   } catch (error) {
     console.error('Error generating llms.txt:', error);
     process.exit(1);

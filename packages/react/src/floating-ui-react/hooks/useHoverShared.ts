@@ -1,6 +1,8 @@
 import { isMouseLikePointerType } from '../utils/event';
 import type { ExtendedElements, FloatingTreeType, Placement } from '../types';
 
+export { isTargetInsideEnabledTrigger as isInsideEnabledTrigger } from '../utils/element';
+
 export interface HandleCloseOptions {
   blockPointerEvents?: boolean | undefined;
   getScope?: (() => HTMLElement | SVGSVGElement | null) | undefined;
@@ -63,4 +65,8 @@ export function getRestMs(value: number | (() => number)) {
 
 export function isClickLikeOpenEvent(openEventType: string | undefined, interactedInside: boolean) {
   return interactedInside || openEventType === 'click' || openEventType === 'mousedown';
+}
+
+export function isHoverOpenEvent(openEventType: string | undefined) {
+  return openEventType?.includes('mouse') && openEventType !== 'mousedown';
 }

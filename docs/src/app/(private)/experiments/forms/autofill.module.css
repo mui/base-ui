@@ -1,5 +1,4 @@
 .Page {
-  font-family: var(--font-sans);
   padding: 24px;
   display: flex;
   flex-direction: column;
@@ -108,6 +107,7 @@
   font-size: 1rem;
   line-height: 1.5rem;
   color: var(--color-gray-900);
+  -webkit-user-select: none;
   user-select: none;
   width: 100%;
   min-width: 10rem;
@@ -139,6 +139,7 @@
 .SelectPositioner {
   outline: none;
   z-index: 1;
+  -webkit-user-select: none;
   user-select: none;
 }
 
@@ -201,6 +202,7 @@
   align-items: center;
   grid-template-columns: 0.75rem 1fr;
   cursor: default;
+  -webkit-user-select: none;
   user-select: none;
 
   @media (pointer: coarse) {
@@ -414,6 +416,7 @@
   box-sizing: border-box;
   outline: 0;
   cursor: default;
+  -webkit-user-select: none;
   user-select: none;
   padding-block: 0.5rem;
   padding-left: 1rem;

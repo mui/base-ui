@@ -6,10 +6,6 @@ export interface NumberFieldScrubAreaContext {
   isTouchInput: boolean;
   isPointerLockDenied: boolean;
   scrubAreaCursorRef: React.RefObject<HTMLSpanElement | null>;
-  scrubAreaRef: React.RefObject<HTMLSpanElement | null>;
-  direction: 'horizontal' | 'vertical';
-  pixelSensitivity: number;
-  teleportDistance: number | undefined;
 }
 
 export const NumberFieldScrubAreaContext = React.createContext<

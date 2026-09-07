@@ -16,7 +16,7 @@ export const SelectGroupLabel = React.forwardRef(function SelectGroupLabel(
   componentProps: SelectGroupLabel.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, render, id: idProp, style, ...elementProps } = componentProps;
+  const { render, className, style, id: idProp, ...elementProps } = componentProps;
 
   const { setLabelId } = useSelectGroupContext();
 
@@ -24,11 +24,14 @@ export const SelectGroupLabel = React.forwardRef(function SelectGroupLabel(
 
   useIsoLayoutEffect(() => {
     setLabelId(id);
+    return () => {
+      setLabelId((currentId) => (currentId === id ? undefined : currentId));
+    };
   }, [id, setLabelId]);
 
   const element = useRenderElement('div', componentProps, {
     ref: forwardedRef,
-    props: [{ id }, elementProps],
+    props: [{ id, 'aria-hidden': true }, elementProps],
   });
 
   return element;

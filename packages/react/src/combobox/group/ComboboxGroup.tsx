@@ -4,6 +4,7 @@ import { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { ComboboxGroupContext } from './ComboboxGroupContext';
 import { GroupCollectionProvider } from '../collection/GroupCollectionContext';
+import { useComboboxRootContext } from '../root/ComboboxRootContext';
 
 /**
  * Groups related items with the corresponding label.
@@ -16,6 +17,9 @@ export const ComboboxGroup = React.forwardRef(function ComboboxGroup(
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const { render, className, style, items, ...elementProps } = componentProps;
+
+  const store = useComboboxRootContext();
+  const grid = store.useState('grid');
 
   const [labelId, setLabelId] = React.useState<string | undefined>();
 
@@ -32,7 +36,9 @@ export const ComboboxGroup = React.forwardRef(function ComboboxGroup(
     ref: forwardedRef,
     props: [
       {
-        role: 'group',
+        // `group` is not a valid owned element of `grid`, and `row` must be owned
+        // by `grid`, `rowgroup`, or `treegrid`.
+        role: grid ? 'rowgroup' : 'group',
         'aria-labelledby': labelId,
       },
       elementProps,

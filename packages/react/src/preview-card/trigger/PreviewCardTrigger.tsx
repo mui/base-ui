@@ -1,13 +1,17 @@
 'use client';
 import * as React from 'react';
-import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { fastComponentRef } from '@base-ui/utils/fastHooks';
 import { usePreviewCardRootContext } from '../root/PreviewCardContext';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import { PreviewCardHandle } from '../store/PreviewCardHandle';
-import { useTriggerDataForwarding } from '../../utils/popups';
+import {
+  getInlineRectTriggerProps,
+  usePopupHandleStore,
+  useTriggerDataForwarding,
+} from '../../utils/popups';
 import { CLOSE_DELAY, OPEN_DELAY } from '../utils/constants';
 import { safePolygon, useFocus, useHoverReferenceInteraction } from '../../floating-ui-react';
 
@@ -17,7 +21,7 @@ import { safePolygon, useFocus, useHoverReferenceInteraction } from '../../float
  *
  * Documentation: [Base UI Preview Card](https://base-ui.com/react/components/preview-card)
  */
-export const PreviewCardTrigger = React.forwardRef(function PreviewCardTrigger(
+export const PreviewCardTrigger = fastComponentRef(function PreviewCardTrigger(
   componentProps: PreviewCardTrigger.Props,
   forwardedRef: React.ForwardedRef<HTMLAnchorElement>,
 ) {
@@ -34,7 +38,8 @@ export const PreviewCardTrigger = React.forwardRef(function PreviewCardTrigger(
   } = componentProps;
 
   const rootContext = usePreviewCardRootContext(true);
-  const store = handle?.store ?? rootContext;
+  const handleStore = usePopupHandleStore(handle);
+  const store = handleStore ?? rootContext;
   if (!store) {
     throw new Error(
       'Base UI: <PreviewCard.Trigger> must be either used within a <PreviewCard.Root> component or provided with a handle.',
@@ -45,6 +50,7 @@ export const PreviewCardTrigger = React.forwardRef(function PreviewCardTrigger(
   const isTriggerActive = store.useState('isTriggerActive', thisTriggerId);
   const isOpenedByThisTrigger = store.useState('isOpenedByTrigger', thisTriggerId);
   const floatingRootContext = store.useState('floatingRootContext');
+  const inlineRectCoordsRef = store.context.inlineRectCoordsRef;
 
   const triggerElementRef = React.useRef<Element | null>(null);
 
@@ -57,14 +63,9 @@ export const PreviewCardTrigger = React.forwardRef(function PreviewCardTrigger(
     store,
     {
       payload,
+      closeDelay: closeDelayWithDefault,
     },
   );
-
-  useIsoLayoutEffect(() => {
-    if (isMountedByThisTrigger) {
-      store.context.closeDelayRef.current = closeDelayWithDefault;
-    }
-  }, [store, isMountedByThisTrigger, closeDelayWithDefault]);
 
   const hoverProps = useHoverReferenceInteraction(floatingRootContext, {
     mouseOnly: true,
@@ -81,6 +82,10 @@ export const PreviewCardTrigger = React.forwardRef(function PreviewCardTrigger(
   const state: PreviewCardTriggerState = { open: isOpenedByThisTrigger };
 
   const rootTriggerProps = store.useState('triggerProps', isMountedByThisTrigger);
+  const inlineRectTriggerProps = getInlineRectTriggerProps(
+    inlineRectCoordsRef,
+    isOpenedByThisTrigger,
+  );
 
   const element = useRenderElement('a', componentProps, {
     state,
@@ -89,6 +94,7 @@ export const PreviewCardTrigger = React.forwardRef(function PreviewCardTrigger(
       hoverProps,
       focusProps.reference,
       rootTriggerProps,
+      inlineRectTriggerProps,
       { id: thisTriggerId },
       elementProps,
     ],
@@ -106,14 +112,15 @@ export interface PreviewCardTrigger {
 
 export interface PreviewCardTriggerState {
   /**
-   * Whether the preview card is currently open.
+   * Whether the preview card is currently open and was opened by this trigger.
    */
   open: boolean;
 }
 
 export interface PreviewCardTriggerProps<Payload = unknown> extends BaseUIComponentProps<
   'a',
-  PreviewCardTriggerState
+  PreviewCardTriggerState,
+  React.ComponentPropsWithRef<'a'>
 > {
   /**
    * A handle to associate the trigger with a preview card.

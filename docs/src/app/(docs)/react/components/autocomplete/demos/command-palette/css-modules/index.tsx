@@ -7,6 +7,7 @@ import styles from './index.module.css';
 
 export default function ExampleAutocompleteCommandPalette() {
   const [open, setOpen] = React.useState(false);
+  const shortcutsDescriptionId = React.useId();
 
   function handleItemClick() {
     setOpen(false);
@@ -26,13 +27,16 @@ export default function ExampleAutocompleteCommandPalette() {
               autoHighlight="always"
               keepHighlight
             >
-              <Autocomplete.Input
-                className={styles.Input}
-                placeholder="Search for apps and commands…"
-              />
-              <Dialog.Close className={styles.VisuallyHiddenClose}>
-                Close command palette
-              </Dialog.Close>
+              <Autocomplete.InputGroup className={styles.InputGroup}>
+                <MagnifyingGlassIcon className={styles.InputIcon} aria-hidden />
+                <Autocomplete.Input
+                  className={styles.Input}
+                  aria-label="Search commands"
+                  aria-describedby={shortcutsDescriptionId}
+                  placeholder="Search for apps and commands…"
+                />
+              </Autocomplete.InputGroup>
+              <Dialog.Close className={styles.VisuallyHidden}>Close command palette</Dialog.Close>
 
               <ScrollArea.Root className={styles.ListArea}>
                 <ScrollArea.Viewport className={styles.ListViewport}>
@@ -77,14 +81,12 @@ export default function ExampleAutocompleteCommandPalette() {
               </ScrollArea.Root>
 
               <div className={styles.Footer}>
+                <span id={shortcutsDescriptionId} className={styles.VisuallyHidden}>
+                  Use Enter to activate the highlighted item.
+                </span>
                 <div className={styles.FooterLeft}>
                   <span>Activate</span>
                   <kbd className={styles.Kbd}>Enter</kbd>
-                </div>
-                <div className={styles.FooterRight}>
-                  <span>Actions</span>
-                  <kbd className={styles.Kbd}>Cmd</kbd>
-                  <kbd className={styles.Kbd}>K</kbd>
                 </div>
               </div>
             </Autocomplete.Root>
@@ -92,6 +94,25 @@ export default function ExampleAutocompleteCommandPalette() {
         </Dialog.Viewport>
       </Dialog.Portal>
     </Dialog.Root>
+  );
+}
+
+function MagnifyingGlassIcon(props: React.ComponentProps<'svg'>) {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
+      fill="none"
+      stroke="currentColor"
+      strokeLinecap="square"
+      strokeLinejoin="round"
+      {...props}
+      style={{ display: 'block', ...props.style }}
+    >
+      <path d="m11 11 3.5 3.5" />
+      <circle cx="7" cy="7" r="5.5" />
+    </svg>
   );
 }
 

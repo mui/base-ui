@@ -1,17 +1,13 @@
 'use client';
 import * as React from 'react';
-import { ToastContext } from './provider/ToastProviderContext';
+import { useToastProviderContext } from './provider/ToastProviderContext';
 import type { ToastPositionerProps } from './positioner/ToastPositioner';
 
 /**
  * Returns the array of toasts and methods to manage them.
  */
 export function useToastManager<Data extends object = any>(): UseToastManagerReturnValue<Data> {
-  const store = React.useContext(ToastContext);
-
-  if (!store) {
-    throw new Error('Base UI: useToastManager must be used within <Toast.Provider>.');
-  }
+  const store = useToastProviderContext();
 
   const toasts = store.useState('toasts');
 
@@ -71,7 +67,7 @@ export interface ToastObject<Data extends object> {
    */
   updateKey?: number | undefined;
   /**
-   * Determines if the toast was closed due to the limit being reached.
+   * Determines if the toast was limited because the toast limit was exceeded.
    */
   limited?: boolean | undefined;
   /**
@@ -114,7 +110,11 @@ export interface UseToastManagerReturnValue<Data extends object = any> {
   toasts: ToastObject<Data>[];
   add: <T extends Data = Data>(options: ToastManagerAddOptions<T>) => string;
   close: (toastId?: string) => void;
-  update: <T extends Data = Data>(toastId: string, options: ToastManagerUpdateOptions<T>) => void;
+  update: <T extends Data = Data>(
+    toastId: string,
+    options:
+      ToastManagerUpdateOptions<T> | ((prevToast: ToastObject<T>) => ToastManagerUpdateOptions<T>),
+  ) => void;
   promise: <Value, T extends Data = Data>(
     promise: Promise<Value>,
     options: ToastManagerPromiseOptions<Value, T>,

@@ -39,6 +39,8 @@ interface ReasonToEventMap {
   [REASONS.cancelOpen]: MouseEvent;
   [REASONS.siblingOpen]: Event;
   [REASONS.disabled]: Event;
+  [REASONS.missing]: Event;
+  [REASONS.initial]: Event;
   [REASONS.imperativeAction]: Event;
 
   [REASONS.windowResize]: UIEvent;
@@ -119,7 +121,7 @@ export function createChangeEventDetails<
 >(
   reason: Reason,
   event?: ReasonToEvent<Reason>,
-  trigger?: HTMLElement,
+  trigger?: Element,
   customProperties?: CustomProperties,
 ): BaseUIChangeEventDetails<Reason, CustomProperties> {
   let canceled = false;

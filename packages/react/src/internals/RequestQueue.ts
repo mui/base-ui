@@ -58,6 +58,7 @@ export class RequestQueue<TKey> {
     if (this.queuedRequests.size === 0 || this.pendingRequests.size >= this.maxConcurrentRequests) {
       return;
     }
+
     const loopLength = Math.min(
       this.maxConcurrentRequests - this.pendingRequests.size,
       this.queuedRequests.size,
@@ -65,6 +66,7 @@ export class RequestQueue<TKey> {
     if (loopLength === 0) {
       return;
     }
+
     const fetchPromises: Promise<void>[] = [];
 
     for (const [keyId, key] of this.pickEntries(loopLength)) {

@@ -31,6 +31,7 @@
   width: 100%;
   padding: 0.75rem 0.25rem;
   touch-action: none;
+  -webkit-user-select: none;
   user-select: none;
 }
 
@@ -40,12 +41,14 @@
   background-color: var(--color-gray-200);
   box-shadow: inset 0 0 0 1px var(--color-gray-200);
   border-radius: 0.25rem;
+  -webkit-user-select: none;
   user-select: none;
 }
 
 .Indicator {
   border-radius: 0.25rem;
   background-color: var(--color-gray-700);
+  -webkit-user-select: none;
   user-select: none;
 }
 
@@ -55,6 +58,7 @@
   border-radius: 100%;
   background-color: white;
   outline: 1px solid var(--color-gray-300);
+  -webkit-user-select: none;
   user-select: none;
 
   &:has(:focus-visible) {

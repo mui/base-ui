@@ -16,13 +16,13 @@ Doesn't render its own HTML element.
 | defaultOpen             | `boolean`                                                                 | `false` | Whether the dialog is initially open. To render a controlled dialog, use the `open` prop instead.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
 | open                    | `boolean`                                                                 | -       | Whether the dialog is currently open.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
 | onOpenChange            | `((open: boolean, eventDetails: Dialog.Root.ChangeEventDetails) => void)` | -       | Event handler called when the dialog is opened or closed.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
-| actionsRef              | `React.RefObject<Dialog.Root.Actions \| null>`                            | -       | A ref to imperative actions. `unmount`: When specified, the dialog will not be unmounted when closed.&#xA;Instead, the `unmount` function must be called to unmount the dialog manually.&#xA;Useful when the dialog's animation is controlled by an external library.`close`: Closes the dialog imperatively when called.                                                                                                                                                                                                                                                                     |
+| actionsRef              | `React.RefObject<Dialog.Root.Actions \| null>`                            | -       | A ref to imperative actions. `unmount`: Manually unmounts the dialog.&#xA;Call this after any externally controlled closing animation finishes.`close`: Closes the dialog imperatively when called.                                                                                                                                                                                                                                                                                                                                                                                           |
 | defaultTriggerId        | `string \| null`                                                          | -       | ID of the trigger that the dialog is associated with.&#xA;This is useful in conjunction with the `defaultOpen` prop to create an initially open dialog.                                                                                                                                                                                                                                                                                                                                                                                                                                       |
-| disablePointerDismissal | `boolean`                                                                 | `false` | Determines whether the dialog should close on outside clicks.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| disablePointerDismissal | `boolean`                                                                 | `false` | Whether to prevent the dialog from closing on outside presses.&#xA;For non-modal dialogs, this also prevents the dialog from closing when focus moves outside of it.                                                                                                                                                                                                                                                                                                                                                                                                                          |
 | handle                  | `Dialog.Handle<Payload>`                                                  | -       | A handle to associate the dialog with a trigger.&#xA;If specified, allows external triggers to control the dialog's open state.&#xA;Can be created with the Dialog.createHandle() method.                                                                                                                                                                                                                                                                                                                                                                                                     |
 | modal                   | `boolean \| 'trap-focus'`                                                 | `true`  | Determines if the dialog enters a modal state when open. `true`: user interaction is limited to just the dialog: focus is trapped, document page scroll is locked, and pointer interactions on outside elements are disabled.`false`: user interaction with the rest of the document is allowed.`'trap-focus'`: focus is trapped inside the dialog, but document page scroll is not locked and pointer interactions outside of it remain enabled. When `modal` is `true` or `'trap-focus'`, render `<Dialog.Close>` inside `<Dialog.Popup>` so&#xA;touch screen readers can escape the popup. |
 | onOpenChangeComplete    | `((open: boolean) => void)`                                               | -       | Event handler called after any animations complete when the dialog is opened or closed.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
-| triggerId               | `string \| null`                                                          | -       | ID of the trigger that the dialog is associated with.&#xA;This is useful in conjunction with the `open` prop to create a controlled dialog.&#xA;There's no need to specify this prop when the popover is uncontrolled (that is, when the `open` prop is not set).                                                                                                                                                                                                                                                                                                                             |
+| triggerId               | `string \| null`                                                          | -       | ID of the trigger that the dialog is associated with.&#xA;This is useful in conjunction with the `open` prop to create a controlled dialog.&#xA;There's no need to specify this prop when the dialog is uncontrolled (that is, when the `open` prop is not set).                                                                                                                                                                                                                                                                                                                              |
 | children                | `React.ReactNode \| PayloadChildRenderFunction<Payload>`                  | -       | The content of the dialog.&#xA;This can be a regular React node or a render function that receives the `payload` of the active trigger.                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
 
 ### Root.Props
@@ -87,15 +87,15 @@ Renders a `<button>` element.
 
 **Trigger Props:**
 
-| Prop         | Type                                                                                         | Default | Description                                                                                                                                                                                              |
-| :----------- | :------------------------------------------------------------------------------------------- | :------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| handle       | `Dialog.Handle<Payload>`                                                                     | -       | A handle to associate the trigger with a dialog.&#xA;Can be created with the Dialog.createHandle() method.                                                                                               |
-| nativeButton | `boolean`                                                                                    | `true`  | Whether the component renders a native `<button>` element when replacing it&#xA;via the `render` prop.&#xA;Set to `false` if the rendered element is not a button (for example, `<div>`).                |
-| payload      | `Payload`                                                                                    | -       | A payload to pass to the dialog when it is opened.                                                                                                                                                       |
-| id           | `string`                                                                                     | -       | ID of the trigger. In addition to being forwarded to the rendered element,&#xA;it is also used to specify the active trigger for the dialogs in controlled mode (with the Dialog.Root `triggerId` prop). |
-| className    | `string \| ((state: Dialog.Trigger.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                                 |
-| style        | `React.CSSProperties \| ((state: Dialog.Trigger.State) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                              |
-| render       | `ReactElement \| ((props: HTMLProps, state: Dialog.Trigger.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render.            |
+| Prop         | Type                                                                                         | Default | Description                                                                                                                                                                                             |
+| :----------- | :------------------------------------------------------------------------------------------- | :------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| handle       | `Dialog.Handle<Payload>`                                                                     | -       | A handle to associate the trigger with a dialog.&#xA;Can be created with the Dialog.createHandle() method.                                                                                              |
+| nativeButton | `boolean`                                                                                    | `true`  | Whether the component renders a native `<button>` element when replacing it&#xA;via the `render` prop.&#xA;Set to `false` if the rendered element is not a button (for example, `<div>`).               |
+| payload      | `Payload`                                                                                    | -       | A payload to pass to the dialog when it is opened.                                                                                                                                                      |
+| id           | `string`                                                                                     | -       | ID of the trigger. In addition to being forwarded to the rendered element,&#xA;it is also used to specify the active trigger for the dialog in controlled mode (with the Dialog.Root `triggerId` prop). |
+| className    | `string \| ((state: Dialog.Trigger.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                                |
+| style        | `React.CSSProperties \| ((state: Dialog.Trigger.State) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                             |
+| render       | `ReactElement \| ((props: HTMLProps, state: Dialog.Trigger.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render.           |
 
 **Trigger Data Attributes:**
 
@@ -112,9 +112,9 @@ Re-export of [Trigger](#trigger) props.
 
 ```typescript
 type DialogTriggerState = {
-  /** Whether the dialog is currently disabled. */
+  /** Whether the trigger is currently disabled. */
   disabled: boolean;
-  /** Whether the dialog is currently open. */
+  /** Whether the dialog is currently open and was opened by this trigger. */
   open: boolean;
 };
 ```
@@ -161,12 +161,12 @@ Renders a `<div>` element.
 
 **Backdrop Data Attributes:**
 
-| Attribute           | Type | Description                               |
-| :------------------ | :--- | :---------------------------------------- |
-| data-open           | -    | Present when the dialog is open.          |
-| data-closed         | -    | Present when the dialog is closed.        |
-| data-starting-style | -    | Present when the dialog is animating in.  |
-| data-ending-style   | -    | Present when the dialog is animating out. |
+| Attribute           | Type | Description                                  |
+| :------------------ | :--- | :------------------------------------------- |
+| data-open           | -    | Present when the dialog is open.             |
+| data-closed         | -    | Present when the dialog is closed.           |
+| data-starting-style | -    | Present when the dialog begins animating in. |
+| data-ending-style   | -    | Present when the dialog is animating out.    |
 
 ### Backdrop.Props
 
@@ -190,13 +190,13 @@ Renders a `<div>` element.
 
 **Popup Props:**
 
-| Prop         | Type                                                                                                                          | Default | Description                                                                                                                                                                                                                                                                                                                                                                                                                |
-| :----------- | :---------------------------------------------------------------------------------------------------------------------------- | :------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| initialFocus | `boolean \| React.RefObject<HTMLElement \| null> \| ((openType: InteractionType) => boolean \| void \| HTMLElement \| null)`  | -       | Determines the element to focus when the dialog is opened. `false`: Do not move focus.`true`: Move focus based on the default behavior (first tabbable element or popup).`RefObject`: Move focus to the ref element.`function`: Called with the interaction type (`mouse`, `touch`, `pen`, or `keyboard`).&#xA;Return an element to focus, `true` to use the default behavior, or `false`/`undefined` to do nothing.       |
-| finalFocus   | `boolean \| React.RefObject<HTMLElement \| null> \| ((closeType: InteractionType) => boolean \| void \| HTMLElement \| null)` | -       | Determines the element to focus when the dialog is closed. `false`: Do not move focus.`true`: Move focus based on the default behavior (trigger or previously focused element).`RefObject`: Move focus to the ref element.`function`: Called with the interaction type (`mouse`, `touch`, `pen`, or `keyboard`).&#xA;Return an element to focus, `true` to use the default behavior, or `false`/`undefined` to do nothing. |
-| className    | `string \| ((state: Dialog.Popup.State) => string \| undefined)`                                                              | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                                                                                                                                                                                                                                                   |
-| style        | `React.CSSProperties \| ((state: Dialog.Popup.State) => React.CSSProperties \| undefined)`                                    | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                                                                                                                                                                                                                                                |
-| render       | `ReactElement \| ((props: HTMLProps, state: Dialog.Popup.State) => ReactElement)`                                             | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render.                                                                                                                                                                                                                              |
+| Prop         | Type                                                                                                                          | Default | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
+| :----------- | :---------------------------------------------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| initialFocus | `boolean \| React.RefObject<HTMLElement \| null> \| ((openType: InteractionType) => boolean \| void \| HTMLElement \| null)`  | -       | Determines the element to focus when the dialog is opened.&#xA;By default, focus moves to the first tabbable element inside the popup, except when the dialog&#xA;is opened by touch — then the popup itself is focused to avoid opening the virtual keyboard. `false`: Do not move focus.`true`: Move focus based on the default behavior (first tabbable element or popup).`RefObject`: Move focus to the ref element.`function`: Called with the interaction type (`mouse`, `touch`, `pen`, or `keyboard`).&#xA;Return an element to focus, `true` to use the default behavior, `null` to fall back to the default behavior, or `false`/`undefined` to do nothing. |
+| finalFocus   | `boolean \| React.RefObject<HTMLElement \| null> \| ((closeType: InteractionType) => boolean \| void \| HTMLElement \| null)` | -       | Determines the element to focus when the dialog is closed. `false`: Do not move focus.`true`: Move focus based on the default behavior (trigger or previously focused element).`RefObject`: Move focus to the ref element.`function`: Called with the interaction type (`mouse`, `touch`, `pen`, or `keyboard`).&#xA;Return an element to focus, `true` to use the default behavior, `null` to fall back to the default behavior, or `false`/`undefined` to do nothing.                                                                                                                                                                                               |
+| className    | `string \| ((state: Dialog.Popup.State) => string \| undefined)`                                                              | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| style        | `React.CSSProperties \| ((state: Dialog.Popup.State) => React.CSSProperties \| undefined)`                                    | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
+| render       | `ReactElement \| ((props: HTMLProps, state: Dialog.Popup.State) => ReactElement)`                                             | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render.                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
 
 **Popup Data Attributes:**
 
@@ -206,7 +206,7 @@ Renders a `<div>` element.
 | data-closed             | -    | Present when the dialog is closed.                               |
 | data-nested             | -    | Present when the dialog is nested within another dialog.         |
 | data-nested-dialog-open | -    | Present when the dialog has other open dialogs nested within it. |
-| data-starting-style     | -    | Present when the dialog is animating in.                         |
+| data-starting-style     | -    | Present when the dialog begins animating in.                     |
 | data-ending-style       | -    | Present when the dialog is animating out.                        |
 
 **Popup CSS Variables:**
@@ -334,7 +334,7 @@ Renders a `<div>` element.
 | data-closed             | -    | Present when the dialog is closed.                               |
 | data-nested             | -    | Present when the dialog is nested within another dialog.         |
 | data-nested-dialog-open | -    | Present when the dialog has other open dialogs nested within it. |
-| data-starting-style     | -    | Present when the dialog is animating in.                         |
+| data-starting-style     | -    | Present when the dialog begins animating in.                     |
 | data-ending-style       | -    | Present when the dialog is animating out.                        |
 
 ### Viewport.Props
@@ -368,19 +368,18 @@ type ReturnValue = Dialog.Handle<Payload>;
 
 ### Handle
 
-A handle to control a Dialog imperatively and to associate detached triggers with it.
+Controls a Dialog imperatively and associates detached `Dialog.Trigger` components with a
+`Dialog.Root`. Create one with `Dialog.createHandle()` and pass it to the `handle` prop of the
+root and of any triggers rendered outside of it.
 
-**Constructor Parameters:**
-
-| Parameter | Type                   | Default | Description |
-| :-------- | :--------------------- | :------ | :---------- |
-| store?    | `DialogStore<Payload>` | -       | -           |
+The imperative methods take effect only while a root using this handle is mounted; calls made
+before a root attaches (or after it unmounts) are ignored.
 
 **Properties:**
 
-| Property | Type      | Modifiers | Description                                     |
-| :------- | :-------- | :-------- | :---------------------------------------------- |
-| isOpen   | `boolean` | readonly  | Indicates whether the dialog is currently open. |
+| Property | Type      | Modifiers | Description                                                                                    |
+| :------- | :-------- | :-------- | :--------------------------------------------------------------------------------------------- |
+| isOpen   | `boolean` | readonly  | Whether the dialog is currently open. Returns `false` while no root is attached to the handle. |
 
 **Methods:**
 
@@ -388,8 +387,7 @@ A handle to control a Dialog imperatively and to associate detached triggers wit
 function open(triggerId: string | null): void;
 ```
 
-Opens the dialog and associates it with the trigger with the given id.
-The trigger, if provided, must be a Dialog.Trigger component with this handle passed as a prop.
+Opens the dialog, optionally associating it with a trigger.
 
 This method should only be called in an event handler or an effect (not during rendering).
 
@@ -397,14 +395,17 @@ This method should only be called in an event handler or an effect (not during r
 function openWithPayload(payload: Payload): void;
 ```
 
-Opens the dialog and sets the payload.
-Does not associate the dialog with any trigger.
+Opens the dialog with the given payload, without associating it with any trigger.
+
+This method should only be called in an event handler or an effect (not during rendering).
 
 ```typescript
 function close(): void;
 ```
 
 Closes the dialog.
+
+This method should only be called in an event handler or an effect (not during rendering).
 
 ## External Types
 

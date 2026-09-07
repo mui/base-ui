@@ -107,7 +107,7 @@
 .Error {
   font-size: 0.875rem;
   line-height: 1.25rem;
-  color: var(--color-red-800);
+  color: var(--color-red);
 }
 
 .Description {

@@ -9,6 +9,61 @@ export interface Release {
 export const releases: Release[] = [
   {
     latest: true,
+    version: 'v1.8.0',
+    versionSlug: 'v1-8-0',
+    date: '2026-09-04',
+    highlights: [
+      'New `createItems` collection API for `Combobox`.',
+      'Derive Toast updates from the current toast with a function.',
+      'Add `keepMounted` to `<Avatar.Image>` to support native lazy-loading and optimized images.',
+      'Mount Menu and Popover triggers faster.',
+      'Many accessibility, focus, validation, and interaction fixes.',
+    ],
+  },
+  {
+    version: 'v1.7.0',
+    versionSlug: 'v1-7-0',
+    date: '2026-08-04',
+    highlights: [
+      '`<ScrollArea.Thumb>` adds overscroll feedback on WebKit.',
+      'Reduce bundle size and improve performance across components.',
+      'Many accessibility and bug fixes.',
+    ],
+  },
+  {
+    version: 'v1.6.0',
+    versionSlug: 'v1-6-0',
+    date: '2026-06-18',
+    highlights: [
+      '`OTPField` is now stable.',
+      'Align `Accordion` keyboard navigation with APG.',
+      '`Combobox` performance improvement.',
+      'Add new `Drawer.VirtualKeyboardProvider` part for mobile drawers.',
+      '`Drawer` swipe gesture performance improvements.',
+    ],
+  },
+  {
+    version: 'v1.5.0',
+    versionSlug: 'v1-5-0',
+    date: '2026-05-19',
+    highlights: [
+      'Improve closed popup mount performance by up to 50% and unmounting performance by up to 85%.',
+      'Allow Persian digits in `NumberField`.',
+      'Support `Ctrl` and `Cmd` shortcuts in `OTPField`.',
+      'Rename `sanitizeValue` to `normalizeValue` and allow composing with validation in `<OTPField.Root>`.',
+      'Add `data-popup-side` to `<Select.Trigger>`.',
+      'Submit the associated form when pressing `Enter` on `Checkbox`.',
+      'Integrate inline positioning in `PreviewCard`.',
+      'Many accessibility, performance, and bug fixes.',
+    ],
+  },
+  {
+    version: 'v1.4.1',
+    versionSlug: 'v1-4-1',
+    date: '2026-04-20',
+    highlights: ['Fix package installation errors and regressions.'],
+  },
+  {
     version: 'v1.4.0',
     versionSlug: 'v1-4-0',
     date: '2026-04-13',

@@ -49,6 +49,7 @@
   padding: 8px;
   border-radius: 8px;
   cursor: default;
+  -webkit-user-select: none;
   user-select: none;
   color: black;
 
@@ -76,6 +77,7 @@
   padding: 8px;
   border-radius: 8px;
   cursor: default;
+  -webkit-user-select: none;
   user-select: none;
   color: #444;
 

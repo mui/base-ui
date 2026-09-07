@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import * as ReactDOM from 'react-dom';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { getCombinedFieldValidityData } from '../../field/utils/getCombinedFieldValidityData';
@@ -9,21 +8,32 @@ import type { FieldValidityData } from '../../field/root/FieldRoot';
 
 export interface FieldControlRegistration {
   controlRef: React.RefObject<any>;
-  getValue?: (() => unknown) | undefined;
   id: string | undefined;
+  name?: string | undefined;
+  getValue?: (() => unknown) | undefined;
   value: unknown;
 }
 
 export function useFieldControlRegistration(params: UseFieldControlRegistrationParameters) {
-  const { commit, invalid, markedDirtyRef, name, setValidityData, validityData } = params;
+  const {
+    change,
+    commit,
+    invalid,
+    markedDirtyRef,
+    name,
+    setRegisteredFieldName,
+    registeredFieldIdRef,
+    setValidityData,
+    validityData,
+  } = params;
 
   const { formRef } = useFormContext();
 
   const activeFieldControlSourceRef = React.useRef<symbol | null>(null);
   const registrationRef = React.useRef<FieldControlRegistration | null>(null);
-  const fallbackControlRef = React.useRef<any>(null);
+  const initialValueCapturedRef = React.useRef(false);
 
-  const getValue = useStableCallback(() => {
+  const getValueForForm = useStableCallback(() => {
     const registration = registrationRef.current;
     if (!registration) {
       return undefined;
@@ -36,25 +46,20 @@ export function useFieldControlRegistration(params: UseFieldControlRegistrationP
     return registration.value;
   });
 
-  const validate = useStableCallback((flushSync = true) => {
+  function getRegistrationValue(registration: FieldControlRegistration) {
+    return registration.value === undefined ? getValueForForm() : registration.value;
+  }
+
+  const validate = useStableCallback(() => {
     const registration = registrationRef.current;
+    markedDirtyRef.current = true;
+
     if (!registration) {
+      commit(validityData.value);
       return;
     }
 
-    let nextValue = registration.value;
-    if (nextValue === undefined) {
-      nextValue = getValue();
-    }
-
-    markedDirtyRef.current = true;
-
-    if (!flushSync) {
-      commit(nextValue);
-    } else {
-      // Synchronously update the validity state so the submit event can be prevented.
-      ReactDOM.flushSync(() => commit(nextValue));
-    }
+    commit(getRegistrationValue(registration));
   });
 
   function refreshRegistration() {
@@ -64,9 +69,9 @@ export function useFieldControlRegistration(params: UseFieldControlRegistrationP
     }
 
     formRef.current.fields.set(registration.id, {
-      getValue,
-      name,
-      controlRef: registration.controlRef ?? fallbackControlRef,
+      getValue: getValueForForm,
+      name: name ?? registration.name,
+      controlRef: registration.controlRef,
       validityData: getCombinedFieldValidityData(validityData, invalid),
       validate,
     });
@@ -78,20 +83,23 @@ export function useFieldControlRegistration(params: UseFieldControlRegistrationP
     }
   }
 
-  function syncInitialValue() {
-    const registration = registrationRef.current;
-    if (!registration) {
+  // The baseline belongs to the field, not to a control instance: registration re-runs on every
+  // value change, and a control that unmounts and remounts (or is swapped for another one) comes
+  // back as a brand new registration. Capturing more than once would turn whichever value the
+  // control happens to hold at that point into the initial value, so a modified field would read
+  // pristine and its real initial value would read dirty. Consumers that want a fresh baseline
+  // remount or key `<Field.Root>` itself.
+  function captureInitialValue(registration: FieldControlRegistration) {
+    if (initialValueCapturedRef.current) {
       return;
     }
 
-    let initialValue = registration.value;
-    if (initialValue === undefined) {
-      initialValue = getValue();
-    }
+    initialValueCapturedRef.current = true;
+    const initialValue = getRegistrationValue(registration);
 
-    if (validityData.initialValue === null && initialValue !== null) {
-      setValidityData((prev) => ({ ...prev, initialValue }));
-    }
+    setValidityData((prev) =>
+      prev.initialValue === initialValue ? prev : { ...prev, initialValue },
+    );
   }
 
   useIsoLayoutEffect(() => {
@@ -100,14 +108,16 @@ export function useFieldControlRegistration(params: UseFieldControlRegistrationP
       return;
     }
 
+    setRegisteredFieldName(name ? undefined : registration.name);
+
     formRef.current.fields.set(registration.id, {
-      getValue,
-      name,
-      controlRef: registration.controlRef ?? fallbackControlRef,
+      getValue: getValueForForm,
+      name: name ?? registration.name,
+      controlRef: registration.controlRef,
       validityData: getCombinedFieldValidityData(validityData, invalid),
       validate,
     });
-  }, [formRef, getValue, invalid, name, validate, validityData]);
+  }, [formRef, getValueForForm, invalid, name, setRegisteredFieldName, validate, validityData]);
 
   useIsoLayoutEffect(() => {
     const fields = formRef.current.fields;
@@ -120,35 +130,55 @@ export function useFieldControlRegistration(params: UseFieldControlRegistrationP
     };
   }, [formRef]);
 
-  return useStableCallback((source: symbol, registration: FieldControlRegistration | undefined) => {
-    if (!registration) {
-      if (activeFieldControlSourceRef.current === source) {
-        activeFieldControlSourceRef.current = null;
-        deleteRegistration();
-        registrationRef.current = null;
+  const register = useStableCallback(
+    (source: symbol, registration: FieldControlRegistration | undefined) => {
+      if (!registration) {
+        if (activeFieldControlSourceRef.current === source) {
+          activeFieldControlSourceRef.current = null;
+          change(undefined, true);
+          deleteRegistration();
+          registrationRef.current = null;
+          setRegisteredFieldName(undefined);
+          registeredFieldIdRef.current = undefined;
+        }
+        return;
       }
-      return;
-    }
 
-    const previousId = registrationRef.current?.id;
+      const previousId = registrationRef.current?.id;
+      const previousSource = activeFieldControlSourceRef.current;
 
-    activeFieldControlSourceRef.current = source;
-    registrationRef.current = registration;
+      // Drop work owned by a replaced control, but not on first registration.
+      if (previousSource && previousSource !== source) {
+        change(undefined, true);
+      }
 
-    if (previousId && previousId !== registration.id) {
-      deleteRegistration(previousId);
-    }
+      activeFieldControlSourceRef.current = source;
+      registrationRef.current = registration;
+      if (!name) {
+        setRegisteredFieldName(registration.name);
+      }
+      registeredFieldIdRef.current = registration.id;
 
-    syncInitialValue();
-    refreshRegistration();
-  });
+      if (previousId && previousId !== registration.id) {
+        deleteRegistration(previousId);
+      }
+
+      captureInitialValue(registration);
+      refreshRegistration();
+    },
+  );
+
+  return [validate, register] as const;
 }
 
 export interface UseFieldControlRegistrationParameters {
+  change: (value: unknown, cancelPending?: boolean) => void;
   commit: (value: unknown) => void;
   invalid: boolean;
   markedDirtyRef: React.RefObject<boolean>;
   name: string | undefined;
+  setRegisteredFieldName: (name: string | undefined) => void;
+  registeredFieldIdRef: React.RefObject<string | undefined>;
   setValidityData: React.Dispatch<React.SetStateAction<FieldValidityData>>;
   validityData: FieldValidityData;
 }

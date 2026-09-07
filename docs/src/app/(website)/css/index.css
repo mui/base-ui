@@ -1,4 +1,5 @@
-@import './theme.css';
+/* Keep layer order stable when this file is emitted from a client CSS chunk. */
+@layer all, base, theme, components, utilities;
 
 @import './components/Accordion.css';
 @import './components/Body.css';

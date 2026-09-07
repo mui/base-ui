@@ -1,8 +1,9 @@
-import { expect, vi } from 'vitest';
+import { expect, vi, describe, it } from 'vitest';
 import { act, screen } from '@mui/internal-test-utils';
 import { DirectionProvider, type TextDirection } from '@base-ui/react/direction-provider';
 import { ToggleGroup } from '@base-ui/react/toggle-group';
 import { Toggle } from '@base-ui/react/toggle';
+import { Toolbar } from '@base-ui/react/toolbar';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { type Orientation } from '../internals/types';
 
@@ -208,9 +209,38 @@ describe('<ToggleGroup />', () => {
       const group = screen.queryByRole('group');
       expect(group).toHaveAttribute('data-orientation', 'vertical');
     });
+
+    it('does not render aria-orientation on role="group"', async () => {
+      await render(
+        <ToggleGroup orientation="horizontal">
+          <Toggle value="one" />
+          <Toggle value="two" />
+        </ToggleGroup>,
+      );
+
+      const group = screen.queryByRole('group');
+      expect(group).not.toHaveAttribute('aria-orientation');
+    });
   });
 
   describe('prop: multiple', () => {
+    it('sets data-multiple only when true', async () => {
+      const { setProps } = await render(
+        <ToggleGroup>
+          <Toggle value="one" />
+        </ToggleGroup>,
+      );
+
+      const group = screen.getByRole('group');
+      expect(group).not.toHaveAttribute('data-multiple');
+
+      await setProps({ multiple: true });
+      expect(group).toHaveAttribute('data-multiple');
+
+      await setProps({ multiple: false });
+      expect(group).not.toHaveAttribute('data-multiple');
+    });
+
     it('multiple items can be pressed when true', async () => {
       const { user } = await render(
         <ToggleGroup multiple defaultValue={['one']}>
@@ -273,6 +303,66 @@ describe('<ToggleGroup />', () => {
       await user.click(button1);
       expect(button1).toHaveAttribute('aria-pressed', 'false');
       expect(button2).toHaveAttribute('aria-pressed', 'true');
+    });
+  });
+
+  describe.skipIf(isJSDOM)('prop: multiple transitions', () => {
+    it.each([
+      ['standalone', false],
+      ['nested in Toolbar.Group', true],
+    ] as const)('preserves selection and roving focus when %s', async (_label, inToolbar) => {
+      function TestToggleGroup({ multiple }: { multiple: boolean }) {
+        const group = (
+          <ToggleGroup data-testid="toggle-group" defaultValue={['one']} multiple={multiple}>
+            <Toggle value="one">One</Toggle>
+            <Toggle value="two">Two</Toggle>
+          </ToggleGroup>
+        );
+
+        return inToolbar ? (
+          <Toolbar.Root>
+            <Toolbar.Group>{group}</Toolbar.Group>
+          </Toolbar.Root>
+        ) : (
+          group
+        );
+      }
+
+      const { user, setProps } = await render(<TestToggleGroup multiple={false} />);
+      const group = screen.getByTestId('toggle-group');
+      const [button1, button2] = screen.getAllByRole('button');
+
+      expect(group).not.toHaveAttribute('data-multiple');
+      expect(button1).toHaveAttribute('aria-pressed', 'true');
+      expect(button2).toHaveAttribute('aria-pressed', 'false');
+
+      await user.keyboard('[Tab][ArrowRight]');
+      expect(button2).toHaveFocus();
+
+      await user.click(button2);
+      expect(button1).toHaveAttribute('aria-pressed', 'false');
+      expect(button2).toHaveAttribute('aria-pressed', 'true');
+
+      await setProps({ multiple: true });
+      expect(group).toHaveAttribute('data-multiple');
+
+      await user.click(button1);
+      expect(button1).toHaveAttribute('aria-pressed', 'true');
+      expect(button2).toHaveAttribute('aria-pressed', 'true');
+
+      await user.click(button2);
+      expect(button1).toHaveAttribute('aria-pressed', 'true');
+      expect(button2).toHaveAttribute('aria-pressed', 'false');
+
+      await setProps({ multiple: false });
+      expect(group).not.toHaveAttribute('data-multiple');
+
+      await user.click(button2);
+      expect(button1).toHaveAttribute('aria-pressed', 'false');
+      expect(button2).toHaveAttribute('aria-pressed', 'true');
+
+      await user.keyboard('[ArrowLeft]');
+      expect(button1).toHaveFocus();
     });
   });
 
@@ -453,8 +543,28 @@ describe('<ToggleGroup />', () => {
       expect(onValueChange.mock.calls[1][0]).toEqual(['two']);
     });
 
+    it('does not change the value when the event is canceled', async () => {
+      const onValueChange = vi.fn((_value, eventDetails) => {
+        eventDetails.cancel();
+      });
+
+      const { user } = await render(
+        <ToggleGroup onValueChange={onValueChange}>
+          <Toggle value="one" />
+          <Toggle value="two" />
+        </ToggleGroup>,
+      );
+
+      const [button1] = screen.getAllByRole('button');
+
+      await user.pointer({ keys: '[MouseLeft]', target: button1 });
+
+      expect(onValueChange.mock.calls.length).toBe(1);
+      expect(button1).toHaveAttribute('aria-pressed', 'false');
+    });
+
     ['Enter', 'Space'].forEach((key) => {
-      it(`fires when when the ${key} is pressed`, async ({ skip }) => {
+      it(`fires when the ${key} is pressed`, async ({ skip }) => {
         if (isJSDOM) {
           skip();
         }

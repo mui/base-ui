@@ -18,19 +18,18 @@ export default function OutsideScrollDialog() {
                 <Dialog.Popup ref={popupRef} className={styles.Popup} initialFocus={popupRef}>
                   <div className={styles.PopupHeader}>
                     <Dialog.Title className={styles.Title}>Dialog</Dialog.Title>
+                    <Dialog.Description className={styles.Description}>
+                      This layout keeps an outer container scrollable while the dialog can extend
+                      past the bottom edge.
+                    </Dialog.Description>
                     <Dialog.Close className={styles.Close} aria-label="Close">
-                      <XIcon className={styles.CloseIcon} />
+                      <XIcon />
                     </Dialog.Close>
                   </div>
 
-                  <Dialog.Description className={styles.Description}>
-                    This layout keeps an outer container scrollable while the dialog can extend past
-                    the bottom edge.
-                  </Dialog.Description>
-
                   <div className={styles.Body}>
                     {CONTENT_SECTIONS.map((item) => (
-                      <section key={item.title}>
+                      <section className={styles.Section} key={item.title}>
                         <h3 className={styles.SectionTitle}>{item.title}</h3>
                         <p className={styles.SectionBody}>{item.body}</p>
                       </section>
@@ -65,19 +64,17 @@ export default function OutsideScrollDialog() {
 function XIcon(props: React.ComponentProps<'svg'>) {
   return (
     <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
       fill="none"
       stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
+      strokeLinecap="square"
       strokeLinejoin="round"
       {...props}
+      style={{ display: 'block', ...props.style }}
     >
-      <path d="M18 6 6 18" />
-      <path d="m6 6 12 12" />
+      <path d="m2.5 2.5 11 11m-11 0 11-11" />
     </svg>
   );
 }

@@ -1,5 +1,6 @@
-import { expect } from 'vitest';
-import { getNumberLocaleDetails, parseNumber } from './parse';
+import { expect, describe, it } from 'vitest';
+import { isJSDOM } from '#test-utils';
+import { getNumberLocaleDetails, isNumeralChar, parseNumber } from './parse';
 
 describe('NumberField parse', () => {
   describe('getNumberLocaleDetails', () => {
@@ -49,8 +50,24 @@ describe('NumberField parse', () => {
       expect(parseNumber('12%', 'en-US', { style: 'percent' })).toBe(0.12);
     });
 
+    it('parses prefix percentages', () => {
+      const format = { style: 'percent', maximumFractionDigits: 2 } as const;
+      const formatted = new Intl.NumberFormat('tr-TR', format).format(0.0123);
+
+      expect(parseNumber(formatted, 'tr-TR', format)).toBe(0.0123);
+    });
+
+    it('parses scientific notation percentages', () => {
+      expect(parseNumber('1e-7%', 'en-US', { style: 'percent' })).toBe(1e-9);
+    });
+
     it('handles percentages with style: "unit" and unit: "percent"', () => {
       expect(parseNumber('12%', 'en-US', { style: 'unit', unit: 'percent' })).toBe(12);
+    });
+
+    it('strips an interleaved percent sign (1%2)', () => {
+      expect(parseNumber('1%2', 'en-US', { style: 'percent' })).toBe(0.12);
+      expect(parseNumber('1%2', 'en-US', { style: 'unit', unit: 'percent' })).toBe(12);
     });
 
     it('parses fullwidth digits and punctuation', () => {
@@ -98,6 +115,63 @@ describe('NumberField parse', () => {
       );
     });
 
+    it('parses scientific notation with currency codes', () => {
+      const format = {
+        style: 'currency',
+        currency: 'EUR',
+        currencyDisplay: 'code',
+        notation: 'scientific',
+        maximumFractionDigits: 2,
+      } as const;
+      const formatted = new Intl.NumberFormat('en-US', format).format(12345);
+
+      expect(parseNumber(formatted, 'en-US', format)).toBe(12300);
+    });
+
+    it.each(['ar-EG', 'fa-IR'] as const)(
+      'parses localized scientific notation for %s',
+      (locale) => {
+        const format = { notation: 'scientific', maximumFractionDigits: 2 } as const;
+        const formatted = new Intl.NumberFormat(locale, format).format(12345);
+
+        expect(parseNumber(formatted, locale, format)).toBe(12300);
+      },
+    );
+
+    it.each(['ar-EG', 'fa-IR'] as const)(
+      'parses localized percent scientific notation with a negative exponent for %s',
+      (locale) => {
+        const format = {
+          style: 'percent',
+          notation: 'scientific',
+          maximumFractionDigits: 2,
+        } as const;
+        const value = 0.0000012345;
+        const formatted = new Intl.NumberFormat(locale, format).format(value);
+
+        expect(parseNumber(formatted, locale, format)).toBe(0.00000123);
+      },
+    );
+
+    it.each(['ar-EG', 'fa-IR'] as const)(
+      'parses localized tiny percent scientific notation for %s',
+      (locale) => {
+        const format = {
+          style: 'percent',
+          notation: 'scientific',
+          maximumFractionDigits: 2,
+        } as const;
+        const value = 0.0000000000012345;
+        const formatted = new Intl.NumberFormat(locale, format).format(value);
+
+        expect(parseNumber(formatted, locale, format)).toBe(0.00000000000123);
+      },
+    );
+
+    it('parses scientific notation permille values', () => {
+      expect(parseNumber('1e-7‰', 'en-US')).toBe(1e-10);
+    });
+
     it('parses units when options specify unit style', () => {
       expect(parseNumber('12 kg', 'en-US', { style: 'unit', unit: 'kilogram' })).toBe(12);
     });
@@ -106,6 +180,15 @@ describe('NumberField parse', () => {
       expect(parseNumber('Infinity')).toBe(null);
       expect(parseNumber('-Infinity')).toBe(null);
       expect(parseNumber('∞')).toBe(null);
+    });
+
+    it('returns null when parsing overflows to Infinity', () => {
+      const formatted = new Intl.NumberFormat('en-US', {
+        style: 'percent',
+        maximumFractionDigits: 2,
+      }).format(Number.MAX_VALUE);
+
+      expect(parseNumber(formatted, 'en-US', { style: 'percent' })).toBe(null);
     });
 
     it('collapses extra dots from mixed-locale inputs', () => {
@@ -211,6 +294,49 @@ describe('NumberField parse', () => {
       expect(parseNumber('1..5')).toBe(1.5);
       expect(parseNumber('123..456..789.01')).toBe(123456789.01);
       expect(parseNumber('....5')).toBe(0.5);
+    });
+
+    // Guards the numeral-to-ASCII mapping: Arabic-Indic, Persian, and fullwidth digits are
+    // decoded via `charCode % 16` (their ranges all start at a multiple of 16), and Han digits
+    // via a digit-ordered lookup string. Existing cases only exercise a few digits, so these
+    // pin the full 0-9 range of every system.
+    it('maps the full Persian digit range', () => {
+      expect(parseNumber('۹۸۷۶۵۴۳۲۱۰')).toBe(9876543210);
+    });
+
+    it('maps the full fullwidth digit range', () => {
+      expect(parseNumber('０１２３４５６７８９')).toBe(123456789);
+    });
+
+    it.skipIf(!isJSDOM)('maps the full Arabic-Indic digit range', () => {
+      // Browser Intl handles Arabic-Indic digits inconsistently, so this runs in jsdom only.
+      expect(parseNumber('٩٨٧٦٥٤٣٢١٠')).toBe(9876543210);
+    });
+
+    it('maps the full Han digit range', () => {
+      expect(parseNumber('九八七六五四三二一〇')).toBe(9876543210);
+    });
+
+    it('maps both Han zero forms to 0', () => {
+      expect(parseNumber('零')).toBe(0);
+      expect(parseNumber('〇')).toBe(0);
+    });
+  });
+
+  describe('isNumeralChar', () => {
+    it('accepts a digit from every supported numeral system', () => {
+      // ASCII, Arabic-Indic, Persian, fullwidth, and Han (including both zero forms).
+      for (const char of ['0', '9', '٠', '٩', '۰', '۹', '０', '９', '零', '〇', '九']) {
+        expect(isNumeralChar(char)).toBe(true);
+      }
+    });
+
+    it('rejects non-digit characters', () => {
+      // Separators, signs, and letters must not read as digits, or input validation would
+      // accept unparseable strings.
+      for (const char of ['.', ',', '-', '+', '%', '٫', 'a', ' ']) {
+        expect(isNumeralChar(char)).toBe(false);
+      }
     });
   });
 });

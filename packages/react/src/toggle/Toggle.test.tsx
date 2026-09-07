@@ -1,4 +1,4 @@
-import { expect, vi } from 'vitest';
+import { expect, vi, describe, it } from 'vitest';
 import * as React from 'react';
 import { act, screen } from '@mui/internal-test-utils';
 import { Toggle } from '@base-ui/react/toggle';
@@ -79,6 +79,50 @@ describe('<Toggle />', () => {
 
       expect(handlePressed.mock.calls.length).toBe(1);
       expect(handlePressed.mock.calls[0][0]).toBe(true);
+    });
+
+    it('does not change the pressed state when the event is canceled', async () => {
+      await render(
+        <Toggle
+          defaultPressed={false}
+          onPressedChange={(_pressed, eventDetails) => {
+            eventDetails.cancel();
+          }}
+        />,
+      );
+
+      const button = screen.getByRole('button');
+
+      await act(async () => {
+        button.click();
+      });
+
+      expect(button).toHaveAttribute('aria-pressed', 'false');
+    });
+
+    it('canceling in a grouped Toggle prevents the group value from changing', async () => {
+      const onValueChange = vi.fn();
+
+      await render(
+        <ToggleGroup onValueChange={onValueChange}>
+          <Toggle
+            value="one"
+            onPressedChange={(_pressed, eventDetails) => {
+              eventDetails.cancel();
+            }}
+          />
+          <Toggle value="two" />
+        </ToggleGroup>,
+      );
+
+      const [button1] = screen.getAllByRole('button');
+
+      await act(async () => {
+        button1.click();
+      });
+
+      expect(button1).toHaveAttribute('aria-pressed', 'false');
+      expect(onValueChange.mock.calls.length).toBe(0);
     });
   });
 

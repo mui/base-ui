@@ -1,4 +1,4 @@
-import { expect } from 'vitest';
+import { expect, describe, it } from 'vitest';
 import { ScrollArea } from '@base-ui/react/scroll-area';
 import { Select } from '@base-ui/react/select';
 import { CSPProvider } from '@base-ui/react/csp-provider';

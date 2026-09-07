@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
 import { useRenderElement } from '../../internals/useRenderElement';
@@ -18,16 +17,11 @@ export const PopoverTitle = React.forwardRef(function PopoverTitle(
 ) {
   const { render, className, style, ...elementProps } = componentProps;
 
-  const { store } = usePopoverRootContext();
+  const store = usePopoverRootContext();
 
   const id = useBaseUiId(elementProps.id);
 
-  useIsoLayoutEffect(() => {
-    store.set('titleElementId', id);
-    return () => {
-      store.set('titleElementId', undefined);
-    };
-  }, [store, id]);
+  store.useSyncedValueWithCleanup('titleElementId', id);
 
   const element = useRenderElement('h2', componentProps, {
     ref: forwardedRef,

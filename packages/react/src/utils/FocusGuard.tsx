@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { isSafari } from '@base-ui/utils/detectBrowser';
+import { platform } from '@base-ui/utils/platform';
 import { visuallyHidden } from '@base-ui/utils/visuallyHidden';
 
 /**
@@ -14,10 +14,11 @@ export const FocusGuard = React.forwardRef(function FocusGuard(
   const [role, setRole] = React.useState<'button' | undefined>();
 
   useIsoLayoutEffect(() => {
-    if (isSafari) {
-      // Unlike other screen readers such as NVDA and JAWS, the virtual cursor
-      // on VoiceOver does trigger the onFocus event, so we can use the focus
-      // trap element. On Safari, only buttons trigger the onFocus event.
+    // Unlike NVDA and JAWS, VoiceOver's virtual cursor triggers `onFocus` as
+    // it moves — but only on focusable/role-button elements through WebKit's
+    // NSAccessibility path. Setting `role="button"` lets the focus trap catch
+    // the cursor.
+    if (platform.screenReader.voiceOver && platform.engine.webkit) {
       setRole('button');
     }
   }, []);

@@ -7,6 +7,11 @@ export type * from './item/AutocompleteItem';
 export type * from './value/AutocompleteValue';
 
 export type {
+  AutocompleteSeparatorProps,
+  AutocompleteSeparatorState,
+} from './separator/AutocompleteSeparator';
+
+export type {
   ComboboxInputProps as AutocompleteInputProps,
   ComboboxInputState as AutocompleteInputState,
 } from '../combobox/input/ComboboxInput';

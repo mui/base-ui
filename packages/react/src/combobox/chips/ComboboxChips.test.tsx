@@ -1,6 +1,6 @@
-import { expect, vi } from 'vitest';
+import { expect, vi, describe, it } from 'vitest';
 import { Combobox } from '@base-ui/react/combobox';
-import { fireEvent, screen } from '@mui/internal-test-utils';
+import { fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance } from '#test-utils';
 import { Field } from '@base-ui/react/field';
 
@@ -218,7 +218,7 @@ describe('<Combobox.Chips />', () => {
     expect(screen.queryByRole('listbox')).toBe(null);
   });
 
-  it('does not focus or open when readOnly', async () => {
+  it('focuses the input and opens when readOnly', async () => {
     await render(
       <Combobox.Root items={['apple', 'banana']} multiple readOnly defaultValue={['apple']}>
         <Combobox.Chips data-testid="chips">
@@ -240,7 +240,71 @@ describe('<Combobox.Chips />', () => {
 
     fireEvent.mouseDown(screen.getByTestId('chips'));
 
-    expect(screen.getByTestId('input')).not.toHaveFocus();
-    expect(screen.queryByRole('listbox')).toBe(null);
+    expect(screen.getByTestId('input')).toHaveFocus();
+    expect(screen.queryByRole('listbox')).not.toBe(null);
+  });
+
+  it('opens and focuses an input rendered inside the popup when the chips area is pressed', async () => {
+    const { user } = await render(
+      <Combobox.Root items={['apple', 'banana']} multiple defaultValue={['apple']}>
+        <Combobox.Chips data-testid="chips">
+          <Combobox.Chip>apple</Combobox.Chip>
+        </Combobox.Chips>
+        <Combobox.Trigger>Open</Combobox.Trigger>
+        <Combobox.Portal>
+          <Combobox.Positioner>
+            <Combobox.Popup>
+              <Combobox.Input data-testid="input" />
+              <Combobox.List>
+                {(item: string) => (
+                  <Combobox.Item key={item} value={item}>
+                    {item}
+                  </Combobox.Item>
+                )}
+              </Combobox.List>
+            </Combobox.Popup>
+          </Combobox.Positioner>
+        </Combobox.Portal>
+      </Combobox.Root>,
+    );
+
+    await user.click(screen.getByTestId('chips'));
+
+    expect(await screen.findByRole('dialog')).not.toBe(null);
+    await waitFor(() => expect(screen.getByTestId('input')).toHaveFocus());
+  });
+
+  it('clears the highlighted chip when the popup opens', async () => {
+    const { user } = await render(
+      <Combobox.Root multiple defaultValue={['apple']}>
+        <Combobox.Chips>
+          <Combobox.Chip data-testid="chip">apple</Combobox.Chip>
+          <Combobox.Input data-testid="input" />
+        </Combobox.Chips>
+        <Combobox.Portal>
+          <Combobox.Positioner>
+            <Combobox.Popup>
+              <Combobox.List>
+                <Combobox.Item value="banana">banana</Combobox.Item>
+              </Combobox.List>
+            </Combobox.Popup>
+          </Combobox.Positioner>
+        </Combobox.Portal>
+      </Combobox.Root>,
+    );
+
+    const input = screen.getByTestId<HTMLInputElement>('input');
+    input.focus();
+    input.setSelectionRange(0, 0);
+    await user.keyboard('{ArrowLeft}');
+    expect(screen.getByTestId('chip')).toHaveFocus();
+
+    await user.keyboard('{ArrowDown}');
+    expect(screen.getByRole('listbox')).not.toBe(null);
+
+    input.focus();
+    input.setSelectionRange(0, 0);
+    await user.keyboard('{ArrowLeft}');
+    expect(screen.getByTestId('chip')).toHaveFocus();
   });
 });

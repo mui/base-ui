@@ -49,7 +49,7 @@ import { NavigationMenu } from '@base-ui/react/navigation-menu';
 
 import { DemoNavigationMenuNested } from './demos/nested';
 
-<DemoNavigationMenuNested compact />
+<DemoNavigationMenuNested />
 
 ### Nested inline submenus
 
@@ -57,7 +57,7 @@ For second-level navigation that should stay in the same panel, omit the nested 
 
 import { DemoNavigationMenuNestedInline } from './demos/nested-inline';
 
-<DemoNavigationMenuNestedInline compact />
+<DemoNavigationMenuNestedInline />
 
 ### Custom links
 
@@ -71,7 +71,7 @@ import { NavigationMenu } from '@base-ui/react/navigation-menu';
 function Link(props: NavigationMenu.Link.Props) {
   return (
     <NavigationMenu.Link
-      {/* @highlight */}
+      // @highlight
       render={<NextLink href={props.href} />}
       {...props}
     />

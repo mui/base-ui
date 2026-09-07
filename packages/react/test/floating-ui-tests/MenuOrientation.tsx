@@ -2,6 +2,8 @@
 import * as React from 'react';
 import c from 'clsx';
 import { useMergedRefsN } from '@base-ui/utils/useMergedRefs';
+import { useTestInteractions } from '#test-utils';
+import { useBaseUiId } from '../../src/internals/useBaseUiId';
 import { CompositeList } from '../../src/internals/composite/list/CompositeList';
 import { useCompositeListItem } from '../../src/internals/composite/list/useCompositeListItem';
 import { getEmptyRootContext } from '../../src/floating-ui-react/utils/getEmptyRootContext';
@@ -22,15 +24,15 @@ import {
   useFloatingParentNodeId,
   useFloatingTree,
   useHover,
-  useInteractions,
   useListNavigation,
-  useRole,
   useTypeahead,
 } from '../../src/floating-ui-react';
+import { gridNavigation } from '../../src/floating-ui-react/hooks/gridNavigation';
+import { GRID_COLUMN_COUNT, renderGridRows } from './renderGridRows';
 import styles from './MenuOrientation.module.css';
 
 type MenuContextType = {
-  getItemProps: ReturnType<typeof useInteractions>['getItemProps'];
+  getItemProps: ReturnType<typeof useTestInteractions>['getItemProps'];
   activeIndex: number | null;
   setActiveIndex: React.Dispatch<React.SetStateAction<number | null>>;
   setHasFocusInside: React.Dispatch<React.SetStateAction<boolean>>;
@@ -59,7 +61,7 @@ interface MenuProps {
   children?: React.ReactNode;
   keepMounted?: boolean;
   orientation?: 'vertical' | 'horizontal' | 'both';
-  cols?: number;
+  grid?: boolean;
 }
 
 /** @internal */
@@ -67,7 +69,7 @@ export const MenuComponent = React.forwardRef<
   HTMLButtonElement,
   MenuProps & React.HTMLProps<HTMLButtonElement>
 >(function Menu(
-  { children, label, keepMounted = false, cols, orientation: orientationOption, ...props },
+  { children, label, keepMounted = false, grid, orientation: orientationOption, ...props },
   forwardedRef,
 ) {
   const [isOpen, setIsOpen] = React.useState(false);
@@ -82,10 +84,11 @@ export const MenuComponent = React.forwardRef<
   const nodeId = useFloatingNodeId();
   const parentId = useFloatingParentNodeId();
   const isNested = parentId != null;
-  const orientation = orientationOption ?? (cols ? 'both' : 'vertical');
+  const orientation = orientationOption ?? (grid ? 'both' : 'vertical');
 
   const parent = React.useContext(MenuContext);
   const item = useCompositeListItem();
+  const triggerId = useBaseUiId();
 
   const { floatingStyles, refs, context } = useFloating({
     nodeId,
@@ -111,7 +114,6 @@ export const MenuComponent = React.forwardRef<
     toggle: !isNested || !allowHover,
     ignoreMouse: isNested,
   });
-  const role = useRole(context, { role: 'menu' });
   const dismiss = useDismiss(context, { bubbles: true });
   const listNavigation = useListNavigation(context, {
     listRef: elementsRef,
@@ -119,7 +121,7 @@ export const MenuComponent = React.forwardRef<
     nested: isNested,
     onNavigate: setActiveIndex,
     orientation,
-    cols,
+    grid: grid ? gridNavigation : undefined,
   });
   const typeahead = useTypeahead(context, {
     listRef: labelsRef,
@@ -127,10 +129,9 @@ export const MenuComponent = React.forwardRef<
     activeIndex,
   });
 
-  const { getReferenceProps, getFloatingProps, getItemProps } = useInteractions([
+  const { getReferenceProps, getFloatingProps, getItemProps } = useTestInteractions([
     hover,
     click,
-    role,
     dismiss,
     listNavigation,
     typeahead,
@@ -202,6 +203,10 @@ export const MenuComponent = React.forwardRef<
       <button
         type="button"
         ref={useMergedRefsN([refs.setReference, item.ref, forwardedRef])}
+        id={triggerId}
+        aria-haspopup="menu"
+        aria-expanded={isOpen}
+        aria-controls={isOpen ? context.floatingId : undefined}
         data-open={isOpen ? '' : undefined}
         // eslint-disable-next-line no-nested-ternary
         tabIndex={!isNested ? props.tabIndex : parent.activeIndex === item.index ? 0 : -1}
@@ -260,29 +265,32 @@ export const MenuComponent = React.forwardRef<
               >
                 <div
                   ref={refs.setFloating}
+                  id={context.floatingId}
+                  role="menu"
+                  aria-labelledby={triggerId}
                   className={c(
                     styles.Panel,
                     {
-                      [styles.PanelFlexCol]: !cols && orientation !== 'horizontal',
+                      [styles.PanelFlexCol]: !grid && orientation !== 'horizontal',
                     },
                     {
                       [styles.PanelFlexRow]: orientation === 'horizontal',
                     },
                     {
-                      [styles.PanelGrid]: cols,
+                      [styles.PanelGrid]: grid,
                     },
                   )}
                   style={{
                     ...floatingStyles,
                     // @ts-expect-error css var
-                    '--cols': cols,
+                    '--cols': GRID_COLUMN_COUNT,
                     // eslint-disable-next-line no-nested-ternary
                     visibility: !keepMounted ? undefined : isOpen ? 'visible' : 'hidden',
                   }}
                   aria-hidden={!isOpen}
                   {...getFloatingProps()}
                 >
-                  {children}
+                  {renderGridRows(children, grid)}
                 </div>
               </FloatingFocusManager>
             </FloatingPortal>
@@ -393,7 +401,7 @@ export function HorizontalMenu() {
           <Menu label="Copy as" keepMounted>
             <MenuItem label="Text" />
             <MenuItem label="Video" />
-            <Menu label="Image" keepMounted cols={2}>
+            <Menu label="Image" keepMounted grid>
               <MenuItem label=".png" />
               <MenuItem label=".jpg" />
               <MenuItem label=".svg" />
@@ -430,7 +438,7 @@ export function VerticalMenu() {
           <Menu label="Copy as" keepMounted orientation="horizontal">
             <MenuItem label="Text" />
             <MenuItem label="Video" />
-            <Menu label="Image" keepMounted cols={2}>
+            <Menu label="Image" keepMounted grid>
               <MenuItem label=".png" />
               <MenuItem label=".jpg" />
               <MenuItem label=".svg" />
@@ -467,7 +475,7 @@ export function HorizontalMenuWithHorizontalSubmenus() {
           <Menu label="Copy as" keepMounted orientation="horizontal">
             <MenuItem label="Text" />
             <MenuItem label="Video" />
-            <Menu label="Image" keepMounted cols={2}>
+            <Menu label="Image" keepMounted grid>
               <MenuItem label=".png" />
               <MenuItem label=".jpg" />
               <MenuItem label=".svg" />

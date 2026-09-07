@@ -26,10 +26,7 @@ export type {
   DialogTitleProps as AlertDialogTitleProps,
   DialogTitleState as AlertDialogTitleState,
 } from '../dialog/title/DialogTitle';
-export type {
-  DialogTriggerProps as AlertDialogTriggerProps,
-  DialogTriggerState as AlertDialogTriggerState,
-} from '../dialog/trigger/DialogTrigger';
+export type * from './trigger/AlertDialogTrigger';
 export type {
   DialogViewportProps as AlertDialogViewportProps,
   DialogViewportState as AlertDialogViewportState,

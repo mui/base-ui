@@ -7,22 +7,15 @@ import type { MenuRoot } from '../root/MenuRoot';
 import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
 import { useRenderElement } from '../../internals/useRenderElement';
 import type { BaseUIComponentProps } from '../../internals/types';
-import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
-import type { Side, Align } from '../../utils/useAnchorPositioning';
+import type { Side, Align } from '../../internals/useAnchorPositioning';
 import type { TransitionStatus } from '../../internals/useTransitionStatus';
-import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping';
-import { transitionStatusMapping } from '../../internals/stateAttributesMapping';
+import { popupTransitionStateMapping } from '../../utils/popupStateMapping';
 import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import { useToolbarRootContext } from '../../toolbar/root/ToolbarRootContext';
 import { COMPOSITE_KEYS } from '../../internals/composite/composite';
-import { getDisabledMountTransitionStyles } from '../../utils/getDisabledMountTransitionStyles';
-
-const stateAttributesMapping: StateAttributesMapping<MenuPopupState> = {
-  ...baseMapping,
-  ...transitionStatusMapping,
-};
+import { getDisabledMountTransitionStyles } from '../../internals/getDisabledMountTransitionStyles';
 
 /**
  * A container for the menu items.
@@ -45,14 +38,16 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
   const popupProps = store.useState('popupProps');
   const mounted = store.useState('mounted');
   const instantType = store.useState('instantType');
-  const triggerElement = store.useState('activeTriggerElement');
+  const activeTriggerElement = store.useState('activeTriggerElement');
   const parent = store.useState('parent');
   const lastOpenChangeReason = store.useState('lastOpenChangeReason');
   const rootId = store.useState('rootId');
   const floatingContext = store.useState('floatingRootContext');
   const floatingTreeRoot = store.useState('floatingTreeRoot');
   const closeDelay = store.useState('closeDelay');
-  const activeTriggerElement = store.useState('activeTriggerElement');
+  const hoverEnabled = store.useState('hoverEnabled');
+  const disabled = store.useState('disabled');
+  const openMethod = store.useState('openMethod');
 
   const isContextMenu = parent.type === 'context-menu';
 
@@ -81,13 +76,12 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
     };
   }, [floatingTreeRoot.events, store]);
 
-  const hoverEnabled = store.useState('hoverEnabled');
-  const disabled = store.useState('disabled');
-
   useHoverFloatingInteraction(floatingContext, {
     enabled: hoverEnabled && !disabled && !isContextMenu && parent.type !== 'menubar',
     closeDelay,
   });
+
+  const setPopupElement = store.useStateSetter('popupElement');
 
   const state: MenuPopupState = {
     transitionStatus,
@@ -98,17 +92,10 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
     instant: instantType,
   };
 
-  const setPopupElement = React.useCallback(
-    (element: HTMLElement | null) => {
-      store.set('popupElement', element);
-    },
-    [store],
-  );
-
   const element = useRenderElement('div', componentProps, {
     state,
     ref: [forwardedRef, store.context.popupRef, setPopupElement],
-    stateAttributesMapping,
+    stateAttributesMapping: popupTransitionStateMapping,
     props: [
       popupProps,
       {
@@ -126,7 +113,7 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
 
   let returnFocus = parent.type === undefined || isContextMenu;
   if (
-    triggerElement ||
+    activeTriggerElement ||
     (parent.type === 'menubar' && lastOpenChangeReason !== REASONS.outsidePress)
   ) {
     returnFocus = true;
@@ -135,6 +122,7 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
   return (
     <FloatingFocusManager
       context={floatingContext}
+      openInteractionType={openMethod}
       modal={isContextMenu}
       disabled={!mounted}
       returnFocus={finalFocus === undefined ? returnFocus : finalFocus}

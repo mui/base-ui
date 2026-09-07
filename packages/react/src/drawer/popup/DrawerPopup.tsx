@@ -12,17 +12,18 @@ import { useRenderElement } from '../../internals/useRenderElement';
 import type { BaseUIComponentProps } from '../../internals/types';
 import type { TransitionStatus } from '../../internals/useTransitionStatus';
 import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
-import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping';
-import { transitionStatusMapping } from '../../internals/stateAttributesMapping';
-import { DrawerBackdropCssVars } from '../backdrop/DrawerBackdropCssVars';
-import { DrawerPopupCssVars } from './DrawerPopupCssVars';
-import { DrawerPopupDataAttributes } from './DrawerPopupDataAttributes';
+import { popupTransitionStateMapping } from '../../utils/popupStateMapping';
+import * as DrawerBackdropCssVars from '../backdrop/DrawerBackdropCssVars';
+import * as DrawerPopupCssVars from './DrawerPopupCssVars';
+import * as DrawerPopupDataAttributes from './DrawerPopupDataAttributes';
 import { useDialogPortalContext } from '../../dialog/portal/DialogPortalContext';
 import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
 import { COMPOSITE_KEYS } from '../../internals/composite/composite';
 import { useDrawerRootContext, type DrawerSwipeDirection } from '../root/DrawerRootContext';
-import { useDrawerSnapPoints } from '../root/useDrawerSnapPoints';
+import { getSnapPointSwipeMovement, useDrawerSnapPoints } from '../root/useDrawerSnapPoints';
 import { useDrawerViewportContext } from '../viewport/DrawerViewportContext';
+import { FOCUSABLE_POPUP_PROPS } from '../../utils/popups';
+
 // Module-level flag to ensure we only register the CSS properties once,
 // regardless of how many Drawer components are mounted.
 let drawerSwipeVarsRegistered = false;
@@ -30,7 +31,6 @@ let drawerSwipeVarsRegistered = false;
 /**
  * Removes inheritance of high-frequency drawer swipe CSS variables, which
  * reduces style recalculation cost in complex drawers with deep subtrees.
- * Child elements that need these values can still opt-in by using `inherit`.
  * See https://motion.dev/blog/web-animation-performance-tier-list
  * under the "Improving CSS variable performance" section.
  */
@@ -88,8 +88,7 @@ function removeCSSVariableInheritance() {
 }
 
 const stateAttributesMapping: StateAttributesMapping<DrawerPopupState> = {
-  ...baseMapping,
-  ...transitionStatusMapping,
+  ...popupTransitionStateMapping,
   expanded(value) {
     return value ? { [DrawerPopupDataAttributes.expanded]: '' } : null;
   },
@@ -100,7 +99,7 @@ const stateAttributesMapping: StateAttributesMapping<DrawerPopupState> = {
     return value ? { [DrawerPopupDataAttributes.nestedDrawerSwiping]: '' } : null;
   },
   swipeDirection(value) {
-    return value ? { [DrawerPopupDataAttributes.swipeDirection]: value } : null;
+    return { [DrawerPopupDataAttributes.swipeDirection]: value };
   },
   swiping(value) {
     return value ? { [DrawerPopupDataAttributes.swiping]: '' } : null;
@@ -117,9 +116,10 @@ export const DrawerPopup = React.forwardRef(function DrawerPopup(
   componentProps: DrawerPopup.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, finalFocus, initialFocus, render, style, ...elementProps } = componentProps;
+  const { render, className, style, finalFocus, initialFocus, ...elementProps } = componentProps;
 
-  const { store } = useDialogRootContext();
+  const store = useDialogRootContext();
+  const popupRef = store.context.popupRef;
 
   const {
     swipeDirection,
@@ -145,20 +145,22 @@ export const DrawerPopup = React.forwardRef(function DrawerPopup(
   const openMethod = store.useState('openMethod');
   const titleElementId = store.useState('titleElementId');
   const role = store.useState('role');
+  const floatingId = floatingRootContext.useState('floatingId');
 
-  const nestedDrawerOpen = nestedOpenDrawerCount > 0;
+  const popupId = elementProps.id ?? floatingId;
 
-  const swipe = useDrawerViewportContext(true);
-  const swiping = swipe?.swiping ?? false;
-  const swipeStrength = swipe?.swipeStrength ?? null;
+  const swipe = useDrawerViewportContext();
+  useDialogPortalContext();
   const { snapPoints, activeSnapPoint, activeSnapPointOffset } = useDrawerSnapPoints();
 
-  useDialogPortalContext();
+  const nestedDrawerOpen = nestedOpenDrawerCount > 0;
+  const swiping = swipe?.swiping ?? false;
+  const swipeStrength = swipe?.swipeStrength ?? null;
 
   const [popupHeight, setPopupHeight] = React.useState(0);
-
   const popupHeightRef = React.useRef(0);
 
+  /* istanbul ignore else -- process.env.NODE_ENV is a build-time constant. */
   if (process.env.NODE_ENV !== 'production') {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     React.useEffect(() => {
@@ -176,7 +178,7 @@ export const DrawerPopup = React.forwardRef(function DrawerPopup(
   }
 
   const measureHeight = useStableCallback(() => {
-    const popupElement = store.context.popupRef.current;
+    const popupElement = popupRef.current;
     if (!popupElement) {
       return;
     }
@@ -218,7 +220,7 @@ export const DrawerPopup = React.forwardRef(function DrawerPopup(
       return undefined;
     }
 
-    const popupElement = store.context.popupRef.current;
+    const popupElement = popupRef.current;
     if (!popupElement) {
       return undefined;
     }
@@ -236,11 +238,9 @@ export const DrawerPopup = React.forwardRef(function DrawerPopup(
     return () => {
       resizeObserver.disconnect();
     };
-  }, [measureHeight, mounted, nestedDrawerOpen, onPopupHeightChange, store.context.popupRef]);
+  }, [measureHeight, mounted, nestedDrawerOpen, onPopupHeightChange, popupRef]);
 
   useIsoLayoutEffect(() => {
-    const popupRef = store.context.popupRef;
-
     const syncNestedSwipeProgress = () => {
       const popupElement = popupRef.current;
       if (!popupElement) {
@@ -257,17 +257,17 @@ export const DrawerPopup = React.forwardRef(function DrawerPopup(
 
     syncNestedSwipeProgress();
     const unsubscribe = nestedSwipeProgressStore.subscribe(syncNestedSwipeProgress);
+    const popupElement = popupRef.current;
 
     return () => {
       unsubscribe();
-      const popupElement = popupRef.current;
       if (popupElement) {
         popupElement.style.setProperty(DrawerBackdropCssVars.swipeProgress, '0');
       }
     };
-  }, [nestedSwipeProgressStore, store.context.popupRef]);
+  }, [nestedSwipeProgressStore, popupRef]);
 
-  React.useEffect(() => {
+  useIsoLayoutEffect(() => {
     if (!open) {
       return undefined;
     }
@@ -279,7 +279,7 @@ export const DrawerPopup = React.forwardRef(function DrawerPopup(
     };
   }, [frontmostHeight, open, notifyParentFrontmostHeight]);
 
-  React.useEffect(() => {
+  useIsoLayoutEffect(() => {
     if (!notifyParentHasNestedDrawer) {
       return undefined;
     }
@@ -294,7 +294,7 @@ export const DrawerPopup = React.forwardRef(function DrawerPopup(
 
   useOpenChangeComplete({
     open,
-    ref: store.context.popupRef,
+    ref: popupRef,
     onComplete() {
       if (open) {
         store.context.onOpenChangeComplete?.(true);
@@ -302,7 +302,9 @@ export const DrawerPopup = React.forwardRef(function DrawerPopup(
     },
   });
 
-  const resolvedInitialFocus = initialFocus === undefined ? store.context.popupRef : initialFocus;
+  const resolvedInitialFocus = initialFocus === undefined ? popupRef : initialFocus;
+
+  const setPopupElement = store.useStateSetter('popupElement');
 
   const state: DrawerPopupState = {
     open,
@@ -332,19 +334,17 @@ export const DrawerPopup = React.forwardRef(function DrawerPopup(
   if (shouldApplySnapPoints && swipeDirection === 'down') {
     const baseOffset = activeSnapPointOffset ?? 0;
     const movementValue = Number.parseFloat(
-      String((dragStyles as Record<string, string>)[DrawerPopupCssVars.swipeMovementY] ?? 0),
+      String((dragStyles as Record<string, string>)[DrawerPopupCssVars.swipeMovementY]),
     );
-    const nextOffset = Number.isFinite(movementValue) ? baseOffset + movementValue : baseOffset;
-    const shouldDamp = nextOffset < 0;
 
-    if (swiping && shouldDamp && Number.isFinite(movementValue)) {
-      const overshoot = Math.abs(nextOffset);
-      const dampedOffset = -Math.sqrt(overshoot);
-      const dampedMovement = dampedOffset - baseOffset;
+    if (swiping && Number.isFinite(movementValue)) {
       dragStyles = {
         ...dragStyles,
         transform: undefined,
-        [DrawerPopupCssVars.swipeMovementY]: `${dampedMovement}px`,
+        [DrawerPopupCssVars.swipeMovementY]: `${getSnapPointSwipeMovement(
+          baseOffset,
+          movementValue,
+        )}px`,
       } as React.CSSProperties;
     } else {
       dragStyles = {
@@ -359,10 +359,11 @@ export const DrawerPopup = React.forwardRef(function DrawerPopup(
     props: [
       rootPopupProps,
       {
+        id: popupId,
         'aria-labelledby': titleElementId,
         'aria-describedby': descriptionElementId,
         role,
-        tabIndex: -1,
+        ...FOCUSABLE_POPUP_PROPS,
         hidden: !mounted,
         onKeyDown(event: React.KeyboardEvent) {
           if (COMPOSITE_KEYS.has(event.key)) {
@@ -387,7 +388,7 @@ export const DrawerPopup = React.forwardRef(function DrawerPopup(
       },
       elementProps,
     ],
-    ref: [forwardedRef, store.context.popupRef, store.useStateSetter('popupElement')],
+    ref: [forwardedRef, popupRef, setPopupElement],
     stateAttributesMapping,
   });
 

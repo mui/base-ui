@@ -1,12 +1,8 @@
 'use client';
 import * as React from 'react';
+import type { RadioRootState } from './RadioRoot';
 
-export interface RadioRootContext {
-  disabled: boolean;
-  readOnly: boolean;
-  checked: boolean;
-  required: boolean;
-}
+export type RadioRootContext = RadioRootState;
 
 export const RadioRootContext = React.createContext<RadioRootContext | undefined>(undefined);
 

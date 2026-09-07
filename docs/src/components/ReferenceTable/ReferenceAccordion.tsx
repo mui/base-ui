@@ -1,6 +1,8 @@
 import * as React from 'react';
+import clsx from 'clsx';
 import { visuallyHidden } from '@base-ui/utils/visuallyHidden';
 import type { EnhancedProperty } from '@mui/internal-docs-infra/useTypes';
+import { stringOrHastToString } from '@mui/internal-docs-infra/pipeline/hastUtils';
 import { Link } from 'docs/src/components/Link';
 import * as Accordion from '../Accordion';
 import * as CodeBlock from '../CodeBlock';
@@ -32,13 +34,17 @@ export function ReferenceAccordion({
   hideDefault = false,
   ...props
 }: Props) {
-  const captionId = `${partName}-caption`;
+  const captionId = React.useId();
 
   return (
     <Accordion.Root
       aria-describedby={captionId}
       data-hide-default={hideDefault || undefined}
       {...props}
+      className={clsx('ReferenceAccordionRoot', props.className)}
+      // Lets CSS compute the minimum closed height for `contain-intrinsic-height`;
+      // wrapped row content may be taller.
+      style={{ '--rows': Object.keys(data).length, ...props.style } as React.CSSProperties}
     >
       <span id={captionId} style={visuallyHidden} aria-hidden>
         {caption}
@@ -53,7 +59,7 @@ export function ReferenceAccordion({
         )}
         <Accordion.HeaderCell className="ReferenceHeaderIconCell" />
       </Accordion.HeaderRow>
-      {Object.keys(data).map((name, index) => {
+      {Object.keys(data).map((name) => {
         const prop = data[name];
 
         // Use shortType if available (set by useTypes), otherwise use the full type
@@ -63,7 +69,9 @@ export function ReferenceAccordion({
         // anchor hash for each prop
         const id = `${partName.replace('.', '')}-${name}`;
 
-        const shortTypeText = prop.shortTypeText ?? 'type';
+        const shortTypeText = prop.shortType
+          ? stringOrHastToString(prop.shortType as string)
+          : 'type';
         const defaultText = prop.defaultText;
 
         return (
@@ -75,7 +83,6 @@ export function ReferenceAccordion({
           >
             <Accordion.Trigger
               id={id}
-              index={index}
               aria-label={`${nameLabel}: ${name},${!hideRequired && prop.required ? ' required,' : ''} type: ${shortTypeText} ${defaultText !== undefined ? `(default: ${defaultText})` : ''}`}
               className="ReferenceTrigger"
             >
@@ -108,9 +115,8 @@ export function ReferenceAccordion({
                   height="10"
                   viewBox="0 0 10 10"
                   fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
                 >
-                  <path d="M1 3.5L5 7.5L9 3.5" stroke="currentcolor" />
+                  <path d="M1 3.5L5 7.5L9 3.5" stroke="currentColor" />
                 </svg>
               </span>
             </Accordion.Trigger>

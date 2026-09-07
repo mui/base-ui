@@ -187,7 +187,7 @@ export default function MenuTriggers() {
       </div>
 
       <h2>Uncontrolled, detached triggers</h2>
-      <StoreInspector store={menu1.store} title="Uncontrolled, detached triggers" />
+      <StoreInspector handle={menu1} title="Uncontrolled, detached triggers" />
       <div className={styles.Container}>
         <StyledMenu handle={menu1} />
         <StyledTrigger handle={menu1} payload={'Library' as const} />
@@ -196,7 +196,7 @@ export default function MenuTriggers() {
       </div>
 
       <h2>Controlled, detached triggers</h2>
-      <StoreInspector store={menu2.store} title="Controlled, detached triggers" />
+      <StoreInspector handle={menu2} title="Controlled, detached triggers" />
       <div className={styles.Container}>
         <StyledMenu
           handle={menu2}
@@ -407,7 +407,7 @@ function ArrowSvg(props: React.ComponentProps<'svg'>) {
 function ChevronDownIcon(props: React.ComponentProps<'svg'>) {
   return (
     <svg width="10" height="10" viewBox="0 0 10 10" fill="none" {...props}>
-      <path d="M1 3.5L5 7.5L9 3.5" stroke="currentcolor" strokeWidth="1.5" />
+      <path d="M1 3.5L5 7.5L9 3.5" stroke="currentColor" strokeWidth="1.5" />
     </svg>
   );
 }
@@ -415,7 +415,7 @@ function ChevronDownIcon(props: React.ComponentProps<'svg'>) {
 function ChevronRightIcon(props: React.ComponentProps<'svg'>) {
   return (
     <svg width="10" height="10" viewBox="0 0 10 10" fill="none" {...props}>
-      <path d="M3.5 9L7.5 5L3.5 1" stroke="currentcolor" strokeWidth="1.5" />
+      <path d="M3.5 9L7.5 5L3.5 1" stroke="currentColor" strokeWidth="1.5" />
     </svg>
   );
 }

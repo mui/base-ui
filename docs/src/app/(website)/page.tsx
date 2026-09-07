@@ -167,7 +167,7 @@ export default function Homepage() {
           <ul
             className="List"
             aria-label="team members"
-            style={{ borderTop: '1px solid var(--border)' }}
+            style={{ borderTop: '1px solid var(--gray-t2)' }}
           >
             <li className="ListItem bui-d-g bui-gtc-2 bui-g-8 bp3:bui-g-9">
               <span className="Text sz-2">Colm Tuite</span>
@@ -178,10 +178,6 @@ export default function Homepage() {
               <span className="Text sz-2">Director of Engineering</span>
             </li>
             <li className="ListItem bui-d-g bui-gtc-2 bui-g-8 bp3:bui-g-9">
-              <span className="Text sz-2">Albert Yu</span>
-              <span className="Text sz-2">Engineer</span>
-            </li>
-            <li className="ListItem bui-d-g bui-gtc-2 bui-g-8 bp3:bui-g-9">
               <span className="Text sz-2">Flavien Delangle</span>
               <span className="Text sz-2">Engineer</span>
             </li>
@@ -190,7 +186,7 @@ export default function Homepage() {
               <span className="Text sz-2">Engineer</span>
             </li>
             <li className="ListItem bui-d-g bui-gtc-2 bui-g-8 bp3:bui-g-9">
-              <span className="Text sz-2">Lukas Tyla</span>
+              <span className="Text sz-2">Jenna Smith</span>
               <span className="Text sz-2">Engineer</span>
             </li>
             <li className="ListItem bui-d-g bui-gtc-2 bui-g-8 bp3:bui-g-9">

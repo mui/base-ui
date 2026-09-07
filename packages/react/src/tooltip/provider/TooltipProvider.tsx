@@ -12,18 +12,10 @@ import { TooltipProviderContext } from './TooltipProviderContext';
 export const TooltipProvider: React.FC<TooltipProvider.Props> = function TooltipProvider(props) {
   const { delay, closeDelay, timeout = 400 } = props;
 
-  const contextValue: TooltipProviderContext = React.useMemo(
-    () => ({
-      delay,
-      closeDelay,
-    }),
-    [delay, closeDelay],
-  );
-
   const delayValue = React.useMemo(() => ({ open: delay, close: closeDelay }), [delay, closeDelay]);
 
   return (
-    <TooltipProviderContext.Provider value={contextValue}>
+    <TooltipProviderContext.Provider value={delay}>
       <FloatingDelayGroup delay={delayValue} timeoutMs={timeout}>
         {props.children}
       </FloatingDelayGroup>
@@ -36,7 +28,7 @@ export interface TooltipProviderState {}
 export interface TooltipProviderProps {
   children?: React.ReactNode;
   /**
-   * How long to wait before opening a tooltip. Specified in milliseconds.
+   * How long to wait before opening the tooltip on hover. Specified in milliseconds.
    */
   delay?: number | undefined;
   /**

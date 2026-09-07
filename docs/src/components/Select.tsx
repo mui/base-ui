@@ -1,7 +1,7 @@
 import { Select } from '@base-ui/react/select';
 import clsx from 'clsx';
-import { ChevronDownIcon } from '../icons/ChevronDownIcon';
-import { ThickCheckIcon } from '../icons/ThickCheckIcon';
+import { CaretSortIcon } from '../icons/CaretSortIcon';
+import { CheckIcon } from '../icons/CheckIcon';
 import './Select.css';
 
 export const Root = Select.Root;
@@ -15,7 +15,7 @@ export function Trigger({ className, children, ...props }: TriggerProps) {
     // Implicitly relying on <GhostButton>, keep it in sync
     <Select.Trigger data-layout="text" className="GhostButton" type={undefined} {...props}>
       <Select.Value>{children}</Select.Value>
-      <Select.Icon render={<ChevronDownIcon className="bui-ml--0.5" />} />
+      <Select.Icon render={<CaretSortIcon className="bui-ml--0.5" />} />
     </Select.Trigger>
   );
 }
@@ -33,7 +33,7 @@ export function Popup({ children, className, ...props }: Select.Positioner.Props
 export function Item({ children, className, ...props }: Select.Item.Props) {
   return (
     <Select.Item className={clsx('SelectItem', className)} {...props}>
-      <Select.ItemIndicator className="SelectItemIndicator" render={<ThickCheckIcon />} />
+      <Select.ItemIndicator className="SelectItemIndicator" render={<CheckIcon />} />
       <Select.ItemText className="SelectItemText">{children}</Select.ItemText>
     </Select.Item>
   );

@@ -9,12 +9,17 @@ export type Errors = Record<string, string | string[]>;
 export interface FormContext {
   errors: Errors;
   clearErrors: (name: string | undefined) => void;
+  elementRef: React.RefObject<HTMLFormElement | null>;
   formRef: React.RefObject<{
     fields: Map<
       string,
       {
         name: string | undefined;
-        validate: (flushSync?: boolean | undefined) => void;
+        /**
+         * After this returns, the field registry entry reflects the latest synchronous
+         * validity verdict. Async validators do not block submit.
+         */
+        validate: () => void;
         validityData: FieldValidityData;
         controlRef: React.RefObject<HTMLElement | null>;
         getValue: () => unknown;
@@ -22,10 +27,11 @@ export interface FormContext {
     >;
   }>;
   validationMode: Form.ValidationMode;
-  submitAttemptedRef: React.RefObject<boolean>;
+  submitCountRef: React.RefObject<number>;
 }
 
 export const FormContext = React.createContext<FormContext>({
+  elementRef: { current: null },
   formRef: {
     current: {
       fields: new Map(),
@@ -34,8 +40,8 @@ export const FormContext = React.createContext<FormContext>({
   errors: {},
   clearErrors: NOOP,
   validationMode: 'onSubmit',
-  submitAttemptedRef: {
-    current: false,
+  submitCountRef: {
+    current: 0,
   },
 });
 

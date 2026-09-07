@@ -8,10 +8,12 @@ export default function ExampleDialog() {
       <Dialog.Portal>
         <Dialog.Backdrop className={styles.Backdrop} />
         <Dialog.Popup className={styles.Popup}>
-          <Dialog.Title className={styles.Title}>Notifications</Dialog.Title>
-          <Dialog.Description className={styles.Description}>
-            You are all caught up. Good job!
-          </Dialog.Description>
+          <div className={styles.Intro}>
+            <Dialog.Title className={styles.Title}>Notifications</Dialog.Title>
+            <Dialog.Description className={styles.Description}>
+              You are all caught up. Good job!
+            </Dialog.Description>
+          </div>
           <div className={styles.Actions}>
             <Dialog.Close className={styles.Button}>Close</Dialog.Close>
           </div>

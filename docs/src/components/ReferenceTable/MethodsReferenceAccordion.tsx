@@ -1,4 +1,5 @@
 import * as React from 'react';
+import clsx from 'clsx';
 import { visuallyHidden } from '@base-ui/utils/visuallyHidden';
 import type { EnhancedMethod } from '@mui/internal-docs-infra/useTypes';
 import { Link } from 'docs/src/components/Link';
@@ -18,10 +19,17 @@ export function MethodsReferenceAccordion({
   methodLabel = 'Method',
   ...props
 }: Props) {
-  const captionId = `${partName}-methods-caption`;
+  const captionId = React.useId();
 
   return (
-    <Accordion.Root aria-describedby={captionId} {...props}>
+    <Accordion.Root
+      aria-describedby={captionId}
+      {...props}
+      className={clsx('ReferenceAccordionRoot', props.className)}
+      // Lets CSS compute the minimum closed height for `contain-intrinsic-height`;
+      // wrapped row content may be taller.
+      style={{ '--rows': Object.keys(data).length, ...props.style } as React.CSSProperties}
+    >
       <span id={captionId} style={visuallyHidden} aria-hidden>
         Class methods table
       </span>
@@ -30,7 +38,7 @@ export function MethodsReferenceAccordion({
         <Accordion.HeaderCell className="ReferenceHeaderTypeCell">Returns</Accordion.HeaderCell>
         <Accordion.HeaderCell className="ReferenceHeaderIconCell" />
       </Accordion.HeaderRow>
-      {Object.keys(data).map((name, index) => {
+      {Object.keys(data).map((name) => {
         const method = data[name];
 
         // anchor hash for each method
@@ -45,7 +53,6 @@ export function MethodsReferenceAccordion({
           >
             <Accordion.Trigger
               id={id}
-              index={index}
               aria-label={`Method: ${name}, returns: ${method.returnValue ? 'value' : 'void'}`}
               className="MethodsTrigger"
             >
@@ -73,9 +80,8 @@ export function MethodsReferenceAccordion({
                   height="10"
                   viewBox="0 0 10 10"
                   fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
                 >
-                  <path d="M1 3.5L5 7.5L9 3.5" stroke="currentcolor" />
+                  <path d="M1 3.5L5 7.5L9 3.5" stroke="currentColor" />
                 </svg>
               </span>
             </Accordion.Trigger>

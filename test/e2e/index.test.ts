@@ -254,18 +254,30 @@ describe('e2e', () => {
         await expect(page.getByTestId('test-page')).toHaveText('Page two');
       });
 
-      it('navigates on Enter key press', async () => {
-        await renderFixture('menu/LinkItemNavigation');
+      it(
+        'navigates on Enter key press',
+        { timeout: process.env.CIRCLECI === 'true' ? 8000 : 4000 },
+        async () => {
+          await renderFixture('menu/LinkItemNavigation');
 
-        await page.keyboard.press('Tab');
-        await page.keyboard.press('Enter');
-        // first item (page one) is initially highlighted
-        await page.keyboard.press('ArrowDown');
-        await page.keyboard.press('Enter');
+          const trigger = page.getByTestId('menu-trigger');
+          await trigger.focus();
+          await page.keyboard.press('Enter');
 
-        await expect(page).toHaveURL(/\/e2e-fixtures\/menu\/PageTwo/);
-        await expect(page.getByTestId('test-page')).toHaveText('Page two');
-      });
+          const linkOne = page.getByTestId('link-one');
+          await expect(linkOne).toBeFocused();
+
+          // first item (page one) is initially highlighted
+          await page.keyboard.press('ArrowDown');
+
+          const linkTwo = page.getByTestId('link-two');
+          await expect(linkTwo).toBeFocused();
+          await page.keyboard.press('Enter');
+
+          await expect(page).toHaveURL(/\/e2e-fixtures\/menu\/PageTwo/);
+          await expect(page.getByTestId('test-page')).toHaveText('Page two');
+        },
+      );
 
       it('navigates when rendering React Router Link component', async () => {
         await renderFixture('menu/ReactRouterLinkItemNavigation');

@@ -2,22 +2,29 @@
 import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { NOOP } from '../../internals/noop';
-
-export type ImageLoadingStatus = 'idle' | 'loading' | 'loaded' | 'error';
+import type { ImageLoadingStatus } from '../root/AvatarRoot';
 
 interface UseImageLoadingStatusOptions {
   referrerPolicy?: React.HTMLAttributeReferrerPolicy | undefined;
   crossOrigin?: React.ImgHTMLAttributes<HTMLImageElement>['crossOrigin'] | undefined;
+  sizes?: React.ImgHTMLAttributes<HTMLImageElement>['sizes'] | undefined;
+  srcSet?: React.ImgHTMLAttributes<HTMLImageElement>['srcSet'] | undefined;
 }
 
 export function useImageLoadingStatus(
   src: string | undefined,
-  { referrerPolicy, crossOrigin }: UseImageLoadingStatusOptions,
-): ImageLoadingStatus {
-  const [loadingStatus, setLoadingStatus] = React.useState<ImageLoadingStatus>('idle');
+  { referrerPolicy, crossOrigin, sizes, srcSet }: UseImageLoadingStatusOptions,
+  enabled: boolean,
+) {
+  const state = React.useState<ImageLoadingStatus>('idle');
+  const setLoadingStatus = state[1];
 
   useIsoLayoutEffect(() => {
-    if (!src) {
+    if (!enabled) {
+      return NOOP;
+    }
+
+    if (!src && !srcSet) {
       setLoadingStatus('error');
       return NOOP;
     }
@@ -40,7 +47,15 @@ export function useImageLoadingStatus(
       image.referrerPolicy = referrerPolicy;
     }
     image.crossOrigin = crossOrigin ?? null;
-    image.src = src;
+    if (sizes) {
+      image.sizes = sizes;
+    }
+    if (srcSet) {
+      image.srcset = srcSet;
+    }
+    if (src) {
+      image.src = src;
+    }
 
     // Fast path for cached/decoded images
     if (image.complete) {
@@ -50,7 +65,7 @@ export function useImageLoadingStatus(
     return () => {
       isMounted = false;
     };
-  }, [src, crossOrigin, referrerPolicy]);
+  }, [enabled, src, srcSet, sizes, crossOrigin, referrerPolicy, setLoadingStatus]);
 
-  return loadingStatus;
+  return state;
 }

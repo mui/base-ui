@@ -5,9 +5,7 @@ import type { BaseUIEvent, WithBaseUIEvent } from '../internals/types';
 type ElementType = React.ElementType;
 type PropsOf<T extends React.ElementType> = WithBaseUIEvent<React.ComponentPropsWithRef<T>>;
 type InputProps<T extends React.ElementType> =
-  | PropsOf<T>
-  | ((otherProps: PropsOf<T>) => PropsOf<T>)
-  | undefined;
+  PropsOf<T> | ((otherProps: PropsOf<T>) => PropsOf<T>) | undefined;
 
 const EMPTY_PROPS = {};
 

@@ -1,9 +1,10 @@
-import { expect, vi } from 'vitest';
+import { expect, vi, describe, it } from 'vitest';
 import * as React from 'react';
 import { Toast } from '@base-ui/react/toast';
 import { fireEvent, flushMicrotasks, screen } from '@mui/internal-test-utils';
 import { createRenderer, isJSDOM } from '#test-utils';
 import { List } from './utils/test-utils';
+import type { ToastObject } from './useToastManager';
 
 describe.skipIf(!isJSDOM)('createToastManager', () => {
   const { render, clock } = createRenderer();
@@ -72,7 +73,7 @@ describe.skipIf(!isJSDOM)('createToastManager', () => {
               onClick={() => {
                 firstToastId = toastManager.add({
                   id: 'save',
-                  title: 'Saving...',
+                  title: 'Saving…',
                   timeout: 1000,
                 });
               }}
@@ -106,7 +107,7 @@ describe.skipIf(!isJSDOM)('createToastManager', () => {
 
       fireEvent.click(screen.getByRole('button', { name: 'add' }));
 
-      expect(screen.getByTestId('title')).toHaveTextContent('Saving...');
+      expect(screen.getByTestId('title')).toHaveTextContent('Saving…');
       expect(screen.queryAllByTestId('root')).toHaveLength(1);
 
       await clock.tickAsync(900);
@@ -366,6 +367,53 @@ describe.skipIf(!isJSDOM)('createToastManager', () => {
       fireEvent.click(updateButton);
 
       expect(screen.getByTestId('title')).toHaveTextContent('updated');
+    });
+
+    it('derives the update from the current toast when given a function', async () => {
+      const toastManager = Toast.createToastManager<{ count: number }>();
+
+      let toastId: string;
+      const updater = vi.fn((prevToast: ToastObject<{ count: number }>) => ({
+        title: `${prevToast.title} updated`,
+        data: { count: prevToast.data!.count + 1 },
+      }));
+
+      function add() {
+        toastId = toastManager.add({ title: 'title', data: { count: 1 } });
+      }
+
+      function update() {
+        toastManager.update(toastId, updater);
+      }
+
+      function Buttons() {
+        return (
+          <React.Fragment>
+            <button type="button" onClick={add}>
+              add
+            </button>
+            <button type="button" onClick={update}>
+              update method
+            </button>
+          </React.Fragment>
+        );
+      }
+
+      await render(
+        <Toast.Provider toastManager={toastManager}>
+          <Toast.Viewport>
+            <List />
+          </Toast.Viewport>
+          <Buttons />
+        </Toast.Provider>,
+      );
+
+      fireEvent.click(screen.getByRole('button', { name: 'add' }));
+      fireEvent.click(screen.getByRole('button', { name: 'update method' }));
+
+      expect(updater).toHaveBeenCalledTimes(1);
+      expect(updater.mock.calls[0][0].data).toEqual({ count: 1 });
+      expect(screen.getByTestId('title')).toHaveTextContent('title updated');
     });
 
     it('resets the auto-dismiss timer when updating with the same timeout value', async () => {

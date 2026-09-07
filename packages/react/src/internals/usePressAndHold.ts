@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { addEventListener } from '@base-ui/utils/addEventListener';
+import { NOOP } from '@base-ui/utils/empty';
 import { useTimeout } from '@base-ui/utils/useTimeout';
 import { useInterval } from '@base-ui/utils/useInterval';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
@@ -15,13 +16,12 @@ const MAX_POINTER_MOVES_AFTER_TOUCH = 3;
 // Treat pen as touch-like to avoid forcing the software keyboard on stylus taps.
 // Linux Chrome may emit "pen" historically for mouse usage due to a bug, but the touch path
 // still works with minor behavioral differences.
-function isTouchLikePointerType(pointerType: string) {
+export function isTouchLikePointerType(pointerType: string) {
   return pointerType === 'touch' || pointerType === 'pen';
 }
 
 export interface UsePressAndHoldParameters {
   disabled: boolean;
-  readOnly?: boolean | undefined;
   /**
    * Called on each tick during a hold. Return `false` to stop the auto-change sequence.
    */
@@ -80,7 +80,6 @@ export interface UsePressAndHoldReturnValue {
 export function usePressAndHold(params: UsePressAndHoldParameters): UsePressAndHoldReturnValue {
   const {
     disabled,
-    readOnly = false,
     tick,
     onStop,
     tickDelay = DEFAULT_TICK_DELAY,
@@ -99,7 +98,8 @@ export function usePressAndHold(params: UsePressAndHoldParameters): UsePressAndH
   const isTouchingButtonRef = React.useRef(false);
   const ignoreClickRef = React.useRef(false);
   const pointerTypeRef = React.useRef('');
-  const unsubscribeFromGlobalContextMenuRef = React.useRef<() => void>(() => {});
+  const unsubscribeFromGlobalContextMenuRef = React.useRef<() => void>(NOOP);
+  const unsubscribeFromGlobalPointerUpRef = React.useRef<() => void>(NOOP);
 
   const stopAutoChange = useStableCallback(() => {
     intentionalTouchCheckTimeout.clear();
@@ -109,7 +109,7 @@ export function usePressAndHold(params: UsePressAndHoldParameters): UsePressAndH
     movesAfterTouchRef.current = 0;
   });
 
-  const startAutoChange = useStableCallback((triggerNativeEvent?: Event) => {
+  function startAutoChange(triggerNativeEvent?: Event) {
     stopAutoChange();
 
     const element = elementRef.current;
@@ -131,7 +131,12 @@ export function usePressAndHold(params: UsePressAndHoldParameters): UsePressAndH
       handleContextMenu,
     );
 
-    addEventListener(
+    // The release listener stays registered through `stopAutoChange` so a hold that auto-stops at
+    // a boundary (a repeat tick returning `false`) still fires `onStop` on release. Replace any
+    // existing one first so a mouseleave/mouseenter cycle during a hold doesn't stack listeners
+    // (which would otherwise fire `onStop` more than once on release).
+    unsubscribeFromGlobalPointerUpRef.current();
+    unsubscribeFromGlobalPointerUpRef.current = addEventListener(
       win,
       'pointerup',
       (event) => {
@@ -154,9 +159,24 @@ export function usePressAndHold(params: UsePressAndHoldParameters): UsePressAndH
         }
       });
     });
-  });
+  }
 
-  React.useEffect(() => () => stopAutoChange(), [stopAutoChange]);
+  React.useEffect(
+    () => () => {
+      stopAutoChange();
+      unsubscribeFromGlobalPointerUpRef.current();
+    },
+    [stopAutoChange],
+  );
+
+  React.useEffect(() => {
+    if (disabled) {
+      isPressedRef.current = false;
+      isTouchingButtonRef.current = false;
+      pointerTypeRef.current = '';
+      stopAutoChange();
+    }
+  }, [disabled, stopAutoChange]);
 
   const pointerHandlers: UsePressAndHoldReturnValue['pointerHandlers'] = {
     onTouchStart() {
@@ -166,8 +186,7 @@ export function usePressAndHold(params: UsePressAndHoldParameters): UsePressAndH
       isTouchingButtonRef.current = false;
     },
     onPointerDown(event) {
-      const isMainButton = !event.button || event.button === 0;
-      if (event.defaultPrevented || !isMainButton || disabled || readOnly) {
+      if (event.defaultPrevented || event.button || disabled) {
         return;
       }
 
@@ -210,18 +229,11 @@ export function usePressAndHold(params: UsePressAndHoldParameters): UsePressAndH
       }
     },
     onPointerMove(event) {
-      if (
-        disabled ||
-        readOnly ||
-        !isTouchLikePointerType(event.pointerType) ||
-        !isPressedRef.current
-      ) {
+      if (disabled || !isTouchLikePointerType(event.pointerType) || !isPressedRef.current) {
         return;
       }
 
-      if (movesAfterTouchRef.current != null) {
-        movesAfterTouchRef.current += 1;
-      }
+      movesAfterTouchRef.current += 1;
 
       const { x, y } = downCoordsRef.current;
       const dx = x - event.clientX;
@@ -235,7 +247,6 @@ export function usePressAndHold(params: UsePressAndHoldParameters): UsePressAndH
       if (
         event.defaultPrevented ||
         disabled ||
-        readOnly ||
         !isPressedRef.current ||
         isTouchingButtonRef.current ||
         isTouchLikePointerType(pointerTypeRef.current)

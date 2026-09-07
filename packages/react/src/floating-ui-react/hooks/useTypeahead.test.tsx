@@ -1,9 +1,10 @@
-import { vi, expect } from 'vitest';
+import { vi, expect, beforeEach, describe, it } from 'vitest';
 import * as React from 'react';
 import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import { useClick, useFloating, useInteractions, useTypeahead } from '../index';
+import { useTestInteractions } from '#test-utils';
+import { useClick, useFloating, useTypeahead } from '../index';
 import type { UseTypeaheadProps } from './useTypeahead';
 
 beforeEach(() => {
@@ -13,7 +14,7 @@ beforeEach(() => {
 const useImpl = ({
   addUseClick = false,
   ...props
-}: Pick<UseTypeaheadProps, 'onMatch' | 'onTypingChange'> & {
+}: Pick<UseTypeaheadProps, 'onMatch' | 'onTyping'> & {
   list?: Array<string>;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
@@ -33,13 +34,13 @@ const useImpl = ({
       setActiveIndex(index);
       props.onMatch?.(index);
     },
-    onTypingChange: props.onTypingChange,
+    onTyping: props.onTyping,
   });
   const click = useClick(context, {
     enabled: addUseClick,
   });
 
-  const { getReferenceProps, getFloatingProps } = useInteractions([typeahead, click]);
+  const { getReferenceProps, getFloatingProps } = useTestInteractions([typeahead, click]);
 
   return {
     activeIndex,
@@ -59,7 +60,7 @@ const useImpl = ({
 };
 
 function Combobox(
-  props: Pick<UseTypeaheadProps, 'onMatch' | 'onTypingChange'> & {
+  props: Pick<UseTypeaheadProps, 'onMatch' | 'onTyping'> & {
     list?: Array<string>;
   },
 ) {
@@ -96,7 +97,7 @@ function ComboboxWithElementsRef(
     },
   });
 
-  const { getReferenceProps, getFloatingProps, getItemProps } = useInteractions([typeahead]);
+  const { getReferenceProps, getFloatingProps, getItemProps } = useTestInteractions([typeahead]);
 
   return (
     <React.Fragment>
@@ -154,45 +155,51 @@ describe('useTypeahead', () => {
     expect(spy).toHaveBeenCalledWith(0);
   });
 
-  it('starts from the current activeIndex and correctly loops', async () => {
-    const spy = vi.fn();
-    render(<Combobox onMatch={spy} list={['Toy Story 2', 'Toy Story 3', 'Toy Story 4']} />);
+  it.each([false, true])(
+    'starts from the current activeIndex and correctly loops (strict: %s)',
+    async (strict) => {
+      const spy = vi.fn();
+      const combobox = (
+        <Combobox onMatch={spy} list={['Toy Story 2', 'Toy Story 3', 'Toy Story 4']} />
+      );
+      render(strict ? <React.StrictMode>{combobox}</React.StrictMode> : combobox);
 
-    await userEvent.click(screen.getByRole('combobox'));
+      await userEvent.click(screen.getByRole('combobox'));
 
-    await userEvent.keyboard('t');
-    await userEvent.keyboard('o');
-    await userEvent.keyboard('y');
-    expect(spy).toHaveBeenCalledWith(0);
+      await userEvent.keyboard('t');
+      await userEvent.keyboard('o');
+      await userEvent.keyboard('y');
+      expect(spy).toHaveBeenCalledWith(0);
 
-    spy.mockReset();
+      spy.mockReset();
 
-    await userEvent.keyboard('t');
-    await userEvent.keyboard('o');
-    await userEvent.keyboard('y');
-    expect(spy).not.toHaveBeenCalled();
+      await userEvent.keyboard('t');
+      await userEvent.keyboard('o');
+      await userEvent.keyboard('y');
+      expect(spy).not.toHaveBeenCalled();
 
-    vi.advanceTimersByTime(750);
+      vi.advanceTimersByTime(750);
 
-    await userEvent.keyboard('t');
-    await userEvent.keyboard('o');
-    await userEvent.keyboard('y');
-    expect(spy).toHaveBeenCalledWith(1);
+      await userEvent.keyboard('t');
+      await userEvent.keyboard('o');
+      await userEvent.keyboard('y');
+      expect(spy).toHaveBeenCalledWith(1);
 
-    vi.advanceTimersByTime(750);
+      vi.advanceTimersByTime(750);
 
-    await userEvent.keyboard('t');
-    await userEvent.keyboard('o');
-    await userEvent.keyboard('y');
-    expect(spy).toHaveBeenCalledWith(2);
+      await userEvent.keyboard('t');
+      await userEvent.keyboard('o');
+      await userEvent.keyboard('y');
+      expect(spy).toHaveBeenCalledWith(2);
 
-    vi.advanceTimersByTime(750);
+      vi.advanceTimersByTime(750);
 
-    await userEvent.keyboard('t');
-    await userEvent.keyboard('o');
-    await userEvent.keyboard('y');
-    expect(spy).toHaveBeenCalledWith(0);
-  });
+      await userEvent.keyboard('t');
+      await userEvent.keyboard('o');
+      await userEvent.keyboard('y');
+      expect(spy).toHaveBeenCalledWith(0);
+    },
+  );
 
   it('capslock characters continue to match', async () => {
     const spy = vi.fn();
@@ -202,6 +209,27 @@ describe('useTypeahead', () => {
 
     await userEvent.keyboard('{CapsLock}t');
     expect(spy).toHaveBeenCalledWith(1);
+  });
+
+  it('does not depend on locale-sensitive lowercasing', async () => {
+    const toLocaleLowerCase = String.prototype.toLocaleLowerCase;
+    const toLocaleLowerCaseSpy = vi
+      .spyOn(String.prototype, 'toLocaleLowerCase')
+      .mockImplementation(function lowerWithTurkishLocale(this: string) {
+        return toLocaleLowerCase.call(this, 'tr');
+      });
+
+    try {
+      const spy = vi.fn();
+      render(<Combobox onMatch={spy} list={['Istanbul']} />);
+
+      await userEvent.click(screen.getByRole('combobox'));
+
+      await userEvent.keyboard('i');
+      expect(spy).toHaveBeenCalledWith(0);
+    } finally {
+      toLocaleLowerCaseSpy.mockRestore();
+    }
   });
 
   function App1(props: Pick<UseTypeaheadProps, 'onMatch'> & { list: Array<string> }) {
@@ -261,9 +289,9 @@ describe('useTypeahead', () => {
     expect((await screen.findByRole('option', { selected: true })).textContent).toBe('three');
   });
 
-  it('onTypingChange is called when typing starts or stops', async () => {
+  it('onTyping is called with typing activity', async () => {
     const spy = vi.fn();
-    render(<Combobox onTypingChange={spy} list={['one', 'two', 'three']} />);
+    render(<Combobox onTyping={spy} list={['one', 'two', 'three']} />);
 
     act(() => screen.getByRole('combobox').focus());
 
@@ -284,6 +312,25 @@ describe('useTypeahead', () => {
 
     await userEvent.keyboard('a');
     expect(spy).toHaveBeenCalledWith(1);
+  });
+
+  it('does not let hidden double-letter items block rapid cycling with elementsRef', async () => {
+    const spy = vi.fn();
+    render(
+      <ComboboxWithElementsRef
+        onMatch={spy}
+        list={['aaron', 'apple', 'avocado']}
+        hiddenIndices={[0]}
+      />,
+    );
+
+    await userEvent.click(screen.getByRole('combobox'));
+
+    await userEvent.keyboard('a');
+    expect(spy).toHaveBeenLastCalledWith(1);
+
+    await userEvent.keyboard('a');
+    expect(spy).toHaveBeenLastCalledWith(2);
   });
 
   it('skips visibility:hidden items when matching with elementsRef', async () => {

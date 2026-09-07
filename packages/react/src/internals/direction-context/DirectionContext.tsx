@@ -7,9 +7,6 @@ export type DirectionContext = {
   direction: TextDirection;
 };
 
-/**
- * @internal
- */
 export const DirectionContext = React.createContext<DirectionContext | undefined>(undefined);
 
 export function useDirection() {

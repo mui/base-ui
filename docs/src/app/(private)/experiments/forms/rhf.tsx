@@ -86,7 +86,7 @@ export default function ExampleForm() {
   }
 
   return (
-    <div style={{ fontFamily: 'var(--font-sans)' }}>
+    <div>
       <h1>react-hook-form</h1>
 
       <hr style={{ margin: '1rem 0' }} />

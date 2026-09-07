@@ -18,7 +18,7 @@ export function useLabel(params: UseLabelParameters = {}): UseLabelReturnValue {
 
   const { controlId: contextControlId, setLabelId: setContextLabelId } = useLabelableContext();
 
-  const syncLabelId = useStableCallback((nextLabelId: string | undefined) => {
+  const syncLabelId = useStableCallback((nextLabelId: React.SetStateAction<string | undefined>) => {
     setContextLabelId(nextLabelId);
     setLabelIdProp?.(nextLabelId);
   });
@@ -64,7 +64,7 @@ export function useLabel(params: UseLabelParameters = {}): UseLabelReturnValue {
   return native
     ? {
         id,
-        htmlFor: resolvedControlId ?? undefined,
+        htmlFor: resolvedControlId,
         onMouseDown: handleInteraction,
       }
     : {
@@ -81,7 +81,7 @@ export interface UseLabelParameters {
   /**
    * Control id used when no labelable context control id exists.
    */
-  fallbackControlId?: string | null | undefined;
+  fallbackControlId?: string | undefined;
   /**
    * Whether the rendered element is a native `<label>`.
    * @default false
@@ -90,14 +90,12 @@ export interface UseLabelParameters {
   /**
    * Additional callback to sync the current label id with local component state/store.
    */
-  setLabelId?: ((nextLabelId: string | undefined) => void) | undefined;
+  setLabelId?: React.Dispatch<React.SetStateAction<string | undefined>> | undefined;
   /**
    * Custom focus handler for non-native labels.
    * If omitted, focus behavior targets the resolved control id.
    */
-  focusControl?:
-    | ((event: React.MouseEvent, controlId: string | null | undefined) => void)
-    | undefined;
+  focusControl?: ((event: React.MouseEvent, controlId: string | undefined) => void) | undefined;
 }
 
 export type UseLabelReturnValue = React.HTMLAttributes<any> & React.LabelHTMLAttributes<any>;

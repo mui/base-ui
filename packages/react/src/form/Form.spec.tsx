@@ -15,3 +15,11 @@ interface Values {
     values.email.startsWith('a');
   }}
 />;
+
+// `Form` exposes the native `<form>` props in its `render` callback.
+<Form
+  render={(props) => {
+    expectType<boolean | undefined, typeof props.noValidate>(props.noValidate);
+    return <form {...props} />;
+  }}
+/>;

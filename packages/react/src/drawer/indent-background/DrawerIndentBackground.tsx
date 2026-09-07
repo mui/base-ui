@@ -26,7 +26,7 @@ export const DrawerIndentBackground = React.forwardRef(function DrawerIndentBack
 ) {
   const { render, className, style, ...elementProps } = componentProps;
 
-  const providerContext = useDrawerProviderContext(true);
+  const providerContext = useDrawerProviderContext();
   const active = providerContext?.active ?? false;
 
   const state: DrawerIndentBackgroundState = {

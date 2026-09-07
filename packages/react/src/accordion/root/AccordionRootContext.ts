@@ -1,18 +1,16 @@
 'use client';
 import * as React from 'react';
-import type { Orientation } from '../../internals/types';
-import type { TextDirection } from '../../direction-provider';
 import type { AccordionRoot } from './AccordionRoot';
 
 export interface AccordionRootContext<Value = any> {
-  accordionItemRefs: React.RefObject<(HTMLElement | null)[]>;
-  direction: TextDirection;
   disabled: boolean;
-  handleValueChange: (newValue: AccordionRoot.Value<Value>[number], nextOpen: boolean) => void;
+  handleValueChange: (
+    newValue: AccordionRoot.Value<Value>[number],
+    nextOpen: boolean,
+    eventDetails: AccordionRoot.ChangeEventDetails,
+  ) => void;
   hiddenUntilFound: boolean;
   keepMounted: boolean;
-  loopFocus: boolean;
-  orientation: Orientation;
   state: AccordionRoot.State<Value>;
   value: AccordionRoot.Value<Value>;
 }

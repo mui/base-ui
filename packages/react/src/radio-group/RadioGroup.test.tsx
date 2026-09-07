@@ -1,5 +1,6 @@
-import { expect, vi } from 'vitest';
+import { expect, vi, describe, it } from 'vitest';
 import * as React from 'react';
+import * as ReactDOM from 'react-dom';
 import { RadioGroup } from '@base-ui/react/radio-group';
 import { Radio } from '@base-ui/react/radio';
 import { Field } from '@base-ui/react/field';
@@ -22,6 +23,14 @@ describe('<RadioGroup />', () => {
     it('can override the built-in attributes', async () => {
       const { container } = await render(<RadioGroup role="switch" />);
       expect(container.firstElementChild as HTMLElement).toHaveAttribute('role', 'switch');
+    });
+  });
+
+  describe('prop: id', () => {
+    it('is forwarded to the root element', async () => {
+      await render(<RadioGroup id="group-id" />);
+
+      expect(screen.getByRole('radiogroup')).toHaveAttribute('id', 'group-id');
     });
   });
 
@@ -59,6 +68,130 @@ describe('<RadioGroup />', () => {
 
       expect(handleChange.mock.calls.length).toBe(1);
       expect(handleChange.mock.results[0]?.value.event.shiftKey).toBe(true);
+    });
+
+    it('should select an item with Space on keyup', async () => {
+      const handleChange = vi.fn();
+      const { user } = await render(
+        <RadioGroup onValueChange={handleChange}>
+          <Radio.Root value="a" data-testid="item" />
+        </RadioGroup>,
+      );
+
+      const item = screen.getByTestId('item');
+
+      act(() => {
+        item.focus();
+      });
+
+      await user.keyboard('[Space>]');
+
+      expect(handleChange).not.toHaveBeenCalled();
+
+      await user.keyboard('[/Space]');
+
+      expect(handleChange).toHaveBeenCalledOnce();
+      expect(handleChange).toHaveBeenLastCalledWith('a', expect.anything());
+    });
+
+    it('should not select an item with Enter', async () => {
+      const handleChange = vi.fn();
+      const { user } = await render(
+        <RadioGroup onValueChange={handleChange}>
+          <Radio.Root value="a" data-testid="item" />
+        </RadioGroup>,
+      );
+
+      const item = screen.getByTestId('item');
+
+      act(() => {
+        item.focus();
+      });
+
+      await user.keyboard('[Enter]');
+
+      expect(handleChange).not.toHaveBeenCalled();
+      expect(item).toHaveAttribute('aria-checked', 'false');
+    });
+
+    it('does not change state when canceled via a root click', async () => {
+      const { user } = await render(
+        <Field.Root>
+          <RadioGroup onValueChange={(_, eventDetails) => eventDetails.cancel()}>
+            <Radio.Root value="a" data-testid="item" />
+          </RadioGroup>
+        </Field.Root>,
+      );
+
+      const group = screen.getByRole('radiogroup');
+      const item = screen.getByTestId('item');
+      const input = document.querySelector<HTMLInputElement>('input[type="radio"]');
+
+      await user.click(item);
+
+      expect(item).toHaveAttribute('aria-checked', 'false');
+      expect(input?.checked).toBe(false);
+      expect(group).not.toHaveAttribute('data-touched');
+      expect(group).not.toHaveAttribute('data-dirty');
+      expect(group).not.toHaveAttribute('data-filled');
+    });
+
+    it('does not change state when canceled via a hidden input click', async () => {
+      const { user } = await render(
+        <Field.Root>
+          <RadioGroup onValueChange={(_, eventDetails) => eventDetails.cancel()}>
+            <Radio.Root value="a" data-testid="item" />
+          </RadioGroup>
+        </Field.Root>,
+      );
+
+      const group = screen.getByRole('radiogroup');
+      const item = screen.getByTestId('item');
+      const input = document.querySelector<HTMLInputElement>('input[type="radio"]');
+
+      expect(input).not.toBe(null);
+      if (!input) {
+        return;
+      }
+
+      await user.click(input);
+
+      expect(item).toHaveAttribute('aria-checked', 'false');
+      expect(input.checked).toBe(false);
+      expect(group).not.toHaveAttribute('data-touched');
+      expect(group).not.toHaveAttribute('data-dirty');
+      expect(group).not.toHaveAttribute('data-filled');
+    });
+
+    it('does not change state when canceled via arrow key navigation', async () => {
+      const { user } = await render(
+        <Field.Root>
+          <RadioGroup onValueChange={(_, eventDetails) => eventDetails.cancel()}>
+            <Radio.Root value="a" data-testid="a" />
+            <Radio.Root value="b" data-testid="b" />
+          </RadioGroup>
+        </Field.Root>,
+      );
+
+      const group = screen.getByRole('radiogroup');
+      const a = screen.getByTestId('a');
+      const b = screen.getByTestId('b');
+      const inputs = document.querySelectorAll<HTMLInputElement>('input[type="radio"]');
+
+      act(() => {
+        a.focus();
+      });
+
+      await user.keyboard('{ArrowDown}');
+
+      expect(b).toHaveFocus();
+      expect(a).toHaveAttribute('aria-checked', 'false');
+      expect(b).toHaveAttribute('aria-checked', 'false');
+      expect(inputs[0]?.checked).toBe(false);
+      expect(inputs[1]?.checked).toBe(false);
+      expect(group).not.toHaveAttribute('data-touched');
+      expect(group).not.toHaveAttribute('data-dirty');
+      expect(group).not.toHaveAttribute('data-filled');
     });
   });
 
@@ -253,6 +386,36 @@ describe('<RadioGroup />', () => {
     expect(inputRefSpy.mock.lastCall?.[0]).toBe(inputB);
   });
 
+  it('does not detach a stable inputRef callback on unrelated re-renders', async () => {
+    const inputRefSpy = vi.fn();
+
+    function App() {
+      const [, forceRender] = React.useState(0);
+      const inputRef = React.useCallback((input: HTMLInputElement | null) => {
+        inputRefSpy(input);
+      }, []);
+
+      return (
+        <React.Fragment>
+          <RadioGroup inputRef={inputRef}>
+            <Radio.Root value="a" data-testid="radio-a" />
+          </RadioGroup>
+          <button type="button" onClick={() => forceRender((value) => value + 1)}>
+            Re-render
+          </button>
+        </React.Fragment>
+      );
+    }
+
+    await render(<App />);
+
+    const callCountAfterMount = inputRefSpy.mock.calls.length;
+
+    fireEvent.click(screen.getByText('Re-render'));
+
+    expect(inputRefSpy).toHaveBeenCalledTimes(callCountAfterMount);
+  });
+
   it('skips disabled radios when assigning inputRef', async () => {
     const groupInputRef = React.createRef<HTMLInputElement>();
 
@@ -333,6 +496,67 @@ describe('<RadioGroup />', () => {
     expect(groupInputRef.current).toBe(inputA);
   });
 
+  it('detaches inputRef when its current radio unmounts', async () => {
+    const groupInputRef = React.createRef<HTMLInputElement>();
+
+    function App() {
+      const [showFirst, setShowFirst] = React.useState(true);
+      return (
+        <React.Fragment>
+          <RadioGroup inputRef={groupInputRef}>
+            {showFirst && <Radio.Root value="a" data-testid="radio-a" />}
+            <Radio.Root value="b" data-testid="radio-b" />
+          </RadioGroup>
+          <button type="button" onClick={() => setShowFirst(false)}>
+            Remove first
+          </button>
+        </React.Fragment>
+      );
+    }
+
+    await render(<App />);
+
+    const inputA = screen.getByTestId('radio-a').nextElementSibling as HTMLInputElement;
+
+    expect(groupInputRef.current).toBe(inputA);
+
+    fireEvent.click(screen.getByText('Remove first'));
+
+    expect(groupInputRef.current).toBe(null);
+  });
+
+  it('detaches inputRef when a radio selected after mount unmounts', async () => {
+    const groupInputRef = React.createRef<HTMLInputElement>();
+
+    function App() {
+      const [showSecond, setShowSecond] = React.useState(true);
+      return (
+        <React.Fragment>
+          <RadioGroup inputRef={groupInputRef}>
+            <Radio.Root value="a" data-testid="radio-a" />
+            {showSecond && <Radio.Root value="b" data-testid="radio-b" />}
+          </RadioGroup>
+          <button type="button" onClick={() => setShowSecond(false)}>
+            Remove second
+          </button>
+        </React.Fragment>
+      );
+    }
+
+    await render(<App />);
+
+    const inputA = screen.getByTestId('radio-a').nextElementSibling as HTMLInputElement;
+    const inputB = screen.getByTestId('radio-b').nextElementSibling as HTMLInputElement;
+
+    expect(groupInputRef.current).toBe(inputA);
+
+    fireEvent.click(screen.getByTestId('radio-b'));
+    expect(groupInputRef.current).toBe(inputB);
+
+    fireEvent.click(screen.getByText('Remove second'));
+    expect(groupInputRef.current).toBe(null);
+  });
+
   it.skipIf(isJSDOM)(
     'should return null when no radio is selected (matching native behavior)',
     async () => {
@@ -397,12 +621,15 @@ describe('<RadioGroup />', () => {
 
   it('should automatically select radio upon navigation', async () => {
     const { user } = await render(
-      <RadioGroup>
-        <Radio.Root value="a" data-testid="a" />
-        <Radio.Root value="b" data-testid="b" />
-      </RadioGroup>,
+      <Field.Root>
+        <RadioGroup>
+          <Radio.Root value="a" data-testid="a" />
+          <Radio.Root value="b" data-testid="b" />
+        </RadioGroup>
+      </Field.Root>,
     );
 
+    const group = screen.getByRole('radiogroup');
     const a = screen.getByTestId('a');
     const b = screen.getByTestId('b');
 
@@ -410,6 +637,7 @@ describe('<RadioGroup />', () => {
       a.focus();
     });
 
+    expect(group).not.toHaveAttribute('data-touched');
     expect(a).toHaveAttribute('aria-checked', 'false');
 
     await user.keyboard('{ArrowDown}');
@@ -418,6 +646,7 @@ describe('<RadioGroup />', () => {
 
     expect(b).toHaveFocus();
     expect(b).toHaveAttribute('aria-checked', 'true');
+    expect(group).toHaveAttribute('data-touched', '');
   });
 
   describe('should manage arrow key navigation', () => {
@@ -529,6 +758,35 @@ describe('<RadioGroup />', () => {
           });
         });
       });
+    });
+  });
+
+  describe('item removal', () => {
+    it('moves the tab stop to the checked radio when the highlighted radio is removed', async () => {
+      function App({ showLast }: { showLast: boolean }) {
+        return (
+          <RadioGroup value="b">
+            <Radio.Root value="a" data-testid="a" />
+            <Radio.Root value="b" data-testid="b" />
+            {showLast && <Radio.Root value="c" data-testid="c" />}
+          </RadioGroup>
+        );
+      }
+
+      const { setProps, user } = await render(<App showLast />);
+
+      await act(async () => {
+        screen.getByTestId('b').focus();
+      });
+
+      await user.keyboard('{ArrowDown}');
+
+      expect(screen.getByTestId('c')).toHaveAttribute('tabindex', '0');
+
+      await setProps({ showLast: false });
+
+      expect(screen.getByTestId('a')).toHaveAttribute('tabindex', '-1');
+      expect(screen.getByTestId('b')).toHaveAttribute('tabindex', '0');
     });
   });
 
@@ -848,13 +1106,13 @@ describe('<RadioGroup />', () => {
       it('links the group and individual radios', async () => {
         await render(
           <Field.Root name="apple">
-            <RadioGroup defaultValue={[]}>
+            <RadioGroup defaultValue={[]} aria-describedby="external-description">
               <Field.Description data-testid="group-description">
                 Group description
               </Field.Description>
               <Field.Item>
                 <Field.Label>
-                  <Radio.Root value="fuji-apple" />
+                  <Radio.Root value="fuji-apple" aria-describedby="radio-description" />
                   Fuji
                 </Field.Label>
               </Field.Item>
@@ -870,6 +1128,14 @@ describe('<RadioGroup />', () => {
         );
         expect(screen.getByRole('radio').getAttribute('aria-describedby')).toContain(
           groupDescriptionId,
+        );
+        expect(screen.getByRole('radio')).toHaveAttribute(
+          'aria-describedby',
+          `radio-description ${groupDescriptionId}`,
+        );
+        expect(screen.getByRole('radiogroup')).toHaveAttribute(
+          'aria-describedby',
+          `external-description ${groupDescriptionId}`,
         );
       });
     });
@@ -919,10 +1185,70 @@ describe('<RadioGroup />', () => {
         expect(radioB).toHaveAttribute('data-checked', '');
         expect(radioGroup).not.toHaveAttribute('aria-invalid');
       });
+
+      it('onBlur validates only when focus leaves the group', async () => {
+        const validate = vi.fn((value) => (value === 'a' ? 'error' : null));
+
+        await render(
+          <React.Fragment>
+            <Field.Root validationMode="onBlur" validate={validate}>
+              <RadioGroup defaultValue="a">
+                <Radio.Root value="a" data-testid="radio-a" />
+                <Radio.Root value="b" data-testid="radio-b" />
+              </RadioGroup>
+            </Field.Root>
+            <button type="button">Outside</button>
+          </React.Fragment>,
+        );
+
+        const group = screen.getByRole('radiogroup');
+        const radioA = screen.getByTestId('radio-a');
+        const radioB = screen.getByTestId('radio-b');
+
+        fireEvent.focus(radioA);
+        fireEvent.blur(group, { relatedTarget: radioB });
+
+        expect(validate).not.toHaveBeenCalled();
+
+        fireEvent.blur(group, { relatedTarget: screen.getByText('Outside') });
+
+        expect(validate).toHaveBeenCalledTimes(1);
+        expect(validate.mock.calls[0][0]).toBe('a');
+        expect(group).toHaveAttribute('aria-invalid', 'true');
+      });
     });
   });
 
   describe('Fieldset', () => {
+    it('keeps inputRef available after an ancestor fieldset is enabled', async () => {
+      const groupInputRef = React.createRef<HTMLInputElement>();
+
+      function App() {
+        const [disabled, setDisabled] = React.useState(true);
+
+        return (
+          <React.Fragment>
+            <fieldset disabled={disabled}>
+              <RadioGroup inputRef={groupInputRef}>
+                <Radio.Root value="a" data-testid="radio-a" />
+              </RadioGroup>
+            </fieldset>
+            <button type="button" onClick={() => setDisabled(false)}>
+              Enable
+            </button>
+          </React.Fragment>
+        );
+      }
+
+      await render(<App />);
+
+      const input = screen.getByTestId('radio-a').nextElementSibling as HTMLInputElement;
+
+      fireEvent.click(screen.getByText('Enable'));
+
+      expect(groupInputRef.current).toBe(input);
+    });
+
     it('labels the radio group from the fieldset legend', async () => {
       await render(
         <Field.Root name="test">
@@ -939,6 +1265,96 @@ describe('<RadioGroup />', () => {
       const radioGroup = screen.getByRole('radiogroup');
 
       expect(radioGroup.getAttribute('aria-labelledby')).toBe(legend.getAttribute('id'));
+    });
+
+    it('updates label precedence without retaining replaced or unmounted IDs', async () => {
+      function App() {
+        const [explicit, setExplicit] = React.useState(true);
+        const [fieldLabel, setFieldLabel] = React.useState<'field-label-a' | 'field-label-b'>(
+          'field-label-a',
+        );
+        const [showFieldLabel, setShowFieldLabel] = React.useState(true);
+        const [legend, setLegend] = React.useState<'legend-a' | 'legend-b'>('legend-a');
+        const [showLegend, setShowLegend] = React.useState(true);
+
+        const explicitLabelProps = explicit ? { 'aria-labelledby': 'explicit-label' } : {};
+
+        return (
+          <React.Fragment>
+            <span id="explicit-label">Explicit label</span>
+            <Field.Root name="choice">
+              {showFieldLabel && (
+                <Field.Label key={fieldLabel} id={fieldLabel} render={<span />} nativeLabel={false}>
+                  Field label
+                </Field.Label>
+              )}
+              <Fieldset.Root>
+                {showLegend && (
+                  <Fieldset.Legend key={legend} id={legend}>
+                    Legend
+                  </Fieldset.Legend>
+                )}
+                <RadioGroup {...explicitLabelProps}>
+                  <Radio.Root value="a" />
+                </RadioGroup>
+              </Fieldset.Root>
+            </Field.Root>
+            <button type="button" onClick={() => setExplicit(false)}>
+              remove explicit
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setFieldLabel('field-label-b');
+                setShowFieldLabel(true);
+              }}
+            >
+              mount field replacement
+            </button>
+            <button type="button" onClick={() => setShowFieldLabel(false)}>
+              remove field label
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setLegend('legend-b');
+                setShowLegend(true);
+              }}
+            >
+              mount legend replacement
+            </button>
+            <button type="button" onClick={() => setShowLegend(false)}>
+              remove legend
+            </button>
+          </React.Fragment>
+        );
+      }
+
+      const { user } = await render(<App />);
+      const radioGroup = screen.getByRole('radiogroup');
+
+      expect(radioGroup).toHaveAttribute('aria-labelledby', 'explicit-label');
+
+      await user.click(screen.getByRole('button', { name: 'remove explicit' }));
+      expect(radioGroup).toHaveAttribute('aria-labelledby', 'field-label-a');
+
+      await user.click(screen.getByRole('button', { name: 'remove field label' }));
+      expect(radioGroup).toHaveAttribute('aria-labelledby', 'legend-a');
+
+      await user.click(screen.getByRole('button', { name: 'mount field replacement' }));
+      expect(radioGroup).toHaveAttribute('aria-labelledby', 'field-label-b');
+
+      await user.click(screen.getByRole('button', { name: 'remove field label' }));
+      expect(radioGroup).toHaveAttribute('aria-labelledby', 'legend-a');
+
+      await user.click(screen.getByRole('button', { name: 'remove legend' }));
+      expect(radioGroup).not.toHaveAttribute('aria-labelledby');
+
+      await user.click(screen.getByRole('button', { name: 'mount legend replacement' }));
+      expect(radioGroup).toHaveAttribute('aria-labelledby', 'legend-b');
+
+      await user.click(screen.getByRole('button', { name: 'remove legend' }));
+      expect(radioGroup).not.toHaveAttribute('aria-labelledby');
     });
   });
 
@@ -1023,6 +1439,366 @@ describe('<RadioGroup />', () => {
       expect(handleSubmit.mock.calls.length).toBe(1);
       expect(handleSubmit.mock.calls[0][0]).toEqual({ test: null });
     });
+
+    it('unblocks submission after every radio in the group unmounts', async () => {
+      const handleSubmit = vi.fn();
+
+      function App() {
+        const [mounted, setMounted] = React.useState(true);
+        return (
+          <Form onFormSubmit={handleSubmit}>
+            <Field.Root name="choice">
+              <RadioGroup required>{mounted && <Radio.Root value="a" />}</RadioGroup>
+            </Field.Root>
+            <button type="button" onClick={() => setMounted(false)}>
+              Remove
+            </button>
+            <button type="submit">Submit</button>
+          </Form>
+        );
+      }
+
+      const { user } = await renderFakeTimers(<App />);
+
+      await user.click(screen.getByText('Submit'));
+      expect(handleSubmit).not.toHaveBeenCalled();
+
+      await user.click(screen.getByText('Remove'));
+      await user.click(screen.getByText('Submit'));
+
+      expect(handleSubmit.mock.lastCall?.[0]).toEqual({ choice: null });
+    });
+
+    it('runs the custom validator after every radio in the group unmounts', async () => {
+      const handleSubmit = vi.fn();
+      const validate = vi.fn(() => 'always invalid');
+
+      function App() {
+        const [mounted, setMounted] = React.useState(true);
+        return (
+          <Form onFormSubmit={handleSubmit}>
+            <Field.Root name="choice" validate={validate}>
+              <RadioGroup>{mounted && <Radio.Root value="a" />}</RadioGroup>
+              <Field.Error data-testid="error" />
+            </Field.Root>
+            <button type="button" onClick={() => setMounted(false)}>
+              Remove
+            </button>
+            <button type="submit">Submit</button>
+          </Form>
+        );
+      }
+
+      const { user } = await renderFakeTimers(<App />);
+
+      await user.click(screen.getByText('Remove'));
+      await user.click(screen.getByText('Submit'));
+
+      expect(handleSubmit).not.toHaveBeenCalled();
+      expect(screen.getByTestId('error')).toHaveTextContent('always invalid');
+    });
+
+    it('excludes a disabled selected radio from onFormSubmit to match native form data', async () => {
+      const handleSubmit = vi.fn();
+
+      function App() {
+        const [disabled, setDisabled] = React.useState(false);
+        return (
+          <Form onFormSubmit={handleSubmit} data-testid="form">
+            <Field.Root name="test">
+              <RadioGroup name="group" defaultValue="a">
+                <Radio.Root value="a" disabled={disabled} data-testid="item-a" />
+                <Radio.Root value="b" data-testid="item-b" />
+              </RadioGroup>
+            </Field.Root>
+            <button type="button" onClick={() => setDisabled(true)}>
+              Disable
+            </button>
+            <button type="submit">Submit</button>
+          </Form>
+        );
+      }
+
+      await renderFakeTimers(<App />);
+
+      fireEvent.click(screen.getByText('Disable'));
+
+      const form = screen.getByTestId('form') as HTMLFormElement;
+      expect(new FormData(form).get('test')).toBe(null);
+
+      fireEvent.click(screen.getByText('Submit'));
+
+      expect(handleSubmit.mock.calls[0][0]).toEqual({ test: null });
+    });
+
+    it('includes a selected radio again when it is re-enabled before form submission', async () => {
+      const handleSubmit = vi.fn();
+
+      function App() {
+        const [disabled, setDisabled] = React.useState(false);
+        return (
+          <Form onFormSubmit={handleSubmit} data-testid="form">
+            <Field.Root name="test">
+              <RadioGroup name="group" defaultValue="a">
+                <Radio.Root value="a" disabled={disabled} data-testid="item-a" />
+                <Radio.Root value="b" data-testid="item-b" />
+              </RadioGroup>
+            </Field.Root>
+            <button type="button" onClick={() => setDisabled((value) => !value)}>
+              Toggle disabled
+            </button>
+            <button type="submit">Submit</button>
+          </Form>
+        );
+      }
+
+      await renderFakeTimers(<App />);
+
+      const form = screen.getByTestId('form') as HTMLFormElement;
+
+      fireEvent.click(screen.getByText('Toggle disabled'));
+      expect(new FormData(form).get('test')).toBe(null);
+
+      fireEvent.click(screen.getByText('Toggle disabled'));
+      expect(new FormData(form).get('test')).toBe('a');
+
+      fireEvent.click(screen.getByText('Submit'));
+
+      expect(handleSubmit.mock.calls[0][0]).toEqual({ test: 'a' });
+    });
+
+    it('excludes an initially disabled selected radio from onFormSubmit to match native form data', async () => {
+      const handleSubmit = vi.fn();
+
+      await renderFakeTimers(
+        <Form onFormSubmit={handleSubmit} data-testid="form">
+          <Field.Root name="test">
+            <RadioGroup name="group" defaultValue="a">
+              <Radio.Root value="a" disabled data-testid="item-a" />
+              <Radio.Root value="b" data-testid="item-b" />
+            </RadioGroup>
+          </Field.Root>
+          <button type="submit">Submit</button>
+        </Form>,
+      );
+
+      const form = screen.getByTestId('form') as HTMLFormElement;
+      expect(new FormData(form).get('test')).toBe(null);
+
+      fireEvent.click(screen.getByText('Submit'));
+
+      expect(handleSubmit.mock.calls[0][0]).toEqual({ test: null });
+    });
+
+    it.skipIf(isJSDOM)(
+      'projects an enabled selected radio, matching native form data',
+      async () => {
+        const handleSubmit = vi.fn();
+
+        await renderFakeTimers(
+          <Form onFormSubmit={handleSubmit} data-testid="form">
+            <Field.Root name="choice">
+              <RadioGroup defaultValue="a">
+                <Radio.Root value="a" data-testid="item-a" />
+                <Radio.Root value="b" data-testid="item-b" />
+              </RadioGroup>
+            </Field.Root>
+            <button type="submit">Submit</button>
+          </Form>,
+        );
+
+        const form = screen.getByTestId('form') as HTMLFormElement;
+        expect(new FormData(form).getAll('choice')).toEqual(['a']);
+
+        fireEvent.click(screen.getByText('Submit'));
+
+        expect(handleSubmit.mock.calls[0][0]).toEqual({ choice: 'a' });
+      },
+    );
+
+    it.skipIf(isJSDOM)(
+      'excludes a radio disabled through an ancestor <fieldset disabled> to match native form data',
+      async () => {
+        const handleSubmit = vi.fn();
+
+        await renderFakeTimers(
+          <Form onFormSubmit={handleSubmit} data-testid="form">
+            <fieldset disabled>
+              <Field.Root name="choice">
+                <RadioGroup defaultValue="a">
+                  <Radio.Root value="a" data-testid="item-a" />
+                  <Radio.Root value="b" data-testid="item-b" />
+                </RadioGroup>
+              </Field.Root>
+            </fieldset>
+            <button type="submit">Submit</button>
+          </Form>,
+        );
+
+        const form = screen.getByTestId('form') as HTMLFormElement;
+        // Native submission omits controls disabled by an ancestor fieldset, even though
+        // their `disabled` property is `false`.
+        expect(new FormData(form).getAll('choice')).toEqual([]);
+
+        fireEvent.click(screen.getByText('Submit'));
+
+        expect(handleSubmit.mock.calls[0][0]).toEqual({ choice: null });
+      },
+    );
+
+    it.skipIf(isJSDOM)(
+      'includes a selected radio after its ancestor fieldset is enabled',
+      async () => {
+        const handleSubmit = vi.fn();
+
+        function App() {
+          const [disabled, setDisabled] = React.useState(true);
+          return (
+            <Form onFormSubmit={handleSubmit} data-testid="form">
+              <fieldset disabled={disabled}>
+                <Field.Root name="choice">
+                  <RadioGroup defaultValue="a">
+                    <Radio.Root value="a" />
+                    <Radio.Root value="b" />
+                  </RadioGroup>
+                </Field.Root>
+              </fieldset>
+              <button type="button" onClick={() => setDisabled(false)}>
+                Enable
+              </button>
+              <button type="submit">Submit</button>
+            </Form>
+          );
+        }
+
+        await renderFakeTimers(<App />);
+
+        const form = screen.getByTestId('form') as HTMLFormElement;
+        expect(new FormData(form).getAll('choice')).toEqual([]);
+
+        fireEvent.click(screen.getByText('Enable'));
+        expect(new FormData(form).getAll('choice')).toEqual(['a']);
+
+        fireEvent.click(screen.getByText('Submit'));
+        expect(handleSubmit.mock.calls[0][0]).toEqual({ choice: 'a' });
+      },
+    );
+
+    it.skipIf(isJSDOM)('omits a radio associated to another form via the `form` prop', async () => {
+      const handleSubmit = vi.fn();
+
+      await renderFakeTimers(
+        <React.Fragment>
+          <form id="external-form" />
+          <Form onFormSubmit={handleSubmit} data-testid="form">
+            <Field.Root name="choice">
+              <RadioGroup form="external-form" defaultValue="a">
+                <Radio.Root value="a" data-testid="item-a" />
+                <Radio.Root value="b" data-testid="item-b" />
+              </RadioGroup>
+            </Field.Root>
+            <button type="submit">Submit</button>
+          </Form>
+        </React.Fragment>,
+      );
+
+      const form = screen.getByTestId('form') as HTMLFormElement;
+      // The radio is associated to #external-form, so this form excludes it natively.
+      expect(new FormData(form).getAll('choice')).toEqual([]);
+
+      fireEvent.click(screen.getByText('Submit'));
+
+      expect(handleSubmit.mock.calls[0][0]).toEqual({ choice: null });
+    });
+
+    it.skipIf(isJSDOM)(
+      'includes a context-portaled radio without native form association in onFormSubmit',
+      async () => {
+        const handleSubmit = vi.fn();
+        const portalContainer = document.createElement('div');
+        document.body.append(portalContainer);
+
+        await renderFakeTimers(
+          <Form onFormSubmit={handleSubmit} data-testid="form">
+            <Field.Root name="choice">
+              <RadioGroup defaultValue="a">
+                {ReactDOM.createPortal(<Radio.Root value="a" />, portalContainer)}
+              </RadioGroup>
+            </Field.Root>
+            <button type="submit">Submit</button>
+          </Form>,
+        );
+
+        const form = screen.getByTestId('form') as HTMLFormElement;
+        // Native submission omits the portaled radio since it has no DOM form association.
+        expect(new FormData(form).getAll('choice')).toEqual([]);
+
+        fireEvent.click(screen.getByText('Submit'));
+
+        // Field registration is context-driven, so the portaled radio still projects its value
+        // into `onFormSubmit`, like other field controls.
+        expect(handleSubmit.mock.calls[0][0]).toEqual({ choice: 'a' });
+        portalContainer.remove();
+      },
+    );
+
+    it('includes a group fully portaled outside the form element in onFormSubmit', async () => {
+      const handleSubmit = vi.fn();
+      const portalContainer = document.createElement('div');
+      document.body.append(portalContainer);
+
+      await renderFakeTimers(
+        <Form onFormSubmit={handleSubmit}>
+          {ReactDOM.createPortal(
+            <Field.Root name="choice">
+              <RadioGroup defaultValue="a">
+                <Radio.Root value="a" />
+                <Radio.Root value="b" />
+              </RadioGroup>
+            </Field.Root>,
+            portalContainer,
+          )}
+          <button type="submit">Submit</button>
+        </Form>,
+      );
+
+      fireEvent.click(screen.getByText('Submit'));
+
+      expect(handleSubmit.mock.calls[0][0]).toEqual({ choice: 'a' });
+      portalContainer.remove();
+    });
+
+    it.skipIf(isJSDOM)(
+      'submits null when the selected radio in a required group is disabled, matching native validity',
+      async () => {
+        const handleSubmit = vi.fn();
+
+        await renderFakeTimers(
+          <Form onFormSubmit={handleSubmit} data-testid="form">
+            <Field.Root name="choice">
+              <RadioGroup required defaultValue="a">
+                <Radio.Root value="a" disabled data-testid="item-a" />
+                <Radio.Root value="b" data-testid="item-b" />
+              </RadioGroup>
+              <Field.Error match="valueMissing" data-testid="error">
+                required
+              </Field.Error>
+            </Field.Root>
+            <button type="submit">Submit</button>
+          </Form>,
+        );
+
+        const form = screen.getByTestId('form') as HTMLFormElement;
+        expect(new FormData(form).getAll('choice')).toEqual([]);
+
+        fireEvent.click(screen.getByText('Submit'));
+
+        // Natively, a disabled checked radio still satisfies its radio group's `valueMissing`
+        // constraint even though its value is not submitted.
+        expect(screen.queryByTestId('error')).toBe(null);
+        expect(handleSubmit.mock.calls[0][0]).toEqual({ choice: null });
+      },
+    );
 
     it('clears required validation when a value is selected', async () => {
       const { user } = await renderFakeTimers(
@@ -1116,6 +1892,41 @@ describe('<RadioGroup />', () => {
 
       expect(document.activeElement).toBe(radioA);
     });
+
+    it.skipIf(isJSDOM)(
+      'validates and focuses the first radio after its ancestor fieldset is enabled',
+      async () => {
+        function App() {
+          const [disabled, setDisabled] = React.useState(true);
+
+          return (
+            <Form>
+              <fieldset disabled={disabled}>
+                <Field.Root name="test">
+                  <RadioGroup required>
+                    <Radio.Root value="a" data-testid="item-a" />
+                    <Radio.Root value="b" />
+                  </RadioGroup>
+                  <Field.Error match="valueMissing">required</Field.Error>
+                </Field.Root>
+              </fieldset>
+              <button type="button" onClick={() => setDisabled(false)}>
+                Enable
+              </button>
+              <button type="submit">Submit</button>
+            </Form>
+          );
+        }
+
+        const { user } = await renderFakeTimers(<App />);
+
+        await user.click(screen.getByText('Enable'));
+        await user.click(screen.getByText('Submit'));
+
+        expect(screen.getByText('required')).toBeVisible();
+        expect(screen.getByTestId('item-a')).toHaveFocus();
+      },
+    );
 
     it('clears external errors on change', async () => {
       await renderFakeTimers(

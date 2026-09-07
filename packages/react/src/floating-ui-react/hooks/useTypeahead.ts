@@ -1,13 +1,13 @@
 'use client';
 import * as React from 'react';
-import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useTimeout } from '@base-ui/utils/useTimeout';
+import { EMPTY_ARRAY } from '@base-ui/utils/empty';
+import { isElementVisible, isListIndexDisabled, type DisabledIndices } from '../utils/composite';
+import type { ElementProps, FloatingContext, FloatingRootContext } from '../types';
 import { contains } from '../utils/element';
 import { stopEvent } from '../utils/event';
-import { isElementVisible } from '../utils/composite';
-
-import type { ElementProps, FloatingContext, FloatingRootContext } from '../types';
 
 export interface UseTypeaheadProps {
   /**
@@ -28,14 +28,23 @@ export interface UseTypeaheadProps {
   /**
    * Optional list of item elements that correspond to `listRef` indices.
    * When an element exists for an index, typeahead skips it if it is hidden by
-   * `display: none`, `visibility: hidden|collapse`, or other
-   * browser-reported visibility checks.
+   * `display: none`, `visibility: hidden|collapse`, other browser-reported
+   * visibility checks, or native disabled state.
    */
   elementsRef?: React.RefObject<Array<HTMLElement | null>> | undefined;
   /**
-   * Callback invoked with the typing state as the user types.
+   * Indices that are disabled, either as an array or a predicate (the same shape as
+   * `useListNavigation`'s `disabledIndices`). Disabled items are skipped while matching,
+   * so a single keypress advances to the next selectable item (matching native `<select>`
+   * and arrow-key navigation). The explicit disabled check doesn't read `elementsRef`, so
+   * consumers whose items stay mounted-but-hidden while closed can still skip disabled items
+   * without passing `elementsRef`.
    */
-  onTypingChange?: ((isTyping: boolean) => void) | undefined;
+  disabledIndices?: DisabledIndices | undefined;
+  /**
+   * Callback invoked with the current typing activity as the user types.
+   */
+  onTyping?: ((isTyping: boolean) => void) | undefined;
   /**
    * Whether the Hook is enabled, including all internal Effects and event
    * handlers.
@@ -63,61 +72,43 @@ export function useTypeahead(
   context: FloatingRootContext | FloatingContext,
   props: UseTypeaheadProps,
 ): ElementProps {
-  const store = 'rootStore' in context ? context.rootStore : context;
-  const dataRef = store.context.dataRef;
-  const open = store.useState('open');
   const {
     listRef,
     elementsRef,
     activeIndex,
     onMatch: onMatchProp,
-    onTypingChange,
+    disabledIndices,
+    onTyping,
     enabled = true,
     resetMs = 750,
     selectedIndex = null,
   } = props;
+
+  const store = 'rootStore' in context ? context.rootStore : context;
+
+  const open = store.useState('open');
 
   const timeout = useTimeout();
   const stringRef = React.useRef('');
   const prevIndexRef = React.useRef<number | null>(selectedIndex ?? activeIndex ?? -1);
   const matchIndexRef = React.useRef<number | null>(null);
 
-  useIsoLayoutEffect(() => {
-    if (!open && selectedIndex !== null) {
-      return;
-    }
-
-    timeout.clear();
-    matchIndexRef.current = null;
-
-    if (stringRef.current !== '') {
-      stringRef.current = '';
-    }
-  }, [open, selectedIndex, timeout]);
-
-  useIsoLayoutEffect(() => {
-    // Sync arrow key navigation but not typeahead navigation.
-    if (open && stringRef.current === '') {
-      prevIndexRef.current = selectedIndex ?? activeIndex ?? -1;
-    }
-  }, [open, selectedIndex, activeIndex]);
-
-  const setTypingChange = useStableCallback((value: boolean) => {
-    if (value) {
-      if (!dataRef.current.typing) {
-        dataRef.current.typing = value;
-        onTypingChange?.(value);
-      }
-    } else if (dataRef.current.typing) {
-      dataRef.current.typing = value;
-      onTypingChange?.(value);
-    }
-  });
-
   const onKeyDown = useStableCallback((event: React.KeyboardEvent) => {
-    function isVisible(index: number) {
-      const element = elementsRef?.current[index];
-      return !element || isElementVisible(element);
+    function getElement(index: number) {
+      return elementsRef?.current[index];
+    }
+
+    function isItemAvailable(index: number) {
+      const element = getElement(index);
+      if ((element && !isElementVisible(element)) || element?.matches(':disabled')) {
+        return false;
+      }
+      // Visibility and native disabled state are handled above; pass an empty
+      // element list so `isListIndexDisabled` resolves only the explicit
+      // `disabledIndices` (array/predicate) and skips its own fallbacks.
+      // Consumers that don't pass `disabledIndices` keep matching every visible
+      // item except native disabled elements provided through `elementsRef`.
+      return disabledIndices == null || !isListIndexDisabled(EMPTY_ARRAY, index, disabledIndices);
     }
 
     function getMatchingIndex(list: Array<string | null>, string: string, startIndex = 0) {
@@ -126,12 +117,12 @@ export function useTypeahead(
       }
 
       const normalizedStartIndex = ((startIndex % list.length) + list.length) % list.length;
-      const lowerString = string.toLocaleLowerCase();
+      const lowerString = string.toLowerCase();
 
       for (let offset = 0; offset < list.length; offset += 1) {
         const index = (normalizedStartIndex + offset) % list.length;
         const text = list[index];
-        if (!text?.toLocaleLowerCase().startsWith(lowerString) || !isVisible(index)) {
+        if (!text?.toLowerCase().startsWith(lowerString) || !isItemAvailable(index)) {
           continue;
         }
         return index;
@@ -144,12 +135,12 @@ export function useTypeahead(
     if (stringRef.current.length > 0 && event.key === ' ') {
       // Space should continue the in-progress typeahead session.
       stopEvent(event);
-      setTypingChange(true);
+      onTyping?.(true);
     }
 
     if (stringRef.current.length > 0 && stringRef.current[0] !== ' ') {
       if (getMatchingIndex(listContent, stringRef.current) === -1 && event.key !== ' ') {
-        setTypingChange(false);
+        onTyping?.(false);
       }
     }
 
@@ -167,7 +158,7 @@ export function useTypeahead(
 
     if (open && event.key !== ' ') {
       stopEvent(event);
-      setTypingChange(true);
+      onTyping?.(true);
     }
 
     // Capture whether this is a new typing session before mutating the string.
@@ -177,9 +168,11 @@ export function useTypeahead(
     }
 
     // Bail out if the list contains a word like "llama" or "aaron". TODO:
-    // allow it in this case, too.
-    const allowRapidSuccessionOfFirstLetter = listContent.every((text) =>
-      text ? text[0]?.toLocaleLowerCase() !== text[1]?.toLocaleLowerCase() : true,
+    // allow it in this case, too. Unavailable items are skipped while matching, so
+    // they must be ignored here as well — otherwise a hidden or disabled double-letter
+    // label would block rapid cycling through the available items.
+    const allowRapidSuccessionOfFirstLetter = listContent.every((text, index) =>
+      text && isItemAvailable(index) ? text[0]?.toLowerCase() !== text[1]?.toLowerCase() : true,
     );
 
     // Allows the user to cycle through items that start with the same letter
@@ -193,7 +186,7 @@ export function useTypeahead(
     timeout.start(resetMs, () => {
       stringRef.current = '';
       prevIndexRef.current = matchIndexRef.current;
-      setTypingChange(false);
+      onTyping?.(false);
     });
 
     // Compute the starting index for this search.
@@ -209,7 +202,7 @@ export function useTypeahead(
       matchIndexRef.current = index;
     } else if (event.key !== ' ') {
       stringRef.current = '';
-      setTypingChange(false);
+      onTyping?.(false);
     }
   });
 
@@ -217,11 +210,11 @@ export function useTypeahead(
     const next = event.relatedTarget as Element | null;
     const currentDomReferenceElement = store.select('domReferenceElement');
     const currentFloatingElement = store.select('floatingElement');
-    const withinReference = contains(currentDomReferenceElement, next);
-    const withinFloating = contains(currentFloatingElement, next);
+    const withinComposite =
+      contains(currentDomReferenceElement, next) || contains(currentFloatingElement, next);
 
     // Keep the session if focus moves within the composite (reference <-> floating).
-    if (withinReference || withinFloating) {
+    if (withinComposite) {
       return;
     }
 
@@ -229,23 +222,26 @@ export function useTypeahead(
     timeout.clear();
     stringRef.current = '';
     prevIndexRef.current = matchIndexRef.current;
-    setTypingChange(false);
+    onTyping?.(false);
   });
 
-  const reference: ElementProps['reference'] = React.useMemo(
-    () => ({ onKeyDown, onBlur }),
-    [onKeyDown, onBlur],
-  );
+  useIsoLayoutEffect(() => {
+    if (!open && selectedIndex !== null) {
+      return;
+    }
 
-  const floating: ElementProps['floating'] = React.useMemo(() => {
-    return {
-      onKeyDown,
-      onBlur,
-    };
-  }, [onKeyDown, onBlur]);
+    timeout.clear();
+    matchIndexRef.current = null;
+
+    if (stringRef.current !== '') {
+      stringRef.current = '';
+    }
+  }, [open, selectedIndex, timeout]);
+
+  const sharedProps = React.useMemo(() => ({ onKeyDown, onBlur }), [onKeyDown, onBlur]);
 
   return React.useMemo(
-    () => (enabled ? { reference, floating } : {}),
-    [enabled, reference, floating],
+    () => (enabled ? { reference: sharedProps, floating: sharedProps } : {}),
+    [enabled, sharedProps],
   );
 }

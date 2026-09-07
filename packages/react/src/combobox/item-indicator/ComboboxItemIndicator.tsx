@@ -17,11 +17,9 @@ export const ComboboxItemIndicator = React.forwardRef(function ComboboxItemIndic
   componentProps: ComboboxItemIndicator.Props,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
-  const keepMounted = componentProps.keepMounted ?? false;
-
   const { selected } = useComboboxItemContext();
 
-  const shouldRender = keepMounted || selected;
+  const shouldRender = componentProps.keepMounted || selected;
   if (!shouldRender) {
     return null;
   }
@@ -30,8 +28,7 @@ export const ComboboxItemIndicator = React.forwardRef(function ComboboxItemIndic
   return <Inner {...componentProps} ref={forwardedRef} />;
 });
 
-/** The core implementation of the indicator is split here to avoid paying the hooks
- * costs unless the element needs to be mounted. */
+// Split the core implementation to avoid paying the hook costs unless the element needs to mount.
 const Inner = React.memo(
   React.forwardRef(
     (
@@ -65,6 +62,8 @@ const Inner = React.memo(
       });
 
       useOpenChangeComplete({
+        batch: true,
+        enabled: !selected,
         open: selected,
         ref: indicatorRef,
         onComplete() {

@@ -12,7 +12,7 @@ import {
   type Align,
   type Side,
   type UseAnchorPositioningSharedParameters,
-} from '../../utils/useAnchorPositioning';
+} from '../../internals/useAnchorPositioning';
 import { BaseUIComponentProps } from '../../internals/types';
 import { CompositeList } from '../../internals/composite/list/CompositeList';
 import { InternalBackdrop } from '../../utils/InternalBackdrop';
@@ -22,7 +22,6 @@ import { useContextMenuRootContext } from '../../context-menu/root/ContextMenuRo
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import { MenuOpenEventDetails } from '../utils/types';
-import { adaptiveOrigin } from '../../utils/adaptiveOriginMiddleware';
 import { useAnimationsFinished } from '../../internals/useAnimationsFinished';
 import { usePositioner } from '../../utils/usePositioner';
 import { useAnchoredPopupScrollLock } from '../../utils/useAnchoredPopupScrollLock';
@@ -72,14 +71,14 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
   const transitionStatus = store.useState('transitionStatus');
   const positionerElement = store.useState('positionerElement');
   const instantType = store.useState('instantType');
-  const hasViewport = store.useState('hasViewport');
+  const adaptiveOrigin = store.useState('adaptiveOrigin');
   const lastOpenChangeReason = store.useState('lastOpenChangeReason');
   const floatingNodeId = store.useState('floatingNodeId');
   const floatingParentNodeId = store.useState('floatingParentNodeId');
   const domReference = floatingRootContext.useState('domReferenceElement');
 
   const previousTriggerRef = React.useRef<Element | null>(null);
-  const runOnceAnimationsFinish = useAnimationsFinished(positionerElement, false, false);
+  const runOnceAnimationsFinish = useAnimationsFinished(positionerElement);
 
   let anchor = anchorProp;
   let sideOffset = sideOffsetProp;
@@ -102,7 +101,8 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
     computedAlign = computedAlign ?? 'start';
     collisionAvoidance = componentProps.collisionAvoidance ?? POPUP_COLLISION_AVOIDANCE;
   } else if (parent.type === 'menubar') {
-    computedSide = computedSide ?? 'bottom';
+    computedSide =
+      computedSide ?? (parent.context.orientation === 'vertical' ? 'inline-end' : 'bottom');
     computedAlign = computedAlign ?? 'start';
   }
 
@@ -125,10 +125,14 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
     keepMounted,
     disableAnchorTracking,
     collisionAvoidance,
-    shiftCrossAxis:
-      contextMenu && !('side' in collisionAvoidance && collisionAvoidance.side === 'flip'),
+    shift: contextMenu
+      ? {
+          crossAxis: !('side' in collisionAvoidance && collisionAvoidance.side === 'flip'),
+          rootBoundary: 'layoutViewport',
+        }
+      : undefined,
     externalTree: floatingTreeRoot,
-    adaptiveOrigin: hasViewport ? adaptiveOrigin : undefined,
+    adaptiveOrigin,
   });
 
   React.useEffect(() => {
@@ -346,7 +350,25 @@ export interface MenuPositionerState {
 }
 
 export interface MenuPositionerProps
-  extends UseAnchorPositioningSharedParameters, BaseUIComponentProps<'div', MenuPositionerState> {}
+  extends
+    Omit<UseAnchorPositioningSharedParameters, 'side' | 'align'>,
+    BaseUIComponentProps<'div', MenuPositionerState> {
+  /**
+   * How to align the popup relative to the specified side.
+   *
+   * Submenus and menubars default to `'start'`.
+   * @default 'center'
+   */
+  align?: UseAnchorPositioningSharedParameters['align'] | undefined;
+  /**
+   * Which side of the anchor element to align the popup against.
+   * May automatically change to avoid collisions.
+   *
+   * Submenus and vertical menubars default to `'inline-end'`.
+   * @default 'bottom'
+   */
+  side?: UseAnchorPositioningSharedParameters['side'] | undefined;
+}
 
 export namespace MenuPositioner {
   export type State = MenuPositionerState;

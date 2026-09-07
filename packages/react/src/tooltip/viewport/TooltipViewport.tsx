@@ -4,23 +4,12 @@ import { useTooltipRootContext } from '../root/TooltipRootContext';
 import { useTooltipPositionerContext } from '../positioner/TooltipPositionerContext';
 import { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
-import { StateAttributesMapping } from '../../internals/getStateAttributesProps';
-import { TooltipViewportCssVars } from './TooltipViewportCssVars';
-import { usePopupViewport } from '../../utils/usePopupViewport';
-
-const stateAttributesMapping: StateAttributesMapping<TooltipViewportState> = {
-  activationDirection: (value) =>
-    value
-      ? {
-          'data-activation-direction': value,
-        }
-      : null,
-};
+import { popupViewportStateMapping, usePopupViewport } from '../../utils/usePopupViewport';
 
 /**
  * A viewport for displaying content transitions.
- * This component is only required if one popup can be opened by multiple triggers, its content change based on the trigger
- * and switching between them is animated.
+ * This component is only required if one popup can be opened by multiple triggers, its content
+ * changes based on the trigger, and switching between them is animated.
  * Renders a `<div>` element.
  *
  * Documentation: [Base UI Tooltip](https://base-ui.com/react/components/tooltip)
@@ -30,6 +19,7 @@ export const TooltipViewport = React.forwardRef(function TooltipViewport(
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const { render, className, style, children, ...elementProps } = componentProps;
+
   const store = useTooltipRootContext();
   const positioner = useTooltipPositionerContext();
 
@@ -38,7 +28,6 @@ export const TooltipViewport = React.forwardRef(function TooltipViewport(
   const { children: childrenToRender, state: viewportState } = usePopupViewport({
     store,
     side: positioner.side,
-    cssVars: TooltipViewportCssVars,
     children,
   });
 
@@ -52,7 +41,7 @@ export const TooltipViewport = React.forwardRef(function TooltipViewport(
     state,
     ref: forwardedRef,
     props: [elementProps, { children: childrenToRender }],
-    stateAttributesMapping,
+    stateAttributesMapping: popupViewportStateMapping,
   });
 });
 
@@ -71,13 +60,14 @@ export interface TooltipViewportState {
   instant: 'delay' | 'dismiss' | 'focus' | undefined;
 }
 
-export namespace TooltipViewport {
-  export interface Props extends BaseUIComponentProps<'div', TooltipViewportState> {
-    /**
-     * The content to render inside the transition container.
-     */
-    children?: React.ReactNode;
-  }
+export interface TooltipViewportProps extends BaseUIComponentProps<'div', TooltipViewportState> {
+  /**
+   * The content to render inside the transition container.
+   */
+  children?: React.ReactNode;
+}
 
+export namespace TooltipViewport {
+  export type Props = TooltipViewportProps;
   export type State = TooltipViewportState;
 }

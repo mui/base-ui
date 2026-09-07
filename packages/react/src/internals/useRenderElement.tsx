@@ -29,8 +29,14 @@ export function useRenderElement<
   componentProps: UseRenderElementComponentProps<State>,
   params: UseRenderElementParameters<State, RenderedElementType, TagName, Enabled> = {},
 ): Enabled extends false ? null : React.ReactElement {
-  const renderProp = componentProps.render;
-  const outProps = useRenderElementProps(componentProps, params);
+  let renderProp = componentProps.render;
+  if (params.enabled !== false) {
+    // A pending lazy element suspends when unwrapped, so leave it wrapped while disabled.
+    renderProp = unwrapLazyRenderProp(renderProp);
+  }
+
+  const outProps = useRenderElementProps(componentProps, params, renderProp);
+
   if (params.enabled === false) {
     return null as Enabled extends false ? null : React.ReactElement;
   }
@@ -51,9 +57,10 @@ function useRenderElementProps<
   Enabled extends boolean | undefined,
 >(
   componentProps: UseRenderElementComponentProps<State>,
-  params: UseRenderElementParameters<State, RenderedElementType, TagName, Enabled> = {},
+  params: UseRenderElementParameters<State, RenderedElementType, TagName, Enabled>,
+  renderProp: UseRenderElementComponentProps<State>['render'],
 ): React.HTMLAttributes<any> & React.RefAttributes<any> {
-  const { className: classNameProp, style: styleProp, render: renderProp } = componentProps;
+  const { className: classNameProp, style: styleProp } = componentProps;
 
   const {
     state = EMPTY_OBJECT as State,
@@ -87,7 +94,8 @@ function useRenderElementProps<
   /* eslint-disable react-hooks/rules-of-hooks */
   if (typeof document !== 'undefined') {
     if (!enabled) {
-      useMergedRefs(null, null);
+      // Called only to keep the hook order stable when disabled; the merged ref is unused.
+      void useMergedRefs(null, null);
     } else if (Array.isArray(ref)) {
       outProps.ref = useMergedRefsN([outProps.ref, getReactElementRef(renderProp), ...ref]);
     } else {
@@ -121,12 +129,31 @@ function resolveRenderFunctionProps<TagName extends IntrinsicTagName | undefined
 }
 
 // The symbol React uses internally for lazy components
-// https://github.com/facebook/react/blob/a0566250b210499b4c5677f5ac2eedbd71d51a1b/packages/shared/ReactSymbols.js#L31
+// https://github.com/react/react/blob/a0566250b210499b4c5677f5ac2eedbd71d51a1b/packages/shared/ReactSymbols.js#L31
 //
-// TODO delete once https://github.com/facebook/react/issues/32392 is fixed
+// TODO delete once https://github.com/react/react/issues/32392 is fixed
 const REACT_LAZY_TYPE = Symbol.for('react.lazy');
 const COMPONENT_IDENTIFIER_PATTERN = /^[A-Z][A-Za-z0-9$]*$/;
 const LOWERCASE_CHARACTER_PATTERN = /[a-z]/;
+
+// Workaround for https://github.com/react/react/issues/32392
+// The Flight client hands over a lazy wrapper in place of a render element created in a
+// Server Component. The wrapper exposes no `.props` or `.ref`, so it must be unwrapped
+// before those are read. This works because the toArray() logic unwraps the lazy
+// element type in
+// https://github.com/react/react/blob/a0566250b210499b4c5677f5ac2eedbd71d51a1b/packages/react/src/ReactChildren.js#L186
+function unwrapLazyRenderProp<State>(
+  render: UseRenderElementComponentProps<State>['render'],
+): UseRenderElementComponentProps<State>['render'] {
+  // `$$typeof` is a React internal, absent from the public element types.
+  if ((render as { $$typeof?: symbol | undefined } | undefined)?.$$typeof !== REACT_LAZY_TYPE) {
+    return render;
+  }
+  // Keep the wrapper unless it unwraps to an element, so an invalid render prop is still
+  // reported as one instead of silently falling back to the default element.
+  const unwrapped = React.Children.toArray(render as React.ReactNode)[0];
+  return React.isValidElement(unwrapped) ? unwrapped : render;
+}
 
 function evaluateRenderProp<T extends React.ElementType, S>(
   element: IntrinsicTagName | undefined,
@@ -141,18 +168,10 @@ function evaluateRenderProp<T extends React.ElementType, S>(
       }
       return render(props, state);
     }
+
     const mergedProps = mergeProps(props, render.props);
+
     mergedProps.ref = props.ref;
-
-    let newElement = render;
-
-    // Workaround for https://github.com/facebook/react/issues/32392
-    // This works because the toArray() logic unwrap lazy element type in
-    // https://github.com/facebook/react/blob/a0566250b210499b4c5677f5ac2eedbd71d51a1b/packages/react/src/ReactChildren.js#L186
-    if (newElement?.$$typeof === REACT_LAZY_TYPE) {
-      const children = React.Children.toArray(render);
-      newElement = children[0] as BaseUIComponentProps<T, S>['render'];
-    }
 
     // There is a high number of indirections, the error message thrown by React.cloneElement() is
     // hard to use for developers, this logic provides a better context.
@@ -161,7 +180,9 @@ function evaluateRenderProp<T extends React.ElementType, S>(
     // However, React.cloneElement() throws if React.isValidElement() is false,
     // so we can throw before with custom message.
     if (process.env.NODE_ENV !== 'production') {
-      if (!React.isValidElement(newElement)) {
+      if (!React.isValidElement(render)) {
+        // TODO: fix mui/no-guarded-throw
+        // eslint-disable-next-line mui/no-guarded-throw
         throw new Error(
           [
             'Base UI: The `render` prop was provided an invalid React element as `React.isValidElement(render)` is `false`.',
@@ -172,7 +193,7 @@ function evaluateRenderProp<T extends React.ElementType, S>(
       }
     }
 
-    return React.cloneElement(newElement, mergedProps);
+    return React.cloneElement(render, mergedProps);
   }
   if (element) {
     if (typeof element === 'string') {

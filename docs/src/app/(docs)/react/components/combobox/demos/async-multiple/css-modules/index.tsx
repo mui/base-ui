@@ -77,6 +77,7 @@ export default function ExampleAsyncMultipleCombobox() {
     <Combobox.Root
       items={items}
       itemToStringLabel={(user: DirectoryUser) => user.name}
+      isItemEqualToValue={(item, value) => item.id === value.id}
       multiple
       filter={null}
       onOpenChangeComplete={(open) => {
@@ -137,59 +138,72 @@ export default function ExampleAsyncMultipleCombobox() {
           Assign reviewers
         </label>
         <Combobox.InputGroup className={styles.InputGroup}>
-          <Combobox.Chips className={styles.Chips}>
-            <Combobox.Value>
-              {(value: DirectoryUser[]) => (
-                <React.Fragment>
-                  {value.map((user) => (
-                    <Combobox.Chip key={user.id} className={styles.Chip} aria-label={user.name}>
-                      {user.name}
-                      <Combobox.ChipRemove
-                        className={styles.ChipRemove}
-                        aria-label={`Remove ${user.name}`}
-                      >
-                        <XIcon />
-                      </Combobox.ChipRemove>
-                    </Combobox.Chip>
-                  ))}
-                  <Combobox.Input
-                    id={id}
-                    placeholder={value.length > 0 ? '' : 'e.g. Michael'}
-                    className={styles.Input}
-                  />
-                </React.Fragment>
-              )}
-            </Combobox.Value>
-          </Combobox.Chips>
+          <Combobox.Value>
+            {(value: DirectoryUser[]) => (
+              <Combobox.Chips
+                className={styles.Chips}
+                aria-label={value.length > 0 ? 'Selected reviewers' : undefined}
+              >
+                {value.map((user) => (
+                  <Combobox.Chip
+                    key={user.id}
+                    className={styles.Chip}
+                    aria-label={user.name}
+                    aria-description="Press Backspace or Delete to remove"
+                  >
+                    {user.name}
+                    <Combobox.ChipRemove
+                      className={styles.ChipRemove}
+                      aria-label={`Remove ${user.name}`}
+                    >
+                      <XIcon />
+                    </Combobox.ChipRemove>
+                  </Combobox.Chip>
+                ))}
+                <Combobox.Input
+                  id={id}
+                  placeholder={value.length > 0 ? '' : 'e.g. Michael'}
+                  aria-description={
+                    value.length > 0
+                      ? `${value.length} selected. From the start of the input, press Left Arrow to focus the selected items`
+                      : undefined
+                  }
+                  className={styles.Input}
+                />
+              </Combobox.Chips>
+            )}
+          </Combobox.Value>
         </Combobox.InputGroup>
       </div>
 
       <Combobox.Portal>
         <Combobox.Positioner className={styles.Positioner} sideOffset={4}>
           <Combobox.Popup className={styles.Popup} aria-busy={isPending || undefined}>
-            <Combobox.Status>
-              {status ? <div className={styles.Status}>{status}</div> : null}
-            </Combobox.Status>
-            <Combobox.Empty>
-              {emptyMessage ? <div className={styles.Empty}>{emptyMessage}</div> : null}
-            </Combobox.Empty>
-            <Combobox.List>
-              {(user: DirectoryUser) => (
-                <Combobox.Item key={user.id} className={styles.Item} value={user}>
-                  <Combobox.ItemIndicator className={styles.ItemIndicator}>
-                    <CheckIcon className={styles.ItemIndicatorIcon} />
-                  </Combobox.ItemIndicator>
-                  <span className={styles.ItemText}>
-                    <span className={styles.ItemTitle}>{user.name}</span>
-                    <span className={styles.ItemSubtitle}>
-                      <span className={styles.ItemUsername}>@{user.username}</span>
-                      <span>{user.title}</span>
+            <div className={styles.Viewport}>
+              <Combobox.Status>
+                {status ? <div className={styles.Status}>{status}</div> : null}
+              </Combobox.Status>
+              <Combobox.Empty>
+                {emptyMessage ? <div className={styles.Empty}>{emptyMessage}</div> : null}
+              </Combobox.Empty>
+              <Combobox.List>
+                {(user: DirectoryUser) => (
+                  <Combobox.Item key={user.id} className={styles.Item} value={user}>
+                    <Combobox.ItemIndicator className={styles.ItemIndicator}>
+                      <CheckIcon />
+                    </Combobox.ItemIndicator>
+                    <span className={styles.ItemText}>
+                      <span className={styles.ItemTitle}>{user.name}</span>
+                      <span className={styles.ItemEmail}>{user.email}</span>
+                      <span className={styles.ItemSubtitle}>
+                        <span>@{user.username}</span>
+                        <span>{user.title}</span>
+                      </span>
                     </span>
-                    <span className={styles.ItemEmail}>{user.email}</span>
-                  </span>
-                </Combobox.Item>
-              )}
-            </Combobox.List>
+                  </Combobox.Item>
+                )}
+              </Combobox.List>
+            </div>
           </Combobox.Popup>
         </Combobox.Positioner>
       </Combobox.Portal>
@@ -199,8 +213,16 @@ export default function ExampleAsyncMultipleCombobox() {
 
 function CheckIcon(props: React.ComponentProps<'svg'>) {
   return (
-    <svg fill="currentcolor" width="10" height="10" viewBox="0 0 10 10" {...props}>
-      <path d="M9.1603 1.12218C9.50684 1.34873 9.60427 1.81354 9.37792 2.16038L5.13603 8.66012C5.01614 8.8438 4.82192 8.96576 4.60451 8.99384C4.3871 9.02194 4.1683 8.95335 4.00574 8.80615L1.24664 6.30769C0.939709 6.02975 0.916013 5.55541 1.19372 5.24822C1.47142 4.94102 1.94536 4.91731 2.2523 5.19524L4.36085 7.10461L8.12299 1.33999C8.34934 0.993152 8.81376 0.895638 9.1603 1.12218Z" />
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
+      fill="none"
+      stroke="currentColor"
+      {...props}
+      style={{ display: 'block', ...props.style }}
+    >
+      <path d="m2.5 8.5 4 4 7-9" />
     </svg>
   );
 }
@@ -208,20 +230,17 @@ function CheckIcon(props: React.ComponentProps<'svg'>) {
 function XIcon(props: React.ComponentProps<'svg'>) {
   return (
     <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width={16}
-      height={16}
-      viewBox="0 0 24 24"
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
       fill="none"
       stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
+      strokeLinecap="square"
       strokeLinejoin="round"
-      aria-hidden
       {...props}
+      style={{ display: 'block', ...props.style }}
     >
-      <path d="M18 6 6 18" />
-      <path d="m6 6 12 12" />
+      <path d="m4.5 4.5 7 7m-7 0 7-7" />
     </svg>
   );
 }

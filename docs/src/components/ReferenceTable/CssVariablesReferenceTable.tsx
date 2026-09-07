@@ -15,13 +15,21 @@ export function CssVariablesReferenceTable({
   name: partName,
   ...props
 }: CssVariablesReferenceTableProps) {
+  // Lets CSS compute the minimum closed height for `contain-intrinsic-height`;
+  // wrapped row content may be taller.
+  const rowsStyle = { '--rows': Object.keys(data).length, ...props.style } as React.CSSProperties;
+
   return (
     <React.Fragment>
-      <Accordion.Root {...props} className={clsx(props.className, 'bp0:bui-d-n')}>
+      <Accordion.Root
+        {...props}
+        className={clsx('ReferenceAccordionRoot', 'bp0:bui-d-n', props.className)}
+        style={rowsStyle}
+      >
         <Accordion.HeaderRow>
-          <Accordion.HeaderCell className="bui-pl-3">CSS Variable</Accordion.HeaderCell>
+          <Accordion.HeaderCell>CSS Variable</Accordion.HeaderCell>
         </Accordion.HeaderRow>
-        {Object.keys(data).map((name, index) => {
+        {Object.keys(data).map((name) => {
           const attribute = data[name];
 
           return (
@@ -35,7 +43,7 @@ export function CssVariablesReferenceTable({
                 part_name: partName || '',
               }}
             >
-              <Accordion.Trigger index={index}>
+              <Accordion.Trigger>
                 <TableCode style={{ color: 'var(--color-navy)' }}>{name}</TableCode>
                 <svg
                   className="AccordionIcon bui-ml-a bui-mr-1"
@@ -43,9 +51,8 @@ export function CssVariablesReferenceTable({
                   height="10"
                   viewBox="0 0 10 10"
                   fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
                 >
-                  <path d="M1 3.5L5 7.5L9 3.5" stroke="currentcolor" />
+                  <path d="M1 3.5L5 7.5L9 3.5" stroke="currentColor" />
                 </svg>
               </Accordion.Trigger>
               <Accordion.Panel>
@@ -58,7 +65,11 @@ export function CssVariablesReferenceTable({
         })}
       </Accordion.Root>
 
-      <Table.Root {...props} className={clsx('bui-d-n', 'bp0:bui-d-b', props.className)}>
+      <Table.Root
+        {...props}
+        className={clsx('ReferenceTableRoot', 'bui-d-n', 'bp0:bui-d-b', props.className)}
+        style={rowsStyle}
+      >
         <Table.Head>
           <Table.Row>
             {/* widths must match the props table grid layout */}

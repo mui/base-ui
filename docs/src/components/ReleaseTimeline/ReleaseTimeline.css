@@ -1,3 +1,6 @@
+/* Keep layer order stable when this file is emitted from a client CSS chunk. */
+@layer all, base, theme, components, utilities;
+
 @layer components {
   .ReleaseTimeline {
     position: relative;
@@ -20,16 +23,15 @@
     }
   }
 
-  .TimelineSpine {
-    display: none;
-  }
-
   .TimelineItem {
     position: relative;
   }
 
   @media (min-width: 48rem) {
-    .TimelineSpine {
+    /* Decorative vertical spine. A pseudo-element rather than a child <div> so
+       the <ul> only contains <li> elements. */
+    .ReleaseTimeline::before {
+      content: '';
       position: absolute;
       display: block;
       top: 0;
@@ -41,8 +43,8 @@
       background: linear-gradient(
         to bottom,
         transparent,
-        var(--gray-c2) 2.5rem,
-        var(--gray-c2) calc(100% - 2.5rem),
+        var(--color-border) 2.5rem,
+        var(--color-border) calc(100% - 2.5rem),
         transparent
       );
     }
@@ -55,12 +57,12 @@
       align-items: start;
     }
 
-    .TimelineItem:nth-child(even) .TimelineCard {
+    .TimelineItem:nth-child(odd) .TimelineCard {
       grid-column: 1;
       grid-row: 1;
     }
 
-    .TimelineItem:nth-child(odd) .TimelineCard {
+    .TimelineItem:nth-child(even) .TimelineCard {
       grid-column: 2;
     }
 
@@ -89,14 +91,14 @@
       top: var(--dot-y);
       width: calc(var(--column-gap) / 2 - var(--dot-size) / 2);
       height: 1px;
-      background: var(--gray-c2);
-    }
-
-    .TimelineItem:nth-child(odd)::after {
-      left: calc(50% + var(--dot-size) / 2);
+      background: var(--color-border);
     }
 
     .TimelineItem:nth-child(even)::after {
+      left: calc(50% + var(--dot-size) / 2);
+    }
+
+    .TimelineItem:nth-child(odd)::after {
       right: calc(50% + var(--dot-size) / 2);
     }
   }
@@ -108,7 +110,7 @@
     flex-direction: column;
     align-items: start;
     gap: 0.75rem;
-    background-color: var(--gray-c2);
+    background-color: var(--color-border);
     border-radius: var(--radius-8);
     padding: 1.25rem;
     font-size: var(--font-size-15);
@@ -133,8 +135,8 @@
     inset: 1px;
     border-radius: calc(var(--radius-8) - 1px);
     box-shadow:
-      0 1px 3px 0 var(--gray-c2),
-      0 1px 2px -1px var(--gray-c2);
+      0 1px 3px 0 var(--color-border),
+      0 1px 2px -1px var(--color-border);
     z-index: -1;
   }
 
@@ -177,7 +179,7 @@
 
     &:focus-visible {
       border-radius: 0.125rem;
-      outline: 2px solid var(--color-blue);
+      outline: 2px solid var(--gray-t2);
       text-decoration-line: none;
     }
   }
@@ -193,6 +195,7 @@
     color: var(--green-t1);
     border: 1px solid currentColor;
     border-radius: 999px;
+    -webkit-user-select: none;
     user-select: none;
   }
 

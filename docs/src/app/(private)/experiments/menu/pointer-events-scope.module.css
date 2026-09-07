@@ -51,6 +51,7 @@
   font-weight: 500;
   line-height: 1.5rem;
   padding: 0 0.875rem;
+  -webkit-user-select: none;
   user-select: none;
 }
 
@@ -202,6 +203,7 @@
   font-weight: 500;
   line-height: 1.5rem;
   color: var(--color-gray-900);
+  -webkit-user-select: none;
   user-select: none;
 }
 
@@ -238,6 +240,7 @@
   justify-content: space-between;
   align-items: center;
   font-size: 0.875rem;
+  -webkit-user-select: none;
   user-select: none;
 }
 

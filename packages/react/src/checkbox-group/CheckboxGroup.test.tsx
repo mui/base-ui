@@ -1,6 +1,8 @@
-import { expect, vi } from 'vitest';
+import { expect, vi, describe, it } from 'vitest';
 import * as React from 'react';
-import { createRenderer, screen, fireEvent } from '@mui/internal-test-utils';
+import * as ReactDOM from 'react-dom';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { createRenderer, screen, fireEvent, waitFor } from '@mui/internal-test-utils';
 import { CheckboxGroup } from '@base-ui/react/checkbox-group';
 import { Checkbox } from '@base-ui/react/checkbox';
 import { Field } from '@base-ui/react/field';
@@ -8,13 +10,21 @@ import { Form } from '@base-ui/react/form';
 import { describeConformance, isJSDOM } from '#test-utils';
 
 describe('<CheckboxGroup />', () => {
-  const { render } = createRenderer();
+  const { render, renderToString } = createRenderer();
 
   describeConformance(<CheckboxGroup />, () => ({
     inheritComponent: 'div',
     refInstanceof: window.HTMLDivElement,
     render,
   }));
+
+  describe('prop: id', () => {
+    it('is forwarded to the root element', () => {
+      render(<CheckboxGroup id="group-id" />);
+
+      expect(screen.getByRole('group')).toHaveAttribute('id', 'group-id');
+    });
+  });
 
   describe('prop: value', () => {
     it('should control the value', () => {
@@ -56,6 +66,60 @@ describe('<CheckboxGroup />', () => {
       expect(red).toHaveAttribute('aria-checked', 'true');
       expect(green).toHaveAttribute('aria-checked', 'false');
       expect(blue).toHaveAttribute('aria-checked', 'true');
+    });
+
+    it('supports an empty string item value', () => {
+      function App() {
+        const [value, setValue] = React.useState(['']);
+        return (
+          <CheckboxGroup value={value} onValueChange={setValue}>
+            <Checkbox.Root value="" data-testid="empty" />
+            <Checkbox.Root value="other" data-testid="other" />
+          </CheckboxGroup>
+        );
+      }
+
+      render(<App />);
+
+      const empty = screen.getByTestId('empty');
+      const other = screen.getByTestId('other');
+
+      expect(empty).toHaveAttribute('aria-checked', 'true');
+      expect(other).toHaveAttribute('aria-checked', 'false');
+
+      fireEvent.click(empty);
+
+      expect(empty).toHaveAttribute('aria-checked', 'false');
+    });
+
+    it('treats a controlled value that becomes undefined as an empty array', () => {
+      const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+      function App() {
+        const [value, setValue] = React.useState<string[] | undefined>(['red']);
+        return (
+          <React.Fragment>
+            <CheckboxGroup value={value}>
+              <Checkbox.Root value="red" data-testid="red" />
+            </CheckboxGroup>
+            <button type="button" onClick={() => setValue(undefined)}>
+              Clear
+            </button>
+          </React.Fragment>
+        );
+      }
+
+      try {
+        render(<App />);
+
+        expect(screen.getByTestId('red')).toHaveAttribute('aria-checked', 'true');
+
+        fireEvent.click(screen.getByText('Clear'));
+
+        expect(screen.getByTestId('red')).toHaveAttribute('aria-checked', 'false');
+      } finally {
+        consoleError.mockRestore();
+      }
     });
   });
 
@@ -128,9 +192,41 @@ describe('<CheckboxGroup />', () => {
 
       expect(handleValueChange.mock.calls[2][0]).toEqual(['green']);
     });
+
+    it('does not update the group when onValueChange cancels the event', () => {
+      const handleValueChange = vi.fn((_, eventDetails: CheckboxGroup.ChangeEventDetails) => {
+        eventDetails.cancel();
+      });
+
+      render(
+        <CheckboxGroup onValueChange={handleValueChange}>
+          <Checkbox.Root value="red" data-testid="red" />
+          <Checkbox.Root value="green" data-testid="green" />
+        </CheckboxGroup>,
+      );
+
+      const red = screen.getByTestId('red');
+      const green = screen.getByTestId('green');
+
+      fireEvent.click(red);
+
+      expect(handleValueChange.mock.calls.length).toBe(1);
+      expect(handleValueChange.mock.calls[0][0]).toEqual(['red']);
+      expect(red).toHaveAttribute('aria-checked', 'false');
+      expect(green).toHaveAttribute('aria-checked', 'false');
+    });
   });
 
   describe('prop: defaultValue', () => {
+    it('treats null as an empty array', () => {
+      // @ts-expect-error Simulates a JavaScript consumer passing an unsupported value.
+      const group = <CheckboxGroup defaultValue={null} />;
+
+      render(group);
+
+      expect(screen.getByRole('group')).toBeInTheDocument();
+    });
+
     it('should set the initial value', () => {
       function App() {
         return (
@@ -157,6 +253,51 @@ describe('<CheckboxGroup />', () => {
       expect(red).toHaveAttribute('aria-checked', 'true');
       expect(green).toHaveAttribute('aria-checked', 'true');
       expect(blue).toHaveAttribute('aria-checked', 'false');
+    });
+
+    it('keeps omitted defaults isolated between groups in Strict Mode', async () => {
+      const { user } = render(
+        <React.StrictMode>
+          <CheckboxGroup allValues={['a-1', 'a-2']}>
+            <Checkbox.Root parent data-testid="a-parent" />
+            <Checkbox.Root value="a-1" data-testid="a-1" />
+            <Checkbox.Root value="a-2" data-testid="a-2" />
+          </CheckboxGroup>
+          <CheckboxGroup allValues={['b-1', 'b-2']}>
+            <Checkbox.Root parent data-testid="b-parent" />
+            <Checkbox.Root value="b-1" data-testid="b-1" />
+            <Checkbox.Root value="b-2" data-testid="b-2" />
+          </CheckboxGroup>
+        </React.StrictMode>,
+      );
+
+      const aParent = screen.getByTestId('a-parent');
+      const a1 = screen.getByTestId('a-1');
+      const a2 = screen.getByTestId('a-2');
+      const bParent = screen.getByTestId('b-parent');
+      const b1 = screen.getByTestId('b-1');
+      const b2 = screen.getByTestId('b-2');
+
+      await user.click(a1);
+      expect(aParent).toHaveAttribute('aria-checked', 'mixed');
+      expect(bParent).toHaveAttribute('aria-checked', 'false');
+      expect(b1).toHaveAttribute('aria-checked', 'false');
+      expect(b2).toHaveAttribute('aria-checked', 'false');
+
+      await user.click(bParent);
+      expect(b1).toHaveAttribute('aria-checked', 'true');
+      expect(b2).toHaveAttribute('aria-checked', 'true');
+      expect(a1).toHaveAttribute('aria-checked', 'true');
+      expect(a2).toHaveAttribute('aria-checked', 'false');
+
+      await user.click(aParent);
+      expect(a1).toHaveAttribute('aria-checked', 'true');
+      expect(a2).toHaveAttribute('aria-checked', 'true');
+      expect(bParent).toHaveAttribute('aria-checked', 'true');
+
+      await user.click(b1);
+      expect(bParent).toHaveAttribute('aria-checked', 'mixed');
+      expect(aParent).toHaveAttribute('aria-checked', 'true');
     });
   });
 
@@ -229,6 +370,293 @@ describe('<CheckboxGroup />', () => {
   });
 
   describe('Field', () => {
+    it('[data-dirty]', () => {
+      render(
+        <Field.Root name="fruits">
+          <CheckboxGroup defaultValue={['apple']}>
+            <Field.Item>
+              <Checkbox.Root value="apple" data-testid="apple" />
+            </Field.Item>
+            <Field.Item>
+              <Checkbox.Root value="banana" data-testid="banana" />
+            </Field.Item>
+          </CheckboxGroup>
+        </Field.Root>,
+      );
+
+      const group = screen.getByRole('group');
+      const banana = screen.getByTestId('banana');
+
+      expect(group).not.toHaveAttribute('data-dirty');
+
+      fireEvent.click(banana);
+
+      expect(group).toHaveAttribute('data-dirty', '');
+
+      fireEvent.click(banana);
+
+      expect(group).not.toHaveAttribute('data-dirty');
+    });
+
+    it('[data-filled] follows the group value even without a matching rendered checkbox', () => {
+      render(
+        <Field.Root name="fruits">
+          <CheckboxGroup defaultValue={['cherry']}>
+            <Field.Item>
+              <Checkbox.Root value="apple" data-testid="apple" />
+            </Field.Item>
+          </CheckboxGroup>
+        </Field.Root>,
+      );
+
+      const group = screen.getByRole('group');
+      const apple = screen.getByTestId('apple');
+
+      expect(group).toHaveAttribute('data-filled', '');
+
+      fireEvent.click(apple);
+      fireEvent.click(apple);
+
+      expect(group).toHaveAttribute('data-filled', '');
+    });
+
+    it('keeps a required error while another required checkbox in the group is unchecked', async () => {
+      const { user } = render(
+        <Form onSubmit={(event) => event.preventDefault()}>
+          <Field.Root name="protocols">
+            <CheckboxGroup defaultValue={[]}>
+              <Field.Item>
+                <Checkbox.Root value="http" data-testid="checkbox" required />
+              </Field.Item>
+              <Field.Item>
+                <Checkbox.Root value="https" data-testid="checkbox" required />
+              </Field.Item>
+            </CheckboxGroup>
+            <Field.Error match="valueMissing" data-testid="error">
+              required
+            </Field.Error>
+          </Field.Root>
+          <button type="submit">submit</button>
+        </Form>,
+      );
+
+      const checkboxes = screen.getAllByTestId('checkbox');
+
+      await user.click(screen.getByText('submit'));
+      expect(screen.getByTestId('error')).toHaveTextContent('required');
+
+      // Checking only one of the two required checkboxes must not clear the error.
+      await user.click(checkboxes[1]);
+      await user.click(screen.getByText('submit'));
+      expect(screen.getByTestId('error')).toHaveTextContent('required');
+
+      await user.click(checkboxes[0]);
+      await user.click(screen.getByText('submit'));
+      expect(screen.queryByTestId('error')).toBe(null);
+    });
+
+    it('ignores a disabled required checkbox when validating the group', async () => {
+      const { user } = render(
+        <Form onSubmit={(event) => event.preventDefault()}>
+          <Field.Root name="protocols">
+            <CheckboxGroup defaultValue={[]}>
+              <Field.Item>
+                <Checkbox.Root value="https" data-testid="cb-enabled" required />
+              </Field.Item>
+              {/* Mounted last so it would otherwise win the shared input ref. */}
+              <Field.Item>
+                <Checkbox.Root value="http" data-testid="cb-disabled" required disabled />
+              </Field.Item>
+            </CheckboxGroup>
+            <Field.Error match="valueMissing" data-testid="error">
+              required
+            </Field.Error>
+          </Field.Root>
+          <button type="submit">submit</button>
+        </Form>,
+      );
+
+      await user.click(screen.getByText('submit'));
+      expect(screen.getByTestId('error')).toHaveTextContent('required');
+
+      // A disabled checkbox is exempt from constraint validation, so checking the only
+      // enabled required checkbox is enough to satisfy the field.
+      await user.click(screen.getByTestId('cb-enabled'));
+      await user.click(screen.getByText('submit'));
+      expect(screen.queryByTestId('error')).toBe(null);
+    });
+
+    it('keeps validating the remaining required checkbox after a checked sibling unmounts', async () => {
+      function App() {
+        const [showHttps, setShowHttps] = React.useState(true);
+        return (
+          <Form onSubmit={(event) => event.preventDefault()}>
+            <Field.Root name="protocols">
+              <CheckboxGroup defaultValue={[]}>
+                <Field.Item>
+                  <Checkbox.Root value="http" data-testid="checkbox-http" required />
+                </Field.Item>
+                {showHttps && (
+                  <Field.Item>
+                    <Checkbox.Root value="https" data-testid="checkbox-https" required />
+                  </Field.Item>
+                )}
+              </CheckboxGroup>
+              <Field.Error match="valueMissing" data-testid="error">
+                required
+              </Field.Error>
+            </Field.Root>
+            <button type="button" onClick={() => setShowHttps(false)}>
+              remove
+            </button>
+            <button type="submit">submit</button>
+          </Form>
+        );
+      }
+
+      const { user } = render(<App />);
+
+      await user.click(screen.getByText('submit'));
+      expect(screen.getByTestId('error')).toHaveTextContent('required');
+
+      // Check `https` (the last-mounted input that wins the shared ref), then unmount it. The shared
+      // ref is now nulled, so only the registry can keep validating the still-unchecked `http`.
+      await user.click(screen.getByTestId('checkbox-https'));
+      await user.click(screen.getByText('remove'));
+      await user.click(screen.getByText('submit'));
+      expect(screen.getByTestId('error')).toHaveTextContent('required');
+
+      // Checking the remaining required checkbox satisfies the field.
+      await user.click(screen.getByTestId('checkbox-http'));
+      await user.click(screen.getByText('submit'));
+      expect(screen.queryByTestId('error')).toBe(null);
+    });
+
+    it('validationMode=onChange keeps the error until every required checkbox is ticked', async () => {
+      const { user } = render(
+        <Field.Root name="protocols" validationMode="onChange">
+          <CheckboxGroup defaultValue={[]}>
+            <Field.Item>
+              <Checkbox.Root value="http" data-testid="cb-http" required />
+            </Field.Item>
+            <Field.Item>
+              <Checkbox.Root value="https" data-testid="cb-https" required />
+            </Field.Item>
+          </CheckboxGroup>
+          <Field.Error match="valueMissing" data-testid="error">
+            required
+          </Field.Error>
+        </Field.Root>,
+      );
+
+      expect(screen.queryByTestId('error')).toBe(null);
+
+      // Ticking the second (last-mounted) checkbox must not clear the requirement on the first.
+      await user.click(screen.getByTestId('cb-https'));
+      expect(screen.getByTestId('error')).toHaveTextContent('required');
+
+      await user.click(screen.getByTestId('cb-http'));
+      expect(screen.queryByTestId('error')).toBe(null);
+    });
+
+    it('validationMode=onBlur keeps the error until every required checkbox is ticked', async () => {
+      const { user } = render(
+        <Field.Root name="protocols" validationMode="onBlur">
+          <CheckboxGroup defaultValue={[]}>
+            <Field.Item>
+              <Checkbox.Root value="http" data-testid="cb-http" required />
+            </Field.Item>
+            <Field.Item>
+              <Checkbox.Root value="https" data-testid="cb-https" required />
+            </Field.Item>
+          </CheckboxGroup>
+          <Field.Error match="valueMissing" data-testid="error">
+            required
+          </Field.Error>
+        </Field.Root>,
+      );
+
+      await user.click(screen.getByTestId('cb-https'));
+      expect(screen.queryByTestId('error')).toBe(null);
+
+      fireEvent.blur(screen.getByTestId('cb-https'));
+      expect(screen.getByTestId('error')).toHaveTextContent('required');
+
+      await user.click(screen.getByTestId('cb-http'));
+      expect(screen.queryByTestId('error')).toBe(null);
+    });
+
+    it('does not leave a stale custom error when toggling checkboxes in a group', async () => {
+      const validateSpy = vi.fn((value) => ((value as string[]).length < 2 ? 'pick two' : null));
+      render(
+        <Field.Root name="protocols" validationMode="onChange" validate={validateSpy}>
+          <CheckboxGroup defaultValue={[]}>
+            <Field.Item>
+              <Checkbox.Root value="http" data-testid="cb-http" />
+            </Field.Item>
+            <Field.Item>
+              <Checkbox.Root value="https" data-testid="cb-https" />
+            </Field.Item>
+          </CheckboxGroup>
+        </Field.Root>,
+      );
+
+      const http = screen.getByTestId('cb-http');
+      const https = screen.getByTestId('cb-https');
+
+      fireEvent.click(http);
+      expect(http).toHaveAttribute('aria-invalid', 'true');
+
+      // Selecting both clears the field-level error; no stale custom validation result should keep
+      // the group invalid.
+      fireEvent.click(https);
+      expect(http).not.toHaveAttribute('aria-invalid');
+      expect(https).not.toHaveAttribute('aria-invalid');
+
+      // Unticking one brings the real error back (not a phantom from a prior commit).
+      fireEvent.click(http);
+      expect(https).toHaveAttribute('aria-invalid', 'true');
+    });
+
+    it('clears custom validity from disabled registered inputs when the group becomes valid', async () => {
+      function App() {
+        const [disabled, setDisabled] = React.useState(false);
+        const [value, setValue] = React.useState<string[]>([]);
+        const validate = (nextValue: unknown) =>
+          (nextValue as string[]).length < 2 ? 'pick two' : null;
+
+        return (
+          <Field.Root name="protocols" validationMode="onChange" validate={validate}>
+            <CheckboxGroup value={value} onValueChange={setValue}>
+              <Field.Item>
+                <Checkbox.Root value="http" data-testid="cb-http" disabled={disabled} />
+              </Field.Item>
+              <Field.Item>
+                <Checkbox.Root value="https" data-testid="cb-https" />
+              </Field.Item>
+            </CheckboxGroup>
+            <button type="button" onClick={() => setDisabled(true)}>
+              disable
+            </button>
+          </Field.Root>
+        );
+      }
+
+      const { user } = render(<App />);
+
+      await user.click(screen.getByTestId('cb-http'));
+
+      const httpInput = document.querySelector<HTMLInputElement>(
+        'input[type="checkbox"][value="http"]',
+      );
+      expect(httpInput?.validity.customError).toBe(true);
+
+      await user.click(screen.getByText('disable'));
+      await user.click(screen.getByTestId('cb-https'));
+
+      expect(httpInput?.validity.customError).toBe(false);
+    });
+
     it('prop: validationMode=onSubmit', async () => {
       const validateSpy = vi.fn((value) => {
         const v = value as string[];
@@ -324,6 +752,30 @@ describe('<CheckboxGroup />', () => {
 
       fireEvent.click(checkbox3);
       checkboxes.forEach((checkbox) => expect(checkbox).toHaveAttribute('aria-invalid', 'true'));
+    });
+
+    it('validates with the group value when toggling the parent checkbox', async () => {
+      const validateSpy = vi.fn((_value: unknown) => null);
+
+      const { user } = render(
+        <Field.Root validationMode="onChange" validate={validateSpy} name="fruits">
+          <CheckboxGroup allValues={['apple', 'orange']}>
+            <Checkbox.Root parent data-testid="parent" />
+            <Checkbox.Root value="apple" />
+            <Checkbox.Root value="orange" />
+          </CheckboxGroup>
+        </Field.Root>,
+      );
+
+      const parent = screen.getByTestId('parent');
+
+      await user.click(parent);
+      expect(validateSpy).toHaveBeenCalledTimes(1);
+      expect(validateSpy.mock.lastCall?.[0]).toEqual(['apple', 'orange']);
+
+      await user.click(parent);
+      expect(validateSpy).toHaveBeenCalledTimes(2);
+      expect(validateSpy.mock.lastCall?.[0]).toEqual([]);
     });
 
     it('revalidates when the controlled value changes externally', async () => {
@@ -423,6 +875,199 @@ describe('<CheckboxGroup />', () => {
   });
 
   describe('Field.Label', () => {
+    function SharedFieldRootGroup(props: { nativeButton: boolean }) {
+      const { nativeButton } = props;
+      const checkboxProps = { nativeButton, render: nativeButton ? <button /> : undefined };
+
+      return (
+        <Field.Root name="apples">
+          <Field.Label>Apples</Field.Label>
+          <CheckboxGroup allValues={['fuji', 'gala']}>
+            <Checkbox.Root parent data-testid="parent" {...checkboxProps} />
+            <Checkbox.Root value="fuji" data-testid="fuji" {...checkboxProps} />
+            <Checkbox.Root value="gala" data-testid="gala" {...checkboxProps} />
+          </CheckboxGroup>
+        </Field.Root>
+      );
+    }
+
+    // `expectedCount` is required: a set of unique ids is trivially unique when it is empty,
+    // so a regression that drops every id would otherwise pass.
+    function expectUniqueIds(expectedCount: number) {
+      const ids = Array.from(document.querySelectorAll('[id]'), (element) => element.id);
+      expect(ids).toHaveLength(expectedCount);
+      expect(new Set(ids).size).toBe(ids.length);
+    }
+
+    it.each([false, true])(
+      'keeps checkbox ids unique when the group shares one Field.Root (nativeButton=%s)',
+      async (nativeButton) => {
+        await render(<SharedFieldRootGroup nativeButton={nativeButton} />);
+
+        expectUniqueIds(nativeButton ? 4 : 7);
+        // Queried without `hidden`, so the relationship has to reach the exposed checkboxes
+        // rather than the hidden inputs behind them.
+        expect(screen.getByTestId('parent').getAttribute('aria-controls')!.split(' ')).toEqual([
+          screen.getByTestId('fuji').id,
+          screen.getByTestId('gala').id,
+        ]);
+      },
+    );
+
+    it.each([false, true])(
+      'keeps checkbox ids unique in a shared Field.Root during SSR (nativeButton=%s)',
+      (nativeButton) => {
+        renderToString(<SharedFieldRootGroup nativeButton={nativeButton} />);
+        expectUniqueIds(nativeButton ? 4 : 7);
+      },
+    );
+
+    it.each([false, true])(
+      'keeps ids unique without allValues in a shared Field.Root (nativeButton=%s)',
+      async (nativeButton) => {
+        const checkboxProps = { nativeButton, render: nativeButton ? <button /> : undefined };
+
+        await render(
+          <Field.Root name="apples">
+            <Field.Label>Apples</Field.Label>
+            <CheckboxGroup>
+              <Checkbox.Root value="fuji" {...checkboxProps} />
+              <Checkbox.Root value="gala" {...checkboxProps} />
+            </CheckboxGroup>
+          </Field.Root>,
+        );
+
+        expectUniqueIds(nativeButton ? 3 : 5);
+      },
+    );
+
+    // The suppression runs in a layout effect, so server markup still carries the `htmlFor`
+    // the provider resolved before the group registered.
+    it('labels the group rather than pointing Field.Label at one checkbox inside it', async () => {
+      const { hydrate } = renderToString(<SharedFieldRootGroup nativeButton={false} />);
+
+      expect(screen.getByText('Apples')).toHaveAttribute('for');
+
+      hydrate();
+
+      const label = screen.getByText('Apples');
+      await waitFor(() => {
+        expect(label).not.toHaveAttribute('for');
+      });
+      expect(screen.getByRole('group')).toHaveAttribute('aria-labelledby', label.id);
+    });
+
+    it('gives each checkbox in a shared Field.Root its own accessible name', async () => {
+      await render(
+        <Field.Root name="apples">
+          <CheckboxGroup allValues={['fuji', 'gala']}>
+            <label>
+              <Checkbox.Root parent data-testid="parent" />
+              All
+            </label>
+            <label>
+              <Checkbox.Root value="fuji" data-testid="fuji" />
+              Fuji
+            </label>
+            <label>
+              <Checkbox.Root value="gala" data-testid="gala" />
+              Gala
+            </label>
+          </CheckboxGroup>
+        </Field.Root>,
+      );
+
+      ['All', 'Fuji', 'Gala'].forEach((name, index) => {
+        const testId = ['parent', 'fuji', 'gala'][index];
+        const labelId = screen.getByTestId(testId).getAttribute('aria-labelledby')!;
+        expect(document.getElementById(labelId)).toHaveTextContent(name);
+      });
+    });
+
+    it.each([
+      { nativeButton: false, parent: false },
+      { nativeButton: true, parent: false },
+      { nativeButton: false, parent: true },
+      { nativeButton: true, parent: true },
+    ])(
+      'associates Field.Label with a grouped Checkbox during SSR (nativeButton=$nativeButton, parent=$parent)',
+      ({ nativeButton, parent }) => {
+        renderToString(
+          <Field.Root name="apple">
+            <CheckboxGroup allValues={['fuji']}>
+              <Field.Item>
+                <Field.Label data-testid="label">Fuji</Field.Label>
+                <Checkbox.Root
+                  parent={parent}
+                  value={parent ? undefined : 'fuji'}
+                  nativeButton={nativeButton}
+                  render={nativeButton ? <button /> : undefined}
+                />
+              </Field.Item>
+            </CheckboxGroup>
+          </Field.Root>,
+        );
+
+        const control = nativeButton
+          ? screen.getByRole('checkbox')
+          : document.querySelector<HTMLInputElement>('input[type="checkbox"]')!;
+        expect(control.id).not.toBe('');
+        expect(screen.getByTestId('label')).toHaveAttribute('for', control.id);
+      },
+    );
+
+    it.each([false, true])(
+      'points parent aria-controls at the children once they register (nativeButton=%s)',
+      async (nativeButton) => {
+        const { hydrate } = renderToString(
+          <Field.Root name="apple">
+            <CheckboxGroup allValues={['fuji']}>
+              <Field.Item>
+                <Field.Label data-testid="label">All</Field.Label>
+                <Checkbox.Root
+                  parent
+                  data-testid="parent"
+                  nativeButton={nativeButton}
+                  render={nativeButton ? <button /> : undefined}
+                />
+              </Field.Item>
+              <Field.Item>
+                <Field.Label data-testid="label">Fuji</Field.Label>
+                <Checkbox.Root
+                  value="fuji"
+                  data-testid="fuji"
+                  nativeButton={nativeButton}
+                  render={nativeButton ? <button /> : undefined}
+                />
+              </Field.Item>
+            </CheckboxGroup>
+          </Field.Root>,
+        );
+
+        // Server markup claims nothing: the parent can't control a child that hasn't mounted.
+        expect(screen.getByTestId('parent')).not.toHaveAttribute('aria-controls');
+
+        // Each label must reach its own item's labelable element: the button itself with
+        // `nativeButton`, the hidden input rendered next to it otherwise.
+        [screen.getByTestId('parent'), screen.getByTestId('fuji')].forEach((control, index) => {
+          const labelable = nativeButton ? control : control.nextElementSibling;
+          expect(labelable).not.toBe(null);
+          expect(screen.getAllByTestId('label')[index]).toHaveAttribute('for', labelable!.id);
+        });
+
+        hydrate();
+
+        // Queried without `hidden`, so the relationship has to reach the exposed checkbox
+        // rather than the hidden input behind it.
+        await waitFor(() => {
+          expect(screen.getByTestId('parent')).toHaveAttribute(
+            'aria-controls',
+            screen.getByTestId('fuji').id,
+          );
+        });
+      },
+    );
+
     it('implicit association', async () => {
       const changeSpy = vi.fn();
       render(
@@ -519,11 +1164,11 @@ describe('<CheckboxGroup />', () => {
     it('links the group and individual checkboxes', async () => {
       await render(
         <Field.Root name="apple">
-          <CheckboxGroup defaultValue={[]}>
+          <CheckboxGroup defaultValue={[]} aria-describedby="external-description">
             <Field.Description data-testid="group-description">Group description</Field.Description>
             <Field.Item>
               <Field.Label>
-                <Checkbox.Root value="fuji-apple" />
+                <Checkbox.Root value="fuji-apple" aria-describedby="checkbox-description" />
                 Fuji
               </Field.Label>
             </Field.Item>
@@ -540,6 +1185,280 @@ describe('<CheckboxGroup />', () => {
       expect(screen.getByRole('checkbox').getAttribute('aria-describedby')).toContain(
         groupDescriptionId,
       );
+      expect(screen.getByRole('checkbox')).toHaveAttribute(
+        'aria-describedby',
+        `checkbox-description ${groupDescriptionId}`,
+      );
+      expect(screen.getByRole('group')).toHaveAttribute(
+        'aria-describedby',
+        `external-description ${groupDescriptionId}`,
+      );
+    });
+  });
+
+  describe('Form values', () => {
+    it('projects selected enabled checkboxes while preserving the logical validation value', () => {
+      const handleSubmit = vi.fn();
+      const validateGroup = vi.fn((_value: unknown, _formValues: Form.Values) => null);
+      const validateOther = vi.fn((_value: unknown, _formValues: Form.Values) => null);
+
+      function App() {
+        const [disabled, setDisabled] = React.useState(true);
+
+        return (
+          <Form onFormSubmit={handleSubmit} data-testid="form">
+            <Field.Root name="fruits" validate={validateGroup}>
+              <CheckboxGroup defaultValue={['apple', 'banana']}>
+                <Checkbox.Root value="apple" />
+                <Checkbox.Root value="banana" disabled={disabled} />
+              </CheckboxGroup>
+            </Field.Root>
+            <Field.Root name="other" validate={validateOther}>
+              <Field.Control defaultValue="value" />
+            </Field.Root>
+            <button type="button" onClick={() => setDisabled(false)}>
+              Enable
+            </button>
+            <button type="submit">Submit</button>
+          </Form>
+        );
+      }
+
+      render(<App />);
+
+      fireEvent.click(screen.getByText('Submit'));
+
+      expect(validateGroup).toHaveBeenLastCalledWith(['apple', 'banana'], {
+        fruits: ['apple'],
+        other: 'value',
+      });
+      expect(validateOther.mock.lastCall?.[1].fruits).toEqual(['apple']);
+      expect(handleSubmit.mock.lastCall?.[0].fruits).toEqual(['apple']);
+
+      fireEvent.click(screen.getByText('Enable'));
+      fireEvent.click(screen.getByText('Submit'));
+
+      expect(validateGroup).toHaveBeenLastCalledWith(['apple', 'banana'], {
+        fruits: ['apple', 'banana'],
+        other: 'value',
+      });
+      expect(validateOther.mock.lastCall?.[1].fruits).toEqual(['apple', 'banana']);
+      expect(handleSubmit.mock.lastCall?.[0].fruits).toEqual(['apple', 'banana']);
+    });
+
+    it('omits selected unmounted checkboxes while retaining group state across remounts', () => {
+      const handleSubmit = vi.fn();
+
+      function App() {
+        const [mounted, setMounted] = React.useState(true);
+
+        return (
+          <Form onFormSubmit={handleSubmit}>
+            <Field.Root name="fruits">
+              <CheckboxGroup defaultValue={['apple', 'banana']}>
+                <Checkbox.Root value="apple" />
+                {mounted && <Checkbox.Root value="banana" data-testid="banana" />}
+              </CheckboxGroup>
+            </Field.Root>
+            <button type="button" onClick={() => setMounted((value) => !value)}>
+              Toggle
+            </button>
+            <button type="submit">Submit</button>
+          </Form>
+        );
+      }
+
+      render(<App />);
+
+      fireEvent.click(screen.getByText('Toggle'));
+      fireEvent.click(screen.getByText('Submit'));
+      expect(handleSubmit.mock.lastCall?.[0]).toEqual({ fruits: ['apple'] });
+
+      fireEvent.click(screen.getByText('Toggle'));
+      expect(screen.getByTestId('banana')).toHaveAttribute('aria-checked', 'true');
+
+      fireEvent.click(screen.getByText('Submit'));
+      expect(handleSubmit.mock.lastCall?.[0]).toEqual({ fruits: ['apple', 'banana'] });
+    });
+
+    it('preserves the logical field-name value when Checkbox.Root has no value prop', () => {
+      const handleSubmit = vi.fn();
+
+      render(
+        <Form onFormSubmit={handleSubmit}>
+          <Field.Root name="fruits">
+            <CheckboxGroup defaultValue={['fruits']}>
+              <Checkbox.Root />
+            </CheckboxGroup>
+          </Field.Root>
+          <button type="submit">Submit</button>
+        </Form>,
+      );
+
+      fireEvent.click(screen.getByText('Submit'));
+
+      expect(handleSubmit.mock.lastCall?.[0]).toEqual({ fruits: ['fruits'] });
+    });
+
+    it('updates duplicate-value registrations before a parent layout effect submits', () => {
+      const handleSubmit = vi.fn();
+
+      function App() {
+        const [trimmed, setTrimmed] = React.useState(false);
+        const formRef = React.useRef<HTMLFormElement>(null);
+
+        useIsoLayoutEffect(() => {
+          if (trimmed) {
+            formRef.current?.requestSubmit();
+          }
+        }, [trimmed]);
+
+        return (
+          <Form ref={formRef} onFormSubmit={handleSubmit}>
+            <Field.Root name="items">
+              <CheckboxGroup defaultValue={['one', 'two']}>
+                {!trimmed && <Checkbox.Root value="one" />}
+                <Checkbox.Root value="two" />
+                {!trimmed && <Checkbox.Root value="two" />}
+              </CheckboxGroup>
+            </Field.Root>
+            <button type="button" onClick={() => setTrimmed(true)}>
+              Trim
+            </button>
+          </Form>
+        );
+      }
+
+      render(<App />);
+
+      fireEvent.click(screen.getByText('Trim'));
+
+      expect(handleSubmit.mock.lastCall?.[0]).toEqual({ items: ['two'] });
+    });
+
+    it('omits selected checkboxes associated with another form', () => {
+      const handleSubmit = vi.fn();
+
+      render(
+        <React.Fragment>
+          <form id="external-form" />
+          <Form onFormSubmit={handleSubmit}>
+            <Field.Root name="fruits">
+              <CheckboxGroup defaultValue={['apple', 'banana']}>
+                <Checkbox.Root value="apple" />
+                <Checkbox.Root value="banana" form="external-form" />
+              </CheckboxGroup>
+            </Field.Root>
+            <button type="submit">Submit</button>
+          </Form>
+        </React.Fragment>,
+      );
+
+      fireEvent.click(screen.getByText('Submit'));
+
+      expect(handleSubmit.mock.lastCall?.[0]).toEqual({ fruits: ['apple'] });
+    });
+
+    it('includes a context-portaled checkbox without native form association', () => {
+      const handleSubmit = vi.fn();
+      const portalContainer = document.createElement('div');
+      document.body.append(portalContainer);
+
+      render(
+        <Form onFormSubmit={handleSubmit}>
+          <Field.Root name="fruits">
+            <CheckboxGroup defaultValue={['apple']}>
+              {ReactDOM.createPortal(<Checkbox.Root value="apple" />, portalContainer)}
+            </CheckboxGroup>
+          </Field.Root>
+          <button type="submit">Submit</button>
+        </Form>,
+      );
+
+      fireEvent.click(screen.getByText('Submit'));
+
+      // Field registration is context-driven, so a portaled checkbox with no explicit `form`
+      // association still projects its value into `onFormSubmit`, like other field controls.
+      expect(handleSubmit.mock.lastCall?.[0]).toEqual({ fruits: ['apple'] });
+      portalContainer.remove();
+    });
+
+    it('includes a group fully portaled outside the form element', () => {
+      const handleSubmit = vi.fn();
+      const portalContainer = document.createElement('div');
+      document.body.append(portalContainer);
+
+      render(
+        <Form onFormSubmit={handleSubmit}>
+          {ReactDOM.createPortal(
+            <Field.Root name="fruits">
+              <CheckboxGroup defaultValue={['apple', 'banana']}>
+                <Checkbox.Root value="apple" />
+                <Checkbox.Root value="banana" disabled />
+              </CheckboxGroup>
+            </Field.Root>,
+            portalContainer,
+          )}
+          <button type="submit">Submit</button>
+        </Form>,
+      );
+
+      fireEvent.click(screen.getByText('Submit'));
+
+      expect(handleSubmit.mock.lastCall?.[0]).toEqual({ fruits: ['apple'] });
+      portalContainer.remove();
+    });
+
+    it('includes a portaled checkbox explicitly associated with the Form', () => {
+      const handleSubmit = vi.fn();
+      const portalContainer = document.createElement('div');
+      document.body.append(portalContainer);
+
+      render(
+        <Form id="current-form" onFormSubmit={handleSubmit}>
+          <Field.Root name="fruits">
+            <CheckboxGroup defaultValue={['apple']}>
+              {ReactDOM.createPortal(
+                <Checkbox.Root value="apple" form="current-form" />,
+                portalContainer,
+              )}
+            </CheckboxGroup>
+          </Field.Root>
+          <button type="submit">Submit</button>
+        </Form>,
+      );
+
+      fireEvent.click(screen.getByText('Submit'));
+
+      expect(handleSubmit.mock.lastCall?.[0]).toEqual({ fruits: ['apple'] });
+      portalContainer.remove();
+    });
+
+    it('omits checkboxes disabled by a fieldset', () => {
+      const handleSubmit = vi.fn();
+      const validate = vi.fn((_value: unknown, _formValues: Form.Values) => null);
+
+      render(
+        <Form onFormSubmit={handleSubmit}>
+          <Field.Root name="fruits">
+            <CheckboxGroup defaultValue={['apple', 'banana']}>
+              <Checkbox.Root value="apple" />
+              <fieldset disabled>
+                <Checkbox.Root value="banana" />
+              </fieldset>
+            </CheckboxGroup>
+          </Field.Root>
+          <Field.Root name="other" validate={validate}>
+            <Field.Control defaultValue="value" />
+          </Field.Root>
+          <button type="submit">Submit</button>
+        </Form>,
+      );
+
+      fireEvent.click(screen.getByText('Submit'));
+
+      expect(validate.mock.lastCall?.[1].fruits).toEqual(['apple']);
+      expect(handleSubmit.mock.lastCall?.[0].fruits).toEqual(['apple']);
     });
   });
 
@@ -644,8 +1563,573 @@ describe('<CheckboxGroup />', () => {
       expect(screen.queryByTestId('error')).toHaveTextContent('server error');
     });
 
+    it('focuses the invalid checkbox when a later checkbox in the group fails validation', async () => {
+      const { user } = render(
+        <Form>
+          <Field.Root name="group">
+            <CheckboxGroup defaultValue={['one']}>
+              <Field.Item>
+                <Checkbox.Root value="one" data-testid="checkbox" />
+              </Field.Item>
+              <Field.Item>
+                <Checkbox.Root value="two" data-testid="checkbox" required />
+              </Field.Item>
+            </CheckboxGroup>
+            <Field.Error match="valueMissing" data-testid="error">
+              required
+            </Field.Error>
+          </Field.Root>
+          <button type="submit">Submit</button>
+        </Form>,
+      );
+
+      const checkboxes = screen.getAllByTestId('checkbox');
+
+      await user.click(screen.getByText('Submit'));
+
+      expect(screen.getByTestId('error')).toHaveTextContent('required');
+      expect(checkboxes[1]).toHaveFocus();
+    });
+
+    it('ignores required checkboxes associated with a different form', async () => {
+      const handleSubmit = vi.fn();
+
+      const { user } = render(
+        <React.Fragment>
+          <form id="external-form" />
+          <Form onFormSubmit={handleSubmit}>
+            <Field.Root name="group">
+              <CheckboxGroup defaultValue={[]}>
+                <Checkbox.Root value="external" form="external-form" required />
+                <Checkbox.Root value="current" />
+              </CheckboxGroup>
+            </Field.Root>
+            <button type="submit">Submit</button>
+          </Form>
+        </React.Fragment>,
+      );
+
+      await user.click(screen.getByText('Submit'));
+
+      expect(handleSubmit).toHaveBeenCalledOnce();
+    });
+
+    it('stops validating a checkbox after it changes form owner', async () => {
+      const handleSubmit = vi.fn();
+
+      function App() {
+        const [external, setExternal] = React.useState(false);
+
+        return (
+          <React.Fragment>
+            <form id="external-form" />
+            <Form onFormSubmit={handleSubmit}>
+              <Field.Root name="group">
+                <CheckboxGroup defaultValue={[]}>
+                  <Checkbox.Root
+                    value="checkbox"
+                    form={external ? 'external-form' : undefined}
+                    required
+                  />
+                </CheckboxGroup>
+              </Field.Root>
+              <button type="button" onClick={() => setExternal(true)}>
+                Move
+              </button>
+              <button type="submit">Submit</button>
+            </Form>
+          </React.Fragment>
+        );
+      }
+
+      const { user } = render(<App />);
+
+      await user.click(screen.getByText('Submit'));
+      expect(handleSubmit).not.toHaveBeenCalled();
+
+      await user.click(screen.getByText('Move'));
+      await user.click(screen.getByText('Submit'));
+
+      expect(handleSubmit).toHaveBeenCalledOnce();
+    });
+
+    it('validates and focuses required portaled checkboxes within the form', async () => {
+      const handleSubmit = vi.fn();
+      const portalContainer = document.createElement('div');
+      document.body.append(portalContainer);
+
+      const { user } = render(
+        <Form onFormSubmit={handleSubmit}>
+          <Field.Root name="group">
+            <CheckboxGroup defaultValue={[]}>
+              {ReactDOM.createPortal(
+                <Checkbox.Root value="portaled" required data-testid="portaled" />,
+                portalContainer,
+              )}
+              <Checkbox.Root value="current" />
+            </CheckboxGroup>
+          </Field.Root>
+          <button type="submit">Submit</button>
+        </Form>,
+      );
+
+      await user.click(screen.getByText('Submit'));
+
+      expect(handleSubmit).not.toHaveBeenCalled();
+      expect(screen.getByTestId('portaled')).toHaveFocus();
+
+      await user.click(screen.getByTestId('portaled'));
+      await user.click(screen.getByText('Submit'));
+
+      expect(handleSubmit).toHaveBeenCalledOnce();
+      portalContainer.remove();
+    });
+
+    it('ignores a checkbox portaled into another form without a form attribute', async () => {
+      const handleSubmit = vi.fn();
+      const externalForm = document.createElement('form');
+      document.body.append(externalForm);
+
+      const { user } = render(
+        <Form onFormSubmit={handleSubmit}>
+          <Field.Root name="group">
+            <CheckboxGroup defaultValue={[]}>
+              {ReactDOM.createPortal(<Checkbox.Root value="external" required />, externalForm)}
+            </CheckboxGroup>
+          </Field.Root>
+          <button type="submit">Submit</button>
+        </Form>,
+      );
+
+      await user.click(screen.getByText('Submit'));
+
+      expect(handleSubmit).toHaveBeenCalledOnce();
+      externalForm.remove();
+    });
+
+    it('skips a checkbox disabled by a fieldset when focusing Form errors', async () => {
+      function App() {
+        const [errors, setErrors] = React.useState<Form.Props['errors']>({});
+
+        return (
+          <Form
+            errors={errors}
+            onSubmit={(event) => {
+              event.preventDefault();
+              setErrors({ group: 'server error' });
+            }}
+          >
+            <Field.Root name="group">
+              <CheckboxGroup defaultValue={[]}>
+                <fieldset disabled>
+                  <Checkbox.Root value="disabled" data-testid="disabled" />
+                </fieldset>
+                <Checkbox.Root value="enabled" data-testid="enabled" />
+              </CheckboxGroup>
+              <Field.Error />
+            </Field.Root>
+            <button type="submit">Submit</button>
+          </Form>
+        );
+      }
+
+      const { user } = render(<App />);
+
+      await user.click(screen.getByText('Submit'));
+
+      expect(screen.getByTestId('enabled')).toHaveFocus();
+      expect(screen.getByTestId('disabled')).not.toHaveFocus();
+    });
+
+    it('focuses a remaining checkbox when Form errors unmount the first checkbox', async () => {
+      function App() {
+        const [showFirst, setShowFirst] = React.useState(true);
+        const [errors, setErrors] = React.useState<Form.Props['errors']>({});
+
+        return (
+          <Form
+            errors={errors}
+            onSubmit={(event) => {
+              event.preventDefault();
+              setShowFirst(false);
+              setErrors({ group: 'server error' });
+            }}
+          >
+            <Field.Root name="group">
+              <CheckboxGroup defaultValue={[]}>
+                {showFirst && <Checkbox.Root value="one" data-testid="first" />}
+                <Checkbox.Root value="two" data-testid="second" />
+              </CheckboxGroup>
+              <Field.Error />
+            </Field.Root>
+            <button type="submit">Submit</button>
+          </Form>
+        );
+      }
+
+      const { user } = render(<App />);
+
+      await user.click(screen.getByText('Submit'));
+
+      expect(screen.queryByTestId('first')).toBe(null);
+      expect(screen.getByTestId('second')).toHaveFocus();
+    });
+
+    it('unblocks submission after every checkbox in the group unmounts', async () => {
+      const handleSubmit = vi.fn();
+
+      function App() {
+        const [mounted, setMounted] = React.useState(true);
+
+        return (
+          <Form onFormSubmit={handleSubmit}>
+            <Field.Root name="group">
+              <CheckboxGroup defaultValue={[]}>
+                {mounted && <Checkbox.Root value="one" required data-testid="checkbox" />}
+              </CheckboxGroup>
+            </Field.Root>
+            <button type="button" onClick={() => setMounted(false)}>
+              Remove
+            </button>
+            <button type="submit">Submit</button>
+          </Form>
+        );
+      }
+
+      const { user } = render(<App />);
+
+      await user.click(screen.getByText('Submit'));
+      expect(handleSubmit).not.toHaveBeenCalled();
+
+      await user.click(screen.getByText('Remove'));
+      await user.click(screen.getByText('Submit'));
+
+      expect(handleSubmit).toHaveBeenCalledOnce();
+    });
+
+    it('still runs custom validation after every checkbox in the group unmounts', async () => {
+      const handleSubmit = vi.fn();
+      const validate = vi.fn((value: unknown) =>
+        (value as string[]).length > 0 ? null : 'required',
+      );
+
+      function App() {
+        const [mounted, setMounted] = React.useState(true);
+
+        return (
+          <Form onFormSubmit={handleSubmit}>
+            <Field.Root name="group" validate={validate}>
+              <CheckboxGroup defaultValue={[]}>
+                {mounted && <Checkbox.Root value="one" data-testid="checkbox" />}
+              </CheckboxGroup>
+            </Field.Root>
+            <button type="button" onClick={() => setMounted(false)}>
+              Remove
+            </button>
+            <button type="submit">Submit</button>
+          </Form>
+        );
+      }
+
+      const { user } = render(<App />);
+
+      await user.click(screen.getByText('Remove'));
+
+      validate.mockClear();
+      await user.click(screen.getByText('Submit'));
+
+      // The custom validator still runs against the preserved value and blocks submission, even
+      // though no checkbox is mounted to carry a native constraint.
+      expect(validate).toHaveBeenCalled();
+      expect(handleSubmit).not.toHaveBeenCalled();
+    });
+
+    it('clears a custom error when an inputless group becomes valid after submission', async () => {
+      const handleSubmit = vi.fn();
+      const validate = vi.fn((value: unknown) =>
+        (value as string[]).length > 0 ? null : 'required',
+      );
+
+      function App() {
+        const [mounted, setMounted] = React.useState(true);
+        const [value, setValue] = React.useState<string[]>([]);
+
+        return (
+          <Form onFormSubmit={handleSubmit}>
+            <Field.Root name="group" validate={validate}>
+              <CheckboxGroup value={value}>
+                {mounted && <Checkbox.Root value="one" />}
+              </CheckboxGroup>
+              <Field.Error />
+            </Field.Root>
+            <button type="button" onClick={() => setMounted(false)}>
+              Remove
+            </button>
+            <button type="button" onClick={() => setValue(['one'])}>
+              Select
+            </button>
+            <button type="submit">Submit</button>
+          </Form>
+        );
+      }
+
+      const { user } = render(<App />);
+
+      await user.click(screen.getByText('Submit'));
+      expect(screen.getByText('required')).not.toBe(null);
+
+      await user.click(screen.getByText('Remove'));
+      await user.click(screen.getByText('Select'));
+
+      expect(screen.queryByText('required')).toBe(null);
+
+      await user.click(screen.getByText('Submit'));
+      expect(handleSubmit).toHaveBeenCalledOnce();
+    });
+
+    it.each(['onSubmit', 'onBlur'] as const)(
+      'does not validate on change with validationMode=%s after the final checkbox unmounts',
+      async (validationMode) => {
+        const validate = vi.fn(() => 'invalid');
+
+        function App() {
+          const [mounted, setMounted] = React.useState(true);
+          const [value, setValue] = React.useState<string[]>([]);
+
+          return (
+            <Form>
+              <Field.Root name="group" validationMode={validationMode} validate={validate}>
+                <CheckboxGroup value={value}>
+                  {mounted && <Checkbox.Root value="one" />}
+                </CheckboxGroup>
+              </Field.Root>
+              <button type="button" onClick={() => setMounted(false)}>
+                Remove
+              </button>
+              <button type="button" onClick={() => setValue(['one'])}>
+                Select
+              </button>
+              <button type="submit">Submit</button>
+            </Form>
+          );
+        }
+
+        const { user } = render(<App />);
+
+        await user.click(screen.getByText('Remove'));
+        validate.mockClear();
+        await user.click(screen.getByText('Select'));
+
+        expect(validate).not.toHaveBeenCalled();
+
+        await user.click(screen.getByText('Submit'));
+
+        expect(validate).toHaveBeenCalledExactlyOnceWith(['one'], { group: [] });
+      },
+    );
+
+    it.each(['onSubmit', 'onBlur'] as const)(
+      'respects validationMode=%s when a controlled group starts without inputs',
+      async (validationMode) => {
+        const validate = vi.fn(() => 'invalid');
+
+        function App() {
+          const [value, setValue] = React.useState<string[]>([]);
+
+          return (
+            <Form>
+              <Field.Root name="group" validationMode={validationMode} validate={validate}>
+                <CheckboxGroup value={value} />
+              </Field.Root>
+              <button type="button" onClick={() => setValue(['one'])}>
+                Select one
+              </button>
+              <button type="button" onClick={() => setValue(['two'])}>
+                Select two
+              </button>
+              <button type="submit">Submit</button>
+            </Form>
+          );
+        }
+
+        const { user } = render(<App />);
+
+        validate.mockClear();
+        await user.click(screen.getByText('Select one'));
+
+        expect(validate).not.toHaveBeenCalled();
+
+        await user.click(screen.getByText('Submit'));
+
+        expect(validate).toHaveBeenCalledExactlyOnceWith(['one'], { group: [] });
+
+        await user.click(screen.getByText('Select two'));
+
+        expect(validate).toHaveBeenCalledTimes(validationMode === 'onSubmit' ? 2 : 1);
+      },
+    );
+
+    it('validates an inputless controlled group on change with validationMode=onChange', async () => {
+      const validate = vi.fn(() => null);
+
+      function App() {
+        const [value, setValue] = React.useState<string[]>([]);
+
+        return (
+          <Field.Root name="group" validationMode="onChange" validate={validate}>
+            <CheckboxGroup value={value} />
+            <button type="button" onClick={() => setValue(['one'])}>
+              Select
+            </button>
+          </Field.Root>
+        );
+      }
+
+      const { user } = render(<App />);
+      validate.mockClear();
+
+      await user.click(screen.getByText('Select'));
+
+      expect(validate).toHaveBeenCalledExactlyOnceWith(['one'], { group: ['one'] });
+    });
+
+    it('validates an initially empty group through the imperative action', async () => {
+      const validate = vi.fn(() => 'invalid');
+
+      function App() {
+        const actionsRef = React.useRef<Field.Root.Actions>(null);
+
+        return (
+          <Field.Root name="group" actionsRef={actionsRef} validate={validate}>
+            <CheckboxGroup defaultValue={[]} />
+            <button type="button" onClick={() => actionsRef.current?.validate()}>
+              Validate
+            </button>
+          </Field.Root>
+        );
+      }
+
+      const { user } = render(<App />);
+      validate.mockClear();
+
+      await user.click(screen.getByText('Validate'));
+
+      expect(validate).toHaveBeenCalledExactlyOnceWith([], { group: [] });
+    });
+
+    it('skips a disabled representative checkbox on a later focus attempt', async () => {
+      function App() {
+        const [firstDisabled, setFirstDisabled] = React.useState(false);
+        const [errors, setErrors] = React.useState<Form.Props['errors']>({});
+
+        return (
+          <Form
+            errors={errors}
+            onSubmit={(event) => {
+              event.preventDefault();
+              setErrors({ group: 'server error' });
+            }}
+          >
+            <Field.Root name="group">
+              <CheckboxGroup defaultValue={[]}>
+                <Checkbox.Root value="one" data-testid="first" disabled={firstDisabled} />
+                <Checkbox.Root value="two" data-testid="second" />
+              </CheckboxGroup>
+              <Field.Error />
+            </Field.Root>
+            <button type="button" onClick={() => setFirstDisabled(true)}>
+              Disable first
+            </button>
+            <button type="submit">Submit</button>
+          </Form>
+        );
+      }
+
+      const { user } = render(<App />);
+
+      await user.click(screen.getByText('Submit'));
+      expect(screen.getByTestId('first')).toHaveFocus();
+
+      await user.click(screen.getByText('Disable first'));
+      await user.click(screen.getByText('Submit'));
+
+      expect(screen.getByTestId('second')).toHaveFocus();
+    });
+
+    it('focuses the first child checkbox instead of a parent checkbox for Form errors', async () => {
+      function App() {
+        const [errors, setErrors] = React.useState<Form.Props['errors']>({});
+
+        return (
+          <Form
+            errors={errors}
+            onSubmit={(event) => {
+              event.preventDefault();
+              setErrors({ group: 'server error' });
+            }}
+          >
+            <Field.Root name="group">
+              <CheckboxGroup defaultValue={[]} allValues={['one', 'two']}>
+                <Checkbox.Root parent data-testid="parent" />
+                <Checkbox.Root value="one" data-testid="first" />
+                <Checkbox.Root value="two" />
+              </CheckboxGroup>
+              <Field.Error />
+            </Field.Root>
+            <button type="submit">Submit</button>
+          </Form>
+        );
+      }
+
+      const { user } = render(<App />);
+
+      await user.click(screen.getByText('Submit'));
+
+      expect(screen.getByTestId('first')).toHaveFocus();
+      expect(screen.getByTestId('parent')).not.toHaveFocus();
+    });
+
+    it('focuses a later invalid field when an inputless group is invalid without a control', async () => {
+      const { user } = render(
+        <Form>
+          <Field.Root name="group" validate={() => 'Invalid group'}>
+            <CheckboxGroup value={[]} />
+          </Field.Root>
+          <Field.Root name="email">
+            <Field.Control required data-testid="email" />
+          </Field.Root>
+          <button type="submit">Submit</button>
+        </Form>,
+      );
+
+      await user.click(screen.getByText('Submit'));
+
+      // The group is invalid but has no focusable control, so focus must skip to the next invalid field.
+      expect(screen.getByTestId('email')).toHaveFocus();
+    });
+
+    it('focuses a later invalid field when every checkbox in an invalid group is disabled', async () => {
+      const { user } = render(
+        <Form>
+          <Field.Root name="group" validate={() => 'Invalid group'}>
+            <CheckboxGroup defaultValue={[]}>
+              <Checkbox.Root value="one" disabled />
+            </CheckboxGroup>
+          </Field.Root>
+          <Field.Root name="email">
+            <Field.Control required data-testid="email" />
+          </Field.Root>
+          <button type="submit">Submit</button>
+        </Form>,
+      );
+
+      await user.click(screen.getByText('Submit'));
+
+      expect(screen.getByTestId('email')).toHaveFocus();
+    });
+
     it('excludes parent checkboxes from form submission', async () => {
-      const allValues = ['fuji-apple', 'gala-apple', 'granny-smith'];
+      const allValues = ['fuji-apple', 'gala-apple', 'granny-smith-apple'];
 
       function App() {
         const [value, setValue] = React.useState<string[]>(['fuji-apple', 'gala-apple']);

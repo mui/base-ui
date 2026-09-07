@@ -7,11 +7,10 @@ import {
   type Side,
   type Align,
   type UseAnchorPositioningSharedParameters,
-} from '../../utils/useAnchorPositioning';
+} from '../../internals/useAnchorPositioning';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useTooltipPortalContext } from '../portal/TooltipPortalContext';
 import { POPUP_COLLISION_AVOIDANCE } from '../../internals/constants';
-import { adaptiveOrigin } from '../../utils/adaptiveOriginMiddleware';
 import { usePositioner } from '../../utils/usePositioner';
 
 /**
@@ -53,7 +52,7 @@ export const TooltipPositioner = React.forwardRef(function TooltipPositioner(
   const floatingRootContext = store.useState('floatingRootContext');
   const instantType = store.useState('instantType');
   const transitionStatus = store.useState('transitionStatus');
-  const hasViewport = store.useState('hasViewport');
+  const adaptiveOrigin = store.useState('adaptiveOrigin');
 
   const positioning = useAnchorPositioning({
     anchor,
@@ -71,7 +70,7 @@ export const TooltipPositioner = React.forwardRef(function TooltipPositioner(
     disableAnchorTracking,
     keepMounted,
     collisionAvoidance,
-    adaptiveOrigin: hasViewport ? adaptiveOrigin : undefined,
+    adaptiveOrigin,
   });
 
   const state: TooltipPositionerState = React.useMemo(

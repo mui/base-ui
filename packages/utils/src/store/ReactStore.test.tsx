@@ -1,8 +1,9 @@
-import { expect, vi, type MockInstance } from 'vitest';
+import { expect, vi, type MockInstance, describe, it } from 'vitest';
 import * as React from 'react';
 import { act, createRenderer, screen } from '@mui/internal-test-utils';
 import { ReactStore } from './ReactStore';
 import { useRefWithInit } from '../useRefWithInit';
+import { fastComponent } from '../fastHooks';
 import { createSelector } from './createSelector';
 
 type TestState = { value: number; label: string };
@@ -13,6 +14,15 @@ function useStableStore<State extends object>(initial: State) {
 
 describe('ReactStore', () => {
   const { render } = createRenderer();
+
+  it('create() constructs a fully wired ReactStore instance', () => {
+    const store = ReactStore.create({ value: 1, label: 'a' });
+
+    expect(store).toBeInstanceOf(ReactStore);
+    expect(store.state.value).toBe(1);
+    // The static type degrades to `Store` on the generic class (see Store.create).
+    expect((store as ReactStore<TestState>).context).toEqual({});
+  });
 
   it('syncs internal state from controlled prop', () => {
     let store!: ReactStore<TestState>;
@@ -37,6 +47,23 @@ describe('ReactStore', () => {
       setProps({ controlled: 7 });
     });
     expect(store.state.value).toBe(7);
+  });
+
+  it('syncs internal state from controlled prop when the store changes', () => {
+    const firstStore = new ReactStore<TestState>({ value: 0, label: '' });
+    const secondStore = new ReactStore<TestState>({ value: 0, label: '' });
+
+    function Test({ store }: { store: ReactStore<TestState> }) {
+      store.useControlledProp('value', 1);
+      return null;
+    }
+
+    const { setProps } = render(<Test store={firstStore} />);
+    expect(firstStore.state.value).toBe(1);
+    expect(secondStore.state.value).toBe(0);
+
+    act(() => setProps({ store: secondStore }));
+    expect(secondStore.state.value).toBe(1);
   });
 
   it('warns on switching from uncontrolled to controlled', () => {
@@ -89,10 +116,27 @@ describe('ReactStore', () => {
     expect(store.state.value).toBe(2);
   });
 
+  it('useProp syncs the same value when the store changes', () => {
+    const firstStore = new ReactStore<TestState>({ value: 0, label: '' });
+    const secondStore = new ReactStore<TestState>({ value: 0, label: '' });
+
+    function Test({ store }: { store: ReactStore<TestState> }) {
+      store.useSyncedValue('value', 1);
+      return null;
+    }
+
+    const { setProps } = render(<Test store={firstStore} />);
+    expect(firstStore.state.value).toBe(1);
+    expect(secondStore.state.value).toBe(0);
+
+    act(() => setProps({ store: secondStore }));
+    expect(secondStore.state.value).toBe(1);
+  });
+
   it('useProps applies multiple keys from a props object', () => {
     let store!: ReactStore<TestState>;
 
-    function Test({ props }: { props: Partial<TestState> }) {
+    function Test({ props }: { props: TestState }) {
       store = useStableStore<TestState>({ value: 0, label: '' });
       store.useSyncedValues(props);
       return null;
@@ -111,7 +155,7 @@ describe('ReactStore', () => {
     let store!: ReactStore<TestState>;
     let updateSpy!: MockInstance;
 
-    function Test({ props }: { props: Partial<TestState> }) {
+    function Test({ props }: { props: TestState }) {
       store = useStableStore<TestState>({ value: 0, label: '' });
 
       if (!updateSpy) {
@@ -143,6 +187,8 @@ describe('ReactStore', () => {
   it('warns if useSyncedValues keys change between renders', () => {
     function Test({ props }: { props: Partial<TestState> }) {
       const store = useStableStore<TestState>({ value: 0, label: '' });
+      // This intentionally violates the stable-key contract to verify the development warning.
+      // @ts-expect-error A broad partial can explicitly contain undefined state values.
       store.useSyncedValues(props);
       return null;
     }
@@ -227,9 +273,10 @@ describe('ReactStore', () => {
 
   it('supports nested stores as state values', async () => {
     type ParentState = { count: number };
-    type ChildState = { count: number; parent?: ReactStore<ParentState> };
-
     const parentSelectors = { count: (state: ParentState) => state.count };
+    type ParentStore = ReactStore<ParentState, Record<string, never>, typeof parentSelectors>;
+    type ChildState = { count: number; parent?: ParentStore };
+
     const childSelectors = {
       count: (state: ChildState) => state.parent?.state.count ?? state.count,
       parent: (state: ChildState) => state.parent,
@@ -251,8 +298,8 @@ describe('ReactStore', () => {
 
     let unsubscribeParentHandler: () => void;
     const onParentUpdated = (
-      newParent: ReactStore<ParentState> | undefined,
-      _: ReactStore<ParentState> | undefined,
+      newParent: ParentStore | undefined,
+      _: ParentStore | undefined,
       store: ReactStore<ChildState, any, any>,
     ) => {
       if (!newParent) {
@@ -313,6 +360,36 @@ describe('ReactStore', () => {
     expect(childStore.select('count')).toBe(15);
     expect(output.textContent).toBe('15');
   });
+
+  it('updates useState result when selector arguments change in a fast component', () => {
+    type State = { values: Record<string, string> };
+    const selectors = {
+      valueByKey: (state: State, valueKey: string) => state.values[valueKey],
+    };
+    const store = new ReactStore<State, {}, typeof selectors>(
+      { values: { first: 'one', second: 'two', third: 'three' } },
+      undefined,
+      selectors,
+    );
+
+    function TestComponent({ valueKey }: { valueKey: string }) {
+      const value = store.useState('valueByKey', valueKey);
+      return <output data-testid="output">{value}</output>;
+    }
+
+    const Test = fastComponent(TestComponent);
+    const { setProps } = render(<Test valueKey="first" />, { strict: false });
+    const output = screen.getByTestId('output');
+
+    expect(output.textContent).toBe('one');
+
+    act(() => {
+      setProps({ valueKey: 'second' });
+    });
+
+    expect(output.textContent).toBe('two');
+  });
+
   describe('observeSelector', () => {
     type CounterState = { count: number; multiplier: number };
     const selectors = {

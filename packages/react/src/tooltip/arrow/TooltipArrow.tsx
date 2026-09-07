@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { useTooltipPositionerContext } from '../positioner/TooltipPositionerContext';
 import type { BaseUIComponentProps } from '../../internals/types';
-import type { Side, Align } from '../../utils/useAnchorPositioning';
+import type { Side, Align } from '../../internals/useAnchorPositioning';
 import { popupStateMapping } from '../../utils/popupStateMapping';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useTooltipRootContext } from '../root/TooltipRootContext';
@@ -17,13 +17,13 @@ export const TooltipArrow = React.forwardRef(function TooltipArrow(
   componentProps: TooltipArrow.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, render, style, ...elementProps } = componentProps;
+  const { render, className, style, ...elementProps } = componentProps;
+
   const store = useTooltipRootContext();
+  const { arrowRef, side, align, arrowUncentered, arrowStyles } = useTooltipPositionerContext();
 
   const open = store.useState('open');
   const instantType = store.useState('instantType');
-
-  const { arrowRef, side, align, arrowUncentered, arrowStyles } = useTooltipPositionerContext();
 
   const state: TooltipArrowState = {
     open,

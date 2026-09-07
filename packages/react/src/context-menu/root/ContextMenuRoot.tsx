@@ -56,14 +56,32 @@ export interface ContextMenuRootState {}
 
 export interface ContextMenuRootProps extends Omit<
   Menu.Root.Props,
-  'modal' | 'openOnHover' | 'delay' | 'closeDelay' | 'onOpenChange'
+  // Context Menu has no detached-trigger support (it opens from a right-click/long-press
+  // area, not a registered trigger), so these inherited props are not applicable.
+  | 'handle'
+  | 'triggerId'
+  | 'defaultTriggerId'
+  | 'modal'
+  | 'openOnHover'
+  | 'delay'
+  | 'closeDelay'
+  | 'closeParentOnEsc'
+  | 'onOpenChange'
+  // Context Menu opens from a pointer position rather than a registered trigger, so the
+  // render-function form of `children` (which receives the active trigger's payload) is not applicable.
+  | 'children'
 > {
   /**
    * Event handler called when the menu is opened or closed.
    */
   onOpenChange?:
-    | ((open: boolean, eventDetails: ContextMenuRoot.ChangeEventDetails) => void)
-    | undefined;
+    ((open: boolean, eventDetails: ContextMenuRoot.ChangeEventDetails) => void) | undefined;
+  /**
+   * @ignore
+   * @deprecated This prop has no effect on Context Menu.
+   */
+  closeParentOnEsc?: Menu.Root.Props['closeParentOnEsc'] | undefined;
+  children?: React.ReactNode | undefined;
 }
 
 export type ContextMenuRootActions = MenuRoot.Actions;

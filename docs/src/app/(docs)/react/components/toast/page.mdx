@@ -60,7 +60,7 @@ import { Toast } from '@base-ui/react/toast';
 A global toast manager can be created by passing the `toastManager` prop to the `<Toast.Provider>`.
 This enables you to queue a toast from anywhere in the app (such as in functions outside the React tree) while still using the same toast renderer.
 
-The created `toastManager` object has the same properties and methods as the `Toast.useToastManager()` hook.
+The created `toastManager` exposes the same `add`, `close`, `update`, and `promise` methods as the `Toast.useToastManager()` hook. Unlike the hook, it does not return the reactive `toasts` array, since it lives outside the React tree.
 
 ```tsx title="Creating a manager instance"
 const toastManager = Toast.createToastManager();
@@ -78,7 +78,7 @@ The 0th index toast appears at the front.
 ```css title="z-index stacking"
 .Toast {
   z-index: calc(1000 - var(--toast-index));
-  transform: scale(1 - calc(0.1 * var(--toast-index)));
+  transform: scale(calc(max(0, 1 - (var(--toast-index) * 0.1))));
 }
 ```
 
@@ -90,12 +90,15 @@ The `--toast-offset-y` CSS variable can be used to determine the vertical offset
 }
 ```
 
-`<Toast.Content>` is used to hide overflow from taller toasts while the stack is collapsed.
+While the stack is collapsed, each toast's height can be clamped to the frontmost toast's height using the `--toast-frontmost-height` CSS variable, and `<Toast.Content>` is used to hide the content of the toasts behind it.
 The `data-behind` attribute marks content that sits behind the frontmost toast and pairs with the `data-expanded` attribute so the content fades back in when the viewport expands:
 
 ```css title="Collapsed content"
+.Toast {
+  height: var(--toast-frontmost-height, var(--toast-height));
+}
+
 .ToastContent {
-  overflow: hidden;
   transition: opacity 0.25s;
 }
 
@@ -114,8 +117,8 @@ The `--toast-swipe-movement-x` and `--toast-swipe-movement-y` CSS variables are 
 
 ```css title="Swipe offset"
 .Toast {
-  /* @highlight-text "--toast-swipe-movement-x" */
-  transform: scale(1 - calc(0.1 * var(--toast-index))) translateX(var(--toast-swipe-movement-x))
+  transform: scale(calc(max(0, 1 - (var(--toast-index) * 0.1))))
+    translateX(var(--toast-swipe-movement-x)) /* @highlight-text "--toast-swipe-movement-x" */
     /* @highlight-text "--toast-swipe-movement-y" */
     translateY(calc(var(--toast-swipe-movement-y) + (var(--toast-index) * -20%)));
 }
@@ -148,8 +151,8 @@ The `data-swipe-direction` attribute can be used to determine the swipe directio
 }
 ```
 
-The `data-limited` attribute indicates that the toast was removed from the list due to exceeding the `limit` option.
-This is useful for animating the toast differently when it is removed from the list.
+The `data-limited` attribute indicates that the toast exceeded the `limit` option.
+Limited toasts remain mounted with the HTML `inert` attribute, so this is useful for hiding them or animating them differently.
 
 The `updateKey` property increments when a toast is updated or upserted.
 This can be used to replay attention-grabbing styles by switching animation names or, when remounting is acceptable, by including it in a React `key`.
@@ -214,7 +217,7 @@ function StackedToasts() {
 
 import { DemoToastAnchored } from './demos/anchored';
 
-<DemoToastAnchored compact />
+<DemoToastAnchored />
 
 ### Custom position
 
@@ -225,7 +228,7 @@ The following shows a top-center position:
 
 import { DemoToastPosition } from './demos/position';
 
-<DemoToastPosition compact />
+<DemoToastPosition />
 
 ### Undo action
 
@@ -233,7 +236,7 @@ When adding a toast, the `actionProps` option can be used to define props for an
 
 import { DemoToastUndo } from './demos/undo';
 
-<DemoToastUndo compact />
+<DemoToastUndo />
 
 ### Promise
 
@@ -243,7 +246,7 @@ Each of the states also accepts the [method options](#toastmanagerupdateoptions)
 
 import { DemoToastPromise } from './demos/promise';
 
-<DemoToastPromise compact />
+<DemoToastPromise />
 
 ### Custom
 
@@ -252,7 +255,7 @@ This enables you to pass any data (including functions) you need to the toast an
 
 import { DemoToastCustom } from './demos/custom';
 
-<DemoToastCustom compact />
+<DemoToastCustom />
 
 ### Deduplicated toast
 
@@ -260,16 +263,16 @@ When you upsert the same toast by `id`, the `updateKey` property increments so a
 
 import { DemoToastDeduplicate } from './demos/deduplicate';
 
-<DemoToastDeduplicate compact />
+<DemoToastDeduplicate />
 
 ### Varying heights
 
-Toasts with varying heights are stacked by ensuring that the `<Toast.Content>` element has `overflow: hidden` set, along with all toasts' heights matching the frontmost toast at index 0.
-This prevents taller toasts from overflowing the stack when collapsed.
+Toasts with varying heights are stacked by clamping every toast's height to the frontmost toast at index 0 using the `--toast-frontmost-height` CSS variable, while the `data-behind` attribute hides the content of the toasts behind it.
+Avoid sizing `<Toast.Content>` to the root's height (such as `height: 100%`), as resizing it alongside the root cancels the root's height transition.
 
 import { DemoToastVaryingHeights } from './demos/varying-heights';
 
-<DemoToastVaryingHeights compact />
+<DemoToastVaryingHeights />
 
 ## API reference
 
@@ -279,13 +282,13 @@ import { TypesToast, TypesToastAdditional } from './types';
 
 <TypesToast.Provider />
 
-### Viewport
-
-<TypesToast.Viewport />
-
 ### Portal
 
 <TypesToast.Portal />
+
+### Viewport
+
+<TypesToast.Viewport />
 
 ### Root
 
@@ -377,6 +380,14 @@ toastManager.update(toastId, {
 });
 ```
 
+Options replace the corresponding values of the toast, including custom `data`, which is replaced as a whole. To derive the update from the current state of the toast, pass a function instead. It receives the current toast and returns the options to apply. Custom `data` is `undefined` when the toast has none yet:
+
+```jsx title="Deriving the update from the current toast"
+toastManager.update(toastId, (prevToast) => ({
+  data: prevToast.data && { ...prevToast.data, progress: 100 },
+}));
+```
+
 ### `close` method
 
 Closes the toast, removing it from the toast list after any animations complete.
@@ -443,7 +454,7 @@ See full [`promise` method](#ToastuseToastManager-promise)
 
 [//]: # '@exclude-table-of-contents'
 
-## Additional Types
+## Additional types
 
 <TypesToastAdditional showAdditionalTypes={['toastmanagerupdateoptions']} />
 

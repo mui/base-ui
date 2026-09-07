@@ -1,8 +1,8 @@
 'use client';
 import * as React from 'react';
+import { fastComponent } from '@base-ui/utils/fastHooks';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { useOnFirstRender } from '@base-ui/utils/useOnFirstRender';
-import { useDismiss, useInteractions, FloatingTree } from '../../floating-ui-react';
+import { useDismiss, FloatingTree } from '../../floating-ui-react';
 import { PreviewCardRootContext, usePreviewCardRootContext } from './PreviewCardContext';
 import {
   createChangeEventDetails,
@@ -12,8 +12,11 @@ import { REASONS } from '../../internals/reasons';
 import { PreviewCardStore } from '../store/PreviewCardStore';
 import {
   PayloadChildRenderFunction,
+  PopupHandleAttachment,
   useImplicitActiveTrigger,
+  usePopupRootStore,
   useOpenStateTransitions,
+  usePopupInteractionProps,
 } from '../../utils/popups';
 import { PreviewCardHandle } from '../store/PreviewCardHandle';
 
@@ -30,22 +33,19 @@ function PreviewCardRootComponent<Payload>(props: PreviewCardRoot.Props<Payload>
     children,
   } = props;
 
-  const store = PreviewCardStore.useStore<Payload>(handle?.store, {
-    open: defaultOpen,
-    openProp,
-    activeTriggerId: defaultTriggerIdProp,
-    triggerIdProp,
-  });
-
-  // Support initially open state when uncontrolled
-  useOnFirstRender(() => {
-    if (openProp === undefined && store.state.open === false && defaultOpen === true) {
-      store.update({
-        open: true,
-        activeTriggerId: defaultTriggerIdProp,
-      });
-    }
-  });
+  const store = usePopupRootStore(
+    (floatingId, nested) =>
+      new PreviewCardStore<Payload>(
+        {
+          open: defaultOpen,
+          openProp,
+          activeTriggerId: defaultTriggerIdProp,
+          triggerIdProp,
+        },
+        floatingId,
+        nested,
+      ),
+  );
 
   store.useControlledProp('openProp', openProp);
   store.useControlledProp('triggerIdProp', triggerIdProp);
@@ -54,13 +54,14 @@ function PreviewCardRootComponent<Payload>(props: PreviewCardRoot.Props<Payload>
   store.useContextCallback('onOpenChangeComplete', onOpenChangeComplete);
 
   const open = store.useState('open');
-  const floatingRootContext = store.select('floatingRootContext');
-
   const activeTriggerId = store.useState('activeTriggerId');
+  const mounted = store.useState('mounted');
   const payload = store.useState('payload') as Payload | undefined;
 
-  useImplicitActiveTrigger(store);
-  const { forceUnmount } = useOpenStateTransitions(open, store);
+  useImplicitActiveTrigger(store, { closeOnActiveTriggerUnmount: true });
+  const { forceUnmount } = useOpenStateTransitions(open, store, () => {
+    store.context.inlineRectCoordsRef.current = undefined;
+  });
 
   useIsoLayoutEffect(() => {
     if (open) {
@@ -70,35 +71,40 @@ function PreviewCardRootComponent<Payload>(props: PreviewCardRoot.Props<Payload>
     }
   }, [store, activeTriggerId, open]);
 
-  const handleImperativeClose = React.useCallback(() => {
-    store.setOpen(false, createChangeEventDetails(REASONS.imperativeAction));
-  }, [store]);
-
   React.useImperativeHandle(
     actionsRef,
-    () => ({ unmount: forceUnmount, close: handleImperativeClose }),
-    [forceUnmount, handleImperativeClose],
+    () => ({
+      unmount: forceUnmount,
+      close: () => store.setOpen(false, createChangeEventDetails(REASONS.imperativeAction)),
+    }),
+    [forceUnmount, store],
   );
 
-  const dismiss = useDismiss(floatingRootContext);
-
-  const { getReferenceProps, getTriggerProps, getFloatingProps } = useInteractions([dismiss]);
-
-  const activeTriggerProps = React.useMemo(() => getReferenceProps(), [getReferenceProps]);
-  const inactiveTriggerProps = React.useMemo(() => getTriggerProps(), [getTriggerProps]);
-  const popupProps = React.useMemo(() => getFloatingProps(), [getFloatingProps]);
-
-  store.useSyncedValues({
-    activeTriggerProps,
-    inactiveTriggerProps,
-    popupProps,
-  });
+  const shouldRenderInteractions = open || mounted;
 
   return (
     <PreviewCardRootContext.Provider value={store as PreviewCardRootContext}>
+      {handle && <PopupHandleAttachment handle={handle} store={store} />}
+      {shouldRenderInteractions && <PreviewCardInteractions store={store} />}
       {typeof children === 'function' ? children({ payload }) : children}
     </PreviewCardRootContext.Provider>
   );
+}
+
+function PreviewCardInteractions<Payload>({ store }: { store: PreviewCardStore<Payload> }) {
+  const floatingRootContext = store.useState('floatingRootContext');
+
+  const dismiss = useDismiss(floatingRootContext);
+
+  // `useDismiss` is not given an `enabled` option, so all three prop bags are always defined.
+  // `dismiss.trigger` is the same object as `dismiss.reference`.
+  usePopupInteractionProps(store, {
+    activeTriggerProps: dismiss.reference!,
+    inactiveTriggerProps: dismiss.trigger!,
+    popupProps: dismiss.floating!,
+  });
+
+  return null;
 }
 
 /**
@@ -107,7 +113,9 @@ function PreviewCardRootComponent<Payload>(props: PreviewCardRoot.Props<Payload>
  *
  * Documentation: [Base UI Preview Card](https://base-ui.com/react/components/preview-card)
  */
-export function PreviewCardRoot<Payload>(props: PreviewCardRoot.Props<Payload>) {
+export const PreviewCardRoot = fastComponent(function PreviewCardRoot<Payload>(
+  props: PreviewCardRoot.Props<Payload>,
+) {
   if (usePreviewCardRootContext(true)) {
     return <PreviewCardRootComponent {...props} />;
   }
@@ -117,7 +125,7 @@ export function PreviewCardRoot<Payload>(props: PreviewCardRoot.Props<Payload>) 
       <PreviewCardRootComponent {...props} />
     </FloatingTree>
   );
-}
+});
 
 export interface PreviewCardRootState {}
 
@@ -137,8 +145,7 @@ export interface PreviewCardRootProps<Payload = unknown> {
    * Event handler called when the preview card is opened or closed.
    */
   onOpenChange?:
-    | ((open: boolean, eventDetails: PreviewCardRoot.ChangeEventDetails) => void)
-    | undefined;
+    ((open: boolean, eventDetails: PreviewCardRoot.ChangeEventDetails) => void) | undefined;
   /**
    * Event handler called after any animations complete when the preview card is opened or closed.
    */

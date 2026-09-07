@@ -3,57 +3,48 @@ import * as React from 'react';
 import { isElementDisabled } from '@base-ui/utils/isElementDisabled';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { EMPTY_ARRAY } from '@base-ui/utils/empty';
 import type { TextDirection } from '../../direction-context/DirectionContext';
 import {
-  ALL_KEYS,
+  COMPOSITE_KEYS,
   ARROW_DOWN,
-  ARROW_KEYS,
   ARROW_LEFT,
   ARROW_RIGHT,
   ARROW_UP,
   END,
   HOME,
-  HORIZONTAL_KEYS,
-  HORIZONTAL_KEYS_WITH_EXTRA_KEYS,
   MODIFIER_KEYS,
-  VERTICAL_KEYS,
-  VERTICAL_KEYS_WITH_EXTRA_KEYS,
-  createGridCellMap,
   findNonDisabledListIndex,
-  getGridCellIndexOfCorner,
-  getGridCellIndices,
-  getGridNavigatedIndex,
   getMaxListIndex,
   getMinListIndex,
   isListIndexDisabled,
   isIndexOutOfListBounds,
   isNativeInput,
   scrollIntoViewIfNeeded,
-  type Dimensions,
   type ModifierKey,
 } from '../composite';
 import { ACTIVE_COMPOSITE_ITEM } from '../constants';
-import { CompositeMetadata } from '../list/CompositeList';
-import { HTMLProps } from '../../types';
+import type { CompositeMetadata } from '../list/CompositeList';
+import type { HTMLProps } from '../../types';
 import { getTarget } from '../../../floating-ui-react/utils';
+import type { CompositeGridNavigator } from './gridNavigation';
 
 export interface UseCompositeRootParameters {
   orientation?: 'horizontal' | 'vertical' | 'both' | undefined;
-  cols?: number | undefined;
+  grid?: CompositeGridNavigator | undefined;
   loopFocus?: boolean | undefined;
   onLoop?:
     | ((
         event: React.KeyboardEvent,
         prevIndex: number,
         nextIndex: number,
-        elementsRef: React.RefObject<(HTMLDivElement | null)[]>,
+        elementsRef: React.RefObject<Array<HTMLElement | null>>,
       ) => number)
     | undefined;
   highlightedIndex?: number | undefined;
   onHighlightedIndexChange?: ((index: number) => void) | undefined;
-  dense?: boolean | undefined;
   direction: TextDirection;
-  itemSizes?: Array<Dimensions> | undefined;
   rootRef?: React.Ref<Element> | undefined;
   /**
    * When `true`, pressing the Home key moves focus to the first item,
@@ -80,38 +71,35 @@ export interface UseCompositeRootParameters {
   modifierKeys?: ModifierKey[] | undefined;
 }
 
-const EMPTY_ARRAY: never[] = [];
-
 export function useCompositeRoot(params: UseCompositeRootParameters) {
   const {
-    itemSizes,
-    cols = 1,
     loopFocus = true,
-    onLoop,
-    dense = false,
     orientation = 'both',
+    grid,
+    onLoop,
     direction,
     highlightedIndex: externalHighlightedIndex,
     onHighlightedIndexChange: externalSetHighlightedIndex,
     rootRef: externalRef,
     enableHomeAndEndKeys = false,
-    stopEventPropagation = false,
+    stopEventPropagation,
     disabledIndices,
     modifierKeys = EMPTY_ARRAY,
   } = params;
 
   const [internalHighlightedIndex, internalSetHighlightedIndex] = React.useState(0);
-
-  const isGrid = cols > 1;
+  const isGrid = grid != null;
 
   const rootRef = React.useRef<HTMLElement | null>(null);
   const mergedRef = useMergedRefs(rootRef, externalRef);
 
-  const elementsRef = React.useRef<Array<HTMLDivElement | null>>([]);
+  const elementsRef = React.useRef<Array<HTMLElement | null>>([]);
   const hasSetDefaultIndexRef = React.useRef(false);
+  const highlightedElementRef = React.useRef<HTMLElement | null>(null);
 
   const highlightedIndex = externalHighlightedIndex ?? internalHighlightedIndex;
   const onHighlightedIndexChange = useStableCallback((index, shouldScrollIntoView = false) => {
+    highlightedElementRef.current = elementsRef.current[index] ?? null;
     (externalSetHighlightedIndex ?? internalSetHighlightedIndex)(index);
     if (shouldScrollIntoView) {
       const newActiveItem = elementsRef.current[index];
@@ -120,271 +108,264 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
   });
 
   const onMapChange = useStableCallback((map: Map<Element, CompositeMetadata<any>>) => {
-    if (map.size === 0 || hasSetDefaultIndexRef.current) {
+    if (map.size === 0) {
       return;
     }
+
+    if (hasSetDefaultIndexRef.current) {
+      const elements = elementsRef.current;
+      // Items added or removed around the highlighted one shift its index, so the tab stop would
+      // otherwise move to a different item and navigation would resume from the wrong position.
+      const nextIndex = elements.indexOf(highlightedElementRef.current);
+
+      if (nextIndex === -1) {
+        // A replacement at the same index can keep the tab stop. Otherwise move it to an
+        // eligible item so a missing, hidden, or disabled replacement does not take the
+        // composite out of the tab order.
+        const replacement = elements[highlightedIndex];
+        if (!replacement || isListIndexDisabled(elements, highlightedIndex, disabledIndices)) {
+          onHighlightedIndexChange(getFallbackIndex(elements, disabledIndices));
+        } else {
+          highlightedElementRef.current = replacement;
+        }
+      } else if (nextIndex !== highlightedIndex) {
+        onHighlightedIndexChange(nextIndex);
+      }
+      return;
+    }
+
     hasSetDefaultIndexRef.current = true;
-    const sortedElements = Array.from(map.keys());
-    const activeItem = (sortedElements.find((compositeElement) =>
-      compositeElement?.hasAttribute(ACTIVE_COMPOSITE_ITEM),
-    ) ?? null) as HTMLElement | null;
-    // Set the default highlighted index of an arbitrary composite item.
-    const activeIndex = activeItem ? sortedElements.indexOf(activeItem) : -1;
+
+    const sortedElements = Array.from(map.keys()) as Array<HTMLElement | null>;
+    const activeItem =
+      sortedElements.find((compositeElement) =>
+        compositeElement?.hasAttribute(ACTIVE_COMPOSITE_ITEM),
+      ) ?? null;
+    // Set the default highlighted index of an arbitrary composite item. The map value carries
+    // the item's own index, which is not its position among the keys once a list mixes explicit
+    // and automatic indexes and leaves gaps.
+    const activeIndex = activeItem ? (map.get(activeItem)?.index ?? -1) : -1;
 
     if (activeIndex !== -1) {
       onHighlightedIndexChange(activeIndex);
+    } else if (isListIndexDisabled(sortedElements, highlightedIndex, disabledIndices)) {
+      // The default highlighted item is disabled, so it should not hold the single
+      // roving tab stop: a natively disabled element is removed from the tab order,
+      // and an aria-disabled one should not be the entry point. Move the tab stop
+      // to the first enabled item. If every item is disabled, keep the current
+      // highlighted index.
+      const firstEnabledIndex = findNonDisabledListIndex(sortedElements, { disabledIndices });
+      if (!isIndexOutOfListBounds(sortedElements, firstEnabledIndex)) {
+        onHighlightedIndexChange(firstEnabledIndex);
+      }
     }
 
     scrollIntoViewIfNeeded(rootRef.current, activeItem, direction, orientation);
   });
+
+  useIsoLayoutEffect(() => {
+    // `disabledIndices` can resolve a render after the initial map population
+    // (e.g. Toolbar derives it from item metadata through a state update), so the
+    // default tab stop at index 0 may now point at a disabled item, leaving the
+    // composite without a reachable tab stop. Re-validate and move it to the first
+    // enabled item. Gated on `disabledIndices` being provided so composites that
+    // rely on the DOM disabled fallback keep their existing behavior.
+    if (
+      disabledIndices == null ||
+      externalHighlightedIndex != null ||
+      !hasSetDefaultIndexRef.current
+    ) {
+      return;
+    }
+    const elements = elementsRef.current;
+    if (isListIndexDisabled(elements, highlightedIndex, disabledIndices)) {
+      const firstEnabledIndex = findNonDisabledListIndex(elements, { disabledIndices });
+      if (!isIndexOutOfListBounds(elements, firstEnabledIndex)) {
+        onHighlightedIndexChange(firstEnabledIndex);
+      }
+    }
+  }, [
+    disabledIndices,
+    externalHighlightedIndex,
+    highlightedIndex,
+    elementsRef,
+    onHighlightedIndexChange,
+  ]);
 
   const wrappedOnLoop = useStableCallback(
     (event: React.KeyboardEvent, prevIndex: number, nextIndex: number) => {
       if (!onLoop) {
         return nextIndex;
       }
-      return onLoop?.(event, prevIndex, nextIndex, elementsRef);
+      return onLoop(event, prevIndex, nextIndex, elementsRef);
     },
   );
 
-  const props = React.useMemo<HTMLProps>(
-    () => ({
-      'aria-orientation': orientation === 'both' ? undefined : orientation,
-      ref: mergedRef,
-      onFocus(event) {
-        const element = rootRef.current;
-        const target = getTarget(event.nativeEvent);
-        if (!element || target == null || !isNativeInput(target)) {
-          return;
+  // Stable so that `relayKeyboardEvent` does not invalidate identity-sensitive
+  // consumers (the `CompositeRootContext` value and trigger data forwarding).
+  const onKeyDown = useStableCallback((event: React.KeyboardEvent) => {
+    const isHomeOrEnd = event.key === HOME || event.key === END;
+    if (!COMPOSITE_KEYS.has(event.key) || (!enableHomeAndEndKeys && isHomeOrEnd)) {
+      return;
+    }
+
+    if (isModifierKeySet(event, modifierKeys)) {
+      return;
+    }
+
+    const element = rootRef.current;
+    if (!element) {
+      return;
+    }
+
+    const isRtl = direction === 'rtl';
+
+    const horizontalForwardKey = isRtl ? ARROW_LEFT : ARROW_RIGHT;
+    const horizontalBackwardKey = isRtl ? ARROW_RIGHT : ARROW_LEFT;
+    const forwardKey = orientation === 'vertical' ? ARROW_DOWN : horizontalForwardKey;
+    const backwardKey = orientation === 'vertical' ? ARROW_UP : horizontalBackwardKey;
+
+    const target = getTarget(event.nativeEvent);
+    if (target != null && isNativeInput(target) && !isElementDisabled(target)) {
+      const selectionStart = target.selectionStart;
+      const selectionEnd = target.selectionEnd;
+      const textContent = target.value;
+      // return to native textbox behavior when
+      // 1 - Shift is held to make a text selection, or if there already is a text selection
+      if (selectionStart == null || event.shiftKey || selectionStart !== selectionEnd) {
+        return;
+      }
+      // 2 - arrow-ing forward and not in the last position of the text
+      if (event.key !== backwardKey && selectionStart < textContent.length) {
+        return;
+      }
+      // 3 -arrow-ing backward and not in the first position of the text
+      if (event.key !== forwardKey && selectionStart > 0) {
+        return;
+      }
+    }
+
+    let nextIndex = highlightedIndex;
+    const minIndex = getMinListIndex(elementsRef, disabledIndices);
+    const maxIndex = getMaxListIndex(elementsRef, disabledIndices);
+
+    if (grid != null) {
+      nextIndex = grid({
+        disabledIndices,
+        elementsRef,
+        event,
+        highlightedIndex,
+        loopFocus,
+        maxIndex,
+        minIndex,
+        onLoop: wrappedOnLoop,
+        orientation,
+        rtl: isRtl,
+      });
+    }
+
+    const isForwardKey =
+      (orientation !== 'vertical' && event.key === horizontalForwardKey) ||
+      (orientation !== 'horizontal' && event.key === ARROW_DOWN);
+    const isBackwardKey =
+      (orientation !== 'vertical' && event.key === horizontalBackwardKey) ||
+      (orientation !== 'horizontal' && event.key === ARROW_UP);
+
+    if (enableHomeAndEndKeys) {
+      if (event.key === HOME) {
+        nextIndex = minIndex;
+      } else if (event.key === END) {
+        nextIndex = maxIndex;
+      }
+    }
+
+    if (nextIndex === highlightedIndex && (isForwardKey || isBackwardKey)) {
+      if (loopFocus && nextIndex === maxIndex && isForwardKey) {
+        nextIndex = minIndex;
+        if (onLoop) {
+          nextIndex = onLoop(event, highlightedIndex, nextIndex, elementsRef);
         }
-        target.setSelectionRange(0, target.value.length ?? 0);
-      },
-      onKeyDown(event) {
-        const RELEVANT_KEYS = enableHomeAndEndKeys ? ALL_KEYS : ARROW_KEYS;
-        if (!RELEVANT_KEYS.has(event.key)) {
-          return;
+      } else if (loopFocus && nextIndex === minIndex && isBackwardKey) {
+        nextIndex = maxIndex;
+        if (onLoop) {
+          nextIndex = onLoop(event, highlightedIndex, nextIndex, elementsRef);
         }
+      } else {
+        nextIndex = findNonDisabledListIndex(elementsRef.current, {
+          startingIndex: nextIndex,
+          decrement: isBackwardKey,
+          disabledIndices,
+        });
+      }
+    }
 
-        if (isModifierKeySet(event, modifierKeys)) {
-          return;
-        }
+    if (nextIndex !== highlightedIndex && !isIndexOutOfListBounds(elementsRef.current, nextIndex)) {
+      if (stopEventPropagation) {
+        event.stopPropagation();
+      }
 
-        const element = rootRef.current;
-        if (!element) {
-          return;
-        }
-        const isRtl = direction === 'rtl';
+      if (isGrid || isHomeOrEnd || isForwardKey || isBackwardKey) {
+        event.preventDefault();
+      }
+      onHighlightedIndexChange(nextIndex, true);
 
-        const horizontalForwardKey = isRtl ? ARROW_LEFT : ARROW_RIGHT;
-        const forwardKey = {
-          horizontal: horizontalForwardKey,
-          vertical: ARROW_DOWN,
-          both: horizontalForwardKey,
-        }[orientation];
-        const horizontalBackwardKey = isRtl ? ARROW_RIGHT : ARROW_LEFT;
-        const backwardKey = {
-          horizontal: horizontalBackwardKey,
-          vertical: ARROW_UP,
-          both: horizontalBackwardKey,
-        }[orientation];
+      // Wait for FocusManager `returnFocus` to execute.
+      queueMicrotask(() => {
+        elementsRef.current[nextIndex]?.focus();
+      });
+    }
+  });
 
-        const target = getTarget(event.nativeEvent);
-        if (target != null && isNativeInput(target) && !isElementDisabled(target)) {
-          const selectionStart = target.selectionStart;
-          const selectionEnd = target.selectionEnd;
-          const textContent = target.value ?? '';
-          // return to native textbox behavior when
-          // 1 - Shift is held to make a text selection, or if there already is a text selection
-          if (selectionStart == null || event.shiftKey || selectionStart !== selectionEnd) {
-            return;
-          }
-          // 2 - arrow-ing forward and not in the last position of the text
-          if (event.key !== backwardKey && selectionStart < textContent.length) {
-            return;
-          }
-          // 3 -arrow-ing backward and not in the first position of the text
-          if (event.key !== forwardKey && selectionStart > 0) {
-            return;
-          }
-        }
+  const props: HTMLProps = {
+    ref: mergedRef,
+    onFocus(event) {
+      const element = rootRef.current;
+      const target = getTarget(event.nativeEvent);
+      if (!element || target == null || !isNativeInput(target)) {
+        return;
+      }
+      target.setSelectionRange(0, target.value.length);
+    },
+    onKeyDown,
+  };
 
-        let nextIndex = highlightedIndex;
-        const minIndex = getMinListIndex(elementsRef, disabledIndices);
-        const maxIndex = getMaxListIndex(elementsRef, disabledIndices);
+  return {
+    props,
+    highlightedIndex,
+    onHighlightedIndexChange,
+    elementsRef,
+    onMapChange,
+    relayKeyboardEvent: onKeyDown,
+  };
+}
 
-        if (isGrid) {
-          const sizes =
-            itemSizes ||
-            Array.from({ length: elementsRef.current.length }, () => ({
-              width: 1,
-              height: 1,
-            }));
-          // To calculate movements on the grid, we use hypothetical cell indices
-          // as if every item was 1x1, then convert back to real indices.
-          const cellMap = createGridCellMap(sizes, cols, dense);
-          const minGridIndex = cellMap.findIndex(
-            (index) =>
-              index != null && !isListIndexDisabled(elementsRef.current, index, disabledIndices),
-          );
-          // last enabled index
-          const maxGridIndex = cellMap.reduce(
-            (foundIndex: number, index, cellIndex) =>
-              index != null && !isListIndexDisabled(elementsRef.current, index, disabledIndices)
-                ? cellIndex
-                : foundIndex,
-            -1,
-          );
+// Resolves the item that should hold the tab stop: the active item when it can take focus,
+// otherwise the first item that can. Falls back to index 0 so an all-disabled composite keeps the
+// index in range and regains a tab stop as soon as one of its items becomes focusable.
+function getFallbackIndex(elements: Array<HTMLElement | null>, disabledIndices?: number[]) {
+  let fallbackIndex = -1;
 
-          nextIndex = cellMap[
-            getGridNavigatedIndex(
-              cellMap.map((itemIndex) =>
-                itemIndex != null ? elementsRef.current[itemIndex] : null,
-              ),
-              {
-                event,
-                orientation,
-                loopFocus,
-                onLoop: wrappedOnLoop,
-                cols,
-                // treat undefined (empty grid spaces) as disabled indices so we
-                // don't end up in them
-                disabledIndices: getGridCellIndices(
-                  [
-                    ...(disabledIndices ||
-                      elementsRef.current.map((_, index) =>
-                        isListIndexDisabled(elementsRef.current, index) ? index : undefined,
-                      )),
-                    undefined,
-                  ],
-                  cellMap,
-                ),
-                minIndex: minGridIndex,
-                maxIndex: maxGridIndex,
-                prevIndex: getGridCellIndexOfCorner(
-                  highlightedIndex > maxIndex ? minIndex : highlightedIndex,
-                  sizes,
-                  cellMap,
-                  cols,
-                  // use a corner matching the edge closest to the direction we're
-                  // moving in so we don't end up in the same item. Prefer
-                  // top/left over bottom/right.
-                  // eslint-disable-next-line no-nested-ternary
-                  event.key === ARROW_DOWN ? 'bl' : event.key === ARROW_RIGHT ? 'tr' : 'tl',
-                ),
-                rtl: isRtl,
-              },
-            )
-          ] as number; // navigated cell will never be nullish
-        }
+  for (let index = 0; index < elements.length; index += 1) {
+    const element = elements[index];
 
-        const forwardKeys = {
-          horizontal: [horizontalForwardKey],
-          vertical: [ARROW_DOWN],
-          both: [horizontalForwardKey, ARROW_DOWN],
-        }[orientation];
+    if (!element || isListIndexDisabled(elements, index, disabledIndices)) {
+      continue;
+    }
 
-        const backwardKeys = {
-          horizontal: [horizontalBackwardKey],
-          vertical: [ARROW_UP],
-          both: [horizontalBackwardKey, ARROW_UP],
-        }[orientation];
+    if (element.hasAttribute(ACTIVE_COMPOSITE_ITEM)) {
+      return index;
+    }
 
-        const preventedKeys = isGrid
-          ? RELEVANT_KEYS
-          : {
-              horizontal: enableHomeAndEndKeys ? HORIZONTAL_KEYS_WITH_EXTRA_KEYS : HORIZONTAL_KEYS,
-              vertical: enableHomeAndEndKeys ? VERTICAL_KEYS_WITH_EXTRA_KEYS : VERTICAL_KEYS,
-              both: RELEVANT_KEYS,
-            }[orientation];
+    if (fallbackIndex === -1) {
+      fallbackIndex = index;
+    }
+  }
 
-        if (enableHomeAndEndKeys) {
-          if (event.key === HOME) {
-            nextIndex = minIndex;
-          } else if (event.key === END) {
-            nextIndex = maxIndex;
-          }
-        }
-
-        if (
-          nextIndex === highlightedIndex &&
-          (forwardKeys.includes(event.key) || backwardKeys.includes(event.key))
-        ) {
-          if (loopFocus && nextIndex === maxIndex && forwardKeys.includes(event.key)) {
-            nextIndex = minIndex;
-            if (onLoop) {
-              nextIndex = onLoop(event, highlightedIndex, nextIndex, elementsRef);
-            }
-          } else if (loopFocus && nextIndex === minIndex && backwardKeys.includes(event.key)) {
-            nextIndex = maxIndex;
-            if (onLoop) {
-              nextIndex = onLoop(event, highlightedIndex, nextIndex, elementsRef);
-            }
-          } else {
-            nextIndex = findNonDisabledListIndex(elementsRef.current, {
-              startingIndex: nextIndex,
-              decrement: backwardKeys.includes(event.key),
-              disabledIndices,
-            });
-          }
-        }
-
-        if (
-          nextIndex !== highlightedIndex &&
-          !isIndexOutOfListBounds(elementsRef.current, nextIndex)
-        ) {
-          if (stopEventPropagation) {
-            event.stopPropagation();
-          }
-
-          if (preventedKeys.has(event.key)) {
-            event.preventDefault();
-          }
-          onHighlightedIndexChange(nextIndex, true);
-
-          // Wait for FocusManager `returnFocus` to execute.
-          queueMicrotask(() => {
-            elementsRef.current[nextIndex]?.focus();
-          });
-        }
-      },
-    }),
-    [
-      cols,
-      dense,
-      direction,
-      disabledIndices,
-      elementsRef,
-      enableHomeAndEndKeys,
-      highlightedIndex,
-      isGrid,
-      itemSizes,
-      loopFocus,
-      onLoop,
-      wrappedOnLoop,
-      mergedRef,
-      modifierKeys,
-      onHighlightedIndexChange,
-      orientation,
-      stopEventPropagation,
-    ],
-  );
-
-  return React.useMemo(
-    () => ({
-      props,
-      highlightedIndex,
-      onHighlightedIndexChange,
-      elementsRef,
-      disabledIndices,
-      onMapChange,
-      relayKeyboardEvent: props.onKeyDown!,
-    }),
-    [props, highlightedIndex, onHighlightedIndexChange, elementsRef, disabledIndices, onMapChange],
-  );
+  return Math.max(fallbackIndex, 0);
 }
 
 function isModifierKeySet(event: React.KeyboardEvent, ignoredModifierKeys: ModifierKey[]) {
-  for (const key of MODIFIER_KEYS.values()) {
+  for (const key of MODIFIER_KEYS) {
     if (ignoredModifierKeys.includes(key)) {
       continue;
     }

@@ -1,10 +1,8 @@
 'use client';
 import * as React from 'react';
-import { useStore } from '@base-ui/utils/store';
 import { FloatingPortal } from '../../floating-ui-react';
-import { SelectPortalContext } from './SelectPortalContext';
+import { type BaseUIComponentProps } from '../../internals/types';
 import { useSelectRootContext } from '../root/SelectRootContext';
-import { selectors } from '../store';
 
 /**
  * A portal element that moves the popup to a different part of the DOM.
@@ -17,25 +15,27 @@ export const SelectPortal = React.forwardRef(function SelectPortal(
   portalProps: SelectPortal.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { store } = useSelectRootContext();
-  const mounted = useStore(store, selectors.mounted);
-  const forceMount = useStore(store, selectors.forceMount);
+  const store = useSelectRootContext();
+  const mounted = store.useState('mounted');
+  const forceMount = store.useState('forceMount');
 
   const shouldRender = mounted || forceMount;
   if (!shouldRender) {
     return null;
   }
 
-  return (
-    <SelectPortalContext.Provider value>
-      <FloatingPortal ref={forwardedRef} {...portalProps} />
-    </SelectPortalContext.Provider>
-  );
+  return <FloatingPortal ref={forwardedRef} {...portalProps} />;
 });
 
 export interface SelectPortalState {}
 
-export interface SelectPortalProps extends FloatingPortal.Props<SelectPortalState> {}
+export interface SelectPortalProps extends BaseUIComponentProps<'div', SelectPortalState> {
+  /**
+   * A parent element to render the portal element into.
+   */
+  container?:
+    HTMLElement | ShadowRoot | React.RefObject<HTMLElement | ShadowRoot | null> | null | undefined;
+}
 
 export namespace SelectPortal {
   export type State = SelectPortalState;

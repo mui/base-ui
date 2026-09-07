@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { FieldRootContext } from '../../internals/field-root-context/FieldRootContext';
 import {
@@ -22,7 +23,7 @@ const FieldRootInner = React.forwardRef(function FieldRootInner(
   componentProps: FieldRoot.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { errors, validationMode: formValidationMode, submitAttemptedRef } = useFormContext();
+  const { errors, validationMode: formValidationMode, submitCountRef } = useFormContext();
 
   const {
     render,
@@ -40,7 +41,7 @@ const FieldRootInner = React.forwardRef(function FieldRootInner(
     ...elementProps
   } = componentProps;
 
-  const { disabled: disabledFieldset } = useFieldsetRootContext();
+  const disabledFieldset = useFieldsetRootContext(true)?.disabled;
 
   const validate = useStableCallback(validateProp || (() => null));
 
@@ -54,7 +55,16 @@ const FieldRootInner = React.forwardRef(function FieldRootInner(
   const dirty = dirtyProp ?? dirtyState;
   const touched = touchedProp ?? touchedState;
 
-  const markedDirtyRef = React.useRef(false);
+  const markedDirtyRef = React.useRef(dirty);
+  const registeredFieldIdRef = React.useRef<string | undefined>(undefined);
+  const [registeredFieldName, setRegisteredFieldName] = React.useState<string>();
+  const effectiveName = name ?? registeredFieldName;
+
+  useIsoLayoutEffect(() => {
+    if (dirtyProp !== undefined) {
+      markedDirtyRef.current = dirtyProp;
+    }
+  }, [dirtyProp]);
 
   const setDirty: typeof setDirtyUnwrapped = useStableCallback((value) => {
     if (dirtyProp !== undefined) {
@@ -77,10 +87,12 @@ const FieldRootInner = React.forwardRef(function FieldRootInner(
   const shouldValidateOnChange = useStableCallback(
     () =>
       validationMode === 'onChange' ||
-      (validationMode === 'onSubmit' && submitAttemptedRef.current),
+      (validationMode === 'onSubmit' && submitCountRef.current > 0),
   );
 
-  const hasFormError = !!name && Object.hasOwn(errors, name) && errors[name] !== undefined;
+  const formError =
+    effectiveName && Object.hasOwn(errors, effectiveName) ? errors[effectiveName] : null;
+  const hasFormError = !!(Array.isArray(formError) ? formError.length : formError);
   const invalid = invalidProp === true || hasFormError;
 
   const [validityData, setValidityData] = React.useState<FieldValidityData>({
@@ -91,7 +103,10 @@ const FieldRootInner = React.forwardRef(function FieldRootInner(
     initialValue: null,
   });
 
-  const valid = !invalid && validityData.state.valid;
+  // App-controlled invalidity (the `invalid` prop and `<Form>` errors) keeps the field marked
+  // invalid even while disabled. Only computed validity (native constraints and `validate`)
+  // is suppressed when disabled, matching `:disabled` not participating in constraint validation.
+  const valid = !invalid && (disabled ? null : validityData.state.valid);
 
   const state: FieldRootState = React.useMemo(
     () => ({
@@ -113,68 +128,54 @@ const FieldRootInner = React.forwardRef(function FieldRootInner(
     invalid,
     markedDirtyRef,
     state,
-    name,
     shouldValidateOnChange,
+    validationMode,
+    registeredFieldIdRef,
   });
 
-  const handleImperativeValidate = React.useCallback(() => {
-    markedDirtyRef.current = true;
-    validation.commit(validityData.value);
-  }, [validation, validityData]);
-
-  const registerFieldControl = useFieldControlRegistration({
+  const [validateFieldControl, registerFieldControl] = useFieldControlRegistration({
+    change: validation.change,
     commit: validation.commit,
     invalid,
     markedDirtyRef,
     name,
+    setRegisteredFieldName,
+    registeredFieldIdRef,
     setValidityData,
     validityData,
   });
 
-  React.useImperativeHandle(actionsRef, () => ({ validate: handleImperativeValidate }), [
-    handleImperativeValidate,
+  React.useImperativeHandle(actionsRef, () => ({ validate: validateFieldControl }), [
+    validateFieldControl,
   ]);
 
   const contextValue: FieldRootContext = React.useMemo(
     () => ({
       invalid,
-      name,
+      name: effectiveName,
       validityData,
       setValidityData,
       disabled,
-      touched,
       setTouched,
-      dirty,
       setDirty,
-      filled,
       setFilled,
-      focused,
       setFocused,
-      validate,
       validationMode,
-      validationDebounceTime,
       shouldValidateOnChange,
       state,
-      markedDirtyRef,
       registerFieldControl,
       validation,
     }),
     [
       invalid,
-      name,
+      effectiveName,
       validityData,
       disabled,
-      touched,
       setTouched,
-      dirty,
       setDirty,
-      filled,
       setFilled,
-      focused,
       setFocused,
-      validate,
       validationMode,
-      validationDebounceTime,
       shouldValidateOnChange,
       state,
       registerFieldControl,
@@ -274,7 +275,8 @@ export interface FieldRootProps extends BaseUIComponentProps<'div', FieldRootSta
   name?: string | undefined;
   /**
    * A function for custom validation. Return a string or an array of strings with
-   * the error message(s) if the value is invalid, or `null` if the value is valid.
+   * the error message(s) if the value is invalid. Returning nothing, `null`, an empty
+   * string, or an empty array means the value is valid.
    * Asynchronous functions are supported, but they do not prevent form submission
    * when using `validationMode="onSubmit"`.
    */
@@ -282,7 +284,7 @@ export interface FieldRootProps extends BaseUIComponentProps<'div', FieldRootSta
     | ((
         value: unknown,
         formValues: Form.Values,
-      ) => string | string[] | null | Promise<string | string[] | null>)
+      ) => string | string[] | null | void | Promise<string | string[] | null | void>)
     | undefined;
   /**
    * Determines when the field should be validated.

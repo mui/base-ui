@@ -1,4 +1,4 @@
-import { expect, vi } from 'vitest';
+import { expect, vi, describe, it } from 'vitest';
 import * as React from 'react';
 import { screen } from '@mui/internal-test-utils';
 import { Collapsible } from '@base-ui/react/collapsible';
@@ -46,6 +46,28 @@ describe('<Collapsible.Root />', () => {
       expect(trigger).toHaveAttribute('aria-controls', 'custom-panel-id');
       expect(panel).toHaveAttribute('id', 'custom-panel-id');
     });
+
+    it('unregisters and restores the generated panel id when the panel remounts', async () => {
+      function App({ panelMounted }: { panelMounted: boolean }) {
+        return (
+          <React.StrictMode>
+            <Collapsible.Root defaultOpen>
+              <Collapsible.Trigger />
+              {panelMounted && <Collapsible.Panel data-testid="panel" />}
+            </Collapsible.Root>
+          </React.StrictMode>
+        );
+      }
+
+      const { rerender } = await render(<App panelMounted />);
+      const trigger = screen.getByRole('button');
+
+      await rerender(<App panelMounted={false} />);
+      expect(trigger).not.toHaveAttribute('aria-controls');
+
+      await rerender(<App panelMounted />);
+      expect(trigger).toHaveAttribute('aria-controls', screen.getByTestId('panel').id);
+    });
   });
 
   describe('collapsible status', () => {
@@ -60,6 +82,25 @@ describe('<Collapsible.Root />', () => {
       const trigger = screen.getByRole('button');
 
       expect(trigger).toHaveAttribute('data-disabled');
+    });
+
+    it('does not toggle or call onOpenChange when clicked while disabled', async () => {
+      const handleOpenChange = vi.fn();
+
+      const { user } = await render(
+        <Collapsible.Root disabled onOpenChange={handleOpenChange}>
+          <Collapsible.Trigger>Trigger</Collapsible.Trigger>
+          <Collapsible.Panel>{PANEL_CONTENT}</Collapsible.Panel>
+        </Collapsible.Root>,
+      );
+
+      const trigger = screen.getByRole('button', { name: 'Trigger' });
+
+      await user.click(trigger);
+
+      expect(handleOpenChange).not.toHaveBeenCalled();
+      expect(trigger).toHaveAttribute('aria-expanded', 'false');
+      expect(screen.queryByText(PANEL_CONTENT)).toBe(null);
     });
   });
 
@@ -87,9 +128,101 @@ describe('<Collapsible.Root />', () => {
       expect(typeof details.cancel).toBe('function');
       expect(typeof details.allowPropagation).toBe('function');
     });
+
+    it('eventDetails.cancel() prevents opening while uncontrolled', async () => {
+      const handleOpenChange = vi.fn(
+        (nextOpen, eventDetails: Collapsible.Root.ChangeEventDetails) => {
+          eventDetails.cancel();
+        },
+      );
+
+      const { user } = await render(
+        <Collapsible.Root onOpenChange={handleOpenChange}>
+          <Collapsible.Trigger>Toggle</Collapsible.Trigger>
+          <Collapsible.Panel>{PANEL_CONTENT}</Collapsible.Panel>
+        </Collapsible.Root>,
+      );
+
+      const trigger = screen.getByRole('button', { name: 'Toggle' });
+      await user.click(trigger);
+
+      expect(handleOpenChange).toHaveBeenCalledOnce();
+      expect(trigger).toHaveAttribute('aria-expanded', 'false');
+      expect(screen.queryByText(PANEL_CONTENT)).toBe(null);
+    });
+
+    it('eventDetails.cancel() prevents closing while uncontrolled', async () => {
+      const handleOpenChange = vi.fn(
+        (nextOpen, eventDetails: Collapsible.Root.ChangeEventDetails) => {
+          eventDetails.cancel();
+        },
+      );
+
+      const { user } = await render(
+        <Collapsible.Root defaultOpen onOpenChange={handleOpenChange}>
+          <Collapsible.Trigger>Toggle</Collapsible.Trigger>
+          <Collapsible.Panel>{PANEL_CONTENT}</Collapsible.Panel>
+        </Collapsible.Root>,
+      );
+
+      const trigger = screen.getByRole('button', { name: 'Toggle' });
+      await user.click(trigger);
+
+      expect(handleOpenChange).toHaveBeenCalledOnce();
+      expect(trigger).toHaveAttribute('aria-expanded', 'true');
+      expect(screen.queryByText(PANEL_CONTENT)).not.toBe(null);
+    });
   });
 
   describe.skipIf(isJSDOM)('open state', () => {
+    it('controlled trigger presses request open and close state changes', async () => {
+      function App() {
+        const [open, setOpen] = React.useState(false);
+        return (
+          <Collapsible.Root open={open} onOpenChange={setOpen}>
+            <Collapsible.Trigger>trigger</Collapsible.Trigger>
+            <Collapsible.Panel>{PANEL_CONTENT}</Collapsible.Panel>
+          </Collapsible.Root>
+        );
+      }
+
+      const { user } = await render(<App />);
+
+      const trigger = screen.getByRole('button', { name: 'trigger' });
+
+      expect(trigger).toHaveAttribute('aria-expanded', 'false');
+      expect(screen.queryByText(PANEL_CONTENT)).toBe(null);
+
+      await user.click(trigger);
+
+      expect(trigger).toHaveAttribute('aria-expanded', 'true');
+      expect(screen.queryByText(PANEL_CONTENT)).not.toBe(null);
+
+      await user.click(trigger);
+
+      expect(trigger).toHaveAttribute('aria-expanded', 'false');
+      expect(screen.queryByText(PANEL_CONTENT)).toBe(null);
+    });
+
+    it('does not change controlled open state without an external update', async () => {
+      const handleOpenChange = vi.fn();
+
+      const { user } = await render(
+        <Collapsible.Root open={false} onOpenChange={handleOpenChange}>
+          <Collapsible.Trigger>trigger</Collapsible.Trigger>
+          <Collapsible.Panel>{PANEL_CONTENT}</Collapsible.Panel>
+        </Collapsible.Root>,
+      );
+
+      const trigger = screen.getByRole('button', { name: 'trigger' });
+
+      await user.click(trigger);
+
+      expect(handleOpenChange).toHaveBeenCalledOnce();
+      expect(trigger).toHaveAttribute('aria-expanded', 'false');
+      expect(screen.queryByText(PANEL_CONTENT)).toBe(null);
+    });
+
     it('controlled mode', async () => {
       function App() {
         const [open, setOpen] = React.useState(false);
@@ -163,7 +296,78 @@ describe('<Collapsible.Root />', () => {
     });
   });
 
+  describe('state callbacks', () => {
+    it('passes state to className and style callbacks', async () => {
+      const { user } = await render(
+        <Collapsible.Root
+          data-testid="root"
+          className={(state) => (state.open ? 'root-open' : 'root-closed')}
+          style={(state) => ({ opacity: state.open ? 1 : 0.5 })}
+        >
+          <Collapsible.Trigger
+            className={(state) => (state.open ? 'trigger-open' : 'trigger-closed')}
+            style={(state) => ({ opacity: state.open ? 1 : 0.5 })}
+          >
+            Trigger
+          </Collapsible.Trigger>
+          <Collapsible.Panel
+            keepMounted
+            data-testid="panel"
+            className={(state) => (state.open ? 'panel-open' : 'panel-closed')}
+            style={(state) => ({ opacity: state.open ? 1 : 0.5 })}
+          >
+            {PANEL_CONTENT}
+          </Collapsible.Panel>
+        </Collapsible.Root>,
+      );
+
+      const root = screen.getByTestId('root');
+      const trigger = screen.getByRole('button', { name: 'Trigger' });
+      const panel = screen.getByTestId('panel');
+
+      expect(root).toHaveClass('root-closed');
+      expect(root).toHaveStyle({ opacity: '0.5' });
+      expect(trigger).toHaveClass('trigger-closed');
+      expect(trigger).toHaveStyle({ opacity: '0.5' });
+      expect(panel).toHaveClass('panel-closed');
+      expect(panel).toHaveStyle({ opacity: '0.5' });
+
+      await user.click(trigger);
+
+      expect(root).toHaveClass('root-open');
+      expect(root).toHaveStyle({ opacity: '1' });
+      expect(trigger).toHaveClass('trigger-open');
+      expect(trigger).toHaveStyle({ opacity: '1' });
+      expect(panel).toHaveClass('panel-open');
+      expect(panel).toHaveStyle({ opacity: '1' });
+    });
+  });
+
   describe.skipIf(isJSDOM)('keyboard interactions', () => {
+    ['Enter', 'Space'].forEach((key) => {
+      it(`key: ${key} does not toggle or call onOpenChange when disabled`, async () => {
+        const handleOpenChange = vi.fn();
+
+        const { user } = await render(
+          <Collapsible.Root disabled onOpenChange={handleOpenChange}>
+            <Collapsible.Trigger>Trigger</Collapsible.Trigger>
+            <Collapsible.Panel>{PANEL_CONTENT}</Collapsible.Panel>
+          </Collapsible.Root>,
+        );
+
+        const trigger = screen.getByRole('button');
+
+        await user.keyboard('[Tab]');
+        expect(trigger).toHaveFocus();
+
+        await user.keyboard(`[${key}]`);
+
+        expect(handleOpenChange).not.toHaveBeenCalled();
+        expect(trigger).toHaveAttribute('aria-expanded', 'false');
+        expect(screen.queryByText(PANEL_CONTENT)).toBe(null);
+      });
+    });
+
     ['Enter', 'Space'].forEach((key) => {
       it(`key: ${key} should toggle the Collapsible`, async () => {
         const { user } = await render(

@@ -197,6 +197,7 @@
   outline: 1px solid var(--color-gray-200);
 
   &[data-swiping] {
+    -webkit-user-select: none;
     user-select: none;
   }
 

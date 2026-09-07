@@ -14,7 +14,6 @@ export function Link(props: LinkProps) {
     <React.Fragment>
       {children}
       <svg
-        xmlns="http://www.w3.org/2000/svg"
         width="20"
         height="20"
         viewBox="0 0 16 16"
@@ -38,7 +37,12 @@ export function Link(props: LinkProps) {
     pathname = pathname.replace('https://base-ui.com/', '/');
   }
 
-  if (pathname.startsWith('#') || pathname.endsWith('.md') || pathname.endsWith('.txt')) {
+  if (
+    pathname.startsWith('#') ||
+    pathname.startsWith('/r/') ||
+    pathname.endsWith('.md') ||
+    pathname.endsWith('.txt')
+  ) {
     // Relative URL, but outside the Next.js router
     return (
       <a {...rest} href={pathname} className={clsx('Link', className)}>

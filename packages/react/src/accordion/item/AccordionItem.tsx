@@ -55,19 +55,7 @@ export const AccordionItem = React.forwardRef(function AccordionItem(
 
   const disabled = disabledProp || contextDisabled;
 
-  const isOpen = React.useMemo(() => {
-    if (!openValues) {
-      return false;
-    }
-
-    for (let i = 0; i < openValues.length; i += 1) {
-      if (openValues[i] === value) {
-        return true;
-      }
-    }
-
-    return false;
-  }, [openValues, value]);
+  const isOpen = openValues.indexOf(value) !== -1;
 
   const onOpenChange = useStableCallback(
     (nextOpen: boolean, eventDetails: CollapsibleRoot.ChangeEventDetails) => {
@@ -77,7 +65,7 @@ export const AccordionItem = React.forwardRef(function AccordionItem(
         return;
       }
 
-      handleValueChange(value, nextOpen);
+      handleValueChange(value, nextOpen, eventDetails);
     },
   );
 
@@ -91,10 +79,9 @@ export const AccordionItem = React.forwardRef(function AccordionItem(
     () => ({
       open: collapsible.open,
       disabled: collapsible.disabled,
-      hidden: !collapsible.mounted,
       transitionStatus: collapsible.transitionStatus,
     }),
-    [collapsible.open, collapsible.disabled, collapsible.mounted, collapsible.transitionStatus],
+    [collapsible.open, collapsible.disabled, collapsible.transitionStatus],
   );
 
   const collapsibleContext: CollapsibleRootContext = React.useMemo(
@@ -109,23 +96,29 @@ export const AccordionItem = React.forwardRef(function AccordionItem(
   const state: AccordionItemState = React.useMemo(
     () => ({
       ...rootState,
+      hidden: !isOpen && !collapsible.mounted,
       index,
       disabled,
       open: isOpen,
     }),
-    [disabled, index, isOpen, rootState],
+    [collapsible.mounted, disabled, index, isOpen, rootState],
   );
 
-  const [triggerId, setTriggerId] = React.useState<string | undefined>(useBaseUiId());
+  const defaultTriggerId = useBaseUiId();
+  // `undefined` uses the initial generated fallback; `null` means the trigger unmounted.
+  const [registeredTriggerId, setTriggerId] = React.useState<string | null | undefined>();
+  const triggerId =
+    registeredTriggerId === null ? undefined : (registeredTriggerId ?? defaultTriggerId);
 
   const accordionItemContext: AccordionItemContext = React.useMemo(
     () => ({
+      defaultTriggerId,
       open: isOpen,
       state,
       setTriggerId,
       triggerId,
     }),
-    [isOpen, state, setTriggerId, triggerId],
+    [defaultTriggerId, isOpen, state, setTriggerId, triggerId],
   );
 
   const element = useRenderElement('div', componentProps, {
@@ -145,6 +138,10 @@ export const AccordionItem = React.forwardRef(function AccordionItem(
 });
 
 export interface AccordionItemState extends AccordionRootState {
+  /**
+   * Whether the accordion item's panel is currently hidden.
+   */
+  hidden: boolean;
   /**
    * The item index.
    */
@@ -177,8 +174,7 @@ export interface AccordionItemProps
    * Event handler called when the panel is opened or closed.
    */
   onOpenChange?:
-    | ((open: boolean, eventDetails: AccordionItem.ChangeEventDetails) => void)
-    | undefined;
+    ((open: boolean, eventDetails: AccordionItem.ChangeEventDetails) => void) | undefined;
 }
 
 export type AccordionItemChangeEventReason = typeof REASONS.triggerPress | typeof REASONS.none;

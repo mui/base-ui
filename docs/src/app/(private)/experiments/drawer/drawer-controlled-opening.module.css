@@ -21,6 +21,7 @@
   font-weight: 500;
   line-height: 1.5rem;
   color: var(--color-gray-900);
+  -webkit-user-select: none;
   user-select: none;
 
   @media (hover: hover) {
@@ -102,6 +103,7 @@
   transform: translateY(var(--drawer-swipe-movement-y));
 
   &[data-swiping] {
+    -webkit-user-select: none;
     user-select: none;
   }
 

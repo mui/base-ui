@@ -1,14 +1,11 @@
 'use client';
 import * as React from 'react';
-import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import { useStore } from '@base-ui/utils/store';
 import type { BaseUIComponentProps, HTMLProps } from '../../internals/types';
-import { useSelectRootContext } from '../root/SelectRootContext';
+import { useSelectRootContext, useSelectRootPropsContext } from '../root/SelectRootContext';
 import { useSelectPositionerContext } from '../positioner/SelectPositionerContext';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { styleDisableScrollbar } from '../../utils/styles';
 import { LIST_FUNCTIONAL_STYLES } from '../popup/utils';
-import { selectors } from '../store';
 
 /**
  * A container for the select items.
@@ -20,22 +17,23 @@ export const SelectList = React.forwardRef(function SelectList(
   componentProps: SelectList.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, render, style, ...elementProps } = componentProps;
+  const { render, className, style, ...elementProps } = componentProps;
 
-  const { store, scrollHandlerRef } = useSelectRootContext();
+  const store = useSelectRootContext();
+  const { multiple, readOnly } = useSelectRootPropsContext();
   const { alignItemWithTriggerActive } = useSelectPositionerContext();
 
-  const hasScrollArrows = useStore(store, selectors.hasScrollArrows);
-  const openMethod = useStore(store, selectors.openMethod);
-  const multiple = useStore(store, selectors.multiple);
-  const id = useStore(store, selectors.id);
+  const hasScrollArrows = store.useState('hasScrollArrows');
+  const openMethod = store.useState('openMethod');
+  const id = store.useState('id');
 
   const defaultProps: HTMLProps = {
     id: `${id}-list`,
     role: 'listbox',
     'aria-multiselectable': multiple || undefined,
+    'aria-readonly': readOnly || undefined,
     onScroll(event) {
-      scrollHandlerRef.current?.(event.currentTarget);
+      store.context.scrollHandlerRef.current?.(event.currentTarget);
     },
     ...(alignItemWithTriggerActive && {
       style: LIST_FUNCTIONAL_STYLES,
@@ -44,9 +42,7 @@ export const SelectList = React.forwardRef(function SelectList(
       hasScrollArrows && openMethod !== 'touch' ? styleDisableScrollbar.className : undefined,
   };
 
-  const setListElement = useStableCallback((element: HTMLElement | null) => {
-    store.set('listElement', element);
-  });
+  const setListElement = store.useStateSetter('listElement');
 
   return useRenderElement('div', componentProps, {
     ref: [forwardedRef, setListElement],

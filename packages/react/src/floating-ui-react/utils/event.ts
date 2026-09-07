@@ -1,4 +1,4 @@
-import { isAndroid, isJSDOM } from '@base-ui/utils/detectBrowser';
+import { platform } from '@base-ui/utils/platform';
 
 export function stopEvent(event: Event | React.SyntheticEvent) {
   event.preventDefault();
@@ -15,7 +15,7 @@ export function isVirtualClick(event: MouseEvent | PointerEvent): boolean {
     return true;
   }
 
-  if (isAndroid && (event as PointerEvent).pointerType) {
+  if (platform.os.android && (event as PointerEvent).pointerType) {
     return event.type === 'click' && event.buttons === 1;
   }
 
@@ -23,12 +23,12 @@ export function isVirtualClick(event: MouseEvent | PointerEvent): boolean {
 }
 
 export function isVirtualPointerEvent(event: PointerEvent) {
-  if (isJSDOM) {
+  if (platform.env.jsdom) {
     return false;
   }
   return (
-    (!isAndroid && event.width === 0 && event.height === 0) ||
-    (isAndroid &&
+    (!platform.os.android && event.width === 0 && event.height === 0) ||
+    (platform.os.android &&
       event.width === 1 &&
       event.height === 1 &&
       event.pressure === 0 &&

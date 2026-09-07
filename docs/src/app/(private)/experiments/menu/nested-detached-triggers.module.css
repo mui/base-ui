@@ -44,6 +44,7 @@
   border-radius: 0.25rem;
   background-color: transparent;
   color: var(--color-gray-600);
+  -webkit-user-select: none;
   user-select: none;
   font-family: inherit;
   font-size: 0.875rem;
@@ -90,6 +91,7 @@
   border: 0;
   color: var(--color-gray-600);
   border-radius: 0.25rem;
+  -webkit-user-select: none;
   user-select: none;
   height: 2rem;
   font-family: inherit;

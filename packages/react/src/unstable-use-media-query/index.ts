@@ -6,7 +6,7 @@ export function useMediaQuery(query: string, options: useMediaQuery.Options): bo
   // Wait for jsdom to support the match media feature.
   // All the browsers Base UI support have this built-in.
   // This defensive check is here for simplicity.
-  // Most of the time, the match media logic isn't central to people tests.
+  // Most of the time, the match media logic isn't central to people's tests.
   const supportMatchMedia =
     typeof window !== 'undefined' && typeof window.matchMedia !== 'undefined';
 

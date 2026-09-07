@@ -1,19 +1,28 @@
+/* Keep layer order stable when this file is emitted from a client CSS chunk. */
+@layer all, base, theme, components, utilities;
+
 @layer components {
   .TypeRefTrigger {
     cursor: default;
     border: 0;
     background: transparent;
     padding: 0;
+    border-radius: var(--radius-4);
     font: inherit;
     text-decoration: underline;
     text-decoration-thickness: 1px;
     text-decoration-style: dotted;
     text-decoration-color: color-mix(in oklab, var(--color-violet), transparent);
     text-underline-offset: 3px;
-  }
 
-  .TypeRefTrigger:hover {
-    text-decoration-color: var(--color-violet);
+    &:hover {
+      text-decoration-color: var(--color-violet);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--gray-t2);
+      outline-offset: 2px;
+    }
   }
 
   .TypeRefPopup {

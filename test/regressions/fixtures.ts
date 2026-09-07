@@ -5,6 +5,7 @@ export interface Fixture {
   name: string;
   path: string;
   suite: string;
+  isTailwind: boolean;
 }
 
 // Get all the fixtures specifically written for preventing visual regressions.
@@ -27,6 +28,7 @@ for (const path in globbedRegressionFixtures) {
     suite: `regression-${suite}`,
     name,
     Component: globbedRegressionFixtures[path].default,
+    isTailwind: false,
   });
 }
 
@@ -93,6 +95,7 @@ for (const path in globbedDemos) {
       suite,
       name,
       Component: globbedDemos[path].default,
+      isTailwind: path.includes('/tailwind/'),
     });
   }
 }

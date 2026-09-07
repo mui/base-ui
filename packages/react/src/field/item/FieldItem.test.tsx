@@ -1,4 +1,4 @@
-import { expect, vi } from 'vitest';
+import { expect, vi, describe, it } from 'vitest';
 import * as React from 'react';
 import { Field } from '@base-ui/react/field';
 import { Checkbox } from '@base-ui/react/checkbox';
@@ -19,6 +19,26 @@ describe('<Field.Item />', () => {
   }));
 
   describe('prop: disabled', () => {
+    it('reflects disabled state on the item', async () => {
+      const renderItem = vi.fn();
+      function renderFieldItem(
+        props: React.HTMLAttributes<HTMLDivElement>,
+        state: Field.Item.State,
+      ) {
+        renderItem(state);
+        return <div {...props} />;
+      }
+
+      await render(
+        <Field.Root>
+          <Field.Item disabled data-testid="item" render={renderFieldItem} />
+        </Field.Root>,
+      );
+
+      expect(screen.getByTestId('item')).toHaveAttribute('data-disabled');
+      expect(renderItem.mock.lastCall?.[0].disabled).toBe(true);
+    });
+
     it('disables a wrapped checkbox', async () => {
       const onValueChange = vi.fn();
       const { user } = await render(
@@ -60,5 +80,32 @@ describe('<Field.Item />', () => {
       await user.click(radio2);
       expect(onValueChange.mock.calls.length).toBe(1);
     });
+  });
+
+  it('associates a Field.Item label with a parent checkbox', async () => {
+    const { user } = await render(
+      <Field.Root>
+        <CheckboxGroup allValues={['a', 'b']}>
+          <Field.Item>
+            <Field.Label>
+              <Checkbox.Root parent data-testid="parent" />
+              Toggle all
+            </Field.Label>
+          </Field.Item>
+          <Checkbox.Root value="a" data-testid="a" />
+          <Checkbox.Root value="b" data-testid="b" />
+        </CheckboxGroup>
+      </Field.Root>,
+    );
+
+    const label = screen.getByText('Toggle all').closest('label') as HTMLLabelElement;
+    const parent = screen.getByTestId('parent');
+
+    expect(label).toHaveAttribute('for');
+    expect(label.control).toHaveAttribute('type', 'checkbox');
+    await user.click(screen.getByText('Toggle all'));
+    expect(parent).toHaveAttribute('aria-checked', 'true');
+    expect(screen.getByTestId('a')).toHaveAttribute('aria-checked', 'true');
+    expect(screen.getByTestId('b')).toHaveAttribute('aria-checked', 'true');
   });
 });

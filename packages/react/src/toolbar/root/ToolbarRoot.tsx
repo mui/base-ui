@@ -21,7 +21,7 @@ export const ToolbarRoot = React.forwardRef(function ToolbarRoot(
 ) {
   const {
     disabled = false,
-    loopFocus = true,
+    loopFocus,
     orientation = 'horizontal',
     className,
     render,
@@ -30,13 +30,15 @@ export const ToolbarRoot = React.forwardRef(function ToolbarRoot(
   } = componentProps;
 
   const [itemMap, setItemMap] = React.useState(
-    () => new Map<Node, CompositeMetadata<ToolbarRoot.ItemMetadata> | null>(),
+    () => new Map<Node, CompositeMetadata<ToolbarRoot.ItemMetadata>>(),
   );
 
   const disabledIndices = React.useMemo(() => {
     const output: number[] = [];
     for (const itemMetadata of itemMap.values()) {
-      if (itemMetadata?.index && !itemMetadata.focusableWhenDisabled) {
+      // Only items that are disabled and not focusable when disabled
+      // are removed from roving focus.
+      if (itemMetadata.disabled && !itemMetadata.focusableWhenDisabled) {
         output.push(itemMetadata.index);
       }
     }
@@ -47,9 +49,8 @@ export const ToolbarRoot = React.forwardRef(function ToolbarRoot(
     () => ({
       disabled,
       orientation,
-      setItemMap,
     }),
-    [disabled, orientation, setItemMap],
+    [disabled, orientation],
   );
 
   const state: ToolbarRootState = { disabled, orientation };
@@ -78,6 +79,7 @@ export const ToolbarRoot = React.forwardRef(function ToolbarRoot(
 });
 
 export interface ToolbarRootItemMetadata {
+  disabled: boolean;
   focusableWhenDisabled: boolean;
 }
 

@@ -2,7 +2,7 @@
 import type * as React from 'react';
 import { ComboboxInputGroup } from '../../combobox/input-group/ComboboxInputGroup';
 import type { FieldRoot } from '../../field/root/FieldRoot';
-import type { Side } from '../../utils/useAnchorPositioning';
+import type { Side } from '../../internals/useAnchorPositioning';
 import type { BaseUIComponentProps } from '../../internals/types';
 
 /**

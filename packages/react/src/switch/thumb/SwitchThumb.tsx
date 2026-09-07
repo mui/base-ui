@@ -3,7 +3,6 @@ import * as React from 'react';
 import type { SwitchRootState } from '../root/SwitchRoot';
 import { useSwitchRootContext } from '../root/SwitchRootContext';
 import { useRenderElement } from '../../internals/useRenderElement';
-import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { stateAttributesMapping } from '../stateAttributesMapping';
 
@@ -19,13 +18,10 @@ export const SwitchThumb = React.forwardRef(function SwitchThumb(
 ) {
   const { render, className, style, ...elementProps } = componentProps;
 
-  const { state: fieldState } = useFieldRootContext();
-
   const state = useSwitchRootContext();
-  const extendedState = { ...fieldState, ...state };
 
   return useRenderElement('span', componentProps, {
-    state: extendedState,
+    state,
     ref: forwardedRef,
     stateAttributesMapping,
     props: elementProps,

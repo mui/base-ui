@@ -103,6 +103,7 @@ Renders a `<button>` element.
 | Prop         | Type                                                                                                 | Default | Description                                                                                                                                                                                   |
 | :----------- | :--------------------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | nativeButton | `boolean`                                                                                            | `true`  | Whether the component renders a native `<button>` element when replacing it&#xA;via the `render` prop.&#xA;Set to `false` if the rendered element is not a button (for example, `<div>`).     |
+| disabled     | `boolean`                                                                                            | `false` | Whether the component should ignore user interaction.                                                                                                                                         |
 | className    | `string \| ((state: NavigationMenu.Trigger.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
 | style        | `React.CSSProperties \| ((state: NavigationMenu.Trigger.State) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
 | render       | `ReactElement \| ((props: HTMLProps, state: NavigationMenu.Trigger.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
@@ -113,6 +114,7 @@ Renders a `<button>` element.
 | :-------------- | :--- | :------------------------------------------------------ |
 | data-popup-open | -    | Present when the corresponding navigation menu is open. |
 | data-pressed    | -    | Present when the trigger is pressed.                    |
+| data-disabled   | -    | Present when the trigger is disabled.                   |
 
 ### Trigger.Props
 
@@ -124,6 +126,8 @@ Re-export of [Trigger](#trigger) props.
 type NavigationMenuTriggerState = {
   /** If `true`, the popup is open and the item is active. */
   open: boolean;
+  /** Whether the component should ignore user interaction. */
+  disabled: boolean;
 };
 ```
 
@@ -138,6 +142,12 @@ An icon that indicates that the trigger button opens a menu.
 | className | `string \| ((state: NavigationMenu.Icon.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
 | style     | `React.CSSProperties \| ((state: NavigationMenu.Icon.State) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
 | render    | `ReactElement \| ((props: HTMLProps, state: NavigationMenu.Icon.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
+
+**Icon Data Attributes:**
+
+| Attribute       | Type | Description                                                      |
+| :-------------- | :--- | :--------------------------------------------------------------- |
+| data-popup-open | -    | Present when the navigation menu is open and the item is active. |
 
 ### Icon.Props
 
@@ -219,12 +229,12 @@ Renders a `<div>` element.
 
 **Backdrop Data Attributes:**
 
-| Attribute           | Type | Description                              |
-| :------------------ | :--- | :--------------------------------------- |
-| data-open           | -    | Present when the popup is open.          |
-| data-closed         | -    | Present when the popup is closed.        |
-| data-starting-style | -    | Present when the popup is animating in.  |
-| data-ending-style   | -    | Present when the popup is animating out. |
+| Attribute           | Type | Description                                 |
+| :------------------ | :--- | :------------------------------------------ |
+| data-open           | -    | Present when the popup is open.             |
+| data-closed         | -    | Present when the popup is closed.           |
+| data-starting-style | -    | Present when the popup begins animating in. |
+| data-ending-style   | -    | Present when the popup is animating out.    |
 
 ### Backdrop.Props
 
@@ -361,9 +371,10 @@ Renders a `<nav>` element.
 | :------------------ | :------------------------------------------------------------------------- | :-------------------------------------------------------------------- |
 | data-open           | -                                                                          | Present when the popup is open.                                       |
 | data-closed         | -                                                                          | Present when the popup is closed.                                     |
+| data-anchor-hidden  | -                                                                          | Present when the anchor is hidden.                                    |
 | data-align          | `'start' \| 'center' \| 'end'`                                             | Indicates how the popup is aligned relative to the specified side.    |
 | data-side           | `'top' \| 'bottom' \| 'left' \| 'right' \| 'inline-end' \| 'inline-start'` | Indicates which side the popup is positioned relative to the trigger. |
-| data-starting-style | -                                                                          | Present when the popup is animating in.                               |
+| data-starting-style | -                                                                          | Present when the popup begins animating in.                           |
 | data-ending-style   | -                                                                          | Present when the popup is animating out.                              |
 
 **Popup CSS Variables:**
@@ -477,13 +488,13 @@ Renders a `<div>` element.
 
 **Content Data Attributes:**
 
-| Attribute                 | Type | Description                                         |
-| :------------------------ | :--- | :-------------------------------------------------- |
-| data-open                 | -    | Present when the popup is open.                     |
-| data-closed               | -    | Present when the popup is closed.                   |
-| data-activation-direction | -    | Which direction another trigger was activated from. |
-| data-starting-style       | -    | Present when the content is animating in.           |
-| data-ending-style         | -    | Present when the content is animating out.          |
+| Attribute                 | Type                                  | Description                                         |
+| :------------------------ | :------------------------------------ | :-------------------------------------------------- |
+| data-open                 | -                                     | Present when the popup is open.                     |
+| data-closed               | -                                     | Present when the popup is closed.                   |
+| data-activation-direction | `'left' \| 'right' \| 'up' \| 'down'` | Which direction another trigger was activated from. |
+| data-starting-style       | -                                     | Present when the content begins animating in.       |
+| data-ending-style         | -                                     | Present when the content is animating out.          |
 
 ### Content.Props
 
@@ -532,13 +543,13 @@ Renders an `<a>` element.
 
 **Link Props:**
 
-| Prop         | Type                                                                                              | Default | Description                                                                                                                                                                                   |
-| :----------- | :------------------------------------------------------------------------------------------------ | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| closeOnClick | `boolean`                                                                                         | `false` | Whether to close the navigation menu when the link is clicked.                                                                                                                                |
-| active       | `boolean`                                                                                         | `false` | Whether the link is the currently active page.                                                                                                                                                |
-| className    | `string \| ((state: NavigationMenu.Link.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
-| style        | `React.CSSProperties \| ((state: NavigationMenu.Link.State) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
-| render       | `ReactElement \| ((props: HTMLProps, state: NavigationMenu.Link.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop         | Type                                                                                                                                                                     | Default | Description                                                                                                                                                                                   |
+| :----------- | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| closeOnClick | `boolean`                                                                                                                                                                | `false` | Whether to close the navigation menu when the link is clicked.                                                                                                                                |
+| active       | `boolean`                                                                                                                                                                | `false` | Whether the link is the currently active page.                                                                                                                                                |
+| className    | `string \| ((state: NavigationMenu.Link.State) => string \| undefined)`                                                                                                  | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
+| style        | `React.CSSProperties \| ((state: NavigationMenu.Link.State) => React.CSSProperties \| undefined)`                                                                        | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
+| render       | `ReactElement \| ((props: React.DetailedHTMLProps<React.AnchorHTMLAttributes<HTMLAnchorElement>, HTMLAnchorElement>, state: NavigationMenu.Link.State) => ReactElement)` | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
 **Link Data Attributes:**
 

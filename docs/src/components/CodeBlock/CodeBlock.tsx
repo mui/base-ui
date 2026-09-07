@@ -10,7 +10,10 @@ import { CheckIcon } from '../../icons/CheckIcon';
 import { GhostButton } from '../GhostButton';
 import './CodeBlock.css';
 
-const CodeBlockContext = React.createContext({ codeId: '', titleId: '' });
+const CodeBlockContext = React.createContext<{
+  codeId: string | undefined;
+  titleId: string | undefined;
+}>({ codeId: undefined, titleId: undefined });
 
 export function Root(props: React.ComponentPropsWithoutRef<'div'>) {
   const titleId = React.useId();
@@ -55,13 +58,15 @@ export function Panel({ className, title, children, ...other }: CodeBlockPanelPr
       )}
       <GhostButton
         aria-label="Copy code"
+        layout="icon"
         onClick={async () => {
-          const codeRoot = document.getElementById(codeId);
+          const codeRoot = codeId ? document.getElementById(codeId) : null;
           const code = codeRoot?.querySelector('pre code')?.textContent ?? codeRoot?.textContent;
 
           if (code) {
             await copy(code);
-            const titleText = document.getElementById(titleId)?.textContent ?? undefined;
+            const titleText =
+              (titleId ? document.getElementById(titleId)?.textContent : undefined) ?? undefined;
             const codeBlockId = titleText ? `${pathname}#${titleText}` : pathname;
             ga?.trackEvent({
               category: 'code_block',
@@ -80,7 +85,6 @@ export function Panel({ className, title, children, ...other }: CodeBlockPanelPr
           }
         }}
       >
-        Copy
         <span className="CodeBlockCopyIcon">{copyTimeout ? <CheckIcon /> : <CopyIcon />}</span>
       </GhostButton>
     </div>
@@ -135,4 +139,15 @@ export function PreInline(props: React.ComponentProps<'pre'>) {
 
 export function Pre(props: React.ComponentProps<'pre'>) {
   return <PreInline {...props} className="CodeBlockPre" />;
+}
+
+/**
+ * Inline `pre` for short type signatures rendered inside phrasing content (the
+ * reference table trigger is a `<button>`, so it can't contain a block
+ * `<pre>`/scroll-area). The highlighted type already includes a `<code>`, so
+ * this only supplies the inline wrapper and code styling; horizontal overflow
+ * is handled by the enclosing `Accordion.Scrollable`.
+ */
+export function TypeInline({ className, ...props }: React.ComponentProps<'span'>) {
+  return <span {...props} className={clsx('Code TableCode', className)} />;
 }

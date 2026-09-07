@@ -4,23 +4,12 @@ import { usePreviewCardRootContext } from '../root/PreviewCardContext';
 import { usePreviewCardPositionerContext } from '../positioner/PreviewCardPositionerContext';
 import { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
-import { StateAttributesMapping } from '../../internals/getStateAttributesProps';
-import { PreviewCardViewportCssVars } from './PreviewCardViewportCssVars';
-import { usePopupViewport } from '../../utils/usePopupViewport';
-
-const stateAttributesMapping: StateAttributesMapping<PreviewCardViewportState> = {
-  activationDirection: (value) =>
-    value
-      ? {
-          'data-activation-direction': value,
-        }
-      : null,
-};
+import { popupViewportStateMapping, usePopupViewport } from '../../utils/usePopupViewport';
 
 /**
  * A viewport for displaying content transitions.
- * This component is only required if one popup can be opened by multiple triggers, its content change based on the trigger
- * and switching between them is animated.
+ * This component is only required if one popup can be opened by multiple triggers, its content
+ * changes based on the trigger, and switching between them is animated.
  * Renders a `<div>` element.
  *
  * Documentation: [Base UI Preview Card](https://base-ui.com/react/components/preview-card)
@@ -30,6 +19,7 @@ export const PreviewCardViewport = React.forwardRef(function PreviewCardViewport
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const { render, className, style, children, ...elementProps } = componentProps;
+
   const store = usePreviewCardRootContext();
   const positioner = usePreviewCardPositionerContext();
 
@@ -38,7 +28,6 @@ export const PreviewCardViewport = React.forwardRef(function PreviewCardViewport
   const { children: childrenToRender, state: viewportState } = usePopupViewport({
     store,
     side: positioner.side,
-    cssVars: PreviewCardViewportCssVars,
     children,
   });
 
@@ -52,7 +41,7 @@ export const PreviewCardViewport = React.forwardRef(function PreviewCardViewport
     state,
     ref: forwardedRef,
     props: [elementProps, { children: childrenToRender }],
-    stateAttributesMapping,
+    stateAttributesMapping: popupViewportStateMapping,
   });
 });
 
@@ -71,13 +60,17 @@ export interface PreviewCardViewportState {
   instant: 'dismiss' | 'focus' | undefined;
 }
 
-export namespace PreviewCardViewport {
-  export interface Props extends BaseUIComponentProps<'div', PreviewCardViewportState> {
-    /**
-     * The content to render inside the transition container.
-     */
-    children?: React.ReactNode;
-  }
+export interface PreviewCardViewportProps extends BaseUIComponentProps<
+  'div',
+  PreviewCardViewportState
+> {
+  /**
+   * The content to render inside the transition container.
+   */
+  children?: React.ReactNode;
+}
 
+export namespace PreviewCardViewport {
+  export type Props = PreviewCardViewportProps;
   export type State = PreviewCardViewportState;
 }

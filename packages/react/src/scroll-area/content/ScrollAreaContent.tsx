@@ -20,10 +20,11 @@ export const ScrollAreaContent = React.forwardRef(function ScrollAreaContent(
 ) {
   const { render, className, style, ...elementProps } = componentProps;
 
-  const contentWrapperRef = React.useRef<HTMLDivElement | null>(null);
-
   const { computeThumbPosition } = useScrollAreaViewportContext();
-  const { viewportState } = useScrollAreaRootContext();
+  const { hasMeasuredScrollbar, viewportState } = useScrollAreaRootContext();
+
+  const contentWrapperRef = React.useRef<HTMLDivElement | null>(null);
+  const computeOnInitialResizeRef = React.useRef(hasMeasuredScrollbar);
 
   useIsoLayoutEffect(() => {
     if (typeof ResizeObserver === 'undefined') {
@@ -31,22 +32,28 @@ export const ScrollAreaContent = React.forwardRef(function ScrollAreaContent(
     }
 
     let hasInitialized = false;
-    const ro = new ResizeObserver(() => {
-      // ResizeObserver fires once upon observing, so we skip the initial call
-      // to avoid double-calculating the thumb position on mount.
+    const resizeObserver = new ResizeObserver(() => {
       if (!hasInitialized) {
         hasInitialized = true;
-        return;
+
+        // ResizeObserver fires once upon observing. Skip that initial call to avoid
+        // double-calculating the thumb position on mount, unless the content mounted
+        // after the viewport's initial measurement (in which case this fire is what
+        // brings the overflow state in sync).
+        if (!computeOnInitialResizeRef.current) {
+          return;
+        }
       }
+
       computeThumbPosition();
     });
 
     if (contentWrapperRef.current) {
-      ro.observe(contentWrapperRef.current);
+      resizeObserver.observe(contentWrapperRef.current);
     }
 
     return () => {
-      ro.disconnect();
+      resizeObserver.disconnect();
     };
   }, [computeThumbPosition]);
 

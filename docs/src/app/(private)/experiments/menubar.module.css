@@ -28,6 +28,7 @@
   border: 0;
   color: var(--color-gray-600);
   border-radius: 0.25rem;
+  -webkit-user-select: none;
   user-select: none;
   height: 2rem;
   font-family: inherit;

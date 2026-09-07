@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
 import { getCombinedFieldValidityData } from '../utils/getCombinedFieldValidityData';
-import { FieldValidityData } from '../root/FieldRoot';
+import type { FieldValidityData } from '../root/FieldRoot';
 import { type TransitionStatus, useTransitionStatus } from '../../internals/useTransitionStatus';
 
 /**
@@ -13,6 +13,7 @@ import { type TransitionStatus, useTransitionStatus } from '../../internals/useT
  */
 export const FieldValidity: React.FC<FieldValidity.Props> = function FieldValidity(props) {
   const { children } = props;
+
   const { validityData, invalid } = useFieldRootContext(false);
 
   const combinedFieldValidityData = React.useMemo(
@@ -22,6 +23,9 @@ export const FieldValidity: React.FC<FieldValidity.Props> = function FieldValidi
   const isInvalid = combinedFieldValidityData.state.valid === false;
   const { transitionStatus } = useTransitionStatus(isInvalid);
 
+  // `fieldValidityState` is handed straight to a public render prop, so its identity is observable:
+  // consumers can pass it to a memoized child. Keep it stable across unrelated field-state changes
+  // (focus, dirty, filled) so those children don't rerender when the validity itself is unchanged.
   const fieldValidityState: FieldValidityState = React.useMemo(() => {
     return {
       ...combinedFieldValidityData,

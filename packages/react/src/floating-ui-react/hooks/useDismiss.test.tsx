@@ -1,10 +1,10 @@
-import { vi, expect } from 'vitest';
-/* eslint-disable @typescript-eslint/no-shadow */
+import { vi, expect, beforeEach, describe, test } from 'vitest';
+
 import { act, fireEvent, flushMicrotasks, render, screen, waitFor } from '@mui/internal-test-utils';
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
 
-import { isJSDOM } from '@base-ui/utils/detectBrowser';
+import { isJSDOM, useTestInteractions } from '#test-utils';
 import {
   FloatingFocusManager,
   FloatingNode,
@@ -15,10 +15,10 @@ import {
   useFloatingNodeId,
   useFloatingParentNodeId,
   useFocus,
-  useInteractions,
   useClick,
 } from '../index';
 import { REASONS } from '../../internals/reasons';
+import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import type { UseDismissProps } from './useDismiss';
 import { normalizeProp } from './useDismiss';
 
@@ -54,7 +54,7 @@ function App(
       }
     },
   });
-  const { getReferenceProps, getFloatingProps } = useInteractions([useDismiss(context, props)]);
+  const { getReferenceProps, getFloatingProps } = useTestInteractions([useDismiss(context, props)]);
 
   return (
     <React.Fragment>
@@ -70,10 +70,79 @@ function App(
 
 describe.skipIf(!isJSDOM)('useDismiss', () => {
   describe('default options', () => {
+    test('registers outside press touch listeners as passive', async () => {
+      const addEventListenerSpy = vi.spyOn(document, 'addEventListener');
+
+      try {
+        render(<App />);
+
+        await Promise.all(
+          ['touchstart', 'touchmove', 'touchend'].map((eventName) =>
+            waitFor(() => {
+              expect(addEventListenerSpy).toHaveBeenCalledWith(eventName, expect.any(Function), {
+                capture: true,
+                passive: true,
+              });
+            }),
+          ),
+        );
+      } finally {
+        addEventListenerSpy.mockRestore();
+      }
+    });
+
     test('dismisses with escape key', async () => {
       render(<App />);
       fireEvent.keyDown(document.body, { key: 'Escape' });
       expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+      await flushMicrotasks();
+    });
+
+    test('calls preventDefault on escape key dismiss', async () => {
+      render(<App />);
+      const event = new KeyboardEvent('keydown', {
+        key: 'Escape',
+        bubbles: true,
+        cancelable: true,
+      });
+      await act(async () => {
+        document.body.dispatchEvent(event);
+      });
+      expect(event.defaultPrevented).toBe(true);
+      await flushMicrotasks();
+    });
+
+    test('does not call preventDefault on escape key if close is canceled', async () => {
+      function CancelApp() {
+        const [open, setOpen] = React.useState(true);
+        const { refs, context } = useFloating({
+          open,
+          onOpenChange(openArg, data) {
+            data?.cancel();
+            setOpen(true);
+          },
+        });
+        const { getReferenceProps, getFloatingProps } = useTestInteractions([useDismiss(context)]);
+
+        return (
+          <React.Fragment>
+            <button {...getReferenceProps({ ref: refs.setReference })} />
+            {open && <div role="tooltip" {...getFloatingProps({ ref: refs.setFloating })} />}
+          </React.Fragment>
+        );
+      }
+
+      render(<CancelApp />);
+      const event = new KeyboardEvent('keydown', {
+        key: 'Escape',
+        bubbles: true,
+        cancelable: true,
+      });
+      await act(async () => {
+        document.body.dispatchEvent(event);
+      });
+      expect(event.defaultPrevented).toBe(false);
+      expect(screen.getByRole('tooltip')).toBeInTheDocument();
       await flushMicrotasks();
     });
 
@@ -115,9 +184,74 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
       expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
     });
 
-    test('dismisses with reference press', async () => {
+    test.each([false, true])(
+      'clears the inside marker when the interaction owner unmounts (strict: %s)',
+      (strict) => {
+        function DismissInteraction({
+          context,
+          outsidePress,
+        }: {
+          context: ReturnType<typeof useFloating>['context'];
+          outsidePress: boolean;
+        }) {
+          const { getFloatingProps } = useTestInteractions([
+            useDismiss(context, { outsidePress, outsidePressEvent: 'sloppy' }),
+          ]);
+
+          return <button type="button" {...getFloatingProps()} />;
+        }
+
+        function PersistentRootApp({
+          interactionMounted,
+          outsidePress,
+        }: {
+          interactionMounted: boolean;
+          outsidePress: boolean;
+        }) {
+          const [open, setOpen] = React.useState(true);
+          const { context, refs } = useFloating({ open, onOpenChange: setOpen });
+
+          return (
+            open && (
+              <div role="tooltip" ref={refs.setFloating}>
+                {interactionMounted && (
+                  <DismissInteraction context={context} outsidePress={outsidePress} />
+                )}
+              </div>
+            )
+          );
+        }
+
+        function App({
+          interactionMounted,
+          outsidePress,
+        }: {
+          interactionMounted: boolean;
+          outsidePress: boolean;
+        }) {
+          const app = (
+            <PersistentRootApp
+              interactionMounted={interactionMounted}
+              outsidePress={outsidePress}
+            />
+          );
+          return strict ? <React.StrictMode>{app}</React.StrictMode> : app;
+        }
+
+        const { rerender } = render(<App interactionMounted outsidePress={false} />);
+
+        fireEvent.click(screen.getByRole('button'));
+        rerender(<App interactionMounted={false} outsidePress />);
+        rerender(<App interactionMounted outsidePress />);
+        fireEvent.pointerDown(document.body, { pointerType: 'mouse' });
+
+        expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+      },
+    );
+
+    test('dismisses with reference press', () => {
       render(<App referencePress={() => true} />);
-      await userEvent.click(screen.getByRole('button'));
+      fireEvent.pointerDown(screen.getByRole('button'));
       expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
     });
 
@@ -144,7 +278,7 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
 
         const dismiss = useDismiss(context);
 
-        const { getReferenceProps, getFloatingProps } = useInteractions([dismiss]);
+        const { getReferenceProps, getFloatingProps } = useTestInteractions([dismiss]);
 
         return (
           <React.Fragment>
@@ -179,7 +313,7 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
         });
 
         const dismiss = useDismiss(context);
-        const { getReferenceProps, getFloatingProps } = useInteractions([dismiss]);
+        const { getReferenceProps, getFloatingProps } = useTestInteractions([dismiss]);
 
         return (
           <React.Fragment>
@@ -219,7 +353,7 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
         });
 
         const dismiss = useDismiss(context);
-        const { getReferenceProps, getFloatingProps } = useInteractions([dismiss]);
+        const { getReferenceProps, getFloatingProps } = useTestInteractions([dismiss]);
 
         return (
           <React.Fragment>
@@ -271,7 +405,7 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
 
         const dismiss = useDismiss(context);
 
-        const { getReferenceProps, getFloatingProps } = useInteractions([dismiss]);
+        const { getReferenceProps, getFloatingProps } = useTestInteractions([dismiss]);
 
         const dialogJsx = (
           <div role="dialog" data-testid={id} {...getFloatingProps({ ref: refs.setFloating })}>
@@ -388,7 +522,7 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
           onOpenChange: setOpen,
         });
 
-        const { getReferenceProps, getFloatingProps } = useInteractions([useDismiss(context)]);
+        const { getReferenceProps, getFloatingProps } = useTestInteractions([useDismiss(context)]);
 
         return (
           <React.Fragment>
@@ -436,7 +570,9 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
         nodeId,
       });
 
-      const { getReferenceProps, getFloatingProps } = useInteractions([useDismiss(context, props)]);
+      const { getReferenceProps, getFloatingProps } = useTestInteractions([
+        useDismiss(context, props),
+      ]);
 
       return (
         <FloatingNode id={nodeId}>
@@ -591,8 +727,8 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
             onOpenChange: setTooltipOpen,
           });
 
-          const popoverInteractions = useInteractions([useDismiss(popover.context)]);
-          const tooltipInteractions = useInteractions([
+          const popoverInteractions = useTestInteractions([useDismiss(popover.context)]);
+          const tooltipInteractions = useTestInteractions([
             useFocus(tooltip.context),
             useDismiss(tooltip.context),
           ]);
@@ -796,7 +932,9 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
         nodeId,
       });
 
-      const { getReferenceProps, getFloatingProps } = useInteractions([useDismiss(context, props)]);
+      const { getReferenceProps, getFloatingProps } = useTestInteractions([
+        useDismiss(context, props),
+      ]);
 
       return (
         <FloatingNode id={nodeId}>
@@ -899,6 +1037,10 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
       const floatingEl = screen.getByRole('tooltip');
       fireEvent.mouseDown(document.body);
       fireEvent.mouseUp(floatingEl);
+      // The browser fires the gesture's click on the common ancestor of the
+      // mousedown and mouseup targets; the mouseup inside the floating element
+      // marks the React tree so this click must not dismiss.
+      fireEvent.click(document.body, { detail: 1 });
       expect(screen.getByRole('tooltip')).toBeInTheDocument();
       await flushMicrotasks();
     });
@@ -911,6 +1053,276 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
       // A click event will have fired before the proper outside click.
       fireEvent.click(document.body);
       fireEvent.click(document.body);
+      expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+    });
+
+    test('dragging outside the floating element then clicking outside closes with mouse clicks', async () => {
+      render(<App outsidePressEvent="intentional" />);
+      const floatingEl = screen.getByRole('tooltip');
+      fireEvent.pointerDown(floatingEl, { pointerType: 'mouse' });
+      fireEvent.mouseDown(floatingEl);
+      fireEvent.mouseUp(document.body);
+
+      // Real mouse clicks carry `detail: 1`. This one passes the press-observed guard
+      // and is consumed by the one-shot drag suppression.
+      fireEvent.click(document.body, { detail: 1 });
+      expect(screen.getByRole('tooltip')).toBeInTheDocument();
+
+      // The next press-backed mouse click closes.
+      fireEvent.pointerDown(document.body, { pointerType: 'mouse' });
+      fireEvent.mouseDown(document.body);
+      fireEvent.click(document.body, { detail: 1 });
+      expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+    });
+
+    test('mouse click whose press started before open does not close', async () => {
+      render(<App outsidePressEvent="intentional" />);
+
+      // The trailing click of a press that began before open, e.g. a menu item activated
+      // by drag-release opening a dialog.
+      fireEvent.click(document.body, { detail: 1 });
+      expect(screen.getByRole('tooltip')).toBeInTheDocument();
+
+      // A press observed while open still closes.
+      fireEvent.pointerDown(document.body, { pointerType: 'mouse' });
+      fireEvent.mouseDown(document.body);
+      fireEvent.click(document.body, { detail: 1 });
+      expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+    });
+
+    test('compatibility events whose pointerdown opened the floating element do not count as a new press', async () => {
+      function OpenOnPointerDownApp() {
+        const [open, setOpen] = React.useState(false);
+        const { refs, context } = useFloating({ open, onOpenChange: setOpen });
+        const { getFloatingProps } = useTestInteractions([
+          useDismiss(context, { outsidePressEvent: 'intentional' }),
+        ]);
+
+        return (
+          <React.Fragment>
+            <button onPointerDown={() => setOpen(true)}>Open</button>
+            {open && <div role="tooltip" {...getFloatingProps({ ref: refs.setFloating })} />}
+          </React.Fragment>
+        );
+      }
+
+      render(<OpenOnPointerDownApp />);
+
+      const openButton = screen.getByRole('button', { name: 'Open' });
+      fireEvent.pointerDown(openButton, { pointerType: 'mouse' });
+      expect(screen.getByRole('tooltip')).toBeInTheDocument();
+
+      // The pointerdown happened before the floating element opened. Its
+      // compatibility events arrive after opening but belong to the same press.
+      fireEvent.mouseDown(openButton);
+      fireEvent.mouseUp(document.body);
+      fireEvent.click(document.body, { detail: 1 });
+      expect(screen.getByRole('tooltip')).toBeInTheDocument();
+
+      // A new pointer press that begins while open still dismisses.
+      fireEvent.pointerDown(document.body, { pointerType: 'mouse' });
+      fireEvent.mouseDown(document.body);
+      fireEvent.click(document.body, { detail: 1 });
+      expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+    });
+
+    test('keyboard-generated outside click without a prior press closes', async () => {
+      render(<App outsidePressEvent="intentional" />);
+
+      // Keyboard activations produce `detail: 0` clicks with no press.
+      fireEvent.click(document.body, { detail: 0 });
+      expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+    });
+
+    test('press-less outside click reporting a pointer type closes', async () => {
+      render(<App outsidePressEvent="intentional" />);
+
+      // Android assistive technology reports `pointerType: 'mouse'` with no press behind
+      // it, so the click count is what separates the two.
+      const click = new MouseEvent('click', { bubbles: true, detail: 0 });
+      Object.defineProperty(click, 'pointerType', { value: 'mouse' });
+      fireEvent(document.body, click);
+      expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+    });
+
+    test('press seen in a previous open session does not leak into a reopen', async () => {
+      function ReopenApp() {
+        const [open, setOpen] = React.useState(true);
+        const { refs, context } = useFloating({ open, onOpenChange: setOpen });
+        const { getReferenceProps, getFloatingProps } = useTestInteractions([
+          useDismiss(context, { outsidePressEvent: 'intentional' }),
+        ]);
+
+        return (
+          <React.Fragment>
+            <button
+              {...getReferenceProps({ ref: refs.setReference, onClick: () => setOpen(true) })}
+            />
+            {open && <div role="tooltip" {...getFloatingProps({ ref: refs.setFloating })} />}
+          </React.Fragment>
+        );
+      }
+
+      render(<ReopenApp />);
+
+      // A genuine outside press closes and leaves a press on record.
+      fireEvent.pointerDown(document.body, { pointerType: 'mouse' });
+      fireEvent.mouseDown(document.body);
+      fireEvent.click(document.body, { detail: 1 });
+      expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+
+      fireEvent.click(screen.getByRole('button'));
+      expect(screen.getByRole('tooltip')).toBeInTheDocument();
+
+      // The reopened session must not inherit the previous session's press:
+      // a press-less trailing click still must not count as an outside press.
+      fireEvent.click(document.body, { detail: 1 });
+      expect(screen.getByRole('tooltip')).toBeInTheDocument();
+
+      // A press observed in the new session still closes.
+      fireEvent.pointerDown(document.body, { pointerType: 'mouse' });
+      fireEvent.mouseDown(document.body);
+      fireEvent.click(document.body, { detail: 1 });
+      expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+    });
+
+    test('press seen before a same-batch close and reopen does not leak into the new session', async () => {
+      let context!: ReturnType<typeof useFloating>['context'];
+
+      function BatchReopenApp() {
+        const [open, setOpen] = React.useState(true);
+        const floating = useFloating({ open, onOpenChange: setOpen });
+        context = floating.context;
+        const { getReferenceProps, getFloatingProps } = useTestInteractions([
+          useDismiss(floating.context, { outsidePressEvent: 'intentional' }),
+        ]);
+
+        return (
+          <React.Fragment>
+            <button {...getReferenceProps({ ref: floating.refs.setReference })} />
+            {open && (
+              <div role="tooltip" {...getFloatingProps({ ref: floating.refs.setFloating })} />
+            )}
+          </React.Fragment>
+        );
+      }
+
+      render(<BatchReopenApp />);
+
+      // A press lands while the first session is open.
+      fireEvent.pointerDown(document.body, { pointerType: 'mouse' });
+      fireEvent.mouseDown(document.body);
+
+      // React never renders `open === false` here, so only `openchange` can observe the
+      // session boundary.
+      act(() => {
+        context.rootStore.setOpen(false, createChangeEventDetails(REASONS.none));
+        context.rootStore.setOpen(true, createChangeEventDetails(REASONS.none));
+      });
+      expect(screen.getByRole('tooltip')).toBeInTheDocument();
+
+      // The gesture's trailing click belongs to the previous session and must
+      // not dismiss the reopened floating element.
+      fireEvent.click(document.body, { detail: 1 });
+      expect(screen.getByRole('tooltip')).toBeInTheDocument();
+
+      // A press observed in the new session still closes.
+      fireEvent.pointerDown(document.body, { pointerType: 'mouse' });
+      fireEvent.mouseDown(document.body);
+      fireEvent.click(document.body, { detail: 1 });
+      expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+    });
+
+    test('press survives a redundant open dispatch while already open', async () => {
+      let context!: ReturnType<typeof useFloating>['context'];
+
+      function RedundantOpenApp() {
+        const [open, setOpen] = React.useState(true);
+        const floating = useFloating({ open, onOpenChange: setOpen });
+        context = floating.context;
+        const { getReferenceProps, getFloatingProps } = useTestInteractions([
+          useDismiss(floating.context, { outsidePressEvent: 'intentional' }),
+        ]);
+
+        return (
+          <React.Fragment>
+            <button {...getReferenceProps({ ref: floating.refs.setReference })} />
+            {open && (
+              <div role="tooltip" {...getFloatingProps({ ref: floating.refs.setFloating })} />
+            )}
+          </React.Fragment>
+        );
+      }
+
+      render(<RedundantOpenApp />);
+
+      // A genuine outside press lands while open.
+      fireEvent.pointerDown(document.body, { pointerType: 'mouse' });
+      fireEvent.mouseDown(document.body);
+
+      // A redundant open dispatch mid-gesture (hovering an inactive trigger does this)
+      // does not end the session, so the press stays on record.
+      act(() => {
+        context.rootStore.setOpen(true, createChangeEventDetails(REASONS.none));
+      });
+      expect(screen.getByRole('tooltip')).toBeInTheDocument();
+
+      fireEvent.click(document.body, { detail: 1 });
+      expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+    });
+
+    test('press survives listener re-attachment while open', async () => {
+      const { rerender } = render(<App outsidePressEvent="intentional" />);
+
+      fireEvent.pointerDown(document.body, { pointerType: 'mouse' });
+      fireEvent.mouseDown(document.body);
+
+      // Changing an effect dependency mid-gesture re-attaches the document listeners;
+      // the observed press must survive that.
+      rerender(<App outsidePressEvent="intentional" escapeKey={false} />);
+
+      fireEvent.click(document.body, { detail: 1 });
+      expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+    });
+
+    test('pointerdown-only press while open allows the outside click to close', async () => {
+      render(<App outsidePressEvent="intentional" />);
+
+      // Pointer-event browsers may deliver `pointerdown` without a compat
+      // `mousedown`; it must count as an observed press on its own.
+      fireEvent.pointerDown(document.body);
+      fireEvent.click(document.body, { detail: 1 });
+      expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+    });
+
+    test('non-primary-button press does not count as an outside press', async () => {
+      render(<App outsidePressEvent="intentional" />);
+
+      // A right-button press produces `contextmenu`, not `click`, so it must
+      // not vouch for a later press-less click.
+      fireEvent.pointerDown(document.body, { pointerType: 'mouse', button: 2 });
+      fireEvent.click(document.body, { detail: 1 });
+      expect(screen.getByRole('tooltip')).toBeInTheDocument();
+
+      // A primary-button press still closes.
+      fireEvent.pointerDown(document.body, { pointerType: 'mouse' });
+      fireEvent.click(document.body, { detail: 1 });
+      expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+    });
+
+    test('cancelled press does not count as an outside press', async () => {
+      render(<App outsidePressEvent="intentional" />);
+
+      // A press whose gesture is cancelled produces no click, so it must not
+      // vouch for a later press-less click.
+      fireEvent.pointerDown(document.body, { pointerType: 'touch' });
+      fireEvent.pointerCancel(document.body);
+      fireEvent.click(document.body, { detail: 1 });
+      expect(screen.getByRole('tooltip')).toBeInTheDocument();
+
+      // A completed press still closes.
+      fireEvent.pointerDown(document.body, { pointerType: 'mouse' });
+      fireEvent.click(document.body, { detail: 1 });
       expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
     });
 
@@ -972,7 +1384,7 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
       function AppWithPreventedPressStart() {
         const [open, setOpen] = React.useState(true);
         const { refs, context } = useFloating({ open, onOpenChange: setOpen });
-        const { getReferenceProps, getFloatingProps } = useInteractions([
+        const { getReferenceProps, getFloatingProps } = useTestInteractions([
           useDismiss(context, { outsidePressEvent: 'intentional' }),
         ]);
 
@@ -1016,7 +1428,7 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
       function AppWithPreventedPressStart() {
         const [open, setOpen] = React.useState(true);
         const { refs, context } = useFloating({ open, onOpenChange: setOpen });
-        const { getReferenceProps, getFloatingProps } = useInteractions([
+        const { getReferenceProps, getFloatingProps } = useTestInteractions([
           useDismiss(context, { outsidePressEvent: 'intentional' }),
         ]);
 
@@ -1057,7 +1469,7 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
       function AppWithPreventedPressStart() {
         const [open, setOpen] = React.useState(true);
         const { refs, context } = useFloating({ open, onOpenChange: setOpen });
-        const { getReferenceProps, getFloatingProps } = useInteractions([
+        const { getReferenceProps, getFloatingProps } = useTestInteractions([
           useDismiss(context, { outsidePressEvent: 'intentional' }),
         ]);
 
@@ -1113,7 +1525,7 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
       const click = useClick(context);
       const dismiss = useDismiss(context);
 
-      const { getReferenceProps, getFloatingProps } = useInteractions([click, dismiss]);
+      const { getReferenceProps, getFloatingProps } = useTestInteractions([click, dismiss]);
 
       return (
         <React.Fragment>

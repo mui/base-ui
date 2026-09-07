@@ -1,6 +1,4 @@
-export enum MenuLinkItemDataAttributes {
-  /**
-   * Present when the link is highlighted.
-   */
-  highlighted = 'data-highlighted',
-}
+/**
+ * Present when the link is highlighted.
+ */
+export const highlighted = 'data-highlighted';
