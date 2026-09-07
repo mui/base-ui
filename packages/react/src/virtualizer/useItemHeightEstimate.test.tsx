@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { expect, describe, it } from 'vitest';
+import { expect, describe, it, vi } from 'vitest';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { createRenderer } from '#test-utils';
 import { useRowModels } from '../internals/virtualization/useRowModels';
@@ -86,12 +86,13 @@ describe('useItemHeightEstimate', () => {
       <Probe estimatedItemHeight={estimateItemHeight} items={items} />,
     );
 
-    expect(estimateItemHeight).toHaveBeenCalledTimes(3);
+    // StrictMode derives the estimates once per mount render pass, so count from here.
+    estimateItemHeight.mockClear();
 
     // A new array holding the same items describes the same collection, so nothing is re-derived.
     await setProps({ items: [...items] });
 
-    expect(estimateItemHeight).toHaveBeenCalledTimes(3);
+    expect(estimateItemHeight).not.toHaveBeenCalled();
   });
 
   it('keeps the resolved estimates when a replacement collection is just as tall', async () => {
@@ -101,12 +102,13 @@ describe('useItemHeightEstimate', () => {
     );
 
     const initialEstimate = estimate.getEstimatedItemHeight;
+    estimateItemHeight.mockClear();
 
     await setProps({ items: createItems([10, 20, 30]) });
 
     // The estimates were derived again for the new items, but they resolved to the same heights,
     // and a re-derived set of equal numbers is not a geometry change for the engine to rehydrate.
-    expect(estimateItemHeight).toHaveBeenCalledTimes(6);
+    expect(estimateItemHeight).toHaveBeenCalledTimes(3);
     expect(estimate.getEstimatedItemHeight).toBe(initialEstimate);
 
     await setProps({ items: createItems([10, 20, 99]) });
@@ -122,11 +124,11 @@ describe('useItemHeightEstimate', () => {
       <Probe estimatedItemHeight={estimateItemHeight} items={items} />,
     );
 
-    expect(estimateItemHeight).toHaveBeenCalledTimes(3);
+    estimateItemHeight.mockClear();
 
     estimate.invalidate();
     await setProps({ items: [...items] });
 
-    expect(estimateItemHeight).toHaveBeenCalledTimes(6);
+    expect(estimateItemHeight).toHaveBeenCalledTimes(3);
   });
 });
