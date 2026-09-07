@@ -2249,5 +2249,58 @@ describe('<Dialog.Root />', () => {
       expect(trigger).toHaveAttribute('aria-expanded', 'false');
       expect(trigger).not.toHaveAttribute('aria-controls');
     });
+
+    it('keeps the programmatic payload when a controlled dialog declines a close request', async () => {
+      const dialog = Dialog.createHandle<string>();
+
+      function App({ showTrigger }: { showTrigger: boolean }) {
+        const [open, setOpen] = React.useState(false);
+
+        return (
+          <div>
+            {showTrigger && (
+              <Dialog.Trigger handle={dialog} id="trigger" payload="from trigger">
+                Trigger
+              </Dialog.Trigger>
+            )}
+            <Dialog.Root
+              handle={dialog}
+              open={open}
+              onOpenChange={(nextOpen) => {
+                // Accept opens, but keep the dialog open on close requests.
+                if (nextOpen) {
+                  setOpen(true);
+                }
+              }}
+            >
+              {({ payload }: { payload: string | undefined }) => (
+                <Dialog.Portal>
+                  <Dialog.Popup data-testid="content">{payload}</Dialog.Popup>
+                </Dialog.Portal>
+              )}
+            </Dialog.Root>
+          </div>
+        );
+      }
+
+      const { setProps } = await render(<App showTrigger={false} />);
+
+      await act(() => dialog.openWithPayload('from openWithPayload'));
+      await waitFor(() => {
+        expect(screen.queryByRole('dialog')).not.toBe(null);
+      });
+
+      // The close request is declined, so the dialog stays open without a trigger.
+      await act(() => dialog.close());
+      expect(screen.queryByRole('dialog')).not.toBe(null);
+      expect(dialog.isOpen).toBe(true);
+
+      await setProps({ showTrigger: true });
+
+      expect(screen.getByTestId('content').textContent).toBe('from openWithPayload');
+      const trigger = screen.getByRole('button', { name: 'Trigger', hidden: true });
+      expect(trigger).toHaveAttribute('aria-expanded', 'false');
+      expect(trigger).not.toHaveAttribute('aria-controls');
+    });
   });
 });

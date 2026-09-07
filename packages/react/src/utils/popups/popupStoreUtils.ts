@@ -223,8 +223,10 @@ export function createPopupOpenState(
     activeTriggerElement,
     // An open request without a trigger (a handle's `open(null)` or `openWithPayload()`) must not
     // be reassociated with a lone registered trigger later on. Controlled and default opens never
-    // pass through here, so they keep claiming a lone trigger.
-    openedWithoutTrigger: open && trigger == null,
+    // pass through here, so they keep claiming a lone trigger. A close request keeps the flag: a
+    // controlled root may decline it and stay open, so the Root clears the flag only once the
+    // popup is effectively closed.
+    openedWithoutTrigger: open ? trigger == null : state.openedWithoutTrigger,
   };
 }
 
@@ -450,8 +452,9 @@ export function useImplicitActiveTrigger<State extends PopupStoreState<unknown>>
       if (store.state.triggerCount !== 0) {
         store.set('triggerCount', 0);
       }
-      // A controlled close skips `createPopupOpenState`, so clear the flag here as well so a later
-      // controlled open can claim a lone trigger again.
+      // The flag is cleared only here, once the popup is effectively closed: a controlled root may
+      // decline a close request and stay open, and a controlled close never reaches
+      // `createPopupOpenState` at all.
       if (store.state.openedWithoutTrigger) {
         store.set('openedWithoutTrigger', false);
       }

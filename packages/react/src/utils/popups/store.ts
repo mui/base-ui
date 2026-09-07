@@ -57,7 +57,7 @@ export type PopupStoreState<Payload> = {
    * Whether the popup is open because of a request that deliberately carried no trigger, such as a
    * handle's `open(null)` or `openWithPayload()`. While set, a lone registered trigger is not
    * implicitly associated with the popup, so its trigger-owned state (such as `payload`) is not
-   * forwarded. Reset when the popup closes.
+   * forwarded. Reset by the Root once the popup is effectively closed.
    */
   openedWithoutTrigger: boolean;
   /**

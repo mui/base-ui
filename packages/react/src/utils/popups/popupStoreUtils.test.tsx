@@ -959,11 +959,13 @@ describe('getPopupOpenState', () => {
     expect(createPopupOpenState(state, true, trigger).openedWithoutTrigger).toBe(false);
   });
 
-  it('clears the trigger-less open flag when closing', () => {
+  it('keeps the trigger-less open flag through a close request', () => {
+    // A controlled root may decline the close and stay open; the Root resets the flag itself once
+    // the popup is effectively closed.
     const state = createInitialPopupStoreState(new PopupTriggerMap());
     state.openedWithoutTrigger = true;
 
-    expect(createPopupOpenState(state, false, undefined).openedWithoutTrigger).toBe(false);
+    expect(createPopupOpenState(state, false, undefined).openedWithoutTrigger).toBe(true);
   });
 });
 
