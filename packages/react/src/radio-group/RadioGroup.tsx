@@ -238,6 +238,7 @@ export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
     },
     onBlur(event) {
       if (!contains(event.currentTarget, event.relatedTarget)) {
+        setTouched(false);
         setFieldTouched(true);
         setFocused(false);
 
@@ -247,7 +248,7 @@ export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
       }
     },
     onKeyDownCapture(event) {
-      if (event.key.startsWith('Arrow')) {
+      if (event.key.startsWith('Arrow') && !event.altKey && !event.ctrlKey && !event.metaKey) {
         setTouched(true);
         setFocused(true);
       }
