@@ -2164,5 +2164,90 @@ describe('<Dialog.Root />', () => {
         expect(screen.queryByRole('dialog')).toBe(null);
       });
     });
+
+    it('does not associate the only rendered trigger when opened with a payload', async () => {
+      const dialog = Dialog.createHandle<string>();
+      const { user } = await render(
+        <div>
+          <Dialog.Trigger handle={dialog} id="trigger" payload="from trigger">
+            Trigger
+          </Dialog.Trigger>
+          <Dialog.Root handle={dialog}>
+            {({ payload }: { payload: string | undefined }) => (
+              <Dialog.Portal>
+                <Dialog.Popup data-testid="content">{payload}</Dialog.Popup>
+              </Dialog.Portal>
+            )}
+          </Dialog.Root>
+        </div>,
+      );
+
+      const trigger = screen.getByRole('button', { name: 'Trigger' });
+
+      await act(() => dialog.openWithPayload('from openWithPayload'));
+      await waitFor(() => {
+        expect(screen.queryByRole('dialog')).not.toBe(null);
+      });
+
+      expect(screen.getByTestId('content').textContent).toBe('from openWithPayload');
+      expect(trigger).toHaveAttribute('aria-expanded', 'false');
+      expect(trigger).not.toHaveAttribute('aria-controls');
+      expect(trigger).not.toHaveAttribute('data-popup-open');
+
+      await act(() => dialog.close());
+      await waitFor(() => {
+        expect(screen.queryByRole('dialog')).toBe(null);
+      });
+
+      // Opening through the trigger afterwards still associates it and forwards its payload.
+      await user.click(trigger);
+      await waitFor(() => {
+        expect(screen.queryByRole('dialog')).not.toBe(null);
+      });
+      expect(screen.getByTestId('content').textContent).toBe('from trigger');
+      expect(trigger).toHaveAttribute('aria-expanded', 'true');
+      expect(trigger.getAttribute('aria-controls')).toBe(
+        screen.getByRole('dialog').getAttribute('id'),
+      );
+    });
+
+    it('does not let a trigger that mounts while open replace the programmatic payload', async () => {
+      const dialog = Dialog.createHandle<string>();
+
+      function App({ showTrigger }: { showTrigger: boolean }) {
+        return (
+          <div>
+            {showTrigger && (
+              <Dialog.Trigger handle={dialog} id="trigger" payload="from trigger">
+                Trigger
+              </Dialog.Trigger>
+            )}
+            <Dialog.Root handle={dialog}>
+              {({ payload }: { payload: string | undefined }) => (
+                <Dialog.Portal>
+                  <Dialog.Popup data-testid="content">{payload}</Dialog.Popup>
+                </Dialog.Portal>
+              )}
+            </Dialog.Root>
+          </div>
+        );
+      }
+
+      const { setProps } = await render(<App showTrigger={false} />);
+
+      await act(() => dialog.openWithPayload('from openWithPayload'));
+      await waitFor(() => {
+        expect(screen.queryByRole('dialog')).not.toBe(null);
+      });
+      expect(screen.getByTestId('content').textContent).toBe('from openWithPayload');
+
+      await setProps({ showTrigger: true });
+
+      expect(screen.getByTestId('content').textContent).toBe('from openWithPayload');
+      // The modal dialog hides the rest of the page from the accessibility tree.
+      const trigger = screen.getByRole('button', { name: 'Trigger', hidden: true });
+      expect(trigger).toHaveAttribute('aria-expanded', 'false');
+      expect(trigger).not.toHaveAttribute('aria-controls');
+    });
   });
 });
