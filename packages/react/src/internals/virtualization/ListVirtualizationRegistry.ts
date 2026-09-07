@@ -27,9 +27,11 @@ export interface VirtualizerScrollToIndexOptions {
  */
 export interface VirtualizerActions {
   /**
-   * Returns the index of the last item starting at or before the given scroll position, or `null`
-   * when the collection is empty. Inverse of `getItemMetrics`, for answering which item a scroll
-   * position lands on without mounting the items in between.
+   * Returns the index of the item a scroll position lands on, or `null` when the collection has
+   * no items. Inverse of `getItemMetrics`, for answering the question without mounting the items
+   * in between. A position inside an item is that item's. In a grouped collection a position
+   * inside a group header belongs to the group's first item, or, for an empty group, to the next
+   * item in the collection — the last item when nothing follows.
    */
   getIndexAtOffset: (offset: number) => number | null;
   /**

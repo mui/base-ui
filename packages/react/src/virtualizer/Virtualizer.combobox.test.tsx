@@ -1097,7 +1097,7 @@ describe('<Virtualizer /> in Combobox', () => {
       );
 
       const messages = warnSpy.mock.calls.map(([message]) => String(message)).join('\n');
-      expect(messages).toContain('does not currently support grouped collections');
+      expect(messages).toContain('received a grouped collection but no `renderGroupHeader` prop');
       expect(messages).toContain('does not currently support grid mode');
       expect(messages).toContain('must not use the `virtualized` prop together');
       expect(messages).toContain('must render exactly one <Combobox.Item>');

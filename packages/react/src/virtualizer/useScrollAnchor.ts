@@ -6,6 +6,7 @@ import { getMaxScrollOffset } from '../utils/scrollEdges';
 import type { VirtualizerRow } from '../internals/virtualization/types';
 import type { PendingScroll } from './usePendingScroll';
 import type { ScrollGesture } from './useScrollGesture';
+import { getLaidOutRowElements } from './getLaidOutRowElements';
 
 import type { RowsGeometry } from './geometry';
 
@@ -157,8 +158,11 @@ export function useScrollAnchor<RowModel>(
     ) {
       let shift = 0;
 
+      // A group header retained hidden after it left the window is still connected and still
+      // names its row, but its rectangle describes nothing on screen.
       const elementStillRepresentsRow =
         previous.element.isConnected &&
+        !previous.element.hidden &&
         Number(previous.element.dataset.rowIndex) === previous.rowIndex;
 
       if (!hasPendingRowsMeta && elementStillRepresentsRow) {
@@ -280,13 +284,7 @@ function findAnchorRowElement(
   scrollerTop: number,
   scrollerBottom: number,
 ) {
-  for (let index = 0; index < renderZone.children.length; index += 1) {
-    const child = renderZone.children[index] as HTMLElement;
-
-    if (child.style.position === 'absolute') {
-      continue;
-    }
-
+  for (const child of getLaidOutRowElements(renderZone)) {
     const rect = child.getBoundingClientRect();
     if (rect.height > 0 && rect.bottom > scrollerTop && rect.top < scrollerBottom) {
       return {

@@ -27,7 +27,7 @@ It can be used inside `<Combobox.List>` and `<Autocomplete.List>`, or on its own
 
 ## Rendering items
 
-Pass a flat collection to the `items` prop on the list root, and use the virtualizer as the only item-rendering child of the list. Its `children` is a function that receives an item and its index in the filtered collection, and must return exactly one item component:
+Pass the collection to the `items` prop on the list root, and use the virtualizer as the only item-rendering child of the list. Its `children` is a function that receives an item and its index in the filtered collection, and must return exactly one item component:
 
 ```jsx title="Rendering items"
 <Combobox.Root items={items} itemToStringLabel={(item) => item.name}>
@@ -40,9 +40,58 @@ Pass a flat collection to the `items` prop on the list root, and use the virtual
 </Combobox.Root>
 ```
 
-Grouped collections and grid mode are not currently supported.
+Grid mode is not currently supported.
 
 Use `getItemKey` to provide stable identity when item values are objects or when TypeScript cannot infer the item type. For primitive values, you can instead declare the item type explicitly, such as `<Virtualizer<string>>`.
+
+## Grouped collections
+
+A grouped collection is an array of groups, each an object with an `items` array, as for the list components: a collection whose elements carry an `items` array is taken for a grouped one. Pass it as `items` together with `renderGroupHeader`, which renders the element carrying a group's name. Inside `<Combobox.List>` that element is `<Combobox.GroupLabel>`; the virtualizer wraps each group's rendered items in a `role="group"` element labelled by it, so `<Combobox.Group>` is not used. The virtualizer only knows a group by its `items`, so annotate the group parameter with your own group type to read anything else from it:
+
+```tsx title="Grouped items in a Combobox"
+<Combobox.Root items={groups} itemToStringLabel={(item: Produce) => item.name}>
+  {/* ... */}
+  <Combobox.List>
+    <Virtualizer
+      getItemKey={(item: Produce) => item.id}
+      getGroupKey={(group: ProduceGroup) => group.value}
+      renderGroupHeader={(group: ProduceGroup) => (
+        <Combobox.GroupLabel>{group.value}</Combobox.GroupLabel>
+      )}
+    >
+      {(item) => <Combobox.Item value={item}>{item.name}</Combobox.Item>}
+    </Virtualizer>
+  </Combobox.List>
+</Combobox.Root>
+```
+
+In a list of your own, the header renderer receives the group's name attributes as its third argument, to spread onto the element that names the group:
+
+```tsx title="Grouped items in a custom list"
+<Virtualizer
+  items={groups}
+  getItemKey={(item: Produce) => item.id}
+  getGroupKey={(group: ProduceGroup) => group.value}
+  renderGroupHeader={(group: ProduceGroup, groupIndex, headerProps) => (
+    <div {...headerProps}>{group.value}</div>
+  )}
+  role="listbox"
+>
+  {(item, index, itemProps) => (
+    <div {...itemProps} role="option">
+      {item.name}
+    </div>
+  )}
+</Virtualizer>
+```
+
+Group headers are rows of their own: they are measured like items, and `estimatedGroupHeaderHeight` is the height assumed for a header before it is measured. It defaults to the static `estimatedItemHeight`, and accepts a function receiving the group and its index. Headers never feed the running average that refines the item estimate.
+
+Item indexes count items only, across all groups, so `activeIndex`, `scrollToIndex`, `isItemDisabled`, and `aria-posinset` mean the same thing in a grouped collection as in a flat one. `getIndexAtOffset` answers a header's offset with the first item of its group; for an empty group, with the item that follows it, or the last item when nothing follows. It returns `null` only when the collection has no items, however many headers it renders.
+
+Groups are identified by their index in the collection by default. Provide `getGroupKey` when a collection can be filtered: once a group drops out, the groups behind it would otherwise change identity. A group with no items renders its header.
+
+The wrapper the virtualizer renders around a group spans only the rendered part of that group, so it is not intended for styling; style the header and the items instead.
 
 ## Styling
 

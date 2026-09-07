@@ -22,6 +22,8 @@ import {
   type ListVirtualizationListState,
 } from '../../internals/virtualization/ListVirtualizationHostContext';
 import { ComboboxVirtualItemContext } from '../item/ComboboxVirtualItemContext';
+import { ComboboxVirtualGroupContext } from '../group/ComboboxVirtualGroupContext';
+import { isGroupedItems } from '../../internals/resolveValueLabel';
 
 /**
  * A list container for the items.
@@ -38,8 +40,7 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
   const store = useComboboxRootContext();
   const floatingRootContext = useComboboxFloatingContext();
   const hasPositionerContext = Boolean(useComboboxPositionerContext(true));
-  const { filteredItems, flatFilteredItems, hasItems, isGrouped } =
-    useComboboxDerivedItemsContext();
+  const { filteredItems, flatFilteredItems, hasItems } = useComboboxDerivedItemsContext();
 
   const selectionMode = store.useState('selectionMode');
   const grid = store.useState('grid');
@@ -81,12 +82,6 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
     if (!hasItems) {
       warn(`<Virtualizer> requires the \`items\` prop on <${componentName}.Root>.`);
     }
-    if (isGrouped) {
-      warn(
-        '<Virtualizer> does not currently support grouped collections. ' +
-          'Render a flat item collection instead.',
-      );
-    }
     if (externallyVirtualized) {
       warn(
         `<${componentName}.Root> must not use the \`virtualized\` prop together with ` +
@@ -103,6 +98,7 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
     () => ({
       componentName,
       registry: store.context.virtualizationRegistry,
+      virtualGroupContext: ComboboxVirtualGroupContext,
       virtualItemContext: ComboboxVirtualItemContext,
       warnUnsupportedConfiguration:
         process.env.NODE_ENV === 'production' ? undefined : warnUnsupportedConfiguration,
@@ -113,13 +109,17 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
   const virtualizationListState = React.useMemo<ListVirtualizationListState>(
     () => ({
       activeIndex,
+      // The filtered collection's own shape decides, rather than the root's `isGrouped`: an
+      // externally supplied `filteredItems` need not share the shape of `items`. The flat items
+      // are derived from this same partition, so the two always agree.
+      groups: isGroupedItems(filteredItems) ? filteredItems : undefined,
       items: flatFilteredItems,
       scrollActiveIntoView: shouldScrollActiveIntoView(highlightType),
       // Combobox mounts the whole collection so autofill can read rendered labels; the virtualizer
       // only needs to know that windowing is off for the duration.
       windowingSuspended: renderAllRows,
     }),
-    [activeIndex, flatFilteredItems, highlightType, renderAllRows],
+    [activeIndex, filteredItems, flatFilteredItems, highlightType, renderAllRows],
   );
 
   const state: ComboboxListState = {

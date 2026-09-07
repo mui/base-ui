@@ -198,3 +198,15 @@
     flex-direction: column;
   }
 }
+
+.GroupHeader {
+  box-sizing: border-box;
+  padding-block: 0.5rem 0.25rem;
+  padding-inline: 0.75rem;
+  color: var(--color-gray-600);
+  font-size: 0.75rem;
+  line-height: 1rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}

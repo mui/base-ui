@@ -12,6 +12,7 @@ export { useTestInteractions } from './useTestInteractions';
 export {
   TestListItem,
   TestVirtualItemContext,
+  TestGroupLabel,
   TestVirtualizedList,
   createItems as createVirtualizerItems,
   renderItem as renderVirtualizerItem,

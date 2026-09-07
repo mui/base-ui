@@ -26,6 +26,11 @@ interface AdaptiveEstimateInternals {
   /** Coalesces ResizeObserver hydrations before a sample is taken. */
   hydrationTimeout: ReturnType<typeof useTimeout>;
   hydratedRowsMetaRef: React.RefObject<unknown>;
+  /**
+   * Whether the settled window has been sampled in full without reaching enough samples for an
+   * average, so no refinement can come from it. Cleared by the next new sample.
+   */
+  refinementExhaustedRef: React.RefObject<boolean>;
 }
 
 /**
@@ -50,6 +55,11 @@ export interface AdaptiveEstimate {
    * the average to the engine without a re-render.
    */
   readEstimate: () => number | null;
+  /**
+   * Whether the rows on hand cannot produce an average: the settled window is sampled in full and
+   * the samples are still too few. A concern waiting for the average stops waiting on it.
+   */
+  isRefinementExhausted: () => boolean;
   isMeasured: (rowId: React.Key) => boolean;
   markMeasured: (rowId: React.Key) => void;
   /** Drops the running average and every measurement behind it. */
@@ -86,6 +96,7 @@ export function useAdaptiveEstimate<RowModel>(
   const enabled = staticEstimatedItemHeight != null;
 
   const estimateRef = React.useRef<number | null>(null);
+  const refinementExhaustedRef = React.useRef(false);
   const measurementsRef = useRefWithInit(() => ({
     heights: new Map<React.Key, number>(),
     total: 0,
@@ -145,6 +156,7 @@ export function useAdaptiveEstimate<RowModel>(
 
     if (invalidated) {
       estimateRef.current = null;
+      refinementExhaustedRef.current = false;
       measurementsRef.current.heights.clear();
       measurementsRef.current.total = 0;
       measuredRowsRef.current.clear();
@@ -164,6 +176,7 @@ export function useAdaptiveEstimate<RowModel>(
   // The engine reads estimates and reports measurements while it renders, so these must stay
   // callable there: they only read and write refs.
   const readEstimate = React.useCallback(() => estimateRef.current, []);
+  const isRefinementExhausted = React.useCallback(() => refinementExhaustedRef.current, []);
   const isMeasured = React.useCallback(
     (rowId: React.Key) => measuredRowsRef.current.has(rowId),
     [measuredRowsRef],
@@ -176,6 +189,7 @@ export function useAdaptiveEstimate<RowModel>(
   );
   const reset = useStableCallback(() => {
     estimateRef.current = null;
+    refinementExhaustedRef.current = false;
     measurementsRef.current.heights.clear();
     measurementsRef.current.total = 0;
     measuredRowsRef.current.clear();
@@ -189,6 +203,7 @@ export function useAdaptiveEstimate<RowModel>(
       measuredRows: measuredRowsRef.current,
       measurementRevision,
       measurements: measurementsRef.current,
+      refinementExhaustedRef,
     }),
     [hydrationTimeout, measuredRowsRef, measurementRevision, measurementsRef],
   );
@@ -204,12 +219,23 @@ export function useAdaptiveEstimate<RowModel>(
       internals,
       invalidated,
       isMeasured,
+      isRefinementExhausted,
       markMeasured,
       noteMeasurements: bumpMeasurementRevision,
       readEstimate,
       reset,
     }),
-    [enabled, estimate, internals, invalidated, isMeasured, markMeasured, readEstimate, reset],
+    [
+      enabled,
+      estimate,
+      internals,
+      invalidated,
+      isMeasured,
+      isRefinementExhausted,
+      markMeasured,
+      readEstimate,
+      reset,
+    ],
   );
 }
 
@@ -273,6 +299,7 @@ export function useAdaptiveEstimateRefresh<RowModel>(
     measuredRows,
     measurementRevision,
     measurements,
+    refinementExhaustedRef,
   } = adaptive.internals;
   const { enabled, noteMeasurements } = adaptive;
   const { firstRowIndex, lastRowIndex } = renderContext;
@@ -300,6 +327,7 @@ export function useAdaptiveEstimateRefresh<RowModel>(
     // Only sample the settled rendered range. MUI's cache retains measurements after rows unmount,
     // including transient measurements taken while a popup is initially resolving its width.
     // Treating every cached entry as authoritative biases the estimate long after the DOM settles.
+    let windowSampledInFull = true;
     for (let rowIndex = firstRowIndex; rowIndex < lastRowIndex; rowIndex += 1) {
       const row = rows[rowIndex];
       const measuredHeight = row == null ? null : readMeasuredHeight(row.id);
@@ -308,12 +336,25 @@ export function useAdaptiveEstimateRefresh<RowModel>(
         if (previousHeight !== measuredHeight) {
           measurements.heights.set(row.id, measuredHeight);
           measurements.total += measuredHeight - (previousHeight ?? 0);
+          // A fresh sample means the window still has something to say.
+          refinementExhaustedRef.current = false;
         }
+      } else if (row != null) {
+        // Still unmeasured: its measurement is on its way and will bring another pass.
+        windowSampledInFull = false;
       }
     }
     const measuredCount = measurements.heights.size;
 
     if (measuredCount < ADAPTIVE_ESTIMATE_MIN_SAMPLES) {
+      // Too few samples, and none left to take from this window: the rows on hand cannot produce
+      // an average, which a request waiting for one needs to hear. Said once, on the way into
+      // that state — the hydration republishes the geometry, which re-arms this pass, and saying
+      // it again on every pass would never stop.
+      if (windowSampledInFull && !refinementExhaustedRef.current) {
+        refinementExhaustedRef.current = true;
+        settleGeometry();
+      }
       return;
     }
 
@@ -356,6 +397,7 @@ export function useAdaptiveEstimateRefresh<RowModel>(
     measurementRevision,
     measurements,
     noteMeasurements,
+    refinementExhaustedRef,
     rows,
     rowsMeta,
     readMeasuredHeight,

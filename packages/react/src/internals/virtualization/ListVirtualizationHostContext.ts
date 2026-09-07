@@ -1,7 +1,11 @@
 'use client';
 import * as React from 'react';
 import type { ListVirtualizationRegistry } from './ListVirtualizationRegistry';
-import type { VirtualizerItemMetadata } from './types';
+import type {
+  VirtualizerGroup,
+  VirtualizerGroupHeaderMetadata,
+  VirtualizerItemMetadata,
+} from './types';
 
 /**
  * Stable wiring published by a list component so `<Virtualizer>` can bind to it.
@@ -24,6 +28,12 @@ export interface ListVirtualizationHost {
    */
   virtualItemContext: React.Context<VirtualizerItemMetadata | undefined>;
   /**
+   * Channel the list's `<GroupLabel>` reads the id of the group header it is rendered in from.
+   * A list without group parts omits it; its group headers then receive the same metadata as the
+   * third argument of the header renderer.
+   */
+  virtualGroupContext?: React.Context<VirtualizerGroupHeaderMetadata | undefined> | undefined;
+  /**
    * Warns about configurations the list cannot window, in its own vocabulary. Called once while a
    * virtualizer is mounted, so a list that can be windowed says nothing. Development only.
    */
@@ -33,8 +43,9 @@ export interface ListVirtualizationHost {
 /**
  * Reactive list state the virtualizer windows against. Only `<Virtualizer>` subscribes to it.
  *
- * Deliberately limited to flat collections: any list whose rows are a single ordered sequence can
- * implement it, while hierarchical collections need a virtualizer of their own.
+ * The collection is always the flat, ordered sequence of items; a list that groups them publishes
+ * the grouped view of that same sequence alongside, never instead. Deeper hierarchies need a
+ * virtualizer of their own.
  */
 export interface ListVirtualizationListState {
   /**
@@ -43,6 +54,11 @@ export interface ListVirtualizationListState {
    * hold focus or be referenced by `aria-activedescendant`.
    */
   activeIndex: number | null;
+  /**
+   * The grouped view of `items`: the same filtered collection, partitioned into groups in order,
+   * so that the group item counts sum to `items.length`. Omitted by a list that is not grouped.
+   */
+  groups?: ReadonlyArray<VirtualizerGroup<unknown>> | undefined;
   /**
    * The flat, ordered collection to window.
    */

@@ -7,10 +7,16 @@ import { SettingsMetadata, useExperimentSettings } from '../_components/Settings
 import styles from './virtualizer.module.css';
 
 interface Settings {
+  groupItems: boolean;
   varyingHeights: boolean;
 }
 
 export const settingsMetadata: SettingsMetadata<Settings> = {
+  groupItems: {
+    type: 'boolean',
+    label: 'Group items by hundred',
+    default: false,
+  },
   varyingHeights: {
     type: 'boolean',
     label: 'Vary row heights',
@@ -38,13 +44,17 @@ export default function ComboboxVirtualizerExperiment() {
             <h2>Built in</h2>
             <code>@mui/x-virtualizer</code>
           </div>
-          <BuiltInVirtualizer varyingHeights={settings.varyingHeights} />
+          <BuiltInVirtualizer
+            groupItems={settings.groupItems}
+            varyingHeights={settings.varyingHeights}
+          />
         </section>
 
         <section className={styles.Panel}>
           <div className={styles.PanelHeader}>
             <h2>Third party</h2>
-            <code>@tanstack/react-virtual</code>
+            {/* The external integration indexes a flat collection; it stays flat for comparison. */}
+            <code>@tanstack/react-virtual{settings.groupItems ? ' (flat)' : ''}</code>
           </div>
           <TanStackVirtualizer varyingHeights={settings.varyingHeights} />
         </section>
@@ -54,27 +64,37 @@ export default function ComboboxVirtualizerExperiment() {
             <h2>No virtualization</h2>
             <code>Combobox.List</code>
           </div>
-          <PlainList varyingHeights={settings.varyingHeights} />
+          <PlainList groupItems={settings.groupItems} varyingHeights={settings.varyingHeights} />
         </section>
       </div>
     </div>
   );
 }
 
-function BuiltInVirtualizer(props: { varyingHeights: boolean }) {
+function BuiltInVirtualizer(props: { groupItems: boolean; varyingHeights: boolean }) {
   return (
-    <Combobox.Root items={virtualizedItems} itemToStringLabel={getItemLabel}>
+    <Combobox.Root
+      items={props.groupItems ? groupedVirtualizedItems : virtualizedItems}
+      itemToStringLabel={getItemLabel}
+    >
       <ComboboxField label="Search the built-in list" />
       <Combobox.Portal>
         <Combobox.Positioner className={styles.Positioner} sideOffset={4}>
           <Combobox.Popup className={styles.Popup}>
             <Combobox.Empty className={styles.Empty}>No items found.</Combobox.Empty>
             <Combobox.List className={styles.List}>
-              <Virtualizer
+              <Virtualizer<VirtualizedItem>
                 className={styles.Scroller}
                 estimatedItemHeight={12}
+                estimatedGroupHeaderHeight={28}
                 getItemKey={(item) => item.id}
+                getGroupKey={(group: VirtualizedItemGroup) => group.value}
                 overscanPx={40}
+                renderGroupHeader={(group: VirtualizedItemGroup) => (
+                  <Combobox.GroupLabel className={styles.GroupLabel}>
+                    {group.value}
+                  </Combobox.GroupLabel>
+                )}
               >
                 {(item: VirtualizedItem) => (
                   <VirtualizedItemRow item={item} varyingHeights={props.varyingHeights} />
@@ -132,24 +152,38 @@ function TanStackVirtualizer(props: { varyingHeights: boolean }) {
   );
 }
 
-function PlainList(props: { varyingHeights: boolean }) {
+function PlainList(props: { groupItems: boolean; varyingHeights: boolean }) {
+  const renderItem = (item: VirtualizedItem) => (
+    <Combobox.Item
+      key={item.id}
+      value={item}
+      className={getItemClassName(item, props.varyingHeights)}
+    >
+      <ItemContent item={item} varyingHeights={props.varyingHeights} />
+    </Combobox.Item>
+  );
+
   return (
-    <Combobox.Root items={virtualizedItems} itemToStringLabel={getItemLabel}>
+    <Combobox.Root
+      items={props.groupItems ? groupedVirtualizedItems : virtualizedItems}
+      itemToStringLabel={getItemLabel}
+    >
       <ComboboxField label="Search the plain list" />
       <Combobox.Portal>
         <Combobox.Positioner className={styles.Positioner} sideOffset={4}>
           <Combobox.Popup className={styles.Popup}>
             <Combobox.Empty className={styles.Empty}>No items found.</Combobox.Empty>
             <Combobox.List className={styles.PlainList}>
-              {(item: VirtualizedItem) => (
-                <Combobox.Item
-                  key={item.id}
-                  value={item}
-                  className={getItemClassName(item, props.varyingHeights)}
-                >
-                  <ItemContent item={item} varyingHeights={props.varyingHeights} />
-                </Combobox.Item>
-              )}
+              {props.groupItems
+                ? (group: VirtualizedItemGroup) => (
+                    <Combobox.Group key={group.value} items={group.items}>
+                      <Combobox.GroupLabel className={styles.GroupLabel}>
+                        {group.value}
+                      </Combobox.GroupLabel>
+                      <Combobox.Collection>{renderItem}</Combobox.Collection>
+                    </Combobox.Group>
+                  )
+                : renderItem}
             </Combobox.List>
           </Combobox.Popup>
         </Combobox.Positioner>
@@ -328,5 +362,15 @@ const virtualizedItems: VirtualizedItem[] = Array.from({ length: 10000 }, (_, in
     hasTwoLines: (index + 1) % 5 === 0,
   };
 });
+
+interface VirtualizedItemGroup {
+  value: string;
+  items: VirtualizedItem[];
+}
+
+const groupedVirtualizedItems: VirtualizedItemGroup[] = Array.from({ length: 100 }, (_, index) => ({
+  value: `Items ${String(index * 100 + 1).padStart(4, '0')} – ${String(index * 100 + 100).padStart(4, '0')}`,
+  items: virtualizedItems.slice(index * 100, index * 100 + 100),
+}));
 
 type TanStackVirtualizerInstance = ReturnType<typeof useVirtualizer<HTMLDivElement, Element>>;

@@ -136,10 +136,16 @@ Renders only the visible items of a large list.
     - Virtualizer
 - Exports:
   - Virtualizer
-    - Props: actionsRef, activeIndex, children, className, enabled, endReachedThreshold, estimatedItemHeight, getItemKey, items, onEndReached, overscanPx, render, style, totalItems, trailing
+    - Props: actionsRef, activeIndex, children, className, enabled, endReachedThreshold, estimatedGroupHeaderHeight, estimatedItemHeight, getGroupKey, getItemKey, items, onEndReached, overscanPx, render, renderGroupHeader, style, totalItems, trailing
     - Data Attributes: data-empty
     - CSS Variables: --total-size
-- Types: Virtualizer.Actions, Virtualizer.ActiveIndex, Virtualizer.ActiveItem, Virtualizer.Props, Virtualizer.State, VirtualizerItemMetrics, VirtualizerItemProps, VirtualizerScrollAlignment, VirtualizerScrollToIndexOptions
+  - VirtualizerEstimateGroupHeaderHeight
+    - Parameters: group, groupIndex
+  - VirtualizerGetGroupKey
+    - Parameters: group
+  - VirtualizerRenderGroupHeader
+    - Parameters: group, groupIndex, headerProps
+- Types: Virtualizer.Actions, Virtualizer.ActiveIndex, Virtualizer.ActiveItem, Virtualizer.Group, Virtualizer.GroupHeaderElement, Virtualizer.GroupHeaderProps, Virtualizer.Props, Virtualizer.State, VirtualizerItemMetrics, VirtualizerItemProps, VirtualizerScrollAlignment, VirtualizerScrollToIndexOptions
 
 </details>
 

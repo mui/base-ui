@@ -17,6 +17,7 @@ import styles from './virtualizer.module.css';
 
 interface Settings {
   enabled: boolean;
+  groupItems: boolean;
   scrollOnPointer: boolean;
   varyingHeights: boolean;
 }
@@ -26,6 +27,13 @@ export const settingsMetadata: SettingsMetadata<Settings> = {
     type: 'boolean',
     label: 'Virtualize',
     default: true,
+  },
+  groupItems: {
+    type: 'boolean',
+    // Grouping by region reorders the collection, so the leaf order the keyboard moves through
+    // is the grouped one, not the interleaved one the data starts in.
+    label: 'Group items by region',
+    default: false,
   },
   scrollOnPointer: {
     type: 'boolean',
@@ -45,6 +53,27 @@ interface Country {
   id: number;
   name: string;
   region: string;
+}
+
+interface RegionGroup {
+  region: string;
+  items: Country[];
+}
+
+function groupByRegion(items: Country[]): RegionGroup[] {
+  const groups = new Map<string, Country[]>();
+  for (const item of items) {
+    let group = groups.get(item.region);
+    if (group == null) {
+      group = [];
+      groups.set(item.region, group);
+    }
+    group.push(item);
+  }
+  return REGIONS.filter((region) => groups.has(region)).map((region) => ({
+    region,
+    items: groups.get(region)!,
+  }));
 }
 
 const ITEM_COUNT = 10_000;
@@ -70,7 +99,7 @@ export default function VirtualizerExperiment() {
 
   const virtualizer = React.useRef<Virtualizer.Actions>(null);
 
-  const items = React.useMemo(() => {
+  const filteredItems = React.useMemo(() => {
     const trimmed = query.trim().toLowerCase();
     if (trimmed === '') {
       return allItems;
@@ -80,6 +109,15 @@ export default function VirtualizerExperiment() {
         item.name.toLowerCase().includes(trimmed) || item.region.toLowerCase().includes(trimmed),
     );
   }, [query]);
+  const groups = React.useMemo(
+    () => (settings.groupItems ? groupByRegion(filteredItems) : null),
+    [filteredItems, settings.groupItems],
+  );
+  // The order the list shows, and therefore the one every index below refers to.
+  const items = React.useMemo(
+    () => (groups == null ? filteredItems : groups.flatMap((group) => group.items)),
+    [filteredItems, groups],
+  );
 
   // The collection is the application's, so clamping the highlight to it is too. A virtualizer
   // that owns the collection has no way to know what an out-of-range index should become.
@@ -182,8 +220,15 @@ export default function VirtualizerExperiment() {
         className={styles.Listbox}
         enabled={settings.enabled}
         estimatedItemHeight={settings.varyingHeights ? 44 : 32}
+        estimatedGroupHeaderHeight={28}
         getItemKey={(item) => item.id}
-        items={items}
+        getGroupKey={(group: RegionGroup) => group.region}
+        items={groups ?? items}
+        renderGroupHeader={(group: RegionGroup, _, headerProps) => (
+          <div {...headerProps} className={styles.GroupHeader}>
+            {group.region}
+          </div>
+        )}
         role="listbox"
         aria-label="Items"
         aria-activedescendant={

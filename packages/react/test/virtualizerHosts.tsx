@@ -12,6 +12,8 @@ import {
   type VirtualizerHandle,
 } from '../src/internals/virtualization/ListVirtualizationRegistry';
 import type {
+  VirtualizerGroup,
+  VirtualizerGroupHeaderMetadata,
   VirtualizerItemMetadata,
   VirtualizerItemProps,
 } from '../src/internals/virtualization/types';
@@ -52,6 +54,23 @@ export function TestListItem(props: { children: React.ReactNode; style?: React.C
   );
 }
 
+export const TestVirtualGroupContext = React.createContext<
+  VirtualizerGroupHeaderMetadata | undefined
+>(undefined);
+
+/**
+ * Stands in for a list's `<GroupLabel>`: adopts the id the virtualizer names the group by.
+ */
+export function TestGroupLabel(props: { children: React.ReactNode }) {
+  const virtualGroup = React.useContext(TestVirtualGroupContext);
+
+  return (
+    <div id={virtualGroup?.id} aria-hidden>
+      {props.children}
+    </div>
+  );
+}
+
 export function renderItem(item: TestItem, _index: number) {
   return <TestListItem style={{ height: 20 }}>{item.label}</TestListItem>;
 }
@@ -86,6 +105,11 @@ export type TestVirtualizedListProps<Item> = Omit<
    * primitive-value keying needs.
    */
   getItemKey?: ((item: Item) => string | number) | undefined;
+  /**
+   * The grouped view of `items`, published verbatim: a test of the seam's consistency check
+   * passes a partition that disagrees with the items.
+   */
+  groups?: ReadonlyArray<VirtualizerGroup<Item>> | undefined;
   items: readonly Item[];
   /**
    * Row retained outside the rendered window without being scrolled to — a pointer highlight.
@@ -131,6 +155,7 @@ export function TestVirtualizedList<Item = TestItem>(props: TestVirtualizedListP
     activeIndex: activeIndexProp,
     apiRef,
     getItemKey,
+    groups,
     items,
     pinnedRowIndex,
     scrollActiveIntoView: scrollActiveIntoViewProp,
@@ -147,6 +172,7 @@ export function TestVirtualizedList<Item = TestItem>(props: TestVirtualizedListP
       // raised through a real list.
       componentName: 'TestList',
       registry,
+      virtualGroupContext: TestVirtualGroupContext,
       virtualItemContext: TestVirtualItemContext,
     }),
     [registry],
@@ -158,11 +184,12 @@ export function TestVirtualizedList<Item = TestItem>(props: TestVirtualizedListP
   const listState = React.useMemo<ListVirtualizationListState>(
     () => ({
       activeIndex,
+      groups,
       items,
       scrollActiveIntoView,
       windowingSuspended,
     }),
-    [activeIndex, items, scrollActiveIntoView, windowingSuspended],
+    [activeIndex, groups, items, scrollActiveIntoView, windowingSuspended],
   );
 
   React.useImperativeHandle<VirtualizerHandle | null, VirtualizerHandle | null>(

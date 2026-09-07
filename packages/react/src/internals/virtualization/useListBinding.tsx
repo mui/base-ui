@@ -4,6 +4,7 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { warn } from '@base-ui/utils/warn';
 import { EMPTY_ARRAY } from '@base-ui/utils/empty';
+import { useBaseUiId } from '../useBaseUiId';
 import type {
   ListVirtualizationRegistry,
   VirtualizerActions,
@@ -15,15 +16,62 @@ import type {
   ListVirtualizationHost,
   ListVirtualizationListState,
 } from './ListVirtualizationHostContext';
-import type {
-  VirtualizerActiveIndex,
-  VirtualizerItemMetadata,
-  VirtualizerItemProps,
-  VirtualizerItemRowModel,
-  VirtualizerRenderRowParameters,
+import { isGroupedItems } from '../resolveValueLabel';
+import {
+  isGroupHeaderRow,
+  type VirtualizerActiveIndex,
+  type VirtualizerGroup,
+  type VirtualizerGroupHeaderMetadata,
+  type VirtualizerGroupHeaderProps,
+  type VirtualizerRenderGroupHeader,
+  type VirtualizerItemMetadata,
+  type VirtualizerItemProps,
+  type VirtualizerItemRowModel,
+  type VirtualizerRenderRowParameters,
+  type VirtualizerRowModel,
 } from './types';
 
 type ComponentName = string;
+
+interface VirtualizerGroupHeaderRowProps<Item> {
+  group: VirtualizerGroup<Item>;
+  groupIndex: number;
+  id: string | undefined;
+  renderGroupHeader: VirtualizerRenderGroupHeader<Item>;
+  /**
+   * The owning list's group-label channel, or `undefined` when the virtualizer renders standalone
+   * headers that have no `<GroupLabel>` to publish the id to.
+   */
+  virtualGroupContext: React.Context<VirtualizerGroupHeaderMetadata | undefined> | undefined;
+}
+
+function VirtualizerGroupHeaderRowImpl<Item>(props: VirtualizerGroupHeaderRowProps<Item>) {
+  const { group, groupIndex, id, renderGroupHeader, virtualGroupContext } = props;
+
+  const headerProps = React.useMemo<VirtualizerGroupHeaderProps>(
+    () => ({ id, 'aria-hidden': true }),
+    [id],
+  );
+  const metadata = React.useMemo<VirtualizerGroupHeaderMetadata>(
+    () => ({ id, groupIndex }),
+    [groupIndex, id],
+  );
+
+  // The name reaches a list's `<GroupLabel>` through the list's own context, and everything else
+  // through the renderer's third argument. Both describe the same header.
+  const content = renderGroupHeader(group, groupIndex, headerProps);
+
+  if (virtualGroupContext == null) {
+    return content;
+  }
+
+  const VirtualGroupContext = virtualGroupContext;
+  return <VirtualGroupContext.Provider value={metadata}>{content}</VirtualGroupContext.Provider>;
+}
+
+const VirtualizerGroupHeaderRow = React.memo(
+  VirtualizerGroupHeaderRowImpl,
+) as typeof VirtualizerGroupHeaderRowImpl;
 
 interface VirtualizerItemRowProps<Item> {
   children: (item: Item, index: number, itemProps: VirtualizerItemProps) => React.ReactElement;
@@ -127,11 +175,15 @@ export interface UseListBindingParameters<Item> {
   enabled: boolean;
   host: ListVirtualizationHost | undefined;
   /**
-   * The collection to window, when the virtualizer is given one directly. Takes precedence over a
-   * surrounding list's collection.
+   * The collection to window, flat or grouped, when the virtualizer is given one directly. Takes
+   * precedence over a surrounding list's collection.
    */
-  items: ReadonlyArray<Item> | undefined;
+  items: ReadonlyArray<Item> | ReadonlyArray<VirtualizerGroup<Item>> | undefined;
   listState: ListVirtualizationListState | undefined;
+  /**
+   * Renders a group's header. Without it a grouped collection is windowed as its flat items.
+   */
+  renderGroupHeader: VirtualizerRenderGroupHeader<Item> | undefined;
   /**
    * Size of the whole collection when the rendered items are only part of it, such as a page of a
    * larger result set. Defaults to the number of items given.
@@ -144,16 +196,27 @@ export interface ListBinding<Item> {
   apiRef: React.RefObject<VirtualizerHandle | null>;
   /** Whether the window may be active. A list asking for every row suspends it. */
   enabled: boolean;
-  /** The collection to window, from whichever of the two sources supplies it. */
+  /**
+   * The id the wrapper of a group references, for the header carrying the given ordinal;
+   * `undefined` while the id hook has not resolved (React 17, first render).
+   */
+  getGroupHeaderId: (ordinal: number) => string | undefined;
+  /**
+   * The grouped view of `items`, when the collection is grouped and a header renderer is given;
+   * `undefined` otherwise, so a flat list never builds a grouped projection.
+   */
+  groups: ReadonlyArray<VirtualizerGroup<Item>> | undefined;
+  /** The flat collection to window, from whichever of the two sources supplies it. */
   items: ReadonlyArray<Item>;
   onUnconstrainedHeight: () => void;
-  /** The row to keep mounted even outside the window. */
-  pinnedRowIndex: number | undefined;
+  /** The item to keep mounted even outside the window. */
+  pinnedItemIndex: number | undefined;
   renderRow: (
-    params: VirtualizerRenderRowParameters<VirtualizerItemRowModel<Item>>,
+    params: VirtualizerRenderRowParameters<VirtualizerRowModel<Item>>,
   ) => React.ReactElement;
   scrollToRowAlignment: VirtualizerScrollAlignment;
-  scrollToRowIndex: number | undefined;
+  /** The item to scroll into view. */
+  scrollToItemIndex: number | undefined;
 }
 
 /**
@@ -175,19 +238,55 @@ export function useListBinding<Item>(
     host,
     items: itemsProp,
     listState,
+    renderGroupHeader,
     totalItems,
   } = parameters;
 
   const componentName = host?.componentName;
   const virtualItemContext = host?.virtualItemContext;
+  const virtualGroupContext = host?.virtualGroupContext;
   const warnUnsupportedConfiguration = host?.warnUnsupportedConfiguration;
 
   // An `items` prop is the virtualizer's own collection, and everything derived from a collection
   // comes with it. Mixing the two sources would window one list's items against another's state.
   const hasOwnCollection = itemsProp != null;
-  const items = (
-    hasOwnCollection ? itemsProp : (listState?.items ?? EMPTY_ARRAY)
-  ) as ReadonlyArray<Item>;
+  const ownCollectionIsGrouped = hasOwnCollection && isGroupedItems(itemsProp);
+  // A flat collection is returned by identity: the rows derived from it are cached on it, so a
+  // fresh array of the same items would rehydrate the engine's geometry for nothing. A grouped
+  // one is flattened once per collection.
+  const ownItems = React.useMemo((): ReadonlyArray<Item> => {
+    if (itemsProp == null) {
+      return EMPTY_ARRAY as ReadonlyArray<Item>;
+    }
+    return isGroupedItems(itemsProp)
+      ? (itemsProp as ReadonlyArray<VirtualizerGroup<Item>>).flatMap((group) => group.items)
+      : (itemsProp as ReadonlyArray<Item>);
+  }, [itemsProp]);
+  const items = hasOwnCollection
+    ? ownItems
+    : ((listState?.items ?? EMPTY_ARRAY) as ReadonlyArray<Item>);
+  let sourceGroups: ReadonlyArray<VirtualizerGroup<Item>> | undefined;
+  if (hasOwnCollection) {
+    sourceGroups = ownCollectionIsGrouped
+      ? (itemsProp as ReadonlyArray<VirtualizerGroup<Item>>)
+      : undefined;
+  } else {
+    sourceGroups = listState?.groups as ReadonlyArray<VirtualizerGroup<Item>> | undefined;
+  }
+  // Headers are what make a group a group here. Without a renderer the collection is windowed
+  // as its flat items, which is at least the list the consumer can see is wrong.
+  const hasGroupHeaders = sourceGroups != null && renderGroupHeader != null;
+  const groups = hasGroupHeaders ? sourceGroups : undefined;
+  // The repo's id hook rather than `React.useId`, which React 17 — still supported — lacks. On
+  // React 17 it resolves only after the first render, and until then neither the header nor the
+  // wrapper carries an id: a stand-in generated per render would differ between a server and a
+  // client and fail hydration, as the repo's other labelled parts also avoid.
+  const groupHeaderIdPrefix = useBaseUiId();
+  const getGroupHeaderId = React.useCallback(
+    (ordinal: number) =>
+      groupHeaderIdPrefix == null ? undefined : `${groupHeaderIdPrefix}-group-${ordinal}`,
+    [groupHeaderIdPrefix],
+  );
   // The activation is read down to primitives here so an inline object cannot make an unchanged
   // activation look like a new one, and so the scroll decision cannot drift from the index it
   // belongs to.
@@ -223,23 +322,62 @@ export function useListBinding<Item>(
         );
       }
     }, [componentName, hasOwnCollection]);
+
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    React.useEffect(() => {
+      if (sourceGroups != null && renderGroupHeader == null) {
+        warn(
+          '<Virtualizer> received a grouped collection but no `renderGroupHeader` prop, so the ' +
+            'items are rendered without group headers. Pass `renderGroupHeader` to render a ' +
+            'header for each group, or flatten the collection.',
+        );
+      }
+    }, [renderGroupHeader, sourceGroups]);
   }
 
-  const focusedRowIndex = activeIndex == null ? undefined : activeIndex;
-  const scrollToRowIndex = scrollActiveIntoView ? focusedRowIndex : undefined;
+  const focusedItemIndex = activeIndex == null ? undefined : activeIndex;
+  const scrollToItemIndex = scrollActiveIntoView ? focusedItemIndex : undefined;
 
   const renderRow = React.useCallback(
-    (params: VirtualizerRenderRowParameters<VirtualizerItemRowModel<Item>>) => (
-      <VirtualizerItemRow
-        componentName={componentName}
-        itemCount={totalItems ?? items.length}
-        model={params.row.model}
-        virtualItemContext={virtualItemContext}
-      >
-        {children}
-      </VirtualizerItemRow>
-    ),
-    [children, componentName, items.length, totalItems, virtualItemContext],
+    (params: VirtualizerRenderRowParameters<VirtualizerRowModel<Item>>) => {
+      const { model } = params.row;
+
+      if (isGroupHeaderRow(model)) {
+        return (
+          <VirtualizerGroupHeaderRow
+            // The current group object rather than one captured in the row: the row model outlives
+            // a filter pass that recreates the group with the same key and shape.
+            group={groups![model.groupIndex]}
+            groupIndex={model.groupIndex}
+            id={getGroupHeaderId(model.ordinal)}
+            renderGroupHeader={renderGroupHeader!}
+            virtualGroupContext={virtualGroupContext}
+          />
+        );
+      }
+
+      return (
+        <VirtualizerItemRow
+          componentName={componentName}
+          itemCount={totalItems ?? items.length}
+          model={model}
+          virtualItemContext={virtualItemContext}
+        >
+          {children}
+        </VirtualizerItemRow>
+      );
+    },
+    [
+      children,
+      componentName,
+      getGroupHeaderId,
+      groups,
+      items.length,
+      renderGroupHeader,
+      totalItems,
+      virtualGroupContext,
+      virtualItemContext,
+    ],
   );
 
   // Some list-level operations need every item mounted briefly (for example, collecting rendered
@@ -306,12 +444,14 @@ export function useListBinding<Item>(
   return {
     apiRef,
     enabled,
+    getGroupHeaderId,
+    groups,
     items,
     onUnconstrainedHeight,
-    pinnedRowIndex: focusedRowIndex,
+    pinnedItemIndex: focusedItemIndex,
     renderRow,
     scrollToRowAlignment: scrollActiveAlignment,
-    scrollToRowIndex,
+    scrollToItemIndex,
   };
 }
 

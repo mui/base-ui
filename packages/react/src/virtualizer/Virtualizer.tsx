@@ -20,19 +20,37 @@ import { getMaxScrollOffset } from '../utils/scrollEdges';
 import type { StateAttributesMapping } from '../internals/getStateAttributesProps';
 import type { BaseUIComponentProps, HTMLProps } from '../internals/types';
 import { useRenderElement } from '../internals/useRenderElement';
-import type { VirtualizerActions } from '../internals/virtualization/ListVirtualizationRegistry';
+import type {
+  VirtualizerActions,
+  VirtualizerScrollToIndexOptions,
+} from '../internals/virtualization/ListVirtualizationRegistry';
 import { useListVirtualization } from '../internals/virtualization/ListVirtualizationHostContext';
 import { useListBinding } from '../internals/virtualization/useListBinding';
-import { useRowModels } from '../internals/virtualization/useRowModels';
-import type {
-  VirtualizerActiveIndex,
-  VirtualizerActiveItem,
-  VirtualizerItemProps,
-  VirtualizerItemRowModel,
-  VirtualizerRenderRowParameters,
-  VirtualizerRow,
+import {
+  isGroupHeaderRowId,
+  useGroupedRowModels,
+  useRowModels,
+  type GroupedRows,
+} from '../internals/virtualization/useRowModels';
+import {
+  isGroupHeaderRow,
+  type VirtualizerActiveIndex,
+  type VirtualizerActiveItem,
+  type VirtualizerGroup,
+  type VirtualizerEstimateGroupHeaderHeight,
+  type VirtualizerGroupHeaderElement,
+  type VirtualizerGroupHeaderProps,
+  type VirtualizerRenderGroupHeader,
+  type VirtualizerGetGroupKey,
+  type VirtualizerItemProps,
+  type VirtualizerItemRowModel,
+  type VirtualizerRenderRowParameters,
+  type VirtualizerRow,
+  type VirtualizerRowModel,
 } from '../internals/virtualization/types';
 import type { RowsGeometry, RowWindow } from './geometry';
+import { getLaidOutRowElements } from './getLaidOutRowElements';
+import { useGroupHeaderHeightEstimate } from './useGroupHeaderHeightEstimate';
 import { EMPTY_SCROLLPORT_PADDING, getScrollportPadding } from './scrollport';
 import { useAdaptiveEstimate, useAdaptiveEstimateRefresh } from './useAdaptiveEstimate';
 import { useEngineMode } from './useEngineMode';
@@ -47,6 +65,12 @@ interface VirtualRowProps<RowModel> {
   apiRef: React.RefObject<MuiVirtualizer['api'] | null>;
   isVirtualFocusRow: boolean;
   renderRow: (params: VirtualizerRenderRowParameters<RowModel>) => React.ReactElement;
+  /**
+   * Whether the row is mounted for its content alone — a group header kept so the group's name
+   * resolves while the header itself is outside the window. A retained row is hidden, takes no
+   * space, and is not measured.
+   */
+  retained: boolean;
   row: VirtualizerRow<RowModel>;
   rowIndex: number;
 }
@@ -68,7 +92,7 @@ const virtualRowStyle: React.CSSProperties = {
 };
 
 function VirtualRowImpl<RowModel>(props: VirtualRowProps<RowModel>) {
-  const { apiRef, isVirtualFocusRow, renderRow, row, rowIndex } = props;
+  const { apiRef, isVirtualFocusRow, renderRow, retained, row, rowIndex } = props;
 
   const measureCleanupRef = React.useRef<(() => void) | undefined>(undefined);
   const measureRef = useStableCallback((element: HTMLElement | null) => {
@@ -78,28 +102,40 @@ function VirtualRowImpl<RowModel>(props: VirtualRowProps<RowModel>) {
       : undefined;
   });
 
+  const inLayout = !isVirtualFocusRow && !retained;
+
   useIsoLayoutEffect(() => {
-    if (!isVirtualFocusRow) {
+    if (inLayout) {
       // Dynamic row measurement is incremental in MUI Virtualizer. Mark real rows as measured so their
       // metadata can advance the measured boundary; the zero-sized focus proxy must not count.
       apiRef.current?.rowsMeta.setLastMeasuredRowIndex(rowIndex);
     }
-  }, [apiRef, isVirtualFocusRow, rowIndex]);
+  }, [apiRef, inLayout, rowIndex]);
 
   const content = renderRow({
     row,
     rowIndex,
   });
 
-  const style = isVirtualFocusRow ? focusProxyStyle : virtualRowStyle;
+  // A retained row carries no inline display: the `hidden` attribute only removes an element
+  // from layout through the browser's own `display: none`, which any inline display overrides.
+  let style: React.CSSProperties | undefined = virtualRowStyle;
+  if (isVirtualFocusRow) {
+    style = focusProxyStyle;
+  } else if (retained) {
+    style = undefined;
+  }
 
   // MUI Virtualizer can retain a focused row outside the visible range. Keep its semantic content mounted,
   // but remove it from layout and measurement until the real row enters the rendered window.
+  // Dropping the measurement ref while a row is retained detaches its observer through the ref's
+  // own cleanup, so no hidden height reaches the cache.
   return (
     <div
-      ref={isVirtualFocusRow ? undefined : measureRef}
+      ref={inLayout ? measureRef : undefined}
       role="presentation"
       data-row-index={rowIndex}
+      hidden={retained || undefined}
       style={style}
     >
       {content}
@@ -204,10 +240,16 @@ type RenderVirtualRow = (params: {
   model: MuiVirtualizerRow;
   rowIndex: number;
   isVirtualFocusRow: boolean;
+  retained: boolean;
 }) => React.ReactElement;
 
+interface WindowEntry {
+  rowIndex: number;
+  isVirtualFocusRow: boolean;
+}
+
 /**
- * Renders the rows of a half-open window, plus the pinned row when it falls outside the window.
+ * The rows of a half-open window in order, plus the pinned row when it falls outside the window.
  *
  * This is what the engine's own row getter does for a flat list, written here so the component
  * owns the element tree it mounts: the getter's typings are `any`, and it also carries the grid
@@ -216,37 +258,125 @@ type RenderVirtualRow = (params: {
  * after it when it lies beyond the exclusive end, and it is the focus proxy only in those
  * positions; a pinned row inside the window is an ordinary row.
  */
-function renderRowWindow<RowModel>(
+function getWindowEntries(
   window: RowWindow,
   pinnedRowIndex: number | undefined,
-  rows: VirtualizerRow<RowModel>[],
-  renderRow: RenderVirtualRow,
-): React.ReactNode {
+  rowCount: number,
+): WindowEntry[] {
   const firstRowIndex = Math.max(0, window.firstRowIndex);
-  const lastRowIndex = Math.min(window.lastRowIndex, rows.length);
-  const elements: React.ReactElement[] = [];
-
-  const renderAt = (rowIndex: number, isVirtualFocusRow: boolean) => {
-    const row = rows[rowIndex];
-    elements.push(
-      renderRow({ id: row.id, model: row.model as MuiVirtualizerRow, rowIndex, isVirtualFocusRow }),
-    );
-  };
-
-  const hasPinnedRow =
-    pinnedRowIndex != null && pinnedRowIndex >= 0 && pinnedRowIndex < rows.length;
+  const lastRowIndex = Math.min(window.lastRowIndex, rowCount);
+  const entries: WindowEntry[] = [];
+  const hasPinnedRow = pinnedRowIndex != null && pinnedRowIndex >= 0 && pinnedRowIndex < rowCount;
 
   if (hasPinnedRow && pinnedRowIndex < firstRowIndex) {
-    renderAt(pinnedRowIndex, true);
+    entries.push({ rowIndex: pinnedRowIndex, isVirtualFocusRow: true });
   }
 
   for (let rowIndex = firstRowIndex; rowIndex < lastRowIndex; rowIndex += 1) {
-    renderAt(rowIndex, false);
+    entries.push({ rowIndex, isVirtualFocusRow: false });
   }
 
   if (hasPinnedRow && pinnedRowIndex > lastRowIndex) {
-    renderAt(pinnedRowIndex, true);
+    entries.push({ rowIndex: pinnedRowIndex, isVirtualFocusRow: true });
   }
+
+  return entries;
+}
+
+/**
+ * Renders the window of a flat list: its rows, as siblings.
+ */
+function renderFlatWindow<RowModel>(
+  entries: WindowEntry[],
+  rows: VirtualizerRow<RowModel>[],
+  renderRow: RenderVirtualRow,
+): React.ReactNode {
+  return entries.map(({ rowIndex, isVirtualFocusRow }) => {
+    const row = rows[rowIndex];
+    return renderRow({
+      id: row.id,
+      model: row.model as MuiVirtualizerRow,
+      rowIndex,
+      isVirtualFocusRow,
+      retained: false,
+    });
+  });
+}
+
+/**
+ * Renders the window of a grouped list: each run of consecutive rows from one group inside that
+ * group's wrapper, which is what associates the options with their group's name.
+ *
+ * The wrapper spans only the window's slice of the group, so it carries no styling of its own.
+ * Its first child is always the group's header: laid out when the header row is in the window,
+ * and otherwise retained hidden, so the `aria-labelledby` reference resolves for as long as any
+ * of the group's rows is mounted. The header is the same element either way, so a header
+ * scrolling into the window changes a prop rather than remounting. A pinned row from another
+ * group forms a run of its own, with that group's header retained beside it.
+ */
+function renderGroupedWindow<RowModel>(
+  entries: WindowEntry[],
+  rows: VirtualizerRow<RowModel>[],
+  grouped: GroupedRows<unknown>,
+  getGroupHeaderId: (ordinal: number) => string | undefined,
+  renderRow: RenderVirtualRow,
+): React.ReactNode {
+  const elements: React.ReactElement[] = [];
+  let runGroupIndex = -1;
+  let run: WindowEntry[] = [];
+
+  const flush = () => {
+    if (run.length === 0) {
+      return;
+    }
+
+    const descriptor = grouped.groups[runGroupIndex];
+    const children: React.ReactElement[] = [];
+    // Row order places a group's header before its items, and the entries keep row order, so a
+    // header in the run is its first entry.
+    if (run[0].rowIndex !== descriptor.headerRowIndex) {
+      const header = rows[descriptor.headerRowIndex];
+      children.push(
+        renderRow({
+          id: header.id,
+          model: header.model as MuiVirtualizerRow,
+          rowIndex: descriptor.headerRowIndex,
+          isVirtualFocusRow: false,
+          retained: true,
+        }),
+      );
+    }
+
+    for (const { rowIndex, isVirtualFocusRow } of run) {
+      const row = rows[rowIndex];
+      children.push(
+        renderRow({
+          id: row.id,
+          model: row.model as MuiVirtualizerRow,
+          rowIndex,
+          isVirtualFocusRow,
+          retained: false,
+        }),
+      );
+    }
+
+    elements.push(
+      <div key={descriptor.key} role="group" aria-labelledby={getGroupHeaderId(descriptor.ordinal)}>
+        {children}
+      </div>,
+    );
+    run = [];
+  };
+
+  for (const entry of entries) {
+    const groupIndex = grouped.rowToGroupIndex[entry.rowIndex];
+    if (groupIndex !== runGroupIndex) {
+      flush();
+      runGroupIndex = groupIndex;
+    }
+    run.push(entry);
+  }
+  flush();
 
   return elements;
 }
@@ -266,7 +396,7 @@ const stateAttributesMapping: StateAttributesMapping<VirtualizerState> = {
  * The element must have a constrained height or maximum height for virtualization to limit the
  * number of mounted items.
  *
- * Grouped collections and grid mode are not currently supported.
+ * Grid mode is not currently supported.
  *
  * Documentation: [Base UI Virtualizer](https://base-ui.com/react/utils/virtualizer)
  */
@@ -281,10 +411,13 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
     className,
     enabled: enabledProp = true,
     endReachedThreshold = 0,
+    estimatedGroupHeaderHeight: estimatedGroupHeaderHeightProp,
     estimatedItemHeight: estimatedItemHeightProp,
+    getGroupKey,
     getItemKey,
     items,
     onEndReached,
+    renderGroupHeader,
     trailing,
     overscanPx,
     render,
@@ -298,12 +431,14 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
   const {
     apiRef: apiRefProp,
     enabled,
+    getGroupHeaderId,
+    groups,
     items: collection,
     onUnconstrainedHeight,
-    pinnedRowIndex,
+    pinnedItemIndex,
     renderRow: renderRowProp,
     scrollToRowAlignment,
-    scrollToRowIndex,
+    scrollToItemIndex,
   } = useListBinding<Value>({
     actionsRef,
     activeIndex,
@@ -313,15 +448,36 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
     host,
     items,
     listState,
+    renderGroupHeader,
   });
 
-  const rows = useRowModels<Value>({ getItemKey, items: collection });
+  // The item rows are the collection as the flat concerns know it — estimates, the adaptive
+  // average — and the engine windows either them or, for a grouped collection, the projection that
+  // interleaves the group headers. Everything public speaks item indexes; the projection's tables
+  // translate at the boundary, and a flat list has no projection to consult.
+  const itemRows = useRowModels<Value>({ getItemKey, items: collection });
+  const grouped = useGroupedRowModels<Value>({ getGroupKey, groups, itemRows });
+  const rows: VirtualizerRow<VirtualizerRowModel<Value>>[] = grouped?.rows ?? itemRows;
+  const groupedRef = React.useRef(grouped);
+  groupedRef.current = grouped;
+  const collectionRef = React.useRef(collection);
+  collectionRef.current = collection;
+  const toRowIndex = (itemIndex: number) =>
+    grouped == null ? itemIndex : (grouped.itemToRowIndex[itemIndex] ?? -1);
+
   const itemHeightEstimate = useItemHeightEstimate<Value>({
     estimatedItemHeight: estimatedItemHeightProp,
     items: collection,
-    rows,
+    rows: itemRows,
   });
   const { defaultEstimatedItemHeight, getEstimatedItemHeight } = itemHeightEstimate;
+  const groupHeaderHeightEstimate = useGroupHeaderHeightEstimate<Value>({
+    estimatedGroupHeaderHeight: estimatedGroupHeaderHeightProp,
+    grouped,
+    groups,
+    staticEstimatedItemHeight: itemHeightEstimate.staticEstimatedItemHeight,
+  });
+  const { getEstimatedGroupHeaderHeight } = groupHeaderHeightEstimate;
 
   const scrollElementRef = React.useRef<HTMLDivElement | null>(null);
   const renderZoneRef = React.useRef<HTMLDivElement | null>(null);
@@ -355,8 +511,10 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
   const scrollportPaddingTotal = scrollportPadding.start + scrollportPadding.end;
 
   const gesture = useScrollGesture({ scrollElementRef, settleGeometry });
+  // The running average describes items: it is fed the item rows alone, so headers neither seed
+  // it nor count among the rows it is judged against.
   const adaptive = useAdaptiveEstimate({
-    rows,
+    rows: itemRows,
     staticEstimatedItemHeight: itemHeightEstimate.staticEstimatedItemHeight,
   });
 
@@ -448,10 +606,13 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
   const rowsRef = React.useRef(rows);
   rowsRef.current = rows;
 
+  const pinnedRowIndex = pinnedItemIndex == null ? undefined : toRowIndex(pinnedItemIndex);
   const validPinnedRowIndex =
     pinnedRowIndex != null && pinnedRowIndex >= 0 && rows[pinnedRowIndex] != null
       ? pinnedRowIndex
       : undefined;
+  const scrollToRowIndex =
+    scrollToItemIndex == null || scrollToItemIndex < 0 ? undefined : toRowIndex(scrollToItemIndex);
   const focusedVirtualCellRef = React.useRef<{
     columnIndex: number;
     id: React.Key;
@@ -468,13 +629,8 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
 
   const getFocusedVirtualCell = React.useCallback(() => focusedVirtualCellRef.current, []);
 
-  const renderRow = React.useCallback(
-    (params: {
-      id: React.Key;
-      model: MuiVirtualizerRow;
-      rowIndex: number;
-      isVirtualFocusRow: boolean;
-    }) => {
+  const renderRow = React.useCallback<RenderVirtualRow>(
+    (params) => {
       const row = rows[params.rowIndex];
       return (
         <VirtualRow
@@ -482,12 +638,23 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
           apiRef={muiApiRef}
           isVirtualFocusRow={params.isVirtualFocusRow}
           renderRow={renderRowProp}
+          retained={params.retained}
           row={row}
           rowIndex={params.rowIndex}
         />
       );
     },
     [renderRowProp, rows],
+  );
+
+  const engineRenderRow = React.useCallback(
+    (params: {
+      id: React.Key;
+      model: MuiVirtualizerRow;
+      rowIndex: number;
+      isVirtualFocusRow: boolean;
+    }) => renderRow({ ...params, retained: false }),
+    [renderRow],
   );
 
   const getRowHeight = React.useCallback(() => 'auto' as const, []);
@@ -498,14 +665,32 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
     });
     return map;
   }, [rows]);
+  const rowIndexByIdRef = React.useRef(rowIndexById);
+  rowIndexByIdRef.current = rowIndexById;
+  const resolveRowIndexById = useStableCallback((rowId: React.Key) =>
+    rowIndexByIdRef.current.get(rowId),
+  );
 
   // MUI Virtualizer rehydrates row metadata when these callback identities change. This intentionally uses
   // a dependency-sensitive callback so estimate changes invalidate cached geometry.
   const adaptiveEnabled = adaptive.enabled;
   const adaptiveInvalidated = adaptive.invalidated;
   const readAdaptiveEstimate = adaptive.readEstimate;
+  const hasGroupHeaders = grouped != null;
   const getEstimatedRowHeight = React.useCallback(
     (row: RowEntry) => {
+      let model: VirtualizerRowModel<Value> | undefined;
+
+      // A header has an estimate of its own, and the running average below describes items. Only
+      // a grouped list looks the row up before the average: the engine asks for every unmeasured
+      // row on every hydration, and a flat list has nothing to look for.
+      if (hasGroupHeaders) {
+        model = rows[rowIndexById.get(row.id as React.Key) ?? -1]?.model;
+        if (model != null && isGroupHeaderRow(model)) {
+          return getEstimatedGroupHeaderHeight(model.groupIndex);
+        }
+      }
+
       // A static estimate is refined with the running average of measured rows so the virtual
       // geometry converges quickly. Per-row estimate functions encode knowledge that a global
       // average would override, so they are used as provided. The average is read through the
@@ -515,14 +700,18 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
         return adaptiveEstimate;
       }
 
-      const rowIndex = rowIndexById.get(row.id as React.Key) ?? -1;
-      return rows[rowIndex] != null ? getEstimatedItemHeight(rowIndex) : defaultEstimatedItemHeight;
+      model ??= rows[rowIndexById.get(row.id as React.Key) ?? -1]?.model;
+      return model != null && !isGroupHeaderRow(model)
+        ? getEstimatedItemHeight(model.itemIndex)
+        : defaultEstimatedItemHeight;
     },
     [
       adaptiveEnabled,
       adaptiveInvalidated,
       defaultEstimatedItemHeight,
+      getEstimatedGroupHeaderHeight,
       getEstimatedItemHeight,
+      hasGroupHeaders,
       readAdaptiveEstimate,
       rowIndexById,
       rows,
@@ -618,7 +807,9 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
     getRowHeight,
     getEstimatedRowHeight,
     focusedVirtualCell: getFocusedVirtualCell,
-    renderRow,
+    // The engine requires a row renderer, though this component renders the window itself and
+    // never asks the engine for rows.
+    renderRow: engineRenderRow,
     onScrollChange: handleScrollChange,
   });
   muiApiRef.current = virtualizer.api;
@@ -675,6 +866,16 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
     >) {
       if (!entry.needsFirstMeasurement) {
         yield [rowId, entry.content] as [React.Key, number];
+      }
+    }
+  });
+  // The same cache without the headers, including headers of groups no longer in the collection:
+  // the adaptive refresh demotes every measured row it did not sample to the item average, and a
+  // header's measured height must survive that.
+  const readMeasuredItemHeights = useStableCallback(function* readMeasuredItemHeights() {
+    for (const [rowId, height] of readMeasuredHeights()) {
+      if (!isGroupHeaderRowId(rowId)) {
+        yield [rowId, height] as [React.Key, number];
       }
     }
   });
@@ -783,10 +984,14 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
 
   // Declared after the effects that publish the virtualization mode, so a request made as a list
   // opens is applied against the enabled window.
-  const pendingScroll = usePendingScroll<VirtualizerItemRowModel<Value>>({
+  const pendingScroll = usePendingScroll<VirtualizerRowModel<Value>>({
     adaptive,
     enabled,
     isRowMeasured,
+    // Headers move an item's row index without changing which item it is. A request keeps
+    // following its row by id through such a change; a flat list has no such change to follow.
+    resolveRowIndex: grouped == null ? undefined : resolveRowIndexById,
+    itemCountBeforeRow: grouped?.itemCountBeforeRow,
     onScrollApplied: (scrollTop) => handleScrollChange({ top: scrollTop }),
     refreshWindow,
     refreshWindowAfterCorrectiveScroll,
@@ -815,13 +1020,17 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
   // Reported in scroll coordinates rather than the engine's: the scrollport's block padding is
   // the offset between the two, and a consumer holding a `scrollTop` has no way to know it.
   const getItemMetrics = useStableCallback((index: number) => {
-    if (rowsRef.current[index] == null) {
+    const currentGrouped = groupedRef.current;
+    const rowIndex = currentGrouped == null ? index : (currentGrouped.itemToRowIndex[index] ?? -1);
+
+    if (rowsRef.current[rowIndex] == null) {
       return null;
     }
 
     const currentRowsMeta = virtualizer.store.state.rowsMeta;
-    const offset = currentRowsMeta.positions[index];
-    const end = currentRowsMeta.positions[index + 1] ?? currentRowsMeta.currentPageTotalHeight;
+    const offset = currentRowsMeta.positions[rowIndex];
+    // The next row, whatever it is: a header following the group's last item is not the item's.
+    const end = currentRowsMeta.positions[rowIndex + 1] ?? currentRowsMeta.currentPageTotalHeight;
 
     if (offset == null || end == null) {
       return null;
@@ -834,17 +1043,28 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
   });
 
   const getIndexAtOffset = useStableCallback((offset: number) => {
-    const rowCount = rowsRef.current.length;
-    if (rowCount === 0) {
+    const currentRows = rowsRef.current;
+    const itemCount = collectionRef.current.length;
+    if (currentRows.length === 0 || itemCount === 0) {
       return null;
     }
 
     const currentRowsMeta = virtualizer.store.state.rowsMeta;
-    return findRowIndexAtOffset(
+    const rowIndex = findRowIndexAtOffset(
       currentRowsMeta.positions,
-      rowCount,
+      currentRows.length,
       Math.max(0, offset - scrollportPadding.start),
     );
+    const model = currentRows[rowIndex].model;
+
+    if (!isGroupHeaderRow(model)) {
+      return model.itemIndex;
+    }
+
+    // A header stands for the group it introduces, so it answers with the group's first item. An
+    // empty group has none, so the item that follows the header stands in, or the last item when
+    // nothing follows: the collection has items, so the answer is one of them.
+    return Math.min(model.itemStart, itemCount - 1);
   });
 
   /**
@@ -861,6 +1081,7 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
     // than per render, so an invalidation has to reach it as well. Re-rendering is what re-derives
     // it, and the engine rehydrates again once the new estimates arrive.
     itemHeightEstimate.invalidate();
+    groupHeaderHeightEstimate.invalidate();
     adaptive.reset();
     gesture.clearDeferredRowHeights();
 
@@ -872,14 +1093,9 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
       const renderZone = renderZoneRef.current;
 
       if (renderZone != null) {
-        for (let index = 0; index < renderZone.children.length; index += 1) {
-          const element = renderZone.children[index] as HTMLElement;
-
-          // The retained focus proxy is out of layout and never carries a usable height.
-          if (element.style.position === 'absolute') {
-            continue;
-          }
-
+        // Only rows in layout: the retained focus proxy and a retained header carry no usable
+        // height, and a hidden one stored as zero would be worse than its estimate.
+        for (const element of getLaidOutRowElements(renderZone)) {
           const rowIndex = Number(element.dataset.rowIndex);
           const row = rowsRef.current[rowIndex];
           const height = element.getBoundingClientRect().height;
@@ -900,7 +1116,19 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
     adaptive.noteMeasurements();
   });
 
-  const scrollToIndex = pendingScroll.scrollToIndex;
+  // Public requests name items; the pending scroll works in rows.
+  const scrollToIndex = useStableCallback(
+    (index: number, options?: VirtualizerScrollToIndexOptions) => {
+      if (!Number.isInteger(index) || index < 0 || index >= collectionRef.current.length) {
+        return;
+      }
+      const currentGrouped = groupedRef.current;
+      pendingScroll.scrollToIndex(
+        currentGrouped == null ? index : currentGrouped.itemToRowIndex[index],
+        options,
+      );
+    },
+  );
 
   React.useImperativeHandle(
     apiRefProp,
@@ -908,7 +1136,7 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
     [getIndexAtOffset, getItemMetrics, remeasure, resetScroll, scrollToIndex],
   );
 
-  const anchor = useScrollAnchor<VirtualizerItemRowModel<Value>>({
+  const anchor = useScrollAnchor<VirtualizerRowModel<Value>>({
     enabled,
     gesture,
     onScrollApplied: (scrollTop) => handleScrollChange({ top: scrollTop }),
@@ -1011,14 +1239,20 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
   const endReachedArmedRef = React.useRef(true);
 
   useIsoLayoutEffect(() => {
-    if (onEndReached == null || rows.length === 0) {
+    // Items, not rows: a grouped collection with headers and no items has no end to reach.
+    if (onEndReached == null || collection.length === 0) {
       return;
     }
 
     // The rendered range is half-open, so the final item is included once the end index reaches
     // the collection length. The threshold counts items short of that.
-    const reachedEnd =
-      overscannedRenderContext.lastRowIndex >= rows.length - Math.max(0, endReachedThreshold);
+    // Headers are rows but not items: in a grouped list the count of items before the window's
+    // end is what the threshold is measured against.
+    const renderedItemCount =
+      grouped == null
+        ? overscannedRenderContext.lastRowIndex
+        : grouped.itemCountBeforeRow[Math.min(overscannedRenderContext.lastRowIndex, rows.length)];
+    const reachedEnd = renderedItemCount >= collection.length - Math.max(0, endReachedThreshold);
 
     if (!reachedEnd) {
       endReachedArmedRef.current = true;
@@ -1032,12 +1266,28 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
     endReachedArmedRef.current = false;
     handleEndReached();
   }, [
+    collection.length,
     endReachedThreshold,
+    grouped,
     handleEndReached,
     onEndReached,
     overscannedRenderContext.lastRowIndex,
     rows.length,
   ]);
+
+  // The refresh samples the settled window and demotes every cached height it did not sample;
+  // both must see items only, so a grouped list hands it the window in item space and a view of
+  // the cache without the headers.
+  const itemRenderContext: RowWindow =
+    grouped == null
+      ? overscannedRenderContext
+      : {
+          firstRowIndex: grouped.itemCountBeforeRow[overscannedRenderContext.firstRowIndex] ?? 0,
+          lastRowIndex:
+            grouped.itemCountBeforeRow[
+              Math.min(overscannedRenderContext.lastRowIndex, rows.length)
+            ] ?? collection.length,
+        };
 
   // Declared after `useScrollAnchor`: refreshing the estimate re-positions rows above the
   // viewport, and anchoring compensates for that on the resulting commit.
@@ -1047,16 +1297,16 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
     demoteRowHeight,
     gesture,
     readMeasuredHeight,
-    readMeasuredHeights,
-    renderContext: overscannedRenderContext,
-    rows,
+    readMeasuredHeights: grouped == null ? readMeasuredHeights : readMeasuredItemHeights,
+    renderContext: itemRenderContext,
+    rows: itemRows,
     rowsMeta,
     settleGeometry,
   });
 
   // Declared last: anchoring reads an outstanding request while it still stands, and a request
   // waiting on a settled estimate sees the refresh above in the same commit.
-  usePendingScrollRetry<VirtualizerItemRowModel<Value>>({
+  usePendingScrollRetry<VirtualizerRowModel<Value>>({
     pendingScroll,
     renderContext: overscannedRenderContext,
     rows,
@@ -1066,7 +1316,11 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
   const rowsWindow: RowWindow = enabled
     ? overscannedRenderContext
     : { firstRowIndex: 0, lastRowIndex: rows.length };
-  const renderedRows = renderRowWindow(rowsWindow, validPinnedRowIndex, rows, renderRow);
+  const windowEntries = getWindowEntries(rowsWindow, validPinnedRowIndex, rows.length);
+  const renderedRows =
+    grouped == null
+      ? renderFlatWindow(windowEntries, rows, renderRow)
+      : renderGroupedWindow(windowEntries, rows, grouped, getGroupHeaderId, renderRow);
 
   const { ref: containerRef, style: containerStyle, ...restContainerProps } = containerProps;
   const { style: contentStyle, ...restContentProps } = contentProps;
@@ -1089,7 +1343,8 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
       : totalSize + trailingHeight;
 
   const state: VirtualizerState = {
-    empty: rows.length === 0,
+    // Items, not rows: a collection of empty groups renders their headers and is still empty.
+    empty: collection.length === 0,
     totalSize: scrollableSize,
   };
 
@@ -1278,12 +1533,32 @@ export interface VirtualizerBaseProps<Value> extends Omit<
    */
   estimatedItemHeight?: number | ((item: Value, index: number) => number) | undefined;
   /**
-   * The flat collection to virtualize.
+   * Returns a stable key for a group. Defaults to the group's index in the collection, which is
+   * enough while groups keep their order; a filtered collection that can drop a group should
+   * provide one so the groups behind it keep their identity.
+   */
+  getGroupKey?: VirtualizerGetGroupKey<Value> | undefined;
+  /**
+   * Estimated group header height in CSS pixels used before header elements have been measured.
+   * Provide a function to keep full control over per-group estimates.
+   * @default the static `estimatedItemHeight`, or `32` when that is a function
+   */
+  estimatedGroupHeaderHeight?: number | VirtualizerEstimateGroupHeaderHeight<Value> | undefined;
+  /**
+   * The collection to virtualize: a flat array of items, or an array of groups, each an object
+   * with an `items` array. A grouped collection also needs `renderGroupHeader`.
    *
    * When omitted, the collection and its highlight state come from the surrounding list, which
    * requires a list that supports virtualization, such as `<Combobox.List>`.
    */
-  items?: readonly Value[] | undefined;
+  items?: readonly Value[] | ReadonlyArray<VirtualizerGroup<Value>> | undefined;
+  /**
+   * Renders the header of a group in a grouped collection: exactly one element carrying the
+   * group's name. The third argument holds the `id` the group is labelled by, to spread onto
+   * that element; `<Combobox.GroupLabel>` applies it automatically. The virtualizer wraps each
+   * group's rendered rows in a `role="group"` element itself, so no group part is needed.
+   */
+  renderGroupHeader?: VirtualizerRenderGroupHeader<Value> | undefined;
   /**
    * Pixel buffer rendered before and after the visible range.
    * Defaults to the larger of 150px and the estimated size of the first item. The render buffer
@@ -1347,6 +1622,19 @@ export namespace Virtualizer {
    * An activation of an item, describing what should happen to the viewport along with it.
    */
   export type ActiveItem = VirtualizerActiveItem;
+  /**
+   * A group in a grouped collection: an object with an `items` array, plus anything else the
+   * group's header needs.
+   */
+  export type Group<Value = unknown> = VirtualizerGroup<Value>;
+  /**
+   * Attributes to spread onto the element carrying a group's name.
+   */
+  export type GroupHeaderProps = VirtualizerGroupHeaderProps;
+  /**
+   * A `React.ReactElement`, as returned by a group header renderer.
+   */
+  export type GroupHeaderElement = VirtualizerGroupHeaderElement;
   /**
    * State metadata exposed to render props.
    */

@@ -6,6 +6,7 @@ import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import type { RowWindow, RowsGeometry } from './geometry';
+import { getLaidOutRowElements } from './getLaidOutRowElements';
 import { getMaxScrollOffset } from '../utils/scrollEdges';
 import type {
   VirtualizerScrollAlignment,
@@ -61,9 +62,23 @@ export interface UsePendingScrollParameters<RowModel> {
    * were rendered for.
    */
   refreshWindowAfterCorrectiveScroll: (scrollTop: number) => void;
+  /**
+   * Number of items strictly before each row, for a list whose rows include group headers, or
+   * `undefined` for a flat list. Distances between a request and the window are judged in items:
+   * the estimate a distant request waits for is an average of items, and headers between two
+   * items make them no further apart in that sense.
+   */
+  itemCountBeforeRow: number[] | undefined;
   /** The window this commit rendered, as of the latest render. */
   renderContextRef: React.RefObject<RowWindow>;
   renderZoneRef: React.RefObject<HTMLElement | null>;
+  /**
+   * The current row index of a row, by id, for a list whose row indexes can move while the rows
+   * themselves stay — group headers inserted above a requested item. A request follows its row
+   * through such a move rather than being abandoned. `undefined` for a flat list, where a row at
+   * a changed index is a different row.
+   */
+  resolveRowIndex: ((rowId: React.Key) => number | undefined) | undefined;
   rows: VirtualizerRow<RowModel>[];
   rowsRef: React.RefObject<VirtualizerRow<RowModel>[]>;
   scrollElementRef: React.RefObject<HTMLElement | null>;
@@ -97,9 +112,11 @@ export function usePendingScroll<RowModel>(
     isRowMeasured,
     onScrollApplied,
     refreshWindow,
+    itemCountBeforeRow,
     refreshWindowAfterCorrectiveScroll,
     renderContextRef,
     renderZoneRef,
+    resolveRowIndex,
     rows,
     rowsRef,
     scrollElementRef,
@@ -132,6 +149,10 @@ export function usePendingScroll<RowModel>(
   const viewportScrollFrame = useAnimationFrame();
 
   const scrollportPaddingTotal = scrollportPadding.start + scrollportPadding.end;
+
+  const isFarFromWindow = useStableCallback((rowIndex: number, window: RowWindow) =>
+    isRowFarFromWindow(rowIndex, window, itemCountBeforeRow),
+  );
 
   /** Forgets the request without treating it as fulfilled. */
   const cancel = useStableCallback(() => {
@@ -294,7 +315,15 @@ export function usePendingScroll<RowModel>(
       // pass look complete even though the expanded collection retained it only as an offscreen
       // focus proxy. Keep that request pending until the static estimate settles, so the alignment
       // is re-applied across the refresh that rewrites every unmeasured row.
-      if (requiresAdaptiveEstimateRef.current && adaptive.readEstimate() == null) {
+      // A window that cannot supply the samples the average needs — a group's one item between two
+      // tall headers — would keep the request pending for good, and anchoring suspended with it.
+      // Once the refinement is known to be exhausted, the measured destination is final enough:
+      // whatever average arrives later is absorbed by anchoring.
+      if (
+        requiresAdaptiveEstimateRef.current &&
+        adaptive.readEstimate() == null &&
+        !adaptive.isRefinementExhausted()
+      ) {
         return false;
       }
 
@@ -310,11 +339,13 @@ export function usePendingScroll<RowModel>(
       // covers a distant row that the collection retained only as an offscreen focus proxy, which
       // is positioned absolutely and never counts as on screen. A row taller than the scrollport
       // can never fit, so for those covering the scrollport is what counts as arrived.
-      const renderedRow = Array.from(renderZoneRef.current?.children ?? []).find(
-        (element) =>
-          Number((element as HTMLElement).dataset.rowIndex) === rowIndex &&
-          (element as HTMLElement).style.position !== 'absolute',
-      );
+      const renderZone = renderZoneRef.current;
+      const renderedRow =
+        renderZone == null
+          ? undefined
+          : getLaidOutRowElements(renderZone).find(
+              (element) => Number(element.dataset.rowIndex) === rowIndex,
+            );
       const renderedRowRect = renderedRow?.getBoundingClientRect();
       const scrollElementRect = scrollElement.getBoundingClientRect();
       if (renderedRowRect == null) {
@@ -370,15 +401,11 @@ export function usePendingScroll<RowModel>(
     rowIdRef.current = scrollToRowId;
     alignmentRef.current = alignment;
     requiresMeasurementRef.current = false;
-    const currentRenderContext = renderContextRef.current;
     requiresAdaptiveEstimateRef.current =
       requiresAdaptiveEstimateRef.current ||
       (adaptiveEnabled &&
         readAdaptiveEstimate() == null &&
-        (scrollToRowIndex <
-          currentRenderContext.firstRowIndex - ADAPTIVE_SCROLL_TARGET_MIN_DISTANCE ||
-          scrollToRowIndex >
-            currentRenderContext.lastRowIndex + ADAPTIVE_SCROLL_TARGET_MIN_DISTANCE));
+        isFarFromWindow(scrollToRowIndex, renderContextRef.current));
 
     // Try immediately with estimated metadata. If the destination is still unmeasured, the
     // rowsMeta effect below corrects the position once ResizeObserver updates it.
@@ -389,6 +416,7 @@ export function usePendingScroll<RowModel>(
     adaptiveEnabled,
     cancel,
     enabled,
+    isFarFromWindow,
     readAdaptiveEstimate,
     renderContextRef,
     scrollRowIntoView,
@@ -398,13 +426,27 @@ export function usePendingScroll<RowModel>(
   ]);
 
   const retry = useStableCallback(() => {
-    const rowIndex = rowIndexRef.current;
+    let rowIndex = rowIndexRef.current;
 
     // Array identity may change without the logical destination changing. Only invalidate a
     // pending correction when a different row now occupies the requested collection index.
     if (rowIndex != null && rowsRef.current[rowIndex]?.id !== rowIdRef.current) {
-      cancel();
-      return;
+      const movedRowIndex =
+        rowIdRef.current == null ? undefined : resolveRowIndex?.(rowIdRef.current);
+
+      if (movedRowIndex == null) {
+        cancel();
+        return;
+      }
+
+      // The row is still there, at another index. Start its positioning over: the position
+      // written so far was for the old index, and requiring the row to be measured before
+      // scrolling would wait on a row that is not mounted at the new one yet.
+      rowIndex = movedRowIndex;
+      rowIndexRef.current = movedRowIndex;
+      requiresMeasurementRef.current = false;
+      viewportScrollTopRef.current = null;
+      viewportScrollFrame.cancel();
     }
 
     if (
@@ -478,6 +520,35 @@ export function usePendingScrollRetry<RowModel>(
   const { retry } = pendingScroll;
 
   useIsoLayoutEffect(retry, [firstRowIndex, lastRowIndex, retry, rows, rowsMeta]);
+}
+
+/**
+ * Whether a destination lies far enough outside the window that the rows between it and the
+ * window could accumulate enough estimate error to justify waiting for the refined average.
+ *
+ * Judged in items when the rows include group headers (`itemCountBeforeRow` given): the average
+ * describes items, and headers between two items make them no further apart in that sense.
+ */
+export function isRowFarFromWindow(
+  rowIndex: number,
+  window: RowWindow,
+  itemCountBeforeRow: number[] | undefined,
+) {
+  if (itemCountBeforeRow == null) {
+    return (
+      rowIndex < window.firstRowIndex - ADAPTIVE_SCROLL_TARGET_MIN_DISTANCE ||
+      rowIndex > window.lastRowIndex + ADAPTIVE_SCROLL_TARGET_MIN_DISTANCE
+    );
+  }
+
+  const lastRowIndex = Math.min(window.lastRowIndex, itemCountBeforeRow.length - 1);
+  const itemIndex = itemCountBeforeRow[rowIndex] ?? 0;
+  const firstItemIndex = itemCountBeforeRow[window.firstRowIndex] ?? 0;
+  const lastItemIndex = itemCountBeforeRow[lastRowIndex] ?? firstItemIndex;
+  return (
+    itemIndex < firstItemIndex - ADAPTIVE_SCROLL_TARGET_MIN_DISTANCE ||
+    itemIndex > lastItemIndex + ADAPTIVE_SCROLL_TARGET_MIN_DISTANCE
+  );
 }
 
 function resolveScrollPadding(scrollElement: HTMLElement, value: string) {
