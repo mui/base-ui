@@ -68,6 +68,7 @@ import {
 import {
   compareItemEquality,
   defaultItemEquality,
+  findItemIndex,
   findSelectionIndex,
   isSelectedValueDirty,
   removeItem,
@@ -280,6 +281,9 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
   const pendingQueryHighlightRef = React.useRef<null | {
     hasQuery: boolean;
     selection?: boolean | undefined;
+    // The value a selection-driven clear just added, so the restore can keep it
+    // highlighted instead of returning to the open anchor.
+    toggledValue?: any;
   }>(null);
   const virtualizationRegistry = useRefWithInit(createListVirtualizationRegistry).current;
 
@@ -946,6 +950,12 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
               isItemPress: true,
             }),
           );
+          // A newly selected item stays highlighted through the clear; a deselection
+          // falls back to the standard selection anchor.
+          const pendingHighlight = pendingQueryHighlightRef.current;
+          if (pendingHighlight && !isCurrentlySelected) {
+            pendingHighlight.toggledValue = itemValue;
+          }
         } else {
           setOpen(false, eventDetails);
         }
@@ -1136,28 +1146,37 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
             // re-running this effect on every render.
             const currentSelectedValue = store.state.selectedValue;
             const isMultiple = store.state.selectionMode === 'multiple';
-            const lastSelectedValue =
+            const hasSelection =
               isMultiple && Array.isArray(currentSelectedValue)
-                ? currentSelectedValue[currentSelectedValue.length - 1]
-                : currentSelectedValue;
-            const hasSelection = store.state.selectionMode !== 'none' && lastSelectedValue != null;
+                ? currentSelectedValue.length > 0
+                : store.state.selectionMode !== 'none' && currentSelectedValue != null;
 
-            if (hasSelection || clearedBySelection) {
+            if (hasSelection) {
               const registry =
                 hasItems || hasFilteredItemsProp ? flatFilteredValues : valuesRef.current;
-              // A selection that is no longer in the list drops the highlight rather than
-              // leaving it on whichever item now occupies that index.
+              // A selection-driven clear keeps the just-selected item highlighted;
+              // otherwise return to the open anchor. A selection that is no longer in
+              // the list drops the highlight rather than leaving it on whichever item
+              // now occupies that index.
+              // `findItemIndex` resolves to -1 when no value was toggled.
+              const toggledIndex = findItemIndex(
+                registry,
+                pendingHighlight.toggledValue,
+                store.state.isItemEqualToValue,
+              );
               updateActiveIndexState(
                 store,
-                hasSelection
-                  ? findSelectionIndex(
+                toggledIndex !== -1
+                  ? toggledIndex
+                  : findSelectionIndex(
                       registry,
                       currentSelectedValue,
                       store.state.isItemEqualToValue,
                       isMultiple,
-                    )
-                  : null,
+                    ),
               );
+            } else if (clearedBySelection) {
+              updateActiveIndexState(store, null);
             } else if (autoHighlightMode === 'always') {
               const itemCount =
                 hasItems || hasFilteredItemsProp
@@ -1930,14 +1949,16 @@ interface ComboboxRootProps<ItemValue, Item = ItemValue> {
    * The items to be displayed in the list.
    * Can be a flat array of items, an array of groups with items, or a collection created by
    * the `createItems()` function, which derives each item's selection value and label.
+   * Nullish entries are not supported: remove them from the data before passing it.
    */
   items?:
     readonly any[] | readonly Group<any>[] | ComboboxItemCollection<Item, ItemValue> | undefined;
   /**
    * Filtered items to display in the list.
-   * When provided, the list will use these items instead of filtering the `items` prop internally.
+   * When provided, the list uses these items instead of filtering the `items` prop internally.
    * When `items` is also provided, this array must preserve its flat or grouped structure.
    * With a `createItems()` collection, pass source items rather than derived values.
+   * Nullish entries are not supported, as in `items`.
    * Use when you want to control filtering logic externally with the `useFilter()` hook.
    */
   filteredItems?: readonly Item[] | readonly Group<Item>[] | undefined;

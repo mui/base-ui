@@ -84,6 +84,8 @@ export interface SelectValueProps extends Omit<
 > {
   /**
    * Accepts a function that returns a `ReactNode` to format the selected value.
+   * Treat the value as read-only: in `multiple` mode it may be a shared frozen array
+   * when nothing is selected.
    * @example
    * ```tsx
    * <Select.Value>

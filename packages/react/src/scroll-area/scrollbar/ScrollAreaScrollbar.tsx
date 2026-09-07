@@ -119,6 +119,7 @@ export const ScrollAreaScrollbar = React.forwardRef(function ScrollAreaScrollbar
 
   const props: HTMLProps = {
     ...(rootId && { 'data-id': `${rootId}-scrollbar` }),
+    'aria-hidden': true,
     onPointerDown(event) {
       if (event.button !== 0) {
         return;

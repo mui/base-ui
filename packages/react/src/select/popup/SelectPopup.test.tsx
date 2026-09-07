@@ -1,4 +1,4 @@
-import { expect } from 'vitest';
+import { expect, describe, it, afterEach } from 'vitest';
 import * as React from 'react';
 import { Select } from '@base-ui/react/select';
 import { Toolbar } from '@base-ui/react/toolbar';

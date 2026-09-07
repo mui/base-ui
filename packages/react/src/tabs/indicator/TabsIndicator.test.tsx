@@ -1,4 +1,4 @@
-import { afterEach, expect, vi } from 'vitest';
+import { afterEach, expect, vi, describe, it } from 'vitest';
 import * as React from 'react';
 import { Tabs } from '@base-ui/react/tabs';
 import { CSPProvider } from '@base-ui/react/csp-provider';

@@ -1,4 +1,4 @@
-import { expect, vi } from 'vitest';
+import { expect, vi, describe, it } from 'vitest';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { Toast } from '@base-ui/react/toast';

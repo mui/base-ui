@@ -138,6 +138,7 @@ export type AccordionValue<Value = any> = Value[];
 export interface AccordionRootState<Value = any> {
   /**
    * The current value.
+   * Treat it as read-only: it may be a shared frozen array when no value is set.
    */
   value: AccordionValue<Value>;
   /**

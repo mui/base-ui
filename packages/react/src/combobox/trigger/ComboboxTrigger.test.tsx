@@ -1,4 +1,4 @@
-import { expect, vi } from 'vitest';
+import { expect, vi, describe, it } from 'vitest';
 import * as React from 'react';
 import { Combobox } from '@base-ui/react/combobox';
 import { Autocomplete } from '@base-ui/react/autocomplete';

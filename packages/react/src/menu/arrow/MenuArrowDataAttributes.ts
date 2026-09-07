@@ -9,7 +9,7 @@ export const open = CommonPopupDataAttributes.open;
  */
 export const closed = CommonPopupDataAttributes.closed;
 /**
- * Indicates which side the popup is positioned relative to the trigger.
+ * Indicates which side the popup is positioned relative to the anchor.
  * @type {'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start'}
  */
 export const side = CommonPopupDataAttributes.side;

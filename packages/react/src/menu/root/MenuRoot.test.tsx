@@ -1,4 +1,4 @@
-import { expect, vi } from 'vitest';
+import { expect, vi, describe, beforeEach, it, afterEach } from 'vitest';
 import type { CDPSession } from '@vitest/browser-playwright';
 import * as React from 'react';
 import {
@@ -1691,7 +1691,7 @@ describe('<Menu.Root />', () => {
       });
     });
 
-    describe('controlled open', () => {
+    describe('controlled open interactions', () => {
       it('does not close after hovering out of a popup opened externally', async () => {
         function App() {
           const [open, setOpen] = React.useState(false);

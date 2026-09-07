@@ -1,4 +1,4 @@
-import { expect } from 'vitest';
+import { expect, describe, it, beforeEach, afterEach } from 'vitest';
 import * as React from 'react';
 import { Tooltip } from '@base-ui/react/tooltip';
 import { act, ignoreActWarnings, screen, waitFor } from '@mui/internal-test-utils';
@@ -595,14 +595,9 @@ describe('<Tooltip.Viewport />', () => {
       });
 
       const direction = viewport.getAttribute('data-activation-direction');
+      const directionTokens = (direction ?? '').split(' ').filter(Boolean);
 
-      if (expectedDirection.length === 0) {
-        expect(direction?.trim()).toBe('');
-      } else {
-        expectedDirection.forEach((dir) => {
-          expect(direction).toContain(dir);
-        });
-      }
+      expect(directionTokens.sort()).toEqual([...expectedDirection].sort());
     });
   });
 });

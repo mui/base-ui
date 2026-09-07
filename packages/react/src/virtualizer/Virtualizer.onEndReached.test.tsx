@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { expect, vi } from 'vitest';
+import { expect, vi, it } from 'vitest';
 import { fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
 import {
   createRenderer,

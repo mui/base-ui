@@ -1,4 +1,4 @@
-import { expect, vi } from 'vitest';
+import { expect, vi, describe, it } from 'vitest';
 import { Select } from '@base-ui/react/select';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { fireEvent, ignoreActWarnings, screen, waitFor } from '@mui/internal-test-utils';
@@ -124,7 +124,7 @@ describe('<Select.Trigger />', () => {
 
       await user.keyboard('[Tab]');
 
-      expect(expect(document.activeElement)).not.toBe(trigger);
+      expect(document.activeElement).not.toBe(trigger);
     });
 
     it('does not toggle the popup when disabled', async () => {

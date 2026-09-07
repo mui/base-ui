@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { expect, type Mock } from 'vitest';
+import { expect, type Mock, describe, beforeEach, it } from 'vitest';
 import { fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { advanceReactClock, createRenderer, firePointer } from '#test-utils';

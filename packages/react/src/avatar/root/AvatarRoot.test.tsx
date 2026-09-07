@@ -1,3 +1,4 @@
+import { describe } from 'vitest';
 import { Avatar } from '@base-ui/react/avatar';
 import { describeConformance, createRenderer } from '#test-utils';
 

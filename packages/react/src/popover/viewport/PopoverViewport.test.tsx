@@ -1,4 +1,4 @@
-import { expect } from 'vitest';
+import { expect, describe, it, beforeEach, afterEach } from 'vitest';
 import * as React from 'react';
 import { DirectionProvider } from '@base-ui/react/direction-provider';
 import { Popover } from '@base-ui/react/popover';
@@ -590,14 +590,9 @@ describe('<Popover.Viewport />', () => {
       });
 
       const direction = viewport.getAttribute('data-activation-direction');
+      const directionTokens = (direction ?? '').split(' ').filter(Boolean);
 
-      if (expectedDirection.length === 0) {
-        expect(direction?.trim()).toBe('');
-      } else {
-        expectedDirection.forEach((dir) => {
-          expect(direction).toContain(dir);
-        });
-      }
+      expect(directionTokens.sort()).toEqual([...expectedDirection].sort());
     });
   });
 });

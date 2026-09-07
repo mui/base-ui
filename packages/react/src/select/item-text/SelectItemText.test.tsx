@@ -1,4 +1,4 @@
-import { expect, vi } from 'vitest';
+import { expect, vi, describe, it } from 'vitest';
 import { Select } from '@base-ui/react/select';
 import { createRenderer, describeConformance } from '#test-utils';
 

@@ -117,7 +117,11 @@ export const baseArrow = (options: ArrowOptions | Derivable<ArrowOptions>): Midd
 export const arrow = (
   options: ArrowOptions | Derivable<ArrowOptions>,
   deps?: React.DependencyList,
-): Middleware => ({
-  ...baseArrow(options),
-  options: [options, deps],
-});
+): Middleware => {
+  const { name, fn } = baseArrow(options);
+  return {
+    name,
+    fn,
+    options: [options, deps],
+  };
+};
