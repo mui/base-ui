@@ -4318,6 +4318,47 @@ describe('<Select.Root />', () => {
     });
   });
 
+  describe('paging', () => {
+    it('pages the highlighted item using the Page Up and Page Down keys', async () => {
+      const values = 'abcdefghijkl'.split('');
+      const { user } = await render(
+        <Select.Root>
+          <Select.Trigger data-testid="trigger">
+            <Select.Value />
+          </Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup>
+                {values.map((value) => (
+                  <Select.Item key={value} value={value}>
+                    {value}
+                  </Select.Item>
+                ))}
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>,
+      );
+
+      await user.click(screen.getByTestId('trigger'));
+      const optionA = await screen.findByRole('option', { name: 'a' });
+      await act(async () => {
+        optionA.focus();
+      });
+      await waitFor(() => expect(optionA).toHaveFocus());
+
+      // Ten items at a time, clamped at the ends.
+      await user.keyboard('{PageDown}');
+      await waitFor(() => expect(screen.getByRole('option', { name: 'k' })).toHaveFocus());
+
+      await user.keyboard('{PageDown}');
+      await waitFor(() => expect(screen.getByRole('option', { name: 'l' })).toHaveFocus());
+
+      await user.keyboard('{PageUp}');
+      await waitFor(() => expect(screen.getByRole('option', { name: 'b' })).toHaveFocus());
+    });
+  });
+
   describe('dynamic items', () => {
     const { render: renderFakeTimers, clock } = createRenderer({
       clockOptions: {

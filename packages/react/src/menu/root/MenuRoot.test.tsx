@@ -263,6 +263,34 @@ describe('<Menu.Root />', () => {
         });
       });
 
+      it('pages the highlighted item using the Page Up and Page Down keys', async () => {
+        await render(<TestMenu />);
+
+        const trigger = screen.getByRole('button', { name: 'Toggle' });
+        await act(async () => {
+          trigger.focus();
+        });
+
+        await userEvent.keyboard('[Enter]');
+        const item1 = screen.getByTestId('item-1');
+        const item5 = screen.getByTestId('item-5');
+
+        await waitFor(() => {
+          expect(item1).toHaveFocus();
+        });
+
+        // A page is longer than this menu, so it lands on the last item, and back on the first.
+        await userEvent.keyboard('{PageDown}');
+        await waitFor(() => {
+          expect(item5).toHaveFocus();
+        });
+
+        await userEvent.keyboard('{PageUp}');
+        await waitFor(() => {
+          expect(item1).toHaveFocus();
+        });
+      });
+
       it('includes disabled items during keyboard navigation', async () => {
         await render(<TestMenu />);
 
