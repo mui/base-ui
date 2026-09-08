@@ -109,65 +109,69 @@ describe('ToastStore', () => {
     expect(selectors.toast(store.state, 'a')?.data).toBe(undefined);
   });
 
-  it('derives custom data from the current value when given a function', () => {
-    const store = createStore([{ id: 'a', data: { name: 'Draft', count: 1 } }]);
+  it('derives the update from the current toast when given a function', () => {
+    const store = createStore([{ id: 'a', title: 'Draft', data: { name: 'Draft', count: 1 } }]);
 
-    store.updateToast('a', { data: (prevData) => ({ ...prevData, count: 2 }) });
+    store.updateToast('a', (prevToast) => ({
+      title: `${prevToast.title} (saved)`,
+      data: { ...prevToast.data, count: 2 },
+    }));
     const toast = selectors.toast(store.state, 'a');
+    expect(toast?.title).toBe('Draft (saved)');
     expect(toast?.data).toEqual({ name: 'Draft', count: 2 });
     expect(toast?.updateKey).toBe(1);
   });
 
-  it('clears custom data when the data updater returns undefined', () => {
-    const store = createStore([{ id: 'a', data: { name: 'Draft' } }]);
-
-    store.updateToast('a', { data: () => undefined });
-    expect(selectors.toast(store.state, 'a')?.data).toBe(undefined);
-  });
-
-  it('passes undefined to the data updater when the toast has no custom data', () => {
+  it('passes a toast without custom data to the updater', () => {
     const store = createStore([{ id: 'a' }]);
-    const updater = vi.fn(() => ({ name: 'Draft' }));
+    const updater = vi.fn((_prevToast: ToastObject<any>) => ({ data: { name: 'Draft' } }));
 
-    store.updateToast('a', { data: updater });
-    expect(updater).toHaveBeenCalledWith(undefined);
+    store.updateToast('a', updater);
+    expect(updater).toHaveBeenCalledTimes(1);
+    const prevToast = updater.mock.calls[0]?.[0];
+    expect(prevToast?.id).toBe('a');
+    expect(prevToast?.data).toBe(undefined);
     expect(selectors.toast(store.state, 'a')?.data).toEqual({ name: 'Draft' });
   });
 
-  it('does not call the data updater for a missing or ending toast', () => {
+  it('stores a function passed as custom data instead of calling it', () => {
+    const store = createStore([{ id: 'a', data: () => 'first' }]);
+    const nextValue = () => 'second';
+
+    store.updateToast('a', { data: nextValue });
+    expect(selectors.toast(store.state, 'a')?.data).toBe(nextValue);
+  });
+
+  it('does not call the updater for a missing or ending toast', () => {
     const store = createStore([{ id: 'a', data: { name: 'Draft' } }]);
     store.closeToast('a');
     expect(selectors.toast(store.state, 'a')?.transitionStatus).toBe('ending');
 
-    const updater = vi.fn();
-    store.updateToast('a', { data: updater });
-    store.updateToast('missing', { data: updater });
+    const updater = vi.fn(() => ({}));
+    store.updateToast('a', updater);
+    store.updateToast('missing', updater);
     expect(updater).not.toHaveBeenCalled();
     expect(selectors.toast(store.state, 'a')?.data).toEqual({ name: 'Draft' });
   });
 
-  it('keeps a toast added from inside a data updater', () => {
+  it('keeps a toast added from inside an updater', () => {
     const store = createStore([{ id: 'a', data: { count: 1 } }]);
 
-    store.updateToast('a', {
-      data: () => {
-        store.addToast({ id: 'b' });
-        return { count: 2 };
-      },
+    store.updateToast('a', () => {
+      store.addToast({ id: 'b' });
+      return { data: { count: 2 } };
     });
     expect(store.state.toasts.map((toast) => toast.id)).toEqual(['b', 'a']);
     expect(selectors.toast(store.state, 'a')?.data).toEqual({ count: 2 });
     expectToastMetadataToMatchToasts(store);
   });
 
-  it('keeps a toast closed from inside its data updater closed', () => {
+  it('keeps a toast closed from inside its updater closed', () => {
     const store = createStore([{ id: 'a', data: { count: 1 } }]);
 
-    store.updateToast('a', {
-      data: () => {
-        store.closeToast('a');
-        return { count: 2 };
-      },
+    store.updateToast('a', () => {
+      store.closeToast('a');
+      return { data: { count: 2 } };
     });
     expect(selectors.toast(store.state, 'a')?.transitionStatus).toBe('ending');
     expect(selectors.toast(store.state, 'a')?.data).toEqual({ count: 1 });
@@ -194,18 +198,20 @@ describe('ToastStore', () => {
     expect(selectors.toast(store.state, 'a')?.data).toEqual({ status: 'ok' });
   });
 
-  it('resolves data updaters on a promise toast', async () => {
+  it('stores a function passed as custom data on a promise toast', async () => {
     const store = createStore([]);
+    const loadingValue = () => 'loading';
+    const successValue = () => 'done';
 
-    await store.promiseToast(Promise.resolve('done'), {
-      loading: {
-        title: 'Saving',
-        data: (prevData) => ({ ...prevData, step: 'save', progress: 0 }),
-      },
-      success: { title: 'Saved', data: (prevData) => ({ ...prevData, progress: 100 }) },
+    const pending = store.promiseToast(Promise.resolve('done'), {
+      loading: { title: 'Saving', data: loadingValue },
+      success: { title: 'Saved', data: successValue },
       error: 'Failed',
     });
-    expect(store.state.toasts[0]?.data).toEqual({ step: 'save', progress: 100 });
+    expect(store.state.toasts[0]?.data).toBe(loadingValue);
+
+    await pending;
+    expect(store.state.toasts[0]?.data).toBe(successValue);
   });
 
   it('does not invoke onRemove for a toast that is no longer in the store', () => {

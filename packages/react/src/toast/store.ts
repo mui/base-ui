@@ -43,13 +43,6 @@ type ToastMetadata = {
 
 type InitialState = Omit<State, 'toastMetadata'>;
 
-function resolveData<Data extends object>(
-  data: ToastManagerUpdateOptions<Data>['data'],
-  prevData: Data | undefined,
-): Data | undefined {
-  return typeof data === 'function' ? data(prevData) : data;
-}
-
 function createToastMetadata(toasts: StoredToast[]) {
   const metadata = new Map<string, ToastMetadata>();
   let visibleIndex = 0;
@@ -209,20 +202,26 @@ export class ToastStore extends ReactStore<State, {}, typeof selectors> {
     return id;
   };
 
-  updateToast = <Data extends object>(id: string, updates: ToastManagerUpdateOptions<Data>) => {
-    let resolved = updates as ToastInternalUpdateOptions<Data>;
-    if (typeof updates.data === 'function') {
-      const prevToast = selectors.toast(this.state, id);
-      // Never run the updater for an update the store is going to ignore.
-      if (!prevToast || prevToast.transitionStatus === 'ending') {
-        return;
-      }
-      resolved = { ...updates, data: updates.data(prevToast.data) };
+  updateToast = <Data extends object>(
+    id: string,
+    updates:
+      | ToastManagerUpdateOptions<Data>
+      | ((prevToast: ToastObject<Data>) => ToastManagerUpdateOptions<Data>),
+  ) => {
+    const prevToast = selectors.toast(this.state, id);
+    // Never run the updater for an update the store is going to ignore.
+    if (!prevToast || prevToast.transitionStatus === 'ending') {
+      return;
     }
 
-    // `data` is a plain value now, and the updater may have called back into the
-    // store, so the internal update reads the current state again.
-    this.updateToastInternal(id, resolved, false, true);
+    // The updater may have called back into the store, so the internal update
+    // reads the current state again.
+    this.updateToastInternal(
+      id,
+      typeof updates === 'function' ? updates(prevToast) : updates,
+      false,
+      true,
+    );
   };
 
   updateToastInternal = <Data extends object>(
@@ -328,7 +327,6 @@ export class ToastStore extends ReactStore<State, {}, typeof selectors> {
     const loadingOptions = resolvePromiseOptions(options.loading);
     const id = this.addToast({
       ...loadingOptions,
-      data: resolveData(loadingOptions.data, undefined),
       type: 'loading',
     });
 
