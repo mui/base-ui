@@ -4,6 +4,7 @@ import {
   getItemValue,
   isGroupedItems,
   stringifyAsLabel,
+  type Group,
 } from '../../internals/resolveValueLabel';
 import type { State } from '../store';
 
@@ -11,11 +12,10 @@ import type { State } from '../store';
  * Why an `items` prop cannot be windowed, or `null` when it can.
  *
  * `missing` — no `items` at all, so there is no collection to window.
- * `grouped` — an array of groups. The virtualization seam windows a single ordered sequence.
  * `record` — a label map. Its keys are strings and their order is the object's, not the list's,
  * so there is no index a caller could reason about.
  */
-export type SelectCollectionProblem = 'missing' | 'grouped' | 'record';
+export type SelectCollectionProblem = 'missing' | 'record';
 
 export interface SelectCollection {
   /**
@@ -23,6 +23,12 @@ export interface SelectCollection {
    * list renders nothing rather than something subtly wrong.
    */
   items: ReadonlyArray<unknown>;
+  /**
+   * The grouped view of `items`, when the root's `items` is an array of groups: the same
+   * collection partitioned in order, so the group item counts sum to `items.length`. The
+   * virtualizer derives its group header rows from it.
+   */
+  groups: ReadonlyArray<Group<unknown>> | undefined;
   problem: SelectCollectionProblem | null;
 }
 
@@ -31,21 +37,22 @@ export interface SelectCollection {
  *
  * A flat array is returned **by identity**. Every geometry cache the engine keeps is keyed on the
  * rows derived from it, so returning a fresh array of equal items would rehydrate all of them on
- * each render — in the component whose whole purpose is not to touch every item.
+ * each render — in the component whose whole purpose is not to touch every item. A grouped array
+ * is returned by identity too, as `groups`, with its items flattened once per collection: the
+ * flattening is what the root's item indexes count, and the virtualizer's own projection caches on
+ * the group partition rather than on the array.
  */
 export function getSelectCollection(items: State['items']): SelectCollection {
   if (items == null) {
-    return { items: EMPTY_ARRAY, problem: 'missing' };
+    return { items: EMPTY_ARRAY, groups: undefined, problem: 'missing' };
   }
   if (!Array.isArray(items)) {
-    return { items: EMPTY_ARRAY, problem: 'record' };
+    return { items: EMPTY_ARRAY, groups: undefined, problem: 'record' };
   }
   if (isGroupedItems(items)) {
-    // Flattened rather than dropped: the configuration is unsupported and diagnosed, but a list
-    // that renders its items is far easier to recognise as wrong than an empty one.
-    return { items: flattenLeafItems(items), problem: 'grouped' };
+    return { items: flattenLeafItems(items), groups: items, problem: null };
   }
-  return { items, problem: null };
+  return { items, groups: undefined, problem: null };
 }
 
 /**

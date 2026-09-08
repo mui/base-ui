@@ -425,21 +425,6 @@ describe('<Virtualizer /> inside Select', () => {
       }
     });
 
-    it('warns for a grouped collection', async () => {
-      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
-
-      try {
-        await renderSelect({}, [{ items: ['a', 'b'] }] as any);
-        await waitFor(() => {
-          expect(warnSpy).toHaveBeenCalledWith(
-            expect.stringContaining('does not currently support grouped collections'),
-          );
-        });
-      } finally {
-        warnSpy.mockRestore();
-      }
-    });
-
     it('warns for a record-map items prop, which has no order to window', async () => {
       const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
 

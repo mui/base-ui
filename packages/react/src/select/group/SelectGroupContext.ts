@@ -8,9 +8,12 @@ export interface SelectGroupContext {
 
 export const SelectGroupContext = React.createContext<SelectGroupContext | undefined>(undefined);
 
-export function useSelectGroupContext() {
+export function useSelectGroupContext(optional?: false): SelectGroupContext;
+export function useSelectGroupContext(optional: true): SelectGroupContext | undefined;
+export function useSelectGroupContext(optional: boolean): SelectGroupContext | undefined;
+export function useSelectGroupContext(optional?: boolean) {
   const context = React.useContext(SelectGroupContext);
-  if (context === undefined) {
+  if (context === undefined && !optional) {
     throw new Error(
       'Base UI: SelectGroupContext is missing. SelectGroup parts must be placed within <Select.Group>.',
     );

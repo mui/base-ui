@@ -20,14 +20,21 @@ describe('getSelectCollection', () => {
     expect(collection.items).toEqual([]);
   });
 
-  it('flattens grouped input while still reporting it, so the list renders enough to diagnose', () => {
-    const collection = getSelectCollection([
+  it('publishes grouped input as groups, with its items flattened for the index space', () => {
+    const groups = [
       { value: 'Fruit', items: ['apple', 'pear'] },
       { value: 'Veg', items: ['leek'] },
-    ] as any);
+    ];
+    const collection = getSelectCollection(groups as any);
 
-    expect(collection.problem).toBe('grouped');
+    expect(collection.problem).toBe(null);
+    // By identity: the virtualizer's grouped projection caches on the partition.
+    expect(collection.groups).toBe(groups);
     expect(collection.items).toEqual(['apple', 'pear', 'leek']);
+  });
+
+  it('publishes no groups for a flat collection', () => {
+    expect(getSelectCollection(['a', 'b']).groups).toBe(undefined);
   });
 });
 

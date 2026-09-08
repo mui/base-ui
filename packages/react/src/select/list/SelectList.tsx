@@ -18,6 +18,7 @@ import {
   type ListVirtualizationListState,
 } from '../../internals/virtualization/ListVirtualizationHostContext';
 import { SelectVirtualItemContext } from '../item/SelectVirtualItemContext';
+import { SelectVirtualGroupContext } from '../group/SelectVirtualGroupContext';
 import { getSelectCollection, type SelectCollection } from '../utils/getSelectCollection';
 
 /**
@@ -80,12 +81,6 @@ export const SelectList = React.forwardRef(function SelectList(
       case 'missing':
         warn(`<Virtualizer> requires the \`items\` prop on <${componentName}.Root>.`);
         break;
-      case 'grouped':
-        warn(
-          '<Virtualizer> does not currently support grouped collections. ' +
-            'Render a flat item collection instead.',
-        );
-        break;
       case 'record':
         warn(
           `<Virtualizer> requires the \`items\` prop on <${componentName}.Root> to be an array. ` +
@@ -112,6 +107,7 @@ export const SelectList = React.forwardRef(function SelectList(
     () => ({
       componentName,
       registry: store.context.virtualizationRegistry,
+      virtualGroupContext: SelectVirtualGroupContext,
       virtualItemContext: SelectVirtualItemContext,
       warnUnsupportedConfiguration:
         process.env.NODE_ENV === 'production' ? undefined : warnUnsupportedConfiguration,
@@ -176,13 +172,17 @@ function SelectVirtualizationState(props: SelectVirtualizationStateProps) {
   const value = React.useMemo<ListVirtualizationListState>(
     () => ({
       activeIndex,
+      // The grouped view of the same collection, when the root's `items` is grouped: the
+      // virtualizer interleaves a header row before each group and renders it through
+      // `renderGroupHeader`, which returns a `<Select.GroupLabel>`.
+      groups: collection.groups,
       items: collection.items,
       scrollActiveIntoView: shouldScrollActiveIntoView(highlightType),
       // `Select` never suspends windowing: its autofill matches against the values and labels the
       // root derives from `items`, so it never needs every row mounted.
       scrollportProps,
     }),
-    [activeIndex, collection.items, highlightType, scrollportProps],
+    [activeIndex, collection.groups, collection.items, highlightType, scrollportProps],
   );
 
   return (

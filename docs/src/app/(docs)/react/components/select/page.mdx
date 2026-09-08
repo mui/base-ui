@@ -252,9 +252,33 @@ function CountrySelect() {
 ```
 
 `<Select.List>` is required — a virtualizer placed directly in `<Select.Popup>` is not connected to
-the list. `items` must be an array, either of values or of `{ label, value }` entries; grouped
-collections and the object form of `items` are not supported. Use `getItemKey` when item values are
-objects.
+the list. `items` must be an array: of values, of `{ label, value }` entries, or of groups; the
+object form of `items` is not supported. Use `getItemKey` when item values are objects.
+
+A grouped collection also needs `renderGroupHeader`, returning a `<Select.GroupLabel>`. The
+virtualizer wraps each group's rendered items in a `role="group"` element labeled by it, so
+`<Select.Group>` is not used; see [grouped collections](/react/utils/virtualizer#grouped-collections).
+
+```tsx title="Virtualizing a grouped select"
+<Select.Root<Country> items={groupedCountries} itemToStringLabel={getCountryLabel}>
+  {/* ... */}
+  <Select.List>
+    <Virtualizer<Country>
+      getItemKey={(item) => item.code}
+      getGroupKey={(group: CountryGroup) => group.value}
+      renderGroupHeader={(group: CountryGroup) => (
+        <Select.GroupLabel>{group.value}</Select.GroupLabel>
+      )}
+    >
+      {(item) => (
+        <Select.Item value={item}>
+          <Select.ItemText>{item.name}</Select.ItemText>
+        </Select.Item>
+      )}
+    </Virtualizer>
+  </Select.List>
+</Select.Root>
+```
 
 The value type comes from `value`, `defaultValue`, or `onValueChange` — not from `items` — so an
 uncontrolled select over object items needs the type argument shown above, or an annotation on the
