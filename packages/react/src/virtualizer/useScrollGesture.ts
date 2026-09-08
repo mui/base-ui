@@ -214,10 +214,8 @@ export function useScrollGesture(parameters: UseScrollGestureParameters): Scroll
     [deferredRowHeightsRef],
   );
 
-  const clearDeferredRowHeights = React.useCallback(
-    () => deferredRowHeightsRef.current.clear(),
-    [deferredRowHeightsRef],
-  );
+  // Only ever called from the imperative `remeasure` handler, never during render.
+  const clearDeferredRowHeights = useStableCallback(() => deferredRowHeightsRef.current.clear());
   const isScrolling = React.useCallback(() => isScrollingRef.current, []);
   const isScrollbarDrag = React.useCallback(() => isScrollbarDragRef.current, []);
 
