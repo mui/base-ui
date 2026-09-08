@@ -80,7 +80,6 @@ export interface UsePendingScrollParameters<RowModel> {
    */
   resolveRowIndex: ((rowId: React.Key) => number | undefined) | undefined;
   rows: VirtualizerRow<RowModel>[];
-  rowsRef: React.RefObject<VirtualizerRow<RowModel>[]>;
   scrollElementRef: React.RefObject<HTMLElement | null>;
   scrollportPadding: { start: number; end: number };
   scrollToRowAlignment: VirtualizerScrollAlignment;
@@ -118,7 +117,6 @@ export function usePendingScroll<RowModel>(
     renderZoneRef,
     resolveRowIndex,
     rows,
-    rowsRef,
     scrollElementRef,
     scrollportPadding,
     scrollToRowAlignment,
@@ -204,7 +202,7 @@ export function usePendingScroll<RowModel>(
   const scrollRowIntoView = useStableCallback(
     (rowIndex: number, requireMeasurement = false, align: VirtualizerScrollAlignment = 'auto') => {
       const scrollElement = scrollElementRef.current;
-      const row = rowsRef.current[rowIndex];
+      const row = rows[rowIndex];
 
       if (!scrollElement || !row) {
         return false;
@@ -413,7 +411,7 @@ export function usePendingScroll<RowModel>(
 
   const scrollToIndex = useStableCallback(
     (rowIndex: number, options?: VirtualizerScrollToIndexOptions) => {
-      const row = rowsRef.current[rowIndex];
+      const row = rows[rowIndex];
 
       if (!Number.isInteger(rowIndex) || rowIndex < 0 || !row) {
         return;
@@ -496,7 +494,7 @@ export function usePendingScroll<RowModel>(
 
     // Array identity may change without the logical destination changing. Only invalidate a
     // pending correction when a different row now occupies the requested collection index.
-    if (rowIndex != null && rowsRef.current[rowIndex]?.id !== rowIdRef.current) {
+    if (rowIndex != null && rows[rowIndex]?.id !== rowIdRef.current) {
       const movedRowIndex =
         rowIdRef.current == null ? undefined : resolveRowIndex?.(rowIdRef.current);
 

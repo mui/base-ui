@@ -2,6 +2,7 @@
 import * as React from 'react';
 import { ownerWindow } from '@base-ui/utils/owner';
 import { useForcedRerendering } from '@base-ui/utils/useForcedRerendering';
+import { useInsertionEffect } from '@base-ui/utils/useInsertionEffect';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
@@ -466,10 +467,6 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
   const itemRows = useRowModels<Value>({ getItemKey, items: collection });
   const grouped = useGroupedRowModels<Value>({ getGroupKey, groups, itemRows });
   const rows: VirtualizerRow<VirtualizerRowModel<Value>>[] = grouped?.rows ?? itemRows;
-  const groupedRef = React.useRef(grouped);
-  groupedRef.current = grouped;
-  const collectionRef = React.useRef(collection);
-  collectionRef.current = collection;
   const toRowIndex = (itemIndex: number) =>
     grouped == null ? itemIndex : (grouped.itemToRowIndex[itemIndex] ?? -1);
 
@@ -610,9 +607,6 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
       }),
   ).current;
 
-  const rowsRef = React.useRef(rows);
-  rowsRef.current = rows;
-
   const pinnedRowIndex = pinnedItemIndex == null ? undefined : toRowIndex(pinnedItemIndex);
   const validPinnedRowIndex =
     pinnedRowIndex != null && pinnedRowIndex >= 0 && rows[pinnedRowIndex] != null
@@ -672,11 +666,7 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
     });
     return map;
   }, [rows]);
-  const rowIndexByIdRef = React.useRef(rowIndexById);
-  rowIndexByIdRef.current = rowIndexById;
-  const resolveRowIndexById = useStableCallback((rowId: React.Key) =>
-    rowIndexByIdRef.current.get(rowId),
-  );
+  const resolveRowIndexById = useStableCallback((rowId: React.Key) => rowIndexById.get(rowId));
 
   // MUI Virtualizer rehydrates row metadata when these callback identities change. This intentionally uses
   // a dependency-sensitive callback so estimate changes invalidate cached geometry.
@@ -1043,7 +1033,6 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
     renderContextRef: overscannedRenderContextRef,
     renderZoneRef,
     rows,
-    rowsRef,
     scrollElementRef,
     scrollportPadding,
     scrollToRowAlignment,
@@ -1065,10 +1054,10 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
   // Reported in scroll coordinates rather than the engine's: the scrollport's block padding is
   // the offset between the two, and a consumer holding a `scrollTop` has no way to know it.
   const getItemMetrics = useStableCallback((index: number) => {
-    const currentGrouped = groupedRef.current;
+    const currentGrouped = grouped;
     const rowIndex = currentGrouped == null ? index : (currentGrouped.itemToRowIndex[index] ?? -1);
 
-    if (rowsRef.current[rowIndex] == null) {
+    if (rows[rowIndex] == null) {
       return null;
     }
 
@@ -1088,8 +1077,8 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
   });
 
   const getIndexAtOffset = useStableCallback((offset: number) => {
-    const currentRows = rowsRef.current;
-    const itemCount = collectionRef.current.length;
+    const currentRows = rows;
+    const itemCount = collection.length;
     if (currentRows.length === 0 || itemCount === 0) {
       return null;
     }
@@ -1144,7 +1133,7 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
         // height, and a hidden one stored as zero would be worse than its estimate.
         for (const element of getLaidOutRowElements(rowsParent)) {
           const rowIndex = Number(element.dataset.rowIndex);
-          const row = rowsRef.current[rowIndex];
+          const row = rows[rowIndex];
           const height = element.getBoundingClientRect().height;
 
           if (row != null && height > 0) {
@@ -1166,10 +1155,10 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
   // Public requests name items; the pending scroll works in rows.
   const scrollToIndex = useStableCallback(
     (index: number, options?: VirtualizerScrollToIndexOptions) => {
-      if (!Number.isInteger(index) || index < 0 || index >= collectionRef.current.length) {
+      if (!Number.isInteger(index) || index < 0 || index >= collection.length) {
         return;
       }
-      const currentGrouped = groupedRef.current;
+      const currentGrouped = grouped;
       pendingScroll.scrollToIndex(
         currentGrouped == null ? index : currentGrouped.itemToRowIndex[index],
         options,
@@ -1265,17 +1254,24 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
     renderScrollTop - scrollportPadding.start,
     dimensions.viewportInnerSize.height + scrollportPaddingTotal,
   );
-  overscannedRenderContextRef.current = overscannedRenderContext;
-  renderScrollTopRef.current = renderScrollTop;
   const renderZoneOffsetTop = rowsMeta.positions[overscannedRenderContext.firstRowIndex] ?? 0;
-  renderZoneOffsetTopRef.current = renderZoneOffsetTop;
   // When the whole collection is rendered, the first row's exact position (zero) takes priority
   // over the estimated content end, so tail anchoring must stay off.
-  renderZoneVirtualEndRef.current =
+  const renderZoneVirtualEnd =
     overscannedRenderContext.firstRowIndex > 0 &&
     overscannedRenderContext.lastRowIndex >= rows.length
       ? rowsMeta.currentPageTotalHeight
       : null;
+  // Published at commit time, in the phase that precedes every layout effect of this commit —
+  // the pending-scroll and anchoring effects declared above read these — and that a render
+  // suspending inside a transition never reaches, so a scroll event between such a render and its
+  // commit still transforms the committed rows by the committed window.
+  useInsertionEffect(() => {
+    overscannedRenderContextRef.current = overscannedRenderContext;
+    renderScrollTopRef.current = renderScrollTop;
+    renderZoneOffsetTopRef.current = renderZoneOffsetTop;
+    renderZoneVirtualEndRef.current = renderZoneVirtualEnd;
+  });
 
   const handleEndReached = useStableCallback(() => onEndReached?.());
   /**

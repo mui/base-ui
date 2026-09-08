@@ -1,7 +1,14 @@
 import * as React from 'react';
 import { expect, vi, describe, beforeEach, it } from 'vitest';
 import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
-import { createRenderer, createDOMRect, isJSDOM, setElementClientHeight } from '#test-utils';
+import {
+  createRenderer,
+  createDOMRect,
+  isJSDOM,
+  setElementClientHeight,
+  setElementScrollState,
+} from '#test-utils';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { Virtualizer } from './Virtualizer';
 
 interface TestItem {
@@ -441,6 +448,108 @@ describe('<Virtualizer /> standalone', () => {
 
     await waitFor(() => expect(screen.getByTestId('virtualizer').scrollTop).toBe(1600));
     await waitFor(() => expect(screen.getByText('Item 81')).not.toBe(null));
+  });
+
+  it.skipIf(isJSDOM)('scrolls appended items from a descendant layout effect', async () => {
+    vi.restoreAllMocks();
+    const actionsRef = React.createRef<Virtualizer.Actions>();
+    function FollowTail({ count }: { count: number }) {
+      useIsoLayoutEffect(() => {
+        if (count > 3) {
+          actionsRef.current?.scrollToIndex(count - 1, { align: 'end' });
+        }
+      }, [count]);
+      return null;
+    }
+    function Test() {
+      const [items, setItems] = React.useState(() => createItems(3));
+      return (
+        <React.Fragment>
+          <button onClick={() => setItems(createItems(6))}>append</button>
+          <TestListbox
+            items={items}
+            enabled={false}
+            actionsRef={actionsRef}
+            trailing={<FollowTail count={items.length} />}
+            render={<div data-testid="virtualizer" style={{ height: 40 }} />}
+          />
+        </React.Fragment>
+      );
+    }
+    const { user } = await render(<Test />);
+    await user.click(screen.getByRole('button', { name: 'append' }));
+    expect(screen.getByTestId('virtualizer').scrollTop).toBe(80);
+  });
+
+  it('answers imperative calls for the committed collection while a transition is pending', async () => {
+    const actionsRef = React.createRef<Virtualizer.Actions>();
+    // The shorter collection never finishes rendering: the committed 100-row list stays on screen.
+    const pending = new Promise<void>(() => {});
+    let scrollTop = 0;
+
+    function Test() {
+      const [items, setItems] = React.useState(() => createItems(100));
+      return (
+        <React.Fragment>
+          <button
+            type="button"
+            onClick={() =>
+              React.startTransition(() =>
+                setItems(createItems(10).map((item) => ({ ...item, label: `Short ${item.id}` }))),
+              )
+            }
+          >
+            shrink
+          </button>
+          <React.Suspense fallback={null}>
+            <Virtualizer<TestItem>
+              actionsRef={actionsRef}
+              estimatedItemHeight={20}
+              getItemKey={(item) => item.id}
+              items={items}
+              overscanPx={0}
+              render={
+                <div
+                  ref={setElementScrollState({
+                    clientHeight: 40,
+                    getScrollTop: () => scrollTop,
+                    scrollTo(options) {
+                      scrollTop = options.top ?? scrollTop;
+                    },
+                  })}
+                  data-testid="virtualizer"
+                />
+              }
+              role="listbox"
+            >
+              {(item, _, itemProps) => {
+                if (item.label.startsWith('Short')) {
+                  throw pending;
+                }
+                return (
+                  <div {...itemProps} role="option" aria-selected={false} style={{ height: 20 }}>
+                    {item.label}
+                  </div>
+                );
+              }}
+            </Virtualizer>
+          </React.Suspense>
+        </React.Fragment>
+      );
+    }
+
+    const { user } = await render(<Test />);
+    await screen.findByText('Item 1');
+
+    await user.click(screen.getByRole('button', { name: 'shrink' }));
+    // Still the committed collection: the transition is suspended, not shown.
+    expect(screen.getByText('Item 1')).not.toBe(null);
+
+    await act(async () => {
+      actionsRef.current?.scrollToIndex(50, { align: 'start' });
+    });
+
+    expect(scrollTop).toBe(1000);
   });
 
   it('exposes item geometry through actionsRef, including outside the rendered window', async () => {
