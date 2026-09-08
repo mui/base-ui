@@ -31,6 +31,12 @@ import {
 } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import {
+  ListVirtualizationHostContext,
+  ListVirtualizationListStateContext,
+} from '../../internals/virtualization/ListVirtualizationHostContext';
+import { ComboboxVirtualGroupContext } from '../group/ComboboxVirtualGroupContext';
+import { ComboboxVirtualItemContext } from '../item/ComboboxVirtualItemContext';
+import {
   ComboboxFloatingContext,
   ComboboxDerivedItemsContext,
   ComboboxHasItemsContext,
@@ -1800,7 +1806,18 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
         <ComboboxHasItemsContext.Provider value={hasItems}>
           <ComboboxDerivedItemsContext.Provider value={itemsContextValue}>
             <ComboboxInputValueContext.Provider value={inputValue}>
-              {children}
+              {/* A root rendered inside a virtualized item of another list, portaled out of it
+                  or not, must not read that row's metadata, that list, or its state: its own
+                  list provides its own, and its static items are static. */}
+              <ListVirtualizationHostContext.Provider value={undefined}>
+                <ListVirtualizationListStateContext.Provider value={undefined}>
+                  <ComboboxVirtualItemContext.Provider value={undefined}>
+                    <ComboboxVirtualGroupContext.Provider value={undefined}>
+                      {children}
+                    </ComboboxVirtualGroupContext.Provider>
+                  </ComboboxVirtualItemContext.Provider>
+                </ListVirtualizationListStateContext.Provider>
+              </ListVirtualizationHostContext.Provider>
             </ComboboxInputValueContext.Provider>
           </ComboboxDerivedItemsContext.Provider>
         </ComboboxHasItemsContext.Provider>

@@ -1,4 +1,5 @@
 import * as React from 'react';
+import * as ReactDOM from 'react-dom';
 import { expect, vi, describe, beforeEach, it } from 'vitest';
 import { Autocomplete } from '@base-ui/react/autocomplete';
 import { Combobox } from '@base-ui/react/combobox';
@@ -791,6 +792,59 @@ describe('<Virtualizer /> in Combobox', () => {
         expect(input).toHaveAttribute('aria-activedescendant', paged.id);
       });
     });
+  });
+
+  it("keeps a nested root clear of the outer row's virtual item metadata", async () => {
+    // The outer list stays open whatever the nested one does to focus or the pointer.
+    const { user } = await render(
+      <Combobox.Root open items={createItems(20)}>
+        <Combobox.Input data-testid="outer-input" />
+        <Combobox.List>
+          <Virtualizer estimatedItemHeight={20} render={<div ref={setElementClientHeight(60)} />}>
+            {(item: string) => (
+              <Combobox.Item key={item} value={item}>
+                {item}
+                {/* Portaled out of the option, as a nested picker would be; context still
+                    reaches it. */}
+                {item === 'Item 1'
+                  ? ReactDOM.createPortal(
+                      <Combobox.Root defaultOpen items={['Nested A', 'Nested B']}>
+                        <Combobox.Input data-testid="nested-input" />
+                        <Combobox.List>
+                          {(nested: string) => (
+                            <Combobox.Item key={nested} value={nested}>
+                              {nested}
+                            </Combobox.Item>
+                          )}
+                        </Combobox.List>
+                      </Combobox.Root>,
+                      document.body,
+                    )
+                  : null}
+              </Combobox.Item>
+            )}
+          </Virtualizer>
+        </Combobox.List>
+      </Combobox.Root>,
+    );
+
+    // The outer rows are virtual and say so; the nested root's items are its own static ones.
+    const outerOptions = screen
+      .getAllByRole('option')
+      .filter((option) => option.getAttribute('aria-setsize') === '20');
+    expect(outerOptions.length).toBeGreaterThan(0);
+    const nestedA = screen.getByRole('option', { name: 'Nested A' });
+    expect(nestedA).not.toHaveAttribute('aria-setsize');
+    expect(nestedA).not.toHaveAttribute('aria-posinset');
+
+    // And the nested list highlights its own items at their own indexes. (Hover rather than
+    // keys: the outer list's focus management keeps focus on its input while it is open.)
+    const nestedInput = screen.getByTestId('nested-input');
+    await user.hover(nestedA);
+    await waitFor(() => expect(nestedInput).toHaveAttribute('aria-activedescendant', nestedA.id));
+    // Two nested items at two indexes, not both at the outer row's.
+    await user.hover(screen.getByRole('option', { name: 'Nested B' }));
+    await waitFor(() => expect(nestedA).not.toHaveAttribute('data-highlighted'));
   });
 
   it('clears a highlight that falls outside a shortened collection', async () => {
