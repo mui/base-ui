@@ -508,6 +508,147 @@ describe('<Menu.Trigger />', () => {
     expect(button).toHaveAttribute('role', 'button');
   });
 
+  describe('hover-leave before the initial-focus frame', () => {
+    const { clock, render: renderFakeTimers } = createRenderer();
+
+    clock.withFakeTimers();
+
+    // The focus manager moves focus into the popup on the frame after opening. A hover-leave that
+    // arrives before that frame asks to close and records that focus must not be returned. What a
+    // controlled consumer does with that request — apply it later, or ignore it — must not change
+    // where focus ends up compared to an uncontrolled menu.
+    function ControlledTest({
+      forceClosed = false,
+      onHoverClose,
+    }: {
+      forceClosed?: boolean;
+      onHoverClose: 'defer' | 'ignore';
+    }) {
+      const [open, setOpen] = React.useState(false);
+      return (
+        <Menu.Root
+          open={open && !forceClosed}
+          onOpenChange={(nextOpen, details) => {
+            if (!nextOpen && details.reason === 'trigger-hover') {
+              if (onHoverClose === 'defer') {
+                setTimeout(() => setOpen(false), 150);
+              }
+              return;
+            }
+            setOpen(nextOpen);
+          }}
+        >
+          <Menu.Trigger openOnHover delay={0}>
+            Open
+          </Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner data-testid="positioner">
+              <Menu.Popup>
+                <Menu.Item closeOnClick={false}>Item</Menu.Item>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>
+      );
+    }
+
+    async function hoverOpen(trigger: HTMLElement) {
+      fireEvent.mouseEnter(trigger);
+      fireEvent.mouseMove(trigger);
+      clock.tick(0);
+      await flushMicrotasks();
+      const menu = screen.getByRole('menu');
+      // The initial focus is queued for the next frame and has not landed yet.
+      expect(menu.contains(document.activeElement)).toBe(false);
+      return menu;
+    }
+
+    it('does not return focus to the trigger when the consumer applies the close later', async () => {
+      await renderFakeTimers(<ControlledTest onHoverClose="defer" />);
+      const trigger = screen.getByRole('button', { name: 'Open' });
+      const focusSpy = vi.spyOn(trigger, 'focus');
+      await hoverOpen(trigger);
+
+      fireEvent.mouseLeave(screen.getByTestId('positioner'));
+      expect(screen.queryByRole('menu')).not.toBe(null);
+
+      // The initial-focus frame runs first, then the consumer's deferred close lands.
+      clock.tick(16);
+      clock.tick(150);
+      await flushMicrotasks();
+
+      expect(trigger).not.toHaveAttribute('data-popup-open');
+      expect(focusSpy).not.toHaveBeenCalled();
+      expect(document.activeElement).toBe(document.body);
+    });
+
+    it('still moves focus into the menu when the consumer ignores the close', async () => {
+      await renderFakeTimers(<ControlledTest onHoverClose="ignore" />);
+      const trigger = screen.getByRole('button', { name: 'Open' });
+      const menu = await hoverOpen(trigger);
+
+      fireEvent.mouseLeave(screen.getByTestId('positioner'));
+      clock.tick(16);
+      await flushMicrotasks();
+
+      expect(trigger).toHaveAttribute('data-popup-open');
+      expect(menu.contains(document.activeElement)).toBe(true);
+    });
+
+    // The refused request also recorded an interaction type. Once the user brings focus back in,
+    // nothing about that request describes the close that eventually happens.
+    it('returns focus without a keyboard focus ring after the user re-enters the menu', async () => {
+      const { setProps } = await renderFakeTimers(<ControlledTest onHoverClose="ignore" />);
+      const trigger = screen.getByRole('button', { name: 'Open' });
+      const focusSpy = vi.spyOn(trigger, 'focus');
+      await hoverOpen(trigger);
+
+      fireEvent.mouseLeave(screen.getByTestId('positioner'));
+      clock.tick(16);
+      await flushMicrotasks();
+
+      // The user, not the manager, puts focus on an item; the consumer then closes by prop.
+      await act(async () => screen.getByRole('menuitem').focus());
+      await setProps({ onHoverClose: 'ignore', forceClosed: true });
+      await flushMicrotasks();
+
+      expect(trigger).toHaveFocus();
+      expect(focusSpy).toHaveBeenCalledTimes(1);
+      expect(focusSpy).toHaveBeenCalledWith({ preventScroll: true });
+    });
+
+    it('does not return focus on an uncontrolled hover-leave once focus is inside', async () => {
+      await renderFakeTimers(
+        <Menu.Root>
+          <Menu.Trigger openOnHover delay={0}>
+            Open
+          </Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner data-testid="positioner">
+              <Menu.Popup>
+                <Menu.Item>Item</Menu.Item>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>,
+      );
+      const trigger = screen.getByRole('button', { name: 'Open' });
+      const focusSpy = vi.spyOn(trigger, 'focus');
+      const menu = await hoverOpen(trigger);
+
+      clock.tick(16);
+      await flushMicrotasks();
+      expect(menu.contains(document.activeElement)).toBe(true);
+
+      fireEvent.mouseLeave(screen.getByTestId('positioner'));
+      await flushMicrotasks();
+
+      expect(trigger).not.toHaveAttribute('data-popup-open');
+      expect(focusSpy).not.toHaveBeenCalled();
+      expect(document.activeElement).toBe(document.body);
+    });
+  });
+
   describe.skipIf(isJSDOM)('sequential focus navigation out of an open trigger', () => {
     // Hover-opening leaves focus on the trigger, which is what makes the pre-trigger guard
     // reachable by a backwards Tab. The guard must resolve its own destination before the close
@@ -542,8 +683,15 @@ describe('<Menu.Trigger />', () => {
       await user.hover(trigger);
       await waitFor(() => expect(screen.queryByRole('menu')).not.toBe(null));
 
-      // Opening moves focus into the popup; returning it to the trigger is the state a controlled
-      // or hover-driven menu can sit in, and the only one from which the guard is reachable.
+      // Opening moves focus into the popup on a later frame. Wait for it to land first: refocusing
+      // the trigger before then lets the deferred initial focus override it, and the guard is
+      // never reached.
+      await waitFor(() =>
+        expect(screen.getByRole('menu').contains(document.activeElement)).toBe(true),
+      );
+
+      // Returning focus to the trigger is the state a controlled or hover-driven menu can sit in,
+      // and the only one from which the guard is reachable.
       await act(async () => trigger.focus());
       await waitFor(() => expect(trigger).toHaveFocus());
 

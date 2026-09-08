@@ -1337,6 +1337,96 @@ describe('FloatingFocusManager', () => {
       });
     });
 
+    describe('prop: getInsideElements', () => {
+      test('treats elements declared by a descendant as inside the tree', async () => {
+        function Parent({ open, children }: { open: boolean; children: React.ReactNode }) {
+          const nodeId = useFloatingNodeId();
+          const { refs, context } = useFloating({ open, nodeId });
+
+          return (
+            <FloatingNode id={nodeId}>
+              <button data-testid="parent-reference" ref={refs.setReference} />
+              {open && (
+                <FloatingFocusManager context={context} modal={false} closeOnFocusOut={false}>
+                  <div data-testid="parent-floating" ref={refs.setFloating}>
+                    <button data-testid="parent-content" />
+                  </div>
+                </FloatingFocusManager>
+              )}
+              {children}
+            </FloatingNode>
+          );
+        }
+
+        // A tree descendant of the parent whose DOM lives outside the parent's floating element,
+        // declaring an element that is outside its own floating element too.
+        function Child() {
+          const nodeId = useFloatingNodeId();
+          const [open, setOpen] = React.useState(false);
+          const dismissRef = React.useRef<HTMLButtonElement | null>(null);
+          const { refs, context } = useFloating({ open, onOpenChange: setOpen, nodeId });
+
+          return (
+            <FloatingNode id={nodeId}>
+              <button
+                data-testid="child-reference"
+                ref={refs.setReference}
+                onClick={() => setOpen(true)}
+              />
+              {open && (
+                <FloatingFocusManager
+                  context={context}
+                  modal={false}
+                  closeOnFocusOut={false}
+                  getInsideElements={() => [dismissRef.current]}
+                >
+                  <>
+                    <div data-testid="child-floating" ref={refs.setFloating}>
+                      <button data-testid="child-content" />
+                    </div>
+                    <button data-testid="child-dismiss" ref={dismissRef} />
+                  </>
+                </FloatingFocusManager>
+              )}
+            </FloatingNode>
+          );
+        }
+
+        function App() {
+          const [open, setOpen] = React.useState(true);
+          return (
+            <FloatingTree>
+              <button data-testid="close-parent" onClick={() => setOpen(false)} />
+              <Parent open={open}>
+                <Child />
+              </Parent>
+            </FloatingTree>
+          );
+        }
+
+        render(<App />);
+        await waitFor(() => {
+          expect(screen.getByTestId('parent-content')).toHaveFocus();
+        });
+
+        fireEvent.click(screen.getByTestId('child-reference'));
+        await waitFor(() => {
+          expect(screen.getByTestId('child-content')).toHaveFocus();
+        });
+
+        // Focus sits on an element only the descendant knows to be inside. Closing the parent
+        // must still count it as inside the tree and return focus to the parent's reference,
+        // rather than treating it as focus that has moved elsewhere and leaving it there.
+        await act(async () => {
+          screen.getByTestId('child-dismiss').focus();
+        });
+        fireEvent.click(screen.getByTestId('close-parent'));
+        await flushMicrotasks();
+
+        expect(screen.getByTestId('parent-reference')).toHaveFocus();
+      });
+    });
+
     describe('prop: disabled', () => {
       test('true -> false', async () => {
         function App() {

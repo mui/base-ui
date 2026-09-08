@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { getNodeName, isHTMLElement } from '@floating-ui/utils/dom';
+import { getNodeName, isElement, isHTMLElement, isShadowRoot } from '@floating-ui/utils/dom';
 import { addEventListener } from '@base-ui/utils/addEventListener';
 import { mergeCleanups } from '@base-ui/utils/mergeCleanups';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
@@ -95,6 +95,12 @@ interface PendingReturn {
 }
 
 const LIST_LIMIT = 20;
+
+// Inside elements declared by every mounted focus manager, keyed by its root store. Lets an
+// ancestor treat a descendant's `getInsideElements()` as part of its own tree — a descendant's
+// floating element is reachable through the tree already, but elements it declared as inside
+// (a dismiss button next to its reference, a trigger focus guard) are not.
+const insideElementsRegistry = new WeakMap<FloatingRootContext, () => Element[]>();
 let previouslyFocusedElements: WeakRef<Element>[] = [];
 
 function clearDisconnectedPreviouslyFocusedElements() {
@@ -327,6 +333,9 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
   // True exactly while `sessionRef.current` describes the live session. Maintained by the session
   // effect below, so event handlers can tell a current session from a finished one.
   const sessionActiveRef = React.useRef(false);
+  // True for exactly the synchronous span of the manager's own initial `focus()` call, so the
+  // re-entry listener below can tell it apart from the user bringing focus back in.
+  const initialFocusInProgressRef = React.useRef(false);
   // Return focus queued by the session's teardown, tagged with the session that queued it.
   const pendingReturnRef = React.useRef<PendingReturn | null>(null);
 
@@ -373,11 +382,27 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     }
     return Boolean(
       tree &&
-      getNodeChildren(tree.nodesRef.current, getNodeId(), false).some((node) =>
-        contains(node.context?.elements.floating, element),
-      ),
+      getNodeChildren(tree.nodesRef.current, getNodeId(), false).some((node) => {
+        if (contains(node.context?.elements.floating, element)) {
+          return true;
+        }
+        const getDescendantInsideElements =
+          node.context && insideElementsRegistry.get(node.context.rootStore);
+        return Boolean(
+          getDescendantInsideElements?.().some(
+            (inside) => inside === element || contains(inside, element),
+          ),
+        );
+      }),
     );
   });
+
+  useIsoLayoutEffect(() => {
+    insideElementsRegistry.set(store, getResolvedInsideElements);
+    return () => {
+      insideElementsRegistry.delete(store);
+    };
+  }, [store, getResolvedInsideElements]);
 
   // The focus manager is doing work only while the popup is logically open, enabled, and has a
   // focus element. Everything below keys off this single predicate so the session edge, the
@@ -394,7 +419,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
   useIsoLayoutEffect(() => {
     if (!active) {
       sessionActiveRef.current = false;
-      return;
+      return undefined;
     }
 
     const elementFocusedBeforeOpen = activeElement(ownerDocument(floatingFocusElement));
@@ -416,22 +441,62 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
         session.elementFocusedBeforeOpen = elementFocusedBeforeOpen;
         addPreviouslyFocusedElement(elementFocusedBeforeOpen);
       }
-      return;
+    } else {
+      sessionRef.current = {
+        elementFocusedBeforeOpen,
+        // Only an explicit `null` interaction type represents a programmatic open.
+        // `undefined` is normalized to `''` by the prop default, so it never reaches
+        // here as nullish and is intentionally not treated as programmatic.
+        preferPreviousFocus: openInteractionTypeRef.current == null,
+        preventReturnFocus: false,
+        guardOwnsDestination: false,
+        closeType: '',
+      };
+      sessionActiveRef.current = true;
+
+      addPreviouslyFocusedElement(elementFocusedBeforeOpen);
     }
 
-    sessionRef.current = {
-      elementFocusedBeforeOpen,
-      // Only an explicit `null` interaction type represents a programmatic open.
-      // `undefined` is normalized to `''` by the prop default, so it never reaches
-      // here as nullish and is intentionally not treated as programmatic.
-      preferPreviousFocus: openInteractionTypeRef.current == null,
-      preventReturnFocus: false,
-      guardOwnsDestination: false,
-      closeType: '',
-    };
-    sessionActiveRef.current = true;
+    // A close request records where focus went when it was made — `preventReturnFocus` for a
+    // focus-out, `guardOwnsDestination` for a trigger focus guard — and how: `closeType`. A
+    // controlled consumer can refuse the request by leaving `open` alone, which keeps this session
+    // live with that policy still set, and a later close may be prop-driven — dispatching nothing
+    // that would re-derive it. The user bringing focus back into the floating tree is the point at
+    // which the recorded policy stops describing the close that will happen, so it is dropped
+    // here. This manager's own initial focus is not that signal: it lands on the frame after
+    // opening, possibly after a hover-leave has already asked to close, and must leave that
+    // request's policy alone. A descendant manager's initial focus does count — focus is then
+    // genuinely inside this tree — and the nested-popup re-entry relies on it.
+    //
+    // The listener sits on the document because re-entry through a portaled descendant never
+    // bubbles through this popup's own element, and in the capture phase so it runs before any
+    // guard's own `onFocus`: a guard that wants a policy still sets it afterwards. Focus moving
+    // between two elements of the same shadow root is not dispatched outside that root, so the
+    // popup's root is observed as well.
+    function resetClosePolicy(event: Event) {
+      const target = getTarget(event);
+      if (
+        initialFocusInProgressRef.current ||
+        !isElement(target) ||
+        !isInsideFloatingTree(target)
+      ) {
+        return;
+      }
+      const session = sessionRef.current;
+      if (session) {
+        session.preventReturnFocus = false;
+        session.guardOwnsDestination = false;
+        session.closeType = '';
+      }
+    }
 
-    addPreviouslyFocusedElement(elementFocusedBeforeOpen);
+    const doc = ownerDocument(floatingFocusElement);
+    const rootNode = floatingFocusElement.getRootNode();
+    const shadowRoot = isShadowRoot(rootNode) ? rootNode : null;
+    return mergeCleanups(
+      addEventListener(doc, 'focusin', resetClosePolicy, true),
+      shadowRoot && addEventListener(shadowRoot, 'focusin', resetClosePolicy, true),
+    );
   }, [
     active,
     domReference,
@@ -860,16 +925,23 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
             return false;
           }
 
-          if (hadFocusInside) {
-            return true;
-          }
-
           const currentActiveElement = activeElement(doc);
           const focusMovedInside =
             currentActiveElement !== elToFocus &&
             contains(floatingFocusElement, currentActiveElement);
 
-          return !focusMovedInside;
+          if (!hadFocusInside && focusMovedInside) {
+            return false;
+          }
+
+          // The `focus()` call that follows this return is the manager's, not the user's. The flag
+          // spans exactly that synchronous call: the microtask clears it before anything else can
+          // run, so it cannot swallow a later, genuine re-entry.
+          initialFocusInProgressRef.current = true;
+          queueMicrotask(() => {
+            initialFocusInProgressRef.current = false;
+          });
+          return true;
         },
       });
     });

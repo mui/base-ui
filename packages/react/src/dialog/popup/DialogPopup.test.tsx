@@ -1087,7 +1087,9 @@ describe('<Dialog.Popup />', () => {
       const { setProps } = await render(<Test open finalFocus={finalFocus} />);
       const outside = screen.getByTestId('outside');
 
-      await waitFor(() => expect(screen.getByTestId('inside')).toBeVisible());
+      // Opening moves focus into the popup on a later frame; wait for it to land, otherwise it
+      // arrives after the move below and pulls focus back in.
+      await waitFor(() => expect(screen.getByTestId('inside')).toHaveFocus());
       // `disablePointerDismissal` turns off close-on-focus-out, so focus can legitimately
       // move outside while the dialog stays open.
       await act(async () => outside.focus());
