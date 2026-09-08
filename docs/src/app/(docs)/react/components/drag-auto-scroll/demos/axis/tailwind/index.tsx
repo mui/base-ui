@@ -1,0 +1,152 @@
+'use client';
+import * as React from 'react';
+import { Draggable } from '@base-ui/react/draggable';
+import { DropTarget } from '@base-ui/react/drop-target';
+import { DragAutoScroll } from '@base-ui/react/drag-auto-scroll';
+
+interface Stop {
+  id: string;
+  label: string;
+}
+
+const stopKind = Draggable.createKind<string>('stop');
+
+// Enough stops that the lane overflows its width and is scrollable on mount, so
+// dragging toward an edge has somewhere to scroll.
+const INITIAL_STOPS: Stop[] = [
+  { id: 'wake', label: 'Wake up' },
+  { id: 'coffee', label: 'Coffee' },
+  { id: 'standup', label: 'Standup' },
+  { id: 'review', label: 'Code review' },
+  { id: 'lunch', label: 'Lunch' },
+  { id: 'design', label: 'Design sync' },
+  { id: 'focus', label: 'Focus block' },
+  { id: 'errands', label: 'Errands' },
+  { id: 'gym', label: 'Gym' },
+  { id: 'dinner', label: 'Dinner' },
+  { id: 'reading', label: 'Reading' },
+  { id: 'sleep', label: 'Sleep' },
+];
+
+// Resolve the insertion slot closest to the pointer along the lane. Candidate
+// slots sit before the first stop, between consecutive stops (the midpoint of
+// each gap), and after the last one.
+function resolveDropIndex(track: HTMLElement, clientX: number): number {
+  // The dragged stop's preview is a clone injected next to it, and it carries
+  // the same `data-stop`. Skip it: it follows the pointer and is not a real slot.
+  const stops = Array.from(
+    track.querySelectorAll<HTMLElement>('[data-stop]:not([data-drag-preview])'),
+  );
+  if (stops.length === 0) {
+    return 0;
+  }
+
+  const slotXs = [stops[0].getBoundingClientRect().left];
+  for (let i = 1; i < stops.length; i += 1) {
+    const previous = stops[i - 1].getBoundingClientRect();
+    const current = stops[i].getBoundingClientRect();
+    slotXs.push((previous.right + current.left) / 2);
+  }
+  slotXs.push(stops[stops.length - 1].getBoundingClientRect().right);
+
+  let index = 0;
+  let bestDx = Infinity;
+  for (let i = 0; i < slotXs.length; i += 1) {
+    const dx = Math.abs(clientX - slotXs[i]);
+    if (dx < bestDx) {
+      bestDx = dx;
+      index = i;
+    }
+  }
+  return index;
+}
+
+function Grip() {
+  return (
+    <svg
+      className="flex-none text-neutral-400 dark:text-neutral-500"
+      width="8"
+      height="14"
+      viewBox="0 0 8 14"
+      aria-hidden="true"
+    >
+      <g fill="currentColor">
+        <circle cx="2" cy="2" r="1.2" />
+        <circle cx="6" cy="2" r="1.2" />
+        <circle cx="2" cy="7" r="1.2" />
+        <circle cx="6" cy="7" r="1.2" />
+        <circle cx="2" cy="12" r="1.2" />
+        <circle cx="6" cy="12" r="1.2" />
+      </g>
+    </svg>
+  );
+}
+
+// The preview is a clone of the stop, so it keeps these classes: `data-dragging`
+// dims the source, `data-drag-preview` lifts the clone above the lane.
+const STOP_CLASS =
+  'inline-flex items-center gap-2 box-border border border-neutral-950 bg-white px-2.5 py-1.5 text-sm leading-5 whitespace-nowrap text-neutral-950 dark:border-white dark:bg-neutral-950 dark:text-white cursor-grab transition data-[dragging]:opacity-40 motion-safe:data-[drag-preview]:data-ending-style:transition-[translate] motion-safe:data-[drag-preview]:data-ending-style:duration-200 motion-safe:data-[drag-preview]:data-ending-style:ease-[cubic-bezier(0.2,0,0,1)] data-[drag-preview]:shadow-[0.25rem_0.25rem_0_rgb(0_0_0_/_12%)] dark:data-[drag-preview]:shadow-none hover:bg-neutral-100 dark:hover:bg-neutral-800 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-neutral-950 dark:focus-visible:outline-white';
+
+export default function AxisLane() {
+  const [stops, setStops] = React.useState(INITIAL_STOPS);
+  const trackRef = React.useRef<HTMLDivElement | null>(null);
+
+  function moveStop(id: string, insertIndex: number) {
+    setStops((previous) => {
+      const sourceIndex = previous.findIndex((stop) => stop.id === id);
+      // Dropping immediately before or after the source position is a no-op.
+      if (sourceIndex === -1 || insertIndex === sourceIndex || insertIndex === sourceIndex + 1) {
+        return previous;
+      }
+      const stop = previous[sourceIndex];
+      const without = previous.filter((entry) => entry.id !== id);
+      // Removing the stop shifts indices above the source down by one.
+      const adjusted = sourceIndex < insertIndex ? insertIndex - 1 : insertIndex;
+      return [...without.slice(0, adjusted), stop, ...without.slice(adjusted)];
+    });
+  }
+
+  return (
+    <div className="flex w-full flex-col gap-4 select-none">
+      <p className="m-0 text-sm leading-5 text-neutral-500 dark:text-neutral-400">
+        Drag a stop toward the left or right edge and the lane scrolls to follow. It only scrolls
+        sideways, so moving the pointer up or down never scrolls it.
+      </p>
+      {/* @highlight-start */}
+      <DragAutoScroll.Root
+        allowedAxis="horizontal"
+        className="box-border overflow-x-auto border border-neutral-200 p-3 dark:border-neutral-700"
+      >
+        {/* @highlight-end */}
+        <DropTarget.Root
+          ref={trackRef}
+          className="flex w-max gap-1.5"
+          label="Stop lane"
+          accept={stopKind}
+          trackDragOver={false}
+          onDrop={({ source, location }) => {
+            const track = trackRef.current;
+            if (track) {
+              moveStop(source.payload, resolveDropIndex(track, location.current.input.clientX));
+            }
+          }}
+        >
+          {stops.map((stop) => (
+            <Draggable.Root
+              key={stop.id}
+              label={stop.label}
+              kind={stopKind}
+              payload={stop.id}
+              data-stop
+              role="button"
+              className={STOP_CLASS}
+            >
+              <Grip />
+              {stop.label}
+            </Draggable.Root>
+          ))}
+        </DropTarget.Root>
+      </DragAutoScroll.Root>
+    </div>
+  );
+}

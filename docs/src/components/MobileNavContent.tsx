@@ -20,7 +20,7 @@ export function MobileNavContent({ sitemap }: MobileNavContentProps) {
     <React.Fragment>
       {Object.entries(sitemap.data).map(([name, section]) => (
         <MobileNav.Section key={name}>
-          <MobileNav.Heading>{name}</MobileNav.Heading>
+          <MobileNav.Heading>{getDisplayTitle(name)}</MobileNav.Heading>
           <MobileNav.List>
             {section.pages.filter(isSitemapPageVisible).map((page) => {
               const pageInfo = getSitemapPageInfo(section, page);

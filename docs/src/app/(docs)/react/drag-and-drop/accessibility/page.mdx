@@ -1,0 +1,158 @@
+# Accessibility
+
+<Subtitle>How to make drag and drop usable with a keyboard and screen reader.</Subtitle>
+
+<Meta
+  name="description"
+  content="Accessible drag and drop in Base UI, including keyboard controls, screen-reader announcements, focus, and localization."
+/>
+
+Every `Draggable.Root` supports keyboard dragging and screen-reader announcements by default. Add labels to describe the source and destination, and provide a non-drag control for the same action.
+
+## Provide an alternative to dragging
+
+Keyboard dragging is not a substitute for a non-drag alternative. Tracking and aiming a moving object can be difficult with motor, cognitive, or speech input. Give each draggable item another control that performs the same action, such as a "Move to..." menu, move buttons, or a destination `select`.
+
+```tsx title="A menu next to the drag handle"
+<Draggable.Root label={task.title} kind={taskKind} payload={task.id}>
+  <Draggable.Handle>
+    <Grip />
+  </Draggable.Handle>
+  {task.title}
+  <Menu.Root>
+    <Menu.Trigger aria-label={`Move ${task.title}`}>
+      <Ellipsis />
+    </Menu.Trigger>
+    <Menu.Popup>
+      {columns.map((column) => (
+        <Menu.Item key={column.id} onClick={() => move(task.id, column.id)}>
+          Move to {column.name}
+        </Menu.Item>
+      ))}
+    </Menu.Popup>
+  </Menu.Root>
+</Draggable.Root>
+```
+
+The drag is then a shortcut rather than the only route.
+
+The same menu can also start a keyboard drag. Call `useDragDropManager().startKeyboardDrag(element)` from a "Reorder" item to pick up the source. This lets the source keep <kbd>Space</kbd> for opening its menu. See [`keyboardActivation="manual"`](/react/components/draggable#moving-the-pickup-elsewhere).
+
+## Name the source and the destination
+
+The default announcements are built from two labels.
+
+- `label` on `Draggable.Root` names the item. For example, "Grabbed Water the plants." Without it, the announcement uses "item".
+- `label` on `DropTarget.Root` names the destination. For example, "Water the plants on Done" and "Dropped Water the plants on Done." Without it, moves over the target are silent and the drop announcement omits the destination. With nested targets, the announcement names the innermost labeled target.
+
+```tsx title="Both ends named"
+<DropTarget.Root label="Done" accept={taskKind} onDrop={handleDrop}>
+  {tasks.map((task) => (
+    <Draggable.Root key={task.id} label={task.title} kind={taskKind} payload={task.id}>
+      {task.title}
+    </Draggable.Root>
+  ))}
+</DropTarget.Root>
+```
+
+A `Draggable.Handle` renders a button. With direct icon-only children and a labeled root, it names itself `Drag {label}` automatically; visible text keeps its own accessible name. When `render` is a function or a custom component, Base UI cannot inspect the rendered control, so give an icon-only handle an explicit `aria-label` or `aria-labelledby`.
+
+## Keep the source operable
+
+`Draggable.Root` sets `tabIndex={0}` and `role="button"` when keyboard dragging is enabled without a `Draggable.Handle`. A handle renders its own button. Keep these details in mind:
+
+- **Override the role when the element already has one.** A `listitem`, `row` or `option` should keep its semantics; pass your own `role` and the engine leaves it alone.
+- **Prefer a handle when the source contains interactive children.** A button may not contain another button or a link, so a card with a menu inside it needs a `Draggable.Handle` rather than a draggable root.
+
+[`registerDraggable`](/react/utils/use-drag-drop-manager) does not manage `tabIndex`, so make those elements focusable yourself.
+
+## What gets announced, and when
+
+During a keyboard drag, Base UI announces the pickup, effective moves, the drop, and cancellation. Pointer drags are not announced.
+
+Every effective move is announced, even when the named destination does not change. Return `null` from `keyboardAnnouncements.moved` to skip an announcement.
+
+Override any of them with `keyboardAnnouncements`. Each callback returns the string to announce, or `null` to stay silent:
+
+```tsx title="Announcing the position in the list"
+<Draggable.Root
+  kind={taskKind}
+  payload={task.id}
+  label={task.title}
+  keyboardAnnouncements={{
+    moved: ({ location }) => {
+      const target = location.current.dropTargets[0];
+      return target ? `${task.title} before ${target.label}` : null;
+    },
+    reachedEdge: () => 'No further',
+  }}
+/>
+```
+
+Announce positions as "3 of 12" instead of using a zero-based index such as "index 2".
+
+`reachedEdge` is silent by default. It fires at the end of a list when using [`targetsOnlyKeyboardMovement`](/react/components/draggable#controlling-movement), or when a resolver returns `false`. Returning `null` or `undefined` uses the default movement. Without a `reachedEdge` announcement, a refused arrow press produces no announcement.
+
+Two props control what screen readers announce before a drag. `ariaRoleDescription` sets `aria-roledescription`, which defaults to "draggable", on the handle or source. `keyboardInstructions` replaces the instructions announced when the source or handle receives focus.
+
+## Restore focus when the drag ends
+
+When a keyboard drag ends, the default behavior tries to focus its handle, then its source, then the innermost drop target. Pointer drags never move focus. Use `finalFocus` when reordering unmounts the source or focus must move somewhere specific:
+
+```tsx title="Focus the row at its new position"
+<Draggable.Root
+  kind={taskKind}
+  label={task.title}
+  payload={task.id}
+  finalFocus={() => document.querySelector<HTMLElement>(`[data-task-id="${task.id}"]`)}
+/>
+```
+
+Return `true` or `null` from the function for the default behavior, `false` or `undefined` to leave focus where it is, or pass `finalFocus={false}` to opt out entirely.
+
+## Localize the strings
+
+The default strings are English. Provide translations through [`LocalizationProvider`](/react/utils/localization-provider) instead of setting them on each source. The available keys are `dragRoleDescription`, `dragKeyboardInstructions`, `dragHandleLabel`, `dragDefaultItemLabel`, `dragMultipleItemsLabel`, `dragDropPositionPhrase`, and the four `dragAnnouncement*` functions.
+
+```tsx title="Translated drag announcements"
+<LocalizationProvider
+  translations={{
+    dragRoleDescription: 'déplaçable',
+    dragAnnouncementPickedUp: ({ label }) => `${label} saisi.`,
+  }}
+>
+  <Board />
+</LocalizationProvider>
+```
+
+The locale is read where the drag is registered, so the provider has to sit above your draggables, and above the component calling [`useDragDropManager`](/react/utils/use-drag-drop-manager#when-each-parameter-is-read) for imperative registrations.
+
+## When the element already owns its keys
+
+Some elements already use the keys required for a drag. A card may open a menu on <kbd>Space</kbd>, or a grid may use arrow keys to reorder columns. Use `keyboardActivation` to decide which keys Base UI handles:
+
+- `'manual'` leaves the pickup key to the element. The element stays focusable and is still announced as draggable. Start the drag from another control, such as a "Reorder" menu item, with [`useDragDropManager().startKeyboardDrag(element)`](/react/utils/use-drag-drop-manager).
+- `'off'` takes the whole keyboard away. The hints go too, since they would otherwise promise a path that doesn't exist. Only use it when the element already offers an equivalent keyboard route to the same outcome, or when it is `aria-hidden` decoration beside a control that does.
+
+## Check it
+
+- Tab to a draggable and confirm the instructions are announced.
+- Pick it up, arrow across targets, and confirm each destination is named.
+- Drop, and confirm the result is announced and focus moves to the expected element.
+- Press Escape mid-drag and confirm the cancel is announced.
+- Do the same move with the pointer path disabled entirely, using only the non-drag alternative.
+
+export const metadata =
+  /** @type {import('@mui/internal-docs-infra/createSitemap/types').NextMetadata} */ ({
+    keywords: [
+      'React Drag and Drop',
+      'Accessible Drag and Drop',
+      'Keyboard Drag',
+      'Screen Reader',
+      'ARIA',
+      'Base UI',
+    ],
+    robots: {
+      index: true,
+    },
+  });
