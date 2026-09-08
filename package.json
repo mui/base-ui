@@ -3,7 +3,7 @@
   "version": "1.8.0",
   "private": true,
   "scripts": {
-    "preinstall": "npx only-allow pnpm",
+    "preinstall": "npx only-allow@1.2.2 pnpm",
     "deduplicate": "pnpm dedupe",
     "build": "lerna run --no-private build",
     "release:version": "lerna version --no-changelog --no-push --no-git-tag-version --no-private",
