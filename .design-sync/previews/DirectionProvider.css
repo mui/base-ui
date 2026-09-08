@@ -1,0 +1,128 @@
+.Control {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  width: 14rem;
+  padding-block: 0.75rem;
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.Track {
+  width: 100%;
+  height: 0.25rem;
+  background-color: oklch(92.2% 0 0deg);
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.Indicator {
+  background-color: oklch(14.5% 0 0deg);
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.Thumb {
+  box-sizing: border-box;
+  width: 1rem;
+  height: 1rem;
+  border: 1px solid oklch(14.5% 0 0deg);
+  background-color: white;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.Thumb:has(:focus-visible) {
+  outline: 2px solid oklch(14.5% 0 0deg);
+  outline-offset: 2px;
+}
+
+.Row {
+  display: flex;
+  gap: 2rem;
+}
+
+.Column {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.375rem;
+}
+
+.ColumnLabel {
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: oklch(55.6% 0 0deg);
+}
+
+.Accordion {
+  box-sizing: border-box;
+  display: flex;
+  max-width: 20rem;
+  width: 100%;
+  flex-direction: column;
+  border: 1px solid oklch(14.5% 0 0deg);
+  color: oklch(14.5% 0 0deg);
+}
+
+.Item + .Item {
+  border-top: 1px solid oklch(14.5% 0 0deg);
+}
+
+.Header {
+  margin: 0;
+}
+
+.Trigger {
+  box-sizing: border-box;
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.5rem 0.75rem;
+  margin: 0;
+  border: none;
+  border-radius: 0;
+  background-color: transparent;
+  color: oklch(14.5% 0 0deg);
+  font-family: inherit;
+  font-size: 0.875rem;
+  font-weight: 400;
+  line-height: 1.25rem;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.Trigger[data-disabled] {
+  color: oklch(70.8% 0 0deg);
+}
+
+.Icon {
+  transition: transform 100ms ease-out;
+}
+
+[data-panel-open] > .Icon {
+  transform: rotate(45deg);
+}
+
+.Panel {
+  box-sizing: border-box;
+  height: var(--accordion-panel-height);
+  overflow: hidden;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  transition: height 150ms ease-out;
+}
+
+.Panel[data-starting-style],
+.Panel[data-ending-style] {
+  height: 0;
+}
+
+.Content {
+  padding: 0.5rem 0.75rem;
+}

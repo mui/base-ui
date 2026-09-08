@@ -1,0 +1,39 @@
+.Panel {
+  display: flex;
+  gap: 1px;
+  padding: 1px;
+  border: 1px solid oklch(14.5% 0 0deg);
+}
+
+.Panel[data-disabled] {
+  opacity: 0.4;
+}
+
+.Button {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  margin: 0;
+  border: none;
+  border-radius: 0;
+  background-color: transparent;
+  color: oklch(14.5% 0 0deg);
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.Button[data-pressed] {
+  background-color: oklch(14.5% 0 0deg);
+  color: white;
+}
+
+.Button:focus-visible {
+  outline: 2px solid oklch(14.5% 0 0deg);
+  outline-offset: 1px;
+  position: relative;
+  z-index: 1;
+}

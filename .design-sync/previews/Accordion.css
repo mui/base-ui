@@ -1,0 +1,69 @@
+.Accordion {
+  box-sizing: border-box;
+  display: flex;
+  max-width: 20rem;
+  width: 100%;
+  flex-direction: column;
+  border: 1px solid oklch(14.5% 0 0deg);
+  color: oklch(14.5% 0 0deg);
+}
+
+.Item + .Item {
+  border-top: 1px solid oklch(14.5% 0 0deg);
+}
+
+.Header {
+  margin: 0;
+}
+
+.Trigger {
+  box-sizing: border-box;
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.5rem 0.75rem;
+  margin: 0;
+  border: none;
+  border-radius: 0;
+  background-color: transparent;
+  color: oklch(14.5% 0 0deg);
+  font-family: inherit;
+  font-size: 0.875rem;
+  font-weight: 400;
+  line-height: 1.25rem;
+  text-align: left;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.Trigger[data-disabled] {
+  color: oklch(70.8% 0 0deg);
+}
+
+.Icon {
+  transition: transform 100ms ease-out;
+}
+
+[data-panel-open] > .Icon {
+  transform: rotate(45deg);
+}
+
+.Panel {
+  box-sizing: border-box;
+  height: var(--accordion-panel-height);
+  overflow: hidden;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  transition: height 150ms ease-out;
+}
+
+.Panel[data-starting-style],
+.Panel[data-ending-style] {
+  height: 0;
+}
+
+.Content {
+  padding: 0.5rem 0.75rem;
+}

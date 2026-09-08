@@ -1,0 +1,105 @@
+.Menubar {
+  display: flex;
+  align-items: center;
+}
+
+.MenuTrigger {
+  box-sizing: border-box;
+  height: 2rem;
+  padding: 0 0.75rem;
+  margin: 0;
+  border: 0;
+  background-color: transparent;
+  color: oklch(14.5% 0 0deg);
+  font-family: inherit;
+  font-size: 0.875rem;
+  font-weight: 400;
+  line-height: 1.25rem;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.MenuTrigger[data-pressed] {
+  background-color: oklch(97% 0 0deg);
+}
+
+.MenuTrigger[data-disabled] {
+  color: oklch(55.6% 0 0deg);
+}
+
+.MenuPositioner {
+  outline: 0;
+}
+
+.MenuPopup {
+  box-sizing: border-box;
+  outline: 0;
+  padding-block: 0.25rem;
+  border: 1px solid oklch(14.5% 0 0deg);
+  background-color: white;
+  color: oklch(14.5% 0 0deg);
+  box-shadow: 0.25rem 0.25rem 0 rgb(0 0 0 / 12%);
+}
+
+.MenuItem,
+.SubmenuTrigger {
+  outline: 0;
+  cursor: default;
+  -webkit-user-select: none;
+  user-select: none;
+  padding-block: 0.5rem;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  display: flex;
+  font-size: 0.875rem;
+  line-height: 1rem;
+  font-weight: 400;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.MenuItem[data-highlighted],
+.SubmenuTrigger[data-highlighted] {
+  z-index: 0;
+  position: relative;
+  color: white;
+}
+
+.MenuItem[data-highlighted]::before,
+.SubmenuTrigger[data-highlighted]::before {
+  content: '';
+  z-index: -1;
+  position: absolute;
+  inset-block: 0;
+  inset-inline: 0.25rem;
+  background-color: oklch(14.5% 0 0deg);
+}
+
+.SubmenuTrigger {
+  padding-right: 0.5rem;
+}
+
+.SubmenuTrigger[data-popup-open] {
+  z-index: 0;
+  position: relative;
+}
+
+.SubmenuTrigger[data-popup-open]::before {
+  content: '';
+  z-index: -1;
+  position: absolute;
+  inset-block: 0;
+  inset-inline: 0.25rem;
+  background-color: oklch(97% 0 0deg);
+}
+
+.SubmenuTrigger[data-highlighted][data-popup-open]::before {
+  background-color: oklch(14.5% 0 0deg);
+}
+
+.MenuSeparator {
+  margin: 0.25rem;
+  height: 1px;
+  background-color: oklch(14.5% 0 0deg);
+}

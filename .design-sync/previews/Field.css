@@ -1,0 +1,66 @@
+.Field {
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  gap: 0.25rem;
+  width: 100%;
+  max-width: 16rem;
+}
+
+.Label {
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  font-weight: 700;
+  color: oklch(14.5% 0 0deg);
+}
+
+.Field[data-disabled] .Label {
+  opacity: 0.5;
+}
+
+.Input {
+  box-sizing: border-box;
+  padding: 0 0.5rem;
+  margin: 0;
+  border-radius: 0;
+  border: 1px solid oklch(14.5% 0 0deg);
+  width: 100%;
+  height: 2rem;
+  font-family: inherit;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  font-weight: 400;
+  background-color: white;
+  color: oklch(14.5% 0 0deg);
+}
+
+.Input::placeholder {
+  color: oklch(55.6% 0 0deg);
+}
+
+.Input:focus {
+  outline: 2px solid oklch(14.5% 0 0deg);
+  outline-offset: -1px;
+}
+
+.Input[aria-invalid='true'] {
+  border-color: oklch(50.5% 0.213 27.518deg);
+}
+
+.Input:disabled {
+  opacity: 0.5;
+  background-color: oklch(97% 0 0deg);
+}
+
+.Error {
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  color: oklch(50.5% 0.213 27.518deg);
+}
+
+.Description {
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  color: oklch(43.9% 0 0deg);
+}

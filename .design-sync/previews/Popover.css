@@ -1,0 +1,104 @@
+.Popup {
+  box-sizing: border-box;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.75rem;
+  outline: none;
+  border: 1px solid oklch(14.5% 0 0deg);
+  background-color: white;
+  color: oklch(14.5% 0 0deg);
+  box-shadow: 0.25rem 0.25rem 0 rgb(0 0 0 / 12%);
+  max-width: 500px;
+  width: max-content;
+}
+
+.Arrow {
+  display: block;
+  position: relative;
+  width: 12px;
+  height: 6px;
+  overflow: clip;
+}
+
+.Arrow[data-side='top'] {
+  bottom: -6px;
+  rotate: 180deg;
+}
+
+.Arrow[data-side='bottom'] {
+  top: -6px;
+  rotate: 0deg;
+}
+
+.Arrow[data-side='left'] {
+  right: -9px;
+  rotate: 90deg;
+}
+
+.Arrow[data-side='right'] {
+  left: -9px;
+  rotate: -90deg;
+}
+
+.Arrow::before {
+  content: '';
+  display: block;
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  box-sizing: border-box;
+  width: calc(6px * sqrt(2));
+  height: calc(6px * sqrt(2));
+  background-color: white;
+  border: 1px solid oklch(14.5% 0 0deg);
+  transform: translate(-50%, 50%) rotate(45deg);
+}
+
+.Title {
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  font-weight: 700;
+}
+
+.Description {
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  color: oklch(43.9% 0 0deg);
+}
+
+.Actions {
+  display: flex;
+  justify-content: end;
+  margin-top: 0.5rem;
+}
+
+.Button {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  height: 2rem;
+  padding: 0 0.75rem;
+  margin: 0;
+  border: 1px solid oklch(14.5% 0 0deg);
+  background-color: white;
+  font-family: inherit;
+  font-size: 0.875rem;
+  font-weight: 400;
+  line-height: 1;
+  white-space: nowrap;
+  color: oklch(14.5% 0 0deg);
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.Button[data-disabled],
+.Button:disabled {
+  color: oklch(55.6% 0 0deg);
+  border-color: oklch(55.6% 0 0deg);
+}

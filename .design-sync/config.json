@@ -1,0 +1,45 @@
+{
+  "projectId": "e9789c9e-6c98-4c73-a2e5-23fc4b370d03",
+  "shape": "package",
+  "pkg": "@base-ui/react",
+  "globalName": "BaseUI",
+  "buildCmd": "pnpm -F \"@base-ui/react...\" build",
+  "docsDir": "../../../docs/src/app/(docs)/react/components",
+  "libOverrides": {
+    "docs.mjs": "Base UI docs use page.mdx per-component under a slug-named directory; basename matching never fires without falling back to the parent dir name"
+  },
+  "componentSrcMap": {
+    "ComboboxItemCollection": null
+  },
+  "docsMap": {
+    "CSPProvider": "../../../docs/src/app/(docs)/react/utils/csp-provider/page.mdx",
+    "DirectionProvider": "../../../docs/src/app/(docs)/react/utils/direction-provider/page.mdx"
+  },
+  "overrides": {
+    "Dialog": { "cardMode": "single", "viewport": "480x360" },
+    "ContextMenu": { "cardMode": "single", "viewport": "420x300" },
+    "Select": { "cardMode": "single", "viewport": "300x260" },
+    "Combobox": { "cardMode": "single", "viewport": "320x300" },
+    "Autocomplete": { "cardMode": "single", "viewport": "320x300" },
+    "NavigationMenu": { "cardMode": "single", "viewport": "420x260" },
+    "Tooltip": { "cardMode": "single", "viewport": "260x160" },
+    "AlertDialog": { "cardMode": "single", "primaryStory": "Basic", "viewport": "480x300" },
+    "Menu": { "cardMode": "single", "primaryStory": "Basic", "viewport": "320x360" },
+    "Menubar": { "cardMode": "single", "primaryStory": "SubmenuOpen", "viewport": "480x360" },
+    "NumberField": { "cardMode": "single", "primaryStory": "Basic", "viewport": "320x200" },
+    "OTPField": { "cardMode": "single", "primaryStory": "Basic", "viewport": "360x160" },
+    "Popover": { "cardMode": "single", "primaryStory": "Basic", "viewport": "360x260" },
+    "DirectionProvider": { "cardMode": "single", "primaryStory": "AccordionRtl", "viewport": "360x280" },
+    "Drawer": { "cardMode": "single", "primaryStory": "Basic", "viewport": "420x320" },
+    "Meter": { "cardMode": "single", "primaryStory": "Basic", "viewport": "320x120" },
+    "PreviewCard": { "cardMode": "single", "primaryStory": "Basic", "viewport": "360x260" },
+    "Progress": { "cardMode": "single", "primaryStory": "Basic", "viewport": "320x120" },
+    "Slider": { "cardMode": "single", "primaryStory": "Range", "viewport": "320x120" },
+    "Toast": { "cardMode": "single", "primaryStory": "Basic", "viewport": "360x200" },
+    "Toolbar": { "cardMode": "single", "primaryStory": "Basic", "viewport": "480x120" }
+  },
+  "storyImports": {
+    "loaders": { ".css": "css" }
+  },
+  "readmeHeader": ".design-sync/conventions.md"
+}

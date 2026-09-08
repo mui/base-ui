@@ -1,0 +1,35 @@
+.Container {
+  display: flex;
+  gap: 1rem;
+  text-wrap: nowrap;
+  align-items: center;
+}
+
+.VerticalContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  width: 12rem;
+}
+
+.Separator {
+  width: 1px;
+  align-self: stretch;
+  background-color: oklch(87% 0 0deg);
+}
+
+.SeparatorHorizontal {
+  height: 1px;
+  width: 100%;
+  background-color: oklch(87% 0 0deg);
+}
+
+.Link {
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  color: oklch(14.5% 0 0deg);
+  text-decoration-color: oklch(87% 0 0deg);
+  text-decoration-thickness: 1px;
+  text-decoration-line: none;
+  text-underline-offset: 2px;
+}

@@ -1,0 +1,94 @@
+.Popup {
+  box-sizing: border-box;
+  position: relative;
+  width: var(--popup-width, auto);
+  height: var(--popup-height, auto);
+  border: 1px solid oklch(14.5% 0 0deg);
+  background-color: white;
+  color: oklch(14.5% 0 0deg);
+  box-shadow: 0.25rem 0.25rem 0 rgb(0 0 0 / 12%);
+}
+
+.Arrow {
+  display: block;
+  position: relative;
+  width: 12px;
+  height: 6px;
+  overflow: clip;
+}
+
+.Arrow[data-side='top'] {
+  bottom: -6px;
+  rotate: 180deg;
+}
+
+.Arrow[data-side='bottom'] {
+  top: -6px;
+  rotate: 0deg;
+}
+
+.Arrow[data-side='left'] {
+  right: -9px;
+  rotate: 90deg;
+}
+
+.Arrow[data-side='right'] {
+  left: -9px;
+  rotate: -90deg;
+}
+
+.Arrow::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  box-sizing: border-box;
+  width: calc(6px * 1.41421356);
+  height: calc(6px * 1.41421356);
+  border: 1px solid oklch(14.5% 0 0deg);
+  background-color: white;
+  transform: translate(-50%, 50%) rotate(45deg);
+}
+
+.PopupContent {
+  width: min-content;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  box-sizing: border-box;
+}
+
+.ImagePlaceholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 224px;
+  height: 150px;
+  background-color: oklch(92.2% 0 0deg);
+  color: oklch(43.9% 0 0deg);
+  font-size: 0.875rem;
+}
+
+.Summary {
+  margin: 0;
+  width: 224px;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+}
+
+.Paragraph {
+  margin: 0;
+  max-width: 20rem;
+  font-size: 1rem;
+  line-height: 1.5rem;
+  color: oklch(14.5% 0 0deg);
+}
+
+.Link {
+  outline: 0;
+  color: oklch(14.5% 0 0deg);
+  text-decoration-line: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+}
