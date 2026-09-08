@@ -87,9 +87,15 @@ const focusProxyStyle: React.CSSProperties = {
   transform: 'translateX(-10000px)',
 };
 
+// A block formatting context, so a row's own box contains its content's margins and measuring
+// the box measures what the content occupies.
 const virtualRowStyle: React.CSSProperties = {
   display: 'flow-root',
 };
+
+// The same containment for the trailing content in normal flow. Its positioned wrapper in the
+// windowed layout gets it for free.
+const trailingFlowStyle: React.CSSProperties = virtualRowStyle;
 
 function VirtualRowImpl<RowModel>(props: VirtualRowProps<RowModel>) {
   const { apiRef, isVirtualFocusRow, renderRow, retained, row, rowIndex } = props;
@@ -911,6 +917,11 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
     }, [enabled, onUnconstrainedHeight, rows.length, rowsMeta, scrollportPaddingTotal]);
   }
 
+  // Keyed on whether trailing content exists and on the mode, not on the node: the element is
+  // remounted when the content appears or the branch below switches, and that is when the
+  // observer has to be attached to it. Its content resizing is the observer's own business, and
+  // a consumer writing the node inline hands over a new one on every render.
+  const hasTrailing = trailing != null;
   useIsoLayoutEffect(() => {
     const element = trailingRef.current;
 
@@ -936,7 +947,7 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
     const observer = new win.ResizeObserver(measure);
     observer.observe(element);
     return () => observer.disconnect();
-  }, [trailing]);
+  }, [enabled, hasTrailing]);
 
   // Declared before the mode publication below, which arms it: the request then lands on the
   // commit that publication already schedules.
@@ -1430,6 +1441,13 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
         <div {...contentProps} />
         <div role="presentation" {...positionerProps} />
         {renderedRows}
+        {/* In normal flow after the rows, which are in normal flow here too; still measured, so
+            the published total covers it in both modes. */}
+        {trailing != null && (
+          <div ref={trailingRef} role="presentation" style={trailingFlowStyle}>
+            {trailing}
+          </div>
+        )}
       </React.Fragment>
     ),
   };
