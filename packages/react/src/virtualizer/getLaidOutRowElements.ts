@@ -1,9 +1,10 @@
 /**
- * The row elements the render zone currently lays out, in DOM order.
+ * The row elements laid out under the given parent — the render zone while windowing, the
+ * scroll element otherwise — in DOM order.
  *
- * Rows are the render zone's direct children in a flat list, and the children of one group
- * wrapper per group in a grouped one; both shapes are walked here so no caller has to know which
- * it is looking at. The walk stops at rows and descends one level into anything else, never
+ * Rows are the parent's direct children in a flat list, and the children of one group wrapper
+ * per group in a grouped one; both shapes are walked here so no caller has to know which it is
+ * looking at. The walk stops at rows and descends one level into anything else, never
  * further: an item renderer may mount a virtualizer of its own, or elements carrying a row index
  * attribute for its own purposes, and neither may be measured as one of this list's rows.
  *
@@ -11,7 +12,7 @@
  * positioned out of layout, and a retained group header, which is hidden — since a rectangle
  * read from either describes nothing on screen.
  */
-export function getLaidOutRowElements(renderZone: HTMLElement): HTMLElement[] {
+export function getLaidOutRowElements(rowsParent: HTMLElement): HTMLElement[] {
   const elements: HTMLElement[] = [];
 
   const collect = (element: HTMLElement) => {
@@ -21,8 +22,8 @@ export function getLaidOutRowElements(renderZone: HTMLElement): HTMLElement[] {
     elements.push(element);
   };
 
-  for (let index = 0; index < renderZone.children.length; index += 1) {
-    const child = renderZone.children[index] as HTMLElement;
+  for (let index = 0; index < rowsParent.children.length; index += 1) {
+    const child = rowsParent.children[index] as HTMLElement;
 
     if (isRowElement(child)) {
       collect(child);

@@ -466,6 +466,40 @@ describe('<Virtualizer /> standalone', () => {
     expect(actionsRef.current?.getItemMetrics(-1)).toBe(null);
   });
 
+  it.skipIf(isJSDOM)('remeasures the rows of the non-windowed layout', async () => {
+    vi.restoreAllMocks();
+    const actionsRef = React.createRef<Virtualizer.Actions>();
+
+    // Rows are 30px tall against a 20px estimate: measured geometry differs from estimated.
+    await render(
+      <Virtualizer<TestItem>
+        actionsRef={actionsRef}
+        enabled={false}
+        estimatedItemHeight={20}
+        getItemKey={(item) => item.id}
+        items={createItems(20)}
+        render={<div data-testid="virtualizer" style={{ height: 40 }} />}
+        role="listbox"
+      >
+        {(item, _, itemProps) => (
+          <div {...itemProps} role="option" aria-selected={false} style={{ height: 30 }}>
+            {item.label}
+          </div>
+        )}
+      </Virtualizer>,
+    );
+
+    await waitFor(() => expect(actionsRef.current?.getItemMetrics(1)?.offset).toBe(30));
+
+    // Clearing the cache must not leave the rows on their estimates: every one of them is laid
+    // out and can be measured on the spot.
+    await act(async () => {
+      actionsRef.current?.remeasure();
+    });
+    expect(actionsRef.current?.getItemMetrics(1)).toEqual({ offset: 30, size: 30 });
+    expect(actionsRef.current?.getItemMetrics(19)).toEqual({ offset: 570, size: 30 });
+  });
+
   it('maps a scroll position back to the item at it', async () => {
     const actionsRef = React.createRef<Virtualizer.Actions>();
 

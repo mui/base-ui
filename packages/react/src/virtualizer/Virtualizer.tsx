@@ -1135,12 +1135,14 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
     if (api != null) {
       api.rowsMeta.resetRowHeights();
 
-      const renderZone = renderZoneRef.current;
+      // Rows live in the render zone while windowing and under the root otherwise; they are
+      // measured wherever they are laid out.
+      const rowsParent = renderZoneRef.current ?? scrollElementRef.current;
 
-      if (renderZone != null) {
+      if (rowsParent != null) {
         // Only rows in layout: the retained focus proxy and a retained header carry no usable
         // height, and a hidden one stored as zero would be worse than its estimate.
-        for (const element of getLaidOutRowElements(renderZone)) {
+        for (const element of getLaidOutRowElements(rowsParent)) {
           const rowIndex = Number(element.dataset.rowIndex);
           const row = rowsRef.current[rowIndex];
           const height = element.getBoundingClientRect().height;
