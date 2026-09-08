@@ -159,7 +159,7 @@ import { DemoAutocompleteGrid } from './demos/grid';
 
 For most large datasets, use the [`<Virtualizer>`](/react/utils/virtualizer) component. It is the recommended approach because it renders only the visible items while handling keyboard navigation, scrolling, and accessibility metadata for you.
 
-Pass a flat collection to the `items` prop on `<Autocomplete.Root>`, and use the virtualizer as the only item-rendering child of `<Autocomplete.List>`. Each item renderer must return exactly one `<Autocomplete.Item>`. Grouped collections and grid mode are not currently supported.
+Pass the collection to the `items` prop on `<Autocomplete.Root>`, and use the virtualizer as the only item-rendering child of `<Autocomplete.List>`. Each item renderer must return exactly one `<Autocomplete.Item>`. A grouped collection also needs a `renderGroupHeader` returning an `<Autocomplete.GroupLabel>`; see [grouped collections](/react/utils/virtualizer#grouped-collections). Grid mode is not currently supported.
 
 ```jsx title="Anatomy"
 import { Virtualizer } from '@base-ui/react/virtualizer';

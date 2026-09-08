@@ -28,6 +28,7 @@ import { useListVirtualization } from '../internals/virtualization/ListVirtualiz
 import { useListBinding } from '../internals/virtualization/useListBinding';
 import {
   isGroupHeaderRowId,
+  isObjectValue,
   useGroupedRowModels,
   useRowModels,
   type GroupedRows,
@@ -445,6 +446,7 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
     renderRow: renderRowProp,
     scrollToRowAlignment,
     scrollToItemIndex,
+    windowingSuspended,
   } = useListBinding<Value>({
     actionsRef,
     activeIndex,
@@ -1248,8 +1250,48 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
    * and released as soon as the window moves away or the collection grows past it.
    */
   const endReachedArmedRef = React.useRef(true);
+  // Only whether a key function exists matters below; its identity is inline for most consumers.
+  const hasGetItemKey = getItemKey != null;
+  /** The end the flag was last held down against: an item count and the row that ends it. */
+  const endReachedEndRef = React.useRef<{ length: number; lastRowId: React.Key | undefined }>({
+    length: 0,
+    lastRowId: undefined,
+  });
 
   useIsoLayoutEffect(() => {
+    // A different collection has a different end, whatever the window did: a shorter result set
+    // whose end is in view from the start, or one of the same length made of other items, is a
+    // new arrival. The same length with other items is told apart by the last item's key: the
+    // last *item*, since a grouped list can end in an empty group's header that stays while every
+    // item behind it changes, and only a key the consumer chose, since an object item without
+    // `getItemKey` is keyed by identity and a consumer rebuilding items per render would renew
+    // that end on every commit.
+    const lastItemRow = itemRows[itemRows.length - 1];
+    const lastRowId =
+      lastItemRow == null || (!hasGetItemKey && isObjectValue(lastItemRow.model.item))
+        ? undefined
+        : lastItemRow.id;
+    const previousEnd = endReachedEndRef.current;
+    const endChanged =
+      previousEnd.length !== collection.length || previousEnd.lastRowId !== lastRowId;
+    if (endChanged) {
+      endReachedEndRef.current = { length: collection.length, lastRowId };
+    }
+
+    // Every row mounted at once for the host's own purposes (rendered labels for browser autofill)
+    // is not the user arriving anywhere. The flag is held down for the pass and for the commits
+    // after it that still describe the whole collection, since the engine takes two commits to
+    // window again; the first windowed context short of the end releases it, as any window
+    // moving away from the end does.
+    if (windowingSuspended) {
+      endReachedArmedRef.current = false;
+      return;
+    }
+
+    if (endChanged) {
+      endReachedArmedRef.current = true;
+    }
+
     // Items, not rows: a grouped collection with headers and no items has no end to reach.
     if (onEndReached == null || collection.length === 0) {
       return;
@@ -1281,9 +1323,12 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
     endReachedThreshold,
     grouped,
     handleEndReached,
+    hasGetItemKey,
+    itemRows,
     onEndReached,
     overscannedRenderContext.lastRowIndex,
     rows.length,
+    windowingSuspended,
   ]);
 
   // The refresh samples the settled window and demotes every cached height it did not sample;

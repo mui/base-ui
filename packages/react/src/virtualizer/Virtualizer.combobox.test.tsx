@@ -1257,6 +1257,46 @@ describe('<Virtualizer /> in Combobox', () => {
     expect(screen.queryByRole('listbox')).toBe(null);
   });
 
+  it('does not report the end reached for the rendered-label autofill pass', async () => {
+    const items = Array.from({ length: 100 }, (_, index) => `V${index + 1}`);
+    const onEndReached = vi.fn();
+
+    await render(
+      <Combobox.Root name="country" items={items}>
+        <Combobox.Input />
+        <Combobox.Portal>
+          <Combobox.Positioner>
+            <Combobox.Popup>
+              <Combobox.List>
+                <Virtualizer<string>
+                  estimatedItemHeight={20}
+                  onEndReached={onEndReached}
+                  overscanPx={0}
+                  render={<div ref={setElementClientHeight(40)} />}
+                >
+                  {(item: string, index) => (
+                    <Combobox.Item value={item}>{`Country ${index + 1}`}</Combobox.Item>
+                  )}
+                </Virtualizer>
+              </Combobox.List>
+            </Combobox.Popup>
+          </Combobox.Positioner>
+        </Combobox.Portal>
+      </Combobox.Root>,
+    );
+
+    const hiddenInput = screen
+      .getAllByDisplayValue('')
+      .find((element) => element.getAttribute('name') === 'country') as HTMLInputElement;
+
+    // No serialized value matches, so every row is mounted once to read its rendered label. That
+    // is the list's own doing, not the user arriving at the end.
+    fireEvent.change(hiddenInput, { target: { value: 'Country 999' } });
+    await flushMicrotasks();
+
+    expect(onEndReached).not.toHaveBeenCalled();
+  });
+
   it('does not render every item for an unmatched large autofill value', async () => {
     const items = Array.from({ length: 1001 }, (_, index) => `V${index + 1}`);
     const renderItem = vi.fn((item: string, index: number) => (

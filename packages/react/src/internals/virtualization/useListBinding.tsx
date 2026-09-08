@@ -217,6 +217,11 @@ export interface ListBinding<Item> {
   scrollToRowAlignment: VirtualizerScrollAlignment;
   /** The item to scroll into view. */
   scrollToItemIndex: number | undefined;
+  /**
+   * Whether the host mounted every row at once for its own purposes. `enabled` is already false
+   * then; this tells that apart from the consumer disabling virtualization.
+   */
+  windowingSuspended: boolean;
 }
 
 /**
@@ -336,7 +341,6 @@ export function useListBinding<Item>(
   }
 
   const focusedItemIndex = activeIndex == null ? undefined : activeIndex;
-  const scrollToItemIndex = scrollActiveIntoView ? focusedItemIndex : undefined;
 
   const renderRow = React.useCallback(
     (params: VirtualizerRenderRowParameters<VirtualizerRowModel<Item>>) => {
@@ -384,6 +388,11 @@ export function useListBinding<Item>(
   // labels for browser autofill), which suspends windowing until they finish. The list root reads
   // this off the registry to know whether the virtualizer currently owns scrolling.
   const enabled = enabledProp && !windowingSuspended;
+  // A hosted list that is not windowed scrolls its own item elements (see `scrollActivation.ts`),
+  // so it hands the virtualizer a request only while the virtualizer owns scrolling. A standalone
+  // list has no one else to scroll it, in either mode.
+  const scrollToItemIndex =
+    scrollActiveIntoView && (hasOwnCollection || enabled) ? focusedItemIndex : undefined;
 
   const apiRef = React.useRef<VirtualizerHandle | null>(null);
   const getItemMetrics = useStableCallback(
@@ -452,6 +461,7 @@ export function useListBinding<Item>(
     renderRow,
     scrollToRowAlignment: scrollActiveAlignment,
     scrollToItemIndex,
+    windowingSuspended,
   };
 }
 

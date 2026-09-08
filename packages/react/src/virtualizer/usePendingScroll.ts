@@ -233,32 +233,12 @@ export function usePendingScroll<RowModel>(
       const start = rowStart + scrollportPadding.start;
       const end = rowEnd + scrollportPadding.start;
 
-      const styles = ownerWindow(scrollElement).getComputedStyle(scrollElement);
-      const scrollPaddingStart = resolveScrollPadding(scrollElement, styles.scrollPaddingTop);
-      const scrollPaddingEnd = resolveScrollPadding(scrollElement, styles.scrollPaddingBottom);
-      const viewportStart = scrollElement.scrollTop + scrollPaddingStart;
-      const viewportEnd = scrollElement.scrollTop + scrollElement.clientHeight - scrollPaddingEnd;
-      const viewportSize = Math.max(
-        0,
-        scrollElement.clientHeight - scrollPaddingStart - scrollPaddingEnd,
+      const { resolvedAlignment, scrollTop: nextScrollTop } = resolveAlignedScrollTop(
+        scrollElement,
+        start,
+        end,
+        align,
       );
-      const rowSize = end - start;
-      let nextScrollTop: number | null = null;
-      let resolvedAlignment = align;
-
-      if (align === 'start') {
-        nextScrollTop = start - scrollPaddingStart;
-      } else if (align === 'center') {
-        nextScrollTop = start - scrollPaddingStart - (viewportSize - rowSize) / 2;
-      } else if (align === 'end') {
-        nextScrollTop = end - scrollElement.clientHeight + scrollPaddingEnd;
-      } else if (rowSize > viewportSize || start < viewportStart) {
-        resolvedAlignment = 'start';
-        nextScrollTop = start - scrollPaddingStart;
-      } else if (end > viewportEnd) {
-        resolvedAlignment = 'end';
-        nextScrollTop = end - scrollElement.clientHeight + scrollPaddingEnd;
-      }
 
       if (align === 'auto' && resolvedAlignment !== 'auto' && rowIndexRef.current === rowIndex) {
         // Measurements can move the requested row across the opposite viewport edge. Keep the
@@ -360,6 +340,77 @@ export function usePendingScroll<RowModel>(
     },
   );
 
+  /**
+   * Brings a row into view while the list is not windowing. Every row is laid out natively then,
+   * so the destination is read from the DOM rather than from the engine's geometry, nothing about
+   * it is an estimate, and one write is final: no request is retained and nothing retries. So a
+   * request made while the scrollport is hidden is served against empty rects and not again once
+   * it shows, unlike a windowed request, which stands until the geometry satisfies it.
+   */
+  const scrollRowElementIntoView = useStableCallback(
+    (rowIndex: number, align: VirtualizerScrollAlignment) => {
+      const scrollElement = scrollElementRef.current;
+
+      if (scrollElement == null) {
+        return;
+      }
+
+      // The rows are the scroll element's own children in this layout, or one group wrapper deep.
+      const rowElement = getLaidOutRowElements(scrollElement).find(
+        (element) => Number(element.dataset.rowIndex) === rowIndex,
+      );
+
+      if (rowElement == null) {
+        return;
+      }
+
+      // In scroll coordinates: from the scrollport's padding edge, at its current position.
+      // Rects are in the viewport's space, which an ancestor transform scales (a popup mid
+      // entrance animation); scroll offsets are in layout space. The scrollport's rect against
+      // its layout height gives the factor back. That height is read from computed style rather
+      // than `offsetHeight`, which rounds to whole pixels: a popup sized by its positioner is
+      // rarely a whole number of pixels tall, and the rounding would read as a transform. Under
+      // `content-box` the computed height is the content alone, without the padding, the borders
+      // or a horizontal scrollbar that takes up space; the last two are whole pixels, so the
+      // rounded difference of the two DOM heights restores them exactly.
+      const rowRect = rowElement.getBoundingClientRect();
+      const scrollElementRect = scrollElement.getBoundingClientRect();
+      const styles = ownerWindow(scrollElement).getComputedStyle(scrollElement);
+      let layoutHeight = Number.parseFloat(styles.height);
+      if (styles.boxSizing !== 'border-box') {
+        layoutHeight +=
+          Number.parseFloat(styles.paddingTop) +
+          Number.parseFloat(styles.paddingBottom) +
+          (scrollElement.offsetHeight - scrollElement.clientHeight);
+      }
+      const measuredScale = scrollElementRect.height / layoutHeight;
+      const scale = Number.isFinite(measuredScale) && measuredScale > 0 ? measuredScale : 1;
+      const start =
+        (rowRect.top - scrollElementRect.top) / scale -
+        scrollElement.clientTop +
+        scrollElement.scrollTop;
+      const end = start + rowRect.height / scale;
+      const { scrollTop: nextScrollTop } = resolveAlignedScrollTop(
+        scrollElement,
+        start,
+        end,
+        align,
+      );
+
+      if (nextScrollTop == null) {
+        return;
+      }
+
+      const clampedScrollTop = clamp(
+        nextScrollTop,
+        0,
+        getMaxScrollOffset(scrollElement.scrollHeight, scrollElement.clientHeight),
+      );
+      programmaticScrollTopRef.current = clampedScrollTop;
+      scrollElement.scrollTo({ behavior: 'instant' as ScrollBehavior, top: clampedScrollTop });
+    },
+  );
+
   const scrollToIndex = useStableCallback(
     (rowIndex: number, options?: VirtualizerScrollToIndexOptions) => {
       const row = rowsRef.current[rowIndex];
@@ -369,6 +420,13 @@ export function usePendingScroll<RowModel>(
       }
 
       const align = options?.align ?? 'auto';
+
+      if (!enabled) {
+        cancel();
+        scrollRowElementIntoView(rowIndex, align);
+        return;
+      }
+
       rowIndexRef.current = rowIndex;
       rowIdRef.current = row.id;
       alignmentRef.current = align;
@@ -391,8 +449,15 @@ export function usePendingScroll<RowModel>(
   const readAdaptiveEstimate = adaptive.readEstimate;
 
   useIsoLayoutEffect(() => {
-    if (!enabled || scrollToRowIndex == null || scrollToRowIndex < 0 || scrollToRowId == null) {
+    if (scrollToRowIndex == null || scrollToRowIndex < 0 || scrollToRowId == null) {
       cancel();
+      return;
+    }
+
+    if (!enabled) {
+      // Nothing to retain: the row is on the page already.
+      cancel();
+      scrollRowElementIntoView(scrollToRowIndex, scrollToRowAlignmentRef.current);
       return;
     }
 
@@ -419,6 +484,7 @@ export function usePendingScroll<RowModel>(
     isFarFromWindow,
     readAdaptiveEstimate,
     renderContextRef,
+    scrollRowElementIntoView,
     scrollRowIntoView,
     scrollToRowId,
     scrollToRowIndex,
@@ -549,6 +615,47 @@ export function isRowFarFromWindow(
     itemIndex < firstItemIndex - ADAPTIVE_SCROLL_TARGET_MIN_DISTANCE ||
     itemIndex > lastItemIndex + ADAPTIVE_SCROLL_TARGET_MIN_DISTANCE
   );
+}
+
+/**
+ * Where the scrollport should scroll so a row spanning `start` to `end`, in scroll coordinates,
+ * lands as `align` asks, or `null` when `auto` finds it in view already. `auto` reports the edge it
+ * chose, so a retry can keep to it.
+ */
+function resolveAlignedScrollTop(
+  scrollElement: HTMLElement,
+  start: number,
+  end: number,
+  align: VirtualizerScrollAlignment,
+): { resolvedAlignment: VirtualizerScrollAlignment; scrollTop: number | null } {
+  const styles = ownerWindow(scrollElement).getComputedStyle(scrollElement);
+  const scrollPaddingStart = resolveScrollPadding(scrollElement, styles.scrollPaddingTop);
+  const scrollPaddingEnd = resolveScrollPadding(scrollElement, styles.scrollPaddingBottom);
+  const viewportStart = scrollElement.scrollTop + scrollPaddingStart;
+  const viewportEnd = scrollElement.scrollTop + scrollElement.clientHeight - scrollPaddingEnd;
+  const viewportSize = Math.max(
+    0,
+    scrollElement.clientHeight - scrollPaddingStart - scrollPaddingEnd,
+  );
+  const rowSize = end - start;
+  let scrollTop: number | null = null;
+  let resolvedAlignment = align;
+
+  if (align === 'start') {
+    scrollTop = start - scrollPaddingStart;
+  } else if (align === 'center') {
+    scrollTop = start - scrollPaddingStart - (viewportSize - rowSize) / 2;
+  } else if (align === 'end') {
+    scrollTop = end - scrollElement.clientHeight + scrollPaddingEnd;
+  } else if (rowSize > viewportSize || start < viewportStart) {
+    resolvedAlignment = 'start';
+    scrollTop = start - scrollPaddingStart;
+  } else if (end > viewportEnd) {
+    resolvedAlignment = 'end';
+    scrollTop = end - scrollElement.clientHeight + scrollPaddingEnd;
+  }
+
+  return { resolvedAlignment, scrollTop };
 }
 
 function resolveScrollPadding(scrollElement: HTMLElement, value: string) {

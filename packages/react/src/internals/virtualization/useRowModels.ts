@@ -339,6 +339,6 @@ function normalizeItemKey(key: unknown): VirtualizerItemKey {
   return `${typeof key}:${String(key)}`;
 }
 
-function isObjectValue(value: unknown): value is object {
+export function isObjectValue(value: unknown): value is object {
   return (typeof value === 'object' && value !== null) || typeof value === 'function';
 }

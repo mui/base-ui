@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { expect, vi, describe, beforeEach, it } from 'vitest';
 import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
-import { createRenderer, createDOMRect, setElementClientHeight } from '#test-utils';
+import { createRenderer, createDOMRect, isJSDOM, setElementClientHeight } from '#test-utils';
 import { Virtualizer } from './Virtualizer';
 
 interface TestItem {
@@ -194,6 +194,147 @@ describe('<Virtualizer /> standalone', () => {
     expect(screen.getByText(/Item 1 /)).toBe(activeOption);
     expect(document.activeElement).toBe(activeOption);
   });
+
+  it.skipIf(isJSDOM)(
+    'scrolls the active item into view while virtualization is disabled',
+    async () => {
+      vi.restoreAllMocks();
+
+      const { setProps } = await render(
+        <TestListbox
+          activeIndex={0}
+          enabled={false}
+          render={<div data-testid="virtualizer" style={{ height: 40 }} />}
+          items={createItems(100)}
+        />,
+      );
+      const virtualizer = screen.getByTestId('virtualizer');
+      expect(virtualizer.scrollTop).toBe(0);
+
+      // Nothing else scrolls a standalone list. The row is laid out natively, so it is brought
+      // into view from where it is: below the scrollport, so it lands at the bottom edge.
+      await setProps({ activeIndex: 60 });
+      await waitFor(() => expect(virtualizer.scrollTop).toBe(1180));
+
+      // And an alignment is honored the same way it is while windowing.
+      await setProps({ activeIndex: { index: 30, align: 'start' } });
+      await waitFor(() => expect(virtualizer.scrollTop).toBe(600));
+
+      // A pointer highlight still leaves the viewport alone.
+      await setProps({ activeIndex: { index: 90, scroll: false } });
+      await flushMicrotasks();
+      expect(virtualizer.scrollTop).toBe(600);
+    },
+  );
+
+  it.skipIf(isJSDOM)(
+    'scrolls to an index on request while virtualization is disabled',
+    async () => {
+      vi.restoreAllMocks();
+      const actionsRef = React.createRef<Virtualizer.Actions>();
+
+      await render(
+        <TestListbox
+          actionsRef={actionsRef}
+          enabled={false}
+          render={<div data-testid="virtualizer" style={{ height: 40 }} />}
+          items={createItems(100)}
+        />,
+      );
+      const virtualizer = screen.getByTestId('virtualizer');
+
+      await act(async () => {
+        actionsRef.current?.scrollToIndex(60, { align: 'start' });
+      });
+      await waitFor(() => expect(virtualizer.scrollTop).toBe(1200));
+    },
+  );
+
+  it.skipIf(isJSDOM)(
+    'scrolls the active item into view under a scaled ancestor while virtualization is disabled',
+    async () => {
+      vi.restoreAllMocks();
+
+      // A popup mid entrance animation: rects are scaled, scroll offsets are not.
+      function Test(props: { activeIndex: Virtualizer.ActiveIndex }) {
+        return (
+          <div style={{ transform: 'scale(0.5)', transformOrigin: '0 0' }}>
+            <TestListbox
+              activeIndex={props.activeIndex}
+              enabled={false}
+              render={<div data-testid="virtualizer" style={{ height: 40 }} />}
+              items={createItems(100)}
+            />
+          </div>
+        );
+      }
+
+      const { rerender } = await render(<Test activeIndex={0} />);
+      const virtualizer = screen.getByTestId('virtualizer');
+
+      await rerender(<Test activeIndex={60} />);
+      await waitFor(() => expect(virtualizer.scrollTop).toBe(1180));
+
+      await rerender(<Test activeIndex={{ index: 30, align: 'start' }} />);
+      await waitFor(() => expect(virtualizer.scrollTop).toBe(600));
+    },
+  );
+
+  it.skipIf(isJSDOM)(
+    'scrolls the active item into view in a fractional-height scrollport while virtualization is disabled',
+    async () => {
+      vi.restoreAllMocks();
+
+      // A popup sized by its positioner is rarely a whole number of pixels tall; that must not
+      // read as a transform.
+      const { setProps } = await render(
+        <TestListbox
+          activeIndex={0}
+          enabled={false}
+          render={<div data-testid="virtualizer" style={{ height: 40.4 }} />}
+          items={createItems(100)}
+        />,
+      );
+      const virtualizer = screen.getByTestId('virtualizer');
+
+      await setProps({ activeIndex: 60 });
+      await waitFor(() => expect(virtualizer.scrollTop).toBe(1180));
+
+      await setProps({ activeIndex: { index: 30, align: 'start' } });
+      await waitFor(() => expect(virtualizer.scrollTop).toBe(600));
+    },
+  );
+
+  it.skipIf(isJSDOM)(
+    'scrolls the active item into view in a padded, bordered content-box scrollport while virtualization is disabled',
+    async () => {
+      vi.restoreAllMocks();
+
+      // Everything the content box leaves out has to be put back before the rect is compared
+      // to it. (A horizontal scrollbar belongs to the same term; the test browser hides them.)
+      const { setProps } = await render(
+        <TestListbox
+          activeIndex={0}
+          enabled={false}
+          render={
+            <div
+              data-testid="virtualizer"
+              style={{ boxSizing: 'content-box', height: 40.4, padding: 5, border: '2px solid' }}
+            />
+          }
+          items={createItems(100)}
+        />,
+      );
+      const virtualizer = screen.getByTestId('virtualizer');
+
+      // Rows start after the top padding: row 60 ends at 1225, in a 50px client height.
+      await setProps({ activeIndex: 60 });
+      await waitFor(() => expect(virtualizer.scrollTop).toBe(1175));
+
+      await setProps({ activeIndex: { index: 30, align: 'start' } });
+      await waitFor(() => expect(virtualizer.scrollTop).toBe(605));
+    },
+  );
 
   it('scrolls the active item into view when it changes', async () => {
     const { setProps } = await render(
