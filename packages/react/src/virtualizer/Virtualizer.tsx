@@ -1657,6 +1657,10 @@ export interface VirtualizerBaseProps<Value> extends Omit<
    * of a larger result set, say. Rendered items report it as their `aria-setsize`, so assistive
    * technology describes the collection rather than the part of it currently loaded.
    *
+   * Each item's `aria-posinset` is its position in `items`, counted from the first one, so the
+   * items rendered must be the collection from its start: pages loaded so far, appended to the
+   * ones before them, rather than a later page on its own.
+   *
    * Pass `-1` when the size is not known yet, which is the ARIA convention for it.
    * @default the number of items in the list
    */
