@@ -132,10 +132,10 @@ describe('<Virtualizer /> in Combobox', () => {
     await user.click(input);
     await user.keyboard('{ArrowUp}');
 
+    await waitFor(() => expect(input).toHaveAttribute('aria-activedescendant'));
     await waitFor(() => {
-      const activeId = input.getAttribute('aria-activedescendant');
-      expect(activeId).not.toBe(null);
-      expect(input.ownerDocument.getElementById(activeId as string)).toHaveTextContent('Item 100');
+      const activeId = input.getAttribute('aria-activedescendant') as string;
+      expect(input.ownerDocument.getElementById(activeId)).toHaveTextContent('Item 100');
     });
     expect(handleScrollTo).toHaveBeenCalled();
   });
@@ -176,10 +176,10 @@ describe('<Virtualizer /> in Combobox', () => {
     await user.click(input);
     await user.keyboard('{ArrowUp}');
 
+    await waitFor(() => expect(input).toHaveAttribute('aria-activedescendant'));
     await waitFor(() => {
-      const activeId = input.getAttribute('aria-activedescendant');
-      expect(activeId).not.toBe(null);
-      expect(input.ownerDocument.getElementById(activeId as string)).toHaveTextContent('Item 99');
+      const activeId = input.getAttribute('aria-activedescendant') as string;
+      expect(input.ownerDocument.getElementById(activeId)).toHaveTextContent('Item 99');
     });
   });
 

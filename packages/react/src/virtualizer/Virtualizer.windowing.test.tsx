@@ -376,15 +376,21 @@ describe('<Virtualizer /> windowing', () => {
 
       // The estimate is refreshed once scrolling goes idle, which rewrites every unmeasured row
       // and moves the destination. The request must survive that and re-align against it.
-      await waitFor(() => {
-        const row = virtualizer.querySelector('[data-row-index="12"]');
-        expect(row).not.toBe(null);
-
-        const scrollerRect = virtualizer.getBoundingClientRect();
-        const rowRect = (row as HTMLElement).getBoundingClientRect();
-        expect(rowRect.bottom).toBeLessThanOrEqual(scrollerRect.bottom + 1);
-        expect(rowRect.top).toBeGreaterThanOrEqual(scrollerRect.top - 1);
-      });
+      const getRowRect = () =>
+        (virtualizer.querySelector('[data-row-index="12"]') as HTMLElement).getBoundingClientRect();
+      await waitFor(() =>
+        expect(virtualizer.querySelector('[data-row-index="12"]')).not.toBe(null),
+      );
+      await waitFor(() =>
+        expect(getRowRect().bottom).toBeLessThanOrEqual(
+          virtualizer.getBoundingClientRect().bottom + 1,
+        ),
+      );
+      await waitFor(() =>
+        expect(getRowRect().top).toBeGreaterThanOrEqual(
+          virtualizer.getBoundingClientRect().top - 1,
+        ),
+      );
     },
   );
 
