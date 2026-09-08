@@ -30,7 +30,6 @@ export interface ScrollInputEvidence {
 }
 
 export interface UseScrollGestureParameters {
-  scrollElementRef: React.RefObject<HTMLElement | null>;
   /**
    * Commits the row heights collected so far in one geometry update. Called once a scrollbar drag
    * releases, so the heights deferred during the drag land together rather than under the pointer.
@@ -74,6 +73,12 @@ export interface ScrollGesture {
   releaseRowHeight: (rowId: React.Key) => number | undefined;
   /** Drops every deferred measurement, for a caller that is re-measuring from scratch. */
   clearDeferredRowHeights: () => void;
+  /**
+   * Binds the input listeners to the scroll element it is handed, and unbinds them when handed
+   * `null`. Merged into the scroll element's ref, so the listeners follow the element the caller
+   * renders, including a root the `render` prop replaces without the component remounting.
+   */
+  scrollElementRefCallback: (element: HTMLElement | null) => void;
 }
 
 /**
@@ -83,7 +88,7 @@ export interface ScrollGesture {
  * under the pointer.
  */
 export function useScrollGesture(parameters: UseScrollGestureParameters): ScrollGesture {
-  const { scrollElementRef, settleGeometry } = parameters;
+  const { settleGeometry } = parameters;
 
   // Scrolling is treated as ongoing until this long without a scroll position change, so that
   // geometry rewrites can be held back for the duration of a gesture.
@@ -126,26 +131,22 @@ export function useScrollGesture(parameters: UseScrollGestureParameters): Scroll
     },
   );
 
-  React.useEffect(() => {
-    const scrollElement = scrollElementRef.current;
-    if (!scrollElement) {
-      return undefined;
+  const commitScrollbarDrag = useStableCallback(() => {
+    if (!isScrollbarDragRef.current && deferredRowHeightsRef.current.size === 0) {
+      return;
     }
 
+    isScrollbarDragRef.current = false;
+    releaseScrollbarDragFrame.request(() => {
+      // Commit real heights collected during the drag in one geometry update after release.
+      settleGeometry();
+      bumpSettledRevision();
+    });
+  });
+
+  const bindScrollElement = useStableCallback((scrollElement: HTMLElement) => {
     const doc = ownerDocument(scrollElement);
     const win = ownerWindow(scrollElement);
-    const commitScrollbarDrag = () => {
-      if (!isScrollbarDragRef.current && deferredRowHeightsRef.current.size === 0) {
-        return;
-      }
-
-      isScrollbarDragRef.current = false;
-      releaseScrollbarDragFrame.request(() => {
-        // Commit real heights collected during the drag in one geometry update after release.
-        settleGeometry();
-        bumpSettledRevision();
-      });
-    };
     const onDirectInput = () => {
       lastDirectInputTimeRef.current = performance.now();
       commitScrollbarDrag();
@@ -182,7 +183,17 @@ export function useScrollGesture(parameters: UseScrollGestureParameters): Scroll
       doc.removeEventListener('mouseup', endScrollbarDrag, options);
       win.removeEventListener('blur', endScrollbarDrag);
     };
-  }, [settleGeometry, deferredRowHeightsRef, releaseScrollbarDragFrame, scrollElementRef]);
+  });
+
+  // Bound through the element's ref rather than an effect keyed on the ref object, so a root the
+  // `render` prop replaces gets the listeners and the detached one loses them. The previous
+  // binding is released on every call, which covers the `null` pass React makes on detach when a
+  // ref returns no cleanup (17, 18, and 19 alike).
+  const unbindScrollElementRef = React.useRef<(() => void) | undefined>(undefined);
+  const scrollElementRefCallback = useStableCallback((scrollElement: HTMLElement | null) => {
+    unbindScrollElementRef.current?.();
+    unbindScrollElementRef.current = scrollElement ? bindScrollElement(scrollElement) : undefined;
+  });
 
   // The engine calls the row-height hooks while it renders, and the window computation reads the
   // gesture during render, so these must stay callable there: they only read refs.
@@ -227,6 +238,7 @@ export function useScrollGesture(parameters: UseScrollGestureParameters): Scroll
       isScrolling,
       noteScroll,
       releaseRowHeight,
+      scrollElementRefCallback,
       settledRevision,
     }),
     [
@@ -237,6 +249,7 @@ export function useScrollGesture(parameters: UseScrollGestureParameters): Scroll
       noteScroll,
       releaseRowHeight,
       settledRevision,
+      scrollElementRefCallback,
     ],
   );
 }

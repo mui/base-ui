@@ -514,11 +514,10 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
   // than a ref because the geometry around it — the scroll height, the maximum scroll offset —
   // is computed during render.
   const [trailingHeight, setTrailingHeight] = React.useState(0);
-  const trailingRef = React.useRef<HTMLDivElement | null>(null);
 
   const scrollportPaddingTotal = scrollportPadding.start + scrollportPadding.end;
 
-  const gesture = useScrollGesture({ scrollElementRef, settleGeometry });
+  const gesture = useScrollGesture({ settleGeometry });
   // The running average describes items: it is fed the item rows alone, so headers neither seed
   // it nor count among the rows it is judged against.
   const adaptive = useAdaptiveEstimate({
@@ -919,17 +918,17 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
     }, [enabled, onUnconstrainedHeight, rows.length, rowsMeta, scrollportPaddingTotal]);
   }
 
-  // Keyed on whether trailing content exists and on the mode, not on the node: the element is
-  // remounted when the content appears or the branch below switches, and that is when the
-  // observer has to be attached to it. Its content resizing is the observer's own business, and
-  // a consumer writing the node inline hands over a new one on every render.
-  const hasTrailing = trailing != null;
-  useIsoLayoutEffect(() => {
-    const element = trailingRef.current;
+  // Measured through the wrapper's ref rather than an effect: the wrapper is recreated when the
+  // content appears, when the branch below switches, and when the `render` prop replaces the root,
+  // and the observer has to follow it each time. Its content resizing is the observer's own
+  // business, and a consumer writing the node inline hands over a new one on every render.
+  const disconnectTrailingObserverRef = React.useRef<(() => void) | undefined>(undefined);
+  const trailingRef = useStableCallback((element: HTMLDivElement | null) => {
+    disconnectTrailingObserverRef.current?.();
+    disconnectTrailingObserverRef.current = undefined;
 
     if (element == null) {
-      setTrailingHeight(0);
-      return undefined;
+      return;
     }
 
     const win = ownerWindow(element);
@@ -943,13 +942,19 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
     measure();
 
     if (typeof win.ResizeObserver === 'undefined') {
-      return undefined;
+      return;
     }
 
     const observer = new win.ResizeObserver(measure);
     observer.observe(element);
-    return () => observer.disconnect();
-  }, [enabled, hasTrailing]);
+    disconnectTrailingObserverRef.current = () => observer.disconnect();
+  });
+  const hasTrailing = trailing != null;
+  useIsoLayoutEffect(() => {
+    if (!hasTrailing) {
+      setTrailingHeight(0);
+    }
+  }, [hasTrailing]);
 
   // Declared before the mode publication below, which arms it: the request then lands on the
   // commit that publication already schedules.
@@ -1500,7 +1505,7 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
   return useRenderElement('div', componentProps, {
     state,
     stateAttributesMapping,
-    ref: [forwardedRef, containerRef],
+    ref: [forwardedRef, containerRef, gesture.scrollElementRefCallback],
     props: [defaultProps, elementProps],
   });
 }) as {

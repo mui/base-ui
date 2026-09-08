@@ -18,18 +18,15 @@ describe('useScrollGesture', () => {
   let gesture: ScrollGesture;
   let hydrateRowsMeta: Mock<() => void>;
 
-  function Probe() {
-    const scrollElementRef = React.useRef<HTMLDivElement | null>(null);
-    const resolved = useScrollGesture({
-      scrollElementRef,
-      settleGeometry: hydrateRowsMeta,
-    });
+  function Probe(props: { tag?: 'div' | 'section' }) {
+    const { tag: Tag = 'div' } = props;
+    const resolved = useScrollGesture({ settleGeometry: hydrateRowsMeta });
 
     useIsoLayoutEffect(() => {
       gesture = resolved;
     });
 
-    return <div data-testid="scroller" ref={scrollElementRef} />;
+    return <Tag data-testid="scroller" ref={resolved.scrollElementRefCallback} />;
   }
 
   beforeEach(() => {
@@ -80,6 +77,37 @@ describe('useScrollGesture', () => {
     const scroller = screen.getByTestId('scroller');
     firePointer.down(scroller, { timeStamp: 1 });
     fireEvent.wheel(scroller);
+    gesture.noteScroll(USER_SCROLL);
+
+    expect(gesture.isScrollbarDrag()).toBe(false);
+  });
+
+  it('listens on the element the scroller ref is handed next', async () => {
+    const { rerender } = await render(<Probe tag="div" />);
+
+    // The root element is replaced without the hook remounting, as a changed `render` prop does.
+    await rerender(<Probe tag="section" />);
+    const scroller = screen.getByTestId('scroller');
+    expect(scroller.tagName).toBe('SECTION');
+
+    firePointer.down(scroller, { timeStamp: 1 });
+    fireEvent.wheel(scroller);
+    gesture.noteScroll(USER_SCROLL);
+
+    expect(gesture.isScrollbarDrag()).toBe(false);
+  });
+
+  it("releases the previous element's listeners, its document ones included", async () => {
+    const { rerender, unmount } = await render(<Probe tag="div" />);
+    await rerender(<Probe tag="section" />);
+
+    // Let the wheel input above the release window expire, so nothing masks a leaked press.
+    firePointer.up(screen.getByTestId('scroller'), { timeStamp: 2 });
+    await advanceReactClock(clock, 251);
+    unmount();
+
+    // A leaked `pointerdown` listener on the document would still record the press.
+    firePointer.down(document.body, { timeStamp: 3 });
     gesture.noteScroll(USER_SCROLL);
 
     expect(gesture.isScrollbarDrag()).toBe(false);

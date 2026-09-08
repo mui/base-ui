@@ -205,6 +205,54 @@ describe('<Virtualizer /> trailing', () => {
   );
 
   it.skipIf(isJSDOM)(
+    'keeps measuring the trailing content after the root element is replaced',
+    async () => {
+      vi.restoreAllMocks();
+
+      // A changed `render` prop recreates the root and everything under it, the trailing wrapper
+      // included, without the component remounting.
+      function Test(props: { tag: 'div' | 'section'; trailingHeight: number }) {
+        const { tag: Tag, trailingHeight } = props;
+        return (
+          <TestVirtualizedList
+            estimatedItemHeight={20}
+            overscanPx={0}
+            render={<Tag data-testid="virtualizer" style={{ height: 60, width: 200 }} />}
+            trailing={
+              <div style={{ height: trailingHeight }} data-testid="loading" aria-hidden="true" />
+            }
+            items={createItems(100)}
+          >
+            {(item: TestItem) => (
+              <TestListItem style={{ display: 'block', height: 20 }}>{item.label}</TestListItem>
+            )}
+          </TestVirtualizedList>
+        );
+      }
+
+      const { rerender } = await render(<Test tag="div" trailingHeight={40} />);
+      await waitFor(() =>
+        expect(screen.getByTestId('virtualizer').style.getPropertyValue('--total-size')).toBe(
+          '2040px',
+        ),
+      );
+
+      await rerender(<Test tag="section" trailingHeight={40} />);
+      const virtualizer = screen.getByTestId('virtualizer');
+      expect(virtualizer.tagName).toBe('SECTION');
+      await waitFor(() =>
+        expect(virtualizer.style.getPropertyValue('--total-size')).toBe('2040px'),
+      );
+
+      // The content in the new wrapper must be the one observed.
+      await rerender(<Test tag="section" trailingHeight={60} />);
+      await waitFor(() =>
+        expect(virtualizer.style.getPropertyValue('--total-size')).toBe('2060px'),
+      );
+    },
+  );
+
+  it.skipIf(isJSDOM)(
     'publishes the margins of the trailing content in the total size while disabled',
     async () => {
       vi.restoreAllMocks();
