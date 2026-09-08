@@ -1,5 +1,5 @@
 'use client';
-import * as React from 'react';
+import type * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { ownerDocument } from '@base-ui/utils/owner';
 import {
@@ -25,7 +25,7 @@ interface TriggerFocusGuardStore {
   context: {
     readonly beforeContentFocusGuardRef: React.RefObject<HTMLElement | null>;
     readonly triggerFocusTargetRef: React.RefObject<HTMLElement | null>;
-    readonly triggerPreFocusGuardRef?: React.RefObject<HTMLElement | null> | undefined;
+    readonly triggerPreFocusGuardRef: React.RefObject<HTMLElement | null>;
   };
 }
 
@@ -52,21 +52,18 @@ function getOrderedCandidates(
   }
 
   const list = tabbable(ownerDocument(anchor).body);
+  if (dir === -1) {
+    list.reverse();
+  }
   const index = list.indexOf(anchor as FocusableElement);
   if (index === -1) {
     return [];
   }
 
-  const candidates: FocusableElement[] = [];
-  for (let step = 1; step < list.length; step += 1) {
-    const nextIndex = (((index + dir * step) % list.length) + list.length) % list.length;
-    const candidate = list[nextIndex];
-    if (!contains(positionerElement, candidate)) {
-      candidates.push(candidate);
-    }
-  }
-
-  return candidates;
+  return list
+    .slice(index + 1)
+    .concat(list.slice(0, index))
+    .filter((candidate) => !contains(positionerElement, candidate));
 }
 
 /**
@@ -95,10 +92,7 @@ export function useTriggerFocusGuards(
   store: TriggerFocusGuardStore,
   triggerElementRef: React.RefObject<HTMLElement | null>,
 ) {
-  const localPreFocusGuardRef = React.useRef<HTMLElement>(null);
-  // Prefer the store's ref when the store carries one, so the popup can declare this guard as an
-  // inside element to its focus manager.
-  const preFocusGuardRef = store.context.triggerPreFocusGuardRef ?? localPreFocusGuardRef;
+  const preFocusGuardRef = store.context.triggerPreFocusGuardRef;
 
   function closeAndMoveFocus(
     event: React.FocusEvent,
