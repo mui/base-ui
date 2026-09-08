@@ -4,7 +4,12 @@ import { Autocomplete } from '@base-ui/react/autocomplete';
 import { Combobox } from '@base-ui/react/combobox';
 import { Virtualizer } from '@base-ui/react/virtualizer';
 import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
-import { createRenderer, createDOMRect, setElementClientHeight } from '#test-utils';
+import {
+  createRenderer,
+  createDOMRect,
+  setElementClientHeight,
+  setElementScrollState,
+} from '#test-utils';
 
 interface Produce {
   id: string;
@@ -110,6 +115,80 @@ describe('<Virtualizer /> in a grouped Combobox', () => {
       warnSpy.mockRestore();
     }
   });
+
+  it.each([
+    { key: 'ArrowDown', label: 'Apple' },
+    { key: 'ArrowUp', label: 'Pepper' },
+  ])(
+    'highlights an item on opening with $key when the first header fills the window',
+    async ({ key, label }) => {
+      // The header is measured far taller than the scrollport, so no item is in the DOM when
+      // the list opens; the highlight has to be chosen from the logical collection.
+      vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockImplementation(function mockRect(
+        this: HTMLElement,
+      ) {
+        if (this.getAttribute('data-row-index') === '0') {
+          return createDOMRect({ height: 1000, width: 200 });
+        }
+        if (this.hasAttribute('data-row-index')) {
+          return createDOMRect({ height: 20, width: 200 });
+        }
+        return createDOMRect({ height: 60, width: 200 });
+      });
+      let scrollTop = 0;
+
+      const { user } = await render(
+        <Combobox.Root items={groups}>
+          <Combobox.Input data-testid="input" />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  <Virtualizer<Produce>
+                    estimatedGroupHeaderHeight={1000}
+                    estimatedItemHeight={20}
+                    getItemKey={(item) => item.id}
+                    getGroupKey={(group: ProduceGroup) => group.value}
+                    overscanPx={0}
+                    render={
+                      <div
+                        ref={setElementScrollState({
+                          clientHeight: 60,
+                          getScrollTop: () => scrollTop,
+                          scrollTo(options) {
+                            scrollTop = options.top ?? scrollTop;
+                          },
+                        })}
+                      />
+                    }
+                    renderGroupHeader={(group: ProduceGroup) => (
+                      <Combobox.GroupLabel>{group.value}</Combobox.GroupLabel>
+                    )}
+                  >
+                    {(item) => (
+                      <Combobox.Item key={item.id} value={item}>
+                        {item.label}
+                      </Combobox.Item>
+                    )}
+                  </Virtualizer>
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByTestId('input');
+      await act(async () => input.focus());
+      await user.keyboard(`{${key}}`);
+
+      await waitFor(() => expect(input).toHaveAttribute('aria-activedescendant'));
+      await waitFor(() => {
+        const activeId = input.getAttribute('aria-activedescendant') as string;
+        expect(document.getElementById(activeId)).toHaveTextContent(label);
+      });
+    },
+  );
 
   it('drops a group whose items are filtered out', async () => {
     const { user } = await render(<GroupedCombobox />);
