@@ -10,8 +10,14 @@ interface Country {
   name: string;
 }
 
+interface CountryGroup {
+  value: string;
+  items: Country[];
+}
+
 interface Settings {
   variableHeight: boolean;
+  groupItems: boolean;
   multiple: boolean;
   readOnly: boolean;
 }
@@ -20,6 +26,11 @@ export const settingsMetadata: SettingsMetadata<Settings> = {
   variableHeight: {
     type: 'boolean',
     label: 'Variable heights',
+    default: false,
+  },
+  groupItems: {
+    type: 'boolean',
+    label: 'Group by initial',
     default: false,
   },
   multiple: {
@@ -68,6 +79,20 @@ const ITEMS: Country[] = createNames(COUNT).map((name, index) => ({
   name,
 }));
 
+/** The same collection partitioned by initial letter: 26 groups of very different sizes. */
+const GROUPED_ITEMS: CountryGroup[] = Array.from(
+  ITEMS.reduce((groups, item) => {
+    const initial = item.name[0];
+    let group = groups.get(initial);
+    if (group == null) {
+      group = { value: initial, items: [] };
+      groups.set(initial, group);
+    }
+    group.items.push(item);
+    return groups;
+  }, new Map<string, CountryGroup>()).values(),
+);
+
 /**
  * Every 25th item is disabled, and none of them is in the initial window, so keyboard navigation
  * has to skip rows it has never rendered.
@@ -84,7 +109,8 @@ const getCountryLabel = (itemValue: Country) => itemValue.name;
 
 export default function SelectVirtualizerExperiment() {
   const { settings } = useExperimentSettings<Settings>();
-  const { variableHeight, multiple, readOnly } = settings;
+  const { variableHeight, groupItems, multiple, readOnly } = settings;
+  const items = groupItems ? GROUPED_ITEMS : ITEMS;
   const [singleValue, setSingleValue] = React.useState<Country | null>(null);
   const [multipleValue, setMultipleValue] = React.useState<Country[]>([]);
 
@@ -104,7 +130,12 @@ export default function SelectVirtualizerExperiment() {
             <Virtualizer<Country>
               className={styles.Scroller}
               getItemKey={(item) => item.code}
+              getGroupKey={(group: CountryGroup) => group.value}
               estimatedItemHeight={variableHeight ? 40 : 32}
+              estimatedGroupHeaderHeight={28}
+              renderGroupHeader={(group: CountryGroup) => (
+                <Select.GroupLabel className={styles.GroupLabel}>{group.value}</Select.GroupLabel>
+              )}
             >
               {(item, index) => (
                 <Select.Item
@@ -144,7 +175,7 @@ export default function SelectVirtualizerExperiment() {
         <Select.Root
           key="multiple"
           multiple
-          items={ITEMS}
+          items={items}
           value={multipleValue}
           onValueChange={setMultipleValue}
           isItemDisabled={isItemDisabled}
@@ -157,7 +188,7 @@ export default function SelectVirtualizerExperiment() {
       ) : (
         <Select.Root
           key="single"
-          items={ITEMS}
+          items={items}
           value={singleValue}
           onValueChange={setSingleValue}
           isItemDisabled={isItemDisabled}
