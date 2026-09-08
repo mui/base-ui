@@ -95,12 +95,6 @@ interface PendingReturn {
 }
 
 const LIST_LIMIT = 20;
-
-// Inside elements declared by every mounted focus manager, keyed by its root store. Lets an
-// ancestor treat a descendant's `getInsideElements()` as part of its own tree — a descendant's
-// floating element is reachable through the tree already, but elements it declared as inside
-// (a dismiss button next to its reference, a trigger focus guard) are not.
-const insideElementsRegistry = new WeakMap<FloatingRootContext, () => Element[]>();
 let previouslyFocusedElements: WeakRef<Element>[] = [];
 
 function clearDisconnectedPreviouslyFocusedElements() {
@@ -382,27 +376,11 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     }
     return Boolean(
       tree &&
-      getNodeChildren(tree.nodesRef.current, getNodeId(), false).some((node) => {
-        if (contains(node.context?.elements.floating, element)) {
-          return true;
-        }
-        const getDescendantInsideElements =
-          node.context && insideElementsRegistry.get(node.context.rootStore);
-        return Boolean(
-          getDescendantInsideElements?.().some(
-            (inside) => inside === element || contains(inside, element),
-          ),
-        );
-      }),
+      getNodeChildren(tree.nodesRef.current, getNodeId(), false).some((node) =>
+        contains(node.context?.elements.floating, element),
+      ),
     );
   });
-
-  useIsoLayoutEffect(() => {
-    insideElementsRegistry.set(store, getResolvedInsideElements);
-    return () => {
-      insideElementsRegistry.delete(store);
-    };
-  }, [store, getResolvedInsideElements]);
 
   // The focus manager is doing work only while the popup is logically open, enabled, and has a
   // focus element. Everything below keys off this single predicate so the session edge, the
