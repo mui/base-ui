@@ -236,6 +236,75 @@ describe('<Virtualizer /> windowing', () => {
       expect(virtualizer.scrollHeight).toBe(420);
     });
 
+    it('picks up a padding change that leaves the content box alone', async () => {
+      vi.restoreAllMocks();
+
+      // Under `content-box` sizing a fixed height keeps the content box, which is what the engine
+      // observes, the same size whatever the padding does.
+      function Test(props: { padding: number }) {
+        return (
+          <TestVirtualizedList
+            estimatedItemHeight={20}
+            overscanPx={0}
+            render={
+              <div
+                data-testid="virtualizer"
+                style={{
+                  boxSizing: 'content-box',
+                  height: 80,
+                  paddingBlock: props.padding,
+                  width: 200,
+                }}
+              />
+            }
+            items={createItems(20)}
+          >
+            {renderItem}
+          </TestVirtualizedList>
+        );
+      }
+
+      const { rerender } = await render(<Test padding={0} />);
+      const virtualizer = screen.getByTestId('virtualizer');
+      await waitFor(() => expect(virtualizer.style.getPropertyValue('--total-size')).toBe('400px'));
+
+      await rerender(<Test padding={10} />);
+      await waitFor(() => expect(virtualizer.style.getPropertyValue('--total-size')).toBe('420px'));
+      const firstRow = screen.getByText('Item 1');
+      await waitFor(() =>
+        expect(
+          firstRow.getBoundingClientRect().top - virtualizer.getBoundingClientRect().top,
+        ).toBeCloseTo(10, 1),
+      );
+    });
+
+    it('picks up a padding change made outside React', async () => {
+      vi.restoreAllMocks();
+
+      await render(
+        <TestVirtualizedList
+          estimatedItemHeight={20}
+          overscanPx={0}
+          render={
+            <div
+              data-testid="virtualizer"
+              style={{ boxSizing: 'content-box', height: 80, width: 200 }}
+            />
+          }
+          items={createItems(20)}
+        >
+          {renderItem}
+        </TestVirtualizedList>,
+      );
+      const virtualizer = screen.getByTestId('virtualizer');
+      await waitFor(() => expect(virtualizer.style.getPropertyValue('--total-size')).toBe('400px'));
+
+      // A stylesheet or a class toggle React never renders: only the box tells.
+      virtualizer.style.paddingBlock = '10px';
+
+      await waitFor(() => expect(virtualizer.style.getPropertyValue('--total-size')).toBe('420px'));
+    });
+
     it('keeps the last row above the end padding at the maximum scroll position', async () => {
       vi.restoreAllMocks();
 

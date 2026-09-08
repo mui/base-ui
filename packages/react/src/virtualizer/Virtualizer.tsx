@@ -982,9 +982,41 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
     setMode,
   });
 
-  // The scrollport's padding is only read when its box changes, so unpadded lists never pay for
-  // the style lookup. Padding always resizes the content box the engine observes, unless the
-  // scrollport is sized by its own content, where the next resize picks the change up.
+  // The scrollport's padding is only read when one of its boxes changes, so unpadded lists never
+  // pay for the style lookup per render. Padding changes the content box the engine observes
+  // under `border-box` sizing, but under `content-box` with a fixed height only the border box
+  // moves, so that box is watched too. Every notification, the first included, re-reads the
+  // padding; an unchanged value keeps the previous state object, which is no render. Padding
+  // moved from one edge to the other without changing the total moves neither box and waits for
+  // the next resize.
+  const publishScrollportPadding = useStableCallback((element: HTMLElement) => {
+    const nextPadding = getScrollportPadding(element);
+    setScrollportPadding((previousPadding) =>
+      previousPadding.start === nextPadding.start && previousPadding.end === nextPadding.end
+        ? previousPadding
+        : nextPadding,
+    );
+  });
+  const disconnectScrollportObserverRef = React.useRef<(() => void) | undefined>(undefined);
+  const scrollportBoxRef = useStableCallback((element: HTMLElement | null) => {
+    disconnectScrollportObserverRef.current?.();
+    disconnectScrollportObserverRef.current = undefined;
+
+    if (element == null) {
+      return;
+    }
+
+    const win = ownerWindow(element);
+
+    if (typeof win.ResizeObserver === 'undefined') {
+      return;
+    }
+
+    const observer = new win.ResizeObserver(() => publishScrollportPadding(element));
+    observer.observe(element, { box: 'border-box' });
+    disconnectScrollportObserverRef.current = () => observer.disconnect();
+  });
+
   useIsoLayoutEffect(() => {
     const element = scrollElementRef.current;
 
@@ -992,13 +1024,8 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
       return;
     }
 
-    const nextPadding = getScrollportPadding(element);
-    setScrollportPadding((previousPadding) =>
-      previousPadding.start === nextPadding.start && previousPadding.end === nextPadding.end
-        ? previousPadding
-        : nextPadding,
-    );
-  }, [enabled, rootSize]);
+    publishScrollportPadding(element);
+  }, [enabled, publishScrollportPadding, rootSize]);
 
   // Declared after the effects that publish the virtualization mode, so a request made as a list
   // opens is applied against the enabled window.
@@ -1505,7 +1532,7 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
   return useRenderElement('div', componentProps, {
     state,
     stateAttributesMapping,
-    ref: [forwardedRef, containerRef, gesture.scrollElementRefCallback],
+    ref: [forwardedRef, containerRef, gesture.scrollElementRefCallback, scrollportBoxRef],
     props: [defaultProps, elementProps],
   });
 }) as {
