@@ -46,7 +46,7 @@ Use `getItemKey` to provide stable identity when item values are objects or when
 
 ## Grouped collections
 
-A grouped collection is an array of groups, each an object with an `items` array, as for the list components: a collection whose elements carry an `items` array is taken for a grouped one. Pass it as `items` together with `renderGroupHeader`, which renders the element carrying a group's name. Inside `<Combobox.List>` that element is `<Combobox.GroupLabel>`; the virtualizer wraps each group's rendered items in a `role="group"` element labelled by it, so `<Combobox.Group>` is not used. The virtualizer only knows a group by its `items`, so annotate the group parameter with your own group type to read anything else from it:
+A grouped collection is an array of groups, each an object with an `items` array, as for the list components: a collection whose elements carry an `items` array is taken for a grouped one. Pass it as `items` together with `renderGroupHeader`, which renders the element carrying a group's name. Inside `<Combobox.List>` that element is `<Combobox.GroupLabel>`; the virtualizer wraps each group's rendered items in a `role="group"` element labeled by it, so `<Combobox.Group>` is not used. The virtualizer only knows a group by its `items`, so annotate the group parameter with your own group type to read anything else from it:
 
 ```tsx title="Grouped items in a Combobox"
 <Combobox.Root items={groups} itemToStringLabel={(item: Produce) => item.name}>

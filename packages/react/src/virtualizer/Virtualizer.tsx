@@ -1554,7 +1554,7 @@ export interface VirtualizerBaseProps<Value> extends Omit<
   items?: readonly Value[] | ReadonlyArray<VirtualizerGroup<Value>> | undefined;
   /**
    * Renders the header of a group in a grouped collection: exactly one element carrying the
-   * group's name. The third argument holds the `id` the group is labelled by, to spread onto
+   * group's name. The third argument holds the `id` the group is labeled by, to spread onto
    * that element; `<Combobox.GroupLabel>` applies it automatically. The virtualizer wraps each
    * group's rendered rows in a `role="group"` element itself, so no group part is needed.
    */

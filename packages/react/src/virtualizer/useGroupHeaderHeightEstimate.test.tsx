@@ -80,35 +80,37 @@ describe('useGroupHeaderHeightEstimate', () => {
       (group: Group<Item>, groupIndex: number) => (group.height as number) + groupIndex,
     );
     const groups = createGroups([1, 1]);
-    await render(<Probe estimatedGroupHeaderHeight={estimatedGroupHeaderHeight} groups={groups} />);
+    const { setProps } = await render(
+      <Probe estimatedGroupHeaderHeight={estimatedGroupHeaderHeight} groups={groups} />,
+    );
 
     expect(estimate.getEstimatedGroupHeaderHeight(0)).toBe(10);
     expect(estimate.getEstimatedGroupHeaderHeight(1)).toBe(21);
+
+    // Counted across an update rather than the mount, which Strict Mode renders twice.
+    estimatedGroupHeaderHeight.mockClear();
+    await setProps({ groups: [...groups] });
+
     expect(estimatedGroupHeaderHeight).toHaveBeenCalledTimes(2);
+    expect(estimate.getEstimatedGroupHeaderHeight(1)).toBe(21);
   });
 
   it('derives per-group estimates once per collection, not per callback identity', async () => {
     const groups = createGroups([1, 1]);
-    const calls: number[] = [];
-    function Test() {
-      const [, rerender] = React.useReducer((value: number) => value + 1, 0);
-      React.useEffect(() => {
-        rerender();
-      }, []);
-      return (
-        <Probe
-          estimatedGroupHeaderHeight={(group) => {
-            calls.push(1);
-            return group.height as number;
-          }}
-          groups={groups}
-        />
-      );
-    }
+    const estimatedGroupHeaderHeight = vi.fn((group: Group<Item>) => group.height as number);
+    const { setProps } = await render(
+      <Probe estimatedGroupHeaderHeight={estimatedGroupHeaderHeight} groups={groups} />,
+    );
 
-    await render(<Test />);
+    estimatedGroupHeaderHeight.mockClear();
+    // A new callback identity for the same collection, as a feature layer writing it inline
+    // hands over on every render, is not a reason to ask again.
+    const replacement = vi.fn((group: Group<Item>) => group.height as number);
+    await setProps({ estimatedGroupHeaderHeight: replacement });
 
-    expect(calls).toHaveLength(2);
+    expect(estimatedGroupHeaderHeight).not.toHaveBeenCalled();
+    expect(replacement).not.toHaveBeenCalled();
+    expect(estimate.getEstimatedGroupHeaderHeight(1)).toBe(20);
   });
 
   it('derives the estimates again when the groups change but keep their shape', async () => {
