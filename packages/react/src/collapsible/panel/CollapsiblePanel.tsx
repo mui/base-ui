@@ -9,7 +9,7 @@ import { useCollapsibleRootContext } from '../root/CollapsibleRootContext';
 import type { CollapsibleRootState } from '../root/CollapsibleRoot';
 import { collapsibleStateAttributesMapping } from '../root/stateAttributesMapping';
 import { useCollapsiblePanel } from './useCollapsiblePanel';
-import { CollapsiblePanelCssVars } from './CollapsiblePanelCssVars';
+import * as CollapsiblePanelCssVars from './CollapsiblePanelCssVars';
 import type { TransitionStatus } from '../../internals/useTransitionStatus';
 
 /**

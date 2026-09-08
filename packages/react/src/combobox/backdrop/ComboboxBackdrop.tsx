@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import { useStore } from '@base-ui/utils/store';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useComboboxRootContext } from '../root/ComboboxRootContext';
 import { popupStateMapping } from '../../utils/popupStateMapping';
@@ -8,7 +7,6 @@ import type { StateAttributesMapping } from '../../internals/getStateAttributesP
 import type { TransitionStatus } from '../../internals/useTransitionStatus';
 import { transitionStatusMapping } from '../../internals/stateAttributesMapping';
 import { useRenderElement } from '../../internals/useRenderElement';
-import { selectors } from '../store';
 
 const stateAttributesMapping: StateAttributesMapping<ComboboxBackdropState> = {
   ...popupStateMapping,
@@ -29,9 +27,9 @@ export const ComboboxBackdrop = React.forwardRef(function ComboboxBackdrop(
 
   const store = useComboboxRootContext();
 
-  const open = useStore(store, selectors.open);
-  const mounted = useStore(store, selectors.mounted);
-  const transitionStatus = useStore(store, selectors.transitionStatus);
+  const open = store.useState('open');
+  const mounted = store.useState('mounted');
+  const transitionStatus = store.useState('transitionStatus');
 
   const state: ComboboxBackdropState = {
     open,

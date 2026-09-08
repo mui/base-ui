@@ -380,6 +380,14 @@ toastManager.update(toastId, {
 });
 ```
 
+Options replace the corresponding values of the toast, including custom `data`, which is replaced as a whole. To derive the update from the current state of the toast, pass a function instead. It receives the current toast and returns the options to apply. Custom `data` is `undefined` when the toast has none yet:
+
+```jsx title="Deriving the update from the current toast"
+toastManager.update(toastId, (prevToast) => ({
+  data: prevToast.data && { ...prevToast.data, progress: 100 },
+}));
+```
+
 ### `close` method
 
 Closes the toast, removing it from the toast list after any animations complete.

@@ -1,3 +1,4 @@
+import { describe, expect } from 'vitest';
 import * as React from 'react';
 import { screen, waitFor } from '@mui/internal-test-utils';
 import { DirectionProvider, type TextDirection } from '@base-ui/react/direction-provider';
@@ -68,10 +69,8 @@ describe('<Slider.Indicator />', () => {
       });
       expect(indicator.style[startSide]).toBe(expectedStartSide);
       expect(indicator.style[sizeSide]).toBe(expectedSizeSide);
-      if (edge) {
-        expect(indicator.style.getPropertyValue('--start-position')).toBe(start);
-        expect(indicator.style.getPropertyValue('--relative-size')).toBe(range ? size : '');
-      }
+      expect(indicator.style.getPropertyValue('--start-position')).toBe(edge ? start : '');
+      expect(indicator.style.getPropertyValue('--relative-size')).toBe(edge && range ? size : '');
 
       const input = screen.getAllByRole('slider')[0];
       let incrementKey = 'ArrowRight';

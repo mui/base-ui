@@ -1,4 +1,4 @@
-import { expect, vi } from 'vitest';
+import { expect, vi, describe, beforeEach, it, afterEach } from 'vitest';
 import * as React from 'react';
 import { Popover } from '@base-ui/react/popover';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';

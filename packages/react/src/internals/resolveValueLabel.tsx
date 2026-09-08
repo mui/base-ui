@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import { error } from '@base-ui/utils/error';
 import { serializeValue } from './serializeValue';
 
 type ItemRecord = Record<string, React.ReactNode>;
@@ -25,17 +24,7 @@ export function isGroupedItems(
 ): items is ReadonlyArray<Group<any>> {
   // A group must carry an actual `items` array: key presence alone would misclassify an item
   // with an unrelated or optional `items` field.
-  const grouped = isGroup(items?.[0]);
-
-  if (process.env.NODE_ENV !== 'production' && items?.some((item) => isGroup(item) !== grouped)) {
-    error(
-      'Some entries in the items data are groups with an `items` array and others are not, so ' +
-        'the list cannot be interpreted consistently. Use either a flat array of items or an ' +
-        'array of groups whose `items` fields are all arrays.',
-    );
-  }
-
-  return grouped;
+  return isGroup(items?.[0]);
 }
 
 export function flattenLeafItems<Item>(
