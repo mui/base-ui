@@ -47,7 +47,7 @@ overrides:
   # next pins 8.4.31 (GHSA-6g55-p6wh-862q, -r28c-9q8g-f849, -fxqj-rqcc-2cmp)
   postcss: '^8.5.26'
   # optional dependency of next; unused because the docs site is a static export with no next/image
-  sharp: '^0.35.3'
+  sharp: '^0.35.4'
   # via lerna -> pacote/libnpmpublish; also picks up the fixed @sigstore/core and @sigstore/verify.
   # Capped below 5, whose engines.node excludes the Node 24.14 line CI runs on.
   sigstore: '^4.1.1'
