@@ -7,6 +7,7 @@ import type { BaseUIComponentProps, HTMLProps } from '../../internals/types';
 import { useCompositeListItem } from '../../internals/composite/list/useCompositeListItem';
 import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
 import { useMenuItemCommonProps } from '../item/useMenuItemCommonProps';
+import { REGULAR_ITEM } from '../item/useMenuItem';
 import { useButton } from '../../internals/use-button';
 import { mergeProps } from '../../merge-props';
 
@@ -32,7 +33,7 @@ export const MenuLinkItem = React.forwardRef(function MenuLinkItem(
 
   const linkRef = React.useRef<HTMLAnchorElement | null>(null);
 
-  const listItem = useCompositeListItem({ label });
+  const listItem = useCompositeListItem({ guess: true, label });
   const menuPositionerContext = useMenuPositionerContext(true);
   const nodeId = menuPositionerContext?.context.nodeId;
 
@@ -56,6 +57,7 @@ export const MenuLinkItem = React.forwardRef(function MenuLinkItem(
     store,
     typingRef,
     itemRef: linkRef,
+    itemMetadata: REGULAR_ITEM,
   });
 
   function getItemProps(externalProps?: HTMLProps): HTMLProps {

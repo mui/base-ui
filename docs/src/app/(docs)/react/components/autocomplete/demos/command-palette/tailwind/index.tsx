@@ -31,12 +31,18 @@ export default function ExampleAutocompleteCommandPalette() {
               autoHighlight="always"
               keepHighlight
             >
-              <Autocomplete.Input
-                className="relative z-1 h-10 w-full border-0 bg-white px-3 text-sm any-pointer-coarse:text-base font-normal text-neutral-950 placeholder:text-neutral-500 focus:outline-2 focus:outline-solid focus:outline-neutral-950 dark:focus:outline-white dark:bg-neutral-950 dark:text-white dark:placeholder:text-neutral-400"
-                aria-label="Search commands"
-                aria-describedby={shortcutsDescriptionId}
-                placeholder="Search for apps and commands…"
-              />
+              <Autocomplete.InputGroup className="relative z-1 flex cursor-text items-center gap-2 bg-white pl-3 focus-within:outline-2 focus-within:outline-solid focus-within:-outline-offset-1 focus-within:outline-neutral-950 dark:bg-neutral-950 dark:focus-within:outline-white">
+                <MagnifyingGlassIcon
+                  className="h-4 w-4 shrink-0 text-neutral-500 dark:text-neutral-400"
+                  aria-hidden
+                />
+                <Autocomplete.Input
+                  className="h-10 w-full border-0 bg-transparent pr-3 text-sm any-pointer-coarse:text-base font-normal text-neutral-950 outline-none placeholder:text-neutral-500 dark:text-white dark:placeholder:text-neutral-400"
+                  aria-label="Search commands"
+                  aria-describedby={shortcutsDescriptionId}
+                  placeholder="Search for apps and commands…"
+                />
+              </Autocomplete.InputGroup>
               <Dialog.Close className="sr-only">Close command palette</Dialog.Close>
 
               <ScrollArea.Root className="relative flex max-h-[min(60dvh,24rem)] min-h-0 flex-[0_1_auto] overflow-hidden border-t border-neutral-950 dark:border-t-white">
@@ -99,6 +105,25 @@ export default function ExampleAutocompleteCommandPalette() {
         </Dialog.Viewport>
       </Dialog.Portal>
     </Dialog.Root>
+  );
+}
+
+function MagnifyingGlassIcon(props: React.ComponentProps<'svg'>) {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
+      fill="none"
+      stroke="currentColor"
+      strokeLinecap="square"
+      strokeLinejoin="round"
+      {...props}
+      style={{ display: 'block', ...props.style }}
+    >
+      <path d="m11 11 3.5 3.5" />
+      <circle cx="7" cy="7" r="5.5" />
+    </svg>
   );
 }
 

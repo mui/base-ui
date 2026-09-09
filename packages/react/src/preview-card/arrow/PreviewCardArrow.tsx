@@ -3,7 +3,7 @@ import * as React from 'react';
 import { usePreviewCardPositionerContext } from '../positioner/PreviewCardPositionerContext';
 import { usePreviewCardRootContext } from '../root/PreviewCardContext';
 import type { BaseUIComponentProps } from '../../internals/types';
-import type { Align, Side } from '../../utils/useAnchorPositioning';
+import type { Align, Side } from '../../internals/useAnchorPositioning';
 import { popupStateMapping } from '../../utils/popupStateMapping';
 import { useRenderElement } from '../../internals/useRenderElement';
 

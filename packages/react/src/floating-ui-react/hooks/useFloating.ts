@@ -19,10 +19,27 @@ import { useFloatingRootContext } from './useFloatingRootContext';
  * @see https://floating-ui.com/docs/useFloating
  */
 export function useFloating(options: UseFloatingOptions = {}): UseFloatingReturn {
-  const { nodeId, externalTree } = options;
-
   const internalStore = useFloatingRootContext(options);
   const store = options.rootContext || internalStore;
+
+  return useFloatingWithStore(options, store);
+}
+
+/**
+ * Base UI's private `useFloating` path. The caller must supply the root store, so this skips the
+ * internal root-context hook used by the public Floating UI-compatible API.
+ */
+export function useBaseUIFloating(
+  options: UseFloatingOptions & { rootContext: FloatingRootStore },
+): UseFloatingReturn {
+  return useFloatingWithStore(options, options.rootContext);
+}
+
+function useFloatingWithStore(
+  options: UseFloatingOptions,
+  store: FloatingRootStore,
+): UseFloatingReturn {
+  const { nodeId, externalTree } = options;
 
   const referenceElement = store.useState('referenceElement');
   const floatingElement = store.useState('floatingElement');

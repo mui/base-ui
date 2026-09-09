@@ -43,6 +43,8 @@ export const RadioIndicator = React.forwardRef(function RadioIndicator(
   });
 
   useOpenChangeComplete({
+    batch: true,
+    enabled: !rendered,
     open: rendered,
     ref: indicatorRef,
     onComplete() {

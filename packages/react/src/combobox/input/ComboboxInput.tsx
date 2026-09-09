@@ -1,18 +1,12 @@
 'use client';
 import * as React from 'react';
-import { useStore } from '@base-ui/utils/store';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { platform } from '@base-ui/utils/platform';
 import { BaseUIComponentProps } from '../../internals/types';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import { useRenderElement } from '../../internals/useRenderElement';
-import {
-  useComboboxDerivedItemsContext,
-  useComboboxInputValueContext,
-  useComboboxRootContext,
-} from '../root/ComboboxRootContext';
+import { useComboboxInputValueContext, useComboboxRootContext } from '../root/ComboboxRootContext';
 import { triggerStateAttributesMapping } from '../utils/stateAttributesMapping';
-import { selectors } from '../store';
 import type { FieldRootState } from '../../field/root/FieldRoot';
 import {
   DEFAULT_FIELD_ROOT_CONTEXT,
@@ -26,10 +20,16 @@ import { stopEvent } from '../../floating-ui-react/utils';
 import { useComboboxPositionerContext } from '../positioner/ComboboxPositionerContext';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
-import type { Side } from '../../utils/useAnchorPositioning';
+import type { Side } from '../../internals/useAnchorPositioning';
 import { useDirection } from '../../internals/direction-context/DirectionContext';
-import { resolveAriaLabelledBy } from '../../utils/resolveAriaLabelledBy';
 import { ComboboxInternalDismissButton } from '../utils/ComboboxInternalDismissButton';
+import {
+  clickHighlightedItem,
+  getChipNavigationKeys,
+  getIndexAfterChipRemoval,
+  useListEmpty,
+  usePopupSide,
+} from '../utils/parts';
 
 /**
  * A text input to search for items in the list.
@@ -63,39 +63,35 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
   const positioning = useComboboxPositionerContext(true);
   const hasPositionerParent = Boolean(positioning);
   const store = useComboboxRootContext();
-  const { filteredItems } = useComboboxDerivedItemsContext();
   // `inputValue` can't be placed in the store.
   // https://github.com/mui/base-ui/issues/2703
   const inputValue = useComboboxInputValueContext();
   const direction = useDirection();
 
-  const required = useStore(store, selectors.required);
-  const comboboxDisabled = useStore(store, selectors.disabled);
-  const readOnly = useStore(store, selectors.readOnly);
-  const name = useStore(store, selectors.name);
-  const form = useStore(store, selectors.form);
-  const selectionMode = useStore(store, selectors.selectionMode);
-  const autoHighlightMode = useStore(store, selectors.autoHighlight);
-  const inputProps = useStore(store, selectors.inputProps);
-  const triggerProps = useStore(store, selectors.triggerProps);
-  const open = useStore(store, selectors.open);
-  const mounted = useStore(store, selectors.mounted);
-  const selectedValue = useStore(store, selectors.selectedValue);
-  const popupSideValue = useStore(store, selectors.popupSide);
-  const positionerElement = useStore(store, selectors.positionerElement);
-  const rootId = useStore(store, selectors.id);
-  const inline = useStore(store, selectors.inline);
-  const modal = useStore(store, selectors.modal);
+  const required = store.useState('required');
+  const comboboxDisabled = store.useState('disabled');
+  const readOnly = store.useState('readOnly');
+  const name = store.useState('name');
+  const form = store.useState('form');
+  const selectionMode = store.useState('selectionMode');
+  const autoHighlightMode = store.useState('autoHighlight');
+  const inputProps = store.useState('inputProps');
+  const triggerProps = store.useState('triggerProps');
+  const open = store.useState('open');
+  const mounted = store.useState('mounted');
+  const selectedValue = store.useState('selectedValue');
+  const rootId = store.useState('id');
+  const inline = store.useState('inline');
+  const modal = store.useState('modal');
 
   const autoHighlightEnabled = Boolean(autoHighlightMode);
-  const popupSide = mounted && positionerElement ? popupSideValue : null;
+  const popupSide = usePopupSide(store);
   const disabled = fieldDisabled || comboboxDisabled || disabledProp;
-  const listEmpty = filteredItems.length === 0;
+  const listEmpty = useListEmpty();
 
   const isInsidePopup = hasPositionerParent || inline;
   const focusManagerModal = !isInsidePopup || modal;
   const id = useBaseUiId(idProp ?? (!isInsidePopup ? rootId : undefined));
-  const ariaLabelledBy = resolveAriaLabelledBy(fieldLabelId, undefined);
   const fieldStateForInput = hasPositionerParent ? DEFAULT_FIELD_STATE_ATTRIBUTES : fieldState;
 
   const [composingValue, setComposingValue] = React.useState<string | null>(null);
@@ -109,7 +105,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
     const nextIsInsidePopup = hasPositionerParent || store.state.inline;
 
     if (nextIsInsidePopup && !store.state.hasInputValue) {
-      store.state.setInputValue('', createChangeEventDetails(REASONS.none));
+      store.context.setInputValue('', createChangeEventDetails(REASONS.none));
     }
 
     store.update({
@@ -119,10 +115,21 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
     });
   });
 
-  const validationProps =
-    hasPositionerParent || !validation
-      ? elementProps
-      : validation.getValidationProps(disabled, elementProps);
+  const validationProps = hasPositionerParent
+    ? elementProps
+    : validation.getValidationProps(disabled, elementProps);
+
+  function clearHighlight() {
+    store.context.setIndices({
+      activeIndex: null,
+      selectedIndex: null,
+      type: store.context.keyboardActiveRef.current ? REASONS.keyboard : REASONS.pointer,
+    });
+  }
+
+  function markPointerActive() {
+    store.context.keyboardActiveRef.current = false;
+  }
 
   const state: ComboboxInputState = {
     ...fieldStateForInput,
@@ -142,9 +149,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
 
     const { highlightedChipIndex } = comboboxChipsContext;
     const renderedChipsCount = comboboxChipsContext.chipsRef.current.length;
-    const isRtl = direction === 'rtl';
-    const previousChipKey = isRtl ? 'ArrowRight' : 'ArrowLeft';
-    const nextChipKey = isRtl ? 'ArrowLeft' : 'ArrowRight';
+    const [previousChipKey, nextChipKey] = getChipNavigationKeys(direction);
 
     if (highlightedChipIndex !== undefined) {
       if (event.key === previousChipKey) {
@@ -164,13 +169,8 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
       } else if (event.key === 'Backspace' || event.key === 'Delete') {
         event.preventDefault();
         // Move highlight appropriately after removal.
-        const computedNextIndex =
-          highlightedChipIndex >= selectedValue.length - 1
-            ? selectedValue.length - 2
-            : highlightedChipIndex;
-        // If the computed index is negative, treat it as no highlight.
-        nextIndex = computedNextIndex >= 0 ? computedNextIndex : undefined;
-        store.state.setIndices({ activeIndex: null, selectedIndex: null, type: 'keyboard' });
+        nextIndex = getIndexAfterChipRemoval(highlightedChipIndex, selectedValue.length);
+        clearHighlight();
       }
       return nextIndex;
     }
@@ -183,13 +183,6 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
     ) {
       event.preventDefault();
       nextIndex = renderedChipsCount > 0 ? renderedChipsCount - 1 : undefined;
-    } else if (
-      event.key === 'Backspace' &&
-      event.currentTarget.value === '' &&
-      selectedValue.length > 0
-    ) {
-      store.state.setIndices({ activeIndex: null, selectedIndex: null, type: 'keyboard' });
-      event.preventDefault();
     }
 
     return nextIndex;
@@ -197,15 +190,15 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
 
   const element = useRenderElement('input', componentProps, {
     state,
-    ref: [forwardedRef, store.state.inputRef, setInputElement],
+    ref: [forwardedRef, store.context.inputRef, setInputElement],
     props: [
       inputProps,
       triggerProps,
       {
-        value: componentProps.value ?? composingValue ?? inputValue,
+        value: composingValue ?? inputValue,
         'aria-readonly': readOnly || undefined,
         'aria-required': required || undefined,
-        'aria-labelledby': ariaLabelledBy,
+        'aria-labelledby': fieldLabelId,
         disabled,
         readOnly,
         required: selectionMode === 'none' ? required : undefined,
@@ -225,12 +218,12 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
           if (
             nextActiveIndex == null ||
             // `valuesRef` can be sparse, so guard against restoring a removed slot.
-            !Object.hasOwn(store.state.valuesRef.current, nextActiveIndex)
+            !Object.hasOwn(store.context.valuesRef.current, nextActiveIndex)
           ) {
             return;
           }
 
-          store.state.setIndices({ activeIndex: nextActiveIndex });
+          store.context.setIndices({ activeIndex: nextActiveIndex });
         },
         onBlur() {
           setTouched(true);
@@ -240,7 +233,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
           if (inline && activeIndex !== null && autoHighlightMode !== 'always') {
             lastActiveIndexRef.current = activeIndex;
             shouldRestoreActiveIndexRef.current = true;
-            store.state.setIndices({ activeIndex: null });
+            store.context.setIndices({ activeIndex: null });
           }
 
           if (validationMode === 'onBlur') {
@@ -259,17 +252,31 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
           isComposingRef.current = false;
           const next = event.currentTarget.value;
           setComposingValue(null);
-          store.state.setInputValue(
+          store.context.setInputValue(
             next,
             createChangeEventDetails(REASONS.inputChange, event.nativeEvent),
           );
         },
         onChange(event) {
+          const nativeEvent = event.nativeEvent;
           // Autofill may not provide `inputType` (Chrome) or may report
           // `insertReplacementText` (Firefox).
-          const inputType = (event.nativeEvent as InputEvent).inputType;
+          const inputType = (nativeEvent as InputEvent).inputType;
           const autofillLikeInput = !inputType || inputType === 'insertReplacementText';
+          // During composition the input is always considered typed into.
           const shouldOpenOnInput = isComposingRef.current || !autofillLikeInput;
+
+          function maybeOpenOnInput(trimmed: string) {
+            if (readOnly || disabled || !trimmed || !shouldOpenOnInput) {
+              return;
+            }
+
+            store.context.setOpen(true, createChangeEventDetails(REASONS.inputChange, nativeEvent));
+            // When autoHighlight is enabled, keep the highlight (will be set to 0 in root).
+            if (!autoHighlightEnabled) {
+              clearHighlight();
+            }
+          }
 
           // During IME composition, avoid propagating controlled updates to prevent
           // filtering the options prematurely so `Empty` won't show incorrectly.
@@ -282,104 +289,69 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
             setComposingValue(nextVal);
 
             if (nextVal === '' && !store.state.openOnInputClick && !store.state.inputInsidePopup) {
-              store.state.setOpen(
+              store.context.setOpen(
                 false,
-                createChangeEventDetails(REASONS.inputClear, event.nativeEvent),
+                createChangeEventDetails(REASONS.inputClear, nativeEvent),
               );
             }
 
             const trimmed = nextVal.trim();
             const shouldMaintainHighlight = autoHighlightEnabled && trimmed !== '';
 
-            if (!readOnly && !disabled && trimmed) {
-              if (shouldOpenOnInput) {
-                store.state.setOpen(
-                  true,
-                  createChangeEventDetails(REASONS.inputChange, event.nativeEvent),
-                );
-                if (!autoHighlightEnabled) {
-                  store.state.setIndices({
-                    activeIndex: null,
-                    selectedIndex: null,
-                    type: store.state.keyboardActiveRef.current ? 'keyboard' : 'pointer',
-                  });
-                }
-              }
-            }
+            maybeOpenOnInput(trimmed);
 
             if (open && store.state.activeIndex !== null && !shouldMaintainHighlight) {
-              store.state.setIndices({
-                activeIndex: null,
-                selectedIndex: null,
-                type: store.state.keyboardActiveRef.current ? 'keyboard' : 'pointer',
-              });
+              clearHighlight();
             }
 
             return;
           }
 
-          const inputChangeDetails = createChangeEventDetails(
-            REASONS.inputChange,
-            event.nativeEvent,
-          );
-          store.state.setInputValue(event.currentTarget.value, inputChangeDetails);
+          const inputChangeDetails = createChangeEventDetails(REASONS.inputChange, nativeEvent);
+          store.context.setInputValue(event.currentTarget.value, inputChangeDetails);
 
           if (inputChangeDetails.isCanceled) {
             return;
           }
 
           const empty = event.currentTarget.value === '';
-          const clearDetails = createChangeEventDetails(REASONS.inputClear, event.nativeEvent);
+          const clearDetails = createChangeEventDetails(REASONS.inputClear, nativeEvent);
 
           if (empty && !store.state.inputInsidePopup) {
             if (selectionMode === 'single') {
-              store.state.setSelectedValue(null, clearDetails);
+              store.context.setSelectedValue(null, clearDetails);
             }
 
             if (!store.state.openOnInputClick) {
-              store.state.setOpen(false, clearDetails);
+              store.context.setOpen(false, clearDetails);
             }
           }
 
-          const trimmed = event.currentTarget.value.trim();
-          if (!readOnly && !disabled && trimmed) {
-            if (shouldOpenOnInput) {
-              store.state.setOpen(
-                true,
-                createChangeEventDetails(REASONS.inputChange, event.nativeEvent),
-              );
-              // When autoHighlight is enabled, keep the highlight (will be set to 0 in root).
-              if (!autoHighlightEnabled) {
-                store.state.setIndices({
-                  activeIndex: null,
-                  selectedIndex: null,
-                  type: store.state.keyboardActiveRef.current ? 'keyboard' : 'pointer',
-                });
-              }
-            }
-          }
+          maybeOpenOnInput(event.currentTarget.value.trim());
 
           // When the user types, ensure the list resets its highlight so that
           // virtual focus returns to the input (aria-activedescendant is
           // cleared).
           if (open && store.state.activeIndex !== null && !autoHighlightEnabled) {
-            store.state.setIndices({
-              activeIndex: null,
-              selectedIndex: null,
-              type: store.state.keyboardActiveRef.current ? 'keyboard' : 'pointer',
-            });
+            clearHighlight();
           }
         },
         onKeyDown(event) {
-          if (disabled || readOnly) {
-            return;
-          }
-
           if (event.ctrlKey || event.shiftKey || event.altKey || event.metaKey) {
             return;
           }
 
-          store.state.keyboardActiveRef.current = true;
+          // Tracked before the guards so `readOnly` browsing reports keyboard highlight reasons.
+          store.context.keyboardActiveRef.current = true;
+
+          if (disabled || readOnly) {
+            // Browsing can highlight an item, and Enter there must not submit the form.
+            if (readOnly && event.key === 'Enter' && open && store.state.activeIndex !== null) {
+              stopEvent(event);
+            }
+            return;
+          }
+
           const input = event.currentTarget;
           const scrollAmount = input.scrollWidth - input.clientWidth;
           const isRTL = direction === 'rtl';
@@ -408,8 +380,8 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
 
             const details = createChangeEventDetails(REASONS.escapeKey, event.nativeEvent);
             const value = selectionMode === 'multiple' ? [] : null;
-            store.state.setInputValue('', details);
-            store.state.setSelectedValue(value, details);
+            store.context.setInputValue('', details);
+            store.context.setSelectedValue(value, details);
 
             if (!isClear && !store.state.inline && !details.isPropagationAllowed) {
               event.stopPropagation();
@@ -435,12 +407,8 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
               (_: any, index: number) => index !== removalIndex,
             );
             // If the removed item was also the active (highlighted) item, clear highlight
-            store.state.setIndices({
-              activeIndex: null,
-              selectedIndex: null,
-              type: store.state.keyboardActiveRef.current ? 'keyboard' : 'pointer',
-            });
-            store.state.setSelectedValue(
+            clearHighlight();
+            store.context.setSelectedValue(
               newValue,
               createChangeEventDetails(REASONS.none, event.nativeEvent),
             );
@@ -455,7 +423,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
           if (nextIndex !== undefined) {
             comboboxChipsContext?.chipsRef.current[nextIndex]?.focus();
           } else if (hadHighlightedChip) {
-            store.state.inputRef.current?.focus();
+            store.context.inputRef.current?.focus();
           }
 
           // event.isComposing
@@ -473,27 +441,16 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
               }
 
               // Allow form submission when no item is highlighted.
-              store.state.setOpen(false, createChangeEventDetails(REASONS.none, nativeEvent));
+              store.context.setOpen(false, createChangeEventDetails(REASONS.none, nativeEvent));
               return;
             }
 
             stopEvent(event);
-
-            const listItem = store.state.listRef.current[activeIndex];
-
-            if (listItem) {
-              store.state.selectionEventRef.current = nativeEvent;
-              listItem.click();
-              store.state.selectionEventRef.current = null;
-            }
+            clickHighlightedItem(store, activeIndex, nativeEvent);
           }
         },
-        onPointerMove() {
-          store.state.keyboardActiveRef.current = false;
-        },
-        onPointerDown() {
-          store.state.keyboardActiveRef.current = false;
-        },
+        onPointerMove: markPointerActive,
+        onPointerDown: markPointerActive,
       },
       validationProps,
     ],
@@ -511,7 +468,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
   return (
     <React.Fragment>
       {open && focusManagerModal && (
-        <ComboboxInternalDismissButton ref={store.state.startDismissRef} />
+        <ComboboxInternalDismissButton ref={store.context.startDismissRef} />
       )}
       {renderedInput}
     </React.Fragment>

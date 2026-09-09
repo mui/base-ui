@@ -5,7 +5,7 @@ import { useTimeout } from '@base-ui/utils/useTimeout';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import type { ElementProps, FloatingContext, FloatingRootContext } from '../types';
 import { getTarget, isTypeableElement } from '../utils/element';
-import { isMouseLikePointerType } from '../utils/event';
+import { isMouseLikePointerType, isVirtualPointerEvent } from '../utils/event';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 
@@ -74,7 +74,7 @@ export function useClick(
 
   const dataRef = store.context.dataRef;
 
-  const pointerTypeRef = React.useRef<'mouse' | 'pen' | 'touch'>(undefined);
+  const pointerTypeRef = React.useRef<'mouse' | 'pen' | 'touch' | 'virtual'>(undefined);
   const frame = useAnimationFrame();
   const touchOpenTimeout = useTimeout();
 
@@ -83,7 +83,7 @@ export function useClick(
       nextOpen: boolean,
       nativeEvent: MouseEvent,
       target: HTMLElement,
-      pointerType: 'mouse' | 'pen' | 'touch' | undefined,
+      pointerType: 'mouse' | 'pen' | 'touch' | 'virtual' | undefined,
     ) {
       const details = createChangeEventDetails(reason, nativeEvent, target);
 
@@ -130,7 +130,15 @@ export function useClick(
 
     return {
       onPointerDown(event) {
-        pointerTypeRef.current = event.pointerType;
+        // Screen reader activations (Android TalkBack, desktop screen readers) report a
+        // mouse-like `pointerType`, but `ignoreMouse` must not drop them: hover logic cannot
+        // open for a virtual press since there is no real pointer movement to wait for.
+        // Virtual `touch` presses (iOS VoiceOver) keep their type so `touchOpenDelay` applies.
+        pointerTypeRef.current =
+          isMouseLikePointerType(event.pointerType, true) &&
+          isVirtualPointerEvent(event.nativeEvent)
+            ? 'virtual'
+            : event.pointerType;
       },
       onMouseDown(event) {
         const pointerType = pointerTypeRef.current;

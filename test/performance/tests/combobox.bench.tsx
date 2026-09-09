@@ -63,6 +63,16 @@ function LargeCombobox() {
   );
 }
 
+// Initial mount with the popup open: measures the open/registration cost of a large list in
+// isolation, without any keystroke work.
+benchmark(
+  'Combobox open — 500 items',
+  () => <LargeCombobox />,
+  async ({ waitForElementTiming }) => {
+    await waitForElementTiming('combobox-open');
+  },
+);
+
 // Typing a common prefix keeps every item in the filtered set, so all 500 stay mounted across
 // keystrokes. This isolates the per-keystroke re-render cost of the already-rendered items
 // (no mount/unmount churn): the exact work the derived-items-context split removes.

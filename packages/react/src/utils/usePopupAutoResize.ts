@@ -7,7 +7,9 @@ import { NOOP, EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { useAnimationsFinished } from '../internals/useAnimationsFinished';
 import { getCssDimensions } from './getCssDimensions';
 import { Dimensions } from '../floating-ui-react/types';
-import { Side } from './useAnchorPositioning';
+import { Side } from '../internals/useAnchorPositioning';
+import * as CommonPopupCssVars from './CommonPopupCssVars';
+import * as CommonPositionerCssVars from './CommonPositionerCssVars';
 
 /**
  * Allows the element to automatically resize based on its content while supporting animations.
@@ -24,7 +26,7 @@ export function usePopupAutoResize(parameters: UsePopupAutoResizeParameters) {
     direction,
   } = parameters;
 
-  const runOnceAnimationsFinish = useAnimationsFinished(popupElement, true, false);
+  const runOnceAnimationsFinish = useAnimationsFinished(popupElement, true);
 
   const animationFrame = useAnimationFrame();
 
@@ -36,26 +38,10 @@ export function usePopupAutoResize(parameters: UsePopupAutoResizeParameters) {
   const onMeasureLayout = useStableCallback(onMeasureLayoutParam);
   const onMeasureLayoutComplete = useStableCallback(onMeasureLayoutCompleteParam);
 
-  const anchoringStyles: React.CSSProperties = React.useMemo(() => {
-    // Ensure popup size transitions correctly when anchored to `bottom` (side=top) or `right` (side=left).
-    let isOriginSide = side === 'top';
-    let isPhysicalLeft = side === 'left';
-    if (direction === 'rtl') {
-      isOriginSide = isOriginSide || side === 'inline-end';
-      isPhysicalLeft = isPhysicalLeft || side === 'inline-end';
-    } else {
-      isOriginSide = isOriginSide || side === 'inline-start';
-      isPhysicalLeft = isPhysicalLeft || side === 'inline-start';
-    }
-
-    return isOriginSide
-      ? {
-          position: 'absolute',
-          [side === 'top' ? 'bottom' : 'top']: '0',
-          [isPhysicalLeft ? 'right' : 'left']: '0',
-        }
-      : EMPTY_OBJECT;
-  }, [side, direction]);
+  const anchoringStyles = React.useMemo(
+    () => getPopupAnchoringStyles(side, direction),
+    [side, direction],
+  );
 
   useIsoLayoutEffect(() => {
     // Reset the state when the popup is closed.
@@ -82,8 +68,8 @@ export function usePopupAutoResize(parameters: UsePopupAutoResizeParameters) {
     const restorePopupTransform = overrideElementStyle(popupElement, 'transform', 'none');
     const restorePopupScale = overrideElementStyle(popupElement, 'scale', '1');
     const restorePositionerAvailableSize = applyElementStyles(positionerElement, {
-      '--available-width': 'max-content',
-      '--available-height': 'max-content',
+      [CommonPositionerCssVars.availableWidth]: 'max-content',
+      [CommonPositionerCssVars.availableHeight]: 'max-content',
     });
 
     function restoreMeasurementOverrides() {
@@ -140,8 +126,8 @@ export function usePopupAutoResize(parameters: UsePopupAutoResizeParameters) {
       setPopupCssSize(popupElement, newDimensions);
 
       runOnceAnimationsFinish(() => {
-        popupElement.style.setProperty('--popup-width', 'auto');
-        popupElement.style.setProperty('--popup-height', 'auto');
+        popupElement.style.setProperty(CommonPopupCssVars.popupWidth, 'auto');
+        popupElement.style.setProperty(CommonPopupCssVars.popupHeight, 'auto');
       }, abortController.signal);
     });
 
@@ -193,11 +179,27 @@ interface UsePopupAutoResizeParameters {
    * @param newDimensions Newly measured dimensions.
    */
   onMeasureLayoutComplete?:
-    | ((previousDimensions: Dimensions | null, newDimensions: Dimensions) => void)
-    | undefined;
+    ((previousDimensions: Dimensions | null, newDimensions: Dimensions) => void) | undefined;
 
   side: Side;
   direction: 'ltr' | 'rtl';
+}
+
+function getPopupAnchoringStyles(side: Side, direction: 'ltr' | 'rtl'): React.CSSProperties {
+  // Ensure popup size transitions correctly when anchored to `bottom` (side=top) or `right` (side=left).
+  const isPhysicalTop = side === 'top';
+  const isPhysicalLeft =
+    side === 'left' || side === (direction === 'rtl' ? 'inline-end' : 'inline-start');
+
+  if (!isPhysicalTop && !isPhysicalLeft) {
+    return EMPTY_OBJECT;
+  }
+
+  return {
+    position: 'absolute',
+    [isPhysicalTop ? 'bottom' : 'top']: '0',
+    [isPhysicalLeft ? 'right' : 'left']: '0',
+  };
 }
 
 function overrideElementStyle(element: HTMLElement, property: string, value: string) {
@@ -226,13 +228,13 @@ function applyElementStyles(element: HTMLElement, styles: Record<string, string>
 function setPopupCssSize(popupElement: HTMLElement, size: Dimensions | 'auto') {
   const width = size === 'auto' ? 'auto' : `${size.width}px`;
   const height = size === 'auto' ? 'auto' : `${size.height}px`;
-  popupElement.style.setProperty('--popup-width', width);
-  popupElement.style.setProperty('--popup-height', height);
+  popupElement.style.setProperty(CommonPopupCssVars.popupWidth, width);
+  popupElement.style.setProperty(CommonPopupCssVars.popupHeight, height);
 }
 
 function setPositionerCssSize(positionerElement: HTMLElement, size: Dimensions | 'max-content') {
   const width = size === 'max-content' ? 'max-content' : `${size.width}px`;
   const height = size === 'max-content' ? 'max-content' : `${size.height}px`;
-  positionerElement.style.setProperty('--positioner-width', width);
-  positionerElement.style.setProperty('--positioner-height', height);
+  positionerElement.style.setProperty(CommonPositionerCssVars.positionerWidth, width);
+  positionerElement.style.setProperty(CommonPositionerCssVars.positionerHeight, height);
 }

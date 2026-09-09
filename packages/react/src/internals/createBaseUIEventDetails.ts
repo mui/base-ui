@@ -121,7 +121,7 @@ export function createChangeEventDetails<
 >(
   reason: Reason,
   event?: ReasonToEvent<Reason>,
-  trigger?: HTMLElement,
+  trigger?: Element,
   customProperties?: CustomProperties,
 ): BaseUIChangeEventDetails<Reason, CustomProperties> {
   let canceled = false;

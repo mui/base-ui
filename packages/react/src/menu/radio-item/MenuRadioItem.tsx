@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { NOOP } from '@base-ui/utils/empty';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useBaseUiId } from '../../internals/useBaseUiId';
@@ -36,7 +37,7 @@ export const MenuRadioItem = React.forwardRef(function MenuRadioItem(
     ...elementProps
   } = componentProps;
 
-  const listItem = useCompositeListItem({ label });
+  const listItem = useCompositeListItem({ guess: true, label });
   const menuPositionerContext = useMenuPositionerContext(true);
   const id = useBaseUiId(idProp);
 
@@ -50,7 +51,8 @@ export const MenuRadioItem = React.forwardRef(function MenuRadioItem(
     disabled: groupDisabled,
   } = useMenuRadioGroupContext();
 
-  const disabled = groupDisabled || disabledProp;
+  const rootDisabled = store.useState('disabled');
+  const disabled = disabledProp || groupDisabled || rootDisabled;
   const checked = selectedValue === value;
 
   const { getItemProps, itemRef } = useMenuItem({
@@ -75,7 +77,7 @@ export const MenuRadioItem = React.forwardRef(function MenuRadioItem(
 
   function handleClick(event: React.MouseEvent) {
     const details = createChangeEventDetails(REASONS.itemPress, event.nativeEvent, undefined, {
-      preventUnmountOnClose() {},
+      preventUnmountOnClose: NOOP,
     });
 
     setSelectedValue(value, details);

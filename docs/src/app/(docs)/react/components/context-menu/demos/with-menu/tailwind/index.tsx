@@ -5,45 +5,47 @@ import { Menu } from '@base-ui/react/menu';
 
 export default function ContextMenuWithMenuDemo() {
   return (
-    <ContextMenu.Root>
-      <ContextMenu.Trigger className="group relative w-full max-w-64 overflow-hidden border border-neutral-950 bg-white text-left text-neutral-950 select-none dark:border-white dark:bg-neutral-950 dark:text-white">
-        <img
-          width="512"
-          height="288"
-          className="h-36 w-full object-cover"
-          src="https://images.unsplash.com/photo-1619615391095-dfa29e1672ef?q=80&w=512&h=288"
-          alt=""
-        />
-        <div className="p-2">
-          <p className="text-sm leading-5">Station Hofplein</p>
-          <p className="text-xs leading-4 text-neutral-500 dark:text-neutral-400">JPG, 2.4 MB</p>
-        </div>
+    <div className="group relative w-full max-w-64 overflow-hidden border border-neutral-950 bg-white text-left text-neutral-950 select-none dark:border-white dark:bg-neutral-950 dark:text-white">
+      <ContextMenu.Root>
+        <ContextMenu.Trigger>
+          <img
+            width="512"
+            height="288"
+            className="h-36 w-full object-cover"
+            src="https://images.unsplash.com/photo-1619615391095-dfa29e1672ef?q=80&w=512&h=288"
+            alt=""
+          />
+          <div className="p-2">
+            <p className="text-sm leading-5">Station Hofplein</p>
+            <p className="text-xs leading-4 text-neutral-500 dark:text-neutral-400">JPG, 2.4 MB</p>
+          </div>
+        </ContextMenu.Trigger>
 
-        <Menu.Root>
-          <Menu.Trigger
-            aria-label="Image actions"
-            className="absolute top-2 right-2 flex size-8 items-center justify-center border border-neutral-950 bg-white text-neutral-950 opacity-0 select-none group-hover:opacity-100 data-pressed:opacity-100 any-pointer-coarse:opacity-100 hover:not-data-disabled:bg-neutral-100 active:not-data-disabled:bg-neutral-200 data-popup-open:bg-neutral-100 dark:border-white dark:bg-neutral-950 dark:text-white dark:hover:not-data-disabled:bg-neutral-800 dark:active:not-data-disabled:bg-neutral-700 dark:data-popup-open:bg-neutral-800 focus-visible:opacity-100 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-neutral-950 dark:focus-visible:outline-white"
-          >
-            <MoreVertIcon />
-          </Menu.Trigger>
-          <Menu.Portal>
-            <Menu.Positioner align="end" sideOffset={8} className="outline-hidden">
-              <Menu.Popup className={popupClass}>
-                <SharedMenuItems />
-              </Menu.Popup>
-            </Menu.Positioner>
-          </Menu.Portal>
-        </Menu.Root>
-      </ContextMenu.Trigger>
+        <ContextMenu.Portal>
+          <ContextMenu.Positioner className="outline-hidden">
+            <ContextMenu.Popup className={popupClass}>
+              <SharedMenuItems type="context-menu" />
+            </ContextMenu.Popup>
+          </ContextMenu.Positioner>
+        </ContextMenu.Portal>
+      </ContextMenu.Root>
 
-      <ContextMenu.Portal>
-        <ContextMenu.Positioner className="outline-hidden">
-          <ContextMenu.Popup className={popupClass}>
-            <SharedMenuItems type="context-menu" />
-          </ContextMenu.Popup>
-        </ContextMenu.Positioner>
-      </ContextMenu.Portal>
-    </ContextMenu.Root>
+      <Menu.Root>
+        <Menu.Trigger
+          aria-label="Image actions"
+          className="absolute top-2 right-2 flex size-8 items-center justify-center border border-neutral-950 bg-white text-neutral-950 opacity-0 select-none group-hover:opacity-100 data-pressed:opacity-100 any-pointer-coarse:opacity-100 hover:not-data-disabled:bg-neutral-100 active:not-data-disabled:bg-neutral-200 data-pressed:bg-neutral-100 dark:border-white dark:bg-neutral-950 dark:text-white dark:hover:not-data-disabled:bg-neutral-800 dark:active:not-data-disabled:bg-neutral-700 dark:data-pressed:bg-neutral-800 focus-visible:opacity-100 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-neutral-950 dark:focus-visible:outline-white"
+        >
+          <MoreVertIcon />
+        </Menu.Trigger>
+        <Menu.Portal>
+          <Menu.Positioner align="end" sideOffset={8} className="outline-hidden">
+            <Menu.Popup className={popupClass}>
+              <SharedMenuItems />
+            </Menu.Popup>
+          </Menu.Positioner>
+        </Menu.Portal>
+      </Menu.Root>
+    </div>
   );
 }
 

@@ -1,9 +1,4 @@
-import type { Coords } from '../../floating-ui-react/types';
-
-export function getMidpoint(element: HTMLElement): Coords {
+export function getMidpoint(element: HTMLElement, vertical: boolean): number {
   const rect = element.getBoundingClientRect();
-  return {
-    x: (rect.left + rect.right) / 2,
-    y: (rect.top + rect.bottom) / 2,
-  };
+  return vertical ? (rect.top + rect.bottom) / 2 : (rect.left + rect.right) / 2;
 }

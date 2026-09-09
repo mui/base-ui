@@ -2,7 +2,7 @@ import { getParentNode, isHTMLElement, isLastTraversableNode } from '@floating-u
 
 export function findRootOwnerId(node: Node): string | undefined {
   if (isHTMLElement(node) && node.hasAttribute('data-rootownerid')) {
-    return node.getAttribute('data-rootownerid') ?? undefined;
+    return node.getAttribute('data-rootownerid')!;
   }
 
   if (isLastTraversableNode(node)) {

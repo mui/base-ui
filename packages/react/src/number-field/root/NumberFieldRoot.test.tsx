@@ -1,4 +1,4 @@
-import { expect, vi } from 'vitest';
+import { expect, vi, describe, it } from 'vitest';
 import * as React from 'react';
 import { act, screen, fireEvent } from '@mui/internal-test-utils';
 import { NumberField as NumberFieldBase } from '@base-ui/react/number-field';
@@ -431,16 +431,21 @@ describe('<NumberField />', () => {
     it('accepts grouping while typing and parses progressively', async () => {
       const onValueChange = vi.fn();
       const onValueCommitted = vi.fn();
+      const groupSeparator =
+        new Intl.NumberFormat().formatToParts(10000).find((part) => part.type === 'group')?.value ??
+        '';
+      expect(groupSeparator).not.toBe('');
+
       await render(
         <NumberField onValueChange={onValueChange} onValueCommitted={onValueCommitted} />,
       );
       const input = screen.getByRole('textbox');
 
       fireEvent.change(input, { target: { value: '1' } }); // 1
-      fireEvent.change(input, { target: { value: '1,' } }); // 1 (group symbol)
-      fireEvent.change(input, { target: { value: '1,2' } }); // 12
-      fireEvent.change(input, { target: { value: '1,23' } }); // 123
-      fireEvent.change(input, { target: { value: '1,234' } }); // 1234
+      fireEvent.change(input, { target: { value: `1${groupSeparator}` } }); // 1 (group symbol)
+      fireEvent.change(input, { target: { value: `1${groupSeparator}2` } }); // 12
+      fireEvent.change(input, { target: { value: `1${groupSeparator}23` } }); // 123
+      fireEvent.change(input, { target: { value: `1${groupSeparator}234` } }); // 1234
 
       expect(onValueChange.mock.calls.length).toBe(5);
       expect(onValueChange.mock.calls[0][0]).toBe(1);
@@ -534,16 +539,40 @@ describe('<NumberField />', () => {
 
     it('accepts currency symbol while typing and parses numeric value', async () => {
       const onValueChange = vi.fn();
-      await render(
-        <NumberField
-          onValueChange={onValueChange}
-          format={{ style: 'currency', currency: 'USD' }}
-        />,
-      );
+      const format: Intl.NumberFormatOptions = { style: 'currency', currency: 'USD' };
+      const formatter = new Intl.NumberFormat(undefined, format);
+      const parts = formatter.formatToParts(12345);
+      const groupSeparator = parts.find((part) => part.type === 'group')?.value ?? '';
+      expect(groupSeparator).not.toBe('');
+
+      function formatPartialValue(value: string) {
+        let valueInserted = false;
+        return parts
+          .map((part) => {
+            if (
+              part.type === 'integer' ||
+              part.type === 'group' ||
+              part.type === 'decimal' ||
+              part.type === 'fraction'
+            ) {
+              if (!valueInserted) {
+                valueInserted = true;
+                return value;
+              }
+              return '';
+            }
+            return part.value;
+          })
+          .join('');
+      }
+
+      await render(<NumberField onValueChange={onValueChange} format={format} />);
       const input = screen.getByRole('textbox');
 
-      fireEvent.change(input, { target: { value: '$1' } });
-      fireEvent.change(input, { target: { value: '$1,2' } });
+      fireEvent.change(input, { target: { value: formatPartialValue('1') } });
+      fireEvent.change(input, {
+        target: { value: formatPartialValue(`1${groupSeparator}2`) },
+      });
 
       expect(onValueChange.mock.calls.length).toBe(2);
       expect(onValueChange.mock.calls[0][0]).toBe(1);
@@ -1380,6 +1409,73 @@ describe('<NumberField />', () => {
       expect(onValueChange).not.toHaveBeenCalled();
     });
 
+    it('does not scrub on a horizontal wheel event, and lets it scroll the page', async () => {
+      const onValueChange = vi.fn();
+      const onValueCommitted = vi.fn();
+      await render(
+        <NumberField
+          defaultValue={5}
+          allowWheelScrub
+          onValueChange={onValueChange}
+          onValueCommitted={onValueCommitted}
+        />,
+      );
+      const input = screen.getByRole('textbox');
+      await act(async () => input.focus());
+
+      // `fireEvent` returns false when the event was canceled with `preventDefault`.
+      expect(fireEvent.wheel(input, { deltaY: 0, deltaX: 100 })).toBe(true);
+      expect(fireEvent.wheel(input, { deltaY: 0, deltaX: -100 })).toBe(true);
+      // A precision touchpad emits sub-pixel noise on the cross axis during a sideways swipe.
+      expect(fireEvent.wheel(input, { deltaY: -0.5, deltaX: 100 })).toBe(true);
+      expect(fireEvent.wheel(input, { deltaY: 0.5, deltaX: -100 })).toBe(true);
+      // An event with no movement at all.
+      expect(fireEvent.wheel(input, { deltaY: 0, deltaX: 0 })).toBe(true);
+
+      expect(input).toHaveValue('5');
+      expect(onValueChange).not.toHaveBeenCalled();
+      expect(onValueCommitted).not.toHaveBeenCalled();
+    });
+
+    it('scrubs on a vertical wheel event that carries horizontal noise', async () => {
+      await render(<NumberField defaultValue={5} allowWheelScrub />);
+      const input = screen.getByRole('textbox');
+      await act(async () => input.focus());
+
+      // `fireEvent` returns false when the event was canceled, which is what stops the page
+      // from scrolling out from under the user while the value scrubs.
+      expect(fireEvent.wheel(input, { deltaY: 1, deltaX: -0.5 })).toBe(false);
+      expect(input).toHaveValue('4');
+
+      expect(fireEvent.wheel(input, { deltaY: -1, deltaX: 0.5 })).toBe(false);
+      expect(input).toHaveValue('5');
+
+      expect(fireEvent.wheel(input, { deltaY: 1 })).toBe(false);
+      expect(input).toHaveValue('4');
+    });
+
+    it('uses largeStep when shift is held and the browser swaps the wheel axis', async () => {
+      await render(<NumberField defaultValue={0} largeStep={10} allowWheelScrub />);
+      const input = screen.getByRole('textbox');
+      await act(async () => input.focus());
+
+      // Chromium delivers shift + wheel as a horizontal event, so the horizontal delta carries
+      // the intended direction: positive is "down", which steps the value down.
+      expect(fireEvent.wheel(input, { deltaY: 0, deltaX: -100, shiftKey: true })).toBe(false);
+      expect(input).toHaveValue('10');
+
+      expect(fireEvent.wheel(input, { deltaY: 0, deltaX: 100, shiftKey: true })).toBe(false);
+      expect(input).toHaveValue('0');
+
+      // Cross-axis noise must not flip the direction of the same physical gesture, so the noise
+      // here opposes the horizontal delta: the dominant axis has to win.
+      expect(fireEvent.wheel(input, { deltaY: 0.5, deltaX: -100, shiftKey: true })).toBe(false);
+      expect(input).toHaveValue('10');
+
+      expect(fireEvent.wheel(input, { deltaY: -0.5, deltaX: 100, shiftKey: true })).toBe(false);
+      expect(input).toHaveValue('0');
+    });
+
     it('uses largeStep when shift is held during wheel', async () => {
       const onValueChange = vi.fn();
       await render(
@@ -1427,6 +1523,28 @@ describe('<NumberField />', () => {
       // Blur doesn't commit again; the wheel changes were already committed.
       fireEvent.blur(input);
       expect(onValueCommitted.mock.calls.length).toBe(2);
+    });
+
+    it('does not commit when a wheel step is a no-op at the boundary', async () => {
+      const onValueChange = vi.fn();
+      const onValueCommitted = vi.fn();
+      await render(
+        <NumberField
+          defaultValue={5}
+          max={5}
+          allowWheelScrub
+          onValueChange={onValueChange}
+          onValueCommitted={onValueCommitted}
+        />,
+      );
+      const input = screen.getByRole('textbox');
+      await act(async () => input.focus());
+
+      fireEvent.wheel(input, { deltaY: -1 });
+
+      expect(onValueChange).not.toHaveBeenCalled();
+      expect(onValueCommitted).not.toHaveBeenCalled();
+      expect(input).toHaveValue('5');
     });
 
     it('syncs the visible input value when using the mouse wheel after pasting', async () => {
@@ -1747,23 +1865,20 @@ describe('<NumberField />', () => {
 
         expect(hiddenInput).not.toBe(null);
 
-        if (withField) {
-          expect(screen.getByTestId('error')).toHaveTextContent('test');
-          if (lockState === 'disabled') {
-            expect(input).not.toHaveAttribute('aria-invalid');
-          } else {
-            expect(input).toHaveAttribute('aria-invalid', 'true');
-          }
-        }
+        // Only the Field wrapper renders an error and marks the input invalid,
+        // unless the field is disabled.
+        const expectedError = withField ? 'test' : undefined;
+        const expectedAriaInvalid = withField && lockState !== 'disabled' ? 'true' : null;
+
+        expect(screen.queryByTestId('error')?.textContent).toBe(expectedError);
+        expect(input.getAttribute('aria-invalid')).toBe(expectedAriaInvalid);
 
         fireEvent.change(hiddenInput, { target: { value: '42' } });
 
         expect(onValueChange).not.toHaveBeenCalled();
         expect(input).toHaveValue('1');
 
-        if (withField) {
-          expect(screen.getByTestId('error')).toHaveTextContent('test');
-        }
+        expect(screen.queryByTestId('error')?.textContent).toBe(expectedError);
       },
     );
   });
@@ -2275,6 +2390,90 @@ describe('<NumberField />', () => {
     });
   });
 
+  describe('hidden input', () => {
+    function getHiddenInput() {
+      const hiddenInput = document.querySelector<HTMLInputElement>(
+        'input[aria-hidden][type=number]',
+      );
+      if (!hiddenInput) {
+        throw new Error('Expected a hidden number input.');
+      }
+      return hiddenInput;
+    }
+
+    it('forwards focus to the visible input', async () => {
+      await render(<NumberField defaultValue={5} />);
+
+      await act(async () => getHiddenInput().focus());
+
+      expect(screen.getByRole('textbox')).toHaveFocus();
+    });
+
+    it('places the caret at the end of the visible input when forwarding focus', async () => {
+      await render(<NumberField defaultValue={100} />);
+
+      const input = screen.getByRole<HTMLInputElement>('textbox');
+      input.setSelectionRange(0, 0);
+
+      await act(async () => getHiddenInput().focus());
+
+      expect(input).toHaveFocus();
+      expect(input.selectionStart).toBe(input.value.length);
+      expect(input.selectionEnd).toBe(input.value.length);
+    });
+
+    it('keeps a selection the consumer sets in onFocus when forwarding focus', async () => {
+      await render(
+        <NumberFieldBase.Root defaultValue={100}>
+          <NumberFieldBase.Input onFocus={(event) => event.currentTarget.select()} />
+        </NumberFieldBase.Root>,
+      );
+
+      const input = screen.getByRole<HTMLInputElement>('textbox');
+
+      await act(async () => getHiddenInput().focus());
+
+      expect(input).toHaveFocus();
+      expect(input.selectionStart).toBe(0);
+      expect(input.selectionEnd).toBe(input.value.length);
+    });
+
+    it('clears the value when autofill empties the hidden input', async () => {
+      const onValueChange = vi.fn();
+      await render(<NumberField defaultValue={5} onValueChange={onValueChange} />);
+
+      fireEvent.change(getHiddenInput(), { target: { value: '' } });
+
+      expect(screen.getByRole('textbox')).toHaveValue('');
+      expect(onValueChange.mock.lastCall?.[0]).toBe(null);
+    });
+
+    it('applies an autofilled value to the visible input', async () => {
+      const onValueChange = vi.fn();
+      await render(<NumberField onValueChange={onValueChange} />);
+
+      fireEvent.change(getHiddenInput(), { target: { value: '7' } });
+
+      expect(screen.getByRole('textbox')).toHaveValue('7');
+      expect(onValueChange.mock.lastCall?.[0]).toBe(7);
+    });
+
+    it('validates the autofilled value even when the change is canceled', async () => {
+      const validate = vi.fn((_value: unknown) => null);
+
+      await render(
+        <Field.Root validate={validate} validationMode="onChange">
+          <NumberField onValueChange={(_value, details) => details.cancel()} />
+        </Field.Root>,
+      );
+
+      fireEvent.change(getHiddenInput(), { target: { value: '7' } });
+
+      expect(screen.getByRole('textbox')).toHaveValue('');
+      expect(validate.mock.lastCall?.[0]).toBe(7);
+    });
+  });
+
   describe('integration: exotic inputs and IME', () => {
     it('accepts Persian digit keyboard input', async () => {
       const onValueChange = vi.fn();
@@ -2296,6 +2495,38 @@ describe('<NumberField />', () => {
       await user.type(input, '۱۲۳');
 
       expect(onValueChange.mock.calls.at(-1)?.[0]).toBe(123);
+    });
+
+    it.each([
+      ['Persian', '۱۲۳', 123],
+      ['Arabic-Indic', '١٢٣', 123],
+      ['fullwidth', '１２３', 123],
+      ['Han', '一二三', 123],
+    ] as const)('pastes %s numerals through the input contract', async (_label, text, value) => {
+      const onValueChange = vi.fn();
+      await render(<NumberField defaultValue={0} onValueChange={onValueChange} />);
+      const input = screen.getByRole('textbox') as HTMLInputElement;
+
+      await act(async () => input.focus());
+      input.select();
+      pasteText(input, text);
+
+      expect(input).toHaveValue(text);
+      expect(onValueChange.mock.lastCall?.[0]).toBe(value);
+      expect(onValueChange.mock.lastCall?.[1].reason).toBe(REASONS.inputPaste);
+    });
+
+    it('rejects invalid pasted characters without changing the value contract', async () => {
+      const onValueChange = vi.fn();
+      await render(<NumberField defaultValue={12} onValueChange={onValueChange} />);
+      const input = screen.getByRole('textbox') as HTMLInputElement;
+
+      await act(async () => input.focus());
+      input.select();
+      pasteText(input, 'abc');
+
+      expect(input).toHaveValue('12');
+      expect(onValueChange).not.toHaveBeenCalled();
     });
 
     it('parses Persian digits and separators via change events', async () => {

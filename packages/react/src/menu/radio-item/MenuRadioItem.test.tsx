@@ -1,4 +1,4 @@
-import { expect, vi } from 'vitest';
+import { expect, vi, describe, it } from 'vitest';
 import * as React from 'react';
 import { fireEvent, act, waitFor, screen } from '@mui/internal-test-utils';
 import { Menu } from '@base-ui/react/menu';
@@ -32,6 +32,24 @@ describe('<Menu.RadioItem />', () => {
     },
     refInstanceof: window.HTMLDivElement,
   }));
+
+  it('throws when rendered outside Menu.RadioGroup', async () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    try {
+      await expect(
+        render(
+          <Menu.Root open>
+            <Menu.RadioItem value="one" />
+          </Menu.Root>,
+        ),
+      ).rejects.toThrow(
+        'Base UI: MenuRadioGroupContext is missing. MenuRadioGroup parts must be placed within <Menu.RadioGroup>.',
+      );
+    } finally {
+      errorSpy.mockRestore();
+    }
+  });
 
   it('perf: does not rerender menu items unnecessarily', async ({ skip }) => {
     if (isJSDOM) {

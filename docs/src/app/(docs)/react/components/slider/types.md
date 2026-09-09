@@ -595,7 +595,7 @@ type SliderRootChangeEventCustomProperties = {
 ### ThumbMetadata
 
 ```typescript
-type ThumbMetadata = { inputId: string | null | undefined };
+type ThumbMetadata = { inputId: string | undefined };
 ```
 
 ## External Types

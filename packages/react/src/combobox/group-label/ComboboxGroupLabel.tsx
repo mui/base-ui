@@ -25,13 +25,13 @@ export const ComboboxGroupLabel = React.forwardRef(function ComboboxGroupLabel(
   useIsoLayoutEffect(() => {
     setLabelId(id);
     return () => {
-      setLabelId(undefined);
+      setLabelId((currentId) => (currentId === id ? undefined : currentId));
     };
   }, [id, setLabelId]);
 
   const element = useRenderElement('div', componentProps, {
     ref: forwardedRef,
-    props: [{ id }, elementProps],
+    props: [{ id, 'aria-hidden': true }, elementProps],
   });
 
   return element;

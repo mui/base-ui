@@ -78,8 +78,7 @@ export function getGridNavigatedIndex(
     orientation: 'horizontal' | 'vertical' | 'both';
     loopFocus: boolean;
     onLoop?:
-      | ((event: React.KeyboardEvent, prevIndex: number, nextIndex: number) => number)
-      | undefined;
+      ((event: React.KeyboardEvent, prevIndex: number, nextIndex: number) => number) | undefined;
     rtl: boolean;
     cols: number;
     disabledIndices: DisabledIndices | undefined;
@@ -489,6 +488,13 @@ export function isListIndexDisabled(
   }
 
   if (!isElementVisible(element)) {
+    return true;
+  }
+
+  // A natively disabled element can never receive focus, so it must always be
+  // skipped, even when `disabledIndices` marks it as enabled. Only
+  // `aria-disabled` items can be focusable-while-disabled.
+  if (element.matches(':disabled')) {
     return true;
   }
 

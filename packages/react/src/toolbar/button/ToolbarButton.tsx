@@ -23,14 +23,14 @@ export const ToolbarButton = React.forwardRef(function ToolbarButton(
     disabled: disabledProp = false,
     focusableWhenDisabled = true,
     render,
-    nativeButton = true,
+    nativeButton,
     style,
     ...elementProps
   } = componentProps;
 
   const { disabled: toolbarDisabled, orientation } = useToolbarRootContext();
 
-  const groupContext = useToolbarGroupContext(true);
+  const groupContext = useToolbarGroupContext();
 
   const disabled = toolbarDisabled || (groupContext?.disabled ?? false) || disabledProp;
 

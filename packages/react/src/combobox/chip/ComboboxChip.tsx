@@ -1,7 +1,6 @@
 'use client';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { useStore } from '@base-ui/utils/store';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { BaseUIComponentProps } from '../../internals/types';
 import { useComboboxChipsContext } from '../chips/ComboboxChipsContext';
@@ -9,10 +8,10 @@ import { useComboboxRootContext } from '../root/ComboboxRootContext';
 import { useCompositeListItem } from '../../internals/composite/list/useCompositeListItem';
 import { ComboboxChipContext } from './ComboboxChipContext';
 import { stopEvent } from '../../floating-ui-react/utils';
-import { selectors } from '../store';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import { useDirection } from '../../internals/direction-context/DirectionContext';
+import { getChipNavigationKeys, getIndexAfterChipRemoval } from '../utils/parts';
 
 /**
  * An individual chip that represents a value in a multiselectable input.
@@ -30,17 +29,15 @@ export const ComboboxChip = React.forwardRef(function ComboboxChip(
   const { setHighlightedChipIndex, chipsRef } = useComboboxChipsContext()!;
   const direction = useDirection();
 
-  const disabled = useStore(store, selectors.disabled);
-  const readOnly = useStore(store, selectors.readOnly);
-  const selectedValue = useStore(store, selectors.selectedValue);
+  const disabled = store.useState('disabled');
+  const readOnly = store.useState('readOnly');
+  const selectedValue = store.useState('selectedValue');
 
   const { ref, index } = useCompositeListItem();
 
   function handleKeyDown(event: React.KeyboardEvent<HTMLDivElement>) {
     let nextIndex: number | undefined = index;
-    const isRtl = direction === 'rtl';
-    const previousChipKey = isRtl ? 'ArrowRight' : 'ArrowLeft';
-    const nextChipKey = isRtl ? 'ArrowLeft' : 'ArrowRight';
+    const [previousChipKey, nextChipKey] = getChipNavigationKeys(direction);
 
     if (event.key === previousChipKey) {
       event.preventDefault();
@@ -57,14 +54,16 @@ export const ComboboxChip = React.forwardRef(function ComboboxChip(
         nextIndex = undefined;
       }
     } else if (event.key === 'Backspace' || event.key === 'Delete') {
-      const computedNextIndex =
-        index >= selectedValue.length - 1 ? selectedValue.length - 2 : index;
-      nextIndex = computedNextIndex >= 0 ? computedNextIndex : undefined;
+      nextIndex = getIndexAfterChipRemoval(index, selectedValue.length);
 
       stopEvent(event);
 
-      store.state.setIndices({ activeIndex: null, selectedIndex: null, type: 'keyboard' });
-      store.state.setSelectedValue(
+      store.context.setIndices({
+        activeIndex: null,
+        selectedIndex: null,
+        type: REASONS.keyboard,
+      });
+      store.context.setSelectedValue(
         selectedValue.filter((_: any, i: number) => i !== index),
         createChangeEventDetails(REASONS.none, event.nativeEvent),
       );
@@ -73,7 +72,7 @@ export const ComboboxChip = React.forwardRef(function ComboboxChip(
       nextIndex = undefined;
     } else if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
       stopEvent(event);
-      store.state.setOpen(
+      store.context.setOpen(
         true,
         createChangeEventDetails(REASONS.listNavigation, event.nativeEvent),
       );
@@ -115,7 +114,7 @@ export const ComboboxChip = React.forwardRef(function ComboboxChip(
           });
 
           if (nextIndex === undefined) {
-            store.state.inputRef.current?.focus();
+            store.context.inputRef.current?.focus();
           } else {
             chipsRef.current[nextIndex]?.focus();
           }

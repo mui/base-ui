@@ -43,7 +43,7 @@ export const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvid
         if (action === 'promise' && options.promise) {
           store.promiseToast(options.promise, options);
         } else if (action === 'update' && id) {
-          store.updateToast(id, options);
+          store.updateToast(id, options.updates);
         } else if (action === 'close') {
           store.closeToast(id);
         } else {
@@ -56,14 +56,29 @@ export const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvid
     [store, toastManager],
   );
 
+  return (
+    <ToastContext.Provider value={store}>
+      <ToastProviderPropsSynchronizer store={store} timeout={timeout} limit={limit} />
+      {children}
+    </ToastContext.Provider>
+  );
+};
+
+function ToastProviderPropsSynchronizer(props: {
+  store: ToastStore;
+  timeout: number;
+  limit: number;
+}) {
+  const { store, timeout, limit } = props;
+
   // `limit` needs custom syncing because changing it must also recompute each
   // toast's `limited` flag; `useSyncedValues` would only update the raw value.
   useIsoLayoutEffect(() => {
-    store.syncProviderProps({ timeout, limit });
+    store.syncProviderProps(timeout, limit);
   }, [store, timeout, limit]);
 
-  return <ToastContext.Provider value={store}>{children}</ToastContext.Provider>;
-};
+  return null;
+}
 
 export interface ToastProviderState {}
 

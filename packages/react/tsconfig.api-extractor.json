@@ -1,0 +1,13 @@
+{
+  "extends": "./tsconfig.build.json",
+  "compilerOptions": {
+    "rootDir": ".",
+    "paths": {
+      "@base-ui/react": ["./build/index.d.ts"],
+      "@base-ui/react/*": ["./build/*"],
+      "@base-ui/utils/*": ["../utils/build/*"]
+    }
+  },
+  "files": ["src/global.d.ts", "build/index.d.ts"],
+  "include": []
+}

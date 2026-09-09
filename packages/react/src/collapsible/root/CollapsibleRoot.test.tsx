@@ -1,4 +1,4 @@
-import { expect, vi } from 'vitest';
+import { expect, vi, describe, it } from 'vitest';
 import * as React from 'react';
 import { screen } from '@mui/internal-test-utils';
 import { Collapsible } from '@base-ui/react/collapsible';
@@ -45,6 +45,28 @@ describe('<Collapsible.Root />', () => {
 
       expect(trigger).toHaveAttribute('aria-controls', 'custom-panel-id');
       expect(panel).toHaveAttribute('id', 'custom-panel-id');
+    });
+
+    it('unregisters and restores the generated panel id when the panel remounts', async () => {
+      function App({ panelMounted }: { panelMounted: boolean }) {
+        return (
+          <React.StrictMode>
+            <Collapsible.Root defaultOpen>
+              <Collapsible.Trigger />
+              {panelMounted && <Collapsible.Panel data-testid="panel" />}
+            </Collapsible.Root>
+          </React.StrictMode>
+        );
+      }
+
+      const { rerender } = await render(<App panelMounted />);
+      const trigger = screen.getByRole('button');
+
+      await rerender(<App panelMounted={false} />);
+      expect(trigger).not.toHaveAttribute('aria-controls');
+
+      await rerender(<App panelMounted />);
+      expect(trigger).toHaveAttribute('aria-controls', screen.getByTestId('panel').id);
     });
   });
 

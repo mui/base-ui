@@ -4,18 +4,7 @@ import { useMenuRootContext } from '../root/MenuRootContext';
 import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
 import { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
-import { StateAttributesMapping } from '../../internals/getStateAttributesProps';
-import { usePopupViewport } from '../../utils/usePopupViewport';
-import { MenuViewportCssVars } from './MenuViewportCssVars';
-
-const stateAttributesMapping: StateAttributesMapping<MenuViewportState> = {
-  activationDirection: (value) =>
-    value
-      ? {
-          'data-activation-direction': value,
-        }
-      : null,
-};
+import { popupViewportStateMapping, usePopupViewport } from '../../utils/usePopupViewport';
 
 /**
  * A viewport for displaying content transitions.
@@ -39,7 +28,6 @@ export const MenuViewport = React.forwardRef(function MenuViewport(
   const { children: childrenToRender, state: viewportState } = usePopupViewport({
     store,
     side,
-    cssVars: MenuViewportCssVars,
     children,
   });
 
@@ -53,7 +41,7 @@ export const MenuViewport = React.forwardRef(function MenuViewport(
     state,
     ref: forwardedRef,
     props: [elementProps, { children: childrenToRender }],
-    stateAttributesMapping,
+    stateAttributesMapping: popupViewportStateMapping,
   });
 });
 

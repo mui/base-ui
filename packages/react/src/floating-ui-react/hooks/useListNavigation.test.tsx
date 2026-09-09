@@ -177,6 +177,17 @@ function VirtualizedGridRows({
 }
 
 describe('useListNavigation', () => {
+  it('does not add role-dependent aria-orientation', async () => {
+    render(<App orientation="horizontal" />);
+
+    fireEvent.keyDown(screen.getByRole('button'), { key: 'ArrowRight' });
+    await waitFor(() => {
+      expect(screen.getByTestId('item-0')).toHaveFocus();
+    });
+
+    expect(screen.getByRole('menu')).not.toHaveAttribute('aria-orientation');
+  });
+
   it('opens on ArrowDown and focuses first item', async () => {
     render(<App />);
 
@@ -770,7 +781,7 @@ describe('useListNavigation', () => {
       const spy = vi.fn();
       render(<App onNavigate={spy} />);
       fireEvent.click(screen.getByRole('button'));
-      fireEvent.mouseMove(screen.getByTestId('item-1'));
+      fireEvent.mouseMove(screen.getByTestId('item-1'), { movementX: 10, movementY: 10 });
       expect(screen.getByTestId('item-1')).toHaveFocus();
       fireEvent.pointerLeave(screen.getByTestId('item-1'));
       expect(screen.getByRole('menu')).toHaveFocus();
@@ -783,7 +794,7 @@ describe('useListNavigation', () => {
       render(<App focusItemOnOpen={false} selectedIndex={1} onNavigate={(index) => spy(index)} />);
 
       fireEvent.click(screen.getByRole('button'));
-      fireEvent.mouseMove(screen.getByTestId('item-1'));
+      fireEvent.mouseMove(screen.getByTestId('item-1'), { movementX: 10, movementY: 10 });
 
       expect(screen.getByTestId('item-1')).toHaveFocus();
       expect(spy).toHaveBeenCalledWith(1);
@@ -794,7 +805,7 @@ describe('useListNavigation', () => {
       const spy = vi.fn();
       render(<App onNavigate={spy} focusItemOnOpen={false} focusItemOnHover={false} />);
       fireEvent.click(screen.getByRole('button'));
-      fireEvent.mouseMove(screen.getByTestId('item-1'));
+      fireEvent.mouseMove(screen.getByTestId('item-1'), { movementX: 10, movementY: 10 });
       expect(screen.getByTestId('item-1')).not.toHaveFocus();
       expect(spy).toHaveBeenCalledTimes(0);
       await flushMicrotasks();
@@ -840,7 +851,7 @@ describe('useListNavigation', () => {
         },
       });
 
-      fireEvent.mouseMove(item);
+      fireEvent.mouseMove(item, { movementX: 10, movementY: 10 });
 
       await waitFor(() => {
         expect(item).toHaveFocus();

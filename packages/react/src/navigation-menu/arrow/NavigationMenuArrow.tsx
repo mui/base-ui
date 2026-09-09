@@ -2,11 +2,11 @@
 import * as React from 'react';
 import { useNavigationMenuPositionerContext } from '../positioner/NavigationMenuPositionerContext';
 import { useNavigationMenuRootContext } from '../root/NavigationMenuRootContext';
-import type { Align, Side } from '../../utils/useAnchorPositioning';
+import type { Align, Side } from '../../internals/useAnchorPositioning';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { popupStateMapping } from '../../utils/popupStateMapping';
 import { useRenderElement } from '../../internals/useRenderElement';
-import { getDisabledMountTransitionStyles } from '../../utils/getDisabledMountTransitionStyles';
+import { getDisabledMountTransitionStyles } from '../../internals/getDisabledMountTransitionStyles';
 
 /**
  * Displays an element pointing toward the navigation menu's current anchor.

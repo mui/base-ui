@@ -93,63 +93,7 @@
     }
   }
 
-  &[data-popup-open] {
-    background-color: oklch(97% 0 0deg);
-
-    @media (prefers-color-scheme: dark) {
-      background-color: oklch(26.9% 0 0deg);
-    }
-  }
-
-  &:focus-visible {
-    outline: 2px solid oklch(14.5% 0 0deg);
-    outline-offset: -1px;
-
-    @media (prefers-color-scheme: dark) {
-      outline-color: white;
-    }
-  }
-}
-
-.Trigger {
-  box-sizing: border-box;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.75rem;
-  height: 2.5rem;
-  padding-left: 0.875rem;
-  padding-right: 0.75rem;
-  margin: 0;
-  outline: 0;
-  border: 1px solid oklch(14.5% 0 0deg);
-  font-family: inherit;
-  font-size: 1rem;
-  line-height: 1.5rem;
-  color: oklch(14.5% 0 0deg);
-  cursor: default;
-  -webkit-user-select: none;
-  user-select: none;
-  min-width: 9rem;
-  background-color: white;
-
-  @media (prefers-color-scheme: dark) {
-    border: 1px solid white;
-    color: white;
-    background-color: oklch(14.5% 0 0deg);
-  }
-
-  @media (hover: hover) {
-    &:hover {
-      background-color: oklch(97% 0 0deg);
-
-      @media (prefers-color-scheme: dark) {
-        background-color: oklch(26.9% 0 0deg);
-      }
-    }
-  }
-
-  &[data-popup-open] {
+  &[data-pressed] {
     background-color: oklch(97% 0 0deg);
 
     @media (prefers-color-scheme: dark) {

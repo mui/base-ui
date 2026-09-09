@@ -7,10 +7,13 @@ import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import { useId } from '@base-ui/utils/useId';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { useOnFirstRender } from '@base-ui/utils/useOnFirstRender';
+import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { FOCUSABLE_ATTRIBUTE } from '../../floating-ui-react/utils/constants';
 import { useFloatingParentNodeId } from '../../floating-ui-react/components/FloatingTree';
-import { useSyncedFloatingRootContext } from '../../floating-ui-react/hooks/useSyncedFloatingRootContext';
+import {
+  useSyncedFloatingRootContext,
+  type SyncedFloatingRootContextStore,
+} from '../../floating-ui-react/hooks/useSyncedFloatingRootContext';
 import { useTransitionStatus } from '../../internals/useTransitionStatus';
 import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
 import type { HTMLProps } from '../../internals/types';
@@ -23,7 +26,6 @@ import {
   PopupStoreState,
   PopupStoreContext,
   popupStoreSelectors,
-  PopupStoreSelectors,
   PopupTriggerDataStore,
 } from './store';
 
@@ -45,28 +47,41 @@ export function createDefaultInitialFocus(popupRef: React.RefObject<HTMLElement 
 type PopupStoreWithOpen<
   State extends PopupStoreState<unknown>,
   SetOpenEventDetails extends BaseUIChangeEventDetails<string>,
-> = ReactStore<State, PopupStoreContext<never>, PopupStoreSelectors> & {
-  setOpen(open: boolean, eventDetails: SetOpenEventDetails): void;
-};
+> = PopupTriggerDataStore<State> &
+  Pick<SyncedFloatingRootContextStore<State>, 'useSyncedValue'> & {
+    setOpen(open: boolean, eventDetails: SetOpenEventDetails): void;
+  };
 
-export function usePopupStore<
+/**
+ * The subset of a popup handle that a Root needs to bind its store to. Both the real handle classes
+ * and any test double satisfy it.
+ */
+export interface PopupRootStoreHandle<Store> {
+  attachStore(store: Store): () => void;
+}
+
+/**
+ * Creates and owns a popup store on behalf of a Root part. The store is created exactly once, with
+ * controlled props and root state synced separately after creation. Sets up the synced floating
+ * root context and returns the store.
+ *
+ * @param createStore Factory that builds the store. Called exactly once, receiving the floating id
+ * and whether the popup is nested inside another floating element, both resolved on the first render.
+ * @param treatPopupAsFloatingElement Whether the popup element is passed to Floating UI as the
+ * floating element instead of the default positioner.
+ */
+export function usePopupRootStore<
   State extends PopupStoreState<unknown>,
   SetOpenEventDetails extends BaseUIChangeEventDetails<string>,
   Store extends PopupStoreWithOpen<State, SetOpenEventDetails>,
 >(
-  externalStore: Store | undefined,
   createStore: (floatingId: string | undefined, nested: boolean) => Store,
   treatPopupAsFloatingElement = false,
-) {
+): Store {
   const floatingId = useId();
   const nested = useFloatingParentNodeId() != null;
 
-  const internalStoreRef = React.useRef<Store | null>(null);
-  if (externalStore === undefined && internalStoreRef.current === null) {
-    internalStoreRef.current = createStore(floatingId, nested);
-  }
-
-  const store = externalStore ?? internalStoreRef.current!;
+  const store = useRefWithInit(() => createStore(floatingId, nested)).current;
 
   useSyncedFloatingRootContext({
     popupStore: store,
@@ -77,83 +92,142 @@ export function usePopupStore<
     onOpenChange: store.setOpen,
   });
 
-  return { store, internalStore: internalStoreRef.current };
+  return store;
 }
 
 /**
- * Returns a callback ref that registers/unregisters the trigger element in the store.
+ * Attaches a Root's store to a handle for this component's committed lifetime. Popup Roots render
+ * it before their interactions and user children so its layout effect runs before descendant layout
+ * effects. This lets descendants call the handle during the Root's initial commit without attaching
+ * during render, which would leak suspended or abandoned stores. Store subscribers are notified by
+ * `attachStore` in this ordinary layout phase, where React permits synchronous updates.
  *
+ * Popup Roots must render this component only when a handle is present so handle-less Roots avoid
+ * mounting an extra fiber and layout effect.
+ */
+export function PopupHandleAttachment<Store>({
+  handle,
+  store,
+}: {
+  handle: PopupRootStoreHandle<Store>;
+  store: Store;
+}) {
+  useIsoLayoutEffect(() => {
+    return handle.attachStore(store);
+  }, [handle, store]);
+
+  return null;
+}
+
+function syncTriggerCount(store: PopupTriggerDataStore<PopupStoreState<unknown>>) {
+  const triggerCount = store.context.triggerElements.size;
+  if (store.select('open') && store.state.triggerCount !== triggerCount) {
+    store.set('triggerCount', triggerCount);
+  }
+}
+
+/**
+ * Returns a stable callback ref that registers/unregisters the trigger element in the store.
+ *
+ * Stable so a downstream ref merger that retains the callback it was first given still reaches the
+ * trigger's current store. The registration is tracked as a `(store, id, element)` triple, so
+ * unregistering targets the store the element was actually registered in.
+ *
+ * Since the callback never changes, the caller must re-run it from a layout effect keyed on
+ * `[store, id]` to migrate an already-registered element. That effect is also what registers the
+ * element in the first place when `id` only resolves after the first commit (React 17's `useId`
+ * fallback), because the register call made while the id is still `undefined` does nothing.
+ *
+ * @param id Id of the trigger.
  * @param store The Store instance where the trigger should be registered.
  */
 export function useTriggerRegistration<State extends PopupStoreState<unknown>>(
   id: string | undefined,
   store: PopupTriggerDataStore<State>,
 ) {
-  // Keep track of the currently registered element to unregister it on unmount or id change.
-  const registeredElementIdRef = React.useRef<string | null>(null);
-  const registeredElementRef = React.useRef<Element | null>(null);
+  const registrationRef = React.useRef<{
+    store: PopupTriggerDataStore<State>;
+    id: string;
+    element: Element;
+  } | null>(null);
 
-  return React.useCallback(
-    (element: Element | null) => {
-      if (id === undefined) {
+  return useStableCallback((element: Element | null) => {
+    const registration = registrationRef.current;
+
+    if (registration !== null) {
+      if (
+        registration.element === element &&
+        registration.store === store &&
+        registration.id === id
+      ) {
+        // Already registered where it belongs, so the caller's migration effect is free on mount.
         return;
       }
 
-      let shouldSyncTriggerCount = false;
-
-      if (registeredElementIdRef.current !== null) {
-        const registeredId = registeredElementIdRef.current;
-        const registeredElement = registeredElementRef.current;
-        const currentElement = store.context.triggerElements.getById(registeredId);
-
-        if (registeredElement && currentElement === registeredElement) {
-          store.context.triggerElements.delete(registeredId);
-          shouldSyncTriggerCount = true;
-        }
-
-        registeredElementIdRef.current = null;
-        registeredElementRef.current = null;
+      registrationRef.current = null;
+      const registeredStore = registration.store;
+      if (
+        registeredStore.context.triggerElements.getById(registration.id) === registration.element
+      ) {
+        registeredStore.context.triggerElements.delete(registration.id);
+        syncTriggerCount(registeredStore);
       }
+    }
 
-      if (element !== null) {
-        registeredElementIdRef.current = id;
-        registeredElementRef.current = element;
-        store.context.triggerElements.add(id, element);
-        shouldSyncTriggerCount = true;
-      }
-
-      if (shouldSyncTriggerCount) {
-        const triggerCount = store.context.triggerElements.size;
-        if (store.select('open') && store.state.triggerCount !== triggerCount) {
-          store.set('triggerCount', triggerCount);
-        }
-      }
-    },
-    [store, id],
-  );
+    if (element !== null && id !== undefined) {
+      registrationRef.current = { store, id, element };
+      store.context.triggerElements.add(id, element);
+      syncTriggerCount(store);
+    }
+  });
 }
 
-export function setPopupOpenState(
-  state: Partial<PopupStoreState<unknown>>,
+type PopupOpenState = Pick<
+  PopupStoreState<unknown>,
+  | 'open'
+  | 'preventUnmountingOnClose'
+  | 'activeTriggerId'
+  | 'activeTriggerElement'
+  | 'openedWithoutTrigger'
+>;
+
+export function createPopupOpenState(
+  state: PopupOpenState,
   open: boolean,
   trigger: Element | undefined,
   preventUnmountOnClose = false,
-) {
+): PopupOpenState {
+  let preventUnmountingOnClose = state.preventUnmountingOnClose;
   if (open) {
     // Opening starts a new close cycle, so clear any previous request to keep the popup mounted.
-    state.preventUnmountingOnClose = false;
+    preventUnmountingOnClose = false;
   } else if (preventUnmountOnClose) {
-    state.preventUnmountingOnClose = true;
+    preventUnmountingOnClose = true;
   }
 
   const triggerId = trigger?.id ?? null;
+  let activeTriggerId = state.activeTriggerId;
+  let activeTriggerElement = state.activeTriggerElement;
 
   // If a popup is closing, the `trigger` may be undefined.
   // We want to keep the previous value so that exit animations are played and focus is returned correctly.
   if (triggerId || open) {
-    state.activeTriggerId = triggerId;
-    state.activeTriggerElement = trigger ?? null;
+    activeTriggerId = triggerId;
+    activeTriggerElement = trigger ?? null;
   }
+
+  return {
+    open,
+    preventUnmountingOnClose,
+    activeTriggerId,
+    activeTriggerElement,
+    // An open request without a trigger (a handle's `open(null)` or `openWithPayload()`) must not
+    // be reassociated with a lone registered trigger later on. Controlled and default opens never
+    // pass through here, so they keep claiming a lone trigger. A close request keeps the flag: a
+    // controlled root may decline it and stay open, so the Root clears the flag only once the
+    // popup is effectively closed.
+    openedWithoutTrigger: open ? trigger == null : state.openedWithoutTrigger,
+  };
 }
 
 export function attachPreventUnmountOnClose(eventDetails: { preventUnmountOnClose(): void }) {
@@ -179,17 +253,18 @@ export function applyPopupOpenChange<
     instantType?: 'delay' | 'dismiss' | 'focus' | undefined;
   },
   EventDetails extends BaseUIChangeEventDetails<string>,
+  ExtraKey extends keyof State = never,
 >(
   store: {
     readonly context: Pick<PopupStoreContext<EventDetails>, 'onOpenChange'>;
-    readonly state: Pick<PopupStoreState<unknown>, 'floatingRootContext'>;
-    update(state: Partial<State>): void;
+    readonly state: State;
+    update<const Key extends keyof State>(state: Pick<State, Key>): void;
   },
   nextOpen: boolean,
   eventDetails: EventDetails & { preventUnmountOnClose(): void },
   options: {
     onBeforeDispatch?: (() => void) | undefined;
-    extraState?: Partial<State> | undefined;
+    extraState?: Pick<State, ExtraKey> | undefined;
   } = {},
 ): void {
   const reason = eventDetails.reason;
@@ -211,11 +286,17 @@ export function applyPopupOpenChange<
   store.state.floatingRootContext.dispatchOpenChange(nextOpen, eventDetails);
 
   const changeState = () => {
-    // Spread `extraState` first so `open` always reflects `nextOpen`, keeping it in
-    // sync with the value already passed to `dispatchOpenChange`/`setPopupOpenState`.
-    const updatedState: Partial<PopupStoreState<unknown>> & {
-      instantType?: 'delay' | 'dismiss' | 'focus' | undefined;
-    } = { ...options.extraState, open: nextOpen };
+    const popupOpenState = createPopupOpenState(
+      store.state,
+      nextOpen,
+      eventDetails.trigger,
+      shouldPreventUnmountOnClose(),
+    );
+
+    const updatedState = { ...options.extraState, ...popupOpenState } as Pick<
+      State,
+      keyof PopupOpenState | ExtraKey | 'instantType'
+    >;
 
     if (isFocusOpen) {
       updatedState.instantType = 'focus';
@@ -225,8 +306,7 @@ export function applyPopupOpenChange<
       updatedState.instantType = undefined;
     }
 
-    setPopupOpenState(updatedState, nextOpen, eventDetails.trigger, shouldPreventUnmountOnClose());
-    store.update(updatedState as Partial<State>);
+    store.update(updatedState);
   };
 
   if (isHover) {
@@ -237,25 +317,6 @@ export function applyPopupOpenChange<
   }
 }
 
-export function useInitialOpenSync<State extends PopupStoreState<unknown>>(
-  store: ReactStore<State, PopupStoreContext<never>, PopupStoreSelectors>,
-  openProp: boolean | undefined,
-  defaultOpen: boolean,
-  defaultTriggerId: string | null,
-) {
-  useOnFirstRender(() => {
-    if (openProp === undefined && store.state.open === false && defaultOpen) {
-      // Avoid notifying detached trigger subscribers while the Root is rendering.
-      store.state = {
-        ...store.state,
-        open: true,
-        activeTriggerId: defaultTriggerId,
-        preventUnmountingOnClose: false,
-      };
-    }
-  });
-}
-
 /**
  * Sets up trigger data forwarding to the store.
  *
@@ -264,11 +325,14 @@ export function useInitialOpenSync<State extends PopupStoreState<unknown>>(
  * @param store The Store instance managing the popup state.
  * @param stateUpdates An object with state updates to apply when the trigger is active.
  */
-export function useTriggerDataForwarding<State extends PopupStoreState<unknown>>(
+export function useTriggerDataForwarding<
+  State extends PopupStoreState<unknown>,
+  const Key extends keyof Omit<State, 'activeTriggerId' | 'activeTriggerElement'>,
+>(
   triggerId: string | undefined,
   triggerElementRef: React.RefObject<Element | null>,
   store: PopupTriggerDataStore<State>,
-  stateUpdates: Omit<Partial<State>, 'activeTriggerId' | 'activeTriggerElement'>,
+  stateUpdates: Pick<State, Key>,
 ) {
   const isMountedByThisTrigger = store.useState('isMountedByTrigger', triggerId);
 
@@ -282,46 +346,51 @@ export function useTriggerDataForwarding<State extends PopupStoreState<unknown>>
     const activeTriggerId = store.select('activeTriggerId');
 
     if (activeTriggerId === triggerId) {
-      store.update({
+      const changes = {
         activeTriggerElement: element,
         ...(open ? stateUpdates : null),
-      } as Partial<State>);
+      } as Pick<Readonly<State>, Key | 'activeTriggerElement'>;
+      store.update(changes);
       return;
     }
 
-    if (activeTriggerId == null && open) {
+    if (activeTriggerId == null && open && !store.state.openedWithoutTrigger) {
       // If a popup is already open, a detached trigger can mount before any active trigger
       // has been established. Claim the first registered trigger so trigger-owned focus
-      // management and ARIA relationships work.
-      store.update({
-        activeTriggerId: triggerId,
+      // management and ARIA relationships work. A popup opened deliberately without a trigger
+      // stays unassociated so the trigger's `payload` does not replace the programmatic one.
+      const changes = {
+        activeTriggerId: triggerId ?? null,
         activeTriggerElement: element,
         ...stateUpdates,
-      } as Partial<State>);
+      } as Pick<Readonly<State>, Key | 'activeTriggerId' | 'activeTriggerElement'>;
+      store.update(changes);
     }
   });
 
-  // Intentionally NOT stable. Its identity is derived from `baseRegisterTrigger`, which is keyed on
-  // `[store, id]`, so when a handle-backed trigger's store pointer swaps the merged ref re-fires —
-  // unregistering from the previous store and registering into the new one. This lets a detached
-  // trigger follow its handle's currently-attached store across attach/detach/remount. (A stable
-  // callback would keep its identity and never re-fire on a store swap.)
-  const registerTrigger = React.useCallback(
-    (element: Element | null) => {
-      baseRegisterTrigger(element);
-      if (element) {
-        applyTriggerData(element);
-      }
-    },
-    [baseRegisterTrigger, applyTriggerData],
-  );
+  // Stable, so the merged ref on the rendered element keeps its identity for the trigger's whole
+  // lifetime.
+  const registerTrigger = useStableCallback((element: Element | null) => {
+    baseRegisterTrigger(element);
+    if (element) {
+      applyTriggerData(element);
+    }
+  });
+
+  // A stable ref does not re-fire on a store or id change, so migrate here instead: unregister from
+  // the previous store, then register the element the trigger still renders into the current one.
+  useIsoLayoutEffect(() => {
+    registerTrigger(triggerElementRef.current);
+    return () => registerTrigger(null);
+  }, [registerTrigger, triggerElementRef, store, triggerId]);
 
   useIsoLayoutEffect(() => {
     if (isMountedByThisTrigger) {
-      store.update({
+      const changes = {
         activeTriggerElement: triggerElementRef.current,
         ...stateUpdates,
-      } as Partial<State>);
+      } as Pick<Readonly<State>, Key | 'activeTriggerElement'>;
+      store.update(changes);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isMountedByThisTrigger, store, triggerElementRef, ...Object.values(stateUpdates)]);
@@ -337,7 +406,8 @@ export type PayloadChildRenderFunction<Payload> = (arg: {
  * Keeps trigger registration state synchronized while the popup is open.
  *
  * When a popup opens without an explicit trigger id and exactly one trigger is registered, that
- * trigger is claimed as the active trigger. When the active trigger id is still registered but its
+ * trigger is claimed as the active trigger, unless the open request deliberately carried no trigger
+ * (`openedWithoutTrigger`). When the active trigger id is still registered but its
  * element changed, the active element is refreshed. When the active trigger id is missing from the
  * registry but the same element is still registered under a different id (e.g. the rendered trigger
  * carries its own DOM `id` that differs from Base UI's internal trigger id), the active id is
@@ -345,8 +415,10 @@ export type PayloadChildRenderFunction<Payload> = (arg: {
  * unregisters, the default path preserves existing ownership so non-closing popup families do not
  * silently claim a different trigger while staying open.
  *
- * If `closeOnActiveTriggerUnmount` is enabled, unregistering the active trigger requests a close
- * after a microtask so a same-tick replacement trigger with the same id can register first.
+ * If `closeOnActiveTriggerUnmount` is enabled, unregistering a previously resolved active trigger
+ * requests a close after a microtask so a same-tick replacement trigger with the same id can
+ * register first. An active trigger id that has not matched a registered trigger yet is treated as
+ * pending and does not request a close.
  *
  * This should be called on the Root part.
  *
@@ -360,22 +432,40 @@ export function useImplicitActiveTrigger<State extends PopupStoreState<unknown>>
   } = {},
 ) {
   const { closeOnActiveTriggerUnmount = false } = options;
+  // Distinguishes a trigger that unmounted from a new active trigger that has not hydrated yet.
+  const resolvedActiveTriggerIdRef = React.useRef<string | null>(null);
   const open = store.useState('open');
   const reactiveTriggerCount = store.useState('triggerCount');
   // Subscribe to the active trigger id so the reconciliation below reruns when ownership moves to
   // another trigger while the popup stays open (e.g. a focus/hover handoff between triggers).
   const activeTriggerId = store.useState('activeTriggerId');
+  // Subscribe to the active trigger element so the reconciliation reruns when a pending active
+  // trigger registers in a commit where the trigger count nets out unchanged (registration
+  // forwards the element to the store when the registering trigger matches the active id).
+  // Without this, the id would never be marked resolved and a later genuine unmount would be
+  // misclassified as pending, disabling `closeOnActiveTriggerUnmount`.
+  const reactiveActiveTriggerElement = store.useState('activeTriggerElement');
 
   useIsoLayoutEffect(() => {
     if (!open) {
+      resolvedActiveTriggerIdRef.current = null;
       if (store.state.triggerCount !== 0) {
         store.set('triggerCount', 0);
+      }
+      // The flag is cleared only here, once the popup is effectively closed: a controlled root may
+      // decline a close request and stay open, and a controlled close never reaches
+      // `createPopupOpenState` at all.
+      if (store.state.openedWithoutTrigger) {
+        store.set('openedWithoutTrigger', false);
       }
       return;
     }
 
     const triggerCount = store.context.triggerElements.size;
-    const stateUpdates: Partial<PopupStoreState<unknown>> = {};
+    const stateUpdates = {} as Pick<
+      State,
+      'triggerCount' | 'activeTriggerId' | 'activeTriggerElement'
+    >;
 
     if (store.state.triggerCount !== triggerCount) {
       stateUpdates.triggerCount = triggerCount;
@@ -391,24 +481,40 @@ export function useImplicitActiveTrigger<State extends PopupStoreState<unknown>>
           if (triggerElement === store.state.activeTriggerElement) {
             stateUpdates.activeTriggerId = triggerId;
             stateUpdates.activeTriggerElement = triggerElement;
+            resolvedActiveTriggerIdRef.current = triggerId;
             break;
           }
         }
 
         if (stateUpdates.activeTriggerId === undefined) {
-          lostActiveTriggerId = currentActiveTriggerId;
+          if (resolvedActiveTriggerIdRef.current === currentActiveTriggerId) {
+            lostActiveTriggerId = currentActiveTriggerId;
+          } else {
+            resolvedActiveTriggerIdRef.current = null;
+          }
         }
-      } else if (activeTriggerElement !== store.state.activeTriggerElement) {
-        stateUpdates.activeTriggerElement = activeTriggerElement;
+      } else {
+        resolvedActiveTriggerIdRef.current = currentActiveTriggerId;
+        if (activeTriggerElement !== store.state.activeTriggerElement) {
+          stateUpdates.activeTriggerElement = activeTriggerElement;
+        }
       }
+    } else {
+      resolvedActiveTriggerIdRef.current = null;
     }
 
-    if (!lostActiveTriggerId && !currentActiveTriggerId && triggerCount === 1) {
+    if (
+      !lostActiveTriggerId &&
+      !currentActiveTriggerId &&
+      !store.state.openedWithoutTrigger &&
+      triggerCount === 1
+    ) {
       const iteratorResult = store.context.triggerElements.entries().next();
       if (!iteratorResult.done) {
         const [implicitTriggerId, implicitTriggerElement] = iteratorResult.value;
         stateUpdates.activeTriggerId = implicitTriggerId;
         stateUpdates.activeTriggerElement = implicitTriggerElement;
+        resolvedActiveTriggerIdRef.current = implicitTriggerId;
       }
     }
 
@@ -417,7 +523,7 @@ export function useImplicitActiveTrigger<State extends PopupStoreState<unknown>>
       stateUpdates.activeTriggerId !== undefined ||
       stateUpdates.activeTriggerElement !== undefined
     ) {
-      store.update(stateUpdates as Partial<State>);
+      store.update(stateUpdates);
     }
 
     if (lostActiveTriggerId) {
@@ -437,13 +543,20 @@ export function useImplicitActiveTrigger<State extends PopupStoreState<unknown>>
               store.update({
                 activeTriggerId: null,
                 activeTriggerElement: null,
-              } as Partial<State>);
+              });
             }
           }
         });
       }
     }
-  }, [open, store, reactiveTriggerCount, activeTriggerId, closeOnActiveTriggerUnmount]);
+  }, [
+    open,
+    store,
+    reactiveTriggerCount,
+    activeTriggerId,
+    reactiveActiveTriggerElement,
+    closeOnActiveTriggerUnmount,
+  ]);
 }
 
 /**
@@ -454,6 +567,10 @@ export function useImplicitActiveTrigger<State extends PopupStoreState<unknown>>
  * @param open Whether the popup is open.
  * @param store The Store instance managing the popup state.
  * @param onUnmount Optional callback to be called when the popup is unmounted.
+ * @param animateInitialOpen Whether a popup that mounts already open should still play its enter
+ *   transition. Defaults to `false`, so content that was open on the first render (a `defaultOpen`
+ *   popup on page load, SSR'd markup) appears without animating. Opt in for popups whose subtree
+ *   only mounts in response to something the user did, such as a submenu inside a menu popup.
  *
  * @returns A function to forcibly unmount the popup.
  */
@@ -461,8 +578,14 @@ export function useOpenStateTransitions<State extends PopupStoreState<unknown>>(
   open: boolean,
   store: ReactStore<State, PopupStoreContext<never>, typeof popupStoreSelectors>,
   onUnmount?: () => void,
+  animateInitialOpen?: boolean,
 ) {
-  const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
+  const { mounted, setMounted, transitionStatus } = useTransitionStatus(
+    open,
+    false,
+    false,
+    animateInitialOpen,
+  );
   const preventUnmountingOnClose = store.useState('preventUnmountingOnClose');
   // Opening starts a new close cycle. Clear during render so the close-completion hook below
   // reads the synchronized value on the same pass.
@@ -472,7 +595,7 @@ export function useOpenStateTransitions<State extends PopupStoreState<unknown>>(
     mounted,
     transitionStatus,
     preventUnmountingOnClose: syncedPreventUnmountingOnClose,
-  } as Partial<State>);
+  });
 
   const forceUnmount = useStableCallback(() => {
     setMounted(false);
@@ -481,7 +604,7 @@ export function useOpenStateTransitions<State extends PopupStoreState<unknown>>(
       activeTriggerElement: null,
       mounted: false,
       preventUnmountingOnClose: false,
-    } as Partial<State>);
+    });
     onUnmount?.();
     store.context.onOpenChangeComplete?.(false);
   });
@@ -500,10 +623,14 @@ export function useOpenStateTransitions<State extends PopupStoreState<unknown>>(
   return { forceUnmount, transitionStatus };
 }
 
-export function usePopupInteractionProps<State extends PopupStoreState<unknown>>(
+type PopupInteractionPropKey = 'activeTriggerProps' | 'inactiveTriggerProps' | 'popupProps';
+
+export function usePopupInteractionProps<
+  State extends PopupStoreState<unknown>,
+  const Key extends keyof State,
+>(
   store: ReactStore<State, PopupStoreContext<never>, typeof popupStoreSelectors>,
-  statePart: Partial<State> &
-    Pick<State, 'activeTriggerProps' | 'inactiveTriggerProps' | 'popupProps'>,
+  statePart: Pick<State, Key | PopupInteractionPropKey>,
 ) {
   store.useSyncedValues(statePart);
 
@@ -513,7 +640,7 @@ export function usePopupInteractionProps<State extends PopupStoreState<unknown>>
         activeTriggerProps: EMPTY_OBJECT,
         inactiveTriggerProps: EMPTY_OBJECT,
         popupProps: EMPTY_OBJECT,
-      } as Partial<State>);
+      });
     },
     [store],
   );

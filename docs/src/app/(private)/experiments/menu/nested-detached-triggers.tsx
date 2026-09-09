@@ -64,7 +64,7 @@ export default function Experiment() {
     <div className={styles.Page}>
       <h1>Nested menus with detached triggers</h1>
       <p>This experiment shows the same Menu instance used across different components.</p>
-      <StoreInspector store={menu1Handle.store} />
+      <StoreInspector handle={menu1Handle} />
 
       <h2>In Menubar</h2>
       <div>

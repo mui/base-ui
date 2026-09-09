@@ -25,7 +25,7 @@ export const MenuGroupLabel = React.forwardRef(function MenuGroupLabel(
   useIsoLayoutEffect(() => {
     setLabelId(id);
     return () => {
-      setLabelId(undefined);
+      setLabelId((currentId) => (currentId === id ? undefined : currentId));
     };
   }, [setLabelId, id]);
 
@@ -33,7 +33,7 @@ export const MenuGroupLabel = React.forwardRef(function MenuGroupLabel(
     ref: forwardedRef,
     props: {
       id,
-      role: 'presentation',
+      'aria-hidden': true,
       ...elementProps,
     },
   });

@@ -2,24 +2,18 @@
 import * as React from 'react';
 import { DialogStore } from '../store/DialogStore';
 
-export interface DialogRootContext<Payload = unknown> {
-  store: DialogStore<Payload>;
-}
+export const DialogRootContext = React.createContext<DialogStore<unknown> | undefined>(undefined);
 
-export const IsDrawerContext = React.createContext(false);
-
-export const DialogRootContext = React.createContext<DialogRootContext | undefined>(undefined);
-
-export function useDialogRootContext(optional?: false): DialogRootContext;
-export function useDialogRootContext(optional: true): DialogRootContext | undefined;
+export function useDialogRootContext(optional?: false): DialogStore<unknown>;
+export function useDialogRootContext(optional: true): DialogStore<unknown> | undefined;
 export function useDialogRootContext(optional?: boolean) {
-  const dialogRootContext = React.useContext(DialogRootContext);
+  const store = React.useContext(DialogRootContext);
 
-  if (optional === false && dialogRootContext === undefined) {
+  if (!optional && store === undefined) {
     throw new Error(
       'Base UI: DialogRootContext is missing. Dialog parts must be placed within <Dialog.Root>.',
     );
   }
 
-  return dialogRootContext;
+  return store;
 }

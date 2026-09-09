@@ -19,19 +19,11 @@ export const END = 'End';
 export const PAGE_UP = 'PageUp';
 export const PAGE_DOWN = 'PageDown';
 
-export const HORIZONTAL_KEYS = new Set([ARROW_LEFT, ARROW_RIGHT]);
-export const HORIZONTAL_KEYS_WITH_EXTRA_KEYS = new Set([ARROW_LEFT, ARROW_RIGHT, HOME, END]);
-export const VERTICAL_KEYS = new Set([ARROW_UP, ARROW_DOWN]);
-export const VERTICAL_KEYS_WITH_EXTRA_KEYS = new Set([ARROW_UP, ARROW_DOWN, HOME, END]);
-export const ARROW_KEYS = new Set([...HORIZONTAL_KEYS, ...VERTICAL_KEYS]);
-export const COMPOSITE_KEYS = new Set([...ARROW_KEYS, HOME, END]);
+export const COMPOSITE_KEYS = new Set([ARROW_UP, ARROW_DOWN, ARROW_LEFT, ARROW_RIGHT, HOME, END]);
 
 export const SHIFT = 'Shift' as const;
-export const CONTROL = 'Control' as const;
-export const ALT = 'Alt' as const;
-export const META = 'Meta' as const;
-export const MODIFIER_KEYS = new Set([SHIFT, CONTROL, ALT, META] as const);
-export type ModifierKey = typeof MODIFIER_KEYS extends Set<infer Keys> ? Keys : never;
+export const MODIFIER_KEYS = [SHIFT, 'Control', 'Alt', 'Meta'] as const;
+export type ModifierKey = (typeof MODIFIER_KEYS)[number];
 
 function isInputElement(element: EventTarget): element is HTMLInputElement {
   return isHTMLElement(element) && element.tagName === 'INPUT';
@@ -96,7 +88,7 @@ export function scrollIntoViewIfNeeded(
 
     if (direction === 'rtl') {
       if (
-        elementOffsetLeft - elementStyles.scrollMarginRight <
+        elementOffsetLeft - elementStyles.scrollMarginLeft <
         scrollContainer.scrollLeft + containerStyles.scrollPaddingLeft
       ) {
         // overflow to the left, scroll to align left edges

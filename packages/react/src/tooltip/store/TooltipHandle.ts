@@ -1,59 +1,48 @@
-import { TooltipStore } from './TooltipStore';
-import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
-import { REASONS } from '../../internals/reasons';
+import { TooltipStore, createNullTooltipStore, type TooltipHandleStore } from './TooltipStore';
+import { BasePopupHandle } from '../../utils/popups/popupHandle';
 
 /**
- * A handle to control a tooltip imperatively and to associate detached triggers with it.
+ * Controls a Tooltip imperatively and associates detached `Tooltip.Trigger` components with a
+ * `Tooltip.Root`. Create one with `Tooltip.createHandle()` and pass it to the `handle` prop of the
+ * root and of any triggers rendered outside of it.
+ *
+ * The imperative methods take effect only while a root using this handle is mounted; calls made
+ * before a root attaches (or after it unmounts) are ignored.
  */
-export class TooltipHandle<Payload> {
-  /**
-   * Internal store holding the tooltip state.
-   * @internal
-   */
-  public readonly store: TooltipStore<Payload>;
-
+export class TooltipHandle<Payload> extends BasePopupHandle<
+  TooltipHandleStore<Payload>,
+  TooltipStore<Payload>
+> {
   constructor() {
-    this.store = new TooltipStore<Payload>();
+    super(createNullTooltipStore<Payload>(), 'Tooltip');
   }
 
   /**
-   * Opens the tooltip and associates it with the trigger with the given ID.
-   * The trigger must be a Tooltip.Trigger component with this handle passed as a prop.
+   * Opens the tooltip and associates it with the trigger with the given id.
    *
    * This method should only be called in an event handler or an effect (not during rendering).
    *
-   * @param triggerId ID of the trigger to associate with the tooltip.
+   * @param triggerId ID of the trigger to associate with the tooltip. The trigger must be a matching
+   * `Tooltip.Trigger` with this handle passed as a prop.
    */
   open(triggerId: string) {
-    const triggerElement = triggerId
-      ? (this.store.context.triggerElements.getById(triggerId) as HTMLElement | undefined)
-      : undefined;
-
-    if (triggerId && !triggerElement) {
-      throw new Error(`Base UI: TooltipHandle.open: No trigger found with id "${triggerId}".`);
-    }
-
-    this.store.setOpen(
-      true,
-      createChangeEventDetails(REASONS.imperativeAction, undefined, triggerElement),
-    );
+    this.openByTrigger(triggerId);
   }
 
   /**
    * Closes the tooltip.
+   *
+   * This method should only be called in an event handler or an effect (not during rendering).
    */
   close() {
-    this.store.setOpen(
-      false,
-      createChangeEventDetails(REASONS.imperativeAction, undefined, undefined),
-    );
+    this.closePopup();
   }
 
   /**
-   * Indicates whether the tooltip is currently open.
+   * Whether the tooltip is currently open. Returns `false` while no root is attached to the handle.
    */
   get isOpen() {
-    return this.store.select('open');
+    return this.attachedStore?.select('open') ?? false;
   }
 }
 

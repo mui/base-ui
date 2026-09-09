@@ -1,4 +1,4 @@
-import { expect } from 'vitest';
+import { expect, vi, describe, beforeEach, it, afterEach } from 'vitest';
 import * as React from 'react';
 import { Checkbox } from '@base-ui/react/checkbox';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
@@ -33,6 +33,18 @@ describe('<Checkbox.Indicator />', () => {
       );
     },
   }));
+
+  it('throws a descriptive error when rendered outside <Checkbox.Root>', async () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    try {
+      await expect(render(<Checkbox.Indicator />)).rejects.toThrow(
+        'Base UI: CheckboxRootContext is missing. Checkbox parts must be placed within <Checkbox.Root>.',
+      );
+    } finally {
+      errorSpy.mockRestore();
+    }
+  });
 
   it('should not render indicator by default', async () => {
     await render(
@@ -190,8 +202,16 @@ describe('<Checkbox.Indicator />', () => {
       globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
 
       let transitionFinished = false;
+      const getAnimations = vi.fn((): Animation[] => []);
+
       function notifyTransitionFinished() {
         transitionFinished = true;
+      }
+
+      function handleIndicatorRef(element: HTMLSpanElement | null) {
+        if (element) {
+          element.getAnimations = getAnimations;
+        }
       }
 
       const style = `
@@ -222,6 +242,7 @@ describe('<Checkbox.Indicator />', () => {
                 className="animation-test-indicator"
                 data-testid="indicator"
                 onTransitionEnd={notifyTransitionFinished}
+                ref={handleIndicatorRef}
               />
             </Checkbox.Root>
           </div>
@@ -238,6 +259,7 @@ describe('<Checkbox.Indicator />', () => {
       });
 
       expect(screen.getByTestId('indicator')).not.toBe(null);
+      expect(getAnimations).not.toHaveBeenCalled();
     });
 
     it('applies data-ending-style before unmount', async () => {
@@ -288,6 +310,72 @@ describe('<Checkbox.Indicator />', () => {
       await waitFor(() => {
         expect(screen.queryByTestId('indicator')).toBe(null);
       });
+    });
+
+    it('removes all indicators in a single commit when multiple checkboxes are unchecked', async () => {
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+      const style = `
+        @keyframes test-anim {
+          to {
+            opacity: 0;
+          }
+        }
+
+        .animation-test-indicator[data-ending-style] {
+          animation: test-anim 1ms;
+        }
+      `;
+
+      const indicatorCounts: number[] = [];
+
+      function Test() {
+        const [checked, setChecked] = React.useState(true);
+
+        function handleUncheck() {
+          setChecked(false);
+        }
+
+        return (
+          <div>
+            {/* eslint-disable-next-line react/no-danger */}
+            <style dangerouslySetInnerHTML={{ __html: style }} />
+            <button onClick={handleUncheck}>Uncheck</button>
+            <React.Profiler
+              id="checkboxes"
+              onRender={() => {
+                indicatorCounts.push(
+                  document.querySelectorAll('[data-testid^="indicator-"]').length,
+                );
+              }}
+            >
+              {Array.from({ length: 10 }, (_, index) => (
+                <Checkbox.Root checked={checked} key={index}>
+                  <Checkbox.Indicator
+                    className="animation-test-indicator"
+                    data-testid={`indicator-${index}`}
+                  />
+                </Checkbox.Root>
+              ))}
+            </React.Profiler>
+          </div>
+        );
+      }
+
+      const { user } = await render(<Test />);
+
+      const commitsBeforeUncheck = indicatorCounts.length;
+
+      await user.click(screen.getByText('Uncheck'));
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('indicator-0')).toBe(null);
+      });
+      expect(screen.queryByTestId('indicator-9')).toBe(null);
+
+      const countsAfterUncheck = indicatorCounts.slice(commitsBeforeUncheck);
+      expect(countsAfterUncheck).toContain(0);
+      expect(countsAfterUncheck.every((count) => count === 0 || count === 10)).toBe(true);
     });
   });
 });

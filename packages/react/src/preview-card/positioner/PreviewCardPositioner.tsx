@@ -9,11 +9,10 @@ import {
   type Align,
   useAnchorPositioning,
   type UseAnchorPositioningSharedParameters,
-} from '../../utils/useAnchorPositioning';
+} from '../../internals/useAnchorPositioning';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { usePreviewCardPortalContext } from '../portal/PreviewCardPortalContext';
 import { POPUP_COLLISION_AVOIDANCE } from '../../internals/constants';
-import { adaptiveOrigin } from '../../utils/adaptiveOriginMiddleware';
 import { usePositioner } from '../../utils/usePositioner';
 import { createInlineMiddleware } from '../../utils/popups';
 
@@ -55,7 +54,7 @@ export const PreviewCardPositioner = React.forwardRef(function PreviewCardPositi
   const floatingRootContext = store.useState('floatingRootContext');
   const instantType = store.useState('instantType');
   const transitionStatus = store.useState('transitionStatus');
-  const hasViewport = store.useState('hasViewport');
+  const adaptiveOrigin = store.useState('adaptiveOrigin');
   const inlineRectCoordsRef = store.context.inlineRectCoordsRef;
 
   const positioning = useAnchorPositioning({
@@ -75,7 +74,7 @@ export const PreviewCardPositioner = React.forwardRef(function PreviewCardPositi
     keepMounted,
     nodeId,
     collisionAvoidance,
-    adaptiveOrigin: hasViewport ? adaptiveOrigin : undefined,
+    adaptiveOrigin,
     inline: createInlineMiddleware(inlineRectCoordsRef),
   });
   const updatePosition = positioning.update;

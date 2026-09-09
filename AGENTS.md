@@ -10,6 +10,12 @@ This repository contains the source code and documentation for Base UI: a headl
 - Public documentation is located at `docs/src/app/(docs)/react/`. Alter the docs where necessary when changes must be visible to library users.
 - When creating public demos on the docs, refer to the `hero` demo for the given component and largely follow its styles (both CSS Modules and Tailwind CSS versions). Other demos may also contain relevant styling. Do not add custom styling beyond the critical layout styles necessary for new demos.
 
+## Agent skills
+
+- The shared `/base-ui-review` skill lives in `.agents/skills/base-ui-review/SKILL.md`. Update that file when the Base UI review workflow changes.
+- Claude Code discovers the same shared skill through `.claude/skills/base-ui-review/SKILL.md`, which delegates to the `.agents` copy.
+- The review skill is opt-in: only run it when the user explicitly asks for it by name (`/base-ui-review`). Do not trigger it from a generic review request or after finishing a change.
+
 ## Code guidelines
 
 - Always use the `useTimeout` utility from `@base-ui/utils/useTimeout` instead of `window.setTimeout`, and `useAnimationFrame` from `@base-ui/utils/useAnimationFrame` instead of `requestAnimationFrame`. Search for other example usage in the codebase if unsure how to use them.
@@ -38,6 +44,8 @@ This repository contains the source code and documentation for Base UI: a headl
 - Run tests in Chromium env with `pnpm test:chromium {name} --no-watch` such as `pnpm test:chromium NumberField --no-watch` or `pnpm test:chromium parse --no-watch`.
 - Do not call `await flushMicrotasks()` directly after `await render(...)` when there are no interactions or state changes between them; `render` is already awaited, so that immediate flush is unnecessary.
 - Do not group multiple `expect()` assertions in a single `waitFor()` callback. Use one assertion per `waitFor()` so retries are scoped to the specific condition that may change asynchronously.
+- For locale-formatted text, use `expect(element.textContent).toBe(expected)` with the expected value formatted using the same locale and options as the component. When the component uses the runtime default locale, derive expectations using that default too (for example, `new Intl.NumberFormat(undefined, options)`); do not hardcode `en-US` or US-formatted strings in expected values. Pin a locale only when testing locale-specific behavior, and use it consistently for both the component and expectations. `toHaveTextContent` normalizes nonbreaking spaces in the rendered text but not in the expected string, causing failures in locales such as `pt-BR`.
+- Use `firePointer` from `#test-utils` instead of `fireEvent.pointer*` whenever a test depends on event timing. `fireEvent` silently drops `timeStamp`, so the event inherits the environment's clock — the real one in a browser — and gesture velocity then depends on how long the runner took between calls. A lint rule enforces this.
 - If you made changes to the source code, ensure you verify your changes by running tests (see above), and writing new tests where applicable. If tests require the browser because, for example, they require layout measurements, restrict it to the Chromium env by using `it.skipIf(isJSDOM)` or `describe.skipIf(isJSDOM)` (search other tests for example usage if unsure).
 - Follow the established conventions in existing tests. Each file/component is tested with the filename `name.test.tsx`. For example, `PopoverRoot.test.tsx` is next to its source file `PopoverRoot.tsx`.
 - Tests use Vitest APIs only: `expect()`, `vi.fn()`, and `@testing-library/jest-dom` DOM matchers. Do not use Chai- or Sinon-style matcher chains or spies.

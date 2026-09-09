@@ -22,7 +22,6 @@ export function isTouchLikePointerType(pointerType: string) {
 
 export interface UsePressAndHoldParameters {
   disabled: boolean;
-  readOnly?: boolean | undefined;
   /**
    * Called on each tick during a hold. Return `false` to stop the auto-change sequence.
    */
@@ -81,7 +80,6 @@ export interface UsePressAndHoldReturnValue {
 export function usePressAndHold(params: UsePressAndHoldParameters): UsePressAndHoldReturnValue {
   const {
     disabled,
-    readOnly = false,
     tick,
     onStop,
     tickDelay = DEFAULT_TICK_DELAY,
@@ -171,6 +169,15 @@ export function usePressAndHold(params: UsePressAndHoldParameters): UsePressAndH
     [stopAutoChange],
   );
 
+  React.useEffect(() => {
+    if (disabled) {
+      isPressedRef.current = false;
+      isTouchingButtonRef.current = false;
+      pointerTypeRef.current = '';
+      stopAutoChange();
+    }
+  }, [disabled, stopAutoChange]);
+
   const pointerHandlers: UsePressAndHoldReturnValue['pointerHandlers'] = {
     onTouchStart() {
       isTouchingButtonRef.current = true;
@@ -179,8 +186,7 @@ export function usePressAndHold(params: UsePressAndHoldParameters): UsePressAndH
       isTouchingButtonRef.current = false;
     },
     onPointerDown(event) {
-      const isMainButton = !event.button || event.button === 0;
-      if (event.defaultPrevented || !isMainButton || disabled || readOnly) {
+      if (event.defaultPrevented || event.button || disabled) {
         return;
       }
 
@@ -223,18 +229,11 @@ export function usePressAndHold(params: UsePressAndHoldParameters): UsePressAndH
       }
     },
     onPointerMove(event) {
-      if (
-        disabled ||
-        readOnly ||
-        !isTouchLikePointerType(event.pointerType) ||
-        !isPressedRef.current
-      ) {
+      if (disabled || !isTouchLikePointerType(event.pointerType) || !isPressedRef.current) {
         return;
       }
 
-      if (movesAfterTouchRef.current != null) {
-        movesAfterTouchRef.current += 1;
-      }
+      movesAfterTouchRef.current += 1;
 
       const { x, y } = downCoordsRef.current;
       const dx = x - event.clientX;
@@ -248,7 +247,6 @@ export function usePressAndHold(params: UsePressAndHoldParameters): UsePressAndH
       if (
         event.defaultPrevented ||
         disabled ||
-        readOnly ||
         !isPressedRef.current ||
         isTouchingButtonRef.current ||
         isTouchLikePointerType(pointerTypeRef.current)

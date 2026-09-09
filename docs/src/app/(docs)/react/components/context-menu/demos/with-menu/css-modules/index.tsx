@@ -6,42 +6,44 @@ import styles from './index.module.css';
 
 export default function ContextMenuWithMenuDemo() {
   return (
-    <ContextMenu.Root>
-      <ContextMenu.Trigger className={styles.Card}>
-        <img
-          width="512"
-          height="288"
-          className={styles.Image}
-          src="https://images.unsplash.com/photo-1619615391095-dfa29e1672ef?q=80&w=512&h=288"
-          alt=""
-        />
-        <div className={styles.Content}>
-          <p className={styles.Title}>Station Hofplein</p>
-          <p className={styles.Metadata}>JPG, 2.4 MB</p>
-        </div>
+    <div className={styles.Card}>
+      <ContextMenu.Root>
+        <ContextMenu.Trigger>
+          <img
+            width="512"
+            height="288"
+            className={styles.Image}
+            src="https://images.unsplash.com/photo-1619615391095-dfa29e1672ef?q=80&w=512&h=288"
+            alt=""
+          />
+          <div className={styles.Content}>
+            <p className={styles.Title}>Station Hofplein</p>
+            <p className={styles.Metadata}>JPG, 2.4 MB</p>
+          </div>
+        </ContextMenu.Trigger>
 
-        <Menu.Root>
-          <Menu.Trigger aria-label="Image actions" className={styles.MenuTrigger}>
-            <MoreVertIcon />
-          </Menu.Trigger>
-          <Menu.Portal>
-            <Menu.Positioner align="end" sideOffset={8} className={styles.Positioner}>
-              <Menu.Popup className={styles.Popup}>
-                <SharedMenuItems />
-              </Menu.Popup>
-            </Menu.Positioner>
-          </Menu.Portal>
-        </Menu.Root>
-      </ContextMenu.Trigger>
+        <ContextMenu.Portal>
+          <ContextMenu.Positioner className={styles.Positioner}>
+            <ContextMenu.Popup className={styles.Popup}>
+              <SharedMenuItems type="context-menu" />
+            </ContextMenu.Popup>
+          </ContextMenu.Positioner>
+        </ContextMenu.Portal>
+      </ContextMenu.Root>
 
-      <ContextMenu.Portal>
-        <ContextMenu.Positioner className={styles.Positioner}>
-          <ContextMenu.Popup className={styles.Popup}>
-            <SharedMenuItems type="context-menu" />
-          </ContextMenu.Popup>
-        </ContextMenu.Positioner>
-      </ContextMenu.Portal>
-    </ContextMenu.Root>
+      <Menu.Root>
+        <Menu.Trigger aria-label="Image actions" className={styles.MenuTrigger}>
+          <MoreVertIcon />
+        </Menu.Trigger>
+        <Menu.Portal>
+          <Menu.Positioner align="end" sideOffset={8} className={styles.Positioner}>
+            <Menu.Popup className={styles.Popup}>
+              <SharedMenuItems />
+            </Menu.Popup>
+          </Menu.Positioner>
+        </Menu.Portal>
+      </Menu.Root>
+    </div>
   );
 }
 

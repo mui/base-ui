@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useAnchorPositioning } from '../../utils/useAnchorPositioning';
+import { useAnchorPositioning } from '../../internals/useAnchorPositioning';
 
 export type NavigationMenuPositionerContext = ReturnType<typeof useAnchorPositioning>;
 

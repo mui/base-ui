@@ -11,6 +11,7 @@ import remarkParse from 'remark-parse';
 import remarkGfm from 'remark-gfm';
 import remarkStringify from 'remark-stringify';
 import { visit } from 'unist-util-visit';
+import { createFileContent } from './createFileContent.mjs';
 import { mdxToMarkdown } from './mdxToMarkdown.mjs';
 import { resolveUrl, isAbsoluteUrl } from './resolver.mjs';
 
@@ -268,37 +269,14 @@ async function generateLlmsTxt() {
       ],
     };
 
-    const createFile = async (filename, pageRenderer) => {
-      // Generate sections with shared logic
-      const sections = [];
-
-      for (const section of structure.sections) {
-        if (section.pages.length === 0) {
-          continue;
-        }
-
-        const sectionContent = [`## ${section.title}`, ''];
-
-        // Use the page renderer for each page (handle async renderers)
-        for (const page of section.pages) {
-          const renderedPage = await pageRenderer(page);
-          sectionContent.push(...renderedPage);
-        }
-
-        sectionContent.push(''); // Add empty line after section
-        sections.push(...sectionContent);
-      }
-
-      let content = [...preamble, ...sections].join('\n');
-
-      // Apply prettier formatting
+    const createFile = async (filename, pageRenderer, { formatPages = false } = {}) => {
       const filePath = path.join(OUTPUT_BASE_DIR, filename);
-      const prettierOptions = await prettier.resolveConfig(filePath);
-
-      content = await prettier.format(content, {
-        ...prettierOptions,
-        filepath: filePath,
-        parser: 'markdown',
+      const content = await createFileContent({
+        structure,
+        preamble,
+        pageRenderer,
+        filePath,
+        formatPages,
       });
 
       await fs.writeFile(filePath, content, 'utf-8');
@@ -307,7 +285,9 @@ async function generateLlmsTxt() {
     // Generate both files in parallel
     await Promise.all([
       createFile('llms.txt', renderPageAsLink),
-      createFile('llms-full.txt', renderPageAsInline),
+      // Format each page separately: formatting the multi-megabyte aggregate in one pass makes
+      // Prettier retain several gigabytes of Markdown AST and document nodes.
+      createFile('llms-full.txt', renderPageAsInline, { formatPages: true }),
       createFile('index.md', renderPageAsRelativeLink),
     ]);
 

@@ -17,11 +17,9 @@ export const ComboboxItemIndicator = React.forwardRef(function ComboboxItemIndic
   componentProps: ComboboxItemIndicator.Props,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
-  const keepMounted = componentProps.keepMounted ?? false;
-
   const { selected } = useComboboxItemContext();
 
-  const shouldRender = keepMounted || selected;
+  const shouldRender = componentProps.keepMounted || selected;
   if (!shouldRender) {
     return null;
   }
@@ -64,6 +62,8 @@ const Inner = React.memo(
       });
 
       useOpenChangeComplete({
+        batch: true,
+        enabled: !selected,
         open: selected,
         ref: indicatorRef,
         onComplete() {

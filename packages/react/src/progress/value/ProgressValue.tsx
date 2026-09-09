@@ -19,8 +19,11 @@ export const ProgressValue = React.forwardRef(function ProgressValue(
 
   const { value, formattedValue, state } = useProgressRootContext();
 
-  const formattedValueArg = value == null ? 'indeterminate' : formattedValue;
-  const formattedValueDisplay = value == null ? null : formattedValue;
+  // Follow `status` rather than re-deriving it: a non-finite `value` is also indeterminate, and
+  // has no formatted text to show.
+  const indeterminate = state.status === 'indeterminate';
+  const formattedValueArg = indeterminate ? 'indeterminate' : formattedValue;
+  const formattedValueDisplay = indeterminate ? null : formattedValue;
 
   const element = useRenderElement('span', componentProps, {
     state,
@@ -48,9 +51,7 @@ export interface ProgressValueProps extends Omit<
   'children'
 > {
   children?:
-    | null
-    | ((formattedValue: string | null, value: number | null) => React.ReactNode)
-    | undefined;
+    null | ((formattedValue: string | null, value: number | null) => React.ReactNode) | undefined;
 }
 
 export namespace ProgressValue {

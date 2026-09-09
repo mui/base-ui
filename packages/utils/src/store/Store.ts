@@ -8,6 +8,15 @@ type Listener<T> = (state: T) => void;
  */
 export class Store<State> {
   /**
+   * Creates a store with the given initial state, constructing the class it is called on.
+   * Calling it on a generic base class (e.g. `ReactStore.create(...)`) constructs that
+   * class but degrades the inferred instance type to `Store`; use `new` there instead.
+   */
+  static create<T, This extends Store<T>>(this: new (state: T) => This, state: T): This {
+    return new this(state);
+  }
+
+  /**
    * The current state of the store.
    * This property is updated immediately when the state changes as a result of calling {@link setState}, {@link update}, or {@link set}.
    * To subscribe to state changes, use the {@link useState} method. The value returned by {@link useState} is updated after the component renders (similarly to React's useState).
@@ -74,10 +83,12 @@ export class Store<State> {
 
   /**
    * Merges the provided changes into the current state and notifies listeners if there are changes.
+   * Each value must match its state key. Pass an exact known subset rather than a broad
+   * `Partial<State>`, which may contain `undefined` for required state fields.
    *
    * @param changes An object containing the changes to apply to the current state.
    */
-  update(changes: Partial<State>) {
+  update<const Key extends keyof State>(changes: Pick<State, Key>) {
     for (const key in changes) {
       if (!Object.is(this.state[key], changes[key])) {
         this.setState({ ...this.state, ...changes });
@@ -92,7 +103,7 @@ export class Store<State> {
    * @param key The key in the store's state to update.
    * @param value The new value to set for the specified key.
    */
-  set<T>(key: keyof State, value: T) {
+  set<Key extends keyof State>(key: Key, value: State[Key]) {
     if (!Object.is(this.state[key], value)) {
       this.setState({ ...this.state, [key]: value });
     }

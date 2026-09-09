@@ -51,7 +51,7 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
     'aria-labelledby': ariaLabelledByProp,
     id: idProp,
     autoComplete = 'one-time-code',
-    defaultValue,
+    defaultValue = '',
     value: valueProp,
     onValueChange,
     onValueComplete: onValueCompleteProp,
@@ -149,6 +149,7 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
     setFilled(filled);
   }, [filled, setFilled]);
 
+  /* istanbul ignore else -- `process.env.NODE_ENV` is a build-time constant under test */
   if (process.env.NODE_ENV !== 'production') {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     useOTPFieldRootDevWarnings({
@@ -171,6 +172,8 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
   });
 
   function requestSubmit() {
+    // The hidden validation input only renders for a valid `length`, but the slots always do,
+    // so fall back to the owning form of the first slot.
     let formElement = validation.inputRef.current?.form ?? inputRefs.current[0]?.form ?? null;
 
     if (form) {
@@ -223,10 +226,13 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
   const setValue = useStableCallback(
     (nextValue: string, details: OTPFieldRoot.ChangeEventDetails) => {
       const normalizedValue = normalizeOTPValue(nextValue, length, validationType, normalizeValue);
+      const canComplete =
+        details.reason === REASONS.inputChange || details.reason === REASONS.inputPaste;
       const completeEventDetails =
+        canComplete &&
         normalizedValue.length === length &&
         (valueRef.current.length !== length || details.reason === REASONS.inputPaste)
-          ? getCompleteEventDetails(details)
+          ? createGenericEventDetails(details.reason, details.event)
           : null;
 
       if (normalizedValue === valueRef.current) {
@@ -453,14 +459,6 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
   );
 });
 
-function getCompleteEventDetails(details: OTPFieldRoot.ChangeEventDetails) {
-  if (details.reason === REASONS.inputChange || details.reason === REASONS.inputPaste) {
-    return createGenericEventDetails(details.reason, details.event);
-  }
-
-  return null;
-}
-
 export interface OTPFieldRootProps extends Omit<
   BaseUIComponentProps<'div', OTPFieldRootState>,
   'onChange'
@@ -558,8 +556,7 @@ export interface OTPFieldRootProps extends Omit<
    * - `'keyboard'` for keyboard interactions that change the value
    */
   onValueChange?:
-    | ((value: string, eventDetails: OTPFieldRoot.ChangeEventDetails) => void)
-    | undefined;
+    ((value: string, eventDetails: OTPFieldRoot.ChangeEventDetails) => void) | undefined;
   /**
    * Callback fired when entered text contains characters that are rejected by validation or
    * normalization before the OTP value updates.
@@ -567,8 +564,7 @@ export interface OTPFieldRootProps extends Omit<
    * The `value` argument is the attempted user-entered string before normalization.
    */
   onValueInvalid?:
-    | ((value: string, eventDetails: OTPFieldRoot.InvalidEventDetails) => void)
-    | undefined;
+    ((value: string, eventDetails: OTPFieldRoot.InvalidEventDetails) => void) | undefined;
   /**
    * Callback function that is fired when the OTP value becomes complete, or when a complete value
    * is pasted while the OTP is already complete.
@@ -579,8 +575,7 @@ export interface OTPFieldRootProps extends Omit<
    * If `autoSubmit` is enabled, it runs immediately before the owning form is submitted.
    */
   onValueComplete?:
-    | ((value: string, eventDetails: OTPFieldRoot.CompleteEventDetails) => void)
-    | undefined;
+    ((value: string, eventDetails: OTPFieldRoot.CompleteEventDetails) => void) | undefined;
 }
 
 export interface OTPFieldRootState extends FieldRootState {
@@ -623,8 +618,7 @@ export type OTPFieldRootInvalidEventDetails =
   BaseUIGenericEventDetails<OTPFieldRoot.InvalidEventReason>;
 
 export type OTPFieldRootCompleteEventReason =
-  | typeof REASONS.inputChange
-  | typeof REASONS.inputPaste;
+  typeof REASONS.inputChange | typeof REASONS.inputPaste;
 export type OTPFieldRootCompleteEventDetails =
   BaseUIGenericEventDetails<OTPFieldRoot.CompleteEventReason>;
 

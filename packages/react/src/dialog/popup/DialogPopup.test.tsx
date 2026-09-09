@@ -1,4 +1,4 @@
-import { expect, vi } from 'vitest';
+import { expect, vi, describe, it } from 'vitest';
 import * as React from 'react';
 import { Dialog } from '@base-ui/react/dialog';
 import { AlertDialog } from '@base-ui/react/alert-dialog';
@@ -19,13 +19,34 @@ describe('<Dialog.Popup />', () => {
     },
   }));
 
+  it('throws a descriptive error when rendered outside <Dialog.Root>', async () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    try {
+      await expect(render(<Dialog.Popup />)).rejects.toThrow(
+        'Base UI: DialogRootContext is missing. Dialog parts must be placed within <Dialog.Root>.',
+      );
+    } finally {
+      errorSpy.mockRestore();
+    }
+  });
+
   describe('prop: keepMounted', () => {
-    [
-      [true, true],
-      [false, false],
-      [undefined, false],
-    ].forEach(([keepMounted, expectedIsMounted]) => {
-      it(`should ${!expectedIsMounted ? 'not ' : ''}keep the dialog mounted when keepMounted=${keepMounted}`, async () => {
+    it('should keep the dialog mounted when keepMounted=true', async () => {
+      await render(
+        <Dialog.Root open={false} modal={false}>
+          <Dialog.Portal keepMounted>
+            <Dialog.Popup />
+          </Dialog.Portal>
+        </Dialog.Root>,
+      );
+
+      const dialog = screen.getByRole('dialog', { hidden: true });
+      expect(dialog).toBeInaccessible();
+    });
+
+    [false, undefined].forEach((keepMounted) => {
+      it(`should not keep the dialog mounted when keepMounted=${keepMounted}`, async () => {
         await render(
           <Dialog.Root open={false} modal={false}>
             <Dialog.Portal keepMounted={keepMounted}>
@@ -34,13 +55,7 @@ describe('<Dialog.Popup />', () => {
           </Dialog.Root>,
         );
 
-        const dialog = screen.queryByRole('dialog', { hidden: true });
-        if (expectedIsMounted) {
-          expect(dialog).not.toBe(null);
-          expect(dialog).toBeInaccessible();
-        } else {
-          expect(dialog).toBe(null);
-        }
+        expect(screen.queryByRole('dialog', { hidden: true })).toBe(null);
       });
     });
   });
@@ -621,7 +636,9 @@ describe('<Dialog.Popup />', () => {
 
       // Close via keyboard: should move focus to final-input
       await user.click(trigger);
-      await waitSingleFrame();
+      await act(async () => {
+        await waitSingleFrame();
+      });
       await user.keyboard('{Escape}');
       await waitFor(() => {
         expect(screen.getByTestId('final-input')).toHaveFocus();

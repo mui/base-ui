@@ -12,7 +12,7 @@ import { AdditionalTypes } from './AdditionalTypes';
 import * as CodeBlock from '../CodeBlock';
 
 function SectionHeading({ children }: { children: React.ReactNode }) {
-  return <h4 className="ReferenceSectionHeading">{children}</h4>;
+  return <h3 className="ReferenceSectionHeading">{children}</h3>;
 }
 
 type UseTypesResult = ReturnType<typeof useTypes>;

@@ -37,10 +37,31 @@ export default function rehypeSlug(options) {
    *   Nothing.
    */
   return (tree) => {
+    // Tracks slugs already used on this page so repeated heading text does not
+    // produce duplicate ids. Mirrors github-slugger: the first occurrence keeps
+    // the bare slug, later ones get `-1`, `-2`, … suffixes.
+    /** @type {Map<string, number>} */
+    const occurrences = new Map();
+
     visit(tree, 'element', (node) => {
-      if (headingRank(node) && !node.properties.id) {
-        node.properties.id = prefix + stringToUrl(toString(node));
+      if (headingRank(node)) {
+        if (node.properties.id) {
+          // Seed pre-existing ids (set by an author or an earlier plugin) so a
+          // later heading whose text slugs to the same value gets suffixed
+          // instead of colliding.
+          occurrences.set(String(node.properties.id), 0);
+        } else {
+          const base = prefix + stringToUrl(toString(node));
+          let id = base;
+          while (occurrences.has(id)) {
+            occurrences.set(base, occurrences.get(base) + 1);
+            id = `${base}-${occurrences.get(base)}`;
+          }
+          occurrences.set(id, 0);
+          node.properties.id = id;
+        }
       }
+
       return undefined;
     });
   };

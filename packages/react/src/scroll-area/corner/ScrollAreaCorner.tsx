@@ -22,6 +22,7 @@ export const ScrollAreaCorner = React.forwardRef(function ScrollAreaCorner(
     ref: [forwardedRef, cornerRef],
     props: [
       {
+        'aria-hidden': true,
         style: {
           position: 'absolute',
           bottom: 0,

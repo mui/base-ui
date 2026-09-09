@@ -109,6 +109,7 @@ Renders a `<button>` element.
 | :-------------- | :--- | :---------------------------------------------- |
 | data-popup-open | -    | Present when the corresponding popover is open. |
 | data-pressed    | -    | Present when the trigger is pressed.            |
+| data-disabled   | -    | Present when the trigger is disabled.           |
 
 ### Trigger.Props
 
@@ -517,11 +518,18 @@ type ReturnValue = Popover.Handle<Payload>;
 
 ### Handle
 
+Controls a Popover imperatively and associates detached `Popover.Trigger` components with a
+`Popover.Root`. Create one with `Popover.createHandle()` and pass it to the `handle` prop of the
+root and of any triggers rendered outside of it.
+
+The imperative methods take effect only while a root using this handle is mounted; calls made
+before a root attaches (or after it unmounts) are ignored.
+
 **Properties:**
 
-| Property | Type      | Modifiers | Description                                      |
-| :------- | :-------- | :-------- | :----------------------------------------------- |
-| isOpen   | `boolean` | readonly  | Indicates whether the popover is currently open. |
+| Property | Type      | Modifiers | Description                                                                                     |
+| :------- | :-------- | :-------- | :---------------------------------------------------------------------------------------------- |
+| isOpen   | `boolean` | readonly  | Whether the popover is currently open. Returns `false` while no root is attached to the handle. |
 
 **Methods:**
 
@@ -530,13 +538,16 @@ function open(triggerId: string): void;
 ```
 
 Opens the popover and associates it with the trigger with the given id.
-The trigger must be a Popover.Trigger component with this handle passed as a prop.
+
+This method should only be called in an event handler or an effect (not during rendering).
 
 ```typescript
 function close(): void;
 ```
 
 Closes the popover.
+
+This method should only be called in an event handler or an effect (not during rendering).
 
 ## External Types
 

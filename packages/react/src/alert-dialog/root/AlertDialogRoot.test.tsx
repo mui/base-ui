@@ -1,4 +1,4 @@
-import { expect, vi } from 'vitest';
+import { expect, vi, describe, beforeEach, it } from 'vitest';
 import * as React from 'react';
 import type { UserEvent } from '@testing-library/user-event';
 import { act, flushMicrotasks, screen, waitFor, within } from '@mui/internal-test-utils';
@@ -1228,7 +1228,7 @@ describe('<AlertDialog.Root />', () => {
 });
 
 function AlertDialogState(props: React.HTMLAttributes<HTMLDivElement>) {
-  const { store } = useDialogRootContext();
+  const store = useDialogRootContext();
   const modal = store.useState('modal');
   const disablePointerDismissal = store.useState('disablePointerDismissal');
   const role = store.useState('role');

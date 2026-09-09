@@ -27,12 +27,15 @@ export default function ExampleAutocompleteCommandPalette() {
               autoHighlight="always"
               keepHighlight
             >
-              <Autocomplete.Input
-                className={styles.Input}
-                aria-label="Search commands"
-                aria-describedby={shortcutsDescriptionId}
-                placeholder="Search for apps and commands…"
-              />
+              <Autocomplete.InputGroup className={styles.InputGroup}>
+                <MagnifyingGlassIcon className={styles.InputIcon} aria-hidden />
+                <Autocomplete.Input
+                  className={styles.Input}
+                  aria-label="Search commands"
+                  aria-describedby={shortcutsDescriptionId}
+                  placeholder="Search for apps and commands…"
+                />
+              </Autocomplete.InputGroup>
               <Dialog.Close className={styles.VisuallyHidden}>Close command palette</Dialog.Close>
 
               <ScrollArea.Root className={styles.ListArea}>
@@ -91,6 +94,25 @@ export default function ExampleAutocompleteCommandPalette() {
         </Dialog.Viewport>
       </Dialog.Portal>
     </Dialog.Root>
+  );
+}
+
+function MagnifyingGlassIcon(props: React.ComponentProps<'svg'>) {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
+      fill="none"
+      stroke="currentColor"
+      strokeLinecap="square"
+      strokeLinejoin="round"
+      {...props}
+      style={{ display: 'block', ...props.style }}
+    >
+      <path d="m11 11 3.5 3.5" />
+      <circle cx="7" cy="7" r="5.5" />
+    </svg>
   );
 }
 

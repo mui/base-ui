@@ -12,6 +12,7 @@ export function DemoPlayground({ component, variant }: DemoPlaygroundProps) {
     <ErrorBoundary FallbackComponent={DemoErrorFallback}>
       <div className="DemoPlayground">
         <div
+          role="figure"
           aria-label="Component demo"
           data-demo={kebabCase(variant)}
           className="DemoPlaygroundInner"

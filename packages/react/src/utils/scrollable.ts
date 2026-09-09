@@ -7,30 +7,35 @@ import {
 
 export type ScrollAxis = 'horizontal' | 'vertical';
 
-export function isScrollable(
-  element: HTMLElement,
-  axis: ScrollAxis,
-  // When true, a container that overflows only once extra space is added (e.g. drawer
-  // keyboard scroll slack) still counts, as long as it has layout size on the axis.
-  allowOverflowIntent = false,
-): boolean {
-  const style = getComputedStyle(element);
-
-  if (axis === 'vertical') {
-    const overflowY = style.overflowY;
-    if (overflowY !== 'auto' && overflowY !== 'scroll') {
-      return false;
-    }
-    return allowOverflowIntent
-      ? element.clientHeight > 0
-      : element.scrollHeight > element.clientHeight;
+export function isScrollableY(element: HTMLElement, allowOverflowIntent = false): boolean {
+  const { overflowY } = getComputedStyle(element);
+  if (overflowY !== 'auto' && overflowY !== 'scroll') {
+    return false;
   }
+  // When `allowOverflowIntent` is true, a container that overflows only once extra space is
+  // added (e.g. drawer keyboard scroll slack) still counts, as long as it has layout size on
+  // the axis.
+  return allowOverflowIntent
+    ? element.clientHeight > 0
+    : element.scrollHeight > element.clientHeight;
+}
 
-  const overflowX = style.overflowX;
+export function isScrollableX(element: HTMLElement, allowOverflowIntent = false): boolean {
+  const { overflowX } = getComputedStyle(element);
   if (overflowX !== 'auto' && overflowX !== 'scroll') {
     return false;
   }
   return allowOverflowIntent ? element.clientWidth > 0 : element.scrollWidth > element.clientWidth;
+}
+
+export function isScrollable(
+  element: HTMLElement,
+  axis: ScrollAxis,
+  allowOverflowIntent = false,
+): boolean {
+  return axis === 'vertical'
+    ? isScrollableY(element, allowOverflowIntent)
+    : isScrollableX(element, allowOverflowIntent);
 }
 
 export function hasScrollableAncestor(

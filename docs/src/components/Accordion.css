@@ -27,10 +27,23 @@
   }
 
   .AccordionHeaderCell {
-    padding: 0.5rem 0.75rem;
     font-size: var(--font-size-14);
     font-weight: var(--font-weight-400);
     color: var(--color-foreground);
+  }
+
+  .AccordionHeaderCellInner {
+    display: flex;
+    align-items: center;
+    /* Keep in sync with the ReferenceTable.css placeholder height math. */
+    min-height: 2.5rem;
+    padding: 0.5rem 0.75rem;
+    overflow-x: auto;
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
   }
 
   .AccordionItem:not(:last-child) {
@@ -42,6 +55,7 @@
     position: relative;
     display: flex;
     width: 100%;
+    /* Keep in sync with the ReferenceTable.css placeholder height math. */
     min-height: 2.5rem;
     align-items: center;
     /* use padding to match TableCell height in CSS vars or data attributes table */
@@ -66,8 +80,23 @@
     }
 
     &:focus-visible {
-      outline: 2px solid var(--gray-t2);
       z-index: 1;
+
+      /*
+       * The ring is inset so the root's paint containment (`content-visibility`)
+       * doesn't clip it, which puts it underneath the cells' overscroll overlays.
+       * Draw it as a stacked pseudo-element so it paints above them.
+       */
+      &::after {
+        content: '';
+        position: absolute;
+        pointer-events: none;
+        inset: 0;
+        z-index: 1;
+        border-radius: inherit;
+        outline: 2px solid var(--gray-t2);
+        outline-offset: -2px;
+      }
     }
 
     [open] & {
@@ -119,6 +148,23 @@
   .AccordionScrollable {
     overflow-x: hidden;
 
+    /* stylelint-disable-next-line selector-pseudo-class-disallowed-list */
+    &:has(.AccordionScrollableInner:focus-visible) {
+      position: relative;
+      z-index: 1;
+
+      &::before {
+        content: '';
+        position: absolute;
+        pointer-events: none;
+        inset: 0;
+        z-index: 1;
+        /* The cell clips its own overflow, so the ring must sit fully inside it. */
+        outline: 2px solid var(--gray-t2);
+        outline-offset: -2px;
+      }
+    }
+
     &[data-scrollable] {
       position: relative;
 
@@ -160,6 +206,7 @@
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    /* Keep in sync with the ReferenceTable.css placeholder height math. */
     min-height: 2.5rem;
     padding-block: 0.5rem;
     padding-right: 1rem;
@@ -170,6 +217,10 @@
 
     &::-webkit-scrollbar {
       display: none;
+    }
+
+    &:focus-visible {
+      outline: 0;
     }
   }
 

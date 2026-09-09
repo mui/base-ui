@@ -426,13 +426,18 @@ type ReturnValue = PreviewCard.Handle<Payload>;
 
 ### Handle
 
-A handle to control a preview card imperatively and to associate detached triggers with it.
+Controls a PreviewCard imperatively and associates detached `PreviewCard.Trigger` components with
+a `PreviewCard.Root`. Create one with `PreviewCard.createHandle()` and pass it to the `handle`
+prop of the root and of any triggers rendered outside of it.
+
+The imperative methods take effect only while a root using this handle is mounted; calls made
+before a root attaches (or after it unmounts) are ignored.
 
 **Properties:**
 
-| Property | Type      | Modifiers | Description                                           |
-| :------- | :-------- | :-------- | :---------------------------------------------------- |
-| isOpen   | `boolean` | readonly  | Indicates whether the preview card is currently open. |
+| Property | Type      | Modifiers | Description                                                                                          |
+| :------- | :-------- | :-------- | :--------------------------------------------------------------------------------------------------- |
+| isOpen   | `boolean` | readonly  | Whether the preview card is currently open. Returns `false` while no root is attached to the handle. |
 
 **Methods:**
 
@@ -440,8 +445,7 @@ A handle to control a preview card imperatively and to associate detached trigge
 function open(triggerId: string): void;
 ```
 
-Opens the preview card and associates it with the trigger with the given ID.
-The trigger must be a PreviewCard.Trigger component with this handle passed as a prop.
+Opens the preview card and associates it with the trigger with the given id.
 
 This method should only be called in an event handler or an effect (not during rendering).
 
@@ -450,6 +454,8 @@ function close(): void;
 ```
 
 Closes the preview card.
+
+This method should only be called in an event handler or an effect (not during rendering).
 
 ## External Types
 

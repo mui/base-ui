@@ -18,9 +18,9 @@ export class NullStore<
   // inert even if a future base-class change stops routing a mutator through `setState`.
   setState(_newState: State) {}
 
-  update(_changes: Partial<State>) {}
+  update<const Key extends keyof State>(_changes: Pick<State, Key>) {}
 
-  set<T>(_key: keyof State, _value: T) {}
+  set<Key extends keyof State>(_key: Key, _value: State[Key]) {}
 
   notifyAll() {}
 }
