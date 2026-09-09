@@ -77,6 +77,7 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
   const floatingRootContext = store.useState('floatingRootContext');
   const isOpenedByThisTrigger = store.useState('isOpenedByTrigger', thisTriggerId);
   const popupId = store.useState('triggerPopupId', thisTriggerId);
+  const listElement = store.useState('listElement');
 
   const triggerElementRef = React.useRef<HTMLElement | null>(null);
 
@@ -261,7 +262,7 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
     rootTriggerProps,
     {
       'aria-haspopup': 'menu' as const,
-      'aria-controls': popupId,
+      'aria-controls': listElement?.id || popupId,
       id: thisTriggerId,
       onMouseDown: (event: React.MouseEvent) => {
         if (store.select('open')) {

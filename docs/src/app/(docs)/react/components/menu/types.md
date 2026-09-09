@@ -170,10 +170,10 @@ type MenuTriggerState = {
 
 ### List
 
-A container for the items of a filterable menu, rendered inside `Menu.Popup` next to
-`Menu.FilterInput`.
-Requires the menu to be wrapped in `Menu.FilterProvider`.
-Renders a `<div>` element with a `menu` role.
+A container for the menu items.
+When rendered, it takes the `menu` role from the popup, which lets the popup hold other
+elements such as a filter input.
+Renders a `<div>` element.
 
 **List Props:**
 
@@ -1174,8 +1174,8 @@ type MenuFilterInputState = {
 ### FilterProvider
 
 Makes the menu directly inside it filterable: the popup can render `Menu.FilterInput`,
-`Menu.List`, `Menu.FilterClear`, `Menu.FilterEmpty`, and `Menu.FilterStatus`, and the
-items filter against the query.
+`Menu.FilterClear`, and `Menu.FilterEmpty`, and the items inside `Menu.List` filter against
+the query.
 Wrap it around `Menu.Root` or `Menu.SubmenuRoot`. A submenu doesn't inherit it; wrap the
 submenu's root in its own provider to filter it too. This is the only part that bundles the
 filter implementation.
@@ -1224,35 +1224,6 @@ type MenuFilterProviderInputValueChangeEventDetails = (
 ```typescript
 type MenuFilterProviderInputValueChangeEventReason =
   'input-change' | 'input-clear' | 'clear-press' | 'popup-close';
-```
-
-### FilterStatus
-
-A status message whose content changes are announced politely to screen readers.
-Useful for conveying the status of an asynchronously loaded list.
-Renders nothing while it has no children, so screen readers don't count an
-empty node among the popup's contents.
-Renders a `<div>` element.
-
-Requires the menu to be wrapped in `Menu.FilterProvider`.
-Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
-
-**FilterStatus Props:**
-
-| Prop      | Type                                                                                            | Default | Description                                                                                                                                                                                   |
-| :-------- | :---------------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| className | `string \| ((state: Menu.FilterStatus.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
-| style     | `React.CSSProperties \| ((state: Menu.FilterStatus.State) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
-| render    | `ReactElement \| ((props: HTMLProps, state: Menu.FilterStatus.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
-
-### FilterStatus.Props
-
-Re-export of [FilterStatus](#filterstatus) props.
-
-### FilterStatus.State
-
-```typescript
-type MenuFilterStatusState = {};
 ```
 
 ### Handle
@@ -1484,9 +1455,8 @@ type PayloadChildRenderFunction = (arg: { payload: unknown | undefined }) => Rea
 - `Menu.List`: `Menu.List`, `Menu.List.Props`, `Menu.List.State`
 - `Menu.FilterClear`: `Menu.FilterClear`, `Menu.FilterClear.State`, `Menu.FilterClear.Props`
 - `Menu.FilterEmpty`: `Menu.FilterEmpty`, `Menu.FilterEmpty.State`, `Menu.FilterEmpty.Props`
-- `Menu.FilterStatus`: `Menu.FilterStatus`, `Menu.FilterStatus.State`, `Menu.FilterStatus.Props`
 - `Menu.useFilter`
-- `Default`: `MenuFilterFunction`, `MenuHandleOptions`, `MenuFilter`, `MenuFilterOptions`, `MenuRootState`, `MenuRootProps`, `MenuRootActions`, `MenuRootChangeEventReason`, `MenuRootChangeEventDetails`, `MenuRootHighlightEventReason`, `MenuRootHighlightEventDetails`, `MenuRootOrientation`, `MenuParent`, `MenuArrowState`, `MenuArrowProps`, `MenuBackdropState`, `MenuBackdropProps`, `MenuCheckboxItemState`, `MenuCheckboxItemProps`, `MenuCheckboxItemChangeEventReason`, `MenuCheckboxItemChangeEventDetails`, `MenuCheckboxItemIndicatorProps`, `MenuCheckboxItemIndicatorState`, `MenuGroupLabelProps`, `MenuGroupLabelState`, `MenuGroupProps`, `MenuGroupState`, `MenuItemState`, `MenuItemProps`, `MenuLinkItemState`, `MenuLinkItemProps`, `MenuPopupProps`, `MenuPopupState`, `MenuPortalState`, `MenuPortalProps`, `MenuPositionerState`, `MenuPositionerProps`, `MenuRadioGroupProps`, `MenuRadioGroupState`, `MenuRadioGroupChangeEventReason`, `MenuRadioGroupChangeEventDetails`, `MenuRadioItemState`, `MenuRadioItemProps`, `MenuRadioItemIndicatorProps`, `MenuRadioItemIndicatorState`, `MenuSubmenuRootProps`, `MenuSubmenuRootState`, `MenuSubmenuRootChangeEventReason`, `MenuSubmenuRootChangeEventDetails`, `MenuTriggerProps`, `MenuTriggerState`, `MenuSubmenuTriggerState`, `MenuSubmenuTriggerProps`, `MenuViewportState`, `MenuViewportProps`, `MenuFilterProviderProps`, `MenuFilterProviderInputValueChangeEventReason`, `MenuFilterProviderInputValueChangeEventDetails`, `MenuFilterInputState`, `MenuFilterInputProps`, `MenuListState`, `MenuListProps`, `MenuFilterClearState`, `MenuFilterClearProps`, `MenuFilterEmptyState`, `MenuFilterEmptyProps`, `MenuFilterStatusState`, `MenuFilterStatusProps`
+- `Default`: `MenuFilterFunction`, `MenuHandleOptions`, `MenuFilter`, `MenuFilterOptions`, `MenuRootState`, `MenuRootProps`, `MenuRootActions`, `MenuRootChangeEventReason`, `MenuRootChangeEventDetails`, `MenuRootHighlightEventReason`, `MenuRootHighlightEventDetails`, `MenuRootOrientation`, `MenuParent`, `MenuArrowState`, `MenuArrowProps`, `MenuBackdropState`, `MenuBackdropProps`, `MenuCheckboxItemState`, `MenuCheckboxItemProps`, `MenuCheckboxItemChangeEventReason`, `MenuCheckboxItemChangeEventDetails`, `MenuCheckboxItemIndicatorProps`, `MenuCheckboxItemIndicatorState`, `MenuGroupLabelProps`, `MenuGroupLabelState`, `MenuGroupProps`, `MenuGroupState`, `MenuItemState`, `MenuItemProps`, `MenuLinkItemState`, `MenuLinkItemProps`, `MenuPopupProps`, `MenuPopupState`, `MenuPortalState`, `MenuPortalProps`, `MenuPositionerState`, `MenuPositionerProps`, `MenuRadioGroupProps`, `MenuRadioGroupState`, `MenuRadioGroupChangeEventReason`, `MenuRadioGroupChangeEventDetails`, `MenuRadioItemState`, `MenuRadioItemProps`, `MenuRadioItemIndicatorProps`, `MenuRadioItemIndicatorState`, `MenuSubmenuRootProps`, `MenuSubmenuRootState`, `MenuSubmenuRootChangeEventReason`, `MenuSubmenuRootChangeEventDetails`, `MenuTriggerProps`, `MenuTriggerState`, `MenuSubmenuTriggerState`, `MenuSubmenuTriggerProps`, `MenuViewportState`, `MenuViewportProps`, `MenuFilterProviderProps`, `MenuFilterProviderInputValueChangeEventReason`, `MenuFilterProviderInputValueChangeEventDetails`, `MenuFilterInputState`, `MenuFilterInputProps`, `MenuListState`, `MenuListProps`, `MenuFilterClearState`, `MenuFilterClearProps`, `MenuFilterEmptyState`, `MenuFilterEmptyProps`
 
 ## Canonical Types
 
@@ -1553,5 +1523,3 @@ Maps `Canonical`: `Alias` — Use Canonical when its namespace is already import
 - `Menu.FilterClear.Props`: `MenuFilterClearProps`
 - `Menu.FilterEmpty.State`: `MenuFilterEmptyState`
 - `Menu.FilterEmpty.Props`: `MenuFilterEmptyProps`
-- `Menu.FilterStatus.State`: `MenuFilterStatusState`
-- `Menu.FilterStatus.Props`: `MenuFilterStatusProps`

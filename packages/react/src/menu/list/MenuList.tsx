@@ -1,110 +1,66 @@
 'use client';
 import * as React from 'react';
-import { ownerWindow } from '@base-ui/utils/owner';
-import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import {
-  FilterDropdownList,
-  type FilterDropdownListProps,
-  type FilterDropdownListState,
-} from '../../filter-dropdown/list/FilterDropdownList';
-import { mergeProps } from '../../merge-props';
-import { useMenuFilterReferenceKeyDown } from '../filter-root/useMenuFilterReferenceKeyDown';
+import { useMenuFilterImpl } from '../filter-root/MenuFilterContext';
 import { useMenuRootContext } from '../root/MenuRootContext';
-import { useCompositeListContext } from '../../internals/composite/list/CompositeListContext';
-import {
-  useFilterDropdownItemContext,
-  useFilterDropdownRootContext,
-} from '../../filter-dropdown/root/FilterDropdownRootContext';
-import type { BaseUIEvent } from '../../internals/types';
+import { useRenderElement } from '../../internals/useRenderElement';
+import { useBaseUiId } from '../../internals/useBaseUiId';
+import type { BaseUIComponentProps } from '../../internals/types';
+import { resolveMenuPopupLabel } from '../popup/resolveMenuPopupLabel';
+
+export const MenuListPlain = React.forwardRef(function MenuList(
+  componentProps: MenuList.Props,
+  forwardedRef: React.ForwardedRef<HTMLDivElement>,
+) {
+  const { render, className, style, id: idProp, ...elementProps } = componentProps;
+
+  const { store, orientation } = useMenuRootContext();
+  const activeTriggerId = store.useState('activeTriggerId');
+  const activeTriggerElement = store.useState('activeTriggerElement');
+  const setListElement = store.useStateSetter('listElement');
+
+  const id = useBaseUiId(idProp);
+  const { ariaLabelledBy } = resolveMenuPopupLabel(
+    componentProps,
+    activeTriggerElement,
+    activeTriggerId,
+  );
+
+  return useRenderElement('div', componentProps, {
+    ref: [forwardedRef, setListElement],
+    props: [
+      {
+        id,
+        role: 'menu',
+        // `menu` is implicitly vertical, so only the non-default value needs to be rendered.
+        'aria-orientation': orientation === 'horizontal' ? 'horizontal' : undefined,
+        'aria-labelledby': ariaLabelledBy,
+      },
+      elementProps,
+    ],
+  });
+});
 
 /**
- * A container for the items of a filterable menu, rendered inside `Menu.Popup` next to
- * `Menu.FilterInput`.
- * Requires the menu to be wrapped in `Menu.FilterProvider`.
- * Renders a `<div>` element with a `menu` role.
+ * A container for the menu items.
+ * When rendered, it takes the `menu` role from the popup, which lets the popup hold other
+ * elements such as a filter input.
+ * Renders a `<div>` element.
  *
  * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
  */
 export const MenuList = React.forwardRef(function MenuList(
-  componentProps: MenuList.Props,
+  props: MenuList.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { syncHighlightedItem, orientation } = useMenuRootContext();
-  const { onItemsChange, focusOwnerRef } = useFilterDropdownRootContext();
-  const { store: filterStore, listRef } = useFilterDropdownItemContext();
-  const { subscribeMapChange } = useCompositeListContext();
-  const handleReferenceKeyDown = useMenuFilterReferenceKeyDown();
-
-  const handleKeyDown = useStableCallback(
-    (event: BaseUIEvent<React.KeyboardEvent<HTMLElement>>) => {
-      const owner = focusOwnerRef.current;
-      if (owner == null || event.target !== event.currentTarget) {
-        handleReferenceKeyDown(event);
-        return;
-      }
-
-      // A scrollbar press moves real focus onto the list itself while the input still owns the
-      // keyboard. Hand focus back and replay the key on the input so its handlers run instead of
-      // the list scrolling; a typing key's default action follows the moved focus into the input.
-      owner.focus({ preventScroll: true });
-      const KeyboardEventConstructor = ownerWindow(owner).KeyboardEvent;
-      const replayedEvent = new KeyboardEventConstructor(event.type, event.nativeEvent);
-      const handled = !owner.dispatchEvent(replayedEvent) || replayedEvent.cancelBubble;
-      // The replay already bubbled from the input through this tree; don't deliver it twice.
-      event.stopPropagation();
-      if (handled) {
-        event.preventDefault();
-      }
-    },
-  );
-
-  // `null` distinguishes the initial registration from a list emptied by filtering.
-  const previousItemsRef = React.useRef<readonly (HTMLElement | null)[] | null>(null);
-
-  const handleItemMapChange = useStableCallback(() => {
-    syncHighlightedItem();
-    const items = [...listRef.current];
-    const previousItems = previousItemsRef.current;
-    const itemsChanged =
-      previousItems !== null &&
-      (previousItems.length !== items.length ||
-        items.some((item, index) => item !== previousItems[index]));
-    previousItemsRef.current = items;
-    if (previousItems !== null && !itemsChanged) {
-      return;
-    }
-
-    // Composite items receive their final indexes from this map update. Publish after their
-    // synchronous layout updates commit so the active item's rendered id has settled.
-    queueMicrotask(() => {
-      if (itemsChanged) {
-        // A positional highlight must not silently move to another action when live items are
-        // inserted, removed, or reordered.
-        onItemsChange(items.length > 0);
-      }
-      filterStore.set('items', items);
-    });
-  });
-
-  useIsoLayoutEffect(() => {
-    return subscribeMapChange(handleItemMapChange);
-  }, [subscribeMapChange, handleItemMapChange]);
-
-  const listProps = mergeProps<typeof FilterDropdownList>(
-    {
-      'aria-orientation': orientation === 'horizontal' ? 'horizontal' : undefined,
-      onKeyDown: handleKeyDown,
-    },
-    componentProps,
-  );
-
-  return <FilterDropdownList {...listProps} ref={forwardedRef} />;
+  const List = useMenuFilterImpl()?.List ?? MenuListPlain;
+  return <List {...props} ref={forwardedRef} />;
 });
 
-export interface MenuListState extends FilterDropdownListState {}
+export interface MenuListState {}
 
-export interface MenuListProps extends FilterDropdownListProps {}
+export interface MenuListProps extends BaseUIComponentProps<'div', MenuListState> {
+  id?: string | undefined;
+}
 
 export namespace MenuList {
   export type Props = MenuListProps;
