@@ -91,7 +91,7 @@ function TestLazyFlip(props: {
       <div
         ref={anchorRef}
         data-testid="anchor"
-        style={{ position: 'fixed', right: 200, bottom: 10, width: 20, height: 20 }}
+        style={{ position: 'fixed', right: 200, bottom: 30, width: 20, height: 20 }}
       >
         anchor
       </div>
@@ -190,5 +190,20 @@ describe('useAnchorPositioning', () => {
     });
 
     expect(floating).toHaveAttribute('data-side', 'top');
+  });
+
+  it.skipIf(isJSDOM)('flips back to the preferred side without lazy flipping', async () => {
+    const { user } = await render(<TestLazyFlip side="bottom" align="center" lazyFlip={false} />);
+    const floating = screen.getByTestId('floating');
+
+    await waitFor(() => {
+      expect(floating).toHaveAttribute('data-side', 'top');
+    });
+
+    await user.click(screen.getByRole('button', { name: 'Shrink' }));
+
+    await waitFor(() => {
+      expect(floating).toHaveAttribute('data-side', 'bottom');
+    });
   });
 });

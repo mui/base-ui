@@ -50,7 +50,7 @@ const MenuSubmenuTriggerPlain = React.forwardRef(function MenuSubmenuTrigger(
 
   const menuPositionerContext = useMenuPositionerContext();
 
-  const { store, parentVirtualFocus, webkitItemSelected, parentFloatingId } = context;
+  const { store, parentVirtualFocus, parentWebkitItemSelected, parentFloatingId } = context;
   const parentMenuStore = context.parent.store;
   const submenuRootContext = useMenuSubmenuRootContext();
   const listItem = useCompositeListItem({ guess: true, label });
@@ -143,7 +143,7 @@ const MenuSubmenuTriggerPlain = React.forwardRef(function MenuSubmenuTrigger(
     nativeButton,
     itemMetadata,
     virtualFocus: parentVirtualFocus,
-    webkitItemSelected,
+    webkitItemSelected: parentWebkitItemSelected,
     nodeId: menuPositionerContext?.context.nodeId,
   });
 

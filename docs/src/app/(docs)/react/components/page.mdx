@@ -167,6 +167,8 @@ An input that suggests options as you type.
     - Fuzzy matching
     - Limit results
     - Auto highlight
+    - Command palette
+    - Grid layout
     - Virtualized
       - Memoizing items
   - API reference
@@ -941,6 +943,12 @@ A list of actions in a dropdown, enhanced with keyboard navigation.
     - Animating the Menu
       - Position and Size
       - Content
+    - Filtering
+      - Filtering items
+      - Custom matching
+      - Async search
+      - Filterable submenus
+      - Detached triggers for a filterable menu
   - API reference
     - Root
     - Trigger
@@ -954,6 +962,12 @@ A list of actions in a dropdown, enhanced with keyboard navigation.
     - LinkItem
     - SubmenuRoot
     - SubmenuTrigger
+    - FilterProvider
+    - FilterInput
+    - List
+    - FilterClear
+    - FilterEmpty
+    - FilterStatus
     - Group
     - GroupLabel
     - RadioGroup
@@ -962,6 +976,7 @@ A list of actions in a dropdown, enhanced with keyboard navigation.
     - CheckboxItem
     - CheckboxItemIndicator
     - Separator
+  - useFilter
   - createHandle
     - Handle
 - Exports:
@@ -1042,7 +1057,7 @@ A list of actions in a dropdown, enhanced with keyboard navigation.
     - Parameters: options
   - MenuFilterFunction
     - Parameters: text, query
-- Types: Menu.Arrow.Props, Menu.Arrow.State, Menu.Backdrop.Props, Menu.Backdrop.State, Menu.CheckboxItem.ChangeEventDetails, Menu.CheckboxItem.ChangeEventReason, Menu.CheckboxItem.Props, Menu.CheckboxItem.State, Menu.CheckboxItemIndicator.Props, Menu.CheckboxItemIndicator.State, Menu.FilterClear.Props, Menu.FilterClear.State, Menu.FilterEmpty.Props, Menu.FilterEmpty.State, Menu.FilterInput.Props, Menu.FilterInput.State, Menu.FilterProvider.Props, Menu.FilterStatus.Props, Menu.FilterStatus.State, Menu.Group.Props, Menu.Group.State, Menu.GroupLabel.Props, Menu.GroupLabel.State, Menu.Item.Props, Menu.Item.State, Menu.LinkItem.Props, Menu.LinkItem.State, Menu.List.Props, Menu.List.State, Menu.Popup.Props, Menu.Popup.State, Menu.Portal.Props, Menu.Portal.State, Menu.Positioner.Props, Menu.Positioner.State, Menu.RadioGroup.ChangeEventDetails, Menu.RadioGroup.ChangeEventReason, Menu.RadioGroup.Props, Menu.RadioGroup.State, Menu.RadioItem.Props, Menu.RadioItem.State, Menu.RadioItemIndicator.Props, Menu.RadioItemIndicator.State, Menu.Root.Actions, Menu.Root.ChangeEventDetails, Menu.Root.ChangeEventReason, Menu.Root.HighlightEventDetails, Menu.Root.HighlightEventReason, Menu.Root.Orientation, Menu.Root.Props, Menu.Root.State, Menu.Separator.Props, Menu.Separator.State, Menu.SubmenuRoot.ChangeEventDetails, Menu.SubmenuRoot.ChangeEventReason, Menu.SubmenuRoot.Props, Menu.SubmenuRoot.State, Menu.SubmenuTrigger.Props, Menu.SubmenuTrigger.State, Menu.Trigger.Props, Menu.Trigger.State, Menu.Viewport.Props, Menu.Viewport.State
+- Types: Menu.Arrow.Props, Menu.Arrow.State, Menu.Backdrop.Props, Menu.Backdrop.State, Menu.CheckboxItem.ChangeEventDetails, Menu.CheckboxItem.ChangeEventReason, Menu.CheckboxItem.Props, Menu.CheckboxItem.State, Menu.CheckboxItemIndicator.Props, Menu.CheckboxItemIndicator.State, Menu.FilterClear.Props, Menu.FilterClear.State, Menu.FilterEmpty.Props, Menu.FilterEmpty.State, Menu.FilterInput.Props, Menu.FilterInput.State, Menu.FilterProvider.InputValueChangeEventDetails, Menu.FilterProvider.InputValueChangeEventReason, Menu.FilterProvider.Props, Menu.FilterStatus.Props, Menu.FilterStatus.State, Menu.Group.Props, Menu.Group.State, Menu.GroupLabel.Props, Menu.GroupLabel.State, Menu.Item.Props, Menu.Item.State, Menu.LinkItem.Props, Menu.LinkItem.State, Menu.List.Props, Menu.List.State, Menu.Popup.Props, Menu.Popup.State, Menu.Portal.Props, Menu.Portal.State, Menu.Positioner.Props, Menu.Positioner.State, Menu.RadioGroup.ChangeEventDetails, Menu.RadioGroup.ChangeEventReason, Menu.RadioGroup.Props, Menu.RadioGroup.State, Menu.RadioItem.Props, Menu.RadioItem.State, Menu.RadioItemIndicator.Props, Menu.RadioItemIndicator.State, Menu.Root.Actions, Menu.Root.ChangeEventDetails, Menu.Root.ChangeEventReason, Menu.Root.HighlightEventDetails, Menu.Root.HighlightEventReason, Menu.Root.Orientation, Menu.Root.Props, Menu.Root.State, Menu.Separator.Props, Menu.Separator.State, Menu.SubmenuRoot.ChangeEventDetails, Menu.SubmenuRoot.ChangeEventReason, Menu.SubmenuRoot.Props, Menu.SubmenuRoot.State, Menu.SubmenuTrigger.Props, Menu.SubmenuTrigger.State, Menu.Trigger.Props, Menu.Trigger.State, Menu.Viewport.Props, Menu.Viewport.State
 
 </details>
 

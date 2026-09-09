@@ -485,6 +485,57 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
         expect(onDelete).toHaveBeenCalledTimes(1);
       });
 
+      it('preserves navigation with an inline filter and a highlighted-item preview', async () => {
+        const onActivate = vi.fn();
+
+        function Test() {
+          const [highlightedLabel, setHighlightedLabel] = React.useState<string>();
+
+          return (
+            <Menu.FilterProvider
+              autoHighlight="always"
+              filter={(text, query) => text.includes(query)}
+            >
+              <Menu.Root
+                defaultOpen
+                onItemHighlighted={(_, details) => setHighlightedLabel(details.label)}
+              >
+                <Menu.Trigger>Actions</Menu.Trigger>
+                <Menu.Portal>
+                  <Menu.Positioner>
+                    <Menu.Popup>
+                      <Menu.FilterInput aria-label="Filter actions" />
+                      <Menu.List>
+                        <Menu.Item onClick={() => onActivate('Rename')}>Rename</Menu.Item>
+                        <Menu.Item onClick={() => onActivate('Delete')}>Delete</Menu.Item>
+                      </Menu.List>
+                      <div data-testid="preview">{highlightedLabel}</div>
+                    </Menu.Popup>
+                  </Menu.Positioner>
+                </Menu.Portal>
+              </Menu.Root>
+            </Menu.FilterProvider>
+          );
+        }
+
+        const { user } = await render(<Test />);
+        const input = screen.getByRole('searchbox');
+        await waitFor(() => expect(input).toHaveFocus());
+        expect(screen.getByTestId('preview')).toHaveTextContent('Rename');
+
+        await user.keyboard('[ArrowDown]');
+
+        expect(input).toHaveAttribute(
+          'aria-activedescendant',
+          screen.getByRole('menuitem', { name: 'Delete' }).id,
+        );
+        expect(screen.getByTestId('preview')).toHaveTextContent('Delete');
+
+        await user.keyboard('[Enter]');
+
+        expect(onActivate).toHaveBeenCalledExactlyOnceWith('Delete');
+      });
+
       it('preserves a pointer highlight when autoHighlight is "always"', async () => {
         const { user } = await render(
           <Menu.FilterProvider autoHighlight="always">
@@ -3362,8 +3413,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
       expect(screen.queryByRole('menuitem', { name: 'Rename' })).toBe(null);
     });
 
-    await user.clear(input);
-    await user.type(input, 'ren');
+    fireEvent.change(input, { target: { value: 'ren' } });
 
     await waitFor(() => {
       expect(screen.getByRole('menuitem', { name: 'Rename' })).toBeVisible();
@@ -5175,5 +5225,119 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
         expect(item).not.toHaveAttribute('data-highlighted');
       });
     });
+  });
+});
+
+describe('filterable menu navigation regressions', () => {
+  const { render } = createRenderer();
+
+  beforeEach(async () => {
+    await resetBrowserPointer();
+    globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
+  });
+
+  describe.each([false, true])('with a filtered submenu: %s', (filterSubmenu) => {
+    it.each([
+      ['[ArrowRight]', '[ArrowLeft]'],
+      ['[ArrowRight]', '{Shift>}[Tab]{/Shift}'],
+      ['[Enter]', '[Escape]'],
+    ])(
+      'restores input focus after opening with %s and closing with %s',
+      async (openKey, closeKey) => {
+        const Wrapper = filterSubmenu ? Menu.FilterProvider : React.Fragment;
+        const { user } = await render(
+          <Menu.FilterProvider>
+            <Menu.Root defaultOpen>
+              <Menu.Trigger>Actions</Menu.Trigger>
+              <Menu.Portal>
+                <Menu.Positioner>
+                  <Menu.Popup>
+                    <Menu.FilterInput aria-label="Filter actions" />
+                    <Menu.List>
+                      <Wrapper>
+                        <Menu.SubmenuRoot>
+                          <Menu.SubmenuTrigger openOnHover={false}>More</Menu.SubmenuTrigger>
+                          <Menu.Portal>
+                            <Menu.Positioner>
+                              <Menu.Popup>
+                                {filterSubmenu ? (
+                                  <React.Fragment>
+                                    <Menu.FilterInput aria-label="Filter child actions" />
+                                    <Menu.List>
+                                      <Menu.Item>Child action</Menu.Item>
+                                    </Menu.List>
+                                  </React.Fragment>
+                                ) : (
+                                  <Menu.Item>Child action</Menu.Item>
+                                )}
+                              </Menu.Popup>
+                            </Menu.Positioner>
+                          </Menu.Portal>
+                        </Menu.SubmenuRoot>
+                      </Wrapper>
+                      <Menu.Item>Rename</Menu.Item>
+                    </Menu.List>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+          </Menu.FilterProvider>,
+        );
+        const input = screen.getByRole('searchbox', { name: 'Filter actions' });
+        await waitFor(() => expect(input).toHaveFocus());
+        await user.keyboard(`[ArrowDown]${openKey}`);
+        const child = filterSubmenu
+          ? screen.getByRole('searchbox', { name: 'Filter child actions' })
+          : screen.getByRole('menuitem', { name: 'Child action' });
+        await waitFor(() => expect(child).toHaveFocus());
+        await user.keyboard(closeKey);
+        await waitFor(() =>
+          expect(screen.queryByRole('menuitem', { name: 'Child action' })).toBe(null),
+        );
+        await waitFor(() => expect(input).toHaveFocus());
+        await user.keyboard('ren');
+        expect(input).toHaveValue('ren');
+        expect(screen.getByRole('menuitem', { name: 'Rename' })).toBeVisible();
+      },
+    );
+  });
+
+  it('does not repeat matching when navigating past hidden component labels', async () => {
+    function Label({ text }: { text: string }) {
+      return <span>{text}</span>;
+    }
+    const filter = vi.fn((text: string, query: string) => text.includes(query));
+    const { user } = await render(
+      <Menu.FilterProvider filter={filter} autoHighlight="always" defaultInputValue="Match">
+        <Menu.Root defaultOpen>
+          {() => (
+            <React.Fragment>
+              <Menu.Trigger>Actions</Menu.Trigger>
+              <Menu.Portal>
+                <Menu.Positioner>
+                  <Menu.Popup>
+                    <Menu.FilterInput aria-label="Filter actions" />
+                    <Menu.List>
+                      {Array.from({ length: 20 }, (_, index) => (
+                        <Menu.Item key={index}>
+                          <Label text={index < 2 ? `Match ${index}` : `Hidden ${index}`} />
+                        </Menu.Item>
+                      ))}
+                    </Menu.List>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </React.Fragment>
+          )}
+        </Menu.Root>
+      </Menu.FilterProvider>,
+    );
+    const input = screen.getByRole('searchbox');
+    await waitFor(() => expect(screen.getAllByRole('menuitem')).toHaveLength(2));
+    await waitFor(() => expect(input).toHaveFocus());
+    filter.mockClear();
+    await user.keyboard('[ArrowDown]');
+    expect(screen.getByRole('menuitem', { name: 'Match 1' })).toHaveAttribute('data-highlighted');
+    expect(filter).not.toHaveBeenCalled();
   });
 });

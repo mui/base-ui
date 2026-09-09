@@ -117,7 +117,7 @@ export const MenuRadioItem = React.forwardRef(function MenuRadioItem(
   if (!filter.visible) {
     return null;
   }
-  return <MenuRadioItemPlain {...filter.props} {...radioItemProps} ref={ref} />;
+  return <MenuRadioItemPlain {...radioItemProps} ref={ref} />;
 });
 
 export interface MenuRadioItemState {

@@ -217,7 +217,7 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
         'aria-haspopup': 'dialog' as const,
         onKeyDown(event: BaseUIEvent<React.KeyboardEvent<HTMLElement>>) {
           const focusOwner = store.context.virtualFocusRef?.current;
-          if (!store.select('open') || !focusOwner) {
+          if (!store.select('open') || !focusOwner || isInMenubar) {
             return;
           }
 

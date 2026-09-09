@@ -5,8 +5,8 @@ import type { HTMLProps } from '../internals/types';
 export type State = {
   visibleItemIds: ReadonlySet<symbol> | null;
   registeredItemCount: number;
-  /** Rendered item ids by list index. Sparse when an external virtualizer windows the items. */
-  itemIds: readonly (string | undefined)[];
+  /** Rendered items by list index. */
+  items: readonly (HTMLElement | null)[];
   activeIndex: number | null;
   /** The host's navigation props for the element that holds real focus while the popup is open. */
   inputProps: HTMLProps;
@@ -21,7 +21,7 @@ export const selectors = {
   isItemVisible: (state: State, id: symbol) =>
     state.visibleItemIds === null || state.visibleItemIds.has(id),
   activeIndex: (state: State) => state.activeIndex,
-  activeItemId: (state: State) => state.itemIds[state.activeIndex ?? -1],
+  activeItemId: (state: State) => state.items[state.activeIndex ?? -1]?.id || undefined,
   inputProps: (state: State) => state.inputProps,
 };
 
@@ -31,7 +31,7 @@ export class FilterDropdownStore extends ReactStore<Readonly<State>, object, typ
       {
         visibleItemIds: null,
         registeredItemCount: 0,
-        itemIds: EMPTY_ARRAY,
+        items: EMPTY_ARRAY,
         activeIndex: null,
         inputProps: EMPTY_OBJECT,
         ...initialState,

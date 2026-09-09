@@ -166,7 +166,8 @@ export const MenuPopupPlain = React.forwardRef(function MenuPopup(
     returnFocus = true;
   }
 
-  const resolvedReturnFocus = submenuRootContext?.getReturnElement ?? returnFocus;
+  const parentFocusRef = parent.type === 'menu' ? parent.store.context.virtualFocusRef : undefined;
+  const resolvedReturnFocus = submenuRootContext?.getReturnElement ?? parentFocusRef ?? returnFocus;
 
   return (
     <FloatingFocusManager
@@ -176,7 +177,9 @@ export const MenuPopupPlain = React.forwardRef(function MenuPopup(
       disabled={!mounted}
       returnFocus={finalFocus === undefined ? resolvedReturnFocus : finalFocus}
       explicitReturnFocus={
-        finalFocus === undefined && submenuRootContext?.getReturnElement ? false : undefined
+        finalFocus === undefined && (submenuRootContext?.getReturnElement || parentFocusRef)
+          ? false
+          : undefined
       }
       initialFocus={initialFocus}
       restoreFocus

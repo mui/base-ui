@@ -1,9 +1,8 @@
 'use client';
 import * as React from 'react';
-import { FilterDropdownPopup } from '../../filter-dropdown/popup/FilterDropdownPopup';
+import { useFilterDropdownPopup } from '../../filter-dropdown/popup/FilterDropdownPopup';
 import { MenuPopupPlain, type MenuPopupProps, type MenuPopupState } from '../popup/MenuPopup';
-import { useMenuRootContext } from '../root/MenuRootContext';
-import { resolveMenuPopupLabel } from '../popup/resolveMenuPopupLabel';
+import { mergeProps } from '../../merge-props';
 
 /**
  * A container for the filter input and item list.
@@ -13,28 +12,8 @@ export const FilteredMenuPopup = React.forwardRef(function FilteredMenuPopup(
   props: FilteredMenuPopup.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { id, ...menuProps } = props;
-
-  const { defaultFloatingId, store } = useMenuRootContext();
-  const activeTriggerId = store.useState('activeTriggerId');
-  const activeTriggerElement = store.useState('activeTriggerElement');
-
-  const popupId = id ?? defaultFloatingId;
-  const { ariaLabel, ariaLabelledBy } = resolveMenuPopupLabel(
-    menuProps,
-    activeTriggerElement,
-    activeTriggerId,
-  );
-
-  return (
-    <FilterDropdownPopup
-      id={popupId}
-      aria-label={ariaLabel}
-      aria-labelledby={ariaLabelledBy}
-      // The consumer's props and ref go to the inner popup only, so each handler runs once.
-      render={<MenuPopupPlain {...menuProps} id={id} ref={forwardedRef} role="dialog" />}
-    />
-  );
+  const popupProps = mergeProps<typeof MenuPopupPlain>(useFilterDropdownPopup(), props);
+  return <MenuPopupPlain {...popupProps} role="dialog" ref={forwardedRef} />;
 });
 
 export interface FilteredMenuPopupProps extends MenuPopupProps {}
