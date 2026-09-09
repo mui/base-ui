@@ -1,4 +1,5 @@
-import type { MenuFilterFunction, MenuFilterRoot } from './MenuFilterRoot';
+import type { MenuFilterFunction } from './MenuFilterRoot';
+import type { MenuFilterProvider } from '../filter-provider/MenuFilterProvider';
 
 /** The filtering props of `Menu.FilterProvider`, applied to the root directly inside it. */
 export interface MenuFilterRootFilterProps {
@@ -37,6 +38,6 @@ export interface MenuFilterRootFilterProps {
    * Event handler called when the filter query changes.
    */
   onInputValueChange?:
-    | ((value: string, eventDetails: MenuFilterRoot.InputValueChangeEventDetails) => void)
+    | ((value: string, eventDetails: MenuFilterProvider.InputValueChangeEventDetails) => void)
     | undefined;
 }

@@ -130,6 +130,7 @@ const MenuRootImpl = fastComponent(function MenuRoot<Payload>(props: MenuRoot.Pr
   // invalidation doesn't cascade into every descendant root's context.
   const parentContextStore = parentMenuRootContext?.store;
   const parentVirtualFocus = parentMenuRootContext?.virtualFocus ?? false;
+  const parentWebkitItemSelected = parentMenuRootContext?.webkitItemSelected ?? false;
   const parentFloatingId = parentMenuRootContext?.floatingId;
   const parentFromContext: MenuParent = React.useMemo(() => {
     if (isSubmenu && parentContextStore) {
@@ -552,7 +553,7 @@ const MenuRootImpl = fastComponent(function MenuRoot<Payload>(props: MenuRoot.Pr
     listRef: store.context.itemDomElements,
     activeIndex,
     virtual: virtualFocus,
-    nested: !virtualFocus && parent.type !== undefined,
+    nested: parent.type === 'menubar' || (!virtualFocus && parent.type !== undefined),
     parentOrientation: parent.type === 'menubar' ? parent.context.orientation : undefined,
     loopFocus,
     // Virtual focus opens with the input focused and nothing highlighted, so the first arrow key
@@ -574,7 +575,8 @@ const MenuRootImpl = fastComponent(function MenuRoot<Payload>(props: MenuRoot.Pr
     // forwarded cross-axis keys while closed.
     openOnArrowKeyDown: parent.type !== 'context-menu' && !(virtualFocus && isSubmenu),
     externalTree: !virtualFocus && nested ? floatingTreeRoot : undefined,
-    nestedReturnFocusRef: parentMenuRootContext?.virtualFocusRef,
+    nestedReturnFocusRef:
+      parent.type === 'menu' ? parentMenuRootContext?.virtualFocusRef : undefined,
     focusItemOnHover: highlightItemOnHover,
     resetOnPointerLeave,
   });
@@ -751,6 +753,7 @@ const MenuRootImpl = fastComponent(function MenuRoot<Payload>(props: MenuRoot.Pr
       virtualFocusRef,
       virtualFocusAutoFocus,
       parentVirtualFocus,
+      parentWebkitItemSelected,
       parentFloatingId,
       webkitItemSelected,
       syncHighlightedItem,
@@ -767,6 +770,7 @@ const MenuRootImpl = fastComponent(function MenuRoot<Payload>(props: MenuRoot.Pr
       virtualFocusRef,
       virtualFocusAutoFocus,
       parentVirtualFocus,
+      parentWebkitItemSelected,
       parentFloatingId,
       webkitItemSelected,
       syncHighlightedItem,

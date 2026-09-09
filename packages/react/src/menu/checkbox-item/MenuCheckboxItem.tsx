@@ -135,7 +135,6 @@ export const MenuCheckboxItem = React.forwardRef(function MenuCheckboxItem(
   }
   return (
     <MenuCheckboxItemPlain
-      {...filter.props}
       {...itemProps}
       checked={checked}
       onCheckedChange={handleCheckedChange}

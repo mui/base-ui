@@ -157,3 +157,47 @@ describe('<Menu.List />', () => {
     });
   });
 });
+
+describe('filterable menu list semantics', () => {
+  const { render } = createRenderer();
+
+  function TestMenu(props: { secondId?: string; orientation?: Menu.Root.Orientation }) {
+    return (
+      <Menu.FilterProvider autoHighlight="always">
+        <Menu.Root defaultOpen orientation={props.orientation}>
+          <Menu.Trigger>Actions</Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.FilterInput aria-label="Filter actions" />
+                <Menu.List>
+                  <Menu.Item id="first-item">First</Menu.Item>
+                  <Menu.Item id={props.secondId}>Second</Menu.Item>
+                </Menu.List>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>
+      </Menu.FilterProvider>
+    );
+  }
+
+  it('reads an item id when navigating to it', async () => {
+    const { user, setProps } = await render(<TestMenu secondId="old-id" />);
+    const input = screen.getByRole('searchbox');
+    await waitFor(() => expect(input).toHaveAttribute('aria-activedescendant', 'first-item'));
+    await setProps({ secondId: 'new-id' });
+    await user.keyboard('[ArrowDown]');
+    expect(input).toHaveAttribute('aria-activedescendant', 'new-id');
+  });
+
+  it('exposes horizontal navigation on the menu instead of the dialog', async () => {
+    const { user } = await render(<TestMenu orientation="horizontal" secondId="second-item" />);
+    const input = screen.getByRole('searchbox');
+    expect(screen.getByRole('menu')).toHaveAttribute('aria-orientation', 'horizontal');
+    expect(screen.getByRole('dialog')).not.toHaveAttribute('aria-orientation');
+    await waitFor(() => expect(input).toHaveAttribute('aria-activedescendant', 'first-item'));
+    await user.keyboard('[ArrowRight]');
+    expect(input).toHaveAttribute('aria-activedescendant', 'second-item');
+  });
+});

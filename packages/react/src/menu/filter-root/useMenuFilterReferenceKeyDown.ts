@@ -26,8 +26,6 @@ export function useMenuFilterReferenceKeyDown() {
   const { orientation, store: menuStore } = useMenuRootContext();
   const direction = useDirection();
 
-  const activeIndex = filterStore.useState('activeIndex');
-
   return useStableCallback((event: BaseUIEvent<React.KeyboardEvent<HTMLElement>>) => {
     if (event.which === 229) {
       return;
@@ -61,7 +59,7 @@ export function useMenuFilterReferenceKeyDown() {
       event.stopPropagation();
     }
 
-    const activeItem = listRef.current[activeIndex ?? -1];
+    const activeItem = listRef.current[filterStore.select('activeIndex') ?? -1];
     if (!activeItem || event.target !== event.currentTarget) {
       return;
     }

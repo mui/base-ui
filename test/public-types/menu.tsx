@@ -53,4 +53,7 @@ export function TypedFilterableTrigger() {
 }
 
 export type MenuFilterFunction = Menu.FilterProvider.Props['filter'];
+export type MenuFilterInputValueChangeEventReason = Menu.FilterProvider.InputValueChangeEventReason;
+export type MenuFilterInputValueChangeEventDetails =
+  Menu.FilterProvider.InputValueChangeEventDetails;
 export type MenuFilterUtils = ReturnType<typeof Menu.useFilter>;

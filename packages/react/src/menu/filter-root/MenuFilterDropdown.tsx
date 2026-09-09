@@ -7,6 +7,8 @@ import { useMenuRootContext } from '../root/MenuRootContext';
 import { REASONS } from '../../internals/reasons';
 import type { HTMLProps } from '../../internals/types';
 import type { MenuFilterRoot } from './MenuFilterRoot';
+import { MenuFilterImplContext } from './MenuFilterContext';
+import { MENU_FILTER_IMPL } from './MenuFilterImpl';
 
 export interface MenuFilterDropdownProps {
   open: boolean;
@@ -38,27 +40,18 @@ export function MenuFilterDropdown(props: MenuFilterDropdownProps) {
   });
 
   return (
-    <FilterDropdownRoot
-      open={props.open}
-      disabled={disabled}
-      inputFocusVisible={props.inputFocusVisible}
-      value={props.value}
-      query={props.query}
-      filter={props.filter}
-      autoHighlight={props.autoHighlight}
-      locale={props.locale}
-      // Trust the rendered element's id once it exists: an explicitly empty id must not
-      // fall back to a registered id that no element carries.
-      triggerId={triggerElement ? triggerElement.id || null : triggerId}
-      listRef={store.context.itemDomElements}
-      activeIndex={activeIndex}
-      setActiveIndex={setActiveIndex}
-      inputProps={props.inputProps}
-      inputRef={virtualFocusRef}
-      onValueChange={props.onValueChange}
-      onInputAutoFocusChange={props.onInputAutoFocusChange}
-    >
-      {props.children}
-    </FilterDropdownRoot>
+    <MenuFilterImplContext.Provider value={MENU_FILTER_IMPL}>
+      <FilterDropdownRoot
+        {...props}
+        disabled={disabled}
+        // Trust the rendered element's id once it exists: an explicitly empty id must not
+        // fall back to a registered id that no element carries.
+        triggerId={triggerElement ? triggerElement.id || null : triggerId}
+        listRef={store.context.itemDomElements}
+        activeIndex={activeIndex}
+        setActiveIndex={setActiveIndex}
+        inputRef={virtualFocusRef}
+      />
+    </MenuFilterImplContext.Provider>
   );
 }

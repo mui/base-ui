@@ -752,8 +752,9 @@ export function useListNavigation(
           stopEvent(event);
           store.setOpen(false, createChangeEventDetails(REASONS.focusOut, event.nativeEvent));
 
-          if (isHTMLElement(domReferenceElement)) {
-            domReferenceElement.focus();
+          const returnElement = nestedReturnFocusRef?.current ?? domReferenceElement;
+          if (isHTMLElement(returnElement)) {
+            returnElement.focus();
           }
 
           return;
@@ -777,6 +778,7 @@ export function useListNavigation(
     open,
     virtual,
     domReferenceElement,
+    nestedReturnFocusRef,
   ]);
 
   const trigger: ElementProps['trigger'] = React.useMemo(() => {
@@ -826,7 +828,7 @@ export function useListNavigation(
           event.key === 'Enter' ||
           event.key.trim() === '';
 
-        if (virtual && currentOpen) {
+        if (virtual && currentOpen && (!nested || isTypeableElement(event.currentTarget))) {
           return commonOnKeyDown(event);
         }
 
@@ -848,6 +850,9 @@ export function useListNavigation(
             if (currentOpen) {
               indexRef.current = getMinEnabledIndex();
               onNavigate(event);
+              if (virtual) {
+                floatingFocusElementRef.current?.focus();
+              }
             } else {
               openOnNavigationKeyDown(event);
             }
@@ -913,6 +918,7 @@ export function useListNavigation(
     selectedIndexRef,
     virtual,
     activeIndexRef,
+    floatingFocusElementRef,
   ]);
 
   const reference: ElementProps['reference'] = React.useMemo(() => {

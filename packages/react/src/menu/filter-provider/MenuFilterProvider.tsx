@@ -4,6 +4,7 @@ import { MenuFilterRoot } from '../filter-root/MenuFilterRoot';
 import { MenuFilterSubmenuRoot } from '../filter-submenu-root/MenuFilterSubmenuRoot';
 import type { MenuFilterRootFilterProps } from '../filter-root/MenuFilterRootFilterProps';
 import { MenuFilterProviderContext } from './MenuFilterProviderContext';
+import type { FilterDropdownRoot } from '../../filter-dropdown/root/FilterDropdownRootContext';
 
 /**
  * Makes the menu directly inside it filterable: the popup can render `Menu.FilterInput`,
@@ -54,6 +55,11 @@ export interface MenuFilterProviderProps extends MenuFilterRootFilterProps {
   children?: React.ReactNode;
 }
 
+export type MenuFilterProviderInputValueChangeEventReason = FilterDropdownRoot.ChangeEventReason;
+export type MenuFilterProviderInputValueChangeEventDetails = FilterDropdownRoot.ChangeEventDetails;
+
 export namespace MenuFilterProvider {
   export type Props = MenuFilterProviderProps;
+  export type InputValueChangeEventReason = MenuFilterProviderInputValueChangeEventReason;
+  export type InputValueChangeEventDetails = MenuFilterProviderInputValueChangeEventDetails;
 }

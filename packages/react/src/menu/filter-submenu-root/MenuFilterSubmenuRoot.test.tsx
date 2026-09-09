@@ -1,8 +1,9 @@
 import { expect, vi, describe, beforeEach, it } from 'vitest';
 import * as React from 'react';
+import * as ReactDOM from 'react-dom';
 import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { Menu } from '@base-ui/react/menu';
-import { createRenderer, isJSDOM, resetBrowserPointer } from '#test-utils';
+import { createRenderer, isJSDOM, resetBrowserPointer, waitSingleFrame } from '#test-utils';
 
 // The submenu trigger's VoiceOver branch is covered separately; keep the mainline deterministic.
 vi.mock('@base-ui/utils/platform', async () => {
@@ -314,13 +315,14 @@ describe('<Menu.FilterProvider><Menu.SubmenuRoot/></Menu.FilterProvider>', () =>
       await user.keyboard('ar');
       expect(input).toHaveValue('ar');
 
-      // Crossing the trigger on the way back must not steal focus from the input. The parent
-      // focuses a hovered item asynchronously, so dispatch and settle inside one act scope.
+      // Commit the hover highlight before awaiting focus frames so React 18's focus updates
+      // stay inside act. Crossing the trigger must not interrupt typing in the submenu.
       await act(async () => {
-        trigger.dispatchEvent(new MouseEvent('mousemove', { bubbles: true }));
-        await new Promise<void>((resolve) => {
-          requestAnimationFrame(() => requestAnimationFrame(() => resolve()));
+        ReactDOM.flushSync(() => {
+          fireEvent.mouseMove(trigger);
         });
+        await waitSingleFrame();
+        await waitSingleFrame();
       });
       expect(input).toHaveFocus();
       await user.keyboard('c');
@@ -344,5 +346,43 @@ describe('<Menu.FilterProvider><Menu.SubmenuRoot/></Menu.FilterProvider>', () =>
         expect(screen.getByRole('menuitem', { name: 'Rename' })).toHaveFocus();
       });
     });
+  });
+});
+
+describe('filtered submenu trigger navigation', () => {
+  const { render } = createRenderer();
+
+  it('prevents native scrolling when moving along the parent menu', async () => {
+    await render(
+      <Menu.Root defaultOpen>
+        <Menu.Trigger>Actions</Menu.Trigger>
+        <Menu.Portal>
+          <Menu.Positioner>
+            <Menu.Popup>
+              <Menu.FilterProvider>
+                <Menu.SubmenuRoot>
+                  <Menu.SubmenuTrigger openOnHover={false}>More</Menu.SubmenuTrigger>
+                  <Menu.Portal>
+                    <Menu.Positioner>
+                      <Menu.Popup>
+                        <Menu.FilterInput aria-label="Filter child actions" />
+                        <Menu.List>
+                          <Menu.Item>Child</Menu.Item>
+                        </Menu.List>
+                      </Menu.Popup>
+                    </Menu.Positioner>
+                  </Menu.Portal>
+                </Menu.SubmenuRoot>
+              </Menu.FilterProvider>
+              <Menu.Item>Next</Menu.Item>
+            </Menu.Popup>
+          </Menu.Positioner>
+        </Menu.Portal>
+      </Menu.Root>,
+    );
+    const trigger = screen.getByRole('menuitem', { name: 'More' });
+    await act(async () => trigger.focus());
+    expect(fireEvent.keyDown(trigger, { key: 'ArrowDown' })).toBe(false);
+    expect(screen.getByRole('menuitem', { name: 'Next' })).toHaveFocus();
   });
 });

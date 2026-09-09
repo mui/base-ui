@@ -2,7 +2,6 @@
 import * as React from 'react';
 import { EMPTY_ARRAY } from '@base-ui/utils/empty';
 import { ownerDocument } from '@base-ui/utils/owner';
-import { useControlled } from '@base-ui/utils/useControlled';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { isHTMLElement } from '@floating-ui/utils/dom';
@@ -10,13 +9,10 @@ import { type MenuSubmenuRoot, type MenuSubmenuRootProps } from '../submenu-root
 import { MenuRootInternal, type MenuRoot } from '../root/MenuRoot';
 import { FilterDropdownRoot } from '../../filter-dropdown/root/FilterDropdownRoot';
 import type { MenuFilterRootFilterProps } from '../filter-root/MenuFilterRootFilterProps';
-import { useFilterDropdownCloseQuery } from '../../filter-dropdown/root/useFilterDropdownCloseQuery';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { MenuFilterDropdown } from '../filter-root/MenuFilterDropdown';
-import { MenuFilterImplContext } from '../filter-root/MenuFilterContext';
-import { MENU_FILTER_IMPL } from '../filter-root/MenuFilterImpl';
 import { isKeyboardOpen } from '../filter-root/isKeyboardOpen';
-import { useMenuFilterWebkitItemSelected } from '../filter-root/useMenuFilterWebkitItemSelected';
+import { useMenuFilterRoot } from '../filter-root/useMenuFilterRoot';
 import type { BaseUIEvent } from '../../internals/types';
 import { useDirection } from '../../internals/direction-context/DirectionContext';
 import {
@@ -40,62 +36,11 @@ type ParentReference = { reference: HTMLElement; trigger: HTMLElement };
  * @internal
  */
 export function MenuFilterSubmenuRoot(props: MenuFilterSubmenuRoot.Props): React.JSX.Element {
-  const {
-    open: openProp,
-    defaultOpen = false,
-    onOpenChange,
-    onOpenChangeComplete,
-    inputValue: inputValueProp,
-    defaultInputValue = '',
-    onInputValueChange,
-    filter,
-    autoHighlight = false,
-    disabled: disabledProp,
-    locale,
-    children,
-    ...submenuProps
-  } = props;
-
   const parent = useMenuRootContext();
   const parentStore = parent.store;
   const parentDisabled = parentStore.useState('disabled');
-
-  const [open, setOpen] = useControlled({
-    controlled: openProp,
-    default: defaultOpen,
-    name: 'MenuFilterSubmenuRoot',
-    state: 'open',
-  });
-  const [inputValue, setInputValue] = useControlled({
-    controlled: inputValueProp,
-    default: defaultInputValue,
-    name: 'MenuFilterSubmenuRoot',
-    state: 'inputValue',
-  });
-  const [inputFocusVisible, setInputFocusVisible] = React.useState(false);
-  const [inputAutoFocus, setInputAutoFocus] = React.useState(false);
-
+  const { rootProps, dropdownProps } = useMenuFilterRoot(props, 'MenuFilterSubmenuRoot');
   const parentReferenceRef = React.useRef<ParentReference | null>(null);
-  const focusOwnerRef = React.useRef<HTMLElement | null>(null);
-  const webkitItemSelected = useMenuFilterWebkitItemSelected();
-
-  const disabled = parentDisabled || disabledProp;
-
-  const handleInputValueChange = useStableCallback(
-    (nextValue: string, details: MenuFilterSubmenuRoot.InputValueChangeEventDetails) => {
-      onInputValueChange?.(nextValue, details);
-      if (!details.isCanceled) {
-        setInputValue(nextValue);
-      }
-    },
-  );
-
-  const closeQuery = useFilterDropdownCloseQuery({
-    open,
-    value: inputValue,
-    onValueChange: handleInputValueChange,
-    onOpenChangeComplete,
-  });
 
   function handleSubmenuEnter(trigger: HTMLElement) {
     const focusedElement = parent.virtualFocus
@@ -126,14 +71,10 @@ export function MenuFilterSubmenuRoot(props: MenuFilterSubmenuRoot.Props): React
   }
 
   function handleOpenChange(nextOpen: boolean, details: MenuFilterSubmenuRoot.ChangeEventDetails) {
-    onOpenChange?.(nextOpen, details);
+    rootProps.onOpenChange(nextOpen, details);
     if (details.isCanceled) {
       return;
     }
-
-    closeQuery.handleOpenChange(nextOpen);
-    setOpen(nextOpen);
-    setInputFocusVisible(nextOpen && isKeyboardOpen(details));
 
     if (!nextOpen) {
       if (details.reason === REASONS.escapeKey && isHTMLElement(details.trigger)) {
@@ -158,22 +99,14 @@ export function MenuFilterSubmenuRoot(props: MenuFilterSubmenuRoot.Props): React
 
   return (
     <MenuRootInternal
-      {...submenuProps}
+      {...rootProps}
       isSubmenu
-      disabled={disabled}
-      open={open}
+      disabled={parentDisabled || props.disabled}
       onOpenChange={handleOpenChange}
-      onOpenChangeComplete={closeQuery.handleOpenChangeComplete}
-      virtualFocus
-      webkitItemSelected={webkitItemSelected}
-      virtualFocusRef={focusOwnerRef}
-      virtualFocusAutoFocus={inputAutoFocus}
-      allowEscape={!autoHighlight}
-      resetOnPointerLeave={autoHighlight !== 'always'}
       renderVirtualFocusChildren={(_, inputProps) => (
         <MenuFilterSubmenuNavigation
           parentStore={parentStore}
-          inputAutoFocus={inputAutoFocus}
+          inputAutoFocus={rootProps.virtualFocusAutoFocus}
           parentOrientation={parent.orientation}
           parentLoopFocus={parent.loopFocus}
           getReturnElement={() =>
@@ -184,22 +117,9 @@ export function MenuFilterSubmenuRoot(props: MenuFilterSubmenuRoot.Props): React
           onSubmenuEnter={handleSubmenuEnter}
           onSubmenuExit={handleSubmenuExit}
         >
-          <MenuFilterImplContext.Provider value={MENU_FILTER_IMPL}>
-            <MenuFilterDropdown
-              open={open}
-              inputFocusVisible={inputFocusVisible}
-              value={inputValue}
-              query={closeQuery.query}
-              filter={filter}
-              autoHighlight={autoHighlight}
-              locale={locale}
-              inputProps={inputProps}
-              onValueChange={handleInputValueChange}
-              onInputAutoFocusChange={setInputAutoFocus}
-            >
-              {children}
-            </MenuFilterDropdown>
-          </MenuFilterImplContext.Provider>
+          <MenuFilterDropdown {...dropdownProps} inputProps={inputProps}>
+            {props.children}
+          </MenuFilterDropdown>
         </MenuFilterSubmenuNavigation>
       )}
     />
@@ -341,7 +261,7 @@ function MenuFilterSubmenuNavigation(props: MenuFilterSubmenuNavigationProps) {
       }
 
       (event as unknown as BaseUIEvent<React.KeyboardEvent>).preventBaseUIHandler();
-      event.stopPropagation();
+      stopEvent(event);
       return;
     }
 

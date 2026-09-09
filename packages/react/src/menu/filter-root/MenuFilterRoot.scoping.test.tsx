@@ -667,3 +667,43 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
     });
   });
 });
+
+describe('independent menu focus inside a filterable menu', () => {
+  const { render } = createRenderer();
+
+  it('returns to its own trigger on Shift+Tab', async () => {
+    const { user } = await render(
+      <Menu.FilterProvider>
+        <Menu.Root open>
+          <Menu.Trigger>Parent</Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.FilterInput aria-label="Filter parent" />
+                <Menu.List>
+                  <Menu.Item>Parent action</Menu.Item>
+                </Menu.List>
+                <Menu.Root defaultOpen>
+                  <Menu.Trigger>Independent</Menu.Trigger>
+                  <Menu.Portal>
+                    <Menu.Positioner>
+                      <Menu.Popup>
+                        <Menu.Item>Independent action</Menu.Item>
+                      </Menu.Popup>
+                    </Menu.Positioner>
+                  </Menu.Portal>
+                </Menu.Root>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>
+      </Menu.FilterProvider>,
+    );
+    await act(async () => screen.getByRole('menuitem', { name: 'Independent action' }).focus());
+    await user.keyboard('{Shift>}[Tab]{/Shift}');
+    await waitFor(() =>
+      expect(screen.queryByRole('menuitem', { name: 'Independent action' })).toBe(null),
+    );
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Independent' })).toHaveFocus());
+  });
+});

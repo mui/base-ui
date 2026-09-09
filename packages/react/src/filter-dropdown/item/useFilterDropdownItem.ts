@@ -135,14 +135,12 @@ export function useFilterDropdownItem(
 
   // Re-register when filterable item data changes, so the active query runs again.
   useIsoLayoutEffect(() => {
-    const text = resolveText();
+    // Hidden custom components have no inspectable text. Their cached label has not changed.
+    const text =
+      resolveText() || (ref.current === null && label == null ? previousTextRef.current : '');
     const keywordsChanged = keywordsKey !== previousKeywordsKeyRef.current;
     if (text !== previousTextRef.current || keywordsChanged) {
-      // Keep the last rendered text when the item is filtered out. A custom child component
-      // cannot be inspected once its host element is unmounted.
-      if (text || ref.current !== null || label != null) {
-        previousTextRef.current = text;
-      }
+      previousTextRef.current = text;
       previousKeywordsKeyRef.current = keywordsKey;
       void register(text);
     }

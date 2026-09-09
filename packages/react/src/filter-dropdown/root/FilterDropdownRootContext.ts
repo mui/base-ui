@@ -20,7 +20,6 @@ export interface FilterDropdownRootContext {
   setKeyboardModality: (keyboardModality: boolean) => void;
   autoHighlight: boolean | 'always';
   store: FilterDropdownStore;
-  defaultPopupId: string | undefined;
   triggerId: string | undefined;
   defaultListId: string | undefined;
   listId: string | undefined;
@@ -95,13 +94,6 @@ export function useFilterContextForList(
     context = context.parent;
   }
   return context;
-}
-
-/**
- * The id of the highlighted item, for `aria-activedescendant`.
- */
-export function useActiveItemId(context: FilterDropdownRootContext) {
-  return context.store.useState('activeItemId');
 }
 
 // `value` controls a native input and can't be placed in the store without breaking the caret
