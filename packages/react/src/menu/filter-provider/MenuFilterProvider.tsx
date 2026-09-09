@@ -8,8 +8,8 @@ import type { FilterDropdownRoot } from '../../filter-dropdown/root/FilterDropdo
 
 /**
  * Makes the menu directly inside it filterable: the popup can render `Menu.FilterInput`,
- * `Menu.List`, `Menu.FilterClear`, `Menu.FilterEmpty`, and `Menu.FilterStatus`, and the
- * items filter against the query.
+ * `Menu.FilterClear`, and `Menu.FilterEmpty`, and the items inside `Menu.List` filter against
+ * the query.
  * Wrap it around `Menu.Root` or `Menu.SubmenuRoot`. A submenu doesn't inherit it; wrap the
  * submenu's root in its own provider to filter it too. This is the only part that bundles the
  * filter implementation.

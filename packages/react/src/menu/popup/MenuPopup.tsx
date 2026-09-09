@@ -59,6 +59,7 @@ export const MenuPopupPlain = React.forwardRef(function MenuPopup(
   const hoverEnabled = store.useState('hoverEnabled');
   const disabled = store.useState('disabled');
   const setPopupElement = store.useStateSetter('popupElement');
+  const listElement = store.useState('listElement');
 
   const [id, registerIdRef] = useRenderedId(componentProps, defaultFloatingId, setFloatingId);
   const { ariaLabelledBy } = resolveMenuPopupLabel(
@@ -141,10 +142,16 @@ export const MenuPopupPlain = React.forwardRef(function MenuPopup(
       popupProps,
       {
         id,
-        role: 'menu',
-        // `menu` is implicitly vertical, so only the non-default value needs to be rendered.
-        'aria-orientation': orientation === 'horizontal' ? 'horizontal' : undefined,
-        'aria-labelledby': ariaLabelledBy,
+        // A rendered `Menu.List` carries the `menu` semantics instead.
+        ...(listElement
+          ? { role: 'presentation' }
+          : {
+              role: 'menu',
+              // `menu` is implicitly vertical, so only the non-default value needs to be
+              // rendered.
+              'aria-orientation': orientation === 'horizontal' ? 'horizontal' : undefined,
+              'aria-labelledby': ariaLabelledBy,
+            }),
         onKeyDown(event) {
           submenuRootContext?.onPopupKeyDown?.(event);
           if (insideToolbar && COMPOSITE_KEYS.has(event.key)) {

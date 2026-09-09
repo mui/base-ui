@@ -26,5 +26,4 @@ export { MenuFilterInput as FilterInput } from './filter-input/MenuFilterInput';
 export { MenuList as List } from './list/MenuList';
 export { MenuFilterClear as FilterClear } from './filter-clear/MenuFilterClear';
 export { MenuFilterEmpty as FilterEmpty } from './filter-empty/MenuFilterEmpty';
-export { MenuFilterStatus as FilterStatus } from './filter-status/MenuFilterStatus';
 export { getFilter as useFilter } from '../internals/filter';

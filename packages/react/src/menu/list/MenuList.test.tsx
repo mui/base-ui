@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { expect, vi, describe, beforeEach, it } from 'vitest';
-import { createRenderer, resetBrowserPointer } from '#test-utils';
+import { createRenderer, describeConformance, resetBrowserPointer } from '#test-utils';
 import { Menu } from '@base-ui/react/menu';
 
 describe('<Menu.List />', () => {
@@ -199,5 +199,86 @@ describe('filterable menu list semantics', () => {
     await waitFor(() => expect(input).toHaveAttribute('aria-activedescendant', 'first-item'));
     await user.keyboard('[ArrowRight]');
     expect(input).toHaveAttribute('aria-activedescendant', 'second-item');
+  });
+});
+
+describe('<Menu.List /> in a plain menu', () => {
+  const { render } = createRenderer();
+
+  function PlainMenu(props: { orientation?: Menu.Root.Props['orientation'] }) {
+    return (
+      <Menu.Root orientation={props.orientation}>
+        <Menu.Trigger>Actions</Menu.Trigger>
+        <Menu.Portal>
+          <Menu.Positioner>
+            <Menu.Popup data-testid="popup">
+              <div>Header</div>
+              <Menu.List data-testid="list">
+                <Menu.Item data-testid="item-1">Rename</Menu.Item>
+                <Menu.Item data-testid="item-2">Delete</Menu.Item>
+              </Menu.List>
+            </Menu.Popup>
+          </Menu.Positioner>
+        </Menu.Portal>
+      </Menu.Root>
+    );
+  }
+
+  describeConformance(<Menu.List />, () => ({
+    refInstanceof: window.HTMLDivElement,
+    render: (node) =>
+      render(
+        <Menu.Root open>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>{node}</Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>,
+      ),
+  }));
+
+  it('takes the menu role and label from the popup', async () => {
+    const { user } = await render(<PlainMenu />);
+    const trigger = screen.getByRole('button', { name: 'Actions' });
+
+    await user.click(trigger);
+
+    const list = await screen.findByTestId('list');
+    expect(list).toHaveAttribute('role', 'menu');
+    expect(list).toHaveAttribute('aria-labelledby', trigger.id);
+    expect(screen.getByTestId('popup')).toHaveAttribute('role', 'presentation');
+    expect(screen.getByTestId('popup')).not.toHaveAttribute('aria-labelledby');
+    expect(trigger).toHaveAttribute('aria-controls', list.id);
+  });
+
+  it('renders the orientation on the list', async () => {
+    const { user } = await render(<PlainMenu orientation="horizontal" />);
+
+    await user.click(screen.getByRole('button', { name: 'Actions' }));
+
+    const list = await screen.findByTestId('list');
+    expect(list).toHaveAttribute('aria-orientation', 'horizontal');
+    expect(screen.getByTestId('popup')).not.toHaveAttribute('aria-orientation');
+  });
+
+  it('navigates the items with the keyboard', async () => {
+    const { user } = await render(<PlainMenu />);
+    const trigger = screen.getByRole('button', { name: 'Actions' });
+
+    await act(async () => {
+      trigger.focus();
+    });
+    await user.keyboard('[Enter]');
+
+    await waitFor(() => {
+      expect(screen.getByTestId('item-1')).toHaveFocus();
+    });
+
+    await user.keyboard('[ArrowDown]');
+
+    await waitFor(() => {
+      expect(screen.getByTestId('item-2')).toHaveFocus();
+    });
   });
 });

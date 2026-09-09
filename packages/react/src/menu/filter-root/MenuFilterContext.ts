@@ -5,6 +5,7 @@ import type { HTMLProps } from '../../internals/types';
 import type { FilteredMenuPopup } from './FilteredMenuPopup';
 import type { FilteredMenuGroup } from './FilteredMenuGroup';
 import type { FilteredMenuRadioGroup } from './FilteredMenuRadioGroup';
+import type { FilteredMenuList } from './FilteredMenuList';
 
 export interface MenuFilterItemParams {
   label: string | undefined;
@@ -29,6 +30,7 @@ export interface MenuFilterItemResult {
  */
 export interface MenuFilterImpl {
   Popup: typeof FilteredMenuPopup;
+  List: typeof FilteredMenuList;
   Group: typeof FilteredMenuGroup;
   RadioGroup: typeof FilteredMenuRadioGroup;
   /** Registers an item with the filter and reports whether it matches the query. */
