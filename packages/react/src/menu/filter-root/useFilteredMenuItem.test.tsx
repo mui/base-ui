@@ -1,5 +1,5 @@
 import { expect, vi, describe, beforeEach, it } from 'vitest';
-import { screen, waitFor } from '@mui/internal-test-utils';
+import { fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, resetBrowserPointer } from '#test-utils';
 import { Menu } from '@base-ui/react/menu';
 
@@ -87,8 +87,7 @@ describe('filtered Menu items', () => {
         expect(screen.queryByRole('menuitem', { name: 'Rename' })).toBe(null);
       });
 
-      await user.clear(input);
-      await user.type(input, 'rena');
+      fireEvent.change(input, { target: { value: 'rena' } });
 
       await waitFor(() => {
         expect(screen.getByRole('menuitem', { name: 'Rename' })).toBeVisible();

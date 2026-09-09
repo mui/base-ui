@@ -30,9 +30,9 @@ export const MenuList = React.forwardRef(function MenuList(
   componentProps: MenuList.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { syncHighlightedItem } = useMenuRootContext();
+  const { syncHighlightedItem, orientation } = useMenuRootContext();
   const { onItemsChange, focusOwnerRef } = useFilterDropdownRootContext();
-  const { store: filterStore } = useFilterDropdownItemContext();
+  const { store: filterStore, listRef } = useFilterDropdownItemContext();
   const { subscribeMapChange } = useCompositeListContext();
   const handleReferenceKeyDown = useMenuFilterReferenceKeyDown();
 
@@ -59,44 +59,31 @@ export const MenuList = React.forwardRef(function MenuList(
     },
   );
 
-  const previousItemsRef = React.useRef<readonly Element[]>([]);
-  // Distinguishes "no snapshot yet" from "the last snapshot was empty". Comparing against the
-  // empty initial value would also skip the list repopulating after a query matched nothing.
-  const hasPublishedItemsRef = React.useRef(false);
+  // `null` distinguishes the initial registration from a list emptied by filtering.
+  const previousItemsRef = React.useRef<readonly (HTMLElement | null)[] | null>(null);
 
-  const handleItemMapChange = useStableCallback((map: Map<Element, { index: number }>) => {
+  const handleItemMapChange = useStableCallback(() => {
     syncHighlightedItem();
-    const items = Array.from(map.keys());
+    const items = [...listRef.current];
     const previousItems = previousItemsRef.current;
     const itemsChanged =
-      hasPublishedItemsRef.current &&
+      previousItems !== null &&
       (previousItems.length !== items.length ||
         items.some((item, index) => item !== previousItems[index]));
     previousItemsRef.current = items;
-    hasPublishedItemsRef.current = true;
+    if (previousItems !== null && !itemsChanged) {
+      return;
+    }
 
-    // Composite items receive their final indexes from this map update. Read their rendered ids
-    // after those synchronous layout updates commit instead of publishing the previous indexes.
+    // Composite items receive their final indexes from this map update. Publish after their
+    // synchronous layout updates commit so the active item's rendered id has settled.
     queueMicrotask(() => {
       if (itemsChanged) {
         // A positional highlight must not silently move to another action when live items are
         // inserted, removed, or reordered.
         onItemsChange(items.length > 0);
       }
-      const nextIds: (string | undefined)[] = [];
-      map.forEach((metadata, element) => {
-        nextIds[metadata.index] = element.id;
-      });
-      const currentIds = filterStore.state.itemIds;
-      // A fresh array always fails the store's identity check, and every item, group, and the
-      // input subscribe to it. Filtering rarely changes the ids themselves, so compare first.
-      let idsChanged = currentIds.length !== nextIds.length;
-      for (let i = 0; !idsChanged && i < nextIds.length; i += 1) {
-        idsChanged = nextIds[i] !== currentIds[i];
-      }
-      if (idsChanged) {
-        filterStore.set('itemIds', nextIds);
-      }
+      filterStore.set('items', items);
     });
   });
 
@@ -106,7 +93,7 @@ export const MenuList = React.forwardRef(function MenuList(
 
   const listProps = mergeProps<typeof FilterDropdownList>(
     {
-      role: 'menu',
+      'aria-orientation': orientation === 'horizontal' ? 'horizontal' : undefined,
       onKeyDown: handleKeyDown,
     },
     componentProps,

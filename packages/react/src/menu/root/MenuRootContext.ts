@@ -17,6 +17,8 @@ export interface MenuRootContext<Payload = unknown> {
   /** Whether the virtual focus owner takes focus even when the menu opens on hover. */
   virtualFocusAutoFocus: boolean;
   parentVirtualFocus: boolean;
+  /** The parent list's WebKit selection state, used by this menu's submenu trigger. */
+  parentWebkitItemSelected: boolean;
   /**
    * The parent menu's `floatingId`, read from its context rather than its store so a submenu
    * trigger derives its id from the same value, in the same render, as its sibling items.

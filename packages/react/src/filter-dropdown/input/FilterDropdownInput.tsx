@@ -6,7 +6,6 @@ import { useRenderElement } from '../../internals/useRenderElement';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import {
-  useActiveItemId,
   useFilterDropdownRootContext,
   useFilterDropdownValueContext,
 } from '../root/FilterDropdownRootContext';
@@ -26,7 +25,7 @@ export const FilterDropdownInput = React.forwardRef(function FilterDropdownInput
   const context = useFilterDropdownRootContext();
   const inputProps = context.store.useState('inputProps');
   const value = useFilterDropdownValueContext();
-  const activeItemId = useActiveItemId(context);
+  const activeItemId = context.store.useState('activeItemId');
 
   // `autoFocus` goes through the popup's initial focus so it applies on every open, including
   // hover opens, and runs once the popup is positioned. React's native handling would focus the

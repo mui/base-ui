@@ -23,7 +23,6 @@ export const MenuFilterInput = React.forwardRef(function MenuFilterInput(
   forwardedRef: React.ForwardedRef<HTMLInputElement>,
 ) {
   const { listRef, store } = useFilterDropdownItemContext();
-  const activeIndex = store.useState('activeIndex');
   const handleReferenceKeyDown = useMenuFilterReferenceKeyDown();
 
   const inputProps = mergeProps<typeof FilterDropdownInput>(
@@ -41,7 +40,7 @@ export const MenuFilterInput = React.forwardRef(function MenuFilterInput(
           return;
         }
 
-        const activeItem = listRef.current[activeIndex ?? -1];
+        const activeItem = listRef.current[store.select('activeIndex') ?? -1];
         if (activeItem) {
           event.preventDefault();
           dispatchClickWithModifiers(activeItem, event);

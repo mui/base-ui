@@ -129,6 +129,16 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider> (WebKit)', () 
                       </Menu.Portal>
                     </Menu.SubmenuRoot>
                   </Menu.FilterProvider>
+                  <Menu.SubmenuRoot>
+                    <Menu.SubmenuTrigger>Plain submenu</Menu.SubmenuTrigger>
+                    <Menu.Portal>
+                      <Menu.Positioner>
+                        <Menu.Popup>
+                          <Menu.Item>Copy</Menu.Item>
+                        </Menu.Popup>
+                      </Menu.Positioner>
+                    </Menu.Portal>
+                  </Menu.SubmenuRoot>
                 </Menu.List>
               </Menu.Popup>
             </Menu.Positioner>
@@ -140,6 +150,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider> (WebKit)', () 
     const input = screen.getByRole('searchbox', { name: 'Filter actions' });
     const link = screen.getByRole('menuitem', { name: 'Documentation' });
     const submenuTrigger = screen.getByRole('menuitem', { name: 'More actions' });
+    const plainSubmenuTrigger = screen.getByRole('menuitem', { name: 'Plain submenu' });
     await waitFor(() => {
       expect(input).toHaveFocus();
     });
@@ -153,6 +164,13 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider> (WebKit)', () 
     expect(link).toHaveAttribute('aria-selected', 'false');
     expect(submenuTrigger).toHaveAttribute('aria-selected', 'true');
     expect(input).toHaveAttribute('aria-activedescendant', submenuTrigger.id);
+
+    expect(plainSubmenuTrigger).toHaveAttribute('aria-selected', 'false');
+    await user.keyboard('[ArrowDown]');
+
+    expect(submenuTrigger).toHaveAttribute('aria-selected', 'false');
+    expect(plainSubmenuTrigger).toHaveAttribute('aria-selected', 'true');
+    expect(input).toHaveAttribute('aria-activedescendant', plainSubmenuTrigger.id);
   });
 
   it('marks items inside an opened submenu selected', async () => {

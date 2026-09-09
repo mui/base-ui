@@ -87,7 +87,7 @@ export const MenuLinkItem = React.forwardRef(function MenuLinkItem(
   if (!filter.visible) {
     return null;
   }
-  return <MenuLinkItemPlain {...filter.props} {...linkItemProps} ref={ref} />;
+  return <MenuLinkItemPlain {...linkItemProps} ref={ref} />;
 });
 
 export interface MenuLinkItemState {
