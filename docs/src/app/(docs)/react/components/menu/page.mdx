@@ -346,7 +346,8 @@ Wrap `<Menu.Root>` in `<Menu.FilterProvider>` to add a search field that filters
 Only the provider imports the filtering code, so menus that don't filter don't bundle it.
 
 Render `<Menu.FilterInput>` inside the popup and place the items inside `<Menu.List>`.
-The popup becomes a dialog that contains the input and the list; every other part stays the same.
+The popup becomes a dialog that contains the input and the list, so the list is required here: an input can't sit inside a `menu` element.
+Every other part stays the same.
 
 ```jsx title="Filterable menu anatomy"
 <Menu.FilterProvider>
@@ -361,7 +362,6 @@ The popup becomes a dialog that contains the input and the list; every other par
           <Menu.List>
             <Menu.Item />
           </Menu.List>
-          <Menu.FilterStatus />
         </Menu.Popup>
       </Menu.Positioner>
     </Menu.Portal>
@@ -389,7 +389,6 @@ Items match their rendered text by default. Use `label` to provide explicit sear
 ```
 
 Groups with no matching items are hidden, including their labels. `<Menu.FilterEmpty>` is shown when no items match and renders nothing otherwise.
-Use `<Menu.FilterStatus>` to announce other changing messages, such as asynchronous loading progress. It renders nothing while it has no children.
 
 #### Custom matching
 
@@ -405,16 +404,6 @@ It receives the item's text and each keyword individually, together with the tri
 Pass `filter={null}` when you filter the items yourself and render only the results, such as when a server returns them.
 Remove empty groups as part of that filtering.
 `Menu.useFilter` returns the same collator-based matching for that purpose.
-
-#### Async search
-
-Pass `filter={null}` and fetch matches yourself to search a source too large to render, such as a server-side index.
-Open with a short list of suggestions, return only the top matches for each query, and keep the previous results rendered while a request is pending.
-Use `<Menu.FilterStatus>` to announce the progress and how much of the source matched.
-
-import { DemoMenuFilterAsync } from './demos/filter-async';
-
-<DemoMenuFilterAsync />
 
 #### Filterable submenus
 
@@ -530,10 +519,6 @@ The `Viewport` is optional — reach for it only when a single popup is opened b
 ### FilterEmpty
 
 <TypesMenu.FilterEmpty />
-
-### FilterStatus
-
-<TypesMenu.FilterStatus />
 
 ### Group
 

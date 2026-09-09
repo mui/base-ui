@@ -58,11 +58,6 @@ describe('Menu filter parts conformance', () => {
     render: (node) => renderInPopup(node),
   }));
 
-  describeConformance(<Menu.FilterStatus>Loading</Menu.FilterStatus>, () => ({
-    refInstanceof: window.HTMLDivElement,
-    render: (node) => renderInPopup(node),
-  }));
-
   describeConformance(<Menu.List />, () => ({
     refInstanceof: window.HTMLDivElement,
     render: (node) => renderInPopup(node),

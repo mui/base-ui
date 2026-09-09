@@ -25,6 +25,8 @@ export type State<Payload> = PopupStoreState<Payload> & {
   parent: MenuParent;
   rootId: string | undefined;
   activeIndex: number | null;
+  /** The `Menu.List` element, which takes the `menu` role from the popup when rendered. */
+  listElement: HTMLElement | null;
   /**
    * Whether real focus stays inside the popup while the list is navigated with
    * `aria-activedescendant`. Set by a filter root, and seeded on a handle created with
@@ -82,6 +84,7 @@ const selectors = {
   },
   activeIndex: (state: State<unknown>) => state.activeIndex,
   virtualFocus: (state: State<unknown>) => state.virtualFocus,
+  listElement: (state: State<unknown>) => state.listElement,
   isActive: (state: State<unknown>, itemIndex: number) => state.activeIndex === itemIndex,
   hoverEnabled: (state: State<unknown>) => state.hoverEnabled,
   instantType: (state: State<unknown>) => state.instantType,
@@ -240,6 +243,7 @@ function createInitialState<Payload>(
     },
     rootId: undefined,
     activeIndex: null,
+    listElement: null,
     virtualFocus: false,
     hoverEnabled: true,
     instantType: undefined,
