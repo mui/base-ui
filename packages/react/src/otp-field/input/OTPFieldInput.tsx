@@ -192,8 +192,13 @@ export const OTPFieldInput = React.forwardRef(function OTPFieldInput(
       }
     },
     onCompositionEnd(event) {
-      if (composingValue != null) {
-        setComposingValue(null);
+      if (composingValue == null) {
+        return;
+      }
+
+      setComposingValue(null);
+
+      if (!disabled && !readOnly) {
         commitValue(event.currentTarget.value, REASONS.inputChange, event);
       }
     },

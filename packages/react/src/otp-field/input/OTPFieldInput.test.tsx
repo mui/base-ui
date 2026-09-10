@@ -252,6 +252,33 @@ describe('<OTPField.Input />', () => {
     expect(document.activeElement).toBe(inputs[1]);
   });
 
+  (['disabled', 'readOnly'] as const).forEach((prop) => {
+    it(`does not commit a composition that ends after the field becomes ${prop}`, async () => {
+      const onValueChange = vi.fn();
+
+      const { setProps } = await render(
+        <OTPFieldTest validationType="alphanumeric" onValueChange={onValueChange} />,
+      );
+
+      const inputs = screen.getAllByRole<HTMLInputElement>('textbox');
+      const firstInput = inputs[0];
+
+      await act(async () => {
+        firstInput.focus();
+      });
+
+      fireEvent.compositionStart(firstInput);
+      fireEvent.change(firstInput, { target: { value: 'abc' } });
+
+      await setProps({ [prop]: true });
+
+      fireEvent.compositionEnd(firstInput, { target: { value: 'abc' } });
+
+      expect(onValueChange).not.toHaveBeenCalled();
+      expect(inputs.map((input) => input.value)).toEqual(['', '', '', '', '', '']);
+    });
+  });
+
   it('selects the slot value on mousedown', async () => {
     await render(<OTPFieldTest defaultValue="1" />);
 
