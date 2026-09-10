@@ -13,10 +13,8 @@ import { activeElement, contains, getTarget } from '../floating-ui-react/utils';
 import { isFocusVisible } from './utils/focusVisible';
 
 type ToastInternalUpdateOptions<Data extends object> = Partial<
-  Omit<ToastObject<Data>, 'id' | 'updateKey' | 'data'>
-> & {
-  data?: Partial<Data> | undefined;
-};
+  Omit<ToastObject<Data>, 'id' | 'updateKey'>
+>;
 
 /**
  * A toast once it lives in the store. `addToast` is the only way in and it always
@@ -204,8 +202,26 @@ export class ToastStore extends ReactStore<State, {}, typeof selectors> {
     return id;
   };
 
-  updateToast = <Data extends object>(id: string, updates: ToastManagerUpdateOptions<Data>) => {
-    this.updateToastInternal(id, updates, false, true);
+  updateToast = <Data extends object>(
+    id: string,
+    updates:
+      | ToastManagerUpdateOptions<Data>
+      | ((prevToast: ToastObject<Data>) => ToastManagerUpdateOptions<Data>),
+  ) => {
+    const prevToast = selectors.toast(this.state, id);
+    // Never run the updater for an update the store is going to ignore.
+    if (!prevToast || prevToast.transitionStatus === 'ending') {
+      return;
+    }
+
+    // The updater may have called back into the store, so the internal update
+    // reads the current state again.
+    this.updateToastInternal(
+      id,
+      typeof updates === 'function' ? updates(prevToast) : updates,
+      false,
+      true,
+    );
   };
 
   updateToastInternal = <Data extends object>(
@@ -230,9 +246,6 @@ export class ToastStore extends ReactStore<State, {}, typeof selectors> {
     const nextToast: StoredToast<Data> = {
       ...prevToast,
       ...updates,
-      ...(updates.data && {
-        data: { ...prevToast.data, ...updates.data },
-      }),
       ...(markUpdated && {
         updateKey: prevToast.updateKey + 1,
       }),

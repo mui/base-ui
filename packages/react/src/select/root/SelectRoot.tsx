@@ -10,7 +10,7 @@ import { useControlled } from '@base-ui/utils/useControlled';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
-import { useStore, ReactStore } from '@base-ui/utils/store';
+import { ReactStore } from '@base-ui/utils/store';
 import { EMPTY_ARRAY, EMPTY_OBJECT } from '@base-ui/utils/empty';
 import {
   useClick,
@@ -19,12 +19,17 @@ import {
   useListNavigation,
   useTypeahead,
 } from '../../floating-ui-react';
-import { SelectRootContext } from './SelectRootContext';
+import {
+  SelectFloatingContext,
+  SelectRootContext,
+  SelectRootPropsContext,
+  type SelectRootPropsContextValue,
+} from './SelectRootContext';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
 import { useRegisterFieldControl } from '../../internals/field-register-control/useRegisterFieldControl';
 import { useLabelableId } from '../../internals/labelable-provider/useLabelableId';
 import { useTransitionStatus } from '../../internals/useTransitionStatus';
-import { selectors, type State as StoreState } from '../store';
+import { selectors, type SelectStoreContext, type State as StoreState } from '../store';
 import {
   type BaseUIChangeEventDetails,
   createChangeEventDetails,
@@ -35,7 +40,7 @@ import { useFormContext } from '../../internals/form-context/FormContext';
 import { type Group, stringifyAsLabel, stringifyAsValue } from '../../internals/resolveValueLabel';
 import {
   defaultItemEquality,
-  findItemIndex,
+  findSelectionIndex,
   isSelectedValueDirty,
 } from '../../internals/itemEquality';
 import { useValueChanged } from '../../internals/useValueChanged';
@@ -43,6 +48,7 @@ import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
 import { getMaxScrollOffset, normalizeScrollOffset } from '../../utils/scrollEdges';
 import { FOCUSABLE_POPUP_PROPS } from '../../utils/popups';
 import { mergeProps } from '../../merge-props';
+import { NOOP } from '../../internals/noop';
 
 /**
  * Groups all parts of the select.
@@ -128,45 +134,68 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     dragY: 0,
   });
   const alignItemWithTriggerActiveRef = React.useRef(false);
+  const initialValueRef = React.useRef(value);
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
   const { openMethod, triggerProps: interactionTypeProps } = useOpenInteractionType(open);
 
   const store = useRefWithInit(
     () =>
-      new ReactStore<StoreState>({
-        id: generatedId,
-        labelId: undefined,
-        modal,
-        multiple,
-        itemToStringLabel,
-        itemToStringValue,
-        isItemEqualToValue,
-        value,
-        open,
-        mounted,
-        transitionStatus,
-        items,
-        forceMount: false,
-        openMethod: null,
-        activeIndex: null,
-        selectedIndex: null,
-        popupProps: {},
-        triggerProps: {},
-        triggerElement: null,
-        positionerElement: null,
-        listElement: null,
-        popupSide: null,
-        scrollUpArrowVisible: false,
-        scrollDownArrowVisible: false,
-        hasScrollArrows: false,
-      }),
+      new ReactStore<StoreState, SelectStoreContext, typeof selectors>(
+        {
+          id: generatedId,
+          labelId: undefined,
+          modal,
+          multiple,
+          itemToStringLabel,
+          itemToStringValue,
+          isItemEqualToValue,
+          value,
+          open,
+          mounted,
+          transitionStatus,
+          items,
+          forceMount: false,
+          openMethod: null,
+          activeIndex: null,
+          selectedIndex: null,
+          popupProps: EMPTY_OBJECT,
+          triggerProps: EMPTY_OBJECT,
+          triggerElement: null,
+          positionerElement: null,
+          listElement: null,
+          popupSide: null,
+          scrollUpArrowVisible: false,
+          scrollDownArrowVisible: false,
+          hasScrollArrows: false,
+        },
+        {
+          setValue: NOOP,
+          setOpen: NOOP,
+          handleScrollArrowVisibility: NOOP,
+          onOpenChangeComplete: NOOP,
+          listRef,
+          popupRef,
+          scrollHandlerRef,
+          scrollArrowsMountedCountRef,
+          valueRef,
+          valuesRef,
+          labelsRef,
+          typingRef,
+          selectionRef,
+          firstItemTextRef,
+          selectedItemTextRef,
+          alignItemWithTriggerActiveRef,
+          initialValueRef,
+        },
+        selectors,
+      ),
   ).current;
 
-  const activeIndex = useStore(store, selectors.activeIndex);
-  const selectedIndex = useStore(store, selectors.selectedIndex);
-  const triggerElement = useStore(store, selectors.triggerElement);
-  const positionerElement = useStore(store, selectors.positionerElement);
+  const activeIndex = store.useState('activeIndex');
+  const selectedIndex = store.useState('selectedIndex');
+  const triggerElement = store.useState('triggerElement');
+  const positionerElement = store.useState('positionerElement');
 
   const previousOpenMethod = usePreviousValue(openMethod);
   const renderedOpenMethod = openMethod ?? previousOpenMethod;
@@ -200,7 +229,6 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     nameProp,
   );
 
-  const initialValueRef = React.useRef(value);
   // Mirror the `hasSelectedValue` store selector so the Field's filled state agrees with the
   // trigger/value placeholder semantics (a value serializing to `''` counts as empty).
   const hasSelectedValue = multiple
@@ -213,19 +241,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
 
   useIsoLayoutEffect(
     function syncSelectedIndex() {
-      let target: unknown = value;
-      let empty = false;
-
-      if (multiple) {
-        const currentValue = Array.isArray(value) ? value : [];
-        empty = currentValue.length === 0;
-        target = currentValue[currentValue.length - 1];
-      }
-
-      const index = empty
-        ? -1
-        : findItemIndex(valuesRef.current, target as Value, isItemEqualToValue);
-      const nextIndex = index === -1 ? null : index;
+      const nextIndex = findSelectionIndex(valuesRef.current, value, isItemEqualToValue, multiple);
 
       if (nextIndex === null) {
         selectedItemTextRef.current = null;
@@ -411,6 +427,13 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   const itemProps =
     (listNavigation.item as React.HTMLProps<HTMLElement> | undefined) ?? EMPTY_OBJECT;
 
+  store.useContextCallback('setValue', setValue);
+  store.useContextCallback('setOpen', setOpen);
+  store.useContextCallback('handleScrollArrowVisibility', handleScrollArrowVisibility);
+  store.useContextCallback('onOpenChangeComplete', onOpenChangeComplete);
+
+  // The prop bags must be in the store before the parts render. `useSyncedValues` writes in a
+  // layout effect, after all descendants have rendered.
   useOnFirstRender(() => {
     store.update({
       popupProps,
@@ -435,50 +458,16 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     openMethod: renderedOpenMethod,
   });
 
-  const contextValue: SelectRootContext = React.useMemo(
+  const rootPropsContextValue: SelectRootPropsContextValue = React.useMemo(
     () => ({
-      store,
-      floatingContext,
-      required,
       disabled,
       readOnly,
+      required,
       multiple,
       highlightItemOnHover,
-      setValue,
-      setOpen,
-      listRef,
-      popupRef,
-      scrollHandlerRef,
-      handleScrollArrowVisibility,
-      scrollArrowsMountedCountRef,
       itemProps,
-      valueRef,
-      valuesRef,
-      labelsRef,
-      typingRef,
-      selectionRef,
-      firstItemTextRef,
-      selectedItemTextRef,
-      validation,
-      onOpenChangeComplete,
-      alignItemWithTriggerActiveRef,
-      initialValueRef,
     }),
-    [
-      store,
-      floatingContext,
-      required,
-      disabled,
-      readOnly,
-      multiple,
-      highlightItemOnHover,
-      setValue,
-      setOpen,
-      itemProps,
-      validation,
-      onOpenChangeComplete,
-      handleScrollArrowVisibility,
-    ],
+    [disabled, readOnly, required, multiple, highlightItemOnHover, itemProps],
   );
 
   const ref = useMergedRefs(inputRef, validation.inputRef);
@@ -506,8 +495,12 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   }, [multiple, value, form, name, itemToStringValue, disabled]);
 
   return (
-    <SelectRootContext.Provider value={contextValue}>
-      {children}
+    <SelectRootContext.Provider value={store}>
+      <SelectRootPropsContext.Provider value={rootPropsContextValue}>
+        <SelectFloatingContext.Provider value={floatingContext}>
+          {children}
+        </SelectFloatingContext.Provider>
+      </SelectRootPropsContext.Provider>
       <input
         {...validation.getValidationProps(disabled, {
           onFocus() {
@@ -534,7 +527,8 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
               }
 
               // Preserve the original serialized matching, then fall back to rendered text,
-              // which browsers can autofill for primitive values like `value="US">United States`.
+              // which browsers can autofill for primitive values like
+              // `value="US">United States`.
               const nextValueLower = nextValue.toLowerCase();
               let matchingIndex = valuesRef.current.findIndex(
                 (candidate) =>

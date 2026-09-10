@@ -46,10 +46,19 @@ typedManager.update('typed', {
 });
 
 typedManager.update('typed', {
+  // @ts-expect-error - id is a missing property, `data` replaces the whole value
   data: {
     count: 2,
   },
 });
+
+typedManager.update('typed', (prevToast) => {
+  expectType<ToastPayload | undefined, typeof prevToast.data>(prevToast.data);
+  return { data: { id: 'typed-update', count: 2 } };
+});
+
+// @ts-expect-error - count is a missing property, the updater returns the whole value
+typedManager.update('typed', () => ({ data: { id: 'typed-update' } }));
 
 typedManager.promise(Promise.resolve(2), {
   loading: 'loading',
@@ -81,6 +90,10 @@ legacyManager.update<ToastPayload>('legacy', {
   },
 });
 
+legacyManager.update<ToastPayload>('legacy', (prevToast) => ({
+  data: { id: 'legacy', count: (prevToast.data?.count ?? 0) + 1 },
+}));
+
 legacyManager.promise<number, ToastPayload>(Promise.resolve(5), {
   loading: 'loading',
   success: (value) => ({
@@ -91,4 +104,22 @@ legacyManager.promise<number, ToastPayload>(Promise.resolve(5), {
     },
   }),
   error: 'error',
+});
+
+type CallableData = () => string;
+const callableManager = useToastManager<CallableData>();
+
+callableManager.add({ data: () => 'initial' });
+
+callableManager.update('callable', { data: () => 'replacement' });
+
+callableManager.update('callable', (prevToast) => {
+  expectType<CallableData | undefined, typeof prevToast.data>(prevToast.data);
+  return { data: prevToast.data };
+});
+
+callableManager.promise(Promise.resolve(1), {
+  loading: { data: () => 'loading' },
+  success: { data: () => 'done' },
+  error: 'failed',
 });

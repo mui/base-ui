@@ -1,4 +1,4 @@
-import { expect, vi } from 'vitest';
+import { expect, vi, describe, beforeEach, it, afterEach } from 'vitest';
 import * as React from 'react';
 import { Checkbox } from '@base-ui/react/checkbox';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';

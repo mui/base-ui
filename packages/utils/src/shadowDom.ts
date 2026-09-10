@@ -38,7 +38,9 @@ export function contains(parent?: Element | null, child?: Element | null) {
 
 export function getTarget(event: Event) {
   if ('composedPath' in event) {
-    return event.composedPath()[0];
+    // The composed path is empty once the event is no longer being dispatched,
+    // so fall back to `target` for handlers running after dispatch completes.
+    return event.composedPath()[0] ?? event.target;
   }
 
   // TS assumes `composedPath()` always exists, but older browsers without

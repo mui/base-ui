@@ -1,3 +1,4 @@
+import * as FieldControlDataAttributes from '../../field/control/FieldControlDataAttributes';
 import type { FieldRootState } from '../../field/root/FieldRoot';
 
 export const DEFAULT_VALIDITY_STATE = {
@@ -36,8 +37,8 @@ export const fieldValidityMapping = {
       return null;
     }
     if (value) {
-      return { 'data-valid': '' };
+      return { [FieldControlDataAttributes.valid]: '' };
     }
-    return { 'data-invalid': '' };
+    return { [FieldControlDataAttributes.invalid]: '' };
   },
 };

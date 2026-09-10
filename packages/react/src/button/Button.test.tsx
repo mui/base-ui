@@ -1,4 +1,4 @@
-import { expect, vi } from 'vitest';
+import { expect, vi, describe, it } from 'vitest';
 import * as React from 'react';
 import { Button } from '@base-ui/react/button';
 import { fireEvent, screen, waitFor } from '@mui/internal-test-utils';

@@ -1,4 +1,4 @@
-import { expect, vi } from 'vitest';
+import { expect, vi, describe, it } from 'vitest';
 import * as React from 'react';
 import { fireEvent, screen, flushMicrotasks, act, within, waitFor } from '@mui/internal-test-utils';
 import { NavigationMenu } from '@base-ui/react/navigation-menu';

@@ -9,10 +9,9 @@ export function handleInputPress(
   event: React.MouseEvent<HTMLElement> & { baseUIHandlerPrevented?: boolean | undefined },
   store: ComboboxStore,
   disabled: boolean,
-  readOnly: boolean,
   shouldIgnoreTarget?: ((target: Element | null) => boolean) | undefined,
 ) {
-  if (event.baseUIHandlerPrevented || readOnly) {
+  if (event.baseUIHandlerPrevented) {
     return;
   }
 
@@ -31,9 +30,9 @@ export function handleInputPress(
     return;
   }
 
-  store.state.inputRef.current?.focus();
+  store.context.inputRef.current?.focus();
 
   if (store.state.openOnInputClick) {
-    store.state.setOpen(true, createChangeEventDetails(REASONS.inputPress, event.nativeEvent));
+    store.context.setOpen(true, createChangeEventDetails(REASONS.inputPress, event.nativeEvent));
   }
 }

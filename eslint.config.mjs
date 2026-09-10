@@ -156,9 +156,26 @@ export default defineConfig(
       // matching the pattern of the test runner
       `**/*${EXTENSION_TEST_FILE}`,
     ],
-    extends: createTestConfig({ useMocha: false }),
+    extends: createTestConfig(),
     rules: {
       'mui/add-undef-to-optional': 'off',
+      // These helpers assert internally (shared between multiple tests).
+      'vitest/expect-expect': [
+        'error',
+        {
+          assertFunctionNames: [
+            'expect',
+            'expect*',
+            'assert*',
+            'openAndCloseDialog',
+            'openAndClosePopover',
+            'takeScreenshot',
+            'waitForBubbleToOverlapActiveTab',
+          ],
+        },
+      ],
+      // Parameterized suites pass loop variables as titles.
+      'vitest/valid-title': ['error', { allowArguments: true }],
       'no-restricted-syntax': [
         'error',
         ...baseRestrictedSyntax,
@@ -175,6 +192,14 @@ export default defineConfig(
             'touch events have no equivalent helper yet.',
         },
       ],
+    },
+  },
+  {
+    files: [`test/e2e/**/*${EXTENSION_TEST_FILE}`],
+    rules: {
+      // The e2e suite asserts with Playwright's `expect` (initPlaywrightMatchers),
+      // which the scope-naive vitest globals rule mistakes for the vitest global.
+      'vitest/prefer-importing-vitest-globals': 'off',
     },
   },
   baseSpecRules,

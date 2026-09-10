@@ -339,17 +339,17 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
   );
 
   // Programmatic focus leaves the caret at the start (Chrome/Firefox) or selects the whole value
-  // (Safari). Place the caret at the end instead. The selection must be set after `focus()`
-  // returns, not in the focus handler: WebKit applies its own selection after dispatching the
-  // focus event. Keyboard and pointer focus keep the browser's native selection behavior.
+  // (Safari). Store the caret at the end before focusing: every engine restores the stored
+  // selection on `focus()`, and a selection the consumer sets in `onFocus` still wins. Keyboard
+  // and pointer focus keep the browser's native selection behavior.
   const focusInput = useStableCallback(() => {
     const input = inputRef.current;
     if (!input) {
       return;
     }
-    input.focus();
     const length = input.value.length;
     input.setSelectionRange(length, length);
+    input.focus();
   });
 
   // React attaches `onWheel` as a passive listener, so calling `preventDefault` there is ignored.

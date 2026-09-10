@@ -1,4 +1,4 @@
-import { test, vi, expect } from 'vitest';
+import { test, vi, expect, beforeEach, describe } from 'vitest';
 /* eslint-disable jsx-a11y/role-has-required-aria-props */
 /* eslint-disable no-promise-executor-return */
 /* eslint-disable react/function-component-definition */
@@ -2065,7 +2065,7 @@ describe('FloatingFocusManager', () => {
     });
   });
 
-  describe.skipIf(!isJSDOM)('JSDOM-only coverage', () => {
+  describe.skipIf(!isJSDOM)('JSDOM-only combobox and focus return coverage', () => {
     test('trapped combobox prevents focus moving outside floating element', async () => {
       function App() {
         const [isOpen, setIsOpen] = React.useState(false);

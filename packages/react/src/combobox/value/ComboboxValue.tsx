@@ -1,9 +1,7 @@
 'use client';
 import * as React from 'react';
-import { useStore } from '@base-ui/utils/store';
 import { useComboboxRootContext } from '../root/ComboboxRootContext';
 import { resolveMultipleLabels, resolveSelectedLabel } from '../../internals/resolveValueLabel';
-import { selectors } from '../store';
 
 /**
  * The current value of the combobox.
@@ -16,14 +14,14 @@ export function ComboboxValue(props: ComboboxValue.Props): React.ReactElement {
 
   const store = useComboboxRootContext();
 
-  const itemToStringLabel = useStore(store, selectors.itemToStringLabel);
-  const selectedValue = useStore(store, selectors.selectedValue);
-  const items = useStore(store, selectors.items);
-  const multiple = useStore(store, selectors.selectionMode) === 'multiple';
-  const hasSelectedValue = useStore(store, selectors.hasSelectedValue);
+  const itemToStringLabel = store.useState('itemToStringLabel');
+  const selectedValue = store.useState('selectedValue');
+  const items = store.useState('items');
+  const multiple = store.useState('selectionMode') === 'multiple';
+  const hasSelectedValue = store.useState('hasSelectedValue');
 
   const shouldCheckNullItemLabel = !hasSelectedValue && placeholder != null && childrenProp == null;
-  const hasNullLabel = useStore(store, selectors.hasNullItemLabel, shouldCheckNullItemLabel);
+  const hasNullLabel = store.useState('hasNullItemLabel', shouldCheckNullItemLabel);
 
   let children = null;
   if (typeof childrenProp === 'function') {
@@ -44,6 +42,11 @@ export function ComboboxValue(props: ComboboxValue.Props): React.ReactElement {
 export interface ComboboxValueState {}
 
 export interface ComboboxValueProps {
+  /**
+   * Accepts a function that returns a `ReactNode` to format the selected value.
+   * Treat the value as read-only: in `multiple` mode it may be a shared frozen array
+   * when nothing is selected.
+   */
   children?: React.ReactNode | ((selectedValue: any) => React.ReactNode);
   /**
    * The placeholder value to display when no value is selected.

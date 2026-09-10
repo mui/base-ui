@@ -1,10 +1,8 @@
-export enum AccordionTriggerDataAttributes {
-  /**
-   * Present when the accordion panel is open.
-   */
-  panelOpen = 'data-panel-open',
-  /**
-   * Present when the accordion item is disabled.
-   */
-  disabled = 'data-disabled',
-}
+/**
+ * Present when the accordion panel is open.
+ */
+export const panelOpen = 'data-panel-open';
+/**
+ * Present when the accordion item is disabled.
+ */
+export const disabled = 'data-disabled';

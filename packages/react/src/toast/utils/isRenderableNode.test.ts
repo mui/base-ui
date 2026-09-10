@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { expect } from 'vitest';
+import { expect, describe, it } from 'vitest';
 import { hasRenderableChildren, isRenderableNode } from './isRenderableNode';
 
 describe('isRenderableNode', () => {

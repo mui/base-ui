@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import { useStore } from '@base-ui/utils/store';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import type { FieldRoot } from '../../field/root/FieldRoot';
@@ -9,7 +8,6 @@ import { fieldValidityMapping } from '../../internals/field-constants/constants'
 import { useLabel } from '../../internals/labelable-provider/useLabel';
 import { getDefaultLabelId } from '../../utils/resolveAriaLabelledBy';
 import { useSelectRootContext } from '../root/SelectRootContext';
-import { selectors } from '../store';
 
 /**
  * An accessible label that is automatically associated with the select trigger.
@@ -27,10 +25,10 @@ export const SelectLabel = React.forwardRef(function SelectLabel(
   delete elementPropsWithoutId.id;
 
   const fieldRootContext = useFieldRootContext();
-  const { store } = useSelectRootContext();
+  const store = useSelectRootContext();
 
-  const triggerElement = useStore(store, selectors.triggerElement);
-  const rootId = useStore(store, selectors.id);
+  const triggerElement = store.useState('triggerElement');
+  const rootId = store.useState('id');
   const defaultLabelId = getDefaultLabelId(rootId);
 
   const labelProps = useLabel({

@@ -2,7 +2,6 @@
 import * as React from 'react';
 import { error } from '@base-ui/utils/error';
 import { SafeReact } from '@base-ui/utils/safeReact';
-import { useStore } from '@base-ui/utils/store';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import type { FieldRoot } from '../../field/root/FieldRoot';
@@ -11,7 +10,6 @@ import { fieldValidityMapping } from '../../internals/field-constants/constants'
 import { useLabel } from '../../internals/labelable-provider/useLabel';
 import { getDefaultLabelId } from '../../utils/resolveAriaLabelledBy';
 import { useComboboxRootContext } from '../root/ComboboxRootContext';
-import { selectors } from '../store';
 
 /**
  * An accessible label that is automatically associated with the combobox trigger.
@@ -31,10 +29,10 @@ export const ComboboxLabel = React.forwardRef(function ComboboxLabel(
   const fieldRootContext = useFieldRootContext();
   const store = useComboboxRootContext();
 
-  const inputInsidePopup = useStore(store, selectors.inputInsidePopup);
-  const triggerElement = useStore(store, selectors.triggerElement);
-  const inputElement = useStore(store, selectors.inputElement);
-  const rootId = useStore(store, selectors.id);
+  const inputInsidePopup = store.useState('inputInsidePopup');
+  const triggerElement = store.useState('triggerElement');
+  const inputElement = store.useState('inputElement');
+  const rootId = store.useState('id');
   const defaultLabelId = getDefaultLabelId(rootId);
 
   const localControlId = triggerElement?.id ?? (inputInsidePopup ? rootId : undefined);

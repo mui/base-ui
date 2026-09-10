@@ -10,6 +10,7 @@ import { Avatar, type ImageLoadingStatus } from '@base-ui/react/avatar';
 >
   <Avatar.Image
     crossOrigin="anonymous"
+    keepMounted
     referrerPolicy="no-referrer"
     sizes="48px"
     srcSet="avatar.png 1x, avatar@2x.png 2x"
