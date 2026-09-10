@@ -6,6 +6,7 @@ import { OTPField } from '@base-ui/react/otp-field';
 import { Field } from '@base-ui/react/field';
 import { DirectionProvider } from '@base-ui/react/direction-provider';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
+import { REASONS } from '../../internals/reasons';
 
 describe('<OTPField.Input />', () => {
   const { render } = createRenderer();
@@ -220,6 +221,35 @@ describe('<OTPField.Input />', () => {
     expect(onValueChange).toHaveBeenLastCalledWith('ddd', expect.anything());
     expect(inputs.map((input) => input.value)).toEqual(['d', 'd', 'd', '', '', '']);
     expect(document.activeElement).toBe(inputs[3]);
+  });
+
+  it('reports characters rejected from a committed IME composition', async () => {
+    const onValueChange = vi.fn();
+    const onValueInvalid = vi.fn();
+
+    await render(<OTPFieldTest onValueChange={onValueChange} onValueInvalid={onValueInvalid} />);
+
+    const inputs = screen.getAllByRole<HTMLInputElement>('textbox');
+    const firstInput = inputs[0];
+
+    await act(async () => {
+      firstInput.focus();
+    });
+
+    fireEvent.compositionStart(firstInput);
+    fireEvent.change(firstInput, { target: { value: '1a' } });
+
+    expect(onValueInvalid).not.toHaveBeenCalled();
+
+    fireEvent.compositionEnd(firstInput, { target: { value: '1a' } });
+
+    expect(onValueInvalid).toHaveBeenCalledTimes(1);
+    expect(onValueInvalid.mock.calls[0]?.[0]).toBe('1a');
+    expect(onValueInvalid.mock.calls[0]?.[1].reason).toBe(REASONS.inputChange);
+    expect(onValueChange).toHaveBeenCalledTimes(1);
+    expect(onValueChange).toHaveBeenLastCalledWith('1', expect.anything());
+    expect(inputs.map((input) => input.value)).toEqual(['1', '', '', '', '', '']);
+    expect(document.activeElement).toBe(inputs[1]);
   });
 
   it('selects the slot value on mousedown', async () => {
