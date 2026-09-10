@@ -654,6 +654,7 @@ describe('<RadioGroup />', () => {
       'does not select on refocus after an ignored arrow (%s)',
       async (scenario) => {
         const onValueChange = vi.fn();
+
         const { user } = await render(
           <React.Fragment>
             <RadioGroup onValueChange={onValueChange}>
@@ -663,17 +664,25 @@ describe('<RadioGroup />', () => {
             <button>Outside</button>
           </React.Fragment>,
         );
+
         const radio = screen.getByRole('radio', { name: 'A' });
+
         act(() => radio.focus());
+
         fireEvent.keyDown(radio, {
           key: 'ArrowDown',
           ...(scenario === 'single' ? {} : { [scenario]: true }),
         });
+
         expect(radio).toHaveFocus();
         expect(radio).toHaveAttribute('aria-checked', 'false');
+
         await user.tab();
+
         expect(screen.getByRole('button', { name: 'Outside' })).toHaveFocus();
+
         await user.tab({ shift: true });
+
         expect(radio).toHaveFocus();
         expect(radio).toHaveAttribute('aria-checked', 'false');
         expect(onValueChange).not.toHaveBeenCalled();
