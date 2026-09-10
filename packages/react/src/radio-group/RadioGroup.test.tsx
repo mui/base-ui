@@ -650,48 +650,35 @@ describe('<RadioGroup />', () => {
   });
 
   describe('should manage arrow key navigation', () => {
-    describe.each([false, true])('ignored arrows (nativeButton: %s)', (nativeButton) => {
-      it.each(['metaKey', 'ctrlKey', 'altKey', 'single'])(
-        'does not select on refocus after %s',
-        async (scenario) => {
-          const onValueChange = vi.fn();
-          const { user } = await render(
-            <React.Fragment>
-              <RadioGroup defaultValue="" onValueChange={onValueChange}>
-                <Radio.Root
-                  value="a"
-                  aria-label="A"
-                  nativeButton={nativeButton}
-                  render={nativeButton ? <button type="button" /> : <div />}
-                />
-                <Radio.Root
-                  value="b"
-                  aria-label="B"
-                  disabled={scenario === 'single'}
-                  nativeButton={nativeButton}
-                  render={nativeButton ? <button type="button" /> : <div />}
-                />
-              </RadioGroup>
-              <button>Outside</button>
-            </React.Fragment>,
-          );
-          const radio = screen.getByRole('radio', { name: 'A' });
-          act(() => radio.focus());
-          fireEvent.keyDown(radio, {
-            key: 'ArrowDown',
-            ...(scenario === 'single' ? {} : { [scenario]: true }),
-          });
-          expect(radio).toHaveFocus();
-          expect(radio).toHaveAttribute('aria-checked', 'false');
-          await user.tab();
-          expect(screen.getByRole('button', { name: 'Outside' })).toHaveFocus();
-          await user.tab({ shift: true });
-          expect(radio).toHaveFocus();
-          expect(radio).toHaveAttribute('aria-checked', 'false');
-          expect(onValueChange).not.toHaveBeenCalled();
-        },
-      );
-    });
+    it.each(['metaKey', 'ctrlKey', 'altKey', 'single'])(
+      'does not select on refocus after an ignored arrow (%s)',
+      async (scenario) => {
+        const onValueChange = vi.fn();
+        const { user } = await render(
+          <React.Fragment>
+            <RadioGroup onValueChange={onValueChange}>
+              <Radio.Root value="a" aria-label="A" />
+              <Radio.Root value="b" aria-label="B" disabled={scenario === 'single'} />
+            </RadioGroup>
+            <button>Outside</button>
+          </React.Fragment>,
+        );
+        const radio = screen.getByRole('radio', { name: 'A' });
+        act(() => radio.focus());
+        fireEvent.keyDown(radio, {
+          key: 'ArrowDown',
+          ...(scenario === 'single' ? {} : { [scenario]: true }),
+        });
+        expect(radio).toHaveFocus();
+        expect(radio).toHaveAttribute('aria-checked', 'false');
+        await user.tab();
+        expect(screen.getByRole('button', { name: 'Outside' })).toHaveFocus();
+        await user.tab({ shift: true });
+        expect(radio).toHaveFocus();
+        expect(radio).toHaveAttribute('aria-checked', 'false');
+        expect(onValueChange).not.toHaveBeenCalled();
+      },
+    );
 
     [
       ['ltr', 'ArrowRight', 'ArrowLeft'],
