@@ -21,24 +21,27 @@ const SECONDARY_BUTTON = 2;
  * Whether a `contextmenu` event was raised by the keyboard (Shift+F10 / the Menu key) rather
  * than a pointer.
  *
- * Chromium dispatches `contextmenu` as a `PointerEvent`, which answers the question directly:
- * `pointerType` is empty only for a keyboard activation. Firefox and Safari still dispatch a
- * plain `MouseEvent`, so the answer comes from the gesture instead of the event's geometry —
- * Gecko and WebKit position a keyboard-invoked native menu against the focused element, so its
- * coordinates are not distinguishable from a click's.
+ * The event's own shape cannot answer this. `detail` is `0` for every source; the coordinates are
+ * the focused element's box on a keyboard activation, so they look like a click's; and while
+ * Chromium dispatches `contextmenu` as a `PointerEvent`, it reports `pointerType: 'mouse'` for
+ * keyboard activations too, so that field does not discriminate either. Do not reintroduce a
+ * check on any of them.
  *
- * The secondary button is a positive pointer signal on its own, since the keyboard never reports
- * one. Otherwise fall back to the gesture in flight: a pointer-driven `contextmenu` normally
- * begins with `pointerdown` on the trigger, while a keyboard one is preceded by the `keydown`
- * that clears `lastPointerType`. That fallback is best-effort — a descendant can suppress the
- * `pointerdown` — so it only decides the cases the two checks above leave open, such as a macOS
- * Ctrl+click or a touch long press, which both report the primary button.
+ * What does hold, measured in Chromium and consistent with how the events are specified, is the
+ * order of what precedes the event:
+ *
+ * - right-click: `pointerdown` on the trigger, then `contextmenu` with the secondary button;
+ * - Shift+F10 / Menu key: `keydown` on the trigger, then `contextmenu` with no pointer gesture
+ *   in flight (Chromium reports `button === -1`, Gecko and WebKit the primary button);
+ * - touch long press: `pointerdown` with `pointerType: 'touch'`, then `contextmenu`;
+ * - macOS Ctrl+click: the modifier's `keydown`, then `pointerdown`, then `contextmenu` — the
+ *   `pointerdown` lands last, so the gesture is recorded again after the key press cleared it.
+ *
+ * So the secondary button is a positive pointer signal on its own, and otherwise the question is
+ * whether a pointer gesture is in flight. That recording is best-effort — it is taken in the
+ * capture phase so a descendant cannot suppress it, but it is still the weaker of the two.
  */
 function isKeyboardContextMenu(event: MouseEvent, lastPointerType: InteractionType): boolean {
-  const { pointerType } = event as PointerEvent;
-  if (pointerType != null) {
-    return pointerType === '';
-  }
   if (event.button === SECONDARY_BUTTON) {
     return false;
   }
@@ -80,8 +83,8 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
   const allowMouseUpRef = React.useRef(false);
   const mouseUpAbortControllerRef = React.useRef<AbortController | null>(null);
   // The pointer gesture currently in flight, used to tell a pointer-driven `contextmenu` from a
-  // keyboard one on browsers that do not dispatch it as a `PointerEvent`. A key press always
-  // precedes a keyboard `contextmenu`, so it ends any gesture recorded here.
+  // keyboard one. A key press always precedes a keyboard `contextmenu`, so it ends any gesture
+  // recorded here.
   const lastPointerTypeRef = React.useRef<InteractionType>('');
 
   function handleLongPress(

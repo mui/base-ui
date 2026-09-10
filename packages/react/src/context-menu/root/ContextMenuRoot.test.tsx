@@ -459,50 +459,54 @@ describe('<ContextMenu.Root />', () => {
       expect(popup).not.toHaveAttribute('data-instant');
     });
 
-    // Chromium dispatches `contextmenu` as a `PointerEvent`, which is the branch real Chrome
-    // takes. jsdom has no `PointerEvent` constructor, so these only run in the browser.
-    it.skipIf(isJSDOM)('reads pointerType when contextmenu is a PointerEvent', async () => {
-      await render(<Fixture />);
-
-      const trigger = screen.getByTestId('context-trigger');
-      await act(async () => {
+    // Chromium dispatches `contextmenu` as a `PointerEvent`. Measured on Chromium 151, both a
+    // right-click and a Shift+F10 report `pointerType: 'mouse'` and coordinates inside the
+    // focused element — only the button and the gesture before the event differ. These reproduce
+    // that shape exactly; jsdom has no `PointerEvent` constructor, so they run in the browser.
+    function dispatchChromiumContextMenu(trigger: HTMLElement, button: number) {
+      return act(async () => {
         trigger.dispatchEvent(
           new PointerEvent('contextmenu', {
             bubbles: true,
             cancelable: true,
             pointerType: 'mouse',
-            clientX: 10,
-            clientY: 10,
+            button,
+            buttons: 0,
+            clientX: 123,
+            clientY: 98,
           }),
         );
       });
+    }
+
+    it.skipIf(isJSDOM)('does not mark a Chromium right-click as instant', async () => {
+      await render(<Fixture />);
+
+      const trigger = screen.getByTestId('context-trigger');
+      fireEvent.pointerDown(trigger, { pointerType: 'mouse', button: 2 });
+      await dispatchChromiumContextMenu(trigger, 2);
 
       const popup = await screen.findByTestId('context-popup');
       expect(popup).not.toHaveAttribute('data-instant');
     });
 
-    it.skipIf(isJSDOM)(
-      'treats an empty pointerType on a PointerEvent contextmenu as keyboard',
-      async () => {
-        await render(<Fixture />);
+    it.skipIf(isJSDOM)('marks a Chromium keyboard contextmenu as instant', async () => {
+      await render(<Fixture />);
 
-        const trigger = screen.getByTestId('context-trigger');
-        await act(async () => {
-          trigger.dispatchEvent(
-            new PointerEvent('contextmenu', {
-              bubbles: true,
-              cancelable: true,
-              pointerType: '',
-              clientX: 120,
-              clientY: 64,
-            }),
-          );
-        });
+      const focusable = screen.getByTestId('focusable');
+      await act(async () => {
+        focusable.focus();
+      });
 
-        const popup = await screen.findByTestId('context-popup');
-        expect(popup).toHaveAttribute('data-instant', 'click');
-      },
-    );
+      // Chromium reports `button === -1` here and, critically, `pointerType: 'mouse'` — the same
+      // value a right-click reports — so only the preceding `keydown` marks this as a keyboard
+      // open.
+      fireEvent.keyDown(focusable, { key: 'F10', shiftKey: true });
+      await dispatchChromiumContextMenu(screen.getByTestId('context-trigger'), -1);
+
+      const popup = await screen.findByTestId('context-popup');
+      expect(popup).toHaveAttribute('data-instant', 'click');
+    });
   });
 
   describe.skipIf(isJSDOM)('prop: collisionAvoidance', () => {

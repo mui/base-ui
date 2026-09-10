@@ -375,10 +375,17 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
       // `useMenuItemCommonProps`) carry `detail >= 1`. A Context Menu opens from a `contextmenu`
       // or touch event, which report `detail === 0` whatever drove them, so its trigger
       // classifies the gesture itself and reports it on the root context instead.
+      const contextMenuOpenInstantTypeRef =
+        parent.type === 'context-menu' ? parent.context.openInstantTypeRef : undefined;
       const isContextMenuOpen =
-        nextOpen && reason === REASONS.triggerPress && parent.type === 'context-menu';
-      const contextMenuInstantType =
-        parent.type === 'context-menu' ? parent.context.openInstantTypeRef.current : undefined;
+        nextOpen && reason === REASONS.triggerPress && contextMenuOpenInstantTypeRef != null;
+      let contextMenuInstantType: MenuStoreState<Payload>['instantType'];
+      if (isContextMenuOpen) {
+        // Consume it: the trigger writes it before every open it drives, so a value left behind
+        // could only suppress the transition of some later open that never set one.
+        contextMenuInstantType = contextMenuOpenInstantTypeRef.current;
+        contextMenuOpenInstantTypeRef.current = undefined;
+      }
       const isKeyboardClick =
         !isContextMenuOpen &&
         (reason === REASONS.triggerPress || reason === REASONS.itemPress) &&
