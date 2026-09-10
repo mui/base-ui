@@ -3,7 +3,7 @@ import { expect, describe, it, vi } from 'vitest';
 import { act, screen, waitFor } from '@mui/internal-test-utils';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { Menu } from '@base-ui/react/menu';
-import { createRenderer } from '#test-utils';
+import { createRenderer, isJSDOM } from '#test-utils';
 
 describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
   const { render } = createRenderer();
@@ -708,6 +708,21 @@ describe('independent menu focus inside a filterable menu', () => {
   });
 
   describe('focus trapping', () => {
+    // A real Tab keypress in the browser exercises the focus guards the way a user does.
+    async function pressTab(
+      user: { tab: (options?: { shift?: boolean }) => Promise<void> },
+      shift: boolean,
+    ) {
+      if (isJSDOM) {
+        await user.tab({ shift });
+        return;
+      }
+      const { userEvent: browserUser } = await import('vitest/browser');
+      await act(async () => {
+        await browserUser.keyboard(shift ? '{Shift>}[Tab]{/Shift}' : '[Tab]');
+      });
+    }
+
     function TrappedMenu(props: { closeLabel?: string; modal?: boolean; submenu?: boolean }) {
       return (
         <div>
@@ -760,17 +775,21 @@ describe('independent menu focus inside a filterable menu', () => {
       const close = screen.getByRole('button', { name: 'Close menu' });
       expect(popup).toContainElement(close);
 
-      await user.tab();
-      expect(close).toHaveFocus();
+      await pressTab(user, false);
+      await waitFor(() => {
+        expect(close).toHaveFocus();
+      });
 
-      await user.tab();
+      await pressTab(user, false);
       await waitFor(() => {
         expect(input).toHaveFocus();
       });
       expect(screen.getByRole('menu')).not.toBe(null);
 
-      await user.tab({ shift: true });
-      expect(close).toHaveFocus();
+      await pressTab(user, true);
+      await waitFor(() => {
+        expect(close).toHaveFocus();
+      });
     });
 
     it('closes and returns focus to the trigger from the hidden close button', async () => {
