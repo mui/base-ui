@@ -12,6 +12,12 @@ export interface MenuFilterRootFilterProps {
    */
   filter?: MenuFilterFunction | null | undefined;
   /**
+   * The accessible name of the visually hidden close button that a modal filterable menu renders
+   * for assistive technology, since focus stays inside its popup while it is open.
+   * Translate it. Not needed when the root sets `modal={false}`.
+   */
+  closeLabel?: string | undefined;
+  /**
    * Whether the first matching item is highlighted automatically.
    * - `true`: highlight after the user types and keep the highlight while the query changes.
    * - `'always'`: always highlight the first item.

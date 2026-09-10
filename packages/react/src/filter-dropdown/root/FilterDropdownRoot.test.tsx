@@ -245,7 +245,7 @@ describe('<FilterDropdown.Root />', () => {
     it('clears a stale highlight when the item set changes', async () => {
       function ServerResults(props: { items: string[] }) {
         return (
-          <Menu.FilterProvider filter={null}>
+          <Menu.FilterProvider filter={null} closeLabel="Close menu">
             <Menu.Root defaultOpen>
               <Menu.Trigger>Actions</Menu.Trigger>
               <Menu.Portal>
@@ -295,7 +295,7 @@ describe('<FilterDropdown.Root />', () => {
     it('keeps autoHighlight seeding the first item', async () => {
       function ServerResults(props: { items: string[] }) {
         return (
-          <Menu.FilterProvider autoHighlight filter={null}>
+          <Menu.FilterProvider autoHighlight filter={null} closeLabel="Close menu">
             <Menu.Root defaultOpen>
               <Menu.Trigger>Actions</Menu.Trigger>
               <Menu.Portal>
@@ -350,7 +350,7 @@ describe('<FilterDropdown.Root />', () => {
   it('clears a stale highlight when items change with an empty query', async () => {
     function Results(props: { items: string[] }) {
       return (
-        <Menu.FilterProvider>
+        <Menu.FilterProvider closeLabel="Close menu">
           <Menu.Root defaultOpen>
             <Menu.Trigger>Actions</Menu.Trigger>
             <Menu.Portal>

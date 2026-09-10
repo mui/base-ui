@@ -9,7 +9,7 @@ describe('<Menu.Group />', () => {
 
   it('hides a radio group, label included, when the query filters out all of its items', async () => {
     const { user } = await render(
-      <Menu.FilterProvider>
+      <Menu.FilterProvider closeLabel="Close menu">
         <Menu.Root defaultOpen>
           <Menu.Trigger>Actions</Menu.Trigger>
           <Menu.Portal>

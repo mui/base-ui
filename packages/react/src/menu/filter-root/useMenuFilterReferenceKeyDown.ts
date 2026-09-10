@@ -34,8 +34,9 @@ export function useMenuFilterReferenceKeyDown() {
     if (event.key === 'Tab') {
       // Mirror the plain menu: Shift+Tab closes the popup and returns focus to the trigger.
       // The generic close branch in `useListNavigation` skips virtual focus, and a forward Tab
-      // already closes through focus-out once focus leaves the popup.
-      if (event.shiftKey) {
+      // already closes through focus-out once focus leaves the popup. A trapped popup keeps
+      // both Tabs inside instead.
+      if (event.shiftKey && !menuStore.select('trapsFocus')) {
         stopEvent(event);
         const trigger = menuStore.state.activeTriggerElement;
         menuStore.setOpen(false, createChangeEventDetails(REASONS.focusOut, event.nativeEvent));

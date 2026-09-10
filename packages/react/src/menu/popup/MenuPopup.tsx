@@ -60,6 +60,7 @@ export const MenuPopupPlain = React.forwardRef(function MenuPopup(
   const disabled = store.useState('disabled');
   const setPopupElement = store.useStateSetter('popupElement');
   const listElement = store.useState('listElement');
+  const trapsFocus = store.useState('trapsFocus');
 
   const [id, registerIdRef] = useRenderedId(componentProps, defaultFloatingId, setFloatingId);
   const { ariaLabelledBy } = resolveMenuPopupLabel(
@@ -142,6 +143,7 @@ export const MenuPopupPlain = React.forwardRef(function MenuPopup(
       popupProps,
       {
         id,
+        'aria-modal': trapsFocus || undefined,
         // A rendered `Menu.List` carries the `menu` semantics instead.
         ...(listElement
           ? { role: 'presentation' }
@@ -180,7 +182,7 @@ export const MenuPopupPlain = React.forwardRef(function MenuPopup(
     <FloatingFocusManager
       context={floatingContext}
       openInteractionType={openMethod}
-      modal={isContextMenu}
+      modal={isContextMenu || trapsFocus}
       disabled={!mounted}
       returnFocus={finalFocus === undefined ? resolvedReturnFocus : finalFocus}
       explicitReturnFocus={

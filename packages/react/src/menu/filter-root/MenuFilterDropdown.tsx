@@ -18,6 +18,7 @@ export interface MenuFilterDropdownProps {
   filter: FilterDropdownFilter | null | undefined;
   autoHighlight: boolean | 'always';
   locale: Intl.LocalesArgument | undefined;
+  closeLabel: string | undefined;
   inputProps: HTMLProps;
   onValueChange: (value: string, details: MenuFilterRoot.InputValueChangeEventDetails) => void;
   onInputAutoFocusChange: (autoFocus: boolean) => void;

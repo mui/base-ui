@@ -14,6 +14,7 @@ export type FilterDropdownFilter = (text: string, query: string) => boolean;
 export interface FilterDropdownRootContext {
   open: boolean;
   disabled: boolean;
+  closeLabel: string | undefined;
   inputFocusVisible: boolean;
   setInputFocusVisible: (visible: boolean) => void;
   keyboardModality: boolean;
