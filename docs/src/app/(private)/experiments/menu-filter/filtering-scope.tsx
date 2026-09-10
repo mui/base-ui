@@ -60,7 +60,7 @@ export default function MenuFilteringScopeExperiment() {
 
 function RootFilterOnly(props: { autoHighlight: boolean }) {
   return (
-    <Menu.FilterProvider autoHighlight={props.autoHighlight} closeLabel="Close menu">
+    <Menu.FilterProvider autoHighlight={props.autoHighlight} closeLabel="Dismiss menu">
       <Menu.Root>
         <Menu.Trigger className={classes.Trigger}>Open actions</Menu.Trigger>
         <Menu.Portal>
@@ -100,7 +100,7 @@ function SubmenuFilterOnly(props: { autoHighlight: boolean; focusOnHover: boolea
         <Menu.Positioner className={classes.Positioner} sideOffset={8}>
           <Menu.Popup className={classes.Popup}>
             <Menu.Item className={classes.Item}>Rename</Menu.Item>
-            <Menu.FilterProvider autoHighlight={props.autoHighlight} closeLabel="Close menu">
+            <Menu.FilterProvider autoHighlight={props.autoHighlight} closeLabel="Dismiss menu">
               <Menu.SubmenuRoot>
                 <Menu.SubmenuTrigger className={classes.Item}>
                   Move to <span aria-hidden>›</span>
@@ -138,7 +138,7 @@ function FilterableSubmenu(props: {
   focusOnHover: boolean;
 }) {
   return (
-    <Menu.FilterProvider autoHighlight={props.autoHighlight} closeLabel="Close menu">
+    <Menu.FilterProvider autoHighlight={props.autoHighlight} closeLabel="Dismiss menu">
       <Menu.SubmenuRoot>
         <Menu.SubmenuTrigger className={classes.Item}>
           {props.label} <span aria-hidden>›</span>
@@ -168,7 +168,7 @@ function FilterableSubmenu(props: {
 
 function NestedFilters(props: { autoHighlight: boolean; focusOnHover: boolean }) {
   return (
-    <Menu.FilterProvider autoHighlight={props.autoHighlight} closeLabel="Close menu">
+    <Menu.FilterProvider autoHighlight={props.autoHighlight} closeLabel="Dismiss menu">
       <Menu.Root>
         <Menu.Trigger className={classes.Trigger}>Open actions</Menu.Trigger>
         <Menu.Portal>

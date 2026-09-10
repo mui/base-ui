@@ -350,7 +350,7 @@ The popup becomes a dialog that contains the input and the list, so the list is 
 Every other part stays the same.
 
 ```jsx title="Filterable menu anatomy"
-<Menu.FilterProvider closeLabel="Close menu">
+<Menu.FilterProvider closeLabel="Dismiss menu">
   <Menu.Root>
     <Menu.Trigger />
     <Menu.Portal>
@@ -400,7 +400,7 @@ Use `filter` to replace the default case-insensitive substring matching.
 It receives the item's text and each keyword individually, together with the trimmed query, and the item matches when it returns `true` for any of them:
 
 ```jsx title="Custom filter"
-<Menu.FilterProvider filter={(text, query) => text.startsWith(query)}>
+<Menu.FilterProvider filter={(text, query) => text.startsWith(query)} closeLabel="Dismiss menu">
   <Menu.Root>{/* menu parts */}</Menu.Root>
 </Menu.FilterProvider>
 ```
@@ -445,7 +445,7 @@ Create the handle with `filterable: true` so a detached `<Menu.Trigger>` announc
 const handle = Menu.createHandle({ filterable: true });
 
 <Menu.Trigger handle={handle}>Actions</Menu.Trigger>
-<Menu.FilterProvider>
+<Menu.FilterProvider closeLabel="Dismiss menu">
   <Menu.Root handle={handle}>{/* menu parts */}</Menu.Root>
 </Menu.FilterProvider>
 ```

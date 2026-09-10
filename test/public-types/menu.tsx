@@ -38,7 +38,7 @@ const filterHandle = Menu.createHandle<{ id: number }>({ filterable: true });
 export function TypedFilterableTrigger() {
   return (
     <React.Fragment>
-      <Menu.FilterProvider>
+      <Menu.FilterProvider closeLabel="Dismiss menu">
         <Menu.Root handle={filterHandle}>{({ payload }) => <span>{payload?.id}</span>}</Menu.Root>
       </Menu.FilterProvider>
       <Menu.Trigger handle={filterHandle} payload={{ id: 1 }}>
