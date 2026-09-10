@@ -69,9 +69,11 @@ export const FilteredMenuPopup = React.forwardRef(function FilteredMenuPopup(
         <MenuPopupPlain {...menuProps} id={id} ref={forwardedRef} role="dialog">
           {children}
           {trapsFocus && (
-            // The last tab stop inside the trap, so assistive technology users can leave.
+            // Reached through a screen reader's virtual cursor, not Tab: sighted keyboard users
+            // leave with Escape and would otherwise land on an invisible control.
             <button
               type="button"
+              tabIndex={-1}
               aria-label={closeLabel}
               style={visuallyHiddenInput}
               onClick={handleClose}
