@@ -774,11 +774,7 @@ describe('independent menu focus inside a filterable menu', () => {
       expect(popup).toHaveAttribute('aria-modal', 'true');
       const close = screen.getByRole('button', { name: 'Close menu' });
       expect(popup).toContainElement(close);
-
-      await pressTab(user, false);
-      await waitFor(() => {
-        expect(close).toHaveFocus();
-      });
+      expect(close).toHaveAttribute('tabindex', '-1');
 
       await pressTab(user, false);
       await waitFor(() => {
@@ -788,8 +784,9 @@ describe('independent menu focus inside a filterable menu', () => {
 
       await pressTab(user, true);
       await waitFor(() => {
-        expect(close).toHaveFocus();
+        expect(input).toHaveFocus();
       });
+      expect(screen.getByRole('menu')).not.toBe(null);
     });
 
     it('closes and returns focus to the trigger from the hidden close button', async () => {
