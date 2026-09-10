@@ -9,7 +9,7 @@ import {
   waitFor,
 } from '@mui/internal-test-utils';
 import { ContextMenu } from '@base-ui/react/context-menu';
-import { createRenderer, firePointer, isJSDOM } from '#test-utils';
+import { createRenderer, isJSDOM } from '#test-utils';
 import { REASONS } from '../../internals/reasons';
 
 vi.mock('@base-ui/utils/platform', async () => {
@@ -314,14 +314,69 @@ describe('<ContextMenu.Root />', () => {
       // A mouse `contextmenu` reports `detail === 0` just like a keyboard click, so the gesture
       // that produced it — the `pointerdown` from pressing the secondary button — is what
       // identifies it as pointer-driven.
-      firePointer.down(trigger, {
-        timeStamp: 1,
+      fireEvent.pointerDown(trigger, {
         pointerType: 'mouse',
         button: 2,
         clientX: 10,
         clientY: 10,
       });
       fireEvent.contextMenu(trigger, { clientX: 10, clientY: 10, button: 2 });
+
+      const popup = await screen.findByTestId('context-popup');
+      expect(popup).not.toHaveAttribute('data-instant');
+    });
+
+    it('does not mark the popup as instant when no pointerdown reached the trigger', async () => {
+      await render(<Fixture />);
+
+      // The recorded gesture is best-effort, so the secondary button on the `contextmenu` itself
+      // has to be enough on its own — the keyboard never reports one.
+      fireEvent.contextMenu(screen.getByTestId('context-trigger'), {
+        clientX: 10,
+        clientY: 10,
+        button: 2,
+      });
+
+      const popup = await screen.findByTestId('context-popup');
+      expect(popup).not.toHaveAttribute('data-instant');
+    });
+
+    it('does not mark the popup as instant when a descendant swallows the pointerdown', async () => {
+      // A drag handle or editor widget inside the trigger may stop `pointerdown` from
+      // propagating; recording it in the capture phase keeps the gesture visible anyway. Uses
+      // a macOS Ctrl+click, which reports the primary button, so the secondary-button shortcut
+      // cannot decide this case.
+      await render(
+        <ContextMenu.Root>
+          <ContextMenu.Trigger data-testid="context-trigger">
+            <div data-testid="draggable" onPointerDown={(event) => event.stopPropagation()}>
+              Drag me
+            </div>
+          </ContextMenu.Trigger>
+          <ContextMenu.Portal>
+            <ContextMenu.Positioner>
+              <ContextMenu.Popup data-testid="context-popup">
+                <ContextMenu.Item>Action</ContextMenu.Item>
+              </ContextMenu.Popup>
+            </ContextMenu.Positioner>
+          </ContextMenu.Portal>
+        </ContextMenu.Root>,
+      );
+
+      const draggable = screen.getByTestId('draggable');
+      fireEvent.pointerDown(draggable, {
+        pointerType: 'mouse',
+        button: 0,
+        ctrlKey: true,
+        clientX: 10,
+        clientY: 10,
+      });
+      fireEvent.contextMenu(draggable, {
+        clientX: 10,
+        clientY: 10,
+        button: 0,
+        ctrlKey: true,
+      });
 
       const popup = await screen.findByTestId('context-popup');
       expect(popup).not.toHaveAttribute('data-instant');
@@ -367,8 +422,8 @@ describe('<ContextMenu.Root />', () => {
 
       // Focusing by mouse and then invoking the menu by keyboard: the key press ends the earlier
       // pointer gesture, so it must not be credited with opening the menu.
-      firePointer.down(focusable, { timeStamp: 1, pointerType: 'mouse', button: 0 });
-      firePointer.up(focusable, { timeStamp: 2, pointerType: 'mouse', button: 0 });
+      fireEvent.pointerDown(focusable, { pointerType: 'mouse', button: 0 });
+      fireEvent.pointerUp(focusable, { pointerType: 'mouse', button: 0 });
       await act(async () => {
         focusable.focus();
       });
@@ -378,6 +433,30 @@ describe('<ContextMenu.Root />', () => {
 
       const popup = await screen.findByTestId('context-popup');
       expect(popup).toHaveAttribute('data-instant', 'click');
+    });
+
+    it('does not mark the popup as instant when a pointer gesture follows a key press', async () => {
+      await render(<Fixture />);
+
+      const focusable = screen.getByTestId('focusable');
+      await act(async () => {
+        focusable.focus();
+      });
+
+      // The reverse of the case above: a key press clears the recorded gesture, and only a later
+      // `pointerdown` restores pointer classification. Uses the primary button so the decision
+      // rests on that recorded gesture rather than on the secondary-button shortcut.
+      fireEvent.keyDown(focusable, { key: 'a' });
+      fireEvent.pointerDown(focusable, {
+        pointerType: 'mouse',
+        button: 0,
+        clientX: 10,
+        clientY: 10,
+      });
+      fireEvent.contextMenu(focusable, { clientX: 10, clientY: 10, button: 0 });
+
+      const popup = await screen.findByTestId('context-popup');
+      expect(popup).not.toHaveAttribute('data-instant');
     });
 
     // Chromium dispatches `contextmenu` as a `PointerEvent`, which is the branch real Chrome

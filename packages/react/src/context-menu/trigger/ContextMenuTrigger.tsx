@@ -15,6 +15,7 @@ import { REASONS } from '../../internals/reasons';
 import { findRootOwnerId } from '../../menu/utils/findRootOwnerId';
 
 const LONG_PRESS_DELAY = 500;
+const SECONDARY_BUTTON = 2;
 
 /**
  * Whether a `contextmenu` event was raised by the keyboard (Shift+F10 / the Menu key) rather
@@ -22,16 +23,24 @@ const LONG_PRESS_DELAY = 500;
  *
  * Chromium dispatches `contextmenu` as a `PointerEvent`, which answers the question directly:
  * `pointerType` is empty only for a keyboard activation. Firefox and Safari still dispatch a
- * plain `MouseEvent`, so fall back to the gesture that produced it rather than to the event's
- * geometry — Gecko and WebKit position a keyboard-invoked native menu against the focused
- * element, so its coordinates are not distinguishable from a click's. A pointer-driven
- * `contextmenu` is always part of a gesture that began with `pointerdown` on the trigger,
- * while a keyboard one is always preceded by the `keydown` that clears `lastPointerType`.
+ * plain `MouseEvent`, so the answer comes from the gesture instead of the event's geometry —
+ * Gecko and WebKit position a keyboard-invoked native menu against the focused element, so its
+ * coordinates are not distinguishable from a click's.
+ *
+ * The secondary button is a positive pointer signal on its own, since the keyboard never reports
+ * one. Otherwise fall back to the gesture in flight: a pointer-driven `contextmenu` normally
+ * begins with `pointerdown` on the trigger, while a keyboard one is preceded by the `keydown`
+ * that clears `lastPointerType`. That fallback is best-effort — a descendant can suppress the
+ * `pointerdown` — so it only decides the cases the two checks above leave open, such as a macOS
+ * Ctrl+click or a touch long press, which both report the primary button.
  */
 function isKeyboardContextMenu(event: MouseEvent, lastPointerType: InteractionType): boolean {
   const { pointerType } = event as PointerEvent;
   if (pointerType != null) {
     return pointerType === '';
+  }
+  if (event.button === SECONDARY_BUTTON) {
+    return false;
   }
   return lastPointerType === '';
 }
@@ -56,6 +65,7 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
     positionerRef,
     allowMouseUpTriggerRef,
     initialCursorPointRef,
+    openInstantTypeRef,
     rootId,
   } = useContextMenuRootContext(false);
 
@@ -96,14 +106,11 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
     });
 
     allowMouseUpRef.current = false;
-    actionsRef.current?.setOpen(
-      true,
-      createChangeEventDetails(REASONS.triggerPress, event, undefined, {
-        // A pointer or touch gesture opened the menu, so its enter transition should play;
-        // only a keyboard `contextmenu` (Shift+F10 / the Menu key) opens instantly.
-        instantType: !isTouchEvent && keyboardActivation ? 'click' : undefined,
-      }),
-    );
+    // A pointer or touch gesture opened the menu, so its enter transition should play; only a
+    // keyboard `contextmenu` (Shift+F10 / the Menu key) opens instantly. `MenuRoot` reads this
+    // while handling the `setOpen` below.
+    openInstantTypeRef.current = keyboardActivation ? 'click' : undefined;
+    actionsRef.current?.setOpen(true, createChangeEventDetails(REASONS.triggerPress, event));
 
     allowMouseUpTimeout.start(LONG_PRESS_DELAY, () => {
       allowMouseUpRef.current = true;
@@ -253,8 +260,10 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
     props: [
       {
         onContextMenu: handleContextMenu,
-        onPointerDown: handlePointerDown,
-        onKeyDown: handleKeyDown,
+        // Capture phase so a descendant that stops propagation cannot hide the gesture from the
+        // classification in `handleContextMenu`.
+        onPointerDownCapture: handlePointerDown,
+        onKeyDownCapture: handleKeyDown,
         onTouchStart: handleTouchStart,
         onTouchMove: handleTouchMove,
         onTouchEnd: cancelLongPress,

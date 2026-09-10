@@ -2,7 +2,7 @@ import { expect, vi, describe, beforeEach, it } from 'vitest';
 import * as React from 'react';
 import { act, fireEvent, flushMicrotasks, screen } from '@mui/internal-test-utils';
 import { ContextMenu } from '@base-ui/react/context-menu';
-import { createRenderer, describeConformance, firePointer, isJSDOM } from '#test-utils';
+import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 
 describe('<ContextMenu.Trigger />', () => {
   beforeEach(() => {
@@ -436,8 +436,7 @@ describe('<ContextMenu.Trigger />', () => {
 
       const trigger = screen.getByTestId('trigger');
 
-      firePointer.down(trigger, {
-        timeStamp: 1,
+      fireEvent.pointerDown(trigger, {
         pointerType: 'touch',
         clientX: 100,
         clientY: 100,

@@ -372,16 +372,15 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
 
       // Keyboard and assistive-technology activations produce `detail === 0` clicks;
       // mouse-gesture clicks (including the synthesized drag-release click from
-      // `useMenuItemCommonProps`) carry `detail >= 1`. A trigger that already knows how the
-      // activation happened (Context Menu tells a pointer/touch open apart from a keyboard
-      // one, which `detail` cannot do for its `contextmenu`/`touch` events) passes an
-      // explicit `instantType` on the event details, which wins over this heuristic.
-      const hasExplicitInstantType = 'instantType' in eventDetails;
-      const explicitInstantType = hasExplicitInstantType
-        ? (eventDetails as { instantType: MenuStoreState<Payload>['instantType'] }).instantType
-        : undefined;
+      // `useMenuItemCommonProps`) carry `detail >= 1`. A Context Menu opens from a `contextmenu`
+      // or touch event, which report `detail === 0` whatever drove them, so its trigger
+      // classifies the gesture itself and reports it on the root context instead.
+      const isContextMenuOpen =
+        nextOpen && reason === REASONS.triggerPress && parent.type === 'context-menu';
+      const contextMenuInstantType =
+        parent.type === 'context-menu' ? parent.context.openInstantTypeRef.current : undefined;
       const isKeyboardClick =
-        !hasExplicitInstantType &&
+        !isContextMenuOpen &&
         (reason === REASONS.triggerPress || reason === REASONS.itemPress) &&
         (nativeEvent as MouseEvent).detail === 0;
       const isDismissClose = !nextOpen && (reason === REASONS.escapeKey || reason == null);
@@ -400,10 +399,8 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
 
       popupOpenState.openChangeReason = reason;
 
-      if (hasExplicitInstantType) {
-        // The trigger classified the activation gesture itself (Context Menu animates a
-        // pointer/touch open and keeps a keyboard open instant).
-        popupOpenState.instantType = explicitInstantType;
+      if (isContextMenuOpen) {
+        popupOpenState.instantType = contextMenuInstantType;
       } else if (
         parent.type === 'menubar' &&
         (reason === REASONS.triggerFocus ||
