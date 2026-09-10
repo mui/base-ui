@@ -248,7 +248,7 @@ export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
       }
     },
     onKeyDownCapture(event) {
-      if (event.key.startsWith('Arrow') && !event.altKey && !event.ctrlKey && !event.metaKey) {
+      if (event.key.startsWith('Arrow')) {
         setTouched(true);
         setFocused(true);
       }
