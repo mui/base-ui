@@ -1,0 +1,261 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  padding: 1.25rem;
+  color: var(--dnd-ink);
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+}
+
+.title {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+
+.hint {
+  margin: 0;
+  max-width: 40rem;
+  color: var(--dnd-muted);
+}
+
+.meta {
+  margin: 0 0 0.25rem;
+  font-size: 0.75rem;
+  line-height: 1rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--dnd-muted);
+}
+
+.grid {
+  position: relative;
+  border: 1px solid var(--dnd-border);
+  background: var(--dnd-surface);
+  overflow: hidden;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* Single insertion-point indicators (commit-on-drop), positioned from computed
+   gaps so they never duplicate at a shared border. */
+.columnIndicator {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--dnd-ink);
+  z-index: 3;
+  pointer-events: none;
+}
+
+.rowIndicator {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--dnd-ink);
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* Header --------------------------------------------------------------- */
+
+/* Sticky inside the scroller: pinned vertically, scrolling horizontally with
+   the cells. Opaque so rows pass underneath it. */
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  display: flex;
+  align-items: stretch;
+  box-sizing: border-box;
+  border-bottom: 1px solid var(--dnd-border);
+  background: var(--dnd-canvas);
+}
+
+.headerHandleSpacer {
+  flex: 0 0 auto;
+}
+
+/* Stands in for the columns outside the window (header and rows alike). */
+.columnSpacer {
+  flex: 0 0 auto;
+}
+
+.headerCell {
+  flex: 0 0 auto;
+  box-sizing: border-box;
+  display: flex;
+  align-items: stretch;
+  border-left: 1px solid var(--dnd-border);
+}
+
+.headerCellInner {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  align-items: center;
+  height: 100%;
+  padding: 0 0.25rem 0 0.625rem;
+  font-weight: 600;
+  cursor: grab;
+  touch-action: none;
+}
+
+.headerCellInner[data-dragging] {
+  opacity: 0.4;
+  cursor: grabbing;
+}
+
+/* The column preview is a clone, so it keeps this class. The engine fixes its
+   source dimensions inline; the data attribute supplies only the lifted look. */
+.headerCellInner[data-drag-preview] {
+  border: 1px solid var(--dnd-ink);
+  background: var(--dnd-surface);
+  color: var(--dnd-ink);
+  box-shadow: var(--dnd-shadow);
+  opacity: 1;
+  white-space: nowrap;
+}
+
+/* Body / rows ---------------------------------------------------------- */
+
+/* The single scroller for both axes: header + rows. */
+.viewport {
+  overflow: auto;
+}
+
+.bodyInner {
+  position: relative;
+}
+
+.bodyWindow {
+  position: absolute;
+  inset: 0 0 auto;
+  will-change: transform;
+}
+
+.row {
+  box-sizing: border-box;
+  border-bottom: 1px solid var(--dnd-border);
+}
+
+.rowInner {
+  display: flex;
+  align-items: stretch;
+  height: 100%;
+}
+
+.rowInner[data-dragging] {
+  /* MUI X dims the dragged row's content and keeps it in place. */
+  opacity: 0.5;
+}
+
+.rowHandle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 2.25rem;
+  color: var(--dnd-muted);
+  cursor: grab;
+  touch-action: none;
+}
+
+.rowHandle:active {
+  cursor: grabbing;
+}
+
+.handleIcon {
+  display: block;
+}
+
+.cell {
+  display: flex;
+  align-items: center;
+  flex: 0 0 auto;
+  box-sizing: border-box;
+  padding: 0 0.625rem;
+  border-left: 1px solid var(--dnd-border);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* The compact row preview renders custom content through the preview provider. */
+
+.rowGhost {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  height: 2.25rem;
+  padding: 0 0.875rem;
+  border: 1px solid var(--dnd-ink);
+  background: var(--dnd-surface);
+  color: var(--dnd-ink);
+  box-shadow: var(--dnd-shadow);
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  white-space: nowrap;
+}
+
+/* The header's only tab stop: the drag itself is pointer-only, and the keyboard
+   route runs through this menu (see `keyboardActivation="manual"`). */
+.headerMenuButton {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.25rem;
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--dnd-muted);
+  cursor: pointer;
+}
+
+.headerMenuButton:hover,
+.headerMenuButton[data-popup-open] {
+  color: var(--dnd-ink);
+  background: var(--dnd-surface-hover);
+}
+
+.headerMenuButton:focus-visible {
+  outline: 2px solid var(--dnd-ink);
+  outline-offset: -2px;
+}
+
+/* Column menu ---------------------------------------------------------- */
+
+/* Portaled, so it inherits nothing from the grid: the positioner carries
+   `theme.tokens` and these rules read the vars off it. */
+.menuPopup {
+  box-sizing: border-box;
+  min-width: 11rem;
+  padding: 0.25rem;
+  border: 1px solid var(--dnd-ink);
+  background: var(--dnd-surface);
+  color: var(--dnd-ink);
+  box-shadow: var(--dnd-shadow);
+  outline: none;
+}
+
+.menuItem {
+  display: flex;
+  align-items: center;
+  padding: 0.375rem 0.625rem;
+  font: inherit;
+  font-size: 0.8125rem;
+  cursor: default;
+  outline: none;
+}
+
+.menuItem[data-highlighted] {
+  background: var(--dnd-ink);
+  color: var(--dnd-surface);
+}
+
+.menuItem[data-disabled] {
+  color: var(--dnd-muted);
+}

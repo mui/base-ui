@@ -1,0 +1,193 @@
+# Collections
+
+<Subtitle>Reorderable lists and boards, and what changes at scale.</Subtitle>
+
+<Meta
+  name="description"
+  content="Building reorderable lists and boards with Base UI drag and drop: cross-list moves, drop indicators, virtualization, auto-scroll and performance."
+/>
+
+Base UI has no dedicated component for reorderable lists, boards, or grids. Build them by composing [Draggable](/react/components/draggable) and [DropTarget](/react/components/drop-target). This guide covers the additional behavior needed for collections.
+
+## One element, both roles
+
+An item in a reorderable list is picked up and dropped on. Pass a `DropTarget.Root` to the `Draggable.Root`'s `render` prop and both registrations land on the same element:
+
+```tsx title="A row that is a source and a target"
+const itemKind = Draggable.createKind<string>('item');
+
+<Draggable.Root
+  label={item.label}
+  kind={itemKind}
+  payload={item.id}
+  keyboardMovement={Draggable.targetsOnlyKeyboardMovement}
+  render={
+    <DropTarget.Root
+      accept={itemKind}
+      label={item.label}
+      trackDragOver={false}
+      onDrop={handleDrop}
+    />
+  }
+/>;
+```
+
+Without `targetsOnlyKeyboardMovement`, an arrow press past the last row nudges the preview into empty space, because the default falls back to a fixed step when no target lies ahead. In a list, free space is never a valid position.
+
+The [sortable list example](/react/drag-and-drop/overview#sortable-lists) builds a complete list on top of this.
+
+## Committing on drop, or while dragging
+
+**Commit on drop.** Keep the list unchanged during the drag and use an indicator to show the destination. Reorder once from a source, target, or monitor `onDrop` handler. A canceled drag requires no rollback because `onDrop` does not fire.
+
+**Commit while dragging.** Swap rows as the pointer crosses them. This renders the updated order during the drag but requires a re-render for each crossing, so it is better suited to short lists.
+
+When committing during the drag, compare the current and previous pointer positions so a stack change without pointer movement does not reorder the list:
+
+```tsx title="Swapping rows as the pointer crosses them"
+<DropTarget.Root
+  accept={itemKind}
+  label={item.label}
+  trackDragOver={false}
+  onDrag={({ source, location }) => {
+    const { clientY } = location.current.input;
+    const previousY = location.previous.input.clientY;
+    if (clientY !== previousY) {
+      reorder(source.payload, item.id, clientY > previousY);
+    }
+  }}
+/>
+```
+
+The drag continues if its source unmounts. Base UI captures pointer events on a document-level element, and custom preview content renders in the [`Draggable.PreviewProvider`](/react/drag-and-drop/overview#setup) tree instead of inside the item. Give rows stable keys so reordering moves the existing DOM nodes instead of rebuilding them.
+
+Rows that swap immediately can be hard to follow. Render [`Draggable.Displacement`](/react/components/draggable#animating-displaced-items) in each row and style its displacement variables and state attributes. Base UI then measures positions before and after each reorder. For more control, measure each row around the update and animate the difference with `Element.animate` or an animation library. Do not add a transition to the preview during a pointer drag because Base UI positions it every frame. See [Easing keyboard drags](/react/drag-and-drop/styling#easing-keyboard-drags) for the keyboard exception.
+
+## Moving between lists
+
+Moving between lists uses the same components. The destination is a drop target, and matching `kind` and `accept` values make the lists compatible.
+
+```tsx title="A column that accepts cards from any column"
+<DropTarget.Root
+  accept={card}
+  label={column.name}
+  onDrop={({ source }) => moveCard(source.payload, column.id)}
+/>
+```
+
+Because registration is global, this also works across two independent boards on the same page, whether or not you want it to. See [Isolating features](#isolating-features).
+
+## Drop indicators
+
+An indicator should show the insertion point rather than the pointer. Resolving it from a monitor keeps that logic in one place instead of in every row:
+
+```tsx title="One monitor, one indicator"
+function useDropIndicator() {
+  const [indicator, setIndicator] = React.useState(null);
+
+  useDragMonitor({
+    accept: card,
+    onDrag: ({ location }) => {
+      const { clientX, clientY } = location.current.input;
+      setIndicator(resolveInsertionPoint(clientX, clientY));
+    },
+    onDragEnd: () => setIndicator(null),
+  });
+
+  return indicator;
+}
+```
+
+`onDrag` is limited to one call per animation frame, so this causes at most one re-render per frame regardless of the row count. The [Kanban board example](/react/drag-and-drop/overview#kanban-board) renders a placeholder card in the resolved slot, including when the pointer is between columns.
+
+## Scrolling a long list
+
+Wrap the collection area in `DragAutoScroll.Provider` to scroll a long list when the pointer approaches an edge. Scrollable descendants need no additional props.
+
+```tsx title="A scrollable, reorderable list"
+<DragAutoScroll.Provider>
+  <div style={{ maxHeight: 400, overflowY: 'auto' }}>
+    {items.map((item) => (
+      <Row key={item.id} item={item} />
+    ))}
+  </div>
+</DragAutoScroll.Provider>
+```
+
+Use [`DragAutoScroll.Root`](/react/components/drag-auto-scroll) to disable a nested scroll container, limit its speed, or implement custom scrolling without element scroll offsets.
+
+Auto-scroll runs for pointer drags only. A keyboard drag moves between targets rather than by position, so the engine scrolls the target it lands on into view instead.
+
+## Virtualized lists
+
+Virtualization needs no special integration. Base UI stores element references and resolves a target again if its node changes. Account for these two cases:
+
+- **Only rendered rows are drop targets.** For a pointer this is fine, since the pointer can only be over a row that exists. For the keyboard it is not: a target scrolled out of the window is not registered, so arrows cannot reach it. Increase the overscan, or resolve keyboard moves by index with a [`keyboardMovement`](/react/components/draggable#controlling-movement) resolver rather than by geometry.
+- **Recycled rows change identity.** Key rows by item id, not by index, so a scroll during a drag does not re-point a registration at the wrong item.
+
+## Isolating features
+
+Every source and target on the page uses the same drag manager. The required `accept` prop prevents a target from accepting an unrelated drag. Give each interaction its own kind and pass it to every matching target:
+
+```tsx title="Two features, no crossover"
+const boardCard = Draggable.createKind<CardId>('board-card');
+const sidebarFile = Draggable.createKind<FileId>('sidebar-file');
+
+<Draggable.Root kind={boardCard} label={card.title} payload={card.id} />
+<DropTarget.Root accept={boardCard} label="Board" onDrop={handleCardDrop} />
+
+<Draggable.Root kind={sidebarFile} label={file.name} payload={file.id} />
+<DropTarget.Root accept={sidebarFile} label="Sidebar" onDrop={handleFileDrop} />
+```
+
+Kinds carry their payload types. The target's `accept` prop determines the type of `source.payload`, while its `payload` prop determines the type of `self.payload`.
+
+```tsx title="Payload types on both ends"
+<DropTarget.Root
+  accept={boardCard}
+  label={column.name}
+  payload={column.id}
+  onDrop={({ source, self }) => moveCard(source.payload, self.payload)}
+/>
+```
+
+The `payload` on records read from `location.current.dropTargets` is typed `unknown`, because any target on the page can appear there. Have each target report itself from its own callbacks rather than narrowing another target's payload.
+
+## Performance
+
+- **`trackDragOver={false}` on rows that render no drag-over feedback.** Drag-over tracking re-renders a target as a drag enters and leaves it. Rows that exist only so a drop can be resolved on them don't need it, and their callbacks still fire. See [Track the drag-over state](/react/components/drop-target#track-the-drag-over-state).
+- **One monitor rather than a handler per row.** State shared across the collection, such as what is being dragged or where the indicator goes, belongs in a single [`useDragMonitor`](/react/utils/use-drag-monitor). [`Draggable.useActiveDrag`](/react/components/draggable#useactivedrag) is the read-only version, and re-renders only when a drag starts or ends.
+- **Keep modifiers cheap.** A [modifier](/react/components/draggable#movement-modifiers) runs on every frame of a pointer drag, so measuring the DOM inside one costs a layout per frame.
+- **Keep imperative getters current.** React component and hook props stay current across renders. For [`useDragDropManager`](/react/utils/use-drag-drop-manager), read changing values from refs or re-register from an effect with the appropriate dependencies.
+- **Keep shared context values stable.** A context update re-renders every subscribed row, even through `React.memo`. Split frequently changing values from stable configuration and subscribe each row only to the state it needs.
+- **Hoist static parts.** If a preview declaration is identical for every row, define it once outside the row component.
+
+## Troubleshooting
+
+**Nothing accepts the drag.** The source's kind is not included in the target's `accept` prop. A kind created with `createKind` matches only when both sides receive the same declared value, so check the imports and props instead of the names. If you use `createGlobalKind` across bundles, both sides need the same namespaced key. The `label` prop is only the accessible name.
+
+**An inner target swallows drops meant for its parent.** The innermost accepting target wins. Return `false` from the inner target's `canDrop`, or set `disabled`, to let the drag fall through.
+
+**A custom preview throws.** Preview content renders in React, so it needs a `Draggable.PreviewProvider` above it, and above the component calling `useDragDropManager` for imperative registrations. A source with no preview part clones itself and needs no provider.
+
+**Auto-scroll does nothing.** Mount `DragAutoScroll.Provider` or render a `DragAutoScroll.Root`. The container also needs scrollable `overflow`, constrained dimensions, and remaining content in the pointer's direction. For a canvas moved with a `transform`, implement scrolling through [`applyScroll`](/react/components/drag-auto-scroll#implement-custom-scrolling). Auto-scroll runs only for pointer drags.
+
+**Keyboard dragging does nothing on an imperatively registered source.** `registerDraggable` does not manage `tabIndex` the way `Draggable.Root` does. Make the element focusable yourself.
+
+**Sibling styles shift during a drag.** The preview renders as the last of the source's siblings, so `:last-child`, `:only-child` and `:nth-last-child` move while a drag runs, and DOM scans see the extra element. Filter it out with `:not([data-drag-preview])`, or move it with [`container`](/react/components/draggable#render-previews-elsewhere).
+
+export const metadata =
+  /** @type {import('@mui/internal-docs-infra/createSitemap/types').NextMetadata} */ ({
+    keywords: [
+      'React Sortable List',
+      'React Drag and Drop',
+      'Reorderable List',
+      'Kanban Board',
+      'Drop Indicator',
+      'Virtualized List',
+      'Base UI',
+    ],
+    robots: {
+      index: true,
+    },
+  });

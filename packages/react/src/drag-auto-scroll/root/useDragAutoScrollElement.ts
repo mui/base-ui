@@ -1,0 +1,60 @@
+'use client';
+import type * as React from 'react';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { registerAutoScroller } from '../../utils/drag-and-drop/registrations';
+import { refreshAutoScroll } from '../../utils/drag-and-drop/autoScroller';
+import type { RegisterAutoScrollerParameters } from '../../types/dragRegistration';
+import { useRegistrationRef } from '../../utils/drag-and-drop/useRegistrationRef';
+
+/**
+ * Configures the element the returned `ref` is attached to as an auto-scroll
+ * container, and enables auto-scroll when used without a provider. Backs
+ * `DragAutoScroll.Root`.
+ *
+ * Once enabled, the engine also infers nested scroll containers from the DOM.
+ *
+ * The parameters are read through a stable getter on every frame, so a re-render never
+ * re-registers and the freshest callbacks always apply.
+ * @internal
+ */
+export function useDragAutoScrollElement<TSourceData = unknown>(
+  parameters: UseDragAutoScrollElementParameters<TSourceData>,
+): UseDragAutoScrollElementReturnValue {
+  const getParameters = useStableCallback(
+    () => parameters as RegisterAutoScrollerParameters<unknown>,
+  );
+
+  // Registering mid-drag arms and wakes the loop with the latest live input.
+  // The public `registerAutoScroller` is keyed on the `accept` value; this
+  // internal layer is keyed on the payload it promises (like the component's
+  // implementation signature), so the parameters are erased to `unknown` here.
+  // `disabled` rides along in the parameters (the engine reads it every frame)
+  // rather than gating the registration, which would churn the engine's registry
+  // — and its cached depth order — on every flip of the prop.
+  const ref = useRegistrationRef<HTMLElement>((node) => registerAutoScroller(node, getParameters));
+
+  useIsoLayoutEffect(() => {
+    // A live parameter change must wake a loop that parked while the element was
+    // disabled or declined scrolling. Stable parameters no longer discard the
+    // shared geometry/style caches on every unrelated parent render.
+    refreshAutoScroll();
+  }, [
+    parameters.accept,
+    parameters.allowedAxis,
+    parameters.applyScroll,
+    parameters.canScroll,
+    parameters.disabled,
+    parameters.maxSpeed,
+  ]);
+
+  return { ref };
+}
+
+export type UseDragAutoScrollElementParameters<TSourceData = unknown> =
+  RegisterAutoScrollerParameters<TSourceData>;
+
+export interface UseDragAutoScrollElementReturnValue {
+  /** Ref callback to attach to the scroll container element. */
+  ref: React.RefCallback<HTMLElement>;
+}

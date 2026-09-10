@@ -16,10 +16,20 @@ import {
   findNonDisabledListIndex,
   getMaxListIndex,
   getMinListIndex,
+  isExplicitlyDisabledIndex,
   isIndexOutOfListBounds,
+  isListIndexDisabled,
 } from '../utils/composite';
 import type { gridNavigation } from './gridNavigation';
-import { ARROW_DOWN, ARROW_LEFT, ARROW_RIGHT, ARROW_UP } from '../utils/constants';
+import {
+  ARROW_DOWN,
+  ARROW_LEFT,
+  ARROW_RIGHT,
+  ARROW_UP,
+  LIST_PAGE_SIZE,
+  PAGE_DOWN,
+  PAGE_UP,
+} from '../utils/constants';
 import {
   activeElement,
   contains,
@@ -212,6 +222,14 @@ export interface UseListNavigationProps {
    */
   resetOnPointerLeave?: boolean | undefined;
   /**
+   * Whether to scroll the active item into view when navigating, evaluated when a scroll would
+   * occur. Return `false` when an external mechanism owns the scroll position of the list (such
+   * as a virtualizer): the DOM scroll here is asynchronous, so it can operate on a stale layout
+   * and drag the scroll position away from where that mechanism placed it.
+   * @default undefined (scrolls into view)
+   */
+  scrollItemIntoView?: (() => boolean) | undefined;
+  /**
    * External FloatingTree to use when the one provided by context can't be used.
    */
   externalTree?: FloatingTreeStore | undefined;
@@ -249,6 +267,7 @@ export function useListNavigation(
     parentOrientation,
     id,
     resetOnPointerLeave = true,
+    scrollItemIntoView,
     externalTree,
     grid: navigateGrid,
   } = props;
@@ -347,7 +366,9 @@ export function useListNavigation(
 
       const shouldScrollIntoView =
         // eslint-disable-next-line @typescript-eslint/no-use-before-define
-        item && (forceScrollIntoView || !isPointerModalityRef.current);
+        item &&
+        (forceScrollIntoView || !isPointerModalityRef.current) &&
+        (scrollItemIntoView?.() ?? true);
 
       if (shouldScrollIntoView) {
         // JSDOM doesn't support `.scrollIntoView()` but it's widely supported
@@ -432,16 +453,21 @@ export function useListNavigation(
             }
             runs += 1;
           } else {
-            // Initially focus the first non-disabled item. `disabledIndices` is deliberately
-            // omitted here so attribute-disabled items (`disabled`/`aria-disabled`) are skipped
-            // on open even when the consumer passes an empty `disabledIndices` array. Passing it
-            // would regress that behavior (see mui/base-ui#2604).
+            // Initially focus the first non-disabled item. `disabledIndices` is deliberately not
+            // forwarded as-is so attribute-disabled items (`disabled`/`aria-disabled`) are skipped
+            // on open even when the consumer passes an empty `disabledIndices` array (see
+            // mui/base-ui#2604). The consumer predicate is still consulted alongside the DOM
+            // state: a virtualized list leaves offscreen items unmounted, and a `null` slot is
+            // otherwise indistinguishable from an enabled item.
+            const isInitialIndexDisabled = (index: number) =>
+              isExplicitlyDisabledIndex(index, disabledIndicesRef.current) ||
+              isListIndexDisabled(listRef.current, index);
             indexRef.current =
               keyRef.current == null ||
               isMainOrientationToEndKey(keyRef.current, orientation, rtl) ||
               nested
-                ? getMinListIndex(listRef)
-                : getMaxListIndex(listRef);
+                ? getMinListIndex(listRef, isInitialIndexDisabled)
+                : getMaxListIndex(listRef, isInitialIndexDisabled);
             keyRef.current = null;
             onNavigate();
           }
@@ -460,6 +486,7 @@ export function useListNavigation(
     floatingElement,
     activeIndex,
     selectedIndexRef,
+    disabledIndicesRef,
     nested,
     listRef,
     orientation,
@@ -571,6 +598,53 @@ export function useListNavigation(
     const currentIndex = indexRef.current;
     const minIndex = getMinListIndex(listRef, disabledIndices);
     const maxIndex = getMaxListIndex(listRef, disabledIndices);
+
+    // Unlike Home and End, paging has no caret meaning in a single-line input, so it is offered
+    // to a typeable combobox reference too. It is what makes a long list traversable from the
+    // keyboard without turning the scroll container into a tab stop: the list scrolls because the
+    // highlight moves, which is the only way to reach the far end of a windowed collection whose
+    // items are not all in the DOM.
+    if (open && (event.key === PAGE_UP || event.key === PAGE_DOWN)) {
+      const decrement = event.key === PAGE_UP;
+      const list = listRef.current;
+
+      if (minIndex <= maxIndex) {
+        stopEvent(event);
+
+        // With nothing highlighted there is no position to page from, so the first key lands on
+        // the end it travels from, the way an arrow key does.
+        const startOfTravel = decrement ? maxIndex : minIndex;
+        const pagedIndex = Math.min(
+          maxIndex,
+          Math.max(minIndex, currentIndex + (decrement ? -LIST_PAGE_SIZE : LIST_PAGE_SIZE)),
+        );
+        let next = currentIndex < 0 ? startOfTravel : pagedIndex;
+
+        if (isListIndexDisabled(list, next, disabledIndices)) {
+          // Carry on in the direction of travel, and only turn back when the page landed against
+          // a disabled run at the end of the list.
+          const ahead = findNonDisabledListIndex(list, {
+            startingIndex: next,
+            decrement,
+            disabledIndices,
+          });
+          next = isIndexOutOfListBounds(list, ahead)
+            ? findNonDisabledListIndex(list, {
+                startingIndex: next,
+                decrement: !decrement,
+                disabledIndices,
+              })
+            : ahead;
+        }
+
+        if (!isIndexOutOfListBounds(list, next) && next !== currentIndex) {
+          indexRef.current = next;
+          onNavigate(event);
+        }
+      }
+
+      return;
+    }
 
     if (!typeableComboboxReference) {
       if (event.key === 'Home') {

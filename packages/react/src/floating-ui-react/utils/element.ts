@@ -4,6 +4,7 @@ import { activeElement, contains, getTarget } from '@base-ui/utils/shadowDom';
 import { FOCUSABLE_ATTRIBUTE, TYPEABLE_SELECTOR } from './constants';
 import { type PopupTriggerMap } from '../../utils/popups';
 import * as TooltipTriggerDataAttributes from '../../tooltip/trigger/TooltipTriggerDataAttributes';
+import { INTERACTIVE_ELEMENT_SELECTOR } from '../../utils/isInteractiveElement';
 
 export { activeElement, contains, getTarget };
 
@@ -53,11 +54,7 @@ export function isTypeableElement(element: unknown): boolean {
 }
 
 export function isInteractiveElement(element: Element | null) {
-  return (
-    element?.closest(
-      `button,a[href],[role="button"],select,[tabindex]:not([tabindex="-1"]),${TYPEABLE_SELECTOR}`,
-    ) != null
-  );
+  return element?.closest(INTERACTIVE_ELEMENT_SELECTOR) != null;
 }
 
 export function isTypeableCombobox(element: Element | null) {

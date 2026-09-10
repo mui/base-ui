@@ -6,6 +6,7 @@ import type { Side } from '../internals/useAnchorPositioning';
 import { compareItemEquality } from '../internals/itemEquality';
 import { hasNullItemLabel } from '../internals/resolveValueLabel';
 import type { AriaCombobox } from './root/AriaCombobox';
+import type { ListVirtualizationRegistry } from '../internals/virtualization/ListVirtualizationRegistry';
 
 export type State = {
   id: string | undefined;
@@ -23,6 +24,7 @@ export type State = {
   inline: boolean;
 
   activeIndex: number | null;
+  highlightType: AriaCombobox.HighlightEventReason;
   selectedIndex: number | null;
 
   popupProps: HTMLProps;
@@ -52,9 +54,15 @@ export type State = {
   readOnly: boolean;
   required: boolean;
   grid: boolean;
-  virtualized: boolean;
+  externallyVirtualized: boolean;
+  /**
+   * Whether every item is temporarily mounted so browser autofill can read their rendered labels.
+   * Published across the virtualization seam as `windowingSuspended`.
+   */
+  renderAllRows: boolean;
   openOnInputClick: boolean;
   itemToStringLabel?: ((item: any) => string) | undefined;
+  isItemDisabled?: ((item: any, index: number) => boolean) | undefined;
   isItemEqualToValue: (itemValue: any, selectedValue: any) => boolean;
   modal: boolean;
   autoHighlight: false | 'always' | 'input-change';
@@ -67,6 +75,13 @@ export type State = {
  * `selectors`, so writing to a ref never notifies subscribers.
  */
 export type ComboboxStoreContext = {
+  /**
+   * Part namespace of the root this store belongs to, so diagnostics name the parts the reader
+   * actually has in their tree. `AriaCombobox` backs more than one public component.
+   */
+  readonly componentName: string;
+  /** Coordinates the built-in virtualizer with the items rendered outside it. */
+  readonly virtualizationRegistry: ListVirtualizationRegistry;
   /** Item elements in list order, owned by `Combobox.List`. */
   readonly listRef: React.RefObject<Array<HTMLElement | null>>;
   /** Item text labels in list order, used for typeahead. */
@@ -119,6 +134,29 @@ export type ComboboxStoreContext = {
   onOpenChangeComplete: (open: boolean) => void;
 };
 
+type VirtualizationStore = {
+  state: { renderAllRows: boolean };
+  set: (key: 'renderAllRows', value: boolean) => void;
+};
+
+/**
+ * Mounts or releases the whole collection for a browser autofill label pass.
+ *
+ * A built-in `<Virtualizer>` reads this as its windowing being suspended, and re-measures its
+ * viewport when it is cleared. That makes the order of the release load-bearing: clear this
+ * **before** releasing `forceMounted`, so the virtualizer is still mounted to observe it.
+ *
+ * Repeating a request is not a new pass, so an unchanged value publishes nothing: a redundant
+ * notification would arm a viewport restore for a suspension that never happened.
+ */
+export function setVirtualizationRenderAllRows(store: VirtualizationStore, renderAllRows: boolean) {
+  if (store.state.renderAllRows === renderAllRows) {
+    return;
+  }
+
+  store.set('renderAllRows', renderAllRows);
+}
+
 export const selectors = {
   id: (state: State) => state.id,
   labelId: (state: State) => state.labelId,
@@ -153,6 +191,7 @@ export const selectors = {
   inline: (state: State) => state.inline,
 
   activeIndex: (state: State) => state.activeIndex,
+  highlightType: (state: State) => state.highlightType,
   selectedIndex: (state: State) => state.selectedIndex,
   isActive: (state: State, index: number) => state.activeIndex === index,
   isSelected: (state: State, itemValue: any) => {
@@ -195,8 +234,10 @@ export const selectors = {
   readOnly: (state: State) => state.readOnly,
   required: (state: State) => state.required,
   grid: (state: State) => state.grid,
-  virtualized: (state: State) => state.virtualized,
+  externallyVirtualized: (state: State) => state.externallyVirtualized,
+  renderAllRows: (state: State) => state.renderAllRows,
   itemToStringLabel: (state: State) => state.itemToStringLabel,
+  isItemDisabled: (state: State) => state.isItemDisabled,
   isItemEqualToValue: (state: State) => state.isItemEqualToValue,
   modal: (state: State) => state.modal,
   autoHighlight: (state: State) => state.autoHighlight,
