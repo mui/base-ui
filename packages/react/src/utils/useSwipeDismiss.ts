@@ -34,7 +34,6 @@ const MIN_DRAG_THRESHOLD = 1;
 const MIN_VELOCITY_DURATION_MS = 50;
 const MIN_RELEASE_VELOCITY_DURATION_MS = 16;
 const MAX_RELEASE_VELOCITY_AGE_MS = 80;
-const RELEASE_VELOCITY_WINDOW_MS = 50;
 const MIN_VELOCITY_SAMPLE_DISTANCE = 1;
 const DEFAULT_IGNORE_SELECTOR = 'button,a,input,select,textarea,label,[role="button"]';
 
@@ -158,8 +157,8 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
   >(null);
   const swipeStartTimeRef = React.useRef<number | null>(null);
   const lastDragSampleRef = React.useRef<{ x: number; y: number; time: number } | null>(null);
+  const previousDragSampleRef = React.useRef<{ x: number; y: number; time: number } | null>(null);
   const lastDragVelocityRef = React.useRef({ x: 0, y: 0 });
-  const dragSampleHistoryRef = React.useRef<Array<{ x: number; y: number; time: number }>>([]);
   const lastProgressDetailsRef = React.useRef<SwipeProgressDetailsInternal | null>(null);
   const isSwipingRef = React.useRef(false);
   const dragStyleSnapshotRef = React.useRef<[string, string] | null>(null);
@@ -260,37 +259,31 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
       return;
     }
 
-    const history = dragSampleHistoryRef.current;
-    const previous = history[history.length - 1];
-    // Chrome on Android emits a final, effectively stationary `pointermove` right before
-    // `pointerup`. Such a sample reports a stopped finger, so it must not become the
-    // reference the velocity is measured from.
-    const stationary =
-      previous !== undefined &&
-      Math.abs(offset.x - previous.x) < MIN_VELOCITY_SAMPLE_DISTANCE &&
-      Math.abs(offset.y - previous.y) < MIN_VELOCITY_SAMPLE_DISTANCE;
+    const lastSample = lastDragSampleRef.current;
+    if (lastSample) {
+      // Chrome on Android emits a final, effectively stationary `pointermove` right before
+      // `pointerup`. Measure such a sample from the one before the last movement so it can't
+      // collapse the velocity, while a pointer that stays pinned still decays it over time.
+      const stationary =
+        Math.abs(offset.x - lastSample.x) < MIN_VELOCITY_SAMPLE_DISTANCE &&
+        Math.abs(offset.y - lastSample.y) < MIN_VELOCITY_SAMPLE_DISTANCE;
+      const reference = stationary ? (previousDragSampleRef.current ?? lastSample) : lastSample;
 
-    if (!stationary && (previous === undefined || timeStamp > previous.time)) {
-      history.push({ x: offset.x, y: offset.y, time: timeStamp });
+      if (timeStamp > reference.time) {
+        const durationMs = Math.max(timeStamp - reference.time, MIN_RELEASE_VELOCITY_DURATION_MS);
+
+        lastDragVelocityRef.current = {
+          x: (offset.x - reference.x) / durationMs,
+          y: (offset.y - reference.y) / durationMs,
+        };
+      }
+
+      if (stationary) {
+        return;
+      }
     }
 
-    while (history.length > 2 && timeStamp - history[0].time > RELEASE_VELOCITY_WINDOW_MS) {
-      history.shift();
-    }
-
-    // A sample that advanced keeps the previous behaviour, so a deceleration before the
-    // release still reports its own low velocity. Only a stationary sample falls back to
-    // the window, where a genuine hold dilutes the velocity through the elapsed time.
-    const reference = stationary ? history[0] : previous;
-    if (reference !== undefined && timeStamp > reference.time) {
-      const durationMs = Math.max(timeStamp - reference.time, MIN_RELEASE_VELOCITY_DURATION_MS);
-
-      lastDragVelocityRef.current = {
-        x: (offset.x - reference.x) / durationMs,
-        y: (offset.y - reference.y) / durationMs,
-      };
-    }
-
+    previousDragSampleRef.current = lastSample;
     lastDragSampleRef.current = { x: offset.x, y: offset.y, time: timeStamp };
   }
 
@@ -319,7 +312,7 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
     elementSizeRef.current = { width: 0, height: 0 };
     swipeStartTimeRef.current = null;
     lastDragSampleRef.current = null;
-    dragSampleHistoryRef.current = [];
+    previousDragSampleRef.current = null;
     lastDragVelocityRef.current = { x: 0, y: 0 };
     lastProgressDetailsRef.current = null;
     syncDragStyles(false);
@@ -418,7 +411,8 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
 
     dragStartPosRef.current = position;
     swipeStartTimeRef.current = getValidTimeStamp(event.timeStamp);
-    dragSampleHistoryRef.current = [];
+    lastDragSampleRef.current = null;
+    previousDragSampleRef.current = null;
     lastDragVelocityRef.current = { x: 0, y: 0 };
     swipeCancelBaselineRef.current = position;
     lastMovePosRef.current = position;
@@ -626,6 +620,8 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
         if (moveTime !== null) {
           swipeStartTimeRef.current = moveTime;
         }
+        lastDragSampleRef.current = null;
+        previousDragSampleRef.current = null;
       }
     }
 
@@ -825,10 +821,10 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
         const deltaFromLastSampleY = resolvedDragOffset.y - lastSample.y;
         const sampleVelocityX = deltaFromLastSampleX / sampleDurationMs;
         const sampleVelocityY = deltaFromLastSampleY / sampleDurationMs;
-        if (sampleVelocityX !== 0) {
+        if (Math.abs(deltaFromLastSampleX) >= MIN_VELOCITY_SAMPLE_DISTANCE) {
           releaseVelocityX = sampleVelocityX;
         }
-        if (sampleVelocityY !== 0) {
+        if (Math.abs(deltaFromLastSampleY) >= MIN_VELOCITY_SAMPLE_DISTANCE) {
           releaseVelocityY = sampleVelocityY;
         }
       } else {

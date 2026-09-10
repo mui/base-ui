@@ -1695,18 +1695,17 @@ describe('useSwipeDismiss', () => {
 
       await flushMicrotasks();
 
-      // The first move establishes the drag baseline, so the recorded offsets trail the
-      // client coordinates by 20px and the window covers 60.5px over 40ms. Deriving the
-      // velocity from the last two samples instead would report 0.03, a stopped finger.
+      // The stationary sample is measured from the sample before the last movement: 20.5px
+      // over the 16ms minimum duration. Measuring it from the last movement would report 0.03.
       const details = onRelease.mock.calls[0]?.[0];
-      expect(details?.releaseVelocityY).toBeCloseTo(1.5125, 4);
+      expect(details?.releaseVelocityY).toBeCloseTo(1.28125, 4);
       expect(details?.releaseVelocityX).toBeCloseTo(0, 2);
     } finally {
       vi.useRealTimers();
     }
   });
 
-  it('keeps release velocity when moves arrive slower than the sample window', async () => {
+  it('keeps release velocity when moves arrive sparsely', async () => {
     const onRelease = vi.fn();
 
     function SwipeBoxSparseSamples() {
@@ -1798,10 +1797,202 @@ describe('useSwipeDismiss', () => {
 
       await flushMicrotasks();
 
-      // Samples 60ms apart leave a window of two entries, so the stationary sample must be
-      // excluded from it rather than becoming the window start.
+      // 180.5px over the 68ms since the sample before the last movement.
       const details = onRelease.mock.calls[0]?.[0];
-      expect(details?.releaseVelocityY).toBeCloseTo(1.4102, 3);
+      expect(details?.releaseVelocityY).toBeCloseTo(180.5 / 68, 4);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('measures release velocity from the first move rather than the press', async () => {
+    const onRelease = vi.fn();
+
+    function SwipeBoxHeldPress() {
+      const ref = React.useRef<HTMLDivElement>(null);
+      const swipe = useSwipeDismiss({
+        enabled: true,
+        directions: ['down'],
+        elementRef: ref,
+        movementCssVars: { x: '--x', y: '--y' },
+        onRelease,
+      });
+
+      return (
+        <div
+          data-testid="release-velocity-held-press"
+          ref={ref}
+          style={swipe.getDragStyles()}
+          {...swipe.getPointerProps()}
+        />
+      );
+    }
+
+    vi.useFakeTimers();
+    try {
+      await render(<SwipeBoxHeldPress />);
+      const element = screen.getByTestId('release-velocity-held-press');
+
+      firePointer.down(element, {
+        button: 0,
+        buttons: 1,
+        pointerId: 1,
+        clientX: 0,
+        clientY: 0,
+        bubbles: true,
+        pointerType: 'mouse',
+        movementX: 0,
+        movementY: 0,
+        timeStamp: 1000,
+      });
+
+      await flushMicrotasks();
+
+      // The first move arrives 200ms after the press and re-anchors the drag origin.
+      firePointer.move(element, {
+        pointerId: 1,
+        buttons: 1,
+        clientX: 0,
+        clientY: 5,
+        bubbles: true,
+        movementX: 0,
+        movementY: 5,
+        timeStamp: 1200,
+      });
+
+      await flushMicrotasks();
+
+      firePointer.move(element, {
+        pointerId: 1,
+        buttons: 1,
+        clientX: 0,
+        clientY: 15,
+        bubbles: true,
+        movementX: 0,
+        movementY: 10,
+        timeStamp: 1208,
+      });
+
+      await flushMicrotasks();
+
+      firePointer.up(element, {
+        pointerId: 1,
+        clientX: 0,
+        clientY: 15,
+        bubbles: true,
+        timeStamp: 1216,
+      });
+
+      await flushMicrotasks();
+
+      // 10px over the 16ms minimum duration. Measuring from the press would report 0.05.
+      const details = onRelease.mock.calls[0]?.[0];
+      expect(details?.releaseVelocityY).toBeCloseTo(0.625, 4);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('decays release velocity while the pointer stays pinned', async () => {
+    const onRelease = vi.fn();
+
+    function SwipeBoxPinned() {
+      const ref = React.useRef<HTMLDivElement>(null);
+      const swipe = useSwipeDismiss({
+        enabled: true,
+        directions: ['down'],
+        elementRef: ref,
+        movementCssVars: { x: '--x', y: '--y' },
+        onRelease,
+      });
+
+      return (
+        <div
+          data-testid="release-velocity-pinned"
+          ref={ref}
+          style={swipe.getDragStyles()}
+          {...swipe.getPointerProps()}
+        />
+      );
+    }
+
+    vi.useFakeTimers();
+    try {
+      await render(<SwipeBoxPinned />);
+      const element = screen.getByTestId('release-velocity-pinned');
+
+      firePointer.down(element, {
+        button: 0,
+        buttons: 1,
+        pointerId: 1,
+        clientX: 0,
+        clientY: 0,
+        bubbles: true,
+        pointerType: 'mouse',
+        movementX: 0,
+        movementY: 0,
+        timeStamp: 1000,
+      });
+
+      await flushMicrotasks();
+
+      firePointer.move(element, {
+        pointerId: 1,
+        buttons: 1,
+        clientX: 0,
+        clientY: 0,
+        bubbles: true,
+        movementX: 0,
+        movementY: 0,
+        timeStamp: 1000,
+      });
+
+      await flushMicrotasks();
+
+      firePointer.move(element, {
+        pointerId: 1,
+        buttons: 1,
+        clientX: 0,
+        clientY: 20,
+        bubbles: true,
+        movementX: 0,
+        movementY: 20,
+        timeStamp: 1016,
+      });
+
+      await flushMicrotasks();
+
+      // An off-screen mouse keeps emitting moves at the pinned coordinates.
+      for (const timeStamp of [1032, 1048, 1064]) {
+        firePointer.move(element, {
+          pointerId: 1,
+          buttons: 1,
+          clientX: 0,
+          clientY: 20,
+          bubbles: true,
+          movementX: 0,
+          movementY: 0,
+          timeStamp,
+        });
+
+        // eslint-disable-next-line no-await-in-loop
+        await flushMicrotasks();
+      }
+
+      firePointer.up(element, {
+        pointerId: 1,
+        clientX: 0,
+        clientY: 20,
+        bubbles: true,
+        timeStamp: 1072,
+      });
+
+      await flushMicrotasks();
+
+      // 20px spread over the 64ms since the movement began, not the 1.25 measured at the
+      // last moving sample.
+      const details = onRelease.mock.calls[0]?.[0];
+      expect(details?.releaseVelocityY).toBeCloseTo(0.3125, 4);
     } finally {
       vi.useRealTimers();
     }
