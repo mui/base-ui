@@ -1,4 +1,4 @@
-import { expect, vi } from 'vitest';
+import { expect, vi, describe, it } from 'vitest';
 import { OTPField } from '@base-ui/react/otp-field';
 import { screen } from '@mui/internal-test-utils';
 import { createRenderer } from '#test-utils';

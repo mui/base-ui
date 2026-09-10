@@ -1,4 +1,4 @@
-import { expect, vi } from 'vitest';
+import { expect, vi, describe, it } from 'vitest';
 import { Combobox } from '@base-ui/react/combobox';
 import { screen } from '@mui/internal-test-utils';
 import { createRenderer } from '#test-utils';

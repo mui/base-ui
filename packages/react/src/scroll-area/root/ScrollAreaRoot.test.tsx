@@ -1,4 +1,4 @@
-import { expect } from 'vitest';
+import { expect, describe, it } from 'vitest';
 import * as React from 'react';
 import { ScrollArea } from '@base-ui/react/scroll-area';
 import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
@@ -13,7 +13,7 @@ const SCROLLABLE_CONTENT_SIZE = 1000;
 const SCROLLBAR_WIDTH = 10;
 const SCROLLBAR_HEIGHT = 10;
 
-async function withMockResizeObserver(test: (notifyResizeObserver: () => void) => Promise<void>) {
+async function withMockResizeObserver(run: (notifyResizeObserver: () => void) => Promise<void>) {
   const originalResizeObserver = window.ResizeObserver;
   const observers = new Set<ResizeObserverMock>();
 
@@ -42,7 +42,7 @@ async function withMockResizeObserver(test: (notifyResizeObserver: () => void) =
   window.ResizeObserver = ResizeObserverMock;
 
   try {
-    await test(() => {
+    await run(() => {
       expect(observers.size).toBeGreaterThan(0);
       observers.forEach((observer) => observer.callback([], observer));
     });

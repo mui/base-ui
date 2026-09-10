@@ -269,6 +269,9 @@ An easily stylable avatar component.
 - Keywords: React Avatar, Avatar Component, Profile Image UI, User Image, User Avatar, Profile Picture, Account Image, Profile Icon, Initials Fallback, Accessible Avatar, Headless React Components, Customizable Avatar, Base UI
 - Sections:
   - Anatomy
+  - Optimized and lazy-loaded images
+    - Stacking
+    - Server rendering
   - API reference
     - Root
     - Image
@@ -278,8 +281,8 @@ An easily stylable avatar component.
   - Avatar - Root
     - Props: className, render, style
   - Avatar - Image
-    - Props: className, onLoadingStatusChange, render, style
-    - Data Attributes: data-ending-style, data-starting-style
+    - Props: className, keepMounted, onLoadingStatusChange, render, style
+    - Data Attributes: data-ending-style, data-error, data-loading, data-starting-style
   - Avatar - Fallback
     - Props: className, delay, render, style
 - Types: Avatar.Fallback.Props, Avatar.Fallback.State, Avatar.Image.Props, Avatar.Image.State, Avatar.Root.Props, Avatar.Root.State
@@ -579,7 +582,7 @@ A menu that appears at the pointer on right click or long press.
     - Separator
 - Exports:
   - Context Menu - Root
-    - Props: actionsRef, children, closeParentOnEsc, defaultOpen, disabled, highlightItemOnHover, loopFocus, onOpenChange, onOpenChangeComplete, open, orientation
+    - Props: actionsRef, children, defaultOpen, disabled, highlightItemOnHover, loopFocus, onOpenChange, onOpenChangeComplete, open, orientation
   - Context Menu - Trigger
     - Props: className, render, style
     - Data Attributes: data-popup-open, data-pressed
@@ -589,7 +592,7 @@ A menu that appears at the pointer on right click or long press.
     - Props: className, render, style
     - Data Attributes: data-closed, data-ending-style, data-open, data-starting-style
   - Context Menu - Positioner
-    - Props: align, alignOffset, anchor, arrowPadding, className, collisionAvoidance, collisionBoundary, collisionPadding, disableAnchorTracking, positionMethod, render, side, sideOffset, sticky, style
+    - Props: align, alignOffset, anchor, arrowPadding, className, collisionAvoidance, collisionBoundary, collisionPadding, disableAnchorTracking, render, side, sideOffset, sticky, style
     - Data Attributes: data-align, data-anchor-hidden, data-closed, data-open, data-side
     - CSS Variables: --anchor-height, --anchor-width, --available-height, --available-width, --positioner-height, --positioner-width, --transform-origin
   - Context Menu - Popup
@@ -1318,7 +1321,7 @@ An accessible popup anchored to a button.
 
 ## Preview Card
 
-A popup that appears when a link is hovered, showing a preview for sighted users.
+A link that shows a destination preview without interrupting keyboard or screen reader navigation.
 
 <details>
 
@@ -1633,9 +1636,11 @@ An easily stylable range input.
   - Usage guidelines
   - Anatomy
   - Examples
-    - Range slider
-    - Thumb alignment
     - Labeling a slider
+    - Range slider
+    - Steps
+    - Marks
+    - Thumb alignment
     - Vertical
     - Form integration
   - API reference

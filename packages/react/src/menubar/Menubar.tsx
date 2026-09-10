@@ -13,7 +13,7 @@ import { CompositeRoot } from '../internals/composite/root/CompositeRoot';
 import { useBaseUiId } from '../internals/useBaseUiId';
 import { MenuOpenEventDetails } from '../menu/utils/types';
 import { StateAttributesMapping } from '../internals/getStateAttributesProps';
-import { MenubarDataAttributes } from './MenubarDataAttributes';
+import * as MenubarDataAttributes from './MenubarDataAttributes';
 import { REASONS } from '../internals/reasons';
 
 const menubarStateAttributesMapping: StateAttributesMapping<MenubarState> = {

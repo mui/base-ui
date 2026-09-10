@@ -1,4 +1,4 @@
-import { vi, test, expect } from 'vitest';
+import { vi, test, expect, beforeEach, describe } from 'vitest';
 
 import { act, fireEvent, flushMicrotasks, render, screen, waitFor } from '@mui/internal-test-utils';
 import * as React from 'react';
@@ -170,7 +170,7 @@ describe.skipIf(!isJSDOM)('useHover', () => {
     spy.mockRestore();
   });
 
-  test.skip('restMs is always 0 for touch input', async () => {
+  test.todo('restMs is always 0 for touch input', async () => {
     render(<App restMs={100} />);
 
     fireEvent.pointerDown(screen.getByRole('button'), { pointerType: 'touch' });

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { expect, vi } from 'vitest';
+import { expect, vi, describe, it } from 'vitest';
 import { NavigationMenu } from '@base-ui/react/navigation-menu';
 import { DirectionProvider } from '@base-ui/react/direction-provider';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
@@ -197,6 +197,44 @@ describe('<NavigationMenu.Trigger />', () => {
     });
   });
 
+  it.skipIf(isJSDOM).each([
+    ['ArrowDown', '{ArrowDown}'],
+    ['Enter', '{Enter}'],
+    ['Space', ' '],
+  ])('keeps focus on the trigger when opened with %s', async (_keyName, key) => {
+    await render(
+      <NavigationMenu.Root>
+        <NavigationMenu.List>
+          <NavigationMenu.Item>
+            <NavigationMenu.Trigger>Overview</NavigationMenu.Trigger>
+            <NavigationMenu.Content>
+              <NavigationMenu.Link href="#quick-start">Quick Start</NavigationMenu.Link>
+            </NavigationMenu.Content>
+          </NavigationMenu.Item>
+        </NavigationMenu.List>
+        <NavigationMenu.Portal>
+          <NavigationMenu.Positioner>
+            <NavigationMenu.Popup>
+              <NavigationMenu.Viewport />
+            </NavigationMenu.Popup>
+          </NavigationMenu.Positioner>
+        </NavigationMenu.Portal>
+      </NavigationMenu.Root>,
+    );
+
+    const trigger = screen.getByRole('button', { name: 'Overview' });
+    trigger.focus();
+
+    await userEvent.keyboard(key);
+
+    await waitFor(() => {
+      expect(screen.getByRole('link', { name: 'Quick Start' })).toBeVisible();
+    });
+    await act(async () => new Promise(requestAnimationFrame));
+
+    expect(trigger).toHaveFocus();
+  });
+
   it.skipIf(isJSDOM)('handles focus and positioner height', async () => {
     await render(
       <NavigationMenu.Root>
@@ -246,6 +284,12 @@ describe('<NavigationMenu.Trigger />', () => {
 
     const overviewLink = screen.getByRole('link', { name: 'Quick Start' });
     await waitFor(() => {
+      expect(overviewButton).toHaveFocus();
+    });
+
+    await userEvent.tab();
+
+    await waitFor(() => {
       expect(overviewLink).toHaveFocus();
     });
 
@@ -274,6 +318,12 @@ describe('<NavigationMenu.Trigger />', () => {
 
     const handbookLink = screen.getByRole('link', { name: 'Styling Base UI components' });
     await waitFor(() => {
+      expect(handbookButton).toHaveFocus();
+    });
+
+    await userEvent.tab();
+
+    await waitFor(() => {
       expect(handbookLink).toHaveFocus();
     });
 
@@ -295,6 +345,9 @@ describe('<NavigationMenu.Trigger />', () => {
           parseInt(getComputedStyle(positioner).getPropertyValue('--positioner-height'), 10) - 18,
         ),
       ).toBeLessThanOrEqual(1);
+    });
+    await waitFor(() => {
+      expect(overviewButton).toHaveFocus();
     });
   });
 

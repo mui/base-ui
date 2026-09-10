@@ -11,6 +11,7 @@ import type { BaseUIComponentProps, HTMLProps } from '../../internals/types';
 import { useToastProviderContext } from '../provider/ToastProviderContext';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { isFocusVisible } from '../utils/focusVisible';
+import * as ToastViewportCssVars from './ToastViewportCssVars';
 
 /**
  * A container viewport for toasts.
@@ -231,7 +232,9 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
     onPointerUp: handlePointerEnd,
     onPointerCancel: handlePointerEnd,
     style: {
-      ['--toast-frontmost-height' as string]: frontmostHeight ? `${frontmostHeight}px` : undefined,
+      [ToastViewportCssVars.frontmostHeight as string]: frontmostHeight
+        ? `${frontmostHeight}px`
+        : undefined,
     },
   };
 

@@ -1,11 +1,9 @@
 'use client';
 import * as React from 'react';
-import { useStore } from '@base-ui/utils/store';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import { resolveMultipleLabels, resolveSelectedLabel } from '../../internals/resolveValueLabel';
-import { selectors } from '../store';
 import { StateAttributesMapping } from '../../internals/getStateAttributesProps';
 
 const stateAttributesMapping: StateAttributesMapping<SelectValueState> = {
@@ -31,15 +29,15 @@ export const SelectValue = React.forwardRef(function SelectValue(
     ...elementProps
   } = componentProps;
 
-  const { store, valueRef } = useSelectRootContext();
+  const store = useSelectRootContext();
 
-  const value = useStore(store, selectors.value);
-  const items = useStore(store, selectors.items);
-  const itemToStringLabel = useStore(store, selectors.itemToStringLabel);
-  const hasSelectedValue = useStore(store, selectors.hasSelectedValue);
+  const value = store.useState('value');
+  const items = store.useState('items');
+  const itemToStringLabel = store.useState('itemToStringLabel');
+  const hasSelectedValue = store.useState('hasSelectedValue');
 
   const shouldCheckNullItemLabel = !hasSelectedValue && placeholder != null && childrenProp == null;
-  const hasNullLabel = useStore(store, selectors.hasNullItemLabel, shouldCheckNullItemLabel);
+  const hasNullLabel = store.useState('hasNullItemLabel', shouldCheckNullItemLabel);
 
   const state: SelectValueState = {
     value,
@@ -61,7 +59,7 @@ export const SelectValue = React.forwardRef(function SelectValue(
 
   const element = useRenderElement('span', componentProps, {
     state,
-    ref: [forwardedRef, valueRef],
+    ref: [forwardedRef, store.context.valueRef],
     props: [{ children }, elementProps],
     stateAttributesMapping,
   });
@@ -86,6 +84,8 @@ export interface SelectValueProps extends Omit<
 > {
   /**
    * Accepts a function that returns a `ReactNode` to format the selected value.
+   * Treat the value as read-only: in `multiple` mode it may be a shared frozen array
+   * when nothing is selected.
    * @example
    * ```tsx
    * <Select.Value>

@@ -262,6 +262,7 @@ export interface MenuSubmenuTriggerProps
   closeDelay?: number | undefined;
   /**
    * Whether the menu should also open when the trigger is hovered.
+   * @default true
    */
   openOnHover?: boolean | undefined;
 }

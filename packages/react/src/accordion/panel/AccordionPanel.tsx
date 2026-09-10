@@ -11,7 +11,7 @@ import type { AccordionRoot } from '../root/AccordionRoot';
 import type { AccordionItemState } from '../item/AccordionItem';
 import { useAccordionItemContext } from '../item/AccordionItemContext';
 import { accordionStateAttributesMapping } from '../item/stateAttributesMapping';
-import { AccordionPanelCssVars } from './AccordionPanelCssVars';
+import * as AccordionPanelCssVars from './AccordionPanelCssVars';
 import { useRenderElement } from '../../internals/useRenderElement';
 import type { TransitionStatus } from '../../internals/useTransitionStatus';
 

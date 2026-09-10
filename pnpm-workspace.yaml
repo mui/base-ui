@@ -33,11 +33,11 @@ overrides:
   # via nx -> axios (GHSA-hmw2-7cc7-3qxx)
   form-data: '^4.0.6'
   # via @microsoft/api-extractor, html-validate, webpack -> ajv (GHSA-4c8g-83qw-93j6, -v2hh-gcrm-f6hx, -7p8r-x3mc-p8w7)
-  fast-uri: '^3.1.5'
+  fast-uri: '^3.1.7'
   # via lerna -> make-fetch-happen -> socks (GHSA-mwp4-54f8-5fhr, -22jq-vg5j-6vgg, -4xrf-jv44-h6hh)
   ip-address: '^10.5.0'
   # via lerna/stylelint -> cosmiconfig (GHSA-5p4m-2wfm-xmqj, -52cp-r559-cp3m, -h67p-54hq-rp68)
-  js-yaml@4: '^4.3.1'
+  js-yaml@4: '^4.3.2'
   # via postcss (GHSA-2v37-7h3g-55p8)
   nanoid@3: '^3.3.18'
   # via lerna; also picks up the fixed axios and tmp (GHSA-vp3h-ghgh-jr7g)
@@ -47,7 +47,7 @@ overrides:
   # next pins 8.4.31 (GHSA-6g55-p6wh-862q, -r28c-9q8g-f849, -fxqj-rqcc-2cmp)
   postcss: '^8.5.26'
   # optional dependency of next; unused because the docs site is a static export with no next/image
-  sharp: '^0.35.3'
+  sharp: '^0.35.4'
   # via lerna -> pacote/libnpmpublish; also picks up the fixed @sigstore/core and @sigstore/verify.
   # Capped below 5, whose engines.node excludes the Node 24.14 line CI runs on.
   sigstore: '^4.1.1'
@@ -62,6 +62,8 @@ minimumReleaseAge: 4320
 minimumReleaseAgeExclude:
   - '@base-ui/*'
   - '@mui/internal-*'
+  # Renovate security update: js-yaml@4.3.2
+  - js-yaml@4.3.2
 trustPolicy: no-downgrade
 # Skip trust-policy checks for packages published more than 365 days ago.
 # Several widely-used legacy packages in the current dependency tree have releases that dropped

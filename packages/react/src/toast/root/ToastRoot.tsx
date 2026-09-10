@@ -22,11 +22,13 @@ import {
 } from '../../internals/constants';
 import { getDisplacement } from '../../utils/useSwipeDismiss';
 import { getElementTransform } from '../../utils/getElementTransform';
+import * as ToastRootCssVars from './ToastRootCssVars';
+import * as ToastRootDataAttributes from './ToastRootDataAttributes';
 
 export const toastRootStateAttributesMapping: StateAttributesMapping<ToastRootState> = {
   ...transitionStatusMapping,
   swipeDirection(value) {
-    return value ? { 'data-swipe-direction': value } : null;
+    return value ? { [ToastRootDataAttributes.swipeDirection]: value } : null;
   },
 };
 
@@ -450,8 +452,8 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
       transform: isSwiping
         ? `translateX(${dragOffset.x}px) translateY(${dragOffset.y}px) scale(${initialTransform.scale})`
         : undefined,
-      ['--toast-swipe-movement-x']: `${deltaX}px`,
-      ['--toast-swipe-movement-y']: `${deltaY}px`,
+      [ToastRootCssVars.swipeMovementX]: `${deltaX}px`,
+      [ToastRootCssVars.swipeMovementY]: `${deltaY}px`,
     };
   }
 
@@ -472,9 +474,10 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
     inert: inertValue(toast.limited),
     style: {
       ...getDragStyles(),
-      ['--toast-index' as string]: toast.transitionStatus === 'ending' ? domIndex : visibleIndex,
-      ['--toast-offset-y' as string]: `${offsetY}px`,
-      ['--toast-height' as string]: toast.height ? `${toast.height}px` : undefined,
+      [ToastRootCssVars.index as string]:
+        toast.transitionStatus === 'ending' ? domIndex : visibleIndex,
+      [ToastRootCssVars.offsetY as string]: `${offsetY}px`,
+      [ToastRootCssVars.height as string]: toast.height ? `${toast.height}px` : undefined,
     },
   };
 

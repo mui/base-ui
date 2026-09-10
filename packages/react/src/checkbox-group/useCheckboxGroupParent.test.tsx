@@ -1,4 +1,4 @@
-import { expect, vi } from 'vitest';
+import { expect, vi, describe, it } from 'vitest';
 import * as React from 'react';
 import { createRenderer, fireEvent, screen } from '@mui/internal-test-utils';
 import { CheckboxGroup } from '@base-ui/react/checkbox-group';
@@ -379,9 +379,7 @@ describe('useCheckboxGroupParent', () => {
     expect(parent).toHaveAttribute('aria-checked', 'mixed');
     expect(checkboxA).toHaveAttribute('aria-checked', 'true');
     checkboxes.forEach((checkbox) => {
-      if (checkbox !== checkboxA) {
-        expect(checkbox).toHaveAttribute('aria-checked', 'false');
-      }
+      expect(checkbox).toHaveAttribute('aria-checked', checkbox === checkboxA ? 'true' : 'false');
     });
   });
 

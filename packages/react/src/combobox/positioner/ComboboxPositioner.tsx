@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import { useStore } from '@base-ui/utils/store';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { inertValue } from '@base-ui/utils/inertValue';
@@ -16,7 +15,6 @@ import {
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useComboboxPortalContext } from '../portal/ComboboxPortalContext';
 import { DROPDOWN_COLLISION_AVOIDANCE } from '../../internals/constants';
-import { selectors } from '../store';
 import { InternalBackdrop } from '../../utils/InternalBackdrop';
 import { usePositioner } from '../../utils/usePositioner';
 import { useAnchoredPopupScrollLock } from '../../utils/useAnchoredPopupScrollLock';
@@ -56,16 +54,16 @@ export const ComboboxPositioner = React.forwardRef(function ComboboxPositioner(
   const floatingRootContext = useComboboxFloatingContext();
   const keepMounted = useComboboxPortalContext();
 
-  const modal = useStore(store, selectors.modal);
-  const open = useStore(store, selectors.open);
-  const mounted = useStore(store, selectors.mounted);
-  const openMethod = useStore(store, selectors.openMethod);
-  const positionerElement = useStore(store, selectors.positionerElement);
-  const triggerElement = useStore(store, selectors.triggerElement);
-  const inputElement = useStore(store, selectors.inputElement);
-  const inputGroupElement = useStore(store, selectors.inputGroupElement);
-  const inputInsidePopup = useStore(store, selectors.inputInsidePopup);
-  const transitionStatus = useStore(store, selectors.transitionStatus);
+  const modal = store.useState('modal');
+  const open = store.useState('open');
+  const mounted = store.useState('mounted');
+  const openMethod = store.useState('openMethod');
+  const positionerElement = store.useState('positionerElement');
+  const triggerElement = store.useState('triggerElement');
+  const inputElement = store.useState('inputElement');
+  const inputGroupElement = store.useState('inputGroupElement');
+  const inputInsidePopup = store.useState('inputInsidePopup');
+  const transitionStatus = store.useState('transitionStatus');
 
   const empty = useListEmpty();
   const resolvedAnchor =
