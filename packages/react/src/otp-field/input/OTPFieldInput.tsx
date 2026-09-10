@@ -99,9 +99,11 @@ export const OTPFieldInput = React.forwardRef(function OTPFieldInput(
     }, [index, slotAriaLabel]);
   }
 
-  function commitInputValue(event: React.SyntheticEvent<HTMLInputElement>) {
-    const inputElement = event.currentTarget;
-    const rawValue = inputElement.value;
+  function commitValue(
+    rawValue: string,
+    reason: typeof REASONS.inputChange | typeof REASONS.inputPaste,
+    event: React.SyntheticEvent<HTMLInputElement>,
+  ) {
     const [nextDigits, didRejectCharacters] = normalizeOTPValueWithDetails(
       rawValue,
       length,
@@ -110,42 +112,33 @@ export const OTPFieldInput = React.forwardRef(function OTPFieldInput(
     );
 
     if (didRejectCharacters) {
-      reportValueInvalid(
-        rawValue,
-        createGenericEventDetails(REASONS.inputChange, event.nativeEvent),
-      );
+      reportValueInvalid(rawValue, createGenericEventDetails(reason, event.nativeEvent));
     }
 
     if (nextDigits === '') {
-      if (rawValue === '') {
-        setValue(
-          removeOTPCharacter(value, index),
-          createChangeEventDetails(REASONS.inputClear, event.nativeEvent),
-        );
-      } else if (slotValue !== '') {
-        inputElement.value = slotValue;
-        inputElement.select();
+      // Typed input edits the slot in place: clear it, or restore its character when every
+      // typed character was rejected. An empty or fully rejected paste changes nothing.
+      if (reason === REASONS.inputChange) {
+        if (rawValue === '') {
+          setValue(
+            removeOTPCharacter(value, index),
+            createChangeEventDetails(REASONS.inputClear, event.nativeEvent),
+          );
+        } else if (slotValue !== '') {
+          event.currentTarget.value = slotValue;
+          event.currentTarget.select();
+        }
       }
       return;
     }
 
-    const nextValue = replaceOTPValue(
-      value,
-      index,
-      nextDigits,
-      length,
-      validationType,
-      normalizeValue,
-    );
-
     const committedValue = setValue(
-      nextValue,
-      createChangeEventDetails(REASONS.inputChange, event.nativeEvent),
+      replaceOTPValue(value, index, nextDigits, length, validationType, normalizeValue),
+      createChangeEventDetails(reason, event.nativeEvent),
     );
 
     if (committedValue != null) {
-      const nextInput = Math.min(index + nextDigits.length, length - 1);
-      queueFocusInput(nextInput, committedValue);
+      queueFocusInput(Math.min(index + nextDigits.length, length - 1), committedValue);
     }
   }
 
@@ -201,7 +194,7 @@ export const OTPFieldInput = React.forwardRef(function OTPFieldInput(
     onCompositionEnd(event) {
       if (composingValue != null) {
         setComposingValue(null);
-        commitInputValue(event);
+        commitValue(event.currentTarget.value, REASONS.inputChange, event);
       }
     },
     onChange(event) {
@@ -214,7 +207,7 @@ export const OTPFieldInput = React.forwardRef(function OTPFieldInput(
         return;
       }
 
-      commitInputValue(event);
+      commitValue(event.currentTarget.value, REASONS.inputChange, event);
     },
     onKeyDown(event) {
       if (event.defaultPrevented || disabled) {
@@ -322,34 +315,7 @@ export const OTPFieldInput = React.forwardRef(function OTPFieldInput(
       }
 
       event.preventDefault();
-
-      const [nextDigits, didRejectCharacters] = normalizeOTPValueWithDetails(
-        rawValue,
-        length,
-        validationType,
-        normalizeValue,
-      );
-
-      if (didRejectCharacters) {
-        reportValueInvalid(
-          rawValue,
-          createGenericEventDetails(REASONS.inputPaste, event.nativeEvent),
-        );
-      }
-
-      if (nextDigits === '') {
-        return;
-      }
-
-      const committedValue = setValue(
-        replaceOTPValue(value, index, nextDigits, length, validationType, normalizeValue),
-        createChangeEventDetails(REASONS.inputPaste, event.nativeEvent),
-      );
-
-      if (committedValue != null) {
-        const nextInput = Math.min(index + nextDigits.length, length - 1);
-        queueFocusInput(nextInput, committedValue);
-      }
+      commitValue(rawValue, REASONS.inputPaste, event);
     },
   };
 
