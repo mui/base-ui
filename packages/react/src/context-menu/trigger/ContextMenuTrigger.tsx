@@ -3,6 +3,7 @@ import * as React from 'react';
 import { addEventListener } from '@base-ui/utils/addEventListener';
 import { ownerDocument } from '@base-ui/utils/owner';
 import { useTimeout } from '@base-ui/utils/useTimeout';
+import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import { contains, getTarget, stopEvent } from '../../floating-ui-react/utils';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useContextMenuRootContext } from '../root/ContextMenuRootContext';
@@ -16,17 +17,23 @@ import { findRootOwnerId } from '../../menu/utils/findRootOwnerId';
 const LONG_PRESS_DELAY = 500;
 
 /**
- * Whether a `contextmenu` event was raised by the keyboard (Shift+F10 / the Menu key)
- * rather than a pointer. Chromium dispatches `contextmenu` as a `PointerEvent`, so an
- * empty `pointerType` is a reliable keyboard signal; Firefox and Safari dispatch a plain
- * `MouseEvent`, where a keyboard activation reports the primary button and no coordinates.
+ * Whether a `contextmenu` event was raised by the keyboard (Shift+F10 / the Menu key) rather
+ * than a pointer.
+ *
+ * Chromium dispatches `contextmenu` as a `PointerEvent`, which answers the question directly:
+ * `pointerType` is empty only for a keyboard activation. Firefox and Safari still dispatch a
+ * plain `MouseEvent`, so fall back to the gesture that produced it rather than to the event's
+ * geometry — Gecko and WebKit position a keyboard-invoked native menu against the focused
+ * element, so its coordinates are not distinguishable from a click's. A pointer-driven
+ * `contextmenu` is always part of a gesture that began with `pointerdown` on the trigger,
+ * while a keyboard one is always preceded by the `keydown` that clears `lastPointerType`.
  */
-function isKeyboardContextMenu(event: MouseEvent): boolean {
+function isKeyboardContextMenu(event: MouseEvent, lastPointerType: InteractionType): boolean {
   const { pointerType } = event as PointerEvent;
   if (pointerType != null) {
     return pointerType === '';
   }
-  return event.button === 0 && event.clientX === 0 && event.clientY === 0;
+  return lastPointerType === '';
 }
 
 /**
@@ -62,6 +69,10 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
   const allowMouseUpTimeout = useTimeout();
   const allowMouseUpRef = React.useRef(false);
   const mouseUpAbortControllerRef = React.useRef<AbortController | null>(null);
+  // The pointer gesture currently in flight, used to tell a pointer-driven `contextmenu` from a
+  // keyboard one on browsers that do not dispatch it as a `PointerEvent`. A key press always
+  // precedes a keyboard `contextmenu`, so it ends any gesture recorded here.
+  const lastPointerTypeRef = React.useRef<InteractionType>('');
 
   function handleLongPress(
     x: number,
@@ -105,11 +116,12 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
     }
     allowMouseUpTriggerRef.current = true;
     stopEvent(event);
-    // A long-press on Android also surfaces here as a native `contextmenu`; a pending touch
-    // gesture recorded by `handleTouchStart` marks this open as pointer-driven, not keyboard.
-    const keyboardActivation =
-      touchPositionRef.current == null && isKeyboardContextMenu(event.nativeEvent);
-    handleLongPress(event.clientX, event.clientY, event.nativeEvent, keyboardActivation);
+    handleLongPress(
+      event.clientX,
+      event.clientY,
+      event.nativeEvent,
+      isKeyboardContextMenu(event.nativeEvent, lastPointerTypeRef.current),
+    );
     const doc = ownerDocument(triggerRef.current);
 
     // Abort a listener from a previous trigger that never saw its mouseup, and scope this
@@ -151,6 +163,16 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
   function cancelLongPress() {
     longPressTimeout.clear();
     touchPositionRef.current = null;
+  }
+
+  function handlePointerDown(event: React.PointerEvent) {
+    lastPointerTypeRef.current = event.pointerType as InteractionType;
+  }
+
+  function handleKeyDown() {
+    // Shift+F10 and the Menu key raise their `contextmenu` from this key press, so any pointer
+    // gesture recorded earlier is over and must not be mistaken for the one that opened the menu.
+    lastPointerTypeRef.current = '';
   }
 
   function handleTouchStart(event: React.TouchEvent) {
@@ -231,6 +253,8 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
     props: [
       {
         onContextMenu: handleContextMenu,
+        onPointerDown: handlePointerDown,
+        onKeyDown: handleKeyDown,
         onTouchStart: handleTouchStart,
         onTouchMove: handleTouchMove,
         onTouchEnd: cancelLongPress,

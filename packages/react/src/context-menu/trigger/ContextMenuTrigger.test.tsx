@@ -2,7 +2,7 @@ import { expect, vi, describe, beforeEach, it } from 'vitest';
 import * as React from 'react';
 import { act, fireEvent, flushMicrotasks, screen } from '@mui/internal-test-utils';
 import { ContextMenu } from '@base-ui/react/context-menu';
-import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
+import { createRenderer, describeConformance, firePointer, isJSDOM } from '#test-utils';
 
 describe('<ContextMenu.Trigger />', () => {
   beforeEach(() => {
@@ -436,14 +436,20 @@ describe('<ContextMenu.Trigger />', () => {
 
       const trigger = screen.getByTestId('trigger');
 
+      firePointer.down(trigger, {
+        timeStamp: 1,
+        pointerType: 'touch',
+        clientX: 100,
+        clientY: 100,
+      });
       fireEvent.touchStart(trigger, {
         touches: [new Touch({ identifier: 0, target: trigger, clientX: 100, clientY: 100 })],
       });
 
       // Android fires a native `contextmenu` for the long press (here, before Base UI's own
       // timer). Even when that event is indistinguishable from a keyboard `contextmenu`
-      // (`button === 0`, no coordinates), the pending touch gesture marks it as
-      // pointer-driven, so the open is not instant.
+      // (`button === 0`, no coordinates), the touch gesture behind it marks the open as
+      // pointer-driven, so it is not instant.
       fireEvent.contextMenu(trigger, { clientX: 0, clientY: 0, button: 0 });
 
       expect(screen.getByTestId('popup')).not.toHaveAttribute('data-instant');
