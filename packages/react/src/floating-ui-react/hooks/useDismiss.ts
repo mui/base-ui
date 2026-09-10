@@ -306,7 +306,7 @@ export function useDismiss(
 
     const compositionTimeout = new Timeout();
     const preventedPressSuppressionTimeout = new Timeout();
-    const doc = ownerDocument(floatingElement);
+    const doc = floatingElement?.getRootNode() ?? ownerDocument(floatingElement);
 
     function handleCompositionStart() {
       compositionTimeout.clear();
