@@ -13,11 +13,7 @@ export interface ContextMenuRootContext {
   positionerRef: React.RefObject<HTMLElement | null>;
   allowMouseUpTriggerRef: React.RefObject<boolean>;
   initialCursorPointRef: React.RefObject<{ x: number; y: number } | null>;
-  /**
-   * How the gesture that is opening the menu should be reflected by `[data-instant]`. The trigger
-   * classifies it, because `detail === 0` cannot tell a `contextmenu` or touch open apart from a
-   * keyboard one, and `MenuRoot` reads it while handling that open.
-   */
+  // Written by the trigger before every open it drives, consumed by `MenuRoot` while handling it.
   openInstantTypeRef: React.RefObject<'click' | undefined>;
   rootId: string | undefined;
 }

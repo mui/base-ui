@@ -17,30 +17,10 @@ import { findRootOwnerId } from '../../menu/utils/findRootOwnerId';
 const LONG_PRESS_DELAY = 500;
 const SECONDARY_BUTTON = 2;
 
-/**
- * Whether a `contextmenu` event was raised by the keyboard (Shift+F10 / the Menu key) rather
- * than a pointer.
- *
- * The event's own shape cannot answer this. `detail` is `0` for every source; the coordinates are
- * the focused element's box on a keyboard activation, so they look like a click's; and while
- * Chromium dispatches `contextmenu` as a `PointerEvent`, it reports `pointerType: 'mouse'` for
- * keyboard activations too, so that field does not discriminate either. Do not reintroduce a
- * check on any of them.
- *
- * What does hold, measured in Chromium and consistent with how the events are specified, is the
- * order of what precedes the event:
- *
- * - right-click: `pointerdown` on the trigger, then `contextmenu` with the secondary button;
- * - Shift+F10 / Menu key: `keydown` on the trigger, then `contextmenu` with no pointer gesture
- *   in flight (Chromium reports `button === -1`, Gecko and WebKit the primary button);
- * - touch long press: `pointerdown` with `pointerType: 'touch'`, then `contextmenu`;
- * - macOS Ctrl+click: the modifier's `keydown`, then `pointerdown`, then `contextmenu` — the
- *   `pointerdown` lands last, so the gesture is recorded again after the key press cleared it.
- *
- * So the secondary button is a positive pointer signal on its own, and otherwise the question is
- * whether a pointer gesture is in flight. That recording is best-effort — it is taken in the
- * capture phase so a descendant cannot suppress it, but it is still the weaker of the two.
- */
+// Whether a `contextmenu` was raised by the keyboard (Shift+F10 / the Menu key). The event itself
+// cannot say: `detail` is `0` for every source, the coordinates are the focused element's box on a
+// keyboard activation, and Chromium reports `pointerType: 'mouse'` even then. Only the secondary
+// button and the gesture recorded before the event discriminate.
 function isKeyboardContextMenu(event: MouseEvent, lastPointerType: InteractionType): boolean {
   if (event.button === SECONDARY_BUTTON) {
     return false;
@@ -82,9 +62,8 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
   const allowMouseUpTimeout = useTimeout();
   const allowMouseUpRef = React.useRef(false);
   const mouseUpAbortControllerRef = React.useRef<AbortController | null>(null);
-  // The pointer gesture currently in flight, used to tell a pointer-driven `contextmenu` from a
-  // keyboard one. A key press always precedes a keyboard `contextmenu`, so it ends any gesture
-  // recorded here.
+  // Recorded in the capture phase so a descendant cannot hide the gesture. A key press always
+  // precedes a keyboard `contextmenu`, so it ends the gesture recorded here.
   const lastPointerTypeRef = React.useRef<InteractionType>('');
 
   function handleLongPress(
@@ -109,9 +88,7 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
     });
 
     allowMouseUpRef.current = false;
-    // A pointer or touch gesture opened the menu, so its enter transition should play; only a
-    // keyboard `contextmenu` (Shift+F10 / the Menu key) opens instantly. `MenuRoot` reads this
-    // while handling the `setOpen` below.
+    // Only a keyboard open is instant; a pointer or touch gesture plays the enter transition.
     openInstantTypeRef.current = keyboardActivation ? 'click' : undefined;
     actionsRef.current?.setOpen(true, createChangeEventDetails(REASONS.triggerPress, event));
 
@@ -180,8 +157,6 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
   }
 
   function handleKeyDown() {
-    // Shift+F10 and the Menu key raise their `contextmenu` from this key press, so any pointer
-    // gesture recorded earlier is over and must not be mistaken for the one that opened the menu.
     lastPointerTypeRef.current = '';
   }
 
@@ -263,8 +238,6 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
     props: [
       {
         onContextMenu: handleContextMenu,
-        // Capture phase so a descendant that stops propagation cannot hide the gesture from the
-        // classification in `handleContextMenu`.
         onPointerDownCapture: handlePointerDown,
         onKeyDownCapture: handleKeyDown,
         onTouchStart: handleTouchStart,

@@ -285,8 +285,7 @@ describe('<ContextMenu.Root />', () => {
   });
 
   describe('data-instant', () => {
-    // Shift+F10 and the Menu key only raise a `contextmenu` when focus is inside the trigger, so
-    // the fixture carries a focusable child to drive them from.
+    // Shift+F10 and the Menu key only raise a `contextmenu` when focus is inside the trigger.
     function Fixture() {
       return (
         <ContextMenu.Root>
@@ -311,9 +310,7 @@ describe('<ContextMenu.Root />', () => {
 
       const trigger = screen.getByTestId('context-trigger');
 
-      // A mouse `contextmenu` reports `detail === 0` just like a keyboard click, so the gesture
-      // that produced it — the `pointerdown` from pressing the secondary button — is what
-      // identifies it as pointer-driven.
+      // A mouse `contextmenu` reports `detail === 0` too, so the gesture before it is the signal.
       fireEvent.pointerDown(trigger, {
         pointerType: 'mouse',
         button: 2,
@@ -329,8 +326,7 @@ describe('<ContextMenu.Root />', () => {
     it('does not mark the popup as instant when no pointerdown reached the trigger', async () => {
       await render(<Fixture />);
 
-      // The recorded gesture is best-effort, so the secondary button on the `contextmenu` itself
-      // has to be enough on its own — the keyboard never reports one.
+      // No gesture was recorded, so the secondary button has to be enough on its own.
       fireEvent.contextMenu(screen.getByTestId('context-trigger'), {
         clientX: 10,
         clientY: 10,
@@ -342,10 +338,8 @@ describe('<ContextMenu.Root />', () => {
     });
 
     it('does not mark the popup as instant when a descendant swallows the pointerdown', async () => {
-      // A drag handle or editor widget inside the trigger may stop `pointerdown` from
-      // propagating; recording it in the capture phase keeps the gesture visible anyway. Uses
-      // a macOS Ctrl+click, which reports the primary button, so the secondary-button shortcut
-      // cannot decide this case.
+      // Capture-phase recording survives a descendant that stops propagation. Ctrl+click reports
+      // the primary button, so the secondary-button shortcut cannot decide this one.
       await render(
         <ContextMenu.Root>
           <ContextMenu.Trigger data-testid="context-trigger">
@@ -406,8 +400,7 @@ describe('<ContextMenu.Root />', () => {
         focusable.focus();
       });
 
-      // Gecko and WebKit position a keyboard-invoked native menu against the focused element, so
-      // the event carries real coordinates. Classification must not read them as a pointer.
+      // A keyboard activation carries the focused element's coordinates, not the viewport origin.
       fireEvent.keyDown(focusable, { key: 'F10', shiftKey: true });
       fireEvent.contextMenu(focusable, { clientX: 120, clientY: 64, button: 0 });
 
@@ -420,8 +413,7 @@ describe('<ContextMenu.Root />', () => {
 
       const focusable = screen.getByTestId('focusable');
 
-      // Focusing by mouse and then invoking the menu by keyboard: the key press ends the earlier
-      // pointer gesture, so it must not be credited with opening the menu.
+      // The key press ends the earlier pointer gesture, so it cannot be credited with the open.
       fireEvent.pointerDown(focusable, { pointerType: 'mouse', button: 0 });
       fireEvent.pointerUp(focusable, { pointerType: 'mouse', button: 0 });
       await act(async () => {
@@ -443,9 +435,7 @@ describe('<ContextMenu.Root />', () => {
         focusable.focus();
       });
 
-      // The reverse of the case above: a key press clears the recorded gesture, and only a later
-      // `pointerdown` restores pointer classification. Uses the primary button so the decision
-      // rests on that recorded gesture rather than on the secondary-button shortcut.
+      // Primary button, so the decision rests on the re-recorded gesture, not on the shortcut.
       fireEvent.keyDown(focusable, { key: 'a' });
       fireEvent.pointerDown(focusable, {
         pointerType: 'mouse',
@@ -459,10 +449,8 @@ describe('<ContextMenu.Root />', () => {
       expect(popup).not.toHaveAttribute('data-instant');
     });
 
-    // Chromium dispatches `contextmenu` as a `PointerEvent`. Measured on Chromium 151, both a
-    // right-click and a Shift+F10 report `pointerType: 'mouse'` and coordinates inside the
-    // focused element — only the button and the gesture before the event differ. These reproduce
-    // that shape exactly; jsdom has no `PointerEvent` constructor, so they run in the browser.
+    // Measured on Chromium 151: a right-click and a Shift+F10 both report `pointerType: 'mouse'`
+    // and the focused element's coordinates, so only the button differs. jsdom has no `PointerEvent`.
     function dispatchChromiumContextMenu(trigger: HTMLElement, button: number) {
       return act(async () => {
         trigger.dispatchEvent(
@@ -498,9 +486,7 @@ describe('<ContextMenu.Root />', () => {
         focusable.focus();
       });
 
-      // Chromium reports `button === -1` here and, critically, `pointerType: 'mouse'` — the same
-      // value a right-click reports — so only the preceding `keydown` marks this as a keyboard
-      // open.
+      // `pointerType` is `'mouse'` here as well, so only the preceding `keydown` marks it keyboard.
       fireEvent.keyDown(focusable, { key: 'F10', shiftKey: true });
       await dispatchChromiumContextMenu(screen.getByTestId('context-trigger'), -1);
 
