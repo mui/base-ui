@@ -54,8 +54,8 @@ importers:
         specifier: 0.0.3-canary.5
         version: 0.0.3-canary.5
       '@mui/internal-test-utils':
-        specifier: 2.0.18-canary.25
-        version: 2.0.18-canary.25(@playwright/test@1.62.1)(@types/react-dom@19.2.4(@types/react@19.2.18))(@types/react@19.2.18)(@vitest/utils@4.1.10)(chai@6.2.2)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(vite@8.2.1(@types/node@22.20.1)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.49.2)(tsx@4.23.12)(yaml@2.9.0))(vitest@4.1.10)
+        specifier: 2.0.18-canary.34
+        version: 2.0.18-canary.34(@playwright/test@1.62.1)(@types/react-dom@19.2.4(@types/react@19.2.18))(@types/react@19.2.18)(@vitest/utils@4.1.10)(chai@6.2.2)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(vite@8.2.1(@types/node@22.20.1)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.49.2)(tsx@4.23.12)(yaml@2.9.0))(vitest@4.1.10)
       '@next/eslint-plugin-next':
         specifier: 16.3.1
         version: 16.3.1(eslint@10.8.1(jiti@2.7.0)(supports-color@7.2.0))
@@ -2171,8 +2171,8 @@ packages:
   '@mui/internal-netlify-cache@0.0.3-canary.5':
     resolution: {integrity: sha512-3HiXaQ2x8nwwvXxMjXcy1uHVnhbCpWTAbyjkrpNeycJ2afSNnmHVLFq5Nu7K7QOJnYGwlcKjX9kBVGUv1aJp1w==}
 
-  '@mui/internal-test-utils@2.0.18-canary.25':
-    resolution: {integrity: sha512-7ssG0ddov3Rht9QlMbr52slxGWrmfjdgadScBo/WuwwCYYcSN9YgLf/BUWTvZhwS9O1D4Ud0OgCB5iF21zwJew==}
+  '@mui/internal-test-utils@2.0.18-canary.34':
+    resolution: {integrity: sha512-l0mxplIbgxMUtrFL8QImtPtfZZLK2HR4pW2ia4F1H7JtyVI/UK8JNLyTzYRUwB7ayqWajBA1co2i8WD4h9iHXg==}
     peerDependencies:
       '@emotion/cache': '11'
       '@emotion/react': '11'
@@ -3903,6 +3903,12 @@ packages:
 
   '@testing-library/user-event@14.6.3':
     resolution: {integrity: sha512-6dBq67jT8lE+JTE8Exm02Kt6ze43hz1jdiSpSJwtTZiT1xQQ6b7nZYTTQ9njdArdU8XklOwaDp/AbT/eYSKF4g==}
+    engines: {node: '>=12', npm: '>=6'}
+    peerDependencies:
+      '@testing-library/dom': '>=7.21.4'
+
+  '@testing-library/user-event@14.6.6':
+    resolution: {integrity: sha512-Jbs9FpkkIDw8FgSc6kOVsOv8JuuqGAL7J4X1oot77JxAoDlkNn2GRkd0aYRVuQ+pVQAiHWVkE4rX/dkF5fBiCw==}
     engines: {node: '>=12', npm: '>=6'}
     peerDependencies:
       '@testing-library/dom': '>=7.21.4'
@@ -11801,19 +11807,19 @@ snapshots:
 
   '@mui/internal-netlify-cache@0.0.3-canary.5': {}
 
-  '@mui/internal-test-utils@2.0.18-canary.25(@playwright/test@1.62.1)(@types/react-dom@19.2.4(@types/react@19.2.18))(@types/react@19.2.18)(@vitest/utils@4.1.10)(chai@6.2.2)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(vite@8.2.1(@types/node@22.20.1)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.49.2)(tsx@4.23.12)(yaml@2.9.0))(vitest@4.1.10)':
+  '@mui/internal-test-utils@2.0.18-canary.34(@playwright/test@1.62.1)(@types/react-dom@19.2.4(@types/react@19.2.18))(@types/react@19.2.18)(@vitest/utils@4.1.10)(chai@6.2.2)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(vite@8.2.1(@types/node@22.20.1)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.49.2)(tsx@4.23.12)(yaml@2.9.0))(vitest@4.1.10)':
     dependencies:
       '@babel/runtime': 7.29.7
       '@playwright/test': 1.62.1
       '@testing-library/dom': 10.4.1
       '@testing-library/react': 16.3.2(@testing-library/dom@10.4.1)(@types/react-dom@19.2.4(@types/react@19.2.18))(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
-      '@testing-library/user-event': 14.6.3(@testing-library/dom@10.4.1)
+      '@testing-library/user-event': 14.6.6(@testing-library/dom@10.4.1)
       '@types/chai-dom': 1.11.3
       assertion-error: 2.0.1
       chai: 6.2.2
       chai-dom: 1.12.1(chai@6.2.2)
       dom-accessibility-api: 0.7.1
-      es-toolkit: 1.50.0
+      es-toolkit: 1.51.0
       format-util: 1.0.5
       prop-types: 15.8.1
       react: 19.2.8
@@ -13535,6 +13541,10 @@ snapshots:
       '@types/react-dom': 19.2.4(@types/react@19.2.18)
 
   '@testing-library/user-event@14.6.3(@testing-library/dom@10.4.1)':
+    dependencies:
+      '@testing-library/dom': 10.4.1
+
+  '@testing-library/user-event@14.6.6(@testing-library/dom@10.4.1)':
     dependencies:
       '@testing-library/dom': 10.4.1
 
