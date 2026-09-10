@@ -111,7 +111,7 @@
     "tsx": "4.23.12",
     "typescript": "npm:@typescript/typescript6@6.0.2",
     "vite": "8.2.1",
-    "vitest": "4.1.10"
+    "vitest": "4.1.11"
   },
   "config": {
     "valeVersion": "3.14.1"
