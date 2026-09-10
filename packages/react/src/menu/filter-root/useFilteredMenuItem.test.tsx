@@ -11,7 +11,7 @@ describe('filtered Menu items', () => {
   it('keeps focus on the input when items are pressed', async () => {
     const handleItemClick = vi.fn();
     const { user } = await render(
-      <Menu.FilterProvider>
+      <Menu.FilterProvider closeLabel="Close menu">
         <Menu.Root open>
           <Menu.Portal>
             <Menu.Positioner>
@@ -58,7 +58,7 @@ describe('filtered Menu items', () => {
   describe('item text resolution', () => {
     it('matches an item whose children are an array while it is filtered out', async () => {
       const { user } = await render(
-        <Menu.FilterProvider>
+        <Menu.FilterProvider closeLabel="Close menu">
           <Menu.Root defaultOpen>
             <Menu.Trigger>Actions</Menu.Trigger>
             <Menu.Portal>
@@ -104,7 +104,7 @@ describe('filtered Menu items', () => {
 
     function DisabledItemMenu() {
       return (
-        <Menu.FilterProvider>
+        <Menu.FilterProvider closeLabel="Close menu">
           <Menu.Root defaultOpen>
             <Menu.Trigger>Actions</Menu.Trigger>
             <Menu.Portal>

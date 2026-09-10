@@ -5,7 +5,7 @@ import styles from './index.module.css';
 
 export default function ExampleMenuFilter() {
   return (
-    <Menu.FilterProvider>
+    <Menu.FilterProvider closeLabel="Close menu">
       <Menu.Root>
         <Menu.Trigger className={styles.Trigger}>
           Actions <CaretDownIcon />

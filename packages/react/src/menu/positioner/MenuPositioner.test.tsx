@@ -63,7 +63,7 @@ describe('<Menu.Positioner />', () => {
 
   it('enables lazy flipping for a filter menu', async () => {
     await render(
-      <Menu.FilterProvider>
+      <Menu.FilterProvider closeLabel="Close menu">
         <Menu.Root open>
           <Menu.Trigger>Actions</Menu.Trigger>
           <Menu.Portal>

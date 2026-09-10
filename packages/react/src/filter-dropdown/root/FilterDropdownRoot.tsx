@@ -29,6 +29,7 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
     children,
     open,
     disabled = false,
+    closeLabel,
     inputFocusVisible = false,
     locale,
     value,
@@ -167,6 +168,7 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
     () => ({
       open,
       disabled,
+      closeLabel,
       inputFocusVisible: focusVisible,
       setInputFocusVisible: setFocusVisible,
       keyboardModality,
@@ -187,6 +189,7 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
     [
       open,
       disabled,
+      closeLabel,
       focusVisible,
       keyboardModality,
       autoHighlight,
@@ -246,6 +249,8 @@ export interface FilterDropdownRootProps {
   open: boolean;
   /** Whether the filter controls should be disabled. */
   disabled?: boolean | undefined;
+  /** The accessible name of the hidden close button rendered while focus is trapped. */
+  closeLabel?: string | undefined;
   /** Whether the input should render its focus ring. */
   inputFocusVisible?: boolean | undefined;
   /**

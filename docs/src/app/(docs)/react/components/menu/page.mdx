@@ -350,7 +350,7 @@ The popup becomes a dialog that contains the input and the list, so the list is 
 Every other part stays the same.
 
 ```jsx title="Filterable menu anatomy"
-<Menu.FilterProvider>
+<Menu.FilterProvider closeLabel="Close menu">
   <Menu.Root>
     <Menu.Trigger />
     <Menu.Portal>
@@ -370,6 +370,10 @@ Every other part stays the same.
 ```
 
 Give the input an accessible name with `aria-label`, `aria-labelledby`, or a visible `<label>`.
+
+A modal filterable menu (the default) keeps focus inside its popup like a dialog, and renders a visually hidden close button so screen reader users can leave it.
+Pass `closeLabel` with a translated name for that button.
+Set `modal={false}` on the root to let Tab leave the popup instead.
 
 import { DemoMenuFilter } from './demos/filter';
 

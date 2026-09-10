@@ -12,7 +12,7 @@ describe('Menu filter parts conformance', () => {
     withInput = true,
   ) {
     return render(
-      <Menu.FilterProvider {...filterProps}>
+      <Menu.FilterProvider {...filterProps} closeLabel="Close menu">
         <Menu.Root open>
           <Menu.Portal>
             <Menu.Positioner>
@@ -36,7 +36,7 @@ describe('Menu filter parts conformance', () => {
     button: true,
     render: (node) =>
       render(
-        <Menu.FilterProvider>
+        <Menu.FilterProvider closeLabel="Close menu">
           <Menu.Root>{node}</Menu.Root>
         </Menu.FilterProvider>,
       ),
@@ -71,7 +71,7 @@ describe('Menu filter parts conformance', () => {
       refInstanceof: window.HTMLDivElement,
       render: (node) =>
         render(
-          <Menu.FilterProvider>
+          <Menu.FilterProvider closeLabel="Close menu">
             <Menu.Root open>
               <Menu.Portal>
                 <Menu.Positioner>{node}</Menu.Positioner>
@@ -127,7 +127,7 @@ describe('Menu filter parts conformance', () => {
     refInstanceof: window.HTMLDivElement,
     render: (node) =>
       render(
-        <Menu.FilterProvider>
+        <Menu.FilterProvider closeLabel="Close menu">
           <Menu.Root open>
             <Menu.Portal>
               {node}
@@ -152,7 +152,7 @@ describe('Menu filter parts conformance', () => {
     button: true,
     render: (node) =>
       renderInList(
-        <Menu.FilterProvider>
+        <Menu.FilterProvider closeLabel="Close menu">
           <Menu.SubmenuRoot>{node}</Menu.SubmenuRoot>
         </Menu.FilterProvider>,
       ),

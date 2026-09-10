@@ -34,7 +34,7 @@ describe('<Menu.FilterProvider><Menu.SubmenuRoot/></Menu.FilterProvider>', () =>
           <Menu.Positioner>
             <Menu.Popup>
               <Menu.Item>Rename</Menu.Item>
-              <Menu.FilterProvider>
+              <Menu.FilterProvider closeLabel="Close menu">
                 <Menu.SubmenuRoot {...props.submenuProps}>
                   <Menu.SubmenuTrigger data-testid="submenu-trigger">Move to</Menu.SubmenuTrigger>
                   <Menu.Portal>
@@ -66,7 +66,7 @@ describe('<Menu.FilterProvider><Menu.SubmenuRoot/></Menu.FilterProvider>', () =>
         const [inputValue, setInputValue] = React.useState('pro');
 
         return (
-          <Menu.FilterProvider>
+          <Menu.FilterProvider closeLabel="Close menu">
             <Menu.Root defaultOpen>
               <Menu.Trigger>Actions</Menu.Trigger>
               <Menu.Portal>
@@ -75,6 +75,7 @@ describe('<Menu.FilterProvider><Menu.SubmenuRoot/></Menu.FilterProvider>', () =>
                     <Menu.FilterInput aria-label="Filter actions" />
                     <Menu.List>
                       <Menu.FilterProvider
+                        closeLabel="Close menu"
                         inputValue={inputValue}
                         onInputValueChange={(nextValue, eventDetails) => {
                           onInputValueChange(nextValue, eventDetails.reason);
@@ -122,7 +123,7 @@ describe('<Menu.FilterProvider><Menu.SubmenuRoot/></Menu.FilterProvider>', () =>
     it('keeps the uncontrolled query when the change is canceled', async () => {
       function CancelingSubmenu() {
         return (
-          <Menu.FilterProvider>
+          <Menu.FilterProvider closeLabel="Close menu">
             <Menu.Root defaultOpen>
               <Menu.Trigger>Actions</Menu.Trigger>
               <Menu.Portal>
@@ -131,6 +132,7 @@ describe('<Menu.FilterProvider><Menu.SubmenuRoot/></Menu.FilterProvider>', () =>
                     <Menu.FilterInput aria-label="Filter actions" />
                     <Menu.List>
                       <Menu.FilterProvider
+                        closeLabel="Close menu"
                         defaultInputValue="pro"
                         onInputValueChange={(_, eventDetails) => eventDetails.cancel()}
                       >
@@ -279,7 +281,7 @@ describe('<Menu.FilterProvider><Menu.SubmenuRoot/></Menu.FilterProvider>', () =>
             <Menu.Positioner>
               <Menu.Popup>
                 <Menu.Item>Rename</Menu.Item>
-                <Menu.FilterProvider>
+                <Menu.FilterProvider closeLabel="Close menu">
                   <Menu.SubmenuRoot>
                     <Menu.SubmenuTrigger delay={0} data-testid="submenu-trigger">
                       Move to
@@ -359,7 +361,7 @@ describe('filtered submenu trigger navigation', () => {
         <Menu.Portal>
           <Menu.Positioner>
             <Menu.Popup>
-              <Menu.FilterProvider>
+              <Menu.FilterProvider closeLabel="Close menu">
                 <Menu.SubmenuRoot>
                   <Menu.SubmenuTrigger openOnHover={false}>More</Menu.SubmenuTrigger>
                   <Menu.Portal>
