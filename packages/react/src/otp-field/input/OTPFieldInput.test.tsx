@@ -252,6 +252,41 @@ describe('<OTPField.Input />', () => {
     expect(document.activeElement).toBe(inputs[1]);
   });
 
+  it('ignores keyboard commands while a composition is buffered', async () => {
+    const onValueChange = vi.fn();
+
+    await render(
+      <OTPFieldTest
+        validationType="alphanumeric"
+        defaultValue="12"
+        onValueChange={onValueChange}
+      />,
+    );
+
+    const inputs = screen.getAllByRole<HTMLInputElement>('textbox');
+    const thirdInput = inputs[2];
+
+    await act(async () => {
+      thirdInput.focus();
+    });
+
+    fireEvent.compositionStart(thirdInput);
+    fireEvent.change(thirdInput, { target: { value: 'a' } });
+
+    // iOS Safari fires a real `Backspace` keydown while the IME is still composing.
+    fireEvent.keyDown(thirdInput, { key: 'Backspace' });
+
+    expect(onValueChange).not.toHaveBeenCalled();
+    expect(document.activeElement).toBe(thirdInput);
+    expect(inputs.map((input) => input.value)).toEqual(['1', '2', 'a', '', '', '']);
+
+    // The IME deleted its own text, so the composition ends empty and nothing commits.
+    fireEvent.compositionEnd(thirdInput, { target: { value: '' } });
+
+    expect(onValueChange).not.toHaveBeenCalled();
+    expect(inputs.map((input) => input.value)).toEqual(['1', '2', '', '', '', '']);
+  });
+
   (['disabled', 'readOnly'] as const).forEach((prop) => {
     it(`does not commit a composition that ends after the field becomes ${prop}`, async () => {
       const onValueChange = vi.fn();
