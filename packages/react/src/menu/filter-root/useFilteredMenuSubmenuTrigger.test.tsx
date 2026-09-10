@@ -10,7 +10,7 @@ describe('<Menu.SubmenuTrigger />', () => {
 
   it('keeps real focus on the parent input until the submenu opens', async () => {
     const { user } = await render(
-      <Menu.FilterProvider>
+      <Menu.FilterProvider closeLabel="Close menu">
         <Menu.Root open>
           <Menu.Trigger>Actions</Menu.Trigger>
           <Menu.Portal>
@@ -19,7 +19,7 @@ describe('<Menu.SubmenuTrigger />', () => {
                 <Menu.FilterInput aria-label="Filter actions" />
                 <Menu.List>
                   <Menu.Item>Rename</Menu.Item>
-                  <Menu.FilterProvider>
+                  <Menu.FilterProvider closeLabel="Close menu">
                     <Menu.SubmenuRoot>
                       <Menu.SubmenuTrigger delay={0}>Move to folder</Menu.SubmenuTrigger>
                       <Menu.Portal>
@@ -67,7 +67,7 @@ describe('<Menu.SubmenuTrigger />', () => {
   describe('accessible semantics of a plain submenu', () => {
     it('reports a menu popup on a trigger whose submenu has no filter', async () => {
       await render(
-        <Menu.FilterProvider>
+        <Menu.FilterProvider closeLabel="Close menu">
           <Menu.Root defaultOpen>
             <Menu.Trigger>Actions</Menu.Trigger>
             <Menu.Portal>
@@ -103,7 +103,7 @@ describe('<Menu.SubmenuTrigger />', () => {
 
     it('lets a consumer override aria-haspopup', async () => {
       await render(
-        <Menu.FilterProvider>
+        <Menu.FilterProvider closeLabel="Close menu">
           <Menu.Root defaultOpen>
             <Menu.Trigger>Actions</Menu.Trigger>
             <Menu.Portal>
@@ -111,7 +111,7 @@ describe('<Menu.SubmenuTrigger />', () => {
                 <Menu.Popup>
                   <Menu.FilterInput aria-label="Filter actions" />
                   <Menu.List>
-                    <Menu.FilterProvider>
+                    <Menu.FilterProvider closeLabel="Close menu">
                       <Menu.SubmenuRoot>
                         <Menu.SubmenuTrigger aria-haspopup="menu">Move to</Menu.SubmenuTrigger>
                         <Menu.Portal>
@@ -141,7 +141,7 @@ describe('<Menu.SubmenuTrigger />', () => {
 
     it('lets a consumer override aria-haspopup on the root trigger', async () => {
       await render(
-        <Menu.FilterProvider>
+        <Menu.FilterProvider closeLabel="Close menu">
           <Menu.Root>
             <Menu.Trigger aria-haspopup="menu">Actions</Menu.Trigger>
             <Menu.Portal>

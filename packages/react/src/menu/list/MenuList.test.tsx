@@ -11,7 +11,7 @@ describe('<Menu.List />', () => {
 
   it('keeps virtual focus on the input without making the list tabbable', async () => {
     const { user } = await render(
-      <Menu.FilterProvider>
+      <Menu.FilterProvider closeLabel="Close menu">
         <Menu.Root open>
           <Menu.Trigger>Fruit</Menu.Trigger>
           <Menu.Portal>
@@ -51,7 +51,7 @@ describe('<Menu.List />', () => {
   describe('keys on a focused list', () => {
     function App(props: { onPress?: (() => void) | undefined }) {
       return (
-        <Menu.FilterProvider>
+        <Menu.FilterProvider closeLabel="Close menu">
           <Menu.Root defaultOpen>
             <Menu.Trigger>Fruit</Menu.Trigger>
             <Menu.Portal>
@@ -163,7 +163,7 @@ describe('filterable menu list semantics', () => {
 
   function TestMenu(props: { secondId?: string; orientation?: Menu.Root.Orientation }) {
     return (
-      <Menu.FilterProvider autoHighlight="always">
+      <Menu.FilterProvider autoHighlight="always" closeLabel="Close menu">
         <Menu.Root defaultOpen orientation={props.orientation}>
           <Menu.Trigger>Actions</Menu.Trigger>
           <Menu.Portal>

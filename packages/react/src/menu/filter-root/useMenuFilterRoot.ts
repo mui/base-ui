@@ -21,6 +21,7 @@ export function useMenuFilterRoot<Payload>(props: MenuFilterRoot.Props<Payload>,
     filter,
     autoHighlight = false,
     locale,
+    closeLabel,
     ...otherProps
   } = props;
 
@@ -93,6 +94,7 @@ export function useMenuFilterRoot<Payload>(props: MenuFilterRoot.Props<Payload>,
       filter,
       autoHighlight,
       locale,
+      closeLabel,
       onValueChange: handleInputValueChange,
       onInputAutoFocusChange: setInputAutoFocus,
     },

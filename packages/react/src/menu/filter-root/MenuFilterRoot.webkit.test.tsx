@@ -19,7 +19,7 @@ vi.mock('@base-ui/utils/platform', async () => {
 
 function Test() {
   return (
-    <Menu.FilterProvider>
+    <Menu.FilterProvider closeLabel="Close menu">
       <Menu.Root defaultOpen>
         <Menu.Trigger>Actions</Menu.Trigger>
         <Menu.Portal>
@@ -69,7 +69,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider> (WebKit)', () 
 
   it('preserves checked state on checkbox and radio items in the WebKit compatibility path', async () => {
     const { user } = await render(
-      <Menu.FilterProvider>
+      <Menu.FilterProvider closeLabel="Close menu">
         <Menu.Root defaultOpen>
           <Menu.Trigger>Actions</Menu.Trigger>
           <Menu.Portal>
@@ -106,7 +106,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider> (WebKit)', () 
 
   it('marks link items and submenu triggers selected for the WebKit compatibility path', async () => {
     const { user } = await render(
-      <Menu.FilterProvider>
+      <Menu.FilterProvider closeLabel="Close menu">
         <Menu.Root defaultOpen>
           <Menu.Trigger>Actions</Menu.Trigger>
           <Menu.Portal>
@@ -115,7 +115,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider> (WebKit)', () 
                 <Menu.FilterInput aria-label="Filter actions" />
                 <Menu.List>
                   <Menu.LinkItem href="#docs">Documentation</Menu.LinkItem>
-                  <Menu.FilterProvider>
+                  <Menu.FilterProvider closeLabel="Close menu">
                     <Menu.SubmenuRoot>
                       <Menu.SubmenuTrigger>More actions</Menu.SubmenuTrigger>
                       <Menu.Portal>
@@ -175,7 +175,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider> (WebKit)', () 
 
   it('marks items inside an opened submenu selected', async () => {
     const { user } = await render(
-      <Menu.FilterProvider>
+      <Menu.FilterProvider closeLabel="Close menu">
         <Menu.Root defaultOpen>
           <Menu.Trigger>Actions</Menu.Trigger>
           <Menu.Portal>
@@ -183,7 +183,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider> (WebKit)', () 
               <Menu.Popup>
                 <Menu.FilterInput aria-label="Filter actions" />
                 <Menu.List>
-                  <Menu.FilterProvider>
+                  <Menu.FilterProvider closeLabel="Close menu">
                     <Menu.SubmenuRoot>
                       <Menu.SubmenuTrigger>More actions</Menu.SubmenuTrigger>
                       <Menu.Portal>
