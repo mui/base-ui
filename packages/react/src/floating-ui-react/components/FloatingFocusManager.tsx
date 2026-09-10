@@ -15,6 +15,7 @@ import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
 import { FocusGuard } from '../../utils/FocusGuard';
 import {
   activeElement,
+  closest,
   contains,
   getTarget,
   isTypeableCombobox,
@@ -371,7 +372,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
       lastInteractionTypeRef.current =
         (event.pointerType as React.PointerEvent['pointerType']) || 'keyboard';
 
-      if (target?.closest(`[${CLICK_TRIGGER_IDENTIFIER}]`)) {
+      if (closest(target, `[${CLICK_TRIGGER_IDENTIFIER}]`)) {
         isPointerDownRef.current = true;
         // Reset on the next tick so a single click on a click-trigger doesn't
         // permanently suppress focus-out closing for the lifetime of the instance.

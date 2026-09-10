@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { useDismiss, useHoverFloatingInteraction } from '../../floating-ui-react';
-import { getTarget } from '../../floating-ui-react/utils';
+import { closest, getTarget } from '../../floating-ui-react/utils';
 import type { BaseUIComponentProps, HTMLProps } from '../../internals/types';
 import { CompositeRoot } from '../../internals/composite/root/CompositeRoot';
 import {
@@ -56,7 +56,8 @@ export const NavigationMenuList = React.forwardRef(function NavigationMenuList(
     outsidePressEvent: 'intentional',
     outsidePress(event) {
       const target = getTarget(event) as HTMLElement | null;
-      const closestNavigationMenuTrigger = target?.closest(
+      const closestNavigationMenuTrigger = closest(
+        target,
         `[${NAVIGATION_MENU_TRIGGER_IDENTIFIER}]`,
       );
       return closestNavigationMenuTrigger === null;
