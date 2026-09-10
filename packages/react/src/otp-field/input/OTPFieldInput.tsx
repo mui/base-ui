@@ -72,10 +72,10 @@ export const OTPFieldInput = React.forwardRef(function OTPFieldInput(
   const inputRef = React.useRef<HTMLInputElement | null>(null);
   const direction = useDirection();
 
-  // While an IME composition is active, Safari (and other WebKit/Gecko engines) can expose the
-  // in-progress text through `onChange` as an accumulating string (`d`, then `dd`, then `ddd`).
-  // Committing those intermediate values would treat them as bulk OTP input and fill too many slots.
-  // We buffer the displayed text in `composingValue` and commit once on `compositionend` instead.
+  // While an IME composition is active, Safari exposes the in-progress text through `onChange`
+  // as an accumulating string (`d`, then `dd`, then `ddd`). Committing those intermediate values
+  // would treat them as bulk input and fill too many slots, so the text is only buffered here
+  // and committed once on `compositionend`.
   const [composingValue, setComposingValue] = React.useState<string | null>(null);
 
   const slotValue = value[index] ?? '';
@@ -99,9 +99,7 @@ export const OTPFieldInput = React.forwardRef(function OTPFieldInput(
     }, [index, slotAriaLabel]);
   }
 
-  function commitInputValue(
-    event: React.ChangeEvent<HTMLInputElement> | React.CompositionEvent<HTMLInputElement>,
-  ) {
+  function commitInputValue(event: React.SyntheticEvent<HTMLInputElement>) {
     const inputElement = event.currentTarget;
     const rawValue = inputElement.value;
     const [nextDigits, didRejectCharacters] = normalizeOTPValueWithDetails(
@@ -193,35 +191,24 @@ export const OTPFieldInput = React.forwardRef(function OTPFieldInput(
 
       handleInputBlur(event);
     },
-    onCompositionStart(event) {
-      // Android handles composition events inconsistently across keyboards (some report text as
-      // always-composing), so leave its input flowing through `onChange` unchanged.
-      if (platform.os.android) {
-        return;
+    onCompositionStart() {
+      // Some Android keyboards report all text as always-composing, so Android keeps
+      // committing through `onChange`.
+      if (!platform.os.android) {
+        setComposingValue(slotValue);
       }
-
-      setComposingValue(event.currentTarget.value);
     },
     onCompositionEnd(event) {
-      if (composingValue == null) {
-        return;
+      if (composingValue != null) {
+        setComposingValue(null);
+        commitInputValue(event);
       }
-
-      setComposingValue(null);
-
-      if (disabled || readOnly) {
-        return;
-      }
-
-      commitInputValue(event);
     },
     onChange(event) {
       if (event.defaultPrevented || disabled || readOnly) {
         return;
       }
 
-      // Buffer intermediate IME text instead of committing it; the final value commits once on
-      // `compositionend` through the same normalization/replacement path.
       if (composingValue != null) {
         setComposingValue(event.currentTarget.value);
         return;
