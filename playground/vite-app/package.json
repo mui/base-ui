@@ -12,7 +12,7 @@
     "radix-ui": "^1.6.7",
     "react": "19.2.8",
     "react-dom": "19.2.8",
-    "react-router": "7.18.3"
+    "react-router": "8.3.1"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",
