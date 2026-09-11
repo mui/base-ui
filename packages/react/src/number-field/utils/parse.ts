@@ -104,7 +104,12 @@ export function getNumberLocaleDetails(
   return { ...result, decimal };
 }
 
-export function parseNumber(
+/**
+ * Runs the locale-aware normalization shared by `parseNumber` and
+ * `isPlausibleNumberInput`: separators, symbols, and numerals are reduced to an
+ * ASCII string where `.` is the only remaining separator candidate.
+ */
+function unformatNumber(
   formattedNumber: string,
   locale?: Intl.LocalesArgument,
   options?: Intl.NumberFormatOptions,
@@ -183,9 +188,55 @@ export function parseNumber(
     [HAN_RE, (ch: string) => String(Math.max(HAN_NUMERALS.indexOf(ch) - 1, 0))],
   ];
 
-  let unformatted = replacements.reduce((acc, [regex, replacement]) => {
+  const unformatted = replacements.reduce((acc, [regex, replacement]) => {
     return regex ? acc.replace(regex, replacement as any) : acc;
   }, input);
+
+  return { input, unformatted, isNegative };
+}
+
+/**
+ * Whether raw input text keeps its meaning through `parseNumber`'s
+ * keep-last-dot collapse. Multiple surviving `.` separators are plausible only
+ * when they read as European-style grouping (`1.234.567.89`); anything else
+ * (`1.2.3`) would parse to a number whose decimal placement differs from the
+ * visible text, so live text entry should reject it rather than let the
+ * display and the parsed value diverge.
+ */
+export function isPlausibleNumberInput(
+  text: string,
+  locale?: Intl.LocalesArgument,
+  options?: Intl.NumberFormatOptions,
+) {
+  const { unformatted } = unformatNumber(text, locale, options);
+
+  // Only the mantissa can contain grouping; the exponent is parsed as-is.
+  const [mantissa] = unformatted.split(/e/i);
+  const runs = mantissa.split('.');
+
+  if (runs.length <= 2) {
+    return true;
+  }
+
+  const first = runs[0];
+  const fraction = runs[runs.length - 1];
+  const interior = runs.slice(1, -1);
+
+  return (
+    /^\d{1,3}$/.test(first) &&
+    interior.every((run) => /^\d{3}$/.test(run)) &&
+    (fraction === '' || /^\d+$/.test(fraction))
+  );
+}
+
+export function parseNumber(
+  formattedNumber: string,
+  locale?: Intl.LocalesArgument,
+  options?: Intl.NumberFormatOptions,
+) {
+  const result = unformatNumber(formattedNumber, locale, options);
+  const { input, isNegative } = result;
+  let { unformatted } = result;
 
   // Mixed-locale safety: keep only the last '.' as decimal
   const lastDot = unformatted.lastIndexOf('.');
