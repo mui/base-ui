@@ -1,0 +1,33 @@
+/* View transition pseudo-elements live on the root, so these rules must be global. */
+::view-transition-old(.pop-out),
+::view-transition-new(.pop-in) {
+  animation-duration: 400ms;
+  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+::view-transition-group(vt-cover) {
+  animation-duration: 400ms;
+  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+::view-transition-new(.pop-in) {
+  animation-name: popoverPopIn;
+}
+
+::view-transition-old(.pop-out) {
+  animation-name: popoverPopOut;
+}
+
+@keyframes popoverPopIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+}
+
+@keyframes popoverPopOut {
+  to {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+}
