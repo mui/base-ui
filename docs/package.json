@@ -76,6 +76,6 @@
     "typescript": "npm:@typescript/typescript6@6.0.2",
     "unified": "11.0.5",
     "unist-util-visit": "5.1.0",
-    "zod": "4.4.3"
+    "zod": "4.5.4"
   }
 }
