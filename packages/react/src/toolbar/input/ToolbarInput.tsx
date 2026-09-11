@@ -70,7 +70,16 @@ export const ToolbarInput = React.forwardRef(function ToolbarInput(
       metadata={itemMetadata}
       state={state}
       refs={[forwardedRef]}
-      props={[defaultProps, elementProps, focusableWhenDisabledProps]}
+      props={[
+        defaultProps,
+        elementProps,
+        focusableWhenDisabledProps,
+        // `useFocusableWhenDisabled` only cancels `keydown`, but an IME commits composed
+        // text through a channel that a canceled `keydown` never reaches. Since the input
+        // stays editable (it receives `aria-disabled`, never the native `disabled`
+        // attribute, so it remains focusable), it must be made read-only to reject text.
+        disabled ? { readOnly: true } : {},
+      ]}
     />
   );
 });
