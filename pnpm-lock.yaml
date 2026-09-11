@@ -30,8 +30,8 @@ importers:
         specifier: 0.18.5
         version: 0.18.5
       '@babel/plugin-transform-react-constant-elements':
-        specifier: 7.29.7
-        version: 7.29.7(@babel/core@7.29.7(supports-color@7.2.0))
+        specifier: 8.0.1
+        version: 8.0.1(@babel/core@7.29.7(supports-color@7.2.0))
       '@base-ui/monorepo-tests':
         specifier: workspace:*
         version: link:test
@@ -346,8 +346,8 @@ importers:
   packages/react:
     dependencies:
       '@babel/runtime':
-        specifier: ^7.29.7
-        version: 7.29.7
+        specifier: ^8.0.0
+        version: 8.0.0
       '@base-ui/utils':
         specifier: workspace:*
         version: link:../utils/build
@@ -411,8 +411,8 @@ importers:
   packages/utils:
     dependencies:
       '@babel/runtime':
-        specifier: ^7.29.7
-        version: 7.29.7
+        specifier: ^8.0.0
+        version: 8.0.0
       '@floating-ui/utils':
         specifier: ^0.2.12
         version: 0.2.12
@@ -744,6 +744,12 @@ packages:
   '@babel/helper-plugin-utils@7.29.7':
     resolution: {integrity: sha512-G7sHYigPY17oO5SYWnfD/0MTBwVR781S/JI643e/JhUYgVgWE/61SoW3NH9KWUKyKq5LVh3npif99Wkt6j86Jw==}
     engines: {node: '>=6.9.0'}
+
+  '@babel/helper-plugin-utils@8.0.1':
+    resolution: {integrity: sha512-3PKFgjTyPlhFhorfP+SjKQxLViIL++zWjFOO4hGriYU+Bsm983DxEM1JmDRJVWXV0O9npu+xXRqz7Pbd3mh70g==}
+    engines: {node: ^22.18.0 || >=24.11.0}
+    peerDependencies:
+      '@babel/core': ^8.0.0
 
   '@babel/helper-remap-async-to-generator@7.29.7':
     resolution: {integrity: sha512-16AMiW26DbXWBbr3B8wNozKM0ydMLB892vaOaJW/fPJdnT8vJk5sdkQcU/isqUxyCE0cEoa8wZOcbgDuC4b6Og==}
@@ -1099,11 +1105,11 @@ packages:
     peerDependencies:
       '@babel/core': ^7.0.0-0
 
-  '@babel/plugin-transform-react-constant-elements@7.29.7':
-    resolution: {integrity: sha512-J0wGhKan+rIiE2OhfhRptySLrJ6SjQYM6b6N1FMlhyhCcw1Mig8vQjWchyB+bgHGDvaWo6Diu6CLRMra2uMtmg==}
-    engines: {node: '>=6.9.0'}
+  '@babel/plugin-transform-react-constant-elements@8.0.1':
+    resolution: {integrity: sha512-mjjwl0NcyiOkC/mfpJN0l1wakKEjNi2RE/IvMnxaDo20z03a7MZLx7bVewOTiYSU1E7UIb6LrVldgslRM1k2Sw==}
+    engines: {node: ^22.18.0 || >=24.11.0}
     peerDependencies:
-      '@babel/core': ^7.0.0-0
+      '@babel/core': ^8.0.0
 
   '@babel/plugin-transform-react-display-name@7.29.7':
     resolution: {integrity: sha512-+1wdDMGNb4UPeY3Q4L5yLiYe6TXPXubs4NjrgRFw13hPRLJfEMw2Q5OXkee6/IfdqePIeW4Jjwe3aBh7SdKz4Q==}
@@ -1239,6 +1245,9 @@ packages:
   '@babel/runtime@7.29.7':
     resolution: {integrity: sha512-Nq8OhGWiZIZGV6hLHoyAKLLcJihP/xFeBMGJoUrxTX2psI8dCifzLhZISFb+VWS3wFMRDmCGw5R+dOySCqPLhw==}
     engines: {node: '>=6.9.0'}
+
+  '@babel/runtime@8.0.0':
+    resolution: {integrity: sha512-sL6cvO2IfkSu/iU+zs2S/w01B7A8V7suXSIKEN4hPFFdZoiPGxrj5pAG0lCaqLWiEIrjKzdznIWuaLcxPR53qw==}
 
   '@babel/template@7.29.7':
     resolution: {integrity: sha512-puq+Gf35oI24FeN11LkoUQFqv9uwNeWpxXZi/Ji3rRIoKAzKnxRaZ+Gkj0vKS9ZCiTESfng1N9LyOyXvo+m+Gg==}
@@ -10160,6 +10169,10 @@ snapshots:
 
   '@babel/helper-plugin-utils@7.29.7': {}
 
+  '@babel/helper-plugin-utils@8.0.1(@babel/core@7.29.7(supports-color@7.2.0))':
+    dependencies:
+      '@babel/core': 7.29.7(supports-color@7.2.0)
+
   '@babel/helper-remap-async-to-generator@7.29.7(@babel/core@7.29.7(supports-color@7.2.0))(supports-color@7.2.0)':
     dependencies:
       '@babel/core': 7.29.7(supports-color@7.2.0)
@@ -10555,10 +10568,10 @@ snapshots:
       '@babel/core': 7.29.7(supports-color@7.2.0)
       '@babel/helper-plugin-utils': 7.29.7
 
-  '@babel/plugin-transform-react-constant-elements@7.29.7(@babel/core@7.29.7(supports-color@7.2.0))':
+  '@babel/plugin-transform-react-constant-elements@8.0.1(@babel/core@7.29.7(supports-color@7.2.0))':
     dependencies:
       '@babel/core': 7.29.7(supports-color@7.2.0)
-      '@babel/helper-plugin-utils': 7.29.7
+      '@babel/helper-plugin-utils': 8.0.1(@babel/core@7.29.7(supports-color@7.2.0))
 
   '@babel/plugin-transform-react-display-name@7.29.7(@babel/core@7.29.7(supports-color@7.2.0))':
     dependencies:
@@ -10787,6 +10800,8 @@ snapshots:
       - supports-color
 
   '@babel/runtime@7.29.7': {}
+
+  '@babel/runtime@8.0.0': {}
 
   '@babel/template@7.29.7':
     dependencies:
