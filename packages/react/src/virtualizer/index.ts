@@ -1,6 +1,6 @@
 export { Virtualizer } from './index.parts';
 
-export type { VirtualizerProps, VirtualizerState } from './Virtualizer';
+export type { VirtualizerLayout, VirtualizerProps, VirtualizerState } from './Virtualizer';
 export type {
   VirtualizerActions,
   VirtualizerItemMetrics,
@@ -17,4 +17,5 @@ export type {
   VirtualizerGroupHeaderProps,
   VirtualizerItemProps,
   VirtualizerRenderGroupHeader,
+  VirtualizerRowProps,
 } from '../internals/virtualization/types';

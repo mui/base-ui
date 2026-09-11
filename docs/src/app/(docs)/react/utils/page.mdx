@@ -122,7 +122,7 @@ Renders only the visible items of a large list.
 
 <summary>Outline</summary>
 
-- Keywords: Base UI Virtualizer, React virtualization, React windowing, Virtualized combobox, Virtualized listbox, Large lists, Infinite lists, Row virtualization, Overscan, Estimated item height
+- Keywords: Base UI Virtualizer, React virtualization, React windowing, Virtualized combobox, Virtualized listbox, Large lists, Infinite lists, Row virtualization, Virtualized table, Overscan, Estimated item height
 - Sections:
   - Anatomy
   - Rendering items
@@ -132,12 +132,13 @@ Renders only the visible items of a large list.
   - Disabled items
   - Scrolling to an item
   - Standalone lists
+  - Tables
   - Third-party virtualizers
   - API reference
     - Virtualizer
 - Exports:
   - Virtualizer
-    - Props: actionsRef, activeIndex, children, className, enabled, endReachedThreshold, estimatedGroupHeaderHeight, estimatedItemHeight, getGroupKey, getItemKey, items, onEndReached, overscanPx, render, renderGroupHeader, style, totalItems, trailing
+    - Props: actionsRef, activeIndex, children, className, enabled, endReachedThreshold, estimatedGroupHeaderHeight, estimatedItemHeight, getGroupKey, getItemKey, items, layout, onEndReached, overscanPx, render, renderGroupHeader, style, totalItems, trailing
     - Data Attributes: data-empty
     - CSS Variables: --total-size
   - VirtualizerEstimateGroupHeaderHeight
@@ -146,7 +147,7 @@ Renders only the visible items of a large list.
     - Parameters: group
   - VirtualizerRenderGroupHeader
     - Parameters: group, groupIndex, headerProps
-- Types: Virtualizer.Actions, Virtualizer.ActiveIndex, Virtualizer.ActiveItem, Virtualizer.Group, Virtualizer.GroupHeaderElement, Virtualizer.GroupHeaderProps, Virtualizer.Props, Virtualizer.State, VirtualizerItemMetrics, VirtualizerItemProps, VirtualizerScrollAlignment, VirtualizerScrollToIndexOptions
+- Types: Virtualizer.Actions, Virtualizer.ActiveIndex, Virtualizer.ActiveItem, Virtualizer.Group, Virtualizer.GroupHeaderElement, Virtualizer.GroupHeaderProps, Virtualizer.ItemProps, Virtualizer.Layout, Virtualizer.Props, Virtualizer.RowProps, Virtualizer.State, VirtualizerItemMetrics, VirtualizerScrollAlignment, VirtualizerScrollToIndexOptions
 
 </details>
 

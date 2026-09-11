@@ -95,7 +95,7 @@ The wrapper the virtualizer renders around a group spans only the rendered part 
 
 ## Styling
 
-The virtualizer is the scroll container, so constrain its height or maximum height. Without a height constraint, every item is rendered and virtualization provides no benefit.
+The virtualizer is the scroll container, so constrain its height or maximum height. Without a height constraint, every item is rendered and virtualization provides no benefit. In the [table layout](#tables), the same goes for the element around the table.
 
 The `--total-size` CSS variable contains the estimated or measured height of the virtual content. It can be combined with `--available-height` from the positioner to keep the popup within the viewport:
 
@@ -167,6 +167,24 @@ Passing a bare index is shorthand for `{ index }`, so `activeIndex={5}` activate
 
 Everything a list root normally coordinates stays with your list: filtering, keyboard navigation, selection, and clamping `activeIndex` to the current collection.
 
+## Tables
+
+Set `layout="table"` to virtualize the rows of a `<table>`. The virtualizer then renders a `<tbody>` instead of a scrolling `<div>`, and the element the item renderer returns is the row itself: a `<tr>`, with the renderer's third argument spread onto it. The markup stays a table, so column widths from a `<colgroup>`, a sticky `<thead>`, and the table's own accessibility semantics keep working.
+
+import { DemoVirtualizerTable } from './demos/table';
+
+<DemoVirtualizerTable />
+
+The scroll container is an element of your own around the table: the nearest ancestor with `overflow: auto` or `overflow: scroll`, which is also the element a `position: sticky` header sticks to. Constrain its height. The section is held in place by the scrollport and moved by a transform, the way a list's rows are, so the rows it has stay on screen while the scrollport moves and the next window is rendered. A second `<tbody>` rendered after it reserves the space of the rows outside the window. Use `border-collapse: collapse` on the table, or a zero `border-spacing`, since spacing would otherwise only be counted for the rendered rows.
+
+Give sticky header cells a `z-index`: the section is positioned too, and comes later in the table, so without one it paints over them. This layout relies on `position: sticky` and `transform` applying to table row groups, which current browsers support.
+
+The third argument of `children` carries the row's measurement along with its metadata, so it has to reach the `<tr>` element. It includes a `style` for a row kept mounted outside the window; add styles of your own through `className`, or merge them into the `style` it carries rather than replacing it.
+
+Rows are identified by their index in the collection, so set `aria-rowcount` on the table and `aria-rowindex` on each row from the renderer's index, counting the header row, for assistive technology to describe the whole table rather than the mounted window.
+
+Everything else works as it does in a list. `activeIndex` keeps the active row mounted outside the window, so it can hold focus while keyboard navigation moves through the collection; `actionsRef` scrolls to rows by index; and `scroll-padding-top` on the scroll container keeps a scrolled row clear of a sticky header. Content passed to `trailing` is rendered as rows after the section's reserved space, and a grouped collection renders its group headers as rows among the items, without a wrapper around each group.
+
 ## Third-party virtualizers
 
 A third-party virtualization library can be used instead when your application already uses one, or needs behavior that `<Virtualizer>` does not provide. Set the `virtualized` prop on the list root to opt out of the built-in item indexing, and coordinate filtering, item indexes, scrolling, and accessibility metadata yourself. See [virtualized Combobox](/react/components/combobox#virtualized) for a complete example.
@@ -191,6 +209,7 @@ export const metadata = {
     'Large lists',
     'Infinite lists',
     'Row virtualization',
+    'Virtualized table',
     'Overscan',
     'Estimated item height',
   ],

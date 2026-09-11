@@ -7,6 +7,7 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import type { RowWindow, RowsGeometry } from './geometry';
 import { getLaidOutRowElements } from './getLaidOutRowElements';
+import { getLayoutScale, toScrollOffset, type RowsInset } from './scrollport';
 import { getMaxScrollOffset } from '../utils/scrollEdges';
 import type {
   VirtualizerScrollAlignment,
@@ -71,7 +72,11 @@ export interface UsePendingScrollParameters<RowModel> {
   itemCountBeforeRow: number[] | undefined;
   /** The window this commit rendered, as of the latest render. */
   renderContextRef: React.RefObject<RowWindow>;
-  renderZoneRef: React.RefObject<HTMLElement | null>;
+  /**
+   * The element whose children — or grandchildren, one group wrapper deep — are the laid-out
+   * rows, in whichever layout the rows are currently in.
+   */
+  getRowsParent: () => HTMLElement | null;
   /**
    * The current row index of a row, by id, for a list whose row indexes can move while the rows
    * themselves stay — group headers inserted above a requested item. A request follows its row
@@ -81,7 +86,8 @@ export interface UsePendingScrollParameters<RowModel> {
   resolveRowIndex: ((rowId: React.Key) => number | undefined) | undefined;
   rows: VirtualizerRow<RowModel>[];
   scrollElementRef: React.RefObject<HTMLElement | null>;
-  scrollportPadding: { start: number; end: number };
+  /** The scrollable content before the first row and after the last one. */
+  rowsInset: RowsInset;
   scrollToRowAlignment: VirtualizerScrollAlignment;
   scrollToRowIndex: number | undefined;
   /** The engine's current row geometry, read when asked rather than captured at render. */
@@ -114,11 +120,11 @@ export function usePendingScroll<RowModel>(
     itemCountBeforeRow,
     refreshWindowAfterCorrectiveScroll,
     renderContextRef,
-    renderZoneRef,
+    getRowsParent,
     resolveRowIndex,
     rows,
     scrollElementRef,
-    scrollportPadding,
+    rowsInset,
     scrollToRowAlignment,
     readRowsGeometry,
     scrollToRowIndex,
@@ -146,7 +152,7 @@ export function usePendingScroll<RowModel>(
   const viewportScrollTopRef = React.useRef<number | null>(null);
   const viewportScrollFrame = useAnimationFrame();
 
-  const scrollportPaddingTotal = scrollportPadding.start + scrollportPadding.end;
+  const rowsInsetTotal = rowsInset.start + rowsInset.end;
 
   const isFarFromWindow = useStableCallback((rowIndex: number, window: RowWindow) =>
     isRowFarFromWindow(rowIndex, window, itemCountBeforeRow),
@@ -227,9 +233,9 @@ export function usePendingScroll<RowModel>(
       }
 
       // Scroll offsets are measured from the scrollport's padding edge, so the row's virtual
-      // position moves down by the padding the rows are laid out inside of.
-      const start = rowStart + scrollportPadding.start;
-      const end = rowEnd + scrollportPadding.start;
+      // position moves down by whatever the rows are laid out after.
+      const start = rowStart + rowsInset.start;
+      const end = rowEnd + rowsInset.start;
 
       const { resolvedAlignment, scrollTop: nextScrollTop } = resolveAlignedScrollTop(
         scrollElement,
@@ -247,7 +253,7 @@ export function usePendingScroll<RowModel>(
 
       if (nextScrollTop != null) {
         const maxScrollTop = getMaxScrollOffset(
-          currentRowsMeta.currentPageTotalHeight + scrollportPaddingTotal + trailingHeight,
+          currentRowsMeta.currentPageTotalHeight + rowsInsetTotal + trailingHeight,
           scrollElement.clientHeight,
         );
         const clampedScrollTop = clamp(nextScrollTop, 0, maxScrollTop);
@@ -317,11 +323,11 @@ export function usePendingScroll<RowModel>(
       // covers a distant row that the collection retained only as an offscreen focus proxy, which
       // is positioned absolutely and never counts as on screen. A row taller than the scrollport
       // can never fit, so for those covering the scrollport is what counts as arrived.
-      const renderZone = renderZoneRef.current;
+      const rowsParent = getRowsParent();
       const renderedRow =
-        renderZone == null
+        rowsParent == null
           ? undefined
-          : getLaidOutRowElements(renderZone).find(
+          : getLaidOutRowElements(rowsParent).find(
               (element) => Number(element.dataset.rowIndex) === rowIndex,
             );
       const renderedRowRect = renderedRow?.getBoundingClientRect();
@@ -348,13 +354,13 @@ export function usePendingScroll<RowModel>(
   const scrollRowElementIntoView = useStableCallback(
     (rowIndex: number, align: VirtualizerScrollAlignment) => {
       const scrollElement = scrollElementRef.current;
+      const rowsParent = getRowsParent();
 
-      if (scrollElement == null) {
+      if (scrollElement == null || rowsParent == null) {
         return;
       }
 
-      // The rows are the scroll element's own children in this layout, or one group wrapper deep.
-      const rowElement = getLaidOutRowElements(scrollElement).find(
+      const rowElement = getLaidOutRowElements(rowsParent).find(
         (element) => Number(element.dataset.rowIndex) === rowIndex,
       );
 
@@ -364,29 +370,11 @@ export function usePendingScroll<RowModel>(
 
       // In scroll coordinates: from the scrollport's padding edge, at its current position.
       // Rects are in the viewport's space, which an ancestor transform scales (a popup mid
-      // entrance animation); scroll offsets are in layout space. The scrollport's rect against
-      // its layout height gives the factor back. That height is read from computed style rather
-      // than `offsetHeight`, which rounds to whole pixels: a popup sized by its positioner is
-      // rarely a whole number of pixels tall, and the rounding would read as a transform. Under
-      // `content-box` the computed height is the content alone, without the padding, the borders
-      // or a horizontal scrollbar that takes up space; the last two are whole pixels, so the
-      // rounded difference of the two DOM heights restores them exactly.
+      // entrance animation); scroll offsets are in layout space.
       const rowRect = rowElement.getBoundingClientRect();
       const scrollElementRect = scrollElement.getBoundingClientRect();
-      const styles = ownerWindow(scrollElement).getComputedStyle(scrollElement);
-      let layoutHeight = Number.parseFloat(styles.height);
-      if (styles.boxSizing !== 'border-box') {
-        layoutHeight +=
-          Number.parseFloat(styles.paddingTop) +
-          Number.parseFloat(styles.paddingBottom) +
-          (scrollElement.offsetHeight - scrollElement.clientHeight);
-      }
-      const measuredScale = scrollElementRect.height / layoutHeight;
-      const scale = Number.isFinite(measuredScale) && measuredScale > 0 ? measuredScale : 1;
-      const start =
-        (rowRect.top - scrollElementRect.top) / scale -
-        scrollElement.clientTop +
-        scrollElement.scrollTop;
+      const scale = getLayoutScale(scrollElement, scrollElementRect);
+      const start = toScrollOffset(rowRect.top, scrollElement, scrollElementRect, scale);
       const end = start + rowRect.height / scale;
       const { scrollTop: nextScrollTop } = resolveAlignedScrollTop(
         scrollElement,
@@ -564,6 +552,11 @@ export interface UsePendingScrollRetryParameters<RowModel> {
   /** The window this commit rendered. A different one can move the destination. */
   renderContext: RowWindow;
   rows: VirtualizerRow<RowModel>[];
+  /**
+   * What the rows are laid out after, as an opaque token: it republishes when that is measured
+   * again, which moves every destination by the difference.
+   */
+  rowsInset: unknown;
   /** The engine's row geometry, which republishes whenever a measurement lands. */
   rowsMeta: unknown;
 }
@@ -579,11 +572,11 @@ export interface UsePendingScrollRetryParameters<RowModel> {
 export function usePendingScrollRetry<RowModel>(
   parameters: UsePendingScrollRetryParameters<RowModel>,
 ): void {
-  const { pendingScroll, renderContext, rows, rowsMeta } = parameters;
+  const { pendingScroll, renderContext, rows, rowsInset, rowsMeta } = parameters;
   const { firstRowIndex, lastRowIndex } = renderContext;
   const { retry } = pendingScroll;
 
-  useIsoLayoutEffect(retry, [firstRowIndex, lastRowIndex, retry, rows, rowsMeta]);
+  useIsoLayoutEffect(retry, [firstRowIndex, lastRowIndex, retry, rows, rowsInset, rowsMeta]);
 }
 
 /**

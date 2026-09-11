@@ -29,6 +29,7 @@ import {
   type VirtualizerItemRowModel,
   type VirtualizerRenderRowParameters,
   type VirtualizerRowModel,
+  type VirtualizerRowProps,
 } from './types';
 
 type ComponentName = string;
@@ -39,6 +40,11 @@ interface VirtualizerGroupHeaderRowProps<Item> {
   id: string | undefined;
   renderGroupHeader: VirtualizerRenderGroupHeader<Item>;
   /**
+   * Attributes the header element itself carries when the virtualizer renders no wrapper around
+   * it, or `undefined` when a wrapper carries them.
+   */
+  rowProps: VirtualizerRowProps | undefined;
+  /**
    * The owning list's group-label channel, or `undefined` when the virtualizer renders standalone
    * headers that have no `<GroupLabel>` to publish the id to.
    */
@@ -46,11 +52,11 @@ interface VirtualizerGroupHeaderRowProps<Item> {
 }
 
 function VirtualizerGroupHeaderRowImpl<Item>(props: VirtualizerGroupHeaderRowProps<Item>) {
-  const { group, groupIndex, id, renderGroupHeader, virtualGroupContext } = props;
+  const { group, groupIndex, id, renderGroupHeader, rowProps, virtualGroupContext } = props;
 
   const headerProps = React.useMemo<VirtualizerGroupHeaderProps>(
-    () => ({ id, 'aria-hidden': true }),
-    [id],
+    () => ({ ...rowProps, id, 'aria-hidden': true }),
+    [id, rowProps],
   );
   const metadata = React.useMemo<VirtualizerGroupHeaderMetadata>(
     () => ({ id, groupIndex }),
@@ -79,6 +85,11 @@ interface VirtualizerItemRowProps<Item> {
   itemCount: number;
   model: VirtualizerItemRowModel<Item>;
   /**
+   * Attributes the item element itself carries when the virtualizer renders no wrapper around
+   * it, or `undefined` when a wrapper carries them.
+   */
+  rowProps: VirtualizerRowProps | undefined;
+  /**
    * The owning list's item channel, or `undefined` when the virtualizer renders standalone rows
    * that have no `<Item>` to publish metadata to.
    */
@@ -86,7 +97,7 @@ interface VirtualizerItemRowProps<Item> {
 }
 
 function VirtualizerItemRowImpl<Item>(props: VirtualizerItemRowProps<Item>) {
-  const { children, componentName, itemCount, model, virtualItemContext } = props;
+  const { children, componentName, itemCount, model, rowProps, virtualItemContext } = props;
   const registeredItemCountRef = React.useRef(0);
 
   const registerItem = useStableCallback(() => {
@@ -115,6 +126,7 @@ function VirtualizerItemRowImpl<Item>(props: VirtualizerItemRowProps<Item>) {
     () => ({
       index: model.itemIndex,
       props: {
+        ...rowProps,
         'aria-posinset': model.itemIndex + 1,
         // `-1` is the ARIA convention for a collection whose size is not known, which is what a
         // list still loading pages of results has. Anything else is the size of the whole
@@ -124,7 +136,7 @@ function VirtualizerItemRowImpl<Item>(props: VirtualizerItemRowProps<Item>) {
       },
       registerItem: process.env.NODE_ENV === 'production' ? undefined : registerItem,
     }),
-    [itemCount, model.itemIndex, registerItem],
+    [itemCount, model.itemIndex, registerItem, rowProps],
   );
 
   // The metadata reaches a list's `<Item>` through the list's own context, and everything else
@@ -150,6 +162,7 @@ function areVirtualizerItemRowPropsEqual<Item>(
     previous.itemCount === next.itemCount &&
     previous.model.item === next.model.item &&
     previous.model.itemIndex === next.model.itemIndex &&
+    previous.rowProps === next.rowProps &&
     previous.virtualItemContext === next.virtualItemContext
   );
 }
@@ -208,7 +221,6 @@ export interface ListBinding<Item> {
   groups: ReadonlyArray<VirtualizerGroup<Item>> | undefined;
   /** The flat collection to window, from whichever of the two sources supplies it. */
   items: ReadonlyArray<Item>;
-  onUnconstrainedHeight: () => void;
   /** The item to keep mounted even outside the window. */
   pinnedItemIndex: number | undefined;
   renderRow: (
@@ -355,6 +367,7 @@ export function useListBinding<Item>(
             groupIndex={model.groupIndex}
             id={getGroupHeaderId(model.ordinal)}
             renderGroupHeader={renderGroupHeader!}
+            rowProps={params.rowProps}
             virtualGroupContext={virtualGroupContext}
           />
         );
@@ -365,6 +378,7 @@ export function useListBinding<Item>(
           componentName={componentName}
           itemCount={totalItems ?? items.length}
           model={model}
+          rowProps={params.rowProps}
           virtualItemContext={virtualItemContext}
         >
           {children}
@@ -437,13 +451,6 @@ export function useListBinding<Item>(
     };
   }, [host, virtualizerHandle]);
 
-  const onUnconstrainedHeight = useStableCallback(() => {
-    warn(
-      '<Virtualizer> must have a constrained height or maximum height. ' +
-        'Without one, all items are rendered and virtualization provides no benefit.',
-    );
-  });
-
   React.useImperativeHandle(
     actionsRef,
     () => ({ getIndexAtOffset, getItemMetrics, remeasure, scrollToIndex }),
@@ -456,7 +463,6 @@ export function useListBinding<Item>(
     getGroupHeaderId,
     groups,
     items,
-    onUnconstrainedHeight,
     pinnedItemIndex: focusedItemIndex,
     renderRow,
     scrollToRowAlignment: scrollActiveAlignment,

@@ -17,7 +17,8 @@ export interface UseViewportRestoreParameters {
   renderContext: RowWindow;
   rowCount: number;
   scrollElementRef: React.RefObject<HTMLElement | null>;
-  scrollportPaddingTotal: number;
+  /** The scrollable content before the first row and after the last one, together. */
+  rowsInsetTotal: number;
   /** Records a viewport height taken from the element, in the same box model the observer uses. */
   setViewportHeight: (height: number) => void;
   /** The engine's virtual content height. */
@@ -61,7 +62,7 @@ export function useViewportRestore(parameters: UseViewportRestoreParameters): Vi
     renderContext,
     rowCount,
     scrollElementRef,
-    scrollportPaddingTotal,
+    rowsInsetTotal,
     setViewportHeight,
     totalSize,
     viewportMeasurement,
@@ -125,7 +126,7 @@ export function useViewportRestore(parameters: UseViewportRestoreParameters): Vi
       rowCount > 0 &&
       dimensionsReady &&
       element != null &&
-      element.clientHeight - scrollportPaddingTotal < totalSize &&
+      element.clientHeight - rowsInsetTotal < totalSize &&
       isRenderAllRange;
 
     if (!needsWindowRefresh) {
@@ -151,7 +152,7 @@ export function useViewportRestore(parameters: UseViewportRestoreParameters): Vi
     revision,
     rowCount,
     scrollElementRef,
-    scrollportPaddingTotal,
+    rowsInsetTotal,
     totalSize,
   ]);
 

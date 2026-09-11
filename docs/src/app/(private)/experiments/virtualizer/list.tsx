@@ -1,8 +1,8 @@
 'use client';
 import * as React from 'react';
 import { Virtualizer } from '@base-ui/react/virtualizer';
-import { SettingsMetadata, useExperimentSettings } from './_components/SettingsPanel';
-import styles from './virtualizer.module.css';
+import { SettingsMetadata, useExperimentSettings } from '../_components/SettingsPanel';
+import styles from './list.module.css';
 
 /**
  * A listbox built from plain elements: no `<Combobox.Root>`, no `<Combobox.List>`, and no

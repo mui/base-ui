@@ -133,7 +133,7 @@ export type VirtualizerEstimateGroupHeaderHeight<Value> = {
  * The group itself is named through `aria-labelledby`, so the element is hidden from assistive
  * technology: a listbox may only own options, and a bare heading would be an invalid child.
  */
-export interface VirtualizerGroupHeaderProps {
+export interface VirtualizerGroupHeaderProps extends VirtualizerRowProps {
   /**
    * The id the group's wrapper references. `undefined` only on React 17, during the first
    * render, until the client-side id is assigned; the wrapper's reference is withheld with it.
@@ -171,6 +171,28 @@ export interface VirtualizerRow<RowModel> {
 }
 
 /**
+ * Attributes that bind a row element to the virtualizer, for a layout in which the element a
+ * renderer returns is the row itself rather than the content of a wrapper the virtualizer renders.
+ * They are spread onto that element along with the row's other metadata.
+ */
+export interface VirtualizerRowProps {
+  /**
+   * Measures the row. A row outside the rendered window that is kept mounted for the focus it
+   * holds is not measured, and carries no ref.
+   */
+  ref?: React.RefCallback<HTMLElement> | undefined;
+  /**
+   * Index of the row in the virtualizer's row sequence, which group headers are part of.
+   */
+  'data-row-index'?: number | undefined;
+  /**
+   * Removes a row kept mounted outside the rendered window from the layout, while keeping the
+   * focus it holds. Merge it with any style of your own rather than replacing it.
+   */
+  style?: React.CSSProperties | undefined;
+}
+
+/**
  * Parameters provided when rendering a row.
  */
 export interface VirtualizerRenderRowParameters<RowModel> {
@@ -182,6 +204,11 @@ export interface VirtualizerRenderRowParameters<RowModel> {
    * Index in the virtual row collection.
    */
   rowIndex: number;
+  /**
+   * Attributes to apply to the row element itself, when the virtualizer renders no wrapper of
+   * its own around the row. Reach the element through the renderer's metadata argument.
+   */
+  rowProps?: VirtualizerRowProps | undefined;
 }
 
 /**
@@ -189,11 +216,16 @@ export interface VirtualizerRenderRowParameters<RowModel> {
  *
  * A list's own `<Item>` applies these itself. Items rendered without one receive them as the third
  * argument of the item renderer, to spread onto the element that represents the item.
+ *
+ * In the table layout, that element is the row the virtualizer measures and positions, so these
+ * also carry the row's `ref`, its `data-row-index`, and the `style` that keeps a row mounted
+ * outside the window out of the layout.
  */
-export type VirtualizerItemProps = HTMLProps & {
-  /** Logical index exposed as a DOM data attribute. */
-  'data-index': number;
-};
+export type VirtualizerItemProps = HTMLProps &
+  VirtualizerRowProps & {
+    /** Logical index exposed as a DOM data attribute. */
+    'data-index': number;
+  };
 
 /**
  * Metadata provided to an item rendered by the virtualizer.

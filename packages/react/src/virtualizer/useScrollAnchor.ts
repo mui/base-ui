@@ -46,12 +46,17 @@ export interface UseScrollAnchorParameters<RowModel> {
    * rendered for.
    */
   refreshWindowAfterCorrectiveScroll: (scrollTop: number) => void;
-  renderZoneRef: React.RefObject<HTMLElement | null>;
+  /**
+   * The element whose children — or grandchildren, one group wrapper deep — are the laid-out
+   * rows, in whichever layout the rows are currently in.
+   */
+  getRowsParent: () => HTMLElement | null;
   rows: VirtualizerRow<RowModel>[];
   /** The engine's row geometry as of this render. */
   rowsMeta: RowsGeometry;
   scrollElementRef: React.RefObject<HTMLElement | null>;
-  scrollportPaddingTotal: number;
+  /** The scrollable content before the first row and after the last one, together. */
+  rowsInsetTotal: number;
   /**
    * The engine's latest row geometry, read when the effect runs. The engine publishes it before
    * React commits the matching row positions, so it can be ahead of `rowsMeta`.
@@ -96,12 +101,12 @@ export function useScrollAnchor<RowModel>(
     onScrollApplied,
     pendingScroll,
     refreshWindowAfterCorrectiveScroll,
-    renderZoneRef,
+    getRowsParent,
     rows,
     rowsMeta,
     scrollElementRef,
     readRowsGeometry,
-    scrollportPaddingTotal,
+    rowsInsetTotal,
     trailingHeight,
     updateRenderZoneTransform,
   } = parameters;
@@ -110,9 +115,9 @@ export function useScrollAnchor<RowModel>(
 
   useIsoLayoutEffect(() => {
     const scrollElement = scrollElementRef.current;
-    const renderZone = renderZoneRef.current;
+    const rowsParent = getRowsParent();
 
-    if (!enabled || scrollElement == null || renderZone == null) {
+    if (!enabled || scrollElement == null || rowsParent == null) {
       snapshotRef.current = null;
       return;
     }
@@ -137,7 +142,7 @@ export function useScrollAnchor<RowModel>(
     const scrollerTop = scrollerRect.top;
     let scrollTop = scrollElement.scrollTop;
     const maxScrollTop = getMaxScrollOffset(
-      latestRowsMeta.currentPageTotalHeight + scrollportPaddingTotal + trailingHeight,
+      latestRowsMeta.currentPageTotalHeight + rowsInsetTotal + trailingHeight,
       scrollElement.clientHeight,
     );
     const shouldPinToBottom =
@@ -252,7 +257,7 @@ export function useScrollAnchor<RowModel>(
       }
     }
 
-    const anchor = findAnchorRowElement(renderZone, scrollerTop, scrollerRect.bottom);
+    const anchor = findAnchorRowElement(rowsParent, scrollerTop, scrollerRect.bottom);
     snapshotRef.current =
       anchor === null
         ? null
@@ -280,11 +285,11 @@ export function useScrollAnchor<RowModel>(
  * never a valid anchor.
  */
 function findAnchorRowElement(
-  renderZone: HTMLElement,
+  rowsParent: HTMLElement,
   scrollerTop: number,
   scrollerBottom: number,
 ) {
-  for (const child of getLaidOutRowElements(renderZone)) {
+  for (const child of getLaidOutRowElements(rowsParent)) {
     const rect = child.getBoundingClientRect();
     if (rect.height > 0 && rect.bottom > scrollerTop && rect.top < scrollerBottom) {
       return {
