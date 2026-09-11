@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { useSelectRootContext, useSelectRootPropsContext } from '../root/SelectRootContext';
+import { useSelectRootContext } from '../root/SelectRootContext';
 import { useCompositeListItem } from '../../internals/composite/list/useCompositeListItem';
 import type {
   BaseUIComponentProps,
@@ -51,7 +51,10 @@ export const SelectItem = React.memo(
     });
 
     const store = useSelectRootContext();
-    const { itemProps, multiple, disabled: selectDisabled, readOnly } = useSelectRootPropsContext();
+    const itemProps = store.useState('itemProps');
+    const multiple = store.useState('multiple');
+    const selectDisabled = store.useState('disabled');
+    const readOnly = store.useState('readOnly');
     const disabled = selectDisabled || disabledProp;
     const highlighted = store.useState('isActive', listItem.index);
     const open = store.useState('open');
