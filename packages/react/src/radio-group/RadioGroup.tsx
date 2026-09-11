@@ -238,6 +238,7 @@ export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
     },
     onBlur(event) {
       if (!contains(event.currentTarget, event.relatedTarget)) {
+        setTouched(false);
         setFieldTouched(true);
         setFocused(false);
 

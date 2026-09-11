@@ -636,7 +636,9 @@ describe('<Dialog.Popup />', () => {
 
       // Close via keyboard: should move focus to final-input
       await user.click(trigger);
-      await waitSingleFrame();
+      await act(async () => {
+        await waitSingleFrame();
+      });
       await user.keyboard('{Escape}');
       await waitFor(() => {
         expect(screen.getByTestId('final-input')).toHaveFocus();
