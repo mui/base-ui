@@ -149,7 +149,7 @@
     "react-dom": "19.2.8",
     "react-router": "7.18.3",
     "typescript": "npm:@typescript/typescript6@6.0.2",
-    "vitest-browser-react": "2.2.0"
+    "vitest-browser-react": "2.3.0"
   },
   "peerDependencies": {
     "@date-fns/tz": "^1.2.0",
