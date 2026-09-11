@@ -3,6 +3,7 @@ import * as React from 'react';
 import { addEventListener } from '@base-ui/utils/addEventListener';
 import { ownerDocument } from '@base-ui/utils/owner';
 import { useTimeout } from '@base-ui/utils/useTimeout';
+import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import { contains, getTarget, stopEvent } from '../../floating-ui-react/utils';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useContextMenuRootContext } from '../root/ContextMenuRootContext';
@@ -14,6 +15,18 @@ import { REASONS } from '../../internals/reasons';
 import { findRootOwnerId } from '../../menu/utils/findRootOwnerId';
 
 const LONG_PRESS_DELAY = 500;
+const SECONDARY_BUTTON = 2;
+
+// Whether a `contextmenu` was raised by the keyboard (Shift+F10 / the Menu key). The event itself
+// cannot say: `detail` is `0` for every source, the coordinates are the focused element's box on a
+// keyboard activation, and Chromium reports `pointerType: 'mouse'` even then. Only the secondary
+// button and the gesture recorded before the event discriminate.
+function isKeyboardContextMenu(event: MouseEvent, lastPointerType: InteractionType): boolean {
+  if (event.button === SECONDARY_BUTTON) {
+    return false;
+  }
+  return lastPointerType === '';
+}
 
 /**
  * An area that opens the menu on right click or long press.
@@ -35,6 +48,7 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
     positionerRef,
     allowMouseUpTriggerRef,
     initialCursorPointRef,
+    openInstantTypeRef,
     rootId,
   } = useContextMenuRootContext(false);
 
@@ -48,8 +62,16 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
   const allowMouseUpTimeout = useTimeout();
   const allowMouseUpRef = React.useRef(false);
   const mouseUpAbortControllerRef = React.useRef<AbortController | null>(null);
+  // Recorded in the capture phase so a descendant cannot hide the gesture. A key press always
+  // precedes a keyboard `contextmenu`, so it ends the gesture recorded here.
+  const lastPointerTypeRef = React.useRef<InteractionType>('');
 
-  function handleLongPress(x: number, y: number, event: MouseEvent | TouchEvent) {
+  function handleLongPress(
+    x: number,
+    y: number,
+    event: MouseEvent | TouchEvent,
+    keyboardActivation = false,
+  ) {
     const isTouchEvent = event.type.startsWith('touch');
 
     initialCursorPointRef.current = { x, y };
@@ -66,6 +88,8 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
     });
 
     allowMouseUpRef.current = false;
+    // Only a keyboard open is instant; a pointer or touch gesture plays the enter transition.
+    openInstantTypeRef.current = keyboardActivation ? 'click' : undefined;
     actionsRef.current?.setOpen(true, createChangeEventDetails(REASONS.triggerPress, event));
 
     allowMouseUpTimeout.start(LONG_PRESS_DELAY, () => {
@@ -79,7 +103,12 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
     }
     allowMouseUpTriggerRef.current = true;
     stopEvent(event);
-    handleLongPress(event.clientX, event.clientY, event.nativeEvent);
+    handleLongPress(
+      event.clientX,
+      event.clientY,
+      event.nativeEvent,
+      isKeyboardContextMenu(event.nativeEvent, lastPointerTypeRef.current),
+    );
     const doc = ownerDocument(triggerRef.current);
 
     // Abort a listener from a previous trigger that never saw its mouseup, and scope this
@@ -121,6 +150,14 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
   function cancelLongPress() {
     longPressTimeout.clear();
     touchPositionRef.current = null;
+  }
+
+  function handlePointerDown(event: React.PointerEvent) {
+    lastPointerTypeRef.current = event.pointerType as InteractionType;
+  }
+
+  function handleKeyDown() {
+    lastPointerTypeRef.current = '';
   }
 
   function handleTouchStart(event: React.TouchEvent) {
@@ -201,6 +238,8 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
     props: [
       {
         onContextMenu: handleContextMenu,
+        onPointerDownCapture: handlePointerDown,
+        onKeyDownCapture: handleKeyDown,
         onTouchStart: handleTouchStart,
         onTouchMove: handleTouchMove,
         onTouchEnd: cancelLongPress,
