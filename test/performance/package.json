@@ -13,7 +13,7 @@
     "@mui/internal-benchmark": "0.0.3-canary.7",
     "@types/react": "19.2.18",
     "@vitest/browser-playwright": "4.1.11",
-    "vite": "8.2.1",
+    "vite": "8.2.2",
     "vitest": "4.1.11"
   }
 }
