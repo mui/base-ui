@@ -257,6 +257,7 @@ export const RadioRoot = React.forwardRef(function RadioRoot<Value>(
           refs={refs}
           props={props}
           stateAttributesMapping={stateAttributesMapping}
+          guess
         />
       ) : (
         element
