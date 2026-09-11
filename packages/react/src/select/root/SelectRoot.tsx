@@ -574,7 +574,11 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   );
 }
 
-type SelectValueType<Value, Multiple extends boolean | undefined> = Multiple extends true
+export type SelectInputValue<Value, Multiple extends boolean | undefined> = Multiple extends true
+  ? readonly Value[]
+  : Value;
+
+export type SelectOutputValue<Value, Multiple extends boolean | undefined> = Multiple extends true
   ? Value[]
   : Value;
 
@@ -701,17 +705,17 @@ export interface SelectRootProps<Value, Multiple extends boolean | undefined = f
    *
    * To render a controlled select, use the `value` prop instead.
    */
-  defaultValue?: SelectValueType<Value, Multiple> | null | undefined;
+  defaultValue?: SelectInputValue<Value, Multiple> | null | undefined;
   /**
    * The value of the select. Use when controlled.
    */
-  value?: SelectValueType<Value, Multiple> | null | undefined;
+  value?: SelectInputValue<Value, Multiple> | null | undefined;
   /**
    * Event handler called when the value of the select changes.
    */
   onValueChange?:
     | ((
-        value: SelectValueType<Value, Multiple> | (Multiple extends true ? never : null),
+        value: SelectOutputValue<Value, Multiple> | (Multiple extends true ? never : null),
         eventDetails: SelectRootChangeEventDetails,
       ) => void)
     | undefined;
