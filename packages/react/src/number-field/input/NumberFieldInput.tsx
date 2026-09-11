@@ -13,12 +13,12 @@ import { useLabelableContext } from '../../internals/labelable-provider/Labelabl
 import {
   getNumberLocaleDetails,
   isNumeralChar,
+  isValidInputString,
   parseNumber,
   ANY_MINUS_RE,
   ANY_PLUS_RE,
   ANY_MINUS_DETECT_RE,
   ANY_PLUS_DETECT_RE,
-  FORMAT_CONTROL_DETECT_RE,
 } from '../utils/parse';
 import type { NumberFieldRootState } from '../root/NumberFieldRoot';
 import { stateAttributesMapping } from '../utils/stateAttributesMapping';
@@ -243,18 +243,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
       // Update the input text immediately and only fire onValueChange if the typed value is
       // currently parseable into a number. This preserves good UX for IME
       // composition/partial input while still providing live numeric updates when possible.
-      const allowedNonNumericKeys = getAllowedNonNumericKeys();
-      const isValidCharacterString = Array.from(targetValue).every(
-        (ch) =>
-          isNumeralChar(ch) ||
-          ANY_MINUS_DETECT_RE.test(ch) ||
-          allowedNonNumericKeys.has(ch) ||
-          // Bidi/format controls are stripped by `parseNumber`; don't let them reject the string
-          // (RTL locales insert them around exponent/currency signs, e.g. scientific notation).
-          FORMAT_CONTROL_DETECT_RE.test(ch),
-      );
-
-      if (!isValidCharacterString) {
+      if (!isValidInputString(targetValue, getAllowedNonNumericKeys())) {
         return;
       }
 
