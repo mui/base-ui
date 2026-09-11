@@ -39,6 +39,12 @@ export type State<Payload> = PopupStoreState<Payload> & {
 type Context = PopupStoreContext<PopoverRoot.ChangeEventDetails> & {
   readonly popupRef: React.RefObject<HTMLElement | null>;
   readonly triggerFocusTargetRef: React.RefObject<HTMLElement | null>;
+  /**
+   * The focus guard rendered immediately before the active trigger. The focus manager must know
+   * about it: focus landing there is still inside this popup's focus management, and closing on
+   * it would pre-empt the guard's own handler.
+   */
+  readonly triggerPreFocusGuardRef: React.RefObject<HTMLElement | null>;
   readonly beforeContentFocusGuardRef: React.RefObject<HTMLElement | null>;
   readonly stickIfOpenTimeout: Timeout;
 };
@@ -222,6 +228,7 @@ function createInitialContext(triggerElements: PopupTriggerMap): Context {
     onOpenChange: undefined,
     onOpenChangeComplete: undefined,
     triggerFocusTargetRef: React.createRef<HTMLElement>(),
+    triggerPreFocusGuardRef: React.createRef<HTMLElement>(),
     beforeContentFocusGuardRef: React.createRef<HTMLElement>(),
     stickIfOpenTimeout: new Timeout(),
     triggerElements,

@@ -1,4 +1,4 @@
-import { expect, vi, describe, it } from 'vitest';
+import { expect, vi, describe, it, beforeEach, afterEach } from 'vitest';
 import * as React from 'react';
 import { Popover } from '@base-ui/react/popover';
 import { Toolbar } from '@base-ui/react/toolbar';
@@ -727,6 +727,496 @@ describe('<Popover.Popup />', () => {
 
       expect(input.selectionStart).toBe(1);
       expect(screen.getByRole('button', { name: 'Last' })).not.toHaveFocus();
+    });
+  });
+
+  describe.skipIf(isJSDOM)('focus session during the exit animation', () => {
+    const closingStyle = `
+      @keyframes popover-popup-close-test {
+        to {
+          opacity: 0;
+        }
+      }
+
+      .closing-test-popup[data-ending-style] {
+        animation: popover-popup-close-test 5s linear;
+      }
+    `;
+
+    beforeEach(() => {
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+    });
+
+    afterEach(() => {
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
+    });
+
+    // The return runs at the logical close. The session must not also install a closed-state
+    // subscription whose teardown queues a second return once the animation finishes.
+    it('returns focus exactly once across close and unmount', async () => {
+      const { user } = await render(
+        <React.Fragment>
+          {/* eslint-disable-next-line react/no-danger */}
+          <style dangerouslySetInnerHTML={{ __html: closingStyle }} />
+          <Popover.Root>
+            <Popover.Trigger>Open</Popover.Trigger>
+            <Popover.Portal>
+              <Popover.Positioner>
+                <Popover.Popup data-testid="popup" className="closing-test-popup">
+                  <button type="button">Inside</button>
+                </Popover.Popup>
+              </Popover.Positioner>
+            </Popover.Portal>
+          </Popover.Root>
+        </React.Fragment>,
+      );
+
+      const trigger = screen.getByRole('button', { name: 'Open' });
+      await user.click(trigger);
+      const popup = screen.getByTestId('popup');
+
+      const focusSpy = vi.spyOn(trigger, 'focus');
+      try {
+        await user.keyboard('{Escape}');
+        await waitFor(() => expect(popup).toHaveAttribute('data-ending-style'));
+        await flushMicrotasks();
+        expect(focusSpy).toHaveBeenCalledTimes(1);
+
+        await act(async () => {
+          popup.getAnimations().forEach((animation) => animation.finish());
+        });
+        await waitFor(() => expect(screen.queryByTestId('popup')).toBe(null));
+        await flushMicrotasks();
+
+        expect(focusSpy).toHaveBeenCalledTimes(1);
+      } finally {
+        focusSpy.mockRestore();
+      }
+    });
+
+    // The focus-out listener's effect does not depend on `open`, so it stays attached while the
+    // popup animates out. A late focusout must not dispatch a second `onOpenChange(false)`.
+    it('does not dispatch a second close from a focusout during the exit animation', async () => {
+      const onOpenChange = vi.fn();
+      const { user } = await render(
+        <React.Fragment>
+          {/* eslint-disable-next-line react/no-danger */}
+          <style dangerouslySetInnerHTML={{ __html: closingStyle }} />
+          <button data-testid="outside">outside</button>
+          <Popover.Root onOpenChange={onOpenChange}>
+            <Popover.Trigger>Open</Popover.Trigger>
+            <Popover.Portal>
+              <Popover.Positioner>
+                <Popover.Popup data-testid="popup" className="closing-test-popup">
+                  <button type="button">Inside</button>
+                </Popover.Popup>
+              </Popover.Positioner>
+            </Popover.Portal>
+          </Popover.Root>
+        </React.Fragment>,
+      );
+
+      const trigger = screen.getByRole('button', { name: 'Open' });
+      await user.click(trigger);
+      const popup = screen.getByTestId('popup');
+
+      await user.keyboard('{Escape}');
+      await waitFor(() => expect(popup).toHaveAttribute('data-ending-style'));
+
+      const closeCallsAfterEscape = onOpenChange.mock.calls.filter(
+        ([open]) => open === false,
+      ).length;
+      expect(closeCallsAfterEscape).toBe(1);
+
+      fireEvent.focusOut(trigger, { relatedTarget: screen.getByTestId('outside') });
+      await flushMicrotasks();
+
+      expect(onOpenChange.mock.calls.filter(([open]) => open === false)).toHaveLength(1);
+
+      await act(async () => {
+        popup.getAnimations().forEach((animation) => animation.finish());
+      });
+    });
+  });
+
+  // A controlled consumer can refuse a close simply by keeping `open` at `true` — no
+  // `cancel()` call involved. Policy scoped to that refused close must not survive into the
+  // next, accepted one.
+  it.skipIf(isJSDOM)(
+    'returns focus after an accepted close that follows a refused guard close',
+    async () => {
+      const { userEvent: browserUserEvent } = await import('vitest/browser');
+      const refused: string[] = [];
+
+      function Test() {
+        const [open, setOpen] = React.useState(false);
+        return (
+          <div>
+            <button data-testid="before">before</button>
+            <Popover.Root
+              modal={false}
+              open={open}
+              onOpenChange={(nextOpen, details) => {
+                // Refuse focus-out closes by simply not updating state; accept everything else.
+                if (!nextOpen && details.reason === 'focus-out') {
+                  refused.push(details.reason);
+                  return;
+                }
+                setOpen(nextOpen);
+              }}
+            >
+              <Popover.Trigger openOnHover delay={0}>
+                Open
+              </Popover.Trigger>
+              <Popover.Portal>
+                <Popover.Positioner>
+                  <Popover.Popup>
+                    <button data-testid="inside">Inside</button>
+                  </Popover.Popup>
+                </Popover.Positioner>
+              </Popover.Portal>
+            </Popover.Root>
+            <button data-testid="after">after</button>
+          </div>
+        );
+      }
+
+      await render(<Test />);
+      const trigger = screen.getByRole('button', { name: 'Open' });
+
+      // Hover-opening leaves focus on the trigger, so Shift+Tab reaches the trigger's own
+      // pre-guard — the close path that hands the destination to the guard.
+      await act(async () => trigger.focus());
+      fireEvent.pointerEnter(trigger, { pointerType: 'mouse' });
+      fireEvent.mouseEnter(trigger);
+      fireEvent.mouseMove(trigger);
+      await waitFor(() => expect(screen.queryByRole('dialog')).not.toBe(null));
+
+      await act(async () => {
+        await browserUserEvent.tab({ shift: true });
+      });
+      await flushMicrotasks();
+
+      // The guard asked to close and the consumer refused, so the popup is still open.
+      expect(refused.length).toBeGreaterThan(0);
+      expect(screen.queryByRole('dialog')).not.toBe(null);
+
+      // Now close for real. The refused guard close must not have suppressed this return.
+      await act(async () => screen.getByTestId('inside').focus());
+      fireEvent.keyDown(screen.getByTestId('inside'), { key: 'Escape' });
+
+      await waitFor(() => expect(screen.queryByRole('dialog')).toBe(null));
+      await waitFor(() => expect(trigger).toHaveFocus());
+    },
+  );
+
+  // A close request records where focus went when it was made (`preventReturnFocus`,
+  // `guardOwnsDestination`). A controlled consumer can refuse the request by leaving `open`
+  // alone, and may later close by prop — a close that dispatches nothing. Focus coming back into
+  // the popup in between means the recorded policy no longer describes reality.
+  it.skipIf(isJSDOM)(
+    'returns focus after a prop-driven close that follows a refused focus-out',
+    async () => {
+      const refused: string[] = [];
+
+      function Test({ forceClosed }: { forceClosed: boolean }) {
+        const [open, setOpen] = React.useState(false);
+        return (
+          <div>
+            <button data-testid="outside">outside</button>
+            <Popover.Root
+              modal={false}
+              open={open && !forceClosed}
+              onOpenChange={(nextOpen, details) => {
+                // Refuse focus-out closes by simply not updating state; accept everything else.
+                if (!nextOpen && details.reason === 'focus-out') {
+                  refused.push(details.reason);
+                  return;
+                }
+                setOpen(nextOpen);
+              }}
+            >
+              <Popover.Trigger>Open</Popover.Trigger>
+              <Popover.Portal>
+                <Popover.Positioner>
+                  <Popover.Popup>
+                    <button data-testid="inside">Inside</button>
+                  </Popover.Popup>
+                </Popover.Positioner>
+              </Popover.Portal>
+            </Popover.Root>
+          </div>
+        );
+      }
+
+      const { user, setProps } = await render(<Test forceClosed={false} />);
+      const trigger = screen.getByRole('button', { name: 'Open' });
+      await user.click(trigger);
+      await waitFor(() => expect(screen.getByTestId('inside')).toHaveFocus());
+
+      // Focus leaving the popup asks to close; the consumer refuses, so the popup stays open.
+      await user.click(screen.getByTestId('outside'));
+      await flushMicrotasks();
+      expect(refused).toContain('focus-out');
+      expect(screen.queryByRole('dialog')).not.toBe(null);
+
+      // Focus comes back in, then the consumer closes by prop. No request is dispatched for it,
+      // so nothing but the re-entry itself can invalidate the refused request's policy.
+      await act(async () => screen.getByTestId('inside').focus());
+      await setProps({ forceClosed: true });
+
+      await waitFor(() => expect(trigger).toHaveFocus());
+    },
+  );
+
+  it.skipIf(isJSDOM)(
+    'returns focus after a prop-driven close that follows a refused guard close',
+    async () => {
+      const { userEvent: browserUserEvent } = await import('vitest/browser');
+      const refused: string[] = [];
+
+      function Test({ forceClosed }: { forceClosed: boolean }) {
+        const [open, setOpen] = React.useState(false);
+        return (
+          <div>
+            <button data-testid="before">before</button>
+            <Popover.Root
+              modal={false}
+              open={open && !forceClosed}
+              onOpenChange={(nextOpen, details) => {
+                if (!nextOpen && details.reason === 'focus-out') {
+                  refused.push(details.reason);
+                  return;
+                }
+                setOpen(nextOpen);
+              }}
+            >
+              <Popover.Trigger>Open</Popover.Trigger>
+              <Popover.Portal>
+                <Popover.Positioner>
+                  <Popover.Popup>
+                    <button data-testid="inside">Inside</button>
+                  </Popover.Popup>
+                </Popover.Positioner>
+              </Popover.Portal>
+            </Popover.Root>
+            <button data-testid="after">after</button>
+          </div>
+        );
+      }
+
+      const { user, setProps } = await render(<Test forceClosed={false} />);
+      const trigger = screen.getByRole('button', { name: 'Open' });
+      await user.click(trigger);
+      await waitFor(() => expect(screen.getByTestId('inside')).toHaveFocus());
+
+      // Focus on the trigger while open is the state from which Shift+Tab reaches the trigger's
+      // own pre-guard — the close path that hands the destination to the guard.
+      await act(async () => trigger.focus());
+      await act(async () => {
+        await browserUserEvent.tab({ shift: true });
+      });
+      await flushMicrotasks();
+
+      expect(refused).toContain('focus-out');
+      expect(screen.queryByRole('dialog')).not.toBe(null);
+
+      await act(async () => screen.getByTestId('inside').focus());
+      await setProps({ forceClosed: true });
+
+      await waitFor(() => expect(trigger).toHaveFocus());
+    },
+  );
+
+  it.skipIf(isJSDOM)(
+    'returns focus after a prop-driven close when focus re-entered through a nested popup',
+    async () => {
+      const { userEvent: browserUserEvent } = await import('vitest/browser');
+      const refused: string[] = [];
+
+      function Test({ forceClosed, nestedOpen }: { forceClosed: boolean; nestedOpen: boolean }) {
+        const [open, setOpen] = React.useState(false);
+        return (
+          <div>
+            <button data-testid="before">before</button>
+            <Popover.Root
+              modal={false}
+              open={open && !forceClosed}
+              onOpenChange={(nextOpen, details) => {
+                if (!nextOpen && details.reason === 'focus-out') {
+                  refused.push(details.reason);
+                  return;
+                }
+                setOpen(nextOpen);
+              }}
+            >
+              <Popover.Trigger>Open</Popover.Trigger>
+              <Popover.Portal>
+                <Popover.Positioner>
+                  <Popover.Popup>
+                    <button data-testid="inside">Inside</button>
+                    <Popover.Root open={nestedOpen} modal={false}>
+                      <Popover.Trigger>Nested</Popover.Trigger>
+                      <Popover.Portal>
+                        <Popover.Positioner>
+                          <Popover.Popup>
+                            <button data-testid="nested-inside">Nested inside</button>
+                          </Popover.Popup>
+                        </Popover.Positioner>
+                      </Popover.Portal>
+                    </Popover.Root>
+                  </Popover.Popup>
+                </Popover.Positioner>
+              </Popover.Portal>
+            </Popover.Root>
+          </div>
+        );
+      }
+
+      const { user, setProps } = await render(<Test forceClosed={false} nestedOpen={false} />);
+      const trigger = screen.getByRole('button', { name: 'Open' });
+      await user.click(trigger);
+      await waitFor(() => expect(screen.getByTestId('inside')).toHaveFocus());
+
+      // A refused close from the trigger's pre-guard leaves the guard owning the destination.
+      await act(async () => trigger.focus());
+      await act(async () => {
+        await browserUserEvent.tab({ shift: true });
+      });
+      await flushMicrotasks();
+      expect(refused).toContain('focus-out');
+      expect(screen.queryByRole('dialog')).not.toBe(null);
+
+      // Focus re-enters the floating tree through the nested popup's own initial focus. Its DOM is
+      // portaled, so nothing about that re-entry bubbles through the parent's floating element.
+      await setProps({ forceClosed: false, nestedOpen: true });
+      await waitFor(() => expect(screen.getByTestId('nested-inside')).toHaveFocus());
+
+      await setProps({ forceClosed: true, nestedOpen: true });
+      await waitFor(() => expect(trigger).toHaveFocus());
+    },
+  );
+
+  // Focus moving between two elements of the same shadow root is not dispatched outside that root,
+  // so re-entry must be observed at the root itself, not only on the document.
+  it.skipIf(isJSDOM)(
+    'returns focus after a prop-driven close that follows a refused focus-out inside a shadow root',
+    async () => {
+      const host = document.body.appendChild(document.createElement('div'));
+      const shadowRoot = host.attachShadow({ mode: 'open' });
+      const container = shadowRoot.appendChild(document.createElement('div'));
+      const refused: string[] = [];
+
+      function Test({ forceClosed }: { forceClosed: boolean }) {
+        const [open, setOpen] = React.useState(false);
+        return (
+          <div>
+            <button data-testid="outside">outside</button>
+            <Popover.Root
+              modal={false}
+              open={open && !forceClosed}
+              onOpenChange={(nextOpen, details) => {
+                if (!nextOpen && details.reason === 'focus-out') {
+                  refused.push(details.reason);
+                  return;
+                }
+                setOpen(nextOpen);
+              }}
+            >
+              <Popover.Trigger data-testid="trigger">Open</Popover.Trigger>
+              <Popover.Portal container={shadowRoot}>
+                <Popover.Positioner>
+                  <Popover.Popup>
+                    <button data-testid="inside">Inside</button>
+                  </Popover.Popup>
+                </Popover.Positioner>
+              </Popover.Portal>
+            </Popover.Root>
+          </div>
+        );
+      }
+
+      try {
+        const { user, setProps } = await render(<Test forceClosed={false} />, { container });
+        const query = (id: string) =>
+          shadowRoot.querySelector<HTMLElement>(`[data-testid="${id}"]`)!;
+        const trigger = query('trigger');
+
+        await user.click(trigger);
+        await waitFor(() => expect(shadowRoot.activeElement).toBe(query('inside')));
+
+        await user.click(query('outside'));
+        await flushMicrotasks();
+        expect(refused).toContain('focus-out');
+
+        await act(async () => query('inside').focus());
+        expect(shadowRoot.activeElement).toBe(query('inside'));
+
+        await setProps({ forceClosed: true });
+        await waitFor(() => expect(shadowRoot.activeElement).toBe(trigger));
+      } finally {
+        await act(async () => host.remove());
+      }
+    },
+  );
+
+  // The `finalFocus` committed alongside the close is the one that wins. A consumer that picks the
+  // target inside `onOpenChange` renders the new value together with the close; the stale value
+  // from the previous render must not be used.
+  describe.skipIf(isJSDOM)('finalFocus swapped on close', () => {
+    function Test() {
+      const firstRef = React.useRef<HTMLButtonElement | null>(null);
+      const secondRef = React.useRef<HTMLButtonElement | null>(null);
+      const [finalFocus, setFinalFocus] =
+        React.useState<React.RefObject<HTMLElement | null>>(firstRef);
+      return (
+        <div>
+          <button data-testid="first" ref={firstRef}>
+            first
+          </button>
+          <button data-testid="second" ref={secondRef}>
+            second
+          </button>
+          <Popover.Root
+            defaultOpen
+            onOpenChange={(open) => {
+              if (!open) {
+                setFinalFocus(secondRef);
+              }
+            }}
+          >
+            <Popover.Trigger>Open</Popover.Trigger>
+            <Popover.Portal>
+              <Popover.Positioner>
+                <Popover.Popup finalFocus={finalFocus}>
+                  <button data-testid="inside">Inside</button>
+                  <Popover.Close data-testid="close">Close</Popover.Close>
+                </Popover.Popup>
+              </Popover.Positioner>
+            </Popover.Portal>
+          </Popover.Root>
+        </div>
+      );
+    }
+
+    it('honours the swapped finalFocus on an Escape close', async () => {
+      await render(<Test />);
+      await waitFor(() => expect(screen.getByTestId('inside')).toHaveFocus());
+
+      fireEvent.keyDown(screen.getByTestId('inside'), { key: 'Escape' });
+
+      await waitFor(() => expect(screen.queryByTestId('inside')).toBe(null));
+      await waitFor(() => expect(screen.getByTestId('second')).toHaveFocus());
+    });
+
+    it('honours the swapped finalFocus on a close-button close', async () => {
+      const { user } = await render(<Test />);
+      await waitFor(() => expect(screen.getByTestId('inside')).toHaveFocus());
+
+      await user.click(screen.getByTestId('close'));
+
+      await waitFor(() => expect(screen.queryByTestId('inside')).toBe(null));
+      await waitFor(() => expect(screen.getByTestId('second')).toHaveFocus());
     });
   });
 });
