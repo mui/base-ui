@@ -13,6 +13,7 @@ import {
 } from '../root/ComboboxRootContext';
 import { triggerStateAttributesMapping } from '../utils/stateAttributesMapping';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
+import { useSetFieldFocused } from '../../internals/field-root-context/useSetFieldFocused';
 import { useLabelableContext } from '../../internals/labelable-provider/LabelableContext';
 import { stopEvent, contains, getTarget } from '../../floating-ui-react/utils';
 import { isMouseWithinBounds } from '../../utils/getPseudoElementBounds';
@@ -50,7 +51,6 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
     state: fieldState,
     disabled: fieldDisabled,
     setTouched,
-    setFocused,
     validationMode,
     validation,
   } = useFieldRootContext();
@@ -82,6 +82,8 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
   const disabled = fieldDisabled || comboboxDisabled || disabledProp;
   const listEmpty = useListEmpty();
   const popupSide = usePopupSide(store);
+
+  const setFocused = useSetFieldFocused(disabled);
 
   useLabelableId({ id: inputInsidePopup ? idProp : undefined });
   const id = inputInsidePopup ? (idProp ?? rootId) : idProp;

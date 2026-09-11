@@ -19,6 +19,11 @@ export interface FieldRootContext {
   setDirty: React.Dispatch<React.SetStateAction<boolean>>;
   setFilled: React.Dispatch<React.SetStateAction<boolean>>;
   setFocused: React.Dispatch<React.SetStateAction<boolean>>;
+  /**
+   * Identifies the control the focused state belongs to, so that disabling or unmounting a
+   * different control in the same field can't clear it. Written through `useSetFieldFocused`.
+   */
+  focusOwnerRef: React.RefObject<unknown>;
   validationMode: Form.ValidationMode;
   shouldValidateOnChange: () => boolean;
   state: FieldRootState;
@@ -45,6 +50,7 @@ export const DEFAULT_FIELD_ROOT_CONTEXT: FieldRootContext = {
   setDirty: NOOP,
   setFilled: NOOP,
   setFocused: NOOP,
+  focusOwnerRef: { current: undefined },
   validationMode: 'onSubmit',
   shouldValidateOnChange: () => false,
   state: DEFAULT_FIELD_ROOT_STATE,

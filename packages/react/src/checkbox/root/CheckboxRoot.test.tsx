@@ -1469,6 +1469,47 @@ describe('<Checkbox.Root />', () => {
       expect(button).not.toHaveAttribute('data-focused');
     });
 
+    describe('[data-focused] without a blur event', () => {
+      function Checkboxes(props: { firstMounted?: boolean; firstDisabled?: boolean }) {
+        const { firstMounted = true, firstDisabled = false } = props;
+        return (
+          <Field.Root data-testid="root">
+            {firstMounted && <Checkbox.Root data-testid="first" disabled={firstDisabled} />}
+          </Field.Root>
+        );
+      }
+
+      it('is removed when the focused checkbox becomes disabled', async () => {
+        const { setProps } = await render(<Checkboxes />);
+
+        const button = screen.getByTestId('first');
+        act(() => {
+          button.focus();
+        });
+
+        expect(screen.getByTestId('root')).toHaveAttribute('data-focused', '');
+
+        await setProps({ firstDisabled: true });
+
+        expect(screen.getByTestId('root')).not.toHaveAttribute('data-focused');
+        expect(button).not.toHaveAttribute('data-focused');
+      });
+
+      it('is removed when the focused checkbox unmounts', async () => {
+        const { setProps } = await render(<Checkboxes />);
+
+        act(() => {
+          screen.getByTestId('first').focus();
+        });
+
+        expect(screen.getByTestId('root')).toHaveAttribute('data-focused', '');
+
+        await setProps({ firstMounted: false });
+
+        expect(screen.getByTestId('root')).not.toHaveAttribute('data-focused');
+      });
+    });
+
     it('[data-invalid]', async () => {
       await render(
         <Field.Root invalid>

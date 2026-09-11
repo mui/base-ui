@@ -11752,6 +11752,92 @@ describe('<Combobox.Root />', () => {
       expect(trigger).not.toHaveAttribute('data-focused');
     });
 
+    describe('[data-focused] without a blur event', () => {
+      function Comboboxes(props: { firstMounted?: boolean; firstDisabled?: boolean }) {
+        const { firstMounted = true, firstDisabled = false } = props;
+        return (
+          <Field.Root data-testid="field">
+            {firstMounted && (
+              <Combobox.Root disabled={firstDisabled}>
+                <Combobox.Input data-testid="first" />
+              </Combobox.Root>
+            )}
+          </Field.Root>
+        );
+      }
+
+      it('is removed when the focused input becomes disabled', async () => {
+        const { setProps } = await render(<Comboboxes />);
+
+        const input = screen.getByTestId('first');
+        act(() => {
+          input.focus();
+        });
+
+        expect(screen.getByTestId('field')).toHaveAttribute('data-focused', '');
+
+        await setProps({ firstDisabled: true });
+
+        expect(screen.getByTestId('field')).not.toHaveAttribute('data-focused');
+        expect(input).not.toHaveAttribute('data-focused');
+      });
+
+      it('is removed when the focused input unmounts', async () => {
+        const { setProps } = await render(<Comboboxes />);
+
+        act(() => {
+          screen.getByTestId('first').focus();
+        });
+
+        expect(screen.getByTestId('field')).toHaveAttribute('data-focused', '');
+
+        await setProps({ firstMounted: false });
+
+        expect(screen.getByTestId('field')).not.toHaveAttribute('data-focused');
+      });
+
+      function Triggers(props: { disabled?: boolean; mounted?: boolean }) {
+        const { disabled = false, mounted = true } = props;
+        return (
+          <Field.Root data-testid="field">
+            <Combobox.Root disabled={disabled}>
+              {mounted && <Combobox.Trigger data-testid="trigger" />}
+            </Combobox.Root>
+          </Field.Root>
+        );
+      }
+
+      it('is removed when the focused trigger becomes disabled', async () => {
+        const { setProps } = await render(<Triggers />);
+
+        const trigger = screen.getByTestId('trigger');
+        act(() => {
+          trigger.focus();
+        });
+
+        expect(screen.getByTestId('field')).toHaveAttribute('data-focused', '');
+
+        await setProps({ disabled: true });
+
+        expect(screen.getByTestId('field')).not.toHaveAttribute('data-focused');
+        expect(trigger).not.toHaveAttribute('data-focused');
+      });
+
+      it('is removed when the focused trigger unmounts', async () => {
+        const { setProps } = await render(<Triggers />);
+
+        act(() => {
+          screen.getByTestId('trigger').focus();
+        });
+
+        expect(screen.getByTestId('field')).toHaveAttribute('data-focused', '');
+
+        await setProps({ mounted: false });
+
+        expect(screen.getByTestId('field')).not.toHaveAttribute('data-focused');
+      });
+    });
+
     it('does not mark as touched when focus moves into the popup', async () => {
       const validateSpy = vi.fn(() => 'error');
 

@@ -7,6 +7,7 @@ import { formatNumber } from '@base-ui/utils/formatNumber';
 import { useNumberFieldRootContext } from '../root/NumberFieldRootContext';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
+import { useSetFieldFocused } from '../../internals/field-root-context/useSetFieldFocused';
 import { useRegisterFieldControl } from '../../internals/field-register-control/useRegisterFieldControl';
 import { useFormContext } from '../../internals/form-context/FormContext';
 import { useLabelableContext } from '../../internals/labelable-provider/LabelableContext';
@@ -78,9 +79,11 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
   const { disabled, readOnly, required, value, inputValue } = state;
 
   const { clearErrors } = useFormContext();
-  const { validationMode, setTouched, setFocused, invalid, shouldValidateOnChange, validation } =
+  const { validationMode, setTouched, invalid, shouldValidateOnChange, validation } =
     useFieldRootContext();
   const { labelId } = useLabelableContext();
+
+  const setFocused = useSetFieldFocused(disabled);
 
   const blockRevalidationRef = React.useRef(false);
   const pendingCaretRef = React.useRef<number | null>(null);
