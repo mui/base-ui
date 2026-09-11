@@ -1,15 +1,6 @@
 'use client';
-import { SafeReact } from './safeReact';
+import { useInsertionEffect } from './useInsertionEffect';
 import { useRefWithInit } from './useRefWithInit';
-
-const useInsertionEffect = SafeReact.useInsertionEffect;
-const useSafeInsertionEffect =
-  // React 17 doesn't have useInsertionEffect.
-  useInsertionEffect &&
-  // Preact replaces useInsertionEffect with useLayoutEffect and fires too late.
-  useInsertionEffect !== SafeReact.useLayoutEffect
-    ? useInsertionEffect
-    : (fn: any) => fn();
 
 type Callback = (...args: any[]) => any;
 
@@ -35,7 +26,7 @@ type Stable<T extends Callback> = {
 export function useStableCallback<T extends Callback>(callback: T | undefined): T {
   const stable = useRefWithInit(createStableCallback).current;
   stable.next = callback;
-  useSafeInsertionEffect(stable.effect);
+  useInsertionEffect(stable.effect);
   return stable.trampoline;
 }
 
