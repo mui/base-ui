@@ -115,7 +115,9 @@ export class ReactStore<
 
   /**
    * Registers a controllable prop pair (`controlled`, `defaultValue`) for a specific key. If `controlled`
-   * is non-undefined, the store's state at `key` is updated to match `controlled`.
+   * is non-undefined, the store's state at `key` is updated to match `controlled`. If a previously
+   * controlled prop becomes `undefined`, the state at `key` is cleared so that selectors fall back to
+   * the internal (uncontrolled) value instead of the last controlled one.
    */
   useControlledProp<Key extends keyof State>(key: Key, controlled: State[Key] | undefined): void {
     React.useDebugValue(key);
@@ -124,24 +126,31 @@ export class ReactStore<
     const isControlled = controlled !== undefined;
 
     useIsoLayoutEffect(() => {
-      if (isControlled && !Object.is(store.state[key], controlled)) {
-        // Set the internal state to match the controlled value.
-        store.setState({ ...store.state, [key]: controlled });
+      if (isControlled) {
+        if (!Object.is(store.state[key], controlled)) {
+          // Set the internal state to match the controlled value.
+          store.setState({ ...store.state, [key]: controlled });
+        }
+      } else if (store.state[key] !== undefined) {
+        // The controlled prop was removed. Clear it so the internal value takes over;
+        // otherwise commands would keep computing from a value that is no longer rendered.
+        store.setState({ ...store.state, [key]: undefined });
       }
     }, [store, key, controlled, isControlled]);
 
     if (process.env.NODE_ENV !== 'production') {
       // eslint-disable-next-line
       const cache = ((this as any).controlledValues ??= new Map<keyof State, boolean>());
-      if (!cache.has(key)) {
-        cache.set(key, isControlled);
-      }
       const previouslyControlled = cache.get(key);
-      if (previouslyControlled !== undefined && previouslyControlled !== isControlled) {
+      if (previouslyControlled === undefined) {
+        cache.set(key, isControlled);
+      } else if (previouslyControlled !== isControlled) {
+        // Record the new mode so the warning is logged once per switch rather than on every render.
+        cache.set(key, isControlled);
         console.error(
           `A component is changing the ${
-            isControlled ? '' : 'un'
-          }controlled state of ${key.toString()} to be ${isControlled ? 'un' : ''}controlled. Elements should not switch from uncontrolled to controlled (or vice versa).`,
+            previouslyControlled ? '' : 'un'
+          }controlled state of ${key.toString()} to be ${previouslyControlled ? 'un' : ''}controlled. Elements should not switch from uncontrolled to controlled (or vice versa).`,
         );
       }
     }

@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
-import { useSliderRootContext } from '../root/SliderRootContext';
+import { useSliderRootPropsContext } from '../root/SliderRootContext';
 import type { SliderRootState } from '../root/SliderRoot';
 import { sliderStateAttributesMapping } from '../root/stateAttributesMapping';
 
@@ -18,7 +18,7 @@ export const SliderTrack = React.forwardRef(function SliderTrack(
 ) {
   const { render, className, style, ...elementProps } = componentProps;
 
-  const { state } = useSliderRootContext();
+  const { state } = useSliderRootPropsContext();
 
   const element = useRenderElement('div', componentProps, {
     state,
