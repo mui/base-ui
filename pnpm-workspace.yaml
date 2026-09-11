@@ -39,7 +39,7 @@ overrides:
   # via lerna/stylelint -> cosmiconfig (GHSA-5p4m-2wfm-xmqj, -52cp-r559-cp3m, -h67p-54hq-rp68)
   js-yaml@4: '^4.3.2'
   # via postcss (GHSA-2v37-7h3g-55p8)
-  nanoid@3: '^3.3.18'
+  nanoid@3: '^6.0.1'
   # via lerna; also picks up the fixed axios and tmp (GHSA-vp3h-ghgh-jr7g)
   nx: '~22.7.9'
   # via test/bundle-size -> @mui/internal-bundle-size-checker (GHSA-x9g3-xrwr-cwfg)
