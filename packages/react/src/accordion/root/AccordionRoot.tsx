@@ -133,14 +133,14 @@ export const AccordionRoot = React.forwardRef(function AccordionRoot<Value = any
   <Value = any>(props: AccordionRoot.Props<Value>): React.JSX.Element;
 };
 
-export type AccordionValue<Value = any> = Value[];
+export type AccordionInputValue<Value = any> = readonly Value[];
+export type AccordionOutputValue<Value = any> = Value[];
 
 export interface AccordionRootState<Value = any> {
   /**
    * The current value.
-   * Treat it as read-only: it may be a shared frozen array when no value is set.
    */
-  value: AccordionValue<Value>;
+  value: AccordionInputValue<Value>;
   /**
    * Whether the component should ignore user interaction.
    */
@@ -166,13 +166,13 @@ export interface AccordionRootProps<Value = any> extends BaseUIComponentProps<
    *
    * To render an uncontrolled accordion, use the `defaultValue` prop instead.
    */
-  value?: AccordionValue<Value> | undefined;
+  value?: AccordionInputValue<Value> | undefined;
   /**
    * The uncontrolled value of the item(s) that should be initially expanded.
    *
    * To render a controlled accordion, use the `value` prop instead.
    */
-  defaultValue?: AccordionValue<Value> | undefined;
+  defaultValue?: AccordionInputValue<Value> | undefined;
   /**
    * Whether the component should ignore user interaction.
    * @default false
@@ -205,7 +205,7 @@ export interface AccordionRootProps<Value = any> extends BaseUIComponentProps<
    * Provides the new value as an argument.
    */
   onValueChange?:
-    | ((value: AccordionValue<Value>, eventDetails: AccordionRootChangeEventDetails) => void)
+    | ((value: AccordionOutputValue<Value>, eventDetails: AccordionRootChangeEventDetails) => void)
     | undefined;
   /**
    * Whether multiple items can be open at the same time.
@@ -229,7 +229,7 @@ export type AccordionRootChangeEventDetails =
   BaseUIChangeEventDetails<AccordionRoot.ChangeEventReason>;
 
 export namespace AccordionRoot {
-  export type Value<TValue = any> = AccordionValue<TValue>;
+  export type Value<TValue = any> = AccordionInputValue<TValue>;
   export type State<TValue = any> = AccordionRootState<TValue>;
   export type Props<TValue = any> = AccordionRootProps<TValue>;
   export type ChangeEventReason = AccordionRootChangeEventReason;

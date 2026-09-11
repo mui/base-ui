@@ -41,10 +41,7 @@ Re-export of [Root](#root) props.
 
 ```typescript
 type AccordionRootState<TValue = any> = {
-  /**
-   * The current value.
-   * Treat it as read-only: it may be a shared frozen array when no value is set.
-   */
+  /** The current value. */
   value: TValue[];
   /** Whether the component should ignore user interaction. */
   disabled: boolean;
@@ -128,10 +125,7 @@ type AccordionTriggerState = {
   index: number;
   /** Whether the component is open. */
   open: boolean;
-  /**
-   * The current value.
-   * Treat it as read-only: it may be a shared frozen array when no value is set.
-   */
+  /** The current value. */
   value: any[];
   /** Whether the component should ignore user interaction. */
   disabled: boolean;
@@ -195,10 +189,7 @@ type AccordionItemState = {
   index: number;
   /** Whether the component is open. */
   open: boolean;
-  /**
-   * The current value.
-   * Treat it as read-only: it may be a shared frozen array when no value is set.
-   */
+  /** The current value. */
   value: any[];
   /** Whether the component should ignore user interaction. */
   disabled: boolean;
@@ -276,10 +267,7 @@ type AccordionHeaderState = {
   index: number;
   /** Whether the component is open. */
   open: boolean;
-  /**
-   * The current value.
-   * Treat it as read-only: it may be a shared frozen array when no value is set.
-   */
+  /** The current value. */
   value: any[];
   /** Whether the component should ignore user interaction. */
   disabled: boolean;
@@ -345,10 +333,7 @@ type AccordionPanelState = {
   index: number;
   /** Whether the component is open. */
   open: boolean;
-  /**
-   * The current value.
-   * Treat it as read-only: it may be a shared frozen array when no value is set.
-   */
+  /** The current value. */
   value: any[];
   /** Whether the component should ignore user interaction. */
   disabled: boolean;
@@ -367,10 +352,16 @@ type AccordionPanelState = {
 
 ## Additional Types
 
-### AccordionValue
+### AccordionInputValue
 
 ```typescript
-type AccordionValue<Value = any> = Value[];
+type AccordionInputValue<Value = any> = Value[];
+```
+
+### AccordionOutputValue
+
+```typescript
+type AccordionOutputValue<Value = any> = Value[];
 ```
 
 ## External Types
@@ -388,7 +379,7 @@ type Orientation = 'horizontal' | 'vertical';
 - `Accordion.Header`: `Accordion.Header`, `Accordion.Header.State`, `Accordion.Header.Props`
 - `Accordion.Trigger`: `Accordion.Trigger`, `Accordion.Trigger.State`, `Accordion.Trigger.Props`
 - `Accordion.Panel`: `Accordion.Panel`, `Accordion.Panel.State`, `Accordion.Panel.Props`
-- `Default`: `AccordionValue`, `AccordionRootState`, `AccordionRootProps`, `AccordionRootChangeEventReason`, `AccordionRootChangeEventDetails`, `AccordionItemState`, `AccordionItemProps`, `AccordionItemChangeEventReason`, `AccordionItemChangeEventDetails`, `AccordionHeaderState`, `AccordionHeaderProps`, `AccordionTriggerState`, `AccordionTriggerProps`, `AccordionPanelState`, `AccordionPanelProps`
+- `Default`: `AccordionInputValue`, `AccordionOutputValue`, `AccordionRootState`, `AccordionRootProps`, `AccordionRootChangeEventReason`, `AccordionRootChangeEventDetails`, `AccordionItemState`, `AccordionItemProps`, `AccordionItemChangeEventReason`, `AccordionItemChangeEventDetails`, `AccordionHeaderState`, `AccordionHeaderProps`, `AccordionTriggerState`, `AccordionTriggerProps`, `AccordionPanelState`, `AccordionPanelProps`
 
 ## Canonical Types
 
