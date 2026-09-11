@@ -427,6 +427,22 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
         return;
       }
 
+      // Keep only the characters the typed path would accept, so pasting "12abc" yields "12"
+      // instead of displaying the trailing invalid characters (parseNumber salvages a leading
+      // number via parseFloat, so a null check alone wouldn't catch them).
+      const allowedNonNumericKeys = getAllowedNonNumericKeys();
+      const validCharacterString = Array.from(pastedData)
+        .filter(
+          (ch) =>
+            isNumeralChar(ch) ||
+            ANY_MINUS_DETECT_RE.test(ch) ||
+            allowedNonNumericKeys.has(ch) ||
+            // Bidi/format controls are stripped by `parseNumber`; don't let them reject the string
+            // (RTL locales insert them around exponent/currency signs, e.g. scientific notation).
+            FORMAT_CONTROL_DETECT_RE.test(ch),
+        )
+        .join('');
+      pastedData = validCharacterString;
       // Prevent `onChange` from being called.
       event.preventDefault();
 
