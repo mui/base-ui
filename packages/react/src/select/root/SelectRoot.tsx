@@ -574,11 +574,11 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   );
 }
 
-type SelectInputValue<Value, Multiple extends boolean | undefined> = Multiple extends true
+export type SelectInputValue<Value, Multiple extends boolean | undefined> = Multiple extends true
   ? readonly Value[]
   : Value;
 
-type SelectOutputValue<Value, Multiple extends boolean | undefined> = Multiple extends true
+export type SelectOutputValue<Value, Multiple extends boolean | undefined> = Multiple extends true
   ? Value[]
   : Value;
 

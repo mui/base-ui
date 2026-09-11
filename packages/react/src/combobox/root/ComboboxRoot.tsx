@@ -36,11 +36,11 @@ type ModeFromMultiple<Multiple extends boolean | undefined> = Multiple extends t
   ? 'multiple'
   : 'single';
 
-type ComboboxInputValue<Value, Multiple extends boolean | undefined> = Multiple extends true
+export type ComboboxInputValue<Value, Multiple extends boolean | undefined> = Multiple extends true
   ? Value[]
   : Value;
 
-type ComboboxOutputValue<Value, Multiple extends boolean | undefined> = Multiple extends true
+export type ComboboxOutputValue<Value, Multiple extends boolean | undefined> = Multiple extends true
   ? Value[]
   : Value;
 
