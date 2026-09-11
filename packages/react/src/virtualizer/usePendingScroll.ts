@@ -151,6 +151,8 @@ export function usePendingScroll<RowModel>(
    */
   const viewportScrollTopRef = React.useRef<number | null>(null);
   const viewportScrollFrame = useAnimationFrame();
+  const measurementFrame = useAnimationFrame();
+  const retryRef = React.useRef<(() => void) | null>(null);
 
   const rowsInsetTotal = rowsInset.start + rowsInset.end;
 
@@ -165,10 +167,12 @@ export function usePendingScroll<RowModel>(
     requiresAdaptiveEstimateRef.current = false;
     viewportScrollTopRef.current = null;
     viewportScrollFrame.cancel();
+    measurementFrame.cancel();
   });
 
   /** Retires a request whose destination is now where it was asked to be. */
   const settle = useStableCallback(() => {
+    measurementFrame.cancel();
     rowIndexRef.current = null;
     rowIdRef.current = null;
     requiresAdaptiveEstimateRef.current = false;
@@ -205,6 +209,21 @@ export function usePendingScroll<RowModel>(
     }
   });
 
+  const waitForMeasurement = useStableCallback((rowIndex: number) => {
+    const rowsParent = getRowsParent();
+    if (
+      rowsParent != null &&
+      getLaidOutRowElements(rowsParent).some(
+        (element) => Number(element.dataset.rowIndex) === rowIndex,
+      )
+    ) {
+      // A first measurement matching the estimate only changes the engine's measured flag;
+      // it does not publish new geometry. Retry after ResizeObserver has had a chance to
+      // deliver it, or the request can wait forever for a geometry update that never comes.
+      measurementFrame.request(() => retryRef.current?.());
+    }
+  });
+
   const scrollRowIntoView = useStableCallback(
     (rowIndex: number, requireMeasurement = false, align: VirtualizerScrollAlignment = 'auto') => {
       const scrollElement = scrollElementRef.current;
@@ -220,6 +239,7 @@ export function usePendingScroll<RowModel>(
       // the real row measurement; treating an estimated position as final can leave only the
       // zero-sized focus proxy mounted after row heights expand.
       if (requireMeasurement && !measured) {
+        waitForMeasurement(rowIndex);
         return false;
       }
 
@@ -292,6 +312,7 @@ export function usePendingScroll<RowModel>(
       }
 
       if (!measured) {
+        waitForMeasurement(rowIndex);
         return false;
       }
 
@@ -508,6 +529,8 @@ export function usePendingScroll<RowModel>(
       settle();
     }
   });
+
+  retryRef.current = retry;
 
   // The window computation reads the outstanding request during render, so these must stay
   // callable there: they only read refs.
