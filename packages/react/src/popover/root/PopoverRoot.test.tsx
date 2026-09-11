@@ -4,7 +4,14 @@ import { Popover } from '@base-ui/react/popover';
 import { Combobox } from '@base-ui/react/combobox';
 import { Menu } from '@base-ui/react/menu';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
-import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
+import {
+  act,
+  fireEvent,
+  flushMicrotasks,
+  screen,
+  waitFor,
+  reactMajor,
+} from '@mui/internal-test-utils';
 import {
   createRenderer,
   createCommitPhases,
@@ -2216,7 +2223,10 @@ describe('<Popover.Root />', () => {
       });
     });
   });
-  describe.skipIf(isJSDOM)('render counts', () => {
+
+  // React 19 only: the recorded sequences are specific to its scheduling, and the legacy React
+  // workflow re-runs this whole suite against React 18.
+  describe.skipIf(isJSDOM || reactMajor < 19)('render counts', () => {
     const { render: renderNonStrict } = createRenderer({ strict: false });
     const rows = Array.from({ length: 10 }, (_, index) => index);
 

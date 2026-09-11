@@ -6631,7 +6631,10 @@ describe('<Select.Root />', () => {
       });
     });
   });
-  describe.skipIf(isJSDOM)('render counts', () => {
+
+  // React 19 only: the recorded sequences are specific to its scheduling, and the legacy React
+  // workflow re-runs this whole suite against React 18.
+  describe.skipIf(isJSDOM || reactMajor < 19)('render counts', () => {
     const { render: renderNonStrict } = createRenderer({ strict: false });
     const rows = Array.from({ length: 10 }, (_, index) => index);
     const items = Array.from({ length: 5 }, (_, index) => ({

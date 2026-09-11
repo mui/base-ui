@@ -8,6 +8,7 @@ import {
   ignoreActWarnings,
   screen,
   waitFor,
+  reactMajor,
 } from '@mui/internal-test-utils';
 import { DirectionProvider } from '@base-ui/react/direction-provider';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
@@ -3186,7 +3187,10 @@ describe('<Menu.Root />', () => {
       expect(screen.queryByRole('menuitem', { name: 'Add to Library' })).toHaveFocus();
     });
   });
-  describe.skipIf(isJSDOM)('render counts', () => {
+
+  // React 19 only: the recorded sequences are specific to its scheduling, and the legacy React
+  // workflow re-runs this whole suite against React 18.
+  describe.skipIf(isJSDOM || reactMajor < 19)('render counts', () => {
     const { render: renderNonStrict } = createRenderer({ strict: false });
     const rows = Array.from({ length: 10 }, (_, index) => index);
     const items = Array.from({ length: 5 }, (_, index) => index);

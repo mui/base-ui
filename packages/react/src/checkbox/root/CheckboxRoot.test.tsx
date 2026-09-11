@@ -1,6 +1,6 @@
 import { expect, vi, describe, it } from 'vitest';
 import * as React from 'react';
-import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
+import { act, fireEvent, screen, waitFor, reactMajor } from '@mui/internal-test-utils';
 import { Checkbox } from '@base-ui/react/checkbox';
 import { CheckboxGroup } from '@base-ui/react/checkbox-group';
 import { Field } from '@base-ui/react/field';
@@ -1790,7 +1790,10 @@ describe('<Checkbox.Root />', () => {
     await user.click(checkbox);
     expect(checkbox).toHaveAttribute('aria-checked', 'false');
   });
-  describe.skipIf(isJSDOM)('render counts', () => {
+
+  // React 19 only: the recorded sequences are specific to its scheduling, and the legacy React
+  // workflow re-runs this whole suite against React 18.
+  describe.skipIf(isJSDOM || reactMajor < 19)('render counts', () => {
     const rows = Array.from({ length: 10 }, (_, index) => index);
 
     it('mounting 10 instances', async () => {

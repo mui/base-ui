@@ -1,6 +1,13 @@
 import { expect, vi, describe, beforeAll, it } from 'vitest';
 import * as React from 'react';
-import { act, flushMicrotasks, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
+import {
+  act,
+  flushMicrotasks,
+  fireEvent,
+  screen,
+  waitFor,
+  reactMajor,
+} from '@mui/internal-test-utils';
 import { DirectionProvider, type TextDirection } from '@base-ui/react/direction-provider';
 import { Field } from '@base-ui/react/field';
 import { Slider } from '@base-ui/react/slider';
@@ -3562,7 +3569,10 @@ describe('<Slider.Root />', () => {
       );
     });
   });
-  describe.skipIf(isJSDOM)('render counts', () => {
+
+  // React 19 only: the recorded sequences are specific to its scheduling, and the legacy React
+  // workflow re-runs this whole suite against React 18.
+  describe.skipIf(isJSDOM || reactMajor < 19)('render counts', () => {
     const { render: renderNonStrict } = createRenderer({ strict: false });
     const rows = Array.from({ length: 10 }, (_, index) => index);
 

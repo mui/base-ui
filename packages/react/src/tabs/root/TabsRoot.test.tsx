@@ -1,6 +1,14 @@
 import { expect, vi, describe, beforeEach, it } from 'vitest';
 import * as React from 'react';
-import { act, flushMicrotasks, fireEvent, screen, waitFor, within } from '@mui/internal-test-utils';
+import {
+  act,
+  flushMicrotasks,
+  fireEvent,
+  screen,
+  waitFor,
+  within,
+  reactMajor,
+} from '@mui/internal-test-utils';
 import { DirectionProvider, type TextDirection } from '@base-ui/react/direction-provider';
 import { Popover } from '@base-ui/react/popover';
 import { Dialog } from '@base-ui/react/dialog';
@@ -2599,7 +2607,10 @@ describe('<Tabs.Root />', () => {
       expect(secondTab).toHaveAttribute('aria-selected', 'false');
     });
   });
-  describe.skipIf(isJSDOM)('render counts', () => {
+
+  // React 19 only: the recorded sequences are specific to its scheduling, and the legacy React
+  // workflow re-runs this whole suite against React 18.
+  describe.skipIf(isJSDOM || reactMajor < 19)('render counts', () => {
     const { render: renderNonStrict } = createRenderer({ strict: false });
     const rows = Array.from({ length: 10 }, (_, index) => index);
     const tabValues = ['overview', 'details', 'activity'] as const;

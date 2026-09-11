@@ -1,7 +1,14 @@
 import { expect, vi, describe, beforeEach, it, afterEach } from 'vitest';
 import type { CDPSession } from '@vitest/browser-playwright';
 import * as React from 'react';
-import { act, fireEvent, screen, waitFor, flushMicrotasks } from '@mui/internal-test-utils';
+import {
+  act,
+  fireEvent,
+  screen,
+  waitFor,
+  flushMicrotasks,
+  reactMajor,
+} from '@mui/internal-test-utils';
 import { AlertDialog } from '@base-ui/react/alert-dialog';
 import { Dialog } from '@base-ui/react/dialog';
 import {
@@ -2247,7 +2254,10 @@ describe('<Dialog.Root />', () => {
       expect(field).not.toHaveFocus();
     },
   );
-  describe.skipIf(isJSDOM)('render counts', () => {
+
+  // React 19 only: the recorded sequences are specific to its scheduling, and the legacy React
+  // workflow re-runs this whole suite against React 18.
+  describe.skipIf(isJSDOM || reactMajor < 19)('render counts', () => {
     const { render: renderNonStrict } = createRenderer({ strict: false });
     const rows = Array.from({ length: 10 }, (_, index) => index);
 

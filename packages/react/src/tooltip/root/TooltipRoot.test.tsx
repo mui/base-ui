@@ -1,7 +1,14 @@
 import { expect, vi, describe, beforeEach, afterEach, it } from 'vitest';
 import * as React from 'react';
 import { Tooltip } from '@base-ui/react/tooltip';
-import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
+import {
+  act,
+  fireEvent,
+  flushMicrotasks,
+  screen,
+  waitFor,
+  reactMajor,
+} from '@mui/internal-test-utils';
 import {
   createRenderer,
   createCommitPhases,
@@ -1559,7 +1566,10 @@ describe('<Tooltip.Root />', () => {
       expect(screen.getByTestId('popup')).toBeVisible();
     });
   });
-  describe.skipIf(isJSDOM)('render counts', () => {
+
+  // React 19 only: the recorded sequences are specific to its scheduling, and the legacy React
+  // workflow re-runs this whole suite against React 18.
+  describe.skipIf(isJSDOM || reactMajor < 19)('render counts', () => {
     const { render: renderNonStrict } = createRenderer({ strict: false });
     const rows = Array.from({ length: 10 }, (_, index) => index);
     // The real cursor persists across the run and can come to rest over one of these triggers,

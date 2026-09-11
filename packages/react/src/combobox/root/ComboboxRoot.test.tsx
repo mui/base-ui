@@ -13207,7 +13207,10 @@ describe('<Combobox.Root />', () => {
       expect(input).toHaveFocus();
     });
   });
-  describe.skipIf(isJSDOM)('render counts', () => {
+
+  // React 19 only: the recorded sequences are specific to its scheduling, and the legacy React
+  // workflow re-runs this whole suite against React 18.
+  describe.skipIf(isJSDOM || reactMajor < 19)('render counts', () => {
     const { render: renderNonStrict } = createRenderer({ strict: false });
     // Referentially stable across renders, so `React.memo` on the items can legitimately bail:
     // what makes them re-render per keystroke is whether they subscribe to a context that changes.

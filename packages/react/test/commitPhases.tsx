@@ -24,6 +24,10 @@ export type CommitPhase = 'mount' | 'update' | 'nested-update';
  * on machine load, so no amount of waiting makes it reproducible. `Tabs.Indicator` and
  * `ScrollArea`'s scrollbars both behave that way. Measure a scenario over repeated runs before
  * committing its snapshot, and leave such parts out rather than weakening the assertion.
+ *
+ * Recorded sequences are also specific to one React version, and the legacy React workflow re-runs
+ * this whole suite against React 18, so gate a scenario with
+ * `describe.skipIf(isJSDOM || reactMajor < 19)`.
  */
 export function createCommitPhases() {
   const phases: CommitPhase[] = [];
