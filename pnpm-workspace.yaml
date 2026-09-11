@@ -37,7 +37,7 @@ overrides:
   # via lerna -> make-fetch-happen -> socks (GHSA-mwp4-54f8-5fhr, -22jq-vg5j-6vgg, -4xrf-jv44-h6hh)
   ip-address: '^10.7.0'
   # via lerna/stylelint -> cosmiconfig (GHSA-5p4m-2wfm-xmqj, -52cp-r559-cp3m, -h67p-54hq-rp68)
-  js-yaml@4: '^4.3.2'
+  js-yaml@4: '^5.4.1'
   # via postcss (GHSA-2v37-7h3g-55p8)
   nanoid@3: '^3.3.18'
   # via lerna; also picks up the fixed axios and tmp (GHSA-vp3h-ghgh-jr7g)
