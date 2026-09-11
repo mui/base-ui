@@ -9,6 +9,7 @@ import { DocsProviders } from 'docs/src/components/DocsProviders';
 import * as SideNav from 'docs/src/components/SideNav';
 import * as QuickNav from 'docs/src/components/QuickNav/QuickNav';
 import { Header } from 'docs/src/components/Header';
+import { LlmsNudge } from 'docs/src/components/LlmsNudge';
 import { MAIN_CONTENT_ID } from 'docs/src/components/SkipNav';
 import { sitemap } from 'docs/src/app/sitemap';
 import { GitHubIcon } from 'docs/src/icons/GitHubIcon';
@@ -108,7 +109,10 @@ export default function Layout({ children }: React.PropsWithChildren) {
                     </SideNav.Root>
 
                     <main className="ContentLayoutMain" id={MAIN_CONTENT_ID}>
-                      <QuickNav.Container>{children}</QuickNav.Container>
+                      <QuickNav.Container>
+                        {children}
+                        <LlmsNudge carrier="text" />
+                      </QuickNav.Container>
                     </main>
                   </div>
                 </div>
