@@ -6,7 +6,14 @@ import { ownerDocument } from '@base-ui/utils/owner';
 import { inertValue } from '@base-ui/utils/inertValue';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import { activeElement, closest, contains, getTarget } from '../../floating-ui-react/utils';
+import {
+  activeElement,
+  closest,
+  contains,
+  disableFocusInside,
+  enableFocusInside,
+  getTarget,
+} from '../../floating-ui-react/utils';
 import type { BaseUIComponentProps, HTMLProps } from '../../internals/types';
 import type { ToastObject as ToastObjectType } from '../useToastManager';
 import { ToastRootContext } from './ToastRootContext';
@@ -459,14 +466,30 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
   }
 
   const isHighPriority = toast.priority === 'high';
+  const hideFromAT = isHighPriority && !focused;
+
+  // High-priority toasts are announced by a sibling live region, so the
+  // alertdialog stays aria-hidden until F6. While hidden it must not remain a
+  // tab stop, including interactive descendants.
+  useIsoLayoutEffect(() => {
+    const element = rootRef.current;
+    if (!element || !hideFromAT) {
+      return undefined;
+    }
+
+    disableFocusInside(element);
+    return () => {
+      enableFocusInside(element);
+    };
+  }, [hideFromAT]);
 
   const defaultProps: HTMLProps = {
     role: isHighPriority ? 'alertdialog' : 'dialog',
-    tabIndex: 0,
+    tabIndex: hideFromAT ? -1 : 0,
     'aria-modal': false,
     'aria-labelledby': titleId,
     'aria-describedby': descriptionId,
-    'aria-hidden': isHighPriority && !focused ? true : undefined,
+    'aria-hidden': hideFromAT ? true : undefined,
     onPointerDown: swipeEnabled ? handlePointerDown : undefined,
     onPointerMove: swipeEnabled ? handlePointerMove : undefined,
     onPointerUp: swipeEnabled ? handleSwipeEnd : undefined,
@@ -490,8 +513,9 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
       recalculateHeight,
       visibleIndex,
       expanded,
+      hideFromAT,
     }),
-    [toast, setTitleId, setDescriptionId, recalculateHeight, visibleIndex, expanded],
+    [toast, setTitleId, setDescriptionId, recalculateHeight, visibleIndex, expanded, hideFromAT],
   );
 
   const state: ToastRootState = {
