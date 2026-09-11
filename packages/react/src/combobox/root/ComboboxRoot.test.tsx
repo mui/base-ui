@@ -3653,6 +3653,80 @@ describe('<Combobox.Root />', () => {
       expect(input).toHaveValue('Ba');
     });
 
+    it('fills the input with the selected item when rendered inline', async () => {
+      const { user } = await render(
+        <Combobox.Root inline open items={['Apple', 'Banana']}>
+          <Combobox.Input data-testid="input" />
+          <Combobox.List>
+            {(item) => (
+              <Combobox.Item key={item} value={item}>
+                {item}
+              </Combobox.Item>
+            )}
+          </Combobox.List>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByTestId('input');
+      await user.click(screen.getByRole('option', { name: 'Banana' }));
+
+      expect(input).toHaveValue('Banana');
+    });
+
+    it('fills the inline input when closing is canceled', async () => {
+      const { user } = await render(
+        <Dialog.Root open>
+          <Dialog.Portal>
+            <Dialog.Popup>
+              <Combobox.Root
+                inline
+                open
+                onOpenChange={(nextOpen, eventDetails) => {
+                  if (!nextOpen) {
+                    eventDetails.cancel();
+                  }
+                }}
+              >
+                <Combobox.Input data-testid="input" />
+                <Combobox.List>
+                  <Combobox.Item value="Banana">Banana</Combobox.Item>
+                </Combobox.List>
+              </Combobox.Root>
+            </Dialog.Popup>
+          </Dialog.Portal>
+        </Dialog.Root>,
+      );
+
+      await user.click(screen.getByRole('option', { name: 'Banana' }));
+
+      expect(screen.getByTestId('input')).toHaveValue('Banana');
+    });
+
+    it('fills the inline input inside a persistent dialog', async () => {
+      const { user } = await render(
+        <Dialog.Root open>
+          <Dialog.Portal>
+            <Dialog.Popup>
+              <Combobox.Root inline open items={['Apple', 'Banana']}>
+                <Combobox.Input data-testid="input" />
+                <Combobox.List>
+                  {(item) => (
+                    <Combobox.Item key={item} value={item}>
+                      {item}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Root>
+            </Dialog.Popup>
+          </Dialog.Portal>
+        </Dialog.Root>,
+      );
+
+      await user.click(screen.getByRole('option', { name: 'Banana' }));
+
+      expect(screen.getByTestId('input')).toHaveValue('Banana');
+    });
+
     it('bubbles Escape key when list is empty and popup hidden with CSS', async () => {
       const onOuterKeyDown = vi.fn();
 
@@ -10427,12 +10501,24 @@ describe('<Combobox.Root />', () => {
       );
     }
 
-    function DialogSingleCombobox({ defaultOpen = true }: { defaultOpen?: boolean }) {
+    function DialogSingleCombobox({
+      defaultOpen = true,
+      onInputValueChange,
+    }: {
+      defaultOpen?: boolean;
+      onInputValueChange?: Combobox.Root.Props<string>['onInputValueChange'];
+    }) {
       const [open, setOpen] = React.useState(defaultOpen);
       const inputId = React.useId();
 
       return (
-        <Combobox.Root items={fruits} open={open} onOpenChange={setOpen} inline>
+        <Combobox.Root
+          items={fruits}
+          open={open}
+          onOpenChange={setOpen}
+          onInputValueChange={onInputValueChange}
+          inline
+        >
           <Dialog.Root open={open} onOpenChange={setOpen}>
             <Dialog.Trigger data-testid="dialog-trigger">
               <Combobox.Value>
@@ -10603,6 +10689,31 @@ describe('<Combobox.Root />', () => {
         await waitFor(() => {
           expect(trigger).toHaveTextContent('Apple');
         });
+      });
+
+      it('does not fill the filter input when the dialog closes', async () => {
+        if (reactMajor <= 18) {
+          ignoreActWarnings();
+        }
+
+        const onInputValueChange = vi.fn();
+        const { user } = await render(
+          <DialogSingleCombobox onInputValueChange={onInputValueChange} />,
+        );
+
+        const input = await screen.findByTestId('dialog-input');
+        await user.type(input, 'ap');
+        await user.click(screen.getByRole('option', { name: 'Apple' }));
+        expect(input).not.toHaveValue('Apple');
+
+        await waitFor(() => {
+          expect(screen.queryByRole('dialog', { name: 'Fruit chooser' })).toBe(null);
+        });
+
+        expect(onInputValueChange.mock.calls).not.toContainEqual([
+          'Apple',
+          expect.objectContaining({ reason: REASONS.itemPress }),
+        ]);
       });
 
       it('clears the filter input when re-opening after a selection', async () => {
