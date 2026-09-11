@@ -31,7 +31,7 @@ jobs:
       - run: pnpm install
       - run: pnpm release:build
       - name: Publish packages
-        uses: mui/mui-public/.github/actions/ci-publish@1c5627440adc8bc5990c9b1c95fb4b74d375345e # master
+        uses: mui/mui-public/.github/actions/ci-publish@c13d72d8221b544497ea5dc8cbf44eb9782bd558 # master
         with:
           pr-comment: true
 
@@ -97,7 +97,7 @@ jobs:
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
       - name: Prepare for publishing
-        uses: mui/mui-public/.github/actions/publish-prepare@1c5627440adc8bc5990c9b1c95fb4b74d375345e # master
+        uses: mui/mui-public/.github/actions/publish-prepare@c13d72d8221b544497ea5dc8cbf44eb9782bd558 # master
         with:
           node-version: '22.23.2'
       - name: Dry run npm publishing
