@@ -359,7 +359,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
     [items],
   );
 
-  const filteredItems: Item[] | Group<Item>[] = React.useMemo(() => {
+  const filteredItems: readonly Item[] | Group<Item>[] = React.useMemo(() => {
     if (filteredItemsProp && !shouldIgnoreExternalFiltering) {
       return filteredItemsProp as Item[] | Group<Item>[];
     }

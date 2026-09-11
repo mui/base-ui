@@ -7,7 +7,7 @@ import type { BaseUIEventReasons } from '../internals/reasons';
 import type { LabelableContext } from '../internals/labelable-provider/LabelableContext';
 
 export interface CheckboxGroupContext {
-  value: string[];
+  value: readonly string[];
   setValue: (
     value: string[],
     eventDetails: BaseUIChangeEventDetails<BaseUIEventReasons['none']>,
