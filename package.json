@@ -84,9 +84,9 @@
     "@types/react": "19.2.18",
     "@typescript/native": "npm:typescript@7.0.2",
     "@vitejs/plugin-react": "6.1.1",
-    "@vitest/browser-playwright": "4.1.11",
-    "@vitest/coverage-istanbul": "4.1.11",
-    "@vitest/ui": "4.1.11",
+    "@vitest/browser-playwright": "5.0.0",
+    "@vitest/coverage-istanbul": "5.0.0",
+    "@vitest/ui": "5.0.0",
     "concurrently": "10.0.5",
     "cross-env": "10.1.0",
     "docs": "workspace:^",
@@ -111,7 +111,7 @@
     "tsx": "4.23.13",
     "typescript": "npm:@typescript/typescript6@6.0.2",
     "vite": "8.2.2",
-    "vitest": "4.1.11"
+    "vitest": "5.0.0"
   },
   "config": {
     "valeVersion": "3.21.0"
