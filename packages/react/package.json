@@ -140,7 +140,7 @@
     "@testing-library/user-event": "14.6.3",
     "@types/luxon": "3.7.5",
     "@types/react": "19.2.18",
-    "@types/react-dom": "19.2.4",
+    "@types/react-dom": "19.2.7",
     "@types/use-sync-external-store": "1.5.0",
     "clsx": "2.1.1",
     "date-fns": "4.4.0",
