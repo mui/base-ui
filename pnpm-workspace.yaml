@@ -27,7 +27,7 @@ overrides:
   # Screen recording is not needed for the tests and pulls in ffmpeg-static.
   '@guidepup/setup>@guidepup/record': '-'
   # via lerna -> minimatch, eslint-plugin-* -> minimatch (GHSA-3jxr-9vmj-r5cp)
-  brace-expansion@1: '1.1.18'
+  brace-expansion@1: '5.0.9'
   brace-expansion@2: '2.1.4'
   brace-expansion@5: '5.0.9'
   # via nx -> axios (GHSA-hmw2-7cc7-3qxx)
