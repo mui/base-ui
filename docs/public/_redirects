@@ -24,3 +24,7 @@
 # At the time of adding this rule, there was requirement of at max only a single args[] param
 /production-error/:code args\[\]=:args /production-error?code=:code&args[]=:args 301
 /production-error/:code /production-error?code=:code 301
+
+# 2026
+
+/react/components/radio /react/components/radio-group 301
