@@ -12,7 +12,7 @@ import { act, screen, fireEvent } from '@mui/internal-test-utils';
 import { describeConformance } from '../../test/describeConformance';
 
 describe('<RadioGroup />', () => {
-  const { render } = createRenderer();
+  const { render, renderToString } = createRenderer();
 
   describeConformance(<RadioGroup />, () => ({
     refInstanceof: window.HTMLDivElement,
@@ -902,6 +902,20 @@ describe('<RadioGroup />', () => {
 
     expect(radioA).not.toHaveAttribute('tabindex', '0');
     expect(radioB).toHaveAttribute('tabindex', '0');
+  });
+
+  describe('server-side rendering', () => {
+    it('puts a roving tab stop on the first radio in the server markup', () => {
+      renderToString(
+        <RadioGroup>
+          <Radio.Root value="male" data-testid="male" />
+          <Radio.Root value="female" data-testid="female" />
+        </RadioGroup>,
+      );
+
+      expect(screen.getByTestId('male')).toHaveAttribute('tabindex', '0');
+      expect(screen.getByTestId('female')).toHaveAttribute('tabindex', '-1');
+    });
   });
 
   describe('with native <label>', () => {
