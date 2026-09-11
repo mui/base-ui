@@ -18,6 +18,7 @@ import { platform } from '@base-ui/utils/platform';
 import userEvent from '@testing-library/user-event';
 import {
   createRenderer,
+  createCommitPhases,
   enterWithMouse,
   isJSDOM,
   moveMouse,
@@ -3183,6 +3184,89 @@ describe('<Menu.Root />', () => {
       await user.keyboard('{ArrowDown}'); // loops back to Add to Library
 
       expect(screen.queryByRole('menuitem', { name: 'Add to Library' })).toHaveFocus();
+    });
+  });
+  describe.skipIf(isJSDOM)('render counts', () => {
+    const { render: renderNonStrict } = createRenderer({ strict: false });
+    const rows = Array.from({ length: 10 }, (_, index) => index);
+    const items = Array.from({ length: 5 }, (_, index) => index);
+
+    it('mounting 10 instances', async () => {
+      const phases = createCommitPhases();
+
+      await renderNonStrict(
+        phases.wrap(
+          <div>
+            {rows.map((row) => (
+              <Menu.Root key={row}>
+                <Menu.Trigger aria-label={`Open Menu ${row + 1}`}>Menu {row + 1}</Menu.Trigger>
+                <Menu.Portal>
+                  <Menu.Positioner sideOffset={8}>
+                    <Menu.Popup>
+                      {items.map((item) => (
+                        <Menu.Item key={item}>Menu item {item + 1}</Menu.Item>
+                      ))}
+                    </Menu.Popup>
+                  </Menu.Positioner>
+                </Menu.Portal>
+              </Menu.Root>
+            ))}
+          </div>,
+        ),
+      );
+
+      await phases.waitForQuiescence();
+
+      expect(phases.get()).toMatchInlineSnapshot(`
+        [
+          "mount",
+        ]
+      `);
+    });
+
+    it('opening a menu of 20 items', async () => {
+      const phases = createCommitPhases();
+      const menuItems = Array.from({ length: 20 }, (_, index) => index);
+
+      const { user } = await renderNonStrict(
+        phases.wrap(
+          <Menu.Root>
+            <Menu.Trigger data-testid="open-menu">Open menu</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner sideOffset={8} positionMethod="fixed">
+                <Menu.Popup>
+                  {menuItems.map((item) => (
+                    <Menu.Item key={item}>Menu item {item + 1}</Menu.Item>
+                  ))}
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>,
+        ),
+      );
+
+      await phases.waitForQuiescence();
+      phases.reset();
+
+      await user.click(screen.getByTestId('open-menu'));
+      await screen.findByRole('menu');
+      await phases.waitForQuiescence();
+
+      expect(phases.get()).toMatchInlineSnapshot(`
+        [
+          "update",
+          "update",
+          "update",
+          "nested-update",
+          "nested-update",
+          "nested-update",
+          "nested-update",
+          "nested-update",
+          "update",
+          "update",
+          "nested-update",
+        ]
+      `);
     });
   });
 });

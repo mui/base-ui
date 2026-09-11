@@ -5,7 +5,13 @@ import { Combobox } from '@base-ui/react/combobox';
 import { Menu } from '@base-ui/react/menu';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
-import { createRenderer, isJSDOM, popupConformanceTests, wait } from '#test-utils';
+import {
+  createRenderer,
+  createCommitPhases,
+  isJSDOM,
+  popupConformanceTests,
+  wait,
+} from '#test-utils';
 import { OPEN_DELAY } from '../utils/constants';
 import { PATIENT_CLICK_THRESHOLD } from '../../internals/constants';
 import { REASONS } from '../../internals/reasons';
@@ -2208,6 +2214,44 @@ describe('<Popover.Root />', () => {
       await waitFor(() => {
         expect(screen.queryByTestId('popup')).toBe(null);
       });
+    });
+  });
+  describe.skipIf(isJSDOM)('render counts', () => {
+    const { render: renderNonStrict } = createRenderer({ strict: false });
+    const rows = Array.from({ length: 10 }, (_, index) => index);
+
+    it('mounting 10 instances', async () => {
+      const phases = createCommitPhases();
+
+      await renderNonStrict(
+        phases.wrap(
+          <div>
+            {rows.map((row) => (
+              <Popover.Root key={row}>
+                <Popover.Trigger aria-label={`Open Popover ${row + 1}`}>
+                  Popover {row + 1}
+                </Popover.Trigger>
+                <Popover.Portal>
+                  <Popover.Positioner sideOffset={8}>
+                    <Popover.Popup>
+                      <Popover.Title>Popover {row + 1}</Popover.Title>
+                      <Popover.Description>Popover content</Popover.Description>
+                    </Popover.Popup>
+                  </Popover.Positioner>
+                </Popover.Portal>
+              </Popover.Root>
+            ))}
+          </div>,
+        ),
+      );
+
+      await phases.waitForQuiescence();
+
+      expect(phases.get()).toMatchInlineSnapshot(`
+        [
+          "mount",
+        ]
+      `);
     });
   });
 });

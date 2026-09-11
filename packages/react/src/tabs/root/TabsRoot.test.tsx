@@ -5,7 +5,7 @@ import { DirectionProvider, type TextDirection } from '@base-ui/react/direction-
 import { Popover } from '@base-ui/react/popover';
 import { Dialog } from '@base-ui/react/dialog';
 import { Tabs } from '@base-ui/react/tabs';
-import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
+import { createRenderer, createCommitPhases, describeConformance, isJSDOM } from '#test-utils';
 
 describe('<Tabs.Root />', () => {
   const { render } = createRenderer();
@@ -2597,6 +2597,53 @@ describe('<Tabs.Root />', () => {
       // Selection remains the externally-set tab since activateOnFocus=false
       expect(thirdTab).toHaveAttribute('aria-selected', 'true');
       expect(secondTab).toHaveAttribute('aria-selected', 'false');
+    });
+  });
+  describe.skipIf(isJSDOM)('render counts', () => {
+    const { render: renderNonStrict } = createRenderer({ strict: false });
+    const rows = Array.from({ length: 10 }, (_, index) => index);
+    const tabValues = ['overview', 'details', 'activity'] as const;
+
+    it('mounting 10 instances', async () => {
+      const phases = createCommitPhases();
+
+      await renderNonStrict(
+        phases.wrap(
+          <div>
+            {rows.map((row) => (
+              <Tabs.Root key={row} defaultValue={tabValues[0]}>
+                <Tabs.List aria-label={`Tabs ${row + 1}`}>
+                  {tabValues.map((value) => (
+                    <Tabs.Tab key={value} value={value}>
+                      {value}
+                    </Tabs.Tab>
+                  ))}
+                  {/* `Tabs.Indicator` is deliberately left out, unlike the benchmark fixture it
+                      is ported from. It re-renders itself from a `ResizeObserver` callback that
+                      fires once or twice depending on how the layout settles, so including it
+                      makes the recorded sequence vary run to run (measured: 8 of 10) no matter how
+                      long the tree is left to quiesce. */}
+                </Tabs.List>
+                {tabValues.map((value) => (
+                  <Tabs.Panel key={value} value={value}>
+                    Tabs {row + 1} {value}
+                  </Tabs.Panel>
+                ))}
+              </Tabs.Root>
+            ))}
+          </div>,
+        ),
+      );
+
+      await phases.waitForQuiescence();
+
+      expect(phases.get()).toMatchInlineSnapshot(`
+        [
+          "mount",
+          "nested-update",
+          "update",
+        ]
+      `);
     });
   });
 });

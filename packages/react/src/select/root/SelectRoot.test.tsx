@@ -12,7 +12,13 @@ import {
   ignoreActWarnings,
   reactMajor,
 } from '@mui/internal-test-utils';
-import { createRenderer, isJSDOM, popupConformanceTests, wait } from '#test-utils';
+import {
+  createRenderer,
+  createCommitPhases,
+  isJSDOM,
+  popupConformanceTests,
+  wait,
+} from '#test-utils';
 import { Field } from '@base-ui/react/field';
 import { Form } from '@base-ui/react/form';
 
@@ -6623,6 +6629,117 @@ describe('<Select.Root />', () => {
       await waitFor(() => {
         expect(optionA).toHaveAttribute('data-highlighted');
       });
+    });
+  });
+  describe.skipIf(isJSDOM)('render counts', () => {
+    const { render: renderNonStrict } = createRenderer({ strict: false });
+    const rows = Array.from({ length: 10 }, (_, index) => index);
+    const items = Array.from({ length: 5 }, (_, index) => ({
+      value: `option-${index + 1}`,
+      label: `Option ${index + 1}`,
+    }));
+
+    it('mounting 10 instances', async () => {
+      const phases = createCommitPhases();
+
+      await renderNonStrict(
+        phases.wrap(
+          <div>
+            {rows.map((row) => (
+              <Select.Root key={row} items={items}>
+                <Select.Trigger aria-label={`Open Select ${row + 1}`}>
+                  <Select.Value placeholder={`Select ${row + 1}`} />
+                  <Select.Icon>v</Select.Icon>
+                </Select.Trigger>
+                <Select.Portal>
+                  <Select.Positioner sideOffset={8}>
+                    <Select.Popup>
+                      <Select.List>
+                        {items.map((item) => (
+                          <Select.Item key={item.value} value={item.value}>
+                            <Select.ItemIndicator />
+                            <Select.ItemText>{item.label}</Select.ItemText>
+                          </Select.Item>
+                        ))}
+                      </Select.List>
+                    </Select.Popup>
+                  </Select.Positioner>
+                </Select.Portal>
+              </Select.Root>
+            ))}
+          </div>,
+        ),
+      );
+
+      await phases.waitForQuiescence();
+
+      expect(phases.get()).toMatchInlineSnapshot(`
+        [
+          "mount",
+          "update",
+          "nested-update",
+        ]
+      `);
+    });
+
+    it('opening a select of 20 options', async () => {
+      const phases = createCommitPhases();
+      const options = Array.from({ length: 20 }, (_, index) => ({
+        value: `option-${index + 1}`,
+        label: `Option ${index + 1}`,
+      }));
+
+      const { user } = await renderNonStrict(
+        phases.wrap(
+          <Select.Root items={options}>
+            <Select.Trigger data-testid="open-select">
+              <Select.Value placeholder="Choose option" />
+              <Select.Icon>v</Select.Icon>
+            </Select.Trigger>
+            <Select.Portal>
+              <Select.Positioner sideOffset={8}>
+                <Select.Popup>
+                  <Select.List>
+                    {options.map((item) => (
+                      <Select.Item key={item.value} value={item.value}>
+                        <Select.ItemIndicator />
+                        <Select.ItemText>{item.label}</Select.ItemText>
+                      </Select.Item>
+                    ))}
+                  </Select.List>
+                </Select.Popup>
+              </Select.Positioner>
+            </Select.Portal>
+          </Select.Root>,
+        ),
+      );
+
+      await phases.waitForQuiescence();
+      phases.reset();
+
+      await user.click(screen.getByTestId('open-select'));
+      await screen.findByRole('listbox');
+      await phases.waitForQuiescence();
+
+      expect(phases.get()).toMatchInlineSnapshot(`
+        [
+          "update",
+          "update",
+          "update",
+          "nested-update",
+          "nested-update",
+          "nested-update",
+          "nested-update",
+          "update",
+          "update",
+          "nested-update",
+          "nested-update",
+          "update",
+          "nested-update",
+          "update",
+          "nested-update",
+        ]
+      `);
     });
   });
 });

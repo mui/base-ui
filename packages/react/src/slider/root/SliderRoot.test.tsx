@@ -5,7 +5,7 @@ import { DirectionProvider, type TextDirection } from '@base-ui/react/direction-
 import { Field } from '@base-ui/react/field';
 import { Slider } from '@base-ui/react/slider';
 import { Form } from '@base-ui/react/form';
-import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
+import { createRenderer, createCommitPhases, describeConformance, isJSDOM } from '#test-utils';
 import { platform } from '@base-ui/utils/platform';
 import { REASONS } from '../../internals/reasons';
 import {
@@ -3560,6 +3560,41 @@ describe('<Slider.Root />', () => {
         'aria-describedby',
         `external-description ${screen.getByTestId('description').id}`,
       );
+    });
+  });
+  describe.skipIf(isJSDOM)('render counts', () => {
+    const { render: renderNonStrict } = createRenderer({ strict: false });
+    const rows = Array.from({ length: 10 }, (_, index) => index);
+
+    it('mounting 10 instances', async () => {
+      const phases = createCommitPhases();
+
+      await renderNonStrict(
+        phases.wrap(
+          <div>
+            {rows.map((row) => (
+              <Slider.Root key={row} defaultValue={50}>
+                <Slider.Value />
+                <Slider.Control aria-label={`Slider ${row + 1}`}>
+                  <Slider.Track>
+                    <Slider.Indicator />
+                    <Slider.Thumb />
+                  </Slider.Track>
+                </Slider.Control>
+              </Slider.Root>
+            ))}
+          </div>,
+        ),
+      );
+
+      await phases.waitForQuiescence();
+
+      expect(phases.get()).toMatchInlineSnapshot(`
+        [
+          "mount",
+          "nested-update",
+        ]
+      `);
     });
   });
 });
