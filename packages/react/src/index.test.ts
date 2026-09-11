@@ -35,6 +35,28 @@ describe('@base-ui/react', () => {
     );
   });
 
+  it.skipIf(!isJSDOM)('should export metadata constants', async () => {
+    const packageJson = await import('../package.json');
+    const metadataKeys = Object.keys(packageJson.exports).filter((key) =>
+      key.endsWith('/metadata'),
+    );
+
+    expect(metadataKeys.length).toBeGreaterThan(0);
+
+    await Promise.all(
+      metadataKeys.map(async (subpath) => {
+        const importSpecifier = `@base-ui/react/${subpath.replace('./', '')}`;
+        const module = await import(/* @vite-ignore */ importSpecifier);
+
+        Object.entries(module).forEach(([namespaceKey, namespace]) => {
+          Object.entries(namespace as Record<string, string>).forEach(([constantKey, value]) => {
+            expect(value, `${subpath} ${namespaceKey}.${constantKey}`).toMatch(/^(data-|--)/);
+          });
+        });
+      }),
+    );
+  });
+
   it.skipIf(!isJSDOM)('should have the correct root exports', async () => {
     const packageJson = await import('../package.json');
     const subpathExports = packageJson.exports;
@@ -45,7 +67,9 @@ describe('@base-ui/react', () => {
           (key) =>
             !['.', './utils', './types'].includes(key) &&
             !key.startsWith('./unstable-') &&
-            !key.startsWith('./internals/'),
+            !key.startsWith('./internals/') &&
+            // Metadata is opt-in and intentionally kept off the root barrel.
+            !key.endsWith('/metadata'),
         )
         .map(async (subpath) => {
           const importSpecifier = `@base-ui/react/${subpath.replace('./', '')}`;

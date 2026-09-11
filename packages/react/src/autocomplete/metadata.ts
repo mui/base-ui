@@ -1,0 +1,10 @@
+export * as AutocompleteTriggerDataAttributes from './trigger/AutocompleteTriggerDataAttributes';
+export * as AutocompleteInputDataAttributes from '../combobox/input/ComboboxInputDataAttributes';
+export * as AutocompleteInputGroupDataAttributes from './input-group/AutocompleteInputGroupDataAttributes';
+export * as AutocompleteClearDataAttributes from './clear/AutocompleteClearDataAttributes';
+export * as AutocompleteBackdropDataAttributes from '../combobox/backdrop/ComboboxBackdropDataAttributes';
+export * as AutocompletePositionerCssVars from '../combobox/positioner/ComboboxPositionerCssVars';
+export * as AutocompletePositionerDataAttributes from '../combobox/positioner/ComboboxPositionerDataAttributes';
+export * as AutocompletePopupDataAttributes from '../combobox/popup/ComboboxPopupDataAttributes';
+export * as AutocompleteArrowDataAttributes from '../combobox/arrow/ComboboxArrowDataAttributes';
+export * as AutocompleteItemDataAttributes from './item/AutocompleteItemDataAttributes';
