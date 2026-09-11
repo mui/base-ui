@@ -39,6 +39,9 @@
     @media (--show-quick-nav) {
       display: block;
       position: fixed;
+      /* Fixed elements aren't painted while a view transition excludes the root
+         (React does that for transitions that only affect named elements). */
+      view-transition-name: quick-nav;
       top: var(--header-height);
       right: max(
         var(--root-layout-padding-x),

@@ -30,6 +30,9 @@
     @media (--show-side-nav) {
       display: block;
       position: fixed;
+      /* Fixed elements aren't painted while a view transition excludes the root
+         (React does that for transitions that only affect named elements). */
+      view-transition-name: side-nav;
       top: var(--header-height);
       /* Extend left by the link padding so the hover/active pill can bleed past
          the text (logo) alignment line without being clipped by the viewport. */

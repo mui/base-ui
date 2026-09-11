@@ -216,6 +216,42 @@ function App() {
 }
 ```
 
+## View Transitions
+
+React 19.3 ships the [`<ViewTransition>`](https://react.dev/reference/react/ViewTransition) component, which animates DOM changes using the browser's [View Transition API](https://developer.mozilla.org/en-US/docs/Web/API/View_Transition_API).
+Base UI components work with it as long as two conditions are met:
+
+- The update that changes the UI runs inside a [Transition](https://react.dev/reference/react/startTransition). Base UI applies its own state changes as regular updates, so control the state yourself and wrap the update in `startTransition`.
+- React, not Base UI, removes the elements being animated. Components like `<Tabs.Panel>` stay mounted while their CSS exit animation plays and are removed a frame later, outside of the Transition, which makes the browser skip the view transition. Render such elements conditionally so they leave the tree within the Transition.
+
+The `::view-transition-*` pseudo-elements are rendered on the root element, so their styles must live in a global stylesheet rather than a CSS Module.
+
+When a Transition only changes the elements inside `<ViewTransition>` boundaries, React excludes the root element from the view transition so the rest of the page stays interactive.
+Chrome doesn't paint `position: fixed` elements during such a transition, so give fixed elements like headers and sidebars their own `view-transition-name`.
+
+### Animating Tabs panels with View Transitions
+
+Render only the active panel inside a `<ViewTransition>` so React can play its enter and exit animations.
+Pass the `activationDirection` from the change event details to `addTransitionType` to slide the panels toward the newly active tab.
+
+import { DemoViewTransitionTabs } from './demos/view-transition-tabs';
+
+<DemoViewTransitionTabs />
+
+### Animating list changes with View Transitions
+
+Wrap each list item in a `<ViewTransition>` so React assigns it a stable `view-transition-name`.
+When a control such as `<ToggleGroup>` changes the order of the list inside a Transition, the items animate to their new positions.
+
+import { DemoViewTransitionList } from './demos/view-transition-list';
+
+<DemoViewTransitionList />
+
+### Popups
+
+Popup components such as Dialog, Popover, and Menu render their popup hidden during the commit that opens them and reveal it right after, so a `<ViewTransition>` cannot capture their opening state.
+Use the CSS transition and animation attributes described above to animate popups.
+
 export const metadata = {
   keywords: [
     'Base UI Animation',
@@ -229,5 +265,7 @@ export const metadata = {
     'Transition Hooks',
     'Animated Components',
     'Keyframe Animations',
+    'View Transitions',
+    'React ViewTransition',
   ],
 };

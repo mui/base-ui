@@ -21,6 +21,9 @@
     justify-content: space-between;
     padding-inline: var(--content-layout-padding-x);
     position: fixed;
+    /* Fixed elements aren't painted while a view transition excludes the root
+       (React does that for transitions that only affect named elements). */
+    view-transition-name: header;
     top: 0;
     inset-inline: 0;
     background: var(--color-content);

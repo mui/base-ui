@@ -6,12 +6,12 @@
   },
   "dependencies": {
     "@base-ui/react": "workspace:*",
-    "react": "19.2.8",
-    "react-dom": "19.2.8"
+    "react": "19.3.0",
+    "react-dom": "19.3.0"
   },
   "devDependencies": {
     "@mui/internal-benchmark": "0.0.3-canary.7",
-    "@types/react": "19.2.18",
+    "@types/react": "19.3.0",
     "@vitest/browser-playwright": "4.1.10",
     "vite": "8.2.1",
     "vitest": "4.1.10"
