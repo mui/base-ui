@@ -201,9 +201,6 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   const renderedOpenMethod = openMethod ?? previousOpenMethod;
 
   const serializedValue = React.useMemo(() => {
-    // In multiple mode the shared input is nameless; per-value entries are submitted via
-    // `hiddenInputs`. Its value is therefore irrelevant, and passing the whole array to
-    // `stringifyAsValue` would invoke a user `itemToStringValue` with an array it doesn't expect.
     if (multiple) {
       return '';
     }
@@ -229,8 +226,6 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     nameProp,
   );
 
-  // Mirror the `hasSelectedValue` store selector so the Field's filled state agrees with the
-  // trigger/value placeholder semantics (a value serializing to `''` counts as empty).
   const hasSelectedValue = multiple
     ? Array.isArray(value) && value.length > 0
     : value != null && serializedValue !== '';
@@ -342,9 +337,6 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     },
   });
 
-  // `readOnly` locks the value, not the interaction: the popup can be opened and browsed so the
-  // user can see the available options and which one is selected. Committing a value is blocked
-  // separately in `SelectItem` and in the hidden input's autofill handler.
   const click = useClick(floatingContext, {
     enabled: !disabled,
     event: 'mousedown',
@@ -359,7 +351,6 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     selectedIndex,
     disabledIndices: EMPTY_ARRAY,
     onNavigate(nextActiveIndex) {
-      // Retain the highlight while transitioning out.
       if (nextActiveIndex === null && !open) {
         return;
       }
@@ -370,17 +361,10 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   });
 
   const typeahead = useTypeahead(floatingContext, {
-    // Typeahead on an open popup only moves the highlight, so it remains available while
-    // `readOnly`. The closed-trigger variant commits a value instead, so it doesn't.
     enabled: !disabled && (open || (!readOnly && !multiple)),
     listRef: labelsRef,
     activeIndex,
     selectedIndex,
-    // Skip disabled items while matching so typeahead advances to the next selectable item
-    // (a click can never select a disabled item and native `<select>` skips them too). Resolve
-    // the disabled state from the element via the attribute-only `isElementDisabled` so the
-    // hidden, force-mounted items used for closed-trigger typeahead aren't dropped by the
-    // `elementsRef`/visibility filter that `disabledIndices` deliberately sidesteps.
     disabledIndices: (index) => isElementDisabled(listRef.current[index]),
     onMatch(index) {
       if (open) {
@@ -394,7 +378,6 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     },
   });
 
-  // `Select.Trigger` applies the id itself from the store, so it's deliberately not merged here.
   const mergedTriggerProps = React.useMemo(
     () =>
       mergeProps(
@@ -432,8 +415,6 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   store.useContextCallback('handleScrollArrowVisibility', handleScrollArrowVisibility);
   store.useContextCallback('onOpenChangeComplete', onOpenChangeComplete);
 
-  // The prop bags must be in the store before the parts render. `useSyncedValues` writes in a
-  // layout effect, after all descendants have rendered.
   useOnFirstRender(() => {
     store.update({
       popupProps,
@@ -504,15 +485,11 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
       <input
         {...validation.getValidationProps(disabled, {
           onFocus() {
-            // Move focus to the trigger element when the hidden input is focused.
             store.state.triggerElement?.focus({
-              // Supported in Chrome from 144 (January 2026)
               focusVisible: true,
             });
           },
-          // Handle browser autofill.
           onChange(event: React.ChangeEvent<HTMLInputElement>) {
-            // Workaround for https://github.com/react/react/issues/9023
             if (event.nativeEvent.defaultPrevented || disabled || readOnly) {
               return;
             }
@@ -522,13 +499,9 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
 
             function handleChange() {
               if (multiple) {
-                // Browser autofill only writes a single scalar value.
                 return;
               }
 
-              // Preserve the original serialized matching, then fall back to rendered text,
-              // which browsers can autofill for primitive values like
-              // `value="US">United States`.
               const nextValueLower = nextValue.toLowerCase();
               let matchingIndex = valuesRef.current.findIndex(
                 (candidate) =>
@@ -545,8 +518,6 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
 
               const matchingValue = valuesRef.current[matchingIndex];
               if (matchingValue != null) {
-                // `setValue` may be canceled by `onValueChange`; rely on `useValueChanged` to
-                // mark the field dirty and run validation only when the value actually changes.
                 setValue(matchingValue, details);
               }
             }
@@ -574,144 +545,45 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   );
 }
 
-type SelectValueType<Value, Multiple extends boolean | undefined> = Multiple extends true
+type SelectValueInputType<Value, Multiple extends boolean | undefined> = Multiple extends true
+  ? readonly Value[]
+  : Value;
+
+type SelectValueOutputType<Value, Multiple extends boolean | undefined> = Multiple extends true
   ? Value[]
   : Value;
 
 export interface SelectRootProps<Value, Multiple extends boolean | undefined = false> {
   children?: React.ReactNode;
-  /**
-   * A ref to access the hidden input element.
-   */
   inputRef?: React.Ref<HTMLInputElement> | undefined;
-  /**
-   * Identifies the field when a form is submitted.
-   */
   name?: string | undefined;
-  /**
-   * Identifies the form that owns the hidden input.
-   * Useful when the select is rendered outside the form.
-   */
   form?: string | undefined;
-  /**
-   * Provides a hint to the browser for autofill.
-   * @see https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Attributes/autocomplete
-   */
   autoComplete?: string | undefined;
-  /**
-   * The id of the Select.
-   */
   id?: string | undefined;
-  /**
-   * Whether the user must choose a value before submitting a form.
-   * @default false
-   */
   required?: boolean | undefined;
-  /**
-   * Whether the user should be unable to choose a different option from the select popup.
-   * @default false
-   */
   readOnly?: boolean | undefined;
-  /**
-   * Whether the component should ignore user interaction.
-   * @default false
-   */
   disabled?: boolean | undefined;
-  /**
-   * Whether multiple items can be selected.
-   * @default false
-   */
   multiple?: Multiple | undefined;
-  /**
-   * Whether moving the pointer over items should highlight them.
-   * Disabling this prop allows CSS `:hover` to be differentiated from the `:focus` (`data-highlighted`) state.
-   * @default true
-   */
   highlightItemOnHover?: boolean | undefined;
-  /**
-   * Whether the select popup is initially open.
-   *
-   * To render a controlled select popup, use the `open` prop instead.
-   * @default false
-   */
   defaultOpen?: boolean | undefined;
-  /**
-   * Event handler called when the select popup is opened or closed.
-   */
   onOpenChange?: ((open: boolean, eventDetails: SelectRootChangeEventDetails) => void) | undefined;
-  /**
-   * Event handler called after any animations complete when the select popup is opened or closed.
-   */
   onOpenChangeComplete?: ((open: boolean) => void) | undefined;
-  /**
-   * Whether the select popup is currently open.
-   */
   open?: boolean | undefined;
-  /**
-   * Determines if the select enters a modal state when open.
-   * - `true`: user interaction is limited to the select: document page scroll is locked and pointer interactions on outside elements are disabled.
-   * - `false`: user interaction with the rest of the document is allowed.
-   *
-   * On touch devices, a `true` modal blocks outside taps but leaves the page scrollable unless the popup spans nearly the full viewport width, matching native iOS behavior.
-   * @default true
-   */
   modal?: boolean | undefined;
-  /**
-   * A ref to imperative actions.
-   * - `unmount`: Manually unmounts the select.
-   * Call this after any externally controlled closing animation finishes.
-   */
   actionsRef?: React.RefObject<SelectRootActions | null> | undefined;
-  /**
-   * Data structure of the items rendered in the select popup.
-   * When specified, `<Select.Value>` renders the label of the selected item instead of the raw value.
-   * @example
-   * ```tsx
-   * const items = {
-   *   sans: 'Sans-serif',
-   *   serif: 'Serif',
-   *   mono: 'Monospace',
-   *   cursive: 'Cursive',
-   * };
-   * <Select.Root items={items} />
-   * ```
-   */
   items?:
     | Record<string, React.ReactNode>
     | ReadonlyArray<{ label: React.ReactNode; value: any }>
     | ReadonlyArray<Group<any>>
     | undefined;
-  /**
-   * When the item values are objects (`<Select.Item value={object}>`), this function converts the object value to a string representation for display in the trigger.
-   * If the shape of the object is `{ value, label }`, the label will be used automatically without needing to specify this prop.
-   */
   itemToStringLabel?: ((itemValue: Value) => string) | undefined;
-  /**
-   * When the item values are objects (`<Select.Item value={object}>`), this function converts the object value to a string representation for form submission.
-   * If the shape of the object is `{ value, label }`, the value will be used automatically without needing to specify this prop.
-   */
   itemToStringValue?: ((itemValue: Value) => string) | undefined;
-  /**
-   * Custom comparison logic used to determine if a select item value matches the current selected value. Useful when item values are objects without matching referentially.
-   * Defaults to `Object.is` comparison.
-   */
   isItemEqualToValue?: ((itemValue: Value, value: Value) => boolean) | undefined;
-  /**
-   * The uncontrolled value of the select when it's initially rendered.
-   *
-   * To render a controlled select, use the `value` prop instead.
-   */
-  defaultValue?: SelectValueType<Value, Multiple> | null | undefined;
-  /**
-   * The value of the select. Use when controlled.
-   */
-  value?: SelectValueType<Value, Multiple> | null | undefined;
-  /**
-   * Event handler called when the value of the select changes.
-   */
+  defaultValue?: SelectValueInputType<Value, Multiple> | null | undefined;
+  value?: SelectValueInputType<Value, Multiple> | null | undefined;
   onValueChange?:
     | ((
-        value: SelectValueType<Value, Multiple> | (Multiple extends true ? never : null),
+        value: SelectValueOutputType<Value, Multiple> | (Multiple extends true ? never : null),
         eventDetails: SelectRootChangeEventDetails,
       ) => void)
     | undefined;
