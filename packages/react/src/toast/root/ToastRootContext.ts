@@ -8,6 +8,7 @@ export interface ToastRootContext {
   setDescriptionId: React.Dispatch<React.SetStateAction<string | undefined>>;
   visibleIndex: number;
   expanded: boolean;
+  hideFromAT: boolean;
   recalculateHeight: (flushSync?: boolean) => void;
 }
 
