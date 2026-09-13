@@ -29,7 +29,8 @@ export const NavigationMenuIcon = React.forwardRef(function NavigationMenuIcon(
   const element = useRenderElement('span', componentProps, {
     state,
     ref: forwardedRef,
-    props: [{ 'aria-hidden': true, children: '▼' }, elementProps],
+    props: [{ 'aria-hidden': true }, elementProps],
+    defaultChildren: '▼',
     stateAttributesMapping: triggerOpenStateMapping,
   });
 

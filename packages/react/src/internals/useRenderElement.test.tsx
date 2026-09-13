@@ -2,7 +2,7 @@ import { vi, expect, describe, it } from 'vitest';
 /* eslint-disable testing-library/render-result-naming-convention */
 import * as React from 'react';
 import { createRenderer } from '#test-utils';
-import { reactMajor } from '@mui/internal-test-utils';
+import { reactMajor, screen } from '@mui/internal-test-utils';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import type { BaseUIComponentProps, ComponentRenderFn, HTMLProps } from './types';
 import { useRenderElement } from './useRenderElement';
@@ -646,6 +646,57 @@ describe('useRenderElement', () => {
       expect(renderRef.current).toBeInstanceOf(HTMLDivElement);
       expect(componentRef.current).toBeInstanceOf(HTMLDivElement);
       expect(renderRef.current).toBe(componentRef.current);
+    });
+  });
+
+  describe('option: defaultChildren', () => {
+    const DefaultChildrenTestComponent = React.forwardRef(function DefaultChildrenTestComponent(
+      componentProps: BaseUIComponentProps<'span', Record<string, never>>,
+      forwardedRef: React.ForwardedRef<HTMLSpanElement>,
+    ) {
+      const { className, render: renderProp, style, ...elementProps } = componentProps;
+
+      return useRenderElement('span', componentProps, {
+        ref: forwardedRef,
+        props: [{ 'aria-hidden': true }, elementProps],
+        defaultChildren: 'DEFAULT',
+      });
+    });
+
+    it('renders defaultChildren on the default element path', async () => {
+      const { container } = await render(<DefaultChildrenTestComponent data-testid="icon" />);
+      expect(container.firstElementChild).toHaveTextContent('DEFAULT');
+    });
+
+    it('lets an explicit children prop override defaultChildren', async () => {
+      const { container } = await render(
+        <DefaultChildrenTestComponent data-testid="icon">CUSTOM</DefaultChildrenTestComponent>,
+      );
+      expect(container.firstElementChild).toHaveTextContent('CUSTOM');
+      expect(container.firstElementChild).not.toHaveTextContent('DEFAULT');
+    });
+
+    it('does not leak defaultChildren into a childless render element', async () => {
+      // Regression test for https://github.com/mui/base-ui/issues/4752 — a `render` element
+      // with no children of its own must not inherit the component's default content, since
+      // `render` implies the caller fully owns what's rendered.
+      await render(
+        <DefaultChildrenTestComponent render={<span data-testid="custom" className="my-icon" />} />,
+      );
+      const custom = screen.getByTestId('custom');
+      expect(custom).not.toHaveTextContent('DEFAULT');
+      expect(custom.textContent).toBe('');
+    });
+
+    it('does not leak defaultChildren into a render function result', async () => {
+      await render(
+        <DefaultChildrenTestComponent
+          render={(props) => <span {...props} data-testid="custom" />}
+        />,
+      );
+      const custom = screen.getByTestId('custom');
+      expect(custom).not.toHaveTextContent('DEFAULT');
+      expect(custom.textContent).toBe('');
     });
   });
 
