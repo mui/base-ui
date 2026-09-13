@@ -54,10 +54,10 @@ const Inner = React.memo(
         props: [
           {
             'aria-hidden': true,
-            children: '✔️',
           },
           elementProps,
         ],
+        defaultChildren: '✔️',
         stateAttributesMapping: transitionStatusMapping,
       });
 

@@ -688,6 +688,14 @@ describe('useRenderElement', () => {
       expect(custom.textContent).toBe('');
     });
 
+    it('preserves a render element that declares its own children', async () => {
+      await render(
+        <DefaultChildrenTestComponent render={<span data-testid="custom">CUSTOM</span>} />,
+      );
+      const custom = screen.getByTestId('custom');
+      expect(custom.textContent).toBe('CUSTOM');
+    });
+
     it('does not leak defaultChildren into a render function result', async () => {
       await render(
         <DefaultChildrenTestComponent
