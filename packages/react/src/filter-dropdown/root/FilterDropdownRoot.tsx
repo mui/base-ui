@@ -61,6 +61,7 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
 
   const ownFocusOwnerRef = React.useRef<HTMLElement | null>(null);
   const focusOwnerRef = externalFocusOwnerRef ?? ownFocusOwnerRef;
+  const keyReplayRef = React.useRef(false);
   const inputAutoFocusRef = React.useRef(false);
   const lastFilterQueryRef = React.useRef<string | null>(null);
   const defaultMatches = React.useMemo(() => getFilter({ locale }).contains, [locale]);
@@ -178,6 +179,7 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
       listId,
       setListId,
       focusOwnerRef,
+      keyReplayRef,
       setInputElement,
       setInputAutoFocus,
       setActiveIndex,

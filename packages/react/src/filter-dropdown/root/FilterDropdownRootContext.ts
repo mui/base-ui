@@ -26,6 +26,8 @@ export interface FilterDropdownRootContext {
   setListId: React.Dispatch<React.SetStateAction<string | undefined>>;
   /** The input, which owns real focus while the host uses virtual list navigation. */
   focusOwnerRef: React.RefObject<HTMLElement | null>;
+  /** Set while the list hands a key back to the input, which refocuses it mid-navigation. */
+  keyReplayRef: React.RefObject<boolean>;
   setInputElement: (element: HTMLInputElement | null) => void;
   /** Whether the input asks to be focused whenever the popup opens, hover opens included. */
   setInputAutoFocus: (autoFocus: boolean) => void;
