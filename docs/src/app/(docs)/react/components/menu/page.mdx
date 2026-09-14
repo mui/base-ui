@@ -350,7 +350,7 @@ The popup becomes a dialog that contains the input and the list, so the list is 
 Every other part stays the same.
 
 ```jsx title="Filterable menu anatomy"
-<Menu.FilterProvider closeLabel="Dismiss menu">
+<Menu.FilterProvider>
   <Menu.Root>
     <Menu.Trigger />
     <Menu.Portal>
@@ -371,8 +371,8 @@ Every other part stays the same.
 
 Give the input an accessible name with `aria-label`, `aria-labelledby`, or a visible `<label>`.
 
-A modal filterable menu (the default) keeps focus inside its popup like a dialog. Escape closes it, and a visually hidden close button lets screen reader users close it from their virtual cursor.
-Pass `closeLabel` with a translated name for that button.
+A modal filterable menu (the default) opened with the keyboard or a pointer keeps focus inside its popup until Escape closes it.
+Touch and hover opens leave focus free.
 Set `modal={false}` on the root to let Tab leave the popup instead.
 
 import { DemoMenuFilter } from './demos/filter';
@@ -400,7 +400,7 @@ Use `filter` to replace the default case-insensitive substring matching.
 It receives the item's text and each keyword individually, together with the trimmed query, and the item matches when it returns `true` for any of them:
 
 ```jsx title="Custom filter"
-<Menu.FilterProvider filter={(text, query) => text.startsWith(query)} closeLabel="Dismiss menu">
+<Menu.FilterProvider filter={(text, query) => text.startsWith(query)}>
   <Menu.Root>{/* menu parts */}</Menu.Root>
 </Menu.FilterProvider>
 ```
@@ -445,7 +445,7 @@ It announces the filterable popup once the root attaches, which happens after hy
 const handle = Menu.createHandle();
 
 <Menu.Trigger handle={handle}>Actions</Menu.Trigger>
-<Menu.FilterProvider closeLabel="Dismiss menu">
+<Menu.FilterProvider>
   <Menu.Root handle={handle}>{/* menu parts */}</Menu.Root>
 </Menu.FilterProvider>
 ```

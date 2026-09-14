@@ -41,7 +41,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
   describe('filtering', () => {
     it('marks the input focus-visible when the menu is opened with the keyboard', async () => {
       const { user } = await render(
-        <Menu.FilterProvider closeLabel="Close menu">
+        <Menu.FilterProvider>
           <Menu.Root>
             <Menu.Trigger>Actions</Menu.Trigger>
             <Menu.Portal>
@@ -73,7 +73,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
 
     it('marks the input focus-visible when the menu is opened with a pointer', async () => {
       const { user } = await render(
-        <Menu.FilterProvider closeLabel="Close menu">
+        <Menu.FilterProvider>
           <Menu.Root>
             <Menu.Trigger>Actions</Menu.Trigger>
             <Menu.Portal>
@@ -102,7 +102,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
     describe('prop: autoHighlight', () => {
       it('automatically highlights the first match after the user types', async () => {
         const { user } = await render(
-          <Menu.FilterProvider autoHighlight closeLabel="Close menu">
+          <Menu.FilterProvider autoHighlight>
             <Menu.Root defaultOpen>
               <Menu.Trigger>Actions</Menu.Trigger>
               <Menu.Portal>
@@ -145,7 +145,6 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
         function Test(props: { inputValue: string }) {
           return (
             <Menu.FilterProvider
-              closeLabel="Close menu"
               autoHighlight="always"
               inputValue={props.inputValue}
               onInputValueChange={() => {}}
@@ -184,7 +183,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
 
       it('always highlights the first item when autoHighlight is "always"', async () => {
         await render(
-          <Menu.FilterProvider autoHighlight="always" closeLabel="Close menu">
+          <Menu.FilterProvider autoHighlight="always">
             <Menu.Root open>
               <Menu.Portal>
                 <Menu.Positioner>
@@ -214,7 +213,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
         'keeps a highlight when typing does not change the trimmed query with autoHighlight=%s',
         async (autoHighlight) => {
           const { user } = await render(
-            <Menu.FilterProvider autoHighlight={autoHighlight} closeLabel="Close menu">
+            <Menu.FilterProvider autoHighlight={autoHighlight}>
               <Menu.Root open>
                 <Menu.Portal>
                   <Menu.Positioner>
@@ -252,7 +251,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
         'does not allow arrow navigation to escape when autoHighlight is %s',
         async (autoHighlight) => {
           const { user } = await render(
-            <Menu.FilterProvider autoHighlight={autoHighlight} closeLabel="Close menu">
+            <Menu.FilterProvider autoHighlight={autoHighlight}>
               <Menu.Root open>
                 <Menu.Portal>
                   <Menu.Positioner>
@@ -309,7 +308,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
               <Dialog.Trigger>Open palette</Dialog.Trigger>
               <Dialog.Portal>
                 <Dialog.Popup aria-label="Command palette">
-                  <Menu.FilterProvider autoHighlight="always" closeLabel="Close menu">
+                  <Menu.FilterProvider autoHighlight="always">
                     <Menu.Root open>
                       <Menu.Portal>
                         <Menu.Positioner>
@@ -357,7 +356,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
 
       it('clears the automatic highlight when a typed query is cleared', async () => {
         const { user } = await render(
-          <Menu.FilterProvider autoHighlight closeLabel="Close menu">
+          <Menu.FilterProvider autoHighlight>
             <Menu.Root open>
               <Menu.Portal>
                 <Menu.Positioner>
@@ -392,7 +391,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
 
       it('restores the first item when an always-highlighted query is cleared', async () => {
         const { user } = await render(
-          <Menu.FilterProvider autoHighlight="always" closeLabel="Close menu">
+          <Menu.FilterProvider autoHighlight="always">
             <Menu.Root open>
               <Menu.Portal>
                 <Menu.Positioner>
@@ -427,7 +426,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
 
       it('clears the highlight when no items match', async () => {
         const { user } = await render(
-          <Menu.FilterProvider autoHighlight closeLabel="Close menu">
+          <Menu.FilterProvider autoHighlight>
             <Menu.Root open>
               <Menu.Portal>
                 <Menu.Positioner>
@@ -456,7 +455,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
       it('continues keyboard navigation from the automatic highlight and activates it', async () => {
         const onDelete = vi.fn();
         const { user } = await render(
-          <Menu.FilterProvider autoHighlight closeLabel="Close menu">
+          <Menu.FilterProvider autoHighlight>
             <Menu.Root open>
               <Menu.Portal>
                 <Menu.Positioner>
@@ -494,7 +493,6 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
 
           return (
             <Menu.FilterProvider
-              closeLabel="Close menu"
               autoHighlight="always"
               filter={(text, query) => text.includes(query)}
             >
@@ -540,7 +538,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
 
       it('preserves a pointer highlight when autoHighlight is "always"', async () => {
         const { user } = await render(
-          <Menu.FilterProvider autoHighlight="always" closeLabel="Close menu">
+          <Menu.FilterProvider autoHighlight="always">
             <Menu.Root open>
               <Menu.Portal>
                 <Menu.Positioner>
@@ -574,12 +572,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
           const [query, setQuery] = React.useState('');
 
           return (
-            <Menu.FilterProvider
-              autoHighlight
-              inputValue={query}
-              onInputValueChange={setQuery}
-              closeLabel="Close menu"
-            >
+            <Menu.FilterProvider autoHighlight inputValue={query} onInputValueChange={setQuery}>
               <Menu.Root open>
                 <Menu.Portal>
                   <Menu.Positioner>
@@ -614,7 +607,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
             <Menu.Portal>
               <Menu.Positioner>
                 <Menu.Popup>
-                  <Menu.FilterProvider autoHighlight="always" closeLabel="Close menu">
+                  <Menu.FilterProvider autoHighlight="always">
                     <Menu.SubmenuRoot defaultOpen>
                       <Menu.SubmenuTrigger>Move to</Menu.SubmenuTrigger>
                       <Menu.Portal>
@@ -674,7 +667,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
                 animation: filter-menu-pointer-close-test 10s linear;
               }
             `}</style>
-            <Menu.FilterProvider closeLabel="Close menu">
+            <Menu.FilterProvider>
               <Menu.Root>
                 <Menu.Trigger>Actions</Menu.Trigger>
                 <Menu.Portal>
@@ -724,7 +717,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
     it('moves focus past the menu when tabbing from the input', async () => {
       const { user } = await render(
         <div>
-          <Menu.FilterProvider closeLabel="Close menu">
+          <Menu.FilterProvider>
             <Menu.Root defaultOpen modal={false}>
               <Menu.Trigger>Actions</Menu.Trigger>
               <Menu.Portal>
@@ -767,7 +760,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
 
     it('matches items on their keywords', async () => {
       const { user } = await render(
-        <Menu.FilterProvider closeLabel="Close menu">
+        <Menu.FilterProvider>
           <Menu.Root open>
             <Menu.Trigger>Actions</Menu.Trigger>
             <Menu.Portal>
@@ -797,7 +790,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
 
     it('uses the configured locale for default matching', async () => {
       await render(
-        <Menu.FilterProvider defaultInputValue="ı" locale="tr" closeLabel="Close menu">
+        <Menu.FilterProvider defaultInputValue="ı" locale="tr">
           <Menu.Root open>
             <Menu.Trigger>Actions</Menu.Trigger>
             <Menu.Portal>
@@ -821,7 +814,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
 
     it('keeps Home and End as caret keys until an item is highlighted', async () => {
       const { user } = await render(
-        <Menu.FilterProvider defaultInputValue="rename" closeLabel="Close menu">
+        <Menu.FilterProvider defaultInputValue="rename">
           <Menu.Root open>
             <Menu.Trigger>Actions</Menu.Trigger>
             <Menu.Portal>
@@ -855,7 +848,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
 
     it('keeps Home and End as caret keys while the input is empty', async () => {
       const { user } = await render(
-        <Menu.FilterProvider closeLabel="Close menu">
+        <Menu.FilterProvider>
           <Menu.Root open>
             <Menu.Trigger>Actions</Menu.Trigger>
             <Menu.Portal>
@@ -885,7 +878,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
 
     it('uses Home and End for list navigation after an item is highlighted', async () => {
       const { user } = await render(
-        <Menu.FilterProvider closeLabel="Close menu">
+        <Menu.FilterProvider>
           <Menu.Root open>
             <Menu.Trigger>Actions</Menu.Trigger>
             <Menu.Portal>
@@ -920,7 +913,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
 
     it('hides a group, label included, when the query filters out all of its items', async () => {
       const { user } = await render(
-        <Menu.FilterProvider closeLabel="Close menu">
+        <Menu.FilterProvider>
           <Menu.Root open>
             <Menu.Trigger>Actions</Menu.Trigger>
             <Menu.Portal>
@@ -965,7 +958,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
       const { user } = await render(
         <div>
           <input />
-          <Menu.FilterProvider closeLabel="Close menu">
+          <Menu.FilterProvider>
             <Menu.Root defaultOpen modal={false}>
               <Menu.Trigger>Actions</Menu.Trigger>
               <Menu.Portal>
@@ -973,7 +966,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
                   <Menu.Popup>
                     <Menu.FilterInput aria-label="Filter actions" />
                     <Menu.List>
-                      <Menu.FilterProvider closeLabel="Close menu">
+                      <Menu.FilterProvider>
                         <Menu.SubmenuRoot>
                           <Menu.SubmenuTrigger>Share</Menu.SubmenuTrigger>
                           <Menu.Portal>
@@ -1036,7 +1029,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
             .filter-popup[data-ending-style] { opacity: 0; }
           `}</style>
           <input />
-          <Menu.FilterProvider closeLabel="Close menu">
+          <Menu.FilterProvider>
             <Menu.Root modal={false}>
               <Menu.Trigger>Actions</Menu.Trigger>
               <Menu.Portal>
@@ -1044,7 +1037,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
                   <Menu.Popup className="filter-popup">
                     <Menu.FilterInput aria-label="Filter actions" />
                     <Menu.List>
-                      <Menu.FilterProvider closeLabel="Close menu">
+                      <Menu.FilterProvider>
                         <Menu.SubmenuRoot>
                           <Menu.SubmenuTrigger delay={0}>Share</Menu.SubmenuTrigger>
                           <Menu.Portal>
@@ -1091,7 +1084,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
 
     it('focuses a click-opened filterable submenu input so typing filters the submenu', async () => {
       const { user } = await render(
-        <Menu.FilterProvider closeLabel="Close menu">
+        <Menu.FilterProvider>
           <Menu.Root>
             <Menu.Trigger>Actions</Menu.Trigger>
             <Menu.Portal>
@@ -1099,7 +1092,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
                 <Menu.Popup>
                   <Menu.FilterInput aria-label="Filter actions" />
                   <Menu.List>
-                    <Menu.FilterProvider closeLabel="Close menu">
+                    <Menu.FilterProvider>
                       <Menu.SubmenuRoot>
                         <Menu.SubmenuTrigger openOnHover={false}>Share</Menu.SubmenuTrigger>
                         <Menu.Portal>
@@ -1157,7 +1150,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
             <Menu.Positioner>
               <Menu.Popup>
                 <Menu.Item>Rename</Menu.Item>
-                <Menu.FilterProvider closeLabel="Close menu">
+                <Menu.FilterProvider>
                   <Menu.SubmenuRoot>
                     <Menu.SubmenuTrigger delay={0}>Move to folder</Menu.SubmenuTrigger>
                     <SubmenuPortal>
@@ -1182,7 +1175,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
 
     function ParentNavigationMenu(props: { loopFocus: boolean; triggerLast?: boolean }) {
       const submenu = (
-        <Menu.FilterProvider closeLabel="Close menu">
+        <Menu.FilterProvider>
           <Menu.SubmenuRoot>
             <Menu.SubmenuTrigger>Move to folder</Menu.SubmenuTrigger>
           </Menu.SubmenuRoot>
@@ -1282,7 +1275,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
             <button type="button" onClick={() => setOpen(false)}>
               Close
             </button>
-            <Menu.FilterProvider onInputValueChange={onInputValueChange} closeLabel="Close menu">
+            <Menu.FilterProvider onInputValueChange={onInputValueChange}>
               <Menu.Root open={open} modal={false}>
                 <Menu.Trigger>Fruit</Menu.Trigger>
                 <Menu.Portal>
@@ -1348,7 +1341,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
                 <Menu.Portal>
                   <Menu.Positioner>
                     <Menu.Popup>
-                      <Menu.FilterProvider closeLabel="Close menu">
+                      <Menu.FilterProvider>
                         <Menu.SubmenuRoot open={open} onOpenChange={setOpen}>
                           <Menu.SubmenuTrigger>Fruit</Menu.SubmenuTrigger>
                           <Menu.Portal>
@@ -1411,7 +1404,6 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
     it('leaves the uncontrolled query and visible items unchanged when a change is canceled', async () => {
       const { user } = await render(
         <Menu.FilterProvider
-          closeLabel="Close menu"
           defaultInputValue="app"
           onInputValueChange={(_, eventDetails) => eventDetails.cancel()}
         >
@@ -1477,11 +1469,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
 
       function Test(props: { inputValue: string }) {
         return (
-          <Menu.FilterProvider
-            inputValue={props.inputValue}
-            onInputValueChange={() => {}}
-            closeLabel="Close menu"
-          >
+          <Menu.FilterProvider inputValue={props.inputValue} onInputValueChange={() => {}}>
             <Menu.Root open>
               <Menu.Trigger>Fruit</Menu.Trigger>
               <Menu.Portal>
@@ -1528,7 +1516,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
 
         return (
           <React.Fragment>
-            <Menu.FilterProvider closeLabel="Close menu">
+            <Menu.FilterProvider>
               <Menu.Root handle={handle}>
                 <Menu.Portal>
                   <Menu.Positioner>
@@ -1575,7 +1563,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
 
     it('uses the id from a custom trigger render element for popup labelling', async () => {
       const { user } = await render(
-        <Menu.FilterProvider closeLabel="Close menu">
+        <Menu.FilterProvider>
           <Menu.Root>
             <Menu.Trigger render={<button id="custom-trigger" />}>Fruit</Menu.Trigger>
             <Menu.Portal>
@@ -1603,7 +1591,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
 
     it('uses an explicit popup label instead of the trigger label', async () => {
       const { user } = await render(
-        <Menu.FilterProvider closeLabel="Close menu">
+        <Menu.FilterProvider>
           <Menu.Root>
             <Menu.Trigger>Fruit</Menu.Trigger>
             <Menu.Portal>
@@ -1628,7 +1616,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
 
     it('uses an explicit label from the popup render element', async () => {
       const { user } = await render(
-        <Menu.FilterProvider closeLabel="Close menu">
+        <Menu.FilterProvider>
           <Menu.Root>
             <Menu.Trigger>Fruit</Menu.Trigger>
             <Menu.Portal>
@@ -1655,7 +1643,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
       function Test() {
         const [customId, setCustomId] = React.useState(true);
         return (
-          <Menu.FilterProvider closeLabel="Close menu">
+          <Menu.FilterProvider>
             <Menu.Root defaultOpen>
               <Menu.Trigger>Fruit</Menu.Trigger>
               <Menu.Portal>
@@ -1727,7 +1715,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
 
     it('opens a virtually focused submenu with the keyboard', async () => {
       const { user } = await render(
-        <Menu.FilterProvider closeLabel="Close menu">
+        <Menu.FilterProvider>
           <Menu.Root defaultOpen>
             <Menu.Trigger>Actions</Menu.Trigger>
             <Menu.Portal>
@@ -1735,7 +1723,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
                 <Menu.Popup>
                   <Menu.FilterInput aria-label="Filter actions" />
                   <Menu.List>
-                    <Menu.FilterProvider closeLabel="Close menu">
+                    <Menu.FilterProvider>
                       <Menu.SubmenuRoot>
                         <Menu.SubmenuTrigger>Move to folder</Menu.SubmenuTrigger>
                         <Menu.Portal>
@@ -1794,7 +1782,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
 
     it('keeps cross-axis keys as caret keys while the submenu query is not empty', async () => {
       const { user } = await render(
-        <Menu.FilterProvider closeLabel="Close menu">
+        <Menu.FilterProvider>
           <Menu.Root defaultOpen>
             <Menu.Trigger>Actions</Menu.Trigger>
             <Menu.Portal>
@@ -1802,7 +1790,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
                 <Menu.Popup>
                   <Menu.FilterInput aria-label="Filter actions" />
                   <Menu.List>
-                    <Menu.FilterProvider closeLabel="Close menu">
+                    <Menu.FilterProvider>
                       <Menu.SubmenuRoot>
                         <Menu.SubmenuTrigger>Move to folder</Menu.SubmenuTrigger>
                         <Menu.Portal>
@@ -1853,7 +1841,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
     it('uses RTL cross-axis keys to enter and leave a filterable submenu', async () => {
       const { user } = await render(
         <DirectionProvider direction="rtl">
-          <Menu.FilterProvider closeLabel="Close menu">
+          <Menu.FilterProvider>
             <Menu.Root defaultOpen>
               <Menu.Trigger>Actions</Menu.Trigger>
               <Menu.Portal>
@@ -1861,7 +1849,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
                   <Menu.Popup>
                     <Menu.FilterInput aria-label="Filter actions" />
                     <Menu.List>
-                      <Menu.FilterProvider closeLabel="Close menu">
+                      <Menu.FilterProvider>
                         <Menu.SubmenuRoot>
                           <Menu.SubmenuTrigger>Move to folder</Menu.SubmenuTrigger>
                           <Menu.Portal>
@@ -1912,7 +1900,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
 
     it('returns virtual focus to the parent input on Escape and resumes filtering', async () => {
       const { user } = await render(
-        <Menu.FilterProvider closeLabel="Close menu">
+        <Menu.FilterProvider>
           <Menu.Root defaultOpen>
             <Menu.Trigger>Actions</Menu.Trigger>
             <Menu.Portal>
@@ -1920,7 +1908,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
                 <Menu.Popup>
                   <Menu.FilterInput aria-label="Filter actions" />
                   <Menu.List>
-                    <Menu.FilterProvider closeLabel="Close menu">
+                    <Menu.FilterProvider>
                       <Menu.SubmenuRoot>
                         <Menu.SubmenuTrigger>Move to folder</Menu.SubmenuTrigger>
                         <Menu.Portal>
@@ -1981,7 +1969,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
 
         return (
           <React.Fragment>
-            <Menu.FilterProvider closeLabel="Close menu">
+            <Menu.FilterProvider>
               <Menu.Root defaultOpen modal={false}>
                 <Menu.Trigger>Actions</Menu.Trigger>
                 <Menu.Portal>
@@ -1989,7 +1977,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
                     <Menu.Popup>
                       <Menu.FilterInput aria-label="Filter actions" />
                       <Menu.List>
-                        <Menu.FilterProvider closeLabel="Close menu">
+                        <Menu.FilterProvider>
                           <Menu.SubmenuRoot open={submenuOpen} onOpenChange={setSubmenuOpen}>
                             <Menu.SubmenuTrigger>Move to folder</Menu.SubmenuTrigger>
                             <Menu.Portal>
@@ -2037,7 +2025,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
 
     it('opens a submenu from a filterable submenu input', async () => {
       const { user } = await render(
-        <Menu.FilterProvider closeLabel="Close menu">
+        <Menu.FilterProvider>
           <Menu.Root defaultOpen>
             <Menu.Trigger>Actions</Menu.Trigger>
             <Menu.Portal>
@@ -2045,7 +2033,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
                 <Menu.Popup>
                   <Menu.FilterInput aria-label="Filter actions" />
                   <Menu.List>
-                    <Menu.FilterProvider closeLabel="Close menu">
+                    <Menu.FilterProvider>
                       <Menu.SubmenuRoot>
                         <Menu.SubmenuTrigger>Move to folder</Menu.SubmenuTrigger>
                         <Menu.Portal>
@@ -2124,7 +2112,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
 
     it('opens a virtually focused submenu with Enter from the input', async () => {
       const { user } = await render(
-        <Menu.FilterProvider closeLabel="Close menu">
+        <Menu.FilterProvider>
           <Menu.Root defaultOpen>
             <Menu.Trigger>Actions</Menu.Trigger>
             <Menu.Portal>
@@ -2132,7 +2120,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
                 <Menu.Popup>
                   <Menu.FilterInput aria-label="Filter actions" />
                   <Menu.List>
-                    <Menu.FilterProvider closeLabel="Close menu">
+                    <Menu.FilterProvider>
                       <Menu.SubmenuRoot>
                         <Menu.SubmenuTrigger>Share</Menu.SubmenuTrigger>
                         <Menu.Portal>
@@ -2189,7 +2177,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
 
     it('does not reopen a stale submenu with a cross-axis key', async () => {
       const { user } = await render(
-        <Menu.FilterProvider closeLabel="Close menu">
+        <Menu.FilterProvider>
           <Menu.Root defaultOpen>
             <Menu.Trigger>Actions</Menu.Trigger>
             <Menu.Portal>
@@ -2198,7 +2186,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
                   <Menu.FilterInput aria-label="Filter actions" />
                   <Menu.List>
                     <Menu.Item>Rename</Menu.Item>
-                    <Menu.FilterProvider closeLabel="Close menu">
+                    <Menu.FilterProvider>
                       <Menu.SubmenuRoot>
                         <Menu.SubmenuTrigger>Share</Menu.SubmenuTrigger>
                         <Menu.Portal>
@@ -2213,7 +2201,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
                         </Menu.Portal>
                       </Menu.SubmenuRoot>
                     </Menu.FilterProvider>
-                    <Menu.FilterProvider closeLabel="Close menu">
+                    <Menu.FilterProvider>
                       <Menu.SubmenuRoot>
                         <Menu.SubmenuTrigger>Export</Menu.SubmenuTrigger>
                         <Menu.Portal>
@@ -2270,7 +2258,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
       'moves focus into the submenu input once the pointer enters it',
       async () => {
         const { user } = await render(
-          <Menu.FilterProvider closeLabel="Close menu">
+          <Menu.FilterProvider>
             <Menu.Root defaultOpen>
               <Menu.Trigger>Actions</Menu.Trigger>
               <Menu.Portal>
@@ -2278,7 +2266,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
                   <Menu.Popup>
                     <Menu.FilterInput aria-label="Filter actions" />
                     <Menu.List>
-                      <Menu.FilterProvider closeLabel="Close menu">
+                      <Menu.FilterProvider>
                         <Menu.SubmenuRoot>
                           <Menu.SubmenuTrigger delay={0}>Move to folder</Menu.SubmenuTrigger>
                           <Menu.Portal>
@@ -2326,7 +2314,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
 
     it('closes a hover-opened submenu from a virtually focused parent', async () => {
       const { user } = await render(
-        <Menu.FilterProvider closeLabel="Close menu">
+        <Menu.FilterProvider>
           <Menu.Root defaultOpen>
             <Menu.Trigger>Actions</Menu.Trigger>
             <Menu.Portal>
@@ -2334,7 +2322,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
                 <Menu.Popup>
                   <Menu.FilterInput aria-label="Filter actions" />
                   <Menu.List>
-                    <Menu.FilterProvider closeLabel="Close menu">
+                    <Menu.FilterProvider>
                       <Menu.SubmenuRoot>
                         <Menu.SubmenuTrigger delay={0}>Move to folder</Menu.SubmenuTrigger>
                         <Menu.Portal>
@@ -2385,7 +2373,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
 
     it('focuses the first item when entering a hover-opened submenu from a filterable menu', async () => {
       const { user } = await render(
-        <Menu.FilterProvider closeLabel="Close menu">
+        <Menu.FilterProvider>
           <Menu.Root defaultOpen>
             <Menu.Trigger>Actions</Menu.Trigger>
             <Menu.Portal>
@@ -2437,7 +2425,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
     it('filters items and selects the active item while focus remains on the input', async () => {
       const onClick = vi.fn();
       const { user } = await render(
-        <Menu.FilterProvider closeLabel="Close menu">
+        <Menu.FilterProvider>
           <Menu.Root>
             <Menu.Trigger>Fruit</Menu.Trigger>
             <Menu.Portal>
@@ -2512,7 +2500,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
     it('does not activate the highlighted item when Enter commits an IME composition', async () => {
       const onClick = vi.fn();
       const { user } = await render(
-        <Menu.FilterProvider closeLabel="Close menu">
+        <Menu.FilterProvider>
           <Menu.Root defaultOpen>
             <Menu.Trigger>Actions</Menu.Trigger>
             <Menu.Portal>
@@ -2546,7 +2534,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
 
     it('does not forward submenu navigation keys while composing text', async () => {
       const { user } = await render(
-        <Menu.FilterProvider closeLabel="Close menu">
+        <Menu.FilterProvider>
           <Menu.Root defaultOpen>
             <Menu.Trigger>Actions</Menu.Trigger>
             <Menu.Portal>
@@ -2554,7 +2542,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
                 <Menu.Popup>
                   <Menu.FilterInput aria-label="Filter actions" />
                   <Menu.List>
-                    <Menu.FilterProvider closeLabel="Close menu">
+                    <Menu.FilterProvider>
                       <Menu.SubmenuRoot>
                         <Menu.SubmenuTrigger openOnHover={false}>
                           Move to folder
@@ -2597,7 +2585,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
 
     it('disables filter controls when the root is disabled', async () => {
       await render(
-        <Menu.FilterProvider defaultInputValue="a" closeLabel="Close menu">
+        <Menu.FilterProvider defaultInputValue="a">
           <Menu.Root open disabled>
             <Menu.Trigger>Fruit</Menu.Trigger>
             <Menu.Portal>
@@ -2631,7 +2619,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
             <button type="button" onClick={() => setFilter(() => endsWith)}>
               Change filter
             </button>
-            <Menu.FilterProvider filter={filter} defaultInputValue="a" closeLabel="Close menu">
+            <Menu.FilterProvider filter={filter} defaultInputValue="a">
               <Menu.Root open modal={false}>
                 <Menu.Trigger>Fruit</Menu.Trigger>
                 <Menu.Portal>
@@ -2670,7 +2658,6 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
     it('applies a custom filter to item keywords', async () => {
       await render(
         <Menu.FilterProvider
-          closeLabel="Close menu"
           defaultInputValue="directory"
           filter={(itemText, query) => itemText.startsWith(query)}
         >
@@ -2697,7 +2684,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
 
     it('filters a non-filterable submenu trigger from a filterable parent', async () => {
       const { user } = await render(
-        <Menu.FilterProvider closeLabel="Close menu">
+        <Menu.FilterProvider>
           <Menu.Root defaultOpen>
             <Menu.Trigger>Actions</Menu.Trigger>
             <Menu.Portal>
@@ -2706,7 +2693,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
                   <Menu.FilterInput aria-label="Filter actions" />
                   <Menu.List>
                     <Menu.Item>Rename</Menu.Item>
-                    <Menu.FilterProvider closeLabel="Close menu">
+                    <Menu.FilterProvider>
                       <Menu.SubmenuRoot>
                         <Menu.SubmenuTrigger>Move to folder</Menu.SubmenuTrigger>
                         <Menu.Portal>
@@ -2736,7 +2723,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
 
     it('keeps a submenu trigger visible when the query matches its label', async () => {
       const { user } = await render(
-        <Menu.FilterProvider closeLabel="Close menu">
+        <Menu.FilterProvider>
           <Menu.Root defaultOpen>
             <Menu.Trigger>Actions</Menu.Trigger>
             <Menu.Portal>
@@ -2745,7 +2732,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
                   <Menu.FilterInput aria-label="Filter actions" />
                   <Menu.List>
                     <Menu.Item>Rename</Menu.Item>
-                    <Menu.FilterProvider closeLabel="Close menu">
+                    <Menu.FilterProvider>
                       <Menu.SubmenuRoot>
                         <Menu.SubmenuTrigger>Move to folder</Menu.SubmenuTrigger>
                         <Menu.Portal>
@@ -2774,7 +2761,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
 
     it('keeps a submenu trigger visible when the query matches its keywords', async () => {
       const { user } = await render(
-        <Menu.FilterProvider closeLabel="Close menu">
+        <Menu.FilterProvider>
           <Menu.Root defaultOpen>
             <Menu.Trigger>Actions</Menu.Trigger>
             <Menu.Portal>
@@ -2783,7 +2770,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
                   <Menu.FilterInput aria-label="Filter actions" />
                   <Menu.List>
                     <Menu.Item>Rename</Menu.Item>
-                    <Menu.FilterProvider closeLabel="Close menu">
+                    <Menu.FilterProvider>
                       <Menu.SubmenuRoot>
                         <Menu.SubmenuTrigger keywords={['directory']}>
                           Move to folder
@@ -2814,7 +2801,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
 
     it('filters a Menu.SubmenuTrigger used inside a plain submenu root', async () => {
       const { user } = await render(
-        <Menu.FilterProvider closeLabel="Close menu">
+        <Menu.FilterProvider>
           <Menu.Root defaultOpen>
             <Menu.Trigger>Actions</Menu.Trigger>
             <Menu.Portal>
@@ -2856,7 +2843,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
 
     it('keeps plain menu items and submenu triggers out of the tab order in a filterable list', async () => {
       const { user } = await render(
-        <Menu.FilterProvider closeLabel="Close menu">
+        <Menu.FilterProvider>
           <Menu.Root defaultOpen>
             <Menu.Trigger>Actions</Menu.Trigger>
             <Menu.Portal>
@@ -2902,7 +2889,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
 
     it('retains the parent highlight when a submenu opens from a pointer', async () => {
       const { user } = await render(
-        <Menu.FilterProvider closeLabel="Close menu">
+        <Menu.FilterProvider>
           <Menu.Root defaultOpen>
             <Menu.Trigger>Actions</Menu.Trigger>
             <Menu.Portal>
@@ -2910,7 +2897,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
                 <Menu.Popup>
                   <Menu.FilterInput aria-label="Filter actions" />
                   <Menu.List>
-                    <Menu.FilterProvider closeLabel="Close menu">
+                    <Menu.FilterProvider>
                       <Menu.SubmenuRoot>
                         <Menu.SubmenuTrigger delay={0}>Move to folder</Menu.SubmenuTrigger>
                         <Menu.Portal>
@@ -2947,7 +2934,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
 
     it('closes the submenu when the query filters out its trigger', async () => {
       const { user } = await render(
-        <Menu.FilterProvider closeLabel="Close menu">
+        <Menu.FilterProvider>
           <Menu.Root defaultOpen>
             <Menu.Trigger>Actions</Menu.Trigger>
             <Menu.Portal>
@@ -2956,7 +2943,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
                   <Menu.FilterInput aria-label="Filter actions" />
                   <Menu.List>
                     <Menu.Item>Rename</Menu.Item>
-                    <Menu.FilterProvider closeLabel="Close menu">
+                    <Menu.FilterProvider>
                       <Menu.SubmenuRoot>
                         <Menu.SubmenuTrigger delay={0}>Move to folder</Menu.SubmenuTrigger>
                         <Menu.Portal>
@@ -2999,7 +2986,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
 
     it('keeps an open submenu trigger mounted when its filter close is canceled', async () => {
       const { user } = await render(
-        <Menu.FilterProvider closeLabel="Close menu">
+        <Menu.FilterProvider>
           <Menu.Root defaultOpen>
             <Menu.Trigger>Actions</Menu.Trigger>
             <Menu.Portal>
@@ -3009,7 +2996,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
                   <Menu.List>
                     <Menu.Item>Rename</Menu.Item>
                     <Menu.Group>
-                      <Menu.FilterProvider closeLabel="Close menu">
+                      <Menu.FilterProvider>
                         <Menu.SubmenuRoot
                           open
                           onOpenChange={(open, details) => {
@@ -3057,7 +3044,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
 
     it('filters each menu item variant without changing its role', async () => {
       const { user } = await render(
-        <Menu.FilterProvider defaultInputValue="banana" closeLabel="Close menu">
+        <Menu.FilterProvider defaultInputValue="banana">
           <Menu.Root open>
             <Menu.Trigger>Fruit</Menu.Trigger>
             <Menu.Portal>
@@ -3109,7 +3096,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
 
     it('preserves uncontrolled checkbox state while the item is filtered out', async () => {
       const { user } = await render(
-        <Menu.FilterProvider closeLabel="Close menu">
+        <Menu.FilterProvider>
           <Menu.Root open>
             <Menu.Portal>
               <Menu.Positioner>
@@ -3148,7 +3135,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
       const secondRender = vi.fn();
 
       const { user } = await render(
-        <Menu.FilterProvider closeLabel="Close menu">
+        <Menu.FilterProvider>
           <Menu.Root open>
             <Menu.Portal>
               <Menu.Positioner>
@@ -3192,7 +3179,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
 
     function KeyboardNavigationMenu() {
       return (
-        <Menu.FilterProvider closeLabel="Close menu">
+        <Menu.FilterProvider>
           <Menu.Root>
             <Menu.Trigger>Actions</Menu.Trigger>
             <Menu.Portal>
@@ -3354,7 +3341,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
   describe('typeahead', () => {
     it('does not move the highlight while typing into the input', async () => {
       const { user } = await render(
-        <Menu.FilterProvider closeLabel="Close menu">
+        <Menu.FilterProvider>
           <Menu.Root defaultOpen>
             <Menu.Trigger>Actions</Menu.Trigger>
             <Menu.Portal>
@@ -3395,7 +3382,6 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
 
       return (
         <Menu.FilterProvider
-          closeLabel="Close menu"
           inputValue={query}
           onInputValueChange={(nextQuery) => setQuery(nextQuery)}
         >
@@ -3436,7 +3422,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
 
   it('preserves input focus on item and list presses without blocking the scrollbar', async () => {
     await render(
-      <Menu.FilterProvider closeLabel="Close menu">
+      <Menu.FilterProvider>
         <Menu.Root defaultOpen>
           <Menu.Trigger>Actions</Menu.Trigger>
           <Menu.Portal>
@@ -3481,7 +3467,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
   it('returns focus to the input with the RTL submenu close key', async () => {
     await render(
       <DirectionProvider direction="rtl">
-        <Menu.FilterProvider closeLabel="Close menu">
+        <Menu.FilterProvider>
           <Menu.Root defaultOpen>
             <Menu.Trigger>Actions</Menu.Trigger>
             <Menu.Portal>
@@ -3514,7 +3500,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
   it('releases the highlight when the query is cleared', async () => {
     const onClick = vi.fn();
     const { user } = await render(
-      <Menu.FilterProvider closeLabel="Close menu">
+      <Menu.FilterProvider>
         <Menu.Root defaultOpen>
           <Menu.Trigger>Actions</Menu.Trigger>
           <Menu.Portal>
@@ -3570,7 +3556,6 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
         <React.Fragment>
           <button onClick={() => setOpen((value) => !value)}>toggle</button>
           <Menu.FilterProvider
-            closeLabel="Close menu"
             inputValue={inputValue}
             onInputValueChange={(value, details) => {
               if (details.reason === 'popup-close') {
@@ -3631,7 +3616,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
 
   it('renders Empty when no items are registered at all', async () => {
     await render(
-      <Menu.FilterProvider closeLabel="Close menu">
+      <Menu.FilterProvider>
         <Menu.Root defaultOpen>
           <Menu.Trigger>Actions</Menu.Trigger>
           <Menu.Portal>
@@ -3654,7 +3639,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
 
   it('keeps a group with no registered items visible while filtering', async () => {
     const { user } = await render(
-      <Menu.FilterProvider closeLabel="Close menu">
+      <Menu.FilterProvider>
         <Menu.Root defaultOpen>
           <Menu.Trigger>Actions</Menu.Trigger>
           <Menu.Portal>
@@ -3686,7 +3671,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
     function App() {
       const [label, setLabel] = React.useState('Archive');
       return (
-        <Menu.FilterProvider closeLabel="Close menu">
+        <Menu.FilterProvider>
           <Menu.Root defaultOpen>
             <Menu.Trigger>Actions</Menu.Trigger>
             <Menu.Portal>
@@ -3726,7 +3711,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
   it('preserves modifiers when the input activates a link item', async () => {
     const onClick = vi.fn((event: React.MouseEvent) => event.preventDefault());
     const { user } = await render(
-      <Menu.FilterProvider closeLabel="Close menu">
+      <Menu.FilterProvider>
         <Menu.Root defaultOpen>
           <Menu.Trigger>Actions</Menu.Trigger>
           <Menu.Portal>
@@ -3757,7 +3742,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
 
   it('leaves modified editing keys to the input while an item is highlighted', async () => {
     const { user } = await render(
-      <Menu.FilterProvider closeLabel="Close menu">
+      <Menu.FilterProvider>
         <Menu.Root defaultOpen>
           <Menu.Trigger>Actions</Menu.Trigger>
           <Menu.Portal>
@@ -3800,7 +3785,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
 
   it('does not open a highlighted submenu with a modified cross-axis key from the input', async () => {
     const { user } = await render(
-      <Menu.FilterProvider closeLabel="Close menu">
+      <Menu.FilterProvider>
         <Menu.Root defaultOpen>
           <Menu.Trigger>Actions</Menu.Trigger>
           <Menu.Portal>
@@ -3846,7 +3831,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
   it('calls onOpenChangeComplete when the menu opens and closes', async () => {
     const onOpenChangeComplete = vi.fn();
     const { user } = await render(
-      <Menu.FilterProvider closeLabel="Close menu">
+      <Menu.FilterProvider>
         <Menu.Root onOpenChangeComplete={onOpenChangeComplete}>
           <Menu.Trigger>Actions</Menu.Trigger>
           <Menu.Portal>
@@ -3876,7 +3861,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
 
   it('does not seed a highlight when the trigger regains focus while open', async () => {
     const { user } = await render(
-      <Menu.FilterProvider closeLabel="Close menu">
+      <Menu.FilterProvider>
         <Menu.Root>
           <Menu.Trigger>Actions</Menu.Trigger>
           <Menu.Portal>
@@ -3914,7 +3899,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
 
   it('prefers the label prop over rendered text for matching', async () => {
     const { user } = await render(
-      <Menu.FilterProvider closeLabel="Close menu">
+      <Menu.FilterProvider>
         <Menu.Root defaultOpen>
           <Menu.Trigger>Actions</Menu.Trigger>
           <Menu.Portal>
@@ -3948,7 +3933,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
 
   it('removes Empty once the query matches again', async () => {
     const { user } = await render(
-      <Menu.FilterProvider closeLabel="Close menu">
+      <Menu.FilterProvider>
         <Menu.Root defaultOpen>
           <Menu.Trigger>Actions</Menu.Trigger>
           <Menu.Portal>
@@ -3985,7 +3970,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
   describe('server-side rendering', () => {
     it('shows the empty state after hydration when no items are rendered', async () => {
       const { hydrate } = renderToString(
-        <Menu.FilterProvider closeLabel="Close menu">
+        <Menu.FilterProvider>
           <Menu.Root open>
             <Menu.Portal>
               <Menu.Positioner>
@@ -4012,7 +3997,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
 
   it('does not set aria-selected on highlighted items outside WebKit', async () => {
     const { user } = await render(
-      <Menu.FilterProvider closeLabel="Close menu">
+      <Menu.FilterProvider>
         <Menu.Root defaultOpen>
           <Menu.Trigger>Actions</Menu.Trigger>
           <Menu.Portal>
@@ -4045,7 +4030,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
   describe.skipIf(isJSDOM)('hover-opened submenu ownership', () => {
     function HoverMenu() {
       return (
-        <Menu.FilterProvider closeLabel="Close menu">
+        <Menu.FilterProvider>
           <Menu.Root>
             <Menu.Trigger>Actions</Menu.Trigger>
             <Menu.Portal>
@@ -4055,7 +4040,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
                   <Menu.List>
                     <Menu.Item>Rename</Menu.Item>
                     <Menu.Item>Duplicate</Menu.Item>
-                    <Menu.FilterProvider closeLabel="Close menu">
+                    <Menu.FilterProvider>
                       <Menu.SubmenuRoot>
                         <Menu.SubmenuTrigger delay={0}>Share</Menu.SubmenuTrigger>
                         <Menu.Portal>
@@ -4144,7 +4129,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
   describe('prop: filter', () => {
     function CustomFilterMenu(props: { filter?: Menu.FilterProvider.Props['filter'] }) {
       return (
-        <Menu.FilterProvider filter={props.filter} closeLabel="Close menu">
+        <Menu.FilterProvider filter={props.filter}>
           <Menu.Root defaultOpen>
             <Menu.Trigger>Actions</Menu.Trigger>
             <Menu.Portal>
@@ -4193,7 +4178,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
   describe('canceling changes', () => {
     it('stays closed when onOpenChange is canceled', async () => {
       const { user } = await render(
-        <Menu.FilterProvider closeLabel="Close menu">
+        <Menu.FilterProvider>
           <Menu.Root onOpenChange={(_, eventDetails) => eventDetails.cancel()}>
             <Menu.Trigger>Actions</Menu.Trigger>
             <Menu.Portal>
@@ -4217,7 +4202,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
 
     it('leaves a checkbox item unchecked when onCheckedChange is canceled', async () => {
       const { user } = await render(
-        <Menu.FilterProvider closeLabel="Close menu">
+        <Menu.FilterProvider>
           <Menu.Root defaultOpen>
             <Menu.Trigger>Actions</Menu.Trigger>
             <Menu.Portal>
@@ -4250,7 +4235,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
         const [checked, setChecked] = React.useState(false);
 
         return (
-          <Menu.FilterProvider closeLabel="Close menu">
+          <Menu.FilterProvider>
             <Menu.Root defaultOpen>
               <Menu.Trigger>Actions</Menu.Trigger>
               <Menu.Portal>
@@ -4291,7 +4276,6 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
     async function renderReasonMenu(onInputValueChange: (value: string, reason: string) => void) {
       return render(
         <Menu.FilterProvider
-          closeLabel="Close menu"
           onInputValueChange={(value, eventDetails) =>
             onInputValueChange(value, eventDetails.reason)
           }
@@ -4350,7 +4334,6 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
       function ControlledOpen(props: { open: boolean }) {
         return (
           <Menu.FilterProvider
-            closeLabel="Close menu"
             defaultInputValue="ren"
             onInputValueChange={(value, eventDetails) =>
               onInputValueChange(value, eventDetails.reason)
@@ -4383,7 +4366,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
   describe('accessible names', () => {
     it('does not point the popup or list at a trigger that never rendered', async () => {
       await render(
-        <Menu.FilterProvider closeLabel="Close menu">
+        <Menu.FilterProvider>
           <Menu.Root defaultOpen>
             <Menu.Portal>
               <Menu.Positioner>
@@ -4405,7 +4388,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
 
     it('labels the list with the trigger when no label is given', async () => {
       await render(
-        <Menu.FilterProvider closeLabel="Close menu">
+        <Menu.FilterProvider>
           <Menu.Root defaultOpen>
             <Menu.Trigger>Actions</Menu.Trigger>
             <Menu.Portal>
@@ -4428,7 +4411,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
 
     it('keeps a list label supplied through a render element', async () => {
       await render(
-        <Menu.FilterProvider closeLabel="Close menu">
+        <Menu.FilterProvider>
           <Menu.Root defaultOpen>
             <Menu.Trigger>Actions</Menu.Trigger>
             <Menu.Portal>
@@ -4452,7 +4435,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
 
     it('omits aria-controls when the list renders with an explicitly empty id', async () => {
       await render(
-        <Menu.FilterProvider closeLabel="Close menu">
+        <Menu.FilterProvider>
           <Menu.Root defaultOpen>
             <Menu.Trigger>Actions</Menu.Trigger>
             <Menu.Portal>
@@ -4478,7 +4461,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
 
     it('omits the list label when the trigger renders with an explicitly empty id', async () => {
       await render(
-        <Menu.FilterProvider closeLabel="Close menu">
+        <Menu.FilterProvider>
           <Menu.Root defaultOpen>
             <Menu.Trigger render={<button id="" />}>Actions</Menu.Trigger>
             <Menu.Portal>
@@ -4510,7 +4493,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
 
         return (
           <React.Fragment>
-            <Menu.FilterProvider closeLabel="Close menu">
+            <Menu.FilterProvider>
               <Menu.Root handle={handle}>
                 <Menu.Portal>
                   <Menu.Positioner>
@@ -4554,7 +4537,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
       const onPopupKeyDown = vi.fn();
 
       const { user } = await render(
-        <Menu.FilterProvider closeLabel="Close menu">
+        <Menu.FilterProvider>
           <Menu.Root>
             <Menu.Trigger onClick={onTriggerClick}>Actions</Menu.Trigger>
             <Menu.Portal>
@@ -4596,7 +4579,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
   describe('focus ownership inside the popup', () => {
     it('leaves focus on another control in the popup when the pointer moves', async () => {
       await render(
-        <Menu.FilterProvider closeLabel="Close menu">
+        <Menu.FilterProvider>
           <Menu.Root defaultOpen>
             <Menu.Trigger>Actions</Menu.Trigger>
             <Menu.Portal>
@@ -4626,7 +4609,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
 
     it('keeps focus in an open auto-focused submenu while the pointer crosses the parent popup', async () => {
       const { user } = await render(
-        <Menu.FilterProvider closeLabel="Close menu">
+        <Menu.FilterProvider>
           <Menu.Root defaultOpen>
             <Menu.Trigger>Actions</Menu.Trigger>
             <Menu.Portal>
@@ -4635,7 +4618,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
                   <Menu.FilterInput aria-label="Filter actions" />
                   <Menu.List>
                     <Menu.Item>Rename</Menu.Item>
-                    <Menu.FilterProvider closeLabel="Close menu">
+                    <Menu.FilterProvider>
                       <Menu.SubmenuRoot>
                         {/* Crossing a sibling item only schedules the close. */}
                         <Menu.SubmenuTrigger delay={0} closeDelay={1000}>
@@ -4674,7 +4657,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
 
     it('returns focus to the parent input when the pointer moves back over the parent popup', async () => {
       const { user } = await render(
-        <Menu.FilterProvider closeLabel="Close menu">
+        <Menu.FilterProvider>
           <Menu.Root defaultOpen>
             <Menu.Trigger>Actions</Menu.Trigger>
             <Menu.Portal>
@@ -4682,7 +4665,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
                 <Menu.Popup>
                   <Menu.FilterInput aria-label="Filter actions" />
                   <Menu.List>
-                    <Menu.FilterProvider closeLabel="Close menu">
+                    <Menu.FilterProvider>
                       <Menu.SubmenuRoot>
                         <Menu.SubmenuTrigger delay={0} closeDelay={1000}>
                           Move to folder
@@ -4729,7 +4712,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
 
     it('returns focus to the parent input once a pointer-opened submenu unmounts', async () => {
       const { user } = await render(
-        <Menu.FilterProvider closeLabel="Close menu">
+        <Menu.FilterProvider>
           <Menu.Root defaultOpen>
             <Menu.Trigger>Actions</Menu.Trigger>
             <Menu.Portal>
@@ -4738,7 +4721,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
                   <Menu.FilterInput aria-label="Filter actions" />
                   <Menu.List>
                     <Menu.Item>Rename</Menu.Item>
-                    <Menu.FilterProvider closeLabel="Close menu">
+                    <Menu.FilterProvider>
                       <Menu.SubmenuRoot>
                         <Menu.SubmenuTrigger delay={0} closeDelay={0}>
                           Move to folder
@@ -4786,7 +4769,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
 
     it('returns focus to the parent input when the pointer leaves a submenu trigger', async () => {
       const { user } = await render(
-        <Menu.FilterProvider closeLabel="Close menu">
+        <Menu.FilterProvider>
           <Menu.Root defaultOpen>
             <Menu.Trigger>Actions</Menu.Trigger>
             <Menu.Portal>
@@ -4795,7 +4778,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
                   <Menu.FilterInput aria-label="Filter actions" />
                   <Menu.List>
                     <Menu.Item>Rename</Menu.Item>
-                    <Menu.FilterProvider closeLabel="Close menu">
+                    <Menu.FilterProvider>
                       <Menu.SubmenuRoot>
                         <Menu.SubmenuTrigger delay={0} closeDelay={0}>
                           Move to folder
@@ -4845,7 +4828,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
     function SiblingSubmenus(props: { autoFocus?: boolean; onRootInputFocus: () => void }) {
       function Submenu(submenuProps: { label: string; delay: number }) {
         return (
-          <Menu.FilterProvider closeLabel="Close menu">
+          <Menu.FilterProvider>
             <Menu.SubmenuRoot>
               {/* The close waits until the pointer has highlighted the next trigger. */}
               <Menu.SubmenuTrigger delay={submenuProps.delay} closeDelay={10}>
@@ -4870,7 +4853,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
       }
 
       return (
-        <Menu.FilterProvider closeLabel="Close menu">
+        <Menu.FilterProvider>
           <Menu.Root defaultOpen>
             <Menu.Trigger>Actions</Menu.Trigger>
             <Menu.Portal>
@@ -4892,7 +4875,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
 
     it('opens a hovered submenu without moving focus until the pointer enters it', async () => {
       const { user } = await render(
-        <Menu.FilterProvider closeLabel="Close menu">
+        <Menu.FilterProvider>
           <Menu.Root defaultOpen>
             <Menu.Trigger>Actions</Menu.Trigger>
             <Menu.Portal>
@@ -4900,7 +4883,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
                 <Menu.Popup>
                   <Menu.FilterInput aria-label="Filter actions" />
                   <Menu.List>
-                    <Menu.FilterProvider closeLabel="Close menu">
+                    <Menu.FilterProvider>
                       <Menu.SubmenuRoot>
                         <Menu.SubmenuTrigger delay={0}>Move to folder</Menu.SubmenuTrigger>
                         <Menu.Portal>
@@ -4944,7 +4927,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
 
     it('focuses a submenu input with autoFocus as soon as its trigger is hovered', async () => {
       const { user } = await render(
-        <Menu.FilterProvider closeLabel="Close menu">
+        <Menu.FilterProvider>
           <Menu.Root defaultOpen>
             <Menu.Trigger>Actions</Menu.Trigger>
             <Menu.Portal>
@@ -4953,7 +4936,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
                   <Menu.FilterInput aria-label="Filter actions" />
                   <Menu.List>
                     <Menu.Item>Rename</Menu.Item>
-                    <Menu.FilterProvider closeLabel="Close menu">
+                    <Menu.FilterProvider>
                       <Menu.SubmenuRoot>
                         <Menu.SubmenuTrigger delay={0} closeDelay={1000}>
                           Move to folder
@@ -5053,7 +5036,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
   describe('leaving the menu', () => {
     function QueryMenu(props: { modal?: boolean }) {
       return (
-        <Menu.FilterProvider closeLabel="Close menu">
+        <Menu.FilterProvider>
           <Menu.Root defaultOpen modal={props.modal}>
             <Menu.Trigger>Actions</Menu.Trigger>
             <Menu.Portal>
@@ -5124,7 +5107,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
   describe('prop: keepMounted', () => {
     it('resets the query and highlight across a close and reopen', async () => {
       const { user } = await render(
-        <Menu.FilterProvider closeLabel="Close menu">
+        <Menu.FilterProvider>
           <Menu.Root>
             <Menu.Trigger>Actions</Menu.Trigger>
             <Menu.Portal keepMounted>
@@ -5174,7 +5157,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
   describe('with a Viewport', () => {
     it('keeps real focus on the input while the cursor moves through the list', async () => {
       const { user } = await render(
-        <Menu.FilterProvider closeLabel="Close menu">
+        <Menu.FilterProvider>
           <Menu.Root defaultOpen>
             <Menu.Trigger>Actions</Menu.Trigger>
             <Menu.Portal>
@@ -5212,7 +5195,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
   describe('prop: autoHighlight', () => {
     it('clears a pointer highlight on pointer leave by default', async () => {
       const { user } = await render(
-        <Menu.FilterProvider closeLabel="Close menu">
+        <Menu.FilterProvider>
           <Menu.Root defaultOpen>
             <Menu.Trigger>Actions</Menu.Trigger>
             <Menu.Portal>
@@ -5263,7 +5246,7 @@ describe('filterable menu navigation regressions', () => {
       async (openKey, closeKey) => {
         const Wrapper = filterSubmenu ? Menu.FilterProvider : React.Fragment;
         const { user } = await render(
-          <Menu.FilterProvider closeLabel="Close menu">
+          <Menu.FilterProvider>
             <Menu.Root defaultOpen>
               <Menu.Trigger>Actions</Menu.Trigger>
               <Menu.Portal>
@@ -5325,12 +5308,7 @@ describe('filterable menu navigation regressions', () => {
     }
     const filter = vi.fn((text: string, query: string) => text.includes(query));
     const { user } = await render(
-      <Menu.FilterProvider
-        filter={filter}
-        autoHighlight="always"
-        defaultInputValue="Match"
-        closeLabel="Close menu"
-      >
+      <Menu.FilterProvider filter={filter} autoHighlight="always" defaultInputValue="Match">
         <Menu.Root defaultOpen>
           {() => (
             <React.Fragment>

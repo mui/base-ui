@@ -26,7 +26,6 @@ export function MenuFilterProvider(props: MenuFilterProvider.Props): React.JSX.E
     onInputValueChange,
     autoHighlight,
     locale,
-    closeLabel,
   } = props;
 
   const value = React.useMemo(
@@ -40,10 +39,9 @@ export function MenuFilterProvider(props: MenuFilterProvider.Props): React.JSX.E
         onInputValueChange,
         autoHighlight,
         locale,
-        closeLabel,
       },
     }),
-    [filter, inputValue, defaultInputValue, onInputValueChange, autoHighlight, locale, closeLabel],
+    [filter, inputValue, defaultInputValue, onInputValueChange, autoHighlight, locale],
   );
 
   return (

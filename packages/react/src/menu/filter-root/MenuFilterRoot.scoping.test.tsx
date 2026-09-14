@@ -13,7 +13,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
     submenu?: React.ReactNode;
   }) {
     return (
-      <Menu.FilterProvider {...props.filterProps} closeLabel="Close menu">
+      <Menu.FilterProvider {...props.filterProps}>
         <Menu.Root open>
           <Menu.Trigger>Actions</Menu.Trigger>
           <Menu.Portal>
@@ -75,7 +75,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
   it('navigates the list from the input with aria-activedescendant', async () => {
     const onClick = vi.fn();
     const { user } = await render(
-      <Menu.FilterProvider closeLabel="Close menu">
+      <Menu.FilterProvider>
         <Menu.Root open>
           <Menu.Trigger>Actions</Menu.Trigger>
           <Menu.Portal>
@@ -215,7 +215,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
     const { user } = await render(
       <FilterableMenu
         submenu={
-          <Menu.FilterProvider closeLabel="Close menu">
+          <Menu.FilterProvider>
             <Menu.SubmenuRoot>
               <Menu.SubmenuTrigger>Move to</Menu.SubmenuTrigger>
               <Menu.Portal>
@@ -268,7 +268,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
           <Menu.Positioner>
             <Menu.Popup>
               <Menu.Item>Rename</Menu.Item>
-              <Menu.FilterProvider closeLabel="Close menu">
+              <Menu.FilterProvider>
                 <Menu.SubmenuRoot open>
                   <Menu.SubmenuTrigger>Move to</Menu.SubmenuTrigger>
                   <Menu.Portal>
@@ -309,7 +309,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
       return (
         <React.Fragment>
           <Menu.Trigger handle={handle}>Actions</Menu.Trigger>
-          <Menu.FilterProvider closeLabel="Close menu">
+          <Menu.FilterProvider>
             <Menu.Root handle={handle}>
               <Menu.Portal>
                 <Menu.Positioner>
@@ -340,7 +340,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
 
   it('enters and leaves a plain submenu with the cross-axis keys from the input', async () => {
     const { user } = await render(
-      <Menu.FilterProvider closeLabel="Close menu">
+      <Menu.FilterProvider>
         <Menu.Root defaultOpen>
           <Menu.Trigger>Actions</Menu.Trigger>
           <Menu.Portal>
@@ -397,7 +397,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
   describe('trigger key relay', () => {
     function HoverMenu() {
       return (
-        <Menu.FilterProvider closeLabel="Close menu">
+        <Menu.FilterProvider>
           <Menu.Root>
             <Menu.Trigger openOnHover delay={0}>
               Actions
@@ -472,7 +472,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
 
     it('lets a consumer onKeyDown cancel the relay', async () => {
       const { user } = await render(
-        <Menu.FilterProvider closeLabel="Close menu">
+        <Menu.FilterProvider>
           <Menu.Root>
             <Menu.Trigger
               openOnHover
@@ -511,7 +511,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
 
       try {
         await render(
-          <Menu.FilterProvider closeLabel="Close menu">
+          <Menu.FilterProvider>
             <Menu.Root open>
               <Menu.Portal>
                 <Menu.Positioner>
@@ -540,7 +540,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
       function Test() {
         const handle = useRefWithInit(() => Menu.createHandle()).current;
         return (
-          <Menu.FilterProvider closeLabel="Close menu">
+          <Menu.FilterProvider>
             <Menu.Root handle={handle} open>
               <Menu.Trigger handle={handle}>Actions</Menu.Trigger>
               <Menu.Portal>
@@ -573,7 +573,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
       autoHighlight?: boolean;
     }) {
       return (
-        <Menu.FilterProvider autoHighlight={props.autoHighlight} closeLabel="Close menu">
+        <Menu.FilterProvider autoHighlight={props.autoHighlight}>
           <Menu.Root open onItemHighlighted={props.onItemHighlighted}>
             <Menu.Portal>
               <Menu.Positioner>
@@ -649,7 +649,7 @@ describe('independent menu focus inside a filterable menu', () => {
 
   it('returns to its own trigger on Shift+Tab', async () => {
     const { user } = await render(
-      <Menu.FilterProvider closeLabel="Close menu">
+      <Menu.FilterProvider>
         <Menu.Root open>
           <Menu.Trigger>Parent</Menu.Trigger>
           <Menu.Portal>
@@ -699,10 +699,10 @@ describe('independent menu focus inside a filterable menu', () => {
       });
     }
 
-    function TrappedMenu(props: { closeLabel?: string; modal?: boolean; submenu?: boolean }) {
+    function TrappedMenu(props: { modal?: boolean; submenu?: boolean }) {
       return (
         <div>
-          <Menu.FilterProvider closeLabel={props.closeLabel}>
+          <Menu.FilterProvider>
             <Menu.Root defaultOpen modal={props.modal}>
               <Menu.Trigger>Actions</Menu.Trigger>
               <Menu.Portal>
@@ -712,7 +712,7 @@ describe('independent menu focus inside a filterable menu', () => {
                     <Menu.List>
                       <Menu.Item>Rename</Menu.Item>
                       {props.submenu && (
-                        <Menu.FilterProvider closeLabel="Close submenu">
+                        <Menu.FilterProvider>
                           <Menu.SubmenuRoot>
                             <Menu.SubmenuTrigger>More</Menu.SubmenuTrigger>
                             <Menu.Portal>
@@ -739,18 +739,14 @@ describe('independent menu focus inside a filterable menu', () => {
       );
     }
 
-    it('keeps Tab inside a modal filterable popup and exposes a hidden close button', async () => {
-      const { user } = await render(<TrappedMenu closeLabel="Close menu" />);
+    it('keeps Tab inside a modal filterable popup', async () => {
+      const { user } = await render(<TrappedMenu />);
       const input = screen.getByRole('searchbox', { name: 'Filter actions' });
       await waitFor(() => {
         expect(input).toHaveFocus();
       });
 
-      const popup = screen.getByTestId('popup');
-      expect(popup).toHaveAttribute('aria-modal', 'true');
-      const close = screen.getByRole('button', { name: 'Close menu' });
-      expect(popup).toContainElement(close);
-      expect(close).toHaveAttribute('tabindex', '-1');
+      expect(screen.getByTestId('popup')).toHaveAttribute('aria-modal', 'true');
 
       await pressTab(user, false);
       await waitFor(() => {
@@ -765,13 +761,13 @@ describe('independent menu focus inside a filterable menu', () => {
       expect(screen.getByRole('menu')).not.toBe(null);
     });
 
-    it('closes and returns focus to the trigger from the hidden close button', async () => {
-      const { user } = await render(<TrappedMenu closeLabel="Close menu" />);
+    it('closes a trapped popup with Escape and returns focus to the trigger', async () => {
+      const { user } = await render(<TrappedMenu />);
       await waitFor(() => {
         expect(screen.getByRole('searchbox', { name: 'Filter actions' })).toHaveFocus();
       });
 
-      await user.click(screen.getByRole('button', { name: 'Close menu' }));
+      await user.keyboard('[Escape]');
 
       await waitFor(() => {
         expect(screen.queryByRole('menu')).toBe(null);
@@ -781,76 +777,51 @@ describe('independent menu focus inside a filterable menu', () => {
       });
     });
 
-    it('does not trap, render a close button, or warn with modal={false}', async () => {
-      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
-      try {
-        const { user } = await render(<TrappedMenu modal={false} />);
-        const input = screen.getByRole('searchbox', { name: 'Filter actions' });
-        await waitFor(() => {
-          expect(input).toHaveFocus();
-        });
+    it('lets Tab leave the popup with modal={false}', async () => {
+      const { user } = await render(<TrappedMenu modal={false} />);
+      const input = screen.getByRole('searchbox', { name: 'Filter actions' });
+      await waitFor(() => {
+        expect(input).toHaveFocus();
+      });
 
-        expect(screen.getByTestId('popup')).not.toHaveAttribute('aria-modal');
-        expect(screen.getByTestId('popup').querySelector('button')).toBe(null);
-        expect(warnSpy).not.toHaveBeenCalled();
+      expect(screen.getByTestId('popup')).not.toHaveAttribute('aria-modal');
 
-        await user.tab();
-        await waitFor(() => {
-          expect(screen.getByTestId('after')).toHaveFocus();
-        });
-      } finally {
-        warnSpy.mockRestore();
-      }
-    });
-
-    it.each([undefined, ''])('warns when a trapped popup has closeLabel %s', async (closeLabel) => {
-      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
-      try {
-        await render(<TrappedMenu closeLabel={closeLabel} />);
-        expect(warnSpy).toHaveBeenCalledTimes(1);
-        expect(warnSpy.mock.calls[0][0]).toContain('closeLabel');
-      } finally {
-        warnSpy.mockRestore();
-      }
+      await user.tab();
+      await waitFor(() => {
+        expect(screen.getByTestId('after')).toHaveFocus();
+      });
     });
 
     // jsdom drops the pointer type, so the open method can't be observed there.
     it.skipIf(isJSDOM)('does not trap a menu opened by touch', async () => {
-      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
-      try {
-        await render(
-          <Menu.FilterProvider>
-            <Menu.Root>
-              <Menu.Trigger>Actions</Menu.Trigger>
-              <Menu.Portal>
-                <Menu.Positioner>
-                  <Menu.Popup data-testid="popup">
-                    <Menu.FilterInput aria-label="Filter actions" />
-                    <Menu.List>
-                      <Menu.Item>Rename</Menu.Item>
-                    </Menu.List>
-                  </Menu.Popup>
-                </Menu.Positioner>
-              </Menu.Portal>
-            </Menu.Root>
-          </Menu.FilterProvider>,
-        );
+      await render(
+        <Menu.FilterProvider>
+          <Menu.Root>
+            <Menu.Trigger>Actions</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup data-testid="popup">
+                  <Menu.FilterInput aria-label="Filter actions" />
+                  <Menu.List>
+                    <Menu.Item>Rename</Menu.Item>
+                  </Menu.List>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </Menu.FilterProvider>,
+      );
 
-        const trigger = screen.getByRole('button', { name: 'Actions' });
-        fireEvent.pointerDown(trigger, { pointerType: 'touch' });
-        fireEvent.click(trigger);
+      const trigger = screen.getByRole('button', { name: 'Actions' });
+      fireEvent.pointerDown(trigger, { pointerType: 'touch' });
+      fireEvent.click(trigger);
 
-        const popup = await screen.findByTestId('popup');
-        expect(popup).not.toHaveAttribute('aria-modal');
-        expect(popup.querySelector('button')).toBe(null);
-        expect(warnSpy).not.toHaveBeenCalled();
-      } finally {
-        warnSpy.mockRestore();
-      }
+      const popup = await screen.findByTestId('popup');
+      expect(popup).not.toHaveAttribute('aria-modal');
     });
 
     it('leaves a filterable submenu untrapped inside a trapped parent', async () => {
-      const { user } = await render(<TrappedMenu closeLabel="Close menu" submenu />);
+      const { user } = await render(<TrappedMenu submenu />);
       const input = screen.getByRole('searchbox', { name: 'Filter actions' });
       await waitFor(() => {
         expect(input).toHaveFocus();
@@ -862,9 +833,7 @@ describe('independent menu focus inside a filterable menu', () => {
       await waitFor(() => {
         expect(submenuInput).toHaveFocus();
       });
-      const submenuPopup = screen.getByTestId('submenu-popup');
-      expect(submenuPopup).not.toHaveAttribute('aria-modal');
-      expect(screen.queryByRole('button', { name: 'Close submenu' })).toBe(null);
+      expect(screen.getByTestId('submenu-popup')).not.toHaveAttribute('aria-modal');
     });
   });
 });
