@@ -1062,12 +1062,6 @@ type MenuCheckboxItemIndicatorState = {
 
 Creates a new handle to connect a Menu.Root with detached Menu.Trigger components.
 
-**Parameters:**
-
-| Parameter | Type                | Default | Description |
-| :-------- | :------------------ | :------ | :---------- |
-| options?  | `MenuHandleOptions` | -       | -           |
-
 **Return Value:**
 
 ```tsx
@@ -1236,18 +1230,11 @@ triggers rendered outside of it.
 The imperative methods take effect only while a root using this handle is mounted; calls made
 before a root attaches (or after it unmounts) are ignored.
 
-**Constructor Parameters:**
-
-| Parameter | Type                | Default | Description |
-| :-------- | :------------------ | :------ | :---------- |
-| options?  | `MenuHandleOptions` | -       | -           |
-
 **Properties:**
 
-| Property   | Type      | Modifiers | Description                                                                                  |
-| :--------- | :-------- | :-------- | :------------------------------------------------------------------------------------------- |
-| filterable | `boolean` | readonly  | Whether the handle connects detached triggers to a filterable `Menu.Root`.                   |
-| isOpen     | `boolean` | readonly  | Whether the menu is currently open. Returns `false` while no root is attached to the handle. |
+| Property | Type      | Modifiers | Description                                                                                  |
+| :------- | :-------- | :-------- | :------------------------------------------------------------------------------------------- |
+| isOpen   | `boolean` | readonly  | Whether the menu is currently open. Returns `false` while no root is attached to the handle. |
 
 **Methods:**
 
@@ -1360,19 +1347,6 @@ type MenuFilterOptions = {
 };
 ```
 
-### MenuHandleOptions
-
-```typescript
-type MenuHandleOptions = {
-  /**
-   * Whether the handle connects detached triggers to a filterable `Menu.Root`. Triggers then announce
-   * the filterable popup before the root attaches, so server and client markup agree.
-   * @default false
-   */
-  filterable?: boolean;
-};
-```
-
 ### MenuParent
 
 ```typescript
@@ -1457,7 +1431,7 @@ type PayloadChildRenderFunction = (arg: { payload: unknown | undefined }) => Rea
 - `Menu.FilterClear`: `Menu.FilterClear`, `Menu.FilterClear.State`, `Menu.FilterClear.Props`
 - `Menu.FilterEmpty`: `Menu.FilterEmpty`, `Menu.FilterEmpty.State`, `Menu.FilterEmpty.Props`
 - `Menu.useFilter`
-- `Default`: `MenuFilterFunction`, `MenuHandleOptions`, `MenuFilter`, `MenuFilterOptions`, `MenuRootState`, `MenuRootProps`, `MenuRootActions`, `MenuRootChangeEventReason`, `MenuRootChangeEventDetails`, `MenuRootHighlightEventReason`, `MenuRootHighlightEventDetails`, `MenuRootOrientation`, `MenuParent`, `MenuArrowState`, `MenuArrowProps`, `MenuBackdropState`, `MenuBackdropProps`, `MenuCheckboxItemState`, `MenuCheckboxItemProps`, `MenuCheckboxItemChangeEventReason`, `MenuCheckboxItemChangeEventDetails`, `MenuCheckboxItemIndicatorProps`, `MenuCheckboxItemIndicatorState`, `MenuGroupLabelProps`, `MenuGroupLabelState`, `MenuGroupProps`, `MenuGroupState`, `MenuItemState`, `MenuItemProps`, `MenuLinkItemState`, `MenuLinkItemProps`, `MenuPopupProps`, `MenuPopupState`, `MenuPortalState`, `MenuPortalProps`, `MenuPositionerState`, `MenuPositionerProps`, `MenuRadioGroupProps`, `MenuRadioGroupState`, `MenuRadioGroupChangeEventReason`, `MenuRadioGroupChangeEventDetails`, `MenuRadioItemState`, `MenuRadioItemProps`, `MenuRadioItemIndicatorProps`, `MenuRadioItemIndicatorState`, `MenuSubmenuRootProps`, `MenuSubmenuRootState`, `MenuSubmenuRootChangeEventReason`, `MenuSubmenuRootChangeEventDetails`, `MenuTriggerProps`, `MenuTriggerState`, `MenuSubmenuTriggerState`, `MenuSubmenuTriggerProps`, `MenuViewportState`, `MenuViewportProps`, `MenuFilterProviderProps`, `MenuFilterProviderInputValueChangeEventReason`, `MenuFilterProviderInputValueChangeEventDetails`, `MenuFilterInputState`, `MenuFilterInputProps`, `MenuListState`, `MenuListProps`, `MenuFilterClearState`, `MenuFilterClearProps`, `MenuFilterEmptyState`, `MenuFilterEmptyProps`
+- `Default`: `MenuFilterFunction`, `MenuFilter`, `MenuFilterOptions`, `MenuRootState`, `MenuRootProps`, `MenuRootActions`, `MenuRootChangeEventReason`, `MenuRootChangeEventDetails`, `MenuRootHighlightEventReason`, `MenuRootHighlightEventDetails`, `MenuRootOrientation`, `MenuParent`, `MenuArrowState`, `MenuArrowProps`, `MenuBackdropState`, `MenuBackdropProps`, `MenuCheckboxItemState`, `MenuCheckboxItemProps`, `MenuCheckboxItemChangeEventReason`, `MenuCheckboxItemChangeEventDetails`, `MenuCheckboxItemIndicatorProps`, `MenuCheckboxItemIndicatorState`, `MenuGroupLabelProps`, `MenuGroupLabelState`, `MenuGroupProps`, `MenuGroupState`, `MenuItemState`, `MenuItemProps`, `MenuLinkItemState`, `MenuLinkItemProps`, `MenuPopupProps`, `MenuPopupState`, `MenuPortalState`, `MenuPortalProps`, `MenuPositionerState`, `MenuPositionerProps`, `MenuRadioGroupProps`, `MenuRadioGroupState`, `MenuRadioGroupChangeEventReason`, `MenuRadioGroupChangeEventDetails`, `MenuRadioItemState`, `MenuRadioItemProps`, `MenuRadioItemIndicatorProps`, `MenuRadioItemIndicatorState`, `MenuSubmenuRootProps`, `MenuSubmenuRootState`, `MenuSubmenuRootChangeEventReason`, `MenuSubmenuRootChangeEventDetails`, `MenuTriggerProps`, `MenuTriggerState`, `MenuSubmenuTriggerState`, `MenuSubmenuTriggerProps`, `MenuViewportState`, `MenuViewportProps`, `MenuFilterProviderProps`, `MenuFilterProviderInputValueChangeEventReason`, `MenuFilterProviderInputValueChangeEventDetails`, `MenuFilterInputState`, `MenuFilterInputProps`, `MenuListState`, `MenuListProps`, `MenuFilterClearState`, `MenuFilterClearProps`, `MenuFilterEmptyState`, `MenuFilterEmptyProps`
 
 ## Canonical Types
 
