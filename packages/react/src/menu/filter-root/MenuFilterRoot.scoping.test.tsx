@@ -814,7 +814,7 @@ describe('independent menu focus inside a filterable menu', () => {
 
       const trigger = screen.getByRole('button', { name: 'Actions' });
       fireEvent.pointerDown(trigger, { pointerType: 'touch' });
-      fireEvent.click(trigger);
+      fireEvent.mouseDown(trigger);
 
       const popup = await screen.findByTestId('popup');
       expect(popup).not.toHaveAttribute('aria-modal');
