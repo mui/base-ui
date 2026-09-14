@@ -155,8 +155,18 @@
   height: 2rem;
   padding: 0;
   border: 0;
+  outline: 0;
   background: transparent;
   color: inherit;
+
+  &:focus-visible {
+    outline: 2px solid oklch(14.5% 0 0deg);
+    outline-offset: -2px;
+
+    @media (prefers-color-scheme: dark) {
+      outline-color: white;
+    }
+  }
 }
 
 .List {
