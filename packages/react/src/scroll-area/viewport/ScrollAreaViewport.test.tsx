@@ -43,9 +43,13 @@ describe('<ScrollArea.Viewport />', () => {
 
   describe.skipIf(isJSDOM)('subtree animations', () => {
     afterEach(() => vi.restoreAllMocks());
-    it.each([false, true])(
-      'recomputes overflow after a subtree animation finishes with infinite animation: %s',
-      async (includeInfinite) => {
+    it.each([
+      ['no infinite animation', undefined],
+      ['infinite iterations', { iterations: Infinity }],
+      ['infinite duration', { duration: Infinity, iterations: 1 }],
+    ] as const)(
+      'recomputes overflow after a subtree animation finishes with %s',
+      async (_description, infiniteTiming) => {
         vi.spyOn(ResizeObserver.prototype, 'observe').mockImplementation(() => {});
         let scrollWidth = 100;
         let resolveAnimation: () => void = () => {};
@@ -56,11 +60,11 @@ describe('<ScrollArea.Viewport />', () => {
           () =>
             [
               { finished },
-              ...(includeInfinite
+              ...(infiniteTiming
                 ? [
                     {
                       finished: new Promise<void>(() => {}),
-                      effect: { getTiming: () => ({ iterations: Infinity }) },
+                      effect: { getTiming: () => infiniteTiming },
                     },
                   ]
                 : []),

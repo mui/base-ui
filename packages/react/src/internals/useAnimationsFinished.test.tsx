@@ -6,7 +6,7 @@ import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { createRenderer } from '#test-utils';
 import { useAnimationsFinished } from './useAnimationsFinished';
 
-function createAnimation(iterations = 1) {
+function createAnimation(iterations = 1, duration = 1) {
   let resolveFinished!: () => void;
   let rejectFinished!: () => void;
 
@@ -18,7 +18,7 @@ function createAnimation(iterations = 1) {
   return {
     animation: {
       finished,
-      effect: { getTiming: () => ({ iterations }) },
+      effect: { getTiming: () => ({ duration, iterations }) },
       pending: false,
       playState: 'running',
     } as unknown as Animation,
@@ -84,19 +84,25 @@ describe('useAnimationsFinished', () => {
     },
   );
 
-  it('finishes when the element only has infinite animations', async () => {
-    const animationsDisabled = globalThis.BASE_UI_ANIMATIONS_DISABLED;
-    globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
-    const infinite = createAnimation(Infinity);
-    const onFinished = vi.fn();
+  it.each([
+    ['iteration count', Infinity, 1],
+    ['duration', 1, Infinity],
+  ] as const)(
+    'finishes when the element only has an animation with an infinite %s',
+    async (_timing, iterations, duration) => {
+      const animationsDisabled = globalThis.BASE_UI_ANIMATIONS_DISABLED;
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+      const infinite = createAnimation(iterations, duration);
+      const onFinished = vi.fn();
 
-    try {
-      await render(<Test getAnimations={() => [infinite.animation]} onFinished={onFinished} />);
-      await waitFor(() => expect(onFinished).toHaveBeenCalledTimes(1));
-    } finally {
-      globalThis.BASE_UI_ANIMATIONS_DISABLED = animationsDisabled;
-    }
-  });
+      try {
+        await render(<Test getAnimations={() => [infinite.animation]} onFinished={onFinished} />);
+        await waitFor(() => expect(onFinished).toHaveBeenCalledTimes(1));
+      } finally {
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = animationsDisabled;
+      }
+    },
+  );
 
   it('waits for a replacement animation after an animation is canceled', async () => {
     const animationsDisabled = globalThis.BASE_UI_ANIMATIONS_DISABLED;
