@@ -21,7 +21,10 @@ describe('createClonedDragPreviewElement', () => {
       handles.pop()!.destroy();
     }
     host.remove();
-    expect(document.querySelectorAll('[data-drag-preview]')).toHaveLength(0);
+    const leaked = document.querySelectorAll('[data-drag-preview]').length;
+    if (leaked > 0) {
+      throw new Error(`${leaked} drag preview element(s) leaked into the document after cleanup.`);
+    }
   });
 
   /** Queue a handle for `afterEach` destruction (`destroy()` is idempotent). */

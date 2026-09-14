@@ -37,7 +37,7 @@ describe('engine.registerAutoScroller', () => {
     const el = createElement();
     const cleanup = engine.registerAutoScroller(el, {});
     cleanup();
-    cleanup();
+    expect(() => cleanup()).not.toThrow();
   });
 
   // A scroller the loop can actually engage: a real overflow container (so
@@ -2389,18 +2389,27 @@ describe('engine.registerAutoScroller', () => {
     });
 
     it('does not engage the same element without applyScroll', async () => {
-      const { engine } = await renderDnd();
-      const source = createElement();
-      const viewport = makeViewport();
+      // A non-scrolling element with parameters trips the dev-only warning.
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      try {
+        const { engine } = await renderDnd();
+        const source = createElement();
+        const viewport = makeViewport();
 
-      engine.registerDraggable(source, {});
-      engine.registerAutoScroller(viewport, {});
+        engine.registerDraggable(source, {});
+        engine.registerAutoScroller(viewport, {});
 
-      await driveTo(source, viewport, 100, 190);
+        await driveTo(source, viewport, 100, 190);
 
-      // The negative control: that element is engageable only because it
-      // delegates, not because the overflow gate stopped working.
-      expect(viewport.scrollBy).not.toHaveBeenCalled();
+        // The negative control: that element is engageable only because it
+        // delegates, not because the overflow gate stopped working.
+        expect(viewport.scrollBy).not.toHaveBeenCalled();
+        expect(warnSpy).toHaveBeenCalledWith(
+          expect.stringContaining('registered on an element that does not scroll'),
+        );
+      } finally {
+        warnSpy.mockRestore();
+      }
     });
 
     // Each of the four `canScrollUp/Down/Left/Right` limit checks would reject an

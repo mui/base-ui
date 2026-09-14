@@ -364,6 +364,7 @@ describe('engine.registerDraggable', () => {
   });
 
   // Type-level regression guard. Never executes.
+  // eslint-disable-next-line vitest/no-disabled-tests
   it.skip('type test: TData threads through payload and every source event', async () => {
     interface MyData extends Record<string, unknown> {
       foo: string;

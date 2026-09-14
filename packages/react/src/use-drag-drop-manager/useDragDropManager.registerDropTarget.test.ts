@@ -1232,6 +1232,7 @@ describe('engine.registerDropTarget', () => {
   });
 
   // Type-level regression guard. Never executes.
+  // eslint-disable-next-line vitest/no-disabled-tests
   it.skip('type test: TSourceData and TLocalData thread through callbacks', async () => {
     interface MySourceData {
       kind: 'card';

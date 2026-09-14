@@ -300,6 +300,7 @@ describe('engine.registerMonitor', () => {
   });
 
   // Type-level regression guard. Never executes.
+  // eslint-disable-next-line vitest/no-disabled-tests
   it.skip('type test: TSourceData narrows via discriminated union in monitor callbacks', async () => {
     interface CardDrag extends Record<string, unknown> {
       kind: 'card';
