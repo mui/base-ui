@@ -1,3 +1,4 @@
+import { afterEach, it, expect } from 'vitest';
 import { isElementVisible, isHiddenByStyles, isListIndexDisabled } from './composite';
 
 afterEach(() => {

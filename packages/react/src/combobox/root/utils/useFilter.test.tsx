@@ -1,4 +1,4 @@
-import { expect } from 'vitest';
+import { expect, describe, it } from 'vitest';
 import { createRenderer } from '#test-utils';
 import { screen } from '@mui/internal-test-utils';
 import { useComboboxFilter } from './useFilter';

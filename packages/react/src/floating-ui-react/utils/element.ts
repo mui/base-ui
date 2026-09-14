@@ -1,11 +1,12 @@
 import { isElement, isHTMLElement } from '@floating-ui/utils/dom';
 import { platform } from '@base-ui/utils/platform';
-import { activeElement, contains, getTarget } from '@base-ui/utils/shadowDom';
+import { activeElement, closest, contains, getTarget } from '@base-ui/utils/shadowDom';
 import { FOCUSABLE_ATTRIBUTE, TYPEABLE_SELECTOR } from './constants';
 import { type PopupTriggerMap } from '../../utils/popups';
 import { INTERACTIVE_ELEMENT_SELECTOR } from '../../utils/isInteractiveElement';
+import * as TooltipTriggerDataAttributes from '../../tooltip/trigger/TooltipTriggerDataAttributes';
 
-export { activeElement, contains, getTarget };
+export { activeElement, closest, contains, getTarget };
 
 export function isTargetInsideEnabledTrigger(
   target: EventTarget | null,
@@ -18,12 +19,12 @@ export function isTargetInsideEnabledTrigger(
   const targetElement = target as Element;
 
   if (triggerElements.hasElement(targetElement)) {
-    return !targetElement.hasAttribute('data-trigger-disabled');
+    return !targetElement.hasAttribute(TooltipTriggerDataAttributes.triggerDisabled);
   }
 
   for (const [, trigger] of triggerElements.entries()) {
     if (contains(trigger, targetElement)) {
-      return !trigger.hasAttribute('data-trigger-disabled');
+      return !trigger.hasAttribute(TooltipTriggerDataAttributes.triggerDisabled);
     }
   }
 
@@ -53,7 +54,7 @@ export function isTypeableElement(element: unknown): boolean {
 }
 
 export function isInteractiveElement(element: Element | null) {
-  return element?.closest(INTERACTIVE_ELEMENT_SELECTOR) != null;
+  return closest(element, INTERACTIVE_ELEMENT_SELECTOR) != null;
 }
 
 export function isTypeableCombobox(element: Element | null) {

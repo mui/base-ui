@@ -1,4 +1,4 @@
-import { vi, expect } from 'vitest';
+import { vi, expect, describe, beforeEach, it } from 'vitest';
 import {
   fireEvent,
   flushMicrotasks,

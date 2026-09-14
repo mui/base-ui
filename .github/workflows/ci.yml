@@ -22,7 +22,7 @@ jobs:
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
       - name: Set up pnpm
-        uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6.0.10
+        uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
       - name: Use Node.js 22.x
         uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
         with:
@@ -31,7 +31,7 @@ jobs:
       - run: pnpm install
       - run: pnpm release:build
       - name: Publish packages
-        uses: mui/mui-public/.github/actions/ci-publish@0534c1cc1a7f0f170d927199ec407192a656e81f # master
+        uses: mui/mui-public/.github/actions/ci-publish@1c5627440adc8bc5990c9b1c95fb4b74d375345e # master
         with:
           pr-comment: true
 
@@ -44,7 +44,7 @@ jobs:
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
       - name: Set up pnpm
-        uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6.0.10
+        uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
       - name: Use Node.js 22.x
         uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
         with:
@@ -75,11 +75,11 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
       - name: Set up pnpm
-        uses: pnpm/action-setup@8912a9102ac27614460f54aedde9e1e7f9aec20d # v6.0.5
+        uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
       - name: Use Node.js 22.x
-        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
         with:
           node-version: '22.23.2'
           cache: 'pnpm'
@@ -97,7 +97,7 @@ jobs:
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
       - name: Prepare for publishing
-        uses: mui/mui-public/.github/actions/publish-prepare@0534c1cc1a7f0f170d927199ec407192a656e81f # master
+        uses: mui/mui-public/.github/actions/publish-prepare@1c5627440adc8bc5990c9b1c95fb4b74d375345e # master
         with:
           node-version: '22.23.2'
       - name: Dry run npm publishing

@@ -1,12 +1,10 @@
 'use client';
 import * as React from 'react';
-import { useStore } from '@base-ui/utils/store';
 import { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { ComboboxGroupContext } from './ComboboxGroupContext';
 import { GroupCollectionProvider } from '../collection/GroupCollectionContext';
 import { useComboboxRootContext } from '../root/ComboboxRootContext';
-import { selectors } from '../store';
 
 /**
  * Groups related items with the corresponding label.
@@ -21,7 +19,7 @@ export const ComboboxGroup = React.forwardRef(function ComboboxGroup(
   const { render, className, style, items, ...elementProps } = componentProps;
 
   const store = useComboboxRootContext();
-  const grid = useStore(store, selectors.grid);
+  const grid = store.useState('grid');
 
   const [labelId, setLabelId] = React.useState<string | undefined>();
 

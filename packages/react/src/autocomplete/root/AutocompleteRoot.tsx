@@ -17,6 +17,7 @@ export function AutocompleteRoot<Items extends readonly { items: readonly any[] 
     /**
      * The items to be displayed in the list.
      * Can be either a flat array of items or an array of groups with items.
+     * Nullish entries are not supported: remove them from the data before passing it.
      */
     items: Items;
   },
@@ -26,6 +27,7 @@ export function AutocompleteRoot<ItemValue>(
     /**
      * The items to be displayed in the list.
      * Can be either a flat array of items or an array of groups with items.
+     * Nullish entries are not supported: remove them from the data before passing it.
      */
     items?: readonly ItemValue[] | undefined;
   },
@@ -43,7 +45,8 @@ export function AutocompleteRoot<ItemValue>(
     ...other
   } = props;
 
-  const enableInline = mode === 'inline' || mode === 'both';
+  // Inline completion writes the highlighted label into the input, which `readOnly` must prevent.
+  const enableInline = (mode === 'inline' || mode === 'both') && !props.readOnly;
   const staticItems = mode === 'inline' || mode === 'none';
 
   // Mirror the typed value for uncontrolled usage so we can compose the temporary
@@ -53,10 +56,10 @@ export function AutocompleteRoot<ItemValue>(
   const [inlineInputValue, setInlineInputValue] = React.useState('');
 
   React.useEffect(() => {
-    if (isControlled) {
+    if (isControlled || !enableInline) {
       setInlineInputValue('');
     }
-  }, [value, isControlled]);
+  }, [value, isControlled, enableInline]);
 
   // Compose the input value shown to the user: inline value takes precedence when present.
   let resolvedInputValue: typeof value;
@@ -170,12 +173,14 @@ export interface AutocompleteRootProps<ItemValue> extends Omit<
   /**
    * The items to be displayed in the list.
    * Can be either a flat array of items or an array of groups with items.
+   * Nullish entries are not supported: remove them from the data before passing it.
    */
   items?: readonly ItemValue[] | readonly Group<ItemValue>[] | undefined;
   /**
    * Filtered items to display in the list.
-   * When provided, the list will use these items instead of filtering the `items` prop internally.
+   * When provided, the list uses these items instead of filtering the `items` prop internally.
    * When `items` is also provided, this array must preserve its flat or grouped structure.
+   * Nullish entries are not supported, as in `items`.
    * Use when you want to control filtering logic externally with the `useFilter()` hook.
    */
   filteredItems?: readonly ItemValue[] | readonly Group<ItemValue>[] | undefined;

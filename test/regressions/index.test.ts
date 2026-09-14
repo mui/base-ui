@@ -1,4 +1,4 @@
-import { describe, it } from 'vitest';
+import { describe, it, beforeEach, afterAll } from 'vitest';
 import * as path from 'node:path';
 import * as fs from 'node:fs/promises';
 import { chromium, Locator } from '@playwright/test';

@@ -1,7 +1,7 @@
 version: 2.1
 
 orbs:
-  code-infra: https://raw.githubusercontent.com/mui/mui-public/49ceb69d6aab71ab39f5cd9a3694d9c18faee7bc/.circleci/orbs/code-infra.yml
+  code-infra: https://raw.githubusercontent.com/mui/mui-public/ecaf36c894f9e8bc68959b23bf33e45aefeb319c/.circleci/orbs/code-infra.yml
 
 parameters:
   browserstack-force:
@@ -46,19 +46,6 @@ default-context: &default-context
 #   restore_cache:
 #     key: v1-repo-{{ .Branch }}-{{ .Revision }}
 
-commands:
-  build-with-compiler:
-    description: 'Build packages with React Compiler'
-    steps:
-      - run:
-          name: Add compiler package
-          command: pnpm -F "./packages/*" add react-compiler-runtime
-      - run:
-          name: Build with compiler
-          command: pnpm release:build --enableReactCompiler
-          environment:
-            MUI_REACT_COMPILER_MODE: 'infer'
-
 jobs:
   test_unit:
     <<: *default-job
@@ -66,7 +53,7 @@ jobs:
     steps:
       - checkout
       - code-infra/install-deps:
-          package-overrides: react@<< parameters.react-version >>
+          react-version: << parameters.react-version >>
       - run:
           name: Run tests on JSDOM
           command: pnpm test:jsdom
@@ -90,30 +77,20 @@ jobs:
       - code-infra/valelint
   test_static:
     <<: *default-job
-    environment:
-      <<: *default-environment
-      NODE_OPTIONS: --max-old-space-size=3584
     steps:
       - checkout
       - code-infra/install-deps
       - code-infra/check-static-changes
-      - run:
-          name: '`pnpm extract-error-codes` changes committed?'
-          command: |
-            pnpm extract-error-codes
-            git add -A && git diff --exit-code --staged
-      - run:
-          name: '`pnpm inline-scripts` changes committed?'
-          command: |
-            pnpm inline-scripts
-            git add -A && git diff --exit-code --staged
+      - code-infra/extract-error-codes
+      - code-infra/check-generated:
+          command: pnpm inline-scripts
   test_types:
     <<: *default-job
     resource_class: medium+
     steps:
       - checkout
       - code-infra/install-deps:
-          package-overrides: react@<< parameters.react-version >>
+          react-version: << parameters.react-version >>
       - run:
           name: Tests TypeScript definitions
           command: pnpm typescript
@@ -133,11 +110,7 @@ jobs:
     resource_class: medium+
     steps:
       - checkout
-      - code-infra/install-deps:
-          package-overrides: typescript@next
-      - run:
-          name: Tests TypeScript definitions
-          command: pnpm typescript
+      - code-infra/test-types-next
       - restore_cache:
           name: Restore generated declaration files
           keys:
@@ -162,7 +135,7 @@ jobs:
     steps:
       - checkout
       - code-infra/install-deps:
-          package-overrides: react@<< parameters.react-version >>
+          react-version: << parameters.react-version >>
       - run:
           name: Run tests on headless Chromium
           command: pnpm test:chromium
@@ -182,9 +155,7 @@ jobs:
           command: xvfb-run pnpm test:regressions
       - store_test_results:
           path: test-results
-      - run:
-          name: Upload screenshots to Argos CI
-          command: pnpm test:argos
+      - code-infra/argos-push
   test_e2e:
     <<: *default-job
     executor:
@@ -234,7 +205,7 @@ jobs:
     steps:
       - checkout
       - code-infra/install-deps
-      - build-with-compiler
+      - code-infra/build-with-react-compiler
       - run:
           name: Run tests on JSDOM
           command: pnpm test:jsdom
@@ -252,7 +223,7 @@ jobs:
     steps:
       - checkout
       - code-infra/install-deps
-      - build-with-compiler
+      - code-infra/build-with-react-compiler
       - run:
           name: Run tests on headless Chromium
           command: pnpm test:chromium

@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, expect, vi } from 'vitest';
+import { afterEach, beforeEach, expect, vi, describe, it } from 'vitest';
 import * as React from 'react';
 import userEvent from '@testing-library/user-event';
 import { act, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
@@ -381,6 +381,7 @@ describe('<Menu.Positioner />', () => {
       }
 
       await render(<TestComponent />);
+      expect(screen.getByTestId('positioner')).not.toBe(null);
     });
 
     it('should react to the anchor changing from a ref to undefined and back', async () => {

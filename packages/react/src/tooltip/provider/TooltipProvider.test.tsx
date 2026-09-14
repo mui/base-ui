@@ -1,4 +1,4 @@
-import { expect } from 'vitest';
+import { expect, describe, beforeEach, it } from 'vitest';
 import { Tooltip } from '@base-ui/react/tooltip';
 import { screen, fireEvent, flushMicrotasks } from '@mui/internal-test-utils';
 import { advanceReactClock, createRenderer, resetBrowserPointer } from '#test-utils';
