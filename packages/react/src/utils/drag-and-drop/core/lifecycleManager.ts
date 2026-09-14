@@ -39,7 +39,7 @@ import {
 import { activateMonitors, clearActiveMonitors, dispatchToMonitors } from '../monitor';
 import { buildSessionSnapshot, cloneLocationHistory, setDragSession } from '../dragSessionStore';
 import { clearPublishedDragPreview } from '../overlay/dragPreviewStore';
-import { containConsumerError, elementFromPointIgnoring } from '../utils';
+import { containConsumerError, elementFromPointIgnoring, getComposedParentElement } from '../utils';
 import { getSharedSlot } from '../sharedState';
 
 interface LifecycleState {
@@ -53,6 +53,9 @@ interface LifecycleState {
   dragCancel: (() => void) | null;
   /** See {@link refreshDropTargets}. Set during an active drag, cleared on teardown. */
   refreshDropTargets: ((rehitTest: boolean) => void) | null;
+  /** Whether a changed element belongs to the current resolution walk. */
+  shouldRefreshTargets: ((elements: ReadonlySet<Element>) => boolean) | null;
+  queuedParameterTargets: Set<Element> | null;
   /** The session whose parameter refresh owns the queued microtask. */
   queuedParameterRefresh: ((rehitTest: boolean) => void) | null;
   /**
@@ -68,6 +71,8 @@ const state = getSharedSlot<LifecycleState>('lifecycleManager', () => ({
   dragCancel: null,
   refreshDropTargets: null,
   queuedParameterRefresh: null,
+  shouldRefreshTargets: null,
+  queuedParameterTargets: null,
   isHovered: null,
 }));
 
@@ -94,20 +99,34 @@ export function refreshDropTargets(): void {
 }
 
 /** Coalesce a React commit's drop-target parameter changes into one resolution. */
-export function scheduleDropTargetParameterRefresh(): void {
+export function scheduleDropTargetParameterRefresh(element?: Element | null): void {
   const refresh = state.refreshDropTargets;
-  if (refresh === null || state.queuedParameterRefresh === refresh) {
+  if (refresh === null) {
+    return;
+  }
+  if (state.queuedParameterRefresh === refresh) {
+    if (element == null) {
+      state.queuedParameterTargets = null;
+    } else {
+      state.queuedParameterTargets?.add(element);
+    }
     return;
   }
   state.queuedParameterRefresh = refresh;
+  state.queuedParameterTargets = element == null ? null : new Set([element]);
   queueMicrotask(() => {
     // A newer drag can replace this job before it runs. Only the job that still
     // owns the slot may clear it or refresh the current session.
     if (state.queuedParameterRefresh !== refresh) {
       return;
     }
+    const targets = state.queuedParameterTargets;
     state.queuedParameterRefresh = null;
-    if (state.refreshDropTargets === refresh) {
+    state.queuedParameterTargets = null;
+    if (
+      state.refreshDropTargets === refresh &&
+      (targets === null || state.shouldRefreshTargets?.(targets) !== false)
+    ) {
       refresh(false);
     }
   });
@@ -677,6 +696,7 @@ export function start(parameters: StartParameters): DragSessionHandle | null {
     state.dragCleanup = null;
     state.dragCancel = null;
     state.refreshDropTargets = null;
+    state.shouldRefreshTargets = null;
     state.isHovered = null;
 
     try {
@@ -779,6 +799,7 @@ export function start(parameters: StartParameters): DragSessionHandle | null {
       // It stays disarmed: `tearDown()` clears the slot after the terminal
       // dispatch, and nothing may refresh the committed target stack meanwhile.
       state.refreshDropTargets = null;
+      state.shouldRefreshTargets = null;
 
       // The end sequence is committed: a `cancelDrag()` from one of the end
       // dispatches below must be a no-op, not a recursive second end.
@@ -887,6 +908,7 @@ export function start(parameters: StartParameters): DragSessionHandle | null {
     // targets still under the pointer, and dispatch `onDragEnter` to them
     // mid-cancel with no balancing leave. `tearDown()` nulls it anyway.
     state.refreshDropTargets = null;
+    state.shouldRefreshTargets = null;
     const cancelInput = input ?? location.current.input;
     // Terminal-leave recipients are the targets whose hover state was actually
     // delivered. They differ from `location.current.dropTargets` when this
@@ -984,6 +1006,20 @@ export function start(parameters: StartParameters): DragSessionHandle | null {
         return;
       }
       resolveDropTargetsFromLastTarget(rehitTest, false);
+    };
+    state.shouldRefreshTargets = (elements) => {
+      // A detached hit requires a fresh hit-test, whose ancestry is not known yet.
+      if (lastTarget !== null && !lastTarget.isConnected) {
+        return true;
+      }
+      // Include disabled, abstaining, and rejecting ancestors too. Membership in
+      // the accepted stack alone cannot tell whether changed parameters matter.
+      for (let node = lastTarget; node !== null; node = getComposedParentElement(node)) {
+        if (elements.has(node)) {
+          return true;
+        }
+      }
+      return false;
     };
     state.isHovered = (element) => hoveredDropTargets.some((record) => record.element === element);
 

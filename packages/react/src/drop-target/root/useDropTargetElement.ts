@@ -54,6 +54,7 @@ export function useDropTargetElement(
     () => registrationParameters as RegisterDropTargetParameters,
   );
   const targetStateStore = useRefWithInit(createDragTargetStateStore).current;
+  const elementRef = React.useRef<HTMLElement | null>(null);
   const registrationRef = useRegistrationRef<HTMLElement>((element) =>
     registerDropTarget(element, getParameters),
   );
@@ -61,6 +62,7 @@ export function useDropTargetElement(
   // Forward the attached node to both the engine registration and the local ref.
   // Stable, so this merged callback is created once.
   const ref = useRefWithInit(() => (node: HTMLElement | null) => {
+    elementRef.current = node;
     targetStateStore.setElement(node);
     registrationRef(node);
   }).current;
@@ -92,7 +94,7 @@ export function useDropTargetElement(
     // identity after its own `onDrag` updates preview state; re-hit-testing the
     // shifted content there can enter another target, update preview state
     // again, and create a synchronous render/refresh loop.
-    scheduleDropTargetParameterRefresh();
+    scheduleDropTargetParameterRefresh(elementRef.current);
   }, [disabled, accept, canDrop]);
 
   const targetState = useStore(

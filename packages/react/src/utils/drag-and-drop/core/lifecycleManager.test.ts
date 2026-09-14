@@ -348,6 +348,33 @@ describe('lifecycle manager', () => {
   });
 
   describe('mid-drag drop-target refresh', () => {
+    it('refreshes an excluded ancestor across a shadow slot', async () => {
+      const host = createElement();
+      const root = host.attachShadow({ mode: 'open' });
+      const target = document.createElement('div');
+      const slot = document.createElement('slot');
+      root.appendChild(target);
+      target.appendChild(slot);
+      const child = document.createElement('div');
+      host.appendChild(child);
+      let disabled = true;
+      const getTarget = () => ({ disabled });
+      addDropTargetRegistration(target, getTarget);
+      let handle: DragSessionHandle | null = null;
+      act(() => {
+        handle = startDragWithHandlers({}, child);
+      });
+      expect(dragSessionStore.getSnapshot()?.location.current.dropTargets).toEqual([]);
+
+      disabled = false;
+      scheduleDropTargetParameterRefresh(target);
+      await act(async () => Promise.resolve());
+      expect(dragSessionStore.getSnapshot()?.location.current.dropTargets[0]?.element).toBe(target);
+
+      act(() => handle!.controller.cancel());
+      removeDropTargetRegistration(target, getTarget);
+    });
+
     it('does not let a stale session suppress a parameter refresh for the next drag', async () => {
       const targetA = createElement();
       const targetB = createElement();
@@ -404,7 +431,7 @@ describe('lifecycle manager', () => {
       const originalEFP = document.elementFromPoint;
       document.elementFromPoint = () => target;
       try {
-        scheduleDropTargetParameterRefresh();
+        scheduleDropTargetParameterRefresh(target);
         await act(async () => Promise.resolve());
       } finally {
         document.elementFromPoint = originalEFP;

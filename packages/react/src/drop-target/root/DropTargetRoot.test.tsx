@@ -836,6 +836,32 @@ describe('DropTarget.Root', () => {
     expect(target).toHaveAttribute('data-drag-over');
   });
 
+  it('does not resolve the active stack when only an unrelated target changes', async () => {
+    const canDrop = vi.fn(() => true);
+    function Fixture({ allowed }: { allowed: boolean }) {
+      return (
+        <React.Fragment>
+          <DropTarget.Root accept={DropTarget.anyKind} data-testid="active" canDrop={canDrop} />
+          <DropTarget.Root accept={DropTarget.anyKind} canDrop={() => allowed} />
+        </React.Fragment>
+      );
+    }
+    const { rerender, engine } = await renderDnd(<Fixture allowed />);
+    const source = createElement();
+    engine.registerDraggable(source, {});
+    const target = screen.getByTestId('active');
+    fireEvent.dragStart(source);
+    await flushRaf();
+    fireEvent.dragEnter(target);
+    fireEvent.dragOver(target);
+    await flushRaf();
+
+    canDrop.mockClear();
+    await rerender(<Fixture allowed={false} />);
+    expect(canDrop).not.toHaveBeenCalled();
+    fireEvent.drop(target);
+  });
+
   it('coalesces inline canDrop changes from one render into one resolution', async () => {
     const canDrop = vi.fn(() => true);
     function Fixture({ revision }: { revision: number }) {
