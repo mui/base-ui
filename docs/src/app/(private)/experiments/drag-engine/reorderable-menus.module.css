@@ -1,0 +1,238 @@
+.root {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 64rem;
+  padding: clamp(1rem, 4vw, 3rem);
+  color: var(--dnd-ink);
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.header {
+  max-width: 42rem;
+  margin-bottom: 3.5rem;
+}
+
+.eyebrow {
+  margin: 0 0 0.5rem;
+  color: var(--dnd-muted);
+  font-size: 0.75rem;
+  line-height: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.header .title {
+  margin: 0 0 0.75rem;
+  font-size: clamp(2rem, 5vw, 3rem);
+  line-height: 1.05;
+  font-weight: 500;
+  letter-spacing: -0.035em;
+}
+
+.subtitle {
+  margin: 0;
+  color: var(--dnd-muted);
+  font-size: 1rem;
+  line-height: 1.625;
+}
+
+.section {
+  margin-top: 3.5rem;
+}
+
+.sectionHeader {
+  max-width: 42rem;
+  margin-bottom: 1rem;
+}
+
+.sectionHeader h2 {
+  margin: 0 0 0.25rem;
+  font-size: 1.125rem;
+  line-height: 1.5rem;
+  font-weight: 600;
+}
+
+.sectionHeader p {
+  margin: 0;
+  color: var(--dnd-muted);
+}
+
+.demoFrame {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 14rem;
+  padding: clamp(1.25rem, 5vw, 3rem);
+  border: 1px solid var(--dnd-border);
+  background-color: var(--dnd-canvas);
+}
+
+.button {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  height: 2rem;
+  padding: 0 0.5rem 0 0.75rem;
+  margin: 0;
+  outline: 0;
+  border: 1px solid var(--dnd-ink);
+  border-radius: 0;
+  background-color: var(--dnd-surface);
+  font-family: inherit;
+  font-size: 0.875rem;
+  font-weight: 400;
+  line-height: 1;
+  white-space: nowrap;
+  color: var(--dnd-ink);
+  -webkit-user-select: none;
+  user-select: none;
+
+  @media (hover: hover) {
+    &:hover {
+      background-color: var(--dnd-surface-hover);
+    }
+  }
+
+  &[data-pressed] {
+    background-color: var(--dnd-surface-hover);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--dnd-ink);
+    outline-offset: -1px;
+  }
+}
+
+.trigger {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 14rem;
+  aspect-ratio: 5 / 3;
+  outline: 0;
+  border: 1px solid var(--dnd-ink);
+  border-radius: 0;
+  background-color: var(--dnd-surface);
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  color: var(--dnd-ink);
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.positioner {
+  outline: 0;
+}
+
+.popup {
+  box-sizing: border-box;
+  position: relative;
+  outline: 0;
+  padding-block: 0.25rem;
+  border: 1px solid var(--dnd-ink);
+  border-radius: 0;
+  background-color: var(--dnd-surface);
+  color: var(--dnd-ink);
+  box-shadow: var(--dnd-shadow);
+  transform-origin: var(--transform-origin);
+  transition:
+    transform 100ms ease-out,
+    opacity 100ms ease-out;
+
+  &[data-starting-style],
+  &[data-ending-style] {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+}
+
+/*
+ * The item styles use raw values rather than the theme tokens: the cloned drag
+ * preview is rendered in a body-level overlay where `--dnd-*` does not resolve.
+ */
+.item {
+  outline: 0;
+  cursor: default;
+  -webkit-user-select: none;
+  user-select: none;
+  padding-block: 0.5rem;
+  padding-left: 0.625rem;
+  padding-right: 2rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  line-height: 1rem;
+
+  &[data-highlighted] {
+    z-index: 0;
+    position: relative;
+    color: white;
+
+    @media (prefers-color-scheme: dark) {
+      color: oklch(14.5% 0 0deg);
+    }
+  }
+
+  &[data-highlighted]::before {
+    content: '';
+    z-index: -1;
+    position: absolute;
+    inset-block: 0;
+    inset-inline: 0.25rem;
+    background-color: oklch(14.5% 0 0deg);
+
+    @media (prefers-color-scheme: dark) {
+      background-color: white;
+    }
+  }
+
+  &[data-dragging] {
+    opacity: 0;
+  }
+
+  &[data-drag-preview] {
+    border: 1px solid oklch(14.5% 0 0deg);
+    background-color: white;
+    box-shadow: 0.25rem 0.25rem 0 rgb(0 0 0 / 12%);
+    opacity: 1;
+
+    @media (prefers-color-scheme: dark) {
+      border-color: white;
+      background-color: oklch(14.5% 0 0deg);
+      box-shadow: none;
+    }
+  }
+}
+
+.icon {
+  flex: none;
+  color: oklch(55.6% 0 0deg);
+
+  @media (prefers-color-scheme: dark) {
+    color: oklch(70.8% 0 0deg);
+  }
+}
+
+.item[data-highlighted] .icon {
+  color: inherit;
+}
+
+.separator {
+  margin: 0.25rem;
+  height: 1px;
+  background-color: var(--dnd-ink);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .item[data-drag-preview][data-ending-style] {
+    transition: translate 0.2s cubic-bezier(0.2, 0, 0, 1);
+  }
+}
