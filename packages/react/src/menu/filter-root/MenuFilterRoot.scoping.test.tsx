@@ -761,6 +761,55 @@ describe('independent menu focus inside a filterable menu', () => {
       expect(screen.getByRole('menu')).not.toBe(null);
     });
 
+    it('reaches the clear button with Tab inside a trapped popup', async () => {
+      const { user } = await render(
+        <Menu.FilterProvider defaultInputValue="re">
+          <Menu.Root defaultOpen>
+            <Menu.Trigger>Actions</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.FilterInput aria-label="Filter actions" />
+                  <Menu.FilterClear aria-label="Clear query" />
+                  <Menu.List>
+                    <Menu.Item>Rename</Menu.Item>
+                    <Menu.Item>Delete</Menu.Item>
+                  </Menu.List>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </Menu.FilterProvider>,
+      );
+      const input = screen.getByRole('searchbox', { name: 'Filter actions' });
+      await waitFor(() => {
+        expect(input).toHaveFocus();
+      });
+      const clear = screen.getByRole('button', { name: 'Clear query' });
+
+      await pressTab(user, false);
+      await waitFor(() => {
+        expect(clear).toHaveFocus();
+      });
+
+      await pressTab(user, false);
+      await waitFor(() => {
+        expect(input).toHaveFocus();
+      });
+
+      await pressTab(user, true);
+      await waitFor(() => {
+        expect(clear).toHaveFocus();
+      });
+
+      await user.keyboard('[Enter]');
+      await waitFor(() => {
+        expect(input).toHaveValue('');
+      });
+      expect(input).toHaveFocus();
+      expect(screen.queryByRole('button', { name: 'Clear query' })).toBe(null);
+    });
+
     it('closes a trapped popup with Escape and returns focus to the trigger', async () => {
       const { user } = await render(<TrappedMenu />);
       await waitFor(() => {
