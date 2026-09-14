@@ -109,6 +109,7 @@ function DockSlot({
 }) {
   return (
     <DropTarget.Root
+      role="group"
       aria-label={label}
       className={styles.Slot}
       data-empty={widget ? undefined : ''}
