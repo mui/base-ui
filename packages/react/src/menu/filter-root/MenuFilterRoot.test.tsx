@@ -1524,7 +1524,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
 
     it('supports a detached trigger in a filterable menu', async () => {
       function Test() {
-        const handle = useRefWithInit(() => new Menu.Handle({ filterable: true })).current;
+        const handle = useRefWithInit(() => new Menu.Handle()).current;
 
         return (
           <React.Fragment>
@@ -4506,7 +4506,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
   describe('handle', () => {
     it('opens from a trigger rendered outside the root', async () => {
       function DetachedTriggerMenu() {
-        const handle = useRefWithInit(() => Menu.createHandle({ filterable: true })).current;
+        const handle = useRefWithInit(() => Menu.createHandle()).current;
 
         return (
           <React.Fragment>

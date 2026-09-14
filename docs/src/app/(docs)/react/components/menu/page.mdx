@@ -438,11 +438,11 @@ Opening the submenu by click or keyboard focuses its input; add `autoFocus` to i
 
 #### Detached triggers for a filterable menu
 
-A trigger rendered outside the root announces the popup it opens before the root attaches.
-Create the handle with `filterable: true` so a detached `<Menu.Trigger>` announces the filterable popup on the server and the client alike:
+A detached `<Menu.Trigger>` works with a filterable root through the same handle as a plain one.
+It announces the filterable popup once the root attaches, which happens after hydration:
 
-```jsx title="A filterable handle"
-const handle = Menu.createHandle({ filterable: true });
+```jsx title="A detached trigger"
+const handle = Menu.createHandle();
 
 <Menu.Trigger handle={handle}>Actions</Menu.Trigger>
 <Menu.FilterProvider closeLabel="Dismiss menu">
