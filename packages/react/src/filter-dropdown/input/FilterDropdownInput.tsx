@@ -6,10 +6,11 @@ import { useRenderElement } from '../../internals/useRenderElement';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import {
+  useFilterDropdownItemContext,
   useFilterDropdownRootContext,
   useFilterDropdownValueContext,
 } from '../root/FilterDropdownRootContext';
-import { focusByPointer } from '../utils/focusByPointer';
+import { focusByPointer, isPointerFocusInProgress } from '../utils/focusByPointer';
 
 const MOVE_CARET_KEYS = ['ArrowLeft', 'ArrowRight', 'Home', 'End'];
 
@@ -23,6 +24,7 @@ export const FilterDropdownInput = React.forwardRef(function FilterDropdownInput
   const { render, className, style, disabled, autoFocus = false, ...elementProps } = componentProps;
 
   const context = useFilterDropdownRootContext();
+  const { listRef } = useFilterDropdownItemContext();
   const inputProps = context.store.useState('inputProps');
   const value = useFilterDropdownValueContext();
   const activeItemId = context.store.useState('activeItemId');
@@ -81,8 +83,24 @@ export const FilterDropdownInput = React.forwardRef(function FilterDropdownInput
         onPointerDown() {
           context.setKeyboardModality(false);
         },
-        onFocus() {
+        onFocus(event: React.FocusEvent<HTMLInputElement>) {
           context.setInputFocusVisible(true);
+
+          // A screen reader that followed `aria-activedescendant` put real focus on the item, so
+          // focus returning from an item means the user moved back to the input on purpose and
+          // the highlight no longer reflects where they are. The list's own key replay and
+          // pointer refocus also pass through here and keep it.
+          if (
+            context.autoHighlight === 'always' ||
+            context.keyReplayRef.current ||
+            isPointerFocusInProgress()
+          ) {
+            return;
+          }
+          const from = event.relatedTarget as HTMLElement | null;
+          if (from !== null && listRef.current.includes(from)) {
+            context.setActiveIndex(null);
+          }
         },
         onBlur() {
           context.setInputFocusVisible(false);

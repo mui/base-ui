@@ -26,7 +26,7 @@ export const FilteredMenuList = React.forwardRef(function FilteredMenuList(
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const { syncHighlightedItem, orientation } = useMenuRootContext();
-  const { onItemsChange, focusOwnerRef } = useFilterDropdownRootContext();
+  const { onItemsChange, focusOwnerRef, keyReplayRef } = useFilterDropdownRootContext();
   const { store: filterStore, listRef } = useFilterDropdownItemContext();
   const { subscribeMapChange } = useCompositeListContext();
   const handleReferenceKeyDown = useMenuFilterReferenceKeyDown();
@@ -55,7 +55,12 @@ export const FilteredMenuList = React.forwardRef(function FilteredMenuList(
       // focuses the highlighted item. Hand focus back and replay the key on the input so its
       // handlers run instead of the list scrolling or the key being dropped; a typing key's
       // default action follows the moved focus into the input.
-      owner.focus({ preventScroll: true });
+      keyReplayRef.current = true;
+      try {
+        owner.focus({ preventScroll: true });
+      } finally {
+        keyReplayRef.current = false;
+      }
       const KeyboardEventConstructor = ownerWindow(owner).KeyboardEvent;
       const replayedEvent = new KeyboardEventConstructor(event.type, event.nativeEvent);
       const handled = !owner.dispatchEvent(replayedEvent) || replayedEvent.cancelBubble;

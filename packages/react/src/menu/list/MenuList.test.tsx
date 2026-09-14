@@ -59,6 +59,82 @@ describe('<Menu.List />', () => {
     expect(input).toHaveValue('');
   });
 
+  it('clears the highlight when focus returns to the input from an item', async () => {
+    const { user } = await render(
+      <Menu.FilterProvider>
+        <Menu.Root defaultOpen>
+          <Menu.Trigger>Actions</Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.FilterInput aria-label="Filter actions" />
+                <Menu.List>
+                  <Menu.Item>Rename</Menu.Item>
+                  <Menu.Item>Delete</Menu.Item>
+                </Menu.List>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>
+      </Menu.FilterProvider>,
+    );
+
+    const input = screen.getByRole('searchbox', { name: 'Filter actions' });
+    await waitFor(() => {
+      expect(input).toHaveFocus();
+    });
+    await user.keyboard('[ArrowDown]');
+    const rename = screen.getByRole('menuitem', { name: 'Rename' });
+    expect(input).toHaveAttribute('aria-activedescendant', rename.id);
+
+    // A screen reader parks real focus on the item, then the user moves back to the input.
+    await act(async () => {
+      rename.focus();
+    });
+    await act(async () => {
+      input.focus();
+    });
+
+    expect(input).not.toHaveAttribute('aria-activedescendant');
+    expect(rename).not.toHaveAttribute('data-highlighted');
+  });
+
+  it('keeps the highlight when focus returns to the input with autoHighlight="always"', async () => {
+    await render(
+      <Menu.FilterProvider autoHighlight="always">
+        <Menu.Root defaultOpen>
+          <Menu.Trigger>Actions</Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.FilterInput aria-label="Filter actions" />
+                <Menu.List>
+                  <Menu.Item>Rename</Menu.Item>
+                  <Menu.Item>Delete</Menu.Item>
+                </Menu.List>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>
+      </Menu.FilterProvider>,
+    );
+
+    const input = screen.getByRole('searchbox', { name: 'Filter actions' });
+    const rename = screen.getByRole('menuitem', { name: 'Rename' });
+    await waitFor(() => {
+      expect(input).toHaveAttribute('aria-activedescendant', rename.id);
+    });
+
+    await act(async () => {
+      rename.focus();
+    });
+    await act(async () => {
+      input.focus();
+    });
+
+    expect(input).toHaveAttribute('aria-activedescendant', rename.id);
+  });
+
   it('keeps virtual focus on the input without making the list tabbable', async () => {
     const { user } = await render(
       <Menu.FilterProvider>
