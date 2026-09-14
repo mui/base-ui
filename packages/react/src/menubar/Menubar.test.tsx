@@ -1572,7 +1572,7 @@ describe('filterable menubar menus', () => {
     async (orientation) => {
       const { user } = await render(
         <Menubar orientation={orientation}>
-          <Menu.FilterProvider closeLabel="Close menu">
+          <Menu.FilterProvider>
             <Menu.Root>
               <Menu.Trigger>File</Menu.Trigger>
               <Menu.Portal>

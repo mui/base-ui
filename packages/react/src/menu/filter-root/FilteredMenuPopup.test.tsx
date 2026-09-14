@@ -33,7 +33,7 @@ describe('<Menu.Popup />', () => {
 
     it('allows a horizontal scrollbar press', async () => {
       await render(
-        <Menu.FilterProvider closeLabel="Close menu">
+        <Menu.FilterProvider>
           <Menu.Root defaultOpen>
             <Menu.Trigger>Actions</Menu.Trigger>
             <Menu.Portal>
@@ -66,7 +66,7 @@ describe('<Menu.Popup />', () => {
     it('allows an RTL vertical scrollbar press on the leading edge', async () => {
       await render(
         <DirectionProvider direction="rtl">
-          <Menu.FilterProvider closeLabel="Close menu">
+          <Menu.FilterProvider>
             <Menu.Root defaultOpen>
               <Menu.Trigger>Actions</Menu.Trigger>
               <Menu.Portal>

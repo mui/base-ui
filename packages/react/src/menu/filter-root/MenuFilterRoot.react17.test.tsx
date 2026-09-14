@@ -21,7 +21,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider> with the React
 
   it('omits partial ids during SSR and wires relationships after hydration', async () => {
     const { hydrate } = renderToString(
-      <Menu.FilterProvider closeLabel="Close menu">
+      <Menu.FilterProvider>
         <Menu.Root defaultOpen>
           <Menu.Trigger>Actions</Menu.Trigger>
           <Menu.Portal keepMounted>
@@ -58,7 +58,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider> with the React
 
   it('registers a submenu trigger after fallback ids resolve', async () => {
     const { hydrate } = renderToString(
-      <Menu.FilterProvider closeLabel="Close menu">
+      <Menu.FilterProvider>
         <Menu.Root defaultOpen>
           <Menu.Trigger>Actions</Menu.Trigger>
           <Menu.Portal keepMounted>
@@ -66,7 +66,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider> with the React
               <Menu.Popup>
                 <Menu.FilterInput aria-label="Filter actions" />
                 <Menu.List>
-                  <Menu.FilterProvider closeLabel="Close menu">
+                  <Menu.FilterProvider>
                     <Menu.SubmenuRoot>
                       <Menu.SubmenuTrigger>More actions</Menu.SubmenuTrigger>
                       <Menu.Portal keepMounted>
