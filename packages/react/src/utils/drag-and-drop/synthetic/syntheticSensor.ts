@@ -1114,9 +1114,6 @@ function onActiveFrame(): void {
   // rather than leaving it detached until the next input. (A commit React defers
   // past this frame is caught by the preview's own observer instead.)
   active.preview.getPreviewElement()?.ensureConnected();
-
-  // Another frame, in case a callback moved something under the still pointer.
-  scheduleActiveFrame();
 }
 
 // Block native scroll while a touch drag is active; the pointer stream

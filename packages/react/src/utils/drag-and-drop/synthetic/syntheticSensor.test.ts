@@ -8,6 +8,7 @@ import {
   setupDragEngineTests,
 } from '../../../../test/dnd';
 import { cancelDrag } from '../cancelDrag';
+import { WindowAnimationFrame } from '../../windowAnimationFrame';
 import { dragSessionStore } from '../dragSessionStore';
 import type { DragModifier, DropTargetRecord } from '../../../types/drag';
 import { restrictToVerticalAxis } from '../dragModifiers';
@@ -3631,6 +3632,26 @@ describe('syntheticDrag sensor', () => {
       expect(request.mock.calls.length).toBeLessThanOrEqual(1);
 
       pointerUp(100);
+    });
+
+    it('does not schedule another sensor frame after processing a move', async () => {
+      const { engine } = await renderDnd();
+      const source = createElement();
+      engine.registerDraggable(source, {});
+
+      pointerDown(source);
+      pointerMove(40, 1);
+      await flushRaf();
+      await flushRaf();
+
+      const request = vi.spyOn(WindowAnimationFrame.prototype, 'request');
+      registerCleanup(() => request.mockRestore());
+      pointerMove(60, 1);
+      expect(request).toHaveBeenCalledTimes(1);
+      await flushRaf();
+      expect(request).toHaveBeenCalledTimes(1);
+
+      pointerUp(60);
     });
 
     it('drops when every move carries buttons: 1', async () => {
