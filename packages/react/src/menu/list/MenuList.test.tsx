@@ -9,6 +9,56 @@ describe('<Menu.List />', () => {
 
   const { render } = createRenderer();
 
+  it('replays keys from an item that holds real focus and activates on Enter', async () => {
+    const onClick = vi.fn();
+    const { user } = await render(
+      <Menu.FilterProvider>
+        <Menu.Root defaultOpen>
+          <Menu.Trigger>Actions</Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.FilterInput aria-label="Filter actions" />
+                <Menu.List>
+                  <Menu.Item>Rename</Menu.Item>
+                  <Menu.Item onClick={onClick}>Delete</Menu.Item>
+                </Menu.List>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>
+      </Menu.FilterProvider>,
+    );
+
+    const input = screen.getByRole('searchbox', { name: 'Filter actions' });
+    await waitFor(() => {
+      expect(input).toHaveFocus();
+    });
+    await user.keyboard('[ArrowDown]');
+    const rename = screen.getByRole('menuitem', { name: 'Rename' });
+    const del = screen.getByRole('menuitem', { name: 'Delete' });
+    expect(input).toHaveAttribute('aria-activedescendant', rename.id);
+
+    // A screen reader following `aria-activedescendant` moves real focus onto the item.
+    await act(async () => {
+      rename.focus();
+    });
+    await user.keyboard('[ArrowDown]');
+
+    await waitFor(() => {
+      expect(input).toHaveAttribute('aria-activedescendant', del.id);
+    });
+    expect(input).toHaveFocus();
+
+    await act(async () => {
+      del.focus();
+    });
+    await user.keyboard('[Enter]');
+
+    expect(onClick).toHaveBeenCalledTimes(1);
+    expect(input).toHaveValue('');
+  });
+
   it('keeps virtual focus on the input without making the list tabbable', async () => {
     const { user } = await render(
       <Menu.FilterProvider>

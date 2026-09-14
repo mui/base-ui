@@ -1,8 +1,10 @@
 'use client';
 import * as React from 'react';
-import { ownerWindow } from '@base-ui/utils/owner';
+import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
+import { contains } from '@base-ui/utils/shadowDom';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { activeElement, getTarget } from '../../floating-ui-react/utils';
 import { FilterDropdownList } from '../../filter-dropdown/list/FilterDropdownList';
 import { mergeProps } from '../../merge-props';
 import { useMenuFilterReferenceKeyDown } from './useMenuFilterReferenceKeyDown';
@@ -32,14 +34,27 @@ export const FilteredMenuList = React.forwardRef(function FilteredMenuList(
   const handleKeyDown = useStableCallback(
     (event: BaseUIEvent<React.KeyboardEvent<HTMLElement>>) => {
       const owner = focusOwnerRef.current;
-      if (owner == null || event.target !== event.currentTarget) {
+      // Keys the input forwards to its highlighted item arrive here while the input still holds
+      // focus, and a nested popup's keys bubble through this React tree from outside the list.
+      if (
+        owner == null ||
+        activeElement(ownerDocument(owner)) === owner ||
+        !contains(event.currentTarget, getTarget(event.nativeEvent) as Element)
+      ) {
         handleReferenceKeyDown(event);
         return;
       }
 
-      // A scrollbar press moves real focus onto the list itself while the input still owns the
-      // keyboard. Hand focus back and replay the key on the input so its handlers run instead of
-      // the list scrolling; a typing key's default action follows the moved focus into the input.
+      // An item that already acted on the key (Enter and Space activate it) keeps it.
+      if (event.defaultPrevented) {
+        return;
+      }
+
+      // Real focus can land inside the list while the input still owns the keyboard: a scrollbar
+      // press focuses the list itself, and a screen reader following `aria-activedescendant`
+      // focuses the highlighted item. Hand focus back and replay the key on the input so its
+      // handlers run instead of the list scrolling or the key being dropped; a typing key's
+      // default action follows the moved focus into the input.
       owner.focus({ preventScroll: true });
       const KeyboardEventConstructor = ownerWindow(owner).KeyboardEvent;
       const replayedEvent = new KeyboardEventConstructor(event.type, event.nativeEvent);
