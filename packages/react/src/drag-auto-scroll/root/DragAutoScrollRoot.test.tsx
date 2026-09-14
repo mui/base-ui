@@ -106,6 +106,45 @@ describe('DragAutoScroll.Root', () => {
     observe.mockRestore();
   });
 
+  it('shares an observer across nested scrollers and keeps observing after removal', async () => {
+    const { engine } = await renderDnd();
+    const source = createElement();
+    engine.registerDraggable(source, {});
+    const outer = createElement();
+    const inner = createElement();
+    outer.appendChild(inner);
+    stubScrollMetrics(outer);
+    stubScrollMetrics(inner);
+    const releaseOuter = engine.registerAutoScroller(outer, {});
+    engine.registerAutoScroller(inner, {});
+    const observe = vi.spyOn(MutationObserver.prototype, 'observe');
+    registerCleanup(() => observe.mockRestore());
+
+    await liftOutside(source);
+    const outerIndex = observe.mock.calls.findIndex(([node]) => node === outer);
+    const innerIndex = observe.mock.calls.findIndex(([node]) => node === inner);
+    expect(outerIndex).toBeGreaterThanOrEqual(0);
+    expect(innerIndex).toBeGreaterThanOrEqual(0);
+    const observer = observe.mock.contexts[outerIndex] as MutationObserver;
+    expect(observe.mock.contexts[innerIndex]).toBe(observer);
+
+    // Reconnecting after removal must preserve queued records for the survivor.
+    await dragTo(inner, 100, 50);
+    const takeRecords = vi.spyOn(observer, 'takeRecords');
+    registerCleanup(() => takeRecords.mockRestore());
+    observe.mockClear();
+    act(() => {
+      inner.style.direction = 'rtl';
+      releaseOuter();
+    });
+    expect(takeRecords.mock.results[0].value).toEqual([
+      expect.objectContaining({ target: inner, attributeName: 'style' }),
+    ]);
+    expect(observe.mock.calls.some(([node]) => node === inner)).toBe(true);
+    expect(observe.mock.calls.some(([node]) => node === outer)).toBe(false);
+    fireEvent.drop(source);
+  });
+
   it('does not wake a parked loop after an unchanged re-render', async () => {
     const scrollBy = vi.fn();
     const { engine, rerender } = await renderDnd(<Scroller scrollByMock={scrollBy} />);

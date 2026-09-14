@@ -89,13 +89,15 @@ const state = getSharedSlot<AutoScrollerState>('registerAutoScroller', () => ({
   chainSourceParent: null,
   sortedScrollers: null,
   engagedThisFrame: new Set<HTMLElement>(),
-  scrollerMutationObservers: new Map<HTMLElement, MutationObserver>(),
+  scrollerMutationObserver: null,
+  observedScrollers: new Set<HTMLElement>(),
   idleMutationObserver: null,
   idleObserving: false,
   overflowCache: new WeakMap<HTMLElement, OverflowFlags>(),
   rtlCache: new WeakMap<HTMLElement, boolean>(),
 }));
-state.scrollerMutationObservers ??= new Map();
+state.scrollerMutationObserver ??= null;
+state.observedScrollers ??= new Set();
 state.idleMutationObserver ??= null;
 state.idleObserving ??= false;
 state.scrollMonitorRetainers ??= 0;
@@ -982,27 +984,42 @@ function clearIdleMutationObserver(): void {
 }
 
 function observeScrollerMutations(element: HTMLElement): void {
-  if (!state.enabled || state.scrollerMutationObservers.has(element)) {
+  if (
+    !state.enabled ||
+    state.currentSource === null ||
+    state.observedScrollers.has(element) ||
+    ownerDocument(element) !== ownerDocument(state.currentSource.element)
+  ) {
     return;
   }
-  // The document observer below only exists while the loop is parked and cannot
-  // see into a shadow root. Keep registered containers fresh while the loop runs,
-  // but pay for these observers only during a pointer drag.
-  const observer = new (ownerWindow(element).MutationObserver)(handleObservedMutations);
-  observer.observe(element, MUTATION_OBSERVER_OPTIONS);
-  state.scrollerMutationObservers.set(element, observer);
+  // One observer batches overlapping subtree mutations from nested scrollers.
+  // Observe each container directly so closed shadow roots are covered too.
+  state.scrollerMutationObserver ??= new (ownerWindow(element).MutationObserver)(
+    handleObservedMutations,
+  );
+  state.scrollerMutationObserver.observe(element, MUTATION_OBSERVER_OPTIONS);
+  state.observedScrollers.add(element);
 }
 
 function clearScrollerMutationObserver(element: HTMLElement): void {
-  state.scrollerMutationObservers.get(element)?.disconnect();
-  state.scrollerMutationObservers.delete(element);
+  const observer = state.scrollerMutationObserver;
+  if (!observer || !state.observedScrollers.delete(element)) {
+    return;
+  }
+  // MutationObserver has no unobserve. Preserve queued changes before reconnecting
+  // the remaining containers, so removing one cannot lose another's restyle.
+  const records = observer.takeRecords();
+  observer.disconnect();
+  for (const scroller of state.observedScrollers) {
+    observer.observe(scroller, MUTATION_OBSERVER_OPTIONS);
+  }
+  handleObservedMutations(records);
 }
 
 function clearScrollerMutationObservers(): void {
-  for (const observer of state.scrollerMutationObservers.values()) {
-    observer.disconnect();
-  }
-  state.scrollerMutationObservers.clear();
+  state.scrollerMutationObserver?.disconnect();
+  state.scrollerMutationObserver = null;
+  state.observedScrollers.clear();
 }
 
 function observeIdleMutations(): void {
@@ -1359,8 +1376,9 @@ interface AutoScrollerState {
   sortedScrollers: HTMLElement[] | null;
   /** Scratch set of scrollers engaged in the current frame, reused across frames. */
   engagedThisFrame: Set<HTMLElement>;
-  /** Watches registered scrollers for changes only during a pointer drag. */
-  scrollerMutationObservers: Map<HTMLElement, MutationObserver>;
+  /** Watches registered scrollers in the active document during a pointer drag. */
+  scrollerMutationObserver: MutationObserver | null;
+  observedScrollers: Set<HTMLElement>;
   /** Watches for content/style changes only while the frame loop is parked. */
   idleMutationObserver: MutationObserver | null;
   /** Whether `idleMutationObserver` is currently connected (the loop is parked). */
