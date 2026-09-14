@@ -5,7 +5,7 @@
  * parameters and hands them to the lifecycle.
  */
 
-import { start, type DragSessionHandle, type SourceHandlers } from './lifecycleManager';
+import { start, type DragSessionHandle } from './lifecycleManager';
 import { getRegistration } from '../draggableRegistry';
 import { setActivePreviewHandle } from '../activePreview';
 import { resolveDragPreview } from '../synthetic/dragPreviewSettings';
@@ -82,16 +82,9 @@ function startSensorSession(parameters: StartSensorSessionParameters): DragSessi
   const getLatestParameters = (): DraggableConfig<any> =>
     getRegistration(dragSource.element)?.() ?? source;
 
-  const getSourceHandlers = (): SourceHandlers => {
-    // `DraggableConfig` is a structural superset of `SourceHandlers`. Returning
-    // the live registration directly avoids copying its six callbacks into a
-    // short-lived object on every drag dispatch.
-    return getLatestParameters();
-  };
-
   return start({
     payload: dragSource,
-    getSourceHandlers,
+    getSourceHandlers: getLatestParameters,
     initialInput,
     initialTarget,
     initialEvent,
