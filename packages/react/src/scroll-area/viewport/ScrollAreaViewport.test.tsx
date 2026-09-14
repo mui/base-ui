@@ -1,6 +1,6 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { expect, vi, describe, it } from 'vitest';
+import { expect, vi, describe, it, afterEach } from 'vitest';
 import { ScrollArea } from '@base-ui/react/scroll-area';
 import { DirectionProvider } from '@base-ui/react/direction-provider';
 import { createRenderer, isJSDOM, describeConformance } from '#test-utils';
@@ -42,47 +42,65 @@ describe('<ScrollArea.Viewport />', () => {
   });
 
   describe.skipIf(isJSDOM)('subtree animations', () => {
-    it('recomputes overflow after a subtree animation finishes', async () => {
-      let scrollWidth = 100;
-      let resolveAnimation: () => void = () => {};
-      const finished = new Promise<void>((resolve) => {
-        resolveAnimation = resolve;
-      });
-      const getAnimations = vi.fn(() => [{ finished }] as unknown as Animation[]);
+    afterEach(() => vi.restoreAllMocks());
+    it.each([false, true])(
+      'recomputes overflow after a subtree animation finishes with infinite animation: %s',
+      async (includeInfinite) => {
+        vi.spyOn(ResizeObserver.prototype, 'observe').mockImplementation(() => {});
+        let scrollWidth = 100;
+        let resolveAnimation: () => void = () => {};
+        const finished = new Promise<void>((resolve) => {
+          resolveAnimation = resolve;
+        });
+        const getAnimations = vi.fn(
+          () =>
+            [
+              { finished },
+              ...(includeInfinite
+                ? [
+                    {
+                      finished: new Promise<void>(() => {}),
+                      effect: { getTiming: () => ({ iterations: Infinity }) },
+                    },
+                  ]
+                : []),
+            ] as unknown as Animation[],
+        );
 
-      await render(
-        <ScrollArea.Root data-testid="root">
-          <ScrollArea.Viewport
-            ref={(node) => {
-              if (node) {
-                Object.defineProperties(node, {
-                  clientHeight: { configurable: true, value: 100 },
-                  clientWidth: { configurable: true, value: 100 },
-                  scrollHeight: { configurable: true, value: 100 },
-                  scrollWidth: { configurable: true, get: () => scrollWidth },
-                  getAnimations: { configurable: true, value: getAnimations },
-                });
-              }
-            }}
-          />
-          <ScrollArea.Scrollbar orientation="horizontal" keepMounted>
-            <ScrollArea.Thumb />
-          </ScrollArea.Scrollbar>
-        </ScrollArea.Root>,
-      );
+        await render(
+          <ScrollArea.Root data-testid="root">
+            <ScrollArea.Viewport
+              ref={(node) => {
+                if (node) {
+                  Object.defineProperties(node, {
+                    clientHeight: { configurable: true, value: 100 },
+                    clientWidth: { configurable: true, value: 100 },
+                    scrollHeight: { configurable: true, value: 100 },
+                    scrollWidth: { configurable: true, get: () => scrollWidth },
+                    getAnimations: { configurable: true, value: getAnimations },
+                  });
+                }
+              }}
+            />
+            <ScrollArea.Scrollbar orientation="horizontal" keepMounted>
+              <ScrollArea.Thumb />
+            </ScrollArea.Scrollbar>
+          </ScrollArea.Root>,
+        );
 
-      const root = screen.getByTestId('root');
-      await waitFor(() => expect(getAnimations).toHaveBeenCalled());
-      expect(root).not.toHaveAttribute('data-has-overflow-x');
+        const root = screen.getByTestId('root');
+        await waitFor(() => expect(getAnimations).toHaveBeenCalled());
+        expect(root).not.toHaveAttribute('data-has-overflow-x');
 
-      scrollWidth = 1000;
-      await act(async () => {
-        resolveAnimation();
-        await finished;
-      });
+        scrollWidth = 1000;
+        await act(async () => {
+          resolveAnimation();
+          await finished;
+        });
 
-      await waitFor(() => expect(root).toHaveAttribute('data-has-overflow-x'));
-    });
+        await waitFor(() => expect(root).toHaveAttribute('data-has-overflow-x'));
+      },
+    );
 
     it('ignores an animation finishing after its viewport unmounts', async () => {
       let resolveAnimation: () => void = () => {};
