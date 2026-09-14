@@ -1002,6 +1002,49 @@ describe('engine.registerDropTarget', () => {
     expect(elements).toEqual([inner, outer]);
   });
 
+  it('collects a shadow-tree target wrapping the slot a light-DOM node is assigned to', async () => {
+    // Regression: a `closest()` walk follows the light-DOM parent chain straight
+    // through the shadow host, so when a light-DOM ancestor is also a target the
+    // shadow-tree target around the `<slot>` was skipped. The composed walk enters
+    // the assigned slot first, then climbs out through the host.
+    const { engine } = await renderDnd();
+    const light = createElement();
+    const host = document.createElement('x-host');
+    light.appendChild(host);
+    const shadow = host.attachShadow({ mode: 'open' });
+    const zone = document.createElement('div');
+    zone.appendChild(document.createElement('slot'));
+    shadow.appendChild(zone);
+    const slotted = document.createElement('span');
+    host.appendChild(slotted);
+
+    const source = createElement();
+    const onDragEnterZone = vi.fn();
+    const onDragEnterLight = vi.fn();
+    engine.registerDraggable(source, {});
+    engine.registerDropTarget(zone, { onDragEnter: onDragEnterZone });
+    engine.registerDropTarget(light, { onDragEnter: onDragEnterLight });
+
+    fireEvent.dragStart(source);
+    await flushRaf();
+
+    const originalEFP = document.elementFromPoint;
+    document.elementFromPoint = () => slotted;
+    try {
+      fireEvent.dragOver(source);
+      await flushRaf();
+    } finally {
+      document.elementFromPoint = originalEFP;
+    }
+
+    expect(onDragEnterZone).toHaveBeenCalledTimes(1);
+    expect(onDragEnterLight).toHaveBeenCalledTimes(1);
+    const elements = onDragEnterZone.mock.calls[0][0].location.current.dropTargets.map(
+      (record: { element: Element }) => record.element,
+    );
+    expect(elements).toEqual([zone, light]);
+  });
+
   it('keeps non-throwing drop targets active when an ancestor target throws from a consumer callback', async () => {
     // Nest the sane (inner) target inside the buggy (ancestor) target so the
     // walker visits both: sane first, then buggy on the climb. Buggy's
@@ -1229,46 +1272,6 @@ describe('engine.registerDropTarget', () => {
 
     expect(onDropA).toHaveBeenCalledTimes(1);
     expect(onDropB).not.toHaveBeenCalled();
-  });
-
-  // Type-level regression guard. Never executes.
-  // eslint-disable-next-line vitest/no-disabled-tests
-  it.skip('type test: TSourceData and TLocalData thread through callbacks', async () => {
-    interface MySourceData {
-      kind: 'card';
-      id: string;
-    }
-    interface MyLocalData {
-      columnId: string;
-    }
-    const { engine } = await renderDnd();
-    const el = createElement();
-
-    engine.registerDropTarget<MySourceData, MyLocalData>(el, {
-      accept: Draggable.createKind<MySourceData>('card'),
-      getPayload: () => ({ columnId: 'col-1' }),
-      canDrop: ({ source }) => source.payload.id.length > 0,
-      onDrop: ({ source, self }) => {
-        source.payload.id.toUpperCase();
-        self.payload.columnId.toUpperCase();
-      },
-      onDragEnter: ({ source, self }) => {
-        source.payload.id.toUpperCase();
-        self.payload.columnId.toUpperCase();
-      },
-    });
-
-    engine.registerDropTarget<Record<string, unknown>, MyLocalData>(el, {
-      accept: Draggable.createKind<Record<string, unknown>>('record'),
-      getPayload: () => ({ columnId: 'col-1' }),
-      canDrop: ({ source }) => typeof source.payload.kind === 'string',
-    });
-
-    engine.registerDropTarget<MySourceData, MyLocalData>(el, {
-      accept: Draggable.createKind<MySourceData>('other-card'),
-      // @ts-expect-error - returned object is missing required `columnId`
-      getPayload: () => ({}),
-    });
   });
 
   describe('lifecycle guards', () => {

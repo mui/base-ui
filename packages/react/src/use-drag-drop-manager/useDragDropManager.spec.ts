@@ -104,6 +104,30 @@ expectType<() => void, ReturnType<typeof engine.registerDraggable>>(
   engine.registerDraggable(element, () => ({ kind: marker })),
 );
 
+// An explicit `TData` threads through `getPayload` and every source event.
+interface MyData {
+  foo: string;
+  count: number;
+}
+const myDataKind = Draggable.createKind<MyData>('my-data');
+engine.registerDraggable<MyData>(element, () => ({
+  kind: myDataKind,
+  getPayload: () => ({ foo: 'bar', count: 1 }),
+  onDragStart: ({ source }) => {
+    expectType<string, typeof source.payload.foo>(source.payload.foo);
+    expectType<number, typeof source.payload.count>(source.payload.count);
+  },
+  onDragEnd: ({ source }) => {
+    expectType<string, typeof source.payload.foo>(source.payload.foo);
+  },
+}));
+
+engine.registerDraggable<MyData>(element, () => ({
+  kind: myDataKind,
+  // @ts-expect-error the returned object is missing the required `count`.
+  getPayload: () => ({ foo: 'bar' }),
+}));
+
 // ---------------------------------------------------------------------------
 // registerDropTarget
 // ---------------------------------------------------------------------------
@@ -196,6 +220,39 @@ engine.registerDropTarget<typeof card, { slot: number }>(element, () => ({
   payload: { slot: 'one' },
 }));
 
+// An explicit `<typeof kind, TLocalData>` pair threads both payloads through every
+// target callback, and the local getter must return the declared shape.
+interface MySourceData {
+  kind: 'card';
+  id: string;
+}
+interface MyLocalData {
+  columnId: string;
+}
+const mySourceKind = Draggable.createKind<MySourceData>('my-source');
+engine.registerDropTarget<typeof mySourceKind, MyLocalData>(element, () => ({
+  accept: mySourceKind,
+  getPayload: () => ({ columnId: 'col-1' }),
+  canDrop: ({ source }) => {
+    expectType<string, typeof source.payload.id>(source.payload.id);
+    return true;
+  },
+  onDrop: ({ source, self }) => {
+    expectType<MySourceData, typeof source.payload>(source.payload);
+    expectType<MyLocalData, typeof self.payload>(self.payload);
+  },
+  onDragEnter: ({ source, self }) => {
+    expectType<'card', typeof source.payload.kind>(source.payload.kind);
+    expectType<string, typeof self.payload.columnId>(self.payload.columnId);
+  },
+}));
+
+engine.registerDropTarget<typeof mySourceKind, MyLocalData>(element, () => ({
+  accept: mySourceKind,
+  // @ts-expect-error the returned object is missing the required `columnId`.
+  getPayload: () => ({}),
+}));
+
 // ---------------------------------------------------------------------------
 // registerMonitor / registerAutoScroller
 // ---------------------------------------------------------------------------
@@ -208,6 +265,29 @@ engine.registerMonitor(() => ({
 
 // @ts-expect-error `registerMonitor` takes no element.
 engine.registerMonitor(element, () => ({}));
+
+// The source payload narrows through a discriminated union of accepted kinds.
+interface CardDrag {
+  kind: 'card';
+  cardId: string;
+}
+interface ColumnDrag {
+  kind: 'column';
+  columnId: string;
+}
+const cardDrag = Draggable.createKind<CardDrag>('card-drag');
+const columnDrag = Draggable.createKind<ColumnDrag>('column-drag');
+engine.registerMonitor(() => ({
+  accept: [cardDrag, columnDrag],
+  onDragEnd: ({ source }) => {
+    expectType<CardDrag | ColumnDrag, typeof source.payload>(source.payload);
+    if (source.payload.kind === 'card') {
+      expectType<string, typeof source.payload.cardId>(source.payload.cardId);
+    } else {
+      expectType<string, typeof source.payload.columnId>(source.payload.columnId);
+    }
+  },
+}));
 
 // Like every other `accept`-taking API, the scroller's payload is typed from
 // `accept` rather than asserted with a bare type argument.

@@ -22,7 +22,7 @@ export const DraggableHandle = React.forwardRef(function DraggableHandle(
 
   if (process.env.NODE_ENV !== 'production' && disabledProp !== undefined) {
     warn(
-      'Base UI: `disabled` was passed to Draggable.Handle, which has no disabled state of its own. ' +
+      '`disabled` was passed to Draggable.Handle, which has no disabled state of its own. ' +
         'The engine reads `disabled` from Draggable.Root, so the handle would look disabled while the root stayed draggable. ' +
         'Set `disabled` on Draggable.Root instead.',
     );

@@ -3,6 +3,7 @@ import * as React from 'react';
 import { useRenderElement } from '../../internals/useRenderElement';
 import type { BaseUIComponentProps } from '../../internals/types';
 import type {
+  NativeDragEventProps,
   RegisterAutoScrollerParameters,
   WithInferredAccept,
 } from '../../types/dragRegistration';
@@ -52,14 +53,14 @@ export const DragAutoScrollRoot = React.forwardRef(function DragAutoScrollRoot<
 
   // A fresh object per render is fine: `useDragAutoScrollElement` reads it
   // through a ref and never compares it.
-  const params = {
+  const params: UseDragAutoScrollElementParameters<TSourceData> = {
     accept,
     allowedAxis,
     applyScroll,
     canScroll,
     disabled,
     maxSpeed,
-  } as UseDragAutoScrollElementParameters<TSourceData>;
+  };
 
   const { ref } = useDragAutoScrollElement<TSourceData>(params);
 
@@ -92,9 +93,11 @@ export interface DragAutoScrollRootState {
 // `disabled` is not redeclared here: an intersection member's JSDoc never reaches
 // the generated reference, so the description would ship nowhere. It lives on
 // `RegisterAutoScrollerParameters` instead, which this inherits.
-export type DragAutoScrollRootProps<TSourceData = unknown> = BaseUIComponentProps<
-  'div',
-  DragAutoScrollRootState
+export type DragAutoScrollRootProps<TSourceData = unknown> = Omit<
+  BaseUIComponentProps<'div', DragAutoScrollRootState>,
+  // The whole native HTML5 drag event family is replaced by this engine, as on
+  // `Draggable.Root` and `DropTarget.Root`.
+  NativeDragEventProps
 > &
   RegisterAutoScrollerParameters<TSourceData>;
 

@@ -116,35 +116,14 @@ export function elementFromPointIgnoring(
   // Use `display: none`, not `visibility: hidden`: a descendant with inline
   // `visibility: visible` re-shows itself and stays hit-testable, defeating the
   // ignore. `display: none` removes the whole subtree from layout/hit-testing
-  // regardless of any descendant override.
-  //
-  // Hiding a manual popover closes it, which silently demotes the preview out of
-  // the top layer — where it then clips and offsets under transformed ancestors
-  // for the rest of the drag. Nothing re-opens it: the reconnect path only runs
-  // for a *disconnected* preview. So note whether it was open and restore that.
-  const wasPopoverOpen = isPopoverOpen(ignore);
+  // regardless of any descendant override. `ignore` is the preview itself, never
+  // the engine's `[popover]` wrapper around it, so hiding it does not close the
+  // popover that keeps the preview in the top layer.
   const previousDisplay = ignore.style.display;
   ignore.style.display = 'none';
   const behind = deepElementFromPoint(doc, clientX, clientY, rootsByHost);
   ignore.style.display = previousDisplay;
-  if (wasPopoverOpen && !isPopoverOpen(ignore)) {
-    try {
-      ignore.showPopover();
-    } catch {
-      // Already open, or no longer connected: nothing to repair.
-    }
-  }
   return behind;
-}
-
-/** Whether `element` is an open popover, in browsers that implement it. */
-function isPopoverOpen(element: HTMLElement): boolean {
-  try {
-    return typeof element.showPopover === 'function' && element.matches(':popover-open');
-  } catch {
-    // `:popover-open` is unknown to older engines, where `matches` throws.
-    return false;
-  }
 }
 
 /**

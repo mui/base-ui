@@ -1,5 +1,6 @@
 import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
 import { NOOP } from '@base-ui/utils/empty';
+import { warn } from '@base-ui/utils/warn';
 import { isShadowRoot } from '@floating-ui/utils/dom';
 import { applySourceSizeVars } from '../customDragPreview';
 import { getSharedSlot } from '../sharedState';
@@ -60,13 +61,13 @@ const NEUTRALIZER_CSS = `[${DRAG_PREVIEW_ATTR}]{${NEUTRALIZED_PROPERTIES.map((p)
 
 /**
  * A constructable stylesheet rather than a `<style>` element: the CSSOM path is
- * exempt from CSP `style-src`, so a strict policy can't block it. Adopted once per
- * document/shadow root (deduped via the shared slot); a shadow root needs its own,
+ * exempt from CSP `style-src`, so a strict policy can't block it. Built once per
+ * document/shadow root (kept in the shared slot); a shadow root needs its own,
  * because document styles do not cross the boundary but the UA popover rules do.
  */
-const neutralizerRoots = getSharedSlot(
-  'dragPreviewNeutralizerRoots',
-  () => new WeakSet<DocumentOrShadowRoot>(),
+const neutralizerSheets = getSharedSlot(
+  'dragPreviewNeutralizerSheets',
+  () => new WeakMap<DocumentOrShadowRoot, CSSStyleSheet>(),
 );
 
 function ensureNeutralizerStyles(host: Element | ShadowRoot | Document): void {
@@ -76,13 +77,21 @@ function ensureNeutralizerStyles(host: Element | ShadowRoot | Document): void {
   // would never match — the neutralizer sheet would then land on the iframe document
   // instead of the shadow root, leaving the preview with the source's transitions.
   const target: DocumentOrShadowRoot = isShadowRoot(root) ? root : ownerDocument(host as Element);
-  if (neutralizerRoots.has(target) || !('adoptedStyleSheets' in target)) {
+  if (!('adoptedStyleSheets' in target)) {
     return;
   }
-  neutralizerRoots.add(target);
-  const sheet = new (ownerWindow(host as Element).CSSStyleSheet)();
-  sheet.replaceSync(NEUTRALIZER_CSS);
-  target.adoptedStyleSheets = [...target.adoptedStyleSheets, sheet];
+  let sheet = neutralizerSheets.get(target);
+  if (!sheet) {
+    sheet = new (ownerWindow(host as Element).CSSStyleSheet)();
+    sheet.replaceSync(NEUTRALIZER_CSS);
+    neutralizerSheets.set(target, sheet);
+  }
+  // Re-adopt rather than dedupe on the root alone: an app that assigns a fresh
+  // `adoptedStyleSheets` array (a theme switch) drops the sheet, and the next
+  // preview would carry the source's transitions again.
+  if (!target.adoptedStyleSheets.includes(sheet)) {
+    target.adoptedStyleSheets = [...target.adoptedStyleSheets, sheet];
+  }
 }
 
 export interface DragPreviewElementHandle {
@@ -138,6 +147,82 @@ function isCustomElementCandidate(element: Element): boolean {
 }
 
 /**
+ * The computed properties copied onto a custom element's placeholder: what shapes
+ * its host box and its own painted surface, plus how it participates in a parent
+ * flex/grid layout. The placeholder has no shadow content, so the rest of the
+ * (several hundred) computed properties would only cost a `setProperty` each.
+ */
+const PLACEHOLDER_STYLE_PROPERTIES = [
+  'display',
+  'box-sizing',
+  'width',
+  'height',
+  'min-width',
+  'min-height',
+  'max-width',
+  'max-height',
+  'margin-top',
+  'margin-right',
+  'margin-bottom',
+  'margin-left',
+  'padding-top',
+  'padding-right',
+  'padding-bottom',
+  'padding-left',
+  'border-top-width',
+  'border-right-width',
+  'border-bottom-width',
+  'border-left-width',
+  'border-top-style',
+  'border-right-style',
+  'border-bottom-style',
+  'border-left-style',
+  'border-top-color',
+  'border-right-color',
+  'border-bottom-color',
+  'border-left-color',
+  'border-top-left-radius',
+  'border-top-right-radius',
+  'border-bottom-right-radius',
+  'border-bottom-left-radius',
+  'background-color',
+  'background-image',
+  'background-position',
+  'background-size',
+  'background-repeat',
+  'background-clip',
+  'background-origin',
+  'color',
+  'font-family',
+  'font-size',
+  'font-weight',
+  'font-style',
+  'line-height',
+  'letter-spacing',
+  'text-align',
+  'text-transform',
+  'text-decoration',
+  'white-space',
+  'flex-grow',
+  'flex-shrink',
+  'flex-basis',
+  'align-self',
+  'justify-self',
+  'order',
+  'grid-row-start',
+  'grid-row-end',
+  'grid-column-start',
+  'grid-column-end',
+  'position',
+  'top',
+  'right',
+  'bottom',
+  'left',
+  'visibility',
+  'opacity',
+];
+
+/**
  * Clone a tree while replacing custom elements with native inert placeholders.
  * The computed style copy preserves the host box reasonably closely without
  * constructing, upgrading, connecting, or disconnecting application code.
@@ -166,13 +251,11 @@ function cloneWithoutCustomElements(
       }
       const computed = win.getComputedStyle(node);
       const placeholderStyle = (copy as HTMLElement).style;
-      for (let index = 0; index < computed.length; index += 1) {
-        const property = computed.item(index);
-        placeholderStyle.setProperty(
-          property,
-          computed.getPropertyValue(property),
-          computed.getPropertyPriority(property),
-        );
+      for (const property of PLACEHOLDER_STYLE_PROPERTIES) {
+        const value = computed.getPropertyValue(property);
+        if (value !== '') {
+          placeholderStyle.setProperty(property, value);
+        }
       }
     }
 
@@ -528,13 +611,11 @@ function createPreparedDragPreviewElement(
   // sheet is adopted into the source's root. Adopting the preview into a foreign
   // document would offset it by the frame's own position, so keep it in place instead.
   if (container && ownerDocument(container) !== doc) {
-    if (process.env.NODE_ENV !== 'production') {
-      console.warn(
-        'Base UI: a drag preview `container` belongs to a different document than its draggable. ' +
-          'Viewport coordinates do not carry across documents, so the preview would be offset by the frame position. ' +
-          'Rendering the preview in place instead — pass a container from the draggable’s own document.',
-      );
-    }
+    warn(
+      'a drag preview `container` belongs to a different document than its draggable. ' +
+        'Viewport coordinates do not carry across documents, so the preview would be offset by the frame position. ' +
+        'Rendering the preview in place instead — pass a container from the draggable’s own document.',
+    );
     container = null;
   }
 

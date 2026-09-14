@@ -17,12 +17,7 @@ export default function DropTargetHero() {
   return (
     <div className="relative grid w-full gap-3 select-none">
       <div className="flex min-h-10 justify-center">
-        <Draggable.Root
-          className={`${ITEM_CLASS} ${positionClass}`}
-          kind={itemKind}
-          role="button"
-          tabIndex={0}
-        >
+        <Draggable.Root className={`${ITEM_CLASS} ${positionClass}`} kind={itemKind}>
           Drop me
         </Draggable.Root>
         {dropped && (

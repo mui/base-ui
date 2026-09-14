@@ -511,6 +511,9 @@ describe('DragAutoScroll.Root', () => {
   });
 
   it('re-reads overflow when a scrolling container becomes hidden during a drag', async () => {
+    // Once hidden, the registered root no longer scrolls, which is what the dev
+    // warning reports.
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
     const scrollBy = vi.fn();
     const { engine } = await renderDnd(<Scroller scrollByMock={scrollBy} />);
     const source = createElement();
@@ -530,6 +533,7 @@ describe('DragAutoScroll.Root', () => {
 
     expect(scrollBy).not.toHaveBeenCalled();
     fireEvent.drop(source);
+    warnSpy.mockRestore();
   });
 
   it('wakes a parked loop when content growth creates scroll room', async () => {
@@ -562,6 +566,9 @@ describe('DragAutoScroll.Root', () => {
   });
 
   it('observes class and style changes on a replacement render node', async () => {
+    // The node starts `overflow: hidden`, which trips the dev warning until the
+    // restyle below.
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
     const scrollBy = vi.fn();
     const ref = (node: HTMLElement | null) => {
       if (node) {
@@ -595,6 +602,7 @@ describe('DragAutoScroll.Root', () => {
 
     expect(scrollBy).toHaveBeenCalled();
     fireEvent.drop(source);
+    warnSpy.mockRestore();
   });
 
   it('registers exactly once under Strict Mode, and unmount releases the registration', async () => {

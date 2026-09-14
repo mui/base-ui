@@ -1,9 +1,42 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { isJSDOM } from '#test-utils';
-import { installDndPolyfill } from '../../../../test/dndPolyfill';
+import { act } from '@mui/internal-test-utils';
+import { createDndRenderer, isJSDOM } from '#test-utils';
+import { flushRaf, setupDragEngineTests } from '../../../../test/dnd';
+import { DRAG_PREVIEW_ATTR } from '../dragAttributes';
 import { createClonedDragPreviewElement } from './cloneDragPreview';
 
-installDndPolyfill();
+setupDragEngineTests();
+
+/** Dispatch a mouse pointer event on `target` inside `act`, as the sensor's listeners bubble to it. */
+function dispatchMouse(
+  type: 'pointerdown' | 'pointermove' | 'pointerup',
+  target: EventTarget,
+  x: number,
+  y: number,
+): void {
+  act(() => {
+    target.dispatchEvent(
+      new PointerEvent(type, {
+        pointerType: 'mouse',
+        pointerId: 1,
+        isPrimary: true,
+        clientX: x,
+        clientY: y,
+        button: type === 'pointermove' ? -1 : 0,
+        buttons: type === 'pointerup' ? 0 : 1,
+        bubbles: true,
+        cancelable: true,
+      }),
+    );
+  });
+}
+
+/** The single neutralizer sheet the engine adopts into a root, or `undefined`. */
+function findNeutralizerSheet(root: DocumentOrShadowRoot): CSSStyleSheet | undefined {
+  return root.adoptedStyleSheets.find((sheet) =>
+    Array.from(sheet.cssRules).some((rule) => rule.cssText.includes(DRAG_PREVIEW_ATTR)),
+  );
+}
 
 /**
  * The top layer is the whole point of the in-place preview: it is what lets an
@@ -308,6 +341,80 @@ describe.skipIf(isJSDOM)('createClonedDragPreviewElement (top layer)', () => {
     expect(handle.element.querySelector('div')!.scrollTop).toBe(120);
 
     handle.destroy();
+  });
+
+  it('re-adopts the neutralizer sheet after the document replaces its adopted sheets', () => {
+    source.style.transition = 'transform 200ms ease';
+    const first = createClonedDragPreviewElement(source, null)!;
+    const sheet = findNeutralizerSheet(document);
+    expect(sheet).toBeDefined();
+    first.destroy();
+
+    // A theme switch that assigns a fresh `adoptedStyleSheets` array drops the
+    // engine's sheet along with everything else. The next preview must notice and
+    // adopt it again, or it would carry the source's transition.
+    document.adoptedStyleSheets = [];
+
+    const second = createClonedDragPreviewElement(source, null)!;
+    expect(document.adoptedStyleSheets.filter((adopted) => adopted === sheet)).toHaveLength(1);
+    expect(getComputedStyle(second.element).transitionDuration).toBe('0s');
+    second.destroy();
+  });
+
+  describe('lifted through the pointer sensor', () => {
+    const { renderDnd } = createDndRenderer();
+
+    /**
+     * Press, cross the mouse activation distance, then settle back on the press
+     * point — the shape of a real pickup — and return the clone's box on the frame
+     * the drag committed, next to the source's own box as it was at the press.
+     */
+    async function liftAndMeasure(): Promise<{ sourceRect: DOMRect; cloneRect: DOMRect }> {
+      const { engine } = await renderDnd();
+      engine.registerDraggable(source, {});
+
+      const sourceRect = source.getBoundingClientRect();
+      const pressX = sourceRect.left + 8;
+      const pressY = sourceRect.top + 6;
+      dispatchMouse('pointerdown', source, pressX, pressY);
+      dispatchMouse('pointermove', source, pressX + 20, pressY);
+      dispatchMouse('pointermove', source, pressX, pressY);
+      await flushRaf();
+
+      const clone = document.querySelector<HTMLElement>(`[${DRAG_PREVIEW_ATTR}]`);
+      expect(clone).not.toBeNull();
+      const cloneRect = clone!.getBoundingClientRect();
+      dispatchMouse('pointerup', source, pressX, pressY);
+      return { sourceRect, cloneRect };
+    }
+
+    function expectSameBox(actual: DOMRect, expected: DOMRect): void {
+      expect(Math.abs(actual.left - expected.left)).toBeLessThanOrEqual(0.5);
+      expect(Math.abs(actual.top - expected.top)).toBeLessThanOrEqual(0.5);
+      expect(Math.abs(actual.width - expected.width)).toBeLessThanOrEqual(0.5);
+      expect(Math.abs(actual.height - expected.height)).toBeLessThanOrEqual(0.5);
+    }
+
+    it('lifts a scaled source off exactly where it sits', async () => {
+      // The grab offset the lifecycle measures is relative to the *transformed*
+      // rect, but the clone is anchored on the untransformed box it re-applies
+      // `scale` to. Anchoring the default `'source'` offset on that same box is
+      // what keeps the clone from jumping at pickup.
+      source.style.scale = '1.2';
+
+      const { sourceRect, cloneRect } = await liftAndMeasure();
+
+      expectSameBox(cloneRect, sourceRect);
+    });
+
+    it('lifts a rotated source off exactly where it sits', async () => {
+      source.style.transformOrigin = '0 0';
+      source.style.rotate = '90deg';
+
+      const { sourceRect, cloneRect } = await liftAndMeasure();
+
+      expectSameBox(cloneRect, sourceRect);
+    });
   });
 
   it('confines the popover UA chrome to the wrapper, away from the preview', () => {

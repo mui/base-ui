@@ -1,8 +1,9 @@
 import * as React from 'react';
 import { describe, it, expect, vi } from 'vitest';
 import { fireEvent } from '@testing-library/react';
-import { createDndRenderer } from '#test-utils';
-import { createElement, flushRaf, setupDragEngineTests } from '../../test/dnd';
+import { createDndRenderer, testDragKind } from '#test-utils';
+import { Draggable } from '@base-ui/react/draggable';
+import { createElement, dragOver, flushRaf, setupDragEngineTests } from '../../test/dnd';
 import { useDragMonitor } from './useDragMonitor';
 import { monitorRegistry } from '../utils/drag-and-drop/monitor';
 
@@ -88,6 +89,56 @@ describe('useDragMonitor', () => {
 
     expect(onDragStart).toHaveBeenCalledTimes(1);
     expect(onDragEnd).toHaveBeenCalledTimes(1);
+  });
+
+  it('mounted mid-drag, a monitor for another kind never fires', async () => {
+    const otherKind = Draggable.createKind('use-drag-monitor/other');
+    const onDrag = vi.fn();
+    const onDragEnd = vi.fn();
+    const { rerender, engine } = await renderDnd(<div />);
+    const el = createElement();
+    engine.registerDraggable(el, {});
+
+    fireEvent.dragStart(el);
+    await flushRaf();
+
+    await rerender(<Monitor accept={otherKind} onDrag={onDrag} onDragEnd={onDragEnd} />);
+
+    await dragOver(el, { clientX: 40, clientY: 40 });
+    await dragOver(el, { clientX: 80, clientY: 80 });
+    fireEvent.drop(el);
+    await flushRaf();
+
+    expect(onDrag).not.toHaveBeenCalled();
+    expect(onDragEnd).not.toHaveBeenCalled();
+  });
+
+  it('mounted mid-drag, a monitor for the active kind receives the following moves', async () => {
+    const onDrag = vi.fn();
+    const onDragStart = vi.fn();
+    const { rerender, engine } = await renderDnd(<div />);
+    const el = createElement();
+    engine.registerDraggable(el, {});
+
+    fireEvent.dragStart(el);
+    await flushRaf();
+
+    await rerender(<Monitor accept={testDragKind} onDragStart={onDragStart} onDrag={onDrag} />);
+
+    // The start already happened; only what follows is observed.
+    expect(onDragStart).not.toHaveBeenCalled();
+    expect(onDrag).not.toHaveBeenCalled();
+
+    await dragOver(el, { clientX: 40, clientY: 40 });
+
+    expect(onDrag).toHaveBeenCalledTimes(1);
+    expect(onDrag.mock.calls[0][0].source.element).toBe(el);
+
+    await dragOver(el, { clientX: 80, clientY: 80 });
+
+    expect(onDrag).toHaveBeenCalledTimes(2);
+
+    fireEvent.drop(el);
   });
 
   it('unmounting the monitor stops it from receiving events', async () => {

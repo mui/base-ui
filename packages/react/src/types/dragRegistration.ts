@@ -14,7 +14,9 @@ import type {
   DropTargetPayloadGetter,
 } from './drag';
 
-/** Requires exactly one of a parameter type's `payload` and `getPayload` fields. */
+/**
+ * Requires exactly one of a parameter type's `payload` and `getPayload` fields.
+ */
 export type WithRequiredPayload<
   TParameters extends { payload?: unknown; getPayload?: unknown },
   TPayload = Exclude<TParameters['payload'], undefined>,
@@ -28,12 +30,16 @@ export type WithRequiredPayload<
         getPayload?: never | undefined;
       }
     | {
+        /** Static payload data. Function values are preserved without being invoked. */
         payload?: never | undefined;
+        /** Resolves payload data from the current drag context. */
         getPayload: TPayloadGetter;
       }
   );
 
-/** Allows at most one of a parameter type's `payload` and `getPayload` fields. */
+/**
+ * Allows at most one of a parameter type's `payload` and `getPayload` fields.
+ */
 export type WithOptionalPayload<TParameters extends { payload?: unknown; getPayload?: unknown }> =
   Omit<TParameters, 'payload' | 'getPayload'> &
     (
@@ -44,7 +50,9 @@ export type WithOptionalPayload<TParameters extends { payload?: unknown; getPayl
           getPayload?: never | undefined;
         }
       | {
+          /** Static payload data. Function values are preserved without being invoked. */
           payload?: never | undefined;
+          /** Resolves payload data from the current drag context. */
           getPayload?: TParameters['getPayload'] | undefined;
         }
     );
@@ -78,6 +86,16 @@ export type RegisterDropTargetParameters<TSourceData = unknown, TLocalData = unk
   InternalRegisterDropTargetParameters<TSourceData, TLocalData>,
   'accept'
 > & {
+  /**
+   * One or more drag source kinds accepted by this target.
+   *
+   * Every registration uses the same page-wide drag manager, so this value is
+   * required. Pass `DropTarget.anyKind` to accept every drag. In that case,
+   * `source.payload` is `unknown`.
+   *
+   * The target ignores a source whose kind is not accepted. An ancestor target can
+   * still accept it. Base UI checks `accept` before `canDrop`.
+   */
   accept: NonNullable<InternalRegisterDropTargetParameters<TSourceData, TLocalData>['accept']>;
 };
 
@@ -87,23 +105,23 @@ export type RegisterDropTargetParameters<TSourceData = unknown, TLocalData = unk
  */
 export type RegisterDropTargetParametersWithPayload<TSourceData, TLocalData> = WithRequiredPayload<
   RegisterDropTargetParameters<TSourceData, NoInfer<TLocalData>>,
-  DropTargetPayload<TSourceData, TLocalData>,
+  DropTargetPayload<TLocalData>,
   DropTargetPayloadGetter<TSourceData, TLocalData>
 >;
 
 /**
  * Preserves the accepted kinds while inferring callback payload types.
- * @public
  */
 export type WithInferredAccept<TParameters, TAccept extends AnyDragAccept> = TParameters & {
+  /** One or more drag source kinds this registration observes. */
   accept?: TAccept | undefined;
 };
 
 /**
  * Preserves the accepted kinds while requiring `accept`.
- * @public
  */
 export type WithRequiredAccept<TParameters, TAccept extends AnyDragAccept> = TParameters & {
+  /** One or more drag source kinds accepted by this target. */
   accept: TAccept;
 };
 
@@ -111,7 +129,6 @@ export type WithRequiredAccept<TParameters, TAccept extends AnyDragAccept> = TPa
  * {@link DragDropManager} with a single, payload-optional `registerDraggable` signature.
  * `Draggable.Root` enforces the payload requirement at its own boundary and then
  * forwards a uniform parameters object, so the overloads would only get in the way.
- * @internal
  */
 export interface InternalDragEngine extends Omit<
   DragDropManager,
@@ -133,7 +150,6 @@ export interface InternalDragEngine extends Omit<
  * The public parameters plus the channel through which a `Draggable.Preview` reaches
  * the engine. Consumers never write that field, which is why it is absent from
  * `RegisterDraggableParameters`.
- * @internal
  */
 export type InternalDraggableParameters<TData = undefined> = RegisterDraggableParameters<TData> & {
   getDragPreviewDeclaration?: (() => DragPreviewDeclaration<NoInfer<TData>> | null) | undefined;

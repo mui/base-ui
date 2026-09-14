@@ -42,9 +42,9 @@ describe('e2e', () => {
   let browser: Browser;
   let page: Page;
 
-  async function renderFixture(fixturePath: string) {
-    await page.goto(`${BASE_URL}/e2e-fixtures/${fixturePath}#no-dev`);
-    await page.waitForSelector('[data-testid="testcase"]:not([aria-busy="true"])');
+  async function renderFixture(fixturePath: string, target: Page = page) {
+    await target.goto(`${BASE_URL}/e2e-fixtures/${fixturePath}#no-dev`);
+    await target.waitForSelector('[data-testid="testcase"]:not([aria-busy="true"])');
   }
 
   beforeAll(async function beforeHook() {
@@ -374,6 +374,88 @@ describe('e2e', () => {
 
       await expect(page.getByTestId('drag-status')).toHaveText(
         JSON.stringify({ sourceMounted: false, captureCount: 1, dropCount: 1, endCount: 1 }),
+      );
+    });
+
+    describe('touch', () => {
+      // Playwright's `touchscreen` only taps; a held touch and a swipe need raw
+      // CDP touch events, which Chromium turns into the pointer/touch streams
+      // the sensor listens to.
+      type TouchPoint = { x: number; y: number };
+      type DispatchTouch = (
+        type: 'touchStart' | 'touchMove' | 'touchEnd',
+        points: TouchPoint[],
+      ) => Promise<void>;
+
+      async function withTouchPage(
+        run: (touchPage: Page, dispatchTouch: DispatchTouch) => Promise<void>,
+      ) {
+        const context = await browser.newContext({ hasTouch: true });
+        try {
+          const touchPage = await context.newPage();
+          const cdp = await context.newCDPSession(touchPage);
+          const dispatchTouch: DispatchTouch = async (type, points) => {
+            await cdp.send('Input.dispatchTouchEvent', { type, touchPoints: points });
+          };
+          await run(touchPage, dispatchTouch);
+        } finally {
+          await context.close();
+        }
+      }
+
+      /** Press on the fixture's draggable and return the touch point. */
+      async function pressDraggable(
+        touchPage: Page,
+        dispatchTouch: DispatchTouch,
+      ): Promise<TouchPoint> {
+        await renderFixture('drag-and-drop/TouchScroll', touchPage);
+        const sourceBox = await touchPage.getByTestId('drag-source').boundingBox();
+        if (sourceBox == null) {
+          throw new Error('Could not measure the draggable fixture.');
+        }
+        const press = { x: sourceBox.x + 40, y: sourceBox.y + 40 };
+        await dispatchTouch('touchStart', [press]);
+        return press;
+      }
+
+      /** Slide the finger 200px up — the gesture that scrolls the page down — and lift. */
+      async function swipeUp(dispatchTouch: DispatchTouch, from: TouchPoint) {
+        const steps = 10;
+        for (let step = 1; step <= steps; step += 1) {
+          // eslint-disable-next-line no-await-in-loop
+          await dispatchTouch('touchMove', [{ x: from.x, y: from.y - (200 * step) / steps }]);
+        }
+        await dispatchTouch('touchEnd', []);
+      }
+
+      it('keeps the page still under a held touch drag', { timeout: 10000 }, async () => {
+        await withTouchPage(async (touchPage, dispatchTouch) => {
+          const press = await pressDraggable(touchPage, dispatchTouch);
+          // Past the fixture's 250ms press-hold delay.
+          await delay(350);
+          await swipeUp(dispatchTouch, press);
+
+          await expect(touchPage.getByTestId('drag-status')).toHaveText(
+            JSON.stringify({ startCount: 1, endCount: 1 }),
+          );
+          expect(await touchPage.evaluate(() => window.scrollY)).toBe(0);
+        });
+      });
+
+      it(
+        'lets a plain swipe scroll the page without starting a drag',
+        { timeout: 10000 },
+        async () => {
+          await withTouchPage(async (touchPage, dispatchTouch) => {
+            const press = await pressDraggable(touchPage, dispatchTouch);
+            await swipeUp(dispatchTouch, press);
+
+            await expect.poll(() => touchPage.evaluate(() => window.scrollY)).toBeGreaterThan(0);
+            await expect(touchPage.getByTestId('drag-status')).toHaveText(
+              JSON.stringify({ startCount: 0, endCount: 0 }),
+            );
+          });
+        },
       );
     });
 

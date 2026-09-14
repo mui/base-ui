@@ -30,8 +30,6 @@ function ShapePiece({ shape }: { shape: Shape }) {
       kind={shape.kind}
       payload={shape.id}
       aria-label={shape.label}
-      role="button"
-      tabIndex={0}
     />
   );
 }

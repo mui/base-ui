@@ -324,7 +324,7 @@ type DraggableHandleState = {
 
 Customizes what follows the pointer while the draggable is dragged, replacing
 the default clone of the source.
-Renders a `<div>` element.
+Renders a `<div>` in the preview overlay; nothing is rendered where the component is written.
 
 The component renders no element in place. Its content renders in the nearest
 required `Draggable.PreviewProvider` and is portaled into an element next to

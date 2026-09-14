@@ -1,6 +1,4 @@
-export enum DragAutoScrollRootDataAttributes {
-  /**
-   * Present while auto-scrolling is disabled.
-   */
-  disabled = 'data-disabled',
-}
+/**
+ * Present while auto-scrolling is disabled.
+ */
+export const disabled = 'data-disabled';

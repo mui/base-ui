@@ -169,6 +169,12 @@ export function createPreviewAndStartSession(
       x: grabPoint.x - pickupRect.left,
       y: grabPoint.y - pickupRect.top,
     };
+    // The press, carried as an input so the preview's default `'source'` offset can
+    // anchor on it: the preview measures its own (untransformed) box, so it must not
+    // reuse `grabOffset`, which is relative to the transformed rect above.
+    const pressInput: DragInput = pressPoint
+      ? { ...initialInput, clientX: pressPoint.x, clientY: pressPoint.y }
+      : initialInput;
 
     const previewSettings = resolveDragPreview(draggableParameters, element);
     preview = createSyntheticPreview(element, {
@@ -177,7 +183,7 @@ export function createPreviewAndStartSession(
       payload: draggableParameters.payload,
     });
     preview.setModifiers(compileDragModifiers(previewSettings.modifiers));
-    attachDefaultDragPreview(preview, element, previewSettings, initialInput, grabOffset);
+    attachDefaultDragPreview(preview, element, previewSettings, initialInput, pressInput);
     // Only now: a `[data-dragging]` rule that resizes or hides the source would
     // otherwise corrupt the measurement the preview was just built from.
     preview.markSourceDragging();

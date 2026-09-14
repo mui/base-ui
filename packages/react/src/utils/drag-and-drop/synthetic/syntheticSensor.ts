@@ -927,20 +927,21 @@ function commitActivation(): void {
     }, win);
   }
 
-  // Active-phase pointer listeners attach to the document. The body-anchor
-  // capture retargets every pointer event for this pointerId onto `body`, so they
-  // observe the whole gesture — including after a virtualizer/live-reorder unmounts
-  // the dragged element. Touch additionally needs a `{ passive: false }` `touchmove`
-  // listener (attached to the document below, since touch ignores pointer capture)
-  // to `preventDefault()` the scroll the `touch-action` lock doesn't cover.
+  // The active-phase `pointermove` listener attaches to the document. The
+  // body-anchor capture retargets every pointer event for this pointerId onto
+  // `body`, so it observes the whole gesture — including after a virtualizer/
+  // live-reorder unmounts the dragged element. Touch additionally needs a
+  // `{ passive: false }` `touchmove` listener (attached to the document below,
+  // since touch ignores pointer capture) to `preventDefault()` the scroll the
+  // `touch-action` lock doesn't cover. Release (`pointerup`/`pointercancel`) is
+  // handled by the window capture listeners further down, which run before any
+  // document listener could.
   activeRef.listeners.push(
     // Capture-phase, like the pending phase and the window safety nets below: a
     // third-party bubble listener calling `stopPropagation()` on `pointermove`
     // (analytics shims, other gesture libraries) must not freeze the preview
     // and target resolution while the release listeners still work.
     addEventListener(doc, 'pointermove', onActivePointerMove, { capture: true }),
-    addEventListener(doc, 'pointerup', onActivePointerUp),
-    addEventListener(doc, 'pointercancel', onActivePointerCancel),
   );
   if (pointerType !== 'mouse') {
     activeRef.listeners.push(
@@ -1011,9 +1012,12 @@ function commitActivation(): void {
     shadowRootScrollListeners.clear();
   });
 
-  // Window-level safety net: if the OS hands off the pointer (Android
-  // soft-keyboard, browser tab switch, sibling frame stealing capture) no
-  // `pointerup` ever arrives at the target and the drag would stick.
+  // Release and hand-off, on the window in the capture phase: the earliest point
+  // any listener can observe the event, so a third-party `stopPropagation()`
+  // lower down cannot leave the drag stuck. The body-anchor capture routes a
+  // `pointerup` here wherever the pointer is released, and if the OS hands off
+  // the pointer instead (Android soft-keyboard, browser tab switch, sibling
+  // frame stealing capture) `pointercancel` ends the drag the same way.
   // `lostpointercapture` needs the dedicated handler below: the capture redirect
   // above makes touch/pen fire a spurious one on the original element that must
   // not be mistaken for a hand-off.

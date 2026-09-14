@@ -141,5 +141,6 @@ describe('useDragDropManager', () => {
 
     expect(onDragEnd).toHaveBeenCalledTimes(1);
     expect(onDragEnd.mock.calls[0][0].canceled).toBe(true);
+    expect(onDragEnd.mock.calls[0][1].reason).toBe('imperative-action');
   });
 });

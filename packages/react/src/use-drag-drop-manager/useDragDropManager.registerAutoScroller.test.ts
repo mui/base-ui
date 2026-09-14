@@ -1398,6 +1398,133 @@ describe('engine.registerAutoScroller', () => {
       expect(page.scrollBy).toHaveBeenCalled();
     });
 
+    // `<body>`'s overflow propagates to the viewport only while `<html>`'s
+    // computed overflow is `visible` on both axes. The tests below pin both
+    // sides of that rule: a propagating `body` stands in for the page (and can
+    // lock it), a non-propagating one is a regular element.
+    function styleOverflow(element: HTMLElement, styles: Partial<CSSStyleDeclaration>): void {
+      const previous = {
+        overflow: element.style.overflow,
+        overflowX: element.style.overflowX,
+        overflowY: element.style.overflowY,
+      };
+      Object.assign(element.style, styles);
+      registerCleanup(() => {
+        element.style.overflow = previous.overflow;
+        element.style.overflowX = previous.overflowX;
+        element.style.overflowY = previous.overflowY;
+      });
+    }
+
+    it('scrolls the page when body hides one axis and html is visible', async () => {
+      const { engine } = await renderDnd();
+      const source = createElement();
+      const page = mockPageScroller();
+      // A browser computes `overflow-x: hidden` alone to `overflow-y: auto`
+      // (jsdom does not, so the pair is spelled out). That must not turn `body`
+      // into a scroll container of its own — its `scrollBy` moves nothing — and
+      // cut the page scroller out of the chain.
+      styleOverflow(document.body, { overflowX: 'hidden', overflowY: 'auto' });
+      // What a browser reports for a `body` spanning the viewport, so a `body`
+      // wrongly treated as a container would engage here and consume the axis.
+      const bodyScrollBy = vi.fn();
+      const bodyProps: PropertyKey[] = [];
+      const defineOnBody = (name: PropertyKey, value: unknown, writable = false) => {
+        Object.defineProperty(document.body, name, { configurable: true, value, writable });
+        bodyProps.push(name);
+      };
+      defineOnBody('clientHeight', 600);
+      defineOnBody('scrollHeight', 2000);
+      defineOnBody('scrollTop', 500, true);
+      defineOnBody('scrollBy', bodyScrollBy);
+      defineOnBody('getBoundingClientRect', () => new DOMRect(0, 0, 800, 600));
+      registerCleanup(() => {
+        for (const name of bodyProps) {
+          Reflect.deleteProperty(document.body, name);
+        }
+      });
+
+      engine.registerDraggable(source, {});
+      registerCleanup(engine.registerAutoScroller(document.body, {}));
+
+      await drive(source, 400, 590);
+
+      expect(page.scrollBy).toHaveBeenCalled();
+      expect(bodyScrollBy).not.toHaveBeenCalled();
+    });
+
+    it('ignores a hidden body when html sets its own overflow', async () => {
+      const { engine } = await renderDnd();
+      const source = createElement();
+      const page = mockPageScroller();
+      // With `<html>` an overflow container, `body`'s overflow no longer
+      // propagates to the viewport, so it cannot lock the page.
+      styleOverflow(document.documentElement, { overflow: 'auto' });
+      styleOverflow(document.body, { overflow: 'hidden' });
+
+      engine.registerDraggable(source, {});
+      registerCleanup(engine.registerAutoScroller(page.element, {}));
+
+      await drive(source, 400, 590);
+
+      expect(page.scrollBy).toHaveBeenCalled();
+    });
+
+    it('does not scroll the page vertically when html hides the vertical axis', async () => {
+      const { engine } = await renderDnd();
+      const source = createElement();
+      const page = mockPageScroller();
+      styleOverflow(document.documentElement, { overflowY: 'hidden' });
+
+      engine.registerDraggable(source, {});
+      registerCleanup(engine.registerAutoScroller(page.element, {}));
+
+      await drive(source, 400, 590);
+      expect(page.scrollBy).not.toHaveBeenCalled();
+
+      // The other axis stays live.
+      fireEvent.dragOver(document.documentElement, { clientX: 700, clientY: 300 });
+      await flushRaf();
+      await flushRaf();
+      expect(page.scrollBy).toHaveBeenCalled();
+      expect(page.scrollBy.mock.calls.every(([arg]) => (arg.top ?? 0) === 0)).toBe(true);
+    });
+
+    it('does not scroll the page horizontally when html hides the horizontal axis', async () => {
+      const { engine } = await renderDnd();
+      const source = createElement();
+      const page = mockPageScroller();
+      styleOverflow(document.documentElement, { overflowX: 'hidden' });
+
+      engine.registerDraggable(source, {});
+      registerCleanup(engine.registerAutoScroller(page.element, {}));
+
+      await drive(source, 700, 300);
+      expect(page.scrollBy).not.toHaveBeenCalled();
+
+      fireEvent.dragOver(document.documentElement, { clientX: 400, clientY: 590 });
+      await flushRaf();
+      await flushRaf();
+      expect(page.scrollBy).toHaveBeenCalled();
+      expect(page.scrollBy.mock.calls.every(([arg]) => (arg.left ?? 0) === 0)).toBe(true);
+    });
+
+    it('does not scroll the page vertically when body hides the vertical axis and html is visible', async () => {
+      const { engine } = await renderDnd();
+      const source = createElement();
+      const page = mockPageScroller();
+      // A `body`-based scroll lock: `body`'s overflow propagates to the viewport
+      // while `<html>` stays `visible`, so the page is stopped on that axis.
+      styleOverflow(document.body, { overflowY: 'hidden' });
+
+      engine.registerDraggable(source, {});
+      registerCleanup(engine.registerAutoScroller(page.element, {}));
+
+      await drive(source, 400, 590);
+
+      expect(page.scrollBy).not.toHaveBeenCalled();
+    });
+
     it('measures edge zones against the viewport, not the scrolled document rect', async () => {
       const { engine } = await renderDnd();
       const source = createElement();

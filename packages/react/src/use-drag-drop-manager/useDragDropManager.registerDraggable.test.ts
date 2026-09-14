@@ -362,31 +362,4 @@ describe('engine.registerDraggable', () => {
     await flushRaf();
     expect(onDragStart2).not.toHaveBeenCalled();
   });
-
-  // Type-level regression guard. Never executes.
-  // eslint-disable-next-line vitest/no-disabled-tests
-  it.skip('type test: TData threads through payload and every source event', async () => {
-    interface MyData extends Record<string, unknown> {
-      foo: string;
-      count: number;
-    }
-    const { engine } = await renderDnd();
-    const el = createElement();
-
-    engine.registerDraggable<MyData>(el, {
-      getPayload: () => ({ foo: 'bar', count: 1 }),
-      onDragStart: ({ source }) => {
-        source.payload.foo.toUpperCase();
-        source.payload.count.toFixed();
-      },
-      onDragEnd: ({ source }) => {
-        source.payload.foo.toUpperCase();
-      },
-    });
-
-    engine.registerDraggable<MyData>(el, {
-      // @ts-expect-error - returned object is missing required `count`
-      getPayload: () => ({ foo: 'bar' }),
-    });
-  });
 });

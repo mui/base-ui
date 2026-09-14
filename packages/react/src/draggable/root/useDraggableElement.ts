@@ -133,7 +133,7 @@ export function useDraggableElement<TData = undefined>(
       if (process.env.NODE_ENV !== 'production') {
         if (handles.length > 1) {
           warn(
-            'Base UI: a Draggable.Root contains more than one mounted Draggable.Handle. ' +
+            'A Draggable.Root contains more than one mounted Draggable.Handle. ' +
               'Pickup is restricted to the first one, so the others are inert and look broken. ' +
               'Render a single handle, switching its content or position instead of mounting a second.',
           );

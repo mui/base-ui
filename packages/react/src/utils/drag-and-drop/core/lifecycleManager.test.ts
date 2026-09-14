@@ -380,6 +380,76 @@ describe('lifecycle manager', () => {
       removeDropTargetRegistration(targetA, getTargetA);
       removeDropTargetRegistration(targetB, getTargetB);
     });
+
+    it('re-hit-tests a parameter refresh whose last target was detached', async () => {
+      // A parameter refresh walks up from the last resolved target instead of
+      // hit-testing. When that node has since left the DOM (a virtualizer or a
+      // live reorder swapped it), the walk finds nothing and would leave every
+      // hovered target for a pointer that never moved.
+      await renderDnd();
+      const target = createElement();
+      const child = document.createElement('div');
+      target.appendChild(child);
+      const onDragLeave = vi.fn();
+      const getTarget = () => ({ onDragLeave });
+      addDropTargetRegistration(target, getTarget);
+
+      let handle: DragSessionHandle | null = null;
+      act(() => {
+        handle = startDragWithHandlers({}, child);
+      });
+      expect(dragSessionStore.getSnapshot()?.location.current.dropTargets[0]?.element).toBe(target);
+
+      child.remove();
+      const originalEFP = document.elementFromPoint;
+      document.elementFromPoint = () => target;
+      try {
+        scheduleDropTargetParameterRefresh();
+        await act(async () => Promise.resolve());
+      } finally {
+        document.elementFromPoint = originalEFP;
+      }
+
+      expect(onDragLeave).not.toHaveBeenCalled();
+      expect(dragSessionStore.getSnapshot()?.location.current.dropTargets[0]?.element).toBe(target);
+
+      act(() => {
+        handle!.controller.cancel();
+      });
+      removeDropTargetRegistration(target, getTarget);
+    });
+
+    it('delivers onDrag once per frame when a hovered target unregisters during the change round', async () => {
+      // The sensor `update` path resolves the stack (skipping the entry `onDrag`,
+      // since `dispatchDrag()` follows) and then dispatches `onDrag`. A handler
+      // unregistering a hovered target mid-round queues a refresh that drains
+      // before `dispatchDrag()`; that drained round must skip the entry `onDrag`
+      // too, or the surviving targets hear it twice in the same frame.
+      const { engine } = await renderDnd();
+      const source = createElement();
+      const parent = createElement();
+      const child = document.createElement('div');
+      parent.appendChild(child);
+      const parentOnDrag = vi.fn();
+      engine.registerDraggable(source, {});
+      engine.registerDropTarget(parent, { onDrag: parentOnDrag });
+      const cleanupChild = engine.registerDropTarget(child, {
+        onDragEnter: () => cleanupChild(),
+      });
+
+      fireEvent.dragStart(source);
+      await flushRaf();
+      expect(parentOnDrag).not.toHaveBeenCalled();
+
+      fireEvent.dragEnter(child);
+      await flushRaf();
+
+      expect(parentOnDrag).toHaveBeenCalledTimes(1);
+      const elements = dragSessionStore
+        .getSnapshot()
+        ?.location.current.dropTargets.map((record) => record.element);
+      expect(elements).toEqual([parent]);
+    });
   });
 
   describe('drag cancellation', () => {
@@ -1111,6 +1181,47 @@ describe('lifecycle manager', () => {
       expect(monitorOnDragStart).not.toHaveBeenCalled();
       expect(onDragEnd).toHaveBeenCalledTimes(1);
       expect(onDragEnd.mock.calls[0][0].canceled).toBe(true);
+      expect(isActive()).toBe(false);
+      expect(canStart()).toBe(true);
+    });
+
+    it('cancelDrag() from an initial-stack canDrop ends the drag before it starts', async () => {
+      // The stack under the pickup point runs consumer resolvers inside
+      // `start()`, before the sensor records its session. The lifecycle-level
+      // cancel hook is armed before that resolution, so a cancel there ends the
+      // drag like a mid-drag one instead of being silently ignored.
+      const { engine } = await renderDnd();
+      const target = createElement();
+      const onDragStart = vi.fn();
+      const onDragEnd = vi.fn();
+      const monitorOnDragStart = vi.fn();
+      const monitorOnDragEnd = vi.fn();
+      const targetOnDragStart = vi.fn();
+      const targetOnDragEnter = vi.fn();
+      engine.registerMonitor({ onDragStart: monitorOnDragStart, onDragEnd: monitorOnDragEnd });
+      engine.registerDropTarget(target, {
+        canDrop: () => {
+          cancelDrag();
+          return true;
+        },
+        onDragStart: targetOnDragStart,
+        onDragEnter: targetOnDragEnter,
+      });
+
+      let handle: DragSessionHandle | null = null;
+      act(() => {
+        handle = startDragWithHandlers({ onDragStart, onDragEnd }, target);
+      });
+
+      expect(handle).toBeNull();
+      expect(onDragStart).not.toHaveBeenCalled();
+      expect(monitorOnDragStart).not.toHaveBeenCalled();
+      expect(targetOnDragStart).not.toHaveBeenCalled();
+      expect(targetOnDragEnter).not.toHaveBeenCalled();
+      expect(onDragEnd).toHaveBeenCalledTimes(1);
+      expect(onDragEnd.mock.calls[0][0].canceled).toBe(true);
+      expect(monitorOnDragEnd).toHaveBeenCalledTimes(1);
+      expect(dragSessionStore.getSnapshot()).toBeNull();
       expect(isActive()).toBe(false);
       expect(canStart()).toBe(true);
     });

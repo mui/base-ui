@@ -18,17 +18,16 @@ import type {
   DropTargetPayload,
   DropTargetPayloadGetter,
 } from '../../types/drag';
+import * as DropTargetRootDataAttributes from './DropTargetRootDataAttributes';
 import { useDropTargetElement } from './useDropTargetElement';
 import type { UseDropTargetElementParameters } from './useDropTargetElement';
 
 const stateAttributesMapping: StateAttributesMapping<DropTargetRootState> = {
   // The default mapping only lowercases the state key, which would yield
-  // `data-dragoverinnermost`. The literal is inlined rather than read from
-  // `DropTargetRootDataAttributes` so that enum stays tree-shakeable — it exists
-  // for types and the generated reference only, and `enumSync.test.tsx` is what
-  // keeps the two in step.
-  dragOver: (value) => (value ? { 'data-drag-over': '' } : null),
-  dragOverInnermost: (value) => (value ? { 'data-drag-over-innermost': '' } : null),
+  // `data-dragoverinnermost`.
+  dragOver: (value) => (value ? { [DropTargetRootDataAttributes.dragOver]: '' } : null),
+  dragOverInnermost: (value) =>
+    value ? { [DropTargetRootDataAttributes.dragOverInnermost]: '' } : null,
 };
 
 /**
@@ -43,7 +42,7 @@ export const DropTargetRoot = React.forwardRef(function DropTargetRoot<
 >(
   componentProps: DropTargetRootPropsBase<TSourceData, TLocalData> & {
     accept?: DragAccept<TSourceData> | undefined;
-    payload?: DropTargetPayload<TSourceData, TLocalData> | undefined;
+    payload?: DropTargetPayload<TLocalData> | undefined;
     getPayload?: DropTargetPayloadGetter<TSourceData, TLocalData> | undefined;
   },
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
@@ -190,7 +189,7 @@ type DropTargetPayloadParameters<TSourceData, TLocalData> = Pick<
 
 type RequiredDropTargetPayload<TSourceData, TLocalData> = WithRequiredPayload<
   DropTargetPayloadParameters<TSourceData, TLocalData>,
-  DropTargetPayload<TSourceData, TLocalData>,
+  DropTargetPayload<TLocalData>,
   DropTargetPayloadGetter<TSourceData, TLocalData>
 >;
 

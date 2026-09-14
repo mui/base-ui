@@ -298,28 +298,4 @@ describe('engine.registerMonitor', () => {
       consoleError.mockRestore();
     }
   });
-
-  // Type-level regression guard. Never executes.
-  // eslint-disable-next-line vitest/no-disabled-tests
-  it.skip('type test: TSourceData narrows via discriminated union in monitor callbacks', async () => {
-    interface CardDrag extends Record<string, unknown> {
-      kind: 'card';
-      cardId: string;
-    }
-    interface ColumnDrag extends Record<string, unknown> {
-      kind: 'column';
-      columnId: string;
-    }
-    const { engine } = await renderDnd();
-
-    engine.registerMonitor<CardDrag | ColumnDrag>({
-      onDragEnd: ({ source }) => {
-        if (source.payload.kind === 'card') {
-          source.payload.cardId.toUpperCase();
-        } else {
-          source.payload.columnId.toUpperCase();
-        }
-      },
-    });
-  });
 });

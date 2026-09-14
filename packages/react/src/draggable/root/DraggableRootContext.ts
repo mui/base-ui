@@ -24,9 +24,9 @@ export interface DraggableRootContext<TData = unknown> {
    */
   previewContext: DragPreviewContext | null;
   /**
-   * The root's `disabled`, so the handle drops out of the tab order along with
-   * it — the engine refuses the pickup either way, but a focusable button that
-   * does nothing would still be announced as an affordance.
+   * The root's `disabled`, so the handle can reflect `data-disabled`. The engine
+   * refuses the pickup either way; the attribute lets the handle be styled as
+   * inert along with its root.
    */
   disabled: boolean;
 }

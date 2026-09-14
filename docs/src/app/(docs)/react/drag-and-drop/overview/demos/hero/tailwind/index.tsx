@@ -29,8 +29,6 @@ function ShapePiece({ shape }: { shape: Shape }) {
       data-shape={shape.id}
       kind={shape.kind}
       aria-label={shape.label}
-      role="button"
-      tabIndex={0}
     />
   );
 }

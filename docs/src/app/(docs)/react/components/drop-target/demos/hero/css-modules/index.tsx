@@ -12,13 +12,7 @@ export default function DropTargetHero() {
   return (
     <div className={styles.Root}>
       <div className={styles.Source}>
-        <Draggable.Root
-          className={styles.Item}
-          data-dropped={dropped || undefined}
-          kind={itemKind}
-          role="button"
-          tabIndex={0}
-        >
+        <Draggable.Root className={styles.Item} data-dropped={dropped || undefined} kind={itemKind}>
           Drop me
         </Draggable.Root>
         {dropped && (

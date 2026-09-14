@@ -1731,7 +1731,7 @@ describe('syntheticDrag sensor', () => {
     expect(payload.location.current.input.clientY).toBe(90);
   });
 
-  it('visibility hidden cancels an active drag', async () => {
+  it('visibility hidden cancels an active drag with the page-hidden reason', async () => {
     const { engine } = await renderDnd();
     const el = createElement();
     const onDragEnd = vi.fn();
@@ -1747,17 +1747,29 @@ describe('syntheticDrag sensor', () => {
       value: 'hidden',
       configurable: true,
     });
+    Object.defineProperty(document, 'hidden', {
+      value: true,
+      configurable: true,
+    });
     try {
-      dispatch(document, new Event('visibilitychange'));
+      const visibilityChange = new Event('visibilitychange');
+      dispatch(document, visibilityChange);
 
       expect(onDragEnd).toHaveBeenCalledTimes(1);
       // Hiding the tab is a cancel, not a drop over nothing.
       expect(onDragEnd.mock.calls[0][0].canceled).toBe(true);
+      expect(onDragEnd.mock.calls[0][1]).toEqual(
+        expect.objectContaining({ reason: 'page-hidden', event: visibilityChange }),
+      );
     } finally {
       // Restore in `finally` so a failed assertion can't leave the document stuck
       // `hidden` and cascade into every later test.
       Object.defineProperty(document, 'visibilityState', {
         value: 'visible',
+        configurable: true,
+      });
+      Object.defineProperty(document, 'hidden', {
+        value: false,
         configurable: true,
       });
     }

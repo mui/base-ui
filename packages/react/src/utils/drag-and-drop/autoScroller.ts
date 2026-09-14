@@ -356,13 +356,29 @@ function canScrollRight(el: Element, rtl: boolean): boolean {
 }
 
 /**
+ * Whether `<body>`'s overflow propagates to the viewport. CSS Overflow
+ * propagates it only while `<html>`'s computed overflow is `visible` on both
+ * axes; once the root sets any overflow of its own, `<body>` is a regular
+ * element whose overflow applies to itself (the predicate `useScrollLock`'s
+ * `getViewportScroller` uses).
+ */
+function bodyPropagatesToViewport(doc: Document): boolean {
+  const root = readOverflowFlags(doc.documentElement);
+  return !root.x && !root.y && !root.blockedX && !root.blockedY;
+}
+
+/**
  * Resolve a registration on the document's root to the element whose scroll
  * properties move the viewport (`scrollingElement`: `documentElement` in
  * standards mode, `body` in quirks mode), or `null` for a regular overflow
- * container. A default-styled `body` also maps to the page scroller in
- * standards mode — it is not an overflow container of its own, so a scroller
- * registered on it would otherwise be silently inert; a `body` the page styles
- * as a real overflow container (`overflow: auto`) keeps scrolling itself.
+ * container. A `body` registration also maps to the page scroller while
+ * `<html>` leaves its overflow `visible`: whatever overflow `body` carries then
+ * propagates to the viewport instead of making `body` a scroll container of
+ * its own (the browser computes the other axis to `auto` when one is set, but
+ * `body.scrollBy` still moves nothing), so a scroller registered on it would
+ * otherwise be silently inert. Once `<html>` sets an overflow of its own,
+ * `body` is a regular element: it scrolls itself when styled as an overflow
+ * container and is rejected like any non-scrolling element otherwise.
  * Environments that don't implement `scrollingElement` (jsdom) fall back to
  * the standards-mode answer, the document element.
  */
@@ -375,16 +391,10 @@ function resolvePageScroller(element: HTMLElement): HTMLElement | null {
   if (element === scrollingElement || element === doc.documentElement) {
     return scrollingElement;
   }
-  if (element === doc.body) {
-    // A `body` the page styles as a real overflow container scrolls itself;
-    // otherwise it stands in for the viewport. A `body` set to `hidden`/`clip`
-    // is not an overflow container either, so it maps to the page scroller —
-    // where `readPageOverflowFlags` then reads that same value as "the page has
-    // been stopped on this axis".
-    const bodyOverflow = readOverflowFlags(element);
-    if (!bodyOverflow.x && !bodyOverflow.y) {
-      return scrollingElement;
-    }
+  if (element === doc.body && bodyPropagatesToViewport(doc)) {
+    // `readPageOverflowFlags` reads a `hidden`/`clip` on `body` as "the page
+    // has been stopped on this axis".
+    return scrollingElement;
   }
   return null;
 }
@@ -460,14 +470,18 @@ function readOverflowFlags(element: HTMLElement): OverflowFlags {
  * Which axes the *viewport* scrolls on. The page is scrollable by default —
  * `<html>` is not an overflow element yet the viewport still scrolls — so this
  * asks the opposite question from {@link readOverflowFlags}: which axes has the
- * page been stopped on. `<html>` and `<body>` are both consulted because the
- * viewport's overflow propagates from whichever of them sets it, which is what
- * keeps a scroll lock holding during a drag.
+ * page been stopped on. `<body>` is consulted too, but only while `<html>`'s
+ * overflow is `visible` on both axes: that is when `body`'s overflow propagates
+ * to the viewport (see {@link bodyPropagatesToViewport}), which is what keeps a
+ * `body`-based scroll lock holding during a drag. Once `<html>` sets its own
+ * overflow, `body`'s value applies to `body` alone and says nothing about the
+ * page.
  */
 function readPageOverflowFlags(element: HTMLElement): OverflowFlags {
   const doc = ownerDocument(element);
   const root = readOverflowFlags(doc.documentElement);
-  const body = doc.body === null ? null : readOverflowFlags(doc.body);
+  const body =
+    doc.body !== null && bodyPropagatesToViewport(doc) ? readOverflowFlags(doc.body) : null;
   return {
     x: !root.blockedX && !body?.blockedX,
     y: !root.blockedY && !body?.blockedY,
@@ -648,19 +662,10 @@ function runScrollFrame(timestamp: number): void {
     state.chainAnchor = chainAnchor;
     state.chainAnchorParent = chainAnchorParent;
     state.chainSourceParent = sourceParent;
-    // Drop the per-drag overflow cache before the fresh walk: entering a target
-    // can restyle a container from `overflow: hidden` to scrollable (a collapsed
-    // section auto-expanding from `onDragEnter`), and a stale entry would keep it
-    // out of the chain for the rest of the drag. A changed ancestry is the point
-    // where such a restyle matters. Merely moving to a sibling keeps the shared
-    // ancestor readings below.
-    // Moving between siblings does not invalidate any shared ancestor's cached
-    // overflow. Preserve those readings and measure only the new leaf. A changed
-    // ancestry still resets the cache so a container restyled on entry is picked
-    // up immediately.
-    if (ancestryChanged) {
-      state.overflowCache = new WeakMap();
-    }
+    // The per-drag overflow cache survives the fresh walk: a container restyled
+    // mid-drag (a collapsed section auto-expanding from `onDragEnter`) is caught
+    // by the mutation observer, whose refresh resets the cache, so only the new
+    // leaf is measured here.
     const nextInferredScrollers = collectInferredScrollers(chainAnchor, currentSource.element);
     if (!setsEqual(state.inferredScrollers, nextInferredScrollers)) {
       state.inferredScrollers = nextInferredScrollers;
@@ -787,7 +792,7 @@ function runScrollFrame(timestamp: number): void {
       if (process.env.NODE_ENV !== 'production') {
         if (getParameters !== undefined && !pageScroller) {
           warn(
-            'Base UI: an auto-scroll container was registered on an element that does not scroll, ' +
+            'an auto-scroll container was registered on an element that does not scroll, ' +
               'so its parameters (including `disabled`) have no effect. ' +
               'Register the element whose own `overflow` clips the scrollable content, ' +
               'or pass `applyScroll` if the surface moves its content some other way. ' +

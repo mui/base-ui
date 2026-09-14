@@ -524,7 +524,8 @@ describe('Draggable.Root', () => {
   });
 
   it('cleanup is idempotent and survives unmount mid-drag', async () => {
-    const { unmount } = await renderDnd(<TestDraggable />);
+    const onDragEnd = vi.fn();
+    const { unmount } = await renderDnd(<TestDraggable options={{ onDragEnd }} />);
     const source = screen.getByTestId('drag');
     source.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
 
@@ -537,6 +538,71 @@ describe('Draggable.Root', () => {
     // by the live drag session and is restored when that session ends.)
     expect(source.style.touchAction).toBe('');
     expect(source.style.userSelect).toBe('');
+
+    // Unregistering the source does not end the session: the gesture is still
+    // held, so the engine keeps it live until the pointer releases or cancels.
+    expect(dragSessionStore.getSnapshot()?.source.element).toBe(source);
+    expect(onDragEnd).not.toHaveBeenCalled();
+
+    cancel();
+    await flushRaf();
+
+    expect(dragSessionStore.getSnapshot()).toBeNull();
+    expect(onDragEnd).toHaveBeenCalledTimes(1);
+    expect(onDragEnd.mock.calls[0][0].canceled).toBe(true);
+
+    // The engine is not wedged: a fresh draggable starts a new drag.
+    await renderDnd(<TestDraggable testId="next" />);
+    const next = screen.getByTestId('next');
+    next.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
+
+    await lift(next);
+
+    expect(dragSessionStore.getSnapshot()?.source.element).toBe(next);
+  });
+
+  it('resolves className and style callbacks from the disabled and dragging state', async () => {
+    const className = (state: Draggable.Root.State) =>
+      [state.disabled ? 'is-disabled' : 'is-enabled', state.dragging ? 'is-dragging' : 'is-idle']
+        .filter(Boolean)
+        .join(' ');
+    const style = (state: Draggable.Root.State) => ({
+      opacity: state.dragging ? '0.5' : '1',
+      cursor: state.disabled ? 'not-allowed' : 'grab',
+    });
+    const { rerender } = await renderDnd(
+      <Draggable.Root kind={testDragKind} data-testid="drag" className={className} style={style} />,
+    );
+    const source = screen.getByTestId('drag');
+    source.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
+
+    expect(source).toHaveClass('is-enabled', 'is-idle');
+    expect(source.style.opacity).toBe('1');
+    expect(source.style.cursor).toBe('grab');
+
+    await lift(source);
+
+    expect(source).toHaveClass('is-enabled', 'is-dragging');
+    expect(source.style.opacity).toBe('0.5');
+
+    cancel();
+    await flushRaf();
+
+    expect(source).toHaveClass('is-idle');
+    expect(source.style.opacity).toBe('1');
+
+    await rerender(
+      <Draggable.Root
+        kind={testDragKind}
+        data-testid="drag"
+        className={className}
+        style={style}
+        disabled
+      />,
+    );
+
+    expect(source).toHaveClass('is-disabled', 'is-idle');
+    expect(source.style.cursor).toBe('not-allowed');
   });
 
   describe('Strict Mode', () => {
@@ -1674,7 +1740,8 @@ describe('Draggable.Root', () => {
       expect(
         screen.getByTestId('preview').closest('[data-drag-preview]')!.parentElement!.parentElement,
       ).toBe(screen.getByTestId('from-provider'));
-      await cancel();
+      cancel();
+      await flushRaf();
 
       await rerender(<Wiring partContainer />);
       const next = screen.getByTestId('drag');

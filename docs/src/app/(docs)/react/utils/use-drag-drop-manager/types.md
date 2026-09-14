@@ -856,6 +856,16 @@ type RegisterDropTargetParameters<TSourceData = unknown, TLocalData = unknown> =
     parameters: DropTargetEvent<'onDragLeave', TSourceData, TLocalData>,
     eventDetails: DropTargetChangeEventDetails,
   ) => void;
+  /**
+   * One or more drag source kinds accepted by this target.
+   *
+   * Every registration uses the same page-wide drag manager, so this value is
+   * required. Pass `DropTarget.anyKind` to accept every drag. In that case,
+   * `source.payload` is `unknown`.
+   *
+   * The target ignores a source whose kind is not accepted. An ancestor target can
+   * still accept it. Base UI checks `accept` before `canDrop`.
+   */
   accept: NonNullable<DragAccept<TSourceData> | undefined>;
 };
 ```
@@ -925,6 +935,16 @@ type RegisterDropTargetParametersWithPayload<TSourceData, TLocalData> = (
     parameters: DropEvent<TSourceData, TLocalData>,
     eventDetails: { reason: 'drop'; event: PointerEvent },
   ) => void;
+  /**
+   * One or more drag source kinds accepted by this target.
+   *
+   * Every registration uses the same page-wide drag manager, so this value is
+   * required. Pass `DropTarget.anyKind` to accept every drag. In that case,
+   * `source.payload` is `unknown`.
+   *
+   * The target ignores a source whose kind is not accepted. An ancestor target can
+   * still accept it. Base UI checks `accept` before `canDrop`.
+   */
   accept: NonNullable<DragAccept<TSourceData> | undefined>;
   /**
    * Predicate for whether this target should be considered a candidate for the

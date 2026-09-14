@@ -189,4 +189,36 @@ describe('DragAutoScroll.Provider', () => {
 
     expect(getScrollBy()).not.toHaveBeenCalled();
   });
+
+  it('stops an engaged loop when the provider is disabled mid-scroll', async () => {
+    const { rerender } = await renderDnd(<ScrollingApp />);
+    await dragIntoBottomEdge();
+    const scrollBy = getScrollBy();
+    expect(scrollBy).toHaveBeenCalled();
+
+    // The last release is deferred to a microtask (so a render-node swap keeps
+    // the live loop); it must still stop the loop once that microtask runs.
+    await rerender(<ScrollingApp disabled />);
+    await Promise.resolve();
+    scrollBy.mockClear();
+    await flushRaf();
+    await flushRaf();
+
+    expect(scrollBy).not.toHaveBeenCalled();
+  });
+
+  it('stops an engaged loop when the last provider unmounts mid-scroll', async () => {
+    const { rerender } = await renderDnd(<ScrollingApp />);
+    await dragIntoBottomEdge();
+    const scrollBy = getScrollBy();
+    expect(scrollBy).toHaveBeenCalled();
+
+    await rerender(<ScrollingApp providers={0} />);
+    await Promise.resolve();
+    scrollBy.mockClear();
+    await flushRaf();
+    await flushRaf();
+
+    expect(scrollBy).not.toHaveBeenCalled();
+  });
 });

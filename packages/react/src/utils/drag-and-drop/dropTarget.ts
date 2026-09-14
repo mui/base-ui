@@ -22,9 +22,6 @@ import { getSharedSlot } from './sharedState';
 import { getComposedParentElement, safeCallConsumer } from './utils';
 import { DROP_TARGET_ATTR } from './dragAttributes';
 
-/** Attribute the engine sets on a registered drop target element. */
-const DROP_TARGET_SELECTOR = `[${DROP_TARGET_ATTR}]`;
-
 /** Getter for a single hook's latest drop-target parameters. */
 type DropTargetGetter = () => RegisterDropTargetParameters<any, any>;
 
@@ -213,9 +210,19 @@ const retiringRegistrations = getSharedSlot<Map<Element, DropTargetGetter>>(
   () => new Map(),
 );
 
-/** Hold `getParameters` readable across this element's unregistration. */
+/**
+ * Hold `getParameters` readable across this element's unregistration.
+ *
+ * Only takes effect while `getParameters` is still the element's active hold,
+ * that is, when the element is leaving the registry entirely. The unregister
+ * callback also runs when a non-last hold is released and a survivor is promoted
+ * (see `getterStackRegistry`), but the element stays registered then and its
+ * leave, if any, dispatches through the survivor.
+ */
 export function retainRetiringDropTarget(element: Element, getParameters: DropTargetGetter): void {
-  retiringRegistrations.set(element, getParameters);
+  if (holds.getActive(element) === getParameters) {
+    retiringRegistrations.set(element, getParameters);
+  }
 }
 
 /** Drop the retiring hold once the element's terminal leave has been dispatched. */
@@ -337,11 +344,10 @@ function resolveDropTargetOutcome(
   if (!getRegistration) {
     return null;
   }
-  // The getter is consumer-supplied through the public imperative API, and this
-  // resolution path runs outside the lifecycle's recovery try (`start()` resolves
-  // the initial stack before any error boundary is armed). An uncontained throw
-  // there would strand `state.isActive` and permanently refuse every future
-  // pickup, so treat a throwing getter like an unregistered target instead.
+  // The getter is consumer-supplied through the public imperative API. An
+  // uncontained throw here would abort the whole resolution walk (and, from the
+  // initial resolution in `start()`, tear the drag down before it began), so
+  // treat a throwing getter like an unregistered target instead.
   const registration = safeCall('getParameters', element, getRegistration, null);
   if (registration === null) {
     return null;
@@ -407,7 +413,7 @@ function snapAxis(value: number, steps: number | undefined): number {
  * Build the record's `getLocalPoint` and `getSnappedLocalPoint`, deferring the
  * measurement until something asks.
  *
- * Resolution here is a DOM walk — `elementFromPoint` then `closest` — so no rect is
+ * Resolution here is a DOM walk — `elementFromPoint` then the ancestor climb — so no rect is
  * measured. Computing the point eagerly would charge every drag a
  * `getBoundingClientRect()` per resolved target to serve the drags that read it. The
  * two readers share one measurement, and a `snap` callback runs at most once per
@@ -492,9 +498,16 @@ function createLocalPointReaders(
 }
 
 /**
- * Walk up the DOM from `target` and collect every registered, non-disabled
- * drop target whose `accept` and `canDrop` both pass. Crosses shadow-DOM
- * boundaries via `host.parentElement`. Bubble-ordered, innermost first.
+ * Walk up the composed tree from `target` and collect every registered,
+ * non-disabled drop target whose `accept` and `canDrop` both pass.
+ * Bubble-ordered, innermost first.
+ *
+ * One composed walk (`getComposedParentElement`) rather than `closest()`: the
+ * latter follows the light-DOM parent chain straight through a shadow host, so a
+ * target in the shadow tree that wraps the `<slot>` the node is assigned to would
+ * be skipped whenever a light-DOM ancestor is also a target. Entering the
+ * assigned slot before climbing, and crossing out through the host afterwards,
+ * visits every ancestor in the order events bubble.
  *
  * A `canDrop` returning `'reject'` ends the walk with an empty stack: the
  * rejecting target refuses the drop outright rather than abstaining, so its
@@ -509,27 +522,23 @@ export function getDropTargetsOver(
   onReject?: (element: Element) => void,
 ): DropTargetRecord[] {
   const result: DropTargetRecord[] = [];
-  let current = target;
 
-  while (current) {
-    // `closest()` doesn't cross shadow boundaries; climb out via the shadow host
-    // so ancestor targets in the light DOM (or an outer shadow tree) are collected.
-    const found = current.closest(DROP_TARGET_SELECTOR);
-    if (found) {
-      const outcome = resolveDropTargetOutcome(found, feedback);
-      if (outcome === DROP_REJECTED) {
-        result.length = 0;
-        onReject?.(found);
-        return result;
-      }
-      if (outcome) {
-        result.push(outcome);
-      }
-      current = getComposedParentElement(found);
-    } else {
-      // Enter an assigned slot before climbing through its shadow tree. A plain
-      // DOM ancestry walk cannot discover a target wrapping slotted content.
-      current = getComposedParentElement(current);
+  for (let node = target; node !== null; node = getComposedParentElement(node)) {
+    // Keyed on the attribute, not the registry: while a target unregisters, its
+    // entry outlives the attribute (`onLastRemove` runs before `beforeDelete`)
+    // so its `onDragLeave` can still dispatch from the refresh, yet the
+    // refreshed stack must already exclude it.
+    if (!node.hasAttribute(DROP_TARGET_ATTR)) {
+      continue;
+    }
+    const outcome = resolveDropTargetOutcome(node, feedback);
+    if (outcome === DROP_REJECTED) {
+      result.length = 0;
+      onReject?.(node);
+      return result;
+    }
+    if (outcome) {
+      result.push(outcome);
     }
   }
 

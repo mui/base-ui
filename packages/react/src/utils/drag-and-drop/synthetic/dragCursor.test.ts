@@ -1,6 +1,11 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { isJSDOM } from '#test-utils';
 import * as dragCursor from './dragCursor';
+import {
+  addDropTargetRegistration,
+  removeDropTargetRegistration,
+  resetForTests as resetDropTargets,
+} from '../dropTarget';
 
 const DRAGGING_CLASS = 'baseui-dragging';
 const STYLE_CLASS = 'baseui-dragging-styles';
@@ -44,6 +49,7 @@ function activeCursorVar(): string {
 describe('dragCursor', () => {
   afterEach(() => {
     dragCursor.resetForTests();
+    resetDropTargets();
   });
 
   it('injects a single scoped cursor rule at module use', () => {
@@ -218,6 +224,78 @@ describe('dragCursor', () => {
   it('unlock() without a matching lock() is a no-op', () => {
     expect(() => dragCursor.unlock()).not.toThrow();
     expect(isDragging()).toBe(false);
+  });
+
+  describe.skipIf(isJSDOM)('shadow roots', () => {
+    it('forces the cursor inside a shadow tree holding a drop target', () => {
+      // Document styles stop at the shadow boundary, so without an adopted sheet
+      // the target's own `cursor: pointer` would win over the drag cursor.
+      const host = document.createElement('div');
+      document.body.appendChild(host);
+      const shadow = host.attachShadow({ mode: 'open' });
+      const target = document.createElement('div');
+      target.style.cursor = 'pointer';
+      shadow.appendChild(target);
+      const getParameters = () => ({});
+      addDropTargetRegistration(target, getParameters);
+
+      try {
+        dragCursor.lock(document.body, 'grabbing');
+        expect(getComputedStyle(target).cursor).toBe('grabbing');
+
+        dragCursor.unlock();
+        expect(getComputedStyle(target).cursor).toBe('pointer');
+        expect(shadow.adoptedStyleSheets).toHaveLength(0);
+      } finally {
+        removeDropTargetRegistration(target, getParameters);
+        host.remove();
+      }
+    });
+
+    it('covers a drop target that registers in a new shadow root mid-drag', () => {
+      const host = document.createElement('div');
+      document.body.appendChild(host);
+      const shadow = host.attachShadow({ mode: 'open' });
+      const target = document.createElement('div');
+      target.style.cursor = 'pointer';
+      shadow.appendChild(target);
+      const getParameters = () => ({});
+
+      try {
+        dragCursor.lock(document.body, 'grabbing');
+        expect(getComputedStyle(target).cursor).toBe('pointer');
+
+        addDropTargetRegistration(target, getParameters);
+        expect(getComputedStyle(target).cursor).toBe('grabbing');
+
+        // Unregistering leaves the root as it was found.
+        removeDropTargetRegistration(target, getParameters);
+        expect(getComputedStyle(target).cursor).toBe('pointer');
+
+        dragCursor.unlock();
+      } finally {
+        host.remove();
+      }
+    });
+
+    it('leaves shadow roots alone when style elements are disabled', () => {
+      const host = document.createElement('div');
+      document.body.appendChild(host);
+      const shadow = host.attachShadow({ mode: 'open' });
+      const target = document.createElement('div');
+      shadow.appendChild(target);
+      const getParameters = () => ({});
+      addDropTargetRegistration(target, getParameters);
+
+      try {
+        dragCursor.lock(document.body, 'grabbing', { disableStyleElements: true });
+        expect(shadow.adoptedStyleSheets).toHaveLength(0);
+        dragCursor.unlock();
+      } finally {
+        removeDropTargetRegistration(target, getParameters);
+        host.remove();
+      }
+    });
   });
 
   it("locks the source's own document when it lives in an iframe", () => {

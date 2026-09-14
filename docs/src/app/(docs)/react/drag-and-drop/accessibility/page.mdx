@@ -60,6 +60,8 @@ Choose shortcuts that fit the widget's normal keyboard model. Document them near
 After a keyboard command, keep focus on the item that moved. If the operation unmounts and recreates it, focus the replacement after the state update. Do not move focus during a pointer drag.
 
 ```tsx title="Restoring focus after a reorder"
+import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
+
 const focusFrame = useAnimationFrame();
 
 moveTask(task.id, destination.id);

@@ -4,14 +4,13 @@ import { fireEvent, screen } from '@testing-library/react';
 import { createDndRenderer, testDragKind } from '#test-utils';
 import { DropTarget } from '@base-ui/react/drop-target';
 import { createElement, flushRaf, setupDragEngineTests } from '../../test/dnd';
-import { DropTargetRootDataAttributes } from './root/DropTargetRootDataAttributes';
+import * as DropTargetRootDataAttributes from './root/DropTargetRootDataAttributes';
 
 setupDragEngineTests();
 
-// The engine writes these names as inlined string literals (`dropTarget.ts`, the
-// state-attribute mapping) so the enum stays tree-shakeable — it exists for types
-// and the generated API reference only. Nothing else links the literals to the
-// enum, so re-link every member here: renaming only one side fails CI.
+// The engine writes these names as inlined string literals (`dropTarget.ts`), so
+// nothing links them to the exported constants that type the generated API
+// reference. Re-link every member here: renaming only one side fails CI.
 describe('DropTarget enum sync', () => {
   const { renderDnd } = createDndRenderer();
 

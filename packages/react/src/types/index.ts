@@ -32,10 +32,6 @@ export type {
   RegisterDropTargetParametersWithPayload,
   RegisterAutoScrollerParameters,
   RegisterMonitorParameters,
-  WithOptionalPayload,
-  WithRequiredPayload,
-  WithInferredAccept,
-  WithRequiredAccept,
   DragDropManager,
 } from './dragRegistration';
 

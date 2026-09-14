@@ -11,13 +11,18 @@ import type { DragInput, DragPosition } from '../../../types/drag';
  *
  * Runs before `data-dragging` lands on the source, so the clone never inherits it
  * and the usual `[data-dragging] { opacity: .4 }` rule dims the source alone.
+ *
+ * `pressInput` is the original press, where `input` is the pointer state the pickup
+ * committed on. Distance activation commits on a later `pointermove`, so the
+ * default `'source'` offset is measured from the press: crossing the threshold must
+ * not shift the preview in the gesture's direction.
  */
 export function attachDefaultDragPreview(
   preview: SyntheticPreviewHandle,
   element: HTMLElement,
   settings: ResolvedDragPreview<any>,
   input: DragInput,
-  grabOffset: DragPosition,
+  pressInput: DragInput,
 ): void {
   if (settings.disabled) {
     return;
@@ -35,16 +40,16 @@ export function attachDefaultDragPreview(
   let offset: DragPosition;
   if (previewElement.isHost && typeof settings.offset === 'function') {
     offset = { x: 0, y: 0 };
-  } else if (settings.offset === undefined || settings.offset === 'source') {
-    // Distance activation commits on a later pointermove. Keep the offset measured at the
-    // original press so crossing that threshold cannot shift the preview in the gesture's
-    // direction.
-    offset = grabOffset;
   } else {
+    const isSourceOffset = settings.offset === undefined || settings.offset === 'source';
     offset = resolveDragPreviewOffset(settings.offset, {
       container: previewElement.element,
+      // The rect the preview actually occupies: for a transformed source this is the
+      // untransformed box the clone is anchored on (see `createPreparedDragPreviewElement`),
+      // not the transformed one `getBoundingClientRect` reports, so the clone lifts off
+      // exactly where the source sits.
       sourceRect: previewElement.sourceRect,
-      input,
+      input: isSourceOffset ? pressInput : input,
     });
   }
   preview.setPreviewElement(previewElement, offset);

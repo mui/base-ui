@@ -532,9 +532,7 @@ export interface DropTargetResolutionContext<TSourceData = unknown> {
 }
 
 /** A drop target's payload value. */
-// `TSourceData` stays for source compatibility with the former resolver union.
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-export type DropTargetPayload<TSourceData, TLocalData> = TLocalData;
+export type DropTargetPayload<TLocalData> = TLocalData;
 
 /** Resolves a drop target's payload each time the target is evaluated. */
 export type DropTargetPayloadGetter<TSourceData, TLocalData> = (

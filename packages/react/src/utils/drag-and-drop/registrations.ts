@@ -76,14 +76,14 @@ export function registerDropTarget<TSourceData = unknown, TLocalData = unknown>(
       // plain JS (or a cast), where the silence would otherwise be total.
       if (parameters.kind) {
         warn(
-          'Base UI: a DropTarget declares `kind` but no `accept`, so it takes every drag on the page. ' +
+          'A DropTarget declares `kind` but no `accept`, so it takes every drag on the page. ' +
             '`kind` is what this target is; `accept` is which sources it takes. ' +
             'Add `accept` with the kinds this target should receive, or drop `kind` if the target needs no identity of its own. ' +
             'See https://base-ui.com/react/components/drop-target.',
         );
       } else {
         warn(
-          'Base UI: a DropTarget declares no `accept`, so it takes every drag on the page ' +
+          'A DropTarget declares no `accept`, so it takes every drag on the page ' +
             'and hands foreign payloads to its handlers. ' +
             'Add `accept` with the kinds this target should receive, or ' +
             '`accept={DropTarget.anyKind}` to accept every drag on purpose. ' +
@@ -123,9 +123,11 @@ export function registerDropTarget<TSourceData = unknown, TLocalData = unknown>(
       }
       const snapshot = dragSessionStore.getSnapshot();
       // A `null` snapshot with an active drag is the `onGenerateDragPreview`
-      // window: the session hasn't published yet, so membership can't be read —
-      // refresh synchronously so the initial publish and `onDragStart` don't
-      // carry the just-unregistered target.
+      // window: the session hasn't published yet, so membership can't be read.
+      // Take the synchronous path with the registration held readable; the
+      // lifecycle queues the refresh until `onDragStart` has gone out, so the
+      // initial stack is still published and entered as resolved, and this
+      // target leaves it (with its `onDragLeave`) right after.
       //
       // Membership comes from `isHoveredDropTarget` — the lifecycle's own hover
       // bookkeeping, not the published snapshot: a target that entered and
@@ -137,6 +139,8 @@ export function registerDropTarget<TSourceData = unknown, TLocalData = unknown>(
         // dispatches the leave right here, releasing it again immediately — but
         // when this unregister comes from *inside* a consumer fan-out the refresh
         // can only queue, and the entry would be gone by the time it drains.
+        // A no-op when a surviving hold keeps the element registered: the
+        // survivor is the one read then.
         retainRetiringDropTarget(element, getParameters);
         refreshDropTargets();
       } else {

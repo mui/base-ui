@@ -29,14 +29,7 @@ function ShapePiece({
   elementRef: React.RefCallback<HTMLDivElement>;
 }) {
   return (
-    <div
-      ref={elementRef}
-      className={styles.Piece}
-      data-shape={shape.id}
-      aria-label={shape.label}
-      role="button"
-      tabIndex={0}
-    />
+    <div ref={elementRef} className={styles.Piece} data-shape={shape.id} aria-label={shape.label} />
   );
 }
 
@@ -63,7 +56,6 @@ export default function EngineShapeSorter() {
         // @highlight-start
         manager.registerDraggable(element, () => ({
           kind: shape.kind,
-          label: shape.label,
           payload: shape.id,
         })),
         // @highlight-end
@@ -75,7 +67,6 @@ export default function EngineShapeSorter() {
       cleanups.push(
         manager.registerDropTarget(element, () => ({
           accept: shape.kind,
-          label: `${shape.label} cutout`,
           onDragEnter: () => setOverShape(shape.id),
           onDragLeave: () => setOverShape((current) => (current === shape.id ? null : current)),
           onDrop: () => placeShape(shape.id),

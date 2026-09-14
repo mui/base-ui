@@ -33,7 +33,7 @@ Three details matter:
 
 - **Dispatch moves on `document`, not on `window`.** This reaches the drag's active pointer listeners.
 - **Carry the same `pointerId` through.** The engine tracks one gesture by id and ignores events from another pointer.
-- **Keep `buttons: 1` on every move.** A move reporting `buttons: 0` means the button came up without the engine seeing it. Omit it on the move that would cross the threshold and the press is abandoned before it commits, so no drag starts and no handler fires at all; drop it mid-drag and the drag cancels with the reason `'missed-release'`.
+- **Keep `buttons: 1` on every move.** A move reporting `buttons: 0` means the button came up without the engine seeing it. Omit it on the move that would cross the threshold and the press is abandoned before it commits, so no drag starts and no handler fires at all; drop it mid-drag and the drag cancels with the reason `'missed-release'` on the next animation frame, so [let a frame pass](#let-a-frame-pass) before asserting on it. A move that reports `buttons: 1` before that frame lands withdraws the cancel.
 
 For touch, advance timers past the press-hold instead of moving:
 
@@ -66,7 +66,7 @@ await act(async () => {
 expect(screen.getByTestId('zone')).toHaveAttribute('data-drag-over');
 ```
 
-`onDragStart` and `onDragEnd` are not throttled and fire synchronously with the event that caused them.
+`onDragStart` and `onDragEnd` are not throttled. `onDragStart` fires synchronously with the move that crosses the threshold, and `onDragEnd` fires synchronously with the `pointerup` or Escape key event that ends the drag. Cancels the engine detects on its own, such as a missed release, land on the next frame.
 
 ## Assert on what a user can observe
 

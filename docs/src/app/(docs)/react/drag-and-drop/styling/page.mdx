@@ -94,9 +94,9 @@ While a pointer drag runs, the engine pins the cursor across the document so it 
 
 Base UI writes inline styles and injects one cursor stylesheet. These styles may override the same properties in your CSS.
 
-At registration, each enabled draggable receives `touch-action: manipulation`, `user-select: none`, and `-webkit-touch-callout: none`. A disabled source receives none of these styles. The styles prevent text selection and the iOS callout while still allowing touch scrolling before the 250ms drag delay ends. When a [`Draggable.Handle`](/react/components/draggable#drag-handle) is present, Base UI applies the styles to the handle instead of the root. Setting `touch-action` on the handle overrides this behavior and can interfere with touch dragging or list scrolling, so set it on a wrapper instead. Base UI restores the original styles when the source unregisters.
+At registration, each enabled draggable receives `touch-action: manipulation`, `user-select: none`, `-webkit-user-select: none`, and `-webkit-touch-callout: none`. A disabled source receives none of these styles. The styles prevent text selection and the iOS callout while still allowing touch scrolling before the 250ms drag delay ends. When a [`Draggable.Handle`](/react/components/draggable#drag-handle) is present, Base UI applies the styles to the handle instead of the root. Setting `touch-action` on the handle overrides this behavior and can interfere with touch dragging or list scrolling, so set it on a wrapper instead. Base UI restores the original styles when the source unregisters.
 
-During a pointer drag, Base UI sets `touch-action: none`, `user-select: none`, `-webkit-touch-callout: none`, and `overscroll-behavior: none` on `<html>` and `<body>`. This prevents page scrolling and overscroll. Base UI restores the values when the drag ends.
+During a pointer drag, Base UI sets `touch-action: none`, `user-select: none`, `-webkit-user-select: none`, `-webkit-touch-callout: none`, and `overscroll-behavior: none` on `<html>` and `<body>`. This prevents page scrolling and overscroll. Base UI restores the values when the drag ends.
 
 A pointer drag also adds a `baseui-dragging` class to `<html>` and, once per document, injects a single rule:
 

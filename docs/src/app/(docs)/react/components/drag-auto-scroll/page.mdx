@@ -44,7 +44,7 @@ Drop targets are resolved again as content scrolls, so a target that moves under
 
 ## Customize a container that already scrolls
 
-`DragAutoScroll.Root` can enable auto-scroll for one region without a provider. Inside a provider, use it to configure the accepted drags, allowed axes, speed, or disabled state for one container.
+Mounting a `DragAutoScroll.Root` enables auto-scroll for every scroll container on the page, like a provider does, and configures the one container it renders: the accepted drags, allowed axes, speed, or disabled state.
 
 ### Control when it scrolls
 
@@ -164,7 +164,6 @@ You can pass a `DragAutoScroll.Root` to a `DropTarget.Root`'s `render` prop when
 ```tsx title="One element, both roles"
 <DropTarget.Root
   accept={card}
-  label="Board"
   onDrop={handleDrop}
   render={<DragAutoScroll.Root maxSpeed={400} />}
 />

@@ -51,7 +51,7 @@ export function createDragPreviewHandle<TData = unknown>(): DragPreviewHandle<TD
           // production over it is out of proportion. Last declaration wins, which
           // at least makes the outcome deterministic.
           warn(
-            'Base UI: a Draggable.Root contains more than one preview part. ' +
+            'A Draggable.Root contains more than one preview part. ' +
               'A draggable has one preview, so the last one mounted wins and the others are ignored. ' +
               'Keep either the Draggable.Preview that renders your own content, or the ' +
               'Draggable.ClonedPreview that configures the clone of the source. ' +

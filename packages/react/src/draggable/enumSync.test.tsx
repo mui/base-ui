@@ -4,16 +4,16 @@ import { fireEvent, screen } from '@testing-library/react';
 import { createDndRenderer, testDragKind } from '#test-utils';
 import { Draggable } from '@base-ui/react/draggable';
 import { createElement, flushRaf, lift, setupDragEngineTests } from '../../test/dnd';
-import { DraggablePreviewCssVars } from './preview/DraggablePreviewCssVars';
-import { DraggablePreviewDataAttributes } from './preview/DraggablePreviewDataAttributes';
-import { DraggableRootDataAttributes } from './root/DraggableRootDataAttributes';
+import * as DraggablePreviewCssVars from './preview/DraggablePreviewCssVars';
+import * as DraggablePreviewDataAttributes from './preview/DraggablePreviewDataAttributes';
+import * as DraggableRootDataAttributes from './root/DraggableRootDataAttributes';
 
 setupDragEngineTests();
 
 // The engine writes these names as inlined string literals (`syntheticPreview.ts`,
-// `customDragPreview.ts`) so the enums below stay tree-shakeable — they exist for types and the
-// generated API reference only. Nothing else links the literals to the enums, so re-link every
-// member of every enum in this module here: renaming only one side fails CI.
+// `customDragPreview.ts`); the constants below exist for types and the generated API
+// reference only. Nothing else links the literals to the constants, so re-link every
+// member of every module here: renaming only one side fails CI.
 describe('Draggable enum sync', () => {
   const { renderDnd } = createDndRenderer();
 

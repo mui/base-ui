@@ -245,7 +245,7 @@ const wideDrop = (parameters: DropEvent<unknown, unknown>) => parameters;
 type SlotProps = DropTarget.Root.Props<CardPayload, SlotData>;
 const slotValueProps: SlotProps = { accept: card, payload: { index: 0 } };
 const slotCallbackProps: SlotProps = { accept: card, getPayload: () => ({ index: 0 }) };
-expectType<DropTargetPayload<CardPayload, SlotData>, NonNullable<typeof slotValueProps.payload>>(
+expectType<DropTargetPayload<SlotData>, NonNullable<typeof slotValueProps.payload>>(
   slotValueProps.payload!,
 );
 expectType<
