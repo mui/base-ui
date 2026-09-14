@@ -14,18 +14,6 @@ import { useMenuFilterRoot } from './useMenuFilterRoot';
  * @internal
  */
 export function MenuFilterRoot<Payload>(props: MenuFilterRoot.Props<Payload>): React.JSX.Element {
-  const { handle } = props;
-
-  React.useEffect(() => {
-    if (process.env.NODE_ENV !== 'production' && handle && !handle.filterable) {
-      console.warn(
-        'Base UI: a filterable <Menu.Root> received a handle created without `filterable: true`. ' +
-          'Detached triggers announce a plain menu until the root attaches, which can ' +
-          'mismatch on hydration. Create it with `Menu.createHandle({ filterable: true })`.',
-      );
-    }
-  }, [handle]);
-
   const { children, rootProps, dropdownProps } = useMenuFilterRoot(props, 'MenuFilterRoot');
 
   return (

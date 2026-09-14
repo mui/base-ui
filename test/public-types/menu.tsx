@@ -33,7 +33,7 @@ export function InternalSubmenuPropsStayHidden() {
   return <Menu.SubmenuRoot virtualFocus />;
 }
 
-const filterHandle = Menu.createHandle<{ id: number }>({ filterable: true });
+const filterHandle = Menu.createHandle<{ id: number }>();
 
 export function TypedFilterableTrigger() {
   return (

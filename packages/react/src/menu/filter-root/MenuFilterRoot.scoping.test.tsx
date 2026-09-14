@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { expect, describe, it, vi } from 'vitest';
-import { act, screen, waitFor } from '@mui/internal-test-utils';
+import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { Menu } from '@base-ui/react/menu';
 import { createRenderer, isJSDOM } from '#test-utils';
@@ -302,9 +302,9 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
     );
   });
 
-  it('announces a dialog from a detached trigger whose handle is filterable', async () => {
+  it('announces a dialog from a detached trigger once the filterable root attaches', async () => {
     function Test() {
-      const handle = useRefWithInit(() => Menu.createHandle({ filterable: true })).current;
+      const handle = useRefWithInit(() => Menu.createHandle()).current;
 
       return (
         <React.Fragment>
@@ -534,35 +534,11 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
       }
     });
 
-    it('warns when the handle was created without the filterable option', async () => {
+    it('does not warn for a filterable menu with an input and a detached trigger', async () => {
       const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
 
       function Test() {
         const handle = useRefWithInit(() => Menu.createHandle()).current;
-        return (
-          <Menu.FilterProvider closeLabel="Close menu">
-            <Menu.Root handle={handle}>
-              <Menu.Trigger handle={handle}>Actions</Menu.Trigger>
-            </Menu.Root>
-          </Menu.FilterProvider>
-        );
-      }
-
-      try {
-        await render(<Test />);
-
-        expect(warnSpy).toHaveBeenCalled();
-        expect(warnSpy.mock.calls[0][0]).toContain('filterable: true');
-      } finally {
-        warnSpy.mockRestore();
-      }
-    });
-
-    it('does not warn for a filterable menu with an input and a filterable handle', async () => {
-      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
-
-      function Test() {
-        const handle = useRefWithInit(() => Menu.createHandle({ filterable: true })).current;
         return (
           <Menu.FilterProvider closeLabel="Close menu">
             <Menu.Root handle={handle} open>
@@ -833,6 +809,41 @@ describe('independent menu focus inside a filterable menu', () => {
         await render(<TrappedMenu closeLabel={closeLabel} />);
         expect(warnSpy).toHaveBeenCalledTimes(1);
         expect(warnSpy.mock.calls[0][0]).toContain('closeLabel');
+      } finally {
+        warnSpy.mockRestore();
+      }
+    });
+
+    // jsdom drops the pointer type, so the open method can't be observed there.
+    it.skipIf(isJSDOM)('does not trap a menu opened by touch', async () => {
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      try {
+        await render(
+          <Menu.FilterProvider>
+            <Menu.Root>
+              <Menu.Trigger>Actions</Menu.Trigger>
+              <Menu.Portal>
+                <Menu.Positioner>
+                  <Menu.Popup data-testid="popup">
+                    <Menu.FilterInput aria-label="Filter actions" />
+                    <Menu.List>
+                      <Menu.Item>Rename</Menu.Item>
+                    </Menu.List>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+          </Menu.FilterProvider>,
+        );
+
+        const trigger = screen.getByRole('button', { name: 'Actions' });
+        fireEvent.pointerDown(trigger, { pointerType: 'touch' });
+        fireEvent.click(trigger);
+
+        const popup = await screen.findByTestId('popup');
+        expect(popup).not.toHaveAttribute('aria-modal');
+        expect(popup.querySelector('button')).toBe(null);
+        expect(warnSpy).not.toHaveBeenCalled();
       } finally {
         warnSpy.mockRestore();
       }

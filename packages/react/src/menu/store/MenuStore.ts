@@ -29,8 +29,7 @@ export type State<Payload> = PopupStoreState<Payload> & {
   listElement: HTMLElement | null;
   /**
    * Whether real focus stays inside the popup while the list is navigated with
-   * `aria-activedescendant`. Set by a filter root, and seeded on a handle created with
-   * `filterable: true` so detached triggers announce the right popup before the root attaches.
+   * `aria-activedescendant`. Set by a filter root; detached triggers read it once the root attaches.
    */
   virtualFocus: boolean;
   hoverEnabled: boolean;
@@ -71,13 +70,17 @@ const selectors = {
     (state.modal ?? true),
   /**
    * Whether a filterable popup traps focus like a modal dialog: a modal top-level filter root
-   * that wasn't opened by hover. Submenus never trap; their parent's trap contains them.
+   * opened by keyboard or a fine pointer. Hover, touch, and assistive-technology clicks (which
+   * report no pointer type) leave focus free. Submenus never trap; their parent's trap contains
+   * them.
    */
   trapsFocus: (state: State<unknown>) =>
     state.virtualFocus &&
     state.parent.type === undefined &&
     (state.modal ?? true) &&
-    state.openChangeReason !== 'trigger-hover',
+    state.openChangeReason !== 'trigger-hover' &&
+    state.openMethod !== 'touch' &&
+    state.openMethod !== '',
   floatingId: (state: State<unknown>) => state.floatingId,
   openMethod: (state: State<unknown>) => state.openMethod,
 
@@ -205,12 +208,10 @@ export class MenuStore<Payload> extends ReactStore<Readonly<State<Payload>>, Con
  * reads/writes of `NullStore`), so a trigger can hand the store to focus-guard helpers that expect
  * `setOpen` without it ever taking effect while detached.
  */
-export function createNullMenuStore<Payload>(
-  initialState?: Partial<State<Payload>>,
-): MenuHandleStore<Payload> {
+export function createNullMenuStore<Payload>(): MenuHandleStore<Payload> {
   const triggerElements = new PopupTriggerMap();
   const store = new NullStore<Readonly<State<Payload>>, Context, Selectors>(
-    Object.freeze(createInitialState<Payload>(triggerElements, undefined, false, initialState)),
+    Object.freeze(createInitialState<Payload>(triggerElements)),
     Object.freeze(createInitialContext(triggerElements)),
     selectors,
   );
