@@ -143,7 +143,6 @@ export const MenuPopupPlain = React.forwardRef(function MenuPopup(
       popupProps,
       {
         id,
-        'aria-modal': trapsFocus || undefined,
         // A rendered `Menu.List` carries the `menu` semantics instead.
         ...(listElement
           ? { role: 'presentation' }

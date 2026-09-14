@@ -699,6 +699,12 @@ describe('independent menu focus inside a filterable menu', () => {
       });
     }
 
+    // Modal focus management hides everything outside the popup from assistive technology, the
+    // same way `Dialog` does, with no modal attribute on the popup itself.
+    function isHiddenFromAssistiveTechnology(element: Element) {
+      return element.closest('[aria-hidden="true"], [inert]') !== null;
+    }
+
     function TrappedMenu(props: { modal?: boolean; submenu?: boolean }) {
       return (
         <div>
@@ -746,7 +752,7 @@ describe('independent menu focus inside a filterable menu', () => {
         expect(input).toHaveFocus();
       });
 
-      expect(screen.getByTestId('popup')).toHaveAttribute('aria-modal', 'true');
+      expect(isHiddenFromAssistiveTechnology(screen.getByTestId('after'))).toBe(true);
 
       await pressTab(user, false);
       await waitFor(() => {
@@ -833,7 +839,7 @@ describe('independent menu focus inside a filterable menu', () => {
         expect(input).toHaveFocus();
       });
 
-      expect(screen.getByTestId('popup')).not.toHaveAttribute('aria-modal');
+      expect(isHiddenFromAssistiveTechnology(screen.getByTestId('after'))).toBe(false);
 
       await user.tab();
       await waitFor(() => {
@@ -846,6 +852,7 @@ describe('independent menu focus inside a filterable menu', () => {
       await render(
         <Menu.FilterProvider>
           <Menu.Root>
+            <input data-testid="after" />
             <Menu.Trigger>Actions</Menu.Trigger>
             <Menu.Portal>
               <Menu.Positioner>
@@ -865,8 +872,8 @@ describe('independent menu focus inside a filterable menu', () => {
       fireEvent.pointerDown(trigger, { pointerType: 'touch' });
       fireEvent.mouseDown(trigger);
 
-      const popup = await screen.findByTestId('popup');
-      expect(popup).not.toHaveAttribute('aria-modal');
+      await screen.findByTestId('popup');
+      expect(isHiddenFromAssistiveTechnology(screen.getByTestId('after'))).toBe(false);
     });
 
     it('leaves a filterable submenu untrapped inside a trapped parent', async () => {
@@ -882,7 +889,8 @@ describe('independent menu focus inside a filterable menu', () => {
       await waitFor(() => {
         expect(submenuInput).toHaveFocus();
       });
-      expect(screen.getByTestId('submenu-popup')).not.toHaveAttribute('aria-modal');
+      // The submenu runs no modal focus management of its own: the parent's still applies.
+      expect(isHiddenFromAssistiveTechnology(screen.getByTestId('submenu-popup'))).toBe(false);
     });
   });
 });
