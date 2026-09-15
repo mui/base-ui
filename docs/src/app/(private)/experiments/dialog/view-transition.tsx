@@ -9,8 +9,7 @@ import './view-transition.css';
  * Run with React 19.3 to compare dialog and anchored popup snapshots.
  * Keep the portal node mounted, and insert/remove the ViewTransition boundary
  * in the same React Transition as `open` instead of waiting for CSS exit animations.
- * Dialog captures the shared cover at both sizes. Popover still captures an invisible
- * positioner until its asynchronous positioning completes.
+ * Both examples animate the shared cover between the trigger and the popup.
  */
 export default function ViewTransitionExperiment() {
   if (!React.ViewTransition) {

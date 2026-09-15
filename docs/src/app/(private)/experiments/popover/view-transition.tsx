@@ -18,9 +18,8 @@ import './view-transition.css';
  * What to observe (Chrome, DevTools > Animations helps):
  * - Closing animates: the popup plays `pop-out`, and in the shared-element example the cover
  *   morphs back into the thumbnail in the trigger.
- * - Opening still does not animate correctly: lifecycle state now reaches the positioner in
- *   the opening commit, but its asynchronous positioning has not finished. The snapshot can
- *   capture the positioner at (0, 0) with opacity: 0.
+ * - Opening animates: the popup plays `pop-in`, and in the shared-element example the
+ *   thumbnail morphs into the cover at the popup's anchored position.
  * - Compare the Dialog example at /experiments/dialog/view-transition, which does not need
  *   anchor positioning.
  */
