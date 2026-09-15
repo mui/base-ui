@@ -1,0 +1,111 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  min-height: 100vh;
+  padding: 1.5rem;
+  color: var(--dnd-ink);
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.title {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.subtitle {
+  margin: 0;
+  color: var(--dnd-muted);
+}
+
+.board {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+  flex-wrap: nowrap;
+  width: fit-content;
+}
+
+.column {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  width: 15rem;
+  padding: 0.75rem;
+  border: 1px solid var(--dnd-border);
+  background: var(--dnd-canvas);
+  transition:
+    border-color 0.15s,
+    background-color 0.15s;
+}
+
+.columnActive {
+  border-color: var(--dnd-ink);
+  background: var(--dnd-surface-hover);
+}
+
+.columnHeader {
+  padding-bottom: 0.75rem;
+  font-size: 0.75rem;
+  line-height: 1rem;
+  font-weight: 600;
+  color: var(--dnd-muted);
+}
+
+.columnBody {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-height: 2.5rem;
+}
+
+.dropLine {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--dnd-ink);
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.card {
+  box-sizing: border-box;
+  padding: 0.5rem 0.625rem;
+  border: 1px solid var(--dnd-ink);
+  background: var(--dnd-surface);
+  color: var(--dnd-ink);
+  cursor: grab;
+  transition: background-color 0.15s;
+}
+
+.card:hover {
+  background: var(--dnd-surface-hover);
+}
+
+.card:focus-visible {
+  outline: 2px solid var(--dnd-ink);
+  outline-offset: -1px;
+}
+
+.cardDragging {
+  opacity: 0.4;
+}
+
+/* The preview is a clone of the card, so it needs no styles of its own — only the
+   shadow that sets the lifted card apart from the resting ones. */
+.card[data-drag-preview] {
+  box-shadow: var(--dnd-shadow);
+}
+
+.emptyHint {
+  padding: 0.25rem 0;
+  color: var(--dnd-muted);
+  font-size: 0.75rem;
+  line-height: 1rem;
+}

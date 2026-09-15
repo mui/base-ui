@@ -1,0 +1,166 @@
+# useDragDropManager
+
+<Subtitle>An imperative API for drag and drop.</Subtitle>
+<Meta
+  name="description"
+  content="A React hook that returns the page-wide manager for registering draggables, drop targets, auto-scrollers, and monitors, and canceling a drag."
+/>
+
+import { DemoEngineShapeSorter } from './demos/hero';
+
+<DemoEngineShapeSorter />
+
+The `useDragDropManager` hook returns the page-wide imperative API. It has four registration methods, `registerDraggable`, `registerDropTarget`, `registerAutoScroller`, and `registerMonitor`. It also provides `cancelDrag`. The React components and hooks use the same registration methods internally.
+
+Every call controls the same manager. Calling the hook in two boards does not isolate them, and `cancelDrag()` ends whichever drag is active on the page. Use distinct kinds and target `accept` declarations to keep independent features from interacting.
+
+Use it to register an existing element, integrate a non-React widget, or keep registrations in one parent component. The shape sorter above registers its pieces, cutouts, and monitor through one manager. It does not render `Draggable.Root`, `DropTarget.Root`, or `useDragMonitor`.
+
+Call the hook at the top of your component:
+
+```tsx title="Get the manager"
+import { useDragDropManager } from '@base-ui/react/use-drag-drop-manager';
+
+const manager = useDragDropManager();
+```
+
+`registerDraggable`, `registerDropTarget`, and `registerAutoScroller` take the target element and a getter for its parameters; `registerMonitor` takes only a getter, since a monitor observes every drag rather than an element. All four return a cleanup that unregisters. Register from an effect and return the cleanup:
+
+```tsx title="Register from an effect"
+React.useEffect(() => {
+  return manager.registerDraggable(element, () => ({ kind: card, payload: id }));
+}, [manager, id]);
+```
+
+The methods are reference-stable, so they are safe to list as effect dependencies.
+
+## When each parameter is read
+
+Base UI reads parameters from the getter at different times:
+
+- **Every dispatch.** Event callbacks such as `onDragStart`, `onDrag`, and `onDrop`, and conditions such as `canDrop`, `canScroll`, and `allowedAxis`, are read from the getter each time. Base UI does not make the getter's closure reactive. Re-register from an effect when its dependencies change, or read mutable refs from the getter when the registration must stay mounted.
+- **Once at pickup.** Base UI reads `kind`, `payload`, and preview settings when the drag starts. Changes during the drag apply to the next drag.
+- **At registration and the next interaction.** Base UI applies gesture styles and `dragHandle` when the element registers. It reads them again on the next `pointerdown`. Drag behavior, including `disabled` and `dragHandle`, is always checked at pickup. Re-register the element to update the idle DOM state immediately.
+
+Base UI evaluates a monitor's `accept` once when it joins a drag. A monitor whose `accept` excludes a drag ignores it until it ends. A monitor registered during a drag is matched against the drag already in progress.
+
+Base UI reads the nearest `Draggable.PreviewProvider` where `useDragDropManager` is called. Put that provider above the component that calls the hook, regardless of where the registered elements render.
+
+## Draggables
+
+Register a drag source with `registerDraggable`. It accepts the [`Draggable.Root`](/react/components/draggable) options, including `kind`, `payload` or `getPayload`, `pointerActivation`, `disabled`, and the drag event callbacks. It also accepts `dragHandle` and `dragPreview`. `dragHandle` can be an element, ref, or function that restricts pickup to a handle.
+
+```tsx title="Register a drag source"
+manager.registerDraggable(element, () => ({ kind: card, payload: id }));
+```
+
+### Drag preview
+
+With no preview part to nest, an imperative source uses the same sanitized clone by default. It preserves classes and live element state but rewrites IDs to keep the document unique. Pass `dragPreview` only to configure or replace it:
+
+```tsx title="A cloned preview for a registered source"
+manager.registerDraggable(element, () => ({
+  kind: card,
+  payload: id,
+  dragPreview: { offset: 'pointer' },
+}));
+```
+
+`offset`, `modifiers`, `disabled`, and `container` work as they do on the [preview parts](/react/components/draggable#drag-previews). Instead of children, pass a `render` function for the content. It resolves once at drag start and receives the drag `source`:
+
+```tsx title="A custom preview for a registered source"
+manager.registerDraggable(element, () => ({
+  kind: card,
+  payload: id,
+  dragPreview: {
+    render: ({ source }) => <span className="CardChip">{source.payload}</span>,
+    offset: 'pointer',
+  },
+}));
+```
+
+A `render` needs a [`Draggable.PreviewProvider`](/react/drag-and-drop/overview#setup) in the tree, like a `Draggable.Preview` does, and throws without one. A source that uses the default clone needs no provider.
+
+## Drop targets
+
+Register a drop target with `registerDropTarget`. Its parameters are the props of [`DropTarget.Root`](/react/components/drop-target) without the element and without `trackDragOver` (drag-over tracking is a React-layer concept): `accept`, `onDragEnter`, `onDragLeave`, `onDrop`, and the rest.
+
+TypeScript infers the source payload from `accept`, but cannot also infer the target's own payload through the getter. Specify both type arguments, as in `registerDropTarget<typeof card, SlotData>`, when the target sets `payload` and reads it as `self.payload`.
+
+```tsx title="Register a drop target"
+manager.registerDropTarget(element, () => ({
+  accept: card,
+  onDrop: ({ source }) => moveCard(source.payload),
+}));
+```
+
+## Auto-scroll
+
+`registerAutoScroller` enables automatic scrolling and configures one element. If a [`DragAutoScroll.Provider`](/react/components/drag-auto-scroll) is already mounted, the registration only changes that element's behavior. It accepts the same parameters as `DragAutoScroll.Root`. Use `allowedAxis` to limit the axes, `canScroll` to disable scrolling for a drag, `maxSpeed` to set the speed, and `applyScroll` to implement custom scrolling. For example, a transformed canvas has no scroll offsets for Base UI to update and often already has a viewport ref.
+
+```tsx title="A canvas that pans itself"
+manager.registerAutoScroller(canvasViewport, () => ({ applyScroll: panBy }));
+```
+
+Register `document.documentElement` to customize or disable page auto-scroll.
+
+```tsx title="A page that never scrolls itself"
+manager.registerAutoScroller(document.documentElement, () => ({ canScroll: () => false }));
+```
+
+With a provider mounted, Base UI detects a container that appears after data loads or inside a third-party widget when a drag reaches it. Register the container only if you need to change its behavior.
+
+```tsx title="A container that appears later"
+React.useEffect(() => {
+  const scrollElement = gridApi.getScrollElement();
+  if (!scrollElement) {
+    return undefined;
+  }
+  return manager.registerAutoScroller(scrollElement, () => ({ allowedAxis: 'vertical' }));
+}, [manager, gridApi]);
+```
+
+## Monitor drags
+
+Observe every drag with `registerMonitor`, like [`useDragMonitor`](/react/utils/use-drag-monitor). It takes only a getter:
+
+```tsx title="Register a monitor"
+manager.registerMonitor(() => ({
+  accept: card,
+  onDragStart: ({ source }) => setActiveId(source.payload),
+  onDragEnd: () => setActiveId(null),
+}));
+```
+
+## Cancelling a drag
+
+`cancelDrag` ends the active drag and fires `onDragEnd` with `canceled: true` and the reason `'imperative-action'`. It does nothing when no drag is active. Use it when a route change, dialog, or deleted record invalidates the drag.
+
+```tsx title="Cancelling programmatically"
+const manager = useDragDropManager();
+
+React.useEffect(() => {
+  return router.subscribe(() => manager.cancelDrag());
+}, [manager]);
+```
+
+## API reference
+
+import { TypesUseDragDropManager } from './types';
+
+<TypesUseDragDropManager.useDragDropManager />
+
+export const metadata =
+  /** @type {import('@mui/internal-docs-infra/createSitemap/types').NextMetadata} */ ({
+    keywords: [
+      'React Drag and Drop',
+      'Drag and Drop',
+      'Draggable',
+      'Drop Target',
+      'Imperative',
+      'Base UI',
+    ],
+    robots: {
+      index: true,
+    },
+  });

@@ -1,0 +1,31 @@
+/*
+ * Shared palette for the drag engine experiments, mirroring the docs demos:
+ * neutral oklch, sharp corners, ink borders, hard offset shadow, dark mode via
+ * `prefers-color-scheme`. Raw values (not the docs Tailwind theme tokens) so the
+ * tokens resolve in drag previews rendered outside the experiment's own root.
+ *
+ * Apply it next to the element's own class: `clsx(theme.tokens, styles.root)`.
+ */
+.tokens {
+  /* Borders, text and accents that need to read as "on" the surface. */
+  --dnd-ink: oklch(14.5% 0 0deg);
+  --dnd-surface: white;
+  --dnd-surface-hover: oklch(97% 0 0deg);
+  /* Recessed surfaces: canvases, drop zones, header strips. */
+  --dnd-canvas: oklch(98.5% 0 0deg);
+  --dnd-border: oklch(92.2% 0 0deg);
+  --dnd-dot: oklch(87% 0 0deg);
+  --dnd-muted: oklch(55.6% 0 0deg);
+  --dnd-shadow: 0.25rem 0.25rem 0 rgb(0 0 0 / 12%);
+
+  @media (prefers-color-scheme: dark) {
+    --dnd-ink: white;
+    --dnd-surface: oklch(14.5% 0 0deg);
+    --dnd-surface-hover: oklch(26.9% 0 0deg);
+    --dnd-canvas: oklch(20.5% 0 0deg);
+    --dnd-border: oklch(37.1% 0 0deg);
+    --dnd-dot: oklch(37.1% 0 0deg);
+    --dnd-muted: oklch(70.8% 0 0deg);
+    --dnd-shadow: none;
+  }
+}

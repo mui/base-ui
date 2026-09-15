@@ -104,6 +104,7 @@ async function generateLlmsTxt() {
     const metadataBySection = {
       overview: {},
       handbook: {},
+      'drag-and-drop': {},
       components: {},
       utils: {},
     };
@@ -204,6 +205,7 @@ async function generateLlmsTxt() {
     // Process each section
     await processSection('overview');
     await processSection('handbook');
+    await processSection('drag-and-drop');
     await processSection('components');
     await processSection('utils');
 
@@ -235,6 +237,7 @@ async function generateLlmsTxt() {
     // Define specific orders for sections
     const overviewOrder = ['quick-start', 'accessibility', 'releases', 'about'];
     const handbookOrder = ['styling', 'animation', 'composition'];
+    const dragAndDropOrder = ['overview', 'styling', 'accessibility', 'collections', 'testing'];
     const componentsOrder = Object.keys(metadataBySection.components).sort();
     const utilsOrder = Object.keys(metadataBySection.utils).sort();
 
@@ -257,6 +260,10 @@ async function generateLlmsTxt() {
         {
           title: 'Handbook',
           pages: mapOrderToMetadata(handbookOrder, metadataBySection.handbook),
+        },
+        {
+          title: 'Drag and drop',
+          pages: mapOrderToMetadata(dragAndDropOrder, metadataBySection['drag-and-drop']),
         },
         {
           title: 'Components',
