@@ -113,16 +113,6 @@ import { DemoDialogNested } from './demos/nested';
 
 <DemoDialogNested />
 
-### Close confirmation
-
-This example shows a nested confirmation dialog that opens if the text entered in the parent dialog is going to be discarded.
-
-To implement this, both dialogs should be controlled. The confirmation dialog may be opened when `onOpenChange` callback of the parent dialog receives a request to close. This way, the confirmation is automatically shown when the user clicks the backdrop, presses the Esc key, or clicks a close button.
-
-import { DemoDialogCloseConfirmation } from './demos/close-confirmation';
-
-<DemoDialogCloseConfirmation />
-
 ### Custom focus management
 
 You can control where the focus goes when the dialog opens and closes using the `initialFocus` and `finalFocus` props on the `<Dialog.Popup>` component.
