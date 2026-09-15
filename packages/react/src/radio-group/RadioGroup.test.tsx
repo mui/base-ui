@@ -916,6 +916,30 @@ describe('<RadioGroup />', () => {
       expect(screen.getByTestId('male')).toHaveAttribute('tabindex', '0');
       expect(screen.getByTestId('female')).toHaveAttribute('tabindex', '-1');
     });
+
+    it('puts the tab stop on the first enabled radio in the server markup', () => {
+      renderToString(
+        <RadioGroup>
+          <Radio.Root value="male" disabled data-testid="male" />
+          <Radio.Root value="female" data-testid="female" />
+        </RadioGroup>,
+      );
+
+      expect(screen.getByTestId('male')).toHaveAttribute('tabindex', '-1');
+      expect(screen.getByTestId('female')).toHaveAttribute('tabindex', '0');
+    });
+
+    it('keeps a disabled group out of the tab order in the server markup', () => {
+      renderToString(
+        <RadioGroup disabled>
+          <Radio.Root value="male" data-testid="male" />
+          <Radio.Root value="female" data-testid="female" />
+        </RadioGroup>,
+      );
+
+      expect(screen.getByTestId('male')).toHaveAttribute('tabindex', '-1');
+      expect(screen.getByTestId('female')).toHaveAttribute('tabindex', '-1');
+    });
   });
 
   describe('with native <label>', () => {
