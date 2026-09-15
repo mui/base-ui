@@ -764,10 +764,20 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     dataRef,
   ]);
 
+  // A return-focus queued by the effect cleanup. If the effect re-arms in the same commit, a
+  // dependency changed while the popup stayed open, so the cleanup was not a close.
+  const pendingReturnFocusRef = React.useRef<{ cancelled: boolean } | null>(null);
+
   // Track return focus targets and restore focus on unmount/close.
   useIsoLayoutEffect(() => {
     if (disabled || !floatingFocusElement) {
+      pendingReturnFocusRef.current = null;
       return undefined;
+    }
+
+    if (pendingReturnFocusRef.current) {
+      pendingReturnFocusRef.current.cancelled = true;
+      pendingReturnFocusRef.current = null;
     }
 
     const doc = ownerDocument(floatingFocusElement);
@@ -880,7 +890,17 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
       const closeType = closeTypeRef.current;
       const returnElement = getReturnElement(closeType);
 
+      const job = { cancelled: false };
+      pendingReturnFocusRef.current = job;
+
       queueMicrotask(() => {
+        if (pendingReturnFocusRef.current === job) {
+          pendingReturnFocusRef.current = null;
+        }
+        if (job.cancelled) {
+          return;
+        }
+
         // `returnElement` if it is tabbable, otherwise its first tabbable child,
         // otherwise `returnElement` itself (which may not be tabbable at all).
         const tabbableReturnElement = getFirstTabbableElement(returnElement);
