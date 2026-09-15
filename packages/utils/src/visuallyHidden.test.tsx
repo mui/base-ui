@@ -1,43 +1,26 @@
-import { expect, describe, it, afterEach } from 'vitest';
+import { expect, describe, it } from 'vitest';
 import { createRenderer, screen } from '@mui/internal-test-utils';
 import { isJSDOM } from './testUtils';
-import { visuallyHidden, visuallyHiddenInput } from './visuallyHidden';
+import { visuallyHidden } from './visuallyHidden';
 
-describe('visuallyHidden', () => {
+describe.skipIf(isJSDOM)('visuallyHidden', () => {
   const { render } = createRenderer();
 
-  afterEach(() => {
-    document.documentElement.removeAttribute('dir');
+  it.each(['ltr', 'rtl'])('does not create horizontal overflow in %s', async (direction) => {
+    await render(
+      <div
+        data-testid="scroller"
+        dir={direction}
+        style={{ width: 100, height: 100, overflow: 'auto' }}
+      >
+        {/* Establish a fixed-position containing block below the scroller's top edge. */}
+        <div style={{ transform: 'translateY(20px)' }}>
+          <input type="radio" style={visuallyHidden} />
+        </div>
+      </div>,
+    );
+
+    const scroller = screen.getByTestId('scroller');
+    expect(scroller.scrollWidth).toBe(scroller.clientWidth);
   });
-
-  it('pins the fixed variant with logical insets instead of a physical left offset', () => {
-    expect(visuallyHidden.position).toBe('fixed');
-    expect(visuallyHidden.left).toBeUndefined();
-    expect(visuallyHidden.top).toBeUndefined();
-    expect(visuallyHidden.insetInlineStart).toBe(0);
-    expect(visuallyHidden.insetBlockStart).toBe(0);
-    expect(visuallyHidden.clipPath).toBe('inset(50%)');
-    expect(visuallyHidden.overflow).toBe('hidden');
-  });
-
-  it('keeps the named-input variant absolutely positioned without offsets', () => {
-    expect(visuallyHiddenInput.position).toBe('absolute');
-    expect(visuallyHiddenInput.left).toBeUndefined();
-    expect(visuallyHiddenInput.top).toBeUndefined();
-    expect(visuallyHiddenInput.insetInlineStart).toBeUndefined();
-    expect(visuallyHiddenInput.insetBlockStart).toBeUndefined();
-    expect(visuallyHiddenInput.clipPath).toBe('inset(50%)');
-    expect(visuallyHiddenInput.overflow).toBe('hidden');
-  });
-
-  it.skipIf(isJSDOM)(
-    'does not overflow the viewport on the physical left under dir=rtl',
-    async () => {
-      document.documentElement.dir = 'rtl';
-
-      await render(<input data-testid="hidden" style={visuallyHidden} />);
-
-      expect(screen.getByTestId('hidden').getBoundingClientRect().left).toBeGreaterThanOrEqual(0);
-    },
-  );
 });
