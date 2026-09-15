@@ -2,7 +2,6 @@
 import * as React from 'react';
 import { Toast } from '@base-ui/react/toast';
 import { Button } from '@base-ui/react/button';
-import { Tooltip } from '@base-ui/react/tooltip';
 import styles from './index.module.css';
 
 const anchoredToastManager = Toast.createToastManager();
@@ -10,7 +9,7 @@ const stackedToastManager = Toast.createToastManager();
 
 export default function ExampleToast() {
   return (
-    <Tooltip.Provider>
+    <React.Fragment>
       <Toast.Provider toastManager={anchoredToastManager}>
         <AnchoredToasts />
       </Toast.Provider>
@@ -22,7 +21,7 @@ export default function ExampleToast() {
         <CopyButton />
         <StackedToastButton />
       </div>
-    </Tooltip.Provider>
+    </React.Fragment>
   );
 }
 
@@ -61,26 +60,16 @@ function CopyButton() {
   }
 
   return (
-    <Tooltip.Root disabled={copied}>
-      <Tooltip.Trigger
-        ref={buttonRef}
-        closeOnClick={false}
-        className={styles.CopyButton}
-        onClick={handleCopy}
-        aria-label="Copy to clipboard"
-        render={<Button disabled={copied} focusableWhenDisabled />}
-      >
-        {copied ? <CheckIcon /> : <ClipboardIcon />}
-      </Tooltip.Trigger>
-      <Tooltip.Portal>
-        <Tooltip.Positioner sideOffset={10}>
-          <Tooltip.Popup className={styles.Tooltip}>
-            <Tooltip.Arrow className={styles.Arrow} />
-            Copy
-          </Tooltip.Popup>
-        </Tooltip.Positioner>
-      </Tooltip.Portal>
-    </Tooltip.Root>
+    <Button
+      ref={buttonRef}
+      className={styles.CopyButton}
+      onClick={handleCopy}
+      aria-label="Copy to clipboard"
+      disabled={copied}
+      focusableWhenDisabled
+    >
+      {copied ? <CheckIcon /> : <ClipboardIcon />}
+    </Button>
   );
 }
 
@@ -92,7 +81,6 @@ function AnchoredToasts() {
         {toasts.map((toast) => (
           <Toast.Positioner key={toast.id} toast={toast} className={styles.AnchoredPositioner}>
             <Toast.Root toast={toast} className={styles.AnchoredToast}>
-              <Toast.Arrow className={styles.Arrow} />
               <Toast.Content>
                 <Toast.Description className={styles.AnchoredDescription} />
               </Toast.Content>
