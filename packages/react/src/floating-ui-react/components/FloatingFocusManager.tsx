@@ -722,13 +722,20 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
 
       const hadFocusInside = contains(floatingFocusElement, activeElement(doc));
 
+      // Screen readers re-sync focus to their cursor right after a synthesized press. A focus
+      // that lands a frame later reads as a stray move and gets pulled back to the reference.
+      const openEvent = dataRef.current.openEvent;
+      const openedByVirtualPress =
+        openEvent?.type === 'mousedown' && isVirtualClick(openEvent as MouseEvent);
+
       // enqueueFocus returns a rAF-cancel function; we intentionally don't cancel this focus.
       void enqueueFocus(elToFocus, {
+        sync: openedByVirtualPress,
         preventScroll: elToFocus === floatingFocusElement,
         shouldFocus() {
-          // This focus is queued on the next animation frame. If the floating element has closed
-          // before it runs — e.g. tabbing out of a kept-mounted popup — don't pull focus back
-          // onto the initial element after it has legitimately moved elsewhere.
+          // If the floating element has closed before this runs — e.g. tabbing out of a
+          // kept-mounted popup — don't pull focus back onto the initial element after it has
+          // legitimately moved elsewhere.
           if (!openRef.current) {
             return false;
           }
@@ -754,6 +761,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     initialFocusRef,
     openInteractionTypeRef,
     openRef,
+    dataRef,
   ]);
 
   // Track return focus targets and restore focus on unmount/close.
