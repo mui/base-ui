@@ -765,7 +765,6 @@ export function useListNavigation(
 
   const floating: ElementProps['floating'] = React.useMemo(() => {
     return {
-      'aria-orientation': orientation === 'both' ? undefined : orientation,
       ...(!typeableComboboxReference ? ariaActiveDescendantProp : {}),
       onKeyDown(event: React.KeyboardEvent) {
         // Close submenu on Shift+Tab
@@ -801,7 +800,6 @@ export function useListNavigation(
     ariaActiveDescendantProp,
     commonOnKeyDown,
     floatingFocusElementRef,
-    orientation,
     typeableComboboxReference,
     store,
     open,

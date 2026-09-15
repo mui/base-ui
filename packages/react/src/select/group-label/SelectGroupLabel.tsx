@@ -31,7 +31,7 @@ export const SelectGroupLabel = React.forwardRef(function SelectGroupLabel(
 
   const element = useRenderElement('div', componentProps, {
     ref: forwardedRef,
-    props: [{ id }, elementProps],
+    props: [{ id, 'aria-hidden': true }, elementProps],
   });
 
   return element;

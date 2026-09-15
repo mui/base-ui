@@ -1,7 +1,8 @@
 export function NOOP() {}
 
-// Kept mutable so its runtime behavior matches the mutable `never[]` type. The type prevents
-// values from being added directly while remaining assignable to arrays with concrete element types.
-export const EMPTY_ARRAY: never[] = [];
+// Typed as mutable `never[]` so it is assignable to any `T[]` fallback (for example
+// `defaultValue ?? EMPTY_ARRAY` in `useControlled` callers) without widening `T`.
+// Frozen so a write through a widened alias throws instead of mutating the shared singleton.
+export const EMPTY_ARRAY: never[] = Object.freeze([]) as never[];
 
 export const EMPTY_OBJECT = Object.freeze({});

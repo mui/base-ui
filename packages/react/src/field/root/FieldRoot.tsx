@@ -23,7 +23,7 @@ const FieldRootInner = React.forwardRef(function FieldRootInner(
   componentProps: FieldRoot.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { errors, validationMode: formValidationMode, submitAttemptedRef } = useFormContext();
+  const { errors, validationMode: formValidationMode, submitCountRef } = useFormContext();
 
   const {
     render,
@@ -87,7 +87,7 @@ const FieldRootInner = React.forwardRef(function FieldRootInner(
   const shouldValidateOnChange = useStableCallback(
     () =>
       validationMode === 'onChange' ||
-      (validationMode === 'onSubmit' && submitAttemptedRef.current),
+      (validationMode === 'onSubmit' && submitCountRef.current > 0),
   );
 
   const formError =

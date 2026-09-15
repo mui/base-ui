@@ -1,4 +1,4 @@
-import { expect, vi } from 'vitest';
+import { expect, vi, describe, beforeEach, it, afterEach } from 'vitest';
 import type { CDPSession } from '@vitest/browser-playwright';
 import * as React from 'react';
 import { act, fireEvent, screen, waitFor, flushMicrotasks } from '@mui/internal-test-utils';
@@ -640,20 +640,6 @@ describe('<Dialog.Root />', () => {
       });
     });
 
-    describe('prop: modal', () => {
-      it('makes other interactive elements on the page inert when a modal dialog is open', async () => {
-        await render(<TestDialog rootProps={{ defaultOpen: true, modal: true }} />);
-
-        expect(screen.getByRole('presentation', { hidden: true })).not.toBe(null);
-      });
-
-      it('does not make other interactive elements on the page inert when a non-modal dialog is open', async () => {
-        await render(<TestDialog rootProps={{ defaultOpen: true, modal: false }} />);
-
-        expect(screen.queryByRole('presentation')).toBe(null);
-      });
-    });
-
     describe('prop: disablePointerDismissal', () => {
       (
         [
@@ -683,12 +669,7 @@ describe('<Dialog.Root />', () => {
           fireEvent.mouseDown(outside);
           fireEvent.click(outside);
           expect(handleOpenChange.mock.calls.length === 1).toBe(expectDismissed);
-
-          if (expectDismissed) {
-            expect(screen.queryByRole('dialog')).toBe(null);
-          } else {
-            expect(screen.queryByRole('dialog')).not.toBe(null);
-          }
+          expect(screen.queryByRole('dialog') === null).toBe(expectDismissed);
         });
       });
     });
@@ -910,6 +891,18 @@ describe('<Dialog.Root />', () => {
     });
 
     describe('prop: modal', () => {
+      it('makes other interactive elements on the page inert when a modal dialog is open', async () => {
+        await render(<TestDialog rootProps={{ defaultOpen: true, modal: true }} />);
+
+        expect(screen.getByRole('presentation', { hidden: true })).not.toBe(null);
+      });
+
+      it('does not make other interactive elements on the page inert when a non-modal dialog is open', async () => {
+        await render(<TestDialog rootProps={{ defaultOpen: true, modal: false }} />);
+
+        expect(screen.queryByRole('presentation')).toBe(null);
+      });
+
       it('should render an internal backdrop when `true`', async () => {
         const { user } = await render(
           <div>

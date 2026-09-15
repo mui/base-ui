@@ -48,6 +48,7 @@ export const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubAr
     state,
     setIsScrubbing: setRootScrubbing,
     inputRef,
+    focusInput,
     incrementValue,
     allowInputSyncRef,
     getStepAmount,
@@ -308,7 +309,7 @@ export const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubAr
 
       if (event.pointerType === 'mouse') {
         event.preventDefault();
-        inputRef.current?.focus();
+        focusInput();
       }
 
       isScrubbingRef.current = true;

@@ -10,13 +10,14 @@ import { useTimeout } from '@base-ui/utils/useTimeout';
 import { useDialogRootContext, DialogLifecycleContext } from '../../dialog/root/DialogRootContext';
 import {
   activeElement,
+  closest,
   contains,
   getTarget,
   isInteractiveElement,
 } from '../../floating-ui-react/utils';
 import { findScrollableTouchTarget } from '../../utils/scrollable';
 import { getElementAtPoint } from '../../utils/getElementAtPoint';
-import { DrawerViewportCssVars } from '../viewport/DrawerViewportCssVars';
+import * as DrawerViewportCssVars from '../viewport/DrawerViewportCssVars';
 import {
   DrawerVirtualKeyboardContext,
   type DrawerVirtualKeyboardContext as DrawerVirtualKeyboardContextValue,
@@ -692,7 +693,7 @@ function resolveKeyboardInputTarget(target: EventTarget | null): HTMLElement | n
     return target.isContentEditable ? getContentEditableHost(target) : target;
   }
 
-  const label = target.closest('label') as HTMLLabelElement | null;
+  const label = closest(target, 'label');
   const control = label?.control ?? null;
 
   return isHTMLElement(control) && isKeyboardInputElement(control) ? control : null;
@@ -746,7 +747,7 @@ function resolveKeyboardTouchTargetFromPoint(
   // `closest('label')` covers labels of non-keyboard controls (e.g. checkboxes).
   // Returning the blocked sentinel (rather than `null`) stops the caller from falling
   // back to the touchstart target, which would re-steal the very tap rejected here.
-  if (isInteractiveElement(exactTarget) || exactTarget?.closest('label') != null) {
+  if (isInteractiveElement(exactTarget) || closest(exactTarget, 'label') != null) {
     return KEYBOARD_TAP_BLOCKED;
   }
 

@@ -1,4 +1,4 @@
-import { beforeAll, describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import * as React from 'react';
 import { Drawer } from '@base-ui/react/drawer';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
@@ -10,7 +10,7 @@ import {
   screen,
   waitFor,
 } from '@mui/internal-test-utils';
-import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
+import { createRenderer, describeConformance, firePointer, isJSDOM } from '#test-utils';
 import {
   type DrawerProviderContext,
   useDrawerProviderContext,
@@ -52,8 +52,16 @@ type Point = {
 
 type SwipeInput = 'pointer' | 'touch';
 
+type SwipeContext = {
+  /** Advances the gesture timeline by one step and returns the new timestamp. */
+  nextTimeStamp: () => number;
+};
+
 type SwipeOptions = {
-  beforeRelease?: (() => Promise<unknown>) | (() => unknown);
+  // Receives the gesture's timeline so any event it injects stays on the same clock as the rest of
+  // the swipe. Firing an untimed event here would stamp it off the real clock, landing it out of
+  // order against the synthetic timestamps and skipping the release-velocity refinement.
+  beforeRelease?: (context: SwipeContext) => Promise<unknown> | unknown;
   input?: SwipeInput;
   // Applies only to `input: 'pointer'`; the `touch` branch always dispatches touch events.
   pointerType?: 'mouse' | 'pen' | 'touch';
@@ -97,13 +105,33 @@ async function swipe(element: HTMLElement, start: Point, end: Point, options: Sw
     beforeRelease,
     input = 'pointer',
     pointerType = 'mouse',
-    timeStepMs,
-    startTimeMs = 0,
+    // Every pointer swipe runs on a fixed timeline. Without one the gesture's velocity is derived
+    // from whatever wall-clock gaps the runner leaves between calls, and `MAX_RELEASE_VELOCITY_AGE_MS`
+    // (80ms) flips the release decision whenever the machine stalls between the last move and the up.
+    timeStepMs = 16,
+    startTimeMs = 1,
   } = options;
-  const useTimeStamp = input === 'pointer' && typeof timeStepMs === 'number';
   let timeStamp = startTimeMs;
+  const swipeContext: SwipeContext = {
+    nextTimeStamp: () => {
+      timeStamp += timeStepMs;
+      return timeStamp;
+    },
+  };
 
   if (input === 'touch') {
+    // Touch events are still fired untimed, so a timeline handed out here would advance a counter
+    // no event carries. Throwing makes that a loud failure rather than an event silently stamped
+    // off the real clock, which is the trap this helper exists to close.
+    const touchContext: SwipeContext = {
+      nextTimeStamp: () => {
+        throw new Error(
+          "swipe(): `nextTimeStamp` is unavailable for `input: 'touch'` — touch events do not " +
+            'carry timestamps yet, so an event stamped with it would still use the real clock.',
+        );
+      },
+    };
+
     fireEvent.touchStart(element, {
       bubbles: true,
       touches: [
@@ -141,7 +169,7 @@ async function swipe(element: HTMLElement, start: Point, end: Point, options: Sw
     await flushMicrotasks();
 
     if (beforeRelease) {
-      await beforeRelease();
+      await beforeRelease(touchContext);
       await flushMicrotasks();
     }
 
@@ -159,63 +187,57 @@ async function swipe(element: HTMLElement, start: Point, end: Point, options: Sw
     return;
   }
 
-  fireEvent.pointerDown(element, {
+  firePointer.down(element, {
     button: 0,
     buttons: 1,
     pointerId: 1,
     clientX: start.x,
     clientY: start.y,
     pointerType,
-    ...(useTimeStamp ? { timeStamp } : null),
+    timeStamp,
   });
 
   await flushMicrotasks();
 
-  if (useTimeStamp) {
-    timeStamp += timeStepMs;
-  }
+  timeStamp += timeStepMs;
 
-  fireEvent.pointerMove(element, {
+  firePointer.move(element, {
     pointerId: 1,
     clientX: stepX,
     clientY: stepY,
     buttons: 1,
     pointerType,
-    ...(useTimeStamp ? { timeStamp } : null),
+    timeStamp,
   });
 
   await flushMicrotasks();
 
-  if (useTimeStamp) {
-    timeStamp += timeStepMs;
-  }
+  timeStamp += timeStepMs;
 
-  fireEvent.pointerMove(element, {
+  firePointer.move(element, {
     pointerId: 1,
     clientX: end.x,
     clientY: end.y,
     buttons: 1,
     pointerType,
-    ...(useTimeStamp ? { timeStamp } : null),
+    timeStamp,
   });
 
   await flushMicrotasks();
 
   if (beforeRelease) {
-    await beforeRelease();
+    await beforeRelease(swipeContext);
     await flushMicrotasks();
   }
 
-  if (useTimeStamp) {
-    timeStamp += timeStepMs;
-  }
+  timeStamp += timeStepMs;
 
-  fireEvent.pointerUp(element, {
+  firePointer.up(element, {
     pointerId: 1,
     clientX: end.x,
     clientY: end.y,
     pointerType,
-    ...(useTimeStamp ? { timeStamp } : null),
+    timeStamp,
   });
 
   await flushMicrotasks();
@@ -271,12 +293,6 @@ function StoreProbe({ storeRef }: { storeRef: { current: DialogStore<unknown> | 
 }
 
 describe('<Drawer.SwipeArea />', () => {
-  beforeAll(function beforeHook() {
-    // PointerEvent not fully implemented in jsdom, causing fireEvent.pointer* to ignore options.
-    // https://github.com/jsdom/jsdom/issues/2527
-    (window as any).PointerEvent = window.MouseEvent;
-  });
-
   const { render } = createRenderer();
 
   describeConformance(<Drawer.SwipeArea />, () => ({
@@ -398,7 +414,7 @@ describe('<Drawer.SwipeArea />', () => {
     const indent = screen.getByTestId('indent');
 
     await swipeLeft(swipeArea, 200, -50, {
-      async beforeRelease() {
+      async beforeRelease({ nextTimeStamp }) {
         const popup = screen.getByTestId('popup');
         const backdrop = screen.getByTestId('backdrop');
 
@@ -412,23 +428,25 @@ describe('<Drawer.SwipeArea />', () => {
         expect(indent.style.getPropertyValue('--drawer-swipe-progress')).toBe('1');
         expect(indent.style.getPropertyValue('--drawer-height')).toBe('100px');
 
-        fireEvent.pointerMove(swipeArea, {
+        firePointer.move(swipeArea, {
           buttons: 1,
           pointerId: 1,
           clientX: 200,
           clientY: 0,
           pointerType: 'mouse',
+          timeStamp: nextTimeStamp(),
         });
         await flushMicrotasks();
         expect(indent.style.getPropertyValue('--drawer-swipe-progress')).toBe('0');
         expect(indent.style.getPropertyValue('--drawer-height')).toBe('');
 
-        fireEvent.pointerMove(swipeArea, {
+        firePointer.move(swipeArea, {
           buttons: 1,
           pointerId: 1,
           clientX: -50,
           clientY: 0,
           pointerType: 'mouse',
+          timeStamp: nextTimeStamp(),
         });
         await flushMicrotasks();
       },
@@ -1333,13 +1351,13 @@ describe('<Drawer.SwipeArea />', () => {
 
     const swipeArea = screen.getByTestId('swipe-area');
     const slowSwipe = {
+      // Step the gesture past the flick-velocity window (`MAX_RELEASE_VELOCITY_AGE_MS`, 80ms) so
+      // distance decides the outcome. Expressed on the swipe's own timeline rather than a real
+      // sleep, which previously cleared the threshold by a single millisecond.
+      timeStepMs: 100,
       async beforeRelease() {
         const popup = await screen.findByTestId('popup');
         Object.defineProperty(popup, 'offsetHeight', { value: 200, configurable: true });
-        // Age the last drag sample past the flick-velocity window so distance decides the outcome.
-        await act(async () => {
-          await wait(81);
-        });
       },
     };
 
@@ -1464,18 +1482,18 @@ describe('<Drawer.SwipeArea />', () => {
 
     const swipeArea = screen.getByTestId('swipe-area');
 
-    fireEvent.pointerDown(swipeArea, {
+    firePointer.down(swipeArea, {
       button: 0,
       buttons: 1,
       pointerId: 1,
       clientX: 10,
       clientY: 120,
       pointerType: 'mouse',
-      timeStamp: 0,
+      timeStamp: 1,
     });
     await flushMicrotasks();
 
-    fireEvent.pointerMove(swipeArea, {
+    firePointer.move(swipeArea, {
       pointerId: 1,
       clientX: 10,
       clientY: 40,
@@ -1515,18 +1533,18 @@ describe('<Drawer.SwipeArea />', () => {
 
     const swipeArea = screen.getByTestId('swipe-area');
 
-    fireEvent.pointerDown(swipeArea, {
+    firePointer.down(swipeArea, {
       button: 0,
       buttons: 1,
       pointerId: 1,
       clientX: 10,
       clientY: 120,
       pointerType: 'mouse',
-      timeStamp: 0,
+      timeStamp: 1,
     });
     await flushMicrotasks();
 
-    fireEvent.pointerMove(swipeArea, {
+    firePointer.move(swipeArea, {
       pointerId: 1,
       clientX: 10,
       clientY: 40,
@@ -1541,7 +1559,7 @@ describe('<Drawer.SwipeArea />', () => {
     expect(handleOpenChange.mock.calls[0][0]).toBe(true);
 
     // The trailing `pointerup` a real browser still delivers must not re-run the release.
-    fireEvent.pointerUp(swipeArea, {
+    firePointer.up(swipeArea, {
       pointerId: 1,
       clientX: 10,
       clientY: 40,
@@ -1600,19 +1618,19 @@ describe('<Drawer.SwipeArea />', () => {
 
     const swipeArea = screen.getByTestId('swipe-area');
 
-    fireEvent.pointerDown(swipeArea, {
+    firePointer.down(swipeArea, {
       button: 0,
       buttons: 1,
       pointerId: 1,
       clientX: 10,
       clientY: 120,
       pointerType: 'mouse',
-      timeStamp: 0,
+      timeStamp: 1,
     });
     await flushMicrotasks();
 
     // Released in place: a `buttons: 0` move with no displacement must not open the drawer.
-    fireEvent.pointerMove(swipeArea, {
+    firePointer.move(swipeArea, {
       pointerId: 1,
       clientX: 10,
       clientY: 120,
@@ -1622,7 +1640,7 @@ describe('<Drawer.SwipeArea />', () => {
     });
     await flushMicrotasks();
 
-    fireEvent.pointerUp(swipeArea, {
+    firePointer.up(swipeArea, {
       pointerId: 1,
       clientX: 10,
       clientY: 120,

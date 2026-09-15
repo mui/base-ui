@@ -1,4 +1,4 @@
-import { beforeAll, describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import * as React from 'react';
 import { Drawer } from '@base-ui/react/drawer';
 import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
@@ -6,12 +6,6 @@ import { createRenderer, isJSDOM } from '#test-utils';
 import { useDrawerVirtualKeyboardContext } from './DrawerVirtualKeyboardContext';
 
 describe('<Drawer.VirtualKeyboardProvider />', () => {
-  beforeAll(function beforeHook() {
-    // PointerEvent not fully implemented in jsdom, causing fireEvent.pointer* to ignore options.
-    // https://github.com/jsdom/jsdom/issues/2527
-    (window as any).PointerEvent = window.MouseEvent;
-  });
-
   const { render } = createRenderer();
 
   function createTouch(target: EventTarget, point: { clientX: number; clientY: number }) {

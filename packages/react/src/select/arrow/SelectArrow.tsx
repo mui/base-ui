@@ -20,10 +20,9 @@ export const SelectArrow = React.forwardRef(function SelectArrow(
   const { render, className, style, ...elementProps } = componentProps;
 
   useSelectRootContext();
+  const { open } = React.useContext(SelectLifecycleContext);
   const { side, align, arrowRef, arrowStyles, arrowUncentered, alignItemWithTriggerActive } =
     useSelectPositionerContext();
-
-  const { open } = React.useContext(SelectLifecycleContext);
 
   const state: SelectArrowState = {
     open,

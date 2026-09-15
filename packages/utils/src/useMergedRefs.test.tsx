@@ -1,4 +1,4 @@
-import { expect, vi } from 'vitest';
+import { expect, vi, describe, it, test } from 'vitest';
 import * as React from 'react';
 import { createRenderer, MuiRenderResult, screen } from '@mui/internal-test-utils';
 import { getReactElementRef } from './getReactElementRef';

@@ -338,6 +338,20 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
     [minWithDefault],
   );
 
+  // Programmatic focus leaves the caret at the start (Chrome/Firefox) or selects the whole value
+  // (Safari). Store the caret at the end before focusing: every engine restores the stored
+  // selection on `focus()`, and a selection the consumer sets in `onFocus` still wins. Keyboard
+  // and pointer focus keep the browser's native selection behavior.
+  const focusInput = useStableCallback(() => {
+    const input = inputRef.current;
+    if (!input) {
+      return;
+    }
+    const length = input.value.length;
+    input.setSelectionRange(length, length);
+    input.focus();
+  });
+
   // React attaches `onWheel` as a passive listener, so calling `preventDefault` there is ignored.
   // Attach a native (non-passive) `wheel` listener to the input instead to prevent page scrolling.
   React.useEffect(
@@ -419,6 +433,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
   const contextValue: NumberFieldRootContext = React.useMemo(
     () => ({
       inputRef,
+      focusInput,
       minWithDefault,
       maxWithDefault,
       id,
@@ -444,6 +459,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
     }),
     [
       inputRef,
+      focusInput,
       minWithDefault,
       maxWithDefault,
       id,
@@ -478,7 +494,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
       <input
         {...validation.getValidationProps(disabled, {
           onFocus() {
-            inputRef.current?.focus();
+            focusInput();
           },
           onChange(event: React.ChangeEvent<HTMLInputElement>) {
             // Workaround for https://github.com/react/react/issues/9023

@@ -117,9 +117,8 @@
   }
 
   .QuickNavLink {
-    display: flex;
+    display: inline-flex;
     padding: var(--quick-nav-item-padding-y) 0.5rem;
-    margin-inline: 0 -0.5rem;
     border-radius: var(--radius-6);
 
     &:focus-visible {

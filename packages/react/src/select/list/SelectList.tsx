@@ -1,13 +1,11 @@
 'use client';
 import * as React from 'react';
-import { useStore } from '@base-ui/utils/store';
 import type { BaseUIComponentProps, HTMLProps } from '../../internals/types';
-import { useSelectRootContext } from '../root/SelectRootContext';
+import { useSelectRootContext, useSelectRootPropsContext } from '../root/SelectRootContext';
 import { useSelectPositionerContext } from '../positioner/SelectPositionerContext';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { styleDisableScrollbar } from '../../utils/styles';
 import { LIST_FUNCTIONAL_STYLES } from '../popup/utils';
-import { selectors } from '../store';
 
 /**
  * A container for the select items.
@@ -21,19 +19,21 @@ export const SelectList = React.forwardRef(function SelectList(
 ) {
   const { render, className, style, ...elementProps } = componentProps;
 
-  const { store, scrollHandlerRef, multiple } = useSelectRootContext();
+  const store = useSelectRootContext();
+  const { multiple, readOnly } = useSelectRootPropsContext();
   const { alignItemWithTriggerActive } = useSelectPositionerContext();
 
-  const hasScrollArrows = useStore(store, selectors.hasScrollArrows);
-  const openMethod = useStore(store, selectors.openMethod);
-  const id = useStore(store, selectors.id);
+  const hasScrollArrows = store.useState('hasScrollArrows');
+  const openMethod = store.useState('openMethod');
+  const id = store.useState('id');
 
   const defaultProps: HTMLProps = {
     id: `${id}-list`,
     role: 'listbox',
     'aria-multiselectable': multiple || undefined,
+    'aria-readonly': readOnly || undefined,
     onScroll(event) {
-      scrollHandlerRef.current?.(event.currentTarget);
+      store.context.scrollHandlerRef.current?.(event.currentTarget);
     },
     ...(alignItemWithTriggerActive && {
       style: LIST_FUNCTIONAL_STYLES,

@@ -12,7 +12,7 @@ import { type TransitionStatus, useTransitionStatus } from '../../internals/useT
  * Indicates whether the radio button is selected.
  * Renders a `<span>` element.
  *
- * Documentation: [Base UI Radio](https://base-ui.com/react/components/radio)
+ * Documentation: [Base UI Radio](https://base-ui.com/react/components/radio-group)
  */
 export const RadioIndicator = React.forwardRef(function RadioIndicator(
   componentProps: RadioIndicator.Props,
@@ -43,6 +43,8 @@ export const RadioIndicator = React.forwardRef(function RadioIndicator(
   });
 
   useOpenChangeComplete({
+    batch: true,
+    enabled: !rendered,
     open: rendered,
     ref: indicatorRef,
     onComplete() {

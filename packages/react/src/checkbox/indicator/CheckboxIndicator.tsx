@@ -36,6 +36,8 @@ export const CheckboxIndicator = React.forwardRef(function CheckboxIndicator(
   };
 
   useOpenChangeComplete({
+    batch: true,
+    enabled: !rendered,
     open: rendered,
     ref: indicatorRef,
     onComplete() {

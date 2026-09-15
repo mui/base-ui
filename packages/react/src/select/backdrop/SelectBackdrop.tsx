@@ -26,7 +26,6 @@ export const SelectBackdrop = React.forwardRef(function SelectBackdrop(
   const { render, className, style, ...elementProps } = componentProps;
 
   useSelectRootContext();
-
   const { open, mounted, transitionStatus } = React.useContext(SelectLifecycleContext);
 
   const state: SelectBackdropState = {

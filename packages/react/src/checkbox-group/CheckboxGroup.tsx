@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useControlled } from '@base-ui/utils/useControlled';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { EMPTY_ARRAY } from '@base-ui/utils/empty';
 import { areArraysEqual } from '@base-ui/utils/areArraysEqual';
@@ -121,6 +122,10 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
 
   useRegisterFieldControl(controlRef, id, value, getFormValue, !!fieldName && !disabled, fieldName);
 
+  useIsoLayoutEffect(() => {
+    setFilled(value.length > 0);
+  }, [value, setFilled]);
+
   useValueChanged(value, () => {
     if (fieldName) {
       clearErrors(fieldName);
@@ -130,7 +135,6 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
       ? (validityData.initialValue as readonly string[])
       : EMPTY_ARRAY;
 
-    setFilled(value.length > 0);
     setDirty(!areArraysEqual(value, initialValue));
 
     validation.change(value);

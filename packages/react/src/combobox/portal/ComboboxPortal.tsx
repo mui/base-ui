@@ -1,11 +1,9 @@
 'use client';
 import * as React from 'react';
-import { useStore } from '@base-ui/utils/store';
 import { FloatingPortal } from '../../floating-ui-react';
 import { type BaseUIComponentProps } from '../../internals/types';
 import { useComboboxRootContext, ComboboxLifecycleContext } from '../root/ComboboxRootContext';
 import { ComboboxPortalContext } from './ComboboxPortalContext';
-import { selectors } from '../store';
 
 /**
  * A portal element that moves the popup to a different part of the DOM.
@@ -21,9 +19,9 @@ export const ComboboxPortal = React.forwardRef(function ComboboxPortal(
   const { keepMounted = false, ...portalProps } = props;
 
   const store = useComboboxRootContext();
-
   const { mounted } = React.useContext(ComboboxLifecycleContext);
-  const forceMounted = useStore(store, selectors.forceMounted);
+
+  const forceMounted = store.useState('forceMounted');
 
   const shouldRender = mounted || keepMounted || forceMounted;
   if (!shouldRender) {

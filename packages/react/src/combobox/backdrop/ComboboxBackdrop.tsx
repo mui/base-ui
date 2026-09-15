@@ -26,7 +26,6 @@ export const ComboboxBackdrop = React.forwardRef(function ComboboxBackdrop(
   const { render, className, style, ...elementProps } = componentProps;
 
   useComboboxRootContext();
-
   const { open, mounted, transitionStatus } = React.useContext(ComboboxLifecycleContext);
 
   const state: ComboboxBackdropState = {
