@@ -27,7 +27,7 @@ export default function ViewTransitionExperiment() {
 }
 
 function Cover() {
-  return <div className="view-transition-cover" />;
+  return <span className="view-transition-cover" />;
 }
 
 function DialogExample() {
@@ -43,11 +43,13 @@ function DialogExample() {
       <h2>Dialog</h2>
       <Dialog.Root open={open} onOpenChange={changeOpen}>
         <Dialog.Trigger className="view-transition-trigger">
-          {!open && (
-            <React.ViewTransition name={coverName} share="view-transition-cover">
-              <Cover />
-            </React.ViewTransition>
-          )}
+          <span className="view-transition-thumb-slot">
+            {!open && (
+              <React.ViewTransition name={coverName} share="view-transition-cover">
+                <Cover />
+              </React.ViewTransition>
+            )}
+          </span>
           Open dialog
         </Dialog.Trigger>
         <Dialog.Portal keepMounted>
@@ -82,11 +84,13 @@ function PopoverExample() {
       <h2>Popover</h2>
       <Popover.Root open={open} onOpenChange={changeOpen}>
         <Popover.Trigger className="view-transition-trigger">
-          {!open && (
-            <React.ViewTransition name={coverName} share="view-transition-cover">
-              <Cover />
-            </React.ViewTransition>
-          )}
+          <span className="view-transition-thumb-slot">
+            {!open && (
+              <React.ViewTransition name={coverName} share="view-transition-cover">
+                <Cover />
+              </React.ViewTransition>
+            )}
+          </span>
           Open popover
         </Popover.Trigger>
         <Popover.Portal keepMounted>
