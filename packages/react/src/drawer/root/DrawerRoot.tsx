@@ -18,7 +18,7 @@ import {
   type BaseUIChangeEventDetails,
 } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
-import { useDialogRootContext } from '../../dialog/root/DialogRootContext';
+import { useDialogRootContext, DialogLifecycleContext } from '../../dialog/root/DialogRootContext';
 import { useRenderDialogRoot } from '../../dialog/root/useRenderDialogRoot';
 import { useDrawerProviderContext } from '../provider/DrawerProviderContext';
 import type { DrawerHandle } from '../handle';
@@ -422,7 +422,7 @@ function DrawerProviderReporter() {
   const setDrawerOpen = providerContext?.setDrawerOpen;
   const removeDrawer = providerContext?.removeDrawer;
 
-  const open = store.useState('open');
+  const { open } = React.useContext(DialogLifecycleContext);
   const nestedOpenDialogCount = store.useState('nestedOpenDialogCount');
   const popupElement = store.useState('popupElement');
 

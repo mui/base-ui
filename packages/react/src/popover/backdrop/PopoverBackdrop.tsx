@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { usePopoverRootContext } from '../root/PopoverRootContext';
+import { usePopoverRootContext, PopoverLifecycleContext } from '../root/PopoverRootContext';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { popupTransitionStateMapping } from '../../utils/popupStateMapping';
 import type { TransitionStatus } from '../../internals/useTransitionStatus';
@@ -21,9 +21,7 @@ export const PopoverBackdrop = React.forwardRef(function PopoverBackdrop(
 
   const store = usePopoverRootContext();
 
-  const open = store.useState('open');
-  const mounted = store.useState('mounted');
-  const transitionStatus = store.useState('transitionStatus');
+  const { open, mounted, transitionStatus } = React.useContext(PopoverLifecycleContext);
   const openReason = store.useState('openChangeReason');
 
   const state: PopoverBackdropState = {

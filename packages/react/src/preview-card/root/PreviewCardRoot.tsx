@@ -3,7 +3,11 @@ import * as React from 'react';
 import { fastComponent } from '@base-ui/utils/fastHooks';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useDismiss, FloatingTree } from '../../floating-ui-react';
-import { PreviewCardRootContext, usePreviewCardRootContext } from './PreviewCardContext';
+import {
+  PreviewCardRootContext,
+  usePreviewCardRootContext,
+  PreviewCardLifecycleContext,
+} from './PreviewCardContext';
 import {
   createChangeEventDetails,
   type BaseUIChangeEventDetails,
@@ -53,15 +57,16 @@ function PreviewCardRootComponent<Payload>(props: PreviewCardRoot.Props<Payload>
   store.useContextCallback('onOpenChange', onOpenChange);
   store.useContextCallback('onOpenChangeComplete', onOpenChangeComplete);
 
-  const open = store.useState('open');
+  const storeOpen = store.useState('open');
+  const open = openProp ?? storeOpen;
   const activeTriggerId = store.useState('activeTriggerId');
-  const mounted = store.useState('mounted');
   const payload = store.useState('payload') as Payload | undefined;
 
   useImplicitActiveTrigger(store, { closeOnActiveTriggerUnmount: true });
-  const { forceUnmount } = useOpenStateTransitions(open, store, () => {
+  const lifecycle = useOpenStateTransitions(open, store, () => {
     store.context.inlineRectCoordsRef.current = undefined;
   });
+  const { forceUnmount, mounted } = lifecycle;
 
   useIsoLayoutEffect(() => {
     if (open) {
@@ -84,9 +89,11 @@ function PreviewCardRootComponent<Payload>(props: PreviewCardRoot.Props<Payload>
 
   return (
     <PreviewCardRootContext.Provider value={store as PreviewCardRootContext}>
-      {handle && <PopupHandleAttachment handle={handle} store={store} />}
-      {shouldRenderInteractions && <PreviewCardInteractions store={store} />}
-      {typeof children === 'function' ? children({ payload }) : children}
+      <PreviewCardLifecycleContext.Provider value={lifecycle}>
+        {handle && <PopupHandleAttachment handle={handle} store={store} />}
+        {shouldRenderInteractions && <PreviewCardInteractions store={store} />}
+        {typeof children === 'function' ? children({ payload }) : children}
+      </PreviewCardLifecycleContext.Provider>
     </PreviewCardRootContext.Provider>
   );
 }

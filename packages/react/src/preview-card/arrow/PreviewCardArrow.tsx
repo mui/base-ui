@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { usePreviewCardPositionerContext } from '../positioner/PreviewCardPositionerContext';
-import { usePreviewCardRootContext } from '../root/PreviewCardContext';
+import { usePreviewCardRootContext, PreviewCardLifecycleContext } from '../root/PreviewCardContext';
 import type { BaseUIComponentProps } from '../../internals/types';
 import type { Align, Side } from '../../internals/useAnchorPositioning';
 import { popupStateMapping } from '../../utils/popupStateMapping';
@@ -19,10 +19,10 @@ export const PreviewCardArrow = React.forwardRef(function PreviewCardArrow(
 ) {
   const { render, className, style, ...elementProps } = componentProps;
 
-  const store = usePreviewCardRootContext();
+  usePreviewCardRootContext();
   const { arrowRef, side, align, arrowUncentered, arrowStyles } = usePreviewCardPositionerContext();
 
-  const open = store.useState('open');
+  const { open } = React.useContext(PreviewCardLifecycleContext);
 
   const state: PreviewCardArrowState = {
     open,

@@ -3,7 +3,7 @@ import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { ownerDocument } from '@base-ui/utils/owner';
-import { useDialogRootContext } from '../../dialog/root/DialogRootContext';
+import { useDialogRootContext, DialogLifecycleContext } from '../../dialog/root/DialogRootContext';
 import { useRenderElement } from '../../internals/useRenderElement';
 import type { BaseUIComponentProps } from '../../internals/types';
 import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
@@ -116,7 +116,7 @@ export const DrawerSwipeArea = React.forwardRef(function DrawerSwipeArea(
     return () => registerTrigger(null);
   }, [registerTrigger, swipeAreaId, store]);
 
-  const open = store.useState('open');
+  const { open } = React.useContext(DialogLifecycleContext);
 
   const resetDragDelta = useStableCallback(() => {
     dragDeltaRef.current.x = 0;

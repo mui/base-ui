@@ -1,0 +1,65 @@
+.view-transition-experiment {
+  padding: 2rem;
+}
+
+.view-transition-trigger {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  min-height: 5rem;
+}
+
+.view-transition-thumb-slot {
+  flex: none;
+  width: 3rem;
+  height: 3rem;
+}
+
+.view-transition-cover {
+  display: block;
+  width: 12rem;
+  height: 8rem;
+  background: linear-gradient(135deg, #65b8ff, #5536a3);
+  border-radius: 0.5rem;
+}
+
+.view-transition-trigger .view-transition-cover {
+  width: 3rem;
+  height: 3rem;
+}
+
+.view-transition-dialog,
+.view-transition-popover {
+  padding: 2rem;
+  color: #111;
+  background: white;
+  border: 1px solid #aaa;
+  border-radius: 1rem;
+}
+
+.view-transition-dialog {
+  position: fixed;
+  top: 25%;
+  left: 40%;
+}
+
+::view-transition-group(*) {
+  animation-duration: 400ms;
+}
+
+/* Keep the shared cover above the popup's separate snapshot. */
+::view-transition-group(.view-transition-cover) {
+  z-index: 1;
+}
+
+/* Fit both snapshots to the same animated box as the aspect ratio changes. */
+::view-transition-old(.view-transition-cover),
+::view-transition-new(.view-transition-cover) {
+  height: 100%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*) {
+    animation-duration: 0s;
+  }
+}

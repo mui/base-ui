@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useTooltipRootContext } from '../root/TooltipRootContext';
+import { useTooltipRootContext, TooltipLifecycleContext } from '../root/TooltipRootContext';
 import { TooltipPortalContext } from './TooltipPortalContext';
 import { FloatingPortalLite } from '../../utils/FloatingPortalLite';
 import { type BaseUIComponentProps } from '../../internals/types';
@@ -18,8 +18,8 @@ export const TooltipPortal = React.forwardRef(function TooltipPortal(
 ) {
   const { keepMounted = false, ...portalProps } = props;
 
-  const store = useTooltipRootContext();
-  const mounted = store.useState('mounted');
+  useTooltipRootContext();
+  const { mounted } = React.useContext(TooltipLifecycleContext);
 
   const shouldRender = mounted || keepMounted;
   if (!shouldRender) {

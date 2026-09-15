@@ -15,7 +15,7 @@ import {
   type SyncedFloatingRootContextStore,
 } from '../../floating-ui-react/hooks/useSyncedFloatingRootContext';
 import { useTransitionStatus } from '../../internals/useTransitionStatus';
-import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
+import { usePopupCloseComplete } from './usePopupCloseComplete';
 import type { HTMLProps } from '../../internals/types';
 import {
   createChangeEventDetails,
@@ -572,7 +572,7 @@ export function useImplicitActiveTrigger<State extends PopupStoreState<unknown>>
  *   popup on page load, SSR'd markup) appears without animating. Opt in for popups whose subtree
  *   only mounts in response to something the user did, such as a submenu inside a menu popup.
  *
- * @returns A function to forcibly unmount the popup.
+ * @returns The current lifecycle state and a function to forcibly unmount the popup.
  */
 export function useOpenStateTransitions<State extends PopupStoreState<unknown>>(
   open: boolean,
@@ -597,8 +597,8 @@ export function useOpenStateTransitions<State extends PopupStoreState<unknown>>(
     preventUnmountingOnClose: syncedPreventUnmountingOnClose,
   });
 
-  const forceUnmount = useStableCallback(() => {
-    setMounted(false);
+  const pendingUnmountRef = React.useRef(false);
+  const finishUnmount = useStableCallback(() => {
     store.update({
       activeTriggerId: null,
       activeTriggerElement: null,
@@ -609,18 +609,33 @@ export function useOpenStateTransitions<State extends PopupStoreState<unknown>>(
     store.context.onOpenChangeComplete?.(false);
   });
 
-  useOpenChangeComplete({
-    enabled: mounted && !open && !syncedPreventUnmountingOnClose,
-    open,
-    ref: store.context.popupRef,
-    onComplete() {
-      if (!open) {
-        forceUnmount();
-      }
-    },
+  const forceUnmount = useStableCallback(() => {
+    pendingUnmountRef.current = mounted && !open;
+    setMounted(false);
+    if (!mounted || open) {
+      finishUnmount();
+    }
   });
 
-  return { forceUnmount, transitionStatus };
+  useIsoLayoutEffect(() => {
+    if (!mounted && pendingUnmountRef.current) {
+      pendingUnmountRef.current = false;
+      // Keep the trigger available until the popup's focus manager has unmounted.
+      finishUnmount();
+    }
+  }, [mounted, finishUnmount]);
+
+  usePopupCloseComplete({
+    enabled: mounted && !syncedPreventUnmountingOnClose,
+    open,
+    ref: store.context.popupRef,
+    onComplete: forceUnmount,
+  });
+
+  return React.useMemo(
+    () => ({ forceUnmount, open, mounted, transitionStatus }),
+    [forceUnmount, open, mounted, transitionStatus],
+  );
 }
 
 type PopupInteractionPropKey = 'activeTriggerProps' | 'inactiveTriggerProps' | 'popupProps';

@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { act, screen, waitFor } from '@mui/internal-test-utils';
 import { Menu } from '@base-ui/react/menu';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { activeElement, contains } from '@base-ui/utils/shadowDom';
 import { DirectionProvider } from '@base-ui/react/direction-provider';
 import { createRenderer, resetBrowserPointer } from '#test-utils';
 import { useMenuRootContext } from './MenuRootContext';
@@ -77,7 +78,7 @@ describe('<Menu.Root /> without a trigger', () => {
 
         await user.keyboard('{Escape}');
         await waitFor(() => expect(screen.queryByRole('menuitem', { name: 'Leaf' })).toBeNull());
-        expect(more).toHaveFocus();
+        await waitFor(() => expect(more).toHaveFocus());
         expect(changed).not.toHaveBeenCalled();
         await user.keyboard('{Escape}');
         await waitFor(() => expect(screen.queryByRole('menu')).toBeNull());
@@ -127,6 +128,10 @@ describe('<Menu.Root /> without a trigger', () => {
       const anchor = screen.getByRole('button', { name: 'Open' });
       async function openAndSelect() {
         await user.click(anchor);
+        // Let the root's initial focus settle before opening the submenu.
+        await waitFor(() =>
+          expect(contains(screen.getByRole('menu'), activeElement(document))).toBe(true),
+        );
         await focusItem('More');
         await user.keyboard('{ArrowRight}');
         const nested = await screen.findByRole('menuitem', { name: 'Nested' });

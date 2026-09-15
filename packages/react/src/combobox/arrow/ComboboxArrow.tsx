@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useComboboxPositionerContext } from '../positioner/ComboboxPositionerContext';
-import { useComboboxRootContext } from '../root/ComboboxRootContext';
+import { useComboboxRootContext, ComboboxLifecycleContext } from '../root/ComboboxRootContext';
 import { useRenderElement } from '../../internals/useRenderElement';
 import type { Side, Align } from '../../internals/useAnchorPositioning';
 import type { BaseUIComponentProps } from '../../internals/types';
@@ -19,10 +19,9 @@ export const ComboboxArrow = React.forwardRef(function ComboboxArrow(
 ) {
   const { render, className, style, ...elementProps } = componentProps;
 
-  const store = useComboboxRootContext();
+  useComboboxRootContext();
+  const { open } = React.useContext(ComboboxLifecycleContext);
   const { arrowRef, side, align, arrowUncentered, arrowStyles } = useComboboxPositionerContext();
-
-  const open = store.useState('open');
 
   const state: ComboboxArrowState = {
     open,

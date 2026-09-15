@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { FloatingPortal } from '../../floating-ui-react';
 import { type BaseUIComponentProps } from '../../internals/types';
-import { useSelectRootContext } from '../root/SelectRootContext';
+import { useSelectRootContext, SelectLifecycleContext } from '../root/SelectRootContext';
 
 /**
  * A portal element that moves the popup to a different part of the DOM.
@@ -16,7 +16,7 @@ export const SelectPortal = React.forwardRef(function SelectPortal(
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const store = useSelectRootContext();
-  const mounted = store.useState('mounted');
+  const { mounted } = React.useContext(SelectLifecycleContext);
   const forceMount = store.useState('forceMount');
 
   const shouldRender = mounted || forceMount;

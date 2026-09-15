@@ -2,7 +2,11 @@
 import * as React from 'react';
 import { fastComponent } from '@base-ui/utils/fastHooks';
 import { useDismiss, FloatingTree } from '../../floating-ui-react';
-import { PopoverRootContext, usePopoverRootContext } from './PopoverRootContext';
+import {
+  PopoverRootContext,
+  usePopoverRootContext,
+  PopoverLifecycleContext,
+} from './PopoverRootContext';
 import { PopoverStore, type State as PopoverStoreState } from '../store/PopoverStore';
 import { PopoverHandle } from '../store/PopoverHandle';
 import {
@@ -48,8 +52,10 @@ const PopoverRootComponent = fastComponent(function PopoverRootComponent<Payload
   store.useControlledProp('openProp', openProp);
   store.useControlledProp('triggerIdProp', triggerIdProp);
 
-  const open = store.useState('open');
-  const mounted = store.useState('mounted');
+  const storeOpen = store.useState('open');
+  // Read the controlled prop in this render so the popup joins the same React Transition,
+  // before the store synchronizes it in a layout effect.
+  const open = openProp ?? storeOpen;
   const payload = store.useState('payload') as Payload | undefined;
 
   store.useContextCallback('onOpenChange', onOpenChange);
@@ -57,9 +63,10 @@ const PopoverRootComponent = fastComponent(function PopoverRootComponent<Payload
 
   usePopupRootSync(store, open);
   useImplicitActiveTrigger(store);
-  const { forceUnmount } = useOpenStateTransitions(open, store, () => {
+  const lifecycle = useOpenStateTransitions(open, store, () => {
     store.update({ stickIfOpen: true, openChangeReason: null });
   });
+  const { forceUnmount, mounted } = lifecycle;
 
   store.useSyncedValues({
     modal,
@@ -84,9 +91,11 @@ const PopoverRootComponent = fastComponent(function PopoverRootComponent<Payload
 
   return (
     <PopoverRootContext.Provider value={store as PopoverRootContext<unknown>}>
-      {handle && <PopupHandleAttachment handle={handle} store={store} />}
-      {shouldRenderInteractions && <PopoverInteractions store={store} modal={modal} />}
-      {typeof children === 'function' ? children({ payload }) : children}
+      <PopoverLifecycleContext.Provider value={lifecycle}>
+        {handle && <PopupHandleAttachment handle={handle} store={store} />}
+        {shouldRenderInteractions && <PopoverInteractions store={store} modal={modal} />}
+        {typeof children === 'function' ? children({ payload }) : children}
+      </PopoverLifecycleContext.Provider>
     </PopoverRootContext.Provider>
   );
 });

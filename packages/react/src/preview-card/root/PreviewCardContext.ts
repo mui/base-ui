@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { DEFAULT_POPUP_LIFECYCLE_STATE } from '../../utils/popups/popupLifecycleState';
 import { PreviewCardStore } from '../store/PreviewCardStore';
 
 export type PreviewCardRootContext<Payload = unknown> = PreviewCardStore<Payload>;
@@ -20,3 +21,5 @@ export function usePreviewCardRootContext(optional?: boolean) {
 
   return context;
 }
+
+export const PreviewCardLifecycleContext = React.createContext(DEFAULT_POPUP_LIFECYCLE_STATE);

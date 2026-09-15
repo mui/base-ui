@@ -1,0 +1,142 @@
+.Container {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1rem;
+  width: 100%;
+  max-width: 20rem;
+}
+
+.Panel {
+  display: flex;
+  gap: 1px;
+  padding: 1px;
+  border: 1px solid oklch(14.5% 0 0deg);
+
+  @media (prefers-color-scheme: dark) {
+    border: 1px solid white;
+  }
+}
+
+.Button {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 2rem;
+  padding: 0 0.75rem;
+  margin: 0;
+  border: none;
+  border-radius: 0;
+  background-color: transparent;
+  color: oklch(14.5% 0 0deg);
+  font-family: inherit;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  -webkit-user-select: none;
+  user-select: none;
+
+  @media (prefers-color-scheme: dark) {
+    color: white;
+  }
+
+  @media (hover: hover) {
+    &:hover:not([data-disabled]) {
+      background-color: oklch(97% 0 0deg);
+
+      @media (prefers-color-scheme: dark) {
+        background-color: oklch(26.9% 0 0deg);
+      }
+    }
+  }
+
+  &:active:not([data-disabled], [data-pressed]) {
+    background-color: oklch(92.2% 0 0deg);
+
+    @media (prefers-color-scheme: dark) {
+      background-color: oklch(37.1% 0 0deg);
+    }
+  }
+
+  &[data-pressed] {
+    background-color: oklch(14.5% 0 0deg);
+    color: white;
+
+    @media (prefers-color-scheme: dark) {
+      background-color: white;
+      color: oklch(14.5% 0 0deg);
+    }
+  }
+
+  @media (hover: hover) {
+    &[data-pressed]:hover:not([data-disabled]) {
+      background-color: oklch(14.5% 0 0deg);
+      color: white;
+
+      @media (prefers-color-scheme: dark) {
+        background-color: white;
+        color: oklch(14.5% 0 0deg);
+      }
+    }
+  }
+
+  &:focus-visible {
+    outline: 2px solid oklch(14.5% 0 0deg);
+    outline-offset: 1px;
+    position: relative;
+    z-index: 1;
+
+    @media (prefers-color-scheme: dark) {
+      outline-color: white;
+    }
+  }
+}
+
+.List {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border: 1px solid oklch(14.5% 0 0deg);
+
+  @media (prefers-color-scheme: dark) {
+    border: 1px solid white;
+  }
+}
+
+.Item {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.5rem 0.75rem;
+  background-color: white;
+  color: oklch(14.5% 0 0deg);
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+
+  @media (prefers-color-scheme: dark) {
+    background-color: oklch(14.5% 0 0deg);
+    color: white;
+  }
+
+  & + & {
+    border-top: 1px solid oklch(14.5% 0 0deg);
+
+    @media (prefers-color-scheme: dark) {
+      border-top: 1px solid white;
+    }
+  }
+}
+
+.Size {
+  color: oklch(43.9% 0 0deg);
+
+  @media (prefers-color-scheme: dark) {
+    color: oklch(70.8% 0 0deg);
+  }
+}

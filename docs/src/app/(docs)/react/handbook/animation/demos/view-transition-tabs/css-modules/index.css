@@ -1,0 +1,59 @@
+::view-transition-old(.slide-to-left),
+::view-transition-old(.slide-to-right),
+::view-transition-new(.slide-from-left),
+::view-transition-new(.slide-from-right) {
+  animation-duration: 250ms;
+  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+::view-transition-new(.slide-from-right) {
+  animation-name: slideFromRight;
+}
+
+::view-transition-new(.slide-from-left) {
+  animation-name: slideFromLeft;
+}
+
+::view-transition-old(.slide-to-left) {
+  animation-name: slideToLeft;
+}
+
+::view-transition-old(.slide-to-right) {
+  animation-name: slideToRight;
+}
+
+@keyframes slideFromRight {
+  from {
+    opacity: 0;
+    transform: translateX(1.5rem);
+  }
+}
+
+@keyframes slideFromLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-1.5rem);
+  }
+}
+
+@keyframes slideToLeft {
+  to {
+    opacity: 0;
+    transform: translateX(-1.5rem);
+  }
+}
+
+@keyframes slideToRight {
+  to {
+    opacity: 0;
+    transform: translateX(1.5rem);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none;
+  }
+}

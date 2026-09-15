@@ -21,6 +21,7 @@ import {
 } from '../../floating-ui-react';
 import {
   SelectFloatingContext,
+  SelectLifecycleContext,
   SelectRootContext,
   SelectRootPropsContext,
   type SelectRootPropsContextValue,
@@ -35,7 +36,7 @@ import {
   createChangeEventDetails,
 } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
-import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
+import { usePopupCloseComplete } from '../../utils/popups/usePopupCloseComplete';
 import { useFormContext } from '../../internals/form-context/FormContext';
 import { type Group, stringifyAsLabel, stringifyAsValue } from '../../internals/resolveValueLabel';
 import {
@@ -298,15 +299,11 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     onOpenChangeComplete?.(false);
   });
 
-  useOpenChangeComplete({
-    enabled: !actionsRef,
+  usePopupCloseComplete({
+    enabled: mounted && !actionsRef,
     open,
     ref: popupRef,
-    onComplete() {
-      if (!open) {
-        handleUnmount();
-      }
-    },
+    onComplete: handleUnmount,
   });
 
   React.useImperativeHandle(actionsRef, () => ({ unmount: handleUnmount }), [handleUnmount]);
@@ -494,11 +491,18 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     });
   }, [multiple, value, form, name, itemToStringValue, disabled]);
 
+  const lifecycle = React.useMemo(
+    () => ({ open, mounted, transitionStatus }),
+    [open, mounted, transitionStatus],
+  );
+
   return (
     <SelectRootContext.Provider value={store}>
       <SelectRootPropsContext.Provider value={rootPropsContextValue}>
         <SelectFloatingContext.Provider value={floatingContext}>
-          {children}
+          <SelectLifecycleContext.Provider value={lifecycle}>
+            {children}
+          </SelectLifecycleContext.Provider>
         </SelectFloatingContext.Provider>
       </SelectRootPropsContext.Provider>
       <input

@@ -3,7 +3,7 @@ import * as React from 'react';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { type BaseUIComponentProps } from '../../internals/types';
 import { type TransitionStatus } from '../../internals/useTransitionStatus';
-import { useDialogRootContext } from '../root/DialogRootContext';
+import { useDialogRootContext, DialogLifecycleContext } from '../root/DialogRootContext';
 import { useDialogPortalContext } from '../portal/DialogPortalContext';
 import { dialogStateAttributesMapping } from '../utils/stateAttributesMapping';
 
@@ -22,11 +22,9 @@ export const DialogViewport = React.forwardRef(function DialogViewport(
   const keepMounted = useDialogPortalContext();
   const store = useDialogRootContext();
 
-  const open = store.useState('open');
+  const { open, transitionStatus, mounted } = React.useContext(DialogLifecycleContext);
   const nested = store.useState('nested');
-  const transitionStatus = store.useState('transitionStatus');
   const nestedOpenDialogCount = store.useState('nestedOpenDialogCount');
-  const mounted = store.useState('mounted');
 
   const setViewportElement = store.useStateSetter('viewportElement');
 

@@ -16,6 +16,7 @@ import {
   useSelectFloatingContext,
   useSelectRootContext,
   useSelectRootPropsContext,
+  SelectLifecycleContext,
 } from '../root/SelectRootContext';
 import { popupStateMapping } from '../../utils/popupStateMapping';
 import type { Side, Align } from '../../internals/useAnchorPositioning';
@@ -55,6 +56,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
   const { render, className, style, finalFocus, ...elementProps } = componentProps;
 
   const store = useSelectRootContext();
+  const { open, mounted, transitionStatus } = React.useContext(SelectLifecycleContext);
   const { multiple, readOnly, highlightItemOnHover } = useSelectRootPropsContext();
   const floatingRootContext = useSelectFloatingContext();
   const {
@@ -70,11 +72,8 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
   const { nonce, disableStyleElements } = useCSPContext();
 
   const id = store.useState('id');
-  const open = store.useState('open');
   const openMethod = store.useState('openMethod');
-  const mounted = store.useState('mounted');
   const popupProps = store.useState('popupProps');
-  const transitionStatus = store.useState('transitionStatus');
   const triggerElement = store.useState('triggerElement');
   const positionerElement = store.useState('positionerElement');
   const listElement = store.useState('listElement');

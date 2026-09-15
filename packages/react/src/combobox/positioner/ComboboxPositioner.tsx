@@ -3,7 +3,11 @@ import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { inertValue } from '@base-ui/utils/inertValue';
-import { useComboboxFloatingContext, useComboboxRootContext } from '../root/ComboboxRootContext';
+import {
+  useComboboxFloatingContext,
+  useComboboxRootContext,
+  ComboboxLifecycleContext,
+} from '../root/ComboboxRootContext';
 import { ComboboxPositionerContext } from './ComboboxPositionerContext';
 import { useListEmpty } from '../utils/parts';
 import {
@@ -51,19 +55,17 @@ export const ComboboxPositioner = React.forwardRef(function ComboboxPositioner(
   } = componentProps;
 
   const store = useComboboxRootContext();
+  const { open, mounted, transitionStatus } = React.useContext(ComboboxLifecycleContext);
   const floatingRootContext = useComboboxFloatingContext();
   const keepMounted = useComboboxPortalContext();
 
   const modal = store.useState('modal');
-  const open = store.useState('open');
-  const mounted = store.useState('mounted');
   const openMethod = store.useState('openMethod');
   const positionerElement = store.useState('positionerElement');
   const triggerElement = store.useState('triggerElement');
   const inputElement = store.useState('inputElement');
   const inputGroupElement = store.useState('inputGroupElement');
   const inputInsidePopup = store.useState('inputInsidePopup');
-  const transitionStatus = store.useState('transitionStatus');
 
   const empty = useListEmpty();
   const resolvedAnchor =

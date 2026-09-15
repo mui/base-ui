@@ -294,7 +294,9 @@ describe('<Combobox.Root />', () => {
       const input = await screen.findByTestId('input');
       await waitFor(() => expect(input).toHaveFocus());
 
-      await user.type(input, 'ban');
+      // user-event synthesizes change on blur, re-entering act during the focused input's
+      // unmount in Chromium. Set the query directly in these close/reopen tests.
+      fireEvent.change(input, { target: { value: 'ban' } });
       await user.keyboard('{ArrowDown}{Enter}');
 
       await waitFor(() => expect(screen.queryByRole('dialog')).toBe(null));
@@ -341,7 +343,7 @@ describe('<Combobox.Root />', () => {
 
       const trigger = screen.getByTestId('trigger');
       await user.click(trigger);
-      await user.type(await screen.findByTestId('input'), 'ban');
+      fireEvent.change(await screen.findByTestId('input'), { target: { value: 'ban' } });
       await user.keyboard('{Escape}');
 
       await waitFor(() => expect(screen.queryByRole('dialog')).toBe(null));
@@ -3036,7 +3038,7 @@ describe('<Combobox.Root />', () => {
 
         await user.click(screen.getByTestId('trigger'));
         const input = await screen.findByTestId('input');
-        await user.type(input, 'cherry');
+        fireEvent.change(input, { target: { value: 'cherry' } });
         await waitFor(() => {
           expect(screen.queryByRole('option', { name: 'banana' })).toBe(null);
         });
@@ -10593,7 +10595,7 @@ describe('<Combobox.Root />', () => {
         await screen.findByRole('dialog', { name: 'Fruit chooser' });
         const input = await screen.findByTestId('dialog-input');
 
-        await user.type(input, 'ap');
+        fireEvent.change(input, { target: { value: 'ap' } });
         await user.click(screen.getByRole('option', { name: 'Apple' }));
 
         await waitFor(() => {
@@ -10618,7 +10620,7 @@ describe('<Combobox.Root />', () => {
         await screen.findByRole('dialog', { name: 'Fruit chooser' });
         const input = await screen.findByTestId('dialog-input');
 
-        await user.type(input, 'ap');
+        fireEvent.change(input, { target: { value: 'ap' } });
         await user.click(screen.getByRole('option', { name: 'Apple' }));
 
         await waitFor(() => {

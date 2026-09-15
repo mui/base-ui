@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { DEFAULT_POPUP_LIFECYCLE_STATE } from '../../utils/popups/popupLifecycleState';
 import { TooltipStore } from '../store/TooltipStore';
 
 export type TooltipRootContext<Payload = unknown> = TooltipStore<Payload>;
@@ -18,3 +19,5 @@ export function useTooltipRootContext(optional?: boolean) {
 
   return context;
 }
+
+export const TooltipLifecycleContext = React.createContext(DEFAULT_POPUP_LIFECYCLE_STATE);

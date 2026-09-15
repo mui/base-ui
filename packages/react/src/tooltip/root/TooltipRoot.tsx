@@ -3,7 +3,7 @@ import * as React from 'react';
 import { fastComponent } from '@base-ui/utils/fastHooks';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { TooltipRootContext } from './TooltipRootContext';
+import { TooltipRootContext, TooltipLifecycleContext } from './TooltipRootContext';
 import { useClientPoint, useDismiss } from '../../floating-ui-react';
 import {
   type BaseUIChangeEventDetails,
@@ -67,10 +67,9 @@ export const TooltipRoot = fastComponent(function TooltipRoot<Payload>(
   store.useContextCallback('onOpenChangeComplete', onOpenChangeComplete);
 
   const openState = store.useState('open');
-  const open = !disabled && openState;
+  const open = !disabled && (openProp ?? openState);
 
   const activeTriggerId = store.useState('activeTriggerId');
-  const mounted = store.useState('mounted');
   const payload = store.useState('payload') as Payload | undefined;
 
   store.useSyncedValues({
@@ -80,7 +79,8 @@ export const TooltipRoot = fastComponent(function TooltipRoot<Payload>(
   });
 
   useImplicitActiveTrigger(store, { closeOnActiveTriggerUnmount: true });
-  const { forceUnmount, transitionStatus } = useOpenStateTransitions(open, store);
+  const lifecycle = useOpenStateTransitions(open, store);
+  const { forceUnmount, mounted, transitionStatus } = lifecycle;
   const isInstantPhase = store.useState('isInstantPhase');
   const instantType = store.useState('instantType');
   const lastOpenChangeReason = store.useState('lastOpenChangeReason');
@@ -139,11 +139,17 @@ export const TooltipRoot = fastComponent(function TooltipRoot<Payload>(
 
   return (
     <TooltipRootContext.Provider value={store as TooltipRootContext}>
-      {handle && <PopupHandleAttachment handle={handle} store={store} />}
-      {shouldRenderInteractions && (
-        <TooltipInteractions store={store} disabled={disabled} trackCursorAxis={trackCursorAxis} />
-      )}
-      {typeof children === 'function' ? children({ payload }) : children}
+      <TooltipLifecycleContext.Provider value={lifecycle}>
+        {handle && <PopupHandleAttachment handle={handle} store={store} />}
+        {shouldRenderInteractions && (
+          <TooltipInteractions
+            store={store}
+            disabled={disabled}
+            trackCursorAxis={trackCursorAxis}
+          />
+        )}
+        {typeof children === 'function' ? children({ payload }) : children}
+      </TooltipLifecycleContext.Provider>
     </TooltipRootContext.Provider>
   );
 });

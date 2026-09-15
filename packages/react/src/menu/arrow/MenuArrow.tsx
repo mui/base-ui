@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
-import { useMenuRootContext } from '../root/MenuRootContext';
+import { useMenuRootContext, MenuLifecycleContext } from '../root/MenuRootContext';
 import { useRenderElement } from '../../internals/useRenderElement';
 import type { Side, Align } from '../../internals/useAnchorPositioning';
 import type { BaseUIComponentProps } from '../../internals/types';
@@ -19,9 +19,9 @@ export const MenuArrow = React.forwardRef(function MenuArrow(
 ) {
   const { render, className, style, ...elementProps } = componentProps;
 
-  const { store } = useMenuRootContext();
+  useMenuRootContext();
   const { arrowRef, side, align, arrowUncentered, arrowStyles } = useMenuPositionerContext();
-  const open = store.useState('open');
+  const { open } = React.useContext(MenuLifecycleContext);
 
   const state: MenuArrowState = {
     open,

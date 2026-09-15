@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { DEFAULT_POPUP_LIFECYCLE_STATE } from '../../utils/popups/popupLifecycleState';
 import { ComboboxStore } from '../store';
 import type { FloatingRootContext } from '../../floating-ui-react';
 
@@ -64,3 +65,5 @@ export function useComboboxInputValueContext() {
 export function useComboboxHasItemsContext() {
   return React.useContext(ComboboxHasItemsContext);
 }
+
+export const ComboboxLifecycleContext = React.createContext(DEFAULT_POPUP_LIFECYCLE_STATE);

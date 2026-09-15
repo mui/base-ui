@@ -5,7 +5,7 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useTimeout } from '@base-ui/utils/useTimeout';
 import { FloatingNode } from '../../floating-ui-react';
 import { MenuPositionerContext } from './MenuPositionerContext';
-import { useMenuRootContext } from '../root/MenuRootContext';
+import { useMenuRootContext, MenuLifecycleContext } from '../root/MenuRootContext';
 import type { MenuRoot } from '../root/MenuRoot';
 import {
   useAnchorPositioning,
@@ -63,12 +63,10 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
   const parent = store.useState('parent');
   const floatingRootContext = store.useState('floatingRootContext');
   const floatingTreeRoot = store.useState('floatingTreeRoot');
-  const mounted = store.useState('mounted');
-  const open = store.useState('open');
+  const { mounted, open, transitionStatus } = React.useContext(MenuLifecycleContext);
   const modal = store.useState('modal');
   const openMethod = store.useState('openMethod');
   const triggerElement = store.useState('activeTriggerElement');
-  const transitionStatus = store.useState('transitionStatus');
   const positionerElement = store.useState('positionerElement');
   const instantType = store.useState('instantType');
   const adaptiveOrigin = store.useState('adaptiveOrigin');

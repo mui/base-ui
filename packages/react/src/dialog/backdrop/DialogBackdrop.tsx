@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useDialogRootContext } from '../root/DialogRootContext';
+import { useDialogRootContext, DialogLifecycleContext } from '../root/DialogRootContext';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { type TransitionStatus } from '../../internals/useTransitionStatus';
 import { type BaseUIComponentProps } from '../../internals/types';
@@ -20,10 +20,8 @@ export const DialogBackdrop = React.forwardRef(function DialogBackdrop(
 
   const store = useDialogRootContext();
 
-  const open = store.useState('open');
+  const { open, mounted, transitionStatus } = React.useContext(DialogLifecycleContext);
   const nested = store.useState('nested');
-  const mounted = store.useState('mounted');
-  const transitionStatus = store.useState('transitionStatus');
 
   const state: DialogBackdropState = {
     open,

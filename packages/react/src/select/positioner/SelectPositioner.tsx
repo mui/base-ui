@@ -3,7 +3,11 @@ import * as React from 'react';
 import { inertValue } from '@base-ui/utils/inertValue';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import { useSelectFloatingContext, useSelectRootContext } from '../root/SelectRootContext';
+import {
+  useSelectFloatingContext,
+  useSelectRootContext,
+  SelectLifecycleContext,
+} from '../root/SelectRootContext';
 import { CompositeList } from '../../internals/composite/list/CompositeList';
 import type { BaseUIComponentProps } from '../../internals/types';
 import {
@@ -57,17 +61,15 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
   } = componentProps;
 
   const store = useSelectRootContext();
+  const { open, mounted, transitionStatus } = React.useContext(SelectLifecycleContext);
   const floatingRootContext = useSelectFloatingContext();
 
-  const open = store.useState('open');
-  const mounted = store.useState('mounted');
   const modal = store.useState('modal');
   const value = store.useState('value');
   const openMethod = store.useState('openMethod');
   const positionerElement = store.useState('positionerElement');
   const triggerElement = store.useState('triggerElement');
   const isItemEqualToValue = store.useState('isItemEqualToValue');
-  const transitionStatus = store.useState('transitionStatus');
 
   const scrollUpArrowRef = React.useRef<HTMLDivElement | null>(null);
   const scrollDownArrowRef = React.useRef<HTMLDivElement | null>(null);

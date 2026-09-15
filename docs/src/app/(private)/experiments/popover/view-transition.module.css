@@ -1,0 +1,78 @@
+.Page {
+  display: grid;
+  gap: 3rem;
+  max-width: 32rem;
+}
+
+.Section {
+  display: grid;
+  gap: 1rem;
+  justify-items: start;
+}
+
+.Trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  height: auto;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid oklch(14.5% 0 0deg);
+  background: white;
+  color: oklch(14.5% 0 0deg);
+  font: inherit;
+  cursor: pointer;
+}
+
+.ThumbSlot {
+  display: block;
+  width: 3rem;
+  height: 3rem;
+}
+
+.Thumb {
+  display: block;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 0.5rem;
+  background: linear-gradient(135deg, oklch(70% 0.2 250deg), oklch(60% 0.2 320deg));
+}
+
+.Positioner {
+  width: var(--positioner-width);
+  height: var(--positioner-height);
+  max-width: var(--available-width);
+}
+
+.Popup {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.75rem;
+  width: 20rem;
+  padding: 1rem;
+  border: 1px solid oklch(14.5% 0 0deg);
+  background: white;
+  color: oklch(14.5% 0 0deg);
+  transform-origin: var(--transform-origin);
+  outline: none;
+}
+
+.Cover {
+  width: 100%;
+  height: 8rem;
+  border-radius: 0.5rem;
+  background: linear-gradient(135deg, oklch(70% 0.2 250deg), oklch(60% 0.2 320deg));
+}
+
+.Title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.Description {
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+}
