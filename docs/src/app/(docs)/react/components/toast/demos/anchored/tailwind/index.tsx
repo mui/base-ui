@@ -2,14 +2,13 @@
 import * as React from 'react';
 import { Toast } from '@base-ui/react/toast';
 import { Button } from '@base-ui/react/button';
-import { Tooltip } from '@base-ui/react/tooltip';
 
 const stackedToastManager = Toast.createToastManager();
 const anchoredToastManager = Toast.createToastManager();
 
 export default function ExampleToast() {
   return (
-    <Tooltip.Provider>
+    <React.Fragment>
       <Toast.Provider toastManager={anchoredToastManager}>
         <AnchoredToasts />
       </Toast.Provider>
@@ -21,7 +20,7 @@ export default function ExampleToast() {
         <CopyButton />
         <StackedToastButton />
       </div>
-    </Tooltip.Provider>
+    </React.Fragment>
   );
 }
 
@@ -64,26 +63,16 @@ function CopyButton() {
   }
 
   return (
-    <Tooltip.Root disabled={copied}>
-      <Tooltip.Trigger
-        ref={buttonRef}
-        closeOnClick={false}
-        className="flex h-8 w-8 items-center justify-center rounded-none border border-neutral-950 bg-white text-neutral-950 select-none hover:not-data-disabled:bg-neutral-100 active:not-data-disabled:bg-neutral-200 dark:border-white dark:bg-neutral-950 dark:text-white dark:hover:not-data-disabled:bg-neutral-800 dark:active:not-data-disabled:bg-neutral-700 data-disabled:border-neutral-500 data-disabled:text-neutral-500 disabled:border-neutral-500 disabled:text-neutral-500 dark:data-disabled:border-neutral-400 dark:data-disabled:text-neutral-400 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-neutral-950 dark:focus-visible:outline-white"
-        onClick={handleCopy}
-        aria-label="Copy to clipboard"
-        render={<Button disabled={copied} focusableWhenDisabled />}
-      >
-        {copied ? <CheckIcon /> : <ClipboardIcon />}
-      </Tooltip.Trigger>
-      <Tooltip.Portal>
-        <Tooltip.Positioner sideOffset={10}>
-          <Tooltip.Popup className="relative flex flex-col border border-neutral-950 bg-white px-2 py-1 text-sm text-neutral-950 origin-[var(--transform-origin)] shadow-[0.25rem_0.25rem_0] shadow-black/12 transition-[scale,opacity] duration-100 ease-out data-ending-style:opacity-0 data-ending-style:scale-[0.98] data-instant:transition-none data-starting-style:opacity-0 data-starting-style:scale-[0.98] dark:border-white dark:bg-neutral-950 dark:text-white dark:shadow-none">
-            <Tooltip.Arrow className="relative block w-3 h-1.5 overflow-clip data-[side=bottom]:top-[-6px] data-[side=left]:right-[-9px] data-[side=left]:rotate-90 data-[side=right]:left-[-9px] data-[side=right]:-rotate-90 data-[side=top]:bottom-[-6px] data-[side=top]:rotate-180 before:content-[''] before:absolute before:bottom-0 before:left-1/2 before:w-[calc(6px*sqrt(2))] before:h-[calc(6px*sqrt(2))] before:bg-white dark:before:bg-neutral-950 before:border before:border-neutral-950 dark:before:border-white before:[transform:translate(-50%,50%)_rotate(45deg)]" />
-            Copy
-          </Tooltip.Popup>
-        </Tooltip.Positioner>
-      </Tooltip.Portal>
-    </Tooltip.Root>
+    <Button
+      ref={buttonRef}
+      className="flex h-8 w-8 items-center justify-center rounded-none border border-neutral-950 bg-white text-neutral-950 select-none hover:not-data-disabled:bg-neutral-100 active:not-data-disabled:bg-neutral-200 dark:border-white dark:bg-neutral-950 dark:text-white dark:hover:not-data-disabled:bg-neutral-800 dark:active:not-data-disabled:bg-neutral-700 data-disabled:border-neutral-500 data-disabled:text-neutral-500 disabled:border-neutral-500 disabled:text-neutral-500 dark:data-disabled:border-neutral-400 dark:data-disabled:text-neutral-400 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-neutral-950 dark:focus-visible:outline-white"
+      onClick={handleCopy}
+      aria-label="Copy to clipboard"
+      disabled={copied}
+      focusableWhenDisabled
+    >
+      {copied ? <CheckIcon /> : <ClipboardIcon />}
+    </Button>
   );
 }
 
@@ -102,7 +91,6 @@ function AnchoredToasts() {
               toast={toast}
               className="relative flex flex-col w-max border border-neutral-950 bg-white px-2 py-1 text-sm text-neutral-950 origin-[var(--transform-origin)] shadow-[0.25rem_0.25rem_0] shadow-black/12 transition-[scale,opacity] duration-100 ease-out data-ending-style:opacity-0 data-ending-style:scale-[0.98] data-instant:transition-none data-starting-style:opacity-0 data-starting-style:scale-[0.98] dark:border-white dark:bg-neutral-950 dark:text-white dark:shadow-none focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-neutral-950 dark:focus-visible:outline-white"
             >
-              <Toast.Arrow className="relative block w-3 h-1.5 overflow-clip data-[side=bottom]:top-[-6px] data-[side=left]:right-[-9px] data-[side=left]:rotate-90 data-[side=right]:left-[-9px] data-[side=right]:-rotate-90 data-[side=top]:bottom-[-6px] data-[side=top]:rotate-180 before:content-[''] before:absolute before:bottom-0 before:left-1/2 before:w-[calc(6px*sqrt(2))] before:h-[calc(6px*sqrt(2))] before:bg-white dark:before:bg-neutral-950 before:border before:border-neutral-950 dark:before:border-white before:[transform:translate(-50%,50%)_rotate(45deg)]" />
               <Toast.Content>
                 <Toast.Description />
               </Toast.Content>
