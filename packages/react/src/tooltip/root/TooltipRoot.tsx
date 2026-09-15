@@ -3,12 +3,7 @@ import * as React from 'react';
 import { fastComponent } from '@base-ui/utils/fastHooks';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import {
-  TooltipRootContext,
-  TooltipOpenContext,
-  TooltipMountedContext,
-  TooltipTransitionStatusContext,
-} from './TooltipRootContext';
+import { TooltipRootContext, TooltipLifecycleContext } from './TooltipRootContext';
 import { useClientPoint, useDismiss } from '../../floating-ui-react';
 import {
   type BaseUIChangeEventDetails,
@@ -141,23 +136,24 @@ export const TooltipRoot = fastComponent(function TooltipRoot<Payload>(
 
   const shouldRenderInteractions = open || mounted || (!disabled && trackCursorAxis !== 'none');
 
+  const lifecycle = React.useMemo(
+    () => ({ open, mounted, transitionStatus }),
+    [open, mounted, transitionStatus],
+  );
+
   return (
     <TooltipRootContext.Provider value={store as TooltipRootContext}>
-      <TooltipOpenContext.Provider value={open}>
-        <TooltipMountedContext.Provider value={mounted}>
-          <TooltipTransitionStatusContext.Provider value={transitionStatus}>
-            {handle && <PopupHandleAttachment handle={handle} store={store} />}
-            {shouldRenderInteractions && (
-              <TooltipInteractions
-                store={store}
-                disabled={disabled}
-                trackCursorAxis={trackCursorAxis}
-              />
-            )}
-            {typeof children === 'function' ? children({ payload }) : children}
-          </TooltipTransitionStatusContext.Provider>
-        </TooltipMountedContext.Provider>
-      </TooltipOpenContext.Provider>
+      <TooltipLifecycleContext.Provider value={lifecycle}>
+        {handle && <PopupHandleAttachment handle={handle} store={store} />}
+        {shouldRenderInteractions && (
+          <TooltipInteractions
+            store={store}
+            disabled={disabled}
+            trackCursorAxis={trackCursorAxis}
+          />
+        )}
+        {typeof children === 'function' ? children({ payload }) : children}
+      </TooltipLifecycleContext.Provider>
     </TooltipRootContext.Provider>
   );
 });

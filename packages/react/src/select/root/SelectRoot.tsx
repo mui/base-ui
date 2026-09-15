@@ -19,12 +19,7 @@ import {
   useListNavigation,
   useTypeahead,
 } from '../../floating-ui-react';
-import {
-  SelectRootContext,
-  SelectOpenContext,
-  SelectMountedContext,
-  SelectTransitionStatusContext,
-} from './SelectRootContext';
+import { SelectRootContext, SelectLifecycleContext } from './SelectRootContext';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
 import { useRegisterFieldControl } from '../../internals/field-register-control/useRegisterFieldControl';
 import { useLabelableId } from '../../internals/labelable-provider/useLabelableId';
@@ -501,15 +496,16 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     });
   }, [multiple, value, form, name, itemToStringValue, disabled]);
 
+  const lifecycle = React.useMemo(
+    () => ({ open, mounted, transitionStatus }),
+    [open, mounted, transitionStatus],
+  );
+
   return (
     <SelectRootContext.Provider value={contextValue}>
-      <SelectOpenContext.Provider value={open}>
-        <SelectMountedContext.Provider value={mounted}>
-          <SelectTransitionStatusContext.Provider value={transitionStatus}>
-            {children}
-          </SelectTransitionStatusContext.Provider>
-        </SelectMountedContext.Provider>
-      </SelectOpenContext.Provider>
+      <SelectLifecycleContext.Provider value={lifecycle}>
+        {children}
+      </SelectLifecycleContext.Provider>
       <input
         {...validation.getValidationProps(disabled, {
           onFocus() {

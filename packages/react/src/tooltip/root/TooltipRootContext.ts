@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import type { TransitionStatus } from '../../internals/useTransitionStatus';
+import type { PopupLifecycleState } from '../../utils/popups/store';
 import { TooltipStore } from '../store/TooltipStore';
 
 export type TooltipRootContext<Payload = unknown> = TooltipStore<Payload>;
@@ -20,7 +20,8 @@ export function useTooltipRootContext(optional?: boolean) {
   return context;
 }
 
-// Separate contexts preserve subscriptions to individual lifecycle values.
-export const TooltipOpenContext = React.createContext(false);
-export const TooltipMountedContext = React.createContext(false);
-export const TooltipTransitionStatusContext = React.createContext<TransitionStatus>(undefined);
+export const TooltipLifecycleContext = React.createContext<PopupLifecycleState>({
+  open: false,
+  mounted: false,
+  transitionStatus: undefined,
+});

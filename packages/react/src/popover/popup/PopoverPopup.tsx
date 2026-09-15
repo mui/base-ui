@@ -3,12 +3,7 @@ import * as React from 'react';
 import { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import { isHTMLElement } from '@floating-ui/utils/dom';
 import { FloatingFocusManager, useHoverFloatingInteraction } from '../../floating-ui-react';
-import {
-  usePopoverRootContext,
-  PopoverOpenContext,
-  PopoverMountedContext,
-  PopoverTransitionStatusContext,
-} from '../root/PopoverRootContext';
+import { usePopoverRootContext, PopoverLifecycleContext } from '../root/PopoverRootContext';
 import { usePopoverPositionerContext } from '../positioner/PopoverPositionerContext';
 import type { Side, Align } from '../../internals/useAnchorPositioning';
 import type { BaseUIComponentProps } from '../../internals/types';
@@ -41,15 +36,13 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
   const insideToolbar = useToolbarRootContext(true) != null;
   const { context: closePartContext, hasClosePart } = useClosePartCount();
 
-  const open = React.useContext(PopoverOpenContext);
+  const { open, transitionStatus, mounted } = React.useContext(PopoverLifecycleContext);
   const openMethod = store.useState('openMethod');
   const instantType = store.useState('instantType');
-  const transitionStatus = React.useContext(PopoverTransitionStatusContext);
   const popupProps = store.useState('popupProps');
   const titleId = store.useState('titleElementId');
   const descriptionId = store.useState('descriptionElementId');
   const modal = store.useState('modal');
-  const mounted = React.useContext(PopoverMountedContext);
   const openReason = store.useState('openChangeReason');
   const activeTriggerElement = store.useState('activeTriggerElement');
   const floatingContext = store.useState('floatingRootContext');

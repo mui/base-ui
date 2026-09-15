@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { FloatingPortal } from '../../floating-ui-react';
 import { type BaseUIComponentProps } from '../../internals/types';
-import { useMenuRootContext, MenuMountedContext } from '../root/MenuRootContext';
+import { useMenuRootContext, MenuLifecycleContext } from '../root/MenuRootContext';
 import { MenuPortalContext } from './MenuPortalContext';
 
 /**
@@ -19,7 +19,7 @@ export const MenuPortal = React.forwardRef(function MenuPortal(
   const { keepMounted = false, ...portalProps } = props;
 
   const { parent } = useMenuRootContext();
-  const mounted = React.useContext(MenuMountedContext);
+  const { mounted } = React.useContext(MenuLifecycleContext);
 
   const shouldRender = mounted || keepMounted;
   if (!shouldRender) {

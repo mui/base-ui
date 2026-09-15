@@ -9,9 +9,7 @@ import { useRenderElement } from '../../internals/useRenderElement';
 import {
   useComboboxFloatingContext,
   useComboboxRootContext,
-  ComboboxOpenContext,
-  ComboboxMountedContext,
-  ComboboxTransitionStatusContext,
+  ComboboxLifecycleContext,
 } from '../root/ComboboxRootContext';
 import { selectors } from '../store';
 import { popupStateMapping } from '../../utils/popupStateMapping';
@@ -48,11 +46,9 @@ export const ComboboxPopup = React.forwardRef(function ComboboxPopup(
   const positioning = useComboboxPositionerContext();
   const floatingRootContext = useComboboxFloatingContext();
 
-  const mounted = React.useContext(ComboboxMountedContext);
-  const open = React.useContext(ComboboxOpenContext);
+  const { mounted, open, transitionStatus } = React.useContext(ComboboxLifecycleContext);
   const openMethod = useStore(store, selectors.openMethod);
   const popupProps = useStore(store, selectors.popupProps);
-  const transitionStatus = React.useContext(ComboboxTransitionStatusContext);
   const inputInsidePopup = useStore(store, selectors.inputInsidePopup);
   const inputElement = useStore(store, selectors.inputElement);
   const modal = useStore(store, selectors.modal);

@@ -1,11 +1,6 @@
 'use client';
 import * as React from 'react';
-import {
-  useMenuRootContext,
-  MenuOpenContext,
-  MenuMountedContext,
-  MenuTransitionStatusContext,
-} from '../root/MenuRootContext';
+import { useMenuRootContext, MenuLifecycleContext } from '../root/MenuRootContext';
 import { useRenderElement } from '../../internals/useRenderElement';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { popupTransitionStateMapping } from '../../utils/popupStateMapping';
@@ -26,9 +21,7 @@ export const MenuBackdrop = React.forwardRef(function MenuBackdrop(
   const { render, className, style, ...elementProps } = componentProps;
 
   const { store } = useMenuRootContext();
-  const open = React.useContext(MenuOpenContext);
-  const mounted = React.useContext(MenuMountedContext);
-  const transitionStatus = React.useContext(MenuTransitionStatusContext);
+  const { open, mounted, transitionStatus } = React.useContext(MenuLifecycleContext);
   const lastOpenChangeReason = store.useState('lastOpenChangeReason');
 
   const contextMenuContext = useContextMenuRootContext();

@@ -7,11 +7,7 @@ import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { clamp } from '@base-ui/utils/clamp';
 import { useTimeout } from '@base-ui/utils/useTimeout';
-import {
-  useDialogRootContext,
-  DialogOpenContext,
-  DialogMountedContext,
-} from '../../dialog/root/DialogRootContext';
+import { useDialogRootContext, DialogLifecycleContext } from '../../dialog/root/DialogRootContext';
 import {
   activeElement,
   contains,
@@ -91,8 +87,7 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
 
   const store = useDialogRootContext();
 
-  const open = React.useContext(DialogOpenContext);
-  const mounted = React.useContext(DialogMountedContext);
+  const { open, mounted } = React.useContext(DialogLifecycleContext);
   const modal = store.useState('modal');
   const nestedOpenDialogCount = store.useState('nestedOpenDialogCount');
   const viewportElement = store.useState('viewportElement');

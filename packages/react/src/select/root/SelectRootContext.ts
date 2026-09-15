@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import type { TransitionStatus } from '../../internals/useTransitionStatus';
+import type { PopupLifecycleState } from '../../utils/popups/store';
 import { type FloatingRootContext } from '../../floating-ui-react';
 import type { SelectStore } from '../store';
 import type { UseFieldValidationReturnValue } from '../../field/root/useFieldValidation';
@@ -52,7 +52,8 @@ export function useSelectRootContext() {
   return context;
 }
 
-// Separate contexts preserve subscriptions to individual lifecycle values.
-export const SelectOpenContext = React.createContext(false);
-export const SelectMountedContext = React.createContext(false);
-export const SelectTransitionStatusContext = React.createContext<TransitionStatus>(undefined);
+export const SelectLifecycleContext = React.createContext<PopupLifecycleState>({
+  open: false,
+  mounted: false,
+  transitionStatus: undefined,
+});

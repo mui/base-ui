@@ -6,9 +6,7 @@ import { useDismiss, FloatingTree } from '../../floating-ui-react';
 import {
   PreviewCardRootContext,
   usePreviewCardRootContext,
-  PreviewCardOpenContext,
-  PreviewCardMountedContext,
-  PreviewCardTransitionStatusContext,
+  PreviewCardLifecycleContext,
 } from './PreviewCardContext';
 import {
   createChangeEventDetails,
@@ -88,17 +86,18 @@ function PreviewCardRootComponent<Payload>(props: PreviewCardRoot.Props<Payload>
 
   const shouldRenderInteractions = open || mounted;
 
+  const lifecycle = React.useMemo(
+    () => ({ open, mounted, transitionStatus }),
+    [open, mounted, transitionStatus],
+  );
+
   return (
     <PreviewCardRootContext.Provider value={store as PreviewCardRootContext}>
-      <PreviewCardOpenContext.Provider value={open}>
-        <PreviewCardMountedContext.Provider value={mounted}>
-          <PreviewCardTransitionStatusContext.Provider value={transitionStatus}>
-            {handle && <PopupHandleAttachment handle={handle} store={store} />}
-            {shouldRenderInteractions && <PreviewCardInteractions store={store} />}
-            {typeof children === 'function' ? children({ payload }) : children}
-          </PreviewCardTransitionStatusContext.Provider>
-        </PreviewCardMountedContext.Provider>
-      </PreviewCardOpenContext.Provider>
+      <PreviewCardLifecycleContext.Provider value={lifecycle}>
+        {handle && <PopupHandleAttachment handle={handle} store={store} />}
+        {shouldRenderInteractions && <PreviewCardInteractions store={store} />}
+        {typeof children === 'function' ? children({ payload }) : children}
+      </PreviewCardLifecycleContext.Provider>
     </PreviewCardRootContext.Provider>
   );
 }

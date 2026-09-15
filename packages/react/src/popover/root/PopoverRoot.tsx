@@ -5,9 +5,7 @@ import { useDismiss, FloatingTree } from '../../floating-ui-react';
 import {
   PopoverRootContext,
   usePopoverRootContext,
-  PopoverOpenContext,
-  PopoverMountedContext,
-  PopoverTransitionStatusContext,
+  PopoverLifecycleContext,
 } from './PopoverRootContext';
 import { PopoverStore, type State as PopoverStoreState } from '../store/PopoverStore';
 import { PopoverHandle } from '../store/PopoverHandle';
@@ -90,17 +88,18 @@ const PopoverRootComponent = fastComponent(function PopoverRootComponent<Payload
 
   const shouldRenderInteractions = open || mounted;
 
+  const lifecycle = React.useMemo(
+    () => ({ open, mounted, transitionStatus }),
+    [open, mounted, transitionStatus],
+  );
+
   return (
     <PopoverRootContext.Provider value={store as PopoverRootContext<unknown>}>
-      <PopoverOpenContext.Provider value={open}>
-        <PopoverMountedContext.Provider value={mounted}>
-          <PopoverTransitionStatusContext.Provider value={transitionStatus}>
-            {handle && <PopupHandleAttachment handle={handle} store={store} />}
-            {shouldRenderInteractions && <PopoverInteractions store={store} modal={modal} />}
-            {typeof children === 'function' ? children({ payload }) : children}
-          </PopoverTransitionStatusContext.Provider>
-        </PopoverMountedContext.Provider>
-      </PopoverOpenContext.Provider>
+      <PopoverLifecycleContext.Provider value={lifecycle}>
+        {handle && <PopupHandleAttachment handle={handle} store={store} />}
+        {shouldRenderInteractions && <PopoverInteractions store={store} modal={modal} />}
+        {typeof children === 'function' ? children({ payload }) : children}
+      </PopoverLifecycleContext.Provider>
     </PopoverRootContext.Provider>
   );
 });

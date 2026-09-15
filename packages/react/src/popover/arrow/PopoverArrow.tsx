@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { usePopoverPositionerContext } from '../positioner/PopoverPositionerContext';
-import { usePopoverRootContext, PopoverOpenContext } from '../root/PopoverRootContext';
+import { usePopoverRootContext, PopoverLifecycleContext } from '../root/PopoverRootContext';
 import type { Align, Side } from '../../internals/useAnchorPositioning';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { popupStateMapping } from '../../utils/popupStateMapping';
@@ -20,7 +20,7 @@ export const PopoverArrow = React.forwardRef(function PopoverArrow(
   const { render, className, style, ...elementProps } = componentProps;
 
   usePopoverRootContext();
-  const open = React.useContext(PopoverOpenContext);
+  const { open } = React.useContext(PopoverLifecycleContext);
   const { arrowRef, side, align, arrowUncentered, arrowStyles } = usePopoverPositionerContext();
 
   const state: PopoverArrowState = {

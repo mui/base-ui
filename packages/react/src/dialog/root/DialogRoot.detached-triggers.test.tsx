@@ -16,6 +16,77 @@ describe('<Dialog.Root />', () => {
   describe('handle-backed root ownership', () => {
     type NumberPayload = { payload: number | undefined };
 
+    it('keeps controlled popup lifecycle and focus in sync with detached triggers', async () => {
+      const handle = Dialog.createHandle<number>();
+      const onOpenChangeComplete = vi.fn();
+      const openingCommits: Array<{ hidden: boolean; open: boolean }> = [];
+
+      function recordOpeningCommit(element: HTMLDivElement | null) {
+        if (element) {
+          openingCommits.push({
+            hidden: element.hasAttribute('hidden'),
+            open: element.hasAttribute('data-open'),
+          });
+        }
+      }
+
+      function App() {
+        const [open, setOpen] = React.useState(false);
+
+        return (
+          <React.Fragment>
+            {[1, 2].map((payload) => (
+              <Dialog.Trigger key={payload} handle={handle} payload={payload}>
+                Trigger {payload}
+              </Dialog.Trigger>
+            ))}
+            <Dialog.Root
+              handle={handle}
+              open={open}
+              onOpenChange={(nextOpen) => React.startTransition(() => setOpen(nextOpen))}
+              onOpenChangeComplete={onOpenChangeComplete}
+            >
+              {({ payload }) => (
+                <Dialog.Portal keepMounted>
+                  {open && (
+                    <Dialog.Popup ref={recordOpeningCommit}>
+                      <Dialog.Title>Popup {payload}</Dialog.Title>
+                      <Dialog.Close>Close</Dialog.Close>
+                    </Dialog.Popup>
+                  )}
+                </Dialog.Portal>
+              )}
+            </Dialog.Root>
+          </React.Fragment>
+        );
+      }
+
+      const { user } = await render(<App />);
+      const firstTrigger = screen.getByRole('button', { name: 'Trigger 1' });
+      const secondTrigger = screen.getByRole('button', { name: 'Trigger 2' });
+
+      await user.click(firstTrigger);
+      expect(openingCommits[0]).toEqual({ hidden: false, open: true });
+      expect(screen.getByRole('dialog', { name: 'Popup 1' })).not.toBe(null);
+      expect(firstTrigger).toHaveAttribute('aria-expanded', 'true');
+      expect(secondTrigger).toHaveAttribute('aria-expanded', 'false');
+
+      await user.click(screen.getByRole('button', { name: 'Close' }));
+      expect(firstTrigger).toHaveFocus();
+      expect(firstTrigger).toHaveAttribute('aria-expanded', 'false');
+      expect(handle.isOpen).toBe(false);
+
+      await user.tab();
+      expect(secondTrigger).toHaveFocus();
+      await user.keyboard('{Enter}');
+      expect(screen.getByRole('dialog', { name: 'Popup 2' })).not.toBe(null);
+      expect(secondTrigger).toHaveAttribute('aria-expanded', 'true');
+
+      await user.click(screen.getByRole('button', { name: 'Close' }));
+      expect(secondTrigger).toHaveFocus();
+      expect(onOpenChangeComplete.mock.calls.filter(([value]) => value === false)).toHaveLength(2);
+    });
+
     it('hydrates a detached trigger from the stable fallback store', async () => {
       const handle = Dialog.createHandle();
 

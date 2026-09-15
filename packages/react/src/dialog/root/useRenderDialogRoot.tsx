@@ -4,9 +4,7 @@ import { DialogInteractions } from './useDialogRoot';
 import {
   DialogRootContext,
   useDialogRootContext,
-  DialogOpenContext,
-  DialogMountedContext,
-  DialogTransitionStatusContext,
+  DialogLifecycleContext,
 } from './DialogRootContext';
 import { DialogStore } from '../store/DialogStore';
 import type { DialogRootProps } from './DialogRoot';
@@ -96,23 +94,24 @@ export function useRenderDialogRoot<Payload>(
 
   const shouldRenderInteractions = open || mounted;
 
+  const lifecycle = React.useMemo(
+    () => ({ open, mounted, transitionStatus }),
+    [open, mounted, transitionStatus],
+  );
+
   return (
     <DialogRootContext.Provider value={store as DialogStore<unknown>}>
-      <DialogOpenContext.Provider value={open}>
-        <DialogMountedContext.Provider value={mounted}>
-          <DialogTransitionStatusContext.Provider value={transitionStatus}>
-            {handle && <PopupHandleAttachment handle={handle} store={store} />}
-            {shouldRenderInteractions && (
-              <DialogInteractions
-                store={store}
-                parentContext={parentStore?.context}
-                isDrawer={isDrawer}
-              />
-            )}
-            {typeof children === 'function' ? children({ payload }) : children}
-          </DialogTransitionStatusContext.Provider>
-        </DialogMountedContext.Provider>
-      </DialogOpenContext.Provider>
+      <DialogLifecycleContext.Provider value={lifecycle}>
+        {handle && <PopupHandleAttachment handle={handle} store={store} />}
+        {shouldRenderInteractions && (
+          <DialogInteractions
+            store={store}
+            parentContext={parentStore?.context}
+            isDrawer={isDrawer}
+          />
+        )}
+        {typeof children === 'function' ? children({ payload }) : children}
+      </DialogLifecycleContext.Provider>
     </DialogRootContext.Provider>
   );
 }

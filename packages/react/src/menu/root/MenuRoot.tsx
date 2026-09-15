@@ -16,13 +16,7 @@ import {
   useTypeahead,
   useSyncedFloatingRootContext,
 } from '../../floating-ui-react';
-import {
-  MenuRootContext,
-  useMenuRootContext,
-  MenuOpenContext,
-  MenuMountedContext,
-  MenuTransitionStatusContext,
-} from './MenuRootContext';
+import { MenuRootContext, useMenuRootContext, MenuLifecycleContext } from './MenuRootContext';
 import { MenubarContext, useMenubarContext } from '../../menubar/MenubarContext';
 import { TYPEAHEAD_RESET_MS } from '../../internals/constants';
 import { useDirection } from '../../internals/direction-context/DirectionContext';
@@ -637,16 +631,17 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
     [store, parentFromContext],
   );
 
+  const lifecycle = React.useMemo(
+    () => ({ open, mounted, transitionStatus }),
+    [open, mounted, transitionStatus],
+  );
+
   const content = (
     <MenuRootContext.Provider value={context as MenuRootContext}>
-      <MenuOpenContext.Provider value={open}>
-        <MenuMountedContext.Provider value={mounted}>
-          <MenuTransitionStatusContext.Provider value={transitionStatus}>
-            {handle && <PopupHandleAttachment handle={handle} store={store} />}
-            {typeof children === 'function' ? children({ payload }) : children}
-          </MenuTransitionStatusContext.Provider>
-        </MenuMountedContext.Provider>
-      </MenuOpenContext.Provider>
+      <MenuLifecycleContext.Provider value={lifecycle}>
+        {handle && <PopupHandleAttachment handle={handle} store={store} />}
+        {typeof children === 'function' ? children({ payload }) : children}
+      </MenuLifecycleContext.Provider>
     </MenuRootContext.Provider>
   );
 

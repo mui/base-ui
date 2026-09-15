@@ -1,10 +1,6 @@
 'use client';
 import * as React from 'react';
-import {
-  useTooltipRootContext,
-  TooltipOpenContext,
-  TooltipTransitionStatusContext,
-} from '../root/TooltipRootContext';
+import { useTooltipRootContext, TooltipLifecycleContext } from '../root/TooltipRootContext';
 import { useTooltipPositionerContext } from '../positioner/TooltipPositionerContext';
 import type { BaseUIComponentProps } from '../../internals/types';
 import type { Align, Side } from '../../internals/useAnchorPositioning';
@@ -31,9 +27,8 @@ export const TooltipPopup = React.forwardRef(function TooltipPopup(
   const store = useTooltipRootContext();
   const { side, align } = useTooltipPositionerContext();
 
-  const open = React.useContext(TooltipOpenContext);
+  const { open, transitionStatus } = React.useContext(TooltipLifecycleContext);
   const instantType = store.useState('instantType');
-  const transitionStatus = React.useContext(TooltipTransitionStatusContext);
   const popupProps = store.useState('popupProps');
   const floatingContext = store.useState('floatingRootContext');
   const disabled = store.useState('disabled');

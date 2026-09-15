@@ -3,12 +3,7 @@ import * as React from 'react';
 import { inertValue } from '@base-ui/utils/inertValue';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { FloatingNode, useFloatingNodeId } from '../../floating-ui-react';
-import {
-  usePopoverRootContext,
-  PopoverOpenContext,
-  PopoverMountedContext,
-  PopoverTransitionStatusContext,
-} from '../root/PopoverRootContext';
+import { usePopoverRootContext, PopoverLifecycleContext } from '../root/PopoverRootContext';
 import { PopoverPositionerContext } from './PopoverPositionerContext';
 import {
   useAnchorPositioning,
@@ -61,15 +56,13 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
   const nodeId = useFloatingNodeId();
 
   const floatingRootContext = store.useState('floatingRootContext');
-  const mounted = React.useContext(PopoverMountedContext);
-  const open = React.useContext(PopoverOpenContext);
+  const { mounted, open, transitionStatus } = React.useContext(PopoverLifecycleContext);
   const openReason = store.useState('openChangeReason');
   const triggerElement = store.useState('activeTriggerElement');
   const modal = store.useState('modal');
   const openMethod = store.useState('openMethod');
   const positionerElement = store.useState('positionerElement');
   const instantType = store.useState('instantType');
-  const transitionStatus = React.useContext(PopoverTransitionStatusContext);
   const adaptiveOrigin = store.useState('adaptiveOrigin');
 
   const prevTriggerElementRef = React.useRef<Element | null>(null);

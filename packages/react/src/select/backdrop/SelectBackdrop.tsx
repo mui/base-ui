@@ -1,12 +1,7 @@
 'use client';
 import * as React from 'react';
 import type { BaseUIComponentProps } from '../../internals/types';
-import {
-  useSelectRootContext,
-  SelectOpenContext,
-  SelectMountedContext,
-  SelectTransitionStatusContext,
-} from '../root/SelectRootContext';
+import { useSelectRootContext, SelectLifecycleContext } from '../root/SelectRootContext';
 import { popupStateMapping } from '../../utils/popupStateMapping';
 import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
 import type { TransitionStatus } from '../../internals/useTransitionStatus';
@@ -32,9 +27,7 @@ export const SelectBackdrop = React.forwardRef(function SelectBackdrop(
 
   useSelectRootContext();
 
-  const open = React.useContext(SelectOpenContext);
-  const mounted = React.useContext(SelectMountedContext);
-  const transitionStatus = React.useContext(SelectTransitionStatusContext);
+  const { open, mounted, transitionStatus } = React.useContext(SelectLifecycleContext);
 
   const state: SelectBackdropState = {
     open,

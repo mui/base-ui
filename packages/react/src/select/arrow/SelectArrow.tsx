@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useSelectPositionerContext } from '../positioner/SelectPositionerContext';
-import { useSelectRootContext, SelectOpenContext } from '../root/SelectRootContext';
+import { useSelectRootContext, SelectLifecycleContext } from '../root/SelectRootContext';
 import type { BaseUIComponentProps } from '../../internals/types';
 import type { Align, Side } from '../../internals/useAnchorPositioning';
 import { popupTransitionStateMapping } from '../../utils/popupStateMapping';
@@ -23,7 +23,7 @@ export const SelectArrow = React.forwardRef(function SelectArrow(
   const { side, align, arrowRef, arrowStyles, arrowUncentered, alignItemWithTriggerActive } =
     useSelectPositionerContext();
 
-  const open = React.useContext(SelectOpenContext);
+  const { open } = React.useContext(SelectLifecycleContext);
 
   const state: SelectArrowState = {
     open,

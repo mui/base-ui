@@ -1,11 +1,6 @@
 'use client';
 import * as React from 'react';
-import {
-  usePreviewCardRootContext,
-  PreviewCardOpenContext,
-  PreviewCardMountedContext,
-  PreviewCardTransitionStatusContext,
-} from '../root/PreviewCardContext';
+import { usePreviewCardRootContext, PreviewCardLifecycleContext } from '../root/PreviewCardContext';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { popupTransitionStateMapping } from '../../utils/popupStateMapping';
 import type { TransitionStatus } from '../../internals/useTransitionStatus';
@@ -24,9 +19,7 @@ export const PreviewCardBackdrop = React.forwardRef(function PreviewCardBackdrop
   const { render, className, style, ...elementProps } = componentProps;
 
   usePreviewCardRootContext();
-  const open = React.useContext(PreviewCardOpenContext);
-  const mounted = React.useContext(PreviewCardMountedContext);
-  const transitionStatus = React.useContext(PreviewCardTransitionStatusContext);
+  const { open, mounted, transitionStatus } = React.useContext(PreviewCardLifecycleContext);
 
   const state: PreviewCardBackdropState = {
     open,

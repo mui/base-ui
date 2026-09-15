@@ -5,7 +5,14 @@ import { Combobox } from '@base-ui/react/combobox';
 import { Drawer } from '@base-ui/react/drawer';
 import { Slider } from '@base-ui/react/slider';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
+import {
+  act,
+  createEvent,
+  fireEvent,
+  flushMicrotasks,
+  screen,
+  waitFor,
+} from '@mui/internal-test-utils';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { useDialogRootContext } from '../../dialog/root/DialogRootContext';
 import { useDrawerProviderContext } from '../provider/DrawerProviderContext';
@@ -3173,11 +3180,21 @@ describe('<Drawer.Viewport />', () => {
       const originalElementFromPoint = document.elementFromPoint;
       document.elementFromPoint = () => popup;
 
+      function firePointer(
+        type: 'pointerDown' | 'pointerMove' | 'pointerUp',
+        options: PointerEventInit & { timeStamp: number },
+      ) {
+        const event = createEvent[type](viewport, options);
+        // Event constructors ignore timeStamp, so assign it explicitly to pin the swipe velocity.
+        Object.defineProperty(event, 'timeStamp', { value: options.timeStamp });
+        fireEvent(viewport, event);
+      }
+
       try {
         // A mostly horizontal flick: cumulative |deltaX| stays above |deltaY| on every
         // move so no swipe direction is ever attributed, while the final samples carry
         // fast downward velocity from the finger arcing down at lift.
-        fireEvent.pointerDown(viewport, {
+        firePointer('pointerDown', {
           button: 0,
           buttons: 1,
           pointerId: 1,
@@ -3187,7 +3204,7 @@ describe('<Drawer.Viewport />', () => {
           timeStamp: 1000,
         });
         vi.setSystemTime(new Date(1050));
-        fireEvent.pointerMove(viewport, {
+        firePointer('pointerMove', {
           buttons: 1,
           pointerId: 1,
           clientX: 120,
@@ -3196,7 +3213,7 @@ describe('<Drawer.Viewport />', () => {
           timeStamp: 1050,
         });
         vi.setSystemTime(new Date(1100));
-        fireEvent.pointerMove(viewport, {
+        firePointer('pointerMove', {
           buttons: 1,
           pointerId: 1,
           clientX: 200,
@@ -3205,7 +3222,7 @@ describe('<Drawer.Viewport />', () => {
           timeStamp: 1100,
         });
         vi.setSystemTime(new Date(1120));
-        fireEvent.pointerMove(viewport, {
+        firePointer('pointerMove', {
           buttons: 1,
           pointerId: 1,
           clientX: 240,
@@ -3214,7 +3231,7 @@ describe('<Drawer.Viewport />', () => {
           timeStamp: 1120,
         });
         vi.setSystemTime(new Date(1130));
-        fireEvent.pointerUp(viewport, {
+        firePointer('pointerUp', {
           pointerId: 1,
           clientX: 240,
           clientY: 55,

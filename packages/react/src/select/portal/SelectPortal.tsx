@@ -3,7 +3,7 @@ import * as React from 'react';
 import { useStore } from '@base-ui/utils/store';
 import { FloatingPortal } from '../../floating-ui-react';
 import { type BaseUIComponentProps } from '../../internals/types';
-import { useSelectRootContext, SelectMountedContext } from '../root/SelectRootContext';
+import { useSelectRootContext, SelectLifecycleContext } from '../root/SelectRootContext';
 import { selectors } from '../store';
 
 /**
@@ -18,7 +18,7 @@ export const SelectPortal = React.forwardRef(function SelectPortal(
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const { store } = useSelectRootContext();
-  const mounted = React.useContext(SelectMountedContext);
+  const { mounted } = React.useContext(SelectLifecycleContext);
   const forceMount = useStore(store, selectors.forceMount);
 
   const shouldRender = mounted || forceMount;

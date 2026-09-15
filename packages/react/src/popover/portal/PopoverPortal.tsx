@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { FloatingPortal } from '../../floating-ui-react';
 import { type BaseUIComponentProps } from '../../internals/types';
-import { usePopoverRootContext, PopoverMountedContext } from '../root/PopoverRootContext';
+import { usePopoverRootContext, PopoverLifecycleContext } from '../root/PopoverRootContext';
 import { PopoverPortalContext } from './PopoverPortalContext';
 
 /**
@@ -19,7 +19,7 @@ export const PopoverPortal = React.forwardRef(function PopoverPortal(
   const { keepMounted = false, ...portalProps } = props;
 
   usePopoverRootContext();
-  const mounted = React.useContext(PopoverMountedContext);
+  const { mounted } = React.useContext(PopoverLifecycleContext);
 
   const shouldRender = mounted || keepMounted;
   if (!shouldRender) {

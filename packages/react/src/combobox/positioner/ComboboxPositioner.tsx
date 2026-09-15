@@ -7,9 +7,7 @@ import { inertValue } from '@base-ui/utils/inertValue';
 import {
   useComboboxFloatingContext,
   useComboboxRootContext,
-  ComboboxOpenContext,
-  ComboboxMountedContext,
-  ComboboxTransitionStatusContext,
+  ComboboxLifecycleContext,
 } from '../root/ComboboxRootContext';
 import { ComboboxPositionerContext } from './ComboboxPositionerContext';
 import { useListEmpty } from '../utils/parts';
@@ -63,15 +61,13 @@ export const ComboboxPositioner = React.forwardRef(function ComboboxPositioner(
   const keepMounted = useComboboxPortalContext();
 
   const modal = useStore(store, selectors.modal);
-  const open = React.useContext(ComboboxOpenContext);
-  const mounted = React.useContext(ComboboxMountedContext);
+  const { open, mounted, transitionStatus } = React.useContext(ComboboxLifecycleContext);
   const openMethod = useStore(store, selectors.openMethod);
   const positionerElement = useStore(store, selectors.positionerElement);
   const triggerElement = useStore(store, selectors.triggerElement);
   const inputElement = useStore(store, selectors.inputElement);
   const inputGroupElement = useStore(store, selectors.inputGroupElement);
   const inputInsidePopup = useStore(store, selectors.inputInsidePopup);
-  const transitionStatus = React.useContext(ComboboxTransitionStatusContext);
 
   const empty = useListEmpty();
   const resolvedAnchor =

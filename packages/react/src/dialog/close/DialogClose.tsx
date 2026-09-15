@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useDialogRootContext, DialogOpenContext } from '../root/DialogRootContext';
+import { useDialogRootContext, DialogLifecycleContext } from '../root/DialogRootContext';
 import { useRenderElement } from '../../internals/useRenderElement';
 import type { BaseUIComponentProps, NativeButtonProps } from '../../internals/types';
 import { useButton } from '../../internals/use-button';
@@ -27,7 +27,7 @@ export const DialogClose = React.forwardRef(function DialogClose(
   } = componentProps;
 
   const store = useDialogRootContext();
-  const open = React.useContext(DialogOpenContext);
+  const { open } = React.useContext(DialogLifecycleContext);
 
   const { getButtonProps, buttonRef } = useButton({
     disabled,

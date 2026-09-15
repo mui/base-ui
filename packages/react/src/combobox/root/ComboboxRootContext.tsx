@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import type { TransitionStatus } from '../../internals/useTransitionStatus';
+import type { PopupLifecycleState } from '../../utils/popups/store';
 import { ComboboxStore } from '../store';
 import type { FloatingRootContext } from '../../floating-ui-react';
 
@@ -66,7 +66,8 @@ export function useComboboxHasItemsContext() {
   return React.useContext(ComboboxHasItemsContext);
 }
 
-// Separate contexts preserve subscriptions to individual lifecycle values.
-export const ComboboxOpenContext = React.createContext(false);
-export const ComboboxMountedContext = React.createContext(false);
-export const ComboboxTransitionStatusContext = React.createContext<TransitionStatus>(undefined);
+export const ComboboxLifecycleContext = React.createContext<PopupLifecycleState>({
+  open: false,
+  mounted: false,
+  transitionStatus: undefined,
+});

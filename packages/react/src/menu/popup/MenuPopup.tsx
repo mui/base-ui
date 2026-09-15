@@ -2,12 +2,7 @@
 import * as React from 'react';
 import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import { FloatingFocusManager, useHoverFloatingInteraction } from '../../floating-ui-react';
-import {
-  useMenuRootContext,
-  MenuOpenContext,
-  MenuMountedContext,
-  MenuTransitionStatusContext,
-} from '../root/MenuRootContext';
+import { useMenuRootContext, MenuLifecycleContext } from '../root/MenuRootContext';
 import type { MenuRoot } from '../root/MenuRoot';
 import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
 import { useRenderElement } from '../../internals/useRenderElement';
@@ -38,10 +33,8 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
   const { side, align } = useMenuPositionerContext();
   const insideToolbar = useToolbarRootContext(true) != null;
 
-  const open = React.useContext(MenuOpenContext);
-  const transitionStatus = React.useContext(MenuTransitionStatusContext);
+  const { open, transitionStatus, mounted } = React.useContext(MenuLifecycleContext);
   const popupProps = store.useState('popupProps');
-  const mounted = React.useContext(MenuMountedContext);
   const instantType = store.useState('instantType');
   const activeTriggerElement = store.useState('activeTriggerElement');
   const parent = store.useState('parent');

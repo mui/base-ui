@@ -1,12 +1,7 @@
 'use client';
 import * as React from 'react';
 import type { BaseUIComponentProps } from '../../internals/types';
-import {
-  useComboboxRootContext,
-  ComboboxOpenContext,
-  ComboboxMountedContext,
-  ComboboxTransitionStatusContext,
-} from '../root/ComboboxRootContext';
+import { useComboboxRootContext, ComboboxLifecycleContext } from '../root/ComboboxRootContext';
 import { popupStateMapping } from '../../utils/popupStateMapping';
 import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
 import type { TransitionStatus } from '../../internals/useTransitionStatus';
@@ -32,9 +27,7 @@ export const ComboboxBackdrop = React.forwardRef(function ComboboxBackdrop(
 
   useComboboxRootContext();
 
-  const open = React.useContext(ComboboxOpenContext);
-  const mounted = React.useContext(ComboboxMountedContext);
-  const transitionStatus = React.useContext(ComboboxTransitionStatusContext);
+  const { open, mounted, transitionStatus } = React.useContext(ComboboxLifecycleContext);
 
   const state: ComboboxBackdropState = {
     open,

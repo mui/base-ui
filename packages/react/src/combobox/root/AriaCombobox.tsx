@@ -34,9 +34,7 @@ import {
   ComboboxHasItemsContext,
   ComboboxRootContext,
   ComboboxInputValueContext,
-  ComboboxOpenContext,
-  ComboboxMountedContext,
-  ComboboxTransitionStatusContext,
+  ComboboxLifecycleContext,
 } from './ComboboxRootContext';
 import { selectors, type State as StoreState } from '../store';
 import { usePopupCloseComplete } from '../../utils/popups/usePopupCloseComplete';
@@ -1628,23 +1626,24 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
     </React.Fragment>
   );
 
+  const lifecycle = React.useMemo(
+    () => ({ open, mounted, transitionStatus }),
+    [open, mounted, transitionStatus],
+  );
+
   return (
     <ComboboxRootContext.Provider value={store}>
-      <ComboboxOpenContext.Provider value={open}>
-        <ComboboxMountedContext.Provider value={mounted}>
-          <ComboboxTransitionStatusContext.Provider value={transitionStatus}>
-            <ComboboxFloatingContext.Provider value={floatingRootContext}>
-              <ComboboxHasItemsContext.Provider value={hasItems}>
-                <ComboboxDerivedItemsContext.Provider value={itemsContextValue}>
-                  <ComboboxInputValueContext.Provider value={inputValue}>
-                    {children}
-                  </ComboboxInputValueContext.Provider>
-                </ComboboxDerivedItemsContext.Provider>
-              </ComboboxHasItemsContext.Provider>
-            </ComboboxFloatingContext.Provider>
-          </ComboboxTransitionStatusContext.Provider>
-        </ComboboxMountedContext.Provider>
-      </ComboboxOpenContext.Provider>
+      <ComboboxLifecycleContext.Provider value={lifecycle}>
+        <ComboboxFloatingContext.Provider value={floatingRootContext}>
+          <ComboboxHasItemsContext.Provider value={hasItems}>
+            <ComboboxDerivedItemsContext.Provider value={itemsContextValue}>
+              <ComboboxInputValueContext.Provider value={inputValue}>
+                {children}
+              </ComboboxInputValueContext.Provider>
+            </ComboboxDerivedItemsContext.Provider>
+          </ComboboxHasItemsContext.Provider>
+        </ComboboxFloatingContext.Provider>
+      </ComboboxLifecycleContext.Provider>
     </ComboboxRootContext.Provider>
   );
 }

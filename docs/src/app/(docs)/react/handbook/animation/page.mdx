@@ -219,10 +219,10 @@ function App() {
 ## View Transitions
 
 React 19.3 ships the [`<ViewTransition>`](https://react.dev/reference/react/ViewTransition) component, which animates DOM changes using the browser's [View Transition API](https://developer.mozilla.org/en-US/docs/Web/API/View_Transition_API).
-Base UI components work with it as long as two conditions are met:
+Base UI components work with it as long as two conditions are met:
 
-- The update that changes the UI runs inside a [Transition](https://react.dev/reference/react/startTransition). Base UI applies its own state changes as regular updates, so control the state yourself and wrap the update in `startTransition`.
-- React, not Base UI, removes the elements being animated. Components like `<Tabs.Panel>` stay mounted while their CSS exit animation plays and are removed a frame later, outside of the Transition, which makes the browser skip the view transition. Render such elements conditionally so they leave the tree within the Transition.
+- The update that changes the UI runs inside a [Transition](https://react.dev/reference/react/startTransition). Base UI applies its own state changes as regular updates, so control the state yourself and wrap the update in `startTransition`.
+- React, not Base UI, removes the elements being animated. Components like `<Tabs.Panel>` stay mounted while their CSS exit animation plays and are removed a frame later, outside of the Transition, which makes the browser skip the view transition. Render such elements conditionally so they leave the tree within the Transition.
 
 The `::view-transition-*` pseudo-elements are rendered on the root element, so their styles must live in a global stylesheet rather than a CSS Module.
 

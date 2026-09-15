@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import type { TransitionStatus } from '../../internals/useTransitionStatus';
+import type { PopupLifecycleState } from '../../utils/popups/store';
 import { PreviewCardStore } from '../store/PreviewCardStore';
 
 export type PreviewCardRootContext<Payload = unknown> = PreviewCardStore<Payload>;
@@ -22,7 +22,8 @@ export function usePreviewCardRootContext(optional?: boolean) {
   return context;
 }
 
-// Separate contexts preserve subscriptions to individual lifecycle values.
-export const PreviewCardOpenContext = React.createContext(false);
-export const PreviewCardMountedContext = React.createContext(false);
-export const PreviewCardTransitionStatusContext = React.createContext<TransitionStatus>(undefined);
+export const PreviewCardLifecycleContext = React.createContext<PopupLifecycleState>({
+  open: false,
+  mounted: false,
+  transitionStatus: undefined,
+});

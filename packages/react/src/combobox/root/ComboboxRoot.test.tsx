@@ -296,15 +296,10 @@ describe('<Combobox.Root />', () => {
       const input = await screen.findByTestId('input');
       await waitFor(() => expect(input).toHaveFocus());
 
-      await user.type(input, 'ban');
-      // Closing detaches store-backed refs synchronously; await their cascading updates.
-      // eslint-disable-next-line testing-library/no-unnecessary-act
-      await act(async () => {
-        fireEvent.keyDown(input, { key: 'ArrowDown' });
-        fireEvent.keyUp(input, { key: 'ArrowDown' });
-        fireEvent.keyDown(input, { key: 'Enter' });
-        fireEvent.keyUp(input, { key: 'Enter' });
-      });
+      // user-event synthesizes change on blur, re-entering act during the focused input's
+      // unmount in Chromium. Set the query directly in these close/reopen tests.
+      fireEvent.change(input, { target: { value: 'ban' } });
+      await user.keyboard('{ArrowDown}{Enter}');
 
       await waitFor(() => expect(screen.queryByRole('dialog')).toBe(null));
       expect(trigger).toHaveFocus();
@@ -350,14 +345,8 @@ describe('<Combobox.Root />', () => {
 
       const trigger = screen.getByTestId('trigger');
       await user.click(trigger);
-      await user.type(await screen.findByTestId('input'), 'ban');
-      // Closing detaches store-backed refs synchronously; await their cascading updates.
-      // eslint-disable-next-line testing-library/no-unnecessary-act
-      await act(async () => {
-        const target = screen.getByTestId('input');
-        fireEvent.keyDown(target, { key: 'Escape' });
-        fireEvent.keyUp(target, { key: 'Escape' });
-      });
+      fireEvent.change(await screen.findByTestId('input'), { target: { value: 'ban' } });
+      await user.keyboard('{Escape}');
 
       await waitFor(() => expect(screen.queryByRole('dialog')).toBe(null));
       expect(trigger).toHaveFocus();
@@ -2703,18 +2692,12 @@ describe('<Combobox.Root />', () => {
 
         await user.click(screen.getByTestId('trigger'));
         const input = await screen.findByTestId('input');
-        await user.type(input, 'cherry');
+        fireEvent.change(input, { target: { value: 'cherry' } });
         await waitFor(() => {
           expect(screen.queryByRole('option', { name: 'banana' })).toBe(null);
         });
 
-        // Closing detaches store-backed refs synchronously; await their cascading updates.
-        // eslint-disable-next-line testing-library/no-unnecessary-act
-        await act(async () => {
-          const target = screen.getByTestId('input');
-          fireEvent.keyDown(target, { key: 'Escape' });
-          fireEvent.keyUp(target, { key: 'Escape' });
-        });
+        await user.keyboard('{Escape}');
         await waitFor(() => {
           expect(screen.queryByRole('listbox')).toBe(null);
         });
@@ -10069,12 +10052,8 @@ describe('<Combobox.Root />', () => {
         await screen.findByRole('dialog', { name: 'Fruit chooser' });
         const input = await screen.findByTestId('dialog-input');
 
-        await user.type(input, 'ap');
-        // Closing detaches store-backed refs synchronously; await their cascading updates.
-        // eslint-disable-next-line testing-library/no-unnecessary-act
-        await act(async () => {
-          fireEvent.click(screen.getByRole('option', { name: 'Apple' }));
-        });
+        fireEvent.change(input, { target: { value: 'ap' } });
+        await user.click(screen.getByRole('option', { name: 'Apple' }));
 
         await waitFor(() => {
           expect(screen.queryByRole('dialog', { name: 'Fruit chooser' })).toBe(null);
@@ -10098,12 +10077,8 @@ describe('<Combobox.Root />', () => {
         await screen.findByRole('dialog', { name: 'Fruit chooser' });
         const input = await screen.findByTestId('dialog-input');
 
-        await user.type(input, 'ap');
-        // Closing detaches store-backed refs synchronously; await their cascading updates.
-        // eslint-disable-next-line testing-library/no-unnecessary-act
-        await act(async () => {
-          fireEvent.click(screen.getByRole('option', { name: 'Apple' }));
-        });
+        fireEvent.change(input, { target: { value: 'ap' } });
+        await user.click(screen.getByRole('option', { name: 'Apple' }));
 
         await waitFor(() => {
           expect(screen.queryByRole('dialog', { name: 'Fruit chooser' })).toBe(null);

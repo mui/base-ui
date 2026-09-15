@@ -5,7 +5,7 @@ import type { BaseUIComponentProps } from '../../internals/types';
 import type { Side, Align } from '../../internals/useAnchorPositioning';
 import { popupStateMapping } from '../../utils/popupStateMapping';
 import { useRenderElement } from '../../internals/useRenderElement';
-import { useTooltipRootContext, TooltipOpenContext } from '../root/TooltipRootContext';
+import { useTooltipRootContext, TooltipLifecycleContext } from '../root/TooltipRootContext';
 
 /**
  * Displays an element positioned against the tooltip anchor.
@@ -22,7 +22,7 @@ export const TooltipArrow = React.forwardRef(function TooltipArrow(
   const store = useTooltipRootContext();
   const { arrowRef, side, align, arrowUncentered, arrowStyles } = useTooltipPositionerContext();
 
-  const open = React.useContext(TooltipOpenContext);
+  const { open } = React.useContext(TooltipLifecycleContext);
   const instantType = store.useState('instantType');
 
   const state: TooltipArrowState = {
