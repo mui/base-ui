@@ -140,6 +140,30 @@ function RadioApp() {
   );
 }
 
+function MouseDownApp() {
+  const [open, setOpen] = React.useState(false);
+  const { refs, context } = useFloating({
+    open,
+    onOpenChange: setOpen,
+  });
+  const { getReferenceProps, getFloatingProps } = useTestInteractions([
+    useClick(context, { event: 'mousedown' }),
+  ]);
+
+  return (
+    <>
+      <button data-testid="reference" {...getReferenceProps({ ref: refs.setReference })} />
+      {open && (
+        <FloatingFocusManager context={context}>
+          <div role="dialog" {...getFloatingProps({ ref: refs.setFloating })}>
+            <button data-testid="one">close</button>
+          </div>
+        </FloatingFocusManager>
+      )}
+    </>
+  );
+}
+
 interface DialogProps {
   open?: boolean;
   render: (props: { close: () => void }) => React.ReactNode;
@@ -220,6 +244,29 @@ describe('FloatingFocusManager', () => {
         fireEvent.click(screen.getByTestId('reference'));
         await flushMicrotasks();
         expect(screen.getByTestId('input')).toHaveFocus();
+      });
+
+      test('focuses without a frame delay when a screen reader press opens it', async () => {
+        render(<MouseDownApp />);
+
+        // A screen reader press is a `mousedown` with `detail: 0`.
+        fireEvent.mouseDown(screen.getByTestId('reference'), { detail: 0 });
+
+        vi.spyOn(window, 'requestAnimationFrame').mockImplementation(() => 0);
+        await flushMicrotasks();
+
+        expect(screen.getByTestId('one')).toHaveFocus();
+      });
+
+      test('keeps the frame delay for a real mouse press', async () => {
+        render(<MouseDownApp />);
+
+        fireEvent.mouseDown(screen.getByTestId('reference'), { detail: 1 });
+
+        vi.spyOn(window, 'requestAnimationFrame').mockImplementation(() => 0);
+        await flushMicrotasks();
+
+        expect(screen.getByTestId('one')).not.toHaveFocus();
       });
     });
 
