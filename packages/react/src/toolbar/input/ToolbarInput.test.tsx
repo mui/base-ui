@@ -49,6 +49,40 @@ describe('<Toolbar.Input />', () => {
 
       expect(screen.getByTestId('input')).toBe(screen.getByRole('textbox'));
     });
+
+    it('is read-only while disabled', async () => {
+      function TestInput({ disabled }: { disabled: boolean }) {
+        return (
+          <Toolbar.Root>
+            <Toolbar.Input data-testid="input" disabled={disabled} />
+          </Toolbar.Root>
+        );
+      }
+
+      const { setProps } = await render(<TestInput disabled />);
+      const input = screen.getByTestId('input');
+
+      // The input stays editable while disabled because it receives `aria-disabled`
+      // rather than the native `disabled` attribute, so that it remains focusable.
+      // Canceling `keydown` is not enough to reject text: an IME commits composed text
+      // through a channel a canceled `keydown` never reaches. `readOnly` is what
+      // actually prevents text entry.
+      expect(input).not.toHaveAttribute('disabled');
+      expect(input).toHaveAttribute('readonly');
+
+      await setProps({ disabled: false });
+      expect(input).not.toHaveAttribute('readonly');
+    });
+
+    it('keeps an explicit readOnly prop when not disabled', async () => {
+      await render(
+        <Toolbar.Root>
+          <Toolbar.Input data-testid="input" readOnly />
+        </Toolbar.Root>,
+      );
+
+      expect(screen.getByTestId('input')).toHaveAttribute('readonly');
+    });
   });
 
   describe('pointer interactions', () => {
@@ -193,6 +227,27 @@ describe('<Toolbar.Input />', () => {
   });
 
   describe.skipIf(isJSDOM)('disabled', () => {
+    it('does not accept typed text when disabled', async () => {
+      const { user } = await render(
+        <Toolbar.Root>
+          <Toolbar.Button data-testid="button" />
+          <Toolbar.Input disabled />
+        </Toolbar.Root>,
+      );
+
+      const button = screen.getByTestId('button');
+      const input = screen.getByRole('textbox');
+
+      await user.keyboard('[Tab]');
+      expect(button).toHaveFocus();
+
+      await user.keyboard(`[${ARROW_RIGHT}]`);
+      expect(input).toHaveFocus();
+
+      await user.keyboard('abc');
+      expect(input).toHaveValue('');
+    });
+
     it('does not trap keyboard focus when disabled', async () => {
       const { user } = await render(
         <div>
