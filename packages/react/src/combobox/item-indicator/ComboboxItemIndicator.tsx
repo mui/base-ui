@@ -11,6 +11,9 @@ import { transitionStatusMapping } from '../../internals/stateAttributesMapping'
  * Indicates whether the item is selected.
  * Renders a `<span>` element.
  *
+ * To render this without the default checkmark glyph when using `render`, also pass
+ * `children={null}` — for example `<Combobox.ItemIndicator children={null} render={<CustomIcon />} />`.
+ *
  * Documentation: [Base UI Combobox](https://base-ui.com/react/components/combobox)
  */
 export const ComboboxItemIndicator = React.forwardRef(function ComboboxItemIndicator(
@@ -54,10 +57,10 @@ const Inner = React.memo(
         props: [
           {
             'aria-hidden': true,
+            children: '✔️',
           },
           elementProps,
         ],
-        defaultChildren: '✔️',
         stateAttributesMapping: transitionStatusMapping,
       });
 

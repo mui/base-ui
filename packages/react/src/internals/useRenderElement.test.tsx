@@ -649,8 +649,13 @@ describe('useRenderElement', () => {
     });
   });
 
-  describe('option: defaultChildren', () => {
-    const DefaultChildrenTestComponent = React.forwardRef(function DefaultChildrenTestComponent(
+  describe('explicit children={null} under a props-array default', () => {
+    // Some components bake a literal default (e.g. an icon glyph) into the props array
+    // passed to `useRenderElement`. That default is not automatically removed when `render`
+    // replaces the default element — see https://github.com/mui/base-ui/issues/4752 for the
+    // history: making removal automatic would silently change behavior for existing call
+    // sites that use `render` only to swap the tag, so it stays opt-in via `children={null}`.
+    const GlyphTestComponent = React.forwardRef(function GlyphTestComponent(
       componentProps: BaseUIComponentProps<'span', Record<string, never>>,
       forwardedRef: React.ForwardedRef<HTMLSpanElement>,
     ) {
@@ -658,52 +663,26 @@ describe('useRenderElement', () => {
 
       return useRenderElement('span', componentProps, {
         ref: forwardedRef,
-        props: [{ 'aria-hidden': true }, elementProps],
-        defaultChildren: 'DEFAULT',
+        props: [{ 'aria-hidden': true, children: 'DEFAULT' }, elementProps],
       });
     });
 
-    it('renders defaultChildren on the default element path', async () => {
-      const { container } = await render(<DefaultChildrenTestComponent data-testid="icon" />);
+    it('renders the props-array default on the default element path', async () => {
+      const { container } = await render(<GlyphTestComponent />);
       expect(container.firstElementChild).toHaveTextContent('DEFAULT');
     });
 
-    it('lets an explicit children prop override defaultChildren', async () => {
-      const { container } = await render(
-        <DefaultChildrenTestComponent data-testid="icon">CUSTOM</DefaultChildrenTestComponent>,
-      );
-      expect(container.firstElementChild).toHaveTextContent('CUSTOM');
-      expect(container.firstElementChild).not.toHaveTextContent('DEFAULT');
+    it('leaks the default into a childless render element unless opted out', async () => {
+      await render(<GlyphTestComponent render={<span data-testid="custom" />} />);
+      const custom = screen.getByTestId('custom');
+      expect(custom.textContent).toBe('DEFAULT');
     });
 
-    it('does not leak defaultChildren into a childless render element', async () => {
-      // Regression test for https://github.com/mui/base-ui/issues/4752 — a `render` element
-      // with no children of its own must not inherit the component's default content, since
-      // `render` implies the caller fully owns what's rendered.
+    it('removes the default when children={null} is passed alongside render', async () => {
       await render(
-        <DefaultChildrenTestComponent render={<span data-testid="custom" className="my-icon" />} />,
+        <GlyphTestComponent render={<span data-testid="custom" />}>{null}</GlyphTestComponent>,
       );
       const custom = screen.getByTestId('custom');
-      expect(custom).not.toHaveTextContent('DEFAULT');
-      expect(custom.textContent).toBe('');
-    });
-
-    it('preserves a render element that declares its own children', async () => {
-      await render(
-        <DefaultChildrenTestComponent render={<span data-testid="custom">CUSTOM</span>} />,
-      );
-      const custom = screen.getByTestId('custom');
-      expect(custom.textContent).toBe('CUSTOM');
-    });
-
-    it('does not leak defaultChildren into a render function result', async () => {
-      await render(
-        <DefaultChildrenTestComponent
-          render={(props) => <span {...props} data-testid="custom" />}
-        />,
-      );
-      const custom = screen.getByTestId('custom');
-      expect(custom).not.toHaveTextContent('DEFAULT');
       expect(custom.textContent).toBe('');
     });
   });

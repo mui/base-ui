@@ -9,6 +9,9 @@ import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
  * An icon that indicates that the trigger button opens a select popup.
  * Renders a `<span>` element.
  *
+ * To render this without the default arrow glyph when using `render`, also pass
+ * `children={null}` — for example `<Select.Icon children={null} render={<CustomIcon />} />`.
+ *
  * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
  */
 export const SelectIcon = React.forwardRef(function SelectIcon(
@@ -27,8 +30,7 @@ export const SelectIcon = React.forwardRef(function SelectIcon(
   const element = useRenderElement('span', componentProps, {
     state,
     ref: forwardedRef,
-    props: [{ 'aria-hidden': true }, elementProps],
-    defaultChildren: '▼',
+    props: [{ 'aria-hidden': true, children: '▼' }, elementProps],
     stateAttributesMapping: triggerOpenStateMapping,
   });
 

@@ -7,6 +7,9 @@ import { useRenderElement } from '../../internals/useRenderElement';
  * An icon that indicates that the trigger button opens the popup.
  * Renders a `<span>` element.
  *
+ * To render this without the default arrow glyph when using `render`, also pass
+ * `children={null}` — for example `<Combobox.Icon children={null} render={<CustomIcon />} />`.
+ *
  * Documentation: [Base UI Combobox](https://base-ui.com/react/components/combobox)
  */
 export const ComboboxIcon = React.forwardRef(function ComboboxIcon(
@@ -20,10 +23,10 @@ export const ComboboxIcon = React.forwardRef(function ComboboxIcon(
     props: [
       {
         'aria-hidden': true,
+        children: '▼',
       },
       elementProps,
     ],
-    defaultChildren: '▼',
   });
 
   return element;

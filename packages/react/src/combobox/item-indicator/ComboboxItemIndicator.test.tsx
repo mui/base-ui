@@ -17,8 +17,10 @@ describe('<Combobox.ItemIndicator />', () => {
     },
   }));
 
-  it('does not render the default checkmark when `render` is a childless custom element', async () => {
-    // Regression test for https://github.com/mui/base-ui/issues/4752
+  it('removes the default checkmark when `children={null}` is passed alongside `render`', async () => {
+    // See https://github.com/mui/base-ui/issues/4752 — `render` alone does not clear the
+    // default glyph (that would change behavior for call sites using `render` only to swap
+    // the tag); pairing it with `children={null}` is the documented way to opt out.
     await render(
       <Combobox.Root defaultOpen defaultValue="apple">
         <Combobox.Input />
@@ -31,7 +33,9 @@ describe('<Combobox.ItemIndicator />', () => {
                   <Combobox.ItemIndicator
                     keepMounted
                     render={<span data-testid="custom-indicator" className="my-check" />}
-                  />
+                  >
+                    {null}
+                  </Combobox.ItemIndicator>
                 </Combobox.Item>
               </Combobox.List>
             </Combobox.Popup>
