@@ -243,8 +243,8 @@ importers:
         specifier: ^12.0.1
         version: 12.0.1(postcss@8.5.28)
       postcss-import:
-        specifier: ^16.2.0
-        version: 16.2.0(postcss@8.5.28)
+        specifier: ^17.0.0
+        version: 17.0.0(postcss@8.5.28)
       radix-ui:
         specifier: ^1.6.7
         version: 1.6.7(@types/react-dom@19.2.7(@types/react@19.2.18))(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
@@ -8074,9 +8074,9 @@ packages:
     peerDependencies:
       postcss: ^8.5.28
 
-  postcss-import@16.2.0:
-    resolution: {integrity: sha512-0mQUGlSp87Zl70K58RNwQAN1WS9plFE6KWGui9nyK6ninduMyjW/Khaoy/BpBoFTBh7ndAvAKrSKVbwy6vd/BA==}
-    engines: {node: '>=18.0.0'}
+  postcss-import@17.0.0:
+    resolution: {integrity: sha512-qzVMJhcq39KweT7Fp0HcjE5YxL5yI854Q3CtufxDuZKO9HLQUp2rptB9+U0MIj3pT1ZEVXoqnpeC1mSkfYuz4Q==}
+    engines: {node: '>=22.0.0'}
     peerDependencies:
       postcss: ^8.5.28
 
@@ -18674,7 +18674,7 @@ snapshots:
       '@csstools/media-query-list-parser': 5.0.0(@csstools/css-parser-algorithms@4.0.0(@csstools/css-tokenizer@4.0.0))(@csstools/css-tokenizer@4.0.0)
       postcss: 8.5.28
 
-  postcss-import@16.2.0(postcss@8.5.28):
+  postcss-import@17.0.0(postcss@8.5.28):
     dependencies:
       postcss: 8.5.28
       postcss-value-parser: 4.2.0
