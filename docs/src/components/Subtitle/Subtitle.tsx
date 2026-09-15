@@ -1,5 +1,6 @@
 import * as React from 'react';
 import clsx from 'clsx';
+import { LlmsNudge } from 'docs/src/components/LlmsNudge';
 import { MarkdownLink } from './MarkdownLink';
 import { ViewSourceLink } from './ViewSourceLink';
 import './Subtitle.css';
@@ -18,6 +19,8 @@ export function Subtitle({
           <ViewSourceLink />
         </div>
       )}
+      {/* Near the top of the article so main-content extraction keeps it */}
+      <LlmsNudge carrier="image" />
     </div>
   );
 }
