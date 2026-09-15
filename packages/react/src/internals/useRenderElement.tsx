@@ -99,7 +99,9 @@ function useRenderElementProps<
     } else if (Array.isArray(ref)) {
       outProps.ref = useMergedRefsN([outProps.ref, getReactElementRef(renderProp), ...ref]);
     } else {
-      outProps.ref = useMergedRefs(outProps.ref, getReactElementRef(renderProp), ref);
+      // Array.isArray doesn't get rid of readonly arrays https://github.com/microsoft/TypeScript/issues/17002
+      const actualRef = ref as React.Ref<RenderedElementType> | undefined;
+      outProps.ref = useMergedRefs(outProps.ref, getReactElementRef(renderProp), actualRef);
     }
   }
 
@@ -262,7 +264,10 @@ export type UseRenderElementParameters<
   /**
    * The ref to apply to the rendered element.
    */
-  ref?: React.Ref<RenderedElementType> | (React.Ref<RenderedElementType> | undefined)[] | undefined;
+  ref?:
+    | React.Ref<RenderedElementType>
+    | readonly (React.Ref<RenderedElementType> | undefined)[]
+    | undefined;
   /**
    * The state of the component.
    */

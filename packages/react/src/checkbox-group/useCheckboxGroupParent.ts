@@ -96,7 +96,7 @@ export function useCheckboxGroupParent(
           nextValue = none;
         }
 
-        onValueChange(nextValue, eventDetails);
+        onValueChange(nextValue.slice(), eventDetails);
 
         if (!eventDetails.isCanceled) {
           setStatus(nextStatus);
@@ -141,7 +141,7 @@ export function useCheckboxGroupParent(
 
 export interface UseCheckboxGroupParentParameters {
   allValues?: string[] | undefined;
-  value: string[];
+  value: readonly string[];
   onValueChange?:
     | ((
         value: string[],
