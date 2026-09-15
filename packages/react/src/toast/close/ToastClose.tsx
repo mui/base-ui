@@ -26,13 +26,14 @@ export const ToastClose = React.forwardRef(function ToastClose(
   } = componentProps;
 
   const store = useToastProviderContext();
-  const { toast, expanded } = useToastRootContext();
+  const { toast, expanded, hideFromAT } = useToastRootContext();
 
   const [hasFocus, setHasFocus] = React.useState(false);
 
   const { getButtonProps, buttonRef } = useButton({
     disabled,
     native: nativeButton,
+    tabIndex: hideFromAT ? -1 : 0,
   });
 
   const state: ToastCloseState = {
