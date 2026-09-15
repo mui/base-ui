@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { usePreviewCardRootContext } from '../root/PreviewCardContext';
+import { usePreviewCardRootContext, PreviewCardMountedContext } from '../root/PreviewCardContext';
 import { PreviewCardPortalContext } from './PreviewCardPortalContext';
 import { FloatingPortalLite } from '../../utils/FloatingPortalLite';
 import { type BaseUIComponentProps } from '../../internals/types';
@@ -18,8 +18,8 @@ export const PreviewCardPortal = React.forwardRef(function PreviewCardPortal(
 ) {
   const { keepMounted = false, ...portalProps } = props;
 
-  const store = usePreviewCardRootContext();
-  const mounted = store.useState('mounted');
+  usePreviewCardRootContext();
+  const mounted = React.useContext(PreviewCardMountedContext);
 
   const shouldRender = mounted || keepMounted;
   if (!shouldRender) {

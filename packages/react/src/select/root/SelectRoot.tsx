@@ -19,7 +19,12 @@ import {
   useListNavigation,
   useTypeahead,
 } from '../../floating-ui-react';
-import { SelectRootContext } from './SelectRootContext';
+import {
+  SelectRootContext,
+  SelectOpenContext,
+  SelectMountedContext,
+  SelectTransitionStatusContext,
+} from './SelectRootContext';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
 import { useRegisterFieldControl } from '../../internals/field-register-control/useRegisterFieldControl';
 import { useLabelableId } from '../../internals/labelable-provider/useLabelableId';
@@ -30,7 +35,7 @@ import {
   createChangeEventDetails,
 } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
-import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
+import { usePopupCloseComplete } from '../../utils/popups/usePopupCloseComplete';
 import { useFormContext } from '../../internals/form-context/FormContext';
 import { type Group, stringifyAsLabel, stringifyAsValue } from '../../internals/resolveValueLabel';
 import {
@@ -282,15 +287,11 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     onOpenChangeComplete?.(false);
   });
 
-  useOpenChangeComplete({
-    enabled: !actionsRef,
+  usePopupCloseComplete({
+    enabled: mounted && !actionsRef,
     open,
     ref: popupRef,
-    onComplete() {
-      if (!open) {
-        handleUnmount();
-      }
-    },
+    onComplete: handleUnmount,
   });
 
   React.useImperativeHandle(actionsRef, () => ({ unmount: handleUnmount }), [handleUnmount]);
@@ -502,7 +503,13 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
 
   return (
     <SelectRootContext.Provider value={contextValue}>
-      {children}
+      <SelectOpenContext.Provider value={open}>
+        <SelectMountedContext.Provider value={mounted}>
+          <SelectTransitionStatusContext.Provider value={transitionStatus}>
+            {children}
+          </SelectTransitionStatusContext.Provider>
+        </SelectMountedContext.Provider>
+      </SelectOpenContext.Provider>
       <input
         {...validation.getValidationProps(disabled, {
           onFocus() {

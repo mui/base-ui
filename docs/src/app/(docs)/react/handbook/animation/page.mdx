@@ -249,8 +249,11 @@ import { DemoViewTransitionList } from './demos/view-transition-list';
 
 ### Popups
 
-Popup components such as Dialog, Popover, and Menu render their popup hidden during the commit that opens them and reveal it right after, so a `<ViewTransition>` cannot capture their opening state.
-Use the CSS transition and animation attributes described above to animate popups.
+Dialog can animate with `<ViewTransition>` when `open` is controlled inside `startTransition`, `<Dialog.Portal keepMounted>` stays rendered, and the popup and its View Transition boundary are rendered conditionally from `open`.
+Keeping the portal mounted lets its DOM container exist before the opening Transition.
+
+Anchored popups such as Popover, Menu, and Select still calculate their position after the opening commit, so their opening snapshot can be invisible or incorrectly positioned.
+Use the CSS transition and animation attributes described above to animate these popups.
 
 export const metadata = {
   keywords: [

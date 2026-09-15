@@ -1,7 +1,13 @@
 'use client';
 import * as React from 'react';
 import { DialogInteractions } from './useDialogRoot';
-import { DialogRootContext, useDialogRootContext } from './DialogRootContext';
+import {
+  DialogRootContext,
+  useDialogRootContext,
+  DialogOpenContext,
+  DialogMountedContext,
+  DialogTransitionStatusContext,
+} from './DialogRootContext';
 import { DialogStore } from '../store/DialogStore';
 import type { DialogRootProps } from './DialogRoot';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
@@ -69,13 +75,15 @@ export function useRenderDialogRoot<Payload>(
   store.useContextCallback('onOpenChange', onOpenChange);
   store.useContextCallback('onOpenChangeComplete', onOpenChangeComplete);
 
-  const open = store.useState('open');
-  const mounted = store.useState('mounted');
+  const storeOpen = store.useState('open');
+  // Read the controlled prop in this render so the popup joins the same React Transition,
+  // before the store synchronizes it in a layout effect.
+  const open = openProp ?? storeOpen;
   const payload = store.useState('payload') as Payload | undefined;
 
   usePopupRootSync(store, open);
   useImplicitActiveTrigger(store);
-  const { forceUnmount } = useOpenStateTransitions(open, store);
+  const { forceUnmount, mounted, transitionStatus } = useOpenStateTransitions(open, store);
 
   React.useImperativeHandle(
     actionsRef,
@@ -90,15 +98,21 @@ export function useRenderDialogRoot<Payload>(
 
   return (
     <DialogRootContext.Provider value={store as DialogStore<unknown>}>
-      {handle && <PopupHandleAttachment handle={handle} store={store} />}
-      {shouldRenderInteractions && (
-        <DialogInteractions
-          store={store}
-          parentContext={parentStore?.context}
-          isDrawer={isDrawer}
-        />
-      )}
-      {typeof children === 'function' ? children({ payload }) : children}
+      <DialogOpenContext.Provider value={open}>
+        <DialogMountedContext.Provider value={mounted}>
+          <DialogTransitionStatusContext.Provider value={transitionStatus}>
+            {handle && <PopupHandleAttachment handle={handle} store={store} />}
+            {shouldRenderInteractions && (
+              <DialogInteractions
+                store={store}
+                parentContext={parentStore?.context}
+                isDrawer={isDrawer}
+              />
+            )}
+            {typeof children === 'function' ? children({ payload }) : children}
+          </DialogTransitionStatusContext.Provider>
+        </DialogMountedContext.Provider>
+      </DialogOpenContext.Provider>
     </DialogRootContext.Provider>
   );
 }

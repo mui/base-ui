@@ -1,7 +1,12 @@
 'use client';
 import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { usePreviewCardRootContext } from '../root/PreviewCardContext';
+import {
+  usePreviewCardRootContext,
+  PreviewCardOpenContext,
+  PreviewCardMountedContext,
+  PreviewCardTransitionStatusContext,
+} from '../root/PreviewCardContext';
 import { PreviewCardPositionerContext } from './PreviewCardPositionerContext';
 import { FloatingNode, useFloatingNodeId } from '../../floating-ui-react';
 import {
@@ -49,11 +54,11 @@ export const PreviewCardPositioner = React.forwardRef(function PreviewCardPositi
   const keepMounted = usePreviewCardPortalContext();
   const nodeId = useFloatingNodeId();
 
-  const open = store.useState('open');
-  const mounted = store.useState('mounted');
+  const open = React.useContext(PreviewCardOpenContext);
+  const mounted = React.useContext(PreviewCardMountedContext);
   const floatingRootContext = store.useState('floatingRootContext');
   const instantType = store.useState('instantType');
-  const transitionStatus = store.useState('transitionStatus');
+  const transitionStatus = React.useContext(PreviewCardTransitionStatusContext);
   const adaptiveOrigin = store.useState('adaptiveOrigin');
   const inlineRectCoordsRef = store.context.inlineRectCoordsRef;
 

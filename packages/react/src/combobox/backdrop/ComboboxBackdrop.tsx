@@ -1,14 +1,17 @@
 'use client';
 import * as React from 'react';
-import { useStore } from '@base-ui/utils/store';
 import type { BaseUIComponentProps } from '../../internals/types';
-import { useComboboxRootContext } from '../root/ComboboxRootContext';
+import {
+  useComboboxRootContext,
+  ComboboxOpenContext,
+  ComboboxMountedContext,
+  ComboboxTransitionStatusContext,
+} from '../root/ComboboxRootContext';
 import { popupStateMapping } from '../../utils/popupStateMapping';
 import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
 import type { TransitionStatus } from '../../internals/useTransitionStatus';
 import { transitionStatusMapping } from '../../internals/stateAttributesMapping';
 import { useRenderElement } from '../../internals/useRenderElement';
-import { selectors } from '../store';
 
 const stateAttributesMapping: StateAttributesMapping<ComboboxBackdropState> = {
   ...popupStateMapping,
@@ -27,11 +30,11 @@ export const ComboboxBackdrop = React.forwardRef(function ComboboxBackdrop(
 ) {
   const { render, className, style, ...elementProps } = componentProps;
 
-  const store = useComboboxRootContext();
+  useComboboxRootContext();
 
-  const open = useStore(store, selectors.open);
-  const mounted = useStore(store, selectors.mounted);
-  const transitionStatus = useStore(store, selectors.transitionStatus);
+  const open = React.useContext(ComboboxOpenContext);
+  const mounted = React.useContext(ComboboxMountedContext);
+  const transitionStatus = React.useContext(ComboboxTransitionStatusContext);
 
   const state: ComboboxBackdropState = {
     open,

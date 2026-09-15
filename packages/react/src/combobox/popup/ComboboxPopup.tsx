@@ -6,7 +6,13 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { FloatingFocusManager } from '../../floating-ui-react';
 import { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
-import { useComboboxFloatingContext, useComboboxRootContext } from '../root/ComboboxRootContext';
+import {
+  useComboboxFloatingContext,
+  useComboboxRootContext,
+  ComboboxOpenContext,
+  ComboboxMountedContext,
+  ComboboxTransitionStatusContext,
+} from '../root/ComboboxRootContext';
 import { selectors } from '../store';
 import { popupStateMapping } from '../../utils/popupStateMapping';
 import { useComboboxPositionerContext } from '../positioner/ComboboxPositionerContext';
@@ -42,11 +48,11 @@ export const ComboboxPopup = React.forwardRef(function ComboboxPopup(
   const positioning = useComboboxPositionerContext();
   const floatingRootContext = useComboboxFloatingContext();
 
-  const mounted = useStore(store, selectors.mounted);
-  const open = useStore(store, selectors.open);
+  const mounted = React.useContext(ComboboxMountedContext);
+  const open = React.useContext(ComboboxOpenContext);
   const openMethod = useStore(store, selectors.openMethod);
   const popupProps = useStore(store, selectors.popupProps);
-  const transitionStatus = useStore(store, selectors.transitionStatus);
+  const transitionStatus = React.useContext(ComboboxTransitionStatusContext);
   const inputInsidePopup = useStore(store, selectors.inputInsidePopup);
   const inputElement = useStore(store, selectors.inputElement);
   const modal = useStore(store, selectors.modal);

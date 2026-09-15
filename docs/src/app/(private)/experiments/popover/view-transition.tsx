@@ -18,11 +18,11 @@ import './view-transition.css';
  * What to observe (Chrome, DevTools > Animations helps):
  * - Closing animates: the popup plays `pop-out`, and in the shared-element example the cover
  *   morphs back into the thumbnail in the trigger.
- * - Opening does not animate: on the opening commit the positioner is rendered with `hidden`
- *   (`hidden: !mounted` in PopoverPositioner) because `mounted` reaches the popup store through a
- *   layout effect, one commit late. The browser captures its "new" snapshot before the follow-up
- *   synchronous commit reveals it, so neither the positioner nor the shared cover inside it exists
- *   in the snapshot. Dialog behaves the same way (there it's the popup that is hidden).
+ * - Opening still does not animate correctly: lifecycle state now reaches the positioner in
+ *   the opening commit, but its asynchronous positioning has not finished. The snapshot can
+ *   capture the positioner at (0, 0) with opacity: 0.
+ * - Compare the Dialog example at /experiments/dialog/view-transition, which does not need
+ *   anchor positioning.
  */
 export default function PopoverViewTransitionExperiment() {
   return (
@@ -86,7 +86,7 @@ function SharedElementPopover() {
         <span className={styles.ThumbSlot}>
           {/* Only one `vt-cover` may be mounted at a time, so the thumbnail leaves while open. */}
           {!open && (
-            <React.ViewTransition name="vt-cover">
+            <React.ViewTransition name="vt-cover" share="vt-cover">
               <span className={styles.Thumb} />
             </React.ViewTransition>
           )}
@@ -98,7 +98,7 @@ function SharedElementPopover() {
           <React.ViewTransition enter="pop-in" exit="pop-out">
             <Popover.Positioner className={styles.Positioner} sideOffset={8}>
               <Popover.Popup className={styles.Popup}>
-                <React.ViewTransition name="vt-cover">
+                <React.ViewTransition name="vt-cover" share="vt-cover">
                   <div className={styles.Cover} />
                 </React.ViewTransition>
                 <Popover.Title className={styles.Title}>Cover</Popover.Title>

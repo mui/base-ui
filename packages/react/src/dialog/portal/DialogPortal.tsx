@@ -3,7 +3,11 @@ import * as React from 'react';
 import { inertValue } from '@base-ui/utils/inertValue';
 import { FloatingPortal } from '../../floating-ui-react';
 import { type BaseUIComponentProps } from '../../internals/types';
-import { useDialogRootContext } from '../root/DialogRootContext';
+import {
+  useDialogRootContext,
+  DialogOpenContext,
+  DialogMountedContext,
+} from '../root/DialogRootContext';
 import { DialogPortalContext } from './DialogPortalContext';
 import { InternalBackdrop } from '../../utils/InternalBackdrop';
 
@@ -21,9 +25,9 @@ export const DialogPortal = React.forwardRef(function DialogPortal(
   const { keepMounted = false, ...portalProps } = props;
 
   const store = useDialogRootContext();
-  const mounted = store.useState('mounted');
+  const mounted = React.useContext(DialogMountedContext);
   const modal = store.useState('modal');
-  const open = store.useState('open');
+  const open = React.useContext(DialogOpenContext);
 
   const shouldRender = mounted || keepMounted;
   if (!shouldRender) {

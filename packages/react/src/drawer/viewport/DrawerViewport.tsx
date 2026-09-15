@@ -8,7 +8,11 @@ import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { clamp } from '@base-ui/utils/clamp';
-import { useDialogRootContext } from '../../dialog/root/DialogRootContext';
+import {
+  useDialogRootContext,
+  DialogOpenContext,
+  DialogMountedContext,
+} from '../../dialog/root/DialogRootContext';
 import { DialogViewport } from '../../dialog/viewport/DialogViewport';
 import { mergeProps } from '../../merge-props';
 import { useDrawerRootContext } from '../root/DrawerRootContext';
@@ -102,8 +106,8 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
     popupHeight,
   } = useDrawerSnapPoints();
 
-  const open = store.useState('open');
-  const mounted = store.useState('mounted');
+  const open = React.useContext(DialogOpenContext);
+  const mounted = React.useContext(DialogMountedContext);
   const nested = store.useState('nested');
   const nestedOpenDrawerCount = store.useState('nestedOpenDrawerCount');
   const viewportElement = store.useState('viewportElement');

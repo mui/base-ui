@@ -34,9 +34,12 @@ import {
   ComboboxHasItemsContext,
   ComboboxRootContext,
   ComboboxInputValueContext,
+  ComboboxOpenContext,
+  ComboboxMountedContext,
+  ComboboxTransitionStatusContext,
 } from './ComboboxRootContext';
 import { selectors, type State as StoreState } from '../store';
-import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
+import { usePopupCloseComplete } from '../../utils/popups/usePopupCloseComplete';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
 import { useRegisterFieldControl } from '../../internals/field-register-control/useRegisterFieldControl';
 import { useFormContext } from '../../internals/form-context/FormContext';
@@ -965,15 +968,11 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
     return popupRef;
   }, [inline, positionerElement]);
 
-  useOpenChangeComplete({
-    enabled: !props.actionsRef,
+  usePopupCloseComplete({
+    enabled: mounted && !props.actionsRef,
     open,
     ref: resolvedPopupRef,
-    onComplete() {
-      if (!open) {
-        handleUnmount();
-      }
-    },
+    onComplete: handleUnmount,
   });
 
   React.useImperativeHandle(props.actionsRef, () => ({ unmount: handleUnmount }), [handleUnmount]);
@@ -1631,15 +1630,21 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
 
   return (
     <ComboboxRootContext.Provider value={store}>
-      <ComboboxFloatingContext.Provider value={floatingRootContext}>
-        <ComboboxHasItemsContext.Provider value={hasItems}>
-          <ComboboxDerivedItemsContext.Provider value={itemsContextValue}>
-            <ComboboxInputValueContext.Provider value={inputValue}>
-              {children}
-            </ComboboxInputValueContext.Provider>
-          </ComboboxDerivedItemsContext.Provider>
-        </ComboboxHasItemsContext.Provider>
-      </ComboboxFloatingContext.Provider>
+      <ComboboxOpenContext.Provider value={open}>
+        <ComboboxMountedContext.Provider value={mounted}>
+          <ComboboxTransitionStatusContext.Provider value={transitionStatus}>
+            <ComboboxFloatingContext.Provider value={floatingRootContext}>
+              <ComboboxHasItemsContext.Provider value={hasItems}>
+                <ComboboxDerivedItemsContext.Provider value={itemsContextValue}>
+                  <ComboboxInputValueContext.Provider value={inputValue}>
+                    {children}
+                  </ComboboxInputValueContext.Provider>
+                </ComboboxDerivedItemsContext.Provider>
+              </ComboboxHasItemsContext.Provider>
+            </ComboboxFloatingContext.Provider>
+          </ComboboxTransitionStatusContext.Provider>
+        </ComboboxMountedContext.Provider>
+      </ComboboxOpenContext.Provider>
     </ComboboxRootContext.Provider>
   );
 }

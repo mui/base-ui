@@ -2,7 +2,12 @@
 import * as React from 'react';
 import { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import { FloatingFocusManager } from '../../floating-ui-react';
-import { useDialogRootContext } from '../root/DialogRootContext';
+import {
+  useDialogRootContext,
+  DialogOpenContext,
+  DialogMountedContext,
+  DialogTransitionStatusContext,
+} from '../root/DialogRootContext';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { type BaseUIComponentProps } from '../../internals/types';
 import { type TransitionStatus } from '../../internals/useTransitionStatus';
@@ -31,13 +36,13 @@ export const DialogPopup = React.forwardRef(function DialogPopup(
   const floatingRootContext = store.useState('floatingRootContext');
   const rootPopupProps = store.useState('popupProps');
   const modal = store.useState('modal');
-  const mounted = store.useState('mounted');
+  const mounted = React.useContext(DialogMountedContext);
   const nested = store.useState('nested');
   const nestedOpenDialogCount = store.useState('nestedOpenDialogCount');
-  const open = store.useState('open');
+  const open = React.useContext(DialogOpenContext);
   const openMethod = store.useState('openMethod');
   const titleElementId = store.useState('titleElementId');
-  const transitionStatus = store.useState('transitionStatus');
+  const transitionStatus = React.useContext(DialogTransitionStatusContext);
   const role = store.useState('role');
   const floatingId = floatingRootContext.useState('floatingId');
 

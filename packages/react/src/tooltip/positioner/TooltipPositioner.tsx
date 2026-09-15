@@ -1,6 +1,11 @@
 'use client';
 import * as React from 'react';
-import { useTooltipRootContext } from '../root/TooltipRootContext';
+import {
+  useTooltipRootContext,
+  TooltipOpenContext,
+  TooltipMountedContext,
+  TooltipTransitionStatusContext,
+} from '../root/TooltipRootContext';
 import { TooltipPositionerContext } from './TooltipPositionerContext';
 import {
   useAnchorPositioning,
@@ -45,13 +50,13 @@ export const TooltipPositioner = React.forwardRef(function TooltipPositioner(
   const store = useTooltipRootContext();
   const keepMounted = useTooltipPortalContext();
 
-  const open = store.useState('open');
-  const mounted = store.useState('mounted');
+  const open = React.useContext(TooltipOpenContext);
+  const mounted = React.useContext(TooltipMountedContext);
   const trackCursorAxis = store.useState('trackCursorAxis');
   const disableHoverablePopup = store.useState('disableHoverablePopup');
   const floatingRootContext = store.useState('floatingRootContext');
   const instantType = store.useState('instantType');
-  const transitionStatus = store.useState('transitionStatus');
+  const transitionStatus = React.useContext(TooltipTransitionStatusContext);
   const adaptiveOrigin = store.useState('adaptiveOrigin');
 
   const positioning = useAnchorPositioning({

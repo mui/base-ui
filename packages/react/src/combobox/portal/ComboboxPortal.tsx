@@ -3,7 +3,7 @@ import * as React from 'react';
 import { useStore } from '@base-ui/utils/store';
 import { FloatingPortal } from '../../floating-ui-react';
 import { type BaseUIComponentProps } from '../../internals/types';
-import { useComboboxRootContext } from '../root/ComboboxRootContext';
+import { useComboboxRootContext, ComboboxMountedContext } from '../root/ComboboxRootContext';
 import { ComboboxPortalContext } from './ComboboxPortalContext';
 import { selectors } from '../store';
 
@@ -22,7 +22,7 @@ export const ComboboxPortal = React.forwardRef(function ComboboxPortal(
 
   const store = useComboboxRootContext();
 
-  const mounted = useStore(store, selectors.mounted);
+  const mounted = React.useContext(ComboboxMountedContext);
   const forceMounted = useStore(store, selectors.forceMounted);
 
   const shouldRender = mounted || keepMounted || forceMounted;

@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import type { TransitionStatus } from '../../internals/useTransitionStatus';
 import type { PopoverStore } from '../store/PopoverStore';
 
 export type PopoverRootContext<Payload = unknown> = PopoverStore<Payload>;
@@ -17,3 +18,9 @@ export function usePopoverRootContext(optional?: boolean) {
   }
   return context;
 }
+
+// Separate contexts keep consumers of `mounted` from rerendering when only
+// `transitionStatus` changes.
+export const PopoverOpenContext = React.createContext(false);
+export const PopoverMountedContext = React.createContext(false);
+export const PopoverTransitionStatusContext = React.createContext<TransitionStatus>(undefined);

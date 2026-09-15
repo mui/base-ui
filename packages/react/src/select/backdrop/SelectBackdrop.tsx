@@ -1,14 +1,17 @@
 'use client';
 import * as React from 'react';
-import { useStore } from '@base-ui/utils/store';
 import type { BaseUIComponentProps } from '../../internals/types';
-import { useSelectRootContext } from '../root/SelectRootContext';
+import {
+  useSelectRootContext,
+  SelectOpenContext,
+  SelectMountedContext,
+  SelectTransitionStatusContext,
+} from '../root/SelectRootContext';
 import { popupStateMapping } from '../../utils/popupStateMapping';
 import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
 import type { TransitionStatus } from '../../internals/useTransitionStatus';
 import { transitionStatusMapping } from '../../internals/stateAttributesMapping';
 import { useRenderElement } from '../../internals/useRenderElement';
-import { selectors } from '../store';
 
 const stateAttributesMapping: StateAttributesMapping<SelectBackdropState> = {
   ...popupStateMapping,
@@ -27,11 +30,11 @@ export const SelectBackdrop = React.forwardRef(function SelectBackdrop(
 ) {
   const { render, className, style, ...elementProps } = componentProps;
 
-  const { store } = useSelectRootContext();
+  useSelectRootContext();
 
-  const open = useStore(store, selectors.open);
-  const mounted = useStore(store, selectors.mounted);
-  const transitionStatus = useStore(store, selectors.transitionStatus);
+  const open = React.useContext(SelectOpenContext);
+  const mounted = React.useContext(SelectMountedContext);
+  const transitionStatus = React.useContext(SelectTransitionStatusContext);
 
   const state: SelectBackdropState = {
     open,

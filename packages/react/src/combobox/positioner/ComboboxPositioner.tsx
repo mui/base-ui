@@ -4,7 +4,13 @@ import { useStore } from '@base-ui/utils/store';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { inertValue } from '@base-ui/utils/inertValue';
-import { useComboboxFloatingContext, useComboboxRootContext } from '../root/ComboboxRootContext';
+import {
+  useComboboxFloatingContext,
+  useComboboxRootContext,
+  ComboboxOpenContext,
+  ComboboxMountedContext,
+  ComboboxTransitionStatusContext,
+} from '../root/ComboboxRootContext';
 import { ComboboxPositionerContext } from './ComboboxPositionerContext';
 import { useListEmpty } from '../utils/parts';
 import {
@@ -57,15 +63,15 @@ export const ComboboxPositioner = React.forwardRef(function ComboboxPositioner(
   const keepMounted = useComboboxPortalContext();
 
   const modal = useStore(store, selectors.modal);
-  const open = useStore(store, selectors.open);
-  const mounted = useStore(store, selectors.mounted);
+  const open = React.useContext(ComboboxOpenContext);
+  const mounted = React.useContext(ComboboxMountedContext);
   const openMethod = useStore(store, selectors.openMethod);
   const positionerElement = useStore(store, selectors.positionerElement);
   const triggerElement = useStore(store, selectors.triggerElement);
   const inputElement = useStore(store, selectors.inputElement);
   const inputGroupElement = useStore(store, selectors.inputGroupElement);
   const inputInsidePopup = useStore(store, selectors.inputInsidePopup);
-  const transitionStatus = useStore(store, selectors.transitionStatus);
+  const transitionStatus = React.useContext(ComboboxTransitionStatusContext);
 
   const empty = useListEmpty();
   const resolvedAnchor =

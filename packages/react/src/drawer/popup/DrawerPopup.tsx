@@ -7,7 +7,12 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { FloatingFocusManager } from '../../floating-ui-react';
-import { useDialogRootContext } from '../../dialog/root/DialogRootContext';
+import {
+  useDialogRootContext,
+  DialogOpenContext,
+  DialogMountedContext,
+  DialogTransitionStatusContext,
+} from '../../dialog/root/DialogRootContext';
 import { useRenderElement } from '../../internals/useRenderElement';
 import type { BaseUIComponentProps } from '../../internals/types';
 import type { TransitionStatus } from '../../internals/useTransitionStatus';
@@ -137,11 +142,11 @@ export const DrawerPopup = React.forwardRef(function DrawerPopup(
   const floatingRootContext = store.useState('floatingRootContext');
   const rootPopupProps = store.useState('popupProps');
   const modal = store.useState('modal');
-  const mounted = store.useState('mounted');
+  const mounted = React.useContext(DialogMountedContext);
   const nested = store.useState('nested');
   const nestedOpenDrawerCount = store.useState('nestedOpenDrawerCount');
-  const transitionStatus = store.useState('transitionStatus');
-  const open = store.useState('open');
+  const transitionStatus = React.useContext(DialogTransitionStatusContext);
+  const open = React.useContext(DialogOpenContext);
   const openMethod = store.useState('openMethod');
   const titleElementId = store.useState('titleElementId');
   const role = store.useState('role');

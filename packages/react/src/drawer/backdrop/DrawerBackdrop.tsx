@@ -1,6 +1,11 @@
 'use client';
 import * as React from 'react';
-import { useDialogRootContext } from '../../dialog/root/DialogRootContext';
+import {
+  useDialogRootContext,
+  DialogOpenContext,
+  DialogMountedContext,
+  DialogTransitionStatusContext,
+} from '../../dialog/root/DialogRootContext';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { type TransitionStatus } from '../../internals/useTransitionStatus';
 import { type BaseUIComponentProps } from '../../internals/types';
@@ -22,10 +27,10 @@ export const DrawerBackdrop = React.forwardRef(function DrawerBackdrop(
 
   const store = useDialogRootContext();
 
-  const open = store.useState('open');
+  const open = React.useContext(DialogOpenContext);
   const nested = store.useState('nested');
-  const mounted = store.useState('mounted');
-  const transitionStatus = store.useState('transitionStatus');
+  const mounted = React.useContext(DialogMountedContext);
+  const transitionStatus = React.useContext(DialogTransitionStatusContext);
 
   const state: DrawerBackdropState = {
     open,

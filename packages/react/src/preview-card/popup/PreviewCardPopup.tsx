@@ -1,6 +1,10 @@
 'use client';
 import * as React from 'react';
-import { usePreviewCardRootContext } from '../root/PreviewCardContext';
+import {
+  usePreviewCardRootContext,
+  PreviewCardOpenContext,
+  PreviewCardTransitionStatusContext,
+} from '../root/PreviewCardContext';
 import { usePreviewCardPositionerContext } from '../positioner/PreviewCardPositionerContext';
 import type { Align, Side } from '../../internals/useAnchorPositioning';
 import type { BaseUIComponentProps } from '../../internals/types';
@@ -27,9 +31,9 @@ export const PreviewCardPopup = React.forwardRef(function PreviewCardPopup(
   const store = usePreviewCardRootContext();
   const { side, align } = usePreviewCardPositionerContext();
 
-  const open = store.useState('open');
+  const open = React.useContext(PreviewCardOpenContext);
   const instantType = store.useState('instantType');
-  const transitionStatus = store.useState('transitionStatus');
+  const transitionStatus = React.useContext(PreviewCardTransitionStatusContext);
   const popupProps = store.useState('popupProps');
   const floatingContext = store.useState('floatingRootContext');
   const closeDelay = store.useState('closeDelay');

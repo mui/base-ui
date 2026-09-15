@@ -25,6 +25,35 @@ describe('<Dialog.Root />', () => {
     globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
   });
 
+  it('renders the open state without hidden in the opening commit', async () => {
+    const openingCommits: Array<{ hidden: boolean; open: boolean }> = [];
+
+    function recordOpeningCommit(element: HTMLDivElement | null) {
+      if (element) {
+        openingCommits.push({
+          hidden: element.hasAttribute('hidden'),
+          open: element.hasAttribute('data-open'),
+        });
+      }
+    }
+
+    function App({ open }: { open: boolean }) {
+      return (
+        <Dialog.Root open={open}>
+          <Dialog.Trigger>Open</Dialog.Trigger>
+          <Dialog.Portal keepMounted>
+            {open && <Dialog.Popup ref={recordOpeningCommit}>Content</Dialog.Popup>}
+          </Dialog.Portal>
+        </Dialog.Root>
+      );
+    }
+
+    const { rerender } = await render(<App open={false} />);
+    await rerender(<App open />);
+
+    expect(openingCommits[0]).toEqual({ hidden: false, open: true });
+  });
+
   popupConformanceTests({
     createComponent: (props) => (
       <Dialog.Root {...props.root}>

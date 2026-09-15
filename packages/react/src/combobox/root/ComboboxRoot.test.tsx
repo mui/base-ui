@@ -297,7 +297,14 @@ describe('<Combobox.Root />', () => {
       await waitFor(() => expect(input).toHaveFocus());
 
       await user.type(input, 'ban');
-      await user.keyboard('{ArrowDown}{Enter}');
+      // Closing detaches store-backed refs synchronously; await their cascading updates.
+      // eslint-disable-next-line testing-library/no-unnecessary-act
+      await act(async () => {
+        fireEvent.keyDown(input, { key: 'ArrowDown' });
+        fireEvent.keyUp(input, { key: 'ArrowDown' });
+        fireEvent.keyDown(input, { key: 'Enter' });
+        fireEvent.keyUp(input, { key: 'Enter' });
+      });
 
       await waitFor(() => expect(screen.queryByRole('dialog')).toBe(null));
       expect(trigger).toHaveFocus();
@@ -344,7 +351,13 @@ describe('<Combobox.Root />', () => {
       const trigger = screen.getByTestId('trigger');
       await user.click(trigger);
       await user.type(await screen.findByTestId('input'), 'ban');
-      await user.keyboard('{Escape}');
+      // Closing detaches store-backed refs synchronously; await their cascading updates.
+      // eslint-disable-next-line testing-library/no-unnecessary-act
+      await act(async () => {
+        const target = screen.getByTestId('input');
+        fireEvent.keyDown(target, { key: 'Escape' });
+        fireEvent.keyUp(target, { key: 'Escape' });
+      });
 
       await waitFor(() => expect(screen.queryByRole('dialog')).toBe(null));
       expect(trigger).toHaveFocus();
@@ -2695,7 +2708,13 @@ describe('<Combobox.Root />', () => {
           expect(screen.queryByRole('option', { name: 'banana' })).toBe(null);
         });
 
-        await user.keyboard('{Escape}');
+        // Closing detaches store-backed refs synchronously; await their cascading updates.
+        // eslint-disable-next-line testing-library/no-unnecessary-act
+        await act(async () => {
+          const target = screen.getByTestId('input');
+          fireEvent.keyDown(target, { key: 'Escape' });
+          fireEvent.keyUp(target, { key: 'Escape' });
+        });
         await waitFor(() => {
           expect(screen.queryByRole('listbox')).toBe(null);
         });
@@ -10051,7 +10070,11 @@ describe('<Combobox.Root />', () => {
         const input = await screen.findByTestId('dialog-input');
 
         await user.type(input, 'ap');
-        await user.click(screen.getByRole('option', { name: 'Apple' }));
+        // Closing detaches store-backed refs synchronously; await their cascading updates.
+        // eslint-disable-next-line testing-library/no-unnecessary-act
+        await act(async () => {
+          fireEvent.click(screen.getByRole('option', { name: 'Apple' }));
+        });
 
         await waitFor(() => {
           expect(screen.queryByRole('dialog', { name: 'Fruit chooser' })).toBe(null);
@@ -10076,7 +10099,11 @@ describe('<Combobox.Root />', () => {
         const input = await screen.findByTestId('dialog-input');
 
         await user.type(input, 'ap');
-        await user.click(screen.getByRole('option', { name: 'Apple' }));
+        // Closing detaches store-backed refs synchronously; await their cascading updates.
+        // eslint-disable-next-line testing-library/no-unnecessary-act
+        await act(async () => {
+          fireEvent.click(screen.getByRole('option', { name: 'Apple' }));
+        });
 
         await waitFor(() => {
           expect(screen.queryByRole('dialog', { name: 'Fruit chooser' })).toBe(null);

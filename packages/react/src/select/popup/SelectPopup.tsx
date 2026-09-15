@@ -13,7 +13,12 @@ import { clamp } from '@base-ui/utils/clamp';
 import { FloatingFocusManager, platform as floatingPlatform } from '../../floating-ui-react';
 import type { ClientRectObject } from '../../floating-ui-react';
 import type { BaseUIComponentProps, HTMLProps } from '../../internals/types';
-import { useSelectRootContext } from '../root/SelectRootContext';
+import {
+  useSelectRootContext,
+  SelectOpenContext,
+  SelectMountedContext,
+  SelectTransitionStatusContext,
+} from '../root/SelectRootContext';
 import { popupStateMapping } from '../../utils/popupStateMapping';
 import type { Side, Align } from '../../internals/useAnchorPositioning';
 import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
@@ -79,11 +84,11 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
   const { nonce, disableStyleElements } = useCSPContext();
 
   const id = useStore(store, selectors.id);
-  const open = useStore(store, selectors.open);
+  const open = React.useContext(SelectOpenContext);
   const openMethod = useStore(store, selectors.openMethod);
-  const mounted = useStore(store, selectors.mounted);
+  const mounted = React.useContext(SelectMountedContext);
   const popupProps = useStore(store, selectors.popupProps);
-  const transitionStatus = useStore(store, selectors.transitionStatus);
+  const transitionStatus = React.useContext(SelectTransitionStatusContext);
   const triggerElement = useStore(store, selectors.triggerElement);
   const positionerElement = useStore(store, selectors.positionerElement);
   const listElement = useStore(store, selectors.listElement);

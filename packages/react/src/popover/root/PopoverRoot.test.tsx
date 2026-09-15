@@ -17,6 +17,78 @@ describe('<Popover.Root />', () => {
 
   const { render, clock } = createRenderer();
 
+  it('renders the open state without hidden in the opening commit', async () => {
+    const openingCommits: Array<{ hidden: boolean; open: boolean }> = [];
+
+    function recordOpeningCommit(element: HTMLDivElement | null) {
+      if (element) {
+        openingCommits.push({
+          hidden: element.hasAttribute('hidden'),
+          open: element.hasAttribute('data-open'),
+        });
+      }
+    }
+
+    function App({ open }: { open: boolean }) {
+      return (
+        <Popover.Root open={open}>
+          <Popover.Trigger>Open</Popover.Trigger>
+          <Popover.Portal keepMounted>
+            {open && (
+              <Popover.Positioner ref={recordOpeningCommit}>
+                <Popover.Popup>Content</Popover.Popup>
+              </Popover.Positioner>
+            )}
+          </Popover.Portal>
+        </Popover.Root>
+      );
+    }
+
+    const { rerender } = await render(<App open={false} />);
+    await rerender(<App open />);
+
+    expect(openingCommits[0]).toEqual({ hidden: false, open: true });
+  });
+
+  it('keeps the trigger tabbable when the popup is conditionally removed on close', async () => {
+    const onOpenChangeComplete = vi.fn();
+
+    function App() {
+      const [open, setOpen] = React.useState(false);
+      return (
+        <React.Fragment>
+          <button>Before</button>
+          <Popover.Root
+            open={open}
+            onOpenChange={setOpen}
+            onOpenChangeComplete={onOpenChangeComplete}
+          >
+            <Popover.Trigger>Open</Popover.Trigger>
+            <Popover.Portal keepMounted>
+              {open && (
+                <Popover.Positioner>
+                  <Popover.Popup>
+                    <Popover.Close>Close</Popover.Close>
+                  </Popover.Popup>
+                </Popover.Positioner>
+              )}
+            </Popover.Portal>
+          </Popover.Root>
+        </React.Fragment>
+      );
+    }
+
+    const { user } = await render(<App />);
+    const trigger = screen.getByRole('button', { name: 'Open' });
+    await user.click(trigger);
+    await user.click(screen.getByRole('button', { name: 'Close' }));
+    await user.click(screen.getByRole('button', { name: 'Before' }));
+    await user.tab();
+
+    expect(trigger).toHaveFocus();
+    expect(onOpenChangeComplete).toHaveBeenCalledWith(false);
+  });
+
   popupConformanceTests({
     createComponent: (props) => (
       <Popover.Root {...props.root}>

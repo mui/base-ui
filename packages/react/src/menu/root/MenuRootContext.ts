@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import type { TransitionStatus } from '../../internals/useTransitionStatus';
 import { type MenuStore } from '../store/MenuStore';
 import { MenuParent } from './MenuRoot';
 
@@ -22,3 +23,8 @@ export function useMenuRootContext(optional?: boolean) {
 
   return context;
 }
+
+// Separate contexts preserve subscriptions to individual lifecycle values.
+export const MenuOpenContext = React.createContext(false);
+export const MenuMountedContext = React.createContext(false);
+export const MenuTransitionStatusContext = React.createContext<TransitionStatus>(undefined);

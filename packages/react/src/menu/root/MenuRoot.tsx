@@ -16,7 +16,13 @@ import {
   useTypeahead,
   useSyncedFloatingRootContext,
 } from '../../floating-ui-react';
-import { MenuRootContext, useMenuRootContext } from './MenuRootContext';
+import {
+  MenuRootContext,
+  useMenuRootContext,
+  MenuOpenContext,
+  MenuMountedContext,
+  MenuTransitionStatusContext,
+} from './MenuRootContext';
 import { MenubarContext, useMenubarContext } from '../../menubar/MenubarContext';
 import { TYPEAHEAD_RESET_MS } from '../../internals/constants';
 import { useDirection } from '../../internals/direction-context/DirectionContext';
@@ -154,7 +160,8 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
   const floatingTreeRoot = store.useState('floatingTreeRoot');
   const floatingNodeIdFromContext = useFloatingNodeId(floatingTreeRoot);
 
-  const open = store.useState('open');
+  const storeOpen = store.useState('open');
+  const open = openProp ?? storeOpen;
   const activeTriggerElement = store.useState('activeTriggerElement');
   const positionerElement = store.useState('positionerElement');
   const hoverEnabled = store.useState('hoverEnabled');
@@ -193,7 +200,7 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
   });
 
   useImplicitActiveTrigger(store);
-  const { forceUnmount, transitionStatus } = useOpenStateTransitions(
+  const { forceUnmount, mounted, transitionStatus } = useOpenStateTransitions(
     open,
     store,
     () => {
@@ -632,8 +639,14 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
 
   const content = (
     <MenuRootContext.Provider value={context as MenuRootContext}>
-      {handle && <PopupHandleAttachment handle={handle} store={store} />}
-      {typeof children === 'function' ? children({ payload }) : children}
+      <MenuOpenContext.Provider value={open}>
+        <MenuMountedContext.Provider value={mounted}>
+          <MenuTransitionStatusContext.Provider value={transitionStatus}>
+            {handle && <PopupHandleAttachment handle={handle} store={store} />}
+            {typeof children === 'function' ? children({ payload }) : children}
+          </MenuTransitionStatusContext.Provider>
+        </MenuMountedContext.Provider>
+      </MenuOpenContext.Provider>
     </MenuRootContext.Provider>
   );
 
