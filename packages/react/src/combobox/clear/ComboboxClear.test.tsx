@@ -30,6 +30,19 @@ describe('<Combobox.Clear />', () => {
     expect(screen.getByTestId('clear')).not.toBe(null);
   });
 
+  it('does not render the default "x" glyph when `render` is a childless custom element', async () => {
+    // Regression test for https://github.com/mui/base-ui/issues/4752
+    await render(
+      <Combobox.Root defaultValue="a">
+        <Combobox.Input />
+        <Combobox.Clear render={<button data-testid="custom-clear" className="my-clear" />} />
+      </Combobox.Root>,
+    );
+
+    const clear = screen.getByTestId('custom-clear');
+    expect(clear.textContent).toBe('');
+  });
+
   it('does not render without a value by default', async () => {
     await render(
       <Combobox.Root>

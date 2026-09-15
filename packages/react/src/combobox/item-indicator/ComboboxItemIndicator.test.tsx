@@ -17,6 +17,33 @@ describe('<Combobox.ItemIndicator />', () => {
     },
   }));
 
+  it('does not render the default checkmark when `render` is a childless custom element', async () => {
+    // Regression test for https://github.com/mui/base-ui/issues/4752
+    await render(
+      <Combobox.Root defaultOpen defaultValue="apple">
+        <Combobox.Input />
+        <Combobox.Portal keepMounted>
+          <Combobox.Positioner>
+            <Combobox.Popup>
+              <Combobox.List>
+                <Combobox.Item value="apple">
+                  apple
+                  <Combobox.ItemIndicator
+                    keepMounted
+                    render={<span data-testid="custom-indicator" className="my-check" />}
+                  />
+                </Combobox.Item>
+              </Combobox.List>
+            </Combobox.Popup>
+          </Combobox.Positioner>
+        </Combobox.Portal>
+      </Combobox.Root>,
+    );
+
+    const indicator = screen.getByTestId('custom-indicator');
+    expect(indicator.textContent).toBe('');
+  });
+
   it('updates a mounted indicator when its item becomes unselected', async () => {
     const { user } = await render(
       <Combobox.Root defaultOpen defaultValue="apple">

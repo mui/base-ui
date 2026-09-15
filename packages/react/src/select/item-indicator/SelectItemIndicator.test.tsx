@@ -22,6 +22,29 @@ describe('<Select.ItemIndicator />', () => {
     },
   }));
 
+  it('does not render the default checkmark when `render` is a childless custom element', async () => {
+    // Regression test for https://github.com/mui/base-ui/issues/4752
+    await render(
+      <Select.Root open>
+        <Select.Trigger>
+          <Select.Value />
+        </Select.Trigger>
+        <Select.Positioner>
+          <Select.Item value="a">
+            a
+            <Select.ItemIndicator
+              keepMounted
+              render={<span data-testid="custom-indicator" className="my-check" />}
+            />
+          </Select.Item>
+        </Select.Positioner>
+      </Select.Root>,
+    );
+
+    const indicator = screen.getByTestId('custom-indicator');
+    expect(indicator.textContent).toBe('');
+  });
+
   it('settles out of its transition state after the item is deselected', async () => {
     const { user } = await render(
       <Select.Root multiple defaultOpen defaultValue={['a']}>
