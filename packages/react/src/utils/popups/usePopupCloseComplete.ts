@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import { useAnimationsFinished } from '../../internals/useAnimationsFinished';
+import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
 
 /**
  * Finishes a popup's close after CSS animations, including when the consumer already
@@ -10,7 +10,7 @@ import { useAnimationsFinished } from '../../internals/useAnimationsFinished';
  * a popup have no popup lifecycle to finish.
  */
 export function usePopupCloseComplete({
-  enabled,
+  enabled: enabledProp,
   open,
   ref,
   onComplete,
@@ -20,7 +20,9 @@ export function usePopupCloseComplete({
   ref: React.RefObject<HTMLElement | null>;
   onComplete: () => void;
 }) {
+  const enabled = enabledProp && !open;
   const hadElementRef = React.useRef(false);
+
   useIsoLayoutEffect(() => {
     if (open && ref.current) {
       hadElementRef.current = true;
@@ -33,22 +35,12 @@ export function usePopupCloseComplete({
       onComplete();
     }
   });
-  const runOnceAnimationsFinish = useAnimationsFinished(ref);
+
+  useOpenChangeComplete({ enabled, ref, onComplete: complete });
 
   React.useEffect(() => {
-    if (!enabled || open) {
-      return undefined;
+    if (enabled && !ref.current && hadElementRef.current) {
+      complete();
     }
-
-    if (!ref.current) {
-      if (hadElementRef.current) {
-        complete();
-      }
-      return undefined;
-    }
-
-    const abortController = new AbortController();
-    runOnceAnimationsFinish(complete, abortController.signal);
-    return () => abortController.abort();
-  }, [enabled, open, ref, complete, runOnceAnimationsFinish]);
+  }, [enabled, ref, complete]);
 }

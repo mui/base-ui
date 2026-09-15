@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import type { PopupLifecycleState } from '../../utils/popups/store';
+import { DEFAULT_POPUP_LIFECYCLE_STATE } from '../../utils/popups/popupLifecycleState';
 import type { PopoverStore } from '../store/PopoverStore';
 
 export type PopoverRootContext<Payload = unknown> = PopoverStore<Payload>;
@@ -19,8 +19,4 @@ export function usePopoverRootContext(optional?: boolean) {
   return context;
 }
 
-export const PopoverLifecycleContext = React.createContext<PopupLifecycleState>({
-  open: false,
-  mounted: false,
-  transitionStatus: undefined,
-});
+export const PopoverLifecycleContext = React.createContext(DEFAULT_POPUP_LIFECYCLE_STATE);

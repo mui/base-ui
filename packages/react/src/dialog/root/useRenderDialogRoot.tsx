@@ -81,7 +81,8 @@ export function useRenderDialogRoot<Payload>(
 
   usePopupRootSync(store, open);
   useImplicitActiveTrigger(store);
-  const { forceUnmount, mounted, transitionStatus } = useOpenStateTransitions(open, store);
+  const lifecycle = useOpenStateTransitions(open, store);
+  const { forceUnmount, mounted } = lifecycle;
 
   React.useImperativeHandle(
     actionsRef,
@@ -93,11 +94,6 @@ export function useRenderDialogRoot<Payload>(
   );
 
   const shouldRenderInteractions = open || mounted;
-
-  const lifecycle = React.useMemo(
-    () => ({ open, mounted, transitionStatus }),
-    [open, mounted, transitionStatus],
-  );
 
   return (
     <DialogRootContext.Provider value={store as DialogStore<unknown>}>

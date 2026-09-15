@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import type { PopupLifecycleState } from '../../utils/popups/store';
+import { DEFAULT_POPUP_LIFECYCLE_STATE } from '../../utils/popups/popupLifecycleState';
 import { DialogStore } from '../store/DialogStore';
 
 export const DialogRootContext = React.createContext<DialogStore<unknown> | undefined>(undefined);
@@ -19,8 +19,4 @@ export function useDialogRootContext(optional?: boolean) {
   return store;
 }
 
-export const DialogLifecycleContext = React.createContext<PopupLifecycleState>({
-  open: false,
-  mounted: false,
-  transitionStatus: undefined,
-});
+export const DialogLifecycleContext = React.createContext(DEFAULT_POPUP_LIFECYCLE_STATE);

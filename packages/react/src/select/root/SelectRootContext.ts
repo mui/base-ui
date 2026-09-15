@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import type { PopupLifecycleState } from '../../utils/popups/store';
+import { DEFAULT_POPUP_LIFECYCLE_STATE } from '../../utils/popups/popupLifecycleState';
 import { type FloatingRootContext } from '../../floating-ui-react';
 import type { SelectStore } from '../store';
 import type { HTMLProps } from '../../internals/types';
@@ -56,8 +56,4 @@ export function useSelectFloatingContext() {
   return context;
 }
 
-export const SelectLifecycleContext = React.createContext<PopupLifecycleState>({
-  open: false,
-  mounted: false,
-  transitionStatus: undefined,
-});
+export const SelectLifecycleContext = React.createContext(DEFAULT_POPUP_LIFECYCLE_STATE);

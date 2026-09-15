@@ -87,12 +87,6 @@ export type PopupStoreState<Payload> = {
   popupProps: HTMLProps;
 };
 
-// Render this state through React context; keep the store copy for detached triggers and interactions.
-export type PopupLifecycleState = Pick<
-  PopupStoreState<unknown>,
-  'open' | 'mounted' | 'transitionStatus'
->;
-
 export function createInitialPopupStoreState<Payload>(
   triggerElements: PopupTriggerMap,
   floatingId?: string | undefined,

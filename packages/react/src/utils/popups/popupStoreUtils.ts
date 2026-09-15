@@ -632,7 +632,10 @@ export function useOpenStateTransitions<State extends PopupStoreState<unknown>>(
     onComplete: forceUnmount,
   });
 
-  return { forceUnmount, mounted, transitionStatus };
+  return React.useMemo(
+    () => ({ forceUnmount, open, mounted, transitionStatus }),
+    [forceUnmount, open, mounted, transitionStatus],
+  );
 }
 
 type PopupInteractionPropKey = 'activeTriggerProps' | 'inactiveTriggerProps' | 'popupProps';

@@ -194,7 +194,7 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
   });
 
   useImplicitActiveTrigger(store);
-  const { forceUnmount, mounted, transitionStatus } = useOpenStateTransitions(
+  const lifecycle = useOpenStateTransitions(
     open,
     store,
     () => {
@@ -202,6 +202,7 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
     },
     animateInitialOpen,
   );
+  const { forceUnmount, transitionStatus } = lifecycle;
 
   const runOnceAnimationsFinish = useAnimationsFinished(store.context.popupRef);
 
@@ -635,11 +636,6 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
       parent: parentFromContext,
     }),
     [store, parentFromContext],
-  );
-
-  const lifecycle = React.useMemo(
-    () => ({ open, mounted, transitionStatus }),
-    [open, mounted, transitionStatus],
   );
 
   const content = (

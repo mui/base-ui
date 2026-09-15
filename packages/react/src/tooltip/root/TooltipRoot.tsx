@@ -79,7 +79,8 @@ export const TooltipRoot = fastComponent(function TooltipRoot<Payload>(
   });
 
   useImplicitActiveTrigger(store, { closeOnActiveTriggerUnmount: true });
-  const { forceUnmount, mounted, transitionStatus } = useOpenStateTransitions(open, store);
+  const lifecycle = useOpenStateTransitions(open, store);
+  const { forceUnmount, mounted, transitionStatus } = lifecycle;
   const isInstantPhase = store.useState('isInstantPhase');
   const instantType = store.useState('instantType');
   const lastOpenChangeReason = store.useState('lastOpenChangeReason');
@@ -135,11 +136,6 @@ export const TooltipRoot = fastComponent(function TooltipRoot<Payload>(
   );
 
   const shouldRenderInteractions = open || mounted || (!disabled && trackCursorAxis !== 'none');
-
-  const lifecycle = React.useMemo(
-    () => ({ open, mounted, transitionStatus }),
-    [open, mounted, transitionStatus],
-  );
 
   return (
     <TooltipRootContext.Provider value={store as TooltipRootContext}>

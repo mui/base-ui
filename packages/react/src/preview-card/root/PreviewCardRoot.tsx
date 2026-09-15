@@ -63,9 +63,10 @@ function PreviewCardRootComponent<Payload>(props: PreviewCardRoot.Props<Payload>
   const payload = store.useState('payload') as Payload | undefined;
 
   useImplicitActiveTrigger(store, { closeOnActiveTriggerUnmount: true });
-  const { forceUnmount, mounted, transitionStatus } = useOpenStateTransitions(open, store, () => {
+  const lifecycle = useOpenStateTransitions(open, store, () => {
     store.context.inlineRectCoordsRef.current = undefined;
   });
+  const { forceUnmount, mounted } = lifecycle;
 
   useIsoLayoutEffect(() => {
     if (open) {
@@ -85,11 +86,6 @@ function PreviewCardRootComponent<Payload>(props: PreviewCardRoot.Props<Payload>
   );
 
   const shouldRenderInteractions = open || mounted;
-
-  const lifecycle = React.useMemo(
-    () => ({ open, mounted, transitionStatus }),
-    [open, mounted, transitionStatus],
-  );
 
   return (
     <PreviewCardRootContext.Provider value={store as PreviewCardRootContext}>

@@ -63,9 +63,10 @@ const PopoverRootComponent = fastComponent(function PopoverRootComponent<Payload
 
   usePopupRootSync(store, open);
   useImplicitActiveTrigger(store);
-  const { forceUnmount, mounted, transitionStatus } = useOpenStateTransitions(open, store, () => {
+  const lifecycle = useOpenStateTransitions(open, store, () => {
     store.update({ stickIfOpen: true, openChangeReason: null });
   });
+  const { forceUnmount, mounted } = lifecycle;
 
   store.useSyncedValues({
     modal,
@@ -87,11 +88,6 @@ const PopoverRootComponent = fastComponent(function PopoverRootComponent<Payload
   );
 
   const shouldRenderInteractions = open || mounted;
-
-  const lifecycle = React.useMemo(
-    () => ({ open, mounted, transitionStatus }),
-    [open, mounted, transitionStatus],
-  );
 
   return (
     <PopoverRootContext.Provider value={store as PopoverRootContext<unknown>}>

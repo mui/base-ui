@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import type { PopupLifecycleState } from '../../utils/popups/store';
+import { DEFAULT_POPUP_LIFECYCLE_STATE } from '../../utils/popups/popupLifecycleState';
 import { type MenuStore } from '../store/MenuStore';
 import { MenuParent } from './MenuRoot';
 
@@ -24,8 +24,4 @@ export function useMenuRootContext(optional?: boolean) {
   return context;
 }
 
-export const MenuLifecycleContext = React.createContext<PopupLifecycleState>({
-  open: false,
-  mounted: false,
-  transitionStatus: undefined,
-});
+export const MenuLifecycleContext = React.createContext(DEFAULT_POPUP_LIFECYCLE_STATE);
