@@ -98,5 +98,6 @@
   "98": "Base UI: OTPFieldRootContext is missing. OTPField parts must be placed within <OTPField.Root>.",
   "99": "Base UI: %sHandle.open() was called with the trigger id \"%s\", but no matching trigger is registered with this handle. An anchored popup cannot open without a trigger to anchor to. Pass the id of a mounted %s.Trigger that has this handle set on its \"handle\" prop.",
   "100": "Base UI: the `items` prop received an object that is not a collection, so its items cannot be read. Pass an array of items, an array of groups with items, or the result of `createItems()`. See https://base-ui.com/react/components/combobox#createitems",
-  "101": "Base UI: SelectRootPropsContext is missing. Select parts must be placed within <Select.Root>."
+  "101": "Base UI: SelectRootPropsContext is missing. Select parts must be placed within <Select.Root>.",
+  "102": "Base UI: <Virtualizer> was rendered without an `items` prop and outside of a list that supports virtualization, so it has no collection to render. Pass `items`, or place it inside the list part that supports it, such as <Combobox.List>, <Autocomplete.List>, or <Select.List>. Documentation: https://base-ui.com/react/utils/virtualizer"
 }
