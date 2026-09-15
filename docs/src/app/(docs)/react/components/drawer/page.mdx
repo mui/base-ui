@@ -190,18 +190,6 @@ import { DemoDrawerSwipeArea } from './demos/swipe-area';
 
 <DemoDrawerSwipeArea />
 
-### Close confirmation
-
-This example shows a nested confirmation dialog that opens if the text entered in the drawer is going to be discarded.
-
-To implement this, both the drawer and the confirmation dialog should be controlled. The confirmation dialog may be opened when the `onOpenChange` callback of the drawer receives a request to close while there is text in the textarea. This way, the confirmation is automatically shown when the user clicks the backdrop, presses the Esc key, clicks a close button, or dismisses the drawer with a swipe gesture.
-
-Use `eventDetails.cancel()` in `onOpenChange` to prevent the drawer from closing while the confirmation prompt is shown.
-
-import { DemoDrawerCloseConfirmation } from './demos/close-confirmation';
-
-<DemoDrawerCloseConfirmation />
-
 ### Detached triggers
 
 A drawer can be controlled by a trigger located either inside or outside the `<Drawer.Root>` component. For simple, one-off interactions, place the `<Drawer.Trigger>` inside `<Drawer.Root>`.
