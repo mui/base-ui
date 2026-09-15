@@ -28,7 +28,15 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
   componentProps: PopoverPopup.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, style, initialFocus, finalFocus, ...elementProps } = componentProps;
+  const {
+    render,
+    className,
+    style,
+    initialFocus,
+    onInitiallyFocused,
+    finalFocus,
+    ...elementProps
+  } = componentProps;
 
   const store = usePopoverRootContext();
 
@@ -111,6 +119,7 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
       modal={focusManagerModal}
       disabled={!mounted || openReason === REASONS.triggerHover}
       initialFocus={resolvedInitialFocus}
+      onInitiallyFocused={onInitiallyFocused}
       returnFocus={finalFocus}
       restoreFocus="popup"
       previousFocusableElement={
@@ -164,6 +173,14 @@ export interface PopoverPopupProps extends BaseUIComponentProps<'div', PopoverPo
     | React.RefObject<HTMLElement | null>
     | ((openType: InteractionType) => void | boolean | HTMLElement | null)
     | undefined;
+  /**
+   * Called with the element that received initial focus, right after it was focused.
+   *
+   * Runs once the popover has been positioned, so imperative follow-ups such as selecting an
+   * input's text don't cause the page to scroll. Not called when `initialFocus` is `false` or
+   * when focus was already inside the popup.
+   */
+  onInitiallyFocused?: ((element: HTMLElement | SVGElement) => void) | undefined;
   /**
    * Determines the element to focus when the popover is closed.
    *
