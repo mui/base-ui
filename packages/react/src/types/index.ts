@@ -103,3 +103,5 @@ export type {
   DropTargetPayloadGetter,
   DropTargetSelf,
 } from './drag';
+
+export type { CollectionItemId } from './collection';
