@@ -37,7 +37,7 @@ type ModeFromMultiple<Multiple extends boolean | undefined> = Multiple extends t
   : 'single';
 
 export type ComboboxInputValue<Value, Multiple extends boolean | undefined> = Multiple extends true
-  ? Value[]
+  ? readonly Value[]
   : Value;
 
 export type ComboboxOutputValue<Value, Multiple extends boolean | undefined> = Multiple extends true
