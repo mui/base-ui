@@ -163,9 +163,11 @@ export function useClick(
 
         // Animations sometimes won't run on a typeable element if using a rAF.
         // Focus is always set on these elements. For touch, we may delay opening.
+        // A screen reader press has no pointer focus to wait for, and waiting a frame lets the
+        // reader re-sync focus to its cursor before the popup opens and moves it.
         const target = getTarget(nativeEvent);
 
-        if (isTypeableElement(target)) {
+        if (isTypeableElement(target) || pointerType === 'virtual') {
           setOpenWithTouchDelay(nextOpen, nativeEvent, target as HTMLElement, pointerType);
           return;
         }
