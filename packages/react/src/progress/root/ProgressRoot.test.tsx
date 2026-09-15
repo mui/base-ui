@@ -206,7 +206,7 @@ describe('<Progress.Root />', () => {
 
         const progressbar = screen.getByRole('progressbar');
         expect(progressbar).toHaveAttribute('aria-valuenow', String(expectedValue));
-        expect(screen.getByTestId('value')).toHaveTextContent(expected);
+        expect(screen.getByTestId('value').textContent).toBe(expected);
         expect(getAriaValueText).toHaveBeenLastCalledWith(expected, value);
         expect(progressbar).toHaveAttribute('aria-valuetext', `${expected} (raw: ${value})`);
       },

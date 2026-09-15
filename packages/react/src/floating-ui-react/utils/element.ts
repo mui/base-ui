@@ -1,11 +1,11 @@
 import { isElement, isHTMLElement } from '@floating-ui/utils/dom';
 import { platform } from '@base-ui/utils/platform';
-import { activeElement, contains, getTarget } from '@base-ui/utils/shadowDom';
+import { activeElement, closest, contains, getTarget } from '@base-ui/utils/shadowDom';
 import { FOCUSABLE_ATTRIBUTE, TYPEABLE_SELECTOR } from './constants';
 import { type PopupTriggerMap } from '../../utils/popups';
 import * as TooltipTriggerDataAttributes from '../../tooltip/trigger/TooltipTriggerDataAttributes';
 
-export { activeElement, contains, getTarget };
+export { activeElement, closest, contains, getTarget };
 
 export function isTargetInsideEnabledTrigger(
   target: EventTarget | null,
@@ -54,7 +54,8 @@ export function isTypeableElement(element: unknown): boolean {
 
 export function isInteractiveElement(element: Element | null) {
   return (
-    element?.closest(
+    closest(
+      element,
       `button,a[href],[role="button"],select,[tabindex]:not([tabindex="-1"]),${TYPEABLE_SELECTOR}`,
     ) != null
   );
