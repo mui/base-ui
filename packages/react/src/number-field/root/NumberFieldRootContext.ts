@@ -6,17 +6,14 @@ import type { EventWithOptionalKeyState, IncrementValueParameters } from '../uti
 export type InputMode = 'numeric' | 'decimal' | 'text';
 
 export interface NumberFieldRootContext {
-  inputValue: string;
-  value: number | null;
   minWithDefault: number;
   maxWithDefault: number;
-  disabled: boolean;
-  readOnly: boolean;
   id: string | undefined;
   setValue: (value: number | null, details: NumberFieldRoot.ChangeEventDetails) => boolean;
   getStepAmount: (event?: EventWithOptionalKeyState) => number;
   incrementValue: (amount: number, params: IncrementValueParameters) => boolean;
   inputRef: React.RefObject<HTMLInputElement | null>;
+  focusInput: () => void;
   allowInputSyncRef: React.RefObject<boolean | null>;
   formatOptionsRef: React.RefObject<Intl.NumberFormatOptions | undefined>;
   valueRef: React.RefObject<number | null>;
@@ -24,15 +21,12 @@ export interface NumberFieldRootContext {
   hasPendingCommitRef: React.RefObject<boolean>;
   name: string | undefined;
   nameProp: string | undefined;
-  required: boolean;
-  invalid: boolean | undefined;
   inputMode: InputMode;
   getAllowedNonNumericKeys: () => Set<string>;
   min: number | undefined;
   max: number | undefined;
   setInputValue: React.Dispatch<React.SetStateAction<string>>;
   locale: Intl.LocalesArgument;
-  isScrubbing: boolean;
   setIsScrubbing: React.Dispatch<React.SetStateAction<boolean>>;
   state: NumberFieldRootState;
   onValueCommitted: (

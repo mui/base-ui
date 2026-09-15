@@ -41,7 +41,10 @@ Re-export of [Root](#root) props.
 
 ```typescript
 type AccordionRootState<TValue = any> = {
-  /** The current value. */
+  /**
+   * The current value.
+   * Treat it as read-only: it may be a shared frozen array when no value is set.
+   */
   value: TValue[];
   /** Whether the component should ignore user interaction. */
   disabled: boolean;
@@ -106,10 +109,11 @@ Renders a `<button>` element.
 
 **Trigger Data Attributes:**
 
-| Attribute       | Type | Description                                  |
-| :-------------- | :--- | :------------------------------------------- |
-| data-panel-open | -    | Present when the accordion panel is open.    |
-| data-disabled   | -    | Present when the accordion item is disabled. |
+| Attribute       | Type     | Description                                  |
+| :-------------- | :------- | :------------------------------------------- |
+| data-panel-open | -        | Present when the accordion panel is open.    |
+| data-disabled   | -        | Present when the accordion item is disabled. |
+| data-index      | `number` | Indicates the index of the accordion item.   |
 
 ### Trigger.Props
 
@@ -125,7 +129,10 @@ type AccordionTriggerState = {
   index: number;
   /** Whether the component is open. */
   open: boolean;
-  /** The current value. */
+  /**
+   * The current value.
+   * Treat it as read-only: it may be a shared frozen array when no value is set.
+   */
   value: any[];
   /** Whether the component should ignore user interaction. */
   disabled: boolean;
@@ -189,7 +196,10 @@ type AccordionItemState = {
   index: number;
   /** Whether the component is open. */
   open: boolean;
-  /** The current value. */
+  /**
+   * The current value.
+   * Treat it as read-only: it may be a shared frozen array when no value is set.
+   */
   value: any[];
   /** Whether the component should ignore user interaction. */
   disabled: boolean;
@@ -267,7 +277,10 @@ type AccordionHeaderState = {
   index: number;
   /** Whether the component is open. */
   open: boolean;
-  /** The current value. */
+  /**
+   * The current value.
+   * Treat it as read-only: it may be a shared frozen array when no value is set.
+   */
   value: any[];
   /** Whether the component should ignore user interaction. */
   disabled: boolean;
@@ -307,7 +320,7 @@ Renders a `<div>` element.
 | data-orientation    | -        | Indicates the orientation of the accordion.  |
 | data-disabled       | -        | Present when the accordion item is disabled. |
 | data-index          | `number` | Indicates the index of the accordion item.   |
-| data-starting-style | -        | Present when the panel is animating in.      |
+| data-starting-style | -        | Present when the panel begins animating in.  |
 | data-ending-style   | -        | Present when the panel is animating out.     |
 
 **Panel CSS Variables:**
@@ -333,7 +346,10 @@ type AccordionPanelState = {
   index: number;
   /** Whether the component is open. */
   open: boolean;
-  /** The current value. */
+  /**
+   * The current value.
+   * Treat it as read-only: it may be a shared frozen array when no value is set.
+   */
   value: any[];
   /** Whether the component should ignore user interaction. */
   disabled: boolean;

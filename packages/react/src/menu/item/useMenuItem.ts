@@ -14,7 +14,7 @@ export const REGULAR_ITEM = {
 export function useMenuItem(params: UseMenuItemParameters): UseMenuItemReturnValue {
   const {
     closeOnClick,
-    disabled: disabledProp = false,
+    disabled,
     highlighted,
     id,
     store,
@@ -23,9 +23,6 @@ export function useMenuItem(params: UseMenuItemParameters): UseMenuItemReturnVal
     itemMetadata,
     nodeId,
   } = params;
-
-  const rootDisabled = store.useState('disabled');
-  const disabled = disabledProp || rootDisabled;
 
   const itemRef = React.useRef<HTMLElement | null>(null);
 

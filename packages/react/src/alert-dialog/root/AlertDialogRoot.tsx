@@ -12,7 +12,7 @@ import type { AlertDialogHandle } from '../handle';
  * Documentation: [Base UI Alert Dialog](https://base-ui.com/react/components/alert-dialog)
  */
 export function AlertDialogRoot<Payload>(props: AlertDialogRoot.Props<Payload>) {
-  return useRenderDialogRoot(props, 'alert-dialog');
+  return useRenderDialogRoot('alert-dialog', props);
 }
 
 export interface AlertDialogRootState {}
@@ -25,8 +25,7 @@ export interface AlertDialogRootProps<Payload = unknown> extends Omit<
    * Event handler called when the alert dialog is opened or closed.
    */
   onOpenChange?:
-    | ((open: boolean, eventDetails: AlertDialogRoot.ChangeEventDetails) => void)
-    | undefined;
+    ((open: boolean, eventDetails: AlertDialogRoot.ChangeEventDetails) => void) | undefined;
   /**
    * A ref to imperative actions.
    * - `unmount`: Manually unmounts the alert dialog.

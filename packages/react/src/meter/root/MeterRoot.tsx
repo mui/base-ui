@@ -1,11 +1,11 @@
 'use client';
 import * as React from 'react';
 import { visuallyHidden } from '@base-ui/utils/visuallyHidden';
+import { formatNumber } from '@base-ui/utils/formatNumber';
+import { clamp } from '@base-ui/utils/clamp';
 import { MeterRootContext } from './MeterRootContext';
 import { BaseUIComponentProps, HTMLProps } from '../../internals/types';
-import { formatNumber } from '../../utils/formatNumber';
 import { valueToPercent } from '../../utils/valueToPercent';
-import { clamp } from '../../internals/clamp';
 import { useRenderElement } from '../../internals/useRenderElement';
 
 /**
@@ -39,10 +39,10 @@ export const MeterRoot = React.forwardRef(function MeterRoot(
   const percentageValue = clamp(Number.isNaN(rawPercentage) ? 0 : rawPercentage, 0, 100);
   const clampedValue = clamp(Number.isNaN(valueProp) ? min : valueProp, min, max);
 
-  // Without an explicit `format`, the value is displayed as its position within the range so the
-  // text stays in sync with the indicator fill for any `min`/`max` (not just the default 0–100).
+  // Format the clamped value so visible and accessible text stay in sync with `aria-valuenow` and
+  // the indicator fill. The raw value remains available as the second `getAriaValueText` argument.
   const formattedValue = format
-    ? formatNumber(valueProp, locale, format)
+    ? formatNumber(clampedValue, locale, format)
     : formatNumber(percentageValue / 100, locale, { style: 'percent' });
 
   let ariaValuetext = formattedValue;
@@ -70,13 +70,11 @@ export const MeterRoot = React.forwardRef(function MeterRoot(
   const contextValue: MeterRootContext = React.useMemo(
     () => ({
       formattedValue,
-      max,
-      min,
       percentageValue,
       setLabelId,
       value: valueProp,
     }),
-    [formattedValue, max, min, percentageValue, setLabelId, valueProp],
+    [formattedValue, percentageValue, setLabelId, valueProp],
   );
 
   const element = useRenderElement('div', componentProps, {

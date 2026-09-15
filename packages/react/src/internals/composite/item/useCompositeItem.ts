@@ -10,7 +10,7 @@ import { HTMLProps } from '../../types';
 
 export interface UseCompositeItemParameters<Metadata> extends Pick<
   UseCompositeListItemParameters<Metadata>,
-  'metadata' | 'indexGuessBehavior'
+  'metadata'
 > {}
 
 export function useCompositeItem<Metadata>(params: UseCompositeItemParameters<Metadata> = {}) {

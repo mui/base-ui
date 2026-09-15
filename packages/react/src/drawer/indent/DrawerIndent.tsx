@@ -5,8 +5,8 @@ import { BaseUIComponentProps } from '../../internals/types';
 import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useDrawerProviderContext } from '../provider/DrawerProviderContext';
-import { DrawerBackdropCssVars } from '../backdrop/DrawerBackdropCssVars';
-import { DrawerPopupCssVars } from '../popup/DrawerPopupCssVars';
+import * as DrawerBackdropCssVars from '../backdrop/DrawerBackdropCssVars';
+import * as DrawerPopupCssVars from '../popup/DrawerPopupCssVars';
 
 const stateAttributesMapping: StateAttributesMapping<DrawerIndentState> = {
   active(value): Record<string, string> | null {
@@ -30,7 +30,7 @@ export const DrawerIndent = React.forwardRef(function DrawerIndent(
 ) {
   const { render, className, style, ...elementProps } = componentProps;
 
-  const providerContext = useDrawerProviderContext(true);
+  const providerContext = useDrawerProviderContext();
 
   const active = providerContext?.active ?? false;
   const visualStateStore = providerContext?.visualStateStore;

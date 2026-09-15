@@ -8,8 +8,8 @@ import { AriaCombobox, type AriaComboboxState } from './AriaCombobox';
  *
  * Documentation: [Base UI Combobox](https://base-ui.com/react/components/combobox)
  */
-export function ComboboxRoot<Value, Multiple extends boolean | undefined = false>(
-  props: ComboboxRoot.Props<Value, Multiple>,
+export function ComboboxRoot<Value, Multiple extends boolean | undefined = false, Item = Value>(
+  props: ComboboxRoot.Props<Value, Multiple, Item>,
 ): React.JSX.Element {
   const {
     multiple = false as Multiple,
@@ -36,12 +36,20 @@ type ModeFromMultiple<Multiple extends boolean | undefined> = Multiple extends t
   ? 'multiple'
   : 'single';
 
-type ComboboxValueType<Value, Multiple extends boolean | undefined> = Multiple extends true
+type ComboboxInputValue<Value, Multiple extends boolean | undefined> = Multiple extends true
+  ? readonly Value[]
+  : Value;
+
+type ComboboxOutputValue<Value, Multiple extends boolean | undefined> = Multiple extends true
   ? Value[]
   : Value;
 
-export type ComboboxRootProps<Value, Multiple extends boolean | undefined = false> = Omit<
-  AriaCombobox.Props<Value, ModeFromMultiple<Multiple>>,
+export type ComboboxRootProps<
+  Value,
+  Multiple extends boolean | undefined = false,
+  Item = Value,
+> = Omit<
+  AriaCombobox.Props<Value, ModeFromMultiple<Multiple>, Item>,
   | 'fillInputOnItemPress'
   | 'autoComplete'
   | 'formAutoComplete'
@@ -87,15 +95,19 @@ export type ComboboxRootProps<Value, Multiple extends boolean | undefined = fals
   /**
    * When the item values are objects (`<Combobox.Item value={object}>`), this function converts the object value to a string representation for display in the input.
    * If the shape of the object is `{ value, label }`, the label will be used automatically without needing to specify this prop.
+   * With a `createItems()` collection, this receives the derived value, and the collection's
+   * `getLabel` takes precedence for values it can resolve.
    */
   itemToStringLabel?: ((itemValue: Value) => string) | undefined;
   /**
    * When the item values are objects (`<Combobox.Item value={object}>`), this function converts the object value to a string representation for form submission.
    * If the shape of the object is `{ value, label }`, the value will be used automatically without needing to specify this prop.
+   * With a `createItems()` collection, this receives the derived value.
    */
   itemToStringValue?: ((itemValue: Value) => string) | undefined;
   /**
    * Custom comparison logic used to determine if a combobox item value matches the current selected value. Useful when item values are objects without matching referentially.
+   * With a `createItems()` collection, both arguments are derived values.
    * Defaults to `Object.is` comparison.
    */
   isItemEqualToValue?: ((itemValue: Value, value: Value) => boolean) | undefined;
@@ -104,7 +116,7 @@ export type ComboboxRootProps<Value, Multiple extends boolean | undefined = fals
    *
    * To render a controlled combobox, use the `value` prop instead.
    */
-  defaultValue?: ComboboxValueType<Value, Multiple> | null | undefined;
+  defaultValue?: ComboboxInputValue<Value, Multiple> | null | undefined;
   /**
    * A ref to imperative actions.
    * - `unmount`: Manually unmounts the combobox.
@@ -115,14 +127,12 @@ export type ComboboxRootProps<Value, Multiple extends boolean | undefined = fals
    * Event handler called when the popup is opened or closed.
    */
   onOpenChange?:
-    | ((open: boolean, eventDetails: ComboboxRoot.ChangeEventDetails) => void)
-    | undefined;
+    ((open: boolean, eventDetails: ComboboxRoot.ChangeEventDetails) => void) | undefined;
   /**
    * Event handler called when the input value changes.
    */
   onInputValueChange?:
-    | ((inputValue: string, eventDetails: ComboboxRoot.ChangeEventDetails) => void)
-    | undefined;
+    ((inputValue: string, eventDetails: ComboboxRoot.ChangeEventDetails) => void) | undefined;
   /**
    * Callback fired when an item is highlighted or unhighlighted.
    * Receives the highlighted item value (or `undefined` if no item is highlighted) and event details with a `reason` property describing why the highlight changed.
@@ -140,13 +150,13 @@ export type ComboboxRootProps<Value, Multiple extends boolean | undefined = fals
   /**
    * The selected value of the combobox. Use when controlled.
    */
-  value?: ComboboxValueType<Value, Multiple> | null | undefined;
+  value?: ComboboxInputValue<Value, Multiple> | null | undefined;
   /**
    * Event handler called when the selected value of the combobox changes.
    */
   onValueChange?:
     | ((
-        value: ComboboxValueType<Value, Multiple> | (Multiple extends true ? never : null),
+        value: ComboboxOutputValue<Value, Multiple> | (Multiple extends true ? never : null),
         eventDetails: ComboboxRoot.ChangeEventDetails,
       ) => void)
     | undefined;
@@ -163,10 +173,11 @@ export type ComboboxRootHighlightEventReason = AriaCombobox.HighlightEventReason
 export type ComboboxRootHighlightEventDetails = AriaCombobox.HighlightEventDetails;
 
 export namespace ComboboxRoot {
-  export type Props<Value, Multiple extends boolean | undefined = false> = ComboboxRootProps<
+  export type Props<
     Value,
-    Multiple
-  >;
+    Multiple extends boolean | undefined = false,
+    Item = Value,
+  > = ComboboxRootProps<Value, Multiple, Item>;
   export type State = ComboboxRootState;
   export type Actions = ComboboxRootActions;
   export type ChangeEventReason = ComboboxRootChangeEventReason;

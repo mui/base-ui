@@ -37,7 +37,7 @@ export function DemoCodeBlock({
   selectedFile,
   selectedFileLines,
   collapsibleOpen,
-  collapsibleLinesThreshold = 12,
+  collapsibleLinesThreshold = 8,
   collapsibleTriggerRef,
   copyButton,
 }: DemoCodeBlockProps) {

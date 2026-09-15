@@ -14,6 +14,11 @@ export interface DrawerNestedSwipeProgressStore {
 export interface DrawerRootContext {
   swipeDirection: DrawerSwipeDirection;
   /**
+   * Whether `Drawer.SwipeArea` is currently driving an open gesture (writing the popup's
+   * swipe-movement vars imperatively). The viewport reads this to skip resetting them on open.
+   */
+  swipeAreaActiveRef: React.MutableRefObject<boolean>;
+  /**
    * Whether to disable velocity-based snap skipping.
    */
   snapToSequentialPoints: boolean;
@@ -24,16 +29,14 @@ export interface DrawerRootContext {
   /**
    * The currently active snap point.
    */
-  activeSnapPoint?: DrawerSnapPoint | null | undefined;
+  activeSnapPoint: DrawerSnapPoint | null;
   /**
    * Updates the currently active snap point.
    */
-  setActiveSnapPoint?:
-    | ((
-        snapPoint: DrawerSnapPoint | null,
-        eventDetails?: DrawerRootSnapPointChangeEventDetails,
-      ) => void)
-    | undefined;
+  setActiveSnapPoint: (
+    snapPoint: DrawerSnapPoint | null,
+    eventDetails?: DrawerRootSnapPointChangeEventDetails,
+  ) => void;
   /**
    * The measured height of the frontmost open drawer within the current nested drawer stack.
    */
@@ -101,7 +104,7 @@ export function useDrawerRootContext(optional: true): DrawerRootContext | undefi
 export function useDrawerRootContext(optional?: boolean) {
   const drawerRootContext = React.useContext(DrawerRootContext);
 
-  if (optional === false && drawerRootContext === undefined) {
+  if (optional !== true && drawerRootContext === undefined) {
     throw new Error(
       'Base UI: DrawerRootContext is missing. Drawer parts must be placed within <Drawer.Root>.',
     );

@@ -1,4 +1,4 @@
-import { expect } from 'vitest';
+import { expect, describe, it } from 'vitest';
 import { Field } from '@base-ui/react/field';
 import { createRenderer, screen } from '@mui/internal-test-utils';
 import { describeConformance } from '../../../test/describeConformance';
@@ -38,6 +38,17 @@ describe('<Field.Description />', () => {
     expect(screen.getByRole('textbox').getAttribute('aria-describedby')).toBe(
       `external-description ${screen.getByText('Message').id}`,
     );
+  });
+
+  it('does not register an empty description id', () => {
+    render(
+      <Field.Root>
+        <Field.Control aria-describedby="external-description" />
+        <Field.Description id="">Message</Field.Description>
+      </Field.Root>,
+    );
+
+    expect(screen.getByRole('textbox')).toHaveAttribute('aria-describedby', 'external-description');
   });
 
   it('reflects the disabled state from Field.Item', async () => {

@@ -1,3 +1,6 @@
+/* Keep layer order stable when this file is emitted from a client CSS chunk. */
+@layer all, base, theme, components, utilities;
+
 @layer components {
   .ReleaseTimeline {
     position: relative;
@@ -20,16 +23,15 @@
     }
   }
 
-  .TimelineSpine {
-    display: none;
-  }
-
   .TimelineItem {
     position: relative;
   }
 
   @media (min-width: 48rem) {
-    .TimelineSpine {
+    /* Decorative vertical spine. A pseudo-element rather than a child <div> so
+       the <ul> only contains <li> elements. */
+    .ReleaseTimeline::before {
+      content: '';
       position: absolute;
       display: block;
       top: 0;
@@ -55,12 +57,12 @@
       align-items: start;
     }
 
-    .TimelineItem:nth-child(even) .TimelineCard {
+    .TimelineItem:nth-child(odd) .TimelineCard {
       grid-column: 1;
       grid-row: 1;
     }
 
-    .TimelineItem:nth-child(odd) .TimelineCard {
+    .TimelineItem:nth-child(even) .TimelineCard {
       grid-column: 2;
     }
 
@@ -92,11 +94,11 @@
       background: var(--color-border);
     }
 
-    .TimelineItem:nth-child(odd)::after {
+    .TimelineItem:nth-child(even)::after {
       left: calc(50% + var(--dot-size) / 2);
     }
 
-    .TimelineItem:nth-child(even)::after {
+    .TimelineItem:nth-child(odd)::after {
       right: calc(50% + var(--dot-size) / 2);
     }
   }

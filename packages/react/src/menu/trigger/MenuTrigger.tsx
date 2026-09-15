@@ -22,24 +22,21 @@ import { pressableTriggerOpenStateMapping } from '../../utils/popupStateMapping'
 import { useRenderElement } from '../../internals/useRenderElement';
 import { BaseUIComponentProps, NativeButtonProps } from '../../internals/types';
 import { useButton } from '../../internals/use-button/useButton';
-import { getPseudoElementBounds } from '../../utils/getPseudoElementBounds';
+import { isMouseWithinBounds } from '../../utils/getPseudoElementBounds';
 import { CompositeItem } from '../../internals/composite/item/CompositeItem';
 import { useCompositeRootContext } from '../../internals/composite/root/CompositeRootContext';
 import { findRootOwnerId } from '../utils/findRootOwnerId';
-import { useTriggerDataForwarding } from '../../utils/popups';
+import { usePopupHandleStore, useTriggerDataForwarding } from '../../utils/popups';
 import { useTriggerFocusGuards } from '../../utils/popups/useTriggerFocusGuards';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import { REASONS } from '../../internals/reasons';
 import { useMixedToggleClickHandler } from '../../utils/useMixedToggleClickHandler';
 import { MenuHandle } from '../store/MenuHandle';
-import { useContextMenuRootContext } from '../../context-menu/root/ContextMenuRootContext';
 import { useMenubarContext } from '../../menubar/MenubarContext';
 import { MenuParent } from '../root/MenuRoot';
 import { PATIENT_CLICK_THRESHOLD } from '../../internals/constants';
 import { FocusGuard } from '../../utils/FocusGuard';
 import { mergeProps } from '../../merge-props';
-
-const BOUNDARY_OFFSET = 2;
 
 /**
  * A button that opens the menu.
@@ -67,7 +64,8 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
   } = componentProps;
 
   const rootContext = useMenuRootContext(true);
-  const store = handle?.store ?? rootContext?.store;
+  const handleStore = usePopupHandleStore(handle);
+  const store = handleStore ?? rootContext?.store;
   if (!store) {
     throw new Error(
       'Base UI: <Menu.Trigger> must be either used within a <Menu.Root> component or provided with a handle.',
@@ -148,14 +146,7 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
       return;
     }
 
-    const bounds = getPseudoElementBounds(triggerRef.current);
-
-    if (
-      mouseEvent.clientX >= bounds.left - BOUNDARY_OFFSET &&
-      mouseEvent.clientX <= bounds.right + BOUNDARY_OFFSET &&
-      mouseEvent.clientY >= bounds.top - BOUNDARY_OFFSET &&
-      mouseEvent.clientY <= bounds.bottom + BOUNDARY_OFFSET
-    ) {
+    if (isMouseWithinBounds(mouseEvent, triggerRef.current)) {
       return;
     }
 
@@ -176,7 +167,6 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
     enabled:
       openOnHover &&
       !disabled &&
-      parent.type !== 'context-menu' &&
       (!isInMenubar || (parentMenubarHasSubmenuOpen && !isMountedByThisTrigger)),
     handleClose: safePolygon({ blockPointerEvents: !isInMenubar }),
     mouseOnly: true,
@@ -195,7 +185,7 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
   const stickIfOpen = useStickIfOpen(isOpenedByThisTrigger, store.select('lastOpenChangeReason'));
 
   const click = useClick(floatingRootContext, {
-    enabled: !disabled && parent.type !== 'context-menu',
+    enabled: !disabled,
     event: isOpenedByThisTrigger && isInMenubar ? 'click' : 'mousedown',
     toggle: true,
     ignoreMouse: false,
@@ -369,7 +359,7 @@ function useStickIfOpen(open: boolean, openReason: string | null) {
   const stickIfOpenTimeout = useTimeout();
   const [stickIfOpen, setStickIfOpen] = React.useState(false);
   useIsoLayoutEffect(() => {
-    if (open && openReason === 'trigger-hover') {
+    if (open && openReason === REASONS.triggerHover) {
       // Only allow "patient" clicks to close the menu if it's open.
       // If they clicked within 500ms of the menu opening, keep it open.
       setStickIfOpen(true);
@@ -386,8 +376,6 @@ function useStickIfOpen(open: boolean, openReason: string | null) {
 }
 
 function useMenuParent() {
-  const contextMenuContext = useContextMenuRootContext(true);
-  const parentContext = useMenuRootContext(true);
   const menubarContext = useMenubarContext(true);
 
   const parent: MenuParent = React.useMemo(() => {
@@ -398,20 +386,10 @@ function useMenuParent() {
       };
     }
 
-    // Ensure this is not a Menu nested inside ContextMenu.Trigger.
-    // ContextMenu parentContext is always undefined as ContextMenu.Root is instantiated with
-    // <MenuRootContext.Provider value={undefined}>
-    if (contextMenuContext && !parentContext) {
-      return {
-        type: 'context-menu',
-        context: contextMenuContext,
-      };
-    }
-
     return {
       type: undefined,
     };
-  }, [contextMenuContext, parentContext, menubarContext]);
+  }, [menubarContext]);
 
   return parent;
 }

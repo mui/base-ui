@@ -1,25 +1,20 @@
 'use client';
 import * as React from 'react';
-import { useStore } from '@base-ui/utils/store';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { inertValue } from '@base-ui/utils/inertValue';
-import {
-  useComboboxFloatingContext,
-  useComboboxRootContext,
-  useComboboxDerivedItemsContext,
-} from '../root/ComboboxRootContext';
+import { useComboboxFloatingContext, useComboboxRootContext } from '../root/ComboboxRootContext';
 import { ComboboxPositionerContext } from './ComboboxPositionerContext';
+import { useListEmpty } from '../utils/parts';
 import {
   type Side,
   type Align,
   useAnchorPositioning,
   type UseAnchorPositioningSharedParameters,
-} from '../../utils/useAnchorPositioning';
+} from '../../internals/useAnchorPositioning';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useComboboxPortalContext } from '../portal/ComboboxPortalContext';
 import { DROPDOWN_COLLISION_AVOIDANCE } from '../../internals/constants';
-import { selectors } from '../store';
 import { InternalBackdrop } from '../../utils/InternalBackdrop';
 import { usePositioner } from '../../utils/usePositioner';
 import { useAnchoredPopupScrollLock } from '../../utils/useAnchoredPopupScrollLock';
@@ -38,15 +33,17 @@ export const ComboboxPositioner = React.forwardRef(function ComboboxPositioner(
     render,
     className,
     anchor,
-    positionMethod = 'absolute',
-    side = 'bottom',
-    align = 'center',
-    sideOffset = 0,
-    alignOffset = 0,
+    // `useAnchorPositioning` applies the same defaults to the undefined values; the names
+    // remain destructured to exclude the props from `elementProps`.
+    positionMethod,
+    side,
+    align,
+    sideOffset,
+    alignOffset,
     collisionBoundary = 'clipping-ancestors',
-    collisionPadding = 5,
-    arrowPadding = 5,
-    sticky = false,
+    collisionPadding,
+    arrowPadding,
+    sticky,
     disableAnchorTracking = false,
     collisionAvoidance = DROPDOWN_COLLISION_AVOIDANCE,
     style: styleProp,
@@ -54,22 +51,21 @@ export const ComboboxPositioner = React.forwardRef(function ComboboxPositioner(
   } = componentProps;
 
   const store = useComboboxRootContext();
-  const { filteredItems } = useComboboxDerivedItemsContext();
   const floatingRootContext = useComboboxFloatingContext();
   const keepMounted = useComboboxPortalContext();
 
-  const modal = useStore(store, selectors.modal);
-  const open = useStore(store, selectors.open);
-  const mounted = useStore(store, selectors.mounted);
-  const openMethod = useStore(store, selectors.openMethod);
-  const positionerElement = useStore(store, selectors.positionerElement);
-  const triggerElement = useStore(store, selectors.triggerElement);
-  const inputElement = useStore(store, selectors.inputElement);
-  const inputGroupElement = useStore(store, selectors.inputGroupElement);
-  const inputInsidePopup = useStore(store, selectors.inputInsidePopup);
-  const transitionStatus = useStore(store, selectors.transitionStatus);
+  const modal = store.useState('modal');
+  const open = store.useState('open');
+  const mounted = store.useState('mounted');
+  const openMethod = store.useState('openMethod');
+  const positionerElement = store.useState('positionerElement');
+  const triggerElement = store.useState('triggerElement');
+  const inputElement = store.useState('inputElement');
+  const inputGroupElement = store.useState('inputGroupElement');
+  const inputInsidePopup = store.useState('inputInsidePopup');
+  const transitionStatus = store.useState('transitionStatus');
 
-  const empty = filteredItems.length === 0;
+  const empty = useListEmpty();
   const resolvedAnchor =
     anchor ?? (inputInsidePopup ? triggerElement : (inputGroupElement ?? inputElement));
 

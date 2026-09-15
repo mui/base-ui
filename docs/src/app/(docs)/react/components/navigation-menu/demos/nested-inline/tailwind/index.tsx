@@ -161,7 +161,7 @@ function CaretDownIcon(props: React.ComponentProps<'svg'>) {
 }
 
 const triggerClassName =
-  'flex h-8 items-center justify-center gap-1.5 bg-transparent px-2 text-sm font-normal text-neutral-950 no-underline select-none min-[501px]:px-3 hover:bg-neutral-100 data-popup-open:bg-neutral-100 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-neutral-950 dark:focus-visible:outline-white dark:text-white dark:hover:bg-neutral-800 dark:data-popup-open:bg-neutral-800';
+  'flex h-8 items-center justify-center gap-1.5 bg-transparent px-2 text-sm font-normal text-neutral-950 no-underline select-none min-[501px]:px-3 hover:bg-neutral-100 data-pressed:bg-neutral-100 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-neutral-950 dark:focus-visible:outline-white dark:text-white dark:hover:bg-neutral-800 dark:data-pressed:bg-neutral-800';
 
 const sharedContentClassName =
   'h-full w-[calc(100vw_-_40px)] ' +
@@ -178,7 +178,7 @@ const productContentClassName = `${sharedContentClassName} p-0 min-[700px]:[widt
 const guidesContentClassName = `${sharedContentClassName} p-0 min-[700px]:[width:min(500px,calc(100vw-40px))]`;
 
 const submenuTriggerClassName =
-  'm-0 flex w-full min-w-[10rem] flex-col items-start gap-1 border-0 bg-transparent p-2 text-left text-inherit hover:bg-neutral-100 data-popup-open:bg-neutral-100 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-neutral-950 dark:focus-visible:outline-white dark:hover:bg-neutral-800 dark:data-popup-open:bg-neutral-800';
+  'm-0 flex w-full min-w-[10rem] flex-col items-start gap-1 border-0 bg-transparent p-2 text-left text-inherit hover:bg-neutral-100 data-pressed:bg-neutral-100 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-neutral-950 dark:focus-visible:outline-white dark:hover:bg-neutral-800 dark:data-pressed:bg-neutral-800';
 
 const submenuContentClassName =
   'flex h-full translate-x-0 flex-col gap-4 p-4 min-[700px]:blur-0 transition-[opacity,translate,filter] duration-[var(--duration)] ease-[var(--easing)] min-[700px]:duration-[calc(var(--duration)*1.35)] min-[700px]:ease-[cubic-bezier(0.16,1,0.3,1)] ' +
@@ -188,4 +188,4 @@ const submenuContentClassName =
   'min-[700px]:data-ending-style:data-[activation-direction=up]:translate-y-[72px] min-[700px]:data-ending-style:data-[activation-direction=down]:translate-y-[-72px] min-[700px]:data-ending-style:blur-[2px]';
 
 const linkCardClassName =
-  'relative block h-full w-full border-0 bg-transparent p-2 text-left text-inherit no-underline hover:bg-neutral-100 data-popup-open:bg-neutral-100 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-neutral-950 dark:focus-visible:outline-white dark:hover:bg-neutral-800 dark:data-popup-open:bg-neutral-800';
+  'relative block h-full w-full border-0 bg-transparent p-2 text-left text-inherit no-underline hover:bg-neutral-100 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-neutral-950 dark:focus-visible:outline-white dark:hover:bg-neutral-800';

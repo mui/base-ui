@@ -7,7 +7,11 @@ export interface ComboboxDerivedItemsContext {
   query: string;
   hasItems: boolean;
   filteredItems: any[];
-  flatFilteredItems: any[];
+  /**
+   * `filteredItems` flattened across groups and projected to selection values. Identical to the
+   * items themselves unless `items` is a `createItems()` collection.
+   */
+  flatFilteredValues: any[];
 }
 
 export const ComboboxRootContext = React.createContext<ComboboxStore | undefined>(undefined);

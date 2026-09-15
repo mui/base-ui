@@ -10,6 +10,7 @@ import { Avatar, type ImageLoadingStatus } from '@base-ui/react/avatar';
 >
   <Avatar.Image
     crossOrigin="anonymous"
+    keepMounted
     referrerPolicy="no-referrer"
     sizes="48px"
     srcSet="avatar.png 1x, avatar@2x.png 2x"
@@ -17,6 +18,8 @@ import { Avatar, type ImageLoadingStatus } from '@base-ui/react/avatar';
       expectType<ImageLoadingStatus, typeof status>(status);
     }}
     render={(props, state) => {
+      expectType<string | undefined, typeof props.src>(props.src);
+      expectType<string | undefined, typeof props.alt>(props.alt);
       expectType<ImageLoadingStatus, typeof state.imageLoadingStatus>(state.imageLoadingStatus);
       return <img alt="" {...props} />;
     }}

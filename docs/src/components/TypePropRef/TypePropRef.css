@@ -1,3 +1,6 @@
+/* Keep layer order stable when this file is emitted from a client CSS chunk. */
+@layer all, base, theme, components, utilities;
+
 @layer components {
   .TypePropRefLink {
     text-decoration: underline;

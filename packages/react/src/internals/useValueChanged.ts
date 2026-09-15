@@ -8,14 +8,10 @@ export function useValueChanged<T>(value: T, onChange: (previousValue: T) => voi
   const onChangeCallback = useStableCallback(onChange);
 
   useIsoLayoutEffect(() => {
-    if (valueRef.current === value) {
-      return;
+    if (valueRef.current !== value) {
+      onChangeCallback(valueRef.current);
     }
 
-    onChangeCallback(valueRef.current);
-  }, [value, onChangeCallback]);
-
-  useIsoLayoutEffect(() => {
     valueRef.current = value;
-  }, [value]);
+  }, [value, onChangeCallback]);
 }

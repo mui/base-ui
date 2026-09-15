@@ -168,7 +168,7 @@ Renders a `<button>` element.
 
 | Prop         | Type                                                                                         | Default | Description                                                                                                                                                                                          |
 | :----------- | :------------------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| handle       | `DrawerHandle<Payload>`                                                                      | -       | A handle to associate the trigger with a drawer.&#xA;Can be created with the Drawer.createHandle() method.                                                                                           |
+| handle       | `Drawer.Handle<Payload>`                                                                     | -       | A handle to associate the trigger with a drawer.&#xA;Can be created with the Drawer.createHandle() method.                                                                                           |
 | nativeButton | `boolean`                                                                                    | `true`  | Whether the component renders a native `<button>` element when replacing it&#xA;via the `render` prop.&#xA;Set to `false` if the rendered element is not a button (for example, `<div>`).            |
 | payload      | `Payload`                                                                                    | -       | A payload to pass to the drawer when it is opened.                                                                                                                                                   |
 | id           | `string`                                                                                     | -       | ID of the trigger. In addition to being forwarded to the rendered element,&#xA;it is also used to specify the active trigger for drawers in controlled mode (with the Drawer.Root `triggerId` prop). |
@@ -233,12 +233,12 @@ Renders a `<div>` element.
 
 **Backdrop Data Attributes:**
 
-| Attribute           | Type | Description                               |
-| :------------------ | :--- | :---------------------------------------- |
-| data-open           | -    | Present when the drawer is open.          |
-| data-closed         | -    | Present when the drawer is closed.        |
-| data-starting-style | -    | Present when the drawer is animating in.  |
-| data-ending-style   | -    | Present when the drawer is animating out. |
+| Attribute           | Type | Description                                  |
+| :------------------ | :--- | :------------------------------------------- |
+| data-open           | -    | Present when the drawer is open.             |
+| data-closed         | -    | Present when the drawer is closed.           |
+| data-starting-style | -    | Present when the drawer begins animating in. |
+| data-ending-style   | -    | Present when the drawer is animating out.    |
 
 **Backdrop CSS Variables:**
 
@@ -288,7 +288,7 @@ Renders a `<div>` element.
 | data-swipe-direction       | `'up' \| 'down' \| 'left' \| 'right'` | Indicates the swipe direction.                                       |
 | data-swipe-dismiss         | -                                     | Present when the drawer is dismissed by swiping.                     |
 | data-swiping               | -                                     | Present when the drawer is being swiped.                             |
-| data-starting-style        | -                                     | Present when the drawer is animating in.                             |
+| data-starting-style        | -                                     | Present when the drawer begins animating in.                         |
 | data-ending-style          | -                                     | Present when the drawer is animating out.                            |
 
 **Popup CSS Variables:**
@@ -446,7 +446,7 @@ Renders a `<div>` element.
 | data-open           | -    | Present when the drawer is open.                         |
 | data-closed         | -    | Present when the drawer is closed.                       |
 | data-nested         | -    | Present when the drawer is nested within another drawer. |
-| data-starting-style | -    | Present when the drawer is animating in.                 |
+| data-starting-style | -    | Present when the drawer begins animating in.             |
 | data-ending-style   | -    | Present when the drawer is animating out.                |
 
 **Viewport CSS Variables:**
@@ -476,7 +476,7 @@ type DrawerViewportState = {
 
 ### createHandle
 
-Creates a new handle to connect a Dialog.Root with detached Dialog.Trigger components.
+Creates a new handle to connect a Drawer.Root with detached Drawer.Trigger components.
 
 **Return Value:**
 
@@ -486,19 +486,18 @@ type ReturnValue = Drawer.Handle<Payload>;
 
 ### Handle
 
-A handle to control a Dialog imperatively and to associate detached triggers with it.
+Controls a Drawer imperatively and associates detached `Drawer.Trigger` components with a
+`Drawer.Root`. Create one with `Drawer.createHandle()` and pass it to the `handle` prop of the
+root and of any triggers rendered outside of it.
 
-**Constructor Parameters:**
-
-| Parameter | Type                   | Default | Description |
-| :-------- | :--------------------- | :------ | :---------- |
-| store?    | `DialogStore<Payload>` | -       | -           |
+The imperative methods take effect only while a root using this handle is mounted; calls made
+before a root attaches (or after it unmounts) are ignored.
 
 **Properties:**
 
-| Property | Type      | Modifiers | Description                                     |
-| :------- | :-------- | :-------- | :---------------------------------------------- |
-| isOpen   | `boolean` | readonly  | Indicates whether the dialog is currently open. |
+| Property | Type      | Modifiers | Description                                                                                    |
+| :------- | :-------- | :-------- | :--------------------------------------------------------------------------------------------- |
+| isOpen   | `boolean` | readonly  | Whether the dialog is currently open. Returns `false` while no root is attached to the handle. |
 
 **Methods:**
 
@@ -506,8 +505,7 @@ A handle to control a Dialog imperatively and to associate detached triggers wit
 function open(triggerId: string | null): void;
 ```
 
-Opens the dialog and associates it with the trigger with the given id.
-The trigger, if provided, must be a matching Trigger component with this handle passed as a prop.
+Opens the dialog, optionally associating it with a trigger.
 
 This method should only be called in an event handler or an effect (not during rendering).
 
@@ -515,14 +513,17 @@ This method should only be called in an event handler or an effect (not during r
 function openWithPayload(payload: Payload): void;
 ```
 
-Opens the dialog and sets the payload.
-Does not associate the dialog with any trigger.
+Opens the dialog with the given payload, without associating it with any trigger.
+
+This method should only be called in an event handler or an effect (not during rendering).
 
 ```typescript
 function close(): void;
 ```
 
 Closes the dialog.
+
+This method should only be called in an event handler or an effect (not during rendering).
 
 ### Indent
 

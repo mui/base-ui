@@ -8,6 +8,26 @@ interface ElementBounds {
   bottom: number;
 }
 
+// Tolerance around the element bounds so a fast click whose pointer drifts slightly
+// during press-release isn't mistaken for a drag-off-and-release cancellation.
+// Matches typical OS/browser drag-initiation thresholds.
+const BOUNDARY_OFFSET = 5;
+
+/**
+ * Determines if a mouse event occurred within the bounds of an element
+ * (including its pseudo-elements), with a small tolerance for pointer drift.
+ */
+export function isMouseWithinBounds(event: MouseEvent, element: HTMLElement): boolean {
+  const bounds = getPseudoElementBounds(element);
+
+  return (
+    event.clientX >= bounds.left - BOUNDARY_OFFSET &&
+    event.clientX <= bounds.right + BOUNDARY_OFFSET &&
+    event.clientY >= bounds.top - BOUNDARY_OFFSET &&
+    event.clientY <= bounds.bottom + BOUNDARY_OFFSET
+  );
+}
+
 export function getPseudoElementBounds(element: HTMLElement): ElementBounds {
   const elementRect = element.getBoundingClientRect();
   const win = ownerWindow(element);

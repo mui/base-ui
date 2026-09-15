@@ -3,13 +3,15 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 15rem;
-  height: 12rem;
+  width: 100%;
+  max-width: 16rem;
+  aspect-ratio: 5 / 3;
   outline: 0;
   border: 1px solid oklch(14.5% 0 0deg);
   border-radius: 0;
   background-color: white;
-  font-weight: 400;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
   color: oklch(14.5% 0 0deg);
   -webkit-user-select: none;
   user-select: none;
@@ -115,24 +117,6 @@
   font-size: 0.875rem;
   line-height: 1rem;
 
-  &[data-popup-open] {
-    z-index: 0;
-    position: relative;
-  }
-
-  &[data-popup-open]::before {
-    content: '';
-    z-index: -1;
-    position: absolute;
-    inset-block: 0;
-    inset-inline: 0.25rem;
-    background-color: oklch(97% 0 0deg);
-
-    @media (prefers-color-scheme: dark) {
-      background-color: oklch(26.9% 0 0deg);
-    }
-  }
-
   &[data-highlighted] {
     z-index: 0;
     position: relative;
@@ -156,14 +140,6 @@
     }
   }
 
-  &[data-highlighted][data-popup-open]::before {
-    background-color: oklch(14.5% 0 0deg);
-
-    @media (prefers-color-scheme: dark) {
-      background-color: white;
-    }
-  }
-
   &[data-disabled] {
     color: oklch(55.6% 0 0deg);
 
@@ -178,6 +154,32 @@
   justify-content: space-between;
   gap: 1rem;
   padding-right: 0.5rem;
+
+  &[data-popup-open] {
+    z-index: 0;
+    position: relative;
+  }
+
+  &[data-popup-open]::before {
+    content: '';
+    z-index: -1;
+    position: absolute;
+    inset-block: 0;
+    inset-inline: 0.25rem;
+    background-color: oklch(97% 0 0deg);
+
+    @media (prefers-color-scheme: dark) {
+      background-color: oklch(26.9% 0 0deg);
+    }
+  }
+
+  &[data-highlighted][data-popup-open]::before {
+    background-color: oklch(14.5% 0 0deg);
+
+    @media (prefers-color-scheme: dark) {
+      background-color: white;
+    }
+  }
 }
 
 .Separator {

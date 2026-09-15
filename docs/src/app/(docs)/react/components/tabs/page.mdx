@@ -29,6 +29,15 @@ import { Tabs } from '@base-ui/react/tabs';
 
 ## Examples
 
+### Animated panels
+
+Animate panels as they activate using the `data-starting-style` and `data-ending-style` attributes.
+The `data-activation-direction` attribute indicates which direction the newly active tab is relative to the previously active one, letting panels slide in from the correct side.
+
+import { DemoTabsAnimatedPanels } from './demos/animated-panels';
+
+<DemoTabsAnimatedPanels />
+
 ### Links
 
 Use the `render` prop and set `nativeButton={false}` on `<Tabs.Tab>` to render tabs as anchor elements.

@@ -3,13 +3,15 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 15rem;
-  height: 12rem;
+  width: 100%;
+  max-width: 16rem;
+  aspect-ratio: 5 / 3;
   outline: 0;
   border: 1px solid oklch(14.5% 0 0deg);
   border-radius: 0;
   background-color: white;
-  font-weight: 400;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
   color: oklch(14.5% 0 0deg);
   -webkit-user-select: none;
   user-select: none;

@@ -1,3 +1,6 @@
+/* Keep layer order stable when this file is emitted from a client CSS chunk. */
+@layer all, base, theme, components, utilities;
+
 @layer components {
   .CodeBlockRoot {
     align-self: stretch;
@@ -19,6 +22,12 @@
       padding-left: 0.75rem;
       padding-right: 0.75rem;
     }
+  }
+
+  /* Inline code placed directly in a block has no `.frame` or `pre` to carry the inset above. */
+  .CodeBlockRoot > code {
+    display: block;
+    padding: 0.5rem 0.75rem;
   }
 
   .CodeBlockPanel {
@@ -85,6 +94,11 @@
       outline: 2px solid var(--gray-t2);
       outline-offset: 0;
     }
+  }
+
+  .CodeBlockRoot > .CodeBlockPreContainer:first-child .CodeBlockViewport {
+    border-top-left-radius: calc(var(--radius-12) - 1px);
+    border-top-right-radius: calc(var(--radius-12) - 1px);
   }
 
   .CodeBlockPreInline {

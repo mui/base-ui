@@ -159,12 +159,12 @@ Renders a `<div>` element.
 
 **Backdrop Data Attributes:**
 
-| Attribute           | Type | Description                               |
-| :------------------ | :--- | :---------------------------------------- |
-| data-open           | -    | Present when the dialog is open.          |
-| data-closed         | -    | Present when the dialog is closed.        |
-| data-starting-style | -    | Present when the dialog is animating in.  |
-| data-ending-style   | -    | Present when the dialog is animating out. |
+| Attribute           | Type | Description                                  |
+| :------------------ | :--- | :------------------------------------------- |
+| data-open           | -    | Present when the dialog is open.             |
+| data-closed         | -    | Present when the dialog is closed.           |
+| data-starting-style | -    | Present when the dialog begins animating in. |
+| data-ending-style   | -    | Present when the dialog is animating out.    |
 
 ### Backdrop.Props
 
@@ -204,7 +204,7 @@ Renders a `<div>` element.
 | data-closed             | -    | Present when the dialog is closed.                               |
 | data-nested             | -    | Present when the dialog is nested within another dialog.         |
 | data-nested-dialog-open | -    | Present when the dialog has other open dialogs nested within it. |
-| data-starting-style     | -    | Present when the dialog is animating in.                         |
+| data-starting-style     | -    | Present when the dialog begins animating in.                     |
 | data-ending-style       | -    | Present when the dialog is animating out.                        |
 
 **Popup CSS Variables:**
@@ -332,7 +332,7 @@ Renders a `<div>` element.
 | data-closed             | -    | Present when the dialog is closed.                               |
 | data-nested             | -    | Present when the dialog is nested within another dialog.         |
 | data-nested-dialog-open | -    | Present when the dialog has other open dialogs nested within it. |
-| data-starting-style     | -    | Present when the dialog is animating in.                         |
+| data-starting-style     | -    | Present when the dialog begins animating in.                     |
 | data-ending-style       | -    | Present when the dialog is animating out.                        |
 
 ### Viewport.Props
@@ -366,19 +366,18 @@ type ReturnValue = AlertDialog.Handle<Payload>;
 
 ### Handle
 
-A handle to control an Alert Dialog imperatively and to associate detached triggers with it.
+Controls an Alert Dialog imperatively and associates detached `AlertDialog.Trigger` components with
+an `AlertDialog.Root`. Create one with `AlertDialog.createHandle()` and pass it to the `handle`
+prop of the root and of any triggers rendered outside of it.
 
-**Constructor Parameters:**
-
-| Parameter | Type                   | Default | Description                              |
-| :-------- | :--------------------- | :------ | :--------------------------------------- |
-| store?    | `DialogStore<Payload>` | -       | Internal store holding the dialog state. |
+The imperative methods take effect only while a root using this handle is mounted; calls made
+before a root attaches (or after it unmounts) are ignored.
 
 **Properties:**
 
-| Property | Type      | Modifiers | Description                                     |
-| :------- | :-------- | :-------- | :---------------------------------------------- |
-| isOpen   | `boolean` | readonly  | Indicates whether the dialog is currently open. |
+| Property | Type      | Modifiers | Description                                                                                    |
+| :------- | :-------- | :-------- | :--------------------------------------------------------------------------------------------- |
+| isOpen   | `boolean` | readonly  | Whether the dialog is currently open. Returns `false` while no root is attached to the handle. |
 
 **Methods:**
 
@@ -386,8 +385,7 @@ A handle to control an Alert Dialog imperatively and to associate detached trigg
 function open(triggerId: string | null): void;
 ```
 
-Opens the dialog and associates it with the trigger with the given id.
-The trigger, if provided, must be a matching Trigger component with this handle passed as a prop.
+Opens the dialog, optionally associating it with a trigger.
 
 This method should only be called in an event handler or an effect (not during rendering).
 
@@ -395,14 +393,17 @@ This method should only be called in an event handler or an effect (not during r
 function openWithPayload(payload: Payload): void;
 ```
 
-Opens the dialog and sets the payload.
-Does not associate the dialog with any trigger.
+Opens the dialog with the given payload, without associating it with any trigger.
+
+This method should only be called in an event handler or an effect (not during rendering).
 
 ```typescript
 function close(): void;
 ```
 
 Closes the dialog.
+
+This method should only be called in an event handler or an effect (not during rendering).
 
 ## External Types
 

@@ -1,15 +1,11 @@
 'use client';
 import * as React from 'react';
 
-export interface TooltipProviderContext {
-  delay: number | undefined;
-  closeDelay: number | undefined;
-}
+/**
+ * Holds the provider's `delay` value. `closeDelay` is handled by the delay group.
+ */
+export const TooltipProviderContext = React.createContext<number | undefined>(undefined);
 
-export const TooltipProviderContext = React.createContext<TooltipProviderContext | undefined>(
-  undefined,
-);
-
-export function useTooltipProviderContext(): TooltipProviderContext | undefined {
+export function useTooltipProviderContext(): number | undefined {
   return React.useContext(TooltipProviderContext);
 }

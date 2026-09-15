@@ -19,7 +19,10 @@ export interface SliderRootContext {
   dragging: boolean;
   disabled: boolean;
   validation: UseFieldValidationReturnValue;
-  formatOptionsRef: React.RefObject<Intl.NumberFormatOptions | undefined>;
+  /**
+   * Options to format the value.
+   */
+  format: Intl.NumberFormatOptions | undefined;
   handleInputChange: (
     valueInput: number,
     index: number,
@@ -67,7 +70,6 @@ export interface SliderRootContext {
    * @default 'horizontal'
    */
   orientation: Orientation;
-  pressedInputRef: React.RefObject<HTMLInputElement | null>;
   pressedThumbCenterOffsetRef: React.RefObject<number | null>;
   pressedThumbIndexRef: React.RefObject<number>;
   pressedValuesRef: React.RefObject<readonly number[] | null>;
@@ -82,7 +84,7 @@ export interface SliderRootContext {
    * and drag interactions. Returns `true` when the value was applied, or `false`
    * when it was invalid (NaN), unchanged, or the change was canceled.
    */
-  setValue: (newValue: number | number[], details?: SliderRoot.ChangeEventDetails) => boolean;
+  setValue: (newValue: number | number[], details: SliderRoot.ChangeEventDetails) => boolean;
   state: SliderRootState;
   /**
    * The step increment of the slider when incrementing or decrementing. It will snap
@@ -91,7 +93,7 @@ export interface SliderRootContext {
    */
   step: number;
   thumbCollisionBehavior: 'push' | 'swap' | 'none';
-  thumbMap: Map<Node, CompositeMetadata<ThumbMetadata> | null>;
+  thumbMap: Map<Node, CompositeMetadata<ThumbMetadata>>;
   thumbRefs: React.RefObject<(HTMLElement | null)[]>;
   /**
    * The value(s) of the slider

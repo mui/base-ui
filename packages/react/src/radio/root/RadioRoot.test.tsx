@@ -1,4 +1,4 @@
-import { expect } from 'vitest';
+import { expect, vi, describe, it } from 'vitest';
 import * as React from 'react';
 import { Radio } from '@base-ui/react/radio';
 import { RadioGroup } from '@base-ui/react/radio-group';
@@ -14,6 +14,20 @@ describe('<Radio.Root />', () => {
     button: true,
     render,
   }));
+
+  it('sets checked and unchecked data attributes', async () => {
+    await render(
+      <RadioGroup defaultValue="checked">
+        <Radio.Root value="checked" data-testid="checked" />
+        <Radio.Root value="unchecked" data-testid="unchecked" />
+      </RadioGroup>,
+    );
+
+    expect(screen.getByTestId('checked')).toHaveAttribute('data-checked');
+    expect(screen.getByTestId('checked')).not.toHaveAttribute('data-unchecked');
+    expect(screen.getByTestId('unchecked')).toHaveAttribute('data-unchecked');
+    expect(screen.getByTestId('unchecked')).not.toHaveAttribute('data-checked');
+  });
 
   it('does not forward `value` prop', async () => {
     await render(
@@ -116,6 +130,102 @@ describe('<Radio.Root />', () => {
       expect(labelB.id).not.toBe('');
       expect(labelA.id).not.toBe(labelB.id);
       expect(radio).toHaveAttribute('aria-labelledby', labelB.id);
+    });
+  });
+
+  describe('prop: onClick', () => {
+    it('propagates a single click event to ancestors per user click', async () => {
+      const handleParentClick = vi.fn();
+      await render(
+        <RadioGroup>
+          <div onClick={handleParentClick}>
+            <Radio.Root value="a" data-testid="radio" />
+          </div>
+        </RadioGroup>,
+      );
+
+      fireEvent.click(screen.getByTestId('radio'));
+
+      expect(handleParentClick).toHaveBeenCalledTimes(1);
+      expect(screen.getByTestId('radio')).toHaveAttribute('aria-checked', 'true');
+    });
+
+    it('does not propagate to ancestors when stopPropagation() is called', async () => {
+      const handleParentClick = vi.fn();
+      await render(
+        <RadioGroup>
+          <div onClick={handleParentClick}>
+            <Radio.Root
+              value="a"
+              data-testid="radio"
+              onClick={(event) => event.stopPropagation()}
+            />
+          </div>
+        </RadioGroup>,
+      );
+
+      fireEvent.click(screen.getByTestId('radio'));
+
+      expect(handleParentClick).toHaveBeenCalledTimes(0);
+      expect(screen.getByTestId('radio')).toHaveAttribute('aria-checked', 'true');
+    });
+
+    it('propagates a single click event to ancestors with a native button', async () => {
+      const handleParentClick = vi.fn();
+      await render(
+        <RadioGroup>
+          <div onClick={handleParentClick}>
+            <Radio.Root value="a" nativeButton render={<button />} data-testid="radio" />
+          </div>
+        </RadioGroup>,
+      );
+
+      fireEvent.click(screen.getByTestId('radio'));
+
+      expect(handleParentClick).toHaveBeenCalledTimes(1);
+      expect(screen.getByTestId('radio')).toHaveAttribute('aria-checked', 'true');
+    });
+
+    it('does not propagate to ancestors when stopPropagation() is called with a native button', async () => {
+      const handleParentClick = vi.fn();
+      await render(
+        <RadioGroup>
+          <div onClick={handleParentClick}>
+            <Radio.Root
+              value="a"
+              nativeButton
+              render={<button />}
+              data-testid="radio"
+              onClick={(event) => event.stopPropagation()}
+            />
+          </div>
+        </RadioGroup>,
+      );
+
+      fireEvent.click(screen.getByTestId('radio'));
+
+      expect(handleParentClick).toHaveBeenCalledTimes(0);
+      expect(screen.getByTestId('radio')).toHaveAttribute('aria-checked', 'true');
+    });
+
+    it('does not propagate a click to ancestors when selecting with arrow keys', async () => {
+      const handleParentClick = vi.fn();
+      const { user } = await render(
+        <div onClick={handleParentClick}>
+          <RadioGroup defaultValue="a">
+            <Radio.Root value="a" data-testid="radio-a" />
+            <Radio.Root value="b" data-testid="radio-b" />
+          </RadioGroup>
+        </div>,
+      );
+
+      await user.click(screen.getByTestId('radio-a'));
+      handleParentClick.mockClear();
+
+      await user.keyboard('{ArrowDown}');
+
+      expect(screen.getByTestId('radio-b')).toHaveAttribute('aria-checked', 'true');
+      expect(handleParentClick).toHaveBeenCalledTimes(0);
     });
   });
 

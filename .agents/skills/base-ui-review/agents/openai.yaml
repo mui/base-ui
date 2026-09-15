@@ -1,0 +1,4 @@
+interface:
+  display_name: 'Base UI Review'
+  short_description: 'Review Base UI diffs for bugs, tests, cleanup, docs'
+  default_prompt: 'Use $base-ui-review to review my current diff.'

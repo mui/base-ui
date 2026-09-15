@@ -102,8 +102,7 @@ export interface MenuRadioGroupProps extends BaseUIComponentProps<'div', MenuRad
    * Function called when the selected value changes.
    */
   onValueChange?:
-    | ((value: any, eventDetails: MenuRadioGroup.ChangeEventDetails) => void)
-    | undefined;
+    ((value: any, eventDetails: MenuRadioGroup.ChangeEventDetails) => void) | undefined;
   /**
    * Whether the component should ignore user interaction.
    *
