@@ -13,6 +13,8 @@ export interface ContextMenuRootContext {
   positionerRef: React.RefObject<HTMLElement | null>;
   allowMouseUpTriggerRef: React.RefObject<boolean>;
   initialCursorPointRef: React.RefObject<{ x: number; y: number } | null>;
+  // Written by the trigger before every open it drives, consumed by `MenuRoot` while handling it.
+  openInstantTypeRef: React.RefObject<'click' | undefined>;
   rootId: string | undefined;
 }
 

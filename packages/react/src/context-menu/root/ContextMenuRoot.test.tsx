@@ -1,5 +1,6 @@
 import { vi, expect, describe, beforeEach, it } from 'vitest';
 import {
+  act,
   fireEvent,
   flushMicrotasks,
   ignoreActWarnings,
@@ -280,6 +281,217 @@ describe('<ContextMenu.Root />', () => {
 
       expect(screen.queryByTestId('context-popup')).toBe(null);
       expect(onOpenChange.mock.calls.length).toBe(0);
+    });
+  });
+
+  describe('data-instant', () => {
+    // Shift+F10 and the Menu key only raise a `contextmenu` when focus is inside the trigger.
+    function Fixture() {
+      return (
+        <ContextMenu.Root>
+          <ContextMenu.Trigger data-testid="context-trigger">
+            <button type="button" data-testid="focusable">
+              Surface
+            </button>
+          </ContextMenu.Trigger>
+          <ContextMenu.Portal>
+            <ContextMenu.Positioner>
+              <ContextMenu.Popup data-testid="context-popup">
+                <ContextMenu.Item>Action</ContextMenu.Item>
+              </ContextMenu.Popup>
+            </ContextMenu.Positioner>
+          </ContextMenu.Portal>
+        </ContextMenu.Root>
+      );
+    }
+
+    it('does not mark the popup as instant when opened with a mouse right-click', async () => {
+      await render(<Fixture />);
+
+      const trigger = screen.getByTestId('context-trigger');
+
+      // A mouse `contextmenu` reports `detail === 0` too, so the gesture before it is the signal.
+      fireEvent.pointerDown(trigger, {
+        pointerType: 'mouse',
+        button: 2,
+        clientX: 10,
+        clientY: 10,
+      });
+      fireEvent.contextMenu(trigger, { clientX: 10, clientY: 10, button: 2 });
+
+      const popup = await screen.findByTestId('context-popup');
+      expect(popup).not.toHaveAttribute('data-instant');
+    });
+
+    it('does not mark the popup as instant when no pointerdown reached the trigger', async () => {
+      await render(<Fixture />);
+
+      // No gesture was recorded, so the secondary button has to be enough on its own.
+      fireEvent.contextMenu(screen.getByTestId('context-trigger'), {
+        clientX: 10,
+        clientY: 10,
+        button: 2,
+      });
+
+      const popup = await screen.findByTestId('context-popup');
+      expect(popup).not.toHaveAttribute('data-instant');
+    });
+
+    it('does not mark the popup as instant when a descendant swallows the pointerdown', async () => {
+      // Capture-phase recording survives a descendant that stops propagation. Ctrl+click reports
+      // the primary button, so the secondary-button shortcut cannot decide this one.
+      await render(
+        <ContextMenu.Root>
+          <ContextMenu.Trigger data-testid="context-trigger">
+            <div data-testid="draggable" onPointerDown={(event) => event.stopPropagation()}>
+              Drag me
+            </div>
+          </ContextMenu.Trigger>
+          <ContextMenu.Portal>
+            <ContextMenu.Positioner>
+              <ContextMenu.Popup data-testid="context-popup">
+                <ContextMenu.Item>Action</ContextMenu.Item>
+              </ContextMenu.Popup>
+            </ContextMenu.Positioner>
+          </ContextMenu.Portal>
+        </ContextMenu.Root>,
+      );
+
+      const draggable = screen.getByTestId('draggable');
+      fireEvent.pointerDown(draggable, {
+        pointerType: 'mouse',
+        button: 0,
+        ctrlKey: true,
+        clientX: 10,
+        clientY: 10,
+      });
+      fireEvent.contextMenu(draggable, {
+        clientX: 10,
+        clientY: 10,
+        button: 0,
+        ctrlKey: true,
+      });
+
+      const popup = await screen.findByTestId('context-popup');
+      expect(popup).not.toHaveAttribute('data-instant');
+    });
+
+    it('marks the popup as instant when opened from the keyboard', async () => {
+      await render(<Fixture />);
+
+      const focusable = screen.getByTestId('focusable');
+      await act(async () => {
+        focusable.focus();
+      });
+
+      // Shift+F10 raises the `contextmenu` from this key press, with no pointer gesture behind it.
+      fireEvent.keyDown(focusable, { key: 'F10', shiftKey: true });
+      fireEvent.contextMenu(focusable, { button: 0 });
+
+      const popup = await screen.findByTestId('context-popup');
+      expect(popup).toHaveAttribute('data-instant', 'click');
+    });
+
+    it('marks the popup as instant when a keyboard contextmenu carries the focused element coordinates', async () => {
+      await render(<Fixture />);
+
+      const focusable = screen.getByTestId('focusable');
+      await act(async () => {
+        focusable.focus();
+      });
+
+      // A keyboard activation carries the focused element's coordinates, not the viewport origin.
+      fireEvent.keyDown(focusable, { key: 'F10', shiftKey: true });
+      fireEvent.contextMenu(focusable, { clientX: 120, clientY: 64, button: 0 });
+
+      const popup = await screen.findByTestId('context-popup');
+      expect(popup).toHaveAttribute('data-instant', 'click');
+    });
+
+    it('marks the popup as instant when a key press follows an earlier pointer gesture', async () => {
+      await render(<Fixture />);
+
+      const focusable = screen.getByTestId('focusable');
+
+      // The key press ends the earlier pointer gesture, so it cannot be credited with the open.
+      fireEvent.pointerDown(focusable, { pointerType: 'mouse', button: 0 });
+      fireEvent.pointerUp(focusable, { pointerType: 'mouse', button: 0 });
+      await act(async () => {
+        focusable.focus();
+      });
+
+      fireEvent.keyDown(focusable, { key: 'F10', shiftKey: true });
+      fireEvent.contextMenu(focusable, { clientX: 120, clientY: 64, button: 0 });
+
+      const popup = await screen.findByTestId('context-popup');
+      expect(popup).toHaveAttribute('data-instant', 'click');
+    });
+
+    it('does not mark the popup as instant when a pointer gesture follows a key press', async () => {
+      await render(<Fixture />);
+
+      const focusable = screen.getByTestId('focusable');
+      await act(async () => {
+        focusable.focus();
+      });
+
+      // Primary button, so the decision rests on the re-recorded gesture, not on the shortcut.
+      fireEvent.keyDown(focusable, { key: 'a' });
+      fireEvent.pointerDown(focusable, {
+        pointerType: 'mouse',
+        button: 0,
+        clientX: 10,
+        clientY: 10,
+      });
+      fireEvent.contextMenu(focusable, { clientX: 10, clientY: 10, button: 0 });
+
+      const popup = await screen.findByTestId('context-popup');
+      expect(popup).not.toHaveAttribute('data-instant');
+    });
+
+    // Measured on Chromium 151: a right-click and a Shift+F10 both report `pointerType: 'mouse'`
+    // and the focused element's coordinates, so only the button differs. jsdom has no `PointerEvent`.
+    function dispatchChromiumContextMenu(trigger: HTMLElement, button: number) {
+      return act(async () => {
+        trigger.dispatchEvent(
+          new PointerEvent('contextmenu', {
+            bubbles: true,
+            cancelable: true,
+            pointerType: 'mouse',
+            button,
+            buttons: 0,
+            clientX: 123,
+            clientY: 98,
+          }),
+        );
+      });
+    }
+
+    it.skipIf(isJSDOM)('does not mark a Chromium right-click as instant', async () => {
+      await render(<Fixture />);
+
+      const trigger = screen.getByTestId('context-trigger');
+      fireEvent.pointerDown(trigger, { pointerType: 'mouse', button: 2 });
+      await dispatchChromiumContextMenu(trigger, 2);
+
+      const popup = await screen.findByTestId('context-popup');
+      expect(popup).not.toHaveAttribute('data-instant');
+    });
+
+    it.skipIf(isJSDOM)('marks a Chromium keyboard contextmenu as instant', async () => {
+      await render(<Fixture />);
+
+      const focusable = screen.getByTestId('focusable');
+      await act(async () => {
+        focusable.focus();
+      });
+
+      // `pointerType` is `'mouse'` here as well, so only the preceding `keydown` marks it keyboard.
+      fireEvent.keyDown(focusable, { key: 'F10', shiftKey: true });
+      await dispatchChromiumContextMenu(screen.getByTestId('context-trigger'), -1);
+
+      const popup = await screen.findByTestId('context-popup');
+      expect(popup).toHaveAttribute('data-instant', 'click');
     });
   });
 
