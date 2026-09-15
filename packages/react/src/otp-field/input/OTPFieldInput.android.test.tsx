@@ -1,4 +1,4 @@
-import { expect, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import * as React from 'react';
 import { act, fireEvent, screen } from '@mui/internal-test-utils';
 import { OTPField } from '@base-ui/react/otp-field';

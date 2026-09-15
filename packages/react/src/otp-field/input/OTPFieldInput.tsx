@@ -211,7 +211,7 @@ export const OTPFieldInput = React.forwardRef(function OTPFieldInput(
       commitValue(event.currentTarget.value, REASONS.inputChange, event);
     },
     onKeyDown(event) {
-      // WebKit delivers real key names (such as `Backspace`) for keydowns inside a composition.
+      // Browsers deliver real key names (such as `Backspace`) for keydowns inside a composition.
       // The IME owns editing until `compositionend`, so OTP commands must not run on them.
       if (event.defaultPrevented || disabled || composingValue != null) {
         return;
