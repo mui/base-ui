@@ -1,10 +1,12 @@
 'use client';
 import * as React from 'react';
-import { MenuRoot } from '../root/MenuRoot';
-import { useMenuRootContext } from '../root/MenuRootContext';
+import { MenuRootInternal, type MenuRoot } from '../root/MenuRoot';
 import { MenuSubmenuRootContext } from './MenuSubmenuRootContext';
+import { MenuFilterProviderContext } from '../filter-provider/MenuFilterProviderContext';
 
 export { useMenuSubmenuRootContext } from './MenuSubmenuRootContext';
+
+const EMPTY_SUBMENU_ROOT_CONTEXT = {};
 
 /**
  * Groups all parts of a submenu.
@@ -12,14 +14,20 @@ export { useMenuSubmenuRootContext } from './MenuSubmenuRootContext';
  *
  * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
  */
-export function MenuSubmenuRoot(props: MenuSubmenuRoot.Props) {
-  const parentMenu = useMenuRootContext().store;
-
-  const contextValue = React.useMemo(() => ({ parentMenu }), [parentMenu]);
+export function MenuSubmenuRoot(props: MenuSubmenuRoot.Props): React.JSX.Element {
+  const filter = React.useContext(MenuFilterProviderContext);
+  if (filter !== null) {
+    const FilterSubmenuRoot = filter.SubmenuRoot;
+    return (
+      <MenuFilterProviderContext.Provider value={null}>
+        <FilterSubmenuRoot {...filter.options} {...props} />
+      </MenuFilterProviderContext.Provider>
+    );
+  }
 
   return (
-    <MenuSubmenuRootContext.Provider value={contextValue}>
-      <MenuRoot {...props} />
+    <MenuSubmenuRootContext.Provider value={EMPTY_SUBMENU_ROOT_CONTEXT}>
+      <MenuRootInternal {...props} isSubmenu />
     </MenuSubmenuRootContext.Provider>
   );
 }

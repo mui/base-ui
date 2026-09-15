@@ -140,6 +140,30 @@ function RadioApp() {
   );
 }
 
+function MouseDownApp() {
+  const [open, setOpen] = React.useState(false);
+  const { refs, context } = useFloating({
+    open,
+    onOpenChange: setOpen,
+  });
+  const { getReferenceProps, getFloatingProps } = useTestInteractions([
+    useClick(context, { event: 'mousedown' }),
+  ]);
+
+  return (
+    <>
+      <button data-testid="reference" {...getReferenceProps({ ref: refs.setReference })} />
+      {open && (
+        <FloatingFocusManager context={context}>
+          <div role="dialog" {...getFloatingProps({ ref: refs.setFloating })}>
+            <button data-testid="one">close</button>
+          </div>
+        </FloatingFocusManager>
+      )}
+    </>
+  );
+}
+
 interface DialogProps {
   open?: boolean;
   render: (props: { close: () => void }) => React.ReactNode;
@@ -220,6 +244,29 @@ describe('FloatingFocusManager', () => {
         fireEvent.click(screen.getByTestId('reference'));
         await flushMicrotasks();
         expect(screen.getByTestId('input')).toHaveFocus();
+      });
+
+      test('focuses without a frame delay when a screen reader press opens it', async () => {
+        render(<MouseDownApp />);
+
+        // A screen reader press is a `mousedown` with `detail: 0`.
+        fireEvent.mouseDown(screen.getByTestId('reference'), { detail: 0 });
+
+        vi.spyOn(window, 'requestAnimationFrame').mockImplementation(() => 0);
+        await flushMicrotasks();
+
+        expect(screen.getByTestId('one')).toHaveFocus();
+      });
+
+      test('keeps the frame delay for a real mouse press', async () => {
+        render(<MouseDownApp />);
+
+        fireEvent.mouseDown(screen.getByTestId('reference'), { detail: 1 });
+
+        vi.spyOn(window, 'requestAnimationFrame').mockImplementation(() => 0);
+        await flushMicrotasks();
+
+        expect(screen.getByTestId('one')).not.toHaveFocus();
       });
     });
 
@@ -1465,6 +1512,87 @@ describe('FloatingFocusManager', () => {
         await userEvent.keyboard('{Escape}');
 
         expect(screen.getByTestId('reference')).toHaveFocus();
+      });
+
+      test('treats a returnFocus resolver returning true as explicit', async () => {
+        function App() {
+          const [isOpen, setIsOpen] = React.useState(false);
+          const { refs, context } = useFloating({ open: isOpen, onOpenChange: setIsOpen });
+
+          return (
+            <React.Fragment>
+              <button
+                data-testid="reference"
+                ref={refs.setReference}
+                onClick={() => setIsOpen(true)}
+              />
+              <button data-testid="close" onClick={() => setIsOpen(false)} />
+              {isOpen && (
+                <FloatingFocusManager context={context} returnFocus={() => true}>
+                  <div ref={refs.setFloating}>
+                    <button data-testid="child" />
+                  </div>
+                </FloatingFocusManager>
+              )}
+            </React.Fragment>
+          );
+        }
+
+        render(<App />);
+
+        await userEvent.click(screen.getByTestId('reference'));
+        await waitFor(() => {
+          expect(screen.getByTestId('child')).toHaveFocus();
+        });
+
+        await userEvent.click(screen.getByTestId('close'));
+
+        await waitFor(() => {
+          expect(screen.getByTestId('reference')).toHaveFocus();
+        });
+      });
+
+      test('uses the latest explicitReturnFocus value without moving focus while open', async () => {
+        function App(props: { explicitReturnFocus: boolean }) {
+          const [isOpen, setIsOpen] = React.useState(false);
+          const { refs, context } = useFloating({ open: isOpen, onOpenChange: setIsOpen });
+
+          return (
+            <React.Fragment>
+              <button
+                data-testid="reference"
+                ref={refs.setReference}
+                onClick={() => setIsOpen(true)}
+              />
+              <button data-testid="close" onClick={() => setIsOpen(false)} />
+              {isOpen && (
+                <FloatingFocusManager
+                  context={context}
+                  explicitReturnFocus={props.explicitReturnFocus}
+                  modal={false}
+                >
+                  <div ref={refs.setFloating}>
+                    <button data-testid="child" />
+                  </div>
+                </FloatingFocusManager>
+              )}
+            </React.Fragment>
+          );
+        }
+
+        const { rerender } = render(<App explicitReturnFocus />);
+
+        await userEvent.click(screen.getByTestId('reference'));
+        await waitFor(() => {
+          expect(screen.getByTestId('child')).toHaveFocus();
+        });
+
+        rerender(<App explicitReturnFocus={false} />);
+        expect(screen.getByTestId('child')).toHaveFocus();
+
+        const close = screen.getByTestId('close');
+        await userEvent.click(close);
+        expect(close).toHaveFocus();
       });
 
       test('resets close modality between keep-mounted open sessions', async () => {

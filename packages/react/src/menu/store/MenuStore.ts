@@ -25,6 +25,13 @@ export type State<Payload> = PopupStoreState<Payload> & {
   parent: MenuParent;
   rootId: string | undefined;
   activeIndex: number | null;
+  /** The `Menu.List` element, which takes the `menu` role from the popup when rendered. */
+  listElement: HTMLElement | null;
+  /**
+   * Whether real focus stays inside the popup while the list is navigated with
+   * `aria-activedescendant`. Set by a filter root; detached triggers read it once the root attaches.
+   */
+  virtualFocus: boolean;
   hoverEnabled: boolean;
   instantType: 'dismiss' | 'click' | 'group' | 'trigger-change' | undefined;
   openChangeReason: MenuRoot.ChangeEventReason | null;
@@ -43,7 +50,11 @@ type Context = PopupStoreContext<MenuRoot.ChangeEventDetails> & {
   readonly typingRef: React.RefObject<boolean>;
   readonly itemDomElements: React.RefObject<(HTMLElement | null)[]>;
   readonly itemLabels: React.RefObject<(string | null)[]>;
+  /** Why the next `activeIndex` write happens, consumed by `onItemHighlighted` on commit. */
+  highlightReason: MenuRoot.HighlightEventReason;
   allowMouseUpTriggerRef: React.RefObject<boolean>;
+  /** The element that holds real focus while virtual list navigation is active. */
+  virtualFocusRef: React.RefObject<HTMLElement | null> | undefined;
   readonly triggerFocusTargetRef: React.RefObject<HTMLElement | null>;
   readonly beforeContentFocusGuardRef: React.RefObject<HTMLElement | null>;
 };
@@ -57,6 +68,20 @@ const selectors = {
   modal: (state: State<unknown>) =>
     (state.parent.type === undefined || state.parent.type === 'context-menu') &&
     (state.modal ?? true),
+  /**
+   * Whether a filterable popup traps focus like a modal dialog: a modal top-level filter root
+   * opened by keyboard or a fine pointer. Hover, touch, and assistive-technology clicks (which
+   * report no pointer type) leave focus free. Submenus never trap; their parent's trap contains
+   * them.
+   */
+  trapsFocus: (state: State<unknown>) =>
+    state.virtualFocus &&
+    state.parent.type === undefined &&
+    (state.modal ?? true) &&
+    state.openChangeReason !== 'trigger-hover' &&
+    state.openMethod !== 'touch' &&
+    state.openMethod !== '',
+  floatingId: (state: State<unknown>) => state.floatingId,
   openMethod: (state: State<unknown>) => state.openMethod,
 
   allowMouseEnter: (state: State<unknown>) => state.allowMouseEnter,
@@ -70,6 +95,8 @@ const selectors = {
     return state.parent.type !== undefined ? state.parent.context.rootId : state.rootId;
   },
   activeIndex: (state: State<unknown>) => state.activeIndex,
+  virtualFocus: (state: State<unknown>) => state.virtualFocus,
+  listElement: (state: State<unknown>) => state.listElement,
   isActive: (state: State<unknown>, itemIndex: number) => state.activeIndex === itemIndex,
   hoverEnabled: (state: State<unknown>) => state.hoverEnabled,
   instantType: (state: State<unknown>) => state.instantType,
@@ -166,6 +193,11 @@ export class MenuStore<Payload> extends ReactStore<Readonly<State<Payload>>, Con
     this.state.floatingRootContext.context.events.emit('setOpen', { open, eventDetails });
   }
 
+  setActiveIndex(activeIndex: number | null, reason: MenuRoot.HighlightEventReason) {
+    this.context.highlightReason = reason;
+    this.set('activeIndex', activeIndex);
+  }
+
   private unsubscribeParentListener: (() => void) | null = null;
 }
 
@@ -193,7 +225,9 @@ function createInitialContext(triggerElements: PopupTriggerMap): Context {
     typingRef: { current: false },
     itemDomElements: { current: [] },
     itemLabels: { current: [] },
+    highlightReason: 'none',
     allowMouseUpTriggerRef: { current: false },
+    virtualFocusRef: undefined,
     triggerFocusTargetRef: React.createRef<HTMLElement>(),
     beforeContentFocusGuardRef: React.createRef<HTMLElement>(),
     onOpenChangeComplete: undefined,
@@ -219,13 +253,15 @@ function createInitialState<Payload>(
     },
     rootId: undefined,
     activeIndex: null,
+    listElement: null,
+    virtualFocus: false,
     hoverEnabled: true,
     instantType: undefined,
     openChangeReason: null,
     floatingTreeRoot: new FloatingTreeStore(),
     floatingNodeId: undefined,
     floatingParentNodeId: null,
-    itemProps: EMPTY_OBJECT as HTMLProps,
+    itemProps: EMPTY_OBJECT,
     keyboardEventRelay: undefined,
     closeDelay: 0,
     adaptiveOrigin: undefined,
