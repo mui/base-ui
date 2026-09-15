@@ -13,15 +13,11 @@ describe('<Select.Icon />', () => {
     },
   }));
 
-  it('removes the default arrow when `children={null}` is passed alongside `render`', async () => {
-    // See https://github.com/mui/base-ui/issues/4752 — `render` alone does not clear the
-    // default glyph (that would change behavior for call sites using `render` only to swap
-    // the tag); pairing it with `children={null}` is the documented way to opt out.
+  it('does not render the default arrow when `render` is a childless custom element', async () => {
+    // Regression test for https://github.com/mui/base-ui/issues/4752
     await render(
       <Select.Root open>
-        <Select.Icon render={<span data-testid="custom-icon" className="my-icon" />}>
-          {null}
-        </Select.Icon>
+        <Select.Icon render={<span data-testid="custom-icon" className="my-icon" />} />
       </Select.Root>,
     );
 

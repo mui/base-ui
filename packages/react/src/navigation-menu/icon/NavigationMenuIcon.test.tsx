@@ -17,16 +17,12 @@ describe('<NavigationMenu.Icon />', () => {
     },
   }));
 
-  it('removes the default arrow when `children={null}` is passed alongside `render`', async () => {
-    // See https://github.com/mui/base-ui/issues/4752 — `render` alone does not clear the
-    // default glyph (that would change behavior for call sites using `render` only to swap
-    // the tag); pairing it with `children={null}` is the documented way to opt out.
+  it('does not render the default arrow when `render` is a childless custom element', async () => {
+    // Regression test for https://github.com/mui/base-ui/issues/4752
     await render(
       <NavigationMenu.Root>
         <NavigationMenu.Item>
-          <NavigationMenu.Icon render={<span data-testid="custom-icon" className="my-icon" />}>
-            {null}
-          </NavigationMenu.Icon>
+          <NavigationMenu.Icon render={<span data-testid="custom-icon" className="my-icon" />} />
         </NavigationMenu.Item>
       </NavigationMenu.Root>,
     );
