@@ -63,6 +63,22 @@ describe('<Tooltip.Root />', () => {
         expect(screen.getByText('Content')).not.toBe(null);
       });
 
+      it('does not open when a touch pointer hovers the trigger', async () => {
+        await render(<TestTooltip />);
+
+        const trigger = screen.getByRole('button', { name: 'Toggle' });
+
+        fireEvent.pointerDown(trigger, { pointerType: 'touch' });
+        fireEvent.mouseEnter(trigger);
+        fireEvent.mouseMove(trigger);
+
+        clock.tick(OPEN_DELAY);
+
+        await flushMicrotasks();
+
+        expect(screen.queryByText('Content')).toBe(null);
+      });
+
       it('should close when the trigger is unhovered', async () => {
         await render(<TestTooltip />);
 
