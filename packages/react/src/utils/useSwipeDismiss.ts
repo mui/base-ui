@@ -30,7 +30,6 @@ type SwipeProgressDetailsInternal = {
 
 const DEFAULT_SWIPE_THRESHOLD = 40;
 const REVERSE_CANCEL_THRESHOLD = 10;
-const MIN_DRAG_THRESHOLD = 1;
 const MIN_VELOCITY_DURATION_MS = 50;
 const MIN_RELEASE_VELOCITY_DURATION_MS = 16;
 const MAX_RELEASE_VELOCITY_AGE_MS = 80;
@@ -143,7 +142,6 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
   const maxSwipeDisplacementRef = React.useRef(0);
   const cancelledSwipeRef = React.useRef(false);
   const swipeCancelBaselineRef = React.useRef({ x: 0, y: 0 });
-  const lockedDirectionRef = React.useRef<'horizontal' | 'vertical' | null>(null);
   const isFirstPointerMoveRef = React.useRef(false);
   const pendingSwipeRef = React.useRef(false);
   const pendingSwipeStartPosRef = React.useRef<{ x: number; y: number } | null>(null);
@@ -298,7 +296,6 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
     maxSwipeDisplacementRef.current = 0;
     cancelledSwipeRef.current = false;
     swipeCancelBaselineRef.current = { x: 0, y: 0 };
-    lockedDirectionRef.current = null;
     isFirstPointerMoveRef.current = false;
     lastMovePosRef.current = null;
     pendingSwipeRef.current = false;
@@ -433,7 +430,6 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
     onSwipeStart?.(event.nativeEvent as SwipeDismissNativeEvent);
 
     setSwiping(true);
-    lockedDirectionRef.current = null;
     isFirstPointerMoveRef.current = true;
     updateSwipeProgress(0);
     syncDragStyles(true);
@@ -460,7 +456,6 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
     }
 
     setSwiping(false);
-    lockedDirectionRef.current = null;
 
     const resolvedInitialTransform = initialTransformRef.current;
 
@@ -645,30 +640,9 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
     const cancelDeltaY = clientY - swipeCancelBaselineRef.current.y;
     const cancelDeltaX = clientX - swipeCancelBaselineRef.current.x;
 
-    let lockedDirection = lockedDirectionRef.current;
-    if (lockedDirection === null && hasHorizontal && hasVertical) {
-      const movementDistance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
-      if (movementDistance >= MIN_DRAG_THRESHOLD) {
-        lockedDirection = Math.abs(deltaX) > Math.abs(deltaY) ? 'horizontal' : 'vertical';
-        lockedDirectionRef.current = lockedDirection;
-      }
-    }
-
     let candidate: SwipeDirection | undefined;
     if (!intendedSwipeDirectionRef.current) {
-      if (lockedDirection === 'vertical') {
-        if (deltaY > 0) {
-          candidate = 'down';
-        } else if (deltaY < 0) {
-          candidate = 'up';
-        }
-      } else if (lockedDirection === 'horizontal') {
-        if (deltaX > 0) {
-          candidate = 'right';
-        } else if (deltaX < 0) {
-          candidate = 'left';
-        }
-      } else if (Math.abs(deltaX) >= Math.abs(deltaY)) {
+      if (Math.abs(deltaX) >= Math.abs(deltaY)) {
         candidate = deltaX > 0 ? 'right' : 'left';
       } else {
         candidate = deltaY > 0 ? 'down' : 'up';
@@ -707,21 +681,11 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
     let newOffsetX = initialTransformRef.current.x;
     let newOffsetY = initialTransformRef.current.y;
 
-    if (lockedDirection === 'horizontal') {
-      if (hasHorizontal) {
-        newOffsetX += dampedDelta.x;
-      }
-    } else if (lockedDirection === 'vertical') {
-      if (hasVertical) {
-        newOffsetY += dampedDelta.y;
-      }
-    } else {
-      if (hasHorizontal) {
-        newOffsetX += dampedDelta.x;
-      }
-      if (hasVertical) {
-        newOffsetY += dampedDelta.y;
-      }
+    if (hasHorizontal) {
+      newOffsetX += dampedDelta.x;
+    }
+    if (hasVertical) {
+      newOffsetY += dampedDelta.y;
     }
 
     // Only rewrite drag styles when the drag offset actually changed. `syncDragStyles` writes the
@@ -786,7 +750,6 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
     }
 
     setSwiping(false);
-    lockedDirectionRef.current = null;
     resetPendingSwipeState();
     sawPrimaryButtonsOnMoveRef.current = false;
 
