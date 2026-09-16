@@ -45,6 +45,7 @@ import {
   type VirtualizerGroupHeaderProps,
   type VirtualizerRenderGroupHeader,
   type VirtualizerGetGroupKey,
+  type VirtualizerItemAria,
   type VirtualizerItemProps,
   type VirtualizerItemRowModel,
   type VirtualizerRenderRowParameters,
@@ -493,6 +494,7 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
     estimatedItemHeight: estimatedItemHeightProp,
     getGroupKey,
     getItemKey,
+    itemAria = 'set',
     items,
     layout: layoutProp = 'list',
     onEndReached,
@@ -527,6 +529,7 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
     children,
     enabled: enabledProp,
     host,
+    itemAria,
     items,
     listState,
     renderGroupHeader,
@@ -1972,6 +1975,19 @@ export interface VirtualizerBaseProps<Value> extends Omit<
    */
   estimatedGroupHeaderHeight?: number | VirtualizerEstimateGroupHeaderHeight<Value> | undefined;
   /**
+   * Which ARIA the item metadata states for an item's position in the collection.
+   *
+   * - `set`: `aria-posinset` and `aria-setsize` for the item's place in the flat collection,
+   *   which is what the options of a listbox need.
+   * - `none`: neither, for a collection whose items are placed relative to something else — the
+   *   items of a tree, which are placed among their siblings, or the cells of a grid, which are
+   *   placed by row and column. Everything else the metadata carries stays, so your own ARIA
+   *   goes next to it.
+   *
+   * @default 'set'
+   */
+  itemAria?: VirtualizerItemAria | undefined;
+  /**
    * The collection to virtualize: a flat array of items, or an array of groups, each an object
    * with an `items` array. A grouped collection also needs `renderGroupHeader`.
    *
@@ -2025,7 +2041,8 @@ export interface VirtualizerBaseProps<Value> extends Omit<
    * items rendered must be the collection from its start: pages loaded so far, appended to the
    * ones before them, rather than a later page on its own.
    *
-   * Pass `-1` when the size is not known yet, which is the ARIA convention for it.
+   * Pass `-1` when the size is not known yet, which is the ARIA convention for it. It has
+   * nothing to describe when `itemAria` is `none`.
    * @default the number of items in the list
    */
   totalItems?: number | undefined;
@@ -2072,6 +2089,10 @@ export namespace Virtualizer {
    * A `React.ReactElement`, as returned by a group header renderer.
    */
   export type GroupHeaderElement = VirtualizerGroupHeaderElement;
+  /**
+   * Which ARIA an item states for its position in the collection.
+   */
+  export type ItemAria = VirtualizerItemAria;
   /**
    * Attributes to spread onto the element representing an item, the third argument of the item
    * renderer.

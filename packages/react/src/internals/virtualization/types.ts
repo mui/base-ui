@@ -225,6 +225,18 @@ export interface VirtualizerRenderRowParameters<RowModel> {
 }
 
 /**
+ * Which ARIA the virtualizer states for an item's position in its collection.
+ *
+ * - `set`: `aria-posinset` and `aria-setsize` describing the item's place in the flat collection,
+ *   which is what a listbox's options need.
+ * - `none`: neither, for a collection whose items state their position relative to something
+ *   else — a tree, whose items are placed among their siblings, or a grid, whose cells are placed
+ *   by row and column. The rest of the metadata is unaffected, so the consumer supplies its own
+ *   ARIA next to it.
+ */
+export type VirtualizerItemAria = 'none' | 'set';
+
+/**
  * Accessibility and collection metadata for a virtualized item.
  *
  * A list's own `<Item>` applies these itself. Items rendered without one receive them as the third
@@ -233,6 +245,8 @@ export interface VirtualizerRenderRowParameters<RowModel> {
  * In the table layout, that element is the row the virtualizer measures and positions, so these
  * also carry the row's `ref`, its `data-row-index`, and the `style` that keeps a row mounted
  * outside the window out of the layout.
+ *
+ * `aria-posinset` and `aria-setsize` are present unless `itemAria` declines them.
  */
 export type VirtualizerItemProps = HTMLProps &
   VirtualizerRowProps & {

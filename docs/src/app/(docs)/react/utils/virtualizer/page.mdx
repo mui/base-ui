@@ -163,6 +163,28 @@ Pass the collection to the virtualizer's own `items` prop to window a list that 
 
 The third argument of `children` carries the item's accessibility and collection metadata — `aria-posinset`, `aria-setsize`, and `data-index`. Spread it onto the element that represents the item, so assistive technology reports the whole collection rather than the mounted window. Items rendered by a list's own item component, such as `<Combobox.Item>`, receive it automatically.
 
+### Items placed relative to something else
+
+`aria-posinset` and `aria-setsize` describe the item's place in the flat collection, which is the set a listbox's options belong to. They are wrong for a collection whose items are placed relative to something else: a tree item is the third child of its folder, not the 4,201st row of the flattened list, and a grid cell is placed by its row and column. Set `itemAria="none"` for those, and state the position yourself:
+
+```jsx title="Declining the collection ARIA"
+<Virtualizer items={rows} getItemKey={(row) => row.id} itemAria="none" role="tree">
+  {(row, index, itemProps) => (
+    <div
+      {...itemProps}
+      role="treeitem"
+      aria-level={row.depth + 1}
+      aria-posinset={row.indexAmongSiblings + 1}
+      aria-setsize={row.siblingCount}
+    >
+      {row.name}
+    </div>
+  )}
+</Virtualizer>
+```
+
+Everything else the metadata carries — `data-index`, and in the [table layout](#tables) the row's measurement — is unaffected, so the argument is still spread as it is. `totalItems` only feeds `aria-setsize`, so it has nothing to do here.
+
 Set `activeIndex` to the item the list treats as active. The virtualizer keeps that item mounted even when it falls outside the rendered window, so it can hold focus or be referenced by `aria-activedescendant`, and scrolls it into view.
 
 Whether an activation should scroll depends on what caused it, not on which item ended up active: a keypress should bring the item into view, while a highlight following the pointer must leave the viewport alone — the cursor is already there, and moving the list would slide the next item under it. So the activation carries that decision, alongside the alignment it wants:

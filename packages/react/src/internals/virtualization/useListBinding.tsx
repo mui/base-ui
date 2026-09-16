@@ -24,6 +24,7 @@ import {
   type VirtualizerGroupHeaderMetadata,
   type VirtualizerGroupHeaderProps,
   type VirtualizerRenderGroupHeader,
+  type VirtualizerItemAria,
   type VirtualizerItemMetadata,
   type VirtualizerItemProps,
   type VirtualizerItemRowModel,
@@ -82,6 +83,8 @@ const VirtualizerGroupHeaderRow = React.memo(
 interface VirtualizerItemRowProps<Item> {
   children: (item: Item, index: number, itemProps: VirtualizerItemProps) => React.ReactElement;
   componentName: ComponentName | undefined;
+  /** Whether the item states its position in the flat collection. */
+  collectionAria: boolean;
   itemCount: number;
   model: VirtualizerItemRowModel<Item>;
   /**
@@ -97,7 +100,8 @@ interface VirtualizerItemRowProps<Item> {
 }
 
 function VirtualizerItemRowImpl<Item>(props: VirtualizerItemRowProps<Item>) {
-  const { children, componentName, itemCount, model, rowProps, virtualItemContext } = props;
+  const { children, collectionAria, componentName, itemCount, model, rowProps, virtualItemContext } =
+    props;
   const registeredItemCountRef = React.useRef(0);
 
   const registerItem = useStableCallback(() => {
@@ -127,16 +131,23 @@ function VirtualizerItemRowImpl<Item>(props: VirtualizerItemRowProps<Item>) {
       index: model.itemIndex,
       props: {
         ...rowProps,
-        'aria-posinset': model.itemIndex + 1,
-        // `-1` is the ARIA convention for a collection whose size is not known, which is what a
-        // list still loading pages of results has. Anything else is the size of the whole
-        // collection, not of the part currently loaded.
-        'aria-setsize': itemCount,
+        // Position in the flat collection, which is the set only for a collection that is one.
+        // A hierarchical or two-dimensional one states position relative to something else and
+        // declines these, keeping the rest of the metadata.
+        ...(collectionAria
+          ? {
+              'aria-posinset': model.itemIndex + 1,
+              // `-1` is the ARIA convention for a collection whose size is not known, which is
+              // what a list still loading pages of results has. Anything else is the size of the
+              // whole collection, not of the part currently loaded.
+              'aria-setsize': itemCount,
+            }
+          : null),
         'data-index': model.itemIndex,
       },
       registerItem: process.env.NODE_ENV === 'production' ? undefined : registerItem,
     }),
-    [itemCount, model.itemIndex, registerItem, rowProps],
+    [collectionAria, itemCount, model.itemIndex, registerItem, rowProps],
   );
 
   // The metadata reaches a list's `<Item>` through the list's own context, and everything else
@@ -158,6 +169,7 @@ function areVirtualizerItemRowPropsEqual<Item>(
 ) {
   return (
     previous.children === next.children &&
+    previous.collectionAria === next.collectionAria &&
     previous.componentName === next.componentName &&
     previous.itemCount === next.itemCount &&
     previous.model.item === next.model.item &&
@@ -187,6 +199,10 @@ export interface UseListBindingParameters<Item> {
    */
   enabled: boolean;
   host: ListVirtualizationHost | undefined;
+  /**
+   * Which ARIA an item states for its position in the collection.
+   */
+  itemAria: VirtualizerItemAria;
   /**
    * The collection to window, flat or grouped, when the virtualizer is given one directly. Takes
    * precedence over a surrounding list's collection.
@@ -263,6 +279,7 @@ export function useListBinding<Item>(
     children,
     enabled: enabledProp,
     host,
+    itemAria,
     items: itemsProp,
     listState,
     renderGroupHeader,
@@ -356,6 +373,18 @@ export function useListBinding<Item>(
 
     // eslint-disable-next-line react-hooks/rules-of-hooks
     React.useEffect(() => {
+      if (itemAria === 'none' && componentName != null) {
+        warn(
+          `<Virtualizer itemAria="none"> is rendered inside <${componentName}.List>, whose items ` +
+            'are the options of a listbox and must state their position in it. Remove ' +
+            '`itemAria` here; it is for a collection of your own whose items are placed ' +
+            'relative to something other than the flat collection.',
+        );
+      }
+    }, [componentName, itemAria]);
+
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    React.useEffect(() => {
       if (sourceGroups != null && renderGroupHeader == null) {
         warn(
           '<Virtualizer> received a grouped collection but no `renderGroupHeader` prop, so the ' +
@@ -367,6 +396,7 @@ export function useListBinding<Item>(
   }
 
   const focusedItemIndex = activeIndex == null ? undefined : activeIndex;
+  const collectionAria = itemAria === 'set';
 
   const renderRow = React.useCallback(
     (params: VirtualizerRenderRowParameters<VirtualizerRowModel<Item>>) => {
@@ -389,6 +419,7 @@ export function useListBinding<Item>(
 
       return (
         <VirtualizerItemRow
+          collectionAria={collectionAria}
           componentName={componentName}
           itemCount={totalItems ?? items.length}
           model={model}
@@ -401,6 +432,7 @@ export function useListBinding<Item>(
     },
     [
       children,
+      collectionAria,
       componentName,
       getGroupHeaderId,
       groups,

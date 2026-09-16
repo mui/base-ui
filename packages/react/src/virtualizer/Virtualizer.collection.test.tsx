@@ -47,6 +47,58 @@ describe('<Virtualizer /> collection', () => {
     expect(firstItem).toHaveAttribute('data-index', '0');
   });
 
+  it('declines the collection ARIA for items placed relative to something else', async () => {
+    // A tree states an item's position among its siblings, so the flat collection's own position
+    // would describe the wrong set. The rest of the metadata is still the virtualizer's to give.
+    await render(
+      <Virtualizer<TestItem>
+        estimatedItemHeight={20}
+        getItemKey={(item) => item.label}
+        itemAria="none"
+        items={createItems(10)}
+        overscanPx={0}
+        render={<div ref={setElementClientHeight(40)} />}
+        role="tree"
+      >
+        {(item, index, itemProps) => (
+          <div {...itemProps} role="treeitem" aria-posinset={1} aria-setsize={3}>
+            {item.label}
+          </div>
+        )}
+      </Virtualizer>,
+    );
+
+    const firstItem = await screen.findByText('Item 1');
+
+    expect(firstItem).toHaveAttribute('aria-posinset', '1');
+    expect(firstItem).toHaveAttribute('aria-setsize', '3');
+    expect(firstItem).toHaveAttribute('data-index', '0');
+  });
+
+  it('warns when the collection ARIA is declined inside a list that needs it', async () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+    try {
+      await render(
+        <TestVirtualizedList
+          estimatedItemHeight={20}
+          itemAria="none"
+          overscanPx={0}
+          render={<div ref={setElementClientHeight(40)} />}
+          items={createItems(10)}
+        >
+          {(item: TestItem) => <TestListItem style={{ height: 20 }}>{item.label}</TestListItem>}
+        </TestVirtualizedList>,
+      );
+
+      expect(warnSpy.mock.calls.map(([message]) => String(message)).join('\n')).toContain(
+        'is rendered inside <TestList.List>',
+      );
+    } finally {
+      warnSpy.mockRestore();
+    }
+  });
+
   it('does not re-derive keys or estimates when the feature layer re-renders', async () => {
     type Item = { id: string; label: string; size: number };
     const items: Item[] = Array.from({ length: 10 }, (_, index) => ({
