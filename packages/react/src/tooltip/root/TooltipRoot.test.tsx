@@ -39,6 +39,43 @@ describe('<Tooltip.Root />', () => {
     triggerMouseAction: 'hover',
   });
 
+  describe('trigger unmount during the open delay', () => {
+    clock.withFakeTimers();
+
+    function App({ showTrigger }: { showTrigger: boolean }) {
+      return (
+        <Tooltip.Root>
+          {showTrigger && <Tooltip.Trigger>Toggle</Tooltip.Trigger>}
+          <Tooltip.Portal>
+            <Tooltip.Positioner>
+              <Tooltip.Popup>Content</Tooltip.Popup>
+            </Tooltip.Positioner>
+          </Tooltip.Portal>
+        </Tooltip.Root>
+      );
+    }
+
+    it('does not open once the hovered trigger has unmounted', async () => {
+      const { setProps } = await render(<App showTrigger />);
+
+      const trigger = screen.getByRole('button', { name: 'Toggle' });
+
+      fireEvent.pointerDown(trigger, { pointerType: 'mouse' });
+      fireEvent.mouseEnter(trigger);
+      fireEvent.mouseMove(trigger);
+
+      clock.tick(1);
+
+      await setProps({ showTrigger: false });
+
+      clock.tick(OPEN_DELAY);
+
+      await flushMicrotasks();
+
+      expect(screen.queryByText('Content')).toBe(null);
+    });
+  });
+
   describe.for([
     { name: 'contained triggers', Component: ContainedTriggerTooltip },
     { name: 'detached triggers', Component: DetachedTriggerTooltip },
