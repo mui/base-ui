@@ -315,6 +315,33 @@ describe('<NumberField.Increment />', () => {
       expect(input).toHaveValue('4');
     });
 
+    it('stops the hold on release when an ancestor stops pointerup propagation', async () => {
+      await render(
+        <div onPointerUp={(event) => event.stopPropagation()}>
+          <NumberField.Root defaultValue={0}>
+            <NumberField.Increment />
+            <NumberField.Input />
+          </NumberField.Root>
+        </div>,
+      );
+
+      const button = screen.getByRole('button');
+      const input = screen.getByRole('textbox');
+
+      fireEvent.pointerDown(button, { pointerType: 'mouse' });
+
+      expect(input).toHaveValue('1');
+
+      fireEvent.pointerUp(button, { pointerType: 'mouse' });
+      fireEvent.mouseUp(button);
+
+      clock.tick(START_AUTO_CHANGE_DELAY);
+      clock.tick(CHANGE_VALUE_TICK_DELAY);
+      clock.tick(CHANGE_VALUE_TICK_DELAY);
+
+      expect(input).toHaveValue('1');
+    });
+
     it('cancels an active mouse press-and-hold interaction when disabled', async () => {
       const { setProps } = await render(<TestNumberField disabled={false} />);
 

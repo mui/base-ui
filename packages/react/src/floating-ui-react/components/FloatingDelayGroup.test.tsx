@@ -5,7 +5,8 @@ import * as React from 'react';
 import { act, fireEvent, render, screen } from '@mui/internal-test-utils';
 
 import { isJSDOM, useTestInteractions } from '#test-utils';
-import { FloatingDelayGroup, useDelayGroup, useFloating, useHover } from '../index';
+import { FloatingDelayGroup, useDelayGroup, useFloating } from '../index';
+import { useHover } from '../../../test/floating-ui-tests/useHover';
 
 interface Props {
   label: string;

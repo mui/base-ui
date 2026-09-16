@@ -18,8 +18,8 @@ import {
   useFloating,
   useFloatingNodeId,
   useFloatingParentNodeId,
-  useHover,
 } from '../../src/floating-ui-react';
+import { useHover } from './useHover';
 import styles from './Popover.module.css';
 
 /** @internal */

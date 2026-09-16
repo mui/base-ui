@@ -63,9 +63,6 @@ export class RequestQueue<TKey> {
       this.maxConcurrentRequests - this.pendingRequests.size,
       this.queuedRequests.size,
     );
-    if (loopLength === 0) {
-      return;
-    }
 
     const fetchPromises: Promise<void>[] = [];
 

@@ -29,10 +29,10 @@ import {
   useFloating,
   useFloatingNodeId,
   useFloatingParentNodeId,
-  useHover,
 } from '../index';
 import type { FloatingFocusManagerProps } from './FloatingFocusManager';
 import { Main as Navigation } from '../../../test/floating-ui-tests/Navigation';
+import { useHover } from '../../../test/floating-ui-tests/useHover';
 
 // TODO (@Janpot) It looks like the toHaveFocus assertion from @mui/internal-test-utils
 // is not working correctly with iframes and nested documents. Helper as a workaround

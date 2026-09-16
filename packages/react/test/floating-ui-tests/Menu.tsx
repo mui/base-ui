@@ -23,11 +23,11 @@ import {
   useFloatingNodeId,
   useFloatingParentNodeId,
   useFloatingTree,
-  useHover,
   useListNavigation,
   useTypeahead,
   useFocus,
 } from '../../src/floating-ui-react';
+import { useHover } from './useHover';
 import { gridNavigation } from '../../src/floating-ui-react/hooks/gridNavigation';
 import { GRID_COLUMN_COUNT, renderGridRows } from './renderGridRows';
 import styles from './Menu.module.css';

@@ -15,28 +15,6 @@ export function getNodeChildren(
   ]);
 }
 
-export function getDeepestNode(nodes: Array<FloatingNodeType>, id: string | undefined) {
-  let deepestNodeId: string | undefined;
-  let maxDepth = -1;
-
-  function findDeepest(nodeId: string | undefined, depth: number) {
-    if (depth > maxDepth) {
-      deepestNodeId = nodeId;
-      maxDepth = depth;
-    }
-
-    const children = getNodeChildren(nodes, nodeId);
-
-    children.forEach((child) => {
-      findDeepest(child.id, depth + 1);
-    });
-  }
-
-  findDeepest(id, 0);
-
-  return nodes.find((node) => node.id === deepestNodeId);
-}
-
 export function getNodeAncestors(nodes: Array<FloatingNodeType>, id: string | undefined) {
   let allAncestors: Array<FloatingNodeType> = [];
   let currentParentId = nodes.find((node) => node.id === id)?.parentId;

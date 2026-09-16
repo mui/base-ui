@@ -15,8 +15,8 @@ import {
   useFloating,
   useFloatingNodeId,
   useFocus,
-  useHover,
 } from '../../src/floating-ui-react';
+import { useHover } from './useHover';
 import styles from './Navigation.module.css';
 
 interface SubItemProps {

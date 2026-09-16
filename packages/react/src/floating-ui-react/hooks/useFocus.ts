@@ -33,7 +33,7 @@ export interface UseFocusProps {
    * Waits for the specified time before opening.
    * @default undefined
    */
-  delay?: number | (() => number | undefined) | undefined;
+  delay?: number | undefined;
 }
 
 /**
@@ -159,13 +159,8 @@ export function useFocus(
         );
 
         const { nativeEvent, currentTarget } = event;
-        const delayValue = typeof delay === 'function' ? delay() : delay;
 
-        if (
-          (store.select('open') && movedFromOtherEnabledTrigger) ||
-          delayValue === 0 ||
-          delayValue === undefined
-        ) {
+        if ((store.select('open') && movedFromOtherEnabledTrigger) || !delay) {
           store.setOpen(
             true,
             createChangeEventDetails(
@@ -177,7 +172,7 @@ export function useFocus(
           return;
         }
 
-        timeout.start(delayValue, () => {
+        timeout.start(delay, () => {
           if (blockFocusRef.current) {
             return;
           }
