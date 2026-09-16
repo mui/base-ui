@@ -1,26 +1,6 @@
 import { expect } from '@playwright/test';
-import { screenReaderTest as test, type ScreenReaderPlaywright } from '@guidepup/playwright';
-
-const MAX_NAVIGATION_STEPS = 10;
-
-async function navigateToItem(
-  screenReader: ScreenReaderPlaywright,
-  name: RegExp,
-  step = 0,
-): Promise<string> {
-  const itemText = await screenReader.itemText();
-
-  if (name.test(itemText)) {
-    return itemText;
-  }
-
-  if (step === MAX_NAVIGATION_STEPS) {
-    throw new Error(`Guidepup did not navigate to an item matching ${name}.`);
-  }
-
-  await screenReader.next();
-  return navigateToItem(screenReader, name, step + 1);
-}
+import { screenReaderTest as test } from '@guidepup/playwright';
+import { navigateToItem } from './utils';
 
 test.use({ screenReaderStartOptions: { capture: true } });
 
