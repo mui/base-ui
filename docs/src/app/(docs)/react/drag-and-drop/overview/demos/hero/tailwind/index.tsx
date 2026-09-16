@@ -28,6 +28,7 @@ function ShapePiece({ shape }: { shape: Shape }) {
       className={PIECE_CLASS}
       data-shape={shape.id}
       kind={shape.kind}
+      role="button"
       aria-label={shape.label}
     />
   );
