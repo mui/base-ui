@@ -79,7 +79,7 @@
     "@next/eslint-plugin-next": "16.3.4",
     "@playwright/test": "1.62.1",
     "@tailwindcss/postcss": "4.3.3",
-    "@testing-library/jest-dom": "6.9.1",
+    "@testing-library/jest-dom": "7.0.1",
     "@types/node": "22.20.1",
     "@types/react": "19.2.18",
     "@typescript/native": "npm:typescript@7.0.2",
@@ -93,7 +93,7 @@
     "eslint": "10.10.0",
     "globby": "16.2.4",
     "jsdom": "27.4.0",
-    "lerna": "9.0.7",
+    "lerna": "10.0.1",
     "pkg-pr-new": "0.0.88",
     "postcss-value-parser": "4.2.0",
     "prettier": "3.9.6",
@@ -116,9 +116,9 @@
   "config": {
     "valeVersion": "3.21.0"
   },
-  "packageManager": "pnpm@11.26.0",
+  "packageManager": "pnpm@12.4.1",
   "engines": {
-    "pnpm": "11.26.0",
+    "pnpm": "12.4.1",
     "node": ">=22.23.2"
   }
 }
