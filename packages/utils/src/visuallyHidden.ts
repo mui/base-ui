@@ -14,6 +14,7 @@ const visuallyHiddenBase: React.CSSProperties = {
 export const visuallyHidden: React.CSSProperties = {
   ...visuallyHiddenBase,
   position: 'fixed',
+  margin: '0px',
   top: '0px',
   left: '0px',
 };
