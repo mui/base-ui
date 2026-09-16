@@ -43,13 +43,29 @@ export default function ExampleMenuFilter() {
                     emptyText="No folders found."
                     options={folderOptions}
                   />
-                  <FilterableSubmenu
-                    label="Share"
-                    inputLabel="Filter sharing options"
-                    placeholder="e.g. Email"
-                    emptyText="No sharing options found."
-                    options={sharingOptions}
-                  />
+                  <Menu.SubmenuRoot>
+                    <Menu.SubmenuTrigger className={styles.SubmenuTrigger}>
+                      Share
+                      <CaretRightIcon />
+                    </Menu.SubmenuTrigger>
+                    <Menu.Portal>
+                      <Menu.Positioner
+                        className={styles.Positioner}
+                        sideOffset={getSubmenuOffset}
+                        alignOffset={getSubmenuOffset}
+                      >
+                        <Menu.Popup className={styles.Popup}>
+                          <Menu.List className={`${styles.List} ${styles.SubmenuList}`}>
+                            {sharingOptions.map((option) => (
+                              <Menu.Item key={option} className={styles.Item}>
+                                {option}
+                              </Menu.Item>
+                            ))}
+                          </Menu.List>
+                        </Menu.Popup>
+                      </Menu.Positioner>
+                    </Menu.Portal>
+                  </Menu.SubmenuRoot>
                   <FilterableSubmenu
                     label="Export"
                     inputLabel="Filter export formats"
