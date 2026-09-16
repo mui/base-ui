@@ -13,7 +13,7 @@ for (const activation of ['Enter', 'screen reader activation'] as const) {
     await page.goto('/e2e-fixtures/menu/Filter#no-dev');
     await page.locator('[data-testid="testcase"]:not([aria-busy="true"])').waitFor();
     await screenReader.navigateToWebContent();
-    await navigateToItem(screenReader, /actions.*button/i);
+    await navigateToItem(screenReader, /actions/i);
     await screenReader.clearSpokenPhraseLog();
 
     if (activation === 'Enter') {

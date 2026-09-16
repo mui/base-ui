@@ -14,7 +14,9 @@ export async function navigateToItem(
   }
 
   if (step === MAX_NAVIGATION_STEPS) {
-    throw new Error(`Guidepup did not navigate to an item matching ${name}.`);
+    throw new Error(
+      `Guidepup did not navigate to an item matching ${name}. Speech: ${JSON.stringify(await screenReader.spokenPhraseLog())}`,
+    );
   }
 
   await screenReader.next();
