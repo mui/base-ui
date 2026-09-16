@@ -13,6 +13,24 @@ for (const activation of ['Enter', 'screen reader activation'] as const) {
       page,
       screenReader,
     }) => {
+      page.on('console', (message) => {
+        if (message.text().startsWith('NVDA focus:')) {
+          console.log(message.text());
+        }
+      });
+      await page.addInitScript(() => {
+        const focus = HTMLElement.prototype.focus;
+        HTMLElement.prototype.focus = function focusWithTrace(options) {
+          console.info(
+            'NVDA focus:',
+            performance.now(),
+            this.getAttribute('role'),
+            this.textContent?.slice(0, 40),
+            new Error().stack,
+          );
+          return focus.call(this, options);
+        };
+      });
       await page.goto('/e2e-fixtures/menu/Filter#no-dev');
       await page.locator('[data-testid="testcase"]:not([aria-busy="true"])').waitFor();
       await screenReader.navigateToWebContent();
@@ -32,6 +50,7 @@ for (const activation of ['Enter', 'screen reader activation'] as const) {
       // action. Seeing the input anywhere in that log is insufficient: a later menu announcement
       // can cancel its speech even while DOM focus remains on the input.
       const openingSpeech = await screenReader.lastSpokenPhrase();
+      console.log(`NVDA opening (${activation}, ${attempt}): ${openingSpeech}`);
       expect(openingSpeech).toMatch(/filter actions.*(?:edit|search)/i);
       expect(openingSpeech).not.toMatch(/filter actions[\s\S]*actions[,\s]+menu\b/i);
 

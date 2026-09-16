@@ -179,10 +179,10 @@ export interface FloatingFocusManagerProps {
     | ((openType: InteractionType) => boolean | HTMLElement | null | void)
     | undefined;
   /**
-   * Lets the popup paint before scheduling initial focus.
+   * Delays initial focus until popup accessibility notifications have been delivered.
    * @internal
    */
-  initialFocusAfterPaint?: boolean | undefined;
+  initialFocusDelay?: number | undefined;
   /**
    * Determines the element to focus when the floating element is closed.
    *
@@ -266,7 +266,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     children,
     disabled = false,
     initialFocus = true,
-    initialFocusAfterPaint = false,
+    initialFocusDelay = 0,
     returnFocus = true,
     explicitReturnFocus,
     restoreFocus = false,
@@ -327,7 +327,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
   const blurTimeout = useTimeout();
   const pointerDownTimeout = useTimeout();
   const restoreFocusFrame = useAnimationFrame();
-  const initialFocusFrame = useAnimationFrame();
+  const initialFocusTimeout = useTimeout();
 
   const isInsidePortal = portalContext != null;
   const floatingFocusElement = getFloatingFocusElement(floating);
@@ -737,7 +737,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
 
       const focus = () =>
         enqueueFocus(elToFocus, {
-          sync: openedByVirtualPress && !initialFocusAfterPaint,
+          sync: openedByVirtualPress,
           preventScroll: elToFocus === floatingFocusElement,
           shouldFocus() {
             // If the floating element has closed before this runs — e.g. tabbing out of a
@@ -762,8 +762,8 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
 
       // Windows menu-open notifications can replace the input's focus announcement when both
       // arrive in the same accessibility update. Separate menu exposure from initial focus.
-      if (initialFocusAfterPaint) {
-        initialFocusFrame.request(focus);
+      if (initialFocusDelay) {
+        initialFocusTimeout.start(initialFocusDelay, focus);
       } else {
         void focus();
       }
@@ -774,8 +774,8 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     floatingFocusElement,
     getTabbableContent,
     initialFocusRef,
-    initialFocusAfterPaint,
-    initialFocusFrame,
+    initialFocusDelay,
+    initialFocusTimeout,
     openInteractionTypeRef,
     openRef,
     dataRef,

@@ -191,7 +191,7 @@ export const MenuPopupPlain = React.forwardRef(function MenuPopup(
           : undefined
       }
       initialFocus={initialFocus}
-      initialFocusAfterPaint={virtualFocus && platform.os.windows}
+      initialFocusDelay={virtualFocus && platform.os.windows ? 100 : 0}
       restoreFocus
       externalTree={parent.type !== 'menubar' ? floatingTreeRoot : undefined}
       previousFocusableElement={activeTriggerElement as HTMLElement | null}
