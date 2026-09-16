@@ -1,15 +1,13 @@
 # Styling
 
-<Subtitle>Styling the states a drag moves through.</Subtitle>
+<Subtitle>Style drag sources, previews, and drop targets.</Subtitle>
 
 <Meta
   name="description"
   content="How to style Base UI drag sources, previews, drop targets, and drop animations."
 />
 
-Drag and drop adds no visual styles. Base UI exposes each state as a data attribute. See the [styling guide](https://base-ui.com/react/handbook/styling) for how to use data attributes. The [Draggable](/react/components/draggable#api-reference), [DropTarget](/react/components/drop-target#api-reference), and [DragAutoScroll](/react/components/drag-auto-scroll#api-reference) API references list every attribute.
-
-The sections below cover the attributes that have to be combined to be useful.
+The drag-and-drop components are unstyled. Base UI exposes each state as a data attribute. See the [styling guide](https://base-ui.com/react/handbook/styling) for how to use data attributes. The [Draggable](/react/components/draggable#api-reference), [DropTarget](/react/components/drop-target#api-reference), and [DragAutoScroll](/react/components/drag-auto-scroll#api-reference) API references list every attribute.
 
 ## Dimming the source
 
@@ -29,11 +27,11 @@ The sections below cover the attributes that have to be combined to be useful.
 }
 ```
 
-A [custom preview](/react/components/draggable#custom-previews) renders its own content, so it never has the source's classes; only `[data-drag-preview]` reaches it.
+A [custom preview](/react/components/draggable#custom-previews) uses the classes you give it. It does not copy the source's classes. Target those preview classes or `[data-drag-preview]` in your CSS.
 
 ## Sizing a custom preview
 
-The clone is the size of the element it copies; a custom preview is sized by its own content. To match the source, read the size the engine writes onto the preview element as `--drag-source-width` and `--drag-source-height`:
+The clone matches the source's size. A custom preview uses its own content size unless you set its dimensions. To match the source, use `--drag-source-width` and `--drag-source-height`:
 
 ```css title="Matching the source size"
 .RowPreview {
@@ -46,7 +44,7 @@ Base UI sets both values once at drag start from the source's bounding rect. Fo
 
 ## Animating a drop
 
-After a release, an engine-owned clone receives `data-ending-style` and moves to the source's committed position. A transition in that state keeps the clone mounted until it finishes:
+After a release, a cloned preview receives `data-ending-style` and moves to the source's committed position. A transition in that state keeps the clone mounted until it finishes:
 
 ```css title="Settling a cloned preview after drop"
 .Card[data-drag-preview][data-ending-style] {
@@ -62,7 +60,7 @@ The source keeps `data-dragging` and also receives `data-ending-style` while the
 }
 ```
 
-Without a transition, both ending attributes are removed before the next paint. This applies to `Draggable.ClonedPreview`; a custom `Draggable.Preview` unmounts when the drag ends.
+Without a transition, both ending attributes are removed before the next paint. This applies to both the default clone and `Draggable.ClonedPreview`; a custom `Draggable.Preview` unmounts when the drag ends.
 
 ## Highlight the innermost target
 
@@ -82,7 +80,7 @@ Both attributes are absent on targets with [`trackDragOver={false}`](/react/comp
 
 ## The drag cursor
 
-While a pointer drag runs, the engine pins the cursor across the document so it stays the same over every element the pointer crosses: `grabbing`, or whatever you pass as [`dragCursor`](/react/components/draggable#set-the-drag-cursor). Touch has no cursor, so this is skipped there. The resting cursor is yours to set:
+During mouse and pen drags, Base UI applies `grabbing` across the document, or the value of [`dragCursor`](/react/components/draggable#set-the-drag-cursor). Set the resting cursor in your CSS:
 
 ```css title="The resting cursor"
 .Card {
@@ -94,7 +92,7 @@ While a pointer drag runs, the engine pins the cursor across the document so it 
 
 Base UI writes inline styles and injects one cursor stylesheet. These styles may override the same properties in your CSS.
 
-At registration, each enabled draggable receives `touch-action: manipulation`, `user-select: none`, `-webkit-user-select: none`, and `-webkit-touch-callout: none`. A disabled source receives none of these styles. The styles prevent text selection and the iOS callout while still allowing touch scrolling before the 250ms drag delay ends. When a [`Draggable.Handle`](/react/components/draggable#drag-handle) is present, Base UI applies the styles to the handle instead of the root. Setting `touch-action` on the handle overrides this behavior and can interfere with touch dragging or list scrolling, so set it on a wrapper instead. Base UI restores the original styles when the source unregisters.
+At registration, each enabled draggable receives `touch-action: manipulation`, `user-select: none`, `-webkit-user-select: none`, and `-webkit-touch-callout: none`. A disabled source receives none of these styles. The styles prevent text selection and the iOS callout while still allowing touch scrolling before touch activation, which defaults to a 250ms hold. When a [`Draggable.Handle`](/react/components/draggable#drag-handle) is present, Base UI applies the styles to the handle instead of the root. Setting `touch-action` on the handle overrides this behavior and can interfere with touch dragging or list scrolling, so set it on a wrapper instead. Base UI restores the original styles when the source unregisters.
 
 During a pointer drag, Base UI sets `touch-action: none`, `user-select: none`, `-webkit-user-select: none`, `-webkit-touch-callout: none`, and `overscroll-behavior: none` on `<html>` and `<body>`. This prevents page scrolling and overscroll. Base UI restores the values when the drag ends.
 
@@ -106,7 +104,7 @@ html.baseui-dragging.baseui-dragging-styles * {
 }
 ```
 
-The universal selector with `!important` is what makes the drag cursor hold over elements that set their own (a handle's `grab`, an input's `text`). `--drag-cursor` is set on `<html>` for the duration of the drag from the source's [`dragCursor`](/react/components/draggable#set-the-drag-cursor), so you can also set it yourself for a scope the engine doesn't know about. When the drag ends, whether it drops or is canceled, the classes are removed and the custom property is restored. The injected rule remains installed for reuse by later drags.
+The universal selector and `!important` override element cursors, such as `grab` on handles and `text` on inputs. `--drag-cursor` is set on `<html>` for the duration of the drag from the source's [`dragCursor`](/react/components/draggable#set-the-drag-cursor), so you can also set it yourself for a scope the engine doesn't know about. When the drag ends, whether it drops or is canceled, the classes are removed and the custom property is restored. The injected rule remains installed for reuse by later drags.
 
 The stylesheet receives the nonce from [`CSPProvider`](/react/utils/csp-provider). When `disableStyleElements` is enabled, Base UI does not inject or activate its cursor rule, but it still adds `baseui-dragging` and sets `--drag-cursor`. Add the following equivalent rule to an external stylesheet to retain the document-wide cursor:
 
@@ -118,7 +116,7 @@ html.baseui-dragging * {
 
 ## Reduced motion
 
-The engine animates nothing, so a drag has no motion unless you add a transition. Guard the ones you add:
+The preview follows the pointer, but Base UI adds no transition animations. Apply any transitions you add only when the user has not requested reduced motion:
 
 ```css title="Guarding an added transition"
 .Card[data-drag-preview][data-ending-style] {

@@ -46,7 +46,7 @@ const card = Draggable.createKind<CardPayload>('card');
 <DropTarget.Root accept={card} onDrop={({ source }) => move(source.payload.id)} />;
 ```
 
-Pass an array to take several kinds. `source.payload` is then the union of their payloads, and each kind's `matches` narrows it back down:
+Pass an array to accept several kinds. `source.payload` is a union of their payload types. Use a kind's `matches` method to narrow the source:
 
 ```tsx title="Accepting two kinds"
 const task = Draggable.createKind<Task>('task');
@@ -64,7 +64,7 @@ const file = Draggable.createKind<Attachment>('file');
 />;
 ```
 
-`accept` is required because every registration joins the same page-wide drag manager. A target without `accept` would accept every source on the page, including sources from unrelated drag-and-drop interactions.
+`accept` is required because every registration joins the same page-wide drag manager. Declare the supported kinds to keep unrelated interactions separate.
 
 Use `DropTarget.anyKind` for a target that intentionally accepts every drag, such as a trash zone or debug overlay. Its `source.payload` is `unknown` until a specific kind's `matches` method narrows it:
 
@@ -91,8 +91,8 @@ A target's event handlers receive the drag `source`, the target as `self`, and t
 <DropTarget.Root
   accept={card}
   payload={zone}
-  // Fires when this target enters the active stack. An enter-only hook; put
-  // hover work in `onDrag`.
+  // Fires when this target enters the active stack. Use `onDrag` to track
+  // movement while it remains active.
   onDragEnter={({ source }) => console.log(source.payload, 'entered')}
   // Fires on the enter frame and on every animation frame the pointer moves
   // while the target stays in the stack. Hover-tracking (drop indicators,
@@ -111,7 +111,7 @@ A target's event handlers receive the drag `source`, the target as `self`, and t
 />
 ```
 
-`onDropTargetChange` also fires on stack changes that don't affect this target's own membership (a nested descendant entered or left), and `onDragStart` fires only when a drag begins with this target already under the pointer. To observe every drop regardless of target depth, use a source's `onDrop` or [`useDragMonitor`](/react/utils/use-drag-monitor).
+`onDropTargetChange` also fires when a nested target enters or leaves the stack while this target remains active. `onDragStart` fires only if this target is already under the pointer when the drag begins. To observe every drop regardless of target depth, use a source's `onDrop` or [`useDragMonitor`](/react/utils/use-drag-monitor).
 
 Use `onDragEnter` and `onDragLeave` to implement hover intent. For example, start a timer in `onDragEnter` to expand a collapsed group after a delay, and clear it in `onDragLeave`:
 
@@ -155,7 +155,7 @@ Use `payload` when a monitor or another target must read the target's identity f
 
 ## Read where in the target the pointer landed
 
-`self.getLocalPoint()` returns the pointer's position inside the target as a fraction of its box on each axis: `0` at the left or top edge, `1` at the right or bottom. Use it when the drop resolves to a value spread across the target, such as a time on a day column, rather than to the target itself:
+`self.getLocalPoint()` returns the pointer's position as a fraction of the target's bounding box. Each axis is `0` at the left or top edge and `1` at the right or bottom edge. Use it to convert a drop position to a value, such as a time within a day column:
 
 ```tsx title="A drop that means a time"
 <DropTarget.Root
@@ -170,7 +170,7 @@ Use `payload` when a monitor or another target must read the target's identity f
 
 The first call measures the target. Later calls on the same record reuse that measurement. Records are rebuilt on every move.
 
-Every record has this method. Entries in `location.dropTargets` measure against their own bounding boxes, so nested targets report different fractions for the same pointer.
+Every record has this method. Entries in `location.current.dropTargets` measure against their own bounding boxes, so nested targets report different fractions for the same pointer.
 
 The value is not clamped, because an ancestor in the stack can have the pointer outside its own box. Clamp it where your domain requires it. A target with no extent, including one detached since the drag began, reports `{ x: 0, y: 0 }`.
 
@@ -202,7 +202,7 @@ Pass a callback when the step count depends on the drag. It receives the same `s
 />
 ```
 
-The callback also suits a count read from live state at drag time, such as a user-adjustable slot duration read through a ref. For plain render-state a static value works too: parameters are re-read on every resolution, so a re-render with a different `snap` needs no callback.
+Use a callback to read a step count from a ref at drag time. For values in React state, pass an object directly. Base UI reads the latest `snap` on every resolution, so a re-render updates the step count.
 
 When moving an element, the committed value usually represents where the element lands rather than the pointer position. Pass `{ anchor: 'source' }` to snap the dragged element's leading edges while preserving the pointer's grab offset:
 
@@ -222,7 +222,7 @@ When moving an element, the committed value usually represents where the element
 
 ## Nested drop targets
 
-Drop targets can be nested. The innermost target that accepts the drag handles it, so nested zones behave predictably. Return `false` from `canDrop` on an inner target to let an outer one claim the drop instead, or set `disabled` to take a target out of play entirely, which likewise lets drags fall through to its ancestors.
+When drop targets are nested, the innermost accepted target receives the drop. Return `false` from its `canDrop` callback to skip it and let an ancestor accept the drop. Setting `disabled` also excludes the target.
 
 <DemoNestedDropTargets />
 
@@ -280,7 +280,7 @@ If a target does not use these drag-feedback attributes, set `trackDragOver={fal
 
 ## Both a source and a target
 
-A sortable list item is picked up as well as dropped on. Pass a `DropTarget.Root` to the `Draggable.Root`'s `render` prop and both roles land on one element:
+A sortable list item can be both a drag source and a drop target. Pass `DropTarget.Root` to `Draggable.Root`'s `render` prop to give one element both roles:
 
 ```tsx title="One element, both roles"
 const itemKind = Draggable.createKind<string>('item');
@@ -294,12 +294,7 @@ const itemKind = Draggable.createKind<string>('item');
 
 ## API reference
 
-The dragged item's payload type and this target's payload flow through every event: a
-target with an `accept` and a `payload` hands both to `onDrop`, `canDrop`, and the
-rest. The generated tables below render those signatures at the _default_ types
-(`unknown`/`undefined`, or `any` where both overloads are shown), because the
-reference is extracted without concrete type arguments. Read them as "what this
-target's `accept` and `payload` resolve to".
+TypeScript infers event payloads from the target's `accept` and `payload` props. The generated tables use default types such as `unknown`, `undefined`, or `any` because they have no concrete type arguments. In your code, the props determine these types.
 
 import { TypesDropTarget } from './types';
 

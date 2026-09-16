@@ -4,7 +4,7 @@
 
 <Meta name="description" content="How to test Base UI pointer drags in jsdom and a browser." />
 
-The engine is [synthetic](/react/drag-and-drop/overview#concepts): it listens to pointer events and never uses the browser's HTML5 drag-and-drop. There is no `dragstart` to fire. A test drives a drag the way a user does, with `pointerdown`, `pointermove` and `pointerup`.
+Base UI implements [synthetic drag and drop](/react/drag-and-drop/overview#concepts) through pointer events. Drive tests with `pointerdown`, `pointermove`, and `pointerup`. Native HTML5 events such as `dragstart` do not start a Base UI drag.
 
 ## Pick the environment first
 
@@ -17,9 +17,9 @@ Stubbing `getBoundingClientRect` in jsdom supplies geometry but not hit-testing.
 
 ## Start a pointer drag
 
-A press is not a drag. Mouse and pen activate once the pointer has moved 5px from where it went down; touch activates after a 250ms press-hold, with a 5px tolerance so a list scroll still scrolls. A test that dispatches `pointerdown` then `pointerup` has simulated a click.
+With the default [activation thresholds](/react/components/draggable#activation), mouse and pen require 5px of movement. Touch requires a 250ms hold within a 5px movement tolerance. Dispatching `pointerdown` followed immediately by `pointerup` simulates a click.
 
-```tsx title="A mouse drag from one element to another"
+```tsx title="Starting and releasing a mouse drag"
 const source = screen.getByTestId('card');
 
 fireEvent.pointerDown(source, { pointerId: 1, clientX: 0, clientY: 0, button: 0, buttons: 1 });
@@ -29,11 +29,13 @@ fireEvent.pointerMove(document, { pointerId: 1, clientX: 0, clientY: 120, button
 fireEvent.pointerUp(document, { pointerId: 1, clientX: 0, clientY: 120 });
 ```
 
-Three details matter:
+Include the pointer information the engine needs:
 
-- **Dispatch moves on `document`, not on `window`.** This reaches the drag's active pointer listeners.
-- **Carry the same `pointerId` through.** The engine tracks one gesture by id and ignores events from another pointer.
-- **Keep `buttons: 1` on every move.** A move reporting `buttons: 0` means the button came up without the engine seeing it. Omit it on the move that would cross the threshold and the press is abandoned before it commits, so no drag starts and no handler fires at all; drop it mid-drag and the drag cancels with the reason `'missed-release'` on the next animation frame, so [let a frame pass](#let-a-frame-pass) before asserting on it. A move that reports `buttons: 1` before that frame lands withdraws the cancel.
+- Dispatch moves on `document` to reach the active pointer listeners.
+- Use the same `pointerId` throughout the gesture. Events from another pointer are ignored.
+- Set `buttons: 1` on each move to indicate that the primary button is still pressed.
+
+A move with `buttons: 0` before activation abandons the press without starting a drag. During an active drag, it schedules cancellation with reason `'missed-release'` for the next animation frame. A move with `buttons: 1` before that frame prevents the cancellation. [Wait for a frame](#let-a-frame-pass) before asserting a missed release.
 
 For touch, advance timers past the press-hold instead of moving:
 
@@ -52,21 +54,20 @@ fireEvent.pointerMove(document, {
 });
 ```
 
-Set `pointerActivation={{ type: 'immediate' }}` on the draggable under test when the threshold is not what you are testing: the drag then starts on `pointerdown`.
+Set `pointerActivation={{ type: 'immediate' }}` on the draggable under test when testing behavior other than activation. The drag then starts on `pointerdown`.
 
 ## Let a frame pass
 
-`onDrag` and the drag-over state it drives are throttled to one call per animation frame, so an assertion made right after a move reads the state from before it. Await a frame in between:
+`onDrag` and drag-over state updates are throttled to one call per animation frame. Wait for the update before asserting:
 
-```tsx title="Assert after the frame lands"
+```tsx title="Waiting for drag-over feedback"
 fireEvent.pointerMove(document, { pointerId: 1, clientX: 0, clientY: 120, buttons: 1 });
-await act(async () => {
-  await new Promise(requestAnimationFrame);
+await waitFor(() => {
+  expect(screen.getByTestId('zone')).toHaveAttribute('data-drag-over');
 });
-expect(screen.getByTestId('zone')).toHaveAttribute('data-drag-over');
 ```
 
-`onDragStart` and `onDragEnd` are not throttled. `onDragStart` fires synchronously with the move that crosses the threshold, and `onDragEnd` fires synchronously with the `pointerup` or Escape key event that ends the drag. Cancels the engine detects on its own, such as a missed release, land on the next frame.
+`onDragStart` and `onDragEnd` are not throttled. `onDragStart` fires synchronously with the move that crosses the threshold, and `onDragEnd` fires synchronously with the `pointerup` or Escape key event that ends the drag. Cancellations detected by Base UI, such as a missed release, fire on the next frame.
 
 ## Assert on what a user can observe
 
@@ -83,7 +84,7 @@ expect(onDrop.mock.calls[0][0].source.payload).toBe('card-1');
 
 ## Clean up between tests
 
-A drag left running leaks into the next test: the engine is global, the cursor stays pinned, and `<html>` stays scroll-locked. End every drag a test starts, with a `pointerup` or an Escape, including on the failure path. For a test that asserts mid-drag, release in an `afterEach`.
+An unfinished drag affects later tests because the page shares one manager. The cursor and scroll lock also remain active. End every drag with `pointerup` or Escape, even if an assertion fails. Use `afterEach` to clean up tests that assert during a drag, and restore real timers after tests that use fake timers.
 
 export const metadata =
   /** @type {import('@mui/internal-docs-infra/createSitemap/types').NextMetadata} */ ({

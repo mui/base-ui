@@ -7,11 +7,11 @@
   content="Accessible alternatives for pointer drag and drop in Base UI, including menus, shortcuts, focus, and announcements."
 />
 
-Base UI's drag engine responds to pointer input. Every action available by dragging must also be available without a drag gesture. Implement that alternative in the application, where the available destinations and the meaning of a move are known.
+Base UI drag and drop responds to mouse, touch, and pen input. Every action available by dragging must also be available without a drag gesture. Implement that alternative in the application, where the available destinations and the meaning of a move are known.
 
 ## Provide an alternative to dragging
 
-A "Move to…" menu, move buttons, or a destination select can perform the same operation without requiring the user to track and aim a moving object.
+Provide a "Move to..." menu, move buttons, or a destination select. Users can then perform the same operation with a keyboard or a click or tap.
 
 ```tsx title="A menu next to the pointer handle"
 <Draggable.Root kind={taskKind} payload={task.id}>
@@ -34,7 +34,7 @@ A "Move to…" menu, move buttons, or a destination select can perform the same 
 </Draggable.Root>
 ```
 
-The menu changes application state directly; it does not start a drag session.
+Have the menu and drop handler call the same application function so they apply the same move rules.
 
 ## Add shortcuts for frequent moves
 
@@ -72,13 +72,13 @@ focusFrame.request(() => {
 
 ## Announce state changes
 
-The non-drag control should expose its result like any other application command. A menu item already communicates its chosen destination. For a shortcut whose result is otherwise only visual, update an application-owned polite live region with a concise message such as "Moved Research before Design" or "Card moved to Done, position 3 of 8."
+The non-drag control should expose its result like any other application command. A menu item already communicates its chosen destination. For a shortcut whose result is otherwise only visual, update a polite live region in your application with a concise message such as "Moved Research before Design" or "Card moved to Done, position 3 of 8."
 
-Avoid announcing continuous pointer movement. Announce the committed result, and use human positions such as "3 of 8" instead of zero-based indexes.
+Avoid announcing continuous pointer movement. Announce the committed result, and use positions such as "3 of 8" instead of zero-based indexes.
 
 ## Keep pointer handles out of the tab order
 
-`Draggable.Handle` is a pointer affordance and renders a `span` by default. Do not turn it into an extra keyboard stop when another control owns the keyboard action. If the handle contains only a decorative grip icon, mark it `aria-hidden="true"`.
+`Draggable.Handle` starts pointer drags and renders a `span` by default. Do not turn it into an extra keyboard stop when another control owns the keyboard action. If the handle contains only a decorative grip icon, mark it `aria-hidden="true"`.
 
 The draggable item may still be focusable for its normal widget behavior. Base UI does not add a role or `tabIndex`; use the semantics appropriate to the application.
 

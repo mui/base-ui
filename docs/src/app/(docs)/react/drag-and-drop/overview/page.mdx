@@ -14,15 +14,15 @@ import { DemoKanbanBoard } from './demos/kanban';
 import { DemoDraggableTabs } from './demos/tabs';
 import { DemoFileExplorer } from './demos/file-explorer';
 
-Base UI includes headless drag-and-drop for making elements draggable and building drop zones. It works across mouse, touch, and pen, with pointer-appropriate defaults for starting a drag (see [Activation](/react/components/draggable#activation)). The components are unstyled, including the preview that follows the pointer.
+Base UI provides unstyled components for drag sources, drop targets, and previews. It supports mouse, touch, and pen input, with different [activation thresholds](/react/components/draggable#activation) for clicks and touch scrolling. Your application decides what a drop does, such as moving a card or rescheduling an event.
 
 <DemoShapeSorter />
 
-The two main components have their own pages. [Draggable](/react/components/draggable) makes an element a drag source, and [DropTarget](/react/components/drop-target) marks where a drag can be released. The other guides cover [styling](/react/drag-and-drop/styling), [accessibility](/react/drag-and-drop/accessibility), and [testing](/react/drag-and-drop/testing).
+[Draggable](/react/components/draggable) makes an element a drag source, and [DropTarget](/react/components/drop-target) defines where it can be dropped. Add [DragAutoScroll](/react/components/drag-auto-scroll) to scroll containers as the pointer approaches their edges. The other guides cover [styling](/react/drag-and-drop/styling), [accessibility](/react/drag-and-drop/accessibility), and [testing](/react/drag-and-drop/testing).
 
 ## Concepts
 
-**Kinds say what can be dragged where.** Every draggable is of one kind, declared once with `Draggable.createKind`. A drop target lists the kinds it takes in `accept`, and the payload type the kind was created with is what types `source.payload` on every event:
+A **kind** identifies a category of draggable items and its payload type. Declare it with `Draggable.createKind`, then pass it to a source's `kind` and a target's `accept`. Event handlers infer the type of `source.payload` from the kind:
 
 ```tsx title="Declaring a kind"
 import { Draggable } from '@base-ui/react/draggable';
@@ -35,19 +35,25 @@ const card = Draggable.createKind<Card>('card');
 <DropTarget.Root accept={card} onDrop={({ source }) => move(source.payload.id)} />;
 ```
 
-A `createKind` call has a unique identity. Declare it once and share the returned value with every draggable and target in the interaction. Two separate `createKind('card')` calls do not match. The name is only a debugging aid.
+Each `createKind` call returns a value with a unique identity. Declare it once and share the returned value with every draggable and target in the interaction. Two separate `createKind('card')` calls do not match. The name is only a debugging aid.
 
-If independently evaluated bundles cannot share the same value, use `Draggable.createGlobalKind<Card>('myapp/card')`. Global keys are interned across bundles and hot reloads, so namespace them to your app or package. Reusing one key with incompatible payload types makes unrelated integrations match and bypasses TypeScript's payload safety; prefer `createKind` everywhere else.
+If independently evaluated bundles cannot share the same value, use `Draggable.createGlobalKind<Card>('myapp/card')`. The same global key identifies the same kind across bundles and hot reloads. Prefix the key with your app or package name and use one payload type for that key. Incompatible types under the same key can match at runtime despite TypeScript's checks. Prefer `createKind` when you can share its returned value.
 
-**One manager, no provider.** Every source and target on the page uses the same drag manager. The required `accept` prop prevents unrelated interactions from matching. Use `DropTarget.anyKind` to accept every drag. `Draggable.PreviewProvider` does not scope a drag. It provides the React tree where custom previews render.
+Every source and target on the page uses the same **drag manager**, with no provider required. The required `accept` prop prevents unrelated interactions from matching. Use `DropTarget.anyKind` to accept every drag. `Draggable.PreviewProvider` does not scope a drag. It provides the React tree where custom previews render.
 
-**Drag and drop is synthetic.** Base UI tracks pointer input itself rather than using the browser's HTML5 drag-and-drop, so there is no `dataTransfer`, nothing crosses into other applications, and the preview is an ordinary element you style. An OS file drop is handled by [passing native handlers through `render`](/react/components/drop-target#anatomy).
+Base UI tracks pointer input to implement **synthetic drag and drop**. These drags have no `dataTransfer` and stay within the page. To accept files dragged from the operating system, handle native drops by [passing native handlers through `render`](/react/components/drop-target#anatomy).
 
-**Drop targets stack.** A drag can be over several nested targets at once. They arrive innermost-first in `location.current.dropTargets`, and only the innermost receives `onDrop`; ancestors see the drag pass through via `onDragEnter`, `onDrag` and `onDragLeave`. Returning `false` from `canDrop` pops a target off the stack so an ancestor can claim the drop; returning `'reject'` refuses the position outright, and no target resolves there at all.
+A drag can be over several nested drop targets at once. `location.current.dropTargets` lists them innermost first. Only the innermost receives `onDrop`; ancestors receive `onDragEnter`, `onDrag`, and `onDragLeave`. Returning `false` from `canDrop` skips that target. Returning `'reject'` blocks the drop at that position, including on descendants and ancestors.
 
-**A drop can resolve to a value inside a target.** Every record in the stack has a [`getLocalPoint()`](/react/components/drop-target#read-where-in-the-target-the-pointer-landed) method. It returns the pointer position inside the target as a fraction of its bounding box. Use it to resolve values such as a time in a day column or a position on a track without measuring the element in the handler.
+To find the drop position within a target, use the target record's [`getLocalPoint()`](/react/components/drop-target#read-where-in-the-target-the-pointer-landed) method. It returns the pointer position inside the target as a fraction of its bounding box. Use it to resolve values such as a time in a day column or a position on a track without measuring the element in the handler.
 
-**Every event carries the same location history.** `location.initial` is where the drag began, `location.current` where it is now, and `location.previous` where it was at the prior event, each a pointer position plus the target stack at that moment. Comparing `current` against `previous` is how hover work tells that something changed. On the first event of a drag, `previous` holds the pickup input and an empty stack, so that comparison reads as no movement rather than a jump.
+Drag events carry a **location history**. Each location contains pointer input and the target stack at that moment:
+
+- `location.initial` records where the drag began.
+- `location.current` records the location for this event.
+- `location.previous` records the location at the prior event. On the first event, it contains the pickup input and an empty target stack.
+
+Compare `current` with `previous` to detect changes in pointer position or active targets.
 
 ## Setup
 
@@ -67,7 +73,7 @@ function App() {
 }
 ```
 
-Custom preview content renders beside the provider's children, so it receives context only from providers **above the nearest `Draggable.PreviewProvider`**. It does not inherit a theme, direction, or store provider placed between that preview provider and an individual draggable. Put another `Draggable.PreviewProvider` inside any local context boundary the preview must retain. The DOM container a preview is injected into does not change this React-context boundary.
+Custom preview content receives React context from above the nearest `Draggable.PreviewProvider`. Put a preview provider inside any local theme, direction, or store provider the preview needs. Changing the preview's DOM container does not change which React context it receives.
 
 ## Examples
 
@@ -79,7 +85,7 @@ Reordering leaves the standard Tabs keyboard behavior in place. The arrow keys s
 
 ### Calendar
 
-A custom [modifier](/react/components/draggable#movement-modifiers) snaps the drag to the nearest day column and 15-minute slot, so the preview shows exactly where the event will land. Each column declares [`snap`](/react/components/drop-target#snap-to-steps), so the drop commits with no geometry in the handler.
+A custom [modifier](/react/components/draggable#movement-modifiers) snaps the drag to the nearest day column and 15-minute slot, so the preview shows exactly where the event will land. Each column declares [`snap`](/react/components/drop-target#snap-to-steps), so the drop handler can read the snapped time without measuring the column.
 
 <DemoSchedulerWeekView />
 
@@ -97,7 +103,7 @@ Cards sit at absolute coordinates and drop anywhere. `restrictToElement` keeps p
 
 ### File explorer
 
-Drop a node on a folder, on the open grid, or on an ancestor in the breadcrumb to move it there. Plain <kbd>Space</kbd> or <kbd>Enter</kbd> opens a focused folder. [`canDrop`](/react/components/drop-target#nested-drop-targets) refuses a folder dropped into its own subtree.
+Drop a node on a folder, on the open grid, or on an ancestor in the breadcrumb to move it there. <kbd>Space</kbd> or <kbd>Enter</kbd> opens a focused folder. [`canDrop`](/react/components/drop-target#nested-drop-targets) refuses a folder dropped into its own subtree.
 
 <DemoFileExplorer />
 

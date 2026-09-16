@@ -20,7 +20,7 @@ It pairs with [Draggable](/react/components/draggable) and [DropTarget](/react/c
 
 ## Anatomy
 
-Import the component and wrap the application area whose lifetime should enable auto-scroll:
+Import the component and mount its provider while auto-scroll should be enabled:
 
 ```jsx title="Anatomy"
 import { DragAutoScroll } from '@base-ui/react/drag-auto-scroll';
@@ -36,7 +36,7 @@ While a `DragAutoScroll.Provider`, `DragAutoScroll.Root`, or imperative auto-scr
 
 An element participates on axes whose computed `overflow` is `auto`, `scroll`, or `overlay`. Use `hidden` or `clip` to exclude an axis.
 
-A container scrolls while the pointer is in an **edge zone** and more content remains in that direction. Each edge zone is one quarter of the container's size on that axis, capped at 180px.
+A container scrolls while the pointer is in an edge zone and more content remains in that direction. Each edge zone is one quarter of the container's size on that axis, capped at 180px.
 
 Use [`canScroll`](#control-when-it-scrolls) to exclude a scrollable container. Use [`applyScroll`](#implement-custom-scrolling) to implement scrolling without element scroll offsets.
 
@@ -44,7 +44,7 @@ Drop targets are resolved again as content scrolls, so a target that moves under
 
 ## Customize a container that already scrolls
 
-Mounting a `DragAutoScroll.Root` enables auto-scroll for every scroll container on the page, like a provider does, and configures the one container it renders: the accepted drags, allowed axes, speed, or disabled state.
+Like a provider, mounting `DragAutoScroll.Root` enables auto-scroll across the page. Its props configure the element it renders, including accepted drags, allowed axes, speed, and disabled state.
 
 ### Control when it scrolls
 
@@ -70,7 +70,7 @@ Use `canScroll` when the decision depends on the drag source. It runs on every f
 
 Use `accept` to limit the element to one or more drag kinds. Other drags do not use the container. The accepted kinds determine the payload type passed to per-frame callbacks.
 
-```tsx title="Scrolling for cards, not for anything else"
+```tsx title="Scrolling only for cards"
 <DragAutoScroll.Root accept={card} />
 ```
 
@@ -78,7 +78,7 @@ Use `accept` to limit the element to one or more drag kinds. Other drags do not 
 
 Use `allowedAxis` to limit scrolling to one axis.
 
-CSS usually determines the scrollable axes. A lane with `overflow-x: auto` scrolls horizontally and never vertically. Use `allowedAxis` for an `applyScroll` implementation without scrollable CSS, or for a container that can scroll on both axes but should only use one. The lane below sets `allowedAxis="horizontal"` explicitly.
+CSS determines which axes can scroll. For example, a lane with `overflow-x: auto` and `overflow-y: hidden` scrolls only horizontally. Use `allowedAxis` for an `applyScroll` implementation without scrollable CSS, or for a container that can scroll on both axes but should only use one. The lane below sets `allowedAxis="horizontal"` explicitly.
 
 <DemoDragAutoScrollAxis />
 
@@ -106,7 +106,7 @@ Use `maxSpeed` to set the speed at the container edge in CSS pixels per second. 
 
 You can also pass a callback that runs on every scrolling frame. For example, derive the speed from the remaining scroll distance.
 
-```tsx title="Faster the more there is to cross"
+```tsx title="Speed based on content height"
 <DragAutoScroll.Root maxSpeed={({ element }) => Math.min(2400, element.scrollHeight / 4)} />
 ```
 
@@ -153,7 +153,7 @@ Use [`allowedAxis`](#constrain-the-direction) and [`accept`](#control-when-it-sc
 
 ## Nested containers
 
-The innermost container scrolls first and consumes the axes it moves on; an ancestor takes over only on the axes left unconsumed. A card dragged to the bottom of an inner list scrolls that list, and reaches the page only once the list hits its end. A column that scrolls vertically inside a board that scrolls horizontally therefore splits the two axes between them.
+The innermost container scrolls first. An ancestor can scroll on any axis the inner container does not use. For example, dragging a card to the bottom of an inner list scrolls the list until it reaches the end, then scrolls an eligible ancestor. A vertical column inside a horizontal board lets the column and board scroll on separate axes.
 
 Nesting follows the DOM tree and requires no separate configuration. Detected scroll containers and `DragAutoScroll.Root` elements use the same ancestor order.
 
@@ -171,7 +171,7 @@ You can pass a `DragAutoScroll.Root` to a `DropTarget.Root`'s `render` prop when
 
 ## Scrolling the page
 
-The inferred walk ends at the document root, so dragging near the viewport edge can scroll the page after auto-scroll has been enabled by a mounted provider, root, or imperative registration. Its edge zones follow the viewport, and inner containers still win.
+Once auto-scroll is enabled, dragging near the viewport edge can scroll the page. The page uses the viewport for its edge zones. Inner scroll containers take precedence on the axes they use.
 
 You can stop page auto-scroll on an axis with `overflow: hidden` or `clip` on `<html>` or `<body>`.
 
@@ -181,11 +181,11 @@ html {
 }
 ```
 
-That is also why a scroll lock holds during a drag: modal `Dialog` and `Popover` configurations that apply `overflow: hidden` prevent the page behind them from auto-scrolling.
+Scroll locks that apply `overflow: hidden`, such as those used by modal `Dialog` and `Popover` configurations, also prevent page auto-scroll.
 
 Use [`useDragDropManager`](/react/utils/use-drag-drop-manager) to customize page auto-scroll or a scroll container rendered by code you do not control.
 
-```tsx title="A page that only ever scrolls down"
+```tsx title="A page that scrolls only vertically"
 import { useDragDropManager } from '@base-ui/react/use-drag-drop-manager';
 
 const manager = useDragDropManager();
@@ -199,14 +199,11 @@ React.useEffect(
 );
 ```
 
-You can add `disabled: true` to the same call to switch the page off entirely.
+Add `disabled: true` to the registration to disable page auto-scroll.
 
 ## API reference
 
-The `accept` value types the drag the per-frame callbacks see: `accept={card}`
-hands `canScroll` and `allowedAxis` a source carrying the card's payload. The
-generated table below renders those signatures at the _default_ type (`unknown`),
-because the reference is extracted without concrete type arguments.
+The `accept` prop determines the source payload type in callbacks such as `canScroll` and `allowedAxis`. The generated table uses `unknown` because it has no concrete type argument.
 
 import { TypesDragAutoScroll } from './types';
 

@@ -7,7 +7,7 @@ import { DemoMonitorShapeSorter } from './demos/hero';
 
 <DemoMonitorShapeSorter />
 
-`useDragMonitor` runs callbacks for every drag on the page. A monitor has no element and renders nothing. It only observes, so no provider is required.
+`useDragMonitor` runs callbacks for every drag on the page. A monitor has no element and requires no provider.
 
 Use it for a status bar, analytics, shared drag state, or committing an update from one place instead of each target's `onDrop`. In the shape sorter above, the cutouts only declare what they accept. A monitor updates the live status and places each shape after a successful drop.
 
@@ -54,8 +54,7 @@ function DragActivity() {
     onDrop: ({ source, dropTarget }) => {
       console.log('dropped', source.payload.title, 'on', dropTarget.payload);
     },
-    // Fires once whatever the ending: a drop, a release over empty space, or a
-    // cancel.
+    // Fires once after a drop, a release over empty space, or a cancellation.
     onDragEnd: ({ source }, eventDetails) => {
       console.log('ended', source.payload.title, eventDetails.reason);
     },
@@ -69,7 +68,7 @@ Every handler receives the event payload first. Its second argument, `eventDetai
 
 Monitors do not receive `onDragEnter` or `onDragLeave`, which belong to drop targets. `onDragEnd` fires whenever the drag ends. `onDrop` fires only after a successful drop.
 
-Use [`Draggable.useActiveDrag`](/react/components/draggable#useactivedrag) to read the active source without event handlers. It re-renders only when a drag starts or ends. Outside React, use [`useDragDropManager`](/react/utils/use-drag-drop-manager#monitor-drags) and its `registerMonitor` method.
+Use [`Draggable.useActiveDrag`](/react/components/draggable#useactivedrag) to read the active source without event handlers. It re-renders only when a drag starts or ends. For imperative registration, obtain the manager with [`useDragDropManager`](/react/utils/use-drag-drop-manager#monitor-drags) in a React component, then call its `registerMonitor` method.
 
 ## API reference
 
