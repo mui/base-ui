@@ -31,9 +31,10 @@ import {
 } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import {
-  ListVirtualizationHostContext,
-  ListVirtualizationListStateContext,
-} from '../../internals/virtualization/ListVirtualizationHostContext';
+  createVirtualizerRegistry,
+  VirtualizerHostContext,
+  VirtualizerHostStateContext,
+} from '../../virtualizer/host';
 import { ComboboxVirtualGroupContext } from '../group/ComboboxVirtualGroupContext';
 import { ComboboxVirtualItemContext } from '../item/ComboboxVirtualItemContext';
 import {
@@ -82,7 +83,6 @@ import {
 } from '../../internals/itemEquality';
 import { INITIAL_LAST_HIGHLIGHT, NO_ACTIVE_VALUE } from './utils/constants';
 import { useDirection } from '../../internals/direction-context/DirectionContext';
-import { createListVirtualizationRegistry } from '../../internals/virtualization/ListVirtualizationRegistry';
 import { useDisabledIndex } from '../../internals/list/useDisabledIndex';
 import { shouldScrollItemIntoView } from '../../internals/list/scrollActivation';
 import {
@@ -291,7 +291,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
     // highlighted instead of returning to the open anchor.
     toggledValue?: any;
   }>(null);
-  const virtualizationRegistry = useRefWithInit(createListVirtualizationRegistry).current;
+  const virtualizationRegistry = useRefWithInit(createVirtualizerRegistry).current;
 
   /**
    * Contains the currently visible list of item values post-filtering.
@@ -1809,15 +1809,15 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
               {/* A root rendered inside a virtualized item of another list, portaled out of it
                   or not, must not read that row's metadata, that list, or its state: its own
                   list provides its own, and its static items are static. */}
-              <ListVirtualizationHostContext.Provider value={undefined}>
-                <ListVirtualizationListStateContext.Provider value={undefined}>
+              <VirtualizerHostContext.Provider value={undefined}>
+                <VirtualizerHostStateContext.Provider value={undefined}>
                   <ComboboxVirtualItemContext.Provider value={undefined}>
                     <ComboboxVirtualGroupContext.Provider value={undefined}>
                       {children}
                     </ComboboxVirtualGroupContext.Provider>
                   </ComboboxVirtualItemContext.Provider>
-                </ListVirtualizationListStateContext.Provider>
-              </ListVirtualizationHostContext.Provider>
+                </VirtualizerHostStateContext.Provider>
+              </VirtualizerHostContext.Provider>
             </ComboboxInputValueContext.Provider>
           </ComboboxDerivedItemsContext.Provider>
         </ComboboxHasItemsContext.Provider>

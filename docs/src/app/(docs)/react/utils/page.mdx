@@ -184,16 +184,23 @@ Renders only the visible items of a large list.
   - Grouped collections
   - Styling
   - Sizing items
+    - Items of a known height
   - Disabled items
   - Scrolling to an item
+    - Leaving room at an edge
   - Standalone lists
+    - Items placed relative to something else
+  - Hosting the virtualizer in your own list
   - Tables
   - Third-party virtualizers
   - API reference
     - Virtualizer
 - Exports:
+  - createVirtualizerRegistry
+  - useVirtualizerHost
+  - useVirtualizerHostState
   - Virtualizer
-    - Props: actionsRef, activeIndex, children, className, enabled, endReachedThreshold, estimatedGroupHeaderHeight, estimatedItemHeight, getGroupKey, getItemKey, items, layout, onEndReached, overscanPx, render, renderGroupHeader, style, totalItems, trailing
+    - Props: actionsRef, activeIndex, children, className, enabled, endReachedThreshold, estimatedGroupHeaderHeight, estimatedItemHeight, getGroupKey, getItemKey, itemAria, itemHeight, items, layout, onEndReached, overscanPx, render, renderGroupHeader, style, totalItems, trailing
     - Data Attributes: data-empty
     - CSS Variables: --total-size
   - VirtualizerEstimateGroupHeaderHeight
@@ -202,7 +209,7 @@ Renders only the visible items of a large list.
     - Parameters: group
   - VirtualizerRenderGroupHeader
     - Parameters: group, groupIndex, headerProps
-- Types: Virtualizer.Actions, Virtualizer.ActiveIndex, Virtualizer.ActiveItem, Virtualizer.Group, Virtualizer.GroupHeaderElement, Virtualizer.GroupHeaderProps, Virtualizer.ItemProps, Virtualizer.Layout, Virtualizer.Props, Virtualizer.RowProps, Virtualizer.State, VirtualizerItemMetrics, VirtualizerScrollAlignment, VirtualizerScrollToIndexOptions
+- Types: Virtualizer.Actions, Virtualizer.ActiveIndex, Virtualizer.ActiveItem, Virtualizer.Group, Virtualizer.GroupHeaderElement, Virtualizer.GroupHeaderMetadata, Virtualizer.GroupHeaderProps, Virtualizer.Handle, Virtualizer.Host, Virtualizer.HostState, Virtualizer.ItemAria, Virtualizer.ItemMetadata, Virtualizer.ItemProps, Virtualizer.Layout, Virtualizer.Props, Virtualizer.Registration, Virtualizer.Registry, Virtualizer.RowProps, Virtualizer.State, VirtualizerHostContext, VirtualizerHostStateContext, VirtualizerItemMetrics, VirtualizerScrollAlignment, VirtualizerScrollToIndexOptions
 
 </details>
 

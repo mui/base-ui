@@ -5,31 +5,35 @@ import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { warn } from '@base-ui/utils/warn';
 import { EMPTY_ARRAY } from '@base-ui/utils/empty';
 import { useBaseUiId } from '../useBaseUiId';
+import {
+  useVirtualizerHost,
+  useVirtualizerHostState,
+  type VirtualizerHandle,
+  type VirtualizerHost,
+  type VirtualizerHostState,
+  type VirtualizerRegistry,
+} from '../../virtualizer/host';
 import type {
-  ListVirtualizationRegistry,
   VirtualizerActions,
-  VirtualizerHandle,
+  VirtualizerActiveIndex,
+  VirtualizerActiveItem,
+  VirtualizerGroup,
+  VirtualizerGroupHeaderMetadata,
+  VirtualizerGroupHeaderProps,
+  VirtualizerItemAria,
+  VirtualizerItemMetadata,
+  VirtualizerItemProps,
+  VirtualizerRenderGroupHeader,
+  VirtualizerRowProps,
   VirtualizerScrollAlignment,
   VirtualizerScrollToIndexOptions,
-} from './ListVirtualizationRegistry';
-import type {
-  ListVirtualizationHost,
-  ListVirtualizationListState,
-} from './ListVirtualizationHostContext';
+} from '../../virtualizer/types';
 import { isGroupedItems } from '../resolveValueLabel';
 import {
   isGroupHeaderRow,
-  type VirtualizerActiveIndex,
-  type VirtualizerGroup,
-  type VirtualizerGroupHeaderMetadata,
-  type VirtualizerGroupHeaderProps,
-  type VirtualizerRenderGroupHeader,
-  type VirtualizerItemMetadata,
-  type VirtualizerItemProps,
   type VirtualizerItemRowModel,
   type VirtualizerRenderRowParameters,
   type VirtualizerRowModel,
-  type VirtualizerRowProps,
 } from './types';
 
 type ComponentName = string;
@@ -82,6 +86,8 @@ const VirtualizerGroupHeaderRow = React.memo(
 interface VirtualizerItemRowProps<Item> {
   children: (item: Item, index: number, itemProps: VirtualizerItemProps) => React.ReactElement;
   componentName: ComponentName | undefined;
+  /** Whether the item states its position in the flat collection. */
+  collectionAria: boolean;
   itemCount: number;
   model: VirtualizerItemRowModel<Item>;
   /**
@@ -97,7 +103,15 @@ interface VirtualizerItemRowProps<Item> {
 }
 
 function VirtualizerItemRowImpl<Item>(props: VirtualizerItemRowProps<Item>) {
-  const { children, componentName, itemCount, model, rowProps, virtualItemContext } = props;
+  const {
+    children,
+    collectionAria,
+    componentName,
+    itemCount,
+    model,
+    rowProps,
+    virtualItemContext,
+  } = props;
   const registeredItemCountRef = React.useRef(0);
 
   const registerItem = useStableCallback(() => {
@@ -127,16 +141,23 @@ function VirtualizerItemRowImpl<Item>(props: VirtualizerItemRowProps<Item>) {
       index: model.itemIndex,
       props: {
         ...rowProps,
-        'aria-posinset': model.itemIndex + 1,
-        // `-1` is the ARIA convention for a collection whose size is not known, which is what a
-        // list still loading pages of results has. Anything else is the size of the whole
-        // collection, not of the part currently loaded.
-        'aria-setsize': itemCount,
+        // Position in the flat collection, which is the set only for a collection that is one.
+        // A hierarchical or two-dimensional one states position relative to something else and
+        // declines these, keeping the rest of the metadata.
+        ...(collectionAria
+          ? {
+              'aria-posinset': model.itemIndex + 1,
+              // `-1` is the ARIA convention for a collection whose size is not known, which is
+              // what a list still loading pages of results has. Anything else is the size of the
+              // whole collection, not of the part currently loaded.
+              'aria-setsize': itemCount,
+            }
+          : null),
         'data-index': model.itemIndex,
       },
       registerItem: process.env.NODE_ENV === 'production' ? undefined : registerItem,
     }),
-    [itemCount, model.itemIndex, registerItem, rowProps],
+    [collectionAria, itemCount, model.itemIndex, registerItem, rowProps],
   );
 
   // The metadata reaches a list's `<Item>` through the list's own context, and everything else
@@ -158,6 +179,7 @@ function areVirtualizerItemRowPropsEqual<Item>(
 ) {
   return (
     previous.children === next.children &&
+    previous.collectionAria === next.collectionAria &&
     previous.componentName === next.componentName &&
     previous.itemCount === next.itemCount &&
     previous.model.item === next.model.item &&
@@ -176,7 +198,8 @@ export interface UseListBindingParameters<Item> {
   actionsRef: React.RefObject<VirtualizerActions | null> | undefined;
   /**
    * The item to keep mounted and scroll to, for a virtualizer given its own collection.
-   * Ignored when the collection comes from the surrounding list, which tracks its own highlight.
+   * Ignored when the collection comes from a surrounding host, which publishes its own
+   * activation.
    */
   activeIndex: VirtualizerActiveIndex | null | undefined;
   children: (item: Item, index: number, itemProps: VirtualizerItemProps) => React.ReactElement;
@@ -186,13 +209,18 @@ export interface UseListBindingParameters<Item> {
    * fall back to the scrolling it uses for static collections.
    */
   enabled: boolean;
-  host: ListVirtualizationHost | undefined;
+  host: VirtualizerHost | undefined;
+  /**
+   * Which ARIA an item states for its position in the collection, as asked for by the
+   * `itemAria` prop; `undefined` leaves it to the host, which defaults to the flat collection's.
+   */
+  itemAria: VirtualizerItemAria | undefined;
   /**
    * The collection to window, flat or grouped, when the virtualizer is given one directly. Takes
-   * precedence over a surrounding list's collection.
+   * precedence over a surrounding host's collection.
    */
   items: ReadonlyArray<Item> | ReadonlyArray<VirtualizerGroup<Item>> | undefined;
-  listState: ListVirtualizationListState | undefined;
+  hostState: VirtualizerHostState | undefined;
   /**
    * Renders a group's header. Without it a grouped collection is windowed as its flat items.
    */
@@ -230,6 +258,16 @@ export interface ListBinding<Item> {
   /** The item to scroll into view. */
   scrollToItemIndex: number | undefined;
   /**
+   * Inset at the end edge the activation asks its item to rest clear of, in place of the
+   * scrollport's `scroll-padding-bottom`; `undefined` when it asks for none.
+   */
+  scrollToRowPaddingEnd: number | undefined;
+  /**
+   * Inset at the start edge the activation asks its item to rest clear of, in place of the
+   * scrollport's `scroll-padding-top`; `undefined` when it asks for none.
+   */
+  scrollToRowPaddingStart: number | undefined;
+  /**
    * Whether the host mounted every row at once for its own purposes. `enabled` is already false
    * then; this tells that apart from the consumer disabling virtualization.
    */
@@ -238,11 +276,11 @@ export interface ListBinding<Item> {
 
 /**
  * Resolves what `<Virtualizer>` windows, from either of its two sources: an `items` prop, or the
- * surrounding list's collection and highlight state. Supplies each row's item metadata, and
- * registers the imperative handle with the list, if any.
+ * surrounding host's collection and highlight state. Supplies each row's item metadata, and
+ * registers the imperative handle with the host, if any.
  *
  * The collection's source and the row's item channel are independent: a virtualizer given its own
- * `items` inside a list still publishes metadata through that list's `<Item>` context.
+ * `items` inside a host still publishes metadata through that host's `<Item>` context.
  */
 export function useListBinding<Item>(
   parameters: UseListBindingParameters<Item>,
@@ -253,8 +291,9 @@ export function useListBinding<Item>(
     children,
     enabled: enabledProp,
     host,
+    itemAria,
     items: itemsProp,
-    listState,
+    hostState,
     renderGroupHeader,
     totalItems,
   } = parameters;
@@ -281,14 +320,14 @@ export function useListBinding<Item>(
   }, [itemsProp]);
   const items = hasOwnCollection
     ? ownItems
-    : ((listState?.items ?? EMPTY_ARRAY) as ReadonlyArray<Item>);
+    : ((hostState?.items ?? EMPTY_ARRAY) as ReadonlyArray<Item>);
   let sourceGroups: ReadonlyArray<VirtualizerGroup<Item>> | undefined;
   if (hasOwnCollection) {
     sourceGroups = ownCollectionIsGrouped
       ? (itemsProp as ReadonlyArray<VirtualizerGroup<Item>>)
       : undefined;
   } else {
-    sourceGroups = listState?.groups as ReadonlyArray<VirtualizerGroup<Item>> | undefined;
+    sourceGroups = hostState?.groups as ReadonlyArray<VirtualizerGroup<Item>> | undefined;
   }
   // Headers are what make a group a group here. Without a renderer the collection is windowed
   // as its flat items, which is at least the list the consumer can see is wrong.
@@ -304,22 +343,29 @@ export function useListBinding<Item>(
       groupHeaderIdPrefix == null ? undefined : `${groupHeaderIdPrefix}-group-${ordinal}`,
     [groupHeaderIdPrefix],
   );
-  // The activation is read down to primitives here so an inline object cannot make an unchanged
-  // activation look like a new one, and so the scroll decision cannot drift from the index it
-  // belongs to.
+  // The activation comes from whichever source supplies the collection, and is read down to
+  // primitives here so an inline object cannot make an unchanged activation look like a new one,
+  // and so the scroll decision cannot drift from the index it belongs to.
+  const activation = hasOwnCollection ? activeIndexProp : hostState?.activeIndex;
   const activeItem =
-    activeIndexProp != null && typeof activeIndexProp === 'object' ? activeIndexProp : null;
-  const propActiveIndex = activeItem
-    ? activeItem.index
-    : ((activeIndexProp as number | null) ?? null);
-  const activeIndex = hasOwnCollection ? propActiveIndex : (listState?.activeIndex ?? null);
-  const scrollActiveIntoView = hasOwnCollection
-    ? (activeItem?.scroll ?? true)
-    : listState?.scrollActiveIntoView === true;
-  const scrollActiveAlignment = (hasOwnCollection && activeItem?.align) || 'auto';
-  // Only a list asks for every row at once. The virtualizer sees the end of that as its own mode
+    activation != null && typeof activation === 'object'
+      ? (activation as VirtualizerActiveItem)
+      : null;
+  const activeIndex = activeItem ? activeItem.index : ((activation as number | null) ?? null);
+  // An activation says for itself whether it scrolls. A host publishing a bare index has only its
+  // deprecated flag to say it with, and the virtualizer's own prop scrolls by default.
+  let scrollActiveIntoView: boolean;
+  if (activeItem != null) {
+    scrollActiveIntoView = activeItem.scroll ?? true;
+  } else {
+    scrollActiveIntoView = hasOwnCollection ? true : hostState?.scrollActiveIntoView === true;
+  }
+  const scrollActiveAlignment = activeItem?.align ?? 'auto';
+  const scrollActivePaddingStart = activeItem?.paddingStart;
+  const scrollActivePaddingEnd = activeItem?.paddingEnd;
+  // Only a host asks for every row at once. The virtualizer sees the end of that as its own mode
   // returning to windowed, which is the transition it restores its viewport on.
-  const windowingSuspended = hasOwnCollection ? false : listState?.windowingSuspended === true;
+  const windowingSuspended = hasOwnCollection ? false : hostState?.windowingSuspended === true;
 
   if (process.env.NODE_ENV !== 'production') {
     // The build-time environment never changes during a component's lifetime.
@@ -342,6 +388,18 @@ export function useListBinding<Item>(
 
     // eslint-disable-next-line react-hooks/rules-of-hooks
     React.useEffect(() => {
+      if (itemAria === 'none' && componentName != null && host?.itemAria !== 'none') {
+        warn(
+          `<Virtualizer itemAria="none"> is rendered inside <${componentName}.List>, whose items ` +
+            'state their position in the flat collection because that is the set they belong ' +
+            'to. Remove `itemAria` here; a list whose items are placed relative to something ' +
+            'else declares that itself.',
+        );
+      }
+    }, [componentName, host?.itemAria, itemAria]);
+
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    React.useEffect(() => {
       if (sourceGroups != null && renderGroupHeader == null) {
         warn(
           '<Virtualizer> received a grouped collection but no `renderGroupHeader` prop, so the ' +
@@ -353,6 +411,9 @@ export function useListBinding<Item>(
   }
 
   const focusedItemIndex = activeIndex == null ? undefined : activeIndex;
+  // The prop is the last word, then what the host declares its items need, then the flat
+  // collection's own position, which is what a listbox's options are described by.
+  const collectionAria = (itemAria ?? host?.itemAria ?? 'set') === 'set';
 
   const renderRow = React.useCallback(
     (params: VirtualizerRenderRowParameters<VirtualizerRowModel<Item>>) => {
@@ -375,6 +436,7 @@ export function useListBinding<Item>(
 
       return (
         <VirtualizerItemRow
+          collectionAria={collectionAria}
           componentName={componentName}
           itemCount={totalItems ?? items.length}
           model={model}
@@ -387,6 +449,7 @@ export function useListBinding<Item>(
     },
     [
       children,
+      collectionAria,
       componentName,
       getGroupHeaderId,
       groups,
@@ -467,8 +530,33 @@ export function useListBinding<Item>(
     renderRow,
     scrollToRowAlignment: scrollActiveAlignment,
     scrollToItemIndex,
+    scrollToRowPaddingEnd: scrollActivePaddingEnd,
+    scrollToRowPaddingStart: scrollActivePaddingStart,
     windowingSuspended,
   };
+}
+
+/**
+ * Returns the surrounding host's wiring and state, if there is one.
+ *
+ * A virtualizer given its own collection through the `items` prop renders without a host, so this
+ * only throws when neither source is available.
+ */
+export function useVirtualizerSources(hasOwnCollection: boolean) {
+  const host = useVirtualizerHost();
+  const hostState = useVirtualizerHostState();
+
+  if (!hasOwnCollection && (!host || !hostState)) {
+    throw new Error(
+      'Base UI: <Virtualizer> was rendered without an `items` prop and outside of a component ' +
+        'that publishes a collection to virtualize, so it has no collection to render. Pass ' +
+        '`items`, or place it inside a list that supports virtualization, such as ' +
+        '<Combobox.List> or <Autocomplete.List>. ' +
+        'Documentation: https://base-ui.com/react/utils/virtualizer',
+    );
+  }
+
+  return { host, hostState };
 }
 
 export interface UseVirtualItemDiagnosticsParameters {
@@ -505,7 +593,7 @@ export function useVirtualItemDiagnostics(parameters: UseVirtualItemDiagnosticsP
 export interface UseNonVirtualizedItemRegistrationParameters {
   componentName: ComponentName;
   insideList: boolean;
-  registry: ListVirtualizationRegistry;
+  registry: VirtualizerRegistry;
   virtualized: boolean;
 }
 

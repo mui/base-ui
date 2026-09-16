@@ -4,6 +4,36 @@
 
 ## API Reference
 
+### createVirtualizerRegistry
+
+Creates the virtualization registry owned by a host's root.
+
+**Return Value:**
+
+```tsx
+type ReturnValue = Virtualizer.Registry;
+```
+
+### useVirtualizerHost
+
+Returns the surrounding host's virtualization wiring, or `undefined` outside of a host.
+
+**useVirtualizerHost Return Value:**
+
+```tsx
+type ReturnValue = Virtualizer.Host | undefined;
+```
+
+### useVirtualizerHostState
+
+Returns the surrounding host's collection and highlight state, or `undefined` outside of a host.
+
+**useVirtualizerHostState Return Value:**
+
+```tsx
+type ReturnValue = Virtualizer.HostState | undefined;
+```
+
 ### Virtualizer
 
 Renders a window of visible and overscanned items in a flat list.
@@ -23,19 +53,21 @@ Grid mode is not currently supported.
 | Prop                       | Type                                                                                      | Default                                                               | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
 | :------------------------- | :---------------------------------------------------------------------------------------- | :-------------------------------------------------------------------- | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | actionsRef                 | `React.RefObject<Virtualizer.Actions \| null>`                                            | -                                                                     | A ref to imperative actions. `getIndexAtOffset`: Returns the item a scroll position lands on.`getItemMetrics`: Returns an item's logical offset and size, including outside the window.`remeasure`: Discards measured item heights so they are taken again.`scrollToIndex`: Scrolls an item into view by its logical collection index.                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
-| activeIndex                | `Virtualizer.ActiveIndex \| null`                                                         | -                                                                     | The active item in `items`, kept mounted even when it falls outside the rendered window so it&#xA;can hold focus or be referenced by `aria-activedescendant`. An index alone scrolls the item into view. Pass `{ index, scroll: false }` for activations&#xA;that must leave the viewport alone, such as a highlight following the pointer, and `align` to&#xA;choose where a scrolled item lands. Ignored without the `items` prop: a list that provides the collection tracks its own highlight.                                                                                                                                                                                                                                                                                                           |
+| activeIndex                | `Virtualizer.ActiveIndex \| null`                                                         | -                                                                     | The active item in `items`, kept mounted even when it falls outside the rendered window so it&#xA;can hold focus or be referenced by `aria-activedescendant`. An index alone scrolls the item into view. Pass `{ index, scroll: false }` for activations&#xA;that must leave the viewport alone, such as a highlight following the pointer, and `align` to&#xA;choose where a scrolled item lands. `paddingStart` and `paddingEnd` keep the item clear of an&#xA;inset the activation knows about, in place of the scrollport's `scroll-padding`. Ignored without the `items` prop: a list that provides the collection tracks its own highlight.                                                                                                                                                            |
 | enabled                    | `boolean`                                                                                 | `true`                                                                | Whether virtualization is enabled. When `false`, all items are rendered.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
 | endReachedThreshold        | `number`                                                                                  | `0`                                                                   | How many items short of the end `onEndReached` fires. `0` fires once the last item enters the&#xA;rendered window, which already extends past the visible range by `overscanPx`.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
 | estimatedGroupHeaderHeight | `number \| VirtualizerEstimateGroupHeaderHeight<Value>`                                   | ``the static `estimatedItemHeight`, or `32` when that is a function`` | Estimated group header height in CSS pixels used before header elements have been measured.&#xA;Provide a function to keep full control over per-group estimates.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
 | estimatedItemHeight        | `number \| ((item: Value, index: number) => number)`                                      | `32`                                                                  | Estimated item height in CSS pixels used before item elements have been measured.&#xA;A static number is automatically refined with the running average of measured items.&#xA;Provide a function to keep full control over per-item estimates.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
 | getGroupKey                | `VirtualizerGetGroupKey<Value>`                                                           | -                                                                     | Returns a stable key for a group. Defaults to the group's index in the collection, which is&#xA;enough while groups keep their order; a filtered collection that can drop a group should&#xA;provide one so the groups behind it keep their identity.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
 | getItemKey                 | `((item: Value) => string \| number)`                                                     | -                                                                     | Returns a stable key for the item value. Primitive item values use the value itself by default. Required when item values are&#xA;objects or the item type cannot be inferred.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
-| items                      | `Value[] \| Virtualizer.Group<Value>[]`                                                   | -                                                                     | The collection to virtualize: a flat array of items, or an array of groups, each an object&#xA;with an `items` array. A grouped collection also needs `renderGroupHeader`. When omitted, the collection and its highlight state come from the surrounding list, which&#xA;requires a list that supports virtualization, such as `<Combobox.List>`.                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
+| itemAria                   | `Virtualizer.ItemAria`                                                                    | `` what the host declares, or `'set'` ``                              | Which ARIA the item metadata states for an item's position in the collection. `set`: `aria-posinset` and `aria-setsize` for the item's place in the flat collection,&#xA;which is what the options of a listbox need.`none`: neither, for a collection whose items are placed relative to something else — the&#xA;items of a tree, which are placed among their siblings, or the cells of a grid, which are&#xA;placed by row and column. Everything else the metadata carries stays, so your own ARIA&#xA;goes next to it. A host publishing its own collection declares what its items need, and this prop overrides&#xA;that declaration.                                                                                                                                                                |
+| itemHeight                 | `number`                                                                                  | -                                                                     | Height of every item in CSS pixels, when the collection's items are known to be uniform. Items are then positioned arithmetically: no item is measured, and the geometry is exact&#xA;from the first render rather than converging as measurements arrive. It replaces&#xA;`estimatedItemHeight`, which describes a height to assume until one is measured. Only pass it when the height is genuinely fixed. Items that turn out to be a different&#xA;height are still laid out as this many pixels apart, and nothing corrects it. Leave it out&#xA;for items whose height depends on their content, on the width available, or on a font that&#xA;loads later. In a grouped collection it covers the items; group headers are measured as they&#xA;always are.                                            |
+| items                      | `Value[] \| Virtualizer.Group<Value>[]`                                                   | -                                                                     | The collection to virtualize: a flat array of items, or an array of groups, each an object&#xA;with an `items` array. A grouped collection also needs `renderGroupHeader`. When omitted, the collection and its highlight state come from a surrounding component that&#xA;publishes them — a list that supports virtualization, such as `<Combobox.List>`, or a&#xA;component of your own that implements the host contract.                                                                                                                                                                                                                                                                                                                                                                                |
 | layout                     | `Virtualizer.Layout`                                                                      | `'list'`                                                              | How the rows are laid out. `list`: the virtualizer is the scroll container, a `<div>`, and lays its rows out itself.`table`: the virtualizer is a table section, a `<tbody>`, whose rows are the `<tr>`&#xA;elements the item renderer returns, inside a scroll container of your own around the&#xA;table: the nearest ancestor with `overflow: auto` or `scroll`. The section is held in&#xA;place by the scrollport and moved by a transform, as a list's rows are, and a second&#xA;section rendered after it reserves the space of the rows outside the window. Spread the&#xA;renderer's third argument onto each `<tr>`; it carries the row's measurement along with&#xA;its metadata. Group headers are rendered as rows among the items, and trailing content as&#xA;rows after the reserved space. |
 | onEndReached               | `(() => void)`                                                                            | -                                                                     | Called when the rendered window reaches the end of the collection, for loading the next page&#xA;of a longer list. Fires once per arrival: it does not repeat while the window stays at the&#xA;end, and arms again when the window moves away or the collection grows past it.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
 | overscanPx                 | `number`                                                                                  | -                                                                     | Pixel buffer rendered before and after the visible range.&#xA;Defaults to the larger of 150px and the estimated size of the first item. The render buffer&#xA;always includes at least one estimated row, even when this prop is `0`.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
 | renderGroupHeader          | `VirtualizerRenderGroupHeader<Value>`                                                     | -                                                                     | Renders the header of a group in a grouped collection: exactly one element carrying the&#xA;group's name. The third argument holds the `id` the group is labeled by, to spread onto&#xA;that element; `<Combobox.GroupLabel>` applies it automatically. The virtualizer wraps each&#xA;group's rendered rows in a `role="group"` element itself, so no group part is needed.                                                                                                                                                                                                                                                                                                                                                                                                                                 |
-| totalItems                 | `number`                                                                                  | `the number of items in the list`                                     | Number of items in the whole collection, when the items rendered are only part of it — a page&#xA;of a larger result set, say. Rendered items report it as their `aria-setsize`, so assistive&#xA;technology describes the collection rather than the part of it currently loaded. Each item's `aria-posinset` is its position in `items`, counted from the first one, so the&#xA;items rendered must be the collection from its start: pages loaded so far, appended to the&#xA;ones before them, rather than a later page on its own. Pass `-1` when the size is not known yet, which is the ARIA convention for it.                                                                                                                                                                                       |
+| totalItems                 | `number`                                                                                  | `the number of items in the list`                                     | Number of items in the whole collection, when the items rendered are only part of it — a page&#xA;of a larger result set, say. Rendered items report it as their `aria-setsize`, so assistive&#xA;technology describes the collection rather than the part of it currently loaded. Each item's `aria-posinset` is its position in `items`, counted from the first one, so the&#xA;items rendered must be the collection from its start: pages loaded so far, appended to the&#xA;ones before them, rather than a later page on its own. Pass `-1` when the size is not known yet, which is the ARIA convention for it. It has&#xA;nothing to describe when `itemAria` is `none`.                                                                                                                             |
 | trailing                   | `React.ReactNode`                                                                         | -                                                                     | Content rendered after the last item, inside the scroll container, for a loading indicator or&#xA;an end-of-results note. It scrolls with the items and is measured into the scrollable height,&#xA;rather than being pinned below the list. It is not an item: it takes no index, and is left out of `aria-setsize` and `aria-posinset`.&#xA;A list is only allowed to contain options, so this content must not present itself as one —&#xA;keep it out of the accessibility tree and convey the state it stands for another way, such as&#xA;`aria-busy` on the list with a live region outside it. Interactive controls belong outside the&#xA;list, where they can be reached with the keyboard.                                                                                                        |
 | children                   | `((item: Value, index: number, itemProps: Virtualizer.ItemProps) => ReactElement)`        | -                                                                     | Renders exactly one item for the given value and its index in the collection.&#xA;The third argument carries the item's accessibility and collection metadata, to spread onto&#xA;the element representing the item. A list's own item component applies it automatically.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
 | className                  | `string \| ((state: Virtualizer.State) => string \| undefined)`                           | -                                                                     | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
@@ -106,6 +138,21 @@ type VirtualizerActions = {
 };
 ```
 
+### Virtualizer.ItemMetadata
+
+Metadata an item rendered by the virtualizer publishes to a host's `<Item>`.
+
+```typescript
+type VirtualizerItemMetadata = {
+  /** Logical index in the full collection. */
+  index: number;
+  /** Accessibility and collection metadata applied to the item. */
+  props: Virtualizer.ItemProps;
+  /** Registers the item rendered for this virtual row. */
+  registerItem: (() => () => void) | undefined;
+};
+```
+
 ### Virtualizer.ActiveIndex
 
 The active item, as an index alone or as an activation that also describes the scroll it wants.
@@ -129,6 +176,19 @@ type VirtualizerActiveItem = {
   /** Index of the item in the collection. */
   index: number;
   /**
+   * Inset in pixels at the end edge of the scrollport that the item is kept clear of, for the
+   * scroll this activation describes. Overrides the scrollport's `scroll-padding-bottom`.
+   * @default the scrollport's computed `scroll-padding-bottom`
+   */
+  paddingEnd?: number;
+  /**
+   * Inset in pixels at the start edge of the scrollport that the item is kept clear of, for the
+   * scroll this activation describes. Overrides the scrollport's `scroll-padding-top`, for an
+   * overlay whose height depends on the item being activated rather than being fixed in CSS.
+   * @default the scrollport's computed `scroll-padding-top`
+   */
+  paddingStart?: number;
+  /**
    * Whether this activation scrolls the item into view.
    * @default true
    */
@@ -151,6 +211,22 @@ A `React.ReactElement`, as returned by a group header renderer.
 
 ```typescript
 type VirtualizerGroupHeaderElement = {};
+```
+
+### Virtualizer.GroupHeaderMetadata
+
+Metadata a group header rendered by the virtualizer publishes to a host's `<GroupLabel>`.
+
+```typescript
+type VirtualizerGroupHeaderMetadata = {
+  /**
+   * The id the group's wrapper references through `aria-labelledby`. `undefined` only on React 17
+   * during the first render, before the client-side id is assigned.
+   */
+  id: string | undefined;
+  /** Index of the group in the grouped collection. */
+  groupIndex: number;
+};
 ```
 
 ### Virtualizer.GroupHeaderProps
@@ -180,6 +256,120 @@ type VirtualizerGroupHeaderProps = {
 };
 ```
 
+### Virtualizer.Handle
+
+Imperative operations a virtualizer exposes to the component hosting it.
+
+```typescript
+type VirtualizerHandle = {
+  /** Returns the index of the last item starting at or before the given scroll position. */
+  getIndexAtOffset: (offset: number) => number | null;
+  /** Returns the logical geometry for an item, including when it is outside the rendered window. */
+  getItemMetrics: (index: number) => VirtualizerItemMetrics | null;
+  /** Scrolls an item into view by its logical collection index. */
+  scrollToIndex: (index: number, options?: VirtualizerScrollToIndexOptions) => void;
+  /** Discards measured item heights so they are taken again against the current layout. */
+  remeasure: () => void;
+  /** Resets the virtualizer's scroll position to the start of the list. */
+  resetScroll: () => void;
+};
+```
+
+### Virtualizer.Host
+
+Stable wiring published by a component so the virtualizer can window its collection.
+
+```typescript
+type VirtualizerHost = {
+  /**
+   * Part namespace of the host, used to reference the right parts in diagnostics
+   * (`Combobox` produces `<Combobox.Root>`, `<Combobox.Item>`, and so on).
+   */
+  componentName: string;
+  /**
+   * Which ARIA the host's items state for their position in the collection. `set` is the default:
+   * `aria-posinset` and `aria-setsize` for the item's place in the flat collection, which is what
+   * the options of a listbox need. A host whose items are placed relative to something else — the
+   * items of a tree, placed among their siblings — publishes `none` and states the position
+   * itself. The virtualizer's `itemAria` prop overrides whatever the host declares.
+   */
+  itemAria?: Virtualizer.ItemAria;
+  /** Coordinates virtualized and non-virtualized content rendered by the host. */
+  registry: Virtualizer.Registry;
+  /** Channel the host's `<Item>` reads its collection and accessibility metadata from. */
+  virtualItemContext: React.Context<Virtualizer.ItemMetadata | undefined>;
+  /**
+   * Channel the host's `<GroupLabel>` reads the id of the group header it is rendered in from.
+   * A host without group parts omits it; its group headers then receive the same metadata as the
+   * third argument of the header renderer.
+   */
+  virtualGroupContext?: React.Context<Virtualizer.GroupHeaderMetadata | undefined>;
+  /**
+   * Warns about configurations the host cannot window, in its own vocabulary. Called once while a
+   * virtualizer is mounted, so a host that can be windowed says nothing. Development only.
+   */
+  warnUnsupportedConfiguration?: () => void;
+};
+```
+
+### Virtualizer.HostState
+
+The collection and highlight state a host publishes for the virtualizer to window against.
+
+```typescript
+type VirtualizerHostState = {
+  /**
+   * The item the host currently points at, or `null` when it points at none. The virtualizer
+   * keeps that row mounted even when it falls outside the rendered window, so it can hold focus
+   * or be referenced by `aria-activedescendant`.
+   *
+   * An index alone is an activation that scrolls, as it is for the `activeIndex` prop. Publish
+   * `{ index, scroll: false }` for an activation that must leave the viewport alone, such as a
+   * highlight following the pointer, along with the `align`, `paddingStart` and `paddingEnd` the
+   * scroll wants. Carrying the decision with the index is what keeps the two from disagreeing:
+   * re-publishing an equal activation does not scroll again, and a highlight that stops following
+   * the pointer cannot scroll to wherever the pointer last rested.
+   */
+  activeIndex: Virtualizer.ActiveIndex | null;
+  /**
+   * The grouped view of `items`: the same filtered collection, partitioned into groups in order,
+   * so that the group item counts sum to `items.length`. Omitted by a host that is not grouped.
+   */
+  groups?: Virtualizer.Group<unknown>[];
+  /** The flat, ordered collection to window. */
+  items: unknown[];
+  /**
+   * Whether the active item should be scrolled into view.
+   * @deprecated
+   * Publish the decision on `activeIndex` instead — `{ index, scroll: false }` for an
+   * activation that must not move the viewport. This flag describes the host rather than the
+   * change, so flipping it back to `true` without moving `activeIndex` scrolls to whatever was
+   * pointed at last. It is read only for an `activeIndex` published as a bare index.
+   */
+  scrollActiveIntoView?: boolean;
+  /**
+   * Whether the host currently needs every item mounted, which suspends windowing for as long as
+   * it is `true`. A host that never needs this omits the field.
+   *
+   * The virtualizer measures its viewport while windowed, so a suspension invalidates that
+   * measurement: a scrollport constrained only by a maximum height grows to fit the whole
+   * collection, and the observer reports the expanded box. It re-measures when this returns to
+   * `false`, which means the host **must clear it while the virtualizer is still mounted**. A host
+   * that unmounts the virtualizer first — by releasing whatever kept the list rendered — loses the
+   * transition and leaves the engine sizing its window from a viewport that no longer exists.
+   */
+  windowingSuspended?: boolean;
+};
+```
+
+### Virtualizer.ItemAria
+
+Which ARIA an item states for its position in the collection.
+
+```typescript
+type VirtualizerItemAria = 'none' | 'set';
+```
+
 ### Virtualizer.ItemProps
 
 Attributes to spread onto the element representing an item, the third argument of the item
@@ -197,6 +387,46 @@ How the rows are laid out.
 
 ```typescript
 type VirtualizerLayout = 'list' | 'table';
+```
+
+### Virtualizer.Registration
+
+A virtualizer registered with its host, as the host's registry holds it.
+
+```typescript
+type VirtualizerRegistration = {
+  /**
+   * Whether the virtualizer is currently mounting a window of rows and owning the scroll position.
+   * A disabled virtualizer renders the whole collection and behaves like a plain scrolling list.
+   */
+  enabled: boolean;
+  /** Returns the index of the last item starting at or before the given scroll position. */
+  getIndexAtOffset: (offset: number) => number | null;
+  /** Returns the logical geometry for an item, including when it is outside the rendered window. */
+  getItemMetrics: (index: number) => VirtualizerItemMetrics | null;
+  /** Scrolls an item into view by its logical collection index. */
+  scrollToIndex: (index: number, options?: VirtualizerScrollToIndexOptions) => void;
+  /** Discards measured item heights so they are taken again against the current layout. */
+  remeasure: () => void;
+  /** Resets the virtualizer's scroll position to the start of the list. */
+  resetScroll: () => void;
+};
+```
+
+### Virtualizer.Registry
+
+Coordinates virtualized and non-virtualized content rendered by a single host.
+
+```typescript
+type VirtualizerRegistry = {
+  /** Number of non-virtualized items currently registered with the host. */
+  nonVirtualItemCount: number;
+  /**
+   * The registered virtualizer. A host supports at most one; the binding warns when more than one
+   * registers.
+   */
+  virtualizer: Virtualizer.Registration | null;
+};
 ```
 
 ### Virtualizer.RowProps
@@ -277,6 +507,18 @@ type ReturnValue = Virtualizer.GroupHeaderElement;
 
 ## Additional Types
 
+### VirtualizerHostContext
+
+```typescript
+type VirtualizerHostContext = React.Context<Virtualizer.Host | undefined>;
+```
+
+### VirtualizerHostStateContext
+
+```typescript
+type VirtualizerHostStateContext = React.Context<Virtualizer.HostState | undefined>;
+```
+
 ### VirtualizerItemMetrics
 
 ```typescript
@@ -308,6 +550,21 @@ type VirtualizerScrollToIndexOptions = {
    * @default 'auto'
    */
   align?: VirtualizerScrollAlignment;
+  /**
+   * Inset in pixels at the end edge of the scrollport that the item is kept clear of, for this
+   * scroll alone. Overrides the scrollport's `scroll-padding-bottom`, for an overlay whose height
+   * depends on the item being scrolled to rather than being fixed in CSS.
+   * @default the scrollport's computed `scroll-padding-bottom`
+   */
+  paddingEnd?: number;
+  /**
+   * Inset in pixels at the start edge of the scrollport that the item is kept clear of, for this
+   * scroll alone. Overrides the scrollport's `scroll-padding-top`, for an overlay whose height
+   * depends on the item being scrolled to rather than being fixed in CSS — a tree pinning the
+   * ancestors of the row it scrolls to, say.
+   * @default the scrollport's computed `scroll-padding-top`
+   */
+  paddingStart?: number;
 };
 ```
 
@@ -319,10 +576,18 @@ Maps `Canonical`: `Alias` — Use Canonical when its namespace is already import
 - `Virtualizer.ActiveIndex`: `VirtualizerActiveIndex`
 - `Virtualizer.ActiveItem`: `VirtualizerActiveItem`
 - `Virtualizer.Group`: `VirtualizerGroup`
+- `Virtualizer.GroupHeaderMetadata`: `VirtualizerGroupHeaderMetadata`
+- `Virtualizer.Handle`: `VirtualizerHandle`
+- `Virtualizer.Host`: `VirtualizerHost`
+- `Virtualizer.HostState`: `VirtualizerHostState`
 - `Virtualizer.GroupHeaderProps`: `VirtualizerGroupHeaderProps`
 - `Virtualizer.GroupHeaderElement`: `VirtualizerGroupHeaderElement`
+- `Virtualizer.ItemAria`: `VirtualizerItemAria`
+- `Virtualizer.ItemMetadata`: `VirtualizerItemMetadata`
 - `Virtualizer.ItemProps`: `VirtualizerItemProps`
 - `Virtualizer.Layout`: `VirtualizerLayout`
+- `Virtualizer.Registration`: `VirtualizerRegistration`
+- `Virtualizer.Registry`: `VirtualizerRegistry`
 - `Virtualizer.RowProps`: `VirtualizerRowProps`
 - `Virtualizer.State`: `VirtualizerState`
 - `Virtualizer.Props`: `VirtualizerProps`

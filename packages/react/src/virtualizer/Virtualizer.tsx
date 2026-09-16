@@ -22,12 +22,7 @@ import { getMaxScrollOffset } from '../utils/scrollEdges';
 import type { StateAttributesMapping } from '../internals/getStateAttributesProps';
 import type { BaseUIComponentProps, HTMLProps } from '../internals/types';
 import { useRenderElement } from '../internals/useRenderElement';
-import type {
-  VirtualizerActions,
-  VirtualizerScrollToIndexOptions,
-} from '../internals/virtualization/ListVirtualizationRegistry';
-import { useListVirtualization } from '../internals/virtualization/ListVirtualizationHostContext';
-import { useListBinding } from '../internals/virtualization/useListBinding';
+import { useListBinding, useVirtualizerSources } from '../internals/virtualization/useListBinding';
 import {
   isGroupHeaderRowId,
   isObjectValue,
@@ -37,21 +32,35 @@ import {
 } from '../internals/virtualization/useRowModels';
 import {
   isGroupHeaderRow,
-  type VirtualizerActiveIndex,
-  type VirtualizerActiveItem,
-  type VirtualizerGroup,
-  type VirtualizerEstimateGroupHeaderHeight,
-  type VirtualizerGroupHeaderElement,
-  type VirtualizerGroupHeaderProps,
-  type VirtualizerRenderGroupHeader,
-  type VirtualizerGetGroupKey,
-  type VirtualizerItemProps,
   type VirtualizerItemRowModel,
   type VirtualizerRenderRowParameters,
   type VirtualizerRow,
   type VirtualizerRowModel,
-  type VirtualizerRowProps,
 } from '../internals/virtualization/types';
+import type {
+  VirtualizerHandle,
+  VirtualizerHost,
+  VirtualizerHostState,
+  VirtualizerRegistration,
+  VirtualizerRegistry,
+} from './host';
+import type {
+  VirtualizerActions,
+  VirtualizerActiveIndex,
+  VirtualizerActiveItem,
+  VirtualizerEstimateGroupHeaderHeight,
+  VirtualizerGetGroupKey,
+  VirtualizerGroup,
+  VirtualizerGroupHeaderElement,
+  VirtualizerGroupHeaderMetadata,
+  VirtualizerGroupHeaderProps,
+  VirtualizerItemAria,
+  VirtualizerItemMetadata,
+  VirtualizerItemProps,
+  VirtualizerRenderGroupHeader,
+  VirtualizerRowProps,
+  VirtualizerScrollToIndexOptions,
+} from './types';
 import type { RowsGeometry, RowWindow } from './geometry';
 import { getLaidOutRowElements } from './getLaidOutRowElements';
 import { useGroupHeaderHeightEstimate } from './useGroupHeaderHeightEstimate';
@@ -79,6 +88,11 @@ interface VirtualRowProps<RowModel> {
    */
   bare: boolean;
   isVirtualFocusRow: boolean;
+  /**
+   * Whether the row's height is measured from the DOM. A row whose height the consumer declared
+   * is positioned from that number instead, and carries no observer.
+   */
+  measured: boolean;
   renderRow: (params: VirtualizerRenderRowParameters<RowModel>) => React.ReactElement;
   /**
    * Whether the row is mounted for its content alone — a group header kept so the group's name
@@ -113,15 +127,39 @@ const virtualRowStyle: React.CSSProperties = {
 const trailingFlowStyle: React.CSSProperties = virtualRowStyle;
 
 function VirtualRowImpl<RowModel>(props: VirtualRowProps<RowModel>) {
-  const { apiRef, bare, isVirtualFocusRow, renderRow, retained, row, rowIndex } = props;
+  const { apiRef, bare, isVirtualFocusRow, measured, renderRow, retained, row, rowIndex } = props;
 
   const measureCleanupRef = React.useRef<(() => void) | undefined>(undefined);
+  /**
+   * The element the row's binding reached, whether or not it is measured. A row with a declared
+   * height is bound just as a measured one is — the binding is what a bare layout's renderer has
+   * to spread — and only the observer is left off.
+   */
+  const rowElementRef = React.useRef<HTMLElement | null>(null);
   const measureRef = useStableCallback((element: HTMLElement | null) => {
     measureCleanupRef.current?.();
-    measureCleanupRef.current = element
-      ? apiRef.current?.rowsMeta.observeRowHeight(element, row.id)
-      : undefined;
+    measureCleanupRef.current = undefined;
+    rowElementRef.current = element;
+
+    if (element != null && measured) {
+      measureCleanupRef.current = apiRef.current?.rowsMeta.observeRowHeight(element, row.id);
+    }
   });
+  // The ref keeps its identity, so React does not call it again when a mounted row starts or
+  // stops being measured — a consumer adding or removing `itemHeight`. Bind it again here, which
+  // attaches or detaches the observer for the element the row already has.
+  const measuredRef = React.useRef(measured);
+  useIsoLayoutEffect(() => {
+    if (measuredRef.current === measured) {
+      return;
+    }
+
+    measuredRef.current = measured;
+
+    if (rowElementRef.current != null) {
+      measureRef(rowElementRef.current);
+    }
+  }, [measureRef, measured]);
 
   const inLayout = !isVirtualFocusRow && !retained;
 
@@ -140,7 +178,7 @@ function VirtualRowImpl<RowModel>(props: VirtualRowProps<RowModel>) {
       // The ref reaches the element during the commit, before this effect runs: a laid-out row
       // whose ref was never called did not receive the renderer's metadata argument, and neither
       // its height nor its position can be known.
-      if (bare && inLayout && measureCleanupRef.current == null) {
+      if (bare && inLayout && rowElementRef.current == null) {
         warn(
           '<Virtualizer layout="table"> rendered a row that did not receive the third argument ' +
             'of its renderer. Spread it onto the `<tr>` element the renderer returns, so the ' +
@@ -493,6 +531,8 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
     estimatedItemHeight: estimatedItemHeightProp,
     getGroupKey,
     getItemKey,
+    itemAria,
+    itemHeight: itemHeightProp,
     items,
     layout: layoutProp = 'list',
     onEndReached,
@@ -505,7 +545,7 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
     ...elementProps
   } = componentProps;
 
-  const { host, listState } = useListVirtualization(items != null);
+  const { host, hostState } = useVirtualizerSources(items != null);
 
   const {
     apiRef: apiRefProp,
@@ -517,6 +557,8 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
     renderRow: renderRowProp,
     scrollToRowAlignment,
     scrollToItemIndex,
+    scrollToRowPaddingEnd,
+    scrollToRowPaddingStart,
     windowingSuspended,
   } = useListBinding<Value>({
     actionsRef,
@@ -525,10 +567,18 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
     children,
     enabled: enabledProp,
     host,
+    itemAria,
     items,
-    listState,
+    hostState,
     renderGroupHeader,
   });
+
+  // A declared height positions the rows arithmetically: no row is observed, and nothing about
+  // the geometry is an estimate. A height that cannot be laid out is no height at all.
+  const fixedItemHeight =
+    itemHeightProp != null && Number.isFinite(itemHeightProp) && itemHeightProp > 0
+      ? itemHeightProp
+      : undefined;
 
   const isTable = layoutProp === 'table';
   // A table section is windowed against a scroll container of the consumer's, found among its
@@ -548,7 +598,10 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
     grouped == null ? itemIndex : (grouped.itemToRowIndex[itemIndex] ?? -1);
 
   const itemHeightEstimate = useItemHeightEstimate<Value>({
-    estimatedItemHeight: estimatedItemHeightProp,
+    // A declared height is also what an unmeasured row is worth: nothing is estimated then, but
+    // the geometry around the rows — the render buffer, the layout sizer, a group header's
+    // default estimate — still asks what a row is.
+    estimatedItemHeight: fixedItemHeight ?? estimatedItemHeightProp,
     items: collection,
     rows: itemRows,
   });
@@ -631,7 +684,10 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
   // it nor count among the rows it is judged against.
   const adaptive = useAdaptiveEstimate({
     rows: itemRows,
-    staticEstimatedItemHeight: itemHeightEstimate.staticEstimatedItemHeight,
+    // There is no estimate to refine when the items' height is declared: the average exists to
+    // converge on what measuring would have found, and measuring is what this replaces.
+    staticEstimatedItemHeight:
+      fixedItemHeight != null ? null : itemHeightEstimate.staticEstimatedItemHeight,
   });
 
   // Forces the rendered window to recompute after a corrective scroll write moved the viewport
@@ -763,6 +819,9 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
           apiRef={muiApiRef}
           bare={isTable}
           isVirtualFocusRow={params.isVirtualFocusRow}
+          // A declared height covers the items. A group header is content of the consumer's own
+          // whose height nothing declared, so it is measured as it always is.
+          measured={fixedItemHeight == null || isGroupHeaderRow(row.model)}
           renderRow={renderRowProp}
           retained={params.retained}
           row={row}
@@ -770,7 +829,7 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
         />
       );
     },
-    [isTable, renderRowProp, rows],
+    [fixedItemHeight, isTable, renderRowProp, rows],
   );
 
   const engineRenderRow = React.useCallback(
@@ -783,7 +842,35 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
     [renderRow],
   );
 
-  const getRowHeight = React.useCallback(() => 'auto' as const, []);
+  /**
+   * What the engine's row-height callback needs to answer for a row. Read through a ref because
+   * the engine rehydrates its whole geometry when that callback's identity changes, and a
+   * collection that changed rehydrates it on its own anyway.
+   */
+  const rowHeightLookupRef = React.useRef<{
+    grouped: GroupedRows<Value> | null;
+    rowIndexById: Map<React.Key, number>;
+    rows: VirtualizerRow<VirtualizerRowModel<Value>>[];
+  }>(null!);
+  const getRowHeight = React.useCallback(
+    (row: RowEntry) => {
+      if (fixedItemHeight == null) {
+        return 'auto' as const;
+      }
+
+      const lookup = rowHeightLookupRef.current;
+
+      // A flat collection is items alone, so nothing needs looking up. A grouped one still
+      // measures its headers, which are the only rows the engine is left to ask about.
+      if (lookup.grouped == null) {
+        return fixedItemHeight;
+      }
+
+      const model = lookup.rows[lookup.rowIndexById.get(row.id as React.Key) ?? -1]?.model;
+      return model != null && isGroupHeaderRow(model) ? ('auto' as const) : fixedItemHeight;
+    },
+    [fixedItemHeight],
+  );
   const rowIndexById = React.useMemo(() => {
     const map = new Map<React.Key, number>();
     rows.forEach((row, rowIndex) => {
@@ -791,6 +878,7 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
     });
     return map;
   }, [rows]);
+  rowHeightLookupRef.current = { grouped, rowIndexById, rows };
   const resolveRowIndexById = useStableCallback((rowId: React.Key) => rowIndexById.get(rowId));
 
   // MUI Virtualizer rehydrates row metadata when these callback identities change. This intentionally uses
@@ -849,6 +937,12 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
   const applyRowHeight = React.useCallback(
     (entry: HeightEntry, row: RowEntry) => {
       const rowId = row.id as React.Key;
+
+      // A row whose height was declared is already final: it is never measured, so there is no
+      // measurement to defer through a scrollbar drag and none to sample for the average.
+      if (!entry.autoHeight && !entry.needsFirstMeasurement) {
+        return;
+      }
 
       if (!isScrollbarDrag()) {
         const releasedHeight = releaseRowHeight(rowId);
@@ -1016,6 +1110,23 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
 
   if (process.env.NODE_ENV !== 'production') {
     // NODE_ENV doesn't change at runtime
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    React.useEffect(() => {
+      if (itemHeightProp != null && fixedItemHeight == null) {
+        warn(
+          `<Virtualizer> received an \`itemHeight\` of ${itemHeightProp}, which no item can be ` +
+            'laid out as, so the items are measured instead. Pass the height the items actually ' +
+            'have, in CSS pixels.',
+        );
+      } else if (fixedItemHeight != null && estimatedItemHeightProp != null) {
+        warn(
+          '<Virtualizer> received both `itemHeight` and `estimatedItemHeight`. Items of a ' +
+            'declared height are never measured, so there is nothing to estimate; remove ' +
+            '`estimatedItemHeight`.',
+        );
+      }
+    }, [estimatedItemHeightProp, fixedItemHeight, itemHeightProp]);
+
     // eslint-disable-next-line react-hooks/rules-of-hooks
     React.useEffect(() => {
       const element = scrollElementRef.current;
@@ -1278,6 +1389,8 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
     scrollToRowAlignment,
     readRowsGeometry,
     scrollToRowIndex,
+    scrollToRowPaddingEnd,
+    scrollToRowPaddingStart,
     trailingHeight,
   });
   pendingScrollRef.current = pendingScroll;
@@ -1374,8 +1487,11 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
           const rowIndex = Number(element.dataset.rowIndex);
           const row = rows[rowIndex];
           const height = element.getBoundingClientRect().height;
+          // A row whose height was declared has nothing to take again: the declaration outlives
+          // the invalidation, and the hydration below restores it over anything stored here.
+          const declared = row != null && fixedItemHeight != null && !isGroupHeaderRow(row.model);
 
-          if (row != null && height > 0) {
+          if (row != null && height > 0 && !declared) {
             api.rowsMeta.storeRowHeightMeasurement(row.id, height);
             adaptive.markMeasured(row.id);
             api.rowsMeta.setLastMeasuredRowIndex(rowIndex);
@@ -1915,7 +2031,8 @@ export interface VirtualizerBaseProps<Value> extends Omit<
    *
    * An index alone scrolls the item into view. Pass `{ index, scroll: false }` for activations
    * that must leave the viewport alone, such as a highlight following the pointer, and `align` to
-   * choose where a scrolled item lands.
+   * choose where a scrolled item lands. `paddingStart` and `paddingEnd` keep the item clear of an
+   * inset the activation knows about, in place of the scrollport's `scroll-padding`.
    *
    * Ignored without the `items` prop: a list that provides the collection tracks its own highlight.
    */
@@ -1967,11 +2084,42 @@ export interface VirtualizerBaseProps<Value> extends Omit<
    */
   estimatedGroupHeaderHeight?: number | VirtualizerEstimateGroupHeaderHeight<Value> | undefined;
   /**
+   * Height of every item in CSS pixels, when the collection's items are known to be uniform.
+   *
+   * Items are then positioned arithmetically: no item is measured, and the geometry is exact
+   * from the first render rather than converging as measurements arrive. It replaces
+   * `estimatedItemHeight`, which describes a height to assume until one is measured.
+   *
+   * Only pass it when the height is genuinely fixed. Items that turn out to be a different
+   * height are still laid out as this many pixels apart, and nothing corrects it. Leave it out
+   * for items whose height depends on their content, on the width available, or on a font that
+   * loads later. In a grouped collection it covers the items; group headers are measured as they
+   * always are.
+   */
+  itemHeight?: number | undefined;
+  /**
+   * Which ARIA the item metadata states for an item's position in the collection.
+   *
+   * - `set`: `aria-posinset` and `aria-setsize` for the item's place in the flat collection,
+   *   which is what the options of a listbox need.
+   * - `none`: neither, for a collection whose items are placed relative to something else — the
+   *   items of a tree, which are placed among their siblings, or the cells of a grid, which are
+   *   placed by row and column. Everything else the metadata carries stays, so your own ARIA
+   *   goes next to it.
+   *
+   * A host publishing its own collection declares what its items need, and this prop overrides
+   * that declaration.
+   *
+   * @default what the host declares, or `'set'`
+   */
+  itemAria?: VirtualizerItemAria | undefined;
+  /**
    * The collection to virtualize: a flat array of items, or an array of groups, each an object
    * with an `items` array. A grouped collection also needs `renderGroupHeader`.
    *
-   * When omitted, the collection and its highlight state come from the surrounding list, which
-   * requires a list that supports virtualization, such as `<Combobox.List>`.
+   * When omitted, the collection and its highlight state come from a surrounding component that
+   * publishes them — a list that supports virtualization, such as `<Combobox.List>`, or a
+   * component of your own that implements the host contract.
    */
   items?: readonly Value[] | ReadonlyArray<VirtualizerGroup<Value>> | undefined;
   /**
@@ -2020,7 +2168,8 @@ export interface VirtualizerBaseProps<Value> extends Omit<
    * items rendered must be the collection from its start: pages loaded so far, appended to the
    * ones before them, rather than a later page on its own.
    *
-   * Pass `-1` when the size is not known yet, which is the ARIA convention for it.
+   * Pass `-1` when the size is not known yet, which is the ARIA convention for it. It has
+   * nothing to describe when `itemAria` is `none`.
    * @default the number of items in the list
    */
   totalItems?: number | undefined;
@@ -2060,6 +2209,22 @@ export namespace Virtualizer {
    */
   export type Group<Value = unknown> = VirtualizerGroup<Value>;
   /**
+   * Metadata a group header rendered by the virtualizer publishes to a host's `<GroupLabel>`.
+   */
+  export type GroupHeaderMetadata = VirtualizerGroupHeaderMetadata;
+  /**
+   * Imperative operations a virtualizer exposes to the component hosting it.
+   */
+  export type Handle = VirtualizerHandle;
+  /**
+   * Stable wiring published by a component so the virtualizer can window its collection.
+   */
+  export type Host = VirtualizerHost;
+  /**
+   * The collection and highlight state a host publishes for the virtualizer to window against.
+   */
+  export type HostState = VirtualizerHostState;
+  /**
    * Attributes to spread onto the element carrying a group's name.
    */
   export type GroupHeaderProps = VirtualizerGroupHeaderProps;
@@ -2067,6 +2232,14 @@ export namespace Virtualizer {
    * A `React.ReactElement`, as returned by a group header renderer.
    */
   export type GroupHeaderElement = VirtualizerGroupHeaderElement;
+  /**
+   * Which ARIA an item states for its position in the collection.
+   */
+  export type ItemAria = VirtualizerItemAria;
+  /**
+   * Metadata an item rendered by the virtualizer publishes to a host's `<Item>`.
+   */
+  export type ItemMetadata = VirtualizerItemMetadata;
   /**
    * Attributes to spread onto the element representing an item, the third argument of the item
    * renderer.
@@ -2076,6 +2249,14 @@ export namespace Virtualizer {
    * How the rows are laid out.
    */
   export type Layout = VirtualizerLayout;
+  /**
+   * A virtualizer registered with its host, as the host's registry holds it.
+   */
+  export type Registration = VirtualizerRegistration;
+  /**
+   * Coordinates virtualized and non-virtualized content rendered by a single host.
+   */
+  export type Registry = VirtualizerRegistry;
   /**
    * Attributes that bind a row element to the virtualizer in the table layout, carried by the
    * item and group header props.

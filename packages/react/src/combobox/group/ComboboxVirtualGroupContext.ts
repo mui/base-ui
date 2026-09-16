@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import type { VirtualizerGroupHeaderMetadata } from '../../internals/virtualization/types';
+import type { VirtualizerGroupHeaderMetadata } from '../../virtualizer/types';
 
 /**
  * Metadata provided by `Virtualizer` to the header of each rendered group.
