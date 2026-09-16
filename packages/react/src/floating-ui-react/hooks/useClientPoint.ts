@@ -37,8 +37,8 @@ function createVirtualElement(
         ['mouseenter', 'mousemove'].includes(data.dataRef.current.openEvent?.type || '') &&
         data.pointerType !== 'touch';
 
-      let width = domRect.width;
-      let height = domRect.height;
+      const width = data.axis === 'y' ? domRect.width : 0;
+      const height = data.axis === 'x' ? domRect.height : 0;
       let x = domRect.x;
       let y = domRect.y;
 
@@ -52,17 +52,10 @@ function createVirtualElement(
 
       x -= offsetX || 0;
       y -= offsetY || 0;
-      width = 0;
-      height = 0;
 
       if (!isAutoUpdateEvent || canTrackCursorOnAutoUpdate) {
-        width = data.axis === 'y' ? domRect.width : 0;
-        height = data.axis === 'x' ? domRect.height : 0;
         x = isXAxis && data.x != null ? data.x : x;
         y = isYAxis && data.y != null ? data.y : y;
-      } else if (isAutoUpdateEvent && !canTrackCursorOnAutoUpdate) {
-        height = data.axis === 'x' ? domRect.height : height;
-        width = data.axis === 'y' ? domRect.width : width;
       }
 
       isAutoUpdateEvent = true;
