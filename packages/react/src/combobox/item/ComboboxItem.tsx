@@ -2,6 +2,7 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { warn } from '@base-ui/utils/warn';
 import {
   useComboboxRootContext,
   useComboboxHasItemsContext,
@@ -18,15 +19,29 @@ import {
   findItemIndex,
   resolveSelectedIndex,
 } from '../../internals/itemEquality';
+import {
+  useComboboxVirtualItemContext,
+  type ComboboxVirtualItemMetadata,
+} from './ComboboxVirtualItemContext';
+import { useListVirtualizationHost } from '../../internals/virtualization/ListVirtualizationHostContext';
+import {
+  useNonVirtualizedItemRegistration,
+  useVirtualItemDiagnostics,
+} from '../../internals/virtualization/useListBinding';
 
 interface ComboboxItemInnerProps {
   componentProps: ComboboxItem.Props;
   forwardedRef: React.ForwardedRef<HTMLDivElement>;
   /**
-   * Whether the list is externally virtualized. Passed down from the wrapper (which already
-   * subscribes to it) so the inner component doesn't re-subscribe to the store.
+   * Whether this item uses a known virtual index. Passed down from the wrapper so the inner
+   * component doesn't subscribe to virtualization state.
    */
   virtualized: boolean;
+  /**
+   * Metadata supplied by the built-in virtualizer for the row containing this item.
+   * `undefined` for non-virtualized items and items managed by an external virtualizer.
+   */
+  virtualItem: ComboboxVirtualItemMetadata | undefined;
   /**
    * Pre-resolved index for the virtualized fallback (when no `index` prop is provided).
    * `undefined` for the common path, where the index is derived from `index` prop or the
@@ -35,8 +50,11 @@ interface ComboboxItemInnerProps {
   indexFromFilter: number | undefined;
 }
 
+/**
+ * Implements a Combobox item after the public wrapper has resolved its virtualization metadata.
+ */
 function ComboboxItemInner(props: ComboboxItemInnerProps) {
-  const { componentProps, forwardedRef, virtualized, indexFromFilter } = props;
+  const { componentProps, forwardedRef, virtualized, virtualItem, indexFromFilter } = props;
   const {
     render,
     className,
@@ -49,25 +67,39 @@ function ComboboxItemInner(props: ComboboxItemInnerProps) {
   } = componentProps;
 
   const textRef = React.useRef<HTMLElement | null>(null);
+
+  const explicitIndex = virtualItem?.index ?? indexProp;
   const listItem = useCompositeListItem({
     guess: true,
-    index: indexProp,
+    index: explicitIndex,
     textRef,
   });
 
   const store = useComboboxRootContext();
   const isRow = useComboboxRowContext();
   const hasItems = useComboboxHasItemsContext();
+  const { componentName } = store.context;
+
+  if (process.env.NODE_ENV !== 'production') {
+    if (virtualItem && indexProp != null && indexProp !== virtualItem.index) {
+      warn(
+        `<${componentName}.Item> received an \`index\` prop that conflicts with the index ` +
+          'provided by <Virtualizer>. Remove the `index` prop from virtualized items.',
+      );
+    }
+  }
 
   const selectionMode = store.useState('selectionMode');
   const rootDisabled = store.useState('disabled');
   const readOnly = store.useState('readOnly');
+  const isItemDisabled = store.useState('isItemDisabled');
   const isItemEqualToValue = store.useState('isItemEqualToValue');
 
-  const disabled = rootDisabled || disabledProp;
   const selectable = selectionMode !== 'none';
-  const index = indexProp ?? indexFromFilter ?? listItem.index;
+  const index = explicitIndex ?? (virtualized ? (indexFromFilter ?? -1) : listItem.index);
   const hasRegistered = index !== -1;
+  const disabled =
+    rootDisabled || disabledProp || (index >= 0 && isItemDisabled?.(itemValue, index) === true);
 
   const rootId = store.useState('id');
   const highlighted = store.useState('isActive', index);
@@ -76,11 +108,18 @@ function ComboboxItemInner(props: ComboboxItemInnerProps) {
 
   const itemRef = React.useRef<HTMLDivElement | null>(null);
 
+  useVirtualItemDiagnostics({
+    componentName,
+    disabledProp,
+    hasIsItemDisabled: isItemDisabled != null,
+    virtualItem,
+  });
+
   const id = rootId != null && hasRegistered ? `${rootId}-${index}` : undefined;
   const selected = matchesSelectedValue && selectable;
 
   useIsoLayoutEffect(() => {
-    const shouldRun = hasRegistered && (virtualized || indexProp != null);
+    const shouldRun = hasRegistered && (virtualized || explicitIndex != null);
     if (!shouldRun) {
       return undefined;
     }
@@ -91,7 +130,7 @@ function ComboboxItemInner(props: ComboboxItemInnerProps) {
     return () => {
       delete list[index];
     };
-  }, [hasRegistered, virtualized, index, indexProp, store]);
+  }, [hasRegistered, virtualized, index, explicitIndex, store]);
 
   useIsoLayoutEffect(() => {
     if (!hasRegistered || hasItems) {
@@ -202,7 +241,7 @@ function ComboboxItemInner(props: ComboboxItemInnerProps) {
   const element = useRenderElement('div', componentProps, {
     ref: [buttonRef, forwardedRef, listItem.ref, itemRef],
     state,
-    props: [itemProps, defaultProps, elementProps, getButtonProps],
+    props: [itemProps, virtualItem?.props, defaultProps, elementProps, getButtonProps],
   });
 
   const contextValue: ComboboxItemContext = React.useMemo(
@@ -238,12 +277,13 @@ function ComboboxItemVirtualizedIndex(props: {
   const lookupValue = componentProps.value ?? null;
   const indexFromFilter = findItemIndex(flatFilteredValues, lookupValue, isItemEqualToValue);
 
-  // Only reached when `virtualized` is true (see the wrapper below).
+  // Only reached when the root uses external virtualization (see the wrapper below).
   return (
     <ComboboxItemInner
       componentProps={componentProps}
       forwardedRef={forwardedRef}
       virtualized
+      virtualItem={undefined}
       indexFromFilter={indexFromFilter}
     />
   );
@@ -261,12 +301,22 @@ export const ComboboxItem = React.memo(
     forwardedRef: React.ForwardedRef<HTMLDivElement>,
   ) {
     const store = useComboboxRootContext();
-    const virtualized = store.useState('virtualized');
+    const externallyVirtualized = store.useState('externallyVirtualized');
+    const virtualItem = useComboboxVirtualItemContext();
+    const insideList = useListVirtualizationHost() != null;
 
-    // `virtualized` (and whether an item provides an explicit `index`) must be stable for an
-    // item's lifetime: the two branches return different component types, so flipping it at
-    // runtime remounts the item and resets its refs and effects.
-    if (virtualized && componentProps.index == null) {
+    useNonVirtualizedItemRegistration({
+      componentName: store.context.componentName,
+      insideList,
+      registry: store.context.virtualizationRegistry,
+      virtualized: virtualItem != null,
+    });
+
+    // External virtualization and whether an item provides an explicit `index` must be stable
+    // for an item's lifetime: the two branches return different component types, so flipping
+    // either at runtime remounts the item and resets its refs and effects. Built-in virtual
+    // items receive their index from context and stay on the regular branch.
+    if (externallyVirtualized && componentProps.index == null && virtualItem == null) {
       return (
         <ComboboxItemVirtualizedIndex componentProps={componentProps} forwardedRef={forwardedRef} />
       );
@@ -276,7 +326,8 @@ export const ComboboxItem = React.memo(
       <ComboboxItemInner
         componentProps={componentProps}
         forwardedRef={forwardedRef}
-        virtualized={virtualized}
+        virtualized={externallyVirtualized || virtualItem != null}
+        virtualItem={virtualItem}
         indexFromFilter={undefined}
       />
     );
@@ -307,7 +358,9 @@ export interface ComboboxItemProps
    */
   onClick?: BaseUIComponentProps<'div', ComboboxItemState>['onClick'] | undefined;
   /**
-   * The index of the item in the list. Improves performance when specified by avoiding the need to calculate the index automatically from the DOM.
+   * The index of the item in the filtered list. Improves performance when specified by avoiding
+   * the need to calculate the index automatically from the DOM. It is supplied automatically by
+   * the built-in `<Virtualizer>`; pass it only for static items or external virtualization.
    */
   index?: number | undefined;
   /**

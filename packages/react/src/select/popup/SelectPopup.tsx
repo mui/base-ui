@@ -36,6 +36,21 @@ import { getMaxScrollOffset, SCROLL_EDGE_TOLERANCE_PX } from '../../utils/scroll
 import { useCSPContext } from '../../internals/csp-context/CSPContext';
 import { useDirection } from '../../internals/direction-context/DirectionContext';
 import * as SelectPositionerCssVars from '../positioner/SelectPositionerCssVars';
+/**
+ * The element that scrolls the list. A registered virtualizer owns its own scrollport, nested
+ * inside the list; otherwise the list scrolls, or the popup does when no list is rendered.
+ */
+function getScroller(
+  store: ReturnType<typeof useSelectRootContext>,
+  listElement: HTMLElement | null,
+  popupElement: HTMLElement | null,
+) {
+  return (
+    store.context.virtualizationRegistry.virtualizer?.getScrollElement() ??
+    listElement ??
+    popupElement
+  );
+}
 
 const stateAttributesMapping: StateAttributesMapping<SelectPopupState> = {
   ...popupStateMapping,
@@ -80,6 +95,12 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
   const listElement = store.useState('listElement');
   const reachedMaxHeightRef = React.useRef(false);
   const initialPlacedRef = React.useRef(false);
+  /**
+   * Whether the aligned measurement's inline geometry is currently on the elements. Align mode can
+   * stop applying while the popup stays open — a virtualizer registering does that — and the
+   * `!open` reset cannot run until it closes, so the styles have to be cleared at the transition.
+   */
+  const alignStylesAppliedRef = React.useRef(false);
   const originalPositionerStylesRef = React.useRef<React.CSSProperties>({});
 
   const scrollArrowFrame = useAnimationFrame();
@@ -223,6 +244,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
 
     initialPlacedRef.current = false;
     reachedMaxHeightRef.current = false;
+    alignStylesAppliedRef.current = false;
     clearStyles(positionerElement, originalPositionerStylesRef.current);
   }, [open, alignItemWithTriggerActive, positionerElement]);
 
@@ -243,15 +265,48 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
       return;
     }
 
-    initialPlacedRef.current = true;
+    // Unconditional, as it was before virtualization: a transform origin written by an earlier
+    // aligned session must not survive into one that never measures.
     popupElement.style.removeProperty(SelectPositionerCssVars.transformOrigin);
+
+    // Read the registry live rather than `alignItemWithTriggerActive`: with `defaultOpen`, this
+    // effect runs on the same commit that registered the virtualizer, and the render that produced
+    // the flag happened before it. Registration alone is the condition, matching the Positioner's
+    // gate — a disabled virtualizer is still the element that scrolls.
+    if (store.context.virtualizationRegistry.virtualizer != null) {
+      if (alignStylesAppliedRef.current) {
+        // The same cleanup the collision fallback performs below. Without it the positioner keeps
+        // the pixel height, `max-height: none`, and margins that align mode wrote, for the rest of
+        // the open session.
+        clearStyles(positionerElement, originalPositionerStylesRef.current);
+        popupElement.style.height = '';
+        alignStylesAppliedRef.current = false;
+      }
+
+      // The virtualizer owns the geometry, but the popup still seeds arrow visibility, and
+      // `handleScroll` is gated on this flag — returning without both leaves the arrows hidden for
+      // the whole life of the popup and makes the relocated scroll handler a no-op.
+      initialPlacedRef.current = true;
+      scrollArrowFrame.request(() => {
+        const scroller = getScroller(store, listElement, popupElement);
+        if (scroller) {
+          store.context.handleScrollArrowVisibility(scroller);
+        }
+      });
+      return;
+    }
+
+    initialPlacedRef.current = true;
 
     if (!alignItemWithTriggerActive) {
       // The wrapper supplies the scroller: the list owns scrolling once it has mounted, and
       // this effect re-runs (cancelling the stale frame) when that happens.
-      scrollArrowFrame.request(() =>
-        store.context.handleScrollArrowVisibility(listElement || popupElement),
-      );
+      scrollArrowFrame.request(() => {
+        const scroller = getScroller(store, listElement, popupElement);
+        if (scroller) {
+          store.context.handleScrollArrowVisibility(scroller);
+        }
+      });
       return;
     }
 
@@ -282,7 +337,9 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
 
       const positionerRect = normalizeRect(positionerElement.getBoundingClientRect(), scale);
       const triggerHeight = triggerRect.height;
-      const scroller = listElement || popupElement;
+      // A registered virtualizer never reaches this branch, so this resolves to the list or the
+      // popup. Routed through `getScroller` anyway so every scroller lookup has one definition.
+      const scroller = getScroller(store, listElement, popupElement) ?? popupElement;
       const scrollHeight = scroller.scrollHeight;
 
       const borderBottom = parseFloat(popupStyles.borderBottomWidth);
@@ -363,6 +420,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
         return;
       }
 
+      alignStylesAppliedRef.current = true;
       const initialHeight = Math.max(minHeight, height);
 
       if (isTopPositioned) {
@@ -401,7 +459,8 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
         store.state.activeIndex === null &&
         store.context.listRef.current[0] != null
       ) {
-        store.set('activeIndex', 0);
+        // Placed by the opening measurement rather than by an interaction, so it must not scroll.
+        store.context.setActiveIndex(0, 'none');
       }
     } finally {
       restoreTransformStyles();
@@ -449,6 +508,14 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
       if (insideToolbar && COMPOSITE_KEYS.has(event.key)) {
         event.stopPropagation();
       }
+    },
+    // Which of these fired last is what tells a keyboard highlight from one the pointer produced
+    // as it passed over an item.
+    onKeyDownCapture() {
+      store.context.keyboardActiveRef.current = true;
+    },
+    onPointerMoveCapture() {
+      store.context.keyboardActiveRef.current = false;
     },
     onScroll(event) {
       if (listElement) {
