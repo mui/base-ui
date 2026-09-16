@@ -2,14 +2,14 @@
 import * as React from 'react';
 import { useFilterDropdownGroup } from '../../filter-dropdown/group/useFilterDropdownGroup';
 import { FilterDropdownGroupContext } from '../../filter-dropdown/group/FilterDropdownGroupContext';
-import { MenuGroupPlain, type MenuGroupProps, type MenuGroupState } from '../group/MenuGroup';
+import { MenuGroupPlain, type MenuGroupProps } from '../group/MenuGroup';
 
 /**
  * Groups related filter menu items with a corresponding label.
  * Renders a `<div>` element.
  */
 export const FilteredMenuGroup = React.forwardRef(function FilteredMenuGroup(
-  props: FilteredMenuGroup.Props,
+  props: MenuGroupProps,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const { hidden, context } = useFilterDropdownGroup();
@@ -20,11 +20,3 @@ export const FilteredMenuGroup = React.forwardRef(function FilteredMenuGroup(
     </FilterDropdownGroupContext.Provider>
   );
 });
-
-export interface FilteredMenuGroupProps extends MenuGroupProps {}
-export interface FilteredMenuGroupState extends MenuGroupState {}
-
-export namespace FilteredMenuGroup {
-  export type Props = FilteredMenuGroupProps;
-  export type State = FilteredMenuGroupState;
-}

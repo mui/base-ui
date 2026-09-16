@@ -95,7 +95,9 @@ interface MenuRootInternalProps<Payload> extends MenuRoot.Props<Payload> {
   webkitItemSelected?: boolean | undefined;
 }
 
-const MenuRootImpl = fastComponent(function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
+export const MenuRootInternal = fastComponent(function MenuRoot<Payload>(
+  props: MenuRootInternalProps<Payload>,
+) {
   const {
     children,
     open: openProp,
@@ -120,8 +122,8 @@ const MenuRootImpl = fastComponent(function MenuRoot<Payload>(props: MenuRoot.Pr
     resetOnPointerLeave = true,
     virtualFocusAutoFocus = false,
     renderVirtualFocusChildren,
-    webkitItemSelected: webkitItemSelectedProp = false,
-  } = props as MenuRootInternalProps<Payload>;
+    webkitItemSelected = false,
+  } = props;
 
   const contextMenuContext = useContextMenuRootContext(true);
   const parentMenuRootContext = useMenuRootContext(true);
@@ -191,23 +193,26 @@ const MenuRootImpl = fastComponent(function MenuRoot<Payload>(props: MenuRoot.Pr
     animateInitialOpen ? parentMenuStore?.state.instantType : undefined,
   ).current;
 
-  const store = useMenuRootStore<Payload>(
-    {
-      open: defaultOpen,
-      openProp,
-      activeTriggerId: defaultTriggerIdProp,
-      triggerIdProp,
-      parent: parentFromContext,
-      disabled: disabledProp,
-      highlightItemOnHover,
-      modal: parentFromContext.type === undefined ? modalProp : undefined,
-      rootId,
-      instantType: seededInstantType,
-      virtualFocus,
-    },
-    floatingId,
-    floatingParentNodeIdFromContext != null,
-  );
+  const store = useRefWithInit(
+    () =>
+      new MenuStore<Payload>(
+        {
+          open: defaultOpen,
+          openProp,
+          activeTriggerId: defaultTriggerIdProp,
+          triggerIdProp,
+          parent: parentFromContext,
+          disabled: disabledProp,
+          highlightItemOnHover,
+          modal: parentFromContext.type === undefined ? modalProp : undefined,
+          rootId,
+          instantType: seededInstantType,
+          virtualFocus,
+        },
+        floatingId,
+        floatingParentNodeIdFromContext != null,
+      ),
+  ).current;
 
   store.useControlledProp('openProp', openProp);
   store.useControlledProp('triggerIdProp', triggerIdProp);
@@ -740,8 +745,6 @@ const MenuRootImpl = fastComponent(function MenuRoot<Payload>(props: MenuRoot.Pr
     itemProps,
   });
 
-  const webkitItemSelected = webkitItemSelectedProp;
-
   const context: MenuRootContext<Payload> = React.useMemo(
     () => ({
       store,
@@ -800,7 +803,6 @@ const MenuRootImpl = fastComponent(function MenuRoot<Payload>(props: MenuRoot.Pr
   return content;
 });
 
-/** `MenuRoot` with the internal props visible, which the public signature hides. */
 function getHighlightReason(
   event: React.SyntheticEvent | undefined,
 ): MenuRoot.HighlightEventReason {
@@ -815,10 +817,6 @@ function getHighlightReason(
   }
   return REASONS.none;
 }
-
-export const MenuRootInternal = MenuRootImpl as <Payload>(
-  props: MenuRootInternalProps<Payload>,
-) => React.JSX.Element;
 
 /**
  * Groups all parts of the menu.
@@ -839,23 +837,6 @@ export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>): React.JSX.Ele
       <FilterRoot {...filter.options} {...props} />
     </MenuFilterProviderContext.Provider>
   );
-}
-
-function useMenuRootStore<Payload>(
-  initialState: Partial<MenuStoreState<Payload>>,
-  floatingId: string | undefined,
-  nested: boolean,
-) {
-  // The store is owned by this Root instance and created exactly once. It is not tied to the handle:
-  // the handle attaches to it, so swapping the handle re-attaches rather than recreating state.
-  // Default values are only initial values; controlled values and root state are synced after creation.
-  // Unlike other popups, Menu wires its floating root context separately (it relays open changes
-  // through an event).
-  const store = useRefWithInit(
-    () => new MenuStore<Payload>(initialState, floatingId, nested),
-  ).current;
-
-  return store;
 }
 
 export interface MenuRootState {}

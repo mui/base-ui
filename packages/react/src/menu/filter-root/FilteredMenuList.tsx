@@ -79,19 +79,19 @@ export const FilteredMenuList = React.forwardRef(function FilteredMenuList(
     syncHighlightedItem();
     const items = [...listRef.current];
     const previousItems = previousItemsRef.current;
-    const itemsChanged =
+    if (
       previousItems !== null &&
-      (previousItems.length !== items.length ||
-        items.some((item, index) => item !== previousItems[index]));
-    previousItemsRef.current = items;
-    if (previousItems !== null && !itemsChanged) {
+      previousItems.length === items.length &&
+      items.every((item, index) => item === previousItems[index])
+    ) {
       return;
     }
+    previousItemsRef.current = items;
 
     // Composite items receive their final indexes from this map update. Publish after their
     // synchronous layout updates commit so the active item's rendered id has settled.
     queueMicrotask(() => {
-      if (itemsChanged) {
+      if (previousItems !== null) {
         // A positional highlight must not silently move to another action when live items are
         // inserted, removed, or reordered.
         onItemsChange(items.length > 0);

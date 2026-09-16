@@ -2,7 +2,6 @@
 import * as React from 'react';
 import type { FilterDropdownRoot as FilterDropdownRootNamespace } from '../../filter-dropdown/root/FilterDropdownRoot';
 import { MenuRootInternal, type MenuRoot } from '../root/MenuRoot';
-import type { MenuHandle } from '../store/MenuHandle';
 import type { MenuFilterRootFilterProps } from './MenuFilterRootFilterProps';
 import { MenuFilterDropdown } from './MenuFilterDropdown';
 import { useMenuFilterRoot } from './useMenuFilterRoot';
@@ -38,23 +37,9 @@ export type MenuFilterFunction = (text: string, query: string) => boolean;
 
 export type MenuFilterRootProps<Payload = unknown> = Omit<
   MenuRoot.Props<Payload>,
-  'actionsRef' | 'closeParentOnEsc' | 'handle' | 'onOpenChange' | 'orientation'
+  'closeParentOnEsc' | 'orientation'
 > &
-  MenuFilterRootFilterProps & {
-    /**
-     * A ref to imperative actions.
-     */
-    actionsRef?: React.RefObject<MenuFilterRootActions | null> | undefined;
-    /**
-     * A handle that associates the menu with detached triggers.
-     */
-    handle?: MenuHandle<Payload> | undefined;
-    /**
-     * Event handler called when the menu is opened or closed.
-     */
-    onOpenChange?:
-      ((open: boolean, eventDetails: MenuFilterRootChangeEventDetails) => void) | undefined;
-  };
+  MenuFilterRootFilterProps;
 
 export interface MenuFilterRootState extends MenuRoot.State {}
 export type MenuFilterRootActions = MenuRoot.Actions;

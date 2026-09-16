@@ -154,8 +154,6 @@ function MenuFilterSubmenuNavigation(props: MenuFilterSubmenuNavigationProps) {
   const mounted = store.useState('mounted');
   const wasMountedRef = React.useRef(false);
 
-  const handleGetReturnElement = useStableCallback(getReturnElement);
-
   const handleReturnFocus = useStableCallback(() => {
     // With auto-focusing submenus, a sibling trigger under the pointer is about to open a popup
     // that takes focus, so returning focus to the parent input in the meantime would only flash
@@ -172,7 +170,7 @@ function MenuFilterSubmenuNavigation(props: MenuFilterSubmenuNavigationProps) {
     ) {
       return false;
     }
-    return handleGetReturnElement();
+    return getReturnElement();
   });
 
   // A hover close makes the focus manager skip its return focus, which would strand the
@@ -324,44 +322,8 @@ function MenuFilterSubmenuNavigation(props: MenuFilterSubmenuNavigationProps) {
   );
 }
 
-export type MenuFilterSubmenuRootProps = Omit<
-  MenuSubmenuRootProps,
-  'actionsRef' | 'open' | 'defaultOpen' | 'onOpenChange' | 'orientation'
-> &
-  Omit<MenuFilterRootFilterProps, 'defaultInputValue' | 'onInputValueChange'> & {
-    /**
-     * A ref to imperative actions.
-     */
-    actionsRef?: React.RefObject<MenuFilterSubmenuRootActions | null> | undefined;
-    /**
-     * Whether the submenu is currently open.
-     */
-    open?: boolean | undefined;
-    /**
-     * Whether the submenu is initially open.
-     *
-     * To render a controlled submenu, use the `open` prop instead.
-     * @default false
-     */
-    defaultOpen?: boolean | undefined;
-    /**
-     * Event handler called when the submenu is opened or closed.
-     */
-    onOpenChange?:
-      ((open: boolean, eventDetails: MenuFilterSubmenuRoot.ChangeEventDetails) => void) | undefined;
-    /**
-     * The uncontrolled filter query when the submenu is initially rendered.
-     * To render a controlled query, use the `inputValue` prop instead.
-     */
-    defaultInputValue?: string | undefined;
-    /**
-     * Event handler called when the filter query changes.
-     */
-    onInputValueChange?:
-      | ((value: string, eventDetails: MenuFilterSubmenuRoot.InputValueChangeEventDetails) => void)
-      | undefined;
-    children?: React.ReactNode;
-  };
+export type MenuFilterSubmenuRootProps = Omit<MenuSubmenuRootProps, 'orientation'> &
+  MenuFilterRootFilterProps;
 
 export interface MenuFilterSubmenuRootState extends MenuSubmenuRoot.State {}
 export type MenuFilterSubmenuRootActions = MenuRoot.Actions;

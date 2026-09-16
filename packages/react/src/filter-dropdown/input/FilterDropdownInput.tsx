@@ -47,7 +47,7 @@ export const FilterDropdownInput = React.forwardRef(function FilterDropdownInput
 
   return useRenderElement('input', componentProps, {
     state,
-    ref: [forwardedRef, context.setInputElement],
+    ref: [forwardedRef, context.focusOwnerRef],
     props: [
       inputProps,
       {

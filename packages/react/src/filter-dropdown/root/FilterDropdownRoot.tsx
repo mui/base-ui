@@ -62,7 +62,6 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
   const ownFocusOwnerRef = React.useRef<HTMLElement | null>(null);
   const focusOwnerRef = externalFocusOwnerRef ?? ownFocusOwnerRef;
   const keyReplayRef = React.useRef(false);
-  const inputAutoFocusRef = React.useRef(false);
   const lastFilterQueryRef = React.useRef<string | null>(null);
   const defaultMatches = React.useMemo(() => getFilter({ locale }).contains, [locale]);
   const filterQuery = (query ?? value).trim();
@@ -72,18 +71,7 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
     open && (autoHighlight === 'always' || (autoHighlight && filterQuery !== ''));
 
   const handleValueChange = useStableCallback(onValueChange ?? NOOP);
-
-  const setInputElement = useStableCallback((element: HTMLInputElement | null) => {
-    focusOwnerRef.current = element;
-  });
-
-  const setInputAutoFocus = useStableCallback((autoFocus: boolean) => {
-    if (inputAutoFocusRef.current === autoFocus) {
-      return;
-    }
-    inputAutoFocusRef.current = autoFocus;
-    onInputAutoFocusChange?.(autoFocus);
-  });
+  const setInputAutoFocus = useStableCallback(onInputAutoFocusChange ?? NOOP);
 
   const onItemsChange = useStableCallback((hasItems: boolean) => {
     setActiveIndex(autoHighlightEnabled && hasItems ? 0 : null);
@@ -101,11 +89,7 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
     setKeyboardModality(inputFocusVisible);
   }, [inputFocusVisible]);
 
-  useIsoLayoutEffect(() => {
-    store.set('registeredItemCount', registeredItems.size);
-  }, [registeredItems, store]);
-
-  store.useSyncedValues({ activeIndex, inputProps });
+  store.useSyncedValues({ activeIndex, inputProps, registeredItemCount: registeredItems.size });
 
   // Runs against the registry snapshot published once every item in the commit has registered,
   // and against the committed query, because a controlled consumer can reject a proposed change.
@@ -180,7 +164,6 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
       setListId,
       focusOwnerRef,
       keyReplayRef,
-      setInputElement,
       setInputAutoFocus,
       setActiveIndex,
       onItemsChange,
@@ -197,7 +180,6 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
       defaultListId,
       listId,
       focusOwnerRef,
-      setInputElement,
       setInputAutoFocus,
       setActiveIndex,
       onItemsChange,
@@ -295,7 +277,7 @@ export interface FilterDropdownRootProps {
    */
   inputProps?: HTMLProps | undefined;
   /**
-   * The host's ref for the input, or the list when no input is rendered.
+   * The host's ref for the filter input.
    */
   inputRef?: React.RefObject<HTMLElement | null> | undefined;
   /**
