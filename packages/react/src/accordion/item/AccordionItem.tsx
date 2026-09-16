@@ -1,14 +1,13 @@
 'use client';
 import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { BaseUIComponentProps } from '../../internals/types';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import {
   useCollapsibleRoot,
   type UseCollapsibleRootParameters,
 } from '../../collapsible/root/useCollapsibleRoot';
-import type { CollapsibleRoot, CollapsibleRootState } from '../../collapsible/root/CollapsibleRoot';
+import type { CollapsibleRoot } from '../../collapsible/root/CollapsibleRoot';
 import { CollapsibleRootContext } from '../../collapsible/root/CollapsibleRootContext';
 import { useCompositeListItem } from '../../internals/composite/list/useCompositeListItem';
 import type { AccordionRootState } from '../root/AccordionRoot';
@@ -40,7 +39,6 @@ export const AccordionItem = React.forwardRef(function AccordionItem(
   } = componentProps;
 
   const { ref: listItemRef, index } = useCompositeListItem();
-  const mergedRef = useMergedRefs(forwardedRef, listItemRef);
 
   const {
     disabled: contextDisabled,
@@ -55,7 +53,7 @@ export const AccordionItem = React.forwardRef(function AccordionItem(
 
   const disabled = disabledProp || contextDisabled;
 
-  const isOpen = openValues.indexOf(value) !== -1;
+  const isOpen = openValues.includes(value);
 
   const onOpenChange = useStableCallback(
     (nextOpen: boolean, eventDetails: CollapsibleRoot.ChangeEventDetails) => {
@@ -75,22 +73,17 @@ export const AccordionItem = React.forwardRef(function AccordionItem(
     disabled,
   });
 
-  const collapsibleState: CollapsibleRootState = React.useMemo(
-    () => ({
-      open: collapsible.open,
-      disabled: collapsible.disabled,
-      transitionStatus: collapsible.transitionStatus,
-    }),
-    [collapsible.open, collapsible.disabled, collapsible.transitionStatus],
-  );
-
   const collapsibleContext: CollapsibleRootContext = React.useMemo(
     () => ({
       ...collapsible,
       onOpenChange,
-      state: collapsibleState,
+      state: {
+        open: collapsible.open,
+        disabled: collapsible.disabled,
+        transitionStatus: collapsible.transitionStatus,
+      },
     }),
-    [collapsible, collapsibleState, onOpenChange],
+    [collapsible, onOpenChange],
   );
 
   const state: AccordionItemState = React.useMemo(
@@ -123,7 +116,7 @@ export const AccordionItem = React.forwardRef(function AccordionItem(
 
   const element = useRenderElement('div', componentProps, {
     state,
-    ref: mergedRef,
+    ref: [forwardedRef, listItemRef],
     props: elementProps,
     stateAttributesMapping: accordionStateAttributesMapping,
   });
