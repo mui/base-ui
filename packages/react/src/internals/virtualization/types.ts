@@ -21,6 +21,19 @@ export interface VirtualizerActiveItem {
    */
   index: number;
   /**
+   * Inset in pixels at the end edge of the scrollport that the item is kept clear of, for the
+   * scroll this activation describes. Overrides the scrollport's `scroll-padding-bottom`.
+   * @default the scrollport's computed `scroll-padding-bottom`
+   */
+  paddingEnd?: number | undefined;
+  /**
+   * Inset in pixels at the start edge of the scrollport that the item is kept clear of, for the
+   * scroll this activation describes. Overrides the scrollport's `scroll-padding-top`, for an
+   * overlay whose height depends on the item being activated rather than being fixed in CSS.
+   * @default the scrollport's computed `scroll-padding-top`
+   */
+  paddingStart?: number | undefined;
+  /**
    * Whether this activation scrolls the item into view.
    * @default true
    */

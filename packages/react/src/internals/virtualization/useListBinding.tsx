@@ -230,6 +230,16 @@ export interface ListBinding<Item> {
   /** The item to scroll into view. */
   scrollToItemIndex: number | undefined;
   /**
+   * Inset at the end edge the activation asks its item to rest clear of, in place of the
+   * scrollport's `scroll-padding-bottom`; `undefined` when it asks for none.
+   */
+  scrollToRowPaddingEnd: number | undefined;
+  /**
+   * Inset at the start edge the activation asks its item to rest clear of, in place of the
+   * scrollport's `scroll-padding-top`; `undefined` when it asks for none.
+   */
+  scrollToRowPaddingStart: number | undefined;
+  /**
    * Whether the host mounted every row at once for its own purposes. `enabled` is already false
    * then; this tells that apart from the consumer disabling virtualization.
    */
@@ -317,6 +327,10 @@ export function useListBinding<Item>(
     ? (activeItem?.scroll ?? true)
     : listState?.scrollActiveIntoView === true;
   const scrollActiveAlignment = (hasOwnCollection && activeItem?.align) || 'auto';
+  // A hosted list has no way to describe an inset per activation, so its scrolls keep to the
+  // scrollport's own `scroll-padding`.
+  const scrollActivePaddingStart = hasOwnCollection ? activeItem?.paddingStart : undefined;
+  const scrollActivePaddingEnd = hasOwnCollection ? activeItem?.paddingEnd : undefined;
   // Only a list asks for every row at once. The virtualizer sees the end of that as its own mode
   // returning to windowed, which is the transition it restores its viewport on.
   const windowingSuspended = hasOwnCollection ? false : listState?.windowingSuspended === true;
@@ -467,6 +481,8 @@ export function useListBinding<Item>(
     renderRow,
     scrollToRowAlignment: scrollActiveAlignment,
     scrollToItemIndex,
+    scrollToRowPaddingEnd: scrollActivePaddingEnd,
+    scrollToRowPaddingStart: scrollActivePaddingStart,
     windowingSuspended,
   };
 }

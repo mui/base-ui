@@ -517,6 +517,8 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
     renderRow: renderRowProp,
     scrollToRowAlignment,
     scrollToItemIndex,
+    scrollToRowPaddingEnd,
+    scrollToRowPaddingStart,
     windowingSuspended,
   } = useListBinding<Value>({
     actionsRef,
@@ -1278,6 +1280,8 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
     scrollToRowAlignment,
     readRowsGeometry,
     scrollToRowIndex,
+    scrollToRowPaddingEnd,
+    scrollToRowPaddingStart,
     trailingHeight,
   });
   pendingScrollRef.current = pendingScroll;
@@ -1915,7 +1919,8 @@ export interface VirtualizerBaseProps<Value> extends Omit<
    *
    * An index alone scrolls the item into view. Pass `{ index, scroll: false }` for activations
    * that must leave the viewport alone, such as a highlight following the pointer, and `align` to
-   * choose where a scrolled item lands.
+   * choose where a scrolled item lands. `paddingStart` and `paddingEnd` keep the item clear of an
+   * inset the activation knows about, in place of the scrollport's `scroll-padding`.
    *
    * Ignored without the `items` prop: a list that provides the collection tracks its own highlight.
    */

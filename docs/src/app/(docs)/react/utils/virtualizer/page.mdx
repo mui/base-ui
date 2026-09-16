@@ -107,7 +107,7 @@ The `--total-size` CSS variable contains the estimated or measured height of the
 }
 ```
 
-CSS `scroll-padding-top` and `scroll-padding-bottom` on the scroll container are respected when keyboard navigation scrolls an item into view.
+CSS `scroll-padding-top` and `scroll-padding-bottom` on the scroll container are respected when keyboard navigation scrolls an item into view. An inset that depends on the item being scrolled to, rather than being fixed in CSS, travels with the scroll instead — see [Leaving room at an edge](#leaving-room-at-an-edge).
 
 ## Sizing items
 
@@ -130,6 +130,21 @@ const virtualizer = React.useRef<Virtualizer.Actions>(null);
 <Virtualizer actionsRef={virtualizer}>{/* ... */}</Virtualizer>;
 
 virtualizer.current?.scrollToIndex(500, { align: 'center' });
+```
+
+### Leaving room at an edge
+
+`paddingStart` and `paddingEnd` keep the item clear of an inset at the start or end edge of the scrollport, in place of its `scroll-padding-top` and `scroll-padding-bottom`. They are for an inset the caller knows and CSS does not: an overlay whose height depends on the item being scrolled to, such as a tree pinning the ancestors of the row it scrolls to. The edge left out keeps the scrollport's own `scroll-padding`.
+
+The same fields belong to an activation, so a scroll that has to leave room for an overlay does not have to become imperative:
+
+```jsx title="Scrolling below an overlay"
+virtualizer.current?.scrollToIndex(index, { align: 'start', paddingStart: overlayHeight });
+
+// prettier-ignore
+<Virtualizer activeIndex={{ index, align: 'start', paddingStart: overlayHeight }}>
+  {/* ... */}
+</Virtualizer>;
 ```
 
 ## Standalone lists

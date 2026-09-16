@@ -20,6 +20,21 @@ export interface VirtualizerScrollToIndexOptions {
    * @default 'auto'
    */
   align?: VirtualizerScrollAlignment | undefined;
+  /**
+   * Inset in pixels at the end edge of the scrollport that the item is kept clear of, for this
+   * scroll alone. Overrides the scrollport's `scroll-padding-bottom`, for an overlay whose height
+   * depends on the item being scrolled to rather than being fixed in CSS.
+   * @default the scrollport's computed `scroll-padding-bottom`
+   */
+  paddingEnd?: number | undefined;
+  /**
+   * Inset in pixels at the start edge of the scrollport that the item is kept clear of, for this
+   * scroll alone. Overrides the scrollport's `scroll-padding-top`, for an overlay whose height
+   * depends on the item being scrolled to rather than being fixed in CSS — a tree pinning the
+   * ancestors of the row it scrolls to, say.
+   * @default the scrollport's computed `scroll-padding-top`
+   */
+  paddingStart?: number | undefined;
 }
 
 /**
