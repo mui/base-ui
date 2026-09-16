@@ -1,7 +1,10 @@
 import { defineConfig, devices } from '@playwright/test';
 import { screenReaderConfig } from '@guidepup/playwright';
 
-const BASE_URL = 'http://localhost:5173';
+// The fixture server's port, overridable for a machine where another server holds the default:
+// `reuseExistingServer` would otherwise adopt it and run every spec against the wrong app.
+const PORT = process.env.SCREEN_READER_PORT || '5173';
+const BASE_URL = `http://localhost:${PORT}`;
 
 export default defineConfig({
   ...screenReaderConfig,
@@ -24,7 +27,7 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: 'pnpm test:e2e:dev',
+    command: `pnpm exec vite --config test/e2e/vite.config.mjs -l info --port ${PORT}`,
     cwd: process.cwd(),
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,
