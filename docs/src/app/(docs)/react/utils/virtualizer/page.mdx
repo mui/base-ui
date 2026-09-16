@@ -218,6 +218,64 @@ Passing a bare index is shorthand for `{ index }`, so `activeIndex={5}` activate
 
 Everything a list root normally coordinates stays with your list: filtering, keyboard navigation, selection, and clamping `activeIndex` to the current collection.
 
+## Hosting the virtualizer in your own list
+
+A list component can publish its collection to the virtualizer instead of the consumer passing one, which is how `<Combobox.List>` works: the virtualizer is dropped inside the list, with no `items` prop, and the list keeps owning filtering, keyboard navigation and selection.
+
+A component of your own does the same by publishing two contexts. `VirtualizerHostContext` carries the stable wiring — the registry, the context your `<Item>` reads its metadata from, and the name diagnostics use — and `VirtualizerHostStateContext` carries the collection and the active item, which change as the list does:
+
+```tsx title="Publishing a collection to the virtualizer"
+import {
+  createVirtualizerRegistry,
+  Virtualizer,
+  VirtualizerHostContext,
+  VirtualizerHostStateContext,
+} from '@base-ui/react/virtualizer';
+
+const ItemContext = React.createContext<Virtualizer.ItemMetadata | undefined>(undefined);
+
+function List(props: { items: Item[]; activeIndex: number; children: React.ReactNode }) {
+  const registry = React.useRef(createVirtualizerRegistry()).current;
+  const host = React.useMemo<Virtualizer.Host>(
+    () => ({ componentName: 'Tree', registry, virtualItemContext: ItemContext }),
+    [registry],
+  );
+  const state = React.useMemo<Virtualizer.HostState>(
+    () => ({ activeIndex: { index: props.activeIndex }, items: props.items }),
+    [props.activeIndex, props.items],
+  );
+
+  return (
+    <VirtualizerHostContext.Provider value={host}>
+      <VirtualizerHostStateContext.Provider value={state}>
+        {props.children}
+      </VirtualizerHostStateContext.Provider>
+    </VirtualizerHostContext.Provider>
+  );
+}
+```
+
+The two are separate on purpose: an `<Item>` reads the host context to tell that it is inside a list at all, so anything changing per keystroke must travel through the state context instead.
+
+What the host publishes:
+
+- `items` is the flat, ordered sequence to window. A hierarchy is published as the sequence it is displayed as — a tree publishes its expanded rows in order — and the hierarchy itself stays in your own item metadata. A grouped list publishes `groups` as a partition of that same sequence, never instead of it.
+- `activeIndex` is the activation, the same one the [`activeIndex` prop](#standalone-lists) takes: an index alone scrolls, and `{ index, scroll: false }` activates without moving the viewport. `align`, `paddingStart` and `paddingEnd` travel with it.
+- `itemAria` declares what the host's items need. Leave it out for a listbox, whose options are placed in the flat collection; publish `'none'` for a tree or a grid, whose items are placed relative to something else, and state the position in your own item part.
+- `registry` lets the host reach the virtualizer's geometry: `getItemMetrics`, `getIndexAtOffset` and `scrollToIndex` are on `registry.virtualizer` while one is mounted, so a sticky header of your own can be positioned without an `actionsRef`.
+- `windowingSuspended` asks for every item to be mounted for a moment, and **must be cleared while the virtualizer is still mounted**, since that transition is what makes it measure its viewport again.
+
+Your item part reads the metadata from the context you published and spreads it onto the element representing the item, the way `<Combobox.Item>` does:
+
+```tsx title="Reading the item metadata"
+function Item(props: { children: React.ReactNode }) {
+  const virtualItem = React.useContext(ItemContext);
+  return <div {...virtualItem?.props}>{props.children}</div>;
+}
+```
+
+Item parts rendered outside the list element — a sticky copy of a row, say — must not see these contexts, or they register as items the virtualizer does not own and take metadata belonging to a row they are not. Publish the contexts around the list element rather than the root, and where a part can be rendered elsewhere, provide `undefined` for both around it, as `<Combobox.Root>` does for a root nested inside another list's item.
+
 ## Tables
 
 Set `layout="table"` to virtualize the rows of a `<table>`. The virtualizer then renders a `<tbody>` instead of a scrolling `<div>`, and the element the item renderer returns is the row itself: a `<tr>`, with the renderer's third argument spread onto it. The markup stays a table, so column widths from a `<colgroup>`, a sticky `<thead>`, and the table's own accessibility semantics keep working.

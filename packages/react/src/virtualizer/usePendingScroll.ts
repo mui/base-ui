@@ -9,11 +9,8 @@ import type { RowWindow, RowsGeometry } from './geometry';
 import { getLaidOutRowElements } from './getLaidOutRowElements';
 import { getLayoutScale, toScrollOffset, type RowsInset } from './scrollport';
 import { getMaxScrollOffset } from '../utils/scrollEdges';
-import type {
-  VirtualizerScrollAlignment,
-  VirtualizerScrollToIndexOptions,
-} from '../internals/virtualization/ListVirtualizationRegistry';
 import type { VirtualizerRow } from '../internals/virtualization/types';
+import type { VirtualizerScrollAlignment, VirtualizerScrollToIndexOptions } from './types';
 import type { AdaptiveEstimate } from './useAdaptiveEstimate';
 import type { ScrollInputEvidence } from './useScrollGesture';
 

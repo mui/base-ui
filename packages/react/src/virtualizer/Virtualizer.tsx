@@ -22,12 +22,7 @@ import { getMaxScrollOffset } from '../utils/scrollEdges';
 import type { StateAttributesMapping } from '../internals/getStateAttributesProps';
 import type { BaseUIComponentProps, HTMLProps } from '../internals/types';
 import { useRenderElement } from '../internals/useRenderElement';
-import type {
-  VirtualizerActions,
-  VirtualizerScrollToIndexOptions,
-} from '../internals/virtualization/ListVirtualizationRegistry';
-import { useListVirtualization } from '../internals/virtualization/ListVirtualizationHostContext';
-import { useListBinding } from '../internals/virtualization/useListBinding';
+import { useListBinding, useVirtualizerSources } from '../internals/virtualization/useListBinding';
 import {
   isGroupHeaderRowId,
   isObjectValue,
@@ -37,22 +32,35 @@ import {
 } from '../internals/virtualization/useRowModels';
 import {
   isGroupHeaderRow,
-  type VirtualizerActiveIndex,
-  type VirtualizerActiveItem,
-  type VirtualizerGroup,
-  type VirtualizerEstimateGroupHeaderHeight,
-  type VirtualizerGroupHeaderElement,
-  type VirtualizerGroupHeaderProps,
-  type VirtualizerRenderGroupHeader,
-  type VirtualizerGetGroupKey,
-  type VirtualizerItemAria,
-  type VirtualizerItemProps,
   type VirtualizerItemRowModel,
   type VirtualizerRenderRowParameters,
   type VirtualizerRow,
   type VirtualizerRowModel,
-  type VirtualizerRowProps,
 } from '../internals/virtualization/types';
+import type {
+  VirtualizerHandle,
+  VirtualizerHost,
+  VirtualizerHostState,
+  VirtualizerRegistration,
+  VirtualizerRegistry,
+} from './host';
+import type {
+  VirtualizerActions,
+  VirtualizerActiveIndex,
+  VirtualizerActiveItem,
+  VirtualizerEstimateGroupHeaderHeight,
+  VirtualizerGetGroupKey,
+  VirtualizerGroup,
+  VirtualizerGroupHeaderElement,
+  VirtualizerGroupHeaderMetadata,
+  VirtualizerGroupHeaderProps,
+  VirtualizerItemAria,
+  VirtualizerItemMetadata,
+  VirtualizerItemProps,
+  VirtualizerRenderGroupHeader,
+  VirtualizerRowProps,
+  VirtualizerScrollToIndexOptions,
+} from './types';
 import type { RowsGeometry, RowWindow } from './geometry';
 import { getLaidOutRowElements } from './getLaidOutRowElements';
 import { useGroupHeaderHeightEstimate } from './useGroupHeaderHeightEstimate';
@@ -523,7 +531,7 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
     estimatedItemHeight: estimatedItemHeightProp,
     getGroupKey,
     getItemKey,
-    itemAria = 'set',
+    itemAria,
     itemHeight: itemHeightProp,
     items,
     layout: layoutProp = 'list',
@@ -537,7 +545,7 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
     ...elementProps
   } = componentProps;
 
-  const { host, listState } = useListVirtualization(items != null);
+  const { host, hostState } = useVirtualizerSources(items != null);
 
   const {
     apiRef: apiRefProp,
@@ -561,7 +569,7 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
     host,
     itemAria,
     items,
-    listState,
+    hostState,
     renderGroupHeader,
   });
 
@@ -2099,15 +2107,19 @@ export interface VirtualizerBaseProps<Value> extends Omit<
    *   placed by row and column. Everything else the metadata carries stays, so your own ARIA
    *   goes next to it.
    *
-   * @default 'set'
+   * A host publishing its own collection declares what its items need, and this prop overrides
+   * that declaration.
+   *
+   * @default what the host declares, or `'set'`
    */
   itemAria?: VirtualizerItemAria | undefined;
   /**
    * The collection to virtualize: a flat array of items, or an array of groups, each an object
    * with an `items` array. A grouped collection also needs `renderGroupHeader`.
    *
-   * When omitted, the collection and its highlight state come from the surrounding list, which
-   * requires a list that supports virtualization, such as `<Combobox.List>`.
+   * When omitted, the collection and its highlight state come from a surrounding component that
+   * publishes them — a list that supports virtualization, such as `<Combobox.List>`, or a
+   * component of your own that implements the host contract.
    */
   items?: readonly Value[] | ReadonlyArray<VirtualizerGroup<Value>> | undefined;
   /**
@@ -2197,6 +2209,22 @@ export namespace Virtualizer {
    */
   export type Group<Value = unknown> = VirtualizerGroup<Value>;
   /**
+   * Metadata a group header rendered by the virtualizer publishes to a host's `<GroupLabel>`.
+   */
+  export type GroupHeaderMetadata = VirtualizerGroupHeaderMetadata;
+  /**
+   * Imperative operations a virtualizer exposes to the component hosting it.
+   */
+  export type Handle = VirtualizerHandle;
+  /**
+   * Stable wiring published by a component so the virtualizer can window its collection.
+   */
+  export type Host = VirtualizerHost;
+  /**
+   * The collection and highlight state a host publishes for the virtualizer to window against.
+   */
+  export type HostState = VirtualizerHostState;
+  /**
    * Attributes to spread onto the element carrying a group's name.
    */
   export type GroupHeaderProps = VirtualizerGroupHeaderProps;
@@ -2209,6 +2237,10 @@ export namespace Virtualizer {
    */
   export type ItemAria = VirtualizerItemAria;
   /**
+   * Metadata an item rendered by the virtualizer publishes to a host's `<Item>`.
+   */
+  export type ItemMetadata = VirtualizerItemMetadata;
+  /**
    * Attributes to spread onto the element representing an item, the third argument of the item
    * renderer.
    */
@@ -2217,6 +2249,14 @@ export namespace Virtualizer {
    * How the rows are laid out.
    */
   export type Layout = VirtualizerLayout;
+  /**
+   * A virtualizer registered with its host, as the host's registry holds it.
+   */
+  export type Registration = VirtualizerRegistration;
+  /**
+   * Coordinates virtualized and non-virtualized content rendered by a single host.
+   */
+  export type Registry = VirtualizerRegistry;
   /**
    * Attributes that bind a row element to the virtualizer in the table layout, carried by the
    * item and group header props.

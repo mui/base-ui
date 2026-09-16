@@ -1,11 +1,8 @@
 'use client';
 import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import type {
-  VirtualizerGroup,
-  VirtualizerEstimateGroupHeaderHeight,
-} from '../internals/virtualization/types';
 import type { GroupedRows } from '../internals/virtualization/useRowModels';
+import type { VirtualizerEstimateGroupHeaderHeight, VirtualizerGroup } from './types';
 
 const DEFAULT_ESTIMATED_GROUP_HEADER_HEIGHT = 32;
 

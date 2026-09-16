@@ -6,7 +6,7 @@ import type { Side } from '../internals/useAnchorPositioning';
 import { compareItemEquality } from '../internals/itemEquality';
 import { hasNullItemLabel } from '../internals/resolveValueLabel';
 import type { AriaCombobox } from './root/AriaCombobox';
-import type { ListVirtualizationRegistry } from '../internals/virtualization/ListVirtualizationRegistry';
+import type { VirtualizerRegistry } from '../virtualizer/host';
 
 export type State = {
   id: string | undefined;
@@ -81,7 +81,7 @@ export type ComboboxStoreContext = {
    */
   readonly componentName: string;
   /** Coordinates the built-in virtualizer with the items rendered outside it. */
-  readonly virtualizationRegistry: ListVirtualizationRegistry;
+  readonly virtualizationRegistry: VirtualizerRegistry;
   /** Item elements in list order, owned by `Combobox.List`. */
   readonly listRef: React.RefObject<Array<HTMLElement | null>>;
   /** Item text labels in list order, used for typeahead. */

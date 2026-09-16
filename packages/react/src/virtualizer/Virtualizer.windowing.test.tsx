@@ -16,7 +16,7 @@ import {
   renderVirtualizerItemOf as renderItemOf,
   type VirtualizerTestItem as TestItem,
 } from '#test-utils';
-import type { VirtualizerHandle } from '../internals/virtualization/ListVirtualizationRegistry';
+import type { VirtualizerHandle } from './host';
 import { Virtualizer } from './Virtualizer';
 
 describe('<Virtualizer /> windowing', () => {

@@ -1,22 +1,36 @@
 export { Virtualizer } from './index.parts';
 
 export type { VirtualizerLayout, VirtualizerProps, VirtualizerState } from './Virtualizer';
+export {
+  createVirtualizerRegistry,
+  useVirtualizerHost,
+  useVirtualizerHostState,
+  VirtualizerHostContext,
+  VirtualizerHostStateContext,
+} from './host';
+export type {
+  VirtualizerHandle,
+  VirtualizerHost,
+  VirtualizerHostState,
+  VirtualizerRegistration,
+  VirtualizerRegistry,
+} from './host';
 export type {
   VirtualizerActions,
-  VirtualizerItemMetrics,
-  VirtualizerScrollAlignment,
-  VirtualizerScrollToIndexOptions,
-} from '../internals/virtualization/ListVirtualizationRegistry';
-export type {
   VirtualizerActiveIndex,
   VirtualizerActiveItem,
   VirtualizerEstimateGroupHeaderHeight,
   VirtualizerGetGroupKey,
   VirtualizerGroup,
   VirtualizerGroupHeaderElement,
+  VirtualizerGroupHeaderMetadata,
   VirtualizerGroupHeaderProps,
   VirtualizerItemAria,
+  VirtualizerItemMetadata,
+  VirtualizerItemMetrics,
   VirtualizerItemProps,
   VirtualizerRenderGroupHeader,
   VirtualizerRowProps,
-} from '../internals/virtualization/types';
+  VirtualizerScrollAlignment,
+  VirtualizerScrollToIndexOptions,
+} from './types';

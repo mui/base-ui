@@ -3,13 +3,8 @@ import * as React from 'react';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { areArraysEqual } from '@base-ui/utils/areArraysEqual';
 import { warn } from '@base-ui/utils/warn';
-import type {
-  VirtualizerGroup,
-  VirtualizerGetGroupKey,
-  VirtualizerItemRowModel,
-  VirtualizerRow,
-  VirtualizerRowModel,
-} from './types';
+import type { VirtualizerItemRowModel, VirtualizerRow, VirtualizerRowModel } from './types';
+import type { VirtualizerGetGroupKey, VirtualizerGroup } from '../../virtualizer/types';
 
 type VirtualizerItemKey = string;
 

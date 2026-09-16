@@ -81,6 +81,35 @@ describe('<Virtualizer /> collection', () => {
     expect(firstItem).toHaveAttribute('data-index', '0');
   });
 
+  it('lets the host decline the collection ARIA for its own items', async () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+    try {
+      // A host whose items are not a flat set — a tree — declares that once, rather than every
+      // consumer having to pass the prop, and its item part then receives metadata it can spread.
+      await render(
+        <TestVirtualizedList
+          estimatedItemHeight={20}
+          hostItemAria="none"
+          overscanPx={0}
+          render={<div ref={setElementClientHeight(40)} />}
+          items={createItems(10)}
+        >
+          {(item: TestItem) => <TestListItem style={{ height: 20 }}>{item.label}</TestListItem>}
+        </TestVirtualizedList>,
+      );
+
+      const firstItem = await screen.findByText('Item 1');
+
+      expect(firstItem).not.toHaveAttribute('aria-posinset');
+      expect(firstItem).not.toHaveAttribute('aria-setsize');
+      expect(firstItem).toHaveAttribute('data-index', '0');
+      expect(warnSpy).not.toHaveBeenCalled();
+    } finally {
+      warnSpy.mockRestore();
+    }
+  });
+
   it('warns when the collection ARIA is declined inside a list that needs it', async () => {
     const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
 

@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { expect, vi, describe, beforeEach, it } from 'vitest';
-import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
+import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
 import {
   createRenderer,
   createDOMRect,
@@ -11,6 +11,7 @@ import {
   createVirtualizerItems as createItems,
   type VirtualizerTestItem as TestItem,
 } from '#test-utils';
+import { Virtualizer } from './Virtualizer';
 
 describe('<Virtualizer /> activation', () => {
   const { render } = createRenderer();
@@ -68,6 +69,65 @@ describe('<Virtualizer /> activation', () => {
         top: 40,
       }),
     );
+  });
+
+  it('lets a host publish the scroll decision with the index', async () => {
+    let scrollTop = 0;
+    const handleScrollTo = vi.fn((options: ScrollToOptions) => {
+      scrollTop = options.top ?? scrollTop;
+    });
+
+    // The decision travels with the index, so a host has the same activation the `activeIndex`
+    // prop takes: the flag that describes the host as a whole is not the only way to say it.
+    function Test(props: { activeIndex: Virtualizer.ActiveIndex }) {
+      return (
+        <TestVirtualizedList
+          activeIndex={props.activeIndex}
+          estimatedItemHeight={20}
+          overscanPx={0}
+          render={
+            <div
+              ref={setElementScrollState({
+                clientHeight: 40,
+                getScrollTop: () => scrollTop,
+                scrollTo: handleScrollTo,
+              })}
+            />
+          }
+          items={createItems(100)}
+        >
+          {(item: TestItem) => <TestListItem style={{ height: 20 }}>{item.label}</TestListItem>}
+        </TestVirtualizedList>
+      );
+    }
+
+    const { rerender } = await render(<Test activeIndex={{ index: 40, scroll: false }} />);
+
+    await screen.findByText('Item 41');
+    expect(handleScrollTo).not.toHaveBeenCalled();
+
+    // An activation of its own scrolls, wherever the collection came from, and carries the
+    // alignment and the inset the host wants left at the edge.
+    await rerender(<Test activeIndex={{ index: 60, align: 'start', paddingStart: 12 }} />);
+    await waitFor(() =>
+      expect(handleScrollTo).toHaveBeenLastCalledWith({ behavior: 'instant', top: 1188 }),
+    );
+
+    // Re-publishing an equal activation is not a new one. A request still standing may re-apply
+    // the position it asked for, so what must hold is that nothing moves the viewport elsewhere.
+    handleScrollTo.mockClear();
+    await rerender(<Test activeIndex={{ index: 60, align: 'start', paddingStart: 12 }} />);
+    await flushMicrotasks();
+    expect(handleScrollTo.mock.calls.every(([options]) => options?.top === 1188)).toBe(true);
+    expect(scrollTop).toBe(1188);
+
+    // And an activation that declines to scroll leaves the viewport where it is, rather than
+    // taking it to whatever was pointed at — which is what a flag describing the host as a whole
+    // cannot express.
+    await rerender(<Test activeIndex={{ index: 20, scroll: false }} />);
+    await flushMicrotasks();
+    expect(scrollTop).toBe(1188);
+    await screen.findByText('Item 21');
   });
 
   it('does not rerun item renderers when the highlight stays within the rendered window', async () => {

@@ -1,4 +1,4 @@
-import type { ListVirtualizationRegistry } from '../virtualization/ListVirtualizationRegistry';
+import type { VirtualizerRegistry } from '../../virtualizer/host';
 
 /**
  * What caused an item to become active. Lists that support both keyboard and pointer highlighting
@@ -19,7 +19,7 @@ export type ListHighlightReason = 'keyboard' | 'pointer' | 'none';
  *
  * A list passes the first to navigation and publishes the second across the virtualization seam.
  */
-export function shouldScrollItemIntoView(registry: ListVirtualizationRegistry) {
+export function shouldScrollItemIntoView(registry: VirtualizerRegistry) {
   return registry.virtualizer?.enabled !== true;
 }
 

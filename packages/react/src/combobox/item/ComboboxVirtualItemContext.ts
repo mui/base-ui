@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import type { VirtualizerItemMetadata } from '../../internals/virtualization/types';
+import type { VirtualizerItemMetadata } from '../../virtualizer/types';
 
 /**
  * Metadata provided by `Virtualizer` to each rendered `Combobox.Item`.

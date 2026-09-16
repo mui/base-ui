@@ -1,22 +1,22 @@
 import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { Virtualizer } from '@base-ui/react/virtualizer';
+// Through the package's public entry point, as a host outside this repository reaches it: the
+// contract is only implementable if everything it needs is exported from there.
 import {
-  ListVirtualizationHostContext,
-  ListVirtualizationListStateContext,
-  type ListVirtualizationHost,
-  type ListVirtualizationListState,
-} from '../src/internals/virtualization/ListVirtualizationHostContext';
-import {
-  createListVirtualizationRegistry,
+  createVirtualizerRegistry,
+  Virtualizer,
+  VirtualizerHostContext,
+  VirtualizerHostStateContext,
+  type VirtualizerActiveIndex,
+  type VirtualizerGroup,
+  type VirtualizerGroupHeaderMetadata,
   type VirtualizerHandle,
-} from '../src/internals/virtualization/ListVirtualizationRegistry';
-import type {
-  VirtualizerGroup,
-  VirtualizerGroupHeaderMetadata,
-  VirtualizerItemMetadata,
-  VirtualizerItemProps,
-} from '../src/internals/virtualization/types';
+  type VirtualizerHost,
+  type VirtualizerHostState,
+  type VirtualizerItemAria,
+  type VirtualizerItemMetadata,
+  type VirtualizerItemProps,
+} from '@base-ui/react/virtualizer';
 
 /**
  * The item shape the default renderers understand. Hosts are generic over the item, so a test
@@ -89,11 +89,17 @@ export type TestVirtualizedListProps<Item> = Omit<
 > & {
   /**
    * The item the list points at, published as the seam's `activeIndex`. Kept mounted outside the
-   * window, and scrolled to when `scrollActiveIntoView` is `true`.
+   * window, and scrolled to when `scrollActiveIntoView` is `true`. An activation object carries
+   * the scroll decision itself, and the flag is then ignored.
    */
-  activeIndex?: number | null | undefined;
+  activeIndex?: VirtualizerActiveIndex | null | undefined;
   /** Receives the imperative handle the virtualizer registers with the list. */
   apiRef?: React.RefObject<VirtualizerHandle | null> | undefined;
+  /**
+   * Which ARIA the host declares its items need, published on the host rather than passed as the
+   * virtualizer's prop — the way a host whose items are not a flat set declares it.
+   */
+  hostItemAria?: VirtualizerItemAria | undefined;
   /**
    * Row renderer. The third argument carries the row's collection metadata for renderers that
    * spread it onto a plain element instead of using `TestListItem`.
@@ -155,6 +161,7 @@ export function TestVirtualizedList<Item = TestItem>(props: TestVirtualizedListP
     activeIndex: activeIndexProp,
     apiRef,
     getItemKey,
+    hostItemAria,
     groups,
     items,
     pinnedRowIndex,
@@ -164,24 +171,25 @@ export function TestVirtualizedList<Item = TestItem>(props: TestVirtualizedListP
     ...virtualizerProps
   } = props;
 
-  const registry = React.useRef(createListVirtualizationRegistry()).current;
+  const registry = React.useRef(createVirtualizerRegistry()).current;
 
-  const host = React.useMemo<ListVirtualizationHost>(
+  const host = React.useMemo<VirtualizerHost>(
     () => ({
       // A name of its own, so a diagnostic raised through this host cannot be mistaken for one
       // raised through a real list.
       componentName: 'TestList',
+      itemAria: hostItemAria,
       registry,
       virtualGroupContext: TestVirtualGroupContext,
       virtualItemContext: TestVirtualItemContext,
     }),
-    [registry],
+    [hostItemAria, registry],
   );
 
   const activeIndex = activeIndexProp ?? scrollToRowIndex ?? pinnedRowIndex ?? null;
   const scrollActiveIntoView = scrollActiveIntoViewProp ?? scrollToRowIndex != null;
 
-  const listState = React.useMemo<ListVirtualizationListState>(
+  const hostState = React.useMemo<VirtualizerHostState>(
     () => ({
       activeIndex,
       groups,
@@ -199,8 +207,8 @@ export function TestVirtualizedList<Item = TestItem>(props: TestVirtualizedListP
   );
 
   return (
-    <ListVirtualizationHostContext.Provider value={host}>
-      <ListVirtualizationListStateContext.Provider value={listState}>
+    <VirtualizerHostContext.Provider value={host}>
+      <VirtualizerHostStateContext.Provider value={hostState}>
         <Virtualizer<Item>
           getItemKey={
             (getItemKey ?? (isTestItemCollection(items) ? testItemKey : undefined)) as (
@@ -209,7 +217,7 @@ export function TestVirtualizedList<Item = TestItem>(props: TestVirtualizedListP
           }
           {...virtualizerProps}
         />
-      </ListVirtualizationListStateContext.Provider>
-    </ListVirtualizationHostContext.Provider>
+      </VirtualizerHostStateContext.Provider>
+    </VirtualizerHostContext.Provider>
   );
 }

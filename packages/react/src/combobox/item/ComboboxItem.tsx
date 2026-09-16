@@ -23,7 +23,7 @@ import {
   useComboboxVirtualItemContext,
   type ComboboxVirtualItemMetadata,
 } from './ComboboxVirtualItemContext';
-import { useListVirtualizationHost } from '../../internals/virtualization/ListVirtualizationHostContext';
+import { useVirtualizerHost } from '../../virtualizer/host';
 import {
   useNonVirtualizedItemRegistration,
   useVirtualItemDiagnostics,
@@ -303,7 +303,7 @@ export const ComboboxItem = React.memo(
     const store = useComboboxRootContext();
     const externallyVirtualized = store.useState('externallyVirtualized');
     const virtualItem = useComboboxVirtualItemContext();
-    const insideList = useListVirtualizationHost() != null;
+    const insideList = useVirtualizerHost() != null;
 
     useNonVirtualizedItemRegistration({
       componentName: store.context.componentName,
