@@ -61,7 +61,13 @@ describe('<Virtualizer /> collection', () => {
         role="tree"
       >
         {(item, index, itemProps) => (
-          <div {...itemProps} role="treeitem" aria-posinset={1} aria-setsize={3}>
+          <div
+            {...itemProps}
+            role="treeitem"
+            aria-selected={false}
+            aria-posinset={1}
+            aria-setsize={3}
+          >
             {item.label}
           </div>
         )}

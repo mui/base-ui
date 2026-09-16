@@ -100,8 +100,15 @@ interface VirtualizerItemRowProps<Item> {
 }
 
 function VirtualizerItemRowImpl<Item>(props: VirtualizerItemRowProps<Item>) {
-  const { children, collectionAria, componentName, itemCount, model, rowProps, virtualItemContext } =
-    props;
+  const {
+    children,
+    collectionAria,
+    componentName,
+    itemCount,
+    model,
+    rowProps,
+    virtualItemContext,
+  } = props;
   const registeredItemCountRef = React.useRef(0);
 
   const registerItem = useStableCallback(() => {

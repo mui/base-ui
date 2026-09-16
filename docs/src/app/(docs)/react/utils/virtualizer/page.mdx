@@ -115,6 +115,20 @@ CSS `scroll-padding-top` and `scroll-padding-bottom` on the scroll container are
 
 `overscanPx` controls the extra pixel buffer rendered before and after the visible range. It defaults to the larger of 150px and the first item's estimated height. Even an explicit value of `0` keeps a minimum render buffer of one estimated row.
 
+### Items of a known height
+
+Items are measured by default, which is what lets them vary. When a collection's items are known to be uniform, `itemHeight` declares that height instead:
+
+```jsx title="Declaring the item height"
+<Virtualizer items={items} getItemKey={(item) => item.id} itemHeight={32}>
+  {/* ... */}
+</Virtualizer>
+```
+
+Items are then positioned arithmetically: none of them is observed for resizes, none feeds the running average, and the scroll height is exact from the first render rather than converging as measurements arrive. It replaces `estimatedItemHeight`, which describes a height to assume until one is measured.
+
+Only declare a height the items genuinely have. An item that turns out to be a different height is still laid out this many pixels from the next one, and nothing corrects it — so leave it out for items whose height depends on their content, on the width available, or on a font that loads later. In a grouped collection it covers the items; group headers are content of your own and are measured as they always are.
+
 ## Disabled items
 
 The `disabled` prop only marks a rendered item as disabled, so it is unavailable while the item is outside the rendered window. Pass `isItemDisabled` to the list root instead — it is the predicate keyboard navigation uses, including for items that are not mounted. Its index argument is the item's index in the filtered and limited collection.

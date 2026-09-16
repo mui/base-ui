@@ -15,6 +15,7 @@ export type {
   VirtualizerGroup,
   VirtualizerGroupHeaderElement,
   VirtualizerGroupHeaderProps,
+  VirtualizerItemAria,
   VirtualizerItemProps,
   VirtualizerRenderGroupHeader,
   VirtualizerRowProps,
