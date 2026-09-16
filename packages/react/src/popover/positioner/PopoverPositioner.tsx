@@ -19,6 +19,7 @@ import { POPUP_COLLISION_AVOIDANCE } from '../../internals/constants';
 import { useAnimationsFinished } from '../../internals/useAnimationsFinished';
 import { usePositioner } from '../../utils/usePositioner';
 import { useAnchoredPopupScrollLock } from '../../utils/useAnchoredPopupScrollLock';
+import { createInlineMiddleware } from '../../utils/popups';
 
 /**
  * Positions the popover against the trigger.
@@ -66,6 +67,7 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
   const instantType = store.useState('instantType');
   const transitionStatus = store.useState('transitionStatus');
   const adaptiveOrigin = store.useState('adaptiveOrigin');
+  const inlineRectCoordsRef = store.context.inlineRectCoordsRef;
 
   const prevTriggerElementRef = React.useRef<Element | null>(null);
 
@@ -89,6 +91,7 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
     nodeId,
     collisionAvoidance,
     adaptiveOrigin,
+    inline: createInlineMiddleware(inlineRectCoordsRef),
   });
 
   const domReference = floatingRootContext.useState('domReferenceElement');
