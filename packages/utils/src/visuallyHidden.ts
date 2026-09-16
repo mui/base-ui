@@ -15,8 +15,8 @@ export const visuallyHidden: React.CSSProperties = {
   ...visuallyHiddenBase,
   position: 'fixed',
   margin: 0,
-  insetBlockStart: 0,
-  insetInlineStart: 0,
+  top: 0,
+  left: 0,
 };
 
 export const visuallyHiddenInput: React.CSSProperties = {
