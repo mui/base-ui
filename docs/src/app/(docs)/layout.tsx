@@ -62,7 +62,7 @@ export default function Layout({ children }: React.PropsWithChildren) {
                       {sitemap &&
                         Object.entries(sitemap.data).map(([name, section]) => (
                           <SideNav.Section key={name}>
-                            <SideNav.Heading>{name}</SideNav.Heading>
+                            <SideNav.Heading>{getDisplayTitle(name)}</SideNav.Heading>
                             <SideNav.List>
                               {section.pages.filter(isSitemapPageVisible).map((page) => {
                                 const pageInfo = getSitemapPageInfo(section, page);
