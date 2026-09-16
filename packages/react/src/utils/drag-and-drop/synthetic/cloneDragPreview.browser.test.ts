@@ -214,6 +214,20 @@ describe.skipIf(isJSDOM)('createClonedDragPreviewElement (top layer)', () => {
     handle.destroy();
   });
 
+  it('preserves cloned dimensions under CSS zoom', () => {
+    list.style.zoom = '0.5';
+    source.style.scale = '1.2';
+    const handle = createClonedDragPreviewElement(source, null)!;
+    try {
+      const sourceRect = source.getBoundingClientRect();
+      const cloneRect = handle.element.getBoundingClientRect();
+      expect(cloneRect.width).toBeCloseTo(sourceRect.width);
+      expect(cloneRect.height).toBeCloseTo(sourceRect.height);
+    } finally {
+      handle.destroy();
+    }
+  });
+
   it('drops the source transition and animation so the preview tracks the pointer', () => {
     // Every frame writes `transform`; a source transition would ease each of
     // those writes and the preview would trail the pointer for the whole drag.
@@ -410,6 +424,29 @@ describe.skipIf(isJSDOM)('createClonedDragPreviewElement (top layer)', () => {
     it('lifts a rotated source off exactly where it sits', async () => {
       source.style.transformOrigin = '0 0';
       source.style.rotate = '90deg';
+
+      const { sourceRect, cloneRect } = await liftAndMeasure();
+
+      expectSameBox(cloneRect, sourceRect);
+    });
+
+    it.each(['0 0', '50% 50%', '20px 10px'])(
+      'preserves a scaled source on a zoomed canvas with transform origin %s',
+      async (origin) => {
+        list.style.transform = 'translateY(40px) scale(0.5)';
+        source.style.scale = '1.2';
+        source.style.transformOrigin = origin;
+
+        const { sourceRect, cloneRect } = await liftAndMeasure();
+
+        expectSameBox(cloneRect, sourceRect);
+      },
+    );
+
+    it('preserves a rotated source on a zoomed canvas', async () => {
+      list.style.transform = 'translateY(40px) scale(0.5)';
+      source.style.rotate = '30deg';
+      source.style.transformOrigin = '20px 10px';
 
       const { sourceRect, cloneRect } = await liftAndMeasure();
 

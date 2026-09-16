@@ -1080,6 +1080,32 @@ describe('engine.registerAutoScroller', () => {
       );
     });
 
+    it('refreshes a revisited container that was restyled outside the observed chains', async () => {
+      const { engine } = await renderDnd();
+      const first = makeContainer();
+      const second = makeContainer();
+      const source = createElement();
+      engine.registerDraggable(source, {});
+      enableInferredAutoScroll(engine);
+
+      await driveTo(source, first.element, 100, 190);
+      expect(first.scrollBy).toHaveBeenCalled();
+      fireEvent.dragOver(second.element, { clientX: 100, clientY: 190 });
+      await flushRaf();
+      await flushRaf();
+      expect(second.scrollBy).toHaveBeenCalled();
+
+      await act(async () => {
+        first.element.style.overflow = 'hidden';
+      });
+      first.scrollBy.mockClear();
+      fireEvent.dragOver(first.element, { clientX: 100, clientY: 190 });
+      await flushRaf();
+      await flushRaf();
+
+      expect(first.scrollBy).not.toHaveBeenCalled();
+    });
+
     it('scrolls a container nested inside the drop target the pointer is over', async () => {
       // The kanban shape, and the one the hero demo renders: the column is the
       // drop target and its list is the scroller *inside* it. A walk from the

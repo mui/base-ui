@@ -91,6 +91,8 @@ const state = getSharedSlot<AutoScrollerState>('registerAutoScroller', () => ({
   engagedThisFrame: new Set<HTMLElement>(),
   scrollerMutationObserver: null,
   observedScrollers: new Set<HTMLElement>(),
+  chainMutationObserver: null,
+  observedChainElements: new Set<Element>(),
   idleMutationObserver: null,
   idleObserving: false,
   overflowCache: new WeakMap<HTMLElement, OverflowFlags>(),
@@ -98,6 +100,8 @@ const state = getSharedSlot<AutoScrollerState>('registerAutoScroller', () => ({
 }));
 state.scrollerMutationObserver ??= null;
 state.observedScrollers ??= new Set();
+state.chainMutationObserver ??= null;
+state.observedChainElements ??= new Set();
 state.idleMutationObserver ??= null;
 state.idleObserving ??= false;
 state.scrollMonitorRetainers ??= 0;
@@ -668,6 +672,7 @@ function runScrollFrame(timestamp: number): void {
     // mid-drag (a collapsed section auto-expanding from `onDragEnter`) is caught
     // by the mutation observer, whose refresh resets the cache, so only the new
     // leaf is measured here.
+    observeChainMutations(chainAnchor, currentSource.element);
     const nextInferredScrollers = collectInferredScrollers(chainAnchor, currentSource.element);
     if (!setsEqual(state.inferredScrollers, nextInferredScrollers)) {
       state.inferredScrollers = nextInferredScrollers;
@@ -1022,6 +1027,43 @@ function clearScrollerMutationObservers(): void {
   state.observedScrollers.clear();
 }
 
+/** Watch candidate ancestors even when no scroller was explicitly registered. */
+function observeChainMutations(...anchors: Element[]): void {
+  state.chainMutationObserver ??= new (ownerWindow(anchors[0]).MutationObserver)(
+    handleObservedMutations,
+  );
+  const observer = state.chainMutationObserver;
+  const records = observer.takeRecords();
+  observer.disconnect();
+
+  const doc = ownerDocument(anchors[0]);
+  const elements = new Set<Element>([doc.documentElement]);
+  if (doc.body) {
+    elements.add(doc.body);
+  }
+  for (const anchor of anchors) {
+    for (let node: Element | null = anchor; node !== null; node = getComposedParentElement(node)) {
+      elements.add(node);
+    }
+  }
+  for (const element of elements) {
+    // A previously visited container may have been restyled while outside
+    // both observed chains. Shared ancestors keep their cached measurements.
+    if (!state.observedChainElements.has(element)) {
+      state.overflowCache.delete(element as HTMLElement);
+      state.rtlCache.delete(element as HTMLElement);
+    }
+    // No subtree observation: preview positioning and unrelated descendants
+    // must not generate mutation records on every active scroll frame.
+    observer.observe(element, {
+      attributes: true,
+      attributeFilter: MUTATION_OBSERVER_OPTIONS.attributeFilter,
+    });
+  }
+  state.observedChainElements = elements;
+  handleObservedMutations(records);
+}
+
 function observeIdleMutations(): void {
   if (state.idleObserving || state.currentSource === null) {
     return;
@@ -1100,6 +1142,9 @@ function stopScrollLoop(): void {
   // until the next drag's first frame cleared it.
   state.engagedThisFrame.clear();
   clearScrollerMutationObservers();
+  state.chainMutationObserver?.disconnect();
+  state.chainMutationObserver = null;
+  state.observedChainElements.clear();
   clearIdleMutationObserver();
   clearInferredScrollers();
   resetStyleCaches();
@@ -1379,6 +1424,9 @@ interface AutoScrollerState {
   /** Watches registered scrollers in the active document during a pointer drag. */
   scrollerMutationObserver: MutationObserver | null;
   observedScrollers: Set<HTMLElement>;
+  /** Watches styles on the inferred candidate chains during active scrolling. */
+  chainMutationObserver: MutationObserver | null;
+  observedChainElements: Set<Element>;
   /** Watches for content/style changes only while the frame loop is parked. */
   idleMutationObserver: MutationObserver | null;
   /** Whether `idleMutationObserver` is currently connected (the loop is parked). */

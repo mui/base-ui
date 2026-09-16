@@ -401,8 +401,9 @@ function usableScale(value: number): number {
  * rotation at 1 and still reports the scale composed with it.
  *
  * Returns `1` on either axis it cannot read.
+ * Set `includeZoom` to false when only transforms are escaped, as in a top-layer preview.
  */
-export function getElementScale(element: HTMLElement): DragPosition {
+export function getElementScale(element: HTMLElement, includeZoom = true): DragPosition {
   const win = ownerWindow(element);
   let matrix = identityLinearTransform;
   let zoom = 1;
@@ -431,7 +432,7 @@ export function getElementScale(element: HTMLElement): DragPosition {
     // `zoom` never reaches the matrix — it is not a transform — but it is the other way a
     // surface is scaled, and it compounds down the tree the same way.
     const elementZoom = Number.parseFloat(style.zoom || (node as HTMLElement).style?.zoom || '');
-    if (Number.isFinite(elementZoom) && elementZoom > 0) {
+    if (includeZoom && Number.isFinite(elementZoom) && elementZoom > 0) {
       zoom *= elementZoom;
     }
     node = getComposedParentElement(node);

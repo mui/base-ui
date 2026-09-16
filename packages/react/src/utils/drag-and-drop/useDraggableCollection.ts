@@ -497,13 +497,15 @@ export class DraggableCollectionPlugin<
       if (draggedItemIds == null && this.config.onDrop == null) {
         return false;
       }
-      const isDraggedItem = draggedItemIds?.has(itemId) || src?.draggedItemId === itemId;
+      const isInternal = src?.sourceInstanceId === this.instanceId;
+      const isDraggedItem =
+        isInternal && (draggedItemIds?.has(itemId) || src?.draggedItemId === itemId);
       if (isDraggedItem && !this.config.allowDropOnDraggedItems) {
         return false;
       }
-      // Cross-kind drops have no collection shape this instance can validate.
+      // Foreign collections have their own IDs and ancestry, even for the same kind.
       if (
-        this.kind.matches(source as DragSource<unknown>) &&
+        isInternal &&
         draggedItemIds != null &&
         this.config.isDropTargetInvalid?.(itemId, draggedItemIds)
       ) {
@@ -785,7 +787,7 @@ export class DraggableCollectionPlugin<
         dropTargetItemId: null,
         dropPosition: null,
       });
-      this.hasNonInitialState = false;
+      this.hasNonInitialState = this.currentDraggedItemIds.size > 0;
     }
   }
 

@@ -5,6 +5,8 @@ import { isShadowRoot } from '@floating-ui/utils/dom';
 import { applySourceSizeVars } from '../customDragPreview';
 import { getSharedSlot } from '../sharedState';
 import { DRAG_PREVIEW_ATTR, DRAGGING_ATTR } from '../dragAttributes';
+import { getComposedParentElement, getElementScale } from '../utils';
+import type { DragPosition } from '../../../types/drag';
 import {
   COMPUTED_MATRIX,
   identityLinearTransform,
@@ -537,6 +539,7 @@ function getUntransformedSourceRect(
   height: number,
   sourceStyle: CSSStyleDeclaration,
   win: Window & typeof globalThis,
+  ancestorScale: DragPosition,
 ): DOMRect {
   const fallback = () =>
     new win.DOMRect(
@@ -547,8 +550,8 @@ function getUntransformedSourceRect(
     );
   const matrix = getLinearTransform(sourceStyle);
   const originParts = sourceStyle.transformOrigin.split(/\s+/);
-  const originX = Number.parseFloat(originParts[0]);
-  const originY = Number.parseFloat(originParts[1]);
+  const originX = Number.parseFloat(originParts[0]) * ancestorScale.x;
+  const originY = Number.parseFloat(originParts[1]) * ancestorScale.y;
   if (!matrix || !Number.isFinite(originX) || !Number.isFinite(originY)) {
     return fallback();
   }
@@ -654,8 +657,13 @@ function createPreparedDragPreviewElement(
       !isTranslationOnly(sourceStyle.transform)) ||
     (sourceStyle.scale !== '' && sourceStyle.scale !== 'none') ||
     (sourceStyle.rotate !== '' && sourceStyle.rotate !== 'none');
-  const width = hasTransform ? source.offsetWidth : untransformedRect.width;
-  const height = hasTransform ? source.offsetHeight : untransformedRect.height;
+  // The top layer escapes ancestor transforms. Keep their scale in the box
+  // while undoing only the source's own transform. CSS zoom still applies in
+  // the top layer, so exclude it from the compensation.
+  const parent = getComposedParentElement(source) as HTMLElement | null;
+  const ancestorScale = hasTransform && parent ? getElementScale(parent, false) : { x: 1, y: 1 };
+  const width = hasTransform ? source.offsetWidth * ancestorScale.x : untransformedRect.width;
+  const height = hasTransform ? source.offsetHeight * ancestorScale.y : untransformedRect.height;
   // Everything downstream — the default `'source'` offset, the `--drag-source-*`
   // variables — has to describe the same box the preview actually has, or the
   // preview is anchored against a box it doesn't own and jumps on pickup.
@@ -663,12 +671,19 @@ function createPreparedDragPreviewElement(
   // So the untransformed *size* has to be paired with the position obtained by
   // undoing the source's own transform around its computed transform-origin.
   const sourceRect = hasTransform
-    ? getUntransformedSourceRect(untransformedRect, width, height, sourceStyle, win)
+    ? getUntransformedSourceRect(untransformedRect, width, height, sourceStyle, win, ancestorScale)
     : untransformedRect;
 
   const isClone = options.clone !== undefined;
   const element = options.clone?.element ?? doc.createElement('div');
   const applyPostInsertion = options.clone?.applyPostInsertion ?? NOOP;
+
+  if (isClone && hasTransform && (ancestorScale.x !== 1 || ancestorScale.y !== 1)) {
+    const origin = sourceStyle.transformOrigin.split(/\s+/);
+    element.style.transformOrigin =
+      `${Number.parseFloat(origin[0]) * ancestorScale.x}px ` +
+      `${Number.parseFloat(origin[1]) * ancestorScale.y}px`;
+  }
 
   element.setAttribute(DRAG_PREVIEW_ATTR, '');
   element.setAttribute('aria-hidden', 'true');

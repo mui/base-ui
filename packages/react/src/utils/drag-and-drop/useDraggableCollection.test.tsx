@@ -668,6 +668,37 @@ describe('useDraggableCollection', () => {
   });
 
   describe('state transitions', () => {
+    it.each(['release', 'cancel'])(
+      'clears dragged IDs after leaving a target and %s',
+      async (ending) => {
+        const { plugin, lastState } = setupPlugin(
+          { onDrop: vi.fn() },
+          { knownItemIds: ['a', 'b'] },
+        );
+        const source = createElement({ top: 0, height: 100 });
+        const target = createElement({ top: 200, height: 100 });
+        const outside = createElement({ top: 400, height: 100 });
+        plugin.setupItem('a', source);
+        plugin.setupItem('b', target);
+
+        await lift(source);
+        await dragEnter(target, { clientY: 210 });
+        expect(lastState()?.dropTargetItemId).toBe('b');
+
+        await dragEnter(outside, { clientY: 410 });
+        expect(lastState()?.dropTargetItemId).toBe(null);
+        expect(lastState()?.draggedItemIds.has('a')).toBe(true);
+
+        if (ending === 'release') {
+          drop(outside, { clientY: 410 });
+        } else {
+          fireEvent.dragEnd(source);
+        }
+
+        expect(lastState()?.draggedItemIds.size).toBe(0);
+      },
+    );
+
     it('emits state on dragstart, hover, and reset on drop', async () => {
       const onDrop = vi.fn();
       const { plugin, lastState, states } = setupPlugin({ onDrop }, { knownItemIds: ['a', 'b'] });
@@ -927,6 +958,37 @@ describe('useDraggableCollection', () => {
   });
 
   describe('cross-instance isolation', () => {
+    it.each<{ targetId: string; parentMap: Record<string, string> }>([
+      { targetId: 'a', parentMap: {} },
+      { targetId: 'b', parentMap: { b: 'a' } },
+    ])(
+      'accepts foreign IDs without applying local self/ancestry checks: $targetId',
+      async ({ targetId, parentMap }) => {
+        const onDrop = vi.fn();
+        const sourceCollection = setupPlugin({ kind: cardsKind }, { knownItemIds: ['a'] });
+        const destination = setupPlugin(
+          { kind: cardsKind, onDrop },
+          { knownItemIds: ['a', 'b'], parentMap },
+        );
+        const source = createElement({ top: 0, height: 100 });
+        const target = createElement({ top: 200, height: 100 });
+        sourceCollection.plugin.setupItem('a', source);
+        destination.plugin.setupItem(targetId, target);
+
+        await lift(source);
+        await dragEnter(target, { clientY: 250 });
+        drop(target, { clientY: 250 });
+
+        expect(onDrop).toHaveBeenCalledTimes(1);
+        expect(onDrop).toHaveBeenCalledWith(
+          expect.objectContaining({
+            isInternal: false,
+            target: { itemId: targetId, position: 'on' },
+          }),
+        );
+      },
+    );
+
     it('only the originating plugin fires onDragStart and onDragEnd', async () => {
       const onDragStartA = vi.fn();
       const onDragEndA = vi.fn();

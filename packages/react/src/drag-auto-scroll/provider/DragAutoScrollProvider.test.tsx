@@ -2,7 +2,7 @@ import * as React from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { fireEvent, screen } from '@testing-library/react';
 import { act } from '@mui/internal-test-utils';
-import { createDndRenderer, testDragKind } from '#test-utils';
+import { createDndRenderer, isJSDOM, testDragKind } from '#test-utils';
 import { DragAutoScroll } from '@base-ui/react/drag-auto-scroll';
 import { Draggable } from '@base-ui/react/draggable';
 import { flushRaf, lift, setupDragEngineTests } from '../../../test/dnd';
@@ -99,6 +99,57 @@ describe('DragAutoScroll.Provider', () => {
 
     expect(getScrollBy()).toHaveBeenCalled();
   });
+
+  it('stops active inferred scrolling when overflow is hidden and resumes when restored', async () => {
+    await renderDnd(<ScrollingApp />);
+    await dragIntoBottomEdge();
+    expect(getScrollBy()).toHaveBeenCalled();
+
+    const scroller = screen.getByTestId('scroller');
+    await act(async () => {
+      scroller.style.overflow = 'hidden';
+    });
+    getScrollBy().mockClear();
+    await flushRaf();
+    await flushRaf();
+    expect(getScrollBy()).not.toHaveBeenCalled();
+
+    await act(async () => {
+      scroller.style.overflow = 'auto';
+    });
+    await flushRaf();
+    await flushRaf();
+    expect(getScrollBy()).toHaveBeenCalled();
+  });
+
+  it.skipIf(isJSDOM)(
+    'observes ancestor class changes while inferred scrolling is active',
+    async () => {
+      const style = document.createElement('style');
+      style.textContent =
+        '.scroll-locked [data-testid="scroller"] { overflow: hidden !important; }';
+      document.head.appendChild(style);
+      try {
+        await renderDnd(
+          <div data-testid="ancestor">
+            <ScrollingApp />
+          </div>,
+        );
+        await dragIntoBottomEdge();
+        expect(getScrollBy()).toHaveBeenCalled();
+
+        await act(async () => {
+          screen.getByTestId('ancestor').className = 'scroll-locked';
+        });
+        getScrollBy().mockClear();
+        await flushRaf();
+        await flushRaf();
+        expect(getScrollBy()).not.toHaveBeenCalled();
+      } finally {
+        style.remove();
+      }
+    },
+  );
 
   it('wakes an inferred scroller when content growth creates scroll room', async () => {
     const scrollBy = vi.fn();
