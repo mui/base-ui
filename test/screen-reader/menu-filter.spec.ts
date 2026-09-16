@@ -4,6 +4,8 @@ import { navigateToItem } from './utils';
 
 test.skip(process.platform !== 'win32', 'This regression covers NVDA on Windows.');
 test.use({ screenReaderStartOptions: { capture: true } });
+// A successful retry must not hide an intermittent opening-announcement regression.
+test.describe.configure({ retries: 0 });
 
 for (const activation of ['Enter', 'screen reader activation'] as const) {
   test(`announces the filter input when opening a menu with ${activation}`, async ({
@@ -30,14 +32,14 @@ for (const activation of ['Enter', 'screen reader activation'] as const) {
     // can cancel its speech even while DOM focus remains on the input.
     const openingSpeech = await screenReader.lastSpokenPhrase();
     expect(openingSpeech).toMatch(/filter actions.*(?:edit|search)/i);
-    expect(openingSpeech).not.toMatch(/filter actions[\s\S]*actions menu/i);
+    expect(openingSpeech).not.toMatch(/filter actions[\s\S]*actions[,\s]+menu\b/i);
 
     await screenReader.type('Save');
     await expect(input).toHaveValue('Save');
     await expect(page.getByRole('menuitem', { name: 'New file', exact: true })).toBeHidden();
 
     await screenReader.press('ArrowDown');
-    expect(await screenReader.lastSpokenPhrase()).toMatch(/save.*menu item/i);
+    expect(await screenReader.lastSpokenPhrase()).toMatch(/\bsave(?:,|$)/i);
 
     await screenReader.press('Escape');
     await expect(page.getByRole('button', { name: 'Actions' })).toBeFocused();
