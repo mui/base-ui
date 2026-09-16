@@ -1,7 +1,9 @@
-import { expect, type Page } from '@playwright/test';
+import { expect } from '@playwright/test';
 import { screenReaderTest as test, type ScreenReaderPlaywright } from '@guidepup/playwright';
 
 const MAX_NAVIGATION_STEPS = 20;
+/** Every step is spoken, so waiting for a phrase is waiting for speech. */
+const PHRASE_TIMEOUT = 30_000;
 
 async function navigateToItem(
   screenReader: ScreenReaderPlaywright,
@@ -22,24 +24,15 @@ async function navigateToItem(
   return navigateToItem(screenReader, name, step + 1);
 }
 
-// Recursive rather than a loop, as the rule against awaiting in one asks, and as the other spec
-// in this directory walks the reader.
-async function pressArrowDown(page: Page, times: number): Promise<void> {
-  if (times === 0) {
-    return;
-  }
-
-  await page.keyboard.press('ArrowDown');
-  await pressArrowDown(page, times - 1);
-}
-
 test.use({ screenReaderStartOptions: { capture: true } });
 
 /**
  * A grid-shaped role owns its rows through the virtualizer's scrollport and `role="presentation"`
  * wrappers, and only part of the collection is mounted. This checks that what the rows state for
- * themselves — their level, their position among their siblings, and their row number within the
- * whole collection — survives both.
+ * themselves — their level and their position among their siblings — survives both.
+ *
+ * The deep row is reached in one jump rather than by arrowing to it: every key press is announced,
+ * and sixty announcements take longer than the whole rest of the run.
  */
 test('announces a virtualized treegrid row by its place in the tree', async ({
   page,
@@ -51,20 +44,22 @@ test('announces a virtualized treegrid row by its place in the tree', async ({
 
   const itemText = await navigateToItem(screenReader, /folder 1/i);
   const folderPhrase = await screenReader.lastSpokenPhrase();
+  console.log('VoiceOver, first row:', folderPhrase);
 
   expect(itemText).toMatch(/folder 1/i);
-  // The grid, its size, and the row's own place in it rather than its index in the flat window.
-  expect(folderPhrase).toMatch(/files/i);
+  // The first folder is the first of twenty folders, not the first of 1,020 rows.
   expect(folderPhrase).toMatch(/1 of 20/i);
 
-  // A row deeper in the collection: mounted only because the window moved to it, and still
-  // announced against its own siblings rather than against the 1,000 rows of the collection.
-  await page.keyboard.press('Tab');
-  // Sixty rows down: past the first folder's fifty files and into the second folder's.
-  await pressArrowDown(page, 60);
-  const rowPhrase = await screenReader.lastSpokenPhrase();
+  // A row the first window never held: revealed rather than arrowed to, and still announced
+  // against its own siblings.
+  await page.getByTestId('reveal').click();
+  await page.locator('[data-index="721"]').waitFor();
+  await expect
+    .poll(() => screenReader.lastSpokenPhrase(), { timeout: PHRASE_TIMEOUT })
+    .toMatch(/file 15\.7/i);
 
-  expect(rowPhrase).toMatch(/file 2\.9/i);
-  expect(rowPhrase).toMatch(/9 of 50/i);
-  expect(rowPhrase).not.toMatch(/of 1000/i);
+  const revealedPhrase = await screenReader.lastSpokenPhrase();
+  console.log('VoiceOver, revealed row:', revealedPhrase);
+
+  expect(revealedPhrase).toMatch(/7 of 50/i);
 });

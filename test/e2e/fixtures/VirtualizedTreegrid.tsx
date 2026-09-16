@@ -63,6 +63,12 @@ function createRows(): TreeRow[] {
 
 const rows = createRows();
 
+/**
+ * A row the first window never holds, for the screen reader to be taken to in one step rather
+ * than through sixty announced key presses: the seventh child of the fifteenth folder.
+ */
+const REVEAL_INDEX = 14 * (FILES_PER_FOLDER + 1) + 7;
+
 const TreeItemContext = React.createContext<VirtualizerItemMetadata | undefined>(undefined);
 
 /**
@@ -159,31 +165,43 @@ export default function VirtualizedTreegrid() {
   };
 
   return (
-    <div
-      ref={gridRef}
-      role="treegrid"
-      aria-label="Files"
-      aria-rowcount={rows.length}
-      data-testid="treegrid"
-    >
-      <VirtualizerHostContext.Provider value={host}>
-        <VirtualizerHostStateContext.Provider value={hostState}>
-          <Virtualizer<TreeRow>
-            getItemKey={(row) => row.id}
-            itemHeight={28}
-            style={{ height: 320, width: 320 }}
-          >
-            {(row, index) => (
-              <TreeItem
-                row={row}
-                active={index === activeIndex}
-                onActivate={() => setActiveIndex(index)}
-                onKeyDown={handleKeyDown}
-              />
-            )}
-          </Virtualizer>
-        </VirtualizerHostStateContext.Provider>
-      </VirtualizerHostContext.Provider>
-    </div>
+    <React.Fragment>
+      <button
+        type="button"
+        data-testid="reveal"
+        onClick={() => {
+          focusActiveRef.current = true;
+          setActiveIndex(REVEAL_INDEX);
+        }}
+      >
+        Reveal {rows[REVEAL_INDEX].name}
+      </button>
+      <div
+        ref={gridRef}
+        role="treegrid"
+        aria-label="Files"
+        aria-rowcount={rows.length}
+        data-testid="treegrid"
+      >
+        <VirtualizerHostContext.Provider value={host}>
+          <VirtualizerHostStateContext.Provider value={hostState}>
+            <Virtualizer<TreeRow>
+              getItemKey={(row) => row.id}
+              itemHeight={28}
+              style={{ height: 320, width: 320 }}
+            >
+              {(row, index) => (
+                <TreeItem
+                  row={row}
+                  active={index === activeIndex}
+                  onActivate={() => setActiveIndex(index)}
+                  onKeyDown={handleKeyDown}
+                />
+              )}
+            </Virtualizer>
+          </VirtualizerHostStateContext.Provider>
+        </VirtualizerHostContext.Provider>
+      </div>
+    </React.Fragment>
   );
 }
