@@ -529,7 +529,7 @@ describe('mergeProps', () => {
       });
     });
 
-    it('does not automatically prevent handlers that are manually called by getter handlers', () => {
+    it('augments an event passed directly to a getter handler', () => {
       const log: string[] = [];
 
       const mergedProps = mergeProps<'button'>(
@@ -539,30 +539,21 @@ describe('mergeProps', () => {
           },
         },
         (props) => ({
-          onClick(event: BaseUIEvent<React.MouseEvent>) {
-            // Call preventBaseUIHandler to signal prevention
+          onClick(event) {
+            expect(typeof event.preventBaseUIHandler).toBe('function');
             event.preventBaseUIHandler();
             log.push('getter-handler');
-            // Manually calling the previous handler - this bypasses automatic prevention!
             props.onClick?.({ nativeEvent: new MouseEvent('click') } as any);
           },
         }),
-        {
-          onClick() {
-            // This handler does NOT call preventBaseUIHandler, so getter-handler runs
-            log.push('last-handler');
-          },
-        },
       );
 
       mergedProps.onClick?.({ nativeEvent: new MouseEvent('click') } as any);
 
-      // last-handler runs first, then getter-handler (not prevented), then getter-handler
-      // manually calls first-handler which runs despite preventBaseUIHandler being called
-      expect(log).toEqual(['last-handler', 'getter-handler', 'first-handler']);
+      expect(log).toEqual(['getter-handler', 'first-handler']);
     });
 
-    it('allows props getter handlers to check baseUIHandlerPrevented manually', () => {
+    it('augments a getter handler when a later object handler merges with it', () => {
       const log: string[] = [];
 
       const mergedProps = mergeProps<'button'>(
@@ -572,11 +563,10 @@ describe('mergeProps', () => {
           },
         },
         (props) => ({
-          onClick(event: BaseUIEvent<React.MouseEvent>) {
-            // Call preventBaseUIHandler to signal prevention
+          onClick(event) {
+            expect(typeof event.preventBaseUIHandler).toBe('function');
             event.preventBaseUIHandler();
             log.push('getter-handler');
-            // Check the flag before manually calling previous handlers - this respects prevention
             if (!event.baseUIHandlerPrevented) {
               props.onClick?.({ nativeEvent: new MouseEvent('click') } as any);
             }
@@ -584,7 +574,6 @@ describe('mergeProps', () => {
         }),
         {
           onClick() {
-            // This handler does NOT call preventBaseUIHandler, so getter-handler runs
             log.push('last-handler');
           },
         },
@@ -592,8 +581,23 @@ describe('mergeProps', () => {
 
       mergedProps.onClick?.({ nativeEvent: new MouseEvent('click') } as any);
 
-      // first-handler does NOT run because getter-handler checks the flag before calling it
       expect(log).toEqual(['last-handler', 'getter-handler']);
+    });
+
+    it('does not wrap a forwarded event handler again', () => {
+      let forwardedHandler: React.MouseEventHandler<HTMLButtonElement> | undefined;
+
+      const mergedProps = mergeProps<'button'>(
+        {
+          onClick() {},
+        },
+        (props) => {
+          forwardedHandler = props.onClick;
+          return props;
+        },
+      );
+
+      expect(mergedProps.onClick).toBe(forwardedHandler);
     });
   });
 });

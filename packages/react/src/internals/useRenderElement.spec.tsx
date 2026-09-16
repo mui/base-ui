@@ -36,3 +36,22 @@ const element4 = useRenderElement(
 );
 
 expectType<React.ReactElement | null, typeof element4>(element4);
+
+useRenderElement(
+  'button',
+  {},
+  {
+    props: [
+      {
+        onClick(event) {
+          event.preventBaseUIHandler();
+        },
+      },
+      () => ({
+        onClick(event) {
+          event.preventBaseUIHandler();
+        },
+      }),
+    ],
+  },
+);

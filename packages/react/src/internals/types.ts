@@ -14,7 +14,7 @@ export interface FloatingUIOpenChangeDetails {
   triggerElement?: Element | undefined;
 }
 
-type WithPreventBaseUIHandler<T> = T extends (event: infer E) => any
+export type WithPreventBaseUIHandler<T> = T extends (event: infer E) => any
   ? E extends React.SyntheticEvent<Element, Event>
     ? (event: BaseUIEvent<E>) => ReturnType<T>
     : T

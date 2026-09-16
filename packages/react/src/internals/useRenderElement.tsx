@@ -242,6 +242,9 @@ function renderTag(Tag: string, props: Record<string, any>) {
 type RenderFunctionProps<TagName> = TagName extends keyof React.JSX.IntrinsicElements
   ? WithBaseUIEvent<React.JSX.IntrinsicElements[TagName]>
   : WithBaseUIEvent<React.HTMLAttributes<any>>;
+type RenderPropsGetter<TagName> = (
+  props: RenderFunctionProps<TagName>,
+) => RenderFunctionProps<TagName>;
 
 export type UseRenderElementParameters<
   State,
@@ -272,11 +275,7 @@ export type UseRenderElementParameters<
    */
   props?:
     | RenderFunctionProps<TagName>
-    | Array<
-        | RenderFunctionProps<TagName>
-        | undefined
-        | ((props: RenderFunctionProps<TagName>) => RenderFunctionProps<TagName>)
-      >
+    | Array<RenderFunctionProps<TagName> | RenderPropsGetter<TagName> | undefined>
     | undefined;
   /**
    * A mapping of state to `data-*` attributes.
