@@ -897,10 +897,6 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
         if (pendingReturnFocusRef.current === job) {
           pendingReturnFocusRef.current = null;
         }
-        if (job.cancelled) {
-          return;
-        }
-
         // `returnElement` if it is tabbable, otherwise its first tabbable child,
         // otherwise `returnElement` itself (which may not be tabbable at all).
         const tabbableReturnElement = getFirstTabbableElement(returnElement);
@@ -913,6 +909,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
           explicitReturnFocusRef.current ?? typeof returnFocusValueOrFn !== 'boolean';
 
         if (
+          !job.cancelled &&
           returnFocusValueOrFn &&
           !preventReturnFocusRef.current &&
           isHTMLElement(tabbableReturnElement) &&
@@ -930,6 +927,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
           tabbableReturnElement.focus(focusOptions);
         }
 
+        // A cancelled return must also clear suppression before the next close.
         preventReturnFocusRef.current = false;
       });
     };
