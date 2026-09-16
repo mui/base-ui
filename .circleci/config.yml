@@ -23,6 +23,10 @@ default-job: &default-job
       description: The version of react to be used
       type: string
       default: << pipeline.parameters.react-version >>
+    package-overrides:
+      description: Space separated package@version overrides applied after install
+      type: string
+      default: ''
   resource_class: medium
   environment:
     &default-environment # expose it globally otherwise we have to thread it from each job to the install command
@@ -54,6 +58,7 @@ jobs:
       - checkout
       - code-infra/install-deps:
           react-version: << parameters.react-version >>
+          package-overrides: << parameters.package-overrides >>
       - run:
           name: Run tests on JSDOM
           command: pnpm test:jsdom
@@ -91,6 +96,7 @@ jobs:
       - checkout
       - code-infra/install-deps:
           react-version: << parameters.react-version >>
+          package-overrides: << parameters.package-overrides >>
       - run:
           name: Tests TypeScript definitions
           command: pnpm typescript
@@ -136,6 +142,7 @@ jobs:
       - checkout
       - code-infra/install-deps:
           react-version: << parameters.react-version >>
+          package-overrides: << parameters.package-overrides >>
       - run:
           name: Run tests on headless Chromium
           command: pnpm test:chromium
@@ -318,14 +325,20 @@ workflows:
           <<: *default-context
           name: 'JSDOM tests (React 18)'
           react-version: '^18'
+          # react-router 8 requires React >= 19.2.7
+          package-overrides: react-router@7
       - test_browser:
           <<: *default-context
           name: 'Browser tests (React 18)'
           react-version: '^18'
+          # react-router 8 requires React >= 19.2.7
+          package-overrides: react-router@7
       - test_types:
           <<: *default-context
           name: 'Typechecking (React 18)'
           react-version: '^18'
+          # react-router 8 requires React >= 19.2.7
+          package-overrides: react-router@7
   typescript-next:
     triggers:
       - schedule:
