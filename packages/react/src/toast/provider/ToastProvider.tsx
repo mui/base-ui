@@ -3,7 +3,8 @@ import * as React from 'react';
 import { useOnMount } from '@base-ui/utils/useOnMount';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { ToastContext } from './ToastProviderContext';
+import { visuallyHidden } from '@base-ui/utils/visuallyHidden';
+import { ToastAnnouncerContext, ToastContext } from './ToastProviderContext';
 import type { ToastManager } from '../createToastManager';
 import { ToastStore } from '../store';
 
@@ -28,6 +29,10 @@ export const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvid
         prevFocusElement: null,
       }),
   ).current;
+
+  const [polite, setPolite] = React.useState<HTMLDivElement | null>(null);
+  const [assertive, setAssertive] = React.useState<HTMLDivElement | null>(null);
+  const announcers = React.useMemo(() => ({ polite, assertive }), [polite, assertive]);
 
   useOnMount(store.disposeEffect);
 
@@ -59,7 +64,25 @@ export const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvid
   return (
     <ToastContext.Provider value={store}>
       <ToastProviderPropsSynchronizer store={store} timeout={timeout} limit={limit} />
-      {children}
+      <ToastAnnouncerContext.Provider value={announcers}>
+        <div
+          ref={setPolite}
+          role="status"
+          aria-live="polite"
+          aria-atomic={false}
+          aria-relevant="additions"
+          style={visuallyHidden}
+        />
+        <div
+          ref={setAssertive}
+          role="status"
+          aria-live="assertive"
+          aria-atomic={false}
+          aria-relevant="additions"
+          style={visuallyHidden}
+        />
+        {children}
+      </ToastAnnouncerContext.Provider>
     </ToastContext.Provider>
   );
 };

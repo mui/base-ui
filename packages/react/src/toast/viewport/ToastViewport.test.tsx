@@ -977,11 +977,8 @@ describe('<Toast.Viewport />', () => {
       const survivor = roots[1];
 
       // Close the newest toast. It enters the `ending` state and stays mounted
-      // because the exit animation hasn't completed (no clock tick). The close
-      // button is `aria-hidden` until expanded, so query it by attribute.
-      const newestCloseButton = document.querySelectorAll(
-        '[aria-label="close-press"]',
-      )[0] as HTMLElement;
+      // because the exit animation hasn't completed (no clock tick).
+      const newestCloseButton = screen.getAllByRole('button', { name: 'close-press' })[0];
       fireEvent.click(newestCloseButton);
 
       // F6 focuses the viewport and renders the focus guards.
