@@ -56,7 +56,11 @@ export function useTriggerFocusGuards(
     const previousTabbable: FocusableElement | null = getTabbableBeforeElement(
       preFocusGuardRef.current,
     );
-    previousTabbable?.focus();
+    // With nothing else tabbable on the page, the lookup wraps around to the trigger's own after
+    // guard, whose handler would hand focus straight back here.
+    if (previousTabbable !== store.context.triggerFocusTargetRef.current) {
+      previousTabbable?.focus();
+    }
   }
 
   function handleFocusTargetFocus(event: React.FocusEvent) {
@@ -87,7 +91,9 @@ export function useTriggerFocusGuards(
         }
       }
 
-      nextTabbable?.focus();
+      if (nextTabbable !== preFocusGuardRef.current) {
+        nextTabbable?.focus();
+      }
     }
   }
 

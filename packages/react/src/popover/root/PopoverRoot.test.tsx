@@ -1317,6 +1317,79 @@ describe('<Popover.Root />', () => {
           expect(screen.getByTestId('popover-popup')).toBeVisible();
         },
       );
+
+      describe.skipIf(isJSDOM)('with no other tabbable element on the page', () => {
+        // Records every focus guard that receives focus, so a test can tell "each guard handed
+        // focus over once" from "the guards bounced focus back and forth".
+        function trackFocusedGuards() {
+          const focusedGuards: Element[] = [];
+          function handleFocusIn(event: FocusEvent) {
+            const target = event.target as Element;
+            if (target.hasAttribute('data-base-ui-focus-guard')) {
+              focusedGuards.push(target);
+            }
+          }
+          document.addEventListener('focusin', handleFocusIn);
+          return {
+            focusedGuards,
+            stop: () => document.removeEventListener('focusin', handleFocusIn),
+          };
+        }
+
+        beforeEach(() => {
+          // A real browser unmounts the popup a microtask after it closes, so the trigger's focus
+          // guards are still in the DOM while their handlers look up the next tabbable element.
+          globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+        });
+
+        it('closes the popup when tabbing forward out of it', async () => {
+          const { user } = await render(<TestPopover />);
+
+          await user.click(screen.getByTestId('trigger'));
+          const popup = await screen.findByRole('dialog');
+          await waitFor(() => {
+            expect(popup).toHaveFocus();
+          });
+
+          const { focusedGuards, stop } = trackFocusedGuards();
+          try {
+            await user.tab();
+          } finally {
+            stop();
+          }
+
+          await waitFor(() => {
+            expect(screen.queryByRole('dialog')).toBe(null);
+          });
+          expect(new Set(focusedGuards).size).toBe(focusedGuards.length);
+        });
+
+        it('closes the popup when shift-tabbing out of the trigger', async () => {
+          const { user } = await render(<TestPopover />);
+
+          const trigger = screen.getByTestId('trigger');
+          await user.click(trigger);
+          const popup = await screen.findByRole('dialog');
+          await waitFor(() => {
+            expect(popup).toHaveFocus();
+          });
+          await act(async () => {
+            trigger.focus();
+          });
+
+          const { focusedGuards, stop } = trackFocusedGuards();
+          try {
+            await user.keyboard('{Shift>}{Tab}{/Shift}');
+          } finally {
+            stop();
+          }
+
+          await waitFor(() => {
+            expect(screen.queryByRole('dialog')).toBe(null);
+          });
+          expect(new Set(focusedGuards).size).toBe(focusedGuards.length);
+        });
+      });
     });
 
     describe.skipIf(isJSDOM)('pointerdown removal', () => {
