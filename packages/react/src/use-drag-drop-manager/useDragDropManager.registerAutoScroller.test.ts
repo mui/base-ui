@@ -83,9 +83,7 @@ describe('engine.registerAutoScroller', () => {
     );
     expect(scroller.scrollBy).toHaveBeenCalledWith(expect.objectContaining({ left: 0 }));
     expect(
-      vi
-        .mocked(scroller.scrollBy)
-        .mock.calls.every(([options]) => typeof options === 'object' && options.left === 0),
+      scrollBy.mock.calls.every(([options]) => typeof options === 'object' && options.left === 0),
     ).toBe(true);
   });
 
