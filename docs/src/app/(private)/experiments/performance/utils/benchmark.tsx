@@ -8,6 +8,8 @@ import styles from '../performance.module.css';
 
 const DOM_SETTLE_QUIET_WINDOW_MS = 32;
 const WARMUP_ITERATIONS = 5;
+/** Stops a measurement if something on the page never goes quiet. */
+const MAX_MEASUREMENT_MS = 10000;
 
 export interface BenchmarkVariant {
   key: string;
@@ -22,6 +24,11 @@ interface VariantResults {
 
 interface PerformanceBenchmarkProps {
   variants: BenchmarkVariant[];
+  /**
+   * Identifies the workload the variants render. Results reset when it changes, and a running
+   * batch is discarded, because samples taken under different workloads are not comparable.
+   */
+  workloadKey?: string;
 }
 
 function makeInitialResults(variants: BenchmarkVariant[]): Record<string, VariantResults> {
@@ -70,7 +77,7 @@ export function logResults(results: number[]) {
 }
 
 export default function PerformanceBenchmark(props: PerformanceBenchmarkProps) {
-  const { variants } = props;
+  const { variants, workloadKey } = props;
 
   const [activeKey, setActiveKey] = React.useState(variants[0].key);
   const [generation, setGeneration] = React.useState(0);
@@ -82,10 +89,32 @@ export default function PerformanceBenchmark(props: PerformanceBenchmarkProps) {
   const [isBusy, setIsBusy] = React.useState(false);
 
   const benchmarkRootRef = React.useRef<HTMLDivElement>(null);
+  const chromeRef = React.useRef<HTMLDivElement>(null);
   const isBusyRef = React.useRef(false);
+  const workloadKeyRef = React.useRef(workloadKey);
+  workloadKeyRef.current = workloadKey;
   const settleTimeout = useTimeout();
+  const maxDurationTimeout = useTimeout();
 
   const activeVariant = variants.find((variant) => variant.key === activeKey) ?? variants[0];
+
+  /**
+   * Variants portal their popups to `document.body`, so the whole document is observed. Mutations
+   * from the harness controls and the dev overlay are ignored; they are not part of the workload.
+   */
+  const isMeasurableMutation = useStableCallback((record: MutationRecord) => {
+    const node =
+      record.target.nodeType === Node.ELEMENT_NODE ? record.target : record.target.parentElement;
+    if (!(node instanceof Element)) {
+      return false;
+    }
+    if (chromeRef.current?.contains(node)) {
+      return false;
+    }
+    return (
+      node.closest('nextjs-portal, [data-nextjs-dialog-overlay], #__next-build-watcher') == null
+    );
+  });
 
   const measureDomSettled = useStableCallback(() => {
     const start = performance.now();
@@ -101,23 +130,29 @@ export default function PerformanceBenchmark(props: PerformanceBenchmarkProps) {
         resolved = true;
         observer?.disconnect();
         settleTimeout.clear();
+        maxDurationTimeout.clear();
         resolve(Math.max(0, lastMutationAt - start));
       };
 
       const root = benchmarkRootRef.current;
+      const doc = root?.ownerDocument;
 
-      if (root) {
-        observer = new MutationObserver(() => {
+      if (root && doc?.body) {
+        observer = new MutationObserver((records) => {
+          if (!records.some(isMeasurableMutation)) {
+            return;
+          }
           lastMutationAt = performance.now();
           settleTimeout.start(DOM_SETTLE_QUIET_WINDOW_MS, finish);
         });
-        observer.observe(root, {
+        observer.observe(doc.body, {
           attributes: true,
           childList: true,
           characterData: true,
           subtree: true,
         });
         settleTimeout.start(DOM_SETTLE_QUIET_WINDOW_MS, finish);
+        maxDurationTimeout.start(MAX_MEASUREMENT_MS, finish);
       } else {
         finish();
       }
@@ -194,6 +229,7 @@ export default function PerformanceBenchmark(props: PerformanceBenchmarkProps) {
     }
     const variantKey = activeKey;
     const variantLabel = activeVariant.label;
+    const variantWorkloadKey = workloadKeyRef.current;
     console.log(
       `Benchmark "${variantLabel}": ${iterations} iterations (+${WARMUP_ITERATIONS} warmup)...`,
     );
@@ -202,6 +238,12 @@ export default function PerformanceBenchmark(props: PerformanceBenchmarkProps) {
       for (let i = 0; i < WARMUP_ITERATIONS + iterations; i += 1) {
         // eslint-disable-next-line no-await-in-loop
         const duration = await measureCurrentVariant();
+        if (workloadKeyRef.current !== variantWorkloadKey) {
+          console.warn(
+            `Benchmark "${variantLabel}" discarded: the workload changed during the run.`,
+          );
+          return;
+        }
         if (i < WARMUP_ITERATIONS) {
           continue;
         }
@@ -227,118 +269,139 @@ export default function PerformanceBenchmark(props: PerformanceBenchmarkProps) {
     setResults(makeInitialResults(variants));
   });
 
+  // The workload changed, so the recorded samples describe a different amount of work.
+  const previousWorkloadKey = React.useRef(workloadKey);
+  if (previousWorkloadKey.current !== workloadKey) {
+    previousWorkloadKey.current = workloadKey;
+    setResults(makeInitialResults(variants));
+  }
+
+  const variantSelectId = React.useId();
+
+  /**
+   * Keeps the element identity stable so that statistics-only updates, such as the outlier
+   * toggle, do not rerender the benchmark content. Measurements remount it through `generation`.
+   */
+  const variantContent = React.useMemo(
+    () => (
+      <React.Fragment key={`${activeKey}:${generation}`}>{activeVariant.render()}</React.Fragment>
+    ),
+    [activeVariant, activeKey, generation],
+  );
+
   return (
     <div className={styles.HarnessRoot}>
-      <div className={styles.Toolbar}>
-        <Field.Root className={styles.Field}>
-          <Field.Label className={styles.Label}>Variant</Field.Label>
-          <select
-            value={activeKey}
-            onChange={handleVariantChange}
-            disabled={isBusy}
-            className={styles.Input}
-          >
-            {variants.map((variant) => (
-              <option key={variant.key} value={variant.key}>
-                {variant.label}
-              </option>
-            ))}
-          </select>
-        </Field.Root>
-        <div className={styles.ToolbarActions}>
-          <button
-            type="button"
-            onClick={handleReRender}
-            disabled={isBusy}
-            className={styles.ToolbarButton}
-          >
-            Re-render
-          </button>
-          <button
-            type="button"
-            onClick={() => runBenchmark(10)}
-            disabled={isBusy}
-            className={styles.ToolbarButton}
-          >
-            Run 10
-          </button>
-          <button
-            type="button"
-            onClick={() => runBenchmark(20)}
-            disabled={isBusy}
-            className={styles.ToolbarButton}
-          >
-            Run 20
-          </button>
-          <button
-            type="button"
-            onClick={() => runBenchmark(50)}
-            disabled={isBusy}
-            className={styles.ToolbarButton}
-          >
-            Run 50
-          </button>
-          <label className={styles.ToolbarCheckbox}>
-            <input
-              type="checkbox"
-              checked={removeOutliersEnabled}
-              onChange={(event) => setRemoveOutliersEnabled(event.target.checked)}
+      <div ref={chromeRef}>
+        <div className={styles.Toolbar}>
+          <Field.Root className={styles.Field}>
+            <Field.Label className={styles.Label} htmlFor={variantSelectId}>
+              Variant
+            </Field.Label>
+            <select
+              id={variantSelectId}
+              value={activeKey}
+              onChange={handleVariantChange}
               disabled={isBusy}
-            />
-            Remove outliers
-          </label>
-          <button
-            type="button"
-            onClick={handleReset}
-            disabled={isBusy}
-            className={styles.ToolbarButton}
-          >
-            Reset
-          </button>
+              className={styles.Input}
+            >
+              {variants.map((variant) => (
+                <option key={variant.key} value={variant.key}>
+                  {variant.label}
+                </option>
+              ))}
+            </select>
+          </Field.Root>
+          <div className={styles.ToolbarActions}>
+            <button
+              type="button"
+              onClick={handleReRender}
+              disabled={isBusy}
+              className={styles.ToolbarButton}
+            >
+              Re-render
+            </button>
+            <button
+              type="button"
+              onClick={() => runBenchmark(10)}
+              disabled={isBusy}
+              className={styles.ToolbarButton}
+            >
+              Run 10
+            </button>
+            <button
+              type="button"
+              onClick={() => runBenchmark(20)}
+              disabled={isBusy}
+              className={styles.ToolbarButton}
+            >
+              Run 20
+            </button>
+            <button
+              type="button"
+              onClick={() => runBenchmark(50)}
+              disabled={isBusy}
+              className={styles.ToolbarButton}
+            >
+              Run 50
+            </button>
+            <label className={styles.ToolbarCheckbox}>
+              <input
+                type="checkbox"
+                checked={removeOutliersEnabled}
+                onChange={(event) => setRemoveOutliersEnabled(event.target.checked)}
+                disabled={isBusy}
+              />
+              Remove outliers
+            </label>
+            <button
+              type="button"
+              onClick={handleReset}
+              disabled={isBusy}
+              className={styles.ToolbarButton}
+            >
+              Reset
+            </button>
+          </div>
         </div>
+
+        <table className={styles.Table}>
+          <thead className={styles.TableHeader}>
+            <tr>
+              <th>Variant</th>
+              <th>Last (ms)</th>
+              <th>Samples</th>
+              <th>Avg (ms)</th>
+              <th>Std dev</th>
+              <th>Min</th>
+              <th>Max</th>
+            </tr>
+          </thead>
+          <tbody className={styles.TableBody}>
+            {variants.map((variant) => {
+              const variantResults = results[variant.key];
+              const samplesForStats = removeOutliersEnabled
+                ? removeOutliers(variantResults.rawSamples)
+                : variantResults.rawSamples;
+              const stats = samplesForStats.length > 0 ? computeStats(samplesForStats) : null;
+              const isActive = variant.key === activeKey;
+              return (
+                <tr key={variant.key} data-active={isActive ? '' : undefined}>
+                  <td>{variant.label}</td>
+                  <td>{variantResults.lastMs != null ? variantResults.lastMs.toFixed(1) : '—'}</td>
+                  <td>{stats ? stats.sampleCount : '—'}</td>
+                  <td>{stats ? stats.avg.toFixed(1) : '—'}</td>
+                  <td>{stats ? stats.stdDev.toFixed(2) : '—'}</td>
+                  <td>{stats ? stats.min.toFixed(1) : '—'}</td>
+                  <td>{stats ? stats.max.toFixed(1) : '—'}</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
       </div>
 
-      <table className={styles.Table}>
-        <thead className={styles.TableHeader}>
-          <tr>
-            <th>Variant</th>
-            <th>Last (ms)</th>
-            <th>Samples</th>
-            <th>Avg (ms)</th>
-            <th>Std dev</th>
-            <th>Min</th>
-            <th>Max</th>
-          </tr>
-        </thead>
-        <tbody className={styles.TableBody}>
-          {variants.map((variant) => {
-            const variantResults = results[variant.key];
-            const samplesForStats = removeOutliersEnabled
-              ? removeOutliers(variantResults.rawSamples)
-              : variantResults.rawSamples;
-            const stats = samplesForStats.length > 0 ? computeStats(samplesForStats) : null;
-            const isActive = variant.key === activeKey;
-            return (
-              <tr key={variant.key} data-active={isActive ? '' : undefined}>
-                <td>{variant.label}</td>
-                <td>{variantResults.lastMs != null ? variantResults.lastMs.toFixed(1) : '—'}</td>
-                <td>{stats ? stats.sampleCount : '—'}</td>
-                <td>{stats ? stats.avg.toFixed(1) : '—'}</td>
-                <td>{stats ? stats.stdDev.toFixed(2) : '—'}</td>
-                <td>{stats ? stats.min.toFixed(1) : '—'}</td>
-                <td>{stats ? stats.max.toFixed(1) : '—'}</td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
-
       <div ref={benchmarkRootRef} className={styles.VariantArea}>
-        {showVariant ? (
-          <React.Fragment key={`${activeKey}:${generation}`}>
-            {activeVariant.render()}
-          </React.Fragment>
-        ) : null}
+        {showVariant ? variantContent : null}
       </div>
     </div>
   );

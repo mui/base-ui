@@ -443,15 +443,24 @@ const variants: BenchmarkVariant[] = [
 ];
 
 export default function TriggersPerfExperiment() {
+  const { settings } = useExperimentSettings<Settings>();
+  // Samples are only comparable within one set of toggles, so the harness resets when it changes.
+  const workloadKey = [
+    settings.renderDialog,
+    settings.renderMenu,
+    settings.renderPopover,
+    settings.renderTooltip,
+  ].join(',');
+
   return (
     <div className={styles.Container}>
       <h1>Trigger rendering performance</h1>
       <p>
         Each variant renders {ROW_COUNT} rows × up to 4 components (Menu / Tooltip / Popover /
         Dialog). Use the sidebar settings to toggle which components are rendered across all
-        variants.
+        variants. Changing a toggle clears the recorded results.
       </p>
-      <PerformanceBenchmark variants={variants} />
+      <PerformanceBenchmark variants={variants} workloadKey={workloadKey} />
     </div>
   );
 }
