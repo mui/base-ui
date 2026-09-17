@@ -644,14 +644,14 @@ function runScrollFrame(timestamp: number): void {
       continue;
     }
 
-    // A callback on a native scroller intercepts its existing axes. A surface
-    // without native overflow delegates movement to the callback instead.
+    // A handler can implement movement on either axis, regardless of native
+    // overflow or extent. Those gates only constrain the default scroll.
     const onDragScroll = registration.onDragScroll;
     const nativeOverflow = pageScroller
       ? readPageOverflowFlags(element)
       : readOverflowFlags(element);
-    const delegated = onDragScroll !== undefined && !nativeOverflow.x && !nativeOverflow.y;
-    const overflow = delegated ? BOTH_AXES : nativeOverflow;
+    const hasHandler = onDragScroll !== undefined;
+    const overflow = hasHandler ? BOTH_AXES : nativeOverflow;
     if (!overflow.x && !overflow.y) {
       if (process.env.NODE_ENV !== 'production') {
         if (getParameters !== undefined && !pageScroller) {
@@ -681,20 +681,20 @@ function runScrollFrame(timestamp: number): void {
       scrollY = getEdgeScrollDepth(
         relativeY,
         rect.height,
-        () => delegated || canScrollUp(scrollTarget),
-        () => delegated || canScrollDown(scrollTarget),
+        () => hasHandler || canScrollUp(scrollTarget),
+        () => hasHandler || canScrollDown(scrollTarget),
       );
     }
 
     if (overflow.x && !horizontalConsumed) {
-      // The RTL resolution stays behind the `delegated` short-circuit: it only
+      // The RTL resolution stays behind the `hasHandler` short-circuit: it only
       // picks which limit check runs, so delegating must not pay its
       // `getComputedStyle`.
       scrollX = getEdgeScrollDepth(
         relativeX,
         rect.width,
-        () => delegated || canScrollLeft(scrollTarget, resolveRtl(scrollTarget)),
-        () => delegated || canScrollRight(scrollTarget, resolveRtl(scrollTarget)),
+        () => hasHandler || canScrollLeft(scrollTarget, resolveRtl(scrollTarget)),
+        () => hasHandler || canScrollRight(scrollTarget, resolveRtl(scrollTarget)),
       );
     }
 
@@ -765,12 +765,21 @@ function runScrollFrame(timestamp: number): void {
           if (!succeeded) {
             continue;
           }
-          if (!event.defaultPrevented && !delegated) {
-            // `onDragScroll` is an interceptable event for native viewports:
-            // leaving it uncancelled preserves the normal scroll behavior.
+          let shouldScroll = false;
+          if (!event.defaultPrevented) {
+            if (axis.direction === 'horizontal' && nativeOverflow.x) {
+              shouldScroll =
+                scrollX < 0
+                  ? canScrollLeft(scrollTarget, resolveRtl(scrollTarget))
+                  : canScrollRight(scrollTarget, resolveRtl(scrollTarget));
+            } else if (axis.direction === 'vertical' && nativeOverflow.y) {
+              shouldScroll = scrollY < 0 ? canScrollUp(scrollTarget) : canScrollDown(scrollTarget);
+            }
+          }
+          if (shouldScroll) {
             scrollTarget.scrollBy({ left: axis.x, top: axis.y, behavior: 'instant' });
           }
-          const consumed = event.cancelBubble || (!delegated && !event.defaultPrevented);
+          const consumed = event.cancelBubble || shouldScroll;
           if (axis.direction === 'horizontal') {
             consumedX = consumed;
           }

@@ -44,6 +44,51 @@ describe('engine.registerAutoScroller', () => {
     expect(details.reason).toBe('pointer');
   });
 
+  it('allows custom movement even when native scrolling has reached its limit', async () => {
+    const { engine } = await renderDnd();
+    const source = createElement();
+    const scroller = makeEngageableScroller();
+    scroller.scrollTop = 800;
+    const pan = vi.fn();
+    engine.registerDraggable(source, {});
+    engine.registerAutoScroller(scroller, {
+      onDragScroll(event, details) {
+        event.preventDefault();
+        pan(details);
+        event.stopPropagation();
+      },
+    });
+    await driveIntoEdgeZone(source, scroller);
+    expect(pan).toHaveBeenCalled();
+    expect(scroller.scrollBy).not.toHaveBeenCalled();
+  });
+
+  it('observes an excluded native axis without enabling its default scroll', async () => {
+    const { engine } = await renderDnd();
+    const source = createElement();
+    const scroller = makeEngageableScroller();
+    scroller.style.overflowX = 'hidden';
+    scroller.style.overflowY = 'auto';
+    const onDragScroll = vi.fn();
+    const scrollBy = vi.fn();
+    scroller.scrollBy = scrollBy;
+    engine.registerDraggable(source, {});
+    engine.registerAutoScroller(scroller, { onDragScroll });
+    await lift(source, { clientX: 100, clientY: 100 });
+    fireEvent.dragOver(scroller, { clientX: 190, clientY: 190 });
+    await flushRaf();
+    await flushRaf();
+    expect(onDragScroll.mock.calls.some(([, details]) => details.direction === 'horizontal')).toBe(
+      true,
+    );
+    expect(scroller.scrollBy).toHaveBeenCalledWith(expect.objectContaining({ left: 0 }));
+    expect(
+      vi
+        .mocked(scroller.scrollBy)
+        .mock.calls.every(([options]) => typeof options === 'object' && options.left === 0),
+    ).toBe(true);
+  });
+
   it('a throwing native interceptor does not perform its default scroll', async () => {
     const { engine } = await renderDnd();
     const source = createElement();
