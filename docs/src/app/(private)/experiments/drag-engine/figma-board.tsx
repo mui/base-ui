@@ -2,11 +2,11 @@
 import { Draggable } from '@base-ui/react/draggable';
 
 import * as React from 'react';
-import { DragPageAutoScroll } from 'docs/src/components/DragPageAutoScroll';
 import clsx from 'clsx';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { ownerDocument } from '@base-ui/utils/owner';
+import { DragPageAutoScroll } from '../../../(docs)/react/utils/draggable/demos/DragPageAutoScroll';
 
 import { SettingsMetadata, useExperimentSettings } from '../_components/SettingsPanel';
 import theme from './theme.module.css';

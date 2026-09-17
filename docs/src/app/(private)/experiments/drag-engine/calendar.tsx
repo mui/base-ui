@@ -2,12 +2,12 @@
 import { Draggable } from '@base-ui/react/draggable';
 
 import * as React from 'react';
-import { DragPageAutoScroll } from 'docs/src/components/DragPageAutoScroll';
 import clsx from 'clsx';
 import { ChevronLeft, ChevronRight, RotateCcw } from 'lucide-react';
 import { Toolbar } from '@base-ui/react/toolbar';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
+import { DragPageAutoScroll } from '../../../(docs)/react/utils/draggable/demos/DragPageAutoScroll';
 
 import {
   addDays,

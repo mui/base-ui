@@ -7,9 +7,9 @@ import {
 } from '@base-ui/react/draggable';
 
 import * as React from 'react';
-import { DragPageAutoScroll } from 'docs/src/components/DragPageAutoScroll';
 import { Tabs } from '@base-ui/react/tabs';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { DragPageAutoScroll } from '../../../DragPageAutoScroll';
 
 import styles from '../../tabs.module.css';
 
