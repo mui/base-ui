@@ -57,10 +57,7 @@ export class DragEngineBase {
     // Always defined so every drag start clears any preview the previous drag left
     // behind. This also covers a drop and next pickup landing in one React flush.
     const onGenerateDragPreview: DraggableConfig<TData>['onGenerateDragPreview'] = (payload) => {
-      // Read live at dispatch time, not captured at registration: nothing
-      // re-registers a draggable when the nearest `Draggable.Provider`
-      // re-renders, so a `container` that arrives after mount must still be seen by
-      // the next drag.
+      // Resolve the current preview boundary when the drag starts.
       const previewContext = this.previewContext;
       // Clear any content the previous drag left in the shared overlay store.
       clearPublishedDragPreview();
@@ -109,18 +106,15 @@ export class DragEngineBase {
     // compare against the copy still tells an unchanged frame from a changed one,
     // and is far cheaper than rebuilding the ~20-field object on every dispatch.
     let lastParamsSnapshot: InternalDraggableParameters<TData> | null = null;
-    let lastPreviewContainer: DraggableConfig<TData>['previewContainerDefault'];
     let lastCSPContext: CSPContextValue | null = null;
     let normalized: DraggableConfig<TData> | null = null;
     const getNormalized = (): DraggableConfig<TData> => {
       // `Draggable.Root` adds the preview-declaration channel to what it returns
       // here; the public parameter type hides it, since consumers never set it.
       const params = get() as InternalDraggableParameters<TData>;
-      const previewContainerDefault = this.previewContext?.getContainer();
       const cspContext = this.getCSPContext();
       if (
         normalized !== null &&
-        previewContainerDefault === lastPreviewContainer &&
         cspContext === lastCSPContext &&
         (cacheParameters
           ? params === lastParams
@@ -130,15 +124,10 @@ export class DragEngineBase {
       }
       lastParams = params;
       lastParamsSnapshot = cacheParameters ? null : { ...params };
-      lastPreviewContainer = previewContainerDefault;
       lastCSPContext = cspContext;
       normalized = {
         ...params,
         element,
-        // A provider is a React concept the engine can't see, so its subtree default
-        // has to be passed down. Read through the provider's stable ref, which keeps
-        // the provider's context identity independent of `container`.
-        previewContainerDefault,
         styleNonce: cspContext.nonce,
         disableStyleElements: cspContext.disableStyleElements,
         onGenerateDragPreview,

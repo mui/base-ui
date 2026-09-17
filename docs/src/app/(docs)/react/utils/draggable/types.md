@@ -177,10 +177,9 @@ Explicit kinds can match across providers; the manager remains page-wide.
 
 **Provider Props:**
 
-| Prop      | Type                   | Default | Description                                                               |
-| :-------- | :--------------------- | :------ | :------------------------------------------------------------------------ |
-| container | `DragPreviewContainer` | -       | Default preview container. A preview-specific container takes precedence. |
-| children  | `React.ReactNode`      | -       | The drag sources, targets, hooks, and previews sharing this boundary.     |
+| Prop     | Type              | Default | Description                                                           |
+| :------- | :---------------- | :------ | :-------------------------------------------------------------------- |
+| children | `React.ReactNode` | -       | The drag sources, targets, hooks, and previews sharing this boundary. |
 
 ### Provider.Props
 

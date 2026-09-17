@@ -1,7 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import type { DragPreviewContainer } from '../../types/drag';
+import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { DragPreviewContext } from '../../utils/drag-and-drop/overlay/DragPreviewContext';
 import { PreviewOverlayRenderer } from '../../utils/drag-and-drop/overlay/PreviewOverlayRenderer';
 
@@ -17,15 +16,8 @@ import { PreviewOverlayRenderer } from '../../utils/drag-and-drop/overlay/Previe
  */
 export const DraggablePreviewProvider: React.FC<DraggablePreviewProvider.Props> =
   function DraggablePreviewProvider(props) {
-    const { children, container } = props;
-
-    // `container` is read at drag start, so it goes into the context through this
-    // stable getter rather than by value: every `Draggable.Root` below consumes this
-    // context, so an inline `container` callback — a new identity each render —
-    // would otherwise churn the context value and re-render them all.
-    const getContainer = useStableCallback(() => container);
-
-    const contextValue = React.useMemo(() => ({ getContainer }), [getContainer]);
+    const { children } = props;
+    const contextValue = useRefWithInit(() => Symbol('DragPreviewContext')).current;
 
     return (
       <DragPreviewContext.Provider value={contextValue}>
@@ -42,13 +34,6 @@ export interface DraggablePreviewProviderProps {
    * The part of your app whose custom drag previews render in this provider.
    */
   children?: React.ReactNode | undefined;
-  /**
-   * Where to inject the previews of the sources inside this provider, overriding
-   * the default of the source's own parent. A preview's own `container` wins over
-   * it. A callback resolves it from the source,
-   * for example `(source) => source.closest('.grid')`.
-   */
-  container?: DragPreviewContainer | undefined;
 }
 
 export namespace DraggablePreviewProvider {

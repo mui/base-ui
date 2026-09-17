@@ -51,10 +51,8 @@ export function resolveDragPreview<TData = unknown>(
     declaration?.createPreviewElement ??
     (render ? createDragPreviewHostElement : createClonedDragPreviewElement);
 
-  // A part's (or an imperative source's) own container wins over the subtree
-  // default a `Draggable.Provider` set; with neither, the engine injects
-  // the preview into the source's own parent.
-  const container = settings?.container ?? parameters.previewContainerDefault;
+  // With no explicit container, the preview is inserted into the source's parent.
+  const container = settings?.container;
 
   const base: ResolvedDragPreviewBase = {
     offset: settings?.offset,
