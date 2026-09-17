@@ -3,6 +3,7 @@ import {
   DEFAULT_ACTIVATION,
   evaluateActivation,
   getActivationDelayMs,
+  hasDoubleClickActivation,
   resolveActivation,
 } from './activation';
 
@@ -73,25 +74,53 @@ describe('activation', () => {
   });
 
   describe('resolveActivation', () => {
-    it('returns a single DragActivation when passed directly', () => {
+    it('resolves a single configuration', () => {
       const explicit = { type: 'immediate' } as const;
-      expect(resolveActivation(explicit, 'touch')).toBe(explicit);
+      expect(resolveActivation(explicit, 'touch')).toEqual([explicit]);
     });
 
     it('uses the per-pointerType override when provided', () => {
       const map = {
         touch: { type: 'distance', distance: 15 } as const,
       };
-      expect(resolveActivation(map, 'touch')).toEqual({ type: 'distance', distance: 15 });
+      expect(resolveActivation(map, 'touch')).toEqual([{ type: 'distance', distance: 15 }]);
       // A pointer type the partial map does not cover falls back to its own
       // per-type default, not to another entry of the map.
-      expect(resolveActivation(map, 'mouse')).toEqual(DEFAULT_ACTIVATION.mouse);
+      expect(resolveActivation(map, 'mouse')).toEqual([DEFAULT_ACTIVATION.mouse]);
     });
 
     it('falls back to defaults by pointer type', () => {
-      expect(resolveActivation(undefined, 'mouse')).toEqual(DEFAULT_ACTIVATION.mouse);
-      expect(resolveActivation(undefined, 'pen')).toEqual(DEFAULT_ACTIVATION.pen);
-      expect(resolveActivation(undefined, 'touch')).toEqual(DEFAULT_ACTIVATION.touch);
+      expect(resolveActivation(undefined, 'mouse')).toEqual([DEFAULT_ACTIVATION.mouse]);
+      expect(resolveActivation(undefined, 'pen')).toEqual([DEFAULT_ACTIVATION.pen]);
+      expect(resolveActivation(undefined, 'touch')).toEqual([DEFAULT_ACTIVATION.touch]);
     });
+  });
+  it('resolves multiple alternatives and excludes double-click from pointer presses', () => {
+    const config = [
+      { type: 'double-click' },
+      { mouse: { type: 'distance', distance: 9 } },
+    ] as const;
+    expect(resolveActivation(config, 'mouse')).toEqual([{ type: 'distance', distance: 9 }]);
+    expect(hasDoubleClickActivation(config)).toBe(true);
+    expect(resolveActivation({ type: 'double-click' }, 'mouse')).toEqual([]);
+    expect(resolveActivation([], 'touch')).toEqual([]);
+  });
+
+  it('uses OR semantics when a hold cancels but distance remains pending', () => {
+    const config = [
+      { type: 'press-hold', delay: 100, tolerance: 2 },
+      { type: 'distance', distance: 10 },
+    ] as const;
+    expect(evaluateActivation(config, { x: 0, y: 0 }, { x: 5, y: 0 }, 20)).toBe('pending');
+    expect(evaluateActivation(config, { x: 0, y: 0 }, { x: 10, y: 0 }, 30)).toBe('activate');
+  });
+
+  it('chooses the earliest hold timer', () => {
+    expect(
+      getActivationDelayMs([
+        { type: 'press-hold', delay: 200 },
+        { type: 'press-hold', delay: 50 },
+      ]),
+    ).toBe(50);
   });
 });

@@ -218,7 +218,7 @@ Releasing before activation preserves the normal click or tap. When activation c
 
 <DemoActivation />
 
-Pass `activation` to change the thresholds. It takes a single `DragActivation` applied to every pointer type, or a map keyed by `'mouse'`, `'touch'`, and `'pen'`, where unlisted types keep their defaults. A `DragActivation` is one of `{ type: 'immediate' }`, `{ type: 'distance', distance }`, or `{ type: 'press-hold', delay, tolerance? }`.
+Pass `activation` to change the thresholds. It takes a single `DragActivation` applied to every pointer type, or a map keyed by `'mouse'`, `'touch'`, and `'pen'`, where unlisted types keep their defaults. A `DragActivation` is one of `{ type: 'immediate' }`, `{ type: 'distance', distance }`, `{ type: 'press-hold', delay, tolerance? }`, or `{ type: 'double-click' }`.
 
 ```tsx title="Customizing activation"
 <Draggable.Root
@@ -237,6 +237,39 @@ Use `{ type: 'immediate' }` to pick the item up on the first `pointerdown`, with
 ```tsx title="Instant pickup"
 <Draggable.Root kind={tile} payload={id} activation={{ type: 'immediate' }} />
 ```
+
+### Multiple ways to pick up
+
+Pass an array to allow any of its activation methods. A press-and-hold that exceeds its movement tolerance is canceled independently; another method can still activate the same gesture.
+
+```tsx title="Move or hold"
+<Draggable.Root
+  kind={card}
+  payload={id}
+  activation={[
+    { type: 'distance', distance: 12 },
+    { type: 'press-hold', delay: 250 },
+  ]}
+/>
+```
+
+Each per-pointer map in an array applies its own defaults for omitted pointer types. An empty array disables pickup.
+
+### Double-click pickup
+
+Use `{ type: 'double-click' }` to pick up with a mouse double-click, move without holding a button, and drop with the next primary click. Escape cancels. A per-pointer map keeps normal touch and pen activation:
+
+```tsx title="Double-click or drag"
+<Draggable.Root
+  kind={card}
+  payload={id}
+  activation={[{ mouse: { type: 'distance', distance: 5 } }, { mouse: { type: 'double-click' } }]}
+/>
+```
+
+Double-click pickup is opt-in. Avoid enabling it on an item whose double-click already opens or edits content. The drop click is consumed so it does not also activate the destination. This gesture does not provide a keyboard alternative; keep accessible move actions available.
+
+`onBeforeMoveStart` receives `eventDetails.activation`, either `'pointer'` or `'double-click'`, to distinguish pickups. Its native event can be a `MouseEvent` for double-click pickup. Movement and completion callbacks can also receive that event type; read pointer type from the drag's input data.
 
 ## Movement modifiers
 

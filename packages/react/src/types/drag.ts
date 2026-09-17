@@ -405,7 +405,7 @@ export type DragStartReason = 'pointer';
 export type DragMoveReason = DragStartReason | 'modifier-key';
 
 type DragReasonToEvent<TReason extends string> = TReason extends 'pointer'
-  ? PointerEvent
+  ? PointerEvent | MouseEvent
   : TReason extends 'modifier-key' | 'escape-key' | 'tab-key'
     ? KeyboardEvent
     : TReason extends 'pointer-canceled' | 'capture-lost' | 'missed-release'
@@ -413,12 +413,14 @@ type DragReasonToEvent<TReason extends string> = TReason extends 'pointer'
       : TReason extends 'window-blur'
         ? FocusEvent
         : TReason extends 'drop' | 'outside-release'
-          ? PointerEvent
+          ? PointerEvent | MouseEvent
           : Event;
 
 /** The event details passed to `onBeforeMoveStart`. Call `cancel()` to prevent the drag. */
 export type BeforeMoveStartEventDetails = {
   [TReason in DragStartReason]: {
+    /** How the draggable was picked up. */
+    activation: 'pointer' | 'double-click';
     /** Why the pickup started. */
     reason: TReason;
     /** The pointer event that attempted the pickup. */

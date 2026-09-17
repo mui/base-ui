@@ -1,5 +1,5 @@
 'use client';
-import { Draggable, type DragActivation } from '@base-ui/react/draggable';
+import { Draggable, type DragActivationConfig } from '@base-ui/react/draggable';
 
 import * as React from 'react';
 
@@ -10,7 +10,7 @@ type Phase = 'ready' | 'waiting' | 'dragging' | 'dropped';
 interface ActivationMode {
   id: string;
   label: string;
-  activation: DragActivation;
+  activation: DragActivationConfig | readonly DragActivationConfig[];
   readyMessage: string;
   waitingMessage: string;
 }
@@ -18,6 +18,23 @@ interface ActivationMode {
 const puckKind = Draggable.createKind('activation-puck');
 
 const ACTIVATION_MODES: ActivationMode[] = [
+  {
+    id: 'double-click',
+    label: 'Double-click',
+    activation: { mouse: { type: 'double-click' } },
+    readyMessage: 'Double-click to pick up, then click the target to drop. Escape cancels.',
+    waitingMessage: 'Double-click to pick up…',
+  },
+  {
+    id: 'distance-or-hold',
+    label: 'Move or hold',
+    activation: [
+      { type: 'distance', distance: 12 },
+      { type: 'press-hold', delay: 250 },
+    ],
+    readyMessage: 'Move 12px or hold for 250ms to activate.',
+    waitingMessage: 'Waiting for movement or a hold…',
+  },
   {
     id: 'immediate',
     label: 'Immediate',
@@ -65,7 +82,7 @@ function Puck({
       aria-label="Puck"
       role="button"
       onPointerDown={() => {
-        if (mode.activation.type !== 'immediate') {
+        if (mode.id !== 'immediate') {
           onPhaseChange('waiting');
         }
       }}
@@ -101,7 +118,10 @@ function ActivationLabContent() {
   const message = {
     ready: mode.readyMessage,
     waiting: mode.waitingMessage,
-    dragging: 'Activated — drag the puck to the target.',
+    dragging:
+      mode.id === 'double-click'
+        ? 'Move to the target and click to drop. Escape cancels.'
+        : 'Activated — drag the puck to the target.',
     dropped: 'Dropped. Reset to try again.',
   }[phase];
 
