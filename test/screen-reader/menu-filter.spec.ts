@@ -9,7 +9,7 @@ test.describe.configure({ retries: 0 });
 
 for (const activation of ['Enter', 'screen reader activation'] as const) {
   for (const attempt of [1, 2, 3]) {
-    test(`announces the filter input when opening a menu with ${activation} (${attempt})`, async ({
+    test(`announces the first action and exposes the filter input with ${activation} (${attempt})`, async ({
       page,
       screenReader,
     }) => {
@@ -27,13 +27,29 @@ for (const activation of ['Enter', 'screen reader activation'] as const) {
 
       const input = page.getByRole('searchbox', { name: 'Filter actions' });
       await expect(input).toBeFocused();
+      const firstItem = page.getByRole('menuitem', { name: 'New file', exact: true });
+      await expect(input).toHaveAttribute(
+        'aria-activedescendant',
+        await firstItem.getAttribute('id'),
+      );
 
       // capture:true waits for a quiet speech interval and includes every announcement from the
-      // action. Seeing the input anywhere in that log is insufficient: a later menu announcement
-      // can cancel its speech even while DOM focus remains on the input.
+      // action. A later menu announcement must not cancel the highlighted item's speech.
       const openingSpeech = await screenReader.lastSpokenPhrase();
-      expect(openingSpeech).toMatch(/filter actions.*(?:edit|search)/i);
-      expect(openingSpeech).not.toMatch(/filter actions[\s\S]*actions[,\s]+menu\b/i);
+      expect(openingSpeech).toMatch(/new file/i);
+      expect(openingSpeech).not.toMatch(/new file[\s\S]*actions[,\s]+menu\b/i);
+
+      // The input participates in the navigation loop even though the menu opens on an item.
+      await screenReader.press('ArrowUp');
+      await expect(input).not.toHaveAttribute('aria-activedescendant');
+      expect(await screenReader.lastSpokenPhrase()).toMatch(/filter actions.*(?:edit|search)/i);
+
+      await screenReader.press('ArrowUp');
+      expect(await screenReader.lastSpokenPhrase()).toMatch(/keep available offline/i);
+
+      await screenReader.press('ArrowDown');
+      await expect(input).not.toHaveAttribute('aria-activedescendant');
+      expect(await screenReader.lastSpokenPhrase()).toMatch(/filter actions.*(?:edit|search)/i);
 
       await screenReader.type('Save');
       await expect(input).toHaveValue('Save');

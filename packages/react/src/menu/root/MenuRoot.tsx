@@ -564,10 +564,10 @@ export const MenuRootInternal = fastComponent(function MenuRoot<Payload>(
     nested: parent.type === 'menubar' || (!virtualFocus && parent.type !== undefined),
     parentOrientation: parent.type === 'menubar' ? parent.context.orientation : undefined,
     loopFocus,
-    // Virtual focus opens with the input focused and nothing highlighted, so the first arrow key
-    // enters the list from the top rather than moving off a seeded item. Everything else keeps
-    // the hook's `'auto'` default.
-    focusItemOnOpen: virtualFocus ? false : undefined,
+    // Seed a menu item on open while DOM focus stays on the filter input. Windows screen readers
+    // accept menu-item focus when processing menu-open notifications; an unhighlighted input's
+    // announcement can otherwise be replaced by the menu. Navigation can still return to the input.
+    focusItemOnOpen: virtualFocus ? true : undefined,
     allowEscape: virtualFocus && loopFocus && allowEscape,
     orientation,
     // A virtual-focus list can navigate on either axis, but its trigger always opens on the
