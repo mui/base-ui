@@ -572,7 +572,8 @@ export function useImplicitActiveTrigger<State extends PopupStoreState<unknown>>
  *   popup on page load, SSR'd markup) appears without animating. Opt in for popups whose subtree
  *   only mounts in response to something the user did, such as a submenu inside a menu popup.
  *
- * @returns A function to forcibly unmount the popup.
+ * @returns A function to forcibly unmount the popup. It is a no-op once the popup is already
+ *   unmounted, so calling it after the automatic unmount doesn't repeat the completion callback.
  */
 export function useOpenStateTransitions<State extends PopupStoreState<unknown>>(
   open: boolean,
@@ -598,6 +599,9 @@ export function useOpenStateTransitions<State extends PopupStoreState<unknown>>(
   });
 
   const forceUnmount = useStableCallback(() => {
+    if (!mounted) {
+      return;
+    }
     setMounted(false);
     store.update({
       activeTriggerId: null,

@@ -140,7 +140,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
   const [preventUnmountingOnClose, setPreventUnmountingOnClose] = React.useState(false);
 
-  // Reopening, including through a controlled prop, starts a new close cycle.
+  // A controlled reopen through the `open` prop bypasses `setOpen` but starts a new close cycle too.
   if (open && preventUnmountingOnClose) {
     setPreventUnmountingOnClose(false);
   }
@@ -281,7 +281,10 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
         return;
       }
 
-      if (!nextOpen && shouldPreventUnmountOnClose()) {
+      if (nextOpen) {
+        // Opening starts a new close cycle, so clear any previous request to keep the popup mounted.
+        setPreventUnmountingOnClose(false);
+      } else if (shouldPreventUnmountOnClose()) {
         setPreventUnmountingOnClose(true);
       }
       setOpenUnwrapped(nextOpen);

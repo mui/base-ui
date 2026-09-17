@@ -574,7 +574,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
   const [preventUnmountingOnClose, setPreventUnmountingOnClose] = React.useState(false);
 
-  // Reopening, including through a controlled prop, starts a new close cycle.
+  // A controlled reopen through the `open` prop bypasses `setOpen` but starts a new close cycle too.
   if (open && preventUnmountingOnClose) {
     setPreventUnmountingOnClose(false);
   }
@@ -820,7 +820,10 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
         }
       }
 
-      if (!nextOpen && shouldPreventUnmountOnClose()) {
+      if (nextOpen) {
+        // Opening starts a new close cycle, so clear any previous request to keep the popup mounted.
+        setPreventUnmountingOnClose(false);
+      } else if (shouldPreventUnmountOnClose()) {
         setPreventUnmountingOnClose(true);
       }
       setOpenUnwrapped(nextOpen);
