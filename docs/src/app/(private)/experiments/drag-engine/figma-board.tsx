@@ -2,6 +2,7 @@
 import { Draggable } from '@base-ui/react/draggable';
 
 import * as React from 'react';
+import { DragPageAutoScroll } from 'docs/src/components/DragPageAutoScroll';
 import clsx from 'clsx';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
@@ -100,6 +101,7 @@ const INITIAL_CARDS: Card[] = [
 export default function FigmaBoard() {
   return (
     <Draggable.Provider>
+      <DragPageAutoScroll />
       <FigmaBoardInner />
     </Draggable.Provider>
   );

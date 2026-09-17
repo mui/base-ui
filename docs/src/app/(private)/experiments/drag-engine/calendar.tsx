@@ -2,6 +2,7 @@
 import { Draggable } from '@base-ui/react/draggable';
 
 import * as React from 'react';
+import { DragPageAutoScroll } from 'docs/src/components/DragPageAutoScroll';
 import clsx from 'clsx';
 import { ChevronLeft, ChevronRight, RotateCcw } from 'lucide-react';
 import { Toolbar } from '@base-ui/react/toolbar';
@@ -255,6 +256,7 @@ function CalendarExperimentInner() {
         <div className={styles.main}>
           <div className={styles.view}>
             <Draggable.Provider>
+              <DragPageAutoScroll />
               {view === 'month' ? (
                 <CalendarMonthView monthMs={monthMs} />
               ) : (

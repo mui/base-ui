@@ -12,19 +12,11 @@ import { useDragAutoScrollElement } from './useDragAutoScrollElement';
 import type { UseDragAutoScrollElementParameters } from './useDragAutoScrollElement';
 
 /**
- * Configures how its element scrolls during a drag. It enables auto-scroll if no
- * `DragAutoScroll.Provider` is mounted.
+ * Registers its element as a drag auto-scroll viewport.
+ * Nested containers and the page need their own registrations to scroll.
  * Renders a `<div>` element.
  *
- * `DragAutoScroll.Provider` enables automatic scrolling without adding props to
- * each container. Use this root to configure one region. `applyScroll`
- * implements custom scrolling, `disabled` and `canScroll` turn scrolling off,
- * and `allowedAxis`, `maxSpeed`, and `accept` set the remaining behavior.
- *
- * Nested containers scroll from the innermost to the outermost. An outer
- * container scrolls only on axes that the inner container does not use.
- *
- * Documentation: [Base UI Drag Auto Scroll](https://base-ui.com/react/utils/draggable)
+ * Documentation: [Base UI Draggable](https://base-ui.com/react/utils/draggable)
  */
 export const DragAutoScrollRoot = React.forwardRef(function DragAutoScrollRoot<
   TSourceData = unknown,

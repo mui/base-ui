@@ -10,11 +10,8 @@ import type { RegisterAutoScrollerParameters } from '../../types/dragRegistratio
 import { useRegistrationRef } from '../../utils/drag-and-drop/useRegistrationRef';
 
 /**
- * Configures the element the returned `ref` is attached to as an auto-scroll
- * container, and enables auto-scroll when used without a provider. Backs
- * `Draggable.Viewport`.
- *
- * Once enabled, the engine also infers nested scroll containers from the DOM.
+ * Registers only the element the returned `ref` is attached to for auto-scroll.
+ * Backs `Draggable.Viewport`. Nested containers need their own registration.
  *
  * The parameters are read through a stable getter on every frame, so a re-render never
  * re-registers and the freshest callbacks always apply.

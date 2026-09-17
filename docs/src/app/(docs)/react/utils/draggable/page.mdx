@@ -828,28 +828,25 @@ import { DemoDragAutoScrollCanvas } from './demos/scrolling/canvas';
 
 <DemoDragAutoScrollHero />
 
-Auto-scroll is opt-in. The board above uses one `DragAutoScroll.Provider` to enable automatic scrolling for both lists. The second list also uses `Draggable.Viewport` to reduce its speed.
+Auto-scroll is opt-in for each container. The board above registers both lists with `Draggable.Viewport`. The second viewport also reduces its scrolling speed.
 
-Once a provider is mounted, Base UI detects nested scroll containers around drag sources, the pointer, and drop targets. Scrollable elements need no additional props. Use `Draggable.Viewport` to [configure an existing scroll container](#customize-a-container-that-already-scrolls) or [implement custom scrolling](#implement-custom-scrolling), such as panning a canvas with a CSS `transform`.
-
-It pairs with [Draggable](/react/utils/draggable) and [DropTarget](/react/utils/draggable). Auto-scroll runs while a pointer drag approaches the edge of a scrollable container.
+Use `Draggable.Viewport` on each element that should scroll, including nested containers. It can [configure an existing scroll container](#customize-a-container-that-already-scrolls) or [implement custom scrolling](#implement-custom-scrolling), such as panning a canvas with a CSS `transform`.
 
 ### Anatomy
 
-Import the component and mount its provider while auto-scroll should be enabled:
+Render the viewport as the element that has scrollable overflow:
 
 ```jsx title="Anatomy"
 import { Draggable } from '@base-ui/react/draggable';
-import { DragAutoScroll } from '@base-ui/react/drag-auto-scroll';
 
-<DragAutoScroll.Provider>{children}</DragAutoScroll.Provider>;
+<Draggable.Provider>
+  <Draggable.Viewport style={{ overflow: 'auto', maxHeight: 300 }}>{children}</Draggable.Viewport>
+</Draggable.Provider>;
 ```
-
-The provider renders no element and does not scope drag and drop through React context. Base UI uses one drag manager per page, so mounting any provider enables automatic scrolling for every Base UI drag source. Set `disabled` to disable this provider without removing it from the React tree. Another mounted provider or root can still keep auto-scroll active.
 
 ### Which containers scroll
 
-While a `DragAutoScroll.Provider`, `Draggable.Viewport`, or imperative auto-scroller registration is mounted, scrollable ancestors under the pointer and around the dragged element can auto-scroll, including the page.
+Only elements rendered by `Draggable.Viewport` or registered with `registerAutoScroller` can auto-scroll. Registering one element does not enable scrolling for its ancestors, descendants, or the page.
 
 An element participates on axes whose computed `overflow` is `auto`, `scroll`, or `overlay`. Use `hidden` or `clip` to exclude an axis.
 
@@ -861,11 +858,11 @@ Drop targets are resolved again as content scrolls, so a target that moves under
 
 ### Customize a container that already scrolls
 
-Like a provider, mounting `Draggable.Viewport` enables auto-scroll across the page. Its props configure the element it renders, including accepted drags, allowed axes, speed, and disabled state.
+`Draggable.Viewport` registers the element it renders. Its props configure accepted drags, allowed axes, speed, and disabled state.
 
 #### Control when it scrolls
 
-Use `disabled` to exclude a container from auto-scroll. An ancestor can then scroll on the excluded axes. This is useful for code blocks, embedded maps, and small scroll containers that should not move while the pointer crosses them.
+Use `disabled` to exclude a container from auto-scroll. A registered ancestor can then scroll on the excluded axes. This is useful for code blocks, embedded maps, and small scroll containers that should not move while the pointer crosses them.
 
 ```tsx title="A code block that stays put"
 <Draggable.Viewport disabled className={styles.CodeBlock}>
@@ -970,9 +967,9 @@ Use [`allowedAxis`](#constrain-the-direction) and [`accept`](#control-when-it-sc
 
 ### Nested containers
 
-The innermost container scrolls first. An ancestor can scroll on any axis the inner container does not use. For example, dragging a card to the bottom of an inner list scrolls the list until it reaches the end, then scrolls an eligible ancestor. A vertical column inside a horizontal board lets the column and board scroll on separate axes.
+The innermost container scrolls first. A registered ancestor can scroll on any axis the inner container does not use. For example, dragging a card to the bottom of an inner list scrolls the list until it reaches the end, then scrolls an eligible ancestor. A vertical column inside a horizontal board lets the column and board scroll on separate axes.
 
-Nesting follows the DOM tree and requires no separate configuration. Detected scroll containers and `Draggable.Viewport` elements use the same ancestor order.
+Nesting follows the DOM tree and requires no separate configuration. Each container needs its own viewport or imperative registration.
 
 ### Both a scroll container and a drop target
 
@@ -988,7 +985,7 @@ You can pass a `Draggable.Viewport` to a `Draggable.Target`'s `render` prop when
 
 ### Scrolling the page
 
-Once auto-scroll is enabled, dragging near the viewport edge can scroll the page. The page uses the viewport for its edge zones. Inner scroll containers take precedence on the axes they use.
+Register `document.documentElement` to let dragging near the viewport edge scroll the page. The page uses the viewport for its edge zones. Inner scroll containers take precedence on the axes they use.
 
 You can stop page auto-scroll on an axis with `overflow: hidden` or `clip` on `<html>` or `<body>`.
 
@@ -1000,7 +997,7 @@ html {
 
 Scroll locks that apply `overflow: hidden`, such as those used by modal `Dialog` and `Popover` configurations, also prevent page auto-scroll.
 
-Use [`useDragDropManager`](/react/utils/draggable#usedragdropmanager) to customize page auto-scroll or a scroll container rendered by code you do not control.
+Use [`useDragDropManager`](/react/utils/draggable#usedragdropmanager) to enable page auto-scroll or register a scroll container rendered by code you do not control.
 
 ```tsx title="A page that scrolls only vertically"
 import { Draggable } from '@base-ui/react/draggable';
@@ -1378,14 +1375,6 @@ import { TypesDraggable, TypesDraggableAdditional } from './types';
 
 <TypesDraggable.Viewport />
 
-### Auto-scroll provider
-
-`DragAutoScroll.Provider` enables inferred scrolling without configuring a particular viewport.
-
-import { TypesDragAutoScroll } from './inferred-scroll/types';
-
-<TypesDragAutoScroll.Provider />
-
 ### restrictToVerticalAxis
 
 <TypesDraggable.restrictToVerticalAxis />
@@ -1608,19 +1597,19 @@ manager.registerDropTarget(element, () => ({
 
 ### Auto-scroll
 
-`registerAutoScroller` enables automatic scrolling and configures one element. If a [`DragAutoScroll.Provider`](/react/utils/draggable) is already mounted, the registration only changes that element's behavior. It accepts the same parameters as `Draggable.Viewport`. Use `allowedAxis` to limit the axes, `canScroll` to disable scrolling for a drag, `maxSpeed` to set the speed, and `applyScroll` to implement custom scrolling. For example, a transformed canvas has no scroll offsets for Base UI to update and often already has a viewport ref.
+`registerAutoScroller` enables automatic scrolling for one element. Each scroll container needs its own registration. It accepts the same parameters as `Draggable.Viewport`. Use `allowedAxis` to limit the axes, `canScroll` to disable scrolling for a drag, `maxSpeed` to set the speed, and `applyScroll` to implement custom scrolling. For example, a transformed canvas has no scroll offsets for Base UI to update and often already has a viewport ref.
 
 ```tsx title="A canvas that pans itself"
 manager.registerAutoScroller(canvasViewport, () => ({ applyScroll: panBy }));
 ```
 
-Register `document.documentElement` to customize or disable page auto-scroll.
+Register `document.documentElement` to enable and configure page auto-scroll.
 
-```tsx title="A page that never scrolls itself"
-manager.registerAutoScroller(document.documentElement, () => ({ canScroll: () => false }));
+```tsx title="A page that scrolls vertically"
+manager.registerAutoScroller(document.documentElement, () => ({ allowedAxis: 'vertical' }));
 ```
 
-With a provider mounted, Base UI detects a container that appears after data loads or inside a third-party widget when a drag reaches it. Register the container only if you need to change its behavior.
+For a container that appears after data loads or inside a third-party widget, register its actual scrolling element once it is available. The widget must expose that element. Return the cleanup function when it unmounts or is replaced.
 
 ```tsx title="A container that appears later"
 React.useEffect(() => {

@@ -81,7 +81,7 @@ export function dispatchToMonitors<
     return;
   }
 
-  // The inferred auto-scroll monitor is the common case. Dispatch it directly
+  // The auto-scroll monitor is the common case. Dispatch it directly
   // rather than allocating a one-entry snapshot for every drag frame. Nothing
   // can engage between reading the entry and invoking it, and a monitor added
   // by the handler still cannot receive the in-flight event.

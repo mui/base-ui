@@ -2,8 +2,8 @@
 import { Draggable } from '@base-ui/react/draggable';
 
 import * as React from 'react';
+import { DragPageAutoScroll } from 'docs/src/components/DragPageAutoScroll';
 
-import { DragAutoScroll } from '@base-ui/react/drag-auto-scroll';
 import styles from '../../hero.module.css';
 
 type Zone = 'plain' | 'slow';
@@ -153,18 +153,11 @@ function DropZone({
       )}
     </React.Fragment>
   );
-  const scrollRegion =
-    maxSpeed === undefined ? (
-      <div ref={listRef} className={styles.Cards}>
-        {cards}
-      </div>
-    ) : (
-      // @highlight-start
-      <Draggable.Viewport ref={listRef} className={styles.Cards} maxSpeed={maxSpeed}>
-        {cards}
-      </Draggable.Viewport>
-      // @highlight-end
-    );
+  const scrollRegion = (
+    <Draggable.Viewport ref={listRef} className={styles.Cards} maxSpeed={maxSpeed}>
+      {cards}
+    </Draggable.Viewport>
+  );
 
   return (
     <Draggable.Target
@@ -229,7 +222,7 @@ function AutoScrollBoardContent() {
 
   return (
     // @highlight-start
-    <DragAutoScroll.Provider>
+    <React.Fragment>
       {/* @highlight-end */}
       <div ref={rootRef} className={styles.Root}>
         <p className={styles.Hint}>
@@ -253,13 +246,14 @@ function AutoScrollBoardContent() {
           />
         </div>
       </div>
-    </DragAutoScroll.Provider>
+    </React.Fragment>
   );
 }
 
 export default function AutoScrollBoard() {
   return (
     <Draggable.Provider>
+      <DragPageAutoScroll />
       <AutoScrollBoardContent />
     </Draggable.Provider>
   );

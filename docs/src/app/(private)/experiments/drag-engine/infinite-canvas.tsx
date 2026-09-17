@@ -2,6 +2,7 @@
 import { Draggable } from '@base-ui/react/draggable';
 
 import * as React from 'react';
+import { DragPageAutoScroll } from 'docs/src/components/DragPageAutoScroll';
 import clsx from 'clsx';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 
@@ -236,6 +237,7 @@ function InfiniteCanvasContent() {
 export default function InfiniteCanvas() {
   return (
     <Draggable.Provider>
+      <DragPageAutoScroll />
       <InfiniteCanvasContent />
     </Draggable.Provider>
   );
