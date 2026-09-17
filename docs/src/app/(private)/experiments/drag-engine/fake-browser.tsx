@@ -8,7 +8,6 @@ import {
 } from '@base-ui/react/draggable';
 
 import * as React from 'react';
-import { DragPageAutoScroll } from 'docs/src/components/DragPageAutoScroll';
 import clsx from 'clsx';
 import { ContextMenu } from '@base-ui/react/context-menu';
 import { Dialog } from '@base-ui/react/dialog';
@@ -27,6 +26,7 @@ import { activeElement, getTarget } from '@base-ui/utils/shadowDom';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useTimeout } from '@base-ui/utils/useTimeout';
+import { DragPageAutoScroll } from '../../../(docs)/react/utils/draggable/demos/DragPageAutoScroll';
 import {
   INITIAL_TREE,
   ROOT_ID,

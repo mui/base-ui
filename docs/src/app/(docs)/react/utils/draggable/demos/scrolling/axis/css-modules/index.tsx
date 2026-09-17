@@ -2,7 +2,7 @@
 import { Draggable } from '@base-ui/react/draggable';
 
 import * as React from 'react';
-import { DragPageAutoScroll } from 'docs/src/components/DragPageAutoScroll';
+import { DragPageAutoScroll } from '../../../DragPageAutoScroll';
 
 import styles from '../../axis.module.css';
 
