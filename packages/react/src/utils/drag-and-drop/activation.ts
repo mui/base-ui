@@ -130,9 +130,14 @@ export type DragActivation =
 /**
  * A single activation applied to all pointer types, or a per-pointer map.
  * Missing entries fall back to the per-pointer defaults. Pass an array of these
- * values to enable multiple activation methods.
+ * values to enable multiple activation methods. Double-click pickup is mouse-only.
  */
 export type DragActivationConfig =
-  DragActivation | Partial<Record<DragPointerType, DragActivation>>;
+  | DragActivation
+  | {
+      mouse?: DragActivation | undefined;
+      touch?: Exclude<DragActivation, { type: 'double-click' }> | undefined;
+      pen?: Exclude<DragActivation, { type: 'double-click' }> | undefined;
+    };
 
 export type ActivationDecision = 'pending' | 'activate' | 'cancel';
