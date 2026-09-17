@@ -179,11 +179,6 @@ export interface FloatingFocusManagerProps {
     | ((openType: InteractionType) => boolean | HTMLElement | null | void)
     | undefined;
   /**
-   * Delays initial focus until popup accessibility notifications have been delivered.
-   * @internal
-   */
-  initialFocusDelay?: number | undefined;
-  /**
    * Determines the element to focus when the floating element is closed.
    *
    * - `false`: Do not move focus.
@@ -266,7 +261,6 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     children,
     disabled = false,
     initialFocus = true,
-    initialFocusDelay = 0,
     returnFocus = true,
     explicitReturnFocus,
     restoreFocus = false,
@@ -327,7 +321,6 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
   const blurTimeout = useTimeout();
   const pointerDownTimeout = useTimeout();
   const restoreFocusFrame = useAnimationFrame();
-  const initialFocusTimeout = useTimeout();
 
   const isInsidePortal = portalContext != null;
   const floatingFocusElement = getFloatingFocusElement(floating);
@@ -735,38 +728,30 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
       const openedByVirtualPress =
         openEvent?.type === 'mousedown' && isVirtualClick(openEvent as MouseEvent);
 
-      const focus = () =>
-        enqueueFocus(elToFocus, {
-          sync: openedByVirtualPress,
-          preventScroll: elToFocus === floatingFocusElement,
-          shouldFocus() {
-            // If the floating element has closed before this runs — e.g. tabbing out of a
-            // kept-mounted popup — don't pull focus back onto the initial element after it has
-            // legitimately moved elsewhere.
-            if (!openRef.current) {
-              return false;
-            }
+      // enqueueFocus returns a rAF-cancel function; we intentionally don't cancel this focus.
+      void enqueueFocus(elToFocus, {
+        sync: openedByVirtualPress,
+        preventScroll: elToFocus === floatingFocusElement,
+        shouldFocus() {
+          // If the floating element has closed before this runs — e.g. tabbing out of a
+          // kept-mounted popup — don't pull focus back onto the initial element after it has
+          // legitimately moved elsewhere.
+          if (!openRef.current) {
+            return false;
+          }
 
-            if (hadFocusInside) {
-              return true;
-            }
+          if (hadFocusInside) {
+            return true;
+          }
 
-            const currentActiveElement = activeElement(doc);
-            const focusMovedInside =
-              currentActiveElement !== elToFocus &&
-              contains(floatingFocusElement, currentActiveElement);
+          const currentActiveElement = activeElement(doc);
+          const focusMovedInside =
+            currentActiveElement !== elToFocus &&
+            contains(floatingFocusElement, currentActiveElement);
 
-            return !focusMovedInside;
-          },
-        });
-
-      // Windows menu-open notifications can replace the input's focus announcement when both
-      // arrive in the same accessibility update. Separate menu exposure from initial focus.
-      if (initialFocusDelay) {
-        initialFocusTimeout.start(initialFocusDelay, focus);
-      } else {
-        void focus();
-      }
+          return !focusMovedInside;
+        },
+      });
     });
   }, [
     disabled,
@@ -774,8 +759,6 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     floatingFocusElement,
     getTabbableContent,
     initialFocusRef,
-    initialFocusDelay,
-    initialFocusTimeout,
     openInteractionTypeRef,
     openRef,
     dataRef,
