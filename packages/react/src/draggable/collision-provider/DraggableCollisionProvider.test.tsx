@@ -1,7 +1,8 @@
 import * as React from 'react';
+import * as ReactDOM from 'react-dom';
 import { describe, it, expect, vi } from 'vitest';
 import { screen } from '@testing-library/react';
-import { createDndRenderer } from '#test-utils';
+import { createDndRenderer, firePointer } from '#test-utils';
 import { Draggable } from '@base-ui/react/draggable';
 import { lift, dragOver, drop, cancel, setupDragEngineTests } from '../../../test/dnd';
 
@@ -67,6 +68,45 @@ describe('Draggable.CollisionProvider', () => {
     expect(ended.mock.lastCall?.[0]).toMatchObject({
       canceled: false,
       collision: { target: { payload: 'b' }, placement: 'before' },
+    });
+  });
+
+  it('keeps group ownership when the source unmounts during pickup', async () => {
+    const started = vi.fn();
+    const ended = vi.fn();
+    function Example() {
+      const [visible, setVisible] = React.useState(true);
+      return (
+        <Draggable.CollisionProvider kind={kind} onMoveStart={started} onMoveEnd={ended}>
+          {visible && (
+            <Draggable.Root
+              kind={kind}
+              payload="a"
+              data-testid="a"
+              onMoveStart={() => ReactDOM.flushSync(() => setVisible(false))}
+            >
+              <Draggable.Preview disabled />
+            </Draggable.Root>
+          )}
+          <Draggable.Root kind={kind} payload="b" data-testid="b">
+            <Draggable.Preview disabled />
+          </Draggable.Root>
+        </Draggable.CollisionProvider>
+      );
+    }
+    await renderDnd(<Example />);
+    const a = screen.getByTestId('a');
+    const b = screen.getByTestId('b');
+    vi.spyOn(b, 'getBoundingClientRect').mockReturnValue(new DOMRect(0, 100, 100, 100));
+    await lift(a);
+    expect(started).toHaveBeenCalledOnce();
+    expect(screen.queryByTestId('a')).toBeNull();
+    await dragOver(b, { clientY: 180 });
+    firePointer.up(b, { pointerId: 1, pointerType: 'mouse', clientY: 180, timeStamp: 1000 });
+    expect(ended).toHaveBeenCalledOnce();
+    expect(ended.mock.lastCall?.[0].collision).toMatchObject({
+      target: { payload: 'b' },
+      placement: 'after',
     });
   });
 

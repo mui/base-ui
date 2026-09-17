@@ -16,6 +16,7 @@ import type {
 } from '../../types/drag';
 import { registerDropTarget, registerMonitor } from '../../utils/drag-and-drop/registrations';
 import { scheduleDropTargetParameterRefresh } from '../../utils/drag-and-drop/core/lifecycleManager';
+import { dragSourceStore } from '../../utils/drag-and-drop/dragSessionStore';
 import { resolveCollision } from '../../utils/drag-and-drop/collisionResolution';
 import { createKind } from '../../utils/drag-and-drop/dragKind';
 import { isRtlElement } from '../../utils/drag-and-drop/utils';
@@ -63,6 +64,7 @@ export function DraggableCollisionProvider<TData>(
   const sources = useRefWithInit(() => new WeakMap<Element, HTMLElement>()).current;
   const targetKind = useRefWithInit(() => createKind<TData>('collision-participant')).current;
   const involvedRef = React.useRef(false);
+  const removedSource = React.useRef<DragSource | null>(null);
   const previous = React.useRef<DraggableCollision<TData> | null>(null);
 
   const register = useStableCallback(
@@ -129,6 +131,10 @@ export function DraggableCollisionProvider<TData>(
         };
       });
       return () => {
+        // A source callback can unmount its row before the start monitor runs.
+        if (dragSourceStore.state?.element === sourceElement) {
+          removedSource.current = dragSourceStore.state;
+        }
         const count = participants.get(sourceElement) ?? 0;
         if (count <= 1) {
           participants.delete(sourceElement);
@@ -188,7 +194,9 @@ export function DraggableCollisionProvider<TData>(
       previous.current = null;
       lastInput.current = event.location.current.input;
       rtlCache.current = new WeakMap();
-      involvedRef.current = participants.has(event.source.element);
+      involvedRef.current =
+        participants.has(event.source.element) || removedSource.current === event.source;
+      removedSource.current = null;
       if (involvedRef.current) {
         props.onMoveStart?.(event, details);
       }
@@ -227,7 +235,7 @@ export function DraggableCollisionProvider<TData>(
   useIsoLayoutEffect(() => {
     if (firstParameterEffect.current) {
       firstParameterEffect.current = false;
-    } else {
+    } else if (dragSourceStore.state && props.kind.matches(dragSourceStore.state)) {
       scheduleDropTargetParameterRefresh();
     }
   }, [props.kind, props.canCollide, props.orientation, props.placement]);
