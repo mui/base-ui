@@ -16,7 +16,7 @@ import { ScrollArea } from '@base-ui/react/scroll-area';
 import userEvent from '@testing-library/user-event';
 import { createRenderer, isJSDOM, resetBrowserPointer, waitSingleFrame } from '#test-utils';
 
-// Mainline tests assert the non-VoiceOver submenu-trigger behavior deterministically on every OS.
+// Mainline tests assert the non-WebKit path; MenuFilterRoot.webkit.test.tsx covers its compatibility state.
 vi.mock('@base-ui/utils/platform', async () => {
   const actual =
     await vi.importActual<typeof import('@base-ui/utils/platform')>('@base-ui/utils/platform');
@@ -24,6 +24,7 @@ vi.mock('@base-ui/utils/platform', async () => {
   return {
     platform: {
       ...actual.platform,
+      engine: { ...actual.platform.engine, webkit: false },
       screenReader: { ...actual.platform.screenReader, voiceOver: false },
     },
   };
@@ -2239,9 +2240,9 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
       });
 
       await user.keyboard('[ArrowDown][ArrowDown][ArrowRight]');
-      expect(
-        await screen.findByRole('searchbox', { name: 'Filter sharing options' }),
-      ).toHaveFocus();
+      await waitFor(() => {
+        expect(screen.getByRole('searchbox', { name: 'Filter sharing options' })).toHaveFocus();
+      });
 
       await user.keyboard('[Escape]');
       const shareTrigger = screen.getByRole('menuitem', { name: 'Share' });
@@ -2260,7 +2261,9 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
 
       await user.keyboard('[ArrowDown][ArrowDown][ArrowRight]');
       expect(screen.queryByRole('searchbox', { name: 'Filter sharing options' })).toBe(null);
-      expect(await screen.findByRole('searchbox', { name: 'Filter export options' })).toHaveFocus();
+      await waitFor(() => {
+        expect(screen.getByRole('searchbox', { name: 'Filter export options' })).toHaveFocus();
+      });
     });
 
     it.skipIf(isJSDOM)(
