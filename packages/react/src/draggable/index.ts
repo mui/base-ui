@@ -72,3 +72,5 @@ export type * from '../drop-target/root/DropTargetRoot';
 export type * from '../drag-auto-scroll/root/DragAutoScrollRoot';
 export type { UseDragMonitorParameters } from '../use-drag-monitor/useDragMonitor';
 export type { UseDragDropManagerReturnValue } from '../use-drag-drop-manager/useDragDropManager';
+
+export type * from './collision-provider/DraggableCollisionProvider';

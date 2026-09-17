@@ -3,7 +3,6 @@ import {
   Draggable,
   type BeforeMoveStartEventDetails,
   type MoveStartContext,
-  type DropTargetEvent,
 } from '@base-ui/react/draggable';
 
 import * as React from 'react';
@@ -92,7 +91,6 @@ function PlusIcon() {
 interface DraggableTabProps {
   item: TabItem;
   listRef: React.RefObject<HTMLDivElement | null>;
-  onDragOverTab: (draggedId: string, overId: string, movingRight: boolean) => void;
   onMoveStart: () => void;
   onDrop: () => void;
   onMoveEnd: () => void;
@@ -102,17 +100,8 @@ interface DraggableTabProps {
 }
 
 function DraggableTab(props: DraggableTabProps) {
-  const {
-    item,
-    listRef,
-    onDragOverTab,
-    onMoveStart,
-    onDrop,
-    onMoveEnd,
-    onSelect,
-    onClose,
-    onKeyboardMove,
-  } = props;
+  const { item, listRef, onMoveStart, onDrop, onMoveEnd, onSelect, onClose, onKeyboardMove } =
+    props;
 
   const handleBeforeDragStart = useStableCallback(
     (_context: MoveStartContext, eventDetails: BeforeMoveStartEventDetails) => {
@@ -123,12 +112,6 @@ function DraggableTab(props: DraggableTabProps) {
       onSelect(item.id);
     },
   );
-
-  const handleDrag = useStableCallback((event: DropTargetEvent<'onDraggableMove', string>) => {
-    // Compare against the tab's midpoint rather than the pointer's direction of
-    // travel: while the list auto-scrolls, tabs slide under a stationary pointer.
-    onDragOverTab(event.source.payload, item.id, event.target.getLocalPoint().x > 0.5);
-  });
 
   const handleClosePointerDown = useStableCallback((event: React.PointerEvent) => {
     event.preventDefault();
@@ -176,18 +159,11 @@ function DraggableTab(props: DraggableTabProps) {
           }}
 
           render={
-            <Draggable.Target
-              accept={tabKind}
-              trackDragOver={false}
-              onDraggableMove={handleDrag}
-              render={
-                <button
-                  type="button"
-                  aria-label={item.label}
-                  aria-keyshortcuts="Alt+ArrowLeft Alt+ArrowRight Delete"
-                  onKeyDown={handleKeyDown}
-                />
-              }
+            <button
+              type="button"
+              aria-label={item.label}
+              aria-keyshortcuts="Alt+ArrowLeft Alt+ArrowRight Delete"
+              onKeyDown={handleKeyDown}
             />
           }
         />
@@ -306,20 +282,33 @@ function DraggableTabsContent() {
             />
           }
         >
-          {items.map((item) => (
-            <DraggableTab
-              key={item.id}
-              item={item}
-              listRef={listRef}
-              onDragOverTab={handleDragOverTab}
-              onMoveStart={handleDragStart}
-              onDrop={handleDrop}
-              onMoveEnd={handleDragEnd}
-              onSelect={setSelectedValue}
-              onClose={handleClose}
-              onKeyboardMove={handleKeyboardMove}
-            />
-          ))}
+          <Draggable.CollisionProvider
+            kind={tabKind}
+            orientation="horizontal"
+            onCollisionChange={({ source, collision }) => {
+              if (collision) {
+                handleDragOverTab(
+                  source.payload,
+                  collision.target.payload,
+                  collision.placement === 'after',
+                );
+              }
+            }}
+          >
+            {items.map((item) => (
+              <DraggableTab
+                key={item.id}
+                item={item}
+                listRef={listRef}
+                onMoveStart={handleDragStart}
+                onDrop={handleDrop}
+                onMoveEnd={handleDragEnd}
+                onSelect={setSelectedValue}
+                onClose={handleClose}
+                onKeyboardMove={handleKeyboardMove}
+              />
+            ))}
+          </Draggable.CollisionProvider>
         </Tabs.List>
         <button className={styles.AddButton} type="button" onClick={handleAdd} aria-label="Add tab">
           <PlusIcon />

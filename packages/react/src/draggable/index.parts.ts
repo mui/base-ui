@@ -25,3 +25,5 @@ export { DragAutoScrollRoot as Viewport } from '../drag-auto-scroll/root/DragAut
 export { useDragMonitor } from '../use-drag-monitor/useDragMonitor';
 export { useDragDropManager } from '../use-drag-drop-manager/useDragDropManager';
 export type * from '../types/drag';
+
+export { DraggableCollisionProvider as CollisionProvider } from './collision-provider/DraggableCollisionProvider';
