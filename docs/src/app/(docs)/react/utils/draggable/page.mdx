@@ -1,7 +1,10 @@
 # Draggable
 
 <Subtitle>A component that makes its element a drag source.</Subtitle>
-<Meta name="description" content="An unstyled React drag source for pointer interactions." />
+<Meta
+  name="description"
+  content="Unstyled React utilities for drag sources, targets, previews, and scrolling."
+/>
 
 import { DemoDraggableHero } from './demos/hero';
 import { DemoDragHandle } from './demos/handle';
@@ -472,11 +475,6 @@ Compare `current` with `previous` to detect changes in pointer position or activ
 
 ## Drop targets
 
-<Meta
-  name="description"
-  content="An unstyled React drop target that accepts matching drag sources."
-/>
-
 import { DemoDropTargetHero } from './demos/targets/hero';
 import { DemoNestedDropTargets } from './demos/targets/nesting';
 
@@ -764,11 +762,6 @@ const itemKind = Draggable.createKind<string>('item');
 
 ## Scrolling
 
-<Meta
-  name="description"
-  content="An unstyled React component for enabling drag auto-scroll, configuring scroll containers, and implementing custom scrolling."
-/>
-
 import { DemoDragAutoScrollHero } from './demos/scrolling/hero';
 import { DemoDragAutoScrollAxis } from './demos/scrolling/axis';
 import { DemoDragAutoScrollCanvas } from './demos/scrolling/canvas';
@@ -967,11 +960,6 @@ Add `disabled: true` to the registration to disable page auto-scroll.
 
 ## Styling
 
-<Meta
-  name="description"
-  content="How to style Base UI drag sources, previews, drop targets, and drop animations."
-/>
-
 The drag-and-drop components are unstyled. Base UI exposes each state as a data attribute. See the [styling guide](https://base-ui.com/react/handbook/styling) for how to use data attributes. The [Draggable](/react/utils/draggable#api-reference), [DropTarget](/react/utils/draggable#api-reference), and [DragAutoScroll](/react/utils/draggable#api-reference) API references list every attribute.
 
 ### Dimming the source
@@ -1093,11 +1081,6 @@ The preview follows the pointer, but Base UI adds no transition animations. App
 
 ## Accessibility
 
-<Meta
-  name="description"
-  content="Accessible alternatives for pointer drag and drop in Base UI, including menus, shortcuts, focus, and announcements."
-/>
-
 Base UI drag and drop responds to mouse, touch, and pen input. Every action available by dragging must also be available without a drag gesture. Implement that alternative in the application, where the available destinations and the meaning of a move are known.
 
 ### Provide an alternative to dragging
@@ -1182,8 +1165,6 @@ The draggable item may still be focusable for its normal widget behavior. Base 
 - Test touch, mouse, keyboard, screen-reader, zoom, and reduced-motion paths independently.
 
 ## Testing
-
-<Meta name="description" content="How to test Base UI pointer drags in jsdom and a browser." />
 
 Base UI implements [synthetic drag and drop](/react/utils/draggable#concepts) through pointer events. Drive tests with `pointerdown`, `pointermove`, and `pointerup`. Native HTML5 events such as `dragstart` do not start a Base UI drag.
 
@@ -1399,8 +1380,6 @@ const cardDrag = Draggable.useActiveDrag(card);
 
 ## useDragMonitor
 
-<Meta name="description" content="A React hook that observes every drag on the page." />
-
 import { DemoMonitorShapeSorter } from './demos/use-drag-monitor/hero';
 
 <DemoMonitorShapeSorter />
@@ -1474,11 +1453,6 @@ Use [`Draggable.useActiveDrag`](/react/utils/draggable#useactivedrag) to read th
 <TypesDraggable.useDragMonitor />
 
 ## useDragDropManager
-
-<Meta
-  name="description"
-  content="A React hook that returns the page-wide manager for registering draggables, drop targets, auto-scrollers, and monitors, and canceling a drag."
-/>
 
 import { DemoEngineShapeSorter } from './demos/use-drag-drop-manager/hero';
 
@@ -1633,6 +1607,6 @@ export const metadata = {
     'Drop Target',
     'Drag Preview',
     'Auto Scroll',
-    'Base UI',
+    'Base UI',
   ],
 };
