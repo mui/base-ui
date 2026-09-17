@@ -68,6 +68,7 @@ function useRenderElementProps<
     props,
     stateAttributesMapping,
     enabled = true,
+    defaultChildren,
   } = params;
 
   const className = enabled ? resolveClassName(classNameProp, state) : undefined;
@@ -85,6 +86,20 @@ function useRenderElementProps<
   const outProps: React.HTMLAttributes<any> & React.RefAttributes<any> = enabled
     ? (mergeObjects(stateProps, resolvedProps) ?? {})
     : EMPTY_OBJECT;
+
+  // Only fall back to `defaultChildren` on the default-element path. When `render` replaces
+  // the default element, the caller owns its content entirely — injecting a default here would
+  // leak into `render` elements that don't declare their own `children` (for example, a
+  // self-closing custom icon), since the later prop merge in `evaluateRenderProp` only
+  // overwrites keys that actually exist on `render.props`.
+  if (
+    enabled &&
+    defaultChildren !== undefined &&
+    outProps.children === undefined &&
+    renderProp == null
+  ) {
+    outProps.children = defaultChildren;
+  }
 
   // SAFETY: The `useMergedRefs` functions use a single hook to store the same value,
   // switching between them at runtime is safe. If this assertion fails, React will
@@ -282,6 +297,12 @@ export type UseRenderElementParameters<
    * A mapping of state to `data-*` attributes.
    */
   stateAttributesMapping?: StateAttributesMapping<State> | undefined;
+  /**
+   * Fallback content rendered only on the default element path (when the `render` prop
+   * is not provided). Ignored once the caller opts into `render`, since `render` implies
+   * full ownership over the rendered content.
+   */
+  defaultChildren?: React.ReactNode | undefined;
 };
 
 export interface UseRenderElementComponentProps<State> {

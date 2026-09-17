@@ -91,7 +91,6 @@ export const ComboboxClear = React.forwardRef(function ComboboxClear(
     props: [
       {
         tabIndex: -1,
-        children: 'x',
         // Avoid stealing focus from the input.
         onMouseDown(event) {
           event.preventDefault();
@@ -126,6 +125,7 @@ export const ComboboxClear = React.forwardRef(function ComboboxClear(
       elementProps,
       getButtonProps,
     ],
+    defaultChildren: 'x',
     stateAttributesMapping,
   });
 

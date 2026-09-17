@@ -20,10 +20,10 @@ export const ComboboxIcon = React.forwardRef(function ComboboxIcon(
     props: [
       {
         'aria-hidden': true,
-        children: '▼',
       },
       elementProps,
     ],
+    defaultChildren: '▼',
   });
 
   return element;
