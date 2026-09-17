@@ -36,9 +36,9 @@ A root supports one preview part. Omit it to use a sanitized clone of the source
 
 ## Provider
 
-Wrap drag sources, targets, viewports, and components calling drag hooks in `Draggable.Provider`. The provider renders no DOM element. It supplies a default no-payload kind and the React boundary used by custom previews. Subsequent examples assume this provider is already present.
+Wrap drag sources, targets, viewports, and components calling `useDragMonitor` or `useDragDropManager` in `Draggable.Provider`. The provider renders no DOM element. It supplies a default no-payload kind and the React boundary used by custom previews. Subsequent examples assume this provider is already present.
 
-Omit `kind` and `accept` for a simple interaction within one provider. Each provider has its own default kind. Nested or separate providers do not match each other's default kinds; use an explicit shared kind for cross-provider interactions. The drag manager itself remains page-wide.
+Omit `kind` and `accept` for a simple interaction within one provider. Each provider has its own default kind. Nested or separate providers do not match each other's default kinds; use an explicit shared kind for cross-provider interactions. The drag manager itself remains page-wide. `useActiveDrag` reads this global state and can be used outside a provider.
 
 Place the provider below any React contexts the custom preview needs, and above the component calling a drag hook. A provider returned by that same component cannot supply context to its own hooks.
 

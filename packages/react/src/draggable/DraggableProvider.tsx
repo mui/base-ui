@@ -9,7 +9,8 @@ import { DraggablePreviewProvider } from './preview-provider/DraggablePreviewPro
 
 /**
  * Provides the default drag kind and custom preview boundary for its descendants.
- * Required above drag components and components calling drag hooks. Renders no DOM element.
+ * Required above drag components, `useDragMonitor`, and `useDragDropManager`.
+ * Renders no DOM element.
  * Sources and targets without an explicit kind only match within the same provider.
  * Explicit kinds can match across providers; the manager remains page-wide.
  *
