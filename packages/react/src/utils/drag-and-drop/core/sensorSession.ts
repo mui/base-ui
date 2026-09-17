@@ -57,9 +57,7 @@ function startSensorSession(parameters: StartSensorSessionParameters): DragSessi
     onForceCleanup,
   } = parameters;
 
-  const payload = source.getPayload
-    ? source.getPayload({ input: initialInput, element, dragHandle })
-    : source.payload;
+  const payload = source.getCollectionPayload ? source.getCollectionPayload() : source.payload;
 
   const dragSource: DragSource = {
     element,

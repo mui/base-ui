@@ -370,7 +370,7 @@ export type DropTargetEvent<
   TLocalData = unknown,
 > = DropTargetEventMap<TSourceData>[K] & DropTargetEventTarget<TLocalData>;
 
-/** Context passed to a draggable's `getPayload` and `onBeforeMoveStart` callbacks. */
+/** Context passed to a draggable's `onBeforeMoveStart` callback. */
 export interface MoveStartContext {
   /** Pointer state at drag start. */
   input: DragInput;
@@ -384,9 +384,6 @@ export interface MoveStartContext {
 // `NoInfer` because `kind` is what the payload type is inferred from: without it a
 // `payload` that does not match the kind would widen `TData` instead of being rejected.
 export type DraggablePayload<TData> = NoInfer<TData>;
-
-/** Resolves a draggable's payload once, when the drag starts. */
-export type DraggablePayloadGetter<TData> = (context: MoveStartContext) => NoInfer<TData>;
 
 /**
  * Determines the element that must receive the press for a drag to start.

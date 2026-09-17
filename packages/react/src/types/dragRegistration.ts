@@ -9,7 +9,6 @@ import type {
   DragCleanupFn,
   DragKind,
   DraggablePayload,
-  DraggablePayloadGetter,
   DropTargetPayload,
   DropTargetPayloadGetter,
 } from './drag';
@@ -65,6 +64,7 @@ export type RegisterDraggableParameters<TData = undefined> = Omit<
   | 'element'
   | 'onGenerateDragPreview'
   | 'getDragPreviewDeclaration'
+  | 'getCollectionPayload'
   | 'styleNonce'
   | 'disableStyleElements'
 >;
@@ -73,11 +73,10 @@ export type RegisterDraggableParameters<TData = undefined> = Omit<
  * `RegisterDraggableParameters` for the overload that infers `TData` from a required `payload`.
  * @public
  */
-export type RegisterDraggableParametersWithPayload<TData> = WithRequiredPayload<
+export type RegisterDraggableParametersWithPayload<TData> = Omit<
   RegisterDraggableParameters<TData>,
-  DraggablePayload<TData>,
-  DraggablePayloadGetter<TData>
->;
+  'payload'
+> & { payload: DraggablePayload<TData> };
 
 /** Public drop-target parameters, whose `accept` declaration is required. */
 export type RegisterDropTargetParameters<TSourceData = unknown, TLocalData = unknown> = Omit<
@@ -134,7 +133,7 @@ export interface InternalDragEngine extends Omit<
 > {
   registerDraggable: <TData = undefined>(
     element: HTMLElement,
-    getParameters: () => RegisterDraggableParameters<TData>,
+    getParameters: () => InternalDraggableParameters<TData>,
     /** Whether parameter identity is an immutable revision key. React-backed registrations opt in. */
     cacheParameters?: boolean,
   ) => DragCleanupFn;
@@ -145,11 +144,11 @@ export interface InternalDragEngine extends Omit<
 }
 
 /**
- * The public parameters plus the channel through which a `Draggable.Preview` reaches
- * the engine. Consumers never write that field, which is why it is absent from
- * `RegisterDraggableParameters`.
+ * Public parameters plus the private preview declaration and collection payload
+ * channels. These fields are absent from `RegisterDraggableParameters`.
  */
 export type InternalDraggableParameters<TData = undefined> = RegisterDraggableParameters<TData> & {
+  getCollectionPayload?: (() => NoInfer<TData>) | undefined;
   getDragPreviewDeclaration?: (() => DragPreviewDeclaration<NoInfer<TData>> | null) | undefined;
 };
 
@@ -219,18 +218,11 @@ export interface DragDropManager {
   registerDraggable: {
     <TData>(
       element: HTMLElement,
-      getParameters: () => Omit<RegisterDraggableParameters<TData>, 'payload' | 'getPayload'> & {
-        payload?: never | undefined;
-        getPayload: DraggablePayloadGetter<TData>;
-      },
-    ): DragCleanupFn;
-    <TData>(
-      element: HTMLElement,
       getParameters: () => RegisterDraggableParametersWithPayload<TData>,
     ): DragCleanupFn;
     (
       element: HTMLElement,
-      getParameters: () => WithOptionalPayload<RegisterDraggableParameters<undefined>>,
+      getParameters: () => RegisterDraggableParameters<undefined>,
     ): DragCleanupFn;
   };
   /**

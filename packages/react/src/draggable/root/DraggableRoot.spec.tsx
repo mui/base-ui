@@ -2,7 +2,6 @@ import * as React from 'react';
 import { expectType } from '#test-utils';
 import type {
   DraggablePayload,
-  DraggablePayloadGetter,
   DragEndReason,
   DragKind,
   DragSource,
@@ -56,14 +55,8 @@ expectType<DragKind<undefined>, typeof marker>(marker);
   }}
 />;
 
-// A payload resolver is checked against the kind rather than inferred from.
-<Draggable.Root
-  kind={card}
-  getPayload={() => ({ id: 'a' })}
-  onMoveStart={({ source }) => {
-    expectType<CardPayload, typeof source.payload>(source.payload);
-  }}
-/>;
+// @ts-expect-error source accessors are no longer accepted, even with a payload.
+<Draggable.Root kind={card} payload={{ id: 'a' }} getPayload={() => ({ id: 'a' })} />;
 
 // The payload need not be an object.
 <Draggable.Root
@@ -71,16 +64,6 @@ expectType<DragKind<undefined>, typeof marker>(marker);
   payload="card-1"
   onMoveStart={({ source }) => {
     expectType<string, typeof source.payload>(source.payload);
-  }}
-/>;
-
-// The callback sees the gesture it is deriving the payload from.
-const grabOffset = Draggable.createKind<{ x: number }>('grab-offset');
-<Draggable.Root
-  kind={grabOffset}
-  getPayload={({ input, element }) => ({ x: input.clientX - element.getBoundingClientRect().left })}
-  onMoveStart={({ source }) => {
-    expectType<{ x: number }, typeof source.payload>(source.payload);
   }}
 />;
 
@@ -261,17 +244,12 @@ const ref: React.Ref<HTMLDivElement> = null;
 // A stable preview key identifies a logical source across a remount.
 <Draggable.Root kind={marker} previewKey="card-1" />;
 
-// Static and resolved payloads use distinct fields.
+// Static payloads retain the kind's declared type.
 type CardProps = Draggable.Root.Props<CardPayload>;
 const cardValueProps: CardProps = { kind: card, payload: { id: 'a' } };
-const cardCallbackProps: CardProps = { kind: card, getPayload: () => ({ id: 'a' }) };
 expectType<DraggablePayload<CardPayload>, NonNullable<typeof cardValueProps.payload>>(
   cardValueProps.payload!,
 );
-expectType<DraggablePayloadGetter<CardPayload>, NonNullable<typeof cardCallbackProps.getPayload>>(
-  cardCallbackProps.getPayload!,
-);
-
 // @ts-expect-error `Props` mirrors the component: a declared `TData` requires a payload.
 const cardMissingProps: CardProps = { kind: card };
 

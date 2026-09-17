@@ -81,8 +81,6 @@ interface Card {
 interface CardDragData {
   id: string;
   /** Where inside the card the pointer grabbed, in client pixels. */
-  grabOffsetX: number;
-  grabOffsetY: number;
 }
 
 const INITIAL_CARDS: Card[] = [
@@ -472,17 +470,7 @@ function BoardCard({
     <Draggable.Root
       ref={cardRef}
       kind={cardKind}
-      // Capture where in the card the pointer grabbed (client px). The drop maps it
-      // back to a surface position from a fresh surface rect, so it stays correct
-      // even when auto-scroll moves the board mid-drag.
-      getPayload={(feedback) => {
-        const rect = feedback.element.getBoundingClientRect();
-        return {
-          id: card.id,
-          grabOffsetX: feedback.input.clientX - rect.left,
-          grabOffsetY: feedback.input.clientY - rect.top,
-        };
-      }}
+      payload={{ id: card.id }}
       disabled={editing}
       data-compensate-preview={compensatePreview ? '' : undefined}
       // Distance activation instead of the `immediate` mouse default: a plain click
@@ -501,7 +489,7 @@ function BoardCard({
           const { source, location } = moveEvent;
 
           const surface = surfaceRef.current;
-          if (!surface) {
+          if (!surface || !location.grabOffset) {
             return;
           }
           // Re-measure the surface at drop so the result accounts for any scrolling
@@ -512,10 +500,8 @@ function BoardCard({
           const scale = zoomRef.current;
           const rect = surface.getBoundingClientRect();
           const height = cardRef.current?.offsetHeight ?? CARD_MIN_HEIGHT;
-          const newX =
-            (location.current.input.clientX - source.payload.grabOffsetX - rect.left) / scale;
-          const newY =
-            (location.current.input.clientY - source.payload.grabOffsetY - rect.top) / scale;
+          const newX = (location.current.input.clientX - location.grabOffset.x - rect.left) / scale;
+          const newY = (location.current.input.clientY - location.grabOffset.y - rect.top) / scale;
           const position = clampToSurface(newX, newY, height);
           onMove(source.payload.id, Math.round(position.x), Math.round(position.y));
         }

@@ -52,7 +52,7 @@ const card = Draggable.createKind<CardPayload>('card');
 <Draggable.Root kind={card} payload={{ id }} />;
 ```
 
-A kind with a payload type requires `payload` or `getPayload`. Omit the type argument when the kind alone identifies the item and no payload is needed:
+A kind with a payload type requires `payload`. Omit the type argument when the kind alone identifies the item and no payload is needed:
 
 ```tsx title="An item with no data"
 const divider = Draggable.createKind('divider');
@@ -60,18 +60,18 @@ const divider = Draggable.createKind('divider');
 <Draggable.Root kind={divider} />;
 ```
 
-Pass `getPayload` instead when the payload depends on the gesture, such as the pointer's position within the element at pickup. It runs once, at drag start. `payload` itself is always data, so function-valued payloads are preserved without a wrapper.
+`payload` is data, including when its value is a function. Base UI captures the value when the drag starts and keeps it for that drag. When the data comes from an external store, subscribe to the relevant state so the payload is current before pickup.
 
-```tsx title="Deriving the payload from the gesture"
-const grabbedCard = Draggable.createKind<{ id: string; grabOffsetX: number }>('card');
+Gesture information belongs to the event. For example, `location.grabOffset` records where the pointer pressed within the source; there is no need to duplicate that offset in the payload:
 
+```tsx title="Reading the pickup offset"
 <Draggable.Root
-  kind={grabbedCard}
-  getPayload={({ input, element }) => {
-    const rect = element.getBoundingClientRect();
-    return { id, grabOffsetX: input.clientX - rect.left };
+  kind={card}
+  payload={{ id }}
+  onMoveStart={({ source, location }) => {
+    console.log(source.payload.id, location.grabOffset);
   }}
-/>;
+/>
 ```
 
 ## Drag handle
@@ -1527,7 +1527,7 @@ Base UI reads the nearest `Draggable.Provider` where `useDragDropManager` is ca
 
 ### Draggables
 
-Register a drag source with `registerDraggable`. It accepts the [`Draggable.Root`](/react/utils/draggable) options, including `kind`, `payload` or `getPayload`, `activation`, `disabled`, and the drag event callbacks. It also accepts `dragHandle` and `dragPreview`. `dragHandle` can be an element, ref, or function that restricts pickup to a handle.
+Register a drag source with `registerDraggable`. It accepts the [`Draggable.Root`](/react/utils/draggable) options, including `kind`, `payload`, `activation`, `disabled`, and the drag event callbacks. It also accepts `dragHandle` and `dragPreview`. `dragHandle` can be an element, ref, or function that restricts pickup to a handle.
 
 ```tsx title="Register a drag source"
 manager.registerDraggable(element, () => ({ kind: card, payload: id }));

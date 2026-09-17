@@ -25,7 +25,6 @@ import {
   layoutWeekSegments,
   MINUTE_MS,
   resolveDropPreview,
-  snapToMinutes,
   useCalendarView,
   WeekEventSegment,
 } from '../calendarLogic';
@@ -198,8 +197,8 @@ function WeekAllDayCell(props: { dayMs: number }) {
           getPayload={(): AllDayRowDropData => ({
             dayMs: dayMsRef.current,
           })}
-          onDraggableMove={({ source, target }) => {
-            const next = resolveDropPreview(source, target);
+          onDraggableMove={({ source, target, location }) => {
+            const next = resolveDropPreview(source, target, location.grabOffset);
             if (!next) {
               return;
             }
@@ -257,9 +256,9 @@ function WeekAllDayBar(props: { event: CalendarEvent; segment: WeekEventSegment 
 
       payload={{
         eventId: eventRef.current.id,
-        anchorStart: eventRef.current.start,
-        anchorEnd: eventRef.current.end,
-        allDay: eventRef.current.allDay,
+        anchorStart: event.start,
+        anchorEnd: event.end,
+        allDay: event.allDay,
         segmentOffsetMs: 0,
       }}
       onMoveEnd={(moveEvent, moveDetails) => {
@@ -358,7 +357,6 @@ function WeekDayColumn(props: { dayMs: number; events: CalendarEvent[] }) {
     consumeDropPreview,
   } = useCalendarView();
   const dayMsRef = useValueAsRef(dayMs);
-  const hourPxRef = useValueAsRef(hourPx);
   const snapRef = useValueAsRef(snapMin);
 
   const segments = React.useMemo(() => getDayTimedSegments(events, dayMs), [events, dayMs]);
@@ -397,8 +395,8 @@ function WeekDayColumn(props: { dayMs: number; events: CalendarEvent[] }) {
           // One day divides into `DAY_MS / snap` slots; a callback because the
           // snap setting is runtime state.
           snap={() => ({ y: DAY_MS / (snapRef.current * MINUTE_MS) })}
-          onDraggableMove={({ source, target }) => {
-            const next = resolveDropPreview(source, target);
+          onDraggableMove={({ source, target, location }) => {
+            const next = resolveDropPreview(source, target, location.grabOffset);
             if (!next) {
               return;
             }
@@ -415,19 +413,7 @@ function WeekDayColumn(props: { dayMs: number; events: CalendarEvent[] }) {
           }}
         />
       }
-      getPayload={({ input, element }) => {
-        const rect = (element as HTMLElement).getBoundingClientRect();
-        const offsetPx = input.clientY - rect.top;
-        const rawMs = dayMsRef.current + offsetPx * (HOUR_MS / hourPxRef.current);
-        const snapped = snapToMinutes(rawMs, snapRef.current);
-        return {
-          anchorMs: Math.max(
-            dayMsRef.current,
-            Math.min(dayMsRef.current + DAY_MS - MINUTE_MS, snapped),
-          ),
-          allDay: false,
-        };
-      }}
+      payload={{ anchorMs: dayMs, allDay: false, hourPx, snapMinutes: snapMin }}
       onMoveEnd={(moveEvent, moveDetails) => {
         if (moveDetails.reason === 'drop' && moveEvent.dropTarget !== null) {
           const preview = consumeDropPreview();
@@ -488,16 +474,16 @@ function WeekTimedEvent(props: { dayMs: number; segment: TimedSegment }) {
   return (
     <Draggable.Root
       kind={calEventMoveKind}
-      getPayload={() => ({
-        eventId: eventRef.current.id,
-        anchorStart: eventRef.current.start,
-        anchorEnd: eventRef.current.end,
-        allDay: eventRef.current.allDay,
+      payload={{
+        eventId: event.id,
+        anchorStart: event.start,
+        anchorEnd: event.end,
+        allDay: event.allDay,
         // The within-chip grab offset is the engine's (`anchor: 'source'`);
         // only the segment correction travels with the drag, non-zero for a
         // chip that renders the post-midnight part of an event.
-        segmentOffsetMs: segment.visibleStart - eventRef.current.start,
-      })}
+        segmentOffsetMs: segment.visibleStart - event.start,
+      }}
       onMoveEnd={(moveEvent, moveDetails) => {
         if (moveDetails.reason === 'drop' && moveEvent.dropTarget !== null) {
           const preview = consumeDropPreview();
@@ -551,9 +537,9 @@ function WeekResizeHandle(props: { event: CalendarEvent; edge: 'start' | 'end' }
       payload={{
         eventId: eventRef.current.id,
         edge,
-        anchorStart: eventRef.current.start,
-        anchorEnd: eventRef.current.end,
-        allDay: eventRef.current.allDay,
+        anchorStart: event.start,
+        anchorEnd: event.end,
+        allDay: event.allDay,
       }}
       onMoveEnd={(moveEvent, moveDetails) => {
         if (moveDetails.reason === 'drop' && moveEvent.dropTarget !== null) {

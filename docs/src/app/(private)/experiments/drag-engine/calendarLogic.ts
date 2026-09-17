@@ -79,11 +79,9 @@ export interface EventResizeDragData {
   allDay: boolean;
 }
 
-export interface EventCreateDragData {
-  /** Where the create gesture began (ms). For all-day, day-aligned. */
-  anchorMs: number;
-  allDay: boolean;
-}
+export type EventCreateDragData =
+  | { anchorMs: number; allDay: true }
+  | { anchorMs: number; allDay: false; hourPx: number; snapMinutes: number };
 
 export interface DayCellDropData {
   /** Start-of-day ms timestamp for the cell. */
@@ -443,6 +441,7 @@ export function createSeedState(today: number): CalendarState {
 export function resolveDropPreview(
   source: DragSource<CalendarDragSource>,
   innermost: DropTargetRecord<CalendarDropData> | undefined,
+  grabOffset: { y: number } | undefined,
 ): DropPreview | null {
   if (!innermost) {
     return null;
@@ -573,10 +572,20 @@ export function resolveDropPreview(
     // Timed create: anchor in one column, drop in any column. Both ends are
     // already on-grid (the anchor was snapped at gesture start, the pointer by
     // the column's `snap`), so no re-rounding here.
-    if (calDayColumnKind.matches(innermost)) {
+    if (calDayColumnKind.matches(innermost) && grabOffset) {
       const pointerMs = timedMsAt(targetDayMs);
-      const lo = Math.min(sourceData.anchorMs, pointerMs);
-      const hi = Math.max(sourceData.anchorMs, pointerMs);
+      const anchorMs = Math.max(
+        sourceData.anchorMs,
+        Math.min(
+          sourceData.anchorMs + DAY_MS - MINUTE_MS,
+          snapToMinutes(
+            sourceData.anchorMs + grabOffset.y * (HOUR_MS / sourceData.hourPx),
+            sourceData.snapMinutes,
+          ),
+        ),
+      );
+      const lo = Math.min(anchorMs, pointerMs);
+      const hi = Math.max(anchorMs, pointerMs);
       return {
         start: lo,
         end: Math.max(hi, lo + MIN_TIMED_DURATION_MS),

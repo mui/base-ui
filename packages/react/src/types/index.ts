@@ -99,7 +99,6 @@ export type {
   DragPreviewOffsetParameters,
   MoveStartContext,
   DraggablePayload,
-  DraggablePayloadGetter,
   DropTargetResolutionContext,
   DropTargetPayload,
   DropTargetPayloadGetter,

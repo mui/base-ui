@@ -179,55 +179,16 @@ describe('engine.registerDraggable', () => {
     expect(onOuterStart.mock.calls[0][0].source.element).toBe(outer);
   });
 
-  it('calls getPayload with the gesture, once, and snapshots the result', async () => {
+  it('keeps a function payload as data without invoking it', async () => {
     const { engine } = await renderDnd();
     const el = createElement();
-    const payload = vi.fn((_: MoveStartContext) => ({ key: 'value' }));
+    const payload = vi.fn(() => 'command result');
     const onMoveStart = vi.fn();
-    const onMove = vi.fn();
-    engine.registerDraggable(el, { getPayload: payload, onMoveStart, onMove });
-
+    engine.registerDraggable(el, { payload, onMoveStart });
     fireEvent.dragStart(el);
     await flushRaf();
-
-    const parameters = payload.mock.calls[0][0];
-    expect(parameters.element).toBe(el);
-    expect(parameters.input).toHaveProperty('clientX');
-    expect(parameters).toHaveProperty('dragHandle');
-    expect(onMoveStart.mock.calls[0][0].source.payload).toEqual({ key: 'value' });
-
-    // A drop target's payload re-resolves on each dispatch; a source's must not.
-    fireEvent.dragOver(el, { clientX: 40, clientY: 40 });
-    await flushRaf();
-    fireEvent.dragOver(el, { clientX: 80, clientY: 80 });
-    await flushRaf();
-
-    expect(payload).toHaveBeenCalledTimes(1);
-    expect(onMove.mock.calls.at(-1)![0].source.payload).toBe(
-      onMoveStart.mock.calls[0][0].source.payload,
-    );
-  });
-
-  it('keeps a function payload as data and resolves getPayload separately', async () => {
-    const { engine } = await renderDnd();
-    const el = createElement();
-    const other = createElement();
-    const myFunction = vi.fn(() => 'command result');
-    const onMoveStart = vi.fn();
-    const onOtherDragStart = vi.fn();
-    engine.registerDraggable(el, { getPayload: () => 'called', onMoveStart });
-    engine.registerDraggable(other, { payload: myFunction, onMoveStart: onOtherDragStart });
-
-    fireEvent.dragStart(el);
-    await flushRaf();
-    fireEvent.dragEnd(el);
-    await flushRaf();
-    fireEvent.dragStart(other);
-    await flushRaf();
-
-    expect(onMoveStart.mock.calls[0][0].source.payload).toBe('called');
-    expect(onOtherDragStart.mock.calls[0][0].source.payload).toBe(myFunction);
-    expect(myFunction).not.toHaveBeenCalled();
+    expect(onMoveStart.mock.calls[0][0].source.payload).toBe(payload);
+    expect(payload).not.toHaveBeenCalled();
   });
 
   it('attaches a value payload without calling anything', async () => {
