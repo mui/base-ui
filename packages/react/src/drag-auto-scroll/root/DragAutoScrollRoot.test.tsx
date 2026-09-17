@@ -4,6 +4,10 @@ import { fireEvent, screen } from '@testing-library/react';
 import { act } from '@mui/internal-test-utils';
 import { createDndRenderer, describeConformance, testDragKind } from '#test-utils';
 import { DragAutoScroll } from '@base-ui/react/drag-auto-scroll';
+import type {
+  DragAutoScrollFrameContext,
+  DragAutoScrollEventDetails,
+} from '../../utils/drag-and-drop/autoScroller';
 import {
   createElement,
   flushRaf,
@@ -14,10 +18,10 @@ import {
 import { createKind } from '../../utils/drag-and-drop/dragKind';
 
 type RootProps = DragAutoScroll.Root.Props;
-type CanScrollFn = NonNullable<RootProps['canScroll']>;
-type AllowedAxisFn = Extract<RootProps['allowedAxis'], (...args: never) => unknown>;
+type ShouldScrollFn = (context: DragAutoScrollFrameContext) => boolean;
+type SelectDirectionFn = (context: DragAutoScrollFrameContext) => 'all' | 'horizontal' | 'vertical';
 type MaxSpeedFn = Extract<RootProps['maxSpeed'], (...args: never) => unknown>;
-type ApplyScrollFn = NonNullable<RootProps['applyScroll']>;
+type PanFn = (context: DragAutoScrollEventDetails) => void;
 
 setupDragEngineTests();
 
@@ -245,9 +249,18 @@ describe('DragAutoScroll.Root', () => {
     fireEvent.drop(source);
   });
 
-  it('registers a scroller: canScroll receives the drag context during a drag', async () => {
-    const canScroll = vi.fn<CanScrollFn>(() => true);
-    const { engine } = await renderDnd(<Scroller canScroll={canScroll} />);
+  it('registers a scroller: shouldScroll receives the drag context during a drag', async () => {
+    const shouldScroll = vi.fn<ShouldScrollFn>(() => true);
+    const { engine } = await renderDnd(
+      <Scroller
+        onDragScroll={(event, details) => {
+          if (!shouldScroll(details)) {
+            event.preventDefault();
+            return;
+          }
+        }}
+      />,
+    );
     const source = createElement();
     engine.registerDraggable(source, {});
     const scroller = screen.getByTestId('scroller');
@@ -255,8 +268,8 @@ describe('DragAutoScroll.Root', () => {
     await liftOutside(source);
     await dragTo(scroller, 100, 95);
 
-    expect(canScroll).toHaveBeenCalled();
-    const feedback = canScroll.mock.calls[0][0];
+    expect(shouldScroll).toHaveBeenCalled();
+    const feedback = shouldScroll.mock.calls[0][0];
     expect(feedback.element).toBe(scroller);
     expect(feedback.source.element).toBe(source);
     // The delivered pointer coordinates reached the callback.
@@ -266,7 +279,7 @@ describe('DragAutoScroll.Root', () => {
 
   it('forwards the ref to the same node it registers', async () => {
     const ref = React.createRef<HTMLDivElement>();
-    const canScroll = vi.fn<CanScrollFn>(() => true);
+    const shouldScroll = vi.fn<ShouldScrollFn>(() => true);
     const { engine } = await renderDnd(
       <DragAutoScroll.Root
         ref={(node) => {
@@ -275,7 +288,12 @@ describe('DragAutoScroll.Root', () => {
           }
           ref.current = node;
         }}
-        canScroll={canScroll}
+        onDragScroll={(event, details) => {
+          if (!shouldScroll(details)) {
+            event.preventDefault();
+            return;
+          }
+        }}
         data-testid="scroller"
       />,
     );
@@ -286,7 +304,7 @@ describe('DragAutoScroll.Root', () => {
     await dragTo(screen.getByTestId('scroller'), 100, 95);
 
     expect(ref.current).toBe(screen.getByTestId('scroller'));
-    expect(canScroll.mock.calls[0][0].element).toBe(ref.current);
+    expect(shouldScroll.mock.calls[0][0].element).toBe(ref.current);
   });
 
   it('scrolls the container while the pointer parks in an edge zone', async () => {
@@ -347,11 +365,20 @@ describe('DragAutoScroll.Root', () => {
   // (`test/setupVitest.ts`) passes `performance.now()`, so timestamps advance
   // there too and the nonzero-delta assertions carry meaning in both
   // environments.
-  describe('allowedAxis', () => {
-    it('allowedAxis: "horizontal" blocks vertical scrolling but allows horizontal', async () => {
+  describe('direction cancellation', () => {
+    it('direction selection: "horizontal" blocks vertical scrolling but allows horizontal', async () => {
       const scrollBy = vi.fn();
       const { engine } = await renderDnd(
-        <Scroller allowedAxis="horizontal" scrollByMock={scrollBy} />,
+        <Scroller
+          onDragScroll={(event, details) => {
+            const allowedDirection = 'horizontal';
+            if (allowedDirection !== details.direction) {
+              event.preventDefault();
+              return;
+            }
+          }}
+          scrollByMock={scrollBy}
+        />,
       );
       const source = createElement();
       engine.registerDraggable(source, {});
@@ -360,7 +387,7 @@ describe('DragAutoScroll.Root', () => {
       await liftOutside(source);
 
       // Pointer in BOTH right edge zone (x>150) and bottom edge zone (y>75) so
-      // the loop wants to scroll on both axes. The allowedAxis filter must keep
+      // the loop wants to scroll on both axes. The direction selection filter must keep
       // horizontal and drop vertical. Drag over the scroller itself so the
       // synthetic engine resolves the pointer coordinates onto it.
       await dragTo(scroller, 175, 95);
@@ -374,19 +401,28 @@ describe('DragAutoScroll.Root', () => {
       const lefts = scrollBy.mock.calls.map(([arg]) => arg.left ?? 0);
       const tops = scrollBy.mock.calls.map(([arg]) => arg.top ?? 0);
       // Horizontal scroll actually happened (proves the loop engaged and the
-      // allowedAxis filter didn't over-block), and vertical was dropped despite
+      // direction selection filter didn't over-block), and vertical was dropped despite
       // the pointer sitting in the bottom edge.
       expect(lefts.some((left) => left !== 0)).toBe(true);
       expect(tops.every((top) => top === 0)).toBe(true);
     });
   });
 
-  it('allowedAxis callback form is consulted per frame from the latest props', async () => {
-    const vertical = vi.fn<AllowedAxisFn>(() => 'vertical');
-    const horizontal = vi.fn<AllowedAxisFn>(() => 'horizontal');
+  it('direction selection is consulted per frame from the latest props', async () => {
+    const vertical = vi.fn<SelectDirectionFn>(() => 'vertical');
+    const horizontal = vi.fn<SelectDirectionFn>(() => 'horizontal');
     const scrollBy = vi.fn();
     const { engine, rerender } = await renderDnd(
-      <Scroller allowedAxis={vertical} scrollByMock={scrollBy} />,
+      <Scroller
+        onDragScroll={(event, details) => {
+          const allowedDirection = vertical(details);
+          if (allowedDirection !== 'all' && allowedDirection !== details.direction) {
+            event.preventDefault();
+            return;
+          }
+        }}
+        scrollByMock={scrollBy}
+      />,
     );
     const source = createElement();
     engine.registerDraggable(source, {});
@@ -402,7 +438,18 @@ describe('DragAutoScroll.Root', () => {
     // frame, and its different answer must take effect — the pointer sits in a
     // vertical edge only, so a horizontal-only axis stops the scrolling the
     // first callback allowed at the very same position.
-    await rerender(<Scroller allowedAxis={horizontal} scrollByMock={scrollBy} />);
+    await rerender(
+      <Scroller
+        onDragScroll={(event, details) => {
+          const allowedDirection = horizontal(details);
+          if (allowedDirection !== 'all' && allowedDirection !== details.direction) {
+            event.preventDefault();
+            return;
+          }
+        }}
+        scrollByMock={scrollBy}
+      />,
+    );
     vertical.mockClear();
     horizontal.mockClear();
     scrollBy.mockClear();
@@ -452,10 +499,18 @@ describe('DragAutoScroll.Root', () => {
     });
 
     it('suspends scrolling when disabled mid-drag and resumes on re-enable without re-registering', async () => {
-      const canScroll = vi.fn<CanScrollFn>(() => true);
+      const shouldScroll = vi.fn<ShouldScrollFn>(() => true);
       const scrollBy = vi.fn();
       const { engine, rerender } = await renderDnd(
-        <Scroller canScroll={canScroll} scrollByMock={scrollBy} />,
+        <Scroller
+          onDragScroll={(event, details) => {
+            if (!shouldScroll(details)) {
+              event.preventDefault();
+              return;
+            }
+          }}
+          scrollByMock={scrollBy}
+        />,
       );
       const source = createElement();
       engine.registerDraggable(source, {});
@@ -465,34 +520,55 @@ describe('DragAutoScroll.Root', () => {
       await liftOutside(source);
       await dragTo(el, 100, 95);
       expect(scrollBy).toHaveBeenCalled();
-      expect(canScroll).toHaveBeenCalled();
+      expect(shouldScroll).toHaveBeenCalled();
 
       // Flip `disabled` mid-drag, while the loop is engaged: scrolling must stop.
-      await rerender(<Scroller disabled canScroll={canScroll} scrollByMock={scrollBy} />);
+      await rerender(
+        <Scroller
+          disabled
+          onDragScroll={(event, details) => {
+            if (!shouldScroll(details)) {
+              event.preventDefault();
+              return;
+            }
+          }}
+          scrollByMock={scrollBy}
+        />,
+      );
       expect(el).toHaveAttribute('data-disabled');
       await flushRaf();
       scrollBy.mockClear();
-      canScroll.mockClear();
+      shouldScroll.mockClear();
       await flushRaf();
       await flushRaf();
       expect(scrollBy).not.toHaveBeenCalled();
-      // Disabled short-circuits before the consumer's `canScroll` is consulted,
+      // Disabled short-circuits before the consumer's `shouldScroll` is consulted,
       // including for fresh input arriving while disabled.
       await dragTo(el, 100, 95);
-      expect(canScroll).not.toHaveBeenCalled();
+      expect(shouldScroll).not.toHaveBeenCalled();
       expect(scrollBy).not.toHaveBeenCalled();
 
       // Re-enable, still mid-drag: the registration was suspended, not torn
       // down and re-created. No new pointer input is sent after the render;
       // the parameter change itself must wake the parked loop.
-      await rerender(<Scroller canScroll={canScroll} scrollByMock={scrollBy} />);
+      await rerender(
+        <Scroller
+          onDragScroll={(event, details) => {
+            if (!shouldScroll(details)) {
+              event.preventDefault();
+              return;
+            }
+          }}
+          scrollByMock={scrollBy}
+        />,
+      );
       expect(screen.getByTestId('scroller')).toBe(el);
       expect(el).not.toHaveAttribute('data-disabled');
 
       await flushRaf();
       await flushRaf();
-      expect(canScroll).toHaveBeenCalled();
-      expect(canScroll.mock.calls[0][0].element).toBe(el);
+      expect(shouldScroll).toHaveBeenCalled();
+      expect(shouldScroll.mock.calls[0][0].element).toBe(el);
       expect(scrollBy).toHaveBeenCalled();
       fireEvent.drop(source);
     });
@@ -641,10 +717,17 @@ describe('DragAutoScroll.Root', () => {
     // register). Two failure modes: the re-register tears the live registration
     // down (the scroller goes dead), or a duplicate hold leaks (the scroller
     // survives unmount). The drag after unmount pins both.
-    const canScroll = vi.fn<CanScrollFn>(() => true);
+    const shouldScroll = vi.fn<ShouldScrollFn>(() => true);
     const { engine, unmount } = await renderDnd(
       <React.StrictMode>
-        <Scroller canScroll={canScroll} />
+        <Scroller
+          onDragScroll={(event, details) => {
+            if (!shouldScroll(details)) {
+              event.preventDefault();
+              return;
+            }
+          }}
+        />
       </React.StrictMode>,
     );
     const source = createElement();
@@ -654,13 +737,13 @@ describe('DragAutoScroll.Root', () => {
     await liftOutside(source);
     await dragTo(scroller, 100, 95);
 
-    expect(canScroll).toHaveBeenCalled();
-    expect(canScroll.mock.calls[0][0].element).toBe(scroller);
-    expect(canScroll.mock.calls[0][0].input.clientY).toBe(95);
+    expect(shouldScroll).toHaveBeenCalled();
+    expect(shouldScroll.mock.calls[0][0].element).toBe(scroller);
+    expect(shouldScroll.mock.calls[0][0].input.clientY).toBe(95);
     fireEvent.drop(source);
 
     unmount();
-    canScroll.mockClear();
+    shouldScroll.mockClear();
 
     // The unmounted scroller's node is detached, so route the move through the
     // still-attached source; the loop keys on coordinates, not the hover target.
@@ -668,22 +751,40 @@ describe('DragAutoScroll.Root', () => {
     await dragTo(source, 100, 95);
 
     // A leaked duplicate hold would keep the unmounted scroller registered.
-    expect(canScroll).not.toHaveBeenCalled();
+    expect(shouldScroll).not.toHaveBeenCalled();
     fireEvent.drop(source);
   });
 
-  it('keeps registration stable across re-renders and uses the latest canScroll', async () => {
-    const first = vi.fn<CanScrollFn>(() => true);
-    const second = vi.fn<CanScrollFn>(() => false);
+  it('keeps registration stable across re-renders and uses the latest shouldScroll', async () => {
+    const first = vi.fn<ShouldScrollFn>(() => true);
+    const second = vi.fn<ShouldScrollFn>(() => false);
     const scrollBy = vi.fn();
     const { rerender, engine } = await renderDnd(
-      <Scroller canScroll={first} scrollByMock={scrollBy} />,
+      <Scroller
+        onDragScroll={(event, details) => {
+          if (!first(details)) {
+            event.preventDefault();
+            return;
+          }
+        }}
+        scrollByMock={scrollBy}
+      />,
     );
     const source = createElement();
     engine.registerDraggable(source, {});
     const el = screen.getByTestId('scroller');
 
-    await rerender(<Scroller canScroll={second} scrollByMock={scrollBy} />);
+    await rerender(
+      <Scroller
+        onDragScroll={(event, details) => {
+          if (!second(details)) {
+            event.preventDefault();
+            return;
+          }
+        }}
+        scrollByMock={scrollBy}
+      />,
+    );
     // Same DOM node — no re-registration tore it down.
     expect(screen.getByTestId('scroller')).toBe(el);
 
@@ -702,10 +803,19 @@ describe('DragAutoScroll.Root', () => {
     const otherKind = createKind<unknown>('base-ui-test/other');
 
     it('never engages for a drag of a kind the scroller does not accept', async () => {
-      const canScroll = vi.fn<CanScrollFn>(() => true);
+      const shouldScroll = vi.fn<ShouldScrollFn>(() => true);
       const scrollBy = vi.fn();
       const { engine, rerender } = await renderDnd(
-        <Scroller accept={otherKind} canScroll={canScroll} scrollByMock={scrollBy} />,
+        <Scroller
+          accept={otherKind}
+          onDragScroll={(event, details) => {
+            if (!shouldScroll(details)) {
+              event.preventDefault();
+              return;
+            }
+          }}
+          scrollByMock={scrollBy}
+        />,
       );
       const source = createElement();
       engine.registerDraggable(source, {}); // defaults to testDragKind
@@ -715,16 +825,25 @@ describe('DragAutoScroll.Root', () => {
       await dragTo(scroller, 100, 95);
 
       // The kind filter runs before the per-frame callbacks.
-      expect(canScroll).not.toHaveBeenCalled();
+      expect(shouldScroll).not.toHaveBeenCalled();
       expect(scrollBy).not.toHaveBeenCalled();
 
       // Positive control: the same fixture accepting the drag's kind engages at
       // the very same coordinates.
       await rerender(
-        <Scroller accept={testDragKind} canScroll={canScroll} scrollByMock={scrollBy} />,
+        <Scroller
+          accept={testDragKind}
+          onDragScroll={(event, details) => {
+            if (!shouldScroll(details)) {
+              event.preventDefault();
+              return;
+            }
+          }}
+          scrollByMock={scrollBy}
+        />,
       );
       await dragTo(scroller, 100, 95);
-      expect(canScroll).toHaveBeenCalled();
+      expect(shouldScroll).toHaveBeenCalled();
       expect(scrollBy).toHaveBeenCalled();
     });
 
@@ -758,7 +877,7 @@ describe('DragAutoScroll.Root', () => {
     });
   });
 
-  describe('applyScroll', () => {
+  describe('pan', () => {
     // The delegating counterpart to `Scroller`: no scroll metrics and no
     // scrollable overflow, so it engages only because it delegates.
     function Viewport(props: RootProps) {
@@ -771,8 +890,16 @@ describe('DragAutoScroll.Root', () => {
     }
 
     it('receives the frame delta for the element it is registered on', async () => {
-      const applyScroll = vi.fn<ApplyScrollFn>();
-      const { engine } = await renderDnd(<Viewport applyScroll={applyScroll} />);
+      const pan = vi.fn<PanFn>();
+      const { engine } = await renderDnd(
+        <Viewport
+          onDragScroll={(event, details) => {
+            event.preventDefault();
+            pan(details);
+            event.stopPropagation();
+          }}
+        />,
+      );
       const source = createElement();
       engine.registerDraggable(source, {});
       const viewport = screen.getByTestId('viewport');
@@ -780,16 +907,24 @@ describe('DragAutoScroll.Root', () => {
       await liftOutside(source);
       await dragTo(viewport, 100, 95);
 
-      expect(applyScroll).toHaveBeenCalled();
-      expect(applyScroll.mock.calls[0][0].element).toBe(viewport);
-      expect(applyScroll.mock.calls[0][0].input.clientY).toBe(95);
+      expect(pan).toHaveBeenCalled();
+      expect(pan.mock.calls[0][0].element).toBe(viewport);
+      expect(pan.mock.calls[0][0].input.clientY).toBe(95);
     });
 
-    it('does not render applyScroll as a DOM attribute', async () => {
+    it('does not render onDragScroll as a DOM attribute', async () => {
       const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
       try {
-        await renderDnd(<DragAutoScroll.Root applyScroll={() => {}} data-testid="viewport" />);
-        expect(screen.getByTestId('viewport')).not.toHaveAttribute('applyscroll');
+        await renderDnd(
+          <DragAutoScroll.Root
+            onDragScroll={(event) => {
+              event.preventDefault();
+              event.stopPropagation();
+            }}
+            data-testid="viewport"
+          />,
+        );
+        expect(screen.getByTestId('viewport')).not.toHaveAttribute('ondragscroll');
         // React logs an unknown-prop warning for anything that reaches the DOM.
         expect(consoleError).not.toHaveBeenCalled();
       } finally {
@@ -798,40 +933,81 @@ describe('DragAutoScroll.Root', () => {
     });
 
     it('is suspended by disabled mid-drag and resumes without re-registering', async () => {
-      const applyScroll = vi.fn<ApplyScrollFn>();
-      const { engine, rerender } = await renderDnd(<Viewport applyScroll={applyScroll} />);
+      const pan = vi.fn<PanFn>();
+      const { engine, rerender } = await renderDnd(
+        <Viewport
+          onDragScroll={(event, details) => {
+            event.preventDefault();
+            pan(details);
+            event.stopPropagation();
+          }}
+        />,
+      );
       const source = createElement();
       engine.registerDraggable(source, {});
       const viewport = screen.getByTestId('viewport');
 
       await liftOutside(source);
       await dragTo(viewport, 100, 95);
-      expect(applyScroll).toHaveBeenCalled();
+      expect(pan).toHaveBeenCalled();
 
-      await rerender(<Viewport disabled applyScroll={applyScroll} />);
+      await rerender(
+        <Viewport
+          disabled
+          onDragScroll={(event, details) => {
+            event.preventDefault();
+            pan(details);
+            event.stopPropagation();
+          }}
+        />,
+      );
       await flushRaf();
-      applyScroll.mockClear();
+      pan.mockClear();
       await flushRaf();
       await flushRaf();
-      expect(applyScroll).not.toHaveBeenCalled();
+      expect(pan).not.toHaveBeenCalled();
 
       // Same DOM node throughout: `disabled` suspends the registration rather
       // than tearing it down and rebuilding it.
-      await rerender(<Viewport applyScroll={applyScroll} />);
+      await rerender(
+        <Viewport
+          onDragScroll={(event, details) => {
+            event.preventDefault();
+            pan(details);
+            event.stopPropagation();
+          }}
+        />,
+      );
       expect(screen.getByTestId('viewport')).toBe(viewport);
       await dragTo(viewport, 100, 95);
-      expect(applyScroll).toHaveBeenCalled();
+      expect(pan).toHaveBeenCalled();
     });
 
-    it('uses the latest applyScroll across re-renders', async () => {
-      const first = vi.fn<ApplyScrollFn>();
-      const second = vi.fn<ApplyScrollFn>();
-      const { engine, rerender } = await renderDnd(<Viewport applyScroll={first} />);
+    it('uses the latest pan across re-renders', async () => {
+      const first = vi.fn<PanFn>();
+      const second = vi.fn<PanFn>();
+      const { engine, rerender } = await renderDnd(
+        <Viewport
+          onDragScroll={(event, details) => {
+            event.preventDefault();
+            first(details);
+            event.stopPropagation();
+          }}
+        />,
+      );
       const source = createElement();
       engine.registerDraggable(source, {});
       const viewport = screen.getByTestId('viewport');
 
-      await rerender(<Viewport applyScroll={second} />);
+      await rerender(
+        <Viewport
+          onDragScroll={(event, details) => {
+            event.preventDefault();
+            second(details);
+            event.stopPropagation();
+          }}
+        />,
+      );
       expect(screen.getByTestId('viewport')).toBe(viewport);
 
       await liftOutside(source);

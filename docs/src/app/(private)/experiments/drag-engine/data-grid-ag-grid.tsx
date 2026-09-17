@@ -461,9 +461,12 @@ function DataGridInner() {
           // horizontally. The viewport scrolls on both axes, so without this a
           // column dragged near the top edge would also scroll the rows away
           // under it.
-          allowedAxis={({ source: dragged }) =>
-            rowKind.matches(dragged) ? 'vertical' : 'horizontal'
-          }
+          onDragScroll={(event, { direction, source: dragged }) => {
+            const allowedDirection = rowKind.matches(dragged) ? 'vertical' : 'horizontal';
+            if (direction !== allowedDirection) {
+              event.preventDefault();
+            }
+          }}
           className={styles.viewport}
           style={{ height: HEADER_HEIGHT + BODY_HEIGHT }}
           onScroll={(event) => {

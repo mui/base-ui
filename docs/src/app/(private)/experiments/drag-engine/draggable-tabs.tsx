@@ -299,7 +299,15 @@ function SortableTabs(props: SortableTabsProps) {
           <Draggable.Target
             accept={kind}
             trackDragOver={false}
-            render={<Draggable.Viewport allowedAxis="horizontal" />}
+            render={
+              <Draggable.Viewport
+                onDragScroll={(event, { direction }) => {
+                  if (direction !== 'horizontal') {
+                    event.preventDefault();
+                  }
+                }}
+              />
+            }
           />
         }
       >

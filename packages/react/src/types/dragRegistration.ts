@@ -189,9 +189,9 @@ export type NativeDragEventProps =
 
 /**
  * Parameters accepted by `Draggable.Viewport` and `registerAutoScroller`.
- * Scroll containers, including the page, scroll automatically during a drag.
+ * Registered scroll containers, including the page, scroll during a drag.
  * Use these parameters to disable scrolling, limit the axes, change the speed,
- * or implement custom scrolling with `applyScroll`.
+ * or implement custom scrolling with `onDragScroll`.
  */
 export type RegisterAutoScrollerParameters<TSourceData = unknown> =
   InternalRegisterAutoScrollerParameters<TSourceData>;
@@ -264,10 +264,9 @@ export interface DragDropManager {
    * Registers auto-scroll parameters for an element, and returns a cleanup that
    * unregisters them.
    *
-   * Scroll containers work without registration. Register one to change its
-   * behavior. `disabled` excludes the element, and `overflow: hidden` or
+   * Each scroll container, including the page, needs its own registration. `disabled` excludes the element, and `overflow: hidden` or
    * `overflow: clip` prevents the page from scrolling. For a canvas moved by a
-   * CSS `transform`, use `applyScroll` to apply the scroll delta yourself.
+   * CSS `transform`, use `onDragScroll` to apply the scroll delta yourself.
    */
   registerAutoScroller: <TAccept extends AnyDragAccept = DragKind<unknown>>(
     element: HTMLElement,

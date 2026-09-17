@@ -271,7 +271,7 @@ function getEdgeScrollDepth(
  * scroller from aborting the shared scroll loop for every other scroller.
  */
 function safeCall<T>(
-  callbackName: 'canScroll' | 'allowedAxis' | 'maxSpeed' | 'getParameters' | 'applyScroll',
+  callbackName: 'maxSpeed' | 'getParameters' | 'onDragScroll',
   element: Element,
   call: () => T,
   fallback: T,
@@ -298,24 +298,6 @@ function resolveMaxSpeed(
       ? safeCall('maxSpeed', element, () => maxSpeed(feedback), DEFAULT_MAX_SPEED)
       : maxSpeed;
   return Number.isFinite(resolved) && resolved >= 0 ? resolved : DEFAULT_MAX_SPEED;
-}
-
-/**
- * Which axes an `applyScroll` return value claims to have moved.
- *
- * `null`, `false` and `'none'` all mean "I moved nothing", so the answer a
- * bounded surface reaches for — `return camera.atBound ? false : undefined` —
- * releases the axes to the outer container instead of claiming them. Anything
- * else unrecognized still reads as both, so a callback that incidentally returns
- * something (a `setState` result, a truthy flag) isn't a trap.
- */
-function normalizeMovedAxis(
-  applied: DragAutoScrollAxis | 'none' | false | null | void,
-): DragAutoScrollAxis | null {
-  if (applied === null || applied === false || applied === 'none') {
-    return null;
-  }
-  return applied === 'vertical' || applied === 'horizontal' ? applied : 'all';
 }
 
 function canScrollUp(el: Element): boolean {
@@ -510,7 +492,7 @@ function sortByDepthDesc(elements: HTMLElement[]): HTMLElement[] {
  * One loop frame, with the frame slot released if the body throws.
  *
  * Both resume paths (`startScrollLoop`, `wakeScrollLoop`) bail on
- * `scrollLoopRaf !== null`, so a throw out of the body — a consumer `canScroll`,
+ * `scrollLoopRaf !== null`, so a throw out of the body — a consumer `onDragScroll`,
  * a drop-target getter behind a re-resolution — would strand this already-fired
  * (and therefore spent) id in the slot and leave auto-scroll wedged shut for the
  * rest of the drag.
@@ -540,7 +522,7 @@ function runScrollFrame(timestamp: number): void {
     return;
   }
   // Snapshotted for the whole iteration. The loop below runs consumer-reachable
-  // callbacks (`canScroll`, the drop-target getters behind a re-resolution), any
+  // callbacks (`onDragScroll`, the drop-target getters behind a re-resolution), any
   // of which can re-entrantly end the drag and null these — and every read after
   // that point would then dereference `null`.
   const currentInput = state.currentInput;
@@ -662,23 +644,14 @@ function runScrollFrame(timestamp: number): void {
       continue;
     }
 
-    // A delegating element is only an edge-detection viewport, so neither gate
-    // that describes a scroll container applies: not the overflow style below,
-    // nor the scroll extent the limit checks read.
-    const applyScroll = registration.applyScroll;
-    const delegated = applyScroll !== undefined;
-
-    // Which axes this element may scroll at all. The page asks the inverted
-    // question (scrollable unless something stopped it), and a delegating
-    // surface answers for itself.
-    let overflow: OverflowFlags;
-    if (delegated) {
-      overflow = BOTH_AXES;
-    } else if (pageScroller) {
-      overflow = readPageOverflowFlags(element);
-    } else {
-      overflow = readOverflowFlags(element);
-    }
+    // A callback on a native scroller intercepts its existing axes. A surface
+    // without native overflow delegates movement to the callback instead.
+    const onDragScroll = registration.onDragScroll;
+    const nativeOverflow = pageScroller
+      ? readPageOverflowFlags(element)
+      : readOverflowFlags(element);
+    const delegated = onDragScroll !== undefined && !nativeOverflow.x && !nativeOverflow.y;
+    const overflow = delegated ? BOTH_AXES : nativeOverflow;
     if (!overflow.x && !overflow.y) {
       if (process.env.NODE_ENV !== 'production') {
         if (getParameters !== undefined && !pageScroller) {
@@ -686,7 +659,7 @@ function runScrollFrame(timestamp: number): void {
             'an auto-scroll container was registered on an element that does not scroll, ' +
               'so its parameters (including `disabled`) have no effect. ' +
               'Register the element whose own `overflow` clips the scrollable content, ' +
-              'or pass `applyScroll` if the surface moves its content some other way. ' +
+              'or provide `onDragScroll` if the surface moves its content some other way. ' +
               'See https://base-ui.com/react/utils/draggable.',
           );
         }
@@ -696,32 +669,15 @@ function runScrollFrame(timestamp: number): void {
 
     // `probe`, not the raw pointer: this is the point the engine just decided this
     // container's edge zones from, so a consumer re-deriving the same test
-    // (`canScroll: ({ input, element }) => isPointInRect(input…, element…)`)
+    // (`onDragScroll: (event, { input, element }) => isPointInRect(input…, element…)`)
     // reaches the same answer. Reporting the raw pointer would tell a consumer the
     // drag is outside a container the engine is busy scrolling.
     const feedback = { input: probe, source: currentSource, element };
 
-    if (
-      registration.canScroll &&
-      !safeCall('canScroll', element, () => registration.canScroll!(feedback), false)
-    ) {
-      continue;
-    }
-
-    // A throwing `allowedAxis` falls back to `null`, skipping the scroller this frame.
-    const allowedAxisParam = registration.allowedAxis;
-    const allowedAxis =
-      typeof allowedAxisParam === 'function'
-        ? safeCall('allowedAxis', element, () => allowedAxisParam(feedback), null)
-        : (allowedAxisParam ?? 'all');
-    if (allowedAxis === null) {
-      continue;
-    }
-
     let scrollX = 0;
     let scrollY = 0;
 
-    if (overflow.y && !verticalConsumed && (allowedAxis === 'all' || allowedAxis === 'vertical')) {
+    if (overflow.y && !verticalConsumed) {
       scrollY = getEdgeScrollDepth(
         relativeY,
         rect.height,
@@ -730,11 +686,7 @@ function runScrollFrame(timestamp: number): void {
       );
     }
 
-    if (
-      overflow.x &&
-      !horizontalConsumed &&
-      (allowedAxis === 'all' || allowedAxis === 'horizontal')
-    ) {
+    if (overflow.x && !horizontalConsumed) {
       // The RTL resolution stays behind the `delegated` short-circuit: it only
       // picks which limit check runs, so delegating must not pay its
       // `getComputedStyle`.
@@ -747,7 +699,7 @@ function runScrollFrame(timestamp: number): void {
     }
 
     if (scrollX !== 0 || scrollY !== 0) {
-      // Resolved here rather than beside `allowedAxis`, so a callback form costs
+      // Resolve the speed only for engaged axes, so a callback form costs
       // nothing on the frames this element doesn't engage.
       const maxSpeed = resolveMaxSpeed(registration, element, feedback);
       // A container pinned at zero speed never moves, so it must not engage
@@ -770,23 +722,71 @@ function runScrollFrame(timestamp: number): void {
       const finalScrollY = scrollY * frameSpeed;
 
       // A scroll container moves every axis it engaged, having only engaged the
-      // ones it had room on; a delegating consumer reports its own bounds back.
-      let movedAxis: DragAutoScrollAxis | null = 'all';
-      if (applyScroll === undefined) {
+      // ones it had room on. Each axis gets its own event so a handler can cancel
+      // vertical or horizontal movement independently.
+      let movedAxis: 'all' | DragAutoScrollDirection | null = 'all';
+      if (onDragScroll !== undefined) {
+        let consumedX = false;
+        let consumedY = false;
+        const axes = [
+          { direction: 'horizontal' as const, engaged: scrollX !== 0, x: finalScrollX, y: 0 },
+          { direction: 'vertical' as const, engaged: scrollY !== 0, x: 0, y: finalScrollY },
+        ];
+        for (const axis of axes) {
+          if (!axis.engaged) {
+            continue;
+          }
+          const eventData = {
+            ...feedback,
+            x: axis.x,
+            y: axis.y,
+            direction: axis.direction,
+          };
+          const event = new (ownerWindow(element).CustomEvent)('base-ui-autoscroll', {
+            bubbles: true,
+            cancelable: true,
+            detail: eventData,
+          });
+          const eventDetails: DragAutoScrollEventDetails = {
+            ...eventData,
+            reason: 'pointer',
+            event,
+          };
+          const succeeded = safeCall(
+            'onDragScroll',
+            element,
+            () => {
+              onDragScroll(event, eventDetails);
+              return true;
+            },
+            false,
+          );
+          // A failed callback must not move this viewport or block an ancestor.
+          if (!succeeded) {
+            continue;
+          }
+          if (!event.defaultPrevented && !delegated) {
+            // `onDragScroll` is an interceptable event for native viewports:
+            // leaving it uncancelled preserves the normal scroll behavior.
+            scrollTarget.scrollBy({ left: axis.x, top: axis.y, behavior: 'instant' });
+          }
+          const consumed = event.cancelBubble || (!delegated && !event.defaultPrevented);
+          if (axis.direction === 'horizontal') {
+            consumedX = consumed;
+          }
+          if (axis.direction === 'vertical') {
+            consumedY = consumed;
+          }
+        }
+        if (consumedX) {
+          movedAxis = consumedY ? 'all' : 'horizontal';
+        } else {
+          movedAxis = consumedY ? 'vertical' : null;
+        }
+      } else {
         // `behavior: 'instant'` so a CSS `scroll-behavior: smooth` on the container
         // can't turn each per-frame delta into a competing smooth animation.
         scrollTarget.scrollBy({ left: finalScrollX, top: finalScrollY, behavior: 'instant' });
-      } else {
-        // A throw falls back to `null`, the same answer as "I moved on neither
-        // axis": the surface demonstrably didn't move, so an outer container
-        // should get the axes.
-        const applied = safeCall<DragAutoScrollAxis | 'none' | false | null | void>(
-          'applyScroll',
-          element,
-          () => applyScroll({ ...feedback, x: finalScrollX, y: finalScrollY }),
-          null,
-        );
-        movedAxis = normalizeMovedAxis(applied);
       }
 
       // Consume the axis on engagement intent, not on the applied delta: on the
@@ -1208,9 +1208,6 @@ export function retainScrollMonitor(): () => void {
   });
 }
 
-/** Which axis (or axes) an auto-scroll container may scroll on. */
-export type DragAutoScrollAxis = 'vertical' | 'horizontal' | 'all';
-
 /** Live drag context passed to the per-frame callbacks. */
 export interface DragAutoScrollFrameContext<TSourceData = unknown> {
   /**
@@ -1224,31 +1221,36 @@ export interface DragAutoScrollFrameContext<TSourceData = unknown> {
   element: HTMLElement;
 }
 
-/** The frame's scroll delta, passed to `applyScroll` with the live drag context. */
-export interface DragAutoScrollApplyContext<
+/** The data passed to a custom viewport's `onDragScroll` handler. */
+export interface DragAutoScrollEvent<
   TSourceData = unknown,
 > extends DragAutoScrollFrameContext<TSourceData> {
   /**
-   * How far to move horizontally this frame, in CSS pixels, using `scrollBy`
-   * semantics. A positive value moves the view right, so the content moves left.
-   * The value includes the speed ramp and elapsed frame time.
+   * How far to move horizontally this frame, in CSS pixels, with `scrollBy`
+   * semantics: a positive value moves the view right, so the content slides left
+   * under the pointer. Already ramped and scaled by the frame's elapsed time.
    * `0` when the horizontal axis isn't engaged this frame.
    */
   x: number;
   /** How far to move vertically this frame, in CSS pixels. A positive value moves the view down. */
   y: number;
+  direction: DragAutoScrollDirection;
 }
 
-/**
- * Applies one frame's scroll delta instead of using element scrolling.
- *
- * Return the axes that moved so an ancestor can scroll on any remaining axis.
- * Return `false`, `'none'`, or `null` when neither axis moved. Returning nothing
- * claims every active axis.
- */
-export type DragAutoScrollApply<TSourceData = unknown> = (
-  parameters: DragAutoScrollApplyContext<TSourceData>,
-) => DragAutoScrollAxis | 'none' | false | null | void;
+export type DragAutoScrollDirection = 'horizontal' | 'vertical';
+
+/** Details passed as the second argument to `onDragScroll`. */
+export interface DragAutoScrollEventDetails<
+  TSourceData = unknown,
+> extends DragAutoScrollEvent<TSourceData> {
+  reason: 'pointer';
+  event: CustomEvent<DragAutoScrollEvent<TSourceData>>;
+}
+
+export type DragAutoScrollHandler<TSourceData = unknown> = (
+  event: CustomEvent<DragAutoScrollEvent<TSourceData>>,
+  eventDetails: DragAutoScrollEventDetails<TSourceData>,
+) => void;
 
 interface AutoScrollerState {
   /** Each scroll container maps to the stack of getters held against it (merged refs). */
@@ -1327,23 +1329,10 @@ export interface RegisterAutoScrollerParameters<TSourceData = unknown> {
    * Base UI reads this value every frame and keeps the registration active. Changing
    * it during a drag pauses or resumes scrolling without re-registering the element.
    *
-   * For a decision that depends on the drag, use `canScroll` instead.
+   * For a decision that depends on the drag, use `onDragScroll` instead.
    * @default false
    */
   disabled?: boolean | undefined;
-  /**
-   * Return `false` to disable scrolling on this element for the current drag.
-   * Evaluated every frame, so scrolling can be suspended dynamically.
-   */
-  canScroll?: ((parameters: DragAutoScrollFrameContext<TSourceData>) => boolean) | undefined;
-  /**
-   * Which axis to scroll on. Accepts a static value or a callback evaluated every frame.
-   * @default 'all'
-   */
-  allowedAxis?:
-    | DragAutoScrollAxis
-    | ((parameters: DragAutoScrollFrameContext<TSourceData>) => DragAutoScrollAxis)
-    | undefined;
   /**
    * How fast the container moves at the deepest point of an edge zone, in CSS
    * pixels per second. Accepts a static value or a callback evaluated every
@@ -1351,17 +1340,16 @@ export interface RegisterAutoScrollerParameters<TSourceData = unknown> {
    *
    * The default is `900`. Increase it for a large scroll range or reduce it for a
    * short list. A value of `0` stops this container and lets an ancestor scroll,
-   * which is equivalent to returning `false` from `canScroll`.
+   * which is equivalent to preventing the default in `onDragScroll`.
    * @default 900
    */
   maxSpeed?: number | ((parameters: DragAutoScrollFrameContext<TSourceData>) => number) | undefined;
   /**
-   * Applies the frame's scroll delta with custom logic. Use it for a canvas moved
-   * by a CSS `transform`. The element does not need scrollable overflow, and Base UI
-   * does not read its scroll extent.
-   *
-   * Apply the movement synchronously before returning. Base UI resolves the drop
-   * target under the pointer again on the next frame.
+   * Called once for each proposed scroll direction. Native viewports scroll unless
+   * `event.preventDefault()` is called. For a surface without scrollable overflow,
+   * prevent the default and apply the movement synchronously yourself. Call
+   * `event.stopPropagation()` when the surface consumes the direction to keep an
+   * outer viewport from scrolling on the same axis.
    */
-  applyScroll?: DragAutoScrollApply<TSourceData> | undefined;
+  onDragScroll?: DragAutoScrollHandler<TSourceData> | undefined;
 }

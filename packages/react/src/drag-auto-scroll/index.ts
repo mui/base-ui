@@ -7,9 +7,10 @@ export type * from './root/DragAutoScrollRoot';
 // available from `@base-ui/react/types`; both resolve to the same
 // declarations, so the star exports stay unambiguous).
 export type {
-  DragAutoScrollApply,
-  DragAutoScrollApplyContext,
-  DragAutoScrollAxis,
+  DragAutoScrollEvent,
+  DragAutoScrollEventDetails,
+  DragAutoScrollDirection,
+  DragAutoScrollHandler,
   DragAutoScrollFrameContext,
 } from '../utils/drag-and-drop/autoScroller';
 export type { DragInput, DragSource } from '../types/drag';

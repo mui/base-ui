@@ -40,12 +40,10 @@ export function useDragAutoScrollElement<TSourceData = unknown>(
   // effect deps, so a render that changes nothing wakes nothing. A wake is all a
   // change needs: the loop reads the parameters through `getParameters` every
   // frame, so no shared geometry/style cache has to be dropped for it to apply.
-  const { accept, allowedAxis, applyScroll, canScroll, disabled, maxSpeed } = parameters;
+  const { accept, onDragScroll, disabled, maxSpeed } = parameters;
   const previousRef = React.useRef({
     accept,
-    allowedAxis,
-    applyScroll,
-    canScroll,
+    onDragScroll,
     disabled,
     maxSpeed,
   });
@@ -53,17 +51,15 @@ export function useDragAutoScrollElement<TSourceData = unknown>(
     const previous = previousRef.current;
     if (
       sameAccept(previous.accept, accept) &&
-      previous.allowedAxis === allowedAxis &&
-      previous.applyScroll === applyScroll &&
-      previous.canScroll === canScroll &&
+      previous.onDragScroll === onDragScroll &&
       previous.disabled === disabled &&
       previous.maxSpeed === maxSpeed
     ) {
       return;
     }
-    previousRef.current = { accept, allowedAxis, applyScroll, canScroll, disabled, maxSpeed };
+    previousRef.current = { accept, onDragScroll, disabled, maxSpeed };
     wakeAutoScroll();
-  }, [accept, allowedAxis, applyScroll, canScroll, disabled, maxSpeed]);
+  }, [accept, onDragScroll, disabled, maxSpeed]);
 
   return { ref };
 }

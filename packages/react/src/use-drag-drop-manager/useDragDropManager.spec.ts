@@ -290,19 +290,16 @@ engine.registerMonitor(() => ({
   },
 }));
 
-// Like every other `accept`-taking API, the scroller's payload is typed from
-// `accept` rather than asserted with a bare type argument.
+// The accepted kind determines the scroll callback payload.
 engine.registerAutoScroller(element, () => ({
   accept: card,
-  allowedAxis: 'vertical',
-  canScroll: ({ source }) => {
+  onDragScroll(event, { source, direction }) {
     expectType<CardPayload, typeof source.payload>(source.payload);
-    return true;
+    if (direction === 'horizontal') {
+      event.preventDefault();
+    }
   },
 }));
-
-// @ts-expect-error `allowedAxis` is a fixed union, not an arbitrary string.
-engine.registerAutoScroller(element, () => ({ allowedAxis: 'diagonal' }));
 
 // ---------------------------------------------------------------------------
 // cancelDrag

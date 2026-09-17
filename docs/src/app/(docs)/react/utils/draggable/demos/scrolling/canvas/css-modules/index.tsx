@@ -44,7 +44,8 @@ function CanvasPanContent() {
         accept={pinKind}
         className={styles.Viewport}
         // @highlight-start
-        applyScroll={({ x, y }) => {
+        onDragScroll={(event, { x, y }) => {
+          event.preventDefault();
           cameraRef.current = { x: cameraRef.current.x + x, y: cameraRef.current.y + y };
           // Written straight to the DOM, not through state: the engine re-resolves
           // what is under the pointer on the frame after this call.
@@ -52,6 +53,7 @@ function CanvasPanContent() {
           if (content) {
             content.style.transform = `translate(${-cameraRef.current.x}px, ${-cameraRef.current.y}px)`;
           }
+          event.stopPropagation();
         }}
         // @highlight-end
       >

@@ -36,9 +36,10 @@ export type {
 } from './dragRegistration';
 
 export type {
-  DragAutoScrollApply,
-  DragAutoScrollApplyContext,
-  DragAutoScrollAxis,
+  DragAutoScrollEvent,
+  DragAutoScrollEventDetails,
+  DragAutoScrollDirection,
+  DragAutoScrollHandler,
   DragAutoScrollFrameContext,
 } from '../utils/drag-and-drop/autoScroller';
 
