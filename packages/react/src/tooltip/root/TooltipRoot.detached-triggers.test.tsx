@@ -1,4 +1,4 @@
-import { vi, expect } from 'vitest';
+import { vi, expect, describe, beforeEach, it } from 'vitest';
 import * as React from 'react';
 import * as ReactDOMClient from 'react-dom/client';
 import * as ReactDOMServer from 'react-dom/server';
@@ -25,10 +25,12 @@ describe('<Tooltip.Root />', () => {
       document.body.click();
     });
 
-    // Wait for all tooltips to unmount
+    // Wait for all tooltips to unmount (`expect` is not allowed outside test blocks)
     await waitFor(() => {
       const tooltips = document.querySelectorAll('[data-open]');
-      expect(tooltips.length).toBe(0);
+      if (tooltips.length > 0) {
+        throw new Error(`${tooltips.length} tooltips still mounted`);
+      }
     });
   });
 

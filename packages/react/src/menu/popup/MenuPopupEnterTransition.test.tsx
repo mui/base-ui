@@ -1,4 +1,4 @@
-import { expect } from 'vitest';
+import { expect, afterEach, it } from 'vitest';
 import * as React from 'react';
 import userEvent from '@testing-library/user-event';
 import { act, screen, waitFor } from '@mui/internal-test-utils';

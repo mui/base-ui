@@ -1,4 +1,4 @@
-import { expect } from 'vitest';
+import { expect, describe, it } from 'vitest';
 import { Drawer } from '@base-ui/react/drawer';
 import { screen } from '@mui/internal-test-utils';
 import { createRenderer } from '#test-utils';

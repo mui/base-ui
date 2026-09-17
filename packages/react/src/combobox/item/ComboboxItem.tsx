@@ -13,7 +13,11 @@ import { useRenderElement } from '../../internals/useRenderElement';
 import { ComboboxItemContext } from './ComboboxItemContext';
 import { useButton } from '../../internals/use-button';
 import { useComboboxRowContext } from '../row/ComboboxRowContext';
-import { compareItemEquality, findItemIndex } from '../../internals/itemEquality';
+import {
+  compareItemEquality,
+  findItemIndex,
+  resolveSelectedIndex,
+} from '../../internals/itemEquality';
 
 interface ComboboxItemInnerProps {
   componentProps: ComboboxItem.Props;
@@ -111,13 +115,21 @@ function ComboboxItemInner(props: ComboboxItemInnerProps) {
     // force-mount) so the index tracks the item's composite position, keeping features
     // like closed-trigger typeahead in sync when the rendered order changes.
     const selectedValue = store.state.selectedValue;
-    const lastSelectedValue = Array.isArray(selectedValue)
-      ? selectedValue[selectedValue.length - 1]
-      : selectedValue;
 
-    if (compareItemEquality(itemValue, lastSelectedValue, isItemEqualToValue)) {
-      store.set('selectedIndex', index);
+    let nextIndex = store.state.selectedIndex;
+    if (store.state.selectionMode === 'multiple' && Array.isArray(selectedValue)) {
+      nextIndex = resolveSelectedIndex(
+        index,
+        itemValue,
+        store.context.valuesRef.current,
+        selectedValue,
+        isItemEqualToValue,
+        nextIndex,
+      );
+    } else if (compareItemEquality(itemValue, selectedValue, isItemEqualToValue)) {
+      nextIndex = index;
     }
+    store.set('selectedIndex', nextIndex);
   }, [hasRegistered, hasItems, store, index, itemValue, isItemEqualToValue]);
 
   const { getButtonProps, buttonRef } = useButton({

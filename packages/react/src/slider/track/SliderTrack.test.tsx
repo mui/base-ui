@@ -1,3 +1,4 @@
+import { describe } from 'vitest';
 import { Slider } from '@base-ui/react/slider';
 import { createRenderer, describeConformance } from '#test-utils';
 

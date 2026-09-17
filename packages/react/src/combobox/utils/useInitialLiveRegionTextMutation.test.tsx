@@ -1,4 +1,4 @@
-import { expect } from 'vitest';
+import { expect, describe, it } from 'vitest';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { createRenderer } from '#test-utils';
 import { screen } from '@mui/internal-test-utils';

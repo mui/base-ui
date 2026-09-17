@@ -1,4 +1,4 @@
-import { expect } from 'vitest';
+import { expect, describe, it } from 'vitest';
 import { Toolbar } from '@base-ui/react/toolbar';
 import { DirectionProvider, type TextDirection } from '@base-ui/react/direction-provider';
 import { screen } from '@mui/internal-test-utils';

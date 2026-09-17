@@ -1,4 +1,4 @@
-import { expect, vi } from 'vitest';
+import { expect, vi, describe, it } from 'vitest';
 import type * as React from 'react';
 import { handleInputPress } from './handleInputPress';
 import type { ComboboxStore } from '../store';
