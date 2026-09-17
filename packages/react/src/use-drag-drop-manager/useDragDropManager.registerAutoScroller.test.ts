@@ -1437,7 +1437,7 @@ describe('engine.registerAutoScroller', () => {
       // imperative registration is the escape hatch for it.
       registerCleanup(
         engine.registerAutoScroller(document.documentElement, () => ({
-          onDragScroll: (event, details) => {
+          onDragScroll: (event) => {
             event.preventDefault();
           },
         })),
@@ -1670,7 +1670,7 @@ describe('engine.registerAutoScroller', () => {
       engine.registerDraggable(source, {});
       registerCleanup(
         engine.registerAutoScroller(page.element, {
-          onDragScroll: (event, details) => {
+          onDragScroll: (event) => {
             event.preventDefault();
           },
         }),
