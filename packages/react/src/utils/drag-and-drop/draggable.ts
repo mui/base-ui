@@ -6,7 +6,6 @@ import type {
   DraggablePayload,
   DraggablePayloadGetter,
   DragPreviewParameters,
-  DragPreviewContainer,
   BeforeMoveStartEventDetails,
   DraggableEventDetailsMap,
   DraggableEventMap,
@@ -233,14 +232,6 @@ export type DraggableConfig<TData = undefined> = {
    * @internal
    */
   getDragPreviewDeclaration?: (() => DragPreviewDeclaration<NoInfer<TData>> | null) | undefined;
-  /**
-   * Subtree default for `container`, from the nearest `Draggable.Provider`.
-   * Wired by the React layer, which is the only thing that can see a provider; the
-   * preview's own `container` wins over it.
-   * @internal
-   */
-  previewContainerDefault?: DragPreviewContainer | undefined;
-
   /**
    * Event handler called once at the start of a drag, before `onMoveStart`,
    * while the preview is being built. The React layer installs its preview

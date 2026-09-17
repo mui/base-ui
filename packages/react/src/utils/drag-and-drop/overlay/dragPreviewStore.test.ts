@@ -30,7 +30,7 @@ function makeState(label: string): Omit<DragPreviewState, 'context'> {
 }
 
 function makeContext(): DragPreviewContext {
-  return { getContainer: () => undefined };
+  return Symbol('DragPreviewContext');
 }
 
 describe('dragPreviewStore', () => {

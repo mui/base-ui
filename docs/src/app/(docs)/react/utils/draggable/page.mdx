@@ -429,12 +429,13 @@ To avoid both, pass `container` to inject the preview elsewhere. It accepts an e
 <Draggable.Preview container={(source) => source.closest('.Board')}>{label}</Draggable.Preview>
 ```
 
-Set `container` on `Draggable.Provider` to share a container across its sources. A preview's own `container` takes precedence:
+To share a container across sources, pass the same ref to each preview, or put the preview configuration in a reusable source component. `Draggable.Provider` does not configure the DOM container:
 
-```tsx title="One container for the whole board"
-<Draggable.Provider container={boardRef}>
-  <Board ref={boardRef} />
-</Draggable.Provider>
+```tsx title="Share a preview container"
+<Draggable.Root kind={card} payload={item}>
+  {item.label}
+  <Draggable.Preview container={boardRef} />
+</Draggable.Root>
 ```
 
 Prefer the closest suitable container. The preview no longer has the source's ancestors, so selectors such as `.Column .Card` stop matching. A nearby themed wrapper preserves more of the cascade than a container near the document root. Rules based on the preview's own classes still apply. Its DOM container does not affect React context.

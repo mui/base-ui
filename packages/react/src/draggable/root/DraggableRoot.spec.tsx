@@ -240,7 +240,8 @@ const boundaryRef: React.RefObject<HTMLDivElement | null> = { current: null };
   </Draggable.Preview>
 </Draggable.Root>;
 
-<Draggable.Provider container={(source) => source.closest('div')}>
+// @ts-expect-error configure the container on each preview, not the provider.
+<Draggable.Provider container={document.body}>
   <Draggable.Root kind={marker} />
 </Draggable.Provider>;
 

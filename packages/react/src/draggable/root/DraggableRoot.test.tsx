@@ -1673,56 +1673,15 @@ describe('Draggable.Root', () => {
       expect(host.parentElement!.parentElement).toBe(screen.getByTestId('board'));
     });
 
-    it('injects into the provider`s container by default, and the part`s over it', async () => {
-      function Wiring({ partContainer }: { partContainer?: boolean }) {
-        const fromProvider = React.useRef<HTMLDivElement>(null);
-        const fromPart = React.useRef<HTMLDivElement>(null);
-        return (
-          <React.Fragment>
-            <div ref={fromProvider} data-testid="from-provider" />
-            <div ref={fromPart} data-testid="from-part" />
-            <DraggableProvider container={fromProvider}>
-              <DraggableWithPreview
-                preview={<span data-testid="preview">x</span>}
-                previewProps={partContainer ? { container: fromPart } : undefined}
-              />
-            </DraggableProvider>
-          </React.Fragment>
-        );
-      }
-
-      const { rerender } = await renderDnd(<Wiring />);
-      const source = screen.getByTestId('drag');
-      source.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
-
-      // A provider-level container relocates every descendant's preview, with no
-      // per-item prop to thread down.
-      fireEvent.dragStart(source);
-      expect(
-        screen.getByTestId('preview').closest('[data-drag-preview]')!.parentElement!.parentElement,
-      ).toBe(screen.getByTestId('from-provider'));
-      cancel();
-      await flushRaf();
-
-      await rerender(<Wiring partContainer />);
-      const next = screen.getByTestId('drag');
-      next.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
-
-      fireEvent.dragStart(next);
-      expect(
-        screen.getByTestId('preview').closest('[data-drag-preview]')!.parentElement!.parentElement,
-      ).toBe(screen.getByTestId('from-part'));
-    });
-
-    it('relocates the default clone through a provider container too', async () => {
+    it('relocates the default clone through a preview container', async () => {
       function Wiring() {
         const containerRef = React.useRef<HTMLDivElement>(null);
         return (
           <React.Fragment>
             <div ref={containerRef} data-testid="container" />
-            <DraggableProvider container={containerRef}>
+            <DraggableProvider>
               <Draggable.Root kind={testDragKind} data-testid="drag" className="Card">
-                <Draggable.Preview />
+                <Draggable.Preview container={containerRef} />
               </Draggable.Root>
             </DraggableProvider>
           </React.Fragment>
@@ -1735,24 +1694,21 @@ describe('Draggable.Root', () => {
 
       fireEvent.dragStart(source);
 
-      // The subtree default reaches the engine-built clone as well as content.
+      // The preview part configures the engine-built clone without custom content.
       const clone = document.querySelector('.Card[data-drag-preview]') as HTMLElement;
       expect(clone).not.toBeNull();
       expect(clone.parentElement!.parentElement).toBe(screen.getByTestId('container'));
     });
 
-    it('resolves the provider container that arrives after mount, at drag start', async () => {
-      // The provider carries `container` through a ref read at drag start, so a
-      // container the app only learns later (a `useState`-held element) must
-      // still reach the next drag — nothing re-registers on provider re-render.
+    it('resolves the preview container that arrives after mount, at drag start', async () => {
       function Wiring() {
         const [container, setContainer] = React.useState<HTMLElement | null>(null);
         return (
           <React.Fragment>
             <div ref={setContainer} data-testid="late-container" />
-            <DraggableProvider container={container ?? undefined}>
+            <DraggableProvider>
               <Draggable.Root kind={testDragKind} data-testid="drag" className="Card">
-                <Draggable.Preview />
+                <Draggable.Preview container={container ?? undefined} />
               </Draggable.Root>
             </DraggableProvider>
           </React.Fragment>
@@ -1769,10 +1725,7 @@ describe('Draggable.Root', () => {
       expect(clone.parentElement!.parentElement).toBe(screen.getByTestId('late-container'));
     });
 
-    it('keeps the provider context stable under an inline container callback', async () => {
-      // An inline callback is a new identity every render; the provider must not
-      // let it churn the context value, or every memoized row below would
-      // re-render whenever the provider does.
+    it('keeps the provider context stable when its parent renders', async () => {
       let rowCommits = 0;
       const Row = React.memo(function Row() {
         rowCommits += 1;
@@ -1784,7 +1737,7 @@ describe('Draggable.Root', () => {
         return (
           <React.Fragment>
             <button type="button" data-testid="force" onClick={() => force((c) => c + 1)} />
-            <DraggableProvider container={(source) => source.parentElement}>
+            <DraggableProvider>
               <Row />
             </DraggableProvider>
           </React.Fragment>
