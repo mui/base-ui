@@ -319,6 +319,17 @@ export function useListNavigation(
     dataRef.current.orientation = orientation;
   }, [dataRef, orientation]);
 
+  useIsoLayoutEffect(() => {
+    if (!open) {
+      keyRef.current = null;
+    }
+    // Explicit values can change with the opening interaction. Keep an inferred 'auto' value
+    // from the trigger event, but apply a boolean before the initial highlight is synchronized.
+    if (!open || focusItemOnOpen !== 'auto') {
+      focusItemOnOpenRef.current = focusItemOnOpen;
+    }
+  }, [open, focusItemOnOpen]);
+
   // Sync `selectedIndex` to be the `activeIndex` upon opening the floating
   // element. Also, reset `activeIndex` upon closing the floating element.
   useIsoLayoutEffect(() => {
@@ -453,13 +464,6 @@ export function useListNavigation(
     previousOpenRef.current = open;
     previousMountedRef.current = !!floatingElement;
   });
-
-  useIsoLayoutEffect(() => {
-    if (!open) {
-      keyRef.current = null;
-      focusItemOnOpenRef.current = focusItemOnOpen;
-    }
-  }, [open, focusItemOnOpen]);
 
   const hasActiveIndex = activeIndex != null;
 

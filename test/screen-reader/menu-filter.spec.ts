@@ -63,3 +63,35 @@ for (const activation of ['Enter', 'screen reader activation'] as const) {
     });
   }
 }
+
+test('announces the first submenu action and its filter input in the navigation loop', async ({
+  page,
+  screenReader,
+}) => {
+  await page.goto('/e2e-fixtures/menu/Filter#no-dev');
+  await page.locator('[data-testid="testcase"]:not([aria-busy="true"])').waitFor();
+  await screenReader.navigateToWebContent();
+  await navigateToItem(screenReader, /actions/i);
+  await screenReader.press('Enter');
+  await screenReader.type('Move');
+  await screenReader.press('ArrowDown');
+  await screenReader.press('ArrowRight');
+
+  const input = page.getByRole('searchbox', { name: 'Filter folders' });
+  await expect(input).toBeFocused();
+  const openingSpeech = await screenReader.lastSpokenPhrase();
+  expect(openingSpeech).toMatch(/desktop/i);
+  expect(openingSpeech).not.toMatch(/desktop[\s\S]*move to folder[,\s]+menu\b/i);
+
+  await screenReader.press('ArrowUp');
+  await expect(input).not.toHaveAttribute('aria-activedescendant');
+  expect(await screenReader.lastSpokenPhrase()).toMatch(/filter folders.*(?:edit|search)/i);
+
+  await screenReader.type('Projects');
+  await expect(input).toHaveValue('Projects');
+  await screenReader.press('ArrowDown');
+  expect(await screenReader.lastSpokenPhrase()).toMatch(/projects/i);
+
+  await screenReader.press('Escape');
+  await expect(page.getByRole('searchbox', { name: 'Filter actions' })).toBeFocused();
+});

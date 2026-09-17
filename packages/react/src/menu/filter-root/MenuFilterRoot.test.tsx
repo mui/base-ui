@@ -39,7 +39,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
   const { render, renderToString } = createRenderer();
 
   describe('filtering', () => {
-    it('marks the input focus-visible when the menu is opened with the keyboard', async () => {
+    it('highlights the first item while keeping input focus when opened with the keyboard', async () => {
       const { user } = await render(
         <Menu.FilterProvider>
           <Menu.Root>
@@ -68,7 +68,11 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
       await waitFor(() => {
         expect(input).toHaveFocus();
       });
-      expect(input).toHaveAttribute('data-highlighted');
+      expect(input).not.toHaveAttribute('data-highlighted');
+      expect(input).toHaveAttribute(
+        'aria-activedescendant',
+        screen.getByRole('menuitem', { name: 'Rename' }).id,
+      );
     });
 
     it('marks the input focus-visible when the menu is opened with a pointer', async () => {
@@ -1693,7 +1697,11 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
         await waitFor(() => {
           expect(input).toHaveFocus();
         });
-        expect(input).toHaveAttribute('data-highlighted');
+        expect(input).not.toHaveAttribute('data-highlighted');
+        expect(input).toHaveAttribute(
+          'aria-activedescendant',
+          screen.getByRole('menuitem', { name: 'Documents' }).id,
+        );
 
         const item = screen.getByText('Documents');
         await user.hover(item);
@@ -1755,17 +1763,20 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
       await user.keyboard('[ArrowDown]');
 
       const submenuTrigger = screen.getByRole('menuitem', { name: 'Move to folder' });
-      expect(parentInput).toHaveAttribute('aria-activedescendant', submenuTrigger.id);
+      expect(parentInput).not.toHaveAttribute('aria-activedescendant');
 
       await user.keyboard('[ArrowRight]');
 
       const submenuInput = await screen.findByRole('searchbox', { name: 'Filter folders' });
-      fireEvent.mouseMove(submenuInput);
       await waitFor(() => {
         expect(submenuInput).toHaveFocus();
       });
-      expect(submenuInput).toHaveAttribute('data-highlighted');
-      expect(parentInput).not.toHaveAttribute('aria-activedescendant');
+      expect(submenuInput).not.toHaveAttribute('data-highlighted');
+      expect(submenuInput).toHaveAttribute(
+        'aria-activedescendant',
+        screen.getByRole('menuitem', { name: 'Documents' }).id,
+      );
+      expect(parentInput).toHaveAttribute('aria-activedescendant', submenuTrigger.id);
 
       await user.keyboard('[ArrowLeft]');
 
@@ -2078,8 +2089,6 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
       await waitFor(() => {
         expect(submenuInput).toHaveFocus();
       });
-
-      await user.keyboard('[ArrowDown]');
 
       const nestedTrigger = screen.getByRole('menuitem', { name: 'More folders' });
       expect(submenuInput).toHaveAttribute('aria-activedescendant', nestedTrigger.id);
@@ -3218,9 +3227,6 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
       const { user } = await render(<KeyboardNavigationMenu />);
       const input = await openWithKeyboard(user);
 
-      expect(input).not.toHaveAttribute('aria-activedescendant');
-
-      await user.keyboard('[ArrowDown]');
       await waitFor(() => {
         expect(screen.getByRole('menuitem', { name: 'Rename' })).toHaveAttribute(
           'data-highlighted',
@@ -3256,7 +3262,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
       const { user } = await render(<KeyboardNavigationMenu />);
       await openWithKeyboard(user);
 
-      await user.keyboard('[ArrowDown][ArrowDown]');
+      await user.keyboard('[ArrowDown]');
       await waitFor(() => {
         expect(screen.getByRole('menuitem', { name: 'Duplicate' })).toHaveAttribute(
           'data-highlighted',
@@ -3269,9 +3275,10 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
       });
 
       const reopenedInput = await openWithKeyboard(user);
-      expect(reopenedInput).not.toHaveAttribute('aria-activedescendant');
-
-      await user.keyboard('[ArrowDown]');
+      expect(reopenedInput).toHaveAttribute(
+        'aria-activedescendant',
+        screen.getByRole('menuitem', { name: 'Rename' }).id,
+      );
       await waitFor(() => {
         expect(screen.getByRole('menuitem', { name: 'Rename' })).toHaveAttribute(
           'data-highlighted',
@@ -3286,7 +3293,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
       const { user } = await render(<KeyboardNavigationMenu />);
       const input = await openWithKeyboard(user);
 
-      await user.keyboard('[ArrowDown][ArrowDown]');
+      await user.keyboard('[ArrowDown]');
       await waitFor(() => {
         expect(screen.getByRole('menuitem', { name: 'Duplicate' })).toHaveAttribute(
           'data-highlighted',
@@ -3317,7 +3324,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
       const { user } = await render(<KeyboardNavigationMenu />);
       const input = await openWithKeyboard(user);
 
-      await user.keyboard('[ArrowDown][ArrowDown]');
+      await user.keyboard('[ArrowDown]');
       await waitFor(() => {
         expect(screen.getByRole('menuitem', { name: 'Duplicate' })).toHaveAttribute(
           'data-highlighted',

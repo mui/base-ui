@@ -63,6 +63,11 @@ interface MenuRootInternalProps<Payload> extends MenuRoot.Props<Payload> {
   virtualFocus?: boolean | undefined;
   /**
    * @ignore
+   * Whether keyboard or virtual activation should initially highlight a filtered menu item.
+   */
+  virtualFocusInitialHighlight?: boolean | undefined;
+  /**
+   * @ignore
    * The element that retains real focus while virtual list navigation is active.
    */
   virtualFocusRef?: React.RefObject<HTMLElement | null> | undefined;
@@ -117,6 +122,7 @@ export const MenuRootInternal = fastComponent(function MenuRoot<Payload>(
     highlightItemOnHover = true,
     isSubmenu = false,
     virtualFocus = false,
+    virtualFocusInitialHighlight = false,
     virtualFocusRef,
     allowEscape = true,
     resetOnPointerLeave = true,
@@ -564,10 +570,9 @@ export const MenuRootInternal = fastComponent(function MenuRoot<Payload>(
     nested: parent.type === 'menubar' || (!virtualFocus && parent.type !== undefined),
     parentOrientation: parent.type === 'menubar' ? parent.context.orientation : undefined,
     loopFocus,
-    // Seed a menu item on open while DOM focus stays on the filter input. Windows screen readers
-    // accept menu-item focus when processing menu-open notifications; an unhighlighted input's
-    // announcement can otherwise be replaced by the menu. Navigation can still return to the input.
-    focusItemOnOpen: virtualFocus ? true : undefined,
+    // Filtered menus keep DOM focus on the input, while keyboard and virtual opens initially
+    // highlight an item as ordinary menus do. The input remains part of the arrow-key loop.
+    focusItemOnOpen: virtualFocus ? virtualFocusInitialHighlight : undefined,
     allowEscape: virtualFocus && loopFocus && allowEscape,
     orientation,
     // A virtual-focus list can navigate on either axis, but its trigger always opens on the

@@ -217,6 +217,9 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider> (WebKit)', () 
     });
 
     const shareItem = screen.getByRole('menuitem', { name: 'Share' });
+    expect(shareItem).toHaveAttribute('aria-selected', 'true');
+
+    await user.keyboard('[ArrowUp]');
     expect(shareItem).toHaveAttribute('aria-selected', 'false');
 
     await user.keyboard('[ArrowDown]');

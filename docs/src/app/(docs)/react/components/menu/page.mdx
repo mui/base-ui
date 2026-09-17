@@ -370,6 +370,8 @@ Every other part stays the same.
 ```
 
 Give the input an accessible name with `aria-label`, `aria-labelledby`, or a visible `<label>`.
+Keyboard and screen reader activation initially highlight a menu item while keeping DOM focus on the input.
+By default, arrow-key navigation includes the input in the loop, and pointer activation leaves the input highlighted.
 
 import { DemoMenuFilter } from './demos/filter';
 
