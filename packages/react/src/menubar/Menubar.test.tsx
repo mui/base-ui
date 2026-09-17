@@ -1613,7 +1613,6 @@ describe('filterable menubar menus', () => {
       await user.keyboard(openKey);
       const input = await screen.findByRole('searchbox');
       await waitFor(() => expect(input).toHaveFocus());
-      await user.keyboard('[ArrowDown]');
       expect(screen.getByRole('menuitem', { name: 'New file' })).toHaveAttribute(
         'data-highlighted',
       );

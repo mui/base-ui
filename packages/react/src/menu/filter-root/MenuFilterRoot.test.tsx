@@ -1763,7 +1763,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
       await user.keyboard('[ArrowDown]');
 
       const submenuTrigger = screen.getByRole('menuitem', { name: 'Move to folder' });
-      expect(parentInput).not.toHaveAttribute('aria-activedescendant');
+      expect(parentInput).toHaveAttribute('aria-activedescendant', submenuTrigger.id);
 
       await user.keyboard('[ArrowRight]');
 
@@ -1776,7 +1776,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
         'aria-activedescendant',
         screen.getByRole('menuitem', { name: 'Documents' }).id,
       );
-      expect(parentInput).toHaveAttribute('aria-activedescendant', submenuTrigger.id);
+      expect(parentInput).not.toHaveAttribute('aria-activedescendant');
 
       await user.keyboard('[ArrowLeft]');
 
