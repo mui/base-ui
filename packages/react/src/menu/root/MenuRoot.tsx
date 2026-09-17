@@ -733,7 +733,8 @@ export interface MenuRootProps<Payload = unknown> {
   /**
    * A ref to imperative actions.
    * - `unmount`: Manually unmounts the menu.
-   *   Call this after any externally controlled closing animation finishes.
+   *   Call `preventUnmountOnClose()` in `onOpenChange` to manually control unmounting,
+   *   then call this action after any externally controlled closing animation finishes.
    * - `close`: When specified, the menu can be closed imperatively.
    */
   actionsRef?: React.RefObject<MenuRoot.Actions | null> | undefined;
@@ -781,7 +782,8 @@ export type MenuRootChangeEventReason =
   | typeof REASONS.none;
 
 export type MenuRootChangeEventDetails = BaseUIChangeEventDetails<MenuRoot.ChangeEventReason> & {
-  preventUnmountOnClose(): void;
+  /** Prevents the popup from unmounting until the `unmount` action is called. */
+  preventUnmountOnClose: () => void;
 };
 
 export type MenuRootOrientation = 'horizontal' | 'vertical';

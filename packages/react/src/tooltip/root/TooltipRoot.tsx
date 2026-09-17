@@ -183,7 +183,9 @@ export interface TooltipRootProps<Payload = unknown> {
   trackCursorAxis?: 'none' | 'x' | 'y' | 'both' | undefined;
   /**
    * A ref to imperative actions.
-   * - `unmount`: Unmounts the tooltip popup.
+   * - `unmount`: Manually unmounts the tooltip popup.
+   * Call `preventUnmountOnClose()` in `onOpenChange` to manually control unmounting,
+   * then call this action after any externally controlled closing animation finishes.
    * - `close`: Closes the tooltip imperatively when called.
    */
   actionsRef?: React.RefObject<TooltipRoot.Actions | null> | undefined;
@@ -233,7 +235,8 @@ export type TooltipRootChangeEventReason =
 
 export type TooltipRootChangeEventDetails =
   BaseUIChangeEventDetails<TooltipRoot.ChangeEventReason> & {
-    preventUnmountOnClose(): void;
+    /** Prevents the popup from unmounting until the `unmount` action is called. */
+    preventUnmountOnClose: () => void;
   };
 
 export namespace TooltipRoot {
