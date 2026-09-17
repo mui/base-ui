@@ -4,7 +4,6 @@ import { Draggable } from '@base-ui/react/draggable';
 import * as React from 'react';
 import clsx from 'clsx';
 import { Menu } from '@base-ui/react/menu';
-import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { DragPageAutoScroll } from '../../../(docs)/react/utils/draggable/demos/DragPageAutoScroll';
 
 import theme from './theme.module.css';
@@ -140,30 +139,6 @@ function moveById<T extends { id: string }>(
   return unchanged ? list : next;
 }
 
-/**
- * Resolve the insertion side from the pointer's *travel direction* rather than
- * the neighbour's midpoint. The drop target fires as soon as the pointer crosses
- * the neighbour's near edge, so committing on direction reproduces AG-Grid's
- * snappy "reorder on edge, not midpoint" feel. Gating on direction — move the
- * dragged item toward the pointer, never against it — stops an uneven-width
- * neighbour that slides under the cursor right after a swap from oscillating.
- *
- * Returns `null` when the pointer hasn't moved along the axis (e.g. an
- * auto-scroll tick reusing the last coordinate) so the caller skips the reorder.
- */
-function afterFromDirection(
-  ref: React.MutableRefObject<number | null>,
-  pointer: number,
-  initial: number,
-): boolean | null {
-  const previous = ref.current ?? initial;
-  ref.current = pointer;
-  if (pointer === previous) {
-    return null;
-  }
-  return pointer > previous;
-}
-
 function Grip({ className }: { className?: string }) {
   return (
     <svg className={className} width="8" height="14" viewBox="0 0 8 14" aria-hidden="true">
@@ -191,40 +166,26 @@ function ColumnMenuIcon() {
   );
 }
 
+function getCollisionElement(element: HTMLElement) {
+  return element.parentElement ?? element;
+}
+
 function ColumnHeader({
   column,
-  onReorder,
   boundaryRef,
 }: {
   column: Column;
-  onReorder: (draggedId: string, targetId: string, pointer: number, initial: number) => void;
   boundaryRef: React.RefObject<HTMLDivElement | null>;
 }) {
   // The same header is also a drop target: the moment the dragged column crosses
-  // this one's near edge, shift it into place (see `afterFromDirection`).
+  // this one's near edge, the collision provider shifts it into place.
   return (
-    <Draggable.Target
-      accept={columnKind}
-      trackDragOver={false}
-      onDraggableMove={({ source, location }) => {
-        const draggedId = source.payload;
-        if (draggedId === column.id) {
-          return;
-        }
-        onReorder(
-          draggedId,
-          column.id,
-          location.current.input.clientX,
-          location.initial.input.clientX,
-        );
-      }}
-      className={styles.headerCell}
-      style={{ width: column.width }}
-    >
+    <div className={styles.headerCell} style={{ width: column.width }}>
       {/* Grab anywhere on the label area (no `Draggable.Handle`). The menu button is
           a sibling rather than a child, so the draggable never contains a button. */}
       <Draggable.Root
         kind={columnKind}
+        collisionElement={getCollisionElement}
         payload={column.id}
         // A column only ever travels along the header row. The lock pins the
         // drop hit-test to that row too, so the header cell under the pointer's
@@ -270,7 +231,7 @@ function ColumnHeader({
           </Menu.Positioner>
         </Menu.Portal>
       </Menu.Root>
-    </Draggable.Target>
+    </div>
   );
 }
 
@@ -279,7 +240,6 @@ function GridRow({
   columns,
   leadingWidth,
   trailingWidth,
-  onRowReorder,
   boundaryRef,
 }: {
   row: Row;
@@ -287,32 +247,15 @@ function GridRow({
   columns: Column[];
   leadingWidth: number;
   trailingWidth: number;
-  onRowReorder: (draggedId: string, targetId: string, pointer: number, initial: number) => void;
   boundaryRef: React.RefObject<HTMLDivElement | null>;
 }) {
   // As the dragged row crosses this one's near edge, shift it into place — the
-  // same edge-commit direction logic as columns (see `afterFromDirection`).
+  // same direction-based placement as columns.
   return (
-    <Draggable.Target
-      accept={rowKind}
-      trackDragOver={false}
-      onDraggableMove={({ source, location }) => {
-        const draggedId = source.payload;
-        if (draggedId === row.id) {
-          return;
-        }
-        onRowReorder(
-          draggedId,
-          row.id,
-          location.current.input.clientY,
-          location.initial.input.clientY,
-        );
-      }}
-      className={styles.row}
-      style={{ height: ROW_HEIGHT }}
-    >
+    <div className={styles.row} style={{ height: ROW_HEIGHT }}>
       <Draggable.Root
         kind={rowKind}
+        collisionElement={getCollisionElement}
         payload={row.id}
         // A row only ever travels up and down the grid.
         modifiers={Draggable.restrictToVerticalAxis}
@@ -342,7 +285,7 @@ function GridRow({
         ))}
         <div className={styles.columnSpacer} style={{ width: trailingWidth }} />
       </Draggable.Root>
-    </Draggable.Target>
+    </div>
   );
 }
 
@@ -360,18 +303,6 @@ function DataGridInner() {
   const source = Draggable.useActiveDrag([columnKind, rowKind]);
   const sourceRef = React.useRef(source);
   sourceRef.current = source;
-
-  // The last pointer coordinate seen along each axis, used by `afterFromDirection`
-  // to resolve the insertion side from travel direction. Reset when a drag ends so
-  // the next drag seeds from its own grab point rather than a stale coordinate.
-  const columnPointerRef = React.useRef<number | null>(null);
-  const rowPointerRef = React.useRef<number | null>(null);
-  React.useEffect(() => {
-    if (!source) {
-      columnPointerRef.current = null;
-      rowPointerRef.current = null;
-    }
-  }, [source]);
 
   // The engine doesn't block wheel/trackpad scroll during a pointer drag, so the
   // body could still be scrolled along the axis the drag doesn't use. Freeze that
@@ -397,25 +328,6 @@ function DataGridInner() {
     grid.addEventListener('wheel', onWheel, { passive: false });
     return () => grid.removeEventListener('wheel', onWheel);
   }, []);
-
-  const reorderColumns = useStableCallback(
-    (draggedId: string, targetId: string, pointer: number, initial: number) => {
-      const after = afterFromDirection(columnPointerRef, pointer, initial);
-      if (after === null) {
-        return;
-      }
-      setColumns((prev) => moveById(prev, draggedId, targetId, after));
-    },
-  );
-  const reorderRows = useStableCallback(
-    (draggedId: string, targetId: string, pointer: number, initial: number) => {
-      const after = afterFromDirection(rowPointerRef, pointer, initial);
-      if (after === null) {
-        return;
-      }
-      setRows((prev) => moveById(prev, draggedId, targetId, after));
-    },
-  );
 
   const totalHeight = rows.length * ROW_HEIGHT;
   const start = Math.max(0, Math.floor(scrollTop / ROW_HEIGHT) - OVERSCAN);
@@ -482,14 +394,27 @@ function DataGridInner() {
           <div className={styles.header} style={{ width: contentWidth, height: HEADER_HEIGHT }}>
             <div className={styles.headerGripSpacer} style={{ width: GRIP_WIDTH }} />
             <div className={styles.columnSpacer} style={{ width: leadingWidth }} />
-            {visibleColumns.map((column) => (
-              <ColumnHeader
-                key={column.id}
-                column={column}
-                onReorder={reorderColumns}
-                boundaryRef={gridRef}
-              />
-            ))}
+            <Draggable.CollisionProvider
+              kind={columnKind}
+              orientation="horizontal"
+              placement="direction"
+              onCollisionChange={({ source: dragged, collision }) => {
+                if (collision) {
+                  setColumns((current) =>
+                    moveById(
+                      current,
+                      dragged.payload,
+                      collision.target.payload,
+                      collision.placement === 'after',
+                    ),
+                  );
+                }
+              }}
+            >
+              {visibleColumns.map((column) => (
+                <ColumnHeader key={column.id} column={column} boundaryRef={gridRef} />
+              ))}
+            </Draggable.CollisionProvider>
             <div className={styles.columnSpacer} style={{ width: trailingWidth }} />
           </div>
 
@@ -498,17 +423,34 @@ function DataGridInner() {
               className={styles.bodyWindow}
               style={{ transform: `translateY(${start * ROW_HEIGHT}px)` }}
             >
-              {visibleRows.map((row) => (
-                <GridRow
-                  key={row.id}
-                  row={row}
-                  columns={visibleColumns}
-                  leadingWidth={leadingWidth}
-                  trailingWidth={trailingWidth}
-                  onRowReorder={reorderRows}
-                  boundaryRef={gridRef}
-                />
-              ))}
+              <Draggable.CollisionProvider
+                kind={rowKind}
+                orientation="vertical"
+                placement="direction"
+                onCollisionChange={({ source: dragged, collision }) => {
+                  if (collision) {
+                    setRows((current) =>
+                      moveById(
+                        current,
+                        dragged.payload,
+                        collision.target.payload,
+                        collision.placement === 'after',
+                      ),
+                    );
+                  }
+                }}
+              >
+                {visibleRows.map((row) => (
+                  <GridRow
+                    key={row.id}
+                    row={row}
+                    columns={visibleColumns}
+                    leadingWidth={leadingWidth}
+                    trailingWidth={trailingWidth}
+                    boundaryRef={gridRef}
+                  />
+                ))}
+              </Draggable.CollisionProvider>
             </div>
           </div>
         </Draggable.Viewport>

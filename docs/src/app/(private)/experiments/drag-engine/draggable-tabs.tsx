@@ -4,7 +4,6 @@ import {
   type BeforeMoveStartEventDetails,
   type DragKind,
   type MoveStartContext,
-  type DropTargetEvent,
 } from '@base-ui/react/draggable';
 
 import * as React from 'react';
@@ -72,7 +71,6 @@ interface DraggableTabProps {
   listRef: React.RefObject<HTMLDivElement | null>;
   draggable: boolean;
   closable: boolean;
-  onDragOverTab: (draggedId: string, overId: string, movingRight: boolean) => void;
   onMoveStart: () => void;
   onDrop: () => void;
   onMoveEnd: () => void;
@@ -88,7 +86,6 @@ function DraggableTab(props: DraggableTabProps) {
     listRef,
     draggable,
     closable,
-    onDragOverTab,
     onMoveStart,
     onDrop,
     onMoveEnd,
@@ -106,12 +103,6 @@ function DraggableTab(props: DraggableTabProps) {
       onSelect?.(item.id);
     },
   );
-
-  const handleDrag = useStableCallback((event: DropTargetEvent<'onDraggableMove', string>) => {
-    // Resolve from the tab's midpoint. During auto-scroll, tabs move under a
-    // stationary pointer, so pointer travel does not describe the insertion side.
-    onDragOverTab(event.source.payload, item.id, event.target.getLocalPoint().x > 0.5);
-  });
 
   const handleClosePointerDown = useStableCallback((event: React.PointerEvent) => {
     // Keep an inactive tab from being focused and selected just before it closes.
@@ -167,23 +158,14 @@ function DraggableTab(props: DraggableTabProps) {
           }}
 
           render={
-            <Draggable.Target
-              accept={kind}
-              trackDragOver={false}
-              onDraggableMove={handleDrag}
-              render={
-                <button
-                  type="button"
-                  aria-label={item.label}
-                  aria-keyshortcuts={
-                    closable
-                      ? 'Alt+ArrowLeft Alt+ArrowRight Delete'
-                      : 'Alt+ArrowLeft Alt+ArrowRight'
-                  }
-                  data-disabled={undefined}
-                  onKeyDown={handleKeyDown}
-                />
+            <button
+              type="button"
+              aria-label={item.label}
+              aria-keyshortcuts={
+                closable ? 'Alt+ArrowLeft Alt+ArrowRight Delete' : 'Alt+ArrowLeft Alt+ArrowRight'
               }
+              data-disabled={undefined}
+              onKeyDown={handleKeyDown}
             />
           }
         />
@@ -311,23 +293,36 @@ function SortableTabs(props: SortableTabsProps) {
           />
         }
       >
-        {items.map((item) => (
-          <DraggableTab
-            key={item.id}
-            item={item}
-            kind={kind}
-            listRef={listRef}
-            draggable={item.id !== disabledDragId}
-            closable={closable}
-            onDragOverTab={handleDragOverTab}
-            onMoveStart={handleDragStart}
-            onDrop={handleDrop}
-            onMoveEnd={handleDragEnd}
-            onSelect={controlled ? onValueChange : undefined}
-            onClose={onClose}
-            onKeyboardMove={handleKeyboardMove}
-          />
-        ))}
+        <Draggable.CollisionProvider
+          kind={kind}
+          orientation="horizontal"
+          onCollisionChange={({ source, collision }) => {
+            if (collision) {
+              handleDragOverTab(
+                source.payload,
+                collision.target.payload,
+                collision.placement === 'after',
+              );
+            }
+          }}
+        >
+          {items.map((item) => (
+            <DraggableTab
+              key={item.id}
+              item={item}
+              kind={kind}
+              listRef={listRef}
+              draggable={item.id !== disabledDragId}
+              closable={closable}
+              onMoveStart={handleDragStart}
+              onDrop={handleDrop}
+              onMoveEnd={handleDragEnd}
+              onSelect={controlled ? onValueChange : undefined}
+              onClose={onClose}
+              onKeyboardMove={handleKeyboardMove}
+            />
+          ))}
+        </Draggable.CollisionProvider>
       </Tabs.List>
 
       <div className={styles.panelViewport}>

@@ -170,30 +170,25 @@ function ColumnMenuIcon() {
   );
 }
 
+function getCollisionElement(element: HTMLElement) {
+  return element.parentElement ?? element;
+}
+
 function ColumnHeader({
   column,
-  onDragOver,
   boundaryRef,
 }: {
   column: Column;
-  onDragOver: (columnId: string, beforeHalf: boolean) => void;
   boundaryRef: React.RefObject<HTMLDivElement | null>;
 }) {
   return (
-    <Draggable.Target
-      accept={columnKind}
-      trackDragOver={false}
-      onDraggableMove={({ target }) => {
-        onDragOver(column.id, target.getLocalPoint().x < 0.5);
-      }}
-      className={styles.headerCell}
-      style={{ width: column.width }}
-    >
+    <div className={styles.headerCell} style={{ width: column.width }}>
       {/* Grab anywhere on the label area. Columns do NOT reflow during the drag. The
           menu button is a sibling rather than a child, so the draggable never
           contains a button. */}
       <Draggable.Root
         kind={columnKind}
+        collisionElement={getCollisionElement}
         payload={column.id}
         // A column only ever travels along the header row. The lock pins the
         // drop hit-test to that row too, so the header cell under the pointer's
@@ -230,7 +225,7 @@ function ColumnHeader({
           </Menu.Positioner>
         </Menu.Portal>
       </Menu.Root>
-    </Draggable.Target>
+    </div>
   );
 }
 
@@ -239,7 +234,6 @@ function GridRow({
   columns,
   leadingWidth,
   trailingWidth,
-  onDragOver,
   boundaryRef,
 }: {
   row: Row;
@@ -247,21 +241,13 @@ function GridRow({
   columns: Column[];
   leadingWidth: number;
   trailingWidth: number;
-  onDragOver: (rowId: string, beforeHalf: boolean) => void;
   boundaryRef: React.RefObject<HTMLDivElement | null>;
 }) {
   return (
-    <Draggable.Target
-      accept={rowKind}
-      trackDragOver={false}
-      onDraggableMove={({ target }) => {
-        onDragOver(row.id, target.getLocalPoint().y < 0.5);
-      }}
-      className={styles.row}
-      style={{ height: ROW_HEIGHT }}
-    >
+    <div className={styles.row} style={{ height: ROW_HEIGHT }}>
       <Draggable.Root
         kind={rowKind}
+        collisionElement={getCollisionElement}
         payload={row.id}
         // A row only ever travels up and down the grid.
         modifiers={Draggable.restrictToVerticalAxis}
@@ -291,7 +277,7 @@ function GridRow({
         ))}
         <div className={styles.columnSpacer} style={{ width: trailingWidth }} />
       </Draggable.Root>
-    </Draggable.Target>
+    </div>
   );
 }
 
@@ -367,28 +353,6 @@ function DataGridInner() {
     if (pos >= 0) {
       setDropIndicator({ axis: 'row', index: beforeHalf ? pos : pos + 1 });
     }
-  });
-
-  Draggable.useDragMonitor({
-    accept: [columnKind, rowKind],
-    // Commit only for a drag released over an accepting target.
-    onMoveEnd: (moveEvent, moveDetails) => {
-      try {
-        if (moveDetails.reason === 'drop' && moveEvent.dropTarget !== null) {
-          const { source: dropped } = moveEvent;
-
-          const indicator = dropIndicatorRef.current;
-          if (indicator?.axis === 'column') {
-            setColumns((prev) => moveToIndex(prev, dropped.payload, indicator.index));
-          } else if (indicator?.axis === 'row') {
-            setRows((prev) => moveToIndex(prev, dropped.payload, indicator.index));
-          }
-        }
-      } finally {
-        setDropIndicator(null);
-      }
-    },
-    // Clear the indicator however the drag ended, cancels included.
   });
 
   const totalHeight = rows.length * ROW_HEIGHT;
@@ -471,14 +435,36 @@ function DataGridInner() {
           <div className={styles.header} style={{ width: contentWidth, height: HEADER_HEIGHT }}>
             <div className={styles.headerHandleSpacer} style={{ width: HANDLE_WIDTH }} />
             <div className={styles.columnSpacer} style={{ width: leadingWidth }} />
-            {visibleColumns.map((column) => (
-              <ColumnHeader
-                key={column.id}
-                column={column}
-                onDragOver={onColumnDragOver}
-                boundaryRef={gridRef}
-              />
-            ))}
+            <Draggable.CollisionProvider
+              kind={columnKind}
+              orientation="horizontal"
+              onCollisionChange={({ collision }) => {
+                if (collision) {
+                  onColumnDragOver(collision.target.payload, collision.placement === 'before');
+                } else {
+                  setDropIndicator(null);
+                }
+              }}
+              onMoveEnd={({ source: dragged, collision }) => {
+                if (collision) {
+                  setColumns((current) => {
+                    const index = current.findIndex((item) => item.id === collision.target.payload);
+                    return index === -1
+                      ? current
+                      : moveToIndex(
+                          current,
+                          dragged.payload,
+                          index + (collision.placement === 'after' ? 1 : 0),
+                        );
+                  });
+                }
+                setDropIndicator(null);
+              }}
+            >
+              {visibleColumns.map((column) => (
+                <ColumnHeader key={column.id} column={column} boundaryRef={gridRef} />
+              ))}
+            </Draggable.CollisionProvider>
             <div className={styles.columnSpacer} style={{ width: trailingWidth }} />
           </div>
 
@@ -490,17 +476,45 @@ function DataGridInner() {
               className={styles.bodyWindow}
               style={{ transform: `translateY(${start * ROW_HEIGHT}px)` }}
             >
-              {visibleRows.map((row) => (
-                <GridRow
-                  key={row.id}
-                  row={row}
-                  columns={visibleColumns}
-                  leadingWidth={leadingWidth}
-                  trailingWidth={trailingWidth}
-                  onDragOver={onRowDragOver}
-                  boundaryRef={gridRef}
-                />
-              ))}
+              <Draggable.CollisionProvider
+                kind={rowKind}
+                orientation="vertical"
+                onCollisionChange={({ collision }) => {
+                  if (collision) {
+                    onRowDragOver(collision.target.payload, collision.placement === 'before');
+                  } else {
+                    setDropIndicator(null);
+                  }
+                }}
+                onMoveEnd={({ source: dragged, collision }) => {
+                  if (collision) {
+                    setRows((current) => {
+                      const index = current.findIndex(
+                        (item) => item.id === collision.target.payload,
+                      );
+                      return index === -1
+                        ? current
+                        : moveToIndex(
+                            current,
+                            dragged.payload,
+                            index + (collision.placement === 'after' ? 1 : 0),
+                          );
+                    });
+                  }
+                  setDropIndicator(null);
+                }}
+              >
+                {visibleRows.map((row) => (
+                  <GridRow
+                    key={row.id}
+                    row={row}
+                    columns={visibleColumns}
+                    leadingWidth={leadingWidth}
+                    trailingWidth={trailingWidth}
+                    boundaryRef={gridRef}
+                  />
+                ))}
+              </Draggable.CollisionProvider>
             </div>
           </div>
         </Draggable.Viewport>

@@ -14,6 +14,7 @@ import type {
   InternalDraggableParameters,
   RegisterDraggableParameters,
 } from '../../types/dragRegistration';
+import type { DraggableCollisionContextValue } from '../collision-provider/DraggableCollisionContext';
 import type { DragSource } from '../../types/drag';
 import {
   dragSessionStore,
@@ -38,9 +39,18 @@ function selectIsDragging(source: DragSource | null, r: ElementRef): boolean {
  */
 export function useDraggableElement<TData = undefined>(
   parameters: RegisterDraggableParameters<TData>,
+  collision?: {
+    context: DraggableCollisionContextValue;
+    payload: unknown;
+    enabled: boolean;
+    element?: ((element: HTMLElement) => HTMLElement) | undefined;
+  },
 ): UseDraggableElementReturnValue<TData> {
   const registerDraggable = useRegisterDraggable();
-  const getParameters = useStableCallback(() => parameters);
+  const options = { parameters, collision };
+  const getOptions = useStableCallback(() => options);
+  const getParameters = () => getOptions().parameters;
+  const getCollision = () => getOptions().collision;
 
   // The `dragging` selector reads the live element behind this ref.
   const elementRef = React.useRef<HTMLElement | null>(null);
@@ -62,7 +72,7 @@ export function useDraggableElement<TData = undefined>(
     let lastParams: RegisterDraggableParameters<TData> | null = null;
     let normalized: InternalDraggableParameters<TData> | null = null;
 
-    return registerDraggable<TData>(
+    const unregisterSource = registerDraggable<TData>(
       element,
       () => {
         const params = getParameters();
@@ -84,6 +94,26 @@ export function useDraggableElement<TData = undefined>(
       // mutate and return one stable object while behavior changes per event.
       true,
     );
+    const collisionConfig = getCollision();
+    if (!collisionConfig?.enabled) {
+      return unregisterSource;
+    }
+    const unregisterCollision = collisionConfig.context.register(
+      collisionConfig.element?.(element) ?? element,
+      () => ({
+        kind: getParameters().kind,
+        payload: getCollision()?.payload,
+        disabled: getParameters().disabled || !getCollision()?.enabled,
+      }),
+      element,
+    );
+    return () => {
+      try {
+        unregisterCollision();
+      } finally {
+        unregisterSource();
+      }
+    };
   });
 
   // The last non-null node this ref held. React detaches the old node before
@@ -179,7 +209,7 @@ export function useDraggableElement<TData = undefined>(
     registrationRef(element);
     // `registrationRef` and `elementRef` are stable; only `reconcileKey` should retrigger.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [reconcileKey]);
+  }, [reconcileKey, collision?.context, collision?.enabled, collision?.element]);
 
   const dragging = useStore(dragSourceStore, selectIsDragging, elementRef);
 

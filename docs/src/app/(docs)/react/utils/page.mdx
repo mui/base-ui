@@ -169,12 +169,14 @@ A component that makes its element a drag source.
     - Cancelling a drag
 - Exports:
   - Draggable - Root
-    - Props: activation, children, className, disabled, dragCursor, getPayload, kind, modifiers, onBeforeMoveStart, onMove, onMoveEnd, onMoveStart, onTargetChange, payload, previewKey, render, style
+    - Props: activation, children, className, collision, collisionElement, collisionPayload, disabled, dragCursor, getPayload, kind, modifiers, onBeforeMoveStart, onMove, onMoveEnd, onMoveStart, onTargetChange, payload, previewKey, render, style
     - Data Attributes: data-disabled, data-dragging, data-ending-style
   - Draggable - Provider
     - Props: children
   - Draggable - Viewport
     - Props: accept, className, disabled, maxSpeed, onDragScroll, render, style
+  - Draggable - CollisionProvider
+    - Props: canCollide, children, getItemId, kind, onCollisionChange, onMoveEnd, onMoveStart, orientation, placement
   - Draggable - createGlobalKind
     - Parameters: key
   - Draggable - createKind
@@ -212,7 +214,7 @@ A component that makes its element a drag source.
   - Draggable - useDragDropManager
   - Draggable - useDragMonitor
     - Parameters: parameters
-- Types: Draggable.Handle.Props, Draggable.Handle.State, Draggable.Preview.Props, Draggable.Preview.State, Draggable.Provider.Props, Draggable.Root.Props, Draggable.Root.PropsWithPayload, Draggable.Root.State, Draggable.Target.Props, Draggable.Target.PropsWithPayload, Draggable.Target.State, Draggable.Viewport.Props, Draggable.Viewport.State, Draggable.useActiveDrag.ReturnValue, Draggable.useDragDropManager.ReturnValue, Draggable.useDragMonitor.Parameters, Draggable.useDragMonitor.ReturnValue
+- Types: Draggable.CollisionProvider.Collision, Draggable.CollisionProvider.CollisionEvent, Draggable.CollisionProvider.MoveEndEvent, Draggable.CollisionProvider.Props, Draggable.Handle.Props, Draggable.Handle.State, Draggable.Preview.Props, Draggable.Preview.State, Draggable.Provider.Props, Draggable.Root.Props, Draggable.Root.PropsWithPayload, Draggable.Root.State, Draggable.Target.Props, Draggable.Target.PropsWithPayload, Draggable.Target.State, Draggable.Viewport.Props, Draggable.Viewport.State, Draggable.useActiveDrag.ReturnValue, Draggable.useDragDropManager.ReturnValue, Draggable.useDragMonitor.Parameters, Draggable.useDragMonitor.ReturnValue
 
 </details>
 

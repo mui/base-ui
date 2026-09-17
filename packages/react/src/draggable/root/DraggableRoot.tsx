@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { DraggableCollisionContext } from '../collision-provider/DraggableCollisionContext';
 import { useDraggableContext } from '../DraggableContext';
 import type { DragKind, DraggablePayload, DraggablePayloadGetter } from '../../types/drag';
 import { useRenderElement } from '../../internals/useRenderElement';
@@ -51,6 +52,9 @@ export const DraggableRoot = React.forwardRef(function DraggableRoot<TData = und
     payload,
     getPayload,
     previewKey,
+    collision = true,
+    collisionElement,
+    collisionPayload = payload,
     disabled,
     activation,
     dragCursor,
@@ -85,7 +89,21 @@ export const DraggableRoot = React.forwardRef(function DraggableRoot<TData = und
     onMoveEnd,
   } as RegisterDraggableParameters<TData>;
 
-  const { ref, dragging, setHandleElement, previewHandle } = useDraggableElement<TData>(params);
+  let collisionContext = React.useContext(DraggableCollisionContext);
+  while (collisionContext && collisionContext.kind.id !== (kind ?? defaultKind).id) {
+    collisionContext = collisionContext.parent;
+  }
+  const { ref, dragging, setHandleElement, previewHandle } = useDraggableElement<TData>(
+    params,
+    collisionContext
+      ? {
+          context: collisionContext,
+          payload: collisionPayload,
+          enabled: collision && (getPayload === undefined || collisionPayload !== undefined),
+          element: collisionElement,
+        }
+      : undefined,
+  );
 
   const state: DraggableRoot.State = { dragging, disabled: disabled ?? false };
 
@@ -152,6 +170,12 @@ type DraggableRootPropsBase<TData> = Omit<
     'dragPreview' | 'dragHandle' | 'payload' | 'getPayload' | 'kind'
   > & {
     children?: React.ReactNode | undefined;
+    /** Whether this element participates in the nearest collision provider. @default true */
+    collision?: boolean | undefined;
+    /** Static participant data when the source uses getPayload. Defaults to payload. */
+    collisionPayload?: DraggablePayload<TData> | undefined;
+    /** The element used for collision hit testing and measurement. Defaults to this source. */
+    collisionElement?: ((element: HTMLElement) => HTMLElement) | undefined;
     /** The source kind. Defaults to the nearest provider's no-payload kind. */
     kind?: DragKind<TData> | undefined;
   };

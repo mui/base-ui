@@ -1,5 +1,5 @@
 'use client';
-import { Draggable, type DropTargetEvent } from '@base-ui/react/draggable';
+import { Draggable } from '@base-ui/react/draggable';
 
 import * as React from 'react';
 import clsx from 'clsx';
@@ -172,12 +172,6 @@ interface ReorderableItemProps {
 function ReorderableItem(props: ReorderableItemProps) {
   const { Item, entry, popupRef, list } = props;
 
-  const handleDrag = useStableCallback((event: DropTargetEvent<'onDraggableMove', string>) => {
-    // Resolve from the item's midpoint so the dragged entry settles above or
-    // below the one under the pointer.
-    list.onDragOverEntry(event.source.payload, entry.id, event.target.getLocalPoint().y > 0.5);
-  });
-
   const handleKeyDown = useStableCallback((event: React.KeyboardEvent) => {
     // Plain arrows keep the menu's own navigation. Alt+Arrow is the keyboard
     // equivalent of a pointer reorder.
@@ -208,14 +202,6 @@ function ReorderableItem(props: ReorderableItemProps) {
               list.onMoveEnd();
             }
           }}
-
-          render={
-            <Draggable.Target
-              accept={menuItemKind}
-              trackDragOver={false}
-              onDraggableMove={handleDrag}
-            />
-          }
         />
       }
     >
@@ -245,15 +231,28 @@ function ReorderableMenu() {
             className={clsx(theme.tokens, styles.popup)}
             render={<Draggable.Target accept={menuItemKind} trackDragOver={false} />}
           >
-            {list.entries.map((entry) => (
-              <ReorderableItem
-                key={entry.id}
-                Item={Menu.Item}
-                entry={entry}
-                popupRef={popupRef}
-                list={list}
-              />
-            ))}
+            <Draggable.CollisionProvider
+              kind={menuItemKind}
+              onCollisionChange={({ source, collision }) => {
+                if (collision) {
+                  list.onDragOverEntry(
+                    source.payload,
+                    collision.target.payload,
+                    collision.placement === 'after',
+                  );
+                }
+              }}
+            >
+              {list.entries.map((entry) => (
+                <ReorderableItem
+                  key={entry.id}
+                  Item={Menu.Item}
+                  entry={entry}
+                  popupRef={popupRef}
+                  list={list}
+                />
+              ))}
+            </Draggable.CollisionProvider>
             <Menu.Separator className={styles.separator} />
             <Menu.Item className={styles.item} onClick={list.reset}>
               <ResetIcon className={styles.icon} />
@@ -280,15 +279,28 @@ function ReorderableContextMenu() {
             className={clsx(theme.tokens, styles.popup)}
             render={<Draggable.Target accept={menuItemKind} trackDragOver={false} />}
           >
-            {list.entries.map((entry) => (
-              <ReorderableItem
-                key={entry.id}
-                Item={ContextMenu.Item}
-                entry={entry}
-                popupRef={popupRef}
-                list={list}
-              />
-            ))}
+            <Draggable.CollisionProvider
+              kind={menuItemKind}
+              onCollisionChange={({ source, collision }) => {
+                if (collision) {
+                  list.onDragOverEntry(
+                    source.payload,
+                    collision.target.payload,
+                    collision.placement === 'after',
+                  );
+                }
+              }}
+            >
+              {list.entries.map((entry) => (
+                <ReorderableItem
+                  key={entry.id}
+                  Item={ContextMenu.Item}
+                  entry={entry}
+                  popupRef={popupRef}
+                  list={list}
+                />
+              ))}
+            </Draggable.CollisionProvider>
             <ContextMenu.Separator className={styles.separator} />
             <ContextMenu.Item className={styles.item} onClick={list.reset}>
               <ResetIcon className={styles.icon} />

@@ -3,7 +3,6 @@ import {
   Draggable,
   type BeforeMoveStartEventDetails,
   type MoveStartContext,
-  type DropTargetEvent,
 } from '@base-ui/react/draggable';
 
 import * as React from 'react';
@@ -93,7 +92,6 @@ function PlusIcon() {
 interface DraggableTabProps {
   item: TabItem;
   listRef: React.RefObject<HTMLDivElement | null>;
-  onDragOverTab: (draggedId: string, overId: string, movingRight: boolean) => void;
   onMoveStart: () => void;
   onDrop: () => void;
   onMoveEnd: () => void;
@@ -103,17 +101,8 @@ interface DraggableTabProps {
 }
 
 function DraggableTab(props: DraggableTabProps) {
-  const {
-    item,
-    listRef,
-    onDragOverTab,
-    onMoveStart,
-    onDrop,
-    onMoveEnd,
-    onSelect,
-    onClose,
-    onKeyboardMove,
-  } = props;
+  const { item, listRef, onMoveStart, onDrop, onMoveEnd, onSelect, onClose, onKeyboardMove } =
+    props;
 
   const handleBeforeDragStart = useStableCallback(
     (_context: MoveStartContext, eventDetails: BeforeMoveStartEventDetails) => {
@@ -124,12 +113,6 @@ function DraggableTab(props: DraggableTabProps) {
       onSelect(item.id);
     },
   );
-
-  const handleDrag = useStableCallback((event: DropTargetEvent<'onDraggableMove', string>) => {
-    // Compare against the tab's midpoint rather than the pointer's direction of
-    // travel: while the list auto-scrolls, tabs slide under a stationary pointer.
-    onDragOverTab(event.source.payload, item.id, event.target.getLocalPoint().x > 0.5);
-  });
 
   const handleClosePointerDown = useStableCallback((event: React.PointerEvent) => {
     event.preventDefault();
@@ -177,18 +160,11 @@ function DraggableTab(props: DraggableTabProps) {
           }}
 
           render={
-            <Draggable.Target
-              accept={tabKind}
-              trackDragOver={false}
-              onDraggableMove={handleDrag}
-              render={
-                <button
-                  type="button"
-                  aria-label={item.label}
-                  aria-keyshortcuts="Alt+ArrowLeft Alt+ArrowRight Delete"
-                  onKeyDown={handleKeyDown}
-                />
-              }
+            <button
+              type="button"
+              aria-label={item.label}
+              aria-keyshortcuts="Alt+ArrowLeft Alt+ArrowRight Delete"
+              onKeyDown={handleKeyDown}
             />
           }
         />
@@ -313,20 +289,33 @@ function DraggableTabsContent() {
             />
           }
         >
-          {items.map((item) => (
-            <DraggableTab
-              key={item.id}
-              item={item}
-              listRef={listRef}
-              onDragOverTab={handleDragOverTab}
-              onMoveStart={handleDragStart}
-              onDrop={handleDrop}
-              onMoveEnd={handleDragEnd}
-              onSelect={setSelectedValue}
-              onClose={handleClose}
-              onKeyboardMove={handleKeyboardMove}
-            />
-          ))}
+          <Draggable.CollisionProvider
+            kind={tabKind}
+            orientation="horizontal"
+            onCollisionChange={({ source, collision }) => {
+              if (collision) {
+                handleDragOverTab(
+                  source.payload,
+                  collision.target.payload,
+                  collision.placement === 'after',
+                );
+              }
+            }}
+          >
+            {items.map((item) => (
+              <DraggableTab
+                key={item.id}
+                item={item}
+                listRef={listRef}
+                onMoveStart={handleDragStart}
+                onDrop={handleDrop}
+                onMoveEnd={handleDragEnd}
+                onSelect={setSelectedValue}
+                onClose={handleClose}
+                onKeyboardMove={handleKeyboardMove}
+              />
+            ))}
+          </Draggable.CollisionProvider>
         </Tabs.List>
         <button
           className="m-0 inline-flex w-11 shrink-0 cursor-pointer items-center justify-center border-0 border-l border-solid border-neutral-200 bg-transparent p-0 text-neutral-600 outline-none hover:bg-neutral-200 hover:text-neutral-950 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-neutral-950 dark:border-neutral-700 dark:text-neutral-400 dark:hover:bg-neutral-800 dark:hover:text-white dark:focus-visible:outline-white"

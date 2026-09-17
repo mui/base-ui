@@ -28,6 +28,7 @@ import type {
 import { createDragEventDetails } from '../dragEventDetails';
 import {
   captureDropTargetRegistration,
+  captureDropTargetCollision,
   clearRetiringDropTargets,
   setSessionGrabOffset,
   dispatchDropTargetChange,
@@ -476,6 +477,11 @@ export function start(parameters: StartParameters): DragSessionHandle | null {
     dispatching = true;
     // recover on throw (see dispatchDragStart)
     try {
+      captureDropTargetCollision(
+        dragPayload.location.current.dropTargets[0],
+        dragPayload.location.current.input,
+        source,
+      );
       getSourceHandlers?.()?.onMove?.(dragPayload, dragDetails);
       // A source `onMove` can synchronously cancel; deliver nothing further.
       if (tornDown) {
@@ -568,6 +574,7 @@ export function start(parameters: StartParameters): DragSessionHandle | null {
     changePayload: DraggableEventMap['onTargetChange'],
     changeDetails: DraggableEventDetailsMap['onTargetChange'],
   ): boolean {
+    captureDropTargetCollision(currentTargets[0], changePayload.location.current.input, source);
     getSourceHandlers?.()?.onTargetChange?.(changePayload, changeDetails);
     if (tornDown) {
       return false;
@@ -758,6 +765,7 @@ export function start(parameters: StartParameters): DragSessionHandle | null {
     // `null` here — released over no target — is the `outside-release` outcome
     // (`canceled: false`, `dropTarget: null`).
     const innermostDropTarget = freshDropTargets[0] ?? null;
+    captureDropTargetCollision(innermostDropTarget, input, source);
     // Captured with the snapshot: the source's `onMoveEnd` (which is told the
     // drop landed first) may synchronously unregister the target while tearing
     // down its zones — the drop it was just told about must still reach the

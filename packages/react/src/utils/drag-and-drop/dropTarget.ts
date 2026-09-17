@@ -1,6 +1,8 @@
 import { isShadowRoot } from '@floating-ui/utils/dom';
 import { clamp } from '@base-ui/utils/clamp';
+import { resolveCollision, type CollisionResolutionRegistration } from './collisionResolution';
 import type {
+  DragInput,
   DragAccept,
   DragCleanupFn,
   DragKind,
@@ -282,7 +284,7 @@ export function resetForTests(): void {
   retiringRegistrations.clear();
 }
 
-type ConsumerCallbackName = 'canDrop' | 'getPayload' | 'snap' | 'getParameters';
+type ConsumerCallbackName = 'canDrop' | 'getPayload' | 'snap' | 'getParameters' | 'collision';
 
 /**
  * The active drag's pickup grab offset: the pointer at pickup minus the source's
@@ -336,6 +338,31 @@ const DROP_REJECTED = Symbol('base-ui.dropTarget.rejected');
  * `canDrop` refuses the drop outright. Shared by the DOM walk in
  * `getDropTargetsOver` so pointer resolution uses one set of rules.
  */
+const collisionResolvers = new WeakMap<
+  DropTargetRecord,
+  NonNullable<CollisionResolutionRegistration[typeof resolveCollision]>
+>();
+
+/** Measure only the winning participant, immediately before dispatch can mutate its layout. */
+export function captureDropTargetCollision(
+  target: DropTargetRecord | undefined | null,
+  input: DragInput,
+  source: DragSource,
+): void {
+  if (!target) {
+    return;
+  }
+  const capture = collisionResolvers.get(target);
+  if (capture) {
+    safeCall(
+      'collision',
+      target.element,
+      () => capture(target, { element: target.element, input, source }),
+      undefined,
+    );
+  }
+}
+
 function resolveDropTargetOutcome(
   element: Element,
   feedback: Omit<DropTargetResolutionContext, 'element'>,
@@ -386,12 +413,17 @@ function resolveDropTargetOutcome(
   if (payload === PAYLOAD_ERROR) {
     return null;
   }
-  return {
+  const record = {
     element,
     kind: registration.kind?.id,
     payload,
     ...createLocalPointReaders(element, fullFeedback, registration.snap),
   };
+  const captureCollision = (registration as CollisionResolutionRegistration)[resolveCollision];
+  if (captureCollision) {
+    collisionResolvers.set(record, captureCollision);
+  }
+  return record;
 }
 
 /**
