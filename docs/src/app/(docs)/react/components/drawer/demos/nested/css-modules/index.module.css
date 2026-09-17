@@ -161,11 +161,6 @@
     transition-duration: 0ms;
   }
 
-  &[data-swiping] {
-    -webkit-user-select: none;
-    user-select: none;
-  }
-
   &::after {
     content: '';
     inset: 0;

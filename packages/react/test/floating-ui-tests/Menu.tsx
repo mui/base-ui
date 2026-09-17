@@ -28,6 +28,8 @@ import {
   useTypeahead,
   useFocus,
 } from '../../src/floating-ui-react';
+import { gridNavigation } from '../../src/floating-ui-react/hooks/gridNavigation';
+import { GRID_COLUMN_COUNT, renderGridRows } from './renderGridRows';
 import styles from './Menu.module.css';
 
 type MenuContextType = {
@@ -58,7 +60,7 @@ interface MenuProps {
   children?: React.ReactNode;
   keepMounted?: boolean;
   orientation?: 'vertical' | 'horizontal' | 'both';
-  cols?: number;
+  grid?: boolean;
   openOnFocus?: boolean;
 }
 
@@ -71,7 +73,7 @@ export const MenuComponent = React.forwardRef<
     children,
     label,
     keepMounted = false,
-    cols,
+    grid,
     orientation: orientationOption,
     openOnFocus = false,
     ...props
@@ -90,7 +92,7 @@ export const MenuComponent = React.forwardRef<
   const nodeId = useFloatingNodeId();
   const parentId = useFloatingParentNodeId();
   const isNested = parentId != null;
-  const orientation = orientationOption ?? (cols ? 'both' : 'vertical');
+  const orientation = orientationOption ?? (grid ? 'both' : 'vertical');
 
   const parent = React.useContext(MenuContext);
   const item = useCompositeListItem();
@@ -128,7 +130,7 @@ export const MenuComponent = React.forwardRef<
     nested: isNested,
     onNavigate: setActiveIndex,
     orientation,
-    cols,
+    grid: grid ? gridNavigation : undefined,
   });
   const typeahead = useTypeahead(context, {
     listRef: labelsRef,
@@ -277,23 +279,23 @@ export const MenuComponent = React.forwardRef<
                   className={c(
                     styles.Panel,
                     {
-                      [styles.PanelFlex]: !cols,
+                      [styles.PanelFlex]: !grid,
                     },
                     {
-                      [styles.PanelGrid]: cols,
+                      [styles.PanelGrid]: grid,
                     },
                   )}
                   style={{
                     ...floatingStyles,
                     // @ts-expect-error css var
-                    '--cols': cols,
+                    '--cols': GRID_COLUMN_COUNT,
                     // eslint-disable-next-line no-nested-ternary
                     visibility: !keepMounted ? undefined : isOpen ? 'visible' : 'hidden',
                   }}
                   aria-hidden={!isOpen}
                   {...getFloatingProps()}
                 >
-                  {children}
+                  {renderGridRows(children, grid)}
                 </div>
               </FloatingFocusManager>
             </FloatingPortal>
@@ -399,7 +401,7 @@ export function Main() {
           <Menu label="Copy as" keepMounted>
             <MenuItem label="Text" />
             <MenuItem label="Video" />
-            <Menu label="Image" keepMounted cols={2} orientation="horizontal">
+            <Menu label="Image" keepMounted grid orientation="horizontal">
               <MenuItem label=".png" />
               <MenuItem label=".jpg" />
               <MenuItem label=".svg" />

@@ -10,7 +10,7 @@ export interface UseControlledProps<T = unknown> {
    */
   controlled: T | undefined;
   /**
-   * The default value when uncontrolled.
+   * The default value when uncontrolled, and the fallback if a controlled value later becomes `undefined`.
    */
   default: T | undefined;
   /**
@@ -23,16 +23,26 @@ export interface UseControlledProps<T = unknown> {
   state?: string | undefined;
 }
 
+// A defined default guarantees a defined value. Otherwise, preserve `undefined`,
+// including when callers pass an explicit generic argument.
+export function useControlled<T = unknown>(
+  props: Omit<UseControlledProps<T>, 'default'> & { default: T },
+): [T, React.Dispatch<React.SetStateAction<T>>];
+export function useControlled<T = unknown>(
+  props: UseControlledProps<T>,
+): [T | undefined, React.Dispatch<React.SetStateAction<T | undefined>>];
 export function useControlled<T = unknown>({
   controlled,
   default: defaultProp,
   name,
   state = 'value',
-}: UseControlledProps<T>): [T, (newValue: T | ((prevValue: T) => T)) => void] {
+}: UseControlledProps<T>): [T | undefined, React.Dispatch<React.SetStateAction<T | undefined>>] {
   // isControlled is ignored in the hook dependency lists as it should never change.
   const { current: isControlled } = React.useRef(controlled !== undefined);
   const [valueState, setValue] = React.useState(defaultProp);
-  const value = isControlled ? controlled : valueState;
+  // Keep the initial mode, but use the initial default if a controlled value disappears.
+  // This preserves the defined-default overload while the mode-switch warning is emitted below.
+  const value = isControlled && controlled !== undefined ? controlled : valueState;
 
   if (process.env.NODE_ENV !== 'production') {
     React.useEffect(() => {
@@ -69,13 +79,16 @@ export function useControlled<T = unknown>({
     }, [defaultProp]);
   }
 
-  const setValueIfUncontrolled = React.useCallback((newValue: React.SetStateAction<T>) => {
-    if (!isControlled) {
-      setValue(newValue as T);
-    }
-  }, []);
+  const setValueIfUncontrolled = React.useCallback(
+    (newValue: React.SetStateAction<T | undefined>) => {
+      if (!isControlled) {
+        setValue(newValue);
+      }
+    },
+    [],
+  );
 
-  return [value as T, setValueIfUncontrolled];
+  return [value, setValueIfUncontrolled];
 }
 
 function serializeToDevModeString(input: unknown) {

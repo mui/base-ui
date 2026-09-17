@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { createSelector, ReactStore } from '@base-ui/utils/store';
+import { ReactStore } from '@base-ui/utils/store';
 import type { FloatingEvents, ContextData, ReferenceType } from '../types';
 import { type BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { createEventEmitter } from '../utils/createEventEmitter';
@@ -23,8 +23,7 @@ export interface FloatingRootState {
 
 export interface FloatingRootStoreContext {
   onOpenChange:
-    | ((open: boolean, eventDetails: BaseUIChangeEventDetails<string>) => void)
-    | undefined;
+    ((open: boolean, eventDetails: BaseUIChangeEventDetails<string>) => void) | undefined;
   readonly dataRef: React.RefObject<ContextData>;
   readonly events: FloatingEvents;
   nested: boolean;
@@ -32,14 +31,12 @@ export interface FloatingRootStoreContext {
 }
 
 const selectors = {
-  open: createSelector((state: FloatingRootState) => state.open),
-  transitionStatus: createSelector((state: FloatingRootState) => state.transitionStatus),
-  domReferenceElement: createSelector((state: FloatingRootState) => state.domReferenceElement),
-  referenceElement: createSelector(
-    (state: FloatingRootState) => state.positionReference ?? state.referenceElement,
-  ),
-  floatingElement: createSelector((state: FloatingRootState) => state.floatingElement),
-  floatingId: createSelector((state: FloatingRootState) => state.floatingId),
+  open: (state: FloatingRootState) => state.open,
+  transitionStatus: (state: FloatingRootState) => state.transitionStatus,
+  domReferenceElement: (state: FloatingRootState) => state.domReferenceElement,
+  referenceElement: (state: FloatingRootState) => state.positionReference ?? state.referenceElement,
+  floatingElement: (state: FloatingRootState) => state.floatingElement,
+  floatingId: (state: FloatingRootState) => state.floatingId,
 };
 
 interface FloatingRootStoreOptions {
@@ -56,8 +53,7 @@ interface FloatingRootStoreOptions {
   syncOnly: boolean;
   nested: boolean;
   onOpenChange:
-    | ((open: boolean, eventDetails: BaseUIChangeEventDetails<string>) => void)
-    | undefined;
+    ((open: boolean, eventDetails: BaseUIChangeEventDetails<string>) => void) | undefined;
 }
 
 export class FloatingRootStore extends ReactStore<

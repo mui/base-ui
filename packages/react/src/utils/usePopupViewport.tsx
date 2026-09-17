@@ -9,20 +9,24 @@ import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { ownerDocument } from '@base-ui/utils/owner';
 import type { ReactStore } from '@base-ui/utils/store';
 import { useAnimationsFinished } from '../internals/useAnimationsFinished';
+import type { StateAttributesMapping } from '../internals/getStateAttributesProps';
 import { usePopupAutoResize } from './usePopupAutoResize';
 import { Dimensions } from '../floating-ui-react/types';
-import { Side } from './useAnchorPositioning';
+import { Side } from '../internals/useAnchorPositioning';
 import { useDirection } from '../direction-provider';
+import { adaptiveOrigin } from './adaptiveOriginMiddleware';
+import * as CommonPopupCssVars from './CommonPopupCssVars';
+import * as CommonViewportDataAttributes from './CommonViewportDataAttributes';
 
-export type PopupViewportCssVars = {
-  /**
-   * CSS variable name storing the popup width for the previous content snapshot.
-   */
-  popupWidth: string;
-  /**
-   * CSS variable name storing the popup height for the previous content snapshot.
-   */
-  popupHeight: string;
+export const popupViewportStateMapping: StateAttributesMapping<{
+  activationDirection: string | undefined;
+}> = {
+  activationDirection: (value) =>
+    value
+      ? {
+          [CommonViewportDataAttributes.activationDirection]: value,
+        }
+      : null,
 };
 
 export interface PopupViewportState {
@@ -48,10 +52,6 @@ export interface UsePopupViewportParameters {
    */
   side: Side;
   /**
-   * CSS variable names used for sizing the previous content snapshot.
-   */
-  cssVars: PopupViewportCssVars;
-  /**
    * Viewport children to render in the current container.
    */
   children?: React.ReactNode;
@@ -73,7 +73,7 @@ export interface UsePopupViewportResult {
  * Handles previous-content snapshots, auto-resize, and state attributes for transitions.
  */
 export function usePopupViewport(parameters: UsePopupViewportParameters): UsePopupViewportResult {
-  const { store, side, cssVars, children } = parameters;
+  const { store, side, children } = parameters;
 
   const direction = useDirection();
 
@@ -98,8 +98,9 @@ export function usePopupViewport(parameters: UsePopupViewportParameters): UsePop
   const currentContainerRef = React.useRef<HTMLDivElement>(null);
   const previousContainerRef = React.useRef<HTMLDivElement>(null);
 
-  const onAnimationsFinished = useAnimationsFinished(currentContainerRef, true, false);
+  const onAnimationsFinished = useAnimationsFinished(currentContainerRef, true);
   const cleanupFrame = useAnimationFrame();
+  const cleanupControllerRef = React.useRef<AbortController | null>(null);
 
   const [previousContentDimensions, setPreviousContentDimensions] = React.useState<{
     width: number;
@@ -109,9 +110,9 @@ export function usePopupViewport(parameters: UsePopupViewportParameters): UsePop
   const [showStartingStyleAttribute, setShowStartingStyleAttribute] = React.useState(false);
 
   useIsoLayoutEffect(() => {
-    store.set('hasViewport', true);
+    store.set('adaptiveOrigin', adaptiveOrigin);
     return () => {
-      store.set('hasViewport', false);
+      store.set('adaptiveOrigin', undefined);
     };
   }, [store]);
 
@@ -133,7 +134,24 @@ export function usePopupViewport(parameters: UsePopupViewportParameters): UsePop
     }
   });
 
+  const armViewportCleanup = useStableCallback(() => {
+    cleanupControllerRef.current?.abort();
+    const controller = new AbortController();
+    cleanupControllerRef.current = controller;
+    onAnimationsFinished(() => {
+      setPreviousContentNode(null);
+      setPreviousContentDimensions(null);
+      capturedNodeRef.current = null;
+    }, controller.signal);
+  });
+
   const lastHandledTriggerRef = React.useRef<Element | null>(null);
+
+  useIsoLayoutEffect(() => {
+    if (!open || !mounted) {
+      lastHandledTriggerRef.current = null;
+    }
+  }, [open, mounted]);
 
   useIsoLayoutEffect(() => {
     // When a trigger changes, set the captured children HTML to state,
@@ -153,26 +171,35 @@ export function usePopupViewport(parameters: UsePopupViewportParameters): UsePop
       const offset = calculateRelativePosition(previousActiveTrigger, activeTrigger);
       setNewTriggerOffset(offset);
 
-      cleanupFrame.request(() => {
-        ReactDOM.flushSync(() => {
-          setShowStartingStyleAttribute(false);
-        });
-        onAnimationsFinished(() => {
-          setPreviousContentNode(null);
-          setPreviousContentDimensions(null);
-          capturedNodeRef.current = null;
-        });
-      });
-
       lastHandledTriggerRef.current = activeTrigger;
     }
-  }, [
-    activeTrigger,
-    previousActiveTrigger,
-    previousContentNode,
-    onAnimationsFinished,
-    cleanupFrame,
-  ]);
+  }, [activeTrigger, previousActiveTrigger]);
+
+  // Arm cleanup after a trigger change, and re-arm it if the current container remounts
+  // mid-transition when a lagging payload bumps `currentContentKey`. The remount discards
+  // the running entry animation (and with transition-style CSS the replacement mounts at
+  // final styles with no animation at all), so re-run the starting-style choreography —
+  // otherwise the watcher either strands or fires before the previous container's exit
+  // animation finishes.
+  useIsoLayoutEffect(() => {
+    if (previousContentNode == null) {
+      return;
+    }
+
+    // Abort the stale watcher synchronously. The remount cancels the old container's
+    // animations, and the resulting promise rejection would otherwise run the cleanup
+    // in a microtask before the re-armed watcher below is in place.
+    cleanupControllerRef.current?.abort();
+
+    setShowStartingStyleAttribute(true);
+
+    cleanupFrame.request(() => {
+      ReactDOM.flushSync(() => {
+        setShowStartingStyleAttribute(false);
+      });
+      armViewportCleanup();
+    });
+  }, [currentContentKey, previousContentNode, armViewportCleanup, cleanupFrame]);
 
   // Capture a clone of the current content DOM subtree when not transitioning.
   // We can't store previous React nodes as they may be stateful; instead we capture DOM clones for visual continuity.
@@ -215,8 +242,8 @@ export function usePopupViewport(parameters: UsePopupViewportParameters): UsePop
             {
               ...(previousContentDimensions
                 ? {
-                    [cssVars.popupWidth]: `${previousContentDimensions.width}px`,
-                    [cssVars.popupHeight]: `${previousContentDimensions.height}px`,
+                    [CommonPopupCssVars.popupWidth]: `${previousContentDimensions.width}px`,
+                    [CommonPopupCssVars.popupHeight]: `${previousContentDimensions.height}px`,
                   }
                 : null),
               position: 'absolute',

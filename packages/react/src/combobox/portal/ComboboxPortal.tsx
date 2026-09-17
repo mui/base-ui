@@ -1,10 +1,9 @@
 'use client';
 import * as React from 'react';
-import { useStore } from '@base-ui/utils/store';
 import { FloatingPortal } from '../../floating-ui-react';
+import { type BaseUIComponentProps } from '../../internals/types';
 import { useComboboxRootContext } from '../root/ComboboxRootContext';
 import { ComboboxPortalContext } from './ComboboxPortalContext';
-import { selectors } from '../store';
 
 /**
  * A portal element that moves the popup to a different part of the DOM.
@@ -21,8 +20,8 @@ export const ComboboxPortal = React.forwardRef(function ComboboxPortal(
 
   const store = useComboboxRootContext();
 
-  const mounted = useStore(store, selectors.mounted);
-  const forceMounted = useStore(store, selectors.forceMounted);
+  const mounted = store.useState('mounted');
+  const forceMounted = store.useState('forceMounted');
 
   const shouldRender = mounted || keepMounted || forceMounted;
   if (!shouldRender) {
@@ -38,12 +37,17 @@ export const ComboboxPortal = React.forwardRef(function ComboboxPortal(
 
 export interface ComboboxPortalState {}
 
-export interface ComboboxPortalProps extends FloatingPortal.Props<ComboboxPortalState> {
+export interface ComboboxPortalProps extends BaseUIComponentProps<'div', ComboboxPortalState> {
   /**
    * Whether to keep the portal mounted in the DOM while the popup is hidden.
    * @default false
    */
   keepMounted?: boolean | undefined;
+  /**
+   * A parent element to render the portal element into.
+   */
+  container?:
+    HTMLElement | ShadowRoot | React.RefObject<HTMLElement | ShadowRoot | null> | null | undefined;
 }
 
 export namespace ComboboxPortal {

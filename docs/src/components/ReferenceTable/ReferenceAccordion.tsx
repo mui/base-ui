@@ -1,4 +1,5 @@
 import * as React from 'react';
+import clsx from 'clsx';
 import { visuallyHidden } from '@base-ui/utils/visuallyHidden';
 import type { EnhancedProperty } from '@mui/internal-docs-infra/useTypes';
 import { stringOrHastToString } from '@mui/internal-docs-infra/pipeline/hastUtils';
@@ -33,13 +34,17 @@ export function ReferenceAccordion({
   hideDefault = false,
   ...props
 }: Props) {
-  const captionId = `${partName}-caption`;
+  const captionId = React.useId();
 
   return (
     <Accordion.Root
       aria-describedby={captionId}
       data-hide-default={hideDefault || undefined}
       {...props}
+      className={clsx('ReferenceAccordionRoot', props.className)}
+      // Lets CSS compute the minimum closed height for `contain-intrinsic-height`;
+      // wrapped row content may be taller.
+      style={{ '--rows': Object.keys(data).length, ...props.style } as React.CSSProperties}
     >
       <span id={captionId} style={visuallyHidden} aria-hidden>
         {caption}
@@ -54,7 +59,7 @@ export function ReferenceAccordion({
         )}
         <Accordion.HeaderCell className="ReferenceHeaderIconCell" />
       </Accordion.HeaderRow>
-      {Object.keys(data).map((name, index) => {
+      {Object.keys(data).map((name) => {
         const prop = data[name];
 
         // Use shortType if available (set by useTypes), otherwise use the full type
@@ -78,7 +83,6 @@ export function ReferenceAccordion({
           >
             <Accordion.Trigger
               id={id}
-              index={index}
               aria-label={`${nameLabel}: ${name},${!hideRequired && prop.required ? ' required,' : ''} type: ${shortTypeText} ${defaultText !== undefined ? `(default: ${defaultText})` : ''}`}
               className="ReferenceTrigger"
             >

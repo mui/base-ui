@@ -22,7 +22,8 @@ export default function ActionStateForm() {
           Username
         </Field.Label>
         <Field.Control
-          type="username"
+          type="text"
+          autoComplete="username"
           required
           defaultValue="admin"
           placeholder="e.g. alice132"

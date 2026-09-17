@@ -39,12 +39,14 @@ export function InstallationBlock(props: InstallationBlockProps) {
     >
       <CodeBlock.Root>
         <CodeBlock.Panel title="Installation command">
-          <Tabs.List className="InstallationBlockTabsList" aria-label="Package manager">
+          <Tabs.List
+            className="InstallationBlockTabsList"
+            aria-label="Package manager"
+            activateOnFocus
+          >
             {INSTALLATION_PACKAGE_MANAGERS.map((pm) => (
               <Tabs.Tab key={pm.value} value={pm.value} className="InstallationBlockTab">
-                <span className="InstallationBlockTabLabel" data-text={pm.label}>
-                  {pm.label}
-                </span>
+                <span>{pm.label}</span>
               </Tabs.Tab>
             ))}
           </Tabs.List>

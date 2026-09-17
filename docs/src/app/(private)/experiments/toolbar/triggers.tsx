@@ -135,7 +135,6 @@ export default function App() {
         className={styles.toolbar.a}
         href="https://www.w3.org/WAI/ARIA/apg/patterns/toolbar/"
         target="_blank"
-        rel="noreferrer"
       >
         <h3 className={styles.toolbar.h3}>Toolbar pattern</h3>
       </a>

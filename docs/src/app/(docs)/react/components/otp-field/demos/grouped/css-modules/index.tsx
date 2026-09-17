@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { OTPFieldPreview as OTPField } from '@base-ui/react/otp-field';
+import { OTPField } from '@base-ui/react/otp-field';
 import styles from './index.module.css';
 
 const OTP_LENGTH = 6;
@@ -18,7 +18,7 @@ export default function OTPFieldGroupedDemo() {
             <OTPField.Input
               key={index}
               className={styles.Input}
-              aria-label={`Character ${index + 1} of ${OTP_LENGTH}`}
+              aria-label={index === 0 ? undefined : `Character ${index + 1} of ${OTP_LENGTH}`}
             />
           ))}
         </div>

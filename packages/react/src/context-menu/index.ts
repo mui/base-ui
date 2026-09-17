@@ -2,6 +2,7 @@ export * as ContextMenu from './index.parts';
 
 export type * from './root/ContextMenuRoot';
 export type * from './trigger/ContextMenuTrigger';
+export type * from './positioner/ContextMenuPositioner';
 
 export type {
   MenuBackdropProps as ContextMenuBackdropProps,
@@ -11,10 +12,6 @@ export type {
   MenuPortalProps as ContextMenuPortalProps,
   MenuPortalState as ContextMenuPortalState,
 } from '../menu/portal/MenuPortal';
-export type {
-  MenuPositionerProps as ContextMenuPositionerProps,
-  MenuPositionerState as ContextMenuPositionerState,
-} from '../menu/positioner/MenuPositioner';
 export type {
   MenuPopupProps as ContextMenuPopupProps,
   MenuPopupState as ContextMenuPopupState,

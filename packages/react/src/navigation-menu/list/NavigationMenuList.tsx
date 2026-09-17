@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { useDismiss, useHoverFloatingInteraction } from '../../floating-ui-react';
-import { getTarget } from '../../floating-ui-react/utils';
+import { closest, getTarget } from '../../floating-ui-react/utils';
 import type { BaseUIComponentProps, HTMLProps } from '../../internals/types';
 import { CompositeRoot } from '../../internals/composite/root/CompositeRoot';
 import {
@@ -41,8 +41,9 @@ export const NavigationMenuList = React.forwardRef(function NavigationMenuList(
 
   const fallbackContext = React.useMemo(() => getEmptyRootContext(), []);
   const context = floatingRootContext || fallbackContext;
-  const interactionsEnabled = positionerElement ? true : !value;
-  const hoverInteractionsEnabled = positionerElement || viewportElement ? true : !value;
+  const interactionsEnabled = positionerElement != null || value == null;
+  const hoverInteractionsEnabled =
+    positionerElement != null || viewportElement != null || value == null;
 
   useHoverFloatingInteraction(context, {
     enabled: Boolean(floatingRootContext) && hoverInteractionsEnabled,
@@ -55,7 +56,8 @@ export const NavigationMenuList = React.forwardRef(function NavigationMenuList(
     outsidePressEvent: 'intentional',
     outsidePress(event) {
       const target = getTarget(event) as HTMLElement | null;
-      const closestNavigationMenuTrigger = target?.closest(
+      const closestNavigationMenuTrigger = closest(
+        target,
         `[${NAVIGATION_MENU_TRIGGER_IDENTIFIER}]`,
       );
       return closestNavigationMenuTrigger === null;
@@ -86,16 +88,11 @@ export const NavigationMenuList = React.forwardRef(function NavigationMenuList(
         },
       };
 
-  const props = [
-    dismissProps?.floating || EMPTY_OBJECT,
-    defaultProps,
-    { 'aria-orientation': undefined },
-    elementProps,
-  ];
+  const props = [dismissProps?.floating || EMPTY_OBJECT, defaultProps, elementProps];
 
   // When nested, skip the CompositeRoot wrapper so that triggers can participate
-  // in the parent Content's composite navigation context. Also skip the onKeyDown
-  // handler that blocks propagation so arrow keys can reach the parent CompositeRoot.
+  // in the parent Content's composite navigation context. The key propagation
+  // guard is already omitted through `defaultProps` above.
   const element = useRenderElement('ul', componentProps, {
     state,
     ref: forwardedRef,

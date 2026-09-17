@@ -27,33 +27,35 @@ export default function ExampleNavigationMenu() {
               ))}
               <li>
                 <NavigationMenu.Root orientation="vertical">
-                  <NavigationMenu.Item>
-                    <NavigationMenu.Trigger className={linkCardClassName}>
-                      <span className="m-0 mb-1 text-sm leading-4 font-normal">Handbook</span>
-                      <p className="m-0 text-sm text-neutral-500 dark:text-neutral-400">
-                        How to use Base UI effectively.
-                      </p>
-                      <NavigationMenu.Icon className="absolute top-1/2 right-2.5 flex -translate-y-1/2 items-center justify-center transition-transform duration-200 ease-[ease] data-popup-open:rotate-180">
-                        <CaretRightIcon />
-                      </NavigationMenu.Icon>
-                    </NavigationMenu.Trigger>
-                    <NavigationMenu.Content className={contentClassName}>
-                      <ul className="m-0 flex max-w-[400px] list-none flex-col justify-center p-0">
-                        {handbookLinks.map((item) => (
-                          <li key={item.href}>
-                            <Link href={item.href} className={linkCardClassName}>
-                              <h3 className="m-0 mb-1 text-sm leading-4 font-normal">
-                                {item.title}
-                              </h3>
-                              <p className="m-0 text-sm text-neutral-500 dark:text-neutral-400">
-                                {item.description}
-                              </p>
-                            </Link>
-                          </li>
-                        ))}
-                      </ul>
-                    </NavigationMenu.Content>
-                  </NavigationMenu.Item>
+                  <NavigationMenu.List>
+                    <NavigationMenu.Item>
+                      <NavigationMenu.Trigger className={linkCardClassName}>
+                        <span className="m-0 mb-1 text-sm leading-4 font-normal">Handbook</span>
+                        <p className="m-0 text-sm text-neutral-500 dark:text-neutral-400">
+                          How to use Base UI effectively.
+                        </p>
+                        <NavigationMenu.Icon className="absolute top-1/2 right-2.5 flex -translate-y-1/2 items-center justify-center transition-transform duration-200 ease-[ease] data-popup-open:rotate-180">
+                          <CaretRightIcon />
+                        </NavigationMenu.Icon>
+                      </NavigationMenu.Trigger>
+                      <NavigationMenu.Content className={contentClassName}>
+                        <ul className="m-0 flex max-w-[400px] list-none flex-col justify-center p-0">
+                          {handbookLinks.map((item) => (
+                            <li key={item.href}>
+                              <Link href={item.href} className={linkCardClassName}>
+                                <h3 className="m-0 mb-1 text-sm leading-4 font-normal">
+                                  {item.title}
+                                </h3>
+                                <p className="m-0 text-sm text-neutral-500 dark:text-neutral-400">
+                                  {item.description}
+                                </p>
+                              </Link>
+                            </li>
+                          ))}
+                        </ul>
+                      </NavigationMenu.Content>
+                    </NavigationMenu.Item>
+                  </NavigationMenu.List>
 
                   <NavigationMenu.Portal>
                     <NavigationMenu.Positioner
@@ -144,7 +146,7 @@ function CaretRightIcon(props: React.ComponentProps<'svg'>) {
 }
 
 const triggerClassName =
-  'flex h-8 items-center justify-center gap-1.5 bg-transparent px-2 text-sm font-normal text-neutral-950 no-underline select-none min-[501px]:px-3 hover:bg-neutral-100 data-popup-open:bg-neutral-100 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-neutral-950 dark:focus-visible:outline-white dark:text-white dark:hover:bg-neutral-800 dark:data-popup-open:bg-neutral-800';
+  'flex h-8 items-center justify-center gap-1.5 bg-transparent px-2 text-sm font-normal text-neutral-950 no-underline select-none min-[501px]:px-3 hover:bg-neutral-100 data-pressed:bg-neutral-100 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-neutral-950 dark:focus-visible:outline-white dark:text-white dark:hover:bg-neutral-800 dark:data-pressed:bg-neutral-800';
 
 const contentTransitionClassName =
   'transition-[opacity,transform,translate] duration-[var(--duration)] ease-[var(--easing)] ' +
@@ -157,7 +159,7 @@ const contentTransitionClassName =
 const contentClassName = `h-full w-[calc(100vw_-_40px)] p-2 min-[500px]:w-max min-[500px]:min-w-[400px] ${contentTransitionClassName}`;
 
 const linkCardClassName =
-  'relative block h-full w-full border-0 bg-transparent p-2 text-left text-inherit no-underline hover:bg-neutral-100 data-popup-open:bg-neutral-100 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-neutral-950 dark:focus-visible:outline-white dark:hover:bg-neutral-800 dark:data-popup-open:bg-neutral-800';
+  'relative block h-full w-full border-0 bg-transparent p-2 text-left text-inherit no-underline hover:bg-neutral-100 data-pressed:bg-neutral-100 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-neutral-950 dark:focus-visible:outline-white dark:hover:bg-neutral-800 dark:data-pressed:bg-neutral-800';
 
 const overviewLinks = [
   {

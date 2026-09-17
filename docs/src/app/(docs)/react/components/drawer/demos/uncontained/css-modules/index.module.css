@@ -118,11 +118,6 @@
   transition: transform 450ms cubic-bezier(0.32, 0.72, 0, 1);
   will-change: transform;
 
-  &[data-swiping] {
-    -webkit-user-select: none;
-    user-select: none;
-  }
-
   &[data-starting-style],
   &[data-ending-style] {
     transform: translateY(calc(100% + 1rem + 2px));
@@ -233,7 +228,7 @@
   font-size: 0.875rem;
   line-height: 1.25rem;
   text-align: center;
-  color: oklch(50% 55% 31deg);
+  color: oklch(50.5% 0.213 27.518deg);
   -webkit-user-select: none;
   user-select: none;
 

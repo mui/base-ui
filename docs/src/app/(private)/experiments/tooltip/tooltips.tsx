@@ -195,7 +195,7 @@ export default function TooltipsExperiment() {
 
       <div className={styles.Container}>
         <h2>Uncontrolled, detached triggers</h2>
-        <StoreInspector store={tooltip1Handle.store} />
+        <StoreInspector handle={tooltip1Handle} />
         <Tooltip.Provider>
           <div className={styles.Panel}>
             <TooltipTriggerButton

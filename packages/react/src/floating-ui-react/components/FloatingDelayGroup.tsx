@@ -17,7 +17,7 @@ interface ContextValue {
   delayRef: React.RefObject<Delay>;
   initialDelayRef: React.RefObject<Delay>;
   timeout: Timeout;
-  currentIdRef: React.RefObject<any>;
+  currentIdRef: React.RefObject<string | null | undefined>;
   currentContextRef: React.RefObject<{
     onOpenChange: (open: boolean, eventDetails: BaseUIChangeEventDetails<any>) => void;
     setIsInstantPhase: (value: boolean) => void;
@@ -33,6 +33,10 @@ const FloatingDelayGroupContext = React.createContext<ContextValue>({
   currentIdRef: { current: null },
   currentContextRef: { current: null },
 });
+
+function resetDelayRef(delayRef: React.RefObject<Delay>, initialDelayRef: React.RefObject<Delay>) {
+  delayRef.current = initialDelayRef.current;
+}
 
 export interface FloatingDelayGroupProps {
   children?: React.ReactNode;
@@ -68,6 +72,20 @@ export function FloatingDelayGroup(props: FloatingDelayGroupProps): React.JSX.El
   const currentContextRef = React.useRef(null);
   const timeout = useTimeout();
 
+  useIsoLayoutEffect(() => {
+    initialDelayRef.current = delay;
+
+    if (!currentIdRef.current) {
+      delayRef.current = delay;
+      return;
+    }
+
+    delayRef.current = {
+      open: getDelay(delayRef.current, 'open'),
+      close: getDelay(delay, 'close'),
+    };
+  }, [delay, currentIdRef, delayRef, initialDelayRef]);
+
   return (
     <FloatingDelayGroupContext.Provider
       value={React.useMemo(
@@ -96,6 +114,10 @@ interface UseDelayGroupOptions {
 }
 
 interface UseDelayGroupReturn {
+  /**
+   * The id of the floating element keeping the delay group active.
+   */
+  activeIdRef: React.RefObject<string | null | undefined>;
   /**
    * The delay reference object.
    */
@@ -137,14 +159,19 @@ export function useDelayGroup(
   } = groupContext;
 
   const [isInstantPhase, setIsInstantPhase] = React.useState(false);
+  const openRef = React.useRef(open);
+
+  useIsoLayoutEffect(() => {
+    openRef.current = open;
+  }, [open]);
 
   useIsoLayoutEffect(() => {
     function unset() {
-      setIsInstantPhase(false);
       currentContextRef.current?.setIsInstantPhase(false);
       currentIdRef.current = null;
       currentContextRef.current = null;
       delayRef.current = initialDelayRef.current;
+      timeout.clear();
     }
 
     if (!currentIdRef.current) {
@@ -167,7 +194,9 @@ export function useDelayGroup(
           unset();
         });
         return () => {
-          timeout.clear();
+          if (openRef.current || currentIdRef.current !== closingId) {
+            timeout.clear();
+          }
         };
       }
 
@@ -226,16 +255,27 @@ export function useDelayGroup(
 
   useIsoLayoutEffect(() => {
     return () => {
-      currentContextRef.current = null;
+      if (currentIdRef.current === floatingId) {
+        currentContextRef.current = null;
+
+        if (!openRef.current) {
+          return;
+        }
+
+        currentIdRef.current = null;
+        resetDelayRef(delayRef, initialDelayRef);
+        timeout.clear();
+      }
     };
-  }, [currentContextRef]);
+  }, [currentContextRef, currentIdRef, delayRef, floatingId, initialDelayRef, timeout]);
 
   return React.useMemo(
     () => ({
+      activeIdRef: currentIdRef,
       hasProvider,
       delayRef,
       isInstantPhase,
     }),
-    [hasProvider, delayRef, isInstantPhase],
+    [currentIdRef, hasProvider, delayRef, isInstantPhase],
   );
 }

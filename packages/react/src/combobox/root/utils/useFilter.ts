@@ -21,7 +21,8 @@ export interface UseComboboxFilterOptions extends UseFilterOptions {
    */
   multiple?: boolean | undefined;
   /**
-   * The current value of the combobox.
+   * The current value of the combobox, used to keep every item visible while the query still
+   * matches the selection.
    */
   value?: any;
 }
@@ -44,12 +45,5 @@ export function useComboboxFilter(options: UseComboboxFilterOptions = {}): Filte
     [coreFilter, value, multiple],
   );
 
-  return React.useMemo(
-    () => ({
-      contains,
-      startsWith: coreFilter.startsWith,
-      endsWith: coreFilter.endsWith,
-    }),
-    [contains, coreFilter],
-  );
+  return React.useMemo(() => ({ ...coreFilter, contains }), [contains, coreFilter]);
 }

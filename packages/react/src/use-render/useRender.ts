@@ -20,8 +20,7 @@ export function useRender<
 }
 
 export type UseRenderRenderProp<State = Record<string, unknown>> =
-  | React.ReactElement
-  | ComponentRenderFn<React.HTMLAttributes<any>, State>;
+  React.ReactElement | ComponentRenderFn<React.HTMLAttributes<any>, State>;
 
 export type UseRenderElementProps<ElementType extends React.ElementType> =
   React.ComponentPropsWithRef<ElementType>;

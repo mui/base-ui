@@ -3,9 +3,9 @@ import * as React from 'react';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { flushMicrotasks } from '@mui/internal-test-utils';
-import { isJSDOM } from '@base-ui/utils/detectBrowser';
-import { useTestInteractions } from '#test-utils';
+import { isJSDOM, useTestInteractions } from '#test-utils';
 import { useClick, useDismiss, useFloating, useListNavigation } from '../index';
+import { gridNavigation } from './gridNavigation';
 import type { UseListNavigationProps } from '../types';
 import { Main as ComplexGrid } from '../../../test/floating-ui-tests/ComplexGrid';
 import { Main as Grid } from '../../../test/floating-ui-tests/Grid';
@@ -120,9 +120,9 @@ function VirtualizedGridRows({
       onNavigate: setActiveIndex,
       virtual: true,
       loopFocus,
-      cols: 2,
       orientation: 'horizontal',
       disabledIndices,
+      grid: gridNavigation,
     }),
   ]);
 
@@ -177,6 +177,17 @@ function VirtualizedGridRows({
 }
 
 describe('useListNavigation', () => {
+  it('does not add role-dependent aria-orientation', async () => {
+    render(<App orientation="horizontal" />);
+
+    fireEvent.keyDown(screen.getByRole('button'), { key: 'ArrowRight' });
+    await waitFor(() => {
+      expect(screen.getByTestId('item-0')).toHaveFocus();
+    });
+
+    expect(screen.getByRole('menu')).not.toHaveAttribute('aria-orientation');
+  });
+
   it('opens on ArrowDown and focuses first item', async () => {
     render(<App />);
 
@@ -770,7 +781,7 @@ describe('useListNavigation', () => {
       const spy = vi.fn();
       render(<App onNavigate={spy} />);
       fireEvent.click(screen.getByRole('button'));
-      fireEvent.mouseMove(screen.getByTestId('item-1'));
+      fireEvent.mouseMove(screen.getByTestId('item-1'), { movementX: 10, movementY: 10 });
       expect(screen.getByTestId('item-1')).toHaveFocus();
       fireEvent.pointerLeave(screen.getByTestId('item-1'));
       expect(screen.getByRole('menu')).toHaveFocus();
@@ -783,7 +794,7 @@ describe('useListNavigation', () => {
       render(<App focusItemOnOpen={false} selectedIndex={1} onNavigate={(index) => spy(index)} />);
 
       fireEvent.click(screen.getByRole('button'));
-      fireEvent.mouseMove(screen.getByTestId('item-1'));
+      fireEvent.mouseMove(screen.getByTestId('item-1'), { movementX: 10, movementY: 10 });
 
       expect(screen.getByTestId('item-1')).toHaveFocus();
       expect(spy).toHaveBeenCalledWith(1);
@@ -794,7 +805,7 @@ describe('useListNavigation', () => {
       const spy = vi.fn();
       render(<App onNavigate={spy} focusItemOnOpen={false} focusItemOnHover={false} />);
       fireEvent.click(screen.getByRole('button'));
-      fireEvent.mouseMove(screen.getByTestId('item-1'));
+      fireEvent.mouseMove(screen.getByTestId('item-1'), { movementX: 10, movementY: 10 });
       expect(screen.getByTestId('item-1')).not.toHaveFocus();
       expect(spy).toHaveBeenCalledTimes(0);
       await flushMicrotasks();
@@ -840,7 +851,7 @@ describe('useListNavigation', () => {
         },
       });
 
-      fireEvent.mouseMove(item);
+      fireEvent.mouseMove(item, { movementX: 10, movementY: 10 });
 
       await waitFor(() => {
         expect(item).toHaveFocus();
@@ -1161,7 +1172,7 @@ describe('useListNavigation', () => {
     });
   });
 
-  describe('grid navigation when items have different sizes', () => {
+  describe('grid navigation in a multi-column grid with disabled items', () => {
     it('focuses first non-disabled item in grid', async () => {
       render(<ComplexGrid />);
       fireEvent.keyDown(screen.getByRole('button'), { key: 'Enter' });
@@ -1455,7 +1466,6 @@ describe('useListNavigation', () => {
   );
 
   it('Home or End key press is ignored for typeable combobox reference', async () => {
-    // eslint-disable-next-line @typescript-eslint/no-shadow
     function App() {
       const [open, setOpen] = React.useState(false);
       const listRef = React.useRef<Array<HTMLLIElement | null>>([]);

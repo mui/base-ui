@@ -1,9 +1,9 @@
 import * as React from 'react';
-import { expect, vi } from 'vitest';
+import { expect, vi, describe, it } from 'vitest';
 import { NavigationMenu } from '@base-ui/react/navigation-menu';
 import { DirectionProvider } from '@base-ui/react/direction-provider';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
-import { screen, flushMicrotasks, waitFor, act } from '@mui/internal-test-utils';
+import { screen, flushMicrotasks, waitFor, act, fireEvent } from '@mui/internal-test-utils';
 import userEvent from '@testing-library/user-event';
 
 const rapidHoverAnimationStyles = `
@@ -68,6 +68,55 @@ function getPositionerWidthCalls(
   return calls.filter((call) => call[0] === '--positioner-width').map((call) => call[1]);
 }
 
+function TestActiveItemDropsTrigger({
+  registerNavigate,
+}: {
+  registerNavigate: (navigate: () => void) => void;
+}) {
+  const [value, setValue] = React.useState<string | null>(null);
+  const [aIsActive, setAIsActive] = React.useState(false);
+
+  React.useEffect(() => {
+    registerNavigate(() => {
+      // Batched: close the menu and drop A's trigger (A becomes the active item rendered inline).
+      setValue(null);
+      setAIsActive(true);
+    });
+  }, [registerNavigate]);
+
+  return (
+    <NavigationMenu.Root value={value} onValueChange={setValue}>
+      <NavigationMenu.List data-testid="list">
+        {aIsActive ? (
+          <NavigationMenu.Item value="a">
+            <a href="#a">A active</a>
+          </NavigationMenu.Item>
+        ) : (
+          <NavigationMenu.Item value="a">
+            <NavigationMenu.Trigger>A</NavigationMenu.Trigger>
+            <NavigationMenu.Content>
+              <NavigationMenu.Link href="#a">A link</NavigationMenu.Link>
+            </NavigationMenu.Content>
+          </NavigationMenu.Item>
+        )}
+        <NavigationMenu.Item value="b">
+          <NavigationMenu.Trigger>B</NavigationMenu.Trigger>
+          <NavigationMenu.Content>
+            <NavigationMenu.Link href="#b">B link</NavigationMenu.Link>
+          </NavigationMenu.Content>
+        </NavigationMenu.Item>
+      </NavigationMenu.List>
+      <NavigationMenu.Portal>
+        <NavigationMenu.Positioner>
+          <NavigationMenu.Popup>
+            <NavigationMenu.Viewport />
+          </NavigationMenu.Popup>
+        </NavigationMenu.Positioner>
+      </NavigationMenu.Portal>
+    </NavigationMenu.Root>
+  );
+}
+
 describe('<NavigationMenu.Trigger />', () => {
   const { render } = createRenderer();
 
@@ -85,6 +134,35 @@ describe('<NavigationMenu.Trigger />', () => {
       );
     },
   }));
+
+  it('applies the data-disabled style hook only when disabled', async () => {
+    function App() {
+      const [disabled, setDisabled] = React.useState(true);
+      return (
+        <div>
+          <NavigationMenu.Root>
+            <NavigationMenu.List>
+              <NavigationMenu.Item>
+                <NavigationMenu.Trigger disabled={disabled} data-testid="trigger">
+                  Overview
+                </NavigationMenu.Trigger>
+              </NavigationMenu.Item>
+            </NavigationMenu.List>
+          </NavigationMenu.Root>
+          <button type="button" onClick={() => setDisabled(false)}>
+            enable
+          </button>
+        </div>
+      );
+    }
+
+    await render(<App />);
+    const trigger = screen.getByTestId('trigger');
+    expect(trigger).toHaveAttribute('data-disabled', '');
+
+    fireEvent.click(screen.getByText('enable'));
+    expect(trigger).not.toHaveAttribute('data-disabled');
+  });
 
   it('opens a vertical menu with the mirrored arrow key in RTL mode', async () => {
     await render(
@@ -117,6 +195,44 @@ describe('<NavigationMenu.Trigger />', () => {
     await waitFor(() => {
       expect(screen.getByRole('link', { name: 'Quick Start' })).toBeVisible();
     });
+  });
+
+  it.skipIf(isJSDOM).each([
+    ['ArrowDown', '{ArrowDown}'],
+    ['Enter', '{Enter}'],
+    ['Space', ' '],
+  ])('keeps focus on the trigger when opened with %s', async (_keyName, key) => {
+    await render(
+      <NavigationMenu.Root>
+        <NavigationMenu.List>
+          <NavigationMenu.Item>
+            <NavigationMenu.Trigger>Overview</NavigationMenu.Trigger>
+            <NavigationMenu.Content>
+              <NavigationMenu.Link href="#quick-start">Quick Start</NavigationMenu.Link>
+            </NavigationMenu.Content>
+          </NavigationMenu.Item>
+        </NavigationMenu.List>
+        <NavigationMenu.Portal>
+          <NavigationMenu.Positioner>
+            <NavigationMenu.Popup>
+              <NavigationMenu.Viewport />
+            </NavigationMenu.Popup>
+          </NavigationMenu.Positioner>
+        </NavigationMenu.Portal>
+      </NavigationMenu.Root>,
+    );
+
+    const trigger = screen.getByRole('button', { name: 'Overview' });
+    trigger.focus();
+
+    await userEvent.keyboard(key);
+
+    await waitFor(() => {
+      expect(screen.getByRole('link', { name: 'Quick Start' })).toBeVisible();
+    });
+    await act(async () => new Promise(requestAnimationFrame));
+
+    expect(trigger).toHaveFocus();
   });
 
   it.skipIf(isJSDOM)('handles focus and positioner height', async () => {
@@ -168,6 +284,12 @@ describe('<NavigationMenu.Trigger />', () => {
 
     const overviewLink = screen.getByRole('link', { name: 'Quick Start' });
     await waitFor(() => {
+      expect(overviewButton).toHaveFocus();
+    });
+
+    await userEvent.tab();
+
+    await waitFor(() => {
       expect(overviewLink).toHaveFocus();
     });
 
@@ -196,6 +318,12 @@ describe('<NavigationMenu.Trigger />', () => {
 
     const handbookLink = screen.getByRole('link', { name: 'Styling Base UI components' });
     await waitFor(() => {
+      expect(handbookButton).toHaveFocus();
+    });
+
+    await userEvent.tab();
+
+    await waitFor(() => {
       expect(handbookLink).toHaveFocus();
     });
 
@@ -217,6 +345,9 @@ describe('<NavigationMenu.Trigger />', () => {
           parseInt(getComputedStyle(positioner).getPropertyValue('--positioner-height'), 10) - 18,
         ),
       ).toBeLessThanOrEqual(1);
+    });
+    await waitFor(() => {
+      expect(overviewButton).toHaveFocus();
     });
   });
 
@@ -443,6 +574,92 @@ describe('<NavigationMenu.Trigger />', () => {
       });
 
       setPositionerPropertySpy.mockRestore();
+    },
+  );
+
+  it.skipIf(isJSDOM)(
+    'releases the pointer-events lock on the list when the open trigger unmounts',
+    async () => {
+      const user = userEvent.setup({ pointerEventsCheck: 0 });
+      let navigate = () => {};
+
+      await render(
+        <TestActiveItemDropsTrigger
+          registerNavigate={(fn) => {
+            navigate = fn;
+          }}
+        />,
+      );
+
+      const list = screen.getByTestId('list');
+      const triggerA = screen.getByRole('button', { name: 'A' });
+
+      // Opening A's flyout by hovering the trigger locks the list with `pointer-events: none` (safe polygon),
+      // while the pointer stays on the trigger rather than the popup.
+      await user.pointer([{ target: triggerA }]);
+      await waitFor(() => {
+        expect(screen.getByRole('link', { name: 'A link' })).toBeVisible();
+      });
+      await waitFor(() => {
+        expect(list.style.pointerEvents).toBe('none');
+      });
+
+      // Drop A's trigger and close the menu in one update, while the pointer is still on the trigger, so none
+      // of the trigger-scoped release paths run before the trigger unmounts.
+      await act(async () => {
+        navigate();
+      });
+
+      await waitFor(() => {
+        expect(list.style.pointerEvents).toBe('');
+      });
+    },
+  );
+
+  it.skipIf(isJSDOM)(
+    'releases the pointer-events lock when the pointer sweeps across a trigger without the menu opening',
+    async () => {
+      const user = userEvent.setup({ pointerEventsCheck: 0 });
+
+      await render(
+        <NavigationMenu.Root>
+          <NavigationMenu.List data-testid="list">
+            <NavigationMenu.Item value="a">
+              <NavigationMenu.Trigger>A</NavigationMenu.Trigger>
+              <NavigationMenu.Content>
+                <NavigationMenu.Link href="#a">A link</NavigationMenu.Link>
+              </NavigationMenu.Content>
+            </NavigationMenu.Item>
+            <NavigationMenu.Item value="b">
+              <NavigationMenu.Trigger>B</NavigationMenu.Trigger>
+              <NavigationMenu.Content>
+                <NavigationMenu.Link href="#b">B link</NavigationMenu.Link>
+              </NavigationMenu.Content>
+            </NavigationMenu.Item>
+          </NavigationMenu.List>
+          <NavigationMenu.Portal keepMounted>
+            <NavigationMenu.Positioner>
+              <NavigationMenu.Popup>
+                <NavigationMenu.Viewport />
+              </NavigationMenu.Popup>
+            </NavigationMenu.Positioner>
+          </NavigationMenu.Portal>
+        </NavigationMenu.Root>,
+      );
+
+      const list = screen.getByTestId('list');
+      const triggerA = screen.getByRole('button', { name: 'A' });
+
+      // Sweep across the trigger and leave before the rest delay elapses, so the menu
+      // never opens. `mouseenter` applies the safe-polygon pointer-events lock on the
+      // list eagerly (the Portal is `keepMounted`, so the floating element exists while
+      // closed); without an open -> close cycle nothing releases it.
+      await user.pointer([{ target: triggerA }, { target: document.body }]);
+
+      await waitFor(() => {
+        expect(list.style.pointerEvents).toBe('');
+      });
+      expect(screen.queryByRole('link', { name: 'A link' })).toBe(null);
     },
   );
 });

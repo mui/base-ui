@@ -46,6 +46,8 @@ import { Drawer } from '@base-ui/react/drawer';
 
 Drawer supports swipe gestures to dismiss. Set `swipeDirection` to control which direction dismisses the drawer. `<Drawer.Content>` allows text selection of its children without swipe interference when using a mouse pointer. Add `data-base-ui-swipe-ignore` to a descendant when you need to opt that element out of swipe dismissal for all input types.
 
+Use `<Drawer.VirtualKeyboardProvider>` when a bottom sheet contains form fields and you want Base UI to manage keyboard-aware focus and scroll handling for software keyboards. Drawers without this provider are unaffected.
+
 ## Examples
 
 ### State
@@ -109,7 +111,7 @@ This demo stacks nested drawers using a constant peek so the frontmost drawer st
 
 import { DemoDrawerNested } from './demos/nested';
 
-<DemoDrawerNested compact />
+<DemoDrawerNested />
 
 ### Snap points
 
@@ -137,6 +139,24 @@ import { DemoDrawerSnapPoints } from './demos/snap-points';
 <DemoDrawerSnapPoints />
 
 By default, the drawer can skip snap points when swiping quickly. Specify the `snapToSequentialPoints` prop to disable velocity-based skipping so the snap target is determined by drag distance (you can still drag past multiple points).
+
+### Virtual keyboard aware
+
+Wrap a bottom sheet in `<Drawer.VirtualKeyboardProvider>` to make it react to software keyboards when it contains form controls. When the keyboard opens, the provider scrolls the body to keep the focused field visible.
+
+- **Keep the popup frame stable:** place header and footer content outside a plain scrollable body.
+- **Lift a pinned footer input:** if a footer contains its own input, reserve a footer slot below the scroll area and offset it by `var(--drawer-keyboard-inset, 0px)`. The demo switches the focused footer to `position: fixed` — positioned against the popup, since its `transform` contains fixed descendants — and adds the inset to its bottom padding.
+- **Always include the `0px` fallback:** the provider only sets `--drawer-keyboard-inset` while the keyboard is aligned, so a bare `var(--drawer-keyboard-inset)` is invalid before the first alignment and after cleanup.
+
+```tsx title="Virtual keyboard aware drawer"
+<Drawer.Root>
+  <Drawer.VirtualKeyboardProvider>{/* ... */}</Drawer.VirtualKeyboardProvider>
+</Drawer.Root>
+```
+
+import { DemoDrawerVirtualKeyboardAware } from './demos/virtual-keyboard-aware';
+
+<DemoDrawerVirtualKeyboardAware />
 
 ### Indent effect
 
@@ -170,19 +190,34 @@ import { DemoDrawerSwipeArea } from './demos/swipe-area';
 
 <DemoDrawerSwipeArea />
 
+### Close confirmation
+
+This example shows a nested confirmation dialog that opens if the text entered in the drawer is going to be discarded.
+
+To implement this, both the drawer and the confirmation dialog should be controlled. The confirmation dialog may be opened when the `onOpenChange` callback of the drawer receives a request to close while there is text in the textarea. This way, the confirmation is automatically shown when the user clicks the backdrop, presses the Esc key, clicks a close button, or dismisses the drawer with a swipe gesture.
+
+Use `eventDetails.cancel()` in `onOpenChange` to prevent the drawer from closing while the confirmation prompt is shown.
+
+import { DemoDrawerCloseConfirmation } from './demos/close-confirmation';
+
+<DemoDrawerCloseConfirmation />
+
 ### Action sheet with separate destructive action
 
 This demo builds an action sheet with a grouped list of actions plus a separate destructive action button.
 
 import { DemoDrawerUncontained } from './demos/uncontained';
 
-<DemoDrawerUncontained compact />
+<DemoDrawerUncontained />
 
 ### Detached triggers
 
 A drawer can be controlled by a trigger located either inside or outside the `<Drawer.Root>` component. For simple, one-off interactions, place the `<Drawer.Trigger>` inside `<Drawer.Root>`.
 
 However, if defining the drawer's content next to its trigger is not practical, you can use a detached trigger. This involves placing the `<Drawer.Trigger>` outside of `<Drawer.Root>` and linking them with a `handle` created by the `Drawer.createHandle()` function.
+
+The imperative methods on the handle, such as `open()` and `openWithPayload()`, require a `<Drawer.Root>` using the same handle to be mounted.
+Calls made while no root is attached to the handle — before one mounts, or after it unmounts — are ignored. Each time a root mounts, it starts from fresh state: a call made while no root was attached is not replayed, and no open state carries over from a previous mount.
 
 ```jsx title="Detached triggers"
 const demoDrawer = Drawer.createHandle();
@@ -355,6 +390,10 @@ import { TypesDrawer } from './types';
 ### SwipeArea
 
 <TypesDrawer.SwipeArea />
+
+### VirtualKeyboardProvider
+
+<TypesDrawer.VirtualKeyboardProvider />
 
 ### Portal
 

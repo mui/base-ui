@@ -40,6 +40,7 @@ export default {
       // Category overrides - labels that force a specific section
       categoryOverrides: {
         'scope: all components': 'General changes',
+        'component: otp field': 'OTP Field',
       },
       // Explicit flag labels
       flags: {

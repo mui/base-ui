@@ -55,6 +55,7 @@ export default function MenuDetachedTriggersFullDemo() {
           <Menu.Portal>
             <Menu.Positioner
               sideOffset={8}
+              align="start"
               className={`${styles.Positioner} ${transitionStyles.Positioner}`}
             >
               <Menu.Popup className={`${styles.Popup} ${transitionStyles.Popup}`}>

@@ -1,4 +1,4 @@
-import { expect } from 'vitest';
+import { expect, describe, it } from 'vitest';
 import { Menu } from '@base-ui/react/menu';
 import { createRenderer, describeConformance } from '#test-utils';
 import { screen, waitFor } from '@mui/internal-test-utils';

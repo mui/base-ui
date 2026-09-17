@@ -1,5 +1,5 @@
-import { expect } from 'vitest';
-import { toValidatedNumber, removeFloatingPointErrors } from './validate';
+import { expect, describe, it } from 'vitest';
+import { toValidatedNumber as toValidatedNumberImpl, removeFloatingPointErrors } from './validate';
 
 const min = Number.MIN_SAFE_INTEGER;
 const max = Number.MAX_SAFE_INTEGER;
@@ -15,10 +15,76 @@ const defaultOptions = {
   clamp: true,
 } as const;
 
+// Adapter over the positional signature so fixtures can spread option objects.
+type ValidateOptions = {
+  step: number | undefined;
+  minWithDefault: number;
+  maxWithDefault: number;
+  minWithZeroDefault: number;
+  format: Parameters<typeof toValidatedNumberImpl>[5];
+  snapOnStep: boolean;
+  small: boolean;
+  clamp: boolean;
+};
+
+const toValidatedNumber = (value: number | null, options: ValidateOptions) =>
+  toValidatedNumberImpl(
+    value,
+    options.step,
+    options.minWithDefault,
+    options.maxWithDefault,
+    options.minWithZeroDefault,
+    options.format,
+    options.snapOnStep,
+    options.small,
+    options.clamp,
+  );
+
 describe('NumberField validate', () => {
   describe('removeFloatingPointErrors', () => {
     it('returns 0.3 for 0.2 + 0.1', () => {
       expect(removeFloatingPointErrors(0.2 + 0.1)).toBe(0.3);
+    });
+
+    it('cleans negative floating point noise without a format', () => {
+      expect(removeFloatingPointErrors(-0.1 - 0.2)).toBe(-0.3);
+    });
+
+    it('preserves precision finer than 3 fraction digits without a format', () => {
+      expect(removeFloatingPointErrors(0.0005)).toBe(0.0005);
+      expect(removeFloatingPointErrors(1.23456)).toBe(1.23456);
+    });
+
+    it('preserves safe integers exactly without a format', () => {
+      expect(removeFloatingPointErrors(Number.MAX_SAFE_INTEGER)).toBe(Number.MAX_SAFE_INTEGER);
+      expect(removeFloatingPointErrors(Number.MIN_SAFE_INTEGER)).toBe(Number.MIN_SAFE_INTEGER);
+    });
+
+    it('cleans 16-digit noise patterns from arithmetic', () => {
+      expect(removeFloatingPointErrors(0.1 + 0.7)).toBe(0.8);
+      expect(removeFloatingPointErrors(0.1 + 0.2 + 0.3)).toBe(0.6);
+    });
+
+    it('leaves large-magnitude noise uncleaned once one ULP exceeds the absolute cap', () => {
+      // From the 2^19 binade (~5.2e5) up, a single ULP exceeds MAX_FLOATING_POINT_CLEANUP_DELTA,
+      // so the delta-bounded cleanup returns the raw (noisy) sum rather than risk corrupting
+      // real precision.
+      expect(removeFloatingPointErrors(1000000.1 + 0.2)).toBe(1000000.1 + 0.2);
+      expect(removeFloatingPointErrors(1000000.1 + 0.2)).not.toBe(1000000.3);
+    });
+
+    it('returns non-finite values untouched', () => {
+      expect(removeFloatingPointErrors(Infinity)).toBe(Infinity);
+      expect(removeFloatingPointErrors(-Infinity)).toBe(-Infinity);
+      expect(removeFloatingPointErrors(NaN)).toBeNaN();
+    });
+
+    it('rounds compact notation against its standard equivalent', () => {
+      // `compact` would format 1234.567 as "1.2K", which cannot round-trip back to a number, so
+      // the rounding is resolved with standard notation instead.
+      expect(
+        removeFloatingPointErrors(1234.567, { notation: 'compact', maximumFractionDigits: 1 }),
+      ).toBe(1234.6);
     });
 
     it('returns 0.3 for 0.2 + 0.1 with maximumFractionDigits', () => {
@@ -380,6 +446,42 @@ describe('NumberField validate', () => {
       ).toBe(12);
     });
 
+    it('preserves parsed input beyond 15 significant digits when step is undefined', () => {
+      // Parsed input performs no arithmetic, so there is no binary noise to clean.
+      expect(toValidatedNumber(1.234567890123456, { ...defaultOptions, step: undefined })).toBe(
+        1.234567890123456,
+      );
+      expect(toValidatedNumber(0.1234567890123456, { ...defaultOptions, step: undefined })).toBe(
+        0.1234567890123456,
+      );
+    });
+
+    it('cleans arithmetic noise when stepping', () => {
+      expect(
+        toValidatedNumber(0.1 + 0.7, { ...defaultOptions, step: 0.1, snapOnStep: false }),
+      ).toBe(0.8);
+    });
+
+    it('preserves large fractional values when stepping cleanup would be too coarse', () => {
+      const steppedValue = 100000000000000.1 + 0.1;
+
+      expect(
+        toValidatedNumber(steppedValue, { ...defaultOptions, step: 0.1, snapOnStep: false }),
+      ).toBe(steppedValue);
+    });
+
+    it('preserves high-significance step values', () => {
+      const step = 0.1234567890123456;
+
+      expect(
+        toValidatedNumber(step, {
+          ...defaultOptions,
+          step,
+          snapOnStep: false,
+        }),
+      ).toBe(step);
+    });
+
     describe('incrementing', () => {
       it('snaps 5 to 5 when step is 1', () => {
         expect(toValidatedNumber(5, defaultOptions)).toBe(5);
@@ -544,14 +646,31 @@ describe('NumberField validate', () => {
     ).toBe(0.01235);
   });
 
-  it('removes floating point errors by default', () => {
+  it('removes floating point errors when stepping', () => {
     expect(
       toValidatedNumber(0.2 + 0.1, {
         ...defaultOptions,
-        step: undefined,
+        step: 0.1,
         snapOnStep: false,
       }),
     ).toBe(0.3);
+  });
+
+  it('clamps before rounding for non-integer bounds', () => {
+    // 0.4 is below min 0.6, so it's clamped to 0.6 first and the integer format rounds that to 1.
+    // Rounding first would round 0.4 to 0, then clamp back up to 0.6, disagreeing with the
+    // displayed "1". Both clamp passes (before and after rounding) are needed here.
+    expect(
+      toValidatedNumber(0.4, {
+        ...defaultOptions,
+        step: undefined,
+        snapOnStep: false,
+        minWithDefault: 0.6,
+        minWithZeroDefault: 0,
+        maxWithDefault: 10,
+        format: { maximumFractionDigits: 0 },
+      }),
+    ).toBe(1);
   });
 
   describe('fractional step with snapOnStep', () => {
@@ -620,6 +739,23 @@ describe('NumberField validate', () => {
         }),
       ).toBe(-0.2);
     });
+  });
+
+  it('keeps rounded out-of-range values when clamping is disabled', () => {
+    // `allowOutOfRange` text entry rounds to the format's precision but must stay outside the
+    // range so native overflow validation can report it.
+    expect(
+      toValidatedNumber(12.349, {
+        ...defaultOptions,
+        step: undefined,
+        snapOnStep: false,
+        format: { maximumFractionDigits: 2 },
+        minWithDefault: 0,
+        minWithZeroDefault: 0,
+        maxWithDefault: 10,
+        clamp: false,
+      }),
+    ).toBe(12.35);
   });
 
   it('clamps to a non-step-aligned max after snapping so the boundary is reachable', () => {

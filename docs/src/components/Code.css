@@ -3,7 +3,9 @@
     letter-spacing: normal;
     color: var(--color-blue);
 
-    p &[data-inline] {
+    p &[data-inline],
+    li &[data-inline] {
+      font-size: 0.96875em; /* 16px becomes 15.5px */
       letter-spacing: -0.01em;
       word-spacing: -0.2em;
       line-height: normal;
@@ -29,6 +31,10 @@
           text-decoration-color: currentColor;
         }
       }
+    }
+
+    .Link & {
+      text-decoration: inherit;
     }
   }
 }

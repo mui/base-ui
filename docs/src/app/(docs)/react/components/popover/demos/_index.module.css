@@ -154,7 +154,7 @@
     }
   }
 
-  &[data-popup-open]:not([data-disabled], :disabled) {
+  &[data-pressed]:not([data-disabled], :disabled) {
     background-color: oklch(97% 0 0deg);
 
     @media (prefers-color-scheme: dark) {

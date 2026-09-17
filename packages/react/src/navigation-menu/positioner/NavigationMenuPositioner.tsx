@@ -18,11 +18,11 @@ import {
 } from '../root/NavigationMenuRootContext';
 import { useNavigationMenuPortalContext } from '../portal/NavigationMenuPortalContext';
 import {
-  useAnchorPositioning,
   type Align,
   type Side,
   type UseAnchorPositioningSharedParameters,
-} from '../../utils/useAnchorPositioning';
+} from '../../internals/useAnchorPositioning';
+import { useNavigationMenuAnchorPositioning } from '../utils/useNavigationMenuAnchorPositioning';
 import { NavigationMenuPositionerContext } from './NavigationMenuPositionerContext';
 import { DROPDOWN_COLLISION_AVOIDANCE, POPUP_COLLISION_AVOIDANCE } from '../../internals/constants';
 import { adaptiveOrigin } from '../../utils/adaptiveOriginMiddleware';
@@ -72,12 +72,13 @@ export const NavigationMenuPositioner = React.forwardRef(function NavigationMenu
   const keepMounted = useNavigationMenuPortalContext();
   const nodeId = useNavigationMenuTreeContext();
 
+  const initialInstantTimeout = useTimeout();
   const resizeTimeout = useTimeout();
 
-  const [instant, setInstant] = React.useState(false);
-
-  const positionerRef = React.useRef<HTMLDivElement | null>(null);
-  const prevTriggerElementRef = React.useRef<Element | null>(null);
+  // When the menu is initially open, disable the positioner's transition for one frame
+  // so a default value does not animate in from the unpositioned portal state.
+  const [instant, setInstant] = React.useState(open);
+  const needsInitialInstantResetRef = React.useRef(open);
 
   // https://codesandbox.io/s/tabbable-portal-f4tng?file=/src/TabbablePortal.tsx
   React.useEffect(() => {
@@ -106,8 +107,8 @@ export const NavigationMenuPositioner = React.forwardRef(function NavigationMenu
 
   const domReference = (floatingRootContext || EMPTY_ROOT_CONTEXT).useState('domReferenceElement');
 
-  const positioning = useAnchorPositioning({
-    anchor: anchor ?? domReference ?? prevTriggerElementRef,
+  const positioning = useNavigationMenuAnchorPositioning({
+    anchor: anchor ?? domReference,
     positionMethod,
     mounted,
     side,
@@ -122,6 +123,7 @@ export const NavigationMenuPositioner = React.forwardRef(function NavigationMenu
     keepMounted,
     floatingRootContext,
     collisionAvoidance,
+    shift: { rootBoundary: 'layoutViewport' },
     nodeId,
     // Allows the menu to remain anchored without wobbling while its size
     // and position transition simultaneously when side=top or side=left.
@@ -141,6 +143,16 @@ export const NavigationMenuPositioner = React.forwardRef(function NavigationMenu
       return undefined;
     }
 
+    if (needsInitialInstantResetRef.current) {
+      initialInstantTimeout.start(0, () => {
+        needsInitialInstantResetRef.current = false;
+
+        if (!resizeTimeout.isStarted()) {
+          setInstant(false);
+        }
+      });
+    }
+
     function handleResize() {
       ReactDOM.flushSync(() => {
         setInstant(true);
@@ -153,13 +165,13 @@ export const NavigationMenuPositioner = React.forwardRef(function NavigationMenu
 
     const win = ownerWindow(positionerElement);
     return addEventListener(win, 'resize', handleResize);
-  }, [open, resizeTimeout, positionerElement]);
+  }, [open, initialInstantTimeout, resizeTimeout, positionerElement]);
 
   const element = usePositioner(componentProps, state, {
     styles: positioning.positionerStyles,
     transitionStatus,
     props: elementProps,
-    refs: [forwardedRef, setPositionerElement, positionerRef],
+    refs: [forwardedRef, setPositionerElement],
     hidden: !mounted,
     inert: !open,
   });

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-shadow */
 'use client';
 import * as React from 'react';
 import { useTestInteractions } from '#test-utils';

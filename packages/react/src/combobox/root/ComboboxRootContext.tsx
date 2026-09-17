@@ -7,7 +7,11 @@ export interface ComboboxDerivedItemsContext {
   query: string;
   hasItems: boolean;
   filteredItems: any[];
-  flatFilteredItems: any[];
+  /**
+   * `filteredItems` flattened across groups and projected to selection values. Identical to the
+   * items themselves unless `items` is a `createItems()` collection.
+   */
+  flatFilteredValues: any[];
 }
 
 export const ComboboxRootContext = React.createContext<ComboboxStore | undefined>(undefined);
@@ -17,6 +21,7 @@ export const ComboboxFloatingContext = React.createContext<FloatingRootContext |
 export const ComboboxDerivedItemsContext = React.createContext<
   ComboboxDerivedItemsContext | undefined
 >(undefined);
+export const ComboboxHasItemsContext = React.createContext<boolean>(false);
 // `inputValue` can't be placed in the store.
 // https://github.com/mui/base-ui/issues/2703
 export const ComboboxInputValueContext =
@@ -54,4 +59,8 @@ export function useComboboxDerivedItemsContext() {
 
 export function useComboboxInputValueContext() {
   return React.useContext(ComboboxInputValueContext);
+}
+
+export function useComboboxHasItemsContext() {
+  return React.useContext(ComboboxHasItemsContext);
 }

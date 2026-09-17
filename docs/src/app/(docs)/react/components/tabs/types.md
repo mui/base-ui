@@ -53,10 +53,7 @@ type TabsRootChangeEventReason = 'none' | 'disabled' | 'missing' | 'initial';
 
 ```typescript
 type TabsRootChangeEventDetails = (
-  | { reason: 'none' }
-  | { reason: 'disabled' }
-  | { reason: 'missing' }
-  | { reason: 'initial' }
+  { reason: 'none' } | { reason: 'disabled' } | { reason: 'missing' } | { reason: 'initial' }
 ) & {
   /** The native event associated with the custom event. */
   event: Event;
@@ -140,7 +137,7 @@ Renders a `<div>` element.
 | data-activation-direction | `'left' \| 'right' \| 'up' \| 'down' \| 'none'` | Indicates the direction of the activation (based on the previous active tab). |
 | data-hidden               | -                                               | Present when the panel is hidden.                                             |
 | data-index                | -                                               | Indicates the index of the tab panel.                                         |
-| data-starting-style       | -                                               | Present when the panel is animating in.                                       |
+| data-starting-style       | -                                               | Present when the panel begins animating in.                                   |
 | data-ending-style         | -                                               | Present when the panel is animating out.                                      |
 
 ### Panel.Props
@@ -258,6 +255,8 @@ type TabsTabState = {
   active: boolean;
   /** The component orientation. */
   orientation: Tabs.Root.Orientation;
+  /** The direction used for tab activation. */
+  tabActivationDirection: Tabs.Tab.ActivationDirection;
 };
 ```
 

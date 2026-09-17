@@ -13,24 +13,20 @@ import {
   isHTMLElement,
   isLastTraversableNode,
   isShadowRoot,
-  isWebKit,
 } from '@floating-ui/utils/dom';
+import { platform } from '@base-ui/utils/platform';
 import { useFloatingTree } from '../components/FloatingTree';
 import { FloatingTreeStore } from '../components/FloatingTreeStore';
 import type { ElementProps, FloatingContext, FloatingRootContext } from '../types';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import type { FloatingUIOpenChangeDetails } from '../../internals/types';
 import { REASONS } from '../../internals/reasons';
 import { createAttribute } from '../utils/createAttribute';
 import { contains, getTarget, isEventTargetWithin, isRootElement } from '../utils/element';
-import { isReactEvent } from '../utils/event';
+import { isReactEvent, isVirtualClick } from '../utils/event';
 import { getNodeChildren } from '../utils/nodes';
 
 type PressType = 'intentional' | 'sloppy';
-
-const bubbleHandlerKeys = {
-  intentional: 'onClick',
-  sloppy: 'onPointerDown',
-} as const;
 
 function alwaysFalse() {
   return false;
@@ -69,13 +65,6 @@ export interface UseDismissProps {
    */
   referencePress?: (() => boolean) | undefined;
   /**
-   * The type of event to use to determine a "press".
-   * - `down` is `pointerdown` on mouse input, but special iOS-like touch handling on touch input.
-   * - `up` is lazy on both mouse + touch input (equivalent to `click`).
-   * @default 'down'
-   */
-  referencePressEvent?: PressType | undefined;
-  /**
    * Whether to dismiss the floating element upon pressing outside of the
    * floating element.
    * If you have another element, like a toast, that is rendered outside the
@@ -91,7 +80,7 @@ export interface UseDismissProps {
   outsidePress?: boolean | ((event: MouseEvent | TouchEvent) => boolean) | undefined;
   /**
    * The type of event to use to determine an outside "press".
-   * - `intentional` requires the user to click outside intentionally, firing on `pointerup` for mouse, and requiring minimal `touchmove`s for touch.
+   * - `intentional` dismisses on an outside `click` whose press began while the floating element was open, ignoring the trailing click of a press that started before it opened. Touch requires minimal `touchmove`s, and press-less clicks (keyboard, assistive technology) are always accepted.
    * - `sloppy` fires on `pointerdown` for mouse, while for touch it fires on `touchend` (within 1 second) or while scrolling away after `touchstart`.
    */
   outsidePressEvent?:
@@ -112,9 +101,7 @@ export interface UseDismissProps {
    * floating elements.
    */
   bubbles?:
-    | boolean
-    | { escapeKey?: boolean | undefined; outsidePress?: boolean | undefined }
-    | undefined;
+    boolean | { escapeKey?: boolean | undefined; outsidePress?: boolean | undefined } | undefined;
   /**
    * External FloatingTree to use when the one provided by context can't be used.
    */
@@ -136,7 +123,6 @@ export function useDismiss(
     outsidePress: outsidePressProp = true,
     outsidePressEvent = 'sloppy',
     referencePress = alwaysFalse,
-    referencePressEvent = 'sloppy',
     bubbles,
     externalTree,
   } = props;
@@ -145,7 +131,7 @@ export function useDismiss(
 
   const open = store.useState('open');
   const floatingElement = store.useState('floatingElement');
-  const { dataRef } = store.context;
+  const { dataRef, events } = store.context;
 
   const tree = useFloatingTree(externalTree);
   const outsidePressFn = useStableCallback(
@@ -161,6 +147,9 @@ export function useDismiss(
   const pressStartPreventedRef = React.useRef(false);
   // Ignore only the very next outside click after dragging from inside to outside.
   const suppressNextOutsideClickRef = React.useRef(false);
+  // A click whose press began before the floating element opened is the tail of that
+  // gesture (e.g. the drag-release that opened it), not a new outside press.
+  const sawPressWhileOpenRef = React.useRef(false);
   const isComposingRef = React.useRef(false);
   const currentPointerTypeRef = React.useRef<PointerEvent['pointerType']>('');
 
@@ -285,9 +274,31 @@ export function useDismiss(
     },
   );
 
+  // A same-batch close+reopen never renders `open === false`, so only `openchange` can
+  // observe that session boundary. The effect below covers controlled flips.
+  React.useEffect(() => {
+    function handleOpenChange(details: FloatingUIOpenChangeDetails) {
+      // Only the closing half ends the session: `setOpen(true)` on an already-open
+      // element (hovering an inactive trigger) must not drop a press mid-gesture.
+      if (!details.open) {
+        sawPressWhileOpenRef.current = false;
+      }
+    }
+
+    events.on('openchange', handleOpenChange);
+    return () => {
+      events.off('openchange', handleOpenChange);
+    };
+  }, [events]);
+
   React.useEffect(() => {
     if (!open || !enabled) {
-      return undefined;
+      // Reset in the effect body, not the cleanup, which also runs when a dependency
+      // changes mid-gesture.
+      if (!open) {
+        sawPressWhileOpenRef.current = false;
+      }
+      return clearInsideReactTree;
     }
 
     dataRef.current.__escapeKeyBubbles = escapeKeyBubbles;
@@ -295,6 +306,7 @@ export function useDismiss(
 
     const compositionTimeout = new Timeout();
     const preventedPressSuppressionTimeout = new Timeout();
+    const doc = ownerDocument(floatingElement);
 
     function handleCompositionStart() {
       compositionTimeout.clear();
@@ -308,7 +320,7 @@ export function useDismiss(
       compositionTimeout.start(
         // 0ms or 1ms don't work in Safari. 5ms appears to consistently work.
         // Only apply to WebKit for the test to remain 0ms.
-        isWebKit() ? 5 : 0,
+        platform.engine.webkit ? 5 : 0,
         () => {
           isComposingRef.current = false;
         },
@@ -466,13 +478,26 @@ export function useDismiss(
         return;
       }
 
-      // In intentional mode, a press that starts inside and ends outside gets
-      // one suppressed outside click. Run this after inside-target checks so
-      // inside clicks don't consume the one-shot suppression.
-      if (getOutsidePressEvent() === 'intentional' && suppressNextOutsideClickRef.current) {
-        preventedPressSuppressionTimeout.clear();
-        suppressNextOutsideClickRef.current = false;
-        return;
+      // Only `click` events reach this point in intentional mode.
+      if (getOutsidePressEvent() === 'intentional') {
+        // Press-less clicks (keyboard, assistive technology, `element.click()`) report no
+        // click count; `isVirtualClick` also catches the ones that do.
+        if (
+          (event as MouseEvent).detail !== 0 &&
+          !isVirtualClick(event as MouseEvent) &&
+          !sawPressWhileOpenRef.current
+        ) {
+          return;
+        }
+
+        // A press that starts inside and ends outside gets one suppressed
+        // outside click. Run this after inside-target checks so inside clicks
+        // don't consume the one-shot suppression.
+        if (suppressNextOutsideClickRef.current) {
+          preventedPressSuppressionTimeout.clear();
+          suppressNextOutsideClickRef.current = false;
+          return;
+        }
       }
 
       if (typeof outsidePress === 'function' && !outsidePress(event)) {
@@ -554,7 +579,13 @@ export function useDismiss(
     function closeOnPressOutsideCapture(event: PointerEvent | MouseEvent) {
       cancelDismissOnEndTimeout.clear();
 
+      // Only `pointerdown` marks a press; `mousedown` is its compatibility event, and
+      // counting it would misattribute a gesture that started before open.
       if (event.type === 'pointerdown') {
+        // Only a primary press can produce a `click`.
+        if (event.button === 0) {
+          sawPressWhileOpenRef.current = true;
+        }
         currentPointerTypeRef.current = (event as PointerEvent).pointerType;
       }
 
@@ -576,6 +607,12 @@ export function useDismiss(
     }
 
     function handlePressEndCapture(event: PointerEvent | MouseEvent) {
+      // A cancelled gesture produces no click. Not cleared on `pointerup`: the click
+      // fires after it and must still find the press.
+      if (event.type === 'pointercancel') {
+        sawPressWhileOpenRef.current = false;
+      }
+
       if (!pressStartedInsideRef.current) {
         return;
       }
@@ -671,7 +708,6 @@ export function useDismiss(
       addTargetEventListenerOnce(event, handleTouchEnd);
     }
 
-    const doc = ownerDocument(floatingElement);
     const unsubscribe = mergeCleanups(
       escapeKey &&
         mergeCleanups(
@@ -687,9 +723,18 @@ export function useDismiss(
           addEventListener(doc, 'pointercancel', handlePressEndCapture, true),
           addEventListener(doc, 'mousedown', closeOnPressOutsideCapture, true),
           addEventListener(doc, 'mouseup', handlePressEndCapture, true),
-          addEventListener(doc, 'touchstart', handleTouchStartCapture, true),
-          addEventListener(doc, 'touchmove', handleTouchMoveCapture, true),
-          addEventListener(doc, 'touchend', handleTouchEndCapture, true),
+          addEventListener(doc, 'touchstart', handleTouchStartCapture, {
+            capture: true,
+            passive: true,
+          }),
+          addEventListener(doc, 'touchmove', handleTouchMoveCapture, {
+            capture: true,
+            passive: true,
+          }),
+          addEventListener(doc, 'touchend', handleTouchEndCapture, {
+            capture: true,
+            passive: true,
+          }),
         ),
     );
 
@@ -699,6 +744,7 @@ export function useDismiss(
       preventedPressSuppressionTimeout.clear();
       resetPressStartState();
       suppressNextOutsideClickRef.current = false;
+      clearInsideReactTree();
     };
   }, [
     dataRef,
@@ -720,17 +766,13 @@ export function useDismiss(
     cancelDismissOnEndTimeout,
   ]);
 
-  React.useEffect(clearInsideReactTree, [outsidePress, clearInsideReactTree]);
-
   const reference: ElementProps['reference'] = React.useMemo(
     () => ({
       onKeyDown: closeOnEscapeKeyDown,
-      [bubbleHandlerKeys[referencePressEvent]]: closeOnReferencePress,
-      ...(referencePressEvent !== 'intentional' && {
-        onClick: closeOnReferencePress,
-      }),
+      onPointerDown: closeOnReferencePress,
+      onClick: closeOnReferencePress,
     }),
-    [closeOnEscapeKeyDown, closeOnReferencePress, referencePressEvent],
+    [closeOnEscapeKeyDown, closeOnReferencePress],
   );
 
   const floating: ElementProps['floating'] = React.useMemo(

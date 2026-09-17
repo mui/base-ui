@@ -1,6 +1,18 @@
+/**
+ * @internal
+ */
 export { FloatingDelayGroup, useDelayGroup } from './components/FloatingDelayGroup';
+/**
+ * @internal
+ */
 export { FloatingFocusManager } from './components/FloatingFocusManager';
+/**
+ * @internal
+ */
 export { FloatingPortal, useFloatingPortalNode } from './components/FloatingPortal';
+/**
+ * @internal
+ */
 export {
   FloatingNode,
   FloatingTree,

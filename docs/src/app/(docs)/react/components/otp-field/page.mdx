@@ -7,8 +7,6 @@
   content="A high-quality, unstyled React OTP field component for one-time password and verification code entry."
 />
 
-> **Note:** OTP Field is currently in preview. Its API may change before it becomes stable.
-
 import { DemoOTPFieldHero } from './demos/hero';
 
 <DemoOTPFieldHero />
@@ -22,7 +20,7 @@ import { DemoOTPFieldHero } from './demos/hero';
 Import the component and assemble its parts:
 
 ```jsx title="Anatomy"
-import { OTPFieldPreview as OTPField } from '@base-ui/react/otp-field';
+import { OTPField } from '@base-ui/react/otp-field';
 
 <OTPField.Root>
   <OTPField.Input />
@@ -86,7 +84,7 @@ numbers.
 
 import { DemoOTPFieldAlphanumeric } from './demos/alphanumeric';
 
-<DemoOTPFieldAlphanumeric compact />
+<DemoOTPFieldAlphanumeric />
 
 ### Grouped layouts
 
@@ -95,7 +93,7 @@ want the code presented in smaller visual chunks such as `123-456`.
 
 import { DemoOTPFieldGrouped } from './demos/grouped';
 
-<DemoOTPFieldGrouped compact />
+<DemoOTPFieldGrouped />
 
 ### Placeholder hints
 
@@ -104,7 +102,7 @@ example keeps placeholder hints visible until the active slot receives focus.
 
 import { DemoOTPFieldFocusedPlaceholder } from './demos/focused-placeholder';
 
-<DemoOTPFieldFocusedPlaceholder compact />
+<DemoOTPFieldFocusedPlaceholder />
 
 ### Custom normalization
 
@@ -117,7 +115,7 @@ Pair custom rules with `inputMode` for keyboard hints and `onValueInvalid` for r
 
 import { DemoOTPFieldCustomNormalize } from './demos/custom-sanitize';
 
-<DemoOTPFieldCustomNormalize compact />
+<DemoOTPFieldCustomNormalize />
 
 ### Masked entry
 
@@ -125,7 +123,7 @@ Use `mask` when the code should be obscured while it is being typed.
 
 import { DemoOTPFieldPassword } from './demos/password';
 
-<DemoOTPFieldPassword compact />
+<DemoOTPFieldPassword />
 
 ## API reference
 

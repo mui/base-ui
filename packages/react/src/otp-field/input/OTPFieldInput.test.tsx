@@ -1,11 +1,13 @@
-import { expect, vi } from 'vitest';
+import { expect, vi, describe, it } from 'vitest';
 import * as React from 'react';
 import userEvent from '@testing-library/user-event';
+import { SafeReact } from '@base-ui/utils/safeReact';
 import { act, fireEvent, screen } from '@mui/internal-test-utils';
-import { OTPFieldPreview as OTPField } from '@base-ui/react/otp-field';
+import { OTPField } from '@base-ui/react/otp-field';
 import { Field } from '@base-ui/react/field';
 import { DirectionProvider } from '@base-ui/react/direction-provider';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
+import { REASONS } from '../../internals/reasons';
 
 describe('<OTPField.Input />', () => {
   const { render } = createRenderer();
@@ -190,6 +192,129 @@ describe('<OTPField.Input />', () => {
     expect(firstInput.selectionEnd).toBe(1);
   });
 
+  it('commits an IME composition once on compositionend instead of per intermediate change', async () => {
+    const onValueChange = vi.fn();
+
+    await render(<OTPFieldTest validationType="alphanumeric" onValueChange={onValueChange} />);
+
+    const inputs = screen.getAllByRole<HTMLInputElement>('textbox');
+    const firstInput = inputs[0];
+
+    await act(async () => {
+      firstInput.focus();
+    });
+
+    fireEvent.compositionStart(firstInput);
+
+    // Safari can surface in-progress IME text through `change` as an accumulating string.
+    fireEvent.change(firstInput, { target: { value: 'd' } });
+    fireEvent.change(firstInput, { target: { value: 'dd' } });
+    fireEvent.change(firstInput, { target: { value: 'ddd' } });
+
+    // No value commits while the composition is active; the text is only buffered for display.
+    expect(onValueChange).not.toHaveBeenCalled();
+    expect(inputs.map((input) => input.value)).toEqual(['ddd', '', '', '', '', '']);
+
+    fireEvent.compositionEnd(firstInput, { target: { value: 'ddd' } });
+
+    // The final composed value commits once across three slots, not six.
+    expect(onValueChange).toHaveBeenCalledTimes(1);
+    expect(onValueChange).toHaveBeenLastCalledWith('ddd', expect.anything());
+    expect(inputs.map((input) => input.value)).toEqual(['d', 'd', 'd', '', '', '']);
+    expect(document.activeElement).toBe(inputs[3]);
+  });
+
+  it('reports characters rejected from a committed IME composition', async () => {
+    const onValueChange = vi.fn();
+    const onValueInvalid = vi.fn();
+
+    await render(<OTPFieldTest onValueChange={onValueChange} onValueInvalid={onValueInvalid} />);
+
+    const inputs = screen.getAllByRole<HTMLInputElement>('textbox');
+    const firstInput = inputs[0];
+
+    await act(async () => {
+      firstInput.focus();
+    });
+
+    fireEvent.compositionStart(firstInput);
+    fireEvent.change(firstInput, { target: { value: '1a' } });
+
+    expect(onValueInvalid).not.toHaveBeenCalled();
+
+    fireEvent.compositionEnd(firstInput, { target: { value: '1a' } });
+
+    expect(onValueInvalid).toHaveBeenCalledTimes(1);
+    expect(onValueInvalid.mock.calls[0]?.[0]).toBe('1a');
+    expect(onValueInvalid.mock.calls[0]?.[1].reason).toBe(REASONS.inputChange);
+    expect(onValueChange).toHaveBeenCalledTimes(1);
+    expect(onValueChange).toHaveBeenLastCalledWith('1', expect.anything());
+    expect(inputs.map((input) => input.value)).toEqual(['1', '', '', '', '', '']);
+    expect(document.activeElement).toBe(inputs[1]);
+  });
+
+  it('ignores keyboard commands while a composition is buffered', async () => {
+    const onValueChange = vi.fn();
+
+    await render(
+      <OTPFieldTest
+        validationType="alphanumeric"
+        defaultValue="12"
+        onValueChange={onValueChange}
+      />,
+    );
+
+    const inputs = screen.getAllByRole<HTMLInputElement>('textbox');
+    const thirdInput = inputs[2];
+
+    await act(async () => {
+      thirdInput.focus();
+    });
+
+    fireEvent.compositionStart(thirdInput);
+    fireEvent.change(thirdInput, { target: { value: 'a' } });
+
+    // iOS Safari fires a real `Backspace` keydown while the IME is still composing.
+    fireEvent.keyDown(thirdInput, { key: 'Backspace' });
+
+    expect(onValueChange).not.toHaveBeenCalled();
+    expect(document.activeElement).toBe(thirdInput);
+    expect(inputs.map((input) => input.value)).toEqual(['1', '2', 'a', '', '', '']);
+
+    // The IME deleted its own text, so the composition ends empty and nothing commits.
+    fireEvent.compositionEnd(thirdInput, { target: { value: '' } });
+
+    expect(onValueChange).not.toHaveBeenCalled();
+    expect(inputs.map((input) => input.value)).toEqual(['1', '2', '', '', '', '']);
+  });
+
+  (['disabled', 'readOnly'] as const).forEach((prop) => {
+    it(`does not commit a composition that ends after the field becomes ${prop}`, async () => {
+      const onValueChange = vi.fn();
+
+      const { setProps } = await render(
+        <OTPFieldTest validationType="alphanumeric" onValueChange={onValueChange} />,
+      );
+
+      const inputs = screen.getAllByRole<HTMLInputElement>('textbox');
+      const firstInput = inputs[0];
+
+      await act(async () => {
+        firstInput.focus();
+      });
+
+      fireEvent.compositionStart(firstInput);
+      fireEvent.change(firstInput, { target: { value: 'abc' } });
+
+      await setProps({ [prop]: true });
+
+      fireEvent.compositionEnd(firstInput, { target: { value: 'abc' } });
+
+      expect(onValueChange).not.toHaveBeenCalled();
+      expect(inputs.map((input) => input.value)).toEqual(['', '', '', '', '', '']);
+    });
+  });
+
   it('selects the slot value on mousedown', async () => {
     await render(<OTPFieldTest defaultValue="1" />);
 
@@ -199,6 +324,77 @@ describe('<OTPField.Input />', () => {
 
     expect(firstInput.selectionStart).toBe(0);
     expect(firstInput.selectionEnd).toBe(1);
+  });
+
+  it('allows a composed mousedown handler to prevent focus', async () => {
+    await render(
+      <OTPField.Root length={2}>
+        <OTPField.Input
+          onMouseDown={(event) => {
+            event.preventDefault();
+          }}
+        />
+        <OTPField.Input />
+      </OTPField.Root>,
+    );
+
+    const [firstInput] = screen.getAllByRole<HTMLInputElement>('textbox');
+
+    expect(fireEvent.mouseDown(firstInput)).toBe(false);
+    expect(firstInput).not.toHaveFocus();
+  });
+
+  it('allows a composed focus handler to prevent internal focus state', async () => {
+    await render(
+      <OTPField.Root data-testid="root" length={1}>
+        <OTPField.Input
+          onFocus={(event) => {
+            event.preventDefault();
+          }}
+        />
+      </OTPField.Root>,
+    );
+
+    const root = screen.getByTestId('root');
+    const input = screen.getByRole<HTMLInputElement>('textbox');
+
+    await act(async () => {
+      input.focus();
+    });
+
+    expect(input).toHaveFocus();
+    expect(root).not.toHaveAttribute('data-focused');
+  });
+
+  it('allows a composed blur handler to preserve internal focus state', async () => {
+    await render(
+      <React.Fragment>
+        <OTPField.Root data-testid="root" length={1}>
+          <OTPField.Input
+            onBlur={(event) => {
+              event.preventDefault();
+            }}
+          />
+        </OTPField.Root>
+        <button type="button">Outside</button>
+      </React.Fragment>,
+    );
+
+    const root = screen.getByTestId('root');
+    const input = screen.getByRole<HTMLInputElement>('textbox');
+    const outside = screen.getByRole('button', { name: 'Outside' });
+
+    await act(async () => {
+      input.focus();
+    });
+    expect(root).toHaveAttribute('data-focused', '');
+
+    await act(async () => {
+      outside.focus();
+    });
+
+    expect(outside).toHaveFocus();
+    expect(root).toHaveAttribute('data-focused', '');
   });
 
   it('moves focus to the next slot when typing the same character into a filled slot', async () => {
@@ -458,6 +654,10 @@ describe('<OTPField.Input />', () => {
 
   it('warns in development when clipboard text cannot be read during paste handling', async () => {
     const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const ownerStackSpy =
+      typeof SafeReact.captureOwnerStack === 'function'
+        ? vi.spyOn(SafeReact, 'captureOwnerStack').mockReturnValue(null)
+        : null;
 
     try {
       await render(<OTPFieldTest defaultValue="12" />);
@@ -476,8 +676,19 @@ describe('<OTPField.Input />', () => {
         'Base UI: <OTPField.Input> could not read clipboard text during paste handling.',
       );
     } finally {
+      ownerStackSpy?.mockRestore();
       warnSpy.mockRestore();
     }
+  });
+
+  it('ignores a paste event when clipboard text is unavailable', async () => {
+    await render(<OTPFieldTest defaultValue="12" />);
+
+    const inputs = screen.getAllByRole<HTMLInputElement>('textbox');
+    const pasteEvent = new Event('paste', { bubbles: true, cancelable: true });
+
+    expect(inputs[1].dispatchEvent(pasteEvent)).toBe(false);
+    expect(inputs.map((input) => input.value)).toEqual(['1', '2', '', '', '', '']);
   });
 
   it('allows tabbing out of the field from the active slot', async () => {
@@ -727,6 +938,10 @@ describe('<OTPField.Input />', () => {
 
   it('warns when aria-label is provided on the first slot without an associated label', async () => {
     const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const ownerStackSpy =
+      typeof SafeReact.captureOwnerStack === 'function'
+        ? vi.spyOn(SafeReact, 'captureOwnerStack').mockReturnValue(null)
+        : null;
 
     try {
       await render(
@@ -745,6 +960,7 @@ describe('<OTPField.Input />', () => {
         'Base UI: <OTPField.Input> ignores `aria-label` on the first input.',
       );
     } finally {
+      ownerStackSpy?.mockRestore();
       warnSpy.mockRestore();
     }
   });

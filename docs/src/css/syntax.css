@@ -254,6 +254,13 @@
     --color-docs-infra-syntax-nullish: var(--color-blue);
   }
 
+  /* stylelint-disable-next-line selector-pseudo-class-disallowed-list */
+  .MdCode[data-inline]:not(:has(> .di-ht)) {
+    display: inline-block;
+    background-color: var(--color-line-highlight);
+    padding: 0.05em 0.2em;
+  }
+
   /* Frame highlighting */
   pre .frame[data-frame-type='highlighted'],
   pre .frame[data-frame-type='highlighted-unfocused'] {

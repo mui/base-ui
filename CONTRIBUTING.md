@@ -1,16 +1,215 @@
 # Contributing to Base UI
 
-## Base UI vs. MUI organization
+## Prerequisites
 
-Base UI is an open-source project of the MUI organization. The repositories are part of the same codebase.
-`mui/base-ui` imports the code infrastructure from [`mui/material-ui`](https://github.com/mui/material-ui).
-You can find the "contributing" guide for the main repository in [mui/material-ui/CONTRIBUTING.md](https://github.com/mui/material-ui/blob/HEAD/CONTRIBUTING.md).
+The repository declares its supported toolchain in the `engines` field of `package.json` and enables pnpm's `engineStrict`, so installing with an unsupported version fails early:
 
-Most of the content in the main repository "contributing" guide applies to this repository.
-There are, however, a few differences:
+- [Node.js](https://nodejs.org/) 22.22.3 or newer.
+- [pnpm](https://pnpm.io/installation) 11.17.0 exactly. yarn and npm aren't supported.
 
-- The default GitHub branch might be different.
-- The local documentation site opens on a different port: 3005 instead of 3000.
+The pnpm version is also pinned in the `packageManager` field, and pnpm 10 and newer honors that pin, so a recent pnpm switches to the required version on its own when run inside the repository.
+Alternatively, enable [Corepack](https://nodejs.org/api/corepack.html) so that Node.js installs the pinned version for you:
+
+```bash
+corepack enable
+```
+
+Corepack isn't bundled with Node.js 25 and newer, so on those versions install pnpm directly.
+
+Treat `package.json` as the source of truth—the versions listed above can fall out of date.
+
+## Sending a pull request
+
+Base UI is community-driven, so pull requests are always welcome, but before working on a large change, it's best to open an issue first to discuss it with the maintainers.
+
+When in doubt, keep your pull requests small.
+For the best chances of being accepted, don't bundle more than one feature or bug fix per PR.
+It's often best to create two smaller PRs rather than one big one.
+
+1. Fork the repository.
+
+2. Clone the fork to your local machine and add the upstream remote:
+
+```bash
+git clone https://github.com/<your username>/base-ui.git
+cd base-ui
+git remote add upstream https://github.com/mui/base-ui.git
+```
+
+<!-- #target-branch-reference -->
+
+3. Synchronize your local `master` branch with the upstream one:
+
+```bash
+git checkout master
+git pull upstream master
+```
+
+4. Install the dependencies with pnpm (yarn or npm aren't supported):
+
+```bash
+pnpm install
+```
+
+5. Create a new topic branch:
+
+```bash
+git checkout -b my-topic-branch
+```
+
+6. Make changes, commit, and push to your fork:
+
+```bash
+git push -u origin HEAD
+```
+
+7. Go to [the repository](https://github.com/mui/base-ui) and open a pull request.
+
+The core team actively monitors for new pull requests.
+A maintainer reviews your PR and either merges it, requests changes to it, or closes it with an explanation.
+
+### Trying changes on the documentation site
+
+The documentation site is built with Base UI and contains examples of all of the components.
+This is the best place to experiment with your changes—it's the local development environment used by the maintainers.
+
+To get started, run:
+
+```bash
+pnpm start
+```
+
+You can now access the documentation site locally: http://localhost:3005.
+Changes to the docs hot reload the site.
+
+### Trying changes on the playground
+
+Trying your changes on the documentation site is the recommended approach, but it's not always ideal.
+You might face the following problems:
+
+- Updating the existing demos prevents you from working in isolation on a single instance of the component
+- Emptying an existing page to try your changes in isolation leads to a noisy `git diff`
+- Static linters may report issues that you might not care about
+
+To avoid these problems, you can use playgrounds.
+Playgrounds are for local-only experiments that should not be checked in.
+You can create as many playgrounds as you want by going to the `docs/src/app/(private)/playground` folder and creating a tsx file with a default export.
+The new playground is accessible at: `http://localhost:3005/playground/<file_name>` when you launch the docs with `pnpm start`.
+
+If the demo should be kept for review or future verification, add it as an experiment in `docs/src/app/(private)/experiments` instead.
+Experiments are checked in to the repository, so other team members can open them locally or on Netlify and verify the behavior.
+
+### How to increase the chances of being accepted
+
+Continuous Integration (CI) automatically runs a series of checks when a PR is opened.
+If you're unsure whether your changes pass, you can always open a PR, and the GitHub UI displays a summary of the results.
+If any of these checks fail, refer to [CI checks and how to fix them](#ci-checks-and-how-to-fix-them).
+
+Make sure the following is true:
+
+<!-- #target-branch-reference -->
+
+- The branch is targeted at `master` for ongoing development. All tests are passing. Code that lands in `master` must be compatible with the latest stable release. It may contain additional features but no breaking changes. Releasing a new minor version from the tip of `master` must be possible at any time.
+- If a feature is being added:
+  - If the result was already achievable with the core library, you've explained why this feature needs to be added to the core.
+  - If this is a common use case, you've added an example to the documentation.
+- If adding new features or modifying existing ones, you've included tests to confirm the new behavior. You can read more about the test setup in the test [README](https://github.com/mui/base-ui/blob/HEAD/test/README.md).
+- If props were added or prop types were changed, you've updated the TypeScript declarations.
+- The branch is not [behind its target branch](https://docs.github.com/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/keeping-your-pull-request-in-sync-with-the-base-branch).
+
+A PR gets merged only when all tests pass.
+The following statements must be true:
+
+- The code is formatted. If the code was changed, run `pnpm prettier`.
+- The code is linted. If the code was changed, run `pnpm eslint` and `pnpm stylelint`.
+- The code is type-safe. If TypeScript sources or declarations were changed, run `pnpm typescript` to confirm that the check passes.
+- The API docs are up to date. If API was changed, run `pnpm docs:api`.
+- The pull request title follows the pattern `[scope] Imperative summary`, for example `[popover] Fix focus trap`. Choose scopes that mirror the package, component, or area being changed. (See: [How to Write a Git Commit Message](https://chris.beams.io/posts/git-commit/) for a great explanation).
+
+Don't worry if you miss a step—the Continuous Integration runs a thorough set of tests on your commits, and the maintainers of the project can assist you if you run into problems.
+
+If your pull request addresses an open issue, make sure to link the PR to that issue.
+Use any [supported GitHub keyword](https://docs.github.com/en/issues/tracking-your-work-with-issues/linking-a-pull-request-to-an-issue#linking-a-pull-request-to-an-issue-using-a-keyword) in the PR description to automatically link them.
+This makes it easier to understand where the PR is coming from, and also speeds things up because the issue closes automatically when the PR is merged.
+
+### CI checks and how to fix them
+
+If any of the checks fail, click on the **Details** link and review the logs of the build to find out why it failed.
+For CircleCI, you need to log in first.
+No further permissions are required to view the build logs.
+The following sections give an overview of what each check is responsible for.
+
+#### Package Preview
+
+This task publishes a preview for the packages to pkg.pr.new. It should not fail in isolation. Use it to test more complex scenarios.
+pkg.pr.new reports its own check, named **Continuous Releases**, that links to the published preview packages.
+
+#### Vale
+
+This lints the prose in Markdown and MDX files against the style rules configured in `.vale.ini`, and annotates the offending lines on the pull request.
+The check is advisory: it points out issues but doesn't block merging.
+
+To reproduce it locally, run `pnpm valelint`, which reports errors only.
+`pnpm vale:fix` applies the corrections that Vale can make on its own.
+
+The style rules are shared with other repositories in the organization, so they sometimes misfire on legitimate wording.
+When that happens, point it out in the pull request instead of contorting the text to satisfy the rule.
+
+#### ci/circleci: Linting
+
+This checks code format and lints the repository.
+The log of the failed build should explain how to fix any issues.
+If the CI job fails, then you most likely need to run the commands that failed locally and commit the changes.
+
+#### ci/circleci: Generated files verification
+
+This checks whether generated files—such as error codes and inlined scripts—are up to date.
+If the CI job fails, run the command from the failed step locally and commit the changes.
+
+#### ci/circleci: JSDOM tests
+
+This runs the unit tests in a `jsdom` environment.
+You can narrow the scope of tests run with `pnpm test:jsdom <ComponentName>`.
+
+#### ci/circleci: Browser tests
+
+This runs the unit tests in Chromium (via Playwright).
+You can narrow the scope of tests run with `pnpm test:chromium <ComponentName>`.
+
+#### ci/circleci: Regression tests
+
+This builds the regression fixture app and runs Playwright in a real browser.
+It checks for visual regressions.
+
+If it fails, check the log for the exact error.
+
+Screenshots are uploaded and compared by Argos in a separate step.
+
+#### ci/circleci: Typechecking
+
+This typechecks the repository.
+The log of the failed build should list any issues.
+
+#### argos/base-ui
+
+This evaluates the screenshots taken in `test/regressions/screenshots/chrome`, and fails if it detects differences.
+This doesn't necessarily mean that your PR gets rejected, as a failure might be intended.
+Clicking on **Details** shows you the differences.
+
+#### deploy/netlify
+
+This renders a preview of the docs with your changes if it succeeds.
+Otherwise `pnpm docs:build` usually fails locally as well.
+
+### Coding style
+
+Please follow the coding style of the project.
+It uses Prettier and ESLint, so if possible, enable linting in your editor to get real-time feedback.
+
+- `pnpm prettier` reformats the code.
+- `pnpm eslint` runs the linting rules.
+
+When you submit a PR, these checks run again on CI, but hopefully your code is already clean!
 
 ## Documentation
 

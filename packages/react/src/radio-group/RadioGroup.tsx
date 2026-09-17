@@ -11,6 +11,7 @@ import { useFieldRootContext } from '../internals/field-root-context/FieldRootCo
 import { useRegisterFieldControl } from '../internals/field-register-control/useRegisterFieldControl';
 import { fieldValidityMapping } from '../internals/field-constants/constants';
 import type { FieldRootState } from '../field/root/FieldRoot';
+import { isEligibleInput } from '../field/root/useFieldValidation';
 import { useFieldsetRootContext } from '../fieldset/root/FieldsetRootContext';
 import { useFormContext } from '../internals/form-context/FormContext';
 import { useLabelableContext } from '../internals/labelable-provider/LabelableContext';
@@ -22,10 +23,10 @@ import { REASONS } from '../internals/reasons';
 const MODIFIER_KEYS = [SHIFT];
 
 /**
- * Provides a shared state to a series of radio buttons.
+ * Provides shared state to a series of radio buttons.
  * Renders a `<div>` element.
  *
- * Documentation: [Base UI Radio Group](https://base-ui.com/react/components/radio)
+ * Documentation: [Base UI Radio Group](https://base-ui.com/react/components/radio-group)
  */
 export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
   componentProps: RadioGroup.Props<Value>,
@@ -61,7 +62,7 @@ export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
     validityData,
   } = useFieldRootContext();
   const { labelId } = useLabelableContext();
-  const { clearErrors } = useFormContext();
+  const { clearErrors, elementRef } = useFormContext();
   const fieldsetContext = useFieldsetRootContext(true);
 
   const disabled = fieldDisabled || disabledProp;
@@ -88,10 +89,22 @@ export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
     },
   );
 
-  const controlRef = React.useRef<HTMLElement>(null);
+  const getInputControl = validation.getInputControl;
+  const controlRef = React.useMemo<React.RefObject<HTMLElement | null>>(
+    () => ({
+      get current() {
+        return getInputControl();
+      },
+    }),
+    [getInputControl],
+  );
   const groupInputRef = React.useRef<HTMLInputElement | null>(null);
   const firstEnabledInputRef = React.useRef<HTMLInputElement | null>(null);
 
+  // Only forwards the public `inputRef` and tracks the current representative for that forwarding.
+  // The registry (`validation.registeredInputs`) is authoritative for validation and form-value
+  // projection, so the group must not write `validation.inputRef`: a stale, unmounted radio left
+  // there would become the Field's fallback once the registry empties and keep blocking submission.
   function setInputRef(hiddenInput: HTMLInputElement | null) {
     let cleanup: void | (() => void) | undefined = undefined;
 
@@ -104,29 +117,9 @@ export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
     }
 
     groupInputRef.current = hiddenInput;
-    validation.inputRef.current = hiddenInput;
 
     return cleanup;
   }
-
-  const registerControlRef = useStableCallback(
-    (element: HTMLElement | null, isDisabled = false) => {
-      if (!element) {
-        return;
-      }
-
-      if (isDisabled) {
-        if (controlRef.current === element) {
-          controlRef.current = null;
-        }
-        return;
-      }
-
-      if (controlRef.current == null) {
-        controlRef.current = element;
-      }
-    },
-  );
 
   const registerInputRef = useStableCallback((input: HTMLInputElement | null) => {
     if (!input || input.disabled) {
@@ -138,14 +131,47 @@ export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
     }
 
     const currentInput = groupInputRef.current;
-    if (input.checked || currentInput == null || currentInput.disabled) {
-      return setInputRef(input);
-    }
+    const cleanup =
+      input.checked || currentInput == null || currentInput.disabled
+        ? setInputRef(input)
+        : undefined;
 
-    return undefined;
+    // Detach when this input unmounts while still forwarded, so consumers don't
+    // keep holding a disconnected node. The input may have become the forwarded
+    // one after attach (via the re-registration effect), so always return this.
+    return () => {
+      if (firstEnabledInputRef.current === input) {
+        firstEnabledInputRef.current = null;
+      }
+      if (groupInputRef.current === input) {
+        if (cleanup) {
+          cleanup();
+          groupInputRef.current = null;
+        } else {
+          void setInputRef(null);
+        }
+      } else {
+        cleanup?.();
+      }
+    };
   });
 
-  useRegisterFieldControl(controlRef, id, checkedValue ?? null, undefined, !disabled, nameProp);
+  const getFormValue = useStableCallback(() => {
+    const formElement = elementRef.current;
+    if (!formElement) {
+      return checkedValue ?? null;
+    }
+
+    for (const input of validation.registeredInputs.keys()) {
+      if (input.checked && isEligibleInput(input, formElement)) {
+        return checkedValue ?? null;
+      }
+    }
+
+    return null;
+  });
+
+  useRegisterFieldControl(controlRef, id, checkedValue ?? null, getFormValue, !disabled, nameProp);
 
   useValueChanged(checkedValue, () => {
     clearErrors(name);
@@ -157,11 +183,12 @@ export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
 
     const fallbackInput = firstEnabledInputRef.current;
     if (checkedValue == null && fallbackInput && !fallbackInput.disabled) {
-      setInputRef(fallbackInput);
+      // Imperative re-point outside React's ref lifecycle; the ref-callback cleanup isn't tracked here.
+      void setInputRef(fallbackInput);
     }
   });
 
-  const ariaLabelledby = elementProps['aria-labelledby'] ?? labelId ?? fieldsetContext?.legendId;
+  const ariaLabelledby = labelId ?? fieldsetContext?.legendId;
 
   const state: RadioGroupState = {
     ...fieldState,
@@ -172,14 +199,12 @@ export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
 
   const contextValue: RadioGroupContext<Value> = React.useMemo(
     () => ({
-      ...fieldState,
       checkedValue,
       disabled,
       form,
       validation,
       name,
       readOnly,
-      registerControlRef,
       registerInputRef,
       required,
       setCheckedValue,
@@ -191,10 +216,8 @@ export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
       disabled,
       form,
       validation,
-      fieldState,
       name,
       readOnly,
-      registerControlRef,
       registerInputRef,
       required,
       setCheckedValue,
@@ -204,6 +227,7 @@ export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
   );
 
   const defaultProps: HTMLProps = {
+    id: idProp,
     role: 'radiogroup',
     'aria-required': required || undefined,
     'aria-disabled': disabled || undefined,
@@ -214,6 +238,7 @@ export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
     },
     onBlur(event) {
       if (!contains(event.currentTarget, event.relatedTarget)) {
+        setTouched(false);
         setFieldTouched(true);
         setFocused(false);
 
@@ -224,7 +249,6 @@ export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
     },
     onKeyDownCapture(event) {
       if (event.key.startsWith('Arrow')) {
-        setFieldTouched(true);
         setTouched(true);
         setFocused(true);
       }

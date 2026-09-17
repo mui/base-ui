@@ -18,3 +18,4 @@ export type * from './scroll-down-arrow/SelectScrollDownArrow';
 export type * from './scroll-up-arrow/SelectScrollUpArrow';
 export type * from './group/SelectGroup';
 export type * from './group-label/SelectGroupLabel';
+export type * from './separator/SelectSeparator';

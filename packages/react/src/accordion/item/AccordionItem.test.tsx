@@ -1,10 +1,22 @@
-import { expect, vi } from 'vitest';
+import { expect, vi, describe, it } from 'vitest';
 import { screen } from '@mui/internal-test-utils';
 import { Accordion } from '@base-ui/react/accordion';
 import { describeConformance, createRenderer, isJSDOM } from '#test-utils';
 
 describe('<Accordion.Item />', () => {
   const { render } = createRenderer();
+
+  it('throws when rendered outside an Accordion.Root', async () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    try {
+      await expect(render(<Accordion.Item />)).rejects.toThrow(
+        'Base UI: AccordionRootContext is missing. Accordion parts must be placed within <Accordion.Root>.',
+      );
+    } finally {
+      errorSpy.mockRestore();
+    }
+  });
 
   describeConformance(<Accordion.Item />, () => ({
     render: (node) => {

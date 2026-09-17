@@ -62,7 +62,7 @@ To create a menu that opens on hover, add the `openOnHover` prop to `<Menu.Trigg
 
 import { DemoMenuOpenOnHover } from './demos/open-on-hover';
 
-<DemoMenuOpenOnHover compact />
+<DemoMenuOpenOnHover />
 
 ### Checkbox items
 
@@ -70,7 +70,7 @@ Use the `<Menu.CheckboxItem>` part to create a menu item that can toggle a setti
 
 import { DemoMenuCheckboxItems } from './demos/checkbox-items';
 
-<DemoMenuCheckboxItems compact />
+<DemoMenuCheckboxItems />
 
 ### Radio items
 
@@ -78,7 +78,7 @@ Use the `<Menu.RadioGroup>` and `<Menu.RadioItem>` parts to create menu items th
 
 import { DemoMenuRadioItems } from './demos/radio-items';
 
-<DemoMenuRadioItems compact />
+<DemoMenuRadioItems />
 
 ### Close on click
 
@@ -98,7 +98,7 @@ Use the `<Menu.GroupLabel>` part to add a label to a `<Menu.Group>` or `<Menu.Ra
 
 import { DemoMenuGroupLabels } from './demos/group-labels';
 
-<DemoMenuGroupLabels compact />
+<DemoMenuGroupLabels />
 
 ### Nested menu
 
@@ -135,7 +135,7 @@ To create a submenu, nest another menu inside the parent menu with `<Menu.Submen
 
 import { DemoMenuSubmenu } from './demos/submenu';
 
-<DemoMenuSubmenu compact />
+<DemoMenuSubmenu />
 
 ### Navigate to another page
 
@@ -198,6 +198,9 @@ When the trigger and menu content need to live in different parts of the tree (f
 
 Note that only top-level menus can have detached triggers.
 Submenus must have their triggers defined within the `SubmenuRoot` part.
+
+The imperative methods on the handle, such as `open()` and `close()`, require a `<Menu.Root>` using the same handle to be mounted.
+Calls made while no root is attached to the handle — before one mounts, or after it unmounts — are ignored. Each time a root mounts, it starts from fresh state: a call made while no root was attached is not replayed, and no open state carries over from a previous mount.
 
 ```jsx title="Detached triggers"
 const demoMenu = Menu.createHandle();
@@ -300,7 +303,7 @@ The `onOpenChange` callback receives `eventDetails`, which includes the DOM elem
 
 import { DemoMenuDetachedTriggersControlled } from './demos/detached-triggers-controlled';
 
-<DemoMenuDetachedTriggersControlled compact />
+<DemoMenuDetachedTriggersControlled />
 
 ### Arrow
 
@@ -308,7 +311,7 @@ Use the `<Menu.Arrow>` part inside the popup to visually connect the menu to its
 
 import { DemoMenuArrow } from './demos/arrow';
 
-<DemoMenuArrow compact />
+<DemoMenuArrow />
 
 ### Animating the Menu
 
@@ -326,7 +329,7 @@ The menu also supports content transitions.
 This is useful when different triggers display different content within the same menu.
 
 To enable content animations, wrap the menu content in the `<Menu.Viewport>` part.
-This part renders a `div` with `data-activation-direction`, containing space-separated horizontal (`left` or `right`) and vertical (`up` or `down`) values so you can make direction-aware animations.
+This part renders a `div` with `data-activation-direction`, containing up to two space-separated tokens — a horizontal (`left` or `right`) and a vertical (`up` or `down`) value — so you can make direction-aware animations.
 
 Inside `<Menu.Viewport>`, content is wrapped in `div`s with transition data attributes:
 
@@ -368,6 +371,8 @@ import { TypesMenu } from './types';
 ### Viewport
 
 <TypesMenu.Viewport />
+
+The `Viewport` is optional — reach for it only when a single popup is opened by multiple triggers, its content differs per trigger, and the switch between them is animated. When used, set `width: var(--positioner-width)` and `height: var(--positioner-height)` on the `Positioner` so its box is frozen to the measured size during the transition; otherwise content-driven resizing can make the popup thrash or flip to another side.
 
 ### Arrow
 

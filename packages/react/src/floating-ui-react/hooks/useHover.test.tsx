@@ -1,10 +1,9 @@
-import { vi, test, expect } from 'vitest';
-/* eslint-disable @typescript-eslint/no-shadow */
+import { vi, test, expect, beforeEach, describe } from 'vitest';
+
 import { act, fireEvent, flushMicrotasks, render, screen, waitFor } from '@mui/internal-test-utils';
 import * as React from 'react';
 import userEvent from '@testing-library/user-event';
-import { isJSDOM } from '@base-ui/utils/detectBrowser';
-import { useTestInteractions } from '#test-utils';
+import { isJSDOM, useTestInteractions } from '#test-utils';
 import { useFloating, useHover } from '../index';
 import type { UseHoverProps } from './useHover';
 import { Popover } from '../../../test/floating-ui-tests/Popover';
@@ -171,7 +170,7 @@ describe.skipIf(!isJSDOM)('useHover', () => {
     spy.mockRestore();
   });
 
-  test.skip('restMs is always 0 for touch input', async () => {
+  test.todo('restMs is always 0 for touch input', async () => {
     render(<App restMs={100} />);
 
     fireEvent.pointerDown(screen.getByRole('button'), { pointerType: 'touch' });

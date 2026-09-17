@@ -2,6 +2,7 @@
 import * as React from 'react';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
+import type { RadioRootState } from '../root/RadioRoot';
 import { useRadioRootContext } from '../root/RadioRootContext';
 import { stateAttributesMapping } from '../utils/stateAttributesMapping';
 import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
@@ -11,7 +12,7 @@ import { type TransitionStatus, useTransitionStatus } from '../../internals/useT
  * Indicates whether the radio button is selected.
  * Renders a `<span>` element.
  *
- * Documentation: [Base UI Radio](https://base-ui.com/react/components/radio)
+ * Documentation: [Base UI Radio](https://base-ui.com/react/components/radio-group)
  */
 export const RadioIndicator = React.forwardRef(function RadioIndicator(
   componentProps: RadioIndicator.Props,
@@ -42,6 +43,8 @@ export const RadioIndicator = React.forwardRef(function RadioIndicator(
   });
 
   useOpenChangeComplete({
+    batch: true,
+    enabled: !rendered,
     open: rendered,
     ref: indicatorRef,
     onComplete() {
@@ -66,11 +69,7 @@ export interface RadioIndicatorProps extends BaseUIComponentProps<'span', RadioI
   keepMounted?: boolean | undefined;
 }
 
-export interface RadioIndicatorState {
-  /**
-   * Whether the radio button is currently selected.
-   */
-  checked: boolean;
+export interface RadioIndicatorState extends RadioRootState {
   /**
    * The transition status of the component.
    */

@@ -19,7 +19,7 @@ const LINK = 'QuickNav.Link';
  */
 
 /**
- * @returns {function(*, *): void}
+ * @returns {(tree: any, file: any) => void}
  */
 export default function rehypeQuickNav() {
   return (tree, file) => {

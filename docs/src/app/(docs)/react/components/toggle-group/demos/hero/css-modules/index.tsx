@@ -5,7 +5,7 @@ import styles from './index.module.css';
 
 export default function ExampleToggleGroup() {
   return (
-    <ToggleGroup defaultValue={['left']} className={styles.Panel}>
+    <ToggleGroup aria-label="Text alignment" defaultValue={['left']} className={styles.Panel}>
       <Toggle aria-label="Align left" value="left" className={styles.Button}>
         <AlignLeftIcon />
       </Toggle>

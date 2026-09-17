@@ -1,10 +1,10 @@
 import * as React from 'react';
-import { expect } from 'vitest';
+import { expect, vi, describe, it } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { act, fireEvent, flushMicrotasks, screen } from '@mui/internal-test-utils';
 import { Menu } from '@base-ui/react/menu';
 import { Popover } from '@base-ui/react/popover';
-import { describeConformance, createRenderer } from '#test-utils';
+import { describeConformance, createRenderer, isJSDOM } from '#test-utils';
 import { PATIENT_CLICK_THRESHOLD } from '../../internals/constants';
 
 describe('<Menu.Trigger />', () => {
@@ -19,6 +19,18 @@ describe('<Menu.Trigger />', () => {
       return render(<Menu.Root open>{node}</Menu.Root>);
     },
   }));
+
+  it('throws without Menu.Root or a handle', async () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    try {
+      await expect(render(<Menu.Trigger />)).rejects.toThrow(
+        'Base UI: <Menu.Trigger> must be either used within a <Menu.Root> component or provided with a handle.',
+      );
+    } finally {
+      errorSpy.mockRestore();
+    }
+  });
 
   describe('prop: disabled', () => {
     it('should render a disabled button', async () => {
@@ -135,14 +147,26 @@ describe('<Menu.Trigger />', () => {
       expect(button).toHaveAttribute('aria-expanded', 'false');
     });
 
-    it('has the aria-expanded=true attribute when open', async () => {
+    it('has aria-expanded=true when the menu is opened', async () => {
       await render(
-        <Menu.Root open>
+        <Menu.Root>
           <Menu.Trigger>Toggle</Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup />
+            </Menu.Positioner>
+          </Menu.Portal>
         </Menu.Root>,
       );
 
       const button = screen.getByRole('button', { name: 'Toggle' });
+      expect(button).toHaveAttribute('aria-expanded', 'false');
+
+      await user.click(button);
+
+      const menuPopup = await screen.findByRole('menu', { hidden: false });
+      expect(menuPopup).not.toBe(null);
+      expect(button).toHaveAttribute('data-popup-open');
       expect(button).toHaveAttribute('aria-expanded', 'true');
     });
   });
@@ -371,6 +395,36 @@ describe('<Menu.Trigger />', () => {
       expect(screen.getByText('Content')).not.toBe(null);
     });
   });
+
+  it.skipIf(isJSDOM)(
+    'keeps a hover-opened menu open when mouseup lands outside the trigger DOM but within its bounds',
+    async () => {
+      const { user } = await render(
+        <Menu.Root>
+          <Menu.Trigger openOnHover delay={0} style={{ width: 120, height: 40, display: 'block' }}>
+            Open
+          </Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup />
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>,
+      );
+
+      const trigger = screen.getByRole('button', { name: 'Open' });
+      await user.hover(trigger);
+      expect(screen.queryByRole('menu')).not.toBe(null);
+
+      const rect = trigger.getBoundingClientRect();
+      fireEvent.mouseUp(document.body, {
+        clientX: rect.left + rect.width / 2,
+        clientY: rect.top + rect.height / 2,
+      });
+
+      expect(screen.queryByRole('menu')).not.toBe(null);
+    },
+  );
 
   describe('preventBaseUIHandler', () => {
     it('prevents opening the menu with a mouse when `preventBaseUIHandler` is called in onMouseDown', async () => {

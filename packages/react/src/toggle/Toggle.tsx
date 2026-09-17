@@ -1,12 +1,12 @@
 'use client';
 import * as React from 'react';
 import { useControlled } from '@base-ui/utils/useControlled';
-import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { error } from '@base-ui/utils/error';
 import { useBaseUiId } from '../internals/useBaseUiId';
 import { useRenderElement } from '../internals/useRenderElement';
 import type { BaseUIComponentProps, NativeButtonProps } from '../internals/types';
 import { useToggleGroupContext } from '../toggle-group/ToggleGroupContext';
+import type { ToolbarRoot } from '../toolbar/root/ToolbarRoot';
 import { useButton } from '../internals/use-button/useButton';
 import { CompositeItem } from '../internals/composite/item/CompositeItem';
 import {
@@ -27,7 +27,7 @@ export const Toggle = React.forwardRef(function Toggle<Value extends string>(
 ) {
   const {
     className,
-    defaultPressed: defaultPressedProp = false,
+    defaultPressed = false,
     disabled: disabledProp = false,
     form, // never participates in form validation
     onPressedChange,
@@ -45,13 +45,11 @@ export const Toggle = React.forwardRef(function Toggle<Value extends string>(
   const groupContext = useToggleGroupContext();
   const groupValue = groupContext?.value ?? [];
 
-  const defaultPressed = groupContext ? undefined : defaultPressedProp;
-
   const disabled = (disabledProp || groupContext?.disabled) ?? false;
 
   if (process.env.NODE_ENV !== 'production') {
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    useIsoLayoutEffect(() => {
+    React.useEffect(() => {
       if (groupContext && valueProp === undefined && groupContext.isValueInitialized) {
         error(
           'A `<Toggle>` component rendered in a `<ToggleGroup>` has no explicit `value` prop.',
@@ -87,10 +85,17 @@ export const Toggle = React.forwardRef(function Toggle<Value extends string>(
         const nextPressed = !pressed;
         const details = createChangeEventDetails(REASONS.none, event.nativeEvent);
 
+        // `onPressedChange` runs before the group commits so that canceling here
+        // can also veto the group value change, which shares this `details` object.
+        onPressedChange?.(nextPressed, details);
+
+        if (details.isCanceled) {
+          return;
+        }
+
         if (value) {
           groupContext?.setGroupValue?.(value, nextPressed, details);
         }
-        onPressedChange?.(nextPressed, details);
 
         if (details.isCanceled) {
           return;
@@ -110,6 +115,13 @@ export const Toggle = React.forwardRef(function Toggle<Value extends string>(
     props,
   });
 
+  // A disabled toggle is natively disabled and cannot hold roving focus.
+  // Toolbar reads this metadata to compute its `disabledIndices`.
+  const itemMetadata: ToolbarRoot.ItemMetadata = React.useMemo(
+    () => ({ disabled, focusableWhenDisabled: false }),
+    [disabled],
+  );
+
   if (groupContext) {
     return (
       <CompositeItem
@@ -117,6 +129,7 @@ export const Toggle = React.forwardRef(function Toggle<Value extends string>(
         render={render}
         className={className}
         style={style}
+        metadata={itemMetadata}
         state={state}
         refs={refs}
         props={props}
@@ -164,8 +177,7 @@ export interface ToggleProps<Value extends string>
    * Callback fired when the pressed state is changed.
    */
   onPressedChange?:
-    | ((pressed: boolean, eventDetails: Toggle.ChangeEventDetails) => void)
-    | undefined;
+    ((pressed: boolean, eventDetails: Toggle.ChangeEventDetails) => void) | undefined;
   /**
    * A unique string that identifies the toggle when used
    * inside a toggle group.

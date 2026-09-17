@@ -67,6 +67,7 @@ export default function ExampleAsyncSingleCombobox() {
     <Combobox.Root
       items={items}
       itemToStringLabel={(user: DirectoryUser) => user.name}
+      isItemEqualToValue={(item, value) => item.id === value.id}
       filter={null}
       onOpenChangeComplete={(open) => {
         if (!open && selectedValue) {

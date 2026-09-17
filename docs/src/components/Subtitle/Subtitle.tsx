@@ -1,17 +1,23 @@
 import * as React from 'react';
 import clsx from 'clsx';
 import { MarkdownLink } from './MarkdownLink';
+import { ViewSourceLink } from './ViewSourceLink';
 import './Subtitle.css';
 
 export function Subtitle({
   className,
-  skipMarkdownLink = false,
+  skipLinks = false,
   ...props
-}: React.ComponentProps<'p'> & { skipMarkdownLink?: boolean }) {
+}: React.ComponentProps<'p'> & { skipLinks?: boolean }) {
   return (
     <div className={clsx('Subtitle', className)}>
       <p {...props} />
-      {!skipMarkdownLink && <MarkdownLink />}
+      {!skipLinks && (
+        <div className="SubtitleLinks">
+          <MarkdownLink />
+          <ViewSourceLink />
+        </div>
+      )}
     </div>
   );
 }

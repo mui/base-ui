@@ -6,20 +6,18 @@ import { HTMLProps } from '../types';
 import { useBaseUiId } from '../useBaseUiId';
 import { LabelableContext, useLabelableContext } from './LabelableContext';
 
-/**
- * @internal
- */
 export const LabelableProvider: React.FC<LabelableProvider.Props> = function LabelableProvider(
   props,
 ) {
   const defaultId = useBaseUiId();
-  const initialControlId = props.controlId === undefined ? defaultId : props.controlId;
 
-  const [controlId, setControlIdState] = React.useState<string | null | undefined>(
-    initialControlId,
-  );
-  const [labelId, setLabelId] = React.useState<string | undefined>(props.labelId);
+  const [controlIdState, setControlIdState] = React.useState<string | null | undefined>(defaultId);
+  const [labelId, setLabelId] = React.useState<string | undefined>();
   const [messageIds, setMessageIds] = React.useState<string[]>([]);
+
+  // `undefined` only survives until the React 17 fallback id is assigned. Do not use `??`:
+  // `null` deliberately suppresses `htmlFor`.
+  const controlId = controlIdState === undefined ? defaultId : controlIdState;
 
   const registrationsRef = useRefWithInit(() => new Map<symbol, string | null>());
 
@@ -31,23 +29,23 @@ export const LabelableProvider: React.FC<LabelableProvider.Props> = function Lab
 
       if (nextId === undefined) {
         registrations.delete(source);
-        return;
+      } else {
+        registrations.set(source, nextId);
       }
 
-      registrations.set(source, nextId);
-
-      // Only flush when registering, not when unregistering.
-      // This prevents loops during rapid unmount/remount cycles (e.g. React Activity).
-      // The next registration will pick up the correct state.
       setControlIdState((prev) => {
         if (registrations.size === 0) {
-          return undefined;
+          // A hidden subtree (React Activity, a re-suspending Suspense) destroys effects but keeps
+          // its DOM, so preserve its selected control.
+          return prev;
         }
 
         let nextControlId: string | null | undefined;
 
         for (const id of registrations.values()) {
-          if (prev !== undefined && id === prev) {
+          // Keep the current selection while it is still registered, so rapid unmount/remount
+          // cycles don't churn it.
+          if (id === prev) {
             return prev;
           }
 
@@ -60,6 +58,12 @@ export const LabelableProvider: React.FC<LabelableProvider.Props> = function Lab
       });
     },
   );
+
+  const resetControlId = useStableCallback(() => {
+    if (registrationsRef.current.size === 0) {
+      setControlIdState(defaultId);
+    }
+  });
 
   const getDescriptionProps = React.useCallback(
     (externalProps: HTMLProps) => {
@@ -80,6 +84,7 @@ export const LabelableProvider: React.FC<LabelableProvider.Props> = function Lab
     () => ({
       controlId,
       registerControlId,
+      resetControlId,
       labelId,
       setLabelId,
       messageIds,
@@ -89,6 +94,7 @@ export const LabelableProvider: React.FC<LabelableProvider.Props> = function Lab
     [
       controlId,
       registerControlId,
+      resetControlId,
       labelId,
       setLabelId,
       messageIds,
@@ -105,8 +111,6 @@ export const LabelableProvider: React.FC<LabelableProvider.Props> = function Lab
 export interface LabelableProviderState {}
 
 export interface LabelableProviderProps {
-  controlId?: string | null | undefined;
-  labelId?: string | undefined;
   children?: React.ReactNode;
 }
 

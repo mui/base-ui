@@ -1,7 +1,11 @@
 import { expect } from 'vitest';
 
 declare module 'vitest' {
-  interface Assertion<T = any> {
+  // Augment the base `Matchers` interface (which `Assertion` extends) rather than
+  // re-opening `Assertion` directly. `tsgo` re-validates the full extends list of a
+  // re-opened `Assertion`, surfacing an unrelated vitest/jest-dom matcher conflict that
+  // `tsc` tolerates.
+  interface Matchers<T = any> {
     toEqualDateTime(expected: any): T;
   }
 

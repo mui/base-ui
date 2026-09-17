@@ -78,7 +78,7 @@ export const FieldError = React.forwardRef(function FieldError(
     error = validityData.errors;
   }
 
-  let errorMessage: React.ReactNode = error ?? '';
+  let errorMessage: React.ReactNode = error;
   if (Array.isArray(error)) {
     errorMessage =
       error.length > 1 ? (
@@ -88,7 +88,7 @@ export const FieldError = React.forwardRef(function FieldError(
           ))}
         </ul>
       ) : (
-        (error[0] ?? '')
+        error[0]
       );
   }
 

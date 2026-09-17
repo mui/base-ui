@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useScrollLock } from '@base-ui/utils/useScrollLock';
-import { isWebKit } from '@base-ui/utils/detectBrowser';
+import { platform } from '@base-ui/utils/platform';
 
 export default function ScrollLock() {
   const [enabled, setEnabled] = React.useState(false);
@@ -21,7 +21,7 @@ export default function ScrollLock() {
   }, [htmlScrollY]);
 
   React.useEffect(() => {
-    if (isWebKit && webkitScrollbars) {
+    if (platform.engine.webkit && webkitScrollbars) {
       // WORKAROUND:
       // WebKit has a bug where ::-webkit-scrollbar styles are not applied immediately
       const element = document.documentElement;

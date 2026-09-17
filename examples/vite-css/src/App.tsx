@@ -11,13 +11,13 @@ function App() {
   return (
     <React.Fragment>
       <div>
-        <a href="https://vite.dev" target="_blank" rel="noopener noreferrer">
+        <a href="https://vite.dev" target="_blank">
           <img src={viteLogo} className="logo vite" alt="Vite logo" />
         </a>
-        <a href="https://react.dev" target="_blank" rel="noopener noreferrer">
+        <a href="https://react.dev" target="_blank">
           <img src={reactLogo} className="logo react" alt="React logo" />
         </a>
-        <a href="https://base-ui.com" target="_blank" rel="noopener noreferrer">
+        <a href="https://base-ui.com" target="_blank">
           <img src={baseUILogo} className="logo base-ui" alt="Base UI logo" />
         </a>
       </div>

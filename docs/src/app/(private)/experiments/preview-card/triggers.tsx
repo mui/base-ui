@@ -254,7 +254,7 @@ export default function PreviewCardExperiment() {
 
       <div className={styles.Container}>
         <h2>
-          Uncontrolled, detached triggers <StoreInspector store={previewCard1Handle.store} />
+          Uncontrolled, detached triggers <StoreInspector handle={previewCard1Handle} />
         </h2>
 
         <div className={styles.Panel}>

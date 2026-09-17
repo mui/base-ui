@@ -1,4 +1,5 @@
 import * as React from 'react';
+import clsx from 'clsx';
 import { visuallyHidden } from '@base-ui/utils/visuallyHidden';
 import type { EnhancedProperty } from '@mui/internal-docs-infra/useTypes';
 import { stringOrHastToString } from '@mui/internal-docs-infra/pipeline/hastUtils';
@@ -18,10 +19,17 @@ interface Props extends React.ComponentPropsWithoutRef<any> {
 }
 
 export function PropertiesReferenceAccordion({ data, name: partName, ...props }: Props) {
-  const captionId = `${partName}-properties-caption`;
+  const captionId = React.useId();
 
   return (
-    <Accordion.Root aria-describedby={captionId} {...props}>
+    <Accordion.Root
+      aria-describedby={captionId}
+      {...props}
+      className={clsx('ReferenceAccordionRoot', props.className)}
+      // Lets CSS compute the minimum closed height for `contain-intrinsic-height`;
+      // wrapped row content may be taller.
+      style={{ '--rows': Object.keys(data).length, ...props.style } as React.CSSProperties}
+    >
       <span id={captionId} style={visuallyHidden} aria-hidden>
         Class properties table
       </span>
@@ -33,7 +41,7 @@ export function PropertiesReferenceAccordion({ data, name: partName, ...props }:
         </Accordion.HeaderCell>
         <Accordion.HeaderCell className="ReferenceHeaderIconCell" />
       </Accordion.HeaderRow>
-      {Object.keys(data).map((name, index) => {
+      {Object.keys(data).map((name) => {
         const prop = data[name];
 
         // Use shortType if available, otherwise use the full type
@@ -66,7 +74,6 @@ export function PropertiesReferenceAccordion({ data, name: partName, ...props }:
           >
             <Accordion.Trigger
               id={id}
-              index={index}
               aria-label={`Property: ${name}, type: ${shortTypeText}, modifiers: ${modifiersText}`}
               className="ReferenceTrigger"
             >

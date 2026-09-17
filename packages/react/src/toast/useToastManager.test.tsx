@@ -1,4 +1,4 @@
-import { expect, vi } from 'vitest';
+import { expect, vi, describe, it } from 'vitest';
 import * as React from 'react';
 import { Toast } from '@base-ui/react/toast';
 import { Dialog } from '@base-ui/react/dialog';
@@ -886,6 +886,57 @@ describe.skipIf(!isJSDOM)('useToast', () => {
       expect(screen.getByTestId('description')).toHaveTextContent('test success');
     });
 
+    it('accepts a function that returns full options for the success state', async () => {
+      function AddButton() {
+        const { promise } = useToastManager();
+        return (
+          <button
+            onClick={() =>
+              promise(
+                new Promise<string>((res) => {
+                  res('everything');
+                }),
+                {
+                  loading: 'loading',
+                  success: (data) => ({
+                    title: `saved ${data}`,
+                    description: 'done',
+                    timeout: 2000,
+                  }),
+                  error: 'error',
+                },
+              )
+            }
+          >
+            add
+          </button>
+        );
+      }
+
+      await render(
+        <Toast.Provider>
+          <Toast.Viewport>
+            <CustomList />
+          </Toast.Viewport>
+          <AddButton />
+        </Toast.Provider>,
+      );
+
+      fireEvent.click(screen.getByRole('button', { name: 'add' }));
+
+      await tick(clock, 1000);
+
+      expect(screen.getByTestId('title')).toHaveTextContent('saved everything');
+      expect(screen.getByTestId('description')).toHaveTextContent('done');
+
+      // The `timeout` from the resolved options object is honored too.
+      await tick(clock, 1999);
+      expect(screen.queryByTestId('root')).not.toBe(null);
+
+      await tick(clock, 2);
+      expect(screen.queryByTestId('root')).toBe(null);
+    });
+
     it('passes data when error is a function', async () => {
       function AddButton() {
         const { promise } = useToastManager();
@@ -1735,6 +1786,42 @@ describe.skipIf(!isJSDOM)('useToast', () => {
     });
   });
 
+  describe('prop: timeout', () => {
+    const { clock, render } = createRenderer();
+
+    clock.withFakeTimers();
+
+    it('applies a changed timeout to toasts added afterwards', async () => {
+      function App(props: { timeout: number }) {
+        return (
+          <Toast.Provider timeout={props.timeout}>
+            <Toast.Viewport>
+              <List />
+            </Toast.Viewport>
+            <AddButton />
+          </Toast.Provider>
+        );
+      }
+
+      function AddButton() {
+        const { add } = useToastManager();
+        return <button onClick={() => add({ title: 'test' })}>add</button>;
+      }
+
+      const { setProps } = await render(<App timeout={5000} />);
+
+      await setProps({ timeout: 1000 });
+
+      fireEvent.click(screen.getByRole('button', { name: 'add' }));
+
+      await tick(clock, 999);
+      expect(screen.queryByTestId('root')).not.toBe(null);
+
+      await tick(clock, 2);
+      expect(screen.queryByTestId('root')).toBe(null);
+    });
+  });
+
   describe('prop: limit', () => {
     const { clock, render } = createRenderer();
 
@@ -1873,6 +1960,38 @@ describe.skipIf(!isJSDOM)('useToast', () => {
       const savedToast = screen.getByTestId('Saved');
       expect(savedToast).toHaveAttribute('data-limited');
       expect(screen.getByTestId('Other toast')).not.toHaveAttribute('data-limited');
+    });
+
+    it('recomputes limited toasts when the limit prop changes', async () => {
+      function App(props: { limit: number }) {
+        return (
+          <Toast.Provider limit={props.limit}>
+            <Toast.Viewport>
+              <TestList />
+            </Toast.Viewport>
+          </Toast.Provider>
+        );
+      }
+
+      const { setProps } = await render(<App limit={1} />);
+
+      const addButton = screen.getByRole('button', { name: 'add' });
+      fireEvent.click(addButton);
+      fireEvent.click(addButton);
+
+      const toast1 = screen.getByTestId('toast-1');
+      const toast2 = screen.getByTestId('toast-2');
+
+      expect(toast2).not.toHaveAttribute('data-limited');
+      expect(toast1).toHaveAttribute('data-limited');
+
+      // Raising the limit un-limits the older toast.
+      await setProps({ limit: 2 });
+      expect(toast1).not.toHaveAttribute('data-limited');
+
+      // Lowering it again re-limits it.
+      await setProps({ limit: 1 });
+      expect(toast1).toHaveAttribute('data-limited');
     });
   });
 
