@@ -32,7 +32,13 @@ function ShapePiece({
   elementRef: React.RefCallback<HTMLDivElement>;
 }) {
   return (
-    <div ref={elementRef} className={PIECE_CLASS} data-shape={shape.id} aria-label={shape.label} />
+    <div
+      ref={elementRef}
+      className={PIECE_CLASS}
+      data-shape={shape.id}
+      role="img"
+      aria-label={shape.label}
+    />
   );
 }
 
