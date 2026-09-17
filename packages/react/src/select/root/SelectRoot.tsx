@@ -273,7 +273,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
 
   const setOpen = useStableCallback(
     (nextOpen: boolean, eventDetails: SelectRoot.ChangeEventDetails) => {
-      const openEventDetails = Object.assign(eventDetails, { preventUnmountOnClose: NOOP });
+      const openEventDetails = eventDetails as SelectRoot.OpenChangeEventDetails;
       const shouldPreventUnmountOnClose = attachPreventUnmountOnClose(openEventDetails);
       onOpenChange?.(nextOpen, openEventDetails);
 
@@ -301,6 +301,9 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   );
 
   const handleUnmount = useStableCallback(() => {
+    if (!mounted) {
+      return;
+    }
     setPreventUnmountingOnClose(false);
     setMounted(false);
     store.update({
@@ -756,7 +759,7 @@ export type SelectRootChangeEventReason =
 
 export type SelectRootOpenChangeEventDetails = SelectRootChangeEventDetails & {
   /** Prevents the popup from unmounting until the `unmount` action is called. */
-  preventUnmountOnClose(): void;
+  preventUnmountOnClose: () => void;
 };
 
 export type SelectRootChangeEventDetails = BaseUIChangeEventDetails<SelectRootChangeEventReason>;

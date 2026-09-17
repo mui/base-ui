@@ -176,7 +176,9 @@ import { DemoAnimatedSelectMotion } from './demos/animated-select-motion';
 
 ### Manual unmounting
 
-For full control, you can manually unmount the component when it's closed once animations have finished using an `actionsRef` passed to the `<Root>`:
+For full control, you can manually unmount the component when it's closed once animations have finished.
+Call `eventDetails.preventUnmountOnClose()` in `onOpenChange` when the component closes, then call `unmount()` on the `actionsRef` passed to the `<Root>` once the animation finishes.
+`onOpenChangeComplete(false)` fires when the component unmounts.
 
 ```jsx title="manual-unmount.tsx"
 function App() {
@@ -184,8 +186,16 @@ function App() {
   const actionsRef = React.useRef(null); // @highlight-text "actionsRef"
 
   return (
-    {/* @highlight-text "actionsRef" */}
-    <Popover.Root open={open} onOpenChange={setOpen} actionsRef={actionsRef}>
+    <Popover.Root
+      open={open}
+      onOpenChange={(nextOpen, eventDetails) => {
+        if (!nextOpen) {
+          eventDetails.preventUnmountOnClose(); // @highlight-text "preventUnmountOnClose"
+        }
+        setOpen(nextOpen);
+      }}
+      actionsRef={actionsRef} // @highlight-text "actionsRef"
+    >
       <Popover.Trigger>Trigger</Popover.Trigger>
       <AnimatePresence>
         {open && (

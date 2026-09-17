@@ -179,7 +179,7 @@ type ComboboxRootOpenChangeEventDetails = (
    */
   isItemPress?: boolean;
   /** Prevents the popup from unmounting until the `unmount` action is called. */
-  preventUnmountOnClose: AriaCombobox.preventUnmountOnClose;
+  preventUnmountOnClose: () => void;
 };
 ```
 
@@ -1273,12 +1273,6 @@ type CreateComboboxItemsOptions<
 ```
 
 ## External Types
-
-### preventUnmountOnClose
-
-```typescript
-type preventUnmountOnClose = () => void;
-```
 
 ### Side
 

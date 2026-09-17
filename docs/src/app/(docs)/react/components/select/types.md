@@ -137,7 +137,7 @@ type SelectRootOpenChangeEventDetails = (
   /** The element that triggered the event, if applicable. */
   trigger: Element | undefined;
   /** Prevents the popup from unmounting until the `unmount` action is called. */
-  preventUnmountOnClose: preventUnmountOnClose;
+  preventUnmountOnClose: () => void;
 };
 ```
 
@@ -832,12 +832,6 @@ type SelectScrollDownArrowState = {};
 ```
 
 ## External Types
-
-### preventUnmountOnClose
-
-```typescript
-type preventUnmountOnClose = () => void;
-```
 
 ### Side
 

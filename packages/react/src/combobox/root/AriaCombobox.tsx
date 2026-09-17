@@ -773,7 +773,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
         eventDetails.allowPropagation();
       }
 
-      const openEventDetails = Object.assign(eventDetails, { preventUnmountOnClose: NOOP });
+      const openEventDetails = eventDetails as AriaCombobox.OpenChangeEventDetails;
       const shouldPreventUnmountOnClose = attachPreventUnmountOnClose(openEventDetails);
       props.onOpenChange?.(nextOpen, openEventDetails);
 
@@ -940,6 +940,9 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
   });
 
   const handleUnmount = useStableCallback(() => {
+    if (!mounted) {
+      return;
+    }
     setPreventUnmountingOnClose(false);
     setMounted(false);
     onOpenChangeComplete?.(false);
@@ -1977,7 +1980,7 @@ export namespace AriaCombobox {
     | typeof REASONS.none;
   export type OpenChangeEventDetails = ChangeEventDetails & {
     /** Prevents the popup from unmounting until the `unmount` action is called. */
-    preventUnmountOnClose(): void;
+    preventUnmountOnClose: () => void;
   };
   export type ChangeEventDetails = BaseUIChangeEventDetails<ChangeEventReason> & {
     /**

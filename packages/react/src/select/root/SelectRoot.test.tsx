@@ -67,6 +67,10 @@ describe('<Select.Root />', () => {
       await user.keyboard('{Escape}');
       await waitFor(() => expect(screen.queryByRole('listbox')).toBe(null));
       expect(onOpenChangeComplete.mock.calls.filter(([open]) => !open)).toHaveLength(1);
+
+      // Calling the action after the automatic unmount must not repeat the completion.
+      act(() => actionsRef.current!.unmount());
+      expect(onOpenChangeComplete.mock.calls.filter(([open]) => !open)).toHaveLength(1);
     });
 
     it('keeps the popup mounted until the unmount action completes closing', async () => {
