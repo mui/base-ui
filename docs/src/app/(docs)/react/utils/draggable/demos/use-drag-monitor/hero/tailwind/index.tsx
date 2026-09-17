@@ -53,23 +53,31 @@ function MonitorShapeSorterContent() {
       const targetLabel = SHAPES.find((shape) => shape.id === target?.payload)?.label;
       setMessage(target ? `${sourceLabel} over ${targetLabel}` : `${sourceLabel} over nothing`);
     },
-    onDrop: ({ source, dropTarget }) => {
-      setPlaced((current) =>
-        current.includes(source.payload) ? current : [...current, source.payload],
-      );
-      const sourceLabel = SHAPES.find((shape) => shape.id === source.payload)?.label;
-      const targetLabel = SHAPES.find((shape) => shape.id === dropTarget.payload)?.label;
-      setMessage(`Dropped ${sourceLabel} on ${targetLabel}`);
-    },
-    onMoveEnd: ({ source }, eventDetails) => {
-      if (eventDetails.reason === 'outside-release') {
-        setMessage(
-          `Released ${SHAPES.find((shape) => shape.id === source.payload)?.label} over nothing`,
-        );
-      } else if (eventDetails.reason !== 'drop') {
-        setMessage(
-          `Canceled dragging ${SHAPES.find((shape) => shape.id === source.payload)?.label}`,
-        );
+    onMoveEnd: (moveEvent, moveDetails) => {
+      try {
+        if (moveDetails.reason === 'drop' && moveEvent.dropTarget !== null) {
+          const { source, dropTarget } = moveEvent;
+
+          setPlaced((current) =>
+            current.includes(source.payload) ? current : [...current, source.payload],
+          );
+          const sourceLabel = SHAPES.find((shape) => shape.id === source.payload)?.label;
+          const targetLabel = SHAPES.find((shape) => shape.id === dropTarget.payload)?.label;
+          setMessage(`Dropped ${sourceLabel} on ${targetLabel}`);
+        }
+      } finally {
+        const { source } = moveEvent;
+        const eventDetails = moveDetails;
+
+        if (eventDetails.reason === 'outside-release') {
+          setMessage(
+            `Released ${SHAPES.find((shape) => shape.id === source.payload)?.label} over nothing`,
+          );
+        } else if (eventDetails.reason !== 'drop') {
+          setMessage(
+            `Canceled dragging ${SHAPES.find((shape) => shape.id === source.payload)?.label}`,
+          );
+        }
       }
     },
   });

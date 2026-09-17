@@ -216,21 +216,23 @@ function WeekAllDayCell(props: { dayMs: number }) {
           }}
         />
       }
-      onDrop={() => {
-        const preview = consumeDropPreview();
-        if (preview?.intent !== 'create') {
-          return;
+      onMoveEnd={(moveEvent, moveDetails) => {
+        if (moveDetails.reason === 'drop' && moveEvent.dropTarget !== null) {
+          const preview = consumeDropPreview();
+          if (preview?.intent !== 'create') {
+            return;
+          }
+          dispatch({
+            type: 'CREATE_EVENT',
+            event: {
+              id: `evt-create-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+              title: 'New event',
+              start: preview.start,
+              end: preview.end,
+              allDay: preview.allDay,
+            },
+          });
         }
-        dispatch({
-          type: 'CREATE_EVENT',
-          event: {
-            id: `evt-create-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
-            title: 'New event',
-            start: preview.start,
-            end: preview.end,
-            allDay: preview.allDay,
-          },
-        });
       }}
       className={styles.weekAllDayCell}
       data-cal-allday-cell
@@ -260,17 +262,19 @@ function WeekAllDayBar(props: { event: CalendarEvent; segment: WeekEventSegment 
         allDay: eventRef.current.allDay,
         segmentOffsetMs: 0,
       }}
-      onDrop={() => {
-        const preview = consumeDropPreview();
-        if (preview?.intent !== 'move') {
-          return;
+      onMoveEnd={(moveEvent, moveDetails) => {
+        if (moveDetails.reason === 'drop' && moveEvent.dropTarget !== null) {
+          const preview = consumeDropPreview();
+          if (preview?.intent !== 'move') {
+            return;
+          }
+          dispatch({
+            type: 'MOVE_EVENT',
+            id: eventRef.current.id,
+            newStart: preview.start,
+            newAllDay: preview.allDay,
+          });
         }
-        dispatch({
-          type: 'MOVE_EVENT',
-          id: eventRef.current.id,
-          newStart: preview.start,
-          newAllDay: preview.allDay,
-        });
       }}
       className={styles.monthEventBar}
       style={{
@@ -424,21 +428,23 @@ function WeekDayColumn(props: { dayMs: number; events: CalendarEvent[] }) {
           allDay: false,
         };
       }}
-      onDrop={() => {
-        const preview = consumeDropPreview();
-        if (preview?.intent !== 'create') {
-          return;
+      onMoveEnd={(moveEvent, moveDetails) => {
+        if (moveDetails.reason === 'drop' && moveEvent.dropTarget !== null) {
+          const preview = consumeDropPreview();
+          if (preview?.intent !== 'create') {
+            return;
+          }
+          dispatch({
+            type: 'CREATE_EVENT',
+            event: {
+              id: `evt-create-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+              title: 'New event',
+              start: preview.start,
+              end: preview.end,
+              allDay: preview.allDay,
+            },
+          });
         }
-        dispatch({
-          type: 'CREATE_EVENT',
-          event: {
-            id: `evt-create-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
-            title: 'New event',
-            start: preview.start,
-            end: preview.end,
-            allDay: preview.allDay,
-          },
-        });
       }}
       className={styles.weekColumn}
       data-cal-day-column
@@ -492,17 +498,19 @@ function WeekTimedEvent(props: { dayMs: number; segment: TimedSegment }) {
         // chip that renders the post-midnight part of an event.
         segmentOffsetMs: segment.visibleStart - eventRef.current.start,
       })}
-      onDrop={() => {
-        const preview = consumeDropPreview();
-        if (preview?.intent !== 'move') {
-          return;
+      onMoveEnd={(moveEvent, moveDetails) => {
+        if (moveDetails.reason === 'drop' && moveEvent.dropTarget !== null) {
+          const preview = consumeDropPreview();
+          if (preview?.intent !== 'move') {
+            return;
+          }
+          dispatch({
+            type: 'MOVE_EVENT',
+            id: eventRef.current.id,
+            newStart: preview.start,
+            newAllDay: preview.allDay,
+          });
         }
-        dispatch({
-          type: 'MOVE_EVENT',
-          id: eventRef.current.id,
-          newStart: preview.start,
-          newAllDay: preview.allDay,
-        });
       }}
       className={styles.weekEvent}
       style={{ top, height }}
@@ -547,17 +555,19 @@ function WeekResizeHandle(props: { event: CalendarEvent; edge: 'start' | 'end' }
         anchorEnd: eventRef.current.end,
         allDay: eventRef.current.allDay,
       }}
-      onDrop={() => {
-        const preview = consumeDropPreview();
-        if (preview?.intent !== 'resize') {
-          return;
+      onMoveEnd={(moveEvent, moveDetails) => {
+        if (moveDetails.reason === 'drop' && moveEvent.dropTarget !== null) {
+          const preview = consumeDropPreview();
+          if (preview?.intent !== 'resize') {
+            return;
+          }
+          dispatch({
+            type: 'RESIZE_EVENT',
+            id: eventRef.current.id,
+            edge,
+            newTime: edge === 'start' ? preview.start : preview.end,
+          });
         }
-        dispatch({
-          type: 'RESIZE_EVENT',
-          id: eventRef.current.id,
-          edge,
-          newTime: edge === 'start' ? preview.start : preview.end,
-        });
       }}
       className={edge === 'start' ? styles.weekResizeTop : styles.weekResizeBottom}
       aria-hidden="true"

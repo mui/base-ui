@@ -145,8 +145,13 @@ function SchedulerCalendarContent() {
                   // edge on its own.
 
                   // Only a drop over an accepting slot moves the event; a cancel
-                  // or a release off the grid never reaches `onDrop`.
-                  onDrop={({ location }) => setEvent(eventAfterDrag(location))}
+                  // or a release off the grid must not update the event.
+                  onMoveEnd={(moveEvent, moveDetails) => {
+                    if (moveDetails.reason === 'drop' && moveEvent.dropTarget !== null) {
+                      const { location } = moveEvent;
+                      setEvent(eventAfterDrag(location));
+                    }
+                  }}
                 >
                   <span className={styles.EventTitle}>Design review</span>
                   <span className={styles.EventTime}>

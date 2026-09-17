@@ -494,27 +494,31 @@ function BoardCard({
       // surface instead of cancelling. The surface rect is client-space, so this
       // stays correct at any zoom with no conversion.
       modifiers={Draggable.restrictToElement(surfaceRef)}
-      // `onDrop` fires only for a release over the surface, so a drag that never
-      // landed (Escape, or released off it) simply doesn't reach here.
-      onDrop={({ source, location }) => {
-        const surface = surfaceRef.current;
-        if (!surface) {
-          return;
+      // Commit only a release over the surface. Escape and outside releases
+      // still run the end handler but must not move the card.
+      onMoveEnd={(moveEvent, moveDetails) => {
+        if (moveDetails.reason === 'drop' && moveEvent.dropTarget !== null) {
+          const { source, location } = moveEvent;
+
+          const surface = surfaceRef.current;
+          if (!surface) {
+            return;
+          }
+          // Re-measure the surface at drop so the result accounts for any scrolling
+          // (manual or auto) since the drag began. The rect is scaled and the grab
+          // offset was measured on the scaled card, so the whole client-space
+          // expression divides by the zoom to land back in board coordinates.
+          // `offsetHeight` is a layout value, already in board units.
+          const scale = zoomRef.current;
+          const rect = surface.getBoundingClientRect();
+          const height = cardRef.current?.offsetHeight ?? CARD_MIN_HEIGHT;
+          const newX =
+            (location.current.input.clientX - source.payload.grabOffsetX - rect.left) / scale;
+          const newY =
+            (location.current.input.clientY - source.payload.grabOffsetY - rect.top) / scale;
+          const position = clampToSurface(newX, newY, height);
+          onMove(source.payload.id, Math.round(position.x), Math.round(position.y));
         }
-        // Re-measure the surface at drop so the result accounts for any scrolling
-        // (manual or auto) since the drag began. The rect is scaled and the grab
-        // offset was measured on the scaled card, so the whole client-space
-        // expression divides by the zoom to land back in board coordinates.
-        // `offsetHeight` is a layout value, already in board units.
-        const scale = zoomRef.current;
-        const rect = surface.getBoundingClientRect();
-        const height = cardRef.current?.offsetHeight ?? CARD_MIN_HEIGHT;
-        const newX =
-          (location.current.input.clientX - source.payload.grabOffsetX - rect.left) / scale;
-        const newY =
-          (location.current.input.clientY - source.payload.grabOffsetY - rect.top) / scale;
-        const position = clampToSurface(newX, newY, height);
-        onMove(source.payload.id, Math.round(position.x), Math.round(position.y));
       }}
       className={(state) =>
         clsx(styles.card, selected && styles.cardSelected, state.dragging && styles.cardDragging)

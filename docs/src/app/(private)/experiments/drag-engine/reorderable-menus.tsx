@@ -199,8 +199,16 @@ function ReorderableItem(props: ReorderableItemProps) {
           payload={entry.id}
           modifiers={Draggable.restrictToVerticalAxis}
           onMoveStart={list.onMoveStart}
-          onDrop={list.onDrop}
-          onMoveEnd={list.onMoveEnd}
+          onMoveEnd={(moveEvent, moveDetails) => {
+            try {
+              if (moveDetails.reason === 'drop' && moveEvent.dropTarget !== null) {
+                list.onDrop();
+              }
+            } finally {
+              list.onMoveEnd();
+            }
+          }}
+
           render={
             <Draggable.Target
               accept={menuItemKind}

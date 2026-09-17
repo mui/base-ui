@@ -98,7 +98,6 @@ describe('DropTarget.Root', () => {
           return { y: 4 };
         }}
         onDraggableMove={record('onMove')}
-        onTargetChange={record('onTargetChange')}
         onDraggableEnter={record('onDraggableEnter')}
         onDraggableLeave={record('onDraggableLeave')}
         onDraggableDrop={({ target }) => {
@@ -132,7 +131,6 @@ describe('DropTarget.Root', () => {
     for (const name of [
       'canDrop',
       'snap',
-      'onTargetChange',
       'onDraggableEnter',
       'onMove',
       'onDrop',

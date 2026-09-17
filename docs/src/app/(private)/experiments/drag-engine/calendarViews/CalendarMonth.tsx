@@ -200,22 +200,24 @@ function MonthDayCell(props: { dayMs: number; monthStart: number }) {
           }}
         />
       }
-      onDrop={() => {
-        const preview = consumeDropPreview();
-        if (preview?.intent !== 'create') {
-          return;
+      onMoveEnd={(moveEvent, moveDetails) => {
+        if (moveDetails.reason === 'drop' && moveEvent.dropTarget !== null) {
+          const preview = consumeDropPreview();
+          if (preview?.intent !== 'create') {
+            return;
+          }
+          // The reducer assigns an id; we hand the engine an event template.
+          dispatch({
+            type: 'CREATE_EVENT',
+            event: {
+              id: `evt-create-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+              title: 'New event',
+              start: preview.start,
+              end: preview.end,
+              allDay: preview.allDay,
+            },
+          });
         }
-        // The reducer assigns an id; we hand the engine an event template.
-        dispatch({
-          type: 'CREATE_EVENT',
-          event: {
-            id: `evt-create-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
-            title: 'New event',
-            start: preview.start,
-            end: preview.end,
-            allDay: preview.allDay,
-          },
-        });
       }}
       className={styles.monthDayCell}
       data-cal-day
@@ -267,17 +269,19 @@ function MonthEventBar(props: { event: CalendarEvent; segment: WeekEventSegment 
         // consistent without month-specific branching.
         segmentOffsetMs: 0,
       }}
-      onDrop={() => {
-        const preview = consumeDropPreview();
-        if (preview?.intent !== 'move') {
-          return;
+      onMoveEnd={(moveEvent, moveDetails) => {
+        if (moveDetails.reason === 'drop' && moveEvent.dropTarget !== null) {
+          const preview = consumeDropPreview();
+          if (preview?.intent !== 'move') {
+            return;
+          }
+          dispatch({
+            type: 'MOVE_EVENT',
+            id: eventRef.current.id,
+            newStart: preview.start,
+            newAllDay: preview.allDay,
+          });
         }
-        dispatch({
-          type: 'MOVE_EVENT',
-          id: eventRef.current.id,
-          newStart: preview.start,
-          newAllDay: preview.allDay,
-        });
       }}
       className={styles.monthEventBar}
       style={style}
@@ -331,17 +335,19 @@ function MonthResizeHandle(props: { event: CalendarEvent; edge: 'start' | 'end' 
         anchorEnd: eventRef.current.end,
         allDay: eventRef.current.allDay,
       }}
-      onDrop={() => {
-        const preview = consumeDropPreview();
-        if (preview?.intent !== 'resize') {
-          return;
+      onMoveEnd={(moveEvent, moveDetails) => {
+        if (moveDetails.reason === 'drop' && moveEvent.dropTarget !== null) {
+          const preview = consumeDropPreview();
+          if (preview?.intent !== 'resize') {
+            return;
+          }
+          dispatch({
+            type: 'RESIZE_EVENT',
+            id: eventRef.current.id,
+            edge,
+            newTime: edge === 'start' ? preview.start : preview.end,
+          });
         }
-        dispatch({
-          type: 'RESIZE_EVENT',
-          id: eventRef.current.id,
-          edge,
-          newTime: edge === 'start' ? preview.start : preview.end,
-        });
       }}
       className={styles.monthResizeHandle}
       style={edge === 'start' ? { left: 0, right: 'auto' } : undefined}

@@ -60,7 +60,6 @@ export const DraggableRoot = React.forwardRef(function DraggableRoot<TData = und
     onMoveStart,
     onMove,
     onTargetChange,
-    onDrop,
     onMoveEnd,
     // Props forwarded to the DOM element
     ...elementProps
@@ -83,7 +82,6 @@ export const DraggableRoot = React.forwardRef(function DraggableRoot<TData = und
     onMoveStart,
     onMove,
     onTargetChange,
-    onDrop,
     onMoveEnd,
   } as RegisterDraggableParameters<TData>;
 

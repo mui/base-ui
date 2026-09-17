@@ -37,7 +37,7 @@ expectType<DragKind<undefined>, typeof marker>(marker);
 
 // A payload-less source uses the nearest provider default kind.
 <Draggable.Root
-  onDrop={({ source }) => {
+  onMoveEnd={({ source }) => {
     expectType<undefined, typeof source.payload>(source.payload);
   }}
 />;
@@ -309,35 +309,34 @@ function GenericCard<TData>(props: Draggable.Root.PropsWithPayload<TData>) {
 <Draggable.Root kind={marker} onDragOver={() => {}} />;
 // @ts-expect-error
 <Draggable.Root kind={marker} onDragExit={() => {}} />;
-// The engine's own handlers keep their names and carry the drag payload, so the
-// omission above must not have taken them with it. `onDrop` is one of them on the
-// source too: the native prop of that name is replaced, not just removed.
+// Engine callbacks preserve the source payload type.
 <Draggable.Root
   kind={card}
   payload={{ id: 'a' }}
   onMoveStart={({ source }) => expectType<CardPayload, typeof source.payload>(source.payload)}
   onMove={({ source }) => expectType<CardPayload, typeof source.payload>(source.payload)}
-  onDrop={({ source }) => expectType<CardPayload, typeof source.payload>(source.payload)}
   onMoveEnd={({ source }) => expectType<CardPayload, typeof source.payload>(source.payload)}
 />;
 
-// `onDrop` fires only for a committed drop, so its `dropTarget` is never null —
-// unlike `onMoveEnd`'s.
+// Successful-drop handling requires an outcome guard and a separate target null check.
 <Draggable.Root
   kind={card}
   payload={{ id: 'a' }}
-  onDrop={({ dropTarget }) => expectType<DropTargetRecord, typeof dropTarget>(dropTarget)}
-  onMoveEnd={({ dropTarget }) => expectType<DropTargetRecord | null, typeof dropTarget>(dropTarget)}
+  onMoveEnd={(event, details) => {
+    expectType<DropTargetRecord | null, typeof event.dropTarget>(event.dropTarget);
+    expectType<DragEndReason, typeof details.reason>(details.reason);
+    if (details.reason === 'drop') {
+      expectType<'drop', typeof details.reason>(details.reason);
+      expectType<DropTargetRecord | null, typeof event.dropTarget>(event.dropTarget);
+      if (event.dropTarget !== null) {
+        expectType<DropTargetRecord, typeof event.dropTarget>(event.dropTarget);
+      }
+    }
+  }}
 />;
 
-// The second argument carries the reason, narrowed to the one outcome `onDrop` fires for.
-<Draggable.Root
-  kind={marker}
-  onDrop={(_, eventDetails) => expectType<'drop', typeof eventDetails.reason>(eventDetails.reason)}
-  onMoveEnd={(_, eventDetails) =>
-    expectType<DragEndReason, typeof eventDetails.reason>(eventDetails.reason)
-  }
-/>;
+// @ts-expect-error successful drops are handled through onMoveEnd.
+<Draggable.Root kind={marker} onDrop={() => {}} />;
 
 // Pointer drag events carry their native pointer input.
 <Draggable.Root

@@ -323,7 +323,7 @@ export function createSyntheticPreview(
         }
         element.setAttribute(ENDING_STYLE_ATTR, '');
 
-        // `onDrop` updates scheduled later in the release event commit before
+        // Drop-handler updates scheduled later in the release event commit before
         // this frame. Measure then, so the destination is the source's final
         // slot rather than the slot it occupied when the pointer came up.
         frame.request(() => {

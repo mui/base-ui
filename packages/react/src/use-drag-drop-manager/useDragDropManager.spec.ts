@@ -6,6 +6,7 @@ import {
 } from '@base-ui/react/use-drag-drop-manager';
 import type {
   RegisterDraggableParameters,
+  RegisterMonitorParameters,
   RegisterDropTargetParameters,
   RegisterDropTargetParametersWithPayload,
 } from '@base-ui/react/use-drag-drop-manager';
@@ -309,3 +310,10 @@ engine.registerAutoScroller(element, () => ({ allowedAxis: 'diagonal' }));
 
 // The method registers nothing, takes nothing, and returns nothing.
 expectType<() => void, typeof engine.cancelDrag>(engine.cancelDrag);
+
+const removedMonitorCallback: RegisterMonitorParameters = {
+  accept: Draggable.anyKind,
+  // @ts-expect-error successful drops are handled through onMoveEnd.
+  onDrop: () => {},
+};
+engine.registerMonitor(() => removedMonitorCallback);

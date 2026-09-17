@@ -186,7 +186,25 @@ describe('engine.registerMonitor', () => {
     fireEvent.dragStart(el);
     await flushRaf();
 
-    engine.registerMonitor({ onMoveStart, onMove, onTargetChange, onDrop, onMoveEnd });
+    engine.registerMonitor({
+      onMoveStart,
+      onMove,
+      onTargetChange,
+      onMoveEnd: (moveEvent, moveDetails) => {
+        try {
+          if (moveDetails.reason === 'drop' && moveEvent.dropTarget !== null) {
+            const dropEvent = {
+              source: moveEvent.source,
+              location: moveEvent.location,
+              dropTarget: moveEvent.dropTarget,
+            };
+            onDrop(dropEvent);
+          }
+        } finally {
+          onMoveEnd(moveEvent);
+        }
+      },
+    });
 
     // Subsequent events must reach the late monitor.
     fireEvent.dragEnter(target);

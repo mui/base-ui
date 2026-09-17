@@ -444,8 +444,21 @@ describe('Draggable.Root', () => {
           data-testid="drag"
           data-tick={tick}
           className={draggingClass}
-          onDrop={onDrop}
-          onMoveEnd={onMoveEnd}
+          onMoveEnd={(moveEvent, moveDetails) => {
+            try {
+              if (moveDetails.reason === 'drop' && moveEvent.dropTarget !== null) {
+                const dropEvent = {
+                  source: moveEvent.source,
+                  location: moveEvent.location,
+                  dropTarget: moveEvent.dropTarget,
+                };
+                onDrop(dropEvent);
+              }
+            } finally {
+              onMoveEnd(moveEvent);
+            }
+          }}
+
           ref={(node) => {
             void node;
           }}
@@ -575,7 +588,25 @@ describe('Draggable.Root', () => {
       const onDrop = vi.fn();
       const { engine } = await renderDnd(
         <React.StrictMode>
-          <TestDraggable options={{ onMoveStart, onDrop, onMoveEnd }} />
+          <TestDraggable
+            options={{
+              onMoveStart,
+              onMoveEnd: (moveEvent, moveDetails) => {
+                try {
+                  if (moveDetails.reason === 'drop' && moveEvent.dropTarget !== null) {
+                    const dropEvent = {
+                      source: moveEvent.source,
+                      location: moveEvent.location,
+                      dropTarget: moveEvent.dropTarget,
+                    };
+                    onDrop(dropEvent);
+                  }
+                } finally {
+                  onMoveEnd(moveEvent);
+                }
+              },
+            }}
+          />
         </React.StrictMode>,
       );
       const source = screen.getByTestId('drag');

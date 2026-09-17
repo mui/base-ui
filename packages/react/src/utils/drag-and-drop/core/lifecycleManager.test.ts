@@ -519,7 +519,22 @@ describe('lifecycle manager', () => {
       const onDrop = vi.fn();
 
       engine.registerDraggable(el, {});
-      engine.registerMonitor({ onMoveEnd, onDrop });
+      engine.registerMonitor({
+        onMoveEnd: (moveEvent, moveDetails) => {
+          try {
+            if (moveDetails.reason === 'drop' && moveEvent.dropTarget !== null) {
+              const dropEvent = {
+                source: moveEvent.source,
+                location: moveEvent.location,
+                dropTarget: moveEvent.dropTarget,
+              };
+              onDrop(dropEvent, { ...moveDetails, reason: 'drop' });
+            }
+          } finally {
+            onMoveEnd(moveEvent, moveDetails);
+          }
+        },
+      });
 
       fireEvent.dragStart(el);
       await flushRaf();
@@ -550,7 +565,22 @@ describe('lifecycle manager', () => {
       const onDrop = vi.fn();
 
       engine.registerDraggable(el, {});
-      engine.registerMonitor({ onMoveEnd, onDrop });
+      engine.registerMonitor({
+        onMoveEnd: (moveEvent, moveDetails) => {
+          try {
+            if (moveDetails.reason === 'drop' && moveEvent.dropTarget !== null) {
+              const dropEvent = {
+                source: moveEvent.source,
+                location: moveEvent.location,
+                dropTarget: moveEvent.dropTarget,
+              };
+              onDrop(dropEvent, { ...moveDetails, reason: 'drop' });
+            }
+          } finally {
+            onMoveEnd(moveEvent, moveDetails);
+          }
+        },
+      });
 
       fireEvent.dragStart(el);
       await flushRaf();
@@ -581,7 +611,7 @@ describe('lifecycle manager', () => {
       engine.registerDraggable(el, {});
       engine.registerDropTarget(target, {
         onDraggableDrop: targetOnDrop,
-        onTargetChange: targetOnDropTargetChange,
+        onDraggableEnter: targetOnDropTargetChange,
         onDraggableLeave: targetOnDragLeave,
       });
       engine.registerMonitor({ onMoveEnd: monitorOnDrop });
@@ -596,7 +626,7 @@ describe('lifecycle manager', () => {
       fireEvent.dragEnd(el);
 
       expect(targetOnDrop).not.toHaveBeenCalled();
-      expect(targetOnDropTargetChange).toHaveBeenCalledTimes(2);
+      expect(targetOnDropTargetChange).toHaveBeenCalledTimes(1);
       // Not the discriminator: on the cancel path the terminal leave runs *before*
       // the source's `onMoveEnd`, so it is delivered with or without the fix. The
       // monitor dispatch below is what the containment actually buys.
@@ -616,7 +646,18 @@ describe('lifecycle manager', () => {
 
       engine.registerDraggable(el, {});
       engine.registerDropTarget(target, {});
-      engine.registerMonitor({ onDrop });
+      engine.registerMonitor({
+        onMoveEnd: (moveEvent, moveDetails) => {
+          if (moveDetails.reason === 'drop' && moveEvent.dropTarget !== null) {
+            const dropEvent = {
+              source: moveEvent.source,
+              location: moveEvent.location,
+              dropTarget: moveEvent.dropTarget,
+            };
+            onDrop(dropEvent, { ...moveDetails, reason: 'drop' });
+          }
+        },
+      });
 
       fireEvent.dragStart(el);
       await flushRaf();
@@ -673,7 +714,22 @@ describe('lifecycle manager', () => {
         events.push('source-end');
       });
 
-      engine.registerDraggable(el, { onDrop, onMoveEnd });
+      engine.registerDraggable(el, {
+        onMoveEnd: (moveEvent, moveDetails) => {
+          try {
+            if (moveDetails.reason === 'drop' && moveEvent.dropTarget !== null) {
+              const dropEvent = {
+                source: moveEvent.source,
+                location: moveEvent.location,
+                dropTarget: moveEvent.dropTarget,
+              };
+              onDrop(dropEvent, { ...moveDetails, reason: 'drop' });
+            }
+          } finally {
+            onMoveEnd(moveEvent, moveDetails);
+          }
+        },
+      });
       engine.registerDropTarget(target, { onDraggableDrop: () => events.push('target-drop') });
 
       fireEvent.dragStart(el);
@@ -701,7 +757,6 @@ describe('lifecycle manager', () => {
 
       engine.registerDraggable(el, { onTargetChange });
       engine.registerDropTarget(target, {
-        onTargetChange: () => order.push('target'),
         onDraggableEnter: () => order.push('enter'),
       });
 
@@ -717,7 +772,7 @@ describe('lifecycle manager', () => {
       expect(payload.location.current.dropTargets[0].element).toBe(target);
       // The source hears about the change before any target does.
       expect(order[0]).toBe('source');
-      expect(order).toContain('target');
+      expect(order).toContain('enter');
       expect(order).toContain('enter');
 
       act(() => {
@@ -976,16 +1031,33 @@ describe('lifecycle manager', () => {
         onDraggableLeave: targetOnDragLeave,
       });
       addDropTargetRegistration(target, getTargetParams);
-      const getMonitor = () => ({ onDrop: monitorDrop, onMoveEnd: monitorEnd });
+      const getMonitor = () => ({
+        onMoveEnd: (event: MoveEndEvent, details: MoveEndEventDetails) => {
+          try {
+            if (details.reason === 'drop' && event.dropTarget) {
+              monitorDrop(event, details);
+            }
+          } finally {
+            monitorEnd(event, details);
+          }
+        },
+      });
       monitorRegistry.add(getMonitor);
       engageMonitorIfDragging(getMonitor);
 
       const sourceOnDragEnd = vi.fn();
       const handle = startDragWithHandlers({
-        onDrop: () => {
-          throw new Error('boom from source onDrop');
+        onMoveEnd: (moveEvent, moveDetails) => {
+          try {
+            if (moveDetails.reason === 'drop' && moveEvent.dropTarget !== null) {
+              (() => {
+                throw new Error('boom from source onDrop');
+              })();
+            }
+          } finally {
+            sourceOnDragEnd(moveEvent);
+          }
         },
-        onMoveEnd: sourceOnDragEnd,
       });
       expect(handle).not.toBeNull();
 
@@ -1023,7 +1095,17 @@ describe('lifecycle manager', () => {
         onDraggableLeave: targetOnDragLeave,
       });
       addDropTargetRegistration(target, getTargetParams);
-      const getMonitor = () => ({ onDrop: monitorDrop, onMoveEnd: monitorEnd });
+      const getMonitor = () => ({
+        onMoveEnd: (event: MoveEndEvent, details: MoveEndEventDetails) => {
+          try {
+            if (details.reason === 'drop' && event.dropTarget) {
+              monitorDrop(event, details);
+            }
+          } finally {
+            monitorEnd(event, details);
+          }
+        },
+      });
       monitorRegistry.add(getMonitor);
       engageMonitorIfDragging(getMonitor);
 
@@ -1376,14 +1458,12 @@ describe('lifecycle manager', () => {
       const targetA = createElement();
       const targetC = createElement();
       const onDragEnterC = vi.fn();
-      const onDropTargetChangeC = vi.fn();
       const onDragC = vi.fn();
       const onMoveEnd = vi.fn();
       engine.registerDraggable(el, {});
       engine.registerDropTarget(targetA, { onDraggableLeave: () => cancelDrag() });
       engine.registerDropTarget(targetC, {
         onDraggableEnter: onDragEnterC,
-        onTargetChange: onDropTargetChangeC,
         onDraggableMove: onDragC,
       });
       engine.registerMonitor({ onMoveEnd });
@@ -1399,7 +1479,6 @@ describe('lifecycle manager', () => {
       await flushRaf();
 
       expect(onDragEnterC).not.toHaveBeenCalled();
-      expect(onDropTargetChangeC).not.toHaveBeenCalled();
       expect(onDragC).not.toHaveBeenCalled();
       expect(onMoveEnd).toHaveBeenCalledTimes(1);
       expect(onMoveEnd.mock.calls[0][0].canceled).toBe(true);

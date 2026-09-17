@@ -371,16 +371,23 @@ function DataGridInner() {
   Draggable.useDragMonitor({
     accept: [columnKind, rowKind],
     // Commit only for a drag released over an accepting target.
-    onDrop: ({ source: dropped }) => {
-      const indicator = dropIndicatorRef.current;
-      if (indicator?.axis === 'column') {
-        setColumns((prev) => moveToIndex(prev, dropped.payload, indicator.index));
-      } else if (indicator?.axis === 'row') {
-        setRows((prev) => moveToIndex(prev, dropped.payload, indicator.index));
+    onMoveEnd: (moveEvent, moveDetails) => {
+      try {
+        if (moveDetails.reason === 'drop' && moveEvent.dropTarget !== null) {
+          const { source: dropped } = moveEvent;
+
+          const indicator = dropIndicatorRef.current;
+          if (indicator?.axis === 'column') {
+            setColumns((prev) => moveToIndex(prev, dropped.payload, indicator.index));
+          } else if (indicator?.axis === 'row') {
+            setRows((prev) => moveToIndex(prev, dropped.payload, indicator.index));
+          }
+        }
+      } finally {
+        setDropIndicator(null);
       }
     },
     // Clear the indicator however the drag ended, cancels included.
-    onMoveEnd: () => setDropIndicator(null),
   });
 
   const totalHeight = rows.length * ROW_HEIGHT;

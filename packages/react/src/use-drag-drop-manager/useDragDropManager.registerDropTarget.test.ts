@@ -133,8 +133,6 @@ describe('engine.registerDropTarget', () => {
     engine.registerDropTarget(target, {
       onDraggableEnter: (_payload, details) => {
         seen.enter = details.event;
-      },
-      onTargetChange: (_payload, details) => {
         seen.change = details.event;
       },
     });

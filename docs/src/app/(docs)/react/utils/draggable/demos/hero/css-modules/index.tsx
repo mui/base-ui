@@ -14,7 +14,7 @@ function DraggableHeroContent() {
 
   return (
     <div className={styles.Root}>
-      {/* The surface is the drop target, so a release on it reaches `onDrop`. */}
+      {/* The surface is the drop target, so a release on it ends with the `drop` reason. */}
       <Draggable.Target
         ref={surfaceRef}
         trackDragOver={false}

@@ -922,8 +922,16 @@ function BrowserTabs({
                   activation={{ mouse: { type: 'distance', distance: 5 } }}
                   onBeforeMoveStart={handleBeforeDragStart}
                   onMoveStart={handleDragStart}
-                  onDrop={handleDrop}
-                  onMoveEnd={handleDragEnd}
+                  onMoveEnd={(moveEvent, moveDetails) => {
+                    try {
+                      if (moveDetails.reason === 'drop' && moveEvent.dropTarget !== null) {
+                        handleDrop();
+                      }
+                    } finally {
+                      handleDragEnd();
+                    }
+                  }}
+
                   render={
                     <Draggable.Target<AcceptedBookmarkDragData, TabDropTargetData>
                       accept={acceptedTabKinds}
@@ -1454,67 +1462,71 @@ function BookmarkBar() {
     onTargetChange(event) {
       syncDropIntents(event);
     },
-    onDrop(event) {
-      const bookmarkTarget = event.location.current.dropTargets.find((candidate) =>
-        bookmarkDropKind.matches(candidate),
-      );
-      if (bookmarkTarget && bookmarkDropKind.matches(bookmarkTarget)) {
-        if (event.source.payload.type !== 'existing') {
+    onMoveEnd(event, details) {
+      try {
+        if (details.reason !== 'drop') {
           return;
         }
-        const intent = bookmarkTarget.payload;
-        const parentName = getParentName(intent.parentId);
-        const sourceId = event.source.payload.id;
-        const sourceName = tree.nodes[sourceId]?.name;
-        if (intent.parentId !== ROOT_ID) {
-          setCloseMenusWithoutAnimation(true);
-        }
-        setTree(moveNode(tree, sourceId, intent.parentId, intent.index));
-        if (sourceName && parentName) {
-          setStatus(`${sourceName} moved to ${parentName}.`);
-        }
-        return;
-      }
-
-      const sourceNode =
-        event.source.payload.type === 'existing' ? tree.nodes[event.source.payload.id] : null;
-      const tabIntent = resolveTabDropIntent(
-        event.location.current.dropTargets,
-        sourceNode?.type === 'bookmark',
-      );
-      if (!tabIntent) {
-        return;
-      }
-      if (event.source.payload.type === 'tab') {
-        if (tabIntent.type === 'insert') {
-          setTabs((current) => moveTabToIndex(current, event.source.payload.id, tabIntent.index));
-        }
-      } else if (tabIntent.type === 'replace' && sourceNode?.type === 'bookmark') {
-        setTabs((current) =>
-          current.map((tab) =>
-            tab.id === tabIntent.tabId
-              ? { ...tab, name: sourceNode.name, url: sourceNode.url }
-              : tab,
-          ),
+        const bookmarkTarget = event.location.current.dropTargets.find((candidate) =>
+          bookmarkDropKind.matches(candidate),
         );
-        setActiveTabId(tabIntent.tabId);
-        setStatus(`${sourceNode.name} opened in the current browser tab.`);
-      } else if (tabIntent.type === 'insert') {
-        const pages = getBookmarkPages(tree, event.source.payload.id);
-        insertBrowserPages(pages, tabIntent.index);
-        const sourceName = tree.nodes[event.source.payload.id]?.name;
-        if (sourceName) {
-          setStatus(
-            `${sourceName} opened in ${pages.length} browser tab${pages.length === 1 ? '' : 's'}.`,
-          );
+        if (bookmarkTarget && bookmarkDropKind.matches(bookmarkTarget)) {
+          if (event.source.payload.type !== 'existing') {
+            return;
+          }
+          const intent = bookmarkTarget.payload;
+          const parentName = getParentName(intent.parentId);
+          const sourceId = event.source.payload.id;
+          const sourceName = tree.nodes[sourceId]?.name;
+          if (intent.parentId !== ROOT_ID) {
+            setCloseMenusWithoutAnimation(true);
+          }
+          setTree(moveNode(tree, sourceId, intent.parentId, intent.index));
+          if (sourceName && parentName) {
+            setStatus(`${sourceName} moved to ${parentName}.`);
+          }
+          return;
         }
+
+        const sourceNode =
+          event.source.payload.type === 'existing' ? tree.nodes[event.source.payload.id] : null;
+        const tabIntent = resolveTabDropIntent(
+          event.location.current.dropTargets,
+          sourceNode?.type === 'bookmark',
+        );
+        if (!tabIntent) {
+          return;
+        }
+        if (event.source.payload.type === 'tab') {
+          if (tabIntent.type === 'insert') {
+            setTabs((current) => moveTabToIndex(current, event.source.payload.id, tabIntent.index));
+          }
+        } else if (tabIntent.type === 'replace' && sourceNode?.type === 'bookmark') {
+          setTabs((current) =>
+            current.map((tab) =>
+              tab.id === tabIntent.tabId
+                ? { ...tab, name: sourceNode.name, url: sourceNode.url }
+                : tab,
+            ),
+          );
+          setActiveTabId(tabIntent.tabId);
+          setStatus(`${sourceNode.name} opened in the current browser tab.`);
+        } else if (tabIntent.type === 'insert') {
+          const pages = getBookmarkPages(tree, event.source.payload.id);
+          insertBrowserPages(pages, tabIntent.index);
+          const sourceName = tree.nodes[event.source.payload.id]?.name;
+          if (sourceName) {
+            setStatus(
+              `${sourceName} opened in ${pages.length} browser tab${pages.length === 1 ? '' : 's'}.`,
+            );
+          }
+        }
+      } finally {
+        setActiveDragId(null);
+        setDropIntent(null);
+        setTabDropIntent(null);
+        setOpenMenuIds(new Set());
       }
-    },
-    onMoveEnd() {
-      setActiveDragId(null);
-      setDropIntent(null);
-      setTabDropIntent(null);
-      setOpenMenuIds(new Set());
     },
   });
 
