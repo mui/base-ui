@@ -214,6 +214,9 @@ importers:
       '@mui/internal-test-utils':
         specifier: 2.0.18-canary.25
         version: 2.0.18-canary.25(@playwright/test@1.62.1)(@types/react-dom@19.2.7(@types/react@19.3.0))(@types/react@19.3.0)(@vitest/utils@4.1.11)(chai@6.2.2)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(vite@8.3.0(@types/node@22.20.2)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.13)(yaml@2.9.0))(vitest@4.1.11)
+      '@netlify/types':
+        specifier: 3.0.0
+        version: 3.0.0
       '@next/eslint-plugin-next':
         specifier: 16.3.5
         version: 16.3.5(eslint@10.10.0(jiti@2.7.0)(supports-color@7.2.0))
@@ -2556,6 +2559,10 @@ packages:
     peerDependencies:
       '@emnapi/core': ^1.7.1
       '@emnapi/runtime': ^1.7.1
+
+  '@netlify/types@3.0.0':
+    resolution: {integrity: sha512-zRCidsQgI4CZWrZB/kmwdPf0QbSNljakfNSLizFvrsSA3UcUrTWSBNMVKmZnob92/8ESeUN0ewXLOlffJU+ATQ==}
+    engines: {node: '>=22.12.0'}
 
   '@next/env@16.3.5':
     resolution: {integrity: sha512-NWEXVDMqoEo0ktmU6u0sE2Vg0LOcsD7NnOTJNo3/fEaTfsg+F1bMIxuDmQbda4e3yTIQwVdUREF2yIuMOusKtg==}
@@ -11935,6 +11942,8 @@ snapshots:
       '@emnapi/runtime': 1.10.0
       '@tybys/wasm-util': 0.10.2
     optional: true
+
+  '@netlify/types@3.0.0': {}
 
   '@next/env@16.3.5': {}
 
