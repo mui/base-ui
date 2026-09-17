@@ -2,14 +2,14 @@ import type {
   DragCleanupFn,
   DragHandle,
   DragKind,
-  DragStartContext,
+  MoveStartContext,
   DraggablePayload,
   DraggablePayloadGetter,
   DragPreviewParameters,
   DragPreviewContainer,
-  BeforeDragStartEventDetails,
-  DragEventDetailsMap,
-  DragEventMap,
+  BeforeMoveStartEventDetails,
+  DraggableEventDetailsMap,
+  DraggableEventMap,
   DragPreviewRenderEvent,
   DragModifiers,
 } from '../../types/drag';
@@ -187,7 +187,7 @@ export type DraggableConfig<TData = undefined> = {
   dragHandle?: DragHandle | undefined;
   /**
    * Whether to disable dragging. Pointer presses keep their native behavior.
-   * Use `onBeforeDragStart` instead when the decision depends on the gesture.
+   * Use `onBeforeMoveStart` instead when the decision depends on the gesture.
    * @default false
    */
   disabled?: boolean | undefined;
@@ -196,14 +196,14 @@ export type DraggableConfig<TData = undefined> = {
    * is met and before the preview is built and `getPayload` runs.
    * Call `eventDetails.cancel()` to prevent the drag from starting.
    */
-  onBeforeDragStart?:
-    ((context: DragStartContext, eventDetails: BeforeDragStartEventDetails) => void) | undefined;
+  onBeforeMoveStart?:
+    ((context: MoveStartContext, eventDetails: BeforeMoveStartEventDetails) => void) | undefined;
   /**
    * Determines when a pointer press starts a drag. Mouse and pen use a 5px distance
    * by default. Touch uses a 250ms press and hold. Pass one `DragActivation` for
    * every pointer type or a map with per-type values.
    */
-  pointerActivation?: DragActivationConfig | undefined;
+  activation?: DragActivationConfig | undefined;
   /**
    * Constrains pointer movement with one modifier or an array applied
    * in order. See {@link DragModifiers} and the exported modifier presets.
@@ -242,7 +242,7 @@ export type DraggableConfig<TData = undefined> = {
   previewContainerDefault?: DragPreviewContainer | undefined;
 
   /**
-   * Event handler called once at the start of a drag, before `onDragStart`,
+   * Event handler called once at the start of a drag, before `onMoveStart`,
    * while the preview is being built. The React layer installs its preview
    * publisher here, so the public parameter types omit it.
    * @internal
@@ -254,42 +254,42 @@ export type DraggableConfig<TData = undefined> = {
    * has already been resolved by then, so it is safe to measure or restyle the
    * source from here.
    */
-  onDragStart?:
+  onMoveStart?:
     | ((
-        parameters: DragEventMap<NoInfer<TData>>['onDragStart'],
-        eventDetails: DragEventDetailsMap['onDragStart'],
+        parameters: DraggableEventMap<NoInfer<TData>>['onMoveStart'],
+        eventDetails: DraggableEventDetailsMap['onMoveStart'],
       ) => void)
     | undefined;
   /**
    * Event handler called as the pointer moves or a modifier key changes, limited
    * to one call per animation frame. Drop target stack changes do not call this handler.
-   * Use the drop target's `onDrag` for hover behavior.
+   * Use the drop target's `onMove` for hover behavior.
    */
-  onDrag?:
+  onMove?:
     | ((
-        parameters: DragEventMap<NoInfer<TData>>['onDrag'],
-        eventDetails: DragEventDetailsMap['onDrag'],
+        parameters: DraggableEventMap<NoInfer<TData>>['onMove'],
+        eventDetails: DraggableEventDetailsMap['onMove'],
       ) => void)
     | undefined;
   /**
    * Event handler called when the active drop targets change,
    * because one was entered or left.
    */
-  onDropTargetChange?:
+  onTargetChange?:
     | ((
-        parameters: DragEventMap<NoInfer<TData>>['onDropTargetChange'],
-        eventDetails: DragEventDetailsMap['onDropTargetChange'],
+        parameters: DraggableEventMap<NoInfer<TData>>['onTargetChange'],
+        eventDetails: DraggableEventDetailsMap['onTargetChange'],
       ) => void)
     | undefined;
   /**
    * Event handler called when the drag is released over an accepting drop target.
    * Commit the move here. `dropTarget` is never `null`. A drag that ends another
-   * way calls only `onDragEnd`.
+   * way calls only `onMoveEnd`.
    */
   onDrop?:
     | ((
-        parameters: DragEventMap<NoInfer<TData>>['onDrop'],
-        eventDetails: DragEventDetailsMap['onDrop'],
+        parameters: DraggableEventMap<NoInfer<TData>>['onDrop'],
+        eventDetails: DraggableEventDetailsMap['onDrop'],
       ) => void)
     | undefined;
   /**
@@ -297,10 +297,10 @@ export type DraggableConfig<TData = undefined> = {
    * cancellation. Use it to clean up or revert optimistic state. Commit a drop from
    * `onDrop`. `eventDetails.reason` identifies the outcome.
    */
-  onDragEnd?:
+  onMoveEnd?:
     | ((
-        parameters: DragEventMap<NoInfer<TData>>['onDragEnd'],
-        eventDetails: DragEventDetailsMap['onDragEnd'],
+        parameters: DraggableEventMap<NoInfer<TData>>['onMoveEnd'],
+        eventDetails: DraggableEventDetailsMap['onMoveEnd'],
       ) => void)
     | undefined;
 };

@@ -28,7 +28,7 @@ const stateAttributesMapping: StateAttributesMapping<DraggableRootState> = {
  *
  * While dragging, a clone of the element follows the pointer by default.
  *
- * Documentation: [Base UI Draggable](https://base-ui.com/react/components/draggable)
+ * Documentation: [Base UI Draggable](https://base-ui.com/react/utils/draggable)
  */
 export const DraggableRoot = React.forwardRef(function DraggableRoot<TData = undefined>(
   componentProps: DraggableRootPropsBase<TData> & {
@@ -51,16 +51,16 @@ export const DraggableRoot = React.forwardRef(function DraggableRoot<TData = und
     getPayload,
     previewKey,
     disabled,
-    pointerActivation,
+    activation,
     dragCursor,
     modifiers,
     // Event handlers
-    onBeforeDragStart,
-    onDragStart,
-    onDrag,
-    onDropTargetChange,
+    onBeforeMoveStart,
+    onMoveStart,
+    onMove,
+    onTargetChange,
     onDrop,
-    onDragEnd,
+    onMoveEnd,
     // Props forwarded to the DOM element
     ...elementProps
   } = componentProps;
@@ -73,15 +73,15 @@ export const DraggableRoot = React.forwardRef(function DraggableRoot<TData = und
     getPayload,
     previewKey,
     disabled,
-    pointerActivation,
+    activation,
     dragCursor,
     modifiers,
-    onBeforeDragStart,
-    onDragStart,
-    onDrag,
-    onDropTargetChange,
+    onBeforeMoveStart,
+    onMoveStart,
+    onMove,
+    onTargetChange,
     onDrop,
-    onDragEnd,
+    onMoveEnd,
   } as RegisterDraggableParameters<TData>;
 
   const { ref, dragging, setHandleElement, previewHandle } = useDraggableElement<TData>(params);
@@ -145,7 +145,7 @@ type DraggableRootPropsBase<TData> = Omit<
   // - the whole native HTML5 drag event family is replaced by this engine
   'children' | 'draggable' | NativeDragEventProps
 > &
-  // The preview is described by a `Draggable.Preview` or a `Draggable.ClonedPreview`
+  // The preview is described by a `Draggable.Preview` or a `Draggable.Preview`
   // rendered inside this component, and the drag handle by a `Draggable.Handle`,
   // never from here.
   Omit<

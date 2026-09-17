@@ -486,7 +486,7 @@ describe('engine.registerAutoScroller', () => {
     expect(scroller.scrollBy).not.toHaveBeenCalled();
 
     // A pointer move into the bottom edge zone lets the mid-drag scroller
-    // scroll. The sensor flushes `onDrag` in its own frame, which wakes the
+    // scroll. The sensor flushes `onMove` in its own frame, which wakes the
     // loop for the following frame.
     fireEvent.dragOver(scroller, { clientX: 100, clientY: 190 });
     await flushRaf();
@@ -509,7 +509,7 @@ describe('engine.registerAutoScroller', () => {
 
     // Park the pointer in the bottom edge zone of a container that is not yet a
     // candidate — nothing engages, so the loop parks itself. Flush until the
-    // gesture pipeline is quiet too: the move's `onDrag`/`onDropTargetChange`
+    // gesture pipeline is quiet too: the move's `onMove`/`onTargetChange`
     // trail wakes the loop for a frame or two afterwards, and a registration
     // landing inside that trail would be woken by the trail rather than by
     // itself, which is the opposite of what this pins.
@@ -592,17 +592,17 @@ describe('engine.registerAutoScroller', () => {
     const source = createElement();
     const scroller = makeEngageableScroller();
     const target = createElement({ top: 150, height: 50, left: 0, width: 200 });
-    const onDragEnter = vi.fn();
+    const onDraggableEnter = vi.fn();
 
     engine.registerDraggable(source, {});
     engine.registerAutoScroller(scroller, {});
-    engine.registerDropTarget(target, { onDragEnter });
+    engine.registerDropTarget(target, { onDraggableEnter });
 
     // Park the pointer in the scroller's bottom edge zone, hovering the
     // scroller itself: the loop engages and scrolls every frame.
     await driveIntoEdgeZone(source, scroller);
     expect(scroller.scrollBy).toHaveBeenCalled();
-    expect(onDragEnter).not.toHaveBeenCalled();
+    expect(onDraggableEnter).not.toHaveBeenCalled();
 
     // The applied scroll moves the target under the parked pointer. jsdom
     // moves nothing, so model it directly: re-point the mocked
@@ -614,7 +614,7 @@ describe('engine.registerAutoScroller', () => {
     await flushRaf();
     await flushRaf();
     await flushRaf();
-    expect(onDragEnter).toHaveBeenCalled();
+    expect(onDraggableEnter).toHaveBeenCalled();
   });
 
   it('stops scrolling when the pointer leaves the edge zone and re-engages on return', async () => {
@@ -639,7 +639,7 @@ describe('engine.registerAutoScroller', () => {
     expect(scrollByMock).not.toHaveBeenCalled();
 
     // Back into the zone: engagement restarts rather than staying parked. The
-    // sensor frame flushes `onDrag`, which wakes the loop for the next frame.
+    // sensor frame flushes `onMove`, which wakes the loop for the next frame.
     fireEvent.dragOver(scroller, { clientX: 100, clientY: 190 });
     await flushRaf();
     await flushRaf();
@@ -1354,7 +1354,7 @@ describe('engine.registerAutoScroller', () => {
 
     // Lift at the viewport centre (no edge zone), then move to the given point.
     // Engagement comes solely from the `dragOver` here. The sensor flushes
-    // `onDrag` in its own frame, then the loop runs in the following frame.
+    // `onMove` in its own frame, then the loop runs in the following frame.
     async function drive(source: HTMLElement, clientX: number, clientY: number): Promise<void> {
       await lift(source, { clientX: 400, clientY: 300 });
       fireEvent.dragOver(document.documentElement, { clientX, clientY });
@@ -1720,7 +1720,7 @@ describe('engine.registerAutoScroller', () => {
       registerCleanup(() => window.scrollTo(0, 0));
 
       engine.registerDraggable(source, {
-        pointerActivation: { touch: { type: 'immediate' } },
+        activation: { touch: { type: 'immediate' } },
       });
       registerCleanup(engine.registerAutoScroller(document.documentElement, {}));
 
@@ -1756,7 +1756,7 @@ describe('engine.registerAutoScroller', () => {
       addSpacer('4000px', '10px');
 
       engine.registerDraggable(source, {
-        pointerActivation: { touch: { type: 'immediate' } },
+        activation: { touch: { type: 'immediate' } },
       });
       registerCleanup(engine.registerAutoScroller(document.documentElement, {}));
 
@@ -1792,7 +1792,7 @@ describe('engine.registerAutoScroller', () => {
     const scrollByMock = scroller.scrollBy as ReturnType<typeof vi.fn>;
     expect(scrollByMock).toHaveBeenCalled();
 
-    // A normal drop dispatches `onDragEnd` to the scroll monitor, which must
+    // A normal drop dispatches `onMoveEnd` to the scroll monitor, which must
     // tear the loop down — no further frames may scroll.
     fireEvent.drop(scroller, { clientX: 100, clientY: 190 });
     scrollByMock.mockClear();
@@ -1832,7 +1832,7 @@ describe('engine.registerAutoScroller', () => {
     });
     expect(dragSessionStore.getSnapshot()).toBeNull();
 
-    // The loop must self-terminate now that no drag session is live.
+    // The loop must target-terminate now that no drag session is live.
     scrollByMock.mockClear();
     await flushRaf();
     await flushRaf();
@@ -1899,7 +1899,7 @@ describe('engine.registerAutoScroller', () => {
       Object.defineProperty(scroller, 'clientHeight', { value: 200 });
 
       engine.registerDraggable(source, {
-        pointerActivation: { touch: { type: 'immediate' } },
+        activation: { touch: { type: 'immediate' } },
       });
       engine.registerAutoScroller(scroller, {});
 
@@ -1943,7 +1943,7 @@ describe('engine.registerAutoScroller', () => {
       Object.defineProperty(scroller, 'clientWidth', { value: 200 });
 
       engine.registerDraggable(source, {
-        pointerActivation: { touch: { type: 'immediate' } },
+        activation: { touch: { type: 'immediate' } },
       });
       engine.registerAutoScroller(scroller, { allowedAxis: 'vertical' });
 
@@ -1982,7 +1982,7 @@ describe('engine.registerAutoScroller', () => {
       const scroller = makeRtlScroller(-400);
 
       engine.registerDraggable(source, {
-        pointerActivation: { touch: { type: 'immediate' } },
+        activation: { touch: { type: 'immediate' } },
       });
       engine.registerAutoScroller(scroller, {});
 
@@ -2015,7 +2015,7 @@ describe('engine.registerAutoScroller', () => {
       const scroller = makeRtlScroller(0);
 
       engine.registerDraggable(source, {
-        pointerActivation: { touch: { type: 'immediate' } },
+        activation: { touch: { type: 'immediate' } },
       });
       engine.registerAutoScroller(scroller, {});
 
@@ -2214,7 +2214,7 @@ describe('engine.registerAutoScroller', () => {
       const normalFrame = maxVerticalDelta(scroller);
       expect(normalFrame).toBeCloseTo((depth * MAX_SCROLL_SPEED * FRAME_MS) / 1000, 5);
 
-      // A stalled rAF — a long consumer `onDrag`, a GC pause, a throttled tab —
+      // A stalled rAF — a long consumer `onMove`, a GC pause, a throttled tab —
       // resumes reporting a huge elapsed time.
       scrollByMock.mockClear();
       clock.advance(5000);
@@ -2304,7 +2304,7 @@ describe('engine.registerAutoScroller', () => {
 
       // Move to `clientY` and return the delta the loop applies for exactly one
       // 16ms frame there. The clock is held still while the move travels to the
-      // loop (sensor frame → flushed `onDrag`), so those frames apply a 0
+      // loop (sensor frame → flushed `onMove`), so those frames apply a 0
       // delta and only the measured frame's elapsed time counts.
       async function measureAt(clientY: number): Promise<number> {
         fireEvent.dragOver(scroller, { clientX: 100, clientY });
@@ -2858,7 +2858,7 @@ describe('engine.registerAutoScroller', () => {
 
         let panned = 0;
         engine.registerDraggable(source, {
-          pointerActivation: { touch: { type: 'immediate' } },
+          activation: { touch: { type: 'immediate' } },
         });
         engine.registerAutoScroller(viewport, {
           applyScroll: ({ y }) => {
@@ -2868,8 +2868,8 @@ describe('engine.registerAutoScroller', () => {
             content.style.transform = `translateY(${-panned}px)`;
           },
         });
-        const onDragEnter = vi.fn();
-        engine.registerDropTarget(target, { onDragEnter });
+        const onDraggableEnter = vi.fn();
+        engine.registerDropTarget(target, { onDraggableEnter });
 
         // The pointer parks in the bottom edge zone and never moves again.
         startTouchDrag(source, 200, 380);
@@ -2880,7 +2880,7 @@ describe('engine.registerAutoScroller', () => {
         });
 
         expect(panned).toBeGreaterThan(620);
-        expect(onDragEnter).toHaveBeenCalled();
+        expect(onDraggableEnter).toHaveBeenCalled();
 
         endTouchDrag(200, 380);
       });
@@ -2925,7 +2925,7 @@ describe('engine.registerAutoScroller', () => {
     Object.defineProperty(scroller, 'clientHeight', { value: 100 });
 
     engine.registerDraggable(source, {
-      pointerActivation: { touch: { type: 'immediate' } },
+      activation: { touch: { type: 'immediate' } },
     });
     engine.registerAutoScroller(scroller, {});
 

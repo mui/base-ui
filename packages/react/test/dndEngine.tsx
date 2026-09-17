@@ -15,7 +15,7 @@ import { installDndTestEnv, registerCleanup } from './dnd';
 import { anyDragKind, createKind } from '../src/utils/drag-and-drop/dragKind';
 import { DraggablePreviewProvider } from '../src/draggable/preview-provider/DraggablePreviewProvider';
 import { useDragDropManager } from '../src/use-drag-drop-manager';
-import type { DragAccept, DragKind, DragStartContext } from '../src/types/drag';
+import type { DragAccept, DragKind, MoveStartContext } from '../src/types/drag';
 import type {
   DragDropManager,
   RegisterDraggableParameters,
@@ -42,7 +42,7 @@ type TestDraggableParameters<TData> = Omit<
 > & {
   kind?: DragKind<TData> | undefined;
   payload?: TData | undefined;
-  getPayload?: ((context: DragStartContext) => TData) | undefined;
+  getPayload?: ((context: MoveStartContext) => TData) | undefined;
 };
 
 /** A plain value or a getter for it — a test-only convenience (see {@link asGetter}). */

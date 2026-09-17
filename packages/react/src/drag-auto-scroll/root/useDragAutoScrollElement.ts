@@ -11,7 +11,7 @@ import { useRegistrationRef } from '../../utils/drag-and-drop/useRegistrationRef
 /**
  * Configures the element the returned `ref` is attached to as an auto-scroll
  * container, and enables auto-scroll when used without a provider. Backs
- * `DragAutoScroll.Root`.
+ * `Draggable.Viewport`.
  *
  * Once enabled, the engine also infers nested scroll containers from the DOM.
  *

@@ -1,12 +1,11 @@
 'use client';
+import { Draggable } from '@base-ui/react/draggable';
+
 import * as React from 'react';
 import clsx from 'clsx';
 import { Menu } from '@base-ui/react/menu';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import { DragAutoScroll } from '@base-ui/react/drag-auto-scroll';
-import { Draggable } from '@base-ui/react/draggable';
-import { DropTarget } from '@base-ui/react/drop-target';
-import { useDragMonitor } from '@base-ui/react/use-drag-monitor';
+
 import theme from './theme.module.css';
 import styles from './data-grid-mui-x.module.css';
 
@@ -180,11 +179,11 @@ function ColumnHeader({
   boundaryRef: React.RefObject<HTMLDivElement | null>;
 }) {
   return (
-    <DropTarget.Root
+    <Draggable.Target
       accept={columnKind}
       trackDragOver={false}
-      onDrag={({ self }) => {
-        onDragOver(column.id, self.getLocalPoint().x < 0.5);
+      onDraggableMove={({ target }) => {
+        onDragOver(column.id, target.getLocalPoint().x < 0.5);
       }}
       className={styles.headerCell}
       style={{ width: column.width }}
@@ -206,7 +205,7 @@ function ColumnHeader({
         {/* The clone keeps the source label, dimensions and CSS-module class. Only
             its placement needs configuring: keep it inside the grid instead of
             trailing the pointer off the page. */}
-        <Draggable.ClonedPreview modifiers={Draggable.restrictToElement(boundaryRef)} />
+        <Draggable.Preview modifiers={Draggable.restrictToElement(boundaryRef)} />
       </Draggable.Root>
       <Menu.Root>
         <Menu.Trigger
@@ -230,7 +229,7 @@ function ColumnHeader({
           </Menu.Positioner>
         </Menu.Portal>
       </Menu.Root>
-    </DropTarget.Root>
+    </Draggable.Target>
   );
 }
 
@@ -251,11 +250,11 @@ function GridRow({
   boundaryRef: React.RefObject<HTMLDivElement | null>;
 }) {
   return (
-    <DropTarget.Root
+    <Draggable.Target
       accept={rowKind}
       trackDragOver={false}
-      onDrag={({ self }) => {
-        onDragOver(row.id, self.getLocalPoint().y < 0.5);
+      onDraggableMove={({ target }) => {
+        onDragOver(row.id, target.getLocalPoint().y < 0.5);
       }}
       className={styles.row}
       style={{ height: ROW_HEIGHT }}
@@ -291,7 +290,7 @@ function GridRow({
         ))}
         <div className={styles.columnSpacer} style={{ width: trailingWidth }} />
       </Draggable.Root>
-    </DropTarget.Root>
+    </Draggable.Target>
   );
 }
 
@@ -369,7 +368,7 @@ function DataGridInner() {
     }
   });
 
-  useDragMonitor({
+  Draggable.useDragMonitor({
     accept: [columnKind, rowKind],
     // Commit only for a drag released over an accepting target.
     onDrop: ({ source: dropped }) => {
@@ -381,7 +380,7 @@ function DataGridInner() {
       }
     },
     // Clear the indicator however the drag ended, cancels included.
-    onDragEnd: () => setDropIndicator(null),
+    onMoveEnd: () => setDropIndicator(null),
   });
 
   const totalHeight = rows.length * ROW_HEIGHT;
@@ -436,7 +435,7 @@ function DataGridInner() {
           <div className={styles.columnIndicator} style={{ left: columnGapX - 1 }} />
         )}
 
-        <DragAutoScroll.Root
+        <Draggable.Viewport
           accept={[columnKind, rowKind]}
           // Auto-scroll only along the axis the active drag moves: a row drag
           // scrolls the viewport vertically, a column drag scrolls it
@@ -493,7 +492,7 @@ function DataGridInner() {
               ))}
             </div>
           </div>
-        </DragAutoScroll.Root>
+        </Draggable.Viewport>
       </div>
     </div>
   );

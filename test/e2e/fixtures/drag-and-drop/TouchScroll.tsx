@@ -15,8 +15,8 @@ export default function TouchScroll() {
 
   useDragMonitor({
     accept: itemKind,
-    onDragStart: () => setStartCount((count) => count + 1),
-    onDragEnd: () => setEndCount((count) => count + 1),
+    onMoveStart: () => setStartCount((count) => count + 1),
+    onMoveEnd: () => setEndCount((count) => count + 1),
   });
 
   return (
@@ -26,7 +26,7 @@ export default function TouchScroll() {
       <Draggable.Root
         data-testid="drag-source"
         kind={itemKind}
-        pointerActivation={{ touch: { type: 'press-hold', delay: 250 } }}
+        activation={{ touch: { type: 'press-hold', delay: 250 } }}
         style={{ width: 200, height: 100, background: 'lightgray' }}
       >
         Hold to drag

@@ -1,10 +1,10 @@
 'use client';
+import { Draggable } from '@base-ui/react/draggable';
+
 import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
-import { DragAutoScroll } from '@base-ui/react/drag-auto-scroll';
-import { Draggable } from '@base-ui/react/draggable';
-import { DropTarget } from '@base-ui/react/drop-target';
+
 import {
   AllDayRowDropData,
   buildWeekDays,
@@ -60,7 +60,7 @@ export function CalendarWeekView(props: { weekStartMs: number }) {
     >
       <WeekHeader days={days} todayMs={todayMs} />
       <WeekAllDayRow days={days} events={allDayEvents} weekStartMs={weekStartMs} />
-      <DragAutoScroll.Root allowedAxis="vertical" className={styles.weekScroll} ref={scrollRef}>
+      <Draggable.Viewport allowedAxis="vertical" className={styles.weekScroll} ref={scrollRef}>
         <div className={styles.weekBody}>
           <WeekHourLabels />
           <div className={styles.weekColumns}>
@@ -69,7 +69,7 @@ export function CalendarWeekView(props: { weekStartMs: number }) {
             ))}
           </div>
         </div>
-      </DragAutoScroll.Root>
+      </Draggable.Viewport>
     </div>
   );
 }
@@ -192,14 +192,14 @@ function WeekAllDayCell(props: { dayMs: number }) {
         allDay: true,
       }}
       render={
-        <DropTarget.Root
+        <Draggable.Target
           kind={calAllDayRowKind}
           accept={CAL_DRAG_KINDS}
           getPayload={(): AllDayRowDropData => ({
             dayMs: dayMsRef.current,
           })}
-          onDrag={({ source, self }) => {
-            const next = resolveDropPreview(source, self);
+          onDraggableMove={({ source, target }) => {
+            const next = resolveDropPreview(source, target);
             if (!next) {
               return;
             }
@@ -237,7 +237,7 @@ function WeekAllDayCell(props: { dayMs: number }) {
     >
       {/* The drag source is the all-day cell itself; a clone of it would be a
           full-width preview. The in-grid drop preview shows the range being created. */}
-      <Draggable.ClonedPreview disabled />
+      <Draggable.Preview disabled />
     </Draggable.Root>
   );
 }
@@ -380,7 +380,7 @@ function WeekDayColumn(props: { dayMs: number; events: CalendarEvent[] }) {
     <Draggable.Root
       kind={calEventCreateKind}
       render={
-        <DropTarget.Root
+        <Draggable.Target
           kind={calDayColumnKind}
           accept={CAL_DRAG_KINDS}
           getPayload={(): DayColumnDropData => ({
@@ -393,8 +393,8 @@ function WeekDayColumn(props: { dayMs: number; events: CalendarEvent[] }) {
           // One day divides into `DAY_MS / snap` slots; a callback because the
           // snap setting is runtime state.
           snap={() => ({ y: DAY_MS / (snapRef.current * MINUTE_MS) })}
-          onDrag={({ source, self }) => {
-            const next = resolveDropPreview(source, self);
+          onDraggableMove={({ source, target }) => {
+            const next = resolveDropPreview(source, target);
             if (!next) {
               return;
             }

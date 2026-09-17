@@ -40,7 +40,7 @@ const untrackedTargetStateStore = new Store(0);
 
 /**
  * Registers the element the returned `ref` is attached to as a drop target, and
- * tracks whether a matching source is over it. Backs `DropTarget.Root`.
+ * tracks whether a matching source is over it. Backs `Draggable.Target`.
  *
  * The parameters are read through a ref on every dispatch, so a re-render never
  * re-registers and the freshest callbacks always apply.
@@ -91,7 +91,7 @@ export function useDropTargetElement(
     previousCanDropRef.current = canDrop;
     // Parameter changes re-resolve from the last event target rather than
     // hit-testing the live DOM again. An inline `canDrop` commonly changes
-    // identity after its own `onDrag` updates preview state; re-hit-testing the
+    // identity after its own `onMove` updates preview state; re-hit-testing the
     // shifted content there can enter another target, update preview state
     // again, and create a synchronous render/refresh loop.
     scheduleDropTargetParameterRefresh(elementRef.current);

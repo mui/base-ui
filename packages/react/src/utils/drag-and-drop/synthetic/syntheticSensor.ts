@@ -205,7 +205,7 @@ type PointerAtTeardown = 'released' | 'held' | 'none';
  * suppression armed at pointerdown is only released on a clean drop: a browser
  * cancellation (`pointercancel`/blur) keeps it armed, because on Android a
  * long-press fires `pointercancel` and *then* the `contextmenu` that must stay
- * suppressed (the 1.5s timer self-heals it).
+ * suppressed (the 1.5s timer target-heals it).
  */
 function clearActive(
   releaseContextMenuSuppression: boolean = false,
@@ -337,7 +337,7 @@ function cancelActive(
 }
 
 /**
- * Programmatically cancel an in-progress pointer drag (fires `onDragEnd` with
+ * Programmatically cancel an in-progress pointer drag (fires `onMoveEnd` with
  * `canceled: true`). No-op when this sensor has no active session. Backs
  * `engine.cancelDrag()`.
  */
@@ -455,7 +455,7 @@ function onPointerDown(event: Event): void {
   // A disabled draggable never arms the pending phase, so the press behaves like
   // an ordinary click: no contextmenu suppression, and a natively-draggable
   // descendant (`<img>`, `<a href>`) keeps its native HTML5 drag. A *dynamic*
-  // veto belongs in `onBeforeDragStart`, dispatched at activation commit.
+  // veto belongs in `onBeforeMoveStart`, dispatched at activation commit.
   if (parameters.disabled) {
     return;
   }
@@ -480,7 +480,7 @@ function onPointerDown(event: Event): void {
     return;
   }
 
-  const activation = resolveActivation(parameters.pointerActivation, pointerType);
+  const activation = resolveActivation(parameters.activation, pointerType);
   const win = ownerWindow(element);
   // Only touch/pen long-presses can emit a stray `contextmenu` after the gesture
   // ends; arming this post-gesture safety net for mouse would suppress a
@@ -777,10 +777,10 @@ function commitActivation(): void {
   // Let the consumer veto the drag as it is about to start. Dispatched before
   // any resource is allocated, so canceling leaves nothing to undo beyond the
   // pending phase itself — nothing has lifted yet.
-  if (parameters.onBeforeDragStart) {
+  if (parameters.onBeforeMoveStart) {
     const eventDetails = createChangeEventDetails('pointer', pending.lastNativeEvent, target);
     try {
-      parameters.onBeforeDragStart({ input: lastInput, element, dragHandle }, eventDetails);
+      parameters.onBeforeMoveStart({ input: lastInput, element, dragHandle }, eventDetails);
     } catch (error) {
       // A throwing consumer handler must not leave the pending phase armed.
       clearPending(true);
@@ -881,7 +881,7 @@ function commitActivation(): void {
     lastMoveReason: 'pointer',
     modifiers,
     // Resolve once on the first active frame: confirms the entered target and
-    // emits the initial `onDrag`. Cleared immediately after, so every later
+    // emits the initial `onMove`. Cleared immediately after, so every later
     // stationary frame is gated.
     movedSinceFrame: true,
     scrolledSinceFrame: false,
@@ -1093,7 +1093,7 @@ function onActiveFrame(): void {
     return;
   }
 
-  // Clear before `controller.update`: a re-entrant consumer `onDrag` may
+  // Clear before `controller.update`: a re-entrant consumer `onMove` may
   // `scrollBy`, legitimately re-setting the flag for the next frame.
   active.movedSinceFrame = false;
   active.scrolledSinceFrame = false;
@@ -1137,7 +1137,7 @@ function onActivePointerMove(event: Event): void {
   // Wait one frame before treating `buttons === 0` as a missed release. A
   // terminal event in the same frame must take precedence.
   if (pointerEvent.buttons === 0) {
-    // Constrained like every reported input, so `onDragEnd` doesn't leak a raw
+    // Constrained like every reported input, so `onMoveEnd` doesn't leak a raw
     // coordinate the drag never reported while it was live.
     const input = modifyActiveInput(active, getInput(pointerEvent));
     active.terminalFrameQueued = true;
@@ -1272,7 +1272,7 @@ function syncActiveModifierKeys(event: KeyboardEvent): void {
   }
   active.lastInput = { ...active.lastInput, ...keys };
   // The press is where the new key flags came from, so it is the event the frame's
-  // `onDrag` should report — otherwise `eventDetails.event.shiftKey` and
+  // `onMove` should report — otherwise `eventDetails.event.shiftKey` and
   // `location.current.input.shiftKey` disagree inside the same callback.
   active.lastNativeEvent = event;
   active.lastMoveReason = 'modifier-key';
@@ -1392,7 +1392,7 @@ interface PendingSession {
   originX: number;
   originY: number;
   lastInput: DragInput;
-  /** The native event behind `lastInput`, carried into `onBeforeDragStart`'s details. */
+  /** The native event behind `lastInput`, carried into `onBeforeMoveStart`'s details. */
   lastNativeEvent: PointerEvent;
   startedAt: number;
   listeners: DragCleanupFn[];
@@ -1444,7 +1444,7 @@ interface ActiveSession {
    * each time `onActiveFrame` re-resolves. Gating on pointer activity (rather
    * than a coordinate delta) means a stationary pointer re-resolves nothing —
    * so a reorder sliding a new element under the still pointer can't re-fire
-   * onDrag and loop — while any genuine move re-resolves, including a move that
+   * onMove and loop — while any genuine move re-resolves, including a move that
    * reports the same coordinates as the previous one.
    */
   movedSinceFrame: boolean;

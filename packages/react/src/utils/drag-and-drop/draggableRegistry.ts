@@ -86,7 +86,7 @@ export function resolveDragHandle(parameters: RegisteredDraggableConfig): Elemen
  * target, find the nearest registered draggable ancestor, read its latest
  * parameters, resolve the drag handle, and enforce the handle-`contains` gate.
  * Returns `null` when the gesture must not start. Callers still run their own
- * `onBeforeDragStart` dispatch and `canStartLifecycle`.
+ * `onBeforeMoveStart` dispatch and `canStartLifecycle`.
  */
 export function resolveDraggablePickup(rawTarget: EventTarget | null): DraggablePickup | null {
   const target = isElement(rawTarget) ? rawTarget : null;

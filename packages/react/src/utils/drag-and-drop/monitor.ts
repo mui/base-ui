@@ -1,5 +1,10 @@
 import { matchesAccept } from './dragKind';
-import type { DragAccept, DragSource, DragEventDetailsMap, DragEventMap } from '../../types/drag';
+import type {
+  DragAccept,
+  DragSource,
+  DraggableEventDetailsMap,
+  DraggableEventMap,
+} from '../../types/drag';
 import { getSharedSlot } from './sharedState';
 import { containConsumerError } from './utils';
 
@@ -26,7 +31,7 @@ export const monitorRegistry = state.allMonitors;
 /**
  * Evaluate a just-registered monitor against an in-progress drag so it observes
  * the remainder of the active drag (e.g. a scroll container mounting mid-drag).
- * `onDragStart` has already fired, so it only receives subsequent events. No-op
+ * `onMoveStart` has already fired, so it only receives subsequent events. No-op
  * when no drag is active or the monitor is already engaged.
  */
 export function engageMonitorIfDragging(getMonitor: MonitorGetter): void {
@@ -69,11 +74,9 @@ export function activateMonitors(source: DragSource): void {
   }
 }
 
-export function dispatchToMonitors<K extends keyof DragEventMap & keyof RegisterMonitorParameters>(
-  eventName: K,
-  payload: DragEventMap[K],
-  eventDetails: DragEventDetailsMap[K],
-): void {
+export function dispatchToMonitors<
+  K extends keyof DraggableEventMap & keyof RegisterMonitorParameters,
+>(eventName: K, payload: DraggableEventMap[K], eventDetails: DraggableEventDetailsMap[K]): void {
   if (state.activeMonitors.size === 0) {
     return;
   }
@@ -101,11 +104,11 @@ export function dispatchToMonitors<K extends keyof DragEventMap & keyof Register
   }
 }
 
-function dispatchToMonitor<K extends keyof DragEventMap & keyof RegisterMonitorParameters>(
+function dispatchToMonitor<K extends keyof DraggableEventMap & keyof RegisterMonitorParameters>(
   getMonitor: MonitorGetter,
   eventName: K,
-  payload: DragEventMap[K],
-  eventDetails: DragEventDetailsMap[K],
+  payload: DraggableEventMap[K],
+  eventDetails: DraggableEventDetailsMap[K],
 ): void {
   // Contained per monitor, like each drop target's dispatch: a monitor is an
   // observer, and one broken observer must not starve the rest of them or
@@ -115,7 +118,8 @@ function dispatchToMonitor<K extends keyof DragEventMap & keyof RegisterMonitorP
     null,
     () => {
       const handler = getMonitor()[eventName] as
-        ((parameters: DragEventMap[K], details: DragEventDetailsMap[K]) => void) | undefined;
+        | ((parameters: DraggableEventMap[K], details: DraggableEventDetailsMap[K]) => void)
+        | undefined;
       handler?.(payload, eventDetails);
     },
     undefined,
@@ -142,30 +146,30 @@ export interface RegisterMonitorParameters<TSourceData = unknown> {
    * Event handler called when any matching drag starts (once per drag),
    * wherever it originated.
    */
-  onDragStart?:
+  onMoveStart?:
     | ((
-        parameters: DragEventMap<TSourceData>['onDragStart'],
-        eventDetails: DragEventDetailsMap['onDragStart'],
+        parameters: DraggableEventMap<TSourceData>['onMoveStart'],
+        eventDetails: DraggableEventDetailsMap['onMoveStart'],
       ) => void)
     | undefined;
   /**
    * Event handler called (rAF-throttled) as the pointer moves or a modifier key
    * changes during any matching drag.
    */
-  onDrag?:
+  onMove?:
     | ((
-        parameters: DragEventMap<TSourceData>['onDrag'],
-        eventDetails: DragEventDetailsMap['onDrag'],
+        parameters: DraggableEventMap<TSourceData>['onMove'],
+        eventDetails: DraggableEventDetailsMap['onMove'],
       ) => void)
     | undefined;
   /**
    * Event handler called when the active drop-target stack changes during any
    * matching drag.
    */
-  onDropTargetChange?:
+  onTargetChange?:
     | ((
-        parameters: DragEventMap<TSourceData>['onDropTargetChange'],
-        eventDetails: DragEventDetailsMap['onDropTargetChange'],
+        parameters: DraggableEventMap<TSourceData>['onTargetChange'],
+        eventDetails: DraggableEventDetailsMap['onTargetChange'],
       ) => void)
     | undefined;
   /**
@@ -174,8 +178,8 @@ export interface RegisterMonitorParameters<TSourceData = unknown> {
    */
   onDrop?:
     | ((
-        parameters: DragEventMap<TSourceData>['onDrop'],
-        eventDetails: DragEventDetailsMap['onDrop'],
+        parameters: DraggableEventMap<TSourceData>['onDrop'],
+        eventDetails: DraggableEventDetailsMap['onDrop'],
       ) => void)
     | undefined;
   /**
@@ -183,10 +187,10 @@ export interface RegisterMonitorParameters<TSourceData = unknown> {
    * cancellation. `eventDetails.reason` identifies the outcome. `dropTarget` is the
    * target of a release, or `null` when there was none.
    */
-  onDragEnd?:
+  onMoveEnd?:
     | ((
-        parameters: DragEventMap<TSourceData>['onDragEnd'],
-        eventDetails: DragEventDetailsMap['onDragEnd'],
+        parameters: DraggableEventMap<TSourceData>['onMoveEnd'],
+        eventDetails: DraggableEventDetailsMap['onMoveEnd'],
       ) => void)
     | undefined;
 }

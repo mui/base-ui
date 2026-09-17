@@ -52,7 +52,7 @@ export function createGlobalKind<TPayload = undefined>(key: string): DragKind<TP
       'Base UI: createGlobalKind requires a namespaced key. ' +
         'Global drag kind keys are shared page-wide, so an unnamespaced key can collide with another integration and expose the wrong payload type. ' +
         'Use a key such as "myapp/card". ' +
-        'See https://base-ui.com/react/drag-and-drop/overview',
+        'See https://base-ui.com/react/utils/draggable',
     );
   }
   return makeKind(key, Symbol.for(KIND_ID_PREFIX + key));
@@ -72,7 +72,7 @@ function makeKind<TPayload>(name: string, id: symbol): DragKind<TPayload> {
  * A catch-all kind for a drop target that accepts every drag on the page.
  *
  * ```tsx
- * <DropTarget.Root accept={DropTarget.anyKind} onDrop={commit} />
+ * <Draggable.Target accept={Draggable.anyKind} onDrop={commit} />
  * ```
  *
  * The accepted source's payload is `unknown` until narrowed with a specific kind.

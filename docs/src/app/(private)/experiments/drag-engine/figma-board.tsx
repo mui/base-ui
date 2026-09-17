@@ -1,13 +1,12 @@
 'use client';
+import { Draggable } from '@base-ui/react/draggable';
+
 import * as React from 'react';
 import clsx from 'clsx';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { ownerDocument } from '@base-ui/utils/owner';
-import { DragAutoScroll } from '@base-ui/react/drag-auto-scroll';
-import { Draggable } from '@base-ui/react/draggable';
-import { DropTarget } from '@base-ui/react/drop-target';
-import { useDragMonitor } from '@base-ui/react/use-drag-monitor';
+
 import { SettingsMetadata, useExperimentSettings } from '../_components/SettingsPanel';
 import theme from './theme.module.css';
 import styles from './figma-board.module.css';
@@ -365,7 +364,7 @@ function FigmaBoardInner() {
       {/* Auto-scroll the board while dragging near its edges. Its thresholds are
           client px, so at 25% they cover four times as much board as at 100%.
           `viewportRef` is also read for the preview modifier and the add-card math. */}
-      <DragAutoScroll.Root
+      <Draggable.Viewport
         className={clsx(styles.viewport, panning && styles.viewportPanning)}
         ref={viewportRef}
         data-space-held={spaceHeld || undefined}
@@ -386,7 +385,7 @@ function FigmaBoardInner() {
         >
           {/* The whole surface is a drop target, so a pointer release anywhere on the
               board counts as a real drop rather than a cancel. */}
-          <DropTarget.Root
+          <Draggable.Target
             className={clsx(styles.surface, zoomMode === 'transform' && styles.surfaceTransformed)}
             ref={surfaceRef}
             accept={cardKind}
@@ -417,9 +416,9 @@ function FigmaBoardInner() {
                 surfaceRef={surfaceRef}
               />
             ))}
-          </DropTarget.Root>
+          </Draggable.Target>
         </div>
-      </DragAutoScroll.Root>
+      </Draggable.Viewport>
     </div>
   );
 }
@@ -489,7 +488,7 @@ function BoardCard({
       // Distance activation instead of the `immediate` mouse default: a plain click
       // — and the second click of a double-click-to-edit — must not be swallowed by
       // a drag that commits on pointerdown. A real drag still starts after a 5px move.
-      pointerActivation={{ mouse: { type: 'distance', distance: 5 } }}
+      activation={{ mouse: { type: 'distance', distance: 5 } }}
       // Clamp the drag to the surface. A modifier
       // governs drop resolution too, so a release off the board resolves the
       // surface instead of cancelling. The surface rect is client-space, so this
@@ -585,7 +584,7 @@ function BoardCard({
       {/* The clone reuses the card and text markup. In transform mode the optional
           data attribute lets CSS scale its visual properties back to the source's
           painted size; native CSS zoom already reaches the clone without compensation. */}
-      <Draggable.ClonedPreview modifiers={Draggable.restrictToElement(boundaryRef)} />
+      <Draggable.Preview modifiers={Draggable.restrictToElement(boundaryRef)} />
     </Draggable.Root>
   );
 }
@@ -615,9 +614,9 @@ interface Measurement {
 function PreviewReadout({ zoom }: { zoom: number }) {
   const [measurement, setMeasurement] = React.useState<Measurement | null>(null);
 
-  useDragMonitor({
+  Draggable.useDragMonitor({
     accept: cardKind,
-    onDrag: ({ source }) => {
+    onMove: ({ source }) => {
       const element = source.element;
       const doc = ownerDocument(element);
       const view = doc.defaultView;
@@ -650,7 +649,7 @@ function PreviewReadout({ zoom }: { zoom: number }) {
           : next,
       );
     },
-    onDragEnd: () => setMeasurement(null),
+    onMoveEnd: () => setMeasurement(null),
   });
 
   if (!measurement) {

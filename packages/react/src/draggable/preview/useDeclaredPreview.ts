@@ -23,7 +23,7 @@ export function useDeclaredPreview<TData = unknown>(
   const previewContext = useDragPreviewContext();
 
   // Content needs a React tree to render in. Fail here rather than at drag start,
-  // so the stack points at the part that declared it. A `Draggable.ClonedPreview`
+  // so the stack points at the part that declared it. A `Draggable.Preview`
   // passes `null` and needs no provider — the engine clones without React.
   if (!disabled && render !== null && previewContext === null) {
     throwMissingPreviewProvider();
@@ -37,7 +37,7 @@ export function useDeclaredPreview<TData = unknown>(
       'Base UI: the <Draggable.PreviewProvider> for this preview is inside its ' +
         '<Draggable.Root>, so the root cannot use it to render the preview. ' +
         'Move the provider above the <Draggable.Root>. ' +
-        'See https://base-ui.com/react/components/draggable.',
+        'See https://base-ui.com/react/utils/draggable.',
     );
   }
 

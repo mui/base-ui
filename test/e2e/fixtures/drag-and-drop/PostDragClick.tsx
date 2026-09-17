@@ -17,7 +17,7 @@ export default function PostDragClick() {
 
   useDragMonitor({
     accept: itemKind,
-    onDragEnd: () => setEndCount((count) => count + 1),
+    onMoveEnd: () => setEndCount((count) => count + 1),
   });
 
   return (

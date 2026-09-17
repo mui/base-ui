@@ -22,8 +22,8 @@ const file = Draggable.createKind<FilePayload>('file');
 function AcceptsOneKind() {
   useDragMonitor({
     accept: card,
-    onDragStart: ({ source }) => expectType<CardPayload, typeof source.payload>(source.payload),
-    onDragEnd: ({ source, canceled }) => {
+    onMoveStart: ({ source }) => expectType<CardPayload, typeof source.payload>(source.payload),
+    onMoveEnd: ({ source, canceled }) => {
       expectType<CardPayload, typeof source.payload>(source.payload);
       expectType<boolean, typeof canceled>(canceled);
     },
@@ -34,7 +34,7 @@ function AcceptsOneKind() {
 function AcceptsTwoKinds() {
   useDragMonitor({
     accept: [card, file],
-    onDrag: ({ source }) => {
+    onMove: ({ source }) => {
       expectType<CardPayload | FilePayload, typeof source.payload>(source.payload);
       if (file.matches(source)) {
         expectType<FilePayload, typeof source.payload>(source.payload);
@@ -46,19 +46,19 @@ function AcceptsTwoKinds() {
 // A monitor with no `accept` observes every drag, so its payload is `unknown`.
 function AcceptsEverything() {
   useDragMonitor({
-    onDragStart: ({ source }) => expectType<unknown, typeof source.payload>(source.payload),
+    onMoveStart: ({ source }) => expectType<unknown, typeof source.payload>(source.payload),
   });
 }
 
 function RejectsMismatchedHandler() {
   // @ts-expect-error a handler declaring a payload `accept` doesn't promise is rejected.
-  useDragMonitor({ accept: card, onDrag: (event: { source: { payload: FilePayload } }) => event });
+  useDragMonitor({ accept: card, onMove: (event: { source: { payload: FilePayload } }) => event });
 }
 
 // `Parameters` is keyed on the observed payload, and still forwards into the hook.
 const cardMonitor: useDragMonitor.Parameters<CardPayload> = {
   accept: card,
-  onDragEnd: ({ source, dropTarget }) => dropTarget && commit(source.payload.id),
+  onMoveEnd: ({ source, dropTarget }) => dropTarget && commit(source.payload.id),
 };
 
 function ForwardsDeclaredParameters() {

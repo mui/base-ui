@@ -9,7 +9,7 @@ export type DragPointerType = 'mouse' | 'pen' | 'touch';
 export interface DragInput {
   /**
    * `MouseEvent.button` semantics: 0 = primary, 1 = middle, 2 = secondary.
-   * Move-derived events (`onDrag`, `onDropTargetChange`) carry `-1`, as no button changed.
+   * Move-derived events (`onMove`, `onTargetChange`) carry `-1`, as no button changed.
    * Read `buttons` for what is held mid-drag.
    */
   button: number;
@@ -100,10 +100,10 @@ export interface DropTargetRecord<TLocalData = unknown> {
    * spread across the target rather than to the target itself:
    *
    * ```tsx
-   * <DropTarget.Root
+   * <Draggable.Target
    *   accept={eventKind}
-   *   onDrop={({ self }) => {
-   *     schedule(self.getLocalPoint().y * MINUTES_PER_DAY);
+   *   onDraggableDrop={({ target }) => {
+   *     schedule(target.getLocalPoint().y * MINUTES_PER_DAY);
    *   }}
    * />
    * ```
@@ -121,12 +121,12 @@ export interface DropTargetRecord<TLocalData = unknown> {
    * between `0` and `1`:
    *
    * ```tsx
-   * <DropTarget.Root
+   * <Draggable.Target
    *   accept={eventKind}
    *   snap={{ y: 96 }}
-   *   onDrop={({ source, self }) => {
+   *   onDraggableDrop={({ source, target }) => {
    *     // Already a multiple of 15 minutes.
-   *     schedule(source.payload.id, self.getSnappedLocalPoint().y * MINUTES_PER_DAY);
+   *     schedule(source.payload.id, target.getSnappedLocalPoint().y * MINUTES_PER_DAY);
    *   }}
    * />
    * ```
@@ -150,6 +150,8 @@ export interface DragLocation {
 
 /** The locations carried with every drag event. */
 export interface DragLocationHistory {
+  /** The pointer's offset from the source's top-left at pickup, in CSS pixels. */
+  grabOffset?: DragPosition | undefined;
   /** The location when the drag began. */
   initial: DragLocation;
   /** The location at the moment this event fires. */
@@ -192,7 +194,7 @@ export interface DragSource<TData = unknown> {
  * `Draggable.createGlobalKind`.
  *
  * `TPayload` is the data things of this kind carry, so declaring it once on the kind
- * types `source.payload` and `self.payload` everywhere the kind is used.
+ * types `source.payload` and `target.payload` everywhere the kind is used.
  */
 export interface DragKind<TPayload = unknown> {
   /**
@@ -288,34 +290,42 @@ export type DragPreviewContainer =
 
 /**
  * The event object of each drag-and-drop event, indexed by the event name.
- * `DragEventMap<TData>['onDrag']` is the event object passed to `onDrag` callbacks.
+ * `DraggableEventMap<TData>['onMove']` is the event object passed to `onMove` callbacks.
  * For a drop target's handlers use {@link DropTargetEvent} (or {@link DropEvent}),
- * which add the target's own `self` record.
+ * which add the target's own `target` record.
  */
-export interface DragEventMap<TSourceData = unknown> {
-  onDragStart: DragStartEvent<TSourceData>;
-  onDrag: DragMoveEvent<TSourceData>;
-  onDropTargetChange: DropTargetChangeEvent<TSourceData>;
-  onDragEnter: BaseDragEvent<TSourceData>;
-  onDragLeave: BaseDragEvent<TSourceData>;
+export interface DraggableEventMap<TSourceData = unknown> {
+  onMoveStart: MoveStartEvent<TSourceData>;
+  onMove: MoveEvent<TSourceData>;
+  onTargetChange: DropTargetChangeEvent<TSourceData>;
   onDrop: DragDropEvent<TSourceData>;
-  onDragEnd: DragEndEvent<TSourceData>;
+  onMoveEnd: MoveEndEvent<TSourceData>;
+}
+
+/** Events received by a drop target, before its own target record is attached. */
+export interface DropTargetEventMap<TSourceData = unknown> {
+  onDraggableStart: MoveStartEvent<TSourceData>;
+  onDraggableMove: MoveEvent<TSourceData>;
+  onTargetChange: DropTargetChangeEvent<TSourceData>;
+  onDraggableEnter: BaseDragEvent<TSourceData>;
+  onDraggableLeave: BaseDragEvent<TSourceData>;
+  onDraggableDrop: DragDropEvent<TSourceData>;
 }
 
 /** The drag context passed to a drag preview's `render` callback at drag start. */
 export type DragPreviewRenderEvent<TSourceData = unknown> = BaseDragEvent<TSourceData>;
 
-/** The event object passed to `onDragStart`. */
-export type DragStartEvent<TSourceData = unknown> = BaseDragEvent<TSourceData>;
+/** The event object passed to `onMoveStart`. */
+export type MoveStartEvent<TSourceData = unknown> = BaseDragEvent<TSourceData>;
 
-/** The event object passed to `onDrag`. */
-export type DragMoveEvent<TSourceData = unknown> = BaseDragEvent<TSourceData>;
+/** The event object passed to `onMove`. */
+export type MoveEvent<TSourceData = unknown> = BaseDragEvent<TSourceData>;
 
-/** The event object passed to `onDropTargetChange`. */
+/** The event object passed to `onTargetChange`. */
 export type DropTargetChangeEvent<TSourceData = unknown> = BaseDragEvent<TSourceData>;
 
-/** The event object passed to `onDragEnd`. */
-export type DragEndEvent<TSourceData = unknown> = BaseDragEvent<TSourceData> & {
+/** The event object passed to `onMoveEnd`. */
+export type MoveEndEvent<TSourceData = unknown> = BaseDragEvent<TSourceData> & {
   /**
    * Whether the drag was aborted instead of released by the user.
    * A drag released outside of any drop target is not canceled; read `dropTarget` for that,
@@ -332,7 +342,7 @@ export type DragEndEvent<TSourceData = unknown> = BaseDragEvent<TSourceData> & {
 /**
  * The event object passed to `onDrop`. This event fires only after release over an
  * accepting target, so `dropTarget` is never `null`. In a drop target's `onDrop`,
- * it is the same record as `self`.
+ * it is the same record as `target`.
  */
 export type DragDropEvent<TSourceData = unknown> = BaseDragEvent<TSourceData> & {
   dropTarget: DropTargetRecord;
@@ -343,27 +353,27 @@ export type DropEvent<TSourceData = unknown, TLocalData = unknown> = Omit<
   DragDropEvent<TSourceData>,
   'dropTarget'
 > &
-  DropTargetSelf<TLocalData> & {
+  DropTargetEventTarget<TLocalData> & {
     dropTarget: DropTargetRecord<TLocalData>;
   };
 
 /**
  * The event object passed to a drop target's event `K`.
- * Use it to type a handler extracted out of the JSX, which `DragEventMap` alone
- * would leave without `self`:
+ * Use it to type a handler extracted out of the JSX, which `DraggableEventMap` alone
+ * would leave without `target`:
  *
  * ```ts
- * function handleDragEnter(event: DropTargetEvent<'onDragEnter', CardPayload, SlotData>) {}
+ * function handleDragEnter(event: DropTargetEvent<'onDraggableEnter', CardPayload, SlotData>) {}
  * ```
  */
 export type DropTargetEvent<
-  K extends keyof DragEventMap,
+  K extends keyof DropTargetEventMap,
   TSourceData = unknown,
   TLocalData = unknown,
-> = DragEventMap<TSourceData>[K] & DropTargetSelf<TLocalData>;
+> = DropTargetEventMap<TSourceData>[K] & DropTargetEventTarget<TLocalData>;
 
-/** Context passed to a draggable's `getPayload` and `onBeforeDragStart` callbacks. */
-export interface DragStartContext {
+/** Context passed to a draggable's `getPayload` and `onBeforeMoveStart` callbacks. */
+export interface MoveStartContext {
   /** Pointer state at drag start. */
   input: DragInput;
   /** The draggable's own DOM element. */
@@ -378,7 +388,7 @@ export interface DragStartContext {
 export type DraggablePayload<TData> = NoInfer<TData>;
 
 /** Resolves a draggable's payload once, when the drag starts. */
-export type DraggablePayloadGetter<TData> = (context: DragStartContext) => NoInfer<TData>;
+export type DraggablePayloadGetter<TData> = (context: MoveStartContext) => NoInfer<TData>;
 
 /**
  * Determines the element that must receive the press for a drag to start.
@@ -408,8 +418,8 @@ type DragReasonToEvent<TReason extends string> = TReason extends 'pointer'
           ? PointerEvent
           : Event;
 
-/** The event details passed to `onBeforeDragStart`. Call `cancel()` to prevent the drag. */
-export type BeforeDragStartEventDetails = {
+/** The event details passed to `onBeforeMoveStart`. Call `cancel()` to prevent the drag. */
+export type BeforeMoveStartEventDetails = {
   [TReason in DragStartReason]: {
     /** Why the pickup started. */
     reason: TReason;
@@ -482,7 +492,7 @@ export type DropTargetChangeReason = DragMoveReason | DragEndReason;
  * The details of a drag event, passed as the second argument to every handler.
  * Contains the event `reason` and native `event`, which are not included in the
  * first handler argument. These events cannot be canceled because Base UI has
- * already applied the action. Use `onBeforeDragStart` to cancel a drag pickup.
+ * already applied the action. Use `onBeforeMoveStart` to cancel a drag pickup.
  */
 export type DragEventDetails<TReason extends string> = {
   [Reason in TReason]: {
@@ -496,29 +506,37 @@ export type DragEventDetails<TReason extends string> = {
   };
 }[TReason];
 
-/** The event details passed to `onDragStart`. */
-export type DragStartEventDetails = DragEventDetails<DragStartReason>;
-/** The event details passed to `onDrag`. */
-export type DragMoveEventDetails = DragEventDetails<DragMoveReason>;
-/** The event details passed to `onDropTargetChange`, `onDragEnter` and `onDragLeave`. */
+/** The event details passed to `onMoveStart`. */
+export type MoveStartEventDetails = DragEventDetails<DragStartReason>;
+/** The event details passed to `onMove`. */
+export type MoveEventDetails = DragEventDetails<DragMoveReason>;
+/** The event details passed to `onTargetChange`, `onDraggableEnter` and `onDraggableLeave`. */
 export type DropTargetChangeEventDetails = DragEventDetails<DropTargetChangeReason>;
 /** The event details passed to `onDrop`. */
 export type DragDropEventDetails = DragEventDetails<DragDropReason>;
-/** The event details passed to `onDragEnd`. */
-export type DragEndEventDetails = DragEventDetails<DragEndReason>;
+/** The event details passed to `onMoveEnd`. */
+export type MoveEndEventDetails = DragEventDetails<DragEndReason>;
 
 /**
  * Maps each drag event to the details object its handler receives second.
- * The parallel of {@link DragEventMap}, which maps them to their payloads.
+ * The parallel of {@link DraggableEventMap}, which maps them to their payloads.
  */
-export interface DragEventDetailsMap {
-  onDragStart: DragStartEventDetails;
-  onDrag: DragMoveEventDetails;
-  onDropTargetChange: DropTargetChangeEventDetails;
-  onDragEnter: DropTargetChangeEventDetails;
-  onDragLeave: DropTargetChangeEventDetails;
+export interface DraggableEventDetailsMap {
+  onMoveStart: MoveStartEventDetails;
+  onMove: MoveEventDetails;
+  onTargetChange: DropTargetChangeEventDetails;
   onDrop: DragDropEventDetails;
-  onDragEnd: DragEndEventDetails;
+  onMoveEnd: MoveEndEventDetails;
+}
+
+/** The details object received as the second argument of a target handler. */
+export interface DropTargetEventDetailsMap {
+  onDraggableStart: MoveStartEventDetails;
+  onDraggableMove: MoveEventDetails;
+  onTargetChange: DropTargetChangeEventDetails;
+  onDraggableEnter: DropTargetChangeEventDetails;
+  onDraggableLeave: DropTargetChangeEventDetails;
+  onDraggableDrop: DragDropEventDetails;
 }
 
 /** Context passed to a drop target's `canDrop` and `getPayload` callbacks. */
@@ -540,9 +558,9 @@ export type DropTargetPayloadGetter<TSourceData, TLocalData> = (
 ) => TLocalData;
 
 /** Extra fields included in the events of a drop target. */
-export interface DropTargetSelf<TLocalData = unknown> {
+export interface DropTargetEventTarget<TLocalData = unknown> {
   /** This drop target's own record. */
-  self: DropTargetRecord<TLocalData>;
+  target: DropTargetRecord<TLocalData>;
 }
 
 /**
@@ -665,8 +683,7 @@ export interface DragPreviewSettings {
  * Omit it to use a sanitized clone of the source. The clone preserves classes
  * and live element state, but rewrites IDs to keep the document unique.
  *
- * Components describe the preview with `Draggable.Preview` or
- * `Draggable.ClonedPreview` instead.
+ * Components describe the preview with `Draggable.Preview` instead.
  */
 export interface DragPreviewParameters<TSourceData = unknown> extends DragPreviewSettings {
   /**

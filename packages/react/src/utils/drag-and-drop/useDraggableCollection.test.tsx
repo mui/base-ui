@@ -464,7 +464,7 @@ describe('useDraggableCollection', () => {
       await dragOver(target, { clientY: 260 });
 
       // `canDrop` computed the position while the stack resolved, and the row's
-      // `onDrag` in the same frame reused it rather than measuring again.
+      // `onMove` in the same frame reused it rather than measuring again.
       expect(canDrop).toHaveBeenLastCalledWith(expect.objectContaining({ position: 'on' }));
       expect(measure).toHaveBeenCalledTimes(1);
     });
@@ -962,7 +962,7 @@ describe('useDraggableCollection', () => {
       { targetId: 'a', parentMap: {} },
       { targetId: 'b', parentMap: { b: 'a' } },
     ])(
-      'accepts foreign IDs without applying local self/ancestry checks: $targetId',
+      'accepts foreign IDs without applying local target/ancestry checks: $targetId',
       async ({ targetId, parentMap }) => {
         const onDrop = vi.fn();
         const sourceCollection = setupPlugin({ kind: cardsKind }, { knownItemIds: ['a'] });

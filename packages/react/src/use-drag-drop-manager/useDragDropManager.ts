@@ -10,7 +10,7 @@ export {
 
 /**
  * Returns the page-wide drag-and-drop manager. It includes the registration methods that
- * `Draggable.Root`, `DropTarget.Root`, `DragAutoScroll.Root`, and `useDragMonitor`
+ * `Draggable.Root`, `Draggable.Target`, `Draggable.Viewport`, and `useDragMonitor`
  * are built on, plus `cancelDrag` to end the drag in progress.
  *
  * Use it to register an existing element, integrate a non-React widget, or keep
@@ -19,7 +19,7 @@ export {
  * Every call controls the same page-wide manager. Base UI reads the nearest
  * `Draggable.PreviewProvider` at the hook's call site.
  *
- * Documentation: [Base UI useDragDropManager](https://base-ui.com/react/utils/use-drag-drop-manager)
+ * Documentation: [Base UI useDragDropManager](https://base-ui.com/react/utils/draggable#usedragdropmanager)
  *
  * @public
  */

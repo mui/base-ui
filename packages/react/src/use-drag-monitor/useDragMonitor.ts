@@ -11,7 +11,7 @@ import type { WithInferredAccept } from '../types/dragRegistration';
  * element started it. Use it for status indicators, analytics, or committing a
  * reorder on drop.
  *
- * Documentation: [Base UI useDragMonitor](https://base-ui.com/react/utils/use-drag-monitor)
+ * Documentation: [Base UI useDragMonitor](https://base-ui.com/react/utils/draggable#usedragmonitor)
  *
  * @public
  */
@@ -48,14 +48,14 @@ export type {
   BaseDragEvent,
   DragDropEvent,
   DragDropEventDetails,
-  DragEndEvent,
-  DragEndEventDetails,
-  DragEventMap,
-  DragMoveEvent,
-  DragMoveEventDetails,
+  MoveEndEvent,
+  MoveEndEventDetails,
+  DraggableEventMap,
+  MoveEvent,
+  MoveEventDetails,
   DragMoveReason,
-  DragStartEvent,
-  DragStartEventDetails,
+  MoveStartEvent,
+  MoveStartEventDetails,
   DropTargetChangeEvent,
   DropTargetChangeEventDetails,
 } from '../types/drag';

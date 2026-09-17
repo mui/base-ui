@@ -90,7 +90,7 @@ export type RegisterDropTargetParameters<TSourceData = unknown, TLocalData = unk
    * One or more drag source kinds accepted by this target.
    *
    * Every registration uses the same page-wide drag manager, so this value is
-   * required. Pass `DropTarget.anyKind` to accept every drag. In that case,
+   * required. Pass `Draggable.anyKind` to accept every drag. In that case,
    * `source.payload` is `unknown`.
    *
    * The target ignores a source whose kind is not accepted. An ancestor target can
@@ -157,17 +157,16 @@ export type InternalDraggableParameters<TData = undefined> = RegisterDraggablePa
 
 /**
  * React's native HTML drag-and-drop props omitted from `Draggable.Root` and
- * `DropTarget.Root`. Base UI uses some of these names, such as `onDragStart` and
- * `onDrop`, for its own handlers. Including both sets would create unusable unions
- * of unrelated handler types.
+ * `Draggable.Target`. Native dragging is separate from the pointer interaction
+ * implemented by these parts. The source's `onDrop` belongs to Base UI.
  *
  * The native events are still reachable through `render`, whose element props are
  * merged over the component's own:
  *
  * ```jsx
- * <DropTarget.Root
+ * <Draggable.Target
  *   accept={card}
- *   onDrop={handleEngineDrop}
+ *   onDraggableDrop={handleEngineDrop}
  *   render={<div onDrop={handleFileDrop} onDragOver={allowFileDrop} />}
  * />
  * ```
@@ -191,7 +190,7 @@ export type NativeDragEventProps =
   | 'onDropCapture';
 
 /**
- * Parameters accepted by `DragAutoScroll.Root` and `registerAutoScroller`.
+ * Parameters accepted by `Draggable.Viewport` and `registerAutoScroller`.
  * Scroll containers, including the page, scroll automatically during a drag.
  * Use these parameters to disable scrolling, limit the axes, change the speed,
  * or implement custom scrolling with `applyScroll`.
@@ -241,7 +240,7 @@ export interface DragDropManager {
    * cleanup that unregisters it.
    */
   // Overloaded so `payload` both drives inference and stays required once the
-  // caller declares a `TLocalData` of their own, mirroring `DropTarget.Root`.
+  // caller declares a `TLocalData` of their own, mirroring `Draggable.Target`.
   registerDropTarget: {
     // Local data is `undefined` at the fallback, not `unknown`: `kind` is typed
     // from it, so a payload-carrying kind can't register without payload data.
@@ -291,7 +290,7 @@ export interface DragDropManager {
   ) => DragCleanupFn;
   /**
    * Cancels the drag in progress, if any.
-   * Fires `onDragEnd` with `canceled: true`.
+   * Fires `onMoveEnd` with `canceled: true`.
    */
   cancelDrag: () => void;
 }

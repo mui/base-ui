@@ -23,7 +23,7 @@ describe('dragSessionStore', () => {
     fireEvent.dragStart(source);
 
     // start() publishes the session snapshot synchronously, just before it
-    // dispatches onDragStart.
+    // dispatches onMoveStart.
     const startSnapshot = dragSessionStore.state;
     expect(startSnapshot).not.toBeNull();
     expect(startSnapshot!.source.element).toBe(source);

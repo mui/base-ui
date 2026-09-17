@@ -1,11 +1,12 @@
 'use client';
+import { Draggable, type DropTargetEvent } from '@base-ui/react/draggable';
+
 import * as React from 'react';
 import clsx from 'clsx';
 import { Menu } from '@base-ui/react/menu';
 import { ContextMenu } from '@base-ui/react/context-menu';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import { Draggable } from '@base-ui/react/draggable';
-import { DropTarget, type DropTargetEvent } from '@base-ui/react/drop-target';
+
 import theme from './theme.module.css';
 import styles from './reorderable-menus.module.css';
 
@@ -152,9 +153,9 @@ function useReorderableEntries(initialEntries: MenuEntry[]) {
 
   return {
     entries,
-    onDragStart: handleDragStart,
+    onMoveStart: handleDragStart,
     onDrop: handleDrop,
-    onDragEnd: handleDragEnd,
+    onMoveEnd: handleDragEnd,
     onDragOverEntry: handleDragOverEntry,
     onKeyboardMove: handleKeyboardMove,
     reset,
@@ -171,10 +172,10 @@ interface ReorderableItemProps {
 function ReorderableItem(props: ReorderableItemProps) {
   const { Item, entry, popupRef, list } = props;
 
-  const handleDrag = useStableCallback((event: DropTargetEvent<'onDrag', string>) => {
+  const handleDrag = useStableCallback((event: DropTargetEvent<'onDraggableMove', string>) => {
     // Resolve from the item's midpoint so the dragged entry settles above or
     // below the one under the pointer.
-    list.onDragOverEntry(event.source.payload, entry.id, event.self.getLocalPoint().y > 0.5);
+    list.onDragOverEntry(event.source.payload, entry.id, event.target.getLocalPoint().y > 0.5);
   });
 
   const handleKeyDown = useStableCallback((event: React.KeyboardEvent) => {
@@ -197,11 +198,15 @@ function ReorderableItem(props: ReorderableItemProps) {
           kind={menuItemKind}
           payload={entry.id}
           modifiers={Draggable.restrictToVerticalAxis}
-          onDragStart={list.onDragStart}
+          onMoveStart={list.onMoveStart}
           onDrop={list.onDrop}
-          onDragEnd={list.onDragEnd}
+          onMoveEnd={list.onMoveEnd}
           render={
-            <DropTarget.Root accept={menuItemKind} trackDragOver={false} onDrag={handleDrag} />
+            <Draggable.Target
+              accept={menuItemKind}
+              trackDragOver={false}
+              onDraggableMove={handleDrag}
+            />
           }
         />
       }
@@ -210,7 +215,7 @@ function ReorderableItem(props: ReorderableItemProps) {
       {entry.label}
       {/* Constrain only the clone. The pointer must remain free so releasing
           outside the popup can still cancel. */}
-      <Draggable.ClonedPreview modifiers={Draggable.restrictToElement(popupRef)} />
+      <Draggable.Preview modifiers={Draggable.restrictToElement(popupRef)} />
     </Item>
   );
 }
@@ -230,7 +235,7 @@ function ReorderableMenu() {
           <Menu.Popup
             ref={popupRef}
             className={clsx(theme.tokens, styles.popup)}
-            render={<DropTarget.Root accept={menuItemKind} trackDragOver={false} />}
+            render={<Draggable.Target accept={menuItemKind} trackDragOver={false} />}
           >
             {list.entries.map((entry) => (
               <ReorderableItem
@@ -265,7 +270,7 @@ function ReorderableContextMenu() {
           <ContextMenu.Popup
             ref={popupRef}
             className={clsx(theme.tokens, styles.popup)}
-            render={<DropTarget.Root accept={menuItemKind} trackDragOver={false} />}
+            render={<Draggable.Target accept={menuItemKind} trackDragOver={false} />}
           >
             {list.entries.map((entry) => (
               <ReorderableItem

@@ -24,12 +24,12 @@ describe('syntheticDrag activation', () => {
     const { engine } = await renderDnd();
     const el = createElement();
     const tgt = createElement();
-    const onDragStart = vi.fn();
-    const onDragEnd = vi.fn();
+    const onMoveStart = vi.fn();
+    const onMoveEnd = vi.fn();
     const onDrop = vi.fn();
     // No `activation`: touch falls back to the default 250ms press-hold.
-    engine.registerDraggable(el, { onDragStart, onDragEnd });
-    engine.registerDropTarget(tgt, { onDrop });
+    engine.registerDraggable(el, { onMoveStart, onMoveEnd });
+    engine.registerDropTarget(tgt, { onDraggableDrop: onDrop });
 
     const originalEFP = document.elementFromPoint;
     const hit = { current: null as Element | null };
@@ -50,10 +50,10 @@ describe('syntheticDrag activation', () => {
     });
     await flushRaf();
 
-    expect(onDragStart).toHaveBeenCalledTimes(1);
-    expect(onDragStart.mock.calls[0][0].source.element).toBe(el);
+    expect(onMoveStart).toHaveBeenCalledTimes(1);
+    expect(onMoveStart.mock.calls[0][0].source.element).toBe(el);
     // The drag starts at the drifted point, not the original press.
-    const startInput = onDragStart.mock.calls[0][0].location.current.input;
+    const startInput = onMoveStart.mock.calls[0][0].location.current.input;
     expect(startInput.clientX).toBe(53);
     expect(startInput.clientY).toBe(52);
 
@@ -64,8 +64,8 @@ describe('syntheticDrag activation', () => {
     touchUp(120, 80);
 
     expect(onDrop).toHaveBeenCalledTimes(1);
-    expect(onDragEnd).toHaveBeenCalledTimes(1);
-    const endPayload = onDragEnd.mock.calls[0][0];
+    expect(onMoveEnd).toHaveBeenCalledTimes(1);
+    const endPayload = onMoveEnd.mock.calls[0][0];
     expect(endPayload.canceled).toBe(false);
     expect(endPayload.dropTarget?.element).toBe(tgt);
     expect(endPayload.location.current.input.clientX).toBe(120);
@@ -75,10 +75,10 @@ describe('syntheticDrag activation', () => {
   it('cancels when pointerup fires before activation', async () => {
     const { engine } = await renderDnd();
     const el = createElement();
-    const onDragStart = vi.fn();
+    const onMoveStart = vi.fn();
     engine.registerDraggable(el, {
-      pointerActivation: { type: 'press-hold', delay: 100, tolerance: 5 },
-      onDragStart,
+      activation: { type: 'press-hold', delay: 100, tolerance: 5 },
+      onMoveStart,
     });
 
     touchDown(el, 50, 50);
@@ -91,16 +91,16 @@ describe('syntheticDrag activation', () => {
     });
     await flushRaf();
 
-    expect(onDragStart).not.toHaveBeenCalled();
+    expect(onMoveStart).not.toHaveBeenCalled();
   });
 
   it('cancels a pending press-hold when the window blurs before activation', async () => {
     const { engine } = await renderDnd();
     const el = createElement();
-    const onDragStart = vi.fn();
+    const onMoveStart = vi.fn();
     engine.registerDraggable(el, {
-      pointerActivation: { type: 'press-hold', delay: 100, tolerance: 5 },
-      onDragStart,
+      activation: { type: 'press-hold', delay: 100, tolerance: 5 },
+      onMoveStart,
     });
 
     touchDown(el, 50, 50);
@@ -112,16 +112,16 @@ describe('syntheticDrag activation', () => {
     });
     await flushRaf();
 
-    expect(onDragStart).not.toHaveBeenCalled();
+    expect(onMoveStart).not.toHaveBeenCalled();
   });
 
   it('cancels a pending press-hold when the tab is hidden before activation', async () => {
     const { engine } = await renderDnd();
     const el = createElement();
-    const onDragStart = vi.fn();
+    const onMoveStart = vi.fn();
     engine.registerDraggable(el, {
-      pointerActivation: { type: 'press-hold', delay: 100, tolerance: 5 },
-      onDragStart,
+      activation: { type: 'press-hold', delay: 100, tolerance: 5 },
+      onMoveStart,
     });
 
     touchDown(el, 50, 50);
@@ -133,16 +133,16 @@ describe('syntheticDrag activation', () => {
     });
     await flushRaf();
 
-    expect(onDragStart).not.toHaveBeenCalled();
+    expect(onMoveStart).not.toHaveBeenCalled();
   });
 
   it('cancels when pointer moves past tolerance before activation', async () => {
     const { engine } = await renderDnd();
     const el = createElement();
-    const onDragStart = vi.fn();
+    const onMoveStart = vi.fn();
     engine.registerDraggable(el, {
-      pointerActivation: { type: 'press-hold', delay: 100, tolerance: 5 },
-      onDragStart,
+      activation: { type: 'press-hold', delay: 100, tolerance: 5 },
+      onMoveStart,
     });
 
     touchDown(el, 50, 50);
@@ -152,26 +152,26 @@ describe('syntheticDrag activation', () => {
     });
     await flushRaf();
 
-    expect(onDragStart).not.toHaveBeenCalled();
+    expect(onMoveStart).not.toHaveBeenCalled();
   });
 
   it('distance activation starts the drag after tolerance pixels', async () => {
     const { engine } = await renderDnd();
     const el = createElement();
-    const onDragStart = vi.fn();
+    const onMoveStart = vi.fn();
     engine.registerDraggable(el, {
-      pointerActivation: { type: 'distance', distance: 5 },
-      onDragStart,
+      activation: { type: 'distance', distance: 5 },
+      onMoveStart,
     });
 
     touchDown(el, 50, 50);
     touchMove(52, 52); // < 5px diagonal
     await flushRaf();
-    expect(onDragStart).not.toHaveBeenCalled();
+    expect(onMoveStart).not.toHaveBeenCalled();
 
     touchMove(60, 60); // ~14px — past threshold
     await flushRaf();
-    expect(onDragStart).toHaveBeenCalledTimes(1);
+    expect(onMoveStart).toHaveBeenCalledTimes(1);
 
     touchUp(60, 60);
   });
@@ -179,15 +179,15 @@ describe('syntheticDrag activation', () => {
   it('immediate activation (per-type) starts instantly on touchdown', async () => {
     const { engine } = await renderDnd();
     const el = createElement();
-    const onDragStart = vi.fn();
+    const onMoveStart = vi.fn();
     engine.registerDraggable(el, {
-      pointerActivation: { touch: { type: 'immediate' } },
-      onDragStart,
+      activation: { touch: { type: 'immediate' } },
+      onMoveStart,
     });
 
     touchDown(el, 50, 50);
     await flushRaf();
-    expect(onDragStart).toHaveBeenCalledTimes(1);
+    expect(onMoveStart).toHaveBeenCalledTimes(1);
 
     touchUp(50, 50);
   });
@@ -195,12 +195,12 @@ describe('syntheticDrag activation', () => {
   it('mouse default activation requires 5px of movement before starting a drag', async () => {
     const { engine } = await renderDnd();
     const el = createElement();
-    const onDragStart = vi.fn();
+    const onMoveStart = vi.fn();
     // No `activation` override: mouse falls back to the default, which is a 5px
     // distance. A stationary click must NOT start a drag — otherwise a
     // pointerdown on a clickable child of the draggable (e.g. a Tree item's
     // expand chevron) would be hijacked into a drag instead of toggling.
-    engine.registerDraggable(el, { onDragStart });
+    engine.registerDraggable(el, { onMoveStart });
 
     const dispatchMouse = (type: string, x: number, y: number, buttons: number) =>
       act(() => {
@@ -220,15 +220,15 @@ describe('syntheticDrag activation', () => {
 
     dispatchMouse('pointerdown', 50, 50, 1);
     await flushRaf();
-    expect(onDragStart).not.toHaveBeenCalled();
+    expect(onMoveStart).not.toHaveBeenCalled();
 
     dispatchMouse('pointermove', 52, 52, 1); // < 5px diagonal — still pending
     await flushRaf();
-    expect(onDragStart).not.toHaveBeenCalled();
+    expect(onMoveStart).not.toHaveBeenCalled();
 
     dispatchMouse('pointermove', 60, 60, 1); // ~14px — past the 5px threshold
     await flushRaf();
-    expect(onDragStart).toHaveBeenCalledTimes(1);
+    expect(onMoveStart).toHaveBeenCalledTimes(1);
 
     dispatchMouse('pointerup', 60, 60, 0);
   });
@@ -307,8 +307,8 @@ describe('syntheticDrag activation', () => {
     it('a press in the scrollbar gutter of a scrollable child does not start a drag', async () => {
       const { engine } = await renderDnd();
       const { card, list } = renderScrollableChild();
-      const onDragStart = vi.fn();
-      engine.registerDraggable(card, { onDragStart });
+      const onMoveStart = vi.fn();
+      engine.registerDraggable(card, { onMoveStart });
 
       // x=192 is past the 185px content box: the vertical scrollbar's gutter.
       dispatchOn(list, 'pointerdown', 192, 50, 1);
@@ -318,7 +318,7 @@ describe('syntheticDrag activation', () => {
       dispatchOn(list, 'pointermove', 192, 80, 1);
       await flushRaf();
 
-      expect(onDragStart).not.toHaveBeenCalled();
+      expect(onMoveStart).not.toHaveBeenCalled();
 
       dispatchOn(list, 'pointerup', 192, 80, 0);
     });
@@ -326,8 +326,8 @@ describe('syntheticDrag activation', () => {
     it('a press on the content of that same child still starts the drag', async () => {
       const { engine } = await renderDnd();
       const { card, list } = renderScrollableChild();
-      const onDragStart = vi.fn();
-      engine.registerDraggable(card, { onDragStart });
+      const onMoveStart = vi.fn();
+      engine.registerDraggable(card, { onMoveStart });
 
       // The positive control: x=100 is inside the content box, so this is an
       // ordinary press on the draggable and must behave as one.
@@ -336,7 +336,7 @@ describe('syntheticDrag activation', () => {
       dispatchOn(list, 'pointermove', 100, 80, 1);
       await flushRaf();
 
-      expect(onDragStart).toHaveBeenCalledTimes(1);
+      expect(onMoveStart).toHaveBeenCalledTimes(1);
 
       dispatchOn(list, 'pointerup', 100, 80, 0);
     });
@@ -344,8 +344,8 @@ describe('syntheticDrag activation', () => {
     it('uses layout coordinates for a transformed scrollable child', async () => {
       const { engine } = await renderDnd();
       const { card, list } = renderScrollableChild({ scale: 2 });
-      const onDragStart = vi.fn();
-      engine.registerDraggable(card, { onDragStart });
+      const onMoveStart = vi.fn();
+      engine.registerDraggable(card, { onMoveStart });
 
       // Visual x=300 maps to layout x=150, inside the 185px content box. Without
       // removing the transform scale, it is mistaken for the right scrollbar.
@@ -354,7 +354,7 @@ describe('syntheticDrag activation', () => {
       dispatchOn(list, 'pointermove', 300, 130, 1);
       await flushRaf();
 
-      expect(onDragStart).toHaveBeenCalledTimes(1);
+      expect(onMoveStart).toHaveBeenCalledTimes(1);
 
       dispatchOn(list, 'pointerup', 300, 130, 0);
     });
@@ -362,8 +362,8 @@ describe('syntheticDrag activation', () => {
     it('rejects the gutter on the leading side, where RTL puts the vertical scrollbar', async () => {
       const { engine } = await renderDnd();
       const { card, list } = renderScrollableChild({ rtl: true });
-      const onDragStart = vi.fn();
-      engine.registerDraggable(card, { onDragStart });
+      const onMoveStart = vi.fn();
+      engine.registerDraggable(card, { onMoveStart });
 
       // RTL puts the vertical scrollbar on the left, so the gutter is the strip
       // *before* the padding box rather than after it. x=8 is inside it.
@@ -372,7 +372,7 @@ describe('syntheticDrag activation', () => {
       dispatchOn(list, 'pointermove', 8, 80, 1);
       await flushRaf();
 
-      expect(onDragStart).not.toHaveBeenCalled();
+      expect(onMoveStart).not.toHaveBeenCalled();
 
       dispatchOn(list, 'pointerup', 8, 80, 0);
     });
@@ -380,8 +380,8 @@ describe('syntheticDrag activation', () => {
     it('leaves the trailing side alone in RTL, where the scrollbar is not', async () => {
       const { engine } = await renderDnd();
       const { card, list } = renderScrollableChild({ rtl: true });
-      const onDragStart = vi.fn();
-      engine.registerDraggable(card, { onDragStart });
+      const onMoveStart = vi.fn();
+      engine.registerDraggable(card, { onMoveStart });
 
       // The mirror of the LTR gutter test: with the scrollbar on the left, x=192
       // is past the padding box but is content (or the element's own border), not
@@ -391,7 +391,7 @@ describe('syntheticDrag activation', () => {
       dispatchOn(list, 'pointermove', 192, 80, 1);
       await flushRaf();
 
-      expect(onDragStart).toHaveBeenCalledTimes(1);
+      expect(onMoveStart).toHaveBeenCalledTimes(1);
 
       dispatchOn(list, 'pointerup', 192, 80, 0);
     });
@@ -399,8 +399,8 @@ describe('syntheticDrag activation', () => {
     it('does not reject a press on the border of a scrollable child', async () => {
       const { engine } = await renderDnd();
       const { card, list } = renderScrollableChild({ borderLeft: 2 });
-      const onDragStart = vi.fn();
-      engine.registerDraggable(card, { onDragStart });
+      const onMoveStart = vi.fn();
+      engine.registerDraggable(card, { onMoveStart });
 
       // A 2px left border on an LTR scroller: it sits before the padding box, so
       // it measures negative — but the scrollbar is on the *right*, so this is an
@@ -410,7 +410,7 @@ describe('syntheticDrag activation', () => {
       dispatchOn(list, 'pointermove', 1, 80, 1);
       await flushRaf();
 
-      expect(onDragStart).toHaveBeenCalledTimes(1);
+      expect(onMoveStart).toHaveBeenCalledTimes(1);
 
       dispatchOn(list, 'pointerup', 1, 80, 0);
     });
@@ -425,15 +425,15 @@ describe('syntheticDrag activation', () => {
       Object.defineProperty(inert, 'clientHeight', { value: 0 });
       card.appendChild(inert);
       registerCleanup(() => inert.remove());
-      const onDragStart = vi.fn();
-      engine.registerDraggable(card, { onDragStart });
+      const onMoveStart = vi.fn();
+      engine.registerDraggable(card, { onMoveStart });
 
       dispatchOn(inert, 'pointerdown', 50, 50, 1);
       await flushRaf();
       dispatchOn(inert, 'pointermove', 60, 60, 1);
       await flushRaf();
 
-      expect(onDragStart).toHaveBeenCalledTimes(1);
+      expect(onMoveStart).toHaveBeenCalledTimes(1);
 
       dispatchOn(inert, 'pointerup', 60, 60, 0);
     });

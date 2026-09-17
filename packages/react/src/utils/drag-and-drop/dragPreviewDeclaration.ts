@@ -46,16 +46,15 @@ export function createDragPreviewHandle<TData = unknown>(): DragPreviewHandle<TD
       if (process.env.NODE_ENV !== 'production') {
         if (current !== null) {
           // Warn rather than throw, matching the duplicate-`Draggable.Handle`
-          // mistake: a wrapper component composing its own `ClonedPreview` around a
+          // mistake: a wrapper component composing its own clone preview around a
           // consumer-passed `Preview` is a plausible mistake, and white-screening
           // production over it is out of proportion. Last declaration wins, which
           // at least makes the outcome deterministic.
           warn(
             'A Draggable.Root contains more than one preview part. ' +
               'A draggable has one preview, so the last one mounted wins and the others are ignored. ' +
-              'Keep either the Draggable.Preview that renders your own content, or the ' +
-              'Draggable.ClonedPreview that configures the clone of the source. ' +
-              'See https://base-ui.com/react/components/draggable',
+              'Keep one Draggable.Preview to configure the clone or render custom content. ' +
+              'See https://base-ui.com/react/utils/draggable',
           );
         }
       }
