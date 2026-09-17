@@ -161,7 +161,7 @@ export function registerAutoScroller<TAccept extends AnyDragAccept = DragKind<un
   // Ref-counted so merged refs on one node don't clobber each other.
   const removeScroller = addScrollerRegistration(element, getParameters);
   // Auto-scroll is an explicit feature boundary: the first registered region
-  // arms both inferred scrolling and the advanced configuration loop.
+  // arms scrolling for registered viewports.
   const releaseScrollMonitor = retainScrollMonitor();
 
   return onceCleanup(() => {

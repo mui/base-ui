@@ -2,6 +2,7 @@
 import { Draggable } from '@base-ui/react/draggable';
 
 import * as React from 'react';
+import { DragPageAutoScroll } from 'docs/src/components/DragPageAutoScroll';
 
 import styles from '../../canvas.module.css';
 
@@ -116,6 +117,7 @@ function CanvasPanContent() {
 export default function CanvasPan() {
   return (
     <Draggable.Provider>
+      <DragPageAutoScroll />
       <CanvasPanContent />
     </Draggable.Provider>
   );

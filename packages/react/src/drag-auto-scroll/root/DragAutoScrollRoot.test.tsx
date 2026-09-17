@@ -414,14 +414,10 @@ describe('DragAutoScroll.Root', () => {
   });
 
   describe('disabled', () => {
-    it('opts a container out of the inference that would otherwise scroll it', async () => {
+    it('lets a disabled inner viewport hand scrolling to a registered outer viewport', async () => {
       const outerScrollBy = vi.fn();
       const innerScrollBy = vi.fn();
 
-      // A scrollable box inside another one, the shape this is for: a code
-      // block, an embedded map, a mini-scroller the drag should scroll *past*.
-      // Neither is declared to the engine — the walk finds both — so the only
-      // thing `disabled` can do here is take the inner one out of that walk.
       function Nested(props: { disabled?: boolean }) {
         const outerRef = React.useCallback((node: HTMLDivElement | null) => {
           if (node) {
@@ -429,9 +425,9 @@ describe('DragAutoScroll.Root', () => {
           }
         }, []);
         return (
-          <div ref={outerRef} data-testid="outer">
+          <DragAutoScroll.Root ref={outerRef} data-testid="outer">
             <Scroller disabled={props.disabled} scrollByMock={innerScrollBy} />
-          </div>
+          </DragAutoScroll.Root>
         );
       }
 
@@ -444,13 +440,9 @@ describe('DragAutoScroll.Root', () => {
       await liftOutside(source);
       await dragTo(scroller, 100, 95);
 
-      // The inner container declined and consumed nothing, so the axis fell
-      // through to the outer one — which nothing declared either.
       expect(innerScrollBy).not.toHaveBeenCalled();
       expect(outerScrollBy).toHaveBeenCalled();
 
-      // Enabled again, the inner container is back to what inference alone
-      // would have done with it: it takes the axis and the outer one idles.
       await rerender(<Nested />);
       innerScrollBy.mockClear();
       outerScrollBy.mockClear();

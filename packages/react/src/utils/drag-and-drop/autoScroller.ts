@@ -61,13 +61,7 @@ const MAX_FRAME_DELTA_MS = 64;
 /** A getter for a scroller's latest parameters, so `scrollLoop` reads the freshest callbacks each frame. */
 type ScrollerGetter<TSourceData = any> = () => RegisterAutoScrollerParameters<TSourceData>;
 
-/**
- * What an inferred container scrolls with: no `accept` filter, both axes, the
- * default speed. A container the engine found itself was never configured, so
- * there is nothing else it could use — and every knob in
- * {@link RegisterAutoScrollerParameters} exists to *change* one of these answers,
- * which is what registering the element explicitly does.
- */
+/** Default parameters for a registered viewport. */
 export const EMPTY_AUTO_SCROLLER_PARAMETERS: RegisterAutoScrollerParameters = {};
 
 const state = getSharedSlot<AutoScrollerState>('registerAutoScroller', () => ({
@@ -83,7 +77,6 @@ const state = getSharedSlot<AutoScrollerState>('registerAutoScroller', () => ({
   currentSource: null,
   currentDropTargetElement: null,
   engagementStart: new Map<HTMLElement, number>(),
-  inferredScrollers: new Set<HTMLElement>(),
   chainAnchor: null,
   chainAnchorParent: null,
   chainSourceParent: null,
@@ -154,7 +147,7 @@ export function wakeAutoScroll(): void {
 /**
  * Drop every per-drag cache and wake the loop, for a restyle that can alter
  * whether a candidate scrolls or which side is its inline end without changing
- * the inferred ancestor chain. The next frame re-reads both computed-style
+ * the observed ancestor chain. The next frame re-reads both computed-style
  * facts and rebuilds that chain (see `handleObservedMutations` for when this is
  * warranted — it is the expensive answer, not the default one).
  */
@@ -176,7 +169,7 @@ function refreshAutoScroll(): void {
  * has nothing to do with scroll containers: a consumer's `onMove`-driven
  * re-render restyling a drop indicator, or a virtualizer swapping rows in and out
  * under an auto-scroll. Answering each with `refreshAutoScroll` discarded the
- * per-drag style caches and rebuilt the inferred chain (a `getComputedStyle`
+ * per-drag style caches and rebuilt the observed chain (a `getComputedStyle`
  * per composed ancestor, plus a depth sort) on practically every commit of a
  * reorder-with-auto-scroll drag.
  *
@@ -223,7 +216,7 @@ function handleObservedMutations(records: MutationRecord[]): void {
 /**
  * Whether a restyle of `element` can change a candidate's overflow or
  * direction: it is a registered container itself, or it contains the element
- * the inferred chain was walked from (or the source, whose chain is unioned in).
+ * the observed chain was walked from (or the source, whose chain is unioned in).
  */
 function affectsCandidateChain(element: Element): boolean {
   if (state.scrollers.has(element as HTMLElement)) {
@@ -496,67 +489,6 @@ function readPageOverflowFlags(element: HTMLElement): OverflowFlags {
   };
 }
 
-/**
- * The scroll containers around `anchor`, innermost first: every composed
- * ancestor (piercing shadow boundaries, like the depth sort) whose computed
- * overflow makes it one, plus the document root — which `resolvePageScroller`
- * turns into the page scroller, so the viewport is simply where the walk ends
- * rather than a case of its own.
- *
- * Inference decides only which containers are *candidates*. Whether one engages
- * is still the loop's business: an `overflow: auto` wrapper the pointer is
- * nowhere near, or one with nothing left to scroll, is rejected on the same rect
- * and scroll-extent tests an explicitly registered container faces, so the false
- * positives this walk collects eliminate themselves.
- */
-function collectInferredScrollers(...anchors: (Element | null)[]): Set<HTMLElement> {
-  const scrollers = new Set<HTMLElement>();
-  const firstAnchor = anchors.find((anchor) => anchor != null);
-  if (firstAnchor == null) {
-    return scrollers;
-  }
-  const root = ownerDocument(firstAnchor).documentElement;
-
-  for (const anchor of anchors) {
-    // A drop-target record types its element as `Element`, though every
-    // registration path takes an `HTMLElement`; the reads below are the same for
-    // anything the walk crosses either way (an `SVGElement` ancestor has no
-    // scroll extent, so it never engages).
-    let node = anchor as HTMLElement | null;
-    while (node) {
-      if (node !== root) {
-        const overflow = readOverflowFlags(node);
-        if (overflow.x || overflow.y) {
-          scrollers.add(node);
-        }
-      }
-      node = getComposedParentElement(node) as HTMLElement | null;
-    }
-  }
-
-  // Added unconditionally rather than when a walk reaches it, because a
-  // *detached* anchor — a virtualizer recycling the row under the pointer, a
-  // live reorder — has no path to the root at all, and letting the walk decide
-  // would leave the set empty and stop even the page from scrolling. Whether it
-  // *may* scroll is still the loop's business (see `readPageOverflowFlags`), and
-  // default `<html>` styling is not an overflow element yet the viewport still
-  // scrolls, so the walk could never qualify it on overflow either.
-  scrollers.add(root);
-  return scrollers;
-}
-
-function setsEqual<T>(a: Set<T>, b: Set<T>): boolean {
-  if (a.size !== b.size) {
-    return false;
-  }
-  for (const value of a) {
-    if (!b.has(value)) {
-      return false;
-    }
-  }
-  return true;
-}
-
 function sortByDepthDesc(elements: HTMLElement[]): HTMLElement[] {
   const depths = new Map<HTMLElement, number>();
   for (const el of elements) {
@@ -632,25 +564,8 @@ function runScrollFrame(timestamp: number): void {
   let verticalConsumed = false;
   let horizontalConsumed = false;
 
-  // Where the candidate walk starts.
-  //
-  // Over a drop target: the element the frame hit-tested under the pointer, not
-  // the target itself. A scroll container nested *within* a target is not an
-  // ancestor of it — a kanban column is the drop target and its list is the
-  // scroller — so walking from the target would skip the one container the
-  // pointer is in. The hit element is inside both, so its walk reaches both.
-  //
-  // Over no drop target: still the hit element. Drop targets resolve by walking
-  // up to the nearest `[data-drop-target]`, so the stack is empty for every
-  // pointer position over container padding or the gap between two rows — and
-  // falling straight through to the source there would stop the scroll in those
-  // gaps, mid-gesture, for no reason the user can see. The source is the last
-  // resort only.
-  //
-  // The source's own chain is unioned in regardless, which is what keeps
-  // scroll-to-reveal working: the containers that have to move to bring an
-  // off-screen target into view are the ones around the dragged element, and
-  // over empty space nothing else would collect them.
+  // Track the active DOM ancestry for style changes and live reparenting.
+  // This observation does not register ancestors as scrolling candidates.
   const dropTargetElement = state.currentDropTargetElement;
   const chainAnchor: Element = getActiveHitElement() ?? dropTargetElement ?? currentSource.element;
   // The parent is compared too: a live reorder can move the anchor's own node
@@ -673,32 +588,12 @@ function runScrollFrame(timestamp: number): void {
     // by the mutation observer, whose refresh resets the cache, so only the new
     // leaf is measured here.
     observeChainMutations(chainAnchor, currentSource.element);
-    const nextInferredScrollers = collectInferredScrollers(chainAnchor, currentSource.element);
-    if (!setsEqual(state.inferredScrollers, nextInferredScrollers)) {
-      state.inferredScrollers = nextInferredScrollers;
-      invalidateScrollerOrder();
-    }
+    invalidateScrollerOrder();
   }
 
-  // Cache the inner-first ordering across frames; it only depends on DOM
-  // nesting, invalidated when the registry or the inferred chain changes.
-  // Recomputing it (a walk to the document root per scroller) every frame is
-  // wasted work.
-  //
-  // Always sorted, never taken on faith from insertion order: the set is a union
-  // of two walks (the pointer's chain and the source's) plus the document root
-  // plus any explicit registration, and only a single walk's own run is
-  // inner-first. An explicit registration can sit anywhere in the tree —
-  // including on an element with no scrollable overflow, which is the
-  // `applyScroll` case inference can never reach — so the depth sort is what
-  // actually establishes the order the loop relies on to let an inner container
-  // consume an axis before its ancestors.
+  // Only registered elements may scroll. Nested viewports get first use of an axis.
   if (state.sortedScrollers === null) {
-    const candidates = new Set(state.inferredScrollers);
-    for (const element of state.scrollers.keys()) {
-      candidates.add(element);
-    }
-    state.sortedScrollers = sortByDepthDesc([...candidates]);
+    state.sortedScrollers = sortByDepthDesc([...state.scrollers.keys()]);
   }
   const sortedElements = state.sortedScrollers;
   const engagedThisFrame = state.engagedThisFrame;
@@ -737,28 +632,17 @@ function runScrollFrame(timestamp: number): void {
     const relativeX = probe.clientX - rect.left;
     const relativeY = probe.clientY - rect.top;
 
-    // Read the freshest parameters each frame so `canScroll`/`allowedAxis` can
-    // change dynamically during a drag; the last-registered getter wins. An
-    // element the walk found and the consumer also registered is therefore
-    // configured by the registration — explicit parameters beat the inferred
-    // defaults for the same element, which is what makes `disabled` an opt-out
-    // of inference rather than a contradiction of it.
+    // A callback earlier in this frame may have unregistered this viewport.
     const getParameters = holds.getActive(element);
-    // No registration and not inferred means the entry went away mid-loop: a
-    // consumer callback earlier in this frame unregistered a scroller that
-    // appears later in the cached order.
-    if (getParameters === undefined && !state.inferredScrollers.has(element)) {
+    if (getParameters === undefined) {
       continue;
     }
-    const registration =
-      getParameters === undefined
-        ? EMPTY_AUTO_SCROLLER_PARAMETERS
-        : safeCall<RegisterAutoScrollerParameters | null>(
-            'getParameters',
-            element,
-            getParameters,
-            null,
-          );
+    const registration = safeCall<RegisterAutoScrollerParameters | null>(
+      'getParameters',
+      element,
+      getParameters,
+      null,
+    );
     // `== null`: the `safeCall` fallback is `null`, but a consumer getter that
     // returns nothing hands back `undefined` — which would otherwise reach the
     // property reads below.
@@ -1073,7 +957,7 @@ function observeIdleMutations(): void {
   if (!root) {
     return;
   }
-  // A parked inferred scroller can become scrollable without an input event: a
+  // A parked viewport can become scrollable without an input event: a
   // stationary pointer may trigger delayed expansion that appends rows below the
   // fold. That produces no pointer move, scroll event, target change, or scroller
   // registration. This observer is the wake path for that case.
@@ -1108,7 +992,7 @@ function startScrollLoop(): void {
   }
   state.lastTimestamp = 0;
   state.engagementStart.clear();
-  clearInferredScrollers();
+  clearObservedChain();
   resetStyleCaches();
   state.scrollLoopRaf = requestScrollFrame();
 }
@@ -1146,19 +1030,15 @@ function stopScrollLoop(): void {
   state.chainMutationObserver = null;
   state.observedChainElements.clear();
   clearIdleMutationObserver();
-  clearInferredScrollers();
+  clearObservedChain();
   resetStyleCaches();
   if (scrollLoopRaf !== null && scrollWindow !== null) {
     WindowAnimationFrame.cancel(scrollLoopRaf, scrollWindow);
   }
 }
 
-/**
- * Drop the inferred chain and the anchor it was walked from, so the next frame
- * rebuilds both, and re-sort the union without the chain's entries.
- */
-function clearInferredScrollers(): void {
-  state.inferredScrollers.clear();
+/** Reset the observed ancestry and cached viewport order between drags. */
+function clearObservedChain(): void {
   state.chainAnchor = null;
   state.chainAnchorParent = null;
   state.chainSourceParent = null;
@@ -1284,8 +1164,8 @@ const SCROLL_MONITOR_PARAMS: RegisterMonitorParameters = {
  * Retain the engine scroll-monitor, which arms auto-scroll while at least one
  * explicit auto-scroller registration exists.
  *
- * Called by each explicit auto-scroller registration. While armed, containers
- * are also inferred from the DOM. The loop itself only runs between a drag's
+ * Called by each explicit auto-scroller registration. Only registered elements
+ * can scroll. The loop itself only runs between a drag's
  * start and end, parks whenever no container is engaged, and is removed with the
  * last registration.
  */
@@ -1400,14 +1280,7 @@ interface AutoScrollerState {
   currentDropTargetElement: Element | null;
   /** When the pointer first entered each element's edge zone. */
   engagementStart: Map<HTMLElement, number>;
-  /**
-   * The scroll containers the ancestor walk found for the current drag. They
-   * scroll with the default parameters unless the consumer also registered them,
-   * and an element that is only here (never registered) is skipped once the walk
-   * moves on.
-   */
-  inferredScrollers: Set<HTMLElement>;
-  /** The element {@link inferredScrollers} was walked from; `null` when there is no chain. */
+  /** The active hit/source element whose ancestors are observed for restyles. */
   chainAnchor: Element | null;
   /**
    * {@link chainAnchor}'s composed parent when the chain was walked. A live
@@ -1417,14 +1290,14 @@ interface AutoScrollerState {
    */
   chainAnchorParent: Element | null;
   chainSourceParent: Element | null;
-  /** Cached inner-first ordering of the inferred chain and the registry; `null` when stale. */
+  /** Cached inner-first ordering of the registered viewports; `null` when stale. */
   sortedScrollers: HTMLElement[] | null;
   /** Scratch set of scrollers engaged in the current frame, reused across frames. */
   engagedThisFrame: Set<HTMLElement>;
   /** Watches registered scrollers in the active document during a pointer drag. */
   scrollerMutationObserver: MutationObserver | null;
   observedScrollers: Set<HTMLElement>;
-  /** Watches styles on the inferred candidate chains during active scrolling. */
+  /** Watches styles on the active ancestor chains during active scrolling. */
   chainMutationObserver: MutationObserver | null;
   observedChainElements: Set<Element>;
   /** Watches for content/style changes only while the frame loop is parked. */
@@ -1442,8 +1315,8 @@ export interface RegisterAutoScrollerParameters<TSourceData = unknown> {
    * One or more drag source kinds that can scroll this element. Omit it to scroll
    * for every drag.
    *
-   * An unaccepted drag does not scroll this element, even when it is a detected
-   * scroll container. The accepted kinds determine the payload type passed to
+   * An unaccepted drag does not scroll this element, even when its CSS allows
+   * scrolling. The accepted kinds determine the payload type passed to
    * per-frame callbacks.
    */
   accept?: DragAccept<TSourceData> | undefined;

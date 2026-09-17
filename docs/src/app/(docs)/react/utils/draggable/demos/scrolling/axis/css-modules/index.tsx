@@ -2,6 +2,7 @@
 import { Draggable } from '@base-ui/react/draggable';
 
 import * as React from 'react';
+import { DragPageAutoScroll } from 'docs/src/components/DragPageAutoScroll';
 
 import styles from '../../axis.module.css';
 
@@ -139,6 +140,7 @@ function AxisLaneContent() {
 export default function AxisLane() {
   return (
     <Draggable.Provider>
+      <DragPageAutoScroll />
       <AxisLaneContent />
     </Draggable.Provider>
   );

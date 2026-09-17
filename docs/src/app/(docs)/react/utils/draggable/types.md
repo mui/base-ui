@@ -178,23 +178,15 @@ Re-export of [Provider](#provider) props.
 
 ### Viewport
 
-Configures how its element scrolls during a drag. It enables auto-scroll if no
-`DragAutoScroll.Provider` is mounted.
+Registers its element as a drag auto-scroll viewport.
+Nested containers and the page need their own registrations to scroll.
 Renders a `<div>` element.
-
-`DragAutoScroll.Provider` enables automatic scrolling without adding props to
-each container. Use this root to configure one region. `applyScroll`
-implements custom scrolling, `disabled` and `canScroll` turn scrolling off,
-and `allowedAxis`, `maxSpeed`, and `accept` set the remaining behavior.
-
-Nested containers scroll from the innermost to the outermost. An outer
-container scrolls only on axes that the inner container does not use.
 
 **Viewport Props:**
 
 | Prop        | Type                                                                                                                                                                                           | Default | Description                                                                                                                                                                                                                                                                                                                                                                                                             |
 | :---------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :------ | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| accept      | `DragAccept<TSourceData> \| DragAccept<TPayload \| unknown> \| DragKind \| DragKind[]`                                                                                                         | -       | One or more drag source kinds that can scroll this element. Omit it to scroll&#xA;for every drag. An unaccepted drag does not scroll this element, even when it is a detected&#xA;scroll container. The accepted kinds determine the payload type passed to&#xA;per-frame callbacks.                                                                                                                                    |
+| accept      | `DragAccept<TSourceData> \| DragAccept<TPayload \| unknown> \| DragKind \| DragKind[]`                                                                                                         | -       | One or more drag source kinds that can scroll this element. Omit it to scroll&#xA;for every drag. An unaccepted drag does not scroll this element, even when its CSS allows&#xA;scrolling. The accepted kinds determine the payload type passed to&#xA;per-frame callbacks.                                                                                                                                             |
 | allowedAxis | `DragAutoScrollAxis \| ((parameters: DragAutoScrollFrameContext<TSourceData>) => DragAutoScrollAxis) \| ((parameters: DragAutoScrollFrameContext<TPayload \| unknown>) => DragAutoScrollAxis)` | `'all'` | Which axis to scroll on. Accepts a static value or a callback evaluated every frame.                                                                                                                                                                                                                                                                                                                                    |
 | applyScroll | `DragAutoScrollApply<TSourceData> \| DragAutoScrollApply<TPayload \| unknown>`                                                                                                                 | -       | Applies the frame's scroll delta with custom logic. Use it for a canvas moved&#xA;by a CSS `transform`. The element does not need scrollable overflow, and Base UI&#xA;does not read its scroll extent. Apply the movement synchronously before returning. Base UI resolves the drop&#xA;target under the pointer again on the next frame.                                                                              |
 | canScroll   | `((parameters: DragAutoScrollFrameContext<TSourceData>) => boolean) \| ((parameters: DragAutoScrollFrameContext<TPayload \| unknown>) => boolean)`                                             | -       | Return `false` to disable scrolling on this element for the current drag.&#xA;Evaluated every frame, so scrolling can be suspended dynamically.                                                                                                                                                                                                                                                                         |
@@ -1036,8 +1028,8 @@ type DragAutoScrollRootProps<TSourceData = unknown> = {
    * One or more drag source kinds that can scroll this element. Omit it to scroll
    * for every drag.
    *
-   * An unaccepted drag does not scroll this element, even when it is a detected
-   * scroll container. The accepted kinds determine the payload type passed to
+   * An unaccepted drag does not scroll this element, even when its CSS allows
+   * scrolling. The accepted kinds determine the payload type passed to
    * per-frame callbacks.
    */
   accept?: DragAccept<TSourceData>;

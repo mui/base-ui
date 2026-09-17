@@ -2,6 +2,7 @@
 import { Draggable } from '@base-ui/react/draggable';
 
 import * as React from 'react';
+import { DragPageAutoScroll } from 'docs/src/components/DragPageAutoScroll';
 
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import {
@@ -191,6 +192,7 @@ export default function FileExplorer() {
   return (
     // Custom preview content renders beside the provider's children.
     <Draggable.Provider>
+      <DragPageAutoScroll />
       <div className={styles.Root}>
         <nav aria-label="Breadcrumb" className={styles.Breadcrumb}>
           {path.map((folder, index) => (

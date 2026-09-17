@@ -53,7 +53,7 @@ describe('engine.registerAutoScroller', () => {
     return scroller;
   }
 
-  function enableInferredAutoScroll(engine: Pick<DragDropManager, 'registerAutoScroller'>): void {
+  function enableUnrelatedViewport(engine: Pick<DragDropManager, 'registerAutoScroller'>): void {
     registerCleanup(engine.registerAutoScroller(document.createElement('div'), () => ({})));
   }
 
@@ -263,9 +263,7 @@ describe('engine.registerAutoScroller', () => {
   });
 
   it('never scrolls an element without a scrollable overflow style', async () => {
-    // Registering a non-scrolling element is a mistake worth naming: inference
-    // still scrolls the real container inside it, so the only symptom would be
-    // "my parameters are ignored".
+    // A registration belongs on the element with scrollable overflow.
     const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
     const { engine } = await renderDnd();
     const source = createElement();
@@ -497,11 +495,7 @@ describe('engine.registerAutoScroller', () => {
   it('a scroller registered mid-drag under a stationary pointer engages without a fresh move', async () => {
     const { engine } = await renderDnd();
     const source = createElement();
-    // A delegating surface, so only the registration can make it a candidate:
-    // inference collects elements by computed overflow, and an element that
-    // moves its own content never qualifies. A plain `overflow: auto` container
-    // would be inferred the moment the pointer entered it, which is the opposite
-    // of the "not yet a candidate" state this test needs to start from.
+    // A custom scrolling surface starts outside the registry.
     const surface = createElement({ top: 0, height: 200, left: 0, width: 200 });
     const applyScroll = vi.fn();
 
@@ -858,9 +852,7 @@ describe('engine.registerAutoScroller', () => {
       // pointer never has to move: which of them scrolls is decided by the depth
       // order alone, which is what this test is about.
       const outer = makeScroller({ top: 0, height: 100, left: 0, width: 200 });
-      // Delegating, so the registration is the *only* thing making it a
-      // candidate. An `overflow: auto` inner would be inferred from the walk and
-      // survive its own unregistration, leaving the rebuild unobservable here.
+      // A custom inner viewport competes with the native outer scroller.
       const inner = createElement({ top: 0, height: 100, left: 0, width: 200 });
       outer.element.appendChild(inner);
       const innerApplyScroll = vi.fn();
@@ -939,21 +931,12 @@ describe('engine.registerAutoScroller', () => {
   // Inferred scroll containers
   // ---------------------------------------------------------------------------
   //
-  // Nothing in this block registers the container it asserts on. The engine
-  // walks up from the innermost drop target under the pointer — or from the drag
-  // source when the pointer is over none — and scrolls whatever scroll
-  // containers that walk finds. Registering one only *changes* the answer.
-  describe('inferred scroll containers', () => {
-    interface InferredScroller {
+  describe('explicit scroll containers', () => {
+    interface ExplicitScroller {
       element: HTMLElement;
       scrollBy: ReturnType<typeof vi.fn>;
     }
 
-    // An overflow container with a controlled box. `vertical` / `horizontal`
-    // pick which axes have room to scroll: an axis left out reports
-    // `scrollSize === clientSize`, which the loop's limit checks read as
-    // "nothing to scroll here" — the DOM's own way of saying an
-    // `overflow-y: hidden` container never engages vertically.
     function makeContainer({
       rect = { top: 0, height: 200, left: 0, width: 200 },
       parent = document.body,
@@ -966,7 +949,7 @@ describe('engine.registerAutoScroller', () => {
       vertical?: boolean;
       horizontal?: boolean;
       overflow?: string;
-    } = {}): InferredScroller {
+    } = {}): ExplicitScroller {
       const element = document.createElement('div');
       element.getBoundingClientRect = () =>
         new DOMRect(rect.left, rect.top, rect.width, rect.height);
@@ -975,7 +958,6 @@ describe('engine.registerAutoScroller', () => {
       element.scrollBy = scrollBy;
       const define = (name: string, value: number) =>
         Object.defineProperty(element, name, { configurable: true, value, writable: true });
-      // Mid-range offsets, so an overflowing axis has room in both directions.
       define('scrollTop', vertical ? 400 : 0);
       define('scrollHeight', vertical ? 1000 : rect.height);
       define('clientHeight', rect.height);
@@ -987,17 +969,12 @@ describe('engine.registerAutoScroller', () => {
       return { element, scrollBy };
     }
 
-    // A drag source *inside* `parent`, which is what gives the walk something to
-    // climb — every other fixture in this file is a sibling of its scroller.
     function makeNestedSource(parent: HTMLElement): HTMLElement {
       const source = createElement({ top: 90, height: 20, left: 0, width: 200 });
       parent.appendChild(source);
       return source;
     }
 
-    // Lift in no edge zone, then move the pointer onto `hit` at the given point.
-    // `hit` is what the bridge answers hit-tests with, so it decides which drop
-    // target (if any) the pointer is over.
     async function driveTo(
       source: HTMLElement,
       hit: HTMLElement,
@@ -1011,28 +988,37 @@ describe('engine.registerAutoScroller', () => {
       await flushRaf();
     }
 
-    it('scrolls a scrollable ancestor of the drag source that was never registered', async () => {
+    it('does not scroll an unregistered ancestor when another viewport is registered', async () => {
       const { engine } = await renderDnd();
       const container = makeContainer();
       const source = makeNestedSource(container.element);
 
       engine.registerDraggable(source, {});
-      enableInferredAutoScroll(engine);
+      enableUnrelatedViewport(engine);
 
       await driveTo(source, container.element, 100, 190);
 
-      // Positive control for every negative in this block: this exact fixture,
-      // with no registration on the container itself, scrolls in its bottom edge zone.
-      expect(container.scrollBy).toHaveBeenCalled();
-      expect(container.scrollBy).toHaveBeenCalledWith(
-        expect.objectContaining({ behavior: 'instant' }),
-      );
+      expect(container.scrollBy).not.toHaveBeenCalled();
     });
 
-    it('picks up a container that became scrollable mid-drag on the next chain walk', async () => {
+    it('does not scroll an unregistered nested container inside a viewport', async () => {
       const { engine } = await renderDnd();
-      // Scroll extent exists, but the computed overflow says `hidden`: the
-      // container is read (and cached) as non-scrollable when the drag starts.
+      const outer = makeContainer();
+      const inner = makeContainer({ parent: outer.element });
+      const source = makeNestedSource(inner.element);
+      engine.registerDraggable(source, {});
+      engine.registerAutoScroller(outer.element, {});
+
+      await driveTo(source, inner.element, 100, 190);
+
+      expect(inner.scrollBy).not.toHaveBeenCalled();
+      expect(outer.scrollBy).toHaveBeenCalled();
+    });
+
+    it('scrolls a registered container when its overflow changes mid-drag', async () => {
+      const warning = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      registerCleanup(() => warning.mockRestore());
+      const { engine } = await renderDnd();
       const container = makeContainer({ overflow: 'hidden' });
       const inner = document.createElement('div');
       inner.getBoundingClientRect = () => new DOMRect(0, 150, 200, 50);
@@ -1040,14 +1026,12 @@ describe('engine.registerAutoScroller', () => {
       const source = makeNestedSource(container.element);
 
       engine.registerDraggable(source, {});
-      enableInferredAutoScroll(engine);
+      engine.registerAutoScroller(container.element, {});
 
       await driveTo(source, container.element, 100, 190);
       expect(container.scrollBy).not.toHaveBeenCalled();
+      expect(warning).toHaveBeenCalledWith(expect.stringContaining('does not scroll'));
 
-      // The dwell-expand pattern: hovering restyles the container scrollable
-      // mid-drag. The per-drag overflow cache must not keep reporting the
-      // drag-start reading once the chain re-walks.
       container.element.style.overflow = 'auto';
       fireEvent.dragOver(inner, { clientX: 100, clientY: 190 });
       await flushRaf();
@@ -1065,7 +1049,7 @@ describe('engine.registerAutoScroller', () => {
       container.element.append(first, second);
       const source = createElement();
       engine.registerDraggable(source, {});
-      enableInferredAutoScroll(engine);
+      engine.registerAutoScroller(container.element, {});
 
       await driveTo(source, first, 100, 190);
 
@@ -1081,16 +1065,19 @@ describe('engine.registerAutoScroller', () => {
     });
 
     it('refreshes a revisited container that was restyled outside the observed chains', async () => {
+      const warning = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      registerCleanup(() => warning.mockRestore());
       const { engine } = await renderDnd();
       const first = makeContainer();
-      const second = makeContainer();
+      const second = makeContainer({ rect: { left: 300, top: 0, width: 200, height: 200 } });
       const source = createElement();
       engine.registerDraggable(source, {});
-      enableInferredAutoScroll(engine);
+      engine.registerAutoScroller(first.element, {});
+      engine.registerAutoScroller(second.element, {});
 
       await driveTo(source, first.element, 100, 190);
       expect(first.scrollBy).toHaveBeenCalled();
-      fireEvent.dragOver(second.element, { clientX: 100, clientY: 190 });
+      fireEvent.dragOver(second.element, { clientX: 400, clientY: 190 });
       await flushRaf();
       await flushRaf();
       expect(second.scrollBy).toHaveBeenCalled();
@@ -1104,71 +1091,55 @@ describe('engine.registerAutoScroller', () => {
       await flushRaf();
 
       expect(first.scrollBy).not.toHaveBeenCalled();
+      expect(warning).toHaveBeenCalledWith(expect.stringContaining('does not scroll'));
     });
 
     it('scrolls a container nested inside the drop target the pointer is over', async () => {
-      // The kanban shape, and the one the hero demo renders: the column is the
-      // drop target and its list is the scroller *inside* it. A walk from the
-      // drop target can never reach a descendant, so the chain has to start from
-      // the element actually under the pointer.
       const { engine } = await renderDnd();
       const column = createElement({ top: 0, height: 200, left: 0, width: 200 });
       const list = makeContainer({ parent: column });
-      // Outside the column, so the chain cannot come from the source instead.
       const source = createElement();
 
       engine.registerDraggable(source, {});
       engine.registerDropTarget(column, {});
-      enableInferredAutoScroll(engine);
+      engine.registerAutoScroller(list.element, {});
 
       await driveTo(source, list.element, 100, 190);
 
       expect(list.scrollBy).toHaveBeenCalled();
     });
 
-    it('never engages an inferred container with no scroll extent', async () => {
+    it('never engages a registered container with no scroll extent', async () => {
       const { engine } = await renderDnd();
-      // The fixture above, minus the vertical extent: an `overflow: auto`
-      // wrapper with nothing to scroll. This is why inference can afford to
-      // collect every overflow ancestor — the false positives reject themselves.
       const container = makeContainer({ vertical: false });
       const source = makeNestedSource(container.element);
 
       engine.registerDraggable(source, {});
-      enableInferredAutoScroll(engine);
+      engine.registerAutoScroller(container.element, {});
 
       await driveTo(source, container.element, 100, 190);
 
       expect(container.scrollBy).not.toHaveBeenCalled();
     });
 
-    it('hands the axis an inner inferred container cannot scroll to the outer one', async () => {
+    it('hands the axis an inner viewport cannot scroll to the outer one', async () => {
       const { engine } = await renderDnd();
-      // A vertical column inside a horizontal board — the Linear board's shape —
-      // sharing one box so the pointer sits in the bottom AND the right edge
-      // zone of both. Neither is registered.
       const board = makeContainer({ vertical: false, horizontal: true });
       const column = makeContainer({ parent: board.element });
       const source = makeNestedSource(column.element);
 
       engine.registerDraggable(source, {});
-      enableInferredAutoScroll(engine);
+      engine.registerAutoScroller(board.element, {});
+      engine.registerAutoScroller(column.element, {});
 
       await driveTo(source, column.element, 190, 190);
 
-      // The walk is inner-first by construction, so the column goes first and
-      // takes the vertical axis, the only one it has room on...
       expect(column.scrollBy).toHaveBeenCalled();
       expect(column.scrollBy.mock.calls.every(([arg]) => (arg.left ?? 0) === 0)).toBe(true);
-      // ...leaving the horizontal one to the board it never consumed.
       expect(board.scrollBy).toHaveBeenCalled();
       expect(board.scrollBy.mock.calls.every(([arg]) => (arg.top ?? 0) === 0)).toBe(true);
     });
 
-    // The two tests below share one fixture: two containers with the same box,
-    // one holding the drag source and one holding a drop target. Only what they
-    // contain tells them apart, so which of them scrolls is exactly the question
-    // of where the walk started.
     function renderTwoContainers() {
       const sourceContainer = makeContainer();
       const targetContainer = makeContainer();
@@ -1179,13 +1150,13 @@ describe('engine.registerAutoScroller', () => {
       return { sourceContainer, targetContainer, source, target };
     }
 
-    it('walks from the drop target under the pointer, not from the source', async () => {
+    it('scrolls a registered target container without scrolling the unregistered source container', async () => {
       const { engine } = await renderDnd();
       const { sourceContainer, targetContainer, source, target } = renderTwoContainers();
 
       engine.registerDraggable(source, {});
       engine.registerDropTarget(target, {});
-      enableInferredAutoScroll(engine);
+      engine.registerAutoScroller(targetContainer.element, {});
 
       await driveTo(source, target, 100, 190);
 
@@ -1199,37 +1170,28 @@ describe('engine.registerAutoScroller', () => {
 
       engine.registerDraggable(source, {});
       engine.registerDropTarget(target, {});
-      enableInferredAutoScroll(engine);
+      engine.registerAutoScroller(targetContainer.element, {});
 
-      // The pointer sits over empty space inside the container — on its padding,
-      // or in the gap between two rows. Drop targets resolve by walking up to the
-      // nearest `[data-drop-target]`, so the stack is empty for every such point,
-      // and anchoring the walk anywhere but the hit element would stop the scroll
-      // in the gaps: mid-gesture, for no reason the user can see.
       await driveTo(source, targetContainer.element, 100, 190);
 
       expect(targetContainer.scrollBy).toHaveBeenCalled();
     });
 
-    it("keeps the source's own containers as candidates, for scroll-to-reveal", async () => {
+    it('scrolls a registered source container when the pointer hits an unrelated element', async () => {
       const { engine } = await renderDnd();
       const sourceContainer = makeContainer();
       const source = makeNestedSource(sourceContainer.element);
-      // A bare element outside every scroll container, positioned inside the
-      // source container's box: nothing in the hit element's own chain scrolls,
-      // so the source's chain is the only thing that can bring an off-screen
-      // target into view. It is unioned in whatever the pointer is over.
       const outsider = createElement({ top: 150, height: 50, left: 0, width: 200 });
 
       engine.registerDraggable(source, {});
-      enableInferredAutoScroll(engine);
+      engine.registerAutoScroller(sourceContainer.element, {});
 
       await driveTo(source, outsider, 100, 190);
 
       expect(sourceContainer.scrollBy).toHaveBeenCalled();
     });
 
-    it('lets an explicit registration override the inferred entry for the same element', async () => {
+    it('honors canScroll on a registered viewport', async () => {
       const { engine } = await renderDnd();
       const container = makeContainer();
       const source = makeNestedSource(container.element);
@@ -1240,10 +1202,6 @@ describe('engine.registerAutoScroller', () => {
 
       await driveTo(source, container.element, 100, 190);
 
-      // The walk still finds the container, but a registered element scrolls
-      // with the parameters it was registered with — which here decline. That is
-      // what makes `disabled` an opt-out of inference rather than a
-      // contradiction of it.
       expect(canScroll).toHaveBeenCalled();
       expect(canScroll.mock.calls[0][0].element).toBe(container.element);
       expect(container.scrollBy).not.toHaveBeenCalled();
@@ -1256,24 +1214,16 @@ describe('engine.registerAutoScroller', () => {
 
       engine.registerDraggable(source, {}); // the renderer's default `testDragKind`
       engine.registerAutoScroller(container.element, {
-        accept: createKind<unknown>('base-ui-test/other-inferred'),
+        accept: createKind<unknown>('base-ui-test/other-viewport'),
       });
 
       await driveTo(source, container.element, 100, 190);
 
-      // The registration is skipped for a drag it doesn't accept, and the
-      // element does not fall back to scrolling as the ordinary container it is
-      // — which is what makes `accept` an opt-out for some drags but not others.
       expect(container.scrollBy).not.toHaveBeenCalled();
     });
 
-    // A surface moved by a CSS `transform` is the case inference structurally
-    // cannot reach: it has no scrollable overflow to detect and no scroll offset
-    // to write. The pair below is the whole argument for keeping the explicit
-    // registration.
-    it('does not infer an ancestor with no scrollable overflow', async () => {
+    it('does not scroll an unregistered ancestor with no scrollable overflow', async () => {
       const { engine } = await renderDnd();
-      // Scroll metrics like every other fixture here, but `overflow: visible`.
       const viewport = makeContainer({ overflow: 'visible' });
       const source = makeNestedSource(viewport.element);
 
@@ -1297,12 +1247,10 @@ describe('engine.registerAutoScroller', () => {
 
       expect(applyScroll).toHaveBeenCalled();
       expect(applyScroll.mock.calls[0][0].element).toBe(viewport.element);
-      // The engine moved nothing itself: the surface is not a scroll container.
       expect(viewport.scrollBy).not.toHaveBeenCalled();
     });
   });
 
-  // ---------------------------------------------------------------------------
   // Page (viewport) scrolling
   // ---------------------------------------------------------------------------
   //
@@ -1611,28 +1559,20 @@ describe('engine.registerAutoScroller', () => {
       expect(page.scrollBy).not.toHaveBeenCalled();
     });
 
-    it('lets a purely inferred inner container consume the axis ahead of the page', async () => {
+    it('does not scroll the page when only an inner viewport is registered', async () => {
       const { engine } = await renderDnd();
       const source = createElement();
       const page = mockPageScroller();
-      // The same shape as the test below, with no region registered on the inner
-      // container. Once auto-scroll is enabled, the order the loop
-      // walks its candidates in has to come from DOM depth, not from the order the
-      // walk happened to collect them: the document root is a candidate on every
-      // drag, and visiting it first would let the page take the vertical axis and
-      // leave this list unable to scroll at all.
       const inner = createElement({ top: 400, height: 200, left: 300, width: 200 });
       inner.style.overflow = 'auto';
       inner.scrollBy = vi.fn();
       Object.defineProperty(inner, 'scrollTop', { value: 400, writable: true });
       Object.defineProperty(inner, 'scrollHeight', { value: 1000 });
       Object.defineProperty(inner, 'clientHeight', { value: 200 });
-      // The dragged row lives in the list, so the walk from the source reaches it
-      // without anything being registered.
       inner.appendChild(source);
 
       engine.registerDraggable(source, {});
-      enableInferredAutoScroll(engine);
+      engine.registerAutoScroller(inner, {});
 
       await drive(source, 400, 590);
 

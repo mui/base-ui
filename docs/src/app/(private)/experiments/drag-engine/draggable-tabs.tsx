@@ -8,6 +8,7 @@ import {
 } from '@base-ui/react/draggable';
 
 import * as React from 'react';
+import { DragPageAutoScroll } from 'docs/src/components/DragPageAutoScroll';
 import clsx from 'clsx';
 import { Tabs } from '@base-ui/react/tabs';
 
@@ -520,6 +521,7 @@ function DraggableTabsExperimentContent() {
 export default function DraggableTabsExperiment() {
   return (
     <Draggable.Provider>
+      <DragPageAutoScroll />
       <DraggableTabsExperimentContent />
     </Draggable.Provider>
   );

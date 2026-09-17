@@ -8,6 +8,7 @@ import {
 } from '@base-ui/react/draggable';
 
 import * as React from 'react';
+import { DragPageAutoScroll } from 'docs/src/components/DragPageAutoScroll';
 import clsx from 'clsx';
 import { ContextMenu } from '@base-ui/react/context-menu';
 import { Dialog } from '@base-ui/react/dialog';
@@ -1264,6 +1265,7 @@ function BookmarkDialog({
 export default function FakeBrowserExperiment() {
   return (
     <Draggable.Provider>
+      <DragPageAutoScroll />
       <BookmarkBar />
     </Draggable.Provider>
   );

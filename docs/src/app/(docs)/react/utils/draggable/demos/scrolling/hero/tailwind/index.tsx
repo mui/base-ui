@@ -2,8 +2,7 @@
 import { Draggable } from '@base-ui/react/draggable';
 
 import * as React from 'react';
-
-import { DragAutoScroll } from '@base-ui/react/drag-auto-scroll';
+import { DragPageAutoScroll } from 'docs/src/components/DragPageAutoScroll';
 
 type Zone = 'plain' | 'slow';
 
@@ -169,18 +168,11 @@ function DropZone({
       )}
     </React.Fragment>
   );
-  const scrollRegion =
-    maxSpeed === undefined ? (
-      <div ref={listRef} className={LIST_CLASS}>
-        {cards}
-      </div>
-    ) : (
-      // @highlight-start
-      <Draggable.Viewport ref={listRef} className={LIST_CLASS} maxSpeed={maxSpeed}>
-        {cards}
-      </Draggable.Viewport>
-      // @highlight-end
-    );
+  const scrollRegion = (
+    <Draggable.Viewport ref={listRef} className={LIST_CLASS} maxSpeed={maxSpeed}>
+      {cards}
+    </Draggable.Viewport>
+  );
 
   return (
     <Draggable.Target
@@ -247,7 +239,7 @@ function AutoScrollBoardContent() {
 
   return (
     // @highlight-start
-    <DragAutoScroll.Provider>
+    <React.Fragment>
       {/* @highlight-end */}
       <div ref={rootRef} className="flex w-full flex-col gap-4 select-none">
         <p className="m-0 text-sm leading-5 text-neutral-500 dark:text-neutral-400">
@@ -271,13 +263,14 @@ function AutoScrollBoardContent() {
           />
         </div>
       </div>
-    </DragAutoScroll.Provider>
+    </React.Fragment>
   );
 }
 
 export default function AutoScrollBoard() {
   return (
     <Draggable.Provider>
+      <DragPageAutoScroll />
       <AutoScrollBoardContent />
     </Draggable.Provider>
   );

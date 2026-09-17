@@ -2,6 +2,7 @@
 import { Draggable } from '@base-ui/react/draggable';
 
 import * as React from 'react';
+import { DragPageAutoScroll } from 'docs/src/components/DragPageAutoScroll';
 import clsx from 'clsx';
 import { Menu } from '@base-ui/react/menu';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
@@ -516,6 +517,7 @@ function DataGridInner() {
 export default function DataGrid() {
   return (
     <Draggable.Provider>
+      <DragPageAutoScroll />
       <DataGridInner />
     </Draggable.Provider>
   );
