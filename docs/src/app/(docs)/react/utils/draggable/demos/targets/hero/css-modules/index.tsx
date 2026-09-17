@@ -7,7 +7,7 @@ import styles from '../../hero.module.css';
 
 const itemKind = Draggable.createKind('drop-target/hero-item');
 
-export default function DropTargetHero() {
+function DropTargetHeroContent() {
   const [dropped, setDropped] = React.useState(false);
 
   return (
@@ -32,5 +32,13 @@ export default function DropTargetHero() {
         {!dropped && <span className={styles.Hint}>Drop here</span>}
       </Draggable.Target>
     </div>
+  );
+}
+
+export default function DropTargetHero() {
+  return (
+    <Draggable.Provider>
+      <DropTargetHeroContent />
+    </Draggable.Provider>
   );
 }

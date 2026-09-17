@@ -194,7 +194,7 @@ function DropZone({
   );
 }
 
-export default function AutoScrollBoard() {
+function AutoScrollBoardContent() {
   const [tasks, setTasks] = React.useState<Record<Zone, Task[]>>(INITIAL_TASKS);
   // Index into `UPCOMING`, so the tray always holds another card to drag.
   const [handedOut, setHandedOut] = React.useState(0);
@@ -254,5 +254,13 @@ export default function AutoScrollBoard() {
         </div>
       </div>
     </DragAutoScroll.Provider>
+  );
+}
+
+export default function AutoScrollBoard() {
+  return (
+    <Draggable.Provider>
+      <AutoScrollBoardContent />
+    </Draggable.Provider>
   );
 }

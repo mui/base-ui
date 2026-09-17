@@ -29,7 +29,7 @@ const slot = getSharedSlot<{ store: Store<DragPreviewState | null> }>('dragPrevi
   store: new Store<DragPreviewState | null>(null),
 }));
 
-/** The active React-rendered preview, shared by every `Draggable.PreviewProvider`. */
+/** The active React-rendered preview, shared by every `Draggable.Provider`. */
 export const dragPreviewStore: ReadonlyStore<DragPreviewState | null> = slot.store;
 
 /** Publish `state` for the provider whose React tree should render it. */

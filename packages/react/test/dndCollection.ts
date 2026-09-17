@@ -8,7 +8,7 @@ import { vi } from 'vitest';
 import { renderHook } from '@testing-library/react';
 import type { CollectionActions, CollectionItemId } from '../src/types/collection';
 import { registerCleanup } from './dnd';
-import { DraggablePreviewProvider } from '../src/draggable/preview-provider/DraggablePreviewProvider';
+import { DraggableProvider } from '../src/draggable/DraggableProvider';
 import { useDraggableCollection } from '../src/utils/drag-and-drop/useDraggableCollection';
 import type {
   DraggableCollectionState,
@@ -156,12 +156,12 @@ export function setupPlugin(
     createMockContext(contextOptions);
 
   // The drag engine is global, but a preview with content renders in the React
-  // tree a `Draggable.PreviewProvider` supplies, so item drag previews need one.
+  // tree a `Draggable.Provider` supplies, so item drag previews need one.
   // Any caller-supplied wrapper stays outside it
   // so the drag engine reads the active translations.
   const Outer = renderOptions?.wrapper ?? React.Fragment;
   const wrapper: React.JSXElementConstructor<{ children: React.ReactNode }> = ({ children }) =>
-    React.createElement(Outer, null, React.createElement(DraggablePreviewProvider, null, children));
+    React.createElement(Outer, null, React.createElement(DraggableProvider, null, children));
 
   const { result } = renderHook(
     () =>

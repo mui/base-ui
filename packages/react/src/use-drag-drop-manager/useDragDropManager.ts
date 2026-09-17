@@ -17,7 +17,7 @@ export {
  * registrations in one place.
  *
  * Every call controls the same page-wide manager. Base UI reads the nearest
- * `Draggable.PreviewProvider` at the hook's call site.
+ * `Draggable.Provider` at the hook's call site.
  *
  * Documentation: [Base UI useDragDropManager](https://base-ui.com/react/utils/draggable#usedragdropmanager)
  *

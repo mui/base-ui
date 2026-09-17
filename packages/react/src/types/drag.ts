@@ -673,7 +673,7 @@ export interface DragPreviewSettings {
    * Pass a container to keep structural selectors such as `:nth-child` and
    * `:last-child` unchanged, or to keep the preview mounted if the source subtree
    * unmounts. CSS selectors based on the source's ancestors may no longer match.
-   * `Draggable.PreviewProvider` can set the container for a whole subtree.
+   * `Draggable.Provider` can set the container for a whole subtree.
    */
   container?: DragPreviewContainer | undefined;
 }

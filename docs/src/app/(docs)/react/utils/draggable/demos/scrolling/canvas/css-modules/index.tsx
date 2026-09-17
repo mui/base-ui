@@ -23,7 +23,7 @@ const INITIAL_PINS: Pin[] = [
 // at the bottom edge and let the canvas pan.
 const ARCHIVE = { x: 60, y: 520 };
 
-export default function CanvasPan() {
+function CanvasPanContent() {
   const [pins, setPins] = React.useState(INITIAL_PINS);
   const [archived, setArchived] = React.useState<string[]>([]);
   const viewportRef = React.useRef<HTMLDivElement | null>(null);
@@ -110,5 +110,13 @@ export default function CanvasPan() {
         Archived: {archived.length > 0 ? archived.join(', ') : 'nothing yet'}
       </p>
     </div>
+  );
+}
+
+export default function CanvasPan() {
+  return (
+    <Draggable.Provider>
+      <CanvasPanContent />
+    </Draggable.Provider>
   );
 }

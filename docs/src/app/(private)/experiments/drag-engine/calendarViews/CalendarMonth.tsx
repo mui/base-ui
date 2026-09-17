@@ -287,7 +287,7 @@ function MonthEventBar(props: { event: CalendarEvent; segment: WeekEventSegment 
       data-continues-after={segment.continuesAfter ? 'true' : undefined}
       title={`${event.title} · ${formatRange(event.start, event.end, event.allDay)}`}
     >
-      {/* Renders nothing here: the card is published to the `Draggable.PreviewProvider` and
+      {/* Renders nothing here: the card is published to the `Draggable.Provider` and
           shown there instead of the default clone of the bar. */}
       <Draggable.Preview offset="pointer">
         <div className={styles.dragPreview}>

@@ -1,5 +1,7 @@
 'use client';
 import * as React from 'react';
+import { useDraggableContext } from '../DraggableContext';
+import type { DragKind, DraggablePayload, DraggablePayloadGetter } from '../../types/drag';
 import { useRenderElement } from '../../internals/useRenderElement';
 import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
 import type { BaseUIComponentProps } from '../../internals/types';
@@ -9,7 +11,6 @@ import type {
   WithOptionalPayload,
   WithRequiredPayload,
 } from '../../types/dragRegistration';
-import type { DraggablePayload, DraggablePayloadGetter } from '../../types/drag';
 import { useDraggableElement } from './useDraggableElement';
 import { DraggableRootContext } from './DraggableRootContext';
 import { useDragPreviewContext } from '../../utils/drag-and-drop/overlay/DragPreviewContext';
@@ -65,10 +66,12 @@ export const DraggableRoot = React.forwardRef(function DraggableRoot<TData = und
     ...elementProps
   } = componentProps;
 
+  const { defaultKind } = useDraggableContext();
+
   // A fresh object per render is fine: `useDraggableElement` reads it through a
   // ref and never compares it.
   const params = {
-    kind,
+    kind: kind ?? defaultKind,
     payload,
     getPayload,
     previewKey,
@@ -117,9 +120,7 @@ export const DraggableRoot = React.forwardRef(function DraggableRoot<TData = und
   // `Card` was promised. Expressing that as a conditional on the props type instead
   // would make it a deferred conditional a generic wrapper can't spread into.
 }) as {
-  <TData>(
-    props: DraggableRootPropsBase<TData> & RequiredDraggablePayload<TData>,
-  ): React.JSX.Element;
+  <TData>(props: DraggableRootPropsWithPayload<TData>): React.JSX.Element;
   (
     props: DraggableRootPropsBase<undefined> &
       WithOptionalPayload<DraggablePayloadParameters<undefined>>,
@@ -150,18 +151,24 @@ type DraggableRootPropsBase<TData> = Omit<
   // never from here.
   Omit<
     RegisterDraggableParameters<TData>,
-    'dragPreview' | 'dragHandle' | 'payload' | 'getPayload'
-  > & { children?: React.ReactNode | undefined };
+    'dragPreview' | 'dragHandle' | 'payload' | 'getPayload' | 'kind'
+  > & {
+    children?: React.ReactNode | undefined;
+    /** The source kind. Defaults to the nearest provider's no-payload kind. */
+    kind?: DragKind<TData> | undefined;
+  };
 
 export type DraggableRootProps<TData = undefined> = DraggableRootPropsBase<TData> &
-  DraggableRootPayloadField<TData>;
+  DraggableRootPayloadField<TData> &
+  ([TData] extends [undefined] ? {} : { kind: DragKind<TData> });
 
 /**
  * Props for a generic `Draggable.Root` wrapper whose payload is always required.
  * Use this alias when spreading props with an unbound payload type into the root.
  */
-export type DraggableRootPropsWithPayload<TData> = DraggableRootPropsBase<TData> &
-  RequiredDraggablePayload<TData>;
+export type DraggableRootPropsWithPayload<TData> = DraggableRootPropsBase<TData> & {
+  kind: DragKind<TData>;
+} & RequiredDraggablePayload<TData>;
 
 type DraggablePayloadParameters<TData> = Pick<
   RegisterDraggableParameters<TData>,

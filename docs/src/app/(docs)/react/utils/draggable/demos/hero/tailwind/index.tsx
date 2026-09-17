@@ -3,7 +3,6 @@ import { Draggable } from '@base-ui/react/draggable';
 
 import * as React from 'react';
 
-const cardKind = Draggable.createKind('card');
 const CARD_WIDTH = 128;
 const CARD_HEIGHT = 40;
 
@@ -14,7 +13,7 @@ const CARD_HEIGHT = 40;
 const CARD_CLASS =
   'absolute box-border flex items-center justify-center border text-sm leading-5 border-neutral-950 dark:border-white bg-white text-neutral-950 dark:bg-neutral-950 dark:text-white cursor-grab transition-colors data-[dragging]:opacity-0 data-[drag-preview]:shadow-[0.25rem_0.25rem_0_rgb(0_0_0_/_12%)] dark:data-[drag-preview]:shadow-none hover:bg-neutral-100 dark:hover:bg-neutral-800 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-neutral-950 dark:focus-visible:outline-white';
 
-export default function DraggableHero() {
+function DraggableHeroContent() {
   const surfaceRef = React.useRef<HTMLDivElement | null>(null);
   const [position, setPosition] = React.useState({ x: 24, y: 24 });
 
@@ -24,7 +23,6 @@ export default function DraggableHero() {
           release on it reaches `onDrop`. */}
       <Draggable.Target
         ref={surfaceRef}
-        accept={cardKind}
         trackDragOver={false}
         className="relative box-border h-48 overflow-hidden border border-neutral-200 bg-neutral-50 bg-[radial-gradient(var(--color-neutral-300)_1px,transparent_1px)] [background-size:20px_20px] dark:border-neutral-700 dark:bg-neutral-900 dark:bg-[radial-gradient(var(--color-neutral-700)_1px,transparent_1px)]"
         onDraggableDrop={({ target }) => {
@@ -44,7 +42,6 @@ export default function DraggableHero() {
       >
         {/* @highlight-start */}
         <Draggable.Root
-          kind={cardKind}
           modifiers={Draggable.restrictToElement(surfaceRef)}
           // @highlight-end
           className={CARD_CLASS}
@@ -55,5 +52,13 @@ export default function DraggableHero() {
         </Draggable.Root>
       </Draggable.Target>
     </div>
+  );
+}
+
+export default function DraggableHero() {
+  return (
+    <Draggable.Provider>
+      <DraggableHeroContent />
+    </Draggable.Provider>
   );
 }

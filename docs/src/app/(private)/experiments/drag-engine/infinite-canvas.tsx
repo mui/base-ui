@@ -75,7 +75,7 @@ const BINS: Bin[] = [
   { id: 'east', label: 'East bin', x: 1400, y: 300 },
 ];
 
-export default function InfiniteCanvas() {
+function InfiniteCanvasContent() {
   const { settings } = useExperimentSettings<InfiniteCanvasSettings>();
   const [notes, setNotes] = React.useState(INITIAL_NOTES);
   const [lastDrop, setLastDrop] = React.useState<string>('—');
@@ -230,5 +230,13 @@ export default function InfiniteCanvas() {
         </div>
       </Draggable.Viewport>
     </div>
+  );
+}
+
+export default function InfiniteCanvas() {
+  return (
+    <Draggable.Provider>
+      <InfiniteCanvasContent />
+    </Draggable.Provider>
   );
 }

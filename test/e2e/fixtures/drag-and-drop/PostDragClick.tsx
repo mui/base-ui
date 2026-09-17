@@ -4,7 +4,7 @@ import { useDragMonitor } from '@base-ui/react/use-drag-monitor';
 
 const itemKind = Draggable.createKind('e2e-post-drag-click');
 
-export default function PostDragClick() {
+function PostDragClickContent() {
   const [documentClicks, setDocumentClicks] = React.useState(0);
   const [sourceClicks, setSourceClicks] = React.useState(0);
   const [endCount, setEndCount] = React.useState(0);
@@ -34,5 +34,13 @@ export default function PostDragClick() {
         {JSON.stringify({ documentClicks, sourceClicks, endCount })}
       </output>
     </React.Fragment>
+  );
+}
+
+export default function PostDragClick() {
+  return (
+    <Draggable.Provider>
+      <PostDragClickContent />
+    </Draggable.Provider>
   );
 }

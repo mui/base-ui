@@ -210,7 +210,7 @@ export default function FileExplorer() {
 
   return (
     // Custom preview content renders beside the provider's children.
-    <Draggable.PreviewProvider>
+    <Draggable.Provider>
       <div className="flex w-full max-w-[28rem] flex-col gap-3 select-none">
         <nav aria-label="Breadcrumb" className="flex items-center gap-1 text-sm leading-5">
           {path.map((folder, index) => (
@@ -259,6 +259,6 @@ export default function FileExplorer() {
           )}
         </Draggable.Target>
       </div>
-    </Draggable.PreviewProvider>
+    </Draggable.Provider>
   );
 }

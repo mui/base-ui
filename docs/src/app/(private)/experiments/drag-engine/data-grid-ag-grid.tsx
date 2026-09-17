@@ -234,7 +234,7 @@ function ColumnHeader({
       >
         <Grip className={styles.headerGrip} />
         {column.label}
-        {/* Renders nothing here: the content is published to the `Draggable.PreviewProvider`,
+        {/* Renders nothing here: the content is published to the `Draggable.Provider`,
             replacing the default clone of the header cell. */}
         <Draggable.Preview
           className={clsx(theme.tokens, styles.preview)}
@@ -515,8 +515,8 @@ function DataGridInner() {
 
 export default function DataGrid() {
   return (
-    <Draggable.PreviewProvider>
+    <Draggable.Provider>
       <DataGridInner />
-    </Draggable.PreviewProvider>
+    </Draggable.Provider>
   );
 }

@@ -29,7 +29,7 @@ const PIN_CLASS =
   'dark:border-white dark:bg-neutral-950 dark:text-white dark:hover:bg-neutral-800 ' +
   'dark:focus-visible:outline-white dark:data-[drag-preview]:shadow-none';
 
-export default function CanvasPan() {
+function CanvasPanContent() {
   const [pins, setPins] = React.useState(INITIAL_PINS);
   const [archived, setArchived] = React.useState<string[]>([]);
   const viewportRef = React.useRef<HTMLDivElement | null>(null);
@@ -116,5 +116,13 @@ export default function CanvasPan() {
         Archived: {archived.length > 0 ? archived.join(', ') : 'nothing yet'}
       </p>
     </div>
+  );
+}
+
+export default function CanvasPan() {
+  return (
+    <Draggable.Provider>
+      <CanvasPanContent />
+    </Draggable.Provider>
   );
 }

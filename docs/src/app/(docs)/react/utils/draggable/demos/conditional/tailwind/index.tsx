@@ -139,7 +139,7 @@ function DockSlot({
   );
 }
 
-export default function ConditionalDashboard() {
+function ConditionalDashboardContent() {
   const [widgets, setWidgets] = React.useState<WidgetData[]>(INITIAL_WIDGETS);
 
   function moveWidget(widgetId: string, slot: SlotId) {
@@ -162,5 +162,13 @@ export default function ConditionalDashboard() {
         ))}
       </div>
     </div>
+  );
+}
+
+export default function ConditionalDashboard() {
+  return (
+    <Draggable.Provider>
+      <ConditionalDashboardContent />
+    </Draggable.Provider>
   );
 }

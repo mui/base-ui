@@ -16,7 +16,7 @@ import {
  * Renders a `<div>` in the preview overlay; nothing is rendered where the component is written.
  *
  * The component renders no element in place. Its content renders in the nearest
- * `Draggable.PreviewProvider`, required only for custom content, and is portaled into an element next to
+ * `Draggable.Provider`, required only for custom content, and is portaled into an element next to
  * the drag source, where the source's CSS can apply.
  *
  * Documentation: [Base UI Draggable](https://base-ui.com/react/utils/draggable)

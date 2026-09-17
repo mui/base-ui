@@ -3,7 +3,7 @@ export * as Draggable from './index.parts';
 export type * from './root/DraggableRoot';
 export type * from './handle/DraggableHandle';
 export type * from './preview/DraggablePreview';
-export type * from './preview-provider/DraggablePreviewProvider';
+export type * from './DraggableProvider';
 export type { UseDraggableActiveDragReturnValue } from './use-active-drag';
 
 // The event and option types a `Draggable.*` consumer needs to type extracted

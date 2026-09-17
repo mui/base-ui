@@ -449,7 +449,7 @@ function PlusIcon() {
   );
 }
 
-export default function DraggableTabsExperiment() {
+function DraggableTabsExperimentContent() {
   return (
     <div className={clsx(theme.tokens, styles.root)}>
       <header className={styles.header}>
@@ -506,5 +506,13 @@ export default function DraggableTabsExperiment() {
         </div>
       </section>
     </div>
+  );
+}
+
+export default function DraggableTabsExperiment() {
+  return (
+    <Draggable.Provider>
+      <DraggableTabsExperimentContent />
+    </Draggable.Provider>
   );
 }

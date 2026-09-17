@@ -17,7 +17,7 @@ export interface DraggableRootContext<TData = unknown> {
   /** The link a `Draggable.Preview` declares into. Stable. */
   previewHandle: DragPreviewHandle<TData>;
   /**
-   * The `Draggable.PreviewProvider` visible from the root's own position — the
+   * The `Draggable.Provider` visible from the root's own position — the
    * one the engine publishes preview content through. A `Draggable.Preview`
    * compares it against its nearest provider to fail at render, rather than at
    * drag start, when a provider is mounted inside the root.

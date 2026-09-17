@@ -35,8 +35,17 @@ expectType<DragKind<undefined>, typeof marker>(marker);
   }}
 />;
 
-// @ts-expect-error every draggable is of some kind.
-<Draggable.Root />;
+// A payload-less source uses the nearest provider default kind.
+<Draggable.Root
+  onDrop={({ source }) => {
+    expectType<undefined, typeof source.payload>(source.payload);
+  }}
+/>;
+
+// @ts-expect-error a payload requires an explicit typed kind.
+<Draggable.Root payload={{ id: 'a' }} />;
+// @ts-expect-error a payload accessor requires an explicit typed kind.
+<Draggable.Root getPayload={() => ({ id: 'a' })} />;
 
 // The kind types every event that carries the payload, with no type argument.
 <Draggable.Root
@@ -231,9 +240,9 @@ const boundaryRef: React.RefObject<HTMLDivElement | null> = { current: null };
   </Draggable.Preview>
 </Draggable.Root>;
 
-<Draggable.PreviewProvider container={(source) => source.closest('div')}>
+<Draggable.Provider container={(source) => source.closest('div')}>
   <Draggable.Root kind={marker} />
-</Draggable.PreviewProvider>;
+</Draggable.Provider>;
 
 // Omitting children configures the clone; children select a custom preview.
 <Draggable.Root kind={marker}>
@@ -276,9 +285,7 @@ function Card(props: CardProps) {
 
 // A generic wrapper has to spell out the requirement itself: with `TData` still
 // open, the one in `Props` is a deferred conditional the overloads can't see through.
-function GenericCard<TData>(
-  props: Draggable.Root.Props<TData> & { payload: DraggablePayload<TData> },
-) {
+function GenericCard<TData>(props: Draggable.Root.PropsWithPayload<TData>) {
   return <Draggable.Root {...props} />;
 }
 <GenericCard kind={card} payload={{ id: 'a' }} />;

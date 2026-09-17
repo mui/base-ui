@@ -1,7 +1,9 @@
 'use client';
+
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { fastObjectShallowCompare } from '@base-ui/utils/fastObjectShallowCompare';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useDraggableContext } from '../../draggable/DraggableContext';
 import { useCSPContext } from '../../internals/csp-context/CSPContext';
 import type { CSPContextValue } from '../../internals/csp-context/CSPContext';
 import { applyDraggableStaticSetup, bindDraggableSensors } from './draggable';
@@ -40,7 +42,7 @@ export class DragEngineBase {
     private readonly getCSPContext: LatestGetter<CSPContextValue>,
   ) {}
 
-  // The nearest `Draggable.PreviewProvider`, or `null` when there is none.
+  // The nearest `Draggable.Provider`, or `null` when there is none.
   private get previewContext(): DragPreviewContext | null {
     return this.getPreviewContext();
   }
@@ -56,7 +58,7 @@ export class DragEngineBase {
     // behind. This also covers a drop and next pickup landing in one React flush.
     const onGenerateDragPreview: DraggableConfig<TData>['onGenerateDragPreview'] = (payload) => {
       // Read live at dispatch time, not captured at registration: nothing
-      // re-registers a draggable when the nearest `Draggable.PreviewProvider`
+      // re-registers a draggable when the nearest `Draggable.Provider`
       // re-renders, so a `container` that arrives after mount must still be seen by
       // the next drag.
       const previewContext = this.previewContext;
@@ -187,6 +189,7 @@ export class DragEngineImpl extends DragEngineBase implements InternalDragEngine
  * `Draggable.Root`.
  */
 export function useRegisterDraggable(): DragEngineBase['registerDraggable'] {
+  useDraggableContext();
   const previewContext = useDragPreviewContext();
   const cspContext = useCSPContext();
   const getPreviewContext = useStableCallback(() => previewContext);
@@ -201,6 +204,7 @@ export function useRegisterDraggable(): DragEngineBase['registerDraggable'] {
  * the provider nearest this hook call; registrations and sensors remain global.
  */
 export function useInnerDragEngine(): InternalDragEngine {
+  useDraggableContext();
   const previewContext = useDragPreviewContext();
   const cspContext = useCSPContext();
   const getPreviewContext = useStableCallback(() => previewContext);

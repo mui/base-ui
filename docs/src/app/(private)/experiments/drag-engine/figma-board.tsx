@@ -99,9 +99,9 @@ const INITIAL_CARDS: Card[] = [
 
 export default function FigmaBoard() {
   return (
-    <Draggable.PreviewProvider>
+    <Draggable.Provider>
       <FigmaBoardInner />
-    </Draggable.PreviewProvider>
+    </Draggable.Provider>
   );
 }
 

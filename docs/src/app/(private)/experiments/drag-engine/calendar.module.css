@@ -584,7 +584,7 @@
   color: var(--dnd-surface);
 }
 
-/* ------- Drag preview (`DragPreview` content, rendered in the Draggable.PreviewProvider) ------- */
+/* ------- Drag preview (`DragPreview` content, rendered in the Draggable.Provider) ------- */
 
 .dragPreview {
   display: flex;

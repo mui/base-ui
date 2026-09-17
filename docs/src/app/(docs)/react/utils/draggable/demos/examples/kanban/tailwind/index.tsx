@@ -149,7 +149,7 @@ function computeSlot(
   return { columnId, insertIndex: findClosestSlot(columnEl, clientY) };
 }
 
-export default function KanbanBoard() {
+function KanbanBoardContent() {
   const [board, setBoard] = React.useState<Board>(buildInitialBoard);
   const [placeholder, setPlaceholder] = React.useState<DropPlaceholder | null>(null);
 
@@ -326,5 +326,13 @@ function DraggableCard({ card, columnId }: { card: Card; columnId: ColumnId }) {
       {card.title}
       <Draggable.Preview />
     </Draggable.Root>
+  );
+}
+
+export default function KanbanBoard() {
+  return (
+    <Draggable.Provider>
+      <KanbanBoardContent />
+    </Draggable.Provider>
   );
 }

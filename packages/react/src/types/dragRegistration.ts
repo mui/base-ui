@@ -60,7 +60,7 @@ export type WithOptionalPayload<TParameters extends { payload?: unknown; getPayl
 /** Parameters accepted by `Draggable.Root` and `registerDraggable`, except the element. */
 // `onGenerateDragPreview` is omitted because the engine overwrites it to publish the
 // preview it built, `previewContainerDefault` because the React layer wires it from the
-// nearest `Draggable.PreviewProvider`.
+// nearest `Draggable.Provider`.
 export type RegisterDraggableParameters<TData = undefined> = Omit<
   DraggableConfig<TData>,
   | 'element'

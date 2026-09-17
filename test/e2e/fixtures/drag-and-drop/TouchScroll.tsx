@@ -9,7 +9,7 @@ const itemKind = Draggable.createKind('e2e-touch-scroll');
  * pick the item up and keep the page still, while a plain swipe must scroll it
  * and never start a drag.
  */
-export default function TouchScroll() {
+function TouchScrollContent() {
   const [startCount, setStartCount] = React.useState(0);
   const [endCount, setEndCount] = React.useState(0);
 
@@ -33,5 +33,13 @@ export default function TouchScroll() {
       </Draggable.Root>
       <output data-testid="drag-status">{JSON.stringify({ startCount, endCount })}</output>
     </div>
+  );
+}
+
+export default function TouchScroll() {
+  return (
+    <Draggable.Provider>
+      <TouchScrollContent />
+    </Draggable.Provider>
   );
 }

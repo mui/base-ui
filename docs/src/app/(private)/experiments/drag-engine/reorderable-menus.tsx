@@ -293,7 +293,7 @@ function ReorderableContextMenu() {
   );
 }
 
-export default function ReorderableMenusExperiment() {
+function ReorderableMenusExperimentContent() {
   return (
     <div className={clsx(theme.tokens, styles.root)}>
       <header className={styles.header}>
@@ -332,5 +332,13 @@ export default function ReorderableMenusExperiment() {
         </div>
       </section>
     </div>
+  );
+}
+
+export default function ReorderableMenusExperiment() {
+  return (
+    <Draggable.Provider>
+      <ReorderableMenusExperimentContent />
+    </Draggable.Provider>
   );
 }

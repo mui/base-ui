@@ -35,7 +35,7 @@ setupDragEngineTests({
 });
 
 /**
- * Dispatch `event` on `target` inside `act`. The mounted `Draggable.PreviewProvider`
+ * Dispatch `event` on `target` inside `act`. The mounted `Draggable.Provider`
  * subscribes to the drag session store, so a raw dispatch that starts, moves, or
  * ends a drag would re-render React outside `act`.
  */

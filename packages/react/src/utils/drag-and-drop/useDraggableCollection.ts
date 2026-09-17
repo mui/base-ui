@@ -1015,7 +1015,7 @@ export function useDraggableCollection<
 
   // The plugin builds its own drag engine from this ref (see its constructor). The
   // engine is global, so the collection itself needs no provider — but an item
-  // preview with content renders in a `Draggable.PreviewProvider`'s tree, so a
+  // preview with content renders in a `Draggable.Provider`'s tree, so a
   // collection that declares one needs it. Staged so a provider change reaches the
   // next drag without re-creating the plugin.
   const previewContext = useDragPreviewContext();

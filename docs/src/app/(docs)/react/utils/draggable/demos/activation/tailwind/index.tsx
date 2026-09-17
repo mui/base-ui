@@ -82,7 +82,7 @@ function Puck({
   );
 }
 
-export default function ActivationLab() {
+function ActivationLabContent() {
   const [modeId, setModeId] = React.useState('distance-5');
   const [phase, setPhase] = React.useState<Phase>('ready');
   const [dropped, setDropped] = React.useState(false);
@@ -178,5 +178,13 @@ export default function ActivationLab() {
         <span className="min-w-0 truncate text-neutral-500 dark:text-neutral-400">{message}</span>
       </div>
     </div>
+  );
+}
+
+export default function ActivationLab() {
+  return (
+    <Draggable.Provider>
+      <ActivationLabContent />
+    </Draggable.Provider>
   );
 }

@@ -36,7 +36,7 @@ function ChartLayer() {
   );
 }
 
-export default function NestedDropTargets() {
+function NestedDropTargetsContent() {
   const [location, setLocation] = React.useState<Location>('palette');
 
   return (
@@ -76,5 +76,13 @@ export default function NestedDropTargets() {
         </Draggable.Target>
       </Draggable.Target>
     </div>
+  );
+}
+
+export default function NestedDropTargets() {
+  return (
+    <Draggable.Provider>
+      <NestedDropTargetsContent />
+    </Draggable.Provider>
   );
 }

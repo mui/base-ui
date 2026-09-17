@@ -77,7 +77,7 @@ function Grip() {
   );
 }
 
-export default function AxisLane() {
+function AxisLaneContent() {
   const [stops, setStops] = React.useState(INITIAL_STOPS);
   const trackRef = React.useRef<HTMLDivElement | null>(null);
 
@@ -133,5 +133,13 @@ export default function AxisLane() {
         </Draggable.Target>
       </Draggable.Viewport>
     </div>
+  );
+}
+
+export default function AxisLane() {
+  return (
+    <Draggable.Provider>
+      <AxisLaneContent />
+    </Draggable.Provider>
   );
 }

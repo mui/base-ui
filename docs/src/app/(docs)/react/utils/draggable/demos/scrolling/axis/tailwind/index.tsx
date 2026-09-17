@@ -86,7 +86,7 @@ function Grip() {
 const STOP_CLASS =
   'inline-flex items-center gap-2 box-border border border-neutral-950 bg-white px-2.5 py-1.5 text-sm leading-5 whitespace-nowrap text-neutral-950 dark:border-white dark:bg-neutral-950 dark:text-white cursor-grab transition data-[dragging]:opacity-40 motion-safe:data-[drag-preview]:data-ending-style:transition-[translate] motion-safe:data-[drag-preview]:data-ending-style:duration-200 motion-safe:data-[drag-preview]:data-ending-style:ease-[cubic-bezier(0.2,0,0,1)] data-[drag-preview]:shadow-[0.25rem_0.25rem_0_rgb(0_0_0_/_12%)] dark:data-[drag-preview]:shadow-none hover:bg-neutral-100 dark:hover:bg-neutral-800 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-neutral-950 dark:focus-visible:outline-white';
 
-export default function AxisLane() {
+function AxisLaneContent() {
   const [stops, setStops] = React.useState(INITIAL_STOPS);
   const trackRef = React.useRef<HTMLDivElement | null>(null);
 
@@ -145,5 +145,13 @@ export default function AxisLane() {
         </Draggable.Target>
       </Draggable.Viewport>
     </div>
+  );
+}
+
+export default function AxisLane() {
+  return (
+    <Draggable.Provider>
+      <AxisLaneContent />
+    </Draggable.Provider>
   );
 }

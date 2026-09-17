@@ -69,6 +69,7 @@ A component that makes its element a drag source.
 - Keywords: React Drag and Drop, Draggable, Drop Target, Drag Preview, Auto Scroll, Base UI
 - Sections:
   - Anatomy
+  - Provider
   - Pass data along
   - Drag handle
   - Conditional drag
@@ -140,7 +141,7 @@ A component that makes its element a drag source.
     - Root
     - Handle
     - Preview
-    - PreviewProvider
+    - Provider
     - Target
     - Viewport
     - Auto-scroll provider
@@ -169,6 +170,8 @@ A component that makes its element a drag source.
   - Draggable - Root
     - Props: activation, children, className, disabled, dragCursor, getPayload, kind, modifiers, onBeforeMoveStart, onDrop, onMove, onMoveEnd, onMoveStart, onTargetChange, payload, previewKey, render, style
     - Data Attributes: data-disabled, data-dragging, data-ending-style
+  - Draggable - Provider
+    - Props: children, container
   - Draggable - Viewport
     - Props: accept, allowedAxis, applyScroll, canScroll, className, disabled, maxSpeed, render, style
   - Draggable - createGlobalKind
@@ -189,8 +192,6 @@ A component that makes its element a drag source.
     - Props: children, className, container, disabled, kind, modifiers, offset, render, style
     - Data Attributes: data-drag-preview, data-ending-style
     - CSS Variables: --drag-source-height, --drag-source-width
-  - Draggable - PreviewProvider
-    - Props: children, container
   - Draggable - restrictToElement
     - Parameters: element
   - Draggable - restrictToHorizontalAxis
@@ -210,7 +211,7 @@ A component that makes its element a drag source.
   - Draggable - useDragDropManager
   - Draggable - useDragMonitor
     - Parameters: parameters
-- Types: Draggable.Handle.Props, Draggable.Handle.State, Draggable.Preview.Props, Draggable.Preview.State, Draggable.PreviewProvider.Props, Draggable.PreviewProvider.State, Draggable.Root.Props, Draggable.Root.PropsWithPayload, Draggable.Root.State, Draggable.Target.Props, Draggable.Target.PropsWithPayload, Draggable.Target.State, Draggable.Viewport.Props, Draggable.Viewport.State, Draggable.useActiveDrag.ReturnValue, Draggable.useDragDropManager.ReturnValue, Draggable.useDragMonitor.Parameters, Draggable.useDragMonitor.ReturnValue
+- Types: Draggable.Handle.Props, Draggable.Handle.State, Draggable.Preview.Props, Draggable.Preview.State, Draggable.Provider.Props, Draggable.Root.Props, Draggable.Root.PropsWithPayload, Draggable.Root.State, Draggable.Target.Props, Draggable.Target.PropsWithPayload, Draggable.Target.State, Draggable.Viewport.Props, Draggable.Viewport.State, Draggable.useActiveDrag.ReturnValue, Draggable.useDragDropManager.ReturnValue, Draggable.useDragMonitor.Parameters, Draggable.useDragMonitor.ReturnValue
 
 </details>
 

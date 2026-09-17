@@ -118,7 +118,7 @@ export default function CustomPreviewDashboard() {
   }
 
   return (
-    <Draggable.PreviewProvider>
+    <Draggable.Provider>
       <div className="w-full select-none">
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
           {SLOTS.map((slot) => (
@@ -132,6 +132,6 @@ export default function CustomPreviewDashboard() {
           ))}
         </div>
       </div>
-    </Draggable.PreviewProvider>
+    </Draggable.Provider>
   );
 }
