@@ -82,9 +82,20 @@ export type ComboboxRootProps<
    */
   autoComplete?: string | undefined;
   /**
-   * Whether the first matching item is highlighted automatically while filtering.
-   * A function receives the first matching item and the current query; return `true` to
-   * highlight it or `false` to leave the highlight cleared.
+   * Whether the first matching item is highlighted automatically after typing.
+   * A function receives the first matching item and the current query with surrounding
+   * whitespace removed; return `true` to highlight it or `false` to leave the highlight cleared.
+   *
+   * The predicate only controls automatic highlighting. It does not filter items or prevent
+   * keyboard and pointer navigation from highlighting them. For string items,
+   * `(itemValue, query) => itemValue === query` highlights `"32"` when the query is `"32"`,
+   * but leaves it unhighlighted when the query is `"3"`. This lets Enter select exact matches,
+   * while an application-provided Enter handler can accept free text when nothing is highlighted.
+   * For object item values, compare the query with the value's label. With a `createItems()`
+   * collection, the predicate receives the derived value.
+   *
+   * For asynchronous results, supply `items` or `filteredItems`. The predicate is reevaluated
+   * when the first candidate changes, until the user navigates or closes the popup.
    * @default false
    */
   autoHighlight?: boolean | ((itemValue: Value, query: string) => boolean) | undefined;

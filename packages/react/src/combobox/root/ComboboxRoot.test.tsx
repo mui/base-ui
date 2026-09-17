@@ -8689,6 +8689,203 @@ describe('<Combobox.Root />', () => {
     });
 
     describe('predicate function', () => {
+      function UpdatingCombobox(props: {
+        items?: string[];
+        open?: boolean;
+        autoHighlight?: Combobox.Root.Props<string>['autoHighlight'];
+      }) {
+        return (
+          <Combobox.Root
+            items={props.items ?? []}
+            open={props.open}
+            autoHighlight={props.autoHighlight ?? ((item, query) => item === query)}
+          >
+            <Combobox.Input />
+            <Combobox.Portal>
+              <Combobox.Positioner>
+                <Combobox.Popup>
+                  <Combobox.Empty>No matches</Combobox.Empty>
+                  <Combobox.List>
+                    {(item: string) => (
+                      <Combobox.Item key={item} value={item}>
+                        {item}
+                      </Combobox.Item>
+                    )}
+                  </Combobox.List>
+                </Combobox.Popup>
+              </Combobox.Positioner>
+            </Combobox.Portal>
+          </Combobox.Root>
+        );
+      }
+
+      it.each([true, (item: string, query: string) => item === query] as const)(
+        'highlights a candidate arriving after typing with autoHighlight=%s',
+        async (autoHighlight) => {
+          const { user, setProps } = await render(
+            <UpdatingCombobox autoHighlight={autoHighlight} />,
+          );
+          const input = screen.getByRole('combobox');
+          await user.type(input, '32');
+          await setProps({ items: ['32', '320'] });
+          const option = screen.getByRole('option', { name: '32' });
+          await waitFor(() => expect(option).toHaveAttribute('data-highlighted'));
+          expect(input).toHaveAttribute('aria-activedescendant', option.id);
+        },
+      );
+
+      it('reevaluates the predicate when the first candidate changes', async () => {
+        const { user, setProps } = await render(<UpdatingCombobox items={['320']} />);
+        await user.type(screen.getByRole('combobox'), '32');
+        expect(screen.getByRole('option')).not.toHaveAttribute('data-highlighted');
+        await setProps({ items: ['32', '320'] });
+        await waitFor(() =>
+          expect(screen.getByRole('option', { name: '32' })).toHaveAttribute('data-highlighted'),
+        );
+        await setProps({ items: ['320'] });
+        expect(screen.getByRole('option')).not.toHaveAttribute('data-highlighted');
+      });
+
+      it('waits for a controlled popup to open', async () => {
+        const { user, setProps } = await render(<UpdatingCombobox items={['32']} open={false} />);
+        await user.type(screen.getByRole('combobox'), '32');
+        await setProps({ open: true });
+        await waitFor(() =>
+          expect(screen.getByRole('option', { name: '32' })).toHaveAttribute('data-highlighted'),
+        );
+      });
+
+      it('uses the newest query when candidates arrive', async () => {
+        const { user, setProps } = await render(<UpdatingCombobox />);
+        const input = screen.getByRole('combobox');
+        await user.type(input, '3');
+        await user.type(input, '2');
+        await setProps({ items: ['320'] });
+        expect(screen.getByRole('option')).not.toHaveAttribute('data-highlighted');
+        await setProps({ items: ['32', '320'] });
+        await waitFor(() =>
+          expect(screen.getByRole('option', { name: '32' })).toHaveAttribute('data-highlighted'),
+        );
+      });
+
+      it('does not reset keyboard navigation when the first candidate changes', async () => {
+        const { user, setProps } = await render(<UpdatingCombobox items={['320', '321']} />);
+        await user.type(screen.getByRole('combobox'), '32');
+        await user.keyboard('{ArrowDown}{ArrowDown}');
+        expect(screen.getByRole('option', { name: '321' })).toHaveAttribute('data-highlighted');
+        await setProps({ items: ['32', '321'] });
+        expect(screen.getByRole('option', { name: '321' })).toHaveAttribute('data-highlighted');
+      });
+
+      it('does not reset pointer navigation when the first candidate changes', async () => {
+        const { user, setProps } = await render(<UpdatingCombobox items={['320', '321']} />);
+        await user.type(screen.getByRole('combobox'), '32');
+        await user.hover(screen.getByRole('option', { name: '321' }));
+        expect(screen.getByRole('option', { name: '321' })).toHaveAttribute('data-highlighted');
+        await setProps({ items: ['32', '321'] });
+        expect(screen.getByRole('option', { name: '321' })).toHaveAttribute('data-highlighted');
+      });
+
+      it('discards the pending decision when the query is cleared', async () => {
+        const { user, setProps } = await render(<UpdatingCombobox />);
+        const input = screen.getByRole('combobox');
+        await user.type(input, '32');
+        await user.clear(input);
+        await setProps({ items: ['32'] });
+        expect(screen.getByRole('option')).not.toHaveAttribute('data-highlighted');
+        expect(input).not.toHaveAttribute('aria-activedescendant');
+      });
+
+      it('discards the pending decision when the popup closes', async () => {
+        const predicate = vi.fn(() => true);
+        const { user, setProps } = await render(<UpdatingCombobox autoHighlight={predicate} />);
+        const input = screen.getByRole('combobox');
+        await user.type(input, '32');
+        await user.keyboard('{Escape}');
+        await setProps({ items: ['32'] });
+        await user.click(input);
+        expect(screen.getByRole('option')).not.toHaveAttribute('data-highlighted');
+        expect(predicate).not.toHaveBeenCalled();
+      });
+
+      it('highlights asynchronous candidates in Autocomplete', async () => {
+        function App({ items = [] }: { items?: string[] }) {
+          return (
+            <Autocomplete.Root items={items} autoHighlight={(item, query) => item === query}>
+              <Autocomplete.Input />
+              <Autocomplete.List>
+                {(item: string) => (
+                  <Autocomplete.Item key={item} value={item}>
+                    {item}
+                  </Autocomplete.Item>
+                )}
+              </Autocomplete.List>
+            </Autocomplete.Root>
+          );
+        }
+        const { user, setProps } = await render(<App />);
+        await user.type(screen.getByRole('combobox'), '32');
+        await setProps({ items: ['32'] });
+        await waitFor(() => expect(screen.getByRole('option')).toHaveAttribute('data-highlighted'));
+        await user.keyboard('{Enter}');
+        expect(screen.getByRole('combobox')).toHaveValue('32');
+      });
+
+      it('passes derived collection values to the predicate when items arrive', async () => {
+        const predicate = vi.fn((value: number, query: string) => String(value) === query);
+        function App({ data = [] }: { data?: { value: number; label: string }[] }) {
+          const items = Combobox.createItems(data, {
+            getValue: (item) => item.value,
+            getLabel: (item) => item.label,
+          });
+          return (
+            <Combobox.Root items={items} autoHighlight={predicate}>
+              <Combobox.Input />
+              <Combobox.List>
+                {(item: { value: number; label: string }) => (
+                  <Combobox.Item key={item.value} value={item.value}>
+                    {item.label}
+                  </Combobox.Item>
+                )}
+              </Combobox.List>
+            </Combobox.Root>
+          );
+        }
+        const { user, setProps } = await render(<App />);
+        await user.type(screen.getByRole('combobox'), '32');
+        await setProps({ data: [{ value: 32, label: '32' }] });
+        await waitFor(() => expect(screen.getByRole('option')).toHaveAttribute('data-highlighted'));
+        expect(predicate).toHaveBeenLastCalledWith(32, '32');
+      });
+
+      it('does not reevaluate equivalent object candidates', async () => {
+        const predicate = vi.fn((item: { label: string }, query: string) => item.label === query);
+        function App({ items }: { items: { label: string }[] }) {
+          return (
+            <Combobox.Root
+              items={items}
+              autoHighlight={predicate}
+              isItemEqualToValue={(a, b) => a.label === b.label}
+            >
+              <Combobox.Input />
+              <Combobox.List>
+                {(item: { label: string }) => (
+                  <Combobox.Item key={item.label} value={item}>
+                    {item.label}
+                  </Combobox.Item>
+                )}
+              </Combobox.List>
+            </Combobox.Root>
+          );
+        }
+        const { user, setProps } = await render(<App items={[{ label: '32' }]} />);
+        await user.type(screen.getByRole('combobox'), '32');
+        expect(screen.getByRole('option')).toHaveAttribute('data-highlighted');
+        predicate.mockClear();
+        await setProps({ items: [{ label: '32' }] });
+        expect(predicate).not.toHaveBeenCalled();
+      });
+
       function PredicateCombobox() {
         return (
           <Combobox.Root
