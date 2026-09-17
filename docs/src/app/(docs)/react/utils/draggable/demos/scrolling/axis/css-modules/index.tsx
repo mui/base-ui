@@ -104,7 +104,14 @@ function AxisLaneContent() {
         sideways, so moving the pointer up or down never scrolls it.
       </p>
       {/* @highlight-start */}
-      <Draggable.Viewport allowedAxis="horizontal" className={styles.Lane}>
+      <Draggable.Viewport
+        onDragScroll={(event, { direction }) => {
+          if (direction !== 'horizontal') {
+            event.preventDefault();
+          }
+        }}
+        className={styles.Lane}
+      >
         {/* @highlight-end */}
         <Draggable.Target
           ref={trackRef}

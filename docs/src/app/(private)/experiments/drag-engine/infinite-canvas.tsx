@@ -12,7 +12,7 @@ import styles from './infinite-canvas.module.css';
 
 // An infinite canvas: the camera is a CSS `transform` on the content layer, and
 // nothing in the tree has a scroll offset. This is the case `Draggable.Viewport`
-// covers through `applyScroll` — the engine finds the edge and reports the delta,
+// covers through `onDragScroll` — the engine finds the edge and reports the delta,
 // the canvas applies it to its own camera.
 //
 // The bins sit far outside the starting view, so the only way to reach one is to
@@ -21,7 +21,7 @@ import styles from './infinite-canvas.module.css';
 // standing still, the engine re-resolves what is under it. Without that the bin
 // never lights up and the drop never lands.
 //
-// `Camera` is the knob worth playing with. `applyScroll` runs inside the engine's
+// `Camera` is the knob worth playing with. `onDragScroll` runs inside the engine's
 // frame loop, which hit-tests on the frame after it:
 //
 //   ref     the callback writes `content.style.transform` itself, so the DOM is
@@ -83,7 +83,7 @@ function InfiniteCanvasContent() {
   const [hovered, setHovered] = React.useState<string>('—');
 
   const contentRef = React.useRef<HTMLDivElement | null>(null);
-  // The authoritative camera, updated synchronously in `applyScroll` whatever the
+  // The authoritative camera, updated synchronously in `onDragScroll` whatever the
   // mode: the difference is only whether the DOM follows it in the same call.
   const cameraRef = React.useRef({ x: 0, y: 0 });
   const dragStartCameraRef = React.useRef({ x: 0, y: 0 });
@@ -173,7 +173,11 @@ function InfiniteCanvasContent() {
 
       <Draggable.Viewport
         accept={noteKind}
-        applyScroll={applyScroll}
+        onDragScroll={(event, details) => {
+          event.preventDefault();
+          applyScroll(details);
+          event.stopPropagation();
+        }}
         className={styles.viewport}
         aria-label="Canvas"
       >

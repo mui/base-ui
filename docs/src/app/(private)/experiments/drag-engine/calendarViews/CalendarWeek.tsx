@@ -60,7 +60,15 @@ export function CalendarWeekView(props: { weekStartMs: number }) {
     >
       <WeekHeader days={days} todayMs={todayMs} />
       <WeekAllDayRow days={days} events={allDayEvents} weekStartMs={weekStartMs} />
-      <Draggable.Viewport allowedAxis="vertical" className={styles.weekScroll} ref={scrollRef}>
+      <Draggable.Viewport
+        onDragScroll={(event, { direction }) => {
+          if (direction !== 'vertical') {
+            event.preventDefault();
+          }
+        }}
+        className={styles.weekScroll}
+        ref={scrollRef}
+      >
         <div className={styles.weekBody}>
           <WeekHourLabels />
           <div className={styles.weekColumns}>

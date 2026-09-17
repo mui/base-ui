@@ -301,7 +301,15 @@ function DraggableTabsContent() {
             <Draggable.Target
               accept={tabKind}
               trackDragOver={false}
-              render={<Draggable.Viewport allowedAxis="horizontal" />}
+              render={
+                <Draggable.Viewport
+                  onDragScroll={(event, { direction }) => {
+                    if (direction !== 'horizontal') {
+                      event.preventDefault();
+                    }
+                  }}
+                />
+              }
             />
           }
         >

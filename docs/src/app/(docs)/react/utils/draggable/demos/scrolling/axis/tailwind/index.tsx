@@ -114,7 +114,11 @@ function AxisLaneContent() {
       </p>
       {/* @highlight-start */}
       <Draggable.Viewport
-        allowedAxis="horizontal"
+        onDragScroll={(event, { direction }) => {
+          if (direction !== 'horizontal') {
+            event.preventDefault();
+          }
+        }}
         className="box-border overflow-x-auto border border-neutral-200 p-3 dark:border-neutral-700"
       >
         {/* @highlight-end */}

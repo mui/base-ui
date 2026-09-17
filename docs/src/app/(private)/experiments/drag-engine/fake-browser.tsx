@@ -562,7 +562,16 @@ function MenuPopup({ folderId }: { folderId: string }) {
           data-instant-close={closeMenusWithoutAnimation ? '' : undefined}
           data-bookmark-parent-id={folderId}
           data-bookmark-insertion-index={items.length}
-          render={<Draggable.Viewport accept={acceptedBookmarkKinds} allowedAxis="vertical" />}
+          render={
+            <Draggable.Viewport
+              accept={acceptedBookmarkKinds}
+              onDragScroll={(event, { direction }) => {
+                if (direction !== 'vertical') {
+                  event.preventDefault();
+                }
+              }}
+            />
+          }
         >
           {items.length === 0 ? (
             <EmptyFolderTarget folderId={folderId} surfaceId={surfaceId} />
@@ -741,7 +750,16 @@ function MoreMenu({
             data-instant-close={closeMenusWithoutAnimation ? '' : undefined}
             data-bookmark-parent-id={ROOT_ID}
             data-bookmark-insertion-index={startIndex + items.length}
-            render={<Draggable.Viewport accept={acceptedBookmarkKinds} allowedAxis="vertical" />}
+            render={
+              <Draggable.Viewport
+                accept={acceptedBookmarkKinds}
+                onDragScroll={(event, { direction }) => {
+                  if (direction !== 'vertical') {
+                    event.preventDefault();
+                  }
+                }}
+              />
+            }
           >
             {items.map((item, localIndex) => (
               <MenuEntry
@@ -854,7 +872,15 @@ function BrowserTabs({
             kind={tabDropKind}
             payload={{ index: tabs.length }}
             trackDragOver={false}
-            render={<Draggable.Viewport allowedAxis="horizontal" />}
+            render={
+              <Draggable.Viewport
+                onDragScroll={(event, { direction }) => {
+                  if (direction !== 'horizontal') {
+                    event.preventDefault();
+                  }
+                }}
+              />
+            }
           />
         }
       >

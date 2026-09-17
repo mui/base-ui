@@ -852,7 +852,7 @@ An element participates on axes whose computed `overflow` is `auto`, `scroll`, o
 
 A container scrolls while the pointer is in an edge zone and more content remains in that direction. Each edge zone is one quarter of the container's size on that axis, capped at 180px.
 
-Use [`canScroll`](#control-when-it-scrolls) to exclude a scrollable container. Use [`applyScroll`](#implement-custom-scrolling) to implement scrolling without element scroll offsets.
+Use `onDragScroll` to cancel a proposed scroll or [implement custom scrolling](#implement-custom-scrolling).
 
 Drop targets are resolved again as content scrolls, so a target that moves under a stationary pointer can receive the drop.
 
@@ -876,10 +876,17 @@ You can also pass an expression. The registration remains active, so changing th
 <Draggable.Viewport disabled={isFiltered} />
 ```
 
-Use `canScroll` when the decision depends on the drag source. It runs on every frame.
+Use `onDragScroll` when the decision depends on the drag source. It runs once per proposed direction in each scrolling frame. Preventing the default stops that direction and lets a registered ancestor scroll instead.
 
 ```tsx title="Scrolling only for unpinned cards"
-<Draggable.Viewport accept={card} canScroll={({ source }) => source.payload.pinned === false} />
+<Draggable.Viewport
+  accept={card}
+  onDragScroll={(event, { source }) => {
+    if (source.payload.pinned) {
+      event.preventDefault();
+    }
+  }}
+/>
 ```
 
 Use `accept` to limit the element to one or more drag kinds. Other drags do not use the container. The accepted kinds determine the payload type passed to per-frame callbacks.
@@ -890,21 +897,34 @@ Use `accept` to limit the element to one or more drag kinds. Other drags do not 
 
 #### Constrain the direction
 
-Use `allowedAxis` to limit scrolling to one axis.
+Use `onDragScroll` to prevent movement on an axis.
 
-CSS determines which axes can scroll. For example, a lane with `overflow-x: auto` and `overflow-y: hidden` scrolls only horizontally. Use `allowedAxis` for an `applyScroll` implementation without scrollable CSS, or for a container that can scroll on both axes but should only use one. The lane below sets `allowedAxis="horizontal"` explicitly.
+CSS determines which axes can scroll. For example, `overflow-x: auto` and `overflow-y: hidden` allow only horizontal scrolling. A handler can further restrict a native viewport or a custom canvas.
 
 <DemoDragAutoScrollAxis />
 
 ```tsx title="Horizontal only"
-<Draggable.Viewport allowedAxis="horizontal" className={styles.Lane} />
+<Draggable.Viewport
+  onDragScroll={(event, { direction }) => {
+    if (direction === 'vertical') {
+      event.preventDefault();
+    }
+  }}
+  className={styles.Lane}
+/>
 ```
 
-You can also pass a callback that runs every frame. For example, a grid can scroll vertically for row drags and horizontally for column drags:
+A grid can scroll vertically for row drags and horizontally for column drags:
 
 ```tsx title="An axis that follows the drag"
 <Draggable.Viewport
-  allowedAxis={({ source }) => (row.matches(source) ? 'vertical' : 'horizontal')}
+  accept={[row, column]}
+  onDragScroll={(event, { source, direction }) => {
+    const allowedDirection = row.matches(source) ? 'vertical' : 'horizontal';
+    if (direction !== allowedDirection) {
+      event.preventDefault();
+    }
+  }}
 />
 ```
 
@@ -924,11 +944,11 @@ You can also pass a callback that runs on every scrolling frame. For example, de
 <Draggable.Viewport maxSpeed={({ element }) => Math.min(2400, element.scrollHeight / 4)} />
 ```
 
-Set it to `0` to stop the container and let an ancestor scroll on those axes. Returning `false` from `canScroll` has the same effect.
+Set it to `0` to stop the container and let an ancestor scroll on those axes. Preventing the default in `onDragScroll` has the same effect.
 
 ### Implement custom scrolling
 
-Use `applyScroll` when Base UI cannot scroll an element directly. For example, a canvas panned with a CSS `transform` has no scroll offsets to update. The callback receives the scroll delta for the current frame, which you can apply to the canvas camera.
+Use `onDragScroll` when Base UI cannot scroll an element directly. For example, a canvas panned with a CSS `transform` has no scroll offsets to update. The callback receives one axis of the scroll delta at a time. Prevent the default, apply the movement, and stop propagation to claim that direction.
 
 The element does not need scrollable `overflow`, and Base UI does not read its scroll extent. Edge zones, speed ramping, and nesting work as they do for a scroll container.
 
@@ -938,9 +958,11 @@ Register the element that clips the canvas, not the transformed content inside i
 
 ```tsx title="A canvas that pans itself"
 <Draggable.Viewport
-  applyScroll={({ x, y }) => {
+  onDragScroll={(event, { x, y }) => {
+    event.preventDefault();
     camera.current = { x: camera.current.x + x, y: camera.current.y + y };
     content.current.style.transform = `translate(${-camera.current.x}px, ${-camera.current.y}px)`;
+    event.stopPropagation();
   }}
 />
 ```
@@ -949,21 +971,21 @@ The `x` and `y` values match the arguments Base UI would pass to `element.scrol
 
 Apply the movement synchronously before returning. Base UI resolves the drop target again on the next frame. Updating the camera through React state would make hit testing one frame late, while writing the transform from a ref keeps it current.
 
-Return the axes that moved, either `'horizontal'`, `'vertical'`, or `'all'`. An ancestor can then scroll on any remaining axis. Returning nothing claims every active axis, which suits an unbounded canvas. Return `false`, `'none'`, or `null` when neither axis moved. A bounded canvas should release an axis at its limit so an ancestor can scroll instead.
+Call `event.stopPropagation()` for a direction the canvas consumes. Leave propagation enabled at a bound so a registered ancestor can scroll instead. At a corner the handler runs twice, once per axis, with the other delta set to zero. Update the camera from its latest value so the second call preserves the first call's movement.
 
 ```tsx title="A canvas with bounds"
 <Draggable.Viewport
-  applyScroll={({ x, y }) => {
+  onDragScroll={(event, { x, y }) => {
+    event.preventDefault();
     const moved = panBy(x, y);
-    if (!moved.x && !moved.y) {
-      return false;
+    if (moved.x || moved.y) {
+      event.stopPropagation();
     }
-    return moved.x ? (moved.y ? 'all' : 'horizontal') : 'vertical';
   }}
 />
 ```
 
-Use [`allowedAxis`](#constrain-the-direction) and [`accept`](#control-when-it-scrolls) to define how a custom implementation responds. Base UI cannot infer this behavior from CSS, and a canvas may receive drags that should not pan it.
+Use [direction checks](#constrain-the-direction) and [`accept`](#control-when-it-scrolls) to define how a custom implementation responds. Base UI cannot infer this behavior from CSS, and a canvas may receive drags that should not pan it.
 
 ### Nested containers
 
@@ -1006,7 +1028,11 @@ const manager = Draggable.useDragDropManager();
 React.useEffect(
   () =>
     manager.registerAutoScroller(document.documentElement, () => ({
-      allowedAxis: 'vertical',
+      onDragScroll(event, { direction }) {
+        if (direction === 'horizontal') {
+          event.preventDefault();
+        }
+      },
       maxSpeed: 1600,
     })),
   [manager],
@@ -1535,11 +1561,11 @@ The methods are reference-stable, so they are safe to list as effect dependencie
 
 Base UI reads the getter at different stages of a drag:
 
-| Parameters                                                                                  | When Base UI reads them                                                                       |
-| :------------------------------------------------------------------------------------------ | :-------------------------------------------------------------------------------------------- |
-| Event callbacks and conditions, such as `onMove`, `canDrop`, `canScroll`, and `allowedAxis` | On each event or evaluation.                                                                  |
-| `kind`, `payload`, and preview settings                                                     | Once when the drag starts. Changes apply to the next drag.                                    |
-| Gesture styles and `dragHandle`                                                             | At registration and on the next `pointerdown`. Re-register to update idle styles immediately. |
+| Parameters                                                                      | When Base UI reads them                                                                       |
+| :------------------------------------------------------------------------------ | :-------------------------------------------------------------------------------------------- |
+| Event callbacks and conditions, such as `onMove`, `canDrop`, and `onDragScroll` | On each event or evaluation.                                                                  |
+| `kind`, `payload`, and preview settings                                         | Once when the drag starts. Changes apply to the next drag.                                    |
+| Gesture styles and `dragHandle`                                                 | At registration and on the next `pointerdown`. Re-register to update idle styles immediately. |
 
 Base UI checks `disabled` and `dragHandle` before starting a drag. The getter's closure is not reactive. Re-register from an effect when its dependencies change, or read mutable refs from the getter to keep the registration mounted.
 
@@ -1597,16 +1623,28 @@ manager.registerDropTarget(element, () => ({
 
 ### Auto-scroll
 
-`registerAutoScroller` enables automatic scrolling for one element. Each scroll container needs its own registration. It accepts the same parameters as `Draggable.Viewport`. Use `allowedAxis` to limit the axes, `canScroll` to disable scrolling for a drag, `maxSpeed` to set the speed, and `applyScroll` to implement custom scrolling. For example, a transformed canvas has no scroll offsets for Base UI to update and often already has a viewport ref.
+`registerAutoScroller` enables automatic scrolling for one element. Each scroll container needs its own registration. It accepts the same parameters as `Draggable.Viewport`. Use `onDragScroll` to cancel a direction or apply custom movement, and `maxSpeed` to set the speed. For example, a transformed canvas has no scroll offsets for Base UI to update and often already has a viewport ref.
 
 ```tsx title="A canvas that pans itself"
-manager.registerAutoScroller(canvasViewport, () => ({ applyScroll: panBy }));
+manager.registerAutoScroller(canvasViewport, () => ({
+  onDragScroll(event, { x, y }) {
+    event.preventDefault();
+    panBy({ x, y });
+    event.stopPropagation();
+  },
+}));
 ```
 
 Register `document.documentElement` to enable and configure page auto-scroll.
 
 ```tsx title="A page that scrolls vertically"
-manager.registerAutoScroller(document.documentElement, () => ({ allowedAxis: 'vertical' }));
+manager.registerAutoScroller(document.documentElement, () => ({
+  onDragScroll(event, { direction }) {
+    if (direction === 'horizontal') {
+      event.preventDefault();
+    }
+  },
+}));
 ```
 
 For a container that appears after data loads or inside a third-party widget, register its actual scrolling element once it is available. The widget must expose that element. Return the cleanup function when it unmounts or is replaced.
@@ -1617,7 +1655,13 @@ React.useEffect(() => {
   if (!scrollElement) {
     return undefined;
   }
-  return manager.registerAutoScroller(scrollElement, () => ({ allowedAxis: 'vertical' }));
+  return manager.registerAutoScroller(scrollElement, () => ({
+    onDragScroll(event, { direction }) {
+      if (direction === 'horizontal') {
+        event.preventDefault();
+      }
+    },
+  }));
 }, [manager, gridApi]);
 ```
 

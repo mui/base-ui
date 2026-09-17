@@ -34,9 +34,7 @@ export const DragAutoScrollRoot = React.forwardRef(function DragAutoScrollRoot<
     // `elementProps` is spread onto the `<div>`, where an engine parameter would
     // land as an attribute.
     accept,
-    allowedAxis,
-    applyScroll,
-    canScroll,
+    onDragScroll,
     disabled,
     maxSpeed,
     // Props forwarded to the DOM element
@@ -47,9 +45,7 @@ export const DragAutoScrollRoot = React.forwardRef(function DragAutoScrollRoot<
   // through a ref and never compares it.
   const params: UseDragAutoScrollElementParameters<TSourceData> = {
     accept,
-    allowedAxis,
-    applyScroll,
-    canScroll,
+    onDragScroll,
     disabled,
     maxSpeed,
   };
