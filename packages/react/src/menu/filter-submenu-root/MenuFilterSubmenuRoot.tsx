@@ -54,10 +54,7 @@ export function MenuFilterSubmenuRoot(props: MenuFilterSubmenuRoot.Props): React
   }
 
   function highlightTrigger(trigger: HTMLElement) {
-    const triggerIndex = parentStore.context.itemDomElements.current.indexOf(trigger);
-    if (triggerIndex > -1) {
-      parentStore.setActiveIndex(triggerIndex, REASONS.keyboard);
-    }
+    parentStore.highlightItem(trigger, REASONS.keyboard);
   }
 
   function handleSubmenuExit() {

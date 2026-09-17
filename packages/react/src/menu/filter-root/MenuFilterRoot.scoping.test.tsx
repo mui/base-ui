@@ -382,10 +382,12 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
     await waitFor(() => {
       expect(email).toHaveFocus();
     });
+    // Only the focused submenu item is highlighted, as when a roving trigger blurs.
+    expect(trigger).not.toHaveAttribute('data-highlighted');
     await user.keyboard('[ArrowDown]');
     expect(screen.getByRole('menuitem', { name: 'Copy link' })).toHaveFocus();
 
-    // Leaving returns focus to the input with the trigger still highlighted.
+    // Leaving returns focus to the input and highlights the trigger again.
     await user.keyboard('[ArrowLeft]');
     await waitFor(() => {
       expect(screen.queryByTestId('submenu')).toBe(null);

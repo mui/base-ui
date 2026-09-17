@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useMenuFilterImpl } from '../filter-root/MenuFilterContext';
 import { FloatingFocusManager, useHoverFloatingInteraction } from '../../floating-ui-react';
 import type { FloatingFocusManagerProps } from '../../floating-ui-react/components/FloatingFocusManager';
@@ -126,6 +127,18 @@ export const MenuPopupPlain = React.forwardRef(function MenuPopup(
     closeDelay,
   });
 
+  // A virtually focused parent keeps real focus on its input, so its submenu trigger never blurs.
+  // Real focus entering a plain submenu is the equivalent moment: the parent has no active item
+  // until a keyboard close hands the cursor back to the trigger.
+  const parentStore = parent.type === 'menu' ? parent.store : null;
+  const parentFocusRef = parentStore?.context.virtualFocusRef;
+  const returnToParentInput = useStableCallback((closeType: InteractionType) => {
+    if (closeType === 'keyboard') {
+      parentStore?.highlightItem(activeTriggerElement, REASONS.keyboard);
+    }
+    return parentFocusRef?.current ?? null;
+  });
+
   const state: MenuPopupState = {
     transitionStatus,
     side,
@@ -159,6 +172,11 @@ export const MenuPopupPlain = React.forwardRef(function MenuPopup(
             event.stopPropagation();
           }
         },
+        onFocus() {
+          if (parentFocusRef && !virtualFocus && parentStore?.state.activeIndex !== null) {
+            parentStore?.setActiveIndex(null, REASONS.none);
+          }
+        },
       },
       getDisabledMountTransitionStyles(transitionStatus),
       elementProps,
@@ -174,8 +192,8 @@ export const MenuPopupPlain = React.forwardRef(function MenuPopup(
     returnFocus = true;
   }
 
-  const parentFocusRef = parent.type === 'menu' ? parent.store.context.virtualFocusRef : undefined;
-  const resolvedReturnFocus = submenuRootContext?.getReturnElement ?? parentFocusRef ?? returnFocus;
+  const resolvedReturnFocus =
+    submenuRootContext?.getReturnElement ?? (parentFocusRef ? returnToParentInput : returnFocus);
 
   return (
     <FloatingFocusManager

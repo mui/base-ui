@@ -198,6 +198,13 @@ export class MenuStore<Payload> extends ReactStore<Readonly<State<Payload>>, Con
     this.set('activeIndex', activeIndex);
   }
 
+  highlightItem(element: Element | null, reason: MenuRoot.HighlightEventReason) {
+    const index = this.context.itemDomElements.current.indexOf(element as HTMLElement);
+    if (index > -1) {
+      this.setActiveIndex(index, reason);
+    }
+  }
+
   private unsubscribeParentListener: (() => void) | null = null;
 }
 
