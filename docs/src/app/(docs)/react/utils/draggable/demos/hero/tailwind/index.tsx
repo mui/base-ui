@@ -20,7 +20,7 @@ function DraggableHeroContent() {
   return (
     <div className="w-full select-none">
       {/* The canvas the card is positioned on. It is also the drop target, so a
-          release on it reaches `onDrop`. */}
+          release on it ends with the `drop` reason. */}
       <Draggable.Target
         ref={surfaceRef}
         trackDragOver={false}

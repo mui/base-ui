@@ -652,8 +652,8 @@ export function refreshHoveredRecords(
 export function dispatchDropTargetChange(
   previous: readonly DropTargetRecord[],
   current: readonly DropTargetRecord[],
-  payload: DropTargetEventMap['onTargetChange'],
-  eventDetails: DropTargetEventDetailsMap['onTargetChange'],
+  payload: DropTargetEventMap['onDraggableEnter'],
+  eventDetails: DropTargetEventDetailsMap['onDraggableEnter'],
   shouldContinue: () => boolean,
   hovered: DropTargetRecord[],
 ): void {
@@ -665,16 +665,11 @@ export function dispatchDropTargetChange(
       return;
     }
     visited.add(record.element);
-    // For a persisting target, dispatch the fresh record so `target.payload` reflects this frame.
+    // Keep a persisting target's payload current for later dispatch.
     const fresh = currByElement.get(record.element);
     if (fresh) {
       replaceHoveredRecord(hovered, fresh);
-      dispatchToDropTarget(fresh, 'onTargetChange', payload, eventDetails);
     } else {
-      dispatchToDropTarget(record, 'onTargetChange', payload, eventDetails);
-      if (!shouldContinue()) {
-        return;
-      }
       // Removed before the leave is delivered: if the leave handler cancels the
       // drag, the terminal dispatch must not re-leave this target.
       removeHoveredRecord(hovered, record.element);
@@ -692,13 +687,9 @@ export function dispatchDropTargetChange(
     if (visited.has(record.element)) {
       continue;
     }
-    // Added before delivery: if the enter (or its change) handler cancels the
+    // Added before delivery: if the enter handler cancels the
     // drag, the terminal dispatch owes this target a balancing leave.
     hovered.push(record);
-    dispatchToDropTarget(record, 'onTargetChange', payload, eventDetails);
-    if (!shouldContinue()) {
-      return;
-    }
     dispatchToDropTarget(record, 'onDraggableEnter', payload, eventDetails);
   }
 
@@ -827,18 +818,6 @@ export type RegisterDropTargetParameters<TSourceData = unknown, TLocalData = unk
     | ((
         parameters: DropTargetEvent<'onDraggableMove', NoInfer<TSourceData>, NoInfer<TLocalData>>,
         eventDetails: DropTargetEventDetailsMap['onDraggableMove'],
-      ) => void)
-    | undefined;
-  /**
-   * Event handler called when the active drop targets change, including changes that
-   * don't affect this target's own membership, such as a nested descendant entering
-   * or leaving while this ancestor stays in the stack. Use `onDraggableEnter` and
-   * `onDraggableLeave` for this target's own enter and leave.
-   */
-  onTargetChange?:
-    | ((
-        parameters: DropTargetEvent<'onTargetChange', NoInfer<TSourceData>, NoInfer<TLocalData>>,
-        eventDetails: DropTargetEventDetailsMap['onTargetChange'],
       ) => void)
     | undefined;
   /** Event handler called when this target enters the active stack. */

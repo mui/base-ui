@@ -72,7 +72,7 @@ function makeKind<TPayload>(name: string, id: symbol): DragKind<TPayload> {
  * A catch-all kind for a drop target that accepts every drag on the page.
  *
  * ```tsx
- * <Draggable.Target accept={Draggable.anyKind} onDrop={commit} />
+ * <Draggable.Target accept={Draggable.anyKind} onDraggableDrop={commit} />
  * ```
  *
  * The accepted source's payload is `unknown` until narrowed with a specific kind.

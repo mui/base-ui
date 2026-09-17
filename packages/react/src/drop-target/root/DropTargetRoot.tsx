@@ -68,7 +68,6 @@ export const DropTargetRoot = React.forwardRef(function DropTargetRoot<
     // Event handlers
     onDraggableStart,
     onDraggableMove,
-    onTargetChange,
     onDraggableEnter,
     onDraggableLeave,
     onDraggableDrop,
@@ -90,7 +89,6 @@ export const DropTargetRoot = React.forwardRef(function DropTargetRoot<
     trackDragOver,
     onDraggableStart,
     onDraggableMove,
-    onTargetChange,
     onDraggableEnter,
     onDraggableLeave,
     onDraggableDrop,

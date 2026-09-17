@@ -281,3 +281,6 @@ function Slot(props: SlotProps) {
   payload={{ index: 0 }}
   onDraggableDrop={({ source, target }) => `${source.payload.id}:${target.payload.index}`}
 />;
+
+// @ts-expect-error target stack changes are observed on a source or monitor.
+<Draggable.Target onTargetChange={() => {}} />;

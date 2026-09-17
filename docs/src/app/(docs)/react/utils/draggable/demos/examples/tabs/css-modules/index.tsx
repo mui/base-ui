@@ -164,8 +164,16 @@ function DraggableTab(props: DraggableTabProps) {
           modifiers={Draggable.restrictToHorizontalAxis}
           onBeforeMoveStart={handleBeforeDragStart}
           onMoveStart={onMoveStart}
-          onDrop={onDrop}
-          onMoveEnd={onMoveEnd}
+          onMoveEnd={(moveEvent, moveDetails) => {
+            try {
+              if (moveDetails.reason === 'drop' && moveEvent.dropTarget !== null) {
+                onDrop();
+              }
+            } finally {
+              onMoveEnd();
+            }
+          }}
+
           render={
             <Draggable.Target
               accept={tabKind}

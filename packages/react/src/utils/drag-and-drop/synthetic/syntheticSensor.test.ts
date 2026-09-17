@@ -353,8 +353,21 @@ describe('syntheticDrag sensor', () => {
     const onDrop = vi.fn();
     engine.registerDraggable(src, {
       activation: { pen: { type: 'immediate' } },
-      onMoveEnd,
-      onDrop,
+
+      onMoveEnd: (moveEvent, moveDetails) => {
+        try {
+          if (moveDetails.reason === 'drop' && moveEvent.dropTarget !== null) {
+            const dropEvent = {
+              source: moveEvent.source,
+              location: moveEvent.location,
+              dropTarget: moveEvent.dropTarget,
+            };
+            onDrop(dropEvent);
+          }
+        } finally {
+          onMoveEnd(moveEvent);
+        }
+      },
     });
     engine.registerDropTarget(tgt, {});
     engine.registerMonitor({ onTargetChange });
@@ -622,8 +635,21 @@ describe('syntheticDrag sensor', () => {
     const onDrop = vi.fn();
     engine.registerDraggable(src, {
       activation: { touch: { type: 'immediate' } },
-      onMoveEnd,
-      onDrop,
+
+      onMoveEnd: (moveEvent, moveDetails) => {
+        try {
+          if (moveDetails.reason === 'drop' && moveEvent.dropTarget !== null) {
+            const dropEvent = {
+              source: moveEvent.source,
+              location: moveEvent.location,
+              dropTarget: moveEvent.dropTarget,
+            };
+            onDrop(dropEvent);
+          }
+        } finally {
+          onMoveEnd(moveEvent);
+        }
+      },
     });
     engine.registerDropTarget(tgt, {});
 
@@ -3281,7 +3307,10 @@ describe('syntheticDrag sensor', () => {
 
       engine.registerDraggable(source, {
         activation: { touch: { type: 'immediate' } },
-        onDrop() {
+        onMoveEnd(_event, details) {
+          if (details.reason !== 'drop') {
+            return;
+          }
           button.click();
         },
       });

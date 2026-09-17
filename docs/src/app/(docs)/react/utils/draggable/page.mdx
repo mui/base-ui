@@ -139,16 +139,33 @@ The optional event handlers below fire in order. All except `onBeforeMoveStart` 
   onTargetChange={({ location }) =>
     console.log('over', location.current.dropTargets[0]?.payload ?? 'nothing')
   }
-  // Fires only when the drag lands on a drop target that accepts it. Apply the
-  // change here: reorder the list, move the card into its new column.
-  onDrop={({ dropTarget }) => console.log('dropped on', dropTarget.payload)}
   // Fires once after a drop, a release over empty space, or a cancellation.
-  // Use it to clear temporary drag state.
-  onMoveEnd={(event, eventDetails) => console.log('ended:', eventDetails.reason)}
+  onMoveEnd={(event, eventDetails) => {
+    if (eventDetails.reason === 'drop' && event.dropTarget !== null) {
+      console.log('dropped on', event.dropTarget.payload);
+    }
+    console.log('ended:', eventDetails.reason);
+  }}
 />
 ```
 
 Every handler receives the event payload first. Its second argument, `eventDetails`, contains the event `reason` and native `event`.
+
+Commit successful drops in `onMoveEnd` after checking `eventDetails.reason === 'drop'`. An outside release also has `event.canceled === false`, so that flag alone does not identify a successful drop. When a handler also clears temporary state, use `try/finally` so cleanup still runs if committing throws or returns early:
+
+```tsx
+<Draggable.Root
+  onMoveEnd={(event, details) => {
+    try {
+      if (details.reason === 'drop' && event.dropTarget !== null) {
+        commitMove(event.source.payload, event.dropTarget.payload);
+      }
+    } finally {
+      clearDragState();
+    }
+  }}
+/>
+```
 
 Use [`useDragMonitor`](/react/utils/draggable#usedragmonitor) to observe every drag on the page instead of one source.
 
@@ -589,7 +606,7 @@ A target's event handlers receive the drag `source`, the target as `target`, and
 />
 ```
 
-`onTargetChange` also fires when a nested target enters or leaves the stack while this target remains active. `onDraggableStart` fires only if this target is already under the pointer when the drag begins. To observe every drop regardless of target depth, use a source's `onDraggableDrop` or [`useDragMonitor`](/react/utils/draggable#usedragmonitor).
+`onDraggableStart` fires only if this target is already under the pointer when the drag begins. To observe changes to nested targets while an ancestor remains active, use a source or monitor's `onTargetChange`. To observe every successful drop regardless of target depth, use source or monitor `onMoveEnd` and check `eventDetails.reason === 'drop'`.
 
 Use `onDraggableEnter` and `onDraggableLeave` to implement hover intent. For example, start a timer in `onDraggableEnter` to expand a collapsed group after a delay, and clear it in `onDraggableLeave`:
 
@@ -1182,7 +1199,7 @@ Base UI implements [synthetic drag and drop](/react/utils/draggable#concepts) t
 
 A drag resolves drop targets through layout and `document.elementFromPoint`, which jsdom does not provide.
 
-- Use a browser test for behavior that requires a resolved target, including `onDrop`, `data-drag-over`, drop indicators, and auto-scroll.
+- Use a browser test for behavior that requires a resolved target, including successful `onMoveEnd` handling, `data-drag-over`, drop indicators, and auto-scroll.
 - Use jsdom for activation thresholds, lifecycle events, cancellation reasons, source state, preview rendering, `disabled`, and `onBeforeDragStart` cancellation.
 
 Stubbing `getBoundingClientRect` in jsdom supplies geometry but not hit-testing. A drag can still start and end there, but it resolves no target and ends as an `'outside-release'`. Use a browser test when the destination matters.
@@ -1248,10 +1265,11 @@ Assert on the data attributes and the handler arguments: `data-dragging` on the 
 Handlers take two arguments, so `toHaveBeenCalledWith` does not match when only the payload is listed. Assert on `mock.calls[0][0]` or pass a matcher for the second argument.
 
 ```tsx title="A drop that lands"
-const onDrop = vi.fn();
-// Drive the drag.
-expect(onDrop).toHaveBeenCalledTimes(1);
-expect(onDrop.mock.calls[0][0].source.payload).toBe('card-1');
+const onMoveEnd = vi.fn();
+// Pass onMoveEnd to the source, then drive the drag.
+expect(onMoveEnd).toHaveBeenCalledTimes(1);
+expect(onMoveEnd.mock.calls[0][0].source.payload).toBe('card-1');
+expect(onMoveEnd.mock.calls[0][1].reason).toBe('drop');
 ```
 
 ### Clean up between tests
@@ -1440,12 +1458,11 @@ function DragActivity() {
     onTargetChange: ({ location }) => {
       console.log('now over', location.current.dropTargets[0]?.payload ?? 'nothing');
     },
-    // Fires only when a matching drag lands on a target that accepts it.
-    onDrop: ({ source, dropTarget }) => {
-      console.log('dropped', source.payload.title, 'on', dropTarget.payload);
-    },
     // Fires once after a drop, a release over empty space, or a cancellation.
-    onMoveEnd: ({ source }, eventDetails) => {
+    onMoveEnd: ({ source, dropTarget }, eventDetails) => {
+      if (eventDetails.reason === 'drop' && dropTarget !== null) {
+        console.log('dropped', source.payload.title, 'on', dropTarget.payload);
+      }
       console.log('ended', source.payload.title, eventDetails.reason);
     },
   });
@@ -1456,7 +1473,7 @@ function DragActivity() {
 
 Every handler receives the event payload first. Its second argument, `eventDetails`, contains the `reason` and native `event`.
 
-Monitors do not receive `onDraggableEnter` or `onDraggableLeave`, which belong to drop targets. `onMoveEnd` fires whenever the drag ends. `onDrop` fires only after a successful drop.
+Monitors do not receive `onDraggableEnter` or `onDraggableLeave`, which belong to drop targets. `onMoveEnd` fires whenever the drag ends. Check `eventDetails.reason === 'drop'` to handle only a successful drop. Checking `event.canceled` alone also includes releases outside a target.
 
 Use [`Draggable.useActiveDrag`](/react/utils/draggable#useactivedrag) to read the active source without event handlers. It re-renders only when a drag starts or ends. For imperative registration, obtain the manager with [`useDragDropManager`](/react/utils/draggable#monitor-drags) in a React component, then call its `registerMonitor` method.
 

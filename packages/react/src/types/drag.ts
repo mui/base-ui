@@ -298,7 +298,6 @@ export interface DraggableEventMap<TSourceData = unknown> {
   onMoveStart: MoveStartEvent<TSourceData>;
   onMove: MoveEvent<TSourceData>;
   onTargetChange: DropTargetChangeEvent<TSourceData>;
-  onDrop: DragDropEvent<TSourceData>;
   onMoveEnd: MoveEndEvent<TSourceData>;
 }
 
@@ -306,7 +305,6 @@ export interface DraggableEventMap<TSourceData = unknown> {
 export interface DropTargetEventMap<TSourceData = unknown> {
   onDraggableStart: MoveStartEvent<TSourceData>;
   onDraggableMove: MoveEvent<TSourceData>;
-  onTargetChange: DropTargetChangeEvent<TSourceData>;
   onDraggableEnter: BaseDragEvent<TSourceData>;
   onDraggableLeave: BaseDragEvent<TSourceData>;
   onDraggableDrop: DragDropEvent<TSourceData>;
@@ -340,15 +338,15 @@ export type MoveEndEvent<TSourceData = unknown> = BaseDragEvent<TSourceData> & {
 };
 
 /**
- * The event object passed to `onDrop`. This event fires only after release over an
- * accepting target, so `dropTarget` is never `null`. In a drop target's `onDrop`,
+ * The event object passed to `onDraggableDrop`. This event fires only after release over an
+ * accepting target, so `dropTarget` is never `null`. In a drop target's `onDraggableDrop`,
  * it is the same record as `target`.
  */
 export type DragDropEvent<TSourceData = unknown> = BaseDragEvent<TSourceData> & {
   dropTarget: DropTargetRecord;
 };
 
-/** The event object passed to a drop target's `onDrop`. */
+/** The event object passed to a drop target's `onDraggableDrop`. */
 export type DropEvent<TSourceData = unknown, TLocalData = unknown> = Omit<
   DragDropEvent<TSourceData>,
   'dropTarget'
@@ -441,7 +439,7 @@ export type BeforeMoveStartEventDetails = {
 /**
  * Why a drag finished without being aborted.
  *
- * - `'drop'`: released over an accepting drop target. `onDrop` fires for this one only.
+ * - `'drop'`: released over an accepting drop target. `onDraggableDrop` fires for this one only.
  * - `'outside-release'`: released over no accepting target, so nothing was committed.
  */
 export type DragCompletedReason = 'drop' | 'outside-release';
@@ -479,7 +477,7 @@ export type DragCanceledReason =
 /** Why a drag ended, in full. `canceled` on the event is `reason` being a cancel one. */
 export type DragEndReason = DragCompletedReason | DragCanceledReason;
 
-/** The reason passed to `onDrop`. Always `'drop'`. */
+/** The reason passed to `onDraggableDrop`. Always `'drop'`. */
 export type DragDropReason = Extract<DragCompletedReason, 'drop'>;
 
 /**
@@ -512,7 +510,7 @@ export type MoveStartEventDetails = DragEventDetails<DragStartReason>;
 export type MoveEventDetails = DragEventDetails<DragMoveReason>;
 /** The event details passed to `onTargetChange`, `onDraggableEnter` and `onDraggableLeave`. */
 export type DropTargetChangeEventDetails = DragEventDetails<DropTargetChangeReason>;
-/** The event details passed to `onDrop`. */
+/** The event details passed to `onDraggableDrop`. */
 export type DragDropEventDetails = DragEventDetails<DragDropReason>;
 /** The event details passed to `onMoveEnd`. */
 export type MoveEndEventDetails = DragEventDetails<DragEndReason>;
@@ -525,7 +523,6 @@ export interface DraggableEventDetailsMap {
   onMoveStart: MoveStartEventDetails;
   onMove: MoveEventDetails;
   onTargetChange: DropTargetChangeEventDetails;
-  onDrop: DragDropEventDetails;
   onMoveEnd: MoveEndEventDetails;
 }
 
@@ -533,7 +530,6 @@ export interface DraggableEventDetailsMap {
 export interface DropTargetEventDetailsMap {
   onDraggableStart: MoveStartEventDetails;
   onDraggableMove: MoveEventDetails;
-  onTargetChange: DropTargetChangeEventDetails;
   onDraggableEnter: DropTargetChangeEventDetails;
   onDraggableLeave: DropTargetChangeEventDetails;
   onDraggableDrop: DragDropEventDetails;

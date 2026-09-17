@@ -273,20 +273,9 @@ export type DraggableConfig<TData = undefined> = {
       ) => void)
     | undefined;
   /**
-   * Event handler called when the drag is released over an accepting drop target.
-   * Commit the move here. `dropTarget` is never `null`. A drag that ends another
-   * way calls only `onMoveEnd`.
-   */
-  onDrop?:
-    | ((
-        parameters: DraggableEventMap<NoInfer<TData>>['onDrop'],
-        eventDetails: DraggableEventDetailsMap['onDrop'],
-      ) => void)
-    | undefined;
-  /**
    * Event handler called once when the drag ends after a drop, outside release, or
-   * cancellation. Use it to clean up or revert optimistic state. Commit a drop from
-   * `onDrop`. `eventDetails.reason` identifies the outcome.
+   * cancellation. Commit changes when `eventDetails.reason` is `'drop'`. Use
+   * `try/finally` when cleanup must run even if committing throws or returns early.
    */
   onMoveEnd?:
     | ((
