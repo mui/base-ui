@@ -108,7 +108,7 @@ function CalendarExperimentInner() {
   // Clear preview when a calendar drag ends so a cancelled drag doesn't leave a
   // ghost behind. This container isn't itself a draggable, so read the active
   // source from the provider-free `Draggable.useActiveDrag` (works outside a
-  // `Draggable.PreviewProvider`, as this component is) and check it carries a calendar kind.
+  // `Draggable.Provider`, as this component is) and check it carries a calendar kind.
   const dragSource = Draggable.useActiveDrag();
   const isCalendarDragging =
     dragSource != null &&
@@ -254,13 +254,13 @@ function CalendarExperimentInner() {
         </Toolbar.Root>
         <div className={styles.main}>
           <div className={styles.view}>
-            <Draggable.PreviewProvider>
+            <Draggable.Provider>
               {view === 'month' ? (
                 <CalendarMonthView monthMs={monthMs} />
               ) : (
                 <CalendarWeekView weekStartMs={weekStartMs} />
               )}
-            </Draggable.PreviewProvider>
+            </Draggable.Provider>
           </div>
         </div>
       </div>

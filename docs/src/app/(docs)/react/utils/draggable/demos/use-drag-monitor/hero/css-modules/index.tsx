@@ -35,7 +35,7 @@ function ShapePiece({ shape }: { shape: Shape }) {
   );
 }
 
-export default function MonitorShapeSorter() {
+function MonitorShapeSorterContent() {
   const [placed, setPlaced] = React.useState<ShapeId[]>([]);
   const [message, setMessage] = React.useState(IDLE_MESSAGE);
 
@@ -120,5 +120,13 @@ export default function MonitorShapeSorter() {
         <span className={styles.MonitorMessage}>{message}</span>
       </div>
     </div>
+  );
+}
+
+export default function MonitorShapeSorter() {
+  return (
+    <Draggable.Provider>
+      <MonitorShapeSorterContent />
+    </Draggable.Provider>
   );
 }

@@ -31,10 +31,17 @@ const file = DropTarget.createKind<AttachmentPayload>('file');
 const divider = DropTarget.createKind('divider');
 const slot = DropTarget.createKind<SlotData>('slot');
 
-// `accept` is required: the engine is page-global with no subtree scoping, so a
-// target written without one would silently take every drag in the application.
-// @ts-expect-error `accept` is required on a drop target.
-<DropTarget.Root />;
+// An omitted accept matches only the nearest provider default kind.
+<DropTarget.Root
+  onDraggableDrop={({ source }) => {
+    expectType<undefined, typeof source.payload>(source.payload);
+  }}
+/>;
+
+function DefaultKindTarget(props: DropTarget.Root.Props) {
+  return <DropTarget.Root {...props} />;
+}
+<DefaultKindTarget />;
 
 // The catch-all is the explicit opt-in, and leaves `source.payload` as `unknown` —
 // nothing has been declared about what this target receives.

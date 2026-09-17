@@ -201,7 +201,7 @@ function DraggableTab(props: DraggableTabProps) {
   );
 }
 
-export default function DraggableTabs() {
+function DraggableTabsContent() {
   const [items, setItems] = React.useState(INITIAL_TABS);
   const [selectedValue, setSelectedValue] = React.useState<string | null>('overview');
   const nextTabNumber = React.useRef(1);
@@ -333,5 +333,13 @@ export default function DraggableTabs() {
         )}
       </div>
     </Tabs.Root>
+  );
+}
+
+export default function DraggableTabs() {
+  return (
+    <Draggable.Provider>
+      <DraggableTabsContent />
+    </Draggable.Provider>
   );
 }

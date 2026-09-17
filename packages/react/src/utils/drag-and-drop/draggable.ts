@@ -234,7 +234,7 @@ export type DraggableConfig<TData = undefined> = {
    */
   getDragPreviewDeclaration?: (() => DragPreviewDeclaration<NoInfer<TData>> | null) | undefined;
   /**
-   * Subtree default for `container`, from the nearest `Draggable.PreviewProvider`.
+   * Subtree default for `container`, from the nearest `Draggable.Provider`.
    * Wired by the React layer, which is the only thing that can see a provider; the
    * preview's own `container` wins over it.
    * @internal

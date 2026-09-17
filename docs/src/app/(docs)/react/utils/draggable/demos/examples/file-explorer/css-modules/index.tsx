@@ -190,7 +190,7 @@ export default function FileExplorer() {
 
   return (
     // Custom preview content renders beside the provider's children.
-    <Draggable.PreviewProvider>
+    <Draggable.Provider>
       <div className={styles.Root}>
         <nav aria-label="Breadcrumb" className={styles.Breadcrumb}>
           {path.map((folder, index) => (
@@ -235,6 +235,6 @@ export default function FileExplorer() {
           {children.length === 0 && <div className={styles.Empty}>This folder is empty</div>}
         </Draggable.Target>
       </div>
-    </Draggable.PreviewProvider>
+    </Draggable.Provider>
   );
 }

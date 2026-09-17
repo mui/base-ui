@@ -11,7 +11,7 @@
  * is the active-phase `touchmove` scroll guard). Pen helpers dispatch
  * pointer events only — pen drags ignore the iPadOS-synthesised touch stream.
  *
- * Every dispatch is wrapped in `act` because tests mount a `Draggable.PreviewProvider`
+ * Every dispatch is wrapped in `act` because tests mount a `Draggable.Provider`
  * that subscribes to the drag session store: a raw dispatch that starts or ends a
  * drag would re-render React outside `act`.
  */

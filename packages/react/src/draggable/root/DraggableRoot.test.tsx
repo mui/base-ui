@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { describe, it, expect, vi } from 'vitest';
-import { act, fireEvent, screen, render as rtlRender } from '@testing-library/react';
+import { act, fireEvent, screen, render as rawRender } from '@testing-library/react';
 import { createDndRenderer, describeConformance, testDragKind } from '#test-utils';
 import { Draggable } from '@base-ui/react/draggable';
 import { DropTarget } from '@base-ui/react/drop-target';
@@ -15,10 +15,14 @@ import {
 } from '../../../test/dnd';
 import { dragSessionStore } from '../../utils/drag-and-drop/dragSessionStore';
 import { getRegistration } from '../../utils/drag-and-drop/draggableRegistry';
-import { DraggablePreviewProvider } from '../preview-provider/DraggablePreviewProvider';
+import { DraggableProvider } from '../DraggableProvider';
 import { CSPProvider } from '../../csp-provider';
 
 setupDragEngineTests();
+
+function rtlRender(ui: React.ReactElement) {
+  return rawRender(ui, { wrapper: Draggable.Provider });
+}
 
 /** Kind for the fixtures that carry a payload, so its type reaches their handlers. */
 const cardKind = Draggable.createKind<{ id: string }>('card');
@@ -27,16 +31,6 @@ const cardKind = Draggable.createKind<{ id: string }>('card');
  * `className` instead. */
 function draggingClass(state: Draggable.Root.State) {
   return state.dragging ? 'dragging' : 'idle';
-}
-
-/**
- * Synchronous `rtlRender` inside a `Draggable.PreviewProvider`, which any preview
- * with content requires. Use it where the test wants a plain render rather than
- * `renderDnd`'s engine; a clone-only draggable needs neither and can use
- * `rtlRender` directly.
- */
-function renderWithPreviewProvider(ui: React.ReactElement) {
-  return rtlRender(<DraggablePreviewProvider>{ui}</DraggablePreviewProvider>);
 }
 
 function TestDraggable<TData = undefined>(props: {
@@ -58,7 +52,7 @@ function TestDraggable<TData = undefined>(props: {
 }
 
 describe('Draggable.Root', () => {
-  const { render, renderDnd } = createDndRenderer();
+  const { renderDnd } = createDndRenderer();
 
   describeConformance(<Draggable.Root kind={testDragKind} />, () => ({
     refInstanceof: window.HTMLDivElement,
@@ -67,38 +61,7 @@ describe('Draggable.Root', () => {
     },
   }));
 
-  it('registers with no PreviewProvider ancestor (the engine is global)', () => {
-    // The engine lives in a global slot, so a draggable works with no provider
-    // of any kind — registration applies the gesture styles directly.
-    expect(() =>
-      rtlRender(<Draggable.Root kind={testDragKind} data-testid="orphan" />),
-    ).not.toThrow();
-    const el = screen.getByTestId('orphan');
-    expect(el.style.touchAction).toBe('manipulation');
-    expect(el.style.userSelect).toBe('none');
-  });
-
-  it('throws when a Draggable.Preview has no PreviewProvider ancestor', async () => {
-    // Content has to render in a React tree, and only a provider supplies one.
-    // Failing at mount points the stack at the part, rather than at drag start.
-    // React 18's dev error path logs the uncaught render error via console.error.
-    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-    try {
-      expect(() =>
-        rtlRender(
-          <Draggable.Root kind={testDragKind} data-testid="bare">
-            <Draggable.Preview>
-              <span>preview</span>
-            </Draggable.Preview>
-          </Draggable.Root>,
-        ),
-      ).toThrow(/Draggable\.PreviewProvider/);
-    } finally {
-      errorSpy.mockRestore();
-    }
-  });
-
-  it('needs no PreviewProvider to clone the source', async () => {
+  it('clones the source inside the required provider', async () => {
     // The clone is engine-built and touches no React, so the provider requirement
     // is scoped to custom content.
     rtlRender(
@@ -925,7 +888,7 @@ describe('Draggable.Root', () => {
     }
 
     it('clones the source in place, so the app CSS still applies to the preview', () => {
-      // No `Draggable.PreviewProvider`: the clone stays in the source's own parent.
+      // No `Draggable.Provider`: the clone stays in the source's own parent.
       rtlRender(<PlainDraggable />);
       const source = screen.getByTestId('drag');
       source.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
@@ -1068,7 +1031,7 @@ describe('Draggable.Root', () => {
       expect(source).toHaveAttribute('data-dragging');
     });
 
-    it('needs no React at all, so it renders with no PreviewProvider', async () => {
+    it('uses the DOM clone inside the required provider', async () => {
       // A clone is built entirely by the engine, so it must not require the
       // provider a declared preview does — nor throw for the want of one.
       rtlRender(<ClonedPreviewDraggable />);
@@ -1120,16 +1083,16 @@ describe('Draggable.Root', () => {
       expect(clone.style.translate).toBe('80px 90px');
     });
 
-    it('keeps the clone next to the source inside a PreviewProvider', async () => {
+    it('keeps the clone next to the source inside a Provider', async () => {
       function Wiring() {
         return (
-          <DraggablePreviewProvider>
+          <DraggableProvider>
             <ClonedPreviewDraggable previewProps={{ offset: 'pointer' }} />
-          </DraggablePreviewProvider>
+          </DraggableProvider>
         );
       }
 
-      await render(<Wiring />);
+      await renderDnd(<Wiring />);
       const source = screen.getByTestId('drag');
       source.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
 
@@ -1152,7 +1115,7 @@ describe('Draggable.Root', () => {
         // plausible mistake; white-screening production over it is not
         // proportionate, and the duplicate-`Handle` slip only warns.
         expect(() =>
-          renderWithPreviewProvider(
+          rtlRender(
             <Draggable.Root kind={testDragKind} data-testid="drag">
               <Draggable.Preview>
                 <span>x</span>
@@ -1174,7 +1137,7 @@ describe('Draggable.Root', () => {
       const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
       try {
         expect(() =>
-          renderWithPreviewProvider(
+          rtlRender(
             <Draggable.Root kind={testDragKind} data-testid="drag">
               <Draggable.Preview>
                 <span>x</span>
@@ -1194,7 +1157,7 @@ describe('Draggable.Root', () => {
       // Strict Mode double-invokes the declaring layout effect (declare → cleanup →
       // declare). Only the identity guard in the cleanup keeps that from tripping
       // the one-preview throw on mount.
-      renderWithPreviewProvider(
+      rtlRender(
         <React.StrictMode>
           <Draggable.Root kind={testDragKind} data-testid="drag">
             <Draggable.Preview>
@@ -1342,7 +1305,7 @@ describe('Draggable.Root', () => {
     });
 
     it('shows no preview at all when disabled', async () => {
-      renderWithPreviewProvider(
+      rtlRender(
         <Draggable.Root kind={testDragKind} data-testid="drag" className="Card">
           <Draggable.Preview disabled>
             <span data-testid="preview">x</span>
@@ -1378,7 +1341,7 @@ describe('Draggable.Root', () => {
     });
 
     it('forwards its remaining props onto the rendered element', async () => {
-      renderWithPreviewProvider(
+      rtlRender(
         <Draggable.Root kind={testDragKind} data-testid="drag">
           <Draggable.Preview id="chip" data-chip="yes" aria-label="Card chip">
             <span data-testid="preview">chip</span>
@@ -1398,7 +1361,7 @@ describe('Draggable.Root', () => {
 
     it('keeps the preview settings off the rendered element', async () => {
       const boundsRef = React.createRef<HTMLDivElement>();
-      renderWithPreviewProvider(
+      rtlRender(
         <Draggable.Root kind={testDragKind} data-testid="drag">
           <Draggable.Preview offset="pointer" modifiers={Draggable.restrictToElement(boundsRef)}>
             <span data-testid="preview">chip</span>
@@ -1427,11 +1390,11 @@ describe('Draggable.Root', () => {
 
       // The provider sits inside the theme context, so the content it renders
       // inherits it.
-      await render(
+      await renderDnd(
         <ThemeContext.Provider value="dark">
-          <DraggablePreviewProvider>
+          <DraggableProvider>
             <DraggableWithPreview preview={<PreviewReader />} />
-          </DraggablePreviewProvider>
+          </DraggableProvider>
         </ThemeContext.Provider>,
       );
       const source = screen.getByTestId('drag');
@@ -1464,7 +1427,7 @@ describe('Draggable.Root', () => {
     });
 
     it('applies className to its own element, inside the engine-owned host', async () => {
-      renderWithPreviewProvider(
+      rtlRender(
         <DraggableWithPreview
           preview={<span data-testid="preview">chip</span>}
           previewProps={{ className: 'Ghost' }}
@@ -1483,7 +1446,7 @@ describe('Draggable.Root', () => {
     });
 
     it('renders the element the render prop returns, with no wrapper of its own', async () => {
-      renderWithPreviewProvider(
+      rtlRender(
         <DraggableWithPreview
           preview={<span data-testid="preview">chip</span>}
           previewProps={{ render: <section className="Chip" /> }}
@@ -1500,7 +1463,7 @@ describe('Draggable.Root', () => {
     });
 
     it('places the preview at the offset it declares', async () => {
-      renderWithPreviewProvider(
+      rtlRender(
         <DraggableWithPreview
           preview={<span data-testid="preview">x</span>}
           previewProps={{ offset: { x: 5, y: 6 } }}
@@ -1519,7 +1482,7 @@ describe('Draggable.Root', () => {
     });
 
     it('builds the preview from the drag payload when the children are a function', async () => {
-      renderWithPreviewProvider(
+      rtlRender(
         <DraggableWithPreview
           preview={({ source }) => <span data-testid="preview">{source.payload as string}</span>}
           options={{ payload: 'card-1' }}
@@ -1718,17 +1681,17 @@ describe('Draggable.Root', () => {
           <React.Fragment>
             <div ref={fromProvider} data-testid="from-provider" />
             <div ref={fromPart} data-testid="from-part" />
-            <DraggablePreviewProvider container={fromProvider}>
+            <DraggableProvider container={fromProvider}>
               <DraggableWithPreview
                 preview={<span data-testid="preview">x</span>}
                 previewProps={partContainer ? { container: fromPart } : undefined}
               />
-            </DraggablePreviewProvider>
+            </DraggableProvider>
           </React.Fragment>
         );
       }
 
-      const { rerender } = await render(<Wiring />);
+      const { rerender } = await renderDnd(<Wiring />);
       const source = screen.getByTestId('drag');
       source.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
 
@@ -1757,16 +1720,16 @@ describe('Draggable.Root', () => {
         return (
           <React.Fragment>
             <div ref={containerRef} data-testid="container" />
-            <DraggablePreviewProvider container={containerRef}>
+            <DraggableProvider container={containerRef}>
               <Draggable.Root kind={testDragKind} data-testid="drag" className="Card">
                 <Draggable.Preview />
               </Draggable.Root>
-            </DraggablePreviewProvider>
+            </DraggableProvider>
           </React.Fragment>
         );
       }
 
-      await render(<Wiring />);
+      await renderDnd(<Wiring />);
       const source = screen.getByTestId('drag');
       source.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
 
@@ -1787,16 +1750,16 @@ describe('Draggable.Root', () => {
         return (
           <React.Fragment>
             <div ref={setContainer} data-testid="late-container" />
-            <DraggablePreviewProvider container={container ?? undefined}>
+            <DraggableProvider container={container ?? undefined}>
               <Draggable.Root kind={testDragKind} data-testid="drag" className="Card">
                 <Draggable.Preview />
               </Draggable.Root>
-            </DraggablePreviewProvider>
+            </DraggableProvider>
           </React.Fragment>
         );
       }
 
-      await render(<Wiring />);
+      await renderDnd(<Wiring />);
       const source = screen.getByTestId('drag');
       source.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
 
@@ -1821,14 +1784,14 @@ describe('Draggable.Root', () => {
         return (
           <React.Fragment>
             <button type="button" data-testid="force" onClick={() => force((c) => c + 1)} />
-            <DraggablePreviewProvider container={(source) => source.parentElement}>
+            <DraggableProvider container={(source) => source.parentElement}>
               <Row />
-            </DraggablePreviewProvider>
+            </DraggableProvider>
           </React.Fragment>
         );
       }
 
-      await render(<Wiring />);
+      await renderDnd(<Wiring />);
       const countAfterMount = rowCommits;
 
       fireEvent.click(screen.getByTestId('force'));
@@ -1856,10 +1819,10 @@ describe('Draggable.Root', () => {
     }
 
     it('renders the preview for an imperatively registered source', async () => {
-      await render(
-        <DraggablePreviewProvider>
+      await renderDnd(
+        <DraggableProvider>
           <ImperativeCard />
-        </DraggablePreviewProvider>,
+        </DraggableProvider>,
       );
       const source = screen.getByTestId('drag');
       source.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
@@ -1870,40 +1833,6 @@ describe('Draggable.Root', () => {
       // Exactly one preview: the declaration must suppress the clone, not race it.
       expect(document.querySelectorAll('[data-drag-preview]')).toHaveLength(1);
       expect(document.querySelector('.Card[data-drag-preview]')).toBeNull();
-    });
-
-    it('undoes a failed imperative preview pickup when no PreviewProvider exists', async () => {
-      await render(
-        <React.Fragment>
-          <ImperativeCard />
-          <Draggable.Root kind={testDragKind} data-testid="fallback" />
-        </React.Fragment>,
-      );
-      const source = screen.getByTestId('drag');
-      source.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
-
-      const reportedError: { current: Error | null } = { current: null };
-      const onError = (event: ErrorEvent) => {
-        reportedError.current = event.error;
-        event.preventDefault();
-      };
-      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-      window.addEventListener('error', onError);
-      try {
-        fireEvent.dragStart(source);
-      } finally {
-        window.removeEventListener('error', onError);
-        consoleErrorSpy.mockRestore();
-      }
-      expect(reportedError.current?.message).toMatch(/Draggable\.PreviewProvider/);
-      expect(dragSessionStore.getSnapshot()).toBeNull();
-      expect(source).not.toHaveAttribute('data-dragging');
-      expect(document.querySelector('[data-drag-preview]')).toBeNull();
-
-      const fallback = screen.getByTestId('fallback');
-      fallback.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
-      fireEvent.dragStart(fallback);
-      expect(dragSessionStore.getSnapshot()?.source.element).toBe(fallback);
     });
 
     it('still honours dragPreview.offset for an imperative preview', async () => {
@@ -1925,10 +1854,10 @@ describe('Draggable.Root', () => {
         return <div ref={elementRef} data-testid="drag" />;
       }
 
-      await render(
-        <DraggablePreviewProvider>
+      await renderDnd(
+        <DraggableProvider>
           <OffsetCard />
-        </DraggablePreviewProvider>,
+        </DraggableProvider>,
       );
       const source = screen.getByTestId('drag');
       source.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
@@ -1956,7 +1885,7 @@ describe('Draggable.Root', () => {
         return <div ref={elementRef} data-testid="drag" className="Card" />;
       }
 
-      await render(<DisabledCard />);
+      await renderDnd(<DisabledCard />);
       const source = screen.getByTestId('drag');
       source.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
 
@@ -1991,7 +1920,7 @@ describe('Draggable.Root', () => {
         );
       }
 
-      await render(<BoundedCard />);
+      await renderDnd(<BoundedCard />);
       const source = screen.getByTestId('drag');
       source.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
       screen.getByTestId('bounds').getBoundingClientRect = () => new DOMRect(0, 0, 200, 200);
@@ -2024,7 +1953,7 @@ describe('Draggable.Root', () => {
           return <div ref={elementRef} data-testid="drag" className="Card" />;
         }
 
-        await render(<ContainedCard />);
+        await renderDnd(<ContainedCard />);
         const source = screen.getByTestId('drag');
         source.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
 
@@ -2058,10 +1987,10 @@ describe('Draggable.Root', () => {
           return <div ref={elementRef} data-testid="drag" />;
         }
 
-        await render(
-          <DraggablePreviewProvider>
+        await renderDnd(
+          <DraggableProvider>
             <ContainedCard />
-          </DraggablePreviewProvider>,
+          </DraggableProvider>,
         );
         const source = screen.getByTestId('drag');
         source.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);

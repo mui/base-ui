@@ -151,7 +151,7 @@
 /* Drag preview ---------------------------------------------------------- */
 
 /*
- * `DragPreview` content, rendered in the `Draggable.PreviewProvider` that wraps the
+ * `DragPreview` content, rendered in the `Draggable.Provider` that wraps the
  * grid — OUTSIDE `.root`, so the element carries `theme.tokens` itself.
  */
 .preview {

@@ -34,7 +34,7 @@ function ShapePiece({ shape }: { shape: Shape }) {
   );
 }
 
-export default function ShapeSorter() {
+function ShapeSorterContent() {
   const [placed, setPlaced] = React.useState<ShapeId[]>([]);
 
   function placeShape(shape: ShapeId) {
@@ -88,5 +88,13 @@ export default function ShapeSorter() {
         })}
       </div>
     </div>
+  );
+}
+
+export default function ShapeSorter() {
+  return (
+    <Draggable.Provider>
+      <ShapeSorterContent />
+    </Draggable.Provider>
   );
 }

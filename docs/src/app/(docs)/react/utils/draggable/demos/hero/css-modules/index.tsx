@@ -5,11 +5,10 @@ import * as React from 'react';
 
 import styles from '../../hero.module.css';
 
-const cardKind = Draggable.createKind('card');
 const CARD_WIDTH = 128;
 const CARD_HEIGHT = 40;
 
-export default function DraggableHero() {
+function DraggableHeroContent() {
   const surfaceRef = React.useRef<HTMLDivElement | null>(null);
   const [position, setPosition] = React.useState({ x: 24, y: 24 });
 
@@ -18,7 +17,6 @@ export default function DraggableHero() {
       {/* The surface is the drop target, so a release on it reaches `onDrop`. */}
       <Draggable.Target
         ref={surfaceRef}
-        accept={cardKind}
         trackDragOver={false}
         className={styles.Surface}
         onDraggableDrop={({ target }) => {
@@ -38,7 +36,6 @@ export default function DraggableHero() {
       >
         {/* @highlight-start */}
         <Draggable.Root
-          kind={cardKind}
           modifiers={Draggable.restrictToElement(surfaceRef)}
           // @highlight-end
           className={styles.Card}
@@ -49,5 +46,13 @@ export default function DraggableHero() {
         </Draggable.Root>
       </Draggable.Target>
     </div>
+  );
+}
+
+export default function DraggableHero() {
+  return (
+    <Draggable.Provider>
+      <DraggableHeroContent />
+    </Draggable.Provider>
   );
 }

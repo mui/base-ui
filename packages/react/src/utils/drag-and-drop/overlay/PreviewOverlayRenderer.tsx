@@ -26,7 +26,7 @@ function selectPreviewState(
  * the same way. React only portals content into it, which is what lets the preview
  * outlive a source the virtualizer unmounts mid-drag.
  *
- * Selects previews published by its `Draggable.PreviewProvider`, so the content
+ * Selects previews published by its `Draggable.Provider`, so the content
  * renders in the same React tree while the drag itself stays global.
  */
 export function PreviewOverlayRenderer(props: {
@@ -62,7 +62,7 @@ export function PreviewOverlayRenderer(props: {
     return null;
   }
   // The portal keeps the content in this React tree — so it inherits the context
-  // around the `Draggable.PreviewProvider` — while the DOM node it lands in sits next
+  // around the `Draggable.Provider` — while the DOM node it lands in sits next
   // to the drag source, where the app's CSS applies to it.
   return ReactDOM.createPortal(preview.node, preview.host);
 }

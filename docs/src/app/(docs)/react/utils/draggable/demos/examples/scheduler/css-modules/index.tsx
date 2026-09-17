@@ -34,7 +34,7 @@ function clamp(value: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, value));
 }
 
-export default function SchedulerCalendar() {
+function SchedulerCalendarContent() {
   const [event, setEvent] = React.useState<CalendarEvent>({ day: 1, minute: 60 });
   const gridRef = React.useRef<HTMLDivElement>(null);
 
@@ -161,5 +161,13 @@ export default function SchedulerCalendar() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function SchedulerCalendar() {
+  return (
+    <Draggable.Provider>
+      <SchedulerCalendarContent />
+    </Draggable.Provider>
   );
 }

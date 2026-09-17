@@ -1162,7 +1162,7 @@ function useShiftKey(elementRef: React.RefObject<HTMLElement | null>): {
   return { shiftRef, shiftHeld };
 }
 
-export default function LineChartAnnotations() {
+function LineChartAnnotationsContent() {
   const { settings } = useExperimentSettings<LineChartAnnotationsSettings>();
   const snap = settings.snapToDataPoints === true;
 
@@ -1483,5 +1483,13 @@ function FloatingToolbar({
         Delete
       </button>
     </div>
+  );
+}
+
+export default function LineChartAnnotations() {
+  return (
+    <Draggable.Provider>
+      <LineChartAnnotationsContent />
+    </Draggable.Provider>
   );
 }

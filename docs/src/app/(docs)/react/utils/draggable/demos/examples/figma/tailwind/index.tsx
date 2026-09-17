@@ -79,7 +79,7 @@ function BoardCard({
   );
 }
 
-export default function FigmaBoard() {
+function FigmaBoardContent() {
   const [cards, setCards] = React.useState<Card[]>([]);
   const surfaceRef = React.useRef<HTMLDivElement | null>(null);
 
@@ -189,5 +189,13 @@ export default function FigmaBoard() {
         ))}
       </Draggable.Target>
     </div>
+  );
+}
+
+export default function FigmaBoard() {
+  return (
+    <Draggable.Provider>
+      <FigmaBoardContent />
+    </Draggable.Provider>
   );
 }

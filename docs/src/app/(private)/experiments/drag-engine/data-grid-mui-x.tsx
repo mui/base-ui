@@ -500,8 +500,8 @@ function DataGridInner() {
 
 export default function DataGridMuiX() {
   return (
-    <Draggable.PreviewProvider>
+    <Draggable.Provider>
       <DataGridInner />
-    </Draggable.PreviewProvider>
+    </Draggable.Provider>
   );
 }

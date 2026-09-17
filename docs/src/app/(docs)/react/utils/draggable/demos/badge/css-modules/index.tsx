@@ -100,7 +100,7 @@ export default function CustomPreviewDashboard() {
   }
 
   return (
-    <Draggable.PreviewProvider>
+    <Draggable.Provider>
       <div className={styles.Root}>
         <div className={styles.Grid}>
           {SLOTS.map((slot) => (
@@ -114,6 +114,6 @@ export default function CustomPreviewDashboard() {
           ))}
         </div>
       </div>
-    </Draggable.PreviewProvider>
+    </Draggable.Provider>
   );
 }

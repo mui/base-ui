@@ -117,7 +117,7 @@ function DockSlot({
   );
 }
 
-export default function HandleDashboard() {
+function HandleDashboardContent() {
   const [widgets, setWidgets] = React.useState<WidgetData[]>(INITIAL_WIDGETS);
 
   function moveWidget(widgetId: string, slot: SlotId) {
@@ -140,5 +140,13 @@ export default function HandleDashboard() {
         ))}
       </div>
     </div>
+  );
+}
+
+export default function HandleDashboard() {
+  return (
+    <Draggable.Provider>
+      <HandleDashboardContent />
+    </Draggable.Provider>
   );
 }

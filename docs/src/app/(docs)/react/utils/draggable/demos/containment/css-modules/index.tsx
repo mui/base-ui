@@ -104,7 +104,7 @@ function DockSlot({
   );
 }
 
-export default function ContainedDashboard() {
+function ContainedDashboardContent() {
   const [widgets, setWidgets] = React.useState<WidgetData[]>(INITIAL_WIDGETS);
   const frameRef = React.useRef<HTMLDivElement | null>(null);
 
@@ -135,5 +135,13 @@ export default function ContainedDashboard() {
         <span>The drag cannot reach this target.</span>
       </Draggable.Target>
     </div>
+  );
+}
+
+export default function ContainedDashboard() {
+  return (
+    <Draggable.Provider>
+      <ContainedDashboardContent />
+    </Draggable.Provider>
   );
 }

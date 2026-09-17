@@ -4,7 +4,7 @@ import { fireEvent, screen, render as rtlRender } from '@testing-library/react';
 import { isJSDOM, testDragKind } from '#test-utils';
 import { Draggable } from '@base-ui/react/draggable';
 import { setupDragEngineTests } from '../../../test/dnd';
-import { DraggablePreviewProvider } from '../preview-provider/DraggablePreviewProvider';
+import { DraggableProvider } from '../DraggableProvider';
 
 setupDragEngineTests();
 
@@ -41,7 +41,7 @@ describe.skipIf(isJSDOM)('Draggable.Preview (cascade)', () => {
   it('reads React context and still matches an ancestor-scoped rule', () => {
     rtlRender(
       <ThemeContext.Provider value="dark">
-        <DraggablePreviewProvider>
+        <DraggableProvider>
           <div className="dark">
             <Draggable.Root kind={testDragKind} data-testid="drag">
               <Draggable.Preview className="Badge">
@@ -49,7 +49,7 @@ describe.skipIf(isJSDOM)('Draggable.Preview (cascade)', () => {
               </Draggable.Preview>
             </Draggable.Root>
           </div>
-        </DraggablePreviewProvider>
+        </DraggableProvider>
       </ThemeContext.Provider>,
     );
 

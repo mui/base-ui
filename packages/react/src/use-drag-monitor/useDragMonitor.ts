@@ -1,6 +1,7 @@
 'use client';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useDraggableContext } from '../draggable/DraggableContext';
 import { registerMonitor } from '../utils/drag-and-drop/registrations';
 import type { RegisterMonitorParameters } from '../utils/drag-and-drop/monitor';
 import type { AcceptedDragPayload, AnyDragAccept, DragKind } from '../types/drag';
@@ -20,6 +21,7 @@ import type { WithInferredAccept } from '../types/dragRegistration';
 export function useDragMonitor<TAccept extends AnyDragAccept = DragKind<unknown>>(
   parameters: WithInferredAccept<UseDragMonitorParameters<AcceptedDragPayload<TAccept>>, TAccept>,
 ): void {
+  useDraggableContext();
   const getParameters = useStableCallback(() => parameters);
   useIsoLayoutEffect(() => registerMonitor<TAccept>(getParameters), [getParameters]);
 }

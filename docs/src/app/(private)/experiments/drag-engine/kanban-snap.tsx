@@ -148,7 +148,7 @@ function computeIndicator(
   return { columnId, insertIndex: index, top: slotY - bodyTop };
 }
 
-export default function KanbanSnap() {
+function KanbanSnapContent() {
   const [board, setBoard] = React.useState<Board>(buildInitialBoard);
   const [indicator, setIndicator] = React.useState<DropIndicator | null>(null);
 
@@ -325,5 +325,13 @@ function DraggableCard({
           preview pins to it instead of trailing off the board. */}
       <Draggable.Preview modifiers={Draggable.restrictToElement(boundaryRef)} />
     </Draggable.Root>
+  );
+}
+
+export default function KanbanSnap() {
+  return (
+    <Draggable.Provider>
+      <KanbanSnapContent />
+    </Draggable.Provider>
   );
 }

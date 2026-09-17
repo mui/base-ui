@@ -5,7 +5,7 @@ import { act } from '@mui/internal-test-utils';
 import { testDragKind } from '#test-utils';
 import { Draggable } from '@base-ui/react/draggable';
 import { setupDragEngineTests, lift, flushRaf } from '../../../test/dnd';
-import { DraggablePreviewProvider } from '../preview-provider/DraggablePreviewProvider';
+import { DraggableProvider } from '../DraggableProvider';
 
 setupDragEngineTests();
 
@@ -15,7 +15,7 @@ describe('Draggable.Preview', () => {
     document.body.appendChild(container);
     try {
       rtlRender(
-        <DraggablePreviewProvider>
+        <DraggableProvider>
           <Draggable.Root kind={testDragKind} data-testid="drag">
             <Draggable.Preview
               data-testid="preview"
@@ -26,7 +26,7 @@ describe('Draggable.Preview', () => {
               Preview
             </Draggable.Preview>
           </Draggable.Root>
-        </DraggablePreviewProvider>,
+        </DraggableProvider>,
       );
 
       const source = screen.getByTestId('drag');
@@ -50,13 +50,13 @@ describe('Draggable.Preview', () => {
   it('never resolves the container callback for a disabled preview', () => {
     const container = vi.fn(() => document.body);
     rtlRender(
-      <DraggablePreviewProvider>
+      <DraggableProvider>
         <Draggable.Root kind={testDragKind} data-testid="drag">
           <Draggable.Preview disabled container={container}>
             Preview
           </Draggable.Preview>
         </Draggable.Root>
-      </DraggablePreviewProvider>,
+      </DraggableProvider>,
     );
 
     const source = screen.getByTestId('drag');
@@ -69,36 +69,15 @@ describe('Draggable.Preview', () => {
     expect(document.querySelector('[data-drag-preview]')).toBeNull();
   });
 
-  it('does not require a PreviewProvider while disabled and validates when enabled', () => {
-    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-    try {
-      const { rerender } = rtlRender(
-        <Draggable.Root kind={testDragKind}>
-          <Draggable.Preview disabled>Preview</Draggable.Preview>
-        </Draggable.Root>,
-      );
-
-      expect(() =>
-        rerender(
-          <Draggable.Root kind={testDragKind}>
-            <Draggable.Preview>Preview</Draggable.Preview>
-          </Draggable.Root>,
-        ),
-      ).toThrow(/Draggable\.PreviewProvider/);
-    } finally {
-      errorSpy.mockRestore();
-    }
-  });
-
   it('does not call a typed render callback for a mismatched source kind', () => {
     const otherKind = Draggable.createKind('other-preview-kind');
     const renderPreview = vi.fn(() => 'Preview');
     rtlRender(
-      <DraggablePreviewProvider>
+      <DraggableProvider>
         <Draggable.Root kind={testDragKind} data-testid="drag">
           <Draggable.Preview kind={otherKind}>{renderPreview}</Draggable.Preview>
         </Draggable.Root>
-      </DraggablePreviewProvider>,
+      </DraggableProvider>,
     );
 
     const source = screen.getByTestId('drag');
@@ -118,13 +97,13 @@ describe('Draggable.Preview', () => {
     try {
       expect(() =>
         rtlRender(
-          <DraggablePreviewProvider>
+          <DraggableProvider>
             <Draggable.Root kind={testDragKind}>
-              <DraggablePreviewProvider>
+              <DraggableProvider>
                 <Draggable.Preview>Preview</Draggable.Preview>
-              </DraggablePreviewProvider>
+              </DraggableProvider>
             </Draggable.Root>
-          </DraggablePreviewProvider>,
+          </DraggableProvider>,
         ),
       ).toThrow(/is inside its <Draggable\.Root>/);
     } finally {
@@ -135,11 +114,11 @@ describe('Draggable.Preview', () => {
   it('accepts a provider that wraps the Draggable.Root', () => {
     expect(() =>
       rtlRender(
-        <DraggablePreviewProvider>
+        <DraggableProvider>
           <Draggable.Root kind={testDragKind}>
             <Draggable.Preview>Preview</Draggable.Preview>
           </Draggable.Root>
-        </DraggablePreviewProvider>,
+        </DraggableProvider>,
       ),
     ).not.toThrow();
   });
@@ -150,13 +129,13 @@ describe('Draggable.Preview', () => {
     // mid-drag, and the overlay-rendered content must survive it.
     function Fixture(props: { withRow: boolean }) {
       return (
-        <DraggablePreviewProvider>
+        <DraggableProvider>
           {props.withRow ? (
             <Draggable.Root kind={testDragKind} data-testid="drag">
               <Draggable.Preview>Preview content</Draggable.Preview>
             </Draggable.Root>
           ) : null}
-        </DraggablePreviewProvider>
+        </DraggableProvider>
       );
     }
 
@@ -206,16 +185,16 @@ describe('Draggable.Preview', () => {
     // last-published slot provider A's content stays on screen for B's whole drag.
     rtlRender(
       <React.Fragment>
-        <DraggablePreviewProvider>
+        <DraggableProvider>
           <Draggable.Root kind={testDragKind} data-testid="a">
             <Draggable.Preview>Preview A</Draggable.Preview>
           </Draggable.Root>
-        </DraggablePreviewProvider>
-        <DraggablePreviewProvider>
+        </DraggableProvider>
+        <DraggableProvider>
           <Draggable.Root kind={testDragKind} data-testid="b">
             <Draggable.Preview>Preview B</Draggable.Preview>
           </Draggable.Root>
-        </DraggablePreviewProvider>
+        </DraggableProvider>
       </React.Fragment>,
     );
 

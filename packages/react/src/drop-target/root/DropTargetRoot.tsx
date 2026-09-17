@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { useDraggableContext } from '../../draggable/DraggableContext';
 import { useRenderElement } from '../../internals/useRenderElement';
 import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
 import type { BaseUIComponentProps } from '../../internals/types';
@@ -40,7 +41,7 @@ export const DropTargetRoot = React.forwardRef(function DropTargetRoot<
   TSourceData = unknown,
   TLocalData = unknown,
 >(
-  componentProps: DropTargetRootPropsBase<TSourceData, TLocalData> & {
+  componentProps: Omit<DropTargetRootPropsBase<TSourceData, TLocalData>, 'accept'> & {
     accept?: DragAccept<TSourceData> | undefined;
     payload?: DropTargetPayload<TLocalData> | undefined;
     getPayload?: DropTargetPayloadGetter<TSourceData, TLocalData> | undefined;
@@ -77,9 +78,10 @@ export const DropTargetRoot = React.forwardRef(function DropTargetRoot<
 
   // A fresh object per render is fine: `useDropTargetElement` reads it through a
   // ref and never compares it.
+  const { defaultKind } = useDraggableContext();
   const params = {
     kind,
-    accept,
+    accept: accept ?? defaultKind,
     canDrop,
     disabled,
     payload,
@@ -117,6 +119,12 @@ export const DropTargetRoot = React.forwardRef(function DropTargetRoot<
   // than compiling with `column.matches(target)` narrowing to a payload that is
   // `undefined` at runtime.
 }) as {
+  (
+    props: Omit<DropTargetRootPropsBase<undefined, undefined>, 'accept'> &
+      WithOptionalPayload<DropTargetPayloadParameters<undefined, undefined>> & {
+        accept?: DragAccept<undefined> | undefined;
+      },
+  ): React.JSX.Element;
   <TSourceData = unknown, TLocalData = unknown>(
     props: DropTargetRootPropsWithRequiredAccept<TSourceData, TLocalData> &
       RequiredDropTargetPayload<TSourceData, TLocalData>,
@@ -218,16 +226,14 @@ type DropTargetRootPayloadField<TSourceData, TLocalData> = [TLocalData] extends 
 
 // Keyed on the payloads rather than on an `accept` value, so a wrapper's props stay
 // readable as `Props<Card, Slot>`.
-export type DropTargetRootProps<
-  TSourceData = unknown,
-  TLocalData = undefined,
-> = DropTargetRootPropsBase<TSourceData, TLocalData> &
+export type DropTargetRootProps<TSourceData = undefined, TLocalData = undefined> = Omit<
+  DropTargetRootPropsBase<TSourceData, TLocalData>,
+  'accept'
+> &
   DropTargetRootPayloadField<TSourceData, TLocalData> &
-  // Required here too, so a wrapper spreading `Props` into the component still
-  // satisfies it — the component's own overloads require `accept` (see
-  // `WithRequiredAccept`), and a wrapper that made it optional would push the
-  // error onto its callers' spread instead of onto its own declaration.
-  Required<Pick<RegisterDropTargetParameters<TSourceData, TLocalData>, 'accept'>>;
+  ([TSourceData, TLocalData] extends [undefined, undefined]
+    ? { accept?: DragAccept<TSourceData> | undefined }
+    : Required<Pick<RegisterDropTargetParameters<TSourceData, TLocalData>, 'accept'>>);
 
 /**
  * Props for a generic `Draggable.Target` wrapper whose local payload is always
@@ -240,7 +246,7 @@ export type DropTargetRootPropsWithPayload<TSourceData, TLocalData> =
 
 export namespace DropTargetRoot {
   export type State = DropTargetRootState;
-  export type Props<TSourceData = unknown, TLocalData = undefined> = DropTargetRootProps<
+  export type Props<TSourceData = undefined, TLocalData = undefined> = DropTargetRootProps<
     TSourceData,
     TLocalData
   >;

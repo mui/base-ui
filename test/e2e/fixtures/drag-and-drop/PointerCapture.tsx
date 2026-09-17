@@ -5,7 +5,7 @@ import { useDragMonitor } from '@base-ui/react/use-drag-monitor';
 
 const itemKind = Draggable.createKind('e2e-pointer-capture');
 
-export default function PointerCapture() {
+function PointerCaptureContent() {
   const [sourceMounted, setSourceMounted] = React.useState(true);
   const [captureCount, setCaptureCount] = React.useState(0);
   const [dropCount, setDropCount] = React.useState(0);
@@ -48,5 +48,13 @@ export default function PointerCapture() {
         {JSON.stringify({ sourceMounted, captureCount, dropCount, endCount })}
       </output>
     </div>
+  );
+}
+
+export default function PointerCapture() {
+  return (
+    <Draggable.Provider>
+      <PointerCaptureContent />
+    </Draggable.Provider>
   );
 }

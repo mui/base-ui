@@ -2,6 +2,7 @@
 import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useDraggableContext } from '../../draggable/DraggableContext';
 import { registerAutoScroller } from '../../utils/drag-and-drop/registrations';
 import { wakeAutoScroll } from '../../utils/drag-and-drop/autoScroller';
 import { sameAccept } from '../../utils/drag-and-drop/dragKind';
@@ -22,6 +23,7 @@ import { useRegistrationRef } from '../../utils/drag-and-drop/useRegistrationRef
 export function useDragAutoScrollElement<TSourceData = unknown>(
   parameters: UseDragAutoScrollElementParameters<TSourceData>,
 ): UseDragAutoScrollElementReturnValue {
+  useDraggableContext();
   const getParameters = useStableCallback(
     () => parameters as RegisterAutoScrollerParameters<unknown>,
   );

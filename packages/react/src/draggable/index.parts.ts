@@ -1,7 +1,7 @@
 export { DraggableRoot as Root } from './root/DraggableRoot';
 export { DraggableHandle as Handle } from './handle/DraggableHandle';
 export { DraggablePreview as Preview } from './preview/DraggablePreview';
-export { DraggablePreviewProvider as PreviewProvider } from './preview-provider/DraggablePreviewProvider';
+export { DraggableProvider as Provider } from './DraggableProvider';
 
 export { useDraggableActiveDrag as useActiveDrag } from './use-active-drag';
 

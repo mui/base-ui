@@ -1255,9 +1255,9 @@ function BookmarkDialog({
 
 export default function FakeBrowserExperiment() {
   return (
-    <Draggable.PreviewProvider>
+    <Draggable.Provider>
       <BookmarkBar />
-    </Draggable.PreviewProvider>
+    </Draggable.Provider>
   );
 }
 

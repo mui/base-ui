@@ -40,7 +40,7 @@ function ShapePiece({
   );
 }
 
-export default function EngineShapeSorter() {
+function EngineShapeSorterContent() {
   // @highlight-start
   const manager = Draggable.useDragDropManager();
   // @highlight-end
@@ -155,5 +155,13 @@ export default function EngineShapeSorter() {
         })}
       </div>
     </div>
+  );
+}
+
+export default function EngineShapeSorter() {
+  return (
+    <Draggable.Provider>
+      <EngineShapeSorterContent />
+    </Draggable.Provider>
   );
 }

@@ -37,7 +37,7 @@ function ShapePiece({ shape }: { shape: Shape }) {
   );
 }
 
-export default function MonitorShapeSorter() {
+function MonitorShapeSorterContent() {
   const [placed, setPlaced] = React.useState<ShapeId[]>([]);
   const [message, setMessage] = React.useState(IDLE_MESSAGE);
 
@@ -134,5 +134,13 @@ export default function MonitorShapeSorter() {
         <span className="min-w-0 truncate text-neutral-500 dark:text-neutral-400">{message}</span>
       </div>
     </div>
+  );
+}
+
+export default function MonitorShapeSorter() {
+  return (
+    <Draggable.Provider>
+      <MonitorShapeSorterContent />
+    </Draggable.Provider>
   );
 }

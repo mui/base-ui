@@ -24,14 +24,23 @@ Import the component and assemble its parts:
 ```jsx title="Anatomy"
 import { Draggable } from '@base-ui/react/draggable';
 
-const itemKind = Draggable.createKind('item');
-
-<Draggable.Root kind={itemKind}>
-  <Draggable.Handle />
-</Draggable.Root>;
+<Draggable.Provider>
+  <Draggable.Root>
+    <Draggable.Handle />
+  </Draggable.Root>
+  <Draggable.Target />
+</Draggable.Provider>;
 ```
 
 A root supports one preview part. Omit it to use a sanitized clone of the source. Render `Draggable.Preview` without children to configure the clone, or provide children for custom content. If multiple previews are present, Base UI warns in development and uses the last one mounted.
+
+## Provider
+
+Wrap drag sources, targets, viewports, and components calling `useDragMonitor` or `useDragDropManager` in `Draggable.Provider`. The provider renders no DOM element. It supplies a default no-payload kind and the React boundary used by custom previews. Subsequent examples assume this provider is already present.
+
+Omit `kind` and `accept` for a simple interaction within one provider. Each provider has its own default kind. Nested or separate providers do not match each other's default kinds; use an explicit shared kind for cross-provider interactions. The drag manager itself remains page-wide. `useActiveDrag` reads this global state and can be used outside a provider.
+
+Place the provider below any React contexts the custom preview needs, and above the component calling a drag hook. A provider returned by that same component cannot supply context to its own hooks.
 
 ## Pass data along
 
@@ -341,7 +350,7 @@ function Widget({ id, title, value }) {
 }
 ```
 
-Custom content requires a [`Draggable.PreviewProvider`](/react/utils/draggable#setup). It stays mounted if virtualization or reordering unmounts the source during a drag. The preview receives React context from above its nearest preview provider, while its DOM element sits beside the source by default.
+Custom content requires a [`Draggable.Provider`](/react/utils/draggable#provider). It stays mounted if virtualization or reordering unmounts the source during a drag. The preview receives React context from above its nearest preview provider, while its DOM element sits beside the source by default.
 
 Pass a function as the children to build the preview from the dragged item's data. To match the source size, use the `--drag-source-width` and `--drag-source-height` CSS variables. See [Sizing a custom preview](/react/utils/draggable#sizing-a-custom-preview).
 
@@ -366,7 +375,7 @@ You only need this part to configure the clone. Style the clone with `[data-drag
 
 ### Drag without a preview
 
-Use `disabled` on a preview part when nothing should follow the pointer. The drag still runs, so targets receive drag state and the drop can complete. This is useful for a canvas that draws its own drag feedback. `Draggable.Preview` needs no preview provider, even when disabled.
+Use `disabled` on a preview part when nothing should follow the pointer. The drag still runs, so targets receive drag state and the drop can complete. This is useful for a canvas that draws its own drag feedback. `Draggable.Root` still requires `Draggable.Provider`, including when its preview is disabled.
 
 ```tsx title="Dragging without a preview"
 <Draggable.Root kind={shape} payload={id}>
@@ -420,12 +429,12 @@ To avoid both, pass `container` to inject the preview elsewhere. It accepts an e
 <Draggable.Preview container={(source) => source.closest('.Board')}>{label}</Draggable.Preview>
 ```
 
-Set `container` on `Draggable.PreviewProvider` to share a container across its sources. A preview's own `container` takes precedence:
+Set `container` on `Draggable.Provider` to share a container across its sources. A preview's own `container` takes precedence:
 
 ```tsx title="One container for the whole board"
-<Draggable.PreviewProvider container={boardRef}>
+<Draggable.Provider container={boardRef}>
   <Board ref={boardRef} />
-</Draggable.PreviewProvider>
+</Draggable.Provider>
 ```
 
 Prefer the closest suitable container. The preview no longer has the source's ancestors, so selectors such as `.Column .Card` stop matching. A nearby themed wrapper preserves more of the cascade than a container near the document root. Rules based on the preview's own classes still apply. Its DOM container does not affect React context.
@@ -456,7 +465,7 @@ Each `createKind` call returns a value with a unique identity. Declare it once a
 
 If independently evaluated bundles cannot share the same value, use `Draggable.createGlobalKind<Card>('myapp/card')`. The same global key identifies the same kind across bundles and hot reloads. Prefix the key with your app or package name and use one payload type for that key. Incompatible types under the same key can match at runtime despite TypeScript's checks. Prefer `createKind` when you can share its returned value.
 
-Every source and target on the page uses the same **drag manager**, with no provider required. The required `accept` prop prevents unrelated interactions from matching. Use `Draggable.anyKind` to accept every drag. `Draggable.PreviewProvider` does not scope a drag. It provides the React tree where custom previews render.
+Every source and target on the page uses the same **drag manager**. `Draggable.Provider` supplies a local default kind and preview boundary; it does not isolate the manager. An omitted `accept` matches only that provider's default kind. Declare a shared kind for interactions spanning providers, or use `Draggable.anyKind` to accept every drag.
 
 Base UI tracks pointer input to implement **synthetic drag and drop**. These drags have no `dataTransfer` and stay within the page. To accept files dragged from the operating system, handle native drops by [passing native handlers through `render`](/react/utils/draggable#anatomy).
 
@@ -1305,9 +1314,9 @@ import { TypesDraggable, TypesDraggableAdditional } from './types';
 
 <TypesDraggable.Preview hideDescription />
 
-### PreviewProvider
+### Provider
 
-<TypesDraggable.PreviewProvider hideDescription />
+<TypesDraggable.Provider hideDescription />
 
 ### Target
 
@@ -1496,7 +1505,7 @@ Base UI checks `disabled` and `dragHandle` before starting a drag. The getter's
 
 Base UI evaluates a monitor's `accept` once when it joins a drag. A monitor whose `accept` excludes a drag ignores it until it ends. A monitor registered during a drag is matched against the drag already in progress.
 
-Base UI reads the nearest `Draggable.PreviewProvider` where `useDragDropManager` is called. Put that provider above the component that calls the hook, regardless of where the registered elements render.
+Base UI reads the nearest `Draggable.Provider` where `useDragDropManager` is called. Put that provider above the component that calls the hook, regardless of where the registered elements render.
 
 ### Draggables
 
@@ -1531,7 +1540,7 @@ manager.registerDraggable(element, () => ({
 }));
 ```
 
-Providing `render` requires a [`Draggable.PreviewProvider`](/react/utils/draggable#setup) above the component that calls the hook. Base UI throws an error if the provider is missing. A source that uses the default clone needs no provider.
+Providing `render` requires a [`Draggable.Provider`](/react/utils/draggable#provider) above the component that calls the hook. Base UI throws an error if the provider is missing. The hook requires the provider even for sources using the default clone.
 
 ### Drop targets
 

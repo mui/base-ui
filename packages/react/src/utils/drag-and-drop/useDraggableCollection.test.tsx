@@ -2,6 +2,7 @@ import * as React from 'react';
 import { describe, it, expect, vi } from 'vitest';
 import { fireEvent, renderHook } from '@testing-library/react';
 import { act } from '@mui/internal-test-utils';
+import { DraggableProvider } from '../../draggable/DraggableProvider';
 import { installDndPolyfill } from '../../../test/dndPolyfill';
 import {
   createElement,
@@ -50,7 +51,7 @@ function setupPlainDraggable(
   element: HTMLElement,
   parameters: { kind: DragKind<any>; payload?: unknown },
 ) {
-  const { result } = renderHook(() => useInnerDragEngine());
+  const { result } = renderHook(() => useInnerDragEngine(), { wrapper: DraggableProvider });
   registerCleanup(result.current.registerDraggable(element, () => parameters));
 }
 
