@@ -74,7 +74,7 @@ describe('Draggable enum sync', () => {
   it('names the source ending attribute per DraggableRootDataAttributes', async () => {
     const { engine } = await renderDnd(
       <Draggable.Root kind={testDragKind} data-testid="drag">
-        <Draggable.ClonedPreview />
+        <Draggable.Preview />
       </Draggable.Root>,
     );
     const source = screen.getByTestId('drag');

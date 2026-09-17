@@ -3,7 +3,6 @@ export * as Draggable from './index.parts';
 export type * from './root/DraggableRoot';
 export type * from './handle/DraggableHandle';
 export type * from './preview/DraggablePreview';
-export type * from './preview/DraggableClonedPreview';
 export type * from './preview-provider/DraggablePreviewProvider';
 export type { UseDraggableActiveDragReturnValue } from './use-active-drag';
 
@@ -13,7 +12,7 @@ export type { UseDraggableActiveDragReturnValue } from './use-active-drag';
 // same declarations, so the star exports stay unambiguous).
 export type {
   BaseDragEvent,
-  BeforeDragStartEventDetails,
+  BeforeMoveStartEventDetails,
   DraggablePayload,
   DraggablePayloadGetter,
   DragAccept,
@@ -25,23 +24,23 @@ export type {
   DragDropEvent,
   DragDropEventDetails,
   DragDropReason,
-  DragEndEvent,
-  DragEndEventDetails,
+  MoveEndEvent,
+  MoveEndEventDetails,
   DragEndReason,
   DragCanceledReason,
   DragCompletedReason,
   DragEventDetails,
-  DragEventDetailsMap,
+  DraggableEventDetailsMap,
   DragHandle,
   DragInput,
   DragLocalPoint,
   DragLocation,
   DragLocationHistory,
-  DragEventMap,
-  DragMoveEvent,
+  DraggableEventMap,
+  MoveEvent,
   DragMoveReason,
-  DragMoveEventDetails,
-  DragStartEventDetails,
+  MoveEventDetails,
+  MoveStartEventDetails,
   DropTargetChangeEventDetails,
   DragPosition,
   DragPreviewContainer,
@@ -52,11 +51,24 @@ export type {
   DragSnappedLocalPointOptions,
   DragSnapSteps,
   DragSource,
-  DragStartContext,
-  DragStartEvent,
+  MoveStartContext,
+  MoveStartEvent,
   DropTargetChangeEvent,
   DropTargetRecord,
   DragPointerType,
   DragPreviewOffsetParameters,
 } from '../types/drag';
 export type { DragActivation, DragActivationConfig } from '../utils/drag-and-drop/activation';
+
+export type {
+  DropTargetEvent,
+  DropTargetEventMap,
+  DropTargetEventDetailsMap,
+  DropEvent,
+  DropTargetEventTarget,
+} from '../types/drag';
+
+export type * from '../drop-target/root/DropTargetRoot';
+export type * from '../drag-auto-scroll/root/DragAutoScrollRoot';
+export type { UseDragMonitorParameters } from '../use-drag-monitor/useDragMonitor';
+export type { UseDragDropManagerReturnValue } from '../use-drag-drop-manager/useDragDropManager';

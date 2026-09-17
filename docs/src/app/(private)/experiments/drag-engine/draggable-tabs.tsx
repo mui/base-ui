@@ -1,16 +1,18 @@
 'use client';
+import {
+  Draggable,
+  type BeforeMoveStartEventDetails,
+  type DragKind,
+  type MoveStartContext,
+  type DropTargetEvent,
+} from '@base-ui/react/draggable';
+
 import * as React from 'react';
 import clsx from 'clsx';
 import { Tabs } from '@base-ui/react/tabs';
-import { DragAutoScroll } from '@base-ui/react/drag-auto-scroll';
+
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import {
-  Draggable,
-  type BeforeDragStartEventDetails,
-  type DragKind,
-  type DragStartContext,
-} from '@base-ui/react/draggable';
-import { DropTarget, type DropTargetEvent } from '@base-ui/react/drop-target';
+
 import theme from './theme.module.css';
 import styles from './draggable-tabs.module.css';
 
@@ -70,9 +72,9 @@ interface DraggableTabProps {
   draggable: boolean;
   closable: boolean;
   onDragOverTab: (draggedId: string, overId: string, movingRight: boolean) => void;
-  onDragStart: () => void;
+  onMoveStart: () => void;
   onDrop: () => void;
-  onDragEnd: () => void;
+  onMoveEnd: () => void;
   onSelect?: ((id: string) => void) | undefined;
   onClose?: ((id: string) => void) | undefined;
   onKeyboardMove: (id: string, offset: -1 | 1) => void;
@@ -86,16 +88,16 @@ function DraggableTab(props: DraggableTabProps) {
     draggable,
     closable,
     onDragOverTab,
-    onDragStart,
+    onMoveStart,
     onDrop,
-    onDragEnd,
+    onMoveEnd,
     onSelect,
     onClose,
     onKeyboardMove,
   } = props;
 
   const handleBeforeDragStart = useStableCallback(
-    (_context: DragStartContext, eventDetails: BeforeDragStartEventDetails) => {
+    (_context: MoveStartContext, eventDetails: BeforeMoveStartEventDetails) => {
       if (eventDetails.trigger?.closest('[data-close-tab]')) {
         eventDetails.cancel();
         return;
@@ -104,10 +106,10 @@ function DraggableTab(props: DraggableTabProps) {
     },
   );
 
-  const handleDrag = useStableCallback((event: DropTargetEvent<'onDrag', string>) => {
+  const handleDrag = useStableCallback((event: DropTargetEvent<'onDraggableMove', string>) => {
     // Resolve from the tab's midpoint. During auto-scroll, tabs move under a
     // stationary pointer, so pointer travel does not describe the insertion side.
-    onDragOverTab(event.source.payload, item.id, event.self.getLocalPoint().x > 0.5);
+    onDragOverTab(event.source.payload, item.id, event.target.getLocalPoint().x > 0.5);
   });
 
   const handleClosePointerDown = useStableCallback((event: React.PointerEvent) => {
@@ -149,17 +151,17 @@ function DraggableTab(props: DraggableTabProps) {
           // Enter and Space stay with Tabs. Alt+Arrow provides the equivalent
           // keyboard reorder action without taking over tab selection.
 
-          pointerActivation={{ mouse: { type: 'distance', distance: 5 } }}
+          activation={{ mouse: { type: 'distance', distance: 5 } }}
           modifiers={Draggable.restrictToHorizontalAxis}
-          onBeforeDragStart={handleBeforeDragStart}
-          onDragStart={onDragStart}
+          onBeforeMoveStart={handleBeforeDragStart}
+          onMoveStart={onMoveStart}
           onDrop={onDrop}
-          onDragEnd={onDragEnd}
+          onMoveEnd={onMoveEnd}
           render={
-            <DropTarget.Root
+            <Draggable.Target
               accept={kind}
               trackDragOver={false}
-              onDrag={handleDrag}
+              onDraggableMove={handleDrag}
               render={
                 <button
                   type="button"
@@ -193,7 +195,7 @@ function DraggableTab(props: DraggableTabProps) {
       )}
       {/* Constrain only the clone. The pointer must remain free so leaving the
           list can still cancel, while the preview settles back inside it. */}
-      <Draggable.ClonedPreview modifiers={Draggable.restrictToElement(listRef)} />
+      <Draggable.Preview modifiers={Draggable.restrictToElement(listRef)} />
     </Tabs.Tab>
   );
 }
@@ -285,10 +287,10 @@ function SortableTabs(props: SortableTabsProps) {
         className={styles.tabList}
         activateOnFocus
         render={
-          <DropTarget.Root
+          <Draggable.Target
             accept={kind}
             trackDragOver={false}
-            render={<DragAutoScroll.Root allowedAxis="horizontal" />}
+            render={<Draggable.Viewport allowedAxis="horizontal" />}
           />
         }
       >
@@ -301,9 +303,9 @@ function SortableTabs(props: SortableTabsProps) {
             draggable={item.id !== disabledDragId}
             closable={closable}
             onDragOverTab={handleDragOverTab}
-            onDragStart={handleDragStart}
+            onMoveStart={handleDragStart}
             onDrop={handleDrop}
-            onDragEnd={handleDragEnd}
+            onMoveEnd={handleDragEnd}
             onSelect={controlled ? onValueChange : undefined}
             onClose={onClose}
             onKeyboardMove={handleKeyboardMove}

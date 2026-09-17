@@ -1,17 +1,16 @@
 'use client';
+import { Draggable } from '@base-ui/react/draggable';
+
 import * as React from 'react';
 import clsx from 'clsx';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import { DragAutoScroll } from '@base-ui/react/drag-auto-scroll';
-import { Draggable } from '@base-ui/react/draggable';
-import { DropTarget } from '@base-ui/react/drop-target';
-import { useDragMonitor } from '@base-ui/react/use-drag-monitor';
+
 import { SettingsMetadata, useExperimentSettings } from '../_components/SettingsPanel';
 import theme from './theme.module.css';
 import styles from './infinite-canvas.module.css';
 
 // An infinite canvas: the camera is a CSS `transform` on the content layer, and
-// nothing in the tree has a scroll offset. This is the case `DragAutoScroll.Root`
+// nothing in the tree has a scroll offset. This is the case `Draggable.Viewport`
 // covers through `applyScroll` — the engine finds the edge and reports the delta,
 // the canvas applies it to its own camera.
 //
@@ -121,14 +120,14 @@ export default function InfiniteCanvas() {
     setPainted({ x: -matrix.m41, y: -matrix.m42 });
   });
 
-  useDragMonitor({
+  Draggable.useDragMonitor({
     accept: noteKind,
-    onDrag: sampleParked,
-    onDropTargetChange: ({ location }) => {
+    onMove: sampleParked,
+    onTargetChange: ({ location }) => {
       const innermost = location.current.dropTargets[0];
       setHovered(innermost?.element.getAttribute('data-bin-label') ?? '—');
     },
-    onDragEnd: () => {
+    onMoveEnd: () => {
       setHovered('—');
       sampleParked();
     },
@@ -171,7 +170,7 @@ export default function InfiniteCanvas() {
         </button>
       </div>
 
-      <DragAutoScroll.Root
+      <Draggable.Viewport
         accept={noteKind}
         applyScroll={applyScroll}
         className={styles.viewport}
@@ -179,19 +178,19 @@ export default function InfiniteCanvas() {
       >
         <div ref={contentRef} className={styles.content} style={contentStyle}>
           {BINS.map((bin) => (
-            <DropTarget.Root
+            <Draggable.Target
               key={bin.id}
               accept={noteKind}
               data-bin-label={bin.label}
               className={styles.bin}
               style={{ left: bin.x, top: bin.y }}
-              onDrop={({ source }) => {
+              onDraggableDrop={({ source }) => {
                 setLastDrop(`${source.payload} → ${bin.label}`);
                 setNotes((previous) => previous.filter((note) => note.id !== source.payload));
               }}
             >
               {bin.label}
-            </DropTarget.Root>
+            </Draggable.Target>
           ))}
 
           {notes.map((note) => (
@@ -202,10 +201,10 @@ export default function InfiniteCanvas() {
               role="button"
               className={styles.note}
               style={{ left: note.x, top: note.y }}
-              onDragStart={() => {
+              onMoveStart={() => {
                 dragStartCameraRef.current = cameraRef.current;
               }}
-              onDragEnd={({ location, canceled, dropTarget }) => {
+              onMoveEnd={({ location, canceled, dropTarget }) => {
                 if (canceled || dropTarget) {
                   return;
                 }
@@ -229,7 +228,7 @@ export default function InfiniteCanvas() {
             </Draggable.Root>
           ))}
         </div>
-      </DragAutoScroll.Root>
+      </Draggable.Viewport>
     </div>
   );
 }

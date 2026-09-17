@@ -11,7 +11,7 @@ import { useDraggableRootContext } from '../root/DraggableRootContext';
  * interactive. Omit it to make the whole source draggable.
  * Renders a `<span>` element.
  *
- * Documentation: [Base UI Draggable](https://base-ui.com/react/components/draggable)
+ * Documentation: [Base UI Draggable](https://base-ui.com/react/utils/draggable)
  */
 export const DraggableHandle = React.forwardRef(function DraggableHandle(
   componentProps: DraggableHandle.Props,

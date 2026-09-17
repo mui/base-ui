@@ -19,7 +19,7 @@ export default function PointerCapture() {
 
   useDragMonitor({
     accept: itemKind,
-    onDragEnd: () => setEndCount((count) => count + 1),
+    onMoveEnd: () => setEndCount((count) => count + 1),
   });
 
   return (
@@ -29,7 +29,7 @@ export default function PointerCapture() {
           <Draggable.Root
             data-testid="drag-source"
             kind={itemKind}
-            onDragStart={() => setSourceMounted(false)}
+            onMoveStart={() => setSourceMounted(false)}
             style={{ width: 120, height: 60, background: 'lightgray' }}
           >
             Drag
@@ -39,7 +39,7 @@ export default function PointerCapture() {
       <DropTarget.Root
         data-testid="drop-target"
         accept={itemKind}
-        onDrop={() => setDropCount((count) => count + 1)}
+        onDraggableDrop={() => setDropCount((count) => count + 1)}
         style={{ width: 120, height: 60, background: 'lightblue' }}
       >
         Drop

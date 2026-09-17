@@ -1,9 +1,10 @@
 'use client';
+import { Draggable } from '@base-ui/react/draggable';
+
 import * as React from 'react';
 import clsx from 'clsx';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import { Draggable } from '@base-ui/react/draggable';
-import { useDragMonitor } from '@base-ui/react/use-drag-monitor';
+
 import theme from './theme.module.css';
 import styles from './kanban-snap.module.css';
 
@@ -211,17 +212,17 @@ export default function KanbanSnap() {
     },
   );
 
-  useDragMonitor({
+  Draggable.useDragMonitor({
     accept: cardKind,
-    onDragStart: ({ location }) => {
+    onMoveStart: ({ location }) => {
       const { clientX, clientY } = location.current.input;
       setIndicator(computeIndicator(clientX, clientY, columnElementsRef.current));
     },
-    onDrag: ({ location }) => {
+    onMove: ({ location }) => {
       const { clientX, clientY } = location.current.input;
       setIndicator(computeIndicator(clientX, clientY, columnElementsRef.current));
     },
-    onDragEnd: ({ source, location, canceled }) => {
+    onMoveEnd: ({ source, location, canceled }) => {
       if (!canceled) {
         const { clientX, clientY } = location.current.input;
         const drop = computeIndicator(clientX, clientY, columnElementsRef.current);
@@ -322,7 +323,7 @@ function DraggableCard({
       {card.title}
       {/* Constrain the preview to the board container: drag past an edge and the
           preview pins to it instead of trailing off the board. */}
-      <Draggable.ClonedPreview modifiers={Draggable.restrictToElement(boundaryRef)} />
+      <Draggable.Preview modifiers={Draggable.restrictToElement(boundaryRef)} />
     </Draggable.Root>
   );
 }

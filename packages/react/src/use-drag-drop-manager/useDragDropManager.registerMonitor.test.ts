@@ -12,18 +12,18 @@ const columnKind = Draggable.createKind('column');
 describe('engine.registerMonitor', () => {
   const { renderDnd } = createDndRenderer();
 
-  it('monitor receives onDragStart during a drag', async () => {
+  it('monitor receives onMoveStart during a drag', async () => {
     const { engine } = await renderDnd();
     const el = createElement();
-    const onDragStart = vi.fn();
+    const onMoveStart = vi.fn();
     engine.registerDraggable(el, { kind: cardKind });
-    engine.registerMonitor({ onDragStart });
+    engine.registerMonitor({ onMoveStart });
 
     fireEvent.dragStart(el);
     await flushRaf();
 
-    expect(onDragStart).toHaveBeenCalledTimes(1);
-    expect(onDragStart).toHaveBeenCalledWith(
+    expect(onMoveStart).toHaveBeenCalledTimes(1);
+    expect(onMoveStart).toHaveBeenCalledWith(
       expect.objectContaining({
         source: expect.objectContaining({ element: el }),
       }),
@@ -31,34 +31,34 @@ describe('engine.registerMonitor', () => {
     );
   });
 
-  it('monitor receives onDragEnd when drop occurs', async () => {
+  it('monitor receives onMoveEnd when drop occurs', async () => {
     const { engine } = await renderDnd();
     const el = createElement();
-    const onDragEnd = vi.fn();
+    const onMoveEnd = vi.fn();
     engine.registerDraggable(el, { kind: cardKind });
-    engine.registerMonitor({ onDragEnd });
+    engine.registerMonitor({ onMoveEnd });
 
     fireEvent.dragStart(el);
     await flushRaf();
     fireEvent.drop(el);
 
-    expect(onDragEnd).toHaveBeenCalledTimes(1);
+    expect(onMoveEnd).toHaveBeenCalledTimes(1);
   });
 
-  it('monitor onDragEnd fires with empty dropTargets when the drag ends outside any target', async () => {
+  it('monitor onMoveEnd fires with empty dropTargets when the drag ends outside any target', async () => {
     const { engine } = await renderDnd();
     const el = createElement();
-    const onDragEnd = vi.fn();
+    const onMoveEnd = vi.fn();
     engine.registerDraggable(el, { kind: cardKind });
-    engine.registerMonitor({ onDragEnd });
+    engine.registerMonitor({ onMoveEnd });
 
     fireEvent.dragStart(el);
     await flushRaf();
     // End the drag without ever entering a drop target (cancel / no-target).
     fireEvent.dragEnd(el);
 
-    expect(onDragEnd).toHaveBeenCalledTimes(1);
-    const payload = onDragEnd.mock.calls[0][0];
+    expect(onMoveEnd).toHaveBeenCalledTimes(1);
+    const payload = onMoveEnd.mock.calls[0][0];
     expect(payload.location.current.dropTargets).toEqual([]);
     // A `dragend` with no preceding `drop` is a cancel (see the test bridge), so
     // `canceled` is `true` — handlers rely on it instead of inspecting
@@ -71,11 +71,11 @@ describe('engine.registerMonitor', () => {
     const { engine } = await renderDnd();
     const cardEl = createElement();
     const columnEl = createElement();
-    const onDragStart = vi.fn();
+    const onMoveStart = vi.fn();
 
     engine.registerDraggable(cardEl, { kind: cardKind });
     engine.registerDraggable(columnEl, { kind: columnKind });
-    engine.registerMonitor({ accept: cardKind, onDragStart });
+    engine.registerMonitor({ accept: cardKind, onMoveStart });
 
     fireEvent.dragStart(cardEl);
     await flushRaf();
@@ -85,8 +85,8 @@ describe('engine.registerMonitor', () => {
     await flushRaf();
     fireEvent.drop(columnEl);
 
-    expect(onDragStart).toHaveBeenCalledTimes(1);
-    expect(onDragStart).toHaveBeenCalledWith(
+    expect(onMoveStart).toHaveBeenCalledTimes(1);
+    expect(onMoveStart).toHaveBeenCalledWith(
       expect.objectContaining({
         source: expect.objectContaining({ kind: cardKind.id }),
       }),
@@ -98,11 +98,11 @@ describe('engine.registerMonitor', () => {
     const { engine } = await renderDnd();
     const cardEl = createElement();
     const columnEl = createElement();
-    const onDragStart = vi.fn();
+    const onMoveStart = vi.fn();
 
     engine.registerDraggable(cardEl, { kind: cardKind });
     engine.registerDraggable(columnEl, { kind: columnKind });
-    engine.registerMonitor({ onDragStart });
+    engine.registerMonitor({ onMoveStart });
 
     fireEvent.dragStart(cardEl);
     await flushRaf();
@@ -112,25 +112,25 @@ describe('engine.registerMonitor', () => {
     await flushRaf();
     fireEvent.drop(columnEl);
 
-    expect(onDragStart).toHaveBeenCalledTimes(2);
+    expect(onMoveStart).toHaveBeenCalledTimes(2);
   });
 
   it('cleanup during drag stops further events', async () => {
     const { engine } = await renderDnd();
     const el = createElement();
-    const onDragStart = vi.fn();
-    const onDragEnd = vi.fn();
+    const onMoveStart = vi.fn();
+    const onMoveEnd = vi.fn();
     engine.registerDraggable(el, {});
-    const cleanupMonitor = engine.registerMonitor({ onDragStart, onDragEnd });
+    const cleanupMonitor = engine.registerMonitor({ onMoveStart, onMoveEnd });
 
     fireEvent.dragStart(el);
     await flushRaf();
-    expect(onDragStart).toHaveBeenCalledTimes(1);
+    expect(onMoveStart).toHaveBeenCalledTimes(1);
 
     cleanupMonitor();
 
     fireEvent.drop(el);
-    expect(onDragEnd).not.toHaveBeenCalled();
+    expect(onMoveEnd).not.toHaveBeenCalled();
   });
 
   it('multiple monitors all receive same events', async () => {
@@ -139,8 +139,8 @@ describe('engine.registerMonitor', () => {
     const onDragStart1 = vi.fn();
     const onDragStart2 = vi.fn();
     engine.registerDraggable(el, { kind: cardKind });
-    engine.registerMonitor({ onDragStart: onDragStart1 });
-    engine.registerMonitor({ onDragStart: onDragStart2 });
+    engine.registerMonitor({ onMoveStart: onDragStart1 });
+    engine.registerMonitor({ onMoveStart: onDragStart2 });
 
     fireEvent.dragStart(el);
     await flushRaf();
@@ -157,11 +157,11 @@ describe('engine.registerMonitor', () => {
 
     engine.registerDraggable(el, { kind: cardKind });
     engine.registerMonitor({
-      onDragStart: () => {
+      onMoveStart: () => {
         cleanupMonitor2?.();
       },
     });
-    cleanupMonitor2 = engine.registerMonitor({ onDragStart: onDragStart2 });
+    cleanupMonitor2 = engine.registerMonitor({ onMoveStart: onDragStart2 });
 
     fireEvent.dragStart(el);
     await flushRaf();
@@ -169,24 +169,24 @@ describe('engine.registerMonitor', () => {
     expect(onDragStart2).not.toHaveBeenCalled();
   });
 
-  it('a monitor registered mid-drag joins it: no onDragStart, but onDrag/onDropTargetChange/onDragEnd', async () => {
+  it('a monitor registered mid-drag joins it: no onMoveStart, but onMove/onTargetChange/onMoveEnd', async () => {
     const { engine } = await renderDnd();
     const el = createElement();
     const target = createElement();
-    const onDragStart = vi.fn();
-    const onDrag = vi.fn();
-    const onDropTargetChange = vi.fn();
-    const onDragEnd = vi.fn();
+    const onMoveStart = vi.fn();
+    const onMove = vi.fn();
+    const onTargetChange = vi.fn();
+    const onMoveEnd = vi.fn();
     const onDrop = vi.fn();
 
     engine.registerDraggable(el, {});
     engine.registerDropTarget(target, {});
 
-    // Start the drag BEFORE the monitor exists — its onDragStart has already fired.
+    // Start the drag BEFORE the monitor exists — its onMoveStart has already fired.
     fireEvent.dragStart(el);
     await flushRaf();
 
-    engine.registerMonitor({ onDragStart, onDrag, onDropTargetChange, onDrop, onDragEnd });
+    engine.registerMonitor({ onMoveStart, onMove, onTargetChange, onDrop, onMoveEnd });
 
     // Subsequent events must reach the late monitor.
     fireEvent.dragEnter(target);
@@ -195,12 +195,12 @@ describe('engine.registerMonitor', () => {
     await flushRaf();
     fireEvent.drop(target);
 
-    // The monitor joined after onDragStart, so it never sees it...
-    expect(onDragStart).not.toHaveBeenCalled();
+    // The monitor joined after onMoveStart, so it never sees it...
+    expect(onMoveStart).not.toHaveBeenCalled();
     // ...but it observes the remainder of the drag.
-    expect(onDropTargetChange).toHaveBeenCalled();
-    expect(onDrag).toHaveBeenCalled();
-    expect(onDragEnd).toHaveBeenCalledTimes(1);
+    expect(onTargetChange).toHaveBeenCalled();
+    expect(onMove).toHaveBeenCalled();
+    expect(onMoveEnd).toHaveBeenCalledTimes(1);
     // `onDrop` firing is the committed-drop signal, so the end payload needs no
     // `canceled` / `dropTarget` reading to say the same thing.
     expect(onDrop).toHaveBeenCalledTimes(1);
@@ -210,7 +210,7 @@ describe('engine.registerMonitor', () => {
     const { engine } = await renderDnd();
     const cardEl = createElement();
     const target = createElement();
-    const onDragEnd = vi.fn();
+    const onMoveEnd = vi.fn();
 
     engine.registerDraggable(cardEl, { kind: cardKind });
     engine.registerDropTarget(target, {});
@@ -220,10 +220,10 @@ describe('engine.registerMonitor', () => {
 
     // Registered mid-drag with an `accept` that excludes the live source kind:
     // it must NOT join the in-progress 'card' drag.
-    engine.registerMonitor({ accept: columnKind, onDragEnd });
+    engine.registerMonitor({ accept: columnKind, onMoveEnd });
 
     fireEvent.drop(target);
-    expect(onDragEnd).not.toHaveBeenCalled();
+    expect(onMoveEnd).not.toHaveBeenCalled();
   });
 
   // The parameters *getter* itself is consumer-supplied through the imperative
@@ -239,11 +239,11 @@ describe('engine.registerMonitor', () => {
     const onDrop = vi.fn();
 
     engine.registerDraggable(el, {});
-    engine.registerDropTarget(target, { onDrop });
+    engine.registerDropTarget(target, { onDraggableDrop: onDrop });
     engine.registerMonitor(() => {
       throw new Error('monitor getter boom');
     });
-    engine.registerMonitor({ onDragStart: onDragStartSane, onDragEnd: onDragEndSane });
+    engine.registerMonitor({ onMoveStart: onDragStartSane, onMoveEnd: onDragEndSane });
 
     const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
     try {
@@ -275,9 +275,9 @@ describe('engine.registerMonitor', () => {
     const { engine } = await renderDnd();
     const el = createElement();
     const target = createElement();
-    const onDragEnd = vi.fn();
+    const onMoveEnd = vi.fn();
 
-    engine.registerDraggable(el, { onDragEnd });
+    engine.registerDraggable(el, { onMoveEnd });
     engine.registerDropTarget(target, {});
 
     fireEvent.dragStart(el);
@@ -293,7 +293,7 @@ describe('engine.registerMonitor', () => {
       expect(consoleError).toHaveBeenCalled();
 
       fireEvent.drop(target);
-      expect(onDragEnd).toHaveBeenCalledTimes(1);
+      expect(onMoveEnd).toHaveBeenCalledTimes(1);
     } finally {
       consoleError.mockRestore();
     }

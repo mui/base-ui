@@ -137,7 +137,7 @@ export class DraggableCollectionPlugin<
   private dragOriginatedHere = false;
 
   /**
-   * The dragged rows' border boxes, captured at pickup by `onBeforeDragStart`.
+   * The dragged rows' border boxes, captured at pickup by `onBeforeMoveStart`.
    * Read by `isSelfRootDrop`, which must not depend on live layout the drag's own
    * `[data-dragging]` styles are allowed to collapse.
    */
@@ -172,7 +172,7 @@ export class DraggableCollectionPlugin<
 
   /**
    * The drop position the hovered row's `canDrop` computed while the stack was
-   * resolved, handed to that row's `onDrag` in the same frame so the row is
+   * resolved, handed to that row's `onMove` in the same frame so the row is
    * measured once per frame rather than once per callback. Taken once: the
    * resolution always runs first and overwrites it, so a stale entry can never
    * outlive the frame that produced it.
@@ -264,7 +264,7 @@ export class DraggableCollectionPlugin<
 
     const monitor: RegisterMonitorParameters<IncomingSourceData<TItem>> = {
       accept: this.accept,
-      onDragStart: ({ source }) => {
+      onMoveStart: ({ source }) => {
         // Row `direction` is cached per drag; a locale switch between drags must
         // not keep resolving before/after against the old reading order.
         invalidateDirectionCache();
@@ -292,7 +292,7 @@ export class DraggableCollectionPlugin<
           });
         }
       },
-      onDragEnd: ({ source, location, dropTarget }) => {
+      onMoveEnd: ({ source, location, dropTarget }) => {
         const src = source.payload;
         const draggedItemIds = this.currentDraggedItemIds;
         const actualTargetData = dropTarget?.payload;
@@ -415,7 +415,7 @@ export class DraggableCollectionPlugin<
   refreshItems(): void {
     // Each sweep costs O(N)
     // consumer `canDrag` calls — during a drag, every hover-position render
-    // would otherwise pay it. Defer to drag end: the monitor's `onDragEnd`
+    // would otherwise pay it. Defer to drag end: the monitor's `onMoveEnd`
     // flushes (covering the actively dragged item, whose per-item refresh is
     // skipped mid-drag), and any later render retries too.
     if (dragSessionStore.getSnapshot() !== null) {
@@ -459,7 +459,7 @@ export class DraggableCollectionPlugin<
     // Only the innermost item drives the indicator. DOM-nested ancestors fire
     // too, but the drop commits against `dropTargets[0]`.
     const trackDropPosition = (
-      event: DropTargetEvent<'onDrag', IncomingSourceData<TItem>, DropTargetItemData>,
+      event: DropTargetEvent<'onDraggableMove', IncomingSourceData<TItem>, DropTargetItemData>,
     ) => {
       const { source, location } = event;
       if (location.current.dropTargets[0]?.element !== element) {
@@ -539,12 +539,12 @@ export class DraggableCollectionPlugin<
       accept: this.accept,
       payload: itemPayload,
       canDrop: itemCanDrop,
-      onDragEnter: trackDropPosition,
-      onDrag: trackDropPosition,
-      onDragLeave: () => {
+      onDraggableEnter: trackDropPosition,
+      onDraggableMove: trackDropPosition,
+      onDraggableLeave: () => {
         this.clearDropState();
       },
-      onDrop: ({ source, location }) => {
+      onDraggableDrop: ({ source, location }) => {
         this.handleDrop(location, source as DragSource<IncomingSourceData<TItem>>);
       },
     };
@@ -560,7 +560,7 @@ export class DraggableCollectionPlugin<
     this.itemIdsByElement.set(element, itemId);
 
     let pendingDraggedItemIds: Set<CollectionItemId> | null = null;
-    const onBeforeDragStart = () => {
+    const onBeforeMoveStart = () => {
       pendingDraggedItemIds = this.resolveDraggedItemIds(itemId);
       // Unioned with the grabbed row for the same reason `canDrop` checks it
       // separately: pruning can drop it from the set, and the self-drop
@@ -619,7 +619,7 @@ export class DraggableCollectionPlugin<
             // lands, which is the only moment the rows are guaranteed to still be
             // laid out — a consumer rule may legitimately `display: none` the
             // source. See `isSelfRootDrop`, which needs their footprints.
-            onBeforeDragStart,
+            onBeforeMoveStart,
             getPayload,
             // The collection owns its preview: it renders into the provider's
             // overlay, so it survives the dragged item reordering or unmounting.
@@ -697,7 +697,7 @@ export class DraggableCollectionPlugin<
     const trackRootDrop = ({
       source,
       location,
-    }: DropTargetEvent<'onDrag', IncomingSourceData<TItem>>) => {
+    }: DropTargetEvent<'onDraggableMove', IncomingSourceData<TItem>>) => {
       if (location.current.dropTargets[0]?.element !== element) {
         return;
       }
@@ -732,14 +732,14 @@ export class DraggableCollectionPlugin<
       },
       canDrop: ({ source }) =>
         this.config.canDropRoot?.(source as DragSource<unknown>) ?? this.config.onDrop != null,
-      onDragEnter: trackRootDrop,
-      onDrag: trackRootDrop,
-      onDragLeave: () => {
+      onDraggableEnter: trackRootDrop,
+      onDraggableMove: trackRootDrop,
+      onDraggableLeave: () => {
         if (this.rootDropActive) {
           this.clearDropState();
         }
       },
-      onDrop: ({ source, location }) => {
+      onDraggableDrop: ({ source, location }) => {
         const src = source.payload;
 
         // Ignore releases over the dragged rows.
@@ -940,7 +940,7 @@ export class DraggableCollectionPlugin<
     const src = source.payload;
     // A collection can join an already active drag, or become an eligible
     // destination after drag start. It can therefore receive `onDrop` without
-    // having received the monitor's `onDragStart`. Seed from the terminal event's
+    // having received the monitor's `onMoveStart`. Seed from the terminal event's
     // payload before committing rather than silently ignoring a valid drop.
     if (this.currentDraggedItemIds.size === 0 && src?.itemIds != null) {
       this.currentDraggedItemIds = new Set(src.itemIds);

@@ -12,7 +12,7 @@
  * The overview docs promise the opposite ("anything short of that stays a plain
  * click or tap"), which reads as: a completed drag is not a click.
  *
- * One shot, and self-healing: the listener removes itself on the first click, on
+ * One shot, and target-healing: the listener removes itself on the first click, on
  * the next `pointerdown`, or on a short timer if neither arrives (for example,
  * when a browser suppressed the click itself).
  * Leaving it armed would eat a genuine click.

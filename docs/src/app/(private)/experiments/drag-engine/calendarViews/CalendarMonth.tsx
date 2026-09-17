@@ -1,8 +1,9 @@
 'use client';
+import { Draggable } from '@base-ui/react/draggable';
+
 import * as React from 'react';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
-import { Draggable } from '@base-ui/react/draggable';
-import { DropTarget } from '@base-ui/react/drop-target';
+
 import {
   buildMonthGrid,
   calDayCellKind,
@@ -175,14 +176,14 @@ function MonthDayCell(props: { dayMs: number; monthStart: number }) {
       // Month cells accept all calendar drag kinds; `accept` declares them
       // once and the engine filters before any callback fires.
       render={
-        <DropTarget.Root
+        <Draggable.Target
           kind={calDayCellKind}
           accept={CAL_DRAG_KINDS}
           getPayload={(): DayCellDropData => ({
             dayMs: dayMsRef.current,
           })}
-          onDrag={({ source, self }) => {
-            const next = resolveDropPreview(source, self);
+          onDraggableMove={({ source, target }) => {
+            const next = resolveDropPreview(source, target);
             if (!next) {
               return;
             }
@@ -225,7 +226,7 @@ function MonthDayCell(props: { dayMs: number; monthStart: number }) {
       {/* Nothing should follow the pointer while dragging out a new event: the day
           cell is the drag source, and a clone of it would be an enormous preview.
           The in-grid drop preview already shows the range being created. */}
-      <Draggable.ClonedPreview disabled />
+      <Draggable.Preview disabled />
     </Draggable.Root>
   );
 }

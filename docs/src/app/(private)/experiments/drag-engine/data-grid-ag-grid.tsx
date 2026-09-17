@@ -1,11 +1,11 @@
 'use client';
+import { Draggable } from '@base-ui/react/draggable';
+
 import * as React from 'react';
 import clsx from 'clsx';
 import { Menu } from '@base-ui/react/menu';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import { DragAutoScroll } from '@base-ui/react/drag-auto-scroll';
-import { Draggable } from '@base-ui/react/draggable';
-import { DropTarget } from '@base-ui/react/drop-target';
+
 import theme from './theme.module.css';
 import styles from './data-grid-ag-grid.module.css';
 
@@ -202,10 +202,10 @@ function ColumnHeader({
   // The same header is also a drop target: the moment the dragged column crosses
   // this one's near edge, shift it into place (see `afterFromDirection`).
   return (
-    <DropTarget.Root
+    <Draggable.Target
       accept={columnKind}
       trackDragOver={false}
-      onDrag={({ source, location }) => {
+      onDraggableMove={({ source, location }) => {
         const draggedId = source.payload;
         if (draggedId === column.id) {
           return;
@@ -269,7 +269,7 @@ function ColumnHeader({
           </Menu.Positioner>
         </Menu.Portal>
       </Menu.Root>
-    </DropTarget.Root>
+    </Draggable.Target>
   );
 }
 
@@ -292,10 +292,10 @@ function GridRow({
   // As the dragged row crosses this one's near edge, shift it into place — the
   // same edge-commit direction logic as columns (see `afterFromDirection`).
   return (
-    <DropTarget.Root
+    <Draggable.Target
       accept={rowKind}
       trackDragOver={false}
-      onDrag={({ source, location }) => {
+      onDraggableMove={({ source, location }) => {
         const draggedId = source.payload;
         if (draggedId === row.id) {
           return;
@@ -341,7 +341,7 @@ function GridRow({
         ))}
         <div className={styles.columnSpacer} style={{ width: trailingWidth }} />
       </Draggable.Root>
-    </DropTarget.Root>
+    </Draggable.Target>
   );
 }
 
@@ -453,7 +453,7 @@ function DataGridInner() {
       </p>
 
       <div ref={gridRef} className={styles.grid} style={{ width: BODY_WIDTH }}>
-        <DragAutoScroll.Root
+        <Draggable.Viewport
           accept={[columnKind, rowKind]}
           // Auto-scroll only along the axis the active drag moves: a row drag
           // scrolls the viewport vertically, a column drag scrolls it
@@ -507,7 +507,7 @@ function DataGridInner() {
               ))}
             </div>
           </div>
-        </DragAutoScroll.Root>
+        </Draggable.Viewport>
       </div>
     </div>
   );

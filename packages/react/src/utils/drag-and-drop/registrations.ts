@@ -4,7 +4,7 @@
  * Deliberately their own module, separate from `DragEngineImpl`: a drop target,
  * a monitor or an auto-scroller needs none of the engine's preview wiring or
  * draggable static setup. Importing them from
- * here keeps `DropTarget.Root`, `DragAutoScroll.Root` and `useDragMonitor` off
+ * here keeps `Draggable.Target`, `Draggable.Viewport` and `useDragMonitor` off
  * that whole graph — the preview clone and pointer sensor — so an app that only
  * accepts drops pays for what it uses.
  *
@@ -36,7 +36,7 @@ import { onceCleanup } from './utils';
 // commit; re-resolving the stack per registration would be O(k) walks for one
 // visual change). Only a *hovered* target's unregister stays synchronous: its
 // refresh must run while the leaving target's registration is still readable,
-// so its `onDragLeave` can dispatch.
+// so its `onDraggableLeave` can dispatch.
 let dropTargetRefreshScheduled = false;
 function scheduleDropTargetRefresh(): void {
   if (dropTargetRefreshScheduled) {
@@ -79,15 +79,15 @@ export function registerDropTarget<TSourceData = unknown, TLocalData = unknown>(
           'A DropTarget declares `kind` but no `accept`, so it takes every drag on the page. ' +
             '`kind` is what this target is; `accept` is which sources it takes. ' +
             'Add `accept` with the kinds this target should receive, or drop `kind` if the target needs no identity of its own. ' +
-            'See https://base-ui.com/react/components/drop-target.',
+            'See https://base-ui.com/react/utils/draggable.',
         );
       } else {
         warn(
           'A DropTarget declares no `accept`, so it takes every drag on the page ' +
             'and hands foreign payloads to its handlers. ' +
             'Add `accept` with the kinds this target should receive, or ' +
-            '`accept={DropTarget.anyKind}` to accept every drag on purpose. ' +
-            'See https://base-ui.com/react/components/drop-target.',
+            '`accept={Draggable.anyKind}` to accept every drag on purpose. ' +
+            'See https://base-ui.com/react/utils/draggable.',
         );
       }
     }
@@ -103,7 +103,7 @@ export function registerDropTarget<TSourceData = unknown, TLocalData = unknown>(
   // one, so re-resolve to let this fresh target re-enter the stack.
   //
   // Not gated on `firstRegistration`: an element re-registering from inside its own
-  // `onDragLeave` keeps its existing entry, yet still needs the refresh to rejoin
+  // `onDraggableLeave` keeps its existing entry, yet still needs the refresh to rejoin
   // the stack before the next pointer update.
   if (isActive()) {
     scheduleDropTargetRefresh();
@@ -111,7 +111,7 @@ export function registerDropTarget<TSourceData = unknown, TLocalData = unknown>(
 
   return onceCleanup(() => {
     // A hovered element must re-resolve *synchronously* so reactive subscribers,
-    // such as `DropTarget.Root`'s `over` state, observe it leaving the stack. The
+    // such as `Draggable.Target`'s `over` state, observe it leaving the stack. The
     // registry entry is deleted only after the refresh, so the lifecycle can still
     // dispatch this target's leave events as it drops out.
     //
@@ -125,15 +125,15 @@ export function registerDropTarget<TSourceData = unknown, TLocalData = unknown>(
       // A `null` snapshot with an active drag is the `onGenerateDragPreview`
       // window: the session hasn't published yet, so membership can't be read.
       // Take the synchronous path with the registration held readable; the
-      // lifecycle queues the refresh until `onDragStart` has gone out, so the
+      // lifecycle queues the refresh until `onMoveStart` has gone out, so the
       // initial stack is still published and entered as resolved, and this
-      // target leaves it (with its `onDragLeave`) right after.
+      // target leaves it (with its `onDraggableLeave`) right after.
       //
       // Membership comes from `isHoveredDropTarget` — the lifecycle's own hover
       // bookkeeping, not the published snapshot: a target that entered and
       // unregistered within the same change round is already hovered but not yet
       // published, and the coalesced path would run after its registration is
-      // gone, losing the `onDragLeave` it is owed.
+      // gone, losing the `onDraggableLeave` it is owed.
       if (snapshot === null || isHoveredDropTarget(element)) {
         // Held readable across the delete below. The synchronous refresh usually
         // dispatches the leave right here, releasing it again immediately — but

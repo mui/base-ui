@@ -6,7 +6,7 @@ import type {
   DragAccept,
   DragSource,
   DragInput,
-  DragEventMap,
+  DraggableEventMap,
   DragLocationHistory,
 } from '../../types/drag';
 import { matchesAccept } from './dragKind';
@@ -54,7 +54,7 @@ const ELEMENT_NODE = 1;
 // re-enters the zone (see `engagementStart`). Documented on the auto-scroll page,
 // because a high `maxSpeed` reads as a crawl for this long and looks broken.
 const RAMP_UP_DURATION = 400;
-// Cap the per-frame delta so a stalled/paused rAF (long consumer `onDrag`, GC
+// Cap the per-frame delta so a stalled/paused rAF (long consumer `onMove`, GC
 // pause, throttled tab) can't produce one oversized `scrollBy` on resume.
 const MAX_FRAME_DELTA_MS = 64;
 
@@ -173,7 +173,7 @@ function refreshAutoScroll(): void {
  * Route one batch of observed mutations to the cheapest adequate response.
  *
  * Both observers watch whole subtrees, and most of what they see during a drag
- * has nothing to do with scroll containers: a consumer's `onDrag`-driven
+ * has nothing to do with scroll containers: a consumer's `onMove`-driven
  * re-render restyling a drop indicator, or a virtualizer swapping rows in and out
  * under an auto-scroll. Answering each with `refreshAutoScroll` discarded the
  * per-drag style caches and rebuilt the inferred chain (a `getComputedStyle`
@@ -616,7 +616,7 @@ function runScrollFrame(timestamp: number): void {
   const currentSource = state.currentSource;
 
   // A drag can end abnormally — a consumer callback throwing tears down the
-  // lifecycle via `clearActiveMonitors()` without ever dispatching `onDragEnd` to
+  // lifecycle via `clearActiveMonitors()` without ever dispatching `onMoveEnd` to
   // the scroll monitor, so `stopScrollLoop` never runs and this loop keeps
   // rescheduling itself (and scrolling) forever. Self-terminate the moment no
   // drag session is live.
@@ -669,7 +669,7 @@ function runScrollFrame(timestamp: number): void {
     state.chainAnchorParent = chainAnchorParent;
     state.chainSourceParent = sourceParent;
     // The per-drag overflow cache survives the fresh walk: a container restyled
-    // mid-drag (a collapsed section auto-expanding from `onDragEnter`) is caught
+    // mid-drag (a collapsed section auto-expanding from `onDraggableEnter`) is caught
     // by the mutation observer, whose refresh resets the cache, so only the new
     // leaf is measured here.
     observeChainMutations(chainAnchor, currentSource.element);
@@ -803,7 +803,7 @@ function runScrollFrame(timestamp: number): void {
               'so its parameters (including `disabled`) have no effect. ' +
               'Register the element whose own `overflow` clips the scrollable content, ' +
               'or pass `applyScroll` if the surface moves its content some other way. ' +
-              'See https://base-ui.com/react/components/drag-auto-scroll.',
+              'See https://base-ui.com/react/utils/draggable.',
           );
         }
       }
@@ -1167,7 +1167,7 @@ function clearInferredScrollers(): void {
 
 /**
  * Tear the loop down between tests. `reset()` clears the active monitors without
- * dispatching `onDragEnd`, so the scroll monitor never runs `stopScrollLoop` and
+ * dispatching `onMoveEnd`, so the scroll monitor never runs `stopScrollLoop` and
  * a still-engaged loop would keep calling `scrollBy` into the next test's
  * document — while `currentSource` pinned the previous test's detached DOM.
  */
@@ -1226,12 +1226,12 @@ function resolveProbePoint(
   return null;
 }
 
-// Re-seed the loop from any fresh drag input; shared by `onDrag` and
-// `onDropTargetChange`, which need identical handling.
+// Re-seed the loop from any fresh drag input; shared by `onMove` and
+// `onTargetChange`, which need identical handling.
 function refreshDragInput({
   location,
   source,
-}: DragEventMap['onDrag'] | DragEventMap['onDropTargetChange']): void {
+}: DraggableEventMap['onMove'] | DraggableEventMap['onTargetChange']): void {
   if (!state.enabled) {
     return;
   }
@@ -1259,10 +1259,10 @@ function getInnermostDropTargetElement(location: DragLocationHistory): Element |
 function startScrollSession({
   location,
   source,
-}: Pick<DragEventMap['onDragStart'], 'location' | 'source'>): void {
+}: Pick<DraggableEventMap['onMoveStart'], 'location' | 'source'>): void {
   // A drag that ended abnormally with the loop *parked* leaves `enabled` set
   // and the last input/source referenced: the loop's own no-session
-  // self-termination only runs when a frame fires. Clear that state before
+  // target-termination only runs when a frame fires. Clear that state before
   // this drag decides anything.
   stopScrollLoop();
   setDragInput(location, source);
@@ -1272,10 +1272,10 @@ function startScrollSession({
 // The engine-internal monitor that drives the scroll loop, registered from the
 // first auto-scroller registration.
 const SCROLL_MONITOR_PARAMS: RegisterMonitorParameters = {
-  onDragStart: startScrollSession,
-  onDrag: refreshDragInput,
-  onDropTargetChange: refreshDragInput,
-  onDragEnd: () => {
+  onMoveStart: startScrollSession,
+  onMove: refreshDragInput,
+  onTargetChange: refreshDragInput,
+  onMoveEnd: () => {
     stopScrollLoop();
   },
 };
@@ -1377,7 +1377,7 @@ interface AutoScrollerState {
   scrollWindow: Window | null;
   /**
    * Auto-scroll is armed for the current drag by the scroll monitor's
-   * `onDragStart`. Every other entry point (`wakeScrollLoop`, `refreshDragInput`)
+   * `onMoveStart`. Every other entry point (`wakeScrollLoop`, `refreshDragInput`)
    * reads this flag. Distinct from `scrollLoopRaf !== null`, which is
    * false while the loop is merely parked between edge engagements (see
    * `idleScrollLoop`).

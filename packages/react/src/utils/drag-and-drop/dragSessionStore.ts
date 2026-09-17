@@ -244,6 +244,7 @@ export function isDraggingElement(
  */
 export function cloneLocationHistory(location: DragLocationHistory): DragLocationHistory {
   return {
+    grabOffset: location.grabOffset ? { ...location.grabOffset } : undefined,
     initial: { input: location.initial.input, dropTargets: location.initial.dropTargets.slice() },
     current: { input: location.current.input, dropTargets: location.current.dropTargets.slice() },
     previous: {

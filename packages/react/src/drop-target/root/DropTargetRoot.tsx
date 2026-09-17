@@ -34,7 +34,7 @@ const stateAttributesMapping: StateAttributesMapping<DropTargetRootState> = {
  * Makes its element a drop target, so matching drag sources can be released on it.
  * Renders a `<div>` element.
  *
- * Documentation: [Base UI Drop Target](https://base-ui.com/react/components/drop-target)
+ * Documentation: [Base UI Drop Target](https://base-ui.com/react/utils/draggable)
  */
 export const DropTargetRoot = React.forwardRef(function DropTargetRoot<
   TSourceData = unknown,
@@ -65,12 +65,12 @@ export const DropTargetRoot = React.forwardRef(function DropTargetRoot<
     snap,
     trackDragOver,
     // Event handlers
-    onDragStart,
-    onDrag,
-    onDropTargetChange,
-    onDragEnter,
-    onDragLeave,
-    onDrop,
+    onDraggableStart,
+    onDraggableMove,
+    onTargetChange,
+    onDraggableEnter,
+    onDraggableLeave,
+    onDraggableDrop,
     // Props forwarded to the DOM element
     ...elementProps
   } = componentProps;
@@ -86,12 +86,12 @@ export const DropTargetRoot = React.forwardRef(function DropTargetRoot<
     getPayload,
     snap,
     trackDragOver,
-    onDragStart,
-    onDrag,
-    onDropTargetChange,
-    onDragEnter,
-    onDragLeave,
-    onDrop,
+    onDraggableStart,
+    onDraggableMove,
+    onTargetChange,
+    onDraggableEnter,
+    onDraggableLeave,
+    onDraggableDrop,
   } as UseDropTargetElementParameters;
 
   const { ref, dragOver, dragOverInnermost, rejected, accepting } = useDropTargetElement(params);
@@ -111,7 +111,7 @@ export const DropTargetRoot = React.forwardRef(function DropTargetRoot<
     stateAttributesMapping,
   });
   // Overloaded like `Draggable.Root` so a declared `TLocalData` can't omit `payload`
-  // and leave `self.payload` typed while the engine delivers `undefined`.
+  // and leave `target.payload` typed while the engine delivers `undefined`.
   // The fallback's local data is `undefined`, not `unknown`: `kind` is typed from it,
   // so a payload-carrying `kind={column}` with no `payload` is rejected here rather
   // than compiling with `column.matches(target)` narrowing to a payload that is
@@ -166,7 +166,7 @@ export interface DropTargetRootState {
   disabled: boolean;
 }
 
-// Every `DropTarget.Root` prop except its payload fields; the overloads and `Props` below
+// Every `Draggable.Target` prop except its payload fields; the overloads and `Props` below
 // each add it back with their own optionality. See `DraggableConfig.payload`.
 type DropTargetRootPropsBase<TSourceData, TLocalData> = Omit<
   BaseUIComponentProps<'div', DropTargetRootState>,
@@ -230,7 +230,7 @@ export type DropTargetRootProps<
   Required<Pick<RegisterDropTargetParameters<TSourceData, TLocalData>, 'accept'>>;
 
 /**
- * Props for a generic `DropTarget.Root` wrapper whose local payload is always
+ * Props for a generic `Draggable.Target` wrapper whose local payload is always
  * required. Use this alias when spreading props with unbound source and local
  * payload types into the root.
  */

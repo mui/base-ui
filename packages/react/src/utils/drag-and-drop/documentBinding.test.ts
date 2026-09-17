@@ -66,16 +66,16 @@ describe('documentBinding', () => {
     const { engine } = await renderDnd();
     const { doc } = createIframeRealm();
     const el = createIframeElement(doc);
-    const onDragStart = vi.fn();
-    engine.registerDraggable(el, { onDragStart });
+    const onMoveStart = vi.fn();
+    engine.registerDraggable(el, { onMoveStart });
 
     // Press, then move past the 5px mouse activation distance.
     dispatchPointer(el, 'pointerdown', 0, 0, { button: 0, buttons: 1 });
     dispatchPointer(el, 'pointermove', 6, 0, { button: -1, buttons: 1 });
     await flushRaf();
 
-    expect(onDragStart).toHaveBeenCalledTimes(1);
-    expect(onDragStart.mock.calls[0][0].source.element).toBe(el);
+    expect(onMoveStart).toHaveBeenCalledTimes(1);
+    expect(onMoveStart.mock.calls[0][0].source.element).toBe(el);
 
     dispatchPointer(el, 'pointerup', 6, 0, { button: 0, buttons: 0 });
     expect(dragSessionStore.getSnapshot()).toBeNull();

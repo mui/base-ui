@@ -5,18 +5,21 @@ import type { BaseUIComponentProps } from '../../internals/types';
 import type { DragKind, DragPreviewSettings, DragPreviewRenderEvent } from '../../types/drag';
 import { DraggablePreviewElement } from './DraggablePreviewElement';
 import { useDeclaredPreview } from './useDeclaredPreview';
-import { createDragPreviewHostElement } from '../../utils/drag-and-drop/synthetic/cloneDragPreview';
+import {
+  createClonedDragPreviewElement,
+  createDragPreviewHostElement,
+} from '../../utils/drag-and-drop/synthetic/cloneDragPreview';
 
 /**
- * Customizes what follows the pointer while the draggable is dragged, replacing
- * the default clone of the source.
+ * Customizes what follows the pointer while the draggable is dragged.
+ * Omit children to configure the default clone of the source.
  * Renders a `<div>` in the preview overlay; nothing is rendered where the component is written.
  *
  * The component renders no element in place. Its content renders in the nearest
- * required `Draggable.PreviewProvider` and is portaled into an element next to
+ * `Draggable.PreviewProvider`, required only for custom content, and is portaled into an element next to
  * the drag source, where the source's CSS can apply.
  *
- * Documentation: [Base UI Draggable](https://base-ui.com/react/components/draggable)
+ * Documentation: [Base UI Draggable](https://base-ui.com/react/utils/draggable)
  */
 export function DraggablePreview<TData>(props: DraggablePreviewTypedProps<TData>): React.ReactNode;
 export function DraggablePreview(props: DraggablePreviewProps): React.ReactNode;
@@ -49,8 +52,8 @@ export function DraggablePreview<TData = unknown>(
 
   useDeclaredPreview<TData>(
     getProps,
-    render,
-    createDragPreviewHostElement,
+    props.children === undefined ? null : render,
+    props.children === undefined ? createClonedDragPreviewElement : createDragPreviewHostElement,
     props.disabled === true,
   );
 
@@ -75,7 +78,7 @@ export interface DraggablePreviewProps
    */
   disabled?: boolean | undefined;
   /**
-   * The preview content. Pass a function to build it from the drag payload, which
+   * The preview content. Omit it to clone the source. Pass a function to build it from the drag payload, which
    * is resolved once at drag start. Its payload is `unknown` until a `kind` is
    * supplied through {@link DraggablePreviewTypedProps}.
    */

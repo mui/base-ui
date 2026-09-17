@@ -43,7 +43,7 @@ export function throwMissingDraggableRootContext(): never {
     'Base UI: DraggableRootContext is missing. This means a <Draggable.*> part is rendered ' +
       'outside of <Draggable.Root>, so it cannot reach the draggable it configures and would crash. ' +
       'Place all Draggable parts within <Draggable.Root />. ' +
-      'See https://base-ui.com/react/components/draggable.',
+      'See https://base-ui.com/react/utils/draggable.',
   );
 }
 

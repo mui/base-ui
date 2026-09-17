@@ -24,7 +24,7 @@ import type { UseDragAutoScrollElementParameters } from './useDragAutoScrollElem
  * Nested containers scroll from the innermost to the outermost. An outer
  * container scrolls only on axes that the inner container does not use.
  *
- * Documentation: [Base UI Drag Auto Scroll](https://base-ui.com/react/components/drag-auto-scroll)
+ * Documentation: [Base UI Drag Auto Scroll](https://base-ui.com/react/utils/draggable)
  */
 export const DragAutoScrollRoot = React.forwardRef(function DragAutoScrollRoot<
   TSourceData = unknown,
@@ -96,7 +96,7 @@ export interface DragAutoScrollRootState {
 export type DragAutoScrollRootProps<TSourceData = unknown> = Omit<
   BaseUIComponentProps<'div', DragAutoScrollRootState>,
   // The whole native HTML5 drag event family is replaced by this engine, as on
-  // `Draggable.Root` and `DropTarget.Root`.
+  // `Draggable.Root` and `Draggable.Target`.
   NativeDragEventProps
 > &
   RegisterAutoScrollerParameters<TSourceData>;

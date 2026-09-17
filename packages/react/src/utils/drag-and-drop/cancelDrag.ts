@@ -2,7 +2,7 @@ import { cancelActiveDrag as cancelActivePointerDrag } from './synthetic/synthet
 import { cancelLifecycleDrag } from './core/lifecycleManager';
 
 /**
- * Cancel the drag in progress, if any. Fires `onDragEnd` with `canceled: true`
+ * Cancel the drag in progress, if any. Fires `onMoveEnd` with `canceled: true`
  * and is a no-op when nothing is being dragged.
  *
  * Carries no per-instance state, like the primitives in `./registrations`: the
@@ -11,7 +11,7 @@ import { cancelLifecycleDrag } from './core/lifecycleManager';
 export function cancelDrag(): void {
   cancelActivePointerDrag();
   // During the synchronous start dispatches (`onGenerateDragPreview` /
-  // `onDragStart`) the sensor has not recorded the session yet, so the call above
+  // `onMoveStart`) the sensor has not recorded the session yet, so the call above
   // no-op; the lifecycle-level cancel reaches the in-flight session directly.
   // It is itself a no-op once a sensor-owned cancel has torn the lifecycle down.
   cancelLifecycleDrag();

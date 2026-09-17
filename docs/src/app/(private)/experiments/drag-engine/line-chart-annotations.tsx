@@ -1,21 +1,23 @@
 'use client';
-import * as React from 'react';
-import clsx from 'clsx';
-import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { ownerDocument } from '@base-ui/utils/owner';
 import {
   Draggable,
   type DragLocationHistory,
   type DragModifier,
   type DragModifiers,
 } from '@base-ui/react/draggable';
+
+import * as React from 'react';
+import clsx from 'clsx';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { ownerDocument } from '@base-ui/utils/owner';
+
 import { SettingsMetadata, useExperimentSettings } from '../_components/SettingsPanel';
 import theme from './theme.module.css';
 import styles from './line-chart-annotations.module.css';
 
 // Moves the rendered annotations directly instead of drawing a drag preview.
-// State is updated during `onDrag`, so cancellation restores the pickup snapshot.
+// State is updated during `onMove`, so cancellation restores the pickup snapshot.
 // Modifiers still constrain the reported input. Angle snapping operates in screen
 // pixels: a modifier handles endpoint drags, while annotation creation applies the
 // same helper outside a drag session.
@@ -596,7 +598,7 @@ function AnnotationDraggable(props: {
       // A press also has to be able to mean "select" — and on a comment, "start
       // editing" — so the drag waits for real movement rather than the mouse
       // default of `immediate`.
-      pointerActivation={{ mouse: { type: 'distance', distance: 3 } }}
+      activation={{ mouse: { type: 'distance', distance: 3 } }}
       // Nothing in the plot is a drop target, so the default "snap to the nearest
       // accepting target in this direction" has nothing to aim at: nudge instead.
 
@@ -607,7 +609,7 @@ function AnnotationDraggable(props: {
 
       modifiers={modifiers}
       disabled={disabled}
-      onDrag={({ source, location }) => {
+      onMove={({ source, location }) => {
         change(
           dragAnnotation(
             source.payload,
@@ -617,7 +619,7 @@ function AnnotationDraggable(props: {
           ),
         );
       }}
-      onDragEnd={({ source, canceled }) => {
+      onMoveEnd={({ source, canceled }) => {
         // A normal release has nothing to commit — the annotation has been moving
         // all along. Escape is the case that needs the snapshot.
         if (canceled) {
@@ -644,7 +646,7 @@ function AnnotationDraggable(props: {
       {/* No preview. The annotation itself moves, because a line has to redraw as
           its endpoint travels — a copy of the endpoint sliding around would leave
           the line behind. */}
-      <Draggable.ClonedPreview disabled />
+      <Draggable.Preview disabled />
     </Draggable.Root>
   );
 }

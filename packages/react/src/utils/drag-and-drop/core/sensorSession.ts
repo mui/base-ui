@@ -24,7 +24,7 @@ export interface StartSensorSessionParameters {
   initialTarget: Element | null;
   /**
    * The native event the pickup committed on (see `StartParameters.initialEvent`),
-   * so `onDragStart` reports a real event rather than a placeholder.
+   * so `onMoveStart` reports a real event rather than a placeholder.
    */
   initialEvent?: Event | undefined;
   /** The engine-managed preview, so the lifecycle can skip it when hit-testing. */

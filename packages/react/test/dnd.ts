@@ -348,7 +348,7 @@ function getDefaultInput(overrides: InputOverrides = {}): InputOverrides {
   };
 }
 
-/** Start a drag on an element and flush the deferred `onDragStart`. */
+/** Start a drag on an element and flush the deferred `onMoveStart`. */
 export async function lift(
   element: HTMLElement,
   input?: InputOverrides & {
@@ -371,7 +371,7 @@ export async function lift(
     throw new Error(
       'lift(): no drag session started after the activation move. ' +
         'The element may not be a registered draggable, or its activation constraint ' +
-        '(custom distance/delay, disabled, onBeforeDragStart cancel) kept the drag from starting. ' +
+        '(custom distance/delay, disabled, onBeforeMoveStart cancel) kept the drag from starting. ' +
         'Drive the gesture manually, or pass `{ expectNoDrag: true }` when the lift is ' +
         'intentionally expected not to start a drag.',
     );
@@ -424,7 +424,7 @@ export function resetDrag(): void {
   resetDragRootLock();
   resetDragCursor();
   resetPostDragClick();
-  // `reset()` clears the active monitors without dispatching `onDragEnd`, so the
+  // `reset()` clears the active monitors without dispatching `onMoveEnd`, so the
   // scroll monitor never runs its own teardown: a still-engaged loop would keep
   // scheduling frames — and calling `scrollBy` — into the next test, while
   // holding the previous test's detached source alive.
