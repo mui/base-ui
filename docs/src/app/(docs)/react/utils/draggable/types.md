@@ -992,10 +992,22 @@ type DragActivation =
 
 A single activation applied to all pointer types, or a per-pointer map.
 Missing entries fall back to the per-pointer defaults. Pass an array of these
-values to enable multiple activation methods.
+values to enable multiple activation methods. Double-click pickup is mouse-only.
 
 ```typescript
-type DragActivationConfig = DragActivation | Partial<Record<DragPointerType, DragActivation>>;
+type DragActivationConfig =
+  | DragActivation
+  | {
+      mouse?: DragActivation;
+      touch?:
+        | { type: 'immediate' }
+        | { type: 'distance'; distance: number }
+        | { type: 'press-hold'; delay: number; tolerance?: number };
+      pen?:
+        | { type: 'immediate' }
+        | { type: 'distance'; distance: number }
+        | { type: 'press-hold'; delay: number; tolerance?: number };
+    };
 ```
 
 ### DragAutoScrollRootProps

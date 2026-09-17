@@ -362,3 +362,8 @@ function GenericCard<TData>(props: Draggable.Root.PropsWithPayload<TData>) {
 
 <Draggable.Root activation={[{ type: 'distance', distance: 8 }, { type: 'double-click' }]} />;
 <Draggable.Root activation={{ mouse: { type: 'double-click' } }} />;
+
+// @ts-expect-error double-click is a mouse activation method.
+<Draggable.Root activation={{ touch: { type: 'double-click' } }} />;
+// @ts-expect-error double-click is a mouse activation method.
+<Draggable.Root activation={{ pen: { type: 'double-click' } }} />;
