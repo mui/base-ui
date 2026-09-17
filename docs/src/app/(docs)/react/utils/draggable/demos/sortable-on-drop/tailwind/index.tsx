@@ -3,13 +3,11 @@ import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { Draggable } from '@base-ui/react/draggable';
 
-const taskKind = Draggable.createKind<string>('sortable-task');
+const taskKind = Draggable.createKind<string>('sortable-drop-task');
 const initialTasks = ['Write the spec', 'Sketch the UI', 'Set up the repo', 'Wire the API'];
 
-export default function SortableList() {
+export default function SortableOnDrop() {
   const [tasks, setTasks] = React.useState(initialTasks);
-  const [mode, setMode] = React.useState<'drop' | 'live'>('drop');
-  const initialOrder = React.useRef(tasks);
   const reorder = useStableCallback(
     ({ source, collision }: Draggable.CollisionProvider.CollisionEvent<string>) => {
       if (!collision) {
@@ -30,36 +28,12 @@ export default function SortableList() {
   );
   return (
     <Draggable.Provider>
-      <label className="mb-4 flex items-center gap-2 text-sm">
-        Reorder
-        <select
-          value={mode}
-          onChange={(event) => setMode(event.target.value === 'live' ? 'live' : 'drop')}
+      <Draggable.CollisionProvider kind={taskKind} onMoveEnd={reorder}>
+        <div
+          className="grid w-80 max-w-full gap-2"
+          role="group"
+          aria-label="Tasks reordered on drop"
         >
-          <option value="drop">On drop</option>
-          <option value="live">While dragging</option>
-        </select>
-      </label>
-      <Draggable.CollisionProvider
-        kind={taskKind}
-        placement={mode === 'live' ? 'direction' : 'midpoint'}
-        onMoveStart={() => {
-          initialOrder.current = tasks;
-        }}
-        onCollisionChange={(event) => {
-          if (mode === 'live') {
-            reorder(event);
-          }
-        }}
-        onMoveEnd={(event) => {
-          if (event.canceled || !event.dropTarget) {
-            setTasks(initialOrder.current);
-          } else {
-            reorder(event);
-          }
-        }}
-      >
-        <div className="grid w-80 max-w-full gap-2" role="group" aria-label="Tasks">
           {tasks.map((task) => (
             <Draggable.Root
               key={task}

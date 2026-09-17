@@ -4,12 +4,11 @@ import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { Draggable } from '@base-ui/react/draggable';
 import styles from '../sortable.module.css';
 
-const taskKind = Draggable.createKind<string>('sortable-task');
+const taskKind = Draggable.createKind<string>('sortable-live-task');
 const initialTasks = ['Write the spec', 'Sketch the UI', 'Set up the repo', 'Wire the API'];
 
-export default function SortableList() {
+export default function SortableLive() {
   const [tasks, setTasks] = React.useState(initialTasks);
-  const [mode, setMode] = React.useState<'drop' | 'live'>('drop');
   const initialOrder = React.useRef(tasks);
   const reorder = useStableCallback(
     ({ source, collision }: Draggable.CollisionProvider.CollisionEvent<string>) => {
@@ -31,27 +30,13 @@ export default function SortableList() {
   );
   return (
     <Draggable.Provider>
-      <label className={styles.Controls}>
-        Reorder
-        <select
-          value={mode}
-          onChange={(event) => setMode(event.target.value === 'live' ? 'live' : 'drop')}
-        >
-          <option value="drop">On drop</option>
-          <option value="live">While dragging</option>
-        </select>
-      </label>
       <Draggable.CollisionProvider
         kind={taskKind}
-        placement={mode === 'live' ? 'direction' : 'midpoint'}
+        placement="direction"
         onMoveStart={() => {
           initialOrder.current = tasks;
         }}
-        onCollisionChange={(event) => {
-          if (mode === 'live') {
-            reorder(event);
-          }
-        }}
+        onCollisionChange={reorder}
         onMoveEnd={(event) => {
           if (event.canceled || !event.dropTarget) {
             setTasks(initialOrder.current);
@@ -60,7 +45,7 @@ export default function SortableList() {
           }
         }}
       >
-        <div className={styles.Root} role="group" aria-label="Tasks">
+        <div className={styles.Root} role="group" aria-label="Tasks reordered while dragging">
           {tasks.map((task) => (
             <Draggable.Root
               key={task}

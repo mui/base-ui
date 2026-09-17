@@ -806,28 +806,6 @@ If a target does not use these drag-feedback attributes, set `trackDragOver={fal
 <Draggable.Target accept={card} trackDragOver={false} onDraggableDrop={handleDrop} />
 ```
 
-## Sorting with a collision provider
-
-import { DemoSortableList } from './demos/sortable';
-
-<DemoSortableList />
-
-`Draggable.CollisionProvider` resolves insertion positions among descendant draggables of its `kind`. Each row participates automatically. The provider renders no element and leaves the order in your application state.
-
-Choose **On drop** to commit from `onMoveEnd`, or **While dragging** to reorder from `onCollisionChange` with `placement="direction"`. Live reordering restores the original order on cancellation or release outside a valid target. The event's `collision` contains the destination's `target.payload` and a `placement` of `'before'` or `'after'`. Cancellation, release outside the group, and release over the dragged row produce `collision: null`. Use <kbd>Alt</kbd>+<kbd>↑</kbd> or <kbd>Alt</kbd>+<kbd>↓</kbd> to reorder with the keyboard.
-
-Use `onCollisionChange` to show an indicator or reorder while moving. For live reordering, save the original order at pickup and restore it on cancellation. A source dropped onto itself still counts as a successful drop, although its collision is null. The provider sets `data-collision-before` or `data-collision-after` on the current participant without rerendering its siblings.
-
-`orientation="horizontal"` resolves placement in reading order, including RTL. The default placement uses the participant's midpoint. `placement="direction"` uses pointer travel direction for interfaces that reorder when entering a neighboring item; stationary layout changes do not initiate another reorder.
-
-Keep identities stable across reorders. String or number payloads can identify items directly. For object payloads, pass `getItemId={(item) => item.id}`. A source with `getPayload` must also provide static `collisionPayload` to participate as a destination. This keeps pickup-only data, such as a selected group of items, separate from the row's own identity.
-
-`canCollide` can exclude a destination with `false` or reject the entire drop with `'reject'`. Explicit targets still handle empty containers, headers, and non-sorting destinations. The innermost accepting target wins. Nested providers of different kinds can coexist; each draggable joins the nearest provider matching its kind.
-
-Set `collision={false}` on a draggable to opt out. When a drag handle occupies only part of a row, `collisionElement` can return the enclosing row for hit testing and measurement. Keep that function stable. Mounted rows participate automatically when a virtualizer changes its window; unmounted rows are not geometric candidates.
-
-The provider uses pointer hit testing. It does not select the nearest item across gaps or outside a list, animate displaced items, or change Tree's collection API. Use explicit targets or application geometry for those interactions.
-
 ### Both a source and a target
 
 An element can also have explicit source and destination behavior. Pass `Draggable.Target` to `Draggable.Root`'s `render` prop to give one element both roles:
@@ -841,6 +819,34 @@ const itemKind = Draggable.createKind<string>('item');
   render={<Draggable.Target accept={itemKind} payload={item.id} />}
 />;
 ```
+
+## Sorting with a collision provider
+
+`Draggable.CollisionProvider` finds insertion positions for draggables of the same `kind`. Your application controls the order and when it changes.
+
+### Reorder on drop
+
+Keep items in place while dragging, then update the order in `onMoveEnd`. The `collision` gives the destination's `target.payload` and a `placement` of `'before'` or `'after'`. Ignore a `null` collision.
+
+import { DemoSortableOnDrop } from './demos/sortable-on-drop';
+
+<DemoSortableOnDrop />
+
+By default, placement follows the destination's midpoint. Style `data-collision-before` and `data-collision-after` to show an insertion indicator.
+
+### Reorder while dragging
+
+Update the order in `onCollisionChange` with `placement="direction"`. Items move as the pointer crosses them, following its direction of travel.
+
+import { DemoSortableLive } from './demos/sortable-live';
+
+<DemoSortableLive />
+
+Save the original order in `onMoveStart` and restore it if the drag is canceled or dropped outside a valid target. Dropping onto the dragged item itself succeeds with `collision: null`; keep the live order in that case.
+
+Both examples implement <kbd>Alt</kbd>+<kbd>↑</kbd> and <kbd>Alt</kbd>+<kbd>↓</kbd> to reorder a focused item with the keyboard.
+
+Use `orientation="horizontal"` for horizontal lists and `getItemId` for object payloads. Collision detection considers mounted items under the pointer; use explicit targets for gaps and empty containers. See the [CollisionProvider API](#collision-provider) for the remaining options.
 
 ## Scrolling
 

@@ -1,11 +1,3 @@
-.Controls {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 1rem;
-  font-size: 0.875rem;
-}
-
 .Root {
   display: grid;
   gap: 0.5rem;
