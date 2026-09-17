@@ -15,6 +15,7 @@ import { createChangeEventDetails } from '../../../internals/createBaseUIEventDe
 import {
   evaluateActivation,
   getActivationDelayMs,
+  hasDoubleClickActivation,
   resolveActivation,
   type DragActivation,
 } from '../activation';
@@ -39,6 +40,7 @@ import {
   subscribeDropTargetShadowRoots,
 } from '../dropTarget';
 import type {
+  BeforeMoveStartEventDetails,
   DragCanceledReason,
   DragCleanupFn,
   DragHandle,
@@ -104,12 +106,21 @@ const documentBinding = createEventRootBinding({
   options: { passive: false },
 });
 
+const doubleClickBinding = createEventRootBinding({
+  slot: 'syntheticDrag.doubleClickBindings',
+  shadowRootsSlot: 'syntheticDrag.boundDoubleClickShadowRoots',
+  type: 'dblclick',
+  listener: onDoubleClick,
+});
+
 export function bindPointerListeners(root: DragEventRoot): void {
   documentBinding.bind(root);
+  doubleClickBinding.bind(root);
 }
 
 export function unbindPointerListeners(root: DragEventRoot): void {
   documentBinding.unbind(root);
+  doubleClickBinding.unbind(root);
 }
 
 function suppressNativeDragForSyntheticPointer(
@@ -223,7 +234,7 @@ function clearActive(
 
   // The gesture reached the active phase, so the compatibility click that
   // follows the release is the drag's, not a click the user meant.
-  if (pointerAtTeardown !== 'none') {
+  if (pointerAtTeardown !== 'none' && session.activationKind !== 'double-click') {
     suppressNextClick(
       session.element,
       pointerAtTeardown === 'held' ? session.pointerId : undefined,
@@ -358,7 +369,7 @@ export function cancelActiveDrag(): void {
  * so the padding box already covers the whole content area and the tests below
  * are inert for it.
  */
-function isScrollbarPress(event: PointerEvent, element: Element): boolean {
+function isScrollbarPress(event: MouseEvent, element: Element): boolean {
   const win = ownerWindow(element);
   if (!(element instanceof win.HTMLElement)) {
     return false;
@@ -481,6 +492,9 @@ function onPointerDown(event: Event): void {
   }
 
   const activation = resolveActivation(parameters.activation, pointerType);
+  if (activation.length === 0) {
+    return;
+  }
   const win = ownerWindow(element);
   // Only touch/pen long-presses can emit a stray `contextmenu` after the gesture
   // ends; arming this post-gesture safety net for mouse would suppress a
@@ -504,6 +518,7 @@ function onPointerDown(event: Event): void {
     pointerId: pointerEvent.pointerId,
     pointerType,
     activation,
+    activationKind: 'pointer',
     originX: pointerEvent.clientX,
     originY: pointerEvent.clientY,
     lastInput: initialInput,
@@ -549,20 +564,73 @@ function onPointerDown(event: Event): void {
     );
   }
 
-  const delay = getActivationDelayMs(activation);
-  if (delay !== null) {
-    // press-hold: the pointermove handler enforces movement tolerance,
-    // cancelling if the finger drifts too far. If still pending when the
-    // timer fires, the modifier is satisfied.
-    pendingRef.pressHoldTimer.start(delay, () => {
-      if (state.pending !== pendingRef) {
-        return;
-      }
-      commitActivation();
-    });
-  } else {
-    // Immediate/distance — evaluate at pointerdown for the immediate case.
-    evaluatePendingActivation(pendingRef.lastInput.clientX, pendingRef.lastInput.clientY, 0);
+  evaluatePendingActivation(
+    pendingRef.lastInput.clientX,
+    pendingRef.lastInput.clientY,
+    pendingRef.startedAt,
+  );
+}
+
+/** Double-click pickup follows the mouse until a subsequent primary click. */
+function onDoubleClick(event: Event): void {
+  if (handledPointerDownEvents.has(event)) {
+    return;
+  }
+  handledPointerDownEvents.add(event);
+  const mouseEvent = event as MouseEvent;
+  if (mouseEvent.button !== 0 || mouseEvent.detail !== 2) {
+    return;
+  }
+  if (state.pending || state.active) {
+    const session = state.pending ?? state.active;
+    if (!session || !isDetachedDocument(ownerDocument(session.element))) {
+      return;
+    }
+    if (state.pending) {
+      clearPending();
+    } else {
+      cancelActive(undefined, 'document-detached', event);
+    }
+  }
+  if (state.pending || state.active || !canStartLifecycle()) {
+    return;
+  }
+  const pickup = resolveDraggablePickup(getTarget(mouseEvent));
+  if (
+    !pickup ||
+    pickup.parameters.disabled ||
+    !hasDoubleClickActivation(pickup.parameters.activation)
+  ) {
+    return;
+  }
+  if (hasInteractiveAncestorWithin(pickup.target, pickup.dragHandle ?? pickup.element)) {
+    return;
+  }
+  if (isScrollbarPress(mouseEvent, pickup.target)) {
+    return;
+  }
+  const input = getInput(mouseEvent);
+  state.pending = {
+    element: pickup.element,
+    target: pickup.target,
+    pointerId: -1,
+    pointerType: 'mouse',
+    activation: [],
+    activationKind: 'double-click',
+    originX: input.clientX,
+    originY: input.clientY,
+    lastInput: input,
+    lastNativeEvent: mouseEvent,
+    startedAt: mouseEvent.timeStamp,
+    listeners: [],
+    pressHoldTimer: new WindowTimeout(ownerWindow(pickup.element)),
+    restoreNativeDrag: NOOP,
+    contextMenuSuppression: null,
+    touchMoveAnchor: NOOP,
+  };
+  commitActivation();
+  if (state.active) {
+    mouseEvent.preventDefault();
   }
 }
 
@@ -645,6 +713,16 @@ function evaluatePendingActivation(clientX: number, clientY: number, now: number
     return;
   }
   const elapsed = now - pending.startedAt;
+  // Once a hold exceeds its tolerance it cannot recover by moving back.
+  pending.activation = pending.activation.filter(
+    (activation) =>
+      evaluateActivation(
+        activation,
+        { x: pending.originX, y: pending.originY },
+        { x: clientX, y: clientY },
+        elapsed,
+      ) !== 'cancel',
+  );
   const decision = evaluateActivation(
     pending.activation,
     { x: pending.originX, y: pending.originY },
@@ -655,6 +733,20 @@ function evaluatePendingActivation(clientX: number, clientY: number, now: number
     commitActivation();
   } else if (decision === 'cancel') {
     clearPending();
+  } else {
+    const delay = getActivationDelayMs(pending.activation);
+    pending.pressHoldTimer.clear();
+    if (delay !== null) {
+      pending.pressHoldTimer.start(Math.max(0, delay - elapsed), () => {
+        if (state.pending === pending) {
+          evaluatePendingActivation(
+            pending.lastInput.clientX,
+            pending.lastInput.clientY,
+            pending.startedAt + delay,
+          );
+        }
+      });
+    }
   }
 }
 
@@ -778,7 +870,14 @@ function commitActivation(): void {
   // any resource is allocated, so canceling leaves nothing to undo beyond the
   // pending phase itself — nothing has lifted yet.
   if (parameters.onBeforeMoveStart) {
-    const eventDetails = createChangeEventDetails('pointer', pending.lastNativeEvent, target);
+    const eventDetails = createChangeEventDetails<
+      string,
+      Pick<BeforeMoveStartEventDetails, 'reason' | 'event' | 'activation'>
+    >('pointer', pending.lastNativeEvent, target, {
+      reason: 'pointer',
+      event: pending.lastNativeEvent,
+      activation: pending.activationKind,
+    });
     try {
       parameters.onBeforeMoveStart({ input: lastInput, element, dragHandle }, eventDetails);
     } catch (error) {
@@ -874,6 +973,7 @@ function commitActivation(): void {
     captureTarget,
     pointerId,
     pointerType,
+    activationKind: pending.activationKind,
     controller: session.controller,
     preview,
     lastInput,
@@ -905,7 +1005,9 @@ function commitActivation(): void {
 
   // Override touch's implicit capture onto the body anchor, and give pen/mouse
   // explicit capture, so pointer events route here regardless of cursor position.
-  setPointerCaptureSafely(captureTarget, pointerId);
+  if (activeRef.activationKind === 'pointer') {
+    setPointerCaptureSafely(captureTarget, pointerId);
+  }
 
   // Pin the cursor for the duration of the drag. Skipped for touch, which has
   // no cursor. `false` opts out so a consumer can manage the cursor itself.
@@ -1030,7 +1132,28 @@ function commitActivation(): void {
     addEventListener(win, 'dragstart', preventNativeDragStart, { capture: true }),
   );
 
+  if (activeRef.activationKind === 'double-click') {
+    activeRef.listeners.push(addEventListener(win, 'click', onDoubleClickDrop, { capture: true }));
+  }
   scheduleActiveFrame();
+}
+
+function onDoubleClickDrop(event: Event): void {
+  const mouseEvent = event as MouseEvent;
+  if (
+    state.active?.activationKind !== 'double-click' ||
+    mouseEvent.button !== 0 ||
+    mouseEvent.detail === 0
+  ) {
+    return;
+  }
+  if ('pointerType' in mouseEvent && mouseEvent.pointerType !== 'mouse') {
+    return;
+  }
+  // This click completes a move; it must not also open or edit the destination.
+  mouseEvent.preventDefault();
+  mouseEvent.stopImmediatePropagation();
+  dropActiveAtPointer(mouseEvent);
 }
 
 function scheduleActiveFrame(): void {
@@ -1131,12 +1254,17 @@ function preventActiveTouchScroll(event: Event): void {
 function onActivePointerMove(event: Event): void {
   const pointerEvent = event as PointerEvent;
   const active = state.active;
-  if (!active || pointerEvent.pointerId !== active.pointerId) {
+  if (
+    !active ||
+    (active.activationKind === 'double-click'
+      ? pointerEvent.pointerType !== 'mouse'
+      : pointerEvent.pointerId !== active.pointerId)
+  ) {
     return;
   }
   // Wait one frame before treating `buttons === 0` as a missed release. A
   // terminal event in the same frame must take precedence.
-  if (pointerEvent.buttons === 0) {
+  if (active.activationKind === 'pointer' && pointerEvent.buttons === 0) {
     // Constrained like every reported input, so `onMoveEnd` doesn't leak a raw
     // coordinate the drag never reported while it was live.
     const input = modifyActiveInput(active, getInput(pointerEvent));
@@ -1153,7 +1281,7 @@ function onActivePointerMove(event: Event): void {
   // `pointerup` carries the last button, which `onActivePointerUp` ignores.
   // The user did lift the primary button deliberately, so this is a drop at the
   // current position, not a cancel.
-  if (pointerEvent.buttons % 2 === 0) {
+  if (active.activationKind === 'pointer' && pointerEvent.buttons % 2 === 0) {
     dropActiveAtPointer(pointerEvent);
     return;
   }
@@ -1185,7 +1313,7 @@ function onActivePointerUp(event: Event): void {
 }
 
 /** End the active drag with a drop resolved at the pointer's current position. */
-function dropActiveAtPointer(pointerEvent: PointerEvent): void {
+function dropActiveAtPointer(pointerEvent: PointerEvent | MouseEvent): void {
   const active = state.active;
   if (!active) {
     return;
@@ -1201,7 +1329,7 @@ function dropActiveAtPointer(pointerEvent: PointerEvent): void {
   state.terminalCallbacksRunning = true;
   try {
     try {
-      clearActive(true, 'released');
+      clearActive(true, active.activationKind === 'double-click' ? 'none' : 'released');
     } finally {
       controller.drop(input, target, pointerEvent);
     }
@@ -1388,12 +1516,13 @@ interface PendingSession {
   target: Element;
   pointerId: number;
   pointerType: DragPointerType;
-  activation: DragActivation;
+  activation: DragActivation[];
+  activationKind: 'pointer' | 'double-click';
   originX: number;
   originY: number;
   lastInput: DragInput;
   /** The native event behind `lastInput`, carried into `onBeforeMoveStart`'s details. */
-  lastNativeEvent: PointerEvent;
+  lastNativeEvent: PointerEvent | MouseEvent;
   startedAt: number;
   listeners: DragCleanupFn[];
   pressHoldTimer: WindowTimeout;
@@ -1421,6 +1550,7 @@ interface ActiveSession {
   captureTarget: Element;
   pointerId: number;
   pointerType: DragPointerType;
+  activationKind: 'pointer' | 'double-click';
   controller: DragSessionController;
   preview: SyntheticPreviewHandle;
   lastInput: DragInput;
@@ -1434,7 +1564,7 @@ interface ActiveSession {
    * (see `syncActiveModifierKeys`): that press is what `lastInput`'s key flags were
    * read from, so reporting the stale `pointermove` would contradict them.
    */
-  lastNativeEvent: PointerEvent | KeyboardEvent;
+  lastNativeEvent: PointerEvent | MouseEvent | KeyboardEvent;
   /** Why `lastNativeEvent` caused the next movement frame. */
   lastMoveReason: DragMoveReason;
   /** Compiled `modifiers`, or `null` when the draggable declared none. */

@@ -13,18 +13,44 @@ export const DEFAULT_ACTIVATION: Record<DragPointerType, DragActivation> = {
 };
 
 export function resolveActivation(
-  config: DragActivationConfig | undefined,
+  config: DragActivationConfig | readonly DragActivationConfig[] | undefined,
   pointerType: DragPointerType,
-): DragActivation {
-  if (config && 'type' in config) {
-    return config;
+): DragActivation[] {
+  const configs =
+    config === undefined ? [DEFAULT_ACTIVATION[pointerType]] : normalizeConfig(config);
+  return configs.flatMap((activation) => {
+    if ('type' in activation) {
+      return activation.type === 'double-click' ? [] : [activation];
+    }
+    const specific = activation[pointerType];
+    if (specific && specific.type !== 'double-click') {
+      return [specific];
+    }
+    return specific ? [] : [DEFAULT_ACTIVATION[pointerType]];
+  });
+}
+
+export function hasDoubleClickActivation(
+  config: DragActivationConfig | readonly DragActivationConfig[] | undefined,
+): boolean {
+  if (config === undefined) {
+    return false;
   }
-  const map = config as Partial<Record<DragPointerType, DragActivation>> | undefined;
-  const specific = map?.[pointerType];
-  if (specific) {
-    return specific;
+  return normalizeConfig(config).some((activation) => {
+    if ('type' in activation) {
+      return activation.type === 'double-click';
+    }
+    return activation.mouse?.type === 'double-click';
+  });
+}
+
+function normalizeConfig(
+  config: DragActivationConfig | readonly DragActivationConfig[],
+): DragActivationConfig[] {
+  if (Array.isArray(config)) {
+    return [...config] as DragActivationConfig[];
   }
-  return DEFAULT_ACTIVATION[pointerType];
+  return [config as DragActivationConfig];
 }
 
 function squaredDistance(a: { x: number; y: number }, b: { x: number; y: number }): number {
@@ -34,53 +60,77 @@ function squaredDistance(a: { x: number; y: number }, b: { x: number; y: number 
 }
 
 export function evaluateActivation(
-  activation: DragActivation,
+  activation: DragActivation | readonly DragActivation[],
   origin: { x: number; y: number },
   current: { x: number; y: number },
   elapsedMs: number,
 ): ActivationDecision {
-  switch (activation.type) {
-    case 'immediate':
-      return 'activate';
-    case 'distance': {
-      const threshold = activation.distance * activation.distance;
-      return squaredDistance(origin, current) >= threshold ? 'activate' : 'pending';
-    }
-    case 'press-hold': {
-      const tolerance = activation.tolerance ?? MOVEMENT_TOLERANCE_PX;
-      const toleranceSq = tolerance * tolerance;
-      if (squaredDistance(origin, current) > toleranceSq) {
-        return 'cancel';
-      }
-      if (elapsedMs >= activation.delay) {
-        return 'activate';
-      }
-      return 'pending';
-    }
-    default:
-      return 'pending';
+  const activations = Array.isArray(activation) ? activation : [activation];
+  if (activations.length === 0) {
+    return 'cancel';
   }
+
+  let hasPending = false;
+  for (const activation of activations) {
+    switch (activation.type) {
+      case 'immediate':
+        return 'activate';
+      case 'distance': {
+        const threshold = activation.distance * activation.distance;
+        if (squaredDistance(origin, current) >= threshold) {
+          return 'activate';
+        }
+        hasPending = true;
+        break;
+      }
+      case 'press-hold': {
+        const tolerance = activation.tolerance ?? MOVEMENT_TOLERANCE_PX;
+        const toleranceSq = tolerance * tolerance;
+        if (squaredDistance(origin, current) <= toleranceSq && elapsedMs >= activation.delay) {
+          return 'activate';
+        }
+        if (squaredDistance(origin, current) <= toleranceSq) {
+          hasPending = true;
+        }
+        break;
+      }
+      case 'double-click':
+        break;
+      default:
+        break;
+    }
+  }
+  return hasPending ? 'pending' : 'cancel';
 }
 
-export function getActivationDelayMs(activation: DragActivation): number | null {
-  return activation.type === 'press-hold' ? activation.delay : null;
+export function getActivationDelayMs(
+  activation: DragActivation | readonly DragActivation[],
+): number | null {
+  const activations = Array.isArray(activation) ? activation : [activation];
+  const delays = activations
+    .filter((activation) => activation.type === 'press-hold')
+    .map((activation) => activation.delay);
+  return delays.length > 0 ? Math.min(...delays) : null;
 }
 
 /**
- * Determines when a `pointerdown` starts a drag.
- * - `immediate` starts on `pointerdown`.
- * - `distance` starts after the pointer moves by `distance` CSS pixels.
- * - `press-hold` starts after `delay` milliseconds. Moving farther than
- *   `tolerance` CSS pixels cancels the gesture. The default tolerance is 5.
+ * When a `pointerdown` becomes a drag. Discriminated on `type`:
+ * - `immediate`: any `pointerdown` starts the drag.
+ * - `distance`: the drag starts after the pointer has moved by `distance` CSS pixels.
+ * - `press-hold`: the drag starts after `delay` ms of holding still; movement
+ *   larger than `tolerance` CSS pixels (default 5) cancels the gesture.
+ * - `double-click`: the drag starts on a double-click and ends on the next click.
  */
 export type DragActivation =
   | { type: 'immediate' }
   | { type: 'distance'; distance: number }
-  | { type: 'press-hold'; delay: number; tolerance?: number | undefined };
+  | { type: 'press-hold'; delay: number; tolerance?: number | undefined }
+  | { type: 'double-click' };
 
 /**
  * A single activation applied to all pointer types, or a per-pointer map.
- * Missing entries fall back to the per-pointer defaults.
+ * Missing entries fall back to the per-pointer defaults. Pass an array of these
+ * values to enable multiple activation methods.
  */
 export type DragActivationConfig =
   DragActivation | Partial<Record<DragPointerType, DragActivation>>;

@@ -338,17 +338,17 @@ function GenericCard<TData>(props: Draggable.Root.PropsWithPayload<TData>) {
 // @ts-expect-error successful drops are handled through onMoveEnd.
 <Draggable.Root kind={marker} onDrop={() => {}} />;
 
-// Pointer drag events carry their native pointer input.
+// Drag events carry the native pointer or double-click input.
 <Draggable.Root
   kind={marker}
   onBeforeMoveStart={(_, eventDetails) => {
-    expectType<PointerEvent, typeof eventDetails.event>(eventDetails.event);
+    expectType<PointerEvent | MouseEvent, typeof eventDetails.event>(eventDetails.event);
   }}
   onMove={(_, eventDetails) => {
     if (eventDetails.reason === 'modifier-key') {
       expectType<KeyboardEvent, typeof eventDetails.event>(eventDetails.event);
     } else {
-      expectType<PointerEvent, typeof eventDetails.event>(eventDetails.event);
+      expectType<PointerEvent | MouseEvent, typeof eventDetails.event>(eventDetails.event);
     }
   }}
   onMoveEnd={(_, eventDetails) => {
@@ -359,3 +359,6 @@ function GenericCard<TData>(props: Draggable.Root.PropsWithPayload<TData>) {
     }
   }}
 />;
+
+<Draggable.Root activation={[{ type: 'distance', distance: 8 }, { type: 'double-click' }]} />;
+<Draggable.Root activation={{ mouse: { type: 'double-click' } }} />;

@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 import { act } from '@mui/internal-test-utils';
-import { createDndRenderer } from '#test-utils';
+import { createDndRenderer, firePointer } from '#test-utils';
 import {
   createElement,
   flushRaf,
@@ -437,5 +437,91 @@ describe('syntheticDrag activation', () => {
 
       dispatchOn(inert, 'pointerup', 60, 60, 0);
     });
+  });
+  it('activates an immediate alternative even when a hold is also configured', async () => {
+    const { engine } = await renderDnd();
+    const source = createElement();
+    const onMoveStart = vi.fn();
+    engine.registerDraggable(source, {
+      activation: [{ type: 'press-hold', delay: 1000 }, { type: 'immediate' }],
+      onMoveStart,
+    });
+    firePointer.down(source, { pointerType: 'mouse', pointerId: 1, buttons: 1, timeStamp: 10 });
+    expect(onMoveStart).toHaveBeenCalledTimes(1);
+  });
+
+  it('keeps a distance alternative after the hold tolerance is exceeded', async () => {
+    const { engine } = await renderDnd();
+    const source = createElement();
+    const onMoveStart = vi.fn();
+    engine.registerDraggable(source, {
+      activation: [
+        { type: 'press-hold', delay: 50, tolerance: 2 },
+        { type: 'distance', distance: 20 },
+      ],
+      onMoveStart,
+    });
+    firePointer.down(source, { pointerType: 'mouse', pointerId: 1, buttons: 1, timeStamp: 10 });
+    firePointer.move(source, {
+      pointerType: 'mouse',
+      pointerId: 1,
+      buttons: 1,
+      clientX: 8,
+      timeStamp: 20,
+    });
+    firePointer.move(source, {
+      pointerType: 'mouse',
+      pointerId: 1,
+      buttons: 1,
+      clientX: 0,
+      timeStamp: 30,
+    });
+    await act(async () => {
+      await new Promise<void>((resolve) => {
+        setTimeout(resolve, 80);
+      });
+    });
+    expect(onMoveStart).not.toHaveBeenCalled();
+    firePointer.move(source, {
+      pointerType: 'mouse',
+      pointerId: 1,
+      buttons: 1,
+      clientX: 20,
+      timeStamp: 110,
+    });
+    expect(onMoveStart).toHaveBeenCalledTimes(1);
+  });
+
+  it('waits for a surviving longer hold when the shorter hold is canceled', async () => {
+    const { engine } = await renderDnd();
+    const source = createElement();
+    const onMoveStart = vi.fn();
+    engine.registerDraggable(source, {
+      activation: [
+        { type: 'press-hold', delay: 30, tolerance: 2 },
+        { type: 'press-hold', delay: 120, tolerance: 10 },
+      ],
+      onMoveStart,
+    });
+    firePointer.down(source, { pointerType: 'mouse', pointerId: 1, buttons: 1, timeStamp: 10 });
+    firePointer.move(source, {
+      pointerType: 'mouse',
+      pointerId: 1,
+      buttons: 1,
+      clientX: 5,
+      timeStamp: 20,
+    });
+    await act(async () => {
+      await new Promise<void>((resolve) => {
+        setTimeout(resolve, 50);
+      });
+    });
+    expect(onMoveStart).not.toHaveBeenCalled();
+    await act(async () => {
+      await new Promise<void>((resolve) => {
+        setTimeout(resolve, 100);
+      });
+    });
+    expect(onMoveStart).toHaveBeenCalledTimes(1);
   });
 });
