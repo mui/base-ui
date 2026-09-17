@@ -35,6 +35,7 @@ import {
   createChangeEventDetails,
 } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
+import { attachPreventUnmountOnClose } from '../../utils/popups/popupStoreUtils';
 import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
 import { useFormContext } from '../../internals/form-context/FormContext';
 import { type Group, stringifyAsLabel, stringifyAsValue } from '../../internals/resolveValueLabel';
@@ -137,6 +138,13 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   const initialValueRef = React.useRef(value);
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
+  const [preventUnmountingOnClose, setPreventUnmountingOnClose] = React.useState(false);
+
+  // Reopening, including through a controlled prop, starts a new close cycle.
+  if (open && preventUnmountingOnClose) {
+    setPreventUnmountingOnClose(false);
+  }
+
   const { openMethod, triggerProps: interactionTypeProps } = useOpenInteractionType(open);
 
   const store = useRefWithInit(
@@ -265,12 +273,17 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
 
   const setOpen = useStableCallback(
     (nextOpen: boolean, eventDetails: SelectRoot.ChangeEventDetails) => {
-      onOpenChange?.(nextOpen, eventDetails);
+      const openEventDetails = Object.assign(eventDetails, { preventUnmountOnClose: NOOP });
+      const shouldPreventUnmountOnClose = attachPreventUnmountOnClose(openEventDetails);
+      onOpenChange?.(nextOpen, openEventDetails);
 
       if (eventDetails.isCanceled) {
         return;
       }
 
+      if (!nextOpen && shouldPreventUnmountOnClose()) {
+        setPreventUnmountingOnClose(true);
+      }
       setOpenUnwrapped(nextOpen);
 
       if (
@@ -288,6 +301,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   );
 
   const handleUnmount = useStableCallback(() => {
+    setPreventUnmountingOnClose(false);
     setMounted(false);
     store.update({
       activeIndex: null,
@@ -299,7 +313,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   });
 
   useOpenChangeComplete({
-    enabled: !actionsRef,
+    enabled: mounted && !open && !preventUnmountingOnClose,
     open,
     ref: popupRef,
     onComplete() {
@@ -642,7 +656,8 @@ export interface SelectRootProps<Value, Multiple extends boolean | undefined = f
   /**
    * Event handler called when the select popup is opened or closed.
    */
-  onOpenChange?: ((open: boolean, eventDetails: SelectRootChangeEventDetails) => void) | undefined;
+  onOpenChange?:
+    ((open: boolean, eventDetails: SelectRootOpenChangeEventDetails) => void) | undefined;
   /**
    * Event handler called after any animations complete when the select popup is opened or closed.
    */
@@ -663,7 +678,8 @@ export interface SelectRootProps<Value, Multiple extends boolean | undefined = f
   /**
    * A ref to imperative actions.
    * - `unmount`: Manually unmounts the select.
-   * Call this after any externally controlled closing animation finishes.
+   * Call `preventUnmountOnClose()` in `onOpenChange` to manually control unmounting,
+   * then call this action after any externally controlled closing animation finishes.
    */
   actionsRef?: React.RefObject<SelectRootActions | null> | undefined;
   /**
@@ -738,6 +754,11 @@ export type SelectRootChangeEventReason =
   | typeof REASONS.cancelOpen
   | typeof REASONS.none;
 
+export type SelectRootOpenChangeEventDetails = SelectRootChangeEventDetails & {
+  /** Prevents the popup from unmounting until the `unmount` action is called. */
+  preventUnmountOnClose(): void;
+};
+
 export type SelectRootChangeEventDetails = BaseUIChangeEventDetails<SelectRootChangeEventReason>;
 
 export namespace SelectRoot {
@@ -749,4 +770,5 @@ export namespace SelectRoot {
   export type Actions = SelectRootActions;
   export type ChangeEventReason = SelectRootChangeEventReason;
   export type ChangeEventDetails = SelectRootChangeEventDetails;
+  export type OpenChangeEventDetails = SelectRootOpenChangeEventDetails;
 }

@@ -22,10 +22,10 @@ Doesn't render its own HTML element.
 | onInputValueChange   | `((inputValue: string, eventDetails: Combobox.Root.ChangeEventDetails) => void)`                      | -       | Event handler called when the input value changes.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
 | defaultOpen          | `boolean`                                                                                             | `false` | Whether the popup is initially open. To render a controlled popup, use the `open` prop instead.                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
 | open                 | `boolean`                                                                                             | -       | Whether the popup is currently open. Use when controlled.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
-| onOpenChange         | `((open: boolean, eventDetails: Combobox.Root.ChangeEventDetails) => void)`                           | -       | Event handler called when the popup is opened or closed.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| onOpenChange         | `((open: boolean, eventDetails: Combobox.Root.OpenChangeEventDetails) => void)`                       | -       | Event handler called when the popup is opened or closed.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
 | autoHighlight        | `boolean`                                                                                             | `false` | Whether the first matching item is highlighted automatically while filtering.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
 | highlightItemOnHover | `boolean`                                                                                             | `true`  | Whether moving the pointer over items should highlight them.&#xA;Disabling this prop allows CSS `:hover` to be differentiated from the `:focus` (`data-highlighted`) state.                                                                                                                                                                                                                                                                                                                                                                                           |
-| actionsRef           | `React.RefObject<Combobox.Root.Actions \| null>`                                                      | -       | A ref to imperative actions. `unmount`: Manually unmounts the combobox.&#xA;Call this after any externally controlled closing animation finishes.                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| actionsRef           | `React.RefObject<Combobox.Root.Actions \| null>`                                                      | -       | A ref to imperative actions. `unmount`: Manually unmounts the combobox.&#xA;Call `preventUnmountOnClose()` in `onOpenChange` to manually control unmounting,&#xA;then call this action after any externally controlled closing animation finishes.                                                                                                                                                                                                                                                                                                                    |
 | autoComplete         | `string`                                                                                              | -       | Provides a hint to the browser for autofill.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
 | filter               | `((item: Item, query: string, itemToString?: ((item: Item) => string)) => boolean) \| null`           | -       | ComboboxFilter function used to match items vs input query.&#xA;Receives the source item, which is the derived value's item when `items` is a `createItems()`&#xA;collection, and the item itself otherwise.                                                                                                                                                                                                                                                                                                                                                          |
 | filteredItems        | `Item[] \| Group<Item>[]`                                                                             | -       | Filtered items to display in the list.&#xA;When provided, the list uses these items instead of filtering the `items` prop internally.&#xA;When `items` is also provided, this array must preserve its flat or grouped structure.&#xA;With a `createItems()` collection, pass source items rather than derived values.&#xA;Nullish entries are not supported, as in `items`.&#xA;Use when you want to control filtering logic externally with the `useFilter()` hook.                                                                                                  |
@@ -142,6 +142,45 @@ type ComboboxRootHighlightEventDetails =
   | { reason: 'none'; event: Event; index: number }
   | { reason: 'keyboard'; event: KeyboardEvent; index: number }
   | { reason: 'pointer'; event: PointerEvent; index: number };
+```
+
+### Root.OpenChangeEventDetails
+
+```typescript
+type ComboboxRootOpenChangeEventDetails = (
+  | { reason: 'trigger-press'; event: MouseEvent | PointerEvent | TouchEvent | KeyboardEvent }
+  | { reason: 'input-press'; event: MouseEvent | PointerEvent | TouchEvent | KeyboardEvent }
+  | { reason: 'outside-press'; event: MouseEvent | PointerEvent | TouchEvent }
+  | { reason: 'item-press'; event: MouseEvent | PointerEvent | KeyboardEvent }
+  | { reason: 'close-press'; event: MouseEvent | PointerEvent | KeyboardEvent }
+  | { reason: 'escape-key'; event: KeyboardEvent }
+  | { reason: 'list-navigation'; event: KeyboardEvent }
+  | { reason: 'focus-out'; event: KeyboardEvent | FocusEvent }
+  | { reason: 'input-change'; event: Event | InputEvent }
+  | { reason: 'input-clear'; event: Event | FocusEvent | InputEvent }
+  | { reason: 'clear-press'; event: MouseEvent | PointerEvent | KeyboardEvent }
+  | { reason: 'chip-remove-press'; event: MouseEvent | PointerEvent | KeyboardEvent }
+  | { reason: 'cancel-open'; event: MouseEvent }
+  | { reason: 'none'; event: Event }
+) & {
+  /** Cancels Base UI from handling the event. */
+  cancel: () => void;
+  /** Allows the event to propagate in cases where Base UI will stop the propagation. */
+  allowPropagation: () => void;
+  /** Indicates whether the event has been canceled. */
+  isCanceled: boolean;
+  /** Indicates whether the event is allowed to propagate. */
+  isPropagationAllowed: boolean;
+  /** The element that triggered the event, if applicable. */
+  trigger: Element | undefined;
+  /**
+   * When `reason` is `input-clear` in multiple mode, indicates whether an item press caused the
+   * clear. Automatic cleanup clears omit this property.
+   */
+  isItemPress?: boolean;
+  /** Prevents the popup from unmounting until the `unmount` action is called. */
+  preventUnmountOnClose: AriaCombobox.preventUnmountOnClose;
+};
 ```
 
 ### Trigger
@@ -1235,6 +1274,12 @@ type CreateComboboxItemsOptions<
 
 ## External Types
 
+### preventUnmountOnClose
+
+```typescript
+type preventUnmountOnClose = () => void;
+```
+
 ### Side
 
 ```typescript
@@ -1272,7 +1317,7 @@ type Orientation = 'horizontal' | 'vertical';
 
 ## Export Groups
 
-- `Combobox.Root`: `Combobox.Root`, `Combobox.Root.Props`, `Combobox.Root.State`, `Combobox.Root.Actions`, `Combobox.Root.ChangeEventReason`, `Combobox.Root.ChangeEventDetails`, `Combobox.Root.HighlightEventReason`, `Combobox.Root.HighlightEventDetails`
+- `Combobox.Root`: `Combobox.Root`, `Combobox.Root.Props`, `Combobox.Root.State`, `Combobox.Root.Actions`, `Combobox.Root.ChangeEventReason`, `Combobox.Root.ChangeEventDetails`, `Combobox.Root.OpenChangeEventDetails`, `Combobox.Root.HighlightEventReason`, `Combobox.Root.HighlightEventDetails`
 - `Combobox.Label`: `Combobox.Label`, `Combobox.Label.State`, `Combobox.Label.Props`
 - `Combobox.Value`: `Combobox.Value`, `Combobox.Value.State`, `Combobox.Value.Props`
 - `Combobox.Input`: `Combobox.Input`, `Combobox.Input.State`, `Combobox.Input.Props`
@@ -1301,7 +1346,7 @@ type Orientation = 'horizontal' | 'vertical';
 - `Combobox.useFilter`
 - `Combobox.useFilteredItems`
 - `Combobox.createItems`
-- `Default`: `ComboboxFilter`, `ComboboxFilterOptions`, `ComboboxPrimitiveValue`, `CreateComboboxItemsOptions`, `ComboboxItemCollection`, `ComboboxRootProps`, `ComboboxRootState`, `ComboboxRootActions`, `ComboboxRootChangeEventReason`, `ComboboxRootChangeEventDetails`, `ComboboxRootHighlightEventReason`, `ComboboxRootHighlightEventDetails`, `ComboboxLabelState`, `ComboboxLabelProps`, `ComboboxTriggerState`, `ComboboxTriggerProps`, `ComboboxInputState`, `ComboboxInputProps`, `ComboboxInputGroupState`, `ComboboxInputGroupProps`, `ComboboxPopupState`, `ComboboxPopupProps`, `ComboboxPositionerState`, `ComboboxPositionerProps`, `ComboboxListState`, `ComboboxListProps`, `ComboboxItemState`, `ComboboxItemProps`, `ComboboxItemIndicatorProps`, `ComboboxItemIndicatorState`, `ComboboxValueState`, `ComboboxValueProps`, `ComboboxIconState`, `ComboboxIconProps`, `ComboboxArrowState`, `ComboboxArrowProps`, `ComboboxBackdropProps`, `ComboboxBackdropState`, `ComboboxPortalState`, `ComboboxPortalProps`, `ComboboxEmptyState`, `ComboboxEmptyProps`, `ComboboxGroupState`, `ComboboxGroupProps`, `ComboboxGroupLabelState`, `ComboboxGroupLabelProps`, `ComboboxRowState`, `ComboboxRowProps`, `ComboboxChipsState`, `ComboboxChipsProps`, `ComboboxChipState`, `ComboboxChipProps`, `ComboboxChipRemoveState`, `ComboboxChipRemoveProps`, `ComboboxClearState`, `ComboboxClearProps`, `ComboboxStatusState`, `ComboboxStatusProps`, `ComboboxCollectionState`, `ComboboxCollectionProps`, `ComboboxSeparatorProps`, `ComboboxSeparatorState`
+- `Default`: `ComboboxFilter`, `ComboboxFilterOptions`, `ComboboxPrimitiveValue`, `CreateComboboxItemsOptions`, `ComboboxItemCollection`, `ComboboxRootProps`, `ComboboxRootState`, `ComboboxRootActions`, `ComboboxRootOpenChangeEventDetails`, `ComboboxRootChangeEventReason`, `ComboboxRootChangeEventDetails`, `ComboboxRootHighlightEventReason`, `ComboboxRootHighlightEventDetails`, `ComboboxLabelState`, `ComboboxLabelProps`, `ComboboxTriggerState`, `ComboboxTriggerProps`, `ComboboxInputState`, `ComboboxInputProps`, `ComboboxInputGroupState`, `ComboboxInputGroupProps`, `ComboboxPopupState`, `ComboboxPopupProps`, `ComboboxPositionerState`, `ComboboxPositionerProps`, `ComboboxListState`, `ComboboxListProps`, `ComboboxItemState`, `ComboboxItemProps`, `ComboboxItemIndicatorProps`, `ComboboxItemIndicatorState`, `ComboboxValueState`, `ComboboxValueProps`, `ComboboxIconState`, `ComboboxIconProps`, `ComboboxArrowState`, `ComboboxArrowProps`, `ComboboxBackdropProps`, `ComboboxBackdropState`, `ComboboxPortalState`, `ComboboxPortalProps`, `ComboboxEmptyState`, `ComboboxEmptyProps`, `ComboboxGroupState`, `ComboboxGroupProps`, `ComboboxGroupLabelState`, `ComboboxGroupLabelProps`, `ComboboxRowState`, `ComboboxRowProps`, `ComboboxChipsState`, `ComboboxChipsProps`, `ComboboxChipState`, `ComboboxChipProps`, `ComboboxChipRemoveState`, `ComboboxChipRemoveProps`, `ComboboxClearState`, `ComboboxClearProps`, `ComboboxStatusState`, `ComboboxStatusProps`, `ComboboxCollectionState`, `ComboboxCollectionProps`, `ComboboxSeparatorProps`, `ComboboxSeparatorState`
 
 ## Canonical Types
 
@@ -1312,6 +1357,7 @@ Maps `Canonical`: `Alias` — Use Canonical when its namespace is already import
 - `Combobox.Root.Actions`: `ComboboxRootActions`
 - `Combobox.Root.ChangeEventReason`: `ComboboxRootChangeEventReason`
 - `Combobox.Root.ChangeEventDetails`: `ComboboxRootChangeEventDetails`
+- `Combobox.Root.OpenChangeEventDetails`: `ComboboxRootOpenChangeEventDetails`
 - `Combobox.Root.HighlightEventReason`: `ComboboxRootHighlightEventReason`
 - `Combobox.Root.HighlightEventDetails`: `ComboboxRootHighlightEventDetails`
 - `Combobox.Label.State`: `ComboboxLabelState`

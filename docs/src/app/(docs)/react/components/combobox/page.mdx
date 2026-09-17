@@ -360,6 +360,15 @@ const FruitItem = React.memo(function FruitItem({ item }: { item: Fruit }) {
 <Combobox.List>{(item: Fruit) => <FruitItem key={item.id} item={item} />}</Combobox.List>;
 ```
 
+## Closing animations
+
+The popup unmounts automatically after its CSS closing animation finishes.
+
+To control unmounting with an external animation library, call `eventDetails.preventUnmountOnClose()` in `onOpenChange` when `open` is `false`.
+Then call `actionsRef.current.unmount()` after the animation finishes.
+The opt-out applies to that close cycle and resets when the popup reopens.
+`onOpenChangeComplete(false)` fires when the popup unmounts.
+
 ## API reference
 
 import { TypesCombobox } from './types';

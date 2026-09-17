@@ -36,6 +36,7 @@ import {
   ComboboxInputValueContext,
 } from './ComboboxRootContext';
 import { selectors, type ComboboxStoreContext, type State as StoreState } from '../store';
+import { attachPreventUnmountOnClose } from '../../utils/popups/popupStoreUtils';
 import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
 import { useRegisterFieldControl } from '../../internals/field-register-control/useRegisterFieldControl';
@@ -571,6 +572,13 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
   const triggerRef = useValueAsRef(triggerElement);
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
+  const [preventUnmountingOnClose, setPreventUnmountingOnClose] = React.useState(false);
+
+  // Reopening, including through a controlled prop, starts a new close cycle.
+  if (open && preventUnmountingOnClose) {
+    setPreventUnmountingOnClose(false);
+  }
+
   const { openMethod, triggerProps } = useOpenInteractionType(open);
 
   const getStringifiedValueForForm = useStableCallback(() => fieldStringValue);
@@ -765,7 +773,9 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
         eventDetails.allowPropagation();
       }
 
-      props.onOpenChange?.(nextOpen, eventDetails);
+      const openEventDetails = Object.assign(eventDetails, { preventUnmountOnClose: NOOP });
+      const shouldPreventUnmountOnClose = attachPreventUnmountOnClose(openEventDetails);
+      props.onOpenChange?.(nextOpen, openEventDetails);
 
       if (eventDetails.isCanceled) {
         return;
@@ -810,6 +820,9 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
         }
       }
 
+      if (!nextOpen && shouldPreventUnmountOnClose()) {
+        setPreventUnmountingOnClose(true);
+      }
       setOpenUnwrapped(nextOpen);
 
       if (
@@ -927,6 +940,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
   });
 
   const handleUnmount = useStableCallback(() => {
+    setPreventUnmountingOnClose(false);
     setMounted(false);
     onOpenChangeComplete?.(false);
     setQueryChangedAfterOpen(false);
@@ -981,7 +995,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
   }, [inline, positionerElement]);
 
   useOpenChangeComplete({
-    enabled: !props.actionsRef,
+    enabled: mounted && !open && !preventUnmountingOnClose,
     open,
     ref: resolvedPopupRef,
     onComplete() {
@@ -1706,7 +1720,7 @@ interface ComboboxRootProps<ItemValue, Item = ItemValue> {
    * Event handler called when the popup is opened or closed.
    */
   onOpenChange?:
-    ((open: boolean, eventDetails: AriaCombobox.ChangeEventDetails) => void) | undefined;
+    ((open: boolean, eventDetails: AriaCombobox.OpenChangeEventDetails) => void) | undefined;
   /**
    * Event handler called after any animations complete when the popup is opened or closed.
    */
@@ -1760,7 +1774,8 @@ interface ComboboxRootProps<ItemValue, Item = ItemValue> {
   /**
    * A ref to imperative actions.
    * - `unmount`: Manually unmounts the combobox.
-   * Call this after any externally controlled closing animation finishes.
+   * Call `preventUnmountOnClose()` in `onOpenChange` to manually control unmounting,
+   * then call this action after any externally controlled closing animation finishes.
    */
   actionsRef?: React.RefObject<AriaCombobox.Actions | null> | undefined;
   /**
@@ -1960,6 +1975,10 @@ export namespace AriaCombobox {
     | typeof REASONS.chipRemovePress
     | typeof REASONS.cancelOpen
     | typeof REASONS.none;
+  export type OpenChangeEventDetails = ChangeEventDetails & {
+    /** Prevents the popup from unmounting until the `unmount` action is called. */
+    preventUnmountOnClose(): void;
+  };
   export type ChangeEventDetails = BaseUIChangeEventDetails<ChangeEventReason> & {
     /**
      * When `reason` is `input-clear` in multiple mode, indicates whether an item press caused the
