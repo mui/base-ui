@@ -256,7 +256,7 @@ function CalendarExperimentInner() {
         <div className={styles.main}>
           <div className={styles.view}>
             <Draggable.Provider>
-              <DragPageAutoScroll />
+              <DragPageAutoScroll accept={CAL_DRAG_KINDS} />
               {view === 'month' ? (
                 <CalendarMonthView monthMs={monthMs} />
               ) : (

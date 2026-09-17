@@ -526,7 +526,7 @@ function DataGridInner() {
 export default function DataGridMuiX() {
   return (
     <Draggable.Provider>
-      <DragPageAutoScroll />
+      <DragPageAutoScroll accept={[columnKind, rowKind]} />
       <DataGridInner />
     </Draggable.Provider>
   );

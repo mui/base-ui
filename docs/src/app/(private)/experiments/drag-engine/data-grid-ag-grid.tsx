@@ -462,7 +462,7 @@ function DataGridInner() {
 export default function DataGrid() {
   return (
     <Draggable.Provider>
-      <DragPageAutoScroll />
+      <DragPageAutoScroll accept={[columnKind, rowKind]} />
       <DataGridInner />
     </Draggable.Provider>
   );

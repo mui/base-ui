@@ -241,7 +241,7 @@ function InfiniteCanvasContent() {
 export default function InfiniteCanvas() {
   return (
     <Draggable.Provider>
-      <DragPageAutoScroll />
+      <DragPageAutoScroll accept={noteKind} />
       <InfiniteCanvasContent />
     </Draggable.Provider>
   );

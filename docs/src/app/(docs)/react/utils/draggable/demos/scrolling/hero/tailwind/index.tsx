@@ -270,7 +270,7 @@ function AutoScrollBoardContent() {
 export default function AutoScrollBoard() {
   return (
     <Draggable.Provider>
-      <DragPageAutoScroll />
+      <DragPageAutoScroll accept={taskKind} />
       <AutoScrollBoardContent />
     </Draggable.Provider>
   );

@@ -192,7 +192,7 @@ export default function FileExplorer() {
   return (
     // Custom preview content renders beside the provider's children.
     <Draggable.Provider>
-      <DragPageAutoScroll />
+      <DragPageAutoScroll accept={nodeKind} />
       <div className={styles.Root}>
         <nav aria-label="Breadcrumb" className={styles.Breadcrumb}>
           {path.map((folder, index) => (

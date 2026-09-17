@@ -371,7 +371,7 @@ function DraggableTabsContent() {
 export default function DraggableTabs() {
   return (
     <Draggable.Provider>
-      <DragPageAutoScroll />
+      <DragPageAutoScroll accept={tabKind} />
       <DraggableTabsContent />
     </Draggable.Provider>
   );

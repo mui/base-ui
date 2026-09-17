@@ -156,7 +156,7 @@ function AxisLaneContent() {
 export default function AxisLane() {
   return (
     <Draggable.Provider>
-      <DragPageAutoScroll />
+      <DragPageAutoScroll accept={stopKind} />
       <AxisLaneContent />
     </Draggable.Provider>
   );

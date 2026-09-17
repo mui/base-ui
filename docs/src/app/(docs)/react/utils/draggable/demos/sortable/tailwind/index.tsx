@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { Draggable } from '@base-ui/react/draggable';
 
 const taskKind = Draggable.createKind<string>('sortable-task');
@@ -7,23 +8,55 @@ const initialTasks = ['Write the spec', 'Sketch the UI', 'Set up the repo', 'Wir
 
 export default function SortableList() {
   const [tasks, setTasks] = React.useState(initialTasks);
+  const [mode, setMode] = React.useState<'drop' | 'live'>('drop');
+  const initialOrder = React.useRef(tasks);
+  const reorder = useStableCallback(
+    ({ source, collision }: Draggable.CollisionProvider.CollisionEvent<string>) => {
+      if (!collision) {
+        return;
+      }
+      setTasks((current) => {
+        const remaining = current.filter((task) => task !== source.payload);
+        const index = remaining.indexOf(collision.target.payload);
+        if (index === -1) {
+          return current;
+        }
+        remaining.splice(index + (collision.placement === 'after' ? 1 : 0), 0, source.payload);
+        return remaining.every((task, position) => task === current[position])
+          ? current
+          : remaining;
+      });
+    },
+  );
   return (
     <Draggable.Provider>
+      <label className="mb-4 flex items-center gap-2 text-sm">
+        Reorder
+        <select
+          value={mode}
+          onChange={(event) => setMode(event.target.value === 'live' ? 'live' : 'drop')}
+        >
+          <option value="drop">On drop</option>
+          <option value="live">While dragging</option>
+        </select>
+      </label>
       <Draggable.CollisionProvider
         kind={taskKind}
-        onMoveEnd={({ source, collision }) => {
-          if (!collision) {
-            return;
+        placement={mode === 'live' ? 'direction' : 'midpoint'}
+        onMoveStart={() => {
+          initialOrder.current = tasks;
+        }}
+        onCollisionChange={(event) => {
+          if (mode === 'live') {
+            reorder(event);
           }
-          setTasks((current) => {
-            const remaining = current.filter((task) => task !== source.payload);
-            const index = remaining.indexOf(collision.target.payload);
-            if (index === -1) {
-              return current;
-            }
-            remaining.splice(index + (collision.placement === 'after' ? 1 : 0), 0, source.payload);
-            return remaining;
-          });
+        }}
+        onMoveEnd={(event) => {
+          if (event.canceled || !event.dropTarget) {
+            setTasks(initialOrder.current);
+          } else {
+            reorder(event);
+          }
         }}
       >
         <div className="grid w-80 max-w-full gap-2" role="group" aria-label="Tasks">

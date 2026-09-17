@@ -524,7 +524,9 @@ function DraggableTabsExperimentContent() {
 export default function DraggableTabsExperiment() {
   return (
     <Draggable.Provider>
-      <DragPageAutoScroll />
+      <DragPageAutoScroll
+        accept={[basicTabKind, disabledTabKind, controlledTabKind, uncontrolledTabKind]}
+      />
       <DraggableTabsExperimentContent />
     </Draggable.Provider>
   );

@@ -814,7 +814,7 @@ import { DemoSortableList } from './demos/sortable';
 
 `Draggable.CollisionProvider` resolves insertion positions among descendant draggables of its `kind`. Each row participates automatically. The provider renders no element and leaves the order in your application state.
 
-The example commits from the provider's `onMoveEnd`. Its `collision` contains the destination's `target.payload` and a `placement` of `'before'` or `'after'`. Cancellation, release outside the group, and release over the dragged row produce `collision: null`. Use <kbd>Alt</kbd>+<kbd>↑</kbd> or <kbd>Alt</kbd>+<kbd>↓</kbd> to reorder with the keyboard.
+Choose **On drop** to commit from `onMoveEnd`, or **While dragging** to reorder from `onCollisionChange` with `placement="direction"`. Live reordering restores the original order on cancellation or release outside a valid target. The event's `collision` contains the destination's `target.payload` and a `placement` of `'before'` or `'after'`. Cancellation, release outside the group, and release over the dragged row produce `collision: null`. Use <kbd>Alt</kbd>+<kbd>↑</kbd> or <kbd>Alt</kbd>+<kbd>↓</kbd> to reorder with the keyboard.
 
 Use `onCollisionChange` to show an indicator or reorder while moving. For live reordering, save the original order at pickup and restore it on cancellation. A source dropped onto itself still counts as a successful drop, although its collision is null. The provider sets `data-collision-before` or `data-collision-after` on the current participant without rerendering its siblings.
 

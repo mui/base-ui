@@ -1291,7 +1291,7 @@ function BookmarkDialog({
 export default function FakeBrowserExperiment() {
   return (
     <Draggable.Provider>
-      <DragPageAutoScroll />
+      <DragPageAutoScroll accept={[bookmarkKind, tabKind]} />
       <BookmarkBar />
     </Draggable.Provider>
   );

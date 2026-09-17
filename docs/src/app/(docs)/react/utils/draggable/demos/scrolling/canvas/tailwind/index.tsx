@@ -125,7 +125,7 @@ function CanvasPanContent() {
 export default function CanvasPan() {
   return (
     <Draggable.Provider>
-      <DragPageAutoScroll />
+      <DragPageAutoScroll accept={pinKind} />
       <CanvasPanContent />
     </Draggable.Provider>
   );
