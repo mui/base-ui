@@ -105,7 +105,7 @@ expectType<() => void, ReturnType<typeof engine.registerDraggable>>(
   engine.registerDraggable(element, () => ({ kind: marker })),
 );
 
-// An explicit `TData` threads through `payload` and every source event.
+// An explicit `TData` threads through `getPayload` and every source event.
 interface MyData {
   foo: string;
   count: number;
@@ -113,7 +113,7 @@ interface MyData {
 const myDataKind = Draggable.createKind<MyData>('my-data');
 engine.registerDraggable<MyData>(element, () => ({
   kind: myDataKind,
-  payload: { foo: 'bar', count: 1 },
+  getPayload: () => ({ foo: 'bar', count: 1 }),
   onMoveStart: ({ source }) => {
     expectType<string, typeof source.payload.foo>(source.payload.foo);
     expectType<number, typeof source.payload.count>(source.payload.count);
@@ -126,7 +126,7 @@ engine.registerDraggable<MyData>(element, () => ({
 engine.registerDraggable<MyData>(element, () => ({
   kind: myDataKind,
   // @ts-expect-error the returned object is missing the required `count`.
-  payload: { foo: 'bar' },
+  getPayload: () => ({ foo: 'bar' }),
 }));
 
 // ---------------------------------------------------------------------------
@@ -317,10 +317,3 @@ const removedMonitorCallback: RegisterMonitorParameters = {
   onDrop: () => {},
 };
 engine.registerMonitor(() => removedMonitorCallback);
-
-const removedSourceAccessor: RegisterDraggableParameters = {
-  kind: Draggable.createKind('removed-accessor'),
-  // @ts-expect-error source payload accessors are no longer supported.
-  getPayload: () => undefined,
-};
-engine.registerDraggable(element, () => removedSourceAccessor);

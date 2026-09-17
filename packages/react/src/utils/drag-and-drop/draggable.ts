@@ -4,6 +4,7 @@ import type {
   DragKind,
   MoveStartContext,
   DraggablePayload,
+  DraggablePayloadGetter,
   DragPreviewParameters,
   BeforeMoveStartEventDetails,
   DraggableEventDetailsMap,
@@ -157,8 +158,11 @@ export type DraggableConfig<TData = undefined> = {
   // and `registerDraggable` re-impose it through an overload, which also keeps a
   // wrapper spreading their `Props` from hitting a deferred conditional.
   payload?: DraggablePayload<TData> | undefined;
-  /** Resolves a collection's selected items once at pickup. @internal */
-  getCollectionPayload?: (() => NoInfer<TData>) | undefined;
+  /**
+   * Resolves the data attached to this drag at drag start. Use this instead of
+   * `payload` when the value depends on the pickup gesture.
+   */
+  getPayload?: DraggablePayloadGetter<TData> | undefined;
   /**
    * Stable identity used to reconnect a settling cloned preview to this source
    * after it remounts. Use the same key for the same logical item across the move.
@@ -188,7 +192,7 @@ export type DraggableConfig<TData = undefined> = {
   disabled?: boolean | undefined;
   /**
    * Event handler called when a drag is about to start, once the activation condition
-   * is met and before the preview is built.
+   * is met and before the preview is built and `getPayload` runs.
    * Call `eventDetails.cancel()` to prevent the drag from starting.
    */
   onBeforeMoveStart?:

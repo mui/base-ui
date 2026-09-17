@@ -373,7 +373,7 @@ describe('engine.registerDropTarget', () => {
     const sourceKind = Draggable.createKind<{ sourceKey: string }>('payload-source');
     engine.registerDraggable(source, {
       kind: sourceKind,
-      payload: { sourceKey: 'sourceValue' },
+      getPayload: () => ({ sourceKey: 'sourceValue' }),
     });
     engine.registerDropTarget(target, { getPayload: payload });
 

@@ -1,13 +1,15 @@
 'use client';
 import * as React from 'react';
 import { useDraggableContext } from '../DraggableContext';
-import type { DragKind, DraggablePayload } from '../../types/drag';
+import type { DragKind, DraggablePayload, DraggablePayloadGetter } from '../../types/drag';
 import { useRenderElement } from '../../internals/useRenderElement';
 import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
 import type { BaseUIComponentProps } from '../../internals/types';
 import type {
   NativeDragEventProps,
   RegisterDraggableParameters,
+  WithOptionalPayload,
+  WithRequiredPayload,
 } from '../../types/dragRegistration';
 import { useDraggableElement } from './useDraggableElement';
 import { DraggableRootContext } from './DraggableRootContext';
@@ -32,6 +34,7 @@ const stateAttributesMapping: StateAttributesMapping<DraggableRootState> = {
 export const DraggableRoot = React.forwardRef(function DraggableRoot<TData = undefined>(
   componentProps: DraggableRootPropsBase<TData> & {
     payload?: DraggablePayload<TData> | undefined;
+    getPayload?: DraggablePayloadGetter<TData> | undefined;
   },
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
@@ -46,6 +49,7 @@ export const DraggableRoot = React.forwardRef(function DraggableRoot<TData = und
     // land as an attribute.
     kind,
     payload,
+    getPayload,
     previewKey,
     disabled,
     activation,
@@ -68,6 +72,7 @@ export const DraggableRoot = React.forwardRef(function DraggableRoot<TData = und
   const params = {
     kind: kind ?? defaultKind,
     payload,
+    getPayload,
     previewKey,
     disabled,
     activation,
@@ -115,7 +120,8 @@ export const DraggableRoot = React.forwardRef(function DraggableRoot<TData = und
 }) as {
   <TData>(props: DraggableRootPropsWithPayload<TData>): React.JSX.Element;
   (
-    props: DraggableRootPropsBase<undefined> & DraggablePayloadParameters<undefined>,
+    props: DraggableRootPropsBase<undefined> &
+      WithOptionalPayload<DraggablePayloadParameters<undefined>>,
   ): React.JSX.Element;
 };
 
@@ -141,7 +147,10 @@ type DraggableRootPropsBase<TData> = Omit<
   // The preview is described by a `Draggable.Preview` or a `Draggable.Preview`
   // rendered inside this component, and the drag handle by a `Draggable.Handle`,
   // never from here.
-  Omit<RegisterDraggableParameters<TData>, 'dragPreview' | 'dragHandle' | 'payload' | 'kind'> & {
+  Omit<
+    RegisterDraggableParameters<TData>,
+    'dragPreview' | 'dragHandle' | 'payload' | 'getPayload' | 'kind'
+  > & {
     children?: React.ReactNode | undefined;
     /** The source kind. Defaults to the nearest provider's no-payload kind. */
     kind?: DragKind<TData> | undefined;
@@ -159,16 +168,23 @@ export type DraggableRootPropsWithPayload<TData> = DraggableRootPropsBase<TData>
   kind: DragKind<TData>;
 } & RequiredDraggablePayload<TData>;
 
-type DraggablePayloadParameters<TData> = Pick<RegisterDraggableParameters<TData>, 'payload'>;
+type DraggablePayloadParameters<TData> = Pick<
+  RegisterDraggableParameters<TData>,
+  'payload' | 'getPayload'
+>;
 
-type RequiredDraggablePayload<TData> = { payload: DraggablePayload<TData> };
+type RequiredDraggablePayload<TData> = WithRequiredPayload<
+  DraggablePayloadParameters<TData>,
+  DraggablePayload<TData>,
+  DraggablePayloadGetter<TData>
+>;
 
 /**
  * Requires `payload` when the caller declares a payload type. Generic wrappers
  * use {@link DraggableRootPropsWithPayload} instead.
  */
 type DraggableRootPayloadField<TData> = [TData] extends [undefined]
-  ? DraggablePayloadParameters<TData>
+  ? WithOptionalPayload<DraggablePayloadParameters<TData>>
   : RequiredDraggablePayload<TData>;
 
 export namespace DraggableRoot {

@@ -182,8 +182,8 @@ function MonthDayCell(props: { dayMs: number; monthStart: number }) {
           getPayload={(): DayCellDropData => ({
             dayMs: dayMsRef.current,
           })}
-          onDraggableMove={({ source, target, location }) => {
-            const next = resolveDropPreview(source, target, location.grabOffset);
+          onDraggableMove={({ source, target }) => {
+            const next = resolveDropPreview(source, target);
             if (!next) {
               return;
             }

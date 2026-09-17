@@ -567,7 +567,7 @@ export class DraggableCollectionPlugin<
       // footprint has to cover the row the user is actually holding.
       this.snapshotDraggedRects(new Set([itemId, ...pendingDraggedItemIds]));
     };
-    const getCollectionPayload = () => {
+    const getPayload = () => {
       const itemIdsSet = pendingDraggedItemIds ?? this.resolveDraggedItemIds(itemId);
       pendingDraggedItemIds = null;
       const actions = this.config.getActions();
@@ -620,7 +620,7 @@ export class DraggableCollectionPlugin<
             // laid out — a consumer rule may legitimately `display: none` the
             // source. See `isSelfRootDrop`, which needs their footprints.
             onBeforeMoveStart,
-            getCollectionPayload,
+            getPayload,
             // The collection owns its preview: it renders into the provider's
             // overlay, so it survives the dragged item reordering or unmounting.
             // Without one, the item falls back to the engine's default clone.
