@@ -6,6 +6,7 @@
 }
 
 .Item {
+  position: relative;
   box-sizing: border-box;
   min-height: 2.5rem;
   padding: 0.5rem 1rem;
@@ -25,12 +26,22 @@
     color: white;
   }
 
-  &[data-collision-before] {
-    box-shadow: inset 0 3px currentcolor;
+  &[data-collision-before]::after,
+  &[data-collision-after]::after {
+    position: absolute;
+    inset-inline: -9px;
+    height: 3px;
+    background-color: oklch(62.3% 0.214 259.815deg);
+    content: '';
+    pointer-events: none;
   }
 
-  &[data-collision-after] {
-    box-shadow: inset 0 -3px currentcolor;
+  &[data-collision-before]::after {
+    top: -6.5px;
+  }
+
+  &[data-collision-after]::after {
+    bottom: -6.5px;
   }
 
   &[data-dragging] {

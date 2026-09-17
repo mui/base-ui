@@ -40,7 +40,7 @@ export default function SortableOnDrop() {
               kind={taskKind}
               payload={task}
               render={<button type="button" aria-label={task} />}
-              className="box-border min-h-10 cursor-grab select-none border border-neutral-900 bg-white px-4 py-2 text-sm leading-5 text-neutral-900 data-[collision-before]:shadow-[inset_0_3px_currentColor] data-[collision-after]:shadow-[inset_0_-3px_currentColor] data-[dragging]:opacity-40 focus-visible:outline-2 focus-visible:outline-offset-2 dark:border-white dark:bg-neutral-900 dark:text-white"
+              className="relative box-border min-h-10 cursor-grab select-none border border-neutral-900 bg-white px-4 py-2 text-sm leading-5 text-neutral-900 after:pointer-events-none after:absolute after:inset-x-[-9px] after:hidden after:h-[3px] after:bg-blue-500 data-[collision-before]:after:top-[-6.5px] data-[collision-before]:after:block data-[collision-after]:after:bottom-[-6.5px] data-[collision-after]:after:block data-[dragging]:opacity-40 focus-visible:outline-2 focus-visible:outline-offset-2 dark:border-white dark:bg-neutral-900 dark:text-white"
               modifiers={Draggable.restrictToVerticalAxis}
               aria-keyshortcuts="Alt+ArrowUp Alt+ArrowDown"
               onKeyDown={(event) => {
