@@ -264,6 +264,26 @@ function getStickyInsets(windowHeight: number, viewportHeight: number, surroundi
 }
 
 /**
+ * The element's layout offset from the document's top, through its offset parents. Two siblings
+ * cannot be compared by their own offsets: a table section stuck to the scrollport reports the
+ * body as its offset parent, while the row group before it reports the table. Layout offsets
+ * include a sticky box's displacement, and are zero in an environment without layout.
+ */
+function getDocumentOffsetTop(element: HTMLElement) {
+  let top = 0;
+
+  for (
+    let node: HTMLElement | null = element;
+    node != null;
+    node = node.offsetParent as HTMLElement | null
+  ) {
+    top += node.offsetTop;
+  }
+
+  return top;
+}
+
+/**
  * Keeps the browser's own scroll anchoring off the rows and the space reserved around them: it
  * would see that space change size, as the window moves and as the estimate is refined, and
  * compensate on top of the compensation the scroll-anchoring effect makes from the same
@@ -635,10 +655,8 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
       return true;
     }
 
-    return (
-      Math.abs(windowElement.offsetTop - (reservedSpace.offsetTop + reservedSpace.offsetHeight)) <=
-      1
-    );
+    const reservedSpaceEnd = getDocumentOffsetTop(reservedSpace) + reservedSpace.offsetHeight;
+    return Math.abs(getDocumentOffsetTop(windowElement) - reservedSpaceEnd) <= 1;
   });
   const muiApiRef = React.useRef<MuiVirtualizer['api'] | null>(null);
   // The concerns below are handed the engine operations they use, in this component's vocabulary,

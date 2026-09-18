@@ -109,11 +109,12 @@ export function useScrollAnchor<RowModel>(parameters: UseScrollAnchorParameters<
       return;
     }
 
-    // A pending scrollToIndex request repositions absolutely from the fresh geometry instead.
-    if (pendingScroll.isPending()) {
-      snapshotRef.current = null;
-      return;
-    }
+    // A pending scrollToIndex request repositions absolutely from the fresh geometry instead,
+    // so no correction is made while one stands. The snapshot is still taken: the engine can
+    // leave the rows above the destination unmounted until its own settle pass, and their
+    // measurements then land in the commit right after the request settles, which would have
+    // nothing to compare against otherwise.
+    const isRequestPending = pendingScroll.isPending();
 
     const latestRowsMeta = readRowsGeometry();
     // MUI publishes the store update before React commits the matching row positions. We can still
@@ -135,6 +136,7 @@ export function useScrollAnchor<RowModel>(parameters: UseScrollAnchorParameters<
       (Math.abs(scrollTop - previous.scrollTop) < 1 || Math.abs(scrollTop - maxScrollTop) < 1);
 
     if (
+      !isRequestPending &&
       previous !== null &&
       previous.rows === rows &&
       geometryChanged &&
