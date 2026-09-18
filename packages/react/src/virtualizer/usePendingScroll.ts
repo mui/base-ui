@@ -64,11 +64,6 @@ export interface PendingScroll {
   scrollToIndex: (rowIndex: number, options?: VirtualizerScrollToIndexOptions) => void;
   /** Whether a request is still outstanding. Scroll anchoring stands aside while one is. */
   isPending: () => boolean;
-  /**
-   * The position the scrollport should be at while it still refuses to scroll there, or `null`.
-   * The rendered window and the render zone follow this offset rather than the DOM.
-   */
-  getViewportScrollTop: () => number | null;
   /** Whether a scroll event is an echo of a position this module wrote. */
   isProgrammaticEcho: (scrollTop: number, evidence: ScrollInputEvidence) => boolean;
   /** Records a scroll position another concern is about to write, so its event is not a takeover. */
@@ -84,18 +79,8 @@ export interface UsePendingScrollParameters<RowModel> {
   enabled: boolean;
   /** Whether a row's height has been measured, as opposed to estimated. */
   isRowMeasured: (rowId: React.Key) => boolean;
-  /**
-   * Realigns the sticky render zone for a position written here. The native scroll event is
-   * asynchronous, so the rows must be told about the new position before it arrives.
-   */
+  /** Hands a position written here to the engine, which the browser tells only a task later. */
   onScrollApplied: (scrollTop: number) => void;
-  /** Re-renders the window unconditionally, before paint. */
-  refreshWindow: () => void;
-  /**
-   * Re-renders the window when a corrective write lands far from the position this commit's rows
-   * were rendered for.
-   */
-  refreshWindowAfterCorrectiveScroll: (scrollTop: number) => void;
   /**
    * Number of items strictly before each row, for a list whose rows include group headers, or
    * `undefined` for a flat list. Distances between a request and the window are judged in items:
@@ -110,6 +95,11 @@ export interface UsePendingScrollParameters<RowModel> {
    * rows, in whichever layout the rows are currently in.
    */
   getRowsParent: () => HTMLElement | null;
+  /**
+   * Whether the window the rows are held in stands where they belong, rather than held at the
+   * scrollport's edge after a scroll outran it, until the engine places the next window.
+   */
+  isWindowInPlace: () => boolean;
   /**
    * The current row index of a row, by id, for a list whose row indexes can move while the rows
    * themselves stay — group headers inserted above a requested item. A request follows its row
@@ -159,11 +149,10 @@ export function usePendingScroll<RowModel>(
     enabled,
     isRowMeasured,
     onScrollApplied,
-    refreshWindow,
     itemCountBeforeRow,
-    refreshWindowAfterCorrectiveScroll,
     renderContextRef,
     getRowsParent,
+    isWindowInPlace,
     resolveRowIndex,
     rows,
     scrollElementRef,
@@ -195,10 +184,8 @@ export function usePendingScroll<RowModel>(
   /**
    * Position the scrollport should be at while the browser still refuses to scroll there. A scroll
    * container gains its scrollable overflow only on the frame after the one that mounts it, so the
-   * write that opens a popup at a distant row is clamped back to zero. The rendered window and the
-   * render zone follow this offset instead of the DOM, which keeps the destination on screen from
-   * the first paint: the rows are positioned inside a sticky viewport, so what they paint over
-   * does not depend on `scrollTop` at all.
+   * write that opens a popup at a distant row is clamped back to zero. It is written again on the
+   * frame after, once the scrollport can accept it.
    */
   const viewportScrollTopRef = React.useRef<number | null>(null);
   const viewportScrollFrame = useAnimationFrame();
@@ -233,11 +220,9 @@ export function usePendingScroll<RowModel>(
 
   /**
    * Re-applies a position the scrollport rejected, on the frame where its scrollable overflow
-   * exists. The rows already paint at that position, so this only brings `scrollTop` and the
-   * scrollbar in line. A single attempt is enough to schedule: the pending scroll request retries
-   * the write on each of its own measurement passes, and the rows keep rendering for the requested
-   * position until one of them lands, so a scrollport that stays unscrollable never spins a frame
-   * loop for as long as the request stands.
+   * exists. A single attempt is enough to schedule: the pending scroll request retries the write
+   * on each of its own measurement passes, so a scrollport that stays unscrollable never spins a
+   * frame loop for as long as the request stands.
    */
   const applyViewportScroll = useStableCallback(() => {
     const scrollElement = scrollElementRef.current;
@@ -343,21 +328,16 @@ export function usePendingScroll<RowModel>(
           viewportScrollTopRef.current = null;
           viewportScrollFrame.cancel();
           requiresMeasurementRef.current = true;
-          // The native scroll event is asynchronous. Realign the sticky render zone immediately so
-          // keyboard navigation cannot expose a blank edge or leave the highlighted row offscreen
-          // for a frame while the virtual window catches up.
+          // The native scroll event is asynchronous, and the engine commits the window the
+          // written position calls for from inside it, before the browser paints that position.
           onScrollApplied(appliedScrollTop);
-          refreshWindowAfterCorrectiveScroll(appliedScrollTop);
         } else {
           // A newly opened popup runs this before its scrollable overflow exists, and the browser
-          // clamps the write back to the top. The destination is still known, so hold it as the
-          // position to render for: the window below is built from it and the sticky render zone
-          // is offset by it, which puts the requested row on screen in this same commit. Only the
-          // scrollbar still lags, until the retry below lands once the scrollport can accept it.
+          // clamps the write back to the top. The destination is still known, so hold it and
+          // write it again on the frame after, once the scrollport can accept it.
           programmaticScrollTopRef.current = clampedScrollTop;
           viewportScrollTopRef.current = clampedScrollTop;
           requiresMeasurementRef.current = false;
-          refreshWindow();
           viewportScrollFrame.request(applyViewportScroll);
           return false;
         }
@@ -405,6 +385,13 @@ export function usePendingScroll<RowModel>(
           : getLaidOutRowElements(rowsParent).find(
               (element) => Number(element.dataset.rowIndex) === rowIndex,
             );
+      // A window held at the scrollport's edge, after the write outran it, holds the row where it
+      // does not belong: where the row is now says nothing about where it will be once the engine
+      // places the next window, from inside the scroll event that follows the write a task later.
+      if (!isWindowInPlace()) {
+        return false;
+      }
+
       const renderedRowRect = renderedRow?.getBoundingClientRect();
       const scrollElementRect = scrollElement.getBoundingClientRect();
       if (renderedRowRect == null) {
@@ -601,10 +588,8 @@ export function usePendingScroll<RowModel>(
 
   retryRef.current = retry;
 
-  // The window computation reads the outstanding request during render, so these must stay
-  // callable there: they only read refs.
+  // Read by the other concerns' effects and handlers: these only read refs.
   const isPending = React.useCallback(() => rowIndexRef.current != null, []);
-  const getViewportScrollTop = React.useCallback(() => viewportScrollTopRef.current, []);
   const noteProgrammaticScroll = useStableCallback((scrollTop: number) => {
     programmaticScrollTopRef.current = scrollTop;
   });
@@ -620,22 +605,13 @@ export function usePendingScroll<RowModel>(
   return React.useMemo(
     () => ({
       cancel,
-      getViewportScrollTop,
       isPending,
       isProgrammaticEcho,
       noteProgrammaticScroll,
       retry,
       scrollToIndex,
     }),
-    [
-      cancel,
-      getViewportScrollTop,
-      isPending,
-      isProgrammaticEcho,
-      noteProgrammaticScroll,
-      retry,
-      scrollToIndex,
-    ],
+    [cancel, isPending, isProgrammaticEcho, noteProgrammaticScroll, retry, scrollToIndex],
   );
 }
 
