@@ -50,10 +50,6 @@ type Context = PopupStoreContext<MenuRoot.ChangeEventDetails> & {
 
 const selectors = {
   ...popupStoreSelectors,
-  // An open update can reach a retained popup before the root syncs its transition state.
-  // Match useTransitionStatus until the new opening cycle is mounted.
-  transitionStatus: (state: State<unknown>) =>
-    popupStoreSelectors.open(state) && !state.mounted ? 'starting' : state.transitionStatus,
   disabled: (state: State<unknown>) =>
     state.parent.type === 'menubar'
       ? state.parent.context.disabled || state.disabled
