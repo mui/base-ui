@@ -113,6 +113,7 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
       initialFocus={resolvedInitialFocus}
       returnFocus={finalFocus}
       restoreFocus="popup"
+      getInsideElements={() => [store.context.beforeTriggerFocusGuardRef.current]}
       previousFocusableElement={
         isHTMLElement(activeTriggerElement) ? activeTriggerElement : undefined
       }

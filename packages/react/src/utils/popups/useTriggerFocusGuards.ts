@@ -1,5 +1,5 @@
 'use client';
-import * as React from 'react';
+import type * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import {
   contains,
@@ -23,6 +23,7 @@ interface TriggerFocusGuardStore {
   setOpen(open: boolean, eventDetails: BaseUIChangeEventDetails<typeof REASONS.focusOut>): void;
   select(key: 'positionerElement'): HTMLElement | null;
   context: {
+    readonly beforeTriggerFocusGuardRef: React.RefObject<HTMLElement | null>;
     readonly beforeContentFocusGuardRef: React.RefObject<HTMLElement | null>;
     readonly triggerFocusTargetRef: React.RefObject<HTMLElement | null>;
   };
@@ -39,7 +40,8 @@ export function useTriggerFocusGuards(
   store: TriggerFocusGuardStore,
   triggerElementRef: React.RefObject<HTMLElement | null>,
 ) {
-  const preFocusGuardRef = React.useRef<HTMLElement>(null);
+  // Share the guard with the focus manager so trigger blur does not close before its focus handler.
+  const preFocusGuardRef = store.context.beforeTriggerFocusGuardRef;
 
   function handlePreFocusGuardFocus(event: React.FocusEvent) {
     ReactDOM.flushSync(() => {
@@ -53,8 +55,9 @@ export function useTriggerFocusGuards(
       );
     });
 
+    // The guard unmounts in the close flush above, so fall back to the trigger.
     const previousTabbable: FocusableElement | null = getTabbableBeforeElement(
-      preFocusGuardRef.current,
+      preFocusGuardRef.current || triggerElementRef.current,
     );
     previousTabbable?.focus();
   }
