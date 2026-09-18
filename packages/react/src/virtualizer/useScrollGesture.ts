@@ -71,6 +71,8 @@ export interface ScrollGesture {
   deferRowHeight: (rowId: React.Key, measuredHeight: number, estimatedHeight: number) => number;
   /** Returns a height deferred during a drag that has since ended, and forgets it. */
   releaseRowHeight: (rowId: React.Key) => number | undefined;
+  /** The real height a drag is holding back for a row, if any, left in place. */
+  getDeferredRowHeight: (rowId: React.Key) => number | undefined;
   /** Drops every deferred measurement, for a caller that is re-measuring from scratch. */
   clearDeferredRowHeights: () => void;
   /**
@@ -225,6 +227,12 @@ export function useScrollGesture(parameters: UseScrollGestureParameters): Scroll
     [deferredRowHeightsRef],
   );
 
+  // Read during render, where the window's height is worked out: it only reads a ref.
+  const getDeferredRowHeight = React.useCallback(
+    (rowId: React.Key) => deferredRowHeightsRef.current.get(rowId),
+    [deferredRowHeightsRef],
+  );
+
   // Only ever called from the imperative `remeasure` handler, never during render.
   const clearDeferredRowHeights = useStableCallback(() => deferredRowHeightsRef.current.clear());
   const isScrolling = React.useCallback(() => isScrollingRef.current, []);
@@ -234,6 +242,7 @@ export function useScrollGesture(parameters: UseScrollGestureParameters): Scroll
     () => ({
       clearDeferredRowHeights,
       deferRowHeight,
+      getDeferredRowHeight,
       isScrollbarDrag,
       isScrolling,
       noteScroll,
@@ -244,6 +253,7 @@ export function useScrollGesture(parameters: UseScrollGestureParameters): Scroll
     [
       clearDeferredRowHeights,
       deferRowHeight,
+      getDeferredRowHeight,
       isScrollbarDrag,
       isScrolling,
       noteScroll,
