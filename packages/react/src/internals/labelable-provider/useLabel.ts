@@ -3,7 +3,7 @@ import * as React from 'react';
 import { isHTMLElement } from '@floating-ui/utils/dom';
 import { ownerDocument } from '@base-ui/utils/owner';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import { getTarget } from '../../floating-ui-react/utils';
+import { closest, getTarget } from '../../floating-ui-react/utils';
 import { useRegisteredLabelId } from '../../utils/useRegisteredLabelId';
 import { useLabelableContext } from './LabelableContext';
 
@@ -45,7 +45,7 @@ export function useLabel(params: UseLabelParameters = {}): UseLabelReturnValue {
 
   function handleInteraction(event: React.MouseEvent) {
     const target = getTarget(event.nativeEvent) as HTMLElement | null;
-    if (target?.closest('button,input,select,textarea')) {
+    if (closest(target, 'button,input,select,textarea')) {
       return;
     }
 

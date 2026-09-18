@@ -1,4 +1,4 @@
-import { expect } from 'vitest';
+import { expect, describe, it } from 'vitest';
 import * as React from 'react';
 import { createRenderer, screen } from '@mui/internal-test-utils';
 import { useId } from '@base-ui/utils/useId';

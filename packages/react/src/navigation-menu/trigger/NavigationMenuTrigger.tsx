@@ -22,6 +22,7 @@ import {
   useHoverInteractionSharedState,
 } from '../../floating-ui-react/hooks/useHoverInteractionSharedState';
 import {
+  closest,
   contains,
   getTabbableAfterElement,
   getNextTabbable,
@@ -51,8 +52,8 @@ import { NavigationMenuRoot } from '../root/NavigationMenuRoot';
 import { NAVIGATION_MENU_TRIGGER_IDENTIFIER } from '../utils/constants';
 import { setSharedFixedSize } from '../utils/setSharedFixedSize';
 import { useNavigationMenuDismissContext } from '../list/NavigationMenuDismissContext';
-import { NavigationMenuPopupCssVars } from '../popup/NavigationMenuPopupCssVars';
-import { NavigationMenuPositionerCssVars } from '../positioner/NavigationMenuPositionerCssVars';
+import * as NavigationMenuPopupCssVars from '../popup/NavigationMenuPopupCssVars';
+import * as NavigationMenuPositionerCssVars from '../positioner/NavigationMenuPositionerCssVars';
 import { mergeProps } from '../../merge-props';
 import { useDirection } from '../../internals/direction-context/DirectionContext';
 
@@ -512,7 +513,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
       return null;
     }
 
-    return triggerElementRef.current?.closest('ul') ?? null;
+    return closest(triggerElementRef.current, 'ul');
   }
 
   const hoverProps = useHoverReferenceInteraction(context, {

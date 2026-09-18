@@ -1,4 +1,4 @@
-import { expect } from 'vitest';
+import { expect, describe, it } from 'vitest';
 import * as React from 'react';
 import { renderHook } from '@testing-library/react';
 import { act, createRenderer } from '@mui/internal-test-utils';

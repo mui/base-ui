@@ -1,4 +1,4 @@
-import { expect, vi } from 'vitest';
+import { expect, vi, describe, it } from 'vitest';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
@@ -1924,8 +1924,7 @@ describe('<CheckboxGroup />', () => {
 
         await user.click(screen.getByText('Submit'));
 
-        expect(validate).toHaveBeenCalledOnce();
-        expect(validate).toHaveBeenCalledWith(['one'], { group: [] });
+        expect(validate).toHaveBeenCalledExactlyOnceWith(['one'], { group: [] });
       },
     );
 
@@ -1962,8 +1961,7 @@ describe('<CheckboxGroup />', () => {
 
         await user.click(screen.getByText('Submit'));
 
-        expect(validate).toHaveBeenCalledOnce();
-        expect(validate).toHaveBeenCalledWith(['one'], { group: [] });
+        expect(validate).toHaveBeenCalledExactlyOnceWith(['one'], { group: [] });
 
         await user.click(screen.getByText('Select two'));
 
@@ -1992,8 +1990,7 @@ describe('<CheckboxGroup />', () => {
 
       await user.click(screen.getByText('Select'));
 
-      expect(validate).toHaveBeenCalledOnce();
-      expect(validate).toHaveBeenCalledWith(['one'], { group: ['one'] });
+      expect(validate).toHaveBeenCalledExactlyOnceWith(['one'], { group: ['one'] });
     });
 
     it('validates an initially empty group through the imperative action', async () => {
@@ -2017,8 +2014,7 @@ describe('<CheckboxGroup />', () => {
 
       await user.click(screen.getByText('Validate'));
 
-      expect(validate).toHaveBeenCalledOnce();
-      expect(validate).toHaveBeenCalledWith([], { group: [] });
+      expect(validate).toHaveBeenCalledExactlyOnceWith([], { group: [] });
     });
 
     it('skips a disabled representative checkbox on a later focus attempt', async () => {
