@@ -94,6 +94,23 @@ describe('<Select.FilterProvider><Select.Root/></Select.FilterProvider>', () => 
       });
     });
 
+    it('does not mount the popup when the trigger is focused', async () => {
+      const { user } = await render(<Test />);
+      const trigger = screen.getByTestId('trigger');
+      await act(async () => trigger.focus());
+      // The plain select force-mounts its portal after a focus tick for closed-trigger typeahead.
+      await act(async () => {
+        await new Promise((resolve) => {
+          setTimeout(resolve, 10);
+        });
+      });
+      expect(screen.queryByRole('dialog', { hidden: true })).toBe(null);
+      expect(screen.queryByTestId('popup')).toBe(null);
+
+      await user.keyboard('[ArrowDown]');
+      expect(await screen.findByRole('searchbox', { name: 'Filter countries' })).not.toBe(null);
+    });
+
     it('leaves a plain select untouched', async () => {
       await render(
         <Select.Root defaultOpen>
