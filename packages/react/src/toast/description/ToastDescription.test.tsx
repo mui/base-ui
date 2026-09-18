@@ -1,7 +1,7 @@
 import { expect, describe, it } from 'vitest';
 import { Toast } from '@base-ui/react/toast';
 import { createRenderer, describeConformance } from '#test-utils';
-import { screen } from '@mui/internal-test-utils';
+import { screen, within } from '@mui/internal-test-utils';
 import { List, Button } from '../utils/test-utils';
 
 const toast: Toast.Root.ToastObject = {
@@ -101,7 +101,7 @@ describe('<Toast.Description />', () => {
       </Toast.Provider>,
     );
 
-    expect(screen.getByText('render prop description')).not.toBe(null);
+    expect(within(screen.getByRole('dialog')).getByText('render prop description')).not.toBe(null);
   });
 
   it('wires aria-describedby to a description rendered through the render prop', async () => {
@@ -115,7 +115,9 @@ describe('<Toast.Description />', () => {
       </Toast.Provider>,
     );
 
-    const descriptionElement = screen.getByText('render prop description');
+    const descriptionElement = within(screen.getByRole('dialog')).getByText(
+      'render prop description',
+    );
     const rootElement = screen.getByTestId('root');
     expect(rootElement.getAttribute('aria-describedby')).toBe(descriptionElement.id);
   });
@@ -131,6 +133,6 @@ describe('<Toast.Description />', () => {
       </Toast.Provider>,
     );
 
-    expect(screen.getByText('Toast description')).not.toBe(null);
+    expect(within(screen.getByRole('dialog')).getByText('Toast description')).not.toBe(null);
   });
 });

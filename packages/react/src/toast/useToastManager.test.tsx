@@ -105,14 +105,14 @@ describe.skipIf(!isJSDOM)('useToast', () => {
       fireEvent.click(screen.getByRole('button', { name: 'add first' }));
       fireEvent.click(screen.getByRole('button', { name: 'add second' }));
 
-      expect(screen.getByText('First toast')).not.toBe(null);
-      expect(screen.getByText('Second toast')).not.toBe(null);
+      expect(screen.getByRole('heading', { name: 'First toast' })).not.toBe(null);
+      expect(screen.getByRole('heading', { name: 'Second toast' })).not.toBe(null);
 
       fireEvent.click(screen.getByRole('button', { name: 'update first' }));
 
-      expect(screen.getByText('First toast updated')).not.toBe(null);
-      expect(screen.queryByText('Second toast updated')).toBe(null);
-      expect(screen.getByText('Second toast')).not.toBe(null);
+      expect(screen.getByRole('heading', { name: 'First toast updated' })).not.toBe(null);
+      expect(screen.queryByRole('heading', { name: 'Second toast updated' })).toBe(null);
+      expect(screen.getByRole('heading', { name: 'Second toast' })).not.toBe(null);
     });
 
     it('replaces a closing toast when adding again with the same id', async () => {
@@ -726,13 +726,15 @@ describe.skipIf(!isJSDOM)('useToast', () => {
 
         expect(highRoot.getAttribute('role')).toBe('alertdialog');
         expect(highRoot.getAttribute('aria-modal')).toBe('false');
-        expect(screen.getByRole('alert')).not.toBe(null);
-        expect(screen.getByRole('alert').getAttribute('aria-atomic')).toBe('true');
+        const announcer = screen
+          .getAllByRole('status')
+          .find((node) => node.getAttribute('aria-live') === 'assertive');
+        expect(announcer).toHaveTextContent('high priority');
 
         const closeHighButton = screen.getByLabelText('close-press');
         fireEvent.click(closeHighButton);
 
-        expect(screen.queryByRole('alert')).toBe(null);
+        expect(screen.queryByRole('alertdialog')).toBe(null);
       });
     });
   });
@@ -2104,8 +2106,12 @@ describe.skipIf(!isJSDOM)('useToast', () => {
       fireEvent.click(addToastButton);
 
       const toastRoot = screen.getByTestId('toast-root');
-      expect(toastRoot).toHaveAttribute('aria-hidden', 'true');
-      expect(screen.queryByRole('alert')).not.toBe(null);
+      expect(toastRoot).not.toHaveAttribute('aria-hidden');
+      expect(toastRoot).toHaveAttribute('role', 'alertdialog');
+      const announcer = screen
+        .getAllByRole('status')
+        .find((node) => node.getAttribute('aria-live') === 'assertive');
+      expect(announcer).toHaveTextContent('High priority toastThis is urgent');
     });
   });
 });
