@@ -24,9 +24,7 @@ import { useDirection } from '../../internals/direction-context/DirectionContext
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
 import {
   createChangeEventDetails,
-  createGenericEventDetails,
   type BaseUIChangeEventDetails,
-  type BaseUIGenericEventDetails,
 } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import {
@@ -638,14 +636,11 @@ export const MenuRootInternal = fastComponent(function MenuRoot<Payload>(
     // The tag left by the write that produced this committed value.
     const reason = store.context.highlightReason;
     store.context.highlightReason = REASONS.none;
-    onItemHighlighted(
-      element ?? undefined,
-      createGenericEventDetails(reason, undefined, {
-        index: nextIndex,
-        label:
-          element == null ? undefined : (store.context.itemLabels.current[nextIndex] ?? undefined),
-      }),
-    );
+    onItemHighlighted(element ?? undefined, {
+      reason,
+      label:
+        element == null ? undefined : (store.context.itemLabels.current[nextIndex] ?? undefined),
+    });
   });
   useIsoLayoutEffect(() => {
     syncHighlightedItem();
@@ -881,7 +876,8 @@ export interface MenuRootProps<Payload = unknown> {
   onOpenChangeComplete?: ((open: boolean) => void) | undefined;
   /**
    * Callback fired when an item is highlighted or unhighlighted.
-   * Receives the highlighted item element (or `undefined` if no item is highlighted) and event details with a `reason` property describing why the highlight changed, the item's `index`, and its `label`.
+   * Receives the highlighted item element (or `undefined` if no item is highlighted) and details
+   * containing the reason for the change and the item's text label.
    * The `reason` can be:
    * - `'keyboard'`: the highlight changed due to keyboard navigation.
    * - `'pointer'`: the highlight changed due to pointer hovering.
@@ -971,19 +967,16 @@ export type MenuRootChangeEventDetails = BaseUIChangeEventDetails<MenuRoot.Chang
 export type MenuRootHighlightEventReason =
   typeof REASONS.keyboard | typeof REASONS.pointer | typeof REASONS.none;
 
-export type MenuRootHighlightEventDetails = BaseUIGenericEventDetails<
-  MenuRoot.HighlightEventReason,
-  {
-    /**
-     * The index of the highlighted item, or `-1` when no item is highlighted.
-     */
-    index: number;
-    /**
-     * The highlighted item's `label` prop, or its text content when the prop is not set.
-     */
-    label: string | undefined;
-  }
->;
+export interface MenuRootHighlightEventDetails {
+  /**
+   * The reason the highlight changed.
+   */
+  reason: MenuRoot.HighlightEventReason;
+  /**
+   * The highlighted item's `label` prop, or its text content when the prop is not set.
+   */
+  label: string | undefined;
+}
 
 export type MenuRootOrientation = 'horizontal' | 'vertical';
 

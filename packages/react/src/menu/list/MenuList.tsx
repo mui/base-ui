@@ -60,9 +60,7 @@ export const MenuList = React.forwardRef(function MenuList(
 
 export interface MenuListState {}
 
-export interface MenuListProps extends BaseUIComponentProps<'div', MenuListState> {
-  id?: string | undefined;
-}
+export interface MenuListProps extends BaseUIComponentProps<'div', MenuListState> {}
 
 export namespace MenuList {
   export type Props = MenuListProps;

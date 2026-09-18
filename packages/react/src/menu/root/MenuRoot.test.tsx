@@ -3245,7 +3245,7 @@ describe('<Menu.Root />', () => {
       );
     }
 
-    it('reports keyboard highlights with the item element, index, and label', async () => {
+    it('reports keyboard highlights with the item element and label', async () => {
       const onItemHighlighted = vi.fn();
       const { user } = await render(<HighlightMenu onItemHighlighted={onItemHighlighted} />);
 
@@ -3263,10 +3263,10 @@ describe('<Menu.Root />', () => {
         expect(item2).toHaveFocus();
       });
       expect(onItemHighlighted).toHaveBeenCalledTimes(1);
-      expect(onItemHighlighted).toHaveBeenCalledWith(
-        item2,
-        expect.objectContaining({ reason: 'keyboard', index: 1, label: 'Second' }),
-      );
+      expect(onItemHighlighted).toHaveBeenCalledWith(item2, {
+        reason: 'keyboard',
+        label: 'Second',
+      });
     });
 
     it('reports pointer highlights and falls back to the item text as the label', async () => {
@@ -3279,10 +3279,7 @@ describe('<Menu.Root />', () => {
       await waitFor(() => {
         expect(onItemHighlighted).toHaveBeenCalledTimes(1);
       });
-      expect(onItemHighlighted).toHaveBeenCalledWith(
-        item1,
-        expect.objectContaining({ reason: 'pointer', index: 0, label: 'Item 1' }),
-      );
+      expect(onItemHighlighted).toHaveBeenCalledWith(item1, { reason: 'pointer', label: 'Item 1' });
     });
 
     it('does not fire again while the same item stays highlighted', async () => {
@@ -3340,7 +3337,7 @@ describe('<Menu.Root />', () => {
       });
       expect(onItemHighlighted).toHaveBeenLastCalledWith(
         screen.getByTestId('second'),
-        expect.objectContaining({ reason: 'none', index: 0 }),
+        expect.objectContaining({ reason: 'none' }),
       );
     });
 
@@ -3372,10 +3369,10 @@ describe('<Menu.Root />', () => {
       await waitFor(() => {
         expect(onItemHighlighted).toHaveBeenCalledTimes(2);
       });
-      expect(onItemHighlighted).toHaveBeenLastCalledWith(
-        undefined,
-        expect.objectContaining({ reason: 'none', index: -1, label: undefined }),
-      );
+      expect(onItemHighlighted).toHaveBeenLastCalledWith(undefined, {
+        reason: 'none',
+        label: undefined,
+      });
     });
   });
 

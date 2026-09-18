@@ -607,10 +607,10 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
       const remove = screen.getByRole('menuitem', { name: 'Delete' });
       expect(input).toHaveFocus();
       expect(onItemHighlighted).toHaveBeenCalledTimes(2);
-      expect(onItemHighlighted).toHaveBeenLastCalledWith(
-        remove,
-        expect.objectContaining({ reason: 'keyboard', index: 1, label: 'Remove' }),
-      );
+      expect(onItemHighlighted).toHaveBeenLastCalledWith(remove, {
+        reason: 'keyboard',
+        label: 'Remove',
+      });
     });
 
     it('reports the auto-highlighted item as a programmatic change', async () => {
@@ -630,7 +630,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
       });
       expect(onItemHighlighted).toHaveBeenCalledWith(
         screen.getByRole('menuitem', { name: 'Duplicate' }),
-        expect.objectContaining({ reason: 'none', index: 0, label: 'Duplicate' }),
+        { reason: 'none', label: 'Duplicate' },
       );
 
       await user.type(input, 'zzz');
@@ -638,10 +638,10 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
       await waitFor(() => {
         expect(onItemHighlighted).toHaveBeenCalledTimes(2);
       });
-      expect(onItemHighlighted).toHaveBeenLastCalledWith(
-        undefined,
-        expect.objectContaining({ reason: 'none', index: -1, label: undefined }),
-      );
+      expect(onItemHighlighted).toHaveBeenLastCalledWith(undefined, {
+        reason: 'none',
+        label: undefined,
+      });
     });
   });
 });
