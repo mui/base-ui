@@ -1,0 +1,221 @@
+.root {
+  /* Fill the experiment's content column and own a fixed viewport-height box so
+     the large scroll surface lives inside `.viewport` instead of stretching the
+     layout (which would otherwise overlap the experiments sidebar). */
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: calc(100vh - 40px);
+  color: var(--dnd-ink);
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--dnd-border);
+  background: var(--dnd-surface);
+}
+
+.title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.hint {
+  margin: 0;
+  padding: 0.5rem 1rem;
+  border-bottom: 1px solid var(--dnd-border);
+  background: var(--dnd-surface);
+  color: var(--dnd-muted);
+}
+
+.kbd {
+  padding: 0 0.25rem;
+  border: 1px solid var(--dnd-border);
+  font: inherit;
+  color: var(--dnd-ink);
+}
+
+.button {
+  padding: 0.375rem 0.875rem;
+  border: 1px solid var(--dnd-ink);
+  background: var(--dnd-surface);
+  color: var(--dnd-ink);
+  font: inherit;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  cursor: pointer;
+  transition: background-color 0.15s;
+}
+
+.button:hover {
+  background: var(--dnd-surface-hover);
+}
+
+.button:disabled {
+  border-color: var(--dnd-muted);
+  color: var(--dnd-muted);
+  background: var(--dnd-surface);
+  cursor: default;
+}
+
+.button:focus-visible {
+  outline: 2px solid var(--dnd-ink);
+  outline-offset: -1px;
+}
+
+.zoomControls {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.slider {
+  width: 8rem;
+  accent-color: var(--dnd-ink);
+}
+
+.slider:focus-visible {
+  outline: 2px solid var(--dnd-ink);
+  outline-offset: 2px;
+}
+
+.zoomValue {
+  min-width: 3rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.readout {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin: 0 0 0 auto;
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--dnd-muted);
+}
+
+/* The one number that diverges under zoom, called out rather than colored — the
+   palette is monochrome. */
+.bad {
+  color: var(--dnd-ink);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.viewport {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  overflow: auto;
+  background-color: var(--dnd-canvas);
+}
+
+.viewport[data-space-held] {
+  cursor: grab;
+}
+
+.viewportPanning {
+  cursor: grabbing;
+
+  /* A pan must not select the card text it drags across. */
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.sizer {
+  position: relative;
+}
+
+.surface {
+  position: relative;
+  background-color: var(--dnd-canvas);
+  background-image: radial-gradient(var(--dnd-dot) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+/* `transform` leaves the element's layout box at 1×, so it comes out of flow and
+   pins to the sizer that carries the scaled scroll extent. */
+.surfaceTransformed {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform-origin: 0 0;
+}
+
+.card {
+  position: absolute;
+  box-sizing: border-box;
+  padding: 0.625rem 0.75rem;
+  border: 1px solid var(--dnd-ink);
+  background: var(--dnd-surface);
+  color: var(--dnd-ink);
+  cursor: grab;
+  outline: none;
+}
+
+.cardSelected {
+  outline: 2px solid var(--dnd-ink);
+  outline-offset: -1px;
+}
+
+.cardDragging {
+  visibility: hidden;
+}
+
+/* The preview is a clone of the card, so the source classes provide its entire
+   appearance and the data attribute adds the lifted state. */
+.card[data-drag-preview] {
+  box-shadow: var(--dnd-shadow);
+}
+
+/* A top-layer preview escapes an ancestor `transform: scale()`. Give the clone its
+   unscaled layout box before reapplying the board scale from the top-left, so its
+   rendered box and everything inside it match the source. The engine writes the
+   measured client size inline, hence the two scoped `!important` overrides. */
+.card[data-compensate-preview][data-drag-preview] {
+  width: calc(var(--drag-source-width) / var(--z)) !important;
+  height: calc(var(--drag-source-height) / var(--z)) !important;
+  transform-origin: 0 0;
+  scale: var(--z);
+}
+
+.text {
+  width: 100%;
+  white-space: pre-wrap;
+  word-break: break-word;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.placeholder {
+  color: var(--dnd-muted);
+}
+
+.textarea {
+  display: block;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  white-space: pre-wrap;
+  resize: none;
+  overflow: hidden;
+  outline: none;
+}
+
+.textarea::placeholder {
+  color: var(--dnd-muted);
+}
