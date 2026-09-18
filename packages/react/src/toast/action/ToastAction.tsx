@@ -25,13 +25,14 @@ export const ToastAction = React.forwardRef(function ToastAction(
     ...elementProps
   } = componentProps;
 
-  const { toast } = useToastRootContext();
+  const { toast, hideFromAT } = useToastRootContext();
 
   const computedChildren = toast.actionProps?.children ?? elementProps.children;
 
   const { getButtonProps, buttonRef } = useButton({
     disabled,
     native: nativeButton,
+    tabIndex: hideFromAT ? -1 : 0,
   });
 
   const state: ToastActionState = {
