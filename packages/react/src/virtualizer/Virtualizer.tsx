@@ -1,7 +1,6 @@
 'use client';
 import * as React from 'react';
 import { ownerWindow } from '@base-ui/utils/owner';
-import { useForcedRerendering } from '@base-ui/utils/useForcedRerendering';
 import { useInsertionEffect } from '@base-ui/utils/useInsertionEffect';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
@@ -10,6 +9,7 @@ import { warn } from '@base-ui/utils/warn';
 import {
   Dimensions,
   LayoutList,
+  LayoutListSticky,
   Virtualization,
   useVirtualizer,
   type HeightEntry,
@@ -18,7 +18,6 @@ import {
   type RenderContext,
   type Virtualizer as MuiVirtualizer,
 } from '@mui/x-virtualizer';
-import { getMaxScrollOffset } from '../utils/scrollEdges';
 import type { StateAttributesMapping } from '../internals/getStateAttributesProps';
 import type { BaseUIComponentProps, HTMLProps } from '../internals/types';
 import { useRenderElement } from '../internals/useRenderElement';
@@ -69,6 +68,7 @@ import {
   createScrollOffsetReader,
   findScrollContainer,
   getScrollportPadding,
+  type RowsInset,
 } from './scrollport';
 import { useAdaptiveEstimate, useAdaptiveEstimateRefresh } from './useAdaptiveEstimate';
 import { useEngineMode } from './useEngineMode';
@@ -239,29 +239,13 @@ function VirtualRowImpl<RowModel>(props: VirtualRowProps<RowModel>) {
 
 const VirtualRow = React.memo(VirtualRowImpl) as typeof VirtualRowImpl;
 
-function getRenderZoneTransform(offsetTop: number, scrollTop: number, paddingStart: number) {
-  return `translate3d(0, ${offsetTop - scrollTop + paddingStart}px, 0)`;
-}
-
 /**
- * Where a sticky box stands, relative to the scrollport's start edge, given where it would stand
- * without sticking and the end of the block it may not leave, both relative to that edge. A
- * sticky box is shifted down from its normal position by just enough to keep its start edge at
- * the scrollport's, and no further than its containing block allows.
+ * Keeps the browser's own scroll anchoring off the rows and the space reserved around them: it
+ * would see that space change size, as the window moves and as the estimate is refined, and
+ * compensate on top of the compensation the scroll-anchoring effect makes from the same
+ * measurements. The effect's is kept, since it also serves engines without a native one.
  */
-function getStuckTop(normalTop: number, containingBlockEnd: number, height: number) {
-  const desiredShift = Math.max(0, -normalTop);
-  const maxShift = Math.max(0, containingBlockEnd - normalTop - height);
-  return normalTop + Math.min(desiredShift, maxShift);
-}
-
-/**
- * Keeps the browser's own scroll anchoring off the space a table layout reserves: it would see
- * that space change size, as the window moves and as the estimate is refined, and compensate on
- * top of the compensation the scroll-anchoring effect makes from the same measurements. The
- * effect's is kept, since it also serves engines without a native one.
- */
-const spacerSectionStyle: React.CSSProperties = {
+const noScrollAnchoringStyle: React.CSSProperties = {
   overflowAnchor: 'none',
 };
 
@@ -269,12 +253,57 @@ const spacerSectionStyle: React.CSSProperties = {
  * Stands in for the rendered window before the first render has computed one, so the concerns
  * that read it from a ref never have to describe a state that cannot reach them.
  */
-const EMPTY_RENDER_CONTEXT: RenderContext = {
-  firstColumnIndex: 0,
-  lastColumnIndex: 0,
-  firstRowIndex: 0,
-  lastRowIndex: 0,
+const EMPTY_ROW_WINDOW: RowWindow = { firstRowIndex: 0, lastRowIndex: 0 };
+
+/**
+ * Where the window stands in the scroll container as of the latest commit, in scroll
+ * coordinates: what tells a window held at the scrollport's edge from one standing where its
+ * rows belong, without measuring either.
+ */
+interface WindowPlacement {
+  /** Whether the rows are windowed at all; every row is in place otherwise. */
+  windowed: boolean;
+  /** Where the window's box begins when nothing holds it: the rows' inset plus its offset. */
+  top: number;
+  /** The height its insets were computed for. */
+  height: number;
+  insetTop: number;
+  insetBottom: number;
+  /** The block the window may not leave: its containing block. */
+  blockStart: number;
+  blockEnd: number;
+  /** Where the scrollport's content edge begins past `scrollTop`, and how tall the content box is. */
+  scrollportPaddingStart: number;
+  viewportHeight: number;
+}
+
+const EMPTY_WINDOW_PLACEMENT: WindowPlacement = {
+  windowed: false,
+  top: 0,
+  height: 0,
+  insetTop: 0,
+  insetBottom: 0,
+  blockStart: 0,
+  blockEnd: 0,
+  scrollportPaddingStart: 0,
+  viewportHeight: 0,
 };
+
+/**
+ * Whether a sticky window is displaced from its normal position at the given scroll position.
+ * A sticky box moves only while an inset asks it to and its containing block leaves room, which
+ * is the rule the browser applies, here on the numbers the window was laid out with. Sticky
+ * boxes are stuck against the scrollport's content edge, inside its padding.
+ */
+function isWindowDisplaced(placement: WindowPlacement, scrollTop: number) {
+  const { top, height, insetTop, insetBottom, blockStart, blockEnd } = placement;
+  const contentTop = scrollTop + placement.scrollportPaddingStart;
+  const contentBottom = contentTop + placement.viewportHeight;
+  const bottom = top + height;
+  const pushedDown = top < contentTop + insetTop - 1 && bottom < blockEnd - 1;
+  const pushedUp = bottom > contentBottom - insetBottom + 1 && top > blockStart + 1;
+  return pushedDown || pushedUp;
+}
 
 /**
  * Index of the last row starting at or before the given virtual offset.
@@ -295,57 +324,22 @@ function findRowIndexAtOffset(rowPositions: readonly number[], rowCount: number,
   return low;
 }
 
-function getOverscannedRenderContext(
+/**
+ * The window the engine computed, as the rows it holds. The engine renders a half-open range but
+ * only retains a focused row when it is strictly beyond the end index, so the pinned row is taken
+ * into the window when it lands exactly on that boundary.
+ */
+function getWindowRows(
   renderContext: RenderContext,
-  rowPositions: readonly number[],
   rowCount: number,
   pinnedRowIndex: number | undefined,
-  overscanPx: number,
-  scrollTop: number,
-  viewportHeight: number,
-) {
-  let firstRowIndex = renderContext.firstRowIndex;
-  let lastRowIndex = renderContext.lastRowIndex;
-  const overscanStart = Math.max(0, scrollTop - overscanPx);
-  const overscanEnd = scrollTop + viewportHeight + overscanPx;
+): RowWindow {
+  const lastRowIndex =
+    renderContext.lastRowIndex === pinnedRowIndex
+      ? Math.min(rowCount, renderContext.lastRowIndex + 1)
+      : renderContext.lastRowIndex;
 
-  // The engine only observes native scroll events, so a corrective scroll write can supersede
-  // the position its render context was computed for, leaving that window entirely outside the
-  // viewport until the event arrives a task later. Painting it would blank the scrollport, and
-  // the expansion below only widens windows, which would mount every row in between. Rebuild the
-  // window at the viewport instead.
-  if (rowCount > 0) {
-    const windowStart = rowPositions[firstRowIndex] ?? 0;
-    const windowEnd =
-      lastRowIndex >= rowCount ? Number.POSITIVE_INFINITY : (rowPositions[lastRowIndex] ?? 0);
-    if (windowEnd < overscanStart || windowStart > overscanEnd) {
-      firstRowIndex = findRowIndexAtOffset(rowPositions, rowCount, overscanStart);
-      lastRowIndex = firstRowIndex;
-    }
-  }
-
-  while (firstRowIndex > 0 && (rowPositions[firstRowIndex] ?? 0) > overscanStart) {
-    firstRowIndex -= 1;
-  }
-
-  while (
-    lastRowIndex < rowCount &&
-    (rowPositions[lastRowIndex] ?? Number.POSITIVE_INFINITY) <= overscanEnd
-  ) {
-    lastRowIndex += 1;
-  }
-
-  // MUI Virtualizer renders a half-open range but only retains a focused row when it is strictly beyond
-  // the end index. Include the pinned row when it lands exactly on that boundary.
-  if (lastRowIndex === pinnedRowIndex) {
-    lastRowIndex = Math.min(rowCount, lastRowIndex + 1);
-  }
-
-  return {
-    ...renderContext,
-    firstRowIndex,
-    lastRowIndex,
-  };
+  return { firstRowIndex: renderContext.firstRowIndex, lastRowIndex };
 }
 
 /**
@@ -616,38 +610,45 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
 
   const scrollElementRef = React.useRef<HTMLElement | null>(null);
   const rootElementRef = React.useRef<HTMLElement | null>(null);
-  const renderZoneRef = React.useRef<HTMLDivElement | null>(null);
+  /** The engine's window content, which the laid-out rows are children of while a list windows. */
+  const windowContentRef = React.useRef<HTMLDivElement | null>(null);
   /**
-   * The row group holding the space of the rows outside the window, in the table layout: a
-   * sibling of the root in normal flow, from which the root's own place in the table is read.
+   * The row group holding the space of the rows above the window, in the table layout: a
+   * sibling of the root in normal flow, from which the rows' place in the table is read.
    */
-  const spacerSectionRef = React.useRef<HTMLTableSectionElement | null>(null);
+  const startSpacerSectionRef = React.useRef<HTMLTableSectionElement | null>(null);
   /**
-   * The row inside it that holds that space: where the rows' reserved space ends, which is what
-   * the section's surroundings are measured from.
+   * The row holding the space of the rows below the window, in the table layout: where the rows'
+   * reserved space ends, which is what the section's surroundings are measured from.
    */
   const endSpacerRef = React.useRef<HTMLTableRowElement | null>(null);
   /**
-   * Where the table ends, in scroll coordinates: the block a sticky row group may not leave, which
-   * decides how far it can be held at the scrollport's start edge.
-   */
-  const containingBlockEndRef = React.useRef(0);
-  /**
    * The element the laid-out rows are children of — grandchildren, one group wrapper deep — in
-   * whichever layout the rows are currently in: the render zone while a list windows, and the
+   * whichever layout the rows are currently in: the window content while a list windows, and the
    * root otherwise, which is the scroll element for a list mounting every row and the table
    * section in the table layout.
    */
   const getRowsParent = useStableCallback(
-    (): HTMLElement | null => renderZoneRef.current ?? rootElementRef.current,
+    (): HTMLElement | null => windowContentRef.current ?? rootElementRef.current,
   );
-  const renderZoneOffsetTopRef = React.useRef(0);
+  const windowPlacementRef = React.useRef<WindowPlacement>(EMPTY_WINDOW_PLACEMENT);
   /**
-   * Virtual position of the end of the rendered range when it includes the final row, or `null`
-   * otherwise. Anchors the rendered tail to the virtual content end.
+   * Whether the window stands where its rows belong, rather than held at the scrollport's edge
+   * after a scroll outran it, until the engine places the next window from inside the scroll
+   * event. Worked out from the numbers the window was laid out with rather than measured: no
+   * layout is forced by asking, and a test environment without layout reports every rectangle
+   * empty.
    */
-  const renderZoneVirtualEndRef = React.useRef<number | null>(null);
-  const scrollTopRef = React.useRef(0);
+  const isWindowInPlace = useStableCallback(() => {
+    const scrollElement = scrollElementRef.current;
+    const placement = windowPlacementRef.current;
+
+    if (scrollElement == null || !placement.windowed) {
+      return true;
+    }
+
+    return !isWindowDisplaced(placement, scrollElement.scrollTop);
+  });
   const muiApiRef = React.useRef<MuiVirtualizer['api'] | null>(null);
   // The concerns below are handed the engine operations they use, in this component's vocabulary,
   // and nothing more: this is the only file that knows the engine. Read through the ref, since
@@ -676,7 +677,6 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
   // reserved space, and counts among the section's surroundings instead.
   const [trailingHeight, setTrailingHeight] = React.useState(0);
 
-  const scrollportPaddingTotal = scrollportPadding.start + scrollportPadding.end;
   const rowsInsetTotal = rowsInset.start + rowsInset.end;
 
   const gesture = useScrollGesture({ settleGeometry });
@@ -690,77 +690,15 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
       fixedItemHeight != null ? null : itemHeightEstimate.staticEstimatedItemHeight,
   });
 
-  // Forces the rendered window to recompute after a corrective scroll write moved the viewport
-  // beyond the rows the current commit mounted. Called from a layout effect, so the follow-up
-  // commit still lands before paint.
-  const refreshWindow = useForcedRerendering();
-  const renderScrollTopRef = React.useRef(0);
-  const overscannedRenderContextRef = React.useRef<RenderContext>(EMPTY_RENDER_CONTEXT);
+  const renderContextRef = React.useRef<RowWindow>(EMPTY_ROW_WINDOW);
   // The scroll-to-row and anchoring concerns both write corrective scroll positions, and both are
   // declared below the callbacks that read them. Their handle is published here so those
   // callbacks — which only ever run after the render that publishes it — can reach it.
   const pendingScrollRef = React.useRef<PendingScroll | null>(null);
 
-  /**
-   * Positions the render zone for the scroll position last processed by the engine. Rows are
-   * normally stacked downward from the estimated position of the first rendered row, but rows
-   * carry their real DOM heights, so accumulated estimate error would misplace the end of the
-   * collection: at the maximum scroll position a taller-than-estimated tail clips the final row
-   * against the scrollport while a shorter one detaches it from the bottom edge. When the
-   * rendered range includes the final row, anchor it to the virtual content end instead so the
-   * bottom edge is exact wherever estimate error still exists (primarily while a scrollbar drag
-   * defers measurements).
-   */
-  const updateRenderZoneTransform = useStableCallback(() => {
-    // A table's row group is its own render zone, once it is windowed.
-    const renderZone = isTable ? rootElementRef.current : renderZoneRef.current;
-
-    if (!renderZone || (isTable && !enabled)) {
-      return;
-    }
-
-    // A geometry commit that shrinks the content makes the browser clamp the scroll position
-    // during layout, before any scroll event updates the engine's bookkeeping. The live DOM
-    // position is authoritative; the ref only bridges the moments without a scroll element.
-    // While a requested position is still waiting for the scrollport to accept it, that position
-    // is what the rows are rendered for, so the transform must use it too.
-    const scrollTop =
-      pendingScrollRef.current?.getViewportScrollTop() ??
-      scrollElementRef.current?.scrollTop ??
-      scrollTopRef.current;
-    // The rows are stacked from the top of the sticky box they are held in. A list's sticky
-    // viewport stands at the scrollport's start edge; a table's row group is held there once the
-    // scrollport has moved past its place in the table, and no further than the table's end
-    // allows, so where it stands is worked out from both.
-    const zoneTop = isTable
-      ? getStuckTop(
-          rowsInset.start - scrollTop,
-          containingBlockEndRef.current - scrollTop,
-          renderZone.offsetHeight,
-        )
-      : 0;
-    const stacked = rowsInset.start + renderZoneOffsetTopRef.current - scrollTop - zoneTop;
-    let translate = stacked;
-    const virtualEnd = renderZoneVirtualEndRef.current;
-
-    if (virtualEnd != null) {
-      const anchored = rowsInset.start + virtualEnd - scrollTop - renderZone.offsetHeight - zoneTop;
-      translate =
-        anchored <= stacked
-          ? // The real tail is taller than estimated. Pulling it up cannot uncover the scrollport's
-            // top edge: the extra real height always reaches at least as far down as before.
-            anchored
-          : // The real tail is shorter than estimated. Push it down to the virtual end, but never
-            // below the scrollport's top edge, which would uncover rows above the rendered range.
-            Math.max(stacked, Math.min(anchored, -zoneTop));
-    }
-
-    renderZone.style.transform = `translate3d(0, ${translate}px, 0)`;
-  });
-
-  // The browser moves a native scrollport before dispatching its scroll event. Keep the existing
-  // rows pinned in a sticky viewport during that interval, then move the render zone once
-  // MUI Virtualizer has synchronously committed the next row window.
+  // The browser moves a native scrollport before dispatching its scroll event, and the window's
+  // sticky insets keep the rows it has in view until the engine commits the next window from
+  // inside that event. What is left for this component is the gesture bookkeeping.
   const handleScrollChange = useStableCallback((scrollPosition: { top: number }) => {
     // Scroll events matching the last position this component wrote are echoes of its own
     // corrective writes; only genuine user scrolling affects gesture state.
@@ -774,14 +712,29 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
       // destination after the user took over would yank the list away from where they scrolled.
       pendingScrollRef.current?.cancel();
     }
+  });
 
-    scrollTopRef.current = scrollPosition.top;
-    updateRenderZoneTransform();
+  /**
+   * Hands a position this component wrote to the engine, which observes the scrollport through
+   * its scroll events alone: the browser dispatches one a task after the write, and a test
+   * environment without layout never does, while the window that position calls for is what the
+   * next paint has to show. Queued rather than dispatched in place: the writes are made from
+   * layout effects, and the engine flushes the commit the event calls for synchronously, which it
+   * cannot do from inside one. A microtask still runs before the browser paints.
+   */
+  const syncEngineWithScrollWrite = useStableCallback(() => {
+    queueMicrotask(() => {
+      const scrollElement = scrollElementRef.current;
+
+      if (scrollElement != null) {
+        scrollElement.dispatchEvent(new (ownerWindow(scrollElement).Event)('scroll'));
+      }
+    });
   });
 
   const layout = useRefWithInit(
     () =>
-      new LayoutList({
+      new LayoutListSticky({
         container: scrollElementRef,
         scroller: scrollElementRef,
       }),
@@ -992,9 +945,12 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
       rowHeight: resolvedEstimatedItemHeight,
     },
     virtualization: {
-      // Controlled range calculation avoids MUI Virtualizer's fixed 15-row directional buffer. Base UI
-      // applies the requested pixel buffer to the returned range below.
-      layoutMode: 'controlled',
+      // The engine's "inverse sticky" list layout: it places the window in normal flow where its
+      // rows belong and sticks it with insets that let native scrolling move the rows within the
+      // window's buffers, commits the next window from inside the scroll event once half a
+      // buffer is crossed, and holds a commit off while a fling is at speed. The buffer is at
+      // least fifteen estimated rows in total, whatever `overscanPx` asks for.
+      layoutMode: 'sticky',
       rowBufferPx,
     },
     initialState: {
@@ -1024,23 +980,16 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
   const rowsMeta = virtualizer.store.use(Dimensions.selectors.rowsMeta);
   const dimensions = virtualizer.store.use(Dimensions.selectors.dimensions);
   const rootSize = virtualizer.store.use(Dimensions.selectors.rootSize);
-  const containerProps = virtualizer.store.use(LayoutList.selectors.containerProps);
+  const containerProps = virtualizer.store.use(LayoutListSticky.selectors.containerProps);
+  // The engine's sticky list layout, for a list that windows: the block the window is stuck
+  // within, the space of the rows above the window, and the anchored box the rows render in.
+  const stickyContentProps = virtualizer.store.use(LayoutListSticky.selectors.contentProps);
+  const stickyPositionerProps = virtualizer.store.use(LayoutListSticky.selectors.positionerProps);
+  const windowContentProps = virtualizer.store.use(LayoutListSticky.selectors.windowContentProps);
+  // The engine's plain list content and positioner, for a list mounting every row.
   const contentProps = virtualizer.store.use(LayoutList.selectors.contentProps);
   const positionerProps = virtualizer.store.use(LayoutList.selectors.positionerProps);
   const renderContext = virtualizer.store.use(Virtualization.selectors.renderContext);
-
-  // MUI Virtualizer waits for one estimated row of accumulated scrolling before recomputing an unchanged
-  // controlled range. Keep at least that much measured content mounted when an estimate is taller
-  // than the real rows, even when the requested overscan is smaller.
-  const renderBufferPx = Math.max(rowBufferPx, resolvedEstimatedItemHeight);
-
-  const refreshWindowAfterCorrectiveScroll = useStableCallback((scrollTop: number) => {
-    // A correction that lands far from the position this commit's window was rendered for can
-    // move the viewport beyond the mounted rows. Re-render before paint so the window follows.
-    if (Math.abs(scrollTop - renderScrollTopRef.current) >= renderBufferPx) {
-      refreshWindow();
-    }
-  });
 
   const isModeApplied = useStableCallback((windowed: boolean) => {
     const mode = virtualizer.store.state.virtualization;
@@ -1260,21 +1209,6 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
     publishScrollportPadding(element);
   }, [enabled, publishScrollportPadding, rootSize]);
 
-  // Where the table ends is read from the DOM on every commit: the row group's reserved space
-  // moves with every window, and the clamp against the table's end has to follow it. Only a ref
-  // is written here, so nothing can re-render because of it.
-  useIsoLayoutEffect(() => {
-    const scrollElement = scrollElementRef.current;
-    const root = rootElementRef.current;
-
-    if (!isTable || scrollElement == null || root == null) {
-      return;
-    }
-
-    const at = createScrollOffsetReader(scrollElement);
-    containingBlockEndRef.current = at((root.parentElement ?? root).getBoundingClientRect().bottom);
-  });
-
   // A table section's surroundings are measured when something around it can have moved: the
   // scrollport was resized or padded differently, the layout was switched, or the rows after the
   // reserved space changed. Not on every commit: the measurement decides which rows the window
@@ -1290,16 +1224,15 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
     }
 
     const at = createScrollOffsetReader(scrollElement);
-    const spacerSection = spacerSectionRef.current;
+    const startSpacerSection = startSpacerSectionRef.current;
     const rootRect = root.getBoundingClientRect();
-    // While windowing, the root is held by the scrollport and moved by a transform, so its rect
-    // says nothing about where the table lays it out. The spacer row group after it is in normal
-    // flow, and the root's own box ends where that begins; the box's height is read from the rect
-    // rather than `offsetHeight`, which rounds, so the difference is exact whatever the window.
+    // While windowing, the root is stuck to the scrollport, so its rect says nothing about where
+    // the table lays it out. The row group reserving the space of the rows above it is in normal
+    // flow just before it, and begins where the rows' space does.
     const start =
-      spacerSection == null
+      startSpacerSection == null
         ? at(rootRect.top)
-        : at(spacerSection.getBoundingClientRect().top) - rootRect.height;
+        : at(startSpacerSection.getBoundingClientRect().top);
     const reservedEnd = endSpacerRef.current?.getBoundingClientRect().bottom ?? rootRect.bottom;
     const nextInset = {
       start: Math.max(0, start),
@@ -1378,11 +1311,10 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
     // following its row by id through such a change; a flat list has no such change to follow.
     resolveRowIndex: grouped == null ? undefined : resolveRowIndexById,
     itemCountBeforeRow: grouped?.itemCountBeforeRow,
-    onScrollApplied: (scrollTop) => handleScrollChange({ top: scrollTop }),
-    refreshWindow,
-    refreshWindowAfterCorrectiveScroll,
-    renderContextRef: overscannedRenderContextRef,
+    onScrollApplied: syncEngineWithScrollWrite,
+    renderContextRef,
     getRowsParent,
+    isWindowInPlace,
     rows,
     scrollElementRef,
     rowsInset,
@@ -1401,7 +1333,7 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
       behavior: 'instant' as ScrollBehavior,
       top: 0,
     });
-    handleScrollChange({ top: 0 });
+    syncEngineWithScrollWrite();
   });
 
   // Reported in scroll coordinates rather than the engine's: what the rows are laid out after is
@@ -1527,106 +1459,67 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
     [getIndexAtOffset, getItemMetrics, remeasure, resetScroll, scrollToIndex],
   );
 
-  const anchor = useScrollAnchor<VirtualizerRowModel<Value>>({
+  useScrollAnchor<VirtualizerRowModel<Value>>({
     enabled,
     gesture,
-    onScrollApplied: (scrollTop) => handleScrollChange({ top: scrollTop }),
+    onScrollApplied: syncEngineWithScrollWrite,
     pendingScroll,
-    refreshWindowAfterCorrectiveScroll,
     getRowsParent,
+    isWindowInPlace,
     rows,
     readRowsGeometry,
     rowsMeta,
     scrollElementRef,
     rowsInsetTotal,
     trailingHeight,
-    updateRenderZoneTransform,
   });
 
-  // The engine publishes a recomputed render context inside the scroll event before this
-  // component's own scroll bookkeeping observes it, while corrective writes move the
-  // scrollport before the engine hears about them. The live scroll position is the only basis
-  // consistent with both orderings.
-  const liveScrollTop = scrollElementRef.current?.scrollTop ?? 0;
-  const currentMaxScrollTop =
-    dimensions.viewportInnerSize.height > 0
-      ? getMaxScrollOffset(
-          rowsMeta.currentPageTotalHeight + rowsInsetTotal + trailingHeight,
-          dimensions.viewportInnerSize.height + scrollportPaddingTotal,
-        )
-      : null;
-  // When a geometry rewrite shrinks the content below the current scroll position, the browser
-  // clamps `scrollTop` the moment the commit lays out — before any scroll event reports it.
-  // Target that inevitable position now so this commit's window and transform match what paints.
-  const clampedLiveScrollTop =
-    currentMaxScrollTop === null ? liveScrollTop : Math.min(liveScrollTop, currentMaxScrollTop);
-
-  // A geometry rewrite that lands while the viewport rests at the maximum scroll position is
-  // followed by a bottom pin in the scroll-anchoring effect, within this same commit.
-  // The engine's render context was computed for the pre-rewrite scroll position, so the rows it
-  // mounts end short of the rewritten content end; painting that window at the pinned position
-  // would briefly blank the bottom of the scrollport. Render the window for the anticipated
-  // pinned position instead so the same commit that moves the viewport also covers it.
-  const scrollAnchor = anchor.readSnapshot();
-  const anticipatedMaxScrollTop =
-    enabled &&
-    currentMaxScrollTop !== null &&
-    scrollAnchor !== null &&
-    scrollAnchor.rows === rows &&
-    scrollAnchor.rowsMeta !== rowsMeta &&
-    scrollAnchor.maxScrollTop > 0 &&
-    Math.abs(scrollAnchor.scrollTop - scrollAnchor.maxScrollTop) < 1 &&
-    !gesture.isScrollbarDrag() &&
-    !pendingScroll.isPending()
-      ? currentMaxScrollTop
-      : null;
-  const anticipateBottomPin =
-    anticipatedMaxScrollTop !== null &&
-    scrollAnchor !== null &&
-    // Mirrors the effect's own takeover guard: the user has not scrolled away since the snapshot.
-    (Math.abs(liveScrollTop - scrollAnchor.scrollTop) < 1 ||
-      Math.abs(liveScrollTop - anticipatedMaxScrollTop) < 1);
-  const settledRenderScrollTop =
-    anticipateBottomPin && anticipatedMaxScrollTop !== null
-      ? anticipatedMaxScrollTop
-      : clampedLiveScrollTop;
-  // A position the scrollport has not accepted yet still decides what the user sees, because the
-  // rows paint inside the sticky viewport rather than at `scrollTop`. Render for it so the first
-  // paint after a scroll request already shows the destination.
-  const renderScrollTop = pendingScroll.getViewportScrollTop() ?? settledRenderScrollTop;
-
-  const overscannedRenderContext = getOverscannedRenderContext(
-    anticipateBottomPin
-      ? // Seed the overscan expansion from the final row; it walks back to cover the new bottom.
-        { ...renderContext, firstRowIndex: rows.length - 1, lastRowIndex: rows.length }
-      : renderContext,
-    rowsMeta.positions,
-    rows.length,
-    validPinnedRowIndex,
-    renderBufferPx,
-    // Row positions exclude what the rows are laid out after, but rows are visible anywhere in
-    // the scrollport, padding included, so the window is computed for the whole scrollport in
-    // the engine's coordinates.
-    renderScrollTop - rowsInset.start,
-    dimensions.viewportInnerSize.height + scrollportPaddingTotal,
-  );
-  const renderZoneOffsetTop = rowsMeta.positions[overscannedRenderContext.firstRowIndex] ?? 0;
-  // When the whole collection is rendered, the first row's exact position (zero) takes priority
-  // over the estimated content end, so tail anchoring must stay off.
-  const renderZoneVirtualEnd =
-    overscannedRenderContext.firstRowIndex > 0 &&
-    overscannedRenderContext.lastRowIndex >= rows.length
-      ? rowsMeta.currentPageTotalHeight
-      : null;
+  // The window is the engine's: the rows it computed for the scroll position it last observed.
+  // Native scrolling moves them within the window's buffers, the window's sticky insets hold
+  // them in view beyond, and the engine commits the next window from inside the scroll event,
+  // before the browser paints the position that event reports.
+  const windowRows = getWindowRows(renderContext, rows.length, validPinnedRowIndex);
+  const offsetTop = rowsMeta.positions[renderContext.firstRowIndex] ?? 0;
+  // `lastRowIndex` is exclusive: when it points past the last row, the window extends to the
+  // end of the content.
+  const windowEnd =
+    rowsMeta.positions[renderContext.lastRowIndex] ?? rowsMeta.currentPageTotalHeight;
+  const windowHeight = Math.max(0, windowEnd - offsetTop);
+  const viewportHeight = dimensions.viewportInnerSize.height;
+  // What the block the window is stuck within holds around the rows' space. A list's holds the
+  // rows' space alone. A table is the block its section is stuck within, and it holds more: what
+  // the scroll container holds around that space besides its own padding — the table's header,
+  // the rows after the reserved space — is what the section must not be pushed over at either
+  // end of the collection, so each inset is pulled out by what lies at the other end.
+  const surroundings: RowsInset = isTable
+    ? {
+        start: Math.max(0, rowsInset.start - scrollportPadding.start),
+        end: Math.max(0, rowsInset.end - scrollportPadding.end),
+      }
+    : EMPTY_SCROLLPORT_PADDING;
+  // Negative by however much taller than the scrollport the window is, so that native scrolling
+  // moves the rows within the window and the scrollport never leaves it. Clamped at zero: a
+  // window shorter than the scrollport, as a short collection's is, must not stick at all.
+  const stickyInset = Math.min(0, viewportHeight - windowHeight);
+  const insetTop = stickyInset - surroundings.end;
+  const insetBottom = stickyInset - surroundings.start;
+  const windowPlacement: WindowPlacement = {
+    windowed: enabled,
+    top: rowsInset.start + offsetTop,
+    height: windowHeight,
+    insetTop,
+    insetBottom,
+    blockStart: rowsInset.start - surroundings.start,
+    blockEnd: rowsInset.start + rowsMeta.currentPageTotalHeight + surroundings.end,
+    scrollportPaddingStart: scrollportPadding.start,
+    viewportHeight,
+  };
   // Published at commit time, in the phase that precedes every layout effect of this commit —
   // the pending-scroll and anchoring effects declared above read these — and that a render
-  // suspending inside a transition never reaches, so a scroll event between such a render and its
-  // commit still transforms the committed rows by the committed window.
+  // suspending inside a transition never reaches.
   useInsertionEffect(() => {
-    overscannedRenderContextRef.current = overscannedRenderContext;
-    renderScrollTopRef.current = renderScrollTop;
-    renderZoneOffsetTopRef.current = renderZoneOffsetTop;
-    renderZoneVirtualEndRef.current = renderZoneVirtualEnd;
+    renderContextRef.current = windowRows;
+    windowPlacementRef.current = windowPlacement;
   });
 
   const handleEndReached = useStableCallback(() => onEndReached?.());
@@ -1689,8 +1582,8 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
     // end is what the threshold is measured against.
     const renderedItemCount =
       grouped == null
-        ? overscannedRenderContext.lastRowIndex
-        : grouped.itemCountBeforeRow[Math.min(overscannedRenderContext.lastRowIndex, rows.length)];
+        ? windowRows.lastRowIndex
+        : grouped.itemCountBeforeRow[Math.min(windowRows.lastRowIndex, rows.length)];
     const reachedEnd = renderedItemCount >= collection.length - Math.max(0, endReachedThreshold);
 
     if (!reachedEnd) {
@@ -1712,7 +1605,7 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
     hasGetItemKey,
     itemRows,
     onEndReached,
-    overscannedRenderContext.lastRowIndex,
+    windowRows.lastRowIndex,
     rows.length,
     windowingSuspended,
   ]);
@@ -1722,13 +1615,12 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
   // the cache without the headers.
   const itemRenderContext: RowWindow =
     grouped == null
-      ? overscannedRenderContext
+      ? windowRows
       : {
-          firstRowIndex: grouped.itemCountBeforeRow[overscannedRenderContext.firstRowIndex] ?? 0,
+          firstRowIndex: grouped.itemCountBeforeRow[windowRows.firstRowIndex] ?? 0,
           lastRowIndex:
-            grouped.itemCountBeforeRow[
-              Math.min(overscannedRenderContext.lastRowIndex, rows.length)
-            ] ?? collection.length,
+            grouped.itemCountBeforeRow[Math.min(windowRows.lastRowIndex, rows.length)] ??
+            collection.length,
         };
 
   // Declared after `useScrollAnchor`: refreshing the estimate re-positions rows above the
@@ -1750,14 +1642,14 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
   // waiting on a settled estimate sees the refresh above in the same commit.
   usePendingScrollRetry<VirtualizerRowModel<Value>>({
     pendingScroll,
-    renderContext: overscannedRenderContext,
+    renderContext: windowRows,
     rows,
     rowsInset,
     rowsMeta,
   });
 
   const rowsWindow: RowWindow = enabled
-    ? overscannedRenderContext
+    ? windowRows
     : { firstRowIndex: 0, lastRowIndex: rows.length };
   const windowEntries = getWindowEntries(rowsWindow, validPinnedRowIndex, rows.length);
   // A table section holds rows and nothing else, so a grouped collection renders its headers as
@@ -1767,17 +1659,6 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
       ? renderFlatWindow(windowEntries, rows, renderRow)
       : renderGroupedWindow(windowEntries, rows, grouped, getGroupHeaderId, renderRow);
 
-  const { style: contentStyle, ...restContentProps } = contentProps;
-  const renderedRangeEnd =
-    rowsMeta.positions[overscannedRenderContext.lastRowIndex] ??
-    renderZoneOffsetTop +
-      (overscannedRenderContext.lastRowIndex - overscannedRenderContext.firstRowIndex) *
-        resolvedEstimatedItemHeight;
-  const layoutSizerHeight =
-    (rows.length === 0
-      ? 0
-      : Math.min(totalSize, Math.max(resolvedEstimatedItemHeight, renderedRangeEnd))) +
-    trailingHeight;
   // The scrollable content spans the rows plus what they are laid out inside of, which is the
   // height a scrollport needs to show the collection without scrolling. An empty collection has
   // nothing to surround, so it stays at zero.
@@ -1791,41 +1672,19 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
   };
 
   let defaultProps: HTMLProps;
-  // The space of the rows outside the window, in the table layout.
-  let spacerHeight = 0;
+  // The space of the rows below the window, in the table layout.
+  const endSpacerHeight = Math.max(0, rowsMeta.currentPageTotalHeight - windowEnd);
 
   if (isTable) {
-    // A table section can hold rows and nothing else, so the section itself is the sticky box the
-    // rows are held in and the render zone a transform moves, both at once: held at the
-    // scrollport's start edge while the scrollport moves through the table, and translated to
-    // where the window's rows belong. The space of the rows outside the window is held by a
-    // row group rendered after it, in normal flow. As in a list, native scrolling moves the
-    // scrollport under the rows it has, which stay where they are until the next window is
-    // committed, rather than uncovering the space reserved for the rest.
-    const renderedRangeEndInTable =
-      rowsMeta.positions[overscannedRenderContext.lastRowIndex] ?? rowsMeta.currentPageTotalHeight;
-    const renderedHeight = renderedRangeEndInTable - renderZoneOffsetTop;
-    spacerHeight = Math.max(0, rowsMeta.currentPageTotalHeight - renderedHeight);
-    // Where the row group stands, from the geometry this render knows; the anchoring effect
-    // takes it again from the DOM before paint.
-    const zoneTop = getStuckTop(
-      rowsInset.start - renderScrollTop,
-      containingBlockEndRef.current - renderScrollTop,
-      renderedHeight,
-    );
+    // A table section can hold rows and nothing else, so the section itself is the window the
+    // rows are held in, stuck between the row groups reserving the space of the rows outside it:
+    // one before it for the rows above, one after it for the rest. A row group given a height
+    // shares the difference out among its rows, so the section is as tall as its rows are.
     defaultProps = {
       style: {
         [VirtualizerCssVars.totalSize]: `${scrollableSize}px`,
-        overflowAnchor: 'none',
-        ...(enabled
-          ? {
-              position: 'sticky',
-              // Sticky boxes are pinned against the content edge; pulled up by the padding, the
-              // group is held at the scrollport's own edge, and rows scroll through the padding.
-              top: -scrollportPadding.start,
-              transform: `translate3d(0, ${rowsInset.start + renderZoneOffsetTop - renderScrollTop - zoneTop}px, 0)`,
-            }
-          : null),
+        ...noScrollAnchoringStyle,
+        ...(enabled ? { position: 'sticky', top: insetTop, bottom: insetBottom } : null),
       } as React.CSSProperties,
       children: (
         <React.Fragment>
@@ -1842,75 +1701,46 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
         [VirtualizerCssVars.totalSize]: `${scrollableSize}px`,
         overflow: 'auto',
       } as React.CSSProperties,
-      // The absolute content establishes the full scroll height without expanding an unconstrained
-      // list. Its sticky viewport keeps the mounted rows covering the visible area while native
-      // scrolling waits for the JavaScript scroll handler.
       children: enabled ? (
         <React.Fragment>
-          <div
-            {...restContentProps}
-            style={{
-              ...contentStyle,
-              display: 'block',
-              zIndex: undefined,
-              // Absolute content is placed against the padding edge, so it must also span the
-              // padding to keep the scroll height exact and to leave the sticky viewport below
-              // room to cover the scrollport at the maximum scroll position.
-              ...(scrollableSize > 0 ? { height: scrollableSize } : null),
-            }}
-          >
+          {/* The block the window is stuck within, in normal flow after the scrollport's padding
+            and spanning the rows' space alone: a sticky box never leaves its containing block,
+            and the window's insets would push it over whatever else the block held at either
+            end of the collection. */}
+          <div {...stickyContentProps}>
+            {/* The space of the rows above the window, which places the window where its rows
+              belong. */}
+            <div role="presentation" {...stickyPositionerProps} />
             <div
               role="presentation"
               style={{
-                // Sticky boxes are pinned against the content edge. Growing the viewport into the
-                // padding and pulling it back up by the same amount covers the whole scrollport,
-                // so rows scroll through the padding as they do in a plain list.
-                height: dimensions.viewportOuterSize.height + scrollportPaddingTotal,
-                overflow: 'hidden',
                 position: 'sticky',
-                top: -scrollportPadding.start,
-                // The measured viewport width only arrives a frame after the scrollport is laid
-                // out. A popup sized from its anchor has no width at all until it is positioned,
-                // and the rows cannot supply one because they render inside the absolute content
-                // above. Clipping to a measured width would blank the list until that measurement
-                // lands; the content box the rows already span is known without measuring.
-                width: '100%',
+                top: stickyInset,
+                bottom: stickyInset,
+                // The window's own height rather than its content's: the box the rows render in
+                // carries an anchoring pad, which an automatic height would add to the window
+                // and throw its insets off. The box overflows the window by the pad, which is
+                // empty and cancelled visually by the box's translation.
+                height: windowHeight,
               }}
             >
-              <div
-                ref={renderZoneRef}
-                role="presentation"
-                style={{
-                  transform: getRenderZoneTransform(
-                    renderZoneOffsetTop,
-                    renderScrollTop,
-                    scrollportPadding.start,
-                  ),
-                }}
-              >
+              {/* The rows render in an anchored box, the engine's paint-stable window content:
+                the pad places them at their offset from the anchor and the translation cancels
+                it visually, which holds the rows the window keeps from one commit to the next
+                at fixed offsets in the layer they paint into, so that only entering rows are
+                rasterized. */}
+              <div ref={windowContentRef} {...windowContentProps}>
                 {renderedRows}
               </div>
             </div>
-            {trailing != null && (
-              <div
-                ref={trailingRef}
-                role="presentation"
-                style={{
-                  left: 0,
-                  position: 'absolute',
-                  right: 0,
-                  // Where the rows end, inside the same absolute content they are laid out in, so it
-                  // scrolls with them rather than being pinned to the scrollport.
-                  top: totalSize + scrollportPadding.start,
-                }}
-              >
-                {trailing}
-              </div>
-            )}
           </div>
-          {/* Preserve intrinsic sizing for max-height-only scrollports without putting the full
-            virtual content height in normal flow. */}
-          <div role="presentation" style={{ height: layoutSizerHeight }} />
+          {/* In normal flow after the rows' space, so it scrolls with the rows rather than being
+            pinned to the scrollport; still measured, so the published total covers it. */}
+          {trailing != null && (
+            <div ref={trailingRef} role="presentation" style={trailingFlowStyle}>
+              {trailing}
+            </div>
+          )}
         </React.Fragment>
       ) : (
         <React.Fragment>
@@ -1948,15 +1778,18 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
     return element;
   }
 
-  // The row group holding the space of the rows outside the window, after the one holding the
-  // rows: a sibling of the root rather than part of it, since a row group holds rows alone.
-  // Trailing content is rows of the consumer's own after the reserved space, measured as part of
-  // the section's surroundings rather than on their own.
+  // The row groups holding the space of the rows outside the window, on either side of the one
+  // holding the rows: siblings of the root rather than part of it, since a row group holds rows
+  // alone. Trailing content is rows of the consumer's own after the reserved space, measured as
+  // part of the section's surroundings rather than on their own.
   return (
     <React.Fragment>
+      <tbody ref={startSpacerSectionRef} style={noScrollAnchoringStyle}>
+        <tr aria-hidden style={{ height: offsetTop }} />
+      </tbody>
       {element}
-      <tbody ref={spacerSectionRef} style={spacerSectionStyle}>
-        <tr ref={endSpacerRef} aria-hidden style={{ height: spacerHeight }} />
+      <tbody style={noScrollAnchoringStyle}>
+        <tr ref={endSpacerRef} aria-hidden style={{ height: endSpacerHeight }} />
         {trailing}
       </tbody>
     </React.Fragment>
@@ -2054,12 +1887,12 @@ export interface VirtualizerBaseProps<Value> extends Omit<
    * - `list`: the virtualizer is the scroll container, a `<div>`, and lays its rows out itself.
    * - `table`: the virtualizer is a table section, a `<tbody>`, whose rows are the `<tr>`
    *   elements the item renderer returns, inside a scroll container of your own around the
-   *   table: the nearest ancestor with `overflow: auto` or `scroll`. The section is held in
-   *   place by the scrollport and moved by a transform, as a list's rows are, and a second
-   *   section rendered after it reserves the space of the rows outside the window. Spread the
-   *   renderer's third argument onto each `<tr>`; it carries the row's measurement along with
-   *   its metadata. Group headers are rendered as rows among the items, and trailing content as
-   *   rows after the reserved space.
+   *   table: the nearest ancestor with `overflow: auto` or `scroll`. The section is stuck to the
+   *   scrollport, as a list's rows are, between two sections of the virtualizer's own that
+   *   reserve the space of the rows outside the window, so the rows it holds stay on screen
+   *   while the next window is rendered. Spread the renderer's third argument onto each `<tr>`;
+   *   it carries the row's measurement along with its metadata. Group headers are rendered as
+   *   rows among the items, and trailing content as rows after the reserved space.
    *
    * @default 'list'
    */
