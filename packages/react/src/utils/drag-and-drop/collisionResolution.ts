@@ -5,5 +5,9 @@ export const resolveCollision = Symbol.for('base-ui.resolveCollision');
 
 export interface CollisionResolutionRegistration {
   [resolveCollision]?:
-    ((target: DropTargetRecord, context: DropTargetResolutionContext) => void) | undefined;
+    | ((
+        target: DropTargetRecord,
+        context: DropTargetResolutionContext & { isDrop: boolean },
+      ) => void)
+    | undefined;
 }

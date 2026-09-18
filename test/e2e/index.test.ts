@@ -442,6 +442,23 @@ describe('e2e', () => {
         });
       });
 
+      it('keeps the page still after the touch source is removed', { timeout: 10000 }, async () => {
+        await withTouchPage(async (touchPage, dispatchTouch) => {
+          const press = await pressDraggable(touchPage, dispatchTouch);
+          await expect(touchPage.getByTestId('drag-status')).toHaveText(
+            JSON.stringify({ startCount: 1, endCount: 0 }),
+          );
+          await touchPage
+            .locator('[data-testid="drag-source"]:not([data-drag-preview])')
+            .evaluate((element) => element.remove());
+          await swipeUp(dispatchTouch, press);
+          await expect(touchPage.getByTestId('drag-status')).toHaveText(
+            JSON.stringify({ startCount: 1, endCount: 1 }),
+          );
+          expect(await touchPage.evaluate(() => window.scrollY)).toBe(0);
+        });
+      });
+
       it(
         'lets a plain swipe scroll the page without starting a drag',
         { timeout: 10000 },

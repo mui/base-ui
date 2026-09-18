@@ -123,9 +123,17 @@ export const DraggableTarget = React.forwardRef(function DraggableTarget<
         accept?: DragAccept<undefined> | undefined;
       },
   ): React.JSX.Element;
+  // Untagged targets infer their data from the payload. Tagged targets infer it
+  // from their own kind, so a partial payload cannot weaken that kind's contract.
   <TSourceData = unknown, TLocalData = unknown>(
-    props: DraggableTargetPropsWithRequiredAccept<TSourceData, TLocalData> &
-      RequiredDropTargetPayload<TSourceData, TLocalData>,
+    props: DraggableTargetPropsWithRequiredAccept<TSourceData, TLocalData> & {
+      kind?: undefined;
+    } & RequiredDropTargetPayload<TSourceData, TLocalData>,
+  ): React.JSX.Element;
+  <TSourceData = unknown, TLocalData = unknown>(
+    props: DraggableTargetPropsWithRequiredAccept<TSourceData, TLocalData> & {
+      kind?: DragKind<TLocalData> | undefined;
+    } & RequiredDropTargetPayload<TSourceData, NoInfer<TLocalData>>,
   ): React.JSX.Element;
   <TSourceData = unknown>(
     props: DraggableTargetPropsWithRequiredAccept<TSourceData, undefined> &
@@ -134,8 +142,14 @@ export const DraggableTarget = React.forwardRef(function DraggableTarget<
   // Private inference overloads retain precise payload unions for heterogeneous
   // `accept` arrays. Explicit component generics use the payload-keyed overloads above.
   <TAccept extends AnyDragAccept = DragKind<unknown>, TLocalData = unknown>(
-    props: DraggableTargetPropsFromAccept<TAccept, TLocalData> &
-      RequiredDropTargetPayload<AcceptedDragPayload<TAccept>, TLocalData>,
+    props: DraggableTargetPropsFromAccept<TAccept, TLocalData> & {
+      kind?: undefined;
+    } & RequiredDropTargetPayload<AcceptedDragPayload<TAccept>, TLocalData>,
+  ): React.JSX.Element;
+  <TAccept extends AnyDragAccept = DragKind<unknown>, TLocalData = unknown>(
+    props: DraggableTargetPropsFromAccept<TAccept, TLocalData> & {
+      kind?: DragKind<TLocalData> | undefined;
+    } & RequiredDropTargetPayload<AcceptedDragPayload<TAccept>, NoInfer<TLocalData>>,
   ): React.JSX.Element;
   <TAccept extends AnyDragAccept = DragKind<unknown>>(
     props: DraggableTargetPropsFromAccept<TAccept, undefined> &

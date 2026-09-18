@@ -8,6 +8,7 @@ interface DragCursorState {
   lockedDocument: Document | null;
   /** The inline `--drag-cursor` value the lock overwrote, restored on unlock. */
   savedCursorValue: string;
+  savedCursorPriority: string;
   /** Whether the root already had the classes owned by this lock. */
   savedDraggingClass: boolean;
   savedStyleClass: boolean;
@@ -24,6 +25,7 @@ interface DragCursorState {
 const state = getSharedSlot<DragCursorState>('dragCursor', () => ({
   lockedDocument: null,
   savedCursorValue: '',
+  savedCursorPriority: '',
   savedDraggingClass: false,
   savedStyleClass: false,
   styles: new WeakMap<Document, Map<string, HTMLStyleElement>>(),
@@ -159,6 +161,7 @@ function applyCursorLock(
   // Snapshot a pre-existing inline `--drag-cursor` (a consumer may set it to
   // theme the default) so unlock restores it instead of removing it.
   state.savedCursorValue = root.style.getPropertyValue(CURSOR_VAR);
+  state.savedCursorPriority = root.style.getPropertyPriority(CURSOR_VAR);
   state.savedDraggingClass = root.classList.contains(DRAGGING_CLASS);
   state.savedStyleClass = root.classList.contains(STYLE_CLASS);
   root.style.setProperty(CURSOR_VAR, cursor);
@@ -195,7 +198,7 @@ function restoreLockedRoot(): void {
     root.classList.toggle(DRAGGING_CLASS, state.savedDraggingClass);
     root.classList.toggle(STYLE_CLASS, state.savedStyleClass);
     if (state.savedCursorValue) {
-      root.style.setProperty(CURSOR_VAR, state.savedCursorValue);
+      root.style.setProperty(CURSOR_VAR, state.savedCursorValue, state.savedCursorPriority);
     } else {
       root.style.removeProperty(CURSOR_VAR);
     }

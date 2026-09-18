@@ -48,6 +48,8 @@ export type {
   DragParametersWithRequiredPayload,
   DragParametersWithInferredAccept,
   DragParametersWithRequiredAccept,
+  DragParametersWithTargetKind,
+  DragObserverAccept,
 } from '../../types/dragRegistration';
 export type { AcceptedDragPayload, AnyDragAccept, DragKind } from '../../types/drag';
 // The return type of every `register*` method, re-exported so typing a held

@@ -24,7 +24,8 @@ import type {
 } from '../../types/dragRegistration';
 import { getSharedSlot } from './sharedState';
 import { dragSessionStore, isDraggingElement, retargetDragSource } from './dragSessionStore';
-import { createKind, matchesAccept } from './dragKind';
+import { anyDragKind, createKind, matchesAccept } from './dragKind';
+import { resolveCollision, type CollisionResolutionRegistration } from './collisionResolution';
 import { getActiveHitElement } from './synthetic/syntheticSensor';
 import type { LatestGetter } from './useRegistrationRef';
 import { getComposedParentElement, isPointInRect, runAllCleanups } from './utils';
@@ -149,6 +150,9 @@ export class DraggableCollectionPlugin<
 
   private rootDropActive = false;
 
+  // Capture the accepted placement before source/end callbacks can change layout.
+  private dropSnapshots = new WeakMap<DropTargetRecord, DropPosition | 'root' | 'self-root'>();
+
   // Whether this plugin published non-initial state since the last reset. Gates
   // the end-of-drag reset so uninvolved same-kind collections don't get a
   // redundant initial-state `onStateChange` on every drop.
@@ -262,13 +266,16 @@ export class DraggableCollectionPlugin<
       this.hasNonInitialState = false;
     }
 
-    const monitor: RegisterMonitorParameters<IncomingSourceData<TItem>> = {
-      accept: this.accept,
+    const monitor: RegisterMonitorParameters = {
+      accept: anyDragKind,
       onMoveStart: ({ source }) => {
+        if (!matchesAccept(this.accept, source)) {
+          return;
+        }
         // Row `direction` is cached per drag; a locale switch between drags must
         // not keep resolving before/after against the old reading order.
         invalidateDirectionCache();
-        const src = source.payload;
+        const src = source.payload as IncomingSourceData<TItem>;
         const draggedItemIds = src?.itemIds ?? new Set<CollectionItemId>();
         this.currentDraggedItemIds = draggedItemIds;
         this.currentDragItems = src?.items ?? [];
@@ -293,7 +300,7 @@ export class DraggableCollectionPlugin<
         }
       },
       onMoveEnd: ({ source, location, dropTarget }) => {
-        const src = source.payload;
+        const src = source.payload as IncomingSourceData<TItem>;
         const draggedItemIds = this.currentDraggedItemIds;
         const actualTargetData = dropTarget?.payload;
         // Heterogeneous local data from any same-kind plugin; cast to our wire format.
@@ -306,7 +313,7 @@ export class DraggableCollectionPlugin<
           targetData?.role === 'root' && targetData.targetInstanceId === this.instanceId;
         // Releasing the dragged rows over their own footprint reaches the root
         // (see `isSelfRootDrop`) but commits nothing.
-        const selfRootDrop = isRootDrop && this.isSelfRootDrop(src, location);
+        const selfRootDrop = isRootDrop && this.isSelfRootDrop(src, location, dropTarget);
 
         // The collection surfaces a single `canceled` boolean to its consumers:
         // a drop landed (`dropTarget != null`) or it didn't (cancel / released
@@ -354,10 +361,9 @@ export class DraggableCollectionPlugin<
         }
       },
     };
-    this.monitorCleanup = this.engine.registerMonitor(() => {
-      monitor.accept = this.accept;
-      return monitor;
-    });
+    // Acceptance can expand during a drag. Always observe its end so state seeded
+    // by a newly eligible target is cleared even when this collection missed start.
+    this.monitorCleanup = this.engine.registerMonitor(() => monitor);
   }
 
   destroy(): void {
@@ -535,7 +541,20 @@ export class DraggableCollectionPlugin<
     const registration: RegisterDropTargetParameters<
       IncomingSourceData<TItem>,
       DropTargetItemData
-    > = {
+    > &
+      CollisionResolutionRegistration = {
+      [resolveCollision]: (target, { input, source, isDrop }) => {
+        if (!isDrop) {
+          return;
+        }
+        const src = source.payload as IncomingSourceData<TItem>;
+        const resolved = this.resolvedDropPosition;
+        const position =
+          resolved?.element === element && resolved.input === input && resolved.src === src
+            ? resolved.position
+            : this.computeDropPosition(element, input, src);
+        this.dropSnapshots.set(target, position);
+      },
       accept: this.accept,
       payload: itemPayload,
       canDrop: itemCanDrop,
@@ -724,7 +743,19 @@ export class DraggableCollectionPlugin<
     const registration: RegisterDropTargetParameters<
       IncomingSourceData<TItem>,
       DropTargetItemData
-    > = {
+    > &
+      CollisionResolutionRegistration = {
+      [resolveCollision]: (target, { input, source, isDrop }) => {
+        if (!isDrop) {
+          return;
+        }
+        this.dropSnapshots.set(
+          target,
+          this.isPointInDraggedFootprint(source.payload as IncomingSourceData<TItem>, input, true)
+            ? 'self-root'
+            : 'root',
+        );
+      },
       accept: this.accept,
       payload: {
         role: 'root',
@@ -739,11 +770,11 @@ export class DraggableCollectionPlugin<
           this.clearDropState();
         }
       },
-      onDraggableDrop: ({ source, location }) => {
+      onDraggableDrop: ({ source, location, dropTarget }) => {
         const src = source.payload;
 
         // Ignore releases over the dragged rows.
-        if (this.isSelfRootDrop(src, location)) {
+        if (this.isSelfRootDrop(src, location, dropTarget)) {
           return;
         }
 
@@ -820,7 +851,15 @@ export class DraggableCollectionPlugin<
    * (`canDrop`), so such a release falls through to the root — but the user
    * meant "put it back", not "drop on the root's empty area".
    */
-  private isSelfRootDrop(src: IncomingSourceData<TItem>, location: DragLocationHistory): boolean {
+  private isSelfRootDrop(
+    src: IncomingSourceData<TItem>,
+    location: DragLocationHistory,
+    target?: DropTargetRecord | null,
+  ): boolean {
+    const snapshot = target ? this.dropSnapshots.get(target) : undefined;
+    if (snapshot !== undefined) {
+      return snapshot === 'self-root';
+    }
     return this.isPointInDraggedFootprint(src, location.current.input, true);
   }
 
@@ -949,21 +988,24 @@ export class DraggableCollectionPlugin<
       return;
     }
 
-    // Recompute target and position from the fresh drop event coordinates
-    // rather than using the last rAF-throttled values, which may be stale.
+    // Use the final resolution's placement, captured before end callbacks can
+    // move the row. The last rAF-throttled placement may describe older input.
     const topDropTarget = location.current.dropTargets[0];
     // Cast heterogeneous local data to our wire format (see onDrop).
     const targetData = topDropTarget ? (topDropTarget.payload as DropTargetItemData) : undefined;
     const targetItemId =
       targetData?.role === 'item' ? targetData.itemId : this.lastDropTargetItemId;
-    const position =
-      topDropTarget && targetItemId != null
-        ? this.computeDropPosition(
-            topDropTarget.element as HTMLElement,
-            location.current.input,
-            src,
-          )
-        : this.lastDropPosition;
+    const snapshot = topDropTarget ? this.dropSnapshots.get(topDropTarget) : undefined;
+    let position = this.lastDropPosition;
+    if (snapshot === 'before' || snapshot === 'on' || snapshot === 'after') {
+      position = snapshot;
+    } else if (topDropTarget && targetItemId != null) {
+      position = this.computeDropPosition(
+        topDropTarget.element as HTMLElement,
+        location.current.input,
+        src,
+      );
+    }
 
     if (targetItemId == null || position == null) {
       return;

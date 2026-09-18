@@ -1,7 +1,7 @@
 import { ownerWindow } from '@base-ui/utils/owner';
 import { WindowAnimationFrame } from '../../windowAnimationFrame';
 import { WindowTimeout } from '../../windowTimeout';
-import type { DragPreviewElementHandle } from './cloneDragPreview';
+import { measurePreviewSource, type DragPreviewElementHandle } from './cloneDragPreview';
 import type { DragModifier, DragModifierKeys, DragPosition } from '../../../types/drag';
 import { applyDragModifiers } from '../dragModifiers';
 import { getSharedSlot } from '../sharedState';
@@ -167,6 +167,8 @@ export function createSyntheticPreview(
       // at 0,0), so a `rotate: 4deg` would swing the translated preview around a
       // pivot hundreds of pixels away, dozens of pixels off the pointer.
       const element = previewElement.element;
+      proposedX /= previewElement.positionScale.x;
+      proposedY /= previewElement.positionScale.y;
       if (element !== positionedElement || proposedX !== positionedX || proposedY !== positionedY) {
         element.style.translate = `${proposedX}px ${proposedY}px`;
         positionedElement = element;
@@ -333,8 +335,8 @@ export function createSyntheticPreview(
             return;
           }
 
-          const destination = sourceElement.getBoundingClientRect();
-          element.style.translate = `${destination.left}px ${destination.top}px`;
+          const { sourceRect: destination } = measurePreviewSource(sourceElement as HTMLElement);
+          element.style.translate = `${destination.left / endingPreview.positionScale.x}px ${destination.top / endingPreview.positionScale.y}px`;
 
           const animations = globalThis.BASE_UI_ANIMATIONS_DISABLED
             ? []

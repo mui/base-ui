@@ -79,5 +79,11 @@ function CardScroller(props: CardScrollerProps) {
 const scrollCards: DragAutoScrollHandler<CardPayload> = ({ source }) => {
   expectType<CardPayload, typeof source.payload>(source.payload);
 };
+// @ts-expect-error a typed observer requires a runtime filter.
 <CardScroller onDragScroll={scrollCards} />;
+<CardScroller accept={card} onDragScroll={scrollCards} />;
 <Draggable.Viewport accept={card} onDragScroll={scrollCards} />;
+// @ts-expect-error explicit payload types cannot bypass the runtime filter.
+<Draggable.Viewport<CardPayload> onDragScroll={scrollCards} />;
+// @ts-expect-error callbacks cannot infer a payload type without a runtime filter.
+<Draggable.Viewport onDragScroll={scrollCards} />;

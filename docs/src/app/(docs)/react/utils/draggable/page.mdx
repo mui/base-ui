@@ -27,16 +27,18 @@ Import the component and assemble its parts:
 ```jsx title="Anatomy"
 import { Draggable } from '@base-ui/react/draggable';
 
+const item = Draggable.createKind('item');
+
 <Draggable.Provider>
   <Draggable.Viewport>
-    <Draggable.CollisionProvider>
-      <Draggable.Root>
+    <Draggable.CollisionProvider kind={item}>
+      <Draggable.Root kind={item}>
         <Draggable.Handle />
         <Draggable.Preview />
       </Draggable.Root>
     </Draggable.CollisionProvider>
 
-    <Draggable.Target />
+    <Draggable.Target accept={item} />
   </Draggable.Viewport>
 </Draggable.Provider>;
 ```
@@ -243,7 +245,7 @@ Pass `activation` to change the thresholds. It takes a single `DragActivation` a
 />
 ```
 
-Use `{ type: 'immediate' }` to pick the item up on the first `pointerdown`, without waiting for movement. Use it for a canvas tile whose entire area starts a drag. Avoid it when the item contains buttons or links: a click on them would start a drag instead.
+Use `{ type: 'immediate' }` to pick the item up on the first `pointerdown`, without waiting for movement. Use it for a canvas tile whose entire area starts a drag. The usual interactive-element exclusions still apply: pressing a nested button, link, or input does not start a drag.
 
 ```tsx title="Instant pickup"
 <Draggable.Root kind={tile} payload={id} activation={{ type: 'immediate' }} />
@@ -264,7 +266,7 @@ Pass an array to allow any of its activation methods. A press-and-hold that exce
 />
 ```
 
-Each per-pointer map in an array applies its own defaults for omitted pointer types. An empty array disables pickup.
+For each pointer type, Base UI combines the methods from every array entry that addresses it. Defaults apply only when no entry addresses that pointer type. An empty array disables pickup.
 
 ### Double-click pickup
 
@@ -618,7 +620,7 @@ Every handler receives the event payload first. Its second argument, `eventDetai
 />
 ```
 
-A target can also declare its own `kind`. It is available as `target.kind` and on entries in `location.dropTargets`. Use it when a shared handler must distinguish several target kinds that accept the same drag. The kind's `matches` method narrows the record type:
+A target can also declare its own `kind`. It is available as `target.kind` and on entries in `location.current.dropTargets`. Use it when a shared handler must distinguish several target kinds that accept the same drag. The kind's `matches` method narrows the record type:
 
 ```tsx title="Telling two kinds of target apart"
 const dayCell = Draggable.createKind<DayCellData>('day-cell');
@@ -632,7 +634,7 @@ Most targets do not need a `payload`. A target rendered for each row or column c
 <Draggable.Target accept={card} onDraggableDrop={({ source }) => move(source.payload, zone)} />
 ```
 
-Use `payload` when a monitor or another target must read the target's identity from `location.dropTargets`. Those records have an `unknown` payload because any target on the page can appear there. When possible, read `target.payload` from the target's own callbacks.
+Use `payload` when a monitor or another target must read the target's identity from `location.current.dropTargets`. Those records have an `unknown` payload because any target on the page can appear there. When possible, read `target.payload` from the target's own callbacks.
 
 ### Read where in the target the pointer landed
 
@@ -1068,7 +1070,7 @@ The clone matches the source's size. A custom preview uses its own content size 
 }
 ```
 
-Base UI sets both values once at drag start from the source's bounding rect. For a compact preview such as a badge or count, use [`offset="pointer"`](/react/utils/draggable#position-the-preview) instead.
+Base UI sets both values at drag start in the preview's CSS units so it can match the source's size, including ancestor scaling. For a compact preview such as a badge or count, use [`offset="pointer"`](/react/utils/draggable#position-the-preview) instead.
 
 ### Animating a drop
 
@@ -1174,13 +1176,15 @@ Provide a "Move to..." menu, move buttons, or a destination select. Users can th
     <Menu.Trigger aria-label={`Move ${task.title}`}>
       <Ellipsis />
     </Menu.Trigger>
-    <Menu.Popup>
-      {columns.map((column) => (
-        <Menu.Item key={column.id} onClick={() => move(task.id, column.id)}>
-          Move to {column.name}
-        </Menu.Item>
-      ))}
-    </Menu.Popup>
+    <Menu.Positioner>
+      <Menu.Popup>
+        {columns.map((column) => (
+          <Menu.Item key={column.id} onClick={() => move(task.id, column.id)}>
+            Move to {column.name}
+          </Menu.Item>
+        ))}
+      </Menu.Popup>
+    </Menu.Positioner>
   </Menu.Root>
 </Draggable.Root>
 ```
@@ -1578,7 +1582,8 @@ Base UI reads the getter at different stages of a drag:
 | Parameters                                                                      | When Base UI reads them                                                                       |
 | :------------------------------------------------------------------------------ | :-------------------------------------------------------------------------------------------- |
 | Event callbacks and conditions, such as `onMove`, `canDrop`, and `onDragScroll` | On each event or evaluation.                                                                  |
-| `kind`, `payload`, and preview settings                                         | Once when the drag starts. Changes apply to the next drag.                                    |
+| Source `kind`, `payload`, `getPayload`, and preview settings                    | Once when the drag starts. Changes apply to the next drag.                                    |
+| Target `kind`, `payload`, and `getPayload`                                      | Each time the target is evaluated, including final drop resolution.                           |
 | Gesture styles and `dragHandle`                                                 | At registration and on the next `pointerdown`. Re-register to update idle styles immediately. |
 
 Base UI checks `disabled` and `dragHandle` before starting a drag. The getter's closure is not reactive. Re-register from an effect when its dependencies change, or read mutable refs from the getter to keep the registration mounted.

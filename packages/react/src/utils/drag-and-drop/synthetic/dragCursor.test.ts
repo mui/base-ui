@@ -52,6 +52,20 @@ describe('dragCursor', () => {
     resetDropTargets();
   });
 
+  it('restores the cursor custom property priority', () => {
+    const root = document.documentElement;
+    const previous = root.style.cssText;
+    try {
+      root.style.setProperty(CURSOR_VAR, 'crosshair', 'important');
+      dragCursor.lock(document.body, 'grabbing');
+      dragCursor.unlock();
+      expect(root.style.getPropertyValue(CURSOR_VAR)).toBe('crosshair');
+      expect(root.style.getPropertyPriority(CURSOR_VAR)).toBe('important');
+    } finally {
+      root.style.cssText = previous;
+    }
+  });
+
   it('injects a single scoped cursor rule at module use', () => {
     dragCursor.lock(document.body, 'grabbing');
     // Serialized from the CSSOM, so the `!important` the source declares is not

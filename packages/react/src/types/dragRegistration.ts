@@ -2,12 +2,13 @@ import type { DraggableConfig } from '../utils/drag-and-drop/draggable';
 import type { DragPreviewDeclaration } from '../utils/drag-and-drop/dragPreviewDeclaration';
 import type { RegisterDropTargetParameters as InternalRegisterDropTargetParameters } from '../utils/drag-and-drop/dropTarget';
 import type { RegisterAutoScrollerParameters as InternalRegisterAutoScrollerParameters } from '../utils/drag-and-drop/autoScroller';
-import type { RegisterMonitorParameters } from '../utils/drag-and-drop/monitor';
+import type { RegisterMonitorParameters as InternalRegisterMonitorParameters } from '../utils/drag-and-drop/monitor';
 import type {
   AcceptedDragPayload,
   AnyDragAccept,
   DragCleanupFn,
   DragKind,
+  DragAccept,
   DraggablePayload,
   DraggablePayloadGetter,
   DropTargetPayload,
@@ -109,16 +110,32 @@ export type RegisterDropTargetParametersWithPayload<TSourceData, TLocalData> =
     DropTargetPayloadGetter<TSourceData, TLocalData>
   >;
 
+/** Checks a target's data against the payload promised by its own kind. */
+export type DragParametersWithTargetKind<
+  TSourceData,
+  TKind extends DragKind<unknown> | undefined,
+> = {
+  kind?: TKind | undefined;
+  payload?: NoInfer<AcceptedDragPayload<TKind>> | undefined;
+  getPayload?:
+    DropTargetPayloadGetter<TSourceData, NoInfer<AcceptedDragPayload<TKind>>> | undefined;
+};
+
 /**
  * Preserves the accepted kinds while inferring callback payload types.
  */
 export type DragParametersWithInferredAccept<
   TParameters,
   TAccept extends AnyDragAccept,
-> = TParameters & {
-  /** One or more drag source kinds this registration observes. */
-  accept?: TAccept | undefined;
-};
+> = TParameters &
+  (unknown extends AcceptedDragPayload<TAccept>
+    ? { accept?: TAccept | undefined }
+    : { accept: TAccept });
+
+/** A typed observer must declare which source kinds provide its payload. */
+export type DragObserverAccept<TSourceData> = unknown extends TSourceData
+  ? { accept?: DragAccept<TSourceData> | undefined }
+  : { accept: DragAccept<TSourceData> };
 
 /**
  * Preserves the accepted kinds while requiring `accept`.
@@ -168,9 +185,10 @@ export type InternalDraggableParameters<TData = undefined> = RegisterDraggablePa
  * or implement custom scrolling with `onDragScroll`.
  */
 export type RegisterAutoScrollerParameters<TSourceData = unknown> =
-  InternalRegisterAutoScrollerParameters<TSourceData>;
+  InternalRegisterAutoScrollerParameters<TSourceData> & DragObserverAccept<TSourceData>;
 
-export type { RegisterMonitorParameters };
+export type RegisterMonitorParameters<TSourceData = unknown> =
+  InternalRegisterMonitorParameters<TSourceData> & DragObserverAccept<TSourceData>;
 
 /**
  * The page-wide drag-and-drop manager returned by `useDragDropManager`.
@@ -228,12 +246,17 @@ export interface DragDropManager {
         TAccept
       > & { payload?: never | undefined; getPayload?: never | undefined },
     ): DragCleanupFn;
-    <TAccept extends AnyDragAccept, TLocalData>(
+    <
+      TAccept extends AnyDragAccept,
+      TLocalData,
+      TKind extends DragKind<unknown> | undefined = DragKind<TLocalData> | undefined,
+    >(
       element: HTMLElement,
       getParameters: () => DragParametersWithRequiredAccept<
         RegisterDropTargetParametersWithPayload<AcceptedDragPayload<TAccept>, TLocalData>,
         TAccept
-      >,
+      > &
+        DragParametersWithTargetKind<AcceptedDragPayload<TAccept>, TKind>,
     ): DragCleanupFn;
   };
   /**

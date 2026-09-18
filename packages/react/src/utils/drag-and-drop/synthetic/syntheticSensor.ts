@@ -30,6 +30,7 @@ import * as dragRootLock from './dragRootLock';
 import * as dragCursor from './dragCursor';
 import { suppressNextClick } from './postDragClick';
 import { getSharedSlot } from '../sharedState';
+import { setActivePointerAccessors } from '../activePointer';
 import { createEventRootBinding, type DragEventRoot } from '../documentBinding';
 import type { DraggableConfig } from '../draggable';
 import { getRegistration, resolveDragHandle, resolveDraggablePickup } from '../draggableRegistry';
@@ -94,6 +95,12 @@ const handledPointerDownEvents = getSharedSlot<WeakSet<Event>>(
   () => new WeakSet<Event>(),
 );
 const CONTEXT_MENU_SUPPRESSION_MS = 1500;
+
+setActivePointerAccessors({
+  getInput: getRawActivePointerInput,
+  getHitElement: getActiveHitElement,
+  notifyScroll: notifyExternalScroll,
+});
 
 /**
  * The double-tap window for touch and pen `double-click` activation: the second
@@ -1181,13 +1188,12 @@ function commitActivation(): void {
   );
   if (pointerType !== 'mouse') {
     activeRef.listeners.push(
-      // Attach to the document (capture) rather than `target`: touch retargets to
-      // the pointerdown node, but a virtualizer can unmount it mid-drag — a
-      // target-bound listener would die with it and let the page scroll under the
-      // active drag. `touchmove` bubbles, so a capture listener on the document
-      // still observes it and can prevent the scroll. Installed for pen too:
-      // Apple Pencil reports `pointerType: 'pen'` but iOS still scrolls the page
-      // through the touch event stream it synthesizes for it.
+      // A detached press target keeps receiving touch events without a document
+      // propagation path. Keep both listeners until this gesture ends.
+      addEventListener(target, 'touchmove', preventActiveTouchScroll, {
+        passive: false,
+        capture: true,
+      }),
       addEventListener(doc, 'touchmove', preventActiveTouchScroll, {
         passive: false,
         capture: true,

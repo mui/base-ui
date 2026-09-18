@@ -36,18 +36,21 @@ describe('Draggable.Provider', () => {
       Draggable.useDragMonitor({ onMoveStart, onMoveEnd });
       return null;
     }
-    const { engine } = await renderDnd(<ShellMonitor />, { wrapper: React.Fragment });
-    const source = document.createElement('div');
-    document.body.append(source);
-    try {
-      engine.registerDraggable(source, {});
-      await lift(source);
-      expect(onMoveStart).toHaveBeenCalledTimes(1);
-      drop(source);
-      expect(onMoveEnd).toHaveBeenCalledTimes(1);
-    } finally {
-      source.remove();
-    }
+    render(
+      <React.Fragment>
+        <ShellMonitor />
+        <Draggable.Provider>
+          <Draggable.Root data-testid="source">
+            <Draggable.Preview disabled />
+          </Draggable.Root>
+        </Draggable.Provider>
+      </React.Fragment>,
+    );
+    const source = screen.getByTestId('source');
+    await lift(source);
+    expect(onMoveStart).toHaveBeenCalledTimes(1);
+    drop(source);
+    expect(onMoveEnd).toHaveBeenCalledTimes(1);
   });
 
   it('matches an untyped source and target without declaring a kind', async () => {

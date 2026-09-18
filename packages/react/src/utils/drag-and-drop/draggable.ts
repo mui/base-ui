@@ -59,6 +59,12 @@ function applyGestureSetup(
       webkitUserSelect: gestureStyle.webkitUserSelect ?? '',
       webkitTouchCallout: gestureStyle.webkitTouchCallout ?? '',
     };
+    const priorities = {
+      touchAction: gestureStyle.getPropertyPriority('touch-action'),
+      userSelect: gestureStyle.getPropertyPriority('user-select'),
+      webkitUserSelect: gestureStyle.getPropertyPriority('-webkit-user-select'),
+      webkitTouchCallout: gestureStyle.getPropertyPriority('-webkit-touch-callout'),
+    };
     gestureStyle.touchAction = 'manipulation';
     gestureStyle.userSelect = 'none';
     gestureStyle.webkitUserSelect = 'none';
@@ -68,15 +74,35 @@ function applyGestureSetup(
       restore() {
         if (gestureStyle.touchAction === 'manipulation') {
           gestureStyle.touchAction = previous.touchAction;
+          if (priorities.touchAction) {
+            gestureStyle.setProperty('touch-action', previous.touchAction, priorities.touchAction);
+          }
         }
         if (gestureStyle.userSelect === 'none') {
           gestureStyle.userSelect = previous.userSelect;
+          if (priorities.userSelect) {
+            gestureStyle.setProperty('user-select', previous.userSelect, priorities.userSelect);
+          }
         }
         if (gestureStyle.webkitUserSelect === 'none') {
           gestureStyle.webkitUserSelect = previous.webkitUserSelect;
+          if (priorities.webkitUserSelect) {
+            gestureStyle.setProperty(
+              '-webkit-user-select',
+              previous.webkitUserSelect,
+              priorities.webkitUserSelect,
+            );
+          }
         }
         if (gestureStyle.webkitTouchCallout === 'none') {
           gestureStyle.webkitTouchCallout = previous.webkitTouchCallout;
+          if (priorities.webkitTouchCallout) {
+            gestureStyle.setProperty(
+              '-webkit-touch-callout',
+              previous.webkitTouchCallout,
+              priorities.webkitTouchCallout,
+            );
+          }
         }
       },
     };

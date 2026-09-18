@@ -16,7 +16,7 @@ import type {
 } from '../../types/drag';
 import { registerDropTarget, registerMonitor } from '../../utils/drag-and-drop/registrations';
 import { scheduleDropTargetParameterRefresh } from '../../utils/drag-and-drop/core/lifecycleManager';
-import { dragSourceStore } from '../../utils/drag-and-drop/dragSessionStore';
+import { dragSessionStore, dragSourceStore } from '../../utils/drag-and-drop/dragSessionStore';
 import { resolveCollision } from '../../utils/drag-and-drop/collisionResolution';
 import { createKind } from '../../utils/drag-and-drop/dragKind';
 import { invalidateDirectionCache, isRtlCached } from '../../utils/drag-and-drop/collectionDrop';
@@ -146,6 +146,7 @@ export function DraggableCollisionProvider<TData>(
           participants.set(sourceElement, count - 1);
         }
         if (markers.get(element) === onCollision) {
+          onCollision(null);
           markers.delete(element);
         }
         unregister();
@@ -182,6 +183,10 @@ export function DraggableCollisionProvider<TData>(
     const collision = resolve(event.location.current.dropTargets[0]);
     if (collision) {
       markInvolved();
+      // The replayed start callback can cancel this drag synchronously.
+      if (dragSessionStore.state?.source !== event.source) {
+        return;
+      }
     }
     lastInput.current = event.location.current.input;
     const last = previous.current;

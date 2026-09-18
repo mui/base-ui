@@ -25,6 +25,7 @@ function createPreviewElement(
     element,
     isHost,
     sourceRect: new DOMRect(0, 0, width, height),
+    positionScale: { x: 1, y: 1 },
     destroyed: false,
     ensureConnected() {},
     destroy() {

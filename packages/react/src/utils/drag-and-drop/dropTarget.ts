@@ -348,6 +348,7 @@ export function captureDropTargetCollision(
   target: DropTargetRecord | undefined | null,
   input: DragInput,
   source: DragSource,
+  isDrop = false,
 ): void {
   if (!target) {
     return;
@@ -357,7 +358,7 @@ export function captureDropTargetCollision(
     safeCall(
       'collision',
       target.element,
-      () => capture(target, { element: target.element, input, source }),
+      () => capture(target, { element: target.element, input, source, isDrop }),
       undefined,
     );
   }
@@ -757,7 +758,7 @@ export function dispatchToAllDropTargets<K extends DropTargetEventName>(
 export type RegisterDropTargetParameters<TSourceData = unknown, TLocalData = unknown> = {
   /**
    * The data to attach to this target, read back as `target.payload` in its own
-   * callbacks and on its record in `location.dropTargets`. Use it to identify which
+   * callbacks and on its record in `location.current.dropTargets`. Use it to identify which
    * cell, row, or column a drag is over. Functions are preserved as ordinary
    * payload values.
    */
@@ -770,7 +771,7 @@ export type RegisterDropTargetParameters<TSourceData = unknown, TLocalData = unk
     ((context: DropTargetResolutionContext<NoInfer<TSourceData>>) => TLocalData) | undefined;
   /**
    * The target kind created with `Draggable.createKind`. It is available as
-   * `target.kind` and on entries in `location.dropTargets`. Use the kind's `matches`
+   * `target.kind` and on entries in `location.current.dropTargets`. Use the kind's `matches`
    * method to distinguish target kinds and narrow their payload types. Its payload
    * type must match this target's `payload`.
    *

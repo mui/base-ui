@@ -134,18 +134,30 @@ describe('Draggable.Viewport', () => {
 
     // Reconnecting after removal must preserve queued records for the survivor.
     await dragTo(inner, 100, 50);
-    const takeRecords = vi.spyOn(observer, 'takeRecords');
-    registerCleanup(() => takeRecords.mockRestore());
+    const computedStyle = vi.spyOn(window, 'getComputedStyle');
+    registerCleanup(() => computedStyle.mockRestore());
     observe.mockClear();
     act(() => {
       inner.style.direction = 'rtl';
       releaseOuter();
     });
-    expect(takeRecords.mock.results[0].value).toEqual([
-      expect.objectContaining({ target: inner, attributeName: 'style' }),
-    ]);
-    expect(observe.mock.calls.some(([node]) => node === inner)).toBe(true);
-    expect(observe.mock.calls.some(([node]) => node === outer)).toBe(false);
+    // Removals reconnect once at the end of the batch. The browser may deliver
+    // the queued restyle before that microtask, or takeRecords may drain it.
+    await Promise.resolve();
+    const reconnected = observe.mock.calls.filter(
+      (_call, index) => observe.mock.contexts[index] === observer,
+    );
+    expect(reconnected.map(([node]) => node)).toEqual([inner]);
+    await flushRaf();
+    await flushRaf();
+    expect(computedStyle).toHaveBeenCalledWith(inner);
+
+    // A later mutation still invalidates the survivor's cached styles.
+    computedStyle.mockClear();
+    inner.style.direction = 'ltr';
+    await flushRaf();
+    await flushRaf();
+    expect(computedStyle).toHaveBeenCalledWith(inner);
     fireEvent.drop(source);
   });
 

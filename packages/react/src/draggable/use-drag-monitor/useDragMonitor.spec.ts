@@ -13,6 +13,7 @@ declare function commit(id: string): void;
 
 const card = Draggable.createKind<CardPayload>('card');
 const file = Draggable.createKind<FilePayload>('file');
+declare const optionalKind: typeof card | undefined;
 
 // Nothing here runs, but the rules-of-hooks lint reads a bare call as a violation, so
 // each case sits in a component.
@@ -47,7 +48,20 @@ function AcceptsEverything() {
   Draggable.useDragMonitor({
     onMoveStart: ({ source }) => expectType<unknown, typeof source.payload>(source.payload),
   });
+  // @ts-expect-error a typed monitor cannot omit its runtime filter.
+  Draggable.useDragMonitor<typeof card>({ onMoveEnd: ({ source }) => commit(source.payload.id) });
+  // @ts-expect-error a typed active-drag subscription needs its kind argument.
+  Draggable.useActiveDrag<typeof card>();
+  const active = Draggable.useActiveDrag(card);
+  const activePayload = active?.payload;
+  expectType<CardPayload | undefined, typeof activePayload>(activePayload);
+  const optionalActive = Draggable.useActiveDrag(optionalKind);
+  const optionalPayload = optionalActive?.payload;
+  expectType<unknown, typeof optionalPayload>(optionalPayload);
 }
+
+// @ts-expect-error extracted typed parameters must also require the runtime filter.
+const missingAccept: Draggable.useDragMonitor.Parameters<CardPayload> = {};
 
 function RejectsMismatchedHandler() {
   Draggable.useDragMonitor({

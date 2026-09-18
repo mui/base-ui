@@ -32,7 +32,7 @@ import {
   getActiveHitElement,
   getRawActivePointerInput,
   notifyExternalScroll,
-} from './synthetic/syntheticSensor';
+} from './activePointer';
 import { dragSessionStore } from './dragSessionStore';
 import { DRAG_PREVIEW_ATTR } from './dragAttributes';
 import { getMaxScrollOffset } from '../scrollEdges';
@@ -80,6 +80,7 @@ const state = getSharedSlot<AutoScrollerState>('registerAutoScroller', () => ({
   sortedScrollers: null,
   engagedThisFrame: new Set<HTMLElement>(),
   scrollerMutationObserver: null,
+  scrollerObserverRefreshScheduled: false,
   observedScrollers: new Set<HTMLElement>(),
   chainMutationObserver: null,
   observedChainElements: new Set<Element>(),
@@ -89,6 +90,7 @@ const state = getSharedSlot<AutoScrollerState>('registerAutoScroller', () => ({
   rtlCache: new WeakMap<HTMLElement, boolean>(),
 }));
 state.scrollerMutationObserver ??= null;
+state.scrollerObserverRefreshScheduled ??= false;
 state.observedScrollers ??= new Set();
 state.chainMutationObserver ??= null;
 state.observedChainElements ??= new Set();
@@ -191,15 +193,14 @@ function handleObservedMutations(records: MutationRecord[]): void {
   let wake = false;
   for (const record of records) {
     const target = record.target;
+    if (target.nodeType === ELEMENT_NODE && closest(target as Element, PREVIEW_SELECTOR) !== null) {
+      continue;
+    }
     if (record.type === 'childList' || target.nodeType !== ELEMENT_NODE) {
       wake = true;
       continue;
     }
-    const element = target as Element;
-    if (closest(element, PREVIEW_SELECTOR) !== null) {
-      continue;
-    }
-    if (affectsCandidateChain(element)) {
+    if (affectsCandidateChain(target as Element)) {
       refreshAutoScroll();
       return;
     }
@@ -918,19 +919,30 @@ function clearScrollerMutationObserver(element: HTMLElement): void {
   if (!observer || !state.observedScrollers.delete(element)) {
     return;
   }
-  // MutationObserver has no unobserve. Preserve queued changes before reconnecting
-  // the remaining containers, so removing one cannot lose another's restyle.
-  const records = observer.takeRecords();
-  observer.disconnect();
-  for (const scroller of state.observedScrollers) {
-    observer.observe(scroller, MUTATION_OBSERVER_OPTIONS);
+  // MutationObserver has no unobserve. Batch removals so a virtualizer removing
+  // N viewports does one reconnection rather than N increasingly shorter ones.
+  if (state.scrollerObserverRefreshScheduled) {
+    return;
   }
-  handleObservedMutations(records);
+  state.scrollerObserverRefreshScheduled = true;
+  queueMicrotask(() => {
+    if (state.scrollerMutationObserver !== observer) {
+      return;
+    }
+    state.scrollerObserverRefreshScheduled = false;
+    const records = observer.takeRecords();
+    observer.disconnect();
+    for (const scroller of state.observedScrollers) {
+      observer.observe(scroller, MUTATION_OBSERVER_OPTIONS);
+    }
+    handleObservedMutations(records);
+  });
 }
 
 function clearScrollerMutationObservers(): void {
   state.scrollerMutationObserver?.disconnect();
   state.scrollerMutationObserver = null;
+  state.scrollerObserverRefreshScheduled = false;
   state.observedScrollers.clear();
 }
 
@@ -1356,6 +1368,7 @@ interface AutoScrollerState {
   engagedThisFrame: Set<HTMLElement>;
   /** Watches registered scrollers in the active document during a pointer drag. */
   scrollerMutationObserver: MutationObserver | null;
+  scrollerObserverRefreshScheduled: boolean;
   observedScrollers: Set<HTMLElement>;
   /** Watches styles on the active ancestor chains during active scrolling. */
   chainMutationObserver: MutationObserver | null;

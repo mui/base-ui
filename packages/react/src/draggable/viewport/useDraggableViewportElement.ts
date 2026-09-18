@@ -6,7 +6,7 @@ import { useDraggableContext } from '../DraggableContext';
 import { registerAutoScroller } from '../../utils/drag-and-drop/registrations';
 import { wakeAutoScroll } from '../../utils/drag-and-drop/autoScroller';
 import { sameAccept } from '../../utils/drag-and-drop/dragKind';
-import type { RegisterAutoScrollerParameters } from '../../types/dragRegistration';
+import type { RegisterAutoScrollerParameters } from '../../utils/drag-and-drop/autoScroller';
 import { useRegistrationRef } from '../../utils/drag-and-drop/useRegistrationRef';
 
 /**

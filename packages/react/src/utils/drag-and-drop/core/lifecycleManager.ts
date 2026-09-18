@@ -772,7 +772,7 @@ export function start(parameters: StartParameters): DragSessionHandle | null {
     // `null` here — released over no target — is the `outside-release` outcome
     // (`canceled: false`, `dropTarget: null`).
     const innermostDropTarget = freshDropTargets[0] ?? null;
-    captureDropTargetCollision(innermostDropTarget, input, source);
+    captureDropTargetCollision(innermostDropTarget, input, source, true);
     // Captured with the snapshot: the source's `onMoveEnd` (which is told the
     // drop landed first) may synchronously unregister the target while tearing
     // down its zones — the drop it was just told about must still reach the

@@ -2,6 +2,7 @@ import { Draggable } from '@base-ui/react/draggable';
 import type {
   RegisterDraggableParameters,
   RegisterMonitorParameters,
+  RegisterAutoScrollerParameters,
   RegisterDropTargetParameters,
   RegisterDropTargetParametersWithPayload,
 } from '@base-ui/react/draggable';
@@ -24,6 +25,28 @@ interface CardPayload {
 
 const card = Draggable.createKind<CardPayload>('card');
 const marker = Draggable.createKind('marker');
+const detailedSlot = Draggable.createKind<{ index: number; label: string }>('detailed-slot');
+
+engine.registerDropTarget(element, () => ({
+  accept: card,
+  kind: detailedSlot,
+  // @ts-expect-error a target cannot publish incomplete data under a more specific kind.
+  payload: { index: 0 },
+}));
+engine.registerDropTarget(element, () => ({
+  accept: card,
+  kind: detailedSlot,
+  // @ts-expect-error resolved target payloads must also contain every field promised by the kind.
+  getPayload: () => ({ index: 0 }),
+}));
+// @ts-expect-error typed monitor parameters require a runtime filter.
+const missingMonitorAccept: RegisterMonitorParameters<CardPayload> = {};
+// @ts-expect-error typed auto-scroller parameters require a runtime filter.
+const missingScrollerAccept: RegisterAutoScrollerParameters<CardPayload> = {};
+// @ts-expect-error explicit accepted-kind generics cannot bypass the runtime filter.
+engine.registerMonitor<typeof card>(() => ({}));
+// @ts-expect-error explicit accepted-kind generics cannot bypass the runtime filter.
+engine.registerAutoScroller<typeof card>(element, () => ({}));
 
 // The imperative entry point is self-contained: it exposes the factories its
 // registration methods require, without importing a component namespace.

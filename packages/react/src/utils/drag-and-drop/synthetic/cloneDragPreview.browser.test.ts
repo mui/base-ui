@@ -3,7 +3,7 @@ import { act } from '@mui/internal-test-utils';
 import { createDndRenderer, isJSDOM } from '#test-utils';
 import { flushRaf, setupDragEngineTests } from '../../../../test/dnd';
 import { DRAG_PREVIEW_ATTR } from '../dragAttributes';
-import { createClonedDragPreviewElement } from './cloneDragPreview';
+import { createClonedDragPreviewElement, createDragPreviewHostElement } from './cloneDragPreview';
 
 setupDragEngineTests();
 
@@ -256,6 +256,39 @@ describe.skipIf(isJSDOM)('createClonedDragPreviewElement (top layer)', () => {
     }
   });
 
+  it.each(['scale(0.5)', 'scale(2, 0.5)'])(
+    'preserves descendant layout under ancestor %s',
+    (transform) => {
+      list.style.transform = transform;
+      source.innerHTML = '<span style="display:block;width:20px;height:10px">Text</span>';
+      const sourceChild = source.firstElementChild!.getBoundingClientRect();
+      const handle = createClonedDragPreviewElement(source, null)!;
+      try {
+        const cloneChild = handle.element.firstElementChild!.getBoundingClientRect();
+        expect(cloneChild.width).toBeCloseTo(sourceChild.width);
+        expect(cloneChild.height).toBeCloseTo(sourceChild.height);
+        expect(handle.element.style.width).toBe('120px');
+      } finally {
+        handle.destroy();
+      }
+    },
+  );
+
+  it.each(['0.5', '2'])('sizes a custom preview in CSS units under zoom %s', (zoom) => {
+    list.style.zoom = zoom;
+    const handle = createDragPreviewHostElement(source, null)!;
+    try {
+      handle.element.style.width = 'var(--drag-source-width)';
+      handle.element.style.height = 'var(--drag-source-height)';
+      const sourceRect = source.getBoundingClientRect();
+      const previewRect = handle.element.getBoundingClientRect();
+      expect(previewRect.width).toBeCloseTo(sourceRect.width);
+      expect(previewRect.height).toBeCloseTo(sourceRect.height);
+    } finally {
+      handle.destroy();
+    }
+  });
+
   it('drops the source transition and animation so the preview tracks the pointer', () => {
     // Every frame writes `transform`; a source transition would ease each of
     // those writes and the preview would trail the pointer for the whole drag.
@@ -437,6 +470,12 @@ describe.skipIf(isJSDOM)('createClonedDragPreviewElement (top layer)', () => {
       expect(Math.abs(actual.height - expected.height)).toBeLessThanOrEqual(0.5);
     }
 
+    it.each(['0.5', '2'])('preserves the pickup position under CSS zoom %s', async (zoom) => {
+      list.style.zoom = zoom;
+      const { sourceRect, cloneRect } = await liftAndMeasure();
+      expectSameBox(cloneRect, sourceRect);
+    });
+
     it('lifts a scaled source off exactly where it sits', async () => {
       // The grab offset the lifecycle measures is relative to the *transformed*
       // rect, but the clone is anchored on the untransformed box it re-applies
@@ -471,15 +510,18 @@ describe.skipIf(isJSDOM)('createClonedDragPreviewElement (top layer)', () => {
       },
     );
 
-    it('preserves a rotated source on a zoomed canvas', async () => {
-      list.style.transform = 'translateY(40px) scale(0.5)';
-      source.style.rotate = '30deg';
-      source.style.transformOrigin = '20px 10px';
+    it.each(['scale(0.5)', 'scale(2, 0.5)'])(
+      'preserves a rotated source under %s',
+      async (scale) => {
+        list.style.transform = `translateY(40px) ${scale}`;
+        source.style.rotate = '30deg';
+        source.style.transformOrigin = '20px 10px';
 
-      const { sourceRect, cloneRect } = await liftAndMeasure();
+        const { sourceRect, cloneRect } = await liftAndMeasure();
 
-      expectSameBox(cloneRect, sourceRect);
-    });
+        expectSameBox(cloneRect, sourceRect);
+      },
+    );
   });
 
   it('confines the popover UA chrome to the wrapper, away from the preview', () => {

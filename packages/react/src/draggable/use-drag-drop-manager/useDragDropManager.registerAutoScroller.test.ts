@@ -24,6 +24,60 @@ setupDragEngineTests({ extraAfterEach: resetSyntheticDrag });
 describe('engine.registerAutoScroller', () => {
   const { renderDnd } = createDndRenderer();
 
+  it('reconnects scroller observations once when a batch of viewports unmounts', async () => {
+    const { engine } = await renderDnd();
+    const source = createElement();
+    const survivor = makeEngageableScroller();
+    engine.registerDraggable(source, {});
+    engine.registerAutoScroller(survivor, {});
+    const cleanups = Array.from({ length: 20 }, () =>
+      engine.registerAutoScroller(makeEngageableScroller(), {}),
+    );
+    await lift(source, { clientX: 100, clientY: 100 });
+    await flushRaf();
+    await flushRaf();
+
+    const observe = vi.spyOn(MutationObserver.prototype, 'observe');
+    try {
+      for (const cleanup of cleanups) {
+        cleanup();
+      }
+      await Promise.resolve();
+      expect(observe).toHaveBeenCalledTimes(1);
+      expect(observe).toHaveBeenCalledWith(survivor, expect.objectContaining({ subtree: true }));
+    } finally {
+      observe.mockRestore();
+    }
+  });
+
+  it('ignores preview child changes while waking for ordinary viewport content changes', async () => {
+    const { engine } = await renderDnd();
+    const source = createElement();
+    const scroller = makeEngageableScroller();
+    const preview = document.createElement('div');
+    preview.setAttribute('data-drag-preview', '');
+    scroller.appendChild(preview);
+    engine.registerDraggable(source, {});
+    engine.registerAutoScroller(scroller, {});
+    await lift(source, { clientX: 100, clientY: 100 });
+    await flushRaf();
+    await flushRaf();
+
+    const measure = vi.spyOn(scroller, 'getBoundingClientRect');
+    try {
+      preview.textContent = 'Updated preview';
+      await flushRaf();
+      await flushRaf();
+      expect(measure).not.toHaveBeenCalled();
+
+      scroller.appendChild(document.createElement('div'));
+      await flushRaf();
+      expect(measure).toHaveBeenCalled();
+    } finally {
+      measure.mockRestore();
+    }
+  });
+
   it('preserves native vertical scrolling when a handler only observes it', async () => {
     const { engine } = await renderDnd();
     const source = createElement();

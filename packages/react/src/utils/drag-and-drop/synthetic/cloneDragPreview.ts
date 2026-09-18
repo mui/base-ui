@@ -5,7 +5,7 @@ import { isShadowRoot } from '@floating-ui/utils/dom';
 import { applySourceSizeVars } from '../customDragPreview';
 import { getSharedSlot } from '../sharedState';
 import { DRAG_PREVIEW_ATTR, DRAGGING_ATTR } from '../dragAttributes';
-import { getComposedParentElement, getElementScale } from '../utils';
+import { getComposedParentElement, getElementScale, getElementZoom } from '../utils';
 import type { DragPosition } from '../../../types/drag';
 import {
   COMPUTED_MATRIX,
@@ -103,6 +103,8 @@ export interface DragPreviewElementHandle {
   readonly isHost: boolean;
   /** The source's border box at drag start. Measured once; reused by the callers. */
   readonly sourceRect: DOMRect;
+  /** Viewport pixels per CSS translation unit of the preview. */
+  readonly positionScale: DragPosition;
   /**
    * Re-home the preview if its host was torn out mid-drag (a virtualizer recycling
    * the row, a `dangerouslySetInnerHTML` parent re-rendering). Cheap enough to call
@@ -550,8 +552,8 @@ function getUntransformedSourceRect(
     );
   const matrix = getLinearTransform(sourceStyle);
   const originParts = sourceStyle.transformOrigin.split(/\s+/);
-  const originX = Number.parseFloat(originParts[0]) * ancestorScale.x;
-  const originY = Number.parseFloat(originParts[1]) * ancestorScale.y;
+  const originX = Number.parseFloat(originParts[0]);
+  const originY = Number.parseFloat(originParts[1]);
   if (!matrix || !Number.isFinite(originX) || !Number.isFinite(originY)) {
     return fallback();
   }
@@ -560,19 +562,67 @@ function getUntransformedSourceRect(
   // transformed axis-aligned bounding box. Undo that center displacement using
   // the real transform origin; unlike re-centering, this works for top-left and
   // other custom origins as well as the default center.
-  const centerX = width / 2;
-  const centerY = height / 2;
+  const centerX = width / (2 * ancestorScale.x);
+  const centerY = height / (2 * ancestorScale.y);
   const relativeX = centerX - originX;
   const relativeY = centerY - originY;
   const transformedCenterX = originX + matrix.a * relativeX + matrix.c * relativeY;
   const transformedCenterY = originY + matrix.b * relativeX + matrix.d * relativeY;
 
   return new win.DOMRect(
-    rect.x + rect.width / 2 - transformedCenterX,
-    rect.y + rect.height / 2 - transformedCenterY,
+    rect.x + rect.width / 2 - transformedCenterX * ancestorScale.x,
+    rect.y + rect.height / 2 - transformedCenterY * ancestorScale.y,
     width,
     height,
   );
+}
+
+/** Measure the layout anchor in viewport coordinates, undoing the source's own transform. */
+export function measurePreviewSource(source: HTMLElement): {
+  sourceRect: DOMRect;
+  scale: DragPosition;
+} {
+  // `getBoundingClientRect` includes the source's own transform. The clone
+  // renders with `transform` neutralized but re-applies the individual
+  // `rotate`/`scale` properties to whatever box it is given, so a transformed
+  // source must be measured from its untransformed border box.
+  //
+  // CSS Transforms 2 splits `scale`/`rotate`/`translate` out of `transform`, and
+  // they do *not* fold into the computed `transform` — so a source styled
+  // `scale: 1.5` (the hover-lift pattern) reads as untransformed unless all four
+  // are checked. Sizing from the transformed AABB would compound the re-applied
+  // `scale: 1.5` to ~2.25x.
+  const win = ownerWindow(source);
+  const untransformedRect = source.getBoundingClientRect();
+  const sourceStyle = win.getComputedStyle(source);
+  // Translation is excluded, in both spellings: it moves the box without resizing
+  // it, so the rect's own dimensions are already right — and they are exact,
+  // where `offsetWidth` rounds to an integer and would cost the preview its
+  // subpixel size.
+  //
+  const hasTransform =
+    (sourceStyle.transform !== '' &&
+      sourceStyle.transform !== 'none' &&
+      !isTranslationOnly(sourceStyle.transform)) ||
+    (sourceStyle.scale !== '' && sourceStyle.scale !== 'none') ||
+    (sourceStyle.rotate !== '' && sourceStyle.rotate !== 'none');
+  const parent = getComposedParentElement(source) as HTMLElement | null;
+  const parentScale = parent ? getElementScale(parent) : { x: 1, y: 1 };
+  const ownZoom = Number.parseFloat(sourceStyle.zoom) || 1;
+  const ancestorScale = { x: parentScale.x * ownZoom, y: parentScale.y * ownZoom };
+  const width = hasTransform ? source.offsetWidth * ancestorScale.x : untransformedRect.width;
+  const height = hasTransform ? source.offsetHeight * ancestorScale.y : untransformedRect.height;
+  // Everything downstream — the default `'source'` offset, the `--drag-source-*`
+  // variables — has to describe the same box the preview actually has, or the
+  // preview is anchored against a box it doesn't own and jumps on pickup.
+  //
+  // So the untransformed *size* has to be paired with the position obtained by
+  // undoing the source's own transform around its computed transform-origin.
+  const sourceRect = hasTransform
+    ? getUntransformedSourceRect(untransformedRect, width, height, sourceStyle, win, ancestorScale)
+    : untransformedRect;
+
+  return { sourceRect, scale: ancestorScale };
 }
 
 /**
@@ -627,72 +677,25 @@ function createPreparedDragPreviewElement(
     return null;
   }
 
-  const win = ownerWindow(source);
   // Keyed on the *host*, not the source: the preview mounts into
   // `container ?? hostOf(source)`, and with a container in a different root
   // (a shadow tree, say) adopting the sheet into the source's root leaves the
   // preview carrying the source transitions the neutralizer exists to remove.
   ensureNeutralizerStyles(host);
 
-  // `getBoundingClientRect` includes the source's own transform. The clone
-  // renders with `transform` neutralized but re-applies the individual
-  // `rotate`/`scale` properties to whatever box it is given, so a transformed
-  // source must be measured from its untransformed border box.
-  //
-  // CSS Transforms 2 splits `scale`/`rotate`/`translate` out of `transform`, and
-  // they do *not* fold into the computed `transform` — so a source styled
-  // `scale: 1.5` (the hover-lift pattern) reads as untransformed unless all four
-  // are checked. Sizing from the transformed AABB would compound the re-applied
-  // `scale: 1.5` to ~2.25x.
-  const untransformedRect = source.getBoundingClientRect();
-  const sourceStyle = win.getComputedStyle(source);
-  // Translation is excluded, in both spellings: it moves the box without resizing
-  // it, so the rect's own dimensions are already right — and they are exact,
-  // where `offsetWidth` rounds to an integer and would cost the preview its
-  // subpixel size.
-  //
-  const hasTransform =
-    (sourceStyle.transform !== '' &&
-      sourceStyle.transform !== 'none' &&
-      !isTranslationOnly(sourceStyle.transform)) ||
-    (sourceStyle.scale !== '' && sourceStyle.scale !== 'none') ||
-    (sourceStyle.rotate !== '' && sourceStyle.rotate !== 'none');
-  // The top layer escapes ancestor transforms. Keep their scale in the box
-  // while undoing only the source's own transform. CSS zoom still applies in
-  // the top layer, so exclude it from the compensation.
-  const parent = getComposedParentElement(source) as HTMLElement | null;
-  const ancestorScale = hasTransform && parent ? getElementScale(parent, false) : { x: 1, y: 1 };
-  const width = hasTransform ? source.offsetWidth * ancestorScale.x : untransformedRect.width;
-  const height = hasTransform ? source.offsetHeight * ancestorScale.y : untransformedRect.height;
-  // Everything downstream — the default `'source'` offset, the `--drag-source-*`
-  // variables — has to describe the same box the preview actually has, or the
-  // preview is anchored against a box it doesn't own and jumps on pickup.
-  //
-  // So the untransformed *size* has to be paired with the position obtained by
-  // undoing the source's own transform around its computed transform-origin.
-  const sourceRect = hasTransform
-    ? getUntransformedSourceRect(untransformedRect, width, height, sourceStyle, win, ancestorScale)
-    : untransformedRect;
+  const { sourceRect, scale: sourceScale } = measurePreviewSource(source);
+  const width = sourceRect.width / sourceScale.x;
+  const height = sourceRect.height / sourceScale.y;
 
   const isClone = options.clone !== undefined;
   const element = options.clone?.element ?? doc.createElement('div');
   const applyPostInsertion = options.clone?.applyPostInsertion ?? NOOP;
-
-  if (isClone && hasTransform && (ancestorScale.x !== 1 || ancestorScale.y !== 1)) {
-    const origin = sourceStyle.transformOrigin.split(/\s+/);
-    element.style.transformOrigin =
-      `${Number.parseFloat(origin[0]) * ancestorScale.x}px ` +
-      `${Number.parseFloat(origin[1]) * ancestorScale.y}px`;
-  }
 
   element.setAttribute(DRAG_PREVIEW_ATTR, '');
   element.setAttribute('aria-hidden', 'true');
   // A cloned `tabindex="0"` would otherwise be tabbable, and the preview must never
   // be hit-tested or reachable.
   element.setAttribute('inert', '');
-
-  // Let a custom preview match the element it replaces if it wants to.
-  applySourceSizeVars(element, sourceRect);
 
   // Geometry only. Every visual property stays in the cascade so that a consumer
   // rule keyed on `[data-drag-preview]` wins without `!important`.
@@ -751,6 +754,7 @@ function createPreparedDragPreviewElement(
     overflow: 'visible',
     width: '0px',
     height: '0px',
+    transformOrigin: '0 0',
     // The UA popover chrome sets `color: CanvasText`, which the preview would
     // inherit; `inherit` re-opens the chain to the wrapper's own parent.
     color: 'inherit',
@@ -772,6 +776,21 @@ function createPreparedDragPreviewElement(
 
   let destroyed = false;
   let usesPopover = false;
+  let positionScale = { x: 1, y: 1 };
+
+  function updatePositionScale(): void {
+    const zoom = getElementZoom(element);
+    // The wrapper restores the escaped ancestor scale without changing the
+    // clone's local layout or overriding its own rotate/scale styling.
+    positionScale = isClone ? sourceScale : { x: zoom, y: zoom };
+    const scaleX = positionScale.x / zoom;
+    const scaleY = positionScale.y / zoom;
+    wrapper.style.scale = scaleX === 1 && scaleY === 1 ? 'none' : `${scaleX} ${scaleY}`;
+    applySourceSizeVars(element, {
+      width: sourceRect.width / positionScale.x,
+      height: sourceRect.height / positionScale.y,
+    });
+  }
 
   function openInTopLayer(): void {
     if (typeof wrapper.showPopover !== 'function') {
@@ -796,6 +815,7 @@ function createPreparedDragPreviewElement(
   // siblings — pass a `container` to avoid that.
   host.appendChild(wrapper);
   openInTopLayer();
+  updatePositionScale();
   applyPostInsertion();
 
   function reconnect(): void {
@@ -819,6 +839,7 @@ function createPreparedDragPreviewElement(
     if (usesPopover) {
       openInTopLayer();
     }
+    updatePositionScale();
     // Re-appending resets descendant scroll positions to 0; restore the captured
     // offsets so an internally-scrolled preview subtree keeps its scroll after a
     // mid-drag re-home, in the same order as the initial insertion.
@@ -841,6 +862,9 @@ function createPreparedDragPreviewElement(
     element,
     isHost: !isClone,
     sourceRect,
+    get positionScale() {
+      return positionScale;
+    },
     ensureConnected: reconnect,
     destroy() {
       if (destroyed) {

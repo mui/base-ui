@@ -5,6 +5,7 @@ import { screen } from '@testing-library/react';
 import { createDndRenderer, firePointer } from '#test-utils';
 import { Draggable } from '@base-ui/react/draggable';
 import { lift, dragOver, drop, cancel, setupDragEngineTests } from '../../../test/dnd';
+import { cancelDrag } from '../../utils/drag-and-drop/cancelDrag';
 
 setupDragEngineTests();
 const kind = Draggable.createKind<string>('collision-test');
@@ -38,6 +39,58 @@ function measure() {
 
 describe('Draggable.CollisionProvider', () => {
   const { renderDnd } = createDndRenderer();
+
+  it('clears the marker when a hovered participant opts out', async () => {
+    function Example({ collision }: { collision: boolean }) {
+      return (
+        <Draggable.CollisionProvider kind={kind}>
+          <Draggable.Root kind={kind} payload="a" data-testid="a">
+            <Draggable.Preview disabled />
+          </Draggable.Root>
+          <Draggable.Root kind={kind} payload="b" data-testid="b" collision={collision} />
+        </Draggable.CollisionProvider>
+      );
+    }
+    const { rerender } = await renderDnd(<Example collision />);
+    const a = screen.getByTestId('a');
+    const b = screen.getByTestId('b');
+    b.getBoundingClientRect = () => new DOMRect(0, 100, 100, 100);
+    await lift(a);
+    await dragOver(b, { clientY: 120 });
+    expect(b).toHaveAttribute('data-collision-before');
+    await rerender(<Example collision={false} />);
+    expect(b).not.toHaveAttribute('data-collision-before');
+    drop(b, { clientY: 120 });
+    expect(b).not.toHaveAttribute('data-collision-before');
+  });
+
+  it('does not restore a marker after a replayed start cancels the drag', async () => {
+    const changed = vi.fn();
+    const ended = vi.fn();
+    await renderDnd(
+      <React.Fragment>
+        <Draggable.Root kind={kind} payload="a" data-testid="a">
+          <Draggable.Preview disabled />
+        </Draggable.Root>
+        <Draggable.CollisionProvider
+          kind={kind}
+          onMoveStart={() => cancelDrag()}
+          onCollisionChange={changed}
+          onMoveEnd={ended}
+        >
+          <Draggable.Root kind={kind} payload="b" data-testid="b" />
+        </Draggable.CollisionProvider>
+      </React.Fragment>,
+    );
+    const a = screen.getByTestId('a');
+    const b = screen.getByTestId('b');
+    b.getBoundingClientRect = () => new DOMRect(0, 100, 100, 100);
+    await lift(a);
+    await dragOver(b, { clientY: 120 });
+    expect(ended).toHaveBeenCalledTimes(1);
+    expect(changed).not.toHaveBeenCalled();
+    expect(b).not.toHaveAttribute('data-collision-before');
+  });
 
   it('resolves placement without explicit targets and only reports changed destinations', async () => {
     const changed = vi.fn();

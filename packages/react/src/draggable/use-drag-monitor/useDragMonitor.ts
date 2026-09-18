@@ -2,9 +2,11 @@
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { registerMonitor } from '../../utils/drag-and-drop/registrations';
-import type { RegisterMonitorParameters } from '../../utils/drag-and-drop/monitor';
 import type { AcceptedDragPayload, AnyDragAccept, DragKind } from '../../types/drag';
-import type { DragParametersWithInferredAccept } from '../../types/dragRegistration';
+import type {
+  DragParametersWithInferredAccept,
+  RegisterMonitorParameters,
+} from '../../types/dragRegistration';
 
 /**
  * Observes every drag operation that matches `accept`, regardless of which
@@ -37,11 +39,10 @@ export namespace useDragMonitor {
  * Parameters for {@link useDragMonitor}. Defines the drag kinds to observe and the
  * lifecycle callbacks fired for every matching drag.
  */
-export interface UseDragMonitorParameters<
-  TSourceData = unknown,
-> extends RegisterMonitorParameters<TSourceData> {}
+export type UseDragMonitorParameters<TSourceData = unknown> =
+  RegisterMonitorParameters<TSourceData>;
 
-export type { RegisterMonitorParameters } from '../../utils/drag-and-drop/monitor';
+export type { RegisterMonitorParameters } from '../../types/dragRegistration';
 
 // The event types a monitor's extracted handlers are written against,
 // re-exported so this entry point is self-sufficient like the component entries

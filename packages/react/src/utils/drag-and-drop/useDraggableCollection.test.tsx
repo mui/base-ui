@@ -56,6 +56,89 @@ function setupPlainDraggable(
 }
 
 describe('useDraggableCollection', () => {
+  it('keeps the accepted placement when source end changes the target geometry', async () => {
+    const onDrop = vi.fn();
+    const canDrop = vi.fn(({ position }) => position === 'before');
+    const { plugin } = setupPlugin(
+      { onDrop, canDrop, kind: columnsKind, accept: cardsKind },
+      { knownItemIds: ['b'] },
+    );
+    const target = createElement({ top: 200, height: 100 });
+    plugin.setupItem('b', target);
+    const source = createElement();
+    const { result } = renderHook(() => useInnerDragEngine(), { wrapper: DraggableProvider });
+    registerCleanup(
+      result.current.registerDraggable(source, () => ({
+        kind: cardsKind,
+        payload: undefined,
+        onMoveEnd: () => {
+          target.getBoundingClientRect = () => new DOMRect(0, 150, 200, 100);
+        },
+      })),
+    );
+    await lift(source);
+    await dragOver(target, { clientY: 210 });
+    drop(target, { clientY: 210 });
+    expect(canDrop).toHaveBeenLastCalledWith(expect.objectContaining({ position: 'before' }));
+    expect(onDrop).toHaveBeenCalledWith(
+      expect.objectContaining({
+        target: { itemId: 'b', position: 'before' },
+      }),
+    );
+  });
+
+  it('keeps a root drop successful when committing moves the source under the pointer', async () => {
+    const source = createElement({ top: 0, height: 100 });
+    const root = createElement({ top: 0, height: 400 });
+    const onDragEnd = vi.fn();
+    const onDrop = vi.fn(() => {
+      source.getBoundingClientRect = () => new DOMRect(0, 200, 200, 100);
+    });
+    const { plugin } = setupPlugin({ onDrop, onDragEnd }, { knownItemIds: ['a'] });
+    plugin.setupRoot(root);
+    plugin.setupItem('a', source);
+    root.appendChild(source);
+    await lift(source);
+    await dragOver(root, { clientY: 250 });
+    drop(root, { clientY: 250 });
+    expect(onDrop).toHaveBeenCalledTimes(1);
+    expect(onDragEnd).toHaveBeenCalledWith(
+      expect.objectContaining({ canceled: false, isInternal: true }),
+    );
+  });
+
+  it('clears state after accepting a drag that was excluded at pickup', async () => {
+    const a = setupPlugin({ kind: cardsKind }, { knownItemIds: ['a'] });
+    const source = createElement();
+    a.plugin.setupItem('a', source);
+    const context = setupPlugin({}, { knownItemIds: ['b'] });
+    const onStateChange = vi.fn();
+    const onDrop = vi.fn();
+    const { result, rerender } = renderHook(
+      ({ accept }) =>
+        useDraggableCollection({
+          kind: columnsKind,
+          accept,
+          onDrop,
+          getActions: () => context.context,
+          onStateChange,
+        }),
+      { initialProps: { accept: columnsKind }, wrapper: DraggableProvider },
+    );
+    const target = createElement({ top: 200, height: 100 });
+    registerCleanup(result.current.setupItem('b', target));
+    await lift(source);
+    rerender({ accept: cardsKind });
+    await dragOver(target, { clientY: 210 });
+    drop(target, { clientY: 210 });
+    expect(onDrop).toHaveBeenCalledTimes(1);
+    expect(onStateChange.mock.lastCall?.[0]).toEqual({
+      draggedItemIds: new Set(),
+      dropTargetItemId: null,
+      dropPosition: null,
+    });
+  });
+
   it('reuses item registration parameters until a dynamic input changes', () => {
     let draggable = true;
     const { plugin } = setupPlugin({ canDrag: () => draggable }, { knownItemIds: ['a'] });

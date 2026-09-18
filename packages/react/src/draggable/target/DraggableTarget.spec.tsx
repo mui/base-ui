@@ -29,6 +29,22 @@ const task = Draggable.createKind<TaskPayload>('task');
 const file = Draggable.createKind<AttachmentPayload>('file');
 const divider = Draggable.createKind('divider');
 const slot = Draggable.createKind<SlotData>('slot');
+const detailedSlot = Draggable.createKind<{ index: number; label: string }>('detailed-slot');
+
+// @ts-expect-error the target kind requires every payload field, even when a subset is inferred.
+<Draggable.Target accept={card} kind={detailedSlot} payload={{ index: 0 }} />;
+// @ts-expect-error a resolver must also provide the kind's complete payload.
+<Draggable.Target accept={card} kind={detailedSlot} getPayload={() => ({ index: 0 })} />;
+// @ts-expect-error heterogeneous accepted kinds do not weaken the target's own payload contract.
+<Draggable.Target accept={[card, file]} kind={detailedSlot} payload={{ index: 0 }} />;
+<Draggable.Target
+  accept={[card, file]}
+  kind={detailedSlot}
+  payload={{ index: 0, label: 'Inbox' }}
+  onDraggableDrop={({ target }) => {
+    expectType<string, typeof target.payload.label>(target.payload.label);
+  }}
+/>;
 
 // An omitted accept matches only the nearest provider default kind.
 <Draggable.Target
