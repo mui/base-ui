@@ -1,7 +1,6 @@
 'use client';
 import * as React from 'react';
 import { Tooltip as BaseTooltip } from '@base-ui/react/tooltip';
-import { Tooltip as BaseOldTooltip } from '@base-ui-components/react-before-detached/tooltip';
 import { Tooltip as RadixTooltip } from 'radix-ui';
 import PerformanceBenchmark, { BenchmarkVariant } from './utils/benchmark';
 import styles from './performance.module.css';
@@ -76,30 +75,6 @@ function BaseUIDetachedTooltips() {
   );
 }
 
-function BaseUIOldTooltips() {
-  return (
-    <BaseOldTooltip.Provider>
-      <div className={styles.TooltipPanel}>
-        {indexes.map((i) => (
-          <BaseOldTooltip.Root key={i}>
-            <BaseOldTooltip.Trigger className={styles.TooltipButton}>
-              Button {i}
-            </BaseOldTooltip.Trigger>
-            <BaseOldTooltip.Portal>
-              <BaseOldTooltip.Positioner sideOffset={10}>
-                <BaseOldTooltip.Popup className={styles.TooltipPopup}>
-                  <BaseOldTooltip.Arrow className={styles.Arrow} />
-                  {`Bold Item ${i + 1}`}
-                </BaseOldTooltip.Popup>
-              </BaseOldTooltip.Positioner>
-            </BaseOldTooltip.Portal>
-          </BaseOldTooltip.Root>
-        ))}
-      </div>
-    </BaseOldTooltip.Provider>
-  );
-}
-
 function RadixTooltips() {
   return (
     <RadixTooltip.Provider>
@@ -127,11 +102,6 @@ const variants: BenchmarkVariant[] = [
     key: 'base-detached',
     label: 'Base UI with detached triggers',
     render: () => <BaseUIDetachedTooltips />,
-  },
-  {
-    key: 'base-old',
-    label: 'Base UI before detached triggers',
-    render: () => <BaseUIOldTooltips />,
   },
   { key: 'radix', label: 'Radix', render: () => <RadixTooltips /> },
 ];
