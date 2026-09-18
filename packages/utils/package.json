@@ -38,7 +38,7 @@
     "@testing-library/user-event": "14.6.3",
     "@types/react": "19.2.18",
     "@types/react-dom": "19.2.7",
-    "@types/use-sync-external-store": "1.5.0",
+    "@types/use-sync-external-store": "1.7.0",
     "react": "19.2.8",
     "react-dom": "19.2.8",
     "typescript": "npm:@typescript/typescript6@6.0.2"
