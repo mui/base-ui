@@ -9,7 +9,7 @@ import type { DragPreviewElementFactory } from './synthetic/cloneDragPreview';
  * start and the overlay renders. That indirection is what lets the preview outlive
  * the source component when a virtualizer or a live reorder unmounts it mid-drag.
  */
-export interface DragPreviewDeclaration<TData = unknown> extends DragPreviewSettings {
+export interface DragPreviewDeclaration<TPayload = unknown> extends DragPreviewSettings {
   /** Builds the engine-owned preview element. @internal */
   createPreviewElement: DragPreviewElementFactory;
   /**
@@ -20,7 +20,7 @@ export interface DragPreviewDeclaration<TData = unknown> extends DragPreviewSett
    * Read synchronously at drag start, before React can run — which is why the
    * choice lives here rather than being signalled by mounting.
    */
-  render: ((parameters: DragPreviewRenderEvent<TData>) => React.ReactNode) | null;
+  render: ((parameters: DragPreviewRenderEvent<TPayload>) => React.ReactNode) | null;
 }
 
 /**
@@ -28,19 +28,19 @@ export interface DragPreviewDeclaration<TData = unknown> extends DragPreviewSett
  * stable for the draggable's lifetime, so it can be carried on context without ever
  * re-registering anything.
  */
-export interface DragPreviewHandle<TData = unknown> {
+export interface DragPreviewHandle<TPayload = unknown> {
   /**
    * Publish a declaration and return its cleanup. The cleanup is identity-guarded
    * so a Strict Mode remount cannot clear a declaration it did not install.
    * @internal
    */
-  declare: (declaration: DragPreviewDeclaration<TData>) => () => void;
+  declare: (declaration: DragPreviewDeclaration<TPayload>) => () => void;
   /** @internal */
-  getDeclaration: () => DragPreviewDeclaration<TData> | null;
+  getDeclaration: () => DragPreviewDeclaration<TPayload> | null;
 }
 
-export function createDragPreviewHandle<TData = unknown>(): DragPreviewHandle<TData> {
-  let current: DragPreviewDeclaration<TData> | null = null;
+export function createDragPreviewHandle<TPayload = unknown>(): DragPreviewHandle<TPayload> {
+  let current: DragPreviewDeclaration<TPayload> | null = null;
   return {
     declare(declaration) {
       if (process.env.NODE_ENV !== 'production') {

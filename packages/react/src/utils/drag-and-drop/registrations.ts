@@ -36,9 +36,9 @@ import type { RegisterDropTargetParameters } from './dropTarget';
 import type { AcceptedDragPayload, AnyDragAccept, DragCleanupFn, DragKind } from '../../types/drag';
 import { onceCleanup } from './utils';
 
-export function registerDropTarget<TSourceData = unknown, TLocalData = unknown>(
+export function registerDropTarget<TSourcePayload = unknown, TTargetPayload = unknown>(
   element: HTMLElement,
-  getParameters: () => RegisterDropTargetParameters<TSourceData, TLocalData>,
+  getParameters: () => RegisterDropTargetParameters<TSourcePayload, TTargetPayload>,
 ): DragCleanupFn {
   if (process.env.NODE_ENV !== 'production') {
     // `kind` is what this target *is*; `accept` is what it takes. Reading the
@@ -51,7 +51,7 @@ export function registerDropTarget<TSourceData = unknown, TLocalData = unknown>(
     // and a dev-only check must neither let that escape registration nor report
     // it — the dispatch path already surfaces a throwing getter properly, and
     // logging it here too would double up.
-    let parameters: RegisterDropTargetParameters<TSourceData, TLocalData> | null = null;
+    let parameters: RegisterDropTargetParameters<TSourcePayload, TTargetPayload> | null = null;
     try {
       parameters = getParameters();
     } catch {

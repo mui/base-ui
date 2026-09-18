@@ -138,7 +138,7 @@ const foreignCard = Draggable.createKind<{ index: number }>('card');
 // @ts-expect-error this `card` carries a different payload than the one used here.
 <Draggable.Root kind={foreignCard} payload={{ id: 'a' }} />;
 
-// `kind` is the only thing `TData` is inferred from: an extracted handler declaring a
+// `kind` is the only thing `TPayload` is inferred from: an extracted handler declaring a
 // different payload type is rejected rather than redefining it.
 const mismatchedHandler = (parameters: MoveStartEvent<{ index: number }>) => parameters;
 // @ts-expect-error the handler must match the kind's payload, not redefine it.
@@ -273,7 +273,7 @@ expectType<DraggablePayloadGetter<CardPayload>, NonNullable<typeof cardCallbackP
   cardCallbackProps.getPayload!,
 );
 
-// @ts-expect-error `Props` mirrors the component: a declared `TData` requires a payload.
+// @ts-expect-error `Props` mirrors the component: a declared `TPayload` requires a payload.
 const cardMissingProps: CardProps = { kind: card };
 
 // @ts-expect-error and it requires the kind that carries it.
@@ -285,9 +285,9 @@ function Card(props: CardProps) {
 }
 <Card kind={card} payload={{ id: 'a' }} onMoveStart={({ source }) => source.payload.id} />;
 
-// A generic wrapper has to spell out the requirement itself: with `TData` still
+// A generic wrapper has to spell out the requirement itself: with `TPayload` still
 // open, the one in `Props` is a deferred conditional the overloads can't see through.
-function GenericCard<TData>(props: Draggable.Root.PropsWithPayload<TData>) {
+function GenericCard<TPayload>(props: Draggable.Root.PropsWithPayload<TPayload>) {
   return <Draggable.Root {...props} />;
 }
 <GenericCard kind={card} payload={{ id: 'a' }} />;

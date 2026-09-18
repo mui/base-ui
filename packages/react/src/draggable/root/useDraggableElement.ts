@@ -38,16 +38,16 @@ function selectIsDragging(source: DragSource | null, r: ElementRef): boolean {
  * Backs `Draggable.Root`, which is the public API.
  * @internal
  */
-export function useDraggableElement<TData = undefined>(
-  parameters: RegisterDraggableParameters<TData>,
+export function useDraggableElement<TPayload = undefined>(
+  parameters: RegisterDraggableParameters<TPayload>,
   collisionOptions?: {
     context: DraggableCollisionContextValue;
     payload: unknown;
-    snap?: RegisterDropTargetParameters<TData>['snap'] | undefined;
+    snap?: RegisterDropTargetParameters<TPayload>['snap'] | undefined;
     enabled: boolean;
     element?: ((element: HTMLElement) => HTMLElement) | undefined;
   },
-): UseDraggableElementReturnValue<TData> {
+): UseDraggableElementReturnValue<TPayload> {
   const registerDraggable = useRegisterDraggable();
   const options = { parameters, collision: collisionOptions };
   const getOptions = useStableCallback(() => options);
@@ -63,17 +63,17 @@ export function useDraggableElement<TData = undefined>(
 
   // The link a `Draggable.Preview` declares into. Created once, so carrying it on
   // context never re-registers anything.
-  const previewHandle = useRefWithInit(createDragPreviewHandle<TData>).current;
+  const previewHandle = useRefWithInit(createDragPreviewHandle<TPayload>).current;
 
   const registrationRef = useRegistrationRef<HTMLElement>((element) => {
     // These accessors only read stable refs, so keep one function per
     // registration instead of rebuilding both on every engine dispatch.
     const getAttachedHandle = () => attachedHandlesRef.current[0]?.node ?? null;
     const getDragPreviewDeclaration = () => previewHandle.getDeclaration();
-    let lastParams: RegisterDraggableParameters<TData> | null = null;
-    let normalized: InternalDraggableParameters<TData> | null = null;
+    let lastParams: RegisterDraggableParameters<TPayload> | null = null;
+    let normalized: InternalDraggableParameters<TPayload> | null = null;
 
-    const unregisterSource = registerDraggable<TData>(
+    const unregisterSource = registerDraggable<TPayload>(
       element,
       () => {
         const params = getParameters();
@@ -111,7 +111,7 @@ export function useDraggableElement<TData = undefined>(
             typeof snap === 'function'
               ? (context) => {
                   // The provider accepts only this participant's source kind.
-                  return snap({ ...context, source: context.source as DragSource<TData> });
+                  return snap({ ...context, source: context.source as DragSource<TPayload> });
                 }
               : snap,
           // A disabled source stays a destination; only `collision={false}` opts out.
@@ -250,7 +250,7 @@ export function useDraggableElement<TData = undefined>(
   };
 }
 
-export interface UseDraggableElementReturnValue<TData = undefined> {
+export interface UseDraggableElementReturnValue<TPayload = undefined> {
   /** Ref callback to attach to the drag source element. Stable. */
   ref: React.RefCallback<HTMLElement>;
   /** Whether this element is the one currently being dragged. */
@@ -262,5 +262,5 @@ export interface UseDraggableElementReturnValue<TData = undefined> {
    */
   setHandleElement: (node: HTMLElement | null, token: object) => void;
   /** The link a `Draggable.Preview` declares into. Stable. */
-  previewHandle: DragPreviewHandle<TData>;
+  previewHandle: DragPreviewHandle<TPayload>;
 }

@@ -50,16 +50,16 @@ export class DragEngineBase {
     return this.getPreviewContext();
   }
 
-  registerDraggable = <TData = undefined>(
+  registerDraggable = <TPayload = undefined>(
     element: HTMLElement,
-    get: () => RegisterDraggableParameters<TData>,
+    get: () => RegisterDraggableParameters<TPayload>,
     cacheParameters = false,
   ): DragCleanupFn => {
     const initial = get();
 
     // Always defined so every drag start clears any preview the previous drag left
     // behind. This also covers a drop and next pickup landing in one React flush.
-    const onGenerateDragPreview: DraggableConfig<TData>['onGenerateDragPreview'] = (payload) => {
+    const onGenerateDragPreview: DraggableConfig<TPayload>['onGenerateDragPreview'] = (payload) => {
       // Resolve the current preview boundary when the drag starts.
       const previewContext = this.previewContext;
       // Clear any content the previous drag left in the shared overlay store.
@@ -105,19 +105,19 @@ export class DragEngineBase {
     // preview wiring is overridden. Internal React-backed registrations opt into caching
     // while all inputs are unchanged: the lifecycle reads this getter on every
     // event, while those callers only replace `params` on a render.
-    let lastParams: InternalDraggableParameters<TData> | null = null;
+    let lastParams: InternalDraggableParameters<TPayload> | null = null;
     // For the uncached (imperative) path: a shallow copy of the parameters the
     // current `normalized` was built from. Those getters may hand back one
     // mutated object every time, so identity says nothing — but a field-by-field
     // compare against the copy still tells an unchanged frame from a changed one,
     // and is far cheaper than rebuilding the ~20-field object on every dispatch.
-    let lastParamsSnapshot: InternalDraggableParameters<TData> | null = null;
+    let lastParamsSnapshot: InternalDraggableParameters<TPayload> | null = null;
     let lastCSPContext: CSPContextValue | null = null;
-    let normalized: DraggableConfig<TData> | null = null;
-    const getNormalized = (): DraggableConfig<TData> => {
+    let normalized: DraggableConfig<TPayload> | null = null;
+    const getNormalized = (): DraggableConfig<TPayload> => {
       // `Draggable.Root` adds the preview-declaration channel to what it returns
       // here; the public parameter type hides it, since consumers never set it.
-      const params = get() as InternalDraggableParameters<TData>;
+      const params = get() as InternalDraggableParameters<TPayload>;
       const cspContext = this.getCSPContext();
       if (
         normalized !== null &&
@@ -137,7 +137,7 @@ export class DragEngineBase {
         styleNonce: cspContext.nonce,
         disableStyleElements: cspContext.disableStyleElements,
         onGenerateDragPreview,
-      } as DraggableConfig<TData>;
+      } as DraggableConfig<TPayload>;
       return normalized;
     };
 

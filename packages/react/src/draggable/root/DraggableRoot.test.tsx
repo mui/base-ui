@@ -33,8 +33,8 @@ function draggingClass(state: Draggable.Root.State) {
   return state.dragging ? 'dragging' : 'idle';
 }
 
-function TestDraggable<TData = undefined>(props: {
-  options?: Partial<Draggable.Root.Props<TData>>;
+function TestDraggable<TPayload = undefined>(props: {
+  options?: Partial<Draggable.Root.Props<TPayload>>;
   mounted?: boolean;
   testId?: string;
 }) {
@@ -43,7 +43,7 @@ function TestDraggable<TData = undefined>(props: {
     return null;
   }
   // `Draggable.Root`'s overloads need `payload` to be statically present once
-  // `TData` is declared. This helper forwards whatever a fixture hands it — most
+  // `TPayload` is declared. This helper forwards whatever a fixture hands it — most
   // pass no payload at all — so widen past the overloads rather than making every
   // fixture declare one. `kind` defaults to the shared test kind, and a fixture
   // exercising kind matching (or a typed payload) passes its own.

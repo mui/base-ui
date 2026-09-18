@@ -6,7 +6,7 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 
 import {
-  AllDayRowDropData,
+  AllDayRowDropPayload,
   buildWeekDays,
   calAllDayRowKind,
   calDayColumnKind,
@@ -16,7 +16,7 @@ import {
   calEventResizeKind,
   CalendarEvent,
   DAY_MS,
-  DayColumnDropData,
+  DayColumnDropPayload,
   diffDays,
   formatRange,
   formatTime,
@@ -203,7 +203,7 @@ function WeekAllDayCell(props: { dayMs: number }) {
         <Draggable.Target
           kind={calAllDayRowKind}
           accept={CAL_DRAG_KINDS}
-          getPayload={(): AllDayRowDropData => ({
+          getPayload={(): AllDayRowDropPayload => ({
             dayMs: dayMsRef.current,
           })}
           onDraggableMove={({ source, target }) => {
@@ -395,7 +395,7 @@ function WeekDayColumn(props: { dayMs: number; events: CalendarEvent[] }) {
         <Draggable.Target
           kind={calDayColumnKind}
           accept={CAL_DRAG_KINDS}
-          getPayload={(): DayColumnDropData => ({
+          getPayload={(): DayColumnDropPayload => ({
             dayMs: dayMsRef.current,
           })}
           canDrop={({ source }) => {

@@ -36,26 +36,26 @@ export const testDragKind = createKind<any>('base-ui-test/item');
  * defaults to {@link testDragKind}, and `payload` still infers the payload type — the
  * public type pins that to the kind, but most fixtures declare only a payload.
  */
-type TestDraggableParameters<TData> = Omit<
-  RegisterDraggableParameters<TData>,
+type TestDraggableParameters<TPayload> = Omit<
+  RegisterDraggableParameters<TPayload>,
   'kind' | 'payload' | 'getPayload'
 > & {
-  kind?: DragKind<TData> | undefined;
-  payload?: TData | undefined;
-  getPayload?: ((context: MoveStartContext) => TData) | undefined;
+  kind?: DragKind<TPayload> | undefined;
+  payload?: TPayload | undefined;
+  getPayload?: ((context: MoveStartContext) => TPayload) | undefined;
 };
 
 /** A plain value or a getter for it — a test-only convenience (see {@link asGetter}). */
 type MaybeGetter<T> = T | (() => T);
 
-type InternalRegisterDraggable = <TData = undefined>(
+type InternalRegisterDraggable = <TPayload = undefined>(
   element: HTMLElement,
-  getParameters: () => RegisterDraggableParameters<TData>,
+  getParameters: () => RegisterDraggableParameters<TPayload>,
 ) => () => void;
 
-type InternalRegisterDropTarget = <TSourceData = unknown, TLocalData = unknown>(
+type InternalRegisterDropTarget = <TSourcePayload = unknown, TTargetPayload = unknown>(
   element: HTMLElement,
-  getParameters: () => RegisterDropTargetParameters<TSourceData, TLocalData>,
+  getParameters: () => RegisterDropTargetParameters<TSourcePayload, TTargetPayload>,
 ) => () => void;
 
 /**
@@ -65,20 +65,20 @@ type InternalRegisterDropTarget = <TSourceData = unknown, TLocalData = unknown>(
  * terse. Production code never sees this loosened shape.
  */
 export interface DndTestEngine {
-  registerDraggable: <TData = undefined>(
+  registerDraggable: <TPayload = undefined>(
     element: HTMLElement,
-    parameters: MaybeGetter<TestDraggableParameters<TData>>,
+    parameters: MaybeGetter<TestDraggableParameters<TPayload>>,
   ) => ReturnType<DragDropManager['registerDraggable']>;
-  registerDropTarget: <TSourceData = unknown, TLocalData = undefined>(
+  registerDropTarget: <TSourcePayload = unknown, TTargetPayload = undefined>(
     element: HTMLElement,
-    parameters: MaybeGetter<RegisterDropTargetParameters<TSourceData, TLocalData>>,
+    parameters: MaybeGetter<RegisterDropTargetParameters<TSourcePayload, TTargetPayload>>,
   ) => ReturnType<DragDropManager['registerDropTarget']>;
-  registerAutoScroller: <TSourceData = unknown>(
+  registerAutoScroller: <TSourcePayload = unknown>(
     element: HTMLElement,
-    parameters: MaybeGetter<RegisterAutoScrollerParameters<TSourceData>>,
+    parameters: MaybeGetter<RegisterAutoScrollerParameters<TSourcePayload>>,
   ) => ReturnType<DragDropManager['registerAutoScroller']>;
-  registerMonitor: <TSourceData = unknown>(
-    parameters: MaybeGetter<RegisterMonitorParameters<TSourceData>>,
+  registerMonitor: <TSourcePayload = unknown>(
+    parameters: MaybeGetter<RegisterMonitorParameters<TSourcePayload>>,
   ) => ReturnType<DragDropManager['registerMonitor']>;
   cancelDrag: DragDropManager['cancelDrag'];
 }
@@ -107,74 +107,74 @@ function asGetter<T>(parameters: MaybeGetter<T>): () => T {
  */
 function withAutoCleanup(engine: DragDropManager): DndTestEngine {
   return {
-    registerDraggable: <TData = undefined,>(
+    registerDraggable: <TPayload = undefined,>(
       element: HTMLElement,
-      parameters: MaybeGetter<TestDraggableParameters<TData>>,
+      parameters: MaybeGetter<TestDraggableParameters<TPayload>>,
     ) => {
-      // The public `registerDraggable` is overloaded so an explicit `TData`
-      // requires a `payload`. Fixtures declare `TData` and omit the payload all
+      // The public `registerDraggable` is overloaded so an explicit `TPayload`
+      // requires a `payload`. Fixtures declare `TPayload` and omit the payload all
       // the time (they assert on other things), so register through the engine's
       // internal, payload-optional signature instead.
       const registerDraggableInternal = engine.registerDraggable as InternalRegisterDraggable;
       const getParameters = asGetter(parameters);
       // `kind` is required on a real draggable; default it so only the fixtures that
       // exercise kind matching have to declare one.
-      const cleanup = registerDraggableInternal<TData>(element, () => {
+      const cleanup = registerDraggableInternal<TPayload>(element, () => {
         const declared = getParameters();
         // The test-local payload union stays inference-friendly; the public alias
-        // adds a callable-value guard an unresolved `TData` can't satisfy
+        // adds a callable-value guard an unresolved `TPayload` can't satisfy
         // structurally, so re-assert the parameter shape at the boundary.
         return {
           ...declared,
           kind: declared.kind ?? testDragKind,
-        } as ReturnType<Parameters<typeof registerDraggableInternal<TData>>[1]>;
+        } as ReturnType<Parameters<typeof registerDraggableInternal<TPayload>>[1]>;
       });
       registerCleanup(cleanup);
       return cleanup;
     },
-    registerDropTarget: <TSourceData = unknown, TLocalData = undefined>(
+    registerDropTarget: <TSourcePayload = unknown, TTargetPayload = undefined>(
       element: HTMLElement,
-      parameters: MaybeGetter<RegisterDropTargetParameters<TSourceData, TLocalData>>,
+      parameters: MaybeGetter<RegisterDropTargetParameters<TSourcePayload, TTargetPayload>>,
     ) => {
       // Same as `registerDraggable` above: the public signature is overloaded so
-      // an explicit `TLocalData` requires a `payload`, but fixtures declare the
+      // an explicit `TTargetPayload` requires a `payload`, but fixtures declare the
       // type and omit the payload all the time.
       const registerDropTargetInternal = engine.registerDropTarget as InternalRegisterDropTarget;
       const getParameters = asGetter(parameters);
-      const cleanup = registerDropTargetInternal<TSourceData, TLocalData>(element, () => {
+      const cleanup = registerDropTargetInternal<TSourcePayload, TTargetPayload>(element, () => {
         const declared = getParameters();
         // Fixtures omit `accept` for brevity; opt them into take-everything
         // explicitly so the accept-less dev warning stays reserved for consumer
         // code. Left alone when `kind` is declared: the kind-without-accept
         // warning has its own test and must keep firing.
         return declared.accept === undefined && declared.kind === undefined
-          ? { ...declared, accept: anyDragKind as DragAccept<TSourceData> }
+          ? { ...declared, accept: anyDragKind as DragAccept<TSourcePayload> }
           : declared;
       });
       registerCleanup(cleanup);
       return cleanup;
     },
-    registerAutoScroller: <TSourceData = unknown,>(
+    registerAutoScroller: <TSourcePayload = unknown,>(
       element: HTMLElement,
-      parameters: MaybeGetter<RegisterAutoScrollerParameters<TSourceData>>,
+      parameters: MaybeGetter<RegisterAutoScrollerParameters<TSourcePayload>>,
     ) => {
       // The public signature infers the payload from `accept`; fixtures declare
       // it and pass their kinds, so register through the payload-keyed shape.
       const registerAutoScrollerInternal = engine.registerAutoScroller as (
         element: HTMLElement,
-        getParameters: () => RegisterAutoScrollerParameters<TSourceData>,
+        getParameters: () => RegisterAutoScrollerParameters<TSourcePayload>,
       ) => ReturnType<DragDropManager['registerAutoScroller']>;
       const cleanup = registerAutoScrollerInternal(element, asGetter(parameters));
       registerCleanup(cleanup);
       return cleanup;
     },
-    registerMonitor: <TSourceData = unknown,>(
-      parameters: MaybeGetter<RegisterMonitorParameters<TSourceData>>,
+    registerMonitor: <TSourcePayload = unknown,>(
+      parameters: MaybeGetter<RegisterMonitorParameters<TSourcePayload>>,
     ) => {
       // The public signature infers the observed payload from `accept`; fixtures
       // declare it and pass their kinds, so register through the payload-keyed shape.
       const registerMonitorInternal = engine.registerMonitor as (
-        getParameters: () => RegisterMonitorParameters<TSourceData>,
+        getParameters: () => RegisterMonitorParameters<TSourcePayload>,
       ) => ReturnType<DragDropManager['registerMonitor']>;
       const cleanup = registerMonitorInternal(asGetter(parameters));
       registerCleanup(cleanup);

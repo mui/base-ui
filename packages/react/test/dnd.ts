@@ -450,10 +450,10 @@ export function resetDrag(): void {
  * engine's own drop dispatch: `onDrop` runs first and only for a committed drop,
  * `onMoveEnd` always follows, even when `onDrop` throws.
  */
-export function splitEnd<TData = unknown>(
-  onDrop: (event: DragDropEvent<TData>, details: DragDropEventDetails) => void,
-  onMoveEnd?: (event: MoveEndEvent<TData>, details: MoveEndEventDetails) => void,
-): (event: MoveEndEvent<TData>, details: MoveEndEventDetails) => void {
+export function splitEnd<TPayload = unknown>(
+  onDrop: (event: DragDropEvent<TPayload>, details: DragDropEventDetails) => void,
+  onMoveEnd?: (event: MoveEndEvent<TPayload>, details: MoveEndEventDetails) => void,
+): (event: MoveEndEvent<TPayload>, details: MoveEndEventDetails) => void {
   return (event, details) => {
     try {
       if (details.reason === 'drop' && event.dropTarget !== null) {

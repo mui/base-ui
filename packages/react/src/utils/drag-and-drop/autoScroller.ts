@@ -60,7 +60,7 @@ const RAMP_UP_DURATION = 400;
 const MAX_FRAME_DELTA_MS = 64;
 
 /** A getter for a scroller's latest parameters, so `scrollLoop` reads the freshest callbacks each frame. */
-type ScrollerGetter<TSourceData = any> = () => RegisterAutoScrollerParameters<TSourceData>;
+type ScrollerGetter<TSourcePayload = any> = () => RegisterAutoScrollerParameters<TSourcePayload>;
 
 const state = getSharedSlot<AutoScrollerState>('registerAutoScroller', () => ({
   scrollers: new Map<HTMLElement, ScrollerGetter[]>(),
@@ -1280,20 +1280,20 @@ export function retainScrollMonitor(): () => void {
 }
 
 /** Live drag context passed to the per-frame callbacks. */
-export interface DragAutoScrollFrameContext<TSourceData = unknown> {
+export interface DragAutoScrollFrameContext<TSourcePayload = unknown> {
   /**
    * The position used to determine scrolling. It may differ from the modified
    * drag position when a modifier separates that position from the pointer.
    */
   input: DragInput;
-  source: DragSource<TSourceData>;
+  source: DragSource<TSourcePayload>;
   element: HTMLElement;
 }
 
 /** The data passed to a custom viewport's `onDragScroll` handler. */
 export interface DragAutoScrollEvent<
-  TSourceData = unknown,
-> extends DragAutoScrollFrameContext<TSourceData> {
+  TSourcePayload = unknown,
+> extends DragAutoScrollFrameContext<TSourcePayload> {
   /**
    * How far to move horizontally this frame, in CSS pixels, with `scrollBy`
    * semantics: a positive value moves the view right, so the content slides left
@@ -1347,8 +1347,8 @@ function createAutoScrollEventDetails(): DragAutoScrollEventDetails {
   return details;
 }
 
-export type DragAutoScrollHandler<TSourceData = unknown> = (
-  event: DragAutoScrollEvent<TSourceData>,
+export type DragAutoScrollHandler<TSourcePayload = unknown> = (
+  event: DragAutoScrollEvent<TSourcePayload>,
   eventDetails: DragAutoScrollEventDetails,
 ) => void;
 
@@ -1413,7 +1413,7 @@ interface AutoScrollerState {
   rtlCache: WeakMap<HTMLElement, boolean>;
 }
 
-export interface RegisterAutoScrollerParameters<TSourceData = unknown> {
+export interface RegisterAutoScrollerParameters<TSourcePayload = unknown> {
   /**
    * One or more drag source kinds that can scroll this element. Omit it to scroll
    * for every drag.
@@ -1422,7 +1422,7 @@ export interface RegisterAutoScrollerParameters<TSourceData = unknown> {
    * scrolling. The accepted kinds determine the payload type passed to
    * per-frame callbacks.
    */
-  accept?: DragAccept<TSourceData> | undefined;
+  accept?: DragAccept<TSourcePayload> | undefined;
   /**
    * Whether to disable auto-scroll for this element. An ancestor can scroll on the
    * excluded axes.
@@ -1443,7 +1443,8 @@ export interface RegisterAutoScrollerParameters<TSourceData = unknown> {
    * which is equivalent to preventing the default in `onDragScroll`.
    * @default 900
    */
-  maxSpeed?: number | ((parameters: DragAutoScrollFrameContext<TSourceData>) => number) | undefined;
+  maxSpeed?:
+    number | ((parameters: DragAutoScrollFrameContext<TSourcePayload>) => number) | undefined;
   /**
    * Called once for each proposed scroll direction. Native viewports scroll unless
    * `eventDetails.cancel()` is called. For a surface without scrollable overflow,
@@ -1456,5 +1457,5 @@ export interface RegisterAutoScrollerParameters<TSourceData = unknown> {
    * one its overflow cannot scroll natively, so a custom surface can move on
    * either. A handler that only observes can ignore directions it does not scroll.
    */
-  onDragScroll?: DragAutoScrollHandler<TSourceData> | undefined;
+  onDragScroll?: DragAutoScrollHandler<TSourcePayload> | undefined;
 }

@@ -13,13 +13,13 @@ import type { DragPreviewElementFactory } from '../../utils/drag-and-drop/synthe
  * `null` for a clone of the source.
  * @internal
  */
-export function useDeclaredPreview<TData = unknown>(
+export function useDeclaredPreview<TPayload = unknown>(
   getProps: () => DragPreviewSettings,
-  render: DragPreviewDeclaration<TData>['render'],
+  render: DragPreviewDeclaration<TPayload>['render'],
   createPreviewElement: DragPreviewElementFactory,
   disabled = false,
 ): void {
-  const { previewHandle, previewContext: rootPreviewContext } = useDraggableRootContext<TData>();
+  const { previewHandle, previewContext: rootPreviewContext } = useDraggableRootContext<TPayload>();
   const previewContext = useDragPreviewContext();
 
   // Content needs a React tree to render in. Fail here rather than at drag start,
@@ -41,12 +41,12 @@ export function useDeclaredPreview<TData = unknown>(
     );
   }
 
-  const declaration = React.useMemo<DragPreviewDeclaration<TData>>(() => {
+  const declaration = React.useMemo<DragPreviewDeclaration<TPayload>>(() => {
     // Mapped over `Required<…>` so every setting has to be plucked here: settings
     // are all optional, so a new one added to `DragPreviewSettings` would
     // otherwise type-check while being silently dropped on its way to the engine.
     const declared: {
-      [K in keyof Required<DragPreviewDeclaration<TData>>]: DragPreviewDeclaration<TData>[K];
+      [K in keyof Required<DragPreviewDeclaration<TPayload>>]: DragPreviewDeclaration<TPayload>[K];
     } = {
       render,
       createPreviewElement,

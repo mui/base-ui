@@ -81,6 +81,7 @@ function Puck({
       // @highlight-start
       activation={mode.activation}
       // @highlight-end
+      role="img"
       aria-label="Puck"
       onPointerDown={(event) => {
         if (

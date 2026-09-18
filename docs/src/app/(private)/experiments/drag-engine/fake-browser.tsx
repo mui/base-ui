@@ -55,19 +55,19 @@ import styles from './bookmark-bar.module.css';
 
 const MORE_MENU_ID = 'more';
 
-interface BookmarkDragData {
+interface BookmarkDragPayload {
   type: 'existing';
   id: string;
 }
 
-interface TabDragData {
+interface TabDragPayload {
   type: 'tab';
   id: string;
   name: string;
   url: string;
 }
 
-type AcceptedBookmarkDragData = BookmarkDragData | TabDragData;
+type AcceptedBookmarkDragPayload = BookmarkDragPayload | TabDragPayload;
 
 interface BrowserTab {
   id: string;
@@ -82,7 +82,7 @@ interface DropIntent {
   surfaceId: string;
 }
 
-export interface TabDropTargetData {
+export interface TabDropTargetPayload {
   index: number;
   tabId?: string;
 }
@@ -104,12 +104,12 @@ type EditorState =
 type BookmarkClipboard =
   { type: 'copy'; name: string; seed: BookmarkSeed } | { type: 'cut'; id: string; name: string };
 
-const bookmarkKind = Draggable.createKind<AcceptedBookmarkDragData>('bookmark-bar:item');
-const tabKind = Draggable.createKind<AcceptedBookmarkDragData>('bookmark-bar:tab');
+const bookmarkKind = Draggable.createKind<AcceptedBookmarkDragPayload>('bookmark-bar:item');
+const tabKind = Draggable.createKind<AcceptedBookmarkDragPayload>('bookmark-bar:tab');
 const acceptedBookmarkKinds = [bookmarkKind] as const;
 const acceptedTabKinds = [bookmarkKind, tabKind] as const;
 const bookmarkDropKind = Draggable.createKind<DropIntent>('bookmark-bar:drop-position');
-const tabDropKind = Draggable.createKind<TabDropTargetData>('bookmark-bar:tab-position');
+const tabDropKind = Draggable.createKind<TabDropTargetPayload>('bookmark-bar:tab-position');
 const CURRENT_PAGE = {
   name: 'Artificial intelligence',
   url: 'https://en.wikipedia.org/wiki/Artificial_intelligence',
@@ -148,7 +148,7 @@ function resolveTabDropIntent(
 }
 
 export function resolveTabTargetIntent(
-  target: TabDropTargetData,
+  target: TabDropTargetPayload,
   localX: number,
   allowReplace: boolean,
 ): TabDropIntent {
@@ -210,7 +210,7 @@ function useBookmarkBarContext() {
 function useBookmarkCanDrop(intent: DropIntent) {
   const { getMoveValidity } = useBookmarkBarContext();
   return useStableCallback(
-    ({ source }: { source: { payload: AcceptedBookmarkDragData } }) =>
+    ({ source }: { source: { payload: AcceptedBookmarkDragPayload } }) =>
       source.payload.type === 'existing' &&
       getMoveValidity(source.payload.id, intent.parentId, intent.index),
   );
@@ -291,7 +291,7 @@ function DropZone({
   const canDrop = useBookmarkCanDrop(intent);
 
   return (
-    <Draggable.Target<AcceptedBookmarkDragData, DropIntent>
+    <Draggable.Target<AcceptedBookmarkDragPayload, DropIntent>
       className={className}
       accept={acceptedBookmarkKinds}
       kind={bookmarkDropKind}
@@ -501,7 +501,7 @@ function DraggableEntry({
   });
 
   const draggable = (
-    <Draggable.Root<AcceptedBookmarkDragData>
+    <Draggable.Root<AcceptedBookmarkDragPayload>
       ref={handleRef}
       className={clsx(styles.entry, layout === 'horizontal' ? styles.barItem : styles.menuItem)}
       data-bookmark-id={node.id}
@@ -600,7 +600,7 @@ function EmptyFolderTarget({ folderId, surfaceId }: { folderId: string; surfaceI
   const active = dropIntent?.type === 'inside' && dropIntent.parentId === folderId;
 
   return (
-    <Draggable.Target<AcceptedBookmarkDragData, DropIntent>
+    <Draggable.Target<AcceptedBookmarkDragPayload, DropIntent>
       className={styles.emptyFolder}
       data-drop-inside={active ? '' : undefined}
       accept={acceptedBookmarkKinds}
@@ -725,7 +725,7 @@ function MoreMenu({
 
   return (
     <Menu.Root open={openMenuIds.has(MORE_MENU_ID)} onOpenChange={handleOpenChange}>
-      <Draggable.Target<AcceptedBookmarkDragData, DropIntent>
+      <Draggable.Target<AcceptedBookmarkDragPayload, DropIntent>
         accept={acceptedBookmarkKinds}
         kind={bookmarkDropKind}
         payload={intent}
@@ -867,7 +867,7 @@ function BrowserTabs({
         aria-label="Open pages"
         activateOnFocus
         render={
-          <Draggable.Target<AcceptedBookmarkDragData, TabDropTargetData>
+          <Draggable.Target<AcceptedBookmarkDragPayload, TabDropTargetPayload>
             accept={acceptedTabKinds}
             kind={tabDropKind}
             payload={{ index: tabs.length }}
@@ -896,7 +896,7 @@ function BrowserTabs({
             onActiveTabChange(tab.id);
           };
           const handleDrag = (
-            event: DropTargetEvent<'onDraggableMove', AcceptedBookmarkDragData>,
+            event: DropTargetEvent<'onDraggableMove', AcceptedBookmarkDragPayload>,
           ) => {
             if (event.source.payload.type === 'tab') {
               const movingRight = event.target.getLocalPoint().x > 0.5;
@@ -943,7 +943,7 @@ function BrowserTabs({
               }
               title={`${tab.name}\n${tab.url}`}
               render={
-                <Draggable.Root<AcceptedBookmarkDragData>
+                <Draggable.Root<AcceptedBookmarkDragPayload>
                   kind={tabKind}
                   payload={{ type: 'tab', ...tab }}
                   activation={{ mouse: { type: 'distance', distance: 5 } }}
@@ -960,7 +960,7 @@ function BrowserTabs({
                   }}
 
                   render={
-                    <Draggable.Target<AcceptedBookmarkDragData, TabDropTargetData>
+                    <Draggable.Target<AcceptedBookmarkDragPayload, TabDropTargetPayload>
                       accept={acceptedTabKinds}
                       kind={tabDropKind}
                       payload={{ index, tabId: tab.id }}
@@ -996,7 +996,7 @@ function BrowserTabs({
           );
         })}
       </Tabs.List>
-      <Draggable.Target<AcceptedBookmarkDragData, TabDropTargetData>
+      <Draggable.Target<AcceptedBookmarkDragPayload, TabDropTargetPayload>
         className={styles.endTabDropArea}
         accept={acceptedTabKinds}
         kind={tabDropKind}
@@ -1461,7 +1461,10 @@ function BookmarkBar() {
   );
 
   const syncDropIntents = useStableCallback(
-    (event: { location: DragLocationHistory; source: { payload: AcceptedBookmarkDragData } }) => {
+    (event: {
+      location: DragLocationHistory;
+      source: { payload: AcceptedBookmarkDragPayload };
+    }) => {
       const { dropTargets } = event.location.current;
       const source = event.source.payload;
       const target = dropTargets.find((candidate) => bookmarkDropKind.matches(candidate));

@@ -766,24 +766,24 @@ export function dispatchToAllDropTargets<K extends DropTargetEventName>(
 /**
  * Parameters accepted by `Draggable.Target` and `registerDropTarget`, except the element.
  *
- * `TSourceData` is the payload the accepted kinds carry and `TLocalData` this target's
+ * `TSourcePayload` is the payload the accepted kinds carry and `TTargetPayload` this target's
  * own. `Draggable.Target` and `registerDropTarget` infer both, from `accept` and
  * `payload` respectively.
  */
-export type RegisterDropTargetParameters<TSourceData = unknown, TLocalData = unknown> = {
+export type RegisterDropTargetParameters<TSourcePayload = unknown, TTargetPayload = unknown> = {
   /**
-   * The data to attach to this target, read back as `target.payload` in its own
+   * The payload to attach to this target, read back as `target.payload` in its own
    * callbacks and on its record in `location.current.dropTargets`. Use it to identify which
    * cell, row, or column a drag is over. Functions are preserved as ordinary
    * payload values.
    */
-  payload?: TLocalData | undefined;
+  payload?: TTargetPayload | undefined;
   /**
    * Resolves this target's payload each time it is evaluated. Use this instead
    * of `payload` when the value depends on the current drag or position.
    */
   getPayload?:
-    ((context: DropTargetResolutionContext<NoInfer<TSourceData>>) => TLocalData) | undefined;
+    ((context: DropTargetResolutionContext<NoInfer<TSourcePayload>>) => TTargetPayload) | undefined;
   /**
    * The target kind created with `Draggable.createKind`. It is available as
    * `target.kind` and on entries in `location.current.dropTargets`. Use the kind's `matches`
@@ -792,7 +792,7 @@ export type RegisterDropTargetParameters<TSourceData = unknown, TLocalData = unk
    *
    * Distinct from `accept`, which declares the **source** kinds this target takes.
    */
-  kind?: DragKind<NoInfer<TLocalData>> | undefined;
+  kind?: DragKind<NoInfer<TTargetPayload>> | undefined;
   /**
    * One or more drag source kinds accepted by this target.
    *
@@ -804,7 +804,7 @@ export type RegisterDropTargetParameters<TSourceData = unknown, TLocalData = unk
    * The target ignores a source whose kind is not accepted. An ancestor target can
    * still accept it. Base UI checks `accept` before `canDrop`.
    */
-  accept?: DragAccept<TSourceData> | undefined;
+  accept?: DragAccept<TSourcePayload> | undefined;
   /**
    * Whether the drop target should ignore user interaction. A disabled target is
    * skipped by target resolution as if it weren't registered, so drags fall through
@@ -827,7 +827,7 @@ export type RegisterDropTargetParameters<TSourceData = unknown, TLocalData = unk
    * `false` would allow an item inside the container to receive the drop.
    */
   canDrop?:
-    | ((parameters: DropTargetResolutionContext<NoInfer<TSourceData>>) => boolean | 'reject')
+    | ((parameters: DropTargetResolutionContext<NoInfer<TSourcePayload>>) => boolean | 'reject')
     | undefined;
   /**
    * Divides the target's border box into equal steps for
@@ -843,7 +843,7 @@ export type RegisterDropTargetParameters<TSourceData = unknown, TLocalData = unk
    */
   snap?:
     | DragSnapSteps
-    | ((context: DropTargetResolutionContext<NoInfer<TSourceData>>) => DragSnapSteps | undefined)
+    | ((context: DropTargetResolutionContext<NoInfer<TSourcePayload>>) => DragSnapSteps | undefined)
     | undefined;
   /**
    * Event handler called when a matching drag starts while this target is already
@@ -852,7 +852,11 @@ export type RegisterDropTargetParameters<TSourceData = unknown, TLocalData = unk
    */
   onDraggableStart?:
     | ((
-        parameters: DropTargetEvent<'onDraggableStart', NoInfer<TSourceData>, NoInfer<TLocalData>>,
+        parameters: DropTargetEvent<
+          'onDraggableStart',
+          NoInfer<TSourcePayload>,
+          NoInfer<TTargetPayload>
+        >,
         eventDetails: DropTargetEventDetailsMap['onDraggableStart'],
       ) => void)
     | undefined;
@@ -864,14 +868,22 @@ export type RegisterDropTargetParameters<TSourceData = unknown, TLocalData = unk
    */
   onDraggableMove?:
     | ((
-        parameters: DropTargetEvent<'onDraggableMove', NoInfer<TSourceData>, NoInfer<TLocalData>>,
+        parameters: DropTargetEvent<
+          'onDraggableMove',
+          NoInfer<TSourcePayload>,
+          NoInfer<TTargetPayload>
+        >,
         eventDetails: DropTargetEventDetailsMap['onDraggableMove'],
       ) => void)
     | undefined;
   /** Event handler called when this target enters the active stack. */
   onDraggableEnter?:
     | ((
-        parameters: DropTargetEvent<'onDraggableEnter', NoInfer<TSourceData>, NoInfer<TLocalData>>,
+        parameters: DropTargetEvent<
+          'onDraggableEnter',
+          NoInfer<TSourcePayload>,
+          NoInfer<TTargetPayload>
+        >,
         eventDetails: DropTargetEventDetailsMap['onDraggableEnter'],
       ) => void)
     | undefined;
@@ -882,7 +894,11 @@ export type RegisterDropTargetParameters<TSourceData = unknown, TLocalData = unk
    */
   onDraggableLeave?:
     | ((
-        parameters: DropTargetEvent<'onDraggableLeave', NoInfer<TSourceData>, NoInfer<TLocalData>>,
+        parameters: DropTargetEvent<
+          'onDraggableLeave',
+          NoInfer<TSourcePayload>,
+          NoInfer<TTargetPayload>
+        >,
         eventDetails: DropTargetEventDetailsMap['onDraggableLeave'],
       ) => void)
     | undefined;
@@ -894,7 +910,7 @@ export type RegisterDropTargetParameters<TSourceData = unknown, TLocalData = unk
    */
   onDraggableDrop?:
     | ((
-        parameters: DropEvent<NoInfer<TSourceData>, NoInfer<TLocalData>>,
+        parameters: DropEvent<NoInfer<TSourcePayload>, NoInfer<TTargetPayload>>,
         eventDetails: DropTargetEventDetailsMap['onDraggableDrop'],
       ) => void)
     | undefined;

@@ -17,8 +17,10 @@ import type { UseDraggableViewportElementParameters } from './useDraggableViewpo
  *
  * Documentation: [Base UI Draggable](https://base-ui.com/react/utils/draggable)
  */
-export const DraggableViewport = React.forwardRef(function DraggableViewport<TSourceData = unknown>(
-  componentProps: DraggableViewportProps<TSourceData>,
+export const DraggableViewport = React.forwardRef(function DraggableViewport<
+  TSourcePayload = unknown,
+>(
+  componentProps: DraggableViewportProps<TSourcePayload>,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
@@ -40,14 +42,14 @@ export const DraggableViewport = React.forwardRef(function DraggableViewport<TSo
 
   // A fresh object per render is fine: `useDraggableViewportElement` reads it
   // through a ref and never compares it.
-  const params: UseDraggableViewportElementParameters<TSourceData> = {
+  const params: UseDraggableViewportElementParameters<TSourcePayload> = {
     accept,
     onDragScroll,
     disabled,
     maxSpeed,
   };
 
-  const { ref } = useDraggableViewportElement<TSourceData>(params);
+  const { ref } = useDraggableViewportElement<TSourcePayload>(params);
 
   const state: DraggableViewport.State = { disabled: disabled ?? false };
 
@@ -59,8 +61,8 @@ export const DraggableViewport = React.forwardRef(function DraggableViewport<TSo
   // `React.forwardRef` erases the payload type argument, so the generic signature
   // is restored by hand.
 }) as {
-  <TSourceData = unknown>(
-    props: DraggableViewportProps<TSourceData> & React.RefAttributes<HTMLDivElement>,
+  <TSourcePayload = unknown>(
+    props: DraggableViewportProps<TSourcePayload> & React.RefAttributes<HTMLDivElement>,
   ): React.JSX.Element;
   // Private inference overload for heterogeneous `accept` arrays. Explicit
   // component generics use the payload-keyed overload above.
@@ -81,13 +83,13 @@ export interface DraggableViewportState {
 // `disabled` is not redeclared here: an intersection member's JSDoc never reaches
 // the generated reference, so the description would ship nowhere. It lives on
 // `RegisterAutoScrollerParameters` instead, which this inherits.
-export type DraggableViewportProps<TSourceData = unknown> = BaseUIComponentProps<
+export type DraggableViewportProps<TSourcePayload = unknown> = BaseUIComponentProps<
   'div',
   DraggableViewportState
 > &
-  RegisterAutoScrollerParameters<TSourceData>;
+  RegisterAutoScrollerParameters<TSourcePayload>;
 
 export namespace DraggableViewport {
   export type State = DraggableViewportState;
-  export type Props<TSourceData = unknown> = DraggableViewportProps<TSourceData>;
+  export type Props<TSourcePayload = unknown> = DraggableViewportProps<TSourcePayload>;
 }

@@ -272,7 +272,7 @@ Pass an array to allow any of its activation methods. A press-and-hold that exce
 />
 ```
 
-For each pointer type, Base UI combines the methods from every array entry that addresses it. Defaults apply only when no entry addresses that pointer type. An empty array disables pickup.
+For each pointer type, Base UI combines the methods from every array entry that addresses it. Defaults apply only when no entry addresses that pointer type. An empty array disables pickup.
 
 ### Double-click pickup
 
@@ -422,7 +422,7 @@ function Widget({ id, title, value }) {
 
 Custom content requires a [`Draggable.Provider`](/react/utils/draggable#provider). It stays mounted if virtualization or reordering unmounts the source during a drag. The preview receives React context from above its nearest `Draggable.Provider`. Place the provider inside any contexts the preview needs. By default, the preview appears beside the source in the DOM.
 
-Pass a function as the children to build the preview from the dragged item's data. To match the source size, use the `--drag-source-width` and `--drag-source-height` CSS variables. See [Sizing a custom preview](/react/utils/draggable#sizing-a-custom-preview).
+Pass a function as the children to build the preview from the dragged item's payload. To match the source size, use the `--drag-source-width` and `--drag-source-height` CSS variables. See [Sizing a custom preview](/react/utils/draggable#sizing-a-custom-preview).
 
 To hide the preview for a particular drag, pass a render function that returns `null` or `false`. Static `null` or `false` children use the source clone. To disable the preview for every drag, see [Drag without a preview](#drag-without-a-preview).
 
@@ -630,7 +630,7 @@ Every handler receives the event payload first. Its second argument, `eventDetai
 A target can also declare its own `kind`. It is available as `target.kind` and on entries in `location.current.dropTargets`. Use it when a shared handler must distinguish several target kinds that accept the same drag. The kind's `matches` method narrows the record type:
 
 ```tsx title="Telling two kinds of target apart"
-const dayCell = Draggable.createKind<DayCellData>('day-cell');
+const dayCell = Draggable.createKind<DayCellPayload>('day-cell');
 
 <Draggable.Target kind={dayCell} accept={card} payload={{ dayMs }} />;
 ```
@@ -1471,7 +1471,7 @@ const card = Draggable.createKind<Card>('card');
 
 <TypesDraggable.createGlobalKind />
 
-### anyKind
+### Accepting any kind
 
 `Draggable.anyKind` accepts every source kind. Pass it to a target's `accept` prop when the target handles arbitrary payloads. The payload type is `unknown`, so narrow it before use.
 
@@ -1559,7 +1559,7 @@ Every handler receives the event payload first. Its second argument, `eventDetai
 
 Monitors do not receive `onDraggableEnter` or `onDraggableLeave`, which belong to drop targets. `onMoveEnd` fires whenever the drag ends. Check `eventDetails.reason === 'drop'` to handle only a successful drop. Checking `event.canceled` alone also includes releases outside a target.
 
-Use [`Draggable.useActiveDrag`](/react/utils/draggable#useactivedrag) to read the active source without event handlers. It re-renders only when a drag starts or ends. For imperative registration, obtain the manager with [`useDragDropManager`](/react/utils/draggable#monitor-drags) in a React component, then call its `registerMonitor` method.
+Use [`Draggable.useActiveDrag`](/react/utils/draggable#useactivedrag) to read the active source without event handlers. It re-renders only when a drag starts or ends. For imperative registration, obtain the manager with [`useDragDropManager`](/react/utils/draggable#usedragdropmanager) in a React component, then call its `registerMonitor` method.
 
 <TypesDraggable.useDragMonitor />
 
@@ -1649,7 +1649,7 @@ Providing `render` requires a [`Draggable.Provider`](/react/utils/draggable#prov
 
 Register a drop target with `registerDropTarget`. It accepts the drag options from [`Draggable.Target`](#target), including `accept`, `onDraggableEnter`, `onDraggableLeave`, and `onDraggableDrop`. It does not accept element props or `trackDragOver`, which controls React state and data attributes.
 
-TypeScript infers the source payload from `accept`, but cannot also infer the target's own payload through the getter. Specify both type arguments, as in `registerDropTarget<typeof card, SlotData>`, when the target sets `payload` and reads it as `target.payload`.
+TypeScript infers the source payload from `accept`, but cannot also infer the target's own payload through the getter. Specify both type arguments, as in `registerDropTarget<typeof card, SlotPayload>`, when the target sets `payload` and reads it as `target.payload`.
 
 ```tsx title="Register a drop target"
 manager.registerDropTarget(element, () => ({

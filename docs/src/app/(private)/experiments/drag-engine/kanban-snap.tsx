@@ -35,9 +35,9 @@ interface Board {
   cards: Record<CardId, Card>;
 }
 
-const cardKind = Draggable.createKind<CardDragData>('kanbanSnap:card');
+const cardKind = Draggable.createKind<CardDragPayload>('kanbanSnap:card');
 
-interface CardDragData {
+interface CardDragPayload {
   id: CardId;
   fromColumn: ColumnId;
 }

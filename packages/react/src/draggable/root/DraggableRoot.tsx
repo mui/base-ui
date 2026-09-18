@@ -38,10 +38,10 @@ const stateAttributesMapping: StateAttributesMapping<DraggableRootState> = {
  *
  * Documentation: [Base UI Draggable](https://base-ui.com/react/utils/draggable)
  */
-export const DraggableRoot = React.forwardRef(function DraggableRoot<TData = undefined>(
-  componentProps: DraggableRootPropsBase<TData> & {
-    payload?: DraggablePayload<TData> | undefined;
-    getPayload?: DraggablePayloadGetter<TData> | undefined;
+export const DraggableRoot = React.forwardRef(function DraggableRoot<TPayload = undefined>(
+  componentProps: DraggableRootPropsBase<TPayload> & {
+    payload?: DraggablePayload<TPayload> | undefined;
+    getPayload?: DraggablePayloadGetter<TPayload> | undefined;
   },
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
@@ -94,7 +94,7 @@ export const DraggableRoot = React.forwardRef(function DraggableRoot<TData = und
     onMove,
     onTargetChange,
     onMoveEnd,
-  } as RegisterDraggableParameters<TData>;
+  } as RegisterDraggableParameters<TPayload>;
 
   // Participate in the nearest enclosing collision provider of this source's kind:
   // nested providers of other kinds (a board of columns of cards) are walked past.
@@ -132,7 +132,7 @@ export const DraggableRoot = React.forwardRef(function DraggableRoot<TData = und
       );
     }
   }, [enclosingCollisionContext, kind, collisionContext, collision, getPayload, collisionPayload]);
-  const { ref, dragging, setHandleElement, previewHandle } = useDraggableElement<TData>(
+  const { ref, dragging, setHandleElement, previewHandle } = useDraggableElement<TPayload>(
     params,
     collisionContext
       ? {
@@ -179,7 +179,7 @@ export const DraggableRoot = React.forwardRef(function DraggableRoot<TData = und
   // `Card` was promised. Expressing that as a conditional on the props type instead
   // would make it a deferred conditional a generic wrapper can't spread into.
 }) as {
-  <TData>(props: DraggableRootPropsWithPayload<TData>): React.JSX.Element;
+  <TPayload>(props: DraggableRootPropsWithPayload<TPayload>): React.JSX.Element;
   (
     props: DraggableRootPropsBase<undefined> &
       DragParametersWithOptionalPayload<DraggablePayloadParameters<undefined>>,
@@ -199,7 +199,7 @@ export interface DraggableRootState {
 
 // Every `Draggable.Root` prop except its payload fields; the overloads and `Props` below
 // each add it back with their own optionality. See `DraggableConfig.payload`.
-type DraggableRootPropsBase<TData> = Omit<
+type DraggableRootPropsBase<TPayload> = Omit<
   BaseUIComponentProps<'div', DraggableRootState>,
   // - `children` is widened below.
   // - `draggable` would start native dragging alongside the pointer sensor.
@@ -209,7 +209,7 @@ type DraggableRootPropsBase<TData> = Omit<
   // rendered inside this component, and the drag handle by a `Draggable.Handle`,
   // never from here.
   Omit<
-    RegisterDraggableParameters<TData>,
+    RegisterDraggableParameters<TPayload>,
     'dragPreview' | 'dragHandle' | 'payload' | 'getPayload' | 'kind'
   > & {
     children?: React.ReactNode | undefined;
@@ -221,13 +221,13 @@ type DraggableRootPropsBase<TData> = Omit<
      */
     snap?:
       | DragSnapSteps
-      | ((context: DropTargetResolutionContext<NoInfer<TData>>) => DragSnapSteps | undefined)
+      | ((context: DropTargetResolutionContext<NoInfer<TPayload>>) => DragSnapSteps | undefined)
       | undefined;
     /**
      * The payload reported when this item is a collision destination.
      * Required when using `getPayload` within a collision provider. Defaults to `payload`.
      */
-    collisionPayload?: DraggablePayload<TData> | undefined;
+    collisionPayload?: DraggablePayload<TPayload> | undefined;
     /**
      * Returns the element used to detect collisions and measure pointer coordinates.
      * Defaults to this root's element. Use a row wrapper to include padding around the item.
@@ -235,42 +235,42 @@ type DraggableRootPropsBase<TData> = Omit<
      */
     collisionElement?: ((element: HTMLElement) => HTMLElement) | undefined;
     /** The source kind. Defaults to the nearest provider's no-payload kind. */
-    kind?: DragKind<TData> | undefined;
+    kind?: DragKind<TPayload> | undefined;
   };
 
-export type DraggableRootProps<TData = undefined> = DraggableRootPropsBase<TData> &
-  DraggableRootPayloadField<TData> &
-  ([TData] extends [undefined] ? {} : { kind: DragKind<TData> });
+export type DraggableRootProps<TPayload = undefined> = DraggableRootPropsBase<TPayload> &
+  DraggableRootPayloadField<TPayload> &
+  ([TPayload] extends [undefined] ? {} : { kind: DragKind<TPayload> });
 
 /**
  * Props for a generic `Draggable.Root` wrapper whose payload is always required.
  * Use this alias when spreading props with an unbound payload type into the root.
  */
-export type DraggableRootPropsWithPayload<TData> = DraggableRootPropsBase<TData> & {
-  kind: DragKind<TData>;
-} & RequiredDraggablePayload<TData>;
+export type DraggableRootPropsWithPayload<TPayload> = DraggableRootPropsBase<TPayload> & {
+  kind: DragKind<TPayload>;
+} & RequiredDraggablePayload<TPayload>;
 
-type DraggablePayloadParameters<TData> = Pick<
-  RegisterDraggableParameters<TData>,
+type DraggablePayloadParameters<TPayload> = Pick<
+  RegisterDraggableParameters<TPayload>,
   'payload' | 'getPayload'
 >;
 
-type RequiredDraggablePayload<TData> = DragParametersWithRequiredPayload<
-  DraggablePayloadParameters<TData>,
-  DraggablePayload<TData>,
-  DraggablePayloadGetter<TData>
+type RequiredDraggablePayload<TPayload> = DragParametersWithRequiredPayload<
+  DraggablePayloadParameters<TPayload>,
+  DraggablePayload<TPayload>,
+  DraggablePayloadGetter<TPayload>
 >;
 
 /**
  * Requires `payload` when the caller declares a payload type. Generic wrappers
  * use {@link DraggableRootPropsWithPayload} instead.
  */
-type DraggableRootPayloadField<TData> = [TData] extends [undefined]
-  ? DragParametersWithOptionalPayload<DraggablePayloadParameters<TData>>
-  : RequiredDraggablePayload<TData>;
+type DraggableRootPayloadField<TPayload> = [TPayload] extends [undefined]
+  ? DragParametersWithOptionalPayload<DraggablePayloadParameters<TPayload>>
+  : RequiredDraggablePayload<TPayload>;
 
 export namespace DraggableRoot {
   export type State = DraggableRootState;
-  export type Props<TData = undefined> = DraggableRootProps<TData>;
-  export type PropsWithPayload<TData> = DraggableRootPropsWithPayload<TData>;
+  export type Props<TPayload = undefined> = DraggableRootProps<TPayload>;
+  export type PropsWithPayload<TPayload> = DraggableRootPropsWithPayload<TPayload>;
 }

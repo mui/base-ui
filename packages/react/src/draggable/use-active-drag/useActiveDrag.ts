@@ -4,7 +4,7 @@ import { dragSourceStore } from '../../utils/drag-and-drop/dragSessionStore';
 import { matchesAccept } from '../../utils/drag-and-drop/dragKind';
 import type { AcceptedDragPayload, AnyDragAccept, DragSource } from '../../types/drag';
 
-export type UseActiveDragReturnValue<TData = unknown> = DragSource<TData> | null;
+export type UseActiveDragReturnValue<TPayload = unknown> = DragSource<TPayload> | null;
 
 /**
  * Subscribes to the drag currently in progress, and returns its source, or `null` if
@@ -42,5 +42,5 @@ function selectAcceptedDragSource(
 
 // Keyed on the observed payload rather than on an `accept` value, like the props types.
 export namespace useActiveDrag {
-  export type ReturnValue<TData = unknown> = UseActiveDragReturnValue<TData>;
+  export type ReturnValue<TPayload = unknown> = UseActiveDragReturnValue<TPayload>;
 }
