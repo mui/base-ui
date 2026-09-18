@@ -130,7 +130,7 @@ export function elementFromPointIgnoring(
  * Whether a document's browsing context is gone — its iframe was removed, or
  * its popout window closed. A drag session living in such a document can never
  * receive a terminating event (every teardown listener lived in the dead
- * realm), so the sensors use this to target-heal instead of refusing every
+ * realm), so the sensors use this to self-heal instead of refusing every
  * future pickup. Deliberately not element connectivity: a virtualizer detaches
  * the dragged node mid-drag while its document stays perfectly alive.
  */

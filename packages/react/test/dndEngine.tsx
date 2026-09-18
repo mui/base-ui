@@ -14,7 +14,7 @@ import { createRenderer, type BaseUIRenderResult } from './createRenderer';
 import { installDndTestEnv, registerCleanup } from './dnd';
 import { anyDragKind, createKind } from '../src/utils/drag-and-drop/dragKind';
 import { DraggableProvider } from '../src/draggable/DraggableProvider';
-import { useDragDropManager } from '../src/use-drag-drop-manager';
+import { useDragDropManager } from '../src/draggable/use-drag-drop-manager/useDragDropManager';
 import type { DragAccept, DragKind, MoveStartContext } from '../src/types/drag';
 import type {
   DragDropManager,

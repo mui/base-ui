@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { warn } from '@base-ui/utils/warn';
 import { DraggableCollisionContext } from '../collision-provider/DraggableCollisionContext';
 import { useDraggableContext } from '../DraggableContext';
 import type { DragKind, DraggablePayload, DraggablePayloadGetter } from '../../types/drag';
@@ -9,11 +10,12 @@ import type { BaseUIComponentProps } from '../../internals/types';
 import type {
   NativeDragEventProps,
   RegisterDraggableParameters,
-  WithOptionalPayload,
-  WithRequiredPayload,
+  DragParametersWithOptionalPayload,
+  DragParametersWithRequiredPayload,
 } from '../../types/dragRegistration';
 import { useDraggableElement } from './useDraggableElement';
 import { DraggableRootContext } from './DraggableRootContext';
+import * as DraggableRootDataAttributes from './DraggableRootDataAttributes';
 import { useDragPreviewContext } from '../../utils/drag-and-drop/overlay/DragPreviewContext';
 
 const stateAttributesMapping: StateAttributesMapping<DraggableRootState> = {
@@ -21,6 +23,14 @@ const stateAttributesMapping: StateAttributesMapping<DraggableRootState> = {
   // and measured, so the clone never inherits it. React writing it too would race
   // that ordering.
   dragging: () => null,
+  collision: (value) =>
+    value === null
+      ? null
+      : {
+          [value === 'before'
+            ? DraggableRootDataAttributes.collisionBefore
+            : DraggableRootDataAttributes.collisionAfter]: '',
+        },
 };
 
 /**
@@ -89,11 +99,37 @@ export const DraggableRoot = React.forwardRef(function DraggableRoot<TData = und
     onMoveEnd,
   } as RegisterDraggableParameters<TData>;
 
+  // Participate in the nearest enclosing collision provider of this source's kind:
+  // nested providers of other kinds (a board of columns of cards) are walked past.
   let collisionContext = React.useContext(DraggableCollisionContext);
   while (collisionContext && collisionContext.kind.id !== (kind ?? defaultKind).id) {
     collisionContext = collisionContext.parent;
   }
-  const { ref, dragging, setHandleElement, previewHandle } = useDraggableElement<TData>(
+  if (process.env.NODE_ENV !== 'production') {
+    // Participants are measured before any gesture exists, so a payload derived
+    // from the gesture can't describe them. Silently opting the item out would be
+    // the confusing outcome: it still drags, but nothing can be inserted around it.
+    if (
+      collisionContext &&
+      collision !== false &&
+      getPayload !== undefined &&
+      collisionPayload === undefined
+    ) {
+      warn(
+        'A Draggable.Root inside a Draggable.CollisionProvider uses `getPayload` without `collisionPayload`, ' +
+          'so it is not a destination for other items. ' +
+          'Pass `collisionPayload` with the static data the collision callbacks should report, or `collision={false}` to opt out on purpose. ' +
+          'See https://base-ui.com/react/utils/draggable#collision-provider.',
+      );
+    }
+  }
+  const {
+    ref,
+    dragging,
+    collision: collisionPlacement,
+    setHandleElement,
+    previewHandle,
+  } = useDraggableElement<TData>(
     params,
     collisionContext
       ? {
@@ -105,7 +141,11 @@ export const DraggableRoot = React.forwardRef(function DraggableRoot<TData = und
       : undefined,
   );
 
-  const state: DraggableRoot.State = { dragging, disabled: disabled ?? false };
+  const state: DraggableRoot.State = {
+    dragging,
+    disabled: disabled ?? false,
+    collision: collisionPlacement,
+  };
 
   // The provider seen from here is the one the engine publishes preview content
   // through; `Draggable.Preview` compares its own nearest provider against it.
@@ -139,7 +179,7 @@ export const DraggableRoot = React.forwardRef(function DraggableRoot<TData = und
   <TData>(props: DraggableRootPropsWithPayload<TData>): React.JSX.Element;
   (
     props: DraggableRootPropsBase<undefined> &
-      WithOptionalPayload<DraggablePayloadParameters<undefined>>,
+      DragParametersWithOptionalPayload<DraggablePayloadParameters<undefined>>,
   ): React.JSX.Element;
 };
 
@@ -148,6 +188,11 @@ export interface DraggableRootState {
    * Whether this element is the one currently being dragged.
    */
   dragging: boolean;
+  /**
+   * The side of this element the nearest `Draggable.CollisionProvider` would insert
+   * the dragged item on, or `null` when it is not the current destination.
+   */
+  collision: 'before' | 'after' | null;
   /**
    * Whether the draggable is disabled.
    */
@@ -162,7 +207,7 @@ type DraggableRootPropsBase<TData> = Omit<
   // - the whole native HTML5 drag event family is replaced by this engine
   'children' | 'draggable' | NativeDragEventProps
 > &
-  // The preview is described by a `Draggable.Preview` or a `Draggable.Preview`
+  // The preview is described by a `Draggable.Preview` (with or without children)
   // rendered inside this component, and the drag handle by a `Draggable.Handle`,
   // never from here.
   Omit<
@@ -174,7 +219,11 @@ type DraggableRootPropsBase<TData> = Omit<
     collision?: boolean | undefined;
     /** Static participant data when the source uses getPayload. Defaults to payload. */
     collisionPayload?: DraggablePayload<TData> | undefined;
-    /** The element used for collision hit testing and measurement. Defaults to this source. */
+    /**
+     * The element used for collision hit testing and measurement. Defaults to this source.
+     * Resolved once when the source registers; a new function takes effect on the next registration.
+     * The collision data attributes stay on this source's element regardless.
+     */
     collisionElement?: ((element: HTMLElement) => HTMLElement) | undefined;
     /** The source kind. Defaults to the nearest provider's no-payload kind. */
     kind?: DragKind<TData> | undefined;
@@ -197,7 +246,7 @@ type DraggablePayloadParameters<TData> = Pick<
   'payload' | 'getPayload'
 >;
 
-type RequiredDraggablePayload<TData> = WithRequiredPayload<
+type RequiredDraggablePayload<TData> = DragParametersWithRequiredPayload<
   DraggablePayloadParameters<TData>,
   DraggablePayload<TData>,
   DraggablePayloadGetter<TData>
@@ -208,7 +257,7 @@ type RequiredDraggablePayload<TData> = WithRequiredPayload<
  * use {@link DraggableRootPropsWithPayload} instead.
  */
 type DraggableRootPayloadField<TData> = [TData] extends [undefined]
-  ? WithOptionalPayload<DraggablePayloadParameters<TData>>
+  ? DragParametersWithOptionalPayload<DraggablePayloadParameters<TData>>
   : RequiredDraggablePayload<TData>;
 
 export namespace DraggableRoot {

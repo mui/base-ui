@@ -42,7 +42,9 @@ export class DragEngineBase {
     private readonly getCSPContext: LatestGetter<CSPContextValue>,
   ) {}
 
-  // The nearest `Draggable.Provider`, or `null` when there is none.
+  // The preview context of the nearest `Draggable.Provider`. Always present for the
+  // React parts and hooks, which throw without a provider; `null` only when the
+  // engine is used by an integration that never renders custom previews.
   private get previewContext(): DragPreviewContext | null {
     return this.getPreviewContext();
   }

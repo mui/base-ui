@@ -1,6 +1,9 @@
 # Draggable
 
-<Subtitle>A component that makes its element a drag source.</Subtitle>
+<Subtitle>
+  Components and hooks for pointer-driven drag and drop: sources, targets, previews, auto-scroll
+  viewports, and sortable groups.
+</Subtitle>
 <Meta
   name="description"
   content="Unstyled React utilities for drag sources, targets, previews, and scrolling."
@@ -15,7 +18,7 @@ import { DemoContainedDrag } from './demos/containment';
 
 <DemoDraggableHero />
 
-`Draggable` makes an element draggable with a pointer. It pairs with [DropTarget](/react/utils/draggable), which defines where a drag can be released. See the [drag and drop overview](/react/utils/draggable) for examples and the [accessibility guide](/react/utils/draggable#accessibility) for keyboard alternatives.
+`Draggable.Root` makes an element draggable with a pointer. It pairs with [`Draggable.Target`](#drop-targets), which defines where a drag can be released. See the [drag and drop overview](/react/utils/draggable) for examples and the [accessibility guide](/react/utils/draggable#accessibility) for keyboard alternatives.
 
 ## Anatomy
 
@@ -36,9 +39,9 @@ A root supports one preview part. Omit it to use a sanitized clone of the source
 
 ## Provider
 
-Wrap drag sources, targets, viewports, and components calling `useDragMonitor` or `useDragDropManager` in `Draggable.Provider`. The provider renders no DOM element. It supplies a default no-payload kind and the React boundary used by custom previews. Subsequent examples assume this provider is already present.
+Wrap drag sources, targets, viewports, and components calling `useDragDropManager` in `Draggable.Provider`. The provider renders no DOM element. It supplies a default no-payload kind and the React boundary used by custom previews. Subsequent examples assume this provider is already present.
 
-Omit `kind` and `accept` for a simple interaction within one provider. Each provider has its own default kind. Nested or separate providers do not match each other's default kinds; use an explicit shared kind for cross-provider interactions. The drag manager itself remains page-wide. `useActiveDrag` reads this global state and can be used outside a provider.
+Omit `kind` and `accept` for a simple interaction within one provider. Each provider has its own default kind. Nested or separate providers do not match each other's default kinds; use an explicit shared kind for cross-provider interactions. The drag manager itself remains page-wide. `useDragMonitor` and `useActiveDrag` read this global state and can be used outside a provider.
 
 Place the provider below any React contexts the custom preview needs, and above the component calling a drag hook. A provider returned by that same component cannot supply context to its own hooks.
 
@@ -113,7 +116,7 @@ When the decision needs the gesture itself, such as which handle was pressed or 
 
 ## Drag events
 
-The optional event handlers below fire in order. All except `onBeforeMoveStart` receive the drag `source` and `location` history.
+The optional event handlers below fire in order. All except `onBeforeMoveStart` receive the drag `source` and `location` history. When a drag ends on a target, the source's `onMoveEnd` runs first, then the target's `onDraggableDrop`, then every monitor's `onMoveEnd`, including the `onMoveEnd` of collision providers, in registration order.
 
 ```tsx title="Following a source through its drag"
 <Draggable.Root
@@ -257,7 +260,7 @@ Each per-pointer map in an array applies its own defaults for omitted pointer ty
 
 ### Double-click pickup
 
-Use `{ type: 'double-click' }` to pick up with a mouse double-click, move without holding a button, and drop with the next primary click. Escape cancels. A per-pointer map keeps normal touch and pen activation:
+Use `{ type: 'double-click' }` to pick up with a double-click or a double-tap. With a mouse, the item follows the pointer without a held button and drops on the next primary click. With touch or pen, the second tap picks the item up while the pointer stays down, and releasing it drops. Escape cancels either gesture. Combine it with another activation in an array to keep drag-to-pick-up as well, or use a per-pointer map to enable it for some pointer types only:
 
 ```tsx title="Double-click or drag"
 <Draggable.Root
@@ -267,9 +270,9 @@ Use `{ type: 'double-click' }` to pick up with a mouse double-click, move withou
 />
 ```
 
-Double-click pickup is opt-in. Avoid enabling it on an item whose double-click already opens or edits content. The drop click is consumed so it does not also activate the destination. This gesture does not provide a keyboard alternative; keep accessible move actions available.
+Double-click pickup is opt-in. Avoid enabling it on an item whose double-click or double-tap already opens or edits content. The mouse drop click is consumed so it does not also activate the destination. Drop with a single click: a double-click to drop lifts the item again, since its second click starts a new pickup. This gesture does not provide a keyboard alternative; keep accessible move actions available.
 
-`onBeforeMoveStart` receives `eventDetails.activation`, either `'pointer'` or `'double-click'`, to distinguish pickups. Its native event can be a `MouseEvent` for double-click pickup. Movement and completion callbacks can also receive that event type; read pointer type from the drag's input data.
+`onBeforeMoveStart` and `onMoveStart` report `eventDetails.reason` as `'double-click'` for these pickups, and `'pointer'` for a press that met its activation. The native event is a `MouseEvent` for a mouse double-click and a `PointerEvent` for a double-tap. Completion callbacks can also receive a `MouseEvent`; read the pointer type from the drag's input data.
 
 ## Movement modifiers
 
@@ -439,8 +442,7 @@ Use `disabled` on a preview part when nothing should follow the pointer. The dra
 Use `offset` to place the preview relative to the pointer. It defaults to `'source'`, which keeps the exact grab point the element was picked up by, so the preview lifts off without shifting.
 
 `offset` works the same for cloned and custom previews.
-A `Draggable.Preview` with no children resolves to no preview at all, so give it
-content. Use `Draggable.Preview`, as shown here, to position the clone.
+Without children, `Draggable.Preview` positions the default clone, as shown here.
 
 ```tsx title="Place the preview relative to the pointer"
 // The grab point (default): the preview lifts off the source in place.
@@ -518,7 +520,7 @@ If independently evaluated bundles cannot share the same value, use `Draggable.c
 
 Every source and target on the page uses the same **drag manager**. `Draggable.Provider` supplies a local default kind and preview boundary; it does not isolate the manager. An omitted `accept` matches only that provider's default kind. Declare a shared kind for interactions spanning providers, or use `Draggable.anyKind` to accept every drag.
 
-Base UI tracks pointer input to implement **synthetic drag and drop**. These drags have no `dataTransfer` and stay within the page. To accept files dragged from the operating system, handle native drops by [passing native handlers through `render`](/react/utils/draggable#anatomy).
+Base UI tracks pointer input to implement **synthetic drag and drop**. These drags have no `dataTransfer` and stay within the page. To accept files dragged from the operating system, handle native drops by [passing native handlers through `render`](#target-anatomy).
 
 A drag can be over several nested drop targets at once. `location.current.dropTargets` lists them innermost first. Only the innermost receives `onDraggableDrop`; ancestors receive `onDraggableEnter`, `onDraggableMove`, and `onDraggableLeave`. Returning `false` from `canDrop` skips that target. Returning `'reject'` blocks the drop at that position, including on descendants and ancestors.
 
@@ -540,9 +542,9 @@ import { DemoNestedDropTargets } from './demos/targets/nesting';
 
 <DemoDropTargetHero />
 
-`DropTarget` marks where a drag can be released. It pairs with [Draggable](/react/utils/draggable), which defines what can be picked up. See the [drag and drop overview](/react/utils/draggable) for examples.
+`Draggable.Target` marks where a drag can be released. It pairs with [`Draggable.Root`](#anatomy), which defines what can be picked up. See the [drag and drop overview](/react/utils/draggable) for examples.
 
-### Anatomy
+### Target anatomy
 
 Import the component and render it around the drop zone:
 
@@ -592,7 +594,7 @@ const file = Draggable.createKind<Attachment>('file');
 />;
 ```
 
-`accept` is required because every registration joins the same page-wide drag manager. Declare the supported kinds to keep unrelated interactions separate.
+`accept` defaults to the enclosing provider's no-payload kind, so a target without it only takes sources that also omit `kind` inside the same provider. Declare it whenever a source declares `kind`, and to keep unrelated interactions separate.
 
 Use `Draggable.anyKind` for a target that intentionally accepts every drag, such as a trash zone or debug overlay. Its `source.payload` is `unknown` until a specific kind's `matches` method narrows it:
 
@@ -607,7 +609,7 @@ Use `Draggable.anyKind` for a target that intentionally accepts every drag, such
 />
 ```
 
-For [monitors](/react/utils/draggable#usedragmonitor) and [auto-scroll containers](/react/utils/draggable), `accept` is optional. Neither one resolves a drop target, so they can observe every drag by default. A monitor also receives `onDraggableDrop` when a drag completes on a target.
+For [monitors](/react/utils/draggable#usedragmonitor) and [auto-scroll containers](/react/utils/draggable), `accept` is optional. Neither one resolves a drop target, so they can observe every drag by default. A monitor observes a completed drop through `onMoveEnd`, where `eventDetails.reason` is `'drop'` and `dropTarget` is set.
 
 `accept` defines the supported kinds. Add [`canDrop`](#nested-drop-targets) to make a decision from the current drag source on every resolution. Use `disabled` to turn off the target regardless of the source.
 
@@ -844,9 +846,11 @@ import { DemoSortableLive } from './demos/sortable-live';
 
 Save the original order in `onMoveStart` and restore it if the drag is canceled or dropped outside a valid target. Dropping onto the dragged item itself succeeds with `collision: null`; keep the live order in that case.
 
+Every collision change re-renders the list, so wrap each item in `React.memo` and keep its handlers stable, as the `Task` component above does; a reorder then only moves DOM nodes. Keep `canCollide` stable too: a new function identity re-resolves the destination on every render during a drag.
+
 Both examples implement <kbd>Alt</kbd>+<kbd>↑</kbd> and <kbd>Alt</kbd>+<kbd>↓</kbd> to reorder a focused item with the keyboard.
 
-Use `orientation="horizontal"` for horizontal lists and `getItemId` for object payloads. Collision detection considers mounted items under the pointer; use explicit targets for gaps and empty containers. See the [CollisionProvider API](#collision-provider) for the remaining options.
+Use `orientation="horizontal"` for horizontal lists and `getItemId` for object payloads. A source that derives its payload with `getPayload` must also pass `collisionPayload`, the static data the collision callbacks report for it, since destinations are measured before any gesture exists. Collision detection considers mounted items under the pointer; use explicit targets for gaps and empty containers. See the [CollisionProvider API](#collision-provider) for the remaining options.
 
 ## Scrolling
 
@@ -860,7 +864,7 @@ Auto-scroll is opt-in for each container. The board above registers both lists w
 
 Use `Draggable.Viewport` on each element that should scroll, including nested containers. It can [configure an existing scroll container](#customize-a-container-that-already-scrolls) or [implement custom scrolling](#implement-custom-scrolling), such as panning a canvas with a CSS `transform`.
 
-### Anatomy
+### Viewport anatomy
 
 Render the viewport as the element that has scrollable overflow:
 
@@ -909,9 +913,9 @@ Use `onDragScroll` when the decision depends on the drag source. It runs once pe
 ```tsx title="Scrolling only for unpinned cards"
 <Draggable.Viewport
   accept={card}
-  onDragScroll={(event, { source }) => {
+  onDragScroll={({ source }, eventDetails) => {
     if (source.payload.pinned) {
-      event.preventDefault();
+      eventDetails.cancel();
     }
   }}
 />
@@ -933,9 +937,9 @@ CSS determines which axes can scroll. For example, `overflow-x: auto` and `overf
 
 ```tsx title="Horizontal only"
 <Draggable.Viewport
-  onDragScroll={(event, { direction }) => {
+  onDragScroll={({ direction }, eventDetails) => {
     if (direction === 'vertical') {
-      event.preventDefault();
+      eventDetails.cancel();
     }
   }}
   className={styles.Lane}
@@ -947,10 +951,10 @@ A grid can scroll vertically for row drags and horizontally for column drags:
 ```tsx title="An axis that follows the drag"
 <Draggable.Viewport
   accept={[row, column]}
-  onDragScroll={(event, { source, direction }) => {
+  onDragScroll={({ source, direction }, eventDetails) => {
     const allowedDirection = row.matches(source) ? 'vertical' : 'horizontal';
     if (direction !== allowedDirection) {
-      event.preventDefault();
+      eventDetails.cancel();
     }
   }}
 />
@@ -972,7 +976,7 @@ You can also pass a callback that runs on every scrolling frame. For example, de
 <Draggable.Viewport maxSpeed={({ element }) => Math.min(2400, element.scrollHeight / 4)} />
 ```
 
-Set it to `0` to stop the container and let an ancestor scroll on those axes. Preventing the default in `onDragScroll` has the same effect.
+Set it to `0` to stop the container and let an ancestor scroll on those axes. Canceling in `onDragScroll` has the same effect.
 
 ### Implement custom scrolling
 
@@ -986,11 +990,11 @@ Register the element that clips the canvas, not the transformed content inside i
 
 ```tsx title="A canvas that pans itself"
 <Draggable.Viewport
-  onDragScroll={(event, { x, y }) => {
-    event.preventDefault();
+  onDragScroll={({ x, y }, eventDetails) => {
+    eventDetails.cancel();
     camera.current = { x: camera.current.x + x, y: camera.current.y + y };
     content.current.style.transform = `translate(${-camera.current.x}px, ${-camera.current.y}px)`;
-    event.stopPropagation();
+    eventDetails.consume();
   }}
 />
 ```
@@ -999,15 +1003,15 @@ The `x` and `y` values match the arguments Base UI would pass to `element.scrol
 
 Apply the movement synchronously before returning. Base UI resolves the drop target again on the next frame. Updating the camera through React state would make hit testing one frame late, while writing the transform from a ref keeps it current.
 
-Call `event.stopPropagation()` for a direction the canvas consumes. Leave propagation enabled at a bound so a registered ancestor can scroll instead. At a corner the handler runs twice, once per axis, with the other delta set to zero. Update the camera from its latest value so the second call preserves the first call's movement.
+Canceling keeps the canvas engaged so its speed ramps up from zero; the first proposal in a direction always carries a zero delta. Call `eventDetails.consume()` for a direction the canvas takes. Skip `consume()` at a bound so a registered ancestor can scroll instead, or leave the proposal entirely alone for a direction the canvas never handles so the loop can idle. At a corner the handler runs twice, once per axis, with the other delta set to zero. Update the camera from its latest value so the second call preserves the first call's movement.
 
 ```tsx title="A canvas with bounds"
 <Draggable.Viewport
-  onDragScroll={(event, { x, y }) => {
-    event.preventDefault();
+  onDragScroll={({ x, y }, eventDetails) => {
+    eventDetails.cancel();
     const moved = panBy(x, y);
     if (moved.x || moved.y) {
-      event.stopPropagation();
+      eventDetails.consume();
     }
   }}
 />
@@ -1056,9 +1060,9 @@ const manager = Draggable.useDragDropManager();
 React.useEffect(
   () =>
     manager.registerAutoScroller(document.documentElement, () => ({
-      onDragScroll(event, { direction }) {
+      onDragScroll({ direction }, eventDetails) {
         if (direction === 'horizontal') {
-          event.preventDefault();
+          eventDetails.cancel();
         }
       },
       maxSpeed: 1600,
@@ -1071,7 +1075,7 @@ Add `disabled: true` to the registration to disable page auto-scroll.
 
 ## Styling
 
-The drag-and-drop components are unstyled. Base UI exposes each state as a data attribute. See the [styling guide](https://base-ui.com/react/handbook/styling) for how to use data attributes. The [Draggable](/react/utils/draggable#api-reference), [DropTarget](/react/utils/draggable#api-reference), and [DragAutoScroll](/react/utils/draggable#api-reference) API references list every attribute.
+The drag-and-drop components are unstyled. Base UI exposes each state as a data attribute. See the [styling guide](https://base-ui.com/react/handbook/styling) for how to use data attributes. The [`Draggable.Root`](#root), [`Draggable.Target`](#target), and [`Draggable.Viewport`](#viewport) API references list every attribute.
 
 ### Dimming the source
 
@@ -1284,7 +1288,7 @@ Base UI implements [synthetic drag and drop](/react/utils/draggable#concepts) t
 A drag resolves drop targets through layout and `document.elementFromPoint`, which jsdom does not provide.
 
 - Use a browser test for behavior that requires a resolved target, including successful `onMoveEnd` handling, `data-drag-over`, drop indicators, and auto-scroll.
-- Use jsdom for activation thresholds, lifecycle events, cancellation reasons, source state, preview rendering, `disabled`, and `onBeforeDragStart` cancellation.
+- Use jsdom for activation thresholds, lifecycle events, cancellation reasons, source state, preview rendering, `disabled`, and `onBeforeMoveStart` cancellation.
 
 Stubbing `getBoundingClientRect` in jsdom supplies geometry but not hit-testing. A drag can still start and end there, but it resolves no target and ends as an `'outside-release'`. Use a browser test when the destination matters.
 
@@ -1331,7 +1335,7 @@ Set `activation={{ type: 'immediate' }}` on the draggable under test when testin
 
 ### Let a frame pass
 
-`onDrag` and drag-over state updates are throttled to one call per animation frame. Wait for the update before asserting:
+`onMove` and drag-over state updates are throttled to one call per animation frame. Wait for the update before asserting:
 
 ```tsx title="Waiting for drag-over feedback"
 fireEvent.pointerMove(document, { pointerId: 1, clientX: 0, clientY: 120, buttons: 1 });
@@ -1494,7 +1498,7 @@ import { DemoMonitorShapeSorter } from './demos/use-drag-monitor/hero';
 
 <DemoMonitorShapeSorter />
 
-`useDragMonitor` runs callbacks for every drag on the page. A monitor has no element and requires no provider.
+`useDragMonitor` runs callbacks for every drag on the page. A monitor has no element and requires no `Draggable.Provider`, so a status bar in the application shell can observe drags from anywhere.
 
 Use it for a status bar, analytics, shared drag state, or committing an update from one place instead of each target's `onDraggableDrop`. In the shape sorter above, the cutouts only declare what they accept. A monitor updates the live status and places each shape after a successful drop.
 
@@ -1661,10 +1665,10 @@ manager.registerDropTarget(element, () => ({
 
 ```tsx title="A canvas that pans itself"
 manager.registerAutoScroller(canvasViewport, () => ({
-  onDragScroll(event, { x, y }) {
-    event.preventDefault();
+  onDragScroll({ x, y }, eventDetails) {
+    eventDetails.cancel();
     panBy({ x, y });
-    event.stopPropagation();
+    eventDetails.consume();
   },
 }));
 ```
@@ -1673,9 +1677,9 @@ Register `document.documentElement` to enable and configure page auto-scroll.
 
 ```tsx title="A page that scrolls vertically"
 manager.registerAutoScroller(document.documentElement, () => ({
-  onDragScroll(event, { direction }) {
+  onDragScroll({ direction }, eventDetails) {
     if (direction === 'horizontal') {
-      event.preventDefault();
+      eventDetails.cancel();
     }
   },
 }));
@@ -1690,9 +1694,9 @@ React.useEffect(() => {
     return undefined;
   }
   return manager.registerAutoScroller(scrollElement, () => ({
-    onDragScroll(event, { direction }) {
+    onDragScroll({ direction }, eventDetails) {
       if (direction === 'horizontal') {
-        event.preventDefault();
+        eventDetails.cancel();
       }
     },
   }));

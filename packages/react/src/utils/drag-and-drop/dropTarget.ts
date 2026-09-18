@@ -780,8 +780,9 @@ export type RegisterDropTargetParameters<TSourceData = unknown, TLocalData = unk
   /**
    * One or more drag source kinds accepted by this target.
    *
-   * Every registration uses the same page-wide drag manager, so this value is
-   * required. Pass `Draggable.anyKind` to accept every drag. In that case,
+   * Optional on `Draggable.Target`, where it defaults to the nearest provider's
+   * no-payload kind; required on `registerDropTarget`, which joins the page-wide
+   * manager directly. Pass `Draggable.anyKind` to accept every drag. In that case,
    * `source.payload` is `unknown`.
    *
    * The target ignores a source whose kind is not accepted. An ancestor target can

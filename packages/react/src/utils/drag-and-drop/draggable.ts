@@ -201,7 +201,8 @@ export type DraggableConfig<TData = undefined> = {
    * Determines when a pointer press starts a drag. Mouse and pen use a 5px distance
    * by default. Touch uses a 250ms press and hold. Pass one `DragActivation` for
    * every pointer type or a map with per-type values. An array allows any of its
-   * activation methods. Double-click pickup follows the mouse until the next click.
+   * activation methods. Double-click pickup follows the mouse until the next click;
+   * on touch and pen, the second tap of a double-tap picks up and the release drops.
    */
   activation?: DragActivationConfig | readonly DragActivationConfig[] | undefined;
   /**

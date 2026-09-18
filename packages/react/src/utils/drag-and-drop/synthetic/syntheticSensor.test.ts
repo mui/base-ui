@@ -6,6 +6,7 @@ import {
   flushRaf,
   registerCleanup,
   setupDragEngineTests,
+  splitEnd,
 } from '../../../../test/dnd';
 import { cancelDrag } from '../cancelDrag';
 import { WindowAnimationFrame } from '../../windowAnimationFrame';
@@ -354,20 +355,7 @@ describe('syntheticDrag sensor', () => {
     engine.registerDraggable(src, {
       activation: { pen: { type: 'immediate' } },
 
-      onMoveEnd: (moveEvent, moveDetails) => {
-        try {
-          if (moveDetails.reason === 'drop' && moveEvent.dropTarget !== null) {
-            const dropEvent = {
-              source: moveEvent.source,
-              location: moveEvent.location,
-              dropTarget: moveEvent.dropTarget,
-            };
-            onDrop(dropEvent);
-          }
-        } finally {
-          onMoveEnd(moveEvent);
-        }
-      },
+      onMoveEnd: splitEnd(onDrop, onMoveEnd),
     });
     engine.registerDropTarget(tgt, {});
     engine.registerMonitor({ onTargetChange });
@@ -636,20 +624,7 @@ describe('syntheticDrag sensor', () => {
     engine.registerDraggable(src, {
       activation: { touch: { type: 'immediate' } },
 
-      onMoveEnd: (moveEvent, moveDetails) => {
-        try {
-          if (moveDetails.reason === 'drop' && moveEvent.dropTarget !== null) {
-            const dropEvent = {
-              source: moveEvent.source,
-              location: moveEvent.location,
-              dropTarget: moveEvent.dropTarget,
-            };
-            onDrop(dropEvent);
-          }
-        } finally {
-          onMoveEnd(moveEvent);
-        }
-      },
+      onMoveEnd: splitEnd(onDrop, onMoveEnd),
     });
     engine.registerDropTarget(tgt, {});
 
@@ -829,7 +804,7 @@ describe('syntheticDrag sensor', () => {
 
     // Android fires `pointercancel` and *then* the long-press `contextmenu`; the
     // suppression armed at pointerdown must survive the active-phase teardown to
-    // swallow it (the 1.5s timer target-heals it afterwards).
+    // swallow it (the 1.5s timer self-heals it afterwards).
     const contextMenu = new Event('contextmenu', { bubbles: true, cancelable: true });
     dispatch(el, contextMenu);
     expect(contextMenu.defaultPrevented).toBe(true);
@@ -851,7 +826,7 @@ describe('syntheticDrag sensor', () => {
     expect(contextMenu.defaultPrevented).toBe(false);
   });
 
-  it('disarms the contextmenu suppression on its own after 1.5s (target-heal)', async () => {
+  it('disarms the contextmenu suppression on its own after 1.5s (self-heal)', async () => {
     const { engine } = await renderDnd();
     const el = createElement();
     engine.registerDraggable(el, {});

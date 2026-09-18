@@ -387,7 +387,7 @@ describe('createClonedDragPreviewElement', () => {
       );
     }
     const source = createSource(
-      `<${customElementName}><span>Payment</span></${customElementName}>`,
+      `<${customElementName} style="align-self: end; justify-self: center; order: 2"><span>Payment</span></${customElementName}>`,
     );
     const beforeClone = { ...lifecycle };
 
@@ -396,6 +396,11 @@ describe('createClonedDragPreviewElement', () => {
     expect(lifecycle).toEqual(beforeClone);
     expect(handle.element.querySelector(customElementName)).toBeNull();
     expect(handle.element.querySelector('div > span')).toHaveTextContent('Payment');
+    // The placeholder keeps its place in the parent's flex/grid layout.
+    const placeholder = handle.element.querySelector<HTMLElement>('div > span')!.parentElement!;
+    expect(placeholder.style.alignSelf).toBe('end');
+    expect(placeholder.style.justifySelf).toBe('center');
+    expect(placeholder.style.order).toBe('2');
   });
 
   it('copies live form state, which cloneNode leaves at its defaults', () => {

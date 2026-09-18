@@ -2,15 +2,15 @@ import * as React from 'react';
 import { describe, it, expect } from 'vitest';
 import { fireEvent, screen } from '@testing-library/react';
 import { createDndRenderer } from '#test-utils';
-import { DropTarget } from '@base-ui/react/drop-target';
+import { Draggable } from '@base-ui/react/draggable';
 import { createElement, flushRaf, setupDragEngineTests } from '../../../test/dnd';
 
 setupDragEngineTests();
 
-describe('DropTarget.Root state props', () => {
+describe('Draggable.Target state props', () => {
   const { renderDnd } = createDndRenderer();
 
-  const className = (state: DropTarget.Root.State) =>
+  const className = (state: Draggable.Target.State) =>
     [
       state.disabled ? 'is-disabled' : 'is-enabled',
       state.dragOver ? 'is-over' : 'is-idle',
@@ -18,15 +18,15 @@ describe('DropTarget.Root state props', () => {
     ]
       .filter(Boolean)
       .join(' ');
-  const style = (state: DropTarget.Root.State) => ({
+  const style = (state: Draggable.Target.State) => ({
     outlineWidth: state.dragOver ? '2px' : '0px',
     opacity: state.disabled ? '0.5' : '1',
   });
 
   it('resolves className and style callbacks from the drag-over state', async () => {
     const { engine } = await renderDnd(
-      <DropTarget.Root
-        accept={DropTarget.anyKind}
+      <Draggable.Target
+        accept={Draggable.anyKind}
         data-testid="target"
         className={className}
         style={style}
@@ -60,8 +60,8 @@ describe('DropTarget.Root state props', () => {
 
   it('resolves className and style callbacks from the disabled state', async () => {
     const { rerender } = await renderDnd(
-      <DropTarget.Root
-        accept={DropTarget.anyKind}
+      <Draggable.Target
+        accept={Draggable.anyKind}
         data-testid="target"
         className={className}
         style={style}
@@ -73,8 +73,8 @@ describe('DropTarget.Root state props', () => {
     expect(target.style.opacity).toBe('1');
 
     await rerender(
-      <DropTarget.Root
-        accept={DropTarget.anyKind}
+      <Draggable.Target
+        accept={Draggable.anyKind}
         data-testid="target"
         className={className}
         style={style}

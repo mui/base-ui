@@ -1,4 +1,3 @@
-import { useDragMonitor } from '@base-ui/react/use-drag-monitor';
 import { Draggable } from '@base-ui/react/draggable';
 import { expectType } from '#test-utils';
 
@@ -20,7 +19,7 @@ const file = Draggable.createKind<FilePayload>('file');
 
 // `accept` types the drag the callbacks see, with no type argument.
 function AcceptsOneKind() {
-  useDragMonitor({
+  Draggable.useDragMonitor({
     accept: card,
     onMoveStart: ({ source }) => expectType<CardPayload, typeof source.payload>(source.payload),
     onMoveEnd: ({ source, canceled }) => {
@@ -32,7 +31,7 @@ function AcceptsOneKind() {
 
 // An array of kinds observes each of them, and narrows the payload back down.
 function AcceptsTwoKinds() {
-  useDragMonitor({
+  Draggable.useDragMonitor({
     accept: [card, file],
     onMove: ({ source }) => {
       expectType<CardPayload | FilePayload, typeof source.payload>(source.payload);
@@ -45,24 +44,27 @@ function AcceptsTwoKinds() {
 
 // A monitor with no `accept` observes every drag, so its payload is `unknown`.
 function AcceptsEverything() {
-  useDragMonitor({
+  Draggable.useDragMonitor({
     onMoveStart: ({ source }) => expectType<unknown, typeof source.payload>(source.payload),
   });
 }
 
 function RejectsMismatchedHandler() {
-  // @ts-expect-error a handler declaring a payload `accept` doesn't promise is rejected.
-  useDragMonitor({ accept: card, onMove: (event: { source: { payload: FilePayload } }) => event });
+  Draggable.useDragMonitor({
+    accept: card,
+    // @ts-expect-error a handler declaring a payload `accept` doesn't promise is rejected.
+    onMove: (event: { source: { payload: FilePayload } }) => event,
+  });
 }
 
 // `Parameters` is keyed on the observed payload, and still forwards into the hook.
-const cardMonitor: useDragMonitor.Parameters<CardPayload> = {
+const cardMonitor: Draggable.useDragMonitor.Parameters<CardPayload> = {
   accept: card,
   onMoveEnd: ({ source, dropTarget }) => dropTarget && commit(source.payload.id),
 };
 
 function ForwardsDeclaredParameters() {
-  useDragMonitor(cardMonitor);
+  Draggable.useDragMonitor(cardMonitor);
 }
 
 export {

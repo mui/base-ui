@@ -2,11 +2,11 @@ import * as React from 'react';
 import { describe, it, expect, vi } from 'vitest';
 import { fireEvent, screen } from '@testing-library/react';
 import { act } from '@mui/internal-test-utils';
-import { createDndRenderer, describeConformance, testDragKind } from '#test-utils';
-import { DragAutoScroll } from '@base-ui/react/drag-auto-scroll';
+import { createDndRenderer, describeConformance, isJSDOM, testDragKind } from '#test-utils';
+import { Draggable } from '@base-ui/react/draggable';
 import type {
   DragAutoScrollFrameContext,
-  DragAutoScrollEventDetails,
+  DragAutoScrollEvent,
 } from '../../utils/drag-and-drop/autoScroller';
 import {
   createElement,
@@ -17,11 +17,11 @@ import {
 } from '../../../test/dnd';
 import { createKind } from '../../utils/drag-and-drop/dragKind';
 
-type RootProps = DragAutoScroll.Root.Props;
+type RootProps = Draggable.Viewport.Props;
 type ShouldScrollFn = (context: DragAutoScrollFrameContext) => boolean;
 type SelectDirectionFn = (context: DragAutoScrollFrameContext) => 'all' | 'horizontal' | 'vertical';
 type MaxSpeedFn = Extract<RootProps['maxSpeed'], (...args: never) => unknown>;
-type PanFn = (context: DragAutoScrollEventDetails) => void;
+type PanFn = (event: DragAutoScrollEvent) => void;
 
 setupDragEngineTests();
 
@@ -52,10 +52,10 @@ function Scroller(props: RootProps & { scrollByMock?: () => void }) {
     },
     [scrollByMock],
   );
-  return <DragAutoScroll.Root ref={ref} data-testid="scroller" {...rootProps} />;
+  return <Draggable.Viewport ref={ref} data-testid="scroller" {...rootProps} />;
 }
 
-describe('DragAutoScroll.Root', () => {
+describe('Draggable.Viewport', () => {
   const { renderDnd } = createDndRenderer();
 
   // Start the drag OUTSIDE the scroller's 200x100 box, so the loop only sees
@@ -76,7 +76,7 @@ describe('DragAutoScroll.Root', () => {
     await flushRaf();
   }
 
-  describeConformance(<DragAutoScroll.Root />, () => ({
+  describeConformance(<Draggable.Viewport />, () => ({
     refInstanceof: window.HTMLDivElement,
     render(node) {
       return renderDnd(node);
@@ -253,9 +253,9 @@ describe('DragAutoScroll.Root', () => {
     const shouldScroll = vi.fn<ShouldScrollFn>(() => true);
     const { engine } = await renderDnd(
       <Scroller
-        onDragScroll={(event, details) => {
+        onDragScroll={(details, eventDetails) => {
           if (!shouldScroll(details)) {
-            event.preventDefault();
+            eventDetails.cancel();
             return;
           }
         }}
@@ -281,16 +281,16 @@ describe('DragAutoScroll.Root', () => {
     const ref = React.createRef<HTMLDivElement>();
     const shouldScroll = vi.fn<ShouldScrollFn>(() => true);
     const { engine } = await renderDnd(
-      <DragAutoScroll.Root
+      <Draggable.Viewport
         ref={(node) => {
           if (node) {
             stubScrollMetrics(node);
           }
           ref.current = node;
         }}
-        onDragScroll={(event, details) => {
+        onDragScroll={(details, eventDetails) => {
           if (!shouldScroll(details)) {
-            event.preventDefault();
+            eventDetails.cancel();
             return;
           }
         }}
@@ -370,10 +370,10 @@ describe('DragAutoScroll.Root', () => {
       const scrollBy = vi.fn();
       const { engine } = await renderDnd(
         <Scroller
-          onDragScroll={(event, details) => {
+          onDragScroll={(details, eventDetails) => {
             const allowedDirection = 'horizontal';
             if (allowedDirection !== details.direction) {
-              event.preventDefault();
+              eventDetails.cancel();
               return;
             }
           }}
@@ -414,10 +414,10 @@ describe('DragAutoScroll.Root', () => {
     const scrollBy = vi.fn();
     const { engine, rerender } = await renderDnd(
       <Scroller
-        onDragScroll={(event, details) => {
+        onDragScroll={(details, eventDetails) => {
           const allowedDirection = vertical(details);
           if (allowedDirection !== 'all' && allowedDirection !== details.direction) {
-            event.preventDefault();
+            eventDetails.cancel();
             return;
           }
         }}
@@ -440,10 +440,10 @@ describe('DragAutoScroll.Root', () => {
     // first callback allowed at the very same position.
     await rerender(
       <Scroller
-        onDragScroll={(event, details) => {
+        onDragScroll={(details, eventDetails) => {
           const allowedDirection = horizontal(details);
           if (allowedDirection !== 'all' && allowedDirection !== details.direction) {
-            event.preventDefault();
+            eventDetails.cancel();
             return;
           }
         }}
@@ -472,9 +472,9 @@ describe('DragAutoScroll.Root', () => {
           }
         }, []);
         return (
-          <DragAutoScroll.Root ref={outerRef} data-testid="outer">
+          <Draggable.Viewport ref={outerRef} data-testid="outer">
             <Scroller disabled={props.disabled} scrollByMock={innerScrollBy} />
-          </DragAutoScroll.Root>
+          </Draggable.Viewport>
         );
       }
 
@@ -503,9 +503,9 @@ describe('DragAutoScroll.Root', () => {
       const scrollBy = vi.fn();
       const { engine, rerender } = await renderDnd(
         <Scroller
-          onDragScroll={(event, details) => {
+          onDragScroll={(details, eventDetails) => {
             if (!shouldScroll(details)) {
-              event.preventDefault();
+              eventDetails.cancel();
               return;
             }
           }}
@@ -526,9 +526,9 @@ describe('DragAutoScroll.Root', () => {
       await rerender(
         <Scroller
           disabled
-          onDragScroll={(event, details) => {
+          onDragScroll={(details, eventDetails) => {
             if (!shouldScroll(details)) {
-              event.preventDefault();
+              eventDetails.cancel();
               return;
             }
           }}
@@ -553,9 +553,9 @@ describe('DragAutoScroll.Root', () => {
       // the parameter change itself must wake the parked loop.
       await rerender(
         <Scroller
-          onDragScroll={(event, details) => {
+          onDragScroll={(details, eventDetails) => {
             if (!shouldScroll(details)) {
-              event.preventDefault();
+              eventDetails.cancel();
               return;
             }
           }}
@@ -576,6 +576,7 @@ describe('DragAutoScroll.Root', () => {
 
   it('re-reads overflow when the same scroller becomes scrollable after a render', async () => {
     const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    registerCleanup(() => warnSpy.mockRestore());
     const scrollBy = vi.fn();
 
     function RestyledScroller({ open }: { open: boolean }) {
@@ -586,7 +587,7 @@ describe('DragAutoScroll.Root', () => {
         }
       }, []);
       return (
-        <DragAutoScroll.Root
+        <Draggable.Viewport
           ref={ref}
           data-testid="scroller"
           style={{ overflow: open ? 'auto' : 'hidden' }}
@@ -614,8 +615,52 @@ describe('DragAutoScroll.Root', () => {
 
     expect(screen.getByTestId('scroller')).toBe(scroller);
     expect(scrollBy).toHaveBeenCalled();
-    warnSpy.mockRestore();
   });
+
+  // Real computed styles only: jsdom does not cascade a descendant selector from
+  // an ancestor's class onto the viewport's `overflow`.
+  it.skipIf(isJSDOM)(
+    'stops an engaged viewport when an ancestor restyle hides its overflow',
+    async () => {
+      const style = document.createElement('style');
+      style.textContent =
+        '.scroll-locked [data-testid="scroller"] { overflow: hidden !important; }';
+      document.head.appendChild(style);
+      registerCleanup(() => style.remove());
+      // Once hidden, the viewport is a registered element that does not scroll,
+      // which the engine reports; that warning is the expected outcome here.
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      registerCleanup(() => warnSpy.mockRestore());
+      const scrollBy = vi.fn();
+      const { engine } = await renderDnd(
+        <div data-testid="ancestor">
+          <Scroller scrollByMock={scrollBy} />
+        </div>,
+      );
+      const source = createElement();
+      engine.registerDraggable(source, {});
+      const scroller = screen.getByTestId('scroller');
+
+      await liftOutside(source);
+      await dragTo(scroller, 100, 95);
+      expect(scrollBy).toHaveBeenCalled();
+
+      // The ancestor's class change is caught by the chain observer, which drops
+      // the cached overflow reading, so the next frame sees `hidden` and parks.
+      await act(async () => {
+        screen.getByTestId('ancestor').className = 'scroll-locked';
+      });
+      scrollBy.mockClear();
+      await flushRaf();
+      await flushRaf();
+      await flushRaf();
+      expect(scrollBy).not.toHaveBeenCalled();
+      expect(warnSpy).toHaveBeenCalledWith(
+        expect.stringContaining('registered on an element that does not scroll'),
+      );
+      fireEvent.drop(source);
+    },
+  );
 
   it('re-reads overflow when a scrolling container becomes hidden during a drag', async () => {
     // Once hidden, the registered root no longer scrolls, which is what the dev
@@ -684,7 +729,7 @@ describe('DragAutoScroll.Root', () => {
       }
     };
     const { engine, rerender } = await renderDnd(
-      <DragAutoScroll.Root ref={ref} render={<div />} data-testid="scroller" />,
+      <Draggable.Viewport ref={ref} render={<div />} data-testid="scroller" />,
     );
     const source = createElement();
     engine.registerDraggable(source, {});
@@ -694,7 +739,7 @@ describe('DragAutoScroll.Root', () => {
     await dragTo(first, 100, 95);
     expect(scrollBy).not.toHaveBeenCalled();
 
-    await rerender(<DragAutoScroll.Root ref={ref} render={<section />} data-testid="scroller" />);
+    await rerender(<Draggable.Viewport ref={ref} render={<section />} data-testid="scroller" />);
     const replacement = screen.getByTestId('scroller');
     expect(replacement).not.toBe(first);
     await flushRaf();
@@ -721,9 +766,9 @@ describe('DragAutoScroll.Root', () => {
     const { engine, unmount } = await renderDnd(
       <React.StrictMode>
         <Scroller
-          onDragScroll={(event, details) => {
+          onDragScroll={(details, eventDetails) => {
             if (!shouldScroll(details)) {
-              event.preventDefault();
+              eventDetails.cancel();
               return;
             }
           }}
@@ -761,9 +806,9 @@ describe('DragAutoScroll.Root', () => {
     const scrollBy = vi.fn();
     const { rerender, engine } = await renderDnd(
       <Scroller
-        onDragScroll={(event, details) => {
+        onDragScroll={(details, eventDetails) => {
           if (!first(details)) {
-            event.preventDefault();
+            eventDetails.cancel();
             return;
           }
         }}
@@ -776,9 +821,9 @@ describe('DragAutoScroll.Root', () => {
 
     await rerender(
       <Scroller
-        onDragScroll={(event, details) => {
+        onDragScroll={(details, eventDetails) => {
           if (!second(details)) {
-            event.preventDefault();
+            eventDetails.cancel();
             return;
           }
         }}
@@ -808,9 +853,9 @@ describe('DragAutoScroll.Root', () => {
       const { engine, rerender } = await renderDnd(
         <Scroller
           accept={otherKind}
-          onDragScroll={(event, details) => {
+          onDragScroll={(details, eventDetails) => {
             if (!shouldScroll(details)) {
-              event.preventDefault();
+              eventDetails.cancel();
               return;
             }
           }}
@@ -833,9 +878,9 @@ describe('DragAutoScroll.Root', () => {
       await rerender(
         <Scroller
           accept={testDragKind}
-          onDragScroll={(event, details) => {
+          onDragScroll={(details, eventDetails) => {
             if (!shouldScroll(details)) {
-              event.preventDefault();
+              eventDetails.cancel();
               return;
             }
           }}
@@ -848,12 +893,12 @@ describe('DragAutoScroll.Root', () => {
     });
 
     it('does not render accept as a DOM attribute', async () => {
-      await renderDnd(<DragAutoScroll.Root accept={testDragKind} data-testid="scroller" />);
+      await renderDnd(<Draggable.Viewport accept={testDragKind} data-testid="scroller" />);
       expect(screen.getByTestId('scroller')).not.toHaveAttribute('accept');
     });
 
     it('does not render maxSpeed as a DOM attribute', async () => {
-      await renderDnd(<DragAutoScroll.Root maxSpeed={300} data-testid="scroller" />);
+      await renderDnd(<Draggable.Viewport maxSpeed={300} data-testid="scroller" />);
       expect(screen.getByTestId('scroller')).not.toHaveAttribute('maxspeed');
     });
 
@@ -886,17 +931,17 @@ describe('DragAutoScroll.Root', () => {
           node.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
         }
       }, []);
-      return <DragAutoScroll.Root ref={ref} data-testid="viewport" {...props} />;
+      return <Draggable.Viewport ref={ref} data-testid="viewport" {...props} />;
     }
 
     it('receives the frame delta for the element it is registered on', async () => {
       const pan = vi.fn<PanFn>();
       const { engine } = await renderDnd(
         <Viewport
-          onDragScroll={(event, details) => {
-            event.preventDefault();
+          onDragScroll={(details, eventDetails) => {
+            eventDetails.cancel();
             pan(details);
-            event.stopPropagation();
+            eventDetails.consume();
           }}
         />,
       );
@@ -916,10 +961,10 @@ describe('DragAutoScroll.Root', () => {
       const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
       try {
         await renderDnd(
-          <DragAutoScroll.Root
-            onDragScroll={(event) => {
-              event.preventDefault();
-              event.stopPropagation();
+          <Draggable.Viewport
+            onDragScroll={(_event, eventDetails) => {
+              eventDetails.cancel();
+              eventDetails.consume();
             }}
             data-testid="viewport"
           />,
@@ -936,10 +981,10 @@ describe('DragAutoScroll.Root', () => {
       const pan = vi.fn<PanFn>();
       const { engine, rerender } = await renderDnd(
         <Viewport
-          onDragScroll={(event, details) => {
-            event.preventDefault();
+          onDragScroll={(details, eventDetails) => {
+            eventDetails.cancel();
             pan(details);
-            event.stopPropagation();
+            eventDetails.consume();
           }}
         />,
       );
@@ -954,10 +999,10 @@ describe('DragAutoScroll.Root', () => {
       await rerender(
         <Viewport
           disabled
-          onDragScroll={(event, details) => {
-            event.preventDefault();
+          onDragScroll={(details, eventDetails) => {
+            eventDetails.cancel();
             pan(details);
-            event.stopPropagation();
+            eventDetails.consume();
           }}
         />,
       );
@@ -971,10 +1016,10 @@ describe('DragAutoScroll.Root', () => {
       // than tearing it down and rebuilding it.
       await rerender(
         <Viewport
-          onDragScroll={(event, details) => {
-            event.preventDefault();
+          onDragScroll={(details, eventDetails) => {
+            eventDetails.cancel();
             pan(details);
-            event.stopPropagation();
+            eventDetails.consume();
           }}
         />,
       );
@@ -988,10 +1033,10 @@ describe('DragAutoScroll.Root', () => {
       const second = vi.fn<PanFn>();
       const { engine, rerender } = await renderDnd(
         <Viewport
-          onDragScroll={(event, details) => {
-            event.preventDefault();
+          onDragScroll={(details, eventDetails) => {
+            eventDetails.cancel();
             first(details);
-            event.stopPropagation();
+            eventDetails.consume();
           }}
         />,
       );
@@ -1001,10 +1046,10 @@ describe('DragAutoScroll.Root', () => {
 
       await rerender(
         <Viewport
-          onDragScroll={(event, details) => {
-            event.preventDefault();
+          onDragScroll={(details, eventDetails) => {
+            eventDetails.cancel();
             second(details);
-            event.stopPropagation();
+            eventDetails.consume();
           }}
         />,
       );

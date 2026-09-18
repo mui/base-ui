@@ -61,9 +61,6 @@ const MAX_FRAME_DELTA_MS = 64;
 /** A getter for a scroller's latest parameters, so `scrollLoop` reads the freshest callbacks each frame. */
 type ScrollerGetter<TSourceData = any> = () => RegisterAutoScrollerParameters<TSourceData>;
 
-/** Default parameters for a registered viewport. */
-export const EMPTY_AUTO_SCROLLER_PARAMETERS: RegisterAutoScrollerParameters = {};
-
 const state = getSharedSlot<AutoScrollerState>('registerAutoScroller', () => ({
   scrollers: new Map<HTMLElement, ScrollerGetter[]>(),
   scrollLoopRaf: null,
@@ -569,8 +566,10 @@ function runScrollFrame(timestamp: number): void {
     // mid-drag (a collapsed section auto-expanding from `onDraggableEnter`) is caught
     // by the mutation observer, whose refresh resets the cache, so only the new
     // leaf is measured here.
+    // The registered set decides the scroll order, not the anchor, so the sorted
+    // order survives an anchor change; a reparented viewport is caught by the
+    // mutation observer's refresh instead.
     observeChainMutations(chainAnchor, currentSource.element);
-    invalidateScrollerOrder();
   }
 
   // Only registered elements may scroll. Nested viewports get first use of an axis.
@@ -725,9 +724,15 @@ function runScrollFrame(timestamp: number): void {
       // ones it had room on. Each axis gets its own event so a handler can cancel
       // vertical or horizontal movement independently.
       let movedAxis: 'all' | DragAutoScrollDirection | null = 'all';
+      // Whether this element withholds the axis from outer viewports. Without a
+      // handler every engaged axis is: the element scrolls it natively.
+      let claimedX = scrollX !== 0;
+      let claimedY = scrollY !== 0;
       if (onDragScroll !== undefined) {
-        let consumedX = false;
-        let consumedY = false;
+        let handledX = false;
+        let handledY = false;
+        claimedX = false;
+        claimedY = false;
         const axes = [
           { direction: 'horizontal' as const, engaged: scrollX !== 0, x: finalScrollX, y: 0 },
           { direction: 'vertical' as const, engaged: scrollY !== 0, x: 0, y: finalScrollY },
@@ -736,22 +741,13 @@ function runScrollFrame(timestamp: number): void {
           if (!axis.engaged) {
             continue;
           }
-          const eventData = {
+          const event: DragAutoScrollEvent = {
             ...feedback,
             x: axis.x,
             y: axis.y,
             direction: axis.direction,
           };
-          const event = new (ownerWindow(element).CustomEvent)('base-ui-autoscroll', {
-            bubbles: true,
-            cancelable: true,
-            detail: eventData,
-          });
-          const eventDetails: DragAutoScrollEventDetails = {
-            ...eventData,
-            reason: 'pointer',
-            event,
-          };
+          const eventDetails = createAutoScrollEventDetails();
           const succeeded = safeCall(
             'onDragScroll',
             element,
@@ -766,7 +762,7 @@ function runScrollFrame(timestamp: number): void {
             continue;
           }
           let shouldScroll = false;
-          if (!event.defaultPrevented) {
+          if (!eventDetails.isCanceled) {
             if (axis.direction === 'horizontal' && nativeOverflow.x) {
               shouldScroll =
                 scrollX < 0
@@ -779,18 +775,28 @@ function runScrollFrame(timestamp: number): void {
           if (shouldScroll) {
             scrollTarget.scrollBy({ left: axis.x, top: axis.y, behavior: 'instant' });
           }
-          const consumed = event.cancelBubble || shouldScroll;
+          // Two separate signals. `cancel()` says the handler took the axis over
+          // (a custom surface moving itself), which keeps the element engaged so
+          // its speed ramp keeps running — without that a surface with no native
+          // overflow would be dropped every frame and never receive a delta above
+          // zero. `consume()` is what withholds the axis from outer viewports; a
+          // handler parked at its own bound leaves it alone so an ancestor can
+          // scroll instead.
+          const handled = eventDetails.isCanceled || eventDetails.isConsumed || shouldScroll;
+          const claimed = eventDetails.isConsumed || shouldScroll;
           if (axis.direction === 'horizontal') {
-            consumedX = consumed;
+            handledX = handled;
+            claimedX = claimed;
           }
           if (axis.direction === 'vertical') {
-            consumedY = consumed;
+            handledY = handled;
+            claimedY = claimed;
           }
         }
-        if (consumedX) {
-          movedAxis = consumedY ? 'all' : 'horizontal';
+        if (handledX) {
+          movedAxis = handledY ? 'all' : 'horizontal';
         } else {
-          movedAxis = consumedY ? 'vertical' : null;
+          movedAxis = handledY ? 'vertical' : null;
         }
       } else {
         // `behavior: 'instant'` so a CSS `scroll-behavior: smooth` on the container
@@ -802,10 +808,10 @@ function runScrollFrame(timestamp: number): void {
       // first engaged frame `frameSpeed` is 0 (ramp-up), so keying off
       // `finalScroll*` would leave the axis unconsumed and let an outer scroller
       // also scroll it for that frame.
-      if (scrollY !== 0 && (movedAxis === 'all' || movedAxis === 'vertical')) {
+      if (claimedY && (movedAxis === 'all' || movedAxis === 'vertical')) {
         verticalConsumed = true;
       }
-      if (scrollX !== 0 && (movedAxis === 'all' || movedAxis === 'horizontal')) {
+      if (claimedX && (movedAxis === 'all' || movedAxis === 'horizontal')) {
         horizontalConsumed = true;
       }
 
@@ -920,7 +926,11 @@ function clearScrollerMutationObservers(): void {
   state.observedScrollers.clear();
 }
 
-/** Watch candidate ancestors even when no scroller was explicitly registered. */
+/**
+ * Observe the anchor and source ancestor chains for restyles that can change a
+ * registered container's overflow or direction. Only registered elements ever
+ * scroll; the chain is watched for cache invalidation, not for discovery.
+ */
 function observeChainMutations(...anchors: Element[]): void {
   state.chainMutationObserver ??= new (ownerWindow(anchors[0]).MutationObserver)(
     handleObservedMutations,
@@ -1151,7 +1161,7 @@ function startScrollSession({
 }: Pick<DraggableEventMap['onMoveStart'], 'location' | 'source'>): void {
   // A drag that ended abnormally with the loop *parked* leaves `enabled` set
   // and the last input/source referenced: the loop's own no-session
-  // target-termination only runs when a frame fires. Clear that state before
+  // self-termination only runs when a frame fires. Clear that state before
   // this drag decides anything.
   stopScrollLoop();
   setDragInput(location, source);
@@ -1248,17 +1258,48 @@ export interface DragAutoScrollEvent<
 
 export type DragAutoScrollDirection = 'horizontal' | 'vertical';
 
-/** Details passed as the second argument to `onDragScroll`. */
-export interface DragAutoScrollEventDetails<
-  TSourceData = unknown,
-> extends DragAutoScrollEvent<TSourceData> {
+/** The event details passed as the second argument to `onDragScroll`. */
+export interface DragAutoScrollEventDetails {
+  /** Why the frame ran. Always `'pointer'`: the loop follows the pointer's position. */
   reason: 'pointer';
-  event: CustomEvent<DragAutoScrollEvent<TSourceData>>;
+  /** A placeholder: scroll frames run from the animation loop, not from a native event. */
+  event: Event;
+  /**
+   * Keeps Base UI from scrolling the viewport natively in this direction. A
+   * surface that moves itself calls it and applies the movement; the surface
+   * stays engaged so its speed ramps up.
+   */
+  cancel: () => void;
+  /** Whether {@link cancel} has been called. */
+  isCanceled: boolean;
+  /**
+   * Withholds this direction from outer viewports. Leave it alone at a bound the
+   * surface cannot move past, so a registered ancestor can scroll instead.
+   */
+  consume: () => void;
+  /** Whether {@link consume} has been called. */
+  isConsumed: boolean;
+}
+
+function createAutoScrollEventDetails(): DragAutoScrollEventDetails {
+  const details: DragAutoScrollEventDetails = {
+    reason: 'pointer',
+    event: new Event('base-ui'),
+    isCanceled: false,
+    isConsumed: false,
+    cancel() {
+      details.isCanceled = true;
+    },
+    consume() {
+      details.isConsumed = true;
+    },
+  };
+  return details;
 }
 
 export type DragAutoScrollHandler<TSourceData = unknown> = (
-  event: CustomEvent<DragAutoScrollEvent<TSourceData>>,
-  eventDetails: DragAutoScrollEventDetails<TSourceData>,
+  event: DragAutoScrollEvent<TSourceData>,
+  eventDetails: DragAutoScrollEventDetails,
 ) => void;
 
 interface AutoScrollerState {
@@ -1332,8 +1373,8 @@ export interface RegisterAutoScrollerParameters<TSourceData = unknown> {
    */
   accept?: DragAccept<TSourceData> | undefined;
   /**
-   * Whether to disable auto-scroll for this element, including when Base UI detects
-   * it as a scroll container. An ancestor can scroll on the excluded axes.
+   * Whether to disable auto-scroll for this element. An ancestor can scroll on the
+   * excluded axes.
    *
    * Base UI reads this value every frame and keeps the registration active. Changing
    * it during a drag pauses or resumes scrolling without re-registering the element.
@@ -1355,10 +1396,15 @@ export interface RegisterAutoScrollerParameters<TSourceData = unknown> {
   maxSpeed?: number | ((parameters: DragAutoScrollFrameContext<TSourceData>) => number) | undefined;
   /**
    * Called once for each proposed scroll direction. Native viewports scroll unless
-   * `event.preventDefault()` is called. For a surface without scrollable overflow,
-   * prevent the default and apply the movement synchronously yourself. Call
-   * `event.stopPropagation()` when the surface consumes the direction to keep an
-   * outer viewport from scrolling on the same axis.
+   * `eventDetails.cancel()` is called. For a surface without scrollable overflow,
+   * cancel and apply the movement synchronously yourself; canceling keeps the
+   * surface engaged so its speed ramps up. Call `eventDetails.consume()` when the
+   * surface takes the direction to keep an outer viewport from scrolling on the
+   * same axis, and leave it at a bound the surface cannot move past.
+   *
+   * A viewport with a handler receives proposals for both directions, including
+   * one its overflow cannot scroll natively, so a custom surface can move on
+   * either. A handler that only observes can ignore directions it does not scroll.
    */
   onDragScroll?: DragAutoScrollHandler<TSourceData> | undefined;
 }

@@ -17,7 +17,7 @@ import type {
 /**
  * Requires exactly one of a parameter type's `payload` and `getPayload` fields.
  */
-export type WithRequiredPayload<
+export type DragParametersWithRequiredPayload<
   TParameters extends { payload?: unknown; getPayload?: unknown },
   TPayload = Exclude<TParameters['payload'], undefined>,
   TPayloadGetter = Exclude<TParameters['getPayload'], undefined>,
@@ -40,22 +40,23 @@ export type WithRequiredPayload<
 /**
  * Allows at most one of a parameter type's `payload` and `getPayload` fields.
  */
-export type WithOptionalPayload<TParameters extends { payload?: unknown; getPayload?: unknown }> =
-  Omit<TParameters, 'payload' | 'getPayload'> &
-    (
-      | {
-          /** Static payload data. Function values are preserved without being invoked. */
-          payload?: TParameters['payload'] | undefined;
-          /** Resolves payload data from the current drag context. */
-          getPayload?: never | undefined;
-        }
-      | {
-          /** Static payload data. Function values are preserved without being invoked. */
-          payload?: never | undefined;
-          /** Resolves payload data from the current drag context. */
-          getPayload?: TParameters['getPayload'] | undefined;
-        }
-    );
+export type DragParametersWithOptionalPayload<
+  TParameters extends { payload?: unknown; getPayload?: unknown },
+> = Omit<TParameters, 'payload' | 'getPayload'> &
+  (
+    | {
+        /** Static payload data. Function values are preserved without being invoked. */
+        payload?: TParameters['payload'] | undefined;
+        /** Resolves payload data from the current drag context. */
+        getPayload?: never | undefined;
+      }
+    | {
+        /** Static payload data. Function values are preserved without being invoked. */
+        payload?: never | undefined;
+        /** Resolves payload data from the current drag context. */
+        getPayload?: TParameters['getPayload'] | undefined;
+      }
+  );
 
 /** Parameters accepted by `Draggable.Root` and `registerDraggable`, except the element. */
 // `onGenerateDragPreview` is omitted because the engine overwrites it to publish the
@@ -73,7 +74,7 @@ export type RegisterDraggableParameters<TData = undefined> = Omit<
  * `RegisterDraggableParameters` for the overload that infers `TData` from a required `payload`.
  * @public
  */
-export type RegisterDraggableParametersWithPayload<TData> = WithRequiredPayload<
+export type RegisterDraggableParametersWithPayload<TData> = DragParametersWithRequiredPayload<
   RegisterDraggableParameters<TData>,
   DraggablePayload<TData>,
   DraggablePayloadGetter<TData>
@@ -88,7 +89,7 @@ export type RegisterDropTargetParameters<TSourceData = unknown, TLocalData = unk
    * One or more drag source kinds accepted by this target.
    *
    * Every registration uses the same page-wide drag manager, so this value is
-   * required. Pass `Draggable.anyKind` to accept every drag. In that case,
+   * required here. Pass `Draggable.anyKind` to accept every drag. In that case,
    * `source.payload` is `unknown`.
    *
    * The target ignores a source whose kind is not accepted. An ancestor target can
@@ -101,16 +102,20 @@ export type RegisterDropTargetParameters<TSourceData = unknown, TLocalData = unk
  * Drop target registration parameters whose local payload is required.
  * @public
  */
-export type RegisterDropTargetParametersWithPayload<TSourceData, TLocalData> = WithRequiredPayload<
-  RegisterDropTargetParameters<TSourceData, NoInfer<TLocalData>>,
-  DropTargetPayload<TLocalData>,
-  DropTargetPayloadGetter<TSourceData, TLocalData>
->;
+export type RegisterDropTargetParametersWithPayload<TSourceData, TLocalData> =
+  DragParametersWithRequiredPayload<
+    RegisterDropTargetParameters<TSourceData, NoInfer<TLocalData>>,
+    DropTargetPayload<TLocalData>,
+    DropTargetPayloadGetter<TSourceData, TLocalData>
+  >;
 
 /**
  * Preserves the accepted kinds while inferring callback payload types.
  */
-export type WithInferredAccept<TParameters, TAccept extends AnyDragAccept> = TParameters & {
+export type DragParametersWithInferredAccept<
+  TParameters,
+  TAccept extends AnyDragAccept,
+> = TParameters & {
   /** One or more drag source kinds this registration observes. */
   accept?: TAccept | undefined;
 };
@@ -118,7 +123,10 @@ export type WithInferredAccept<TParameters, TAccept extends AnyDragAccept> = TPa
 /**
  * Preserves the accepted kinds while requiring `accept`.
  */
-export type WithRequiredAccept<TParameters, TAccept extends AnyDragAccept> = TParameters & {
+export type DragParametersWithRequiredAccept<
+  TParameters,
+  TAccept extends AnyDragAccept,
+> = TParameters & {
   /** One or more drag source kinds accepted by this target. */
   accept: TAccept;
 };
@@ -156,7 +164,8 @@ export type InternalDraggableParameters<TData = undefined> = RegisterDraggablePa
 /**
  * React's native HTML drag-and-drop props omitted from `Draggable.Root` and
  * `Draggable.Target`. Native dragging is separate from the pointer interaction
- * implemented by these parts. The source's `onDrop` belongs to Base UI.
+ * implemented by these parts, whose drops arrive through `onMoveEnd` and
+ * `onDraggableDrop` instead.
  *
  * The native events are still reachable through `render`, whose element props are
  * merged over the component's own:
@@ -230,7 +239,9 @@ export interface DragDropManager {
     ): DragCleanupFn;
     (
       element: HTMLElement,
-      getParameters: () => WithOptionalPayload<RegisterDraggableParameters<undefined>>,
+      getParameters: () => DragParametersWithOptionalPayload<
+        RegisterDraggableParameters<undefined>
+      >,
     ): DragCleanupFn;
   };
   /**
@@ -244,7 +255,7 @@ export interface DragDropManager {
     // from it, so a payload-carrying kind can't register without payload data.
     <TAccept extends AnyDragAccept = DragKind<unknown>>(
       element: HTMLElement,
-      getParameters: () => WithRequiredAccept<
+      getParameters: () => DragParametersWithRequiredAccept<
         Omit<
           InternalRegisterDropTargetParameters<AcceptedDragPayload<TAccept>, undefined>,
           'payload' | 'getPayload'
@@ -254,7 +265,7 @@ export interface DragDropManager {
     ): DragCleanupFn;
     <TAccept extends AnyDragAccept, TLocalData>(
       element: HTMLElement,
-      getParameters: () => WithRequiredAccept<
+      getParameters: () => DragParametersWithRequiredAccept<
         RegisterDropTargetParametersWithPayload<AcceptedDragPayload<TAccept>, TLocalData>,
         TAccept
       >,
@@ -270,7 +281,7 @@ export interface DragDropManager {
    */
   registerAutoScroller: <TAccept extends AnyDragAccept = DragKind<unknown>>(
     element: HTMLElement,
-    getParameters: () => WithInferredAccept<
+    getParameters: () => DragParametersWithInferredAccept<
       RegisterAutoScrollerParameters<AcceptedDragPayload<TAccept>>,
       TAccept
     >,
@@ -280,7 +291,7 @@ export interface DragDropManager {
    * that unregisters it.
    */
   registerMonitor: <TAccept extends AnyDragAccept = DragKind<unknown>>(
-    getParameters: () => WithInferredAccept<
+    getParameters: () => DragParametersWithInferredAccept<
       RegisterMonitorParameters<AcceptedDragPayload<TAccept>>,
       TAccept
     >,

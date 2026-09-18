@@ -3,7 +3,6 @@ import { describe, it, expect, vi } from 'vitest';
 import { act, fireEvent, screen } from '@testing-library/react';
 import { createDndRenderer, describeConformance } from '#test-utils';
 import { Draggable } from '@base-ui/react/draggable';
-import { DropTarget } from '@base-ui/react/drop-target';
 import {
   cancel,
   createElement,
@@ -23,10 +22,10 @@ const columnKind = Draggable.createKind('column');
 const itemKind = Draggable.createKind('item');
 const slotKind = Draggable.createKind<{ id: string }>('slot');
 
-describe('DropTarget.Root', () => {
+describe('Draggable.Target', () => {
   const { renderDnd } = createDndRenderer();
 
-  describeConformance(<DropTarget.Root accept={DropTarget.anyKind} />, () => ({
+  describeConformance(<Draggable.Target accept={Draggable.anyKind} />, () => ({
     refInstanceof: window.HTMLDivElement,
     render(node) {
       return renderDnd(node);
@@ -34,14 +33,14 @@ describe('DropTarget.Root', () => {
   }));
 
   it('marks the element as a drop target once attached', async () => {
-    await renderDnd(<DropTarget.Root accept={DropTarget.anyKind} data-testid="target" />);
+    await renderDnd(<Draggable.Target accept={Draggable.anyKind} data-testid="target" />);
     const el = screen.getByTestId('target');
     expect(el).toHaveAttribute('data-drop-target', '');
   });
 
   it('removes the drop-target attribute on unmount', async () => {
     const { unmount } = await renderDnd(
-      <DropTarget.Root accept={DropTarget.anyKind} data-testid="target" />,
+      <Draggable.Target accept={Draggable.anyKind} data-testid="target" />,
     );
     const el = screen.getByTestId('target');
     unmount();
@@ -50,7 +49,7 @@ describe('DropTarget.Root', () => {
 
   it('does not forward engine parameters to the DOM element', async () => {
     await renderDnd(
-      <DropTarget.Root
+      <Draggable.Target
         data-testid="target"
         kind={slotKind}
         accept={cardKind}
@@ -84,7 +83,7 @@ describe('DropTarget.Root', () => {
     let observed: { kind?: symbol; data?: unknown; snapped?: number } = {};
 
     const { engine } = await renderDnd(
-      <DropTarget.Root
+      <Draggable.Target
         data-testid="target"
         kind={slotKind}
         accept={cardKind}
@@ -148,15 +147,15 @@ describe('DropTarget.Root', () => {
     const outsideStart = vi.fn();
     const { engine } = await renderDnd(
       <React.Fragment>
-        <DropTarget.Root
-          accept={DropTarget.anyKind}
+        <Draggable.Target
+          accept={Draggable.anyKind}
           data-testid="wrapper"
           onDraggableStart={nestedStart}
         >
           <div data-testid="nested-source" />
-        </DropTarget.Root>
-        <DropTarget.Root
-          accept={DropTarget.anyKind}
+        </Draggable.Target>
+        <Draggable.Target
+          accept={Draggable.anyKind}
           data-testid="elsewhere"
           onDraggableStart={outsideStart}
         />
@@ -199,8 +198,8 @@ describe('DropTarget.Root', () => {
     const onDrop = vi.fn();
     const { engine } = await renderDnd(
       <React.StrictMode>
-        <DropTarget.Root
-          accept={DropTarget.anyKind}
+        <Draggable.Target
+          accept={Draggable.anyKind}
           data-testid="target"
           onDraggableEnter={onDraggableEnter}
           onDraggableDrop={onDrop}
@@ -228,8 +227,8 @@ describe('DropTarget.Root', () => {
       // A distinct key forces React to swap the DOM node behind the same ref
       // callback (as a virtualizer recycling a row does) instead of reusing it.
       return (
-        <DropTarget.Root
-          accept={DropTarget.anyKind}
+        <Draggable.Target
+          accept={Draggable.anyKind}
           key={swapped ? 'b' : 'a'}
           data-testid={swapped ? 'b' : 'a'}
         />
@@ -258,8 +257,8 @@ describe('DropTarget.Root', () => {
     const log: string[] = [];
     function Fixture({ swapped }: { swapped: boolean }) {
       return (
-        <DropTarget.Root
-          accept={DropTarget.anyKind}
+        <Draggable.Target
+          accept={Draggable.anyKind}
           key={swapped ? 'after' : 'before'}
           data-testid="target"
           payload={{ id: swapped ? 'after' : 'before' }}
@@ -317,12 +316,49 @@ describe('DropTarget.Root', () => {
     fireEvent.drop(second);
   });
 
+  it('releases outside when the hovered target unmounted before the drop', async () => {
+    const onDrop = vi.fn();
+    const onMoveEnd = vi.fn();
+    function Fixture({ mounted }: { mounted: boolean }) {
+      return mounted ? (
+        <Draggable.Target
+          accept={Draggable.anyKind}
+          data-testid="target"
+          onDraggableDrop={onDrop}
+        />
+      ) : null;
+    }
+    const { rerender, engine } = await renderDnd(<Fixture mounted />);
+    const source = createElement();
+    engine.registerDraggable(source, {});
+    engine.registerMonitor({ onMoveEnd });
+    const target = screen.getByTestId('target');
+    target.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
+
+    fireEvent.dragStart(source);
+    await flushRaf();
+    fireEvent.dragEnter(target);
+    fireEvent.dragOver(target);
+    await flushRaf();
+    expect(target).toHaveAttribute('data-drag-over');
+
+    // A virtualizer recycles the hovered row; the pointer releases where it was.
+    await rerender(<Fixture mounted={false} />);
+    await flushRaf();
+    fireEvent.drop(document.body);
+
+    expect(onDrop).not.toHaveBeenCalled();
+    expect(onMoveEnd).toHaveBeenCalledTimes(1);
+    expect(onMoveEnd.mock.calls[0][1].reason).toBe('outside-release');
+    expect(onMoveEnd.mock.calls[0][0].dropTarget).toBeNull();
+  });
+
   it('fires consumer callbacks with stable references across re-renders', async () => {
     const firstOnDragEnter = vi.fn();
     const secondOnDragEnter = vi.fn();
     const { rerender, engine } = await renderDnd(
-      <DropTarget.Root
-        accept={DropTarget.anyKind}
+      <Draggable.Target
+        accept={Draggable.anyKind}
         data-testid="target"
         onDraggableEnter={firstOnDragEnter}
       />,
@@ -333,8 +369,8 @@ describe('DropTarget.Root', () => {
     target.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
 
     await rerender(
-      <DropTarget.Root
-        accept={DropTarget.anyKind}
+      <Draggable.Target
+        accept={Draggable.anyKind}
         data-testid="target"
         onDraggableEnter={secondOnDragEnter}
       />,
@@ -377,8 +413,8 @@ describe('DropTarget.Root', () => {
             Suspend update
           </button>
           <React.Suspense fallback="Loading">
-            <DropTarget.Root
-              accept={DropTarget.anyKind}
+            <Draggable.Target
+              accept={Draggable.anyKind}
               canDrop={suspend ? suspendedCanDrop : committedCanDrop}
               data-testid="target"
             />
@@ -412,8 +448,8 @@ describe('DropTarget.Root', () => {
     const onDraggableEnter = vi.fn();
     const onDraggableLeave = vi.fn();
     const { rerender, engine } = await renderDnd(
-      <DropTarget.Root
-        accept={DropTarget.anyKind}
+      <Draggable.Target
+        accept={Draggable.anyKind}
         data-testid="target"
         onDraggableEnter={onDraggableEnter}
         onDraggableLeave={onDraggableLeave}
@@ -474,8 +510,8 @@ describe('DropTarget.Root', () => {
   it('canDrop returning false prevents this target from receiving callbacks', async () => {
     const onDraggableEnter = vi.fn();
     const { engine } = await renderDnd(
-      <DropTarget.Root
-        accept={DropTarget.anyKind}
+      <Draggable.Target
+        accept={Draggable.anyKind}
         data-testid="target"
         canDrop={() => false}
         onDraggableEnter={onDraggableEnter}
@@ -500,12 +536,12 @@ describe('DropTarget.Root', () => {
 
   it('reflects disabled in state and as data-disabled', async () => {
     const { rerender } = await renderDnd(
-      <DropTarget.Root accept={DropTarget.anyKind} data-testid="target" disabled />,
+      <Draggable.Target accept={Draggable.anyKind} data-testid="target" disabled />,
     );
     const target = screen.getByTestId('target');
     expect(target).toHaveAttribute('data-disabled');
 
-    await rerender(<DropTarget.Root accept={DropTarget.anyKind} data-testid="target" />);
+    await rerender(<Draggable.Target accept={Draggable.anyKind} data-testid="target" />);
     expect(target).not.toHaveAttribute('data-disabled');
   });
 
@@ -513,8 +549,8 @@ describe('DropTarget.Root', () => {
     const onDraggableEnter = vi.fn();
     const onDrop = vi.fn();
     const { engine } = await renderDnd(
-      <DropTarget.Root
-        accept={DropTarget.anyKind}
+      <Draggable.Target
+        accept={Draggable.anyKind}
         data-testid="target"
         disabled
         onDraggableEnter={onDraggableEnter}
@@ -547,8 +583,8 @@ describe('DropTarget.Root', () => {
     const onDraggableLeave = vi.fn();
     function Fixture({ disabled }: { disabled?: boolean }) {
       return (
-        <DropTarget.Root
-          accept={DropTarget.anyKind}
+        <Draggable.Target
+          accept={Draggable.anyKind}
           data-testid="target"
           disabled={disabled}
           onDraggableEnter={onDraggableEnter}
@@ -603,7 +639,7 @@ describe('DropTarget.Root', () => {
       revision?: number;
     }) {
       return (
-        <DropTarget.Root
+        <Draggable.Target
           accept={accepted === 'both' ? [cardKind, columnKind] : [columnKind]}
           data-testid="target"
           data-revision={revision}
@@ -652,7 +688,7 @@ describe('DropTarget.Root', () => {
   it('accept filters which source kinds reach the target', async () => {
     const onDraggableEnter = vi.fn();
     const { engine } = await renderDnd(
-      <DropTarget.Root
+      <Draggable.Target
         data-testid="target"
         accept={cardKind}
         onDraggableEnter={onDraggableEnter}
@@ -677,9 +713,9 @@ describe('DropTarget.Root', () => {
 
   it('data-drag-over-innermost is absent on the outer target while a nested target is active', async () => {
     const { engine } = await renderDnd(
-      <DropTarget.Root accept={DropTarget.anyKind} data-testid="outer">
-        <DropTarget.Root accept={DropTarget.anyKind} data-testid="inner" />
-      </DropTarget.Root>,
+      <Draggable.Target accept={Draggable.anyKind} data-testid="outer">
+        <Draggable.Target accept={Draggable.anyKind} data-testid="inner" />
+      </Draggable.Target>,
     );
     const source = createElement();
     engine.registerDraggable(source, {});
@@ -729,8 +765,8 @@ describe('DropTarget.Root', () => {
     const onDraggableEnter = vi.fn();
     const onDraggableLeave = vi.fn();
     const { engine } = await renderDnd(
-      <DropTarget.Root
-        accept={DropTarget.anyKind}
+      <Draggable.Target
+        accept={Draggable.anyKind}
         data-testid="target"
         onDraggableEnter={onDraggableEnter}
         onDraggableLeave={onDraggableLeave}
@@ -772,7 +808,7 @@ describe('DropTarget.Root', () => {
 
   it('reflects drag-over state across the drag lifecycle by default (trackDragOver defaults to true)', async () => {
     const { engine } = await renderDnd(
-      <DropTarget.Root accept={DropTarget.anyKind} data-testid="target" />,
+      <Draggable.Target accept={Draggable.anyKind} data-testid="target" />,
     );
     const source = createElement();
     engine.registerDraggable(source, {});
@@ -801,8 +837,8 @@ describe('DropTarget.Root', () => {
     const onDraggableLeave = vi.fn();
     function Fixture({ allowed }: { allowed: boolean }) {
       return (
-        <DropTarget.Root
-          accept={DropTarget.anyKind}
+        <Draggable.Target
+          accept={Draggable.anyKind}
           data-testid="target"
           canDrop={() => allowed}
           onDraggableEnter={onDraggableEnter}
@@ -843,8 +879,8 @@ describe('DropTarget.Root', () => {
     function Fixture({ allowed }: { allowed: boolean }) {
       return (
         <React.Fragment>
-          <DropTarget.Root accept={DropTarget.anyKind} data-testid="active" canDrop={canDrop} />
-          <DropTarget.Root accept={DropTarget.anyKind} canDrop={() => allowed} />
+          <Draggable.Target accept={Draggable.anyKind} data-testid="active" canDrop={canDrop} />
+          <Draggable.Target accept={Draggable.anyKind} canDrop={() => allowed} />
         </React.Fragment>
       );
     }
@@ -870,9 +906,9 @@ describe('DropTarget.Root', () => {
       return (
         <div data-revision={revision}>
           {Array.from({ length: 20 }, (_, index) => (
-            <DropTarget.Root
+            <Draggable.Target
               key={index}
-              accept={DropTarget.anyKind}
+              accept={Draggable.anyKind}
               data-testid={`target-${index}`}
               canDrop={() => canDrop()}
             />
@@ -901,8 +937,8 @@ describe('DropTarget.Root', () => {
 
   it('passes the drag-over state to a className callback', async () => {
     const { engine } = await renderDnd(
-      <DropTarget.Root
-        accept={DropTarget.anyKind}
+      <Draggable.Target
+        accept={Draggable.anyKind}
         data-testid="target"
         className={(state) => (state.dragOver ? 'is-over' : 'idle')}
       />,
@@ -927,19 +963,19 @@ describe('DropTarget.Root', () => {
 
   it('does not re-render on drag activity when trackDragOver is false', async () => {
     // Count renders inside each target: a function `className` runs on every
-    // render of the DropTarget.Root itself, where the drag-over subscription
+    // render of the Draggable.Target itself, where the drag-over subscription
     // lives — a spy in a parent component would miss store-driven re-renders.
     const trackedRenders = vi.fn(() => 'tracked');
     const untrackedRenders = vi.fn(() => 'untracked');
     const { engine } = await renderDnd(
       <React.Fragment>
-        <DropTarget.Root
-          accept={DropTarget.anyKind}
+        <Draggable.Target
+          accept={Draggable.anyKind}
           data-testid="tracked"
           className={trackedRenders}
         />
-        <DropTarget.Root
-          accept={DropTarget.anyKind}
+        <Draggable.Target
+          accept={Draggable.anyKind}
           trackDragOver={false}
           data-testid="untracked"
           className={untrackedRenders}
@@ -980,8 +1016,8 @@ describe('DropTarget.Root', () => {
     const rejectingRenders = vi.fn(() => 'rejecting');
     const { engine } = await renderDnd(
       <React.Fragment>
-        <DropTarget.Root accept={cardKind} className={acceptingRenders} />
-        <DropTarget.Root accept={columnKind} className={rejectingRenders} />
+        <Draggable.Target accept={cardKind} className={acceptingRenders} />
+        <Draggable.Target accept={columnKind} className={rejectingRenders} />
       </React.Fragment>,
     );
     const source = createElement();
@@ -1006,13 +1042,13 @@ describe('DropTarget.Root', () => {
     const unrelatedRenders = vi.fn(() => 'unrelated');
     const { engine } = await renderDnd(
       <React.Fragment>
-        <DropTarget.Root
-          accept={DropTarget.anyKind}
+        <Draggable.Target
+          accept={Draggable.anyKind}
           data-testid="hovered"
           className={hoveredRenders}
         />
-        <DropTarget.Root
-          accept={DropTarget.anyKind}
+        <Draggable.Target
+          accept={Draggable.anyKind}
           data-testid="unrelated"
           className={unrelatedRenders}
         />
@@ -1038,8 +1074,8 @@ describe('DropTarget.Root', () => {
   it('does not re-render for drag-session updates when trackDragOver is false', async () => {
     const className = vi.fn(() => 'target');
     const { engine } = await renderDnd(
-      <DropTarget.Root
-        accept={DropTarget.anyKind}
+      <Draggable.Target
+        accept={Draggable.anyKind}
         data-testid="target"
         trackDragOver={false}
         className={className}
@@ -1058,8 +1094,8 @@ describe('DropTarget.Root', () => {
   it('still fires callbacks when trackDragOver is false', async () => {
     const onDrop = vi.fn();
     const { engine } = await renderDnd(
-      <DropTarget.Root
-        accept={DropTarget.anyKind}
+      <Draggable.Target
+        accept={Draggable.anyKind}
         trackDragOver={false}
         data-testid="target"
         onDraggableDrop={onDrop}
@@ -1086,8 +1122,8 @@ describe('DropTarget.Root', () => {
   it('reads payload back on the drop record', async () => {
     let observed: unknown;
     const { engine } = await renderDnd(
-      <DropTarget.Root
-        accept={DropTarget.anyKind}
+      <Draggable.Target
+        accept={Draggable.anyKind}
         data-testid="target"
         getPayload={() => ({ id: 'slot-1' })}
         onDraggableDrop={({ target }) => {
@@ -1116,7 +1152,7 @@ describe('DropTarget.Root', () => {
         <Draggable.Root
           kind={cardKind}
           payload={{ id: 'a' }}
-          render={<DropTarget.Root accept={cardKind} />}
+          render={<Draggable.Target accept={cardKind} />}
         >
           Card
         </Draggable.Root>,
@@ -1134,7 +1170,7 @@ describe('DropTarget.Root', () => {
         <Draggable.Root
           kind={cardKind}
           payload={{ id: 'a' }}
-          render={<DropTarget.Root data-testid="item" accept={cardKind} />}
+          render={<Draggable.Target data-testid="item" accept={cardKind} />}
         />,
       );
       const source = createElement();
@@ -1162,11 +1198,11 @@ describe('DropTarget.Root', () => {
         <React.Fragment>
           <Draggable.Root
             kind={itemKind}
-            render={<DropTarget.Root data-testid="a" accept={itemKind} />}
+            render={<Draggable.Target data-testid="a" accept={itemKind} />}
           />
           <Draggable.Root
             kind={itemKind}
-            render={<DropTarget.Root data-testid="b" accept={itemKind} />}
+            render={<Draggable.Target data-testid="b" accept={itemKind} />}
           />
         </React.Fragment>,
       );

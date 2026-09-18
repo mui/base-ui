@@ -2,7 +2,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { fireEvent } from '@testing-library/react';
 import { createDndRenderer } from '#test-utils';
 import { Draggable } from '@base-ui/react/draggable';
-import { createElement, flushRaf, setupDragEngineTests } from '../../test/dnd';
+import { createElement, flushRaf, setupDragEngineTests, splitEnd } from '../../../test/dnd';
 
 setupDragEngineTests();
 
@@ -31,18 +31,27 @@ describe('engine.registerMonitor', () => {
     );
   });
 
-  it('monitor receives onMoveEnd when drop occurs', async () => {
+  it('monitor receives onMoveEnd with the drop target when a drop lands on one', async () => {
     const { engine } = await renderDnd();
     const el = createElement();
+    const target = createElement({ top: 200, height: 100 });
     const onMoveEnd = vi.fn();
     engine.registerDraggable(el, { kind: cardKind });
+    engine.registerDropTarget(target, { accept: cardKind });
     engine.registerMonitor({ onMoveEnd });
 
     fireEvent.dragStart(el);
     await flushRaf();
-    fireEvent.drop(el);
+    fireEvent.dragEnter(target);
+    fireEvent.dragOver(target);
+    await flushRaf();
+    fireEvent.drop(target);
 
     expect(onMoveEnd).toHaveBeenCalledTimes(1);
+    const [event, details] = onMoveEnd.mock.calls[0];
+    expect(details.reason).toBe('drop');
+    expect(event.canceled).toBe(false);
+    expect(event.dropTarget?.element).toBe(target);
   });
 
   it('monitor onMoveEnd fires with empty dropTargets when the drag ends outside any target', async () => {
@@ -190,20 +199,7 @@ describe('engine.registerMonitor', () => {
       onMoveStart,
       onMove,
       onTargetChange,
-      onMoveEnd: (moveEvent, moveDetails) => {
-        try {
-          if (moveDetails.reason === 'drop' && moveEvent.dropTarget !== null) {
-            const dropEvent = {
-              source: moveEvent.source,
-              location: moveEvent.location,
-              dropTarget: moveEvent.dropTarget,
-            };
-            onDrop(dropEvent);
-          }
-        } finally {
-          onMoveEnd(moveEvent);
-        }
-      },
+      onMoveEnd: splitEnd(onDrop, onMoveEnd),
     });
 
     // Subsequent events must reach the late monitor.

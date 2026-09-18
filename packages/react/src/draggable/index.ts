@@ -66,11 +66,34 @@ export type {
   DropTargetEventDetailsMap,
   DropEvent,
   DropTargetEventTarget,
+  DropTargetChangeReason,
+  DropTargetPayload,
+  DropTargetPayloadGetter,
+  DropTargetResolutionContext,
 } from '../types/drag';
 
-export type * from '../drop-target/root/DropTargetRoot';
-export type * from '../drag-auto-scroll/root/DragAutoScrollRoot';
-export type { UseDragMonitorParameters } from '../use-drag-monitor/useDragMonitor';
-export type { UseDragDropManagerReturnValue } from '../use-drag-drop-manager/useDragDropManager';
+export type * from './target/DraggableTarget';
+export type * from './viewport/DraggableViewport';
+export type {
+  DragAutoScrollEvent,
+  DragAutoScrollEventDetails,
+  DragAutoScrollDirection,
+  DragAutoScrollHandler,
+  DragAutoScrollFrameContext,
+} from '../utils/drag-and-drop/autoScroller';
+export type { UseDragMonitorParameters } from './use-drag-monitor/useDragMonitor';
+export type { UseDragDropManagerReturnValue } from './use-drag-drop-manager/useDragDropManager';
+// The parameter types of every `useDragDropManager` registration method, so a
+// consumer can type a held registration without a second import from
+// `@base-ui/react/types`.
+export type {
+  DragDropManager,
+  RegisterDraggableParameters,
+  RegisterDraggableParametersWithPayload,
+  RegisterDropTargetParameters,
+  RegisterDropTargetParametersWithPayload,
+  RegisterAutoScrollerParameters,
+  RegisterMonitorParameters,
+} from '../types/dragRegistration';
 
 export type * from './collision-provider/DraggableCollisionProvider';

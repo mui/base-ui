@@ -1,16 +1,10 @@
-import {
-  anyKind,
-  createGlobalKind,
-  createKind,
-  useDragDropManager,
-} from '@base-ui/react/use-drag-drop-manager';
+import { Draggable } from '@base-ui/react/draggable';
 import type {
   RegisterDraggableParameters,
   RegisterMonitorParameters,
   RegisterDropTargetParameters,
   RegisterDropTargetParametersWithPayload,
-} from '@base-ui/react/use-drag-drop-manager';
-import { Draggable } from '@base-ui/react/draggable';
+} from '@base-ui/react/draggable';
 import type {
   DragKind,
   DragSnappedLocalPointOptions,
@@ -21,7 +15,7 @@ import { expectType } from '#test-utils';
 
 // Type-only file: nothing here runs, so the hook is never actually called —
 // `declare` gives us its return type without tripping the rules-of-hooks lint.
-declare const engine: ReturnType<typeof useDragDropManager>;
+declare const engine: ReturnType<typeof Draggable.useDragDropManager>;
 declare const element: HTMLElement;
 
 interface CardPayload {
@@ -33,11 +27,11 @@ const marker = Draggable.createKind('marker');
 
 // The imperative entry point is self-contained: it exposes the factories its
 // registration methods require, without importing a component namespace.
-const engineCard = createKind<CardPayload>('engine-card');
-const globalItem = createGlobalKind('app/item');
+const engineCard = Draggable.createKind<CardPayload>('engine-card');
+const globalItem = Draggable.createGlobalKind('app/item');
 expectType<DragKind<CardPayload>, typeof engineCard>(engineCard);
 expectType<DragKind<undefined>, typeof globalItem>(globalItem);
-expectType<DragKind<unknown>, typeof anyKind>(anyKind);
+expectType<DragKind<unknown>, typeof Draggable.anyKind>(Draggable.anyKind);
 const snapSteps: DragSnapSteps = { x: 4, y: 8 };
 const snappedPointOptions: DragSnappedLocalPointOptions = { anchor: 'source' };
 expectType<DragSnapSteps, typeof snapSteps>(snapSteps);
@@ -293,10 +287,10 @@ engine.registerMonitor(() => ({
 // The accepted kind determines the scroll callback payload.
 engine.registerAutoScroller(element, () => ({
   accept: card,
-  onDragScroll(event, { source, direction }) {
+  onDragScroll({ source, direction }, eventDetails) {
     expectType<CardPayload, typeof source.payload>(source.payload);
     if (direction === 'horizontal') {
-      event.preventDefault();
+      eventDetails.cancel();
     }
   },
 }));

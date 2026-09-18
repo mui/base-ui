@@ -1,7 +1,5 @@
 import * as React from 'react';
 import { Draggable } from '@base-ui/react/draggable';
-import { DropTarget } from '@base-ui/react/drop-target';
-import { useDragMonitor } from '@base-ui/react/use-drag-monitor';
 
 const itemKind = Draggable.createKind('e2e-pointer-capture');
 
@@ -17,7 +15,7 @@ function PointerCaptureContent() {
     return () => document.body.removeEventListener('gotpointercapture', handleGotCapture);
   }, []);
 
-  useDragMonitor({
+  Draggable.useDragMonitor({
     accept: itemKind,
     onMoveEnd: () => setEndCount((count) => count + 1),
   });
@@ -36,14 +34,14 @@ function PointerCaptureContent() {
           </Draggable.Root>
         )}
       </div>
-      <DropTarget.Root
+      <Draggable.Target
         data-testid="drop-target"
         accept={itemKind}
         onDraggableDrop={() => setDropCount((count) => count + 1)}
         style={{ width: 120, height: 60, background: 'lightblue' }}
       >
         Drop
-      </DropTarget.Root>
+      </Draggable.Target>
       <output data-testid="drag-status">
         {JSON.stringify({ sourceMounted, captureCount, dropCount, endCount })}
       </output>

@@ -963,7 +963,7 @@ describe('useDraggableCollection', () => {
       { targetId: 'a', parentMap: {} },
       { targetId: 'b', parentMap: { b: 'a' } },
     ])(
-      'accepts foreign IDs without applying local target/ancestry checks: $targetId',
+      'accepts foreign IDs without applying local self/ancestry checks: $targetId',
       async ({ targetId, parentMap }) => {
         const onDrop = vi.fn();
         const sourceCollection = setupPlugin({ kind: cardsKind }, { knownItemIds: ['a'] });

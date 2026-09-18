@@ -46,9 +46,9 @@ const untrackedTargetStateStore = new Store(0);
  * re-registers and the freshest callbacks always apply.
  * @internal
  */
-export function useDropTargetElement(
-  parameters: UseDropTargetElementParameters,
-): UseDropTargetElementReturnValue {
+export function useDraggableTargetElement(
+  parameters: UseDraggableTargetElementParameters,
+): UseDraggableTargetElementReturnValue {
   const { trackDragOver = true, ...registrationParameters } = parameters;
   const getParameters = useStableCallback(
     () => registrationParameters as RegisterDropTargetParameters,
@@ -113,11 +113,11 @@ export function useDropTargetElement(
   };
 }
 
-export type UseDropTargetElementParameters = RegisterDropTargetParameters & {
+export type UseDraggableTargetElementParameters = RegisterDropTargetParameters & {
   trackDragOver?: boolean | undefined;
 };
 
-export interface UseDropTargetElementReturnValue {
+export interface UseDraggableTargetElementReturnValue {
   /** Ref callback to attach to the drop target element. */
   ref: React.RefCallback<HTMLElement>;
   /**

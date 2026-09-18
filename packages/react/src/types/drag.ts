@@ -398,32 +398,36 @@ export type DraggablePayloadGetter<TData> = (context: MoveStartContext) => NoInf
  */
 export type DragHandle = Element | { current: Element | null } | (() => Element | null | undefined);
 
-/** Why a drag pickup started. */
-export type DragStartReason = 'pointer';
+/**
+ * Why a drag pickup started: a pointer press that met its activation, or a
+ * double-click (mouse) or double-tap (touch, pen) on a source with `double-click`
+ * activation.
+ */
+export type DragStartReason = 'pointer' | 'double-click';
 
 /** Why a drag movement frame ran: pointer activity or a modifier-key change. */
-export type DragMoveReason = DragStartReason | 'modifier-key';
+export type DragMoveReason = 'pointer' | 'modifier-key';
 
 type DragReasonToEvent<TReason extends string> = TReason extends 'pointer'
-  ? PointerEvent | MouseEvent
-  : TReason extends 'modifier-key' | 'escape-key' | 'tab-key'
-    ? KeyboardEvent
-    : TReason extends 'pointer-canceled' | 'capture-lost' | 'missed-release'
-      ? PointerEvent
-      : TReason extends 'window-blur'
-        ? FocusEvent
-        : TReason extends 'drop' | 'outside-release'
-          ? PointerEvent | MouseEvent
-          : Event;
+  ? PointerEvent
+  : TReason extends 'double-click'
+    ? MouseEvent | PointerEvent
+    : TReason extends 'modifier-key' | 'escape-key' | 'tab-key'
+      ? KeyboardEvent
+      : TReason extends 'pointer-canceled' | 'capture-lost' | 'missed-release'
+        ? PointerEvent
+        : TReason extends 'window-blur'
+          ? FocusEvent
+          : TReason extends 'drop' | 'outside-release'
+            ? PointerEvent | MouseEvent
+            : Event;
 
 /** The event details passed to `onBeforeMoveStart`. Call `cancel()` to prevent the drag. */
 export type BeforeMoveStartEventDetails = {
   [TReason in DragStartReason]: {
-    /** How the draggable was picked up. */
-    activation: 'pointer' | 'double-click';
-    /** Why the pickup started. */
+    /** Why the pickup started: a pointer press, or a double-click / double-tap. */
     reason: TReason;
-    /** The pointer event that attempted the pickup. */
+    /** The pointer or mouse event that attempted the pickup. */
     event: DragReasonToEvent<TReason>;
     /** Prevents the drag from starting. */
     cancel: () => void;
@@ -486,7 +490,7 @@ export type DragDropReason = Extract<DragCompletedReason, 'drop'>;
  * Why the hovered drop targets changed: pointer activity, a modifier-key change,
  * or the drag ending and releasing its targets.
  */
-export type DropTargetChangeReason = DragMoveReason | DragEndReason;
+export type DropTargetChangeReason = DragStartReason | DragMoveReason | DragEndReason;
 
 /**
  * The details of a drag event, passed as the second argument to every handler.
@@ -671,7 +675,6 @@ export interface DragPreviewSettings {
    * Pass a container to keep structural selectors such as `:nth-child` and
    * `:last-child` unchanged, or to keep the preview mounted if the source subtree
    * unmounts. CSS selectors based on the source's ancestors may no longer match.
-   * `Draggable.Provider` can set the container for a whole subtree.
    */
   container?: DragPreviewContainer | undefined;
 }

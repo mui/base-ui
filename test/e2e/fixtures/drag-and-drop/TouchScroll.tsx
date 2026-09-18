@@ -1,6 +1,5 @@
 import * as React from 'react';
 import { Draggable } from '@base-ui/react/draggable';
-import { useDragMonitor } from '@base-ui/react/use-drag-monitor';
 
 const itemKind = Draggable.createKind('e2e-touch-scroll');
 
@@ -13,7 +12,7 @@ function TouchScrollContent() {
   const [startCount, setStartCount] = React.useState(0);
   const [endCount, setEndCount] = React.useState(0);
 
-  useDragMonitor({
+  Draggable.useDragMonitor({
     accept: itemKind,
     onMoveStart: () => setStartCount((count) => count + 1),
     onMoveEnd: () => setEndCount((count) => count + 1),

@@ -1,6 +1,5 @@
 import * as React from 'react';
 import { Draggable } from '@base-ui/react/draggable';
-import { useDragMonitor } from '@base-ui/react/use-drag-monitor';
 
 const itemKind = Draggable.createKind('e2e-post-drag-click');
 
@@ -15,7 +14,7 @@ function PostDragClickContent() {
     return () => document.removeEventListener('click', handleClick, { capture: true });
   }, []);
 
-  useDragMonitor({
+  Draggable.useDragMonitor({
     accept: itemKind,
     onMoveEnd: () => setEndCount((count) => count + 1),
   });

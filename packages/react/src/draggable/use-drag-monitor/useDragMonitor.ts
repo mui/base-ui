@@ -1,16 +1,15 @@
 'use client';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import { useDraggableContext } from '../draggable/DraggableContext';
-import { registerMonitor } from '../utils/drag-and-drop/registrations';
-import type { RegisterMonitorParameters } from '../utils/drag-and-drop/monitor';
-import type { AcceptedDragPayload, AnyDragAccept, DragKind } from '../types/drag';
-import type { WithInferredAccept } from '../types/dragRegistration';
+import { registerMonitor } from '../../utils/drag-and-drop/registrations';
+import type { RegisterMonitorParameters } from '../../utils/drag-and-drop/monitor';
+import type { AcceptedDragPayload, AnyDragAccept, DragKind } from '../../types/drag';
+import type { DragParametersWithInferredAccept } from '../../types/dragRegistration';
 
 /**
  * Observes every drag operation that matches `accept`, regardless of which
  * element started it. Use it for status indicators, analytics, or committing a
- * reorder on drop.
+ * reorder on drop. A monitor has no element and needs no `Draggable.Provider`.
  *
  * Documentation: [Base UI useDragMonitor](https://base-ui.com/react/utils/draggable#usedragmonitor)
  *
@@ -19,9 +18,11 @@ import type { WithInferredAccept } from '../types/dragRegistration';
 // The type argument is the `accept` value rather than the payload it promises, so
 // `accept: [task, file]` types `source.payload` as the union of theirs. See `AnyDragAccept`.
 export function useDragMonitor<TAccept extends AnyDragAccept = DragKind<unknown>>(
-  parameters: WithInferredAccept<UseDragMonitorParameters<AcceptedDragPayload<TAccept>>, TAccept>,
+  parameters: DragParametersWithInferredAccept<
+    UseDragMonitorParameters<AcceptedDragPayload<TAccept>>,
+    TAccept
+  >,
 ): void {
-  useDraggableContext();
   const getParameters = useStableCallback(() => parameters);
   useIsoLayoutEffect(() => registerMonitor<TAccept>(getParameters), [getParameters]);
 }
@@ -40,7 +41,7 @@ export interface UseDragMonitorParameters<
   TSourceData = unknown,
 > extends RegisterMonitorParameters<TSourceData> {}
 
-export type { RegisterMonitorParameters } from '../utils/drag-and-drop/monitor';
+export type { RegisterMonitorParameters } from '../../utils/drag-and-drop/monitor';
 
 // The event types a monitor's extracted handlers are written against,
 // re-exported so this entry point is self-sufficient like the component entries
@@ -60,4 +61,4 @@ export type {
   MoveStartEventDetails,
   DropTargetChangeEvent,
   DropTargetChangeEventDetails,
-} from '../types/drag';
+} from '../../types/drag';

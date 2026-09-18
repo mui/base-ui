@@ -1,9 +1,9 @@
 import { describe, it, expect, vi } from 'vitest';
 import { fireEvent } from '@testing-library/react';
 import { createDndRenderer } from '#test-utils';
-import { createElement, flushRaf, setupDragEngineTests } from '../../test/dnd';
-import { dragSessionStore } from '../utils/drag-and-drop/dragSessionStore';
-import type { MoveStartContext, BeforeMoveStartEventDetails } from '../types/drag';
+import { createElement, flushRaf, setupDragEngineTests } from '../../../test/dnd';
+import { dragSessionStore } from '../../utils/drag-and-drop/dragSessionStore';
+import type { MoveStartContext, BeforeMoveStartEventDetails } from '../../types/drag';
 
 setupDragEngineTests();
 

@@ -8,14 +8,14 @@ import {
   lift,
   registerCleanup,
   setupDragEngineTests,
-} from '../../test/dnd';
-import { resetForTests as resetSyntheticDrag } from '../utils/drag-and-drop/synthetic/syntheticSensor';
-import { reset } from '../utils/drag-and-drop/core/lifecycleManager';
-import { restrictToHorizontalAxis } from '../utils/drag-and-drop/dragModifiers';
-import { createKind } from '../utils/drag-and-drop/dragKind';
-import { dragSessionStore } from '../utils/drag-and-drop/dragSessionStore';
-import type { DragDropManager, RegisterAutoScrollerParameters } from '../types/dragRegistration';
-import type { DragAutoScrollFrameContext } from '../utils/drag-and-drop/autoScroller';
+} from '../../../test/dnd';
+import { resetForTests as resetSyntheticDrag } from '../../utils/drag-and-drop/synthetic/syntheticSensor';
+import { reset } from '../../utils/drag-and-drop/core/lifecycleManager';
+import { restrictToHorizontalAxis } from '../../utils/drag-and-drop/dragModifiers';
+import { createKind } from '../../utils/drag-and-drop/dragKind';
+import { dragSessionStore } from '../../utils/drag-and-drop/dragSessionStore';
+import type { DragDropManager, RegisterAutoScrollerParameters } from '../../types/dragRegistration';
+import type { DragAutoScrollFrameContext } from '../../utils/drag-and-drop/autoScroller';
 
 // The synthetic-drag test below leaves an active session; clear its rAF tick
 // in the extra teardown so it doesn't fire after `document` is torn down.
@@ -36,12 +36,45 @@ describe('engine.registerAutoScroller', () => {
     await driveIntoEdgeZone(source, scroller);
     expect(onDragScroll).toHaveBeenCalled();
     expect(scroller.scrollBy).toHaveBeenCalled();
-    const [event, details] = onDragScroll.mock.calls[0];
-    expect(event).toBeInstanceOf(CustomEvent);
-    expect(event.cancelable).toBe(true);
-    expect(event.detail).toMatchObject({ direction: 'vertical', x: 0, element: scroller });
-    expect(details.event).toBe(event);
-    expect(details.reason).toBe('pointer');
+    const [event, eventDetails] = onDragScroll.mock.calls[0];
+    expect(event).toMatchObject({ direction: 'vertical', x: 0, element: scroller });
+    expect(eventDetails.reason).toBe('pointer');
+    expect(eventDetails.event).toBeInstanceOf(Event);
+    expect(eventDetails.isCanceled).toBe(false);
+    expect(eventDetails.isConsumed).toBe(false);
+  });
+
+  it('keeps a custom surface engaged when its handler only prevents the default', async () => {
+    const { engine } = await renderDnd();
+    const source = createElement();
+    // No native overflow at all: a canvas that pans itself.
+    const surface = createElement({ top: 0, height: 200, left: 0, width: 200 });
+    const scrollBy = vi.fn();
+    surface.scrollBy = scrollBy;
+    const deltas: number[] = [];
+    engine.registerDraggable(source, {});
+    engine.registerAutoScroller(surface, {
+      onDragScroll({ y }, eventDetails) {
+        eventDetails.cancel();
+        deltas.push(y);
+        // The documented "canvas with bounds" pattern: propagation stops only
+        // once the surface actually moved, which needs a non-zero delta first.
+        if (y !== 0) {
+          eventDetails.consume();
+        }
+      },
+    });
+    await lift(source, { clientX: 100, clientY: 10 });
+    fireEvent.dragOver(surface, { clientX: 100, clientY: 190 });
+    for (let frame = 0; frame < 6; frame += 1) {
+      // eslint-disable-next-line no-await-in-loop
+      await flushRaf();
+    }
+    // The first engaged frame is always 0 (ramp start); the surface must stay
+    // engaged past it rather than being reset to 0 every frame.
+    expect(deltas.length).toBeGreaterThan(2);
+    expect(deltas.some((y) => y > 0)).toBe(true);
+    expect(scrollBy).not.toHaveBeenCalled();
   });
 
   it('allows custom movement even when native scrolling has reached its limit', async () => {
@@ -52,14 +85,34 @@ describe('engine.registerAutoScroller', () => {
     const pan = vi.fn();
     engine.registerDraggable(source, {});
     engine.registerAutoScroller(scroller, {
-      onDragScroll(event, details) {
-        event.preventDefault();
+      onDragScroll(details, eventDetails) {
+        eventDetails.cancel();
         pan(details);
-        event.stopPropagation();
+        eventDetails.consume();
       },
     });
     await driveIntoEdgeZone(source, scroller);
     expect(pan).toHaveBeenCalled();
+    expect(pan.mock.calls.some(([details]) => details.direction === 'vertical')).toBe(true);
+    expect(scroller.scrollBy).not.toHaveBeenCalled();
+    expect(scroller.scrollTop).toBe(800);
+  });
+
+  it('stops an engaged loop when its last registration is cleaned up', async () => {
+    const { engine } = await renderDnd();
+    const source = createElement();
+    const scroller = makeEngageableScroller();
+    engine.registerDraggable(source, {});
+    const cleanup = engine.registerAutoScroller(scroller, {});
+    await driveIntoEdgeZone(source, scroller);
+    expect(scroller.scrollBy).toHaveBeenCalled();
+
+    cleanup();
+    // The scroll monitor releases on a microtask after the last registration goes.
+    await Promise.resolve();
+    vi.mocked(scroller.scrollBy).mockClear();
+    await flushRaf();
+    await flushRaf();
     expect(scroller.scrollBy).not.toHaveBeenCalled();
   });
 
@@ -78,9 +131,7 @@ describe('engine.registerAutoScroller', () => {
     fireEvent.dragOver(scroller, { clientX: 190, clientY: 190 });
     await flushRaf();
     await flushRaf();
-    expect(onDragScroll.mock.calls.some(([, details]) => details.direction === 'horizontal')).toBe(
-      true,
-    );
+    expect(onDragScroll.mock.calls.some(([event]) => event.direction === 'horizontal')).toBe(true);
     expect(scroller.scrollBy).toHaveBeenCalledWith(expect.objectContaining({ left: 0 }));
     expect(
       scrollBy.mock.calls.every(([options]) => typeof options === 'object' && options.left === 0),
@@ -251,8 +302,8 @@ describe('engine.registerAutoScroller', () => {
 
     engine.registerDraggable(source, {});
     engine.registerAutoScroller(buggy, {
-      onDragScroll(event) {
-        event.stopPropagation();
+      onDragScroll(_event, eventDetails) {
+        eventDetails.consume();
         throw new Error('onDragScroll boom');
       },
     });
@@ -336,8 +387,8 @@ describe('engine.registerAutoScroller', () => {
 
     engine.registerDraggable(source, {});
     engine.registerAutoScroller(scroller, {
-      onDragScroll: (event) => {
-        event.preventDefault();
+      onDragScroll: (_event, eventDetails) => {
+        eventDetails.cancel();
       },
     });
 
@@ -352,6 +403,7 @@ describe('engine.registerAutoScroller', () => {
   it('never scrolls an element without a scrollable overflow style', async () => {
     // A registration belongs on the element with scrollable overflow.
     const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    registerCleanup(() => warnSpy.mockRestore());
     const { engine } = await renderDnd();
     const source = createElement();
     // Identical metrics to `makeEngageableScroller`, minus the `overflow: auto`
@@ -383,7 +435,6 @@ describe('engine.registerAutoScroller', () => {
     await flushRaf();
     expect(control.scrollBy).toHaveBeenCalled();
     expect(plain.scrollBy).not.toHaveBeenCalled();
-    warnSpy.mockRestore();
   });
 
   it('the last parameters getter registered on an element wins, and releasing it restores the first', async () => {
@@ -398,17 +449,17 @@ describe('engine.registerAutoScroller', () => {
 
     engine.registerDraggable(source, {});
     engine.registerAutoScroller(scroller, {
-      onDragScroll: (event, details) => {
+      onDragScroll: (details, eventDetails) => {
         if (!first(details)) {
-          event.preventDefault();
+          eventDetails.cancel();
           return;
         }
       },
     });
     const releaseSecond = engine.registerAutoScroller(scroller, {
-      onDragScroll: (event, details) => {
+      onDragScroll: (details, eventDetails) => {
         if (!second(details)) {
-          event.preventDefault();
+          eventDetails.cancel();
           return;
         }
       },
@@ -447,10 +498,10 @@ describe('engine.registerAutoScroller', () => {
 
     engine.registerDraggable(source, {});
     const cleanupScroll = engine.registerAutoScroller(surface, {
-      onDragScroll: (event, details) => {
-        event.preventDefault();
+      onDragScroll: (details, eventDetails) => {
+        eventDetails.cancel();
         pan(details);
-        event.stopPropagation();
+        eventDetails.consume();
       },
     });
 
@@ -516,7 +567,7 @@ describe('engine.registerAutoScroller', () => {
     // is outside the scroller entirely.
     engine.registerDraggable(source, { modifiers: restrictToHorizontalAxis });
     engine.registerAutoScroller(scroller, {
-      onDragScroll: (_event, { input }) => {
+      onDragScroll: ({ input }) => {
         seenY.push(input.clientY);
       },
     });
@@ -626,10 +677,10 @@ describe('engine.registerAutoScroller', () => {
     // already stopped moving, so no input will arrive to wake the parked loop.
     // The registration itself has to buy the frame.
     engine.registerAutoScroller(surface, {
-      onDragScroll: (event, details) => {
-        event.preventDefault();
+      onDragScroll: (details, eventDetails) => {
+        eventDetails.cancel();
         pan(details);
-        event.stopPropagation();
+        eventDetails.consume();
       },
     });
     await flushRaf();
@@ -680,9 +731,9 @@ describe('engine.registerAutoScroller', () => {
       engine.registerDraggable(source, {});
       engine.registerAutoScroller(picky, {
         accept: otherKind,
-        onDragScroll: (event, details) => {
+        onDragScroll: (details, eventDetails) => {
           if (!pickyShouldScroll(details)) {
-            event.preventDefault();
+            eventDetails.cancel();
             return;
           }
         },
@@ -916,10 +967,10 @@ describe('engine.registerAutoScroller', () => {
       engine.registerDraggable(source, {});
       engine.registerAutoScroller(outer.element, {});
       engine.registerAutoScroller(inner.element, {
-        onDragScroll: (event, details) => {
+        onDragScroll: (details, eventDetails) => {
           const allowedDirection = 'vertical';
           if (allowedDirection !== details.direction) {
-            event.preventDefault();
+            eventDetails.cancel();
             return;
           }
         },
@@ -973,6 +1024,39 @@ describe('engine.registerAutoScroller', () => {
       expect(outer.scrollBy).toHaveBeenCalled();
     });
 
+    it('hands the axis to the outer scroller when an observing inner viewport sits at its limit', async () => {
+      const { engine } = await renderDnd();
+      const source = createElement();
+      const outer = makeScroller({ top: 0, height: 200, left: 0, width: 200 });
+      const inner = document.createElement('div');
+      inner.getBoundingClientRect = () => new DOMRect(0, 0, 200, 200);
+      inner.style.overflow = 'auto';
+      const innerScrollBy = vi.fn();
+      inner.scrollBy = innerScrollBy;
+      Object.defineProperty(inner, 'scrollTop', { value: 800, writable: true });
+      Object.defineProperty(inner, 'scrollHeight', { value: 1000 });
+      Object.defineProperty(inner, 'clientHeight', { value: 200 });
+      outer.element.appendChild(inner);
+      registerCleanupElement(inner);
+      // Neither prevents the default nor stops propagation: the analytics-style
+      // handler from the docs. It must not withhold the axis from the outer.
+      const observe = vi.fn();
+
+      engine.registerDraggable(source, {});
+      engine.registerAutoScroller(outer.element, {});
+      engine.registerAutoScroller(inner, { onDragScroll: observe });
+
+      await lift(source, { clientX: 100, clientY: 100 });
+      fireEvent.dragOver(inner, { clientX: 100, clientY: 190 });
+      await flushRaf();
+      await flushRaf();
+      await flushRaf();
+
+      expect(observe.mock.calls.some(([event]) => event.direction === 'vertical')).toBe(true);
+      expect(innerScrollBy).not.toHaveBeenCalled();
+      expect(outer.scrollBy).toHaveBeenCalled();
+    });
+
     it('invalidates the depth-order cache across register/unregister', async () => {
       const { engine } = await renderDnd();
       const source = createElement();
@@ -988,10 +1072,10 @@ describe('engine.registerAutoScroller', () => {
       engine.registerDraggable(source, {});
       engine.registerAutoScroller(outer.element, {});
       const cleanupInner = engine.registerAutoScroller(inner, {
-        onDragScroll: (event, details) => {
-          event.preventDefault();
+        onDragScroll: (details, eventDetails) => {
+          eventDetails.cancel();
           innerPan(details);
-          event.stopPropagation();
+          eventDetails.consume();
         },
       });
 
@@ -1333,9 +1417,9 @@ describe('engine.registerAutoScroller', () => {
 
       engine.registerDraggable(source, {});
       engine.registerAutoScroller(container.element, {
-        onDragScroll: (event, details) => {
+        onDragScroll: (details, eventDetails) => {
           if (!shouldScroll(details)) {
-            event.preventDefault();
+            eventDetails.cancel();
             return;
           }
         },
@@ -1369,6 +1453,9 @@ describe('engine.registerAutoScroller', () => {
       const source = makeNestedSource(viewport.element);
 
       engine.registerDraggable(source, {});
+      // Another viewport keeps the scroll loop alive, so the non-call below is
+      // the ancestor's, not a parked loop's.
+      enableUnrelatedViewport(engine);
 
       await driveTo(source, viewport.element, 100, 190);
 
@@ -1383,10 +1470,10 @@ describe('engine.registerAutoScroller', () => {
 
       engine.registerDraggable(source, {});
       engine.registerAutoScroller(viewport.element, {
-        onDragScroll: (event, details) => {
-          event.preventDefault();
+        onDragScroll: (details, eventDetails) => {
+          eventDetails.cancel();
           pan(details);
-          event.stopPropagation();
+          eventDetails.consume();
         },
       });
 
@@ -1475,13 +1562,13 @@ describe('engine.registerAutoScroller', () => {
       const page = mockPageScroller();
 
       engine.registerDraggable(source, {});
-      // The page can't be opted out with a component — `DragAutoScroll.Root`
+      // The page can't be opted out with a component — `Draggable.Viewport`
       // renders a `<div>`, and there is nowhere to put one on `<html>` — so the
       // imperative registration is the escape hatch for it.
       registerCleanup(
         engine.registerAutoScroller(document.documentElement, () => ({
-          onDragScroll: (event) => {
-            event.preventDefault();
+          onDragScroll: (_event, eventDetails) => {
+            eventDetails.cancel();
           },
         })),
       );
@@ -1688,10 +1775,10 @@ describe('engine.registerAutoScroller', () => {
       engine.registerDraggable(source, {});
       registerCleanup(
         engine.registerAutoScroller(page.element, {
-          onDragScroll: (event, details) => {
+          onDragScroll: (details, eventDetails) => {
             const allowedDirection = 'vertical';
             if (allowedDirection !== details.direction) {
-              event.preventDefault();
+              eventDetails.cancel();
               return;
             }
           },
@@ -1713,8 +1800,8 @@ describe('engine.registerAutoScroller', () => {
       engine.registerDraggable(source, {});
       registerCleanup(
         engine.registerAutoScroller(page.element, {
-          onDragScroll: (event) => {
-            event.preventDefault();
+          onDragScroll: (_event, eventDetails) => {
+            eventDetails.cancel();
           },
         }),
       );
@@ -1937,7 +2024,7 @@ describe('engine.registerAutoScroller', () => {
     });
     expect(dragSessionStore.getSnapshot()).toBeNull();
 
-    // The loop must target-terminate now that no drag session is live.
+    // The loop must self-terminate now that no drag session is live.
     scrollByMock.mockClear();
     await flushRaf();
     await flushRaf();
@@ -2051,10 +2138,10 @@ describe('engine.registerAutoScroller', () => {
         activation: { touch: { type: 'immediate' } },
       });
       engine.registerAutoScroller(scroller, {
-        onDragScroll: (event, details) => {
+        onDragScroll: (details, eventDetails) => {
           const allowedDirection = 'vertical';
           if (allowedDirection !== details.direction) {
-            event.preventDefault();
+            eventDetails.cancel();
             return;
           }
         },
@@ -2244,6 +2331,49 @@ describe('engine.registerAutoScroller', () => {
       await drive(source, scroller, 190, 100);
 
       expect(scroller.scrollBy).not.toHaveBeenCalled();
+    });
+
+    it('allows custom horizontal movement past the native right limit', async () => {
+      const { engine } = await renderDnd();
+      const source = createElement();
+      const scroller = makeScrollerAt({ scrollLeft: 800 });
+      const pan = vi.fn();
+
+      engine.registerDraggable(source, {});
+      engine.registerAutoScroller(scroller, {
+        onDragScroll(details, eventDetails) {
+          eventDetails.cancel();
+          pan(details);
+          eventDetails.consume();
+        },
+      });
+
+      await drive(source, scroller, 190, 100);
+
+      expect(pan.mock.calls.some(([details]) => details.direction === 'horizontal')).toBe(true);
+      expect(scroller.scrollBy).not.toHaveBeenCalled();
+      expect(scroller.scrollLeft).toBe(800);
+    });
+
+    it('proposes each axis separately at a corner, with the other delta at zero', async () => {
+      const { engine } = await renderDnd();
+      const source = createElement();
+      const scroller = makeScrollerAt({});
+      const onDragScroll = vi.fn();
+
+      engine.registerDraggable(source, {});
+      engine.registerAutoScroller(scroller, { onDragScroll });
+
+      await drive(source, scroller, 190, 190);
+
+      const horizontal = onDragScroll.mock.calls.filter(
+        ([event]) => event.direction === 'horizontal',
+      );
+      const vertical = onDragScroll.mock.calls.filter(([event]) => event.direction === 'vertical');
+      expect(horizontal.length).toBeGreaterThan(0);
+      expect(vertical.length).toBeGreaterThan(0);
+      expect(horizontal.every(([event]) => event.y === 0)).toBe(true);
+      expect(vertical.every(([event]) => event.x === 0)).toBe(true);
     });
 
     it('does not scroll left when the container is at the left limit', async () => {
@@ -2583,10 +2713,10 @@ describe('engine.registerAutoScroller', () => {
       engine.registerDraggable(source, {});
       engine.registerAutoScroller(viewport, {
         maxSpeed: 300,
-        onDragScroll: (event, details) => {
-          event.preventDefault();
+        onDragScroll: (details, eventDetails) => {
+          eventDetails.cancel();
           pan(details);
-          event.stopPropagation();
+          eventDetails.consume();
         },
       });
 
@@ -2652,10 +2782,10 @@ describe('engine.registerAutoScroller', () => {
 
       engine.registerDraggable(source, {});
       engine.registerAutoScroller(viewport, {
-        onDragScroll: (event, details) => {
-          event.preventDefault();
+        onDragScroll: (details, eventDetails) => {
+          eventDetails.cancel();
           pan(details);
-          event.stopPropagation();
+          eventDetails.consume();
         },
       });
 
@@ -2710,10 +2840,10 @@ describe('engine.registerAutoScroller', () => {
 
         engine.registerDraggable(source, {});
         engine.registerAutoScroller(viewport, {
-          onDragScroll: (event, details) => {
-            event.preventDefault();
+          onDragScroll: (details, eventDetails) => {
+            eventDetails.cancel();
             pan(details);
-            event.stopPropagation();
+            eventDetails.consume();
           },
         });
 
@@ -2731,10 +2861,10 @@ describe('engine.registerAutoScroller', () => {
 
       engine.registerDraggable(source, {});
       engine.registerAutoScroller(viewport, {
-        onDragScroll: (event, details) => {
-          event.preventDefault();
+        onDragScroll: (details, eventDetails) => {
+          eventDetails.cancel();
           pan(details);
-          event.stopPropagation();
+          eventDetails.consume();
         },
       });
 
@@ -2760,10 +2890,10 @@ describe('engine.registerAutoScroller', () => {
       engine.registerDraggable(source, { kind: rejected, payload: undefined });
       engine.registerAutoScroller(viewport, {
         accept: accepted,
-        onDragScroll: (event, details) => {
-          event.preventDefault();
+        onDragScroll: (details, eventDetails) => {
+          eventDetails.cancel();
           pan(details);
-          event.stopPropagation();
+          eventDetails.consume();
         },
       });
 
@@ -2782,10 +2912,10 @@ describe('engine.registerAutoScroller', () => {
       engine.registerDraggable(source, { kind: accepted, payload: undefined });
       engine.registerAutoScroller(viewport, {
         accept: accepted,
-        onDragScroll: (event, details) => {
-          event.preventDefault();
+        onDragScroll: (details, eventDetails) => {
+          eventDetails.cancel();
           pan(details);
-          event.stopPropagation();
+          eventDetails.consume();
         },
       });
 
@@ -2803,15 +2933,15 @@ describe('engine.registerAutoScroller', () => {
 
       engine.registerDraggable(source, {});
       engine.registerAutoScroller(viewport, {
-        onDragScroll: (event, details) => {
+        onDragScroll: (details, eventDetails) => {
           const allowedDirection = 'vertical';
           if (allowedDirection !== details.direction) {
-            event.preventDefault();
+            eventDetails.cancel();
             return;
           }
-          event.preventDefault();
+          eventDetails.cancel();
           pan(details);
-          event.stopPropagation();
+          eventDetails.consume();
         },
       });
 
@@ -2835,7 +2965,7 @@ describe('engine.registerAutoScroller', () => {
       // its `scrollBy` arguments instead would be vacuous: JSDOM pins every rAF
       // timestamp to 0, so both deltas are 0 whichever axis engaged.
       async function renderNested(
-        onDragScroll: import('../utils/drag-and-drop/autoScroller').DragAutoScrollHandler,
+        onDragScroll: import('../../utils/drag-and-drop/autoScroller').DragAutoScrollHandler,
         outerAllowedAxis?: 'vertical' | 'horizontal',
       ) {
         const { engine } = await renderDnd();
@@ -2866,10 +2996,10 @@ describe('engine.registerAutoScroller', () => {
 
         engine.registerDraggable(source, {});
         engine.registerAutoScroller(outer, {
-          onDragScroll: (event, details) => {
+          onDragScroll: (details, eventDetails) => {
             const allowedDirection = outerAllowedAxis ?? 'all';
             if (allowedDirection !== 'all' && allowedDirection !== details.direction) {
-              event.preventDefault();
+              eventDetails.cancel();
               return;
             }
           },
@@ -2886,28 +3016,28 @@ describe('engine.registerAutoScroller', () => {
       }
 
       it('stopping propagation claims both proposed axes', async () => {
-        const { outerScrollBy } = await renderNested((event) => {
-          event.preventDefault();
-          event.stopPropagation();
+        const { outerScrollBy } = await renderNested((_event, eventDetails) => {
+          eventDetails.cancel();
+          eventDetails.consume();
         });
         expect(outerScrollBy).not.toHaveBeenCalled();
       });
 
       it('stopping vertical propagation releases horizontal movement to the outer container', async () => {
-        const { outerScrollBy } = await renderNested((event, { direction }) => {
-          event.preventDefault();
+        const { outerScrollBy } = await renderNested(({ direction }, eventDetails) => {
+          eventDetails.cancel();
           if (direction === 'vertical') {
-            event.stopPropagation();
+            eventDetails.consume();
           }
         }, 'horizontal');
         expect(outerScrollBy).toHaveBeenCalled();
       });
 
       it('stopping vertical propagation keeps the claimed direction', async () => {
-        const { outerScrollBy } = await renderNested((event, { direction }) => {
-          event.preventDefault();
+        const { outerScrollBy } = await renderNested(({ direction }, eventDetails) => {
+          eventDetails.cancel();
           if (direction === 'vertical') {
-            event.stopPropagation();
+            eventDetails.consume();
           }
         }, 'vertical');
         // The counterpart to the test above, so "released the other axis" can't
@@ -2916,8 +3046,8 @@ describe('engine.registerAutoScroller', () => {
       });
 
       it('preventing the default without stopping propagation releases both axes', async () => {
-        const { outerScrollBy } = await renderNested((event) => {
-          event.preventDefault();
+        const { outerScrollBy } = await renderNested((_event, eventDetails) => {
+          eventDetails.cancel();
         }, 'vertical');
         // A surface parked at its own bounds must not swallow the axis it didn't
         // move — including the vertical one every other return value holds on to.
@@ -2956,9 +3086,9 @@ describe('engine.registerAutoScroller', () => {
         // Held frame clock: identical rAF timestamps keep every delta at 0.
         installFrameClock();
         const seen: number[] = [];
-        const { outerScrollBy } = await renderNested((event, { y }) => {
-          event.preventDefault();
-          event.stopPropagation();
+        const { outerScrollBy } = await renderNested(({ y }, eventDetails) => {
+          eventDetails.cancel();
+          eventDetails.consume();
           seen.push(y);
         });
 
@@ -2968,7 +3098,7 @@ describe('engine.registerAutoScroller', () => {
       });
     });
 
-    it('parks the loop when the surface reports it moved nothing', async () => {
+    it('parks the loop when the surface leaves the proposal alone', async () => {
       const { engine } = await renderDnd();
       const source = createElement();
       const viewport = makeViewport();
@@ -2976,8 +3106,9 @@ describe('engine.registerAutoScroller', () => {
 
       engine.registerDraggable(source, {});
       engine.registerAutoScroller(viewport, {
-        onDragScroll: (event, details) => {
-          event.preventDefault();
+        // Neither prevented nor stopped: the surface declines the direction. The
+        // default (a native scroll) is a no-op on an element with no overflow.
+        onDragScroll: (details) => {
           pan(details);
         },
       });
@@ -2985,9 +3116,10 @@ describe('engine.registerAutoScroller', () => {
       await driveTo(source, viewport, 100, 190);
       expect(pan).toHaveBeenCalled();
 
-      // A surface parked at its bound must not hold the loop awake, or it burns a
+      // A surface that declines must not hold the loop awake, or it burns a
       // frame — and a sensor frame, through `notifyExternalScroll` — forever under
-      // a stationary pointer.
+      // a stationary pointer. (Preventing the default is the opposite signal: it
+      // keeps the surface engaged so its speed can ramp up from zero.)
       pan.mockClear();
       await flushRaf();
       await flushRaf();
@@ -3033,15 +3165,15 @@ describe('engine.registerAutoScroller', () => {
           activation: { touch: { type: 'immediate' } },
         });
         engine.registerAutoScroller(viewport, {
-          onDragScroll: (event, details) => {
-            event.preventDefault();
+          onDragScroll: (details, eventDetails) => {
+            eventDetails.cancel();
             (({ y }) => {
               panned += y;
               // Written synchronously, which is the contract the API documents:
               // the engine hit-tests against this on the very next frame.
               content.style.transform = `translateY(${-panned}px)`;
             })(details);
-            event.stopPropagation();
+            eventDetails.consume();
           },
         });
         const onDraggableEnter = vi.fn();
@@ -3071,10 +3203,10 @@ describe('engine.registerAutoScroller', () => {
 
       engine.registerDraggable(source, {});
       engine.registerAutoScroller(viewport, {
-        onDragScroll: (event, details) => {
-          event.preventDefault();
+        onDragScroll: (details, eventDetails) => {
+          eventDetails.cancel();
           pan(details);
-          event.stopPropagation();
+          eventDetails.consume();
         },
       });
 
@@ -3145,5 +3277,64 @@ describe('engine.registerAutoScroller', () => {
     act(() => {
       window.dispatchEvent(up);
     });
+  });
+});
+
+// Real layout only: jsdom has no scrolling, so every assertion above targets the
+// `scrollBy` stub. These pin the sign and axis of what actually moves.
+describe.skipIf(isJSDOM)('engine.registerAutoScroller (real scrolling)', () => {
+  const { renderDnd } = createDndRenderer();
+
+  function makeRealScroller(): HTMLElement {
+    const scroller = document.createElement('div');
+    scroller.style.cssText = 'position:fixed;top:0;left:0;width:200px;height:200px;overflow:auto;';
+    const content = document.createElement('div');
+    content.style.cssText = 'width:1000px;height:1000px;';
+    scroller.appendChild(content);
+    document.body.appendChild(scroller);
+    registerCleanup(() => scroller.remove());
+    return scroller;
+  }
+
+  async function settle(frames: number): Promise<void> {
+    for (let index = 0; index < frames; index += 1) {
+      // eslint-disable-next-line no-await-in-loop
+      await flushRaf();
+    }
+  }
+
+  it('scrolls the container down and up through the vertical edge zones', async () => {
+    const { engine } = await renderDnd();
+    const source = createElement();
+    const scroller = makeRealScroller();
+    scroller.scrollTop = 400;
+    engine.registerDraggable(source, {});
+    engine.registerAutoScroller(scroller, {});
+
+    await lift(source, { clientX: 100, clientY: 100 });
+    fireEvent.dragOver(scroller, { clientX: 100, clientY: 195 });
+    await settle(30);
+    expect(scroller.scrollTop).toBeGreaterThan(400);
+
+    const afterDown = scroller.scrollTop;
+    fireEvent.dragOver(scroller, { clientX: 100, clientY: 5 });
+    await settle(30);
+    expect(scroller.scrollTop).toBeLessThan(afterDown);
+    fireEvent.dragEnd(source);
+  });
+
+  it('scrolls the container right through the horizontal edge zone', async () => {
+    const { engine } = await renderDnd();
+    const source = createElement();
+    const scroller = makeRealScroller();
+    scroller.scrollLeft = 400;
+    engine.registerDraggable(source, {});
+    engine.registerAutoScroller(scroller, {});
+
+    await lift(source, { clientX: 100, clientY: 100 });
+    fireEvent.dragOver(scroller, { clientX: 195, clientY: 100 });
+    await settle(30);
+    expect(scroller.scrollLeft).toBeGreaterThan(400);
+    fireEvent.dragEnd(source);
   });
 });

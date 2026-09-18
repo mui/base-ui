@@ -7,11 +7,6 @@ import { lift, dragEnter, drop, setupDragEngineTests } from '../../test/dnd';
 
 setupDragEngineTests();
 
-function Monitor() {
-  Draggable.useDragMonitor({});
-  return null;
-}
-
 function Manager() {
   Draggable.useDragDropManager();
   return null;
@@ -24,7 +19,6 @@ describe('Draggable.Provider', () => {
     ['Root', <Draggable.Root />],
     ['Target', <Draggable.Target />],
     ['Viewport', <Draggable.Viewport />],
-    ['monitor', <Monitor />],
     ['manager', <Manager />],
   ])('requires a provider for %s', (_name, element) => {
     const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
@@ -32,6 +26,27 @@ describe('Draggable.Provider', () => {
       expect(() => render(element)).toThrow(/Draggable.Provider is missing/);
     } finally {
       spy.mockRestore();
+    }
+  });
+
+  it('lets a monitor observe drags from outside any provider', async () => {
+    const onMoveStart = vi.fn();
+    const onMoveEnd = vi.fn();
+    function ShellMonitor() {
+      Draggable.useDragMonitor({ onMoveStart, onMoveEnd });
+      return null;
+    }
+    const { engine } = await renderDnd(<ShellMonitor />, { wrapper: React.Fragment });
+    const source = document.createElement('div');
+    document.body.append(source);
+    try {
+      engine.registerDraggable(source, {});
+      await lift(source);
+      expect(onMoveStart).toHaveBeenCalledTimes(1);
+      drop(source);
+      expect(onMoveEnd).toHaveBeenCalledTimes(1);
+    } finally {
+      source.remove();
     }
   });
 
@@ -50,6 +65,40 @@ describe('Draggable.Provider', () => {
     await drop(screen.getByTestId('target'));
     expect(onDrop).toHaveBeenCalledTimes(1);
     expect(onDrop.mock.calls[0][0].source.payload).toBeUndefined();
+  });
+
+  it('does not match an explicit source kind with a default-kind target in one provider', async () => {
+    const onDrop = vi.fn();
+    const card = Draggable.createKind('provider-card');
+    await renderDnd(
+      <React.Fragment>
+        <Draggable.Root kind={card} data-testid="source">
+          <Draggable.Preview disabled />
+        </Draggable.Root>
+        <Draggable.Target data-testid="target" onDraggableDrop={onDrop} />
+      </React.Fragment>,
+    );
+    await lift(screen.getByTestId('source'));
+    await dragEnter(screen.getByTestId('target'));
+    await drop(screen.getByTestId('target'));
+    expect(onDrop).not.toHaveBeenCalled();
+  });
+
+  it('does not match a default-kind source with an explicit-accept target in one provider', async () => {
+    const onDrop = vi.fn();
+    const card = Draggable.createKind('provider-card');
+    await renderDnd(
+      <React.Fragment>
+        <Draggable.Root data-testid="source">
+          <Draggable.Preview disabled />
+        </Draggable.Root>
+        <Draggable.Target data-testid="target" accept={card} onDraggableDrop={onDrop} />
+      </React.Fragment>,
+    );
+    await lift(screen.getByTestId('source'));
+    await dragEnter(screen.getByTestId('target'));
+    await drop(screen.getByTestId('target'));
+    expect(onDrop).not.toHaveBeenCalled();
   });
 
   it('does not match default kinds across provider boundaries', async () => {

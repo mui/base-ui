@@ -2,30 +2,47 @@
 import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { Draggable } from '@base-ui/react/draggable';
+import { INITIAL_TASKS, moveTask, swapTask } from '../../sortableTasks';
 
 const taskKind = Draggable.createKind<string>('sortable-drop-task');
-const initialTasks = ['Write the spec', 'Sketch the UI', 'Set up the repo', 'Wire the API'];
+
+// Memoized with stable handlers, so a reorder only moves DOM nodes instead of
+// re-rendering every item on each collision change.
+const Task = React.memo(function Task({
+  task,
+  onSwap,
+}: {
+  task: string;
+  onSwap: (task: string, direction: 'up' | 'down') => void;
+}) {
+  return (
+    <Draggable.Root
+      kind={taskKind}
+      payload={task}
+      render={<button type="button" aria-label={task} />}
+      className="relative box-border min-h-10 cursor-grab select-none border border-neutral-900 bg-white px-4 py-2 text-sm leading-5 text-neutral-900 after:pointer-events-none after:absolute after:inset-x-[-9px] after:hidden after:h-[3px] after:bg-blue-500 data-[collision-before]:after:top-[-6.5px] data-[collision-before]:after:block data-[collision-after]:after:bottom-[-6.5px] data-[collision-after]:after:block data-[dragging]:opacity-40 focus-visible:outline-2 focus-visible:outline-offset-2 dark:border-white dark:bg-neutral-900 dark:text-white"
+      modifiers={Draggable.restrictToVerticalAxis}
+      aria-keyshortcuts="Alt+ArrowUp Alt+ArrowDown"
+      onKeyDown={(event) => {
+        if (event.altKey && (event.key === 'ArrowUp' || event.key === 'ArrowDown')) {
+          event.preventDefault();
+          onSwap(task, event.key === 'ArrowUp' ? 'up' : 'down');
+        }
+      }}
+    >
+      {task}
+    </Draggable.Root>
+  );
+});
 
 export default function SortableOnDrop() {
-  const [tasks, setTasks] = React.useState(initialTasks);
-  const reorder = useStableCallback(
-    ({ source, collision }: Draggable.CollisionProvider.CollisionEvent<string>) => {
-      if (!collision) {
-        return;
-      }
-      setTasks((current) => {
-        const remaining = current.filter((task) => task !== source.payload);
-        const index = remaining.indexOf(collision.target.payload);
-        if (index === -1) {
-          return current;
-        }
-        remaining.splice(index + (collision.placement === 'after' ? 1 : 0), 0, source.payload);
-        return remaining.every((task, position) => task === current[position])
-          ? current
-          : remaining;
-      });
-    },
-  );
+  const [tasks, setTasks] = React.useState(INITIAL_TASKS);
+  const reorder = useStableCallback((event: Draggable.CollisionProvider.CollisionEvent<string>) => {
+    setTasks((current) => moveTask(current, event));
+  });
+  const swap = useStableCallback((task: string, direction: 'up' | 'down') => {
+    setTasks((current) => swapTask(current, task, direction));
+  });
   return (
     <Draggable.Provider>
       <Draggable.CollisionProvider kind={taskKind} onMoveEnd={reorder}>
@@ -35,32 +52,7 @@ export default function SortableOnDrop() {
           aria-label="Tasks reordered on drop"
         >
           {tasks.map((task) => (
-            <Draggable.Root
-              key={task}
-              kind={taskKind}
-              payload={task}
-              render={<button type="button" aria-label={task} />}
-              className="relative box-border min-h-10 cursor-grab select-none border border-neutral-900 bg-white px-4 py-2 text-sm leading-5 text-neutral-900 after:pointer-events-none after:absolute after:inset-x-[-9px] after:hidden after:h-[3px] after:bg-blue-500 data-[collision-before]:after:top-[-6.5px] data-[collision-before]:after:block data-[collision-after]:after:bottom-[-6.5px] data-[collision-after]:after:block data-[dragging]:opacity-40 focus-visible:outline-2 focus-visible:outline-offset-2 dark:border-white dark:bg-neutral-900 dark:text-white"
-              modifiers={Draggable.restrictToVerticalAxis}
-              aria-keyshortcuts="Alt+ArrowUp Alt+ArrowDown"
-              onKeyDown={(event) => {
-                if (event.altKey && (event.key === 'ArrowUp' || event.key === 'ArrowDown')) {
-                  event.preventDefault();
-                  setTasks((current) => {
-                    const index = current.indexOf(task);
-                    const nextIndex = index + (event.key === 'ArrowUp' ? -1 : 1);
-                    if (nextIndex < 0 || nextIndex >= current.length) {
-                      return current;
-                    }
-                    const next = [...current];
-                    [next[index], next[nextIndex]] = [next[nextIndex], next[index]];
-                    return next;
-                  });
-                }
-              }}
-            >
-              {task}
-            </Draggable.Root>
+            <Task key={task} task={task} onSwap={swap} />
           ))}
         </div>
       </Draggable.CollisionProvider>

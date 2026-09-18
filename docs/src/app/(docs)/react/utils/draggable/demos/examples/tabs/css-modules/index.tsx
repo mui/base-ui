@@ -272,9 +272,9 @@ function DraggableTabsContent() {
               trackDragOver={false}
               render={
                 <Draggable.Viewport
-                  onDragScroll={(event, { direction }) => {
+                  onDragScroll={({ direction }, eventDetails) => {
                     if (direction !== 'horizontal') {
-                      event.preventDefault();
+                      eventDetails.cancel();
                     }
                   }}
                 />

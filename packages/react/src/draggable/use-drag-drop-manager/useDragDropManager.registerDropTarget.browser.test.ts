@@ -2,7 +2,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { act } from '@mui/internal-test-utils';
 import { createDndRenderer, isJSDOM } from '#test-utils';
 import { Draggable } from '@base-ui/react/draggable';
-import { flushRaf, registerCleanup, setupDragEngineTests } from '../../test/dnd';
+import { flushRaf, registerCleanup, setupDragEngineTests } from '../../../test/dnd';
 
 setupDragEngineTests();
 

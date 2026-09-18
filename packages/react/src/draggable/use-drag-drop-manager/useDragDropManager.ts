@@ -1,12 +1,6 @@
 'use client';
-import { useInnerDragEngine } from '../utils/drag-and-drop/useInnerDragEngine';
-import type { DragDropManager } from '../types/dragRegistration';
-
-export {
-  createKind,
-  createGlobalKind,
-  anyDragKind as anyKind,
-} from '../utils/drag-and-drop/dragKind';
+import { useInnerDragEngine } from '../../utils/drag-and-drop/useInnerDragEngine';
+import type { DragDropManager } from '../../types/dragRegistration';
 
 /**
  * Returns the page-wide drag-and-drop manager. It includes the registration methods that
@@ -17,7 +11,8 @@ export {
  * registrations in one place.
  *
  * Every call controls the same page-wide manager. Base UI reads the nearest
- * `Draggable.Provider` at the hook's call site.
+ * `Draggable.Provider` at the hook's call site, and throws without one: custom
+ * previews render through its boundary.
  *
  * Documentation: [Base UI useDragDropManager](https://base-ui.com/react/utils/draggable#usedragdropmanager)
  *
@@ -49,12 +44,12 @@ export type {
   RegisterDropTargetParametersWithPayload,
   RegisterAutoScrollerParameters,
   RegisterMonitorParameters,
-  WithOptionalPayload,
-  WithRequiredPayload,
-  WithInferredAccept,
-  WithRequiredAccept,
-} from '../types/dragRegistration';
-export type { AcceptedDragPayload, AnyDragAccept, DragKind } from '../types/drag';
+  DragParametersWithOptionalPayload,
+  DragParametersWithRequiredPayload,
+  DragParametersWithInferredAccept,
+  DragParametersWithRequiredAccept,
+} from '../../types/dragRegistration';
+export type { AcceptedDragPayload, AnyDragAccept, DragKind } from '../../types/drag';
 // The return type of every `register*` method, re-exported so typing a held
 // cleanup doesn't need a second import from `@base-ui/react/types`.
-export type { DragCleanupFn } from '../types/drag';
+export type { DragCleanupFn } from '../../types/drag';

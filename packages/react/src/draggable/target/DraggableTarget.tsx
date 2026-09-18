@@ -1,15 +1,15 @@
 'use client';
 import * as React from 'react';
-import { useDraggableContext } from '../../draggable/DraggableContext';
+import { useDraggableContext } from '../DraggableContext';
 import { useRenderElement } from '../../internals/useRenderElement';
 import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
 import type { BaseUIComponentProps } from '../../internals/types';
 import type {
   NativeDragEventProps,
   RegisterDropTargetParameters,
-  WithOptionalPayload,
-  WithRequiredPayload,
-  WithRequiredAccept,
+  DragParametersWithOptionalPayload,
+  DragParametersWithRequiredPayload,
+  DragParametersWithRequiredAccept,
 } from '../../types/dragRegistration';
 import type {
   AcceptedDragPayload,
@@ -19,29 +19,29 @@ import type {
   DropTargetPayload,
   DropTargetPayloadGetter,
 } from '../../types/drag';
-import * as DropTargetRootDataAttributes from './DropTargetRootDataAttributes';
-import { useDropTargetElement } from './useDropTargetElement';
-import type { UseDropTargetElementParameters } from './useDropTargetElement';
+import * as DraggableTargetDataAttributes from './DraggableTargetDataAttributes';
+import { useDraggableTargetElement } from './useDraggableTargetElement';
+import type { UseDraggableTargetElementParameters } from './useDraggableTargetElement';
 
-const stateAttributesMapping: StateAttributesMapping<DropTargetRootState> = {
+const stateAttributesMapping: StateAttributesMapping<DraggableTargetState> = {
   // The default mapping only lowercases the state key, which would yield
   // `data-dragoverinnermost`.
-  dragOver: (value) => (value ? { [DropTargetRootDataAttributes.dragOver]: '' } : null),
+  dragOver: (value) => (value ? { [DraggableTargetDataAttributes.dragOver]: '' } : null),
   dragOverInnermost: (value) =>
-    value ? { [DropTargetRootDataAttributes.dragOverInnermost]: '' } : null,
+    value ? { [DraggableTargetDataAttributes.dragOverInnermost]: '' } : null,
 };
 
 /**
  * Makes its element a drop target, so matching drag sources can be released on it.
  * Renders a `<div>` element.
  *
- * Documentation: [Base UI Drop Target](https://base-ui.com/react/utils/draggable)
+ * Documentation: [Base UI Draggable](https://base-ui.com/react/utils/draggable#drop-targets)
  */
-export const DropTargetRoot = React.forwardRef(function DropTargetRoot<
+export const DraggableTarget = React.forwardRef(function DraggableTarget<
   TSourceData = unknown,
   TLocalData = unknown,
 >(
-  componentProps: Omit<DropTargetRootPropsBase<TSourceData, TLocalData>, 'accept'> & {
+  componentProps: Omit<DraggableTargetPropsBase<TSourceData, TLocalData>, 'accept'> & {
     accept?: DragAccept<TSourceData> | undefined;
     payload?: DropTargetPayload<TLocalData> | undefined;
     getPayload?: DropTargetPayloadGetter<TSourceData, TLocalData> | undefined;
@@ -75,7 +75,7 @@ export const DropTargetRoot = React.forwardRef(function DropTargetRoot<
     ...elementProps
   } = componentProps;
 
-  // A fresh object per render is fine: `useDropTargetElement` reads it through a
+  // A fresh object per render is fine: `useDraggableTargetElement` reads it through a
   // ref and never compares it.
   const { defaultKind } = useDraggableContext();
   const params = {
@@ -92,11 +92,12 @@ export const DropTargetRoot = React.forwardRef(function DropTargetRoot<
     onDraggableEnter,
     onDraggableLeave,
     onDraggableDrop,
-  } as UseDropTargetElementParameters;
+  } as UseDraggableTargetElementParameters;
 
-  const { ref, dragOver, dragOverInnermost, rejected, accepting } = useDropTargetElement(params);
+  const { ref, dragOver, dragOverInnermost, rejected, accepting } =
+    useDraggableTargetElement(params);
 
-  const state: DropTargetRoot.State = {
+  const state: DraggableTarget.State = {
     dragOver,
     dragOverInnermost,
     rejected,
@@ -118,32 +119,34 @@ export const DropTargetRoot = React.forwardRef(function DropTargetRoot<
   // `undefined` at runtime.
 }) as {
   (
-    props: Omit<DropTargetRootPropsBase<undefined, undefined>, 'accept'> &
-      WithOptionalPayload<DropTargetPayloadParameters<undefined, undefined>> & {
+    props: Omit<DraggableTargetPropsBase<undefined, undefined>, 'accept'> &
+      DragParametersWithOptionalPayload<DropTargetPayloadParameters<undefined, undefined>> & {
         accept?: DragAccept<undefined> | undefined;
       },
   ): React.JSX.Element;
   <TSourceData = unknown, TLocalData = unknown>(
-    props: DropTargetRootPropsWithRequiredAccept<TSourceData, TLocalData> &
+    props: DraggableTargetPropsWithRequiredAccept<TSourceData, TLocalData> &
       RequiredDropTargetPayload<TSourceData, TLocalData>,
   ): React.JSX.Element;
   <TSourceData = unknown>(
-    props: DropTargetRootPropsWithRequiredAccept<TSourceData, undefined> &
-      WithOptionalPayload<DropTargetPayloadParameters<TSourceData, undefined>>,
+    props: DraggableTargetPropsWithRequiredAccept<TSourceData, undefined> &
+      DragParametersWithOptionalPayload<DropTargetPayloadParameters<TSourceData, undefined>>,
   ): React.JSX.Element;
   // Private inference overloads retain precise payload unions for heterogeneous
   // `accept` arrays. Explicit component generics use the payload-keyed overloads above.
   <TAccept extends AnyDragAccept = DragKind<unknown>, TLocalData = unknown>(
-    props: DropTargetRootPropsFromAccept<TAccept, TLocalData> &
+    props: DraggableTargetPropsFromAccept<TAccept, TLocalData> &
       RequiredDropTargetPayload<AcceptedDragPayload<TAccept>, TLocalData>,
   ): React.JSX.Element;
   <TAccept extends AnyDragAccept = DragKind<unknown>>(
-    props: DropTargetRootPropsFromAccept<TAccept, undefined> &
-      WithOptionalPayload<DropTargetPayloadParameters<AcceptedDragPayload<TAccept>, undefined>>,
+    props: DraggableTargetPropsFromAccept<TAccept, undefined> &
+      DragParametersWithOptionalPayload<
+        DropTargetPayloadParameters<AcceptedDragPayload<TAccept>, undefined>
+      >,
   ): React.JSX.Element;
 };
 
-export interface DropTargetRootState {
+export interface DraggableTargetState {
   /**
    * Whether a matching drag source is currently over this target or a nested
    * descendant. Always `false` when `trackDragOver` is `false`.
@@ -174,8 +177,8 @@ export interface DropTargetRootState {
 
 // Every `Draggable.Target` prop except its payload fields; the overloads and `Props` below
 // each add it back with their own optionality. See `DraggableConfig.payload`.
-type DropTargetRootPropsBase<TSourceData, TLocalData> = Omit<
-  BaseUIComponentProps<'div', DropTargetRootState>,
+type DraggableTargetPropsBase<TSourceData, TLocalData> = Omit<
+  BaseUIComponentProps<'div', DraggableTargetState>,
   // The whole native HTML5 drag event family is replaced by this engine.
   NativeDragEventProps
 > &
@@ -193,7 +196,7 @@ type DropTargetPayloadParameters<TSourceData, TLocalData> = Pick<
   'payload' | 'getPayload'
 >;
 
-type RequiredDropTargetPayload<TSourceData, TLocalData> = WithRequiredPayload<
+type RequiredDropTargetPayload<TSourceData, TLocalData> = DragParametersWithRequiredPayload<
   DropTargetPayloadParameters<TSourceData, TLocalData>,
   DropTargetPayload<TLocalData>,
   DropTargetPayloadGetter<TSourceData, TLocalData>
@@ -202,33 +205,36 @@ type RequiredDropTargetPayload<TSourceData, TLocalData> = WithRequiredPayload<
 /**
  * Component props with a required `accept` declaration.
  */
-type DropTargetRootPropsWithRequiredAccept<TSourceData, TLocalData> = DropTargetRootPropsBase<
+type DraggableTargetPropsWithRequiredAccept<TSourceData, TLocalData> = DraggableTargetPropsBase<
   TSourceData,
   TLocalData
 > &
   Required<Pick<RegisterDropTargetParameters<TSourceData, TLocalData>, 'accept'>>;
 
 /** Component props with source data inferred from the concrete `accept` value. */
-type DropTargetRootPropsFromAccept<TAccept extends AnyDragAccept, TLocalData> = WithRequiredAccept<
-  DropTargetRootPropsBase<AcceptedDragPayload<TAccept>, TLocalData>,
+type DraggableTargetPropsFromAccept<
+  TAccept extends AnyDragAccept,
+  TLocalData,
+> = DragParametersWithRequiredAccept<
+  DraggableTargetPropsBase<AcceptedDragPayload<TAccept>, TLocalData>,
   TAccept
 >;
 
 /**
  * Requires `payload` when the caller declares local target data. Generic wrappers
- * use {@link DropTargetRootPropsWithPayload} instead.
+ * use {@link DraggableTargetPropsWithPayload} instead.
  */
-type DropTargetRootPayloadField<TSourceData, TLocalData> = [TLocalData] extends [undefined]
-  ? WithOptionalPayload<DropTargetPayloadParameters<TSourceData, TLocalData>>
+type DraggableTargetPayloadField<TSourceData, TLocalData> = [TLocalData] extends [undefined]
+  ? DragParametersWithOptionalPayload<DropTargetPayloadParameters<TSourceData, TLocalData>>
   : RequiredDropTargetPayload<TSourceData, TLocalData>;
 
 // Keyed on the payloads rather than on an `accept` value, so a wrapper's props stay
 // readable as `Props<Card, Slot>`.
-export type DropTargetRootProps<TSourceData = undefined, TLocalData = undefined> = Omit<
-  DropTargetRootPropsBase<TSourceData, TLocalData>,
+export type DraggableTargetProps<TSourceData = undefined, TLocalData = undefined> = Omit<
+  DraggableTargetPropsBase<TSourceData, TLocalData>,
   'accept'
 > &
-  DropTargetRootPayloadField<TSourceData, TLocalData> &
+  DraggableTargetPayloadField<TSourceData, TLocalData> &
   ([TSourceData, TLocalData] extends [undefined, undefined]
     ? { accept?: DragAccept<TSourceData> | undefined }
     : Required<Pick<RegisterDropTargetParameters<TSourceData, TLocalData>, 'accept'>>);
@@ -238,17 +244,17 @@ export type DropTargetRootProps<TSourceData = undefined, TLocalData = undefined>
  * required. Use this alias when spreading props with unbound source and local
  * payload types into the root.
  */
-export type DropTargetRootPropsWithPayload<TSourceData, TLocalData> =
-  DropTargetRootPropsWithRequiredAccept<TSourceData, TLocalData> &
+export type DraggableTargetPropsWithPayload<TSourceData, TLocalData> =
+  DraggableTargetPropsWithRequiredAccept<TSourceData, TLocalData> &
     RequiredDropTargetPayload<TSourceData, TLocalData>;
 
-export namespace DropTargetRoot {
-  export type State = DropTargetRootState;
-  export type Props<TSourceData = undefined, TLocalData = undefined> = DropTargetRootProps<
+export namespace DraggableTarget {
+  export type State = DraggableTargetState;
+  export type Props<TSourceData = undefined, TLocalData = undefined> = DraggableTargetProps<
     TSourceData,
     TLocalData
   >;
-  export type PropsWithPayload<TSourceData, TLocalData> = DropTargetRootPropsWithPayload<
+  export type PropsWithPayload<TSourceData, TLocalData> = DraggableTargetPropsWithPayload<
     TSourceData,
     TLocalData
   >;

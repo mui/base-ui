@@ -342,13 +342,21 @@ function GenericCard<TData>(props: Draggable.Root.PropsWithPayload<TData>) {
 <Draggable.Root
   kind={marker}
   onBeforeMoveStart={(_, eventDetails) => {
-    expectType<PointerEvent | MouseEvent, typeof eventDetails.event>(eventDetails.event);
+    if (eventDetails.reason === 'double-click') {
+      expectType<MouseEvent | PointerEvent, typeof eventDetails.event>(eventDetails.event);
+    } else {
+      expectType<'pointer', typeof eventDetails.reason>(eventDetails.reason);
+      expectType<PointerEvent, typeof eventDetails.event>(eventDetails.event);
+    }
+  }}
+  onMoveStart={(_, eventDetails) => {
+    expectType<'pointer' | 'double-click', typeof eventDetails.reason>(eventDetails.reason);
   }}
   onMove={(_, eventDetails) => {
     if (eventDetails.reason === 'modifier-key') {
       expectType<KeyboardEvent, typeof eventDetails.event>(eventDetails.event);
     } else {
-      expectType<PointerEvent | MouseEvent, typeof eventDetails.event>(eventDetails.event);
+      expectType<PointerEvent, typeof eventDetails.event>(eventDetails.event);
     }
   }}
   onMoveEnd={(_, eventDetails) => {
@@ -362,8 +370,6 @@ function GenericCard<TData>(props: Draggable.Root.PropsWithPayload<TData>) {
 
 <Draggable.Root activation={[{ type: 'distance', distance: 8 }, { type: 'double-click' }]} />;
 <Draggable.Root activation={{ mouse: { type: 'double-click' } }} />;
-
-// @ts-expect-error double-click is a mouse activation method.
+// Double-tap pickup for touch and pen shares the `double-click` type.
 <Draggable.Root activation={{ touch: { type: 'double-click' } }} />;
-// @ts-expect-error double-click is a mouse activation method.
 <Draggable.Root activation={{ pen: { type: 'double-click' } }} />;

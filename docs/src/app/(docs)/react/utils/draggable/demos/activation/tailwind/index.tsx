@@ -19,9 +19,10 @@ const ACTIVATION_MODES: ActivationMode[] = [
   {
     id: 'double-click',
     label: 'Double-click',
-    activation: { mouse: { type: 'double-click' } },
-    readyMessage: 'Double-click to pick up, then click the target to drop. Escape cancels.',
-    waitingMessage: 'Double-click to pick up…',
+    activation: { type: 'double-click' },
+    readyMessage:
+      'Double-click to pick up, then click the target to drop. On touch, double-tap and hold, then release on the target. Escape cancels.',
+    waitingMessage: 'Double-click or double-tap to pick up…',
   },
   {
     id: 'distance-or-hold',
@@ -121,7 +122,7 @@ function ActivationLabContent() {
     waiting: mode.waitingMessage,
     dragging:
       mode.id === 'double-click'
-        ? 'Move to the target and click to drop. Escape cancels.'
+        ? 'Move to the target and click or release to drop. Escape cancels.'
         : 'Activated — drag the puck to the target.',
     dropped: 'Dropped. Reset to try again.',
   }[phase];

@@ -17,6 +17,7 @@ import type {
   DragLocation,
   DragLocationHistory,
   DragMoveReason,
+  DragStartReason,
   DropTargetRecord,
   DragSource,
   DraggableEventDetailsMap,
@@ -172,6 +173,7 @@ export function start(parameters: StartParameters): DragSessionHandle | null {
     initialInput,
     initialTarget,
     initialEvent,
+    startReason = 'pointer',
     grabOffset,
     synthetic,
     onForceCleanup,
@@ -418,7 +420,7 @@ export function start(parameters: StartParameters): DragSessionHandle | null {
       location: snapshotLocation(),
       source,
     };
-    const startDetails = createDragEventDetails('pointer', lastInputEvent);
+    const startDetails = createDragEventDetails(startReason, lastInputEvent);
     dispatching = true;
     try {
       getSourceHandlers?.()?.onMoveStart?.(dragStartPayload, startDetails);
@@ -1161,6 +1163,11 @@ export interface StartParameters {
    */
   initialEvent?: Event | undefined;
   /**
+   * Why the pickup started, reported as `eventDetails.reason` on `onMoveStart`
+   * and on the initial stack's `onDraggableEnter`. Defaults to `'pointer'`.
+   */
+  startReason?: DragStartReason | undefined;
+  /**
    * The press point minus the source's border-box origin, in client pixels,
    * measured before `[data-dragging]` styling applies. Anchors
    * `getSnappedLocalPoint({ anchor: 'source' })`; omitted (a bare lifecycle
@@ -1176,7 +1183,7 @@ export interface StartParameters {
    * sensor passes its `clearActive()` here so an abnormal end (consumer throw,
    * `reset()`) still releases its `state.active`, listeners, dragRootLock, and
    * preview node — otherwise every subsequent pointerdown would be rejected.
-   * Must be idempotent: the normal-end path also runs it after target-clearing.
+   * Must be idempotent: the normal-end path also runs it after self-clearing.
    */
   onForceCleanup?: (() => void) | undefined;
 }

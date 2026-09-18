@@ -25,7 +25,7 @@ import { dragSessionStore } from './dragSessionStore';
 import type {
   RegisterAutoScrollerParameters,
   RegisterMonitorParameters,
-  WithInferredAccept,
+  DragParametersWithInferredAccept,
 } from '../../types/dragRegistration';
 import type { RegisterDropTargetParameters } from './dropTarget';
 import type { AcceptedDragPayload, AnyDragAccept, DragCleanupFn, DragKind } from '../../types/drag';
@@ -76,14 +76,14 @@ export function registerDropTarget<TSourceData = unknown, TLocalData = unknown>(
       // plain JS (or a cast), where the silence would otherwise be total.
       if (parameters.kind) {
         warn(
-          'A DropTarget declares `kind` but no `accept`, so it takes every drag on the page. ' +
+          'A Draggable.Target declares `kind` but no `accept`, so it takes every drag on the page. ' +
             '`kind` is what this target is; `accept` is which sources it takes. ' +
             'Add `accept` with the kinds this target should receive, or drop `kind` if the target needs no identity of its own. ' +
             'See https://base-ui.com/react/utils/draggable.',
         );
       } else {
         warn(
-          'A DropTarget declares no `accept`, so it takes every drag on the page ' +
+          'A Draggable.Target declares no `accept`, so it takes every drag on the page ' +
             'and hands foreign payloads to its handlers. ' +
             'Add `accept` with the kinds this target should receive, or ' +
             '`accept={Draggable.anyKind}` to accept every drag on purpose. ' +
@@ -153,7 +153,7 @@ export function registerDropTarget<TSourceData = unknown, TLocalData = unknown>(
 // Keyed on the `accept` value it infers, like every other `accept`-taking API.
 export function registerAutoScroller<TAccept extends AnyDragAccept = DragKind<unknown>>(
   element: HTMLElement,
-  getParameters: () => WithInferredAccept<
+  getParameters: () => DragParametersWithInferredAccept<
     RegisterAutoScrollerParameters<AcceptedDragPayload<TAccept>>,
     TAccept
   >,
@@ -172,7 +172,7 @@ export function registerAutoScroller<TAccept extends AnyDragAccept = DragKind<un
 
 // Keyed on the `accept` value it infers, like every other `accept`-taking API.
 export function registerMonitor<TAccept extends AnyDragAccept = DragKind<unknown>>(
-  getMonitor: () => WithInferredAccept<
+  getMonitor: () => DragParametersWithInferredAccept<
     RegisterMonitorParameters<AcceptedDragPayload<TAccept>>,
     TAccept
   >,

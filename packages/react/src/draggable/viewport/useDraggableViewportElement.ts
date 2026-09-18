@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import { useDraggableContext } from '../../draggable/DraggableContext';
+import { useDraggableContext } from '../DraggableContext';
 import { registerAutoScroller } from '../../utils/drag-and-drop/registrations';
 import { wakeAutoScroll } from '../../utils/drag-and-drop/autoScroller';
 import { sameAccept } from '../../utils/drag-and-drop/dragKind';
@@ -17,9 +17,9 @@ import { useRegistrationRef } from '../../utils/drag-and-drop/useRegistrationRef
  * re-registers and the freshest callbacks always apply.
  * @internal
  */
-export function useDragAutoScrollElement<TSourceData = unknown>(
-  parameters: UseDragAutoScrollElementParameters<TSourceData>,
-): UseDragAutoScrollElementReturnValue {
+export function useDraggableViewportElement<TSourceData = unknown>(
+  parameters: UseDraggableViewportElementParameters<TSourceData>,
+): UseDraggableViewportElementReturnValue {
   useDraggableContext();
   const getParameters = useStableCallback(
     () => parameters as RegisterAutoScrollerParameters<unknown>,
@@ -64,10 +64,10 @@ export function useDragAutoScrollElement<TSourceData = unknown>(
   return { ref };
 }
 
-export type UseDragAutoScrollElementParameters<TSourceData = unknown> =
+export type UseDraggableViewportElementParameters<TSourceData = unknown> =
   RegisterAutoScrollerParameters<TSourceData>;
 
-export interface UseDragAutoScrollElementReturnValue {
+export interface UseDraggableViewportElementReturnValue {
   /** Ref callback to attach to the scroll container element. */
   ref: React.RefCallback<HTMLElement>;
 }

@@ -13,7 +13,7 @@ import { compileDragModifiers } from '../dragModifiers';
 import { attachDefaultDragPreview } from '../synthetic/defaultDragPreview';
 import { createSyntheticPreview, type SyntheticPreviewHandle } from '../synthetic/syntheticPreview';
 import type { DraggableConfig } from '../draggable';
-import type { DragSource, DragInput } from '../../../types/drag';
+import type { DragSource, DragInput, DragStartReason } from '../../../types/drag';
 
 export interface StartSensorSessionParameters {
   /** The draggable's latest parameters (kind/payload/event handlers). */
@@ -27,6 +27,8 @@ export interface StartSensorSessionParameters {
    * so `onMoveStart` reports a real event rather than a placeholder.
    */
   initialEvent?: Event | undefined;
+  /** Why the pickup started (see `StartParameters.startReason`). */
+  startReason?: DragStartReason | undefined;
   /** The engine-managed preview, so the lifecycle can skip it when hit-testing. */
   preview: SyntheticPreviewHandle;
   /** The pickup grab offset (see `StartParameters.grabOffset`). */
@@ -52,6 +54,7 @@ function startSensorSession(parameters: StartSensorSessionParameters): DragSessi
     initialInput,
     initialTarget,
     initialEvent,
+    startReason,
     preview,
     grabOffset,
     onForceCleanup,
@@ -88,6 +91,7 @@ function startSensorSession(parameters: StartSensorSessionParameters): DragSessi
     initialInput,
     initialTarget,
     initialEvent,
+    startReason,
     grabOffset,
     synthetic: {
       getPreviewElement: () => preview.getPreviewElement()?.element ?? null,

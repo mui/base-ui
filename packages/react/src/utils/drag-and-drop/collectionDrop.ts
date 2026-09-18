@@ -59,7 +59,8 @@ export function invalidateDirectionCache(): void {
   directionGeneration += 1;
 }
 
-function isRtl(element: HTMLElement): boolean {
+/** `isRtlElement`, cached per element for the current drag (see `invalidateDirectionCache`). */
+export function isRtlCached(element: HTMLElement): boolean {
   const cached = directionCache.get(element);
   if (cached !== undefined && cached.generation === directionGeneration) {
     return cached.rtl;
@@ -79,7 +80,7 @@ export function computeDropPosition(
   const size = orientation === 'horizontal' ? rect.width : rect.height;
   const start = orientation === 'horizontal' ? rect.left : rect.top;
   let relative = size > 0 ? (clientPosition - start) / size : 0.5;
-  if (orientation === 'horizontal' && isRtl(element)) {
+  if (orientation === 'horizontal' && isRtlCached(element)) {
     relative = 1 - relative;
   }
 

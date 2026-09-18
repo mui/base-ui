@@ -11,12 +11,12 @@ import {
   lift,
   registerCleanup,
   setupDragEngineTests,
-} from '../../test/dnd';
-import { dragSessionStore } from '../utils/drag-and-drop/dragSessionStore';
-import { registerDropTarget as registerDropTargetRaw } from '../utils/drag-and-drop/registrations';
-import { anyDragKind } from '../utils/drag-and-drop/dragKind';
-import type { MoveEvent, DropTargetRecord } from '../types/drag';
-import type { RegisterDropTargetParameters } from '../types/dragRegistration';
+} from '../../../test/dnd';
+import { dragSessionStore } from '../../utils/drag-and-drop/dragSessionStore';
+import { registerDropTarget as registerDropTargetRaw } from '../../utils/drag-and-drop/registrations';
+import { anyDragKind } from '../../utils/drag-and-drop/dragKind';
+import type { MoveEvent, DropTargetRecord } from '../../types/drag';
+import type { RegisterDropTargetParameters } from '../../types/dragRegistration';
 
 setupDragEngineTests();
 

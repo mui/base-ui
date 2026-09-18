@@ -10,6 +10,11 @@ export class WindowTimeout {
 
   currentId: TimeoutId = EMPTY;
 
+  /** Whether a timeout is armed and has not fired or been cleared. */
+  get isStarted(): boolean {
+    return this.currentId !== EMPTY;
+  }
+
   start(delay: number, fn: Function) {
     this.clear();
     this.currentId = this.ownerWindow.setTimeout(() => {

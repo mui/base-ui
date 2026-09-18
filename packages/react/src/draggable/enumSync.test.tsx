@@ -3,7 +3,7 @@ import { describe, it, expect } from 'vitest';
 import { fireEvent, screen } from '@testing-library/react';
 import { createDndRenderer, testDragKind } from '#test-utils';
 import { Draggable } from '@base-ui/react/draggable';
-import { createElement, flushRaf, lift, setupDragEngineTests } from '../../test/dnd';
+import { createElement, dragOver, flushRaf, lift, setupDragEngineTests } from '../../test/dnd';
 import * as DraggablePreviewCssVars from './preview/DraggablePreviewCssVars';
 import * as DraggablePreviewDataAttributes from './preview/DraggablePreviewDataAttributes';
 import * as DraggableRootDataAttributes from './root/DraggableRootDataAttributes';
@@ -69,6 +69,32 @@ describe('Draggable enum sync', () => {
     await lift(source);
 
     expect(source).toHaveAttribute(DraggableRootDataAttributes.dragging);
+  });
+
+  it('names the collision attributes per DraggableRootDataAttributes', async () => {
+    await renderDnd(
+      <Draggable.CollisionProvider kind={testDragKind}>
+        <Draggable.Root kind={testDragKind} data-testid="drag">
+          <Draggable.Preview disabled />
+        </Draggable.Root>
+        <Draggable.Root kind={testDragKind} data-testid="other">
+          <Draggable.Preview disabled />
+        </Draggable.Root>
+      </Draggable.CollisionProvider>,
+    );
+    const source = screen.getByTestId('drag');
+    const other = screen.getByTestId('other');
+    other.getBoundingClientRect = () => new DOMRect(0, 100, 100, 100);
+
+    await lift(source);
+    await dragOver(other, { clientY: 120 });
+    expect(other).toHaveAttribute(DraggableRootDataAttributes.collisionBefore);
+    expect(other).not.toHaveAttribute(DraggableRootDataAttributes.collisionAfter);
+    await dragOver(other, { clientY: 180 });
+    expect(other).toHaveAttribute(DraggableRootDataAttributes.collisionAfter);
+    expect(other).not.toHaveAttribute(DraggableRootDataAttributes.collisionBefore);
+    fireEvent.drop(other, { clientY: 180 });
+    expect(other).not.toHaveAttribute(DraggableRootDataAttributes.collisionAfter);
   });
 
   it('names the source ending attribute per DraggableRootDataAttributes', async () => {

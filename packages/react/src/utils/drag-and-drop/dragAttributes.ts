@@ -1,7 +1,7 @@
 /**
  * The data attributes the engine writes on consumer elements, in one place so a
  * rename or an addition is a single edit. The public `*DataAttributes` enums of
- * `Draggable`, `Draggable.Preview`, and `DropTarget` restate these for the docs;
+ * `Draggable.Root`, `Draggable.Preview`, and `Draggable.Target` restate these for the docs;
  * their `enumSync` tests keep the two in step.
  */
 

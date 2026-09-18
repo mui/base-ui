@@ -2,7 +2,13 @@ import { describe, it, expect, vi } from 'vitest';
 import { fireEvent } from '@testing-library/react';
 import { act } from '@mui/internal-test-utils';
 import { createDndRenderer } from '#test-utils';
-import { cancel, createElement, flushRaf, setupDragEngineTests } from '../../../../test/dnd';
+import {
+  cancel,
+  createElement,
+  flushRaf,
+  setupDragEngineTests,
+  splitEnd,
+} from '../../../../test/dnd';
 import type {
   DropTargetChangeEvent,
   DragDropEvent,
@@ -520,20 +526,7 @@ describe('lifecycle manager', () => {
 
       engine.registerDraggable(el, {});
       engine.registerMonitor({
-        onMoveEnd: (moveEvent, moveDetails) => {
-          try {
-            if (moveDetails.reason === 'drop' && moveEvent.dropTarget !== null) {
-              const dropEvent = {
-                source: moveEvent.source,
-                location: moveEvent.location,
-                dropTarget: moveEvent.dropTarget,
-              };
-              onDrop(dropEvent, { ...moveDetails, reason: 'drop' });
-            }
-          } finally {
-            onMoveEnd(moveEvent, moveDetails);
-          }
-        },
+        onMoveEnd: splitEnd(onDrop, onMoveEnd),
       });
 
       fireEvent.dragStart(el);
@@ -566,20 +559,7 @@ describe('lifecycle manager', () => {
 
       engine.registerDraggable(el, {});
       engine.registerMonitor({
-        onMoveEnd: (moveEvent, moveDetails) => {
-          try {
-            if (moveDetails.reason === 'drop' && moveEvent.dropTarget !== null) {
-              const dropEvent = {
-                source: moveEvent.source,
-                location: moveEvent.location,
-                dropTarget: moveEvent.dropTarget,
-              };
-              onDrop(dropEvent, { ...moveDetails, reason: 'drop' });
-            }
-          } finally {
-            onMoveEnd(moveEvent, moveDetails);
-          }
-        },
+        onMoveEnd: splitEnd(onDrop, onMoveEnd),
       });
 
       fireEvent.dragStart(el);
@@ -647,16 +627,7 @@ describe('lifecycle manager', () => {
       engine.registerDraggable(el, {});
       engine.registerDropTarget(target, {});
       engine.registerMonitor({
-        onMoveEnd: (moveEvent, moveDetails) => {
-          if (moveDetails.reason === 'drop' && moveEvent.dropTarget !== null) {
-            const dropEvent = {
-              source: moveEvent.source,
-              location: moveEvent.location,
-              dropTarget: moveEvent.dropTarget,
-            };
-            onDrop(dropEvent, { ...moveDetails, reason: 'drop' });
-          }
-        },
+        onMoveEnd: splitEnd(onDrop),
       });
 
       fireEvent.dragStart(el);
@@ -701,7 +672,7 @@ describe('lifecycle manager', () => {
       expect(events).toContain('end');
     });
 
-    it("fires the source's own onDrop before onMoveEnd, with a non-null dropTarget", async () => {
+    it("delivers the source's end before the target's drop, with a committed drop only, with a non-null dropTarget", async () => {
       const { engine } = await renderDnd();
       const el = createElement();
       const target = createElement();
@@ -715,20 +686,7 @@ describe('lifecycle manager', () => {
       });
 
       engine.registerDraggable(el, {
-        onMoveEnd: (moveEvent, moveDetails) => {
-          try {
-            if (moveDetails.reason === 'drop' && moveEvent.dropTarget !== null) {
-              const dropEvent = {
-                source: moveEvent.source,
-                location: moveEvent.location,
-                dropTarget: moveEvent.dropTarget,
-              };
-              onDrop(dropEvent, { ...moveDetails, reason: 'drop' });
-            }
-          } finally {
-            onMoveEnd(moveEvent, moveDetails);
-          }
-        },
+        onMoveEnd: splitEnd(onDrop, onMoveEnd),
       });
       engine.registerDropTarget(target, { onDraggableDrop: () => events.push('target-drop') });
 
@@ -1032,15 +990,7 @@ describe('lifecycle manager', () => {
       });
       addDropTargetRegistration(target, getTargetParams);
       const getMonitor = () => ({
-        onMoveEnd: (event: MoveEndEvent, details: MoveEndEventDetails) => {
-          try {
-            if (details.reason === 'drop' && event.dropTarget) {
-              monitorDrop(event, details);
-            }
-          } finally {
-            monitorEnd(event, details);
-          }
-        },
+        onMoveEnd: splitEnd(monitorDrop, monitorEnd),
       });
       monitorRegistry.add(getMonitor);
       engageMonitorIfDragging(getMonitor);
@@ -1096,15 +1046,7 @@ describe('lifecycle manager', () => {
       });
       addDropTargetRegistration(target, getTargetParams);
       const getMonitor = () => ({
-        onMoveEnd: (event: MoveEndEvent, details: MoveEndEventDetails) => {
-          try {
-            if (details.reason === 'drop' && event.dropTarget) {
-              monitorDrop(event, details);
-            }
-          } finally {
-            monitorEnd(event, details);
-          }
-        },
+        onMoveEnd: splitEnd(monitorDrop, monitorEnd),
       });
       monitorRegistry.add(getMonitor);
       engageMonitorIfDragging(getMonitor);

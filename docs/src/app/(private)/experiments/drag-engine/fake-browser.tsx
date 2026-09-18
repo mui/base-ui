@@ -565,9 +565,9 @@ function MenuPopup({ folderId }: { folderId: string }) {
           render={
             <Draggable.Viewport
               accept={acceptedBookmarkKinds}
-              onDragScroll={(event, { direction }) => {
+              onDragScroll={({ direction }, eventDetails) => {
                 if (direction !== 'vertical') {
-                  event.preventDefault();
+                  eventDetails.cancel();
                 }
               }}
             />
@@ -753,9 +753,9 @@ function MoreMenu({
             render={
               <Draggable.Viewport
                 accept={acceptedBookmarkKinds}
-                onDragScroll={(event, { direction }) => {
+                onDragScroll={({ direction }, eventDetails) => {
                   if (direction !== 'vertical') {
-                    event.preventDefault();
+                    eventDetails.cancel();
                   }
                 }}
               />
@@ -874,9 +874,9 @@ function BrowserTabs({
             trackDragOver={false}
             render={
               <Draggable.Viewport
-                onDragScroll={(event, { direction }) => {
+                onDragScroll={({ direction }, eventDetails) => {
                   if (direction !== 'horizontal') {
-                    event.preventDefault();
+                    eventDetails.cancel();
                   }
                 }}
               />

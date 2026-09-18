@@ -5,11 +5,11 @@ import type { BaseUIComponentProps } from '../../internals/types';
 import type {
   NativeDragEventProps,
   RegisterAutoScrollerParameters,
-  WithInferredAccept,
+  DragParametersWithInferredAccept,
 } from '../../types/dragRegistration';
 import type { AcceptedDragPayload, AnyDragAccept, DragKind } from '../../types/drag';
-import { useDragAutoScrollElement } from './useDragAutoScrollElement';
-import type { UseDragAutoScrollElementParameters } from './useDragAutoScrollElement';
+import { useDraggableViewportElement } from './useDraggableViewportElement';
+import type { UseDraggableViewportElementParameters } from './useDraggableViewportElement';
 
 /**
  * Registers its element as a drag auto-scroll viewport.
@@ -18,10 +18,8 @@ import type { UseDragAutoScrollElementParameters } from './useDragAutoScrollElem
  *
  * Documentation: [Base UI Draggable](https://base-ui.com/react/utils/draggable)
  */
-export const DragAutoScrollRoot = React.forwardRef(function DragAutoScrollRoot<
-  TSourceData = unknown,
->(
-  componentProps: DragAutoScrollRootProps<TSourceData>,
+export const DraggableViewport = React.forwardRef(function DraggableViewport<TSourceData = unknown>(
+  componentProps: DraggableViewportProps<TSourceData>,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
@@ -41,18 +39,18 @@ export const DragAutoScrollRoot = React.forwardRef(function DragAutoScrollRoot<
     ...elementProps
   } = componentProps;
 
-  // A fresh object per render is fine: `useDragAutoScrollElement` reads it
+  // A fresh object per render is fine: `useDraggableViewportElement` reads it
   // through a ref and never compares it.
-  const params: UseDragAutoScrollElementParameters<TSourceData> = {
+  const params: UseDraggableViewportElementParameters<TSourceData> = {
     accept,
     onDragScroll,
     disabled,
     maxSpeed,
   };
 
-  const { ref } = useDragAutoScrollElement<TSourceData>(params);
+  const { ref } = useDraggableViewportElement<TSourceData>(params);
 
-  const state: DragAutoScrollRoot.State = { disabled: disabled ?? false };
+  const state: DraggableViewport.State = { disabled: disabled ?? false };
 
   return useRenderElement('div', componentProps, {
     state,
@@ -63,17 +61,20 @@ export const DragAutoScrollRoot = React.forwardRef(function DragAutoScrollRoot<
   // is restored by hand.
 }) as {
   <TSourceData = unknown>(
-    props: DragAutoScrollRootProps<TSourceData> & React.RefAttributes<HTMLDivElement>,
+    props: DraggableViewportProps<TSourceData> & React.RefAttributes<HTMLDivElement>,
   ): React.JSX.Element;
   // Private inference overload for heterogeneous `accept` arrays. Explicit
   // component generics use the payload-keyed overload above.
   <TAccept extends AnyDragAccept = DragKind<unknown>>(
-    props: WithInferredAccept<DragAutoScrollRootProps<AcceptedDragPayload<TAccept>>, TAccept> &
+    props: DragParametersWithInferredAccept<
+      DraggableViewportProps<AcceptedDragPayload<TAccept>>,
+      TAccept
+    > &
       React.RefAttributes<HTMLDivElement>,
   ): React.JSX.Element;
 };
 
-export interface DragAutoScrollRootState {
+export interface DraggableViewportState {
   /** Whether auto-scrolling is disabled. */
   disabled: boolean;
 }
@@ -81,15 +82,15 @@ export interface DragAutoScrollRootState {
 // `disabled` is not redeclared here: an intersection member's JSDoc never reaches
 // the generated reference, so the description would ship nowhere. It lives on
 // `RegisterAutoScrollerParameters` instead, which this inherits.
-export type DragAutoScrollRootProps<TSourceData = unknown> = Omit<
-  BaseUIComponentProps<'div', DragAutoScrollRootState>,
+export type DraggableViewportProps<TSourceData = unknown> = Omit<
+  BaseUIComponentProps<'div', DraggableViewportState>,
   // The whole native HTML5 drag event family is replaced by this engine, as on
   // `Draggable.Root` and `Draggable.Target`.
   NativeDragEventProps
 > &
   RegisterAutoScrollerParameters<TSourceData>;
 
-export namespace DragAutoScrollRoot {
-  export type State = DragAutoScrollRootState;
-  export type Props<TSourceData = unknown> = DragAutoScrollRootProps<TSourceData>;
+export namespace DraggableViewport {
+  export type State = DraggableViewportState;
+  export type Props<TSourceData = unknown> = DraggableViewportProps<TSourceData>;
 }

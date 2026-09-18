@@ -3,9 +3,9 @@ import { describe, it, expect, vi } from 'vitest';
 import { fireEvent } from '@testing-library/react';
 import { createDndRenderer, testDragKind } from '#test-utils';
 import { Draggable } from '@base-ui/react/draggable';
-import { createElement, dragOver, flushRaf, setupDragEngineTests } from '../../test/dnd';
+import { createElement, dragOver, flushRaf, setupDragEngineTests } from '../../../test/dnd';
 import { useDragMonitor } from './useDragMonitor';
-import { monitorRegistry } from '../utils/drag-and-drop/monitor';
+import { monitorRegistry } from '../../utils/drag-and-drop/monitor';
 
 setupDragEngineTests();
 
