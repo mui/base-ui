@@ -6,6 +6,7 @@ import * as React from 'react';
 import type { Metadata, Viewport } from 'next/types';
 import { GoogleAnalytics } from 'docs/src/components/GoogleAnalytics';
 import { Link } from 'docs/src/components/Link';
+import { LlmsNudge } from 'docs/src/components/LlmsNudge';
 import { Logo } from 'docs/src/components/Logo';
 import { SearchControls } from 'docs/src/components/SearchControls';
 
@@ -59,6 +60,8 @@ export default function Layout({ children }: React.PropsWithChildren) {
             </header>
             <main id="main" className="bui-d-c">
               {children}
+              <LlmsNudge carrier="text" />
+              <LlmsNudge carrier="image" />
             </main>
             <div className="bui-gcs-1 bui-gce-9 bp3:bui-gcs-3">
               <div className="Separator" role="separator" aria-hidden="true"></div>
