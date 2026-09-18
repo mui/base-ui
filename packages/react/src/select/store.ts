@@ -68,6 +68,13 @@ export type SelectStoreContext = {
   readonly selectedItemTextRef: React.RefObject<HTMLElement | null>;
   readonly alignItemWithTriggerActiveRef: React.RefObject<boolean>;
   readonly initialValueRef: React.RefObject<any>;
+  /**
+   * Whether real focus stays on `Select.FilterInput` while the list is navigated with
+   * `aria-activedescendant`. Set by the filter root and fixed for the store's lifetime.
+   */
+  readonly virtualFocus: boolean;
+  /** The element that holds real focus while virtual list navigation is active. */
+  readonly virtualFocusRef: React.RefObject<HTMLElement | null> | undefined;
 
   // Commands. Seeded with `NOOP` when the store is constructed and assigned during the root's
   // first render, so they are not `readonly`.

@@ -28,7 +28,10 @@ export function isVirtualPointerEvent(event: PointerEvent) {
   }
   return (
     (!platform.os.android && event.width === 0 && event.height === 0) ||
-    (platform.os.android &&
+    // Chrome synthesizes a screen reader press (TalkBack, VoiceOver, NVDA) as a 1x1 mouse
+    // `pointerdown` with no pressure. A real pressed mouse reports pressure 0.5. Hover events
+    // from a real mouse share the pressureless 1x1 shape, so only a press qualifies.
+    (event.type === 'pointerdown' &&
       event.width === 1 &&
       event.height === 1 &&
       event.pressure === 0 &&

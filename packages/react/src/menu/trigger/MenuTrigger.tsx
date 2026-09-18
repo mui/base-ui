@@ -20,7 +20,7 @@ import { contains } from '../../floating-ui-react/utils';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { pressableTriggerOpenStateMapping } from '../../utils/popupStateMapping';
 import { useRenderElement } from '../../internals/useRenderElement';
-import { BaseUIComponentProps, NativeButtonProps } from '../../internals/types';
+import type { BaseUIComponentProps, NativeButtonProps } from '../../internals/types';
 import { useButton } from '../../internals/use-button/useButton';
 import { isMouseWithinBounds } from '../../utils/getPseudoElementBounds';
 import { CompositeItem } from '../../internals/composite/item/CompositeItem';
@@ -77,6 +77,7 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
   const floatingRootContext = store.useState('floatingRootContext');
   const isOpenedByThisTrigger = store.useState('isOpenedByTrigger', thisTriggerId);
   const popupId = store.useState('triggerPopupId', thisTriggerId);
+  const listElement = store.useState('listElement');
 
   const triggerElementRef = React.useRef<HTMLElement | null>(null);
 
@@ -208,6 +209,8 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
   );
 
   const rootTriggerProps = store.useState('triggerProps', isMountedByThisTrigger);
+  // A filterable menu keeps real focus inside its popup and publishes what its trigger needs.
+  const filterTriggerProps = store.useState('filterTriggerProps');
 
   const { preFocusGuardRef, handlePreFocusGuardFocus, handleFocusTargetFocus } =
     useTriggerFocusGuards(store, triggerElementRef);
@@ -224,7 +227,9 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
     rootTriggerProps,
     {
       'aria-haspopup': 'menu' as const,
-      'aria-controls': popupId,
+      // `popupId` is only set for the trigger that owns the open popup; the list id must not
+      // bypass that.
+      'aria-controls': popupId ? listElement?.id || popupId : undefined,
       id: thisTriggerId,
       onMouseDown: (event: React.MouseEvent) => {
         if (store.select('open')) {
@@ -240,6 +245,7 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
         doc.addEventListener('mouseup', handleDocumentMouseUp, { once: true });
       },
     },
+    filterTriggerProps,
     isInMenubar ? { role: 'menuitem' } : {},
     mixedToggleHandlers,
     elementProps,

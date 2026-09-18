@@ -12,7 +12,7 @@ import { DemoSelectHero } from './demos/hero';
 
 ## Usage guidelines
 
-- **Prefer Combobox for large lists**: Select is not filterable, aside from basic keyboard typeahead functionality to find items by focusing and highlighting them. Prefer [Combobox](/react/components/combobox) instead of Select when the number of items is sufficiently large to warrant filtering.
+- **Prefer Combobox for large lists**: A plain Select finds items by keyboard typeahead only. Wrap it in `<Select.FilterProvider>` to add a search field for a modest list you own (see [Filtering](#filtering)). Prefer [Combobox](/react/components/combobox) instead of Select when the number of items is large or they come from a server.
 - **Special positioning behavior**: The select popup by default overlaps its trigger so the selected item's text is aligned with the trigger's value text. This behavior [can be disabled or customized](/react/components/select#positioning).
 - **Form controls must have an accessible name**: Prefer `<Select.Label>`, or provide an `aria-label` on `<Select.Trigger>` when no visible label is rendered. See [Labeling a select](#labeling-a-select) and the [forms guide](/react/handbook/forms).
 
@@ -224,6 +224,88 @@ import { DemoSelectGrouped } from './demos/grouped';
 
 <DemoSelectGrouped />
 
+### Filtering
+
+Wrap `<Select.Root>` in `<Select.FilterProvider>` to add a search field that filters the options.
+Only the provider imports the filtering code, so selects that don't filter don't bundle it.
+
+Render `<Select.FilterInput>` inside the popup and place the options inside `<Select.List>`.
+The popup becomes a dialog that contains the input and the listbox, so the list is required here: an input can't sit inside a `listbox` element.
+The trigger stays a button that opens the dialog, and every other part stays the same.
+
+```jsx title="Filterable select anatomy"
+<Select.FilterProvider>
+  <Select.Root>
+    <Select.Trigger>
+      <Select.Value />
+    </Select.Trigger>
+    <Select.Portal>
+      <Select.Positioner>
+        <Select.Popup>
+          <Select.FilterInput aria-label="Filter countries" />
+          <Select.FilterClear />
+          <Select.FilterEmpty />
+          <Select.List>
+            <Select.Item />
+          </Select.List>
+        </Select.Popup>
+      </Select.Positioner>
+    </Select.Portal>
+  </Select.Root>
+</Select.FilterProvider>
+```
+
+Give the input an accessible name with `aria-label`, `aria-labelledby`, or a visible `<label>`.
+Keyboard and screen reader activation initially highlight an option while keeping DOM focus on the input.
+By default, arrow-key navigation includes the input in the loop, and pointer activation leaves the input highlighted.
+
+The query is cleared when the popup closes.
+A single select closes once an option is chosen; a multiple select stays open and keeps the query so several options can be picked in a row.
+Filtering never changes the value: an option that is filtered out stays selected, and `<Select.Value>` keeps rendering its label through `items`, `itemToStringLabel`, or the value itself.
+The same holds for options you unmount yourself while the popup is open: a filterable select never clears a value because its option disappeared, where a plain select would.
+The `alignItemWithTrigger` positioning mode is turned off, since the popup holds the input above the list.
+
+import { DemoSelectFilter } from './demos/filter';
+
+<DemoSelectFilter />
+
+#### Filtering options
+
+Options match their rendered text by default. Use `label` to provide explicit searchable text and `keywords` for alternate terms.
+
+```jsx title="Labels and keywords"
+<Select.List>
+  <Select.Item value="de" keywords={['Deutschland']}>
+    Germany
+  </Select.Item>
+  <Select.Item value="nl" label="Netherlands" keywords={['Holland']}>
+    <Select.ItemText>The Netherlands</Select.ItemText>
+  </Select.Item>
+</Select.List>
+```
+
+Groups with no matching options are hidden, including their labels. `<Select.FilterEmpty>` is shown when no options match and renders nothing otherwise.
+
+#### Custom matching
+
+Use `filter` to replace the default case-insensitive substring matching.
+It receives the option's text and each keyword individually, together with the trimmed query, and the option matches when it returns `true` for any of them:
+
+```jsx title="Custom filter"
+<Select.FilterProvider filter={(text, query) => text.startsWith(query)}>
+  <Select.Root>{/* select parts */}</Select.Root>
+</Select.FilterProvider>
+```
+
+Pass `filter={null}` when you filter the options yourself and render only the results.
+Remove empty groups as part of that filtering.
+`Select.useFilter` returns the same collator-based matching for that purpose.
+
+#### Filterable select or Combobox
+
+A filterable select suits a modest list you own and render in full: the options stay mounted, the value model is the select's, and forms receive the same hidden input as a plain select.
+Reach for [Combobox](/react/components/combobox) when the list is large, comes from a server, needs virtualization, or should be typed into directly in the field.
+
 ## API reference
 
 import { TypesSelect } from './types';
@@ -284,6 +366,22 @@ import { TypesSelect } from './types';
 
 <TypesSelect.ItemIndicator />
 
+### FilterProvider
+
+<TypesSelect.FilterProvider />
+
+### FilterInput
+
+<TypesSelect.FilterInput />
+
+### FilterClear
+
+<TypesSelect.FilterClear />
+
+### FilterEmpty
+
+<TypesSelect.FilterEmpty />
+
 ### Group
 
 <TypesSelect.Group />
@@ -304,6 +402,13 @@ import { TypesSelect } from './types';
 
 <TypesSelect.Separator />
 
+## useFilter
+
+Matches options against a query using `Intl.Collator` for robust string matching.
+Use it when filtering options yourself with `filter={null}` on `<Select.FilterProvider>`.
+
+<TypesSelect.useFilter hideDescription />
+
 export const metadata = {
   keywords: [
     'React Select Component',
@@ -319,6 +424,8 @@ export const metadata = {
     'Multi Select React',
     'Multiselect',
     'Object Value Select',
+    'Filterable Select',
+    'Searchable Select',
     'Single Select',
     'Keyboard Navigation Select',
     'Listbox Role',
