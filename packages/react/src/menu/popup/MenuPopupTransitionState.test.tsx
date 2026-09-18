@@ -158,6 +158,8 @@ describe.skipIf(isJSDOM)('Menu popup transition state', () => {
           states.length = 0;
           onEnter.mockClear();
           await user.click(screen.getByRole('button', { name: 'Toggle' }));
+          // The reopen handler can run after the click resolves. Do not finish the exit first.
+          await waitFor(() => expect(popup).toHaveAttribute('data-open'));
           await expectCompletedAfterAnimations(popup, true);
           expect(screen.getByRole('menu')).toBe(popup);
           expect(onEnter).toHaveBeenCalledTimes(1);
