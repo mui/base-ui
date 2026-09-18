@@ -138,7 +138,10 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
       'aria-labelledby': ariaLabelledBy,
       'aria-readonly': readOnly || undefined,
       'aria-required': required || undefined,
-      tabIndex: disabled ? -1 : 0,
+      // No `tabIndex` while disabled: `-1` would keep the trigger focusable by a click, which
+      // could only be suppressed by canceling `pointerdown`, and that also cancels selecting the
+      // value. Nothing focuses a disabled trigger, so leaving the attribute off is enough.
+      ...(disabled ? undefined : { tabIndex: 0 }),
       onFocus(event) {
         setFocused(true);
 
