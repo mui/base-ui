@@ -2053,6 +2053,67 @@ describe('<Combobox.Root />', () => {
         });
       });
 
+      it('reaches items outside an external virtualizer window through isItemDisabled', async () => {
+        // An external virtualizer leaves most items unmounted and registers no built-in
+        // virtualizer, so the root has no element to consult for them. Navigation must still
+        // reach them: the consumer predicate classifies unmounted items, and a missing element
+        // on its own is not disabled in a windowed list.
+        const items = Array.from(
+          { length: 30 },
+          (_, index) => `item-${String(index).padStart(2, '0')}`,
+        );
+        const onItemHighlighted = vi.fn();
+
+        function WindowedItems() {
+          const filteredItems = Combobox.useFilteredItems<string>();
+          // A fixed window: everything past index 9 stays unmounted for the whole test.
+          return filteredItems.slice(0, 10).map((item, index) => (
+            <Combobox.Item key={item} value={item} index={index}>
+              {item}
+            </Combobox.Item>
+          ));
+        }
+
+        const { user } = await render(
+          <Combobox.Root
+            items={items}
+            virtualized
+            isItemDisabled={(item) => item === 'item-10'}
+            onItemHighlighted={onItemHighlighted}
+          >
+            <Combobox.Input data-testid="input" />
+            <Combobox.Portal>
+              <Combobox.Positioner>
+                <Combobox.Popup>
+                  <Combobox.List>
+                    <WindowedItems />
+                  </Combobox.List>
+                </Combobox.Popup>
+              </Combobox.Positioner>
+            </Combobox.Portal>
+          </Combobox.Root>,
+        );
+
+        const input = screen.getByTestId('input');
+        await user.click(input);
+        await screen.findByRole('option', { name: 'item-09' });
+
+        // Ten presses land on the last mounted item.
+        await user.keyboard('{ArrowDown}'.repeat(10));
+        expect(onItemHighlighted).toHaveBeenLastCalledWith(
+          'item-09',
+          expect.objectContaining({ index: 9 }),
+        );
+
+        // The next press must skip the disabled, unmounted item-10 and land on the enabled,
+        // unmounted item-11 — not stop at 9 because nothing past the window has an element.
+        await user.keyboard('{ArrowDown}');
+        expect(onItemHighlighted).toHaveBeenLastCalledWith(
+          'item-11',
+          expect.objectContaining({ index: 11 }),
+        );
+      });
+
       it.skipIf(isJSDOM)(
         'restores the selected item through an externally virtualized list',
         async () => {
@@ -3451,6 +3512,177 @@ describe('<Combobox.Root />', () => {
         const last = screen.getByRole('option', { name: 'cherry' });
         expect(input).toHaveAttribute('aria-activedescendant', last.id);
       });
+    });
+
+    describe('page keys', () => {
+      function PagedList(props: { itemCount?: number; disabledValues?: string[] }) {
+        const items = Array.from({ length: props.itemCount ?? 30 }, (_, index) => `item ${index}`);
+        return (
+          <Combobox.Root
+            items={items}
+            isItemDisabled={(item: string) => props.disabledValues?.includes(item) ?? false}
+          >
+            <Combobox.Input data-testid="input" />
+            <Combobox.Portal>
+              <Combobox.Positioner>
+                <Combobox.Popup>
+                  <Combobox.List>
+                    {(item: string) => (
+                      <Combobox.Item key={item} value={item}>
+                        {item}
+                      </Combobox.Item>
+                    )}
+                  </Combobox.List>
+                </Combobox.Popup>
+              </Combobox.Positioner>
+            </Combobox.Portal>
+          </Combobox.Root>
+        );
+      }
+
+      async function expectActive(input: HTMLElement, name: string) {
+        await waitFor(() => {
+          const option = screen.getByRole('option', { name });
+          expect(input).toHaveAttribute('aria-activedescendant', option.id);
+        });
+      }
+
+      it('moves the highlight by a page', async () => {
+        const { user } = await render(<PagedList />);
+        const input = screen.getByTestId('input');
+
+        await act(async () => input.focus());
+        await user.keyboard('{ArrowDown}');
+        await expectActive(input, 'item 0');
+
+        await user.keyboard('{PageDown}');
+        await expectActive(input, 'item 10');
+
+        await user.keyboard('{PageDown}');
+        await expectActive(input, 'item 20');
+
+        await user.keyboard('{PageUp}');
+        await expectActive(input, 'item 10');
+      });
+
+      it('stops at the ends of the list', async () => {
+        const { user } = await render(<PagedList itemCount={15} />);
+        const input = screen.getByTestId('input');
+
+        await act(async () => input.focus());
+        await user.keyboard('{ArrowDown}');
+        await expectActive(input, 'item 0');
+
+        await user.keyboard('{PageUp}');
+        await expectActive(input, 'item 0');
+
+        await user.keyboard('{PageDown}');
+        await user.keyboard('{PageDown}');
+        await expectActive(input, 'item 14');
+      });
+
+      it('opens the list at an end when nothing is highlighted', async () => {
+        const { user } = await render(<PagedList />);
+        const input = screen.getByTestId('input');
+
+        await act(async () => input.focus());
+        await user.click(input);
+        await waitFor(() => expect(screen.queryByRole('listbox')).not.toBe(null));
+
+        await user.keyboard('{PageDown}');
+        await expectActive(input, 'item 0');
+      });
+
+      it('skips items the list reports as disabled', async () => {
+        const { user } = await render(<PagedList disabledValues={['item 10', 'item 11']} />);
+        const input = screen.getByTestId('input');
+
+        await act(async () => input.focus());
+        await user.keyboard('{ArrowDown}');
+        await expectActive(input, 'item 0');
+
+        // The page lands on a disabled run, so it carries on the way it was going.
+        await user.keyboard('{PageDown}');
+        await expectActive(input, 'item 12');
+      });
+
+      it('leaves the caret keys to the input', async () => {
+        const { user } = await render(<PagedList />);
+        const input = screen.getByTestId('input');
+
+        await act(async () => input.focus());
+        await user.keyboard('{ArrowDown}');
+        await expectActive(input, 'item 0');
+
+        // Home and End belong to the text field, so they must not move the highlight.
+        await user.keyboard('{Home}');
+        await expectActive(input, 'item 0');
+
+        await user.keyboard('{End}');
+        await expectActive(input, 'item 0');
+      });
+    });
+
+    it('uses isItemDisabled to skip static items during navigation', async () => {
+      const { user } = await render(
+        <Combobox.Root isItemDisabled={(item) => item === 'banana'}>
+          <Combobox.Input data-testid="input" />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  <Combobox.Item value="apple">apple</Combobox.Item>
+                  <Combobox.Item value="banana">banana</Combobox.Item>
+                  <Combobox.Item value="cherry">cherry</Combobox.Item>
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByTestId('input');
+      await user.click(input);
+      await user.keyboard('{ArrowDown}{ArrowDown}');
+
+      const cherry = screen.getByRole('option', { name: 'cherry' });
+      expect(input).toHaveAttribute('aria-activedescendant', cherry.id);
+      expect(screen.getByRole('option', { name: 'banana' })).toHaveAttribute(
+        'aria-disabled',
+        'true',
+      );
+    });
+
+    it('combines isItemDisabled with rendered item disabled state', async () => {
+      const { user } = await render(
+        <Combobox.Root isItemDisabled={() => false}>
+          <Combobox.Input data-testid="input" />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  <Combobox.Item value="apple">apple</Combobox.Item>
+                  <Combobox.Item value="banana" disabled>
+                    banana
+                  </Combobox.Item>
+                  <Combobox.Item value="cherry">cherry</Combobox.Item>
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByTestId('input');
+      await user.click(input);
+      await user.keyboard('{ArrowDown}{ArrowDown}');
+
+      const cherry = screen.getByRole('option', { name: 'cherry' });
+      expect(input).toHaveAttribute('aria-activedescendant', cherry.id);
+      expect(screen.getByRole('option', { name: 'banana' })).toHaveAttribute(
+        'aria-disabled',
+        'true',
+      );
     });
 
     it('opens, navigates with ArrowDown, and Enter selects', async () => {
@@ -8746,6 +8978,70 @@ describe('<Combobox.Root />', () => {
 
       const cherry = await screen.findByRole('option', { name: 'cherry' });
       expect(input).toHaveAttribute('aria-activedescendant', cherry.id);
+    });
+
+    it('highlights the first enabled matching item after typing', async () => {
+      const { user } = await render(
+        <Combobox.Root
+          items={['alpha', 'alpine', 'beta']}
+          autoHighlight
+          isItemDisabled={(item) => item === 'alpha'}
+        >
+          <Combobox.Input />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  {(item: string) => (
+                    <Combobox.Item key={item} value={item}>
+                      {item}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByRole('combobox');
+      await user.type(input, 'al');
+
+      const alpha = await screen.findByRole('option', { name: 'alpha' });
+      const alpine = screen.getByRole('option', { name: 'alpine' });
+      expect(alpha).toHaveAttribute('aria-disabled', 'true');
+      expect(input).toHaveAttribute('aria-activedescendant', alpine.id);
+    });
+
+    it('does not highlight an item when every match is disabled', async () => {
+      const { user } = await render(
+        <Combobox.Root
+          items={['alpha', 'alpine', 'beta']}
+          autoHighlight
+          isItemDisabled={() => true}
+        >
+          <Combobox.Input />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  {(item: string) => (
+                    <Combobox.Item key={item} value={item}>
+                      {item}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByRole('combobox');
+      await user.type(input, 'al');
+
+      await screen.findByRole('option', { name: 'alpha' });
+      expect(input).not.toHaveAttribute('aria-activedescendant');
     });
 
     it('highlights the first matching item after IME composition', async () => {
