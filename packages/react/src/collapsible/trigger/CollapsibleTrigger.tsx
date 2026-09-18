@@ -43,7 +43,6 @@ export const CollapsibleTrigger = React.forwardRef(function CollapsibleTrigger(
 
   const { getButtonProps, buttonRef } = useButton({
     disabled,
-    focusableWhenDisabled: true,
     native: nativeButton,
   });
 
