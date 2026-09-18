@@ -154,10 +154,13 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
 
         // Saves a re-render on initial click: `forceMount === true` mounts
         // the items before `open === true`. We could sync those cycles better
-        // without a timeout, but this is enough for now.
-        timeoutFocus.start(0, () => {
-          store.set('forceMount', true);
-        });
+        // without a timeout, but this is enough for now. A filterable select has no
+        // closed-trigger typeahead to serve, so its popup mounts on open only.
+        if (!virtualFocus) {
+          timeoutFocus.start(0, () => {
+            store.set('forceMount', true);
+          });
+        }
       },
       onBlur(event) {
         // If focus is moving into the popup, don't count it as a blur.
