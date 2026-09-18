@@ -1,11 +1,12 @@
 'use client';
 import * as React from 'react';
+import { platform } from '@base-ui/utils/platform';
 import { useControlled } from '@base-ui/utils/useControlled';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useFilterDropdownCloseQuery } from '../../filter-dropdown/root/useFilterDropdownCloseQuery';
+import { useIsHydrating } from '../../utils/useIsHydrating';
 import type { MenuFilterRoot } from './MenuFilterRoot';
 import { isKeyboardOpen } from './isKeyboardOpen';
-import { useMenuFilterWebkitItemSelected } from './useMenuFilterWebkitItemSelected';
 
 /** Shared query, open state, and focus options for filterable roots and submenus. */
 export function useMenuFilterRoot<Payload>(props: MenuFilterRoot.Props<Payload>, name: string) {
@@ -40,7 +41,7 @@ export function useMenuFilterRoot<Payload>(props: MenuFilterRoot.Props<Payload>,
   const [inputAutoFocus, setInputAutoFocus] = React.useState(false);
 
   const focusOwnerRef = React.useRef<HTMLElement | null>(null);
-  const webkitItemSelected = useMenuFilterWebkitItemSelected();
+  const hydrating = useIsHydrating();
 
   const handleInputValueChange = useStableCallback(
     (nextValue: string, details: MenuFilterRoot.InputValueChangeEventDetails) => {
@@ -80,7 +81,9 @@ export function useMenuFilterRoot<Payload>(props: MenuFilterRoot.Props<Payload>,
       onOpenChangeComplete: closeQuery.handleOpenChangeComplete,
       virtualFocus: true,
       virtualFocusInitialHighlight: inputFocusVisible,
-      webkitItemSelected,
+      // WebKit needs selection state to follow a searchbox's active descendant into a menu.
+      // Wait until after hydration so server and client markup agree.
+      webkitItemSelected: !hydrating && platform.engine.webkit,
       virtualFocusRef: focusOwnerRef,
       virtualFocusAutoFocus: inputAutoFocus,
       allowEscape: !autoHighlight,

@@ -125,6 +125,7 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
     }
 
     const nextIds = new Set<symbol>();
+    let hasNewMatch = currentIds === null;
     liveItems.forEach(({ getText, keywords }, id) => {
       const filterText = getText();
       const itemMatches =
@@ -132,10 +133,12 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
         keywords?.some((keyword) => matches(keyword, filterQuery));
       if (itemMatches) {
         nextIds.add(id);
+        hasNewMatch ||= !currentIds?.has(id);
       }
     });
 
-    if (currentIds === null || !isSetEqual(currentIds, nextIds)) {
+    // New matches or a smaller result set invalidate the previous item identities.
+    if (hasNewMatch || currentIds?.size !== nextIds.size) {
       // The first filtered snapshot can land after initial keyboard navigation in React 18. It
       // has no prior result identity to invalidate, unless the controlled query itself changed.
       if (autoHighlightEnabled && nextIds.size > 0) {
@@ -217,20 +220,6 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
       </FilterDropdownRootContext.Provider>
     </FilterDropdownItemContext.Provider>
   );
-}
-
-function isSetEqual<T>(firstSet: ReadonlySet<T>, secondSet: ReadonlySet<T>) {
-  if (firstSet.size !== secondSet.size) {
-    return false;
-  }
-
-  for (const item of firstSet) {
-    if (!secondSet.has(item)) {
-      return false;
-    }
-  }
-
-  return true;
 }
 
 export interface FilterDropdownRootProps {

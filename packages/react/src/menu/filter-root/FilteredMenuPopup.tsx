@@ -25,27 +25,24 @@ export const FilteredMenuPopup = React.forwardRef(function FilteredMenuPopup(
   const trapsFocus = useStore(store, selectTrapsFocus);
   const interactionProps = useFilterDropdownPopup();
 
-  const openedByKeyboard =
-    open && (lastOpenChangeReason === REASONS.listNavigation || openMethod === 'keyboard');
   const openedByHover = open && lastOpenChangeReason === REASONS.triggerHover;
-  const openedByPress = open && lastOpenChangeReason === REASONS.triggerPress;
   const shouldFocusPopup =
-    parent.type !== 'menu' || openedByKeyboard || openedByHover || openedByPress;
+    parent.type !== 'menu' ||
+    (open &&
+      (openMethod === 'keyboard' ||
+        lastOpenChangeReason === REASONS.listNavigation ||
+        lastOpenChangeReason === REASONS.triggerHover ||
+        lastOpenChangeReason === REASONS.triggerPress));
 
   // The input holds real focus; the popup is never the focus target.
   let initialFocus: FloatingFocusManagerProps['initialFocus'] = false;
   if (shouldFocusPopup) {
     initialFocus = () => {
-      const focusOwner = virtualFocusRef?.current;
-      if (!focusOwner) {
-        return false;
-      }
-
       // Hover only shows the popup; focus follows the pointer in unless the input opts in.
       if (openedByHover && !virtualFocusAutoFocus) {
         return false;
       }
-      return focusOwner;
+      return virtualFocusRef?.current ?? false;
     };
   }
 

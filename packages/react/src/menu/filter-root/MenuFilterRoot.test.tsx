@@ -43,16 +43,16 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
     it('keeps the matching items mounted', async () => {
       // DOM nodes survive Strict Mode's replayed effects; only a real remount creates new ones.
       const nodes = { Rename: new Set<Element>(), Copy: new Set<Element>() };
-      function Tracked(props: { children: 'Rename' | 'Copy' }) {
+      function Tracked(props: { label: 'Rename' | 'Copy' }) {
         return (
           <span
             ref={(node) => {
               if (node) {
-                nodes[props.children].add(node);
+                nodes[props.label].add(node);
               }
             }}
           >
-            {props.children}
+            {props.label}
           </span>
         );
       }
@@ -67,10 +67,10 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
                   <Menu.FilterInput aria-label="Filter actions" />
                   <Menu.List>
                     <Menu.Item>
-                      <Tracked>Rename</Tracked>
+                      <Tracked label="Rename" />
                     </Menu.Item>
                     <Menu.Item>
-                      <Tracked>Copy</Tracked>
+                      <Tracked label="Copy" />
                     </Menu.Item>
                   </Menu.List>
                 </Menu.Popup>
