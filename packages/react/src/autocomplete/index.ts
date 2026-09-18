@@ -87,3 +87,4 @@ export * as AutocompletePositionerDataAttributes from '../combobox/positioner/Co
 export * as AutocompletePopupDataAttributes from '../combobox/popup/ComboboxPopupDataAttributes';
 export * as AutocompleteArrowDataAttributes from '../combobox/arrow/ComboboxArrowDataAttributes';
 export * as AutocompleteItemDataAttributes from './item/AutocompleteItemDataAttributes';
+export * as AutocompleteSeparatorDataAttributes from '../separator/SeparatorDataAttributes';

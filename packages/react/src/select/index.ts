@@ -32,3 +32,4 @@ export * as SelectItemIndicatorDataAttributes from './item-indicator/SelectItemI
 export * as SelectArrowDataAttributes from './arrow/SelectArrowDataAttributes';
 export * as SelectScrollDownArrowDataAttributes from './scroll-down-arrow/SelectScrollDownArrowDataAttributes';
 export * as SelectScrollUpArrowDataAttributes from './scroll-up-arrow/SelectScrollUpArrowDataAttributes';
+export * as SelectSeparatorDataAttributes from '../separator/SeparatorDataAttributes';

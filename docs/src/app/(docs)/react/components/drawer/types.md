@@ -176,6 +176,13 @@ Renders a `<button>` element.
 | style        | `React.CSSProperties \| ((state: Drawer.Trigger.State) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                          |
 | render       | `ReactElement \| ((props: HTMLProps, state: Drawer.Trigger.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render.        |
 
+**Trigger Data Attributes:**
+
+| Attribute       | Type | Description                                    |
+| :-------------- | :--- | :--------------------------------------------- |
+| data-popup-open | -    | Present when the corresponding dialog is open. |
+| data-disabled   | -    | Present when the trigger is disabled.          |
+
 ### Trigger.Props
 
 Re-export of [Trigger](#trigger) props.
@@ -412,6 +419,12 @@ Renders a `<button>` element.
 | className    | `string \| ((state: Drawer.Close.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
 | style        | `React.CSSProperties \| ((state: Drawer.Close.State) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
 | render       | `ReactElement \| ((props: HTMLProps, state: Drawer.Close.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
+
+**Close Data Attributes:**
+
+| Attribute     | Type | Description                          |
+| :------------ | :--- | :----------------------------------- |
+| data-disabled | -    | Present when the button is disabled. |
 
 ### Close.Props
 
@@ -684,6 +697,14 @@ Present when the drawer begins animating in.
 type DrawerBackdropDataAttributesstartingStyle = 'data-starting-style';
 ```
 
+### DrawerCloseDataAttributes.disabled
+
+Present when the button is disabled.
+
+```typescript
+type DrawerCloseDataAttributesdisabled = 'data-disabled';
+```
+
 ### DrawerPopupCssVariables.frontmostHeight
 
 The height of the frontmost open drawer in the current nested drawer stack.
@@ -860,6 +881,22 @@ Present when the drawer is being swiped.
 type DrawerSwipeAreaDataAttributesswiping = 'data-swiping';
 ```
 
+### DrawerTriggerDataAttributes.disabled
+
+Present when the trigger is disabled.
+
+```typescript
+type DrawerTriggerDataAttributesdisabled = 'data-disabled';
+```
+
+### DrawerTriggerDataAttributes.popupOpen
+
+Present when the corresponding dialog is open.
+
+```typescript
+type DrawerTriggerDataAttributespopupOpen = 'data-popup-open';
+```
+
 ### DrawerViewportCssVariables.keyboardInset
 
 The software keyboard inset, measured from the bottom edge of the layout viewport.
@@ -966,7 +1003,7 @@ type SwipeDirection = 'up' | 'down' | 'left' | 'right';
 - `Drawer.VirtualKeyboardProvider`: `Drawer.VirtualKeyboardProvider`, `Drawer.VirtualKeyboardProvider.State`, `Drawer.VirtualKeyboardProvider.Props`
 - `Drawer.createHandle`
 - `Drawer.Handle`
-- `Default`: `DrawerBackdropCssVariables.swipeProgress`, `DrawerBackdropDataAttributes.open`, `DrawerBackdropDataAttributes.closed`, `DrawerBackdropDataAttributes.startingStyle`, `DrawerBackdropDataAttributes.endingStyle`, `DrawerPopupCssVariables.nestedDrawers`, `DrawerPopupCssVariables.height`, `DrawerPopupCssVariables.frontmostHeight`, `DrawerPopupCssVariables.swipeMovementX`, `DrawerPopupCssVariables.swipeMovementY`, `DrawerPopupCssVariables.snapPointOffset`, `DrawerPopupCssVariables.swipeStrength`, `DrawerPopupDataAttributes.open`, `DrawerPopupDataAttributes.closed`, `DrawerPopupDataAttributes.startingStyle`, `DrawerPopupDataAttributes.endingStyle`, `DrawerPopupDataAttributes.expanded`, `DrawerPopupDataAttributes.nestedDrawerOpen`, `DrawerPopupDataAttributes.nestedDrawerSwiping`, `DrawerPopupDataAttributes.swipeDismiss`, `DrawerPopupDataAttributes.swipeDirection`, `DrawerPopupDataAttributes.swiping`, `DrawerSwipeAreaDataAttributes.open`, `DrawerSwipeAreaDataAttributes.closed`, `DrawerSwipeAreaDataAttributes.disabled`, `DrawerSwipeAreaDataAttributes.swipeDirection`, `DrawerSwipeAreaDataAttributes.swiping`, `DrawerViewportCssVariables.keyboardInset`, `DrawerViewportDataAttributes.open`, `DrawerViewportDataAttributes.closed`, `DrawerViewportDataAttributes.startingStyle`, `DrawerViewportDataAttributes.endingStyle`, `DrawerViewportDataAttributes.nested`, `DrawerRootState`, `DrawerRootProps`, `DrawerRootActions`, `DrawerRootChangeEventReason`, `DrawerRootChangeEventDetails`, `DrawerRootSnapPointChangeEventReason`, `DrawerRootSnapPointChangeEventDetails`, `DrawerProviderState`, `DrawerProviderProps`, `DrawerIndentState`, `DrawerIndentProps`, `DrawerIndentBackgroundState`, `DrawerIndentBackgroundProps`, `DrawerTriggerProps`, `DrawerTriggerState`, `DrawerPortalState`, `DrawerPortalProps`, `DrawerPopupProps`, `DrawerPopupState`, `DrawerSwipeAreaProps`, `DrawerSwipeAreaState`, `DrawerContentProps`, `DrawerContentState`, `DrawerBackdropProps`, `DrawerBackdropState`, `DrawerViewportState`, `DrawerViewportProps`, `DrawerTitleProps`, `DrawerTitleState`, `DrawerDescriptionProps`, `DrawerDescriptionState`, `DrawerCloseProps`, `DrawerCloseState`, `DrawerVirtualKeyboardProviderState`, `DrawerVirtualKeyboardProviderProps`
+- `Default`: `DrawerBackdropCssVariables.swipeProgress`, `DrawerBackdropDataAttributes.open`, `DrawerBackdropDataAttributes.closed`, `DrawerBackdropDataAttributes.startingStyle`, `DrawerBackdropDataAttributes.endingStyle`, `DrawerPopupCssVariables.nestedDrawers`, `DrawerPopupCssVariables.height`, `DrawerPopupCssVariables.frontmostHeight`, `DrawerPopupCssVariables.swipeMovementX`, `DrawerPopupCssVariables.swipeMovementY`, `DrawerPopupCssVariables.snapPointOffset`, `DrawerPopupCssVariables.swipeStrength`, `DrawerPopupDataAttributes.open`, `DrawerPopupDataAttributes.closed`, `DrawerPopupDataAttributes.startingStyle`, `DrawerPopupDataAttributes.endingStyle`, `DrawerPopupDataAttributes.expanded`, `DrawerPopupDataAttributes.nestedDrawerOpen`, `DrawerPopupDataAttributes.nestedDrawerSwiping`, `DrawerPopupDataAttributes.swipeDismiss`, `DrawerPopupDataAttributes.swipeDirection`, `DrawerPopupDataAttributes.swiping`, `DrawerSwipeAreaDataAttributes.open`, `DrawerSwipeAreaDataAttributes.closed`, `DrawerSwipeAreaDataAttributes.disabled`, `DrawerSwipeAreaDataAttributes.swipeDirection`, `DrawerSwipeAreaDataAttributes.swiping`, `DrawerViewportCssVariables.keyboardInset`, `DrawerViewportDataAttributes.open`, `DrawerViewportDataAttributes.closed`, `DrawerViewportDataAttributes.startingStyle`, `DrawerViewportDataAttributes.endingStyle`, `DrawerViewportDataAttributes.nested`, `DrawerTriggerDataAttributes.disabled`, `DrawerTriggerDataAttributes.popupOpen`, `DrawerCloseDataAttributes.disabled`, `DrawerRootState`, `DrawerRootProps`, `DrawerRootActions`, `DrawerRootChangeEventReason`, `DrawerRootChangeEventDetails`, `DrawerRootSnapPointChangeEventReason`, `DrawerRootSnapPointChangeEventDetails`, `DrawerProviderState`, `DrawerProviderProps`, `DrawerIndentState`, `DrawerIndentProps`, `DrawerIndentBackgroundState`, `DrawerIndentBackgroundProps`, `DrawerTriggerProps`, `DrawerTriggerState`, `DrawerPortalState`, `DrawerPortalProps`, `DrawerPopupProps`, `DrawerPopupState`, `DrawerSwipeAreaProps`, `DrawerSwipeAreaState`, `DrawerContentProps`, `DrawerContentState`, `DrawerBackdropProps`, `DrawerBackdropState`, `DrawerViewportState`, `DrawerViewportProps`, `DrawerTitleProps`, `DrawerTitleState`, `DrawerDescriptionProps`, `DrawerDescriptionState`, `DrawerCloseProps`, `DrawerCloseState`, `DrawerVirtualKeyboardProviderState`, `DrawerVirtualKeyboardProviderProps`
 
 ## Canonical Types
 

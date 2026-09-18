@@ -46,3 +46,4 @@ export * as ComboboxArrowDataAttributes from './arrow/ComboboxArrowDataAttribute
 export * as ComboboxItemDataAttributes from './item/ComboboxItemDataAttributes';
 export * as ComboboxItemIndicatorDataAttributes from './item-indicator/ComboboxItemIndicatorDataAttributes';
 export * as ComboboxClearDataAttributes from './clear/ComboboxClearDataAttributes';
+export * as ComboboxSeparatorDataAttributes from '../separator/SeparatorDataAttributes';

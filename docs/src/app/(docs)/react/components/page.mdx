@@ -238,6 +238,7 @@ An input that suggests options as you type.
     - Props: className, render, style
   - Autocomplete - Separator
     - Props: className, orientation, render, style
+    - Data Attributes: data-orientation
   - Autocomplete - Status
     - Props: className, render, style
   - Autocomplete - Empty
@@ -312,7 +313,7 @@ A button component that can be rendered as another tag or focusable when disable
   - Button
     - Props: className, focusableWhenDisabled, nativeButton, render, style
     - Data Attributes: data-disabled
-- Types: Button.Props, Button.State
+- Types: Button.Props, Button.State, ButtonDataAttributes.disabled
 
 </details>
 
@@ -511,6 +512,7 @@ An input combined with a list of predefined items to select.
     - Props: className, render, style
   - Combobox - Separator
     - Props: className, orientation, render, style
+    - Data Attributes: data-orientation
   - Combobox - Label
     - Props: className, render, style
   - Combobox - Status
@@ -759,6 +761,7 @@ A panel that slides in from the edge of the screen.
     - Props: children
   - Drawer - Trigger
     - Props: className, handle, id, nativeButton, payload, render, style
+    - Data Attributes: data-disabled, data-popup-open
   - Drawer - Portal
     - Props: className, container, keepMounted, render, style
   - Drawer - Backdrop
@@ -777,6 +780,7 @@ A panel that slides in from the edge of the screen.
     - Props: className, render, style
   - Drawer - Close
     - Props: className, nativeButton, render, style
+    - Data Attributes: data-disabled
   - Drawer - Viewport
     - Props: className, render, style
     - Data Attributes: data-closed, data-ending-style, data-nested, data-open, data-starting-style
@@ -1588,6 +1592,7 @@ A common form component for choosing a predefined value in a dropdown menu.
     - Props: className, render, style
   - Select - Separator
     - Props: className, orientation, render, style
+    - Data Attributes: data-orientation
   - Select - Label
     - Props: className, render, style
   - Select - ItemText

@@ -1,12 +1,15 @@
 import { describe, it, expect } from 'vitest';
+import { screen } from '@mui/internal-test-utils';
 /**
  * Important: This test also serves as a point to
  * import the entire lib for coverage reporting
  */
-import { isJSDOM } from '#test-utils';
+import { createRenderer, isJSDOM } from '#test-utils';
 import * as BaseUI from './index';
 
 describe('@base-ui/react', () => {
+  const { render } = createRenderer();
+
   it('should have exports', () => {
     expect(typeof BaseUI).toBe('object');
   });
@@ -23,7 +26,7 @@ describe('@base-ui/react', () => {
       /(?:DataAttributes|CssVariables)$/.test(name),
     );
 
-    expect(metadata.length).toBeGreaterThan(0);
+    expect(metadata.map(([name]) => name).sort()).toMatchSnapshot();
 
     metadata.forEach(([name, namespace]) => {
       const constants = Object.entries(namespace);
@@ -44,6 +47,48 @@ describe('@base-ui/react', () => {
     expect(BaseUI.AutocompletePopupDataAttributes).toBe(BaseUI.ComboboxPopupDataAttributes);
     expect(BaseUI.ContextMenuItemDataAttributes).toBe(BaseUI.MenuItemDataAttributes);
   });
+
+  it('should expose the disabled attribute rendered by Button', async () => {
+    await render(<BaseUI.Button disabled>Button</BaseUI.Button>);
+
+    expect(screen.getByRole('button')).toHaveAttribute(BaseUI.ButtonDataAttributes.disabled);
+  });
+
+  it('should expose the attributes rendered by borrowed Drawer parts', async () => {
+    const { user } = await render(
+      <BaseUI.Drawer.Root modal={false}>
+        <BaseUI.Drawer.Trigger>Open</BaseUI.Drawer.Trigger>
+        <BaseUI.Drawer.Trigger disabled>Disabled</BaseUI.Drawer.Trigger>
+        <BaseUI.Drawer.Close disabled>Close</BaseUI.Drawer.Close>
+      </BaseUI.Drawer.Root>,
+    );
+
+    expect(screen.getByRole('button', { name: 'Disabled' })).toHaveAttribute(
+      BaseUI.DrawerTriggerDataAttributes.disabled,
+    );
+    expect(screen.getByRole('button', { name: 'Close' })).toHaveAttribute(
+      BaseUI.DrawerCloseDataAttributes.disabled,
+    );
+
+    const trigger = screen.getByRole('button', { name: 'Open' });
+    await user.click(trigger);
+    expect(trigger).toHaveAttribute(BaseUI.DrawerTriggerDataAttributes.popupOpen);
+  });
+
+  it.each(['Select', 'Combobox', 'Autocomplete'] as const)(
+    'should expose the orientation attribute rendered by %s.Separator',
+    async (component) => {
+      const Separator = BaseUI[component].Separator;
+      const dataAttributes = BaseUI[`${component}SeparatorDataAttributes`];
+
+      await render(<Separator orientation="vertical" />);
+
+      expect(screen.getByRole('presentation')).toHaveAttribute(
+        dataAttributes.orientation,
+        'vertical',
+      );
+    },
+  );
 
   it.skipIf(!isJSDOM)('should resolve internals and auxiliary exports', async () => {
     const packageJson = await import('../package.json');

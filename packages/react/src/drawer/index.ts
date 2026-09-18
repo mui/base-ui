@@ -23,3 +23,5 @@ export * as DrawerPopupDataAttributes from './popup/DrawerPopupDataAttributes';
 export * as DrawerSwipeAreaDataAttributes from './swipe-area/DrawerSwipeAreaDataAttributes';
 export * as DrawerViewportCssVariables from './viewport/DrawerViewportCssVars';
 export * as DrawerViewportDataAttributes from './viewport/DrawerViewportDataAttributes';
+export * as DrawerTriggerDataAttributes from '../dialog/trigger/DialogTriggerDataAttributes';
+export * as DrawerCloseDataAttributes from '../dialog/close/DialogCloseDataAttributes';
