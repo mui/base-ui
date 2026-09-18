@@ -67,7 +67,7 @@ export type {
 
 export * as ContextMenuTriggerDataAttributes from './trigger/ContextMenuTriggerDataAttributes';
 export * as ContextMenuBackdropDataAttributes from '../menu/backdrop/MenuBackdropDataAttributes';
-export * as ContextMenuPositionerCssVars from '../menu/positioner/MenuPositionerCssVars';
+export * as ContextMenuPositionerCssVariables from '../menu/positioner/MenuPositionerCssVars';
 export * as ContextMenuPositionerDataAttributes from '../menu/positioner/MenuPositionerDataAttributes';
 export * as ContextMenuPopupDataAttributes from '../menu/popup/MenuPopupDataAttributes';
 export * as ContextMenuArrowDataAttributes from '../menu/arrow/MenuArrowDataAttributes';

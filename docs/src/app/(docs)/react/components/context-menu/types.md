@@ -1197,62 +1197,62 @@ Present when the menu begins animating in.
 type ContextMenuPopupDataAttributesstartingStyle = 'data-starting-style';
 ```
 
-### ContextMenuPositionerCssVars.anchorHeight
+### ContextMenuPositionerCssVariables.anchorHeight
 
 The anchor's height.
 
 ```typescript
-type ContextMenuPositionerCssVarsanchorHeight = '--anchor-height';
+type ContextMenuPositionerCssVariablesanchorHeight = '--anchor-height';
 ```
 
-### ContextMenuPositionerCssVars.anchorWidth
+### ContextMenuPositionerCssVariables.anchorWidth
 
 The anchor's width.
 
 ```typescript
-type ContextMenuPositionerCssVarsanchorWidth = '--anchor-width';
+type ContextMenuPositionerCssVariablesanchorWidth = '--anchor-width';
 ```
 
-### ContextMenuPositionerCssVars.availableHeight
+### ContextMenuPositionerCssVariables.availableHeight
 
 The available height between the anchor and the edge of the viewport.
 
 ```typescript
-type ContextMenuPositionerCssVarsavailableHeight = '--available-height';
+type ContextMenuPositionerCssVariablesavailableHeight = '--available-height';
 ```
 
-### ContextMenuPositionerCssVars.availableWidth
+### ContextMenuPositionerCssVariables.availableWidth
 
 The available width between the anchor and the edge of the viewport.
 
 ```typescript
-type ContextMenuPositionerCssVarsavailableWidth = '--available-width';
+type ContextMenuPositionerCssVariablesavailableWidth = '--available-width';
 ```
 
-### ContextMenuPositionerCssVars.positionerHeight
+### ContextMenuPositionerCssVariables.positionerHeight
 
 The height of the menu's positioner.
 It is important to set `height` to this value when using CSS to animate size changes.
 
 ```typescript
-type ContextMenuPositionerCssVarspositionerHeight = '--positioner-height';
+type ContextMenuPositionerCssVariablespositionerHeight = '--positioner-height';
 ```
 
-### ContextMenuPositionerCssVars.positionerWidth
+### ContextMenuPositionerCssVariables.positionerWidth
 
 The width of the menu's positioner.
 It is important to set `width` to this value when using CSS to animate size changes.
 
 ```typescript
-type ContextMenuPositionerCssVarspositionerWidth = '--positioner-width';
+type ContextMenuPositionerCssVariablespositionerWidth = '--positioner-width';
 ```
 
-### ContextMenuPositionerCssVars.transformOrigin
+### ContextMenuPositionerCssVariables.transformOrigin
 
 The coordinates that this element is anchored to. Used for animations and transitions.
 
 ```typescript
-type ContextMenuPositionerCssVarstransformOrigin = '--transform-origin';
+type ContextMenuPositionerCssVariablestransformOrigin = '--transform-origin';
 ```
 
 ### ContextMenuPositionerDataAttributes.align
@@ -1479,7 +1479,7 @@ type preventUnmountOnClose = () => void;
 - `ContextMenu.SubmenuRoot`: `ContextMenu.SubmenuRoot`, `ContextMenu.SubmenuRoot.Props`, `ContextMenu.SubmenuRoot.State`, `ContextMenu.SubmenuRoot.ChangeEventReason`, `ContextMenu.SubmenuRoot.ChangeEventDetails`
 - `ContextMenu.SubmenuTrigger`: `ContextMenu.SubmenuTrigger`, `ContextMenu.SubmenuTrigger.Props`, `ContextMenu.SubmenuTrigger.State`
 - `ContextMenu.Separator`: `ContextMenu.Separator`, `ContextMenu.Separator.Props`, `ContextMenu.Separator.State`
-- `Default`: `ContextMenuBackdropProps`, `ContextMenuBackdropState`, `ContextMenuPortalProps`, `ContextMenuPortalState`, `ContextMenuPopupProps`, `ContextMenuPopupState`, `ContextMenuArrowProps`, `ContextMenuArrowState`, `ContextMenuGroupProps`, `ContextMenuGroupState`, `ContextMenuGroupLabelProps`, `ContextMenuGroupLabelState`, `ContextMenuItemProps`, `ContextMenuItemState`, `ContextMenuLinkItemProps`, `ContextMenuLinkItemState`, `ContextMenuCheckboxItemProps`, `ContextMenuCheckboxItemState`, `ContextMenuCheckboxItemIndicatorProps`, `ContextMenuCheckboxItemIndicatorState`, `ContextMenuRadioGroupProps`, `ContextMenuRadioGroupState`, `ContextMenuRadioItemProps`, `ContextMenuRadioItemState`, `ContextMenuRadioItemIndicatorProps`, `ContextMenuRadioItemIndicatorState`, `ContextMenuSubmenuRootProps`, `ContextMenuSubmenuRootState`, `ContextMenuSubmenuTriggerProps`, `ContextMenuSubmenuTriggerState`, `ContextMenuTriggerDataAttributes.popupOpen`, `ContextMenuTriggerDataAttributes.pressed`, `ContextMenuBackdropDataAttributes.open`, `ContextMenuBackdropDataAttributes.closed`, `ContextMenuBackdropDataAttributes.startingStyle`, `ContextMenuBackdropDataAttributes.endingStyle`, `ContextMenuPositionerCssVars.availableWidth`, `ContextMenuPositionerCssVars.availableHeight`, `ContextMenuPositionerCssVars.anchorWidth`, `ContextMenuPositionerCssVars.anchorHeight`, `ContextMenuPositionerCssVars.transformOrigin`, `ContextMenuPositionerCssVars.positionerWidth`, `ContextMenuPositionerCssVars.positionerHeight`, `ContextMenuPositionerDataAttributes.open`, `ContextMenuPositionerDataAttributes.closed`, `ContextMenuPositionerDataAttributes.anchorHidden`, `ContextMenuPositionerDataAttributes.side`, `ContextMenuPositionerDataAttributes.align`, `ContextMenuPopupDataAttributes.open`, `ContextMenuPopupDataAttributes.closed`, `ContextMenuPopupDataAttributes.startingStyle`, `ContextMenuPopupDataAttributes.endingStyle`, `ContextMenuPopupDataAttributes.side`, `ContextMenuPopupDataAttributes.align`, `ContextMenuPopupDataAttributes.instant`, `ContextMenuArrowDataAttributes.open`, `ContextMenuArrowDataAttributes.closed`, `ContextMenuArrowDataAttributes.side`, `ContextMenuArrowDataAttributes.align`, `ContextMenuArrowDataAttributes.uncentered`, `ContextMenuItemDataAttributes.highlighted`, `ContextMenuItemDataAttributes.disabled`, `ContextMenuCheckboxItemDataAttributes.checked`, `ContextMenuCheckboxItemDataAttributes.unchecked`, `ContextMenuCheckboxItemDataAttributes.disabled`, `ContextMenuCheckboxItemDataAttributes.highlighted`, `ContextMenuCheckboxItemIndicatorDataAttributes.checked`, `ContextMenuCheckboxItemIndicatorDataAttributes.unchecked`, `ContextMenuCheckboxItemIndicatorDataAttributes.disabled`, `ContextMenuCheckboxItemIndicatorDataAttributes.startingStyle`, `ContextMenuCheckboxItemIndicatorDataAttributes.endingStyle`, `ContextMenuLinkItemDataAttributes.highlighted`, `ContextMenuRadioItemDataAttributes.checked`, `ContextMenuRadioItemDataAttributes.unchecked`, `ContextMenuRadioItemDataAttributes.disabled`, `ContextMenuRadioItemDataAttributes.highlighted`, `ContextMenuRadioItemIndicatorDataAttributes.checked`, `ContextMenuRadioItemIndicatorDataAttributes.unchecked`, `ContextMenuRadioItemIndicatorDataAttributes.disabled`, `ContextMenuRadioItemIndicatorDataAttributes.startingStyle`, `ContextMenuRadioItemIndicatorDataAttributes.endingStyle`, `ContextMenuSubmenuTriggerDataAttributes.popupOpen`, `ContextMenuSubmenuTriggerDataAttributes.highlighted`, `ContextMenuSubmenuTriggerDataAttributes.disabled`, `ContextMenuSeparatorDataAttributes.orientation`, `ContextMenuRootState`, `ContextMenuRootProps`, `ContextMenuRootActions`, `ContextMenuRootChangeEventReason`, `ContextMenuRootChangeEventDetails`, `ContextMenuTriggerState`, `ContextMenuTriggerProps`, `ContextMenuPositionerState`, `ContextMenuPositionerProps`
+- `Default`: `ContextMenuBackdropProps`, `ContextMenuBackdropState`, `ContextMenuPortalProps`, `ContextMenuPortalState`, `ContextMenuPopupProps`, `ContextMenuPopupState`, `ContextMenuArrowProps`, `ContextMenuArrowState`, `ContextMenuGroupProps`, `ContextMenuGroupState`, `ContextMenuGroupLabelProps`, `ContextMenuGroupLabelState`, `ContextMenuItemProps`, `ContextMenuItemState`, `ContextMenuLinkItemProps`, `ContextMenuLinkItemState`, `ContextMenuCheckboxItemProps`, `ContextMenuCheckboxItemState`, `ContextMenuCheckboxItemIndicatorProps`, `ContextMenuCheckboxItemIndicatorState`, `ContextMenuRadioGroupProps`, `ContextMenuRadioGroupState`, `ContextMenuRadioItemProps`, `ContextMenuRadioItemState`, `ContextMenuRadioItemIndicatorProps`, `ContextMenuRadioItemIndicatorState`, `ContextMenuSubmenuRootProps`, `ContextMenuSubmenuRootState`, `ContextMenuSubmenuTriggerProps`, `ContextMenuSubmenuTriggerState`, `ContextMenuTriggerDataAttributes.popupOpen`, `ContextMenuTriggerDataAttributes.pressed`, `ContextMenuBackdropDataAttributes.open`, `ContextMenuBackdropDataAttributes.closed`, `ContextMenuBackdropDataAttributes.startingStyle`, `ContextMenuBackdropDataAttributes.endingStyle`, `ContextMenuPositionerCssVariables.availableWidth`, `ContextMenuPositionerCssVariables.availableHeight`, `ContextMenuPositionerCssVariables.anchorWidth`, `ContextMenuPositionerCssVariables.anchorHeight`, `ContextMenuPositionerCssVariables.transformOrigin`, `ContextMenuPositionerCssVariables.positionerWidth`, `ContextMenuPositionerCssVariables.positionerHeight`, `ContextMenuPositionerDataAttributes.open`, `ContextMenuPositionerDataAttributes.closed`, `ContextMenuPositionerDataAttributes.anchorHidden`, `ContextMenuPositionerDataAttributes.side`, `ContextMenuPositionerDataAttributes.align`, `ContextMenuPopupDataAttributes.open`, `ContextMenuPopupDataAttributes.closed`, `ContextMenuPopupDataAttributes.startingStyle`, `ContextMenuPopupDataAttributes.endingStyle`, `ContextMenuPopupDataAttributes.side`, `ContextMenuPopupDataAttributes.align`, `ContextMenuPopupDataAttributes.instant`, `ContextMenuArrowDataAttributes.open`, `ContextMenuArrowDataAttributes.closed`, `ContextMenuArrowDataAttributes.side`, `ContextMenuArrowDataAttributes.align`, `ContextMenuArrowDataAttributes.uncentered`, `ContextMenuItemDataAttributes.highlighted`, `ContextMenuItemDataAttributes.disabled`, `ContextMenuCheckboxItemDataAttributes.checked`, `ContextMenuCheckboxItemDataAttributes.unchecked`, `ContextMenuCheckboxItemDataAttributes.disabled`, `ContextMenuCheckboxItemDataAttributes.highlighted`, `ContextMenuCheckboxItemIndicatorDataAttributes.checked`, `ContextMenuCheckboxItemIndicatorDataAttributes.unchecked`, `ContextMenuCheckboxItemIndicatorDataAttributes.disabled`, `ContextMenuCheckboxItemIndicatorDataAttributes.startingStyle`, `ContextMenuCheckboxItemIndicatorDataAttributes.endingStyle`, `ContextMenuLinkItemDataAttributes.highlighted`, `ContextMenuRadioItemDataAttributes.checked`, `ContextMenuRadioItemDataAttributes.unchecked`, `ContextMenuRadioItemDataAttributes.disabled`, `ContextMenuRadioItemDataAttributes.highlighted`, `ContextMenuRadioItemIndicatorDataAttributes.checked`, `ContextMenuRadioItemIndicatorDataAttributes.unchecked`, `ContextMenuRadioItemIndicatorDataAttributes.disabled`, `ContextMenuRadioItemIndicatorDataAttributes.startingStyle`, `ContextMenuRadioItemIndicatorDataAttributes.endingStyle`, `ContextMenuSubmenuTriggerDataAttributes.popupOpen`, `ContextMenuSubmenuTriggerDataAttributes.highlighted`, `ContextMenuSubmenuTriggerDataAttributes.disabled`, `ContextMenuSeparatorDataAttributes.orientation`, `ContextMenuRootState`, `ContextMenuRootProps`, `ContextMenuRootActions`, `ContextMenuRootChangeEventReason`, `ContextMenuRootChangeEventDetails`, `ContextMenuTriggerState`, `ContextMenuTriggerProps`, `ContextMenuPositionerState`, `ContextMenuPositionerProps`
 
 ## Canonical Types
 

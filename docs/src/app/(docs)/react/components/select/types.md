@@ -972,44 +972,44 @@ Present when the select begins animating in.
 type SelectPopupDataAttributesstartingStyle = 'data-starting-style';
 ```
 
-### SelectPositionerCssVars.anchorHeight
+### SelectPositionerCssVariables.anchorHeight
 
 The anchor's height.
 
 ```typescript
-type SelectPositionerCssVarsanchorHeight = '--anchor-height';
+type SelectPositionerCssVariablesanchorHeight = '--anchor-height';
 ```
 
-### SelectPositionerCssVars.anchorWidth
+### SelectPositionerCssVariables.anchorWidth
 
 The anchor's width.
 
 ```typescript
-type SelectPositionerCssVarsanchorWidth = '--anchor-width';
+type SelectPositionerCssVariablesanchorWidth = '--anchor-width';
 ```
 
-### SelectPositionerCssVars.availableHeight
+### SelectPositionerCssVariables.availableHeight
 
 The available height between the trigger and the edge of the viewport.
 
 ```typescript
-type SelectPositionerCssVarsavailableHeight = '--available-height';
+type SelectPositionerCssVariablesavailableHeight = '--available-height';
 ```
 
-### SelectPositionerCssVars.availableWidth
+### SelectPositionerCssVariables.availableWidth
 
 The available width between the trigger and the edge of the viewport.
 
 ```typescript
-type SelectPositionerCssVarsavailableWidth = '--available-width';
+type SelectPositionerCssVariablesavailableWidth = '--available-width';
 ```
 
-### SelectPositionerCssVars.transformOrigin
+### SelectPositionerCssVariables.transformOrigin
 
 The coordinates that this element is anchored to. Used for animations and transitions.
 
 ```typescript
-type SelectPositionerCssVarstransformOrigin = '--transform-origin';
+type SelectPositionerCssVariablestransformOrigin = '--transform-origin';
 ```
 
 ### SelectPositionerDataAttributes.align
@@ -1302,7 +1302,7 @@ type Orientation = 'horizontal' | 'vertical';
 - `Select.Group`: `Select.Group`, `Select.Group.State`, `Select.Group.Props`
 - `Select.GroupLabel`: `Select.GroupLabel`, `Select.GroupLabel.State`, `Select.GroupLabel.Props`
 - `Select.Separator`: `Select.Separator`, `Select.Separator.Props`, `Select.Separator.State`
-- `Default`: `SelectTriggerDataAttributes.popupOpen`, `SelectTriggerDataAttributes.pressed`, `SelectTriggerDataAttributes.disabled`, `SelectTriggerDataAttributes.readonly`, `SelectTriggerDataAttributes.popupSide`, `SelectTriggerDataAttributes.required`, `SelectTriggerDataAttributes.valid`, `SelectTriggerDataAttributes.invalid`, `SelectTriggerDataAttributes.touched`, `SelectTriggerDataAttributes.dirty`, `SelectTriggerDataAttributes.filled`, `SelectTriggerDataAttributes.focused`, `SelectTriggerDataAttributes.placeholder`, `SelectValueDataAttributes.placeholder`, `SelectIconDataAttributes.popupOpen`, `SelectBackdropDataAttributes.open`, `SelectBackdropDataAttributes.closed`, `SelectBackdropDataAttributes.startingStyle`, `SelectBackdropDataAttributes.endingStyle`, `SelectPositionerCssVars.availableWidth`, `SelectPositionerCssVars.availableHeight`, `SelectPositionerCssVars.anchorWidth`, `SelectPositionerCssVars.anchorHeight`, `SelectPositionerCssVars.transformOrigin`, `SelectPositionerDataAttributes.open`, `SelectPositionerDataAttributes.closed`, `SelectPositionerDataAttributes.anchorHidden`, `SelectPositionerDataAttributes.side`, `SelectPositionerDataAttributes.align`, `SelectPopupDataAttributes.open`, `SelectPopupDataAttributes.closed`, `SelectPopupDataAttributes.startingStyle`, `SelectPopupDataAttributes.endingStyle`, `SelectPopupDataAttributes.side`, `SelectPopupDataAttributes.align`, `SelectItemDataAttributes.selected`, `SelectItemDataAttributes.highlighted`, `SelectItemDataAttributes.disabled`, `SelectItemIndicatorDataAttributes.startingStyle`, `SelectItemIndicatorDataAttributes.endingStyle`, `SelectArrowDataAttributes.open`, `SelectArrowDataAttributes.closed`, `SelectArrowDataAttributes.side`, `SelectArrowDataAttributes.align`, `SelectArrowDataAttributes.uncentered`, `SelectScrollDownArrowDataAttributes.startingStyle`, `SelectScrollDownArrowDataAttributes.endingStyle`, `SelectScrollDownArrowDataAttributes.direction`, `SelectScrollDownArrowDataAttributes.visible`, `SelectScrollDownArrowDataAttributes.side`, `SelectScrollUpArrowDataAttributes.startingStyle`, `SelectScrollUpArrowDataAttributes.endingStyle`, `SelectScrollUpArrowDataAttributes.direction`, `SelectScrollUpArrowDataAttributes.visible`, `SelectScrollUpArrowDataAttributes.side`, `SelectRootProps`, `SelectRootState`, `SelectRootActions`, `SelectRootChangeEventReason`, `SelectRootChangeEventDetails`, `SelectLabelState`, `SelectLabelProps`, `SelectTriggerState`, `SelectTriggerProps`, `SelectValueState`, `SelectValueProps`, `SelectIconState`, `SelectIconProps`, `SelectPortalState`, `SelectPortalProps`, `SelectBackdropState`, `SelectBackdropProps`, `SelectPositionerState`, `SelectPositionerProps`, `SelectPopupProps`, `SelectPopupState`, `SelectListProps`, `SelectListState`, `SelectItemState`, `SelectItemProps`, `SelectItemIndicatorState`, `SelectItemIndicatorProps`, `SelectItemTextState`, `SelectItemTextProps`, `SelectArrowState`, `SelectArrowProps`, `SelectScrollDownArrowState`, `SelectScrollDownArrowProps`, `SelectScrollUpArrowState`, `SelectScrollUpArrowProps`, `SelectGroupState`, `SelectGroupProps`, `SelectGroupLabelState`, `SelectGroupLabelProps`, `SelectSeparatorProps`, `SelectSeparatorState`
+- `Default`: `SelectTriggerDataAttributes.popupOpen`, `SelectTriggerDataAttributes.pressed`, `SelectTriggerDataAttributes.disabled`, `SelectTriggerDataAttributes.readonly`, `SelectTriggerDataAttributes.popupSide`, `SelectTriggerDataAttributes.required`, `SelectTriggerDataAttributes.valid`, `SelectTriggerDataAttributes.invalid`, `SelectTriggerDataAttributes.touched`, `SelectTriggerDataAttributes.dirty`, `SelectTriggerDataAttributes.filled`, `SelectTriggerDataAttributes.focused`, `SelectTriggerDataAttributes.placeholder`, `SelectValueDataAttributes.placeholder`, `SelectIconDataAttributes.popupOpen`, `SelectBackdropDataAttributes.open`, `SelectBackdropDataAttributes.closed`, `SelectBackdropDataAttributes.startingStyle`, `SelectBackdropDataAttributes.endingStyle`, `SelectPositionerCssVariables.availableWidth`, `SelectPositionerCssVariables.availableHeight`, `SelectPositionerCssVariables.anchorWidth`, `SelectPositionerCssVariables.anchorHeight`, `SelectPositionerCssVariables.transformOrigin`, `SelectPositionerDataAttributes.open`, `SelectPositionerDataAttributes.closed`, `SelectPositionerDataAttributes.anchorHidden`, `SelectPositionerDataAttributes.side`, `SelectPositionerDataAttributes.align`, `SelectPopupDataAttributes.open`, `SelectPopupDataAttributes.closed`, `SelectPopupDataAttributes.startingStyle`, `SelectPopupDataAttributes.endingStyle`, `SelectPopupDataAttributes.side`, `SelectPopupDataAttributes.align`, `SelectItemDataAttributes.selected`, `SelectItemDataAttributes.highlighted`, `SelectItemDataAttributes.disabled`, `SelectItemIndicatorDataAttributes.startingStyle`, `SelectItemIndicatorDataAttributes.endingStyle`, `SelectArrowDataAttributes.open`, `SelectArrowDataAttributes.closed`, `SelectArrowDataAttributes.side`, `SelectArrowDataAttributes.align`, `SelectArrowDataAttributes.uncentered`, `SelectScrollDownArrowDataAttributes.startingStyle`, `SelectScrollDownArrowDataAttributes.endingStyle`, `SelectScrollDownArrowDataAttributes.direction`, `SelectScrollDownArrowDataAttributes.visible`, `SelectScrollDownArrowDataAttributes.side`, `SelectScrollUpArrowDataAttributes.startingStyle`, `SelectScrollUpArrowDataAttributes.endingStyle`, `SelectScrollUpArrowDataAttributes.direction`, `SelectScrollUpArrowDataAttributes.visible`, `SelectScrollUpArrowDataAttributes.side`, `SelectRootProps`, `SelectRootState`, `SelectRootActions`, `SelectRootChangeEventReason`, `SelectRootChangeEventDetails`, `SelectLabelState`, `SelectLabelProps`, `SelectTriggerState`, `SelectTriggerProps`, `SelectValueState`, `SelectValueProps`, `SelectIconState`, `SelectIconProps`, `SelectPortalState`, `SelectPortalProps`, `SelectBackdropState`, `SelectBackdropProps`, `SelectPositionerState`, `SelectPositionerProps`, `SelectPopupProps`, `SelectPopupState`, `SelectListProps`, `SelectListState`, `SelectItemState`, `SelectItemProps`, `SelectItemIndicatorState`, `SelectItemIndicatorProps`, `SelectItemTextState`, `SelectItemTextProps`, `SelectArrowState`, `SelectArrowProps`, `SelectScrollDownArrowState`, `SelectScrollDownArrowProps`, `SelectScrollUpArrowState`, `SelectScrollUpArrowProps`, `SelectGroupState`, `SelectGroupProps`, `SelectGroupLabelState`, `SelectGroupLabelProps`, `SelectSeparatorProps`, `SelectSeparatorState`
 
 ## Canonical Types
 

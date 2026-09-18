@@ -378,20 +378,20 @@ Present when the user scrolls inside the scroll area.
 type ScrollAreaContentDataAttributesscrolling = 'data-scrolling';
 ```
 
-### ScrollAreaRootCssVars.scrollAreaCornerHeight
+### ScrollAreaRootCssVariables.scrollAreaCornerHeight
 
 The scroll area's corner height.
 
 ```typescript
-type ScrollAreaRootCssVarsscrollAreaCornerHeight = '--scroll-area-corner-height';
+type ScrollAreaRootCssVariablesscrollAreaCornerHeight = '--scroll-area-corner-height';
 ```
 
-### ScrollAreaRootCssVars.scrollAreaCornerWidth
+### ScrollAreaRootCssVariables.scrollAreaCornerWidth
 
 The scroll area's corner width.
 
 ```typescript
-type ScrollAreaRootCssVarsscrollAreaCornerWidth = '--scroll-area-corner-width';
+type ScrollAreaRootCssVariablesscrollAreaCornerWidth = '--scroll-area-corner-width';
 ```
 
 ### ScrollAreaRootDataAttributes.hasOverflowX
@@ -450,20 +450,20 @@ Present when the user scrolls inside the scroll area.
 type ScrollAreaRootDataAttributesscrolling = 'data-scrolling';
 ```
 
-### ScrollAreaScrollbarCssVars.scrollAreaThumbHeight
+### ScrollAreaScrollbarCssVariables.scrollAreaThumbHeight
 
 The scroll area thumb's height.
 
 ```typescript
-type ScrollAreaScrollbarCssVarsscrollAreaThumbHeight = '--scroll-area-thumb-height';
+type ScrollAreaScrollbarCssVariablesscrollAreaThumbHeight = '--scroll-area-thumb-height';
 ```
 
-### ScrollAreaScrollbarCssVars.scrollAreaThumbWidth
+### ScrollAreaScrollbarCssVariables.scrollAreaThumbWidth
 
 The scroll area thumb's width.
 
 ```typescript
-type ScrollAreaScrollbarCssVarsscrollAreaThumbWidth = '--scroll-area-thumb-width';
+type ScrollAreaScrollbarCssVariablesscrollAreaThumbWidth = '--scroll-area-thumb-width';
 ```
 
 ### ScrollAreaScrollbarDataAttributes.hasOverflowX
@@ -554,36 +554,36 @@ Present when the user scrolls inside the scroll area.
 type ScrollAreaThumbDataAttributesscrolling = 'data-scrolling';
 ```
 
-### ScrollAreaViewportCssVars.scrollAreaOverflowXEnd
+### ScrollAreaViewportCssVariables.scrollAreaOverflowXEnd
 
 The distance from the horizontal end edge in pixels.
 
 ```typescript
-type ScrollAreaViewportCssVarsscrollAreaOverflowXEnd = '--scroll-area-overflow-x-end';
+type ScrollAreaViewportCssVariablesscrollAreaOverflowXEnd = '--scroll-area-overflow-x-end';
 ```
 
-### ScrollAreaViewportCssVars.scrollAreaOverflowXStart
+### ScrollAreaViewportCssVariables.scrollAreaOverflowXStart
 
 The distance from the horizontal start edge in pixels.
 
 ```typescript
-type ScrollAreaViewportCssVarsscrollAreaOverflowXStart = '--scroll-area-overflow-x-start';
+type ScrollAreaViewportCssVariablesscrollAreaOverflowXStart = '--scroll-area-overflow-x-start';
 ```
 
-### ScrollAreaViewportCssVars.scrollAreaOverflowYEnd
+### ScrollAreaViewportCssVariables.scrollAreaOverflowYEnd
 
 The distance from the vertical end edge in pixels.
 
 ```typescript
-type ScrollAreaViewportCssVarsscrollAreaOverflowYEnd = '--scroll-area-overflow-y-end';
+type ScrollAreaViewportCssVariablesscrollAreaOverflowYEnd = '--scroll-area-overflow-y-end';
 ```
 
-### ScrollAreaViewportCssVars.scrollAreaOverflowYStart
+### ScrollAreaViewportCssVariables.scrollAreaOverflowYStart
 
 The distance from the vertical start edge in pixels.
 
 ```typescript
-type ScrollAreaViewportCssVarsscrollAreaOverflowYStart = '--scroll-area-overflow-y-start';
+type ScrollAreaViewportCssVariablesscrollAreaOverflowYStart = '--scroll-area-overflow-y-start';
 ```
 
 ### ScrollAreaViewportDataAttributes.hasOverflowX
@@ -656,7 +656,7 @@ type Size = { width: number; height: number };
 - `ScrollArea.Content`: `ScrollArea.Content`, `ScrollArea.Content.State`, `ScrollArea.Content.Props`
 - `ScrollArea.Thumb`: `ScrollArea.Thumb`, `ScrollArea.Thumb.State`, `ScrollArea.Thumb.Props`
 - `ScrollArea.Corner`: `ScrollArea.Corner`, `ScrollArea.Corner.State`, `ScrollArea.Corner.Props`
-- `Default`: `ScrollAreaRootCssVars.scrollAreaCornerHeight`, `ScrollAreaRootCssVars.scrollAreaCornerWidth`, `ScrollAreaRootDataAttributes.scrolling`, `ScrollAreaRootDataAttributes.hasOverflowX`, `ScrollAreaRootDataAttributes.hasOverflowY`, `ScrollAreaRootDataAttributes.overflowXStart`, `ScrollAreaRootDataAttributes.overflowXEnd`, `ScrollAreaRootDataAttributes.overflowYStart`, `ScrollAreaRootDataAttributes.overflowYEnd`, `ScrollAreaViewportCssVars.scrollAreaOverflowXStart`, `ScrollAreaViewportCssVars.scrollAreaOverflowXEnd`, `ScrollAreaViewportCssVars.scrollAreaOverflowYStart`, `ScrollAreaViewportCssVars.scrollAreaOverflowYEnd`, `ScrollAreaViewportDataAttributes.scrolling`, `ScrollAreaViewportDataAttributes.hasOverflowX`, `ScrollAreaViewportDataAttributes.hasOverflowY`, `ScrollAreaViewportDataAttributes.overflowXStart`, `ScrollAreaViewportDataAttributes.overflowXEnd`, `ScrollAreaViewportDataAttributes.overflowYStart`, `ScrollAreaViewportDataAttributes.overflowYEnd`, `ScrollAreaScrollbarCssVars.scrollAreaThumbHeight`, `ScrollAreaScrollbarCssVars.scrollAreaThumbWidth`, `ScrollAreaScrollbarDataAttributes.orientation`, `ScrollAreaScrollbarDataAttributes.hovering`, `ScrollAreaScrollbarDataAttributes.scrolling`, `ScrollAreaScrollbarDataAttributes.hasOverflowX`, `ScrollAreaScrollbarDataAttributes.hasOverflowY`, `ScrollAreaScrollbarDataAttributes.overflowXStart`, `ScrollAreaScrollbarDataAttributes.overflowXEnd`, `ScrollAreaScrollbarDataAttributes.overflowYStart`, `ScrollAreaScrollbarDataAttributes.overflowYEnd`, `ScrollAreaContentDataAttributes.scrolling`, `ScrollAreaContentDataAttributes.hasOverflowX`, `ScrollAreaContentDataAttributes.hasOverflowY`, `ScrollAreaContentDataAttributes.overflowXStart`, `ScrollAreaContentDataAttributes.overflowXEnd`, `ScrollAreaContentDataAttributes.overflowYStart`, `ScrollAreaContentDataAttributes.overflowYEnd`, `ScrollAreaThumbDataAttributes.orientation`, `ScrollAreaThumbDataAttributes.scrolling`, `HiddenState`, `OverflowEdges`, `Size`, `Coords`, `ScrollAreaRootState`, `ScrollAreaRootProps`, `ScrollAreaViewportProps`, `ScrollAreaViewportState`, `ScrollAreaScrollbarState`, `ScrollAreaScrollbarProps`, `ScrollAreaContentState`, `ScrollAreaContentProps`, `ScrollAreaThumbState`, `ScrollAreaThumbProps`, `ScrollAreaCornerState`, `ScrollAreaCornerProps`
+- `Default`: `ScrollAreaRootCssVariables.scrollAreaCornerHeight`, `ScrollAreaRootCssVariables.scrollAreaCornerWidth`, `ScrollAreaRootDataAttributes.scrolling`, `ScrollAreaRootDataAttributes.hasOverflowX`, `ScrollAreaRootDataAttributes.hasOverflowY`, `ScrollAreaRootDataAttributes.overflowXStart`, `ScrollAreaRootDataAttributes.overflowXEnd`, `ScrollAreaRootDataAttributes.overflowYStart`, `ScrollAreaRootDataAttributes.overflowYEnd`, `ScrollAreaViewportCssVariables.scrollAreaOverflowXStart`, `ScrollAreaViewportCssVariables.scrollAreaOverflowXEnd`, `ScrollAreaViewportCssVariables.scrollAreaOverflowYStart`, `ScrollAreaViewportCssVariables.scrollAreaOverflowYEnd`, `ScrollAreaViewportDataAttributes.scrolling`, `ScrollAreaViewportDataAttributes.hasOverflowX`, `ScrollAreaViewportDataAttributes.hasOverflowY`, `ScrollAreaViewportDataAttributes.overflowXStart`, `ScrollAreaViewportDataAttributes.overflowXEnd`, `ScrollAreaViewportDataAttributes.overflowYStart`, `ScrollAreaViewportDataAttributes.overflowYEnd`, `ScrollAreaScrollbarCssVariables.scrollAreaThumbHeight`, `ScrollAreaScrollbarCssVariables.scrollAreaThumbWidth`, `ScrollAreaScrollbarDataAttributes.orientation`, `ScrollAreaScrollbarDataAttributes.hovering`, `ScrollAreaScrollbarDataAttributes.scrolling`, `ScrollAreaScrollbarDataAttributes.hasOverflowX`, `ScrollAreaScrollbarDataAttributes.hasOverflowY`, `ScrollAreaScrollbarDataAttributes.overflowXStart`, `ScrollAreaScrollbarDataAttributes.overflowXEnd`, `ScrollAreaScrollbarDataAttributes.overflowYStart`, `ScrollAreaScrollbarDataAttributes.overflowYEnd`, `ScrollAreaContentDataAttributes.scrolling`, `ScrollAreaContentDataAttributes.hasOverflowX`, `ScrollAreaContentDataAttributes.hasOverflowY`, `ScrollAreaContentDataAttributes.overflowXStart`, `ScrollAreaContentDataAttributes.overflowXEnd`, `ScrollAreaContentDataAttributes.overflowYStart`, `ScrollAreaContentDataAttributes.overflowYEnd`, `ScrollAreaThumbDataAttributes.orientation`, `ScrollAreaThumbDataAttributes.scrolling`, `HiddenState`, `OverflowEdges`, `Size`, `Coords`, `ScrollAreaRootState`, `ScrollAreaRootProps`, `ScrollAreaViewportProps`, `ScrollAreaViewportState`, `ScrollAreaScrollbarState`, `ScrollAreaScrollbarProps`, `ScrollAreaContentState`, `ScrollAreaContentProps`, `ScrollAreaThumbState`, `ScrollAreaThumbProps`, `ScrollAreaCornerState`, `ScrollAreaCornerProps`
 
 ## Canonical Types
 

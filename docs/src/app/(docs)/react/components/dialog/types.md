@@ -449,12 +449,12 @@ Present when the button is disabled.
 type DialogCloseDataAttributesdisabled = 'data-disabled';
 ```
 
-### DialogPopupCssVars.nestedDialogs
+### DialogPopupCssVariables.nestedDialogs
 
 Indicates how many dialogs are nested within.
 
 ```typescript
-type DialogPopupCssVarsnestedDialogs = '--nested-dialogs';
+type DialogPopupCssVariablesnestedDialogs = '--nested-dialogs';
 ```
 
 ### DialogPopupDataAttributes.closed
@@ -602,7 +602,7 @@ type preventUnmountOnClose = () => void;
 - `Dialog.Trigger`: `Dialog.Trigger`, `Dialog.Trigger.Props`, `Dialog.Trigger.State`
 - `Dialog.createHandle`
 - `Dialog.Handle`
-- `Default`: `DialogBackdropDataAttributes.open`, `DialogBackdropDataAttributes.closed`, `DialogBackdropDataAttributes.startingStyle`, `DialogBackdropDataAttributes.endingStyle`, `DialogCloseDataAttributes.disabled`, `DialogPopupCssVars.nestedDialogs`, `DialogPopupDataAttributes.open`, `DialogPopupDataAttributes.closed`, `DialogPopupDataAttributes.startingStyle`, `DialogPopupDataAttributes.endingStyle`, `DialogPopupDataAttributes.nested`, `DialogPopupDataAttributes.nestedDialogOpen`, `DialogViewportDataAttributes.open`, `DialogViewportDataAttributes.closed`, `DialogViewportDataAttributes.startingStyle`, `DialogViewportDataAttributes.endingStyle`, `DialogViewportDataAttributes.nested`, `DialogViewportDataAttributes.nestedDialogOpen`, `DialogTriggerDataAttributes.disabled`, `DialogTriggerDataAttributes.popupOpen`, `DialogRootState`, `DialogRootProps`, `DialogRootActions`, `DialogRootChangeEventReason`, `DialogRootChangeEventDetails`, `DialogTriggerProps`, `DialogTriggerState`, `DialogPortalState`, `DialogPortalProps`, `DialogPopupProps`, `DialogPopupState`, `DialogBackdropProps`, `DialogBackdropState`, `DialogTitleProps`, `DialogTitleState`, `DialogDescriptionProps`, `DialogDescriptionState`, `DialogCloseProps`, `DialogCloseState`, `DialogViewportState`, `DialogViewportProps`
+- `Default`: `DialogBackdropDataAttributes.open`, `DialogBackdropDataAttributes.closed`, `DialogBackdropDataAttributes.startingStyle`, `DialogBackdropDataAttributes.endingStyle`, `DialogCloseDataAttributes.disabled`, `DialogPopupCssVariables.nestedDialogs`, `DialogPopupDataAttributes.open`, `DialogPopupDataAttributes.closed`, `DialogPopupDataAttributes.startingStyle`, `DialogPopupDataAttributes.endingStyle`, `DialogPopupDataAttributes.nested`, `DialogPopupDataAttributes.nestedDialogOpen`, `DialogViewportDataAttributes.open`, `DialogViewportDataAttributes.closed`, `DialogViewportDataAttributes.startingStyle`, `DialogViewportDataAttributes.endingStyle`, `DialogViewportDataAttributes.nested`, `DialogViewportDataAttributes.nestedDialogOpen`, `DialogTriggerDataAttributes.disabled`, `DialogTriggerDataAttributes.popupOpen`, `DialogRootState`, `DialogRootProps`, `DialogRootActions`, `DialogRootChangeEventReason`, `DialogRootChangeEventDetails`, `DialogTriggerProps`, `DialogTriggerState`, `DialogPortalState`, `DialogPortalProps`, `DialogPopupProps`, `DialogPopupState`, `DialogBackdropProps`, `DialogBackdropState`, `DialogTitleProps`, `DialogTitleState`, `DialogDescriptionProps`, `DialogDescriptionState`, `DialogCloseProps`, `DialogCloseState`, `DialogViewportState`, `DialogViewportProps`
 
 ## Canonical Types
 

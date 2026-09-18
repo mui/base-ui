@@ -10,9 +10,9 @@ export type * from './viewport/TooltipViewport';
 export type * from './arrow/TooltipArrow';
 
 export * as TooltipTriggerDataAttributes from './trigger/TooltipTriggerDataAttributes';
-export * as TooltipPositionerCssVars from './positioner/TooltipPositionerCssVars';
+export * as TooltipPositionerCssVariables from './positioner/TooltipPositionerCssVars';
 export * as TooltipPositionerDataAttributes from './positioner/TooltipPositionerDataAttributes';
 export * as TooltipPopupDataAttributes from './popup/TooltipPopupDataAttributes';
 export * as TooltipArrowDataAttributes from './arrow/TooltipArrowDataAttributes';
-export * as TooltipViewportCssVars from './viewport/TooltipViewportCssVars';
+export * as TooltipViewportCssVariables from './viewport/TooltipViewportCssVars';
 export * as TooltipViewportDataAttributes from './viewport/TooltipViewportDataAttributes';

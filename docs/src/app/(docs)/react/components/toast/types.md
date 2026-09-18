@@ -928,44 +928,44 @@ type ToastManagerUpdateOptions<Data extends {}> = {
 };
 ```
 
-### ToastPositionerCssVars.anchorHeight
+### ToastPositionerCssVariables.anchorHeight
 
 The anchor's height.
 
 ```typescript
-type ToastPositionerCssVarsanchorHeight = '--anchor-height';
+type ToastPositionerCssVariablesanchorHeight = '--anchor-height';
 ```
 
-### ToastPositionerCssVars.anchorWidth
+### ToastPositionerCssVariables.anchorWidth
 
 The anchor's width.
 
 ```typescript
-type ToastPositionerCssVarsanchorWidth = '--anchor-width';
+type ToastPositionerCssVariablesanchorWidth = '--anchor-width';
 ```
 
-### ToastPositionerCssVars.availableHeight
+### ToastPositionerCssVariables.availableHeight
 
 The available height between the anchor and the edge of the viewport.
 
 ```typescript
-type ToastPositionerCssVarsavailableHeight = '--available-height';
+type ToastPositionerCssVariablesavailableHeight = '--available-height';
 ```
 
-### ToastPositionerCssVars.availableWidth
+### ToastPositionerCssVariables.availableWidth
 
 The available width between the anchor and the edge of the viewport.
 
 ```typescript
-type ToastPositionerCssVarsavailableWidth = '--available-width';
+type ToastPositionerCssVariablesavailableWidth = '--available-width';
 ```
 
-### ToastPositionerCssVars.transformOrigin
+### ToastPositionerCssVariables.transformOrigin
 
 The coordinates that this element is anchored to. Used for animations and transitions.
 
 ```typescript
-type ToastPositionerCssVarstransformOrigin = '--transform-origin';
+type ToastPositionerCssVariablestransformOrigin = '--transform-origin';
 ```
 
 ### ToastPositionerDataAttributes.align
@@ -992,44 +992,44 @@ Indicates which side the toast is positioned relative to the trigger.
 type ToastPositionerDataAttributesside = 'data-side';
 ```
 
-### ToastRootCssVars.height
+### ToastRootCssVariables.height
 
 Indicates the measured natural height of the toast in pixels.
 
 ```typescript
-type ToastRootCssVarsheight = '--toast-height';
+type ToastRootCssVariablesheight = '--toast-height';
 ```
 
-### ToastRootCssVars.index
+### ToastRootCssVariables.index
 
 Indicates the index of the toast in the list.
 
 ```typescript
-type ToastRootCssVarsindex = '--toast-index';
+type ToastRootCssVariablesindex = '--toast-index';
 ```
 
-### ToastRootCssVars.offsetY
+### ToastRootCssVariables.offsetY
 
 Indicates the vertical pixels offset of the toast in the list when expanded.
 
 ```typescript
-type ToastRootCssVarsoffsetY = '--toast-offset-y';
+type ToastRootCssVariablesoffsetY = '--toast-offset-y';
 ```
 
-### ToastRootCssVars.swipeMovementX
+### ToastRootCssVariables.swipeMovementX
 
 Indicates the horizontal swipe movement of the toast.
 
 ```typescript
-type ToastRootCssVarsswipeMovementX = '--toast-swipe-movement-x';
+type ToastRootCssVariablesswipeMovementX = '--toast-swipe-movement-x';
 ```
 
-### ToastRootCssVars.swipeMovementY
+### ToastRootCssVariables.swipeMovementY
 
 Indicates the vertical swipe movement of the toast.
 
 ```typescript
-type ToastRootCssVarsswipeMovementY = '--toast-swipe-movement-y';
+type ToastRootCssVariablesswipeMovementY = '--toast-swipe-movement-y';
 ```
 
 ### ToastRootDataAttributes.endingStyle
@@ -1096,12 +1096,12 @@ The type of the toast.
 type ToastTitleDataAttributestype = 'data-type';
 ```
 
-### ToastViewportCssVars.frontmostHeight
+### ToastViewportCssVariables.frontmostHeight
 
 Indicates the height of the frontmost toast.
 
 ```typescript
-type ToastViewportCssVarsfrontmostHeight = '--toast-frontmost-height';
+type ToastViewportCssVariablesfrontmostHeight = '--toast-frontmost-height';
 ```
 
 ### ToastViewportDataAttributes.expanded
@@ -1171,7 +1171,7 @@ type OffsetFunction = (data: {
 - `Toast.Arrow`: `Toast.Arrow`, `Toast.Arrow.State`, `Toast.Arrow.Props`
 - `Toast.useToastManager`
 - `Toast.createToastManager`
-- `Default`: `ToastViewportCssVars.frontmostHeight`, `ToastViewportDataAttributes.expanded`, `ToastRootCssVars.index`, `ToastRootCssVars.offsetY`, `ToastRootCssVars.height`, `ToastRootCssVars.swipeMovementX`, `ToastRootCssVars.swipeMovementY`, `ToastRootDataAttributes.expanded`, `ToastRootDataAttributes.limited`, `ToastRootDataAttributes.type`, `ToastRootDataAttributes.swiping`, `ToastRootDataAttributes.swipeDirection`, `ToastRootDataAttributes.startingStyle`, `ToastRootDataAttributes.endingStyle`, `ToastContentDataAttributes.expanded`, `ToastContentDataAttributes.behind`, `ToastDescriptionDataAttributes.type`, `ToastTitleDataAttributes.type`, `ToastCloseDataAttributes.type`, `ToastActionDataAttributes.type`, `ToastPositionerCssVars.availableWidth`, `ToastPositionerCssVars.availableHeight`, `ToastPositionerCssVars.anchorWidth`, `ToastPositionerCssVars.anchorHeight`, `ToastPositionerCssVars.transformOrigin`, `ToastPositionerDataAttributes.anchorHidden`, `ToastPositionerDataAttributes.side`, `ToastPositionerDataAttributes.align`, `ToastArrowDataAttributes.side`, `ToastArrowDataAttributes.align`, `ToastArrowDataAttributes.uncentered`, `ToastRootToastObject`, `ToastRootState`, `ToastRootProps`, `ToastProviderState`, `ToastProviderProps`, `ToastViewportState`, `ToastViewportProps`, `ToastContentState`, `ToastContentProps`, `ToastDescriptionState`, `ToastDescriptionProps`, `ToastTitleState`, `ToastTitleProps`, `ToastCloseState`, `ToastCloseProps`, `ToastActionState`, `ToastActionProps`, `ToastPortalState`, `ToastPortalProps`, `ToastPositionerState`, `ToastPositionerProps`, `ToastArrowState`, `ToastArrowProps`, `ToastObject`, `ToastManagerPositionerProps`, `UseToastManagerReturnValue`, `ToastManagerAddOptions`, `ToastManagerUpdateOptions`, `ToastManagerPromiseOptions`, `ToastManager`, `ToastManagerEvent`
+- `Default`: `ToastViewportCssVariables.frontmostHeight`, `ToastViewportDataAttributes.expanded`, `ToastRootCssVariables.index`, `ToastRootCssVariables.offsetY`, `ToastRootCssVariables.height`, `ToastRootCssVariables.swipeMovementX`, `ToastRootCssVariables.swipeMovementY`, `ToastRootDataAttributes.expanded`, `ToastRootDataAttributes.limited`, `ToastRootDataAttributes.type`, `ToastRootDataAttributes.swiping`, `ToastRootDataAttributes.swipeDirection`, `ToastRootDataAttributes.startingStyle`, `ToastRootDataAttributes.endingStyle`, `ToastContentDataAttributes.expanded`, `ToastContentDataAttributes.behind`, `ToastDescriptionDataAttributes.type`, `ToastTitleDataAttributes.type`, `ToastCloseDataAttributes.type`, `ToastActionDataAttributes.type`, `ToastPositionerCssVariables.availableWidth`, `ToastPositionerCssVariables.availableHeight`, `ToastPositionerCssVariables.anchorWidth`, `ToastPositionerCssVariables.anchorHeight`, `ToastPositionerCssVariables.transformOrigin`, `ToastPositionerDataAttributes.anchorHidden`, `ToastPositionerDataAttributes.side`, `ToastPositionerDataAttributes.align`, `ToastArrowDataAttributes.side`, `ToastArrowDataAttributes.align`, `ToastArrowDataAttributes.uncentered`, `ToastRootToastObject`, `ToastRootState`, `ToastRootProps`, `ToastProviderState`, `ToastProviderProps`, `ToastViewportState`, `ToastViewportProps`, `ToastContentState`, `ToastContentProps`, `ToastDescriptionState`, `ToastDescriptionProps`, `ToastTitleState`, `ToastTitleProps`, `ToastCloseState`, `ToastCloseProps`, `ToastActionState`, `ToastActionProps`, `ToastPortalState`, `ToastPortalProps`, `ToastPositionerState`, `ToastPositionerProps`, `ToastArrowState`, `ToastArrowProps`, `ToastObject`, `ToastManagerPositionerProps`, `UseToastManagerReturnValue`, `ToastManagerAddOptions`, `ToastManagerUpdateOptions`, `ToastManagerPromiseOptions`, `ToastManager`, `ToastManagerEvent`
 
 ## Canonical Types
 

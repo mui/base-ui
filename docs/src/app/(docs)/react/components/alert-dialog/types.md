@@ -447,12 +447,12 @@ Present when the button is disabled.
 type AlertDialogCloseDataAttributesdisabled = 'data-disabled';
 ```
 
-### AlertDialogPopupCssVars.nestedDialogs
+### AlertDialogPopupCssVariables.nestedDialogs
 
 Indicates how many dialogs are nested within.
 
 ```typescript
-type AlertDialogPopupCssVarsnestedDialogs = '--nested-dialogs';
+type AlertDialogPopupCssVariablesnestedDialogs = '--nested-dialogs';
 ```
 
 ### AlertDialogPopupDataAttributes.closed
@@ -600,7 +600,7 @@ type InteractionType = 'mouse' | 'touch' | 'pen' | 'keyboard' | '';
 - `AlertDialog.Viewport`: `AlertDialog.Viewport`, `AlertDialog.Viewport.State`, `AlertDialog.Viewport.Props`
 - `AlertDialog.Handle`
 - `AlertDialog.createHandle`
-- `Default`: `AlertDialogBackdropProps`, `AlertDialogBackdropState`, `AlertDialogCloseProps`, `AlertDialogCloseState`, `AlertDialogDescriptionProps`, `AlertDialogDescriptionState`, `AlertDialogPopupProps`, `AlertDialogPopupState`, `AlertDialogPortalProps`, `AlertDialogPortalState`, `AlertDialogTitleProps`, `AlertDialogTitleState`, `AlertDialogViewportProps`, `AlertDialogViewportState`, `AlertDialogBackdropDataAttributes.open`, `AlertDialogBackdropDataAttributes.closed`, `AlertDialogBackdropDataAttributes.startingStyle`, `AlertDialogBackdropDataAttributes.endingStyle`, `AlertDialogCloseDataAttributes.disabled`, `AlertDialogPopupCssVars.nestedDialogs`, `AlertDialogPopupDataAttributes.open`, `AlertDialogPopupDataAttributes.closed`, `AlertDialogPopupDataAttributes.startingStyle`, `AlertDialogPopupDataAttributes.endingStyle`, `AlertDialogPopupDataAttributes.nested`, `AlertDialogPopupDataAttributes.nestedDialogOpen`, `AlertDialogTriggerDataAttributes.disabled`, `AlertDialogTriggerDataAttributes.popupOpen`, `AlertDialogViewportDataAttributes.open`, `AlertDialogViewportDataAttributes.closed`, `AlertDialogViewportDataAttributes.startingStyle`, `AlertDialogViewportDataAttributes.endingStyle`, `AlertDialogViewportDataAttributes.nested`, `AlertDialogViewportDataAttributes.nestedDialogOpen`, `AlertDialogRootState`, `AlertDialogRootProps`, `AlertDialogRootActions`, `AlertDialogRootChangeEventReason`, `AlertDialogRootChangeEventDetails`, `AlertDialogTriggerProps`, `AlertDialogTriggerState`
+- `Default`: `AlertDialogBackdropProps`, `AlertDialogBackdropState`, `AlertDialogCloseProps`, `AlertDialogCloseState`, `AlertDialogDescriptionProps`, `AlertDialogDescriptionState`, `AlertDialogPopupProps`, `AlertDialogPopupState`, `AlertDialogPortalProps`, `AlertDialogPortalState`, `AlertDialogTitleProps`, `AlertDialogTitleState`, `AlertDialogViewportProps`, `AlertDialogViewportState`, `AlertDialogBackdropDataAttributes.open`, `AlertDialogBackdropDataAttributes.closed`, `AlertDialogBackdropDataAttributes.startingStyle`, `AlertDialogBackdropDataAttributes.endingStyle`, `AlertDialogCloseDataAttributes.disabled`, `AlertDialogPopupCssVariables.nestedDialogs`, `AlertDialogPopupDataAttributes.open`, `AlertDialogPopupDataAttributes.closed`, `AlertDialogPopupDataAttributes.startingStyle`, `AlertDialogPopupDataAttributes.endingStyle`, `AlertDialogPopupDataAttributes.nested`, `AlertDialogPopupDataAttributes.nestedDialogOpen`, `AlertDialogTriggerDataAttributes.disabled`, `AlertDialogTriggerDataAttributes.popupOpen`, `AlertDialogViewportDataAttributes.open`, `AlertDialogViewportDataAttributes.closed`, `AlertDialogViewportDataAttributes.startingStyle`, `AlertDialogViewportDataAttributes.endingStyle`, `AlertDialogViewportDataAttributes.nested`, `AlertDialogViewportDataAttributes.nestedDialogOpen`, `AlertDialogRootState`, `AlertDialogRootProps`, `AlertDialogRootActions`, `AlertDialogRootChangeEventReason`, `AlertDialogRootChangeEventDetails`, `AlertDialogTriggerProps`, `AlertDialogTriggerState`
 
 ## Canonical Types
 

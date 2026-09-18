@@ -24,7 +24,7 @@ export * as SelectTriggerDataAttributes from './trigger/SelectTriggerDataAttribu
 export * as SelectValueDataAttributes from './value/SelectValueDataAttributes';
 export * as SelectIconDataAttributes from './icon/SelectIconDataAttributes';
 export * as SelectBackdropDataAttributes from './backdrop/SelectBackdropDataAttributes';
-export * as SelectPositionerCssVars from './positioner/SelectPositionerCssVars';
+export * as SelectPositionerCssVariables from './positioner/SelectPositionerCssVars';
 export * as SelectPositionerDataAttributes from './positioner/SelectPositionerDataAttributes';
 export * as SelectPopupDataAttributes from './popup/SelectPopupDataAttributes';
 export * as SelectItemDataAttributes from './item/SelectItemDataAttributes';

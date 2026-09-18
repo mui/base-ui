@@ -20,7 +20,7 @@ describe('@base-ui/react', () => {
 
   it('should export data attribute and CSS variable constants', () => {
     const metadata = Object.entries(BaseUI).filter(([name]) =>
-      /(?:DataAttributes|CssVars)$/.test(name),
+      /(?:DataAttributes|CssVariables)$/.test(name),
     );
 
     expect(metadata.length).toBeGreaterThan(0);
@@ -30,16 +30,16 @@ describe('@base-ui/react', () => {
       expect(constants.length).toBeGreaterThan(0);
 
       constants.forEach(([key, value]) => {
-        expect(value, `${name}.${key}`).toMatch(name.endsWith('CssVars') ? /^--/ : /^data-/);
+        expect(value, `${name}.${key}`).toMatch(name.endsWith('CssVariables') ? /^--/ : /^data-/);
       });
     });
 
-    expect(BaseUI.DialogPopupCssVars.nestedDialogs).toBe('--nested-dialogs');
+    expect(BaseUI.DialogPopupCssVariables.nestedDialogs).toBe('--nested-dialogs');
     expect(BaseUI.DialogPopupDataAttributes.open).toBe('data-open');
   });
 
   it('should export borrowed metadata under the derived component name', () => {
-    expect(BaseUI.AlertDialogPopupCssVars).toBe(BaseUI.DialogPopupCssVars);
+    expect(BaseUI.AlertDialogPopupCssVariables).toBe(BaseUI.DialogPopupCssVariables);
     expect(BaseUI.AlertDialogPopupDataAttributes).toBe(BaseUI.DialogPopupDataAttributes);
     expect(BaseUI.AutocompletePopupDataAttributes).toBe(BaseUI.ComboboxPopupDataAttributes);
     expect(BaseUI.ContextMenuItemDataAttributes).toBe(BaseUI.MenuItemDataAttributes);

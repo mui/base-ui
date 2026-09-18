@@ -1372,44 +1372,44 @@ Present when the popup begins animating in.
 type AutocompletePopupDataAttributesstartingStyle = 'data-starting-style';
 ```
 
-### AutocompletePositionerCssVars.anchorHeight
+### AutocompletePositionerCssVariables.anchorHeight
 
 The anchor's height.
 
 ```typescript
-type AutocompletePositionerCssVarsanchorHeight = '--anchor-height';
+type AutocompletePositionerCssVariablesanchorHeight = '--anchor-height';
 ```
 
-### AutocompletePositionerCssVars.anchorWidth
+### AutocompletePositionerCssVariables.anchorWidth
 
 The anchor's width.
 
 ```typescript
-type AutocompletePositionerCssVarsanchorWidth = '--anchor-width';
+type AutocompletePositionerCssVariablesanchorWidth = '--anchor-width';
 ```
 
-### AutocompletePositionerCssVars.availableHeight
+### AutocompletePositionerCssVariables.availableHeight
 
 The available height between the trigger and the edge of the viewport.
 
 ```typescript
-type AutocompletePositionerCssVarsavailableHeight = '--available-height';
+type AutocompletePositionerCssVariablesavailableHeight = '--available-height';
 ```
 
-### AutocompletePositionerCssVars.availableWidth
+### AutocompletePositionerCssVariables.availableWidth
 
 The available width between the trigger and the edge of the viewport.
 
 ```typescript
-type AutocompletePositionerCssVarsavailableWidth = '--available-width';
+type AutocompletePositionerCssVariablesavailableWidth = '--available-width';
 ```
 
-### AutocompletePositionerCssVars.transformOrigin
+### AutocompletePositionerCssVariables.transformOrigin
 
 The coordinates that this element is anchored to. Used for animations and transitions.
 
 ```typescript
-type AutocompletePositionerCssVarstransformOrigin = '--transform-origin';
+type AutocompletePositionerCssVariablestransformOrigin = '--transform-origin';
 ```
 
 ### AutocompletePositionerDataAttributes.align
@@ -1626,7 +1626,7 @@ type Orientation = 'horizontal' | 'vertical';
 - `Autocomplete.Separator`: `Autocomplete.Separator`, `Autocomplete.Separator.Props`, `Autocomplete.Separator.State`
 - `Autocomplete.useFilter`
 - `Autocomplete.useFilteredItems`
-- `Default`: `AutocompleteSeparatorProps`, `AutocompleteSeparatorState`, `AutocompleteInputProps`, `AutocompleteInputState`, `AutocompleteIconProps`, `AutocompleteIconState`, `AutocompleteClearProps`, `AutocompleteClearState`, `AutocompletePopupProps`, `AutocompletePopupState`, `AutocompletePositionerProps`, `AutocompletePositionerState`, `AutocompleteListProps`, `AutocompleteListState`, `AutocompleteRowProps`, `AutocompleteRowState`, `AutocompleteArrowProps`, `AutocompleteArrowState`, `AutocompleteBackdropProps`, `AutocompleteBackdropState`, `AutocompletePortalProps`, `AutocompletePortalState`, `AutocompleteGroupProps`, `AutocompleteGroupState`, `AutocompleteGroupLabelProps`, `AutocompleteGroupLabelState`, `AutocompleteEmptyProps`, `AutocompleteEmptyState`, `AutocompleteStatusProps`, `AutocompleteStatusState`, `AutocompleteCollectionState`, `AutocompleteCollectionProps`, `AutocompleteFilter`, `AutocompleteFilterOptions`, `AutocompleteTriggerDataAttributes.popupOpen`, `AutocompleteTriggerDataAttributes.pressed`, `AutocompleteTriggerDataAttributes.disabled`, `AutocompleteTriggerDataAttributes.readonly`, `AutocompleteTriggerDataAttributes.popupSide`, `AutocompleteTriggerDataAttributes.required`, `AutocompleteTriggerDataAttributes.valid`, `AutocompleteTriggerDataAttributes.invalid`, `AutocompleteTriggerDataAttributes.touched`, `AutocompleteTriggerDataAttributes.dirty`, `AutocompleteTriggerDataAttributes.filled`, `AutocompleteTriggerDataAttributes.focused`, `AutocompleteTriggerDataAttributes.listEmpty`, `AutocompleteInputDataAttributes.popupOpen`, `AutocompleteInputDataAttributes.pressed`, `AutocompleteInputDataAttributes.disabled`, `AutocompleteInputDataAttributes.readonly`, `AutocompleteInputDataAttributes.popupSide`, `AutocompleteInputDataAttributes.required`, `AutocompleteInputDataAttributes.valid`, `AutocompleteInputDataAttributes.invalid`, `AutocompleteInputDataAttributes.touched`, `AutocompleteInputDataAttributes.dirty`, `AutocompleteInputDataAttributes.filled`, `AutocompleteInputDataAttributes.focused`, `AutocompleteInputDataAttributes.listEmpty`, `AutocompleteInputGroupDataAttributes.popupOpen`, `AutocompleteInputGroupDataAttributes.pressed`, `AutocompleteInputGroupDataAttributes.disabled`, `AutocompleteInputGroupDataAttributes.readonly`, `AutocompleteInputGroupDataAttributes.popupSide`, `AutocompleteInputGroupDataAttributes.valid`, `AutocompleteInputGroupDataAttributes.invalid`, `AutocompleteInputGroupDataAttributes.touched`, `AutocompleteInputGroupDataAttributes.dirty`, `AutocompleteInputGroupDataAttributes.filled`, `AutocompleteInputGroupDataAttributes.focused`, `AutocompleteInputGroupDataAttributes.listEmpty`, `AutocompleteClearDataAttributes.popupOpen`, `AutocompleteClearDataAttributes.disabled`, `AutocompleteClearDataAttributes.visible`, `AutocompleteClearDataAttributes.startingStyle`, `AutocompleteClearDataAttributes.endingStyle`, `AutocompleteBackdropDataAttributes.open`, `AutocompleteBackdropDataAttributes.closed`, `AutocompleteBackdropDataAttributes.startingStyle`, `AutocompleteBackdropDataAttributes.endingStyle`, `AutocompletePositionerCssVars.availableWidth`, `AutocompletePositionerCssVars.availableHeight`, `AutocompletePositionerCssVars.anchorWidth`, `AutocompletePositionerCssVars.anchorHeight`, `AutocompletePositionerCssVars.transformOrigin`, `AutocompletePositionerDataAttributes.open`, `AutocompletePositionerDataAttributes.closed`, `AutocompletePositionerDataAttributes.anchorHidden`, `AutocompletePositionerDataAttributes.side`, `AutocompletePositionerDataAttributes.align`, `AutocompletePositionerDataAttributes.empty`, `AutocompletePopupDataAttributes.open`, `AutocompletePopupDataAttributes.closed`, `AutocompletePopupDataAttributes.startingStyle`, `AutocompletePopupDataAttributes.endingStyle`, `AutocompletePopupDataAttributes.side`, `AutocompletePopupDataAttributes.align`, `AutocompletePopupDataAttributes.anchorHidden`, `AutocompletePopupDataAttributes.empty`, `AutocompleteArrowDataAttributes.open`, `AutocompleteArrowDataAttributes.closed`, `AutocompleteArrowDataAttributes.side`, `AutocompleteArrowDataAttributes.align`, `AutocompleteArrowDataAttributes.uncentered`, `AutocompleteItemDataAttributes.highlighted`, `AutocompleteItemDataAttributes.disabled`, `AutocompleteRootState`, `AutocompleteRootActions`, `AutocompleteRootChangeEventReason`, `AutocompleteRootChangeEventDetails`, `AutocompleteRootHighlightEventReason`, `AutocompleteRootHighlightEventDetails`, `AutocompleteRootProps`, `AutocompleteTriggerState`, `AutocompleteTriggerProps`, `AutocompleteInputGroupState`, `AutocompleteInputGroupProps`, `AutocompleteItemState`, `AutocompleteItemProps`, `AutocompleteValueState`, `AutocompleteValueProps`
+- `Default`: `AutocompleteSeparatorProps`, `AutocompleteSeparatorState`, `AutocompleteInputProps`, `AutocompleteInputState`, `AutocompleteIconProps`, `AutocompleteIconState`, `AutocompleteClearProps`, `AutocompleteClearState`, `AutocompletePopupProps`, `AutocompletePopupState`, `AutocompletePositionerProps`, `AutocompletePositionerState`, `AutocompleteListProps`, `AutocompleteListState`, `AutocompleteRowProps`, `AutocompleteRowState`, `AutocompleteArrowProps`, `AutocompleteArrowState`, `AutocompleteBackdropProps`, `AutocompleteBackdropState`, `AutocompletePortalProps`, `AutocompletePortalState`, `AutocompleteGroupProps`, `AutocompleteGroupState`, `AutocompleteGroupLabelProps`, `AutocompleteGroupLabelState`, `AutocompleteEmptyProps`, `AutocompleteEmptyState`, `AutocompleteStatusProps`, `AutocompleteStatusState`, `AutocompleteCollectionState`, `AutocompleteCollectionProps`, `AutocompleteFilter`, `AutocompleteFilterOptions`, `AutocompleteTriggerDataAttributes.popupOpen`, `AutocompleteTriggerDataAttributes.pressed`, `AutocompleteTriggerDataAttributes.disabled`, `AutocompleteTriggerDataAttributes.readonly`, `AutocompleteTriggerDataAttributes.popupSide`, `AutocompleteTriggerDataAttributes.required`, `AutocompleteTriggerDataAttributes.valid`, `AutocompleteTriggerDataAttributes.invalid`, `AutocompleteTriggerDataAttributes.touched`, `AutocompleteTriggerDataAttributes.dirty`, `AutocompleteTriggerDataAttributes.filled`, `AutocompleteTriggerDataAttributes.focused`, `AutocompleteTriggerDataAttributes.listEmpty`, `AutocompleteInputDataAttributes.popupOpen`, `AutocompleteInputDataAttributes.pressed`, `AutocompleteInputDataAttributes.disabled`, `AutocompleteInputDataAttributes.readonly`, `AutocompleteInputDataAttributes.popupSide`, `AutocompleteInputDataAttributes.required`, `AutocompleteInputDataAttributes.valid`, `AutocompleteInputDataAttributes.invalid`, `AutocompleteInputDataAttributes.touched`, `AutocompleteInputDataAttributes.dirty`, `AutocompleteInputDataAttributes.filled`, `AutocompleteInputDataAttributes.focused`, `AutocompleteInputDataAttributes.listEmpty`, `AutocompleteInputGroupDataAttributes.popupOpen`, `AutocompleteInputGroupDataAttributes.pressed`, `AutocompleteInputGroupDataAttributes.disabled`, `AutocompleteInputGroupDataAttributes.readonly`, `AutocompleteInputGroupDataAttributes.popupSide`, `AutocompleteInputGroupDataAttributes.valid`, `AutocompleteInputGroupDataAttributes.invalid`, `AutocompleteInputGroupDataAttributes.touched`, `AutocompleteInputGroupDataAttributes.dirty`, `AutocompleteInputGroupDataAttributes.filled`, `AutocompleteInputGroupDataAttributes.focused`, `AutocompleteInputGroupDataAttributes.listEmpty`, `AutocompleteClearDataAttributes.popupOpen`, `AutocompleteClearDataAttributes.disabled`, `AutocompleteClearDataAttributes.visible`, `AutocompleteClearDataAttributes.startingStyle`, `AutocompleteClearDataAttributes.endingStyle`, `AutocompleteBackdropDataAttributes.open`, `AutocompleteBackdropDataAttributes.closed`, `AutocompleteBackdropDataAttributes.startingStyle`, `AutocompleteBackdropDataAttributes.endingStyle`, `AutocompletePositionerCssVariables.availableWidth`, `AutocompletePositionerCssVariables.availableHeight`, `AutocompletePositionerCssVariables.anchorWidth`, `AutocompletePositionerCssVariables.anchorHeight`, `AutocompletePositionerCssVariables.transformOrigin`, `AutocompletePositionerDataAttributes.open`, `AutocompletePositionerDataAttributes.closed`, `AutocompletePositionerDataAttributes.anchorHidden`, `AutocompletePositionerDataAttributes.side`, `AutocompletePositionerDataAttributes.align`, `AutocompletePositionerDataAttributes.empty`, `AutocompletePopupDataAttributes.open`, `AutocompletePopupDataAttributes.closed`, `AutocompletePopupDataAttributes.startingStyle`, `AutocompletePopupDataAttributes.endingStyle`, `AutocompletePopupDataAttributes.side`, `AutocompletePopupDataAttributes.align`, `AutocompletePopupDataAttributes.anchorHidden`, `AutocompletePopupDataAttributes.empty`, `AutocompleteArrowDataAttributes.open`, `AutocompleteArrowDataAttributes.closed`, `AutocompleteArrowDataAttributes.side`, `AutocompleteArrowDataAttributes.align`, `AutocompleteArrowDataAttributes.uncentered`, `AutocompleteItemDataAttributes.highlighted`, `AutocompleteItemDataAttributes.disabled`, `AutocompleteRootState`, `AutocompleteRootActions`, `AutocompleteRootChangeEventReason`, `AutocompleteRootChangeEventDetails`, `AutocompleteRootHighlightEventReason`, `AutocompleteRootHighlightEventDetails`, `AutocompleteRootProps`, `AutocompleteTriggerState`, `AutocompleteTriggerProps`, `AutocompleteInputGroupState`, `AutocompleteInputGroupProps`, `AutocompleteItemState`, `AutocompleteItemProps`, `AutocompleteValueState`, `AutocompleteValueProps`
 
 ## Canonical Types
 

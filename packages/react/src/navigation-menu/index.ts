@@ -16,10 +16,10 @@ export type * from './icon/NavigationMenuIcon';
 
 export * as NavigationMenuContentDataAttributes from './content/NavigationMenuContentDataAttributes';
 export * as NavigationMenuTriggerDataAttributes from './trigger/NavigationMenuTriggerDataAttributes';
-export * as NavigationMenuPositionerCssVars from './positioner/NavigationMenuPositionerCssVars';
+export * as NavigationMenuPositionerCssVariables from './positioner/NavigationMenuPositionerCssVars';
 export * as NavigationMenuPositionerDataAttributes from './positioner/NavigationMenuPositionerDataAttributes';
 export * as NavigationMenuBackdropDataAttributes from './backdrop/NavigationMenuBackdropDataAttributes';
-export * as NavigationMenuPopupCssVars from './popup/NavigationMenuPopupCssVars';
+export * as NavigationMenuPopupCssVariables from './popup/NavigationMenuPopupCssVars';
 export * as NavigationMenuPopupDataAttributes from './popup/NavigationMenuPopupDataAttributes';
 export * as NavigationMenuArrowDataAttributes from './arrow/NavigationMenuArrowDataAttributes';
 export * as NavigationMenuLinkDataAttributes from './link/NavigationMenuLinkDataAttributes';

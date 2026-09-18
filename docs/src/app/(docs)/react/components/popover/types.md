@@ -623,20 +623,20 @@ Present when the popup begins animating in.
 type PopoverBackdropDataAttributesstartingStyle = 'data-starting-style';
 ```
 
-### PopoverPopupCssVars.popupHeight
+### PopoverPopupCssVariables.popupHeight
 
 The height of the popup.
 
 ```typescript
-type PopoverPopupCssVarspopupHeight = '--popup-height';
+type PopoverPopupCssVariablespopupHeight = '--popup-height';
 ```
 
-### PopoverPopupCssVars.popupWidth
+### PopoverPopupCssVariables.popupWidth
 
 The width of the popup.
 
 ```typescript
-type PopoverPopupCssVarspopupWidth = '--popup-width';
+type PopoverPopupCssVariablespopupWidth = '--popup-width';
 ```
 
 ### PopoverPopupDataAttributes.align
@@ -695,62 +695,62 @@ Present when the popup begins animating in.
 type PopoverPopupDataAttributesstartingStyle = 'data-starting-style';
 ```
 
-### PopoverPositionerCssVars.anchorHeight
+### PopoverPositionerCssVariables.anchorHeight
 
 The anchor's height.
 
 ```typescript
-type PopoverPositionerCssVarsanchorHeight = '--anchor-height';
+type PopoverPositionerCssVariablesanchorHeight = '--anchor-height';
 ```
 
-### PopoverPositionerCssVars.anchorWidth
+### PopoverPositionerCssVariables.anchorWidth
 
 The anchor's width.
 
 ```typescript
-type PopoverPositionerCssVarsanchorWidth = '--anchor-width';
+type PopoverPositionerCssVariablesanchorWidth = '--anchor-width';
 ```
 
-### PopoverPositionerCssVars.availableHeight
+### PopoverPositionerCssVariables.availableHeight
 
 The available height between the trigger and the edge of the viewport.
 
 ```typescript
-type PopoverPositionerCssVarsavailableHeight = '--available-height';
+type PopoverPositionerCssVariablesavailableHeight = '--available-height';
 ```
 
-### PopoverPositionerCssVars.availableWidth
+### PopoverPositionerCssVariables.availableWidth
 
 The available width between the trigger and the edge of the viewport.
 
 ```typescript
-type PopoverPositionerCssVarsavailableWidth = '--available-width';
+type PopoverPositionerCssVariablesavailableWidth = '--available-width';
 ```
 
-### PopoverPositionerCssVars.positionerHeight
+### PopoverPositionerCssVariables.positionerHeight
 
 The height of the popover's positioner.
 It is important to set `height` to this value when using CSS to animate size changes.
 
 ```typescript
-type PopoverPositionerCssVarspositionerHeight = '--positioner-height';
+type PopoverPositionerCssVariablespositionerHeight = '--positioner-height';
 ```
 
-### PopoverPositionerCssVars.positionerWidth
+### PopoverPositionerCssVariables.positionerWidth
 
 The width of the popover's positioner.
 It is important to set `width` to this value when using CSS to animate size changes.
 
 ```typescript
-type PopoverPositionerCssVarspositionerWidth = '--positioner-width';
+type PopoverPositionerCssVariablespositionerWidth = '--positioner-width';
 ```
 
-### PopoverPositionerCssVars.transformOrigin
+### PopoverPositionerCssVariables.transformOrigin
 
 The coordinates that this element is anchored to. Used for animations and transitions.
 
 ```typescript
-type PopoverPositionerCssVarstransformOrigin = '--transform-origin';
+type PopoverPositionerCssVariablestransformOrigin = '--transform-origin';
 ```
 
 ### PopoverPositionerDataAttributes.align
@@ -817,24 +817,24 @@ Present when the trigger is pressed.
 type PopoverTriggerDataAttributespressed = 'data-pressed';
 ```
 
-### PopoverViewportCssVars.popupHeight
+### PopoverViewportCssVariables.popupHeight
 
 The height of the parent popup.
 This variable is placed on the 'previous' container and stores the height of the popup when the previous content was rendered.
 It can be used to freeze the dimensions of the popup when animating between different content.
 
 ```typescript
-type PopoverViewportCssVarspopupHeight = '--popup-height';
+type PopoverViewportCssVariablespopupHeight = '--popup-height';
 ```
 
-### PopoverViewportCssVars.popupWidth
+### PopoverViewportCssVariables.popupWidth
 
 The width of the parent popup.
 This variable is placed on the 'previous' container and stores the width of the popup when the previous content was rendered.
 It can be used to freeze the dimensions of the popup when animating between different content.
 
 ```typescript
-type PopoverViewportCssVarspopupWidth = '--popup-width';
+type PopoverViewportCssVariablespopupWidth = '--popup-width';
 ```
 
 ### PopoverViewportDataAttributes.activationDirection
@@ -937,7 +937,7 @@ type InteractionType = 'mouse' | 'touch' | 'pen' | 'keyboard' | '';
 - `Popover.Viewport`: `Popover.Viewport`, `Popover.Viewport.Props`, `Popover.Viewport.State`
 - `Popover.createHandle`
 - `Popover.Handle`
-- `Default`: `PopoverTriggerDataAttributes.popupOpen`, `PopoverTriggerDataAttributes.pressed`, `PopoverTriggerDataAttributes.disabled`, `PopoverPositionerCssVars.availableWidth`, `PopoverPositionerCssVars.availableHeight`, `PopoverPositionerCssVars.anchorWidth`, `PopoverPositionerCssVars.anchorHeight`, `PopoverPositionerCssVars.transformOrigin`, `PopoverPositionerCssVars.positionerWidth`, `PopoverPositionerCssVars.positionerHeight`, `PopoverPositionerDataAttributes.open`, `PopoverPositionerDataAttributes.closed`, `PopoverPositionerDataAttributes.anchorHidden`, `PopoverPositionerDataAttributes.side`, `PopoverPositionerDataAttributes.align`, `PopoverPopupCssVars.popupWidth`, `PopoverPopupCssVars.popupHeight`, `PopoverPopupDataAttributes.open`, `PopoverPopupDataAttributes.closed`, `PopoverPopupDataAttributes.startingStyle`, `PopoverPopupDataAttributes.endingStyle`, `PopoverPopupDataAttributes.side`, `PopoverPopupDataAttributes.align`, `PopoverPopupDataAttributes.instant`, `PopoverArrowDataAttributes.open`, `PopoverArrowDataAttributes.closed`, `PopoverArrowDataAttributes.side`, `PopoverArrowDataAttributes.align`, `PopoverArrowDataAttributes.uncentered`, `PopoverBackdropDataAttributes.open`, `PopoverBackdropDataAttributes.closed`, `PopoverBackdropDataAttributes.startingStyle`, `PopoverBackdropDataAttributes.endingStyle`, `PopoverViewportCssVars.popupWidth`, `PopoverViewportCssVars.popupHeight`, `PopoverViewportDataAttributes.current`, `PopoverViewportDataAttributes.previous`, `PopoverViewportDataAttributes.activationDirection`, `PopoverViewportDataAttributes.transitioning`, `PopoverViewportDataAttributes.instant`, `PopoverRootState`, `PopoverRootProps`, `PopoverRootActions`, `PopoverRootChangeEventReason`, `PopoverRootChangeEventDetails`, `PopoverTriggerState`, `PopoverTriggerProps`, `PopoverPortalState`, `PopoverPortalProps`, `PopoverPositionerState`, `PopoverPositionerProps`, `PopoverPopupState`, `PopoverPopupProps`, `PopoverArrowState`, `PopoverArrowProps`, `PopoverBackdropState`, `PopoverBackdropProps`, `PopoverTitleState`, `PopoverTitleProps`, `PopoverDescriptionState`, `PopoverDescriptionProps`, `PopoverCloseState`, `PopoverCloseProps`, `PopoverViewportState`, `PopoverViewportProps`
+- `Default`: `PopoverTriggerDataAttributes.popupOpen`, `PopoverTriggerDataAttributes.pressed`, `PopoverTriggerDataAttributes.disabled`, `PopoverPositionerCssVariables.availableWidth`, `PopoverPositionerCssVariables.availableHeight`, `PopoverPositionerCssVariables.anchorWidth`, `PopoverPositionerCssVariables.anchorHeight`, `PopoverPositionerCssVariables.transformOrigin`, `PopoverPositionerCssVariables.positionerWidth`, `PopoverPositionerCssVariables.positionerHeight`, `PopoverPositionerDataAttributes.open`, `PopoverPositionerDataAttributes.closed`, `PopoverPositionerDataAttributes.anchorHidden`, `PopoverPositionerDataAttributes.side`, `PopoverPositionerDataAttributes.align`, `PopoverPopupCssVariables.popupWidth`, `PopoverPopupCssVariables.popupHeight`, `PopoverPopupDataAttributes.open`, `PopoverPopupDataAttributes.closed`, `PopoverPopupDataAttributes.startingStyle`, `PopoverPopupDataAttributes.endingStyle`, `PopoverPopupDataAttributes.side`, `PopoverPopupDataAttributes.align`, `PopoverPopupDataAttributes.instant`, `PopoverArrowDataAttributes.open`, `PopoverArrowDataAttributes.closed`, `PopoverArrowDataAttributes.side`, `PopoverArrowDataAttributes.align`, `PopoverArrowDataAttributes.uncentered`, `PopoverBackdropDataAttributes.open`, `PopoverBackdropDataAttributes.closed`, `PopoverBackdropDataAttributes.startingStyle`, `PopoverBackdropDataAttributes.endingStyle`, `PopoverViewportCssVariables.popupWidth`, `PopoverViewportCssVariables.popupHeight`, `PopoverViewportDataAttributes.current`, `PopoverViewportDataAttributes.previous`, `PopoverViewportDataAttributes.activationDirection`, `PopoverViewportDataAttributes.transitioning`, `PopoverViewportDataAttributes.instant`, `PopoverRootState`, `PopoverRootProps`, `PopoverRootActions`, `PopoverRootChangeEventReason`, `PopoverRootChangeEventDetails`, `PopoverTriggerState`, `PopoverTriggerProps`, `PopoverPortalState`, `PopoverPortalProps`, `PopoverPositionerState`, `PopoverPositionerProps`, `PopoverPopupState`, `PopoverPopupProps`, `PopoverArrowState`, `PopoverArrowProps`, `PopoverBackdropState`, `PopoverBackdropProps`, `PopoverTitleState`, `PopoverTitleProps`, `PopoverDescriptionState`, `PopoverDescriptionProps`, `PopoverCloseState`, `PopoverCloseProps`, `PopoverViewportState`, `PopoverViewportProps`
 
 ## Canonical Types
 

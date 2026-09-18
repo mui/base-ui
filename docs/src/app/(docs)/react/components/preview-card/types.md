@@ -579,62 +579,62 @@ Present when the preview card begins animating in.
 type PreviewCardPopupDataAttributesstartingStyle = 'data-starting-style';
 ```
 
-### PreviewCardPositionerCssVars.anchorHeight
+### PreviewCardPositionerCssVariables.anchorHeight
 
 The anchor's height.
 
 ```typescript
-type PreviewCardPositionerCssVarsanchorHeight = '--anchor-height';
+type PreviewCardPositionerCssVariablesanchorHeight = '--anchor-height';
 ```
 
-### PreviewCardPositionerCssVars.anchorWidth
+### PreviewCardPositionerCssVariables.anchorWidth
 
 The anchor's width.
 
 ```typescript
-type PreviewCardPositionerCssVarsanchorWidth = '--anchor-width';
+type PreviewCardPositionerCssVariablesanchorWidth = '--anchor-width';
 ```
 
-### PreviewCardPositionerCssVars.availableHeight
+### PreviewCardPositionerCssVariables.availableHeight
 
 The available height between the trigger and the edge of the viewport.
 
 ```typescript
-type PreviewCardPositionerCssVarsavailableHeight = '--available-height';
+type PreviewCardPositionerCssVariablesavailableHeight = '--available-height';
 ```
 
-### PreviewCardPositionerCssVars.availableWidth
+### PreviewCardPositionerCssVariables.availableWidth
 
 The available width between the trigger and the edge of the viewport.
 
 ```typescript
-type PreviewCardPositionerCssVarsavailableWidth = '--available-width';
+type PreviewCardPositionerCssVariablesavailableWidth = '--available-width';
 ```
 
-### PreviewCardPositionerCssVars.positionerHeight
+### PreviewCardPositionerCssVariables.positionerHeight
 
 The height of the preview card's positioner.
 It is important to set `height` to this value when using CSS to animate size changes.
 
 ```typescript
-type PreviewCardPositionerCssVarspositionerHeight = '--positioner-height';
+type PreviewCardPositionerCssVariablespositionerHeight = '--positioner-height';
 ```
 
-### PreviewCardPositionerCssVars.positionerWidth
+### PreviewCardPositionerCssVariables.positionerWidth
 
 The width of the preview card's positioner.
 It is important to set `width` to this value when using CSS to animate size changes.
 
 ```typescript
-type PreviewCardPositionerCssVarspositionerWidth = '--positioner-width';
+type PreviewCardPositionerCssVariablespositionerWidth = '--positioner-width';
 ```
 
-### PreviewCardPositionerCssVars.transformOrigin
+### PreviewCardPositionerCssVariables.transformOrigin
 
 The coordinates that this element is anchored to. Used for animations and transitions.
 
 ```typescript
-type PreviewCardPositionerCssVarstransformOrigin = '--transform-origin';
+type PreviewCardPositionerCssVariablestransformOrigin = '--transform-origin';
 ```
 
 ### PreviewCardPositionerDataAttributes.align
@@ -685,24 +685,24 @@ Present when the corresponding preview card is open.
 type PreviewCardTriggerDataAttributespopupOpen = 'data-popup-open';
 ```
 
-### PreviewCardViewportCssVars.popupHeight
+### PreviewCardViewportCssVariables.popupHeight
 
 The height of the parent popup.
 This variable is placed on the 'previous' container and stores the height of the popup when the previous content was rendered.
 It can be used to freeze the dimensions of the popup when animating between different content.
 
 ```typescript
-type PreviewCardViewportCssVarspopupHeight = '--popup-height';
+type PreviewCardViewportCssVariablespopupHeight = '--popup-height';
 ```
 
-### PreviewCardViewportCssVars.popupWidth
+### PreviewCardViewportCssVariables.popupWidth
 
 The width of the parent popup.
 This variable is placed on the 'previous' container and stores the width of the popup when the previous content was rendered.
 It can be used to freeze the dimensions of the popup when animating between different content.
 
 ```typescript
-type PreviewCardViewportCssVarspopupWidth = '--popup-width';
+type PreviewCardViewportCssVariablespopupWidth = '--popup-width';
 ```
 
 ### PreviewCardViewportDataAttributes.activationDirection
@@ -796,7 +796,7 @@ type OffsetFunction = (data: {
 - `PreviewCard.Viewport`: `PreviewCard.Viewport`, `PreviewCard.Viewport.Props`, `PreviewCard.Viewport.State`
 - `PreviewCard.createHandle`
 - `PreviewCard.Handle`
-- `Default`: `PreviewCardTriggerDataAttributes.popupOpen`, `PreviewCardPositionerCssVars.availableWidth`, `PreviewCardPositionerCssVars.availableHeight`, `PreviewCardPositionerCssVars.anchorWidth`, `PreviewCardPositionerCssVars.anchorHeight`, `PreviewCardPositionerCssVars.transformOrigin`, `PreviewCardPositionerCssVars.positionerWidth`, `PreviewCardPositionerCssVars.positionerHeight`, `PreviewCardPositionerDataAttributes.open`, `PreviewCardPositionerDataAttributes.closed`, `PreviewCardPositionerDataAttributes.anchorHidden`, `PreviewCardPositionerDataAttributes.side`, `PreviewCardPositionerDataAttributes.align`, `PreviewCardPopupDataAttributes.open`, `PreviewCardPopupDataAttributes.closed`, `PreviewCardPopupDataAttributes.startingStyle`, `PreviewCardPopupDataAttributes.endingStyle`, `PreviewCardPopupDataAttributes.side`, `PreviewCardPopupDataAttributes.align`, `PreviewCardArrowDataAttributes.open`, `PreviewCardArrowDataAttributes.closed`, `PreviewCardArrowDataAttributes.side`, `PreviewCardArrowDataAttributes.align`, `PreviewCardArrowDataAttributes.uncentered`, `PreviewCardBackdropDataAttributes.open`, `PreviewCardBackdropDataAttributes.closed`, `PreviewCardBackdropDataAttributes.startingStyle`, `PreviewCardBackdropDataAttributes.endingStyle`, `PreviewCardViewportCssVars.popupWidth`, `PreviewCardViewportCssVars.popupHeight`, `PreviewCardViewportDataAttributes.current`, `PreviewCardViewportDataAttributes.previous`, `PreviewCardViewportDataAttributes.activationDirection`, `PreviewCardViewportDataAttributes.transitioning`, `PreviewCardViewportDataAttributes.instant`, `PreviewCardRootState`, `PreviewCardRootProps`, `PreviewCardRootActions`, `PreviewCardRootChangeEventReason`, `PreviewCardRootChangeEventDetails`, `PreviewCardTriggerState`, `PreviewCardTriggerProps`, `PreviewCardPortalState`, `PreviewCardPortalProps`, `PreviewCardPositionerState`, `PreviewCardPositionerProps`, `PreviewCardPopupState`, `PreviewCardPopupProps`, `PreviewCardArrowState`, `PreviewCardArrowProps`, `PreviewCardViewportState`, `PreviewCardViewportProps`, `PreviewCardBackdropState`, `PreviewCardBackdropProps`
+- `Default`: `PreviewCardTriggerDataAttributes.popupOpen`, `PreviewCardPositionerCssVariables.availableWidth`, `PreviewCardPositionerCssVariables.availableHeight`, `PreviewCardPositionerCssVariables.anchorWidth`, `PreviewCardPositionerCssVariables.anchorHeight`, `PreviewCardPositionerCssVariables.transformOrigin`, `PreviewCardPositionerCssVariables.positionerWidth`, `PreviewCardPositionerCssVariables.positionerHeight`, `PreviewCardPositionerDataAttributes.open`, `PreviewCardPositionerDataAttributes.closed`, `PreviewCardPositionerDataAttributes.anchorHidden`, `PreviewCardPositionerDataAttributes.side`, `PreviewCardPositionerDataAttributes.align`, `PreviewCardPopupDataAttributes.open`, `PreviewCardPopupDataAttributes.closed`, `PreviewCardPopupDataAttributes.startingStyle`, `PreviewCardPopupDataAttributes.endingStyle`, `PreviewCardPopupDataAttributes.side`, `PreviewCardPopupDataAttributes.align`, `PreviewCardArrowDataAttributes.open`, `PreviewCardArrowDataAttributes.closed`, `PreviewCardArrowDataAttributes.side`, `PreviewCardArrowDataAttributes.align`, `PreviewCardArrowDataAttributes.uncentered`, `PreviewCardBackdropDataAttributes.open`, `PreviewCardBackdropDataAttributes.closed`, `PreviewCardBackdropDataAttributes.startingStyle`, `PreviewCardBackdropDataAttributes.endingStyle`, `PreviewCardViewportCssVariables.popupWidth`, `PreviewCardViewportCssVariables.popupHeight`, `PreviewCardViewportDataAttributes.current`, `PreviewCardViewportDataAttributes.previous`, `PreviewCardViewportDataAttributes.activationDirection`, `PreviewCardViewportDataAttributes.transitioning`, `PreviewCardViewportDataAttributes.instant`, `PreviewCardRootState`, `PreviewCardRootProps`, `PreviewCardRootActions`, `PreviewCardRootChangeEventReason`, `PreviewCardRootChangeEventDetails`, `PreviewCardTriggerState`, `PreviewCardTriggerProps`, `PreviewCardPortalState`, `PreviewCardPortalProps`, `PreviewCardPositionerState`, `PreviewCardPositionerProps`, `PreviewCardPopupState`, `PreviewCardPopupProps`, `PreviewCardArrowState`, `PreviewCardArrowProps`, `PreviewCardViewportState`, `PreviewCardViewportProps`, `PreviewCardBackdropState`, `PreviewCardBackdropProps`
 
 ## Canonical Types
 

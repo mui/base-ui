@@ -1627,44 +1627,44 @@ Present when the popup begins animating in.
 type ComboboxPopupDataAttributesstartingStyle = 'data-starting-style';
 ```
 
-### ComboboxPositionerCssVars.anchorHeight
+### ComboboxPositionerCssVariables.anchorHeight
 
 The anchor's height.
 
 ```typescript
-type ComboboxPositionerCssVarsanchorHeight = '--anchor-height';
+type ComboboxPositionerCssVariablesanchorHeight = '--anchor-height';
 ```
 
-### ComboboxPositionerCssVars.anchorWidth
+### ComboboxPositionerCssVariables.anchorWidth
 
 The anchor's width.
 
 ```typescript
-type ComboboxPositionerCssVarsanchorWidth = '--anchor-width';
+type ComboboxPositionerCssVariablesanchorWidth = '--anchor-width';
 ```
 
-### ComboboxPositionerCssVars.availableHeight
+### ComboboxPositionerCssVariables.availableHeight
 
 The available height between the trigger and the edge of the viewport.
 
 ```typescript
-type ComboboxPositionerCssVarsavailableHeight = '--available-height';
+type ComboboxPositionerCssVariablesavailableHeight = '--available-height';
 ```
 
-### ComboboxPositionerCssVars.availableWidth
+### ComboboxPositionerCssVariables.availableWidth
 
 The available width between the trigger and the edge of the viewport.
 
 ```typescript
-type ComboboxPositionerCssVarsavailableWidth = '--available-width';
+type ComboboxPositionerCssVariablesavailableWidth = '--available-width';
 ```
 
-### ComboboxPositionerCssVars.transformOrigin
+### ComboboxPositionerCssVariables.transformOrigin
 
 The coordinates that this element is anchored to. Used for animations and transitions.
 
 ```typescript
-type ComboboxPositionerCssVarstransformOrigin = '--transform-origin';
+type ComboboxPositionerCssVariablestransformOrigin = '--transform-origin';
 ```
 
 ### ComboboxPositionerDataAttributes.align
@@ -1925,7 +1925,7 @@ type Orientation = 'horizontal' | 'vertical';
 - `Combobox.useFilter`
 - `Combobox.useFilteredItems`
 - `Combobox.createItems`
-- `Default`: `ComboboxFilter`, `ComboboxFilterOptions`, `ComboboxPrimitiveValue`, `CreateComboboxItemsOptions`, `ComboboxItemCollection`, `ComboboxInputDataAttributes.popupOpen`, `ComboboxInputDataAttributes.pressed`, `ComboboxInputDataAttributes.disabled`, `ComboboxInputDataAttributes.readonly`, `ComboboxInputDataAttributes.popupSide`, `ComboboxInputDataAttributes.required`, `ComboboxInputDataAttributes.valid`, `ComboboxInputDataAttributes.invalid`, `ComboboxInputDataAttributes.touched`, `ComboboxInputDataAttributes.dirty`, `ComboboxInputDataAttributes.filled`, `ComboboxInputDataAttributes.focused`, `ComboboxInputDataAttributes.listEmpty`, `ComboboxInputGroupDataAttributes.popupOpen`, `ComboboxInputGroupDataAttributes.pressed`, `ComboboxInputGroupDataAttributes.disabled`, `ComboboxInputGroupDataAttributes.readonly`, `ComboboxInputGroupDataAttributes.popupSide`, `ComboboxInputGroupDataAttributes.valid`, `ComboboxInputGroupDataAttributes.invalid`, `ComboboxInputGroupDataAttributes.touched`, `ComboboxInputGroupDataAttributes.dirty`, `ComboboxInputGroupDataAttributes.filled`, `ComboboxInputGroupDataAttributes.focused`, `ComboboxInputGroupDataAttributes.listEmpty`, `ComboboxInputGroupDataAttributes.placeholder`, `ComboboxTriggerDataAttributes.popupOpen`, `ComboboxTriggerDataAttributes.pressed`, `ComboboxTriggerDataAttributes.disabled`, `ComboboxTriggerDataAttributes.readonly`, `ComboboxTriggerDataAttributes.popupSide`, `ComboboxTriggerDataAttributes.required`, `ComboboxTriggerDataAttributes.valid`, `ComboboxTriggerDataAttributes.invalid`, `ComboboxTriggerDataAttributes.touched`, `ComboboxTriggerDataAttributes.dirty`, `ComboboxTriggerDataAttributes.filled`, `ComboboxTriggerDataAttributes.focused`, `ComboboxTriggerDataAttributes.listEmpty`, `ComboboxTriggerDataAttributes.placeholder`, `ComboboxBackdropDataAttributes.open`, `ComboboxBackdropDataAttributes.closed`, `ComboboxBackdropDataAttributes.startingStyle`, `ComboboxBackdropDataAttributes.endingStyle`, `ComboboxPositionerCssVars.availableWidth`, `ComboboxPositionerCssVars.availableHeight`, `ComboboxPositionerCssVars.anchorWidth`, `ComboboxPositionerCssVars.anchorHeight`, `ComboboxPositionerCssVars.transformOrigin`, `ComboboxPositionerDataAttributes.open`, `ComboboxPositionerDataAttributes.closed`, `ComboboxPositionerDataAttributes.anchorHidden`, `ComboboxPositionerDataAttributes.side`, `ComboboxPositionerDataAttributes.align`, `ComboboxPositionerDataAttributes.empty`, `ComboboxPopupDataAttributes.open`, `ComboboxPopupDataAttributes.closed`, `ComboboxPopupDataAttributes.startingStyle`, `ComboboxPopupDataAttributes.endingStyle`, `ComboboxPopupDataAttributes.side`, `ComboboxPopupDataAttributes.align`, `ComboboxPopupDataAttributes.anchorHidden`, `ComboboxPopupDataAttributes.empty`, `ComboboxArrowDataAttributes.open`, `ComboboxArrowDataAttributes.closed`, `ComboboxArrowDataAttributes.side`, `ComboboxArrowDataAttributes.align`, `ComboboxArrowDataAttributes.uncentered`, `ComboboxItemDataAttributes.selected`, `ComboboxItemDataAttributes.highlighted`, `ComboboxItemDataAttributes.disabled`, `ComboboxItemIndicatorDataAttributes.startingStyle`, `ComboboxItemIndicatorDataAttributes.endingStyle`, `ComboboxClearDataAttributes.popupOpen`, `ComboboxClearDataAttributes.disabled`, `ComboboxClearDataAttributes.visible`, `ComboboxClearDataAttributes.startingStyle`, `ComboboxClearDataAttributes.endingStyle`, `ComboboxRootProps`, `ComboboxRootState`, `ComboboxRootActions`, `ComboboxRootChangeEventReason`, `ComboboxRootChangeEventDetails`, `ComboboxRootHighlightEventReason`, `ComboboxRootHighlightEventDetails`, `ComboboxLabelState`, `ComboboxLabelProps`, `ComboboxTriggerState`, `ComboboxTriggerProps`, `ComboboxInputState`, `ComboboxInputProps`, `ComboboxInputGroupState`, `ComboboxInputGroupProps`, `ComboboxPopupState`, `ComboboxPopupProps`, `ComboboxPositionerState`, `ComboboxPositionerProps`, `ComboboxListState`, `ComboboxListProps`, `ComboboxItemState`, `ComboboxItemProps`, `ComboboxItemIndicatorProps`, `ComboboxItemIndicatorState`, `ComboboxValueState`, `ComboboxValueProps`, `ComboboxIconState`, `ComboboxIconProps`, `ComboboxArrowState`, `ComboboxArrowProps`, `ComboboxBackdropProps`, `ComboboxBackdropState`, `ComboboxPortalState`, `ComboboxPortalProps`, `ComboboxEmptyState`, `ComboboxEmptyProps`, `ComboboxGroupState`, `ComboboxGroupProps`, `ComboboxGroupLabelState`, `ComboboxGroupLabelProps`, `ComboboxRowState`, `ComboboxRowProps`, `ComboboxChipsState`, `ComboboxChipsProps`, `ComboboxChipState`, `ComboboxChipProps`, `ComboboxChipRemoveState`, `ComboboxChipRemoveProps`, `ComboboxClearState`, `ComboboxClearProps`, `ComboboxStatusState`, `ComboboxStatusProps`, `ComboboxCollectionState`, `ComboboxCollectionProps`, `ComboboxSeparatorProps`, `ComboboxSeparatorState`
+- `Default`: `ComboboxFilter`, `ComboboxFilterOptions`, `ComboboxPrimitiveValue`, `CreateComboboxItemsOptions`, `ComboboxItemCollection`, `ComboboxInputDataAttributes.popupOpen`, `ComboboxInputDataAttributes.pressed`, `ComboboxInputDataAttributes.disabled`, `ComboboxInputDataAttributes.readonly`, `ComboboxInputDataAttributes.popupSide`, `ComboboxInputDataAttributes.required`, `ComboboxInputDataAttributes.valid`, `ComboboxInputDataAttributes.invalid`, `ComboboxInputDataAttributes.touched`, `ComboboxInputDataAttributes.dirty`, `ComboboxInputDataAttributes.filled`, `ComboboxInputDataAttributes.focused`, `ComboboxInputDataAttributes.listEmpty`, `ComboboxInputGroupDataAttributes.popupOpen`, `ComboboxInputGroupDataAttributes.pressed`, `ComboboxInputGroupDataAttributes.disabled`, `ComboboxInputGroupDataAttributes.readonly`, `ComboboxInputGroupDataAttributes.popupSide`, `ComboboxInputGroupDataAttributes.valid`, `ComboboxInputGroupDataAttributes.invalid`, `ComboboxInputGroupDataAttributes.touched`, `ComboboxInputGroupDataAttributes.dirty`, `ComboboxInputGroupDataAttributes.filled`, `ComboboxInputGroupDataAttributes.focused`, `ComboboxInputGroupDataAttributes.listEmpty`, `ComboboxInputGroupDataAttributes.placeholder`, `ComboboxTriggerDataAttributes.popupOpen`, `ComboboxTriggerDataAttributes.pressed`, `ComboboxTriggerDataAttributes.disabled`, `ComboboxTriggerDataAttributes.readonly`, `ComboboxTriggerDataAttributes.popupSide`, `ComboboxTriggerDataAttributes.required`, `ComboboxTriggerDataAttributes.valid`, `ComboboxTriggerDataAttributes.invalid`, `ComboboxTriggerDataAttributes.touched`, `ComboboxTriggerDataAttributes.dirty`, `ComboboxTriggerDataAttributes.filled`, `ComboboxTriggerDataAttributes.focused`, `ComboboxTriggerDataAttributes.listEmpty`, `ComboboxTriggerDataAttributes.placeholder`, `ComboboxBackdropDataAttributes.open`, `ComboboxBackdropDataAttributes.closed`, `ComboboxBackdropDataAttributes.startingStyle`, `ComboboxBackdropDataAttributes.endingStyle`, `ComboboxPositionerCssVariables.availableWidth`, `ComboboxPositionerCssVariables.availableHeight`, `ComboboxPositionerCssVariables.anchorWidth`, `ComboboxPositionerCssVariables.anchorHeight`, `ComboboxPositionerCssVariables.transformOrigin`, `ComboboxPositionerDataAttributes.open`, `ComboboxPositionerDataAttributes.closed`, `ComboboxPositionerDataAttributes.anchorHidden`, `ComboboxPositionerDataAttributes.side`, `ComboboxPositionerDataAttributes.align`, `ComboboxPositionerDataAttributes.empty`, `ComboboxPopupDataAttributes.open`, `ComboboxPopupDataAttributes.closed`, `ComboboxPopupDataAttributes.startingStyle`, `ComboboxPopupDataAttributes.endingStyle`, `ComboboxPopupDataAttributes.side`, `ComboboxPopupDataAttributes.align`, `ComboboxPopupDataAttributes.anchorHidden`, `ComboboxPopupDataAttributes.empty`, `ComboboxArrowDataAttributes.open`, `ComboboxArrowDataAttributes.closed`, `ComboboxArrowDataAttributes.side`, `ComboboxArrowDataAttributes.align`, `ComboboxArrowDataAttributes.uncentered`, `ComboboxItemDataAttributes.selected`, `ComboboxItemDataAttributes.highlighted`, `ComboboxItemDataAttributes.disabled`, `ComboboxItemIndicatorDataAttributes.startingStyle`, `ComboboxItemIndicatorDataAttributes.endingStyle`, `ComboboxClearDataAttributes.popupOpen`, `ComboboxClearDataAttributes.disabled`, `ComboboxClearDataAttributes.visible`, `ComboboxClearDataAttributes.startingStyle`, `ComboboxClearDataAttributes.endingStyle`, `ComboboxRootProps`, `ComboboxRootState`, `ComboboxRootActions`, `ComboboxRootChangeEventReason`, `ComboboxRootChangeEventDetails`, `ComboboxRootHighlightEventReason`, `ComboboxRootHighlightEventDetails`, `ComboboxLabelState`, `ComboboxLabelProps`, `ComboboxTriggerState`, `ComboboxTriggerProps`, `ComboboxInputState`, `ComboboxInputProps`, `ComboboxInputGroupState`, `ComboboxInputGroupProps`, `ComboboxPopupState`, `ComboboxPopupProps`, `ComboboxPositionerState`, `ComboboxPositionerProps`, `ComboboxListState`, `ComboboxListProps`, `ComboboxItemState`, `ComboboxItemProps`, `ComboboxItemIndicatorProps`, `ComboboxItemIndicatorState`, `ComboboxValueState`, `ComboboxValueProps`, `ComboboxIconState`, `ComboboxIconProps`, `ComboboxArrowState`, `ComboboxArrowProps`, `ComboboxBackdropProps`, `ComboboxBackdropState`, `ComboboxPortalState`, `ComboboxPortalProps`, `ComboboxEmptyState`, `ComboboxEmptyProps`, `ComboboxGroupState`, `ComboboxGroupProps`, `ComboboxGroupLabelState`, `ComboboxGroupLabelProps`, `ComboboxRowState`, `ComboboxRowProps`, `ComboboxChipsState`, `ComboboxChipsProps`, `ComboboxChipState`, `ComboboxChipProps`, `ComboboxChipRemoveState`, `ComboboxChipRemoveProps`, `ComboboxClearState`, `ComboboxClearProps`, `ComboboxStatusState`, `ComboboxStatusProps`, `ComboboxCollectionState`, `ComboboxCollectionProps`, `ComboboxSeparatorProps`, `ComboboxSeparatorState`
 
 ## Canonical Types
 

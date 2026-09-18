@@ -39,7 +39,7 @@ export * as ComboboxInputDataAttributes from './input/ComboboxInputDataAttribute
 export * as ComboboxInputGroupDataAttributes from './input-group/ComboboxInputGroupDataAttributes';
 export * as ComboboxTriggerDataAttributes from './trigger/ComboboxTriggerDataAttributes';
 export * as ComboboxBackdropDataAttributes from './backdrop/ComboboxBackdropDataAttributes';
-export * as ComboboxPositionerCssVars from './positioner/ComboboxPositionerCssVars';
+export * as ComboboxPositionerCssVariables from './positioner/ComboboxPositionerCssVars';
 export * as ComboboxPositionerDataAttributes from './positioner/ComboboxPositionerDataAttributes';
 export * as ComboboxPopupDataAttributes from './popup/ComboboxPopupDataAttributes';
 export * as ComboboxArrowDataAttributes from './arrow/ComboboxArrowDataAttributes';

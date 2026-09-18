@@ -416,20 +416,20 @@ Present when the accordion item is open.
 type AccordionItemDataAttributesopen = 'data-open';
 ```
 
-### AccordionPanelCssVars.accordionPanelHeight
+### AccordionPanelCssVariables.accordionPanelHeight
 
 The accordion panel's height.
 
 ```typescript
-type AccordionPanelCssVarsaccordionPanelHeight = '--accordion-panel-height';
+type AccordionPanelCssVariablesaccordionPanelHeight = '--accordion-panel-height';
 ```
 
-### AccordionPanelCssVars.accordionPanelWidth
+### AccordionPanelCssVariables.accordionPanelWidth
 
 The accordion panel's width.
 
 ```typescript
-type AccordionPanelCssVarsaccordionPanelWidth = '--accordion-panel-width';
+type AccordionPanelCssVariablesaccordionPanelWidth = '--accordion-panel-width';
 ```
 
 ### AccordionPanelDataAttributes.disabled
@@ -541,7 +541,7 @@ type Orientation = 'horizontal' | 'vertical';
 - `Accordion.Header`: `Accordion.Header`, `Accordion.Header.State`, `Accordion.Header.Props`
 - `Accordion.Trigger`: `Accordion.Trigger`, `Accordion.Trigger.State`, `Accordion.Trigger.Props`
 - `Accordion.Panel`: `Accordion.Panel`, `Accordion.Panel.State`, `Accordion.Panel.Props`
-- `Default`: `AccordionRootDataAttributes.disabled`, `AccordionRootDataAttributes.orientation`, `AccordionItemDataAttributes.index`, `AccordionItemDataAttributes.disabled`, `AccordionItemDataAttributes.open`, `AccordionHeaderDataAttributes.index`, `AccordionHeaderDataAttributes.disabled`, `AccordionHeaderDataAttributes.open`, `AccordionTriggerDataAttributes.index`, `AccordionTriggerDataAttributes.panelOpen`, `AccordionTriggerDataAttributes.disabled`, `AccordionPanelCssVars.accordionPanelHeight`, `AccordionPanelCssVars.accordionPanelWidth`, `AccordionPanelDataAttributes.index`, `AccordionPanelDataAttributes.open`, `AccordionPanelDataAttributes.orientation`, `AccordionPanelDataAttributes.disabled`, `AccordionPanelDataAttributes.startingStyle`, `AccordionPanelDataAttributes.endingStyle`, `AccordionValue`, `AccordionRootState`, `AccordionRootProps`, `AccordionRootChangeEventReason`, `AccordionRootChangeEventDetails`, `AccordionItemState`, `AccordionItemProps`, `AccordionItemChangeEventReason`, `AccordionItemChangeEventDetails`, `AccordionHeaderState`, `AccordionHeaderProps`, `AccordionTriggerState`, `AccordionTriggerProps`, `AccordionPanelState`, `AccordionPanelProps`
+- `Default`: `AccordionRootDataAttributes.disabled`, `AccordionRootDataAttributes.orientation`, `AccordionItemDataAttributes.index`, `AccordionItemDataAttributes.disabled`, `AccordionItemDataAttributes.open`, `AccordionHeaderDataAttributes.index`, `AccordionHeaderDataAttributes.disabled`, `AccordionHeaderDataAttributes.open`, `AccordionTriggerDataAttributes.index`, `AccordionTriggerDataAttributes.panelOpen`, `AccordionTriggerDataAttributes.disabled`, `AccordionPanelCssVariables.accordionPanelHeight`, `AccordionPanelCssVariables.accordionPanelWidth`, `AccordionPanelDataAttributes.index`, `AccordionPanelDataAttributes.open`, `AccordionPanelDataAttributes.orientation`, `AccordionPanelDataAttributes.disabled`, `AccordionPanelDataAttributes.startingStyle`, `AccordionPanelDataAttributes.endingStyle`, `AccordionValue`, `AccordionRootState`, `AccordionRootProps`, `AccordionRootChangeEventReason`, `AccordionRootChangeEventDetails`, `AccordionItemState`, `AccordionItemProps`, `AccordionItemChangeEventReason`, `AccordionItemChangeEventDetails`, `AccordionHeaderState`, `AccordionHeaderProps`, `AccordionTriggerState`, `AccordionTriggerProps`, `AccordionPanelState`, `AccordionPanelProps`
 
 ## Canonical Types
 

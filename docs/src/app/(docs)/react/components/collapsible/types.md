@@ -158,20 +158,20 @@ type CollapsiblePanelState = {
 
 ## Additional Types
 
-### CollapsiblePanelCssVars.collapsiblePanelHeight
+### CollapsiblePanelCssVariables.collapsiblePanelHeight
 
 The collapsible panel's height.
 
 ```typescript
-type CollapsiblePanelCssVarscollapsiblePanelHeight = '--collapsible-panel-height';
+type CollapsiblePanelCssVariablescollapsiblePanelHeight = '--collapsible-panel-height';
 ```
 
-### CollapsiblePanelCssVars.collapsiblePanelWidth
+### CollapsiblePanelCssVariables.collapsiblePanelWidth
 
 The collapsible panel's width.
 
 ```typescript
-type CollapsiblePanelCssVarscollapsiblePanelWidth = '--collapsible-panel-width';
+type CollapsiblePanelCssVariablescollapsiblePanelWidth = '--collapsible-panel-width';
 ```
 
 ### CollapsiblePanelDataAttributes.closed
@@ -251,7 +251,7 @@ type CollapsibleTriggerDataAttributespanelOpen = 'data-panel-open';
 - `Collapsible.Root`: `Collapsible.Root`, `Collapsible.Root.State`, `Collapsible.Root.Props`, `Collapsible.Root.ChangeEventReason`, `Collapsible.Root.ChangeEventDetails`
 - `Collapsible.Trigger`: `Collapsible.Trigger`, `Collapsible.Trigger.State`, `Collapsible.Trigger.Props`
 - `Collapsible.Panel`: `Collapsible.Panel`, `Collapsible.Panel.State`, `Collapsible.Panel.Props`
-- `Default`: `CollapsibleRootDataAttributes.open`, `CollapsibleRootDataAttributes.closed`, `CollapsibleRootDataAttributes.startingStyle`, `CollapsibleRootDataAttributes.endingStyle`, `CollapsibleTriggerDataAttributes.panelOpen`, `CollapsiblePanelCssVars.collapsiblePanelHeight`, `CollapsiblePanelCssVars.collapsiblePanelWidth`, `CollapsiblePanelDataAttributes.open`, `CollapsiblePanelDataAttributes.closed`, `CollapsiblePanelDataAttributes.startingStyle`, `CollapsiblePanelDataAttributes.endingStyle`, `CollapsibleRootState`, `CollapsibleRootProps`, `CollapsibleRootChangeEventReason`, `CollapsibleRootChangeEventDetails`, `CollapsibleTriggerState`, `CollapsibleTriggerProps`, `CollapsiblePanelState`, `CollapsiblePanelProps`
+- `Default`: `CollapsibleRootDataAttributes.open`, `CollapsibleRootDataAttributes.closed`, `CollapsibleRootDataAttributes.startingStyle`, `CollapsibleRootDataAttributes.endingStyle`, `CollapsibleTriggerDataAttributes.panelOpen`, `CollapsiblePanelCssVariables.collapsiblePanelHeight`, `CollapsiblePanelCssVariables.collapsiblePanelWidth`, `CollapsiblePanelDataAttributes.open`, `CollapsiblePanelDataAttributes.closed`, `CollapsiblePanelDataAttributes.startingStyle`, `CollapsiblePanelDataAttributes.endingStyle`, `CollapsibleRootState`, `CollapsibleRootProps`, `CollapsibleRootChangeEventReason`, `CollapsibleRootChangeEventDetails`, `CollapsibleTriggerState`, `CollapsibleTriggerProps`, `CollapsiblePanelState`, `CollapsiblePanelProps`
 
 ## Canonical Types
 
