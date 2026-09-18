@@ -48,7 +48,9 @@ describe('<Virtualizer /> windowing', () => {
       </TestVirtualizedList>,
     );
 
-    await waitFor(() => expect(screen.getAllByRole('listitem')).toHaveLength(5));
+    // Three rows cover the scrollport, and the engine keeps a buffer of at least fifteen estimated
+    // rows around the window, half of it on each side while the list is at rest.
+    await waitFor(() => expect(screen.getAllByRole('listitem')).toHaveLength(12));
 
     expect(screen.getByText('Item 5')).not.toBe(null);
     expect(screen.queryByText('Item 20')).toBe(null);
@@ -1092,7 +1094,7 @@ describe('<Virtualizer /> windowing', () => {
         apiRef={apiRef}
         estimatedItemHeight={20}
         overscanPx={0}
-        pinnedRowIndex={10}
+        pinnedRowIndex={50}
         render={
           <div
             ref={(element) => {
@@ -1125,32 +1127,29 @@ describe('<Virtualizer /> windowing', () => {
       </TestVirtualizedList>,
     );
 
-    const renderZone = screen
-      .getByTestId('virtualizer')
-      .querySelector<HTMLElement>('[style*="translate3d"]');
-    const target = screen.getByText('Item 11').parentElement;
+    const target = screen.getByText('Item 51').parentElement;
     expect(target).toHaveStyle({ position: 'absolute' });
 
-    act(() => apiRef.current?.scrollToIndex(10, { align: 'start' }));
-    expect(scrollTo).toHaveBeenLastCalledWith({ behavior: 'instant', top: 200 });
-    // The native scroll event arrives later; the target window must already follow the immediate
-    // scroll write instead of leaving the viewport covered by the initial rows or nothing at all.
-    expect(screen.getByText('Item 11')).not.toBe(null);
+    await act(async () => apiRef.current?.scrollToIndex(50, { align: 'start' }));
+    expect(scrollTo).toHaveBeenLastCalledWith({ behavior: 'instant', top: 1000 });
+    // The native scroll event arrives a task later, if at all here; the engine is handed the
+    // written position before then, so the window follows the write rather than leaving the
+    // viewport to the initial rows.
     expect(target).not.toHaveStyle({ position: 'absolute' });
-    expect(renderZone?.style.transform).toContain('-20px');
+    expect(screen.getByText('Item 51').parentElement).toBe(target);
 
-    act(() => apiRef.current?.scrollToIndex(10, { align: 'center' }));
-    expect(scrollTo).toHaveBeenLastCalledWith({ behavior: 'instant', top: 160 });
+    await act(async () => apiRef.current?.scrollToIndex(50, { align: 'center' }));
+    expect(scrollTo).toHaveBeenLastCalledWith({ behavior: 'instant', top: 960 });
 
-    act(() => apiRef.current?.scrollToIndex(10, { align: 'end' }));
-    expect(scrollTo).toHaveBeenLastCalledWith({ behavior: 'instant', top: 120 });
+    await act(async () => apiRef.current?.scrollToIndex(50, { align: 'end' }));
+    expect(scrollTo).toHaveBeenLastCalledWith({ behavior: 'instant', top: 920 });
 
     scrollTop = 0;
-    act(() => apiRef.current?.scrollToIndex(10));
-    expect(scrollTo).toHaveBeenLastCalledWith({ behavior: 'instant', top: 120 });
+    await act(async () => apiRef.current?.scrollToIndex(50));
+    expect(scrollTo).toHaveBeenLastCalledWith({ behavior: 'instant', top: 920 });
   });
 
-  it('renders a requested position the scroll element has not accepted yet', async () => {
+  it('renders a requested position once the scroll element accepts it', async () => {
     const apiRef = React.createRef<VirtualizerHandle>();
     const scrollTo = vi.fn<(options: ScrollToOptions) => void>();
     let acceptsScroll = false;
@@ -1196,23 +1195,19 @@ describe('<Virtualizer /> windowing', () => {
       </TestVirtualizedList>,
     );
 
-    const renderZone = screen
-      .getByTestId('virtualizer')
-      .querySelector<HTMLElement>('[style*="translate3d"]');
+    await act(async () => apiRef.current?.scrollToIndex(50, { align: 'start' }));
 
-    act(() => apiRef.current?.scrollToIndex(10, { align: 'start' }));
+    expect(scrollTo).toHaveBeenLastCalledWith({ behavior: 'instant', top: 1000 });
+    // The scrollport rejected the write, so the rows stay where they are: a newly opened popup
+    // gains its scrollable overflow only on the frame after the one that mounts it.
+    expect(screen.queryByText('Item 51')).toBe(null);
 
-    expect(scrollTo).toHaveBeenLastCalledWith({ behavior: 'instant', top: 200 });
-    // The scrollport rejected the write, but the rows are laid out for the position it was asked
-    // for, so the requested row is on screen in this commit rather than once the scroll lands.
-    expect(screen.getByText('Item 11').parentElement).not.toHaveStyle({ position: 'absolute' });
-    expect(renderZone?.style.transform).toContain('-20px');
-
-    // Once the scrollport can accept it, the retry brings `scrollTop` in line without moving the
-    // rows, which are already where the completed scroll puts them.
+    // Once the scrollport can accept it, the retry lands the position and the window follows.
     acceptsScroll = true;
-    await waitFor(() => expect(scrollTop).toBe(200));
-    expect(renderZone?.style.transform).toContain('-20px');
+    await waitFor(() => expect(scrollTop).toBe(1000));
+    await waitFor(() =>
+      expect(screen.getByText('Item 51').parentElement).not.toHaveStyle({ position: 'absolute' }),
+    );
   });
   it('exposes imperative scrolling by logical item index', async () => {
     const actionsRef = React.createRef<Virtualizer.Actions>();
@@ -1348,7 +1343,8 @@ describe('<Virtualizer /> windowing', () => {
 
       fireEvent.scroll(virtualizer);
       await waitFor(() => expect(screen.queryByText('Item 1')).toBe(null));
-      expect(screen.getAllByRole('listitem').length).toBeLessThan(20);
+      // A window: the rows covering the scrollport and the engine's buffer of fifteen rows.
+      expect(screen.getAllByRole('listitem').length).toBeLessThan(40);
 
       virtualizer.scrollTop = 0;
 

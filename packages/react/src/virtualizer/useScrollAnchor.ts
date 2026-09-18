@@ -27,30 +27,22 @@ export interface ScrollAnchorSnapshot<RowModel> {
   rows: VirtualizerRow<RowModel>[];
 }
 
-export interface ScrollAnchor<RowModel> {
-  /**
-   * The snapshot the last commit ended with. Read during render to anticipate the correction this
-   * commit's anchoring effect is about to make.
-   */
-  readSnapshot: () => ScrollAnchorSnapshot<RowModel> | null;
-}
-
 export interface UseScrollAnchorParameters<RowModel> {
   enabled: boolean;
   gesture: ScrollGesture;
-  /** Realigns the sticky render zone for a position written here. */
+  /** Hands a position written here to the engine, which the browser tells only a task later. */
   onScrollApplied: (scrollTop: number) => void;
   pendingScroll: PendingScroll;
-  /**
-   * Re-renders the window when a correction lands far from the position this commit's rows were
-   * rendered for.
-   */
-  refreshWindowAfterCorrectiveScroll: (scrollTop: number) => void;
   /**
    * The element whose children — or grandchildren, one group wrapper deep — are the laid-out
    * rows, in whichever layout the rows are currently in.
    */
   getRowsParent: () => HTMLElement | null;
+  /**
+   * Whether the window the rows are held in stands where they belong, rather than held at the
+   * scrollport's edge after a scroll outran it, until the engine places the next window.
+   */
+  isWindowInPlace: () => boolean;
   rows: VirtualizerRow<RowModel>[];
   /** The engine's row geometry as of this render. */
   rowsMeta: RowsGeometry;
@@ -63,8 +55,6 @@ export interface UseScrollAnchorParameters<RowModel> {
    */
   readRowsGeometry: () => RowsGeometry;
   trailingHeight: number;
-  /** Stacks the rendered rows for the position they are rendered for, before anything measures. */
-  updateRenderZoneTransform: () => void;
 }
 
 /**
@@ -92,23 +82,20 @@ export interface UseScrollAnchorParameters<RowModel> {
  * (see the alignment test kept on `Virtualizer.combobox.test.tsx`). Resolve that before proposing
  * it upstream.
  */
-export function useScrollAnchor<RowModel>(
-  parameters: UseScrollAnchorParameters<RowModel>,
-): ScrollAnchor<RowModel> {
+export function useScrollAnchor<RowModel>(parameters: UseScrollAnchorParameters<RowModel>): void {
   const {
     enabled,
     gesture,
     onScrollApplied,
     pendingScroll,
-    refreshWindowAfterCorrectiveScroll,
     getRowsParent,
+    isWindowInPlace,
     rows,
     rowsMeta,
     scrollElementRef,
     readRowsGeometry,
     rowsInsetTotal,
     trailingHeight,
-    updateRenderZoneTransform,
   } = parameters;
 
   const snapshotRef = React.useRef<ScrollAnchorSnapshot<RowModel> | null>(null);
@@ -122,15 +109,12 @@ export function useScrollAnchor<RowModel>(
       return;
     }
 
-    // The inline render style stacks rows from the top without DOM knowledge. Re-anchor the
-    // rendered tail before any measurement below so anchor snapshots see final positions.
-    updateRenderZoneTransform();
-
-    // A pending scrollToIndex request repositions absolutely from the fresh geometry instead.
-    if (pendingScroll.isPending()) {
-      snapshotRef.current = null;
-      return;
-    }
+    // A pending scrollToIndex request repositions absolutely from the fresh geometry instead,
+    // so no correction is made while one stands. The snapshot is still taken: the engine can
+    // leave the rows above the destination unmounted until its own settle pass, and their
+    // measurements then land in the commit right after the request settles, which would have
+    // nothing to compare against otherwise.
+    const isRequestPending = pendingScroll.isPending();
 
     const latestRowsMeta = readRowsGeometry();
     // MUI publishes the store update before React commits the matching row positions. We can still
@@ -152,6 +136,7 @@ export function useScrollAnchor<RowModel>(
       (Math.abs(scrollTop - previous.scrollTop) < 1 || Math.abs(scrollTop - maxScrollTop) < 1);
 
     if (
+      !isRequestPending &&
       previous !== null &&
       previous.rows === rows &&
       geometryChanged &&
@@ -168,9 +153,15 @@ export function useScrollAnchor<RowModel>(
       const elementStillRepresentsRow =
         previous.element.isConnected &&
         !previous.element.hidden &&
+        // A row retained as the offscreen focus proxy is positioned out of the layout.
+        previous.element.style.position !== 'absolute' &&
         Number(previous.element.dataset.rowIndex) === previous.rowIndex;
 
-      if (!hasPendingRowsMeta && elementStillRepresentsRow) {
+      // A window held at the scrollport's edge holds its rows where they do not belong, whether a
+      // scroll outran it or the geometry moved it from under a resting viewport, which is the very
+      // shift to correct here. The rows' positions on screen say nothing then, and the shift is
+      // taken from the geometry instead.
+      if (!hasPendingRowsMeta && elementStillRepresentsRow && isWindowInPlace()) {
         const anchorTop = previous.element.getBoundingClientRect().top - scrollerTop;
         // How far the anchor actually moved on screen beyond what user scrolling accounts for.
         shift = anchorTop - previous.relativeTop + (scrollTop - previous.scrollTop);
@@ -200,13 +191,9 @@ export function useScrollAnchor<RowModel>(
           scrollTop = nextScrollTop;
           pendingScroll.noteProgrammaticScroll(nextScrollTop);
           scrollElement.scrollTo({ behavior: 'instant' as ScrollBehavior, top: nextScrollTop });
-          // Realign the mounted rows before paint. The engine observes the same value when the
-          // asynchronous scroll event arrives, making this idempotent.
+          // The engine observes the written position when the asynchronous scroll event arrives,
+          // and commits the window it calls for from inside that event, before the browser paints.
           onScrollApplied(nextScrollTop);
-          // A correction that lands far from the position this commit's window was rendered for
-          // can move the viewport beyond the mounted rows. Re-render before paint so the window
-          // follows the corrected position.
-          refreshWindowAfterCorrectiveScroll(nextScrollTop);
         }
       }
     }
@@ -257,6 +244,12 @@ export function useScrollAnchor<RowModel>(
       }
     }
 
+    // A held window's rows are not where the content is: nothing to snapshot off them, so the
+    // snapshot taken while they were stands until the engine places the next window.
+    if (!isWindowInPlace()) {
+      return;
+    }
+
     const anchor = findAnchorRowElement(rowsParent, scrollerTop, scrollerRect.bottom);
     snapshotRef.current =
       anchor === null
@@ -272,11 +265,6 @@ export function useScrollAnchor<RowModel>(
             rows,
           };
   });
-
-  // Read during render to anticipate this commit's correction, so it cannot be a stable callback.
-  const readSnapshot = React.useCallback(() => snapshotRef.current, []);
-
-  return React.useMemo(() => ({ readSnapshot }), [readSnapshot]);
 }
 
 /**

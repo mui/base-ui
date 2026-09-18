@@ -113,7 +113,7 @@ CSS `scroll-padding-top` and `scroll-padding-bottom` on the scroll container are
 
 `estimatedItemHeight` is the height used for items that have not been measured yet. It defaults to `32` pixels, and a static number is automatically refined with the running average of measured items. Pass a function receiving the item and its index to keep full control over per-item estimates.
 
-`overscanPx` controls the extra pixel buffer rendered before and after the visible range. It defaults to the larger of 150px and the first item's estimated height. Even an explicit value of `0` keeps a minimum render buffer of one estimated row.
+`overscanPx` controls the extra pixel buffer rendered before and after the visible range. It defaults to the larger of 150px and the first item's estimated height. The buffer is at least fifteen estimated rows in total, whatever the prop asks for: half of it on each side while the list is at rest, and all of it ahead of the viewport while the list scrolls, so that native scrolling has rows to move through before the next window is rendered.
 
 ### Items of a known height
 
@@ -284,9 +284,9 @@ import { DemoVirtualizerTable } from './demos/table';
 
 <DemoVirtualizerTable />
 
-The scroll container is an element of your own around the table: the nearest ancestor with `overflow: auto` or `overflow: scroll`, which is also the element a `position: sticky` header sticks to. Constrain its height. The section is held in place by the scrollport and moved by a transform, the way a list's rows are, so the rows it has stay on screen while the scrollport moves and the next window is rendered. A second `<tbody>` rendered after it reserves the space of the rows outside the window. Use `border-collapse: collapse` on the table, or a zero `border-spacing`, since spacing would otherwise only be counted for the rendered rows.
+The scroll container is an element of your own around the table: the nearest ancestor with `overflow: auto` or `overflow: scroll`, which is also the element a `position: sticky` header sticks to. Constrain its height. The section is stuck to the scrollport the way a list's rows are, with insets that let native scrolling move its rows and that hold them on screen once a scroll outruns them, until the next window is rendered. Two `<tbody>` elements rendered around it, one before and one after, reserve the space of the rows outside the window. Use `border-collapse: collapse` on the table, or a zero `border-spacing`, since spacing would otherwise only be counted for the rendered rows.
 
-Give sticky header cells a `z-index`: the section is positioned too, and comes later in the table, so without one it paints over them. This layout relies on `position: sticky` and `transform` applying to table row groups, which current browsers support.
+Give sticky header cells a `z-index`: the section is positioned too, and comes later in the table, so without one it paints over them. This layout relies on `position: sticky` applying to table row groups, which current browsers support.
 
 The third argument of `children` carries the row's measurement along with its metadata, so it has to reach the `<tr>` element. It includes a `style` for a row kept mounted outside the window; add styles of your own through `className`, or merge them into the `style` it carries rather than replacing it.
 
