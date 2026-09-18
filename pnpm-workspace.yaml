@@ -24,6 +24,15 @@ allowBuilds:
 #
 # Remove each entry once the parent dependency ships the fixed version on its own.
 overrides:
+  # TEMP: pin to mui-public#1875's pkg.pr.new build until it merges and publishes a real
+  # Babel-8 @mui/internal-code-infra. Remove this whole block (and blockExoticSubdeps below)
+  # once that lands and this repo's own @mui/internal-* versions are bumped normally.
+  '@mui/internal-code-infra': 'https://pkg.pr.new/mui/mui-public/@mui/internal-code-infra@39d7e1d'
+  '@mui/internal-netlify-cache': 'https://pkg.pr.new/mui/mui-public/@mui/internal-netlify-cache@39d7e1d'
+  '@mui/internal-test-utils': 'https://pkg.pr.new/mui/mui-public/@mui/internal-test-utils@39d7e1d'
+  '@mui/internal-babel-plugin-display-name': 'https://pkg.pr.new/mui/mui-public/@mui/internal-babel-plugin-display-name@39d7e1d'
+  '@mui/internal-babel-plugin-minify-errors': 'https://pkg.pr.new/mui/mui-public/@mui/internal-babel-plugin-minify-errors@39d7e1d'
+  '@mui/internal-babel-plugin-resolve-imports': 'https://pkg.pr.new/mui/mui-public/@mui/internal-babel-plugin-resolve-imports@39d7e1d'
   # Screen recording is not needed for the tests and pulls in ffmpeg-static.
   '@guidepup/setup>@guidepup/record': '-'
   # via lerna -> minimatch, eslint-plugin-* -> minimatch (GHSA-3jxr-9vmj-r5cp)
@@ -57,7 +66,10 @@ overrides:
   ws: '^8.21.3'
 engineStrict: true
 updateNotifier: false
-blockExoticSubdeps: true
+# TEMP: disabled for pkg.pr.new testing of mui/mui-public#1875 (@mui/internal-code-infra
+# pulls in its own workspace deps as pkg.pr.new URL subdeps). Restore to true once the
+# overrides above are removed.
+blockExoticSubdeps: false
 minimumReleaseAge: 4320
 minimumReleaseAgeExclude:
   - '@base-ui/*'
