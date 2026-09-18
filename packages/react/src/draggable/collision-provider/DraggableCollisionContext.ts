@@ -1,14 +1,21 @@
 'use client';
 import * as React from 'react';
-import type { DragCleanupFn, DragKind } from '../../types/drag';
+import type {
+  DragCleanupFn,
+  DragKind,
+  DragSnapSteps,
+  DropTargetResolutionContext,
+} from '../../types/drag';
 
 export interface CollisionParticipant {
   kind: Pick<DragKind, 'id'>;
   payload: unknown;
+  snap?:
+    | DragSnapSteps
+    | ((context: DropTargetResolutionContext) => DragSnapSteps | undefined)
+    | undefined;
   disabled?: boolean | undefined;
 }
-
-export type CollisionPlacement = 'before' | 'after';
 
 export interface DraggableCollisionContextValue {
   kind: Pick<DragKind, 'id'>;
@@ -17,8 +24,6 @@ export interface DraggableCollisionContextValue {
     element: HTMLElement,
     getParticipant: () => CollisionParticipant,
     sourceElement: HTMLElement,
-    /** Receives the participant's current insertion side, or `null` when it is not the destination. */
-    onCollision: (placement: CollisionPlacement | null) => void,
   ) => DragCleanupFn;
 }
 

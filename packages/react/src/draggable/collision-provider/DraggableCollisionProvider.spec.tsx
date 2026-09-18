@@ -14,21 +14,23 @@ const marker = Draggable.createKind('marker');
 // The payload type flows from `kind` into every callback.
 <Draggable.CollisionProvider
   kind={card}
-  getItemId={(payload) => {
-    expectType<CardPayload, typeof payload>(payload);
-    return payload.id;
-  }}
   canCollide={({ source, target }) => {
     expectType<CardPayload, typeof source.payload>(source.payload);
     expectType<CardPayload, typeof target>(target);
     return target.id === 'full' ? 'reject' : true;
   }}
   onMoveStart={({ source }) => expectType<CardPayload, typeof source.payload>(source.payload)}
-  onCollisionChange={({ collision }, details) => {
+  onCollisionChange={({ collision, previousCollision }, details) => {
     if (collision) {
       expectType<CardPayload, typeof collision.target.payload>(collision.target.payload);
-      expectType<'before' | 'after', typeof collision.placement>(collision.placement);
+      const point = collision.target.getLocalPoint();
+      expectType<number, typeof point.x>(point.x);
+      const snapped = collision.target.getSnappedLocalPoint({ anchor: 'source' });
+      expectType<number, typeof snapped.y>(snapped.y);
     }
+    expectType<Draggable.CollisionProvider.Collision<CardPayload> | null, typeof previousCollision>(
+      previousCollision,
+    );
     expectType<DropTargetChangeReason, typeof details.reason>(details.reason);
   }}
   onMoveEnd={({ collision, canceled, dropTarget }, details) => {
@@ -38,6 +40,17 @@ const marker = Draggable.createKind('marker');
       expectType<CardPayload, typeof collision.target.payload>(collision.target.payload);
     }
     void dropTarget;
+  }}
+/>;
+
+<Draggable.Root
+  kind={card}
+  payload={{ id: 'a', title: 'A' }}
+  snap={({ source, input, element }) => {
+    expectType<CardPayload, typeof source.payload>(source.payload);
+    expectType<number, typeof input.clientX>(input.clientX);
+    expectType<Element, typeof element>(element);
+    return { x: 4, y: 8 };
   }}
 />;
 
@@ -51,10 +64,16 @@ const marker = Draggable.createKind('marker');
   }}
 />;
 
-// @ts-expect-error getItemId must accept the kind's payload.
-<Draggable.CollisionProvider kind={card} getItemId={(payload: string) => payload} />;
+const invalidSnap = ({ source }: { source: { payload: string } }) => ({ x: source.payload.length });
+const snapProps: Draggable.Root.Props<CardPayload> = {
+  kind: card,
+  payload: { id: 'a', title: 'A' },
+  // @ts-expect-error snap must accept the kind's payload.
+  snap: invalidSnap,
+};
+void snapProps;
 
-// @ts-expect-error placement is a fixed union.
+// @ts-expect-error placement is computed by the application.
 <Draggable.CollisionProvider kind={card} placement="edges" />;
 
 // Exported aliases mirror the other parts.
@@ -68,4 +87,4 @@ expectType<
 declare const endEvent: Draggable.CollisionProvider.MoveEndEvent<CardPayload>;
 expectType<boolean, typeof endEvent.canceled>(endEvent.canceled);
 declare const props: Draggable.CollisionProvider.Props<CardPayload>;
-expectType<'vertical' | 'horizontal' | undefined, typeof props.orientation>(props.orientation);
+void props.kind;

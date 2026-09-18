@@ -2,7 +2,15 @@
 import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { Draggable } from '@base-ui/react/draggable';
-import { INITIAL_TASKS, moveTask, swapTask, getTaskRow } from '../../sortableTasks';
+import {
+  INITIAL_TASKS,
+  moveTask,
+  swapTask,
+  getTaskRow,
+  getTaskDestination,
+  sameTaskDestination,
+  type TaskDestination,
+} from '../../sortableTasks';
 import { useSortableAnimation } from '../../useSortableAnimation';
 
 const taskKind = Draggable.createKind<string>('sortable-live-task');
@@ -44,8 +52,23 @@ export default function SortableLive() {
   const [tasks, setTasks] = React.useState(INITIAL_TASKS);
   const initialOrder = React.useRef(tasks);
   const listRef = useSortableAnimation(tasks);
+  const destinationRef = React.useRef<TaskDestination | null>(null);
   const reorder = useStableCallback((event: Draggable.CollisionProvider.CollisionEvent<string>) => {
-    setTasks((current) => moveTask(current, event));
+    const next = getTaskDestination(event.collision);
+    const previous = destinationRef.current;
+    if (next) {
+      const delta = event.location.current.input.clientY - event.location.previous.input.clientY;
+      if (delta !== 0) {
+        next.placement = delta > 0 ? 'after' : 'before';
+      } else if (next.id === previous?.id) {
+        next.placement = previous.placement;
+      }
+    }
+    if (sameTaskDestination(next, previous)) {
+      return;
+    }
+    destinationRef.current = next;
+    setTasks((current) => moveTask(current, event, next?.placement));
   });
   const swap = useStableCallback((task: string, direction: 'up' | 'down') => {
     setTasks((current) => swapTask(current, task, direction));
@@ -54,9 +77,9 @@ export default function SortableLive() {
     <Draggable.Provider>
       <Draggable.CollisionProvider
         kind={taskKind}
-        placement="direction"
         onMoveStart={() => {
           initialOrder.current = tasks;
+          destinationRef.current = null;
         }}
         onCollisionChange={reorder}
         onMoveEnd={(event) => {
@@ -65,6 +88,7 @@ export default function SortableLive() {
           } else {
             reorder(event);
           }
+          destinationRef.current = null;
         }}
       >
         <div

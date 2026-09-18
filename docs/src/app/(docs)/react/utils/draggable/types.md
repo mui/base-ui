@@ -18,7 +18,7 @@ While dragging, a clone of the element follows the pointer by default.
 | :---------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :----------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | activation        | `DragActivationConfig \| DragActivationConfig[]`                                                                                                                                                           | -            | Determines when a pointer press starts a drag. Mouse and pen use a 5px distance&#xA;by default. Touch uses a 250ms press and hold. Pass one `DragActivation` for&#xA;every pointer type or a map with per-type values. An array allows any of its&#xA;activation methods. Double-click pickup follows the mouse until the next click;&#xA;on touch and pen, the second tap of a double-tap picks up and the release drops. |
 | collision         | `boolean`                                                                                                                                                                                                  | `true`       | Whether this element participates in the nearest collision provider.                                                                                                                                                                                                                                                                                                                                                       |
-| collisionElement  | `((element: HTMLElement) => HTMLElement)`                                                                                                                                                                  | -            | The element used for collision hit testing and measurement. Defaults to this source.&#xA;Resolved once when the source registers; a new function takes effect on the next registration.&#xA;The collision data attributes stay on this source's element regardless.                                                                                                                                                        |
+| collisionElement  | `((element: HTMLElement) => HTMLElement)`                                                                                                                                                                  | -            | The element used for collision hit testing and measurement. Defaults to this source.&#xA;Resolved once when the source registers; a new function takes effect on the next registration.                                                                                                                                                                                                                                    |
 | collisionPayload  | `TData`                                                                                                                                                                                                    | -            | Static participant data when the source uses getPayload. Defaults to payload.                                                                                                                                                                                                                                                                                                                                              |
 | dragCursor        | `string \| false`                                                                                                                                                                                          | `'grabbing'` | CSS cursor applied across the document during a pointer drag. The drag preview&#xA;has `pointer-events: none`, so otherwise the cursor would depend on the element&#xA;under the pointer. Touch drags ignore this value.&#xA;Pass `false` to manage the cursor yourself.                                                                                                                                                   |
 | getPayload        | `DraggablePayloadGetter<TData> \| DraggablePayloadGetter<undefined>`                                                                                                                                       | -            | Resolves payload data from the current drag context.                                                                                                                                                                                                                                                                                                                                                                       |
@@ -31,6 +31,7 @@ While dragging, a clone of the element follows the pointer by default.
 | onTargetChange    | `((parameters: DropTargetChangeEvent<TData>, eventDetails: DropTargetChangeEventDetails) => void) \| ((parameters: DropTargetChangeEvent<undefined>, eventDetails: DropTargetChangeEventDetails) => void)` | -            | Event handler called when the active drop targets change,&#xA;because one was entered or left.                                                                                                                                                                                                                                                                                                                             |
 | payload           | `TData`                                                                                                                                                                                                    | -            | Static payload data. Function values are preserved without being invoked.                                                                                                                                                                                                                                                                                                                                                  |
 | previewKey        | `string \| number`                                                                                                                                                                                         | -            | Stable identity used to reconnect a settling cloned preview to this source&#xA;after it remounts. Use the same key for the same logical item across the move.&#xA;Static payload identity is used as a fallback when it is referentially stable.                                                                                                                                                                           |
+| snap              | `DragSnapSteps \| ((context: DropTargetResolutionContext<TData>) => DragSnapSteps \| undefined) \| ((context: DropTargetResolutionContext<undefined>) => DragSnapSteps \| undefined)`                      | -            | Divides this participant's border box into equal steps for the collision target's&#xA;`getSnappedLocalPoint()`. Uses the same coordinates and callback context as&#xA;`Draggable.Target`. Changes reported coordinates only, not the drag preview.                                                                                                                                                                         |
 | disabled          | `boolean`                                                                                                                                                                                                  | `false`      | Whether to disable dragging. Pointer presses keep their native behavior.&#xA;Use `onBeforeMoveStart` instead when the decision depends on the gesture.                                                                                                                                                                                                                                                                     |
 | children          | `React.ReactNode`                                                                                                                                                                                          | -            | -                                                                                                                                                                                                                                                                                                                                                                                                                          |
 | className         | `string \| ((state: Draggable.Root.State) => string \| undefined)`                                                                                                                                         | -            | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                                                                                                                                                                                                                                                   |
@@ -39,13 +40,11 @@ While dragging, a clone of the element follows the pointer by default.
 
 **Root Data Attributes:**
 
-| Attribute             | Type | Description                                                                                                                                                                                                                                                                        |
-| :-------------------- | :--- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| data-dragging         | -    | Present on the source element while it is being dragged.&#xA;A cloned preview never carries this attribute, so a `[data-dragging]`&#xA;rule that dims or hides the source leaves the preview fully visible.                                                                        |
-| data-disabled         | -    | Present while the draggable is disabled.                                                                                                                                                                                                                                           |
-| data-collision-after  | -    | Present while the nearest `Draggable.CollisionProvider` would insert the dragged&#xA;item after this element.                                                                                                                                                                      |
-| data-collision-before | -    | Present while the nearest `Draggable.CollisionProvider` would insert the dragged&#xA;item before this element.                                                                                                                                                                     |
-| data-ending-style     | -    | Present on the source after a deliberate release while a clone created by&#xA;Base UI settles into its final position, including a return after release&#xA;outside a target. Use it to keep the source styled as a placeholder until&#xA;the preview's ending animation finishes. |
+| Attribute         | Type | Description                                                                                                                                                                                                                                                                        |
+| :---------------- | :--- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| data-dragging     | -    | Present on the source element while it is being dragged.&#xA;A cloned preview never carries this attribute, so a `[data-dragging]`&#xA;rule that dims or hides the source leaves the preview fully visible.                                                                        |
+| data-disabled     | -    | Present while the draggable is disabled.                                                                                                                                                                                                                                           |
+| data-ending-style | -    | Present on the source after a deliberate release while a clone created by&#xA;Base UI settles into its final position, including a return after release&#xA;outside a target. Use it to keep the source styled as a placeholder until&#xA;the preview's ending animation finishes. |
 
 ### Root.Props
 
@@ -57,11 +56,6 @@ Re-export of [Root](#root) props.
 type DraggableRootState = {
   /** Whether this element is the one currently being dragged. */
   dragging: boolean;
-  /**
-   * The side of this element the nearest `Draggable.CollisionProvider` would insert
-   * the dragged item on, or `null` when it is not the current destination.
-   */
-  collision: 'before' | 'after' | null;
   /** Whether the draggable is disabled. */
   disabled: boolean;
 };
@@ -165,12 +159,18 @@ type DraggableRootPropsWithPayload<TData> = (
    * @default true
    */
   collision?: boolean;
+  /**
+   * Divides this participant's border box into equal steps for the collision target's
+   * `getSnappedLocalPoint()`. Uses the same coordinates and callback context as
+   * `Draggable.Target`. Changes reported coordinates only, not the drag preview.
+   */
+  snap?:
+    DragSnapSteps | ((context: DropTargetResolutionContext<TData>) => DragSnapSteps | undefined);
   /** Static participant data when the source uses getPayload. Defaults to payload. */
   collisionPayload?: TData;
   /**
    * The element used for collision hit testing and measurement. Defaults to this source.
    * Resolved once when the source registers; a new function takes effect on the next registration.
-   * The collision data attributes stay on this source's element regardless.
    */
   collisionElement?: (element: HTMLElement) => HTMLElement;
   /** The source kind. Defaults to the nearest provider's no-payload kind. */
@@ -237,23 +237,20 @@ type DraggableViewportState = {
 
 ### CollisionProvider
 
-Coordinates pointer-based insertion among descendant draggables of the same kind.
+Reports pointer coordinates within descendant draggables of the same kind.
 Renders no element. Applications own their order, commit, and cancellation behavior.
 Explicit targets can still represent empty containers and other destinations.
 
 **CollisionProvider Props:**
 
-| Prop              | Type                                                                                       | Default      | Description                                                                                                                                                                                                                    |
-| :---------------- | :----------------------------------------------------------------------------------------- | :----------- | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| canCollide        | `((context: { source: DragSource<TData>; target: TData }) => boolean \| 'reject')`         | -            | Excludes a destination, or rejects the entire target stack with 'reject'.                                                                                                                                                      |
-| getItemId         | `((payload: TData) => string \| number)`                                                   | -            | Returns a stable identity when participant payloads are recreated, such as inline objects.                                                                                                                                     |
-| kind\*            | `DragKind<TData>`                                                                          | -            | The kind shared by this group's participants and incoming sources.                                                                                                                                                             |
-| onCollisionChange | `((event: DraggableCollisionEvent<TData>, details: DropTargetChangeEventDetails) => void)` | -            | Called when the destination or insertion side changes, including leaving the group.                                                                                                                                            |
-| onMoveEnd         | `((event: DraggableCollisionEndEvent<TData>, details: MoveEndEventDetails) => void)`       | -            | Called when a drag involving this group ends. Use the reason and final collision to commit.                                                                                                                                    |
-| onMoveStart       | `((event: BaseDragEvent<TData>, details: MoveStartEventDetails) => void)`                  | -            | Called when a descendant participant starts moving, or when an external drag&#xA;first reaches this group. For an external drag, the event and location describe&#xA;the original pickup, not the later entry into this group. |
-| placement         | `'midpoint' \| 'direction'`                                                                | `'midpoint'` | Resolve insertion by the item midpoint or pointer travel direction.                                                                                                                                                            |
-| orientation       | `'vertical' \| 'horizontal'`                                                               | `'vertical'` | The list's reading axis.                                                                                                                                                                                                       |
-| children          | `React.ReactNode`                                                                          | -            | -                                                                                                                                                                                                                              |
+| Prop              | Type                                                                                       | Default | Description                                                                                                                                                                                                                                                           |
+| :---------------- | :----------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| canCollide        | `((context: { source: DragSource<TData>; target: TData }) => boolean \| 'reject')`         | -       | Excludes a destination, or rejects the entire target stack with 'reject'.                                                                                                                                                                                             |
+| kind\*            | `DragKind<TData>`                                                                          | -       | The kind shared by this group's participants and incoming sources.                                                                                                                                                                                                    |
+| onCollisionChange | `((event: DraggableCollisionEvent<TData>, details: DropTargetChangeEventDetails) => void)` | -       | Called on each drag movement within a participant, and when the destination changes&#xA;or is left. Compare your computed position with the previous one to skip unchanged work.&#xA;A target change and movement sharing the same resolved record are reported once. |
+| onMoveEnd         | `((event: DraggableCollisionEndEvent<TData>, details: MoveEndEventDetails) => void)`       | -       | Called when a drag involving this group ends. Use the reason and final collision to commit.                                                                                                                                                                           |
+| onMoveStart       | `((event: BaseDragEvent<TData>, details: MoveStartEventDetails) => void)`                  | -       | Called when a descendant participant starts moving, or when an external drag&#xA;first reaches this group. For an external drag, the event and location describe&#xA;the original pickup, not the later entry into this group.                                        |
+| children          | `React.ReactNode`                                                                          | -       | -                                                                                                                                                                                                                                                                     |
 
 ### CollisionProvider.Props
 
@@ -263,10 +260,12 @@ Re-export of [CollisionProvider](#collisionprovider) props.
 
 ```typescript
 type DraggableCollisionProviderCollision<TData = unknown> = {
-  /** The participant under the pointer. Its payload is the draggable's static payload. */
+  /**
+   * The participant under the pointer. Read `getLocalPoint()` or `getSnappedLocalPoint()`
+   * to compute a destination. Coordinates are captured before drag callbacks can change layout.
+   * Its payload is the draggable's static payload.
+   */
   target: DropTargetRecord<TData>;
-  /** The insertion side, in reading order. */
-  placement: 'before' | 'after';
 };
 ```
 
@@ -276,6 +275,8 @@ type DraggableCollisionProviderCollision<TData = unknown> = {
 type DraggableCollisionProviderCollisionEvent<TData = unknown> = {
   /** The current destination, or null outside this group or over the source itself. */
   collision: DraggableCollision<TData> | null;
+  /** The collision from the previous onCollisionChange callback, or null before the first one. */
+  previousCollision: DraggableCollision<TData> | null;
   location: DragLocationHistory;
   source: DragSource<TData>;
 };
@@ -287,6 +288,8 @@ type DraggableCollisionProviderCollisionEvent<TData = unknown> = {
 type DraggableCollisionProviderMoveEndEvent<TData = unknown> = {
   /** The final destination in this group, or null on cancellation or an unrelated drop. */
   collision: DraggableCollision<TData> | null;
+  /** The collision from the previous onCollisionChange callback, or null before the first one. */
+  previousCollision: DraggableCollision<TData> | null;
   location: DragLocationHistory;
   source: DragSource<TData>;
   /**
@@ -733,6 +736,21 @@ type DraggableTargetPropsWithPayload<TSourceData, TLocalData> = (
    */
   disabled?: boolean;
   /**
+   * Divides the target's border box into equal steps for
+   * `getSnappedLocalPoint()`. For example, `{ y: 96 }` creates 15-minute slots in
+   * a day column, and `{ x: 7, y: 6 }` creates a month grid.
+   *
+   * Step counts do not depend on the target's pixel size. Pass a static value or
+   * a callback that receives the same context as `canDrop`. Return `undefined`
+   * to skip snapping.
+   *
+   * This differs from `snapToGrid`, which snaps the drag position for every target.
+   * `snap` changes only the value reported by this target.
+   */
+  snap?:
+    | DragSnapSteps
+    | ((context: DropTargetResolutionContext<TSourceData>) => DragSnapSteps | undefined);
+  /**
    * One or more drag source kinds accepted by this target.
    *
    * Every registration uses the same page-wide drag manager, so this value is
@@ -757,21 +775,6 @@ type DraggableTargetPropsWithPayload<TSourceData, TLocalData> = (
    * `false` would allow an item inside the container to receive the drop.
    */
   canDrop?: (parameters: DropTargetResolutionContext<TSourceData>) => boolean | 'reject';
-  /**
-   * Divides the target's border box into equal steps for
-   * `getSnappedLocalPoint()`. For example, `{ y: 96 }` creates 15-minute slots in
-   * a day column, and `{ x: 7, y: 6 }` creates a month grid.
-   *
-   * Step counts do not depend on the target's pixel size. Pass a static value or
-   * a callback that receives the same context as `canDrop`. Return `undefined`
-   * to skip snapping.
-   *
-   * This differs from `snapToGrid`, which snaps the drag position for every target.
-   * `snap` changes only the value reported by this target.
-   */
-  snap?:
-    | DragSnapSteps
-    | ((context: DropTargetResolutionContext<TSourceData>) => DragSnapSteps | undefined);
   /**
    * Event handler called when a matching drag starts while this target is already
    * under the pointer. It does not fire for drags that start elsewhere; use a
@@ -954,15 +957,15 @@ type DraggableuseDragDropManagerReturnValue = {
         getParameters?: () => {
           kind?: DragKind<undefined>;
           disabled?: boolean;
-          accept: TAccept;
-          canDrop?: (
-            parameters: DropTargetResolutionContext<TPayload | unknown>,
-          ) => boolean | 'reject';
           snap?:
             | DragSnapSteps
             | ((
                 context: DropTargetResolutionContext<TPayload | unknown>,
               ) => DragSnapSteps | undefined);
+          accept: TAccept;
+          canDrop?: (
+            parameters: DropTargetResolutionContext<TPayload | unknown>,
+          ) => boolean | 'reject';
           onDraggableStart?: (
             parameters: {
               location: DragLocationHistory;
@@ -1025,15 +1028,15 @@ type DraggableuseDragDropManagerReturnValue = {
         ) & {
           kind?: DragKind<TLocalData>;
           disabled?: boolean;
-          accept: NonNullable<DragAccept<TPayload | unknown> | undefined>;
-          canDrop?: (
-            parameters: DropTargetResolutionContext<TPayload | unknown>,
-          ) => boolean | 'reject';
           snap?:
             | DragSnapSteps
             | ((
                 context: DropTargetResolutionContext<TPayload | unknown>,
               ) => DragSnapSteps | undefined);
+          accept: NonNullable<DragAccept<TPayload | unknown> | undefined>;
+          canDrop?: (
+            parameters: DropTargetResolutionContext<TPayload | unknown>,
+          ) => boolean | 'reject';
           onDraggableStart?: (
             parameters: {
               location: DragLocationHistory;
@@ -1346,15 +1349,15 @@ type DragDropManager = {
         getParameters?: () => {
           kind?: DragKind<undefined>;
           disabled?: boolean;
-          accept: TAccept;
-          canDrop?: (
-            parameters: DropTargetResolutionContext<TPayload | unknown>,
-          ) => boolean | 'reject';
           snap?:
             | DragSnapSteps
             | ((
                 context: DropTargetResolutionContext<TPayload | unknown>,
               ) => DragSnapSteps | undefined);
+          accept: TAccept;
+          canDrop?: (
+            parameters: DropTargetResolutionContext<TPayload | unknown>,
+          ) => boolean | 'reject';
           onDraggableStart?: (
             parameters: {
               location: DragLocationHistory;
@@ -1417,15 +1420,15 @@ type DragDropManager = {
         ) & {
           kind?: DragKind<TLocalData>;
           disabled?: boolean;
-          accept: NonNullable<DragAccept<TPayload | unknown> | undefined>;
-          canDrop?: (
-            parameters: DropTargetResolutionContext<TPayload | unknown>,
-          ) => boolean | 'reject';
           snap?:
             | DragSnapSteps
             | ((
                 context: DropTargetResolutionContext<TPayload | unknown>,
               ) => DragSnapSteps | undefined);
+          accept: NonNullable<DragAccept<TPayload | unknown> | undefined>;
+          canDrop?: (
+            parameters: DropTargetResolutionContext<TPayload | unknown>,
+          ) => boolean | 'reject';
           onDraggableStart?: (
             parameters: {
               location: DragLocationHistory;
@@ -2526,14 +2529,16 @@ type DraggableMoveStartEventDetails =
 
 ### DraggableCollision
 
-A sortable destination resolved from the pointer within a participant.
+A participant under the pointer, with coordinates for application-defined placement.
 
 ```typescript
 type DraggableCollision<TData = unknown> = {
-  /** The participant under the pointer. Its payload is the draggable's static payload. */
+  /**
+   * The participant under the pointer. Read `getLocalPoint()` or `getSnappedLocalPoint()`
+   * to compute a destination. Coordinates are captured before drag callbacks can change layout.
+   * Its payload is the draggable's static payload.
+   */
   target: DropTargetRecord<TData>;
-  /** The insertion side, in reading order. */
-  placement: 'before' | 'after';
 };
 ```
 
@@ -2543,6 +2548,8 @@ type DraggableCollision<TData = unknown> = {
 type DraggableCollisionEndEvent<TData = unknown> = {
   /** The final destination in this group, or null on cancellation or an unrelated drop. */
   collision: DraggableCollision<TData> | null;
+  /** The collision from the previous onCollisionChange callback, or null before the first one. */
+  previousCollision: DraggableCollision<TData> | null;
   location: DragLocationHistory;
   source: DragSource<TData>;
   /**
@@ -2565,6 +2572,8 @@ type DraggableCollisionEndEvent<TData = unknown> = {
 type DraggableCollisionEvent<TData = unknown> = {
   /** The current destination, or null outside this group or over the source itself. */
   collision: DraggableCollision<TData> | null;
+  /** The collision from the previous onCollisionChange callback, or null before the first one. */
+  previousCollision: DraggableCollision<TData> | null;
   location: DragLocationHistory;
   source: DragSource<TData>;
 };
@@ -2929,20 +2938,6 @@ type RegisterDropTargetParameters<TSourceData = unknown, TLocalData = unknown> =
    */
   disabled?: boolean;
   /**
-   * Predicate for whether this target should be considered a candidate for the
-   * current drag. Runs after `accept`.
-   *
-   * Return `false` to skip this target for the current resolution. Base UI continues
-   * through its ancestors, so a parent target can receive the drop. This differs from
-   * ignoring the drop inside `onDraggableDrop`, which does not give a parent target a chance.
-   *
-   * Return `'reject'` to block every drop at this position. Descendants, this target,
-   * and ancestors cannot receive the drop. While the drag is over the target, it has
-   * `data-rejected`. Use this for container rules such as a capacity limit. Returning
-   * `false` would allow an item inside the container to receive the drop.
-   */
-  canDrop?: (parameters: DropTargetResolutionContext<TSourceData>) => boolean | 'reject';
-  /**
    * Divides the target's border box into equal steps for
    * `getSnappedLocalPoint()`. For example, `{ y: 96 }` creates 15-minute slots in
    * a day column, and `{ x: 7, y: 6 }` creates a month grid.
@@ -2957,6 +2952,20 @@ type RegisterDropTargetParameters<TSourceData = unknown, TLocalData = unknown> =
   snap?:
     | DragSnapSteps
     | ((context: DropTargetResolutionContext<TSourceData>) => DragSnapSteps | undefined);
+  /**
+   * Predicate for whether this target should be considered a candidate for the
+   * current drag. Runs after `accept`.
+   *
+   * Return `false` to skip this target for the current resolution. Base UI continues
+   * through its ancestors, so a parent target can receive the drop. This differs from
+   * ignoring the drop inside `onDraggableDrop`, which does not give a parent target a chance.
+   *
+   * Return `'reject'` to block every drop at this position. Descendants, this target,
+   * and ancestors cannot receive the drop. While the drag is over the target, it has
+   * `data-rejected`. Use this for container rules such as a capacity limit. Returning
+   * `false` would allow an item inside the container to receive the drop.
+   */
+  canDrop?: (parameters: DropTargetResolutionContext<TSourceData>) => boolean | 'reject';
   /**
    * Event handler called when a matching drag starts while this target is already
    * under the pointer. It does not fire for drags that start elsewhere; use a
@@ -3057,6 +3066,21 @@ type RegisterDropTargetParametersWithPayload<TSourceData, TLocalData> = (
    */
   disabled?: boolean;
   /**
+   * Divides the target's border box into equal steps for
+   * `getSnappedLocalPoint()`. For example, `{ y: 96 }` creates 15-minute slots in
+   * a day column, and `{ x: 7, y: 6 }` creates a month grid.
+   *
+   * Step counts do not depend on the target's pixel size. Pass a static value or
+   * a callback that receives the same context as `canDrop`. Return `undefined`
+   * to skip snapping.
+   *
+   * This differs from `snapToGrid`, which snaps the drag position for every target.
+   * `snap` changes only the value reported by this target.
+   */
+  snap?:
+    | DragSnapSteps
+    | ((context: DropTargetResolutionContext<TSourceData>) => DragSnapSteps | undefined);
+  /**
    * One or more drag source kinds accepted by this target.
    *
    * Every registration uses the same page-wide drag manager, so this value is
@@ -3081,21 +3105,6 @@ type RegisterDropTargetParametersWithPayload<TSourceData, TLocalData> = (
    * `false` would allow an item inside the container to receive the drop.
    */
   canDrop?: (parameters: DropTargetResolutionContext<TSourceData>) => boolean | 'reject';
-  /**
-   * Divides the target's border box into equal steps for
-   * `getSnappedLocalPoint()`. For example, `{ y: 96 }` creates 15-minute slots in
-   * a day column, and `{ x: 7, y: 6 }` creates a month grid.
-   *
-   * Step counts do not depend on the target's pixel size. Pass a static value or
-   * a callback that receives the same context as `canDrop`. Return `undefined`
-   * to skip snapping.
-   *
-   * This differs from `snapToGrid`, which snaps the drag position for every target.
-   * `snap` changes only the value reported by this target.
-   */
-  snap?:
-    | DragSnapSteps
-    | ((context: DropTargetResolutionContext<TSourceData>) => DragSnapSteps | undefined);
   /**
    * Event handler called when a matching drag starts while this target is already
    * under the pointer. It does not fire for drags that start elsewhere; use a
@@ -3266,15 +3275,15 @@ type UseDragDropManagerReturnValue = {
         getParameters?: () => {
           kind?: DragKind<undefined>;
           disabled?: boolean;
-          accept: TAccept;
-          canDrop?: (
-            parameters: DropTargetResolutionContext<TPayload | unknown>,
-          ) => boolean | 'reject';
           snap?:
             | DragSnapSteps
             | ((
                 context: DropTargetResolutionContext<TPayload | unknown>,
               ) => DragSnapSteps | undefined);
+          accept: TAccept;
+          canDrop?: (
+            parameters: DropTargetResolutionContext<TPayload | unknown>,
+          ) => boolean | 'reject';
           onDraggableStart?: (
             parameters: {
               location: DragLocationHistory;
@@ -3337,15 +3346,15 @@ type UseDragDropManagerReturnValue = {
         ) & {
           kind?: DragKind<TLocalData>;
           disabled?: boolean;
-          accept: NonNullable<DragAccept<TPayload | unknown> | undefined>;
-          canDrop?: (
-            parameters: DropTargetResolutionContext<TPayload | unknown>,
-          ) => boolean | 'reject';
           snap?:
             | DragSnapSteps
             | ((
                 context: DropTargetResolutionContext<TPayload | unknown>,
               ) => DragSnapSteps | undefined);
+          accept: NonNullable<DragAccept<TPayload | unknown> | undefined>;
+          canDrop?: (
+            parameters: DropTargetResolutionContext<TPayload | unknown>,
+          ) => boolean | 'reject';
           onDraggableStart?: (
             parameters: {
               location: DragLocationHistory;

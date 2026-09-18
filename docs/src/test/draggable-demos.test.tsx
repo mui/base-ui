@@ -189,13 +189,13 @@ describe('draggable demos', () => {
       // The pointer is in the gap above the second card, where the line is drawn.
       fireEvent.dragOver(target.parentElement!, { clientX: 100, clientY: 49 });
       await flushRaf();
-      expect(target).toHaveAttribute('data-collision-before');
+      expect(target).toHaveAttribute('data-drop-position', 'before');
       expect(source).not.toHaveAttribute('data-self-drop');
 
       fireEvent.dragOver(source, { clientX: 100, clientY: 20 });
       await flushRaf();
       expect(source).toHaveAttribute('data-self-drop');
-      expect(target).not.toHaveAttribute('data-collision-before');
+      expect(target).not.toHaveAttribute('data-drop-position', 'before');
 
       fireEvent.dragOver(document.body, { clientX: 500, clientY: 500 });
       await flushRaf();

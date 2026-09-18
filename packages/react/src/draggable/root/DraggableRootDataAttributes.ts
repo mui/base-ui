@@ -17,13 +17,3 @@ export const endingStyle = TransitionStatusDataAttributes.endingStyle;
  * Present while the draggable is disabled.
  */
 export const disabled = 'data-disabled';
-/**
- * Present while the nearest `Draggable.CollisionProvider` would insert the dragged
- * item before this element.
- */
-export const collisionBefore = 'data-collision-before';
-/**
- * Present while the nearest `Draggable.CollisionProvider` would insert the dragged
- * item after this element.
- */
-export const collisionAfter = 'data-collision-after';

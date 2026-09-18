@@ -13,11 +13,9 @@ import {
 import type {
   InternalDraggableParameters,
   RegisterDraggableParameters,
+  RegisterDropTargetParameters,
 } from '../../types/dragRegistration';
-import type {
-  CollisionPlacement,
-  DraggableCollisionContextValue,
-} from '../collision-provider/DraggableCollisionContext';
+import type { DraggableCollisionContextValue } from '../collision-provider/DraggableCollisionContext';
 import type { DragSource } from '../../types/drag';
 import {
   dragSessionStore,
@@ -45,6 +43,7 @@ export function useDraggableElement<TData = undefined>(
   collisionOptions?: {
     context: DraggableCollisionContextValue;
     payload: unknown;
+    snap?: RegisterDropTargetParameters<TData>['snap'] | undefined;
     enabled: boolean;
     element?: ((element: HTMLElement) => HTMLElement) | undefined;
   },
@@ -54,10 +53,6 @@ export function useDraggableElement<TData = undefined>(
   const getOptions = useStableCallback(() => options);
   const getParameters = () => getOptions().parameters;
   const getCollision = () => getOptions().collision;
-  // The side of this element the nearest collision provider would insert the
-  // dragged item on, or `null`. Drives `data-collision-before` / `-after`.
-  const [collision, setCollision] = React.useState<CollisionPlacement | null>(null);
-
   // The `dragging` selector reads the live element behind this ref.
   const elementRef = React.useRef<HTMLElement | null>(null);
   // Every mounted handle, in mount order, tagged with the token its
@@ -106,15 +101,24 @@ export function useDraggableElement<TData = undefined>(
     }
     const unregisterCollision = collisionConfig.context.register(
       collisionConfig.element?.(element) ?? element,
-      () => ({
-        kind: getParameters().kind,
-        payload: getCollision()?.payload,
-        // A disabled source can't be picked up but stays a destination; only
-        // `collision={false}` opts it out of that.
-        disabled: !getCollision()?.enabled,
-      }),
+      () => {
+        const collision = getCollision();
+        const snap = collision?.snap;
+        return {
+          kind: getParameters().kind,
+          payload: collision?.payload,
+          snap:
+            typeof snap === 'function'
+              ? (context) => {
+                  // The provider accepts only this participant's source kind.
+                  return snap({ ...context, source: context.source as DragSource<TData> });
+                }
+              : snap,
+          // A disabled source stays a destination; only `collision={false}` opts out.
+          disabled: !collision?.enabled,
+        };
+      },
       element,
-      setCollision,
     );
     return () => {
       try {
@@ -241,15 +245,12 @@ export function useDraggableElement<TData = undefined>(
   return {
     ref,
     dragging,
-    collision,
     setHandleElement,
     previewHandle,
   };
 }
 
 export interface UseDraggableElementReturnValue<TData = undefined> {
-  /** The insertion side the nearest collision provider reports for this element, or `null`. */
-  collision: CollisionPlacement | null;
   /** Ref callback to attach to the drag source element. Stable. */
   ref: React.RefCallback<HTMLElement>;
   /** Whether this element is the one currently being dragged. */

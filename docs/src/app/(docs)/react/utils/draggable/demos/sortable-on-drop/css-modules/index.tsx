@@ -2,7 +2,15 @@
 import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { Draggable } from '@base-ui/react/draggable';
-import { INITIAL_TASKS, moveTask, swapTask, getTaskRow } from '../../sortableTasks';
+import {
+  INITIAL_TASKS,
+  moveTask,
+  swapTask,
+  getTaskRow,
+  getTaskDestination,
+  sameTaskDestination,
+  type TaskDestination,
+} from '../../sortableTasks';
 import styles from '../sortable.module.css';
 
 const taskKind = Draggable.createKind<string>('sortable-drop-task');
@@ -12,8 +20,10 @@ const taskKind = Draggable.createKind<string>('sortable-drop-task');
 const Task = React.memo(function Task({
   task,
   onSwap,
+  placement,
 }: {
   task: string;
+  placement?: TaskDestination['placement'];
   onSwap: (task: string, direction: 'up' | 'down') => void;
 }) {
   const rowRef = React.useRef<HTMLDivElement | null>(null);
@@ -28,6 +38,7 @@ const Task = React.memo(function Task({
         kind={taskKind}
         payload={task}
         collisionElement={getTaskRow}
+        data-drop-position={placement}
         data-self-drop={selfDrop ? '' : undefined}
         onMoveStart={trackSelfDrop}
         onTargetChange={trackSelfDrop}
@@ -51,7 +62,18 @@ const Task = React.memo(function Task({
 
 export default function SortableOnDrop() {
   const [tasks, setTasks] = React.useState(INITIAL_TASKS);
+  const [destination, setDestination] = React.useState<TaskDestination | null>(null);
+  const trackCollision = useStableCallback(
+    ({ collision, previousCollision }: Draggable.CollisionProvider.CollisionEvent<string>) => {
+      const next = getTaskDestination(collision);
+      if (sameTaskDestination(next, getTaskDestination(previousCollision))) {
+        return;
+      }
+      setDestination(next);
+    },
+  );
   const reorder = useStableCallback((event: Draggable.CollisionProvider.CollisionEvent<string>) => {
+    setDestination(null);
     setTasks((current) => moveTask(current, event));
   });
   const swap = useStableCallback((task: string, direction: 'up' | 'down') => {
@@ -59,10 +81,19 @@ export default function SortableOnDrop() {
   });
   return (
     <Draggable.Provider>
-      <Draggable.CollisionProvider kind={taskKind} onMoveEnd={reorder}>
+      <Draggable.CollisionProvider
+        kind={taskKind}
+        onCollisionChange={trackCollision}
+        onMoveEnd={reorder}
+      >
         <div className={styles.Root} role="group" aria-label="Tasks reordered on drop">
           {tasks.map((task) => (
-            <Task key={task} task={task} onSwap={swap} />
+            <Task
+              key={task}
+              task={task}
+              onSwap={swap}
+              placement={destination?.id === task ? destination.placement : undefined}
+            />
           ))}
         </div>
       </Draggable.CollisionProvider>

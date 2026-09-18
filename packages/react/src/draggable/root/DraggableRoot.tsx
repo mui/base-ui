@@ -3,7 +3,13 @@ import * as React from 'react';
 import { warn } from '@base-ui/utils/warn';
 import { DraggableCollisionContext } from '../collision-provider/DraggableCollisionContext';
 import { useDraggableContext } from '../DraggableContext';
-import type { DragKind, DraggablePayload, DraggablePayloadGetter } from '../../types/drag';
+import type {
+  DragKind,
+  DraggablePayload,
+  DraggablePayloadGetter,
+  DragSnapSteps,
+  DropTargetResolutionContext,
+} from '../../types/drag';
 import { useRenderElement } from '../../internals/useRenderElement';
 import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
 import type { BaseUIComponentProps } from '../../internals/types';
@@ -14,7 +20,6 @@ import type {
 } from '../../types/dragRegistration';
 import { useDraggableElement } from './useDraggableElement';
 import { DraggableRootContext } from './DraggableRootContext';
-import * as DraggableRootDataAttributes from './DraggableRootDataAttributes';
 import { useDragPreviewContext } from '../../utils/drag-and-drop/overlay/DragPreviewContext';
 
 const stateAttributesMapping: StateAttributesMapping<DraggableRootState> = {
@@ -22,14 +27,6 @@ const stateAttributesMapping: StateAttributesMapping<DraggableRootState> = {
   // and measured, so the clone never inherits it. React writing it too would race
   // that ordering.
   dragging: () => null,
-  collision: (value) =>
-    value === null
-      ? null
-      : {
-          [value === 'before'
-            ? DraggableRootDataAttributes.collisionBefore
-            : DraggableRootDataAttributes.collisionAfter]: '',
-        },
 };
 
 /**
@@ -63,6 +60,7 @@ export const DraggableRoot = React.forwardRef(function DraggableRoot<TData = und
     previewKey,
     collision = true,
     collisionElement,
+    snap,
     collisionPayload = payload,
     disabled,
     activation,
@@ -134,13 +132,7 @@ export const DraggableRoot = React.forwardRef(function DraggableRoot<TData = und
       );
     }
   }, [enclosingCollisionContext, kind, collisionContext, collision, getPayload, collisionPayload]);
-  const {
-    ref,
-    dragging,
-    collision: collisionPlacement,
-    setHandleElement,
-    previewHandle,
-  } = useDraggableElement<TData>(
+  const { ref, dragging, setHandleElement, previewHandle } = useDraggableElement<TData>(
     params,
     collisionContext
       ? {
@@ -148,6 +140,7 @@ export const DraggableRoot = React.forwardRef(function DraggableRoot<TData = und
           payload: collisionPayload,
           enabled: collision && (getPayload === undefined || collisionPayload !== undefined),
           element: collisionElement,
+          snap,
         }
       : undefined,
   );
@@ -155,7 +148,6 @@ export const DraggableRoot = React.forwardRef(function DraggableRoot<TData = und
   const state: DraggableRoot.State = {
     dragging,
     disabled: disabled ?? false,
-    collision: collisionPlacement,
   };
 
   // The provider seen from here is the one the engine publishes preview content
@@ -200,11 +192,6 @@ export interface DraggableRootState {
    */
   dragging: boolean;
   /**
-   * The side of this element the nearest `Draggable.CollisionProvider` would insert
-   * the dragged item on, or `null` when it is not the current destination.
-   */
-  collision: 'before' | 'after' | null;
-  /**
    * Whether the draggable is disabled.
    */
   disabled: boolean;
@@ -228,12 +215,20 @@ type DraggableRootPropsBase<TData> = Omit<
     children?: React.ReactNode | undefined;
     /** Whether this element participates in the nearest collision provider. @default true */
     collision?: boolean | undefined;
+    /**
+     * Divides this participant's border box into equal steps for the collision target's
+     * `getSnappedLocalPoint()`. Uses the same coordinates and callback context as
+     * `Draggable.Target`. Changes reported coordinates only, not the drag preview.
+     */
+    snap?:
+      | DragSnapSteps
+      | ((context: DropTargetResolutionContext<NoInfer<TData>>) => DragSnapSteps | undefined)
+      | undefined;
     /** Static participant data when the source uses getPayload. Defaults to payload. */
     collisionPayload?: DraggablePayload<TData> | undefined;
     /**
      * The element used for collision hit testing and measurement. Defaults to this source.
      * Resolved once when the source registers; a new function takes effect on the next registration.
-     * The collision data attributes stay on this source's element regardless.
      */
     collisionElement?: ((element: HTMLElement) => HTMLElement) | undefined;
     /** The source kind. Defaults to the nearest provider's no-payload kind. */

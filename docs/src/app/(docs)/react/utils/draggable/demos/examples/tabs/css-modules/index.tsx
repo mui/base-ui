@@ -6,6 +6,7 @@ import {
 } from '@base-ui/react/draggable';
 
 import * as React from 'react';
+import { getHorizontalCollisionAfter } from 'docs/src/utils/getHorizontalCollisionAfter';
 import { Tabs } from '@base-ui/react/tabs';
 import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
@@ -307,13 +308,21 @@ function DraggableTabsContent() {
         >
           <Draggable.CollisionProvider
             kind={tabKind}
-            orientation="horizontal"
-            onCollisionChange={({ source, collision }) => {
+            onCollisionChange={({ source, collision, previousCollision }) => {
+              if (
+                collision &&
+                previousCollision &&
+                collision.target.payload === previousCollision.target.payload &&
+                getHorizontalCollisionAfter(collision) ===
+                  getHorizontalCollisionAfter(previousCollision)
+              ) {
+                return;
+              }
               if (collision) {
                 handleDragOverTab(
                   source.payload,
                   collision.target.payload,
-                  collision.placement === 'after',
+                  getHorizontalCollisionAfter(collision),
                 );
               }
             }}
