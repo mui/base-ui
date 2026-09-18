@@ -19,7 +19,7 @@ export function CompositeRoot<Metadata extends {}, State extends Record<string, 
     className,
     style,
     refs = EMPTY_ARRAY,
-    props = EMPTY_ARRAY as any[],
+    props = EMPTY_ARRAY as readonly any[],
     state = EMPTY_OBJECT as State,
     stateAttributesMapping,
     highlightedIndex: highlightedIndexProp,
@@ -124,7 +124,7 @@ export interface CompositeRootProps<Metadata, State extends Record<string, any>>
   onKeyDown?: ((event: BaseUIEvent<React.KeyboardEvent>) => void) | undefined;
   stopEventPropagation?: boolean | undefined;
   rootRef?: React.RefObject<HTMLElement | null> | undefined;
-  disabledIndices?: number[] | undefined;
+  disabledIndices?: readonly number[] | undefined;
   modifierKeys?: ModifierKey[] | undefined;
   highlightItemOnHover?: boolean | undefined;
 }
