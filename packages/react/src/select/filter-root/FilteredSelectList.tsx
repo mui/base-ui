@@ -29,7 +29,7 @@ export const FilteredSelectList = React.forwardRef(function FilteredSelectList(
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const store = useSelectRootContext();
-  const { multiple, readOnly } = useSelectRootPropsContext();
+  const { multiple, readOnly, required } = useSelectRootPropsContext();
   const { labelId: fieldLabelId } = useLabelableContext();
   const { onItemsChange, focusOwnerRef, keyReplayRef } = useFilterDropdownRootContext();
   const { store: filterStore, listRef } = useFilterDropdownItemContext();
@@ -118,6 +118,8 @@ export const FilteredSelectList = React.forwardRef(function FilteredSelectList(
       role: 'listbox',
       'aria-multiselectable': multiple || undefined,
       'aria-readonly': readOnly || undefined,
+      // The trigger is a plain button here, which can't carry these; the listbox can.
+      'aria-required': required || undefined,
       'aria-labelledby': resolveAriaLabelledBy(fieldLabelId, labelId),
       onKeyDown: handleKeyDown,
       onScroll(event: React.UIEvent<HTMLDivElement>) {
