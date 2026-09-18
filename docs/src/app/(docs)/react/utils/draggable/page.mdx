@@ -853,30 +853,6 @@ Both examples implement <kbd>Alt</kbd>+<kbd>↑</kbd> and <kbd>Alt</kbd>+<kbd>�
 
 For horizontal lists, use `getLocalPoint().x` and account for RTL in your placement rule. Coordinates are physical: `0` is left/top and `1` is right/bottom. For object payloads, compare stable IDs in your own position equality check. A source that derives its payload with `getPayload` must also pass `collisionPayload`, the static data the collision callbacks report for it, since destinations are measured before any gesture exists. Collision detection considers mounted items under the pointer; use explicit targets for gaps and empty containers. See the [CollisionProvider API](#collision-provider) for the remaining options.
 
-### Snapping collision coordinates
-
-Pass `snap` to a participating `Draggable.Root` to divide its collision element's border box into equal steps. It uses the same configuration as `Draggable.Target`. Read `getSnappedLocalPoint()` for values rounded to those steps and clamped to `0`–`1`. Raw `getLocalPoint()` values are not clamped.
-
-```tsx
-<Draggable.CollisionProvider
-  kind={itemKind}
-  onCollisionChange={({ collision }) => {
-    if (collision) {
-      const { x, y } = collision.target.getSnappedLocalPoint();
-      // Compute an application-specific destination from x and y.
-    }
-  }}
->
-  <Draggable.Root kind={itemKind} payload={item.id} snap={{ x: 4, y: 8 }}>
-    {item.label}
-  </Draggable.Root>
-</Draggable.CollisionProvider>
-```
-
-`snap` also accepts a callback receiving `{ element, input, source }`, so step counts can depend on the participant. Pass `{ anchor: 'source' }` to `getSnappedLocalPoint()` to subtract the grab offset before snapping. This changes reported coordinates, not the drag preview's position; preview movement uses modifiers such as `snapToGrid`.
-
-The provider captures the winning participant's geometry and snap steps before source and target callbacks run, so reordering in those callbacks does not change the coordinates for that event.
-
 ## Scrolling
 
 import { DemoDragAutoScrollHero } from './demos/scrolling/hero';
