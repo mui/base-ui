@@ -151,14 +151,13 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
       const prevSize = prevMapSizeRef.current;
       prevMapSizeRef.current = map.size;
 
-      const eventDetails = createChangeEventDetails(REASONS.none);
-
       // Filtering unmounts options without removing them from the select: the value stays, and
       // `Select.Value` resolves its label from `items` rather than from a mounted option.
       if (virtualFocus) {
-        prevMapSizeRef.current = map.size;
         return;
       }
+
+      const eventDetails = createChangeEventDetails(REASONS.none);
 
       if (prevSize !== 0 && !store.state.multiple && value !== null) {
         const selectedValueIndex = findItemIndex(

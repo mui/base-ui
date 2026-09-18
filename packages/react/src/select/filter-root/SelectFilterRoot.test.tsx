@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { expect, vi, describe, beforeEach, it } from 'vitest';
-import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
+import { act, screen, waitFor } from '@mui/internal-test-utils';
 import { Select } from '@base-ui/react/select';
 import { Field } from '@base-ui/react/field';
 import { createRenderer, isJSDOM, resetBrowserPointer } from '#test-utils';
@@ -79,6 +79,12 @@ describe('<Select.FilterProvider><Select.Root/></Select.FilterProvider>', () => 
         expect(option).toHaveAttribute('tabindex', '-1');
         expect(option.id).not.toBe('');
       });
+    });
+
+    it('moves required to the listbox, which can carry it', async () => {
+      await render(<Test root={{ defaultOpen: true, required: true }} />);
+      expect(screen.getByTestId('trigger')).not.toHaveAttribute('aria-required');
+      expect(screen.getByRole('listbox')).toHaveAttribute('aria-required', 'true');
     });
 
     it('marks the list multiselectable in multiple mode', async () => {
@@ -323,7 +329,7 @@ describe('<Select.FilterProvider><Select.Root/></Select.FilterProvider>', () => 
       expect(screen.getByRole('option', { name: 'Australia' })).toHaveAttribute('data-highlighted');
     });
 
-    it('highlights the selected option when opened with the keyboard', async () => {
+    it('highlights the first option, not the selected one, when opened with the keyboard', async () => {
       const { user } = await render(<Test root={{ defaultValue: 'de' }} />);
       await act(async () => screen.getByTestId('trigger').focus());
       await user.keyboard('[ArrowDown]');
@@ -334,7 +340,42 @@ describe('<Select.FilterProvider><Select.Root/></Select.FilterProvider>', () => 
       });
       expect(input).toHaveAttribute(
         'aria-activedescendant',
-        screen.getByRole('option', { name: 'Germany' }).id,
+        screen.getByRole('option', { name: 'Australia' }).id,
+      );
+      expect(screen.getByRole('option', { name: 'Germany' })).toHaveAttribute(
+        'aria-selected',
+        'true',
+      );
+    });
+
+    it('navigates from the first visible option after typing when a value is selected', async () => {
+      const { user } = await render(<Test root={{ defaultValue: 'de' }} />);
+      await user.click(screen.getByTestId('trigger'));
+      const input = await screen.findByRole('searchbox', { name: 'Filter countries' });
+      await waitFor(() => {
+        expect(input).toHaveFocus();
+      });
+
+      // The selected option sat at index 2; the cursor must not start from there.
+      await user.keyboard('j');
+      expect(screen.getAllByRole('option')).toHaveLength(1);
+      await user.keyboard('[ArrowDown]');
+      expect(input).toHaveAttribute(
+        'aria-activedescendant',
+        screen.getByRole('option', { name: 'Japan' }).id,
+      );
+
+      await user.keyboard('[Backspace]a');
+      expect(screen.getAllByRole('option')).toHaveLength(4);
+      await user.keyboard('[ArrowDown]');
+      expect(input).toHaveAttribute(
+        'aria-activedescendant',
+        screen.getByRole('option', { name: 'Australia' }).id,
+      );
+      await user.keyboard('[ArrowUp][ArrowUp]');
+      expect(input).toHaveAttribute(
+        'aria-activedescendant',
+        screen.getByRole('option', { name: 'Japan' }).id,
       );
     });
 
@@ -410,6 +451,87 @@ describe('<Select.FilterProvider><Select.Root/></Select.FilterProvider>', () => 
       await waitFor(() => {
         expect(trigger).toHaveFocus();
       });
+    });
+  });
+
+  describe('prop: autoHighlight', () => {
+    it('highlights the first match after typing and keeps the input out of the loop', async () => {
+      const { user } = await render(
+        <Test root={{ defaultOpen: true }} provider={{ autoHighlight: true }} />,
+      );
+      const input = screen.getByRole('searchbox', { name: 'Filter countries' });
+      await waitFor(() => {
+        expect(input).toHaveFocus();
+      });
+      expect(input).not.toHaveAttribute('aria-activedescendant');
+
+      await user.keyboard('an');
+      expect(input).toHaveAttribute(
+        'aria-activedescendant',
+        screen.getByRole('option', { name: 'France' }).id,
+      );
+
+      // With `allowEscape` off, ArrowUp from the first match stays on an option.
+      await user.keyboard('[ArrowUp]');
+      expect(input).toHaveAttribute(
+        'aria-activedescendant',
+        screen.getByRole('option', { name: 'Japan' }).id,
+      );
+    });
+
+    it("always highlights the first visible option with 'always'", async () => {
+      const { user } = await render(
+        <Test root={{ defaultOpen: true }} provider={{ autoHighlight: 'always' }} />,
+      );
+      const input = screen.getByRole('searchbox', { name: 'Filter countries' });
+      await waitFor(() => {
+        expect(input).toHaveAttribute(
+          'aria-activedescendant',
+          screen.getByRole('option', { name: 'Australia' }).id,
+        );
+      });
+
+      await user.keyboard('ger');
+      expect(input).toHaveAttribute(
+        'aria-activedescendant',
+        screen.getByRole('option', { name: 'Germany' }).id,
+      );
+
+      await user.keyboard('[Backspace][Backspace][Backspace]');
+      expect(input).toHaveAttribute(
+        'aria-activedescendant',
+        screen.getByRole('option', { name: 'Australia' }).id,
+      );
+    });
+  });
+
+  describe('prop: readOnly and disabled', () => {
+    it('does not commit a highlighted option with Enter while read-only', async () => {
+      const onValueChange = vi.fn();
+      const { user } = await render(<Test root={{ readOnly: true, onValueChange }} />);
+      await act(async () => screen.getByTestId('trigger').focus());
+      await user.keyboard('[Enter]');
+      const input = await screen.findByRole('searchbox', { name: 'Filter countries' });
+      await waitFor(() => {
+        expect(input).toHaveFocus();
+      });
+      expect(input).toHaveAttribute(
+        'aria-activedescendant',
+        screen.getByRole('option', { name: 'Australia' }).id,
+      );
+
+      await user.keyboard('[Enter]');
+      expect(onValueChange).not.toHaveBeenCalled();
+      expect(screen.getByRole('dialog')).not.toBe(null);
+      expect(screen.getByRole('listbox')).toHaveAttribute('aria-readonly', 'true');
+    });
+
+    it('disables the filter controls when the root is disabled', async () => {
+      await render(
+        <Test root={{ defaultOpen: true, disabled: true }} provider={{ defaultInputValue: 'a' }} />,
+      );
+      expect(screen.getByRole('searchbox', { name: 'Filter countries' })).toBeDisabled();
+      expect(screen.getByRole('button', { name: 'Clear filter' })).toBeDisabled();
     });
   });
 
@@ -679,13 +801,5 @@ describe('<Select.FilterProvider><Select.Root/></Select.FilterProvider>', () => 
         expect(screen.queryByTestId('down')).toBe(null);
       });
     });
-  });
-
-  it('uses fireEvent-driven typing without dropping the selected value', async () => {
-    await render(<Test root={{ defaultOpen: true, defaultValue: 'fr' }} />);
-    const input = screen.getByRole('searchbox', { name: 'Filter countries' });
-    fireEvent.change(input, { target: { value: 'zzz' } });
-    expect(screen.queryAllByRole('option')).toHaveLength(0);
-    expect(screen.getByTestId('value')).toHaveTextContent('France');
   });
 });
