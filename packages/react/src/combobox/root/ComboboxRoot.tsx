@@ -122,6 +122,7 @@ export type ComboboxRootProps<
    * - `unmount`: Manually unmounts the combobox.
    * Call `preventUnmountOnClose()` in `onOpenChange` to manually control unmounting,
    * then call this action after any externally controlled closing animation finishes.
+   * - `close`: Closes the combobox imperatively when called.
    */
   actionsRef?: React.RefObject<ComboboxRoot.Actions | null> | undefined;
   /**

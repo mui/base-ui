@@ -599,7 +599,9 @@ export function useOpenStateTransitions<State extends PopupStoreState<unknown>>(
   });
 
   const forceUnmount = useStableCallback(() => {
-    if (!mounted) {
+    // Read the store rather than the rendered `mounted`: it is updated synchronously below, so a
+    // second call in the same batch is a no-op instead of repeating the completion callback.
+    if (!store.state.mounted) {
       return;
     }
     setMounted(false);

@@ -127,6 +127,7 @@ export interface AutocompleteRootState extends AriaComboboxState {}
 
 export interface AutocompleteRootActions {
   unmount: () => void;
+  close: () => void;
 }
 
 export type AutocompleteRootOpenChangeEventDetails = AriaCombobox.OpenChangeEventDetails;
@@ -260,6 +261,7 @@ export interface AutocompleteRootProps<ItemValue> extends Omit<
    * - `unmount`: Manually unmounts the autocomplete.
    * Call `preventUnmountOnClose()` in `onOpenChange` to manually control unmounting,
    * then call this action after any externally controlled closing animation finishes.
+   * - `close`: Closes the autocomplete imperatively when called.
    */
   actionsRef?: React.RefObject<AutocompleteRootActions | null> | undefined;
   /**

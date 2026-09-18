@@ -21,7 +21,7 @@ Doesn't render its own HTML element.
 | open                 | `boolean`                                                                                   | -       | Whether the select popup is currently open.                                                                                                                                                                                                                                                                                                                                                                                                       |
 | onOpenChange         | `((open: boolean, eventDetails: Select.Root.OpenChangeEventDetails) => void)`               | -       | Event handler called when the select popup is opened or closed.                                                                                                                                                                                                                                                                                                                                                                                   |
 | highlightItemOnHover | `boolean`                                                                                   | `true`  | Whether moving the pointer over items should highlight them.&#xA;Disabling this prop allows CSS `:hover` to be differentiated from the `:focus` (`data-highlighted`) state.                                                                                                                                                                                                                                                                       |
-| actionsRef           | `React.RefObject<Select.Root.Actions \| null>`                                              | -       | A ref to imperative actions. `unmount`: Manually unmounts the select.&#xA;Call `preventUnmountOnClose()` in `onOpenChange` to manually control unmounting,&#xA;then call this action after any externally controlled closing animation finishes.                                                                                                                                                                                                  |
+| actionsRef           | `React.RefObject<Select.Root.Actions \| null>`                                              | -       | A ref to imperative actions. `unmount`: Manually unmounts the select.&#xA;Call `preventUnmountOnClose()` in `onOpenChange` to manually control unmounting,&#xA;then call this action after any externally controlled closing animation finishes.`close`: Closes the select imperatively when called.                                                                                                                                              |
 | autoComplete         | `string`                                                                                    | -       | Provides a hint to the browser for autofill.                                                                                                                                                                                                                                                                                                                                                                                                      |
 | form                 | `string`                                                                                    | -       | Identifies the form that owns the hidden input.&#xA;Useful when the select is rendered outside the form.                                                                                                                                                                                                                                                                                                                                          |
 | isItemEqualToValue   | `((itemValue: Value, value: Value) => boolean)`                                             | -       | Custom comparison logic used to determine if a select item value matches the current selected value. Useful when item values are objects without matching referentially.&#xA;Defaults to `Object.is` comparison.                                                                                                                                                                                                                                  |
@@ -67,7 +67,7 @@ type SelectRootState = {};
 ### Root.Actions
 
 ```typescript
-type SelectRootActions = { unmount: () => void };
+type SelectRootActions = { unmount: () => void; close: () => void };
 ```
 
 ### Root.ChangeEventReason
@@ -82,6 +82,7 @@ type SelectRootChangeEventReason =
   | 'focus-out'
   | 'list-navigation'
   | 'cancel-open'
+  | 'imperative-action'
   | 'none';
 ```
 
@@ -97,6 +98,7 @@ type SelectRootChangeEventDetails = (
   | { reason: 'focus-out'; event: KeyboardEvent | FocusEvent }
   | { reason: 'list-navigation'; event: KeyboardEvent }
   | { reason: 'cancel-open'; event: MouseEvent }
+  | { reason: 'imperative-action'; event: Event }
   | { reason: 'none'; event: Event }
 ) & {
   /** Cancels Base UI from handling the event. */
@@ -124,6 +126,7 @@ type SelectRootOpenChangeEventDetails = (
   | { reason: 'focus-out'; event: KeyboardEvent | FocusEvent }
   | { reason: 'list-navigation'; event: KeyboardEvent }
   | { reason: 'cancel-open'; event: MouseEvent }
+  | { reason: 'imperative-action'; event: Event }
   | { reason: 'none'; event: Event }
 ) & {
   /** Cancels Base UI from handling the event. */

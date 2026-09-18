@@ -231,6 +231,7 @@ The popup unmounts automatically after its CSS closing animation finishes.
 To control unmounting with an external animation library, call `eventDetails.preventUnmountOnClose()` in `onOpenChange` when `open` is `false`.
 Then call `actionsRef.current.unmount()` after the animation finishes.
 The opt-out applies to that close cycle and resets when the popup reopens.
+To close the popup programmatically while keeping this control, call `actionsRef.current.close()` instead of setting `open` directly, so `onOpenChange` still runs.
 `onOpenChangeComplete(false)` fires when the popup unmounts.
 See the [animation guide](/react/handbook/animation#manual-unmounting) for a complete example.
 

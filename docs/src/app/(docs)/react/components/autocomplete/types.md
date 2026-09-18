@@ -23,7 +23,7 @@ Doesn't render its own HTML element.
 | autoHighlight        | `boolean \| 'always'`                                                                                         | `false`  | Whether the first matching item is highlighted automatically. `true`: highlight after the user types and keep the highlight while the query changes.`'always'`: always highlight the first item.                                                                                                                                                                                                                                                                                                                                                                                                                                   |
 | keepHighlight        | `boolean`                                                                                                     | `false`  | Whether the highlighted item should be preserved when the pointer leaves the list.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
 | highlightItemOnHover | `boolean`                                                                                                     | `true`   | Whether moving the pointer over items should highlight them.&#xA;Disabling this prop allows CSS `:hover` to be differentiated from the `:focus` (`data-highlighted`) state.                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
-| actionsRef           | `React.RefObject<Autocomplete.Root.Actions \| null>`                                                          | -        | A ref to imperative actions. `unmount`: Manually unmounts the autocomplete.&#xA;Call `preventUnmountOnClose()` in `onOpenChange` to manually control unmounting,&#xA;then call this action after any externally controlled closing animation finishes.                                                                                                                                                                                                                                                                                                                                                                             |
+| actionsRef           | `React.RefObject<Autocomplete.Root.Actions \| null>`                                                          | -        | A ref to imperative actions. `unmount`: Manually unmounts the autocomplete.&#xA;Call `preventUnmountOnClose()` in `onOpenChange` to manually control unmounting,&#xA;then call this action after any externally controlled closing animation finishes.`close`: Closes the autocomplete imperatively when called.                                                                                                                                                                                                                                                                                                                   |
 | filter               | `((item: ItemValue, query: string, itemToString?: ((item: ItemValue) => string)) => boolean) \| null`         | -        | AutocompleteFilter function used to match items against the input query.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
 | filteredItems        | `any[] \| Group<any>[] \| ItemValue[] \| Group<ItemValue>[]`                                                  | -        | Filtered items to display in the list.&#xA;When provided, the list uses these items instead of filtering the `items` prop internally.&#xA;When `items` is also provided, this array must preserve its flat or grouped structure.&#xA;Nullish entries are not supported, as in `items`.&#xA;Use when you want to control filtering logic externally with the `useFilter()` hook.                                                                                                                                                                                                                                                    |
 | form                 | `string`                                                                                                      | -        | Identifies the form that owns the internal input.&#xA;Useful when the autocomplete is rendered outside the form.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
@@ -61,7 +61,7 @@ type AutocompleteRootState = {};
 ### Root.Actions
 
 ```typescript
-type AutocompleteRootActions = { unmount: () => void };
+type AutocompleteRootActions = { unmount: () => void; close: () => void };
 ```
 
 ### Root.ChangeEventReason
@@ -81,6 +81,7 @@ type AutocompleteRootChangeEventReason =
   | 'clear-press'
   | 'chip-remove-press'
   | 'cancel-open'
+  | 'imperative-action'
   | 'none';
 ```
 
@@ -101,6 +102,7 @@ type AutocompleteRootChangeEventDetails = (
   | { reason: 'clear-press'; event: MouseEvent | PointerEvent | KeyboardEvent }
   | { reason: 'chip-remove-press'; event: MouseEvent | PointerEvent | KeyboardEvent }
   | { reason: 'cancel-open'; event: MouseEvent }
+  | { reason: 'imperative-action'; event: Event }
   | { reason: 'none'; event: Event }
 ) & {
   /** Cancels Base UI from handling the event. */
@@ -148,6 +150,7 @@ type AutocompleteRootOpenChangeEventDetails = (
   | { reason: 'clear-press'; event: MouseEvent | PointerEvent | KeyboardEvent }
   | { reason: 'chip-remove-press'; event: MouseEvent | PointerEvent | KeyboardEvent }
   | { reason: 'cancel-open'; event: MouseEvent }
+  | { reason: 'imperative-action'; event: Event }
   | { reason: 'none'; event: Event }
 ) & {
   /** Cancels Base UI from handling the event. */

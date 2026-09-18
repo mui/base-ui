@@ -25,7 +25,7 @@ Doesn't render its own HTML element.
 | onOpenChange         | `((open: boolean, eventDetails: Combobox.Root.OpenChangeEventDetails) => void)`                       | -       | Event handler called when the popup is opened or closed.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
 | autoHighlight        | `boolean`                                                                                             | `false` | Whether the first matching item is highlighted automatically while filtering.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
 | highlightItemOnHover | `boolean`                                                                                             | `true`  | Whether moving the pointer over items should highlight them.&#xA;Disabling this prop allows CSS `:hover` to be differentiated from the `:focus` (`data-highlighted`) state.                                                                                                                                                                                                                                                                                                                                                                                           |
-| actionsRef           | `React.RefObject<Combobox.Root.Actions \| null>`                                                      | -       | A ref to imperative actions. `unmount`: Manually unmounts the combobox.&#xA;Call `preventUnmountOnClose()` in `onOpenChange` to manually control unmounting,&#xA;then call this action after any externally controlled closing animation finishes.                                                                                                                                                                                                                                                                                                                    |
+| actionsRef           | `React.RefObject<Combobox.Root.Actions \| null>`                                                      | -       | A ref to imperative actions. `unmount`: Manually unmounts the combobox.&#xA;Call `preventUnmountOnClose()` in `onOpenChange` to manually control unmounting,&#xA;then call this action after any externally controlled closing animation finishes.`close`: Closes the combobox imperatively when called.                                                                                                                                                                                                                                                              |
 | autoComplete         | `string`                                                                                              | -       | Provides a hint to the browser for autofill.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
 | filter               | `((item: Item, query: string, itemToString?: ((item: Item) => string)) => boolean) \| null`           | -       | ComboboxFilter function used to match items vs input query.&#xA;Receives the source item, which is the derived value's item when `items` is a `createItems()`&#xA;collection, and the item itself otherwise.                                                                                                                                                                                                                                                                                                                                                          |
 | filteredItems        | `Item[] \| Group<Item>[]`                                                                             | -       | Filtered items to display in the list.&#xA;When provided, the list uses these items instead of filtering the `items` prop internally.&#xA;When `items` is also provided, this array must preserve its flat or grouped structure.&#xA;With a `createItems()` collection, pass source items rather than derived values.&#xA;Nullish entries are not supported, as in `items`.&#xA;Use when you want to control filtering logic externally with the `useFilter()` hook.                                                                                                  |
@@ -69,7 +69,7 @@ type ComboboxRootState = {};
 ### Root.Actions
 
 ```typescript
-type ComboboxRootActions = { unmount: () => void };
+type ComboboxRootActions = { unmount: () => void; close: () => void };
 ```
 
 ### Root.ChangeEventReason
@@ -89,6 +89,7 @@ type ComboboxRootChangeEventReason =
   | 'clear-press'
   | 'chip-remove-press'
   | 'cancel-open'
+  | 'imperative-action'
   | 'none';
 ```
 
@@ -109,6 +110,7 @@ type ComboboxRootChangeEventDetails = (
   | { reason: 'clear-press'; event: MouseEvent | PointerEvent | KeyboardEvent }
   | { reason: 'chip-remove-press'; event: MouseEvent | PointerEvent | KeyboardEvent }
   | { reason: 'cancel-open'; event: MouseEvent }
+  | { reason: 'imperative-action'; event: Event }
   | { reason: 'none'; event: Event }
 ) & {
   /** Cancels Base UI from handling the event. */
@@ -161,6 +163,7 @@ type ComboboxRootOpenChangeEventDetails = (
   | { reason: 'clear-press'; event: MouseEvent | PointerEvent | KeyboardEvent }
   | { reason: 'chip-remove-press'; event: MouseEvent | PointerEvent | KeyboardEvent }
   | { reason: 'cancel-open'; event: MouseEvent }
+  | { reason: 'imperative-action'; event: Event }
   | { reason: 'none'; event: Event }
 ) & {
   /** Cancels Base UI from handling the event. */

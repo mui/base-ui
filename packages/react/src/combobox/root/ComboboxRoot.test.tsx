@@ -297,6 +297,91 @@ describe('<Combobox.Root />', () => {
       await user.click(screen.getByRole('option'));
       await waitFor(() => expect(screen.queryByRole('listbox')).toBe(null));
     });
+
+    it('keeps the opt-out when a controlled close is applied in a transition', async () => {
+      const actionsRef = React.createRef<Combobox.Root.Actions>();
+      const onOpenChangeComplete = vi.fn();
+      function App() {
+        const [open, setOpen] = React.useState(true);
+        return (
+          <Popup
+            open={open}
+            actionsRef={actionsRef}
+            onOpenChangeComplete={onOpenChangeComplete}
+            onOpenChange={(nextOpen, details) => {
+              if (!nextOpen) {
+                details.preventUnmountOnClose();
+              }
+              React.startTransition(() => setOpen(nextOpen));
+            }}
+          />
+        );
+      }
+
+      const { user } = await render(<App />);
+      await user.click(screen.getByRole('option'));
+      await waitFor(() =>
+        expect(screen.getByRole('combobox')).toHaveAttribute('aria-expanded', 'false'),
+      );
+      expect(screen.queryByRole('listbox')).not.toBe(null);
+      expect(onOpenChangeComplete).not.toHaveBeenCalledWith(false);
+
+      act(() => actionsRef.current!.unmount());
+      expect(screen.queryByRole('listbox')).toBe(null);
+      expect(onOpenChangeComplete.mock.calls.filter(([open]) => !open)).toHaveLength(1);
+    });
+
+    it('closes through the `close` action so `onOpenChange` can opt out', async () => {
+      const actionsRef = React.createRef<Combobox.Root.Actions>();
+      const reasons: string[] = [];
+      await render(
+        <Popup
+          defaultOpen
+          actionsRef={actionsRef}
+          onOpenChange={(open, details) => {
+            reasons.push(details.reason);
+            if (!open) {
+              details.preventUnmountOnClose();
+            }
+          }}
+        />,
+      );
+
+      act(() => actionsRef.current!.close());
+      expect(reasons).toEqual([REASONS.imperativeAction]);
+      expect(screen.getByRole('combobox')).toHaveAttribute('aria-expanded', 'false');
+      expect(screen.queryByRole('listbox')).not.toBe(null);
+
+      act(() => actionsRef.current!.unmount());
+      expect(screen.queryByRole('listbox')).toBe(null);
+    });
+
+    it('completes closing once when `unmount` is called twice in one batch', async () => {
+      const actionsRef = React.createRef<Combobox.Root.Actions>();
+      const onOpenChangeComplete = vi.fn();
+      const { user } = await render(
+        <Popup
+          defaultOpen
+          actionsRef={actionsRef}
+          onOpenChangeComplete={onOpenChangeComplete}
+          onOpenChange={(open, details) => {
+            if (!open) {
+              details.preventUnmountOnClose();
+            }
+          }}
+        />,
+      );
+
+      await user.click(screen.getByRole('option'));
+      expect(screen.queryByRole('listbox')).not.toBe(null);
+
+      act(() => {
+        actionsRef.current!.unmount();
+        actionsRef.current!.unmount();
+      });
+      expect(screen.queryByRole('listbox')).toBe(null);
+      expect(onOpenChangeComplete.mock.calls.filter(([open]) => !open)).toHaveLength(1);
+    });
   });
   describe('server-side rendering', () => {
     it('sets combobox aria attributes on the input', () => {
