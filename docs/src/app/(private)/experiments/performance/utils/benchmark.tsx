@@ -13,6 +13,8 @@ const DOM_SETTLE_QUIET_WINDOW_MS = 32;
 const WARMUP_ITERATIONS = 5;
 /** Stops a measurement if something on the page never goes quiet. */
 const MAX_MEASUREMENT_MS = 10000;
+/** Select value that runs every variant in sequence, so no variant may use it as its key. */
+const ALL_VARIANTS = '__all__';
 
 export interface BenchmarkVariant {
   key: string;
@@ -82,7 +84,10 @@ export function logResults(results: number[]) {
 export default function PerformanceBenchmark(props: PerformanceBenchmarkProps) {
   const { variants, workloadKey } = props;
 
-  const [activeKey, setActiveKey] = React.useState(variants[0].key);
+  /** What the select shows: a variant key, or `ALL_VARIANTS`. */
+  const [selectedKey, setSelectedKey] = React.useState(variants[0].key);
+  /** The variant rendered in the benchmark area. Differs from `selectedKey` while "All" is selected. */
+  const [mountedKey, setMountedKey] = React.useState(variants[0].key);
   const [generation, setGeneration] = React.useState(0);
   const [showVariant, setShowVariant] = React.useState(true);
   const [results, setResults] = React.useState<Record<string, VariantResults>>(() =>
@@ -129,7 +134,9 @@ export default function PerformanceBenchmark(props: PerformanceBenchmarkProps) {
     (revision: number) => !isUnmountedRef.current && workloadRevisionRef.current === revision,
   );
 
-  const activeVariant = variants.find((variant) => variant.key === activeKey) ?? variants[0];
+  const mountedVariant = variants.find((variant) => variant.key === mountedKey) ?? variants[0];
+  const keysToRun =
+    selectedKey === ALL_VARIANTS ? variants.map((variant) => variant.key) : [selectedKey];
 
   /**
    * Variants portal their popups to `document.body`, so the whole document is observed. Mutations
@@ -207,12 +214,21 @@ export default function PerformanceBenchmark(props: PerformanceBenchmarkProps) {
     });
   });
 
-  const measureCurrentVariant = useStableCallback(() => {
+  /** Unmounts the rendered variant, mounts `key`, and resolves with the time its DOM took to settle. */
+  const measureVariant = useStableCallback((key: string) => {
     ReactDOM.flushSync(() => {
       setShowVariant(false);
+      setMountedKey(key);
       setGeneration((value) => value + 1);
     });
     return measureDomSettled();
+  });
+
+  const recordLast = useStableCallback((key: string, duration: number) => {
+    setResults((prev) => ({
+      ...prev,
+      [key]: { ...prev[key], lastMs: duration },
+    }));
   });
 
   const beginBusy = useStableCallback(() => {
@@ -232,25 +248,23 @@ export default function PerformanceBenchmark(props: PerformanceBenchmarkProps) {
 
   const handleVariantChange = useStableCallback(
     async (event: React.ChangeEvent<HTMLSelectElement>) => {
+      const nextKey = event.target.value;
+      if (nextKey === ALL_VARIANTS) {
+        // Nothing changes on screen until the next action, which then covers every variant.
+        setSelectedKey(nextKey);
+        return;
+      }
       if (!beginBusy()) {
         return;
       }
       const workloadRevision = workloadRevisionRef.current;
       try {
-        const nextKey = event.target.value;
-        ReactDOM.flushSync(() => {
-          setShowVariant(false);
-          setActiveKey(nextKey);
-          setGeneration((value) => value + 1);
-        });
-        const duration = await measureDomSettled();
+        setSelectedKey(nextKey);
+        const duration = await measureVariant(nextKey);
         if (duration === null || !isCurrentWorkload(workloadRevision)) {
           return;
         }
-        setResults((prev) => ({
-          ...prev,
-          [nextKey]: { ...prev[nextKey], lastMs: duration },
-        }));
+        recordLast(nextKey, duration);
       } finally {
         endBusy();
       }
@@ -263,59 +277,73 @@ export default function PerformanceBenchmark(props: PerformanceBenchmarkProps) {
     }
     const workloadRevision = workloadRevisionRef.current;
     try {
-      const duration = await measureCurrentVariant();
-      if (duration === null || !isCurrentWorkload(workloadRevision)) {
-        return;
+      for (const key of keysToRun) {
+        // eslint-disable-next-line no-await-in-loop
+        const duration = await measureVariant(key);
+        if (duration === null || !isCurrentWorkload(workloadRevision)) {
+          return;
+        }
+        recordLast(key, duration);
       }
-      setResults((prev) => ({
-        ...prev,
-        [activeKey]: { ...prev[activeKey], lastMs: duration },
-      }));
     } finally {
       endBusy();
     }
   });
 
-  const runBenchmark = useStableCallback(async (iterations: number) => {
-    if (!beginBusy()) {
-      return;
-    }
-    const variantKey = activeKey;
-    const variantLabel = activeVariant.label;
-    const workloadRevision = workloadRevisionRef.current;
-    console.log(
-      `Benchmark "${variantLabel}": ${iterations} iterations (+${WARMUP_ITERATIONS} warmup)...`,
-    );
-    try {
+  /**
+   * Measures `key` for the warmup rounds and then `iterations` more. Resolves with the samples, or
+   * with `null` when the run was cancelled or timed out, in which case nothing should be recorded.
+   */
+  const collectSamples = useStableCallback(
+    async (key: string, iterations: number, workloadRevision: number) => {
+      const label = variants.find((variant) => variant.key === key)?.label ?? key;
+      console.log(
+        `Benchmark "${label}": ${iterations} iterations (+${WARMUP_ITERATIONS} warmup)...`,
+      );
       const samples: number[] = [];
       for (let i = 0; i < WARMUP_ITERATIONS + iterations; i += 1) {
         // eslint-disable-next-line no-await-in-loop
-        const duration = await measureCurrentVariant();
+        const duration = await measureVariant(key);
         if (isUnmountedRef.current) {
-          return;
+          return null;
         }
         if (!isCurrentWorkload(workloadRevision)) {
-          console.warn(
-            `Benchmark "${variantLabel}" discarded: the workload changed during the run.`,
-          );
-          return;
+          console.warn(`Benchmark "${label}" discarded: the workload changed during the run.`);
+          return null;
         }
         if (duration === null) {
-          return;
+          return null;
         }
         if (i < WARMUP_ITERATIONS) {
           continue;
         }
         samples.push(Math.round(duration * 10) / 10);
       }
-      console.log(`Raw samples for "${variantLabel}":`, samples);
-      setResults((prev) => ({
-        ...prev,
-        [variantKey]: {
-          lastMs: samples[samples.length - 1] ?? prev[variantKey].lastMs,
-          rawSamples: [...prev[variantKey].rawSamples, ...samples],
-        },
-      }));
+      console.log(`Raw samples for "${label}":`, samples);
+      return samples;
+    },
+  );
+
+  const runBenchmark = useStableCallback(async (iterations: number) => {
+    if (!beginBusy()) {
+      return;
+    }
+    const workloadRevision = workloadRevisionRef.current;
+    try {
+      for (const key of keysToRun) {
+        // eslint-disable-next-line no-await-in-loop
+        const samples = await collectSamples(key, iterations, workloadRevision);
+        if (samples === null) {
+          return;
+        }
+        setResults((prev) => ({
+          ...prev,
+          [key]: {
+            lastMs: samples[samples.length - 1] ?? prev[key].lastMs,
+            rawSamples: [...prev[key].rawSamples, ...samples],
+          },
+        }));
+      }
     } finally {
       endBusy();
     }
@@ -337,31 +365,32 @@ export default function PerformanceBenchmark(props: PerformanceBenchmarkProps) {
    */
   const variantContent = React.useMemo(
     () => (
-      <React.Fragment key={`${activeKey}:${generation}`}>{activeVariant.render()}</React.Fragment>
+      <React.Fragment key={`${mountedKey}:${generation}`}>{mountedVariant.render()}</React.Fragment>
     ),
-    [activeVariant, activeKey, generation],
+    [mountedVariant, mountedKey, generation],
   );
 
   return (
     <div className={styles.HarnessRoot}>
-      <div ref={chromeRef}>
+      <div ref={chromeRef} className={styles.Chrome}>
         <div className={styles.Toolbar}>
-          <Field.Root className={styles.Field}>
+          <Field.Root className={styles.VariantField}>
             <Field.Label className={styles.Label} htmlFor={variantSelectId}>
               Variant
             </Field.Label>
             <select
               id={variantSelectId}
-              value={activeKey}
+              value={selectedKey}
               onChange={handleVariantChange}
               disabled={isBusy}
-              className={styles.Input}
+              className={styles.VariantSelect}
             >
               {variants.map((variant) => (
                 <option key={variant.key} value={variant.key}>
                   {variant.label}
                 </option>
               ))}
+              <option value={ALL_VARIANTS}>All variants</option>
             </select>
           </Field.Root>
           <div className={styles.ToolbarActions}>
@@ -397,6 +426,8 @@ export default function PerformanceBenchmark(props: PerformanceBenchmarkProps) {
             >
               Run 50
             </button>
+          </div>
+          <div className={styles.ToolbarOptions}>
             <label className={styles.ToolbarCheckbox}>
               <input
                 type="checkbox"
@@ -438,9 +469,9 @@ export default function PerformanceBenchmark(props: PerformanceBenchmarkProps) {
                 ? removeOutliers(variantResults.rawSamples)
                 : variantResults.rawSamples;
               const stats = samplesForStats.length > 0 ? computeStats(samplesForStats) : null;
-              const isActive = variant.key === activeKey;
+              const isMounted = variant.key === mountedKey;
               return (
-                <tr key={variant.key} data-active={isActive ? '' : undefined}>
+                <tr key={variant.key} data-active={isMounted ? '' : undefined}>
                   <td>{variant.label}</td>
                   <td>{variantResults.lastMs != null ? variantResults.lastMs.toFixed(1) : '—'}</td>
                   <td>{stats ? stats.sampleCount : '—'}</td>

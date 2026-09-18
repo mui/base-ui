@@ -18,6 +18,12 @@ function cells(label = 'First') {
   return within(screen.getByRole('row', { name: new RegExp(`^${label} `) })).getAllByRole('cell');
 }
 
+function selectVariant(name: string) {
+  const select = screen.getByRole('combobox', { name: 'Variant' });
+  const option = within(select).getByRole('option', { name }) as HTMLOptionElement;
+  fireEvent.change(select, { target: { value: option.value } });
+}
+
 async function advanceTime(ms: number) {
   await act(async () => {
     await vi.advanceTimersByTimeAsync(ms);
@@ -136,4 +142,39 @@ describe('PerformanceBenchmark', () => {
       expect(cells()[1].textContent).not.toBe('—');
     },
   );
+
+  it('records a Last sample for the variant that was switched to', async () => {
+    await render(<PerformanceBenchmark variants={variants} />);
+
+    selectVariant('Second');
+    await advanceTime(100);
+
+    expect(cells()[1].textContent).toBe('—');
+    expect(cells('Second')[1].textContent).not.toBe('—');
+    expect(screen.getByRole('row', { name: /^Second / }).hasAttribute('data-active')).toBe(true);
+  });
+
+  it('runs a batch for every variant in sequence when "All variants" is selected', async () => {
+    await render(<PerformanceBenchmark variants={variants} />);
+
+    fireEvent.click(screen.getByRole('checkbox', { name: 'Remove outliers' }));
+    selectVariant('All variants');
+    fireEvent.click(screen.getByRole('button', { name: 'Run 10' }));
+    await advanceTime(2000);
+
+    expect(cells()[2].textContent).toBe('10');
+    expect(cells('Second')[2].textContent).toBe('10');
+    expect(screen.getByRole('button', { name: 'Run 10' })).toHaveProperty('disabled', false);
+  });
+
+  it('re-renders every variant once when "All variants" is selected', async () => {
+    await render(<PerformanceBenchmark variants={variants} />);
+
+    selectVariant('All variants');
+    fireEvent.click(screen.getByRole('button', { name: 'Re-render' }));
+    await advanceTime(200);
+
+    expect(cells()[1].textContent).not.toBe('—');
+    expect(cells('Second')[1].textContent).not.toBe('—');
+  });
 });

@@ -455,7 +455,7 @@ export default function TriggersPerfExperiment() {
   return (
     <div className={styles.Container}>
       <h1>Trigger rendering performance</h1>
-      <p>
+      <p className={styles.Intro}>
         Each variant renders {ROW_COUNT} rows × up to 4 components (Menu / Tooltip / Popover /
         Dialog). Use the sidebar settings to toggle which components are rendered across all
         variants. Changing a toggle clears the recorded results.

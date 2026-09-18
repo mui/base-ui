@@ -140,7 +140,7 @@ export default function TooltipPerfExperiment() {
   return (
     <div className={styles.Container}>
       <h1>Tooltip rendering performance</h1>
-      <p>
+      <p className={styles.Intro}>
         Each variant renders {COUNT} tooltip triggers. Use the toolbar to switch variants, re-render
         the active one, or run multiple iterations for statistics.
       </p>

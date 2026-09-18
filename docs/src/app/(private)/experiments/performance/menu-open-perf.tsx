@@ -114,39 +114,41 @@ export default function MenuOpenTestComponent() {
   return (
     <div className={styles.Container}>
       <h1>Menu open performance</h1>
-      <p>
+      <p className={styles.Intro}>
         Measures the time for a single Menu to open with {menuItemCount} items. Results are logged
         to the console.
       </p>
       <Controls setIsMenuOpen={setIsMenuOpen} />
 
-      <Menu.Root open={isMenuOpen} onOpenChange={setIsMenuOpen}>
-        <Menu.Trigger className={styles.TriggerButton} id="menu-open-benchmark-trigger">
-          Menu
-        </Menu.Trigger>
-        <Menu.Portal>
-          <Menu.Positioner
-            sideOffset={8}
-            positionMethod="fixed"
-            className={menuDemoStyles.Positioner}
-          >
-            <Menu.Popup className={`${menuDemoStyles.Popup} ${styles.NoAnimationPopup}`}>
-              <Menu.Arrow className={menuDemoStyles.Arrow}>
-                <ArrowSvg />
-              </Menu.Arrow>
-              {menuItems.map((item) => (
-                <Menu.Item
-                  key={item.index}
-                  onClick={() => console.log(`Clicked ${item.label}`)}
-                  className={menuDemoStyles.Item}
-                >
-                  {item.label}
-                </Menu.Item>
-              ))}
-            </Menu.Popup>
-          </Menu.Positioner>
-        </Menu.Portal>
-      </Menu.Root>
+      <div className={styles.VariantArea}>
+        <Menu.Root open={isMenuOpen} onOpenChange={setIsMenuOpen}>
+          <Menu.Trigger className={styles.TriggerButton} id="menu-open-benchmark-trigger">
+            Menu
+          </Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner
+              sideOffset={8}
+              positionMethod="fixed"
+              className={menuDemoStyles.Positioner}
+            >
+              <Menu.Popup className={`${menuDemoStyles.Popup} ${styles.NoAnimationPopup}`}>
+                <Menu.Arrow className={menuDemoStyles.Arrow}>
+                  <ArrowSvg />
+                </Menu.Arrow>
+                {menuItems.map((item) => (
+                  <Menu.Item
+                    key={item.index}
+                    onClick={() => console.log(`Clicked ${item.label}`)}
+                    className={menuDemoStyles.Item}
+                  >
+                    {item.label}
+                  </Menu.Item>
+                ))}
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>
+      </div>
     </div>
   );
 }

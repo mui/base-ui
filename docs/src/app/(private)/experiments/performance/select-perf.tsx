@@ -54,7 +54,8 @@ function CheckIcon(props: React.ComponentProps<'svg'>) {
 
 function BaseUISelect() {
   return (
-    <Select.Root defaultValue="Item 1" defaultOpen>
+    // Non-modal, so the popup that is open at mount neither traps focus nor blocks the harness.
+    <Select.Root defaultValue="Item 1" defaultOpen modal={false}>
       <Select.Trigger className={styles.SelectTrigger}>
         <Select.Value />
         <Select.Icon className={styles.SelectIcon}>
@@ -120,7 +121,7 @@ export default function SelectPerfExperiment() {
   return (
     <div className={styles.Container}>
       <h1>Select rendering performance</h1>
-      <p>
+      <p className={styles.Intro}>
         Each variant renders a Select with {ITEM_COUNT} items. Each variant starts in the open state
         so the full list is in the DOM at initial render — closed Selects lazily render the popup,
         so they don&apos;t exercise the list rendering cost.

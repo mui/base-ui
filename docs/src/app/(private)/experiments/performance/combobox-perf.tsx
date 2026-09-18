@@ -5,6 +5,8 @@ import PerformanceBenchmark, { BenchmarkVariant } from './utils/benchmark';
 import styles from './performance.module.css';
 
 const ITEM_COUNT = 1000;
+/** The list is open at mount; never flip it above the input, where it would cover the harness. */
+const collisionAvoidance = { side: 'none' } as const;
 const items = Array.from({ length: ITEM_COUNT }, (_, i) => `Item ${i + 1}`);
 
 function CheckIcon(props: React.ComponentProps<'svg'>) {
@@ -70,7 +72,11 @@ function ComboboxWithIndex() {
         <ComboboxActions />
       </label>
       <Combobox.Portal>
-        <Combobox.Positioner className={styles.ComboboxPositioner} sideOffset={4}>
+        <Combobox.Positioner
+          className={styles.ComboboxPositioner}
+          sideOffset={4}
+          collisionAvoidance={collisionAvoidance}
+        >
           <Combobox.Popup className={styles.ComboboxPopup}>
             <Combobox.Empty className={styles.ComboboxEmpty}>No items found.</Combobox.Empty>
             <Combobox.List>
@@ -104,7 +110,11 @@ function ComboboxWithoutIndex() {
         <ComboboxActions />
       </label>
       <Combobox.Portal>
-        <Combobox.Positioner className={styles.ComboboxPositioner} sideOffset={4}>
+        <Combobox.Positioner
+          className={styles.ComboboxPositioner}
+          sideOffset={4}
+          collisionAvoidance={collisionAvoidance}
+        >
           <Combobox.Popup className={styles.ComboboxPopup}>
             <Combobox.Empty className={styles.ComboboxEmpty}>No items found.</Combobox.Empty>
             <Combobox.List>
@@ -133,7 +143,11 @@ function ComboboxOpenApi() {
         <ComboboxActions />
       </label>
       <Combobox.Portal>
-        <Combobox.Positioner className={styles.ComboboxPositioner} sideOffset={4}>
+        <Combobox.Positioner
+          className={styles.ComboboxPositioner}
+          sideOffset={4}
+          collisionAvoidance={collisionAvoidance}
+        >
           <Combobox.Popup className={styles.ComboboxPopup}>
             <Combobox.List>
               {items.map((item) => (
@@ -170,7 +184,7 @@ export default function ComboboxPerfExperiment() {
   return (
     <div className={styles.Container}>
       <h1>Combobox rendering performance</h1>
-      <p>
+      <p className={styles.Intro}>
         Each variant renders a Combobox with {ITEM_COUNT} items. Each variant starts in the open
         state so the full list is in the DOM at initial render — closed comboboxes lazily render the
         popup, so they don&apos;t exercise the list rendering cost.
