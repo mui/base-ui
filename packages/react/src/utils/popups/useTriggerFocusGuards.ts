@@ -53,14 +53,11 @@ export function useTriggerFocusGuards(
       );
     });
 
+    // The guard unmounts in the close flush above, so fall back to the trigger.
     const previousTabbable: FocusableElement | null = getTabbableBeforeElement(
-      preFocusGuardRef.current,
+      preFocusGuardRef.current || triggerElementRef.current,
     );
-    // With nothing else tabbable on the page, the lookup wraps around to the trigger's own after
-    // guard, whose handler would hand focus straight back here.
-    if (previousTabbable !== store.context.triggerFocusTargetRef.current) {
-      previousTabbable?.focus();
-    }
+    previousTabbable?.focus();
   }
 
   function handleFocusTargetFocus(event: React.FocusEvent) {
@@ -91,9 +88,7 @@ export function useTriggerFocusGuards(
         }
       }
 
-      if (nextTabbable !== preFocusGuardRef.current) {
-        nextTabbable?.focus();
-      }
+      nextTabbable?.focus();
     }
   }
 

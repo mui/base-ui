@@ -1048,6 +1048,41 @@ describe('<Popover.Root />', () => {
             });
           },
         );
+
+        it.skipIf(isJSDOM)(
+          'moves focus to the element preceding the trigger when tabbing backward from the trigger while open',
+          async () => {
+            const { user } = await render(
+              <div>
+                <input data-testid="focus-target" />
+                <TestPopover
+                  rootProps={{ defaultOpen: true }}
+                  afterTrigger={<input />}
+                  popupProps={{ children: <input data-testid="input-inside" /> }}
+                />
+                <input />
+              </div>,
+            );
+
+            await waitFor(() => {
+              expect(screen.getByTestId('input-inside')).toHaveFocus();
+            });
+
+            await user.tab({ shift: true });
+            await waitFor(() => {
+              expect(screen.getByRole('button', { name: 'Toggle' })).toHaveFocus();
+            });
+
+            await user.tab({ shift: true });
+
+            await waitFor(() => {
+              expect(screen.getByTestId('focus-target')).toHaveFocus();
+            });
+            await waitFor(() => {
+              expect(screen.queryByTestId('popover-popup')).toBe(null);
+            });
+          },
+        );
       });
 
       describe('with the popup preceding immediately the only trigger', () => {
@@ -1318,6 +1353,51 @@ describe('<Popover.Root />', () => {
         },
       );
 
+      describe.skipIf(isJSDOM)('during the exit animation', () => {
+        beforeEach(() => {
+          globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+        });
+
+        it('moves focus to the element following the trigger when tabbing forward from the trigger', async () => {
+          const style = `
+            .popup {
+              transition: opacity 500ms;
+            }
+
+            .popup[data-ending-style] {
+              opacity: 0;
+            }
+          `;
+
+          const { user } = await render(
+            <div>
+              {/* eslint-disable-next-line react/no-danger */}
+              <style dangerouslySetInnerHTML={{ __html: style }} />
+              <TestPopover
+                afterTrigger={<input data-testid="focus-target" />}
+                popupProps={{ className: 'popup', children: <input data-testid="input-inside" /> }}
+              />
+            </div>,
+          );
+
+          const trigger = screen.getByTestId('trigger');
+          await user.click(trigger);
+          await screen.findByTestId('popover-popup');
+          await user.click(trigger);
+
+          expect(screen.getByTestId('popover-popup')).toHaveAttribute('data-ending-style');
+          expect(trigger).toHaveFocus();
+
+          await user.tab();
+
+          expect(screen.getByTestId('focus-target')).toHaveFocus();
+          await waitFor(() => {
+            expect(screen.queryByTestId('popover-popup')).toBe(null);
+          });
+          expect(screen.getByTestId('focus-target')).toHaveFocus();
+        });
+      });
+
       // The multiple-triggers variant has a second tabbable trigger.
       const multiTrigger = name === 'multiple detached triggers';
       describe.skipIf(isJSDOM || multiTrigger)('with no other tabbable element on the page', () => {
@@ -1339,8 +1419,8 @@ describe('<Popover.Root />', () => {
         }
 
         beforeEach(() => {
-          // A real browser unmounts the popup a microtask after it closes, so the trigger's focus
-          // guards are still in the DOM while their handlers look up the next tabbable element.
+          // With animations enabled the popup stays mounted for a microtask after it closes.
+          // Trigger guards that outlived `open` used to bounce focus between each other then.
           globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
         });
 
@@ -1364,7 +1444,7 @@ describe('<Popover.Root />', () => {
             expect(screen.queryByRole('dialog')).toBe(null);
           });
           expect(new Set(focusedGuards).size).toBe(focusedGuards.length);
-          expect(document.body).toHaveFocus();
+          expect(screen.getByTestId('trigger')).toHaveFocus();
         });
 
         it('does not loop focus between guards when shift-tabbing out of the trigger', async () => {
@@ -1391,7 +1471,7 @@ describe('<Popover.Root />', () => {
             expect(screen.queryByRole('dialog')).toBe(null);
           });
           expect(new Set(focusedGuards).size).toBe(focusedGuards.length);
-          expect(document.body).toHaveFocus();
+          expect(screen.getByTestId('trigger')).toHaveFocus();
         });
       });
     });
