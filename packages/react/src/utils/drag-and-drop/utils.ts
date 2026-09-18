@@ -314,10 +314,8 @@ export function safeCallConsumer<T>(
 }
 
 /**
- * Whether `element` resolves to right-to-left direction. Uncached —
- * `getComputedStyle` forces style resolution, so hot paths (the auto-scroller's
- * frame loop, the collection's per-frame drop position) keep their own per-drag
- * or per-element caches around this single implementation.
+ * Whether `element` resolves to right-to-left direction. `getComputedStyle`
+ * forces style resolution, so the auto-scroller caches the result per element.
  */
 export function isRtlElement(element: Element): boolean {
   let current: Element | null = element;

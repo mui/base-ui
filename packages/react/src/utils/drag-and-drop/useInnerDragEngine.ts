@@ -34,7 +34,7 @@ import type { DragCleanupFn } from '../../types/drag';
 import type { LatestGetter } from './useRegistrationRef';
 
 /**
- * Draggable registration shared by `Draggable.Root` and the collection engine.
+ * Draggable registration shared by `Draggable.Root` and the imperative engine.
  * Kept separate from {@link DragEngineImpl} so declarative bundles exclude the full manager.
  */
 export class DragEngineBase {
