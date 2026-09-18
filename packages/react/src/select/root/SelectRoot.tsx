@@ -138,6 +138,11 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   const initialValueRef = React.useRef(value);
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
+  // Mirrors `mounted` synchronously so repeated `unmount()` calls in one batch complete closing once.
+  const mountedRef = React.useRef(mounted);
+  useIsoLayoutEffect(() => {
+    mountedRef.current = mounted;
+  }, [mounted]);
   const { openMethod, triggerProps: interactionTypeProps } = useOpenInteractionType(open);
 
   const store = useRefWithInit(
@@ -306,14 +311,12 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   );
 
   const handleUnmount = useStableCallback(() => {
-    // Read the store rather than the rendered `mounted`: it is updated synchronously below, so a
-    // second call in the same batch is a no-op instead of repeating the completion callback.
-    if (!store.state.mounted) {
+    if (!mountedRef.current) {
       return;
     }
+    mountedRef.current = false;
     setMounted(false);
     store.update({
-      mounted: false,
       preventUnmountingOnClose: false,
       activeIndex: null,
       openMethod: null,

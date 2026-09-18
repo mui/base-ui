@@ -2066,6 +2066,7 @@ describe('<Select.Root />', () => {
       const actionsRef = {
         current: {
           unmount: vi.fn(),
+          close: vi.fn(),
         },
       };
 
@@ -2116,6 +2117,7 @@ describe('<Select.Root />', () => {
         const actionsRef = {
           current: {
             unmount: vi.fn(),
+            close: vi.fn(),
           },
         };
 
@@ -2188,6 +2190,7 @@ describe('<Select.Root />', () => {
       const actionsRef = {
         current: {
           unmount: vi.fn(),
+          close: vi.fn(),
         },
       };
 

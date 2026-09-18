@@ -573,6 +573,11 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
   const triggerRef = useValueAsRef(triggerElement);
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
+  // Mirrors `mounted` synchronously so repeated `unmount()` calls in one batch complete closing once.
+  const mountedRef = React.useRef(mounted);
+  useIsoLayoutEffect(() => {
+    mountedRef.current = mounted;
+  }, [mounted]);
   const { openMethod, triggerProps } = useOpenInteractionType(open);
 
   const getStringifiedValueForForm = useStableCallback(() => fieldStringValue);
@@ -945,13 +950,12 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
   });
 
   const handleUnmount = useStableCallback(() => {
-    // Read the store rather than the rendered `mounted`: it is updated synchronously below, so a
-    // second call in the same batch is a no-op instead of repeating the completion callback.
-    if (!store.state.mounted) {
+    if (!mountedRef.current) {
       return;
     }
+    mountedRef.current = false;
     setMounted(false);
-    store.update({ mounted: false, preventUnmountingOnClose: false });
+    store.set('preventUnmountingOnClose', false);
     onOpenChangeComplete?.(false);
     setQueryChangedAfterOpen(false);
     setCloseQuery(null);
