@@ -263,6 +263,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
     // The value a selection-driven clear just added, so the restore can keep it
     // highlighted instead of returning to the open anchor.
     toggledValue?: any;
+    candidate?: Value | undefined;
   }>(null);
 
   /**
@@ -289,6 +290,11 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
   } else {
     autoHighlightMode = autoHighlight ? 'input-change' : false;
   }
+
+  const hasAutoHighlightPredicate = typeof autoHighlight === 'function';
+  const autoHighlightPredicate = useStableCallback((itemValue: Value, highlightQuery: string) =>
+    typeof autoHighlight === 'function' ? autoHighlight(itemValue, highlightQuery) : true,
+  );
 
   const [selectedValue, setSelectedValueUnwrapped] = useControlled<any>({
     controlled: selectedValueProp,
@@ -637,6 +643,10 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
 
       const type: AriaCombobox.HighlightEventReason = options.type || REASONS.none;
 
+      if (type !== REASONS.none && pendingQueryHighlightRef.current?.hasQuery) {
+        pendingQueryHighlightRef.current = null;
+      }
+
       if (activeIndexOption === null) {
         emitHighlight(undefined, -1, type);
       } else {
@@ -655,6 +665,10 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
 
       // A canceled selection clear must not suppress close-completion cleanup.
       hadInputClearRef.current = eventDetails.reason === REASONS.inputClear;
+
+      if (pendingQueryHighlightRef.current?.hasQuery) {
+        pendingQueryHighlightRef.current = null;
+      }
 
       // If user is typing, ensure we don't auto-highlight on open due to a race
       // with the post-open effect that sets this flag.
@@ -705,6 +719,9 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
           if (
             hasQuery &&
             autoHighlightMode &&
+            // With a predicate, the decision depends on the first item filtered by the new
+            // query, which hasn't been derived yet. Defer to the layout effect below.
+            !hasAutoHighlightPredicate &&
             store.state.activeIndex == null &&
             (open || inline)
           ) {
@@ -769,6 +786,10 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
 
       if (eventDetails.isCanceled) {
         return;
+      }
+
+      if (!nextOpen && pendingQueryHighlightRef.current?.hasQuery) {
+        pendingQueryHighlightRef.current = null;
       }
 
       if (nextOpen && closeQuery !== null) {
@@ -927,6 +948,9 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
   });
 
   const handleUnmount = useStableCallback(() => {
+    if (pendingQueryHighlightRef.current?.hasQuery) {
+      pendingQueryHighlightRef.current = null;
+    }
     setMounted(false);
     onOpenChangeComplete?.(false);
     setQueryChangedAfterOpen(false);
@@ -1048,16 +1072,42 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
   }, [items, flatFilteredValues]);
 
   useIsoLayoutEffect(() => {
+    const candidateItems =
+      hasItems || hasFilteredItemsProp ? flatFilteredValues : valuesRef.current;
     const pendingHighlight = pendingQueryHighlightRef.current;
     if (pendingHighlight) {
       // A directly rendered list remains visible when the popup state is closed, while a
       // kept-mounted Positioner is hidden and should stay inert.
       const listIsNavigable = open || inline || store.state.positionerElement?.hidden === false;
       if (pendingHighlight.hasQuery) {
-        if (autoHighlightMode && listIsNavigable) {
-          store.set('activeIndex', 0);
+        const firstItem = candidateItems[0];
+        if (!autoHighlightMode) {
+          pendingQueryHighlightRef.current = null;
+        } else if (firstItem === undefined) {
+          pendingHighlight.candidate = undefined;
+        } else if (listIsNavigable) {
+          // Keep following asynchronous candidates until typing or navigation supersedes
+          // this request. Equivalent object values should not repeat the predicate.
+          if (
+            pendingHighlight.candidate === undefined ||
+            !compareItemEquality(
+              firstItem,
+              pendingHighlight.candidate,
+              store.state.isItemEqualToValue,
+            )
+          ) {
+            pendingHighlight.candidate = firstItem;
+            // Use the live typed value: `query` can still hold a stale `closeQuery` frozen
+            // for an exit animation when typing reopens the popup.
+            store.set(
+              'activeIndex',
+              autoHighlightPredicate(firstItem, String(inputValue).trim()) ? 0 : null,
+            );
+          }
+          if (!hasAutoHighlightPredicate) {
+            pendingQueryHighlightRef.current = null;
+          }
         }
-        pendingQueryHighlightRef.current = null;
       } else if (String(inputValue).trim() === '') {
         // Only handle the clear once it has committed (a controlled input may reject it),
         // so a restore cannot fire while a query is still active.
@@ -1133,8 +1183,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
       return;
     }
 
-    const shouldUseFlatFilteredValues = hasItems || hasFilteredItemsProp;
-    const candidateItems = shouldUseFlatFilteredValues ? flatFilteredValues : valuesRef.current;
     const storeActiveIndex = store.state.activeIndex;
 
     if (storeActiveIndex == null) {
@@ -1168,6 +1216,8 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
   }, [
     activeIndex,
     autoHighlightMode,
+    autoHighlightPredicate,
+    hasAutoHighlightPredicate,
     emitHighlight,
     hasFilteredItemsProp,
     hasItems,
@@ -1721,9 +1771,24 @@ interface ComboboxRootProps<ItemValue, Item = ItemValue> {
    * - `false`: do not highlight automatically.
    * - `true`: highlight after the user types and keep the highlight while the query changes.
    * - `'always'`: highlight the first item as soon as the list opens.
+   * - A function: called after typing with the first matching item and the current query with
+   *   surrounding whitespace removed; return `true` to highlight it or `false` to leave the
+   *   highlight cleared. This uses the timing of `true` and does not combine with `'always'`.
+   *
+   * The predicate only controls automatic highlighting. It does not filter items or prevent
+   * keyboard and pointer navigation from highlighting them. For string items,
+   * `(itemValue, query) => itemValue === query` highlights `"32"` when the query is `"32"`,
+   * but leaves it unhighlighted when the query is `"3"`. This lets Enter select exact matches,
+   * while an application-provided Enter handler can accept free text when nothing is highlighted.
+   * For object item values, compare the query with the value's label. With a `createItems()`
+   * collection, the predicate receives the derived value.
+   *
+   * For asynchronous results, supply `items` or `filteredItems`. The predicate is reevaluated
+   * when the first candidate changes, until the user navigates or closes the popup.
    * @default false
    */
-  autoHighlight?: boolean | 'always' | undefined;
+  autoHighlight?:
+    boolean | 'always' | ((itemValue: ItemValue, query: string) => boolean) | undefined;
   /**
    * Whether the highlighted item should be preserved when the pointer leaves the list.
    * @default false
