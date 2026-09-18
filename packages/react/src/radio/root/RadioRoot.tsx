@@ -257,6 +257,10 @@ export const RadioRoot = React.forwardRef(function RadioRoot<Value>(
           refs={refs}
           props={props}
           stateAttributesMapping={stateAttributesMapping}
+          // Disabled radios sit out the guess so the tab stop the server renders lands on the
+          // first enabled one, matching the index the group settles on once the list commits.
+          // A fully disabled group guesses nothing and stays out of the tab order.
+          guess={!disabled}
         />
       ) : (
         element
