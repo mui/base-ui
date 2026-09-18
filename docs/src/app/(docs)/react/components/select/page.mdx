@@ -262,6 +262,7 @@ By default, arrow-key navigation includes the input in the loop, and pointer act
 The query is cleared when the popup closes.
 A single select closes once an option is chosen; a multiple select stays open and keeps the query so several options can be picked in a row.
 Filtering never changes the value: an option that is filtered out stays selected, and `<Select.Value>` keeps rendering its label through `items`, `itemToStringLabel`, or the value itself.
+The same holds for options you unmount yourself while the popup is open: a filterable select never clears a value because its option disappeared, where a plain select would.
 The `alignItemWithTrigger` positioning mode is turned off, since the popup holds the input above the list.
 
 import { DemoSelectFilter } from './demos/filter';
