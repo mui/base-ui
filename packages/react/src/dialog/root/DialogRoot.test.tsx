@@ -1,10 +1,23 @@
 import { expect, vi, describe, beforeEach, it, afterEach } from 'vitest';
 import type { CDPSession } from '@vitest/browser-playwright';
 import * as React from 'react';
-import { act, fireEvent, screen, waitFor, flushMicrotasks } from '@mui/internal-test-utils';
+import {
+  act,
+  fireEvent,
+  screen,
+  waitFor,
+  flushMicrotasks,
+  reactMajor,
+} from '@mui/internal-test-utils';
 import { AlertDialog } from '@base-ui/react/alert-dialog';
 import { Dialog } from '@base-ui/react/dialog';
-import { createRenderer, isJSDOM, popupConformanceTests, wait } from '#test-utils';
+import {
+  createRenderer,
+  createCommitPhases,
+  isJSDOM,
+  popupConformanceTests,
+  wait,
+} from '#test-utils';
 import { Menu } from '@base-ui/react/menu';
 import { Select } from '@base-ui/react/select';
 import { NumberField } from '@base-ui/react/number-field';
@@ -2241,6 +2254,47 @@ describe('<Dialog.Root />', () => {
       expect(field).not.toHaveFocus();
     },
   );
+
+  // React 19 only: the recorded sequences are specific to its scheduling, and the legacy React
+  // workflow re-runs this whole suite against React 18.
+  describe.skipIf(isJSDOM || reactMajor < 19)('render counts', () => {
+    const { render: renderNonStrict } = createRenderer({ strict: false });
+    const rows = Array.from({ length: 10 }, (_, index) => index);
+
+    it('mounting 10 instances', async () => {
+      const phases = createCommitPhases();
+
+      await renderNonStrict(
+        phases.wrap(
+          <div>
+            {rows.map((row) => (
+              <Dialog.Root key={row}>
+                <Dialog.Trigger aria-label={`Open Dialog ${row + 1}`}>
+                  Dialog {row + 1}
+                </Dialog.Trigger>
+                <Dialog.Portal>
+                  <Dialog.Backdrop />
+                  <Dialog.Popup>
+                    <Dialog.Title>Dialog {row + 1}</Dialog.Title>
+                    <Dialog.Description>Dialog content</Dialog.Description>
+                    <Dialog.Close>Close</Dialog.Close>
+                  </Dialog.Popup>
+                </Dialog.Portal>
+              </Dialog.Root>
+            ))}
+          </div>,
+        ),
+      );
+
+      await phases.waitForQuiescence();
+
+      expect(phases.get()).toMatchInlineSnapshot(`
+        [
+          "mount",
+        ]
+      `);
+    });
+  });
 });
 
 // The viewport takes its overflow from <html>, falling back to <body> when <html> doesn't

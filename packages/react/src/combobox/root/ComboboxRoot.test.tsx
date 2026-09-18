@@ -10,7 +10,7 @@ import {
   ignoreActWarnings,
   reactMajor,
 } from '@mui/internal-test-utils';
-import { createRenderer, isJSDOM, popupConformanceTests } from '#test-utils';
+import { createRenderer, createCommitPhases, isJSDOM, popupConformanceTests } from '#test-utils';
 import { Combobox } from '@base-ui/react/combobox';
 import { Autocomplete } from '@base-ui/react/autocomplete';
 import { DirectionProvider } from '@base-ui/react/direction-provider';
@@ -13205,6 +13205,98 @@ describe('<Combobox.Root />', () => {
 
       await user.keyboard('{ArrowRight}');
       expect(input).toHaveFocus();
+    });
+  });
+
+  // React 19 only: the recorded sequences are specific to its scheduling, and the legacy React
+  // workflow re-runs this whole suite against React 18.
+  describe.skipIf(isJSDOM || reactMajor < 19)('render counts', () => {
+    const { render: renderNonStrict } = createRenderer({ strict: false });
+    // Referentially stable across renders, so `React.memo` on the items can legitimately bail:
+    // what makes them re-render per keystroke is whether they subscribe to a context that changes.
+    const items = Array.from({ length: 20 }, (_, index) => `Row ${index + 1}`);
+
+    function OpenCombobox() {
+      return (
+        <Combobox.Root items={items} defaultOpen>
+          <Combobox.Input data-testid="combobox-input" />
+          <Combobox.List>
+            {(item: string) => (
+              <Combobox.Item key={item} value={item}>
+                {item}
+              </Combobox.Item>
+            )}
+          </Combobox.List>
+        </Combobox.Root>
+      );
+    }
+
+    it('mounting an open list of 20 items', async () => {
+      const phases = createCommitPhases();
+
+      await renderNonStrict(phases.wrap(<OpenCombobox />));
+      await phases.waitForQuiescence();
+
+      expect(phases.get()).toMatchInlineSnapshot(`
+        [
+          "mount",
+          "update",
+          "nested-update",
+          "nested-update",
+        ]
+      `);
+    });
+
+    it('typing a prefix that keeps every item mounted', async () => {
+      const phases = createCommitPhases();
+
+      const { user } = await renderNonStrict(phases.wrap(<OpenCombobox />));
+      await phases.waitForQuiescence();
+      phases.reset();
+
+      // Every item matches "Row ", so none unmount: this isolates the per-keystroke re-render
+      // cost of items that are already on screen.
+      await user.type(screen.getByTestId('combobox-input'), 'Row ');
+      await phases.waitForQuiescence();
+
+      expect(phases.get()).toMatchInlineSnapshot(`
+        [
+          "update",
+          "nested-update",
+          "update",
+          "nested-update",
+          "update",
+          "nested-update",
+          "update",
+        ]
+      `);
+    });
+
+    it('typing a query that narrows the list', async () => {
+      const phases = createCommitPhases();
+
+      const { user } = await renderNonStrict(phases.wrap(<OpenCombobox />));
+      await phases.waitForQuiescence();
+      phases.reset();
+
+      // Narrows 20 items down to "Row 2" and "Row 20", mixing unmount cost with re-renders of
+      // the items that survive.
+      await user.type(screen.getByTestId('combobox-input'), 'Row 2');
+      await phases.waitForQuiescence();
+
+      expect(phases.get()).toMatchInlineSnapshot(`
+        [
+          "update",
+          "nested-update",
+          "update",
+          "nested-update",
+          "update",
+          "nested-update",
+          "update",
+          "update",
+          "nested-update",
+        ]
+      `);
     });
   });
 });

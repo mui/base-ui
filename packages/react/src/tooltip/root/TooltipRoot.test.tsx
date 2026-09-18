@@ -1,8 +1,21 @@
 import { expect, vi, describe, beforeEach, afterEach, it } from 'vitest';
 import * as React from 'react';
 import { Tooltip } from '@base-ui/react/tooltip';
-import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
-import { createRenderer, isJSDOM, popupConformanceTests, resetBrowserPointer } from '#test-utils';
+import {
+  act,
+  fireEvent,
+  flushMicrotasks,
+  screen,
+  waitFor,
+  reactMajor,
+} from '@mui/internal-test-utils';
+import {
+  createRenderer,
+  createCommitPhases,
+  isJSDOM,
+  popupConformanceTests,
+  resetBrowserPointer,
+} from '#test-utils';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { OPEN_DELAY } from '../utils/constants';
 import { REASONS } from '../../internals/reasons';
@@ -1551,6 +1564,48 @@ describe('<Tooltip.Root />', () => {
 
     await waitFor(() => {
       expect(screen.getByTestId('popup')).toBeVisible();
+    });
+  });
+
+  // React 19 only: the recorded sequences are specific to its scheduling, and the legacy React
+  // workflow re-runs this whole suite against React 18.
+  describe.skipIf(isJSDOM || reactMajor < 19)('render counts', () => {
+    const { render: renderNonStrict } = createRenderer({ strict: false });
+    const rows = Array.from({ length: 10 }, (_, index) => index);
+    // The real cursor persists across the run and can come to rest over one of these triggers,
+    // opening a tooltip on its own and adding commits that land inside the recording only some of
+    // the time. Mount is what this measures, so the triggers never need to be hoverable.
+    const INERT_TO_POINTER: React.CSSProperties = { pointerEvents: 'none' };
+
+    it('mounting 10 instances', async () => {
+      const phases = createCommitPhases();
+
+      await renderNonStrict(
+        phases.wrap(
+          <div style={INERT_TO_POINTER}>
+            {rows.map((row) => (
+              <Tooltip.Root key={row}>
+                <Tooltip.Trigger aria-label={`Show Tooltip ${row + 1}`}>
+                  Tooltip {row + 1}
+                </Tooltip.Trigger>
+                <Tooltip.Portal>
+                  <Tooltip.Positioner sideOffset={8}>
+                    <Tooltip.Popup>Tooltip for {row + 1}</Tooltip.Popup>
+                  </Tooltip.Positioner>
+                </Tooltip.Portal>
+              </Tooltip.Root>
+            ))}
+          </div>,
+        ),
+      );
+
+      await phases.waitForQuiescence();
+
+      expect(phases.get()).toMatchInlineSnapshot(`
+        [
+          "mount",
+        ]
+      `);
     });
   });
 });
