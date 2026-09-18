@@ -22,12 +22,12 @@ interface ResolvedDragPreviewBase {
  * from the preview part declared inside it.
  * @internal
  */
-export type ResolvedDragPreview<TData = unknown> = ResolvedDragPreviewBase &
+export type ResolvedDragPreview<TPayload = unknown> = ResolvedDragPreviewBase &
   (
     | { content: 'clone'; render: null }
     | {
         content: 'host';
-        render: (parameters: DragPreviewRenderEvent<TData>) => React.ReactNode;
+        render: (parameters: DragPreviewRenderEvent<TPayload>) => React.ReactNode;
       }
   );
 
@@ -39,10 +39,10 @@ export type ResolvedDragPreview<TData = unknown> = ResolvedDragPreviewBase &
  * registration's `dragPreview`, which only an imperative registration can set.
  * @internal
  */
-export function resolveDragPreview<TData = unknown>(
-  parameters: DraggableConfig<TData>,
+export function resolveDragPreview<TPayload = unknown>(
+  parameters: DraggableConfig<TPayload>,
   source: HTMLElement,
-): ResolvedDragPreview<TData> {
+): ResolvedDragPreview<TPayload> {
   const declaration = parameters.getDragPreviewDeclaration?.() ?? null;
   const settings = declaration ?? parameters.dragPreview;
   const render = settings?.render ?? null;

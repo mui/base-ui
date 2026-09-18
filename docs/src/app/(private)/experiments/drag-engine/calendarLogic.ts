@@ -30,33 +30,35 @@ export interface CalendarState {
 }
 
 // -----------------------------------------------------------------------------
-// Drag data sentinels
+// Drag payload sentinels
 // -----------------------------------------------------------------------------
 
 // Sources tag with `kind` on `Draggable.Root`; drop targets and monitors declare which
 // of them they take through `accept`. Each kind carries the payload type its side of
 // the drag reads, and its label is namespaced: labels are page-global names.
-export const calEventMoveKind = Draggable.createKind<EventMoveDragData>(
+export const calEventMoveKind = Draggable.createKind<EventMoveDragPayload>(
   'baseUiPlusCalendar/event-move',
 );
-export const calEventResizeKind = Draggable.createKind<EventResizeDragData>(
+export const calEventResizeKind = Draggable.createKind<EventResizeDragPayload>(
   'baseUiPlusCalendar/event-resize',
 );
-export const calEventCreateKind = Draggable.createKind<EventCreateDragData>(
+export const calEventCreateKind = Draggable.createKind<EventCreateDragPayload>(
   'baseUiPlusCalendar/event-create',
 );
-export const calDayCellKind = Draggable.createKind<DayCellDropData>('baseUiPlusCalendar/day-cell');
-export const calDayColumnKind = Draggable.createKind<DayColumnDropData>(
+export const calDayCellKind = Draggable.createKind<DayCellDropPayload>(
+  'baseUiPlusCalendar/day-cell',
+);
+export const calDayColumnKind = Draggable.createKind<DayColumnDropPayload>(
   'baseUiPlusCalendar/day-column',
 );
-export const calAllDayRowKind = Draggable.createKind<AllDayRowDropData>(
+export const calAllDayRowKind = Draggable.createKind<AllDayRowDropPayload>(
   'baseUiPlusCalendar/all-day-row',
 );
 
 /** Every kind a calendar drag source can carry — the `accept` every target declares. */
 export const CAL_DRAG_KINDS = [calEventMoveKind, calEventResizeKind, calEventCreateKind];
 
-export interface EventMoveDragData {
+export interface EventMoveDragPayload {
   eventId: EventId;
   /** Snapshot at drag start so the reducer can preserve duration. */
   anchorStart: number;
@@ -71,7 +73,7 @@ export interface EventMoveDragData {
   segmentOffsetMs: number;
 }
 
-export interface EventResizeDragData {
+export interface EventResizeDragPayload {
   eventId: EventId;
   edge: 'start' | 'end';
   anchorStart: number;
@@ -79,27 +81,28 @@ export interface EventResizeDragData {
   allDay: boolean;
 }
 
-export interface EventCreateDragData {
+export interface EventCreateDragPayload {
   /** Where the create gesture began (ms). For all-day, day-aligned. */
   anchorMs: number;
   allDay: boolean;
 }
 
-export interface DayCellDropData {
+export interface DayCellDropPayload {
   /** Start-of-day ms timestamp for the cell. */
   dayMs: number;
 }
 
-export interface DayColumnDropData {
+export interface DayColumnDropPayload {
   dayMs: number;
 }
 
-export interface AllDayRowDropData {
+export interface AllDayRowDropPayload {
   dayMs: number;
 }
 
-export type CalendarDragSource = EventMoveDragData | EventResizeDragData | EventCreateDragData;
-export type CalendarDropData = DayCellDropData | DayColumnDropData | AllDayRowDropData;
+export type CalendarDragSource =
+  EventMoveDragPayload | EventResizeDragPayload | EventCreateDragPayload;
+export type CalendarDropPayload = DayCellDropPayload | DayColumnDropPayload | AllDayRowDropPayload;
 
 // -----------------------------------------------------------------------------
 // Drop preview state (UI-only — drives ghost rendering during a drag)
@@ -442,7 +445,7 @@ export function createSeedState(today: number): CalendarState {
  */
 export function resolveDropPreview(
   source: DragSource<CalendarDragSource>,
-  innermost: DropTargetRecord<CalendarDropData> | undefined,
+  innermost: DropTargetRecord<CalendarDropPayload> | undefined,
 ): DropPreview | null {
   if (!innermost) {
     return null;
@@ -461,19 +464,19 @@ export function resolveDropPreview(
   const targetDayMs = innermost.payload.dayMs;
 
   if (calEventMoveKind.matches(source)) {
-    const sourceData = source.payload;
-    const duration = sourceData.anchorEnd - sourceData.anchorStart;
+    const sourcePayload = source.payload;
+    const duration = sourcePayload.anchorEnd - sourcePayload.anchorStart;
     if (calDayCellKind.matches(innermost)) {
       // Month view: keep the time-of-day, change the date.
       const dayMs = targetDayMs;
-      const offset = sourceData.allDay
+      const offset = sourcePayload.allDay
         ? 0
-        : sourceData.anchorStart - startOfDay(sourceData.anchorStart);
+        : sourcePayload.anchorStart - startOfDay(sourcePayload.anchorStart);
       const start = dayMs + offset;
       return {
         start,
         end: start + duration,
-        allDay: sourceData.allDay,
+        allDay: sourcePayload.allDay,
         intent: 'move',
       };
     }
@@ -490,7 +493,7 @@ export function resolveDropPreview(
       // Week view: the source anchor reports where the chip's *top edge* lands,
       // already snapped, so the chip stays under the pointer instead of jumping
       // its top to the cursor.
-      const start = timedMsAt(targetDayMs, 'source') - sourceData.segmentOffsetMs;
+      const start = timedMsAt(targetDayMs, 'source') - sourcePayload.segmentOffsetMs;
       return {
         start,
         end: start + duration,
@@ -502,65 +505,77 @@ export function resolveDropPreview(
   }
 
   if (calEventResizeKind.matches(source)) {
-    const sourceData = source.payload;
+    const sourcePayload = source.payload;
     if (calDayCellKind.matches(innermost)) {
       // Month view resize: snap to whole-day end (start-of-day for start edge,
       // start-of-day + 24h for end edge — handled in the reducer).
       const time = targetDayMs;
-      if (sourceData.edge === 'start') {
-        const start = Math.min(time, sourceData.anchorEnd - DAY_MS);
+      if (sourcePayload.edge === 'start') {
+        const start = Math.min(time, sourcePayload.anchorEnd - DAY_MS);
         return {
           start,
-          end: sourceData.anchorEnd,
-          allDay: sourceData.allDay,
+          end: sourcePayload.anchorEnd,
+          allDay: sourcePayload.allDay,
           intent: 'resize',
           edge: 'start',
         };
       }
-      const end = Math.max(time + DAY_MS, sourceData.anchorStart + DAY_MS);
+      const end = Math.max(time + DAY_MS, sourcePayload.anchorStart + DAY_MS);
       return {
-        start: sourceData.anchorStart,
+        start: sourcePayload.anchorStart,
         end,
-        allDay: sourceData.allDay,
+        allDay: sourcePayload.allDay,
         intent: 'resize',
         edge: 'end',
       };
     }
     if (calAllDayRowKind.matches(innermost)) {
       const time = targetDayMs;
-      if (sourceData.edge === 'start') {
-        const start = Math.min(time, sourceData.anchorEnd - DAY_MS);
-        return { start, end: sourceData.anchorEnd, allDay: true, intent: 'resize', edge: 'start' };
+      if (sourcePayload.edge === 'start') {
+        const start = Math.min(time, sourcePayload.anchorEnd - DAY_MS);
+        return {
+          start,
+          end: sourcePayload.anchorEnd,
+          allDay: true,
+          intent: 'resize',
+          edge: 'start',
+        };
       }
-      const end = Math.max(time + DAY_MS, sourceData.anchorStart + DAY_MS);
-      return { start: sourceData.anchorStart, end, allDay: true, intent: 'resize', edge: 'end' };
+      const end = Math.max(time + DAY_MS, sourcePayload.anchorStart + DAY_MS);
+      return { start: sourcePayload.anchorStart, end, allDay: true, intent: 'resize', edge: 'end' };
     }
     if (calDayColumnKind.matches(innermost)) {
       const pointerMs = timedMsAt(targetDayMs);
-      if (sourceData.edge === 'start') {
-        const start = Math.min(pointerMs, sourceData.anchorEnd - MIN_TIMED_DURATION_MS);
+      if (sourcePayload.edge === 'start') {
+        const start = Math.min(pointerMs, sourcePayload.anchorEnd - MIN_TIMED_DURATION_MS);
         return {
           start,
-          end: sourceData.anchorEnd,
+          end: sourcePayload.anchorEnd,
           allDay: false,
           intent: 'resize',
           edge: 'start',
         };
       }
-      const end = Math.max(pointerMs, sourceData.anchorStart + MIN_TIMED_DURATION_MS);
-      return { start: sourceData.anchorStart, end, allDay: false, intent: 'resize', edge: 'end' };
+      const end = Math.max(pointerMs, sourcePayload.anchorStart + MIN_TIMED_DURATION_MS);
+      return {
+        start: sourcePayload.anchorStart,
+        end,
+        allDay: false,
+        intent: 'resize',
+        edge: 'end',
+      };
     }
     return null;
   }
 
   if (calEventCreateKind.matches(source)) {
-    const sourceData = source.payload;
-    if (sourceData.allDay) {
+    const sourcePayload = source.payload;
+    if (sourcePayload.allDay) {
       // Month view: pick whichever cell the pointer is over and span anchor → day.
       if (calDayCellKind.matches(innermost) || calAllDayRowKind.matches(innermost)) {
         const dayMs = targetDayMs;
-        const lo = Math.min(sourceData.anchorMs, dayMs);
-        const hi = Math.max(sourceData.anchorMs, dayMs);
+        const lo = Math.min(sourcePayload.anchorMs, dayMs);
+        const hi = Math.max(sourcePayload.anchorMs, dayMs);
         return {
           start: lo,
           end: hi + DAY_MS,
@@ -575,8 +590,8 @@ export function resolveDropPreview(
     // the column's `snap`), so no re-rounding here.
     if (calDayColumnKind.matches(innermost)) {
       const pointerMs = timedMsAt(targetDayMs);
-      const lo = Math.min(sourceData.anchorMs, pointerMs);
-      const hi = Math.max(sourceData.anchorMs, pointerMs);
+      const lo = Math.min(sourcePayload.anchorMs, pointerMs);
+      const hi = Math.max(sourcePayload.anchorMs, pointerMs);
       return {
         start: lo,
         end: Math.max(hi, lo + MIN_TIMED_DURATION_MS),

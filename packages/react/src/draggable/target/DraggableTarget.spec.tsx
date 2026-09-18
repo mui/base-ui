@@ -20,7 +20,7 @@ interface AttachmentPayload {
   mime: string;
 }
 
-interface SlotData {
+interface SlotPayload {
   index: number;
 }
 
@@ -28,7 +28,7 @@ const card = Draggable.createKind<CardPayload>('card');
 const task = Draggable.createKind<TaskPayload>('task');
 const file = Draggable.createKind<AttachmentPayload>('file');
 const divider = Draggable.createKind('divider');
-const slot = Draggable.createKind<SlotData>('slot');
+const slot = Draggable.createKind<SlotPayload>('slot');
 const detailedSlot = Draggable.createKind<{ index: number; label: string }>('detailed-slot');
 
 // @ts-expect-error the target kind requires every payload field, even when a subset is inferred.
@@ -113,7 +113,7 @@ const targetCommand = () => 'run';
 />;
 
 // `accept` and `payload` are separate inference sites, so one target types both the
-// dragged item's data and its own.
+// dragged item's payload and its own.
 <Draggable.Target
   accept={card}
   payload={{ index: 0 }}
@@ -177,37 +177,40 @@ const targetCommand = () => 'run';
 // kinds of target the drag landed on.
 declare const untypedRecord: DropTargetRecord<unknown>;
 if (slot.matches(untypedRecord)) {
-  expectType<SlotData, typeof untypedRecord.payload>(untypedRecord.payload);
+  expectType<SlotPayload, typeof untypedRecord.payload>(untypedRecord.payload);
 }
 
 // The explicit type arguments are the source payload and the local payload, matching
 // `Draggable.Target.Props` and rarely needed now that both are inferred.
-<Draggable.Target<CardPayload, SlotData>
+<Draggable.Target<CardPayload, SlotPayload>
   accept={card}
   payload={{ index: 0 }}
   onDraggableDrop={({ source, target }) => {
     expectType<CardPayload, typeof source.payload>(source.payload);
-    expectType<SlotData, typeof target.payload>(target.payload);
+    expectType<SlotPayload, typeof target.payload>(target.payload);
   }}
 />;
 
-// @ts-expect-error an explicit local data type makes `payload` required, so the
-// engine can never emit `undefined` where a `SlotData` was promised.
-<Draggable.Target<CardPayload, SlotData> accept={card} />;
+// @ts-expect-error an explicit target payload type makes `payload` required, so the
+// engine can never emit `undefined` where a `SlotPayload` was promised.
+<Draggable.Target<CardPayload, SlotPayload> accept={card} />;
 
-declare const maybeSlotData: SlotData | undefined;
+declare const maybeSlotPayload: SlotPayload | undefined;
 // @ts-expect-error a required target payload cannot be explicitly undefined.
-<Draggable.Target<CardPayload, SlotData> accept={card} payload={undefined} />;
+<Draggable.Target<CardPayload, SlotPayload> accept={card} payload={undefined} />;
 // @ts-expect-error a possibly undefined target payload cannot satisfy a required payload.
-<Draggable.Target<CardPayload, SlotData> accept={card} payload={maybeSlotData} />;
+<Draggable.Target<CardPayload, SlotPayload> accept={card} payload={maybeSlotPayload} />;
 // @ts-expect-error a required target payload getter cannot be explicitly undefined.
-<Draggable.Target<CardPayload, SlotData> accept={card} getPayload={undefined} />;
+<Draggable.Target<CardPayload, SlotPayload> accept={card} getPayload={undefined} />;
 
 // @ts-expect-error the payload must match the explicit type argument.
-<Draggable.Target<CardPayload, SlotData> accept={card} payload={{ index: 'first' }} />;
+<Draggable.Target<CardPayload, SlotPayload> accept={card} payload={{ index: 'first' }} />;
 
-// @ts-expect-error the callback's return type must match it too.
-<Draggable.Target<CardPayload, SlotData> accept={card} getPayload={() => ({ index: 'first' })} />;
+<Draggable.Target<CardPayload, SlotPayload>
+  accept={card}
+  // @ts-expect-error the callback's return type must match it too.
+  getPayload={() => ({ index: 'first' })}
+/>;
 
 <Draggable.Target
   accept={Draggable.anyKind}
@@ -239,9 +242,9 @@ const ref: React.Ref<HTMLDivElement> = null;
   render={<Draggable.Target accept={card} payload={{ index: 0 }} />}
 />;
 
-// `payload` is the only thing `TLocalData` is inferred from. An inline handler is
+// `payload` is the only thing `TTargetPayload` is inferred from. An inline handler is
 // context-sensitive and contributes no candidates, but an extracted one does — so
-// without `NoInfer` on the handlers, `TLocalData` here would come out as
+// without `NoInfer` on the handlers, `TTargetPayload` here would come out as
 // `{ other: boolean }` and the mismatch would be reported against `payload`
 // instead of against the handler that caused it.
 const mismatchedDrop = (parameters: DropEvent<unknown, { other: boolean }>) => parameters;
@@ -270,18 +273,18 @@ const wideDrop = (parameters: DropEvent<unknown, unknown>) => parameters;
 
 // `Props` stays keyed on the payloads rather than on an `accept` value, so declaring a
 // wrapper's props reads the same as before.
-type SlotProps = Draggable.Target.Props<CardPayload, SlotData>;
+type SlotProps = Draggable.Target.Props<CardPayload, SlotPayload>;
 const slotValueProps: SlotProps = { accept: card, payload: { index: 0 } };
 const slotCallbackProps: SlotProps = { accept: card, getPayload: () => ({ index: 0 }) };
-expectType<DropTargetPayload<SlotData>, NonNullable<typeof slotValueProps.payload>>(
+expectType<DropTargetPayload<SlotPayload>, NonNullable<typeof slotValueProps.payload>>(
   slotValueProps.payload!,
 );
 expectType<
-  DropTargetPayloadGetter<CardPayload, SlotData>,
+  DropTargetPayloadGetter<CardPayload, SlotPayload>,
   NonNullable<typeof slotCallbackProps.getPayload>
 >(slotCallbackProps.getPayload!);
 
-// @ts-expect-error `Props` mirrors the component: a declared `TLocalData` requires a payload.
+// @ts-expect-error `Props` mirrors the component: a declared `TTargetPayload` requires a payload.
 const slotMissingProps: SlotProps = { accept: card };
 
 // @ts-expect-error `Props` mirrors the component's required `accept` too.
@@ -290,7 +293,7 @@ const slotNoAcceptProps: SlotProps = { payload: { index: 0 } };
 // A wrapper forwarding these props satisfies the component's overloads, and the kinds
 // it declared reach the caller's handlers.
 function Slot(props: SlotProps) {
-  return <Draggable.Target<CardPayload, SlotData> {...props} />;
+  return <Draggable.Target<CardPayload, SlotPayload> {...props} />;
 }
 <Slot
   accept={card}

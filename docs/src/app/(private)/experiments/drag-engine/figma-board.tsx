@@ -39,7 +39,7 @@ export const settingsMetadata: SettingsMetadata<FigmaBoardSettings> = {
   },
 };
 
-const cardKind = Draggable.createKind<CardDragData>('figmaBoard:card');
+const cardKind = Draggable.createKind<CardDragPayload>('figmaBoard:card');
 const CARD_WIDTH = 200;
 // The board is a fixed-size scroll surface; cards are clamped inside it so they
 // can never be created or dropped past an edge.
@@ -79,7 +79,7 @@ interface Card {
   z: number;
 }
 
-interface CardDragData {
+interface CardDragPayload {
   id: string;
   /** Where inside the card the pointer grabbed, in client pixels. */
   grabOffsetX: number;

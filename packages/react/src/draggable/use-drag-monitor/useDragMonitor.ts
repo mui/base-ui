@@ -31,7 +31,7 @@ export function useDragMonitor<TAccept extends AnyDragAccept = DragKind<unknown>
 
 // Keyed on the observed payload rather than on an `accept` value, like the props types.
 export namespace useDragMonitor {
-  export type Parameters<TSourceData = unknown> = UseDragMonitorParameters<TSourceData>;
+  export type Parameters<TSourcePayload = unknown> = UseDragMonitorParameters<TSourcePayload>;
   export type ReturnValue = void;
 }
 
@@ -39,8 +39,8 @@ export namespace useDragMonitor {
  * Parameters for {@link useDragMonitor}. Defines the drag kinds to observe and the
  * lifecycle callbacks fired for every matching drag.
  */
-export type UseDragMonitorParameters<TSourceData = unknown> =
-  RegisterMonitorParameters<TSourceData>;
+export type UseDragMonitorParameters<TSourcePayload = unknown> =
+  RegisterMonitorParameters<TSourcePayload>;
 
 export type { RegisterMonitorParameters } from '../../types/dragRegistration';
 

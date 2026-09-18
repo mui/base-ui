@@ -172,25 +172,25 @@ export function bindDraggableSensors(element: Element): DragCleanupFn {
   });
 }
 
-export type DraggableConfig<TData = undefined> = {
+export type DraggableConfig<TPayload = undefined> = {
   element: HTMLElement;
   /** CSP nonce for the drag cursor stylesheet, wired by the React layer. @internal */
   styleNonce?: string | undefined;
   /** Whether the React layer has disabled runtime style elements. @internal */
   disableStyleElements?: boolean | undefined;
   /**
-   * The data to attach to this drag, surfaced as `source.payload` on every
+   * The payload to attach to this drag, surfaced as `source.payload` on every
    * drag-and-drop event. Functions are preserved as ordinary payload values.
    */
   // Optional here so the conditional requirement lives in one place: `Draggable.Root`
   // and `registerDraggable` re-impose it through an overload, which also keeps a
   // wrapper spreading their `Props` from hitting a deferred conditional.
-  payload?: DraggablePayload<TData> | undefined;
+  payload?: DraggablePayload<TPayload> | undefined;
   /**
-   * Resolves the data attached to this drag at drag start. Use this instead of
+   * Resolves the payload attached to this drag at drag start. Use this instead of
    * `payload` when the value depends on the pickup gesture.
    */
-  getPayload?: DraggablePayloadGetter<TData> | undefined;
+  getPayload?: DraggablePayloadGetter<TPayload> | undefined;
   /**
    * Stable identity used to reconnect a settling cloned preview to this source
    * after it remounts. Use the same key for the same logical item across the move.
@@ -202,7 +202,7 @@ export type DraggableConfig<TData = undefined> = {
    * list accepted kinds in `accept`. The kind determines the type of `payload` and
    * `source.payload`.
    */
-  kind: DragKind<TData>;
+  kind: DragKind<TPayload>;
   /**
    * Restricts drag initiation to a specific child element, ref, or resolver.
    * The handle should be available when the draggable is registered so it receives
@@ -254,14 +254,14 @@ export type DraggableConfig<TData = undefined> = {
    * For sources registered imperatively. A draggable that renders a preview part
    * describes its preview there instead.
    */
-  dragPreview?: DragPreviewParameters<NoInfer<TData>> | undefined;
+  dragPreview?: DragPreviewParameters<NoInfer<TPayload>> | undefined;
   /**
    * The preview part declared for this draggable, if any. Wired by the React layer;
    * the engine reads it once at drag start, before React can run, to decide between
    * cloning the source and building a host for custom content.
    * @internal
    */
-  getDragPreviewDeclaration?: (() => DragPreviewDeclaration<NoInfer<TData>> | null) | undefined;
+  getDragPreviewDeclaration?: (() => DragPreviewDeclaration<NoInfer<TPayload>> | null) | undefined;
   /**
    * Event handler called once at the start of a drag, before `onMoveStart`,
    * while the preview is being built. The React layer installs its preview
@@ -269,7 +269,7 @@ export type DraggableConfig<TData = undefined> = {
    * @internal
    */
   onGenerateDragPreview?:
-    ((parameters: DragPreviewRenderEvent<NoInfer<TData>>) => void) | undefined;
+    ((parameters: DragPreviewRenderEvent<NoInfer<TPayload>>) => void) | undefined;
   /**
    * Event handler called once, synchronously when the drag starts. The drag preview
    * has already been resolved by then, so it is safe to measure or restyle the
@@ -277,7 +277,7 @@ export type DraggableConfig<TData = undefined> = {
    */
   onMoveStart?:
     | ((
-        parameters: DraggableEventMap<NoInfer<TData>>['onMoveStart'],
+        parameters: DraggableEventMap<NoInfer<TPayload>>['onMoveStart'],
         eventDetails: DraggableEventDetailsMap['onMoveStart'],
       ) => void)
     | undefined;
@@ -288,7 +288,7 @@ export type DraggableConfig<TData = undefined> = {
    */
   onMove?:
     | ((
-        parameters: DraggableEventMap<NoInfer<TData>>['onMove'],
+        parameters: DraggableEventMap<NoInfer<TPayload>>['onMove'],
         eventDetails: DraggableEventDetailsMap['onMove'],
       ) => void)
     | undefined;
@@ -298,7 +298,7 @@ export type DraggableConfig<TData = undefined> = {
    */
   onTargetChange?:
     | ((
-        parameters: DraggableEventMap<NoInfer<TData>>['onTargetChange'],
+        parameters: DraggableEventMap<NoInfer<TPayload>>['onTargetChange'],
         eventDetails: DraggableEventDetailsMap['onTargetChange'],
       ) => void)
     | undefined;
@@ -309,7 +309,7 @@ export type DraggableConfig<TData = undefined> = {
    */
   onMoveEnd?:
     | ((
-        parameters: DraggableEventMap<NoInfer<TData>>['onMoveEnd'],
+        parameters: DraggableEventMap<NoInfer<TPayload>>['onMoveEnd'],
         eventDetails: DraggableEventDetailsMap['onMoveEnd'],
       ) => void)
     | undefined;

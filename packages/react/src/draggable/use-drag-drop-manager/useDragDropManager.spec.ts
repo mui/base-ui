@@ -125,14 +125,14 @@ expectType<() => void, ReturnType<typeof engine.registerDraggable>>(
   engine.registerDraggable(element, () => ({ kind: marker })),
 );
 
-// An explicit `TData` threads through `getPayload` and every source event.
-interface MyData {
+// An explicit `TPayload` threads through `getPayload` and every source event.
+interface MyPayload {
   foo: string;
   count: number;
 }
-const myDataKind = Draggable.createKind<MyData>('my-data');
-engine.registerDraggable<MyData>(element, () => ({
-  kind: myDataKind,
+const myPayloadKind = Draggable.createKind<MyPayload>('my-data');
+engine.registerDraggable<MyPayload>(element, () => ({
+  kind: myPayloadKind,
   getPayload: () => ({ foo: 'bar', count: 1 }),
   onMoveStart: ({ source }) => {
     expectType<string, typeof source.payload.foo>(source.payload.foo);
@@ -143,8 +143,8 @@ engine.registerDraggable<MyData>(element, () => ({
   },
 }));
 
-engine.registerDraggable<MyData>(element, () => ({
-  kind: myDataKind,
+engine.registerDraggable<MyPayload>(element, () => ({
+  kind: myPayloadKind,
   // @ts-expect-error the returned object is missing the required `count`.
   getPayload: () => ({ foo: 'bar' }),
 }));
@@ -215,7 +215,7 @@ engine.registerDropTarget<typeof card, { slot: number }>(element, () => ({
   },
 }));
 
-// @ts-expect-error a declared local-data type makes `payload` required.
+// @ts-expect-error a declared target payload type makes `payload` required.
 engine.registerDropTarget<typeof card, { slot: number }>(element, () => ({ accept: card }));
 
 declare const maybeSlotPayload: { slot: number } | undefined;
@@ -237,21 +237,21 @@ engine.registerDropTarget<typeof card, { slot: number }>(element, () => ({
 
 engine.registerDropTarget<typeof card, { slot: number }>(element, () => ({
   accept: card,
-  // @ts-expect-error the payload must match the declared local-data type.
+  // @ts-expect-error the payload must match the declared target payload type.
   payload: { slot: 'one' },
 }));
 
-// An explicit `<typeof kind, TLocalData>` pair threads both payloads through every
+// An explicit `<typeof kind, TTargetPayload>` pair threads both payloads through every
 // target callback, and the local getter must return the declared shape.
-interface MySourceData {
+interface MySourcePayload {
   kind: 'card';
   id: string;
 }
-interface MyLocalData {
+interface MyTargetPayload {
   columnId: string;
 }
-const mySourceKind = Draggable.createKind<MySourceData>('my-source');
-engine.registerDropTarget<typeof mySourceKind, MyLocalData>(element, () => ({
+const mySourceKind = Draggable.createKind<MySourcePayload>('my-source');
+engine.registerDropTarget<typeof mySourceKind, MyTargetPayload>(element, () => ({
   accept: mySourceKind,
   getPayload: () => ({ columnId: 'col-1' }),
   canDrop: ({ source }) => {
@@ -259,8 +259,8 @@ engine.registerDropTarget<typeof mySourceKind, MyLocalData>(element, () => ({
     return true;
   },
   onDraggableDrop: ({ source, target }) => {
-    expectType<MySourceData, typeof source.payload>(source.payload);
-    expectType<MyLocalData, typeof target.payload>(target.payload);
+    expectType<MySourcePayload, typeof source.payload>(source.payload);
+    expectType<MyTargetPayload, typeof target.payload>(target.payload);
   },
   onDraggableEnter: ({ source, target }) => {
     expectType<'card', typeof source.payload.kind>(source.payload.kind);
@@ -268,7 +268,7 @@ engine.registerDropTarget<typeof mySourceKind, MyLocalData>(element, () => ({
   },
 }));
 
-engine.registerDropTarget<typeof mySourceKind, MyLocalData>(element, () => ({
+engine.registerDropTarget<typeof mySourceKind, MyTargetPayload>(element, () => ({
   accept: mySourceKind,
   // @ts-expect-error the returned object is missing the required `columnId`.
   getPayload: () => ({}),

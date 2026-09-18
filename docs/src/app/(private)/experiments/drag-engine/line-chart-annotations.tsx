@@ -200,14 +200,16 @@ type Annotation = LineAnnotation | CommentAnnotation;
 /** Which part of an annotation a drag grabbed. `body` moves the whole thing. */
 type AnnotationHandle = 'body' | 'start' | 'end' | 'height' | 'anchor';
 
-interface AnnotationDragData {
+interface AnnotationDragPayload {
   id: string;
   handle: AnnotationHandle;
   /** The annotation as it was at pickup, so Escape can put it back. */
   snapshot: Annotation;
 }
 
-const annotationKind = Draggable.createKind<AnnotationDragData>('lineChartAnnotations:annotation');
+const annotationKind = Draggable.createKind<AnnotationDragPayload>(
+  'lineChartAnnotations:annotation',
+);
 
 const COMMENT_WIDTH = 168;
 /** Keeps a comment box from hanging off the right edge of the chart. */
@@ -449,7 +451,7 @@ function moveAnnotation(
 
 /** The drag so far, as a data-space move of the annotation that was picked up. */
 function dragAnnotation(
-  payload: AnnotationDragData,
+  payload: AnnotationDragPayload,
   location: DragLocationHistory,
   snap: boolean,
   plotRect: DOMRect | null,

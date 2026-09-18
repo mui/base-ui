@@ -98,7 +98,6 @@
     "./internals/temporal-adapter-luxon": "./src/internals/temporal-adapter-luxon/index.ts",
     "./internals/TimeoutManager": "./src/internals/TimeoutManager.ts",
     "./internals/types": "./src/internals/types.ts",
-    "./internals/use-draggable-collection": "./src/internals/use-draggable-collection/index.ts",
     "./internals/use-button": "./src/internals/use-button/index.ts",
     "./internals/useBaseUiId": "./src/internals/useBaseUiId.ts",
     "./internals/useAnchorPositioning": "./src/internals/useAnchorPositioning.ts",
