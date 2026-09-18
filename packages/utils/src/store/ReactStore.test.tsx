@@ -78,8 +78,7 @@ describe('ReactStore', () => {
     expect(() => {
       act(() => setProps({ controlled: 1 }));
     }).toErrorDev([
-      'A component is changing the controlled state of value to be uncontrolled. Elements should not switch from uncontrolled to controlled (or vice versa).',
-      'A component is changing the controlled state of value to be uncontrolled. Elements should not switch from uncontrolled to controlled (or vice versa).',
+      'A component is changing the uncontrolled state of value to be controlled. Elements should not switch from uncontrolled to controlled (or vice versa).',
     ]);
   });
 
@@ -95,9 +94,34 @@ describe('ReactStore', () => {
     expect(() => {
       act(() => setProps({ controlled: undefined }));
     }).toErrorDev([
-      'A component is changing the uncontrolled state of value to be controlled. Elements should not switch from uncontrolled to controlled (or vice versa).',
-      'A component is changing the uncontrolled state of value to be controlled. Elements should not switch from uncontrolled to controlled (or vice versa).',
+      'A component is changing the controlled state of value to be uncontrolled. Elements should not switch from uncontrolled to controlled (or vice versa).',
     ]);
+  });
+
+  it('clears the key when the controlled prop becomes undefined', () => {
+    let store!: ReactStore<TestState>;
+
+    function Test({ controlled }: { controlled?: number }) {
+      store = useStableStore<TestState>({ value: 0, label: '' });
+      store.useControlledProp('value', controlled);
+      return null;
+    }
+
+    const { setProps } = render(<Test controlled={1} />);
+    expect(store.state.value).toBe(1);
+
+    expect(() => {
+      act(() => setProps({ controlled: undefined }));
+    }).toErrorDev([
+      'A component is changing the controlled state of value to be uncontrolled. Elements should not switch from uncontrolled to controlled (or vice versa).',
+    ]);
+
+    expect(store.state.value).toBe(undefined);
+
+    // Subsequent renders in the same mode do not warn again.
+    expect(() => {
+      act(() => setProps({ controlled: undefined }));
+    }).not.toErrorDev();
   });
 
   it('useProp updates a single key when the passed value changes', () => {

@@ -3,7 +3,7 @@ import * as React from 'react';
 import { formatNumber } from '@base-ui/utils/formatNumber';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
-import { useSliderRootContext } from '../root/SliderRootContext';
+import { useSliderRootContext, useSliderRootPropsContext } from '../root/SliderRootContext';
 import { sliderStateAttributesMapping } from '../root/stateAttributesMapping';
 import type { SliderRootState } from '../root/SliderRoot';
 
@@ -26,7 +26,10 @@ export const SliderValue = React.forwardRef(function SliderValue(
     ...elementProps
   } = componentProps;
 
-  const { thumbMap, state, values, format, locale } = useSliderRootContext();
+  const store = useSliderRootContext();
+  const thumbMap = store.useState('thumbMap');
+  const { format, locale, state } = useSliderRootPropsContext();
+  const { values } = state;
 
   const outputFor =
     Array.from(thumbMap.values(), ({ inputId }) => inputId)
