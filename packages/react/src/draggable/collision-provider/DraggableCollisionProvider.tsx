@@ -289,7 +289,11 @@ export interface DraggableCollisionProviderProps<TData = unknown> {
   /** Excludes a destination, or rejects the entire target stack with 'reject'. */
   canCollide?:
     ((context: { source: DragSource<TData>; target: TData }) => boolean | 'reject') | undefined;
-  /** Called when a descendant participant starts moving. */
+  /**
+   * Called when a descendant participant starts moving, or when an external drag
+   * first reaches this group. For an external drag, the event and location describe
+   * the original pickup, not the later entry into this group.
+   */
   onMoveStart?: ((event: BaseDragEvent<TData>, details: MoveStartEventDetails) => void) | undefined;
   /** Called when the destination or insertion side changes, including leaving the group. */
   onCollisionChange?:

@@ -1,5 +1,5 @@
 import { addEventListener } from '@base-ui/utils/addEventListener';
-import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
+import { ownerWindow } from '@base-ui/utils/owner';
 import { isShadowRoot } from '@floating-ui/utils/dom';
 import { getSharedSlot } from './sharedState';
 import type { DragCleanupFn } from '../../types/drag';
@@ -66,7 +66,7 @@ export function createEventRootBinding(options: CreateEventRootBindingOptions): 
     () => new Set<ShadowRoot>(),
   );
 
-  const crossesBoundShadowRoot = (event: Event, doc: Document): boolean => {
+  const crossesBoundShadowRoot = (event: Event, currentRoot: DragEventRoot): boolean => {
     // Both window wrappers below ask this for every event of `type` anywhere on
     // the page, for as long as one binding exists; `composedPath()` materializes
     // the whole ancestor chain, so don't build it unless a shadow root is bound.
@@ -75,7 +75,11 @@ export function createEventRootBinding(options: CreateEventRootBindingOptions): 
     }
     const path = event.composedPath();
     for (const root of boundShadowRoots.keys()) {
-      if (ownerDocument(root.host) === doc && path.includes(root.host)) {
+      if (
+        root !== currentRoot &&
+        path.includes(root.host) &&
+        (!isShadowRoot(currentRoot) || path.indexOf(root.host) < path.indexOf(currentRoot))
+      ) {
         return true;
       }
     }
@@ -87,12 +91,29 @@ export function createEventRootBinding(options: CreateEventRootBindingOptions): 
     install(root) {
       if (isShadowRoot(root)) {
         boundShadowRoots.add(root);
-        const off = addEventListener(root, type, listener, {
-          ...listenerOptions,
-          capture: true,
-        });
+        const offCapture = addEventListener(
+          root,
+          type,
+          (event) => {
+            if (!crossesBoundShadowRoot(event, root)) {
+              listener(event);
+            }
+          },
+          { ...listenerOptions, capture: true },
+        );
+        const offBubble = addEventListener(
+          root,
+          type,
+          (event) => {
+            if (crossesBoundShadowRoot(event, root)) {
+              listener(event);
+            }
+          },
+          listenerOptions,
+        );
         return () => {
-          off();
+          offCapture();
+          offBubble();
           boundShadowRoots.delete(root);
         };
       }

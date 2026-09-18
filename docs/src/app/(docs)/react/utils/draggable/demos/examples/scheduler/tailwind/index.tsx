@@ -107,6 +107,45 @@ function SchedulerCalendarContent() {
 
   return (
     <div className="flex w-full min-w-0 flex-col gap-4 overflow-x-auto select-none">
+      <fieldset className="flex flex-wrap items-end gap-2 text-sm">
+        <legend>Move Design review</legend>
+        <label>
+          Day{' '}
+          <select
+            value={event.day}
+            onChange={(change) => setEvent({ ...event, day: Number(change.target.value) })}
+          >
+            {DAYS.map((day, index) => (
+              <option key={day} value={index}>
+                {day}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label>
+          Start time{' '}
+          <select
+            value={event.minute}
+            onChange={(change) => setEvent({ ...event, minute: Number(change.target.value) })}
+          >
+            {Array.from(
+              { length: (TOTAL_MINUTES - EVENT_MINUTES) / SLOT_MINUTES + 1 },
+              (_, index) => {
+                const minute = index * SLOT_MINUTES;
+                return (
+                  <option key={minute} value={minute}>
+                    {formatTime(minute)}
+                  </option>
+                );
+              },
+            )}
+          </select>
+        </label>
+      </fieldset>
+      <div role="status">
+        Design review: {DAYS[event.day]}, {formatTime(event.minute)} to{' '}
+        {formatTime(event.minute + EVENT_MINUTES)}.
+      </div>
       <div className="grid min-w-[28rem] grid-cols-[3rem_repeat(3,1fr)]">
         <div />
         {DAYS.map((day) => (
@@ -151,12 +190,6 @@ function SchedulerCalendarContent() {
                   // @highlight-start
                   modifiers={snapEventToGrid}
                   // @highlight-end
-                  // The engine can't know this grid's geometry: one 15-minute
-                  // slot vertically, the same time in the day column ahead
-                  // horizontally. No bounds checks: the modifier clamps at the
-                  // grid's edges, and a press that moves nothing announces the
-                  // edge on its own.
-
                   // Only a drop over an accepting slot moves the event; a cancel
                   // or a release off the grid must not update the event.
                   onMoveEnd={(moveEvent, moveDetails) => {

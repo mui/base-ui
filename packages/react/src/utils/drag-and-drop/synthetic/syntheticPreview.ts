@@ -1,4 +1,6 @@
+import { clamp } from '@base-ui/utils/clamp';
 import { ownerWindow } from '@base-ui/utils/owner';
+import { getFiniteAnimations } from '../../getFiniteAnimations';
 import { WindowAnimationFrame } from '../../windowAnimationFrame';
 import { WindowTimeout } from '../../windowTimeout';
 import { measurePreviewSource, type DragPreviewElementHandle } from './cloneDragPreview';
@@ -338,11 +340,10 @@ export function createSyntheticPreview(
           const { sourceRect: destination } = measurePreviewSource(sourceElement as HTMLElement);
           element.style.translate = `${destination.left / endingPreview.positionScale.x}px ${destination.top / endingPreview.positionScale.y}px`;
 
-          const animations = globalThis.BASE_UI_ANIMATIONS_DISABLED
-            ? []
-            : (element.getAnimations?.() ?? []).filter(
-                (animation) => animation.effect?.getTiming().iterations !== Infinity,
-              );
+          const animations =
+            globalThis.BASE_UI_ANIMATIONS_DISABLED || !element.getAnimations
+              ? []
+              : getFiniteAnimations(element);
           if (animations.length === 0) {
             cleanup();
             return;
@@ -354,10 +355,7 @@ export function createSyntheticPreview(
               : longest;
           }, 0);
           settlingWatchdog.start(
-            Math.min(
-              Math.max(longestAnimationMs + 100, MIN_SETTLING_WATCHDOG_MS),
-              MAX_SETTLING_WATCHDOG_MS,
-            ),
+            clamp(longestAnimationMs + 100, MIN_SETTLING_WATCHDOG_MS, MAX_SETTLING_WATCHDOG_MS),
             cleanup,
           );
           Promise.allSettled(animations.map((animation) => animation.finished)).then(cleanup);

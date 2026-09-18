@@ -366,3 +366,14 @@ function GenericCard<TData>(props: Draggable.Root.PropsWithPayload<TData>) {
 // Double-tap pickup for touch and pen shares the `double-click` type.
 <Draggable.Root activation={{ touch: { type: 'double-click' } }} />;
 <Draggable.Root activation={{ pen: { type: 'double-click' } }} />;
+
+// @ts-expect-error explicit unknown must not weaken the kind's payload requirement.
+<Draggable.Root<unknown> kind={card} payload={null} />;
+// @ts-expect-error explicit optional properties must not weaken the kind's payload requirement.
+<Draggable.Root<{ id?: string }> kind={card} payload={{}} />;
+// @ts-expect-error widening a producer kind would allow publishing invalid payloads.
+const widenedCard: DragKind<unknown> = card;
+
+const observer: import('@base-ui/react/draggable').DragAcceptedKind = card;
+// @ts-expect-error an observational kind cannot be used to publish arbitrary payloads.
+<Draggable.Root<unknown> kind={observer} payload={null} />;

@@ -972,6 +972,9 @@ function commitActivation(): void {
     throw error;
   }
 
+  if (state.pending !== pending) {
+    return;
+  }
   // Re-check `disabled` at commit: it may have flipped during the press.
   if (parameters.disabled) {
     clearPending(true);
@@ -996,6 +999,9 @@ function commitActivation(): void {
     return;
   }
 
+  if (state.pending !== pending) {
+    return;
+  }
   const pointerNode = dragHandle ?? element;
   if (hasInteractiveAncestorWithin(target, pointerNode)) {
     clearPending(true);
@@ -1045,6 +1051,9 @@ function commitActivation(): void {
     { x: lastX, y: lastY },
     { keys: lastInput },
   );
+  if (state.pending !== pending) {
+    return;
+  }
   // Start at the constrained point, so the initial target, the session's first
   // input, and the preview seed all agree with what the first frame resolves.
   const startInput = modifiers ? remapInput(lastInput, modifiers.initialPoint) : lastInput;
@@ -1077,6 +1086,7 @@ function commitActivation(): void {
       pressPoint: { x: pending.originX, y: pending.originY },
       initialTarget,
       onForceCleanup: clearActive,
+      isPickupCurrent: () => state.pending === pending,
       acquire: () => dragRootLock.lock(element),
       release: () => dragRootLock.unlock(),
     });

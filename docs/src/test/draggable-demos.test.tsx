@@ -23,11 +23,71 @@ import ScrollingTailwind from '../app/(docs)/react/utils/draggable/demos/scrolli
 import SortableLiveCss from '../app/(docs)/react/utils/draggable/demos/sortable-live/css-modules';
 import SortableLiveTailwind from '../app/(docs)/react/utils/draggable/demos/sortable-live/tailwind';
 
+import KanbanCss from '../app/(docs)/react/utils/draggable/demos/examples/kanban/css-modules';
+import KanbanTailwind from '../app/(docs)/react/utils/draggable/demos/examples/kanban/tailwind';
+import CalendarCss from '../app/(docs)/react/utils/draggable/demos/examples/scheduler/css-modules';
+import CalendarTailwind from '../app/(docs)/react/utils/draggable/demos/examples/scheduler/tailwind';
+import { findClosestSlot } from '../app/(docs)/react/utils/draggable/demos/examples/kanban/slots';
+
 setupDragEngineTests();
 afterEach(() => vi.unstubAllGlobals());
 
 describe('draggable demos', () => {
   const { renderDnd } = createDndRenderer();
+
+  it('keeps the Kanban slot stable when its placeholder displaces cards', () => {
+    const column = document.createElement('div');
+    const body = document.createElement('div');
+    body.dataset.columnBody = '';
+    body.style.rowGap = '8px';
+    column.appendChild(body);
+    const cards = [document.createElement('div'), document.createElement('div')];
+    cards.forEach((card, index) => {
+      card.dataset.card = '';
+      card.getBoundingClientRect = () => new DOMRect(0, index * 46, 180, 38);
+      body.appendChild(card);
+    });
+    expect(findClosestSlot(column, 28)).toBe(1);
+    const placeholder = document.createElement('div');
+    placeholder.dataset.placeholder = '';
+    placeholder.getBoundingClientRect = () => new DOMRect(0, 46, 180, 38);
+    body.insertBefore(placeholder, cards[1]);
+    cards[1].getBoundingClientRect = () => new DOMRect(0, 92, 180, 38);
+    expect(findClosestSlot(column, 28)).toBe(1);
+  });
+
+  describe.each([
+    ['CSS Modules', KanbanCss],
+    ['Tailwind', KanbanTailwind],
+  ] as const)('Kanban controls with %s', (_name, Demo) => {
+    it('moves a card without dragging and retains control focus', async () => {
+      const { user } = await renderDnd(<Demo />);
+      await user.selectOptions(screen.getByLabelText('Move to'), 'done');
+      const button = screen.getByRole('button', { name: 'Move card' });
+      button.focus();
+      await user.keyboard('{Enter}');
+      const card = Array.from(document.querySelectorAll('[data-card]')).find(
+        (node) => node.textContent === 'Write the spec',
+      )!;
+      expect(card.parentElement?.parentElement).toHaveTextContent('Done');
+      expect(button).toHaveFocus();
+      expect(screen.getByRole('status')).toHaveTextContent('Write the spec moved to Done.');
+    });
+  });
+
+  describe.each([
+    ['CSS Modules', CalendarCss],
+    ['Tailwind', CalendarTailwind],
+  ] as const)('calendar controls with %s', (_name, Demo) => {
+    it('changes day and time without dragging', async () => {
+      const { user } = await renderDnd(<Demo />);
+      await user.selectOptions(screen.getByLabelText('Day'), '2');
+      await user.selectOptions(screen.getByLabelText('Start time'), '120');
+      expect(screen.getByRole('status')).toHaveTextContent('Wednesday, 11:00 to 12:00');
+      const column = document.querySelectorAll('[data-day-column]')[2];
+      expect(column).toHaveTextContent('Design review');
+    });
+  });
 
   describe.each([
     ['CSS Modules', ActivationCss],

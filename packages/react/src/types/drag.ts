@@ -184,14 +184,20 @@ export interface DragSource<TData = unknown> {
   payload: TData;
 }
 
+declare class DragKindPayload<TPayload> {
+  private payload: (payload: TPayload) => TPayload;
+}
+
 /**
  * A kind of draggable item or drop target, created with `Draggable.createKind` or
  * `Draggable.createGlobalKind`.
  *
  * `TPayload` is the data things of this kind carry, so declaring it once on the kind
  * types `source.payload` and `target.payload` everywhere the kind is used.
+ * A kind cannot be widened to publish a different payload type. Use `DragAcceptedKind`
+ * when storing kinds only for observation.
  */
-export interface DragKind<TPayload = unknown> {
+export interface DragKind<in out TPayload = unknown> extends DragKindPayload<TPayload> {
   /**
    * The name or global key used to create this kind. This is a debugging aid,
    * not an accessible name.
@@ -216,13 +222,20 @@ export interface DragKind<TPayload = unknown> {
  * One or more drag kinds accepted by a drop target or monitor. The accepted kinds
  * determine the type of `source.payload`.
  */
-export type DragAccept<TPayload> = DragKind<TPayload> | ReadonlyArray<DragKind<TPayload>>;
+export type DragAccept<TPayload> =
+  DragAcceptedKind<TPayload> | ReadonlyArray<DragAcceptedKind<TPayload>>;
+
+/** A kind used to observe payloads, without declaring data under that kind. */
+export type DragAcceptedKind<TPayload = unknown> = Pick<
+  DragKind<TPayload>,
+  'name' | 'id' | 'matches'
+>;
 
 /**
  * A drag kind or array of kinds accepted by generic registration APIs.
  * @public
  */
-export type AnyDragAccept = DragKind<unknown> | ReadonlyArray<DragKind<unknown>>;
+export type AnyDragAccept = DragAccept<unknown>;
 
 /**
  * The payload type declared by `accept`. An array produces a union, and an omitted
@@ -232,10 +245,10 @@ export type AnyDragAccept = DragKind<unknown> | ReadonlyArray<DragKind<unknown>>
 // Distributive on purpose, so both the array entries and an `accept` that is itself a
 // union (a wrapper forwarding `DragAccept<T>`) resolve to the union of their payloads.
 export type AcceptedDragPayload<TAccept> =
-  TAccept extends DragKind<infer TPayload>
+  TAccept extends DragAcceptedKind<infer TPayload>
     ? TPayload
     : TAccept extends ReadonlyArray<infer TKind>
-      ? TKind extends DragKind<infer TPayload>
+      ? TKind extends DragAcceptedKind<infer TPayload>
         ? TPayload
         : never
       : unknown;
@@ -577,9 +590,9 @@ export interface DragModifierContext {
   /** The same measure when the drag began, the reference an axis lock or grid snaps against. */
   initialPoint: DragPosition;
   /**
-   * The cursor this frame, in client coordinates. Identical to `point` on
-   * `Draggable.Root`; on a preview part it stays the cursor while `point` is the
-   * preview's proposed top-left.
+   * The original cursor position for this frame, in client coordinates.
+   * `point` includes adjustments from preceding modifiers. On a preview part,
+   * `point` is the preview's proposed top-left while `input` stays the cursor.
    */
   input: DragPosition;
   /** The drag source element. */

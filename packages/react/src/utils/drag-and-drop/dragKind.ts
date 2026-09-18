@@ -64,7 +64,7 @@ function makeKind<TPayload>(name: string, id: symbol): DragKind<TPayload> {
     id,
     // A type predicate can't be inferred from an implementation, so it is asserted here.
     matches: matches as DragKind<TPayload>['matches'],
-  };
+  } as DragKind<TPayload>;
 }
 
 /**
@@ -86,7 +86,7 @@ export const anyDragKind: DragKind<unknown> = {
   // `anyDragKind` as its `kind`. Answering `true` keeps it honest if a consumer does
   // reach for it as a predicate.
   matches: ((value: unknown) => value != null) as unknown as DragKind<unknown>['matches'],
-};
+} as DragKind<unknown>;
 
 /**
  * Tests a source against an `accept` declaration. Omitted (monitors, auto-scrollers) or

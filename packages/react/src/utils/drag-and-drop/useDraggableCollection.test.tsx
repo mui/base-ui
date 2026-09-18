@@ -130,6 +130,7 @@ describe('useDraggableCollection', () => {
     await lift(source);
     rerender({ accept: cardsKind });
     await dragOver(target, { clientY: 210 });
+    expect(onStateChange.mock.lastCall?.[0].draggedItemIds).toEqual(new Set(['a']));
     drop(target, { clientY: 210 });
     expect(onDrop).toHaveBeenCalledTimes(1);
     expect(onStateChange.mock.lastCall?.[0]).toEqual({
@@ -542,8 +543,10 @@ describe('useDraggableCollection', () => {
       plugin.setupItem('b', target);
 
       await lift(source);
-      await dragEnter(target, { clientY: 210 });
       const measure = vi.spyOn(target, 'getBoundingClientRect');
+      await dragEnter(target, { clientY: 210 });
+      expect(measure).toHaveBeenCalledTimes(1);
+      measure.mockClear();
 
       await dragOver(target, { clientY: 260 });
 

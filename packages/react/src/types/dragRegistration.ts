@@ -111,10 +111,7 @@ export type RegisterDropTargetParametersWithPayload<TSourceData, TLocalData> =
   >;
 
 /** Checks a target's data against the payload promised by its own kind. */
-export type DragParametersWithTargetKind<
-  TSourceData,
-  TKind extends DragKind<unknown> | undefined,
-> = {
+export type DragParametersWithTargetKind<TSourceData, TKind extends DragKind<any> | undefined> = {
   kind?: TKind | undefined;
   payload?: NoInfer<AcceptedDragPayload<TKind>> | undefined;
   getPayload?:
@@ -249,7 +246,7 @@ export interface DragDropManager {
     <
       TAccept extends AnyDragAccept,
       TLocalData,
-      TKind extends DragKind<unknown> | undefined = DragKind<TLocalData> | undefined,
+      TKind extends DragKind<any> | undefined = DragKind<TLocalData> | undefined,
     >(
       element: HTMLElement,
       getParameters: () => DragParametersWithRequiredAccept<

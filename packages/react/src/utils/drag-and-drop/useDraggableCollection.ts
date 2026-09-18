@@ -471,10 +471,15 @@ export class DraggableCollectionPlugin<
       if (location.current.dropTargets[0]?.element !== element) {
         return;
       }
+      this.seedIncomingDrag(source.payload);
       const { input } = location.current;
+      const record = location.current.dropTargets[0];
+      const cached = this.dropSnapshots.get(record);
       const resolved = this.resolvedDropPosition;
       let position: DropPosition;
-      if (
+      if (cached === 'before' || cached === 'on' || cached === 'after') {
+        position = cached;
+      } else if (
         resolved !== null &&
         resolved.element === element &&
         resolved.input === input &&
@@ -485,6 +490,7 @@ export class DraggableCollectionPlugin<
       } else {
         position = this.computeDropPosition(element, input, source.payload);
       }
+      this.dropSnapshots.set(record, position);
       this.updateDropState(itemId, position);
     };
 
@@ -720,6 +726,7 @@ export class DraggableCollectionPlugin<
       if (location.current.dropTargets[0]?.element !== element) {
         return;
       }
+      this.seedIncomingDrag(source.payload);
       if (this.isPointInDraggedFootprint(source.payload, location.current.input)) {
         if (this.rootDropActive || this.lastDropTargetItemId != null) {
           this.clearDropState();
@@ -954,6 +961,14 @@ export class DraggableCollectionPlugin<
     }
   }
 
+  private seedIncomingDrag(src: IncomingSourceData<TItem>): void {
+    // Acceptance may expand after the start monitor skipped this source.
+    if (this.currentDraggedItemIds.size === 0 && src?.itemIds != null) {
+      this.currentDraggedItemIds = new Set(src.itemIds);
+      this.currentDragItems = src.items ?? [];
+    }
+  }
+
   private updateDropState(targetItemId: CollectionItemId, position: DropPosition) {
     // Skip the redundant `onStateChange` when (target, position) is unchanged so a
     // consumer wiring it to `setState` doesn't re-render the collection ~60x/s within one row.
@@ -975,14 +990,7 @@ export class DraggableCollectionPlugin<
 
   private handleDrop(location: DragLocationHistory, source: DragSource<IncomingSourceData<TItem>>) {
     const src = source.payload;
-    // A collection can join an already active drag, or become an eligible
-    // destination after drag start. It can therefore receive `onDrop` without
-    // having received the monitor's `onMoveStart`. Seed from the terminal event's
-    // payload before committing rather than silently ignoring a valid drop.
-    if (this.currentDraggedItemIds.size === 0 && src?.itemIds != null) {
-      this.currentDraggedItemIds = new Set(src.itemIds);
-      this.currentDragItems = src.items ?? [];
-    }
+    this.seedIncomingDrag(src);
     const draggedItemIds = this.currentDraggedItemIds;
     if (draggedItemIds.size === 0 && src?.sourceInstanceId === this.instanceId) {
       return;

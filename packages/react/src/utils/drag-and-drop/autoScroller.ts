@@ -1,3 +1,4 @@
+import { clamp } from '@base-ui/utils/clamp';
 import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
 import { closest, contains } from '@base-ui/utils/shadowDom';
 import { warn } from '@base-ui/utils/warn';
@@ -612,8 +613,8 @@ function runScrollFrame(timestamp: number): void {
     const probe = pageScroller
       ? {
           ...currentInput,
-          clientX: Math.max(rect.left, Math.min(currentInput.clientX, rect.right)),
-          clientY: Math.max(rect.top, Math.min(currentInput.clientY, rect.bottom)),
+          clientX: clamp(currentInput.clientX, rect.left, rect.right),
+          clientY: clamp(currentInput.clientY, rect.top, rect.bottom),
         }
       : resolveProbePoint(currentInput, currentReportedInput, rect);
     if (probe === null) {
@@ -633,6 +634,9 @@ function runScrollFrame(timestamp: number): void {
       getParameters,
       null,
     );
+    if (state.currentSource !== currentSource) {
+      return;
+    }
     // `== null`: the `safeCall` fallback is `null`, but a consumer getter that
     // returns nothing hands back `undefined` — which would otherwise reach the
     // property reads below.
@@ -710,6 +714,9 @@ function runScrollFrame(timestamp: number): void {
       // Resolve the speed only for engaged axes, so a callback form costs
       // nothing on the frames this element doesn't engage.
       const maxSpeed = resolveMaxSpeed(registration, element, feedback);
+      if (state.currentSource !== currentSource) {
+        return;
+      }
       // A container pinned at zero speed never moves, so it must not engage
       // either: engaging would consume both axes from the outer container and
       // hold the loop awake for a scroll that can never happen.
@@ -766,6 +773,9 @@ function runScrollFrame(timestamp: number): void {
             },
             false,
           );
+          if (state.currentSource !== currentSource) {
+            return;
+          }
           // A failed callback must not move this viewport or block an ancestor.
           if (!succeeded) {
             continue;

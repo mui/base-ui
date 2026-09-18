@@ -3,6 +3,7 @@ import { Draggable } from '@base-ui/react/draggable';
 
 import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { findClosestSlot } from '../slots';
 
 // A "snap to closest position" Kanban board built with `useDragMonitor`.
 // The monitor reads the pointer on every drag event and resolves the
@@ -93,46 +94,6 @@ function findClosestColumn(clientX: number, elements: Map<ColumnId, HTMLElement>
   return bestId;
 }
 
-// Within a column, the candidate insertion slots are:
-//   index 0      — above the first card
-//   index 1..n-1 — between consecutive cards (midpoint of the gap)
-//   index n      — below the last card
-// Returns the slot whose Y is closest to the pointer. The rendered placeholder
-// carries no `data-card`, so the gap it widens keeps resolving to the same slot
-// and the result is stable while the pointer rests over the placeholder.
-function findClosestSlot(columnEl: HTMLElement, clientY: number): number {
-  const body = columnEl.querySelector('[data-column-body]') as HTMLElement | null;
-  const scope = body ?? columnEl;
-  // The dragged card's preview is a clone injected next to it, and it carries the
-  // same `data-card`. Skip it: it follows the pointer and is not a real slot.
-  const cardEls = Array.from(
-    scope.querySelectorAll('[data-card]:not([data-drag-preview])'),
-  ) as HTMLElement[];
-
-  if (cardEls.length === 0) {
-    return 0;
-  }
-
-  const slotYs: number[] = [cardEls[0].getBoundingClientRect().top];
-  for (let i = 1; i < cardEls.length; i += 1) {
-    const prev = cardEls[i - 1].getBoundingClientRect();
-    const curr = cardEls[i].getBoundingClientRect();
-    slotYs.push((prev.bottom + curr.top) / 2);
-  }
-  slotYs.push(cardEls[cardEls.length - 1].getBoundingClientRect().bottom);
-
-  let bestIndex = 0;
-  let bestDy = Infinity;
-  for (let i = 0; i < slotYs.length; i += 1) {
-    const dy = Math.abs(clientY - slotYs[i]);
-    if (dy < bestDy) {
-      bestDy = dy;
-      bestIndex = i;
-    }
-  }
-  return bestIndex;
-}
-
 function computeSlot(
   clientX: number,
   clientY: number,
@@ -151,6 +112,10 @@ function computeSlot(
 
 function KanbanBoardContent() {
   const [board, setBoard] = React.useState<Board>(buildInitialBoard);
+  const [selectedCard, setSelectedCard] = React.useState('c1');
+  const [destination, setDestination] = React.useState('todo');
+  const [beforeCard, setBeforeCard] = React.useState('end');
+  const [announcement, setAnnouncement] = React.useState('');
   const [placeholder, setPlaceholder] = React.useState<DropPlaceholder | null>(null);
 
   const columnElementsRef = React.useRef<Map<ColumnId, HTMLElement>>(new Map());
@@ -165,6 +130,7 @@ function KanbanBoardContent() {
 
   const moveCard = useStableCallback(
     (cardId: CardId, fromColumn: ColumnId, toColumn: ColumnId, insertIndex: number) => {
+      setAnnouncement(`${board.cards[cardId].title} moved to ${board.columns[toColumn].title}.`);
       setBoard((prev) => {
         const from = prev.columns[fromColumn];
         const to = prev.columns[toColumn];
@@ -251,6 +217,69 @@ function KanbanBoardContent() {
       accept={cardKind}
       trackDragOver={false}
     >
+      <form
+        className="flex flex-wrap items-end gap-2 text-sm"
+        onSubmit={(event) => {
+          event.preventDefault();
+          const from = board.columnOrder.find((id) =>
+            board.columns[id].cardIds.includes(selectedCard),
+          );
+          const cards = board.columns[destination].cardIds;
+          if (from) {
+            moveCard(
+              selectedCard,
+              from,
+              destination,
+              beforeCard === 'end' || !cards.includes(beforeCard)
+                ? cards.length
+                : cards.indexOf(beforeCard),
+            );
+          }
+        }}
+      >
+        <label>
+          Card{' '}
+          <select value={selectedCard} onChange={(event) => setSelectedCard(event.target.value)}>
+            {Object.values(board.cards).map((card) => (
+              <option key={card.id} value={card.id}>
+                {card.title}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label>
+          Move to{' '}
+          <select
+            value={destination}
+            onChange={(event) => {
+              setDestination(event.target.value);
+              setBeforeCard('end');
+            }}
+          >
+            {board.columnOrder.map((id) => (
+              <option key={id} value={id}>
+                {board.columns[id].title}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label>
+          Position{' '}
+          <select
+            value={board.columns[destination].cardIds.includes(beforeCard) ? beforeCard : 'end'}
+            onChange={(event) => setBeforeCard(event.target.value)}
+          >
+            <option value="end">At the end</option>
+            {board.columns[destination].cardIds.map((id) => (
+              <option key={id} value={id}>
+                Before {board.cards[id].title}
+              </option>
+            ))}
+          </select>
+        </label>
+        <button type="submit">Move card</button>
+      </form>
+      <div role="status">{announcement}</div>
       <div className="flex w-full items-start gap-3 overflow-x-auto">
         {board.columnOrder.map((id) => {
           const column = board.columns[id];
@@ -288,7 +317,12 @@ function KanbanColumn({
   );
 
   const ghost = placeholder && (
-    <div className={PLACEHOLDER_CLASS} style={{ height: placeholder.height }} aria-hidden="true" />
+    <div
+      className={PLACEHOLDER_CLASS}
+      data-placeholder
+      style={{ height: placeholder.height }}
+      aria-hidden="true"
+    />
   );
 
   return (

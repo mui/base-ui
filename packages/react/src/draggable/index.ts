@@ -16,6 +16,7 @@ export type {
   DraggablePayload,
   DraggablePayloadGetter,
   DragAccept,
+  DragAcceptedKind,
   DragKind,
   DragModifier,
   DragModifierContext,

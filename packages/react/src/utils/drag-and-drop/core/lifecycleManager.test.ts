@@ -413,6 +413,32 @@ describe('lifecycle manager', () => {
       removeDropTargetRegistration(target, getTarget);
     });
 
+    it('coalesces registration and parameter refreshes while preserving the hit test', async () => {
+      const previousTarget = createElement();
+      const newTarget = createElement();
+      const canDrop = vi.fn(() => true);
+      const getTarget = () => ({ canDrop });
+      addDropTargetRegistration(newTarget, getTarget);
+      let handle: DragSessionHandle | null = null;
+      act(() => {
+        handle = startDragWithHandlers({}, previousTarget);
+      });
+      const hitTest = vi.spyOn(document, 'elementFromPoint').mockReturnValue(newTarget);
+
+      scheduleDropTargetParameterRefresh(previousTarget);
+      scheduleDropTargetParameterRefresh(undefined, true);
+      scheduleDropTargetParameterRefresh(previousTarget);
+      await act(async () => Promise.resolve());
+
+      expect(hitTest).toHaveBeenCalledTimes(1);
+      expect(canDrop).toHaveBeenCalledTimes(1);
+      expect(dragSessionStore.getSnapshot()?.location.current.dropTargets[0]?.element).toBe(
+        newTarget,
+      );
+      act(() => handle!.controller.cancel());
+      removeDropTargetRegistration(newTarget, getTarget);
+    });
+
     it('does not let a stale session suppress a parameter refresh for the next drag', async () => {
       const targetA = createElement();
       const targetB = createElement();

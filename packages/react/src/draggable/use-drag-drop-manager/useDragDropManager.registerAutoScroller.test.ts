@@ -24,6 +24,43 @@ setupDragEngineTests({ extraAfterEach: resetSyntheticDrag });
 describe('engine.registerAutoScroller', () => {
   const { renderDnd } = createDndRenderer();
 
+  it.each(['handler', 'parameters', 'speed'])(
+    'stops the scroll frame when the %s callback cancels the drag',
+    async (mode) => {
+      const { engine } = await renderDnd();
+      const source = createElement();
+      const scroller = makeEngageableScroller();
+      Object.defineProperty(scroller, 'scrollLeft', { value: 400, writable: true });
+      Object.defineProperty(scroller, 'scrollWidth', { value: 1000 });
+      Object.defineProperty(scroller, 'clientWidth', { value: 200 });
+      let armed = false;
+      const onDragScroll = vi.fn(() => engine.cancelDrag());
+      engine.registerDraggable(source, {});
+      engine.registerAutoScroller(scroller, () => {
+        if (armed && mode === 'parameters') {
+          engine.cancelDrag();
+        }
+        return {
+          maxSpeed: () => {
+            if (armed && mode === 'speed') {
+              engine.cancelDrag();
+            }
+            return 900;
+          },
+          onDragScroll,
+        };
+      });
+      await lift(source, { clientX: 100, clientY: 100 });
+      armed = true;
+      fireEvent.dragOver(scroller, { clientX: 190, clientY: 190 });
+      await flushRaf();
+      await flushRaf();
+      expect(onDragScroll).toHaveBeenCalledTimes(mode === 'handler' ? 1 : 0);
+      expect(scroller.scrollBy).not.toHaveBeenCalled();
+      expect(dragSessionStore.state).toBeNull();
+    },
+  );
+
   it('reconnects scroller observations once when a batch of viewports unmounts', async () => {
     const { engine } = await renderDnd();
     const source = createElement();

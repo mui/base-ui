@@ -9,27 +9,47 @@ const itemKind = Draggable.createKind('e2e-touch-scroll');
  * and never start a drag.
  */
 function TouchScrollContent() {
+  const [mounted, setMounted] = React.useState(true);
+  const [dropCount, setDropCount] = React.useState(0);
+  const [result, setResult] = React.useState<{ reason: string; canceled: boolean } | null>(null);
   const [startCount, setStartCount] = React.useState(0);
   const [endCount, setEndCount] = React.useState(0);
 
   Draggable.useDragMonitor({
     accept: itemKind,
     onMoveStart: () => setStartCount((count) => count + 1),
-    onMoveEnd: () => setEndCount((count) => count + 1),
+    onMoveEnd: (event, details) => {
+      setEndCount((count) => count + 1);
+      setResult({ reason: details.reason, canceled: event.canceled });
+    },
   });
 
   return (
     <div style={{ height: 3000 }}>
       {/* Room above the draggable for an upward swipe to stay inside the viewport. */}
       <div style={{ height: 300 }} />
-      <Draggable.Root
-        data-testid="drag-source"
-        kind={itemKind}
-        activation={{ touch: { type: 'press-hold', delay: 250 } }}
-        style={{ width: 200, height: 100, background: 'lightgray' }}
+      {mounted && (
+        <Draggable.Root
+          data-testid="drag-source"
+          kind={itemKind}
+          activation={{ touch: { type: 'press-hold', delay: 250 } }}
+          style={{ width: 200, height: 100, background: 'lightgray' }}
+        >
+          Hold to drag
+        </Draggable.Root>
+      )}
+      <Draggable.Target
+        accept={itemKind}
+        data-testid="drop-target"
+        onDraggableDrop={() => setDropCount((count) => count + 1)}
+        style={{ position: 'absolute', left: 0, top: 100, width: 200, height: 100 }}
       >
-        Hold to drag
-      </Draggable.Root>
+        Drop here
+      </Draggable.Target>
+      <button type="button" data-testid="unmount-source" onClick={() => setMounted(false)}>
+        Remove source
+      </button>
+      <output data-testid="drop-status">{JSON.stringify({ dropCount, ...result })}</output>
       <output data-testid="drag-status">{JSON.stringify({ startCount, endCount })}</output>
     </div>
   );

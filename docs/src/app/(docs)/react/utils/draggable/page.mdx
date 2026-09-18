@@ -330,7 +330,7 @@ const snapToRows: DragModifier = ({ point }) => ({
 });
 ```
 
-Points use client pixels, which match measurements from the viewport or another element's bounding rect. To work in a zoomable canvas's coordinate system, multiply distances by `scale`. The value includes CSS `transform` and `zoom` scaling applied to the source or its ancestors. It is `1` when the source is not scaled. A rotation alone does not change it. The `snapToGrid` preset uses this value.
+Points use client pixels, which match measurements from the viewport or another element's bounding rect. Multiply canvas distances by `scale` to convert them to client pixels. Divide client distances by `scale` to convert them to canvas units. The value includes CSS `transform` and `zoom` scaling applied to the source or its ancestors. It is `1` when the source is not scaled. A rotation alone does not change it. The `snapToGrid` preset uses this value.
 
 ```tsx title="Moving 20 canvas units"
 const nudgeRight: DragModifier = ({ point, scale }) => ({
@@ -384,7 +384,6 @@ Cloning cannot reproduce every browser state. Render a `Draggable.Preview` in th
 
 - Content drawn outside the DOM: a WebGL `<canvas>`, a playing `<video>`, an element's shadow DOM. The clone preserves form values, 2D canvas drawings, and scroll positions.
 - `:hover`, `:focus` and `:focus-within` don't apply to the preview, so styles that depend on them render in their resting state.
-- A bare native control, such as an unstyled `<button>` or `<input>`, loses its default browser chrome in the top layer. Give it your own styles, or use a `Draggable.Preview`.
 
 ### Custom previews
 

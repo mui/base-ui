@@ -69,7 +69,7 @@ export interface DndTestEngine {
     element: HTMLElement,
     parameters: MaybeGetter<TestDraggableParameters<TData>>,
   ) => ReturnType<DragDropManager['registerDraggable']>;
-  registerDropTarget: <TSourceData = unknown, TLocalData = unknown>(
+  registerDropTarget: <TSourceData = unknown, TLocalData = undefined>(
     element: HTMLElement,
     parameters: MaybeGetter<RegisterDropTargetParameters<TSourceData, TLocalData>>,
   ) => ReturnType<DragDropManager['registerDropTarget']>;
@@ -132,7 +132,7 @@ function withAutoCleanup(engine: DragDropManager): DndTestEngine {
       registerCleanup(cleanup);
       return cleanup;
     },
-    registerDropTarget: <TSourceData = unknown, TLocalData = unknown>(
+    registerDropTarget: <TSourceData = unknown, TLocalData = undefined>(
       element: HTMLElement,
       parameters: MaybeGetter<RegisterDropTargetParameters<TSourceData, TLocalData>>,
     ) => {

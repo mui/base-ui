@@ -3,7 +3,7 @@ import * as React from 'react';
 import type { DragCleanupFn, DragKind } from '../../types/drag';
 
 export interface CollisionParticipant {
-  kind: DragKind<unknown>;
+  kind: Pick<DragKind, 'id'>;
   payload: unknown;
   disabled?: boolean | undefined;
 }
@@ -11,7 +11,7 @@ export interface CollisionParticipant {
 export type CollisionPlacement = 'before' | 'after';
 
 export interface DraggableCollisionContextValue {
-  kind: DragKind<unknown>;
+  kind: Pick<DragKind, 'id'>;
   parent: DraggableCollisionContextValue | null;
   register: (
     element: HTMLElement,

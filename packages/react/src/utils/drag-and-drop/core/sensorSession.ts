@@ -35,6 +35,8 @@ export interface StartSensorSessionParameters {
   grabOffset?: { x: number; y: number } | undefined;
   /** Sensor-side force-cleanup, run from the lifecycle's teardown path. */
   onForceCleanup: () => void;
+  /** Whether the sensor still owns the pickup after consumer callbacks. */
+  isPickupCurrent?: (() => boolean) | undefined;
 }
 
 /**
@@ -64,6 +66,9 @@ function startSensorSession(parameters: StartSensorSessionParameters): DragSessi
     ? source.getPayload({ input: initialInput, element, dragHandle })
     : source.payload;
 
+  if (parameters.isPickupCurrent?.() === false) {
+    return null;
+  }
   const dragSource: DragSource = {
     element,
     kind: source.kind.id,
@@ -174,6 +179,9 @@ export function createPreviewAndStartSession(
       : initialInput;
 
     const previewSettings = resolveDragPreview(draggableParameters, element);
+    if (sessionParameters.isPickupCurrent?.() === false) {
+      return null;
+    }
     preview = createSyntheticPreview(element, {
       kind: draggableParameters.kind.id,
       previewKey: draggableParameters.previewKey,
@@ -197,6 +205,10 @@ export function createPreviewAndStartSession(
     // preview modifier gated on one is honored from the very first placement.
     preview.update(initialInput.clientX, initialInput.clientY, initialInput);
 
+    if (sessionParameters.isPickupCurrent?.() === false) {
+      undo();
+      return null;
+    }
     session = startSensorSession({
       ...sessionParameters,
       preview,

@@ -8,6 +8,7 @@ import type {
 } from '@base-ui/react/draggable';
 import type {
   DragKind,
+  DragAcceptedKind,
   DragSnappedLocalPointOptions,
   DragSnapSteps,
   DropTargetRecord,
@@ -29,12 +30,14 @@ const detailedSlot = Draggable.createKind<{ index: number; label: string }>('det
 
 engine.registerDropTarget(element, () => ({
   accept: card,
+  // @ts-expect-error the producer kind cannot be widened to the incomplete payload.
   kind: detailedSlot,
   // @ts-expect-error a target cannot publish incomplete data under a more specific kind.
   payload: { index: 0 },
 }));
 engine.registerDropTarget(element, () => ({
   accept: card,
+  // @ts-expect-error the producer kind cannot be widened to the incomplete payload.
   kind: detailedSlot,
   // @ts-expect-error resolved target payloads must also contain every field promised by the kind.
   getPayload: () => ({ index: 0 }),
@@ -60,10 +63,10 @@ const snappedPointOptions: DragSnappedLocalPointOptions = { anchor: 'source' };
 expectType<DragSnapSteps, typeof snapSteps>(snapSteps);
 expectType<DragSnappedLocalPointOptions, typeof snappedPointOptions>(snappedPointOptions);
 
-// A bare observational DragKind accepts payload-bearing kinds. The factory's
+// An observational DragAcceptedKind accepts payload-bearing kinds. The factory's
 // default remains `undefined`, as asserted by `marker` above.
-const observedKind: DragKind = card;
-expectType<DragKind, typeof observedKind>(observedKind);
+const observedKind: DragAcceptedKind = card;
+expectType<DragAcceptedKind, typeof observedKind>(observedKind);
 
 // ---------------------------------------------------------------------------
 // registerDraggable
@@ -331,3 +334,23 @@ const removedMonitorCallback: RegisterMonitorParameters = {
   onDrop: () => {},
 };
 engine.registerMonitor(() => removedMonitorCallback);
+
+engine.registerDraggable<unknown>(element, () => ({
+  // @ts-expect-error an explicit generic must not widen the producer kind.
+  kind: card,
+  payload: null,
+}));
+
+engine.registerDropTarget<typeof card, unknown>(element, () => ({
+  accept: card,
+  // @ts-expect-error an explicit generic must not widen the target kind.
+  kind: card,
+  payload: null,
+}));
+
+// @ts-expect-error an observational kind cannot declare a target's payload.
+engine.registerDropTarget<typeof card, unknown, Draggable.DragAcceptedKind>(element, () => ({
+  accept: card,
+  kind: observedKind,
+  payload: null,
+}));

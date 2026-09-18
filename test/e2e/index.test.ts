@@ -438,6 +438,9 @@ describe('e2e', () => {
           await expect(touchPage.getByTestId('drag-status')).toHaveText(
             JSON.stringify({ startCount: 1, endCount: 1 }),
           );
+          await expect(touchPage.getByTestId('drop-status')).toHaveText(
+            JSON.stringify({ dropCount: 1, reason: 'drop', canceled: false }),
+          );
           expect(await touchPage.evaluate(() => window.scrollY)).toBe(0);
         });
       });
@@ -449,11 +452,14 @@ describe('e2e', () => {
             JSON.stringify({ startCount: 1, endCount: 0 }),
           );
           await touchPage
-            .locator('[data-testid="drag-source"]:not([data-drag-preview])')
-            .evaluate((element) => element.remove());
+            .getByTestId('unmount-source')
+            .evaluate((element) => (element as HTMLButtonElement).click());
           await swipeUp(dispatchTouch, press);
           await expect(touchPage.getByTestId('drag-status')).toHaveText(
             JSON.stringify({ startCount: 1, endCount: 1 }),
+          );
+          await expect(touchPage.getByTestId('drop-status')).toHaveText(
+            JSON.stringify({ dropCount: 1, reason: 'drop', canceled: false }),
           );
           expect(await touchPage.evaluate(() => window.scrollY)).toBe(0);
         });

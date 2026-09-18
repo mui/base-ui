@@ -59,6 +59,7 @@ interface LifecycleState {
   /** Whether a changed element belongs to the current resolution walk. */
   shouldRefreshTargets: ((elements: ReadonlySet<Element>) => boolean) | null;
   queuedParameterTargets: Set<Element> | null;
+  queuedRehitTest?: boolean | undefined;
   /** The session whose parameter refresh owns the queued microtask. */
   queuedParameterRefresh: ((rehitTest: boolean) => void) | null;
   /**
@@ -101,12 +102,16 @@ export function refreshDropTargets(): void {
 }
 
 /** Coalesce a React commit's drop-target parameter changes into one resolution. */
-export function scheduleDropTargetParameterRefresh(element?: Element | null): void {
+export function scheduleDropTargetParameterRefresh(
+  element?: Element | null,
+  rehitTest = false,
+): void {
   const refresh = state.refreshDropTargets;
   if (refresh === null) {
     return;
   }
   if (state.queuedParameterRefresh === refresh) {
+    state.queuedRehitTest ||= rehitTest;
     if (element == null) {
       state.queuedParameterTargets = null;
     } else {
@@ -115,6 +120,7 @@ export function scheduleDropTargetParameterRefresh(element?: Element | null): vo
     return;
   }
   state.queuedParameterRefresh = refresh;
+  state.queuedRehitTest = rehitTest;
   state.queuedParameterTargets = element == null ? null : new Set([element]);
   queueMicrotask(() => {
     // A newer drag can replace this job before it runs. Only the job that still
@@ -123,13 +129,15 @@ export function scheduleDropTargetParameterRefresh(element?: Element | null): vo
       return;
     }
     const targets = state.queuedParameterTargets;
+    const shouldRehitTest = state.queuedRehitTest === true;
+    state.queuedRehitTest = false;
     state.queuedParameterRefresh = null;
     state.queuedParameterTargets = null;
     if (
       state.refreshDropTargets === refresh &&
       (targets === null || state.shouldRefreshTargets?.(targets) !== false)
     ) {
-      refresh(false);
+      refresh(shouldRehitTest);
     }
   });
 }
