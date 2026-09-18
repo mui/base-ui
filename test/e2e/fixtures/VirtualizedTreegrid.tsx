@@ -65,7 +65,9 @@ const rows = createRows();
 
 /**
  * A row the first window never holds, for the screen reader to be taken to in one step rather
- * than through sixty announced key presses: the seventh child of the fifteenth folder.
+ * than through sixty announced key presses: the seventh child of the fifteenth folder. The
+ * control that reveals it does not say the row's name, so that name is only ever spoken for the
+ * row itself.
  */
 const REVEAL_INDEX = 14 * (FILES_PER_FOLDER + 1) + 7;
 
@@ -174,7 +176,7 @@ export default function VirtualizedTreegrid() {
           setActiveIndex(REVEAL_INDEX);
         }}
       >
-        Reveal {rows[REVEAL_INDEX].name}
+        Reveal a deep row
       </button>
       <div
         ref={gridRef}
