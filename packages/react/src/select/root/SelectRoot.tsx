@@ -397,7 +397,9 @@ export function SelectRootInternal<Value, Multiple extends boolean | undefined =
     enabled: !disabled,
     listRef,
     activeIndex,
-    selectedIndex,
+    // Filtering leaves `selectedIndex` stale while the popup is open, and the hook seeds its
+    // cursor from it, so a filterable select navigates from the first visible option instead.
+    selectedIndex: virtualFocus ? null : selectedIndex,
     disabledIndices: EMPTY_ARRAY,
     virtual: virtualFocus,
     // A filterable select keeps DOM focus on its input, while keyboard and virtual opens
