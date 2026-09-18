@@ -766,8 +766,9 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
         closeTypeRef.current = getEventType(details.nativeEvent, lastInteractionTypeRef.current);
       }
 
+      // Focus guards transfer focus themselves; keyboard close handlers may still need return focus.
       if (
-        details.reason === REASONS.focusOut ||
+        (details.reason === REASONS.focusOut && details.nativeEvent.type === 'focusin') ||
         (details.reason === REASONS.triggerHover && details.nativeEvent.type === 'mouseleave')
       ) {
         preventReturnFocusRef.current = true;
