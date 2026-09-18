@@ -162,41 +162,6 @@ export type InternalDraggableParameters<TData = undefined> = RegisterDraggablePa
 };
 
 /**
- * React's native HTML drag-and-drop props omitted from `Draggable.Root` and
- * `Draggable.Target`. Native dragging is separate from the pointer interaction
- * implemented by these parts, whose drops arrive through `onMoveEnd` and
- * `onDraggableDrop` instead.
- *
- * The native events are still reachable through `render`, whose element props are
- * merged over the component's own:
- *
- * ```jsx
- * <Draggable.Target
- *   accept={card}
- *   onDraggableDrop={handleEngineDrop}
- *   render={<div onDrop={handleFileDrop} onDragOver={allowFileDrop} />}
- * />
- * ```
- */
-export type NativeDragEventProps =
-  | 'onDrag'
-  | 'onDragCapture'
-  | 'onDragEnd'
-  | 'onDragEndCapture'
-  | 'onDragEnter'
-  | 'onDragEnterCapture'
-  | 'onDragExit'
-  | 'onDragExitCapture'
-  | 'onDragLeave'
-  | 'onDragLeaveCapture'
-  | 'onDragOver'
-  | 'onDragOverCapture'
-  | 'onDragStart'
-  | 'onDragStartCapture'
-  | 'onDrop'
-  | 'onDropCapture';
-
-/**
  * Parameters accepted by `Draggable.Viewport` and `registerAutoScroller`.
  * Registered scroll containers, including the page, scroll during a drag.
  * Use these parameters to disable scrolling, limit the axes, change the speed,

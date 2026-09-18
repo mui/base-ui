@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { Draggable } from '@base-ui/react/draggable';
-import { INITIAL_TASKS, moveTask, swapTask } from '../../sortableTasks';
+import { INITIAL_TASKS, moveTask, swapTask, getTaskRow } from '../../sortableTasks';
 import styles from '../sortable.module.css';
 
 const taskKind = Draggable.createKind<string>('sortable-drop-task');
@@ -16,23 +16,36 @@ const Task = React.memo(function Task({
   task: string;
   onSwap: (task: string, direction: 'up' | 'down') => void;
 }) {
+  const rowRef = React.useRef<HTMLDivElement | null>(null);
+  const [selfDrop, setSelfDrop] = React.useState(false);
+  const trackSelfDrop = useStableCallback((event: Draggable.MoveStartEvent<string>) => {
+    setSelfDrop(event.location.current.dropTargets[0]?.element === rowRef.current);
+  });
+
   return (
-    <Draggable.Root
-      kind={taskKind}
-      payload={task}
-      render={<button type="button" aria-label={task} />}
-      className={styles.Item}
-      modifiers={Draggable.restrictToVerticalAxis}
-      aria-keyshortcuts="Alt+ArrowUp Alt+ArrowDown"
-      onKeyDown={(event) => {
-        if (event.altKey && (event.key === 'ArrowUp' || event.key === 'ArrowDown')) {
-          event.preventDefault();
-          onSwap(task, event.key === 'ArrowUp' ? 'up' : 'down');
-        }
-      }}
-    >
-      {task}
-    </Draggable.Root>
+    <div data-sortable-row ref={rowRef} className={styles.Row}>
+      <Draggable.Root
+        kind={taskKind}
+        payload={task}
+        collisionElement={getTaskRow}
+        data-self-drop={selfDrop ? '' : undefined}
+        onMoveStart={trackSelfDrop}
+        onTargetChange={trackSelfDrop}
+        onMoveEnd={() => setSelfDrop(false)}
+        render={<button type="button" aria-label={task} />}
+        className={styles.Item}
+        modifiers={Draggable.restrictToVerticalAxis}
+        aria-keyshortcuts="Alt+ArrowUp Alt+ArrowDown"
+        onKeyDown={(event) => {
+          if (event.altKey && (event.key === 'ArrowUp' || event.key === 'ArrowDown')) {
+            event.preventDefault();
+            onSwap(task, event.key === 'ArrowUp' ? 'up' : 'down');
+          }
+        }}
+      >
+        {task}
+      </Draggable.Root>
+    </div>
   );
 });
 

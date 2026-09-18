@@ -16,6 +16,10 @@ const card = Draggable.createKind<CardPayload>('card');
 <Draggable.Viewport disabled />;
 <Draggable.Viewport
   accept={card}
+  onDrop={(event) => expectType<DataTransfer, typeof event.dataTransfer>(event.dataTransfer)}
+  onDragOverCapture={(event) =>
+    expectType<DataTransfer, typeof event.dataTransfer>(event.dataTransfer)
+  }
   onDragScroll={(event, eventDetails) => {
     expectType<CardPayload, typeof event.source.payload>(event.source.payload);
     expectType<HTMLElement, typeof event.element>(event.element);

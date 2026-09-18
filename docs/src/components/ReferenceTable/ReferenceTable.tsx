@@ -51,8 +51,10 @@ function CallableReturnValue({ name, data }: { name: string; data: CallableData[
   return (
     <div className="ReferenceBlock">
       <SectionHeading>Return value</SectionHeading>
-      {data.type}
-      {data.detailedType && <CodeBlock.Root>{data.detailedType}</CodeBlock.Root>}
+      {React.Children.toArray(data.type)}
+      {data.detailedType && (
+        <CodeBlock.Root>{React.Children.toArray(data.detailedType)}</CodeBlock.Root>
+      )}
     </div>
   );
 }

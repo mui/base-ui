@@ -2,6 +2,7 @@
 import { Draggable } from '@base-ui/react/draggable';
 
 import * as React from 'react';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { DragPageAutoScroll } from '../../../DragPageAutoScroll';
 
 type Zone = 'plain' | 'slow';
@@ -115,18 +116,12 @@ const CARD_CLASS =
 const LIST_CLASS = 'relative flex min-h-0 flex-1 flex-col items-start gap-1.5 overflow-y-auto';
 
 function Card({ task, draggable }: { task: Task; draggable?: boolean }) {
-  if (!draggable) {
-    return (
-      <div data-card className={CARD_CLASS}>
-        <Grip />
-        {task.label}
-      </div>
-    );
-  }
   return (
     <Draggable.Root
       kind={taskKind}
       payload={task}
+      previewKey={task.id}
+      disabled={!draggable}
       data-card
       data-id={task.id}
       className={CARD_CLASS}
@@ -227,13 +222,15 @@ function AutoScrollBoardContent() {
 
   // The drop can land the card outside the visible window, since the list
   // reflows around it. Reveal it so the insertion is never invisible.
-  React.useEffect(() => {
+  useIsoLayoutEffect(() => {
     const id = droppedIdRef.current;
     if (id == null) {
       return;
     }
     droppedIdRef.current = null;
-    rootRef.current?.querySelector(`[data-id="${id}"]`)?.scrollIntoView({ block: 'nearest' });
+    rootRef.current
+      ?.querySelector(`[data-id="${id}"]:not([data-drag-preview])`)
+      ?.scrollIntoView({ block: 'nearest' });
   }, [tasks]);
 
   return (
@@ -246,7 +243,7 @@ function AutoScrollBoardContent() {
           the second list scrolls more slowly.
         </p>
         <div className="flex items-center gap-3">
-          <Card task={pending} draggable />
+          <Card key={pending.id} task={pending} draggable />
         </div>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <DropZone

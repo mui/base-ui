@@ -205,10 +205,11 @@ declare const maybeSlotData: SlotData | undefined;
 const ref: React.Ref<HTMLDivElement> = null;
 <Draggable.Target accept={Draggable.anyKind} ref={ref} />;
 
-// The engine's `onDrop` replaces the native one, so it carries the drag payload
-// rather than a React DragEvent.
+// Native drag events coexist with the engine callbacks.
 <Draggable.Target
   accept={card}
+  onDrop={(event) => expectType<DataTransfer, typeof event.dataTransfer>(event.dataTransfer)}
+  onDragOver={(event) => expectType<DataTransfer, typeof event.dataTransfer>(event.dataTransfer)}
   onDraggableDrop={({ source, location }) => {
     expectType<CardPayload, typeof source.payload>(source.payload);
     expectType<number, typeof location.current.input.clientX>(location.current.input.clientX);

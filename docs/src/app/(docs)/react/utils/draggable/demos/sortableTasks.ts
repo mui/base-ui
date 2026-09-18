@@ -1,3 +1,4 @@
+import { closest } from '@base-ui/utils/shadowDom';
 import type { Draggable } from '@base-ui/react/draggable';
 
 export const INITIAL_TASKS = ['Write the spec', 'Sketch the UI', 'Set up the repo', 'Wire the API'];
@@ -29,4 +30,9 @@ export function swapTask(current: string[], task: string, direction: 'up' | 'dow
   const next = [...current];
   [next[index], next[nextIndex]] = [next[nextIndex], next[index]];
   return next;
+}
+
+/** Resolve the layout row before React has attached the wrapper's ref. */
+export function getTaskRow(element: HTMLElement): HTMLElement {
+  return closest<HTMLElement>(element, '[data-sortable-row]')!;
 }

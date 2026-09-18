@@ -1,11 +1,15 @@
 .Root {
   display: grid;
-  gap: 0.5rem;
   width: 20rem;
   max-width: 100%;
 }
 
+.Row {
+  padding: 0.25rem 9px;
+}
+
 .Item {
+  width: 100%;
   position: relative;
   box-sizing: border-box;
   min-height: 2.5rem;
@@ -26,6 +30,7 @@
     color: white;
   }
 
+  &[data-self-drop]::after,
   &[data-collision-before]::after,
   &[data-collision-after]::after {
     position: absolute;
@@ -36,6 +41,7 @@
     pointer-events: none;
   }
 
+  &[data-self-drop]::after,
   &[data-collision-before]::after {
     top: -6.5px;
   }

@@ -8,7 +8,6 @@ import { useRenderElement } from '../../internals/useRenderElement';
 import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
 import type { BaseUIComponentProps } from '../../internals/types';
 import type {
-  NativeDragEventProps,
   RegisterDraggableParameters,
   DragParametersWithOptionalPayload,
   DragParametersWithRequiredPayload,
@@ -216,8 +215,8 @@ export interface DraggableRootState {
 type DraggableRootPropsBase<TData> = Omit<
   BaseUIComponentProps<'div', DraggableRootState>,
   // - `children` is widened below.
-  // - the whole native HTML5 drag event family is replaced by this engine
-  'children' | 'draggable' | NativeDragEventProps
+  // - `draggable` would start native dragging alongside the pointer sensor.
+  'children' | 'draggable'
 > &
   // The preview is described by a `Draggable.Preview` (with or without children)
   // rendered inside this component, and the drag handle by a `Draggable.Handle`,

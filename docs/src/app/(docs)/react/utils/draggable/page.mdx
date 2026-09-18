@@ -28,12 +28,20 @@ Import the component and assemble its parts:
 import { Draggable } from '@base-ui/react/draggable';
 
 <Draggable.Provider>
-  <Draggable.Root>
-    <Draggable.Handle />
-  </Draggable.Root>
-  <Draggable.Target />
+  <Draggable.Viewport>
+    <Draggable.CollisionProvider>
+      <Draggable.Root>
+        <Draggable.Handle />
+        <Draggable.Preview />
+      </Draggable.Root>
+    </Draggable.CollisionProvider>
+
+    <Draggable.Target />
+  </Draggable.Viewport>
 </Draggable.Provider>;
 ```
+
+The handle, preview, collision provider, and viewport are optional. Render the viewport on the element with scrollable overflow.
 
 A root supports one preview part. Omit it to use a sanitized clone of the source. Render `Draggable.Preview` without children to configure the clone, or provide children for custom content. If multiple previews are present, Base UI warns in development and uses the last one mounted.
 
@@ -76,6 +84,12 @@ const grabbedCard = Draggable.createKind<{ id: string; grabOffsetX: number }>('c
   }}
 />;
 ```
+
+### Share kinds between sources and targets
+
+Each `createKind` call returns a value with a unique identity. Declare it once and share the returned value with every draggable and target in the interaction. Two separate `createKind('card')` calls do not match. The name is only a debugging aid.
+
+If independently evaluated bundles cannot share the same value, use `Draggable.createGlobalKind<Card>('myapp/card')`. The same global key identifies the same kind across bundles and hot reloads. Prefix the key with your app or package name and use one payload type for that key. Incompatible types under the same key can match at runtime despite TypeScript's checks. Prefer `createKind` when you can share its returned value.
 
 ## Drag handle
 
@@ -172,22 +186,16 @@ Commit successful drops in `onMoveEnd` after checking `eventDetails.reason === '
 
 Use [`useDragMonitor`](/react/utils/draggable#usedragmonitor) to observe every drag on the page instead of one source.
 
-These handlers reuse the native drag event names, so the native HTML drag event props are omitted. As a result, `ComponentPropsWithoutRef<'div'>` cannot be spread onto `Draggable.Root`. A wrapper component should declare the element props it forwards instead of exposing every DOM prop:
+### Read the location history
 
-```tsx title="A wrapper names what it forwards"
-interface CardProps {
-  id: string;
-  className?: string;
-  style?: React.CSSProperties;
-  children?: React.ReactNode;
-}
+Drag events carry a location history. Each location contains pointer input and the target stack at that moment:
 
-function DraggableCard({ id, ...forwarded }: CardProps) {
-  return <Draggable.Root kind={card} payload={id} {...forwarded} />;
-}
-```
+- `location.grabOffset` records the pointer offset from the source at pickup.
+- `location.initial` records where the drag began.
+- `location.current` records the location for this event.
+- `location.previous` records the location at the prior event. On the first event, it contains the pickup input and an empty target stack.
 
-To attach native drag handlers, pass them to the element in the `render` prop.
+Compare `current` with `previous` to detect changes in pointer position or active targets.
 
 ## Re-rendering the source mid-drag
 
@@ -500,41 +508,6 @@ While a pointer drag is in progress the cursor is pinned to `grabbing` across th
 <Draggable.Root kind={card} payload={{ id }} dragCursor="move" />
 ```
 
-## Concepts
-
-A **kind** identifies a category of draggable items and its payload type. Declare it with `Draggable.createKind`, then pass it to a source's `kind` and a target's `accept`. Event handlers infer the type of `source.payload` from the kind:
-
-```tsx title="Declaring a kind"
-import { Draggable } from '@base-ui/react/draggable';
-
-const card = Draggable.createKind<Card>('card');
-
-<Draggable.Root kind={card} payload={cardData} />;
-
-<Draggable.Target accept={card} onDraggableDrop={({ source }) => move(source.payload.id)} />;
-```
-
-Each `createKind` call returns a value with a unique identity. Declare it once and share the returned value with every draggable and target in the interaction. Two separate `createKind('card')` calls do not match. The name is only a debugging aid.
-
-If independently evaluated bundles cannot share the same value, use `Draggable.createGlobalKind<Card>('myapp/card')`. The same global key identifies the same kind across bundles and hot reloads. Prefix the key with your app or package name and use one payload type for that key. Incompatible types under the same key can match at runtime despite TypeScript's checks. Prefer `createKind` when you can share its returned value.
-
-Every source and target on the page uses the same **drag manager**. `Draggable.Provider` supplies a local default kind and preview boundary; it does not isolate the manager. An omitted `accept` matches only that provider's default kind. Declare a shared kind for interactions spanning providers, or use `Draggable.anyKind` to accept every drag.
-
-Base UI tracks pointer input to implement **synthetic drag and drop**. These drags have no `dataTransfer` and stay within the page. To accept files dragged from the operating system, handle native drops by [passing native handlers through `render`](#target-anatomy).
-
-A drag can be over several nested drop targets at once. `location.current.dropTargets` lists them innermost first. Only the innermost receives `onDraggableDrop`; ancestors receive `onDraggableEnter`, `onDraggableMove`, and `onDraggableLeave`. Returning `false` from `canDrop` skips that target. Returning `'reject'` blocks the drop at that position, including on descendants and ancestors.
-
-To find the drop position within a target, use the target record's [`getLocalPoint()`](/react/utils/draggable#read-where-in-the-target-the-pointer-landed) method. It returns the pointer position inside the target as a fraction of its bounding box. Use it to resolve values such as a time in a day column or a position on a track without measuring the element in the handler.
-
-Drag events carry a **location history**. Each location contains pointer input and the target stack at that moment:
-
-- `location.grabOffset` records the pointer offset from the source at pickup.
-- `location.initial` records where the drag began.
-- `location.current` records the location for this event.
-- `location.previous` records the location at the prior event. On the first event, it contains the pickup input and an empty target stack.
-
-Compare `current` with `previous` to detect changes in pointer position or active targets.
-
 ## Drop targets
 
 import { DemoDropTargetHero } from './demos/targets/hero';
@@ -543,28 +516,6 @@ import { DemoNestedDropTargets } from './demos/targets/nesting';
 <DemoDropTargetHero />
 
 `Draggable.Target` marks where a drag can be released. It pairs with [`Draggable.Root`](#anatomy), which defines what can be picked up. See the [examples](#examples).
-
-### Target anatomy
-
-Import the component and render it around the drop zone:
-
-```jsx title="Anatomy"
-import { Draggable } from '@base-ui/react/draggable';
-
-const itemKind = Draggable.createKind('item');
-
-<Draggable.Target accept={itemKind} />;
-```
-
-`Draggable.Target` handles Base UI drags, not native HTML5 or operating-system drags. To accept native data such as desktop files, pass native handlers through `render`:
-
-```jsx title="Accepting OS file drops"
-<Draggable.Target
-  accept={card}
-  onDraggableDrop={handleEngineDrop}
-  render={<div onDrop={handleFileDrop} onDragOver={allowFileDrop} />}
-/>
-```
 
 ### Choose which items to accept
 
@@ -808,6 +759,21 @@ If a target does not use these drag-feedback attributes, set `trackDragOver={fal
 <Draggable.Target accept={card} trackDragOver={false} onDraggableDrop={handleDrop} />
 ```
 
+### Accept native file drops
+
+Base UI tracks pointer input within the page. These drags have no `dataTransfer` and cannot move data between browser windows or applications.
+
+Use `onDraggableDrop` for Base UI drags and native `onDrop` and `onDragOver` handlers to accept desktop files. Native handlers receive React drag events with `dataTransfer`:
+
+```jsx title="Accepting OS file drops"
+<Draggable.Target
+  accept={card}
+  onDraggableDrop={handleEngineDrop}
+  onDrop={handleFileDrop}
+  onDragOver={allowFileDrop}
+/>
+```
+
 ### Both a source and a target
 
 An element can also have explicit source and destination behavior. Pass `Draggable.Target` to `Draggable.Root`'s `render` prop to give one element both roles:
@@ -836,6 +802,8 @@ import { DemoSortableOnDrop } from './demos/sortable-on-drop';
 
 By default, placement follows the destination's midpoint. Style `data-collision-before` and `data-collision-after` to show an insertion indicator.
 
+The example measures padded row wrappers with `collisionElement`, so the spaces between cards remain valid drop positions. Over the dragged card itself, the indicator shows its unchanged position; the collision provider reports `collision: null` for this no-op drop.
+
 ### Reorder while dragging
 
 Update the order in `onCollisionChange` with `placement="direction"`. Items move as the pointer crosses them, following its direction of travel.
@@ -845,6 +813,8 @@ import { DemoSortableLive } from './demos/sortable-live';
 <DemoSortableLive />
 
 Save the original order in `onMoveStart` and restore it if the drag is canceled or dropped outside a valid target. Dropping onto the dragged item itself succeeds with `collision: null`; keep the live order in that case.
+
+The example animates each card inside a stationary row used as its `collisionElement`. Keeping the measured row still prevents the animation from moving the collision boundary. It skips movement animations when the user prefers reduced motion.
 
 Every collision change re-renders the list, so wrap each item in `React.memo` and keep its handlers stable, as the `Task` component above does; a reorder then only moves DOM nodes. Keep `canCollide` stable too: a new function identity re-resolves the destination on every render during a drag.
 
@@ -862,19 +832,9 @@ import { DemoDragAutoScrollCanvas } from './demos/scrolling/canvas';
 
 Auto-scroll is opt-in for each container. The board above registers both lists with `Draggable.Viewport`. The second viewport also reduces its scrolling speed.
 
+The card keeps its `previewKey` when it moves from the tray into a list. The destination is a disabled `Draggable.Root`, so the preview can settle on it without making the inserted card draggable. Keying the tray card by its ID unmounts the old source when the next card appears.
+
 Use `Draggable.Viewport` on each element that should scroll, including nested containers. It can [configure an existing scroll container](#customize-a-container-that-already-scrolls) or [implement custom scrolling](#implement-custom-scrolling), such as panning a canvas with a CSS `transform`.
-
-### Viewport anatomy
-
-Render the viewport as the element that has scrollable overflow:
-
-```jsx title="Anatomy"
-import { Draggable } from '@base-ui/react/draggable';
-
-<Draggable.Provider>
-  <Draggable.Viewport style={{ overflow: 'auto', maxHeight: 300 }}>{children}</Draggable.Viewport>
-</Draggable.Provider>;
-```
 
 ### Which containers scroll
 
@@ -1283,7 +1243,7 @@ The draggable item may still be focusable for its normal widget behavior. Base 
 
 ## Testing
 
-Base UI implements [synthetic drag and drop](/react/utils/draggable#concepts) through pointer events. Drive tests with `pointerdown`, `pointermove`, and `pointerup`. Native HTML5 events such as `dragstart` do not start a Base UI drag.
+Base UI implements [dragging within the page](#accept-native-file-drops) through pointer events. Drive tests with `pointerdown`, `pointermove`, and `pointerup`. Native HTML5 events such as `dragstart` do not start a Base UI drag.
 
 ### Pick the environment first
 

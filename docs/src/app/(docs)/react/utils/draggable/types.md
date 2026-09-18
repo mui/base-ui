@@ -706,18 +706,18 @@ type DraggableTargetPropsWithPayload<TSourceData, TLocalData> = (
    */
   className?: string | ((state: Draggable.Target.State) => string | undefined);
   /**
-   * Style applied to the element, or a function that
-   * returns a style object based on the component's state.
-   */
-  style?:
-    React.CSSProperties | ((state: Draggable.Target.State) => React.CSSProperties | undefined);
-  /**
    * Allows you to replace the component's HTML element
    * with a different tag, or compose it with another component.
    *
    * Accepts a `ReactElement` or a function that returns the element to render.
    */
   render?: ReactElement | ((props: HTMLProps, state: Draggable.Target.State) => ReactElement);
+  /**
+   * Style applied to the element, or a function that
+   * returns a style object based on the component's state.
+   */
+  style?:
+    React.CSSProperties | ((state: Draggable.Target.State) => React.CSSProperties | undefined);
   /**
    * The target kind created with `Draggable.createKind`. It is available as
    * `target.kind` and on entries in `location.dropTargets`. Use the kind's `matches`

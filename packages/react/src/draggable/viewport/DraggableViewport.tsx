@@ -3,7 +3,6 @@ import * as React from 'react';
 import { useRenderElement } from '../../internals/useRenderElement';
 import type { BaseUIComponentProps } from '../../internals/types';
 import type {
-  NativeDragEventProps,
   RegisterAutoScrollerParameters,
   DragParametersWithInferredAccept,
 } from '../../types/dragRegistration';
@@ -82,11 +81,9 @@ export interface DraggableViewportState {
 // `disabled` is not redeclared here: an intersection member's JSDoc never reaches
 // the generated reference, so the description would ship nowhere. It lives on
 // `RegisterAutoScrollerParameters` instead, which this inherits.
-export type DraggableViewportProps<TSourceData = unknown> = Omit<
-  BaseUIComponentProps<'div', DraggableViewportState>,
-  // The whole native HTML5 drag event family is replaced by this engine, as on
-  // `Draggable.Root` and `Draggable.Target`.
-  NativeDragEventProps
+export type DraggableViewportProps<TSourceData = unknown> = BaseUIComponentProps<
+  'div',
+  DraggableViewportState
 > &
   RegisterAutoScrollerParameters<TSourceData>;
 

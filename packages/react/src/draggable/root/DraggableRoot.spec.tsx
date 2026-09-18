@@ -30,6 +30,7 @@ expectType<DragKind<undefined>, typeof marker>(marker);
 
 <Draggable.Root
   kind={marker}
+  onDrop={(event) => expectType<DataTransfer, typeof event.dataTransfer>(event.dataTransfer)}
   onMoveStart={({ source }) => {
     expectType<undefined, typeof source.payload>(source.payload);
   }}
@@ -291,23 +292,15 @@ function GenericCard<TData>(props: Draggable.Root.PropsWithPayload<TData>) {
 }
 <GenericCard kind={card} payload={{ id: 'a' }} />;
 
-// The native HTML5 drag props are omitted on purpose: they belong to a separate
-// interaction model, and the handlers would compile but never
-// fire for an engine drag. Pinned negatively so a future props merge can't
-// silently re-expose them alongside the synthetic API.
 // @ts-expect-error `draggable` starts a native drag that fights the pointer sensor.
 <Draggable.Root kind={marker} draggable />;
-// @ts-expect-error native capture-phase drag handlers never fire for engine drags.
 <Draggable.Root kind={marker} onDragStartCapture={() => {}} />;
-// @ts-expect-error
 <Draggable.Root kind={marker} onDragEndCapture={() => {}} />;
 // @ts-expect-error
 <Draggable.Root kind={marker} onDraggableEnter={() => {}} />;
 // @ts-expect-error
 <Draggable.Root kind={marker} onDraggableLeave={() => {}} />;
-// @ts-expect-error
 <Draggable.Root kind={marker} onDragOver={() => {}} />;
-// @ts-expect-error
 <Draggable.Root kind={marker} onDragExit={() => {}} />;
 // Engine callbacks preserve the source payload type.
 <Draggable.Root
@@ -335,7 +328,7 @@ function GenericCard<TData>(props: Draggable.Root.PropsWithPayload<TData>) {
   }}
 />;
 
-// @ts-expect-error successful drops are handled through onMoveEnd.
+// Native drops are separate from engine drops handled through onMoveEnd.
 <Draggable.Root kind={marker} onDrop={() => {}} />;
 
 // Drag events carry the native pointer or double-click input.

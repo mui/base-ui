@@ -2,7 +2,8 @@
 import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { Draggable } from '@base-ui/react/draggable';
-import { INITIAL_TASKS, moveTask, swapTask } from '../../sortableTasks';
+import { INITIAL_TASKS, moveTask, swapTask, getTaskRow } from '../../sortableTasks';
+import { useSortableAnimation } from '../../useSortableAnimation';
 
 const taskKind = Draggable.createKind<string>('sortable-live-task');
 
@@ -16,28 +17,33 @@ const Task = React.memo(function Task({
   onSwap: (task: string, direction: 'up' | 'down') => void;
 }) {
   return (
-    <Draggable.Root
-      kind={taskKind}
-      payload={task}
-      render={<button type="button" aria-label={task} />}
-      className="box-border min-h-10 cursor-grab select-none border border-neutral-900 bg-white px-4 py-2 text-sm leading-5 text-neutral-900 data-[dragging]:opacity-40 focus-visible:outline-2 focus-visible:outline-offset-2 dark:border-white dark:bg-neutral-950 dark:text-white"
-      modifiers={Draggable.restrictToVerticalAxis}
-      aria-keyshortcuts="Alt+ArrowUp Alt+ArrowDown"
-      onKeyDown={(event) => {
-        if (event.altKey && (event.key === 'ArrowUp' || event.key === 'ArrowDown')) {
-          event.preventDefault();
-          onSwap(task, event.key === 'ArrowUp' ? 'up' : 'down');
-        }
-      }}
-    >
-      {task}
-    </Draggable.Root>
+    <div data-sortable-row>
+      <Draggable.Root
+        kind={taskKind}
+        payload={task}
+        collisionElement={getTaskRow}
+        data-sortable-item
+        render={<button type="button" aria-label={task} />}
+        className="box-border min-h-10 w-full cursor-grab select-none border border-neutral-900 bg-white px-4 py-2 text-sm leading-5 text-neutral-900 data-[dragging]:opacity-40 focus-visible:outline-2 focus-visible:outline-offset-2 dark:border-white dark:bg-neutral-950 dark:text-white"
+        modifiers={Draggable.restrictToVerticalAxis}
+        aria-keyshortcuts="Alt+ArrowUp Alt+ArrowDown"
+        onKeyDown={(event) => {
+          if (event.altKey && (event.key === 'ArrowUp' || event.key === 'ArrowDown')) {
+            event.preventDefault();
+            onSwap(task, event.key === 'ArrowUp' ? 'up' : 'down');
+          }
+        }}
+      >
+        {task}
+      </Draggable.Root>
+    </div>
   );
 });
 
 export default function SortableLive() {
   const [tasks, setTasks] = React.useState(INITIAL_TASKS);
   const initialOrder = React.useRef(tasks);
+  const listRef = useSortableAnimation(tasks);
   const reorder = useStableCallback((event: Draggable.CollisionProvider.CollisionEvent<string>) => {
     setTasks((current) => moveTask(current, event));
   });
@@ -62,6 +68,7 @@ export default function SortableLive() {
         }}
       >
         <div
+          ref={listRef}
           className="grid w-80 max-w-full gap-2"
           role="group"
           aria-label="Tasks reordered while dragging"

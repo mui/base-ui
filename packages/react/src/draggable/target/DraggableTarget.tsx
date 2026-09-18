@@ -5,7 +5,6 @@ import { useRenderElement } from '../../internals/useRenderElement';
 import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
 import type { BaseUIComponentProps } from '../../internals/types';
 import type {
-  NativeDragEventProps,
   RegisterDropTargetParameters,
   DragParametersWithOptionalPayload,
   DragParametersWithRequiredPayload,
@@ -177,10 +176,9 @@ export interface DraggableTargetState {
 
 // Every `Draggable.Target` prop except its payload fields; the overloads and `Props` below
 // each add it back with their own optionality. See `DraggableConfig.payload`.
-type DraggableTargetPropsBase<TSourceData, TLocalData> = Omit<
-  BaseUIComponentProps<'div', DraggableTargetState>,
-  // The whole native HTML5 drag event family is replaced by this engine.
-  NativeDragEventProps
+type DraggableTargetPropsBase<TSourceData, TLocalData> = BaseUIComponentProps<
+  'div',
+  DraggableTargetState
 > &
   Omit<RegisterDropTargetParameters<TSourceData, TLocalData>, 'payload' | 'getPayload'> & {
     /**
