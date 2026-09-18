@@ -939,6 +939,34 @@ describe('syntheticDrag sensor', () => {
     touchUp(50, 50);
   });
 
+  it('honors imperative cancellation inside onBeforeMoveStart and allows a later pickup', async () => {
+    const { engine } = await renderDnd();
+    const el = createElement();
+    const onMoveStart = vi.fn();
+    let block = true;
+    engine.registerDraggable(el, {
+      activation: { pen: { type: 'immediate' } },
+      onBeforeMoveStart: () => {
+        if (block) {
+          engine.cancelDrag();
+        }
+      },
+      onMoveStart,
+    });
+
+    penDown(el, 50, 50);
+    expect(onMoveStart).not.toHaveBeenCalled();
+    expect(dragSessionStore.getSnapshot()).toBeNull();
+    expect(el.hasAttribute('draggable')).toBe(false);
+    expect(el.hasAttribute('data-dragging')).toBe(false);
+    penUp(50, 50);
+
+    block = false;
+    penDown(el, 50, 50);
+    expect(onMoveStart).toHaveBeenCalledOnce();
+    penUp(50, 50);
+  });
+
   it('a throwing onBeforeMoveStart tears the pending phase down', async () => {
     const { engine } = await renderDnd();
     const el = createElement();

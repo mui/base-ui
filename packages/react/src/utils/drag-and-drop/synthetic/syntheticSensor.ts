@@ -1013,6 +1013,10 @@ function commitActivation(): void {
       clearPending(true);
       throw error;
     }
+    // Imperative cancellation or blur can clear the candidate inside the callback.
+    if (state.pending !== pending) {
+      return;
+    }
     if (eventDetails.isCanceled) {
       clearPending(true);
       return;

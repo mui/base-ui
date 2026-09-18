@@ -799,14 +799,20 @@ function createPreparedDragPreviewElement(
   applyPostInsertion();
 
   function reconnect(): void {
-    if (destroyed || element.isConnected) {
+    if (destroyed) {
       return;
     }
-    // The nearest ancestor still in the document keeps as much of the original
-    // cascade as survives; the document body is the floor.
-    const survivor =
-      ancestorChain.find((ancestor) => ancestor.isConnected) ?? doc.body ?? doc.documentElement;
-    survivor.appendChild(wrapper);
+    if (!element.isConnected) {
+      // The nearest ancestor still in the document keeps as much of the original
+      // cascade as survives; the document body is the floor.
+      const survivor =
+        ancestorChain.find((ancestor) => ancestor.isConnected) ?? doc.body ?? doc.documentElement;
+      survivor.appendChild(wrapper);
+    } else if (!usesPopover || wrapper.matches(':popover-open')) {
+      return;
+    }
+    // Reordering a connected ancestor also closes the popover, even though it
+    // is connected again by the time the mutation observer runs.
     // Any DOM move closes an open popover (and sends it back to `display: none`).
     // Reopen it *before* restoring state: writing `scrollTop` into a
     // `display: none` subtree clamps to 0 and the restoration is silently lost.

@@ -136,6 +136,34 @@ describe.skipIf(isJSDOM)('createClonedDragPreviewElement (top layer)', () => {
     handle.destroy();
   });
 
+  it('reopens the preview and restores scrolling after its connected ancestor moves', async () => {
+    source.style.overflow = 'auto';
+    const content = document.createElement('div');
+    content.style.height = '200px';
+    source.replaceChildren(content);
+    source.scrollTop = 40;
+    const sibling = document.createElement('div');
+    scroller.appendChild(sibling);
+    const handle = createClonedDragPreviewElement(source, null)!;
+
+    try {
+      const wrapper = handle.element.parentElement!;
+      expect(wrapper.matches(':popover-open')).toBe(true);
+      expect(handle.element.scrollTop).toBe(40);
+
+      scroller.appendChild(list);
+      // Let the mutation observer repair the preview without a pointer move.
+      await Promise.resolve();
+
+      expect(wrapper.parentElement).toBe(list);
+      expect(wrapper.matches(':popover-open')).toBe(true);
+      expect(handle.element.getBoundingClientRect().height).toBe(30);
+      expect(handle.element.scrollTop).toBe(40);
+    } finally {
+      handle.destroy();
+    }
+  });
+
   it('keeps the source geometry rather than shrinking to fit', () => {
     const handle = createClonedDragPreviewElement(source, null)!;
 
