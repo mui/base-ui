@@ -125,19 +125,24 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
     return undefined;
   }, [open, store, timeoutMouseDown, selectedDelayTimeout]);
 
+  // A filterable select opens a dialog holding the input and the list, so the trigger stays a
+  // plain button: no element carries the combobox role.
+  const { virtualFocus } = store.context;
+
   const mergedProps: HTMLProps = mergeProps<'button'>(
     triggerProps,
     {
       id,
-      role: 'combobox',
+      role: virtualFocus ? undefined : 'combobox',
       'aria-expanded': open,
-      'aria-haspopup': 'listbox',
+      'aria-haspopup': virtualFocus ? 'dialog' : 'listbox',
       'aria-controls': open
-        ? (listElement?.id ?? getFloatingFocusElement(positionerElement)?.id)
+        ? ((virtualFocus ? undefined : listElement?.id) ??
+          getFloatingFocusElement(positionerElement)?.id)
         : undefined,
       'aria-labelledby': ariaLabelledBy,
-      'aria-readonly': readOnly || undefined,
-      'aria-required': required || undefined,
+      'aria-readonly': (!virtualFocus && readOnly) || undefined,
+      'aria-required': (!virtualFocus && required) || undefined,
       tabIndex: disabled ? -1 : 0,
       onFocus(event) {
         setFocused(true);
@@ -210,7 +215,9 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
 
   // ensure nested useButton does not overwrite the combobox role:
   // <Toolbar.Button render={<Select.Trigger />} />
-  props.role = 'combobox';
+  if (!virtualFocus) {
+    props.role = 'combobox';
+  }
 
   const state: SelectTriggerState = {
     ...fieldState,
