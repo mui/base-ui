@@ -8,10 +8,13 @@ type RegisterItem<Key, Item> = (key: Key, item: Item) => () => void;
 
 /**
  * Collects item registrations into one immutable snapshot per React commit.
+ * Also returns the live registry for reads that must include the registrations of the current
+ * commit before its snapshot is published.
  */
 export function useItemRegistry<Key, Item>(): readonly [
   ReadonlyMap<Key, Item>,
   RegisterItem<Key, Item>,
+  ReadonlyMap<Key, Item>,
 ] {
   const itemRegistry = useRefWithInit(() => new Map<Key, Item>()).current;
   const [registryVersion, setRegistryVersion] = React.useState(0);
@@ -49,5 +52,5 @@ export function useItemRegistry<Key, Item>(): readonly [
     isUpdateScheduledRef.current = false;
   }, [registryVersion]);
 
-  return [registeredItems, registerItem];
+  return [registeredItems, registerItem, itemRegistry];
 }

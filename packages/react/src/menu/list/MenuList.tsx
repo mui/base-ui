@@ -31,6 +31,8 @@ export const MenuListPlain = React.forwardRef(function MenuList(
       {
         id,
         role: 'menu',
+        // The popup focuses the list on a pointer open in place of itself.
+        tabIndex: -1,
         // `menu` is implicitly vertical, so only the non-default value needs to be rendered.
         'aria-orientation': orientation === 'horizontal' ? 'horizontal' : undefined,
         'aria-labelledby': ariaLabelledBy,

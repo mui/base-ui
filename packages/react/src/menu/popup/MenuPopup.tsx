@@ -95,6 +95,16 @@ export const MenuPopupPlain = React.forwardRef(function MenuPopup(
       }
       return focusOwner;
     };
+  } else if (listElement && parent.type !== 'menu') {
+    initialFocus = () => {
+      // A keyboard or screen reader open highlights an item, which list navigation focuses.
+      if (store.state.activeIndex !== null) {
+        return false;
+      }
+      // The list holds the `menu` role, so a pointer open lands focus on it rather than on the
+      // presentational popup.
+      return listElement;
+    };
   }
 
   useOpenChangeComplete({

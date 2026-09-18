@@ -405,9 +405,10 @@ export function useListNavigation(
             // omitted here so attribute-disabled items (`disabled`/`aria-disabled`) are skipped
             // on open even when the consumer passes an empty `disabledIndices` array. Passing it
             // would regress that behavior (see mui/base-ui#2604).
+            // The key came from the trigger, so it is read on the trigger's orientation.
             indexRef.current =
               keyRef.current == null ||
-              isMainOrientationToEndKey(keyRef.current, orientation, rtl) ||
+              isMainOrientationToEndKey(keyRef.current, triggerOrientation, rtl) ||
               nested
                 ? getMinListIndex(listRef)
                 : getMaxListIndex(listRef);
@@ -431,7 +432,7 @@ export function useListNavigation(
     selectedIndexRef,
     nested,
     listRef,
-    orientation,
+    triggerOrientation,
     rtl,
     onNavigate,
     focusItem,

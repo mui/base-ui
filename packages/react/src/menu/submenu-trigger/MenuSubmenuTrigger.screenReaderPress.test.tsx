@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { createRenderer, isJSDOM } from '#test-utils';
 import { Menu } from '@base-ui/react/menu';
 
@@ -91,6 +91,56 @@ describe.skipIf(isJSDOM)('<Menu.SubmenuTrigger /> with a screen reader press', (
     await waitForFrames();
 
     expect(screen.queryByTestId('submenu')).not.toBe(null);
+  });
+
+  it('opens on a screen reader press without waiting a frame', async () => {
+    const { user } = await render(<Test />);
+
+    await user.click(screen.getByRole('button', { name: 'Open menu' }));
+    const submenuTrigger = await screen.findByTestId('submenu-trigger');
+
+    fireScreenReaderMouseDown(submenuTrigger);
+
+    // The reader re-syncs focus to its cursor right after the press, so the open cannot wait.
+    expect(screen.queryByTestId('submenu')).not.toBe(null);
+  });
+
+  it('reports the trigger, not a pressed descendant, as the opener', async () => {
+    const onOpenChange = vi.fn();
+    const { user } = await render(
+      <Menu.Root>
+        <Menu.Trigger>Open menu</Menu.Trigger>
+        <Menu.Portal>
+          <Menu.Positioner>
+            <Menu.Popup>
+              <Menu.SubmenuRoot onOpenChange={onOpenChange}>
+                <Menu.SubmenuTrigger data-testid="submenu-trigger">
+                  More <span data-testid="icon">▸</span>
+                </Menu.SubmenuTrigger>
+                <Menu.Portal>
+                  <Menu.Positioner>
+                    <Menu.Popup data-testid="submenu">
+                      <Menu.Item>Alpha</Menu.Item>
+                    </Menu.Popup>
+                  </Menu.Positioner>
+                </Menu.Portal>
+              </Menu.SubmenuRoot>
+            </Menu.Popup>
+          </Menu.Positioner>
+        </Menu.Portal>
+      </Menu.Root>,
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Open menu' }));
+    const submenuTrigger = await screen.findByTestId('submenu-trigger');
+
+    fireScreenReaderPress(screen.getByTestId('icon'));
+
+    await screen.findByTestId('submenu');
+    expect(onOpenChange).toHaveBeenCalledWith(
+      true,
+      expect.objectContaining({ trigger: submenuTrigger }),
+    );
   });
 
   it('ignores an ordinary mouse press with the default `openOnHover`', async () => {

@@ -49,7 +49,10 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
   const [registeredListId, setListId] = React.useState<string | undefined>(undefined);
   const [focusVisible, setFocusVisible] = React.useState(inputFocusVisible);
   const [keyboardModality, setKeyboardModality] = React.useState(inputFocusVisible);
-  const [registeredItems, registerItem] = useItemRegistry<symbol, FilterDropdownItemRegistration>();
+  const [registeredItems, registerItem, liveItems] = useItemRegistry<
+    symbol,
+    FilterDropdownItemRegistration
+  >();
   const defaultId = useBaseUiId();
   const store = useRefWithInit(
     () =>
@@ -91,8 +94,9 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
 
   store.useSyncedValues({ activeIndex, inputProps, registeredItemCount: registeredItems.size });
 
-  // Runs against the registry snapshot published once every item in the commit has registered,
-  // and against the committed query, because a controlled consumer can reject a proposed change.
+  // Re-runs on the registry snapshot published once every item in the commit has registered,
+  // and on the committed query, because a controlled consumer can reject a proposed change. It
+  // reads the live registry so items registered in this commit count before their snapshot.
   useIsoLayoutEffect(() => {
     if (!open && query === undefined) {
       return;
@@ -105,7 +109,7 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
     // still follows `autoHighlight`; otherwise the item set invalidates the highlight.
     if (matches === null) {
       store.set('visibleItemIds', null);
-      if (autoHighlightEnabled && registeredItems.size > 0) {
+      if (autoHighlightEnabled && liveItems.size > 0) {
         setActiveIndex(0);
       } else if (filterQuery === '' && queryChanged) {
         setActiveIndex(null);
@@ -113,8 +117,15 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
       return;
     }
 
+    const currentIds = store.state.visibleItemIds;
+    // The popup's content mounts a commit after the root opens. Publishing an empty result before
+    // anything registered would hide every item as it arrives and remount the matches.
+    if (currentIds === null && liveItems.size === 0) {
+      return;
+    }
+
     const nextIds = new Set<symbol>();
-    registeredItems.forEach(({ getText, keywords }, id) => {
+    liveItems.forEach(({ getText, keywords }, id) => {
       const filterText = getText();
       const itemMatches =
         (filterText != null && matches(filterText, filterQuery)) ||
@@ -124,7 +135,6 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
       }
     });
 
-    const currentIds = store.state.visibleItemIds;
     if (currentIds === null || !isSetEqual(currentIds, nextIds)) {
       // The first filtered snapshot can land after initial keyboard navigation in React 18. It
       // has no prior result identity to invalidate, unless the controlled query itself changed.
@@ -142,6 +152,7 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
     query,
     filterQuery,
     registeredItems,
+    liveItems,
     matches,
     autoHighlightEnabled,
     store,

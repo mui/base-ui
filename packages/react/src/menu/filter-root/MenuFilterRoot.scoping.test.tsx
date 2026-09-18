@@ -302,7 +302,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
     );
   });
 
-  it('announces a dialog from a detached trigger once the filterable root attaches', async () => {
+  it('announces a dialog from a detached trigger attached to a filterable root', async () => {
     function Test() {
       const handle = useRefWithInit(() => Menu.createHandle()).current;
 
@@ -746,6 +746,51 @@ describe('independent menu focus inside a filterable menu', () => {
         </div>
       );
     }
+
+    function OpenMethodMenu(props: { triggerProps?: Menu.Trigger.Props }) {
+      return (
+        <div>
+          <Menu.FilterProvider>
+            <Menu.Root>
+              <Menu.Trigger {...props.triggerProps}>Actions</Menu.Trigger>
+              <Menu.Portal>
+                <Menu.Positioner>
+                  <Menu.Popup data-testid="popup">
+                    <Menu.FilterInput aria-label="Filter actions" />
+                    <Menu.List>
+                      <Menu.Item>Rename</Menu.Item>
+                    </Menu.List>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+          </Menu.FilterProvider>
+          <input data-testid="after" />
+        </div>
+      );
+    }
+
+    it('does not trap a hover-opened popup', async () => {
+      const { user } = await render(<OpenMethodMenu triggerProps={{ openOnHover: true }} />);
+
+      await user.hover(screen.getByRole('button', { name: 'Actions' }));
+      await screen.findByTestId('popup');
+
+      expect(isHiddenFromAssistiveTechnology(screen.getByTestId('after'))).toBe(false);
+    });
+
+    it('does not trap a popup opened by an assistive technology click', async () => {
+      await render(<OpenMethodMenu />);
+
+      // An assistive technology activation reports no pointer type.
+      const trigger = screen.getByRole('button', { name: 'Actions' });
+      fireEvent.pointerDown(trigger, { pointerType: '' });
+      fireEvent.mouseDown(trigger);
+      fireEvent.click(trigger, { detail: 1 });
+      await screen.findByTestId('popup');
+
+      expect(isHiddenFromAssistiveTechnology(screen.getByTestId('after'))).toBe(false);
+    });
 
     it('keeps Tab inside a modal filterable popup', async () => {
       const { user } = await render(<TrappedMenu />);

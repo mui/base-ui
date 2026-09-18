@@ -167,7 +167,10 @@ function MenuFilterSubmenuNavigation(props: MenuFilterSubmenuNavigationProps) {
     ) {
       return false;
     }
-    return getReturnElement();
+    // A plain parent has no input to return to. Focus the trigger this submenu opened from, as a
+    // plain submenu does, so a hover close doesn't strand focus on the body.
+    const [ownTrigger] = store.context.triggerElements.elements();
+    return getReturnElement() ?? (isHTMLElement(ownTrigger) ? ownTrigger : null);
   });
 
   // A hover close makes the focus manager skip its return focus, which would strand the
@@ -319,8 +322,7 @@ function MenuFilterSubmenuNavigation(props: MenuFilterSubmenuNavigationProps) {
   );
 }
 
-export type MenuFilterSubmenuRootProps = Omit<MenuSubmenuRootProps, 'orientation'> &
-  MenuFilterRootFilterProps;
+export type MenuFilterSubmenuRootProps = MenuSubmenuRootProps & MenuFilterRootFilterProps;
 
 export interface MenuFilterSubmenuRootState extends MenuSubmenuRoot.State {}
 export type MenuFilterSubmenuRootActions = MenuRoot.Actions;

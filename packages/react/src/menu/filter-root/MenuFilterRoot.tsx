@@ -37,7 +37,7 @@ export type MenuFilterFunction = (text: string, query: string) => boolean;
 
 export type MenuFilterRootProps<Payload = unknown> = Omit<
   MenuRoot.Props<Payload>,
-  'closeParentOnEsc' | 'orientation'
+  'closeParentOnEsc'
 > &
   MenuFilterRootFilterProps;
 

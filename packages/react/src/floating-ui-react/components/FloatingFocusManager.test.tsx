@@ -706,6 +706,59 @@ describe('FloatingFocusManager', () => {
         }
       });
 
+      test('does not return focus while open when the reference changes', async () => {
+        function App(props: { useSecond?: boolean }) {
+          const [isOpen, setIsOpen] = React.useState(false);
+
+          const { refs, context } = useFloating({ open: isOpen, onOpenChange: setIsOpen });
+
+          const click = useClick(context);
+          const { getReferenceProps, getFloatingProps } = useTestInteractions([click]);
+
+          return (
+            <>
+              <button
+                data-testid="first"
+                ref={props.useSecond ? undefined : refs.setReference}
+                {...getReferenceProps()}
+              />
+              <button data-testid="second" ref={props.useSecond ? refs.setReference : undefined} />
+              {isOpen && (
+                <FloatingFocusManager context={context}>
+                  <div ref={refs.setFloating} {...getFloatingProps()}>
+                    <button data-testid="child" />
+                    <button data-testid="close" onClick={() => setIsOpen(false)} />
+                  </div>
+                </FloatingFocusManager>
+              )}
+            </>
+          );
+        }
+
+        const { rerender } = render(<App />);
+
+        await userEvent.click(screen.getByTestId('first'));
+        await flushMicrotasks();
+
+        const child = screen.getByTestId('child');
+        await act(async () => {
+          child.focus();
+        });
+
+        // The return-focus effect re-arms for the new reference while the popup stays open, so
+        // the cleanup's queued return focus must be cancelled rather than yank focus mid-open.
+        rerender(<App useSecond />);
+        await flushMicrotasks();
+
+        expect(child).toHaveFocus();
+
+        await userEvent.click(screen.getByTestId('close'));
+        await flushMicrotasks();
+
+        // The cancelled job must not have left return focus suppressed for the real close.
+        expect(screen.getByTestId('second')).toHaveFocus();
+      });
+
       test('does not insert fallback element when return element is falsy', async () => {
         function App() {
           const [isOpen, setIsOpen] = React.useState(false);

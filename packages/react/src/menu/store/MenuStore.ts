@@ -81,7 +81,6 @@ const selectors = {
     state.openChangeReason !== 'trigger-hover' &&
     state.openMethod !== 'touch' &&
     state.openMethod !== '',
-  floatingId: (state: State<unknown>) => state.floatingId,
   openMethod: (state: State<unknown>) => state.openMethod,
 
   allowMouseEnter: (state: State<unknown>) => state.allowMouseEnter,
@@ -194,7 +193,11 @@ export class MenuStore<Payload> extends ReactStore<Readonly<State<Payload>>, Con
   }
 
   setActiveIndex(activeIndex: number | null, reason: MenuRoot.HighlightEventReason) {
-    this.context.highlightReason = reason;
+    // Only a write that changes the index is reported. Tagging a no-op would let a later
+    // registry-driven re-emit report this reason instead of `none`.
+    if (this.state.activeIndex !== activeIndex) {
+      this.context.highlightReason = reason;
+    }
     this.set('activeIndex', activeIndex);
   }
 

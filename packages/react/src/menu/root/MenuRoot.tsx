@@ -175,9 +175,11 @@ export const MenuRootInternal = fastComponent(function MenuRoot<Payload>(
   // in a state initializer.
   const defaultFloatingId = useBaseUiId();
   const [customFloatingId, setFloatingId] = React.useState<string | undefined>(undefined);
-  // A registered `''` means the popup rendered with an explicitly empty id: derive no item ids
-  // from the generated fallback, which would dangle.
+  // A registered `''` means the popup rendered with an explicitly empty id, so nothing may point
+  // at the generated fallback. Items still need ids of their own for `aria-activedescendant`
+  // and the submenu trigger registry, so they keep the generated namespace.
   const floatingId = (customFloatingId ?? defaultFloatingId) || undefined;
+  const itemIdNamespace = customFloatingId || defaultFloatingId;
   const floatingParentNodeIdFromContext = useFloatingParentNodeId();
 
   const parentMenuStore = parentFromContext.type === 'menu' ? parentFromContext.store : undefined;
@@ -562,7 +564,7 @@ export const MenuRootInternal = fastComponent(function MenuRoot<Payload>(
   const direction = useDirection();
 
   const listNavigation = useListNavigation(floatingRootContext, {
-    id: floatingId,
+    id: itemIdNamespace,
     enabled: !disabled,
     listRef: store.context.itemDomElements,
     activeIndex,
@@ -758,7 +760,7 @@ export const MenuRootInternal = fastComponent(function MenuRoot<Payload>(
       orientation,
       loopFocus,
       defaultFloatingId,
-      floatingId,
+      floatingId: itemIdNamespace,
       setFloatingId,
       virtualFocus,
       virtualFocusRef,
@@ -776,7 +778,7 @@ export const MenuRootInternal = fastComponent(function MenuRoot<Payload>(
       orientation,
       loopFocus,
       defaultFloatingId,
-      floatingId,
+      itemIdNamespace,
       virtualFocus,
       virtualFocusRef,
       virtualFocusAutoFocus,

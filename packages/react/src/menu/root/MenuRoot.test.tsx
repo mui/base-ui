@@ -1051,6 +1051,33 @@ describe('<Menu.Root />', () => {
         expect(screen.getByTestId('submenu-trigger')).toHaveAttribute('id', 'render-popup-3');
       });
 
+      it('keeps generated item ids when a `render` popup element has no id', async () => {
+        const { user } = await render(
+          <TestMenu
+            popupProps={{ render: <section id={undefined} /> }}
+            submenuTriggerProps={{ openOnHover: false }}
+          />,
+        );
+
+        const trigger = screen.getByRole('button', { name: 'Toggle' });
+        await user.click(trigger);
+
+        const menu = await screen.findByTestId('menu');
+        expect(menu).not.toHaveAttribute('id');
+        expect(trigger).not.toHaveAttribute('aria-controls');
+
+        const item = screen.getByTestId('item-1');
+        const submenuTrigger = screen.getByTestId('submenu-trigger');
+        expect(item.id).toMatch(/-0$/);
+        expect(submenuTrigger.id).toMatch(/-3$/);
+
+        await user.click(submenuTrigger);
+
+        const submenu = await screen.findByTestId('submenu');
+        expect(submenuTrigger).toHaveAttribute('aria-controls', submenu.id);
+        expect(submenu).toHaveAttribute('aria-labelledby', submenuTrigger.id);
+      });
+
       it('labels the popup with the id that landed on a `render` trigger element', async () => {
         const { user } = await render(
           <TestMenu triggerProps={{ render: <button id="custom-trigger" /> }} />,
@@ -3273,6 +3300,49 @@ describe('<Menu.Root />', () => {
       await flushMicrotasks();
 
       expect(onItemHighlighted).toHaveBeenCalledTimes(1);
+    });
+
+    it('reports `none` when the list changes after a repeated pointer highlight', async () => {
+      const onItemHighlighted = vi.fn();
+
+      function ItemsMenu(props: { items: string[] }) {
+        return (
+          <Menu.Root open onItemHighlighted={onItemHighlighted}>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  {props.items.map((item) => (
+                    <Menu.Item key={item} data-testid={item}>
+                      {item}
+                    </Menu.Item>
+                  ))}
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        );
+      }
+
+      const { setProps } = await render(<ItemsMenu items={['first', 'second']} />);
+
+      const first = screen.getByTestId('first');
+      fireEvent.mouseMove(first);
+      await waitFor(() => {
+        expect(onItemHighlighted).toHaveBeenCalledTimes(1);
+      });
+      // A repeated pointer highlight of the same item is a no-op and must not leave a tag behind.
+      fireEvent.mouseMove(first);
+      await flushMicrotasks();
+
+      await setProps({ items: ['second'] });
+
+      await waitFor(() => {
+        expect(onItemHighlighted).toHaveBeenCalledTimes(2);
+      });
+      expect(onItemHighlighted).toHaveBeenLastCalledWith(
+        screen.getByTestId('second'),
+        expect.objectContaining({ reason: 'none', index: 0 }),
+      );
     });
 
     it('reports an undefined item when the menu closes', async () => {

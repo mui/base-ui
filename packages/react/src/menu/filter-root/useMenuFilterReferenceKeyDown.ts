@@ -2,6 +2,7 @@
 import * as React from 'react';
 import { ownerWindow } from '@base-ui/utils/owner';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { EMPTY_ARRAY } from '@base-ui/utils/empty';
 import { isHTMLElement } from '@floating-ui/utils/dom';
 import { useFilterDropdownItemContext } from '../../filter-dropdown/root/FilterDropdownRootContext';
 import { useMenuRootContext } from '../root/MenuRootContext';
@@ -10,6 +11,7 @@ import { createChangeEventDetails } from '../../internals/createBaseUIEventDetai
 import { REASONS } from '../../internals/reasons';
 import type { BaseUIEvent } from '../../internals/types';
 import { stopEvent } from '../../floating-ui-react/utils/event';
+import { getMaxListIndex, getMinListIndex } from '../../floating-ui-react/utils/composite';
 import {
   isCrossOrientationCloseKey,
   isCrossOrientationOpenKey,
@@ -60,8 +62,25 @@ export function useMenuFilterReferenceKeyDown() {
       event.stopPropagation();
     }
 
+    if (event.target !== event.currentTarget) {
+      return;
+    }
+
     const activeItem = listRef.current[filterStore.select('activeIndex') ?? -1];
-    if (!activeItem || event.target !== event.currentTarget) {
+    if (!activeItem) {
+      // Left and Right move the caret while nothing is highlighted, so the vertical arrows are
+      // what enter a horizontal list, from either end.
+      const isVerticalArrow = event.key === 'ArrowUp' || event.key === 'ArrowDown';
+      if (orientation === 'horizontal' && isVerticalArrow) {
+        const index =
+          event.key === 'ArrowDown'
+            ? getMinListIndex(listRef, EMPTY_ARRAY)
+            : getMaxListIndex(listRef, EMPTY_ARRAY);
+        if (listRef.current[index]) {
+          event.preventDefault();
+          menuStore.setActiveIndex(index, REASONS.keyboard);
+        }
+      }
       return;
     }
 

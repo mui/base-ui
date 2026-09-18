@@ -10,6 +10,10 @@ export interface MenuRootContext<Payload = unknown> {
   orientation: 'vertical' | 'horizontal';
   loopFocus: boolean;
   defaultFloatingId: string | undefined;
+  /**
+   * The namespace generated item ids derive from: the popup's id, or the generated fallback while
+   * the popup renders with an explicitly empty id.
+   */
   floatingId: string | undefined;
   setFloatingId: React.Dispatch<React.SetStateAction<string | undefined>>;
   virtualFocus: boolean;

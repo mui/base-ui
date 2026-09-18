@@ -5,7 +5,7 @@ import { DirectionProvider } from '@base-ui/react/direction-provider';
 import { Menu } from '@base-ui/react/menu';
 import { createRenderer, resetBrowserPointer } from '#test-utils';
 
-describe('<Menu.Popup />', () => {
+describe('<Menu.List /> pointer presses', () => {
   beforeEach(resetBrowserPointer);
 
   const { render } = createRenderer();

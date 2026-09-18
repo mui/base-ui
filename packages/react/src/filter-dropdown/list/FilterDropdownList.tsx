@@ -4,6 +4,7 @@ import { ownerWindow } from '@base-ui/utils/owner';
 import type { BaseUIComponentProps, HTMLProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useFilterDropdownRootContext } from '../root/FilterDropdownRootContext';
+import { FilterDropdownGroupContext } from '../group/FilterDropdownGroupContext';
 import { useRenderedId } from '../../internals/resolveRenderedId';
 import { getTarget } from '../../floating-ui-react/utils';
 import { resolveMenuPopupLabel } from '../../menu/popup/resolveMenuPopupLabel';
@@ -51,7 +52,19 @@ export const FilterDropdownList = React.forwardRef(function FilterDropdownList(
 
   return useRenderElement('div', componentProps, {
     ref: [forwardedRef, registerIdRef],
-    props: [defaultProps, elementProps],
+    props: [
+      defaultProps,
+      elementProps,
+      {
+        // The list's groups and items belong to this root's query. A nested root's list renders
+        // inside an enclosing group, which must not count them as its own members.
+        children: (
+          <FilterDropdownGroupContext.Provider value={null}>
+            {elementProps.children}
+          </FilterDropdownGroupContext.Provider>
+        ),
+      },
+    ],
   });
 });
 

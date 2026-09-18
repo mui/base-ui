@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
+import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { expect, vi, describe, beforeEach, it } from 'vitest';
 import { createRenderer, describeConformance, resetBrowserPointer } from '#test-utils';
 import { Menu } from '@base-ui/react/menu';
@@ -326,6 +327,72 @@ describe('filterable menu list semantics', () => {
     await user.keyboard('[ArrowRight]');
     expect(input).toHaveAttribute('aria-activedescendant', 'second-item');
   });
+
+  describe('horizontal list without autoHighlight', () => {
+    function HorizontalMenu(props: { defaultOpen?: boolean }) {
+      return (
+        <Menu.FilterProvider>
+          <Menu.Root defaultOpen={props.defaultOpen} orientation="horizontal">
+            <Menu.Trigger>Actions</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.FilterInput aria-label="Filter actions" />
+                  <Menu.List>
+                    <Menu.Item id="alpha">Alpha</Menu.Item>
+                    <Menu.Item id="apple">Apple</Menu.Item>
+                    <Menu.Item id="beta">Beta</Menu.Item>
+                  </Menu.List>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </Menu.FilterProvider>
+      );
+    }
+
+    it('enters the results with the vertical arrows after typing', async () => {
+      const { user } = await render(<HorizontalMenu defaultOpen />);
+      const input = screen.getByRole('searchbox', { name: 'Filter actions' });
+      await waitFor(() => expect(input).toHaveFocus());
+
+      await user.type(input, 'p');
+      await waitFor(() => expect(screen.queryByText('Beta')).toBe(null));
+
+      // Left and Right keep moving the caret while nothing is highlighted.
+      await user.keyboard('[ArrowLeft]');
+      expect(input).not.toHaveAttribute('aria-activedescendant');
+
+      await user.keyboard('[ArrowDown]');
+      expect(input).toHaveAttribute('aria-activedescendant', 'alpha');
+      await user.keyboard('[ArrowRight]');
+      expect(input).toHaveAttribute('aria-activedescendant', 'apple');
+      await user.keyboard('[ArrowLeft]');
+      expect(input).toHaveAttribute('aria-activedescendant', 'alpha');
+    });
+
+    it('enters the results from the end with ArrowUp', async () => {
+      const { user } = await render(<HorizontalMenu defaultOpen />);
+      const input = screen.getByRole('searchbox', { name: 'Filter actions' });
+      await waitFor(() => expect(input).toHaveFocus());
+
+      await user.keyboard('[ArrowUp]');
+      expect(input).toHaveAttribute('aria-activedescendant', 'beta');
+    });
+
+    it('highlights the first item when opened from the trigger with ArrowDown', async () => {
+      const { user } = await render(<HorizontalMenu />);
+      const trigger = screen.getByRole('button', { name: 'Actions' });
+      await act(async () => {
+        trigger.focus();
+      });
+
+      await user.keyboard('[ArrowDown]');
+
+      const input = await screen.findByRole('searchbox', { name: 'Filter actions' });
+      await waitFor(() => expect(input).toHaveAttribute('aria-activedescendant', 'alpha'));
+    });
+  });
 });
 
 describe('<Menu.List /> in a plain menu', () => {
@@ -406,5 +473,57 @@ describe('<Menu.List /> in a plain menu', () => {
     await waitFor(() => {
       expect(screen.getByTestId('item-2')).toHaveFocus();
     });
+  });
+
+  it('focuses the list rather than the presentational popup on a pointer open', async () => {
+    const { user } = await render(<PlainMenu />);
+    const trigger = screen.getByRole('button', { name: 'Actions' });
+
+    fireEvent.mouseDown(trigger, { detail: 1 });
+    fireEvent.click(trigger, { detail: 1 });
+
+    const list = await screen.findByTestId('list');
+    await waitFor(() => {
+      expect(list).toHaveFocus();
+    });
+
+    await user.keyboard('[ArrowDown]');
+
+    await waitFor(() => {
+      expect(screen.getByTestId('item-1')).toHaveFocus();
+    });
+  });
+
+  it('does not point an inactive trigger at the list', async () => {
+    function TwoTriggers() {
+      const handle = useRefWithInit(() => Menu.createHandle()).current;
+      return (
+        <React.Fragment>
+          <Menu.Trigger handle={handle}>First</Menu.Trigger>
+          <Menu.Trigger handle={handle}>Second</Menu.Trigger>
+          <Menu.Root handle={handle}>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.List data-testid="list">
+                    <Menu.Item>Rename</Menu.Item>
+                  </Menu.List>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </React.Fragment>
+      );
+    }
+
+    const { user } = await render(<TwoTriggers />);
+    const first = screen.getByRole('button', { name: 'First' });
+    const second = screen.getByRole('button', { name: 'Second' });
+
+    await user.click(first);
+
+    const list = await screen.findByTestId('list');
+    expect(first).toHaveAttribute('aria-controls', list.id);
+    expect(second).not.toHaveAttribute('aria-controls');
   });
 });

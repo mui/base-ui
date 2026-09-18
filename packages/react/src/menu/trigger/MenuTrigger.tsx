@@ -262,7 +262,9 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
     rootTriggerProps,
     {
       'aria-haspopup': 'menu' as const,
-      'aria-controls': listElement?.id || popupId,
+      // `popupId` is only set for the trigger that owns the open popup; the list id must not
+      // bypass that.
+      'aria-controls': popupId ? listElement?.id || popupId : undefined,
       id: thisTriggerId,
       onMouseDown: (event: React.MouseEvent) => {
         if (store.select('open')) {

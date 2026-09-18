@@ -166,7 +166,98 @@ describe('<Menu.FilterProvider><Menu.SubmenuRoot/></Menu.FilterProvider>', () =>
     });
   });
 
+  describe('hover close inside a plain parent menu', () => {
+    it('returns focus to the trigger when the submenu that held focus unmounts', async () => {
+      function HoverFocusedSubmenu() {
+        return (
+          <Menu.Root>
+            <Menu.Trigger>Actions</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup data-testid="parent-popup">
+                  <Menu.Item>Rename</Menu.Item>
+                  <Menu.FilterProvider>
+                    <Menu.SubmenuRoot>
+                      <Menu.SubmenuTrigger data-testid="submenu-trigger">
+                        Move to
+                      </Menu.SubmenuTrigger>
+                      <Menu.Portal>
+                        <Menu.Positioner>
+                          <Menu.Popup data-testid="submenu-popup">
+                            <Menu.FilterInput aria-label="Filter folders" autoFocus />
+                            <Menu.List>
+                              <Menu.Item>Projects</Menu.Item>
+                            </Menu.List>
+                          </Menu.Popup>
+                        </Menu.Positioner>
+                      </Menu.Portal>
+                    </Menu.SubmenuRoot>
+                  </Menu.FilterProvider>
+                  <Menu.Item>Delete</Menu.Item>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        );
+      }
+
+      const { user } = await render(<HoverFocusedSubmenu />);
+
+      await user.click(screen.getByRole('button', { name: 'Actions' }));
+      const trigger = await screen.findByTestId('submenu-trigger');
+      await user.hover(trigger);
+
+      const input = await screen.findByRole('searchbox', { name: 'Filter folders' });
+      await waitFor(() => {
+        expect(input).toHaveFocus();
+      });
+
+      // A hover close suppresses the focus manager's own return focus.
+      fireEvent.pointerLeave(trigger);
+      fireEvent.mouseLeave(trigger);
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('submenu-popup')).toBe(null);
+      });
+      await waitFor(() => {
+        expect(trigger).toHaveFocus();
+      });
+
+      await user.keyboard('{ArrowDown}');
+
+      await waitFor(() => {
+        expect(screen.getByRole('menuitem', { name: 'Delete' })).toHaveFocus();
+      });
+    });
+  });
+
   describe.skipIf(isJSDOM)('inside a plain parent menu', () => {
+    it('closes with Escape and returns focus to the highlighted trigger', async () => {
+      const { user } = await render(<PlainParentMenu />);
+
+      const trigger = screen.getByTestId('submenu-trigger');
+      await act(async () => {
+        trigger.focus();
+      });
+      await user.keyboard('{ArrowRight}');
+
+      const input = await screen.findByRole('searchbox', { name: 'Filter folders' });
+      await waitFor(() => {
+        expect(input).toHaveFocus();
+      });
+
+      await user.keyboard('{Escape}');
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('submenu-list')).toBe(null);
+      });
+      await waitFor(() => {
+        expect(trigger).toHaveFocus();
+      });
+      expect(trigger).toHaveAttribute('data-highlighted');
+      expect(screen.getByRole('menuitem', { name: 'Rename' })).not.toBe(null);
+    });
+
     it('opens with the cross-axis key and focuses the submenu input', async () => {
       const { user } = await render(<PlainParentMenu />);
 

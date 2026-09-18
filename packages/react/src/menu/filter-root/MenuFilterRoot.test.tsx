@@ -39,6 +39,61 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
 
   const { render, renderToString } = createRenderer();
 
+  describe('opening with a query', () => {
+    it('keeps the matching items mounted', async () => {
+      // DOM nodes survive Strict Mode's replayed effects; only a real remount creates new ones.
+      const nodes = { Rename: new Set<Element>(), Copy: new Set<Element>() };
+      function Tracked(props: { children: 'Rename' | 'Copy' }) {
+        return (
+          <span
+            ref={(node) => {
+              if (node) {
+                nodes[props.children].add(node);
+              }
+            }}
+          >
+            {props.children}
+          </span>
+        );
+      }
+
+      const { user } = await render(
+        <Menu.FilterProvider defaultInputValue="e">
+          <Menu.Root>
+            <Menu.Trigger>Actions</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.FilterInput aria-label="Filter actions" />
+                  <Menu.List>
+                    <Menu.Item>
+                      <Tracked>Rename</Tracked>
+                    </Menu.Item>
+                    <Menu.Item>
+                      <Tracked>Copy</Tracked>
+                    </Menu.Item>
+                  </Menu.List>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </Menu.FilterProvider>,
+      );
+
+      const trigger = screen.getByRole('button', { name: 'Actions' });
+      await user.click(trigger);
+
+      const rename = await screen.findByRole('menuitem', { name: 'Rename' });
+      await waitFor(() => {
+        expect(screen.queryByRole('menuitem', { name: 'Copy' })).toBe(null);
+      });
+      // A non-matching item renders once so its text can be read; a match is never remounted.
+      expect(nodes.Copy.size).toBe(1);
+      expect(nodes.Rename.size).toBe(1);
+      expect(rename).toContainElement([...nodes.Rename][0] as HTMLElement);
+    });
+  });
+
   describe('filtering', () => {
     it('highlights the first item while keeping input focus when opened with the keyboard', async () => {
       const { user } = await render(
@@ -3643,7 +3698,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
     );
 
     await waitFor(() => {
-      expect(screen.queryAllByText('No actions found').length).toBeGreaterThan(0);
+      expect(screen.getByText('No actions found')).toBeInTheDocument();
     });
   });
 
@@ -3966,7 +4021,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
 
     await user.type(input, 'zzz');
     await waitFor(() => {
-      expect(screen.queryAllByText('No actions found').length).toBeGreaterThan(0);
+      expect(screen.getByText('No actions found')).toBeInTheDocument();
     });
 
     await user.clear(input);
