@@ -3,16 +3,15 @@ import { useInnerDragEngine } from '../../utils/drag-and-drop/useInnerDragEngine
 import type { DragDropManager } from '../../types/dragRegistration';
 
 /**
- * Returns the page-wide drag-and-drop manager. It includes the registration methods that
- * `Draggable.Root`, `Draggable.Target`, `Draggable.Viewport`, and `useDragMonitor`
- * are built on, plus `cancelDrag` to end the drag in progress.
+ * Returns the page-wide drag-and-drop manager. Registers drag sources, drop targets,
+ * scroll containers, and monitors. Use `cancelDrag` to end the drag in progress.
  *
  * Use it to register an existing element, integrate a non-React widget, or keep
  * registrations in one place.
  *
- * Every call controls the same page-wide manager. Base UI reads the nearest
- * `Draggable.Provider` at the hook's call site, and throws without one: custom
- * previews render through its boundary.
+ * Every call controls the same page-wide manager. Requires a `Draggable.Provider`
+ * above the component calling this hook. Custom previews receive React context
+ * from above that provider.
  *
  * Documentation: [Base UI useDragDropManager](https://base-ui.com/react/utils/draggable#usedragdropmanager)
  *

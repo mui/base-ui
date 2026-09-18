@@ -56,8 +56,6 @@ export interface DraggableHandleProps extends Omit<
   /**
    * A handle has no independent disabled state. Setting `disabled` here would
    * leave the root draggable. Set `disabled` on `Draggable.Root` instead.
-   *
-   * This prop is typed as `never` so passing it causes a type error.
    */
   disabled?: never | undefined;
 }

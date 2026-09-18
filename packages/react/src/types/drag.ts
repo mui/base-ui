@@ -108,9 +108,6 @@ export interface DropTargetRecord<TLocalData = unknown> {
    * />
    * ```
    *
-   * The first call measures the target. Later calls on the same record reuse the
-   * measurement. Records are rebuilt on every move.
-   *
    * Not clamped: an ancestor in the stack can have the pointer outside its own box, so
    * clamp where the domain requires it. Both axes report `0` for a target with no extent,
    * including one detached since the drag began.
@@ -133,7 +130,6 @@ export interface DropTargetRecord<TLocalData = unknown> {
    *
    * Pass `{ anchor: 'source' }` to snap the dragged element's leading edges instead
    * of the pointer. An axis without declared steps returns its clamped raw fraction.
-   * This method shares the measurement from `getLocalPoint()`.
    */
   getSnappedLocalPoint: (options?: DragSnappedLocalPointOptions) => DragLocalPoint;
 }
@@ -168,9 +164,8 @@ export interface DragLocationHistory {
  * The drag source carried with every event.
  * Survives the original element being unmounted, for example by a virtualizer.
  *
- * Every source in this event family is a registered Base UI draggable.
- * Native and external OS drags, which may have no source element, are outside
- * this contract and would use a separate adapter and event family.
+ * Describes Base UI drags. Native browser drags and files dragged from the operating
+ * system are not supported.
  */
 export interface DragSource<TData = unknown> {
   /** The draggable's own DOM element. */
@@ -204,7 +199,7 @@ export interface DragKind<TPayload = unknown> {
   readonly name: string;
   /**
    * The kind's runtime identity. `createKind` creates a fresh symbol for each call;
-   * `createGlobalKind` interns it on the namespaced key.
+   * `createGlobalKind` returns the same symbol for calls with the same key.
    */
   readonly id: symbol;
   /**
@@ -681,7 +676,7 @@ export interface DragPreviewSettings {
 
 /**
  * The drag preview of a source registered imperatively.
- * Omit it to use a sanitized clone of the source. The clone preserves classes
+ * Omit it to use a clone of the source. The clone preserves classes
  * and live element state, but rewrites IDs to keep the document unique.
  *
  * Components describe the preview with `Draggable.Preview` instead.

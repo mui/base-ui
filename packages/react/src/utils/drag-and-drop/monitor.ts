@@ -145,7 +145,7 @@ export interface RegisterMonitorParameters<TSourceData = unknown> {
   /**
    * Event handler called when any matching drag starts (once per drag),
    * wherever it originated. Monitors registered during a drag observe only
-   * subsequent events. A pickup canceled before monitor dispatch has no start event.
+   * subsequent events. A canceled pickup may have no start event.
    */
   onMoveStart?:
     | ((
@@ -154,8 +154,8 @@ export interface RegisterMonitorParameters<TSourceData = unknown> {
       ) => void)
     | undefined;
   /**
-   * Event handler called (rAF-throttled) as the pointer moves or a modifier key
-   * changes during any matching drag.
+   * Event handler called as the pointer moves or a modifier key changes during any
+   * matching drag, at most once per animation frame.
    */
   onMove?:
     | ((
@@ -178,9 +178,8 @@ export interface RegisterMonitorParameters<TSourceData = unknown> {
    * cancellation. `eventDetails.reason` identifies the outcome. `dropTarget` is the
    * target of a release, or `null` when there was none.
    *
-   * This can run without onMoveStart if a source handler or initial target resolver
-   * cancels pickup before monitors receive the start, or if the monitor registers
-   * during a drag. Do not assume start and end events are paired.
+   * This can run without `onMoveStart` when pickup is canceled or the monitor
+   * registers during a drag. Do not assume start and end events are paired.
    */
   onMoveEnd?:
     | ((

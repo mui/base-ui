@@ -31,8 +31,7 @@ export function createKind<TPayload = undefined>(name: string): DragKind<TPayloa
 }
 
 /**
- * Creates a globally interned drag kind for integrations where independently evaluated
- * bundles must match without sharing the same kind value.
+ * Creates a drag kind shared across bundles using the same key.
  *
  * ```ts
  * const card = Draggable.createGlobalKind<Card>('myapp/card');

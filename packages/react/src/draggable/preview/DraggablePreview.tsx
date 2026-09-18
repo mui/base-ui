@@ -14,11 +14,9 @@ import {
 /**
  * Customizes what follows the pointer while the draggable is dragged.
  * Omit children, or pass null or false, to configure the default clone of the source.
- * Renders a `<div>` in the preview overlay; nothing is rendered where the component is written.
- *
- * The component renders no element in place. Its content renders through the nearest
- * `Draggable.Provider` and is portaled into an element next to the drag source, where the
- * source's CSS can apply.
+ * Renders a `<div>` beside the source in the DOM by default, and nothing where the
+ * component is written. Receives React context from above the nearest `Draggable.Provider`.
+ * Place the provider inside any contexts the preview needs.
  *
  * Documentation: [Base UI Draggable](https://base-ui.com/react/utils/draggable)
  */

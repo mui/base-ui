@@ -819,10 +819,9 @@ export type RegisterDropTargetParameters<TSourceData = unknown, TLocalData = unk
    * `getSnappedLocalPoint()`. For example, `{ y: 96 }` creates 15-minute slots in
    * a day column, and `{ x: 7, y: 6 }` creates a month grid.
    *
-   * Step counts do not depend on the target's pixel size. Base UI measures the
-   * target when resolving a drag. Pass a static value or a callback that receives
-   * the same context as `canDrop`. The callback runs on the first snapped read for
-   * each resolution. Return `undefined` to skip snapping.
+   * Step counts do not depend on the target's pixel size. Pass a static value or
+   * a callback that receives the same context as `canDrop`. Return `undefined`
+   * to skip snapping.
    *
    * This differs from `snapToGrid`, which snaps the drag position for every target.
    * `snap` changes only the value reported by this target.
@@ -844,8 +843,8 @@ export type RegisterDropTargetParameters<TSourceData = unknown, TLocalData = unk
     | undefined;
   /**
    * Event handler called on the frame this target enters the active stack, right
-   * after `onDraggableEnter`, and on every rAF tick the pointer or modifier keys change
-   * while the target remains in the stack. Put hover-tracking work here and use
+   * after `onDraggableEnter`, and on each animation frame when the pointer or modifier
+   * keys change while the target remains in the stack. Put hover-tracking work here and use
    * `onDraggableEnter` for enter-only side effects.
    */
   onDraggableMove?:

@@ -45,11 +45,11 @@ const item = Draggable.createKind('item');
 
 The handle, preview, collision provider, and viewport are optional. Render the viewport on the element with scrollable overflow.
 
-A root supports one preview part. Omit it to use a sanitized clone of the source. Render `Draggable.Preview` without children to configure the clone, or provide children for custom content. If multiple previews are present, Base UI warns in development and uses the last one mounted.
+A root supports one preview part. Omit it to use a clone of the source. Render `Draggable.Preview` without children to configure the clone, or provide children for custom content. If multiple previews are present, Base UI warns in development and uses the last one mounted.
 
 ## Provider
 
-Wrap drag sources, targets, viewports, and components calling `useDragDropManager` in `Draggable.Provider`. The provider renders no DOM element. It supplies a default no-payload kind and the React boundary used by custom previews. Subsequent examples assume this provider is already present.
+Wrap drag sources, targets, viewports, and components calling `useDragDropManager` in `Draggable.Provider`. The provider renders no DOM element. It supplies a default no-payload kind and supports custom previews. Subsequent examples assume this provider is already present.
 
 Omit `kind` and `accept` for a simple interaction within one provider. Each provider has its own default kind. Nested or separate providers do not match each other's default kinds; use an explicit shared kind for cross-provider interactions. The drag manager itself remains page-wide. `useDragMonitor` and `useActiveDrag` read this global state and can be used outside a provider.
 
@@ -112,7 +112,7 @@ The handle starts pointer drags and renders a `span` by default. Keep the item i
 
 ## Conditional drag
 
-Pass `disabled` to stop an item from being picked up. Clicks and context-menu presses keep their normal behavior. You can change the prop at runtime without re-registering the draggable.
+Pass `disabled` to stop an item from being picked up. Clicks and context-menu presses keep their normal behavior.
 
 <DemoConditionalDrag />
 
@@ -364,13 +364,13 @@ const snapToAngle: DragModifier = ({ point, shiftKey, initialPoint }) => {
 
 ### Default preview
 
-With no preview part, a sanitized clone of the dragged element follows the pointer. The clone keeps your element's classes and live form, canvas, and scroll state, and renders in the browser's top layer, where no scroll container can clip it and nothing on the page paints over it.
+With no preview part, a clone of the dragged element follows the pointer. The clone keeps your element's classes and live form, canvas, and scroll state, and renders in the browser's top layer, where no scroll container can clip it and nothing on the page paints over it.
 
 The clone rewrites its IDs to avoid duplicate IDs in the document and updates fragment references inside the clone. External `#id` selectors therefore do not style it; use classes or `[data-drag-preview]` for preview styles.
 
-Custom elements inside a clone are replaced with inert native placeholders. Cloning a live custom element would run its constructor and connection callbacks again merely because a drag started. Render a `Draggable.Preview` when the preview must reproduce a custom element's shadow content exactly.
+The default preview does not reproduce custom-element shadow content. Use `Draggable.Preview` when that content matters.
 
-Base UI reads the computed style of each custom element to size and style its inert placeholder. For a draggable containing many custom elements, use a lightweight `Draggable.Preview` to avoid doing that work when the drag starts.
+For complex draggable elements, use a lightweight `Draggable.Preview` to reduce the work needed when a drag starts.
 
 After a release, the clone moves to the source's final position and receives `data-ending-style`. A release outside a target returns it to the unchanged source. Add a `translate` transition to animate this movement. Base UI keeps the clone mounted until the transition finishes. See [Animating a drop](/react/utils/draggable#animating-a-drop) for styling the source during the transition.
 
@@ -390,7 +390,7 @@ Cloning cannot reproduce every browser state. Render a `Draggable.Preview` in th
 
 To show something other than a clone, render a `Draggable.Preview` inside the root. Its children become the preview. Like the clone, it is placed next to the element it was lifted from, so your CSS reaches it the same way.
 
-Keep `pointer-events: none` on the preview and its children. Base UI sets it on the preview element so hit testing reaches the drop targets underneath. If a child overrides it with `pointer-events: auto`, Base UI must hide the preview and repeat the hit test on every drag frame.
+Keep `pointer-events: none` on the preview and its children so they do not intercept pointer input intended for the drop targets underneath.
 
 The dashboard below drags each widget as a compact badge instead of a copy of itself.
 
@@ -413,7 +413,7 @@ function Widget({ id, title, value }) {
 }
 ```
 
-Custom content requires a [`Draggable.Provider`](/react/utils/draggable#provider). It stays mounted if virtualization or reordering unmounts the source during a drag. The preview receives React context from above its nearest preview provider, while its DOM element sits beside the source by default.
+Custom content requires a [`Draggable.Provider`](/react/utils/draggable#provider). It stays mounted if virtualization or reordering unmounts the source during a drag. The preview receives React context from above its nearest `Draggable.Provider`. Place the provider inside any contexts the preview needs. By default, the preview appears beside the source in the DOM.
 
 Pass a function as the children to build the preview from the dragged item's data. To match the source size, use the `--drag-source-width` and `--drag-source-height` CSS variables. See [Sizing a custom preview](/react/utils/draggable#sizing-a-custom-preview).
 
@@ -651,8 +651,6 @@ Use `payload` when a monitor or another target must read the target's identity f
 />
 ```
 
-The first call measures the target. Later calls on the same record reuse that measurement. Records are rebuilt on every move.
-
 Every record has this method. Entries in `location.current.dropTargets` measure against their own bounding boxes, so nested targets report different fractions for the same pointer.
 
 The value is not clamped, because an ancestor in the stack can have the pointer outside its own box. Clamp it where your domain requires it. A target with no extent, including one detached since the drag began, reports `{ x: 0, y: 0 }`.
@@ -673,9 +671,9 @@ When the target represents fixed intervals such as 15-minute slots, weekday colu
 />
 ```
 
-Step counts divide the target's bounding box rather than using pixels. Base UI measures the box when resolving the drag, so a viewport-sized column can declare its slots without knowing its dimensions, including during server rendering. Put the target on the grid element so headers and toolbars are excluded from the stepped area.
+Step counts divide the target's bounding box rather than using pixels. You can declare slots without knowing the target's dimensions, including during server rendering. Put the target on the grid element so headers and toolbars are excluded from the stepped area.
 
-Pass a callback when the step count depends on the drag. It receives the same `source`, `element`, and `input` context as `canDrop`. It runs on the first snapped read for each resolution and may return `undefined` to skip snapping:
+Pass a callback when the step count depends on the drag. It receives the same `source`, `element`, and `input` context as `canDrop`. Return `undefined` to skip snapping:
 
 ```tsx title="A step count derived from the drag"
 <Draggable.Target
@@ -818,7 +816,7 @@ Save the original order in `onMoveStart` and restore it if the drag is canceled 
 
 The example animates each card inside a stationary row used as its `collisionElement`. Keeping the measured row still prevents the animation from moving the collision boundary. It skips movement animations when the user prefers reduced motion.
 
-Every collision change re-renders the list, so wrap each item in `React.memo` and keep its handlers stable, as the `Task` component above does; a reorder then only moves DOM nodes. Keep `canCollide` stable too: a new function identity re-resolves the destination on every render during a drag.
+For large lists, wrap each item in `React.memo` and keep its handlers stable, as the `Task` component above does. Keep `canCollide` stable too, to avoid recalculating the destination on every render during a drag.
 
 Both examples implement <kbd>Alt</kbd>+<kbd>↑</kbd> and <kbd>Alt</kbd>+<kbd>↓</kbd> to reorder a focused item with the keyboard.
 
@@ -834,8 +832,6 @@ import { DemoDragAutoScrollCanvas } from './demos/scrolling/canvas';
 
 Auto-scroll is opt-in for each container. The board above registers both lists with `Draggable.Viewport`. The second viewport also reduces its scrolling speed.
 
-The card keeps its `previewKey` when it moves from the tray into a list. The destination is a disabled `Draggable.Root`, so the preview can settle on it without making the inserted card draggable. Keying the tray card by its ID unmounts the old source when the next card appears.
-
 Use `Draggable.Viewport` on each element that should scroll, including nested containers. It can [configure an existing scroll container](#customize-a-container-that-already-scrolls) or [implement custom scrolling](#implement-custom-scrolling), such as panning a canvas with a CSS `transform`.
 
 ### Which containers scroll
@@ -844,7 +840,7 @@ Only elements rendered by `Draggable.Viewport` or registered with `registerAutoS
 
 An element participates on axes whose computed `overflow` is `auto`, `scroll`, or `overlay`. Use `hidden` or `clip` to exclude an axis.
 
-A container scrolls while the pointer is in an edge zone and more content remains in that direction. Each edge zone is one quarter of the container's size on that axis, capped at 180px.
+A container scrolls while the pointer is near an edge and more content remains in that direction.
 
 Use `onDragScroll` to cancel a proposed scroll or [implement custom scrolling](#implement-custom-scrolling).
 
@@ -864,7 +860,7 @@ Use `disabled` to exclude a container from auto-scroll. A registered ancestor ca
 </Draggable.Viewport>
 ```
 
-You can also pass an expression. The registration remains active, so changing the value during a drag pauses or resumes scrolling without re-registering the container.
+You can also pass an expression. Changing the value during a drag pauses or resumes scrolling.
 
 ```tsx title="Off while the list is filtered"
 <Draggable.Viewport disabled={isFiltered} />
@@ -926,7 +922,7 @@ A grid can scroll vertically for row drags and horizontally for column drags:
 
 Use `maxSpeed` to set the speed at the container edge in CSS pixels per second. The default is `900`. Increase it for a large scroll range or reduce it for a short list.
 
-`maxSpeed` is reached at the container edge. Speed increases with the pointer's depth in the edge zone and ramps up over the first 400ms of continuous scrolling.
+`maxSpeed` is reached at the container edge. Scrolling speeds up as the pointer approaches the edge and as scrolling continues.
 
 ```tsx title="Slower in a short list"
 <Draggable.Viewport maxSpeed={300} />
@@ -944,7 +940,7 @@ Set it to `0` to stop the container and let an ancestor scroll on those axes. Ca
 
 Use `onDragScroll` when Base UI cannot scroll an element directly. For example, a canvas panned with a CSS `transform` has no scroll offsets to update. The callback receives one axis of the scroll delta at a time. Prevent the default, apply the movement, and stop propagation to claim that direction.
 
-The element does not need scrollable `overflow`, and Base UI does not read its scroll extent. Edge zones, speed ramping, and nesting work as they do for a scroll container.
+The element does not need scrollable `overflow`. Edge zones, speed ramping, and nesting work as they do for a scroll container.
 
 <DemoDragAutoScrollCanvas />
 
@@ -965,7 +961,7 @@ The `x` and `y` values match the arguments Base UI would pass to `element.scrol
 
 Apply the movement synchronously before returning. Base UI resolves the drop target again on the next frame. Updating the camera through React state would make hit testing one frame late, while writing the transform from a ref keeps it current.
 
-Canceling keeps the canvas engaged so its speed ramps up from zero; the first proposal in a direction always carries a zero delta. Call `eventDetails.consume()` for a direction the canvas takes. Skip `consume()` at a bound so a registered ancestor can scroll instead, or leave the proposal entirely alone for a direction the canvas never handles so the loop can idle. At a corner the handler runs twice, once per axis, with the other delta set to zero. Update the camera from its latest value so the second call preserves the first call's movement.
+Call `eventDetails.cancel()` and apply the movement yourself, even when the proposed delta is zero. Call `eventDetails.consume()` for a direction the canvas takes. Skip `consume()` at a bound so an ancestor can scroll instead. Ignore proposals for directions the canvas does not handle. At a corner the handler runs twice, once per axis, with the other delta set to zero. Update the camera from its latest value so the second call preserves the first call's movement.
 
 ```tsx title="A canvas with bounds"
 <Draggable.Viewport
@@ -1118,26 +1114,17 @@ During mouse and pen drags, Base UI applies `grabbing` across the document, or 
 }
 ```
 
-### Styles the engine writes
+### Touch and selection styles
 
-Base UI writes inline styles and injects one cursor stylesheet. These styles may override the same properties in your CSS.
+Base UI prevents text selection and the iOS touch callout on enabled draggables. Touch scrolling remains available before touch activation, which defaults to a 250ms hold. With a [`Draggable.Handle`](/react/utils/draggable#drag-handle), these restrictions apply only to the handle.
 
-At registration, each enabled draggable receives `touch-action: manipulation`, `user-select: none`, `-webkit-user-select: none`, and `-webkit-touch-callout: none`. A disabled source receives none of these styles. The styles prevent text selection and the iOS callout while still allowing touch scrolling before touch activation, which defaults to a 250ms hold. When a [`Draggable.Handle`](/react/utils/draggable#drag-handle) is present, Base UI applies the styles to the handle instead of the root. Setting `touch-action` on the handle overrides this behavior and can interfere with touch dragging or list scrolling, so set it on a wrapper instead. Base UI restores the original styles when the source unregisters.
+Avoid overriding `touch-action` on the draggable or its handle, as this can interfere with touch dragging or list scrolling. Apply custom `touch-action` styles to a wrapper instead.
 
-During a pointer drag, Base UI sets `touch-action: none`, `user-select: none`, `-webkit-user-select: none`, `-webkit-touch-callout: none`, and `overscroll-behavior: none` on `<html>` and `<body>`. This prevents page scrolling and overscroll. Base UI restores the values when the drag ends.
+During a pointer drag, Base UI prevents page scrolling, overscroll, and text selection. These restrictions end with the drag. Use [`dragCursor`](/react/utils/draggable#set-the-drag-cursor) to customize the cursor or opt out of the document-wide cursor override.
 
-A pointer drag also adds a `baseui-dragging` class to `<html>` and, once per document, injects a single rule:
+### Content security policy
 
-```css title="The injected cursor rule"
-html.baseui-dragging.baseui-dragging-styles,
-html.baseui-dragging.baseui-dragging-styles * {
-  cursor: var(--drag-cursor, grabbing) !important;
-}
-```
-
-The universal selector and `!important` override element cursors, such as `grab` on handles and `text` on inputs. `--drag-cursor` is set on `<html>` for the duration of the drag from the source's [`dragCursor`](/react/utils/draggable#set-the-drag-cursor), so you can also set it yourself for a scope the engine doesn't know about. When the drag ends, whether it drops or is canceled, the classes are removed and the custom property is restored. The injected rule remains installed for reuse by later drags.
-
-The stylesheet receives the nonce from [`CSPProvider`](/react/utils/csp-provider). When `disableStyleElements` is enabled, Base UI does not inject or activate its cursor rule, but it still adds `baseui-dragging` and sets `--drag-cursor`. Add the following equivalent rule to an external stylesheet to retain the document-wide cursor:
+The cursor stylesheet receives the nonce from [`CSPProvider`](/react/utils/csp-provider). When `disableStyleElements` is enabled, Base UI does not inject or activate its cursor rule, but it still adds `baseui-dragging` and sets `--drag-cursor`. Add the following equivalent rule to an external stylesheet to retain the document-wide cursor:
 
 ```css title="External cursor rule"
 html.baseui-dragging,
@@ -1278,8 +1265,6 @@ Include the pointer information the engine needs:
 - Use the same `pointerId` throughout the gesture. Events from another pointer are ignored.
 - Set `buttons: 1` on each move to indicate that the primary button is still pressed.
 
-A move with `buttons: 0` before activation abandons the press without starting a drag. During an active drag, it schedules cancellation with reason `'missed-release'` for the next animation frame. A move with `buttons: 1` before that frame prevents the cancellation. [Wait for a frame](#let-a-frame-pass) before asserting a missed release.
-
 For touch, advance timers past the press-hold instead of moving:
 
 ```tsx title="A touch drag"
@@ -1377,9 +1362,9 @@ import { TypesDraggable, TypesDraggableAdditional } from './types';
 
 ### Root
 
-Call `eventDetails.cancel()` in `onBeforeMoveStart` to veto pickup. Calling `preventDefault()` or `preventBaseUIHandler()` in a React `onPointerDown` handler cannot veto it, because the sensor listens at the window before React's handler runs.
+To prevent pickup, call `eventDetails.cancel()` in `onBeforeMoveStart`. Calling `preventDefault()` or `preventBaseUIHandler()` in `onPointerDown` does not prevent pickup.
 
-`previewKey` reconnects a settling cloned preview to the source after it remounts. Use a stable key for a virtualized or reordered item.
+`previewKey` reconnects a settling cloned preview to the source after it remounts. Use a stable key for a virtualized or reordered item. In the [scrolling demo](#scrolling), the card keeps its key when it moves from the tray into a list. A disabled `Draggable.Root` at the destination lets the preview settle there without making the inserted card draggable.
 
 Within a `Draggable.CollisionProvider`, pass the provider's `kind` to each root. Set `collision={false}` to exclude a root as an insertion destination. Use `collisionElement` to measure a different element, such as a row wrapper around the drag handle.
 
@@ -1482,7 +1467,7 @@ Root and monitor callbacks use `onMoveStart`, `onMove`, `onTargetChange`, and `o
 
 Use it for a status bar, analytics, shared drag state, or committing an update from one place instead of each target's `onDraggableDrop`. In the shape sorter above, the cutouts only declare what they accept. A monitor updates the live status and places each shape after a successful drop.
 
-A monitor registers once for the component's lifetime. Re-renders do not register it again, and Base UI reads the latest callbacks for every event. A monitor mounted during a drag observes the rest of that drag. It can receive `onMoveEnd` without `onMoveStart`. This also happens when a source handler or initial target resolver cancels pickup before the monitor receives the start.
+Monitor callbacks use the latest props and state. A monitor mounted during a drag observes the rest of that drag. It can receive `onMoveEnd` without `onMoveStart`, for example when mounted mid-drag or when pickup is canceled.
 
 ### Filter by kind
 
@@ -1551,7 +1536,7 @@ import { DemoEngineShapeSorter } from './demos/use-drag-drop-manager/hero';
 
 <DemoEngineShapeSorter />
 
-The `useDragDropManager` hook returns the page-wide imperative API. It has four registration methods, `registerDraggable`, `registerDropTarget`, `registerAutoScroller`, and `registerMonitor`. It also provides `cancelDrag`. The React components and hooks use the same registration methods internally.
+The `useDragDropManager` hook returns the page-wide imperative API. It has four registration methods, `registerDraggable`, `registerDropTarget`, `registerAutoScroller`, and `registerMonitor`. It also provides `cancelDrag`.
 
 Every call controls the same manager. Calling the hook in two boards does not isolate them, and `cancelDrag()` ends whichever drag is active on the page. Use distinct kinds and target `accept` declarations to keep independent features from interacting.
 
@@ -1602,7 +1587,7 @@ manager.registerDraggable(element, () => ({ kind: card, payload: id }));
 
 #### Drag preview
 
-An imperative source uses the same sanitized clone as `Draggable.Root` by default. The clone preserves classes and live element state and rewrites IDs to avoid duplicates. Pass `dragPreview` to configure or replace it:
+An imperative source uses the same clone as `Draggable.Root` by default. The clone preserves classes and live element state and rewrites IDs to avoid duplicates. Pass `dragPreview` to configure or replace it:
 
 ```tsx title="A cloned preview for a registered source"
 manager.registerDraggable(element, () => ({

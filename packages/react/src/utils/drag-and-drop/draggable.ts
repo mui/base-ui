@@ -248,7 +248,7 @@ export type DraggableConfig<TData = undefined> = {
   dragCursor?: string | false | undefined;
   /**
    * The content and DOM container of the drag preview.
-   * Omit it to use a sanitized clone of the source. The clone preserves classes
+   * Omit it to use a clone of the source. The clone preserves classes
    * and live element state, but rewrites IDs to keep the document unique.
    *
    * For sources registered imperatively. A draggable that renders a preview part

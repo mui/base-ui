@@ -72,7 +72,7 @@ export type RegisterDraggableParameters<TData = undefined> = Omit<
 >;
 
 /**
- * `RegisterDraggableParameters` for the overload that infers `TData` from a required `payload`.
+ * Registration parameters for a draggable with a required payload.
  * @public
  */
 export type RegisterDraggableParametersWithPayload<TData> = DragParametersWithRequiredPayload<

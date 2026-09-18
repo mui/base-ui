@@ -1250,10 +1250,8 @@ export function retainScrollMonitor(): () => void {
 /** Live drag context passed to the per-frame callbacks. */
 export interface DragAutoScrollFrameContext<TSourceData = unknown> {
   /**
-   * The position used to measure this container's edge zones. Base UI uses the
-   * physical pointer while it is inside the container. Because a modifier can
-   * separate the reported drag position from the pointer, Base UI checks both and
-   * returns the position it used.
+   * The position used to determine scrolling. It may differ from the modified
+   * drag position when a modifier separates that position from the pointer.
    */
   input: DragInput;
   source: DragSource<TSourceData>;
@@ -1267,7 +1265,7 @@ export interface DragAutoScrollEvent<
   /**
    * How far to move horizontally this frame, in CSS pixels, with `scrollBy`
    * semantics: a positive value moves the view right, so the content slides left
-   * under the pointer. Already ramped and scaled by the frame's elapsed time.
+   * under the pointer. Apply this delta as-is, without multiplying by elapsed time.
    * `0` when the horizontal axis isn't engaged this frame.
    */
   x: number;
@@ -1282,12 +1280,12 @@ export type DragAutoScrollDirection = 'horizontal' | 'vertical';
 export interface DragAutoScrollEventDetails {
   /** Why the frame ran. Always `'pointer'`: the loop follows the pointer's position. */
   reason: 'pointer';
-  /** A placeholder: scroll frames run from the animation loop, not from a native event. */
+  /** A generic `Event`, rather than the native pointer event. */
   event: Event;
   /**
    * Keeps Base UI from scrolling the viewport natively in this direction. A
-   * surface that moves itself calls it and applies the movement; the surface
-   * stays engaged so its speed ramps up.
+   * surface that moves itself calls it and applies the movement synchronously,
+   * even when the proposed delta is zero.
    */
   cancel: () => void;
   /** Whether {@link cancel} has been called. */
@@ -1397,8 +1395,7 @@ export interface RegisterAutoScrollerParameters<TSourceData = unknown> {
    * Whether to disable auto-scroll for this element. An ancestor can scroll on the
    * excluded axes.
    *
-   * Base UI reads this value every frame and keeps the registration active. Changing
-   * it during a drag pauses or resumes scrolling without re-registering the element.
+   * Changing this value during a drag pauses or resumes scrolling.
    *
    * For a decision that depends on the drag, use `onDragScroll` instead.
    * @default false
@@ -1418,10 +1415,10 @@ export interface RegisterAutoScrollerParameters<TSourceData = unknown> {
   /**
    * Called once for each proposed scroll direction. Native viewports scroll unless
    * `eventDetails.cancel()` is called. For a surface without scrollable overflow,
-   * cancel and apply the movement synchronously yourself; canceling keeps the
-   * surface engaged so its speed ramps up. Call `eventDetails.consume()` when the
-   * surface takes the direction to keep an outer viewport from scrolling on the
-   * same axis, and leave it at a bound the surface cannot move past.
+   * cancel and apply the movement synchronously yourself, even when the proposed
+   * delta is zero. Call `eventDetails.consume()` when the surface takes the direction
+   * to keep an outer viewport from scrolling on the same axis. Skip `consume()`
+   * at a bound the surface cannot move past.
    *
    * A viewport with a handler receives proposals for both directions, including
    * one its overflow cannot scroll natively, so a custom surface can move on

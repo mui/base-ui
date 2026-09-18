@@ -7,7 +7,7 @@ import { DraggableContext } from './DraggableContext';
 import { DraggablePreviewProvider } from './preview-provider/DraggablePreviewProvider';
 
 /**
- * Provides the default drag kind and custom preview boundary for its descendants.
+ * Provides the default drag kind and supports custom previews for its descendants.
  * Required above drag components and `useDragDropManager`; `useDragMonitor` and
  * `useActiveDrag` observe the page-wide manager and work without it.
  * Renders no DOM element.
