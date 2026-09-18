@@ -5,6 +5,36 @@
 
 Base UI components can be animated using CSS transitions, CSS animations, or JavaScript animation libraries. Each component provides a number of data attributes to target its states, as well as a few attributes specifically for animation.
 
+## Behavior while animating out
+
+A popup that is still in the DOM after it closes is already closed as far as the user is
+concerned. Base UI marks that subtree with the
+[`inert`](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Global_attributes/inert)
+attribute for the rest of the exit animation, so it is neither exposed to assistive technology
+nor reachable with the <kbd>Tab</kbd> key.
+
+This applies to [Dialog](/react/components/dialog),
+[Alert Dialog](/react/components/alert-dialog), [Drawer](/react/components/drawer),
+[Popover](/react/components/popover), [Menu](/react/components/menu) — including
+[Context Menu](/react/components/context-menu) and the menus in a
+[Menubar](/react/components/menubar) — [Select](/react/components/select),
+[Combobox](/react/components/combobox), [Autocomplete](/react/components/autocomplete), and
+[Preview Card](/react/components/preview-card). [Tooltip](/react/components/tooltip) and
+[Navigation Menu](/react/components/navigation-menu) keep their own handling: their closing
+positioners stop receiving pointer events, but never become inert.
+
+Focus is handed back when the component closes, not when the exit animation finishes. A popup
+closed while focus was inside it moves focus to its trigger, or to whatever was focused before it
+opened. `finalFocus` overrides that choice, including over a focus guard that would otherwise pick
+the destination itself, and `finalFocus={false}` opts out entirely — focus is then yours to move.
+Preview Card has no focus manager of its own and so names no destination; focus simply leaves the
+closed card.
+
+Because `inert` is an attribute rather than a style, a descendant cannot opt back in: no part of a
+closing popup can stay interactive. Drawer is the exception — while a swipe is in progress its
+popup stays interactive so the gesture can finish. Keep exit animations short if a stray click in
+that window would be disruptive.
+
 ## CSS transitions
 
 Use the following Base UI attributes for creating transitions when a component becomes visible or hidden:

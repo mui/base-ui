@@ -1576,7 +1576,7 @@ describe('FloatingFocusManager', () => {
         }
       });
 
-      test('preserves keyboard close modality when reopening before focus restoration', async () => {
+      test('cancels focus restoration when reopening before it runs', async () => {
         function App() {
           const [isOpen, setIsOpen] = React.useState(false);
           const [reopenOnClose, setReopenOnClose] = React.useState(false);
@@ -1624,16 +1624,23 @@ describe('FloatingFocusManager', () => {
             expect(screen.getByTestId('child')).toHaveFocus();
           });
 
+          // Ignore the focus the opening click itself put on the reference.
+          focusSpy.mockClear();
+
           fireEvent.click(screen.getByTestId('reopen-on-close'));
           await userEvent.keyboard('{Escape}');
 
+          // Closing starts a focus return, but the popup reopens in the same flush. The queued
+          // return belongs to the finished session and must not fire: pulling focus back to the
+          // reference only to have the reopened popup grab it again is a visible flicker.
           await waitFor(() => {
-            expect(focusSpy).toHaveBeenCalledWith({
-              preventScroll: true,
-              focusVisible: true,
-            });
+            expect(screen.getByTestId('open-state')).toHaveTextContent('true');
           });
-          expect(screen.getByTestId('open-state')).toHaveTextContent('true');
+          await flushMicrotasks();
+          expect(focusSpy).not.toHaveBeenCalled();
+          await waitFor(() => {
+            expect(screen.getByTestId('child')).toHaveFocus();
+          });
         } finally {
           focusSpy.mockRestore();
         }

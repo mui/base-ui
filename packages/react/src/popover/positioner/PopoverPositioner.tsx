@@ -148,6 +148,7 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
     refs: [forwardedRef, setPositionerElement],
     hidden: !mounted,
     inert: !open,
+    closed: !open,
   });
 
   return (

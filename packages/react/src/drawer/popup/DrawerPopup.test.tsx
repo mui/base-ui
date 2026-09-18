@@ -5,7 +5,7 @@ import { Dialog } from '@base-ui/react/dialog';
 import { Drawer } from '@base-ui/react/drawer';
 import { SafeReact } from '@base-ui/utils/safeReact';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
+import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { useDialogRootContext } from '../../dialog/root/DialogRootContext';
 import { useDrawerRootContext } from '../root/DrawerRootContext';
@@ -916,4 +916,81 @@ describe('<Drawer.Popup />', () => {
       }
     },
   );
+
+  // `inert` on a closing Drawer is scoped to `!swiping` because the swipe handlers live on
+  // `Drawer.Viewport`, inside the popup. Going inert mid-gesture would kill a dismissal the user
+  // is still performing.
+  it.skipIf(isJSDOM)('stays interactive while a swipe is in progress after closing', async () => {
+    function createTouch(target: EventTarget, point: { clientX: number; clientY: number }) {
+      if (typeof Touch === 'function') {
+        return new Touch({ identifier: 1, target, ...point });
+      }
+      return point;
+    }
+
+    function TestCase({ open }: { open: boolean }) {
+      return (
+        <Drawer.Root open={open}>
+          <Drawer.Portal>
+            <Drawer.Viewport data-testid="viewport">
+              <Drawer.Popup data-testid="popup">
+                <button type="button" data-testid="inside">
+                  Action
+                </button>
+              </Drawer.Popup>
+            </Drawer.Viewport>
+          </Drawer.Portal>
+        </Drawer.Root>
+      );
+    }
+
+    const { setProps } = await render(<TestCase open />);
+    const popup = screen.getByTestId('popup');
+    const inside = screen.getByTestId('inside');
+
+    expect(popup).not.toHaveAttribute('inert');
+
+    const originalElementFromPoint = document.elementFromPoint;
+    document.elementFromPoint = () => inside;
+
+    try {
+      fireEvent.touchStart(inside, {
+        touches: [createTouch(inside, { clientX: 0, clientY: 0 })],
+      });
+      await flushMicrotasks();
+      expect(popup).toHaveAttribute('data-swiping', '');
+
+      // Logically closed, but the gesture is still live: the popup must remain interactive.
+      await setProps({ open: false });
+      expect(popup).toHaveAttribute('data-swiping', '');
+      expect(popup).not.toHaveAttribute('inert');
+
+      // That a closed Drawer with no gesture in flight *does* go inert is covered by the
+      // sibling test below; ending a touch gesture deterministically here would mean driving
+      // the snap-point settle.
+    } finally {
+      document.elementFromPoint = originalElementFromPoint;
+    }
+  });
+
+  it.skipIf(isJSDOM)('makes the popup inert once closed', async () => {
+    function TestCase({ open }: { open: boolean }) {
+      return (
+        <Drawer.Root open={open}>
+          <Drawer.Portal>
+            <Drawer.Viewport>
+              <Drawer.Popup data-testid="popup">Drawer</Drawer.Popup>
+            </Drawer.Viewport>
+          </Drawer.Portal>
+        </Drawer.Root>
+      );
+    }
+
+    const { setProps } = await render(<TestCase open />);
+    const popup = screen.getByTestId('popup');
+    expect(popup).not.toHaveAttribute('inert');
+
+    await setProps({ open: false });
+    await waitFor(() => expect(popup).toHaveAttribute('inert'));
+  });
 });
