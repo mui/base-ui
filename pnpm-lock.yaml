@@ -516,8 +516,8 @@ importers:
         specifier: ^0.2.12
         version: 0.2.12
       '@mui/x-virtualizer':
-        specifier: ^0.6.0
-        version: 0.6.3(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
+        specifier: ^0.7.1
+        version: 0.7.1(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
       use-sync-external-store:
         specifier: ^1.6.0
         version: 1.6.0(react@19.2.8)
@@ -2392,8 +2392,8 @@ packages:
       react: ^17.0.0 || ^18.0.0 || ^19.0.0
       react-dom: ^17.0.0 || ^18.0.0 || ^19.0.0
 
-  '@mui/x-virtualizer@0.6.3':
-    resolution: {integrity: sha512-12EEt7/qG7/6YGmzjcqDRzDkYnTSELoQxOrTf30XLWxhIdkYn1uygZzSPG+fg811ZzbF301HodEVY05GMLCQmg==}
+  '@mui/x-virtualizer@0.7.1':
+    resolution: {integrity: sha512-WNkwOr1g2PrtaEtQzDYVaFEHlPj983UA3JuazBw+pANTlUifaD2IQIfD/5QCVr3dOal5eOByfWecp+IPH2A9zA==}
     engines: {node: '>=14.0.0'}
     peerDependencies:
       react: ^17.0.0 || ^18.0.0 || ^19.0.0
@@ -11783,7 +11783,7 @@ snapshots:
     transitivePeerDependencies:
       - '@types/react'
 
-  '@mui/x-virtualizer@0.6.3(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)':
+  '@mui/x-virtualizer@0.7.1(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)':
     dependencies:
       '@babel/runtime': 7.29.7
       '@base-ui/utils': 0.3.2(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
