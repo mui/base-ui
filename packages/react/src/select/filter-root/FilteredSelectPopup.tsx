@@ -46,8 +46,8 @@ export const FilteredSelectPopup = React.forwardRef(function FilteredSelectPopup
     <SelectPopupPlain
       {...popupProps}
       role="dialog"
-      trapFocus={trapsFocus}
       initialFocus={initialFocus}
+      modal={trapsFocus}
       ref={forwardedRef}
     />
   );
