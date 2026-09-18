@@ -86,7 +86,9 @@ describe('<Virtualizer /> standalone', () => {
       />,
     );
 
-    await waitFor(() => expect(screen.getAllByRole('option')).toHaveLength(5));
+    // Three rows cover the scrollport, and the engine keeps a buffer of at least fifteen estimated
+    // rows around the window, half of it on each side while the list is at rest.
+    await waitFor(() => expect(screen.getAllByRole('option')).toHaveLength(12));
 
     expect(screen.getByText('Item 5')).not.toBe(null);
     expect(screen.queryByText('Item 20')).toBe(null);

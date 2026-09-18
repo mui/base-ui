@@ -111,7 +111,8 @@ function TestTable(props: TestTableProps) {
 }
 
 function getSection() {
-  return document.querySelector('tbody')!;
+  // The virtualizer's own section, not one of the row groups reserving space around it.
+  return document.querySelector<HTMLTableSectionElement>('tbody[style*="--total-size"]')!;
 }
 
 function getRow(label: string) {
@@ -146,8 +147,11 @@ describe('<Virtualizer /> table layout', () => {
     expect(children.every((child) => child.tagName === 'TR')).toBe(true);
     expect(children.every((child) => child.hasAttribute('data-row-index'))).toBe(true);
     expect(section.querySelector('div')).toBe(null);
-    // The rows outside the window are stood in for by a row group after the section, holding
-    // their space in an empty row.
+    // The rows outside the window are stood in for by row groups on either side of the section,
+    // each holding the space of the rows on its side in an empty row.
+    const startSpacerSection = section.previousElementSibling!;
+    expect(startSpacerSection.tagName).toBe('TBODY');
+    expect(startSpacerSection.firstElementChild).toHaveAttribute('aria-hidden', 'true');
     const spacerSection = section.nextElementSibling!;
     expect(spacerSection.tagName).toBe('TBODY');
     expect(spacerSection.firstElementChild).toHaveAttribute('aria-hidden', 'true');
@@ -584,7 +588,7 @@ describe('<Virtualizer /> table layout', () => {
       );
     });
 
-    it('holds the rows in a sticky row group that a transform positions', async () => {
+    it('holds the rows in a sticky row group placed where they belong', async () => {
       const actionsRef = React.createRef<Virtualizer.Actions>();
       await render(
         <TestTable
@@ -597,16 +601,18 @@ describe('<Virtualizer /> table layout', () => {
       const section = getSection();
       await screen.findByText('Item 1');
 
+      // Stuck with insets negative by however much taller than the scrollport the window is, so
+      // that native scrolling moves the rows within the window and the scrollport never leaves it.
       expect(getComputedStyle(section).position).toBe('sticky');
+      expect(Number.parseFloat(section.style.top)).toBeLessThan(0);
+      expect(Number.parseFloat(section.style.bottom)).toBeLessThan(0);
+      expect(section.style.transform).toBe('');
 
       scroller.scrollTop = 2000;
       fireEvent.scroll(scroller);
 
       await waitFor(() => expect(screen.queryByText('Item 1')).toBe(null));
-      // Held at the scrollport's start edge, and translated to where the window's rows belong.
-      await waitFor(() =>
-        expect(section.style.transform).toMatch(/^translate3d\(0(?:px)?, .+px, 0(?:px)?\)$/),
-      );
+      // Placed where the window's rows belong by the row group reserving the space above it.
       await waitFor(() => {
         const scrollerTop = scroller.getBoundingClientRect().top + scroller.clientTop;
         const errors = Array.from(section.querySelectorAll<HTMLElement>('[data-row-index]')).map(
