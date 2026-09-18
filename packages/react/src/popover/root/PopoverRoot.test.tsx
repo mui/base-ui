@@ -37,7 +37,7 @@ describe('<Popover.Root />', () => {
     { name: 'contained triggers', Component: ContainedTriggerPopover },
     { name: 'detached triggers', Component: DetachedTriggerPopover },
     { name: 'multiple detached triggers', Component: MultipleDetachedTriggersPopover },
-  ])('when using $name', ({ Component: TestPopover }) => {
+  ])('when using $name', ({ name, Component: TestPopover }) => {
     it('should render the children', async () => {
       await render(<TestPopover />);
 
@@ -1318,7 +1318,9 @@ describe('<Popover.Root />', () => {
         },
       );
 
-      describe.skipIf(isJSDOM)('with no other tabbable element on the page', () => {
+      // The multiple-triggers variant has a second tabbable trigger.
+      const multiTrigger = name === 'multiple detached triggers';
+      describe.skipIf(isJSDOM || multiTrigger)('with no other tabbable element on the page', () => {
         // Records every focus guard that receives focus, so a test can tell "each guard handed
         // focus over once" from "the guards bounced focus back and forth".
         function trackFocusedGuards() {
@@ -1342,7 +1344,7 @@ describe('<Popover.Root />', () => {
           globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
         });
 
-        it('closes the popup when tabbing forward out of it', async () => {
+        it('does not loop focus between guards when tabbing out of the popup', async () => {
           const { user } = await render(<TestPopover />);
 
           await user.click(screen.getByTestId('trigger'));
@@ -1362,9 +1364,10 @@ describe('<Popover.Root />', () => {
             expect(screen.queryByRole('dialog')).toBe(null);
           });
           expect(new Set(focusedGuards).size).toBe(focusedGuards.length);
+          expect(document.body).toHaveFocus();
         });
 
-        it('closes the popup when shift-tabbing out of the trigger', async () => {
+        it('does not loop focus between guards when shift-tabbing out of the trigger', async () => {
           const { user } = await render(<TestPopover />);
 
           const trigger = screen.getByTestId('trigger');
@@ -1388,6 +1391,7 @@ describe('<Popover.Root />', () => {
             expect(screen.queryByRole('dialog')).toBe(null);
           });
           expect(new Set(focusedGuards).size).toBe(focusedGuards.length);
+          expect(document.body).toHaveFocus();
         });
       });
     });
