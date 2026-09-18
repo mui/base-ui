@@ -531,7 +531,7 @@ Renders a `<div>` element.
 
 | Prop         | Type                                                                                      | Default | Description                                                                                                                                                                                   |
 | :----------- | :---------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| label        | `string`                                                                                  | -       | Specifies the text label to use when the item is matched during keyboard text navigation. Defaults to the item text content if not provided.                                                  |
+| label        | `string`                                                                                  | -       | Overrides the text used for keyboard text navigation and filtering inside `Select.FilterProvider`. Defaults to the item text content if not provided.                                         |
 | value        | `any`                                                                                     | `null`  | A unique value that identifies this select item.                                                                                                                                              |
 | keywords     | `string[]`                                                                                | -       | Additional terms the item matches on when filtering inside `Select.FilterProvider`.&#xA;A plain select ignores it.                                                                            |
 | nativeButton | `boolean`                                                                                 | `false` | Whether the component renders a native `<button>` element when replacing it&#xA;via the `render` prop.&#xA;Set to `true` if the rendered element is a native button.                          |
@@ -868,6 +868,8 @@ type SelectFilterEmptyState = {};
 
 A search field that filters the select options.
 Requires the select to be wrapped in `Select.FilterProvider`.
+Automatically receives focus whenever the popup opens, after the popup is positioned.
+The `autoFocus` prop is not needed and does not change this behavior.
 Renders an `<input>` element.
 
 **FilterInput Props:**

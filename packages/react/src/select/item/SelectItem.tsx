@@ -305,7 +305,7 @@ export interface SelectItemProps
    */
   disabled?: boolean | undefined;
   /**
-   * Specifies the text label to use when the item is matched during keyboard text navigation.
+   * Overrides the text used for keyboard text navigation and filtering inside `Select.FilterProvider`.
    *
    * Defaults to the item text content if not provided.
    */
