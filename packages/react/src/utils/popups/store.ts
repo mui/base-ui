@@ -177,7 +177,10 @@ function triggerOwnsOpenPopupOrIsOnlyTrigger(state: S, triggerId: string | undef
 export const popupStoreSelectors = {
   open: openSelector,
   mounted: (state: S) => state.mounted,
-  transitionStatus: (state: S) => state.transitionStatus,
+  // `open` is written synchronously on an open change; `mounted`/`transitionStatus` sync in a
+  // layout effect. Match useTransitionStatus so a retained popup does not miss its starting phase.
+  transitionStatus: (state: S) =>
+    openSelector(state) && !state.mounted ? 'starting' : state.transitionStatus,
   floatingRootContext: (state: S) => state.floatingRootContext,
   triggerCount: (state: S) => state.triggerCount,
   preventUnmountingOnClose: (state: S) => state.preventUnmountingOnClose,
