@@ -21,34 +21,36 @@ import { createKind } from '../../utils/drag-and-drop/dragKind';
 import { DraggableCollisionContext, type CollisionParticipant } from './DraggableCollisionContext';
 import { useDraggableContext } from '../DraggableContext';
 
-/** A participant under the pointer, with coordinates for application-defined placement. */
+/** The item under the pointer during a drag. */
 export interface DraggableCollision<TData = unknown> {
   /**
-   * The participant under the pointer. Read `getLocalPoint()` or `getSnappedLocalPoint()`
-   * to compute a destination. Coordinates are captured before drag callbacks can change layout.
-   * Its payload is the draggable's static payload.
+   * The item under the pointer. Use `payload` to identify it and `getLocalPoint()`
+   * or `getSnappedLocalPoint()` to choose an insertion position.
    */
   target: DropTargetRecord<TData>;
 }
 
 export interface DraggableCollisionEvent<TData = unknown> extends BaseDragEvent<TData> {
-  /** The current destination, or null outside this group or over the source itself. */
+  /** The item under the pointer, or `null` outside this group or over the dragged item. */
   collision: DraggableCollision<TData> | null;
-  /** The collision from the previous onCollisionChange callback, or null before the first one. */
+  /** The last collision reported by `onCollisionChange`, or `null` before the first call. */
   previousCollision: DraggableCollision<TData> | null;
 }
 
 export interface DraggableCollisionEndEvent<TData = unknown> extends MoveEndEvent<TData> {
-  /** The final destination in this group, or null on cancellation or an unrelated drop. */
+  /**
+   * The item under the pointer at drop, or `null` on cancellation, outside this group,
+   * or over the dragged item.
+   */
   collision: DraggableCollision<TData> | null;
-  /** The collision from the previous onCollisionChange callback, or null before the first one. */
+  /** The last collision reported by `onCollisionChange`, or `null` before the first call. */
   previousCollision: DraggableCollision<TData> | null;
 }
 
 /**
- * Reports pointer coordinates within descendant draggables of the same kind.
- * Renders no element. Applications own their order, commit, and cancellation behavior.
- * Explicit targets can still represent empty containers and other destinations.
+ * Groups draggables of the same kind and reports the item under the pointer.
+ * Use its callbacks to choose an insertion position and update the item order.
+ * Doesn't render an HTML element.
  *
  * Documentation: [Base UI Draggable](https://base-ui.com/react/utils/draggable#collision-provider)
  */
@@ -216,26 +218,30 @@ export function DraggableCollisionProvider<TData>(
 
 export interface DraggableCollisionProviderProps<TData = unknown> {
   children?: React.ReactNode | undefined;
-  /** The kind shared by this group's participants and incoming sources. */
+  /** The kind of draggable items in this group. Pass the same kind to each `Draggable.Root`. */
   kind: DragKind<TData>;
-  /** Excludes a destination, or rejects the entire target stack with 'reject'. */
+  /**
+   * Whether the dragged item can be dropped on an item in this group.
+   * Return `false` to skip the item, or `'reject'` to reject the drop entirely.
+   */
   canCollide?:
     ((context: { source: DragSource<TData>; target: TData }) => boolean | 'reject') | undefined;
   /**
-   * Called when a descendant participant starts moving, or when an external drag
-   * first reaches this group. For an external drag, the event and location describe
-   * the original pickup, not the later entry into this group.
+   * Called when an item in this group starts dragging, or a dragged item first enters the group.
+   * The event describes the start of the drag, including when it started outside the group.
    */
   onMoveStart?: ((event: BaseDragEvent<TData>, details: MoveStartEventDetails) => void) | undefined;
   /**
-   * Called on each drag movement within a participant, and when the destination changes
-   * or is left. Compare your computed position with the previous one to skip unchanged work.
-   * A target change and movement sharing the same resolved record are reported once.
+   * Called as the pointer moves over items or leaves them.
+   * Compare the position computed from `collision` and `previousCollision` to skip unchanged updates.
    */
   onCollisionChange?:
     | ((event: DraggableCollisionEvent<TData>, details: DropTargetChangeEventDetails) => void)
     | undefined;
-  /** Called when a drag involving this group ends. Use the reason and final collision to commit. */
+  /**
+   * Called when a drag that started in or entered this group ends.
+   * Use `collision` to apply the final position, or `canceled` to restore the original order.
+   */
   onMoveEnd?:
     ((event: DraggableCollisionEndEvent<TData>, details: MoveEndEventDetails) => void) | undefined;
 }

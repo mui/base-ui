@@ -797,19 +797,21 @@ const itemKind = Draggable.createKind<string>('item');
 
 ## Sorting with a collision provider
 
-`Draggable.CollisionProvider` reports the participant under the pointer for draggables of the same `kind`. Your application computes the insertion position from its coordinates and controls when the order changes.
+Use `Draggable.CollisionProvider` to sort a group of draggables. Pass the same `kind` to the provider and each `Draggable.Root`. The provider reports the item under the pointer; your callbacks choose where to insert the dragged item and update the order.
 
 ### Reorder on drop
 
-Keep items in place while dragging, then update the order in `onMoveEnd`. The `collision` gives the destination's `target.payload` and coordinate readers. For a vertical list, `collision.target.getLocalPoint().y > 0.5` means the pointer is in the bottom half. Ignore a `null` collision.
+Update the order in `onMoveEnd`. Use `collision.target.payload` to identify the destination and `collision.target.getLocalPoint()` to choose the insertion position. For a vertical list, `y > 0.5` means the pointer is in the bottom half. For a horizontal list, use `x` and account for RTL: `0` is the left edge and `1` is the right edge.
+
+Ignore a `null` collision, which occurs on cancellation, outside the group, or over the dragged item itself.
 
 import { DemoSortableOnDrop } from './demos/sortable-on-drop';
 
 <DemoSortableOnDrop />
 
-The example computes placement from the destination's midpoint and stores it in React state. It passes its own `data-drop-position="before"` or `data-drop-position="after"` attribute to the matching item to draw an insertion indicator. The provider does not add placement attributes.
+To show an insertion indicator, store the position in state and style the matching item. The example uses a custom `data-drop-position` attribute with `before` and `after` values.
 
-`onCollisionChange` runs on each drag movement within a participant, including movement that stays in the same half. It also reports target changes and leaving the group. Compare your computed destination before updating state:
+`onCollisionChange` runs as the pointer moves over items and when it leaves them. Compare the computed position with `previousCollision` to avoid updating state when the insertion position hasn't changed:
 
 ```tsx
 function getPosition(collision) {
@@ -831,27 +833,27 @@ function onCollisionChange({ collision, previousCollision }) {
 }
 ```
 
-`previousCollision` is the previous reported collision, or `null` before the first one. Both records retain their coordinates even after the layout changes. For placement rules that depend on mutable application data, keep the last computed position in a ref instead of recomputing it from `previousCollision`. Clear your indicator in `onMoveEnd`, and recompute the final position from that event's `collision` before committing.
+`previousCollision` is `null` before the first collision. For object payloads, compare item IDs. If your placement rule depends on changing application data, store the last computed position in a ref.
 
-The example measures padded row wrappers with `collisionElement`, so the spaces between cards remain valid drop positions. Over the dragged card itself, the indicator shows its unchanged position; the collision provider reports `collision: null` for this no-op drop.
+Clear the indicator in `onMoveEnd` and use that event's `collision` to determine the final position.
+
+Use `collisionElement` to measure a padded row wrapper if the spaces between cards should accept drops. Use an explicit `Draggable.Target` for an empty container or a gap outside the mounted items.
 
 ### Reorder while dragging
 
-Update the order in `onCollisionChange`. The example compares `location.current.input.clientY` with `location.previous.input.clientY` to determine the direction of travel. When stationary over the same item, it preserves the last computed placement. For a new item under a stationary pointer, it uses the midpoint.
+Update the order in `onCollisionChange`. To place items according to the pointer's direction, compare `location.current.input` with `location.previous.input`.
 
 import { DemoSortableLive } from './demos/sortable-live';
 
 <DemoSortableLive />
 
-Save the original order in `onMoveStart` and restore it if the drag is canceled or dropped outside a valid target. Dropping onto the dragged item itself succeeds with `collision: null`; keep the live order in that case.
+Save the original order in `onMoveStart`. In `onMoveEnd`, restore it if `event.canceled` is `true` or `event.dropTarget` is `null`. Dropping onto the dragged item itself has a valid `dropTarget` and `collision: null`; keep the current order in that case.
 
-The example animates each card inside a stationary row used as its `collisionElement`. Keeping the measured row still prevents the animation from moving the collision boundary. It skips movement animations when the user prefers reduced motion.
+When animating reordered items, use `collisionElement` to measure a wrapper that stays still during the animation.
 
-For large lists, wrap each item in `React.memo` and keep its handlers stable, as the `Task` component above does. Keep `canCollide` stable too, to avoid recalculating the destination on every render during a drag.
+For large lists, memoize the items and keep their handlers and `canCollide` stable to avoid unnecessary work during dragging.
 
-Both examples implement <kbd>Alt</kbd>+<kbd>↑</kbd> and <kbd>Alt</kbd>+<kbd>↓</kbd> to reorder a focused item with the keyboard.
-
-For horizontal lists, use `getLocalPoint().x` and account for RTL in your placement rule. Coordinates are physical: `0` is left/top and `1` is right/bottom. For object payloads, compare stable IDs in your own position equality check. A source that derives its payload with `getPayload` must also pass `collisionPayload`, the static data the collision callbacks report for it, since destinations are measured before any gesture exists. Collision detection considers mounted items under the pointer; use explicit targets for gaps and empty containers. See the [CollisionProvider API](#collision-provider) for the remaining options.
+Provide a keyboard alternative. Both examples use <kbd>Alt</kbd>+<kbd>↑</kbd> and <kbd>Alt</kbd>+<kbd>↓</kbd> to reorder the focused item.
 
 ## Scrolling
 

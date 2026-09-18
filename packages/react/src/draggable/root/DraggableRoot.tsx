@@ -213,22 +213,25 @@ type DraggableRootPropsBase<TData> = Omit<
     'dragPreview' | 'dragHandle' | 'payload' | 'getPayload' | 'kind'
   > & {
     children?: React.ReactNode | undefined;
-    /** Whether this element participates in the nearest collision provider. @default true */
+    /** Whether this item can be a destination in the nearest matching collision provider. @default true */
     collision?: boolean | undefined;
     /**
-     * Divides this participant's border box into equal steps for the collision target's
-     * `getSnappedLocalPoint()`. Uses the same coordinates and callback context as
-     * `Draggable.Target`. Changes reported coordinates only, not the drag preview.
+     * Divides the collision element into equal steps for `getSnappedLocalPoint()`.
+     * Accepts step counts or a callback returning them. Does not affect the drag preview's position.
      */
     snap?:
       | DragSnapSteps
       | ((context: DropTargetResolutionContext<NoInfer<TData>>) => DragSnapSteps | undefined)
       | undefined;
-    /** Static participant data when the source uses getPayload. Defaults to payload. */
+    /**
+     * The payload reported when this item is a collision destination.
+     * Required when using `getPayload` within a collision provider. Defaults to `payload`.
+     */
     collisionPayload?: DraggablePayload<TData> | undefined;
     /**
-     * The element used for collision hit testing and measurement. Defaults to this source.
-     * Resolved once when the source registers; a new function takes effect on the next registration.
+     * Returns the element used to detect collisions and measure pointer coordinates.
+     * Defaults to this root's element. Use a row wrapper to include padding around the item.
+     * Changing this callback alone does not change the measured element.
      */
     collisionElement?: ((element: HTMLElement) => HTMLElement) | undefined;
     /** The source kind. Defaults to the nearest provider's no-payload kind. */
