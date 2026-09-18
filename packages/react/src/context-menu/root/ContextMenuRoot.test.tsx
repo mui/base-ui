@@ -247,14 +247,412 @@ describe('<ContextMenu.Root />', () => {
       await screen.findByTestId('context-popup');
       const item = screen.getByTestId('context-item');
 
-      fireEvent.pointerMove(document.body, { clientX: 24, clientY: 24 });
-      fireEvent.mouseUp(item, { button: 2, clientX: 24, clientY: 24 });
+      fireEvent.pointerMove(document.body, { clientX: 30, clientY: 30 });
+      fireEvent.mouseUp(item, { button: 2, clientX: 30, clientY: 30 });
 
       await waitFor(() => {
         expect(screen.queryByTestId('context-popup')).toBe(null);
       });
 
       expect(onOpenChange.mock.lastCall?.[0]).toBe(false);
+    });
+
+    it('activates an item on mouseup within the move threshold but away from the cursor point', async () => {
+      if (reactMajor <= 18) {
+        ignoreActWarnings();
+      }
+
+      const onOpenChange = vi.fn();
+
+      await render(
+        <ContextMenu.Root onOpenChange={onOpenChange}>
+          <ContextMenu.Trigger data-testid="context-trigger">Surface</ContextMenu.Trigger>
+          <ContextMenu.Portal>
+            <ContextMenu.Positioner>
+              <ContextMenu.Popup data-testid="context-popup">
+                <ContextMenu.Item data-testid="context-item">Action</ContextMenu.Item>
+              </ContextMenu.Popup>
+            </ContextMenu.Positioner>
+          </ContextMenu.Portal>
+        </ContextMenu.Root>,
+      );
+
+      const trigger = screen.getByTestId('context-trigger');
+
+      fireEvent.contextMenu(trigger, { clientX: 100, clientY: 100, button: 2 });
+
+      await screen.findByTestId('context-popup');
+      const item = screen.getByTestId('context-item');
+
+      // Press-drag-release onto the edge of a nearby item: still within the move
+      // threshold of the opening point, but past the much tighter item press
+      // threshold, so the item activates.
+      fireEvent.pointerMove(item, { clientX: 104, clientY: 100 });
+      fireEvent.mouseUp(item, { button: 2, clientX: 104, clientY: 100 });
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('context-popup')).toBe(null);
+      });
+
+      expect(onOpenChange.mock.lastCall?.[0]).toBe(false);
+    });
+
+    it('keeps repeat-right-click toggling after interacting with a persistent item', async () => {
+      if (reactMajor <= 18) {
+        ignoreActWarnings();
+      }
+
+      const onOpenChange = vi.fn();
+
+      const { user } = await render(
+        <ContextMenu.Root onOpenChange={onOpenChange}>
+          <ContextMenu.Trigger data-testid="context-trigger">Surface</ContextMenu.Trigger>
+          <ContextMenu.Portal>
+            <ContextMenu.Positioner>
+              <ContextMenu.Popup data-testid="context-popup">
+                <ContextMenu.CheckboxItem defaultChecked={false} data-testid="context-item">
+                  Option
+                </ContextMenu.CheckboxItem>
+              </ContextMenu.Popup>
+            </ContextMenu.Positioner>
+          </ContextMenu.Portal>
+        </ContextMenu.Root>,
+      );
+
+      const trigger = screen.getByTestId('context-trigger');
+
+      fireEvent.contextMenu(trigger, { clientX: 10, clientY: 10, button: 2 });
+      await screen.findByTestId('context-popup');
+
+      await user.click(screen.getByTestId('context-item'));
+      expect(screen.queryByTestId('context-popup')).not.toBe(null);
+
+      const backdrop = document.querySelector('[role="presentation"][data-base-ui-inert]')!;
+      fireEvent.pointerDown(backdrop, { button: 2, clientX: 11, clientY: 12 });
+      await waitFor(() => {
+        expect(screen.queryByTestId('context-popup')).toBe(null);
+      });
+
+      fireEvent.contextMenu(trigger, { button: 2, clientX: 11, clientY: 12 });
+      await flushMicrotasks();
+
+      expect(screen.queryByTestId('context-popup')).toBe(null);
+      expect(onOpenChange.mock.lastCall?.[0]).toBe(false);
+    });
+
+    it('opens on macOS Control-click', async () => {
+      await render(
+        <ContextMenu.Root>
+          <ContextMenu.Trigger data-testid="context-trigger">Control-click me</ContextMenu.Trigger>
+          <ContextMenu.Portal>
+            <ContextMenu.Positioner>
+              <ContextMenu.Popup data-testid="context-popup" />
+            </ContextMenu.Positioner>
+          </ContextMenu.Portal>
+        </ContextMenu.Root>,
+      );
+
+      fireEvent.contextMenu(screen.getByTestId('context-trigger'), {
+        button: 0,
+        buttons: 1,
+        ctrlKey: true,
+      });
+      await flushMicrotasks();
+
+      expect(screen.queryByTestId('context-popup')).not.toBe(null);
+    });
+
+    it('closes when right-clicking again within the move threshold', async () => {
+      if (reactMajor <= 18) {
+        ignoreActWarnings();
+      }
+
+      const onOpenChange = vi.fn();
+
+      await render(
+        <ContextMenu.Root onOpenChange={onOpenChange}>
+          <ContextMenu.Trigger data-testid="context-trigger">Surface</ContextMenu.Trigger>
+          <ContextMenu.Portal>
+            <ContextMenu.Positioner>
+              <ContextMenu.Popup data-testid="context-popup">
+                <ContextMenu.Item>Action</ContextMenu.Item>
+              </ContextMenu.Popup>
+            </ContextMenu.Positioner>
+          </ContextMenu.Portal>
+        </ContextMenu.Root>,
+      );
+
+      const trigger = screen.getByTestId('context-trigger');
+
+      fireEvent.contextMenu(trigger, { clientX: 10, clientY: 10, button: 2 });
+      await screen.findByTestId('context-popup');
+
+      // The second right click in place lands on the backdrop (right-clicking the
+      // popup surface itself is not a toggle gesture). Right-clicking again within
+      // the threshold toggles the menu closed.
+      const backdrop = document.querySelector(
+        '[role="presentation"][data-base-ui-inert]',
+      ) as HTMLElement;
+      fireEvent.contextMenu(backdrop, { clientX: 11, clientY: 12, button: 2 });
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('context-popup')).toBe(null);
+      });
+
+      expect(onOpenChange.mock.lastCall?.[0]).toBe(false);
+    });
+
+    it.skipIf(isJSDOM)(
+      'stays open when right-clicking the popup surface within the move threshold',
+      async () => {
+        if (reactMajor <= 18) {
+          ignoreActWarnings();
+        }
+
+        const onOpenChange = vi.fn();
+
+        await render(
+          <ContextMenu.Root onOpenChange={onOpenChange}>
+            <ContextMenu.Trigger data-testid="context-trigger">Surface</ContextMenu.Trigger>
+            <ContextMenu.Portal>
+              <ContextMenu.Positioner>
+                <ContextMenu.Popup data-testid="context-popup">
+                  <ContextMenu.Item>Action</ContextMenu.Item>
+                </ContextMenu.Popup>
+              </ContextMenu.Positioner>
+            </ContextMenu.Portal>
+          </ContextMenu.Root>,
+        );
+
+        const trigger = screen.getByTestId('context-trigger');
+
+        fireEvent.contextMenu(trigger, { clientX: 100, clientY: 100, button: 2 });
+        const popup = await screen.findByTestId('context-popup');
+
+        // The popup edge sits 2px right of the cursor. A right click landing on the
+        // popup surface is inside the threshold square, but the toggle area must not
+        // extend over the popup.
+        fireEvent.contextMenu(popup, { clientX: 105, clientY: 100, button: 2 });
+        await flushMicrotasks();
+
+        expect(screen.queryByTestId('context-popup')).not.toBe(null);
+        expect(onOpenChange.mock.calls.length).toBe(1);
+      },
+    );
+
+    it('does not reopen when the dismissing right click is within the move threshold', async () => {
+      if (reactMajor <= 18) {
+        ignoreActWarnings();
+      }
+
+      const onOpenChange = vi.fn();
+
+      await render(
+        <ContextMenu.Root onOpenChange={onOpenChange}>
+          <ContextMenu.Trigger data-testid="context-trigger">Surface</ContextMenu.Trigger>
+          <ContextMenu.Portal>
+            <ContextMenu.Positioner>
+              <ContextMenu.Popup data-testid="context-popup">
+                <ContextMenu.Item>Action</ContextMenu.Item>
+              </ContextMenu.Popup>
+            </ContextMenu.Positioner>
+          </ContextMenu.Portal>
+        </ContextMenu.Root>,
+      );
+
+      const trigger = screen.getByTestId('context-trigger');
+
+      fireEvent.contextMenu(trigger, { clientX: 10, clientY: 10, button: 2 });
+      await screen.findByTestId('context-popup');
+
+      // A real right click is pointerdown -> contextmenu. The pointerdown on the
+      // backdrop dismisses the menu through outside-press, the backdrop unmounts,
+      // and the contextmenu event then lands on the trigger underneath. Within the
+      // threshold this must not reopen the menu.
+      const backdrop = document.querySelector('[role="presentation"][data-base-ui-inert]')!;
+      fireEvent.pointerDown(backdrop, { button: 2, clientX: 11, clientY: 12 });
+      await waitFor(() => {
+        expect(screen.queryByTestId('context-popup')).toBe(null);
+      });
+
+      fireEvent.contextMenu(trigger, { clientX: 11, clientY: 12, button: 2 });
+      await flushMicrotasks();
+
+      expect(screen.queryByTestId('context-popup')).toBe(null);
+      expect(onOpenChange.mock.lastCall?.[0]).toBe(false);
+    });
+
+    it('does not reopen when a dismissing macOS Control-click is within the move threshold', async () => {
+      if (reactMajor <= 18) {
+        ignoreActWarnings();
+      }
+
+      const onOpenChange = vi.fn();
+
+      await render(
+        <ContextMenu.Root onOpenChange={onOpenChange}>
+          <ContextMenu.Trigger data-testid="context-trigger">Surface</ContextMenu.Trigger>
+          <ContextMenu.Portal>
+            <ContextMenu.Positioner>
+              <ContextMenu.Popup data-testid="context-popup">
+                <ContextMenu.Item>Action</ContextMenu.Item>
+              </ContextMenu.Popup>
+            </ContextMenu.Positioner>
+          </ContextMenu.Portal>
+        </ContextMenu.Root>,
+      );
+
+      const trigger = screen.getByTestId('context-trigger');
+
+      fireEvent.contextMenu(trigger, { clientX: 10, clientY: 10, button: 2 });
+      await screen.findByTestId('context-popup');
+
+      const backdrop = document.querySelector('[role="presentation"][data-base-ui-inert]')!;
+      fireEvent.pointerDown(backdrop, {
+        button: 0,
+        ctrlKey: true,
+        clientX: 11,
+        clientY: 12,
+      });
+      await waitFor(() => {
+        expect(screen.queryByTestId('context-popup')).toBe(null);
+      });
+
+      fireEvent.contextMenu(trigger, {
+        button: 0,
+        buttons: 1,
+        ctrlKey: true,
+        clientX: 11,
+        clientY: 12,
+      });
+      await flushMicrotasks();
+
+      expect(screen.queryByTestId('context-popup')).toBe(null);
+      expect(onOpenChange.mock.lastCall?.[0]).toBe(false);
+    });
+
+    it('clears reopen suppression when no contextmenu event follows the dismissing press', async () => {
+      if (reactMajor <= 18) {
+        ignoreActWarnings();
+      }
+
+      const onOpenChange = vi.fn();
+
+      await render(
+        <ContextMenu.Root onOpenChange={onOpenChange}>
+          <ContextMenu.Trigger data-testid="context-trigger">Surface</ContextMenu.Trigger>
+          <ContextMenu.Portal>
+            <ContextMenu.Positioner>
+              <ContextMenu.Popup data-testid="context-popup">
+                <ContextMenu.Item>Action</ContextMenu.Item>
+              </ContextMenu.Popup>
+            </ContextMenu.Positioner>
+          </ContextMenu.Portal>
+        </ContextMenu.Root>,
+      );
+
+      const trigger = screen.getByTestId('context-trigger');
+
+      fireEvent.contextMenu(trigger, { clientX: 10, clientY: 10, button: 2 });
+      await screen.findByTestId('context-popup');
+
+      const backdrop = document.querySelector('[role="presentation"][data-base-ui-inert]')!;
+      fireEvent.pointerDown(backdrop, {
+        button: 2,
+        shiftKey: true,
+        clientX: 11,
+        clientY: 12,
+      });
+      await waitFor(() => {
+        expect(screen.queryByTestId('context-popup')).toBe(null);
+      });
+
+      // Firefox deliberately omits `contextmenu` for Shift+right-click. The next
+      // ordinary right click is a new gesture and must not inherit suppression.
+      fireEvent.pointerDown(trigger, { button: 2, clientX: 11, clientY: 12 });
+      fireEvent.contextMenu(trigger, { button: 2, clientX: 11, clientY: 12 });
+      await flushMicrotasks();
+
+      expect(screen.queryByTestId('context-popup')).not.toBe(null);
+      expect(onOpenChange.mock.lastCall?.[0]).toBe(true);
+    });
+
+    it('does not apply stale pointer suppression to a keyboard contextmenu event', async () => {
+      if (reactMajor <= 18) {
+        ignoreActWarnings();
+      }
+
+      const onOpenChange = vi.fn();
+
+      await render(
+        <ContextMenu.Root onOpenChange={onOpenChange}>
+          <ContextMenu.Trigger data-testid="context-trigger">Surface</ContextMenu.Trigger>
+          <ContextMenu.Portal>
+            <ContextMenu.Positioner>
+              <ContextMenu.Popup data-testid="context-popup">
+                <ContextMenu.Item>Action</ContextMenu.Item>
+              </ContextMenu.Popup>
+            </ContextMenu.Positioner>
+          </ContextMenu.Portal>
+        </ContextMenu.Root>,
+      );
+
+      const trigger = screen.getByTestId('context-trigger');
+
+      fireEvent.contextMenu(trigger, { clientX: 10, clientY: 10, button: 2 });
+      await screen.findByTestId('context-popup');
+
+      const backdrop = document.querySelector('[role="presentation"][data-base-ui-inert]')!;
+      fireEvent.pointerDown(backdrop, {
+        button: 2,
+        shiftKey: true,
+        clientX: 11,
+        clientY: 12,
+      });
+      await waitFor(() => {
+        expect(screen.queryByTestId('context-popup')).toBe(null);
+      });
+
+      fireEvent.contextMenu(trigger, { button: 0, buttons: 0 });
+      await flushMicrotasks();
+
+      expect(screen.queryByTestId('context-popup')).not.toBe(null);
+      expect(onOpenChange.mock.lastCall?.[0]).toBe(true);
+    });
+
+    it('stays open when right-clicking again outside the move threshold', async () => {
+      if (reactMajor <= 18) {
+        ignoreActWarnings();
+      }
+
+      const onOpenChange = vi.fn();
+
+      await render(
+        <ContextMenu.Root onOpenChange={onOpenChange}>
+          <ContextMenu.Trigger data-testid="context-trigger">Surface</ContextMenu.Trigger>
+          <ContextMenu.Portal>
+            <ContextMenu.Positioner>
+              <ContextMenu.Popup data-testid="context-popup">
+                <ContextMenu.Item>Action</ContextMenu.Item>
+              </ContextMenu.Popup>
+            </ContextMenu.Positioner>
+          </ContextMenu.Portal>
+        </ContextMenu.Root>,
+      );
+
+      const trigger = screen.getByTestId('context-trigger');
+
+      fireEvent.contextMenu(trigger, { clientX: 10, clientY: 10, button: 2 });
+      await screen.findByTestId('context-popup');
+
+      // Right-clicking the backdrop far from the opening point does not toggle the
+      // menu closed.
+      const backdrop = document.querySelector('[role="presentation"][data-base-ui-inert]')!;
+      fireEvent.contextMenu(backdrop, { clientX: 80, clientY: 80, button: 2 });
+      await flushMicrotasks();
+
+      expect(screen.queryByTestId('context-popup')).not.toBe(null);
+      expect(onOpenChange.mock.calls.length).toBe(1);
     });
 
     it('does not open when disabled', async () => {
@@ -280,6 +678,41 @@ describe('<ContextMenu.Root />', () => {
 
       expect(screen.queryByTestId('context-popup')).toBe(null);
       expect(onOpenChange.mock.calls.length).toBe(0);
+    });
+  });
+
+  describe.skipIf(isJSDOM)('positioning', () => {
+    it('opens exactly 2px from the cursor, snapping fractional coordinates', async () => {
+      await render(
+        <ContextMenu.Root>
+          <ContextMenu.Trigger data-testid="context-trigger">Surface</ContextMenu.Trigger>
+          <ContextMenu.Portal>
+            <ContextMenu.Positioner data-testid="positioner">
+              <ContextMenu.Popup>
+                <ContextMenu.Item>Action</ContextMenu.Item>
+              </ContextMenu.Popup>
+            </ContextMenu.Positioner>
+          </ContextMenu.Portal>
+        </ContextMenu.Root>,
+      );
+
+      const trigger = screen.getByTestId('context-trigger');
+
+      // Precise float coordinates, as reported for real pointer input. The system
+      // draws the cursor at the floored device pixel, so the anchor must snap there.
+      fireEvent.contextMenu(trigger, { clientX: 100.6, clientY: 100.4, button: 2 });
+
+      const positioner = await screen.findByTestId('positioner');
+      const rect = positioner.getBoundingClientRect();
+
+      const dpr = window.devicePixelRatio || 1;
+      const snappedX = Math.floor(100.6 * dpr) / dpr;
+      const snappedY = Math.floor(100.4 * dpr) / dpr;
+
+      // alignOffset 2: the popup edge sits exactly 2px from the drawn cursor.
+      expect(rect.left).toBe(snappedX + 2);
+      // sideOffset -5: the popup overlaps the cursor point by 5px vertically.
+      expect(rect.top).toBe(snappedY - 5);
     });
   });
 
