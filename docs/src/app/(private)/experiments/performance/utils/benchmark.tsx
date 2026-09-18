@@ -3,6 +3,8 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useTimeout } from '@base-ui/utils/useTimeout';
+import { closest, contains } from '@base-ui/utils/shadowDom';
+import { ownerDocument } from '@base-ui/utils/owner';
 import { Field } from '@base-ui/react/field';
 import styles from '../performance.module.css';
 
@@ -93,8 +95,22 @@ export default function PerformanceBenchmark(props: PerformanceBenchmarkProps) {
   const isBusyRef = React.useRef(false);
   const workloadKeyRef = React.useRef(workloadKey);
   workloadKeyRef.current = workloadKey;
+  const activeMeasurementRef = React.useRef<(() => void) | null>(null);
+  const isUnmountedRef = React.useRef(false);
   const settleTimeout = useTimeout();
   const maxDurationTimeout = useTimeout();
+
+  /**
+   * `useTimeout` clears its timer on unmount, so a measurement that is waiting for the quiet
+   * window would never call `finish`. The observer would stay connected to a detached tree and the
+   * promise would never settle. Settle it here instead.
+   */
+  React.useEffect(() => {
+    return () => {
+      isUnmountedRef.current = true;
+      activeMeasurementRef.current?.();
+    };
+  }, []);
 
   const activeVariant = variants.find((variant) => variant.key === activeKey) ?? variants[0];
 
@@ -103,16 +119,16 @@ export default function PerformanceBenchmark(props: PerformanceBenchmarkProps) {
    * from the harness controls and the dev overlay are ignored; they are not part of the workload.
    */
   const isMeasurableMutation = useStableCallback((record: MutationRecord) => {
-    const node =
-      record.target.nodeType === Node.ELEMENT_NODE ? record.target : record.target.parentElement;
-    if (!(node instanceof Element)) {
+    const target = record.target;
+    const node = target.nodeType === Node.ELEMENT_NODE ? (target as Element) : target.parentElement;
+    if (!node) {
       return false;
     }
-    if (chromeRef.current?.contains(node)) {
+    if (contains(chromeRef.current, node)) {
       return false;
     }
     return (
-      node.closest('nextjs-portal, [data-nextjs-dialog-overlay], #__next-build-watcher') == null
+      closest(node, 'nextjs-portal, [data-nextjs-dialog-overlay], #__next-build-watcher') == null
     );
   });
 
@@ -128,14 +144,18 @@ export default function PerformanceBenchmark(props: PerformanceBenchmarkProps) {
           return;
         }
         resolved = true;
+        activeMeasurementRef.current = null;
         observer?.disconnect();
         settleTimeout.clear();
         maxDurationTimeout.clear();
         resolve(Math.max(0, lastMutationAt - start));
       };
 
+      // Lets the unmount cleanup disconnect the observer and settle this promise.
+      activeMeasurementRef.current = finish;
+
       const root = benchmarkRootRef.current;
-      const doc = root?.ownerDocument;
+      const doc = root ? ownerDocument(root) : null;
 
       if (root && doc?.body) {
         observer = new MutationObserver((records) => {
@@ -238,6 +258,9 @@ export default function PerformanceBenchmark(props: PerformanceBenchmarkProps) {
       for (let i = 0; i < WARMUP_ITERATIONS + iterations; i += 1) {
         // eslint-disable-next-line no-await-in-loop
         const duration = await measureCurrentVariant();
+        if (isUnmountedRef.current) {
+          return;
+        }
         if (workloadKeyRef.current !== variantWorkloadKey) {
           console.warn(
             `Benchmark "${variantLabel}" discarded: the workload changed during the run.`,
