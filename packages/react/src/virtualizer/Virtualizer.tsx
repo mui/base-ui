@@ -2043,8 +2043,9 @@ export interface VirtualizerBaseProps<Value> extends Omit<
   renderGroupHeader?: VirtualizerRenderGroupHeader<Value> | undefined;
   /**
    * Pixel buffer rendered before and after the visible range.
-   * Defaults to the larger of 150px and the estimated size of the first item. The render buffer
-   * always includes at least one estimated row, even when this prop is `0`.
+   * Defaults to the larger of 150px and the estimated size of the first item. The buffer is at
+   * least fifteen estimated rows in total, whatever this prop asks for: half of it on each side
+   * while the list is at rest, and all of it ahead while it scrolls.
    */
   overscanPx?: number | undefined;
   /**
