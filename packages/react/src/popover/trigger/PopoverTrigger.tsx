@@ -17,7 +17,11 @@ import { PopoverHandle } from '../store/PopoverHandle';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import { FocusGuard } from '../../utils/FocusGuard';
 import { REASONS } from '../../internals/reasons';
-import { usePopupHandleStore, useTriggerDataForwarding } from '../../utils/popups';
+import {
+  usePopupHandleStore,
+  getInlineRectTriggerProps,
+  useTriggerDataForwarding,
+} from '../../utils/popups';
 import { useTriggerFocusGuards } from '../../utils/popups/useTriggerFocusGuards';
 import { useOpenMethodTriggerProps } from '../../utils/useOpenInteractionType';
 
@@ -104,6 +108,10 @@ export const PopoverTrigger = fastComponentRef(function PopoverTrigger(
   );
 
   const rootTriggerProps = store.useState('triggerProps', isMountedByThisTrigger);
+  const inlineRectTriggerProps = getInlineRectTriggerProps(
+    store.context.inlineRectCoordsRef,
+    isOpenedByThisTrigger,
+  );
 
   const { getButtonProps, buttonRef } = useButton({
     disabled,
@@ -135,6 +143,7 @@ export const PopoverTrigger = fastComponentRef(function PopoverTrigger(
       click.reference,
       hoverProps,
       rootTriggerProps,
+      inlineRectTriggerProps,
       interactionTypeProps,
       {
         [CLICK_TRIGGER_IDENTIFIER as string]: '',
