@@ -139,7 +139,6 @@ export const MenuRootInternal = fastComponent(function MenuRoot<Payload>(
   const parentContextStore = parentMenuRootContext?.store;
   const parentVirtualFocus = parentMenuRootContext?.virtualFocus ?? false;
   const parentWebkitItemSelected = parentMenuRootContext?.webkitItemSelected ?? false;
-  const parentFloatingId = parentMenuRootContext?.floatingId;
   const parentFromContext: MenuParent = React.useMemo(() => {
     if (isSubmenu && parentContextStore) {
       return {
@@ -176,10 +175,8 @@ export const MenuRootInternal = fastComponent(function MenuRoot<Payload>(
   const defaultFloatingId = useBaseUiId();
   const [customFloatingId, setFloatingId] = React.useState<string | undefined>(undefined);
   // A registered `''` means the popup rendered with an explicitly empty id, so nothing may point
-  // at the generated fallback. Items still need ids of their own for `aria-activedescendant`
-  // and the submenu trigger registry, so they keep the generated namespace.
+  // at the generated fallback.
   const floatingId = (customFloatingId ?? defaultFloatingId) || undefined;
-  const itemIdNamespace = customFloatingId || defaultFloatingId;
   const floatingParentNodeIdFromContext = useFloatingParentNodeId();
 
   const parentMenuStore = parentFromContext.type === 'menu' ? parentFromContext.store : undefined;
@@ -564,7 +561,6 @@ export const MenuRootInternal = fastComponent(function MenuRoot<Payload>(
   const direction = useDirection();
 
   const listNavigation = useListNavigation(floatingRootContext, {
-    id: itemIdNamespace,
     enabled: !disabled,
     listRef: store.context.itemDomElements,
     activeIndex,
@@ -760,14 +756,12 @@ export const MenuRootInternal = fastComponent(function MenuRoot<Payload>(
       orientation,
       loopFocus,
       defaultFloatingId,
-      floatingId: itemIdNamespace,
       setFloatingId,
       virtualFocus,
       virtualFocusRef,
       virtualFocusAutoFocus,
       parentVirtualFocus,
       parentWebkitItemSelected,
-      parentFloatingId,
       webkitItemSelected,
       syncHighlightedItem,
     }),
@@ -778,13 +772,11 @@ export const MenuRootInternal = fastComponent(function MenuRoot<Payload>(
       orientation,
       loopFocus,
       defaultFloatingId,
-      itemIdNamespace,
       virtualFocus,
       virtualFocusRef,
       virtualFocusAutoFocus,
       parentVirtualFocus,
       parentWebkitItemSelected,
-      parentFloatingId,
       webkitItemSelected,
       syncHighlightedItem,
     ],

@@ -4,6 +4,7 @@ import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { useMenuFilterImpl, useUnfilteredItem } from '../filter-root/MenuFilterContext';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { useRenderElement } from '../../internals/useRenderElement';
+import { useBaseUiId } from '../../internals/useBaseUiId';
 import type { BaseUIComponentProps, HTMLProps } from '../../internals/types';
 import { useCompositeListItem } from '../../internals/composite/list/useCompositeListItem';
 import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
@@ -11,7 +12,6 @@ import { useMenuItemCommonProps } from '../item/useMenuItemCommonProps';
 import { REGULAR_ITEM } from '../item/useMenuItem';
 import { useButton } from '../../internals/use-button';
 import { mergeProps } from '../../merge-props';
-import { getMenuItemId } from '../utils/getMenuItemId';
 
 const MenuLinkItemPlain = React.forwardRef(function MenuLinkItem(
   componentProps: MenuLinkItem.Props,
@@ -32,8 +32,8 @@ const MenuLinkItemPlain = React.forwardRef(function MenuLinkItem(
   const listItem = useCompositeListItem({ guess: true, label });
   const menuPositionerContext = useMenuPositionerContext(true);
   const nodeId = menuPositionerContext?.context.nodeId;
-  const { store, floatingId, virtualFocus, webkitItemSelected } = useMenuRootContext();
-  const id = getMenuItemId(idProp, floatingId, listItem.index);
+  const { store, virtualFocus, webkitItemSelected } = useMenuRootContext();
+  const id = useBaseUiId(idProp);
 
   const highlighted = store.useState('isActive', listItem.index);
   const itemProps = store.useState('itemProps');

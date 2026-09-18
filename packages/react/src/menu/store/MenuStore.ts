@@ -73,19 +73,6 @@ const selectors = {
   modal: (state: State<unknown>) =>
     (state.parent.type === undefined || state.parent.type === 'context-menu') &&
     (state.modal ?? true),
-  /**
-   * Whether a filterable popup traps focus like a modal dialog: a modal top-level filter root
-   * opened by keyboard or a fine pointer. Hover, touch, and assistive-technology clicks (which
-   * report no pointer type) leave focus free. Submenus never trap; their parent's trap contains
-   * them.
-   */
-  trapsFocus: (state: State<unknown>) =>
-    state.virtualFocus &&
-    state.parent.type === undefined &&
-    (state.modal ?? true) &&
-    state.openChangeReason !== 'trigger-hover' &&
-    state.openMethod !== 'touch' &&
-    state.openMethod !== '',
   openMethod: (state: State<unknown>) => state.openMethod,
 
   allowMouseEnter: (state: State<unknown>) => state.allowMouseEnter,

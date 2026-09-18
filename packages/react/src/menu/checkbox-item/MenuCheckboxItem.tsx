@@ -9,13 +9,13 @@ import { REGULAR_ITEM, useMenuItem } from '../item/useMenuItem';
 import { useCompositeListItem } from '../../internals/composite/list/useCompositeListItem';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { useRenderElement } from '../../internals/useRenderElement';
+import { useBaseUiId } from '../../internals/useBaseUiId';
 import type { BaseUIComponentProps, NonNativeButtonProps } from '../../internals/types';
 import { itemMapping } from '../utils/stateAttributesMapping';
 import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import type { MenuRoot } from '../root/MenuRoot';
-import { getMenuItemId } from '../utils/getMenuItemId';
 
 const MenuCheckboxItemPlain = React.forwardRef(function MenuCheckboxItem(
   componentProps: MenuCheckboxItem.Props,
@@ -37,8 +37,8 @@ const MenuCheckboxItemPlain = React.forwardRef(function MenuCheckboxItem(
 
   const listItem = useCompositeListItem({ guess: true, label });
   const menuPositionerContext = useMenuPositionerContext(true);
-  const { store, floatingId, virtualFocus, webkitItemSelected } = useMenuRootContext();
-  const id = getMenuItemId(idProp, floatingId, listItem.index);
+  const { store, virtualFocus, webkitItemSelected } = useMenuRootContext();
+  const id = useBaseUiId(idProp);
 
   const rootDisabled = store.useState('disabled');
   const disabled = disabledProp || rootDisabled;

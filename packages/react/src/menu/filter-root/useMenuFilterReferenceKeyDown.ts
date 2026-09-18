@@ -6,6 +6,7 @@ import { EMPTY_ARRAY } from '@base-ui/utils/empty';
 import { isHTMLElement } from '@floating-ui/utils/dom';
 import { useFilterDropdownItemContext } from '../../filter-dropdown/root/FilterDropdownRootContext';
 import { useMenuRootContext } from '../root/MenuRootContext';
+import { selectTrapsFocus } from './selectTrapsFocus';
 import { useDirection } from '../../internals/direction-context/DirectionContext';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
@@ -16,7 +17,7 @@ import {
   isCrossOrientationCloseKey,
   isCrossOrientationOpenKey,
   isMainOrientationKey,
-} from '../../floating-ui-react/utils/listNavigation';
+} from '../../floating-ui-react/hooks/useListNavigation';
 
 /**
  * Handles keys that only a filterable menu's virtual-focus owner needs. The Menu root still owns
@@ -38,7 +39,7 @@ export function useMenuFilterReferenceKeyDown() {
       // The generic close branch in `useListNavigation` skips virtual focus, and a forward Tab
       // already closes through focus-out once focus leaves the popup. A trapped popup keeps
       // both Tabs inside instead.
-      if (event.shiftKey && !menuStore.select('trapsFocus')) {
+      if (event.shiftKey && !selectTrapsFocus(menuStore.state)) {
         stopEvent(event);
         const trigger = menuStore.state.activeTriggerElement;
         menuStore.setOpen(false, createChangeEventDetails(REASONS.focusOut, event.nativeEvent));

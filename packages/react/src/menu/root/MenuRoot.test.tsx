@@ -941,25 +941,27 @@ describe('<Menu.Root />', () => {
         },
       );
 
-      it('derives item ids from a custom `Menu.Popup` id', async () => {
+      it('points the trigger at a custom `Menu.Popup` id and keeps item ids unique', async () => {
         const { user } = await render(
           <TestMenu popupProps={{ id: 'my-menu' }} submenuTriggerProps={{ openOnHover: false }} />,
         );
 
-        await user.click(screen.getByRole('button', { name: 'Toggle' }));
+        const trigger = screen.getByRole('button', { name: 'Toggle' });
+        await user.click(trigger);
         await screen.findByTestId('menu');
 
-        expect(screen.getByTestId('item-1')).toHaveAttribute('id', 'my-menu-0');
-        expect(screen.getByTestId('item-2')).toHaveAttribute('id', 'my-menu-1');
-        // The submenu trigger is an item of the parent list, so it shares that namespace.
-        expect(screen.getByTestId('submenu-trigger')).toHaveAttribute('id', 'my-menu-3');
+        expect(trigger).toHaveAttribute('aria-controls', 'my-menu');
+        const ids = ['item-1', 'item-2', 'submenu-trigger'].map(
+          (testId) => screen.getByTestId(testId).id,
+        );
+        expect(ids.every((id) => id !== '')).toBe(true);
+        expect(new Set(ids).size).toBe(ids.length);
       });
 
-      it('lets an explicit item id win over the derived one', async () => {
+      it('lets an explicit item id win over the generated one', async () => {
         const { user } = await render(
           <TestMenu
             popupProps={{
-              id: 'my-menu',
               children: (
                 <React.Fragment>
                   <Menu.Item data-testid="item-1" id="chosen-by-consumer">
@@ -976,8 +978,7 @@ describe('<Menu.Root />', () => {
         await screen.findByTestId('menu');
 
         expect(screen.getByTestId('item-1')).toHaveAttribute('id', 'chosen-by-consumer');
-        // Sibling ids stay in the popup's namespace, keyed by composite index.
-        expect(screen.getByTestId('item-2')).toHaveAttribute('id', 'my-menu-1');
+        expect(screen.getByTestId('item-2').id).not.toBe('');
       });
 
       it.skipIf(isJSDOM)(
@@ -1047,8 +1048,6 @@ describe('<Menu.Root />', () => {
         const menu = await screen.findByTestId('menu');
         expect(menu).toHaveAttribute('id', 'render-popup');
         expect(trigger).toHaveAttribute('aria-controls', 'render-popup');
-        expect(screen.getByTestId('item-1')).toHaveAttribute('id', 'render-popup-0');
-        expect(screen.getByTestId('submenu-trigger')).toHaveAttribute('id', 'render-popup-3');
       });
 
       it('keeps generated item ids when a `render` popup element has no id', async () => {
@@ -1068,8 +1067,8 @@ describe('<Menu.Root />', () => {
 
         const item = screen.getByTestId('item-1');
         const submenuTrigger = screen.getByTestId('submenu-trigger');
-        expect(item.id).toMatch(/-0$/);
-        expect(submenuTrigger.id).toMatch(/-3$/);
+        expect(item.id).not.toBe('');
+        expect(submenuTrigger.id).not.toBe('');
 
         await user.click(submenuTrigger);
 

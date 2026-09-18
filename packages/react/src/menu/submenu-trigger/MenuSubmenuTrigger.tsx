@@ -13,6 +13,7 @@ import { mergeProps } from '../../merge-props';
 import { safePolygon, useClick, useHoverReferenceInteraction } from '../../floating-ui-react';
 import { BaseUIComponentProps, NonNativeButtonProps } from '../../internals/types';
 import { useMenuRootContext } from '../root/MenuRootContext';
+import { useBaseUiId } from '../../internals/useBaseUiId';
 import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
 import { useCompositeListItem } from '../../internals/composite/list/useCompositeListItem';
 import { useMenuItem } from '../item/useMenuItem';
@@ -21,7 +22,6 @@ import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
 import { useTriggerRegistration } from '../../utils/popups';
 import { useMenuSubmenuRootContext } from '../submenu-root/MenuSubmenuRootContext';
 import { REASONS } from '../../internals/reasons';
-import { getMenuItemId } from '../utils/getMenuItemId';
 
 const VOICE_OVER_EXPANDED_PROPS = { 'aria-expanded': undefined };
 
@@ -50,12 +50,11 @@ const MenuSubmenuTriggerPlain = React.forwardRef(function MenuSubmenuTrigger(
 
   const menuPositionerContext = useMenuPositionerContext();
 
-  const { store, parentVirtualFocus, parentWebkitItemSelected, parentFloatingId } = context;
+  const { store, parentVirtualFocus, parentWebkitItemSelected } = context;
   const parentMenuStore = context.parent.store;
   const submenuRootContext = useMenuSubmenuRootContext();
   const listItem = useCompositeListItem({ guess: true, label });
-  // The trigger is an item in the parent menu, so its ID uses the parent's namespace.
-  const id = getMenuItemId(idProp, parentFloatingId, listItem.index);
+  const id = useBaseUiId(idProp);
 
   const open = store.useState('open');
   const floatingRootContext = store.useState('floatingRootContext');

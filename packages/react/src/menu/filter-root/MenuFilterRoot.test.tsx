@@ -1735,7 +1735,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
         expect(popup).not.toHaveAttribute('id', 'custom-popup');
       });
       expect(trigger.getAttribute('aria-controls')).toBe(popup.id);
-      expect(screen.getByRole('menuitem', { name: 'Apple' }).id).toBe(`${popup.id}-0`);
+      expect(screen.getByRole('menuitem', { name: 'Apple' }).id).not.toBe('');
     });
 
     it.skipIf(isJSDOM)(

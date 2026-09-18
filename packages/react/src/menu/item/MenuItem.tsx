@@ -5,10 +5,10 @@ import { useMenuFilterImpl, useUnfilteredItem } from '../filter-root/MenuFilterC
 import { REGULAR_ITEM, useMenuItem } from './useMenuItem';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { useRenderElement } from '../../internals/useRenderElement';
+import { useBaseUiId } from '../../internals/useBaseUiId';
 import type { BaseUIComponentProps, NonNativeButtonProps } from '../../internals/types';
 import { useCompositeListItem } from '../../internals/composite/list/useCompositeListItem';
 import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
-import { getMenuItemId } from '../utils/getMenuItemId';
 
 const MenuItemPlain = React.forwardRef(function MenuItem(
   componentProps: MenuItem.Props,
@@ -28,8 +28,8 @@ const MenuItemPlain = React.forwardRef(function MenuItem(
 
   const listItem = useCompositeListItem({ guess: true, label });
   const menuPositionerContext = useMenuPositionerContext(true);
-  const { store, floatingId, virtualFocus, webkitItemSelected } = useMenuRootContext();
-  const id = getMenuItemId(idProp, floatingId, listItem.index);
+  const { store, virtualFocus, webkitItemSelected } = useMenuRootContext();
+  const id = useBaseUiId(idProp);
 
   const rootDisabled = store.useState('disabled');
   const disabled = disabledProp || rootDisabled;

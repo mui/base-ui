@@ -10,11 +10,6 @@ export interface MenuRootContext<Payload = unknown> {
   orientation: 'vertical' | 'horizontal';
   loopFocus: boolean;
   defaultFloatingId: string | undefined;
-  /**
-   * The namespace generated item ids derive from: the popup's id, or the generated fallback while
-   * the popup renders with an explicitly empty id.
-   */
-  floatingId: string | undefined;
   setFloatingId: React.Dispatch<React.SetStateAction<string | undefined>>;
   virtualFocus: boolean;
   virtualFocusRef: React.RefObject<HTMLElement | null> | undefined;
@@ -23,11 +18,6 @@ export interface MenuRootContext<Payload = unknown> {
   parentVirtualFocus: boolean;
   /** The parent list's WebKit selection state, used by this menu's submenu trigger. */
   parentWebkitItemSelected: boolean;
-  /**
-   * The parent menu's `floatingId`, read from its context rather than its store so a submenu
-   * trigger derives its id from the same value, in the same render, as its sibling items.
-   */
-  parentFloatingId: string | undefined;
   /**
    * Whether items should expose `aria-selected`, which WebKit needs to follow
    * `aria-activedescendant` into a menu. Resolved once per root, not per item.
