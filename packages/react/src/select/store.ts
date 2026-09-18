@@ -26,6 +26,7 @@ export type State = {
 
   open: boolean;
   mounted: boolean;
+  preventUnmountingOnClose: boolean;
   forceMount: boolean;
   transitionStatus: TransitionStatus;
   openMethod: InteractionType | null;
@@ -106,6 +107,7 @@ export const selectors = {
 
   open: (state: State) => state.open,
   mounted: (state: State) => state.mounted,
+  preventUnmountingOnClose: (state: State) => state.preventUnmountingOnClose,
   forceMount: (state: State) => state.forceMount,
   transitionStatus: (state: State) => state.transitionStatus,
   openMethod: (state: State) => state.openMethod,

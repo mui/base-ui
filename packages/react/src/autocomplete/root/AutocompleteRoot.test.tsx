@@ -7,6 +7,7 @@ import { Field } from '@base-ui/react/field';
 import { Form } from '@base-ui/react/form';
 import { Input } from '@base-ui/react/input';
 import { Switch } from '@base-ui/react/switch';
+import { REASONS } from '../../internals/reasons';
 
 describe('<Autocomplete.Root />', () => {
   beforeEach(() => {
@@ -15,6 +16,218 @@ describe('<Autocomplete.Root />', () => {
 
   const { render, renderToString } = createRenderer();
 
+  describe('manual unmount lifecycle', () => {
+    function Popup(
+      props: Pick<
+        Autocomplete.Root.Props<string>,
+        'open' | 'defaultOpen' | 'onOpenChange' | 'onOpenChangeComplete' | 'actionsRef'
+      >,
+    ) {
+      const [open, setOpen] = React.useState(props.defaultOpen ?? false);
+      return (
+        <Autocomplete.Root
+          {...props}
+          openOnInputClick
+          open={props.open ?? open}
+          onOpenChange={(nextOpen, details) => {
+            props.onOpenChange?.(nextOpen, details);
+            if (!details.isCanceled) {
+              setOpen(nextOpen);
+            }
+          }}
+        >
+          <Autocomplete.Input />
+          <Autocomplete.Portal>
+            <Autocomplete.Positioner>
+              <Autocomplete.Popup>
+                <Autocomplete.List>
+                  <Autocomplete.Item value="apple">Apple</Autocomplete.Item>
+                </Autocomplete.List>
+              </Autocomplete.Popup>
+            </Autocomplete.Positioner>
+          </Autocomplete.Portal>
+        </Autocomplete.Root>
+      );
+    }
+
+    it('automatically unmounts with an actions ref and completes closing once', async () => {
+      const actionsRef = React.createRef<Autocomplete.Root.Actions>();
+      const onOpenChangeComplete = vi.fn();
+      const { user } = await render(
+        <Popup actionsRef={actionsRef} onOpenChangeComplete={onOpenChangeComplete} />,
+      );
+
+      expect(onOpenChangeComplete).not.toHaveBeenCalled();
+      await user.click(screen.getByRole('combobox'));
+      await screen.findByRole('listbox');
+      await user.keyboard('{Escape}');
+      await waitFor(() => expect(screen.queryByRole('listbox')).toBe(null));
+      expect(onOpenChangeComplete.mock.calls.filter(([open]) => !open)).toHaveLength(1);
+
+      // Calling the action after the automatic unmount must not repeat the completion.
+      act(() => actionsRef.current!.unmount());
+      expect(onOpenChangeComplete.mock.calls.filter(([open]) => !open)).toHaveLength(1);
+    });
+
+    it('keeps the popup mounted until the unmount action completes closing', async () => {
+      const actionsRef = React.createRef<Autocomplete.Root.Actions>();
+      const onOpenChangeComplete = vi.fn();
+      const { user, setProps } = await render(
+        <Popup
+          defaultOpen
+          actionsRef={actionsRef}
+          onOpenChangeComplete={onOpenChangeComplete}
+          onOpenChange={(open, details) => {
+            if (!open) {
+              details.preventUnmountOnClose();
+            }
+          }}
+        />,
+      );
+
+      await user.click(screen.getByRole('option'));
+      expect(screen.queryByRole('listbox')).not.toBe(null);
+      expect(onOpenChangeComplete).not.toHaveBeenCalledWith(false);
+      act(() => actionsRef.current!.unmount());
+      expect(screen.queryByRole('listbox')).toBe(null);
+      expect(onOpenChangeComplete.mock.calls.filter(([open]) => !open)).toHaveLength(1);
+
+      await setProps({ open: true });
+      await screen.findByRole('listbox');
+      await setProps({ open: false });
+      await waitFor(() => expect(screen.queryByRole('listbox')).toBe(null));
+      expect(onOpenChangeComplete.mock.calls.filter(([open]) => !open)).toHaveLength(2);
+    });
+
+    it('clears the opt-out when a controlled reopen interrupts a pending unmount', async () => {
+      const onOpenChangeComplete = vi.fn();
+      const { user, setProps } = await render(
+        <Popup
+          defaultOpen
+          onOpenChangeComplete={onOpenChangeComplete}
+          onOpenChange={(open, details) => {
+            if (!open) {
+              details.preventUnmountOnClose();
+            }
+          }}
+        />,
+      );
+
+      await user.click(screen.getByRole('option'));
+      expect(screen.queryByRole('listbox')).not.toBe(null);
+      expect(onOpenChangeComplete).not.toHaveBeenCalledWith(false);
+      await setProps({ open: true });
+      await setProps({ open: false });
+      await waitFor(() => expect(screen.queryByRole('listbox')).toBe(null));
+      expect(onOpenChangeComplete.mock.calls.filter(([open]) => !open)).toHaveLength(1);
+    });
+
+    it('ignores an opt-out on a canceled close', async () => {
+      let cancel = true;
+      const { user } = await render(
+        <Popup
+          defaultOpen
+          onOpenChange={(open, details) => {
+            if (!open && cancel) {
+              details.preventUnmountOnClose();
+              details.cancel();
+            }
+          }}
+        />,
+      );
+
+      await user.click(screen.getByRole('option'));
+      expect(screen.queryByRole('listbox')).not.toBe(null);
+      cancel = false;
+      await user.click(screen.getByRole('option'));
+      await waitFor(() => expect(screen.queryByRole('listbox')).toBe(null));
+    });
+
+    it('keeps the opt-out when a controlled close is applied in a transition', async () => {
+      const actionsRef = React.createRef<Autocomplete.Root.Actions>();
+      const onOpenChangeComplete = vi.fn();
+      function App() {
+        const [open, setOpen] = React.useState(true);
+        return (
+          <Popup
+            open={open}
+            actionsRef={actionsRef}
+            onOpenChangeComplete={onOpenChangeComplete}
+            onOpenChange={(nextOpen, details) => {
+              if (!nextOpen) {
+                details.preventUnmountOnClose();
+              }
+              React.startTransition(() => setOpen(nextOpen));
+            }}
+          />
+        );
+      }
+
+      const { user } = await render(<App />);
+      await user.click(screen.getByRole('option'));
+      await waitFor(() =>
+        expect(screen.getByRole('combobox')).toHaveAttribute('aria-expanded', 'false'),
+      );
+      expect(screen.queryByRole('listbox')).not.toBe(null);
+      expect(onOpenChangeComplete).not.toHaveBeenCalledWith(false);
+
+      act(() => actionsRef.current!.unmount());
+      expect(screen.queryByRole('listbox')).toBe(null);
+      expect(onOpenChangeComplete.mock.calls.filter(([open]) => !open)).toHaveLength(1);
+    });
+
+    it('closes through the `close` action so `onOpenChange` can opt out', async () => {
+      const actionsRef = React.createRef<Autocomplete.Root.Actions>();
+      const reasons: string[] = [];
+      await render(
+        <Popup
+          defaultOpen
+          actionsRef={actionsRef}
+          onOpenChange={(open, details) => {
+            reasons.push(details.reason);
+            if (!open) {
+              details.preventUnmountOnClose();
+            }
+          }}
+        />,
+      );
+
+      act(() => actionsRef.current!.close());
+      expect(reasons).toEqual([REASONS.imperativeAction]);
+      expect(screen.getByRole('combobox')).toHaveAttribute('aria-expanded', 'false');
+      expect(screen.queryByRole('listbox')).not.toBe(null);
+
+      act(() => actionsRef.current!.unmount());
+      expect(screen.queryByRole('listbox')).toBe(null);
+    });
+
+    it('completes closing once when `unmount` is called twice in one batch', async () => {
+      const actionsRef = React.createRef<Autocomplete.Root.Actions>();
+      const onOpenChangeComplete = vi.fn();
+      const { user } = await render(
+        <Popup
+          defaultOpen
+          actionsRef={actionsRef}
+          onOpenChangeComplete={onOpenChangeComplete}
+          onOpenChange={(open, details) => {
+            if (!open) {
+              details.preventUnmountOnClose();
+            }
+          }}
+        />,
+      );
+
+      await user.click(screen.getByRole('option'));
+      expect(screen.queryByRole('listbox')).not.toBe(null);
+
+      act(() => {
+        actionsRef.current!.unmount();
+        actionsRef.current!.unmount();
+      });
+      expect(screen.queryByRole('listbox')).toBe(null);
+      expect(onOpenChangeComplete.mock.calls.filter(([open]) => !open)).toHaveLength(1);
+    });
+  });
   describe('keyboard interactions', () => {
     it('closes popup on Tab after selecting with Enter and typing again', async () => {
       const { user } = await render(

@@ -127,7 +127,10 @@ export interface AutocompleteRootState extends AriaComboboxState {}
 
 export interface AutocompleteRootActions {
   unmount: () => void;
+  close: () => void;
 }
+
+export type AutocompleteRootOpenChangeEventDetails = AriaCombobox.OpenChangeEventDetails;
 
 export type AutocompleteRootChangeEventReason = AriaCombobox.ChangeEventReason;
 export type AutocompleteRootChangeEventDetails =
@@ -256,14 +259,16 @@ export interface AutocompleteRootProps<ItemValue> extends Omit<
   /**
    * A ref to imperative actions.
    * - `unmount`: Manually unmounts the autocomplete.
-   * Call this after any externally controlled closing animation finishes.
+   * Call `preventUnmountOnClose()` in `onOpenChange` to manually control unmounting,
+   * then call this action after any externally controlled closing animation finishes.
+   * - `close`: Closes the autocomplete imperatively when called.
    */
   actionsRef?: React.RefObject<AutocompleteRootActions | null> | undefined;
   /**
    * Event handler called when the popup is opened or closed.
    */
   onOpenChange?:
-    ((open: boolean, eventDetails: AutocompleteRootChangeEventDetails) => void) | undefined;
+    ((open: boolean, eventDetails: AutocompleteRootOpenChangeEventDetails) => void) | undefined;
   /**
    * Callback fired when an item is highlighted or unhighlighted.
    * Receives the highlighted item value (or `undefined` if no item is highlighted) and event details with a `reason` property describing why the highlight changed.
@@ -291,6 +296,7 @@ export namespace AutocompleteRoot {
   export type Actions = AutocompleteRootActions;
   export type ChangeEventReason = AutocompleteRootChangeEventReason;
   export type ChangeEventDetails = AutocompleteRootChangeEventDetails;
+  export type OpenChangeEventDetails = AutocompleteRootOpenChangeEventDetails;
   export type HighlightEventReason = AutocompleteRootHighlightEventReason;
   export type HighlightEventDetails = AutocompleteRootHighlightEventDetails;
 }

@@ -36,6 +36,7 @@ import {
   ComboboxInputValueContext,
 } from './ComboboxRootContext';
 import { selectors, type ComboboxStoreContext, type State as StoreState } from '../store';
+import { attachPreventUnmountOnClose } from '../../utils/popups/popupStoreUtils';
 import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
 import { useRegisterFieldControl } from '../../internals/field-register-control/useRegisterFieldControl';
@@ -490,6 +491,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
         submitOnItemClick,
         hasInputValue,
         mounted: false,
+        preventUnmountingOnClose: false,
         forceMounted: false,
         transitionStatus: 'idle',
         inline: inlineProp,
@@ -571,6 +573,11 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
   const triggerRef = useValueAsRef(triggerElement);
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
+  // Mirrors `mounted` synchronously so repeated `unmount()` calls in one batch complete closing once.
+  const mountedRef = React.useRef(mounted);
+  useIsoLayoutEffect(() => {
+    mountedRef.current = mounted;
+  }, [mounted]);
   const { openMethod, triggerProps } = useOpenInteractionType(open);
 
   const getStringifiedValueForForm = useStableCallback(() => fieldStringValue);
@@ -747,6 +754,14 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
     }
   });
 
+  const preventUnmountingOnClose = store.useState('preventUnmountingOnClose');
+  // Opening starts a new close cycle. Derive during render so the close-completion hook below reads
+  // the synchronized value on the same pass. This dedicated sync only writes back when the derived
+  // value changes, so an opt-out recorded while a controlled close is still pending (for example in
+  // a transition) is not overwritten by the render that still sees `open`.
+  const syncedPreventUnmountingOnClose = open ? false : preventUnmountingOnClose;
+  store.useSyncedValues({ preventUnmountingOnClose: syncedPreventUnmountingOnClose });
+
   const setOpen = useStableCallback(
     (nextOpen: boolean, eventDetails: AriaCombobox.ChangeEventDetails) => {
       if (open === nextOpen) {
@@ -765,7 +780,9 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
         eventDetails.allowPropagation();
       }
 
-      props.onOpenChange?.(nextOpen, eventDetails);
+      const openEventDetails = eventDetails as AriaCombobox.OpenChangeEventDetails;
+      const shouldPreventUnmountOnClose = attachPreventUnmountOnClose(openEventDetails);
+      props.onOpenChange?.(nextOpen, openEventDetails);
 
       if (eventDetails.isCanceled) {
         return;
@@ -810,6 +827,12 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
         }
       }
 
+      if (nextOpen) {
+        // Opening starts a new close cycle, so clear any previous request to keep the popup mounted.
+        store.set('preventUnmountingOnClose', false);
+      } else if (shouldPreventUnmountOnClose()) {
+        store.set('preventUnmountingOnClose', true);
+      }
       setOpenUnwrapped(nextOpen);
 
       if (
@@ -927,7 +950,12 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
   });
 
   const handleUnmount = useStableCallback(() => {
+    if (!mountedRef.current) {
+      return;
+    }
+    mountedRef.current = false;
     setMounted(false);
+    store.set('preventUnmountingOnClose', false);
     onOpenChangeComplete?.(false);
     setQueryChangedAfterOpen(false);
     setCloseQuery(null);
@@ -981,7 +1009,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
   }, [inline, positionerElement]);
 
   useOpenChangeComplete({
-    enabled: !props.actionsRef,
+    enabled: mounted && !open && !syncedPreventUnmountingOnClose,
     open,
     ref: resolvedPopupRef,
     onComplete() {
@@ -991,7 +1019,14 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
     },
   });
 
-  React.useImperativeHandle(props.actionsRef, () => ({ unmount: handleUnmount }), [handleUnmount]);
+  React.useImperativeHandle(
+    props.actionsRef,
+    () => ({
+      unmount: handleUnmount,
+      close: () => setOpen(false, createChangeEventDetails(REASONS.imperativeAction)),
+    }),
+    [handleUnmount, setOpen],
+  );
 
   useIsoLayoutEffect(
     function syncSelectedIndex() {
@@ -1706,7 +1741,7 @@ interface ComboboxRootProps<ItemValue, Item = ItemValue> {
    * Event handler called when the popup is opened or closed.
    */
   onOpenChange?:
-    ((open: boolean, eventDetails: AriaCombobox.ChangeEventDetails) => void) | undefined;
+    ((open: boolean, eventDetails: AriaCombobox.OpenChangeEventDetails) => void) | undefined;
   /**
    * Event handler called after any animations complete when the popup is opened or closed.
    */
@@ -1760,7 +1795,9 @@ interface ComboboxRootProps<ItemValue, Item = ItemValue> {
   /**
    * A ref to imperative actions.
    * - `unmount`: Manually unmounts the combobox.
-   * Call this after any externally controlled closing animation finishes.
+   * Call `preventUnmountOnClose()` in `onOpenChange` to manually control unmounting,
+   * then call this action after any externally controlled closing animation finishes.
+   * - `close`: Closes the combobox imperatively when called.
    */
   actionsRef?: React.RefObject<AriaCombobox.Actions | null> | undefined;
   /**
@@ -1936,6 +1973,7 @@ export namespace AriaCombobox {
 
   export interface Actions {
     unmount: () => void;
+    close: () => void;
   }
 
   export type HighlightEventReason =
@@ -1959,7 +1997,12 @@ export namespace AriaCombobox {
     | typeof REASONS.clearPress
     | typeof REASONS.chipRemovePress
     | typeof REASONS.cancelOpen
+    | typeof REASONS.imperativeAction
     | typeof REASONS.none;
+  export type OpenChangeEventDetails = ChangeEventDetails & {
+    /** Prevents the popup from unmounting until the `unmount` action is called. */
+    preventUnmountOnClose: () => void;
+  };
   export type ChangeEventDetails = BaseUIChangeEventDetails<ChangeEventReason> & {
     /**
      * When `reason` is `input-clear` in multiple mode, indicates whether an item press caused the

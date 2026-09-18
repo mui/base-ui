@@ -19,9 +19,9 @@ Doesn't render its own HTML element.
 | onValueChange        | `((value: Value[] \| Value \| null, eventDetails: Select.Root.ChangeEventDetails) => void)` | -       | Event handler called when the value of the select changes.                                                                                                                                                                                                                                                                                                                                                                                        |
 | defaultOpen          | `boolean`                                                                                   | `false` | Whether the select popup is initially open. To render a controlled select popup, use the `open` prop instead.                                                                                                                                                                                                                                                                                                                                     |
 | open                 | `boolean`                                                                                   | -       | Whether the select popup is currently open.                                                                                                                                                                                                                                                                                                                                                                                                       |
-| onOpenChange         | `((open: boolean, eventDetails: Select.Root.ChangeEventDetails) => void)`                   | -       | Event handler called when the select popup is opened or closed.                                                                                                                                                                                                                                                                                                                                                                                   |
+| onOpenChange         | `((open: boolean, eventDetails: Select.Root.OpenChangeEventDetails) => void)`               | -       | Event handler called when the select popup is opened or closed.                                                                                                                                                                                                                                                                                                                                                                                   |
 | highlightItemOnHover | `boolean`                                                                                   | `true`  | Whether moving the pointer over items should highlight them.&#xA;Disabling this prop allows CSS `:hover` to be differentiated from the `:focus` (`data-highlighted`) state.                                                                                                                                                                                                                                                                       |
-| actionsRef           | `React.RefObject<Select.Root.Actions \| null>`                                              | -       | A ref to imperative actions. `unmount`: Manually unmounts the select.&#xA;Call this after any externally controlled closing animation finishes.                                                                                                                                                                                                                                                                                                   |
+| actionsRef           | `React.RefObject<Select.Root.Actions \| null>`                                              | -       | A ref to imperative actions. `unmount`: Manually unmounts the select.&#xA;Call `preventUnmountOnClose()` in `onOpenChange` to manually control unmounting,&#xA;then call this action after any externally controlled closing animation finishes.`close`: Closes the select imperatively when called.                                                                                                                                              |
 | autoComplete         | `string`                                                                                    | -       | Provides a hint to the browser for autofill.                                                                                                                                                                                                                                                                                                                                                                                                      |
 | form                 | `string`                                                                                    | -       | Identifies the form that owns the hidden input.&#xA;Useful when the select is rendered outside the form.                                                                                                                                                                                                                                                                                                                                          |
 | isItemEqualToValue   | `((itemValue: Value, value: Value) => boolean)`                                             | -       | Custom comparison logic used to determine if a select item value matches the current selected value. Useful when item values are objects without matching referentially.&#xA;Defaults to `Object.is` comparison.                                                                                                                                                                                                                                  |
@@ -67,7 +67,7 @@ type SelectRootState = {};
 ### Root.Actions
 
 ```typescript
-type SelectRootActions = { unmount: () => void };
+type SelectRootActions = { unmount: () => void; close: () => void };
 ```
 
 ### Root.ChangeEventReason
@@ -82,6 +82,7 @@ type SelectRootChangeEventReason =
   | 'focus-out'
   | 'list-navigation'
   | 'cancel-open'
+  | 'imperative-action'
   | 'none';
 ```
 
@@ -97,6 +98,7 @@ type SelectRootChangeEventDetails = (
   | { reason: 'focus-out'; event: KeyboardEvent | FocusEvent }
   | { reason: 'list-navigation'; event: KeyboardEvent }
   | { reason: 'cancel-open'; event: MouseEvent }
+  | { reason: 'imperative-action'; event: Event }
   | { reason: 'none'; event: Event }
 ) & {
   /** Cancels Base UI from handling the event. */
@@ -109,6 +111,36 @@ type SelectRootChangeEventDetails = (
   isPropagationAllowed: boolean;
   /** The element that triggered the event, if applicable. */
   trigger: Element | undefined;
+};
+```
+
+### Root.OpenChangeEventDetails
+
+```typescript
+type SelectRootOpenChangeEventDetails = (
+  | { reason: 'trigger-press'; event: MouseEvent | PointerEvent | TouchEvent | KeyboardEvent }
+  | { reason: 'outside-press'; event: MouseEvent | PointerEvent | TouchEvent }
+  | { reason: 'escape-key'; event: KeyboardEvent }
+  | { reason: 'window-resize'; event: UIEvent }
+  | { reason: 'item-press'; event: MouseEvent | PointerEvent | KeyboardEvent }
+  | { reason: 'focus-out'; event: KeyboardEvent | FocusEvent }
+  | { reason: 'list-navigation'; event: KeyboardEvent }
+  | { reason: 'cancel-open'; event: MouseEvent }
+  | { reason: 'imperative-action'; event: Event }
+  | { reason: 'none'; event: Event }
+) & {
+  /** Cancels Base UI from handling the event. */
+  cancel: () => void;
+  /** Allows the event to propagate in cases where Base UI will stop the propagation. */
+  allowPropagation: () => void;
+  /** Indicates whether the event has been canceled. */
+  isCanceled: boolean;
+  /** Indicates whether the event is allowed to propagate. */
+  isPropagationAllowed: boolean;
+  /** The element that triggered the event, if applicable. */
+  trigger: Element | undefined;
+  /** Prevents the popup from unmounting until the `unmount` action is called. */
+  preventUnmountOnClose: () => void;
 };
 ```
 
@@ -841,7 +873,7 @@ type Orientation = 'horizontal' | 'vertical';
 
 ## Export Groups
 
-- `Select.Root`: `Select.Root`, `Select.Root.Props`, `Select.Root.State`, `Select.Root.Actions`, `Select.Root.ChangeEventReason`, `Select.Root.ChangeEventDetails`
+- `Select.Root`: `Select.Root`, `Select.Root.Props`, `Select.Root.State`, `Select.Root.Actions`, `Select.Root.ChangeEventReason`, `Select.Root.ChangeEventDetails`, `Select.Root.OpenChangeEventDetails`
 - `Select.Label`: `Select.Label`, `Select.Label.State`, `Select.Label.Props`
 - `Select.Trigger`: `Select.Trigger`, `Select.Trigger.State`, `Select.Trigger.Props`
 - `Select.Value`: `Select.Value`, `Select.Value.State`, `Select.Value.Props`
@@ -860,7 +892,7 @@ type Orientation = 'horizontal' | 'vertical';
 - `Select.Group`: `Select.Group`, `Select.Group.State`, `Select.Group.Props`
 - `Select.GroupLabel`: `Select.GroupLabel`, `Select.GroupLabel.State`, `Select.GroupLabel.Props`
 - `Select.Separator`: `Select.Separator`, `Select.Separator.Props`, `Select.Separator.State`
-- `Default`: `SelectRootProps`, `SelectRootState`, `SelectRootActions`, `SelectRootChangeEventReason`, `SelectRootChangeEventDetails`, `SelectLabelState`, `SelectLabelProps`, `SelectTriggerState`, `SelectTriggerProps`, `SelectValueState`, `SelectValueProps`, `SelectIconState`, `SelectIconProps`, `SelectPortalState`, `SelectPortalProps`, `SelectBackdropState`, `SelectBackdropProps`, `SelectPositionerState`, `SelectPositionerProps`, `SelectPopupProps`, `SelectPopupState`, `SelectListProps`, `SelectListState`, `SelectItemState`, `SelectItemProps`, `SelectItemIndicatorState`, `SelectItemIndicatorProps`, `SelectItemTextState`, `SelectItemTextProps`, `SelectArrowState`, `SelectArrowProps`, `SelectScrollDownArrowState`, `SelectScrollDownArrowProps`, `SelectScrollUpArrowState`, `SelectScrollUpArrowProps`, `SelectGroupState`, `SelectGroupProps`, `SelectGroupLabelState`, `SelectGroupLabelProps`, `SelectSeparatorProps`, `SelectSeparatorState`
+- `Default`: `SelectRootProps`, `SelectRootState`, `SelectRootActions`, `SelectRootChangeEventReason`, `SelectRootOpenChangeEventDetails`, `SelectRootChangeEventDetails`, `SelectLabelState`, `SelectLabelProps`, `SelectTriggerState`, `SelectTriggerProps`, `SelectValueState`, `SelectValueProps`, `SelectIconState`, `SelectIconProps`, `SelectPortalState`, `SelectPortalProps`, `SelectBackdropState`, `SelectBackdropProps`, `SelectPositionerState`, `SelectPositionerProps`, `SelectPopupProps`, `SelectPopupState`, `SelectListProps`, `SelectListState`, `SelectItemState`, `SelectItemProps`, `SelectItemIndicatorState`, `SelectItemIndicatorProps`, `SelectItemTextState`, `SelectItemTextProps`, `SelectArrowState`, `SelectArrowProps`, `SelectScrollDownArrowState`, `SelectScrollDownArrowProps`, `SelectScrollUpArrowState`, `SelectScrollUpArrowProps`, `SelectGroupState`, `SelectGroupProps`, `SelectGroupLabelState`, `SelectGroupLabelProps`, `SelectSeparatorProps`, `SelectSeparatorState`
 
 ## Canonical Types
 
@@ -871,6 +903,7 @@ Maps `Canonical`: `Alias` — Use Canonical when its namespace is already import
 - `Select.Root.Actions`: `SelectRootActions`
 - `Select.Root.ChangeEventReason`: `SelectRootChangeEventReason`
 - `Select.Root.ChangeEventDetails`: `SelectRootChangeEventDetails`
+- `Select.Root.OpenChangeEventDetails`: `SelectRootOpenChangeEventDetails`
 - `Select.Label.State`: `SelectLabelState`
 - `Select.Label.Props`: `SelectLabelProps`
 - `Select.Trigger.State`: `SelectTriggerState`
