@@ -18,6 +18,8 @@ import { stopEvent } from '../../floating-ui-react/utils/event';
 /**
  * A search field that filters the select options.
  * Requires the select to be wrapped in `Select.FilterProvider`.
+ * Automatically receives focus whenever the popup opens, after the popup is positioned.
+ * The `autoFocus` prop is not needed and does not change this behavior.
  * Renders an `<input>` element.
  *
  * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
