@@ -6,14 +6,9 @@ import { useSelectPositionerContext } from '../positioner/SelectPositionerContex
 import { useRenderElement } from '../../internals/useRenderElement';
 import { styleDisableScrollbar } from '../../utils/styles';
 import { LIST_FUNCTIONAL_STYLES } from '../popup/utils';
+import { useSelectFilterImpl } from '../filter-root/SelectFilterContext';
 
-/**
- * A container for the select items.
- * Renders a `<div>` element.
- *
- * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
- */
-export const SelectList = React.forwardRef(function SelectList(
+export const SelectListPlain = React.forwardRef(function SelectList(
   componentProps: SelectList.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
@@ -48,6 +43,20 @@ export const SelectList = React.forwardRef(function SelectList(
     ref: [forwardedRef, setListElement],
     props: [defaultProps, elementProps],
   });
+});
+
+/**
+ * A container for the select items.
+ * Renders a `<div>` element.
+ *
+ * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
+ */
+export const SelectList = React.forwardRef(function SelectList(
+  props: SelectList.Props,
+  forwardedRef: React.ForwardedRef<HTMLDivElement>,
+) {
+  const List = useSelectFilterImpl()?.List ?? SelectListPlain;
+  return <List {...props} ref={forwardedRef} />;
 });
 
 export interface SelectListProps extends BaseUIComponentProps<'div', SelectListState> {}
