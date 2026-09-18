@@ -102,6 +102,88 @@ describe('lifecycle manager', () => {
     });
   }
 
+  it('delivers recovery end to monitors even if source cleanup also throws', () => {
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+    const monitorEnd = vi.fn();
+    const getMonitor = () => ({ onMoveEnd: monitorEnd });
+    monitorRegistry.add(getMonitor);
+    const handle = startDragWithHandlers({
+      onMove() {
+        throw new Error('move failed');
+      },
+      onMoveEnd() {
+        throw new Error('cleanup failed');
+      },
+    });
+    expect(() => handle!.controller.update(makeInput(), null)).toThrow('move failed');
+    expect(monitorEnd).toHaveBeenCalledTimes(1);
+    expect(monitorEnd.mock.calls[0][1].reason).toBe('handler-error');
+    removeMonitor(getMonitor);
+  });
+
+  it('closes a hovered target using its previous kind-compatible callback', () => {
+    const other = createKind('other');
+    const target = createElement();
+    const previousLeave = vi.fn();
+    const newLeave = vi.fn();
+    let changed = false;
+    const getTarget = () =>
+      changed
+        ? { accept: other, onDraggableLeave: newLeave }
+        : { accept: TEST_KIND, onDraggableLeave: previousLeave };
+    addDropTargetRegistration(target, getTarget);
+    const handle = startDragWithHandlers({}, target);
+    changed = true;
+    handle!.controller.update(makeInput(), target);
+    expect(previousLeave).toHaveBeenCalledTimes(1);
+    expect(newLeave).not.toHaveBeenCalled();
+    handle!.controller.cancel();
+    removeDropTargetRegistration(target, getTarget);
+  });
+
+  it('does not deliver the previous local payload to a target with a new kind', () => {
+    const originalKind = createKind<{ title: string }>('original');
+    const nextKind = createKind<{ count: number }>('next');
+    const target = createElement();
+    const previousLeave = vi.fn();
+    const newLeave = vi.fn();
+    let changed = false;
+    const getTarget = () =>
+      changed
+        ? { kind: nextKind, payload: { count: 1 }, onDraggableLeave: newLeave }
+        : { kind: originalKind, payload: { title: 'Original' }, onDraggableLeave: previousLeave };
+    addDropTargetRegistration(target, getTarget);
+    const handle = startDragWithHandlers({}, target);
+    changed = true;
+    handle!.controller.update(makeInput(), null);
+    expect(previousLeave).toHaveBeenCalledTimes(1);
+    expect(previousLeave.mock.calls[0][0].target.payload).toEqual({ title: 'Original' });
+    expect(newLeave).not.toHaveBeenCalled();
+    handle!.controller.cancel();
+    removeDropTargetRegistration(target, getTarget);
+  });
+
+  it('does not deliver an old kind to updated monitor callbacks and still closes the original observer', () => {
+    const other = createKind('other');
+    const previousEnd = vi.fn();
+    const newMove = vi.fn();
+    const newEnd = vi.fn();
+    let changed = false;
+    const getMonitor = () =>
+      changed
+        ? { accept: other, onMove: newMove, onMoveEnd: newEnd }
+        : { accept: TEST_KIND, onMoveEnd: previousEnd };
+    monitorRegistry.add(getMonitor);
+    const handle = startDragWithHandlers({});
+    changed = true;
+    handle!.controller.update(makeInput(), null);
+    expect(newMove).not.toHaveBeenCalled();
+    handle!.controller.cancel();
+    expect(previousEnd).toHaveBeenCalledTimes(1);
+    expect(newEnd).not.toHaveBeenCalled();
+    removeMonitor(getMonitor);
+  });
+
   describe('drag session', () => {
     it('prevents concurrent drags', async () => {
       const { engine } = await renderDnd();

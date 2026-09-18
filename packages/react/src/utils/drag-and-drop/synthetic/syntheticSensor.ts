@@ -1308,6 +1308,7 @@ function onDoubleClickPress(event: Event): void {
     return;
   }
   mouseEvent.preventDefault();
+  mouseEvent.stopImmediatePropagation();
 }
 
 function onDoubleClickDrop(event: Event): void {
@@ -1399,12 +1400,18 @@ function onActiveFrame(): void {
   // right after the transform write would force a synchronous style pass
   // every frame. Both still land before the next paint.
   const input = modifyActiveInput(active, active.lastInput);
+  if (state.active !== active) {
+    return;
+  }
   const target = resolveTargetUnderPointer(active, input.clientX, input.clientY);
   // Kept for the auto-scroller, which anchors its container walk here (see
   // `getActiveHitElement`) rather than paying for a second hit test.
   active.lastHitElement = target;
-  active.preview.update(input.clientX, input.clientY, input);
   active.controller.update(input, target, active.lastNativeEvent, active.lastMoveReason);
+  if (state.active !== active) {
+    return;
+  }
+  active.preview.update(input.clientX, input.clientY, input);
   // A consumer callback that re-rendered synchronously may have torn out the
   // preview's host after it was positioned. Re-home it before the frame ends
   // rather than leaving it detached until the next input. (A commit React defers

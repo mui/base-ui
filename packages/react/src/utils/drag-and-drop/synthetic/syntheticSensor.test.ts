@@ -2728,45 +2728,54 @@ describe('syntheticDrag sensor', () => {
       expect(() => syntheticSensor.notifyExternalScroll()).not.toThrow();
     });
 
-    it('re-resolves after a scroll inside a shadow root holding a drop target', async () => {
-      const { engine } = await renderDnd();
-      const src = createElement();
-      const host = createElement();
-      const shadow = host.attachShadow({ mode: 'open' });
-      const scroller = document.createElement('div');
-      shadow.appendChild(scroller);
-      const inner = document.createElement('div');
-      inner.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
-      scroller.appendChild(inner);
-      const onDraggableEnter = vi.fn();
-      engine.registerDraggable(src, { activation: { touch: { type: 'immediate' } } });
-      engine.registerDropTarget(inner, { onDraggableEnter });
+    it.each([false, true])(
+      're-resolves after a shadow scroll with nested roots: %s',
+      async (nested) => {
+        const { engine } = await renderDnd();
+        const src = createElement();
+        const host = createElement();
+        const shadow = host.attachShadow({ mode: 'open' });
+        const scroller = document.createElement('div');
+        shadow.appendChild(scroller);
+        const inner = document.createElement('div');
+        inner.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
+        if (nested) {
+          const innerHost = document.createElement('div');
+          scroller.appendChild(innerHost);
+          innerHost.attachShadow({ mode: 'closed' }).appendChild(inner);
+        } else {
+          scroller.appendChild(inner);
+        }
+        const onDraggableEnter = vi.fn();
+        engine.registerDraggable(src, { activation: { touch: { type: 'immediate' } } });
+        engine.registerDropTarget(inner, { onDraggableEnter });
 
-      const originalEFP = document.elementFromPoint;
-      const hit = { current: null as Element | null };
-      document.elementFromPoint = (() => hit.current) as typeof document.elementFromPoint;
-      registerCleanup(() => {
-        document.elementFromPoint = originalEFP;
-      });
+        const originalEFP = document.elementFromPoint;
+        const hit = { current: null as Element | null };
+        document.elementFromPoint = (() => hit.current) as typeof document.elementFromPoint;
+        registerCleanup(() => {
+          document.elementFromPoint = originalEFP;
+        });
 
-      touchDown(src, 10, 10);
-      await flushRaf();
-      await flushRaf();
-      expect(onDraggableEnter).not.toHaveBeenCalled();
+        touchDown(src, 10, 10);
+        await flushRaf();
+        await flushRaf();
+        expect(onDraggableEnter).not.toHaveBeenCalled();
 
-      // Scrolling a container inside the shadow root slides the target under
-      // the stationary pointer. `scroll` is neither bubbling nor composed, so
-      // only the per-shadow-root capture listener installed at drag start can
-      // observe it and re-arm the resolution frame.
-      hit.current = inner;
-      dispatch(scroller, new Event('scroll'));
-      await flushRaf();
-      await flushRaf();
+        // Scrolling a container inside the shadow root slides the target under
+        // the stationary pointer. `scroll` is neither bubbling nor composed, so
+        // only the per-shadow-root capture listener installed at drag start can
+        // observe it and re-arm the resolution frame.
+        hit.current = inner;
+        dispatch(scroller, new Event('scroll'));
+        await flushRaf();
+        await flushRaf();
 
-      expect(onDraggableEnter).toHaveBeenCalledTimes(1);
+        expect(onDraggableEnter).toHaveBeenCalledTimes(1);
 
-      touchUp(10, 10);
-    });
+        touchUp(10, 10);
+      },
+    );
 
     it('watches a shadow root whose first drop target registers during the drag', async () => {
       const { engine } = await renderDnd();

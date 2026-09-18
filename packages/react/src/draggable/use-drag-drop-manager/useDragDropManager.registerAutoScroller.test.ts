@@ -24,6 +24,41 @@ setupDragEngineTests({ extraAfterEach: resetSyntheticDrag });
 describe('engine.registerAutoScroller', () => {
   const { renderDnd } = createDndRenderer();
 
+  it('reorders scrolling candidates when a registered viewport is reparented', async () => {
+    const { engine } = await renderDnd();
+    const source = createElement();
+    const outer = createElement();
+    const inner = createElement();
+    outer.getBoundingClientRect = () => new DOMRect(0, 0, 200, 200);
+    inner.getBoundingClientRect = () => new DOMRect(400, 0, 200, 200);
+    const outerScroll = vi.fn<
+      import('../../utils/drag-and-drop/autoScroller').DragAutoScrollHandler
+    >((_, details) => {
+      details.cancel();
+      details.consume();
+    });
+    const innerScroll = vi.fn<
+      import('../../utils/drag-and-drop/autoScroller').DragAutoScrollHandler
+    >((_, details) => {
+      details.cancel();
+      details.consume();
+    });
+    engine.registerDraggable(source, {});
+    engine.registerAutoScroller(outer, { onDragScroll: outerScroll });
+    engine.registerAutoScroller(inner, { onDragScroll: innerScroll });
+    await lift(source, { clientX: 190, clientY: 190 });
+    await flushRaf();
+    expect(outerScroll).toHaveBeenCalled();
+    outerScroll.mockClear();
+    innerScroll.mockClear();
+    outer.appendChild(inner);
+    inner.getBoundingClientRect = () => new DOMRect(0, 0, 200, 200);
+    await flushRaf();
+    await flushRaf();
+    expect(innerScroll).toHaveBeenCalled();
+    expect(outerScroll).not.toHaveBeenCalled();
+  });
+
   it.each(['handler', 'parameters', 'speed'])(
     'stops the scroll frame when the %s callback cancels the drag',
     async (mode) => {

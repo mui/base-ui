@@ -145,7 +145,7 @@ export function wakeAutoScroll(): void {
 }
 
 /**
- * Drop every per-drag cache and wake the loop, for a restyle that can alter
+ * Refresh computed-style caches and wake the loop, for a restyle that can alter
  * whether a candidate scrolls or which side is its inline end without changing
  * the observed ancestor chain. The next frame re-reads both computed-style
  * facts and rebuilds that chain (see `handleObservedMutations` for when this is
@@ -158,7 +158,6 @@ function refreshAutoScroll(): void {
   state.overflowCache = new WeakMap();
   state.rtlCache = new WeakMap();
   state.chainAnchor = null;
-  invalidateScrollerOrder();
   wakeScrollLoop();
 }
 
@@ -197,7 +196,25 @@ function handleObservedMutations(records: MutationRecord[]): void {
     if (target.nodeType === ELEMENT_NODE && closest(target as Element, PREVIEW_SELECTOR) !== null) {
       continue;
     }
-    if (record.type === 'childList' || target.nodeType !== ELEMENT_NODE) {
+    if (record.type === 'childList') {
+      // Ordinary row changes only alter scroll extent. A moved viewport (or a
+      // wrapper containing one) also changes inner-first priority.
+      const moved = [...record.addedNodes, ...record.removedNodes];
+      const scrollers = [...state.scrollers.keys()];
+      const topologyChanged = moved.some(
+        (node) =>
+          node.nodeType === ELEMENT_NODE &&
+          scrollers.some((scroller) => node === scroller || contains(node as Element, scroller)),
+      );
+      if (topologyChanged) {
+        invalidateScrollerOrder();
+        refreshAutoScroll();
+        return;
+      }
+      wake = true;
+      continue;
+    }
+    if (target.nodeType !== ELEMENT_NODE) {
       wake = true;
       continue;
     }
@@ -569,8 +586,8 @@ function runScrollFrame(timestamp: number): void {
     // by the mutation observer, whose refresh resets the cache, so only the new
     // leaf is measured here.
     // The registered set decides the scroll order, not the anchor, so the sorted
-    // order survives an anchor change; a reparented viewport is caught by the
-    // mutation observer's refresh instead.
+    // order survives an anchor change; structural mutations invalidate it
+    // separately when a registered viewport's ancestry changes.
     observeChainMutations(chainAnchor, currentSource.element);
   }
 

@@ -73,6 +73,21 @@ afterEach(() => {
 });
 
 describe('syntheticPreview', () => {
+  it('stops positioning when a modifier destroys the preview', () => {
+    const source = createSource();
+    const handle = createHandle(source);
+    const preview = createPreviewElement(120, 30);
+    handle.setPreviewElement(preview);
+    handle.setModifiers([
+      ({ point }) => {
+        handle.destroy();
+        return point;
+      },
+    ]);
+    expect(() => handle.update(20, 20)).not.toThrow();
+    expect(preview.destroyed).toBe(true);
+  });
+
   it('marks the source as dragging, and clears it on destroy', () => {
     const source = createSource();
     const handle = createHandle(source);

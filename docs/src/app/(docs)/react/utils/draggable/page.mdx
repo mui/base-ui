@@ -299,7 +299,7 @@ The prebuilt modifiers:
 - `restrictToWindowEdges` keeps it inside the viewport.
 - `snapToGrid(size)` snaps to a grid anchored at the pickup point. Pass a number or `{ x, y }` for a rectangular grid. The step uses the source's coordinate system. For example, `snapToGrid(20)` still snaps to a 20-unit grid when the canvas is zoomed to 70%.
 
-Pass an array to apply modifiers in order. Each receives the previous modifier's result.
+Pass an array to apply modifiers in order. Each receives the previous modifier's result. The `input` stays fixed within that chain. Root modifiers receive the original pointer position, while preview modifiers receive the position after root modifiers have run.
 
 ```tsx title="Combining modifiers"
 <Draggable.Root
@@ -330,7 +330,7 @@ const snapToRows: DragModifier = ({ point }) => ({
 });
 ```
 
-Points use client pixels, which match measurements from the viewport or another element's bounding rect. Multiply canvas distances by `scale` to convert them to client pixels. Divide client distances by `scale` to convert them to canvas units. The value includes CSS `transform` and `zoom` scaling applied to the source or its ancestors. It is `1` when the source is not scaled. A rotation alone does not change it. The `snapToGrid` preset uses this value.
+Points use client pixels, which match measurements from the viewport or another element's bounding rect. Multiply canvas distances by `scale` to convert them to client pixels. Divide client distances by `scale` to convert them to canvas units. Root modifiers use the source's scale; preview modifiers use the preview's scale. Both include CSS `transform` and `zoom` scaling on their ancestors. It is `1` when the corresponding element is not scaled. A rotation alone does not change it. The `snapToGrid` preset uses this value.
 
 ```tsx title="Moving 20 canvas units"
 const nudgeRight: DragModifier = ({ point, scale }) => ({
@@ -365,6 +365,8 @@ const snapToAngle: DragModifier = ({ point, shiftKey, initialPoint }) => {
 ### Default preview
 
 With no preview part, a clone of the dragged element follows the pointer. The clone keeps your element's classes and live form, canvas, and scroll state, and renders in the browser's top layer, where no scroll container can clip it and nothing on the page paints over it.
+
+The clone preserves styles lost through its extra wrapper, including direct-child selectors, as they resolve at pickup. Declare preview styles before pickup, or use a custom preview for content whose styling must remain reactive.
 
 The clone rewrites its IDs to avoid duplicate IDs in the document and updates fragment references inside the clone. External `#id` selectors therefore do not style it; use classes or `[data-drag-preview]` for preview styles.
 
@@ -1470,7 +1472,7 @@ Monitor callbacks use the latest props and state. A monitor mounted during a dra
 
 ### Filter by kind
 
-`accept` declares which [kinds](/react/utils/draggable#pass-data-along) a monitor observes. Pass one kind or an array. Base UI evaluates it when the monitor joins a drag, either at drag start or when a monitor mounts during a drag. If `accept` excludes that drag, the monitor ignores the rest of it.
+`accept` declares which [kinds](/react/utils/draggable#pass-data-along) a monitor observes. Pass one kind or an array. Base UI evaluates it when the monitor joins a drag, either at drag start or when a monitor mounts during a drag. If `accept` excludes that drag, the monitor ignores the rest of it. If an observing monitor changes its accepted kinds, updated callbacks only receive matching payloads; the last matching `onMoveEnd` callback still closes the original observation.
 
 ```tsx title="Observe only cards"
 const card = Draggable.createKind<CardPayload>('card');
@@ -1572,7 +1574,7 @@ Base UI reads the getter at different stages of a drag:
 
 Base UI checks `disabled` and `dragHandle` before starting a drag. The getter's closure is not reactive. Re-register from an effect when its dependencies change, or read mutable refs from the getter to keep the registration mounted.
 
-Base UI evaluates a monitor's `accept` once when it joins a drag. A monitor whose `accept` excludes a drag ignores it until it ends. A monitor registered during a drag is matched against the drag already in progress.
+Base UI uses a monitor's `accept` to decide whether it joins a drag, and checks it again before calling updated handlers. A monitor whose `accept` excludes a drag ignores it until it ends. A monitor registered during a drag is matched against the drag already in progress.
 
 Base UI reads the nearest `Draggable.Provider` where `useDragDropManager` is called. Put that provider above the component that calls the hook, regardless of where the registered elements render.
 

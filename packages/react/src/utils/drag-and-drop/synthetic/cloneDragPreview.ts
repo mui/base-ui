@@ -112,6 +112,8 @@ export interface DragPreviewElementHandle {
    */
   ensureConnected(): void;
   destroy(): void;
+  /** Restore motion rules before the ending-style transition is measured. */
+  prepareForDrop?: (() => void) | undefined;
 }
 
 export type DragPreviewElementFactory = (
@@ -446,6 +448,7 @@ function copyLiveState(
 
 interface PreparedDragPreviewClone {
   element: HTMLElement;
+  nodes: Element[];
   applyPostInsertion: () => void;
 }
 
@@ -469,7 +472,7 @@ function prepareDragPreviewClone(
   sanitize(element, cloneNodes, '-drag-preview');
   element.removeAttribute(DRAGGING_ATTR);
 
-  return { element, applyPostInsertion };
+  return { element, nodes: cloneNodes, applyPostInsertion };
 }
 
 /** A `transform` that only translates, which leaves the box's size untouched. */
@@ -628,9 +631,9 @@ export function measurePreviewSource(source: HTMLElement): {
 /**
  * Build the element that follows the pointer — a clone of the source, or an empty
  * host a declared preview renders its content into — and inject it next to the source
- * so the app's CSS still applies to it. Inherited properties, custom properties,
- * and contextual selectors (`.dark .card`, `.list > .item`, CSS-module ancestor
- * rules) all keep matching, because the preview's ancestor chain is the source's.
+ * so inherited properties and contextual descendant selectors still apply.
+ * Clones retain computed values lost through the extra wrapper, including styles
+ * from direct-child selectors. Explicit preview rules are included in that snapshot.
  *
  * It is promoted to the **top layer** through an engine-owned wrapper carrying
  * `popover="manual"`, which reparents the wrapper's box to a sibling of the root:
@@ -761,6 +764,45 @@ function createPreparedDragPreviewElement(
     pointerEvents: 'none',
     zIndex: '2147483647',
   });
+  const restoredMotion = new Map<string, string>();
+  let unwrappedStyles: Array<{ node: Element; values: Array<[string, string]> }> = [];
+  if (options.clone) {
+    host.appendChild(element);
+    const win = ownerWindow(source);
+    const sourceStyle = win.getComputedStyle(source);
+    const previewStyle = win.getComputedStyle(element);
+    // A source's contextual motion rule may outrank the shared neutralizer.
+    // Keep explicitly different preview motion, but suppress inherited motion.
+    for (const property of NEUTRALIZED_PROPERTIES) {
+      const value = previewStyle.getPropertyValue(property);
+      const activeMotion =
+        property === 'transition'
+          ? previewStyle.transitionDuration
+              .split(',')
+              .some((duration) => Number.parseFloat(duration) > 0)
+          : value !== 'none';
+      if (activeMotion && value && value === sourceStyle.getPropertyValue(property)) {
+        restoredMotion.set(property, value);
+        element.style.setProperty(property, 'none');
+      }
+    }
+    unwrappedStyles = options.clone.nodes
+      .filter((node) => node.isConnected)
+      .map((node) => {
+        const computed = win.getComputedStyle(node);
+        return {
+          node,
+          values: Array.from(computed)
+            .filter(
+              (property) =>
+                !property.startsWith('--') &&
+                !property.startsWith('transition') &&
+                !property.startsWith('animation'),
+            )
+            .map((property) => [property, computed.getPropertyValue(property)] as [string, string]),
+        };
+      });
+  }
   wrapper.appendChild(element);
 
   // The ancestor chain, captured while it is still alive, so a mid-drag teardown can
@@ -816,6 +858,26 @@ function createPreparedDragPreviewElement(
   host.appendChild(wrapper);
   openInTopLayer();
   updatePositionScale();
+  // Preserve only values the extra ancestor changed. Existing preview rules
+  // participate in the snapshot, and unchanged properties stay in the cascade.
+  const lostStyles = unwrappedStyles.map(({ node, values }) => {
+    const computed = ownerWindow(node).getComputedStyle(node);
+    return {
+      node,
+      values: values.filter(([property, value]) => computed.getPropertyValue(property) !== value),
+    };
+  });
+  for (const { node, values } of lostStyles) {
+    if (
+      node instanceof ownerWindow(node).HTMLElement ||
+      node instanceof ownerWindow(node).SVGElement
+    ) {
+      for (const [property, value] of values) {
+        node.style.setProperty(property, value);
+      }
+    }
+  }
+  unwrappedStyles = [];
   applyPostInsertion();
 
   function reconnect(): void {
@@ -866,6 +928,21 @@ function createPreparedDragPreviewElement(
       return positionScale;
     },
     ensureConnected: reconnect,
+    prepareForDrop() {
+      // Allow a distinct ending rule without reviving inherited source motion.
+      for (const [property, inheritedValue] of restoredMotion) {
+        if (property === 'transform') {
+          continue;
+        }
+        element.style.removeProperty(property);
+        if (
+          ownerWindow(element).getComputedStyle(element).getPropertyValue(property) ===
+          inheritedValue
+        ) {
+          element.style.setProperty(property, 'none');
+        }
+      }
+    },
     destroy() {
       if (destroyed) {
         return;

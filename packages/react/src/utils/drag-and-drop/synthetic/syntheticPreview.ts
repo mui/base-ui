@@ -135,7 +135,8 @@ export function createSyntheticPreview(
       let proposedY = lastY - previewOffsetY;
       initialProposed ??= { x: proposedX, y: proposedY };
       if (modifiers) {
-        const { element } = previewElement;
+        const currentPreview = previewElement;
+        const { element } = currentPreview;
         if (!previewScaleMeasured && element.getClientRects().length > 0) {
           previewScale = getElementScale(element);
           previewScaleMeasured = true;
@@ -158,6 +159,9 @@ export function createSyntheticPreview(
             getPreviewRect: () => element.getBoundingClientRect(),
           },
         );
+        if (destroyed || previewElement !== currentPreview) {
+          return;
+        }
         proposedX = constrained.x;
         proposedY = constrained.y;
       }
@@ -326,6 +330,7 @@ export function createSyntheticPreview(
           endingPreviewRegistrations.add(registration);
         }
         element.setAttribute(ENDING_STYLE_ATTR, '');
+        endingPreview.prepareForDrop?.();
 
         // Drop-handler updates scheduled later in the release event commit before
         // this frame. Measure then, so the destination is the source's final

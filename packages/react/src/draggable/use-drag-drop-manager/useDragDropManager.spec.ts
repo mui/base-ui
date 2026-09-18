@@ -354,3 +354,13 @@ engine.registerDropTarget<typeof card, unknown, Draggable.DragAcceptedKind>(elem
   kind: observedKind,
   payload: null,
 }));
+
+declare const extractedDrop: Draggable.DropTargetEvent<
+  'onDraggableDrop',
+  CardPayload,
+  { index: number }
+>;
+expectType<{ index: number }, typeof extractedDrop.target.payload>(extractedDrop.target.payload);
+expectType<{ index: number }, typeof extractedDrop.dropTarget.payload>(
+  extractedDrop.dropTarget.payload,
+);

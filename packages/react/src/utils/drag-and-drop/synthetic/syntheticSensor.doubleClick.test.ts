@@ -74,6 +74,9 @@ describe('syntheticDrag double-click activation', () => {
     engine.registerDraggable(source, { activation: { type: 'double-click' } });
     fireEvent.doubleClick(source, { detail: 2, button: 0 });
 
+    const onPress = vi.fn();
+    target.addEventListener('pointerdown', onPress);
+    target.addEventListener('mousedown', onPress);
     const press = new PointerEvent('pointerdown', {
       pointerType: 'mouse',
       button: 0,
@@ -86,6 +89,7 @@ describe('syntheticDrag double-click activation', () => {
     const mouseDown = new MouseEvent('mousedown', { button: 0, bubbles: true, cancelable: true });
     target.dispatchEvent(mouseDown);
     expect(mouseDown.defaultPrevented).toBe(true);
+    expect(onPress).not.toHaveBeenCalled();
 
     // A touch press during a mouse double-click session is somebody else's.
     const touchPress = new PointerEvent('pointerdown', {

@@ -114,17 +114,28 @@ describe('draggable demos', () => {
     ['CSS Modules', FileExplorerCss],
     ['Tailwind', FileExplorerTailwind],
   ] as const)('file explorer with %s', (_name, Demo) => {
+    it('moves a file with the keyboard and retains focus', async () => {
+      const { user } = await renderDnd(<Demo />);
+      const button = screen.getByRole('button', { name: 'Move item' });
+      button.focus();
+      await user.keyboard('{Enter}');
+      expect(button).toHaveFocus();
+      expect(screen.getByRole('status')).toHaveTextContent('budget.xlsx moved to Archive.');
+      expect(screen.queryByText('budget.xlsx', { selector: 'span' })).toBeNull();
+      await user.click(screen.getByRole('button', { name: 'Archive' }));
+      expect(screen.getByText('budget.xlsx', { selector: 'span' })).toBeVisible();
+    });
+
     it.each(['{Enter}', ' '])('opens a folder with %s after tabbing to it', async (key) => {
       const { user } = await renderDnd(<Demo />);
       const folder = screen.getByRole('button', { name: 'Archive' });
       expect(folder).toHaveAttribute('tabindex', '0');
-      // The Home breadcrumb is the first tab stop.
-      await user.tab();
-      await user.tab();
+      // Tab through the move controls and Home breadcrumb to the first folder.
+      await user.keyboard('{Tab}{Tab}{Tab}{Tab}{Tab}');
       expect(folder).toHaveFocus();
       await user.keyboard(key);
-      expect(screen.getByText('backup-2024.zip')).toBeVisible();
-      expect(screen.queryByText('budget.xlsx')).toBeNull();
+      expect(screen.getByText('backup-2024.zip', { selector: 'span' })).toBeVisible();
+      expect(screen.queryByText('budget.xlsx', { selector: 'span' })).toBeNull();
     });
   });
   describe.each([

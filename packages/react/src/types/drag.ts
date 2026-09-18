@@ -376,7 +376,9 @@ export type DropTargetEvent<
   K extends keyof DropTargetEventMap,
   TSourceData = unknown,
   TLocalData = unknown,
-> = DropTargetEventMap<TSourceData>[K] & DropTargetEventTarget<TLocalData>;
+> = K extends 'onDraggableDrop'
+  ? DropEvent<TSourceData, TLocalData>
+  : DropTargetEventMap<TSourceData>[K] & DropTargetEventTarget<TLocalData>;
 
 /** Context passed to a draggable's `getPayload` and `onBeforeMoveStart` callbacks. */
 export interface MoveStartContext {
@@ -590,9 +592,10 @@ export interface DragModifierContext {
   /** The same measure when the drag began, the reference an axis lock or grid snaps against. */
   initialPoint: DragPosition;
   /**
-   * The original cursor position for this frame, in client coordinates.
-   * `point` includes adjustments from preceding modifiers. On a preview part,
-   * `point` is the preview's proposed top-left while `input` stays the cursor.
+   * The pointer position before this modifier chain, in client coordinates.
+   * On a root this is the original pointer position; on a preview it already
+   * includes root modifiers. `point` includes preceding modifiers in this chain
+   * and, on a preview, represents its proposed top-left.
    */
   input: DragPosition;
   /** The drag source element. */
@@ -600,11 +603,12 @@ export interface DragModifierContext {
   /** The source element's bounding rect at drag start. */
   sourceRect: DOMRect;
   /**
-   * The scale applied to the source by CSS `transform` or `zoom`, measured at drag
-   * start across the source and its ancestors.
+   * The scale applied by CSS `transform` or `zoom`, including ancestor scaling.
+   * Root modifiers use the source's scale at pickup. Preview modifiers use the
+   * preview's scale when it first renders.
    *
-   * The value is `1` when the source is not scaled. A rotation alone does not change
-   * it. On a zoomable canvas, multiply a distance in canvas coordinates by this value
+   * The value is `1` when the corresponding element is not scaled. A rotation alone
+   * does not change it. On a zoomable canvas, multiply a distance in canvas coordinates by this value
    * to convert it to client pixels. The `snapToGrid` preset does this automatically.
    */
   scale: DragPosition;

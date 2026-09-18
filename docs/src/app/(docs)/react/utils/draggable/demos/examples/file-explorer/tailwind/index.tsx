@@ -190,10 +190,17 @@ function Crumb({
 export default function FileExplorer() {
   const [nodes, setNodes] = React.useState<FileSystem>(INITIAL_NODES);
   const [currentFolderId, setCurrentFolderId] = React.useState('home');
+  const [selectedId, setSelectedId] = React.useState('budget');
+  const [destinationId, setDestinationId] = React.useState('archive');
+  const [announcement, setAnnouncement] = React.useState('');
 
-  // Moving a node is a single parent change; `canDrop` already vetted it.
+  // Validate moves from both drag interactions and the move controls.
   const moveNode = useStableCallback((sourceId: string, folderId: string) => {
+    if (!canDropInto(nodes, folderId, sourceId)) {
+      return;
+    }
     setNodes((prev) => ({ ...prev, [sourceId]: { ...prev[sourceId], parentId: folderId } }));
+    setAnnouncement(`${nodes[sourceId].name} moved to ${nodes[folderId].name}.`);
   });
 
   const path = getPath(nodes, currentFolderId);
@@ -204,6 +211,53 @@ export default function FileExplorer() {
     <Draggable.Provider>
       <DragPageAutoScroll accept={nodeKind} />
       <div className="flex w-full max-w-[28rem] flex-col gap-3 select-none">
+        <form
+          onSubmit={(event) => {
+            event.preventDefault();
+            moveNode(selectedId, destinationId);
+          }}
+        >
+          <fieldset>
+            <legend>Move an item</legend>
+            <label>
+              Item{' '}
+              <select value={selectedId} onChange={(event) => setSelectedId(event.target.value)}>
+                {Object.values(nodes)
+                  .filter((node) => node.parentId !== null)
+                  .map((node) => (
+                    <option key={node.id} value={node.id}>
+                      {node.name}
+                    </option>
+                  ))}
+              </select>
+            </label>{' '}
+            <label>
+              Destination{' '}
+              <select
+                value={destinationId}
+                onChange={(event) => setDestinationId(event.target.value)}
+              >
+                {Object.values(nodes)
+                  .filter((node) => node.type === 'folder')
+                  .map((node) => (
+                    <option
+                      key={node.id}
+                      value={node.id}
+                      disabled={!canDropInto(nodes, node.id, selectedId)}
+                    >
+                      {getPath(nodes, node.id)
+                        .map((folder) => folder.name)
+                        .join(' / ')}
+                    </option>
+                  ))}
+              </select>
+            </label>{' '}
+            <button type="submit" aria-disabled={!canDropInto(nodes, destinationId, selectedId)}>
+              Move item
+            </button>
+          </fieldset>
+        </form>
+        <div role="status">{announcement}</div>
         <nav aria-label="Breadcrumb" className="flex items-center gap-1 text-sm leading-5">
           {path.map((folder, index) => (
             <React.Fragment key={folder.id}>

@@ -43,10 +43,10 @@ interface DropTargetState {
    */
   shadowRoots: Map<ShadowRoot, number>;
   /**
-   * The shadow root each registered element was counted against, so the release
+   * The shadow roots each registered element was counted against, so the release
    * decrements what the retain incremented even if the node has since moved.
    */
-  retainedRoots: WeakMap<Element, ShadowRoot>;
+  retainedRoots: WeakMap<Element, ShadowRoot | ShadowRoot[]>;
   /** Closed shadow roots indexed by host for pointer hit-testing. */
   shadowRootsByHost?: Map<Element, ShadowRoot> | undefined;
   /** Whether the host index needs to be rebuilt. */
@@ -56,7 +56,7 @@ interface DropTargetState {
 const state = getSharedSlot<DropTargetState>('dropTarget', () => ({
   registry: new Map<Element, DropTargetGetter[]>(),
   shadowRoots: new Map<ShadowRoot, number>(),
-  retainedRoots: new WeakMap<Element, ShadowRoot>(),
+  retainedRoots: new WeakMap<Element, ShadowRoot | ShadowRoot[]>(),
   shadowRootsByHost: new Map<Element, ShadowRoot>(),
   shadowRootsByHostDirty: true,
 }));
@@ -94,49 +94,50 @@ const holds = createGetterStackRegistry<Element, DropTargetGetter>({
  * one root holds many targets, and the last one leaving is what retires it.
  */
 function retainShadowRoot(element: Element): void {
-  const root = element.getRootNode();
-  // Realm-safe: a target inside an iframe has its own `ShadowRoot` constructor.
-  if (isShadowRoot(root)) {
+  const roots: ShadowRoot[] = [];
+  let root = element.getRootNode();
+  while (isShadowRoot(root)) {
+    roots.push(root);
     const count = state.shadowRoots.get(root) ?? 0;
     state.shadowRoots.set(root, count + 1);
-    // Remembered rather than re-derived on release: `getRootNode()` answers for
-    // where the element is *now*, and a node moved (or detached) while registered
-    // would release a root it never retained — leaking this one, and decrementing
-    // the other below its true count until it is dropped while it still holds
-    // targets, silently costing it its `scroll` listener mid-drag.
-    state.retainedRoots.set(element, root);
     if (count === 0) {
       state.shadowRootsByHostDirty = true;
       for (const listener of shadowRootChangeListeners) {
         listener(root, true);
       }
     }
+    root = root.host.getRootNode();
+  }
+  if (roots.length > 0) {
+    state.retainedRoots.set(element, roots);
   }
 }
 
 function releaseShadowRoot(element: Element): void {
-  const root = state.retainedRoots.get(element);
-  if (root === undefined) {
+  const retained = state.retainedRoots.get(element);
+  if (retained === undefined) {
     return;
   }
   state.retainedRoots.delete(element);
-  const count = state.shadowRoots.get(root);
-  if (count === undefined) {
-    return;
-  }
-  if (count <= 1) {
-    state.shadowRoots.delete(root);
-    state.shadowRootsByHostDirty = true;
-    for (const listener of shadowRootChangeListeners) {
-      listener(root, false);
+  for (const root of Array.isArray(retained) ? retained : [retained]) {
+    const count = state.shadowRoots.get(root);
+    if (count === undefined) {
+      continue;
     }
-  } else {
-    state.shadowRoots.set(root, count - 1);
+    if (count <= 1) {
+      state.shadowRoots.delete(root);
+      state.shadowRootsByHostDirty = true;
+      for (const listener of shadowRootChangeListeners) {
+        listener(root, false);
+      }
+    } else {
+      state.shadowRoots.set(root, count - 1);
+    }
   }
 }
 
 /**
- * Every shadow root that currently holds a registered drop target. The pointer
+ * Every shadow root containing a registered drop target, including ancestor roots. The pointer
  * sensor binds a capture-phase `scroll` listener to each at pickup.
  */
 export function getDropTargetShadowRoots(): Iterable<ShadowRoot> {
@@ -277,7 +278,7 @@ export function resetForTests(): void {
   }
   state.registry.clear();
   state.shadowRoots.clear();
-  state.retainedRoots = new WeakMap<Element, ShadowRoot>();
+  state.retainedRoots = new WeakMap<Element, ShadowRoot | ShadowRoot[]>();
   state.shadowRootsByHost?.clear();
   state.shadowRootsByHostDirty = true;
   shadowRootChangeListeners.clear();
@@ -331,13 +332,11 @@ function safeCall<T>(
  */
 const DROP_REJECTED = Symbol('base-ui.dropTarget.rejected');
 
-/**
- * Resolve a single element against the active drag: returns a `DropTargetRecord`
- * when the element is registered, not `disabled`, and its `accept` and
- * `canDrop` both pass; `null` when it abstains; {@link DROP_REJECTED} when its
- * `canDrop` refuses the drop outright. Shared by the DOM walk in
- * `getDropTargetsOver` so pointer resolution uses one set of rules.
- */
+const recordRegistrations = getSharedSlot(
+  'dropTarget.recordRegistrations',
+  () => new WeakMap<DropTargetRecord, RegisterDropTargetParameters<any, any>>(),
+);
+
 const collisionResolvers = new WeakMap<
   DropTargetRecord,
   NonNullable<CollisionResolutionRegistration[typeof resolveCollision]>
@@ -364,6 +363,13 @@ export function captureDropTargetCollision(
   }
 }
 
+/**
+ * Resolve a single element against the active drag: returns a `DropTargetRecord`
+ * when the element is registered, not `disabled`, and its `accept` and
+ * `canDrop` both pass; `null` when it abstains; {@link DROP_REJECTED} when its
+ * `canDrop` refuses the drop outright. Shared by the DOM walk in
+ * `getDropTargetsOver` so pointer resolution uses one set of rules.
+ */
 function resolveDropTargetOutcome(
   element: Element,
   feedback: Omit<DropTargetResolutionContext, 'element'>,
@@ -420,6 +426,7 @@ function resolveDropTargetOutcome(
     payload,
     ...createLocalPointReaders(element, fullFeedback, registration.snap),
   };
+  recordRegistrations.set(record, { ...registration });
   const captureCollision = (registration as CollisionResolutionRegistration)[resolveCollision];
   if (captureCollision) {
     collisionResolvers.set(record, captureCollision);
@@ -615,7 +622,14 @@ export function dispatchToDropTarget<K extends DropTargetEventName>(
   if (registration === null) {
     return;
   }
-  const handler = registration[eventName] as
+  // A leave can outlive the kind contract that produced its record.
+  const compatible =
+    matchesAccept(registration.accept, payload.source) && registration.kind?.id === record.kind;
+  const parameters = compatible ? registration : recordRegistrations.get(record);
+  if (!parameters) {
+    return;
+  }
+  const handler = parameters[eventName] as
     | ((
         parameters: DropTargetEventMap[K] & DropTargetEventTarget,
         eventDetails: DropTargetEventDetailsMap[K],

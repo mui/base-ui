@@ -370,12 +370,10 @@ export function start(parameters: StartParameters): DragSessionHandle | null {
       'Base UI: a drag handler threw, so the drag was torn down. ' +
         'The terminal onMoveEnd is best-effort.',
       null,
-      () => {
-        getSourceHandlers?.()?.onMoveEnd?.(endPayload, endDetails);
-        dispatchToMonitors('onMoveEnd', endPayload, endDetails);
-      },
+      () => getSourceHandlers?.()?.onMoveEnd?.(endPayload, endDetails),
       undefined,
     );
+    dispatchToMonitors('onMoveEnd', endPayload, endDetails);
   }
 
   function publishSession(): void {

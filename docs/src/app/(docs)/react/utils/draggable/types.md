@@ -623,24 +623,24 @@ Renders a `<div>` element.
 
 **Target Props:**
 
-| Prop             | Type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          | Default | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
-| :--------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :------ | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| accept           | `DragAccept<undefined> \| NonNullable<DragAccept<TSourceData> \| undefined> \| DragAcceptedKind<TPayload \| unknown> & AnyDragAccept \| (DragAcceptedKind<TPayload \| unknown>)[] & AnyDragAccept`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            | -       | -                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
-| canDrop          | `((parameters: DropTargetResolutionContext<undefined>) => boolean \| 'reject') \| ((parameters: DropTargetResolutionContext<TSourceData>) => boolean \| 'reject') \| ((parameters: DropTargetResolutionContext<TPayload \| unknown>) => boolean \| 'reject')`                                                                                                                                                                                                                                                                                                                                                                                                                                 | -       | Predicate for whether this target should be considered a candidate for the&#xA;current drag. Runs after `accept`. Return `false` to skip this target for the current resolution. Base UI continues&#xA;through its ancestors, so a parent target can receive the drop. This differs from&#xA;ignoring the drop inside `onDraggableDrop`, which does not give a parent target a chance. Return `'reject'` to block every drop at this position. Descendants, this target,&#xA;and ancestors cannot receive the drop. While the drag is over the target, it has&#xA;`data-rejected`. Use this for container rules such as a capacity limit. Returning&#xA;`false` would allow an item inside the container to receive the drop. |
-| getPayload       | `((context: DropTargetResolutionContext<undefined>) => undefined) \| DropTargetPayloadGetter<TSourceData, TLocalData> \| ((context: DropTargetResolutionContext<TSourceData>) => undefined) \| DropTargetPayloadGetter<TPayload \| unknown, TLocalData> \| ((context: DropTargetResolutionContext<TPayload \| unknown>) => undefined)`                                                                                                                                                                                                                                                                                                                                                        | -       | Resolves payload data from the current drag context.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
-| kind             | `DragKind<undefined> \| { name: string; id: symbol; matches: matches }`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       | -       | The target kind created with `Draggable.createKind`. It is available as&#xA;`target.kind` and on entries in `location.current.dropTargets`. Use the kind's `matches`&#xA;method to distinguish target kinds and narrow their payload types. Its payload&#xA;type must match this target's `payload`. Distinct from `accept`, which declares the **source** kinds this target takes.                                                                                                                                                                                                                                                                                                                                           |
-| onDraggableDrop  | `((parameters: DropEvent<undefined, undefined>, eventDetails: { reason: 'drop'; event: PointerEvent \| MouseEvent }) => void) \| ((parameters: DropEvent<TSourceData, TLocalData>, eventDetails: { reason: 'drop'; event: PointerEvent \| MouseEvent }) => void) \| ((parameters: DropEvent<TSourceData, undefined>, eventDetails: { reason: 'drop'; event: PointerEvent \| MouseEvent }) => void) \| ((parameters: DropEvent<TPayload \| unknown, TLocalData>, eventDetails: { reason: 'drop'; event: PointerEvent \| MouseEvent }) => void) \| ((parameters: DropEvent<TPayload \| unknown, undefined>, eventDetails: { reason: 'drop'; event: PointerEvent \| MouseEvent }) => void)`      | -       | Event handler called on the innermost active drop target only, when the user&#xA;releases the drag over it. Ancestor targets in the same stack do not receive&#xA;`onDraggableDrop`, and it never fires on a cancel. To observe every drag end regardless of&#xA;target depth or cancellation, use the source's or a monitor's `onMoveEnd`.                                                                                                                                                                                                                                                                                                                                                                                   |
-| onDraggableEnter | `((parameters: DropTargetEvent<'onDraggableEnter', undefined, undefined>, eventDetails: DropTargetChangeEventDetails) => void) \| ((parameters: DropTargetEvent<'onDraggableEnter', TSourceData, TLocalData>, eventDetails: DropTargetChangeEventDetails) => void) \| ((parameters: DropTargetEvent<'onDraggableEnter', TSourceData, undefined>, eventDetails: DropTargetChangeEventDetails) => void) \| ((parameters: DropTargetEvent<'onDraggableEnter', TPayload \| unknown, TLocalData>, eventDetails: DropTargetChangeEventDetails) => void) \| ((parameters: DropTargetEvent<'onDraggableEnter', TPayload \| unknown, undefined>, eventDetails: DropTargetChangeEventDetails) => void)` | -       | Event handler called when this target enters the active stack.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
-| onDraggableLeave | `((parameters: DropTargetEvent<'onDraggableLeave', undefined, undefined>, eventDetails: DropTargetChangeEventDetails) => void) \| ((parameters: DropTargetEvent<'onDraggableLeave', TSourceData, TLocalData>, eventDetails: DropTargetChangeEventDetails) => void) \| ((parameters: DropTargetEvent<'onDraggableLeave', TSourceData, undefined>, eventDetails: DropTargetChangeEventDetails) => void) \| ((parameters: DropTargetEvent<'onDraggableLeave', TPayload \| unknown, TLocalData>, eventDetails: DropTargetChangeEventDetails) => void) \| ((parameters: DropTargetEvent<'onDraggableLeave', TPayload \| unknown, undefined>, eventDetails: DropTargetChangeEventDetails) => void)` | -       | Event handler called when this target leaves the active stack, because the&#xA;pointer or modifier keys moved it away, or the drag ended. `eventDetails.reason`&#xA;identifies what changed.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
-| onDraggableMove  | `((parameters: DropTargetEvent<'onDraggableMove', undefined, undefined>, eventDetails: MoveEventDetails) => void) \| ((parameters: DropTargetEvent<'onDraggableMove', TSourceData, TLocalData>, eventDetails: MoveEventDetails) => void) \| ((parameters: DropTargetEvent<'onDraggableMove', TSourceData, undefined>, eventDetails: MoveEventDetails) => void) \| ((parameters: DropTargetEvent<'onDraggableMove', TPayload \| unknown, TLocalData>, eventDetails: MoveEventDetails) => void) \| ((parameters: DropTargetEvent<'onDraggableMove', TPayload \| unknown, undefined>, eventDetails: MoveEventDetails) => void)`                                                                  | -       | Event handler called on the frame this target enters the active stack, right&#xA;after `onDraggableEnter`, and on each animation frame when the pointer or modifier&#xA;keys change while the target remains in the stack. Put hover-tracking work here and use&#xA;`onDraggableEnter` for enter-only side effects.                                                                                                                                                                                                                                                                                                                                                                                                           |
-| onDraggableStart | `((parameters: DropTargetEvent<'onDraggableStart', undefined, undefined>, eventDetails: MoveStartEventDetails) => void) \| ((parameters: DropTargetEvent<'onDraggableStart', TSourceData, TLocalData>, eventDetails: MoveStartEventDetails) => void) \| ((parameters: DropTargetEvent<'onDraggableStart', TSourceData, undefined>, eventDetails: MoveStartEventDetails) => void) \| ((parameters: DropTargetEvent<'onDraggableStart', TPayload \| unknown, TLocalData>, eventDetails: MoveStartEventDetails) => void) \| ((parameters: DropTargetEvent<'onDraggableStart', TPayload \| unknown, undefined>, eventDetails: MoveStartEventDetails) => void)`                                    | -       | Event handler called when a matching drag starts while this target is already&#xA;under the pointer. It does not fire for drags that start elsewhere; use a&#xA;monitor's `onMoveStart` to observe every drag.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
-| payload          | `TLocalData`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  | -       | Static payload data. Function values are preserved without being invoked.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
-| snap             | `DragSnapSteps \| ((context: DropTargetResolutionContext<undefined>) => DragSnapSteps \| undefined) \| ((context: DropTargetResolutionContext<TSourceData>) => DragSnapSteps \| undefined) \| ((context: DropTargetResolutionContext<TPayload \| unknown>) => DragSnapSteps \| undefined)`                                                                                                                                                                                                                                                                                                                                                                                                    | -       | Divides the target's border box into equal steps for&#xA;`getSnappedLocalPoint()`. For example, `{ y: 96 }` creates 15-minute slots in&#xA;a day column, and `{ x: 7, y: 6 }` creates a month grid. Step counts do not depend on the target's pixel size. Pass a static value or&#xA;a callback that receives the same context as `canDrop`. Return `undefined`&#xA;to skip snapping. This differs from `snapToGrid`, which snaps the drag position for every target.&#xA;`snap` changes only the value reported by this target.                                                                                                                                                                                              |
-| trackDragOver    | `boolean`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | `true`  | Whether to update drag-over state and its data attributes. Set to `false`&#xA;when the target renders no drag-over feedback; drag callbacks still fire.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
-| disabled         | `boolean`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | `false` | Whether the drop target should ignore user interaction. A disabled target is&#xA;skipped by target resolution as if it weren't registered, so drags fall through&#xA;to ancestor targets. A hovered target disabled mid-drag leaves the active stack,&#xA;with its `onDraggableLeave`, on the next resolution.                                                                                                                                                                                                                                                                                                                                                                                                                |
-| className        | `string \| ((state: Draggable.Target.State) => string \| undefined)`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
-| style            | `React.CSSProperties \| ((state: Draggable.Target.State) => React.CSSProperties \| undefined)`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
-| render           | `ReactElement \| ((props: HTMLProps, state: Draggable.Target.State) => ReactElement)`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| Prop             | Type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      | Default | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| :--------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | :------ | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| accept           | `DragAccept<undefined> \| NonNullable<DragAccept<TSourceData> \| undefined> \| DragAcceptedKind<TPayload \| unknown> & AnyDragAccept \| (DragAcceptedKind<TPayload \| unknown>)[] & AnyDragAccept`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        | -       | -                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
+| canDrop          | `((parameters: DropTargetResolutionContext<undefined>) => boolean \| 'reject') \| ((parameters: DropTargetResolutionContext<TSourceData>) => boolean \| 'reject') \| ((parameters: DropTargetResolutionContext<TPayload \| unknown>) => boolean \| 'reject')`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             | -       | Predicate for whether this target should be considered a candidate for the&#xA;current drag. Runs after `accept`. Return `false` to skip this target for the current resolution. Base UI continues&#xA;through its ancestors, so a parent target can receive the drop. This differs from&#xA;ignoring the drop inside `onDraggableDrop`, which does not give a parent target a chance. Return `'reject'` to block every drop at this position. Descendants, this target,&#xA;and ancestors cannot receive the drop. While the drag is over the target, it has&#xA;`data-rejected`. Use this for container rules such as a capacity limit. Returning&#xA;`false` would allow an item inside the container to receive the drop. |
+| getPayload       | `((context: DropTargetResolutionContext<undefined>) => undefined) \| DropTargetPayloadGetter<TSourceData, TLocalData> \| ((context: DropTargetResolutionContext<TSourceData>) => undefined) \| DropTargetPayloadGetter<TPayload \| unknown, TLocalData> \| ((context: DropTargetResolutionContext<TPayload \| unknown>) => undefined)`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | -       | Resolves payload data from the current drag context.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| kind             | `DragKind<undefined> \| { name: string; id: symbol; matches: matches }`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   | -       | The target kind created with `Draggable.createKind`. It is available as&#xA;`target.kind` and on entries in `location.current.dropTargets`. Use the kind's `matches`&#xA;method to distinguish target kinds and narrow their payload types. Its payload&#xA;type must match this target's `payload`. Distinct from `accept`, which declares the **source** kinds this target takes.                                                                                                                                                                                                                                                                                                                                           |
+| onDraggableDrop  | `((parameters: DropEvent<undefined, undefined>, eventDetails: { reason: 'drop'; event: PointerEvent \| MouseEvent }) => void) \| ((parameters: DropEvent<TSourceData, TLocalData>, eventDetails: { reason: 'drop'; event: PointerEvent \| MouseEvent }) => void) \| ((parameters: DropEvent<TSourceData, undefined>, eventDetails: { reason: 'drop'; event: PointerEvent \| MouseEvent }) => void) \| ((parameters: DropEvent<TPayload \| unknown, TLocalData>, eventDetails: { reason: 'drop'; event: PointerEvent \| MouseEvent }) => void) \| ((parameters: DropEvent<TPayload \| unknown, undefined>, eventDetails: { reason: 'drop'; event: PointerEvent \| MouseEvent }) => void)`                                                                                                                                                                                                                                  | -       | Event handler called on the innermost active drop target only, when the user&#xA;releases the drag over it. Ancestor targets in the same stack do not receive&#xA;`onDraggableDrop`, and it never fires on a cancel. To observe every drag end regardless of&#xA;target depth or cancellation, use the source's or a monitor's `onMoveEnd`.                                                                                                                                                                                                                                                                                                                                                                                   |
+| onDraggableEnter | `((parameters: { location: DragLocationHistory; source: DragSource<undefined>; target: DropTargetRecord<undefined> }, eventDetails: DropTargetChangeEventDetails) => void) \| ((parameters: { location: DragLocationHistory; source: DragSource<TSourceData>; target: DropTargetRecord<TLocalData> }, eventDetails: DropTargetChangeEventDetails) => void) \| ((parameters: { location: DragLocationHistory; source: DragSource<TSourceData>; target: DropTargetRecord<undefined> }, eventDetails: DropTargetChangeEventDetails) => void) \| ((parameters: { location: DragLocationHistory; source: DragSource<TPayload \| unknown>; target: DropTargetRecord<TLocalData> }, eventDetails: DropTargetChangeEventDetails) => void) \| ((parameters: { location: DragLocationHistory; source: DragSource<TPayload \| unknown>; target: DropTargetRecord<undefined> }, eventDetails: DropTargetChangeEventDetails) => void)` | -       | Event handler called when this target enters the active stack.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| onDraggableLeave | `((parameters: { location: DragLocationHistory; source: DragSource<undefined>; target: DropTargetRecord<undefined> }, eventDetails: DropTargetChangeEventDetails) => void) \| ((parameters: { location: DragLocationHistory; source: DragSource<TSourceData>; target: DropTargetRecord<TLocalData> }, eventDetails: DropTargetChangeEventDetails) => void) \| ((parameters: { location: DragLocationHistory; source: DragSource<TSourceData>; target: DropTargetRecord<undefined> }, eventDetails: DropTargetChangeEventDetails) => void) \| ((parameters: { location: DragLocationHistory; source: DragSource<TPayload \| unknown>; target: DropTargetRecord<TLocalData> }, eventDetails: DropTargetChangeEventDetails) => void) \| ((parameters: { location: DragLocationHistory; source: DragSource<TPayload \| unknown>; target: DropTargetRecord<undefined> }, eventDetails: DropTargetChangeEventDetails) => void)` | -       | Event handler called when this target leaves the active stack, because the&#xA;pointer or modifier keys moved it away, or the drag ended. `eventDetails.reason`&#xA;identifies what changed.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| onDraggableMove  | `((parameters: { location: DragLocationHistory; source: DragSource<undefined>; target: DropTargetRecord<undefined> }, eventDetails: MoveEventDetails) => void) \| ((parameters: { location: DragLocationHistory; source: DragSource<TSourceData>; target: DropTargetRecord<TLocalData> }, eventDetails: MoveEventDetails) => void) \| ((parameters: { location: DragLocationHistory; source: DragSource<TSourceData>; target: DropTargetRecord<undefined> }, eventDetails: MoveEventDetails) => void) \| ((parameters: { location: DragLocationHistory; source: DragSource<TPayload \| unknown>; target: DropTargetRecord<TLocalData> }, eventDetails: MoveEventDetails) => void) \| ((parameters: { location: DragLocationHistory; source: DragSource<TPayload \| unknown>; target: DropTargetRecord<undefined> }, eventDetails: MoveEventDetails) => void)`                                                             | -       | Event handler called on the frame this target enters the active stack, right&#xA;after `onDraggableEnter`, and on each animation frame when the pointer or modifier&#xA;keys change while the target remains in the stack. Put hover-tracking work here and use&#xA;`onDraggableEnter` for enter-only side effects.                                                                                                                                                                                                                                                                                                                                                                                                           |
+| onDraggableStart | `((parameters: { location: DragLocationHistory; source: DragSource<undefined>; target: DropTargetRecord<undefined> }, eventDetails: MoveStartEventDetails) => void) \| ((parameters: { location: DragLocationHistory; source: DragSource<TSourceData>; target: DropTargetRecord<TLocalData> }, eventDetails: MoveStartEventDetails) => void) \| ((parameters: { location: DragLocationHistory; source: DragSource<TSourceData>; target: DropTargetRecord<undefined> }, eventDetails: MoveStartEventDetails) => void) \| ((parameters: { location: DragLocationHistory; source: DragSource<TPayload \| unknown>; target: DropTargetRecord<TLocalData> }, eventDetails: MoveStartEventDetails) => void) \| ((parameters: { location: DragLocationHistory; source: DragSource<TPayload \| unknown>; target: DropTargetRecord<undefined> }, eventDetails: MoveStartEventDetails) => void)`                                    | -       | Event handler called when a matching drag starts while this target is already&#xA;under the pointer. It does not fire for drags that start elsewhere; use a&#xA;monitor's `onMoveStart` to observe every drag.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| payload          | `TLocalData`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              | -       | Static payload data. Function values are preserved without being invoked.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| snap             | `DragSnapSteps \| ((context: DropTargetResolutionContext<undefined>) => DragSnapSteps \| undefined) \| ((context: DropTargetResolutionContext<TSourceData>) => DragSnapSteps \| undefined) \| ((context: DropTargetResolutionContext<TPayload \| unknown>) => DragSnapSteps \| undefined)`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                | -       | Divides the target's border box into equal steps for&#xA;`getSnappedLocalPoint()`. For example, `{ y: 96 }` creates 15-minute slots in&#xA;a day column, and `{ x: 7, y: 6 }` creates a month grid. Step counts do not depend on the target's pixel size. Pass a static value or&#xA;a callback that receives the same context as `canDrop`. Return `undefined`&#xA;to skip snapping. This differs from `snapToGrid`, which snaps the drag position for every target.&#xA;`snap` changes only the value reported by this target.                                                                                                                                                                                              |
+| trackDragOver    | `boolean`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 | `true`  | Whether to update drag-over state and its data attributes. Set to `false`&#xA;when the target renders no drag-over feedback; drag callbacks still fire.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| disabled         | `boolean`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 | `false` | Whether the drop target should ignore user interaction. A disabled target is&#xA;skipped by target resolution as if it weren't registered, so drags fall through&#xA;to ancestor targets. A hovered target disabled mid-drag leaves the active stack,&#xA;with its `onDraggableLeave`, on the next resolution.                                                                                                                                                                                                                                                                                                                                                                                                                |
+| className        | `string \| ((state: Draggable.Target.State) => string \| undefined)`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| style            | `React.CSSProperties \| ((state: Draggable.Target.State) => React.CSSProperties \| undefined)`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| render           | `ReactElement \| ((props: HTMLProps, state: Draggable.Target.State) => ReactElement)`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
 
 **Target Data Attributes:**
 
@@ -778,7 +778,11 @@ type DraggableTargetPropsWithPayload<TSourceData, TLocalData> = (
    * monitor's `onMoveStart` to observe every drag.
    */
   onDraggableStart?: (
-    parameters: DropTargetEvent<'onDraggableStart', TSourceData, TLocalData>,
+    parameters: {
+      location: DragLocationHistory;
+      source: DragSource<TSourceData>;
+      target: DropTargetRecord<TLocalData>;
+    },
     eventDetails: MoveStartEventDetails,
   ) => void;
   /**
@@ -788,12 +792,20 @@ type DraggableTargetPropsWithPayload<TSourceData, TLocalData> = (
    * `onDraggableEnter` for enter-only side effects.
    */
   onDraggableMove?: (
-    parameters: DropTargetEvent<'onDraggableMove', TSourceData, TLocalData>,
+    parameters: {
+      location: DragLocationHistory;
+      source: DragSource<TSourceData>;
+      target: DropTargetRecord<TLocalData>;
+    },
     eventDetails: MoveEventDetails,
   ) => void;
   /** Event handler called when this target enters the active stack. */
   onDraggableEnter?: (
-    parameters: DropTargetEvent<'onDraggableEnter', TSourceData, TLocalData>,
+    parameters: {
+      location: DragLocationHistory;
+      source: DragSource<TSourceData>;
+      target: DropTargetRecord<TLocalData>;
+    },
     eventDetails: DropTargetChangeEventDetails,
   ) => void;
   /**
@@ -802,7 +814,11 @@ type DraggableTargetPropsWithPayload<TSourceData, TLocalData> = (
    * identifies what changed.
    */
   onDraggableLeave?: (
-    parameters: DropTargetEvent<'onDraggableLeave', TSourceData, TLocalData>,
+    parameters: {
+      location: DragLocationHistory;
+      source: DragSource<TSourceData>;
+      target: DropTargetRecord<TLocalData>;
+    },
     eventDetails: DropTargetChangeEventDetails,
   ) => void;
   /**
@@ -948,19 +964,35 @@ type DraggableuseDragDropManagerReturnValue = {
                 context: DropTargetResolutionContext<TPayload | unknown>,
               ) => DragSnapSteps | undefined);
           onDraggableStart?: (
-            parameters: DropTargetEvent<'onDraggableStart', TPayload | unknown, undefined>,
+            parameters: {
+              location: DragLocationHistory;
+              source: DragSource<TPayload | unknown>;
+              target: DropTargetRecord<undefined>;
+            },
             eventDetails: MoveStartEventDetails,
           ) => void;
           onDraggableMove?: (
-            parameters: DropTargetEvent<'onDraggableMove', TPayload | unknown, undefined>,
+            parameters: {
+              location: DragLocationHistory;
+              source: DragSource<TPayload | unknown>;
+              target: DropTargetRecord<undefined>;
+            },
             eventDetails: MoveEventDetails,
           ) => void;
           onDraggableEnter?: (
-            parameters: DropTargetEvent<'onDraggableEnter', TPayload | unknown, undefined>,
+            parameters: {
+              location: DragLocationHistory;
+              source: DragSource<TPayload | unknown>;
+              target: DropTargetRecord<undefined>;
+            },
             eventDetails: DropTargetChangeEventDetails,
           ) => void;
           onDraggableLeave?: (
-            parameters: DropTargetEvent<'onDraggableLeave', TPayload | unknown, undefined>,
+            parameters: {
+              location: DragLocationHistory;
+              source: DragSource<TPayload | unknown>;
+              target: DropTargetRecord<undefined>;
+            },
             eventDetails: DropTargetChangeEventDetails,
           ) => void;
           onDraggableDrop?: (
@@ -1003,19 +1035,35 @@ type DraggableuseDragDropManagerReturnValue = {
                 context: DropTargetResolutionContext<TPayload | unknown>,
               ) => DragSnapSteps | undefined);
           onDraggableStart?: (
-            parameters: DropTargetEvent<'onDraggableStart', TPayload | unknown, TLocalData>,
+            parameters: {
+              location: DragLocationHistory;
+              source: DragSource<TPayload | unknown>;
+              target: DropTargetRecord<TLocalData>;
+            },
             eventDetails: MoveStartEventDetails,
           ) => void;
           onDraggableMove?: (
-            parameters: DropTargetEvent<'onDraggableMove', TPayload | unknown, TLocalData>,
+            parameters: {
+              location: DragLocationHistory;
+              source: DragSource<TPayload | unknown>;
+              target: DropTargetRecord<TLocalData>;
+            },
             eventDetails: MoveEventDetails,
           ) => void;
           onDraggableEnter?: (
-            parameters: DropTargetEvent<'onDraggableEnter', TPayload | unknown, TLocalData>,
+            parameters: {
+              location: DragLocationHistory;
+              source: DragSource<TPayload | unknown>;
+              target: DropTargetRecord<TLocalData>;
+            },
             eventDetails: DropTargetChangeEventDetails,
           ) => void;
           onDraggableLeave?: (
-            parameters: DropTargetEvent<'onDraggableLeave', TPayload | unknown, TLocalData>,
+            parameters: {
+              location: DragLocationHistory;
+              source: DragSource<TPayload | unknown>;
+              target: DropTargetRecord<TLocalData>;
+            },
             eventDetails: DropTargetChangeEventDetails,
           ) => void;
           onDraggableDrop?: (
@@ -1308,19 +1356,35 @@ type DragDropManager = {
                 context: DropTargetResolutionContext<TPayload | unknown>,
               ) => DragSnapSteps | undefined);
           onDraggableStart?: (
-            parameters: DropTargetEvent<'onDraggableStart', TPayload | unknown, undefined>,
+            parameters: {
+              location: DragLocationHistory;
+              source: DragSource<TPayload | unknown>;
+              target: DropTargetRecord<undefined>;
+            },
             eventDetails: MoveStartEventDetails,
           ) => void;
           onDraggableMove?: (
-            parameters: DropTargetEvent<'onDraggableMove', TPayload | unknown, undefined>,
+            parameters: {
+              location: DragLocationHistory;
+              source: DragSource<TPayload | unknown>;
+              target: DropTargetRecord<undefined>;
+            },
             eventDetails: MoveEventDetails,
           ) => void;
           onDraggableEnter?: (
-            parameters: DropTargetEvent<'onDraggableEnter', TPayload | unknown, undefined>,
+            parameters: {
+              location: DragLocationHistory;
+              source: DragSource<TPayload | unknown>;
+              target: DropTargetRecord<undefined>;
+            },
             eventDetails: DropTargetChangeEventDetails,
           ) => void;
           onDraggableLeave?: (
-            parameters: DropTargetEvent<'onDraggableLeave', TPayload | unknown, undefined>,
+            parameters: {
+              location: DragLocationHistory;
+              source: DragSource<TPayload | unknown>;
+              target: DropTargetRecord<undefined>;
+            },
             eventDetails: DropTargetChangeEventDetails,
           ) => void;
           onDraggableDrop?: (
@@ -1363,19 +1427,35 @@ type DragDropManager = {
                 context: DropTargetResolutionContext<TPayload | unknown>,
               ) => DragSnapSteps | undefined);
           onDraggableStart?: (
-            parameters: DropTargetEvent<'onDraggableStart', TPayload | unknown, TLocalData>,
+            parameters: {
+              location: DragLocationHistory;
+              source: DragSource<TPayload | unknown>;
+              target: DropTargetRecord<TLocalData>;
+            },
             eventDetails: MoveStartEventDetails,
           ) => void;
           onDraggableMove?: (
-            parameters: DropTargetEvent<'onDraggableMove', TPayload | unknown, TLocalData>,
+            parameters: {
+              location: DragLocationHistory;
+              source: DragSource<TPayload | unknown>;
+              target: DropTargetRecord<TLocalData>;
+            },
             eventDetails: MoveEventDetails,
           ) => void;
           onDraggableEnter?: (
-            parameters: DropTargetEvent<'onDraggableEnter', TPayload | unknown, TLocalData>,
+            parameters: {
+              location: DragLocationHistory;
+              source: DragSource<TPayload | unknown>;
+              target: DropTargetRecord<TLocalData>;
+            },
             eventDetails: DropTargetChangeEventDetails,
           ) => void;
           onDraggableLeave?: (
-            parameters: DropTargetEvent<'onDraggableLeave', TPayload | unknown, TLocalData>,
+            parameters: {
+              location: DragLocationHistory;
+              source: DragSource<TPayload | unknown>;
+              target: DropTargetRecord<TLocalData>;
+            },
             eventDetails: DropTargetChangeEventDetails,
           ) => void;
           onDraggableDrop?: (
@@ -1816,9 +1896,10 @@ type DraggableDragModifierContext = {
   /** The same measure when the drag began, the reference an axis lock or grid snaps against. */
   initialPoint: DragPosition;
   /**
-   * The original cursor position for this frame, in client coordinates.
-   * `point` includes adjustments from preceding modifiers. On a preview part,
-   * `point` is the preview's proposed top-left while `input` stays the cursor.
+   * The pointer position before this modifier chain, in client coordinates.
+   * On a root this is the original pointer position; on a preview it already
+   * includes root modifiers. `point` includes preceding modifiers in this chain
+   * and, on a preview, represents its proposed top-left.
    */
   input: DragPosition;
   /** The drag source element. */
@@ -1826,11 +1907,12 @@ type DraggableDragModifierContext = {
   /** The source element's bounding rect at drag start. */
   sourceRect: DOMRect;
   /**
-   * The scale applied to the source by CSS `transform` or `zoom`, measured at drag
-   * start across the source and its ancestors.
+   * The scale applied by CSS `transform` or `zoom`, including ancestor scaling.
+   * Root modifiers use the source's scale at pickup. Preview modifiers use the
+   * preview's scale when it first renders.
    *
-   * The value is `1` when the source is not scaled. A rotation alone does not change
-   * it. On a zoomable canvas, multiply a distance in canvas coordinates by this value
+   * The value is `1` when the corresponding element is not scaled. A rotation alone
+   * does not change it. On a zoomable canvas, multiply a distance in canvas coordinates by this value
    * to convert it to client pixels. The `snapToGrid` preset does this automatically.
    */
   scale: DragPosition;
@@ -2215,8 +2297,8 @@ type DraggableDropTargetEvent<
   TSourceData = unknown,
   TLocalData = unknown,
 > = {
-  location: DragLocationHistory;
   source: DragSource<TSourceData>;
+  location: DragLocationHistory;
   /** This drop target's own record. */
   target: DropTargetRecord<TLocalData>;
 };
@@ -2881,7 +2963,11 @@ type RegisterDropTargetParameters<TSourceData = unknown, TLocalData = unknown> =
    * monitor's `onMoveStart` to observe every drag.
    */
   onDraggableStart?: (
-    parameters: DropTargetEvent<'onDraggableStart', TSourceData, TLocalData>,
+    parameters: {
+      location: DragLocationHistory;
+      source: DragSource<TSourceData>;
+      target: DropTargetRecord<TLocalData>;
+    },
     eventDetails: MoveStartEventDetails,
   ) => void;
   /**
@@ -2891,12 +2977,20 @@ type RegisterDropTargetParameters<TSourceData = unknown, TLocalData = unknown> =
    * `onDraggableEnter` for enter-only side effects.
    */
   onDraggableMove?: (
-    parameters: DropTargetEvent<'onDraggableMove', TSourceData, TLocalData>,
+    parameters: {
+      location: DragLocationHistory;
+      source: DragSource<TSourceData>;
+      target: DropTargetRecord<TLocalData>;
+    },
     eventDetails: MoveEventDetails,
   ) => void;
   /** Event handler called when this target enters the active stack. */
   onDraggableEnter?: (
-    parameters: DropTargetEvent<'onDraggableEnter', TSourceData, TLocalData>,
+    parameters: {
+      location: DragLocationHistory;
+      source: DragSource<TSourceData>;
+      target: DropTargetRecord<TLocalData>;
+    },
     eventDetails: DropTargetChangeEventDetails,
   ) => void;
   /**
@@ -2905,7 +2999,11 @@ type RegisterDropTargetParameters<TSourceData = unknown, TLocalData = unknown> =
    * identifies what changed.
    */
   onDraggableLeave?: (
-    parameters: DropTargetEvent<'onDraggableLeave', TSourceData, TLocalData>,
+    parameters: {
+      location: DragLocationHistory;
+      source: DragSource<TSourceData>;
+      target: DropTargetRecord<TLocalData>;
+    },
     eventDetails: DropTargetChangeEventDetails,
   ) => void;
   /**
@@ -3004,7 +3102,11 @@ type RegisterDropTargetParametersWithPayload<TSourceData, TLocalData> = (
    * monitor's `onMoveStart` to observe every drag.
    */
   onDraggableStart?: (
-    parameters: DropTargetEvent<'onDraggableStart', TSourceData, TLocalData>,
+    parameters: {
+      location: DragLocationHistory;
+      source: DragSource<TSourceData>;
+      target: DropTargetRecord<TLocalData>;
+    },
     eventDetails: MoveStartEventDetails,
   ) => void;
   /**
@@ -3014,12 +3116,20 @@ type RegisterDropTargetParametersWithPayload<TSourceData, TLocalData> = (
    * `onDraggableEnter` for enter-only side effects.
    */
   onDraggableMove?: (
-    parameters: DropTargetEvent<'onDraggableMove', TSourceData, TLocalData>,
+    parameters: {
+      location: DragLocationHistory;
+      source: DragSource<TSourceData>;
+      target: DropTargetRecord<TLocalData>;
+    },
     eventDetails: MoveEventDetails,
   ) => void;
   /** Event handler called when this target enters the active stack. */
   onDraggableEnter?: (
-    parameters: DropTargetEvent<'onDraggableEnter', TSourceData, TLocalData>,
+    parameters: {
+      location: DragLocationHistory;
+      source: DragSource<TSourceData>;
+      target: DropTargetRecord<TLocalData>;
+    },
     eventDetails: DropTargetChangeEventDetails,
   ) => void;
   /**
@@ -3028,7 +3138,11 @@ type RegisterDropTargetParametersWithPayload<TSourceData, TLocalData> = (
    * identifies what changed.
    */
   onDraggableLeave?: (
-    parameters: DropTargetEvent<'onDraggableLeave', TSourceData, TLocalData>,
+    parameters: {
+      location: DragLocationHistory;
+      source: DragSource<TSourceData>;
+      target: DropTargetRecord<TLocalData>;
+    },
     eventDetails: DropTargetChangeEventDetails,
   ) => void;
   /**
@@ -3162,19 +3276,35 @@ type UseDragDropManagerReturnValue = {
                 context: DropTargetResolutionContext<TPayload | unknown>,
               ) => DragSnapSteps | undefined);
           onDraggableStart?: (
-            parameters: DropTargetEvent<'onDraggableStart', TPayload | unknown, undefined>,
+            parameters: {
+              location: DragLocationHistory;
+              source: DragSource<TPayload | unknown>;
+              target: DropTargetRecord<undefined>;
+            },
             eventDetails: MoveStartEventDetails,
           ) => void;
           onDraggableMove?: (
-            parameters: DropTargetEvent<'onDraggableMove', TPayload | unknown, undefined>,
+            parameters: {
+              location: DragLocationHistory;
+              source: DragSource<TPayload | unknown>;
+              target: DropTargetRecord<undefined>;
+            },
             eventDetails: MoveEventDetails,
           ) => void;
           onDraggableEnter?: (
-            parameters: DropTargetEvent<'onDraggableEnter', TPayload | unknown, undefined>,
+            parameters: {
+              location: DragLocationHistory;
+              source: DragSource<TPayload | unknown>;
+              target: DropTargetRecord<undefined>;
+            },
             eventDetails: DropTargetChangeEventDetails,
           ) => void;
           onDraggableLeave?: (
-            parameters: DropTargetEvent<'onDraggableLeave', TPayload | unknown, undefined>,
+            parameters: {
+              location: DragLocationHistory;
+              source: DragSource<TPayload | unknown>;
+              target: DropTargetRecord<undefined>;
+            },
             eventDetails: DropTargetChangeEventDetails,
           ) => void;
           onDraggableDrop?: (
@@ -3217,19 +3347,35 @@ type UseDragDropManagerReturnValue = {
                 context: DropTargetResolutionContext<TPayload | unknown>,
               ) => DragSnapSteps | undefined);
           onDraggableStart?: (
-            parameters: DropTargetEvent<'onDraggableStart', TPayload | unknown, TLocalData>,
+            parameters: {
+              location: DragLocationHistory;
+              source: DragSource<TPayload | unknown>;
+              target: DropTargetRecord<TLocalData>;
+            },
             eventDetails: MoveStartEventDetails,
           ) => void;
           onDraggableMove?: (
-            parameters: DropTargetEvent<'onDraggableMove', TPayload | unknown, TLocalData>,
+            parameters: {
+              location: DragLocationHistory;
+              source: DragSource<TPayload | unknown>;
+              target: DropTargetRecord<TLocalData>;
+            },
             eventDetails: MoveEventDetails,
           ) => void;
           onDraggableEnter?: (
-            parameters: DropTargetEvent<'onDraggableEnter', TPayload | unknown, TLocalData>,
+            parameters: {
+              location: DragLocationHistory;
+              source: DragSource<TPayload | unknown>;
+              target: DropTargetRecord<TLocalData>;
+            },
             eventDetails: DropTargetChangeEventDetails,
           ) => void;
           onDraggableLeave?: (
-            parameters: DropTargetEvent<'onDraggableLeave', TPayload | unknown, TLocalData>,
+            parameters: {
+              location: DragLocationHistory;
+              source: DragSource<TPayload | unknown>;
+              target: DropTargetRecord<TLocalData>;
+            },
             eventDetails: DropTargetChangeEventDetails,
           ) => void;
           onDraggableDrop?: (

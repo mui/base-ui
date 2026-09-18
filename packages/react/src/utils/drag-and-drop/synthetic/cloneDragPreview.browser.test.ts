@@ -70,6 +70,50 @@ describe.skipIf(isJSDOM)('createClonedDragPreviewElement (top layer)', () => {
     scroller.remove();
   });
 
+  it('neutralizes contextual source motion while allowing ending transitions', () => {
+    const sheet = document.createElement('style');
+    sheet.textContent =
+      '.List .Card { transition: all 200ms; transform: translateX(10px); } .Card[data-ending-style] { transition: translate 100ms; }';
+    document.head.appendChild(sheet);
+    list.className = 'List';
+    source.className = 'Card';
+    const handle = createClonedDragPreviewElement(source, null)!;
+    try {
+      expect(getComputedStyle(handle.element).transitionDuration).toBe('0s');
+      expect(getComputedStyle(handle.element).transform).toBe('none');
+      handle.element.setAttribute('data-ending-style', '');
+      handle.prepareForDrop?.();
+      expect(getComputedStyle(handle.element).transitionProperty).toBe('translate');
+      expect(getComputedStyle(handle.element).transitionDuration).toBe('0.1s');
+    } finally {
+      handle.destroy();
+      sheet.remove();
+    }
+  });
+
+  it('preserves direct-child styles on the clone and its descendants', () => {
+    const sheet = document.createElement('style');
+    sheet.textContent =
+      '.List > .Card { display: flex; gap: 8px; background: rgb(255, 0, 0); } .List > .Card > span { color: rgb(0, 0, 255); } .Card[data-drag-preview] { border: 3px solid rgb(0, 128, 0); }';
+    document.head.appendChild(sheet);
+    list.className = 'List';
+    source.className = 'Card';
+    source.style.removeProperty('background');
+    source.innerHTML = '<span>Card</span>';
+    const handle = createClonedDragPreviewElement(source, null)!;
+    try {
+      const computed = getComputedStyle(handle.element);
+      expect(computed.backgroundColor).toBe('rgb(255, 0, 0)');
+      expect(computed.display).toBe('flex');
+      expect(computed.gap).toBe('8px');
+      expect(computed.borderTopWidth).toBe('3px');
+      expect(getComputedStyle(handle.element.firstElementChild!).color).toBe('rgb(0, 0, 255)');
+    } finally {
+      handle.destroy();
+      sheet.remove();
+    }
+  });
+
   it('promotes the preview to the top layer through an engine-owned wrapper', () => {
     const handle = createClonedDragPreviewElement(source, null)!;
 

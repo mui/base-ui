@@ -20,8 +20,8 @@ export const ENDING_STYLE_ATTR = 'data-ending-style';
 /**
  * Marks the preview so consumers can style it with the source's own selector —
  * `.Card[data-drag-preview] { box-shadow: … }`. This only works because the clone
- * keeps the source's classes and the engine writes *geometry* inline and nothing
- * else; any visual property written inline would beat every class rule.
+ * keeps the source's classes. Clones preserve computed styles lost through the
+ * preview wrapper; preview rules participate in that initial snapshot.
  */
 export const DRAG_PREVIEW_ATTR = 'data-drag-preview';
 

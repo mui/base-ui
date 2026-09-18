@@ -25,6 +25,11 @@ const state = getSharedSlot<MonitorState>('registerMonitor', () => ({
   activeSource: null,
 }));
 
+const matchedMonitors = getSharedSlot(
+  'registerMonitor.matchedParameters',
+  () => new WeakMap<MonitorGetter, RegisterMonitorParameters>(),
+);
+
 /** The monitor registry: a getter per monitor for its latest parameters. */
 export const monitorRegistry = state.allMonitors;
 
@@ -53,6 +58,7 @@ export function engageMonitorIfDragging(getMonitor: MonitorGetter): void {
   );
   if (monitor !== null && matchesAccept(monitor.accept, activeSource)) {
     state.activeMonitors.add(getMonitor);
+    matchedMonitors.set(getMonitor, { ...monitor });
   }
 }
 
@@ -60,6 +66,7 @@ export function engageMonitorIfDragging(getMonitor: MonitorGetter): void {
 export function removeMonitor(getMonitor: MonitorGetter): void {
   state.allMonitors.delete(getMonitor);
   state.activeMonitors.delete(getMonitor);
+  matchedMonitors.delete(getMonitor);
 }
 
 export function activateMonitors(source: DragSource): void {
@@ -117,7 +124,23 @@ function dispatchToMonitor<K extends keyof DraggableEventMap & keyof RegisterMon
     'Base UI: a drag monitor threw and was skipped for this event.',
     null,
     () => {
-      const handler = getMonitor()[eventName] as
+      const current = getMonitor();
+      let monitor = current;
+      if (matchesAccept(current.accept, payload.source)) {
+        matchedMonitors.set(getMonitor, { ...current });
+      } else {
+        // Finish the observer that joined this drag, using its compatible closure.
+        // Other events must not reach the newly configured observer.
+        if (eventName !== 'onMoveEnd') {
+          return;
+        }
+        const previous = matchedMonitors.get(getMonitor);
+        if (!previous) {
+          return;
+        }
+        monitor = previous;
+      }
+      const handler = monitor[eventName] as
         | ((parameters: DraggableEventMap[K], details: DraggableEventDetailsMap[K]) => void)
         | undefined;
       handler?.(payload, eventDetails);
@@ -138,8 +161,10 @@ export interface RegisterMonitorParameters<TSourceData = unknown> {
    *
    * Base UI evaluates this value when the monitor joins a drag, either at drag
    * start or when the monitor registers during a drag. If the value excludes the
-   * drag, the monitor ignores its remaining events. Return early from callbacks to
-   * apply more specific filters.
+   * drag, the monitor ignores its remaining events. If an observing monitor
+   * changes its accepted kinds, its updated callbacks only receive matching
+   * payloads. The last matching end callback still runs to close the original
+   * observation. Return early from callbacks to apply more specific filters.
    */
   accept?: DragAccept<TSourceData> | undefined;
   /**
