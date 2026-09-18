@@ -245,6 +245,102 @@ type ToolbarLinkState = {
 type ToolbarOrientation = 'horizontal' | 'vertical';
 ```
 
+### ToolbarButtonDataAttributes.disabled
+
+Present when the button is disabled.
+
+```typescript
+type ToolbarButtonDataAttributesdisabled = 'data-disabled';
+```
+
+### ToolbarButtonDataAttributes.focusable
+
+Present when the button remains focusable when disabled.
+
+```typescript
+type ToolbarButtonDataAttributesfocusable = 'data-focusable';
+```
+
+### ToolbarButtonDataAttributes.orientation
+
+Indicates the orientation of the toolbar.
+
+```typescript
+type ToolbarButtonDataAttributesorientation = 'data-orientation';
+```
+
+### ToolbarGroupDataAttributes.disabled
+
+Present when the group is disabled.
+
+```typescript
+type ToolbarGroupDataAttributesdisabled = 'data-disabled';
+```
+
+### ToolbarGroupDataAttributes.orientation
+
+Indicates the orientation of the toolbar.
+
+```typescript
+type ToolbarGroupDataAttributesorientation = 'data-orientation';
+```
+
+### ToolbarInputDataAttributes.disabled
+
+Present when the input is disabled.
+
+```typescript
+type ToolbarInputDataAttributesdisabled = 'data-disabled';
+```
+
+### ToolbarInputDataAttributes.focusable
+
+Present when the input remains focusable when disabled.
+
+```typescript
+type ToolbarInputDataAttributesfocusable = 'data-focusable';
+```
+
+### ToolbarInputDataAttributes.orientation
+
+Indicates the orientation of the toolbar.
+
+```typescript
+type ToolbarInputDataAttributesorientation = 'data-orientation';
+```
+
+### ToolbarLinkDataAttributes.orientation
+
+Indicates the orientation of the toolbar.
+
+```typescript
+type ToolbarLinkDataAttributesorientation = 'data-orientation';
+```
+
+### ToolbarRootDataAttributes.disabled
+
+Present when the toolbar is disabled.
+
+```typescript
+type ToolbarRootDataAttributesdisabled = 'data-disabled';
+```
+
+### ToolbarRootDataAttributes.orientation
+
+Indicates the orientation of the toolbar.
+
+```typescript
+type ToolbarRootDataAttributesorientation = 'data-orientation';
+```
+
+### ToolbarSeparatorDataAttributes.orientation
+
+Indicates the orientation of the separator, which is perpendicular to the toolbar.
+
+```typescript
+type ToolbarSeparatorDataAttributesorientation = 'data-orientation';
+```
+
 ## Export Groups
 
 - `Toolbar.Separator`: `Toolbar.Separator`, `Toolbar.Separator.State`, `Toolbar.Separator.Props`
@@ -253,7 +349,7 @@ type ToolbarOrientation = 'horizontal' | 'vertical';
 - `Toolbar.Button`: `Toolbar.Button`, `Toolbar.Button.State`, `Toolbar.Button.Props`
 - `Toolbar.Link`: `Toolbar.Link`, `Toolbar.Link.State`, `Toolbar.Link.Props`
 - `Toolbar.Input`: `Toolbar.Input`, `Toolbar.Input.State`, `Toolbar.Input.Props`
-- `Default`: `Toolbar.Orientation`, `Orientation`, `ToolbarRootItemMetadata`, `ToolbarRootOrientation`, `ToolbarRootState`, `ToolbarRootProps`, `ToolbarGroupState`, `ToolbarGroupProps`, `ToolbarButtonState`, `ToolbarButtonProps`, `ToolbarLinkState`, `ToolbarLinkProps`, `ToolbarInputState`, `ToolbarInputProps`, `ToolbarSeparatorState`, `ToolbarSeparatorProps`
+- `Default`: `Toolbar.Orientation`, `Orientation`, `ToolbarSeparatorDataAttributes.orientation`, `ToolbarRootDataAttributes.disabled`, `ToolbarRootDataAttributes.orientation`, `ToolbarGroupDataAttributes.disabled`, `ToolbarGroupDataAttributes.orientation`, `ToolbarButtonDataAttributes.disabled`, `ToolbarButtonDataAttributes.orientation`, `ToolbarButtonDataAttributes.focusable`, `ToolbarLinkDataAttributes.orientation`, `ToolbarInputDataAttributes.disabled`, `ToolbarInputDataAttributes.orientation`, `ToolbarInputDataAttributes.focusable`, `ToolbarRootItemMetadata`, `ToolbarRootOrientation`, `ToolbarRootState`, `ToolbarRootProps`, `ToolbarGroupState`, `ToolbarGroupProps`, `ToolbarButtonState`, `ToolbarButtonProps`, `ToolbarLinkState`, `ToolbarLinkProps`, `ToolbarInputState`, `ToolbarInputProps`, `ToolbarSeparatorState`, `ToolbarSeparatorProps`
 
 ## Canonical Types
 

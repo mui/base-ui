@@ -570,6 +570,336 @@ type NavigationMenuLinkState = {
 };
 ```
 
+## Additional Types
+
+### NavigationMenuArrowDataAttributes.align
+
+Indicates how the popup is aligned relative to specified side.
+
+```typescript
+type NavigationMenuArrowDataAttributesalign = 'data-align';
+```
+
+### NavigationMenuArrowDataAttributes.closed
+
+Present when the popup is closed.
+
+```typescript
+type NavigationMenuArrowDataAttributesclosed = 'data-closed';
+```
+
+### NavigationMenuArrowDataAttributes.open
+
+Present when the popup is open.
+
+```typescript
+type NavigationMenuArrowDataAttributesopen = 'data-open';
+```
+
+### NavigationMenuArrowDataAttributes.side
+
+Indicates which side the popup is positioned relative to the trigger.
+
+```typescript
+type NavigationMenuArrowDataAttributesside = 'data-side';
+```
+
+### NavigationMenuArrowDataAttributes.uncentered
+
+Present when the popup arrow is uncentered.
+
+```typescript
+type NavigationMenuArrowDataAttributesuncentered = 'data-uncentered';
+```
+
+### NavigationMenuBackdropDataAttributes.closed
+
+Present when the popup is closed.
+
+```typescript
+type NavigationMenuBackdropDataAttributesclosed = 'data-closed';
+```
+
+### NavigationMenuBackdropDataAttributes.endingStyle
+
+Present when the popup is animating out.
+
+```typescript
+type NavigationMenuBackdropDataAttributesendingStyle = 'data-ending-style';
+```
+
+### NavigationMenuBackdropDataAttributes.open
+
+Present when the popup is open.
+
+```typescript
+type NavigationMenuBackdropDataAttributesopen = 'data-open';
+```
+
+### NavigationMenuBackdropDataAttributes.startingStyle
+
+Present when the popup begins animating in.
+
+```typescript
+type NavigationMenuBackdropDataAttributesstartingStyle = 'data-starting-style';
+```
+
+### NavigationMenuContentDataAttributes.activationDirection
+
+Which direction another trigger was activated from.
+
+```typescript
+type NavigationMenuContentDataAttributesactivationDirection = 'data-activation-direction';
+```
+
+### NavigationMenuContentDataAttributes.closed
+
+Present when the popup is closed.
+
+```typescript
+type NavigationMenuContentDataAttributesclosed = 'data-closed';
+```
+
+### NavigationMenuContentDataAttributes.endingStyle
+
+Present when the content is animating out.
+
+```typescript
+type NavigationMenuContentDataAttributesendingStyle = 'data-ending-style';
+```
+
+### NavigationMenuContentDataAttributes.open
+
+Present when the popup is open.
+
+```typescript
+type NavigationMenuContentDataAttributesopen = 'data-open';
+```
+
+### NavigationMenuContentDataAttributes.startingStyle
+
+Present when the content begins animating in.
+
+```typescript
+type NavigationMenuContentDataAttributesstartingStyle = 'data-starting-style';
+```
+
+### NavigationMenuIconDataAttributes.popupOpen
+
+Present when the navigation menu is open and the item is active.
+
+```typescript
+type NavigationMenuIconDataAttributespopupOpen = 'data-popup-open';
+```
+
+### NavigationMenuLinkDataAttributes.active
+
+Present when the link is the currently active page.
+
+```typescript
+type NavigationMenuLinkDataAttributesactive = 'data-active';
+```
+
+### NavigationMenuPopupCssVariables.popupHeight
+
+The fixed height of the popup element.
+
+```typescript
+type NavigationMenuPopupCssVariablespopupHeight = '--popup-height';
+```
+
+### NavigationMenuPopupCssVariables.popupWidth
+
+The fixed width of the popup element.
+
+```typescript
+type NavigationMenuPopupCssVariablespopupWidth = '--popup-width';
+```
+
+### NavigationMenuPopupDataAttributes.align
+
+Indicates how the popup is aligned relative to the specified side.
+
+```typescript
+type NavigationMenuPopupDataAttributesalign = 'data-align';
+```
+
+### NavigationMenuPopupDataAttributes.anchorHidden
+
+Present when the anchor is hidden.
+
+```typescript
+type NavigationMenuPopupDataAttributesanchorHidden = 'data-anchor-hidden';
+```
+
+### NavigationMenuPopupDataAttributes.closed
+
+Present when the popup is closed.
+
+```typescript
+type NavigationMenuPopupDataAttributesclosed = 'data-closed';
+```
+
+### NavigationMenuPopupDataAttributes.endingStyle
+
+Present when the popup is animating out.
+
+```typescript
+type NavigationMenuPopupDataAttributesendingStyle = 'data-ending-style';
+```
+
+### NavigationMenuPopupDataAttributes.open
+
+Present when the popup is open.
+
+```typescript
+type NavigationMenuPopupDataAttributesopen = 'data-open';
+```
+
+### NavigationMenuPopupDataAttributes.side
+
+Indicates which side the popup is positioned relative to the trigger.
+
+```typescript
+type NavigationMenuPopupDataAttributesside = 'data-side';
+```
+
+### NavigationMenuPopupDataAttributes.startingStyle
+
+Present when the popup begins animating in.
+
+```typescript
+type NavigationMenuPopupDataAttributesstartingStyle = 'data-starting-style';
+```
+
+### NavigationMenuPositionerCssVariables.anchorHeight
+
+The anchor's height.
+
+```typescript
+type NavigationMenuPositionerCssVariablesanchorHeight = '--anchor-height';
+```
+
+### NavigationMenuPositionerCssVariables.anchorWidth
+
+The anchor's width.
+
+```typescript
+type NavigationMenuPositionerCssVariablesanchorWidth = '--anchor-width';
+```
+
+### NavigationMenuPositionerCssVariables.availableHeight
+
+The available height between the trigger and the edge of the viewport.
+
+```typescript
+type NavigationMenuPositionerCssVariablesavailableHeight = '--available-height';
+```
+
+### NavigationMenuPositionerCssVariables.availableWidth
+
+The available width between the trigger and the edge of the viewport.
+
+```typescript
+type NavigationMenuPositionerCssVariablesavailableWidth = '--available-width';
+```
+
+### NavigationMenuPositionerCssVariables.positionerHeight
+
+The fixed height of the positioner element.
+
+```typescript
+type NavigationMenuPositionerCssVariablespositionerHeight = '--positioner-height';
+```
+
+### NavigationMenuPositionerCssVariables.positionerWidth
+
+The fixed width of the positioner element.
+
+```typescript
+type NavigationMenuPositionerCssVariablespositionerWidth = '--positioner-width';
+```
+
+### NavigationMenuPositionerCssVariables.transformOrigin
+
+The coordinates that this element is anchored to. Used for animations and transitions.
+
+```typescript
+type NavigationMenuPositionerCssVariablestransformOrigin = '--transform-origin';
+```
+
+### NavigationMenuPositionerDataAttributes.align
+
+Indicates how the popup is aligned relative to the specified side.
+
+```typescript
+type NavigationMenuPositionerDataAttributesalign = 'data-align';
+```
+
+### NavigationMenuPositionerDataAttributes.anchorHidden
+
+Present when the anchor is hidden.
+
+```typescript
+type NavigationMenuPositionerDataAttributesanchorHidden = 'data-anchor-hidden';
+```
+
+### NavigationMenuPositionerDataAttributes.closed
+
+Present when the popup is closed.
+
+```typescript
+type NavigationMenuPositionerDataAttributesclosed = 'data-closed';
+```
+
+### NavigationMenuPositionerDataAttributes.instant
+
+Present if animations should be instant.
+
+```typescript
+type NavigationMenuPositionerDataAttributesinstant = 'data-instant';
+```
+
+### NavigationMenuPositionerDataAttributes.open
+
+Present when the popup is open.
+
+```typescript
+type NavigationMenuPositionerDataAttributesopen = 'data-open';
+```
+
+### NavigationMenuPositionerDataAttributes.side
+
+Indicates which side the popup is positioned relative to the trigger.
+
+```typescript
+type NavigationMenuPositionerDataAttributesside = 'data-side';
+```
+
+### NavigationMenuTriggerDataAttributes.disabled
+
+Present when the trigger is disabled.
+
+```typescript
+type NavigationMenuTriggerDataAttributesdisabled = 'data-disabled';
+```
+
+### NavigationMenuTriggerDataAttributes.popupOpen
+
+Present when the corresponding navigation menu is open.
+
+```typescript
+type NavigationMenuTriggerDataAttributespopupOpen = 'data-popup-open';
+```
+
+### NavigationMenuTriggerDataAttributes.pressed
+
+Present when the trigger is pressed.
+
+```typescript
+type NavigationMenuTriggerDataAttributespressed = 'data-pressed';
+```
+
 ## External Types
 
 ### Side
@@ -610,7 +940,7 @@ type OffsetFunction = (data: {
 - `NavigationMenu.Arrow`: `NavigationMenu.Arrow`, `NavigationMenu.Arrow.State`, `NavigationMenu.Arrow.Props`
 - `NavigationMenu.Link`: `NavigationMenu.Link`, `NavigationMenu.Link.State`, `NavigationMenu.Link.Props`
 - `NavigationMenu.Icon`: `NavigationMenu.Icon`, `NavigationMenu.Icon.State`, `NavigationMenu.Icon.Props`
-- `Default`: `NavigationMenuRootState`, `NavigationMenuRootProps`, `NavigationMenuRootActions`, `NavigationMenuRootChangeEventReason`, `NavigationMenuRootChangeEventDetails`, `NavigationMenuTriggerState`, `NavigationMenuTriggerProps`, `NavigationMenuPortalState`, `NavigationMenuPortalProps`, `NavigationMenuPositionerState`, `NavigationMenuPositionerProps`, `NavigationMenuViewportState`, `NavigationMenuViewportProps`, `NavigationMenuListState`, `NavigationMenuListProps`, `NavigationMenuItemState`, `NavigationMenuItemProps`, `NavigationMenuContentState`, `NavigationMenuContentProps`, `NavigationMenuPopupState`, `NavigationMenuPopupProps`, `NavigationMenuBackdropState`, `NavigationMenuBackdropProps`, `NavigationMenuArrowState`, `NavigationMenuArrowProps`, `NavigationMenuLinkState`, `NavigationMenuLinkProps`, `NavigationMenuIconState`, `NavigationMenuIconProps`
+- `Default`: `NavigationMenuContentDataAttributes.open`, `NavigationMenuContentDataAttributes.closed`, `NavigationMenuContentDataAttributes.startingStyle`, `NavigationMenuContentDataAttributes.endingStyle`, `NavigationMenuContentDataAttributes.activationDirection`, `NavigationMenuTriggerDataAttributes.popupOpen`, `NavigationMenuTriggerDataAttributes.pressed`, `NavigationMenuTriggerDataAttributes.disabled`, `NavigationMenuPositionerCssVariables.availableWidth`, `NavigationMenuPositionerCssVariables.availableHeight`, `NavigationMenuPositionerCssVariables.anchorWidth`, `NavigationMenuPositionerCssVariables.anchorHeight`, `NavigationMenuPositionerCssVariables.transformOrigin`, `NavigationMenuPositionerCssVariables.positionerWidth`, `NavigationMenuPositionerCssVariables.positionerHeight`, `NavigationMenuPositionerDataAttributes.open`, `NavigationMenuPositionerDataAttributes.closed`, `NavigationMenuPositionerDataAttributes.anchorHidden`, `NavigationMenuPositionerDataAttributes.side`, `NavigationMenuPositionerDataAttributes.align`, `NavigationMenuPositionerDataAttributes.instant`, `NavigationMenuBackdropDataAttributes.open`, `NavigationMenuBackdropDataAttributes.closed`, `NavigationMenuBackdropDataAttributes.startingStyle`, `NavigationMenuBackdropDataAttributes.endingStyle`, `NavigationMenuPopupCssVariables.popupWidth`, `NavigationMenuPopupCssVariables.popupHeight`, `NavigationMenuPopupDataAttributes.open`, `NavigationMenuPopupDataAttributes.closed`, `NavigationMenuPopupDataAttributes.startingStyle`, `NavigationMenuPopupDataAttributes.endingStyle`, `NavigationMenuPopupDataAttributes.anchorHidden`, `NavigationMenuPopupDataAttributes.side`, `NavigationMenuPopupDataAttributes.align`, `NavigationMenuArrowDataAttributes.open`, `NavigationMenuArrowDataAttributes.closed`, `NavigationMenuArrowDataAttributes.side`, `NavigationMenuArrowDataAttributes.align`, `NavigationMenuArrowDataAttributes.uncentered`, `NavigationMenuLinkDataAttributes.active`, `NavigationMenuIconDataAttributes.popupOpen`, `NavigationMenuRootState`, `NavigationMenuRootProps`, `NavigationMenuRootActions`, `NavigationMenuRootChangeEventReason`, `NavigationMenuRootChangeEventDetails`, `NavigationMenuTriggerState`, `NavigationMenuTriggerProps`, `NavigationMenuPortalState`, `NavigationMenuPortalProps`, `NavigationMenuPositionerState`, `NavigationMenuPositionerProps`, `NavigationMenuViewportState`, `NavigationMenuViewportProps`, `NavigationMenuListState`, `NavigationMenuListProps`, `NavigationMenuItemState`, `NavigationMenuItemProps`, `NavigationMenuContentState`, `NavigationMenuContentProps`, `NavigationMenuPopupState`, `NavigationMenuPopupProps`, `NavigationMenuBackdropState`, `NavigationMenuBackdropProps`, `NavigationMenuArrowState`, `NavigationMenuArrowProps`, `NavigationMenuLinkState`, `NavigationMenuLinkProps`, `NavigationMenuIconState`, `NavigationMenuIconProps`
 
 ## Canonical Types
 

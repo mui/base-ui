@@ -120,9 +120,11 @@ export default function ExampleMenu() {
 ## CSS-in-JS
 
 Wrap each component part and apply styles, then assemble your styled components.
+Import the part's data attribute and CSS variable constants from the same component entrypoint to get autocomplete when writing selectors and `var()` expressions.
+The constants contain names such as `data-highlighted` and `--available-height`, rather than their current DOM or CSS values.
 
 ```tsx title="menu.tsx"
-import { Menu } from '@base-ui/react/menu';
+import { Menu, MenuItemDataAttributes, MenuPositionerCssVariables } from '@base-ui/react/menu';
 import styled from '@emotion/styled';
 
 const StyledMenuTrigger = styled(Menu.Trigger)`
@@ -134,11 +136,13 @@ const StyledMenuPositioner = styled(Menu.Positioner)`
 `;
 
 const StyledMenuPopup = styled(Menu.Popup)`
-  // Popup styles
+  max-height: var(${MenuPositionerCssVariables.availableHeight});
 `;
 
 const StyledMenuItem = styled(Menu.Item)`
-  // Menu item styles
+  &[${MenuItemDataAttributes.highlighted}] {
+    outline: 1px solid currentColor;
+  }
 `;
 
 const MenuExample = () => (

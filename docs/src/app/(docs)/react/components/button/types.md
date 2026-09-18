@@ -38,6 +38,16 @@ type ButtonState = {
 };
 ```
 
+## Additional Types
+
+### ButtonDataAttributes.disabled
+
+Present when the button is disabled.
+
+```typescript
+type ButtonDataAttributesdisabled = 'data-disabled';
+```
+
 ## Canonical Types
 
 Maps `Canonical`: `Alias` — Use Canonical when its namespace is already imported; otherwise use Alias.

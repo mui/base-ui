@@ -583,6 +583,134 @@ type SliderLabelState = {
 
 ## Additional Types
 
+### SliderControlDataAttributes.dirty
+
+Present when the slider's value has changed (when wrapped in Field.Root).
+
+```typescript
+type SliderControlDataAttributesdirty = 'data-dirty';
+```
+
+### SliderControlDataAttributes.disabled
+
+Present when the slider is disabled.
+
+```typescript
+type SliderControlDataAttributesdisabled = 'data-disabled';
+```
+
+### SliderControlDataAttributes.dragging
+
+Present while the user is dragging.
+
+```typescript
+type SliderControlDataAttributesdragging = 'data-dragging';
+```
+
+### SliderControlDataAttributes.focused
+
+Present when the slider is focused (when wrapped in Field.Root).
+
+```typescript
+type SliderControlDataAttributesfocused = 'data-focused';
+```
+
+### SliderControlDataAttributes.invalid
+
+Present when the slider is in an invalid state (when wrapped in Field.Root).
+
+```typescript
+type SliderControlDataAttributesinvalid = 'data-invalid';
+```
+
+### SliderControlDataAttributes.orientation
+
+Indicates the orientation of the slider.
+
+```typescript
+type SliderControlDataAttributesorientation = 'data-orientation';
+```
+
+### SliderControlDataAttributes.touched
+
+Present when the slider has been touched (when wrapped in Field.Root).
+
+```typescript
+type SliderControlDataAttributestouched = 'data-touched';
+```
+
+### SliderControlDataAttributes.valid
+
+Present when the slider is in a valid state (when wrapped in Field.Root).
+
+```typescript
+type SliderControlDataAttributesvalid = 'data-valid';
+```
+
+### SliderIndicatorDataAttributes.dirty
+
+Present when the slider's value has changed (when wrapped in Field.Root).
+
+```typescript
+type SliderIndicatorDataAttributesdirty = 'data-dirty';
+```
+
+### SliderIndicatorDataAttributes.disabled
+
+Present when the slider is disabled.
+
+```typescript
+type SliderIndicatorDataAttributesdisabled = 'data-disabled';
+```
+
+### SliderIndicatorDataAttributes.dragging
+
+Present while the user is dragging.
+
+```typescript
+type SliderIndicatorDataAttributesdragging = 'data-dragging';
+```
+
+### SliderIndicatorDataAttributes.focused
+
+Present when the slider is focused (when wrapped in Field.Root).
+
+```typescript
+type SliderIndicatorDataAttributesfocused = 'data-focused';
+```
+
+### SliderIndicatorDataAttributes.invalid
+
+Present when the slider is in an invalid state (when wrapped in Field.Root).
+
+```typescript
+type SliderIndicatorDataAttributesinvalid = 'data-invalid';
+```
+
+### SliderIndicatorDataAttributes.orientation
+
+Indicates the orientation of the slider.
+
+```typescript
+type SliderIndicatorDataAttributesorientation = 'data-orientation';
+```
+
+### SliderIndicatorDataAttributes.touched
+
+Present when the slider has been touched (when wrapped in Field.Root).
+
+```typescript
+type SliderIndicatorDataAttributestouched = 'data-touched';
+```
+
+### SliderIndicatorDataAttributes.valid
+
+Present when the slider is in a valid state (when wrapped in Field.Root).
+
+```typescript
+type SliderIndicatorDataAttributesvalid = 'data-valid';
+```
+
 ### SliderRootChangeEventCustomProperties
 
 ```typescript
@@ -590,6 +718,270 @@ type SliderRootChangeEventCustomProperties = {
   /** The index of the active thumb at the time of the change. */
   activeThumbIndex: number;
 };
+```
+
+### SliderRootDataAttributes.dirty
+
+Present when the slider's value has changed (when wrapped in Field.Root).
+
+```typescript
+type SliderRootDataAttributesdirty = 'data-dirty';
+```
+
+### SliderRootDataAttributes.disabled
+
+Present when the slider is disabled.
+
+```typescript
+type SliderRootDataAttributesdisabled = 'data-disabled';
+```
+
+### SliderRootDataAttributes.dragging
+
+Present while the user is dragging.
+
+```typescript
+type SliderRootDataAttributesdragging = 'data-dragging';
+```
+
+### SliderRootDataAttributes.focused
+
+Present when the slider is focused (when wrapped in Field.Root).
+
+```typescript
+type SliderRootDataAttributesfocused = 'data-focused';
+```
+
+### SliderRootDataAttributes.invalid
+
+Present when the slider is in an invalid state (when wrapped in Field.Root).
+
+```typescript
+type SliderRootDataAttributesinvalid = 'data-invalid';
+```
+
+### SliderRootDataAttributes.orientation
+
+Indicates the orientation of the slider.
+
+```typescript
+type SliderRootDataAttributesorientation = 'data-orientation';
+```
+
+### SliderRootDataAttributes.touched
+
+Present when the slider has been touched (when wrapped in Field.Root).
+
+```typescript
+type SliderRootDataAttributestouched = 'data-touched';
+```
+
+### SliderRootDataAttributes.valid
+
+Present when the slider is in a valid state (when wrapped in Field.Root).
+
+```typescript
+type SliderRootDataAttributesvalid = 'data-valid';
+```
+
+### SliderThumbDataAttributes.dirty
+
+Present when the slider's value has changed (when wrapped in Field.Root).
+
+```typescript
+type SliderThumbDataAttributesdirty = 'data-dirty';
+```
+
+### SliderThumbDataAttributes.disabled
+
+Present when the slider is disabled.
+
+```typescript
+type SliderThumbDataAttributesdisabled = 'data-disabled';
+```
+
+### SliderThumbDataAttributes.dragging
+
+Present while the user is dragging.
+
+```typescript
+type SliderThumbDataAttributesdragging = 'data-dragging';
+```
+
+### SliderThumbDataAttributes.focused
+
+Present when the slider is focused (when wrapped in Field.Root).
+
+```typescript
+type SliderThumbDataAttributesfocused = 'data-focused';
+```
+
+### SliderThumbDataAttributes.index
+
+Indicates the index of the thumb in range sliders.
+
+```typescript
+type SliderThumbDataAttributesindex = 'data-index';
+```
+
+### SliderThumbDataAttributes.invalid
+
+Present when the slider is in an invalid state (when wrapped in Field.Root).
+
+```typescript
+type SliderThumbDataAttributesinvalid = 'data-invalid';
+```
+
+### SliderThumbDataAttributes.orientation
+
+Indicates the orientation of the slider.
+
+```typescript
+type SliderThumbDataAttributesorientation = 'data-orientation';
+```
+
+### SliderThumbDataAttributes.touched
+
+Present when the slider has been touched (when wrapped in Field.Root).
+
+```typescript
+type SliderThumbDataAttributestouched = 'data-touched';
+```
+
+### SliderThumbDataAttributes.valid
+
+Present when the slider is in a valid state (when wrapped in Field.Root).
+
+```typescript
+type SliderThumbDataAttributesvalid = 'data-valid';
+```
+
+### SliderTrackDataAttributes.dirty
+
+Present when the slider's value has changed (when wrapped in Field.Root).
+
+```typescript
+type SliderTrackDataAttributesdirty = 'data-dirty';
+```
+
+### SliderTrackDataAttributes.disabled
+
+Present when the slider is disabled.
+
+```typescript
+type SliderTrackDataAttributesdisabled = 'data-disabled';
+```
+
+### SliderTrackDataAttributes.dragging
+
+Present while the user is dragging.
+
+```typescript
+type SliderTrackDataAttributesdragging = 'data-dragging';
+```
+
+### SliderTrackDataAttributes.focused
+
+Present when the slider is focused (when wrapped in Field.Root).
+
+```typescript
+type SliderTrackDataAttributesfocused = 'data-focused';
+```
+
+### SliderTrackDataAttributes.invalid
+
+Present when the slider is in an invalid state (when wrapped in Field.Root).
+
+```typescript
+type SliderTrackDataAttributesinvalid = 'data-invalid';
+```
+
+### SliderTrackDataAttributes.orientation
+
+Indicates the orientation of the slider.
+
+```typescript
+type SliderTrackDataAttributesorientation = 'data-orientation';
+```
+
+### SliderTrackDataAttributes.touched
+
+Present when the slider has been touched (when wrapped in Field.Root).
+
+```typescript
+type SliderTrackDataAttributestouched = 'data-touched';
+```
+
+### SliderTrackDataAttributes.valid
+
+Present when the slider is in a valid state (when wrapped in Field.Root).
+
+```typescript
+type SliderTrackDataAttributesvalid = 'data-valid';
+```
+
+### SliderValueDataAttributes.dirty
+
+Present when the slider's value has changed (when wrapped in Field.Root).
+
+```typescript
+type SliderValueDataAttributesdirty = 'data-dirty';
+```
+
+### SliderValueDataAttributes.disabled
+
+Present when the slider is disabled.
+
+```typescript
+type SliderValueDataAttributesdisabled = 'data-disabled';
+```
+
+### SliderValueDataAttributes.dragging
+
+Present while the user is dragging.
+
+```typescript
+type SliderValueDataAttributesdragging = 'data-dragging';
+```
+
+### SliderValueDataAttributes.focused
+
+Present when the slider is focused (when wrapped in Field.Root).
+
+```typescript
+type SliderValueDataAttributesfocused = 'data-focused';
+```
+
+### SliderValueDataAttributes.invalid
+
+Present when the slider is in an invalid state (when wrapped in Field.Root).
+
+```typescript
+type SliderValueDataAttributesinvalid = 'data-invalid';
+```
+
+### SliderValueDataAttributes.orientation
+
+Indicates the orientation of the slider.
+
+```typescript
+type SliderValueDataAttributesorientation = 'data-orientation';
+```
+
+### SliderValueDataAttributes.touched
+
+Present when the slider has been touched (when wrapped in Field.Root).
+
+```typescript
+type SliderValueDataAttributestouched = 'data-touched';
+```
+
+### SliderValueDataAttributes.valid
+
+Present when the slider is in a valid state (when wrapped in Field.Root).
+
+```typescript
+type SliderValueDataAttributesvalid = 'data-valid';
 ```
 
 ### ThumbMetadata
@@ -615,7 +1007,7 @@ type Orientation = 'horizontal' | 'vertical';
 - `Slider.Track`: `Slider.Track`, `Slider.Track.State`, `Slider.Track.Props`
 - `Slider.Thumb`: `Slider.Thumb`, `Slider.Thumb.State`, `Slider.Thumb.Props`
 - `Slider.Indicator`: `Slider.Indicator`, `Slider.Indicator.State`, `Slider.Indicator.Props`
-- `Default`: `SliderRootState`, `SliderRootProps`, `SliderRootChangeEventCustomProperties`, `SliderRootChangeEventReason`, `SliderRootChangeEventDetails`, `SliderRootCommitEventReason`, `SliderRootCommitEventDetails`, `SliderLabelState`, `SliderLabelProps`, `SliderValueState`, `SliderValueProps`, `SliderControlState`, `SliderControlProps`, `SliderTrackState`, `SliderTrackProps`, `ThumbMetadata`, `SliderThumbState`, `SliderThumbProps`, `SliderIndicatorState`, `SliderIndicatorProps`
+- `Default`: `SliderRootDataAttributes.dragging`, `SliderRootDataAttributes.orientation`, `SliderRootDataAttributes.disabled`, `SliderRootDataAttributes.valid`, `SliderRootDataAttributes.invalid`, `SliderRootDataAttributes.touched`, `SliderRootDataAttributes.dirty`, `SliderRootDataAttributes.focused`, `SliderValueDataAttributes.dragging`, `SliderValueDataAttributes.orientation`, `SliderValueDataAttributes.disabled`, `SliderValueDataAttributes.valid`, `SliderValueDataAttributes.invalid`, `SliderValueDataAttributes.touched`, `SliderValueDataAttributes.dirty`, `SliderValueDataAttributes.focused`, `SliderControlDataAttributes.dragging`, `SliderControlDataAttributes.orientation`, `SliderControlDataAttributes.disabled`, `SliderControlDataAttributes.valid`, `SliderControlDataAttributes.invalid`, `SliderControlDataAttributes.touched`, `SliderControlDataAttributes.dirty`, `SliderControlDataAttributes.focused`, `SliderTrackDataAttributes.dragging`, `SliderTrackDataAttributes.orientation`, `SliderTrackDataAttributes.disabled`, `SliderTrackDataAttributes.valid`, `SliderTrackDataAttributes.invalid`, `SliderTrackDataAttributes.touched`, `SliderTrackDataAttributes.dirty`, `SliderTrackDataAttributes.focused`, `SliderThumbDataAttributes.index`, `SliderThumbDataAttributes.dragging`, `SliderThumbDataAttributes.orientation`, `SliderThumbDataAttributes.disabled`, `SliderThumbDataAttributes.valid`, `SliderThumbDataAttributes.invalid`, `SliderThumbDataAttributes.touched`, `SliderThumbDataAttributes.dirty`, `SliderThumbDataAttributes.focused`, `SliderIndicatorDataAttributes.dragging`, `SliderIndicatorDataAttributes.orientation`, `SliderIndicatorDataAttributes.disabled`, `SliderIndicatorDataAttributes.valid`, `SliderIndicatorDataAttributes.invalid`, `SliderIndicatorDataAttributes.touched`, `SliderIndicatorDataAttributes.dirty`, `SliderIndicatorDataAttributes.focused`, `SliderRootState`, `SliderRootProps`, `SliderRootChangeEventCustomProperties`, `SliderRootChangeEventReason`, `SliderRootChangeEventDetails`, `SliderRootCommitEventReason`, `SliderRootCommitEventDetails`, `SliderLabelState`, `SliderLabelProps`, `SliderValueState`, `SliderValueProps`, `SliderControlState`, `SliderControlProps`, `SliderTrackState`, `SliderTrackProps`, `ThumbMetadata`, `SliderThumbState`, `SliderThumbProps`, `SliderIndicatorState`, `SliderIndicatorProps`
 
 ## Canonical Types
 

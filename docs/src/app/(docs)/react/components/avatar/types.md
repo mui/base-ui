@@ -98,6 +98,38 @@ type AvatarFallbackState = {
 
 ## Additional Types
 
+### AvatarImageDataAttributes.endingStyle
+
+Present when the image is animating out.
+
+```typescript
+type AvatarImageDataAttributesendingStyle = 'data-ending-style';
+```
+
+### AvatarImageDataAttributes.error
+
+Present when the image failed to load.
+
+```typescript
+type AvatarImageDataAttributeserror = 'data-error';
+```
+
+### AvatarImageDataAttributes.loading
+
+Present while the image is loading.
+
+```typescript
+type AvatarImageDataAttributesloading = 'data-loading';
+```
+
+### AvatarImageDataAttributes.startingStyle
+
+Present when the image begins animating in.
+
+```typescript
+type AvatarImageDataAttributesstartingStyle = 'data-starting-style';
+```
+
 ### ImageLoadingStatus
 
 ```typescript
@@ -109,7 +141,7 @@ type ImageLoadingStatus = 'idle' | 'loading' | 'loaded' | 'error';
 - `Avatar.Root`: `Avatar.Root`, `Avatar.Root.State`, `Avatar.Root.Props`
 - `Avatar.Image`: `Avatar.Image`, `Avatar.Image.State`, `Avatar.Image.Props`
 - `Avatar.Fallback`: `Avatar.Fallback`, `Avatar.Fallback.State`, `Avatar.Fallback.Props`
-- `Default`: `ImageLoadingStatus`, `AvatarRootState`, `AvatarRootProps`, `AvatarImageState`, `AvatarImageProps`, `AvatarFallbackState`, `AvatarFallbackProps`
+- `Default`: `AvatarImageDataAttributes.loading`, `AvatarImageDataAttributes.error`, `AvatarImageDataAttributes.startingStyle`, `AvatarImageDataAttributes.endingStyle`, `ImageLoadingStatus`, `AvatarRootState`, `AvatarRootProps`, `AvatarImageState`, `AvatarImageProps`, `AvatarFallbackState`, `AvatarFallbackProps`
 
 ## Canonical Types
 

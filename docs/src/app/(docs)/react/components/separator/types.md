@@ -37,6 +37,16 @@ type SeparatorState = {
 };
 ```
 
+## Additional Types
+
+### SeparatorDataAttributes.orientation
+
+Indicates the orientation of the separator.
+
+```typescript
+type SeparatorDataAttributesorientation = 'data-orientation';
+```
+
 ## External Types
 
 ### Orientation
