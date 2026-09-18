@@ -54,9 +54,7 @@ describe.skipIf(isJSDOM)('Menu popup transition state', () => {
               states.push(state);
             }
           }
-          const completed = vi.fn(() => {
-            expect(screen.queryByRole('menu')?.getAnimations() ?? []).toHaveLength(0);
-          });
+          const completed = vi.fn();
           const onEnter = vi.fn();
 
           function TestMenu() {
@@ -64,7 +62,7 @@ describe.skipIf(isJSDOM)('Menu popup transition state', () => {
             return (
               <React.Fragment>
                 <style>{`
-                  .transition-state-popup { opacity: 0; transition: opacity 200ms linear; }
+                  .transition-state-popup { opacity: 0; transition: opacity 10s linear; }
                   .transition-state-popup[data-enter] { opacity: 1; }
                 `}</style>
                 <Menu.Root
@@ -98,6 +96,15 @@ describe.skipIf(isJSDOM)('Menu popup transition state', () => {
 
           const { user } = await render(<TestMenu />);
 
+          // The transition outlasts every phase of this test, so a busy runner cannot miss the
+          // window where it still runs. Finishing it then ends the phase instead of racing it.
+          async function expectCompletedAfterAnimations(popup: HTMLElement, open: boolean) {
+            await waitFor(() => {
+              popup.getAnimations().forEach((animation) => animation.finish());
+              expect(completed).toHaveBeenCalledExactlyOnceWith(open);
+            });
+          }
+
           async function openMenu() {
             states.length = 0;
             onEnter.mockClear();
@@ -107,7 +114,7 @@ describe.skipIf(isJSDOM)('Menu popup transition state', () => {
             await waitFor(() => expect(popup.getAnimations().length).toBeGreaterThan(0));
             expect(onEnter).toHaveBeenCalledTimes(1);
             expect(completed).not.toHaveBeenCalled();
-            await waitFor(() => expect(completed).toHaveBeenCalledExactlyOnceWith(true));
+            await expectCompletedAfterAnimations(popup, true);
             expect(popup.getAnimations()).toHaveLength(0);
             expect(onEnter).toHaveBeenCalledTimes(1);
             expect(states.filter((state) => state.open)).toEqual([
@@ -134,7 +141,7 @@ describe.skipIf(isJSDOM)('Menu popup transition state', () => {
             await user.keyboard('{Escape}');
             await waitFor(() => expect(popup.getAnimations().length).toBeGreaterThan(0));
             expect(completed).not.toHaveBeenCalled();
-            await waitFor(() => expect(completed).toHaveBeenCalledExactlyOnceWith(false));
+            await expectCompletedAfterAnimations(popup, false);
             expect(popup.isConnected).toBe(keepMounted);
             await openMenu();
           }
@@ -147,13 +154,11 @@ describe.skipIf(isJSDOM)('Menu popup transition state', () => {
           const popup = screen.getByRole('menu');
           await user.keyboard('{Escape}');
           await waitFor(() => expect(popup.getAnimations().length).toBeGreaterThan(0));
-          // Keep the exit active while the user event runs, even on a busy test runner.
-          popup.getAnimations().forEach((animation) => animation.pause());
           expect(completed).not.toHaveBeenCalled();
           states.length = 0;
           onEnter.mockClear();
           await user.click(screen.getByRole('button', { name: 'Toggle' }));
-          await waitFor(() => expect(completed).toHaveBeenCalledExactlyOnceWith(true));
+          await expectCompletedAfterAnimations(popup, true);
           expect(screen.getByRole('menu')).toBe(popup);
           expect(onEnter).toHaveBeenCalledTimes(1);
           expect(states.some((state) => state.transitionStatus === 'starting')).toBe(false);
