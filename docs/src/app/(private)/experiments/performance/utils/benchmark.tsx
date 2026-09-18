@@ -3,6 +3,7 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useTimeout } from '@base-ui/utils/useTimeout';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { closest, contains } from '@base-ui/utils/shadowDom';
 import { ownerDocument } from '@base-ui/utils/owner';
 import { Field } from '@base-ui/react/field';
@@ -89,12 +90,13 @@ export default function PerformanceBenchmark(props: PerformanceBenchmarkProps) {
   );
   const [removeOutliersEnabled, setRemoveOutliersEnabled] = React.useState(true);
   const [isBusy, setIsBusy] = React.useState(false);
+  const [measurementError, setMeasurementError] = React.useState<string | null>(null);
 
   const benchmarkRootRef = React.useRef<HTMLDivElement>(null);
   const chromeRef = React.useRef<HTMLDivElement>(null);
   const isBusyRef = React.useRef(false);
-  const workloadKeyRef = React.useRef(workloadKey);
-  workloadKeyRef.current = workloadKey;
+  const previousWorkloadKey = React.useRef(workloadKey);
+  const workloadRevisionRef = React.useRef(0);
   const activeMeasurementRef = React.useRef<(() => void) | null>(null);
   const isUnmountedRef = React.useRef(false);
   const settleTimeout = useTimeout();
@@ -106,11 +108,26 @@ export default function PerformanceBenchmark(props: PerformanceBenchmarkProps) {
    * promise would never settle. Settle it here instead.
    */
   React.useEffect(() => {
+    isUnmountedRef.current = false;
     return () => {
       isUnmountedRef.current = true;
       activeMeasurementRef.current?.();
     };
   }, []);
+
+  useIsoLayoutEffect(() => {
+    if (previousWorkloadKey.current !== workloadKey) {
+      previousWorkloadKey.current = workloadKey;
+      workloadRevisionRef.current += 1;
+      activeMeasurementRef.current?.();
+      setResults(makeInitialResults(variants));
+      setMeasurementError(null);
+    }
+  }, [workloadKey, variants]);
+
+  const isCurrentWorkload = useStableCallback(
+    (revision: number) => !isUnmountedRef.current && workloadRevisionRef.current === revision,
+  );
 
   const activeVariant = variants.find((variant) => variant.key === activeKey) ?? variants[0];
 
@@ -138,8 +155,8 @@ export default function PerformanceBenchmark(props: PerformanceBenchmarkProps) {
     let observer: MutationObserver | null = null;
     let resolved = false;
 
-    return new Promise<number>((resolve) => {
-      const finish = () => {
+    return new Promise<number | null>((resolve) => {
+      const finish = (duration: number | null) => {
         if (resolved) {
           return;
         }
@@ -148,11 +165,13 @@ export default function PerformanceBenchmark(props: PerformanceBenchmarkProps) {
         observer?.disconnect();
         settleTimeout.clear();
         maxDurationTimeout.clear();
-        resolve(Math.max(0, lastMutationAt - start));
+        resolve(duration);
       };
 
-      // Lets the unmount cleanup disconnect the observer and settle this promise.
-      activeMeasurementRef.current = finish;
+      const finishSettled = () => finish(Math.max(0, lastMutationAt - start));
+
+      // Cancellation is not a sample, whether caused by unmounting or a workload change.
+      activeMeasurementRef.current = () => finish(null);
 
       const root = benchmarkRootRef.current;
       const doc = root ? ownerDocument(root) : null;
@@ -163,7 +182,7 @@ export default function PerformanceBenchmark(props: PerformanceBenchmarkProps) {
             return;
           }
           lastMutationAt = performance.now();
-          settleTimeout.start(DOM_SETTLE_QUIET_WINDOW_MS, finish);
+          settleTimeout.start(DOM_SETTLE_QUIET_WINDOW_MS, finishSettled);
         });
         observer.observe(doc.body, {
           attributes: true,
@@ -171,10 +190,15 @@ export default function PerformanceBenchmark(props: PerformanceBenchmarkProps) {
           characterData: true,
           subtree: true,
         });
-        settleTimeout.start(DOM_SETTLE_QUIET_WINDOW_MS, finish);
-        maxDurationTimeout.start(MAX_MEASUREMENT_MS, finish);
+        settleTimeout.start(DOM_SETTLE_QUIET_WINDOW_MS, finishSettled);
+        maxDurationTimeout.start(MAX_MEASUREMENT_MS, () => {
+          setMeasurementError(
+            `Measurement stopped because the page did not settle within ${MAX_MEASUREMENT_MS / 1000} seconds. No results were recorded for this run.`,
+          );
+          finish(null);
+        });
       } else {
-        finish();
+        finish(null);
       }
 
       ReactDOM.flushSync(() => {
@@ -197,6 +221,7 @@ export default function PerformanceBenchmark(props: PerformanceBenchmarkProps) {
     }
     isBusyRef.current = true;
     setIsBusy(true);
+    setMeasurementError(null);
     return true;
   });
 
@@ -210,6 +235,7 @@ export default function PerformanceBenchmark(props: PerformanceBenchmarkProps) {
       if (!beginBusy()) {
         return;
       }
+      const workloadRevision = workloadRevisionRef.current;
       try {
         const nextKey = event.target.value;
         ReactDOM.flushSync(() => {
@@ -218,6 +244,9 @@ export default function PerformanceBenchmark(props: PerformanceBenchmarkProps) {
           setGeneration((value) => value + 1);
         });
         const duration = await measureDomSettled();
+        if (duration === null || !isCurrentWorkload(workloadRevision)) {
+          return;
+        }
         setResults((prev) => ({
           ...prev,
           [nextKey]: { ...prev[nextKey], lastMs: duration },
@@ -232,8 +261,12 @@ export default function PerformanceBenchmark(props: PerformanceBenchmarkProps) {
     if (!beginBusy()) {
       return;
     }
+    const workloadRevision = workloadRevisionRef.current;
     try {
       const duration = await measureCurrentVariant();
+      if (duration === null || !isCurrentWorkload(workloadRevision)) {
+        return;
+      }
       setResults((prev) => ({
         ...prev,
         [activeKey]: { ...prev[activeKey], lastMs: duration },
@@ -249,7 +282,7 @@ export default function PerformanceBenchmark(props: PerformanceBenchmarkProps) {
     }
     const variantKey = activeKey;
     const variantLabel = activeVariant.label;
-    const variantWorkloadKey = workloadKeyRef.current;
+    const workloadRevision = workloadRevisionRef.current;
     console.log(
       `Benchmark "${variantLabel}": ${iterations} iterations (+${WARMUP_ITERATIONS} warmup)...`,
     );
@@ -261,10 +294,13 @@ export default function PerformanceBenchmark(props: PerformanceBenchmarkProps) {
         if (isUnmountedRef.current) {
           return;
         }
-        if (workloadKeyRef.current !== variantWorkloadKey) {
+        if (!isCurrentWorkload(workloadRevision)) {
           console.warn(
             `Benchmark "${variantLabel}" discarded: the workload changed during the run.`,
           );
+          return;
+        }
+        if (duration === null) {
           return;
         }
         if (i < WARMUP_ITERATIONS) {
@@ -290,14 +326,8 @@ export default function PerformanceBenchmark(props: PerformanceBenchmarkProps) {
       return;
     }
     setResults(makeInitialResults(variants));
+    setMeasurementError(null);
   });
-
-  // The workload changed, so the recorded samples describe a different amount of work.
-  const previousWorkloadKey = React.useRef(workloadKey);
-  if (previousWorkloadKey.current !== workloadKey) {
-    previousWorkloadKey.current = workloadKey;
-    setResults(makeInitialResults(variants));
-  }
 
   const variantSelectId = React.useId();
 
@@ -386,6 +416,8 @@ export default function PerformanceBenchmark(props: PerformanceBenchmarkProps) {
             </button>
           </div>
         </div>
+
+        {measurementError && <p role="status">{measurementError}</p>}
 
         <table className={styles.Table}>
           <thead className={styles.TableHeader}>
