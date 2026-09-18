@@ -553,9 +553,14 @@ describe('<Select.FilterProvider><Select.Root/></Select.FilterProvider>', () => 
 
       const clear = screen.getByRole('button', { name: 'Clear filter' });
       await user.tab();
-      expect(clear).toHaveFocus();
+      await waitFor(() => {
+        expect(clear).toHaveFocus();
+      });
+      // Wrapping goes through the focus guards, which redirect focus after the key lands.
       await user.tab();
-      expect(input).toHaveFocus();
+      await waitFor(() => {
+        expect(input).toHaveFocus();
+      });
       expect(screen.getByRole('dialog')).not.toBe(null);
     });
 
