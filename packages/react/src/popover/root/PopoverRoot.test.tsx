@@ -4,7 +4,14 @@ import { Popover } from '@base-ui/react/popover';
 import { Combobox } from '@base-ui/react/combobox';
 import { Menu } from '@base-ui/react/menu';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
-import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
+import {
+  act,
+  fireEvent,
+  flushMicrotasks,
+  ignoreActWarnings,
+  screen,
+  waitFor,
+} from '@mui/internal-test-utils';
 import { createRenderer, isJSDOM, popupConformanceTests, wait } from '#test-utils';
 import { OPEN_DELAY } from '../utils/constants';
 import { PATIENT_CLICK_THRESHOLD } from '../../internals/constants';
@@ -1052,7 +1059,12 @@ describe('<Popover.Root />', () => {
         it.skipIf(isJSDOM)(
           'moves focus to the element preceding the trigger when tabbing backward from the trigger while open',
           async () => {
-            const { user } = await render(
+            ignoreActWarnings();
+            // Native Tab runs a microtask checkpoint between the trigger's blur and the guard's focus.
+            const { userEvent: user } = await import('vitest/browser');
+            globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+            await render(
               <div>
                 <input data-testid="focus-target" />
                 <TestPopover
