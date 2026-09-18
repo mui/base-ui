@@ -58,7 +58,17 @@ function getEventType(event: Event, lastInteractionType?: InteractionType): Inte
     return lastInteractionType || 'keyboard';
   }
   if ('pointerType' in event) {
-    return (event.pointerType as React.PointerEvent['pointerType']) || 'keyboard';
+    const pointerType = event.pointerType as React.PointerEvent['pointerType'];
+    if (pointerType) {
+      return pointerType;
+    }
+    // `click` carries an empty pointerType when keyboard-activated (detail 0),
+    // triggered by assistive tech, or synthesized by a test harness. Only the
+    // last case has a non-zero detail, so use the preceding pointer type there.
+    if (event instanceof win.MouseEvent && event.detail !== 0) {
+      return lastInteractionType || 'mouse';
+    }
+    return 'keyboard';
   }
   if ('touches' in event) {
     return 'touch';
