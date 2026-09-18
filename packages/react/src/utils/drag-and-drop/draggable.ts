@@ -51,11 +51,19 @@ function applyGestureSetup(
   let entry = gestureSetups.get(gestureElement);
   if (!entry) {
     const gestureStyle = gestureElement.style as CSSStyleDeclaration & Record<string, string>;
+    // Some CSS properties are unavailable in jsdom or other browser engines.
+    // Restore those to an empty string instead of assigning undefined.
     const previous = {
       touchAction: gestureStyle.touchAction ?? '',
       userSelect: gestureStyle.userSelect ?? '',
       webkitUserSelect: gestureStyle.webkitUserSelect ?? '',
       webkitTouchCallout: gestureStyle.webkitTouchCallout ?? '',
+    };
+    const priorities = {
+      touchAction: gestureStyle.getPropertyPriority('touch-action'),
+      userSelect: gestureStyle.getPropertyPriority('user-select'),
+      webkitUserSelect: gestureStyle.getPropertyPriority('-webkit-user-select'),
+      webkitTouchCallout: gestureStyle.getPropertyPriority('-webkit-touch-callout'),
     };
     gestureStyle.touchAction = 'manipulation';
     gestureStyle.userSelect = 'none';
@@ -66,15 +74,35 @@ function applyGestureSetup(
       restore() {
         if (gestureStyle.touchAction === 'manipulation') {
           gestureStyle.touchAction = previous.touchAction;
+          if (priorities.touchAction) {
+            gestureStyle.setProperty('touch-action', previous.touchAction, priorities.touchAction);
+          }
         }
         if (gestureStyle.userSelect === 'none') {
           gestureStyle.userSelect = previous.userSelect;
+          if (priorities.userSelect) {
+            gestureStyle.setProperty('user-select', previous.userSelect, priorities.userSelect);
+          }
         }
         if (gestureStyle.webkitUserSelect === 'none') {
           gestureStyle.webkitUserSelect = previous.webkitUserSelect;
+          if (priorities.webkitUserSelect) {
+            gestureStyle.setProperty(
+              '-webkit-user-select',
+              previous.webkitUserSelect,
+              priorities.webkitUserSelect,
+            );
+          }
         }
         if (gestureStyle.webkitTouchCallout === 'none') {
           gestureStyle.webkitTouchCallout = previous.webkitTouchCallout;
+          if (priorities.webkitTouchCallout) {
+            gestureStyle.setProperty(
+              '-webkit-touch-callout',
+              previous.webkitTouchCallout,
+              priorities.webkitTouchCallout,
+            );
+          }
         }
       },
     };
@@ -201,12 +229,13 @@ export type DraggableConfig<TData = undefined> = {
    * Determines when a pointer press starts a drag. Mouse and pen use a 5px distance
    * by default. Touch uses a 250ms press and hold. Pass one `DragActivation` for
    * every pointer type or a map with per-type values. An array allows any of its
-   * activation methods. Double-click pickup follows the mouse until the next click.
+   * activation methods. Double-click pickup follows the mouse until the next click;
+   * on touch and pen, the second tap of a double-tap picks up and the release drops.
    */
   activation?: DragActivationConfig | readonly DragActivationConfig[] | undefined;
   /**
    * Constrains pointer movement with one modifier or an array applied
-   * in order. See {@link DragModifiers} and the exported modifier presets.
+   * in order. See [DragModifier](https://base-ui.com/react/utils/draggable#dragmodifier) and the exported modifier presets.
    */
   modifiers?: DragModifiers | undefined;
   /**
@@ -219,7 +248,7 @@ export type DraggableConfig<TData = undefined> = {
   dragCursor?: string | false | undefined;
   /**
    * The content and DOM container of the drag preview.
-   * Omit it to use a sanitized clone of the source. The clone preserves classes
+   * Omit it to use a clone of the source. The clone preserves classes
    * and live element state, but rewrites IDs to keep the document unique.
    *
    * For sources registered imperatively. A draggable that renders a preview part
@@ -255,7 +284,7 @@ export type DraggableConfig<TData = undefined> = {
   /**
    * Event handler called as the pointer moves or a modifier key changes, limited
    * to one call per animation frame. Drop target stack changes do not call this handler.
-   * Use the drop target's `onMove` for hover behavior.
+   * Use the drop target's `onDraggableMove` for hover behavior.
    */
   onMove?:
     | ((

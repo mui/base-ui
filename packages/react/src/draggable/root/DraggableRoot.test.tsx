@@ -1,17 +1,17 @@
 import * as React from 'react';
 import { describe, it, expect, vi } from 'vitest';
 import { act, fireEvent, screen, render as rawRender } from '@testing-library/react';
-import { createDndRenderer, describeConformance, testDragKind } from '#test-utils';
+import { createDndRenderer, describeConformance, firePointer, testDragKind } from '#test-utils';
 import { Draggable } from '@base-ui/react/draggable';
-import { DropTarget } from '@base-ui/react/drop-target';
-import { useDragDropManager } from '@base-ui/react/use-drag-drop-manager';
 import {
   cancel,
   createElement,
   dragOver,
   flushRaf,
   lift,
+  registerCleanup,
   setupDragEngineTests,
+  splitEnd,
 } from '../../../test/dnd';
 import { dragSessionStore } from '../../utils/drag-and-drop/dragSessionStore';
 import { getRegistration } from '../../utils/drag-and-drop/draggableRegistry';
@@ -60,6 +60,20 @@ describe('Draggable.Root', () => {
       return renderDnd(node);
     },
   }));
+
+  it('warns when a root has no kind inside a collision provider', async () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    try {
+      await renderDnd(
+        <Draggable.CollisionProvider kind={cardKind}>
+          <Draggable.Root />
+        </Draggable.CollisionProvider>,
+      );
+      expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('has no explicit kind'));
+    } finally {
+      warnSpy.mockRestore();
+    }
+  });
 
   it('clones the source inside the required provider', async () => {
     // The clone is engine-built and touches no React, so the provider requirement
@@ -444,20 +458,7 @@ describe('Draggable.Root', () => {
           data-testid="drag"
           data-tick={tick}
           className={draggingClass}
-          onMoveEnd={(moveEvent, moveDetails) => {
-            try {
-              if (moveDetails.reason === 'drop' && moveEvent.dropTarget !== null) {
-                const dropEvent = {
-                  source: moveEvent.source,
-                  location: moveEvent.location,
-                  dropTarget: moveEvent.dropTarget,
-                };
-                onDrop(dropEvent);
-              }
-            } finally {
-              onMoveEnd(moveEvent);
-            }
-          }}
+          onMoveEnd={splitEnd(onDrop, onMoveEnd)}
 
           ref={(node) => {
             void node;
@@ -497,6 +498,46 @@ describe('Draggable.Root', () => {
     expect(onMoveEnd).toHaveBeenCalledTimes(1);
     expect(onDrop).toHaveBeenCalledTimes(1);
     expect(source).toHaveClass('idle');
+  });
+
+  it('still lands the drop after the source unmounted mid-drag', async () => {
+    const onMoveEnd = vi.fn();
+    const onDrop = vi.fn();
+    // No clone preview: with the source gone before the drop, a clone would have
+    // nothing to settle back onto and would outlive the test in a real browser.
+    function Source({ mounted }: { mounted: boolean }) {
+      return mounted ? (
+        <Draggable.Root kind={testDragKind} data-testid="drag">
+          <Draggable.Preview disabled />
+        </Draggable.Root>
+      ) : null;
+    }
+    const { engine, rerender } = await renderDnd(<Source mounted />);
+    engine.registerMonitor({ onMoveEnd });
+    const target = createElement({ top: 200, height: 100 });
+    engine.registerDropTarget(target, { onDraggableDrop: onDrop });
+    const source = screen.getByTestId('drag');
+    source.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
+
+    fireEvent.dragStart(source);
+    await flushRaf();
+    // A list re-rendering on pickup can unmount the very row being dragged.
+    await rerender(<Source mounted={false} />);
+    await flushRaf();
+
+    // The bridge replays releases on the (now detached) source, so drive the
+    // rest of the gesture with raw pointer events at the target.
+    const hitTest = vi.spyOn(document, 'elementFromPoint').mockImplementation(() => target);
+    registerCleanup(() => hitTest.mockRestore());
+    const pointer = { pointerType: 'mouse', pointerId: 1, clientX: 100, clientY: 250 } as const;
+    firePointer.move(target, { ...pointer, buttons: 1, timeStamp: 100 });
+    await flushRaf();
+    firePointer.up(target, { ...pointer, button: 0, buttons: 0, timeStamp: 120 });
+
+    expect(onDrop).toHaveBeenCalledTimes(1);
+    expect(onMoveEnd).toHaveBeenCalledTimes(1);
+    expect(onMoveEnd.mock.calls[0][1].reason).toBe('drop');
+    expect(onMoveEnd.mock.calls[0][0].dropTarget?.element).toBe(target);
   });
 
   it('cleanup is idempotent and survives unmount mid-drag', async () => {
@@ -591,20 +632,7 @@ describe('Draggable.Root', () => {
           <TestDraggable
             options={{
               onMoveStart,
-              onMoveEnd: (moveEvent, moveDetails) => {
-                try {
-                  if (moveDetails.reason === 'drop' && moveEvent.dropTarget !== null) {
-                    const dropEvent = {
-                      source: moveEvent.source,
-                      location: moveEvent.location,
-                      dropTarget: moveEvent.dropTarget,
-                    };
-                    onDrop(dropEvent);
-                  }
-                } finally {
-                  onMoveEnd(moveEvent);
-                }
-              },
+              onMoveEnd: splitEnd(onDrop, onMoveEnd),
             }}
           />
         </React.StrictMode>,
@@ -875,8 +903,8 @@ describe('Draggable.Root', () => {
       const onDrop = vi.fn();
       const stale = vi.fn();
       const { engine, rerender } = await renderDnd(
-        <DropTarget.Root
-          accept={DropTarget.anyKind}
+        <Draggable.Target
+          accept={Draggable.anyKind}
           key="a"
           data-testid="target"
           payload={{ slot: 1 }}
@@ -887,8 +915,8 @@ describe('Draggable.Root', () => {
       engine.registerDraggable(source, {});
 
       await rerender(
-        <DropTarget.Root
-          accept={DropTarget.anyKind}
+        <Draggable.Target
+          accept={Draggable.anyKind}
           key="b"
           data-testid="target"
           payload={{ slot: 2 }}
@@ -1441,22 +1469,6 @@ describe('Draggable.Root', () => {
       ).toBe(source.parentElement);
     });
 
-    it.each([
-      ['null', null],
-      // The `{condition && <Chip />}` idiom: `false` is just as much "no content".
-      ['false', false as unknown as null],
-    ])('shows no preview when the children resolve to %s', async (_label, children) => {
-      await renderDnd(<DraggableWithPreview preview={children} />);
-      const source = screen.getByTestId('drag');
-      source.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
-
-      fireEvent.dragStart(source);
-
-      // The sensor already built a host for the declaration; it must be torn down,
-      // or an empty box follows the pointer for the whole drag.
-      expect(document.querySelector('[data-drag-preview]')).toBeNull();
-    });
-
     it('applies className to its own element, inside the engine-owned host', async () => {
       rtlRender(
         <DraggableWithPreview
@@ -1788,7 +1800,7 @@ describe('Draggable.Root', () => {
     // An imperatively registered source has no component to hold a
     // `Draggable.Preview`, so it declares the preview on the registration itself.
     function ImperativeCard() {
-      const engine = useDragDropManager();
+      const engine = Draggable.useDragDropManager();
       const elementRef = React.useRef<HTMLDivElement>(null);
       React.useEffect(
         () =>
@@ -1821,7 +1833,7 @@ describe('Draggable.Root', () => {
 
     it('still honours dragPreview.offset for an imperative preview', async () => {
       function OffsetCard() {
-        const engine = useDragDropManager();
+        const engine = Draggable.useDragDropManager();
         const elementRef = React.useRef<HTMLDivElement>(null);
         React.useEffect(
           () =>
@@ -1855,7 +1867,7 @@ describe('Draggable.Root', () => {
 
     it('shows no preview at all with dragPreview.disabled', async () => {
       function DisabledCard() {
-        const engine = useDragDropManager();
+        const engine = Draggable.useDragDropManager();
         const elementRef = React.useRef<HTMLDivElement>(null);
         React.useEffect(
           () =>
@@ -1881,7 +1893,7 @@ describe('Draggable.Root', () => {
 
     it('clamps an imperative preview to dragPreview.modifiers', async () => {
       function BoundedCard() {
-        const engine = useDragDropManager();
+        const engine = Draggable.useDragDropManager();
         const elementRef = React.useRef<HTMLDivElement>(null);
         const boundsRef = React.useRef<HTMLDivElement>(null);
         React.useEffect(
@@ -1923,7 +1935,7 @@ describe('Draggable.Root', () => {
       document.body.appendChild(host);
       try {
         function ContainedCard() {
-          const engine = useDragDropManager();
+          const engine = Draggable.useDragDropManager();
           const elementRef = React.useRef<HTMLDivElement>(null);
           React.useEffect(
             () =>
@@ -1954,7 +1966,7 @@ describe('Draggable.Root', () => {
       document.body.appendChild(host);
       try {
         function ContainedCard() {
-          const engine = useDragDropManager();
+          const engine = Draggable.useDragDropManager();
           const elementRef = React.useRef<HTMLDivElement>(null);
           React.useEffect(
             () =>

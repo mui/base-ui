@@ -2,6 +2,7 @@
 import { Draggable } from '@base-ui/react/draggable';
 
 import * as React from 'react';
+import { getHorizontalCollisionAfter } from 'docs/src/utils/getHorizontalCollisionAfter';
 import clsx from 'clsx';
 import { Menu } from '@base-ui/react/menu';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
@@ -414,10 +415,10 @@ function DataGridInner() {
           // horizontally. The viewport scrolls on both axes, so without this a
           // column dragged near the top edge would also scroll the rows away
           // under it.
-          onDragScroll={(event, { direction, source: dragged }) => {
+          onDragScroll={({ direction, source: dragged }, eventDetails) => {
             const allowedDirection = rowKind.matches(dragged) ? 'vertical' : 'horizontal';
             if (direction !== allowedDirection) {
-              event.preventDefault();
+              eventDetails.cancel();
             }
           }}
           className={styles.viewport}
@@ -437,10 +438,12 @@ function DataGridInner() {
             <div className={styles.columnSpacer} style={{ width: leadingWidth }} />
             <Draggable.CollisionProvider
               kind={columnKind}
-              orientation="horizontal"
               onCollisionChange={({ collision }) => {
                 if (collision) {
-                  onColumnDragOver(collision.target.payload, collision.placement === 'before');
+                  onColumnDragOver(
+                    collision.target.payload,
+                    !getHorizontalCollisionAfter(collision),
+                  );
                 } else {
                   setDropIndicator(null);
                 }
@@ -454,7 +457,7 @@ function DataGridInner() {
                       : moveToIndex(
                           current,
                           dragged.payload,
-                          index + (collision.placement === 'after' ? 1 : 0),
+                          index + (getHorizontalCollisionAfter(collision) ? 1 : 0),
                         );
                   });
                 }
@@ -478,10 +481,12 @@ function DataGridInner() {
             >
               <Draggable.CollisionProvider
                 kind={rowKind}
-                orientation="vertical"
                 onCollisionChange={({ collision }) => {
                   if (collision) {
-                    onRowDragOver(collision.target.payload, collision.placement === 'before');
+                    onRowDragOver(
+                      collision.target.payload,
+                      collision.target.getLocalPoint().y <= 0.5,
+                    );
                   } else {
                     setDropIndicator(null);
                   }
@@ -497,7 +502,7 @@ function DataGridInner() {
                         : moveToIndex(
                             current,
                             dragged.payload,
-                            index + (collision.placement === 'after' ? 1 : 0),
+                            index + (collision.target.getLocalPoint().y > 0.5 ? 1 : 0),
                           );
                     });
                   }
@@ -526,7 +531,7 @@ function DataGridInner() {
 export default function DataGridMuiX() {
   return (
     <Draggable.Provider>
-      <DragPageAutoScroll />
+      <DragPageAutoScroll accept={[columnKind, rowKind]} />
       <DataGridInner />
     </Draggable.Provider>
   );

@@ -17,6 +17,12 @@ import { resetForTests as resetPostDragClick } from '../src/utils/drag-and-drop/
 import { resetForTests as resetAutoScroller } from '../src/utils/drag-and-drop/autoScroller';
 import { clearPublishedDragPreview } from '../src/utils/drag-and-drop/overlay/dragPreviewStore';
 import { resetTouchTarget } from './syntheticPointer';
+import type {
+  DragDropEvent,
+  DragDropEventDetails,
+  MoveEndEvent,
+  MoveEndEventDetails,
+} from '../src/types/drag';
 
 // ---------------------------------------------------------------------------
 // Fake elements
@@ -437,4 +443,27 @@ export function resetDrag(): void {
   // Clear the synthetic-pointer helpers' latched touch target so one test's
   // gesture can't route the next test's touch/pen dispatches.
   resetTouchTarget();
+}
+
+/**
+ * Split `onMoveEnd` into a drop-only handler and the end handler, mirroring the
+ * engine's own drop dispatch: `onDrop` runs first and only for a committed drop,
+ * `onMoveEnd` always follows, even when `onDrop` throws.
+ */
+export function splitEnd<TData = unknown>(
+  onDrop: (event: DragDropEvent<TData>, details: DragDropEventDetails) => void,
+  onMoveEnd?: (event: MoveEndEvent<TData>, details: MoveEndEventDetails) => void,
+): (event: MoveEndEvent<TData>, details: MoveEndEventDetails) => void {
+  return (event, details) => {
+    try {
+      if (details.reason === 'drop' && event.dropTarget !== null) {
+        onDrop(
+          { source: event.source, location: event.location, dropTarget: event.dropTarget },
+          { ...details, reason: 'drop' },
+        );
+      }
+    } finally {
+      onMoveEnd?.(event, details);
+    }
+  };
 }

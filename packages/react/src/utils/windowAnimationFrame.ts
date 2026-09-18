@@ -4,7 +4,11 @@ type AnimationFrameId = number;
 
 const EMPTY = null;
 
-/** A single replaceable animation-frame callback tied to one window. */
+/**
+ * A single replaceable animation-frame callback tied to one window.
+ * Unlike the shared utility, this schedules work in the element's owner window,
+ * so closing an iframe also stops its pending work. Cleanup tolerates a closed window.
+ */
 export class WindowAnimationFrame {
   static request(fn: FrameRequestCallback, ownerWindow: Window) {
     return ownerWindow.requestAnimationFrame(fn);
@@ -22,7 +26,7 @@ export class WindowAnimationFrame {
 
   currentId: AnimationFrameId | null = EMPTY;
 
-  request(fn: Function) {
+  request(fn: () => void) {
     this.cancel();
     this.currentId = WindowAnimationFrame.request(() => {
       this.currentId = EMPTY;

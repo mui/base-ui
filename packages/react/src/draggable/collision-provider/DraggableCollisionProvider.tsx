@@ -6,7 +6,6 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import type {
   BaseDragEvent,
   DragKind,
-  DragInput,
   DragSource,
   DropTargetRecord,
   DropTargetChangeEventDetails,
@@ -16,35 +15,42 @@ import type {
 } from '../../types/drag';
 import { registerDropTarget, registerMonitor } from '../../utils/drag-and-drop/registrations';
 import { scheduleDropTargetParameterRefresh } from '../../utils/drag-and-drop/core/lifecycleManager';
-import { dragSourceStore } from '../../utils/drag-and-drop/dragSessionStore';
+import { dragSessionStore, dragSourceStore } from '../../utils/drag-and-drop/dragSessionStore';
 import { resolveCollision } from '../../utils/drag-and-drop/collisionResolution';
 import { createKind } from '../../utils/drag-and-drop/dragKind';
-import { isRtlElement } from '../../utils/drag-and-drop/utils';
 import { DraggableCollisionContext, type CollisionParticipant } from './DraggableCollisionContext';
 import { useDraggableContext } from '../DraggableContext';
 
-/** A sortable destination resolved from the pointer within a participant. */
+/** The item under the pointer during a drag. */
 export interface DraggableCollision<TData = unknown> {
-  /** The participant under the pointer. Its payload is the draggable's static payload. */
+  /**
+   * The item under the pointer. Use `payload` to identify it and `getLocalPoint()`
+   * or `getSnappedLocalPoint()` to choose an insertion position.
+   */
   target: DropTargetRecord<TData>;
-  /** The insertion side, in reading order. */
-  placement: 'before' | 'after';
 }
 
 export interface DraggableCollisionEvent<TData = unknown> extends BaseDragEvent<TData> {
-  /** The current destination, or null outside this group or over the source itself. */
+  /** The item under the pointer, or `null` outside this group or over the dragged item. */
   collision: DraggableCollision<TData> | null;
+  /** The last collision reported by `onCollisionChange`, or `null` before the first call. */
+  previousCollision: DraggableCollision<TData> | null;
 }
 
 export interface DraggableCollisionEndEvent<TData = unknown> extends MoveEndEvent<TData> {
-  /** The final destination in this group, or null on cancellation or an unrelated drop. */
+  /**
+   * The item under the pointer at drop, or `null` on cancellation, outside this group,
+   * or over the dragged item.
+   */
   collision: DraggableCollision<TData> | null;
+  /** The last collision reported by `onCollisionChange`, or `null` before the first call. */
+  previousCollision: DraggableCollision<TData> | null;
 }
 
 /**
- * Coordinates pointer-based insertion among descendant draggables of the same kind.
- * Renders no element. Applications own their order, commit, and cancellation behavior.
- * Explicit targets can still represent empty containers and other destinations.
+ * Groups draggables of the same kind and reports the item under the pointer.
+ * Use its callbacks to choose an insertion position and update the item order.
+ * Doesn't render an HTML element.
  *
  * Documentation: [Base UI Draggable](https://base-ui.com/react/utils/draggable#collision-provider)
  */
@@ -59,13 +65,16 @@ export function DraggableCollisionProvider<TData>(
   const snapshots = useRefWithInit(
     () => new WeakMap<DropTargetRecord, DraggableCollision<TData>>(),
   ).current;
-  const lastInput = React.useRef<DragInput | null>(null);
-  const rtlCache = React.useRef(new WeakMap<Element, boolean>());
-  const sources = useRefWithInit(() => new WeakMap<Element, HTMLElement>()).current;
   const targetKind = useRefWithInit(() => createKind<TData>('collision-participant')).current;
   const involvedRef = React.useRef(false);
   const removedSource = React.useRef<DragSource | null>(null);
   const previous = React.useRef<DraggableCollision<TData> | null>(null);
+  // The start of a drag this group did not own, replayed to `onMoveStart` if the
+  // drag later reaches one of its participants, so the start/end pair always closes.
+  const pendingStart = React.useRef<{
+    event: BaseDragEvent<TData>;
+    details: MoveStartEventDetails;
+  } | null>(null);
 
   const register = useStableCallback(
     (
@@ -74,54 +83,24 @@ export function DraggableCollisionProvider<TData>(
       sourceElement: HTMLElement,
     ) => {
       participants.set(sourceElement, (participants.get(sourceElement) ?? 0) + 1);
-      sources.set(element, sourceElement);
       const unregister = registerDropTarget<TData, TData>(element, () => {
         const participant = getParticipant();
         const config = getProps();
         return {
           [resolveCollision]: (
             record: DropTargetRecord<TData>,
-            context: { input: DragInput; source: DragSource },
+            context: { source: DragSource },
           ) => {
             if (sourceElement === context.source.element || snapshots.has(record)) {
               return;
             }
-            const horizontal = config.orientation === 'horizontal';
-            const input = context.input;
-            const last = lastInput.current ?? input;
-            const delta = horizontal ? input.clientX - last.clientX : input.clientY - last.clientY;
-            if (
-              config.placement === 'direction' &&
-              delta === 0 &&
-              previous.current?.target.element !== element
-            ) {
-              return;
-            }
-            let placement: 'before' | 'after';
-            if (
-              config.placement === 'direction' &&
-              delta === 0 &&
-              previous.current?.target.element === element
-            ) {
-              placement = previous.current.placement;
-            } else {
-              const point =
-                config.placement === 'direction' && delta !== 0 ? null : record.getLocalPoint();
-              let after = point ? (horizontal ? point.x : point.y) > 0.5 : delta > 0;
-              if (horizontal) {
-                let rtl = rtlCache.current.get(element);
-                if (rtl === undefined) {
-                  rtl = isRtlElement(element);
-                  rtlCache.current.set(element, rtl);
-                }
-                if (rtl) {
-                  after = !after;
-                }
-              }
-              placement = after ? 'after' : 'before';
-            }
-            snapshots.set(record, { target: record, placement });
+            // Freeze both the geometry and dynamic snap steps before source or target
+            // callbacks can reorder items. The readers memoize these values per record.
+            record.getLocalPoint();
+            record.getSnappedLocalPoint();
+            snapshots.set(record, { target: record });
           },
+          snap: participant.snap,
           kind: targetKind,
           accept: config.kind,
           payload: participant.payload as TData,
@@ -146,90 +125,76 @@ export function DraggableCollisionProvider<TData>(
     },
   );
 
+  // `targetKind` is unique to this provider, so a matching record is one of its
+  // participants; the source's own participant never captures a snapshot.
   const resolve = (
-    event: BaseDragEvent<TData>,
     target: DropTargetRecord | null | undefined,
-  ): DraggableCollision<TData> | null => {
-    if (
-      !target ||
-      !sources.has(target.element) ||
-      !targetKind.matches(target) ||
-      sources.get(target.element) === event.source.element
-    ) {
-      return null;
+  ): DraggableCollision<TData> | null =>
+    target && targetKind.matches(target) ? (snapshots.get(target) ?? null) : null;
+
+  const markInvolved = () => {
+    if (involvedRef.current) {
+      return;
     }
-    return snapshots.get(target) ?? null;
+    involvedRef.current = true;
+    const start = pendingStart.current;
+    pendingStart.current = null;
+    if (start) {
+      props.onMoveStart?.(start.event, start.details);
+    }
   };
 
   const update = (event: BaseDragEvent<TData>, details: DropTargetChangeEventDetails) => {
-    const collision = resolve(event, event.location.current.dropTargets[0]);
+    const collision = resolve(event.location.current.dropTargets[0]);
     if (collision) {
-      involvedRef.current = true;
+      markInvolved();
+      // The replayed start callback can cancel this drag synchronously.
+      if (dragSessionStore.state?.source !== event.source) {
+        return;
+      }
     }
-    lastInput.current = event.location.current.input;
-    const last = previous.current;
-    const changed =
-      collision?.target.element !== last?.target.element ||
-      !Object.is(
-        collision &&
-          (props.getItemId ? props.getItemId(collision.target.payload) : collision.target.payload),
-        last && (props.getItemId ? props.getItemId(last.target.payload) : last.target.payload),
-      ) ||
-      collision?.placement !== last?.placement;
+    const previousCollision = previous.current;
+    // Target changes and movement can dispatch the same resolved record. Deliver
+    // it once, but report every new sample within a participant and the first leave.
+    if (collision === previousCollision) {
+      return;
+    }
     previous.current = collision;
-    if (changed) {
-      if (last) {
-        last.target.element.removeAttribute(`data-collision-${last.placement}`);
-      }
-      if (collision) {
-        collision.target.element.setAttribute(`data-collision-${collision.placement}`, '');
-      }
-      props.onCollisionChange?.({ ...event, collision }, details);
-    }
+    props.onCollisionChange?.({ ...event, collision, previousCollision }, details);
   };
 
   const getMonitor = useStableCallback(() => ({
     accept: props.kind,
     onMoveStart(event: BaseDragEvent<TData>, details: MoveStartEventDetails) {
       previous.current = null;
-      lastInput.current = event.location.current.input;
-      rtlCache.current = new WeakMap();
       involvedRef.current =
         participants.has(event.source.element) || removedSource.current === event.source;
       removedSource.current = null;
+      pendingStart.current = null;
       if (involvedRef.current) {
         props.onMoveStart?.(event, details);
+      } else {
+        pendingStart.current = { event, details };
       }
     },
     onMove: update,
     onTargetChange: update,
     onMoveEnd(event: MoveEndEvent<TData>, details: MoveEndEventDetails) {
-      const collision = resolve(event, event.dropTarget);
-      if (previous.current) {
-        previous.current.target.element.removeAttribute(
-          `data-collision-${previous.current.placement}`,
-        );
+      const collision = resolve(event.dropTarget);
+      const previousCollision = previous.current;
+      if (collision) {
+        markInvolved();
       }
-      const involved = involvedRef.current || collision;
+      const involved = involvedRef.current;
       involvedRef.current = false;
+      pendingStart.current = null;
       previous.current = null;
       if (involved) {
-        props.onMoveEnd?.({ ...event, collision }, details);
+        props.onMoveEnd?.({ ...event, collision, previousCollision }, details);
       }
     },
   }));
-  useIsoLayoutEffect(() => {
-    const unregister = registerMonitor(getMonitor);
-    return () => {
-      unregister();
-      if (previous.current) {
-        previous.current.target.element.removeAttribute(
-          `data-collision-${previous.current.placement}`,
-        );
-        previous.current = null;
-      }
-    };
-  }, [getMonitor]);
+  useIsoLayoutEffect(() => registerMonitor(getMonitor), [getMonitor]);
 
   const firstParameterEffect = React.useRef(true);
   useIsoLayoutEffect(() => {
@@ -238,7 +203,7 @@ export function DraggableCollisionProvider<TData>(
     } else if (dragSourceStore.state && props.kind.matches(dragSourceStore.state)) {
       scheduleDropTargetParameterRefresh();
     }
-  }, [props.kind, props.canCollide, props.orientation, props.placement]);
+  }, [props.kind, props.canCollide]);
 
   const context = React.useMemo(
     () => ({ register, kind: props.kind, parent }),
@@ -253,24 +218,30 @@ export function DraggableCollisionProvider<TData>(
 
 export interface DraggableCollisionProviderProps<TData = unknown> {
   children?: React.ReactNode | undefined;
-  /** The kind shared by this group's participants and incoming sources. */
+  /** The kind of draggable items in this group. Pass the same kind to each `Draggable.Root`. */
   kind: DragKind<TData>;
-  /** Returns a stable identity when participant payloads are recreated, such as inline objects. */
-  getItemId?: ((payload: TData) => string | number) | undefined;
-  /** The list's reading axis. @default 'vertical' */
-  orientation?: 'vertical' | 'horizontal' | undefined;
-  /** Resolve insertion by the item midpoint or pointer travel direction. @default 'midpoint' */
-  placement?: 'midpoint' | 'direction' | undefined;
-  /** Excludes a destination, or rejects the entire target stack with 'reject'. */
+  /**
+   * Whether the dragged item can be dropped on an item in this group.
+   * Return `false` to skip the item, or `'reject'` to reject the drop entirely.
+   */
   canCollide?:
     ((context: { source: DragSource<TData>; target: TData }) => boolean | 'reject') | undefined;
-  /** Called when a descendant participant starts moving. */
+  /**
+   * Called when an item in this group starts dragging, or a dragged item first enters the group.
+   * The event describes the start of the drag, including when it started outside the group.
+   */
   onMoveStart?: ((event: BaseDragEvent<TData>, details: MoveStartEventDetails) => void) | undefined;
-  /** Called when the destination or insertion side changes, including leaving the group. */
+  /**
+   * Called as the pointer moves over items or leaves them.
+   * Compare the position computed from `collision` and `previousCollision` to skip unchanged updates.
+   */
   onCollisionChange?:
     | ((event: DraggableCollisionEvent<TData>, details: DropTargetChangeEventDetails) => void)
     | undefined;
-  /** Called when a drag involving this group ends. Use the reason and final collision to commit. */
+  /**
+   * Called when a drag that started in or entered this group ends.
+   * Use `collision` to apply the final position, or `canceled` to restore the original order.
+   */
   onMoveEnd?:
     ((event: DraggableCollisionEndEvent<TData>, details: MoveEndEventDetails) => void) | undefined;
 }

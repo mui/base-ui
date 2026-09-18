@@ -22,7 +22,7 @@ function ChartIcon() {
 
 function ChartLayer() {
   return (
-    <Draggable.Root kind={layerKind} role="button" className={styles.Layer}>
+    <Draggable.Root kind={layerKind} className={styles.Layer}>
       <ChartIcon />
       Chart
     </Draggable.Root>

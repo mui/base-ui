@@ -34,7 +34,7 @@ function ShapePiece({
       ref={elementRef}
       className={styles.Piece}
       data-shape={shape.id}
-      role="button"
+      role="img"
       aria-label={shape.label}
     />
   );

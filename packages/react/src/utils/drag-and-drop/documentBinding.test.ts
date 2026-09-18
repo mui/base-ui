@@ -62,6 +62,43 @@ function callsOfType(spy: { mock: { calls: unknown[][] } }, type: 'pointerdown')
 describe('documentBinding', () => {
   const { renderDnd } = createDndRenderer();
 
+  it.each(['open', 'closed'] as const)(
+    'picks up inside a closed root nested in an %s root',
+    async (mode) => {
+      const { engine } = await renderDnd();
+      const host = document.createElement('div');
+      document.body.appendChild(host);
+      registerCleanup(() => host.remove());
+      const outer = host.attachShadow({ mode });
+      const sibling = document.createElement('div');
+      const innerHost = document.createElement('div');
+      outer.append(sibling, innerHost);
+      const inner = innerHost.attachShadow({ mode: 'closed' });
+      const source = document.createElement('div');
+      inner.appendChild(source);
+      const onMoveStart = vi.fn();
+      engine.registerDraggable(sibling, {});
+      engine.registerDraggable(source, { activation: { type: 'immediate' }, onMoveStart });
+      act(() => {
+        source.dispatchEvent(
+          new PointerEvent('pointerdown', {
+            bubbles: true,
+            composed: true,
+            button: 0,
+            buttons: 1,
+            pointerId: 1,
+            pointerType: 'mouse',
+            clientX: 10,
+            clientY: 10,
+          }),
+        );
+      });
+      expect(onMoveStart).toHaveBeenCalledTimes(1);
+      expect(onMoveStart.mock.calls[0][0].source.element).toBe(source);
+      engine.cancelDrag();
+    },
+  );
+
   it('pointer pickup works for a draggable registered in an iframe document', async () => {
     const { engine } = await renderDnd();
     const { doc } = createIframeRealm();

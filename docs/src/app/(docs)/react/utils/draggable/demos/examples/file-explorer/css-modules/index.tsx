@@ -17,12 +17,12 @@ import styles from '../../file-explorer.module.css';
 
 const nodeKind = Draggable.createKind<string>('file-explorer-node');
 
-function useKeyboardControls(onOpen?: () => void) {
+function useKeyboardControls(onOpen: () => void) {
   return useStableCallback((event: React.KeyboardEvent<HTMLElement>) => {
     const hasModifier = event.altKey || event.ctrlKey || event.metaKey || event.shiftKey;
     const isSpace = event.key === ' ' || event.key === 'Space' || event.key === 'Spacebar';
     const isActivationKey = isSpace || event.code === 'Space' || event.key === 'Enter';
-    if (!hasModifier && isActivationKey && onOpen) {
+    if (!hasModifier && isActivationKey) {
       event.preventDefault();
       onOpen();
     }
@@ -99,10 +99,8 @@ function FolderTile({
     <Draggable.Root
       kind={nodeKind}
       payload={node.id}
-      // Arrow keys hop between accepting targets only: in a grid, free space is
-      // never a valid position.
-
       role="button"
+      tabIndex={0}
       className={styles.Item}
       onClick={() => onOpen(node.id)}
       onKeyDownCapture={handleKeyDown}
@@ -124,16 +122,8 @@ function FolderTile({
 }
 
 function FileTile({ node }: { node: FileNode }) {
-  const handleKeyDown = useKeyboardControls();
-
   return (
-    <Draggable.Root
-      kind={nodeKind}
-      payload={node.id}
-      role="button"
-      className={styles.Item}
-      onKeyDownCapture={handleKeyDown}
-    >
+    <Draggable.Root kind={nodeKind} payload={node.id} tabIndex={0} className={styles.Item}>
       <FileIcon className={styles.Icon} />
       <span className={styles.Label}>{node.name}</span>
       <NodePreview node={node} />
@@ -180,10 +170,17 @@ function Crumb({
 export default function FileExplorer() {
   const [nodes, setNodes] = React.useState<FileSystem>(INITIAL_NODES);
   const [currentFolderId, setCurrentFolderId] = React.useState('home');
+  const [selectedId, setSelectedId] = React.useState('budget');
+  const [destinationId, setDestinationId] = React.useState('archive');
+  const [announcement, setAnnouncement] = React.useState('');
 
-  // Moving a node is a single parent change; `canDrop` already vetted it.
+  // Validate moves from both drag interactions and the move controls.
   const moveNode = useStableCallback((sourceId: string, folderId: string) => {
+    if (!canDropInto(nodes, folderId, sourceId)) {
+      return;
+    }
     setNodes((prev) => ({ ...prev, [sourceId]: { ...prev[sourceId], parentId: folderId } }));
+    setAnnouncement(`${nodes[sourceId].name} moved to ${nodes[folderId].name}.`);
   });
 
   const path = getPath(nodes, currentFolderId);
@@ -192,8 +189,55 @@ export default function FileExplorer() {
   return (
     // Custom preview content renders beside the provider's children.
     <Draggable.Provider>
-      <DragPageAutoScroll />
+      <DragPageAutoScroll accept={nodeKind} />
       <div className={styles.Root}>
+        <form
+          onSubmit={(event) => {
+            event.preventDefault();
+            moveNode(selectedId, destinationId);
+          }}
+        >
+          <fieldset>
+            <legend>Move an item</legend>
+            <label>
+              Item{' '}
+              <select value={selectedId} onChange={(event) => setSelectedId(event.target.value)}>
+                {Object.values(nodes)
+                  .filter((node) => node.parentId !== null)
+                  .map((node) => (
+                    <option key={node.id} value={node.id}>
+                      {node.name}
+                    </option>
+                  ))}
+              </select>
+            </label>{' '}
+            <label>
+              Destination{' '}
+              <select
+                value={destinationId}
+                onChange={(event) => setDestinationId(event.target.value)}
+              >
+                {Object.values(nodes)
+                  .filter((node) => node.type === 'folder')
+                  .map((node) => (
+                    <option
+                      key={node.id}
+                      value={node.id}
+                      disabled={!canDropInto(nodes, node.id, selectedId)}
+                    >
+                      {getPath(nodes, node.id)
+                        .map((folder) => folder.name)
+                        .join(' / ')}
+                    </option>
+                  ))}
+              </select>
+            </label>{' '}
+            <button type="submit" aria-disabled={!canDropInto(nodes, destinationId, selectedId)}>
+              Move item
+            </button>
+          </fieldset>
+        </form>
+        <div role="status">{announcement}</div>
         <nav aria-label="Breadcrumb" className={styles.Breadcrumb}>
           {path.map((folder, index) => (
             <React.Fragment key={folder.id}>

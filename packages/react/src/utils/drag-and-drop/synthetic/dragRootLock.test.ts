@@ -1,3 +1,4 @@
+import { isJSDOM } from '#test-utils';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import * as dragRootLock from './dragRootLock';
 
@@ -64,6 +65,15 @@ describe('dragRootLock', () => {
 
     expect(root.style.touchAction).toBe('pan-y');
     expect(root.style.userSelect).toBe('text');
+  });
+
+  it.skipIf(isJSDOM)('restores inline priorities after unlocking', () => {
+    const root = document.documentElement;
+    root.style.setProperty('user-select', 'text', 'important');
+    dragRootLock.lock(document.body);
+    dragRootLock.unlock();
+    expect(root.style.getPropertyValue('user-select')).toBe('text');
+    expect(root.style.getPropertyPriority('user-select')).toBe('important');
   });
 
   it('ignores a repeated lock while the single pointer session holds it', () => {

@@ -61,9 +61,9 @@ export function CalendarWeekView(props: { weekStartMs: number }) {
       <WeekHeader days={days} todayMs={todayMs} />
       <WeekAllDayRow days={days} events={allDayEvents} weekStartMs={weekStartMs} />
       <Draggable.Viewport
-        onDragScroll={(event, { direction }) => {
+        onDragScroll={({ direction }, eventDetails) => {
           if (direction !== 'vertical') {
-            event.preventDefault();
+            eventDetails.cancel();
           }
         }}
         className={styles.weekScroll}

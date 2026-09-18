@@ -49,6 +49,7 @@ export type {
   AcceptedDragPayload,
   AnyDragAccept,
   DragAccept,
+  DragAcceptedKind,
   DragCleanupFn,
   DragHandle,
   DragKind,

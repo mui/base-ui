@@ -108,9 +108,6 @@ export interface DropTargetRecord<TLocalData = unknown> {
    * />
    * ```
    *
-   * The first call measures the target. Later calls on the same record reuse the
-   * measurement. Records are rebuilt on every move.
-   *
    * Not clamped: an ancestor in the stack can have the pointer outside its own box, so
    * clamp where the domain requires it. Both axes report `0` for a target with no extent,
    * including one detached since the drag began.
@@ -133,7 +130,6 @@ export interface DropTargetRecord<TLocalData = unknown> {
    *
    * Pass `{ anchor: 'source' }` to snap the dragged element's leading edges instead
    * of the pointer. An axis without declared steps returns its clamped raw fraction.
-   * This method shares the measurement from `getLocalPoint()`.
    */
   getSnappedLocalPoint: (options?: DragSnappedLocalPointOptions) => DragLocalPoint;
 }
@@ -168,9 +164,8 @@ export interface DragLocationHistory {
  * The drag source carried with every event.
  * Survives the original element being unmounted, for example by a virtualizer.
  *
- * Every source in this event family is a registered Base UI draggable.
- * Native and external OS drags, which may have no source element, are outside
- * this contract and would use a separate adapter and event family.
+ * Describes Base UI drags. Native browser drags and files dragged from the operating
+ * system are not supported.
  */
 export interface DragSource<TData = unknown> {
   /** The draggable's own DOM element. */
@@ -189,14 +184,20 @@ export interface DragSource<TData = unknown> {
   payload: TData;
 }
 
+declare class DragKindPayload<TPayload> {
+  private payload: (payload: TPayload) => TPayload;
+}
+
 /**
  * A kind of draggable item or drop target, created with `Draggable.createKind` or
  * `Draggable.createGlobalKind`.
  *
  * `TPayload` is the data things of this kind carry, so declaring it once on the kind
  * types `source.payload` and `target.payload` everywhere the kind is used.
+ * A kind cannot be widened to publish a different payload type. Use `DragAcceptedKind`
+ * when storing kinds only for observation.
  */
-export interface DragKind<TPayload = unknown> {
+export interface DragKind<in out TPayload = unknown> extends DragKindPayload<TPayload> {
   /**
    * The name or global key used to create this kind. This is a debugging aid,
    * not an accessible name.
@@ -204,7 +205,7 @@ export interface DragKind<TPayload = unknown> {
   readonly name: string;
   /**
    * The kind's runtime identity. `createKind` creates a fresh symbol for each call;
-   * `createGlobalKind` interns it on the namespaced key.
+   * `createGlobalKind` returns the same symbol for calls with the same key.
    */
   readonly id: symbol;
   /**
@@ -221,13 +222,20 @@ export interface DragKind<TPayload = unknown> {
  * One or more drag kinds accepted by a drop target or monitor. The accepted kinds
  * determine the type of `source.payload`.
  */
-export type DragAccept<TPayload> = DragKind<TPayload> | ReadonlyArray<DragKind<TPayload>>;
+export type DragAccept<TPayload> =
+  DragAcceptedKind<TPayload> | ReadonlyArray<DragAcceptedKind<TPayload>>;
+
+/** A kind used to observe payloads, without declaring data under that kind. */
+export type DragAcceptedKind<TPayload = unknown> = Pick<
+  DragKind<TPayload>,
+  'name' | 'id' | 'matches'
+>;
 
 /**
  * A drag kind or array of kinds accepted by generic registration APIs.
  * @public
  */
-export type AnyDragAccept = DragKind<unknown> | ReadonlyArray<DragKind<unknown>>;
+export type AnyDragAccept = DragAccept<unknown>;
 
 /**
  * The payload type declared by `accept`. An array produces a union, and an omitted
@@ -237,10 +245,10 @@ export type AnyDragAccept = DragKind<unknown> | ReadonlyArray<DragKind<unknown>>
 // Distributive on purpose, so both the array entries and an `accept` that is itself a
 // union (a wrapper forwarding `DragAccept<T>`) resolve to the union of their payloads.
 export type AcceptedDragPayload<TAccept> =
-  TAccept extends DragKind<infer TPayload>
+  TAccept extends DragAcceptedKind<infer TPayload>
     ? TPayload
     : TAccept extends ReadonlyArray<infer TKind>
-      ? TKind extends DragKind<infer TPayload>
+      ? TKind extends DragAcceptedKind<infer TPayload>
         ? TPayload
         : never
       : unknown;
@@ -368,7 +376,9 @@ export type DropTargetEvent<
   K extends keyof DropTargetEventMap,
   TSourceData = unknown,
   TLocalData = unknown,
-> = DropTargetEventMap<TSourceData>[K] & DropTargetEventTarget<TLocalData>;
+> = K extends 'onDraggableDrop'
+  ? DropEvent<TSourceData, TLocalData>
+  : DropTargetEventMap<TSourceData>[K] & DropTargetEventTarget<TLocalData>;
 
 /** Context passed to a draggable's `getPayload` and `onBeforeMoveStart` callbacks. */
 export interface MoveStartContext {
@@ -398,32 +408,36 @@ export type DraggablePayloadGetter<TData> = (context: MoveStartContext) => NoInf
  */
 export type DragHandle = Element | { current: Element | null } | (() => Element | null | undefined);
 
-/** Why a drag pickup started. */
-export type DragStartReason = 'pointer';
+/**
+ * Why a drag pickup started: a pointer press that met its activation, or a
+ * double-click (mouse) or double-tap (touch, pen) on a source with `double-click`
+ * activation.
+ */
+export type DragStartReason = 'pointer' | 'double-click';
 
 /** Why a drag movement frame ran: pointer activity or a modifier-key change. */
-export type DragMoveReason = DragStartReason | 'modifier-key';
+export type DragMoveReason = 'pointer' | 'modifier-key';
 
 type DragReasonToEvent<TReason extends string> = TReason extends 'pointer'
-  ? PointerEvent | MouseEvent
-  : TReason extends 'modifier-key' | 'escape-key' | 'tab-key'
-    ? KeyboardEvent
-    : TReason extends 'pointer-canceled' | 'capture-lost' | 'missed-release'
-      ? PointerEvent
-      : TReason extends 'window-blur'
-        ? FocusEvent
-        : TReason extends 'drop' | 'outside-release'
-          ? PointerEvent | MouseEvent
-          : Event;
+  ? PointerEvent
+  : TReason extends 'double-click'
+    ? MouseEvent | PointerEvent
+    : TReason extends 'modifier-key' | 'escape-key' | 'tab-key'
+      ? KeyboardEvent
+      : TReason extends 'pointer-canceled' | 'capture-lost' | 'missed-release'
+        ? PointerEvent
+        : TReason extends 'window-blur'
+          ? FocusEvent
+          : TReason extends 'drop' | 'outside-release'
+            ? PointerEvent | MouseEvent
+            : Event;
 
 /** The event details passed to `onBeforeMoveStart`. Call `cancel()` to prevent the drag. */
 export type BeforeMoveStartEventDetails = {
   [TReason in DragStartReason]: {
-    /** How the draggable was picked up. */
-    activation: 'pointer' | 'double-click';
-    /** Why the pickup started. */
+    /** Why the pickup started: a pointer press, or a double-click / double-tap. */
     reason: TReason;
-    /** The pointer event that attempted the pickup. */
+    /** The pointer or mouse event that attempted the pickup. */
     event: DragReasonToEvent<TReason>;
     /** Prevents the drag from starting. */
     cancel: () => void;
@@ -486,7 +500,7 @@ export type DragDropReason = Extract<DragCompletedReason, 'drop'>;
  * Why the hovered drop targets changed: pointer activity, a modifier-key change,
  * or the drag ending and releasing its targets.
  */
-export type DropTargetChangeReason = DragMoveReason | DragEndReason;
+export type DropTargetChangeReason = DragStartReason | DragMoveReason | DragEndReason;
 
 /**
  * The details of a drag event, passed as the second argument to every handler.
@@ -578,9 +592,10 @@ export interface DragModifierContext {
   /** The same measure when the drag began, the reference an axis lock or grid snaps against. */
   initialPoint: DragPosition;
   /**
-   * The cursor this frame, in client coordinates. Identical to `point` on
-   * `Draggable.Root`; on a preview part it stays the cursor while `point` is the
-   * preview's proposed top-left.
+   * The pointer position before this modifier chain, in client coordinates.
+   * On a root this is the original pointer position; on a preview it already
+   * includes root modifiers. `point` includes preceding modifiers in this chain
+   * and, on a preview, represents its proposed top-left.
    */
   input: DragPosition;
   /** The drag source element. */
@@ -588,11 +603,12 @@ export interface DragModifierContext {
   /** The source element's bounding rect at drag start. */
   sourceRect: DOMRect;
   /**
-   * The scale applied to the source by CSS `transform` or `zoom`, measured at drag
-   * start across the source and its ancestors.
+   * The scale applied by CSS `transform` or `zoom`, including ancestor scaling.
+   * Root modifiers use the source's scale at pickup. Preview modifiers use the
+   * preview's scale when it first renders.
    *
-   * The value is `1` when the source is not scaled. A rotation alone does not change
-   * it. On a zoomable canvas, multiply a distance in canvas coordinates by this value
+   * The value is `1` when the corresponding element is not scaled. A rotation alone
+   * does not change it. On a zoomable canvas, multiply a distance in canvas coordinates by this value
    * to convert it to client pixels. The `snapToGrid` preset does this automatically.
    */
   scale: DragPosition;
@@ -671,14 +687,13 @@ export interface DragPreviewSettings {
    * Pass a container to keep structural selectors such as `:nth-child` and
    * `:last-child` unchanged, or to keep the preview mounted if the source subtree
    * unmounts. CSS selectors based on the source's ancestors may no longer match.
-   * `Draggable.Provider` can set the container for a whole subtree.
    */
   container?: DragPreviewContainer | undefined;
 }
 
 /**
  * The drag preview of a source registered imperatively.
- * Omit it to use a sanitized clone of the source. The clone preserves classes
+ * Omit it to use a clone of the source. The clone preserves classes
  * and live element state, but rewrites IDs to keep the document unique.
  *
  * Components describe the preview with `Draggable.Preview` instead.

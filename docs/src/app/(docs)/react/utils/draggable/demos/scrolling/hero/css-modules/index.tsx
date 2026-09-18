@@ -2,6 +2,7 @@
 import { Draggable } from '@base-ui/react/draggable';
 
 import * as React from 'react';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { DragPageAutoScroll } from '../../../DragPageAutoScroll';
 
 import styles from '../../hero.module.css';
@@ -104,21 +105,14 @@ function Grip() {
 }
 
 function Card({ task, draggable }: { task: Task; draggable?: boolean }) {
-  if (!draggable) {
-    return (
-      <div data-card className={styles.Card}>
-        <Grip />
-        {task.label}
-      </div>
-    );
-  }
   return (
     <Draggable.Root
       kind={taskKind}
       payload={task}
+      previewKey={task.id}
+      disabled={!draggable}
       data-card
       data-id={task.id}
-      role="button"
       className={styles.Card}
     >
       <Grip />
@@ -211,13 +205,15 @@ function AutoScrollBoardContent() {
 
   // The drop can land the card outside the visible window, since the list
   // reflows around it. Reveal it so the insertion is never invisible.
-  React.useEffect(() => {
+  useIsoLayoutEffect(() => {
     const id = droppedIdRef.current;
     if (id == null) {
       return;
     }
     droppedIdRef.current = null;
-    rootRef.current?.querySelector(`[data-id="${id}"]`)?.scrollIntoView({ block: 'nearest' });
+    rootRef.current
+      ?.querySelector(`[data-id="${id}"]:not([data-drag-preview])`)
+      ?.scrollIntoView({ block: 'nearest' });
   }, [tasks]);
 
   return (
@@ -226,11 +222,11 @@ function AutoScrollBoardContent() {
       {/* @highlight-end */}
       <div ref={rootRef} className={styles.Root}>
         <p className={styles.Hint}>
-          Drag the card into either list, at the slot you want. The provider enables both; only the
-          second list configures its region.
+          Drag the card into either list, at the slot you want. Both lists scroll near their edges;
+          the second list scrolls more slowly.
         </p>
         <div className={styles.Tray}>
-          <Card task={pending} draggable />
+          <Card key={pending.id} task={pending} draggable />
         </div>
         <div className={styles.Columns}>
           <DropZone
@@ -253,7 +249,7 @@ function AutoScrollBoardContent() {
 export default function AutoScrollBoard() {
   return (
     <Draggable.Provider>
-      <DragPageAutoScroll />
+      <DragPageAutoScroll accept={taskKind} />
       <AutoScrollBoardContent />
     </Draggable.Provider>
   );

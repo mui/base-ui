@@ -130,7 +130,7 @@ export function elementFromPointIgnoring(
  * Whether a document's browsing context is gone — its iframe was removed, or
  * its popout window closed. A drag session living in such a document can never
  * receive a terminating event (every teardown listener lived in the dead
- * realm), so the sensors use this to target-heal instead of refusing every
+ * realm), so the sensors use this to self-heal instead of refusing every
  * future pickup. Deliberately not element connectivity: a virtualizer detaches
  * the dragged node mid-drag while its document stays perfectly alive.
  */
@@ -390,6 +390,19 @@ function usableScale(value: number): number {
   return Number.isFinite(value) && value > 0 ? value : 1;
 }
 
+/** CSS zoom remains cumulative even when a preview enters the top layer. */
+export function getElementZoom(element: HTMLElement): number {
+  const win = ownerWindow(element);
+  let zoom = 1;
+  for (let node: Element | null = element; node; node = getComposedParentElement(node)) {
+    const value = Number.parseFloat(win.getComputedStyle(node).zoom);
+    if (Number.isFinite(value) && value > 0) {
+      zoom *= value;
+    }
+  }
+  return zoom;
+}
+
 /**
  * The scale a CSS transform (or a `zoom`) applies to `element`, accumulated over the element
  * and every ancestor — a zoomable canvas, a scaled preview container.
@@ -408,6 +421,7 @@ export function getElementScale(element: HTMLElement, includeZoom = true): DragP
   let matrix = identityLinearTransform;
   let zoom = 1;
   let node: Element | null = element;
+  let escapedTransforms = false;
 
   while (node) {
     const style = win.getComputedStyle(node);
@@ -417,15 +431,15 @@ export function getElementScale(element: HTMLElement, includeZoom = true): DragP
     // but it reorients which axis an ancestor's scale lands on, so leaving it out of the
     // matrix would swap the axes under a non-uniform ancestor scale. Only `translate` can
     // be ignored. Order within an element is `rotate`, then `scale`, then `transform`.
-    const own = parseComputedLinearTransform(style.transform);
+    const own = escapedTransforms ? null : parseComputedLinearTransform(style.transform);
     if (own) {
       matrix = multiplyLinearTransforms(own, matrix);
     }
-    const scaleLonghand = parseScaleLinearTransform(style.scale);
+    const scaleLonghand = escapedTransforms ? null : parseScaleLinearTransform(style.scale);
     if (scaleLonghand) {
       matrix = multiplyLinearTransforms(scaleLonghand, matrix);
     }
-    const rotateLonghand = parseRotateLinearTransform(style.rotate);
+    const rotateLonghand = escapedTransforms ? null : parseRotateLinearTransform(style.rotate);
     if (rotateLonghand) {
       matrix = multiplyLinearTransforms(rotateLonghand, matrix);
     }
@@ -434,6 +448,9 @@ export function getElementScale(element: HTMLElement, includeZoom = true): DragP
     const elementZoom = Number.parseFloat(style.zoom || (node as HTMLElement).style?.zoom || '');
     if (includeZoom && Number.isFinite(elementZoom) && elementZoom > 0) {
       zoom *= elementZoom;
+    }
+    if (node.hasAttribute('popover') && node.matches(':popover-open')) {
+      escapedTransforms = true;
     }
     node = getComposedParentElement(node);
   }

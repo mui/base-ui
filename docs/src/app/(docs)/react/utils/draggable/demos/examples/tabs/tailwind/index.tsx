@@ -6,7 +6,11 @@ import {
 } from '@base-ui/react/draggable';
 
 import * as React from 'react';
+import { getHorizontalCollisionAfter } from 'docs/src/utils/getHorizontalCollisionAfter';
 import { Tabs } from '@base-ui/react/tabs';
+import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { activeElement } from '@base-ui/utils/shadowDom';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { DragPageAutoScroll } from '../../../DragPageAutoScroll';
 
@@ -194,6 +198,22 @@ function DraggableTabsContent() {
   const [selectedValue, setSelectedValue] = React.useState<string | null>('overview');
   const nextTabNumber = React.useRef(1);
   const listRef = React.useRef<HTMLDivElement>(null);
+  const addButtonRef = React.useRef<HTMLButtonElement>(null);
+  const focusAfterClose = React.useRef<number | null>(null);
+  const focusFrame = useAnimationFrame();
+  useIsoLayoutEffect(() => {
+    const index = focusAfterClose.current;
+    if (index === null) {
+      return;
+    }
+    focusAfterClose.current = null;
+    // Let the composite finish updating item indexes before focusing a tab.
+    focusFrame.request(() => {
+      const tabs = listRef.current?.querySelectorAll<HTMLElement>('[role="tab"]');
+      const target = tabs?.[Math.min(index, tabs.length - 1)] ?? addButtonRef.current;
+      target?.focus();
+    });
+  }, [items, focusFrame]);
   const orderBeforeDrag = React.useRef<TabItem[] | null>(null);
 
   const handleValueChange = useStableCallback((value: Tabs.Tab.Value) => {
@@ -227,6 +247,10 @@ function DraggableTabsContent() {
   const handleClose = useStableCallback((id: string) => {
     const closingIndex = items.findIndex((item) => item.id === id);
     const nextItems = items.filter((item) => item.id !== id);
+    const closingTab = listRef.current?.querySelectorAll('[role="tab"]')[closingIndex];
+    if (closingTab && activeElement(closingTab.ownerDocument) === closingTab) {
+      focusAfterClose.current = closingIndex;
+    }
     setItems(nextItems);
 
     if (selectedValue === id) {
@@ -279,9 +303,9 @@ function DraggableTabsContent() {
               trackDragOver={false}
               render={
                 <Draggable.Viewport
-                  onDragScroll={(event, { direction }) => {
+                  onDragScroll={({ direction }, eventDetails) => {
                     if (direction !== 'horizontal') {
-                      event.preventDefault();
+                      eventDetails.cancel();
                     }
                   }}
                 />
@@ -291,13 +315,21 @@ function DraggableTabsContent() {
         >
           <Draggable.CollisionProvider
             kind={tabKind}
-            orientation="horizontal"
-            onCollisionChange={({ source, collision }) => {
+            onCollisionChange={({ source, collision, previousCollision }) => {
+              if (
+                collision &&
+                previousCollision &&
+                collision.target.payload === previousCollision.target.payload &&
+                getHorizontalCollisionAfter(collision) ===
+                  getHorizontalCollisionAfter(previousCollision)
+              ) {
+                return;
+              }
               if (collision) {
                 handleDragOverTab(
                   source.payload,
                   collision.target.payload,
-                  collision.placement === 'after',
+                  getHorizontalCollisionAfter(collision),
                 );
               }
             }}
@@ -322,6 +354,7 @@ function DraggableTabsContent() {
           type="button"
           onClick={handleAdd}
           aria-label="Add tab"
+          ref={addButtonRef}
         >
           <PlusIcon />
         </button>
@@ -371,7 +404,7 @@ function DraggableTabsContent() {
 export default function DraggableTabs() {
   return (
     <Draggable.Provider>
-      <DragPageAutoScroll />
+      <DragPageAutoScroll accept={tabKind} />
       <DraggableTabsContent />
     </Draggable.Provider>
   );

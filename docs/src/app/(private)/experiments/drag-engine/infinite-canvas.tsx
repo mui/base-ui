@@ -173,10 +173,10 @@ function InfiniteCanvasContent() {
 
       <Draggable.Viewport
         accept={noteKind}
-        onDragScroll={(event, details) => {
-          event.preventDefault();
+        onDragScroll={(details, eventDetails) => {
+          eventDetails.cancel();
           applyScroll(details);
-          event.stopPropagation();
+          eventDetails.consume();
         }}
         className={styles.viewport}
         aria-label="Canvas"
@@ -241,7 +241,7 @@ function InfiniteCanvasContent() {
 export default function InfiniteCanvas() {
   return (
     <Draggable.Provider>
-      <DragPageAutoScroll />
+      <DragPageAutoScroll accept={noteKind} />
       <InfiniteCanvasContent />
     </Draggable.Provider>
   );

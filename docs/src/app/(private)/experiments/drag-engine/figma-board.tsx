@@ -101,7 +101,7 @@ const INITIAL_CARDS: Card[] = [
 export default function FigmaBoard() {
   return (
     <Draggable.Provider>
-      <DragPageAutoScroll />
+      <DragPageAutoScroll accept={cardKind} />
       <FigmaBoardInner />
     </Draggable.Provider>
   );

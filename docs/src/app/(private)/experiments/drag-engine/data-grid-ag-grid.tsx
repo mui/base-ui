@@ -2,6 +2,7 @@
 import { Draggable } from '@base-ui/react/draggable';
 
 import * as React from 'react';
+import { getHorizontalCollisionAfter } from 'docs/src/utils/getHorizontalCollisionAfter';
 import clsx from 'clsx';
 import { Menu } from '@base-ui/react/menu';
 import { DragPageAutoScroll } from '../../../(docs)/react/utils/draggable/demos/DragPageAutoScroll';
@@ -178,7 +179,7 @@ function ColumnHeader({
   boundaryRef: React.RefObject<HTMLDivElement | null>;
 }) {
   // The same header is also a drop target: the moment the dragged column crosses
-  // this one's near edge, the collision provider shifts it into place.
+  // this one's near edge, the collision handler shifts it into place.
   return (
     <div className={styles.headerCell} style={{ width: column.width }}>
       {/* Grab anywhere on the label area (no `Draggable.Handle`). The menu button is
@@ -373,10 +374,10 @@ function DataGridInner() {
           // horizontally. The viewport scrolls on both axes, so without this a
           // column dragged near the top edge would also scroll the rows away
           // under it.
-          onDragScroll={(event, { direction, source: dragged }) => {
+          onDragScroll={({ direction, source: dragged }, eventDetails) => {
             const allowedDirection = rowKind.matches(dragged) ? 'vertical' : 'horizontal';
             if (direction !== allowedDirection) {
-              event.preventDefault();
+              eventDetails.cancel();
             }
           }}
           className={styles.viewport}
@@ -396,16 +397,21 @@ function DataGridInner() {
             <div className={styles.columnSpacer} style={{ width: leadingWidth }} />
             <Draggable.CollisionProvider
               kind={columnKind}
-              orientation="horizontal"
-              placement="direction"
-              onCollisionChange={({ source: dragged, collision }) => {
+              onCollisionChange={({ source: dragged, collision, previousCollision, location }) => {
+                const delta = location.current.input.clientX - location.previous.input.clientX;
+                if (
+                  delta === 0 &&
+                  collision?.target.payload === previousCollision?.target.payload
+                ) {
+                  return;
+                }
                 if (collision) {
                   setColumns((current) =>
                     moveById(
                       current,
                       dragged.payload,
                       collision.target.payload,
-                      collision.placement === 'after',
+                      getHorizontalCollisionAfter(collision, delta),
                     ),
                   );
                 }
@@ -425,16 +431,26 @@ function DataGridInner() {
             >
               <Draggable.CollisionProvider
                 kind={rowKind}
-                orientation="vertical"
-                placement="direction"
-                onCollisionChange={({ source: dragged, collision }) => {
+                onCollisionChange={({
+                  source: dragged,
+                  collision,
+                  previousCollision,
+                  location,
+                }) => {
+                  const delta = location.current.input.clientY - location.previous.input.clientY;
+                  if (
+                    delta === 0 &&
+                    collision?.target.payload === previousCollision?.target.payload
+                  ) {
+                    return;
+                  }
                   if (collision) {
                     setRows((current) =>
                       moveById(
                         current,
                         dragged.payload,
                         collision.target.payload,
-                        collision.placement === 'after',
+                        delta ? delta > 0 : collision.target.getLocalPoint().y > 0.5,
                       ),
                     );
                   }
@@ -462,7 +478,7 @@ function DataGridInner() {
 export default function DataGrid() {
   return (
     <Draggable.Provider>
-      <DragPageAutoScroll />
+      <DragPageAutoScroll accept={[columnKind, rowKind]} />
       <DataGridInner />
     </Draggable.Provider>
   );

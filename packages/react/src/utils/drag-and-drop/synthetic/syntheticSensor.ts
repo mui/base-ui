@@ -30,6 +30,7 @@ import * as dragRootLock from './dragRootLock';
 import * as dragCursor from './dragCursor';
 import { suppressNextClick } from './postDragClick';
 import { getSharedSlot } from '../sharedState';
+import { setActivePointerAccessors } from '../activePointer';
 import { createEventRootBinding, type DragEventRoot } from '../documentBinding';
 import type { DraggableConfig } from '../draggable';
 import { getRegistration, resolveDragHandle, resolveDraggablePickup } from '../draggableRegistry';
@@ -72,6 +73,10 @@ interface SyntheticDragState {
   /** At most one of `pending` / `active` is non-null at any time. */
   pending: PendingSession | null;
   active: ActiveSession | null;
+  /** The first tap of a possible touch/pen double-tap (see `recordTap`). */
+  lastTap: TapRecord | null;
+  /** The pointer type of the last `pointerdown` anywhere (see `onDoubleClick`). */
+  lastPointerDownType: DragPointerType | null;
   cleanupContextMenuSuppression: DragCleanupFn | null;
   /** Lets terminal handlers run intentional `.click()` calls before suppression. */
   terminalCallbacksRunning: boolean;
@@ -80,6 +85,8 @@ interface SyntheticDragState {
 const state = getSharedSlot<SyntheticDragState>('syntheticDrag', () => ({
   pending: null,
   active: null,
+  lastTap: null,
+  lastPointerDownType: null,
   cleanupContextMenuSuppression: null,
   terminalCallbacksRunning: false,
 }));
@@ -88,6 +95,21 @@ const handledPointerDownEvents = getSharedSlot<WeakSet<Event>>(
   () => new WeakSet<Event>(),
 );
 const CONTEXT_MENU_SUPPRESSION_MS = 1500;
+
+setActivePointerAccessors({
+  getInput: getRawActivePointerInput,
+  getHitElement: getActiveHitElement,
+  notifyScroll: notifyExternalScroll,
+});
+
+/**
+ * The double-tap window for touch and pen `double-click` activation: the second
+ * `pointerdown` must land this soon after the first, and this close to it.
+ * Touch and pen have no `dblclick` to lean on — browsers synthesize it
+ * inconsistently for a double-tap, if at all — so the sensor pairs the taps.
+ */
+const DOUBLE_TAP_MS = 300;
+const DOUBLE_TAP_TOLERANCE_PX = 25;
 
 /** Cursor pinned across the document during a pointer drag (see `dragCursor`). */
 const DEFAULT_DRAG_CURSOR = 'grabbing';
@@ -216,7 +238,7 @@ type PointerAtTeardown = 'released' | 'held' | 'none';
  * suppression armed at pointerdown is only released on a clean drop: a browser
  * cancellation (`pointercancel`/blur) keeps it armed, because on Android a
  * long-press fires `pointercancel` and *then* the `contextmenu` that must stay
- * suppressed (the 1.5s timer target-heals it).
+ * suppressed (the 1.5s timer self-heals it).
  */
 function clearActive(
   releaseContextMenuSuppression: boolean = false,
@@ -234,7 +256,7 @@ function clearActive(
 
   // The gesture reached the active phase, so the compatibility click that
   // follows the release is the drag's, not a click the user meant.
-  if (pointerAtTeardown !== 'none' && session.activationKind !== 'double-click') {
+  if (pointerAtTeardown !== 'none' && session.heldPointer) {
     suppressNextClick(
       session.element,
       pointerAtTeardown === 'held' ? session.pointerId : undefined,
@@ -426,25 +448,11 @@ function onPointerDown(event: Event): void {
   handledPointerDownEvents.add(event);
   const pointerEvent = event as PointerEvent;
   const pointerType = normalizePointerType(pointerEvent.pointerType);
+  // Read by `onDoubleClick` for a `dblclick` that carries no `pointerType`.
+  state.lastPointerDownType = pointerType;
 
-  if (state.pending || state.active) {
-    // A gesture whose document lost its browsing context (its iframe removed,
-    // its popout closed) can never end on its own — every terminating listener
-    // lived in the dead realm — and would wedge the whole engine shut. Detect
-    // it at the next gesture anywhere, cancel the dead session, and let this
-    // pickup proceed.
-    const session = state.pending ?? state.active;
-    if (!session || !isDetachedDocument(session.element.ownerDocument)) {
-      return;
-    }
-    if (state.pending) {
-      clearPending();
-    } else {
-      cancelActive(undefined, 'document-detached', event);
-    }
-    if (state.pending || state.active) {
-      return;
-    }
+  if (!recoverDetachedSession(event)) {
+    return;
   }
 
   // Reject only when neither signal indicates the primary button: a touch
@@ -491,7 +499,25 @@ function onPointerDown(event: Event): void {
     return;
   }
 
-  const activation = resolveActivation(parameters.activation, pointerType);
+  let activation = resolveActivation(parameters.activation, pointerType);
+  let activationKind: PendingSession['activationKind'] = 'pointer';
+  // Touch and pen double-tap: the second tap on the same source picks it up
+  // while the pointer is still down, and the release drops it. Mouse keeps the
+  // native `dblclick` (see `onDoubleClick`), which follows the pointer with no
+  // button held instead.
+  if (pointerType !== 'mouse' && hasDoubleClickActivation(parameters.activation, pointerType)) {
+    if (isSecondTap(element, pointerEvent, pointerType)) {
+      clearLastTap();
+      activation = [{ type: 'immediate' }];
+      activationKind = 'double-click';
+    } else {
+      recordTap(element, pointerEvent, pointerType);
+    }
+  } else {
+    // Any other press ends a tap sequence, so a tap elsewhere can't pair with
+    // a much earlier one on this source.
+    clearLastTap();
+  }
   if (activation.length === 0) {
     return;
   }
@@ -518,7 +544,8 @@ function onPointerDown(event: Event): void {
     pointerId: pointerEvent.pointerId,
     pointerType,
     activation,
-    activationKind: 'pointer',
+    activationKind,
+    heldPointer: true,
     originX: pointerEvent.clientX,
     originY: pointerEvent.clientY,
     lastInput: initialInput,
@@ -571,6 +598,29 @@ function onPointerDown(event: Event): void {
   );
 }
 
+/**
+ * Whether a new gesture may start. A gesture whose document lost its browsing
+ * context (its iframe removed, its popout closed) can never end on its own —
+ * every terminating listener lived in the dead realm — and would wedge the whole
+ * engine shut. Detect it at the next gesture anywhere, cancel the dead session,
+ * and let the new pickup proceed. Any live session still blocks.
+ */
+function recoverDetachedSession(event: Event): boolean {
+  const session = state.pending ?? state.active;
+  if (!session) {
+    return true;
+  }
+  if (!isDetachedDocument(ownerDocument(session.element))) {
+    return false;
+  }
+  if (state.pending) {
+    clearPending();
+  } else {
+    cancelActive(undefined, 'document-detached', event);
+  }
+  return !state.pending && !state.active;
+}
+
 /** Double-click pickup follows the mouse until a subsequent primary click. */
 function onDoubleClick(event: Event): void {
   if (handledPointerDownEvents.has(event)) {
@@ -581,25 +631,25 @@ function onDoubleClick(event: Event): void {
   if (mouseEvent.button !== 0 || mouseEvent.detail !== 2) {
     return;
   }
-  if (state.pending || state.active) {
-    const session = state.pending ?? state.active;
-    if (!session || !isDetachedDocument(ownerDocument(session.element))) {
-      return;
-    }
-    if (state.pending) {
-      clearPending();
-    } else {
-      cancelActive(undefined, 'document-detached', event);
-    }
+  // Touch and pen pick up through the double-tap path in `onPointerDown`. A
+  // `dblclick` a browser synthesizes from a double-tap must not open a session
+  // that follows the mouse: no touch could move or drop it. Firefox's `dblclick`
+  // carries no `pointerType`, so fall back to the press that produced it.
+  const pointerType =
+    'pointerType' in mouseEvent
+      ? normalizePointerType((mouseEvent as PointerEvent).pointerType)
+      : (state.lastPointerDownType ?? 'mouse');
+  if (pointerType !== 'mouse') {
+    return;
   }
-  if (state.pending || state.active || !canStartLifecycle()) {
+  if (!recoverDetachedSession(event) || !canStartLifecycle()) {
     return;
   }
   const pickup = resolveDraggablePickup(getTarget(mouseEvent));
   if (
     !pickup ||
     pickup.parameters.disabled ||
-    !hasDoubleClickActivation(pickup.parameters.activation)
+    !hasDoubleClickActivation(pickup.parameters.activation, 'mouse')
   ) {
     return;
   }
@@ -610,6 +660,9 @@ function onDoubleClick(event: Event): void {
     return;
   }
   const input = getInput(mouseEvent);
+  // A session with no pointer of its own: `pointerId` never matches a real
+  // pointer, and the empty `activation` list is never evaluated because the
+  // activation commits right below.
   state.pending = {
     element: pickup.element,
     target: pickup.target,
@@ -617,6 +670,7 @@ function onDoubleClick(event: Event): void {
     pointerType: 'mouse',
     activation: [],
     activationKind: 'double-click',
+    heldPointer: false,
     originX: input.clientX,
     originY: input.clientY,
     lastInput: input,
@@ -632,6 +686,84 @@ function onDoubleClick(event: Event): void {
   if (state.active) {
     mouseEvent.preventDefault();
   }
+}
+
+/**
+ * Remember a touch/pen press on a double-tap-enabled source as the first half of
+ * a double-tap. The release confirms it: a `pointercancel` (native scroll took
+ * the gesture) or a release far from the press is a swipe, not a tap.
+ */
+function recordTap(element: HTMLElement, pointerEvent: PointerEvent, pointerType: DragPointerType) {
+  clearLastTap();
+  const win = ownerWindow(element);
+  const tap: TapRecord = {
+    element,
+    pointerId: pointerEvent.pointerId,
+    pointerType,
+    clientX: pointerEvent.clientX,
+    clientY: pointerEvent.clientY,
+    timeStamp: pointerEvent.timeStamp,
+    released: false,
+    cleanup: NOOP,
+  };
+  const onUp = (event: Event) => {
+    const up = event as PointerEvent;
+    if (up.pointerId !== tap.pointerId) {
+      return;
+    }
+    tap.cleanup();
+    tap.cleanup = NOOP;
+    if (!isWithinTapTolerance(tap, up)) {
+      if (state.lastTap === tap) {
+        state.lastTap = null;
+      }
+      return;
+    }
+    tap.released = true;
+  };
+  const onCancel = (event: Event) => {
+    if ((event as PointerEvent).pointerId === tap.pointerId && state.lastTap === tap) {
+      clearLastTap();
+    }
+  };
+  const cleanups = [
+    addEventListener(win, 'pointerup', onUp, { capture: true }),
+    addEventListener(win, 'pointercancel', onCancel, { capture: true }),
+  ];
+  tap.cleanup = () => runAllCleanups(cleanups);
+  state.lastTap = tap;
+}
+
+function clearLastTap(): void {
+  const tap = state.lastTap;
+  if (!tap) {
+    return;
+  }
+  state.lastTap = null;
+  tap.cleanup();
+}
+
+/** Whether this press completes a double-tap on `element` (see `recordTap`). */
+function isSecondTap(
+  element: HTMLElement,
+  pointerEvent: PointerEvent,
+  pointerType: DragPointerType,
+): boolean {
+  const tap = state.lastTap;
+  return (
+    tap !== null &&
+    tap.released &&
+    tap.element === element &&
+    tap.pointerType === pointerType &&
+    pointerEvent.timeStamp - tap.timeStamp <= DOUBLE_TAP_MS &&
+    isWithinTapTolerance(tap, pointerEvent)
+  );
+}
+
+function isWithinTapTolerance(tap: TapRecord, pointerEvent: PointerEvent): boolean {
+  const dx = pointerEvent.clientX - tap.clientX;
+  const dy = pointerEvent.clientY - tap.clientY;
+  return dx * dx + dy * dy <= DOUBLE_TAP_TOLERANCE_PX * DOUBLE_TAP_TOLERANCE_PX;
 }
 
 function preventContextMenu(event: Event): void {
@@ -713,27 +845,31 @@ function evaluatePendingActivation(clientX: number, clientY: number, now: number
     return;
   }
   const elapsed = now - pending.startedAt;
-  // Once a hold exceeds its tolerance it cannot recover by moving back.
-  pending.activation = pending.activation.filter(
-    (activation) =>
-      evaluateActivation(
-        activation,
-        { x: pending.originX, y: pending.originY },
-        { x: clientX, y: clientY },
-        elapsed,
-      ) !== 'cancel',
-  );
-  const decision = evaluateActivation(
-    pending.activation,
-    { x: pending.originX, y: pending.originY },
-    { x: clientX, y: clientY },
-    elapsed,
-  );
-  if (decision === 'activate') {
+  const origin = { x: pending.originX, y: pending.originY };
+  const current = { x: clientX, y: clientY };
+  // One pass: each activation's verdict both prunes the list (once a hold
+  // exceeds its tolerance it cannot recover by moving back) and decides.
+  let activate = false;
+  const remaining: DragActivation[] = [];
+  for (const activation of pending.activation) {
+    const decision = evaluateActivation(activation, origin, current, elapsed);
+    if (decision === 'activate') {
+      activate = true;
+    }
+    if (decision !== 'cancel') {
+      remaining.push(activation);
+    }
+  }
+  const pruned = remaining.length !== pending.activation.length;
+  pending.activation = remaining;
+  if (activate) {
     commitActivation();
-  } else if (decision === 'cancel') {
+  } else if (remaining.length === 0) {
     clearPending();
-  } else {
+  } else if (pruned || !pending.pressHoldTimer.isStarted) {
+    // A running hold timer already fires at the right deadline and re-evaluates
+    // with the pointer's latest position then; only re-arm when the list
+    // changed (a shorter delay may now be the earliest) or nothing is armed yet.
     const delay = getActivationDelayMs(pending.activation);
     pending.pressHoldTimer.clear();
     if (delay !== null) {
@@ -836,6 +972,9 @@ function commitActivation(): void {
     throw error;
   }
 
+  if (state.pending !== pending) {
+    return;
+  }
   // Re-check `disabled` at commit: it may have flipped during the press.
   if (parameters.disabled) {
     clearPending(true);
@@ -860,6 +999,9 @@ function commitActivation(): void {
     return;
   }
 
+  if (state.pending !== pending) {
+    return;
+  }
   const pointerNode = dragHandle ?? element;
   if (hasInteractiveAncestorWithin(target, pointerNode)) {
     clearPending(true);
@@ -872,18 +1014,21 @@ function commitActivation(): void {
   if (parameters.onBeforeMoveStart) {
     const eventDetails = createChangeEventDetails<
       string,
-      Pick<BeforeMoveStartEventDetails, 'reason' | 'event' | 'activation'>
-    >('pointer', pending.lastNativeEvent, target, {
-      reason: 'pointer',
+      Pick<BeforeMoveStartEventDetails, 'reason' | 'event'>
+    >(pending.activationKind, pending.lastNativeEvent, target, {
+      reason: pending.activationKind,
       event: pending.lastNativeEvent,
-      activation: pending.activationKind,
-    });
+    }) as BeforeMoveStartEventDetails;
     try {
       parameters.onBeforeMoveStart({ input: lastInput, element, dragHandle }, eventDetails);
     } catch (error) {
       // A throwing consumer handler must not leave the pending phase armed.
       clearPending(true);
       throw error;
+    }
+    // Imperative cancellation or blur can clear the candidate inside the callback.
+    if (state.pending !== pending) {
+      return;
     }
     if (eventDetails.isCanceled) {
       clearPending(true);
@@ -906,6 +1051,9 @@ function commitActivation(): void {
     { x: lastX, y: lastY },
     { keys: lastInput },
   );
+  if (state.pending !== pending) {
+    return;
+  }
   // Start at the constrained point, so the initial target, the session's first
   // input, and the preview seed all agree with what the first frame resolves.
   const startInput = modifiers ? remapInput(lastInput, modifiers.initialPoint) : lastInput;
@@ -932,11 +1080,13 @@ function commitActivation(): void {
       initialInput: startInput,
       // The `pointermove` that crossed the activation threshold.
       initialEvent: pending.lastNativeEvent,
+      startReason: pending.activationKind,
       // The press, not the committed input: the grab offset must reflect where
       // the user took hold, and the activation threshold sits between the two.
       pressPoint: { x: pending.originX, y: pending.originY },
       initialTarget,
       onForceCleanup: clearActive,
+      isPickupCurrent: () => state.pending === pending,
       acquire: () => dragRootLock.lock(element),
       release: () => dragRootLock.unlock(),
     });
@@ -974,6 +1124,7 @@ function commitActivation(): void {
     pointerId,
     pointerType,
     activationKind: pending.activationKind,
+    heldPointer: pending.heldPointer,
     controller: session.controller,
     preview,
     lastInput,
@@ -1005,7 +1156,7 @@ function commitActivation(): void {
 
   // Override touch's implicit capture onto the body anchor, and give pen/mouse
   // explicit capture, so pointer events route here regardless of cursor position.
-  if (activeRef.activationKind === 'pointer') {
+  if (activeRef.heldPointer) {
     setPointerCaptureSafely(captureTarget, pointerId);
   }
 
@@ -1047,13 +1198,12 @@ function commitActivation(): void {
   );
   if (pointerType !== 'mouse') {
     activeRef.listeners.push(
-      // Attach to the document (capture) rather than `target`: touch retargets to
-      // the pointerdown node, but a virtualizer can unmount it mid-drag — a
-      // target-bound listener would die with it and let the page scroll under the
-      // active drag. `touchmove` bubbles, so a capture listener on the document
-      // still observes it and can prevent the scroll. Installed for pen too:
-      // Apple Pencil reports `pointerType: 'pen'` but iOS still scrolls the page
-      // through the touch event stream it synthesizes for it.
+      // A detached press target keeps receiving touch events without a document
+      // propagation path. Keep both listeners until this gesture ends.
+      addEventListener(target, 'touchmove', preventActiveTouchScroll, {
+        passive: false,
+        capture: true,
+      }),
       addEventListener(doc, 'touchmove', preventActiveTouchScroll, {
         passive: false,
         capture: true,
@@ -1132,16 +1282,40 @@ function commitActivation(): void {
     addEventListener(win, 'dragstart', preventNativeDragStart, { capture: true }),
   );
 
-  if (activeRef.activationKind === 'double-click') {
-    activeRef.listeners.push(addEventListener(win, 'click', onDoubleClickDrop, { capture: true }));
+  if (!activeRef.heldPointer) {
+    activeRef.listeners.push(
+      // The press that produces the drop click must not also focus or press the
+      // destination: a button would take focus, a menu opening on pointer down
+      // would open. Canceling `pointerdown` also suppresses the compatibility
+      // `mousedown`; the `click` that completes the drop still fires.
+      addEventListener(win, 'pointerdown', onDoubleClickPress, { capture: true }),
+      addEventListener(win, 'mousedown', onDoubleClickPress, { capture: true }),
+      addEventListener(win, 'click', onDoubleClickDrop, { capture: true }),
+    );
   }
   scheduleActiveFrame();
+}
+
+function onDoubleClickPress(event: Event): void {
+  const mouseEvent = event as MouseEvent;
+  if (!state.active || state.active.heldPointer || mouseEvent.button !== 0) {
+    return;
+  }
+  if (
+    'pointerType' in mouseEvent &&
+    normalizePointerType((mouseEvent as PointerEvent).pointerType) !== 'mouse'
+  ) {
+    return;
+  }
+  mouseEvent.preventDefault();
+  mouseEvent.stopImmediatePropagation();
 }
 
 function onDoubleClickDrop(event: Event): void {
   const mouseEvent = event as MouseEvent;
   if (
-    state.active?.activationKind !== 'double-click' ||
+    !state.active ||
+    state.active.heldPointer ||
     mouseEvent.button !== 0 ||
     mouseEvent.detail === 0
   ) {
@@ -1226,12 +1400,18 @@ function onActiveFrame(): void {
   // right after the transform write would force a synchronous style pass
   // every frame. Both still land before the next paint.
   const input = modifyActiveInput(active, active.lastInput);
+  if (state.active !== active) {
+    return;
+  }
   const target = resolveTargetUnderPointer(active, input.clientX, input.clientY);
   // Kept for the auto-scroller, which anchors its container walk here (see
   // `getActiveHitElement`) rather than paying for a second hit test.
   active.lastHitElement = target;
-  active.preview.update(input.clientX, input.clientY, input);
   active.controller.update(input, target, active.lastNativeEvent, active.lastMoveReason);
+  if (state.active !== active) {
+    return;
+  }
+  active.preview.update(input.clientX, input.clientY, input);
   // A consumer callback that re-rendered synchronously may have torn out the
   // preview's host after it was positioned. Re-home it before the frame ends
   // rather than leaving it detached until the next input. (A commit React defers
@@ -1256,15 +1436,17 @@ function onActivePointerMove(event: Event): void {
   const active = state.active;
   if (
     !active ||
-    (active.activationKind === 'double-click'
-      ? pointerEvent.pointerType !== 'mouse'
-      : pointerEvent.pointerId !== active.pointerId)
+    (active.heldPointer
+      ? pointerEvent.pointerId !== active.pointerId
+      : // A mouse double-click session holds no pointer: it follows any mouse
+        // pointer, and ignores touch and pen.
+        pointerEvent.pointerType !== 'mouse')
   ) {
     return;
   }
   // Wait one frame before treating `buttons === 0` as a missed release. A
   // terminal event in the same frame must take precedence.
-  if (active.activationKind === 'pointer' && pointerEvent.buttons === 0) {
+  if (active.heldPointer && pointerEvent.buttons === 0) {
     // Constrained like every reported input, so `onMoveEnd` doesn't leak a raw
     // coordinate the drag never reported while it was live.
     const input = modifyActiveInput(active, getInput(pointerEvent));
@@ -1281,7 +1463,7 @@ function onActivePointerMove(event: Event): void {
   // `pointerup` carries the last button, which `onActivePointerUp` ignores.
   // The user did lift the primary button deliberately, so this is a drop at the
   // current position, not a cancel.
-  if (active.activationKind === 'pointer' && pointerEvent.buttons % 2 === 0) {
+  if (active.heldPointer && pointerEvent.buttons % 2 === 0) {
     dropActiveAtPointer(pointerEvent);
     return;
   }
@@ -1329,7 +1511,7 @@ function dropActiveAtPointer(pointerEvent: PointerEvent | MouseEvent): void {
   state.terminalCallbacksRunning = true;
   try {
     try {
-      clearActive(true, active.activationKind === 'double-click' ? 'none' : 'released');
+      clearActive(true, active.heldPointer ? 'released' : 'none');
     } finally {
       controller.drop(input, target, pointerEvent);
     }
@@ -1502,8 +1684,23 @@ export function resetForTests(): void {
   // No click suppression: a test reset must not leave a window-capture `click`
   // handler armed for the next test.
   clearActive(false, 'none');
+  clearLastTap();
+  state.lastPointerDownType = null;
   state.terminalCallbacksRunning = false;
   state.cleanupContextMenuSuppression?.();
+}
+
+interface TapRecord {
+  element: HTMLElement;
+  pointerId: number;
+  pointerType: DragPointerType;
+  clientX: number;
+  clientY: number;
+  timeStamp: number;
+  /** Set once the press ended as a tap rather than a swipe or a native scroll. */
+  released: boolean;
+  /** Removes the release listeners; idempotent. */
+  cleanup: DragCleanupFn;
 }
 
 interface PendingSession {
@@ -1517,7 +1714,15 @@ interface PendingSession {
   pointerId: number;
   pointerType: DragPointerType;
   activation: DragActivation[];
+  /** How the pickup happened, reported to `onBeforeMoveStart` as `eventDetails.activation`. */
   activationKind: 'pointer' | 'double-click';
+  /**
+   * Whether a held pointer drives the gesture: it is captured, `pointerup`
+   * drops, and a `buttons` release cancels. `false` only for a mouse
+   * double-click, which follows the mouse with no button down and drops on the
+   * next click.
+   */
+  heldPointer: boolean;
   originX: number;
   originY: number;
   lastInput: DragInput;
@@ -1551,6 +1756,8 @@ interface ActiveSession {
   pointerId: number;
   pointerType: DragPointerType;
   activationKind: 'pointer' | 'double-click';
+  /** See `PendingSession.heldPointer`. */
+  heldPointer: boolean;
   controller: DragSessionController;
   preview: SyntheticPreviewHandle;
   lastInput: DragInput;

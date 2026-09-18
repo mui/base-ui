@@ -1,9 +1,9 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { act } from '@mui/internal-test-utils';
 import { createDndRenderer, isJSDOM } from '#test-utils';
 import { flushRaf, setupDragEngineTests } from '../../../../test/dnd';
 import { DRAG_PREVIEW_ATTR } from '../dragAttributes';
-import { createClonedDragPreviewElement } from './cloneDragPreview';
+import { createClonedDragPreviewElement, createDragPreviewHostElement } from './cloneDragPreview';
 
 setupDragEngineTests();
 
@@ -70,6 +70,173 @@ describe.skipIf(isJSDOM)('createClonedDragPreviewElement (top layer)', () => {
     scroller.remove();
   });
 
+  it('neutralizes contextual source motion while allowing ending transitions', () => {
+    const sheet = document.createElement('style');
+    sheet.textContent =
+      '.List .Card { transition: all 200ms; transform: translateX(10px); } .Card[data-ending-style] { transition: translate 100ms; }';
+    document.head.appendChild(sheet);
+    list.className = 'List';
+    source.className = 'Card';
+    const handle = createClonedDragPreviewElement(source, null)!;
+    try {
+      expect(getComputedStyle(handle.element).transitionDuration).toBe('0s');
+      expect(getComputedStyle(handle.element).transform).toBe('none');
+      handle.element.setAttribute('data-ending-style', '');
+      handle.prepareForDrop?.();
+      expect(getComputedStyle(handle.element).transitionProperty).toBe('translate');
+      expect(getComputedStyle(handle.element).transitionDuration).toBe('0.1s');
+    } finally {
+      handle.destroy();
+      sheet.remove();
+    }
+  });
+
+  it('preserves direct-child styles on the clone and its descendants', () => {
+    const sheet = document.createElement('style');
+    sheet.textContent =
+      '.List > .Card { display: flex; gap: 8px; background: rgb(255, 0, 0); } .List > .Card > span { color: rgb(0, 0, 255); } .Card[data-drag-preview] { border: 3px solid rgb(0, 128, 0); }';
+    document.head.appendChild(sheet);
+    list.className = 'List';
+    source.className = 'Card';
+    source.style.removeProperty('background');
+    source.innerHTML = '<span>Card</span>';
+    const handle = createClonedDragPreviewElement(source, null)!;
+    try {
+      const computed = getComputedStyle(handle.element);
+      expect(computed.backgroundColor).toBe('rgb(255, 0, 0)');
+      expect(computed.display).toBe('flex');
+      expect(computed.gap).toBe('8px');
+      expect(computed.borderTopWidth).toBe('3px');
+      expect(getComputedStyle(handle.element.firstElementChild!).color).toBe('rgb(0, 0, 255)');
+    } finally {
+      handle.destroy();
+      sheet.remove();
+    }
+  });
+
+  it('resolves preview styles using source-size variables before preserving them', () => {
+    const sheet = document.createElement('style');
+    sheet.textContent =
+      '.Card[data-drag-preview] { border-radius: calc(var(--drag-source-width) / 2); }';
+    document.head.appendChild(sheet);
+    source.className = 'Card';
+    const handle = createClonedDragPreviewElement(source, null)!;
+    try {
+      expect(getComputedStyle(handle.element).borderTopLeftRadius).toBe('60px');
+    } finally {
+      handle.destroy();
+      sheet.remove();
+    }
+  });
+
+  it('preserves both generated pseudo-elements and nested direct-child declarations', () => {
+    const sheet = document.createElement('style');
+    sheet.textContent = `
+      .List { & > .Card { --icon-color: rgb(1, 2, 3); color: rgb(4, 5, 6); }
+        & > .Card::before { content: "Before"; color: var(--icon-color); }
+        & > .Card::after { content: "After"; }
+      }
+    `;
+    document.head.appendChild(sheet);
+    list.className = 'List';
+    source.className = 'Card';
+    const beforeSheets = document.adoptedStyleSheets.length;
+    const handle = createClonedDragPreviewElement(source, null)!;
+    try {
+      expect(getComputedStyle(handle.element).color).toBe('rgb(4, 5, 6)');
+      expect(getComputedStyle(handle.element, '::before').content).toBe('"Before"');
+      expect(getComputedStyle(handle.element, '::before').color).toBe('rgb(1, 2, 3)');
+      expect(getComputedStyle(handle.element, '::after').content).toBe('"After"');
+    } finally {
+      handle.destroy();
+      sheet.remove();
+    }
+    expect(document.adoptedStyleSheets.length).toBe(beforeSheets);
+  });
+
+  it('preserves contextual styling when stylesheet rules cannot be inspected', () => {
+    const sheet = document.createElement('style');
+    sheet.textContent = '.List > .Card { color: rgb(1, 2, 3); }';
+    document.head.appendChild(sheet);
+    list.className = 'List';
+    source.className = 'Card';
+    const rules = vi.spyOn(sheet.sheet!, 'cssRules', 'get').mockImplementation(() => {
+      throw new DOMException('Stylesheet is cross-origin', 'SecurityError');
+    });
+    const handle = createClonedDragPreviewElement(source, null)!;
+    try {
+      expect(getComputedStyle(handle.element).color).toBe('rgb(1, 2, 3)');
+    } finally {
+      handle.destroy();
+      rules.mockRestore();
+      sheet.remove();
+    }
+  });
+
+  it('neutralizes important source motion and allows an important ending transition', () => {
+    const sheet = document.createElement('style');
+    sheet.textContent = `.List .Card { transition: all 200ms !important; }
+      .List .Card[data-ending-style] { transition: translate 100ms !important; }`;
+    document.head.appendChild(sheet);
+    list.className = 'List';
+    source.className = 'Card';
+    const handle = createClonedDragPreviewElement(source, null)!;
+    try {
+      expect(getComputedStyle(handle.element).transitionDuration).toBe('0s');
+      handle.element.setAttribute('data-ending-style', '');
+      handle.prepareForDrop?.();
+      expect(getComputedStyle(handle.element).transitionProperty).toBe('translate');
+      expect(getComputedStyle(handle.element).transitionDuration).toBe('0.1s');
+    } finally {
+      handle.destroy();
+      sheet.remove();
+    }
+  });
+
+  it('preserves generated content styled through a shadow host', () => {
+    const host = document.createElement('div');
+    const root = host.attachShadow({ mode: 'closed' });
+    const sheet = document.createElement('style');
+    sheet.textContent = ':host > .Card::before { content: "Icon"; }';
+    root.append(sheet, source);
+    list.append(host);
+    source.className = 'Card';
+    const handle = createClonedDragPreviewElement(source, null)!;
+    try {
+      expect(getComputedStyle(handle.element, '::before').content).toBe('"Icon"');
+    } finally {
+      handle.destroy();
+    }
+  });
+
+  it('preserves styles applied to a slotted source', () => {
+    const host = document.createElement('div');
+    const root = host.attachShadow({ mode: 'open' });
+    root.innerHTML = '<style>::slotted(.Card) { color: rgb(1, 2, 3); }</style><slot></slot>';
+    host.append(source);
+    list.append(host);
+    source.className = 'Card';
+    const handle = createClonedDragPreviewElement(source, null)!;
+    try {
+      expect(getComputedStyle(handle.element).color).toBe('rgb(1, 2, 3)');
+    } finally {
+      handle.destroy();
+    }
+  });
+
+  it('does not measure every descendant when ordinary classes survive wrapping', () => {
+    source.innerHTML = '<span class="Child">Item</span>'.repeat(100);
+    const measure = vi.spyOn(window, 'getComputedStyle');
+    const handle = createClonedDragPreviewElement(source, null)!;
+    try {
+      const descendants = new Set(handle.element.querySelectorAll('.Child'));
+      expect(measure.mock.calls.filter(([node]) => descendants.has(node))).toHaveLength(0);
+    } finally {
+      handle.destroy();
+      measure.mockRestore();
+    }
+  });
+
   it('promotes the preview to the top layer through an engine-owned wrapper', () => {
     const handle = createClonedDragPreviewElement(source, null)!;
 
@@ -134,6 +301,34 @@ describe.skipIf(isJSDOM)('createClonedDragPreviewElement (top layer)', () => {
     expect(getComputedStyle(wrapper).display).not.toBe('none');
 
     handle.destroy();
+  });
+
+  it('reopens the preview and restores scrolling after its connected ancestor moves', async () => {
+    source.style.overflow = 'auto';
+    const content = document.createElement('div');
+    content.style.height = '200px';
+    source.replaceChildren(content);
+    source.scrollTop = 40;
+    const sibling = document.createElement('div');
+    scroller.appendChild(sibling);
+    const handle = createClonedDragPreviewElement(source, null)!;
+
+    try {
+      const wrapper = handle.element.parentElement!;
+      expect(wrapper.matches(':popover-open')).toBe(true);
+      expect(handle.element.scrollTop).toBe(40);
+
+      scroller.appendChild(list);
+      // Let the mutation observer repair the preview without a pointer move.
+      await Promise.resolve();
+
+      expect(wrapper.parentElement).toBe(list);
+      expect(wrapper.matches(':popover-open')).toBe(true);
+      expect(handle.element.getBoundingClientRect().height).toBe(30);
+      expect(handle.element.scrollTop).toBe(40);
+    } finally {
+      handle.destroy();
+    }
   });
 
   it('keeps the source geometry rather than shrinking to fit', () => {
@@ -223,6 +418,39 @@ describe.skipIf(isJSDOM)('createClonedDragPreviewElement (top layer)', () => {
       const cloneRect = handle.element.getBoundingClientRect();
       expect(cloneRect.width).toBeCloseTo(sourceRect.width);
       expect(cloneRect.height).toBeCloseTo(sourceRect.height);
+    } finally {
+      handle.destroy();
+    }
+  });
+
+  it.each(['scale(0.5)', 'scale(2, 0.5)'])(
+    'preserves descendant layout under ancestor %s',
+    (transform) => {
+      list.style.transform = transform;
+      source.innerHTML = '<span style="display:block;width:20px;height:10px">Text</span>';
+      const sourceChild = source.firstElementChild!.getBoundingClientRect();
+      const handle = createClonedDragPreviewElement(source, null)!;
+      try {
+        const cloneChild = handle.element.firstElementChild!.getBoundingClientRect();
+        expect(cloneChild.width).toBeCloseTo(sourceChild.width);
+        expect(cloneChild.height).toBeCloseTo(sourceChild.height);
+        expect(handle.element.style.width).toBe('120px');
+      } finally {
+        handle.destroy();
+      }
+    },
+  );
+
+  it.each(['0.5', '2'])('sizes a custom preview in CSS units under zoom %s', (zoom) => {
+    list.style.zoom = zoom;
+    const handle = createDragPreviewHostElement(source, null)!;
+    try {
+      handle.element.style.width = 'var(--drag-source-width)';
+      handle.element.style.height = 'var(--drag-source-height)';
+      const sourceRect = source.getBoundingClientRect();
+      const previewRect = handle.element.getBoundingClientRect();
+      expect(previewRect.width).toBeCloseTo(sourceRect.width);
+      expect(previewRect.height).toBeCloseTo(sourceRect.height);
     } finally {
       handle.destroy();
     }
@@ -409,6 +637,12 @@ describe.skipIf(isJSDOM)('createClonedDragPreviewElement (top layer)', () => {
       expect(Math.abs(actual.height - expected.height)).toBeLessThanOrEqual(0.5);
     }
 
+    it.each(['0.5', '2'])('preserves the pickup position under CSS zoom %s', async (zoom) => {
+      list.style.zoom = zoom;
+      const { sourceRect, cloneRect } = await liftAndMeasure();
+      expectSameBox(cloneRect, sourceRect);
+    });
+
     it('lifts a scaled source off exactly where it sits', async () => {
       // The grab offset the lifecycle measures is relative to the *transformed*
       // rect, but the clone is anchored on the untransformed box it re-applies
@@ -443,15 +677,18 @@ describe.skipIf(isJSDOM)('createClonedDragPreviewElement (top layer)', () => {
       },
     );
 
-    it('preserves a rotated source on a zoomed canvas', async () => {
-      list.style.transform = 'translateY(40px) scale(0.5)';
-      source.style.rotate = '30deg';
-      source.style.transformOrigin = '20px 10px';
+    it.each(['scale(0.5)', 'scale(2, 0.5)'])(
+      'preserves a rotated source under %s',
+      async (scale) => {
+        list.style.transform = `translateY(40px) ${scale}`;
+        source.style.rotate = '30deg';
+        source.style.transformOrigin = '20px 10px';
 
-      const { sourceRect, cloneRect } = await liftAndMeasure();
+        const { sourceRect, cloneRect } = await liftAndMeasure();
 
-      expectSameBox(cloneRect, sourceRect);
-    });
+        expectSameBox(cloneRect, sourceRect);
+      },
+    );
   });
 
   it('confines the popover UA chrome to the wrapper, away from the preview', () => {

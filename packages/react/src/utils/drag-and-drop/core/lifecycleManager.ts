@@ -17,6 +17,7 @@ import type {
   DragLocation,
   DragLocationHistory,
   DragMoveReason,
+  DragStartReason,
   DropTargetRecord,
   DragSource,
   DraggableEventDetailsMap,
@@ -58,6 +59,7 @@ interface LifecycleState {
   /** Whether a changed element belongs to the current resolution walk. */
   shouldRefreshTargets: ((elements: ReadonlySet<Element>) => boolean) | null;
   queuedParameterTargets: Set<Element> | null;
+  queuedRehitTest?: boolean | undefined;
   /** The session whose parameter refresh owns the queued microtask. */
   queuedParameterRefresh: ((rehitTest: boolean) => void) | null;
   /**
@@ -92,21 +94,24 @@ export function isActive(): boolean {
 
 /**
  * Re-resolve the active drop-target stack and publish a fresh session snapshot
- * (no-op if no drag is in progress). Called by the `registerDropTarget` cleanup
- * in `registrations.ts` when an element un-registers mid-drag, so subscribers
- * see it leave `dropTargets` without a pointer event.
+ * (no-op if no drag is in progress). Called when a target registers or
+ * unregisters mid-drag, so subscribers see the new stack without a pointer event.
  */
 export function refreshDropTargets(): void {
   state.refreshDropTargets?.(true);
 }
 
 /** Coalesce a React commit's drop-target parameter changes into one resolution. */
-export function scheduleDropTargetParameterRefresh(element?: Element | null): void {
+export function scheduleDropTargetParameterRefresh(
+  element?: Element | null,
+  rehitTest = false,
+): void {
   const refresh = state.refreshDropTargets;
   if (refresh === null) {
     return;
   }
   if (state.queuedParameterRefresh === refresh) {
+    state.queuedRehitTest ||= rehitTest;
     if (element == null) {
       state.queuedParameterTargets = null;
     } else {
@@ -115,6 +120,7 @@ export function scheduleDropTargetParameterRefresh(element?: Element | null): vo
     return;
   }
   state.queuedParameterRefresh = refresh;
+  state.queuedRehitTest = rehitTest;
   state.queuedParameterTargets = element == null ? null : new Set([element]);
   queueMicrotask(() => {
     // A newer drag can replace this job before it runs. Only the job that still
@@ -123,13 +129,15 @@ export function scheduleDropTargetParameterRefresh(element?: Element | null): vo
       return;
     }
     const targets = state.queuedParameterTargets;
+    const shouldRehitTest = state.queuedRehitTest === true;
+    state.queuedRehitTest = false;
     state.queuedParameterRefresh = null;
     state.queuedParameterTargets = null;
     if (
       state.refreshDropTargets === refresh &&
       (targets === null || state.shouldRefreshTargets?.(targets) !== false)
     ) {
-      refresh(false);
+      refresh(shouldRehitTest);
     }
   });
 }
@@ -172,6 +180,7 @@ export function start(parameters: StartParameters): DragSessionHandle | null {
     initialInput,
     initialTarget,
     initialEvent,
+    startReason = 'pointer',
     grabOffset,
     synthetic,
     onForceCleanup,
@@ -275,7 +284,7 @@ export function start(parameters: StartParameters): DragSessionHandle | null {
   let tornDown = false;
   const isLive = () => !tornDown;
 
-  // Guards the consumer fan-outs: a handler can synchronously unregister a
+  // Guards consumer resolvers and event handlers: either can unregister a
   // *hovered* drop target, whose cleanup re-resolves the stack synchronously
   // (see `registrations.ts`). Re-entering `updateDropTargets` mid-round would
   // corrupt the round's bookkeeping — on completion the outer round's stale
@@ -361,12 +370,10 @@ export function start(parameters: StartParameters): DragSessionHandle | null {
       'Base UI: a drag handler threw, so the drag was torn down. ' +
         'The terminal onMoveEnd is best-effort.',
       null,
-      () => {
-        getSourceHandlers?.()?.onMoveEnd?.(endPayload, endDetails);
-        dispatchToMonitors('onMoveEnd', endPayload, endDetails);
-      },
+      () => getSourceHandlers?.()?.onMoveEnd?.(endPayload, endDetails),
       undefined,
     );
+    dispatchToMonitors('onMoveEnd', endPayload, endDetails);
   }
 
   function publishSession(): void {
@@ -418,7 +425,7 @@ export function start(parameters: StartParameters): DragSessionHandle | null {
       location: snapshotLocation(),
       source,
     };
-    const startDetails = createDragEventDetails('pointer', lastInputEvent);
+    const startDetails = createDragEventDetails(startReason, lastInputEvent);
     dispatching = true;
     try {
       getSourceHandlers?.()?.onMoveStart?.(dragStartPayload, startDetails);
@@ -618,7 +625,13 @@ export function start(parameters: StartParameters): DragSessionHandle | null {
       lastInputReason = reason;
     }
 
-    const newDropTargets = resolveStack(rawTarget, input);
+    let newDropTargets: DropTargetRecord[];
+    dispatching = true;
+    try {
+      newDropTargets = resolveStack(rawTarget, input);
+    } finally {
+      dispatching = false;
+    }
     // A consumer resolver (`getPayload` / `canDrop`) can synchronously cancel the
     // drag. Teardown already delivered the terminal events and cleared the
     // session, so do not mutate or publish location state for the dead drag.
@@ -685,7 +698,6 @@ export function start(parameters: StartParameters): DragSessionHandle | null {
         lastDispatched = location.current;
         publishSession();
       }
-      drainPendingRefresh(dragDispatchFollows);
     } else {
       // Element-equal stack, freshly resolved records: no change dispatch runs,
       // so swap the hovered bookkeeping's records here — the terminal leave on
@@ -698,6 +710,7 @@ export function start(parameters: StartParameters): DragSessionHandle | null {
         publishSession();
       }
     }
+    drainPendingRefresh(dragDispatchFollows);
   }
 
   // The single full-engine teardown, run from `doDrop`/`doCancel` and `reset()`.
@@ -765,7 +778,7 @@ export function start(parameters: StartParameters): DragSessionHandle | null {
     // `null` here — released over no target — is the `outside-release` outcome
     // (`canceled: false`, `dropTarget: null`).
     const innermostDropTarget = freshDropTargets[0] ?? null;
-    captureDropTargetCollision(innermostDropTarget, input, source);
+    captureDropTargetCollision(innermostDropTarget, input, source, true);
     // Captured with the snapshot: the source's `onMoveEnd` (which is told the
     // drop landed first) may synchronously unregister the target while tearing
     // down its zones — the drop it was just told about must still reach the
@@ -830,9 +843,7 @@ export function start(parameters: StartParameters): DragSessionHandle | null {
       };
       // Deliver the source end once, even if its commit handler throws.
       endDispatched = true;
-      if (!tornDown) {
-        captureTerminalError(() => getSourceHandlers?.()?.onMoveEnd?.(endPayload, endDetails));
-      }
+      captureTerminalError(() => getSourceHandlers?.()?.onMoveEnd?.(endPayload, endDetails));
       // A consumer `onMoveEnd` can synchronously tear the session down; teardown
       // then already notified the targets/monitors, so don't double-dispatch.
       if (!tornDown) {
@@ -864,14 +875,18 @@ export function start(parameters: StartParameters): DragSessionHandle | null {
         const departedDropTargets = hoveredDropTargets.slice();
         if (departedDropTargets.length > 0) {
           const leavePayload = createTerminalLeavePayload(input);
-          dispatchDropTargetChange(
-            departedDropTargets,
-            [],
-            leavePayload,
-            endDetails,
-            isLive,
-            hoveredDropTargets,
-          );
+          for (const target of departedDropTargets) {
+            captureTerminalError(() =>
+              dispatchDropTargetChange(
+                [target],
+                [],
+                leavePayload,
+                endDetails,
+                isLive,
+                hoveredDropTargets,
+              ),
+            );
+          }
         }
       }
     } catch (error) {
@@ -1161,6 +1176,11 @@ export interface StartParameters {
    */
   initialEvent?: Event | undefined;
   /**
+   * Why the pickup started, reported as `eventDetails.reason` on `onMoveStart`
+   * and on the initial stack's `onDraggableEnter`. Defaults to `'pointer'`.
+   */
+  startReason?: DragStartReason | undefined;
+  /**
    * The press point minus the source's border-box origin, in client pixels,
    * measured before `[data-dragging]` styling applies. Anchors
    * `getSnappedLocalPoint({ anchor: 'source' })`; omitted (a bare lifecycle
@@ -1176,7 +1196,7 @@ export interface StartParameters {
    * sensor passes its `clearActive()` here so an abnormal end (consumer throw,
    * `reset()`) still releases its `state.active`, listeners, dragRootLock, and
    * preview node — otherwise every subsequent pointerdown would be rejected.
-   * Must be idempotent: the normal-end path also runs it after target-clearing.
+   * Must be idempotent: the normal-end path also runs it after self-clearing.
    */
   onForceCleanup?: (() => void) | undefined;
 }

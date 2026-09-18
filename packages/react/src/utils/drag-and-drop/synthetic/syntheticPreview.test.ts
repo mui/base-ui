@@ -25,6 +25,7 @@ function createPreviewElement(
     element,
     isHost,
     sourceRect: new DOMRect(0, 0, width, height),
+    positionScale: { x: 1, y: 1 },
     destroyed: false,
     ensureConnected() {},
     destroy() {
@@ -72,6 +73,21 @@ afterEach(() => {
 });
 
 describe('syntheticPreview', () => {
+  it('stops positioning when a modifier destroys the preview', () => {
+    const source = createSource();
+    const handle = createHandle(source);
+    const preview = createPreviewElement(120, 30);
+    handle.setPreviewElement(preview);
+    handle.setModifiers([
+      ({ point }) => {
+        handle.destroy();
+        return point;
+      },
+    ]);
+    expect(() => handle.update(20, 20)).not.toThrow();
+    expect(preview.destroyed).toBe(true);
+  });
+
   it('marks the source as dragging, and clears it on destroy', () => {
     const source = createSource();
     const handle = createHandle(source);
@@ -208,6 +224,33 @@ describe('syntheticPreview', () => {
       expect(preview.destroyed).toBe(true);
       expect(source).not.toHaveAttribute('data-dragging');
       expect(source).not.toHaveAttribute('data-ending-style');
+    });
+
+    it.each(['duration', 'iterations'])('ignores animations with infinite %s', (property) => {
+      vi.stubGlobal('BASE_UI_ANIMATIONS_DISABLED', false);
+      const frames: FrameRequestCallback[] = [];
+      vi.spyOn(window, 'requestAnimationFrame').mockImplementation((callback) => {
+        frames.push(callback);
+        return frames.length;
+      });
+      const source = createSource();
+      const handle = createHandle(source);
+      const preview = createPreviewElement(120, 30, false);
+      document.body.appendChild(preview.element);
+      preview.element.getAnimations = () =>
+        [
+          {
+            effect: { getTiming: () => ({ duration: 100, iterations: 1, [property]: Infinity }) },
+            finished: new Promise<void>(() => {}),
+          },
+        ] as unknown as Animation[];
+      handle.setPreviewElement(preview);
+      handle.markSourceDragging();
+      handle.prepareForDrop();
+      handle.destroy();
+      frames.shift()!(0);
+      expect(preview.destroyed).toBe(true);
+      expect(source).not.toHaveAttribute('data-dragging');
     });
 
     it('cleans up a settling preview whose animation stays paused', () => {

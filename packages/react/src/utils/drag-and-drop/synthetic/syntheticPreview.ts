@@ -1,7 +1,9 @@
+import { clamp } from '@base-ui/utils/clamp';
 import { ownerWindow } from '@base-ui/utils/owner';
+import { getFiniteAnimations } from '../../getFiniteAnimations';
 import { WindowAnimationFrame } from '../../windowAnimationFrame';
 import { WindowTimeout } from '../../windowTimeout';
-import type { DragPreviewElementHandle } from './cloneDragPreview';
+import { measurePreviewSource, type DragPreviewElementHandle } from './cloneDragPreview';
 import type { DragModifier, DragModifierKeys, DragPosition } from '../../../types/drag';
 import { applyDragModifiers } from '../dragModifiers';
 import { getSharedSlot } from '../sharedState';
@@ -133,7 +135,8 @@ export function createSyntheticPreview(
       let proposedY = lastY - previewOffsetY;
       initialProposed ??= { x: proposedX, y: proposedY };
       if (modifiers) {
-        const { element } = previewElement;
+        const currentPreview = previewElement;
+        const { element } = currentPreview;
         if (!previewScaleMeasured && element.getClientRects().length > 0) {
           previewScale = getElementScale(element);
           previewScaleMeasured = true;
@@ -156,6 +159,9 @@ export function createSyntheticPreview(
             getPreviewRect: () => element.getBoundingClientRect(),
           },
         );
+        if (destroyed || previewElement !== currentPreview) {
+          return;
+        }
         proposedX = constrained.x;
         proposedY = constrained.y;
       }
@@ -167,6 +173,8 @@ export function createSyntheticPreview(
       // at 0,0), so a `rotate: 4deg` would swing the translated preview around a
       // pivot hundreds of pixels away, dozens of pixels off the pointer.
       const element = previewElement.element;
+      proposedX /= previewElement.positionScale.x;
+      proposedY /= previewElement.positionScale.y;
       if (element !== positionedElement || proposedX !== positionedX || proposedY !== positionedY) {
         element.style.translate = `${proposedX}px ${proposedY}px`;
         positionedElement = element;
@@ -322,6 +330,7 @@ export function createSyntheticPreview(
           endingPreviewRegistrations.add(registration);
         }
         element.setAttribute(ENDING_STYLE_ATTR, '');
+        endingPreview.prepareForDrop?.();
 
         // Drop-handler updates scheduled later in the release event commit before
         // this frame. Measure then, so the destination is the source's final
@@ -333,14 +342,13 @@ export function createSyntheticPreview(
             return;
           }
 
-          const destination = sourceElement.getBoundingClientRect();
-          element.style.translate = `${destination.left}px ${destination.top}px`;
+          const { sourceRect: destination } = measurePreviewSource(sourceElement as HTMLElement);
+          element.style.translate = `${destination.left / endingPreview.positionScale.x}px ${destination.top / endingPreview.positionScale.y}px`;
 
-          const animations = globalThis.BASE_UI_ANIMATIONS_DISABLED
-            ? []
-            : (element.getAnimations?.() ?? []).filter(
-                (animation) => animation.effect?.getTiming().iterations !== Infinity,
-              );
+          const animations =
+            globalThis.BASE_UI_ANIMATIONS_DISABLED || !element.getAnimations
+              ? []
+              : getFiniteAnimations(element);
           if (animations.length === 0) {
             cleanup();
             return;
@@ -352,10 +360,7 @@ export function createSyntheticPreview(
               : longest;
           }, 0);
           settlingWatchdog.start(
-            Math.min(
-              Math.max(longestAnimationMs + 100, MIN_SETTLING_WATCHDOG_MS),
-              MAX_SETTLING_WATCHDOG_MS,
-            ),
+            clamp(longestAnimationMs + 100, MIN_SETTLING_WATCHDOG_MS, MAX_SETTLING_WATCHDOG_MS),
             cleanup,
           );
           Promise.allSettled(animations.map((animation) => animation.finished)).then(cleanup);

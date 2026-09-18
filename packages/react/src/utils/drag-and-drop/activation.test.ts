@@ -101,9 +101,56 @@ describe('activation', () => {
       { mouse: { type: 'distance', distance: 9 } },
     ] as const;
     expect(resolveActivation(config, 'mouse')).toEqual([{ type: 'distance', distance: 9 }]);
-    expect(hasDoubleClickActivation(config)).toBe(true);
+    expect(hasDoubleClickActivation(config, 'mouse')).toBe(true);
     expect(resolveActivation({ type: 'double-click' }, 'mouse')).toEqual([]);
     expect(resolveActivation([], 'touch')).toEqual([]);
+  });
+
+  it('applies the per-pointer default once across an array, only when nothing addresses the pointer', () => {
+    // Mouse is addressed by the double-click entry, so no distance default sneaks
+    // in from the touch-only entry: a plain drag must not pick the item up.
+    expect(
+      resolveActivation(
+        [{ mouse: { type: 'double-click' } }, { touch: { type: 'press-hold', delay: 500 } }],
+        'mouse',
+      ),
+    ).toEqual([]);
+    expect(
+      resolveActivation(
+        [{ mouse: { type: 'double-click' } }, { touch: { type: 'press-hold', delay: 500 } }],
+        'touch',
+      ),
+    ).toEqual([{ type: 'press-hold', delay: 500 }]);
+    // Nothing addresses pen: one default, not one per entry.
+    expect(
+      resolveActivation(
+        [{ mouse: { type: 'double-click' } }, { touch: { type: 'press-hold', delay: 500 } }],
+        'pen',
+      ),
+    ).toEqual([DEFAULT_ACTIVATION.pen]);
+    expect(resolveActivation([{ mouse: { type: 'distance', distance: 9 } }], 'touch')).toEqual([
+      DEFAULT_ACTIVATION.touch,
+    ]);
+    // An empty array disables pickup rather than restoring the default.
+    expect(resolveActivation([], 'mouse')).toEqual([]);
+  });
+
+  it('reports double-click activation per pointer type', () => {
+    expect(hasDoubleClickActivation(undefined, 'mouse')).toBe(false);
+    expect(hasDoubleClickActivation({ type: 'distance', distance: 5 }, 'mouse')).toBe(false);
+    // A single value applies to every pointer type.
+    expect(hasDoubleClickActivation({ type: 'double-click' }, 'mouse')).toBe(true);
+    expect(hasDoubleClickActivation({ type: 'double-click' }, 'touch')).toBe(true);
+    expect(hasDoubleClickActivation({ type: 'double-click' }, 'pen')).toBe(true);
+    // A per-pointer map opts each type in on its own.
+    expect(hasDoubleClickActivation({ touch: { type: 'double-click' } }, 'touch')).toBe(true);
+    expect(hasDoubleClickActivation({ touch: { type: 'double-click' } }, 'mouse')).toBe(false);
+    expect(
+      hasDoubleClickActivation(
+        [{ mouse: { type: 'distance', distance: 5 } }, { pen: { type: 'double-click' } }],
+        'pen',
+      ),
+    ).toBe(true);
   });
 
   it('uses OR semantics when a hold cancels but distance remains pending', () => {

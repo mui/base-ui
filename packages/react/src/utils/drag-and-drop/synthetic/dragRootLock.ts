@@ -1,19 +1,19 @@
 import { ownerDocument } from '@base-ui/utils/owner';
 import { getSharedSlot } from '../sharedState';
 
-const LOCKED_PROPS: Array<{ style: LockedProperty; value: string }> = [
-  { style: 'touchAction', value: 'none' },
-  { style: 'userSelect', value: 'none' },
-  { style: 'webkitUserSelect', value: 'none' },
-  { style: 'webkitTouchCallout', value: 'none' },
-  { style: 'overscrollBehavior', value: 'none' },
+const LOCKED_PROPS: Array<{ style: LockedProperty; property: string; value: string }> = [
+  { style: 'touchAction', property: 'touch-action', value: 'none' },
+  { style: 'userSelect', property: 'user-select', value: 'none' },
+  { style: 'webkitUserSelect', property: '-webkit-user-select', value: 'none' },
+  { style: 'webkitTouchCallout', property: '-webkit-touch-callout', value: 'none' },
+  { style: 'overscrollBehavior', property: 'overscroll-behavior', value: 'none' },
 ];
 
 interface LockedRoot {
   /** `<html>` and `<body>`, in that order. */
   elements: HTMLElement[];
   /** Saved per-element styles, parallel to `elements`. */
-  saved: Array<Partial<Record<LockedProperty, string | undefined>>>;
+  saved: Array<Partial<Record<LockedProperty, { value: string | undefined; priority: string }>>>;
 }
 
 interface DragRootLockState {
@@ -65,13 +65,20 @@ function applyRootLock(element: Element): void {
   const doc = ownerDocument(element);
   const elements = collectLockElements(doc);
 
-  const saved: Array<Partial<Record<LockedProperty, string | undefined>>> = [];
+  const saved: Array<
+    Partial<Record<LockedProperty, { value: string | undefined; priority: string }>>
+  > = [];
   // Read all originals before writing any: `userSelect`/`webkitUserSelect` alias
   // each other, so interleaved save+set would capture the locked value instead.
   for (const el of elements) {
-    const elSaved: Partial<Record<LockedProperty, string | undefined>> = {};
-    for (const { style } of LOCKED_PROPS) {
-      elSaved[style] = el.style[style as keyof CSSStyleDeclaration] as string;
+    const elSaved: Partial<
+      Record<LockedProperty, { value: string | undefined; priority: string }>
+    > = {};
+    for (const { style, property } of LOCKED_PROPS) {
+      elSaved[style] = {
+        value: el.style[style as keyof CSSStyleDeclaration] as string | undefined,
+        priority: el.style.getPropertyPriority(property),
+      };
     }
     saved.push(elSaved);
   }
@@ -91,10 +98,17 @@ function restoreLockedStyles(): void {
       const elSaved = locked.saved[i];
       for (const { style } of LOCKED_PROPS) {
         const prev = elSaved[style];
-        if (prev === undefined) {
+        if (prev?.value === undefined) {
           delete (el.style as unknown as Partial<Record<string, string>>)[style];
         } else {
-          (el.style as unknown as Record<string, string>)[style] = prev;
+          (el.style as unknown as Record<string, string>)[style] = prev.value;
+        }
+      }
+      // Restore priorities after values because prefixed aliases can reset them.
+      for (const { style, property } of LOCKED_PROPS) {
+        const prev = elSaved[style];
+        if (prev?.priority && prev.value !== undefined) {
+          el.style.setProperty(property, prev.value, prev.priority);
         }
       }
     }

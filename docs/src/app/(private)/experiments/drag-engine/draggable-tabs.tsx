@@ -7,6 +7,7 @@ import {
 } from '@base-ui/react/draggable';
 
 import * as React from 'react';
+import { getHorizontalCollisionAfter } from 'docs/src/utils/getHorizontalCollisionAfter';
 import clsx from 'clsx';
 import { Tabs } from '@base-ui/react/tabs';
 
@@ -283,9 +284,9 @@ function SortableTabs(props: SortableTabsProps) {
             trackDragOver={false}
             render={
               <Draggable.Viewport
-                onDragScroll={(event, { direction }) => {
+                onDragScroll={({ direction }, eventDetails) => {
                   if (direction !== 'horizontal') {
-                    event.preventDefault();
+                    eventDetails.cancel();
                   }
                 }}
               />
@@ -295,13 +296,21 @@ function SortableTabs(props: SortableTabsProps) {
       >
         <Draggable.CollisionProvider
           kind={kind}
-          orientation="horizontal"
-          onCollisionChange={({ source, collision }) => {
+          onCollisionChange={({ source, collision, previousCollision }) => {
+            if (
+              collision &&
+              previousCollision &&
+              collision.target.payload === previousCollision.target.payload &&
+              getHorizontalCollisionAfter(collision) ===
+                getHorizontalCollisionAfter(previousCollision)
+            ) {
+              return;
+            }
             if (collision) {
               handleDragOverTab(
                 source.payload,
                 collision.target.payload,
-                collision.placement === 'after',
+                getHorizontalCollisionAfter(collision),
               );
             }
           }}
@@ -524,7 +533,9 @@ function DraggableTabsExperimentContent() {
 export default function DraggableTabsExperiment() {
   return (
     <Draggable.Provider>
-      <DragPageAutoScroll />
+      <DragPageAutoScroll
+        accept={[basicTabKind, disabledTabKind, controlledTabKind, uncontrolledTabKind]}
+      />
       <DraggableTabsExperimentContent />
     </Draggable.Provider>
   );

@@ -2,7 +2,13 @@ import { describe, it, expect, vi } from 'vitest';
 import { fireEvent } from '@testing-library/react';
 import { act } from '@mui/internal-test-utils';
 import { createDndRenderer } from '#test-utils';
-import { cancel, createElement, flushRaf, setupDragEngineTests } from '../../../../test/dnd';
+import {
+  cancel,
+  createElement,
+  flushRaf,
+  setupDragEngineTests,
+  splitEnd,
+} from '../../../../test/dnd';
 import type {
   DropTargetChangeEvent,
   DragDropEvent,
@@ -95,6 +101,113 @@ describe('lifecycle manager', () => {
       synthetic: { getPreviewElement: () => null },
     });
   }
+
+  it('delivers remaining terminal leaves when an inner target throws', () => {
+    const outer = createElement();
+    const inner = createElement();
+    outer.append(inner);
+    const outerLeave = vi.fn();
+    const innerParameters = () => ({
+      accept: TEST_KIND,
+      onDraggableLeave() {
+        throw new Error('leave failed');
+      },
+    });
+    const outerParameters = () => ({ accept: TEST_KIND, onDraggableLeave: outerLeave });
+    addDropTargetRegistration(inner, innerParameters);
+    addDropTargetRegistration(outer, outerParameters);
+    const handle = startDragWithHandlers({}, inner);
+    try {
+      expect(() => handle!.controller.drop(makeInput(), inner)).toThrow('leave failed');
+      expect(outerLeave).toHaveBeenCalledTimes(1);
+      expect(canStart()).toBe(true);
+    } finally {
+      removeDropTargetRegistration(inner, innerParameters);
+      removeDropTargetRegistration(outer, outerParameters);
+    }
+  });
+
+  it('delivers recovery end to monitors even if source cleanup also throws', () => {
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+    const monitorEnd = vi.fn();
+    const getMonitor = () => ({ onMoveEnd: monitorEnd });
+    monitorRegistry.add(getMonitor);
+    const handle = startDragWithHandlers({
+      onMove() {
+        throw new Error('move failed');
+      },
+      onMoveEnd() {
+        throw new Error('cleanup failed');
+      },
+    });
+    expect(() => handle!.controller.update(makeInput(), null)).toThrow('move failed');
+    expect(monitorEnd).toHaveBeenCalledTimes(1);
+    expect(monitorEnd.mock.calls[0][1].reason).toBe('handler-error');
+    removeMonitor(getMonitor);
+  });
+
+  it('closes a hovered target using its previous kind-compatible callback', () => {
+    const other = createKind('other');
+    const target = createElement();
+    const previousLeave = vi.fn();
+    const newLeave = vi.fn();
+    let changed = false;
+    const getTarget = () =>
+      changed
+        ? { accept: other, onDraggableLeave: newLeave }
+        : { accept: TEST_KIND, onDraggableLeave: previousLeave };
+    addDropTargetRegistration(target, getTarget);
+    const handle = startDragWithHandlers({}, target);
+    changed = true;
+    handle!.controller.update(makeInput(), target);
+    expect(previousLeave).toHaveBeenCalledTimes(1);
+    expect(newLeave).not.toHaveBeenCalled();
+    handle!.controller.cancel();
+    removeDropTargetRegistration(target, getTarget);
+  });
+
+  it('does not deliver the previous local payload to a target with a new kind', () => {
+    const originalKind = createKind<{ title: string }>('original');
+    const nextKind = createKind<{ count: number }>('next');
+    const target = createElement();
+    const previousLeave = vi.fn();
+    const newLeave = vi.fn();
+    let changed = false;
+    const getTarget = () =>
+      changed
+        ? { kind: nextKind, payload: { count: 1 }, onDraggableLeave: newLeave }
+        : { kind: originalKind, payload: { title: 'Original' }, onDraggableLeave: previousLeave };
+    addDropTargetRegistration(target, getTarget);
+    const handle = startDragWithHandlers({}, target);
+    changed = true;
+    handle!.controller.update(makeInput(), null);
+    expect(previousLeave).toHaveBeenCalledTimes(1);
+    expect(previousLeave.mock.calls[0][0].target.payload).toEqual({ title: 'Original' });
+    expect(newLeave).not.toHaveBeenCalled();
+    handle!.controller.cancel();
+    removeDropTargetRegistration(target, getTarget);
+  });
+
+  it('does not deliver an old kind to updated monitor callbacks and still closes the original observer', () => {
+    const other = createKind('other');
+    const previousEnd = vi.fn();
+    const newMove = vi.fn();
+    const newEnd = vi.fn();
+    let changed = false;
+    const getMonitor = () =>
+      changed
+        ? { accept: other, onMove: newMove, onMoveEnd: newEnd }
+        : { accept: TEST_KIND, onMoveEnd: previousEnd };
+    monitorRegistry.add(getMonitor);
+    const handle = startDragWithHandlers({});
+    changed = true;
+    handle!.controller.update(makeInput(), null);
+    expect(newMove).not.toHaveBeenCalled();
+    handle!.controller.cancel();
+    expect(previousEnd).toHaveBeenCalledTimes(1);
+    expect(newEnd).not.toHaveBeenCalled();
+    removeMonitor(getMonitor);
+  });
 
   describe('drag session', () => {
     it('prevents concurrent drags', async () => {
@@ -407,6 +520,32 @@ describe('lifecycle manager', () => {
       removeDropTargetRegistration(target, getTarget);
     });
 
+    it('coalesces registration and parameter refreshes while preserving the hit test', async () => {
+      const previousTarget = createElement();
+      const newTarget = createElement();
+      const canDrop = vi.fn(() => true);
+      const getTarget = () => ({ canDrop });
+      addDropTargetRegistration(newTarget, getTarget);
+      let handle: DragSessionHandle | null = null;
+      act(() => {
+        handle = startDragWithHandlers({}, previousTarget);
+      });
+      const hitTest = vi.spyOn(document, 'elementFromPoint').mockReturnValue(newTarget);
+
+      scheduleDropTargetParameterRefresh(previousTarget);
+      scheduleDropTargetParameterRefresh(undefined, true);
+      scheduleDropTargetParameterRefresh(previousTarget);
+      await act(async () => Promise.resolve());
+
+      expect(hitTest).toHaveBeenCalledTimes(1);
+      expect(canDrop).toHaveBeenCalledTimes(1);
+      expect(dragSessionStore.getSnapshot()?.location.current.dropTargets[0]?.element).toBe(
+        newTarget,
+      );
+      act(() => handle!.controller.cancel());
+      removeDropTargetRegistration(newTarget, getTarget);
+    });
+
     it('does not let a stale session suppress a parameter refresh for the next drag', async () => {
       const targetA = createElement();
       const targetB = createElement();
@@ -478,6 +617,38 @@ describe('lifecycle manager', () => {
       removeDropTargetRegistration(target, getTarget);
     });
 
+    it('drains a hovered target unregistering inside canDrop without restoring stale hover state', async () => {
+      const { engine } = await renderDnd();
+      const source = createElement();
+      const target = createElement();
+      let unregisterDuringResolution = false;
+      const onDraggableLeave = vi.fn();
+      engine.registerDraggable(source, {});
+      const cleanup = engine.registerDropTarget(target, {
+        canDrop: () => {
+          if (unregisterDuringResolution) {
+            unregisterDuringResolution = false;
+            cleanup();
+          }
+          return true;
+        },
+        onDraggableLeave,
+      });
+      fireEvent.dragStart(source);
+      fireEvent.dragEnter(target);
+      await flushRaf();
+      expect(dragSessionStore.getSnapshot()?.location.current.dropTargets[0]?.element).toBe(target);
+
+      unregisterDuringResolution = true;
+      fireEvent.dragOver(target, { clientX: 20 });
+      await flushRaf();
+
+      expect(dragSessionStore.getSnapshot()?.location.current.dropTargets).toEqual([]);
+      expect(onDraggableLeave).toHaveBeenCalledTimes(1);
+      fireEvent.dragEnd(source);
+      expect(onDraggableLeave).toHaveBeenCalledTimes(1);
+    });
+
     it('delivers onMove once per frame when a hovered target unregisters during the change round', async () => {
       // The sensor `update` path resolves the stack (skipping the entry `onMove`,
       // since `dispatchDrag()` follows) and then dispatches `onMove`. A handler
@@ -520,20 +691,7 @@ describe('lifecycle manager', () => {
 
       engine.registerDraggable(el, {});
       engine.registerMonitor({
-        onMoveEnd: (moveEvent, moveDetails) => {
-          try {
-            if (moveDetails.reason === 'drop' && moveEvent.dropTarget !== null) {
-              const dropEvent = {
-                source: moveEvent.source,
-                location: moveEvent.location,
-                dropTarget: moveEvent.dropTarget,
-              };
-              onDrop(dropEvent, { ...moveDetails, reason: 'drop' });
-            }
-          } finally {
-            onMoveEnd(moveEvent, moveDetails);
-          }
-        },
+        onMoveEnd: splitEnd(onDrop, onMoveEnd),
       });
 
       fireEvent.dragStart(el);
@@ -566,20 +724,7 @@ describe('lifecycle manager', () => {
 
       engine.registerDraggable(el, {});
       engine.registerMonitor({
-        onMoveEnd: (moveEvent, moveDetails) => {
-          try {
-            if (moveDetails.reason === 'drop' && moveEvent.dropTarget !== null) {
-              const dropEvent = {
-                source: moveEvent.source,
-                location: moveEvent.location,
-                dropTarget: moveEvent.dropTarget,
-              };
-              onDrop(dropEvent, { ...moveDetails, reason: 'drop' });
-            }
-          } finally {
-            onMoveEnd(moveEvent, moveDetails);
-          }
-        },
+        onMoveEnd: splitEnd(onDrop, onMoveEnd),
       });
 
       fireEvent.dragStart(el);
@@ -647,16 +792,7 @@ describe('lifecycle manager', () => {
       engine.registerDraggable(el, {});
       engine.registerDropTarget(target, {});
       engine.registerMonitor({
-        onMoveEnd: (moveEvent, moveDetails) => {
-          if (moveDetails.reason === 'drop' && moveEvent.dropTarget !== null) {
-            const dropEvent = {
-              source: moveEvent.source,
-              location: moveEvent.location,
-              dropTarget: moveEvent.dropTarget,
-            };
-            onDrop(dropEvent, { ...moveDetails, reason: 'drop' });
-          }
-        },
+        onMoveEnd: splitEnd(onDrop),
       });
 
       fireEvent.dragStart(el);
@@ -701,7 +837,7 @@ describe('lifecycle manager', () => {
       expect(events).toContain('end');
     });
 
-    it("fires the source's own onDrop before onMoveEnd, with a non-null dropTarget", async () => {
+    it("delivers the source's end before the target's drop, with a committed drop only, with a non-null dropTarget", async () => {
       const { engine } = await renderDnd();
       const el = createElement();
       const target = createElement();
@@ -715,20 +851,7 @@ describe('lifecycle manager', () => {
       });
 
       engine.registerDraggable(el, {
-        onMoveEnd: (moveEvent, moveDetails) => {
-          try {
-            if (moveDetails.reason === 'drop' && moveEvent.dropTarget !== null) {
-              const dropEvent = {
-                source: moveEvent.source,
-                location: moveEvent.location,
-                dropTarget: moveEvent.dropTarget,
-              };
-              onDrop(dropEvent, { ...moveDetails, reason: 'drop' });
-            }
-          } finally {
-            onMoveEnd(moveEvent, moveDetails);
-          }
-        },
+        onMoveEnd: splitEnd(onDrop, onMoveEnd),
       });
       engine.registerDropTarget(target, { onDraggableDrop: () => events.push('target-drop') });
 
@@ -1032,15 +1155,7 @@ describe('lifecycle manager', () => {
       });
       addDropTargetRegistration(target, getTargetParams);
       const getMonitor = () => ({
-        onMoveEnd: (event: MoveEndEvent, details: MoveEndEventDetails) => {
-          try {
-            if (details.reason === 'drop' && event.dropTarget) {
-              monitorDrop(event, details);
-            }
-          } finally {
-            monitorEnd(event, details);
-          }
-        },
+        onMoveEnd: splitEnd(monitorDrop, monitorEnd),
       });
       monitorRegistry.add(getMonitor);
       engageMonitorIfDragging(getMonitor);
@@ -1096,15 +1211,7 @@ describe('lifecycle manager', () => {
       });
       addDropTargetRegistration(target, getTargetParams);
       const getMonitor = () => ({
-        onMoveEnd: (event: MoveEndEvent, details: MoveEndEventDetails) => {
-          try {
-            if (details.reason === 'drop' && event.dropTarget) {
-              monitorDrop(event, details);
-            }
-          } finally {
-            monitorEnd(event, details);
-          }
-        },
+        onMoveEnd: splitEnd(monitorDrop, monitorEnd),
       });
       monitorRegistry.add(getMonitor);
       engageMonitorIfDragging(getMonitor);

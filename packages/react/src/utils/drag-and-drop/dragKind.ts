@@ -31,8 +31,7 @@ export function createKind<TPayload = undefined>(name: string): DragKind<TPayloa
 }
 
 /**
- * Creates a globally interned drag kind for integrations where independently evaluated
- * bundles must match without sharing the same kind value.
+ * Creates a drag kind shared across bundles using the same key.
  *
  * ```ts
  * const card = Draggable.createGlobalKind<Card>('myapp/card');
@@ -65,7 +64,7 @@ function makeKind<TPayload>(name: string, id: symbol): DragKind<TPayload> {
     id,
     // A type predicate can't be inferred from an implementation, so it is asserted here.
     matches: matches as DragKind<TPayload>['matches'],
-  };
+  } as DragKind<TPayload>;
 }
 
 /**
@@ -87,7 +86,7 @@ export const anyDragKind: DragKind<unknown> = {
   // `anyDragKind` as its `kind`. Answering `true` keeps it honest if a consumer does
   // reach for it as a predicate.
   matches: ((value: unknown) => value != null) as unknown as DragKind<unknown>['matches'],
-};
+} as DragKind<unknown>;
 
 /**
  * Tests a source against an `accept` declaration. Omitted (monitors, auto-scrollers) or

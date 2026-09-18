@@ -1,5 +1,5 @@
 import { addEventListener } from '@base-ui/utils/addEventListener';
-import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
+import { ownerWindow } from '@base-ui/utils/owner';
 import { isShadowRoot } from '@floating-ui/utils/dom';
 import { getSharedSlot } from './sharedState';
 import type { DragCleanupFn } from '../../types/drag';
@@ -61,12 +61,12 @@ interface CreateEventRootBindingOptions {
 
 export function createEventRootBinding(options: CreateEventRootBindingOptions): DocumentBinding {
   const { slot, shadowRootsSlot, type, listener, options: listenerOptions } = options;
-  const boundShadowRoots = getSharedSlot<Map<ShadowRoot, number>>(
+  const boundShadowRoots = getSharedSlot<Set<ShadowRoot>>(
     shadowRootsSlot,
-    () => new Map<ShadowRoot, number>(),
+    () => new Set<ShadowRoot>(),
   );
 
-  const crossesBoundShadowRoot = (event: Event, doc: Document): boolean => {
+  const crossesBoundShadowRoot = (event: Event, currentRoot: DragEventRoot): boolean => {
     // Both window wrappers below ask this for every event of `type` anywhere on
     // the page, for as long as one binding exists; `composedPath()` materializes
     // the whole ancestor chain, so don't build it unless a shadow root is bound.
@@ -75,7 +75,11 @@ export function createEventRootBinding(options: CreateEventRootBindingOptions): 
     }
     const path = event.composedPath();
     for (const root of boundShadowRoots.keys()) {
-      if (ownerDocument(root.host) === doc && path.includes(root.host)) {
+      if (
+        root !== currentRoot &&
+        path.includes(root.host) &&
+        (!isShadowRoot(currentRoot) || path.indexOf(root.host) < path.indexOf(currentRoot))
+      ) {
         return true;
       }
     }
@@ -85,24 +89,11 @@ export function createEventRootBinding(options: CreateEventRootBindingOptions): 
   return createDocumentBinding({
     slot,
     install(root) {
-      if (isShadowRoot(root)) {
-        boundShadowRoots.set(root, (boundShadowRoots.get(root) ?? 0) + 1);
-        const off = addEventListener(root, type, listener, {
-          ...listenerOptions,
-          capture: true,
-        });
-        return () => {
-          off();
-          const count = boundShadowRoots.get(root) ?? 0;
-          if (count <= 1) {
-            boundShadowRoots.delete(root);
-          } else {
-            boundShadowRoots.set(root, count - 1);
-          }
-        };
+      const shadowRoot = isShadowRoot(root);
+      const target = shadowRoot ? root : ownerWindow(root.documentElement);
+      if (shadowRoot) {
+        boundShadowRoots.add(root);
       }
-
-      const win = ownerWindow(root.documentElement);
       // Use fresh wrappers so deferred cleanup cannot remove a later binding.
       const onCapture = (event: Event) => {
         if (!crossesBoundShadowRoot(event, root)) {
@@ -114,14 +105,17 @@ export function createEventRootBinding(options: CreateEventRootBindingOptions): 
           listener(event);
         }
       };
-      const offCapture = addEventListener(win, type, onCapture, {
+      const offCapture = addEventListener(target, type, onCapture, {
         ...listenerOptions,
         capture: true,
       });
-      const offBubble = addEventListener(win, type, onBubble, listenerOptions);
+      const offBubble = addEventListener(target, type, onBubble, listenerOptions);
       return () => {
         offCapture();
         offBubble();
+        if (shadowRoot) {
+          boundShadowRoots.delete(root);
+        }
       };
     },
   });

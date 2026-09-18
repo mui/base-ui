@@ -233,12 +233,21 @@ function ReorderableMenu() {
           >
             <Draggable.CollisionProvider
               kind={menuItemKind}
-              onCollisionChange={({ source, collision }) => {
+              onCollisionChange={({ source, collision, previousCollision }) => {
+                if (
+                  collision &&
+                  previousCollision &&
+                  collision.target.payload === previousCollision.target.payload &&
+                  collision.target.getLocalPoint().y > 0.5 ===
+                    previousCollision.target.getLocalPoint().y > 0.5
+                ) {
+                  return;
+                }
                 if (collision) {
                   list.onDragOverEntry(
                     source.payload,
                     collision.target.payload,
-                    collision.placement === 'after',
+                    collision.target.getLocalPoint().y > 0.5,
                   );
                 }
               }}
@@ -281,12 +290,21 @@ function ReorderableContextMenu() {
           >
             <Draggable.CollisionProvider
               kind={menuItemKind}
-              onCollisionChange={({ source, collision }) => {
+              onCollisionChange={({ source, collision, previousCollision }) => {
+                if (
+                  collision &&
+                  previousCollision &&
+                  collision.target.payload === previousCollision.target.payload &&
+                  collision.target.getLocalPoint().y > 0.5 ===
+                    previousCollision.target.getLocalPoint().y > 0.5
+                ) {
+                  return;
+                }
                 if (collision) {
                   list.onDragOverEntry(
                     source.payload,
                     collision.target.payload,
-                    collision.placement === 'after',
+                    collision.target.getLocalPoint().y > 0.5,
                   );
                 }
               }}

@@ -13,6 +13,7 @@ import {
 import type {
   InternalDraggableParameters,
   RegisterDraggableParameters,
+  RegisterDropTargetParameters,
 } from '../../types/dragRegistration';
 import type { DraggableCollisionContextValue } from '../collision-provider/DraggableCollisionContext';
 import type { DragSource } from '../../types/drag';
@@ -39,19 +40,19 @@ function selectIsDragging(source: DragSource | null, r: ElementRef): boolean {
  */
 export function useDraggableElement<TData = undefined>(
   parameters: RegisterDraggableParameters<TData>,
-  collision?: {
+  collisionOptions?: {
     context: DraggableCollisionContextValue;
     payload: unknown;
+    snap?: RegisterDropTargetParameters<TData>['snap'] | undefined;
     enabled: boolean;
     element?: ((element: HTMLElement) => HTMLElement) | undefined;
   },
 ): UseDraggableElementReturnValue<TData> {
   const registerDraggable = useRegisterDraggable();
-  const options = { parameters, collision };
+  const options = { parameters, collision: collisionOptions };
   const getOptions = useStableCallback(() => options);
   const getParameters = () => getOptions().parameters;
   const getCollision = () => getOptions().collision;
-
   // The `dragging` selector reads the live element behind this ref.
   const elementRef = React.useRef<HTMLElement | null>(null);
   // Every mounted handle, in mount order, tagged with the token its
@@ -100,11 +101,23 @@ export function useDraggableElement<TData = undefined>(
     }
     const unregisterCollision = collisionConfig.context.register(
       collisionConfig.element?.(element) ?? element,
-      () => ({
-        kind: getParameters().kind,
-        payload: getCollision()?.payload,
-        disabled: getParameters().disabled || !getCollision()?.enabled,
-      }),
+      () => {
+        const collision = getCollision();
+        const snap = collision?.snap;
+        return {
+          kind: getParameters().kind,
+          payload: collision?.payload,
+          snap:
+            typeof snap === 'function'
+              ? (context) => {
+                  // The provider accepts only this participant's source kind.
+                  return snap({ ...context, source: context.source as DragSource<TData> });
+                }
+              : snap,
+          // A disabled source stays a destination; only `collision={false}` opts out.
+          disabled: !collision?.enabled,
+        };
+      },
       element,
     );
     return () => {
@@ -207,9 +220,13 @@ export function useDraggableElement<TData = undefined>(
       return;
     }
     registrationRef(element);
-    // `registrationRef` and `elementRef` are stable; only `reconcileKey` should retrigger.
+    // `registrationRef` and `elementRef` are stable; only the keys below should
+    // retrigger. `collision.element` is deliberately not one of them: the resolver
+    // is commonly an inline arrow, and re-registering the source and its
+    // participant on every render would churn the hovered target mid-drag. It is
+    // read once, at registration.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [reconcileKey, collision?.context, collision?.enabled, collision?.element]);
+  }, [reconcileKey, collisionOptions?.context, collisionOptions?.enabled]);
 
   const dragging = useStore(dragSourceStore, selectIsDragging, elementRef);
 

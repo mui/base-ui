@@ -3,7 +3,7 @@ export { DraggableHandle as Handle } from './handle/DraggableHandle';
 export { DraggablePreview as Preview } from './preview/DraggablePreview';
 export { DraggableProvider as Provider } from './DraggableProvider';
 
-export { useDraggableActiveDrag as useActiveDrag } from './use-active-drag';
+export { useActiveDrag } from './use-active-drag';
 
 export {
   createKind,
@@ -20,10 +20,10 @@ export {
   snapToGrid,
 } from '../utils/drag-and-drop/dragModifiers';
 
-export { DropTargetRoot as Target } from '../drop-target/root/DropTargetRoot';
-export { DragAutoScrollRoot as Viewport } from '../drag-auto-scroll/root/DragAutoScrollRoot';
-export { useDragMonitor } from '../use-drag-monitor/useDragMonitor';
-export { useDragDropManager } from '../use-drag-drop-manager/useDragDropManager';
+export { DraggableTarget as Target } from './target/DraggableTarget';
+export { DraggableViewport as Viewport } from './viewport/DraggableViewport';
+export { useDragMonitor } from './use-drag-monitor/useDragMonitor';
+export { useDragDropManager } from './use-drag-drop-manager/useDragDropManager';
 export type * from '../types/drag';
 
 export { DraggableCollisionProvider as CollisionProvider } from './collision-provider/DraggableCollisionProvider';

@@ -45,7 +45,7 @@ function Grip() {
 
 function Widget({ widget }: { widget: WidgetData }) {
   return (
-    <Draggable.Root kind={widgetKind} payload={widget.id} role="button" className={styles.Widget}>
+    <Draggable.Root kind={widgetKind} payload={widget.id} className={styles.Widget}>
       <div className={styles.WidgetHeader}>
         <Grip />
         <span>{widget.title}</span>

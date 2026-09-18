@@ -6,6 +6,7 @@ import {
   flushRaf,
   registerCleanup,
   setupDragEngineTests,
+  splitEnd,
 } from '../../../../test/dnd';
 import { cancelDrag } from '../cancelDrag';
 import { WindowAnimationFrame } from '../../windowAnimationFrame';
@@ -354,20 +355,7 @@ describe('syntheticDrag sensor', () => {
     engine.registerDraggable(src, {
       activation: { pen: { type: 'immediate' } },
 
-      onMoveEnd: (moveEvent, moveDetails) => {
-        try {
-          if (moveDetails.reason === 'drop' && moveEvent.dropTarget !== null) {
-            const dropEvent = {
-              source: moveEvent.source,
-              location: moveEvent.location,
-              dropTarget: moveEvent.dropTarget,
-            };
-            onDrop(dropEvent);
-          }
-        } finally {
-          onMoveEnd(moveEvent);
-        }
-      },
+      onMoveEnd: splitEnd(onDrop, onMoveEnd),
     });
     engine.registerDropTarget(tgt, {});
     engine.registerMonitor({ onTargetChange });
@@ -636,20 +624,7 @@ describe('syntheticDrag sensor', () => {
     engine.registerDraggable(src, {
       activation: { touch: { type: 'immediate' } },
 
-      onMoveEnd: (moveEvent, moveDetails) => {
-        try {
-          if (moveDetails.reason === 'drop' && moveEvent.dropTarget !== null) {
-            const dropEvent = {
-              source: moveEvent.source,
-              location: moveEvent.location,
-              dropTarget: moveEvent.dropTarget,
-            };
-            onDrop(dropEvent);
-          }
-        } finally {
-          onMoveEnd(moveEvent);
-        }
-      },
+      onMoveEnd: splitEnd(onDrop, onMoveEnd),
     });
     engine.registerDropTarget(tgt, {});
 
@@ -829,7 +804,7 @@ describe('syntheticDrag sensor', () => {
 
     // Android fires `pointercancel` and *then* the long-press `contextmenu`; the
     // suppression armed at pointerdown must survive the active-phase teardown to
-    // swallow it (the 1.5s timer target-heals it afterwards).
+    // swallow it (the 1.5s timer self-heals it afterwards).
     const contextMenu = new Event('contextmenu', { bubbles: true, cancelable: true });
     dispatch(el, contextMenu);
     expect(contextMenu.defaultPrevented).toBe(true);
@@ -851,7 +826,7 @@ describe('syntheticDrag sensor', () => {
     expect(contextMenu.defaultPrevented).toBe(false);
   });
 
-  it('disarms the contextmenu suppression on its own after 1.5s (target-heal)', async () => {
+  it('disarms the contextmenu suppression on its own after 1.5s (self-heal)', async () => {
     const { engine } = await renderDnd();
     const el = createElement();
     engine.registerDraggable(el, {});
@@ -962,6 +937,34 @@ describe('syntheticDrag sensor', () => {
     expect(onMoveStart).toHaveBeenCalledTimes(1);
 
     touchUp(50, 50);
+  });
+
+  it('honors imperative cancellation inside onBeforeMoveStart and allows a later pickup', async () => {
+    const { engine } = await renderDnd();
+    const el = createElement();
+    const onMoveStart = vi.fn();
+    let block = true;
+    engine.registerDraggable(el, {
+      activation: { pen: { type: 'immediate' } },
+      onBeforeMoveStart: () => {
+        if (block) {
+          engine.cancelDrag();
+        }
+      },
+      onMoveStart,
+    });
+
+    penDown(el, 50, 50);
+    expect(onMoveStart).not.toHaveBeenCalled();
+    expect(dragSessionStore.getSnapshot()).toBeNull();
+    expect(el.hasAttribute('draggable')).toBe(false);
+    expect(el.hasAttribute('data-dragging')).toBe(false);
+    penUp(50, 50);
+
+    block = false;
+    penDown(el, 50, 50);
+    expect(onMoveStart).toHaveBeenCalledOnce();
+    penUp(50, 50);
   });
 
   it('a throwing onBeforeMoveStart tears the pending phase down', async () => {
@@ -2725,45 +2728,54 @@ describe('syntheticDrag sensor', () => {
       expect(() => syntheticSensor.notifyExternalScroll()).not.toThrow();
     });
 
-    it('re-resolves after a scroll inside a shadow root holding a drop target', async () => {
-      const { engine } = await renderDnd();
-      const src = createElement();
-      const host = createElement();
-      const shadow = host.attachShadow({ mode: 'open' });
-      const scroller = document.createElement('div');
-      shadow.appendChild(scroller);
-      const inner = document.createElement('div');
-      inner.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
-      scroller.appendChild(inner);
-      const onDraggableEnter = vi.fn();
-      engine.registerDraggable(src, { activation: { touch: { type: 'immediate' } } });
-      engine.registerDropTarget(inner, { onDraggableEnter });
+    it.each([false, true])(
+      're-resolves after a shadow scroll with nested roots: %s',
+      async (nested) => {
+        const { engine } = await renderDnd();
+        const src = createElement();
+        const host = createElement();
+        const shadow = host.attachShadow({ mode: 'open' });
+        const scroller = document.createElement('div');
+        shadow.appendChild(scroller);
+        const inner = document.createElement('div');
+        inner.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
+        if (nested) {
+          const innerHost = document.createElement('div');
+          scroller.appendChild(innerHost);
+          innerHost.attachShadow({ mode: 'closed' }).appendChild(inner);
+        } else {
+          scroller.appendChild(inner);
+        }
+        const onDraggableEnter = vi.fn();
+        engine.registerDraggable(src, { activation: { touch: { type: 'immediate' } } });
+        engine.registerDropTarget(inner, { onDraggableEnter });
 
-      const originalEFP = document.elementFromPoint;
-      const hit = { current: null as Element | null };
-      document.elementFromPoint = (() => hit.current) as typeof document.elementFromPoint;
-      registerCleanup(() => {
-        document.elementFromPoint = originalEFP;
-      });
+        const originalEFP = document.elementFromPoint;
+        const hit = { current: null as Element | null };
+        document.elementFromPoint = (() => hit.current) as typeof document.elementFromPoint;
+        registerCleanup(() => {
+          document.elementFromPoint = originalEFP;
+        });
 
-      touchDown(src, 10, 10);
-      await flushRaf();
-      await flushRaf();
-      expect(onDraggableEnter).not.toHaveBeenCalled();
+        touchDown(src, 10, 10);
+        await flushRaf();
+        await flushRaf();
+        expect(onDraggableEnter).not.toHaveBeenCalled();
 
-      // Scrolling a container inside the shadow root slides the target under
-      // the stationary pointer. `scroll` is neither bubbling nor composed, so
-      // only the per-shadow-root capture listener installed at drag start can
-      // observe it and re-arm the resolution frame.
-      hit.current = inner;
-      dispatch(scroller, new Event('scroll'));
-      await flushRaf();
-      await flushRaf();
+        // Scrolling a container inside the shadow root slides the target under
+        // the stationary pointer. `scroll` is neither bubbling nor composed, so
+        // only the per-shadow-root capture listener installed at drag start can
+        // observe it and re-arm the resolution frame.
+        hit.current = inner;
+        dispatch(scroller, new Event('scroll'));
+        await flushRaf();
+        await flushRaf();
 
-      expect(onDraggableEnter).toHaveBeenCalledTimes(1);
+        expect(onDraggableEnter).toHaveBeenCalledTimes(1);
 
-      touchUp(10, 10);
-    });
+        touchUp(10, 10);
+      },
+    );
 
     it('watches a shadow root whose first drop target registers during the drag', async () => {
       const { engine } = await renderDnd();

@@ -13,6 +13,7 @@ import { registerDraggable as registerDraggableInRegistry } from './draggableReg
 import { registerAutoScroller, registerDropTarget, registerMonitor } from './registrations';
 import { onceCleanup } from './utils';
 import { cancelDrag } from './cancelDrag';
+import { isActive } from './core/lifecycleManager';
 import { clearPublishedDragPreview, publishDragPreview } from './overlay/dragPreviewStore';
 import { useDragPreviewContext } from './overlay/DragPreviewContext';
 import type { DragPreviewContext } from './overlay/DragPreviewContext';
@@ -42,7 +43,9 @@ export class DragEngineBase {
     private readonly getCSPContext: LatestGetter<CSPContextValue>,
   ) {}
 
-  // The nearest `Draggable.Provider`, or `null` when there is none.
+  // The preview context of the nearest `Draggable.Provider`. Always present for the
+  // React parts and hooks, which throw without a provider; `null` only when the
+  // engine is used by an integration that never renders custom previews.
   private get previewContext(): DragPreviewContext | null {
     return this.getPreviewContext();
   }
@@ -78,6 +81,9 @@ export class DragEngineBase {
       }
       const preview = getActivePreview();
       const previewNode = preview ? settings.render(payload) : null;
+      if (!isActive() || getActivePreview() !== preview) {
+        return;
+      }
       // Content that resolves to nothing declines the preview for this drag. Drop
       // the host the sensor built, or an empty box would follow the pointer.
       if (preview == null || previewNode == null || previewNode === false) {

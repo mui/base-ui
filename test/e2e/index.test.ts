@@ -438,6 +438,29 @@ describe('e2e', () => {
           await expect(touchPage.getByTestId('drag-status')).toHaveText(
             JSON.stringify({ startCount: 1, endCount: 1 }),
           );
+          await expect(touchPage.getByTestId('drop-status')).toHaveText(
+            JSON.stringify({ dropCount: 1, reason: 'drop', canceled: false }),
+          );
+          expect(await touchPage.evaluate(() => window.scrollY)).toBe(0);
+        });
+      });
+
+      it('keeps the page still after the touch source is removed', { timeout: 10000 }, async () => {
+        await withTouchPage(async (touchPage, dispatchTouch) => {
+          const press = await pressDraggable(touchPage, dispatchTouch);
+          await expect(touchPage.getByTestId('drag-status')).toHaveText(
+            JSON.stringify({ startCount: 1, endCount: 0 }),
+          );
+          await touchPage
+            .getByTestId('unmount-source')
+            .evaluate((element) => (element as HTMLButtonElement).click());
+          await swipeUp(dispatchTouch, press);
+          await expect(touchPage.getByTestId('drag-status')).toHaveText(
+            JSON.stringify({ startCount: 1, endCount: 1 }),
+          );
+          await expect(touchPage.getByTestId('drop-status')).toHaveText(
+            JSON.stringify({ dropCount: 1, reason: 'drop', canceled: false }),
+          );
           expect(await touchPage.evaluate(() => window.scrollY)).toBe(0);
         });
       });

@@ -12,26 +12,41 @@ export const DEFAULT_ACTIVATION: Record<DragPointerType, DragActivation> = {
   touch: { type: 'press-hold', delay: 250 },
 };
 
+/**
+ * The press activations for `pointerType`: every entry that addresses it, minus
+ * `double-click` (handled by the `dblclick` and double-tap paths). The per-pointer
+ * default applies only when no entry addresses the pointer type at all, so
+ * `[{ mouse: double-click }, { touch: press-hold }]` leaves mouse with the
+ * double-click alone. An empty array disables pickup.
+ */
 export function resolveActivation(
   config: DragActivationConfig | readonly DragActivationConfig[] | undefined,
   pointerType: DragPointerType,
 ): DragActivation[] {
-  const configs =
-    config === undefined ? [DEFAULT_ACTIVATION[pointerType]] : normalizeConfig(config);
-  return configs.flatMap((activation) => {
-    if ('type' in activation) {
-      return activation.type === 'double-click' ? [] : [activation];
+  if (config === undefined) {
+    return [DEFAULT_ACTIVATION[pointerType]];
+  }
+  const configs = normalizeConfig(config);
+  let addressed = configs.length === 0;
+  const activations = configs.flatMap((activation) => {
+    const specific = 'type' in activation ? activation : activation[pointerType];
+    if (!specific) {
+      return [];
     }
-    const specific = activation[pointerType];
-    if (specific && specific.type !== 'double-click') {
-      return [specific];
-    }
-    return specific ? [] : [DEFAULT_ACTIVATION[pointerType]];
+    addressed = true;
+    return specific.type === 'double-click' ? [] : [specific];
   });
+  return addressed ? activations : [DEFAULT_ACTIVATION[pointerType]];
 }
 
+/**
+ * Whether `pointerType` can pick up with a double-click (mouse) or a double-tap
+ * (touch, pen). A single-value `double-click` applies to every pointer type; a
+ * per-pointer map opts each type in on its own.
+ */
 export function hasDoubleClickActivation(
   config: DragActivationConfig | readonly DragActivationConfig[] | undefined,
+  pointerType: DragPointerType,
 ): boolean {
   if (config === undefined) {
     return false;
@@ -40,7 +55,7 @@ export function hasDoubleClickActivation(
     if ('type' in activation) {
       return activation.type === 'double-click';
     }
-    return activation.mouse?.type === 'double-click';
+    return activation[pointerType]?.type === 'double-click';
   });
 }
 
@@ -119,7 +134,10 @@ export function getActivationDelayMs(
  * - `distance`: the drag starts after the pointer has moved by `distance` CSS pixels.
  * - `press-hold`: the drag starts after `delay` ms of holding still; movement
  *   larger than `tolerance` CSS pixels (default 5) cancels the gesture.
- * - `double-click`: the drag starts on a double-click and ends on the next click.
+ * - `double-click`: with a mouse, the drag starts on a double-click, follows the
+ *   pointer without a held button, and ends on the next primary click. With touch
+ *   or pen, the drag starts on the second tap of a double-tap while the pointer
+ *   is still down, and ends on release.
  */
 export type DragActivation =
   | { type: 'immediate' }
@@ -130,14 +148,14 @@ export type DragActivation =
 /**
  * A single activation applied to all pointer types, or a per-pointer map.
  * Missing entries fall back to the per-pointer defaults. Pass an array of these
- * values to enable multiple activation methods. Double-click pickup is mouse-only.
+ * values to enable multiple activation methods.
  */
 export type DragActivationConfig =
   | DragActivation
   | {
       mouse?: DragActivation | undefined;
-      touch?: Exclude<DragActivation, { type: 'double-click' }> | undefined;
-      pen?: Exclude<DragActivation, { type: 'double-click' }> | undefined;
+      touch?: DragActivation | undefined;
+      pen?: DragActivation | undefined;
     };
 
 export type ActivationDecision = 'pending' | 'activate' | 'cancel';

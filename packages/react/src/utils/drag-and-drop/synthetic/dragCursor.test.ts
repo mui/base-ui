@@ -52,6 +52,20 @@ describe('dragCursor', () => {
     resetDropTargets();
   });
 
+  it('restores the cursor custom property priority', () => {
+    const root = document.documentElement;
+    const previous = root.style.cssText;
+    try {
+      root.style.setProperty(CURSOR_VAR, 'crosshair', 'important');
+      dragCursor.lock(document.body, 'grabbing');
+      dragCursor.unlock();
+      expect(root.style.getPropertyValue(CURSOR_VAR)).toBe('crosshair');
+      expect(root.style.getPropertyPriority(CURSOR_VAR)).toBe('important');
+    } finally {
+      root.style.cssText = previous;
+    }
+  });
+
   it('injects a single scoped cursor rule at module use', () => {
     dragCursor.lock(document.body, 'grabbing');
     // Serialized from the CSSOM, so the `!important` the source declares is not
@@ -60,6 +74,14 @@ describe('dragCursor', () => {
     expect(scopedCursorRule()).toContain(`html.${DRAGGING_CLASS}.${STYLE_CLASS} *`);
     expect(scopedCursorRule()).toContain(`cursor: var(${CURSOR_VAR}, grabbing)`);
     dragCursor.unlock();
+  });
+
+  it.skipIf(isJSDOM)('keeps the dragging cursor on the document root', () => {
+    const previous = getComputedStyle(document.documentElement).cursor;
+    dragCursor.lock(document.body, 'grabbing');
+    expect(getComputedStyle(document.documentElement).cursor).toBe('grabbing');
+    dragCursor.unlock();
+    expect(getComputedStyle(document.documentElement).cursor).toBe(previous);
   });
 
   it('inserts the rule through CSSOM without style text', () => {

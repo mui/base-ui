@@ -120,16 +120,6 @@
   }
 }
 
-.Empty {
-  font-size: 0.875rem;
-  line-height: 1.25rem;
-  color: oklch(55.6% 0 0deg);
-
-  @media (prefers-color-scheme: dark) {
-    color: oklch(70.8% 0 0deg);
-  }
-}
-
 .Card {
   display: inline-flex;
   align-items: center;

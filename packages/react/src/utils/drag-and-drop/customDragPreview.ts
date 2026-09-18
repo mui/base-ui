@@ -34,7 +34,10 @@ export function resolveDragPreviewOffset(
  * Expose the source element's size to the preview content as the
  * `--drag-source-width`/`--drag-source-height` CSS variables.
  */
-export function applySourceSizeVars(container: HTMLElement, sourceRect: DOMRect): void {
+export function applySourceSizeVars(
+  container: HTMLElement,
+  sourceRect: Pick<DOMRect, 'width' | 'height'>,
+): void {
   container.style.setProperty('--drag-source-width', `${sourceRect.width}px`);
   container.style.setProperty('--drag-source-height', `${sourceRect.height}px`);
 }

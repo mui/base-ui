@@ -105,9 +105,9 @@ function AxisLaneContent() {
       </p>
       {/* @highlight-start */}
       <Draggable.Viewport
-        onDragScroll={(event, { direction }) => {
+        onDragScroll={({ direction }, eventDetails) => {
           if (direction !== 'horizontal') {
-            event.preventDefault();
+            eventDetails.cancel();
           }
         }}
         className={styles.Lane}
@@ -131,7 +131,6 @@ function AxisLaneContent() {
               kind={stopKind}
               payload={stop.id}
               data-stop
-              role="button"
               className={styles.Stop}
             >
               <Grip />
@@ -147,7 +146,7 @@ function AxisLaneContent() {
 export default function AxisLane() {
   return (
     <Draggable.Provider>
-      <DragPageAutoScroll />
+      <DragPageAutoScroll accept={stopKind} />
       <AxisLaneContent />
     </Draggable.Provider>
   );

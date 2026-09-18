@@ -30,6 +30,7 @@ expectType<DragKind<undefined>, typeof marker>(marker);
 
 <Draggable.Root
   kind={marker}
+  onDrop={(event) => expectType<DataTransfer, typeof event.dataTransfer>(event.dataTransfer)}
   onMoveStart={({ source }) => {
     expectType<undefined, typeof source.payload>(source.payload);
   }}
@@ -291,23 +292,15 @@ function GenericCard<TData>(props: Draggable.Root.PropsWithPayload<TData>) {
 }
 <GenericCard kind={card} payload={{ id: 'a' }} />;
 
-// The native HTML5 drag props are omitted on purpose: they belong to a separate
-// interaction model, and the handlers would compile but never
-// fire for an engine drag. Pinned negatively so a future props merge can't
-// silently re-expose them alongside the synthetic API.
 // @ts-expect-error `draggable` starts a native drag that fights the pointer sensor.
 <Draggable.Root kind={marker} draggable />;
-// @ts-expect-error native capture-phase drag handlers never fire for engine drags.
 <Draggable.Root kind={marker} onDragStartCapture={() => {}} />;
-// @ts-expect-error
 <Draggable.Root kind={marker} onDragEndCapture={() => {}} />;
 // @ts-expect-error
 <Draggable.Root kind={marker} onDraggableEnter={() => {}} />;
 // @ts-expect-error
 <Draggable.Root kind={marker} onDraggableLeave={() => {}} />;
-// @ts-expect-error
 <Draggable.Root kind={marker} onDragOver={() => {}} />;
-// @ts-expect-error
 <Draggable.Root kind={marker} onDragExit={() => {}} />;
 // Engine callbacks preserve the source payload type.
 <Draggable.Root
@@ -335,20 +328,28 @@ function GenericCard<TData>(props: Draggable.Root.PropsWithPayload<TData>) {
   }}
 />;
 
-// @ts-expect-error successful drops are handled through onMoveEnd.
+// Native drops are separate from engine drops handled through onMoveEnd.
 <Draggable.Root kind={marker} onDrop={() => {}} />;
 
 // Drag events carry the native pointer or double-click input.
 <Draggable.Root
   kind={marker}
   onBeforeMoveStart={(_, eventDetails) => {
-    expectType<PointerEvent | MouseEvent, typeof eventDetails.event>(eventDetails.event);
+    if (eventDetails.reason === 'double-click') {
+      expectType<MouseEvent | PointerEvent, typeof eventDetails.event>(eventDetails.event);
+    } else {
+      expectType<'pointer', typeof eventDetails.reason>(eventDetails.reason);
+      expectType<PointerEvent, typeof eventDetails.event>(eventDetails.event);
+    }
+  }}
+  onMoveStart={(_, eventDetails) => {
+    expectType<'pointer' | 'double-click', typeof eventDetails.reason>(eventDetails.reason);
   }}
   onMove={(_, eventDetails) => {
     if (eventDetails.reason === 'modifier-key') {
       expectType<KeyboardEvent, typeof eventDetails.event>(eventDetails.event);
     } else {
-      expectType<PointerEvent | MouseEvent, typeof eventDetails.event>(eventDetails.event);
+      expectType<PointerEvent, typeof eventDetails.event>(eventDetails.event);
     }
   }}
   onMoveEnd={(_, eventDetails) => {
@@ -362,8 +363,17 @@ function GenericCard<TData>(props: Draggable.Root.PropsWithPayload<TData>) {
 
 <Draggable.Root activation={[{ type: 'distance', distance: 8 }, { type: 'double-click' }]} />;
 <Draggable.Root activation={{ mouse: { type: 'double-click' } }} />;
-
-// @ts-expect-error double-click is a mouse activation method.
+// Double-tap pickup for touch and pen shares the `double-click` type.
 <Draggable.Root activation={{ touch: { type: 'double-click' } }} />;
-// @ts-expect-error double-click is a mouse activation method.
 <Draggable.Root activation={{ pen: { type: 'double-click' } }} />;
+
+// @ts-expect-error explicit unknown must not weaken the kind's payload requirement.
+<Draggable.Root<unknown> kind={card} payload={null} />;
+// @ts-expect-error explicit optional properties must not weaken the kind's payload requirement.
+<Draggable.Root<{ id?: string }> kind={card} payload={{}} />;
+// @ts-expect-error widening a producer kind would allow publishing invalid payloads.
+const widenedCard: DragKind<unknown> = card;
+
+const observer: import('@base-ui/react/draggable').DragAcceptedKind = card;
+// @ts-expect-error an observational kind cannot be used to publish arbitrary payloads.
+<Draggable.Root<unknown> kind={observer} payload={null} />;

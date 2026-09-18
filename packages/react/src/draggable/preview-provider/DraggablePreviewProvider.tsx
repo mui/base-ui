@@ -27,8 +27,6 @@ export const DraggablePreviewProvider: React.FC<DraggablePreviewProvider.Props> 
     );
   };
 
-export interface DraggablePreviewProviderState {}
-
 export interface DraggablePreviewProviderProps {
   /**
    * The part of your app whose custom drag previews render in this provider.
@@ -37,6 +35,5 @@ export interface DraggablePreviewProviderProps {
 }
 
 export namespace DraggablePreviewProvider {
-  export type State = DraggablePreviewProviderState;
   export type Props = DraggablePreviewProviderProps;
 }

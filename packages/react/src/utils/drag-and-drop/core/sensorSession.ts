@@ -13,7 +13,7 @@ import { compileDragModifiers } from '../dragModifiers';
 import { attachDefaultDragPreview } from '../synthetic/defaultDragPreview';
 import { createSyntheticPreview, type SyntheticPreviewHandle } from '../synthetic/syntheticPreview';
 import type { DraggableConfig } from '../draggable';
-import type { DragSource, DragInput } from '../../../types/drag';
+import type { DragSource, DragInput, DragStartReason } from '../../../types/drag';
 
 export interface StartSensorSessionParameters {
   /** The draggable's latest parameters (kind/payload/event handlers). */
@@ -27,19 +27,23 @@ export interface StartSensorSessionParameters {
    * so `onMoveStart` reports a real event rather than a placeholder.
    */
   initialEvent?: Event | undefined;
+  /** Why the pickup started (see `StartParameters.startReason`). */
+  startReason?: DragStartReason | undefined;
   /** The engine-managed preview, so the lifecycle can skip it when hit-testing. */
   preview: SyntheticPreviewHandle;
   /** The pickup grab offset (see `StartParameters.grabOffset`). */
   grabOffset?: { x: number; y: number } | undefined;
   /** Sensor-side force-cleanup, run from the lifecycle's teardown path. */
   onForceCleanup: () => void;
+  /** Whether the sensor still owns the pickup after consumer callbacks. */
+  isPickupCurrent?: (() => boolean) | undefined;
 }
 
 /**
  * Resolve the draggable's `payload`, build the `DragSource` and the
  * source-handler map, then start the lifecycle. Returns the session handle, or
  * `null` when the lifecycle declined to start (a concurrent drag is already
- * active).
+ * active, or a resolver or start handler canceled pickup).
  *
  * Module-private: sensors go through `createPreviewAndStartSession` below, which
  * wraps this with the preview and undo handling a bare session start skips.
@@ -52,6 +56,7 @@ function startSensorSession(parameters: StartSensorSessionParameters): DragSessi
     initialInput,
     initialTarget,
     initialEvent,
+    startReason,
     preview,
     grabOffset,
     onForceCleanup,
@@ -61,6 +66,9 @@ function startSensorSession(parameters: StartSensorSessionParameters): DragSessi
     ? source.getPayload({ input: initialInput, element, dragHandle })
     : source.payload;
 
+  if (parameters.isPickupCurrent?.() === false) {
+    return null;
+  }
   const dragSource: DragSource = {
     element,
     kind: source.kind.id,
@@ -70,7 +78,7 @@ function startSensorSession(parameters: StartSensorSessionParameters): DragSessi
 
   // Read the draggable's latest parameters live on each dispatch so a source that
   // re-renders mid-drag runs its current handler closures. Falls back to the
-  // start-time `source` snapshot if the element unregisters mid-drag.
+  // last compatible snapshot if the element unregisters or changes kind mid-drag.
   // `kind`/`payload` stay start-time (they live in `dragSource`); only
   // handlers are read fresh.
   //
@@ -79,8 +87,14 @@ function startSensorSession(parameters: StartSensorSessionParameters): DragSessi
   // the new element and re-points `dragSource.element` at it (see
   // `retargetDragSource`). The old element's registration is gone, so
   // resolving against the live node keeps the fresh handler closures flowing.
-  const getLatestParameters = (): DraggableConfig<any> =>
-    getRegistration(dragSource.element)?.() ?? source;
+  let compatibleParameters = { ...source };
+  const getLatestParameters = (): DraggableConfig<any> => {
+    const current = getRegistration(dragSource.element)?.();
+    if (current?.kind.id === dragSource.kind) {
+      compatibleParameters = { ...current };
+    }
+    return compatibleParameters;
+  };
 
   return start({
     payload: dragSource,
@@ -88,6 +102,7 @@ function startSensorSession(parameters: StartSensorSessionParameters): DragSessi
     initialInput,
     initialTarget,
     initialEvent,
+    startReason,
     grabOffset,
     synthetic: {
       getPreviewElement: () => preview.getPreviewElement()?.element ?? null,
@@ -127,7 +142,7 @@ export interface PreviewSessionHandle {
  * Build the engine-managed preview for a pickup and start the lifecycle session.
  *
  * On success returns the session and the preview it owns. When the pickup
- * throws or the lifecycle refuses to start (a drag is already running), every
+ * throws or the lifecycle refuses to start (a drag is already running or pickup was canceled), every
  * resource acquired here is undone — the preview is destroyed, the published
  * handle slot is restored, `release` runs — and the sensor only has its own
  * pre-pickup state left to clean up. A throw is re-thrown after the undo.
@@ -170,6 +185,9 @@ export function createPreviewAndStartSession(
       : initialInput;
 
     const previewSettings = resolveDragPreview(draggableParameters, element);
+    if (sessionParameters.isPickupCurrent?.() === false) {
+      return null;
+    }
     preview = createSyntheticPreview(element, {
       kind: draggableParameters.kind.id,
       previewKey: draggableParameters.previewKey,
@@ -193,6 +211,10 @@ export function createPreviewAndStartSession(
     // preview modifier gated on one is honored from the very first placement.
     preview.update(initialInput.clientX, initialInput.clientY, initialInput);
 
+    if (sessionParameters.isPickupCurrent?.() === false) {
+      undo();
+      return null;
+    }
     session = startSensorSession({
       ...sessionParameters,
       preview,
@@ -204,7 +226,7 @@ export function createPreviewAndStartSession(
   }
 
   if (!session) {
-    // The lifecycle refused (a drag is already running). Restore whatever the slot
+    // The lifecycle refused (a drag is already running or pickup was canceled). Restore whatever the slot
     // held before this pickup published — the refusing drag is still in progress
     // and its handle must keep flowing.
     undo();
