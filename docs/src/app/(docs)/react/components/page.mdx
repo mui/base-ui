@@ -1541,7 +1541,7 @@ A common form component for choosing a predefined value in a dropdown menu.
 
 <summary>Outline</summary>
 
-- Keywords: React Select Component, Dropdown Select, Select Box, Select Menu, Picker, Listbox, Choice Selector, Option List, Dropdown Menu, Combo Box, Multi Select React, Multiselect, Object Value Select, Single Select, Keyboard Navigation Select, Listbox Role, Accessible Select, Align Item with Trigger, Headless React Components, Base UI
+- Keywords: React Select Component, Dropdown Select, Select Box, Select Menu, Picker, Listbox, Choice Selector, Option List, Dropdown Menu, Combo Box, Multi Select React, Multiselect, Object Value Select, Filterable Select, Searchable Select, Single Select, Keyboard Navigation Select, Listbox Role, Accessible Select, Align Item with Trigger, Headless React Components, Base UI
 - Sections:
   - Usage guidelines
   - Anatomy
@@ -1554,6 +1554,10 @@ A common form component for choosing a predefined value in a dropdown menu.
     - Multiple selection
     - Object values
     - Grouped
+    - Filtering
+      - Filtering options
+      - Custom matching
+      - Filterable select or Combobox
   - API reference
     - Root
     - Label
@@ -1569,11 +1573,16 @@ A common form component for choosing a predefined value in a dropdown menu.
     - Item
     - ItemText
     - ItemIndicator
+    - FilterProvider
+    - FilterInput
+    - FilterClear
+    - FilterEmpty
     - Group
     - GroupLabel
     - ScrollUpArrow
     - ScrollDownArrow
     - Separator
+  - useFilter
 - Exports:
   - Select - Root
     - Props: actionsRef, autoComplete, children, defaultOpen, defaultValue, disabled, form, highlightItemOnHover, id, inputRef, isItemEqualToValue, itemToStringLabel, itemToStringValue, items, modal, multiple, name, onOpenChange, onOpenChangeComplete, onValueChange, open, readOnly, required, value
@@ -1604,7 +1613,7 @@ A common form component for choosing a predefined value in a dropdown menu.
     - Props: className, render, style
     - Data Attributes: data-align, data-closed, data-open, data-side, data-uncentered
   - Select - Item
-    - Props: children, className, disabled, label, nativeButton, render, style, value
+    - Props: children, className, disabled, keywords, label, nativeButton, render, style, value
     - Data Attributes: data-disabled, data-highlighted, data-selected
   - Select - Group
     - Props: className, render, style
@@ -1625,7 +1634,19 @@ A common form component for choosing a predefined value in a dropdown menu.
   - Select - ScrollDownArrow
     - Props: className, keepMounted, render, style
     - Data Attributes: data-direction, data-ending-style, data-side, data-starting-style, data-visible
-- Types: Select.Arrow.Props, Select.Arrow.State, Select.Backdrop.Props, Select.Backdrop.State, Select.Group.Props, Select.Group.State, Select.GroupLabel.Props, Select.GroupLabel.State, Select.Icon.Props, Select.Icon.State, Select.Item.Props, Select.Item.State, Select.ItemIndicator.Props, Select.ItemIndicator.State, Select.ItemText.Props, Select.ItemText.State, Select.Label.Props, Select.Label.State, Select.List.Props, Select.List.State, Select.Popup.Props, Select.Popup.State, Select.Portal.Props, Select.Portal.State, Select.Positioner.Props, Select.Positioner.State, Select.Root.Actions, Select.Root.ChangeEventDetails, Select.Root.ChangeEventReason, Select.Root.Props, Select.Root.State, Select.ScrollDownArrow.Props, Select.ScrollDownArrow.State, Select.ScrollUpArrow.Props, Select.ScrollUpArrow.State, Select.Separator.Props, Select.Separator.State, Select.Trigger.Props, Select.Trigger.State, Select.Value.Props, Select.Value.State
+  - Select - FilterClear
+    - Props: className, disabled, nativeButton, render, style
+    - Data Attributes: data-disabled
+  - Select - FilterEmpty
+    - Props: className, render, style
+  - Select - FilterInput
+    - Props: className, render, style
+    - Data Attributes: data-highlighted
+  - Select - FilterProvider
+    - Props: autoHighlight, children, defaultInputValue, filter, inputValue, locale, onInputValueChange
+  - Select - useFilter
+    - Parameters: options
+- Types: Select.Arrow.Props, Select.Arrow.State, Select.Backdrop.Props, Select.Backdrop.State, Select.FilterClear.Props, Select.FilterClear.State, Select.FilterEmpty.Props, Select.FilterEmpty.State, Select.FilterInput.Props, Select.FilterInput.State, Select.FilterProvider.InputValueChangeEventDetails, Select.FilterProvider.InputValueChangeEventReason, Select.FilterProvider.Props, Select.Group.Props, Select.Group.State, Select.GroupLabel.Props, Select.GroupLabel.State, Select.Icon.Props, Select.Icon.State, Select.Item.Props, Select.Item.State, Select.ItemIndicator.Props, Select.ItemIndicator.State, Select.ItemText.Props, Select.ItemText.State, Select.Label.Props, Select.Label.State, Select.List.Props, Select.List.State, Select.Popup.Props, Select.Popup.State, Select.Portal.Props, Select.Portal.State, Select.Positioner.Props, Select.Positioner.State, Select.Root.Actions, Select.Root.ChangeEventDetails, Select.Root.ChangeEventReason, Select.Root.Props, Select.Root.State, Select.ScrollDownArrow.Props, Select.ScrollDownArrow.State, Select.ScrollUpArrow.Props, Select.ScrollUpArrow.State, Select.Separator.Props, Select.Separator.State, Select.Trigger.Props, Select.Trigger.State, Select.Value.Props, Select.Value.State
 
 </details>
 
