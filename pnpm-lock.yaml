@@ -416,8 +416,8 @@ importers:
         specifier: 6.1.5
         version: 6.1.5(@types/react@19.2.18)(react@19.2.8)
       react-hook-form:
-        specifier: ^7.87.0
-        version: 7.87.0(react@19.2.8)
+        specifier: ^7.88.0
+        version: 7.88.0(react@19.2.8)
       remark-gfm:
         specifier: ^4.0.1
         version: 4.0.1(supports-color@10.2.2)
@@ -8266,8 +8266,8 @@ packages:
       '@types/react':
         optional: true
 
-  react-hook-form@7.87.0:
-    resolution: {integrity: sha512-zhFzWvLxNHH+8839OnZcUxgMZw88ah2jZWDWvKWgF3Tpbnd0vKL+dlcuU3nZVWESZQjd81EW8K+wU+cYfYAc0w==}
+  react-hook-form@7.88.0:
+    resolution: {integrity: sha512-QRaLOWhX93YCnMiRfnOFRSwWXZNt8qhm2JTZwypoDvKpSffTJHmpzMXt8U6PV5UThvL3IiiLDUWe2nHMtz6Mmw==}
     engines: {node: '>=18.0.0'}
     peerDependencies:
       react: ^16.8.0 || ^17 || ^18 || ^19
@@ -18720,7 +18720,7 @@ snapshots:
     optionalDependencies:
       '@types/react': 19.2.18
 
-  react-hook-form@7.87.0(react@19.2.8):
+  react-hook-form@7.88.0(react@19.2.8):
     dependencies:
       react: 19.2.8
 
