@@ -61,7 +61,6 @@ function Widget({
     <Draggable.Root
       kind={widgetKind}
       payload={widget.id}
-      role="button"
       className={WIDGET_CLASS}
       // @highlight-start
       modifiers={Draggable.restrictToElement(frameRef)}

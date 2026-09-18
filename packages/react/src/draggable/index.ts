@@ -4,7 +4,7 @@ export type * from './root/DraggableRoot';
 export type * from './handle/DraggableHandle';
 export type * from './preview/DraggablePreview';
 export type * from './DraggableProvider';
-export type { UseDraggableActiveDragReturnValue } from './use-active-drag';
+export type { UseActiveDragReturnValue } from './use-active-drag';
 
 // The event and option types a `Draggable.*` consumer needs to type extracted
 // handlers and props, re-exported so this entry point is self-sufficient (they

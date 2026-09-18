@@ -17,12 +17,12 @@ import styles from '../../file-explorer.module.css';
 
 const nodeKind = Draggable.createKind<string>('file-explorer-node');
 
-function useKeyboardControls(onOpen?: () => void) {
+function useKeyboardControls(onOpen: () => void) {
   return useStableCallback((event: React.KeyboardEvent<HTMLElement>) => {
     const hasModifier = event.altKey || event.ctrlKey || event.metaKey || event.shiftKey;
     const isSpace = event.key === ' ' || event.key === 'Space' || event.key === 'Spacebar';
     const isActivationKey = isSpace || event.code === 'Space' || event.key === 'Enter';
-    if (!hasModifier && isActivationKey && onOpen) {
+    if (!hasModifier && isActivationKey) {
       event.preventDefault();
       onOpen();
     }
@@ -99,10 +99,8 @@ function FolderTile({
     <Draggable.Root
       kind={nodeKind}
       payload={node.id}
-      // Arrow keys hop between accepting targets only: in a grid, free space is
-      // never a valid position.
-
       role="button"
+      tabIndex={0}
       className={styles.Item}
       onClick={() => onOpen(node.id)}
       onKeyDownCapture={handleKeyDown}
@@ -124,16 +122,8 @@ function FolderTile({
 }
 
 function FileTile({ node }: { node: FileNode }) {
-  const handleKeyDown = useKeyboardControls();
-
   return (
-    <Draggable.Root
-      kind={nodeKind}
-      payload={node.id}
-      role="button"
-      className={styles.Item}
-      onKeyDownCapture={handleKeyDown}
-    >
+    <Draggable.Root kind={nodeKind} payload={node.id} tabIndex={0} className={styles.Item}>
       <FileIcon className={styles.Icon} />
       <span className={styles.Label}>{node.name}</span>
       <NodePreview node={node} />

@@ -101,11 +101,23 @@ export const DraggableRoot = React.forwardRef(function DraggableRoot<TData = und
 
   // Participate in the nearest enclosing collision provider of this source's kind:
   // nested providers of other kinds (a board of columns of cards) are walked past.
-  let collisionContext = React.useContext(DraggableCollisionContext);
+  const enclosingCollisionContext = React.useContext(DraggableCollisionContext);
+  let collisionContext = enclosingCollisionContext;
   while (collisionContext && collisionContext.kind.id !== (kind ?? defaultKind).id) {
     collisionContext = collisionContext.parent;
   }
-  if (process.env.NODE_ENV !== 'production') {
+  React.useEffect(() => {
+    if (process.env.NODE_ENV === 'production') {
+      return;
+    }
+    if (enclosingCollisionContext && kind === undefined && collision !== false) {
+      warn(
+        'A Draggable.Root inside a Draggable.CollisionProvider has no explicit kind, ' +
+          'so it is not a destination for other items. ' +
+          'Pass the same kind as the provider to the root, or set collision={false} to opt out. ' +
+          'See https://base-ui.com/react/utils/draggable#collision-provider.',
+      );
+    }
     // Participants are measured before any gesture exists, so a payload derived
     // from the gesture can't describe them. Silently opting the item out would be
     // the confusing outcome: it still drags, but nothing can be inserted around it.
@@ -122,7 +134,7 @@ export const DraggableRoot = React.forwardRef(function DraggableRoot<TData = und
           'See https://base-ui.com/react/utils/draggable#collision-provider.',
       );
     }
-  }
+  }, [enclosingCollisionContext, kind, collisionContext, collision, getPayload, collisionPayload]);
   const {
     ref,
     dragging,

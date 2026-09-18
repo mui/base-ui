@@ -1592,6 +1592,23 @@ describe('engine.registerAutoScroller', () => {
       expect(page.scrollBy).toHaveBeenCalledWith(expect.objectContaining({ behavior: 'instant' }));
     });
 
+    it('keeps scrolling when the captured pointer moves below the viewport', async () => {
+      const { engine } = await renderDnd();
+      const source = createElement();
+      const page = mockPageScroller();
+      engine.registerDraggable(source, {});
+      registerCleanup(engine.registerAutoScroller(page.element, {}));
+
+      await drive(source, 400, page.element.clientHeight + 100);
+      await flushRaf();
+      await flushRaf();
+
+      expect(page.scrollBy).toHaveBeenCalledWith(
+        expect.objectContaining({ top: expect.any(Number), behavior: 'instant' }),
+      );
+      expect(page.scrollBy.mock.calls.some(([options]) => options.top > 0)).toBe(true);
+    });
+
     it('maps a default-styled body registration to the page scroller', async () => {
       const { engine } = await renderDnd();
       const source = createElement();

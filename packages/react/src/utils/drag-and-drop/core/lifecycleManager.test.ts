@@ -484,6 +484,38 @@ describe('lifecycle manager', () => {
       removeDropTargetRegistration(target, getTarget);
     });
 
+    it('drains a hovered target unregistering inside canDrop without restoring stale hover state', async () => {
+      const { engine } = await renderDnd();
+      const source = createElement();
+      const target = createElement();
+      let unregisterDuringResolution = false;
+      const onDraggableLeave = vi.fn();
+      engine.registerDraggable(source, {});
+      const cleanup = engine.registerDropTarget(target, {
+        canDrop: () => {
+          if (unregisterDuringResolution) {
+            unregisterDuringResolution = false;
+            cleanup();
+          }
+          return true;
+        },
+        onDraggableLeave,
+      });
+      fireEvent.dragStart(source);
+      fireEvent.dragEnter(target);
+      await flushRaf();
+      expect(dragSessionStore.getSnapshot()?.location.current.dropTargets[0]?.element).toBe(target);
+
+      unregisterDuringResolution = true;
+      fireEvent.dragOver(target, { clientX: 20 });
+      await flushRaf();
+
+      expect(dragSessionStore.getSnapshot()?.location.current.dropTargets).toEqual([]);
+      expect(onDraggableLeave).toHaveBeenCalledTimes(1);
+      fireEvent.dragEnd(source);
+      expect(onDraggableLeave).toHaveBeenCalledTimes(1);
+    });
+
     it('delivers onMove once per frame when a hovered target unregisters during the change round', async () => {
       // The sensor `update` path resolves the stack (skipping the entry `onMove`,
       // since `dispatchDrag()` follows) and then dispatches `onMove`. A handler

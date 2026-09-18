@@ -1,5 +1,5 @@
 import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
-import { contains } from '@base-ui/utils/shadowDom';
+import { closest, contains } from '@base-ui/utils/shadowDom';
 import { warn } from '@base-ui/utils/warn';
 import { WindowAnimationFrame } from '../windowAnimationFrame';
 import type {
@@ -196,7 +196,7 @@ function handleObservedMutations(records: MutationRecord[]): void {
       continue;
     }
     const element = target as Element;
-    if (element.closest(PREVIEW_SELECTOR) !== null) {
+    if (closest(element, PREVIEW_SELECTOR) !== null) {
       continue;
     }
     if (affectsCandidateChain(element)) {
@@ -606,7 +606,15 @@ function runScrollFrame(timestamp: number): void {
     // top goes negative once the page is scrolled), so its edge zones are
     // measured against the layout viewport instead.
     const rect = pageScroller ? getViewportRect(element) : element.getBoundingClientRect();
-    const probe = resolveProbePoint(currentInput, currentReportedInput, rect);
+    // Pointer capture keeps reporting coordinates beyond the viewport.
+    // Keep page scrolling at full edge depth until the pointer returns.
+    const probe = pageScroller
+      ? {
+          ...currentInput,
+          clientX: Math.max(rect.left, Math.min(currentInput.clientX, rect.right)),
+          clientY: Math.max(rect.top, Math.min(currentInput.clientY, rect.bottom)),
+        }
+      : resolveProbePoint(currentInput, currentReportedInput, rect);
     if (probe === null) {
       continue;
     }

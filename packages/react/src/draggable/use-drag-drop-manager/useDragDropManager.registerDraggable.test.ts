@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 import { fireEvent } from '@testing-library/react';
-import { createDndRenderer } from '#test-utils';
+import { createDndRenderer, firePointer } from '#test-utils';
 import { createElement, flushRaf, setupDragEngineTests } from '../../../test/dnd';
 import { dragSessionStore } from '../../utils/drag-and-drop/dragSessionStore';
 import type { MoveStartContext, BeforeMoveStartEventDetails } from '../../types/drag';
@@ -17,6 +17,48 @@ describe('engine.registerDraggable', () => {
     expect(el.style.touchAction).toBe('manipulation');
     expect(el.style.userSelect).toBe('none');
     cleanup();
+  });
+
+  it('refreshes an imperative disabled getter on the next pointerdown', async () => {
+    const { engine } = await renderDnd();
+    const el = createElement();
+    let disabled = true;
+    const onMoveStart = vi.fn();
+    engine.registerDraggable(el, () => ({
+      disabled,
+      activation: { type: 'immediate' },
+      onMoveStart,
+    }));
+    expect(el.style.touchAction || '').toBe('');
+
+    disabled = false;
+    firePointer.down(el, { pointerType: 'mouse', button: 0, buttons: 1, timeStamp: 100 });
+    expect(el.style.touchAction).toBe('manipulation');
+    expect(onMoveStart).toHaveBeenCalledTimes(1);
+    firePointer.up(el, { pointerType: 'mouse', button: 0, buttons: 0, timeStamp: 200 });
+
+    disabled = true;
+    firePointer.down(el, { pointerType: 'mouse', button: 0, buttons: 1, timeStamp: 100 });
+    expect(el.style.touchAction).toBe('');
+    expect(onMoveStart).toHaveBeenCalledTimes(1);
+    firePointer.up(el, { pointerType: 'mouse', button: 0, buttons: 0, timeStamp: 200 });
+  });
+
+  it('moves gesture styles to a new imperative handle on pointerdown', async () => {
+    const { engine } = await renderDnd();
+    const el = createElement();
+    const first = document.createElement('span');
+    const second = document.createElement('span');
+    el.append(first, second);
+    let dragHandle = first;
+    engine.registerDraggable(el, () => ({ dragHandle }));
+    expect(first.style.touchAction).toBe('manipulation');
+
+    dragHandle = second;
+    firePointer.down(second, { pointerType: 'mouse', button: 0, buttons: 1, timeStamp: 100 });
+    expect(first.style.touchAction).toBe('');
+    expect(second.style.touchAction).toBe('manipulation');
+    firePointer.up(second, { pointerType: 'mouse', button: 0, buttons: 0, timeStamp: 200 });
   });
 
   it('restores styles on cleanup', async () => {

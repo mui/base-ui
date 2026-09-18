@@ -93,9 +93,8 @@ export function isActive(): boolean {
 
 /**
  * Re-resolve the active drop-target stack and publish a fresh session snapshot
- * (no-op if no drag is in progress). Called by the `registerDropTarget` cleanup
- * in `registrations.ts` when an element un-registers mid-drag, so subscribers
- * see it leave `dropTargets` without a pointer event.
+ * (no-op if no drag is in progress). Called when a target registers or
+ * unregisters mid-drag, so subscribers see the new stack without a pointer event.
  */
 export function refreshDropTargets(): void {
   state.refreshDropTargets?.(true);
@@ -277,7 +276,7 @@ export function start(parameters: StartParameters): DragSessionHandle | null {
   let tornDown = false;
   const isLive = () => !tornDown;
 
-  // Guards the consumer fan-outs: a handler can synchronously unregister a
+  // Guards consumer resolvers and event handlers: either can unregister a
   // *hovered* drop target, whose cleanup re-resolves the stack synchronously
   // (see `registrations.ts`). Re-entering `updateDropTargets` mid-round would
   // corrupt the round's bookkeeping — on completion the outer round's stale
@@ -620,7 +619,13 @@ export function start(parameters: StartParameters): DragSessionHandle | null {
       lastInputReason = reason;
     }
 
-    const newDropTargets = resolveStack(rawTarget, input);
+    let newDropTargets: DropTargetRecord[];
+    dispatching = true;
+    try {
+      newDropTargets = resolveStack(rawTarget, input);
+    } finally {
+      dispatching = false;
+    }
     // A consumer resolver (`getPayload` / `canDrop`) can synchronously cancel the
     // drag. Teardown already delivered the terminal events and cleared the
     // session, so do not mutate or publish location state for the dead drag.
@@ -687,7 +692,6 @@ export function start(parameters: StartParameters): DragSessionHandle | null {
         lastDispatched = location.current;
         publishSession();
       }
-      drainPendingRefresh(dragDispatchFollows);
     } else {
       // Element-equal stack, freshly resolved records: no change dispatch runs,
       // so swap the hovered bookkeeping's records here — the terminal leave on
@@ -700,6 +704,7 @@ export function start(parameters: StartParameters): DragSessionHandle | null {
         publishSession();
       }
     }
+    drainPendingRefresh(dragDispatchFollows);
   }
 
   // The single full-engine teardown, run from `doDrop`/`doCancel` and `reset()`.
@@ -832,9 +837,7 @@ export function start(parameters: StartParameters): DragSessionHandle | null {
       };
       // Deliver the source end once, even if its commit handler throws.
       endDispatched = true;
-      if (!tornDown) {
-        captureTerminalError(() => getSourceHandlers?.()?.onMoveEnd?.(endPayload, endDetails));
-      }
+      captureTerminalError(() => getSourceHandlers?.()?.onMoveEnd?.(endPayload, endDetails));
       // A consumer `onMoveEnd` can synchronously tear the session down; teardown
       // then already notified the targets/monitors, so don't double-dispatch.
       if (!tornDown) {

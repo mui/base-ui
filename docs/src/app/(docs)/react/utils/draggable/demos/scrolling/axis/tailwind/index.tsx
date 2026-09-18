@@ -140,7 +140,6 @@ function AxisLaneContent() {
               kind={stopKind}
               payload={stop.id}
               data-stop
-              role="button"
               className={STOP_CLASS}
             >
               <Grip />

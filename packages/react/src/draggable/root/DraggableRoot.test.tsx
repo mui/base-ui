@@ -61,6 +61,20 @@ describe('Draggable.Root', () => {
     },
   }));
 
+  it('warns when a root has no kind inside a collision provider', async () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    try {
+      await renderDnd(
+        <Draggable.CollisionProvider kind={cardKind}>
+          <Draggable.Root />
+        </Draggable.CollisionProvider>,
+      );
+      expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('has no explicit kind'));
+    } finally {
+      warnSpy.mockRestore();
+    }
+  });
+
   it('clones the source inside the required provider', async () => {
     // The clone is engine-built and touches no React, so the provider requirement
     // is scoped to custom content.
@@ -1453,22 +1467,6 @@ describe('Draggable.Root', () => {
       expect(
         screen.getByTestId('preview').closest('[data-drag-preview]')!.parentElement!.parentElement,
       ).toBe(source.parentElement);
-    });
-
-    it.each([
-      ['null', null],
-      // The `{condition && <Chip />}` idiom: `false` is just as much "no content".
-      ['false', false as unknown as null],
-    ])('shows no preview when the children resolve to %s', async (_label, children) => {
-      await renderDnd(<DraggableWithPreview preview={children} />);
-      const source = screen.getByTestId('drag');
-      source.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
-
-      fireEvent.dragStart(source);
-
-      // The sensor already built a host for the declaration; it must be torn down,
-      // or an empty box follows the pointer for the whole drag.
-      expect(document.querySelector('[data-drag-preview]')).toBeNull();
     });
 
     it('applies className to its own element, inside the engine-owned host', async () => {

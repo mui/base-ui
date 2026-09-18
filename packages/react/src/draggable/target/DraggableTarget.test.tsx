@@ -32,6 +32,43 @@ describe('Draggable.Target', () => {
     },
   }));
 
+  it('tracks hover on a replacement ref during a drag', async () => {
+    function Swappable({ swapped }: { swapped: boolean }) {
+      return (
+        <Draggable.Target
+          accept={Draggable.anyKind}
+          data-testid={swapped ? 'b' : 'a'}
+          render={(props) => <div key={swapped ? 'b' : 'a'} {...props} />}
+        />
+      );
+    }
+    const { engine, rerender } = await renderDnd(<Swappable swapped={false} />);
+    const source = createElement();
+    engine.registerDraggable(source, {});
+    const first = screen.getByTestId('a');
+    fireEvent.dragStart(source);
+    fireEvent.dragEnter(first);
+    await flushRaf();
+    expect(first).toHaveAttribute('data-drag-over');
+
+    await rerender(<Swappable swapped />);
+    const second = screen.getByTestId('b');
+    expect(first).not.toHaveAttribute('data-drop-target');
+    expect(second).toHaveAttribute('data-drop-target');
+    fireEvent.dragEnter(second);
+    await flushRaf();
+    expect(second).toHaveAttribute('data-drag-over');
+
+    fireEvent.dragOver(source);
+    await flushRaf();
+    expect(second).not.toHaveAttribute('data-drag-over');
+    fireEvent.dragEnter(second);
+    await flushRaf();
+    expect(second).toHaveAttribute('data-drag-over');
+    fireEvent.dragEnd(source);
+    expect(second).not.toHaveAttribute('data-drag-over');
+  });
+
   it('marks the element as a drop target once attached', async () => {
     await renderDnd(<Draggable.Target accept={Draggable.anyKind} data-testid="target" />);
     const el = screen.getByTestId('target');

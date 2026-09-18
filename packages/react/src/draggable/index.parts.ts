@@ -3,7 +3,7 @@ export { DraggableHandle as Handle } from './handle/DraggableHandle';
 export { DraggablePreview as Preview } from './preview/DraggablePreview';
 export { DraggableProvider as Provider } from './DraggableProvider';
 
-export { useDraggableActiveDrag as useActiveDrag } from './use-active-drag';
+export { useActiveDrag } from './use-active-drag';
 
 export {
   createKind,

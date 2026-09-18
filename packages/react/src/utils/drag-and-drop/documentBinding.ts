@@ -61,9 +61,9 @@ interface CreateEventRootBindingOptions {
 
 export function createEventRootBinding(options: CreateEventRootBindingOptions): DocumentBinding {
   const { slot, shadowRootsSlot, type, listener, options: listenerOptions } = options;
-  const boundShadowRoots = getSharedSlot<Map<ShadowRoot, number>>(
+  const boundShadowRoots = getSharedSlot<Set<ShadowRoot>>(
     shadowRootsSlot,
-    () => new Map<ShadowRoot, number>(),
+    () => new Set<ShadowRoot>(),
   );
 
   const crossesBoundShadowRoot = (event: Event, doc: Document): boolean => {
@@ -86,19 +86,14 @@ export function createEventRootBinding(options: CreateEventRootBindingOptions): 
     slot,
     install(root) {
       if (isShadowRoot(root)) {
-        boundShadowRoots.set(root, (boundShadowRoots.get(root) ?? 0) + 1);
+        boundShadowRoots.add(root);
         const off = addEventListener(root, type, listener, {
           ...listenerOptions,
           capture: true,
         });
         return () => {
           off();
-          const count = boundShadowRoots.get(root) ?? 0;
-          if (count <= 1) {
-            boundShadowRoots.delete(root);
-          } else {
-            boundShadowRoots.set(root, count - 1);
-          }
+          boundShadowRoots.delete(root);
         };
       }
 

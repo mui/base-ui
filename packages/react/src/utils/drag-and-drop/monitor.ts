@@ -144,7 +144,8 @@ export interface RegisterMonitorParameters<TSourceData = unknown> {
   accept?: DragAccept<TSourceData> | undefined;
   /**
    * Event handler called when any matching drag starts (once per drag),
-   * wherever it originated.
+   * wherever it originated. Monitors registered during a drag observe only
+   * subsequent events. A pickup canceled before monitor dispatch has no start event.
    */
   onMoveStart?:
     | ((
@@ -176,6 +177,10 @@ export interface RegisterMonitorParameters<TSourceData = unknown> {
    * Event handler called once when the drag ends after a drop, outside release, or
    * cancellation. `eventDetails.reason` identifies the outcome. `dropTarget` is the
    * target of a release, or `null` when there was none.
+   *
+   * This can run without onMoveStart if a source handler or initial target resolver
+   * cancels pickup before monitors receive the start, or if the monitor registers
+   * during a drag. Do not assume start and end events are paired.
    */
   onMoveEnd?:
     | ((

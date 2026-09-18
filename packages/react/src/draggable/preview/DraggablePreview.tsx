@@ -1,5 +1,6 @@
 'use client';
-import type * as React from 'react';
+import * as React from 'react';
+import { warn } from '@base-ui/utils/warn';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import type { BaseUIComponentProps } from '../../internals/types';
 import type { DragKind, DragPreviewSettings, DragPreviewRenderEvent } from '../../types/drag';
@@ -12,7 +13,7 @@ import {
 
 /**
  * Customizes what follows the pointer while the draggable is dragged.
- * Omit children to configure the default clone of the source.
+ * Omit children, or pass null or false, to configure the default clone of the source.
  * Renders a `<div>` in the preview overlay; nothing is rendered where the component is written.
  *
  * The component renders no element in place. Its content renders through the nearest
@@ -27,6 +28,20 @@ export function DraggablePreview<TData = unknown>(
   props: DraggablePreviewProps | DraggablePreviewTypedProps<TData>,
 ): React.ReactNode {
   const getProps = useStableCallback(() => props);
+  const useClone = props.children == null || props.children === false;
+  React.useEffect(() => {
+    if (
+      process.env.NODE_ENV !== 'production' &&
+      useClone &&
+      (props.className !== undefined || props.style !== undefined)
+    ) {
+      warn(
+        'Draggable.Preview received className or style without custom children, so these props are ignored. ' +
+          'Style the source element to customize its clone, or provide preview children. ' +
+          'See https://base-ui.com/react/utils/draggable#preview.',
+      );
+    }
+  }, [useClone, props.className, props.style]);
 
   // Resolved per drag, not per render.
   const render = useStableCallback((parameters: DragPreviewRenderEvent<TData>) => {
@@ -52,8 +67,8 @@ export function DraggablePreview<TData = unknown>(
 
   useDeclaredPreview<TData>(
     getProps,
-    props.children === undefined ? null : render,
-    props.children === undefined ? createClonedDragPreviewElement : createDragPreviewHostElement,
+    useClone ? null : render,
+    useClone ? createClonedDragPreviewElement : createDragPreviewHostElement,
     props.disabled === true,
   );
 
@@ -78,8 +93,10 @@ export interface DraggablePreviewProps
    */
   disabled?: boolean | undefined;
   /**
-   * The preview content. Omit it to clone the source. Pass a function to build it from the drag payload, which
-   * is resolved once at drag start. Its payload is `unknown` until a `kind` is
+   * The preview content. Omit it, or pass null or false, to clone the source.
+   * A render function returning null or false hides the preview. Pass a function
+   * to build it from the drag payload, resolved once at drag start.
+   * Its payload is `unknown` until a `kind` is
    * supplied through {@link DraggablePreviewTypedProps}.
    */
   children?:

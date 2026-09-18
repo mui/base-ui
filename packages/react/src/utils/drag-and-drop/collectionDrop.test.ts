@@ -53,6 +53,15 @@ const BEFORE_AFTER_ONLY = { hasOn: false, hasBeforeAfter: true };
 const ON_ONLY = { hasOn: true, hasBeforeAfter: false };
 
 describe('computeDropPosition', () => {
+  it.each([
+    [25, BOTH, 'on'],
+    [50, BOTH, 'on'],
+    [75, BOTH, 'on'],
+    [50, BEFORE_AFTER_ONLY, 'after'],
+  ] as const)('resolves the exact %s percent boundary', (position, options, expected) => {
+    expect(computeDropPosition(elementWithRect(0, 100), position, options)).toBe(expected);
+  });
+
   it('splits a row into before / on / after when both are allowed', () => {
     const el = elementWithRect(0, 100);
     expect(computeDropPosition(el, 10, BOTH)).toBe('before');

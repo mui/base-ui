@@ -81,7 +81,9 @@ function ensureStyleInjected(doc: Document, nonce: string | undefined): boolean 
       style.remove();
       return false;
     }
-    sheet.insertRule(`html.${DRAGGING_CLASS}.${STYLE_CLASS} * { ${CURSOR_DECLARATION} }`);
+    sheet.insertRule(
+      `html.${DRAGGING_CLASS}.${STYLE_CLASS}, html.${DRAGGING_CLASS}.${STYLE_CLASS} * { ${CURSOR_DECLARATION} }`,
+    );
   } catch {
     // A rejected CSP sheet can be inaccessible through CSSOM. Dragging itself
     // must keep working even when the cursor enhancement cannot be installed.

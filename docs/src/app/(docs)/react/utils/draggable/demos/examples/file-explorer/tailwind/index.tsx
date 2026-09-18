@@ -37,12 +37,12 @@ const CRUMB_CLASS =
 const GRID_CLASS =
   'box-border grid h-60 w-full grid-cols-[repeat(auto-fill,minmax(5.5rem,1fr))] content-start gap-2 overflow-y-auto border border-neutral-200 bg-neutral-50 p-3 dark:border-neutral-700 dark:bg-neutral-900 data-[drag-over-innermost]:border-neutral-950 dark:data-[drag-over-innermost]:border-white';
 
-function useKeyboardControls(onOpen?: () => void) {
+function useKeyboardControls(onOpen: () => void) {
   return useStableCallback((event: React.KeyboardEvent<HTMLElement>) => {
     const hasModifier = event.altKey || event.ctrlKey || event.metaKey || event.shiftKey;
     const isSpace = event.key === ' ' || event.key === 'Space' || event.key === 'Spacebar';
     const isActivationKey = isSpace || event.code === 'Space' || event.key === 'Enter';
-    if (!hasModifier && isActivationKey && onOpen) {
+    if (!hasModifier && isActivationKey) {
       event.preventDefault();
       onOpen();
     }
@@ -119,10 +119,8 @@ function FolderTile({
     <Draggable.Root
       kind={nodeKind}
       payload={node.id}
-      // Arrow keys hop between accepting targets only: in a grid, free space is
-      // never a valid position.
-
       role="button"
+      tabIndex={0}
       className={ITEM_CLASS}
       onClick={() => onOpen(node.id)}
       onKeyDownCapture={handleKeyDown}
@@ -144,16 +142,8 @@ function FolderTile({
 }
 
 function FileTile({ node }: { node: FileNode }) {
-  const handleKeyDown = useKeyboardControls();
-
   return (
-    <Draggable.Root
-      kind={nodeKind}
-      payload={node.id}
-      role="button"
-      className={ITEM_CLASS}
-      onKeyDownCapture={handleKeyDown}
-    >
+    <Draggable.Root kind={nodeKind} payload={node.id} tabIndex={0} className={ITEM_CLASS}>
       <FileIcon className={ICON_CLASS} />
       <span className="max-w-full truncate">{node.name}</span>
       <NodePreview node={node} />

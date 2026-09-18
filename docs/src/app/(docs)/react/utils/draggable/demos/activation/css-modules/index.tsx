@@ -81,9 +81,11 @@ function Puck({
       activation={mode.activation}
       // @highlight-end
       aria-label="Puck"
-      role="button"
-      onPointerDown={() => {
-        if (mode.id !== 'immediate') {
+      onPointerDown={(event) => {
+        if (
+          mode.id !== 'immediate' &&
+          (mode.id !== 'double-click' || event.pointerType === 'mouse')
+        ) {
           onPhaseChange('waiting');
         }
       }}

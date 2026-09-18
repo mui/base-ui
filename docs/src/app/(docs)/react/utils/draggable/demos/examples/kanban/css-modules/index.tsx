@@ -300,7 +300,6 @@ function DraggableCard({ card, columnId }: { card: Card; columnId: ColumnId }) {
       kind={cardKind}
       payload={{ id: card.id, fromColumn: columnId }}
       data-card
-      role="button"
       className={styles.Card}
     >
       {card.title}

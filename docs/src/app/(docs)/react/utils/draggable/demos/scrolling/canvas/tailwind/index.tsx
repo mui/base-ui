@@ -81,7 +81,6 @@ function CanvasPanContent() {
               key={pin.id}
               kind={pinKind}
               payload={pin.id}
-              role="button"
               className={PIN_CLASS}
               style={{ left: pin.x, top: pin.y }}
               onMoveStart={() => {

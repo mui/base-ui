@@ -832,19 +832,17 @@ export class DraggableCollectionPlugin<
     if (src?.sourceInstanceId !== this.instanceId || src.itemIds == null) {
       return false;
     }
-    if (input.pointerType !== null) {
-      for (let node = getActiveHitElement(); node !== null; node = getComposedParentElement(node)) {
-        const itemId = this.itemIdsByElement.get(node);
-        if (itemId !== undefined && (src.itemIds.has(itemId) || src.draggedItemId === itemId)) {
-          return true;
-        }
+    for (let node = getActiveHitElement(); node !== null; node = getComposedParentElement(node)) {
+      const itemId = this.itemIdsByElement.get(node);
+      if (itemId !== undefined && (src.itemIds.has(itemId) || src.draggedItemId === itemId)) {
+        return true;
       }
-      // The per-frame pointer path is fully answered by the hit ancestry above.
-      // Terminal drop resolution opts into the geometry fallback because the
-      // sensor has already released its active hit element by then.
-      if (!checkConnectedGeometry) {
-        return false;
-      }
+    }
+    // The per-frame pointer path is fully answered by the hit ancestry above.
+    // Terminal drop resolution opts into the geometry fallback because the
+    // sensor has already released its active hit element by then.
+    if (!checkConnectedGeometry) {
+      return false;
     }
     // The grabbed row is unioned in: `itemIds` is the *pruned* set, which can
     // legitimately exclude it (select a folder and a file inside it, then grab the

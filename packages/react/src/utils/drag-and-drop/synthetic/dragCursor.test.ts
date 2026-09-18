@@ -62,6 +62,14 @@ describe('dragCursor', () => {
     dragCursor.unlock();
   });
 
+  it.skipIf(isJSDOM)('keeps the dragging cursor on the document root', () => {
+    const previous = getComputedStyle(document.documentElement).cursor;
+    dragCursor.lock(document.body, 'grabbing');
+    expect(getComputedStyle(document.documentElement).cursor).toBe('grabbing');
+    dragCursor.unlock();
+    expect(getComputedStyle(document.documentElement).cursor).toBe(previous);
+  });
+
   it('inserts the rule through CSSOM without style text', () => {
     dragCursor.lock(document.body, 'grabbing');
     const styles = Array.from(document.head.querySelectorAll('style')).filter((style) =>

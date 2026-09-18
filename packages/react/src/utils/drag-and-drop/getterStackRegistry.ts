@@ -94,7 +94,6 @@ export function createGetterStackRegistry<TElement, TGetter>(options: {
         if (getters.length === 0) {
           entries.delete(element);
         } else {
-          entries.set(element, getters);
           onFirstAdd?.(element);
         }
       }

@@ -31,8 +31,8 @@
 }
 
 /*
- * The element registered with `DragAutoScroll.Root`: it clips the canvas but has
- * no scroll offsets of its own, so `applyScroll` is what moves the content.
+ * The element registered with `Draggable.Viewport`: it clips the canvas but has
+ * no scroll offsets of its own, so `onDragScroll` is what moves the content.
  */
 .Viewport {
   position: relative;
@@ -47,7 +47,7 @@
   }
 }
 
-/* The camera: `applyScroll` writes this element's transform. */
+/* The camera: `onDragScroll` writes this element's transform. */
 .Content {
   position: absolute;
   inset: 0;

@@ -41,7 +41,7 @@ export interface StartSensorSessionParameters {
  * Resolve the draggable's `payload`, build the `DragSource` and the
  * source-handler map, then start the lifecycle. Returns the session handle, or
  * `null` when the lifecycle declined to start (a concurrent drag is already
- * active).
+ * active, or a resolver or start handler canceled pickup).
  *
  * Module-private: sensors go through `createPreviewAndStartSession` below, which
  * wraps this with the preview and undo handling a bare session start skips.
@@ -131,7 +131,7 @@ export interface PreviewSessionHandle {
  * Build the engine-managed preview for a pickup and start the lifecycle session.
  *
  * On success returns the session and the preview it owns. When the pickup
- * throws or the lifecycle refuses to start (a drag is already running), every
+ * throws or the lifecycle refuses to start (a drag is already running or pickup was canceled), every
  * resource acquired here is undone — the preview is destroyed, the published
  * handle slot is restored, `release` runs — and the sensor only has its own
  * pre-pickup state left to clean up. A throw is re-thrown after the undo.
@@ -208,7 +208,7 @@ export function createPreviewAndStartSession(
   }
 
   if (!session) {
-    // The lifecycle refused (a drag is already running). Restore whatever the slot
+    // The lifecycle refused (a drag is already running or pickup was canceled). Restore whatever the slot
     // held before this pickup published — the refusing drag is still in progress
     // and its handle must keep flowing.
     undo();

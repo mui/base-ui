@@ -132,7 +132,6 @@ function SchedulerCalendarContent() {
               {event.day === index && (
                 <Draggable.Root
                   kind={eventKind}
-                  role="button"
                   className={styles.Event}
                   style={{ top: (event.minute / SLOT_MINUTES) * SLOT_HEIGHT, height: EVENT_HEIGHT }}
                   // @highlight-start

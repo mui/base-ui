@@ -4,19 +4,19 @@ const visuallyHiddenBase: React.CSSProperties = {
   clipPath: 'inset(50%)',
   overflow: 'hidden',
   whiteSpace: 'nowrap',
-  border: '0px',
-  padding: '0px',
-  width: '1px',
-  height: '1px',
-  margin: '-1px',
+  border: 0,
+  padding: 0,
+  width: 1,
+  height: 1,
+  margin: -1,
 };
 
 export const visuallyHidden: React.CSSProperties = {
   ...visuallyHiddenBase,
   position: 'fixed',
-  margin: '0px',
-  top: '0px',
-  left: '0px',
+  margin: 0,
+  top: 0,
+  left: 0,
 };
 
 export const visuallyHiddenInput: React.CSSProperties = {

@@ -10,6 +10,52 @@ import { DraggableProvider } from '../DraggableProvider';
 setupDragEngineTests();
 
 describe('Draggable.Preview', () => {
+  it.each([undefined, null, false])('clones the source with static %s children', (children) => {
+    rtlRender(
+      <DraggableProvider>
+        <Draggable.Root data-testid="drag">
+          Source content
+          <Draggable.Preview>{children}</Draggable.Preview>
+        </Draggable.Root>
+      </DraggableProvider>,
+    );
+    const source = screen.getByTestId('drag');
+    source.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
+    fireEvent.dragStart(source);
+    expect(document.querySelector('[data-drag-preview]')).toHaveTextContent('Source content');
+  });
+
+  it.each([null, false])('hides the preview when a render function returns %s', (children) => {
+    rtlRender(
+      <DraggableProvider>
+        <Draggable.Root data-testid="drag">
+          Source content
+          <Draggable.Preview>{() => children}</Draggable.Preview>
+        </Draggable.Root>
+      </DraggableProvider>,
+    );
+    const source = screen.getByTestId('drag');
+    source.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
+    fireEvent.dragStart(source);
+    expect(document.querySelector('[data-drag-preview]')).toBeNull();
+  });
+
+  it('warns when clone styling props would be ignored', () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    try {
+      rtlRender(
+        <DraggableProvider>
+          <Draggable.Root>
+            <Draggable.Preview className="preview" style={{ color: 'red' }} />
+          </Draggable.Root>
+        </DraggableProvider>,
+      );
+      expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('these props are ignored'));
+    } finally {
+      warnSpy.mockRestore();
+    }
+  });
+
   it('keeps the engine settings props off the DOM element', () => {
     const container = document.createElement('div');
     document.body.appendChild(container);

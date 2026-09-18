@@ -129,7 +129,6 @@ function Card({ task, draggable }: { task: Task; draggable?: boolean }) {
       payload={task}
       data-card
       data-id={task.id}
-      role="button"
       className={CARD_CLASS}
     >
       <Grip />
@@ -243,8 +242,8 @@ function AutoScrollBoardContent() {
       {/* @highlight-end */}
       <div ref={rootRef} className="flex w-full flex-col gap-4 select-none">
         <p className="m-0 text-sm leading-5 text-neutral-500 dark:text-neutral-400">
-          Drag the card into either list, at the slot you want. The provider enables both; only the
-          second list configures its region.
+          Drag the card into either list, at the slot you want. Both lists scroll near their edges;
+          the second list scrolls more slowly.
         </p>
         <div className="flex items-center gap-3">
           <Card task={pending} draggable />

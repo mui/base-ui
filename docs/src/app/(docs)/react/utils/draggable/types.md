@@ -23,9 +23,9 @@ While dragging, a clone of the element follows the pointer by default.
 | dragCursor        | `string \| false`                                                                                                                                                                                          | `'grabbing'` | CSS cursor applied across the document during a pointer drag. The drag preview&#xA;has `pointer-events: none`, so otherwise the cursor would depend on the element&#xA;under the pointer. Touch drags ignore this value.&#xA;Pass `false` to manage the cursor yourself.                                                                                                                                                   |
 | getPayload        | `DraggablePayloadGetter<TData> \| DraggablePayloadGetter<undefined>`                                                                                                                                       | -            | Resolves payload data from the current drag context.                                                                                                                                                                                                                                                                                                                                                                       |
 | kind              | `DragKind<TData> \| DragKind<undefined>`                                                                                                                                                                   | -            | The source kind. Defaults to the nearest provider's no-payload kind.                                                                                                                                                                                                                                                                                                                                                       |
-| modifiers         | `DragModifiers`                                                                                                                                                                                            | -            | Constrains pointer movement with one modifier or an array applied&#xA;in order. See [`DragModifiers`](#dragmodifiers) and the exported modifier presets.                                                                                                                                                                                                                                                                   |
+| modifiers         | `DragModifiers`                                                                                                                                                                                            | -            | Constrains pointer movement with one modifier or an array applied&#xA;in order. See [DragModifier](https://base-ui.com/react/utils/draggable#dragmodifier) and the exported modifier presets.                                                                                                                                                                                                                              |
 | onBeforeMoveStart | `((context: MoveStartContext, eventDetails: BeforeMoveStartEventDetails) => void)`                                                                                                                         | -            | Event handler called when a drag is about to start, once the activation condition&#xA;is met and before the preview is built and `getPayload` runs.&#xA;Call `eventDetails.cancel()` to prevent the drag from starting.                                                                                                                                                                                                    |
-| onMove            | `((parameters: MoveEvent<TData>, eventDetails: MoveEventDetails) => void) \| ((parameters: MoveEvent<undefined>, eventDetails: MoveEventDetails) => void)`                                                 | -            | Event handler called as the pointer moves or a modifier key changes, limited&#xA;to one call per animation frame. Drop target stack changes do not call this handler.&#xA;Use the drop target's `onMove` for hover behavior.                                                                                                                                                                                               |
+| onMove            | `((parameters: MoveEvent<TData>, eventDetails: MoveEventDetails) => void) \| ((parameters: MoveEvent<undefined>, eventDetails: MoveEventDetails) => void)`                                                 | -            | Event handler called as the pointer moves or a modifier key changes, limited&#xA;to one call per animation frame. Drop target stack changes do not call this handler.&#xA;Use the drop target's `onDraggableMove` for hover behavior.                                                                                                                                                                                      |
 | onMoveEnd         | `((parameters: MoveEndEvent<TData>, eventDetails: MoveEndEventDetails) => void) \| ((parameters: MoveEndEvent<undefined>, eventDetails: MoveEndEventDetails) => void)`                                     | -            | Event handler called once when the drag ends after a drop, outside release, or&#xA;cancellation. Commit changes when `eventDetails.reason` is `'drop'`. Use&#xA;`try/finally` when cleanup must run even if committing throws or returns early.                                                                                                                                                                            |
 | onMoveStart       | `((parameters: MoveStartEvent<TData>, eventDetails: MoveStartEventDetails) => void) \| ((parameters: MoveStartEvent<undefined>, eventDetails: MoveStartEventDetails) => void)`                             | -            | Event handler called once, synchronously when the drag starts. The drag preview&#xA;has already been resolved by then, so it is safe to measure or restyle the&#xA;source from here.                                                                                                                                                                                                                                       |
 | onTargetChange    | `((parameters: DropTargetChangeEvent<TData>, eventDetails: DropTargetChangeEventDetails) => void) \| ((parameters: DropTargetChangeEvent<undefined>, eventDetails: DropTargetChangeEventDetails) => void)` | -            | Event handler called when the active drop targets change,&#xA;because one was entered or left.                                                                                                                                                                                                                                                                                                                             |
@@ -122,7 +122,7 @@ type DraggableRootPropsWithPayload<TData> = (
   activation?: DragActivationConfig | DragActivationConfig[];
   /**
    * Constrains pointer movement with one modifier or an array applied
-   * in order. See [`DragModifiers`](#dragmodifiers) and the exported modifier presets.
+   * in order. See [DragModifier](https://base-ui.com/react/utils/draggable#dragmodifier) and the exported modifier presets.
    */
   modifiers?: DragModifiers;
   /**
@@ -142,7 +142,7 @@ type DraggableRootPropsWithPayload<TData> = (
   /**
    * Event handler called as the pointer moves or a modifier key changes, limited
    * to one call per animation frame. Drop target stack changes do not call this handler.
-   * Use the drop target's `onMove` for hover behavior.
+   * Use the drop target's `onDraggableMove` for hover behavior.
    */
   onMove?: (parameters: MoveEvent<TData>, eventDetails: MoveEventDetails) => void;
   /**
@@ -471,7 +471,7 @@ type DraggableHandleState = {
 ### Preview
 
 Customizes what follows the pointer while the draggable is dragged.
-Omit children to configure the default clone of the source.
+Omit children, or pass null or false, to configure the default clone of the source.
 Renders a `<div>` in the preview overlay; nothing is rendered where the component is written.
 
 The component renders no element in place. Its content renders through the nearest
@@ -856,7 +856,7 @@ Other drags return `null`, and `accept` determines the source payload type.
 **Return Value:**
 
 ```tsx
-type ReturnValue = UseDraggableActiveDragReturnValue<TPayload | unknown>;
+type ReturnValue = UseActiveDragReturnValue<TPayload | unknown>;
 ```
 
 ### useActiveDrag.ReturnValue
@@ -1050,7 +1050,8 @@ type DraggableuseDragMonitorParameters<TSourceData = unknown> = {
   accept?: DragAccept<TSourceData>;
   /**
    * Event handler called when any matching drag starts (once per drag),
-   * wherever it originated.
+   * wherever it originated. Monitors registered during a drag observe only
+   * subsequent events. A pickup canceled before monitor dispatch has no start event.
    */
   onMoveStart?: (
     parameters: MoveStartEvent<TSourceData>,
@@ -1073,6 +1074,10 @@ type DraggableuseDragMonitorParameters<TSourceData = unknown> = {
    * Event handler called once when the drag ends after a drop, outside release, or
    * cancellation. `eventDetails.reason` identifies the outcome. `dropTarget` is the
    * target of a release, or `null` when there was none.
+   *
+   * This can run without onMoveStart if a source handler or initial target resolver
+   * cancels pickup before monitors receive the start, or if the monitor registers
+   * during a drag. Do not assume start and end events are paired.
    */
   onMoveEnd?: (parameters: MoveEndEvent<TSourceData>, eventDetails: MoveEndEventDetails) => void;
 };
@@ -2567,7 +2572,7 @@ type RegisterDraggableParameters<TData = undefined> = {
   activation?: DragActivationConfig | DragActivationConfig[];
   /**
    * Constrains pointer movement with one modifier or an array applied
-   * in order. See [`DragModifiers`](#dragmodifiers) and the exported modifier presets.
+   * in order. See [DragModifier](https://base-ui.com/react/utils/draggable#dragmodifier) and the exported modifier presets.
    */
   modifiers?: DragModifiers;
   /**
@@ -2596,7 +2601,7 @@ type RegisterDraggableParameters<TData = undefined> = {
   /**
    * Event handler called as the pointer moves or a modifier key changes, limited
    * to one call per animation frame. Drop target stack changes do not call this handler.
-   * Use the drop target's `onMove` for hover behavior.
+   * Use the drop target's `onDraggableMove` for hover behavior.
    */
   onMove?: (parameters: MoveEvent<TData>, eventDetails: MoveEventDetails) => void;
   /**
@@ -2671,7 +2676,7 @@ type RegisterDraggableParametersWithPayload<TData> = (
   activation?: DragActivationConfig | DragActivationConfig[];
   /**
    * Constrains pointer movement with one modifier or an array applied
-   * in order. See [`DragModifiers`](#dragmodifiers) and the exported modifier presets.
+   * in order. See [DragModifier](https://base-ui.com/react/utils/draggable#dragmodifier) and the exported modifier presets.
    */
   modifiers?: DragModifiers;
   /**
@@ -2700,7 +2705,7 @@ type RegisterDraggableParametersWithPayload<TData> = (
   /**
    * Event handler called as the pointer moves or a modifier key changes, limited
    * to one call per animation frame. Drop target stack changes do not call this handler.
-   * Use the drop target's `onMove` for hover behavior.
+   * Use the drop target's `onDraggableMove` for hover behavior.
    */
   onMove?: (parameters: MoveEvent<TData>, eventDetails: MoveEventDetails) => void;
   /**
@@ -2971,7 +2976,8 @@ type RegisterMonitorParameters<TSourceData = unknown> = {
   accept?: DragAccept<TSourceData>;
   /**
    * Event handler called when any matching drag starts (once per drag),
-   * wherever it originated.
+   * wherever it originated. Monitors registered during a drag observe only
+   * subsequent events. A pickup canceled before monitor dispatch has no start event.
    */
   onMoveStart?: (
     parameters: MoveStartEvent<TSourceData>,
@@ -2994,9 +3000,19 @@ type RegisterMonitorParameters<TSourceData = unknown> = {
    * Event handler called once when the drag ends after a drop, outside release, or
    * cancellation. `eventDetails.reason` identifies the outcome. `dropTarget` is the
    * target of a release, or `null` when there was none.
+   *
+   * This can run without onMoveStart if a source handler or initial target resolver
+   * cancels pickup before monitors receive the start, or if the monitor registers
+   * during a drag. Do not assume start and end events are paired.
    */
   onMoveEnd?: (parameters: MoveEndEvent<TSourceData>, eventDetails: MoveEndEventDetails) => void;
 };
+```
+
+### UseActiveDragReturnValue
+
+```typescript
+type UseActiveDragReturnValue<TData = unknown> = DragSource<TData> | null;
 ```
 
 ### UseDragDropManagerReturnValue
@@ -3135,12 +3151,6 @@ type UseDragDropManagerReturnValue = {
 };
 ```
 
-### UseDraggableActiveDragReturnValue
-
-```typescript
-type UseDraggableActiveDragReturnValue<TData = unknown> = DragSource<TData> | null;
-```
-
 ### UseDragMonitorParameters
 
 Parameters for [`useDragMonitor`](#usedragmonitor). Defines the drag kinds to observe and the
@@ -3160,7 +3170,8 @@ type UseDragMonitorParameters<TSourceData = unknown> = {
   accept?: DragAccept<TSourceData>;
   /**
    * Event handler called when any matching drag starts (once per drag),
-   * wherever it originated.
+   * wherever it originated. Monitors registered during a drag observe only
+   * subsequent events. A pickup canceled before monitor dispatch has no start event.
    */
   onMoveStart?: (
     parameters: MoveStartEvent<TSourceData>,
@@ -3183,6 +3194,10 @@ type UseDragMonitorParameters<TSourceData = unknown> = {
    * Event handler called once when the drag ends after a drop, outside release, or
    * cancellation. `eventDetails.reason` identifies the outcome. `dropTarget` is the
    * target of a release, or `null` when there was none.
+   *
+   * This can run without onMoveStart if a source handler or initial target resolver
+   * cancels pickup before monitors receive the start, or if the monitor registers
+   * during a drag. Do not assume start and end events are paired.
    */
   onMoveEnd?: (parameters: MoveEndEvent<TSourceData>, eventDetails: MoveEndEventDetails) => void;
 };
@@ -3224,7 +3239,7 @@ type matches =
 - `Draggable.useActiveDrag`: `Draggable.useActiveDrag`, `Draggable.useActiveDrag.ReturnValue`
 - `Draggable.createKind`
 - `Draggable.createGlobalKind`
-- `Default`: `Draggable.anyKind`, `Draggable.DragPointerType`, `Draggable.DragInput`, `Draggable.DragModifierKeys`, `Draggable.DragPosition`, `Draggable.DragLocalPoint`, `Draggable.DragSnapSteps`, `Draggable.DragSnappedLocalPointOptions`, `Draggable.DropTargetRecord`, `Draggable.DragLocation`, `Draggable.DragLocationHistory`, `Draggable.DragSource`, `Draggable.DragKind`, `Draggable.DragAccept`, `Draggable.AnyDragAccept`, `Draggable.AcceptedDragPayload`, `Draggable.BaseDragEvent`, `Draggable.DragPreviewOffsetParameters`, `Draggable.DragPreviewOffset`, `Draggable.DragPreviewContainer`, `Draggable.DraggableEventMap`, `Draggable.DropTargetEventMap`, `Draggable.DragPreviewRenderEvent`, `Draggable.MoveStartEvent`, `Draggable.MoveEvent`, `Draggable.DropTargetChangeEvent`, `Draggable.MoveEndEvent`, `Draggable.DragDropEvent`, `Draggable.DropEvent`, `Draggable.DropTargetEvent`, `Draggable.MoveStartContext`, `Draggable.DraggablePayload`, `Draggable.DragHandle`, `Draggable.DragStartReason`, `Draggable.DragMoveReason`, `Draggable.BeforeMoveStartEventDetails`, `Draggable.DragCompletedReason`, `Draggable.DragCanceledReason`, `Draggable.DragEndReason`, `Draggable.DragDropReason`, `Draggable.DropTargetChangeReason`, `Draggable.DragEventDetails`, `Draggable.MoveStartEventDetails`, `Draggable.MoveEventDetails`, `Draggable.DropTargetChangeEventDetails`, `Draggable.DragDropEventDetails`, `Draggable.MoveEndEventDetails`, `Draggable.DraggableEventDetailsMap`, `Draggable.DropTargetEventDetailsMap`, `Draggable.DropTargetResolutionContext`, `Draggable.DropTargetPayload`, `Draggable.DropTargetEventTarget`, `Draggable.DragElementReference`, `Draggable.DragModifierContext`, `Draggable.DragModifiers`, `Draggable.DragPreviewSettings`, `Draggable.DragPreviewParameters`, `UseDraggableActiveDragReturnValue`, `BaseDragEvent`, `BeforeMoveStartEventDetails`, `DraggablePayload`, `DraggablePayloadGetter`, `DragAccept`, `DragKind`, `DragModifier`, `DragModifierContext`, `DragModifiers`, `DragElementReference`, `DragDropEvent`, `DragDropEventDetails`, `DragDropReason`, `MoveEndEvent`, `MoveEndEventDetails`, `DragEndReason`, `DragCanceledReason`, `DragCompletedReason`, `DragEventDetails`, `DraggableEventDetailsMap`, `DragHandle`, `DragInput`, `DragLocalPoint`, `DragLocation`, `DragLocationHistory`, `DraggableEventMap`, `MoveEvent`, `DragMoveReason`, `MoveEventDetails`, `MoveStartEventDetails`, `DropTargetChangeEventDetails`, `DragPosition`, `DragPreviewContainer`, `DragPreviewOffset`, `DragPreviewParameters`, `DragPreviewRenderEvent`, `DragPreviewSettings`, `DragSnappedLocalPointOptions`, `DragSnapSteps`, `DragSource`, `MoveStartContext`, `MoveStartEvent`, `DropTargetChangeEvent`, `DropTargetRecord`, `DragPointerType`, `DragPreviewOffsetParameters`, `DragActivation`, `DragActivationConfig`, `DropTargetEvent`, `DropTargetEventMap`, `DropTargetEventDetailsMap`, `DropEvent`, `DropTargetEventTarget`, `DropTargetChangeReason`, `DropTargetPayload`, `DropTargetPayloadGetter`, `DropTargetResolutionContext`, `DragAutoScrollEvent`, `DragAutoScrollEventDetails`, `DragAutoScrollDirection`, `DragAutoScrollHandler`, `DragAutoScrollFrameContext`, `UseDragMonitorParameters`, `UseDragDropManagerReturnValue`, `DragDropManager`, `RegisterDraggableParameters`, `RegisterDraggableParametersWithPayload`, `RegisterDropTargetParameters`, `RegisterDropTargetParametersWithPayload`, `RegisterAutoScrollerParameters`, `RegisterMonitorParameters`, `DraggableRootState`, `DraggableRootProps`, `DraggableRootPropsWithPayload`, `DraggableHandleState`, `DraggableHandleProps`, `DraggablePreviewState`, `DraggablePreviewProps`, `DraggablePreviewTypedProps`, `DraggableProviderProps`, `DraggableTargetState`, `DraggableTargetProps`, `DraggableTargetPropsWithPayload`, `DraggableViewportState`, `DraggableViewportProps`, `DraggableCollision`, `DraggableCollisionEvent`, `DraggableCollisionEndEvent`, `DraggableCollisionProviderProps`
+- `Default`: `Draggable.anyKind`, `Draggable.DragPointerType`, `Draggable.DragInput`, `Draggable.DragModifierKeys`, `Draggable.DragPosition`, `Draggable.DragLocalPoint`, `Draggable.DragSnapSteps`, `Draggable.DragSnappedLocalPointOptions`, `Draggable.DropTargetRecord`, `Draggable.DragLocation`, `Draggable.DragLocationHistory`, `Draggable.DragSource`, `Draggable.DragKind`, `Draggable.DragAccept`, `Draggable.AnyDragAccept`, `Draggable.AcceptedDragPayload`, `Draggable.BaseDragEvent`, `Draggable.DragPreviewOffsetParameters`, `Draggable.DragPreviewOffset`, `Draggable.DragPreviewContainer`, `Draggable.DraggableEventMap`, `Draggable.DropTargetEventMap`, `Draggable.DragPreviewRenderEvent`, `Draggable.MoveStartEvent`, `Draggable.MoveEvent`, `Draggable.DropTargetChangeEvent`, `Draggable.MoveEndEvent`, `Draggable.DragDropEvent`, `Draggable.DropEvent`, `Draggable.DropTargetEvent`, `Draggable.MoveStartContext`, `Draggable.DraggablePayload`, `Draggable.DragHandle`, `Draggable.DragStartReason`, `Draggable.DragMoveReason`, `Draggable.BeforeMoveStartEventDetails`, `Draggable.DragCompletedReason`, `Draggable.DragCanceledReason`, `Draggable.DragEndReason`, `Draggable.DragDropReason`, `Draggable.DropTargetChangeReason`, `Draggable.DragEventDetails`, `Draggable.MoveStartEventDetails`, `Draggable.MoveEventDetails`, `Draggable.DropTargetChangeEventDetails`, `Draggable.DragDropEventDetails`, `Draggable.MoveEndEventDetails`, `Draggable.DraggableEventDetailsMap`, `Draggable.DropTargetEventDetailsMap`, `Draggable.DropTargetResolutionContext`, `Draggable.DropTargetPayload`, `Draggable.DropTargetEventTarget`, `Draggable.DragElementReference`, `Draggable.DragModifierContext`, `Draggable.DragModifiers`, `Draggable.DragPreviewSettings`, `Draggable.DragPreviewParameters`, `UseActiveDragReturnValue`, `BaseDragEvent`, `BeforeMoveStartEventDetails`, `DraggablePayload`, `DraggablePayloadGetter`, `DragAccept`, `DragKind`, `DragModifier`, `DragModifierContext`, `DragModifiers`, `DragElementReference`, `DragDropEvent`, `DragDropEventDetails`, `DragDropReason`, `MoveEndEvent`, `MoveEndEventDetails`, `DragEndReason`, `DragCanceledReason`, `DragCompletedReason`, `DragEventDetails`, `DraggableEventDetailsMap`, `DragHandle`, `DragInput`, `DragLocalPoint`, `DragLocation`, `DragLocationHistory`, `DraggableEventMap`, `MoveEvent`, `DragMoveReason`, `MoveEventDetails`, `MoveStartEventDetails`, `DropTargetChangeEventDetails`, `DragPosition`, `DragPreviewContainer`, `DragPreviewOffset`, `DragPreviewParameters`, `DragPreviewRenderEvent`, `DragPreviewSettings`, `DragSnappedLocalPointOptions`, `DragSnapSteps`, `DragSource`, `MoveStartContext`, `MoveStartEvent`, `DropTargetChangeEvent`, `DropTargetRecord`, `DragPointerType`, `DragPreviewOffsetParameters`, `DragActivation`, `DragActivationConfig`, `DropTargetEvent`, `DropTargetEventMap`, `DropTargetEventDetailsMap`, `DropEvent`, `DropTargetEventTarget`, `DropTargetChangeReason`, `DropTargetPayload`, `DropTargetPayloadGetter`, `DropTargetResolutionContext`, `DragAutoScrollEvent`, `DragAutoScrollEventDetails`, `DragAutoScrollDirection`, `DragAutoScrollHandler`, `DragAutoScrollFrameContext`, `UseDragMonitorParameters`, `UseDragDropManagerReturnValue`, `DragDropManager`, `RegisterDraggableParameters`, `RegisterDraggableParametersWithPayload`, `RegisterDropTargetParameters`, `RegisterDropTargetParametersWithPayload`, `RegisterAutoScrollerParameters`, `RegisterMonitorParameters`, `DraggableRootState`, `DraggableRootProps`, `DraggableRootPropsWithPayload`, `DraggableHandleState`, `DraggableHandleProps`, `DraggablePreviewState`, `DraggablePreviewProps`, `DraggablePreviewTypedProps`, `DraggableProviderProps`, `DraggableTargetState`, `DraggableTargetProps`, `DraggableTargetPropsWithPayload`, `DraggableViewportState`, `DraggableViewportProps`, `DraggableCollision`, `DraggableCollisionEvent`, `DraggableCollisionEndEvent`, `DraggableCollisionProviderProps`
 - `Draggable.restrictToVerticalAxis`
 - `Draggable.restrictToHorizontalAxis`
 - `Draggable.restrictToWindowEdges`

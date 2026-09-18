@@ -20,13 +20,15 @@ export const DraggableHandle = React.forwardRef(function DraggableHandle(
   const { className, render, style, disabled: disabledProp, ...elementProps } = componentProps;
   const { setHandleElement, disabled } = useDraggableRootContext();
 
-  if (process.env.NODE_ENV !== 'production' && disabledProp !== undefined) {
-    warn(
-      '`disabled` was passed to Draggable.Handle, which has no disabled state of its own. ' +
-        'The engine reads `disabled` from Draggable.Root, so the handle would look disabled while the root stayed draggable. ' +
-        'Set `disabled` on Draggable.Root instead.',
-    );
-  }
+  React.useEffect(() => {
+    if (process.env.NODE_ENV !== 'production' && disabledProp !== undefined) {
+      warn(
+        '`disabled` was passed to Draggable.Handle, which has no disabled state of its own. ' +
+          'The engine reads `disabled` from Draggable.Root, so the handle would look disabled while the root stayed draggable. ' +
+          'Set `disabled` on Draggable.Root instead.',
+      );
+    }
+  }, [disabledProp]);
 
   const handleRef = useRefWithInit(() => {
     const token = {};

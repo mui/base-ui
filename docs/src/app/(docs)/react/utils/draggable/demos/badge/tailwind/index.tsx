@@ -55,7 +55,7 @@ const BADGE_VALUE_CLASS = 'bg-neutral-950 px-1 text-white dark:bg-white dark:tex
 
 function Widget({ widget }: { widget: WidgetData }) {
   return (
-    <Draggable.Root kind={widgetKind} payload={widget.id} role="button" className={WIDGET_CLASS}>
+    <Draggable.Root kind={widgetKind} payload={widget.id} className={WIDGET_CLASS}>
       <div className="flex items-center gap-2 border-b border-neutral-200 px-3 py-2 text-xs leading-4 font-semibold dark:border-neutral-700">
         <Grip />
         <span>{widget.title}</span>

@@ -51,6 +51,8 @@ function applyGestureSetup(
   let entry = gestureSetups.get(gestureElement);
   if (!entry) {
     const gestureStyle = gestureElement.style as CSSStyleDeclaration & Record<string, string>;
+    // Some CSS properties are unavailable in jsdom or other browser engines.
+    // Restore those to an empty string instead of assigning undefined.
     const previous = {
       touchAction: gestureStyle.touchAction ?? '',
       userSelect: gestureStyle.userSelect ?? '',
@@ -207,7 +209,7 @@ export type DraggableConfig<TData = undefined> = {
   activation?: DragActivationConfig | readonly DragActivationConfig[] | undefined;
   /**
    * Constrains pointer movement with one modifier or an array applied
-   * in order. See {@link DragModifiers} and the exported modifier presets.
+   * in order. See [DragModifier](https://base-ui.com/react/utils/draggable#dragmodifier) and the exported modifier presets.
    */
   modifiers?: DragModifiers | undefined;
   /**
@@ -256,7 +258,7 @@ export type DraggableConfig<TData = undefined> = {
   /**
    * Event handler called as the pointer moves or a modifier key changes, limited
    * to one call per animation frame. Drop target stack changes do not call this handler.
-   * Use the drop target's `onMove` for hover behavior.
+   * Use the drop target's `onDraggableMove` for hover behavior.
    */
   onMove?:
     | ((

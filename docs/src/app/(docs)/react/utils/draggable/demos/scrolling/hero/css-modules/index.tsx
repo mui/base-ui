@@ -118,7 +118,6 @@ function Card({ task, draggable }: { task: Task; draggable?: boolean }) {
       payload={task}
       data-card
       data-id={task.id}
-      role="button"
       className={styles.Card}
     >
       <Grip />
@@ -226,8 +225,8 @@ function AutoScrollBoardContent() {
       {/* @highlight-end */}
       <div ref={rootRef} className={styles.Root}>
         <p className={styles.Hint}>
-          Drag the card into either list, at the slot you want. The provider enables both; only the
-          second list configures its region.
+          Drag the card into either list, at the slot you want. Both lists scroll near their edges;
+          the second list scrolls more slowly.
         </p>
         <div className={styles.Tray}>
           <Card task={pending} draggable />
