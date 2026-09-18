@@ -90,14 +90,6 @@ const state = getSharedSlot<AutoScrollerState>('registerAutoScroller', () => ({
   overflowCache: new WeakMap<HTMLElement, OverflowFlags>(),
   rtlCache: new WeakMap<HTMLElement, boolean>(),
 }));
-state.scrollerMutationObserver ??= null;
-state.scrollerObserverRefreshScheduled ??= false;
-state.observedScrollers ??= new Set();
-state.chainMutationObserver ??= null;
-state.observedChainElements ??= new Set();
-state.idleMutationObserver ??= null;
-state.idleObserving ??= false;
-state.scrollMonitorRetainers ??= 0;
 
 const holds = createGetterStackRegistry<HTMLElement, ScrollerGetter>({
   entries: state.scrollers,
@@ -191,25 +183,38 @@ function handleObservedMutations(records: MutationRecord[]): void {
     return;
   }
   let wake = false;
+  let checkedTopology = false;
   for (const record of records) {
     const target = record.target;
     if (target.nodeType === ELEMENT_NODE && closest(target as Element, PREVIEW_SELECTOR) !== null) {
       continue;
     }
     if (record.type === 'childList') {
-      // Ordinary row changes only alter scroll extent. A moved viewport (or a
-      // wrapper containing one) also changes inner-first priority.
-      const moved = [...record.addedNodes, ...record.removedNodes];
-      const scrollers = [...state.scrollers.keys()];
-      const topologyChanged = moved.some(
-        (node) =>
-          node.nodeType === ELEMENT_NODE &&
-          scrollers.some((scroller) => node === scroller || contains(node as Element, scroller)),
-      );
-      if (topologyChanged) {
-        invalidateScrollerOrder();
-        refreshAutoScroll();
-        return;
+      if (!checkedTopology) {
+        checkedTopology = true;
+        // Walk viewport ancestors once per batch instead of checking every
+        // moved row against every viewport. Ordinary content growth preserves
+        // both style caches and the depth order.
+        const moved = new Set(
+          records
+            .filter((mutation) => mutation.type === 'childList')
+            .flatMap((mutation) =>
+              [...mutation.addedNodes, ...mutation.removedNodes].filter(
+                (node) => node.nodeType === ELEMENT_NODE,
+              ),
+            ),
+        );
+        if (moved.size > 0) {
+          for (const scroller of state.scrollers.keys()) {
+            for (let node: Element | null = scroller; node; node = getComposedParentElement(node)) {
+              if (moved.has(node)) {
+                invalidateScrollerOrder();
+                refreshAutoScroll();
+                return;
+              }
+            }
+          }
+        }
       }
       wake = true;
       continue;

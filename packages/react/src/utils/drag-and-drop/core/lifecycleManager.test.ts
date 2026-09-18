@@ -102,6 +102,31 @@ describe('lifecycle manager', () => {
     });
   }
 
+  it('delivers remaining terminal leaves when an inner target throws', () => {
+    const outer = createElement();
+    const inner = createElement();
+    outer.append(inner);
+    const outerLeave = vi.fn();
+    const innerParameters = () => ({
+      accept: TEST_KIND,
+      onDraggableLeave() {
+        throw new Error('leave failed');
+      },
+    });
+    const outerParameters = () => ({ accept: TEST_KIND, onDraggableLeave: outerLeave });
+    addDropTargetRegistration(inner, innerParameters);
+    addDropTargetRegistration(outer, outerParameters);
+    const handle = startDragWithHandlers({}, inner);
+    try {
+      expect(() => handle!.controller.drop(makeInput(), inner)).toThrow('leave failed');
+      expect(outerLeave).toHaveBeenCalledTimes(1);
+      expect(canStart()).toBe(true);
+    } finally {
+      removeDropTargetRegistration(inner, innerParameters);
+      removeDropTargetRegistration(outer, outerParameters);
+    }
+  });
+
   it('delivers recovery end to monitors even if source cleanup also throws', () => {
     vi.spyOn(console, 'error').mockImplementation(() => {});
     const monitorEnd = vi.fn();

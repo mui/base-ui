@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
 import { fireEvent } from '@testing-library/react';
-import { act } from '@mui/internal-test-utils';
+import { act, waitFor } from '@mui/internal-test-utils';
 import { createDndRenderer, isJSDOM, testDragKind } from '#test-utils';
 import {
   createElement,
@@ -143,8 +143,8 @@ describe('engine.registerAutoScroller', () => {
       expect(measure).not.toHaveBeenCalled();
 
       scroller.appendChild(document.createElement('div'));
-      await flushRaf();
-      expect(measure).toHaveBeenCalled();
+      // The mutation observer schedules the frame after the DOM update.
+      await waitFor(() => expect(measure).toHaveBeenCalled());
     } finally {
       measure.mockRestore();
     }

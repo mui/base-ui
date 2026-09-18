@@ -20,6 +20,12 @@ import { DemoContainedDrag } from './demos/containment';
 
 `Draggable.Root` makes an element draggable with a pointer. It pairs with [`Draggable.Target`](#drop-targets), which defines where a drag can be released. See the [examples](#examples) and the [accessibility guide](/react/utils/draggable#accessibility) for keyboard alternatives.
 
+## Usage guidelines
+
+Use drag and drop for spatial interactions, such as reordering lists, moving items between regions, or positioning items on a canvas.
+
+Treat dragging as a progressive enhancement. Draggable responds to pointer input, so first provide a keyboard and click or tap workflow for every operation. A move menu, destination select, or sort button can call the same application logic as the drop handler. See [Accessibility](#accessibility) for examples.
+
 ## Anatomy
 
 Import the component and assemble its parts:
@@ -1361,6 +1367,10 @@ The payload type declared by `kind` flows to the root's event handlers.
 
 import { TypesDraggable, TypesDraggableAdditional } from './types';
 
+### Provider
+
+<TypesDraggable.Provider hideDescription />
+
 ### Root
 
 To prevent pickup, call `eventDetails.cancel()` in `onBeforeMoveStart`. Calling `preventDefault()` or `preventBaseUIHandler()` in `onPointerDown` does not prevent pickup.
@@ -1386,10 +1396,6 @@ Pass `kind` to type the preview render function's payload and restrict it to mat
 <span id="collisionprovider" />
 
 <TypesDraggable.CollisionProvider />
-
-### Provider
-
-<TypesDraggable.Provider hideDescription />
 
 ### Target
 
@@ -1443,7 +1449,7 @@ const card = Draggable.createKind<Card>('card');
 
 `Draggable.anyKind` accepts every source kind. Pass it to a target's `accept` prop when the target handles arbitrary payloads. The payload type is `unknown`, so narrow it before use.
 
-### useActiveDrag
+## useActiveDrag
 
 Read the active drag source with `Draggable.useActiveDrag`. It returns `null` when no drag is active and re-renders when a drag starts or ends.
 
@@ -1578,7 +1584,7 @@ Base UI uses a monitor's `accept` to decide whether it joins a drag, and checks
 
 Base UI reads the nearest `Draggable.Provider` where `useDragDropManager` is called. Put that provider above the component that calls the hook, regardless of where the registered elements render.
 
-### Draggables
+### `registerDraggable` method
 
 Register a drag source with `registerDraggable`. It accepts the [`Draggable.Root`](#root) options, including `kind`, `payload` or `getPayload`, `activation`, `disabled`, and the drag event callbacks. It also accepts `dragHandle` and `dragPreview`. `dragHandle` can be an element, ref, or function that restricts pickup to a handle.
 
@@ -1613,7 +1619,7 @@ manager.registerDraggable(element, () => ({
 
 Providing `render` requires a [`Draggable.Provider`](/react/utils/draggable#provider) above the component that calls the hook. Base UI throws an error if the provider is missing. The hook requires the provider even for sources using the default clone.
 
-### Drop targets
+### `registerDropTarget` method
 
 Register a drop target with `registerDropTarget`. It accepts the drag options from [`Draggable.Target`](#target), including `accept`, `onDraggableEnter`, `onDraggableLeave`, and `onDraggableDrop`. It does not accept element props or `trackDragOver`, which controls React state and data attributes.
 
@@ -1626,7 +1632,7 @@ manager.registerDropTarget(element, () => ({
 }));
 ```
 
-### Auto-scroll
+### `registerAutoScroller` method
 
 `registerAutoScroller` enables automatic scrolling for one element. Each scroll container needs its own registration. It accepts the same parameters as `Draggable.Viewport`. Use `onDragScroll` to cancel a direction or apply custom movement, and `maxSpeed` to set the speed. For example, a transformed canvas has no scroll offsets for Base UI to update and often already has a viewport ref.
 
@@ -1670,7 +1676,7 @@ React.useEffect(() => {
 }, [manager, gridApi]);
 ```
 
-### Monitor drags
+### `registerMonitor` method
 
 Observe every drag with `registerMonitor`, like [`useDragMonitor`](/react/utils/draggable#usedragmonitor). It takes only a getter:
 
@@ -1682,7 +1688,9 @@ manager.registerMonitor(() => ({
 }));
 ```
 
-### Cancelling a drag
+### `cancelDrag` method
+
+<span id="cancelling-a-drag" />
 
 `cancelDrag` ends the active drag and fires `onMoveEnd` with `canceled: true` and the reason `'imperative-action'`. It does nothing when no drag is active. Use it when a route change, dialog, or deleted record invalidates the drag.
 

@@ -89,36 +89,11 @@ export function createEventRootBinding(options: CreateEventRootBindingOptions): 
   return createDocumentBinding({
     slot,
     install(root) {
-      if (isShadowRoot(root)) {
+      const shadowRoot = isShadowRoot(root);
+      const target = shadowRoot ? root : ownerWindow(root.documentElement);
+      if (shadowRoot) {
         boundShadowRoots.add(root);
-        const offCapture = addEventListener(
-          root,
-          type,
-          (event) => {
-            if (!crossesBoundShadowRoot(event, root)) {
-              listener(event);
-            }
-          },
-          { ...listenerOptions, capture: true },
-        );
-        const offBubble = addEventListener(
-          root,
-          type,
-          (event) => {
-            if (crossesBoundShadowRoot(event, root)) {
-              listener(event);
-            }
-          },
-          listenerOptions,
-        );
-        return () => {
-          offCapture();
-          offBubble();
-          boundShadowRoots.delete(root);
-        };
       }
-
-      const win = ownerWindow(root.documentElement);
       // Use fresh wrappers so deferred cleanup cannot remove a later binding.
       const onCapture = (event: Event) => {
         if (!crossesBoundShadowRoot(event, root)) {
@@ -130,14 +105,17 @@ export function createEventRootBinding(options: CreateEventRootBindingOptions): 
           listener(event);
         }
       };
-      const offCapture = addEventListener(win, type, onCapture, {
+      const offCapture = addEventListener(target, type, onCapture, {
         ...listenerOptions,
         capture: true,
       });
-      const offBubble = addEventListener(win, type, onBubble, listenerOptions);
+      const offBubble = addEventListener(target, type, onBubble, listenerOptions);
       return () => {
         offCapture();
         offBubble();
+        if (shadowRoot) {
+          boundShadowRoots.delete(root);
+        }
       };
     },
   });

@@ -720,10 +720,11 @@ export function dispatchDropTargetChange(
       // Removed before the leave is delivered: if the leave handler cancels the
       // drag, the terminal dispatch must not re-leave this target.
       removeHoveredRecord(hovered, record.element);
-      dispatchToDropTarget(record, 'onDraggableLeave', payload, eventDetails);
-      // The leave this element was owed has now gone out, so a retiring hold kept
-      // for it has done its job.
-      releaseRetiringDropTarget(record.element);
+      try {
+        dispatchToDropTarget(record, 'onDraggableLeave', payload, eventDetails);
+      } finally {
+        releaseRetiringDropTarget(record.element);
+      }
     }
   }
 

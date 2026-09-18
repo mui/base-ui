@@ -875,14 +875,18 @@ export function start(parameters: StartParameters): DragSessionHandle | null {
         const departedDropTargets = hoveredDropTargets.slice();
         if (departedDropTargets.length > 0) {
           const leavePayload = createTerminalLeavePayload(input);
-          dispatchDropTargetChange(
-            departedDropTargets,
-            [],
-            leavePayload,
-            endDetails,
-            isLive,
-            hoveredDropTargets,
-          );
+          for (const target of departedDropTargets) {
+            captureTerminalError(() =>
+              dispatchDropTargetChange(
+                [target],
+                [],
+                leavePayload,
+                endDetails,
+                isLive,
+                hoveredDropTargets,
+              ),
+            );
+          }
         }
       }
     } catch (error) {

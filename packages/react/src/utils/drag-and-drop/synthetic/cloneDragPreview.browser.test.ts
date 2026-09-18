@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { act } from '@mui/internal-test-utils';
 import { createDndRenderer, isJSDOM } from '#test-utils';
 import { flushRaf, setupDragEngineTests } from '../../../../test/dnd';
@@ -111,6 +111,129 @@ describe.skipIf(isJSDOM)('createClonedDragPreviewElement (top layer)', () => {
     } finally {
       handle.destroy();
       sheet.remove();
+    }
+  });
+
+  it('resolves preview styles using source-size variables before preserving them', () => {
+    const sheet = document.createElement('style');
+    sheet.textContent =
+      '.Card[data-drag-preview] { border-radius: calc(var(--drag-source-width) / 2); }';
+    document.head.appendChild(sheet);
+    source.className = 'Card';
+    const handle = createClonedDragPreviewElement(source, null)!;
+    try {
+      expect(getComputedStyle(handle.element).borderTopLeftRadius).toBe('60px');
+    } finally {
+      handle.destroy();
+      sheet.remove();
+    }
+  });
+
+  it('preserves both generated pseudo-elements and nested direct-child declarations', () => {
+    const sheet = document.createElement('style');
+    sheet.textContent = `
+      .List { & > .Card { --icon-color: rgb(1, 2, 3); color: rgb(4, 5, 6); }
+        & > .Card::before { content: "Before"; color: var(--icon-color); }
+        & > .Card::after { content: "After"; }
+      }
+    `;
+    document.head.appendChild(sheet);
+    list.className = 'List';
+    source.className = 'Card';
+    const beforeSheets = document.adoptedStyleSheets.length;
+    const handle = createClonedDragPreviewElement(source, null)!;
+    try {
+      expect(getComputedStyle(handle.element).color).toBe('rgb(4, 5, 6)');
+      expect(getComputedStyle(handle.element, '::before').content).toBe('"Before"');
+      expect(getComputedStyle(handle.element, '::before').color).toBe('rgb(1, 2, 3)');
+      expect(getComputedStyle(handle.element, '::after').content).toBe('"After"');
+    } finally {
+      handle.destroy();
+      sheet.remove();
+    }
+    expect(document.adoptedStyleSheets.length).toBe(beforeSheets);
+  });
+
+  it('preserves contextual styling when stylesheet rules cannot be inspected', () => {
+    const sheet = document.createElement('style');
+    sheet.textContent = '.List > .Card { color: rgb(1, 2, 3); }';
+    document.head.appendChild(sheet);
+    list.className = 'List';
+    source.className = 'Card';
+    const rules = vi.spyOn(sheet.sheet!, 'cssRules', 'get').mockImplementation(() => {
+      throw new DOMException('Stylesheet is cross-origin', 'SecurityError');
+    });
+    const handle = createClonedDragPreviewElement(source, null)!;
+    try {
+      expect(getComputedStyle(handle.element).color).toBe('rgb(1, 2, 3)');
+    } finally {
+      handle.destroy();
+      rules.mockRestore();
+      sheet.remove();
+    }
+  });
+
+  it('neutralizes important source motion and allows an important ending transition', () => {
+    const sheet = document.createElement('style');
+    sheet.textContent = `.List .Card { transition: all 200ms !important; }
+      .List .Card[data-ending-style] { transition: translate 100ms !important; }`;
+    document.head.appendChild(sheet);
+    list.className = 'List';
+    source.className = 'Card';
+    const handle = createClonedDragPreviewElement(source, null)!;
+    try {
+      expect(getComputedStyle(handle.element).transitionDuration).toBe('0s');
+      handle.element.setAttribute('data-ending-style', '');
+      handle.prepareForDrop?.();
+      expect(getComputedStyle(handle.element).transitionProperty).toBe('translate');
+      expect(getComputedStyle(handle.element).transitionDuration).toBe('0.1s');
+    } finally {
+      handle.destroy();
+      sheet.remove();
+    }
+  });
+
+  it('preserves generated content styled through a shadow host', () => {
+    const host = document.createElement('div');
+    const root = host.attachShadow({ mode: 'closed' });
+    const sheet = document.createElement('style');
+    sheet.textContent = ':host > .Card::before { content: "Icon"; }';
+    root.append(sheet, source);
+    list.append(host);
+    source.className = 'Card';
+    const handle = createClonedDragPreviewElement(source, null)!;
+    try {
+      expect(getComputedStyle(handle.element, '::before').content).toBe('"Icon"');
+    } finally {
+      handle.destroy();
+    }
+  });
+
+  it('preserves styles applied to a slotted source', () => {
+    const host = document.createElement('div');
+    const root = host.attachShadow({ mode: 'open' });
+    root.innerHTML = '<style>::slotted(.Card) { color: rgb(1, 2, 3); }</style><slot></slot>';
+    host.append(source);
+    list.append(host);
+    source.className = 'Card';
+    const handle = createClonedDragPreviewElement(source, null)!;
+    try {
+      expect(getComputedStyle(handle.element).color).toBe('rgb(1, 2, 3)');
+    } finally {
+      handle.destroy();
+    }
+  });
+
+  it('does not measure every descendant when ordinary classes survive wrapping', () => {
+    source.innerHTML = '<span class="Child">Item</span>'.repeat(100);
+    const measure = vi.spyOn(window, 'getComputedStyle');
+    const handle = createClonedDragPreviewElement(source, null)!;
+    try {
+      const descendants = new Set(handle.element.querySelectorAll('.Child'));
+      expect(measure.mock.calls.filter(([node]) => descendants.has(node))).toHaveLength(0);
+    } finally {
+      handle.destroy();
+      measure.mockRestore();
     }
   });
 

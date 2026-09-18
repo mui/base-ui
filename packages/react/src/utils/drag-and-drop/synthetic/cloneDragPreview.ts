@@ -2,6 +2,7 @@ import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
 import { NOOP } from '@base-ui/utils/empty';
 import { warn } from '@base-ui/utils/warn';
 import { isShadowRoot } from '@floating-ui/utils/dom';
+import { capturePreviewStyles } from './previewStyles';
 import { applySourceSizeVars } from '../customDragPreview';
 import { getSharedSlot } from '../sharedState';
 import { DRAG_PREVIEW_ATTR, DRAGGING_ATTR } from '../dragAttributes';
@@ -765,8 +766,9 @@ function createPreparedDragPreviewElement(
     zIndex: '2147483647',
   });
   const restoredMotion = new Map<string, string>();
-  let unwrappedStyles: Array<{ node: Element; values: Array<[string, string]> }> = [];
+  let contextualStyles: ReturnType<typeof capturePreviewStyles> | undefined;
   if (options.clone) {
+    applySourceSizeVars(element, { width, height });
     host.appendChild(element);
     const win = ownerWindow(source);
     const sourceStyle = win.getComputedStyle(source);
@@ -783,25 +785,10 @@ function createPreparedDragPreviewElement(
           : value !== 'none';
       if (activeMotion && value && value === sourceStyle.getPropertyValue(property)) {
         restoredMotion.set(property, value);
-        element.style.setProperty(property, 'none');
+        element.style.setProperty(property, 'none', 'important');
       }
     }
-    unwrappedStyles = options.clone.nodes
-      .filter((node) => node.isConnected)
-      .map((node) => {
-        const computed = win.getComputedStyle(node);
-        return {
-          node,
-          values: Array.from(computed)
-            .filter(
-              (property) =>
-                !property.startsWith('--') &&
-                !property.startsWith('transition') &&
-                !property.startsWith('animation'),
-            )
-            .map((property) => [property, computed.getPropertyValue(property)] as [string, string]),
-        };
-      });
+    contextualStyles = capturePreviewStyles(element, options.clone.nodes);
   }
   wrapper.appendChild(element);
 
@@ -858,26 +845,7 @@ function createPreparedDragPreviewElement(
   host.appendChild(wrapper);
   openInTopLayer();
   updatePositionScale();
-  // Preserve only values the extra ancestor changed. Existing preview rules
-  // participate in the snapshot, and unchanged properties stay in the cascade.
-  const lostStyles = unwrappedStyles.map(({ node, values }) => {
-    const computed = ownerWindow(node).getComputedStyle(node);
-    return {
-      node,
-      values: values.filter(([property, value]) => computed.getPropertyValue(property) !== value),
-    };
-  });
-  for (const { node, values } of lostStyles) {
-    if (
-      node instanceof ownerWindow(node).HTMLElement ||
-      node instanceof ownerWindow(node).SVGElement
-    ) {
-      for (const [property, value] of values) {
-        node.style.setProperty(property, value);
-      }
-    }
-  }
-  unwrappedStyles = [];
+  contextualStyles?.restore();
   applyPostInsertion();
 
   function reconnect(): void {
@@ -902,6 +870,7 @@ function createPreparedDragPreviewElement(
       openInTopLayer();
     }
     updatePositionScale();
+    contextualStyles?.reconnect();
     // Re-appending resets descendant scroll positions to 0; restore the captured
     // offsets so an internally-scrolled preview subtree keeps its scroll after a
     // mid-drag re-home, in the same order as the initial insertion.
@@ -939,7 +908,7 @@ function createPreparedDragPreviewElement(
           ownerWindow(element).getComputedStyle(element).getPropertyValue(property) ===
           inheritedValue
         ) {
-          element.style.setProperty(property, 'none');
+          element.style.setProperty(property, 'none', 'important');
         }
       }
     },
@@ -949,6 +918,7 @@ function createPreparedDragPreviewElement(
       }
       destroyed = true;
       observer.disconnect();
+      contextualStyles?.destroy();
       if (usesPopover && wrapper.isConnected) {
         try {
           wrapper.hidePopover();

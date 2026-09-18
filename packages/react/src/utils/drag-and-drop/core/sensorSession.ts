@@ -78,7 +78,7 @@ function startSensorSession(parameters: StartSensorSessionParameters): DragSessi
 
   // Read the draggable's latest parameters live on each dispatch so a source that
   // re-renders mid-drag runs its current handler closures. Falls back to the
-  // start-time `source` snapshot if the element unregisters mid-drag.
+  // last compatible snapshot if the element unregisters or changes kind mid-drag.
   // `kind`/`payload` stay start-time (they live in `dragSource`); only
   // handlers are read fresh.
   //
@@ -87,8 +87,14 @@ function startSensorSession(parameters: StartSensorSessionParameters): DragSessi
   // the new element and re-points `dragSource.element` at it (see
   // `retargetDragSource`). The old element's registration is gone, so
   // resolving against the live node keeps the fresh handler closures flowing.
-  const getLatestParameters = (): DraggableConfig<any> =>
-    getRegistration(dragSource.element)?.() ?? source;
+  let compatibleParameters = { ...source };
+  const getLatestParameters = (): DraggableConfig<any> => {
+    const current = getRegistration(dragSource.element)?.();
+    if (current?.kind.id === dragSource.kind) {
+      compatibleParameters = { ...current };
+    }
+    return compatibleParameters;
+  };
 
   return start({
     payload: dragSource,

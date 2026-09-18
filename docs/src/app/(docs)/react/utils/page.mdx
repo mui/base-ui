@@ -69,6 +69,7 @@ viewports, and sortable groups.
 
 - Keywords: React Drag and Drop, Draggable, Drop Target, Drag Preview, Auto Scroll, Base UI
 - Sections:
+  - Usage guidelines
   - Anatomy
   - Provider
   - Pass data along
@@ -145,11 +146,11 @@ viewports, and sortable groups.
     - Kanban board
     - File explorer
   - API reference
+    - Provider
     - Root
     - Handle
     - Preview
     - Collision provider
-    - Provider
     - Target
     - Viewport
     - restrictToVerticalAxis
@@ -162,18 +163,18 @@ viewports, and sortable groups.
     - createKind
     - createGlobalKind
     - anyKind
-    - useActiveDrag
+  - useActiveDrag
   - useDragMonitor
     - Filter by kind
     - Drag events
   - useDragDropManager
     - When each parameter is read
-    - Draggables
+    - `registerDraggable` method
       - Drag preview
-    - Drop targets
-    - Auto-scroll
-    - Monitor drags
-    - Cancelling a drag
+    - `registerDropTarget` method
+    - `registerAutoScroller` method
+    - `registerMonitor` method
+    - `cancelDrag` method
 - Exports:
   - Draggable - Root
     - Props: activation, children, className, collision, collisionElement, collisionPayload, disabled, dragCursor, getPayload, kind, modifiers, onBeforeMoveStart, onMove, onMoveEnd, onMoveStart, onTargetChange, payload, previewKey, render, style

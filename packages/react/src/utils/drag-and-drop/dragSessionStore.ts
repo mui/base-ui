@@ -25,35 +25,29 @@ interface DragSessionSlot {
   sourceStore: Store<DragSource | null>;
   sourceSnapshot: DragSource | null;
   sourceVersion: number;
-  sourceStoreSubscription?: (() => void) | undefined;
   targetListeners: Map<Element, Set<() => void>>;
   allTargetListeners: Set<() => void>;
 }
 
-const slot = getSharedSlot<DragSessionSlot>('dragSessionStore', () => ({
-  store: new Store<DragSessionState | null>(null),
-  sourceStore: new Store<DragSource | null>(null),
-  sourceSnapshot: null,
-  sourceVersion: 0,
-  targetListeners: new Map<Element, Set<() => void>>(),
-  allTargetListeners: new Set<() => void>(),
-}));
-// Forward-compatible with a slot created by an older copy during development.
-// Breaking layouts get a new shared-slot protocol; additive fields must be
-// backfilled instead, because bumping the protocol would split the live store
-// and registries between the two copies.
-slot.sourceStore ??= new Store<DragSource | null>(slot.store.state?.source ?? null);
-slot.sourceSnapshot ??= slot.store.state?.source ?? null;
-slot.sourceVersion ??= 0;
-slot.sourceStoreSubscription ??= slot.store.subscribe((state) => {
-  const source = state?.source ?? null;
-  if (source !== slot.sourceSnapshot) {
-    slot.sourceSnapshot = source;
-    slot.sourceStore.setState(source);
-  }
+const slot = getSharedSlot<DragSessionSlot>('dragSessionStore', () => {
+  const state: DragSessionSlot = {
+    store: new Store<DragSessionState | null>(null),
+    sourceStore: new Store<DragSource | null>(null),
+    sourceSnapshot: null,
+    sourceVersion: 0,
+    targetListeners: new Map<Element, Set<() => void>>(),
+    allTargetListeners: new Set<() => void>(),
+  };
+  // The shared stores live for the lifetime of the page.
+  void state.store.subscribe((session) => {
+    const source = session?.source ?? null;
+    if (source !== state.sourceSnapshot) {
+      state.sourceSnapshot = source;
+      state.sourceStore.setState(source);
+    }
+  });
+  return state;
 });
-slot.targetListeners ??= new Map<Element, Set<() => void>>();
-slot.allTargetListeners ??= new Set<() => void>();
 
 /**
  * Read-only handle to the singleton drag-session store. Subscribe with

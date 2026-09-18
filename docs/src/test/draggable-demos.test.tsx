@@ -3,7 +3,7 @@
 import * as React from 'react';
 import '@testing-library/jest-dom/vitest';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { fireEvent, screen } from '@mui/internal-test-utils';
+import { fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 // eslint-disable-next-line import/no-relative-packages
 import { createDndRenderer } from '../../../packages/react/test/dndEngine';
 // eslint-disable-next-line import/no-relative-packages
@@ -29,11 +29,41 @@ import CalendarCss from '../app/(docs)/react/utils/draggable/demos/examples/sche
 import CalendarTailwind from '../app/(docs)/react/utils/draggable/demos/examples/scheduler/tailwind';
 import { findClosestSlot } from '../app/(docs)/react/utils/draggable/demos/examples/kanban/slots';
 
+import TabsCss from '../app/(docs)/react/utils/draggable/demos/examples/tabs/css-modules';
+import TabsTailwind from '../app/(docs)/react/utils/draggable/demos/examples/tabs/tailwind';
+
 setupDragEngineTests();
 afterEach(() => vi.unstubAllGlobals());
 
 describe('draggable demos', () => {
   const { renderDnd } = createDndRenderer();
+
+  describe.each([
+    ['CSS Modules', TabsCss],
+    ['Tailwind', TabsTailwind],
+  ] as const)('closing tabs with %s', (_name, Demo) => {
+    it('focuses the next tab after deleting the focused middle tab', async () => {
+      const { user } = await renderDnd(<Demo />);
+      await user.click(screen.getByRole('tab', { name: 'Activity' }));
+      await user.keyboard('{Delete}');
+      await waitFor(() => expect(screen.getByRole('tab', { name: 'Reports' })).toHaveFocus());
+      await user.keyboard('{ArrowRight}');
+      expect(screen.getByRole('tab', { name: 'Notes' })).toHaveFocus();
+    });
+
+    it('focuses the previous tab at the end and Add tab after the last removal', async () => {
+      const { user } = await renderDnd(<Demo />);
+      await user.click(screen.getByRole('tab', { name: 'Notes' }));
+      await user.keyboard('{Delete}');
+      await waitFor(() => expect(screen.getByRole('tab', { name: 'Reports' })).toHaveFocus());
+      await user.keyboard('{Delete}');
+      await waitFor(() => expect(screen.getByRole('tab', { name: 'Activity' })).toHaveFocus());
+      await user.keyboard('{Delete}');
+      await waitFor(() => expect(screen.getByRole('tab', { name: 'Overview' })).toHaveFocus());
+      await user.keyboard('{Delete}');
+      await waitFor(() => expect(screen.getByRole('button', { name: 'Add tab' })).toHaveFocus());
+    });
+  });
 
   it('keeps the Kanban slot stable when its placeholder displaces cards', () => {
     const column = document.createElement('div');
