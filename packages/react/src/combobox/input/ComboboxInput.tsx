@@ -13,6 +13,7 @@ import {
   FieldRootContext,
   useFieldRootContext,
 } from '../../internals/field-root-context/FieldRootContext';
+import { useSetFieldFocused } from '../../internals/field-root-context/useSetFieldFocused';
 import { DEFAULT_FIELD_STATE_ATTRIBUTES } from '../../internals/field-constants/constants';
 import { useLabelableContext } from '../../internals/labelable-provider/LabelableContext';
 import { useComboboxChipsContext } from '../chips/ComboboxChipsContext';
@@ -54,7 +55,6 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
     state: fieldState,
     disabled: fieldDisabled,
     setTouched,
-    setFocused,
     validationMode,
     validation,
   } = useFieldRootContext();
@@ -88,6 +88,8 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
   const popupSide = usePopupSide(store);
   const disabled = fieldDisabled || comboboxDisabled || disabledProp;
   const listEmpty = useListEmpty();
+
+  const setFocused = useSetFieldFocused(disabled);
 
   const isInsidePopup = hasPositionerParent || inline;
   const focusManagerModal = !isInsidePopup || modal;
