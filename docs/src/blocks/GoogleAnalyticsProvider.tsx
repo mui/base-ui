@@ -3,6 +3,7 @@ import * as React from 'react';
 import { useMediaQuery } from '@base-ui/react/unstable-use-media-query';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useTimeout } from '@base-ui/utils/useTimeout';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
 
 declare global {
   interface Window {
@@ -68,7 +69,7 @@ export function GoogleAnalyticsProvider({
     });
   }, [id]);
 
-  const trackPageView = React.useCallback(() => {
+  const trackPageView = useStableCallback(() => {
     // Remove hash as it's never sent to the server
     // https://github.com/vercel/next.js/issues/25202
     const canonicalAsServer = window.location.pathname.replace(/#(.*)$/, '');
