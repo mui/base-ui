@@ -21,8 +21,7 @@ export function Root(props: React.ComponentPropsWithoutRef<'div'>) {
   const context = React.useMemo(() => ({ codeId, titleId }), [codeId, titleId]);
   return (
     <CodeBlockContext.Provider value={context}>
-      <div
-        role="figure"
+      <figure
         aria-labelledby={titleId}
         {...props}
         className={clsx('CodeBlockRoot', props.className)}
