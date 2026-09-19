@@ -83,6 +83,42 @@ describe('<Menu.Trigger />', () => {
     expect(menuPopup).toHaveAttribute('data-open', '');
   });
 
+  it('removes the hover mouseup listener when unmounted before mouseup', async () => {
+    const addEventListenerSpy = vi.spyOn(document, 'addEventListener');
+    const removeEventListenerSpy = vi.spyOn(document, 'removeEventListener');
+
+    try {
+      const { user, unmount } = await render(
+        <Menu.Root>
+          <Menu.Trigger delay={0} openOnHover>
+            Open
+          </Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup />
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>,
+      );
+
+      const trigger = screen.getByRole('button', { name: 'Open' });
+      addEventListenerSpy.mockClear();
+      await user.hover(trigger);
+      await screen.findByRole('menu', { hidden: false });
+
+      const mouseUpListener = addEventListenerSpy.mock.calls.find(
+        (call) => call[0] === 'mouseup',
+      )?.[1];
+      expect(mouseUpListener).toBeTypeOf('function');
+
+      unmount();
+      expect(removeEventListenerSpy).toHaveBeenCalledWith('mouseup', mouseUpListener);
+    } finally {
+      addEventListenerSpy.mockRestore();
+      removeEventListenerSpy.mockRestore();
+    }
+  });
+
   describe('keyboard navigation', () => {
     [
       <Menu.Trigger>Open</Menu.Trigger>,
