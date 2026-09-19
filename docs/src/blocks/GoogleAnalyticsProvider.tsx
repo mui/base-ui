@@ -69,8 +69,6 @@ export function GoogleAnalyticsProvider({
 
   React.useEffect(() => {
     // Wait for the title to be updated.
-    // React fires useEffect twice in dev mode
-    clearTimeout(timeout.current ?? undefined);
     timeout.current = setTimeout(() => {
       // Remove hash as it's never sent to the server
       // https://github.com/vercel/next.js/issues/25202
@@ -84,6 +82,10 @@ export function GoogleAnalyticsProvider({
         productCategoryId,
       });
     });
+
+    return () => {
+      clearTimeout(timeout.current ?? undefined);
+    };
   }, [currentRoute, productCategoryId, productId]);
 
   React.useEffect(() => {
