@@ -154,10 +154,16 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
   });
 
   React.useEffect(() => {
+    const doc = ownerDocument(triggerRef.current);
     if (isOpenedByThisTrigger && store.select('lastOpenChangeReason') === REASONS.triggerHover) {
-      const doc = ownerDocument(triggerRef.current);
       doc.addEventListener('mouseup', handleDocumentMouseUp, { once: true });
     }
+
+    return () => {
+      if (isOpenedByThisTrigger && store.select('lastOpenChangeReason') === REASONS.triggerHover) {
+        doc.removeEventListener('mouseup', handleDocumentMouseUp);
+      }
+    };
   }, [isOpenedByThisTrigger, handleDocumentMouseUp, store]);
 
   const parentMenubarHasSubmenuOpen = isInMenubar && parent.context.hasSubmenuOpen;
