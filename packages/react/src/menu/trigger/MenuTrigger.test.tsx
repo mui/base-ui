@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { expect, vi, describe, it } from 'vitest';
 import userEvent from '@testing-library/user-event';
-import { act, fireEvent, flushMicrotasks, screen } from '@mui/internal-test-utils';
+import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
 import { Menu } from '@base-ui/react/menu';
 import { Popover } from '@base-ui/react/popover';
 import { describeConformance, createRenderer, isJSDOM } from '#test-utils';
@@ -81,6 +81,29 @@ describe('<Menu.Trigger />', () => {
     const menuPopup = await screen.findByRole('menu', { hidden: false });
     expect(menuPopup).not.toBe(null);
     expect(menuPopup).toHaveAttribute('data-open', '');
+  });
+
+  it('cancels opening when mouseup lands outside the trigger', async () => {
+    await render(
+      <Menu.Root>
+        <Menu.Trigger>Open</Menu.Trigger>
+        <Menu.Portal>
+          <Menu.Positioner>
+            <Menu.Popup />
+          </Menu.Positioner>
+        </Menu.Portal>
+      </Menu.Root>,
+    );
+
+    const trigger = screen.getByRole('button', { name: 'Open' });
+    fireEvent.mouseDown(trigger);
+
+    await screen.findByRole('menu', { hidden: false });
+    fireEvent.mouseUp(document.body);
+
+    await waitFor(() => {
+      expect(screen.queryByRole('menu', { hidden: false })).toBe(null);
+    });
   });
 
   describe('keyboard navigation', () => {
