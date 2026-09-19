@@ -127,36 +127,43 @@ export default function ExampleCreatableCombobox() {
             Labels
           </label>
           <Combobox.InputGroup className={styles.InputGroup}>
-            <Combobox.Chips className={styles.Chips}>
-              <Combobox.Value>
-                {(value: LabelItem[]) => (
-                  <React.Fragment>
-                    {value.map((label) => (
-                      <Combobox.Chip
-                        key={label.id}
-                        className={styles.Chip}
-                        aria-label={label.value}
+            <Combobox.Value>
+              {(value: LabelItem[]) => (
+                <Combobox.Chips
+                  className={styles.Chips}
+                  aria-label={value.length > 0 ? 'Selected labels' : undefined}
+                >
+                  {value.map((label) => (
+                    <Combobox.Chip
+                      key={label.id}
+                      className={styles.Chip}
+                      aria-label={label.value}
+                      aria-description="Press Backspace or Delete to remove"
+                    >
+                      {label.value}
+                      <Combobox.ChipRemove
+                        className={styles.ChipRemove}
+                        aria-label={`Remove ${label.value}`}
                       >
-                        {label.value}
-                        <Combobox.ChipRemove
-                          className={styles.ChipRemove}
-                          aria-label={`Remove ${label.value}`}
-                        >
-                          <XIcon />
-                        </Combobox.ChipRemove>
-                      </Combobox.Chip>
-                    ))}
-                    <Combobox.Input
-                      ref={comboboxInputRef}
-                      id={id}
-                      placeholder={value.length > 0 ? '' : 'e.g. bug'}
-                      className={styles.Input}
-                      onKeyDown={handleInputKeyDown}
-                    />
-                  </React.Fragment>
-                )}
-              </Combobox.Value>
-            </Combobox.Chips>
+                        <XIcon />
+                      </Combobox.ChipRemove>
+                    </Combobox.Chip>
+                  ))}
+                  <Combobox.Input
+                    ref={comboboxInputRef}
+                    id={id}
+                    placeholder={value.length > 0 ? '' : 'e.g. bug'}
+                    aria-description={
+                      value.length > 0
+                        ? `${value.length} selected. From the start of the input, press Left Arrow to focus the selected items`
+                        : undefined
+                    }
+                    className={styles.Input}
+                    onKeyDown={handleInputKeyDown}
+                  />
+                </Combobox.Chips>
+              )}
+            </Combobox.Value>
           </Combobox.InputGroup>
         </div>
 

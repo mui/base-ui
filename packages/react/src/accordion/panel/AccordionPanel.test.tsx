@@ -1,4 +1,4 @@
-import { expect, vi } from 'vitest';
+import { expect, vi, describe, it } from 'vitest';
 import { reactMajor, screen, waitFor } from '@mui/internal-test-utils';
 import * as React from 'react';
 import { Accordion } from '@base-ui/react/accordion';

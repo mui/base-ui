@@ -1,4 +1,4 @@
-import { expect } from 'vitest';
+import { expect, describe, it } from 'vitest';
 import { Combobox } from '@base-ui/react/combobox';
 import { Autocomplete } from '@base-ui/react/autocomplete';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
