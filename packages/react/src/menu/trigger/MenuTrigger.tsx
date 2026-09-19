@@ -160,9 +160,7 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
     }
 
     return () => {
-      if (isOpenedByThisTrigger && store.select('lastOpenChangeReason') === REASONS.triggerHover) {
-        doc.removeEventListener('mouseup', handleDocumentMouseUp);
-      }
+      doc.removeEventListener('mouseup', handleDocumentMouseUp);
     };
   }, [isOpenedByThisTrigger, handleDocumentMouseUp, store]);
 
