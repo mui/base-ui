@@ -81,7 +81,7 @@ export function GoogleAnalyticsProvider({
       productId,
       productCategoryId,
     });
-  }, [productId, productCategoryId]);
+  });
 
   React.useEffect(() => {
     timeout.start(0, trackPageView);
