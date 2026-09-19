@@ -65,11 +65,9 @@ export function GoogleAnalyticsProvider({
     });
   }, [id]);
 
-  const timeout = React.useRef<ReturnType<typeof setTimeout> | null>(null);
-
   React.useEffect(() => {
     // Wait for the title to be updated.
-    timeout.current = setTimeout(() => {
+    const timeoutRef = setTimeout(() => {
       // Remove hash as it's never sent to the server
       // https://github.com/vercel/next.js/issues/25202
       const canonicalAsServer = window.location.pathname.replace(/#(.*)$/, '');
@@ -84,7 +82,7 @@ export function GoogleAnalyticsProvider({
     });
 
     return () => {
-      clearTimeout(timeout.current ?? undefined);
+      clearTimeout(timeoutRef);
     };
   }, [currentRoute, productCategoryId, productId]);
 
