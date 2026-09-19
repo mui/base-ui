@@ -155,13 +155,16 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
 
   React.useEffect(() => {
     const doc = ownerDocument(triggerRef.current);
+
     if (isOpenedByThisTrigger && store.select('lastOpenChangeReason') === REASONS.triggerHover) {
       doc.addEventListener('mouseup', handleDocumentMouseUp, { once: true });
+
+      return () => {
+        doc.removeEventListener('mouseup', handleDocumentMouseUp);
+      };
     }
 
-    return () => {
-      doc.removeEventListener('mouseup', handleDocumentMouseUp);
-    };
+    return undefined;
   }, [isOpenedByThisTrigger, handleDocumentMouseUp, store]);
 
   const parentMenubarHasSubmenuOpen = isInMenubar && parent.context.hasSubmenuOpen;
