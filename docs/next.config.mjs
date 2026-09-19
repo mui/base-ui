@@ -70,7 +70,6 @@ const rootPackage = loadPackageJson();
 
 /** @type {import('@mui/internal-docs-infra/pipeline/loadPrecomputedTypes').LoaderOptions} */
 const typesGenerationOptions = {
-  socketDir: '.next/docs-infra',
   updateParentIndex: {
     baseDir,
     onlyUpdateIndexes: true,
@@ -163,6 +162,9 @@ const nextConfig = {
   experimental: {
     globalNotFound: true,
     turbopackFileSystemCacheForBuild: true,
+    // The TS7 side-by-side alias (@typescript/typescript6) ships no `tsc` bin,
+    // which the Next.js >= 16.3 CLI checker requires. Use the TS6 JS API instead.
+    useTypeScriptCli: false,
   },
 };
 

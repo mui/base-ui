@@ -262,7 +262,9 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
         floatingNodeId: floatingNodeIdFromContext,
         floatingParentNodeId: floatingParentNodeIdFromContext,
       });
-    } else if (parentMenuRootContext) {
+    } else if (parentMenuRootContext || !store.select('activeTriggerElement')) {
+      // Without an active trigger, the root must supply its own tree IDs.
+      // Read the store here: a trigger can register after render, before this effect.
       store.update({
         floatingNodeId: floatingNodeIdFromContext,
         floatingParentNodeId: floatingParentNodeIdFromContext,
@@ -273,6 +275,7 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
     parentMenuRootContext,
     floatingNodeIdFromContext,
     floatingParentNodeIdFromContext,
+    activeTriggerElement,
     store,
   ]);
 

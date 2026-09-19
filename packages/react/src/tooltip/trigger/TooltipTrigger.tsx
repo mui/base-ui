@@ -18,12 +18,13 @@ import {
   useFocus,
   useHoverReferenceInteraction,
 } from '../../floating-ui-react';
-import { contains } from '../../floating-ui-react/utils/element';
+import { closest, contains } from '../../floating-ui-react/utils/element';
 import { isMouseLikePointerType } from '../../floating-ui-react/utils/event';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import { useHoverInteractionSharedState } from '../../floating-ui-react/hooks/useHoverInteractionSharedState';
 import { getDelay } from '../../floating-ui-react/hooks/useHoverShared';
+import * as TooltipTriggerDataAttributes from './TooltipTriggerDataAttributes';
 
 import { OPEN_DELAY } from '../utils/constants';
 
@@ -43,21 +44,6 @@ function getTargetElement(event: Event): Element | null {
   const target = event.target;
   if (isElement(target)) {
     return target;
-  }
-
-  return null;
-}
-
-function closestEnabledTooltipTrigger(element: Element | null): Element | null {
-  let current = element;
-  while (current) {
-    const trigger = current.closest(`[${TOOLTIP_TRIGGER_IDENTIFIER}]`);
-    if (trigger) {
-      return trigger;
-    }
-
-    const root = current.getRootNode();
-    current = 'host' in root && isElement(root.host) ? root.host : null;
   }
 
   return null;
@@ -152,7 +138,7 @@ export const TooltipTrigger = fastComponentRef(function TooltipTrigger(
       return false;
     }
 
-    const nearestTrigger = closestEnabledTooltipTrigger(target);
+    const nearestTrigger = closest(target, `[${TOOLTIP_TRIGGER_IDENTIFIER}]`);
     return (
       nearestTrigger !== null && nearestTrigger !== triggerEl && contains(triggerEl, nearestTrigger)
     );
@@ -283,7 +269,7 @@ export const TooltipTrigger = fastComponentRef(function TooltipTrigger(
           }
         },
         id: thisTriggerId,
-        'data-trigger-disabled': disabled ? '' : undefined,
+        [TooltipTriggerDataAttributes.triggerDisabled]: disabled ? '' : undefined,
         [TOOLTIP_TRIGGER_IDENTIFIER]: disabled ? undefined : '',
       } as React.HTMLAttributes<Element>,
       elementProps,
