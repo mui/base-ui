@@ -15,7 +15,7 @@ const CodeBlockContext = React.createContext<{
   titleId: string | undefined;
 }>({ codeId: undefined, titleId: undefined });
 
-export function Root(props: React.ComponentPropsWithoutRef<'div'>) {
+export function Root(props: React.ComponentPropsWithoutRef<'figure'>) {
   const titleId = React.useId();
   const codeId = React.useId();
   const context = React.useMemo(() => ({ codeId, titleId }), [codeId, titleId]);
