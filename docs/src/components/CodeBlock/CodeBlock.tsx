@@ -30,7 +30,7 @@ export function Root(props: React.ComponentPropsWithoutRef<'figure'>) {
   );
 }
 
-interface CodeBlockPanelProps extends React.ComponentPropsWithoutRef<'figure'> {
+interface CodeBlockPanelProps extends React.ComponentPropsWithoutRef<'div'> {
   /** When provided, renders as a separate sr-only label instead of wrapping children. */
   title?: string;
 }
