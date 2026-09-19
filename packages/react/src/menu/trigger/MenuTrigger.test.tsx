@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { expect, vi, describe, it } from 'vitest';
 import userEvent from '@testing-library/user-event';
-import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
+import { act, fireEvent, flushMicrotasks, screen } from '@mui/internal-test-utils';
 import { Menu } from '@base-ui/react/menu';
 import { Popover } from '@base-ui/react/popover';
 import { describeConformance, createRenderer, isJSDOM } from '#test-utils';
@@ -83,27 +83,40 @@ describe('<Menu.Trigger />', () => {
     expect(menuPopup).toHaveAttribute('data-open', '');
   });
 
-  it('cancels opening when mouseup lands outside the trigger', async () => {
-    await render(
-      <Menu.Root>
-        <Menu.Trigger>Open</Menu.Trigger>
-        <Menu.Portal>
-          <Menu.Positioner>
-            <Menu.Popup />
-          </Menu.Positioner>
-        </Menu.Portal>
-      </Menu.Root>,
-    );
+  it('removes the hover mouseup listener when unmounted before mouseup', async () => {
+    const addEventListenerSpy = vi.spyOn(document, 'addEventListener');
+    const removeEventListenerSpy = vi.spyOn(document, 'removeEventListener');
 
-    const trigger = screen.getByRole('button', { name: 'Open' });
-    fireEvent.mouseDown(trigger);
+    try {
+      const { user, unmount } = await render(
+        <Menu.Root>
+          <Menu.Trigger delay={0} openOnHover>
+            Open
+          </Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup />
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>,
+      );
 
-    await screen.findByRole('menu', { hidden: false });
-    fireEvent.mouseUp(document.body);
+      const trigger = screen.getByRole('button', { name: 'Open' });
+      addEventListenerSpy.mockClear();
+      await user.hover(trigger);
+      await screen.findByRole('menu', { hidden: false });
 
-    await waitFor(() => {
-      expect(screen.queryByRole('menu', { hidden: false })).toBe(null);
-    });
+      const mouseUpListener = addEventListenerSpy.mock.calls.find(
+        (call) => call[0] === 'mouseup',
+      )?.[1];
+      expect(mouseUpListener).toBeTypeOf('function');
+
+      unmount();
+      expect(removeEventListenerSpy).toHaveBeenCalledWith('mouseup', mouseUpListener);
+    } finally {
+      addEventListenerSpy.mockRestore();
+      removeEventListenerSpy.mockRestore();
+    }
   });
 
   describe('keyboard navigation', () => {
