@@ -2,6 +2,7 @@
 import * as React from 'react';
 import { useMediaQuery } from '@base-ui/react/unstable-use-media-query';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { useTimeout } from '@base-ui/utils/useTimeout';
 
 declare global {
   interface Window {
@@ -47,6 +48,8 @@ export function GoogleAnalyticsProvider({
   userLanguage,
   children,
 }: GoogleAnalyticsProviderProps) {
+  const timeout = useTimeout();
+
   useIsoLayoutEffect(() => {
     window.dataLayer = window.dataLayer || [];
 
@@ -65,26 +68,24 @@ export function GoogleAnalyticsProvider({
     });
   }, [id]);
 
-  React.useEffect(() => {
-    // Wait for the title to be updated.
-    const timeoutRef = setTimeout(() => {
-      // Remove hash as it's never sent to the server
-      // https://github.com/vercel/next.js/issues/25202
-      const canonicalAsServer = window.location.pathname.replace(/#(.*)$/, '');
+  const trackPageView = React.useCallback(() => {
+    // Remove hash as it's never sent to the server
+    // https://github.com/vercel/next.js/issues/25202
+    const canonicalAsServer = window.location.pathname.replace(/#(.*)$/, '');
 
-      // https://developers.google.com/analytics/devguides/collection/ga4/views?client_type=gtag
-      window.gtag('event', 'page_view', {
-        page_title: document.title,
-        page_location: canonicalAsServer,
-        productId,
-        productCategoryId,
-      });
+    // https://developers.google.com/analytics/devguides/collection/ga4/views?client_type=gtag
+    window.gtag('event', 'page_view', {
+      page_title: document.title,
+      page_location: canonicalAsServer,
+      productId,
+      productCategoryId,
     });
+  }, [productId, productCategoryId]);
 
-    return () => {
-      clearTimeout(timeoutRef);
-    };
-  }, [currentRoute, productCategoryId, productId]);
+  React.useEffect(() => {
+    timeout.start(0, trackPageView);
+    return timeout.clear;
+  }, [currentRoute, trackPageView, timeout]);
 
   React.useEffect(() => {
     window.gtag('set', 'user_properties', {
