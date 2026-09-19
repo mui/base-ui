@@ -112,9 +112,19 @@ export function useFocus(
       }
     }
 
+    // Focus the floating element hands back on close is not a user focusing the
+    // reference, so it must not reopen what just closed. This covers every close,
+    // including a controlled `open` flip, which dispatches no open change at all.
+    function onReturnFocus(details: { element: Element }) {
+      blockedReferenceRef.current = details.element;
+      blockFocusRef.current = true;
+    }
+
     events.on('openchange', onOpenChangeLocal);
+    events.on('returnfocus', onReturnFocus);
     return () => {
       events.off('openchange', onOpenChangeLocal);
+      events.off('returnfocus', onReturnFocus);
     };
   }, [events, enabled, store]);
 
