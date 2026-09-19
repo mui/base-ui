@@ -5,6 +5,7 @@ export type ItemEqualityComparer<Item = any, Value = Item> = (
   selectedValue: Value,
 ) => boolean;
 
+// Compared by identity in `findSelectionIndex`; don't wrap it.
 export const defaultItemEquality: ItemEqualityComparer = (itemValue, selectedValue) =>
   Object.is(itemValue, selectedValue);
 
@@ -65,6 +66,23 @@ export function findItemIndex<Item, Value>(
   });
 }
 
+// The default comparer is `Object.is`, so the values can be indexed instead of rescanned
+// for every item. A custom comparer may match values that don't hash alike.
+function createSelectionMatcher<Item, Value>(
+  selectedValues: readonly Value[],
+  comparer: ItemEqualityComparer<Item, Value>,
+): (itemValue: Item) => boolean {
+  if (comparer !== defaultItemEquality) {
+    return (itemValue) => selectedValueIncludes(selectedValues, itemValue, comparer);
+  }
+  const index = new Set<unknown>(selectedValues);
+  index.delete(undefined);
+  // `Set` treats +0 and -0 as equal; `Object.is` does not.
+  return (itemValue) =>
+    index.has(itemValue) &&
+    (itemValue !== 0 || selectedValues.some((v) => Object.is(itemValue, v)));
+}
+
 export function findSelectionIndex<Item, Value>(
   itemValues: readonly Item[],
   selectedValue: Value | readonly Value[] | null | undefined,
@@ -77,10 +95,7 @@ export function findSelectionIndex<Item, Value>(
     multiple && Array.isArray(selectedValue)
       ? // Anchor to the first selected item in rendered order so the index does not depend
         // on the order in which the values were added to the array.
-        // A hole (`undefined`) never matches: `selectedValueIncludes` rejects it.
-        itemValues.findIndex((itemValue) =>
-          selectedValueIncludes(selectedValue, itemValue, comparer),
-        )
+        itemValues.findIndex(createSelectionMatcher(selectedValue, comparer))
       : findItemIndex(itemValues, selectedValue as Value, comparer);
   return index === -1 ? null : index;
 }

@@ -1,4 +1,4 @@
-import { expect, vi } from 'vitest';
+import { expect, vi, describe, beforeEach, it } from 'vitest';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { Select } from '@base-ui/react/select';
@@ -1305,9 +1305,10 @@ describe('<Select.Root />', () => {
       const selectInput = screen.getByRole<HTMLInputElement>('textbox', { hidden: true });
       expect(selectInput).toHaveAttribute('name', 'select');
 
-      if (withField) {
-        expect(screen.getByTestId('error')).toHaveTextContent('test');
-      }
+      // Only the Field wrapper renders an error.
+      const expectedError = withField ? 'test' : undefined;
+
+      expect(screen.queryByTestId('error')?.textContent).toBe(expectedError);
 
       fireEvent.change(selectInput, { target: { value: 'b' } });
       await flushMicrotasks();
@@ -1315,9 +1316,7 @@ describe('<Select.Root />', () => {
       expect(onValueChange).not.toHaveBeenCalled();
       expect(selectInput.value).toBe('');
 
-      if (withField) {
-        expect(screen.getByTestId('error')).toHaveTextContent('test');
-      }
+      expect(screen.queryByTestId('error')?.textContent).toBe(expectedError);
     },
   );
 
@@ -2771,7 +2770,7 @@ describe('<Select.Root />', () => {
 
       await user.keyboard('[Tab]');
 
-      expect(expect(document.activeElement)).not.toBe(trigger);
+      expect(document.activeElement).not.toBe(trigger);
 
       await user.click(trigger);
       expect(handleOpenChange.mock.calls.length).toBe(0);
@@ -2808,7 +2807,7 @@ describe('<Select.Root />', () => {
 
       await user.keyboard('[Tab]');
 
-      expect(expect(document.activeElement)).not.toBe(trigger);
+      expect(document.activeElement).not.toBe(trigger);
 
       await user.click(trigger);
       expect(handleOpenChange.mock.calls.length).toBe(0);
