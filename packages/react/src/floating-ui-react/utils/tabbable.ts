@@ -182,18 +182,16 @@ export function isTabbable(element: Element | null) {
   return isFocusableElement(element) && getTabIndex(element) >= 0;
 }
 
-export function focusable(container: Element, include?: Element) {
+export function focusable(container: Element) {
   const candidates: FocusableElement[] = [];
   appendCandidates(container, candidates);
-  return candidates.filter((element) => element === include || isFocusableElement(element));
+  return candidates.filter(isFocusableElement);
 }
 
-// `include` preserves a navigation anchor's composed-tree position even when it is not tabbable.
-export function tabbable(container: Element, include?: Element) {
-  const candidates = focusable(container, include);
+export function tabbable(container: Element) {
+  const candidates = focusable(container);
   return candidates.filter(
-    (element) =>
-      element === include || (getTabIndex(element) >= 0 && isTabbableRadio(element, candidates)),
+    (element) => getTabIndex(element) >= 0 && isTabbableRadio(element, candidates),
   );
 }
 
@@ -234,15 +232,22 @@ export function getTabbableNearElement(
     return null;
   }
 
-  const list = tabbable(ownerDocument(referenceElement).body, referenceElement);
+  // Keep the anchor's composed-tree position separate from the focusable radio candidates.
+  const list: FocusableElement[] = [];
+  appendCandidates(ownerDocument(referenceElement).body, list);
   const index = list.indexOf(referenceElement as FocusableElement);
   if (index === -1) {
     return null;
   }
 
+  const candidates = list.filter(isFocusableElement);
   for (let offset = 1; offset < list.length; offset += 1) {
     const element = list[(index + direction * offset + list.length) % list.length];
-    if (!contains(exclude, element)) {
+    if (
+      !contains(exclude, element) &&
+      isTabbable(element) &&
+      isTabbableRadio(element, candidates)
+    ) {
       return element;
     }
   }

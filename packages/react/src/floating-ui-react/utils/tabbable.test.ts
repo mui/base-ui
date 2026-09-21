@@ -420,3 +420,28 @@ it('does not choose a destination when the anchor is absent from the composed tr
   expect(getTabbableNearElement(detachedAnchor, -1)).toBe(null);
   expect(getTabbableNearElement(detachedAnchor, 1)).toBe(null);
 });
+
+it.each([
+  [false, 1],
+  [false, -1],
+  [true, 1],
+  [true, -1],
+] as const)(
+  'does not let a disabled radio anchor suppress its peer when checked=%s and direction=%s',
+  (checked, direction) => {
+    const anchor = document.createElement('input');
+    const peer = document.createElement('input');
+    const other = document.createElement('button');
+    anchor.type = 'radio';
+    peer.type = 'radio';
+    anchor.name = 'group';
+    peer.name = 'group';
+    anchor.disabled = true;
+    anchor.checked = checked;
+    document.body.append(...(direction === 1 ? [anchor, peer, other] : [other, peer, anchor]));
+
+    expect(tabbable(document.body)).toEqual(direction === 1 ? [peer, other] : [other, peer]);
+    expect(getTabbableNearElement(anchor, direction)).toBe(peer);
+    expect(getTabbableNearElement(anchor, direction === 1 ? -1 : 1)).toBe(other);
+  },
+);
