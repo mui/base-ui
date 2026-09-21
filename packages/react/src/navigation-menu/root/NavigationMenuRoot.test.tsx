@@ -2111,6 +2111,83 @@ describe('<NavigationMenu.Root />', () => {
       expect(screen.getByTestId('trigger-1')).toHaveAttribute('aria-expanded', 'false');
     });
 
+    it('keeps the opt-out when the `close` action is called again while closed', async () => {
+      const actionsRef = React.createRef<NavigationMenu.Root.Actions>();
+      const onOpenChangeComplete = vi.fn();
+
+      await render(
+        <TestNavigationMenu
+          defaultValue="item-1"
+          actionsRef={actionsRef}
+          onOpenChangeComplete={onOpenChangeComplete}
+          onValueChange={(value, details) => {
+            if (value == null) {
+              details.preventUnmountOnClose();
+            }
+          }}
+        />,
+      );
+
+      await act(async () => {
+        actionsRef.current?.close();
+      });
+      await act(async () => {
+        actionsRef.current?.close();
+      });
+      await flushMicrotasks();
+
+      expect(screen.queryByTestId('popup-root')).not.toBe(null);
+      expect(onOpenChangeComplete).not.toHaveBeenCalledWith(false);
+
+      await act(async () => {
+        actionsRef.current?.unmount();
+      });
+      expect(screen.queryByTestId('popup-root')).toBe(null);
+      expect(onOpenChangeComplete.mock.calls.filter(([open]) => !open)).toHaveLength(1);
+    });
+
+    it('keeps the opt-out when focus leaves the trigger during a manual exit', async () => {
+      const actionsRef = React.createRef<NavigationMenu.Root.Actions>();
+      const onOpenChangeComplete = vi.fn();
+
+      const { user } = await render(
+        <div>
+          <TestNavigationMenu
+            defaultValue="item-1"
+            actionsRef={actionsRef}
+            onOpenChangeComplete={onOpenChangeComplete}
+            onValueChange={(value, details) => {
+              if (value == null) {
+                details.preventUnmountOnClose();
+              }
+            }}
+          />
+          <button data-testid="outside">Outside</button>
+        </div>,
+      );
+
+      const trigger = screen.getByTestId('trigger-1');
+      await act(async () => trigger.focus());
+      await act(async () => {
+        actionsRef.current?.close();
+      });
+      expect(trigger).toHaveAttribute('aria-expanded', 'false');
+      expect(screen.queryByTestId('popup-root')).not.toBe(null);
+
+      // The trigger's blur requests another close while the popup is still exiting.
+      await user.click(screen.getByTestId('outside'));
+      await flushMicrotasks();
+
+      expect(screen.queryByTestId('popup-root')).not.toBe(null);
+      expect(onOpenChangeComplete).not.toHaveBeenCalledWith(false);
+
+      await act(async () => {
+        actionsRef.current?.unmount();
+      });
+      expect(screen.queryByTestId('popup-root')).toBe(null);
+      expect(onOpenChangeComplete.mock.calls.filter(([open]) => !open)).toHaveLength(1);
+    });
+
     it('still unmounts on a later close after `unmount` was called while open', async () => {
       const actionsRef = React.createRef<NavigationMenu.Root.Actions>();
       const onOpenChangeComplete = vi.fn();

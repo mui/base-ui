@@ -222,7 +222,11 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot<V
       }
 
       if (nextValue == null) {
-        setPreventUnmountOnClose(shouldPreventUnmountOnClose());
+        // A redundant close (for example the trigger's blur after an imperative close) skips
+        // `onValueChange`, so it can't opt out again and must not discard the recorded opt-out.
+        if (value != null) {
+          setPreventUnmountOnClose(shouldPreventUnmountOnClose());
+        }
         setActivationDirection(null);
         setFloatingRootContext(undefined);
       }
