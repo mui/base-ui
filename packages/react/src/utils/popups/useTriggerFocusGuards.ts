@@ -1,14 +1,8 @@
 'use client';
 import type * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import {
-  contains,
-  type FocusableElement,
-  getNextTabbable,
-  getTabbableAfterElement,
-  getTabbableBeforeElement,
-  isOutsideEvent,
-} from '../../floating-ui-react/utils';
+import { ownerDocument } from '@base-ui/utils/owner';
+import { contains, isOutsideEvent, tabbable } from '../../floating-ui-react/utils';
 import {
   type BaseUIChangeEventDetails,
   createChangeEventDetails,
@@ -43,54 +37,45 @@ export function useTriggerFocusGuards(
   // Share the guard with the focus manager so trigger blur does not close before its focus handler.
   const preFocusGuardRef = store.context.beforeTriggerFocusGuardRef;
 
-  function handlePreFocusGuardFocus(event: React.FocusEvent) {
+  function closeAndFocus(event: React.FocusEvent<HTMLElement>, direction: 1 | -1) {
+    const guard = event.currentTarget;
+    const positionerElement = store.select('positionerElement');
+    // Keep the guard's place in the tab order before closing unmounts it. The trigger
+    // may have tabIndex=-1 and therefore cannot serve as the navigation anchor.
+    const elements = tabbable(ownerDocument(guard).body);
+    const index = elements.indexOf(guard);
+
     ReactDOM.flushSync(() => {
-      store.setOpen(
-        false,
-        createChangeEventDetails(
-          REASONS.focusOut,
-          event.nativeEvent,
-          event.currentTarget as HTMLElement,
-        ),
-      );
+      store.setOpen(false, createChangeEventDetails(REASONS.focusOut, event.nativeEvent, guard));
     });
 
-    // The guard unmounts in the close flush above, so fall back to the trigger.
-    const previousTabbable: FocusableElement | null = getTabbableBeforeElement(
-      preFocusGuardRef.current || triggerElementRef.current,
-    );
-    previousTabbable?.focus();
+    // Skip removed guards and closing content, but preserve an enclosing popup's guards.
+    for (let offset = 1; offset < elements.length; offset += 1) {
+      const element = elements[(index + direction * offset + elements.length) % elements.length];
+      if (
+        element.isConnected &&
+        !contains(positionerElement, element) &&
+        element !== preFocusGuardRef.current &&
+        element !== store.context.triggerFocusTargetRef.current
+      ) {
+        element.focus();
+        return;
+      }
+    }
+
+    triggerElementRef.current?.focus();
   }
 
-  function handleFocusTargetFocus(event: React.FocusEvent) {
+  function handlePreFocusGuardFocus(event: React.FocusEvent<HTMLElement>) {
+    closeAndFocus(event, -1);
+  }
+
+  function handleFocusTargetFocus(event: React.FocusEvent<HTMLElement>) {
     const positionerElement = store.select('positionerElement');
     if (positionerElement && isOutsideEvent(event, positionerElement)) {
       store.context.beforeContentFocusGuardRef.current?.focus();
     } else {
-      ReactDOM.flushSync(() => {
-        store.setOpen(
-          false,
-          createChangeEventDetails(
-            REASONS.focusOut,
-            event.nativeEvent,
-            event.currentTarget as HTMLElement,
-          ),
-        );
-      });
-
-      let nextTabbable = getTabbableAfterElement(
-        store.context.triggerFocusTargetRef.current || triggerElementRef.current,
-      );
-
-      while (nextTabbable !== null && contains(positionerElement, nextTabbable)) {
-        const prevTabbable = nextTabbable;
-        nextTabbable = getNextTabbable(nextTabbable);
-        if (nextTabbable === prevTabbable) {
-          break;
-        }
-      }
-
-      nextTabbable?.focus();
+      closeAndFocus(event, 1);
     }
   }
 
