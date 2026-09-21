@@ -21,6 +21,28 @@ describe('useInitialLiveRegionTextMutation', () => {
     expect(screen.getByTestId('status')).toHaveTextContent('Status');
   });
 
+  it('marks the text when the element appears after mount', async () => {
+    function Status(props: { present: boolean }) {
+      const ref = useInitialLiveRegionTextMutation<HTMLDivElement>(props.present);
+      if (!props.present) {
+        return null;
+      }
+      return (
+        <div ref={ref} data-testid="status">
+          Ready
+        </div>
+      );
+    }
+
+    const { setProps } = await render(<Status present={false} />);
+
+    expect(screen.queryByTestId('status')).toBe(null);
+
+    await setProps({ present: true });
+
+    expect(screen.getByTestId('status').firstChild).toHaveProperty('nodeValue', 'Ready\u2060');
+  });
+
   it('skips empty text nodes when finding the announcement text', async () => {
     const text = document.createTextNode('Status');
     const empty = document.createTextNode('');

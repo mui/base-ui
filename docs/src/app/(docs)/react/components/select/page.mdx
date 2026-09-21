@@ -12,7 +12,7 @@ import { DemoSelectHero } from './demos/hero';
 
 ## Usage guidelines
 
-- **Prefer Combobox for large lists**: Select is not filterable, aside from basic keyboard typeahead functionality to find items by focusing and highlighting them. Prefer [Combobox](/react/components/combobox) instead of Select when the number of items is sufficiently large to warrant filtering.
+- **Prefer Combobox for large lists**: A plain Select finds items by keyboard typeahead only. Wrap it in `<Select.FilterProvider>` to add a search field for a modest list you own (see [Filtering](#filtering)). Prefer [Combobox](/react/components/combobox) instead of Select when the number of items is large or they come from a server.
 - **Special positioning behavior**: The select popup by default overlaps its trigger so the selected item's text is aligned with the trigger's value text. This behavior [can be disabled or customized](/react/components/select#positioning).
 - **Form controls must have an accessible name**: Prefer `<Select.Label>`, or provide an `aria-label` on `<Select.Trigger>` when no visible label is rendered. See [Labeling a select](#labeling-a-select) and the [forms guide](/react/handbook/forms).
 
@@ -224,6 +224,81 @@ import { DemoSelectGrouped } from './demos/grouped';
 
 <DemoSelectGrouped />
 
+### Filtering
+
+Wrap `<Select.Root>` in `<Select.FilterProvider>`, add `<Select.FilterInput>` to the popup, and put the options inside `<Select.List>`.
+The popup uses a dialog role to contain both the input and the listbox.
+
+```jsx title="Filterable select"
+<Select.FilterProvider>
+  <Select.Root items={[{ value: 'fr', label: 'France' }]}>
+    <Select.Label>Country</Select.Label>
+    <Select.Trigger>
+      <Select.Value placeholder="Select country" />
+    </Select.Trigger>
+    <Select.Portal>
+      <Select.Positioner>
+        <Select.Popup>
+          <Select.FilterInput aria-label="Filter countries" />
+          <Select.FilterClear>Clear</Select.FilterClear>
+          <Select.FilterEmpty>No results.</Select.FilterEmpty>
+          <Select.List>
+            <Select.Item value="fr">
+              <Select.ItemText>France</Select.ItemText>
+            </Select.Item>
+          </Select.List>
+        </Select.Popup>
+      </Select.Positioner>
+    </Select.Portal>
+  </Select.Root>
+</Select.FilterProvider>
+```
+
+Label the input with `aria-label`, `aria-labelledby`, or a visible `<label>`.
+Keyboard and screen reader activation highlight an option while keeping focus on the input; pointer activation leaves the input highlighted.
+By default, arrow keys move between the input and options.
+
+The query resets on close. Multiple selects stay open after selection and keep the query.
+Filtering or unmounting an option does not clear its selected value.
+Use `items` or `itemToStringLabel` when option values need display labels.
+`alignItemWithTrigger` is disabled for filterable selects.
+
+import { DemoSelectFilter } from './demos/filter';
+
+<DemoSelectFilter />
+
+#### Matching options
+
+Options match their text by default. Use `label` to override it and `keywords` to add search terms.
+
+```jsx title="Labels and keywords"
+<Select.Item value="de" keywords={['Deutschland']}>
+  <Select.ItemText>Germany</Select.ItemText>
+</Select.Item>
+<Select.Item value="nl" label="Netherlands" keywords={['Holland']}>
+  <Select.ItemText>The Netherlands</Select.ItemText>
+</Select.Item>
+```
+
+Empty groups are hidden. `<Select.FilterEmpty>` appears when no options match.
+
+Use `filter` to replace the default case-insensitive substring matching.
+It receives the trimmed query and each option's text or keywords, and keeps the option if any match.
+
+```jsx title="Custom matching"
+<Select.FilterProvider filter={(text, query) => text.startsWith(query)}>
+  <Select.Root>{/* select parts */}</Select.Root>
+</Select.FilterProvider>
+```
+
+For external filtering, pass `filter={null}` and render the results yourself, omitting empty groups.
+`Select.useFilter` provides locale-aware string matching.
+
+#### When to use Combobox
+
+Use filterable Select for a short list of options.
+Use [Combobox](/react/components/combobox) for large or async lists, virtualization, or an input outside the popup.
+
 ## API reference
 
 import { TypesSelect } from './types';
@@ -284,6 +359,22 @@ import { TypesSelect } from './types';
 
 <TypesSelect.ItemIndicator />
 
+### FilterProvider
+
+<TypesSelect.FilterProvider />
+
+### FilterInput
+
+<TypesSelect.FilterInput />
+
+### FilterClear
+
+<TypesSelect.FilterClear />
+
+### FilterEmpty
+
+<TypesSelect.FilterEmpty />
+
 ### Group
 
 <TypesSelect.Group />
@@ -304,6 +395,13 @@ import { TypesSelect } from './types';
 
 <TypesSelect.Separator />
 
+## useFilter
+
+Matches options against a query using `Intl.Collator` for robust string matching.
+Use it when filtering options yourself with `filter={null}` on `<Select.FilterProvider>`.
+
+<TypesSelect.useFilter hideDescription />
+
 export const metadata = {
   keywords: [
     'React Select Component',
@@ -319,6 +417,8 @@ export const metadata = {
     'Multi Select React',
     'Multiselect',
     'Object Value Select',
+    'Filterable Select',
+    'Searchable Select',
     'Single Select',
     'Keyboard Navigation Select',
     'Listbox Role',

@@ -11,6 +11,7 @@ import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import { clamp } from '@base-ui/utils/clamp';
 import { FloatingFocusManager, platform as floatingPlatform } from '../../floating-ui-react';
 import type { ClientRectObject } from '../../floating-ui-react';
+import type { FloatingFocusManagerProps } from '../../floating-ui-react/components/FloatingFocusManager';
 import type { BaseUIComponentProps, HTMLProps } from '../../internals/types';
 import {
   useSelectFloatingContext,
@@ -36,23 +37,33 @@ import { getMaxScrollOffset, SCROLL_EDGE_TOLERANCE_PX } from '../../utils/scroll
 import { useCSPContext } from '../../internals/csp-context/CSPContext';
 import { useDirection } from '../../internals/direction-context/DirectionContext';
 import * as SelectPositionerCssVars from '../positioner/SelectPositionerCssVars';
+import { useSelectFilterImpl } from '../filter-root/SelectFilterContext';
 
 const stateAttributesMapping: StateAttributesMapping<SelectPopupState> = {
   ...popupStateMapping,
   ...transitionStatusMapping,
 };
 
-/**
- * A container for the select list.
- * Renders a `<div>` element.
- *
- * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
- */
-export const SelectPopup = React.forwardRef(function SelectPopup(
-  componentProps: SelectPopup.Props,
+interface SelectPopupPlainProps extends SelectPopupProps {
+  /** A filter root's own initial focus target; the plain default focuses the highlighted item. */
+  initialFocus?: FloatingFocusManagerProps['initialFocus'] | undefined;
+  /** Whether a filter root traps focus in the popup. */
+  modal?: boolean | undefined;
+}
+
+export const SelectPopupPlain = React.forwardRef(function SelectPopup(
+  componentProps: SelectPopupPlainProps,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, style, finalFocus, ...elementProps } = componentProps;
+  const {
+    render,
+    className,
+    style,
+    finalFocus,
+    initialFocus,
+    modal: modalProp = false,
+    ...elementProps
+  } = componentProps;
 
   const store = useSelectRootContext();
   const { multiple, readOnly, highlightItemOnHover } = useSelectRootPropsContext();
@@ -480,9 +491,10 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
       {!disableStyleElements && styleDisableScrollbar.getElement(nonce)}
       <FloatingFocusManager
         context={floatingRootContext}
-        modal={false}
+        modal={modalProp}
         disabled={!mounted}
         openInteractionType={openMethod}
+        initialFocus={initialFocus}
         returnFocus={finalFocus}
         restoreFocus
       >
@@ -490,6 +502,20 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
       </FloatingFocusManager>
     </React.Fragment>
   );
+});
+
+/**
+ * A container for the select list.
+ * Renders a `<div>` element.
+ *
+ * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
+ */
+export const SelectPopup = React.forwardRef(function SelectPopup(
+  props: SelectPopup.Props,
+  forwardedRef: React.ForwardedRef<HTMLDivElement>,
+) {
+  const Popup = useSelectFilterImpl()?.Popup ?? SelectPopupPlain;
+  return <Popup {...props} ref={forwardedRef} />;
 });
 
 export interface SelectPopupProps extends BaseUIComponentProps<'div', SelectPopupState> {

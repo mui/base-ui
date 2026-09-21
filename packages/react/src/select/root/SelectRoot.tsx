@@ -49,15 +49,48 @@ import { getMaxScrollOffset, normalizeScrollOffset } from '../../utils/scrollEdg
 import { FOCUSABLE_POPUP_PROPS } from '../../utils/popups';
 import { mergeProps } from '../../merge-props';
 import { NOOP } from '../../internals/noop';
+import type { HTMLProps } from '../../internals/types';
+import { SelectFilterProviderContext } from '../filter-provider/SelectFilterProviderContext';
 
-/**
- * Groups all parts of the select.
- * Doesn't render its own HTML element.
- *
- * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
- */
-export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
-  props: SelectRoot.Props<Value, Multiple>,
+interface SelectRootInternalProps<
+  Value,
+  Multiple extends boolean | undefined,
+> extends SelectRoot.Props<Value, Multiple> {
+  /**
+   * @ignore
+   * Keeps real focus on an element inside the popup and navigates the list with
+   * `aria-activedescendant`.
+   */
+  virtualFocus?: boolean | undefined;
+  /**
+   * @ignore
+   * Whether keyboard or virtual activation should initially highlight an option.
+   */
+  virtualFocusInitialHighlight?: boolean | undefined;
+  /**
+   * @ignore
+   * The element that retains real focus while virtual list navigation is active.
+   */
+  virtualFocusRef?: React.RefObject<HTMLElement | null> | undefined;
+  /**
+   * @ignore
+   * Whether virtual focus can leave the list during arrow navigation.
+   */
+  allowEscape?: boolean | undefined;
+  /**
+   * @ignore
+   * Whether pointer leave should clear the active item.
+   */
+  resetOnPointerLeave?: boolean | undefined;
+  /**
+   * @ignore
+   * Renders internal virtual-focus adapters with the current navigation props.
+   */
+  renderVirtualFocusChildren?: ((inputProps: HTMLProps) => React.ReactNode) | undefined;
+}
+
+export function SelectRootInternal<Value, Multiple extends boolean | undefined = false>(
+  props: SelectRootInternalProps<Value, Multiple>,
 ): React.JSX.Element {
   const {
     id,
@@ -84,6 +117,12 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     isItemEqualToValue = defaultItemEquality,
     highlightItemOnHover = true,
     children,
+    virtualFocus = false,
+    virtualFocusInitialHighlight = false,
+    virtualFocusRef,
+    allowEscape = true,
+    resetOnPointerLeave,
+    renderVirtualFocusChildren,
   } = props;
 
   const { clearErrors } = useFormContext();
@@ -187,6 +226,8 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
           selectedItemTextRef,
           alignItemWithTriggerActiveRef,
           initialValueRef,
+          virtualFocus,
+          virtualFocusRef,
         },
         selectors,
       ),
@@ -356,8 +397,18 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     enabled: !disabled,
     listRef,
     activeIndex,
-    selectedIndex,
+    // Filtering leaves `selectedIndex` stale while the popup is open, and the hook seeds its
+    // cursor from it, so a filterable select navigates from the first visible option instead.
+    selectedIndex: virtualFocus ? null : selectedIndex,
     disabledIndices: EMPTY_ARRAY,
+    virtual: virtualFocus,
+    // A filterable select keeps DOM focus on its input, while keyboard and virtual opens
+    // initially highlight an option as an ordinary select does. The input remains part of the
+    // arrow-key loop.
+    focusItemOnOpen: virtualFocus ? virtualFocusInitialHighlight : undefined,
+    loopFocus: virtualFocus,
+    allowEscape: virtualFocus && allowEscape,
+    resetOnPointerLeave,
     onNavigate(nextActiveIndex) {
       // Retain the highlight while transitioning out.
       if (nextActiveIndex === null && !open) {
@@ -371,8 +422,9 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
 
   const typeahead = useTypeahead(floatingContext, {
     // Typeahead on an open popup only moves the highlight, so it remains available while
-    // `readOnly`. The closed-trigger variant commits a value instead, so it doesn't.
-    enabled: !disabled && (open || (!readOnly && !multiple)),
+    // `readOnly`. The closed-trigger variant commits a value instead, so it doesn't. Under
+    // virtual focus the input owns typing, so typeahead would race the filter query.
+    enabled: !disabled && !virtualFocus && (open || (!readOnly && !multiple)),
     listRef: labelsRef,
     activeIndex,
     selectedIndex,
@@ -394,12 +446,30 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     },
   });
 
+  // Under virtual focus the filter input holds real focus, so it takes the navigation's
+  // reference props (`aria-activedescendant` and the key handling) and the trigger keeps only
+  // the props that open the popup.
+  const openTriggerProps = React.useMemo(() => {
+    if (!virtualFocus) {
+      return listNavigation.reference;
+    }
+    if (!listNavigation.trigger) {
+      return EMPTY_OBJECT;
+    }
+    // Focusing the trigger while the popup is open must not seed the virtual highlight.
+    const { onFocus, ...rest } = listNavigation.trigger;
+    return rest;
+  }, [virtualFocus, listNavigation.reference, listNavigation.trigger]);
+  const inputProps: HTMLProps = virtualFocus
+    ? (listNavigation.reference ?? EMPTY_OBJECT)
+    : EMPTY_OBJECT;
+
   // `Select.Trigger` applies the id itself from the store, so it's deliberately not merged here.
   const mergedTriggerProps = React.useMemo(
     () =>
       mergeProps(
         typeahead.reference,
-        listNavigation.reference,
+        openTriggerProps,
         dismiss.reference,
         click.reference,
         interactionTypeProps,
@@ -407,7 +477,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     [
       click.reference,
       typeahead.reference,
-      listNavigation.reference,
+      openTriggerProps,
       dismiss.reference,
       interactionTypeProps,
     ],
@@ -498,7 +568,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     <SelectRootContext.Provider value={store}>
       <SelectRootPropsContext.Provider value={rootPropsContextValue}>
         <SelectFloatingContext.Provider value={floatingContext}>
-          {children}
+          {renderVirtualFocusChildren ? renderVirtualFocusChildren(inputProps) : children}
         </SelectFloatingContext.Provider>
       </SelectRootPropsContext.Provider>
       <input
@@ -571,6 +641,29 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
       />
       {hiddenInputs}
     </SelectRootContext.Provider>
+  );
+}
+
+/**
+ * Groups all parts of the select.
+ * Doesn't render its own HTML element.
+ *
+ * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
+ */
+export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
+  props: SelectRoot.Props<Value, Multiple>,
+): React.JSX.Element {
+  const filter = React.useContext(SelectFilterProviderContext);
+  if (filter === null) {
+    return <SelectRootInternal {...props} />;
+  }
+
+  const FilterRoot = filter.Root;
+  return (
+    // The root consumes its provider so a plain select nested inside doesn't inherit it.
+    <SelectFilterProviderContext.Provider value={null}>
+      <FilterRoot {...filter.options} {...props} />
+    </SelectFilterProviderContext.Provider>
   );
 }
 

@@ -340,6 +340,84 @@ import { DemoMenuDetachedTriggersFull } from './demos/detached-triggers-full';
 
 <DemoMenuDetachedTriggersFull />
 
+### Filtering
+
+Wrap `<Menu.Root>` in `<Menu.FilterProvider>`, add `<Menu.FilterInput>` to the popup, and put the items inside `<Menu.List>`.
+The popup uses a dialog role to contain both the input and the menu.
+
+```jsx title="Filterable menu"
+<Menu.FilterProvider>
+  <Menu.Root>
+    <Menu.Trigger>Actions</Menu.Trigger>
+    <Menu.Portal>
+      <Menu.Positioner>
+        <Menu.Popup>
+          <Menu.FilterInput aria-label="Filter actions" />
+          <Menu.FilterClear>Clear</Menu.FilterClear>
+          <Menu.FilterEmpty>No results.</Menu.FilterEmpty>
+          <Menu.List>
+            <Menu.Item>Rename</Menu.Item>
+            <Menu.Item>Delete</Menu.Item>
+          </Menu.List>
+        </Menu.Popup>
+      </Menu.Positioner>
+    </Menu.Portal>
+  </Menu.Root>
+</Menu.FilterProvider>
+```
+
+Label the input with `aria-label`, `aria-labelledby`, or a visible `<label>`.
+Add `autoFocus` to `<Menu.FilterInput>` to focus it whenever the menu opens.
+Keyboard and screen reader activation highlight an item while keeping focus on the input.
+By default, arrow keys move between the input and items.
+
+import { DemoMenuFilter } from './demos/filter';
+
+<DemoMenuFilter />
+
+#### Matching items
+
+Items match their text by default. Use `label` to override it and `keywords` to add search terms.
+
+```jsx title="Labels and keywords"
+<Menu.Item keywords={['edit name']}>Rename</Menu.Item>
+<Menu.Item label="Move to folder" keywords={['organize']}>
+  Move
+</Menu.Item>
+```
+
+Empty groups are hidden. `<Menu.FilterEmpty>` appears when no items match.
+
+Use `filter` to replace the default case-insensitive substring matching.
+It receives the trimmed query and each item's text or keywords, and keeps the item if any match.
+
+```jsx title="Custom matching"
+<Menu.FilterProvider filter={(text, query) => text.startsWith(query)}>
+  <Menu.Root>{/* menu parts */}</Menu.Root>
+</Menu.FilterProvider>
+```
+
+For external filtering, pass `filter={null}` and render the results yourself, omitting empty groups.
+`Menu.useFilter` provides locale-aware string matching.
+
+#### Submenus
+
+Wrap each searchable `<Menu.SubmenuRoot>` in its own `<Menu.FilterProvider>`.
+Submenus without a provider remain unfiltered.
+
+#### Filtering with detached triggers
+
+Use the same `Menu.createHandle()` handle for the root and its detached trigger:
+
+```jsx title="Detached trigger"
+const handle = Menu.createHandle();
+
+<Menu.Trigger handle={handle}>Actions</Menu.Trigger>
+<Menu.FilterProvider>
+  <Menu.Root handle={handle}>{/* menu parts */}</Menu.Root>
+</Menu.FilterProvider>
+```
+
 ## API reference
 
 import { TypesMenu } from './types';
@@ -378,6 +456,10 @@ The `Viewport` is optional — reach for it only when a single popup is opened b
 
 <TypesMenu.Arrow />
 
+### List
+
+<TypesMenu.List />
+
 ### Item
 
 <TypesMenu.Item />
@@ -393,6 +475,22 @@ The `Viewport` is optional — reach for it only when a single popup is opened b
 ### SubmenuTrigger
 
 <TypesMenu.SubmenuTrigger />
+
+### FilterProvider
+
+<TypesMenu.FilterProvider />
+
+### FilterInput
+
+<TypesMenu.FilterInput />
+
+### FilterClear
+
+<TypesMenu.FilterClear />
+
+### FilterEmpty
+
+<TypesMenu.FilterEmpty />
 
 ### Group
 
@@ -425,6 +523,13 @@ The `Viewport` is optional — reach for it only when a single popup is opened b
 ### Separator
 
 <TypesMenu.Separator />
+
+## useFilter
+
+Matches items against a query using `Intl.Collator` for robust string matching.
+Use it when filtering items yourself with `filter={null}` on `<Menu.FilterProvider>`.
+
+<TypesMenu.useFilter hideDescription />
 
 ## createHandle
 
