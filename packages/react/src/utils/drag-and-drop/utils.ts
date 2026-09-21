@@ -1,7 +1,7 @@
 import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
 import { isShadowRoot } from '@floating-ui/utils/dom';
 import { contains } from '@base-ui/utils/shadowDom';
-import type { DragInput, DragModifierKeys, DragPointerType, DragPosition } from '../../types/drag';
+import type { DragInput, DragPointerType, DragPosition } from '../../types/drag';
 import { getParentElement as getComposedParentElement } from '../getParentElement';
 import { getElementAtPoint } from '../getElementAtPoint';
 import {
@@ -11,6 +11,9 @@ import {
   parseRotateLinearTransform,
   parseScaleLinearTransform,
 } from './linearTransform';
+
+/** The four modifier keys, as every event that carries them reports them. */
+export type DragModifierKeys = Pick<DragInput, 'ctrlKey' | 'shiftKey' | 'altKey' | 'metaKey'>;
 
 /**
  * Wrap a cleanup so calling it more than once (or after React has already run

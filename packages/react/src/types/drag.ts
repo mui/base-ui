@@ -35,12 +35,6 @@ export interface DragInput {
   metaKey: boolean;
 }
 
-/**
- * The four modifier keys, as every event that carries them reports them.
- * @internal
- */
-export type DragModifierKeys = Pick<DragInput, 'ctrlKey' | 'shiftKey' | 'altKey' | 'metaKey'>;
-
 /** A 2D coordinate in CSS pixels. */
 export interface DragPosition {
   x: number;

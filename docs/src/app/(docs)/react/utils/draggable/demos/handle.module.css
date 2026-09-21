@@ -1,4 +1,7 @@
 .Root {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
   width: 100%;
   -webkit-user-select: none;
   user-select: none;
@@ -21,6 +24,14 @@
   font-synthesis: none;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.Controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 0.5rem;
+  font-size: 0.875rem;
 }
 
 .Grid {

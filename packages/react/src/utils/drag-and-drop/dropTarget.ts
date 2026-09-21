@@ -46,17 +46,17 @@ interface DropTargetState {
    * The shadow roots each registered element was counted against, so the release
    * decrements what the retain incremented even if the node has since moved.
    */
-  retainedRoots: WeakMap<Element, ShadowRoot | ShadowRoot[]>;
+  retainedRoots: WeakMap<Element, ShadowRoot[]>;
   /** Closed shadow roots indexed by host for pointer hit-testing. */
-  shadowRootsByHost?: Map<Element, ShadowRoot> | undefined;
+  shadowRootsByHost: Map<Element, ShadowRoot>;
   /** Whether the host index needs to be rebuilt. */
-  shadowRootsByHostDirty?: boolean | undefined;
+  shadowRootsByHostDirty: boolean;
 }
 
 const state = getSharedSlot<DropTargetState>('dropTarget', () => ({
   registry: new Map<Element, DropTargetGetter[]>(),
   shadowRoots: new Map<ShadowRoot, number>(),
-  retainedRoots: new WeakMap<Element, ShadowRoot | ShadowRoot[]>(),
+  retainedRoots: new WeakMap<Element, ShadowRoot[]>(),
   shadowRootsByHost: new Map<Element, ShadowRoot>(),
   shadowRootsByHostDirty: true,
 }));
@@ -119,7 +119,7 @@ function releaseShadowRoot(element: Element): void {
     return;
   }
   state.retainedRoots.delete(element);
-  for (const root of Array.isArray(retained) ? retained : [retained]) {
+  for (const root of retained) {
     const count = state.shadowRoots.get(root);
     if (count === undefined) {
       continue;
@@ -149,12 +149,8 @@ export function getDropTargetShadowRoots(): Iterable<ShadowRoot> {
  * only when the registered root set changes, so drag frames can reuse it.
  */
 export function getDropTargetShadowRootsByHost(): ReadonlyMap<Element, ShadowRoot> {
-  let cached = state.shadowRootsByHost;
-  if (cached === undefined) {
-    cached = new Map<Element, ShadowRoot>();
-    state.shadowRootsByHost = cached;
-  }
-  if (state.shadowRootsByHostDirty === false) {
+  const cached = state.shadowRootsByHost;
+  if (!state.shadowRootsByHostDirty) {
     return cached;
   }
 
@@ -278,8 +274,8 @@ export function resetForTests(): void {
   }
   state.registry.clear();
   state.shadowRoots.clear();
-  state.retainedRoots = new WeakMap<Element, ShadowRoot | ShadowRoot[]>();
-  state.shadowRootsByHost?.clear();
+  state.retainedRoots = new WeakMap<Element, ShadowRoot[]>();
+  state.shadowRootsByHost.clear();
   state.shadowRootsByHostDirty = true;
   shadowRootChangeListeners.clear();
   retiringRegistrations.clear();
@@ -336,6 +332,30 @@ const recordRegistrations = getSharedSlot(
   'dropTarget.recordRegistrations',
   () => new WeakMap<DropTargetRecord, RegisterDropTargetParameters<any, any>>(),
 );
+
+/**
+ * The frozen copy held against each parameters object a getter has returned.
+ * A record needs a copy (see `recordRegistrations`), but resolution produces a
+ * record per walked target per frame, while the React layer hands back the same
+ * parameters object until the target re-renders — so copy once per object and
+ * share it across the records resolved from it.
+ */
+const registrationSnapshots = getSharedSlot(
+  'dropTarget.registrationSnapshots',
+  () =>
+    new WeakMap<RegisterDropTargetParameters<any, any>, RegisterDropTargetParameters<any, any>>(),
+);
+
+function snapshotRegistration(
+  registration: RegisterDropTargetParameters<any, any>,
+): RegisterDropTargetParameters<any, any> {
+  let snapshot = registrationSnapshots.get(registration);
+  if (snapshot === undefined) {
+    snapshot = { ...registration };
+    registrationSnapshots.set(registration, snapshot);
+  }
+  return snapshot;
+}
 
 const collisionResolvers = new WeakMap<
   DropTargetRecord,
@@ -426,7 +446,7 @@ function resolveDropTargetOutcome(
     payload,
     ...createLocalPointReaders(element, fullFeedback, registration.snap),
   };
-  recordRegistrations.set(record, { ...registration });
+  recordRegistrations.set(record, snapshotRegistration(registration));
   const captureCollision = (registration as CollisionResolutionRegistration)[resolveCollision];
   if (captureCollision) {
     collisionResolvers.set(record, captureCollision);
@@ -686,6 +706,33 @@ export function refreshHoveredRecords(
 }
 
 /**
+ * Deliver the terminal `onDraggableLeave` one still-hovered target is owed at the
+ * end of a drag.
+ *
+ * Distinct from a one-record {@link dispatchDropTargetChange} round: that one
+ * ends by resetting `hovered` to the (empty) current stack, so after the first
+ * target's leave the remaining targets would already read as not hovered. A leave
+ * handler that unregisters a sibling then routes it down the coalesced path,
+ * which cannot dispatch the leave that sibling is still owed. Here `hovered` only
+ * loses the record being left, so every other target stays hovered until its own
+ * leave goes out.
+ */
+export function dispatchTerminalDropTargetLeave(
+  record: DropTargetRecord,
+  payload: DropTargetEventMap['onDraggableLeave'],
+  eventDetails: DropTargetEventDetailsMap['onDraggableLeave'],
+  hovered: DropTargetRecord[],
+): void {
+  // Removed before the leave is delivered, as in `dispatchDropTargetChange`.
+  removeHoveredRecord(hovered, record.element);
+  try {
+    dispatchToDropTarget(record, 'onDraggableLeave', payload, eventDetails);
+  } finally {
+    releaseRetiringDropTarget(record.element);
+  }
+}
+
+/**
  * Dispatch `onTargetChange` to every previous and current target, plus
  * `onDraggableLeave` for targets that left and `onDraggableEnter` for targets that entered.
  *
@@ -861,10 +908,12 @@ export type RegisterDropTargetParameters<TSourcePayload = unknown, TTargetPayloa
       ) => void)
     | undefined;
   /**
-   * Event handler called on the frame this target enters the active stack, right
-   * after `onDraggableEnter`, and on each animation frame when the pointer or modifier
-   * keys change while the target remains in the stack. Put hover-tracking work here and use
-   * `onDraggableEnter` for enter-only side effects.
+   * Event handler called on each animation frame when the pointer or modifier
+   * keys change while the target is in the active stack. A target entered mid-drag
+   * also receives it on the frame it enters, right after `onDraggableEnter`; a
+   * target under the pointer at pickup receives `onDraggableStart` and
+   * `onDraggableEnter` only, then this on the first move. Put hover-tracking work
+   * here and use `onDraggableEnter` for enter-only side effects.
    */
   onDraggableMove?:
     | ((

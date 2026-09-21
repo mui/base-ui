@@ -3,7 +3,8 @@ import { Draggable } from '@base-ui/react/draggable';
 
 import * as React from 'react';
 
-import styles from '../../hero.module.css';
+import monitorStyles from '../../monitor.module.css';
+import styles from '../../../shapeSorter.module.css';
 
 type ShapeId = 'circle' | 'square' | 'triangle';
 
@@ -52,31 +53,18 @@ function MonitorShapeSorterContent() {
       const targetLabel = SHAPES.find((shape) => shape.id === target?.payload)?.label;
       setMessage(target ? `${sourceLabel} over ${targetLabel}` : `${sourceLabel} over nothing`);
     },
-    onMoveEnd: (moveEvent, moveDetails) => {
-      try {
-        if (moveDetails.reason === 'drop' && moveEvent.dropTarget !== null) {
-          const { source, dropTarget } = moveEvent;
-
-          setPlaced((current) =>
-            current.includes(source.payload) ? current : [...current, source.payload],
-          );
-          const sourceLabel = SHAPES.find((shape) => shape.id === source.payload)?.label;
-          const targetLabel = SHAPES.find((shape) => shape.id === dropTarget.payload)?.label;
-          setMessage(`Dropped ${sourceLabel} on ${targetLabel}`);
-        }
-      } finally {
-        const { source } = moveEvent;
-        const eventDetails = moveDetails;
-
-        if (eventDetails.reason === 'outside-release') {
-          setMessage(
-            `Released ${SHAPES.find((shape) => shape.id === source.payload)?.label} over nothing`,
-          );
-        } else if (eventDetails.reason !== 'drop') {
-          setMessage(
-            `Canceled dragging ${SHAPES.find((shape) => shape.id === source.payload)?.label}`,
-          );
-        }
+    onMoveEnd: ({ source, dropTarget }, eventDetails) => {
+      const sourceLabel = SHAPES.find((shape) => shape.id === source.payload)?.label;
+      if (eventDetails.reason === 'drop' && dropTarget !== null) {
+        setPlaced((current) =>
+          current.includes(source.payload) ? current : [...current, source.payload],
+        );
+        const targetLabel = SHAPES.find((shape) => shape.id === dropTarget.payload)?.label;
+        setMessage(`Dropped ${sourceLabel} on ${targetLabel}`);
+      } else if (eventDetails.reason === 'outside-release') {
+        setMessage(`Released ${sourceLabel} over nothing`);
+      } else {
+        setMessage(`Canceled dragging ${sourceLabel}`);
       }
     },
   });
@@ -123,9 +111,9 @@ function MonitorShapeSorterContent() {
         })}
       </div>
 
-      <div className={styles.Monitor} role="status">
-        <span className={styles.MonitorLabel}>Monitor</span>
-        <span className={styles.MonitorMessage}>{message}</span>
+      <div className={monitorStyles.Monitor} role="status">
+        <span className={monitorStyles.MonitorLabel}>Monitor</span>
+        <span className={monitorStyles.MonitorMessage}>{message}</span>
       </div>
     </div>
   );

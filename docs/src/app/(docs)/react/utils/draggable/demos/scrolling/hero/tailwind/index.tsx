@@ -3,6 +3,7 @@ import { Draggable } from '@base-ui/react/draggable';
 
 import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { GripIcon } from '../../../GripIcon';
 import { DragPageAutoScroll } from '../../../DragPageAutoScroll';
 
 type Zone = 'plain' | 'slow';
@@ -87,27 +88,6 @@ function resolveDrop(container: HTMLElement, clientY: number): { index: number; 
   return { index, slotY: slotYs[index] };
 }
 
-function Grip() {
-  return (
-    <svg
-      className="shrink-0 text-neutral-400 dark:text-neutral-500"
-      width="8"
-      height="14"
-      viewBox="0 0 8 14"
-      aria-hidden="true"
-    >
-      <g fill="currentColor">
-        <circle cx="2" cy="2" r="1.2" />
-        <circle cx="6" cy="2" r="1.2" />
-        <circle cx="2" cy="7" r="1.2" />
-        <circle cx="6" cy="7" r="1.2" />
-        <circle cx="2" cy="12" r="1.2" />
-        <circle cx="6" cy="12" r="1.2" />
-      </g>
-    </svg>
-  );
-}
-
 // The preview is a clone of the card, so it keeps these classes: `data-dragging`
 // dims the source, `data-drag-preview` lifts the clone above the board.
 const CARD_CLASS =
@@ -126,7 +106,7 @@ function Card({ task, draggable }: { task: Task; draggable?: boolean }) {
       data-id={task.id}
       className={CARD_CLASS}
     >
-      <Grip />
+      <GripIcon className="shrink-0 text-neutral-400 dark:text-neutral-500" />
       {task.label}
     </Draggable.Root>
   );

@@ -2,6 +2,7 @@
 import { Draggable } from '@base-ui/react/draggable';
 
 import * as React from 'react';
+import { GripIcon } from '../../../GripIcon';
 import { DragPageAutoScroll } from '../../../DragPageAutoScroll';
 
 interface Stop {
@@ -59,27 +60,6 @@ function resolveDropIndex(track: HTMLElement, clientX: number): number {
     }
   }
   return index;
-}
-
-function Grip() {
-  return (
-    <svg
-      className="flex-none text-neutral-400 dark:text-neutral-500"
-      width="8"
-      height="14"
-      viewBox="0 0 8 14"
-      aria-hidden="true"
-    >
-      <g fill="currentColor">
-        <circle cx="2" cy="2" r="1.2" />
-        <circle cx="6" cy="2" r="1.2" />
-        <circle cx="2" cy="7" r="1.2" />
-        <circle cx="6" cy="7" r="1.2" />
-        <circle cx="2" cy="12" r="1.2" />
-        <circle cx="6" cy="12" r="1.2" />
-      </g>
-    </svg>
-  );
 }
 
 // The preview is a clone of the stop, so it keeps these classes: `data-dragging`
@@ -142,7 +122,7 @@ function AxisLaneContent() {
               data-stop
               className={STOP_CLASS}
             >
-              <Grip />
+              <GripIcon className="flex-none text-neutral-400 dark:text-neutral-500" />
               {stop.label}
             </Draggable.Root>
           ))}

@@ -78,8 +78,9 @@ export const DraggableRoot = React.forwardRef(function DraggableRoot<TPayload = 
 
   const { defaultKind } = useDraggableContext();
 
-  // A fresh object per render is fine: `useDraggableElement` reads it through a
-  // ref and never compares it.
+  // A fresh object per render is intended: `useDraggableElement` reads it through
+  // a getter and uses its identity as the cache key for the normalized config, so
+  // memoizing it here would silently stop parameter updates.
   const params = {
     kind: kind ?? defaultKind,
     payload,

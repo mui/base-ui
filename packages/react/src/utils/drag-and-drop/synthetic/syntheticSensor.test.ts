@@ -1261,6 +1261,52 @@ describe('syntheticDrag sensor', () => {
     touchUp(50, 50);
   });
 
+  it('a press on formatted text inside a nested contenteditable does not start a drag', async () => {
+    const { engine } = await renderDnd();
+    const el = createElement();
+    const editor = document.createElement('div');
+    editor.setAttribute('contenteditable', 'true');
+    const bold = document.createElement('b');
+    bold.textContent = 'Bold';
+    editor.appendChild(bold);
+    el.appendChild(editor);
+
+    const onMoveStart = vi.fn();
+    engine.registerDraggable(el, {
+      activation: { touch: { type: 'immediate' } },
+      onMoveStart,
+    });
+
+    // The interactive control is an ancestor of the press target, not the target
+    // itself: the walk has to climb through the `<b>` to find it.
+    touchDown(bold, 50, 50);
+    await flushRaf();
+    expect(onMoveStart).not.toHaveBeenCalled();
+    touchUp(50, 50);
+  });
+
+  it('a press on a disabled nested button still starts a drag', async () => {
+    const { engine } = await renderDnd();
+    const el = createElement();
+    const button = document.createElement('button');
+    button.disabled = true;
+    el.appendChild(button);
+
+    const onMoveStart = vi.fn();
+    engine.registerDraggable(el, {
+      activation: { touch: { type: 'immediate' } },
+      onMoveStart,
+    });
+
+    // A disabled control owns no gesture of its own, so the press belongs to the
+    // draggable around it.
+    touchDown(button, 50, 50);
+    await flushRaf();
+    expect(onMoveStart).toHaveBeenCalledTimes(1);
+    act(() => cancelDrag());
+    touchUp(50, 50);
+  });
+
   it('a press inside a nested link does not start a drag', async () => {
     const { engine } = await renderDnd();
     const el = createElement();
@@ -3457,6 +3503,52 @@ describe('syntheticDrag sensor', () => {
       });
 
       expect(onClick).not.toHaveBeenCalled();
+    });
+
+    it('stops swallowing clicks once a never-released pointer outlives the held window', async () => {
+      const { engine } = await renderDnd();
+      const el = createElement();
+      engine.registerDraggable(el, { activation: { touch: { type: 'immediate' } } });
+
+      const onClick = vi.fn();
+      document.addEventListener('click', onClick, { capture: true });
+      registerCleanup(() => document.removeEventListener('click', onClick, true));
+
+      touchDown(el, 50, 50);
+      await flushRaf();
+      expect(dragSessionStore.getSnapshot()).not.toBe(null);
+
+      // Installed after the drag started: the suppression's backstop timer is
+      // scheduled at teardown, through the owner window's `setTimeout`.
+      vi.useFakeTimers();
+      try {
+        // Torn down while the finger is still on the glass, so the suppression is
+        // armed in held-pointer mode and waits for a release the page never sees
+        // (an OS hand-off, a window torn down mid-gesture).
+        dispatch(
+          document,
+          new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true }),
+        );
+        expect(dragSessionStore.getSnapshot()).toBe(null);
+
+        vi.advanceTimersByTime(5000);
+
+        // A keyboard "click" (`detail: 0`, no `pointerId`) has no `pointerdown` to
+        // disarm the window; only the backstop can let it through.
+        const keyboardClick = new MouseEvent('click', {
+          detail: 0,
+          bubbles: true,
+          cancelable: true,
+        });
+        act(() => {
+          el.dispatchEvent(keyboardClick);
+        });
+        expect(onClick).toHaveBeenCalledTimes(1);
+        expect(keyboardClick.defaultPrevented).toBe(false);
+      } finally {
+        vi.useRealTimers();
+        touchUp(50, 50);
+      }
     });
 
     it('keeps the held-pointer suppression through a second finger tapping', async () => {

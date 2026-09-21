@@ -114,6 +114,101 @@ describe.skipIf(isJSDOM)('createClonedDragPreviewElement (top layer)', () => {
     }
   });
 
+  it('preserves sibling-position styles of the source, not of the last child', () => {
+    const sheet = document.createElement('style');
+    sheet.textContent = `
+      .List .Row { background: rgb(255, 255, 255); border-top: 0 solid rgb(0, 0, 0); }
+      .List .Row:nth-child(odd) { background: rgb(0, 0, 255); }
+      .List .Row:first-child { border-top: 3px solid rgb(255, 0, 0); }
+    `;
+    document.head.appendChild(sheet);
+    list.className = 'List';
+    source.className = 'Row';
+    source.style.removeProperty('background');
+    // Three rows, so the last one is odd like the source but not `:first-child`,
+    // and anything appended after it lands on an even index.
+    for (let i = 0; i < 2; i += 1) {
+      const row = document.createElement('div');
+      row.className = 'Row';
+      row.textContent = `Row ${i + 2}`;
+      list.appendChild(row);
+    }
+    const handle = createClonedDragPreviewElement(source, null)!;
+    try {
+      const sourceStyle = getComputedStyle(source);
+      const previewStyle = getComputedStyle(handle.element);
+      expect(sourceStyle.backgroundColor).toBe('rgb(0, 0, 255)');
+      expect(previewStyle.backgroundColor).toBe('rgb(0, 0, 255)');
+      expect(sourceStyle.borderTopWidth).toBe('3px');
+      expect(previewStyle.borderTopWidth).toBe('3px');
+      expect(previewStyle.borderTopColor).toBe('rgb(255, 0, 0)');
+    } finally {
+      handle.destroy();
+      sheet.remove();
+    }
+  });
+
+  it('restores sibling-position styles the wrapper position drops', () => {
+    const sheet = document.createElement('style');
+    sheet.textContent = `
+      .List .Row { background: rgb(255, 255, 255); }
+      .List .Row:nth-child(even) { background: rgb(0, 0, 255); }
+      .List .Row:last-child { border-top: 3px solid rgb(255, 0, 0); }
+    `;
+    document.head.appendChild(sheet);
+    list.className = 'List';
+    source.className = 'Row';
+    source.style.removeProperty('background');
+    // The source is the second and last row: even, and `:last-child`. Inside the
+    // wrapper the clone is first and only, so both rules stop matching.
+    const first = document.createElement('div');
+    first.className = 'Row';
+    first.textContent = 'Row 1';
+    list.insertBefore(first, source);
+    const handle = createClonedDragPreviewElement(source, null)!;
+    try {
+      const previewStyle = getComputedStyle(handle.element);
+      expect(previewStyle.backgroundColor).toBe('rgb(0, 0, 255)');
+      expect(previewStyle.borderTopWidth).toBe('3px');
+      expect(previewStyle.borderTopColor).toBe('rgb(255, 0, 0)');
+    } finally {
+      handle.destroy();
+      sheet.remove();
+    }
+  });
+
+  it('does not restore a structural transform onto the clone root', () => {
+    const sheet = document.createElement('style');
+    sheet.textContent = '.List > .Card { transform: translateX(10px); rotate: 4deg; }';
+    document.head.appendChild(sheet);
+    list.className = 'List';
+    source.className = 'Card';
+    const handle = createClonedDragPreviewElement(source, null)!;
+    try {
+      const previewStyle = getComputedStyle(handle.element);
+      expect(previewStyle.transform).toBe('none');
+      expect(previewStyle.rotate).toBe('4deg');
+    } finally {
+      handle.destroy();
+      sheet.remove();
+    }
+  });
+
+  it('does not insert the clone beside the source while building the preview', () => {
+    const observer = new MutationObserver(() => {});
+    observer.observe(list, { childList: true });
+    const handle = createClonedDragPreviewElement(source, null)!;
+    try {
+      const records = observer.takeRecords();
+      observer.disconnect();
+      // A single insertion, the wrapper. The clone itself never touches the list.
+      expect(records.map((record) => record.addedNodes.length)).toEqual([1]);
+      expect(records[0].addedNodes[0]).toBe(handle.element.parentElement);
+    } finally {
+      handle.destroy();
+    }
+  });
+
   it('resolves preview styles using source-size variables before preserving them', () => {
     const sheet = document.createElement('style');
     sheet.textContent =

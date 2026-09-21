@@ -2,46 +2,13 @@
 import { Draggable } from '@base-ui/react/draggable';
 
 import * as React from 'react';
+import { DashboardControls } from '../../DashboardControls';
+import { GripIcon } from '../../GripIcon';
+import { SLOTS, useDashboardWidgets, type SlotId, type WidgetData } from '../../dashboardWidgets';
 
 import styles from '../../containment.module.css';
 
-type SlotId = 'left' | 'center' | 'right';
-
-interface WidgetData {
-  id: string;
-  title: string;
-  value: string;
-  detail: string;
-  slot: SlotId;
-}
-
 const widgetKind = Draggable.createKind<string>('draggable/contained-widget');
-
-const SLOTS: { id: SlotId; label: string }[] = [
-  { id: 'left', label: 'Left dashboard slot' },
-  { id: 'center', label: 'Center dashboard slot' },
-  { id: 'right', label: 'Right dashboard slot' },
-];
-
-const INITIAL_WIDGETS: WidgetData[] = [
-  { id: 'visitors', title: 'Visitors', value: '2,420', detail: 'Last 7 days', slot: 'left' },
-  { id: 'conversion', title: 'Conversion', value: '3.8%', detail: 'Up 0.4%', slot: 'center' },
-];
-
-function Grip() {
-  return (
-    <svg className={styles.Grip} width="8" height="14" viewBox="0 0 8 14" aria-hidden="true">
-      <g fill="currentColor">
-        <circle cx="2" cy="2" r="1.2" />
-        <circle cx="6" cy="2" r="1.2" />
-        <circle cx="2" cy="7" r="1.2" />
-        <circle cx="6" cy="7" r="1.2" />
-        <circle cx="2" cy="12" r="1.2" />
-        <circle cx="6" cy="12" r="1.2" />
-      </g>
-    </svg>
-  );
-}
 
 function Widget({
   widget,
@@ -60,7 +27,7 @@ function Widget({
       // @highlight-end
     >
       <div className={styles.WidgetHeader}>
-        <Grip />
+        <GripIcon className={styles.Grip} />
         <span>{widget.title}</span>
       </div>
       <div className={styles.WidgetBody}>
@@ -104,17 +71,13 @@ function DockSlot({
 }
 
 function ContainedDashboardContent() {
-  const [widgets, setWidgets] = React.useState<WidgetData[]>(INITIAL_WIDGETS);
+  const { widgets, moveWidget, announcement } = useDashboardWidgets();
   const frameRef = React.useRef<HTMLDivElement | null>(null);
-
-  function moveWidget(widgetId: string, slot: SlotId) {
-    setWidgets((currentWidgets) =>
-      currentWidgets.map((widget) => (widget.id === widgetId ? { ...widget, slot } : widget)),
-    );
-  }
 
   return (
     <div className={styles.Root}>
+      <DashboardControls className={styles.Controls} widgets={widgets} onMoveWidget={moveWidget} />
+      <div role="status">{announcement}</div>
       <div ref={frameRef} className={styles.Frame}>
         <div className={styles.Grid}>
           {SLOTS.map((slot) => (

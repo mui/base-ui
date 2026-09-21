@@ -4,7 +4,7 @@ import { Draggable } from '@base-ui/react/draggable';
 import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 
-import styles from '../../hero.module.css';
+import styles from '../../../shapeSorter.module.css';
 
 type ShapeId = 'circle' | 'square' | 'triangle';
 

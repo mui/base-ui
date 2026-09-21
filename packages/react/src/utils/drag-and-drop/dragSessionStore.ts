@@ -199,9 +199,15 @@ function updateDragSourceElement(oldElement: Element, newElement: HTMLElement): 
   if (!state || state.source.element !== oldElement) {
     return false;
   }
+  // Mutated in place: this is the lifecycle's own `source`, the object every
+  // event of the drag reports, and it has to keep reporting the live node.
   state.source.element = newElement;
   slot.store.setState({ ...state });
-  // Wake subscribers whose selector returns the source.
+  // Wake subscribers whose selector returns the source. A copy, not the same
+  // object: `useStore` re-runs a selector only on a new snapshot reference, so
+  // republishing the mutated object would leave `useActiveDrag()` and
+  // `Draggable.Root`'s `dragging` reading the detached node. The mirror above
+  // skipped it for the same identity reason.
   slot.sourceStore.setState({ ...state.source });
   return true;
 }
@@ -211,6 +217,12 @@ function updateDragSourceElement(oldElement: Element, newElement: HTMLElement): 
  * dragged row): re-point the session at it, and move the preview's source
  * marking (`data-dragging`) with it. A no-op unless `oldElement` is the active
  * source, so a swap from an unrelated draggable can't hijack the session.
+ *
+ * The session's `source` is mutated rather than replaced, so
+ * `dragSessionStore.state.source` stays `===` the `source` on every event of the
+ * drag. `dragSourceStore` publishes a fresh copy instead (its React subscribers
+ * need a new reference to re-render), so a `DragSource` read from there must not
+ * be compared by identity against an event's `source`.
  */
 export function retargetDragSource(oldElement: Element, newElement: HTMLElement): void {
   if (updateDragSourceElement(oldElement, newElement)) {

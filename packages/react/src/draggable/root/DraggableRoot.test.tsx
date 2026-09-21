@@ -1007,6 +1007,75 @@ describe('Draggable.Root', () => {
       expect(source).not.toHaveAttribute('data-dragging');
     });
 
+    it('retargets the settling clone to a root remounted with the same previewKey', async () => {
+      // A cross-container move remounts the card as a new React subtree with a
+      // fresh payload object; `previewKey` is what connects the settling clone
+      // to the new node.
+      vi.stubGlobal('BASE_UI_ANIMATIONS_DISABLED', false);
+      registerCleanup(() => vi.unstubAllGlobals());
+      function Card({ mountKey, payload }: { mountKey: string; payload: { id: string } }) {
+        return (
+          <Draggable.Root
+            key={mountKey}
+            kind={cardKind}
+            payload={payload}
+            previewKey="card-a"
+            data-testid="drag"
+          >
+            Card
+          </Draggable.Root>
+        );
+      }
+      // The clone copies the test id, so query the live source explicitly.
+      const getSource = () =>
+        document.querySelector<HTMLElement>('[data-testid="drag"]:not([data-drag-preview])')!;
+      const { engine, rerender } = await renderDnd(<Card mountKey="a" payload={{ id: 'a' }} />);
+      const first = getSource();
+      first.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
+      const target = createElement();
+      engine.registerDropTarget(target, {});
+
+      fireEvent.dragStart(first);
+      await flushRaf();
+      fireEvent.dragEnter(target);
+      fireEvent.dragOver(target);
+      await flushRaf();
+
+      // An authored drop transition keeps the clone settling past the drop.
+      const clone = document.querySelector('[data-drag-preview]') as HTMLElement;
+      let finishAnimation!: () => void;
+      const finished = new Promise<void>((resolve) => {
+        finishAnimation = resolve;
+      });
+      // Let the clone settle even if an assertion below fails, so it can't
+      // outlive this test.
+      registerCleanup(() => finishAnimation());
+      clone.getAnimations = () =>
+        [{ effect: { getTiming: () => ({ iterations: 1 }) }, finished }] as unknown as Animation[];
+
+      fireEvent.drop(target);
+      expect(clone).toHaveAttribute('data-ending-style');
+      expect(first).toHaveAttribute('data-dragging');
+
+      await rerender(<Card mountKey="b" payload={{ id: 'a' }} />);
+      const second = getSource();
+      expect(second).not.toBe(first);
+      // The clone now settles onto the new node: the source marking moved with it.
+      expect(second).toHaveAttribute('data-dragging');
+      expect(second).toHaveAttribute('data-ending-style');
+      expect(first).not.toHaveAttribute('data-dragging');
+      expect(clone.isConnected).toBe(true);
+
+      await flushRaf();
+      expect(clone.isConnected).toBe(true);
+      finishAnimation();
+      await finished;
+      await flushRaf();
+      expect(clone.isConnected).toBe(false);
+      expect(second).not.toHaveAttribute('data-dragging');
+      expect(second).not.toHaveAttribute('data-ending-style');
+    });
+
     it('clears the clone and data-dragging after a real drop', async () => {
       const { engine } = await renderDnd(<PlainDraggable />);
       const source = screen.getByTestId('drag');
@@ -1190,9 +1259,7 @@ describe('Draggable.Root', () => {
     });
 
     it('does not throw for two parts of the same kind either', () => {
-      // The likelier slip than one of each. Only the behaviour is asserted here:
-      // `warn` is warn-once per message process-wide, so the sibling test above
-      // has already consumed the warning.
+      // The likelier slip than one of each.
       const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
       try {
         expect(() =>

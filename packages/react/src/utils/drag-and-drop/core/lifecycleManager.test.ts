@@ -682,6 +682,71 @@ describe('lifecycle manager', () => {
     });
   });
 
+  describe('hovered target unregistering', () => {
+    it('re-walks from the last target without a hit test when a hovered target unregisters', async () => {
+      // A React unmount runs the unregister from the ref cleanup, inside the
+      // commit and before the node leaves the DOM. An `elementFromPoint` there
+      // forces a synchronous layout flush; the walk from the last resolved
+      // target already excludes the retiring element.
+      const { engine } = await renderDnd();
+      const source = createElement();
+      const target = createElement();
+      const onDraggableLeave = vi.fn();
+      engine.registerDraggable(source, {});
+      const cleanup = engine.registerDropTarget(target, { onDraggableLeave });
+
+      fireEvent.dragStart(source);
+      await flushRaf();
+      fireEvent.dragEnter(target);
+      fireEvent.dragOver(target);
+      await flushRaf();
+      expect(dragSessionStore.getSnapshot()?.location.current.dropTargets[0]?.element).toBe(target);
+
+      const hitTest = vi.spyOn(document, 'elementFromPoint');
+      try {
+        cleanup();
+        expect(hitTest).not.toHaveBeenCalled();
+      } finally {
+        hitTest.mockRestore();
+      }
+      expect(onDraggableLeave).toHaveBeenCalledTimes(1);
+      expect(dragSessionStore.getSnapshot()?.location.current.dropTargets).toEqual([]);
+
+      fireEvent.dragEnd(source);
+    });
+
+    it('delivers the outer terminal leave when the inner leave unregisters it on drop', async () => {
+      // The terminal leaves go out one target at a time. After the inner one,
+      // the outer must still read as hovered: its unregister then takes the
+      // synchronous path that keeps its registration readable for its own leave.
+      const { engine } = await renderDnd();
+      const source = createElement();
+      const outer = createElement();
+      const inner = document.createElement('div');
+      outer.appendChild(inner);
+      const outerLeave = vi.fn();
+      engine.registerDraggable(source, {});
+      const cleanupOuter = engine.registerDropTarget(outer, { onDraggableLeave: outerLeave });
+      engine.registerDropTarget(inner, { onDraggableLeave: () => cleanupOuter() });
+
+      fireEvent.dragStart(source);
+      await flushRaf();
+      fireEvent.dragEnter(inner);
+      fireEvent.dragOver(inner);
+      await flushRaf();
+      const elements = dragSessionStore
+        .getSnapshot()
+        ?.location.current.dropTargets.map((record) => record.element);
+      expect(elements).toEqual([inner, outer]);
+
+      fireEvent.drop(inner);
+
+      expect(outerLeave).toHaveBeenCalledTimes(1);
+      expect(outerLeave.mock.calls[0][1].reason).toBe('drop');
+      expect(dragSessionStore.getSnapshot()).toBeNull();
+    });
+  });
+
   describe('drag cancellation', () => {
     it('fires onMoveEnd on a cancel, naming the key that caused it', async () => {
       const { engine } = await renderDnd();

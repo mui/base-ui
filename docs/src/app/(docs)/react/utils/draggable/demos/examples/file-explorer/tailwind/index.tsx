@@ -25,7 +25,7 @@ const ITEM_CLASS =
 
 // The compact card that follows the pointer in place of a clone of the tile.
 const PREVIEW_CLASS =
-  'box-border flex items-center gap-1.5 whitespace-nowrap border border-neutral-950 bg-white px-2 py-1 text-xs leading-4 text-neutral-950 shadow-[0.25rem_0.25rem_0_rgb(0_0_0_/_12%)] dark:border-white dark:bg-neutral-950 dark:text-white dark:shadow-none motion-safe:data-ending-style:transition-[translate] motion-safe:data-ending-style:duration-200 motion-safe:data-ending-style:ease-[cubic-bezier(0.2,0,0,1)]';
+  'box-border flex items-center gap-1.5 whitespace-nowrap border border-neutral-950 bg-white px-2 py-1 text-xs leading-4 text-neutral-950 shadow-[0.25rem_0.25rem_0_rgb(0_0_0_/_12%)] dark:border-white dark:bg-neutral-950 dark:text-white dark:shadow-none';
 
 const ICON_CLASS = 'shrink-0 text-neutral-500 dark:text-neutral-400';
 

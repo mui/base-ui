@@ -102,6 +102,39 @@ describe('snapToGrid', () => {
     expect(result).toEqual({ x: 140, y: 140 });
   });
 
+  it('snaps leftward and upward drags symmetrically to rightward and downward ones', () => {
+    const snap = snapToGrid(20);
+    const origin = { x: 100, y: 100 };
+    expect(snap(makeContext({ initialPoint: origin, point: { x: 132, y: 145 } }))).toEqual({
+      x: 140,
+      y: 140,
+    });
+    expect(snap(makeContext({ initialPoint: origin, point: { x: 68, y: 55 } }))).toEqual({
+      x: 60,
+      y: 60,
+    });
+    // Just under half a step in either direction stays on the origin cell.
+    expect(snap(makeContext({ initialPoint: origin, point: { x: 109, y: 91 } }))).toEqual({
+      x: 100,
+      y: 100,
+    });
+  });
+
+  // `Math.round` rounds a half step toward +∞, which would snap a 10px drag to
+  // the right a full step while the same drag to the left stayed put.
+  it('rounds an exact half step away from the origin in both directions', () => {
+    const snap = snapToGrid(20);
+    const origin = { x: 100, y: 100 };
+    expect(snap(makeContext({ initialPoint: origin, point: { x: 110, y: 110 } }))).toEqual({
+      x: 120,
+      y: 120,
+    });
+    expect(snap(makeContext({ initialPoint: origin, point: { x: 90, y: 90 } }))).toEqual({
+      x: 80,
+      y: 80,
+    });
+  });
+
   it('supports a rectangular grid', () => {
     const result = snapToGrid({ x: 30, y: 15 })(
       makeContext({ initialPoint: { x: 0, y: 0 }, point: { x: 40, y: 22 } }),

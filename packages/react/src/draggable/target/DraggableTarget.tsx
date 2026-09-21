@@ -41,6 +41,14 @@ export const DraggableTarget = React.forwardRef(function DraggableTarget<
   TTargetPayload = unknown,
 >(
   componentProps: Omit<DraggableTargetPropsBase<TSourcePayload, TTargetPayload>, 'accept'> & {
+    /**
+     * One or more drag source kinds accepted by this target. Defaults to the
+     * nearest provider's no-payload kind. Pass `Draggable.anyKind` to accept every
+     * drag. In that case, `source.payload` is `unknown`.
+     *
+     * The target ignores a source whose kind is not accepted. An ancestor target can
+     * still accept it. Base UI checks `accept` before `canDrop`.
+     */
     accept?: DragAccept<TSourcePayload> | undefined;
     payload?: DropTargetPayload<TTargetPayload> | undefined;
     getPayload?: DropTargetPayloadGetter<TSourcePayload, TTargetPayload> | undefined;
@@ -248,7 +256,17 @@ export type DraggableTargetProps<TSourcePayload = undefined, TTargetPayload = un
 > &
   DraggableTargetPayloadField<TSourcePayload, TTargetPayload> &
   ([TSourcePayload, TTargetPayload] extends [undefined, undefined]
-    ? { accept?: DragAccept<TSourcePayload> | undefined }
+    ? {
+        /**
+         * One or more drag source kinds accepted by this target. Defaults to the
+         * nearest provider's no-payload kind. Pass `Draggable.anyKind` to accept every
+         * drag. In that case, `source.payload` is `unknown`.
+         *
+         * The target ignores a source whose kind is not accepted. An ancestor target can
+         * still accept it. Base UI checks `accept` before `canDrop`.
+         */
+        accept?: DragAccept<TSourcePayload> | undefined;
+      }
     : Required<Pick<RegisterDropTargetParameters<TSourcePayload, TTargetPayload>, 'accept'>>);
 
 /**

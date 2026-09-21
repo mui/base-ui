@@ -1411,12 +1411,11 @@ function onActiveFrame(): void {
   if (state.active !== active) {
     return;
   }
-  active.preview.update(input.clientX, input.clientY, input);
   // A consumer callback that re-rendered synchronously may have torn out the
-  // preview's host after it was positioned. Re-home it before the frame ends
-  // rather than leaving it detached until the next input. (A commit React defers
-  // past this frame is caught by the preview's own observer instead.)
-  active.preview.getPreviewElement()?.ensureConnected();
+  // preview's host: `update` re-homes it (`ensureConnected`) before writing the
+  // position. (A commit React defers past this frame is caught by the preview's
+  // own observer instead.)
+  active.preview.update(input.clientX, input.clientY, input);
 }
 
 // Block native scroll while a touch drag is active; the pointer stream
@@ -1714,7 +1713,7 @@ interface PendingSession {
   pointerId: number;
   pointerType: DragPointerType;
   activation: DragActivation[];
-  /** How the pickup happened, reported to `onBeforeMoveStart` as `eventDetails.activation`. */
+  /** How the pickup happened, reported to `onBeforeMoveStart` as `eventDetails.reason`. */
   activationKind: 'pointer' | 'double-click';
   /**
    * Whether a held pointer drives the gesture: it is captured, `pointerup`

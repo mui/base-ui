@@ -32,7 +32,8 @@ function selectTargetState(
 }
 
 function hasTargetState(state: number, flag: number): boolean {
-  return Math.floor(state / flag) % 2 === 1;
+  // eslint-disable-next-line no-bitwise
+  return (state & flag) !== 0;
 }
 
 // Never written to, so a target that opted out of tracking never re-renders.

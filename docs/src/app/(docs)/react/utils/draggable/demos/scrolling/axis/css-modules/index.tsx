@@ -2,6 +2,7 @@
 import { Draggable } from '@base-ui/react/draggable';
 
 import * as React from 'react';
+import { GripIcon } from '../../../GripIcon';
 import { DragPageAutoScroll } from '../../../DragPageAutoScroll';
 
 import styles from '../../axis.module.css';
@@ -63,21 +64,6 @@ function resolveDropIndex(track: HTMLElement, clientX: number): number {
   return index;
 }
 
-function Grip() {
-  return (
-    <svg className={styles.Grip} width="8" height="14" viewBox="0 0 8 14" aria-hidden="true">
-      <g fill="currentColor">
-        <circle cx="2" cy="2" r="1.2" />
-        <circle cx="6" cy="2" r="1.2" />
-        <circle cx="2" cy="7" r="1.2" />
-        <circle cx="6" cy="7" r="1.2" />
-        <circle cx="2" cy="12" r="1.2" />
-        <circle cx="6" cy="12" r="1.2" />
-      </g>
-    </svg>
-  );
-}
-
 function AxisLaneContent() {
   const [stops, setStops] = React.useState(INITIAL_STOPS);
   const trackRef = React.useRef<HTMLDivElement | null>(null);
@@ -133,7 +119,7 @@ function AxisLaneContent() {
               data-stop
               className={styles.Stop}
             >
-              <Grip />
+              <GripIcon className={styles.Grip} />
               {stop.label}
             </Draggable.Root>
           ))}

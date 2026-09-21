@@ -869,6 +869,49 @@ describe('Draggable.Target', () => {
     expect(target).not.toHaveAttribute('data-drag-over-innermost');
   });
 
+  it('reflects a rejecting canDrop as data-rejected while hovered, and clears it on leave', async () => {
+    // A rejection leaves the stack empty before and after, so `data-rejected`
+    // relies on the session publishing the flip on its own.
+    const { engine } = await renderDnd(
+      <Draggable.Target
+        accept={Draggable.anyKind}
+        data-testid="target"
+        canDrop={() => 'reject'}
+        className={(state) => (state.rejected ? 'rejected' : 'open')}
+      />,
+    );
+    const source = createElement();
+    engine.registerDraggable(source, {});
+    const target = screen.getByTestId('target');
+    target.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
+
+    fireEvent.dragStart(source);
+    await flushRaf();
+    expect(target).not.toHaveAttribute('data-rejected');
+    expect(target).toHaveClass('open');
+
+    fireEvent.dragEnter(target);
+    fireEvent.dragOver(target);
+    await flushRaf();
+    expect(target).toHaveAttribute('data-rejected');
+    expect(target).toHaveClass('rejected');
+    expect(target).not.toHaveAttribute('data-drag-over');
+
+    fireEvent.dragLeave(target);
+    await flushRaf();
+    expect(target).not.toHaveAttribute('data-rejected');
+    expect(target).toHaveClass('open');
+
+    // Still rejecting on re-entry, and cleared with the drag.
+    fireEvent.dragEnter(target);
+    fireEvent.dragOver(target);
+    await flushRaf();
+    expect(target).toHaveAttribute('data-rejected');
+
+    fireEvent.drop(target);
+    expect(target).not.toHaveAttribute('data-rejected');
+  });
+
   it('re-resolves a stationary hovered target when canDrop changes', async () => {
     const onDraggableEnter = vi.fn();
     const onDraggableLeave = vi.fn();

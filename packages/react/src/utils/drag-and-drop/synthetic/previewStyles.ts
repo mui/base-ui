@@ -10,20 +10,61 @@ const ids = getSharedSlot('dragPreviewStyleIds', () => ({ next: 0 }));
 type Properties = Map<string, Set<string>>;
 
 /**
+ * Whether a stylesheet was loaded from another origin. Its rules are unreadable
+ * (`cssRules` throws), but it also cannot carry the app's own structural
+ * selectors — a font or icon CDN sheet has nothing to say about a `.Row` — so it
+ * is skipped rather than degrading every node into a full computed-style dump.
+ */
+function isCrossOriginSheet(sheet: CSSStyleSheet, win: Window, doc: Document): boolean {
+  if (!sheet.href) {
+    return false;
+  }
+  const { origin } = win.location;
+  // An opaque origin (`sandbox`, `data:`) cannot vouch for any sheet; let the
+  // `cssRules` access below decide.
+  if (!origin || origin === 'null') {
+    return false;
+  }
+  try {
+    return new URL(sheet.href, doc.baseURI).origin !== origin;
+  } catch {
+    return false;
+  }
+}
+
+/**
  * Snapshot only declarations whose selectors may stop matching through the
  * preview wrapper. Ordinary class rules need no computed-style copying.
+ *
+ * Selectors are matched against the *source* tree and their values read from the
+ * source nodes: the clone is not yet in the DOM, and even if it were, a sibling
+ * position it does not share with the source (it ends up first in the wrapper,
+ * and could only be appended after every existing sibling) would resolve
+ * `:nth-child`, `:first-child`, `:last-child` and combinator rules to the wrong
+ * value. `sourceNodes` and `cloneNodes` are the two trees in the same order, so
+ * each snapshot is keyed by the clone node it is later restored onto.
  */
-export function capturePreviewStyles(element: HTMLElement, nodes: Element[]) {
-  const win = ownerWindow(element);
-  const root = element.getRootNode() as Document | ShadowRoot;
+export function capturePreviewStyles(
+  source: HTMLElement,
+  sourceNodes: Element[],
+  clone: HTMLElement,
+  cloneNodes: Element[],
+) {
+  const win = ownerWindow(source);
+  const doc = ownerDocument(source);
+  const root = source.getRootNode() as Document | ShadowRoot;
   const properties = new Map<Element, Properties>();
+  const clonesBySource = new Map<Element, Element>();
+  for (let i = 0; i < sourceNodes.length; i += 1) {
+    clonesBySource.set(sourceNodes[i], cloneNodes[i]);
+  }
   let unreadableSheet = false;
 
-  function add(node: Element, pseudo: string, names: Iterable<string>) {
-    let byPseudo = properties.get(node);
+  function add(sourceNode: Element, pseudo: string, names: Iterable<string>) {
+    let byPseudo = properties.get(sourceNode);
     if (!byPseudo) {
       byPseudo = new Map();
-      properties.set(node, byPseudo);
+      properties.set(sourceNode, byPseudo);
     }
     let set = byPseudo.get(pseudo);
     if (!set) {
@@ -36,14 +77,14 @@ export function capturePreviewStyles(element: HTMLElement, nodes: Element[]) {
   }
 
   function readSheet(sheet: CSSStyleSheet) {
-    if (sheet.disabled) {
+    if (sheet.disabled || isCrossOriginSheet(sheet, win, doc)) {
       return;
     }
     try {
       readRules(sheet.cssRules);
     } catch {
-      // Cross-origin sheets cannot expose their selectors. Preserve their
-      // computed styles conservatively; same-origin sheets use the fast path.
+      // A same-origin sheet can still refuse to expose its rules (a sandboxed
+      // document, a browser quirk). Preserve computed styles conservatively.
       unreadableSheet = true;
     }
   }
@@ -68,10 +109,10 @@ export function capturePreviewStyles(element: HTMLElement, nodes: Element[]) {
             // Shadow selectors cannot be queried from an element. Comparing
             // their declared properties also covers slotted preview roots.
             const matches = shadowSelector
-              ? nodes
-              : Array.from(element.querySelectorAll(matchSelector));
-            if (!shadowSelector && element.matches(matchSelector)) {
-              matches.push(element);
+              ? sourceNodes
+              : Array.from(source.querySelectorAll(matchSelector));
+            if (!shadowSelector && source.matches(matchSelector)) {
+              matches.push(source);
             }
             for (const node of matches) {
               for (const pseudo of new Set(['', ...pseudos])) {
@@ -91,7 +132,7 @@ export function capturePreviewStyles(element: HTMLElement, nodes: Element[]) {
     }
   }
 
-  const slotRoot = element.assignedSlot?.getRootNode();
+  const slotRoot = source.assignedSlot?.getRootNode();
   const roots = isShadowRoot(slotRoot) && slotRoot !== root ? [root, slotRoot] : [root];
   for (const styleRoot of roots) {
     for (const sheet of new Set([
@@ -102,7 +143,7 @@ export function capturePreviewStyles(element: HTMLElement, nodes: Element[]) {
     }
   }
   if (unreadableSheet) {
-    for (const node of nodes) {
+    for (const node of sourceNodes) {
       add(node, '', win.getComputedStyle(node));
       for (const pseudo of ['::before', '::after', '::marker']) {
         const computed = win.getComputedStyle(node, pseudo);
@@ -113,18 +154,30 @@ export function capturePreviewStyles(element: HTMLElement, nodes: Element[]) {
     }
   }
 
-  const snapshots = Array.from(properties, ([node, byPseudo]) =>
-    Array.from(byPseudo, ([pseudo, names]) => {
-      const computed = win.getComputedStyle(node, pseudo || null);
+  const snapshots = Array.from(properties, ([sourceNode, byPseudo]) => {
+    const node = clonesBySource.get(sourceNode);
+    if (!node) {
+      return [];
+    }
+    return Array.from(byPseudo, ([pseudo, names]) => {
+      const computed = win.getComputedStyle(sourceNode, pseudo || null);
       return {
         node,
         pseudo,
         values: Array.from(names)
-          .filter((name) => !name.startsWith('transition') && !name.startsWith('animation'))
+          // Motion never carries over. The root's `transform` is neutralized by
+          // the engine as well (see `NEUTRALIZED_PROPERTIES`): restoring it
+          // inline would beat that sheet and shift the clone off its anchor.
+          .filter(
+            (name) =>
+              !name.startsWith('transition') &&
+              !name.startsWith('animation') &&
+              !(node === clone && name === 'transform'),
+          )
           .map((name) => [name, computed.getPropertyValue(name)] as const),
       };
-    }),
-  ).flat();
+    });
+  }).flat();
   let sheet: CSSStyleSheet | null = null;
   let sheetRoot: Document | ShadowRoot | null = null;
 
@@ -132,8 +185,8 @@ export function capturePreviewStyles(element: HTMLElement, nodes: Element[]) {
     if (!sheet) {
       return;
     }
-    const currentRoot = element.getRootNode();
-    const target = isShadowRoot(currentRoot) ? currentRoot : ownerDocument(element);
+    const currentRoot = clone.getRootNode();
+    const target = isShadowRoot(currentRoot) ? currentRoot : ownerDocument(clone);
     if (sheetRoot === target && target.adoptedStyleSheets.includes(sheet)) {
       return;
     }
@@ -147,9 +200,14 @@ export function capturePreviewStyles(element: HTMLElement, nodes: Element[]) {
   }
 
   return {
+    /** Call once the clone is in its wrapper, so the diff sees its final cascade. */
     restore() {
       // Finish all reads before writing styles, avoiding a layout per node.
       const changed = snapshots.map(({ node, pseudo, values }) => {
+        // A clone node `sanitize()` dropped (a script) has nothing to restore.
+        if (!node.isConnected) {
+          return { node, pseudo, values: [] };
+        }
         const computed = win.getComputedStyle(node, pseudo || null);
         return {
           node,

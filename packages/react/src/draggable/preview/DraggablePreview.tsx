@@ -33,15 +33,15 @@ export function DraggablePreview<TPayload = unknown>(
     if (
       process.env.NODE_ENV !== 'production' &&
       useClone &&
-      (props.className !== undefined || props.style !== undefined)
+      (props.className !== undefined || props.style !== undefined || props.render !== undefined)
     ) {
       warn(
-        'Draggable.Preview received className or style without custom children, so these props are ignored. ' +
+        'Draggable.Preview received className, style, or render without custom children, so these props are ignored. ' +
           'Style the source element to customize its clone, or provide preview children. ' +
           'See https://base-ui.com/react/utils/draggable#preview.',
       );
     }
-  }, [useClone, props.className, props.style]);
+  }, [useClone, props.className, props.style, props.render]);
 
   // Resolved per drag, not per render.
   const render = useStableCallback((parameters: DragPreviewRenderEvent<TPayload>) => {

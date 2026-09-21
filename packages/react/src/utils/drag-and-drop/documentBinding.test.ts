@@ -3,6 +3,7 @@ import { act } from '@mui/internal-test-utils';
 import { createDndRenderer } from '#test-utils';
 import { flushRaf, registerCleanup, setupDragEngineTests } from '../../../test/dnd';
 import { dragSessionStore } from './dragSessionStore';
+import { createEventRootBinding } from './documentBinding';
 
 setupDragEngineTests();
 
@@ -98,6 +99,46 @@ describe('documentBinding', () => {
       engine.cancelDrag();
     },
   );
+
+  it('yields the outer bound root to an inner bound root at capture', () => {
+    const host = document.createElement('div');
+    document.body.appendChild(host);
+    registerCleanup(() => host.remove());
+    const outer = host.attachShadow({ mode: 'open' });
+    const innerHost = document.createElement('div');
+    outer.appendChild(innerHost);
+    const inner = innerHost.attachShadow({ mode: 'open' });
+    const target = document.createElement('div');
+    inner.appendChild(target);
+
+    // Labels rather than the roots themselves: two ShadowRoots are structurally
+    // equal to `toEqual`, so a wrong root would still pass.
+    const deliveries: Array<['outer' | 'inner', number]> = [];
+    const binding = createEventRootBinding({
+      slot: 'documentBinding.test.nested',
+      shadowRootsSlot: 'documentBinding.test.nested.shadowRoots',
+      type: 'pointerdown',
+      listener: (event) => {
+        deliveries.push([event.currentTarget === outer ? 'outer' : 'inner', event.eventPhase]);
+      },
+    });
+    binding.bind(outer);
+    binding.bind(inner);
+    registerCleanup(() => {
+      binding.unbind(inner);
+      binding.unbind(outer);
+    });
+
+    target.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, composed: true }));
+
+    // The outer root's capture listener sees the event first, but the path
+    // crosses the inner bound root, so it yields: the inner root delivers at
+    // capture, and the outer only through its bubble fallback.
+    expect(deliveries).toEqual([
+      ['inner', Event.CAPTURING_PHASE],
+      ['outer', Event.BUBBLING_PHASE],
+    ]);
+  });
 
   it('pointer pickup works for a draggable registered in an iframe document', async () => {
     const { engine } = await renderDnd();

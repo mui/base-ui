@@ -13,11 +13,11 @@ import {
   getViewportSize,
   resolveElementReference,
   NO_MODIFIER_KEYS,
+  type DragModifierKeys,
 } from './utils';
 import type {
   DragModifier,
   DragModifierContext,
-  DragModifierKeys,
   DragModifiers,
   DragElementReference,
   DragPosition,
@@ -129,16 +129,17 @@ export function snapToGrid(size: number | { x: number; y: number }): DragModifie
     const stepX = sizeX * scale.x;
     const stepY = sizeY * scale.y;
     return {
-      x:
-        stepX > 0
-          ? initialPoint.x + Math.round((point.x - initialPoint.x) / stepX) * stepX
-          : point.x,
-      y:
-        stepY > 0
-          ? initialPoint.y + Math.round((point.y - initialPoint.y) / stepY) * stepY
-          : point.y,
+      x: stepX > 0 ? initialPoint.x + snapDelta(point.x - initialPoint.x, stepX) : point.x,
+      y: stepY > 0 ? initialPoint.y + snapDelta(point.y - initialPoint.y, stepY) : point.y,
     };
   };
+}
+
+// Round the distance from the origin to the nearest grid step symmetrically:
+// `Math.round` alone rounds half steps toward +∞, so a half-step drag would snap
+// a full step to the right but stay put to the left.
+function snapDelta(delta: number, step: number): number {
+  return Math.sign(delta) * Math.round(Math.abs(delta) / step) * step;
 }
 
 /**

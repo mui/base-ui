@@ -138,7 +138,7 @@ When the decision needs the gesture itself, such as which handle was pressed or 
 
 ## Drag events
 
-The optional event handlers below fire in order. All except `onBeforeMoveStart` receive the drag `source` and `location` history. When a drag ends on a target, the source's `onMoveEnd` runs first, then the target's `onDraggableDrop`, then every monitor's `onMoveEnd`, including the `onMoveEnd` of collision providers, in registration order.
+The optional event handlers below fire in order. All except `onBeforeMoveStart` receive the drag `source` and `location` history. A drag canceled during pickup, for example by `cancelDrag()` from a target's `canDrop` under the pointer, fires `onMoveEnd` with `canceled: true` and no preceding `onMoveStart`. When a drag ends on a target, the source's `onMoveEnd` runs first, then the target's `onDraggableDrop`, then every monitor's `onMoveEnd`, including the `onMoveEnd` of collision providers, in registration order.
 
 ```tsx title="Following a source through its drag"
 <Draggable.Root
@@ -710,7 +710,7 @@ When moving an element, the committed value usually represents where the element
 
 ### Nested drop targets
 
-When drop targets are nested, the innermost accepted target receives the drop. Return `false` from its `canDrop` callback to skip it and let an ancestor accept the drop. Setting `disabled` also excludes the target.
+When drop targets are nested, the innermost accepted target receives the drop. Return `false` from its `canDrop` callback to skip it and let an ancestor accept the drop. Setting `disabled` also excludes the target. In the demo, the frame accepts only the chart, so a note released over the frame lands on the canvas.
 
 <DemoNestedDropTargets />
 
@@ -1066,7 +1066,7 @@ Add `disabled: true` to the registration to disable page auto-scroll.
 
 ## Styling
 
-The drag-and-drop components are unstyled. Base UI exposes each state as a data attribute. See the [styling guide](https://base-ui.com/react/handbook/styling) for how to use data attributes. The [`Draggable.Root`](#root), [`Draggable.Target`](#target), and [`Draggable.Viewport`](#viewport) API references list every attribute.
+The drag-and-drop components are unstyled. Base UI exposes each state as a data attribute. See the [styling guide](https://base-ui.com/react/handbook/styling) for how to use data attributes. The [`Draggable.Root`](#root), [`Draggable.Handle`](#handle), [`Draggable.Preview`](#preview), [`Draggable.Target`](#target), and [`Draggable.Viewport`](#viewport) API references list every attribute.
 
 ### Dimming the source
 
@@ -1403,7 +1403,7 @@ To prevent pickup, call `eventDetails.cancel()` in `onBeforeMoveStart`. Calling 
 
 `previewKey` reconnects a settling cloned preview to the source after it remounts. Use a stable key for a virtualized or reordered item. In the [scrolling demo](#scrolling), the card keeps its key when it moves from the tray into a list. A disabled `Draggable.Root` at the destination lets the preview settle there without making the inserted card draggable.
 
-Within a `Draggable.CollisionProvider`, pass the provider's `kind` to each root. Set `collision={false}` to exclude a root as an insertion destination. Use `collisionElement` to measure a different element, such as a row wrapper around the drag handle.
+Within a `Draggable.CollisionProvider`, pass the provider's `kind` to each root. Set `collision={false}` to exclude a root as an insertion destination. Use `collisionElement` to measure a different element, such as a row wrapper around the drag handle. A root that uses `getPayload` must also pass `collisionPayload` with the static data the collision callbacks report; without it, the root is not a destination for other items.
 
 <TypesDraggable.Root hideDescription />
 
@@ -1461,11 +1461,7 @@ Pass `kind` to type the preview render function's payload and restrict it to mat
 
 ### createKind
 
-Creates a drag kind with a unique runtime identity. Declare it once and share the returned value with each draggable, drop target, monitor, and auto-scroller that participates in the interaction. The name is only a debugging aid; separately created kinds do not match.
-
-```ts
-const card = Draggable.createKind<Card>('card');
-```
+<TypesDraggable.createKind />
 
 ### createGlobalKind
 
