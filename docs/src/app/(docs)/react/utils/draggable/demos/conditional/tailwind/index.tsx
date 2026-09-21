@@ -3,6 +3,7 @@ import { Draggable } from '@base-ui/react/draggable';
 
 import * as React from 'react';
 import { DashboardControls } from '../../DashboardControls';
+import { dashboardControlsClassName } from '../../dashboardControlsTailwind';
 import { GripIcon } from '../../GripIcon';
 import {
   INITIAL_WIDGETS,
@@ -103,11 +104,13 @@ function ConditionalDashboardContent() {
   return (
     <div className="flex w-full flex-col gap-4 select-none">
       <DashboardControls
-        className="flex flex-wrap items-end gap-2 text-sm"
+        className={dashboardControlsClassName}
         widgets={widgets}
         onMoveWidget={moveWidget}
       />
-      <div role="status">{announcement}</div>
+      <div role="status" className="sr-only">
+        {announcement}
+      </div>
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
         {SLOTS.map((slot) => (
           <DockSlot

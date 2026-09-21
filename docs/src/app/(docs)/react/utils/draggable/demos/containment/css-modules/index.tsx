@@ -7,6 +7,7 @@ import { GripIcon } from '../../GripIcon';
 import { SLOTS, useDashboardWidgets, type SlotId, type WidgetData } from '../../dashboardWidgets';
 
 import styles from '../../containment.module.css';
+import controlsStyles from '../../dashboardControls.module.css';
 
 const widgetKind = Draggable.createKind<string>('draggable/contained-widget');
 
@@ -76,8 +77,14 @@ function ContainedDashboardContent() {
 
   return (
     <div className={styles.Root}>
-      <DashboardControls className={styles.Controls} widgets={widgets} onMoveWidget={moveWidget} />
-      <div role="status">{announcement}</div>
+      <DashboardControls
+        className={controlsStyles.Controls}
+        widgets={widgets}
+        onMoveWidget={moveWidget}
+      />
+      <div role="status" className={controlsStyles.Status}>
+        {announcement}
+      </div>
       <div ref={frameRef} className={styles.Frame}>
         <div className={styles.Grid}>
           {SLOTS.map((slot) => (

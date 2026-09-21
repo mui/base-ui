@@ -7,6 +7,7 @@ import { GripIcon } from '../../GripIcon';
 import { SLOTS, useDashboardWidgets, type SlotId, type WidgetData } from '../../dashboardWidgets';
 
 import styles from '../../badge.module.css';
+import controlsStyles from '../../dashboardControls.module.css';
 
 const widgetKind = Draggable.createKind<string>('draggable/preview-widget');
 
@@ -64,11 +65,13 @@ export default function CustomPreviewDashboard() {
     <Draggable.Provider>
       <div className={styles.Root}>
         <DashboardControls
-          className={styles.Controls}
+          className={controlsStyles.Controls}
           widgets={widgets}
           onMoveWidget={moveWidget}
         />
-        <div role="status">{announcement}</div>
+        <div role="status" className={controlsStyles.Status}>
+          {announcement}
+        </div>
         <div className={styles.Grid}>
           {SLOTS.map((slot) => (
             <DockSlot

@@ -3,6 +3,7 @@ import { Draggable } from '@base-ui/react/draggable';
 
 import * as React from 'react';
 import { DashboardControls } from '../../DashboardControls';
+import { dashboardControlsClassName } from '../../dashboardControlsTailwind';
 import { GripIcon } from '../../GripIcon';
 import { SLOTS, useDashboardWidgets, type SlotId, type WidgetData } from '../../dashboardWidgets';
 
@@ -82,11 +83,13 @@ function ContainedDashboardContent() {
   return (
     <div className="flex w-full flex-col gap-4 select-none">
       <DashboardControls
-        className="flex flex-wrap items-end gap-2 text-sm"
+        className={dashboardControlsClassName}
         widgets={widgets}
         onMoveWidget={moveWidget}
       />
-      <div role="status">{announcement}</div>
+      <div role="status" className="sr-only">
+        {announcement}
+      </div>
       <div
         ref={frameRef}
         className="border border-dashed border-neutral-400 p-4 dark:border-neutral-500"

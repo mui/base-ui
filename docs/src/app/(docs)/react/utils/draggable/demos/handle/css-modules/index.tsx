@@ -7,6 +7,7 @@ import { GripIcon } from '../../GripIcon';
 import { SLOTS, useDashboardWidgets, type SlotId, type WidgetData } from '../../dashboardWidgets';
 
 import styles from '../../handle.module.css';
+import controlsStyles from '../../dashboardControls.module.css';
 
 const widgetKind = Draggable.createKind<string>('draggable/handle-widget');
 
@@ -60,8 +61,14 @@ function HandleDashboardContent() {
 
   return (
     <div className={styles.Root}>
-      <DashboardControls className={styles.Controls} widgets={widgets} onMoveWidget={moveWidget} />
-      <div role="status">{announcement}</div>
+      <DashboardControls
+        className={controlsStyles.Controls}
+        widgets={widgets}
+        onMoveWidget={moveWidget}
+      />
+      <div role="status" className={controlsStyles.Status}>
+        {announcement}
+      </div>
       <div className={styles.Grid}>
         {SLOTS.map((slot) => (
           <DockSlot
