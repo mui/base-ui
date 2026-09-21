@@ -2,6 +2,7 @@
 import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { useForcedRerendering } from '@base-ui/utils/useForcedRerendering';
 import { useTransitionStatus } from './useTransitionStatus';
 import { useOpenChangeComplete } from './useOpenChangeComplete';
 
@@ -40,9 +41,9 @@ export interface UseUnmountAfterCloseParameters {
  * finishes, unless the close cycle opted out through `preventUnmountOnClose`.
  * Store-agnostic: hosts sync `mounted` and `transitionStatus` wherever they need them.
  *
- * @returns `forceUnmount` unmounts the popup immediately. It is a no-op while the popup is open or
- *   once it is already unmounted, so calling it after the automatic unmount doesn't repeat the
- *   completion callback.
+ * @returns `forceUnmount` unmounts the popup immediately. It is a no-op once the popup is already
+ *   unmounted, so calling it after the automatic unmount doesn't repeat the completion callback,
+ *   and a call while the popup is open only takes effect if a close commits in the same batch.
  */
 export function useUnmountAfterClose(parameters: UseUnmountAfterCloseParameters) {
   const {
@@ -79,19 +80,39 @@ export function useUnmountAfterClose(parameters: UseUnmountAfterCloseParameters)
   // render without changing the committed `mounted`, so a `[mounted]` dependency would leave the
   // mirror stale and block every later unmount.
   const mountedRef = React.useRef(mounted);
-  useIsoLayoutEffect(() => {
-    mountedRef.current = mounted;
-  });
+  const pendingUnmountRef = React.useRef(false);
+  const rerender = useForcedRerendering();
 
-  const forceUnmount = useStableCallback(() => {
-    // Ignore a call while open (for example a stale exit-animation callback after a quick reopen):
-    // it would run the host's unmount cleanup and the close completion against a live popup.
-    if (!mountedRef.current || open) {
-      return;
-    }
+  const unmount = () => {
     mountedRef.current = false;
     setMounted(false);
     onUnmount();
+  };
+
+  useIsoLayoutEffect(() => {
+    mountedRef.current = mounted;
+    if (pendingUnmountRef.current) {
+      pendingUnmountRef.current = false;
+      if (!open && mounted) {
+        unmount();
+      }
+    }
+  });
+
+  const forceUnmount = useStableCallback(() => {
+    if (!mountedRef.current) {
+      return;
+    }
+    if (open) {
+      // The rendered `open` can't tell a stale exit-animation callback after a quick reopen from a
+      // close batched with this call (`close(); unmount()`). Decide once the batch commits: unmount
+      // if the popup closed, otherwise drop the call rather than run the host's unmount cleanup and
+      // the close completion against a live popup.
+      pendingUnmountRef.current = true;
+      rerender();
+      return;
+    }
+    unmount();
   });
 
   useOpenChangeComplete({

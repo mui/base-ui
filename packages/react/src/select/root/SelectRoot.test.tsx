@@ -222,6 +222,31 @@ describe('<Select.Root />', () => {
       expect(screen.getByRole('combobox')).toHaveAttribute('aria-expanded', 'true');
     });
 
+    it('unmounts when `close` and `unmount` are called in one batch', async () => {
+      const actionsRef = React.createRef<Select.Root.Actions>();
+      const onOpenChangeComplete = vi.fn();
+      await render(
+        <Popup
+          defaultOpen
+          actionsRef={actionsRef}
+          onOpenChangeComplete={onOpenChangeComplete}
+          onOpenChange={(open, details) => {
+            if (!open) {
+              details.preventUnmountOnClose();
+            }
+          }}
+        />,
+      );
+
+      act(() => {
+        actionsRef.current!.close();
+        actionsRef.current!.unmount();
+      });
+
+      expect(screen.queryByRole('listbox')).toBe(null);
+      expect(onOpenChangeComplete.mock.calls.filter(([open]) => !open)).toHaveLength(1);
+    });
+
     it('still unmounts on a later close after `unmount` was called while open', async () => {
       const actionsRef = React.createRef<Select.Root.Actions>();
       const onOpenChangeComplete = vi.fn();
