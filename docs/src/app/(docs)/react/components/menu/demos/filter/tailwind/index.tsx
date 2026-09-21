@@ -184,7 +184,7 @@ const inputClass =
 const clearClass =
   'flex size-8 items-center justify-center bg-transparent outline-hidden focus-visible:-outline-offset-2 focus-visible:outline-2 focus-visible:outline-neutral-950 dark:focus-visible:outline-white';
 const emptyClass = 'p-3 text-sm text-neutral-500 dark:text-neutral-400';
-// Filtered-out groups stay mounted with the `hidden` attribute, so `empty:` never applies.
+// Filtered groups stay mounted with `hidden`.
 const listBaseClass =
   'overflow-y-auto py-1 outline-hidden scroll-py-1 not-has-[>:not([hidden])]:py-0';
 const listClass = `${listBaseClass} max-h-[min(22rem,var(--available-height))] [&>[data-filter-section]:not([hidden])~[data-filter-section]:not([hidden])>[data-filter-separator]]:block`;
