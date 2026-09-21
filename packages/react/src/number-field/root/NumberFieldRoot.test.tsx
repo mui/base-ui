@@ -1,4 +1,4 @@
-import { expect, vi } from 'vitest';
+import { expect, vi, describe, it } from 'vitest';
 import * as React from 'react';
 import { act, screen, fireEvent } from '@mui/internal-test-utils';
 import { NumberField as NumberFieldBase } from '@base-ui/react/number-field';
@@ -1409,6 +1409,73 @@ describe('<NumberField />', () => {
       expect(onValueChange).not.toHaveBeenCalled();
     });
 
+    it('does not scrub on a horizontal wheel event, and lets it scroll the page', async () => {
+      const onValueChange = vi.fn();
+      const onValueCommitted = vi.fn();
+      await render(
+        <NumberField
+          defaultValue={5}
+          allowWheelScrub
+          onValueChange={onValueChange}
+          onValueCommitted={onValueCommitted}
+        />,
+      );
+      const input = screen.getByRole('textbox');
+      await act(async () => input.focus());
+
+      // `fireEvent` returns false when the event was canceled with `preventDefault`.
+      expect(fireEvent.wheel(input, { deltaY: 0, deltaX: 100 })).toBe(true);
+      expect(fireEvent.wheel(input, { deltaY: 0, deltaX: -100 })).toBe(true);
+      // A precision touchpad emits sub-pixel noise on the cross axis during a sideways swipe.
+      expect(fireEvent.wheel(input, { deltaY: -0.5, deltaX: 100 })).toBe(true);
+      expect(fireEvent.wheel(input, { deltaY: 0.5, deltaX: -100 })).toBe(true);
+      // An event with no movement at all.
+      expect(fireEvent.wheel(input, { deltaY: 0, deltaX: 0 })).toBe(true);
+
+      expect(input).toHaveValue('5');
+      expect(onValueChange).not.toHaveBeenCalled();
+      expect(onValueCommitted).not.toHaveBeenCalled();
+    });
+
+    it('scrubs on a vertical wheel event that carries horizontal noise', async () => {
+      await render(<NumberField defaultValue={5} allowWheelScrub />);
+      const input = screen.getByRole('textbox');
+      await act(async () => input.focus());
+
+      // `fireEvent` returns false when the event was canceled, which is what stops the page
+      // from scrolling out from under the user while the value scrubs.
+      expect(fireEvent.wheel(input, { deltaY: 1, deltaX: -0.5 })).toBe(false);
+      expect(input).toHaveValue('4');
+
+      expect(fireEvent.wheel(input, { deltaY: -1, deltaX: 0.5 })).toBe(false);
+      expect(input).toHaveValue('5');
+
+      expect(fireEvent.wheel(input, { deltaY: 1 })).toBe(false);
+      expect(input).toHaveValue('4');
+    });
+
+    it('uses largeStep when shift is held and the browser swaps the wheel axis', async () => {
+      await render(<NumberField defaultValue={0} largeStep={10} allowWheelScrub />);
+      const input = screen.getByRole('textbox');
+      await act(async () => input.focus());
+
+      // Chromium delivers shift + wheel as a horizontal event, so the horizontal delta carries
+      // the intended direction: positive is "down", which steps the value down.
+      expect(fireEvent.wheel(input, { deltaY: 0, deltaX: -100, shiftKey: true })).toBe(false);
+      expect(input).toHaveValue('10');
+
+      expect(fireEvent.wheel(input, { deltaY: 0, deltaX: 100, shiftKey: true })).toBe(false);
+      expect(input).toHaveValue('0');
+
+      // Cross-axis noise must not flip the direction of the same physical gesture, so the noise
+      // here opposes the horizontal delta: the dominant axis has to win.
+      expect(fireEvent.wheel(input, { deltaY: 0.5, deltaX: -100, shiftKey: true })).toBe(false);
+      expect(input).toHaveValue('10');
+
+      expect(fireEvent.wheel(input, { deltaY: -0.5, deltaX: 100, shiftKey: true })).toBe(false);
+      expect(input).toHaveValue('0');
+    });
+
     it('uses largeStep when shift is held during wheel', async () => {
       const onValueChange = vi.fn();
       await render(
@@ -1798,23 +1865,20 @@ describe('<NumberField />', () => {
 
         expect(hiddenInput).not.toBe(null);
 
-        if (withField) {
-          expect(screen.getByTestId('error')).toHaveTextContent('test');
-          if (lockState === 'disabled') {
-            expect(input).not.toHaveAttribute('aria-invalid');
-          } else {
-            expect(input).toHaveAttribute('aria-invalid', 'true');
-          }
-        }
+        // Only the Field wrapper renders an error and marks the input invalid,
+        // unless the field is disabled.
+        const expectedError = withField ? 'test' : undefined;
+        const expectedAriaInvalid = withField && lockState !== 'disabled' ? 'true' : null;
+
+        expect(screen.queryByTestId('error')?.textContent).toBe(expectedError);
+        expect(input.getAttribute('aria-invalid')).toBe(expectedAriaInvalid);
 
         fireEvent.change(hiddenInput, { target: { value: '42' } });
 
         expect(onValueChange).not.toHaveBeenCalled();
         expect(input).toHaveValue('1');
 
-        if (withField) {
-          expect(screen.getByTestId('error')).toHaveTextContent('test');
-        }
+        expect(screen.queryByTestId('error')?.textContent).toBe(expectedError);
       },
     );
   });
@@ -2343,6 +2407,35 @@ describe('<NumberField />', () => {
       await act(async () => getHiddenInput().focus());
 
       expect(screen.getByRole('textbox')).toHaveFocus();
+    });
+
+    it('places the caret at the end of the visible input when forwarding focus', async () => {
+      await render(<NumberField defaultValue={100} />);
+
+      const input = screen.getByRole<HTMLInputElement>('textbox');
+      input.setSelectionRange(0, 0);
+
+      await act(async () => getHiddenInput().focus());
+
+      expect(input).toHaveFocus();
+      expect(input.selectionStart).toBe(input.value.length);
+      expect(input.selectionEnd).toBe(input.value.length);
+    });
+
+    it('keeps a selection the consumer sets in onFocus when forwarding focus', async () => {
+      await render(
+        <NumberFieldBase.Root defaultValue={100}>
+          <NumberFieldBase.Input onFocus={(event) => event.currentTarget.select()} />
+        </NumberFieldBase.Root>,
+      );
+
+      const input = screen.getByRole<HTMLInputElement>('textbox');
+
+      await act(async () => getHiddenInput().focus());
+
+      expect(input).toHaveFocus();
+      expect(input.selectionStart).toBe(0);
+      expect(input.selectionEnd).toBe(input.value.length);
     });
 
     it('clears the value when autofill empties the hidden input', async () => {

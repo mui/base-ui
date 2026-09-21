@@ -1,4 +1,4 @@
-import { expect } from 'vitest';
+import { expect, describe, it } from 'vitest';
 import * as React from 'react';
 import { Dialog } from '@base-ui/react/dialog';
 import { createRenderer, describeConformance } from '#test-utils';

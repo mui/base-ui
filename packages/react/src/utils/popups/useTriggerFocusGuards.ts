@@ -1,14 +1,7 @@
 'use client';
-import * as React from 'react';
+import type * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import {
-  contains,
-  type FocusableElement,
-  getNextTabbable,
-  getTabbableAfterElement,
-  getTabbableBeforeElement,
-  isOutsideEvent,
-} from '../../floating-ui-react/utils';
+import { getTabbableNearElement, isOutsideEvent } from '../../floating-ui-react/utils';
 import {
   type BaseUIChangeEventDetails,
   createChangeEventDetails,
@@ -23,6 +16,11 @@ interface TriggerFocusGuardStore {
   setOpen(open: boolean, eventDetails: BaseUIChangeEventDetails<typeof REASONS.focusOut>): void;
   select(key: 'positionerElement'): HTMLElement | null;
   context: {
+    /**
+     * Shared with the focus manager through `getInsideElements` so that blurring the trigger
+     * onto this guard does not close the popup before the guard's own focus handler runs.
+     */
+    readonly beforeTriggerFocusGuardRef: React.RefObject<HTMLElement | null>;
     readonly beforeContentFocusGuardRef: React.RefObject<HTMLElement | null>;
     readonly triggerFocusTargetRef: React.RefObject<HTMLElement | null>;
   };
@@ -39,57 +37,38 @@ export function useTriggerFocusGuards(
   store: TriggerFocusGuardStore,
   triggerElementRef: React.RefObject<HTMLElement | null>,
 ) {
-  const preFocusGuardRef = React.useRef<HTMLElement>(null);
+  function closeAndFocus(
+    event: React.FocusEvent<HTMLElement>,
+    direction: 1 | -1,
+    positionerElement: HTMLElement | null,
+  ) {
+    const guard = event.currentTarget;
 
-  function handlePreFocusGuardFocus(event: React.FocusEvent) {
     ReactDOM.flushSync(() => {
-      store.setOpen(
-        false,
-        createChangeEventDetails(
-          REASONS.focusOut,
-          event.nativeEvent,
-          event.currentTarget as HTMLElement,
-        ),
-      );
+      store.setOpen(false, createChangeEventDetails(REASONS.focusOut, event.nativeEvent, guard));
     });
 
-    const previousTabbable: FocusableElement | null = getTabbableBeforeElement(
-      preFocusGuardRef.current,
-    );
-    previousTabbable?.focus();
+    // The close callback may change the tab order. Resolve it after the flush, using
+    // the trigger as the anchor if the guard unmounted, even when its tabIndex is -1.
+    getTabbableNearElement(
+      guard.isConnected ? guard : triggerElementRef.current,
+      direction,
+      positionerElement,
+    )?.focus();
   }
 
-  function handleFocusTargetFocus(event: React.FocusEvent) {
+  function handlePreFocusGuardFocus(event: React.FocusEvent<HTMLElement>) {
+    closeAndFocus(event, -1, store.select('positionerElement'));
+  }
+
+  function handleFocusTargetFocus(event: React.FocusEvent<HTMLElement>) {
     const positionerElement = store.select('positionerElement');
     if (positionerElement && isOutsideEvent(event, positionerElement)) {
       store.context.beforeContentFocusGuardRef.current?.focus();
     } else {
-      ReactDOM.flushSync(() => {
-        store.setOpen(
-          false,
-          createChangeEventDetails(
-            REASONS.focusOut,
-            event.nativeEvent,
-            event.currentTarget as HTMLElement,
-          ),
-        );
-      });
-
-      let nextTabbable = getTabbableAfterElement(
-        store.context.triggerFocusTargetRef.current || triggerElementRef.current,
-      );
-
-      while (nextTabbable !== null && contains(positionerElement, nextTabbable)) {
-        const prevTabbable = nextTabbable;
-        nextTabbable = getNextTabbable(nextTabbable);
-        if (nextTabbable === prevTabbable) {
-          break;
-        }
-      }
-
-      nextTabbable?.focus();
+      closeAndFocus(event, 1, positionerElement);
     }
   }
 
-  return { preFocusGuardRef, handlePreFocusGuardFocus, handleFocusTargetFocus };
+  return { handlePreFocusGuardFocus, handleFocusTargetFocus };
 }

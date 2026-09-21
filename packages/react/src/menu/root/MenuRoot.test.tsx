@@ -1,4 +1,4 @@
-import { expect, vi } from 'vitest';
+import { expect, vi, describe, beforeEach, it, afterEach } from 'vitest';
 import type { CDPSession } from '@vitest/browser-playwright';
 import * as React from 'react';
 import {
@@ -36,6 +36,55 @@ describe('<Menu.Root />', () => {
   });
 
   const { render } = createRenderer();
+
+  it('returns focus on Escape after a controlled root ignores a Shift+Tab close', async () => {
+    function TestMenu() {
+      const [open, setOpen] = React.useState(false);
+
+      return (
+        <Menu.Root
+          modal={false}
+          open={open}
+          onOpenChange={(nextOpen, details) => {
+            if (details.reason !== REASONS.focusOut) {
+              setOpen(nextOpen);
+            }
+          }}
+        >
+          <Menu.Trigger>Toggle</Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.Item>Item</Menu.Item>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>
+      );
+    }
+
+    const { user } = await render(<TestMenu />);
+    const trigger = screen.getByRole('button', { name: 'Toggle' });
+    await user.click(trigger);
+    await waitFor(() => {
+      expect(screen.getByRole('menu')).toHaveFocus();
+    });
+
+    await user.tab({ shift: true });
+    expect(trigger).toHaveFocus();
+    expect(trigger).toHaveAttribute('aria-expanded', 'true');
+
+    await user.keyboard('{ArrowDown}');
+    await waitFor(() => {
+      expect(screen.getByRole('menuitem')).toHaveFocus();
+    });
+
+    await user.keyboard('{Escape}');
+    await waitFor(() => {
+      expect(screen.queryByRole('menu')).toBe(null);
+    });
+    expect(trigger).toHaveFocus();
+  });
 
   popupConformanceTests({
     createComponent: (props) => (
@@ -109,6 +158,19 @@ describe('<Menu.Root />', () => {
     { name: 'contained triggers', Component: ContainedTriggerMenu },
     { name: 'detached triggers', Component: DetachedTriggerMenu },
   ])('when using $name', ({ Component: TestMenu }) => {
+    it('sets aria-orientation on a horizontal popup', async () => {
+      await render(<TestMenu rootProps={{ defaultOpen: true, orientation: 'horizontal' }} />);
+
+      expect(screen.getByRole('menu')).toHaveAttribute('aria-orientation', 'horizontal');
+    });
+
+    it('does not render aria-orientation on a vertical popup', async () => {
+      await render(<TestMenu rootProps={{ defaultOpen: true }} />);
+
+      // `menu` is implicitly vertical.
+      expect(screen.getByRole('menu')).not.toHaveAttribute('aria-orientation');
+    });
+
     describe('keyboard navigation', () => {
       it('changes the highlighted item using the arrow keys', async () => {
         await render(<TestMenu />);
@@ -1678,7 +1740,7 @@ describe('<Menu.Root />', () => {
       });
     });
 
-    describe('controlled open', () => {
+    describe('controlled open interactions', () => {
       it('does not close after hovering out of a popup opened externally', async () => {
         function App() {
           const [open, setOpen] = React.useState(false);

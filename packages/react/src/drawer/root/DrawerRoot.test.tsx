@@ -1,8 +1,8 @@
-import { beforeAll, describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import * as React from 'react';
 import { Drawer } from '@base-ui/react/drawer';
 import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
-import { createRenderer, isJSDOM, waitSingleFrame } from '#test-utils';
+import { createRenderer, firePointer, isJSDOM, waitSingleFrame } from '#test-utils';
 import { REASONS } from '../../internals/reasons';
 import { useDrawerProviderContext } from '../provider/DrawerProviderContext';
 import { useDrawerRootContext } from './DrawerRootContext';
@@ -62,109 +62,12 @@ async function simulateTimedRightSwipe(
   moveTime: number,
   endTime: number,
 ) {
-  if (isJSDOM) {
-    vi.setSystemTime(new Date(startTime));
-    fireEvent.pointerDown(element, {
-      button: 0,
-      buttons: 1,
-      pointerId: 1,
-      clientX: startX,
-      clientY: 100,
-      bubbles: true,
-      pointerType: 'mouse',
-    });
-
-    await flushMicrotasks();
-
-    vi.setSystemTime(new Date(moveTime));
-    fireEvent.pointerMove(element, {
-      buttons: 1,
-      pointerId: 1,
-      clientX: startX + 1,
-      clientY: 100,
-      bubbles: true,
-      pointerType: 'mouse',
-    });
-
-    await flushMicrotasks();
-
-    vi.setSystemTime(new Date(endTime - 1));
-    fireEvent.pointerMove(element, {
-      buttons: 1,
-      pointerId: 1,
-      clientX: endX,
-      clientY: 100,
-      bubbles: true,
-      pointerType: 'mouse',
-    });
-
-    await flushMicrotasks();
-
-    vi.setSystemTime(new Date(endTime));
-    fireEvent.pointerUp(element, {
-      pointerId: 1,
-      clientX: endX,
-      clientY: 100,
-      bubbles: true,
-      pointerType: 'mouse',
-    });
-
-    await flushMicrotasks();
-    return;
-  }
-
-  const moveDelay = Math.max(0, moveTime - startTime);
-  const endDelay = Math.max(0, endTime - moveTime);
-
-  fireEvent.pointerDown(element, {
-    button: 0,
-    buttons: 1,
-    pointerId: 1,
-    clientX: startX,
-    clientY: 100,
-    bubbles: true,
-    pointerType: 'mouse',
-  });
-
-  await flushMicrotasks();
-  await new Promise((resolve) => {
-    setTimeout(resolve, moveDelay);
-  });
-
-  fireEvent.pointerMove(element, {
-    buttons: 1,
-    pointerId: 1,
-    clientX: startX + 1,
-    clientY: 100,
-    bubbles: true,
-    pointerType: 'mouse',
-  });
-
-  await flushMicrotasks();
-  await new Promise((resolve) => {
-    setTimeout(resolve, endDelay);
-  });
-
-  fireEvent.pointerMove(element, {
-    buttons: 1,
-    pointerId: 1,
-    clientX: endX,
-    clientY: 100,
-    bubbles: true,
-    pointerType: 'mouse',
-  });
-
-  await flushMicrotasks();
-
-  fireEvent.pointerUp(element, {
-    pointerId: 1,
-    clientX: endX,
-    clientY: 100,
-    bubbles: true,
-    pointerType: 'mouse',
-  });
-
-  await flushMicrotasks();
+  await simulateTimedSwipe(element, [
+    { type: 'down', x: startX, y: 100, time: startTime },
+    { type: 'move', x: startX + 1, y: 100, time: moveTime },
+    { type: 'move', x: endX, y: 100, time: endTime - 1 },
+    { type: 'up', x: endX, y: 100, time: endTime },
+  ]);
 }
 
 async function simulateTimedDownSwipe(
@@ -178,148 +81,16 @@ async function simulateTimedDownSwipe(
 ) {
   const resolvedSettleTime =
     typeof settleTime === 'number' && Number.isFinite(settleTime) ? settleTime : null;
-  const settleY = endY - 1;
 
-  if (isJSDOM) {
-    vi.setSystemTime(new Date(startTime));
-    fireEvent.pointerDown(element, {
-      button: 0,
-      buttons: 1,
-      pointerId: 1,
-      clientX: 100,
-      clientY: startY,
-      bubbles: true,
-      pointerType: 'mouse',
-    });
-
-    await flushMicrotasks();
-
-    vi.setSystemTime(new Date(moveTime));
-    fireEvent.pointerMove(element, {
-      buttons: 1,
-      pointerId: 1,
-      clientX: 100,
-      clientY: startY + 1,
-      bubbles: true,
-      pointerType: 'mouse',
-    });
-
-    await flushMicrotasks();
-
-    if (resolvedSettleTime !== null) {
-      vi.setSystemTime(new Date(resolvedSettleTime));
-      fireEvent.pointerMove(element, {
-        buttons: 1,
-        pointerId: 1,
-        clientX: 100,
-        clientY: settleY,
-        bubbles: true,
-        pointerType: 'mouse',
-      });
-
-      await flushMicrotasks();
-    }
-
-    vi.setSystemTime(new Date(endTime - 1));
-    fireEvent.pointerMove(element, {
-      buttons: 1,
-      pointerId: 1,
-      clientX: 100,
-      clientY: endY,
-      bubbles: true,
-      pointerType: 'mouse',
-    });
-
-    await flushMicrotasks();
-
-    vi.setSystemTime(new Date(endTime));
-    fireEvent.pointerUp(element, {
-      pointerId: 1,
-      clientX: 100,
-      clientY: endY,
-      bubbles: true,
-      pointerType: 'mouse',
-    });
-
-    await flushMicrotasks();
-    return;
-  }
-
-  const moveDelay = Math.max(0, moveTime - startTime);
-  const settleDelay =
-    resolvedSettleTime !== null ? Math.max(0, resolvedSettleTime - moveTime) : null;
-  const endDelay =
-    resolvedSettleTime !== null
-      ? Math.max(0, endTime - resolvedSettleTime)
-      : Math.max(0, endTime - moveTime);
-
-  fireEvent.pointerDown(element, {
-    button: 0,
-    buttons: 1,
-    pointerId: 1,
-    clientX: 100,
-    clientY: startY,
-    bubbles: true,
-    pointerType: 'mouse',
-  });
-
-  await flushMicrotasks();
-  await new Promise((resolve) => {
-    setTimeout(resolve, moveDelay);
-  });
-
-  fireEvent.pointerMove(element, {
-    buttons: 1,
-    pointerId: 1,
-    clientX: 100,
-    clientY: startY + 1,
-    bubbles: true,
-    pointerType: 'mouse',
-  });
-
-  await flushMicrotasks();
-
-  if (settleDelay !== null) {
-    await new Promise((resolve) => {
-      setTimeout(resolve, settleDelay);
-    });
-
-    fireEvent.pointerMove(element, {
-      buttons: 1,
-      pointerId: 1,
-      clientX: 100,
-      clientY: settleY,
-      bubbles: true,
-      pointerType: 'mouse',
-    });
-
-    await flushMicrotasks();
-  }
-
-  await new Promise((resolve) => {
-    setTimeout(resolve, endDelay);
-  });
-
-  fireEvent.pointerMove(element, {
-    buttons: 1,
-    pointerId: 1,
-    clientX: 100,
-    clientY: endY,
-    bubbles: true,
-    pointerType: 'mouse',
-  });
-
-  await flushMicrotasks();
-
-  fireEvent.pointerUp(element, {
-    pointerId: 1,
-    clientX: 100,
-    clientY: endY,
-    bubbles: true,
-    pointerType: 'mouse',
-  });
-
-  await flushMicrotasks();
+  await simulateTimedSwipe(element, [
+    { type: 'down', x: 100, y: startY, time: startTime },
+    { type: 'move', x: 100, y: startY + 1, time: moveTime },
+    ...(resolvedSettleTime !== null
+      ? ([{ type: 'move', x: 100, y: endY - 1, time: resolvedSettleTime }] as TimedSwipeStep[])
+      : []),
+    { type: 'move', x: 100, y: endY, time: endTime - 1 },
+    { type: 'up', x: 100, y: endY, time: endTime },
+  ]);
 }
 
 type TimedSwipeStep = {
@@ -330,74 +101,27 @@ type TimedSwipeStep = {
 };
 
 async function simulateTimedSwipe(element: HTMLElement, steps: TimedSwipeStep[]) {
-  if (steps.length === 0) {
-    return;
-  }
-
-  function fireStep(step: TimedSwipeStep) {
-    const baseEvent = {
+  // Every step carries its own `timeStamp`, so the gesture's timeline no longer depends on the
+  // wall clock and no `vi.setSystemTime` bookkeeping is needed alongside it.
+  for (const step of steps) {
+    const init = {
       pointerId: 1,
+      pointerType: 'mouse',
       clientX: step.x,
       clientY: step.y,
-      bubbles: true,
-      pointerType: 'mouse',
+      timeStamp: step.time,
     };
 
     if (step.type === 'down') {
-      fireEvent.pointerDown(element, { ...baseEvent, button: 0, buttons: 1 });
-      return;
+      firePointer.down(element, { ...init, button: 0, buttons: 1 });
+    } else if (step.type === 'move') {
+      firePointer.move(element, { ...init, buttons: 1 });
+    } else {
+      firePointer.up(element, { ...init, button: 0, buttons: 0 });
     }
 
-    if (step.type === 'move') {
-      fireEvent.pointerMove(element, { ...baseEvent, buttons: 1 });
-      return;
-    }
-
-    fireEvent.pointerUp(element, baseEvent);
-  }
-
-  if (isJSDOM) {
-    await steps.reduce(async (previous, step) => {
-      await previous;
-      vi.setSystemTime(new Date(step.time));
-      fireStep(step);
-      await flushMicrotasks();
-    }, Promise.resolve());
-    return;
-  }
-
-  await steps.reduce(async (previous, step, index) => {
-    await previous;
-    const previousTime = steps[index - 1]?.time ?? step.time;
-    const delay = index === 0 ? 0 : Math.max(0, step.time - previousTime);
-    if (delay > 0) {
-      await new Promise((resolve) => {
-        setTimeout(resolve, delay);
-      });
-    }
-
-    fireStep(step);
-    await flushMicrotasks();
-  }, Promise.resolve());
-}
-
-async function simulateTimestampedPointerSwipe(element: HTMLElement, steps: TimedSwipeStep[]) {
-  for (const step of steps) {
-    const event = new MouseEvent(`pointer${step.type}`, { bubbles: true, cancelable: true });
-    Object.defineProperties(event, {
-      pointerId: { value: 1 },
-      pointerType: { value: 'mouse' },
-      clientX: { value: step.x },
-      clientY: { value: step.y },
-      button: { value: 0 },
-      buttons: { value: step.type === 'up' ? 0 : 1 },
-      timeStamp: { value: step.time },
-    });
     // eslint-disable-next-line no-await-in-loop
-    await act(async () => {
-      element.dispatchEvent(event);
-      await flushMicrotasks();
-    });
+    await flushMicrotasks();
   }
 }
 
@@ -849,12 +573,6 @@ function MissingRootContextConsumer() {
 describe('<Drawer.Root />', () => {
   const { render } = createRenderer();
 
-  beforeAll(function beforeHook() {
-    // PointerEvent not fully implemented in jsdom, causing fireEvent.pointer* to ignore options.
-    // https://github.com/jsdom/jsdom/issues/2527
-    (window as any).PointerEvent = window.MouseEvent;
-  });
-
   it.skipIf(isJSDOM)('uses a size-based swipe threshold', async () => {
     const handleOpenChange = vi.fn();
     await render(<TestCase onOpenChange={handleOpenChange} />);
@@ -869,11 +587,6 @@ describe('<Drawer.Root />', () => {
 
     const originalElementFromPoint = document.elementFromPoint;
     document.elementFromPoint = () => popup;
-
-    const useFakeTimers = isJSDOM;
-    if (useFakeTimers) {
-      vi.useFakeTimers();
-    }
 
     try {
       const startTime = 1000;
@@ -893,9 +606,6 @@ describe('<Drawer.Root />', () => {
       );
       expect(handleOpenChange).toHaveBeenCalledWith(false);
     } finally {
-      if (useFakeTimers) {
-        vi.useRealTimers();
-      }
       document.elementFromPoint = originalElementFromPoint;
     }
   });
@@ -1522,11 +1232,6 @@ describe('<Drawer.Root />', () => {
     async () => {
       const env = setupSwipeTestEnv();
 
-      const useFakeTimers = isJSDOM;
-      if (useFakeTimers) {
-        vi.useFakeTimers();
-      }
-
       try {
         await render(<SnapPointSequentialSkipCase />);
         await flushMicrotasks();
@@ -1544,9 +1249,6 @@ describe('<Drawer.Root />', () => {
 
         expect(screen.getByTestId('active-snap').textContent).toBe('1');
       } finally {
-        if (useFakeTimers) {
-          vi.useRealTimers();
-        }
         env.cleanup();
       }
     },
@@ -1556,11 +1258,6 @@ describe('<Drawer.Root />', () => {
     'advances to the next snap point on fast flicks when snapToSequentialPoints is enabled',
     async () => {
       const env = setupSwipeTestEnv();
-
-      const useFakeTimers = isJSDOM;
-      if (useFakeTimers) {
-        vi.useFakeTimers();
-      }
 
       try {
         await render(<SnapPointSequentialSkipCase />);
@@ -1579,9 +1276,6 @@ describe('<Drawer.Root />', () => {
 
         expect(screen.getByTestId('active-snap').textContent).toBe('300px');
       } finally {
-        if (useFakeTimers) {
-          vi.useRealTimers();
-        }
         env.cleanup();
       }
     },
@@ -1590,11 +1284,6 @@ describe('<Drawer.Root />', () => {
   it.skipIf(isJSDOM)('keeps the drawer open on low-velocity swipes near a snap point', async () => {
     const handleOpenChange = vi.fn();
     const env = setupSwipeTestEnv();
-
-    const useFakeTimers = isJSDOM;
-    if (useFakeTimers) {
-      vi.useFakeTimers();
-    }
 
     try {
       await render(<SnapPointSwipeCase onOpenChange={handleOpenChange} />);
@@ -1615,9 +1304,6 @@ describe('<Drawer.Root />', () => {
       expect(handleOpenChange).not.toHaveBeenCalledWith(false);
       expect(screen.getByTestId('active-snap').textContent).toBe('100px');
     } finally {
-      if (useFakeTimers) {
-        vi.useRealTimers();
-      }
       env.cleanup();
     }
   });
@@ -1627,11 +1313,6 @@ describe('<Drawer.Root />', () => {
     async () => {
       const handleOpenChange = vi.fn();
       const env = setupSwipeTestEnv();
-
-      const useFakeTimers = isJSDOM;
-      if (useFakeTimers) {
-        vi.useFakeTimers();
-      }
 
       try {
         await render(<SnapPointSwipeCase onOpenChange={handleOpenChange} />);
@@ -1658,9 +1339,6 @@ describe('<Drawer.Root />', () => {
 
         expect(handleOpenChange).not.toHaveBeenCalledWith(false);
       } finally {
-        if (useFakeTimers) {
-          vi.useRealTimers();
-        }
         env.cleanup();
       }
     },
@@ -1674,7 +1352,7 @@ describe('<Drawer.Root />', () => {
       const viewport = screen.getByTestId('viewport');
       env.pointAt(screen.getByTestId('popup'));
 
-      await simulateTimestampedPointerSwipe(viewport, [
+      await simulateTimedSwipe(viewport, [
         { type: 'down', x: 100, y: 500, time: 1000 },
         { type: 'move', x: 100, y: 499, time: 1010 },
         { type: 'move', x: 100, y: 350, time: 2010 },
@@ -1695,7 +1373,7 @@ describe('<Drawer.Root />', () => {
       const viewport = screen.getByTestId('viewport');
       env.pointAt(screen.getByTestId('popup'));
 
-      await simulateTimestampedPointerSwipe(viewport, [
+      await simulateTimedSwipe(viewport, [
         { type: 'down', x: 100, y: 100, time: 1000 },
         { type: 'move', x: 100, y: 101, time: 1010 },
         { type: 'move', x: 100, y: 140, time: 1020 },
@@ -1716,7 +1394,7 @@ describe('<Drawer.Root />', () => {
       const viewport = screen.getByTestId('viewport');
       env.pointAt(screen.getByTestId('popup'));
 
-      await simulateTimestampedPointerSwipe(viewport, [
+      await simulateTimedSwipe(viewport, [
         { type: 'down', x: 100, y: 100, time: 1000 },
         { type: 'move', x: 100, y: 101, time: 1010 },
         { type: 'move', x: 100, y: 160, time: 1020 },
@@ -1737,7 +1415,7 @@ describe('<Drawer.Root />', () => {
       const viewport = screen.getByTestId('viewport');
       env.pointAt(screen.getByTestId('popup'));
 
-      await simulateTimestampedPointerSwipe(viewport, [
+      await simulateTimedSwipe(viewport, [
         { type: 'down', x: 100, y: 100, time: 1000 },
         { type: 'move', x: 100, y: 101, time: 1010 },
         { type: 'move', x: 100, y: 180, time: 2010 },
@@ -1758,7 +1436,7 @@ describe('<Drawer.Root />', () => {
       const viewport = screen.getByTestId('viewport');
       env.pointAt(screen.getByTestId('popup'));
 
-      await simulateTimestampedPointerSwipe(viewport, [
+      await simulateTimedSwipe(viewport, [
         { type: 'down', x: 100, y: 500, time: 1000 },
         { type: 'move', x: 100, y: 499, time: 1010 },
         { type: 'move', x: 100, y: 420, time: 1020 },
@@ -1779,7 +1457,7 @@ describe('<Drawer.Root />', () => {
       const viewport = screen.getByTestId('viewport');
       env.pointAt(screen.getByTestId('popup'));
 
-      await simulateTimestampedPointerSwipe(viewport, [
+      await simulateTimedSwipe(viewport, [
         { type: 'down', x: 100, y: 100, time: 1000 },
         { type: 'move', x: 100, y: 99, time: 1010 },
         { type: 'move', x: 100, y: 60, time: 1020 },
@@ -1800,7 +1478,7 @@ describe('<Drawer.Root />', () => {
       const viewport = screen.getByTestId('viewport');
       env.pointAt(screen.getByTestId('popup'));
 
-      await simulateTimestampedPointerSwipe(viewport, [
+      await simulateTimedSwipe(viewport, [
         { type: 'down', x: 100, y: 100, time: 1000 },
         { type: 'move', x: 100, y: 101, time: 1010 },
         { type: 'move', x: 100, y: 160, time: 1020 },
@@ -1821,7 +1499,7 @@ describe('<Drawer.Root />', () => {
       const viewport = screen.getByTestId('viewport');
       env.pointAt(screen.getByTestId('popup'));
 
-      await simulateTimestampedPointerSwipe(viewport, [
+      await simulateTimedSwipe(viewport, [
         { type: 'down', x: 100, y: 100, time: 1000 },
         { type: 'move', x: 100, y: 99, time: 1010 },
         { type: 'move', x: 100, y: 40, time: 1020 },
@@ -1842,7 +1520,7 @@ describe('<Drawer.Root />', () => {
       const viewport = screen.getByTestId('viewport');
       env.pointAt(screen.getByTestId('popup'));
 
-      await simulateTimestampedPointerSwipe(viewport, [
+      await simulateTimedSwipe(viewport, [
         { type: 'down', x: 100, y: 100, time: 1000 },
         { type: 'move', x: 100, y: 101, time: 1010 },
         { type: 'move', x: 100, y: 105, time: 2010 },
@@ -1863,7 +1541,7 @@ describe('<Drawer.Root />', () => {
       const viewport = screen.getByTestId('viewport');
       env.pointAt(screen.getByTestId('popup'));
 
-      await simulateTimestampedPointerSwipe(viewport, [
+      await simulateTimedSwipe(viewport, [
         { type: 'down', x: 100, y: 100, time: 1000 },
         { type: 'move', x: 100, y: 101, time: 1010 },
         { type: 'move', x: 100, y: 180, time: 2010 },
@@ -1886,7 +1564,7 @@ describe('<Drawer.Root />', () => {
       const viewport = screen.getByTestId('viewport');
       env.pointAt(screen.getByTestId('popup'));
 
-      await simulateTimestampedPointerSwipe(viewport, [
+      await simulateTimedSwipe(viewport, [
         { type: 'down', x: 100, y: 100, time: 1000 },
         { type: 'move', x: 100, y: 101, time: 1010 },
         { type: 'move', x: 100, y: 160, time: 1020 },
@@ -1914,7 +1592,7 @@ describe('<Drawer.Root />', () => {
         const viewport = screen.getByTestId('viewport');
         env.pointAt(screen.getByTestId('popup'));
 
-        await simulateTimestampedPointerSwipe(viewport, [
+        await simulateTimedSwipe(viewport, [
           { type: 'down', x: 100, y: 100, time: 1000 },
           { type: 'move', x: 100, y: 101, time: 1010 },
           { type: 'move', x: 100, y: 160, time: 1020 },
@@ -1950,7 +1628,7 @@ describe('<Drawer.Root />', () => {
       const viewport = screen.getByTestId('viewport');
       env.pointAt(screen.getByTestId('popup'));
 
-      await simulateTimestampedPointerSwipe(viewport, [
+      await simulateTimedSwipe(viewport, [
         { type: 'down', x: 100, y: 100, time: 1000 },
         { type: 'move', x: 100, y: 101, time: 1010 },
         { type: 'move', x: 100, y: 250, time: 2010 },

@@ -1,4 +1,4 @@
-import { expect, vi } from 'vitest';
+import { expect, vi, describe, it } from 'vitest';
 import * as React from 'react';
 import { act, fireEvent, screen } from '@mui/internal-test-utils';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';

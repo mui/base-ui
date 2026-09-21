@@ -456,15 +456,11 @@ export interface TabsRootProps extends BaseUIComponentProps<'div', TabsRootState
    * `'initial'`, `'disabled'`, or `'missing'` has no effect.
    */
   onValueChange?:
-    | ((value: TabsTab.Value, eventDetails: TabsRoot.ChangeEventDetails) => void)
-    | undefined;
+    ((value: TabsTab.Value, eventDetails: TabsRoot.ChangeEventDetails) => void) | undefined;
 }
 
 export type TabsRootChangeEventReason =
-  | typeof REASONS.none
-  | typeof REASONS.disabled
-  | typeof REASONS.missing
-  | typeof REASONS.initial;
+  typeof REASONS.none | typeof REASONS.disabled | typeof REASONS.missing | typeof REASONS.initial;
 export type TabsRootChangeEventDetails = BaseUIChangeEventDetails<
   TabsRoot.ChangeEventReason,
   { activationDirection: TabsTab.ActivationDirection }

@@ -1,7 +1,6 @@
 'use client';
 import * as React from 'react';
 import { useTimeout } from '@base-ui/utils/useTimeout';
-import { useStore } from '@base-ui/utils/store';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useSelectRootContext } from '../root/SelectRootContext';
@@ -16,7 +15,6 @@ import {
   normalizeScrollOffset,
   SCROLL_EDGE_TOLERANCE_PX,
 } from '../../utils/scrollEdges';
-import { selectors } from '../store';
 
 /**
  * @internal
@@ -29,14 +27,13 @@ export const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
 
   const isUp = direction === 'up';
 
-  const { store, popupRef, listRef, handleScrollArrowVisibility, scrollArrowsMountedCountRef } =
-    useSelectRootContext();
+  const store = useSelectRootContext();
   const { side, scrollDownArrowRef, scrollUpArrowRef } = useSelectPositionerContext();
 
-  const visibleSelector = isUp ? selectors.scrollUpArrowVisible : selectors.scrollDownArrowVisible;
+  const visibleSelector = isUp ? 'scrollUpArrowVisible' : 'scrollDownArrowVisible';
 
-  const stateVisible = useStore(store, visibleSelector);
-  const openMethod = useStore(store, selectors.openMethod);
+  const stateVisible = store.useState(visibleSelector);
+  const openMethod = store.useState('openMethod');
 
   // Scroll arrows are disabled for touch modality as they are a hover-only element.
   const visible = stateVisible && openMethod !== 'touch';
@@ -48,16 +45,19 @@ export const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
   const { mounted, transitionStatus, setMounted } = useTransitionStatus(visible);
 
   useIsoLayoutEffect(() => {
-    scrollArrowsMountedCountRef.current += 1;
+    store.context.scrollArrowsMountedCountRef.current += 1;
     store.set('hasScrollArrows', true);
 
     return () => {
-      scrollArrowsMountedCountRef.current = Math.max(0, scrollArrowsMountedCountRef.current - 1);
-      if (scrollArrowsMountedCountRef.current === 0) {
+      store.context.scrollArrowsMountedCountRef.current = Math.max(
+        0,
+        store.context.scrollArrowsMountedCountRef.current - 1,
+      );
+      if (store.context.scrollArrowsMountedCountRef.current === 0) {
         store.set('hasScrollArrows', false);
       }
     };
-  }, [store, scrollArrowsMountedCountRef]);
+  }, [store]);
 
   useOpenChangeComplete({
     open: visible,
@@ -90,18 +90,18 @@ export const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
       store.set('activeIndex', null);
 
       function scrollNextItem() {
-        const scroller = store.state.listElement ?? popupRef.current;
+        const scroller = store.state.listElement ?? store.context.popupRef.current;
         if (!scroller) {
           return;
         }
 
         store.set('activeIndex', null);
-        handleScrollArrowVisibility(scroller);
+        store.context.handleScrollArrowVisibility(scroller);
 
         const maxScrollTop = getMaxScrollOffset(scroller.scrollHeight, scroller.clientHeight);
         const scrollTop = normalizeScrollOffset(scroller.scrollTop, maxScrollTop);
         const isScrolledToEdge = scrollTop === (isUp ? 0 : maxScrollTop);
-        const items = listRef.current;
+        const items = store.context.listRef.current;
 
         if (scrollTop !== scroller.scrollTop) {
           scroller.scrollTop = scrollTop;

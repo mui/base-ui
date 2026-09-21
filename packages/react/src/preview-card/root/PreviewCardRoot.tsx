@@ -145,8 +145,7 @@ export interface PreviewCardRootProps<Payload = unknown> {
    * Event handler called when the preview card is opened or closed.
    */
   onOpenChange?:
-    | ((open: boolean, eventDetails: PreviewCardRoot.ChangeEventDetails) => void)
-    | undefined;
+    ((open: boolean, eventDetails: PreviewCardRoot.ChangeEventDetails) => void) | undefined;
   /**
    * Event handler called after any animations complete when the preview card is opened or closed.
    */

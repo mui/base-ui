@@ -174,8 +174,7 @@ export interface AccordionItemProps
    * Event handler called when the panel is opened or closed.
    */
   onOpenChange?:
-    | ((open: boolean, eventDetails: AccordionItem.ChangeEventDetails) => void)
-    | undefined;
+    ((open: boolean, eventDetails: AccordionItem.ChangeEventDetails) => void) | undefined;
 }
 
 export type AccordionItemChangeEventReason = typeof REASONS.triggerPress | typeof REASONS.none;

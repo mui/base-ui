@@ -5,10 +5,7 @@ import { type BaseUIComponentProps } from '../internals/types';
 import { useFloatingPortalNode } from '../floating-ui-react/components/FloatingPortal';
 
 type PortalContainer =
-  | HTMLElement
-  | ShadowRoot
-  | React.RefObject<HTMLElement | ShadowRoot | null>
-  | null;
+  HTMLElement | ShadowRoot | React.RefObject<HTMLElement | ShadowRoot | null> | null;
 
 /**
  * `FloatingPortal` includes tabbable logic handling for focus management.

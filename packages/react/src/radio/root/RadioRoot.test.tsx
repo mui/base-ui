@@ -1,4 +1,4 @@
-import { expect, vi } from 'vitest';
+import { expect, vi, describe, it } from 'vitest';
 import * as React from 'react';
 import { Radio } from '@base-ui/react/radio';
 import { RadioGroup } from '@base-ui/react/radio-group';
@@ -14,6 +14,20 @@ describe('<Radio.Root />', () => {
     button: true,
     render,
   }));
+
+  it('sets checked and unchecked data attributes', async () => {
+    await render(
+      <RadioGroup defaultValue="checked">
+        <Radio.Root value="checked" data-testid="checked" />
+        <Radio.Root value="unchecked" data-testid="unchecked" />
+      </RadioGroup>,
+    );
+
+    expect(screen.getByTestId('checked')).toHaveAttribute('data-checked');
+    expect(screen.getByTestId('checked')).not.toHaveAttribute('data-unchecked');
+    expect(screen.getByTestId('unchecked')).toHaveAttribute('data-unchecked');
+    expect(screen.getByTestId('unchecked')).not.toHaveAttribute('data-checked');
+  });
 
   it('does not forward `value` prop', async () => {
     await render(

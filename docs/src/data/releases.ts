@@ -9,6 +9,18 @@ export interface Release {
 export const releases: Release[] = [
   {
     latest: true,
+    version: 'v1.8.0',
+    versionSlug: 'v1-8-0',
+    date: '2026-09-04',
+    highlights: [
+      'New `createItems` collection API for `Combobox`.',
+      'Derive Toast updates from the current toast with a function.',
+      'Add `keepMounted` to `<Avatar.Image>` to support native lazy-loading and optimized images.',
+      'Mount Menu and Popover triggers faster.',
+      'Many accessibility, focus, validation, and interaction fixes.',
+    ],
+  },
+  {
     version: 'v1.7.0',
     versionSlug: 'v1-7-0',
     date: '2026-08-04',

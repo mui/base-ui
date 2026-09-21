@@ -53,11 +53,7 @@ const attr = createAttribute('portal');
 export interface UseFloatingPortalNodeProps {
   ref?: React.Ref<HTMLDivElement> | undefined;
   container?:
-    | HTMLElement
-    | ShadowRoot
-    | null
-    | React.RefObject<HTMLElement | ShadowRoot | null>
-    | undefined;
+    HTMLElement | ShadowRoot | null | React.RefObject<HTMLElement | ShadowRoot | null> | undefined;
   componentProps?: UseRenderElementComponentProps<any> | undefined;
   elementProps?: React.HTMLAttributes<HTMLDivElement> | undefined;
 }

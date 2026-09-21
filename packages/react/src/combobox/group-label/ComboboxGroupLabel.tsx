@@ -31,7 +31,7 @@ export const ComboboxGroupLabel = React.forwardRef(function ComboboxGroupLabel(
 
   const element = useRenderElement('div', componentProps, {
     ref: forwardedRef,
-    props: [{ id }, elementProps],
+    props: [{ id, 'aria-hidden': true }, elementProps],
   });
 
   return element;

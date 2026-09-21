@@ -1,4 +1,4 @@
-import { expect } from 'vitest';
+import { expect, afterEach, test } from 'vitest';
 import { markOthers } from './markOthers';
 
 afterEach(() => {
@@ -280,6 +280,9 @@ test('does not recurse infinitely with target inside anchor in shadow root', () 
   shadowRoot.appendChild(anchor);
 
   const cleanup = markOthers([target], { ariaHidden: true });
+
+  // The host contains the target, so it must not have been hidden.
+  expect(host).not.toHaveAttribute('aria-hidden');
 
   cleanup();
 });

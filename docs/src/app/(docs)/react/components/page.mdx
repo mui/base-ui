@@ -28,7 +28,7 @@
 - Popover - ([Outline](#popover), [Contents](./popover/page.mdx))
 - Preview Card - ([Outline](#preview-card), [Contents](./preview-card/page.mdx))
 - Progress - ([Outline](#progress), [Contents](./progress/page.mdx))
-- Radio - ([Outline](#radio), [Contents](./radio/page.mdx))
+- Radio Group - ([Outline](#radio-group), [Contents](./radio-group/page.mdx))
 - Scroll Area - ([Outline](#scroll-area), [Contents](./scroll-area/page.mdx))
 - Select - ([Outline](#select), [Contents](./select/page.mdx))
 - Separator - ([Outline](#separator), [Contents](./separator/page.mdx))
@@ -56,6 +56,7 @@ A set of collapsible panels with headings.
   - Anatomy
   - Examples
     - Open multiple panels
+    - Hidden until found
   - API reference
     - Root
     - Item
@@ -68,7 +69,7 @@ A set of collapsible panels with headings.
     - Data Attributes: data-disabled, data-orientation
   - Accordion - Trigger
     - Props: className, nativeButton, render, style
-    - Data Attributes: data-disabled, data-panel-open
+    - Data Attributes: data-disabled, data-index, data-panel-open
   - Accordion - Item
     - Props: className, disabled, onOpenChange, render, style, value
     - Data Attributes: data-disabled, data-index, data-open
@@ -269,6 +270,9 @@ An easily stylable avatar component.
 - Keywords: React Avatar, Avatar Component, Profile Image UI, User Image, User Avatar, Profile Picture, Account Image, Profile Icon, Initials Fallback, Accessible Avatar, Headless React Components, Customizable Avatar, Base UI
 - Sections:
   - Anatomy
+  - Optimized and lazy-loaded images
+    - Stacking
+    - Server rendering
   - API reference
     - Root
     - Image
@@ -278,8 +282,8 @@ An easily stylable avatar component.
   - Avatar - Root
     - Props: className, render, style
   - Avatar - Image
-    - Props: className, onLoadingStatusChange, render, style
-    - Data Attributes: data-ending-style, data-starting-style
+    - Props: className, keepMounted, onLoadingStatusChange, render, style
+    - Data Attributes: data-ending-style, data-error, data-loading, data-starting-style
   - Avatar - Fallback
     - Props: className, delay, render, style
 - Types: Avatar.Fallback.Props, Avatar.Fallback.State, Avatar.Image.Props, Avatar.Image.State, Avatar.Root.Props, Avatar.Root.State
@@ -387,6 +391,8 @@ A collapsible panel controlled by a button.
 - Keywords: React Collapsible, Collapsible Component, Expandable Panel, Toggle Panel Button, Disclosure Widget, Show/Hide Content, Accordion Item, Accessible Disclosure, Headless React Components, Collapsible Trigger Panel, Base UI
 - Sections:
   - Anatomy
+  - Examples
+    - Hidden until found
   - API reference
     - Root
     - Trigger
@@ -559,6 +565,7 @@ A menu that appears at the pointer on right click or long press.
     - Root
     - Trigger
     - Portal
+    - Backdrop
     - Positioner
     - Popup
     - Arrow
@@ -576,7 +583,7 @@ A menu that appears at the pointer on right click or long press.
     - Separator
 - Exports:
   - Context Menu - Root
-    - Props: actionsRef, children, closeParentOnEsc, defaultOpen, disabled, highlightItemOnHover, loopFocus, onOpenChange, onOpenChangeComplete, open, orientation
+    - Props: actionsRef, children, defaultOpen, disabled, highlightItemOnHover, loopFocus, onOpenChange, onOpenChangeComplete, open, orientation
   - Context Menu - Trigger
     - Props: className, render, style
     - Data Attributes: data-popup-open, data-pressed
@@ -586,7 +593,7 @@ A menu that appears at the pointer on right click or long press.
     - Props: className, render, style
     - Data Attributes: data-closed, data-ending-style, data-open, data-starting-style
   - Context Menu - Positioner
-    - Props: align, alignOffset, anchor, arrowPadding, className, collisionAvoidance, collisionBoundary, collisionPadding, disableAnchorTracking, positionMethod, render, side, sideOffset, sticky, style
+    - Props: align, alignOffset, anchor, arrowPadding, className, collisionAvoidance, collisionBoundary, collisionPadding, disableAnchorTracking, render, side, sideOffset, sticky, style
     - Data Attributes: data-align, data-anchor-hidden, data-closed, data-open, data-side
     - CSS Variables: --anchor-height, --anchor-width, --available-height, --available-width, --positioner-height, --positioner-width, --transform-origin
   - Context Menu - Popup
@@ -1026,7 +1033,7 @@ A list of actions in a dropdown, enhanced with keyboard navigation.
     - Props: actionsRef, children, closeParentOnEsc, defaultOpen, defaultTriggerId, disabled, handle, highlightItemOnHover, loopFocus, modal, onOpenChange, onOpenChangeComplete, open, orientation, triggerId
   - Menu - Trigger
     - Props: children, className, closeDelay, delay, disabled, handle, nativeButton, openOnHover, payload, render, style
-    - Data Attributes: data-popup-open, data-pressed
+    - Data Attributes: data-disabled, data-popup-open, data-pressed
   - Menu - Portal
     - Props: className, container, keepMounted, render, style
   - Menu - Backdrop
@@ -1175,8 +1182,8 @@ A collection of links and menus for website navigation.
   - Navigation Menu - Root
     - Props: actionsRef, className, closeDelay, defaultValue, delay, onOpenChangeComplete, onValueChange, orientation, render, style, value
   - Navigation Menu - Trigger
-    - Props: className, nativeButton, render, style
-    - Data Attributes: data-popup-open, data-pressed
+    - Props: className, disabled, nativeButton, render, style
+    - Data Attributes: data-disabled, data-popup-open, data-pressed
   - Navigation Menu - Icon
     - Props: className, render, style
     - Data Attributes: data-popup-open
@@ -1339,7 +1346,7 @@ An accessible popup anchored to a button.
     - Props: actionsRef, children, defaultOpen, defaultTriggerId, handle, modal, onOpenChange, onOpenChangeComplete, open, triggerId
   - Popover - Trigger
     - Props: className, closeDelay, delay, handle, id, nativeButton, openOnHover, payload, render, style
-    - Data Attributes: data-popup-open, data-pressed
+    - Data Attributes: data-disabled, data-popup-open, data-pressed
   - Popover - Portal
     - Props: className, container, keepMounted, render, style
   - Popover - Backdrop
@@ -1376,7 +1383,7 @@ An accessible popup anchored to a button.
 
 ## Preview Card
 
-A popup that appears when a link is hovered, showing a preview for sighted users.
+A link that shows a destination preview without interrupting keyboard or screen reader navigation.
 
 <details>
 
@@ -1476,15 +1483,15 @@ Displays the status of a task that takes a long time.
 
 [Read more](./progress/page.mdx)
 
-## Radio
+## Radio Group
 
-An easily stylable radio button component.
+Provides shared state to a series of radio buttons.
 
 <details>
 
 <summary>Outline</summary>
 
-- Keywords: React Radio Button, Radio Group Component, Radio Button, Radio Input, Single Choice, Exclusive Choice, Mutually Exclusive, Option Selector, Option Button, Form Radio Control, Accessible Radio Group, Customizable Radio, Headless React Components, Base UI
+- Keywords: React Radio Group, Radio Group Component, Grouped Radio Buttons, React Radio Button, Radio Button, Radio Input, Single Choice, Exclusive Choice, Mutually Exclusive, Option Selector, Option Button, Form Radio Control, Accessible Radio Group, Customizable Radio, Headless React Components, Base UI
 - Sections:
   - Usage guidelines
   - Anatomy
@@ -1497,17 +1504,20 @@ An easily stylable radio button component.
     - Root
     - Indicator
 - Exports:
-  - Radio - Root
+  - Radio Group - Root
     - Props: className, disabled, inputRef, nativeButton, readOnly, render, required, style, value
     - Data Attributes: data-checked, data-dirty, data-disabled, data-filled, data-focused, data-invalid, data-readonly, data-required, data-touched, data-unchecked, data-valid
-  - Radio - Indicator
+  - Radio Group - Indicator
     - Props: className, keepMounted, render, style
     - Data Attributes: data-checked, data-dirty, data-disabled, data-ending-style, data-filled, data-focused, data-invalid, data-readonly, data-required, data-starting-style, data-touched, data-unchecked, data-valid
-- Types: Radio.Indicator.Props, Radio.Indicator.State, Radio.Root.Props, Radio.Root.State
+  - RadioGroup
+    - Props: className, defaultValue, disabled, form, inputRef, name, onValueChange, readOnly, render, required, style, value
+    - Data Attributes: data-disabled
+- Types: Radio.Indicator.Props, Radio.Indicator.State, Radio.Root.Props, Radio.Root.State, RadioGroup.ChangeEventDetails, RadioGroup.ChangeEventReason, RadioGroup.Props, RadioGroup.State
 
 </details>
 
-[Read more](./radio/page.mdx)
+[Read more](./radio-group/page.mdx)
 
 ## Scroll Area
 
@@ -1691,9 +1701,11 @@ An easily stylable range input.
   - Usage guidelines
   - Anatomy
   - Examples
-    - Range slider
-    - Thumb alignment
     - Labeling a slider
+    - Range slider
+    - Steps
+    - Marks
+    - Thumb alignment
     - Vertical
     - Form integration
   - API reference

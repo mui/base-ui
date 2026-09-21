@@ -177,8 +177,7 @@ export interface ToggleProps<Value extends string>
    * Callback fired when the pressed state is changed.
    */
   onPressedChange?:
-    | ((pressed: boolean, eventDetails: Toggle.ChangeEventDetails) => void)
-    | undefined;
+    ((pressed: boolean, eventDetails: Toggle.ChangeEventDetails) => void) | undefined;
   /**
    * A unique string that identifies the toggle when used
    * inside a toggle group.

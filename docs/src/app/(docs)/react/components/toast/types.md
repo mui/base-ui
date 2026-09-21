@@ -584,7 +584,11 @@ type ToastManager<Data extends {} = any> = {
   ' subscribe': (listener: (data: ToastManagerEvent) => void) => () => void;
   add: <T extends Data = Data>(options: ToastManagerAddOptions<T>) => string;
   close: (id?: string) => void;
-  update: <T extends Data = Data>(id: string, updates: ToastManagerUpdateOptions<T>) => void;
+  update: <T extends Data = Data>(
+    id: string,
+    updates:
+      ToastManagerUpdateOptions<T> | ((prevToast: ToastObject<T>) => ToastManagerUpdateOptions<T>),
+  ) => void;
   promise: <Value, T extends Data = Data>(
     promiseValue: Promise<Value>,
     options: ToastManagerPromiseOptions<Value, T>,
@@ -658,8 +662,7 @@ type ToastManagerPositionerProps = {
    * returns a style object based on the component's state.
    */
   style?:
-    | React.CSSProperties
-    | ((state: Toast.Positioner.State) => React.CSSProperties | undefined);
+    React.CSSProperties | ((state: Toast.Positioner.State) => React.CSSProperties | undefined);
   /**
    * CSS class applied to the element, or a function that
    * returns a class based on the component's state.
@@ -823,8 +826,6 @@ type ToastManagerPromiseOptions<Value, Data extends {}> = {
 
 ```typescript
 type ToastManagerUpdateOptions<Data extends {}> = {
-  /** Custom data for the toast. */
-  data?: Partial<Data>;
   /** The title of the toast. */
   title?: React.ReactNode;
   /**
@@ -858,6 +859,8 @@ type ToastManagerUpdateOptions<Data extends {}> = {
   >;
   /** The props forwarded to the toast positioner element when rendering anchored toasts. */
   positionerProps?: ToastManagerPositionerProps;
+  /** Custom data for the toast. */
+  data?: Data;
 };
 ```
 
@@ -868,7 +871,11 @@ type UseToastManagerReturnValue<Data extends {} = any> = {
   toasts: ToastObject<Data>[];
   add: <T extends Data = Data>(options: ToastManagerAddOptions<T>) => string;
   close: (toastId?: string) => void;
-  update: <T extends Data = Data>(toastId: string, options: ToastManagerUpdateOptions<T>) => void;
+  update: <T extends Data = Data>(
+    toastId: string,
+    options:
+      ToastManagerUpdateOptions<T> | ((prevToast: ToastObject<T>) => ToastManagerUpdateOptions<T>),
+  ) => void;
   promise: <Value, T extends Data = Data>(
     promise: Promise<Value>,
     options: ToastManagerPromiseOptions<Value, T>,

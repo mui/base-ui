@@ -25,8 +25,7 @@ export interface AlertDialogRootProps<Payload = unknown> extends Omit<
    * Event handler called when the alert dialog is opened or closed.
    */
   onOpenChange?:
-    | ((open: boolean, eventDetails: AlertDialogRoot.ChangeEventDetails) => void)
-    | undefined;
+    ((open: boolean, eventDetails: AlertDialogRoot.ChangeEventDetails) => void) | undefined;
   /**
    * A ref to imperative actions.
    * - `unmount`: Manually unmounts the alert dialog.

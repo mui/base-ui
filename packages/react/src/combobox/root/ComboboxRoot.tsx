@@ -36,7 +36,11 @@ type ModeFromMultiple<Multiple extends boolean | undefined> = Multiple extends t
   ? 'multiple'
   : 'single';
 
-type ComboboxValueType<Value, Multiple extends boolean | undefined> = Multiple extends true
+type ComboboxInputValue<Value, Multiple extends boolean | undefined> = Multiple extends true
+  ? readonly Value[]
+  : Value;
+
+type ComboboxOutputValue<Value, Multiple extends boolean | undefined> = Multiple extends true
   ? Value[]
   : Value;
 
@@ -112,7 +116,7 @@ export type ComboboxRootProps<
    *
    * To render a controlled combobox, use the `value` prop instead.
    */
-  defaultValue?: ComboboxValueType<Value, Multiple> | null | undefined;
+  defaultValue?: ComboboxInputValue<Value, Multiple> | null | undefined;
   /**
    * A ref to imperative actions.
    * - `unmount`: Manually unmounts the combobox.
@@ -123,14 +127,12 @@ export type ComboboxRootProps<
    * Event handler called when the popup is opened or closed.
    */
   onOpenChange?:
-    | ((open: boolean, eventDetails: ComboboxRoot.ChangeEventDetails) => void)
-    | undefined;
+    ((open: boolean, eventDetails: ComboboxRoot.ChangeEventDetails) => void) | undefined;
   /**
    * Event handler called when the input value changes.
    */
   onInputValueChange?:
-    | ((inputValue: string, eventDetails: ComboboxRoot.ChangeEventDetails) => void)
-    | undefined;
+    ((inputValue: string, eventDetails: ComboboxRoot.ChangeEventDetails) => void) | undefined;
   /**
    * Callback fired when an item is highlighted or unhighlighted.
    * Receives the highlighted item value (or `undefined` if no item is highlighted) and event details with a `reason` property describing why the highlight changed.
@@ -148,13 +150,13 @@ export type ComboboxRootProps<
   /**
    * The selected value of the combobox. Use when controlled.
    */
-  value?: ComboboxValueType<Value, Multiple> | null | undefined;
+  value?: ComboboxInputValue<Value, Multiple> | null | undefined;
   /**
    * Event handler called when the selected value of the combobox changes.
    */
   onValueChange?:
     | ((
-        value: ComboboxValueType<Value, Multiple> | (Multiple extends true ? never : null),
+        value: ComboboxOutputValue<Value, Multiple> | (Multiple extends true ? never : null),
         eventDetails: ComboboxRoot.ChangeEventDetails,
       ) => void)
     | undefined;

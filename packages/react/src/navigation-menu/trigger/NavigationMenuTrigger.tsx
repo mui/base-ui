@@ -22,8 +22,9 @@ import {
   useHoverInteractionSharedState,
 } from '../../floating-ui-react/hooks/useHoverInteractionSharedState';
 import {
+  closest,
   contains,
-  getTabbableAfterElement,
+  getTabbableNearElement,
   getNextTabbable,
   getPreviousTabbable,
   isOutsideEvent,
@@ -51,8 +52,8 @@ import { NavigationMenuRoot } from '../root/NavigationMenuRoot';
 import { NAVIGATION_MENU_TRIGGER_IDENTIFIER } from '../utils/constants';
 import { setSharedFixedSize } from '../utils/setSharedFixedSize';
 import { useNavigationMenuDismissContext } from '../list/NavigationMenuDismissContext';
-import { NavigationMenuPopupCssVars } from '../popup/NavigationMenuPopupCssVars';
-import { NavigationMenuPositionerCssVars } from '../positioner/NavigationMenuPositionerCssVars';
+import * as NavigationMenuPopupCssVars from '../popup/NavigationMenuPopupCssVars';
+import * as NavigationMenuPositionerCssVars from '../positioner/NavigationMenuPositionerCssVars';
 import { mergeProps } from '../../merge-props';
 import { useDirection } from '../../internals/direction-context/DirectionContext';
 
@@ -74,7 +75,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     className,
     style,
     nativeButton = true,
-    disabled,
+    disabled = false,
     ...elementProps
   } = componentProps;
 
@@ -110,7 +111,6 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
   const direction = useDirection();
 
   const stickIfOpenTimeout = useTimeout();
-  const focusFrame = useAnimationFrame();
   const mutationFrame = useAnimationFrame();
   const resizeFrame = useAnimationFrame();
   const sizeFrame = useAnimationFrame();
@@ -120,7 +120,6 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
   const [pointerType, setPointerType] = React.useState<'mouse' | 'touch' | 'pen' | ''>('');
 
   const triggerElementRef = React.useRef<HTMLElement | null>(null);
-  const allowFocusRef = React.useRef(false);
   const prevSizeRef = React.useRef(DEFAULT_SIZE);
   const skipAutoSizeSyncRef = React.useRef(false);
 
@@ -409,19 +408,6 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     syncCurrentSize,
   ]);
 
-  React.useEffect(() => {
-    if (isActiveItem && open && popupElement && allowFocusRef.current) {
-      allowFocusRef.current = false;
-      focusFrame.request(() => {
-        beforeOutsideRef.current?.focus();
-      });
-    }
-
-    return () => {
-      focusFrame.cancel();
-    };
-  }, [beforeOutsideRef, focusFrame, isActiveItem, open, popupElement]);
-
   useIsoLayoutEffect(() => {
     if (isActiveItemRef.current && open && popupElement && positionerElement) {
       if (skipAutoSizeSyncRef.current) {
@@ -527,7 +513,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
       return null;
     }
 
-    return triggerElementRef.current?.closest('ul') ?? null;
+    return closest(triggerElementRef.current, 'ul');
   }
 
   const hoverProps = useHoverReferenceInteraction(context, {
@@ -655,6 +641,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
 
   const state: NavigationMenuTriggerState = {
     open: isActiveItem,
+    disabled,
   };
 
   function handleSetPointerType(event: React.PointerEvent) {
@@ -681,17 +668,12 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
       }
       setViewportInert(false);
     },
-    onMouseMove() {
-      allowFocusRef.current = false;
-    },
     onMouseLeave() {
       if (value == null) {
         clearSafePolygonPointerEventsMutation(hoverInteractionState);
       }
     },
     onKeyDown(event) {
-      allowFocusRef.current = true;
-
       // For nested (submenu) triggers, don't intercept arrow keys that are used for
       // navigation in the parent content. The arrow keys should be handled by the
       // parent's CompositeRoot for navigating between items.
@@ -785,7 +767,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
                   nextTabbable &&
                   contains(referenceElement, nextTabbable)
                 ) {
-                  nextTabbable = getTabbableAfterElement(afterInsideRef.current);
+                  nextTabbable = getTabbableNearElement(afterInsideRef.current, 1);
                 }
 
                 nextTabbable?.focus();
@@ -807,10 +789,20 @@ export interface NavigationMenuTriggerState {
    * If `true`, the popup is open and the item is active.
    */
   open: boolean;
+  /**
+   * Whether the component should ignore user interaction.
+   */
+  disabled: boolean;
 }
 
 export interface NavigationMenuTriggerProps
-  extends NativeButtonProps, BaseUIComponentProps<'button', NavigationMenuTriggerState> {}
+  extends NativeButtonProps, BaseUIComponentProps<'button', NavigationMenuTriggerState> {
+  /**
+   * Whether the component should ignore user interaction.
+   * @default false
+   */
+  disabled?: boolean | undefined;
+}
 
 export namespace NavigationMenuTrigger {
   export type State = NavigationMenuTriggerState;
