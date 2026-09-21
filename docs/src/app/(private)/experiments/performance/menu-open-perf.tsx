@@ -2,158 +2,71 @@
 import * as React from 'react';
 import { Menu } from '@base-ui/react/menu';
 import menuDemoStyles from 'docs/src/app/(docs)/react/components/menu/demos/submenu/css-modules/index.module.css';
-import * as ReactDOM from 'react-dom';
-import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import PerformanceBenchmark, { BenchmarkVariant } from './utils/benchmark';
 import styles from './performance.module.css';
-import { logResults, removeOutliers } from './utils/benchmark';
-import { waitSingleFrame } from './utils/wait';
 
-const menuItemCount = 50;
+const MENU_ITEM_COUNT = 50;
+const TRIGGER_ID = 'menu-open-benchmark-trigger';
 
-const menuItems = Array.from({ length: menuItemCount }).map((_, i) => ({
+const menuItems = Array.from({ length: MENU_ITEM_COUNT }, (_, i) => ({
   label: `Menu Item ${i + 1}`,
   index: i + 1,
 }));
 
-const WARMUP_ITERATIONS = 5;
+/** Lets the harness open the menu from outside once it has mounted. */
+const menuHandle = Menu.createHandle();
 
-const Controls = React.memo(function Controls(props: {
-  setIsMenuOpen: React.Dispatch<React.SetStateAction<boolean>>;
-}) {
-  const { setIsMenuOpen } = props;
-  /** How many measured iterations are running, or `null` when idle. Replaces the controls while set. */
-  const [runningIterations, setRunningIterations] = React.useState<number | null>(null);
-  const [shouldRemoveOutliers, setShouldRemoveOutliers] = React.useState(true);
-
-  const runBenchmark = useStableCallback(async (iterations: number, warmupIterations: number) => {
-    if (runningIterations !== null) {
-      return;
-    }
-
-    setRunningIterations(iterations);
-    console.log(`Running benchmark: ${iterations} iterations (+${warmupIterations} warmup)...`);
-
-    const results: number[] = [];
-    const totalIterations = warmupIterations + iterations;
-
-    for (let i = 0; i < totalIterations; i += 1) {
-      const isWarmup = i < warmupIterations;
-      const startTime = performance.now();
-
-      ReactDOM.flushSync(() => {
-        setIsMenuOpen(true);
-      });
-
-      // eslint-disable-next-line no-await-in-loop
-      await waitSingleFrame();
-
-      if (!isWarmup) {
-        const spendTime = performance.now() - startTime;
-        results.push(Math.round(spendTime * 10) / 10);
-      }
-
-      ReactDOM.flushSync(() => {
-        setIsMenuOpen(false);
-      });
-      // eslint-disable-next-line no-await-in-loop
-      await waitSingleFrame();
-    }
-
-    logResults(shouldRemoveOutliers ? removeOutliers(results) : results);
-    setRunningIterations(null);
-  });
-
-  if (runningIterations !== null) {
-    return (
-      <p role="status" className={styles.RunStatus}>
-        {`Opening the menu ${runningIterations} times`}
-      </p>
-    );
-  }
-
+function BaseUIMenu() {
   return (
-    <div className={styles.ToolbarActions}>
-      <button
-        type="button"
-        onClick={() => setIsMenuOpen((prev) => !prev)}
-        className={styles.ToolbarButton}
-      >
-        Toggle
-      </button>
-      <button
-        type="button"
-        onClick={() => runBenchmark(10, WARMUP_ITERATIONS)}
-        className={styles.ToolbarButton}
-      >
-        Run 10
-      </button>
-      <button
-        type="button"
-        onClick={() => runBenchmark(20, WARMUP_ITERATIONS)}
-        className={styles.ToolbarButton}
-      >
-        Run 20
-      </button>
-      <button
-        type="button"
-        onClick={() => runBenchmark(50, WARMUP_ITERATIONS)}
-        className={styles.ToolbarButton}
-      >
-        Run 50
-      </button>
-      <label className={styles.ToolbarCheckbox}>
-        <input
-          type="checkbox"
-          checked={shouldRemoveOutliers}
-          onChange={(ev) => setShouldRemoveOutliers(ev.target.checked)}
-        />
-        Remove outliers
-      </label>
-    </div>
+    <Menu.Root handle={menuHandle}>
+      <Menu.Trigger handle={menuHandle} id={TRIGGER_ID} className={styles.TriggerButton}>
+        Menu
+      </Menu.Trigger>
+      <Menu.Portal>
+        <Menu.Positioner
+          sideOffset={8}
+          positionMethod="fixed"
+          className={menuDemoStyles.Positioner}
+        >
+          <Menu.Popup className={`${menuDemoStyles.Popup} ${styles.NoAnimationPopup}`}>
+            <Menu.Arrow className={menuDemoStyles.Arrow}>
+              <ArrowSvg />
+            </Menu.Arrow>
+            {menuItems.map((item) => (
+              <Menu.Item
+                key={item.index}
+                onClick={() => console.log(`Clicked ${item.label}`)}
+                className={menuDemoStyles.Item}
+              >
+                {item.label}
+              </Menu.Item>
+            ))}
+          </Menu.Popup>
+        </Menu.Positioner>
+      </Menu.Portal>
+    </Menu.Root>
   );
-});
+}
 
-export default function MenuOpenTestComponent() {
-  const [isMenuOpen, setIsMenuOpen] = React.useState(false);
+const variants: BenchmarkVariant[] = [
+  {
+    key: 'base',
+    label: 'Base UI Menu',
+    render: () => <BaseUIMenu />,
+    interact: () => menuHandle.open(TRIGGER_ID),
+  },
+];
 
+export default function MenuOpenPerfExperiment() {
   return (
     <div className={styles.Container}>
       <h1>Menu open performance</h1>
       <p className={styles.Intro}>
-        Measures the time for a single Menu to open with {menuItemCount} items. Results are logged
-        to the console.
+        Measures how long a Menu with {MENU_ITEM_COUNT} items takes to open. Each measurement mounts
+        the menu closed and lets it settle, then opens it and times how long the page keeps
+        changing.
       </p>
-      <Controls setIsMenuOpen={setIsMenuOpen} />
-
-      <div className={styles.VariantArea}>
-        <Menu.Root open={isMenuOpen} onOpenChange={setIsMenuOpen}>
-          <Menu.Trigger className={styles.TriggerButton} id="menu-open-benchmark-trigger">
-            Menu
-          </Menu.Trigger>
-          <Menu.Portal>
-            <Menu.Positioner
-              sideOffset={8}
-              positionMethod="fixed"
-              className={menuDemoStyles.Positioner}
-            >
-              <Menu.Popup className={`${menuDemoStyles.Popup} ${styles.NoAnimationPopup}`}>
-                <Menu.Arrow className={menuDemoStyles.Arrow}>
-                  <ArrowSvg />
-                </Menu.Arrow>
-                {menuItems.map((item) => (
-                  <Menu.Item
-                    key={item.index}
-                    onClick={() => console.log(`Clicked ${item.label}`)}
-                    className={menuDemoStyles.Item}
-                  >
-                    {item.label}
-                  </Menu.Item>
-                ))}
-              </Menu.Popup>
-            </Menu.Positioner>
-          </Menu.Portal>
-        </Menu.Root>
-      </div>
+      <PerformanceBenchmark variants={variants} />
     </div>
   );
 }

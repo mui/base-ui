@@ -20,6 +20,11 @@ export interface BenchmarkVariant {
   key: string;
   label: string;
   render: () => React.ReactNode;
+  /**
+   * Times an interaction instead of the mount. The variant is mounted and left to settle first,
+   * untimed; then this runs, and the time until the page settles again is recorded.
+   */
+  interact?: () => void;
 }
 
 interface VariantResults {
@@ -57,7 +62,7 @@ function computeStats(samples: number[]) {
   };
 }
 
-export function removeOutliers(data: number[]) {
+function removeOutliers(data: number[]) {
   if (data.length < 4) {
     return data;
   }
@@ -68,17 +73,6 @@ export function removeOutliers(data: number[]) {
   const lower = q1 - 1.5 * iqr;
   const upper = q3 + 1.5 * iqr;
   return data.filter((value) => value >= lower && value <= upper);
-}
-
-export function logResults(results: number[]) {
-  if (results.length === 0) {
-    console.log('No samples.');
-    return;
-  }
-  console.log(results);
-  const stats = computeStats(results);
-  console.log('Average:', Math.round(stats.avg * 10) / 10);
-  console.log('Std Dev:', Math.round(stats.stdDev * 100) / 100);
 }
 
 export default function PerformanceBenchmark(props: PerformanceBenchmarkProps) {
@@ -161,7 +155,8 @@ export default function PerformanceBenchmark(props: PerformanceBenchmarkProps) {
     );
   });
 
-  const measureDomSettled = useStableCallback(() => {
+  /** Runs `action` and resolves with how long the page kept changing afterwards. */
+  const measureDomSettled = useStableCallback((action: () => void) => {
     const start = performance.now();
     let lastMutationAt = start;
     let observer: MutationObserver | null = null;
@@ -213,20 +208,30 @@ export default function PerformanceBenchmark(props: PerformanceBenchmarkProps) {
         finish(null);
       }
 
-      ReactDOM.flushSync(() => {
-        setShowVariant(true);
-      });
+      ReactDOM.flushSync(action);
     });
   });
 
-  /** Unmounts the rendered variant, mounts `key`, and resolves with the time its DOM took to settle. */
-  const measureVariant = useStableCallback((key: string) => {
+  /**
+   * Remounts `key` and resolves with the time the page took to settle: after mounting it, or after
+   * its interaction when it has one. Resolves with `null` when the measurement was cancelled.
+   */
+  const measureVariant = useStableCallback(async (key: string) => {
     ReactDOM.flushSync(() => {
       setShowVariant(false);
       setMountedKey(key);
       setGeneration((value) => value + 1);
     });
-    return measureDomSettled();
+    const mount = () => setShowVariant(true);
+    const interact = variants.find((variant) => variant.key === key)?.interact;
+    if (!interact) {
+      return measureDomSettled(mount);
+    }
+    const mountDuration = await measureDomSettled(mount);
+    if (mountDuration === null || isUnmountedRef.current) {
+      return null;
+    }
+    return measureDomSettled(interact);
   });
 
   const recordLast = useStableCallback((key: string, duration: number) => {
@@ -265,7 +270,7 @@ export default function PerformanceBenchmark(props: PerformanceBenchmarkProps) {
     const workloadRevision = workloadRevisionRef.current;
     try {
       for (const key of keysToRun) {
-        setRunStatus(`Re-rendering ${labelFor(key)}`);
+        setRunStatus(`Running ${labelFor(key)} once`);
         // eslint-disable-next-line no-await-in-loop
         const duration = await measureVariant(key);
         if (duration === null || !isCurrentWorkload(workloadRevision)) {
@@ -371,24 +376,26 @@ export default function PerformanceBenchmark(props: PerformanceBenchmarkProps) {
             // Hidden rather than removed, so the table below keeps its place during a run.
             style={runStatus !== null ? { visibility: 'hidden' } : undefined}
           >
-            <Field.Root className={styles.VariantField}>
-              <Field.Label className={styles.Label} htmlFor={variantSelectId}>
-                Variant
-              </Field.Label>
-              <select
-                id={variantSelectId}
-                value={selectedKey}
-                onChange={handleVariantChange}
-                className={styles.VariantSelect}
-              >
-                {variants.map((variant) => (
-                  <option key={variant.key} value={variant.key}>
-                    {variant.label}
-                  </option>
-                ))}
-                <option value={ALL_VARIANTS}>All variants</option>
-              </select>
-            </Field.Root>
+            {variants.length > 1 && (
+              <Field.Root className={styles.VariantField}>
+                <Field.Label className={styles.Label} htmlFor={variantSelectId}>
+                  Variant
+                </Field.Label>
+                <select
+                  id={variantSelectId}
+                  value={selectedKey}
+                  onChange={handleVariantChange}
+                  className={styles.VariantSelect}
+                >
+                  {variants.map((variant) => (
+                    <option key={variant.key} value={variant.key}>
+                      {variant.label}
+                    </option>
+                  ))}
+                  <option value={ALL_VARIANTS}>All variants</option>
+                </select>
+              </Field.Root>
+            )}
             <div className={styles.ToolbarActions}>
               <button type="button" onClick={handleReRender} className={styles.ToolbarButton}>
                 Re-render

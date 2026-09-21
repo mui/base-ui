@@ -14,6 +14,20 @@ const variants: BenchmarkVariant[] = [
   { key: 'second', label: 'Second', render: () => <div>Second workload</div> },
 ];
 
+/** Opens the `Opener` below from outside, the way a page would through a popup handle. */
+const opener: { open?: () => void } = {};
+
+function Opener() {
+  const [isOpen, setIsOpen] = React.useState(false);
+  React.useEffect(() => {
+    opener.open = () => setIsOpen(true);
+    return () => {
+      opener.open = undefined;
+    };
+  }, []);
+  return <div>{isOpen ? 'Opened' : 'Closed'}</div>;
+}
+
 function cells(label = 'First') {
   return within(screen.getByRole('row', { name: new RegExp(`^${label} `) })).getAllByRole('cell');
 }
@@ -204,5 +218,34 @@ describe('PerformanceBenchmark', () => {
 
     expect(cells()[1].textContent).not.toBe('—');
     expect(cells('Second')[1].textContent).not.toBe('—');
+  });
+
+  it('mounts an interaction variant untimed, then times its interaction', async () => {
+    const interact = vi.fn(() => opener.open?.());
+    await render(
+      <PerformanceBenchmark
+        variants={[{ key: 'opener', label: 'Opener', render: () => <Opener />, interact }]}
+      />,
+    );
+
+    // A picker with one variant has nothing to choose from.
+    expect(screen.queryByRole('combobox', { name: 'Variant' })).toBe(null);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Re-render' }));
+    expect(screen.getByText('Closed')).not.toBe(null);
+    expect(interact).toHaveBeenCalledTimes(0);
+
+    await advanceTime(100);
+
+    expect(interact).toHaveBeenCalledTimes(1);
+    expect(screen.getByText('Opened')).not.toBe(null);
+    expect(cells('Opener')[1].textContent).not.toBe('—');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Run 10' }));
+    await advanceTime(2000);
+
+    // Five warmup iterations and ten measured ones, each remounting the variant closed first.
+    expect(interact).toHaveBeenCalledTimes(16);
+    expect(cells('Opener')[2].textContent).toBe('10');
   });
 });
