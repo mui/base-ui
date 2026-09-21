@@ -17,6 +17,8 @@ import { DemoComboboxHero } from './demos/hero';
 - **Avoid when not rendering an input**: Use [Select](/react/components/select) instead of Combobox if no input is being rendered, which includes accessibility features specific to a listbox without an input.
 - **Form controls must have an accessible name**: If `<Combobox.Input>` is the form control, label it with a native `<label>` or `<Field.Label>`, or provide an `aria-label` when no visible label is rendered. `<Combobox.Label>` labels `<Combobox.Trigger>` and is intended for the [input-inside-popup](#input-inside-popup) pattern, where the trigger is the form control. See the [forms guide](/react/handbook/forms).
 
+- **Translate the dismiss label**: Set `dismissButtonLabel` on `<Combobox.Root>` to label the visually hidden buttons that let screen reader users close the popup, for example `dismissButtonLabel="Fermer"` in French. The default is "Dismiss". The `locale` prop controls filtering and does not translate this label.
+
 ## Anatomy
 
 Import the components and place them together:

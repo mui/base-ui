@@ -16,6 +16,8 @@ import { DemoAutocompleteHero } from './demos/hero';
 - **Can be used for filterable command pickers**: The input can be used as a filter for command items that perform an action when clicked when rendered inside the popup.
 - **Form controls must have an accessible name**: It can be created using a `<label>` element or the `Field` component. See the [forms guide](/react/handbook/forms).
 
+- **Translate the dismiss label**: Set `dismissButtonLabel` on `<Autocomplete.Root>` to label the visually hidden buttons that let screen reader users close the popup, for example `dismissButtonLabel="Fermer"` in French. The default is "Dismiss". The `locale` prop controls filtering and does not translate this label.
+
 ## Anatomy
 
 Import the components and place them together:
