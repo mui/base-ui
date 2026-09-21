@@ -1,8 +1,7 @@
 'use client';
 import type * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { ownerDocument } from '@base-ui/utils/owner';
-import { contains, isOutsideEvent, tabbable } from '../../floating-ui-react/utils';
+import { getTabbableNearElement, isOutsideEvent } from '../../floating-ui-react/utils';
 import {
   type BaseUIChangeEventDetails,
   createChangeEventDetails,
@@ -44,31 +43,18 @@ export function useTriggerFocusGuards(
     positionerElement: HTMLElement | null,
   ) {
     const guard = event.currentTarget;
-    // Keep the guard's place in the tab order before closing unmounts it. The trigger
-    // may have tabIndex=-1 and therefore cannot serve as the navigation anchor.
-    const elements = tabbable(ownerDocument(guard).body);
-    const index = elements.indexOf(guard);
 
     ReactDOM.flushSync(() => {
       store.setOpen(false, createChangeEventDetails(REASONS.focusOut, event.nativeEvent, guard));
     });
 
-    // Skip the closing content, and the trigger's own guards when a controlled root
-    // kept them mounted by refusing the close. An enclosing popup's guards are valid targets.
-    for (let offset = 1; offset < elements.length; offset += 1) {
-      const element = elements[(index + direction * offset + elements.length) % elements.length];
-      if (
-        element.isConnected &&
-        !contains(positionerElement, element) &&
-        element !== store.context.beforeTriggerFocusGuardRef.current &&
-        element !== store.context.triggerFocusTargetRef.current
-      ) {
-        element.focus();
-        return;
-      }
-    }
-
-    triggerElementRef.current?.focus();
+    // The close callback may change the tab order. Resolve it after the flush, using
+    // the trigger as the anchor if the guard unmounted, even when its tabIndex is -1.
+    getTabbableNearElement(
+      guard.isConnected ? guard : triggerElementRef.current,
+      direction,
+      positionerElement,
+    )?.focus();
   }
 
   function handlePreFocusGuardFocus(event: React.FocusEvent<HTMLElement>) {

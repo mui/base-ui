@@ -28,11 +28,13 @@ describe.skipIf(isJSDOM)('useTriggerFocusGuards', () => {
   ])('$name', ({ name, Component }) => {
     function TestPopup(props: {
       tabIndex?: number;
+      open?: boolean;
+      onOpenChange?: (open: boolean) => void;
       className?: string;
       finalFocus?: Popover.Popup.Props['finalFocus'];
     }) {
       return (
-        <Component.Root modal={false}>
+        <Component.Root modal={false} open={props.open} onOpenChange={props.onOpenChange}>
           <Component.Trigger tabIndex={props.tabIndex}>Toggle</Component.Trigger>
           <Component.Portal>
             <Component.Positioner>
@@ -119,6 +121,56 @@ describe.skipIf(isJSDOM)('useTriggerFocusGuards', () => {
           });
           expect(destination).toHaveFocus();
           expect(trigger).toHaveAttribute('tabindex', String(tabIndex));
+        },
+      );
+
+      it.each(['disabled', 'tabIndex', 'hidden', 'removed', 'inserted', 'reordered'] as const)(
+        'uses the current tab order when an adjacent control is %s during close',
+        async (change) => {
+          function Fixture() {
+            const [open, setOpen] = React.useState(false);
+            const target = (
+              <button key="target" data-testid="target">
+                Target
+              </button>
+            );
+            const candidate = (
+              <button
+                key="candidate"
+                disabled={change === 'disabled' && !open}
+                tabIndex={change === 'tabIndex' && !open ? -1 : 0}
+                hidden={change === 'hidden' && !open}
+              >
+                Candidate
+              </button>
+            );
+            let controls: React.ReactNode[];
+            if (change === 'inserted') {
+              controls = [!open && target, candidate];
+            } else if (change === 'reordered') {
+              controls = open ? [candidate, target] : [target, candidate];
+            } else {
+              controls = [change === 'removed' && !open ? null : candidate, target];
+            }
+
+            return (
+              <div>
+                {direction === 'backward' && controls.reverse()}
+                <TestPopup tabIndex={-1} open={open} onOpenChange={setOpen} />
+                {direction === 'forward' && controls}
+              </div>
+            );
+          }
+
+          await render(<Fixture />);
+          await focusTabOrigin(await openPopup());
+          await user.tab({ shift: direction === 'backward' });
+
+          expect(screen.getByTestId('target')).toHaveFocus();
+          await waitFor(() => {
+            expect(screen.queryByTestId('popup')).toBe(null);
+          });
+          expect(screen.getByTestId('target')).toHaveFocus();
         },
       );
 
