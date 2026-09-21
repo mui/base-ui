@@ -1,10 +1,10 @@
 import * as React from 'react';
 import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { Menu } from '@base-ui/react/menu';
-import { createRenderer, firePointer, resetBrowserPointer } from '#test-utils';
+import { createRenderer, firePointer, resetBrowserPointer, waitSingleFrame } from '#test-utils';
 
-function Test() {
+function Test(props: { autoFocus?: boolean; onInputFocus?: () => void }) {
   return (
     <Menu.FilterProvider>
       <Menu.Root>
@@ -12,7 +12,11 @@ function Test() {
         <Menu.Portal>
           <Menu.Positioner>
             <Menu.Popup>
-              <Menu.FilterInput aria-label="Filter actions" />
+              <Menu.FilterInput
+                aria-label="Filter actions"
+                autoFocus={props.autoFocus}
+                onFocus={props.onInputFocus}
+              />
               <Menu.FilterEmpty>No actions found.</Menu.FilterEmpty>
               <Menu.List>
                 <Menu.Item disabled>Unavailable</Menu.Item>
@@ -85,11 +89,12 @@ describe('filterable menu initial highlight', () => {
     expect(input).toHaveFocus();
   });
 
-  it.each(['mouse', 'touch', 'pen'])(
-    'leaves the input active when opened with %s',
-    async (pointerType) => {
-      await render(<Test />);
+  describe.each([false, true])('autoFocus=%s', (autoFocus) => {
+    it.each(['mouse', 'touch', 'pen'])('handles opening with %s', async (pointerType) => {
+      const onInputFocus = vi.fn();
+      await render(<Test autoFocus={autoFocus} onInputFocus={onInputFocus} />);
       const trigger = screen.getByRole('button', { name: 'Actions' });
+      await act(async () => trigger.focus());
       firePointer.down(trigger, { pointerType, timeStamp: 10 });
       fireEvent.mouseDown(trigger, { detail: 1 });
       firePointer.up(trigger, { pointerType, timeStamp: 20 });
@@ -97,10 +102,13 @@ describe('filterable menu initial highlight', () => {
       fireEvent.click(trigger, { detail: 1 });
 
       const input = await screen.findByRole('searchbox', { name: 'Filter actions' });
-      await waitFor(() => expect(input).toHaveFocus());
+      await act(() => waitSingleFrame());
+      const shouldFocus = pointerType === 'mouse' || autoFocus;
+      await waitFor(() => expect(input.matches(':focus')).toBe(shouldFocus));
+      expect(onInputFocus.mock.calls.length > 0).toBe(shouldFocus);
       expect(input).not.toHaveAttribute('aria-activedescendant');
-    },
-  );
+    });
+  });
 
   it('highlights the first action again when reopening', async () => {
     const { user } = await render(<Test />);

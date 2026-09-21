@@ -41,8 +41,7 @@ export const FilteredMenuPopup = React.forwardRef(function FilteredMenuPopup(
       // Touch and pen openings require explicit autofocus.
       if (
         !virtualFocusAutoFocus &&
-        (openedByHover ||
-          (parent.type === 'menu' && (openMethod === 'touch' || openMethod === 'pen')))
+        (openedByHover || openMethod === 'touch' || openMethod === 'pen')
       ) {
         return false;
       }
