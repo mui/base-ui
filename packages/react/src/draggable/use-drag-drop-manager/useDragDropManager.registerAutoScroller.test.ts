@@ -746,6 +746,44 @@ describe('engine.registerAutoScroller', () => {
     expect(scroller.scrollBy).toHaveBeenCalled();
   });
 
+  it('scrolls the container a clamping modifier confines the drag to, not the neighbour under the pointer', async () => {
+    const { engine } = await renderDnd();
+    const source = createElement();
+    const makeList = (left: number) => {
+      const list = createElement({ top: 0, height: 200, left, width: 200 });
+      list.style.overflow = 'auto';
+      list.scrollBy = vi.fn();
+      Object.defineProperty(list, 'scrollTop', { value: 400, writable: true });
+      Object.defineProperty(list, 'scrollHeight', { value: 1000 });
+      Object.defineProperty(list, 'clientHeight', { value: 200 });
+      return list;
+    };
+    // Two side-by-side lists; the drag is clamped into the left one, so the
+    // right one can never receive the item.
+    const listA = makeList(0);
+    const listB = makeList(200);
+
+    engine.registerDraggable(source, {
+      modifiers: ({ point }) => ({ x: Math.min(point.x, 190), y: Math.min(point.y, 190) }),
+    });
+    // B is registered first so it is also visited first: without the reported
+    // point taking precedence, B would consume the vertical axis before A runs.
+    engine.registerAutoScroller(listB, {});
+    engine.registerAutoScroller(listA, {});
+
+    await lift(source, { clientX: 100, clientY: 100 });
+    // The physical pointer sits in B's bottom edge zone; the reported point is
+    // pinned to A's bottom-right corner. B contains only the raw pointer, so it
+    // must not take the vertical axis from A.
+    fireEvent.dragOver(listB, { clientX: 300, clientY: 190 });
+    await flushRaf();
+    await flushRaf();
+    await flushRaf();
+
+    expect(listA.scrollBy).toHaveBeenCalled();
+    expect(listB.scrollBy).not.toHaveBeenCalled();
+  });
+
   it('a scroller registered mid-drag engages once a fresh move arrives', async () => {
     const { engine } = await renderDnd();
     const source = createElement();
@@ -1400,6 +1438,35 @@ describe('engine.registerAutoScroller', () => {
       const computedStyle = vi.spyOn(window, 'getComputedStyle');
       registerCleanup(() => computedStyle.mockRestore());
       fireEvent.dragOver(second, { clientX: 100, clientY: 190 });
+      await flushRaf();
+      await flushRaf();
+
+      expect(computedStyle.mock.calls.some(([element]) => element === container.element)).toBe(
+        false,
+      );
+    });
+
+    it('keeps ancestor style readings when the hovered element itself is restyled', async () => {
+      const { engine } = await renderDnd();
+      const container = makeContainer();
+      const row = document.createElement('div');
+      container.element.append(row);
+      const source = createElement();
+      engine.registerDraggable(source, {});
+      engine.registerAutoScroller(container.element, {});
+
+      await driveTo(source, row, 100, 190);
+      expect(container.scrollBy).toHaveBeenCalled();
+
+      const computedStyle = vi.spyOn(window, 'getComputedStyle');
+      registerCleanup(() => computedStyle.mockRestore());
+      // A hover class toggled on the row under the pointer: the row's own style
+      // cannot change the overflow of a container above it, so the container's
+      // cached readings survive.
+      await act(async () => {
+        row.className = 'hovered';
+      });
+      fireEvent.dragOver(row, { clientX: 100, clientY: 190 });
       await flushRaf();
       await flushRaf();
 
@@ -2107,6 +2174,42 @@ describe('engine.registerAutoScroller', () => {
 
       // The left edge scrolls into the content; the browser reports the offset
       // as negative in RTL.
+      startTouchDrag(source, 10, centerY);
+      await waitForRampUp();
+      expect(window.scrollX).toBeLessThan(0);
+      endTouchDrag(10, centerY);
+    });
+
+    // HTML propagates `direction` from `<body>` to the viewport, so a `<body
+    // dir="rtl">` page scrolls RTL while the root still computes as `ltr`.
+    it('honours the RTL home edge when only <body> is RTL', async () => {
+      const { engine } = await renderDnd();
+      const source = createElement();
+      document.documentElement.setAttribute('dir', 'ltr');
+      document.body.setAttribute('dir', 'rtl');
+      registerCleanup(() => {
+        document.documentElement.removeAttribute('dir');
+        document.body.removeAttribute('dir');
+        window.scrollTo(0, 0);
+      });
+      addSpacer('4000px', '10px');
+
+      engine.registerDraggable(source, {
+        activation: { touch: { type: 'immediate' } },
+      });
+      registerCleanup(engine.registerAutoScroller(document.documentElement, {}));
+
+      const centerY = Math.floor(document.documentElement.clientHeight / 2);
+      const viewportWidth = document.documentElement.clientWidth;
+
+      // The right edge is the home edge: exhausted at the start position.
+      startTouchDrag(source, viewportWidth - 10, centerY);
+      await waitForRampUp();
+      expect(window.scrollX).toBeCloseTo(0);
+      endTouchDrag(viewportWidth - 10, centerY);
+
+      // Reading the root's `ltr` would leave this edge dead; the left edge must
+      // scroll into the content.
       startTouchDrag(source, 10, centerY);
       await waitForRampUp();
       expect(window.scrollX).toBeLessThan(0);

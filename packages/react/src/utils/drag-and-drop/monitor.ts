@@ -25,10 +25,29 @@ const state = getSharedSlot<MonitorState>('registerMonitor', () => ({
   activeSource: null,
 }));
 
+interface MatchedMonitor {
+  /** The parameters object the getter returned, to tell a fresh one from the last. */
+  parameters: RegisterMonitorParameters;
+  /** Its copy, so a getter that mutates one object in place can't rewrite the closure. */
+  snapshot: RegisterMonitorParameters;
+}
+
+/**
+ * The last `accept`-compatible parameters per engaged monitor, kept so a monitor
+ * whose `accept` stops matching mid-drag can still close its observation. Copied
+ * only when the getter returns a new object: this is read per monitor per event.
+ */
 const matchedMonitors = getSharedSlot(
   'registerMonitor.matchedParameters',
-  () => new WeakMap<MonitorGetter, RegisterMonitorParameters>(),
+  () => new WeakMap<MonitorGetter, MatchedMonitor>(),
 );
+
+function rememberMatchedMonitor(getMonitor: MonitorGetter, parameters: RegisterMonitorParameters) {
+  const matched = matchedMonitors.get(getMonitor);
+  if (matched === undefined || matched.parameters !== parameters) {
+    matchedMonitors.set(getMonitor, { parameters, snapshot: { ...parameters } });
+  }
+}
 
 /** The monitor registry: a getter per monitor for its latest parameters. */
 export const monitorRegistry = state.allMonitors;
@@ -58,7 +77,7 @@ export function engageMonitorIfDragging(getMonitor: MonitorGetter): void {
   );
   if (monitor !== null && matchesAccept(monitor.accept, activeSource)) {
     state.activeMonitors.add(getMonitor);
-    matchedMonitors.set(getMonitor, { ...monitor });
+    rememberMatchedMonitor(getMonitor, monitor);
   }
 }
 
@@ -127,7 +146,7 @@ function dispatchToMonitor<K extends keyof DraggableEventMap & keyof RegisterMon
       const current = getMonitor();
       let monitor = current;
       if (matchesAccept(current.accept, payload.source)) {
-        matchedMonitors.set(getMonitor, { ...current });
+        rememberMatchedMonitor(getMonitor, current);
       } else {
         // Finish the observer that joined this drag, using its compatible closure.
         // Other events must not reach the newly configured observer.
@@ -138,7 +157,7 @@ function dispatchToMonitor<K extends keyof DraggableEventMap & keyof RegisterMon
         if (!previous) {
           return;
         }
-        monitor = previous;
+        monitor = previous.snapshot;
       }
       const handler = monitor[eventName] as
         | ((parameters: DraggableEventMap[K], details: DraggableEventDetailsMap[K]) => void)

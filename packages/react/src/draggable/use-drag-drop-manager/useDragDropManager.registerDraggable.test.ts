@@ -1,9 +1,13 @@
+import * as React from 'react';
 import { describe, it, expect, vi } from 'vitest';
 import { fireEvent } from '@testing-library/react';
 import { createDndRenderer, firePointer } from '#test-utils';
 import { createElement, flushRaf, setupDragEngineTests } from '../../../test/dnd';
 import { dragSessionStore } from '../../utils/drag-and-drop/dragSessionStore';
+import { getRegistration } from '../../utils/drag-and-drop/draggableRegistry';
 import type { MoveStartContext, BeforeMoveStartEventDetails } from '../../types/drag';
+import { useDragDropManager } from './useDragDropManager';
+import type { DragDropManager } from '../../types/dragRegistration';
 
 setupDragEngineTests();
 
@@ -384,6 +388,30 @@ describe('engine.registerDraggable', () => {
 
     expect(onDragStartA).toHaveBeenCalledTimes(1);
     expect(onDragStartB).not.toHaveBeenCalled();
+  });
+
+  it('throws before registering anything when the getter returns no kind', async () => {
+    // The test engine defaults `kind`; reach the real manager for the plain-JS
+    // shape the types forbid.
+    let manager: DragDropManager | null = null;
+    function Capture() {
+      manager = useDragDropManager();
+      return null;
+    }
+    await renderDnd(React.createElement(Capture));
+    const el = createElement();
+    const getParameters = (() => ({})) as unknown as Parameters<
+      DragDropManager['registerDraggable']
+    >[1];
+
+    expect(() => manager!.registerDraggable(el, getParameters)).toThrow(
+      'Base UI: registerDraggable() was called without a `kind`',
+    );
+
+    // Nothing to clean up: no registry entry, no gesture styles.
+    expect(getRegistration(el)).toBeUndefined();
+    expect(el.style.touchAction || '').toBe('');
+    expect(el.style.userSelect || '').toBe('');
   });
 
   it('prevents concurrent drags (only one at a time)', async () => {

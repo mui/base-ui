@@ -52,8 +52,8 @@ const ELEMENT_NODE = 1;
 // Ramp the speed in over the first engaged frames rather than starting at
 // `maxSpeed`: a pointer that merely clips a container's edge on its way past
 // would otherwise lurch it, and the ramp restarts whenever the pointer leaves and
-// re-enters the zone (see `engagementStart`). Documented on the auto-scroll page,
-// because a high `maxSpeed` reads as a crawl for this long and looks broken.
+// re-enters the zone (see `engagementStart`). The auto-scroll docs mention the
+// ramp, because a high `maxSpeed` reads as a crawl for this long and looks broken.
 const RAMP_UP_DURATION = 400;
 // Cap the per-frame delta so a stalled/paused rAF (long consumer `onMove`, GC
 // pause, throttled tab) can't produce one oversized `scrollBy` on resume.
@@ -236,8 +236,11 @@ function handleObservedMutations(records: MutationRecord[]): void {
 
 /**
  * Whether a restyle of `element` can change a candidate's overflow or
- * direction: it is a registered container itself, or it contains the element
- * the observed chain was walked from (or the source, whose chain is unioned in).
+ * direction: it is a registered container itself, or a strict ancestor of the
+ * element the observed chain was walked from (or of the source, whose chain is
+ * unioned in). The anchor and source themselves are excluded: a hover class
+ * toggled on the hovered row restyles it on every target change, and a leaf's
+ * own overflow never gates a registered ancestor.
  */
 function affectsCandidateChain(element: Element): boolean {
   if (state.scrollers.has(element as HTMLElement)) {
@@ -248,7 +251,14 @@ function affectsCandidateChain(element: Element): boolean {
     // No chain walked yet, so nothing to compare against: stay conservative.
     return true;
   }
-  return contains(element, anchor) || contains(element, state.currentSource?.element ?? null);
+  return (
+    isStrictAncestor(element, anchor) ||
+    isStrictAncestor(element, state.currentSource?.element ?? null)
+  );
+}
+
+function isStrictAncestor(element: Element, descendant: Element | null): boolean {
+  return descendant !== null && element !== descendant && contains(element, descendant);
 }
 
 /** Invalidate the cached inner-first ordering; recomputed lazily in `scrollLoop`. */
@@ -344,8 +354,9 @@ function getScrollFromStart(el: Element): number {
 
 // `Math.ceil`/`Math.floor` guard against Chrome 115+ fractional scroll units.
 function canScrollLeft(el: Element, rtl: boolean): boolean {
-  // Leftward in RTL means scrolling back toward the (right-hand) home edge;
-  // in LTR it means scrolling away from the (left-hand) home edge.
+  // Scrolling left in RTL moves AWAY from the (right-hand) home edge, so it is
+  // possible until the far extent is reached; in LTR it moves TOWARD the
+  // (left-hand) home edge, so it is possible while anything is scrolled off it.
   return rtl
     ? Math.ceil(getScrollFromStart(el)) < getMaxScrollOffset(el.scrollWidth, el.clientWidth)
     : el.scrollLeft > 0;
@@ -608,6 +619,12 @@ function runScrollFrame(timestamp: number): void {
   // document — edge-testing a foreign scroller's frame-local rect against them
   // could scroll the wrong document's container on a coincidental overlap.
   const sourceDocument = ownerDocument(currentSource.element);
+  const preferReported = reportedPointHasCandidate(
+    sortedElements,
+    sourceDocument,
+    currentInput,
+    currentReportedInput,
+  );
 
   for (const element of sortedElements) {
     // Inner-first ordering: once both axes are consumed no remaining (outer)
@@ -638,7 +655,7 @@ function runScrollFrame(timestamp: number): void {
           clientX: clamp(currentInput.clientX, rect.left, rect.right),
           clientY: clamp(currentInput.clientY, rect.top, rect.bottom),
         }
-      : resolveProbePoint(currentInput, currentReportedInput, rect);
+      : resolveProbePoint(currentInput, currentReportedInput, rect, preferReported);
     if (probe === null) {
       continue;
     }
@@ -688,7 +705,7 @@ function runScrollFrame(timestamp: number): void {
     const overflow = hasHandler ? BOTH_AXES : nativeOverflow;
     if (!overflow.x && !overflow.y) {
       if (process.env.NODE_ENV !== 'production') {
-        if (getParameters !== undefined && !pageScroller) {
+        if (!pageScroller) {
           warn(
             'an auto-scroll container was registered on an element that does not scroll, ' +
               'so its parameters (including `disabled`) have no effect. ' +
@@ -1162,19 +1179,56 @@ function resolveScrollInput(reported: DragInput): DragInput {
  * and the container silently drops out. So fall back to the reported point when
  * the raw one has left the rect, and reject the candidate only when neither is
  * inside it.
+ *
+ * When `preferReported` is set, some registered container holds the reported
+ * point, and a candidate holding only the raw one is rejected: with a drag
+ * clamped into list A, the physical pointer pushing past A's edge lands in the
+ * neighbouring list B, and B would otherwise take the axis from A — the only
+ * container the item can still be dropped in.
  */
 function resolveProbePoint(
   raw: DragInput,
   reported: DragInput | null,
   rect: { left: number; top: number; right: number; bottom: number },
+  preferReported: boolean,
 ): DragInput | null {
+  const reportedInside =
+    reported !== null && isPointInRect(reported.clientX, reported.clientY, rect);
+  if (preferReported && !reportedInside) {
+    return null;
+  }
   if (isPointInRect(raw.clientX, raw.clientY, rect)) {
     return raw;
   }
-  if (reported !== null && isPointInRect(reported.clientX, reported.clientY, rect)) {
-    return reported;
+  return reportedInside ? reported : null;
+}
+
+/**
+ * Whether a `modifiers`-constrained reported point that differs from the
+ * physical pointer sits inside any registered (non-page) container in the
+ * source's document — the case where `resolveProbePoint` must prefer it. The
+ * common unmodified drag has identical points and pays nothing; the page
+ * scroller is left out because it never competes on geometry (its probe is the
+ * raw pointer clamped into the viewport).
+ */
+function reportedPointHasCandidate(
+  sortedElements: ReadonlyArray<HTMLElement>,
+  sourceDocument: Document,
+  raw: DragInput,
+  reported: DragInput | null,
+): boolean {
+  if (reported === null || (reported.clientX === raw.clientX && reported.clientY === raw.clientY)) {
+    return false;
   }
-  return null;
+  for (const element of sortedElements) {
+    if (ownerDocument(element) !== sourceDocument || resolvePageScroller(element) !== null) {
+      continue;
+    }
+    if (isPointInRect(reported.clientX, reported.clientY, element.getBoundingClientRect())) {
+      return true;
+    }
+  }
+  return false;
 }
 
 // Re-seed the loop from any fresh drag input; shared by `onMove` and

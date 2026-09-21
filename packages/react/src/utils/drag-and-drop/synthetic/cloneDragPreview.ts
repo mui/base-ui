@@ -449,6 +449,9 @@ function copyLiveState(
 
 interface PreparedDragPreviewClone {
   element: HTMLElement;
+  /** The source's elements in tree order, paired index-by-index with `nodes`. */
+  sourceNodes: Element[];
+  /** The clone's elements in the same order as `sourceNodes`. */
   nodes: Element[];
   applyPostInsertion: () => void;
 }
@@ -473,7 +476,7 @@ function prepareDragPreviewClone(
   sanitize(element, cloneNodes, '-drag-preview');
   element.removeAttribute(DRAGGING_ATTR);
 
-  return { element, nodes: cloneNodes, applyPostInsertion };
+  return { element, sourceNodes, nodes: cloneNodes, applyPostInsertion };
 }
 
 /** A `transform` that only translates, which leaves the box's size untouched. */
@@ -634,7 +637,9 @@ export function measurePreviewSource(source: HTMLElement): {
  * host a declared preview renders its content into — and inject it next to the source
  * so inherited properties and contextual descendant selectors still apply.
  * Clones retain computed values lost through the extra wrapper, including styles
- * from direct-child selectors. Explicit preview rules are included in that snapshot.
+ * from direct-child and sibling-position selectors, snapshotted from the source
+ * itself. Rules keyed on `[data-drag-preview]` apply to the clone where it lives,
+ * so they must not depend on the wrapper's own position (`.List > .Card[data-drag-preview]`).
  *
  * It is promoted to the **top layer** through an engine-owned wrapper carrying
  * `popover="manual"`, which reparents the wrapper's box to a sibling of the root:
@@ -769,12 +774,28 @@ function createPreparedDragPreviewElement(
   let contextualStyles: ReturnType<typeof capturePreviewStyles> | undefined;
   if (options.clone) {
     applySourceSizeVars(element, { width, height });
-    host.appendChild(element);
+    // Read from the source while the clone is still detached: it is never inserted
+    // beside the source, which would shift every sibling's `:nth-child` index and
+    // snapshot the clone at a position the source does not occupy.
+    contextualStyles = capturePreviewStyles(
+      source,
+      options.clone.sourceNodes,
+      element,
+      options.clone.nodes,
+    );
+  }
+  wrapper.appendChild(element);
+
+  /**
+   * A source's contextual motion rule may outrank the shared neutralizer. Keep
+   * explicitly different preview motion, but suppress inherited motion. Runs once
+   * the wrapper is connected, so the clone's computed style reflects the cascade
+   * it actually sits in, and before the contextual snapshot is restored on top.
+   */
+  function neutralizeInheritedMotion(): void {
     const win = ownerWindow(source);
     const sourceStyle = win.getComputedStyle(source);
     const previewStyle = win.getComputedStyle(element);
-    // A source's contextual motion rule may outrank the shared neutralizer.
-    // Keep explicitly different preview motion, but suppress inherited motion.
     for (const property of NEUTRALIZED_PROPERTIES) {
       const value = previewStyle.getPropertyValue(property);
       const activeMotion =
@@ -788,9 +809,7 @@ function createPreparedDragPreviewElement(
         element.style.setProperty(property, 'none', 'important');
       }
     }
-    contextualStyles = capturePreviewStyles(element, options.clone.nodes);
   }
-  wrapper.appendChild(element);
 
   // The ancestor chain, captured while it is still alive, so a mid-drag teardown can
   // re-home the preview as close to its original cascade as possible. It ends at
@@ -837,14 +856,20 @@ function createPreparedDragPreviewElement(
     }
   }
 
-  // Insert as the *last* child rather than next to the source: both are after the
-  // source in tree order (so `getElementById` still finds the real element), but
-  // last-child leaves every existing sibling's `:nth-child` index untouched. It
-  // does still shift `:last-child` / `:only-child` / `:nth-last-child` on the
-  // siblings — pass a `container` to avoid that.
+  // Insert the wrapper as the *last* child rather than next to the source: both
+  // are after the source in tree order (so `getElementById` still finds the real
+  // element), but last-child leaves every existing sibling's `:nth-child` index
+  // untouched. It does still shift `:last-child` / `:only-child` /
+  // `:nth-last-child` on the siblings — pass a `container` to avoid that. The
+  // preview itself is unaffected either way: its structural styles were
+  // snapshotted from the source, and `restore()` below re-applies whatever the
+  // wrapper position changed.
   host.appendChild(wrapper);
   openInTopLayer();
   updatePositionScale();
+  if (isClone) {
+    neutralizeInheritedMotion();
+  }
   contextualStyles?.restore();
   applyPostInsertion();
 

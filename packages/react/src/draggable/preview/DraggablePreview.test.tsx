@@ -40,17 +40,37 @@ describe('Draggable.Preview', () => {
     expect(document.querySelector('[data-drag-preview]')).toBeNull();
   });
 
-  it('warns when clone styling props would be ignored', () => {
+  it.each([
+    ['className', { className: 'preview' }],
+    ['style', { style: { color: 'red' } }],
+    ['render', { render: <span /> }],
+  ])('warns when %s would be ignored by the clone', (_name, props) => {
     const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
     try {
       rtlRender(
         <DraggableProvider>
           <Draggable.Root>
-            <Draggable.Preview className="preview" style={{ color: 'red' }} />
+            <Draggable.Preview {...props} />
           </Draggable.Root>
         </DraggableProvider>,
       );
       expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('these props are ignored'));
+    } finally {
+      warnSpy.mockRestore();
+    }
+  });
+
+  it('does not warn about render when custom children are provided', () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    try {
+      rtlRender(
+        <DraggableProvider>
+          <Draggable.Root>
+            <Draggable.Preview render={<span />}>Preview</Draggable.Preview>
+          </Draggable.Root>
+        </DraggableProvider>,
+      );
+      expect(warnSpy).not.toHaveBeenCalled();
     } finally {
       warnSpy.mockRestore();
     }

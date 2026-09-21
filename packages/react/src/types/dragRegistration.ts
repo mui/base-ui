@@ -89,9 +89,10 @@ export type RegisterDropTargetParameters<TSourcePayload = unknown, TTargetPayloa
   /**
    * One or more drag source kinds accepted by this target.
    *
-   * Every registration uses the same page-wide drag manager, so this value is
-   * required here. Pass `Draggable.anyKind` to accept every drag. In that case,
-   * `source.payload` is `unknown`.
+   * Required here: `registerDropTarget` joins the page-wide manager directly, with
+   * no provider kind to default to, and `Draggable.Target` props with typed
+   * payloads need it to determine `source.payload`. Pass `Draggable.anyKind` to
+   * accept every drag. In that case, `source.payload` is `unknown`.
    *
    * The target ignores a source whose kind is not accepted. An ancestor target can
    * still accept it. Base UI checks `accept` before `canDrop`.

@@ -3,7 +3,7 @@ import { Draggable } from '@base-ui/react/draggable';
 
 import * as React from 'react';
 
-import styles from '../../hero.module.css';
+import styles from '../../../shapeSorter.module.css';
 
 const circleKind = Draggable.createKind('overview/shape-circle');
 const squareKind = Draggable.createKind('overview/shape-square');

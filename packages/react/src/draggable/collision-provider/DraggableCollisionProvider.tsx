@@ -62,6 +62,9 @@ export function DraggableCollisionProvider<TPayload>(
   const getProps = useStableCallback(() => props);
   // Ref counts also cover multiple source registrations composed on one element.
   const participants = useRefWithInit(() => new WeakMap<Element, number>()).current;
+  // The registered target elements, so a `canCollide` change refreshes only this
+  // group's records instead of every drop target on the page.
+  const participantElements = useRefWithInit(() => new Set<HTMLElement>()).current;
   const snapshots = useRefWithInit(
     () => new WeakMap<DropTargetRecord, DraggableCollision<TPayload>>(),
   ).current;
@@ -83,6 +86,7 @@ export function DraggableCollisionProvider<TPayload>(
       sourceElement: HTMLElement,
     ) => {
       participants.set(sourceElement, (participants.get(sourceElement) ?? 0) + 1);
+      participantElements.add(element);
       const unregister = registerDropTarget<TPayload, TPayload>(element, () => {
         const participant = getParticipant();
         const config = getProps();
@@ -111,8 +115,12 @@ export function DraggableCollisionProvider<TPayload>(
       });
       return () => {
         // A source callback can unmount its row before the start monitor runs.
-        if (dragSourceStore.state?.element === sourceElement) {
-          removedSource.current = dragSourceStore.state;
+        // Read from the session store: its `source` keeps the identity every event
+        // of the drag reports, where `dragSourceStore` publishes a copy once the
+        // source is retargeted (see `retargetDragSource`).
+        const activeSource = dragSessionStore.state?.source ?? null;
+        if (activeSource?.element === sourceElement) {
+          removedSource.current = activeSource;
         }
         const count = participants.get(sourceElement) ?? 0;
         if (count <= 1) {
@@ -120,6 +128,7 @@ export function DraggableCollisionProvider<TPayload>(
         } else {
           participants.set(sourceElement, count - 1);
         }
+        participantElements.delete(element);
         unregister();
       };
     },
@@ -201,9 +210,13 @@ export function DraggableCollisionProvider<TPayload>(
     if (firstParameterEffect.current) {
       firstParameterEffect.current = false;
     } else if (dragSourceStore.state && props.kind.matches(dragSourceStore.state)) {
-      scheduleDropTargetParameterRefresh();
+      // Scoped per participant: an inline `canCollide` gets a new identity on every
+      // render, and a page-wide refresh here would re-resolve every target per frame.
+      for (const element of participantElements) {
+        scheduleDropTargetParameterRefresh(element);
+      }
     }
-  }, [props.kind, props.canCollide]);
+  }, [props.kind, props.canCollide, participantElements]);
 
   const context = React.useMemo(
     () => ({ register, kind: props.kind, parent }),

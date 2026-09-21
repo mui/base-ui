@@ -57,6 +57,21 @@ export class DragEngineBase {
   ): DragCleanupFn => {
     const initial = get();
 
+    // Checked before any side effect below: the static setup and the registry
+    // entry are only released by the cleanup this method returns, so a throw
+    // past them would leak a half-registered element. The types require `kind`;
+    // reaching here means plain JS or a cast, where the failure would otherwise
+    // be a bare `TypeError` deep in the engine.
+    if (initial.kind == null) {
+      throw new Error(
+        'Base UI: registerDraggable() was called without a `kind`, so the drag source ' +
+          'cannot be matched against any drop target or monitor `accept` and the ' +
+          'registration cannot be completed. ' +
+          'Create one with `Draggable.createKind` and pass it as `kind`. ' +
+          'See https://base-ui.com/react/utils/draggable.',
+      );
+    }
+
     // Always defined so every drag start clears any preview the previous drag left
     // behind. This also covers a drop and next pickup landing in one React flush.
     const onGenerateDragPreview: DraggableConfig<TPayload>['onGenerateDragPreview'] = (payload) => {

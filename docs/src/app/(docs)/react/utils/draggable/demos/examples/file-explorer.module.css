@@ -8,12 +8,6 @@
   user-select: none;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .Preview[data-ending-style] {
-    transition: translate 0.2s cubic-bezier(0.2, 0, 0, 1);
-  }
-}
-
 /*
  * CSS Modules demos revert Tailwind's preflight with `all: revert-layer`, which
  * also drops the page's font smoothing and renders text heavier than the

@@ -306,6 +306,10 @@ export type DraggableConfig<TPayload = undefined> = {
    * Event handler called once when the drag ends after a drop, outside release, or
    * cancellation. Commit changes when `eventDetails.reason` is `'drop'`. Use
    * `try/finally` when cleanup must run even if committing throws or returns early.
+   *
+   * A drag canceled during pickup, by a `cancelDrag()` from a target's `canDrop` or
+   * `getPayload` on the initial stack or while the preview is generated, fires this
+   * with `canceled: true` and no preceding `onMoveStart`.
    */
   onMoveEnd?:
     | ((

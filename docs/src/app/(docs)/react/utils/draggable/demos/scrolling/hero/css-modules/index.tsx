@@ -3,6 +3,7 @@ import { Draggable } from '@base-ui/react/draggable';
 
 import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { GripIcon } from '../../../GripIcon';
 import { DragPageAutoScroll } from '../../../DragPageAutoScroll';
 
 import styles from '../../hero.module.css';
@@ -89,21 +90,6 @@ function resolveDrop(container: HTMLElement, clientY: number): { index: number; 
   return { index, slotY: slotYs[index] };
 }
 
-function Grip() {
-  return (
-    <svg className={styles.Grip} width="8" height="14" viewBox="0 0 8 14" aria-hidden="true">
-      <g fill="currentColor">
-        <circle cx="2" cy="2" r="1.2" />
-        <circle cx="6" cy="2" r="1.2" />
-        <circle cx="2" cy="7" r="1.2" />
-        <circle cx="6" cy="7" r="1.2" />
-        <circle cx="2" cy="12" r="1.2" />
-        <circle cx="6" cy="12" r="1.2" />
-      </g>
-    </svg>
-  );
-}
-
 function Card({ task, draggable }: { task: Task; draggable?: boolean }) {
   return (
     <Draggable.Root
@@ -115,7 +101,7 @@ function Card({ task, draggable }: { task: Task; draggable?: boolean }) {
       data-id={task.id}
       className={styles.Card}
     >
-      <Grip />
+      <GripIcon className={styles.Grip} />
       {task.label}
     </Draggable.Root>
   );

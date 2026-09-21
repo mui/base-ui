@@ -107,5 +107,3 @@ export type {
   DropTargetPayloadGetter,
   DropTargetEventTarget,
 } from './drag';
-
-export type { CollectionItemId } from './collection';

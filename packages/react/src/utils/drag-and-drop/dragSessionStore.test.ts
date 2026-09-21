@@ -2,7 +2,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { fireEvent } from '@testing-library/react';
 import { createDndRenderer } from '#test-utils';
 import { cancel, createElement, flushRaf, setupDragEngineTests } from '../../../test/dnd';
-import { dragSessionStore, dragSourceStore } from './dragSessionStore';
+import { dragSessionStore, dragSourceStore, retargetDragSource } from './dragSessionStore';
 
 setupDragEngineTests();
 
@@ -168,6 +168,37 @@ describe('dragSessionStore', () => {
     expect(seen[seen.length - 1]).toBeNull();
 
     unsubscribe();
+  });
+
+  it('keeps the session source identity across a retarget while republishing the source store', async () => {
+    const { engine } = await renderDnd();
+    const source = createElement();
+    engine.registerDraggable(source, {});
+
+    fireEvent.dragStart(source);
+    await flushRaf();
+
+    const sessionSource = dragSessionStore.state!.source;
+    const publishedSource = dragSourceStore.state;
+    expect(publishedSource).toBe(sessionSource);
+    const listener = vi.fn();
+    const unsubscribe = dragSourceStore.subscribe(listener);
+
+    // A virtualizer remounting the dragged row: the session follows the new node.
+    const replacement = createElement();
+    retargetDragSource(source, replacement);
+
+    // The object every event of this drag reports, so it is mutated, not replaced.
+    expect(dragSessionStore.state!.source).toBe(sessionSource);
+    expect(sessionSource.element).toBe(replacement);
+    // Reactive subscribers need a new reference to re-run their selectors.
+    expect(listener).toHaveBeenCalledTimes(1);
+    expect(dragSourceStore.state).not.toBe(publishedSource);
+    expect(dragSourceStore.state!.element).toBe(replacement);
+
+    unsubscribe();
+    engine.cancelDrag();
+    expect(dragSourceStore.state).toBeNull();
   });
 
   it('does not notify source-only subscribers when the target stack changes', async () => {

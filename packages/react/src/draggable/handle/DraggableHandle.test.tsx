@@ -32,8 +32,8 @@ describe('<Draggable.Handle />', () => {
       }
 
       const { rerender } = await renderDnd(<Card withFirst />);
-      // `warn()` dedupes per message process-wide, so this must be the first
-      // two-handle mount of the file — and re-mounts can't inflate the count.
+      // `warn()` dedupes per message (reset before each test), so re-mounts
+      // can't inflate the count.
       expect(warnSpy).toHaveBeenCalledTimes(1);
       expect(warnSpy.mock.calls[0][0]).toMatch(/more than one mounted Draggable\.Handle/);
 

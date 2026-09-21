@@ -2,60 +2,23 @@
 import { Draggable } from '@base-ui/react/draggable';
 
 import * as React from 'react';
+import { DashboardControls } from '../../DashboardControls';
+import { GripIcon } from '../../GripIcon';
+import {
+  INITIAL_WIDGETS,
+  SLOTS,
+  useDashboardWidgets,
+  type SlotId,
+  type WidgetData,
+} from '../../dashboardWidgets';
 
 import styles from '../../conditional.module.css';
 
-type SlotId = 'left' | 'center' | 'right';
-
-interface WidgetData {
-  id: string;
-  title: string;
-  value: string;
-  detail: string;
-  slot: SlotId;
-  locked?: boolean;
-}
-
 const widgetKind = Draggable.createKind<string>('draggable/conditional-widget');
 
-const SLOTS: { id: SlotId; label: string }[] = [
-  { id: 'left', label: 'Left dashboard slot' },
-  { id: 'center', label: 'Center dashboard slot' },
-  { id: 'right', label: 'Right dashboard slot' },
-];
-
-const INITIAL_WIDGETS: WidgetData[] = [
-  {
-    id: 'visitors',
-    title: 'Visitors',
-    value: '2,420',
-    detail: 'Last 7 days',
-    slot: 'left',
-  },
-  {
-    id: 'conversion',
-    title: 'Conversion',
-    value: '3.8%',
-    detail: 'Pinned widget',
-    slot: 'center',
-    locked: true,
-  },
-];
-
-function Grip() {
-  return (
-    <svg className={styles.Icon} width="8" height="14" viewBox="0 0 8 14" aria-hidden="true">
-      <g fill="currentColor">
-        <circle cx="2" cy="2" r="1.2" />
-        <circle cx="6" cy="2" r="1.2" />
-        <circle cx="2" cy="7" r="1.2" />
-        <circle cx="6" cy="7" r="1.2" />
-        <circle cx="2" cy="12" r="1.2" />
-        <circle cx="6" cy="12" r="1.2" />
-      </g>
-    </svg>
-  );
-}
+const PINNED_WIDGETS: WidgetData[] = INITIAL_WIDGETS.map((widget) =>
+  widget.id === 'conversion' ? { ...widget, detail: 'Pinned widget', locked: true } : widget,
+);
 
 function Lock() {
   return (
@@ -81,12 +44,11 @@ function Widget({ widget }: { widget: WidgetData }) {
       // @highlight-start
       disabled={widget.locked}
       // @highlight-end
-      role={widget.locked ? undefined : 'button'}
       className={styles.Widget}
       data-locked={widget.locked || undefined}
     >
       <div className={styles.WidgetHeader}>
-        {widget.locked ? <Lock /> : <Grip />}
+        {widget.locked ? <Lock /> : <GripIcon className={styles.Icon} />}
         <span>{widget.title}</span>
       </div>
       <div className={styles.WidgetBody}>
@@ -124,16 +86,12 @@ function DockSlot({
 }
 
 function ConditionalDashboardContent() {
-  const [widgets, setWidgets] = React.useState<WidgetData[]>(INITIAL_WIDGETS);
-
-  function moveWidget(widgetId: string, slot: SlotId) {
-    setWidgets((currentWidgets) =>
-      currentWidgets.map((widget) => (widget.id === widgetId ? { ...widget, slot } : widget)),
-    );
-  }
+  const { widgets, moveWidget, announcement } = useDashboardWidgets(PINNED_WIDGETS);
 
   return (
     <div className={styles.Root}>
+      <DashboardControls className={styles.Controls} widgets={widgets} onMoveWidget={moveWidget} />
+      <div role="status">{announcement}</div>
       <div className={styles.Grid}>
         {SLOTS.map((slot) => (
           <DockSlot

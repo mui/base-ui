@@ -32,6 +32,13 @@ import { findClosestSlot } from '../app/(docs)/react/utils/draggable/demos/examp
 import TabsCss from '../app/(docs)/react/utils/draggable/demos/examples/tabs/css-modules';
 import TabsTailwind from '../app/(docs)/react/utils/draggable/demos/examples/tabs/tailwind';
 
+import HandleCss from '../app/(docs)/react/utils/draggable/demos/handle/css-modules';
+import HandleTailwind from '../app/(docs)/react/utils/draggable/demos/handle/tailwind';
+import ConditionalCss from '../app/(docs)/react/utils/draggable/demos/conditional/css-modules';
+import ConditionalTailwind from '../app/(docs)/react/utils/draggable/demos/conditional/tailwind';
+import NestingCss from '../app/(docs)/react/utils/draggable/demos/targets/nesting/css-modules';
+import NestingTailwind from '../app/(docs)/react/utils/draggable/demos/targets/nesting/tailwind';
+
 setupDragEngineTests();
 afterEach(() => vi.unstubAllGlobals());
 
@@ -84,6 +91,60 @@ describe('draggable demos', () => {
     body.insertBefore(placeholder, cards[1]);
     cards[1].getBoundingClientRect = () => new DOMRect(0, 92, 180, 38);
     expect(findClosestSlot(column, 28)).toBe(1);
+  });
+
+  describe.each([
+    ['CSS Modules', HandleCss],
+    ['Tailwind', HandleTailwind],
+  ] as const)('dashboard controls with %s', (_name, Demo) => {
+    it('moves a widget without dragging and retains control focus', async () => {
+      const { user } = await renderDnd(<Demo />);
+      await user.selectOptions(screen.getByLabelText('Widget'), 'conversion');
+      await user.selectOptions(screen.getByLabelText('Move to'), 'right');
+      const button = screen.getByRole('button', { name: 'Move widget' });
+      button.focus();
+      await user.keyboard('{Enter}');
+      expect(screen.getByRole('group', { name: 'Right dashboard slot' })).toHaveTextContent(
+        'Conversion',
+      );
+      expect(screen.getByRole('group', { name: 'Center dashboard slot' })).toHaveTextContent(
+        'Drop widget',
+      );
+      expect(button).toHaveFocus();
+      expect(screen.getByRole('status')).toHaveTextContent(
+        'Conversion moved to Right dashboard slot.',
+      );
+    });
+  });
+
+  describe.each([
+    ['CSS Modules', ConditionalCss],
+    ['Tailwind', ConditionalTailwind],
+  ] as const)('conditional dashboard controls with %s', (_name, Demo) => {
+    it('excludes the pinned widget from the move controls', async () => {
+      await renderDnd(<Demo />);
+      const options = Array.from(
+        (screen.getByLabelText('Widget') as HTMLSelectElement).options,
+      ).map((option) => option.value);
+      expect(options).toEqual(['visitors']);
+    });
+  });
+
+  describe.each([
+    ['CSS Modules', NestingCss],
+    ['Tailwind', NestingTailwind],
+  ] as const)('nested drop targets with %s', (_name, Demo) => {
+    it('lets the canvas accept a layer the frame skips', async () => {
+      await renderDnd(<Demo />);
+      const frame = screen.getByText('Frame (charts only)').parentElement!;
+      const note = screen.getByText('Note');
+      fireEvent.dragStart(note, { clientX: 10, clientY: 10 });
+      fireEvent.drop(frame, { clientX: 20, clientY: 20 });
+      const moved = screen.getByText('Note', { selector: ':not([data-drag-preview])' });
+      expect(moved.parentElement).toBe(screen.getByText('Canvas').nextElementSibling);
+      expect(frame).toHaveTextContent('Drop the chart into the frame');
+      fireEvent.dragEnd(note);
+    });
   });
 
   describe.each([

@@ -33,6 +33,7 @@ import {
   clearRetiringDropTargets,
   setSessionGrabOffset,
   dispatchDropTargetChange,
+  dispatchTerminalDropTargetLeave,
   dispatchToAllDropTargets,
   dispatchToDropTarget,
   getDropTargetShadowRootsByHost,
@@ -94,11 +95,19 @@ export function isActive(): boolean {
 
 /**
  * Re-resolve the active drop-target stack and publish a fresh session snapshot
- * (no-op if no drag is in progress). Called when a target registers or
- * unregisters mid-drag, so subscribers see the new stack without a pointer event.
+ * (no-op if no drag is in progress). Called when a *hovered* target unregisters
+ * mid-drag, so subscribers see it leave the stack without a pointer event; a
+ * registration goes through {@link scheduleDropTargetParameterRefresh} instead.
+ *
+ * Walks up from the last resolved target rather than hit-testing: the DOM under
+ * the pointer has not changed, only which of its ancestors is registered. A React
+ * unmount runs this from the ref cleanup, inside the commit and before the node
+ * is removed, where an `elementFromPoint` would force a synchronous layout flush
+ * for nothing. Only a last target that has since been detached hit-tests again
+ * (see `resolveDropTargetsFromLastTarget`).
  */
 export function refreshDropTargets(): void {
-  state.refreshDropTargets?.(true);
+  state.refreshDropTargets?.(false);
 }
 
 /** Coalesce a React commit's drop-target parameter changes into one resolution. */
@@ -872,19 +881,18 @@ export function start(parameters: StartParameters): DragSessionHandle | null {
         // Fire final `onDraggableLeave` for any targets still hovered so imperative
         // hover state clears (the success path never emits a change to empty).
         // Same forked shape as the cancel path (see `createTerminalLeavePayload`).
+        // One leave at a time, each removing only its own record from the hovered
+        // bookkeeping: a leave handler that unregisters a sibling target must still
+        // find that sibling hovered, or the sibling's own leave is never dispatched.
         const departedDropTargets = hoveredDropTargets.slice();
         if (departedDropTargets.length > 0) {
           const leavePayload = createTerminalLeavePayload(input);
           for (const target of departedDropTargets) {
+            if (!isLive()) {
+              break;
+            }
             captureTerminalError(() =>
-              dispatchDropTargetChange(
-                [target],
-                [],
-                leavePayload,
-                endDetails,
-                isLive,
-                hoveredDropTargets,
-              ),
+              dispatchTerminalDropTargetLeave(target, leavePayload, endDetails, hoveredDropTargets),
             );
           }
         }

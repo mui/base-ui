@@ -4,7 +4,8 @@
  * The DnD event polyfill and the native→synthetic bridge are installed lazily
  * (see {@link installDndTestEnv}), so importing this module has no side effects.
  */
-import { afterEach } from 'vitest';
+import { afterEach, beforeEach } from 'vitest';
+import { reset as resetWarnings } from '@base-ui/utils/warn';
 import { act, fireEvent } from '@mui/internal-test-utils';
 import { installDndPolyfill } from './dndPolyfill';
 import { waitSingleFrame } from './wait';
@@ -109,6 +110,11 @@ function drainCleanupQueue(): void {
  */
 export function setupDragEngineTests(options: { extraAfterEach?: () => void } = {}): void {
   installDndTestEnv();
+  // `warn()` dedupes per message process-wide; reset it so warning-count
+  // assertions do not depend on test order or on `.only`.
+  beforeEach(() => {
+    resetWarnings();
+  });
   afterEach(() => {
     let firstError: unknown;
     let failed = false;

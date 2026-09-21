@@ -87,10 +87,21 @@ function startSensorSession(parameters: StartSensorSessionParameters): DragSessi
   // the new element and re-points `dragSource.element` at it (see
   // `retargetDragSource`). The old element's registration is gone, so
   // resolving against the live node keeps the fresh handler closures flowing.
+  //
+  // The snapshot is copied only when the getter hands back a new object. The
+  // registration layer already returns one object until its inputs change, and
+  // this runs on every dispatch, so copying per call would rebuild the ~20-field
+  // object each frame for nothing.
+  let lastCompatible: DraggableConfig<any> = source;
   let compatibleParameters = { ...source };
   const getLatestParameters = (): DraggableConfig<any> => {
     const current = getRegistration(dragSource.element)?.();
-    if (current?.kind.id === dragSource.kind) {
+    if (
+      current !== undefined &&
+      current !== lastCompatible &&
+      current.kind.id === dragSource.kind
+    ) {
+      lastCompatible = current;
       compatibleParameters = { ...current };
     }
     return compatibleParameters;
