@@ -2188,6 +2188,27 @@ describe('<NavigationMenu.Root />', () => {
       expect(onOpenChangeComplete.mock.calls.filter(([open]) => !open)).toHaveLength(1);
     });
 
+    it('ignores `unmount` while the popup is open', async () => {
+      const actionsRef = React.createRef<NavigationMenu.Root.Actions>();
+      const onOpenChangeComplete = vi.fn();
+      await render(
+        <TestNavigationMenu
+          defaultValue="item-1"
+          actionsRef={actionsRef}
+          onOpenChangeComplete={onOpenChangeComplete}
+        />,
+      );
+      const popup = screen.getByTestId('popup-root');
+
+      await act(async () => {
+        actionsRef.current?.unmount();
+      });
+
+      expect(screen.getByTestId('popup-root')).toBe(popup);
+      expect(onOpenChangeComplete).not.toHaveBeenCalledWith(false);
+      expect(screen.getByTestId('trigger-1')).toHaveAttribute('aria-expanded', 'true');
+    });
+
     it('still unmounts on a later close after `unmount` was called while open', async () => {
       const actionsRef = React.createRef<NavigationMenu.Root.Actions>();
       const onOpenChangeComplete = vi.fn();

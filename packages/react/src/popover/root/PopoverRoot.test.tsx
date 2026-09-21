@@ -1458,6 +1458,21 @@ describe('<Popover.Root />', () => {
         expect(onOpenChangeComplete.mock.calls.filter(([open]) => !open)).toHaveLength(1);
       });
 
+      it('ignores `unmount` while the popup is open', async () => {
+        const actionsRef = React.createRef<Popover.Root.Actions>();
+        const onOpenChangeComplete = vi.fn();
+        await render(
+          <TestPopover rootProps={{ defaultOpen: true, actionsRef, onOpenChangeComplete }} />,
+        );
+        const popup = screen.getByRole('dialog');
+
+        await act(async () => actionsRef.current!.unmount());
+
+        expect(screen.getByRole('dialog')).toBe(popup);
+        expect(popup).not.toHaveAttribute('data-starting-style');
+        expect(onOpenChangeComplete).not.toHaveBeenCalledWith(false);
+      });
+
       it('still unmounts on a later close after `unmount` was called while open', async () => {
         const actionsRef = React.createRef<Popover.Root.Actions>();
         const onOpenChangeComplete = vi.fn();

@@ -40,8 +40,9 @@ export interface UseUnmountAfterCloseParameters {
  * finishes, unless the close cycle opted out through `preventUnmountOnClose`.
  * Store-agnostic: hosts sync `mounted` and `transitionStatus` wherever they need them.
  *
- * @returns `forceUnmount` unmounts the popup immediately. It is a no-op once the popup is already
- *   unmounted, so calling it after the automatic unmount doesn't repeat the completion callback.
+ * @returns `forceUnmount` unmounts the popup immediately. It is a no-op while the popup is open or
+ *   once it is already unmounted, so calling it after the automatic unmount doesn't repeat the
+ *   completion callback.
  */
 export function useUnmountAfterClose(parameters: UseUnmountAfterCloseParameters) {
   const {
@@ -83,7 +84,9 @@ export function useUnmountAfterClose(parameters: UseUnmountAfterCloseParameters)
   });
 
   const forceUnmount = useStableCallback(() => {
-    if (!mountedRef.current) {
+    // Ignore a call while open (for example a stale exit-animation callback after a quick reopen):
+    // it would run the host's unmount cleanup and the close completion against a live popup.
+    if (!mountedRef.current || open) {
       return;
     }
     mountedRef.current = false;

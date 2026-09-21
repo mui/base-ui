@@ -177,7 +177,7 @@ import { DemoAnimatedSelectMotion } from './demos/animated-select-motion';
 ### Manual unmounting
 
 For full control, you can manually unmount the component when it's closed once animations have finished.
-Call `eventDetails.preventUnmountOnClose()` in `onOpenChange` when the component closes, then call `unmount()` on the `actionsRef` passed to the `<Root>` once the animation finishes.
+Call `eventDetails.preventUnmountOnClose()` in `onOpenChange` when the component closes (in `onValueChange` when the value becomes `null` for Navigation Menu), then call `unmount()` on the `actionsRef` passed to the `<Root>` once the animation finishes.
 `onOpenChangeComplete(false)` fires when the component unmounts.
 
 ```jsx title="manual-unmount.tsx"

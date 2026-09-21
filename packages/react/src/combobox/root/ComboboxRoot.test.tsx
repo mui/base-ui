@@ -357,6 +357,21 @@ describe('<Combobox.Root />', () => {
       expect(screen.queryByRole('listbox')).toBe(null);
     });
 
+    it('ignores `unmount` while the popup is open', async () => {
+      const actionsRef = React.createRef<Combobox.Root.Actions>();
+      const onOpenChangeComplete = vi.fn();
+      await render(
+        <Popup defaultOpen actionsRef={actionsRef} onOpenChangeComplete={onOpenChangeComplete} />,
+      );
+      const popup = screen.getByRole('listbox');
+
+      act(() => actionsRef.current!.unmount());
+
+      expect(screen.getByRole('listbox')).toBe(popup);
+      expect(onOpenChangeComplete).not.toHaveBeenCalledWith(false);
+      expect(screen.getByRole('combobox')).toHaveAttribute('aria-expanded', 'true');
+    });
+
     it('still unmounts on a later close after `unmount` was called while open', async () => {
       const actionsRef = React.createRef<Combobox.Root.Actions>();
       const onOpenChangeComplete = vi.fn();
@@ -13270,7 +13285,7 @@ describe('<Combobox.Root />', () => {
       expect(screen.queryByText('vegetables')).toBe(null);
     });
 
-    it('exposes an action that completes unmount cleanup', async () => {
+    it('exposes an unmount action that is ignored while open', async () => {
       const actionsRef = React.createRef<Combobox.Root.Actions>();
       const onOpenChangeComplete = vi.fn();
       await render(
@@ -13285,7 +13300,8 @@ describe('<Combobox.Root />', () => {
 
       act(() => actionsRef.current?.unmount());
 
-      expect(onOpenChangeComplete).toHaveBeenCalledWith(false);
+      expect(onOpenChangeComplete).not.toHaveBeenCalledWith(false);
+      expect(screen.getByRole('combobox')).toHaveAttribute('aria-expanded', 'true');
     });
 
     it('moves focus from the hidden control to an external input', async () => {
