@@ -1,0 +1,354 @@
+.Page {
+  padding: 1.5rem;
+  color: var(--color-gray-900);
+}
+
+.Title {
+  font-size: 1.125rem;
+  line-height: 1.75rem;
+  font-weight: 600;
+}
+
+.Description {
+  margin-top: 0.25rem;
+  max-width: 64rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  color: var(--color-gray-600);
+}
+
+.Toolbar {
+  margin-top: 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.Grid {
+  margin-top: 1.5rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(17rem, 1fr));
+  gap: 1rem;
+}
+
+.Card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  border: 1px solid var(--color-gray-200);
+  border-radius: 0.5rem;
+  padding: 0.75rem 1rem 1rem;
+}
+
+.CardTitle {
+  margin: 0;
+  font-size: 0.9375rem;
+  font-weight: 600;
+}
+
+.CardNote {
+  margin: 0 0 0.5rem;
+  font-size: 0.8125rem;
+  line-height: 1.125rem;
+  color: var(--color-gray-600);
+}
+
+.CardRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.Button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  height: 2.25rem;
+  border: 1px solid var(--color-gray-200);
+  border-radius: 0.375rem;
+  background: var(--color-gray-50);
+  padding: 0 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-gray-900);
+}
+
+.Button:hover,
+.Button:active,
+.Button[data-popup-open] {
+  background: var(--color-gray-100);
+}
+
+.Button:disabled {
+  opacity: 0.5;
+}
+
+.Button:focus-visible {
+  outline: 2px solid var(--color-blue);
+  outline-offset: -1px;
+}
+
+.Link {
+  font-size: 0.875rem;
+  color: var(--color-blue);
+  text-decoration: underline;
+}
+
+.Link:focus-visible {
+  outline: 2px solid var(--color-blue);
+  outline-offset: 2px;
+}
+
+.Icon {
+  font-size: 0.75rem;
+  color: var(--color-gray-600);
+}
+
+.InputGroup {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.Input {
+  height: 2.25rem;
+  width: 13rem;
+  border: 1px solid var(--color-gray-200);
+  border-radius: 0.375rem;
+  background: canvas;
+  padding: 0 2rem 0 0.75rem;
+  font-size: 0.875rem;
+  color: var(--color-gray-900);
+}
+
+.Input:focus {
+  outline: 2px solid var(--color-blue);
+  outline-offset: -1px;
+}
+
+.InputTrigger {
+  position: absolute;
+  right: 0.25rem;
+  display: flex;
+  height: 1.75rem;
+  width: 1.5rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.25rem;
+  background: transparent;
+  padding: 0;
+  color: var(--color-gray-600);
+}
+
+.InputTrigger:focus-visible {
+  outline: 2px solid var(--color-blue);
+}
+
+.PopupInputWrap {
+  padding: 0.5rem 0.5rem 0.25rem;
+}
+
+.PopupInputWrap .Input {
+  width: 100%;
+}
+
+/* Shared floating popup look. The exit transition reads `--exit-duration`, which each popup
+   sets from the experiment settings, so the closing window is observable. */
+.Popup {
+  transform-origin: var(--transform-origin);
+  border-radius: 0.5rem;
+  background: canvas;
+  padding: 0.75rem;
+  color: var(--color-gray-900);
+  outline: 1px solid var(--color-gray-200);
+  box-shadow:
+    0 10px 15px -3px rgb(0 0 0 / 0.1),
+    0 4px 6px -4px rgb(0 0 0 / 0.1);
+  transition:
+    opacity 150ms,
+    scale 150ms;
+}
+
+.Popup[data-starting-style],
+.Popup[data-ending-style] {
+  scale: 0.95;
+  opacity: 0;
+}
+
+.Popup[data-ending-style] {
+  transition-duration: var(--exit-duration, 150ms);
+}
+
+.ListPopup {
+  min-width: 12rem;
+  max-height: min(var(--available-height), 20rem);
+  overflow-y: auto;
+  padding: 0.25rem 0;
+}
+
+.Item {
+  position: relative;
+  z-index: 0;
+  display: flex;
+  cursor: default;
+  padding: 0.5rem 2rem 0.5rem 1rem;
+  font-size: 0.875rem;
+  line-height: 1rem;
+  -webkit-user-select: none;
+  user-select: none;
+  outline: none;
+}
+
+.Item[data-highlighted] {
+  color: var(--color-gray-50);
+}
+
+.Item[data-highlighted]::before {
+  content: '';
+  position: absolute;
+  inset: 0 0.25rem;
+  z-index: -1;
+  border-radius: 0.25rem;
+  background: var(--color-gray-900);
+}
+
+.Empty {
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  color: var(--color-gray-600);
+}
+
+.Empty:empty {
+  padding: 0;
+}
+
+.Body {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  max-width: 20rem;
+}
+
+.BodyTitle {
+  width: 100%;
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.Backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgb(0 0 0 / 0.25);
+  transition: opacity 150ms;
+}
+
+.Backdrop[data-starting-style],
+.Backdrop[data-ending-style] {
+  opacity: 0;
+}
+
+.Backdrop[data-ending-style] {
+  transition-duration: var(--exit-duration, 150ms);
+}
+
+.DialogPopup {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  width: 24rem;
+  max-width: calc(100vw - 2rem);
+  translate: -50% -50%;
+  border-radius: 0.5rem;
+  background: canvas;
+  padding: 1rem;
+  color: var(--color-gray-900);
+  outline: 1px solid var(--color-gray-200);
+  box-shadow:
+    0 10px 15px -3px rgb(0 0 0 / 0.1),
+    0 4px 6px -4px rgb(0 0 0 / 0.1);
+  transition:
+    opacity 150ms,
+    scale 150ms;
+}
+
+.DialogPopup[data-starting-style],
+.DialogPopup[data-ending-style] {
+  scale: 0.95;
+  opacity: 0;
+}
+
+.DialogPopup[data-ending-style] {
+  transition-duration: var(--exit-duration, 150ms);
+}
+
+.DrawerViewport {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  justify-content: flex-end;
+  pointer-events: none;
+}
+
+.DrawerPopup {
+  pointer-events: auto;
+  height: 100%;
+  width: 20rem;
+  max-width: calc(100vw - 2rem);
+  background: canvas;
+  color: var(--color-gray-900);
+  outline: 1px solid var(--color-gray-200);
+  box-shadow: -10px 0 15px -3px rgb(0 0 0 / 0.1);
+  transition: translate 200ms;
+}
+
+.DrawerPopup[data-starting-style],
+.DrawerPopup[data-ending-style] {
+  translate: 100% 0;
+}
+
+.DrawerPopup[data-ending-style] {
+  transition-duration: var(--exit-duration, 200ms);
+}
+
+.DrawerContent {
+  padding: 1rem;
+}
+
+.Log {
+  margin-top: 1.5rem;
+  border: 1px solid var(--color-gray-200);
+  border-radius: 0.5rem;
+  padding: 0.75rem 1rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.8125rem;
+  line-height: 1.25rem;
+}
+
+.LogActive {
+  margin-bottom: 0.5rem;
+}
+
+.LogList {
+  margin: 0;
+  padding-left: 1.25rem;
+  color: var(--color-gray-600);
+}
+
+.LogWarn {
+  color: var(--color-red);
+  font-weight: 600;
+}
+
+@media (prefers-color-scheme: dark) {
+  .Popup,
+  .DialogPopup {
+    box-shadow: none;
+    outline-color: var(--color-gray-300);
+    outline-offset: -1px;
+  }
+}
