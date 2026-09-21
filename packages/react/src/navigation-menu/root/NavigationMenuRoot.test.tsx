@@ -2013,23 +2013,71 @@ describe('<NavigationMenu.Root />', () => {
   });
 
   describe('prop: actionsRef', () => {
-    it('exposes an unmount action and defers unmounting until it is called', async () => {
+    it('automatically unmounts with an actions ref and completes closing once', async () => {
       const actionsRef = React.createRef<NavigationMenu.Root.Actions>();
+      const onOpenChangeComplete = vi.fn();
 
       function ControlledNavigationMenu(props: { value: string | null }) {
-        return <TestNavigationMenu value={props.value} actionsRef={actionsRef} />;
+        return (
+          <TestNavigationMenu
+            value={props.value}
+            actionsRef={actionsRef}
+            onOpenChangeComplete={onOpenChangeComplete}
+          />
+        );
       }
 
       const { rerender } = await render(<ControlledNavigationMenu value="item-1" />);
 
-      expect(actionsRef.current).not.toBe(null);
       expect(actionsRef.current?.unmount).toBeTypeOf('function');
       expect(screen.queryByTestId('popup-root')).not.toBe(null);
 
-      // Closing keeps the popup mounted because `actionsRef` disables the automatic unmount.
+      await rerender(<ControlledNavigationMenu value={null} />);
+      await waitFor(() => {
+        expect(screen.queryByTestId('popup-root')).toBe(null);
+      });
+      expect(onOpenChangeComplete.mock.calls.filter(([open]) => !open)).toHaveLength(1);
+
+      // Calling the action after the automatic unmount must not repeat the completion.
+      await act(async () => {
+        actionsRef.current?.unmount();
+      });
+      expect(onOpenChangeComplete.mock.calls.filter(([open]) => !open)).toHaveLength(1);
+    });
+
+    it('keeps the popup mounted until the unmount action completes closing', async () => {
+      const actionsRef = React.createRef<NavigationMenu.Root.Actions>();
+      const onOpenChangeComplete = vi.fn();
+
+      function ControlledNavigationMenu(props: { value: string | null }) {
+        return (
+          <TestNavigationMenu
+            value={props.value}
+            actionsRef={actionsRef}
+            onOpenChangeComplete={onOpenChangeComplete}
+            onValueChange={(value, details) => {
+              if (value == null) {
+                details.preventUnmountOnClose();
+              }
+            }}
+          />
+        );
+      }
+
+      const { rerender } = await render(<ControlledNavigationMenu value="item-1" />);
+      expect(screen.queryByTestId('popup-root')).not.toBe(null);
+
+      // The controlled close never runs `onValueChange`, so it doesn't opt out on its own.
+      await act(async () => {
+        actionsRef.current?.close();
+      });
+      await flushMicrotasks();
+      expect(screen.queryByTestId('popup-root')).not.toBe(null);
+
       await rerender(<ControlledNavigationMenu value={null} />);
       await flushMicrotasks();
       expect(screen.queryByTestId('popup-root')).not.toBe(null);
+      expect(onOpenChangeComplete).not.toHaveBeenCalledWith(false);
 
       await act(async () => {
         actionsRef.current?.unmount();
@@ -2037,6 +2085,59 @@ describe('<NavigationMenu.Root />', () => {
       await flushMicrotasks();
 
       expect(screen.queryByTestId('popup-root')).toBe(null);
+      expect(onOpenChangeComplete.mock.calls.filter(([open]) => !open)).toHaveLength(1);
+    });
+
+    it('closes through the `close` action so `onValueChange` can opt out', async () => {
+      const actionsRef = React.createRef<NavigationMenu.Root.Actions>();
+      const onValueChange = vi.fn();
+
+      await render(
+        <TestNavigationMenu
+          defaultValue="item-1"
+          actionsRef={actionsRef}
+          onValueChange={onValueChange}
+        />,
+      );
+      expect(screen.getByTestId('trigger-1')).toHaveAttribute('aria-expanded', 'true');
+
+      await act(async () => {
+        actionsRef.current?.close();
+      });
+
+      expect(onValueChange).toHaveBeenCalledTimes(1);
+      expect(onValueChange.mock.calls[0][0]).toBe(null);
+      expect(onValueChange.mock.calls[0][1].reason).toBe('imperative-action');
+      expect(screen.getByTestId('trigger-1')).toHaveAttribute('aria-expanded', 'false');
+    });
+
+    it('still unmounts on a later close after `unmount` was called while open', async () => {
+      const actionsRef = React.createRef<NavigationMenu.Root.Actions>();
+      const onOpenChangeComplete = vi.fn();
+
+      function ControlledNavigationMenu(props: { value: string | null }) {
+        return (
+          <TestNavigationMenu
+            value={props.value}
+            actionsRef={actionsRef}
+            onOpenChangeComplete={onOpenChangeComplete}
+          />
+        );
+      }
+
+      const { rerender } = await render(<ControlledNavigationMenu value="item-1" />);
+
+      // A stale exit-animation callback can call `unmount()` after a quick reopen.
+      await act(async () => {
+        actionsRef.current?.unmount();
+      });
+      expect(screen.queryByTestId('popup-root')).not.toBe(null);
+
+      await rerender(<ControlledNavigationMenu value={null} />);
+      await waitFor(() => {
+        expect(screen.queryByTestId('popup-root')).toBe(null);
+      });
+      expect(onOpenChangeComplete).toHaveBeenLastCalledWith(false);
     });
 
     it('unmounts immediately when called while the popup is closing', async () => {
@@ -2047,7 +2148,17 @@ describe('<NavigationMenu.Root />', () => {
         const actionsRef = React.createRef<NavigationMenu.Root.Actions>();
 
         function ControlledNavigationMenu(props: { value: string | null }) {
-          return <TestNavigationMenu value={props.value} actionsRef={actionsRef} />;
+          return (
+            <TestNavigationMenu
+              value={props.value}
+              actionsRef={actionsRef}
+              onValueChange={(value, details) => {
+                if (value == null) {
+                  details.preventUnmountOnClose();
+                }
+              }}
+            />
+          );
         }
 
         const { rerender } = await render(<ControlledNavigationMenu value="item-1" />);

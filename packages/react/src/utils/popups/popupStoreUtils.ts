@@ -14,8 +14,7 @@ import {
   useSyncedFloatingRootContext,
   type SyncedFloatingRootContextStore,
 } from '../../floating-ui-react/hooks/useSyncedFloatingRootContext';
-import { useTransitionStatus } from '../../internals/useTransitionStatus';
-import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
+import { useUnmountAfterClose } from '../../internals/useUnmountAfterClose';
 import type { HTMLProps } from '../../internals/types';
 import {
   createChangeEventDetails,
@@ -581,50 +580,26 @@ export function useOpenStateTransitions<State extends PopupStoreState<unknown>>(
   onUnmount?: () => void,
   animateInitialOpen?: boolean,
 ) {
-  const { mounted, setMounted, transitionStatus } = useTransitionStatus(
-    open,
-    false,
-    false,
-    animateInitialOpen,
-  );
-  const preventUnmountingOnClose = store.useState('preventUnmountingOnClose');
-  // Opening starts a new close cycle. Clear during render so the close-completion hook below
-  // reads the synchronized value on the same pass.
-  const syncedPreventUnmountingOnClose = open ? false : preventUnmountingOnClose;
-
-  store.useSyncedValues({
-    mounted,
-    transitionStatus,
-    preventUnmountingOnClose: syncedPreventUnmountingOnClose,
-  });
-
-  const forceUnmount = useStableCallback(() => {
-    // Read the store rather than the rendered `mounted`: it is updated synchronously below, so a
-    // second call in the same batch is a no-op instead of repeating the completion callback.
-    if (!store.state.mounted) {
-      return;
-    }
-    setMounted(false);
-    store.update({
-      activeTriggerId: null,
-      activeTriggerElement: null,
-      mounted: false,
-      preventUnmountingOnClose: false,
-    });
-    onUnmount?.();
-    store.context.onOpenChangeComplete?.(false);
-  });
-
-  useOpenChangeComplete({
-    enabled: mounted && !open && !syncedPreventUnmountingOnClose,
+  const { mounted, transitionStatus, forceUnmount } = useUnmountAfterClose({
     open,
     ref: store.context.popupRef,
-    onComplete() {
-      if (!open) {
-        forceUnmount();
-      }
+    preventUnmountOnClose: store.useState('preventUnmountingOnClose'),
+    setPreventUnmountOnClose: (preventUnmountOnClose) =>
+      store.set('preventUnmountingOnClose', preventUnmountOnClose),
+    animateInitialOpen,
+    onUnmount() {
+      store.update({
+        activeTriggerId: null,
+        activeTriggerElement: null,
+        mounted: false,
+        preventUnmountingOnClose: false,
+      });
+      onUnmount?.();
+      store.context.onOpenChangeComplete?.(false);
     },
   });
+
+  store.useSyncedValues({ mounted, transitionStatus });
 
   return { forceUnmount, transitionStatus };
 }

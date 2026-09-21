@@ -28,7 +28,7 @@ import {
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
 import { useRegisterFieldControl } from '../../internals/field-register-control/useRegisterFieldControl';
 import { useLabelableId } from '../../internals/labelable-provider/useLabelableId';
-import { useTransitionStatus } from '../../internals/useTransitionStatus';
+import { useUnmountAfterClose } from '../../internals/useUnmountAfterClose';
 import { selectors, type SelectStoreContext, type State as StoreState } from '../store';
 import {
   type BaseUIChangeEventDetails,
@@ -36,7 +36,6 @@ import {
 } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import { attachPreventUnmountOnClose } from '../../utils/popups/popupStoreUtils';
-import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
 import { useFormContext } from '../../internals/form-context/FormContext';
 import { type Group, stringifyAsLabel, stringifyAsValue } from '../../internals/resolveValueLabel';
 import {
@@ -137,12 +136,6 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   const alignItemWithTriggerActiveRef = React.useRef(false);
   const initialValueRef = React.useRef(value);
 
-  const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
-  // Mirrors `mounted` synchronously so repeated `unmount()` calls in one batch complete closing once.
-  const mountedRef = React.useRef(mounted);
-  useIsoLayoutEffect(() => {
-    mountedRef.current = mounted;
-  }, [mounted]);
   const { openMethod, triggerProps: interactionTypeProps } = useOpenInteractionType(open);
 
   const store = useRefWithInit(
@@ -158,9 +151,10 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
           isItemEqualToValue,
           value,
           open,
-          mounted,
-          transitionStatus,
-          preventUnmountingOnClose: false,
+          // Seeded with the initial values of `useUnmountAfterClose`, which is called after the
+          // store because its unmount cleanup writes to it. `useSyncedValues` keeps them in sync.
+          mounted: open,
+          transitionStatus: undefined,
           items,
           forceMount: false,
           openMethod: null,
@@ -198,6 +192,27 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
         selectors,
       ),
   ).current;
+
+  const [preventUnmountOnClose, setPreventUnmountOnClose] = React.useState(false);
+  const {
+    mounted,
+    transitionStatus,
+    forceUnmount: handleUnmount,
+  } = useUnmountAfterClose({
+    open,
+    ref: popupRef,
+    preventUnmountOnClose,
+    setPreventUnmountOnClose,
+    onUnmount() {
+      store.update({
+        activeIndex: null,
+        openMethod: null,
+        scrollUpArrowVisible: false,
+        scrollDownArrowVisible: false,
+      });
+      onOpenChangeComplete?.(false);
+    },
+  });
 
   const activeIndex = store.useState('activeIndex');
   const selectedIndex = store.useState('selectedIndex');
@@ -270,14 +285,6 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     validation.change(value);
   });
 
-  const preventUnmountingOnClose = store.useState('preventUnmountingOnClose');
-  // Opening starts a new close cycle. Derive during render so the close-completion hook below reads
-  // the synchronized value on the same pass. This dedicated sync only writes back when the derived
-  // value changes, so an opt-out recorded while a controlled close is still pending (for example in
-  // a transition) is not overwritten by the render that still sees `open`.
-  const syncedPreventUnmountingOnClose = open ? false : preventUnmountingOnClose;
-  store.useSyncedValues({ preventUnmountingOnClose: syncedPreventUnmountingOnClose });
-
   const setOpen = useStableCallback(
     (nextOpen: boolean, eventDetails: SelectRoot.ChangeEventDetails) => {
       const openEventDetails = eventDetails as SelectRoot.OpenChangeEventDetails;
@@ -288,11 +295,8 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
         return;
       }
 
-      if (nextOpen) {
-        // Opening starts a new close cycle, so clear any previous request to keep the popup mounted.
-        store.set('preventUnmountingOnClose', false);
-      } else if (shouldPreventUnmountOnClose()) {
-        store.set('preventUnmountingOnClose', true);
+      if (!nextOpen) {
+        setPreventUnmountOnClose(shouldPreventUnmountOnClose());
       }
       setOpenUnwrapped(nextOpen);
 
@@ -309,33 +313,6 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
       }
     },
   );
-
-  const handleUnmount = useStableCallback(() => {
-    if (!mountedRef.current) {
-      return;
-    }
-    mountedRef.current = false;
-    setMounted(false);
-    store.update({
-      preventUnmountingOnClose: false,
-      activeIndex: null,
-      openMethod: null,
-      scrollUpArrowVisible: false,
-      scrollDownArrowVisible: false,
-    });
-    onOpenChangeComplete?.(false);
-  });
-
-  useOpenChangeComplete({
-    enabled: mounted && !open && !syncedPreventUnmountingOnClose,
-    open,
-    ref: popupRef,
-    onComplete() {
-      if (!open) {
-        handleUnmount();
-      }
-    },
-  });
 
   React.useImperativeHandle(
     actionsRef,
@@ -703,6 +680,7 @@ export interface SelectRootProps<Value, Multiple extends boolean | undefined = f
   /**
    * A ref to imperative actions.
    * - `unmount`: Manually unmounts the select.
+   * Passing this ref alone does not keep the popup mounted.
    * Call `preventUnmountOnClose()` in `onOpenChange` to manually control unmounting,
    * then call this action after any externally controlled closing animation finishes.
    * - `close`: Closes the select imperatively when called.

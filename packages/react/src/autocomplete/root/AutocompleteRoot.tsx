@@ -130,11 +130,13 @@ export interface AutocompleteRootActions {
   close: () => void;
 }
 
-export type AutocompleteRootOpenChangeEventDetails = AriaCombobox.OpenChangeEventDetails;
-
 export type AutocompleteRootChangeEventReason = AriaCombobox.ChangeEventReason;
 export type AutocompleteRootChangeEventDetails =
   BaseUIChangeEventDetails<AutocompleteRootChangeEventReason>;
+export type AutocompleteRootOpenChangeEventDetails = AutocompleteRootChangeEventDetails & {
+  /** Prevents the popup from unmounting until the `unmount` action is called. */
+  preventUnmountOnClose: () => void;
+};
 
 export type AutocompleteRootHighlightEventReason = AriaCombobox.HighlightEventReason;
 export type AutocompleteRootHighlightEventDetails = AriaCombobox.HighlightEventDetails;
@@ -259,6 +261,7 @@ export interface AutocompleteRootProps<ItemValue> extends Omit<
   /**
    * A ref to imperative actions.
    * - `unmount`: Manually unmounts the autocomplete.
+   * Passing this ref alone does not keep the popup mounted.
    * Call `preventUnmountOnClose()` in `onOpenChange` to manually control unmounting,
    * then call this action after any externally controlled closing animation finishes.
    * - `close`: Closes the autocomplete imperatively when called.
