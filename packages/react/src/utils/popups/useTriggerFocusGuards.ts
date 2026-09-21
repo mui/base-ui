@@ -17,6 +17,10 @@ interface TriggerFocusGuardStore {
   setOpen(open: boolean, eventDetails: BaseUIChangeEventDetails<typeof REASONS.focusOut>): void;
   select(key: 'positionerElement'): HTMLElement | null;
   context: {
+    /**
+     * Shared with the focus manager through `getInsideElements` so that blurring the trigger
+     * onto this guard does not close the popup before the guard's own focus handler runs.
+     */
     readonly beforeTriggerFocusGuardRef: React.RefObject<HTMLElement | null>;
     readonly beforeContentFocusGuardRef: React.RefObject<HTMLElement | null>;
     readonly triggerFocusTargetRef: React.RefObject<HTMLElement | null>;
@@ -34,12 +38,12 @@ export function useTriggerFocusGuards(
   store: TriggerFocusGuardStore,
   triggerElementRef: React.RefObject<HTMLElement | null>,
 ) {
-  // Share the guard with the focus manager so trigger blur does not close before its focus handler.
-  const preFocusGuardRef = store.context.beforeTriggerFocusGuardRef;
-
-  function closeAndFocus(event: React.FocusEvent<HTMLElement>, direction: 1 | -1) {
+  function closeAndFocus(
+    event: React.FocusEvent<HTMLElement>,
+    direction: 1 | -1,
+    positionerElement: HTMLElement | null,
+  ) {
     const guard = event.currentTarget;
-    const positionerElement = store.select('positionerElement');
     // Keep the guard's place in the tab order before closing unmounts it. The trigger
     // may have tabIndex=-1 and therefore cannot serve as the navigation anchor.
     const elements = tabbable(ownerDocument(guard).body);
@@ -49,13 +53,14 @@ export function useTriggerFocusGuards(
       store.setOpen(false, createChangeEventDetails(REASONS.focusOut, event.nativeEvent, guard));
     });
 
-    // Skip removed guards and closing content, but preserve an enclosing popup's guards.
+    // Skip the closing content, and the trigger's own guards when a controlled root
+    // kept them mounted by refusing the close. An enclosing popup's guards are valid targets.
     for (let offset = 1; offset < elements.length; offset += 1) {
       const element = elements[(index + direction * offset + elements.length) % elements.length];
       if (
         element.isConnected &&
         !contains(positionerElement, element) &&
-        element !== preFocusGuardRef.current &&
+        element !== store.context.beforeTriggerFocusGuardRef.current &&
         element !== store.context.triggerFocusTargetRef.current
       ) {
         element.focus();
@@ -67,7 +72,7 @@ export function useTriggerFocusGuards(
   }
 
   function handlePreFocusGuardFocus(event: React.FocusEvent<HTMLElement>) {
-    closeAndFocus(event, -1);
+    closeAndFocus(event, -1, store.select('positionerElement'));
   }
 
   function handleFocusTargetFocus(event: React.FocusEvent<HTMLElement>) {
@@ -75,9 +80,9 @@ export function useTriggerFocusGuards(
     if (positionerElement && isOutsideEvent(event, positionerElement)) {
       store.context.beforeContentFocusGuardRef.current?.focus();
     } else {
-      closeAndFocus(event, 1);
+      closeAndFocus(event, 1, positionerElement);
     }
   }
 
-  return { preFocusGuardRef, handlePreFocusGuardFocus, handleFocusTargetFocus };
+  return { handlePreFocusGuardFocus, handleFocusTargetFocus };
 }

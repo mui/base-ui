@@ -223,7 +223,7 @@ export function getPreviousTabbable(referenceElement: Element | null): Focusable
   );
 }
 
-function getTabbableNearElement(referenceElement: Element | null, dir: 1 | -1) {
+export function getTabbableAfterElement(referenceElement: Element | null): FocusableElement | null {
   if (!referenceElement) {
     return null;
   }
@@ -239,18 +239,7 @@ function getTabbableNearElement(referenceElement: Element | null, dir: 1 | -1) {
     return null;
   }
 
-  const nextIndex = (index + dir + elementCount) % elementCount;
-  return list[nextIndex];
-}
-
-export function getTabbableAfterElement(referenceElement: Element | null): FocusableElement | null {
-  return getTabbableNearElement(referenceElement, 1);
-}
-
-export function getTabbableBeforeElement(
-  referenceElement: Element | null,
-): FocusableElement | null {
-  return getTabbableNearElement(referenceElement, -1);
+  return list[(index + 1) % elementCount];
 }
 
 export function isOutsideEvent(event: FocusEvent | React.FocusEvent, container?: Element) {
