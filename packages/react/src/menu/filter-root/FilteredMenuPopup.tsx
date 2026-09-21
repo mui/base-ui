@@ -38,8 +38,12 @@ export const FilteredMenuPopup = React.forwardRef(function FilteredMenuPopup(
   let initialFocus: FloatingFocusManagerProps['initialFocus'] = false;
   if (shouldFocusPopup) {
     initialFocus = () => {
-      // Hover only shows the popup; focus follows the pointer in unless the input opts in.
-      if (openedByHover && !virtualFocusAutoFocus) {
+      // Touch and pen openings require explicit autofocus.
+      if (
+        !virtualFocusAutoFocus &&
+        (openedByHover ||
+          (parent.type === 'menu' && (openMethod === 'touch' || openMethod === 'pen')))
+      ) {
         return false;
       }
       return virtualFocusRef?.current ?? false;

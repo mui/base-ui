@@ -21,7 +21,7 @@ describe('<Menu.SubmenuTrigger />', () => {
                   <Menu.Item>Rename</Menu.Item>
                   <Menu.FilterProvider>
                     <Menu.SubmenuRoot>
-                      <Menu.SubmenuTrigger delay={0}>Move to folder</Menu.SubmenuTrigger>
+                      <Menu.SubmenuTrigger openOnHover={false}>Move to folder</Menu.SubmenuTrigger>
                       <Menu.Portal>
                         <Menu.Positioner>
                           <Menu.Popup>

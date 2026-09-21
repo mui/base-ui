@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { useEnhancedClickHandler } from '@base-ui/utils/useEnhancedClickHandler';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import { useFilterDropdownItem } from '../../filter-dropdown/item/useFilterDropdownItem';
@@ -17,7 +18,7 @@ export function useFilteredMenuSubmenuTrigger(params: MenuFilterItemParams): Men
   // `virtualFocus` is set only by a filterable submenu root, so it tells this trigger whether the
   // submenu it opens renders a `role="dialog"` popup or a plain `role="menu"` one. The documented
   // plain-submenu recipe relies on the latter.
-  const { store, virtualFocus, virtualFocusRef } = useMenuRootContext();
+  const { store, virtualFocus, virtualFocusRef, virtualFocusAutoFocus } = useMenuRootContext();
   const open = store.useState('open');
   const mounted = store.useState('mounted');
   const parent = store.useState('parent');
@@ -39,18 +40,24 @@ export function useFilteredMenuSubmenuTrigger(params: MenuFilterItemParams): Men
     store.setOpen(false, createChangeEventDetails(REASONS.none));
   }, [visible, open, store]);
 
+  const clickProps = useEnhancedClickHandler((event, interactionType) => {
+    if (
+      event.type === 'click' &&
+      store.select('open') &&
+      (virtualFocusAutoFocus ||
+        interactionType === 'keyboard' ||
+        (interactionType === 'mouse' &&
+          store.select('lastOpenChangeReason') === REASONS.triggerPress))
+    ) {
+      virtualFocusRef?.current?.focus({ preventScroll: true });
+    }
+  });
+
   const props = {
     // Omitted rather than `undefined`, which would clear the `'menu'` the root puts on every
     // trigger.
     ...(virtualFocus ? { 'aria-haspopup': 'dialog' as const } : undefined),
-    onClick() {
-      // Hovering opens the submenu without moving focus into it. A click on the trigger of an
-      // open submenu is explicit intent to enter it, so hand its input focus.
-      const focusOwner = virtualFocusRef?.current;
-      if (store.select('open') && focusOwner) {
-        focusOwner.focus({ preventScroll: true });
-      }
-    },
+    ...clickProps,
     onFocus(event: BaseUIEvent<React.FocusEvent<HTMLElement>>) {
       // A plain parent menu moves DOM focus to whichever item the pointer crosses. While this
       // trigger's submenu is open and its input held focus, hand focus straight back so crossing

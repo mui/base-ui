@@ -1099,7 +1099,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
                     <Menu.List>
                       <Menu.FilterProvider>
                         <Menu.SubmenuRoot>
-                          <Menu.SubmenuTrigger delay={0}>Share</Menu.SubmenuTrigger>
+                          <Menu.SubmenuTrigger openOnHover={false}>Share</Menu.SubmenuTrigger>
                           <Menu.Portal>
                             <Menu.Positioner>
                               <Menu.Popup className="filter-popup">

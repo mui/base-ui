@@ -56,8 +56,7 @@ export const MenuFilterInput = React.forwardRef(function MenuFilterInput(
 export interface MenuFilterInputState extends FilterDropdownInputState {}
 export interface MenuFilterInputProps extends FilterDropdownInputProps {
   /**
-   * Whether to focus the input whenever the popup opens, including when a submenu opens on hover.
-   * Focus is applied after the popup is positioned, rather than only when the input mounts.
+   * Whether to focus the input whenever the popup opens.
    * @default false
    */
   autoFocus?: boolean | undefined;
