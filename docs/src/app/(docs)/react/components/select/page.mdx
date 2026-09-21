@@ -226,27 +226,26 @@ import { DemoSelectGrouped } from './demos/grouped';
 
 ### Filtering
 
-Wrap `<Select.Root>` in `<Select.FilterProvider>` to add a search field that filters the options.
-Only the provider imports the filtering code, so selects that don't filter don't bundle it.
+Wrap `<Select.Root>` in `<Select.FilterProvider>`, add `<Select.FilterInput>` to the popup, and put the options inside `<Select.List>`.
+The popup uses a dialog role to contain both the input and the listbox.
 
-Render `<Select.FilterInput>` inside the popup and place the options inside `<Select.List>`.
-The popup becomes a dialog that contains the input and the listbox, so the list is required here: an input can't sit inside a `listbox` element.
-The trigger stays a button that opens the dialog, and every other part stays the same.
-
-```jsx title="Filterable select anatomy"
+```jsx title="Filterable select"
 <Select.FilterProvider>
-  <Select.Root>
+  <Select.Root items={[{ value: 'fr', label: 'France' }]}>
+    <Select.Label>Country</Select.Label>
     <Select.Trigger>
-      <Select.Value />
+      <Select.Value placeholder="Select country" />
     </Select.Trigger>
     <Select.Portal>
       <Select.Positioner>
         <Select.Popup>
           <Select.FilterInput aria-label="Filter countries" />
-          <Select.FilterClear />
-          <Select.FilterEmpty />
+          <Select.FilterClear>Clear</Select.FilterClear>
+          <Select.FilterEmpty>No results.</Select.FilterEmpty>
           <Select.List>
-            <Select.Item />
+            <Select.Item value="fr">
+              <Select.ItemText>France</Select.ItemText>
+            </Select.Item>
           </Select.List>
         </Select.Popup>
       </Select.Positioner>
@@ -255,56 +254,50 @@ The trigger stays a button that opens the dialog, and every other part stays the
 </Select.FilterProvider>
 ```
 
-Give the input an accessible name with `aria-label`, `aria-labelledby`, or a visible `<label>`.
-Keyboard and screen reader activation initially highlight an option while keeping DOM focus on the input.
-By default, arrow-key navigation includes the input in the loop, and pointer activation leaves the input highlighted.
+Label the input with `aria-label`, `aria-labelledby`, or a visible `<label>`.
+Keyboard and screen reader activation highlight an option while keeping focus on the input; pointer activation leaves the input highlighted.
+By default, arrow keys move between the input and options.
 
-The query is cleared when the popup closes.
-A single select closes once an option is chosen; a multiple select stays open and keeps the query so several options can be picked in a row.
-Filtering never changes the value: an option that is filtered out stays selected, and `<Select.Value>` keeps rendering its label through `items`, `itemToStringLabel`, or the value itself.
-The same holds for options you unmount yourself while the popup is open: a filterable select never clears a value because its option disappeared, where a plain select would.
-The `alignItemWithTrigger` positioning mode is turned off, since the popup holds the input above the list.
+The query resets on close. Multiple selects stay open after selection and keep the query.
+Filtering or unmounting an option does not clear its selected value.
+Use `items` or `itemToStringLabel` when option values need display labels.
+`alignItemWithTrigger` is disabled for filterable selects.
 
 import { DemoSelectFilter } from './demos/filter';
 
 <DemoSelectFilter />
 
-#### Filtering options
+#### Matching options
 
-Options match their rendered text by default. Use `label` to provide explicit searchable text and `keywords` for alternate terms.
+Options match their text by default. Use `label` to override it and `keywords` to add search terms.
 
 ```jsx title="Labels and keywords"
-<Select.List>
-  <Select.Item value="de" keywords={['Deutschland']}>
-    Germany
-  </Select.Item>
-  <Select.Item value="nl" label="Netherlands" keywords={['Holland']}>
-    <Select.ItemText>The Netherlands</Select.ItemText>
-  </Select.Item>
-</Select.List>
+<Select.Item value="de" keywords={['Deutschland']}>
+  <Select.ItemText>Germany</Select.ItemText>
+</Select.Item>
+<Select.Item value="nl" label="Netherlands" keywords={['Holland']}>
+  <Select.ItemText>The Netherlands</Select.ItemText>
+</Select.Item>
 ```
 
-Groups with no matching options are hidden, including their labels. `<Select.FilterEmpty>` is shown when no options match and renders nothing otherwise.
-
-#### Custom matching
+Empty groups are hidden. `<Select.FilterEmpty>` appears when no options match.
 
 Use `filter` to replace the default case-insensitive substring matching.
-It receives the option's text and each keyword individually, together with the trimmed query, and the option matches when it returns `true` for any of them:
+It receives the trimmed query and each option's text or keywords, and keeps the option if any match.
 
-```jsx title="Custom filter"
+```jsx title="Custom matching"
 <Select.FilterProvider filter={(text, query) => text.startsWith(query)}>
   <Select.Root>{/* select parts */}</Select.Root>
 </Select.FilterProvider>
 ```
 
-Pass `filter={null}` when you filter the options yourself and render only the results.
-Remove empty groups as part of that filtering.
-`Select.useFilter` returns the same collator-based matching for that purpose.
+For external filtering, pass `filter={null}` and render the results yourself, omitting empty groups.
+`Select.useFilter` provides locale-aware string matching.
 
-#### Filterable select or Combobox
+#### When to use Combobox
 
-A filterable select suits a modest list you own and render in full: the options stay mounted, the value model is the select's, and forms receive the same hidden input as a plain select.
-Reach for [Combobox](/react/components/combobox) when the list is large, comes from a server, needs virtualization, or should be typed into directly in the field.
+Use filterable Select for a short list of options.
+Use [Combobox](/react/components/combobox) for large or async lists, virtualization, or an input outside the popup.
 
 ## API reference
 
