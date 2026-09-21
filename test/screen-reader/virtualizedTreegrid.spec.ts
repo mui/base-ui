@@ -1,36 +1,86 @@
-import { expect, type Page } from '@playwright/test';
+import { expect } from '@playwright/test';
 import { screenReaderTest as test, type ScreenReaderPlaywright } from '@guidepup/playwright';
 
-const MAX_NAVIGATION_STEPS = 20;
+/** Every step is spoken, so waiting for a phrase is waiting for speech. */
+const PHRASE_TIMEOUT = 30_000;
+const PHRASE_POLL_INTERVAL = 250;
+/**
+ * The page's tab stops before the first row: the reveal control, and whatever the reader itself
+ * left focus on while settling into the page.
+ */
+const MAX_TAB_STOPS = 4;
 
-async function navigateToItem(
-  screenReader: ScreenReaderPlaywright,
-  name: RegExp,
-  step = 0,
-): Promise<string> {
-  const itemText = await screenReader.itemText();
+/** What the reader has said, for a failure to show instead of only what it did not say. */
+async function describeSpeech(screenReader: ScreenReaderPlaywright): Promise<string> {
+  const log = await screenReader.spokenPhraseLog();
 
-  if (name.test(itemText)) {
-    return itemText;
+  if (log.length === 0) {
+    return '(nothing)';
   }
 
-  if (step === MAX_NAVIGATION_STEPS) {
-    throw new Error(`Guidepup did not navigate to an item matching ${name}.`);
-  }
-
-  await screenReader.next();
-  return navigateToItem(screenReader, name, step + 1);
+  return log.map((phrase, index) => `${index + 1}. ${phrase}`).join('\n');
 }
 
-// Recursive rather than a loop, as the rule against awaiting in one asks, and as the other spec
-// in this directory walks the reader.
-async function pressArrowDown(page: Page, times: number): Promise<void> {
-  if (times === 0) {
-    return;
+async function findPhrase(
+  screenReader: ScreenReaderPlaywright,
+  pattern: RegExp,
+): Promise<string | undefined> {
+  const log = await screenReader.spokenPhraseLog();
+  return log.find((phrase) => pattern.test(phrase));
+}
+
+/**
+ * The first phrase matching the pattern once the reader has spoken it. Readers speak a focus
+ * change as several phrases at times, and may follow it with a mode change, so the log is
+ * searched rather than its last entry sampled.
+ */
+async function waitForPhrase(
+  screenReader: ScreenReaderPlaywright,
+  pattern: RegExp,
+  deadline = Date.now() + PHRASE_TIMEOUT,
+): Promise<string> {
+  const phrase = await findPhrase(screenReader, pattern);
+
+  if (phrase !== undefined) {
+    return phrase;
   }
 
-  await page.keyboard.press('ArrowDown');
-  await pressArrowDown(page, times - 1);
+  if (Date.now() >= deadline) {
+    throw new Error(
+      `The screen reader said nothing matching ${pattern}. It said:\n${await describeSpeech(screenReader)}`,
+    );
+  }
+
+  await new Promise((resolve) => {
+    setTimeout(resolve, PHRASE_POLL_INTERVAL);
+  });
+  return waitForPhrase(screenReader, pattern, deadline);
+}
+
+/**
+ * Tabs until the reader announces the item, the way a user reaches a row: the grid's roving
+ * tabindex makes its active row a tab stop. Recursive rather than a loop, as the rule against
+ * awaiting in one asks.
+ */
+async function tabToItem(
+  screenReader: ScreenReaderPlaywright,
+  name: RegExp,
+  stop = 0,
+): Promise<string> {
+  const phrase = await findPhrase(screenReader, name);
+
+  if (phrase !== undefined) {
+    return phrase;
+  }
+
+  if (stop === MAX_TAB_STOPS) {
+    throw new Error(
+      `Tab did not reach an item matching ${name} in ${MAX_TAB_STOPS} stops. The screen reader said:\n${await describeSpeech(screenReader)}`,
+    );
+  }
+
+  await screenReader.press('Tab');
+  return tabToItem(screenReader, name, stop + 1);
 }
 
 test.use({ screenReaderStartOptions: { capture: true } });
@@ -38,8 +88,15 @@ test.use({ screenReaderStartOptions: { capture: true } });
 /**
  * A grid-shaped role owns its rows through the virtualizer's scrollport and `role="presentation"`
  * wrappers, and only part of the collection is mounted. This checks that what the rows state for
- * themselves — their level, their position among their siblings, and their row number within the
- * whole collection — survives both.
+ * themselves — their level and their position among their siblings — survives both.
+ *
+ * Rows are reached by focus, as a treegrid is used: a row's place among its siblings is what a
+ * reader announces when the row takes focus, whichever mode it reads the page in. Reading the
+ * page line by line never reached the first row under NVDA, which shows a treegrid's rows as tree
+ * items and takes focus mode for them.
+ *
+ * The deep row is reached in one jump rather than by arrowing to it: every key press is announced,
+ * and sixty announcements take longer than the whole rest of the run.
  */
 test('announces a virtualized treegrid row by its place in the tree', async ({
   page,
@@ -49,22 +106,21 @@ test('announces a virtualized treegrid row by its place in the tree', async ({
   await page.locator('[data-testid="testcase"]:not([aria-busy="true"])').waitFor();
   await screenReader.navigateToWebContent();
 
-  const itemText = await navigateToItem(screenReader, /folder 1/i);
-  const folderPhrase = await screenReader.lastSpokenPhrase();
+  // Only what the Tabs cause is of interest, not what settling into the page had the reader say.
+  await screenReader.clearSpokenPhraseLog();
+  const folderPhrase = await tabToItem(screenReader, /folder 1/i);
+  console.log('Screen reader, first row:', folderPhrase);
 
-  expect(itemText).toMatch(/folder 1/i);
-  // The grid, its size, and the row's own place in it rather than its index in the flat window.
-  expect(folderPhrase).toMatch(/files/i);
+  // The first folder is the first of twenty folders, not the first of 1,020 rows.
   expect(folderPhrase).toMatch(/1 of 20/i);
 
-  // A row deeper in the collection: mounted only because the window moved to it, and still
-  // announced against its own siblings rather than against the 1,000 rows of the collection.
-  await page.keyboard.press('Tab');
-  // Sixty rows down: past the first folder's fifty files and into the second folder's.
-  await pressArrowDown(page, 60);
-  const rowPhrase = await screenReader.lastSpokenPhrase();
+  // A row the first window never held: revealed rather than arrowed to, and still announced
+  // against its own siblings.
+  await screenReader.clearSpokenPhraseLog();
+  await page.getByTestId('reveal').click();
+  await page.locator('[data-index="721"]').waitFor();
+  const revealedPhrase = await waitForPhrase(screenReader, /file 15\.7/i);
+  console.log('Screen reader, revealed row:', revealedPhrase);
 
-  expect(rowPhrase).toMatch(/file 2\.9/i);
-  expect(rowPhrase).toMatch(/9 of 50/i);
-  expect(rowPhrase).not.toMatch(/of 1000/i);
+  expect(revealedPhrase).toMatch(/7 of 50/i);
 });

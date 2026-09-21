@@ -1,12 +1,14 @@
 import { mergeConfig, defineProject } from 'vitest/config';
-import react from '@vitejs/plugin-react';
 // eslint-disable-next-line import/no-relative-packages
 import sharedConfig from '../vitest.shared.mts';
 
 export default mergeConfig(
   sharedConfig,
   defineProject({
-    plugins: [react()],
+    // Next.js preserves JSX for its compiler; component tests need Vite to transform it.
+    oxc: {
+      jsx: { runtime: 'automatic' },
+    },
     test: {
       environment: 'node',
       browser: {

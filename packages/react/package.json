@@ -40,7 +40,6 @@
     "./context-menu": "./src/context-menu/index.ts",
     "./dialog": "./src/dialog/index.ts",
     "./direction-provider": "./src/direction-provider/index.ts",
-    "./draggable": "./src/draggable/index.ts",
     "./drawer": "./src/drawer/index.ts",
     "./field": "./src/field/index.ts",
     "./fieldset": "./src/fieldset/index.ts",
@@ -134,7 +133,7 @@
     "@base-ui/utils": "workspace:*",
     "@floating-ui/react-dom": "^2.1.9",
     "@floating-ui/utils": "^0.2.12",
-    "@mui/x-virtualizer": "^0.6.0",
+    "@mui/x-virtualizer": "^0.7.1",
     "use-sync-external-store": "^1.7.0"
   },
   "devDependencies": {
