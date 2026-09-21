@@ -53,29 +53,17 @@ describe('PerformanceBenchmark', () => {
     expect(screen.getByRole('button', { name: 'Run 10' })).toHaveProperty('disabled', false);
   });
 
-  it.each(['Re-render', 'variant change'])(
-    'discards a pending %s when the workload changes',
-    async (action) => {
-      const { rerender } = await render(
-        <PerformanceBenchmark variants={variants} workloadKey="A" />,
-      );
+  it('discards a pending Re-render when the workload changes', async () => {
+    const { rerender } = await render(<PerformanceBenchmark variants={variants} workloadKey="A" />);
 
-      if (action === 'Re-render') {
-        fireEvent.click(screen.getByRole('button', { name: action }));
-      } else {
-        fireEvent.change(screen.getByRole('combobox', { name: 'Variant' }), {
-          target: { value: 'second' },
-        });
-      }
-      await advanceTime(10);
-      rerender(<PerformanceBenchmark variants={variants} workloadKey="B" />);
-      await advanceTime(100);
+    fireEvent.click(screen.getByRole('button', { name: 'Re-render' }));
+    await advanceTime(10);
+    rerender(<PerformanceBenchmark variants={variants} workloadKey="B" />);
+    await advanceTime(100);
 
-      expect(cells()[1].textContent).toBe('—');
-      expect(cells('Second')[1].textContent).toBe('—');
-      expect(screen.getByRole('button', { name: 'Re-render' })).toHaveProperty('disabled', false);
-    },
-  );
+    expect(cells()[1].textContent).toBe('—');
+    expect(screen.getByRole('button', { name: 'Re-render' })).toHaveProperty('disabled', false);
+  });
 
   it('discards a batch even if the workload changes back before its continuation runs', async () => {
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
@@ -143,15 +131,51 @@ describe('PerformanceBenchmark', () => {
     },
   );
 
-  it('records a Last sample for the variant that was switched to', async () => {
+  it('renders no variant until a measurement starts', async () => {
     await render(<PerformanceBenchmark variants={variants} />);
+
+    expect(screen.queryByText('First workload')).toBe(null);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Re-render' }));
+    await advanceTime(100);
+
+    expect(screen.getByText('First workload')).not.toBe(null);
+    expect(cells()[1].textContent).not.toBe('—');
+  });
+
+  it('unmounts the rendered variant on selection without measuring the new one', async () => {
+    await render(<PerformanceBenchmark variants={variants} />);
+    fireEvent.click(screen.getByRole('button', { name: 'Re-render' }));
+    await advanceTime(100);
 
     selectVariant('Second');
     await advanceTime(100);
 
-    expect(cells()[1].textContent).toBe('—');
-    expect(cells('Second')[1].textContent).not.toBe('—');
+    expect(screen.queryByText('First workload')).toBe(null);
+    expect(screen.queryByText('Second workload')).toBe(null);
+    expect(cells('Second')[1].textContent).toBe('—');
     expect(screen.getByRole('row', { name: /^Second / }).hasAttribute('data-active')).toBe(true);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Re-render' }));
+    await advanceTime(100);
+
+    expect(screen.getByText('Second workload')).not.toBe(null);
+    expect(cells('Second')[1].textContent).not.toBe('—');
+  });
+
+  it('replaces the controls with the run status while measuring', async () => {
+    await render(<PerformanceBenchmark variants={variants} />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Run 10' }));
+
+    expect(screen.getByRole('status').textContent).toBe('Running First 10 times');
+    expect(screen.queryByRole('button', { name: 'Run 10' })).toBe(null);
+    expect(screen.queryByRole('combobox', { name: 'Variant' })).toBe(null);
+
+    await advanceTime(1000);
+
+    expect(screen.queryByRole('status')).toBe(null);
+    expect(screen.getByRole('button', { name: 'Run 10' })).not.toBe(null);
   });
 
   it('runs a batch for every variant in sequence when "All variants" is selected', async () => {
@@ -160,7 +184,11 @@ describe('PerformanceBenchmark', () => {
     fireEvent.click(screen.getByRole('checkbox', { name: 'Remove outliers' }));
     selectVariant('All variants');
     fireEvent.click(screen.getByRole('button', { name: 'Run 10' }));
-    await advanceTime(2000);
+    expect(screen.getByRole('status').textContent).toBe('Running First 10 times');
+    // Each variant takes 15 iterations of one 32 ms quiet window, so the second one is running.
+    await advanceTime(600);
+    expect(screen.getByRole('status').textContent).toBe('Running Second 10 times');
+    await advanceTime(1400);
 
     expect(cells()[2].textContent).toBe('10');
     expect(cells('Second')[2].textContent).toBe('10');

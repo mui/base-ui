@@ -26,7 +26,17 @@
   pointer-events: auto;
 }
 
+/* The run status is laid over the hidden controls, so nothing below moves while a run is going. */
 .Toolbar {
+  display: grid;
+}
+
+.ToolbarControls,
+.RunStatus {
+  grid-area: 1 / 1;
+}
+
+.ToolbarControls {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -68,23 +78,18 @@
   user-select: none;
 
   @media (hover: hover) {
-    &:hover:not(:disabled) {
+    &:hover {
       background-color: var(--color-gray-100);
     }
   }
 
-  &:active:not(:disabled) {
+  &:active {
     background-color: var(--color-gray-100);
   }
 
   &:focus-visible {
     outline: 2px solid var(--color-blue);
     outline-offset: -1px;
-  }
-
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
   }
 }
 
@@ -131,11 +136,17 @@
     outline: 2px solid var(--color-blue);
     outline-offset: -1px;
   }
+}
 
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
+.RunStatus {
+  display: flex;
+  align-self: start;
+  align-items: center;
+  min-height: 2rem;
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  color: var(--color-gray-900);
 }
 
 .Table {
@@ -178,6 +189,13 @@
 .VariantArea {
   padding-top: 1.5rem;
   border-top: 1px solid var(--color-gray-200);
+}
+
+.Placeholder {
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  color: var(--color-gray-600);
 }
 
 .NoAnimationPopup {

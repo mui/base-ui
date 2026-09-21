@@ -86,15 +86,19 @@ export default function PerformanceBenchmark(props: PerformanceBenchmarkProps) {
 
   /** What the select shows: a variant key, or `ALL_VARIANTS`. */
   const [selectedKey, setSelectedKey] = React.useState(variants[0].key);
-  /** The variant rendered in the benchmark area. Differs from `selectedKey` while "All" is selected. */
-  const [mountedKey, setMountedKey] = React.useState(variants[0].key);
+  /**
+   * The variant rendered in the benchmark area, or `null` when nothing is. Variants only mount when
+   * a measurement starts, so the ones that open a popup at mount do not cover the page on arrival.
+   */
+  const [mountedKey, setMountedKey] = React.useState<string | null>(null);
   const [generation, setGeneration] = React.useState(0);
   const [showVariant, setShowVariant] = React.useState(true);
   const [results, setResults] = React.useState<Record<string, VariantResults>>(() =>
     makeInitialResults(variants),
   );
   const [removeOutliersEnabled, setRemoveOutliersEnabled] = React.useState(true);
-  const [isBusy, setIsBusy] = React.useState(false);
+  /** Describes the measurement in progress, or `null` when idle. Replaces the controls while set. */
+  const [runStatus, setRunStatus] = React.useState<string | null>(null);
   const [measurementError, setMeasurementError] = React.useState<string | null>(null);
 
   const benchmarkRootRef = React.useRef<HTMLDivElement>(null);
@@ -134,7 +138,8 @@ export default function PerformanceBenchmark(props: PerformanceBenchmarkProps) {
     (revision: number) => !isUnmountedRef.current && workloadRevisionRef.current === revision,
   );
 
-  const mountedVariant = variants.find((variant) => variant.key === mountedKey) ?? variants[0];
+  const mountedVariant = variants.find((variant) => variant.key === mountedKey);
+  const labelFor = (key: string) => variants.find((variant) => variant.key === key)?.label ?? key;
   const keysToRun =
     selectedKey === ALL_VARIANTS ? variants.map((variant) => variant.key) : [selectedKey];
 
@@ -236,40 +241,22 @@ export default function PerformanceBenchmark(props: PerformanceBenchmarkProps) {
       return false;
     }
     isBusyRef.current = true;
-    setIsBusy(true);
     setMeasurementError(null);
     return true;
   });
 
   const endBusy = useStableCallback(() => {
     isBusyRef.current = false;
-    setIsBusy(false);
+    setRunStatus(null);
   });
 
-  const handleVariantChange = useStableCallback(
-    async (event: React.ChangeEvent<HTMLSelectElement>) => {
-      const nextKey = event.target.value;
-      if (nextKey === ALL_VARIANTS) {
-        // Nothing changes on screen until the next action, which then covers every variant.
-        setSelectedKey(nextKey);
-        return;
-      }
-      if (!beginBusy()) {
-        return;
-      }
-      const workloadRevision = workloadRevisionRef.current;
-      try {
-        setSelectedKey(nextKey);
-        const duration = await measureVariant(nextKey);
-        if (duration === null || !isCurrentWorkload(workloadRevision)) {
-          return;
-        }
-        recordLast(nextKey, duration);
-      } finally {
-        endBusy();
-      }
-    },
-  );
+  const handleVariantChange = useStableCallback((event: React.ChangeEvent<HTMLSelectElement>) => {
+    if (isBusyRef.current) {
+      return;
+    }
+    setSelectedKey(event.target.value);
+    setMountedKey(null);
+  });
 
   const handleReRender = useStableCallback(async () => {
     if (!beginBusy()) {
@@ -278,6 +265,7 @@ export default function PerformanceBenchmark(props: PerformanceBenchmarkProps) {
     const workloadRevision = workloadRevisionRef.current;
     try {
       for (const key of keysToRun) {
+        setRunStatus(`Re-rendering ${labelFor(key)}`);
         // eslint-disable-next-line no-await-in-loop
         const duration = await measureVariant(key);
         if (duration === null || !isCurrentWorkload(workloadRevision)) {
@@ -296,7 +284,7 @@ export default function PerformanceBenchmark(props: PerformanceBenchmarkProps) {
    */
   const collectSamples = useStableCallback(
     async (key: string, iterations: number, workloadRevision: number) => {
-      const label = variants.find((variant) => variant.key === key)?.label ?? key;
+      const label = labelFor(key);
       console.log(
         `Benchmark "${label}": ${iterations} iterations (+${WARMUP_ITERATIONS} warmup)...`,
       );
@@ -331,6 +319,7 @@ export default function PerformanceBenchmark(props: PerformanceBenchmarkProps) {
     const workloadRevision = workloadRevisionRef.current;
     try {
       for (const key of keysToRun) {
+        setRunStatus(`Running ${labelFor(key)} ${iterations} times`);
         // eslint-disable-next-line no-await-in-loop
         const samples = await collectSamples(key, iterations, workloadRevision);
         if (samples === null) {
@@ -364,9 +353,12 @@ export default function PerformanceBenchmark(props: PerformanceBenchmarkProps) {
    * toggle, do not rerender the benchmark content. Measurements remount it through `generation`.
    */
   const variantContent = React.useMemo(
-    () => (
-      <React.Fragment key={`${mountedKey}:${generation}`}>{mountedVariant.render()}</React.Fragment>
-    ),
+    () =>
+      mountedVariant ? (
+        <React.Fragment key={`${mountedKey}:${generation}`}>
+          {mountedVariant.render()}
+        </React.Fragment>
+      ) : null,
     [mountedVariant, mountedKey, generation],
   );
 
@@ -374,80 +366,75 @@ export default function PerformanceBenchmark(props: PerformanceBenchmarkProps) {
     <div className={styles.HarnessRoot}>
       <div ref={chromeRef} className={styles.Chrome}>
         <div className={styles.Toolbar}>
-          <Field.Root className={styles.VariantField}>
-            <Field.Label className={styles.Label} htmlFor={variantSelectId}>
-              Variant
-            </Field.Label>
-            <select
-              id={variantSelectId}
-              value={selectedKey}
-              onChange={handleVariantChange}
-              disabled={isBusy}
-              className={styles.VariantSelect}
-            >
-              {variants.map((variant) => (
-                <option key={variant.key} value={variant.key}>
-                  {variant.label}
-                </option>
-              ))}
-              <option value={ALL_VARIANTS}>All variants</option>
-            </select>
-          </Field.Root>
-          <div className={styles.ToolbarActions}>
-            <button
-              type="button"
-              onClick={handleReRender}
-              disabled={isBusy}
-              className={styles.ToolbarButton}
-            >
-              Re-render
-            </button>
-            <button
-              type="button"
-              onClick={() => runBenchmark(10)}
-              disabled={isBusy}
-              className={styles.ToolbarButton}
-            >
-              Run 10
-            </button>
-            <button
-              type="button"
-              onClick={() => runBenchmark(20)}
-              disabled={isBusy}
-              className={styles.ToolbarButton}
-            >
-              Run 20
-            </button>
-            <button
-              type="button"
-              onClick={() => runBenchmark(50)}
-              disabled={isBusy}
-              className={styles.ToolbarButton}
-            >
-              Run 50
-            </button>
+          <div
+            className={styles.ToolbarControls}
+            // Hidden rather than removed, so the table below keeps its place during a run.
+            style={runStatus !== null ? { visibility: 'hidden' } : undefined}
+          >
+            <Field.Root className={styles.VariantField}>
+              <Field.Label className={styles.Label} htmlFor={variantSelectId}>
+                Variant
+              </Field.Label>
+              <select
+                id={variantSelectId}
+                value={selectedKey}
+                onChange={handleVariantChange}
+                className={styles.VariantSelect}
+              >
+                {variants.map((variant) => (
+                  <option key={variant.key} value={variant.key}>
+                    {variant.label}
+                  </option>
+                ))}
+                <option value={ALL_VARIANTS}>All variants</option>
+              </select>
+            </Field.Root>
+            <div className={styles.ToolbarActions}>
+              <button type="button" onClick={handleReRender} className={styles.ToolbarButton}>
+                Re-render
+              </button>
+              <button
+                type="button"
+                onClick={() => runBenchmark(10)}
+                className={styles.ToolbarButton}
+              >
+                Run 10
+              </button>
+              <button
+                type="button"
+                onClick={() => runBenchmark(20)}
+                className={styles.ToolbarButton}
+              >
+                Run 20
+              </button>
+              <button
+                type="button"
+                onClick={() => runBenchmark(50)}
+                className={styles.ToolbarButton}
+              >
+                Run 50
+              </button>
+            </div>
+            <div className={styles.ToolbarOptions}>
+              <label className={styles.ToolbarCheckbox}>
+                <input
+                  type="checkbox"
+                  checked={removeOutliersEnabled}
+                  onChange={(event) => setRemoveOutliersEnabled(event.target.checked)}
+                />
+                Remove outliers
+              </label>
+              <button type="button" onClick={handleReset} className={styles.ToolbarButton}>
+                Reset
+              </button>
+            </div>
           </div>
-          <div className={styles.ToolbarOptions}>
-            <label className={styles.ToolbarCheckbox}>
-              <input
-                type="checkbox"
-                checked={removeOutliersEnabled}
-                onChange={(event) => setRemoveOutliersEnabled(event.target.checked)}
-                disabled={isBusy}
-              />
-              Remove outliers
-            </label>
-            <button
-              type="button"
-              onClick={handleReset}
-              disabled={isBusy}
-              className={styles.ToolbarButton}
-            >
-              Reset
-            </button>
-          </div>
+          {runStatus !== null && (
+            <p role="status" className={styles.RunStatus}>
+              {runStatus}
+            </p>
+          )}
         </div>
-
         {measurementError && <p role="status">{measurementError}</p>}
 
         <table className={styles.Table}>
@@ -469,9 +456,9 @@ export default function PerformanceBenchmark(props: PerformanceBenchmarkProps) {
                 ? removeOutliers(variantResults.rawSamples)
                 : variantResults.rawSamples;
               const stats = samplesForStats.length > 0 ? computeStats(samplesForStats) : null;
-              const isMounted = variant.key === mountedKey;
+              const isActive = variant.key === (mountedKey ?? selectedKey);
               return (
-                <tr key={variant.key} data-active={isMounted ? '' : undefined}>
+                <tr key={variant.key} data-active={isActive ? '' : undefined}>
                   <td>{variant.label}</td>
                   <td>{variantResults.lastMs != null ? variantResults.lastMs.toFixed(1) : '—'}</td>
                   <td>{stats ? stats.sampleCount : '—'}</td>
@@ -487,7 +474,13 @@ export default function PerformanceBenchmark(props: PerformanceBenchmarkProps) {
       </div>
 
       <div ref={benchmarkRootRef} className={styles.VariantArea}>
-        {showVariant ? variantContent : null}
+        {mountedKey === null ? (
+          <p className={styles.Placeholder}>
+            Press Re-render or Run to render the selected variant.
+          </p>
+        ) : (
+          showVariant && variantContent
+        )}
       </div>
     </div>
   );

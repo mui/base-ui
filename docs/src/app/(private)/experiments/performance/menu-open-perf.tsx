@@ -21,15 +21,16 @@ const Controls = React.memo(function Controls(props: {
   setIsMenuOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
   const { setIsMenuOpen } = props;
-  const [isRunning, setIsRunning] = React.useState(false);
+  /** How many measured iterations are running, or `null` when idle. Replaces the controls while set. */
+  const [runningIterations, setRunningIterations] = React.useState<number | null>(null);
   const [shouldRemoveOutliers, setShouldRemoveOutliers] = React.useState(true);
 
   const runBenchmark = useStableCallback(async (iterations: number, warmupIterations: number) => {
-    if (isRunning) {
+    if (runningIterations !== null) {
       return;
     }
 
-    setIsRunning(true);
+    setRunningIterations(iterations);
     console.log(`Running benchmark: ${iterations} iterations (+${warmupIterations} warmup)...`);
 
     const results: number[] = [];
@@ -59,8 +60,16 @@ const Controls = React.memo(function Controls(props: {
     }
 
     logResults(shouldRemoveOutliers ? removeOutliers(results) : results);
-    setIsRunning(false);
+    setRunningIterations(null);
   });
+
+  if (runningIterations !== null) {
+    return (
+      <p role="status" className={styles.RunStatus}>
+        {`Opening the menu ${runningIterations} times`}
+      </p>
+    );
+  }
 
   return (
     <div className={styles.ToolbarActions}>
@@ -68,7 +77,6 @@ const Controls = React.memo(function Controls(props: {
         type="button"
         onClick={() => setIsMenuOpen((prev) => !prev)}
         className={styles.ToolbarButton}
-        disabled={isRunning}
       >
         Toggle
       </button>
@@ -76,7 +84,6 @@ const Controls = React.memo(function Controls(props: {
         type="button"
         onClick={() => runBenchmark(10, WARMUP_ITERATIONS)}
         className={styles.ToolbarButton}
-        disabled={isRunning}
       >
         Run 10
       </button>
@@ -84,7 +91,6 @@ const Controls = React.memo(function Controls(props: {
         type="button"
         onClick={() => runBenchmark(20, WARMUP_ITERATIONS)}
         className={styles.ToolbarButton}
-        disabled={isRunning}
       >
         Run 20
       </button>
@@ -92,7 +98,6 @@ const Controls = React.memo(function Controls(props: {
         type="button"
         onClick={() => runBenchmark(50, WARMUP_ITERATIONS)}
         className={styles.ToolbarButton}
-        disabled={isRunning}
       >
         Run 50
       </button>
