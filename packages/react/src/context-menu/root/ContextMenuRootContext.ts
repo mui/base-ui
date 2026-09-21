@@ -12,7 +12,31 @@ export interface ContextMenuRootContext {
   } | null>;
   positionerRef: React.RefObject<HTMLElement | null>;
   allowMouseUpTriggerRef: React.RefObject<boolean>;
-  initialCursorPointRef: React.RefObject<{ x: number; y: number } | null>;
+  /**
+   * State of the gesture that opened the menu, replaced wholesale on each open.
+   */
+  gestureRef: React.RefObject<{
+    /**
+     * The point the menu was opened at (snapped to the device-pixel grid).
+     */
+    x: number;
+    y: number;
+    /**
+     * Whether a menu item's `mouseup` has already checked the trailing release of the
+     * opening right click against the opening point. Ensures only the opening release is
+     * ignored; later deliberate releases near the same point must activate the item.
+     */
+    consumed: boolean;
+    /**
+     * Whether the menu was opened by a touch long press.
+     */
+    touch: boolean;
+    /**
+     * Whether the `contextmenu` event about to reach the trigger belongs to the right
+     * click that just dismissed the menu, so it must not immediately reopen it.
+     */
+    suppressReopen: boolean;
+  }>;
   rootId: string | undefined;
 }
 
