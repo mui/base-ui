@@ -4,16 +4,19 @@ import { Menu } from '@base-ui/react/menu';
 import { Tooltip } from '@base-ui/react/tooltip';
 import { Popover } from '@base-ui/react/popover';
 import { Dialog } from '@base-ui/react/dialog';
+import { PreviewCard } from '@base-ui/react/preview-card';
 import {
   DropdownMenu as RadixDropdownMenu,
   Tooltip as RadixTooltip,
   Popover as RadixPopover,
   Dialog as RadixDialog,
+  HoverCard as RadixHoverCard,
 } from 'radix-ui';
 import menuDemoStyles from 'docs/src/app/(docs)/react/components/menu/demos/submenu/css-modules/index.module.css';
 import tooltipDemoStyles from 'docs/src/app/(docs)/react/components/tooltip/demos/hero/css-modules/index.module.css';
 import popoverDemoStyles from 'docs/src/app/(docs)/react/components/popover/demos/_index.module.css';
 import dialogDemoStyles from 'docs/src/app/(docs)/react/components/dialog/demos/_index.module.css';
+import previewCardDemoStyles from 'docs/src/app/(docs)/react/components/preview-card/demos/index.module.css';
 import { SettingsMetadata, useExperimentSettings } from '../_components/SettingsPanel';
 import PerformanceBenchmark, { BenchmarkVariant } from './utils/benchmark';
 import styles from './performance.module.css';
@@ -22,6 +25,7 @@ interface Settings {
   renderDialog: boolean;
   renderMenu: boolean;
   renderPopover: boolean;
+  renderPreviewCard: boolean;
   renderTooltip: boolean;
 }
 
@@ -47,6 +51,7 @@ const rowMenuHandle = Menu.createHandle<RowData>();
 const rowTooltipHandle = Tooltip.createHandle<RowData>();
 const rowPopoverHandle = Popover.createHandle<RowData>();
 const rowDialogHandle = Dialog.createHandle<RowData>();
+const rowPreviewCardHandle = PreviewCard.createHandle<RowData>();
 
 function ArrowSvg(props: React.ComponentProps<'svg'>) {
   return (
@@ -153,9 +158,31 @@ function ContainedRowDialog({ rowData }: { rowData: RowData }) {
   );
 }
 
+function ContainedRowPreviewCard({ rowData }: { rowData: RowData }) {
+  return (
+    <PreviewCard.Root>
+      <PreviewCard.Trigger href="#" className={styles.TriggerButton}>
+        Preview Card
+      </PreviewCard.Trigger>
+      <PreviewCard.Portal>
+        <PreviewCard.Positioner sideOffset={8} className={previewCardDemoStyles.Positioner}>
+          <PreviewCard.Popup className={previewCardDemoStyles.Popup}>
+            <PreviewCard.Arrow className={previewCardDemoStyles.Arrow}>
+              <ArrowSvg />
+            </PreviewCard.Arrow>
+            <div className={styles.PreviewCardContent}>
+              <p className={previewCardDemoStyles.Summary}>Preview card for {rowData.label}</p>
+            </div>
+          </PreviewCard.Popup>
+        </PreviewCard.Positioner>
+      </PreviewCard.Portal>
+    </PreviewCard.Root>
+  );
+}
+
 function ContainedTriggers() {
   const { settings } = useExperimentSettings<Settings>();
-  const { renderMenu, renderTooltip, renderPopover, renderDialog } = settings;
+  const { renderMenu, renderTooltip, renderPopover, renderPreviewCard, renderDialog } = settings;
   return (
     <div className={styles.Rows}>
       {rows.map((row) => (
@@ -165,6 +192,7 @@ function ContainedTriggers() {
             {renderDialog && <ContainedRowDialog rowData={row} />}
             {renderMenu && <ContainedRowMenu rowData={row} />}
             {renderPopover && <ContainedRowPopover rowData={row} />}
+            {renderPreviewCard && <ContainedRowPreviewCard rowData={row} />}
             {renderTooltip && <ContainedRowTooltip rowData={row} />}
           </span>
         </div>
@@ -268,9 +296,32 @@ function DetachedDialogPopup() {
   );
 }
 
+function DetachedPreviewCardPopup() {
+  return (
+    <PreviewCard.Root handle={rowPreviewCardHandle}>
+      {({ payload: rowData }) =>
+        rowData ? (
+          <PreviewCard.Portal>
+            <PreviewCard.Positioner sideOffset={8} className={previewCardDemoStyles.Positioner}>
+              <PreviewCard.Popup className={previewCardDemoStyles.Popup}>
+                <PreviewCard.Arrow className={previewCardDemoStyles.Arrow}>
+                  <ArrowSvg />
+                </PreviewCard.Arrow>
+                <div className={styles.PreviewCardContent}>
+                  <p className={previewCardDemoStyles.Summary}>Preview card for {rowData.label}</p>
+                </div>
+              </PreviewCard.Popup>
+            </PreviewCard.Positioner>
+          </PreviewCard.Portal>
+        ) : null
+      }
+    </PreviewCard.Root>
+  );
+}
+
 function DetachedTriggers() {
   const { settings } = useExperimentSettings<Settings>();
-  const { renderMenu, renderTooltip, renderPopover, renderDialog } = settings;
+  const { renderMenu, renderTooltip, renderPopover, renderPreviewCard, renderDialog } = settings;
   return (
     <React.Fragment>
       <div className={styles.Rows}>
@@ -301,6 +352,16 @@ function DetachedTriggers() {
                   Popover
                 </Popover.Trigger>
               )}
+              {renderPreviewCard && (
+                <PreviewCard.Trigger
+                  handle={rowPreviewCardHandle}
+                  payload={row}
+                  href="#"
+                  className={styles.TriggerButton}
+                >
+                  Preview Card
+                </PreviewCard.Trigger>
+              )}
               {renderTooltip && (
                 <Tooltip.Trigger
                   handle={rowTooltipHandle}
@@ -317,6 +378,7 @@ function DetachedTriggers() {
       {renderDialog && <DetachedDialogPopup />}
       {renderMenu && <DetachedMenuPopup />}
       {renderPopover && <DetachedPopoverPopup />}
+      {renderPreviewCard && <DetachedPreviewCardPopup />}
       {renderTooltip && <DetachedTooltipPopup />}
     </React.Fragment>
   );
@@ -402,9 +464,29 @@ function RadixRowDialog({ rowData }: { rowData: RowData }) {
   );
 }
 
+function RadixRowPreviewCard({ rowData }: { rowData: RowData }) {
+  return (
+    <RadixHoverCard.Root>
+      <RadixHoverCard.Trigger href="#" className={styles.TriggerButton}>
+        Preview Card
+      </RadixHoverCard.Trigger>
+      <RadixHoverCard.Portal>
+        <RadixHoverCard.Content sideOffset={8} className={previewCardDemoStyles.Popup}>
+          <RadixHoverCard.Arrow asChild className={previewCardDemoStyles.Arrow}>
+            <ArrowSvg />
+          </RadixHoverCard.Arrow>
+          <div className={styles.PreviewCardContent}>
+            <p className={previewCardDemoStyles.Summary}>Preview card for {rowData.label}</p>
+          </div>
+        </RadixHoverCard.Content>
+      </RadixHoverCard.Portal>
+    </RadixHoverCard.Root>
+  );
+}
+
 function RadixTriggers() {
   const { settings } = useExperimentSettings<Settings>();
-  const { renderMenu, renderTooltip, renderPopover, renderDialog } = settings;
+  const { renderMenu, renderTooltip, renderPopover, renderPreviewCard, renderDialog } = settings;
   return (
     <RadixTooltip.Provider>
       <div className={styles.Rows}>
@@ -415,6 +497,7 @@ function RadixTriggers() {
               {renderDialog && <RadixRowDialog rowData={row} />}
               {renderMenu && <RadixRowMenu rowData={row} />}
               {renderPopover && <RadixRowPopover rowData={row} />}
+              {renderPreviewCard && <RadixRowPreviewCard rowData={row} />}
               {renderTooltip && <RadixRowTooltip rowData={row} />}
             </span>
           </div>
@@ -449,6 +532,7 @@ export default function TriggersPerfExperiment() {
     settings.renderDialog,
     settings.renderMenu,
     settings.renderPopover,
+    settings.renderPreviewCard,
     settings.renderTooltip,
   ].join(',');
 
@@ -456,9 +540,9 @@ export default function TriggersPerfExperiment() {
     <div className={styles.Container}>
       <h1>Trigger rendering performance</h1>
       <p className={styles.Intro}>
-        Each variant renders {ROW_COUNT} rows × up to 4 components (Menu / Tooltip / Popover /
-        Dialog). Use the sidebar settings to toggle which components are rendered across all
-        variants. Changing a toggle clears the recorded results.
+        Each variant renders {ROW_COUNT} rows × up to 5 components (Dialog / Menu / Popover /
+        Preview Card / Tooltip). Use the sidebar settings to toggle which components are rendered
+        across all variants. Changing a toggle clears the recorded results.
       </p>
       <PerformanceBenchmark variants={variants} workloadKey={workloadKey} />
     </div>
@@ -480,6 +564,11 @@ export const settingsMetadata: SettingsMetadata<Settings> = {
     type: 'boolean',
     default: true,
     label: 'Render Popover',
+  },
+  renderPreviewCard: {
+    type: 'boolean',
+    default: true,
+    label: 'Render Preview Card',
   },
   renderTooltip: {
     type: 'boolean',
