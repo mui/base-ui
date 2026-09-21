@@ -149,7 +149,7 @@ describe('<Drawer.VirtualKeyboardProvider />', () => {
   }
 
   it.skipIf(isJSDOM)(
-    'adds scroll slack and centers the focused input while the visual viewport is reduced',
+    'compensates for keyboard overlap without adding extra spacing and centers the focused input',
     async () => {
       const restoreInnerHeight = mockWindowInnerHeight(800);
       const visualViewport = mockVisualViewport(800);
@@ -230,7 +230,7 @@ describe('<Drawer.VirtualKeyboardProvider />', () => {
         });
 
         await waitFor(() => {
-          expect(Number.parseFloat(scroll.style.paddingBottom)).toBeGreaterThan(20);
+          expect(scroll.style.paddingBottom).toBe('240px');
         });
         await waitFor(() => {
           expect(scroll.style.scrollPaddingBottom).not.toBe('');
