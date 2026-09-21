@@ -39,7 +39,7 @@ export const settingsMetadata: SettingsMetadata<FigmaBoardSettings> = {
   },
 };
 
-const cardKind = Draggable.createKind<CardDragPayload>('figmaBoard:card');
+const cardKind = Draggable.createKind<{ id: string }, CardDragPayload>('figmaBoard:card');
 const CARD_WIDTH = 200;
 // The board is a fixed-size scroll surface; cards are clamped inside it so they
 // can never be created or dropped past an edge.
@@ -477,13 +477,14 @@ function BoardCard({
       // Capture where in the card the pointer grabbed (client px). The drop maps it
       // back to a surface position from a fresh surface rect, so it stays correct
       // even when auto-scroll moves the board mid-drag.
-      getPayload={(feedback) => {
-        const rect = feedback.element.getBoundingClientRect();
-        return {
+      payload={{ id: card.id }}
+      onMoveStart={({ source, location }) => {
+        const rect = source.element.getBoundingClientRect();
+        source.updateDragData({
           id: card.id,
-          grabOffsetX: feedback.input.clientX - rect.left,
-          grabOffsetY: feedback.input.clientY - rect.top,
-        };
+          grabOffsetX: location.initial.input.clientX - rect.left,
+          grabOffsetY: location.initial.input.clientY - rect.top,
+        });
       }}
       disabled={editing}
       data-compensate-preview={compensatePreview ? '' : undefined}
@@ -501,6 +502,9 @@ function BoardCard({
       onMoveEnd={(moveEvent, moveDetails) => {
         if (moveDetails.reason === 'drop' && moveEvent.dropTarget !== null) {
           const { source, location } = moveEvent;
+          if (!source.dragData) {
+            return;
+          }
 
           const surface = surfaceRef.current;
           if (!surface) {
@@ -515,9 +519,9 @@ function BoardCard({
           const rect = surface.getBoundingClientRect();
           const height = cardRef.current?.offsetHeight ?? CARD_MIN_HEIGHT;
           const newX =
-            (location.current.input.clientX - source.payload.grabOffsetX - rect.left) / scale;
+            (location.current.input.clientX - source.dragData.grabOffsetX - rect.left) / scale;
           const newY =
-            (location.current.input.clientY - source.payload.grabOffsetY - rect.top) / scale;
+            (location.current.input.clientY - source.dragData.grabOffsetY - rect.top) / scale;
           const position = clampToSurface(newX, newY, height);
           onMove(source.payload.id, Math.round(position.x), Math.round(position.y));
         }

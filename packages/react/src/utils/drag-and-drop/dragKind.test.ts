@@ -7,6 +7,9 @@ function sourceOfKind(kind: symbol): DragSource<unknown> {
     element: document.createElement('div'),
     kind,
     dragHandle: null,
+    dragData: undefined,
+    updatePayload() {},
+    updateDragData() {},
     payload: undefined,
   };
 }
@@ -16,6 +19,9 @@ function recordOfKind(kind: symbol | undefined): DropTargetRecord<unknown> {
     element: document.createElement('div'),
     kind,
     payload: undefined,
+    dragData: undefined,
+    updatePayload() {},
+    updateDragData() {},
     getLocalPoint: () => ({ x: 0, y: 0 }),
     getSnappedLocalPoint: () => ({ x: 0, y: 0 }),
   };

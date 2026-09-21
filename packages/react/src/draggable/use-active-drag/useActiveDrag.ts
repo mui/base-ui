@@ -2,9 +2,17 @@
 import { useStore } from '@base-ui/utils/store';
 import { dragSourceStore } from '../../utils/drag-and-drop/dragSessionStore';
 import { matchesAccept } from '../../utils/drag-and-drop/dragKind';
-import type { AcceptedDragPayload, AnyDragAccept, DragSource } from '../../types/drag';
+import type {
+  AcceptedDragPayload,
+  AcceptedDragData,
+  AnyDragAccept,
+  DragSource,
+} from '../../types/drag';
 
-export type UseActiveDragReturnValue<TPayload = unknown> = DragSource<TPayload> | null;
+export type UseActiveDragReturnValue<TPayload = unknown, TDragData = unknown> = DragSource<
+  TPayload,
+  TDragData
+> | null;
 
 /**
  * Subscribes to the drag currently in progress, and returns its source, or `null` if
@@ -19,7 +27,7 @@ export type UseActiveDragReturnValue<TPayload = unknown> = DragSource<TPayload> 
 // returned payload type is backed by the runtime filter. See `AnyDragAccept`.
 export function useActiveDrag<TAccept extends AnyDragAccept | undefined>(
   accept: TAccept,
-): UseActiveDragReturnValue<AcceptedDragPayload<TAccept>>;
+): UseActiveDragReturnValue<AcceptedDragPayload<TAccept>, AcceptedDragData<TAccept>>;
 export function useActiveDrag(accept?: undefined): UseActiveDragReturnValue;
 export function useActiveDrag(accept?: AnyDragAccept): UseActiveDragReturnValue {
   // The filter lives inside the selector so a drag this consumer rejects stays
@@ -42,5 +50,8 @@ function selectAcceptedDragSource(
 
 // Keyed on the observed payload rather than on an `accept` value, like the props types.
 export namespace useActiveDrag {
-  export type ReturnValue<TPayload = unknown> = UseActiveDragReturnValue<TPayload>;
+  export type ReturnValue<TPayload = unknown, TDragData = unknown> = UseActiveDragReturnValue<
+    TPayload,
+    TDragData
+  >;
 }

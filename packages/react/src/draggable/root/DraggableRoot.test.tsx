@@ -229,25 +229,25 @@ describe('Draggable.Root', () => {
     expect(screen.getByTestId('enabled')).not.toHaveAttribute('data-disabled');
   });
 
-  it('forwards getPayload into the drag payload', async () => {
+  it('updates the payload from onMoveStart', async () => {
     const tokenKind = Draggable.createKind<{ token: string }>('token');
-    const payload = vi.fn(() => ({ token: 'abc' }));
-    const onMoveStart = vi.fn();
+    const onMove = vi.fn();
     await renderDnd(
-      // `Props` hides `kind` behind an `Omit`, which TypeScript can't infer through, so
-      // the payload type is named here rather than read off the kind.
       <TestDraggable<{ token: string }>
-        options={{ kind: tokenKind, getPayload: payload, onMoveStart }}
+        options={{
+          kind: tokenKind,
+          payload: { token: 'initial' },
+          onMoveStart: ({ source }) => source.updatePayload({ token: 'abc' }),
+          onMove,
+        }}
       />,
     );
     const source = screen.getByTestId('drag');
-
     fireEvent.dragStart(source);
     await flushRaf();
-
-    expect(payload).toHaveBeenCalledTimes(1);
-    expect(onMoveStart).toHaveBeenCalledTimes(1);
-    expect(onMoveStart.mock.calls[0][0].source.payload).toEqual({ token: 'abc' });
+    fireEvent.dragOver(source, { clientX: 40, clientY: 40 });
+    await flushRaf();
+    expect(onMove.mock.lastCall?.[0].source.payload).toEqual({ token: 'abc' });
   });
 
   it('forwards a static payload value, keeping it off the DOM element', async () => {
@@ -1873,7 +1873,7 @@ describe('Draggable.Root', () => {
         () =>
           engine.registerDraggable(elementRef.current!, () => ({
             kind: cardKind,
-            getPayload: () => ({ id: 'a' }),
+            payload: { id: 'a' },
             dragPreview: { render: () => <span data-testid="preview">chip</span> },
           })),
         [engine],
@@ -1906,7 +1906,7 @@ describe('Draggable.Root', () => {
           () =>
             engine.registerDraggable(elementRef.current!, () => ({
               kind: cardKind,
-              getPayload: () => ({ id: 'a' }),
+              payload: { id: 'a' },
               dragPreview: {
                 render: () => <span data-testid="preview">chip</span>,
                 offset: { x: 5, y: 6 },
@@ -1940,7 +1940,7 @@ describe('Draggable.Root', () => {
           () =>
             engine.registerDraggable(elementRef.current!, () => ({
               kind: cardKind,
-              getPayload: () => ({ id: 'a' }),
+              payload: { id: 'a' },
               dragPreview: { disabled: true },
             })),
           [engine],
@@ -1967,7 +1967,7 @@ describe('Draggable.Root', () => {
           () =>
             engine.registerDraggable(elementRef.current!, () => ({
               kind: cardKind,
-              getPayload: () => ({ id: 'a' }),
+              payload: { id: 'a' },
               dragPreview: {
                 modifiers: Draggable.restrictToElement(boundsRef),
                 offset: 'pointer',
@@ -2008,7 +2008,7 @@ describe('Draggable.Root', () => {
             () =>
               engine.registerDraggable(elementRef.current!, () => ({
                 kind: cardKind,
-                getPayload: () => ({ id: 'a' }),
+                payload: { id: 'a' },
                 dragPreview: { container: host },
               })),
             [engine],
@@ -2039,7 +2039,7 @@ describe('Draggable.Root', () => {
             () =>
               engine.registerDraggable(elementRef.current!, () => ({
                 kind: cardKind,
-                getPayload: () => ({ id: 'a' }),
+                payload: { id: 'a' },
                 dragPreview: {
                   render: () => <span data-testid="preview">chip</span>,
                   container: host,

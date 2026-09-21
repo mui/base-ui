@@ -5,7 +5,7 @@ import { createDndRenderer } from '#test-utils';
 import { Draggable } from '../../../draggable';
 import { setupDragEngineTests, createElement, lift } from '../../../../test/dnd';
 import { dragPreviewStore } from '../overlay/dragPreviewStore';
-import { dragSessionStore } from '../dragSessionStore';
+import { dragSessionStore, dragSourceStore } from '../dragSessionStore';
 
 setupDragEngineTests();
 
@@ -49,41 +49,227 @@ describe('sensor session startup', () => {
     expect(latestEnd.mock.calls[0][0].source.payload).toBe('second');
   });
 
-  it.each(['payload', 'modifier', 'preview'])(
-    'honors cancellation in the %s callback',
-    async (callback) => {
+  it('shares updates with callbacks and subscribers, persists payload, and resets drag data', async () => {
+    const kind = Draggable.createKind<string, { offset: number }>('mutable-source');
+    const starts: Array<{ payload: string; dragData: { offset: number } | undefined }> = [];
+    const monitorStart = vi.fn();
+    const onMoveEnd = vi.fn();
+    function ActiveData() {
+      const source = Draggable.useActiveDrag(kind);
+      return (
+        <output data-testid="active">
+          {source ? `${source.payload}:${source.dragData?.offset}` : 'idle'}
+        </output>
+      );
+    }
+    const { engine } = await renderDnd(
+      <React.Fragment>
+        <Draggable.Root
+          data-testid="source"
+          kind={kind}
+          payload="initial"
+          onMoveStart={({ source }) => {
+            starts.push({ payload: source.payload, dragData: source.dragData });
+            source.updatePayload('updated');
+            source.updateDragData({ offset: 12 });
+            expect(source.payload).toBe('updated');
+            expect(source.dragData).toEqual({ offset: 12 });
+          }}
+          onMoveEnd={onMoveEnd}
+        />
+        <ActiveData />
+      </React.Fragment>,
+    );
+    engine.registerMonitor({ accept: kind, onMoveStart: monitorStart });
+    await lift(screen.getByTestId('source'));
+    expect(screen.getByTestId('active')).toHaveTextContent('updated:12');
+    expect(monitorStart.mock.calls[0][0].source.payload).toBe('updated');
+    expect(monitorStart.mock.calls[0][0].source.dragData).toEqual({ offset: 12 });
+    const source = monitorStart.mock.calls[0][0].source;
+    act(() => {
+      source.updatePayload('later');
+      source.updateDragData({ offset: 24 });
+    });
+    expect(screen.getByTestId('active')).toHaveTextContent('later:24');
+    act(() => engine.cancelDrag());
+    expect(onMoveEnd.mock.calls[0][0].source.payload).toBe('later');
+    expect(onMoveEnd.mock.calls[0][0].source.dragData).toEqual({ offset: 24 });
+    await lift(screen.getByTestId('source'));
+    expect(starts).toEqual([
+      { payload: 'initial', dragData: undefined },
+      { payload: 'later', dragData: undefined },
+    ]);
+    act(() => source.updateDragData({ offset: 99 }));
+    expect(screen.getByTestId('active')).toHaveTextContent('updated:12');
+  });
+
+  it('keeps imperative payload updates across unrelated renders and replaces them when the prop changes', async () => {
+    const kind = Draggable.createKind<string, number>('prop-precedence');
+    const onMoveStart = vi.fn(({ source }) => {
+      source.updatePayload('imperative');
+      source.updateDragData(42);
+    });
+    function ActiveData() {
+      const source = Draggable.useActiveDrag(kind);
+      return (
+        <output data-testid="active">
+          {source ? `${source.payload}:${source.dragData}` : 'idle'}
+        </output>
+      );
+    }
+    function Demo({ payload, label }: { payload: string; label: string }) {
+      return (
+        <React.Fragment>
+          <Draggable.Root
+            kind={kind}
+            payload={payload}
+            onMoveStart={onMoveStart}
+            data-testid="source"
+          >
+            {label}
+          </Draggable.Root>
+          <ActiveData />
+        </React.Fragment>
+      );
+    }
+    const { rerender } = await renderDnd(<Demo payload="initial" label="first" />);
+    await lift(screen.getByTestId('source'));
+    await rerender(<Demo payload="initial" label="second" />);
+    expect(screen.getByTestId('active')).toHaveTextContent('imperative:42');
+    await rerender(<Demo payload="changed" label="second" />);
+    expect(screen.getByTestId('active')).toHaveTextContent('changed:42');
+    const source = onMoveStart.mock.calls[0][0].source;
+    act(() => source.updatePayload('new imperative'));
+    expect(screen.getByTestId('active')).toHaveTextContent('new imperative:42');
+    await rerender(<Demo payload="changed" label="third" />);
+    expect(screen.getByTestId('active')).toHaveTextContent('new imperative:42');
+  });
+
+  it('keeps the payload through setup rebinds and observes prop changes between drags', async () => {
+    const kind = Draggable.createKind<string>('persistent-source');
+    const onMoveStart = vi.fn();
+    function Demo({ payload, disabled = false }: { payload: string; disabled?: boolean }) {
+      return (
+        <Draggable.Root
+          data-testid="source"
+          kind={kind}
+          payload={payload}
+          disabled={disabled}
+          onMoveStart={onMoveStart}
+        />
+      );
+    }
+    const { rerender, engine } = await renderDnd(<Demo payload="initial" />);
+    await lift(screen.getByTestId('source'));
+    const source = onMoveStart.mock.calls[0][0].source;
+    act(() => source.updatePayload('persistent'));
+    act(() => engine.cancelDrag());
+    await rerender(<Demo payload="initial" disabled />);
+    await rerender(<Demo payload="initial" />);
+    await lift(screen.getByTestId('source'));
+    expect(onMoveStart.mock.calls[1][0].source.payload).toBe('persistent');
+    act(() => engine.cancelDrag());
+    await rerender(<Demo payload="changed" />);
+    await rerender(<Demo payload="initial" />);
+    await lift(screen.getByTestId('source'));
+    expect(onMoveStart.mock.calls[2][0].source.payload).toBe('initial');
+  });
+
+  it('publishes changed payload props to memoized observers before any imperative update', async () => {
+    const kind = Draggable.createKind<string>('observed-source');
+    const Observer = React.memo(function Observer() {
+      const source = Draggable.useActiveDrag(kind);
+      return <output data-testid="observed">{source?.payload}</output>;
+    });
+    function Demo({ payload }: { payload: string }) {
+      return (
+        <React.Fragment>
+          <Draggable.Root data-testid="source" kind={kind} payload={payload} />
+          <Observer />
+        </React.Fragment>
+      );
+    }
+    const { rerender } = await renderDnd(<Demo payload="first" />);
+    await lift(screen.getByTestId('source'));
+    expect(screen.getByTestId('observed')).toHaveTextContent('first');
+    await rerender(<Demo payload="second" />);
+    expect(screen.getByTestId('observed')).toHaveTextContent('second');
+  });
+
+  it('preserves function payloads and honors changes from an imperative registration getter', async () => {
+    const { engine } = await renderDnd();
+    const element = createElement();
+    const initial = vi.fn();
+    const replacement = vi.fn();
+    const nextProp = vi.fn();
+    const onMoveStart = vi.fn();
+    let payload = initial;
+    engine.registerDraggable(element, () => ({ payload, onMoveStart }));
+    await lift(element);
+    const source = onMoveStart.mock.calls[0][0].source;
+    act(() => source.updatePayload(replacement));
+    expect(source.payload).toBe(replacement);
+    act(() => engine.cancelDrag());
+    await lift(element);
+    expect(onMoveStart.mock.calls[1][0].source.payload).toBe(replacement);
+    payload = nextProp;
+    expect(source.payload).toBe(nextProp);
+    expect(initial).not.toHaveBeenCalled();
+    expect(replacement).not.toHaveBeenCalled();
+    expect(nextProp).not.toHaveBeenCalled();
+  });
+
+  it.each(['updatePayload', 'updateDragData'] as const)(
+    'does not restore a canceled source when a subscriber reacts to %s',
+    async (method) => {
       const { engine } = await renderDnd();
-      const source = createElement();
+      const element = createElement();
       const onMoveStart = vi.fn();
-      engine.registerDraggable(source, {
-        getPayload: () => {
-          if (callback === 'payload') {
-            engine.cancelDrag();
-          }
-          return 'item';
-        },
-        modifiers: ({ point }) => {
-          if (callback === 'modifier') {
-            engine.cancelDrag();
-          }
-          return point;
-        },
-        dragPreview: {
-          render: () => {
-            if (callback === 'preview') {
-              engine.cancelDrag();
-            }
-            return 'Preview';
-          },
-        },
-        onMoveStart,
+      engine.registerDraggable(element, { onMoveStart });
+      await lift(element);
+      const source = onMoveStart.mock.calls[0][0].source;
+      const unsubscribe = dragSessionStore.subscribe((session) => {
+        if (session) {
+          engine.cancelDrag();
+        }
       });
-      await lift(source, { expectNoDrag: true });
-      expect(onMoveStart).not.toHaveBeenCalled();
-      expect(dragSessionStore.state).toBeNull();
-      expect(dragPreviewStore.state).toBeNull();
-      expect(document.querySelector('[data-drag-preview]')).toBeNull();
-      expect(source).not.toHaveAttribute('data-dragging');
+      try {
+        act(() => source[method]('updated'));
+        expect(dragSessionStore.state).toBeNull();
+        expect(dragSourceStore.state).toBeNull();
+      } finally {
+        unsubscribe();
+      }
     },
   );
+
+  it.each(['modifier', 'preview'])('honors cancellation in the %s callback', async (callback) => {
+    const { engine } = await renderDnd();
+    const source = createElement();
+    const onMoveStart = vi.fn();
+    engine.registerDraggable(source, {
+      payload: 'item',
+      modifiers: ({ point }) => {
+        if (callback === 'modifier') {
+          engine.cancelDrag();
+        }
+        return point;
+      },
+      dragPreview: {
+        render: () => {
+          if (callback === 'preview') {
+            engine.cancelDrag();
+          }
+          return 'Preview';
+        },
+      },
+      onMoveStart,
+    });
+    await lift(source, { expectNoDrag: true });
+    expect(onMoveStart).not.toHaveBeenCalled();
+    expect(dragSessionStore.state).toBeNull();
+    expect(dragPreviewStore.state).toBeNull();
+    expect(document.querySelector('[data-drag-preview]')).toBeNull();
+    expect(source).not.toHaveAttribute('data-dragging');
+  });
 });

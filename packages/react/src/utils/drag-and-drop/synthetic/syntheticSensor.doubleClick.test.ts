@@ -129,17 +129,17 @@ describe('syntheticDrag double-click activation', () => {
     expect(onClick).toHaveBeenCalledTimes(1);
   });
 
-  it('can veto double-click pickup before resolving the payload', async () => {
+  it('can veto double-click pickup before onMoveStart', async () => {
     const { engine } = await renderDnd();
     const source = createElement();
-    const getPayload = vi.fn(() => undefined);
+    const onMoveStart = vi.fn();
     engine.registerDraggable(source, {
       activation: { type: 'double-click' },
-      getPayload,
+      onMoveStart,
       onBeforeMoveStart: (_, details) => details.cancel(),
     });
     fireEvent.doubleClick(source, { detail: 2 });
-    expect(getPayload).not.toHaveBeenCalled();
+    expect(onMoveStart).not.toHaveBeenCalled();
   });
 
   it('ignores disabled sources, controls, and clicks outside the handle', async () => {

@@ -22,29 +22,35 @@ import { DraggableCollisionContext, type CollisionParticipant } from './Draggabl
 import { useDraggableContext } from '../DraggableContext';
 
 /** The item under the pointer during a drag. */
-export interface DraggableCollision<TPayload = unknown> {
+export interface DraggableCollision<TPayload = unknown, TDragData = unknown> {
   /**
    * The item under the pointer. Use `payload` to identify it and `getLocalPoint()`
    * or `getSnappedLocalPoint()` to choose an insertion position.
    */
-  target: DropTargetRecord<TPayload>;
+  target: DropTargetRecord<TPayload, TDragData>;
 }
 
-export interface DraggableCollisionEvent<TPayload = unknown> extends BaseDragEvent<TPayload> {
+export interface DraggableCollisionEvent<
+  TPayload = unknown,
+  TDragData = unknown,
+> extends BaseDragEvent<TPayload, TDragData> {
   /** The item under the pointer, or `null` outside this group or over the dragged item. */
-  collision: DraggableCollision<TPayload> | null;
+  collision: DraggableCollision<TPayload, TDragData> | null;
   /** The last collision reported by `onCollisionChange`, or `null` before the first call. */
-  previousCollision: DraggableCollision<TPayload> | null;
+  previousCollision: DraggableCollision<TPayload, TDragData> | null;
 }
 
-export interface DraggableCollisionEndEvent<TPayload = unknown> extends MoveEndEvent<TPayload> {
+export interface DraggableCollisionEndEvent<
+  TPayload = unknown,
+  TDragData = unknown,
+> extends MoveEndEvent<TPayload, TDragData> {
   /**
    * The item under the pointer at drop, or `null` on cancellation, outside this group,
    * or over the dragged item.
    */
-  collision: DraggableCollision<TPayload> | null;
+  collision: DraggableCollision<TPayload, TDragData> | null;
   /** The last collision reported by `onCollisionChange`, or `null` before the first call. */
-  previousCollision: DraggableCollision<TPayload> | null;
+  previousCollision: DraggableCollision<TPayload, TDragData> | null;
 }
 
 /**
@@ -54,8 +60,8 @@ export interface DraggableCollisionEndEvent<TPayload = unknown> extends MoveEndE
  *
  * Documentation: [Base UI Draggable](https://base-ui.com/react/utils/draggable#collision-provider)
  */
-export function DraggableCollisionProvider<TPayload>(
-  props: DraggableCollisionProviderProps<TPayload>,
+export function DraggableCollisionProvider<TPayload, TDragData = unknown>(
+  props: DraggableCollisionProviderProps<TPayload, TDragData>,
 ): React.ReactNode {
   useDraggableContext();
   const parent = React.useContext(DraggableCollisionContext);
@@ -66,16 +72,18 @@ export function DraggableCollisionProvider<TPayload>(
   // group's records instead of every drop target on the page.
   const participantElements = useRefWithInit(() => new Set<HTMLElement>()).current;
   const snapshots = useRefWithInit(
-    () => new WeakMap<DropTargetRecord, DraggableCollision<TPayload>>(),
+    () => new WeakMap<DropTargetRecord, DraggableCollision<TPayload, TDragData>>(),
   ).current;
-  const targetKind = useRefWithInit(() => createKind<TPayload>('collision-participant')).current;
+  const targetKind = useRefWithInit(() =>
+    createKind<TPayload, TDragData>('collision-participant'),
+  ).current;
   const involvedRef = React.useRef(false);
   const removedSource = React.useRef<DragSource | null>(null);
-  const previous = React.useRef<DraggableCollision<TPayload> | null>(null);
+  const previous = React.useRef<DraggableCollision<TPayload, TDragData> | null>(null);
   // The start of a drag this group did not own, replayed to `onMoveStart` if the
   // drag later reaches one of its participants, so the start/end pair always closes.
   const pendingStart = React.useRef<{
-    event: BaseDragEvent<TPayload>;
+    event: BaseDragEvent<TPayload, TDragData>;
     details: MoveStartEventDetails;
   } | null>(null);
 
@@ -87,37 +95,40 @@ export function DraggableCollisionProvider<TPayload>(
     ) => {
       participants.set(sourceElement, (participants.get(sourceElement) ?? 0) + 1);
       participantElements.add(element);
-      const unregister = registerDropTarget<TPayload, TPayload>(element, () => {
-        const participant = getParticipant();
-        const config = getProps();
-        return {
-          [resolveCollision]: (
-            record: DropTargetRecord<TPayload>,
-            context: { source: DragSource },
-          ) => {
-            if (sourceElement === context.source.element || snapshots.has(record)) {
-              return;
-            }
-            // Freeze both the geometry and dynamic snap steps before source or target
-            // callbacks can reorder items. The readers memoize these values per record.
-            record.getLocalPoint();
-            record.getSnappedLocalPoint();
-            snapshots.set(record, { target: record });
-          },
-          snap: participant.snap,
-          kind: targetKind,
-          accept: config.kind,
-          payload: participant.payload as TPayload,
-          disabled: participant.disabled || participant.kind.id !== config.kind.id,
-          canDrop: ({ source }) =>
-            config.canCollide?.({ source, target: participant.payload as TPayload }) ?? true,
-        };
-      });
+      const unregister = registerDropTarget<TPayload, TPayload, TDragData, TDragData>(
+        element,
+        () => {
+          const participant = getParticipant();
+          const config = getProps();
+          return {
+            [resolveCollision]: (
+              record: DropTargetRecord<TPayload, TDragData>,
+              context: { source: DragSource },
+            ) => {
+              if (sourceElement === context.source.element || snapshots.has(record)) {
+                return;
+              }
+              // Freeze both the geometry and dynamic snap steps before source or target
+              // callbacks can reorder items. The readers memoize these values per record.
+              record.getLocalPoint();
+              record.getSnappedLocalPoint();
+              snapshots.set(record, { target: record });
+            },
+            snap: participant.snap,
+            kind: targetKind,
+            accept: config.kind,
+            payload: participant.payload as TPayload,
+            disabled: participant.disabled || participant.kind.id !== config.kind.id,
+            canDrop: ({ source }) =>
+              config.canCollide?.({ source, target: participant.payload as TPayload }) ?? true,
+          };
+        },
+      );
       return () => {
         // A source callback can unmount its row before the start monitor runs.
         // Read from the session store: its `source` keeps the identity every event
-        // of the drag reports, where `dragSourceStore` publishes a copy once the
-        // source is retargeted (see `retargetDragSource`).
+        // of the drag reports, while `dragSourceStore` publishes copies for
+        // reactive subscribers.
         const activeSource = dragSessionStore.state?.source ?? null;
         if (activeSource?.element === sourceElement) {
           removedSource.current = activeSource;
@@ -138,7 +149,7 @@ export function DraggableCollisionProvider<TPayload>(
   // participants; the source's own participant never captures a snapshot.
   const resolve = (
     target: DropTargetRecord | null | undefined,
-  ): DraggableCollision<TPayload> | null =>
+  ): DraggableCollision<TPayload, TDragData> | null =>
     target && targetKind.matches(target) ? (snapshots.get(target) ?? null) : null;
 
   const markInvolved = () => {
@@ -153,7 +164,10 @@ export function DraggableCollisionProvider<TPayload>(
     }
   };
 
-  const update = (event: BaseDragEvent<TPayload>, details: DropTargetChangeEventDetails) => {
+  const update = (
+    event: BaseDragEvent<TPayload, TDragData>,
+    details: DropTargetChangeEventDetails,
+  ) => {
     const collision = resolve(event.location.current.dropTargets[0]);
     if (collision) {
       markInvolved();
@@ -174,7 +188,7 @@ export function DraggableCollisionProvider<TPayload>(
 
   const getMonitor = useStableCallback(() => ({
     accept: props.kind,
-    onMoveStart(event: BaseDragEvent<TPayload>, details: MoveStartEventDetails) {
+    onMoveStart(event: BaseDragEvent<TPayload, TDragData>, details: MoveStartEventDetails) {
       previous.current = null;
       involvedRef.current =
         participants.has(event.source.element) || removedSource.current === event.source;
@@ -188,7 +202,7 @@ export function DraggableCollisionProvider<TPayload>(
     },
     onMove: update,
     onTargetChange: update,
-    onMoveEnd(event: MoveEndEvent<TPayload>, details: MoveEndEventDetails) {
+    onMoveEnd(event: MoveEndEvent<TPayload, TDragData>, details: MoveEndEventDetails) {
       const collision = resolve(event.dropTarget);
       const previousCollision = previous.current;
       if (collision) {
@@ -229,42 +243,64 @@ export function DraggableCollisionProvider<TPayload>(
   );
 }
 
-export interface DraggableCollisionProviderProps<TPayload = unknown> {
+export interface DraggableCollisionProviderProps<TPayload = unknown, TDragData = unknown> {
   children?: React.ReactNode | undefined;
   /** The kind of draggable items in this group. Pass the same kind to each `Draggable.Root`. */
-  kind: DragKind<TPayload>;
+  kind: DragKind<TPayload, TDragData>;
   /**
    * Whether the dragged item can be dropped on an item in this group.
    * Return `false` to skip the item, or `'reject'` to reject the drop entirely.
    */
   canCollide?:
-    | ((context: { source: DragSource<TPayload>; target: TPayload }) => boolean | 'reject')
+    | ((context: {
+        source: DragSource<TPayload, TDragData>;
+        target: TPayload;
+      }) => boolean | 'reject')
     | undefined;
   /**
    * Called when an item in this group starts dragging, or a dragged item first enters the group.
    * The event describes the start of the drag, including when it started outside the group.
    */
   onMoveStart?:
-    ((event: BaseDragEvent<TPayload>, details: MoveStartEventDetails) => void) | undefined;
+    | ((event: BaseDragEvent<TPayload, TDragData>, details: MoveStartEventDetails) => void)
+    | undefined;
   /**
    * Called as the pointer moves over items or leaves them.
    * Compare the position computed from `collision` and `previousCollision` to skip unchanged updates.
    */
   onCollisionChange?:
-    | ((event: DraggableCollisionEvent<TPayload>, details: DropTargetChangeEventDetails) => void)
+    | ((
+        event: DraggableCollisionEvent<TPayload, TDragData>,
+        details: DropTargetChangeEventDetails,
+      ) => void)
     | undefined;
   /**
    * Called when a drag that started in or entered this group ends.
    * Use `collision` to apply the final position, or `canceled` to restore the original order.
    */
   onMoveEnd?:
-    | ((event: DraggableCollisionEndEvent<TPayload>, details: MoveEndEventDetails) => void)
+    | ((
+        event: DraggableCollisionEndEvent<TPayload, TDragData>,
+        details: MoveEndEventDetails,
+      ) => void)
     | undefined;
 }
 
 export namespace DraggableCollisionProvider {
-  export type Props<TPayload = unknown> = DraggableCollisionProviderProps<TPayload>;
-  export type Collision<TPayload = unknown> = DraggableCollision<TPayload>;
-  export type CollisionEvent<TPayload = unknown> = DraggableCollisionEvent<TPayload>;
-  export type MoveEndEvent<TPayload = unknown> = DraggableCollisionEndEvent<TPayload>;
+  export type Props<TPayload = unknown, TDragData = unknown> = DraggableCollisionProviderProps<
+    TPayload,
+    TDragData
+  >;
+  export type Collision<TPayload = unknown, TDragData = unknown> = DraggableCollision<
+    TPayload,
+    TDragData
+  >;
+  export type CollisionEvent<TPayload = unknown, TDragData = unknown> = DraggableCollisionEvent<
+    TPayload,
+    TDragData
+  >;
+  export type MoveEndEvent<TPayload = unknown, TDragData = unknown> = DraggableCollisionEndEvent<
+    TPayload,
+    TDragData
+  >;
 }

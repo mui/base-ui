@@ -13,7 +13,6 @@ import {
   calEventResizeKind,
   CalendarEvent,
   DAY_MS,
-  DayCellDropPayload,
   diffDays,
   formatRange,
   isSameDay,
@@ -179,9 +178,7 @@ function MonthDayCell(props: { dayMs: number; monthStart: number }) {
         <Draggable.Target
           kind={calDayCellKind}
           accept={CAL_DRAG_KINDS}
-          getPayload={(): DayCellDropPayload => ({
-            dayMs: dayMsRef.current,
-          })}
+          payload={{ dayMs: dayMsRef.current }}
           onDraggableMove={({ source, target }) => {
             const next = resolveDropPreview(source, target);
             if (!next) {

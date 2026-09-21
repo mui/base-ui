@@ -74,7 +74,7 @@ export interface DragSnappedLocalPointOptions {
 }
 
 /** A drop target in the active hover stack. */
-export interface DropTargetRecord<TTargetPayload = unknown> {
+export interface DropTargetRecord<TTargetPayload = unknown, TDragData = unknown> {
   /** The drop target's own DOM element. */
   element: Element;
   /**
@@ -88,6 +88,12 @@ export interface DropTargetRecord<TTargetPayload = unknown> {
    * `undefined` when the target was registered without one.
    */
   payload: TTargetPayload;
+  /** Updates the payload until the registered payload changes. */
+  updatePayload(payload: TTargetPayload): void;
+  /** Data for this target during the current drag. Starts as `undefined`. */
+  dragData: TDragData | undefined;
+  /** Updates this target's data for the current drag. */
+  updateDragData(dragData: TDragData): void;
   /**
    * Where the pointer sat inside this target when the target was resolved, as a fraction
    * of the target's border box on each axis. Use it when the drop resolves to a value
@@ -130,7 +136,8 @@ export interface DropTargetRecord<TTargetPayload = unknown> {
 
 /**
  * Snapshot of the pointer state and the active drop targets at one moment.
- * Each event carries its own snapshot, so it keeps reporting the moment it fired.
+ * Each event keeps the pointer input and target order from the moment it fired.
+ * Source and target payloads and drag data remain live and reflect imperative updates.
  */
 export interface DragLocation {
   input: DragInput;
@@ -161,7 +168,7 @@ export interface DragLocationHistory {
  * Describes Base UI drags. Native browser drags and files dragged from the operating
  * system are not supported.
  */
-export interface DragSource<TPayload = unknown> {
+export interface DragSource<TPayload = unknown, TDragData = unknown> {
   /** The draggable's own DOM element. */
   element: HTMLElement;
   /**
@@ -172,14 +179,24 @@ export interface DragSource<TPayload = unknown> {
   /** The element the user pressed. `null` when the whole draggable is its own handle. */
   dragHandle: Element | null;
   /**
-   * Payload supplied by the draggable, evaluated at drag start.
+   * Current payload supplied by the draggable or `updatePayload`.
    * `undefined` when the source was registered without one.
    */
   payload: TPayload;
+  /**
+   * Updates the payload immediately and preserves it across drags.
+   * A changed `payload` prop takes precedence on the next render.
+   */
+  updatePayload(payload: TPayload): void;
+  /** Data for the current drag. Starts as `undefined` on every drag. */
+  dragData: TDragData | undefined;
+  /** Updates the data for the current drag immediately. */
+  updateDragData(dragData: TDragData): void;
 }
 
-declare class DragKindPayload<TPayload> {
+declare class DragKindPayload<TPayload, TDragData> {
   private payload: (payload: TPayload) => TPayload;
+  private dragData: (dragData: TDragData) => TDragData;
 }
 
 /**
@@ -191,7 +208,10 @@ declare class DragKindPayload<TPayload> {
  * A kind cannot be widened to publish a different payload type. Use `DragAcceptedKind`
  * when storing kinds only for observation.
  */
-export interface DragKind<in out TPayload = unknown> extends DragKindPayload<TPayload> {
+export interface DragKind<
+  in out TPayload = unknown,
+  in out TDragData = unknown,
+> extends DragKindPayload<TPayload, TDragData> {
   /**
    * The name or global key used to create this kind. This is a debugging aid,
    * not an accessible name.
@@ -205,23 +225,23 @@ export interface DragKind<in out TPayload = unknown> extends DragKindPayload<TPa
   /**
    * Whether this drag source is of this kind, narrowing its `payload` to `TPayload`.
    */
-  matches(source: DragSource<unknown>): source is DragSource<TPayload>;
+  matches(source: DragSource<unknown>): source is DragSource<TPayload, TDragData>;
   /**
    * Whether this drop target record is of this kind, narrowing its `payload` to `TPayload`.
    */
-  matches(target: DropTargetRecord<unknown>): target is DropTargetRecord<TPayload>;
+  matches(target: DropTargetRecord<unknown>): target is DropTargetRecord<TPayload, TDragData>;
 }
 
 /**
  * One or more drag kinds accepted by a drop target or monitor. The accepted kinds
  * determine the type of `source.payload`.
  */
-export type DragAccept<TPayload> =
-  DragAcceptedKind<TPayload> | ReadonlyArray<DragAcceptedKind<TPayload>>;
+export type DragAccept<TPayload, TDragData = unknown> =
+  DragAcceptedKind<TPayload, TDragData> | ReadonlyArray<DragAcceptedKind<TPayload, TDragData>>;
 
 /** A kind used to observe payloads, without declaring a payload under that kind. */
-export type DragAcceptedKind<TPayload = unknown> = Pick<
-  DragKind<TPayload>,
+export type DragAcceptedKind<TPayload = unknown, TDragData = unknown> = Pick<
+  DragKind<TPayload, TDragData>,
   'name' | 'id' | 'matches'
 >;
 
@@ -239,18 +259,28 @@ export type AnyDragAccept = DragAccept<unknown>;
 // Distributive on purpose, so both the array entries and an `accept` that is itself a
 // union (a wrapper forwarding `DragAccept<T>`) resolve to the union of their payloads.
 export type AcceptedDragPayload<TAccept> =
-  TAccept extends DragAcceptedKind<infer TPayload>
+  TAccept extends DragAcceptedKind<infer TPayload, any>
     ? TPayload
     : TAccept extends ReadonlyArray<infer TKind>
-      ? TKind extends DragAcceptedKind<infer TPayload>
+      ? TKind extends DragAcceptedKind<infer TPayload, any>
         ? TPayload
         : never
       : unknown;
 
+/** The drag data declared by accepted kinds. An array produces a union. */
+export type AcceptedDragData<TAccept> =
+  TAccept extends DragAcceptedKind<any, infer TDragData>
+    ? TDragData
+    : TAccept extends ReadonlyArray<infer TKind>
+      ? TKind extends DragAcceptedKind<any, infer TDragData>
+        ? TDragData
+        : never
+      : unknown;
+
 /** Fields included in every drag-and-drop event. */
-export interface BaseDragEvent<TSourcePayload = unknown> {
+export interface BaseDragEvent<TSourcePayload = unknown, TDragData = unknown> {
   location: DragLocationHistory;
-  source: DragSource<TSourcePayload>;
+  source: DragSource<TSourcePayload, TDragData>;
 }
 
 /** Parameters passed to a drag preview's `offset` callback. */
@@ -296,36 +326,51 @@ export type DragPreviewContainer =
  * For a drop target's handlers use {@link DropTargetEvent} (or {@link DropEvent}),
  * which add the target's own `target` record.
  */
-export interface DraggableEventMap<TSourcePayload = unknown> {
-  onMoveStart: MoveStartEvent<TSourcePayload>;
-  onMove: MoveEvent<TSourcePayload>;
-  onTargetChange: DropTargetChangeEvent<TSourcePayload>;
-  onMoveEnd: MoveEndEvent<TSourcePayload>;
+export interface DraggableEventMap<TSourcePayload = unknown, TDragData = unknown> {
+  onMoveStart: MoveStartEvent<TSourcePayload, TDragData>;
+  onMove: MoveEvent<TSourcePayload, TDragData>;
+  onTargetChange: DropTargetChangeEvent<TSourcePayload, TDragData>;
+  onMoveEnd: MoveEndEvent<TSourcePayload, TDragData>;
 }
 
 /** Events received by a drop target, before its own target record is attached. */
-export interface DropTargetEventMap<TSourcePayload = unknown> {
-  onDraggableStart: MoveStartEvent<TSourcePayload>;
-  onDraggableMove: MoveEvent<TSourcePayload>;
-  onDraggableEnter: BaseDragEvent<TSourcePayload>;
-  onDraggableLeave: BaseDragEvent<TSourcePayload>;
-  onDraggableDrop: DragDropEvent<TSourcePayload>;
+export interface DropTargetEventMap<TSourcePayload = unknown, TDragData = unknown> {
+  onDraggableStart: MoveStartEvent<TSourcePayload, TDragData>;
+  onDraggableMove: MoveEvent<TSourcePayload, TDragData>;
+  onDraggableEnter: BaseDragEvent<TSourcePayload, TDragData>;
+  onDraggableLeave: BaseDragEvent<TSourcePayload, TDragData>;
+  onDraggableDrop: DragDropEvent<TSourcePayload, TDragData>;
 }
 
 /** The drag context passed to a drag preview's `render` callback at drag start. */
-export type DragPreviewRenderEvent<TSourcePayload = unknown> = BaseDragEvent<TSourcePayload>;
+export type DragPreviewRenderEvent<TSourcePayload = unknown, TDragData = unknown> = BaseDragEvent<
+  TSourcePayload,
+  TDragData
+>;
 
 /** The event object passed to `onMoveStart`. */
-export type MoveStartEvent<TSourcePayload = unknown> = BaseDragEvent<TSourcePayload>;
+export type MoveStartEvent<TSourcePayload = unknown, TDragData = unknown> = BaseDragEvent<
+  TSourcePayload,
+  TDragData
+>;
 
 /** The event object passed to `onMove`. */
-export type MoveEvent<TSourcePayload = unknown> = BaseDragEvent<TSourcePayload>;
+export type MoveEvent<TSourcePayload = unknown, TDragData = unknown> = BaseDragEvent<
+  TSourcePayload,
+  TDragData
+>;
 
 /** The event object passed to `onTargetChange`. */
-export type DropTargetChangeEvent<TSourcePayload = unknown> = BaseDragEvent<TSourcePayload>;
+export type DropTargetChangeEvent<TSourcePayload = unknown, TDragData = unknown> = BaseDragEvent<
+  TSourcePayload,
+  TDragData
+>;
 
 /** The event object passed to `onMoveEnd`. */
-export type MoveEndEvent<TSourcePayload = unknown> = BaseDragEvent<TSourcePayload> & {
+export type MoveEndEvent<TSourcePayload = unknown, TDragData = unknown> = BaseDragEvent<
+  TSourcePayload,
+  TDragData
+> & {
   /**
    * Whether the drag was aborted instead of released by the user.
    * A drag released outside of any drop target is not canceled; read `dropTarget` for that,
@@ -344,17 +389,22 @@ export type MoveEndEvent<TSourcePayload = unknown> = BaseDragEvent<TSourcePayloa
  * accepting target, so `dropTarget` is never `null`. In a drop target's `onDraggableDrop`,
  * it is the same record as `target`.
  */
-export type DragDropEvent<TSourcePayload = unknown> = BaseDragEvent<TSourcePayload> & {
+export type DragDropEvent<TSourcePayload = unknown, TDragData = unknown> = BaseDragEvent<
+  TSourcePayload,
+  TDragData
+> & {
   dropTarget: DropTargetRecord;
 };
 
 /** The event object passed to a drop target's `onDraggableDrop`. */
-export type DropEvent<TSourcePayload = unknown, TTargetPayload = unknown> = Omit<
-  DragDropEvent<TSourcePayload>,
-  'dropTarget'
-> &
-  DropTargetEventTarget<TTargetPayload> & {
-    dropTarget: DropTargetRecord<TTargetPayload>;
+export type DropEvent<
+  TSourcePayload = unknown,
+  TTargetPayload = unknown,
+  TDragData = unknown,
+  TTargetDragData = unknown,
+> = Omit<DragDropEvent<TSourcePayload, TDragData>, 'dropTarget'> &
+  DropTargetEventTarget<TTargetPayload, TTargetDragData> & {
+    dropTarget: DropTargetRecord<TTargetPayload, TTargetDragData>;
   };
 
 /**
@@ -370,11 +420,14 @@ export type DropTargetEvent<
   K extends keyof DropTargetEventMap,
   TSourcePayload = unknown,
   TTargetPayload = unknown,
+  TDragData = unknown,
+  TTargetDragData = unknown,
 > = K extends 'onDraggableDrop'
-  ? DropEvent<TSourcePayload, TTargetPayload>
-  : DropTargetEventMap<TSourcePayload>[K] & DropTargetEventTarget<TTargetPayload>;
+  ? DropEvent<TSourcePayload, TTargetPayload, TDragData, TTargetDragData>
+  : DropTargetEventMap<TSourcePayload, TDragData>[K] &
+      DropTargetEventTarget<TTargetPayload, TTargetDragData>;
 
-/** Context passed to a draggable's `getPayload` and `onBeforeMoveStart` callbacks. */
+/** Context passed to a draggable's `onBeforeMoveStart` callback. */
 export interface MoveStartContext {
   /** Pointer state at drag start. */
   input: DragInput;
@@ -388,9 +441,6 @@ export interface MoveStartContext {
 // `NoInfer` because `kind` is what the payload type is inferred from: without it a
 // `payload` that does not match the kind would widen `TPayload` instead of being rejected.
 export type DraggablePayload<TPayload> = NoInfer<TPayload>;
-
-/** Resolves a draggable's payload once, when the drag starts. */
-export type DraggablePayloadGetter<TPayload> = (context: MoveStartContext) => NoInfer<TPayload>;
 
 /**
  * Determines the element that must receive the press for a drag to start.
@@ -545,12 +595,12 @@ export interface DropTargetEventDetailsMap {
   onDraggableDrop: DragDropEventDetails;
 }
 
-/** Context passed to a drop target's `canDrop` and `getPayload` callbacks. */
-export interface DropTargetResolutionContext<TSourcePayload = unknown> {
+/** Context passed to a drop target's `canDrop` callback. */
+export interface DropTargetResolutionContext<TSourcePayload = unknown, TDragData = unknown> {
   /** Pointer state at the moment this callback runs. */
   input: DragInput;
   /** The drag source being evaluated against this target. */
-  source: DragSource<TSourcePayload>;
+  source: DragSource<TSourcePayload, TDragData>;
   /** This drop target's own DOM element. */
   element: Element;
 }
@@ -558,15 +608,10 @@ export interface DropTargetResolutionContext<TSourcePayload = unknown> {
 /** A drop target's payload value. */
 export type DropTargetPayload<TTargetPayload> = TTargetPayload;
 
-/** Resolves a drop target's payload each time the target is evaluated. */
-export type DropTargetPayloadGetter<TSourcePayload, TTargetPayload> = (
-  context: DropTargetResolutionContext<NoInfer<TSourcePayload>>,
-) => TTargetPayload;
-
 /** Extra fields included in the events of a drop target. */
-export interface DropTargetEventTarget<TTargetPayload = unknown> {
+export interface DropTargetEventTarget<TTargetPayload = unknown, TTargetDragData = unknown> {
   /** This drop target's own record. */
-  target: DropTargetRecord<TTargetPayload>;
+  target: DropTargetRecord<TTargetPayload, TTargetDragData>;
 }
 
 /**
@@ -692,10 +737,15 @@ export interface DragPreviewSettings {
  *
  * Components describe the preview with `Draggable.Preview` instead.
  */
-export interface DragPreviewParameters<TSourcePayload = unknown> extends DragPreviewSettings {
+export interface DragPreviewParameters<
+  TSourcePayload = unknown,
+  TDragData = unknown,
+> extends DragPreviewSettings {
   /**
    * Renders the preview content, replacing the default clone of the source.
    * Return `null` or `false` to show no preview for this drag.
    */
-  render?: ((parameters: DragPreviewRenderEvent<TSourcePayload>) => React.ReactNode) | undefined;
+  render?:
+    | ((parameters: DragPreviewRenderEvent<TSourcePayload, TDragData>) => React.ReactNode)
+    | undefined;
 }

@@ -16,7 +16,7 @@ describe('dragSessionStore', () => {
   it('publishes a snapshot at drag start and clears on drop', async () => {
     const { engine } = await renderDnd();
     const source = createElement();
-    engine.registerDraggable(source, { getPayload: () => ({ kind: 'card' }) });
+    engine.registerDraggable(source, { payload: { kind: 'card' } });
     const target = createElement();
     engine.registerDropTarget(target, {});
 
@@ -180,7 +180,8 @@ describe('dragSessionStore', () => {
 
     const sessionSource = dragSessionStore.state!.source;
     const publishedSource = dragSourceStore.state;
-    expect(publishedSource).toBe(sessionSource);
+    expect(publishedSource).toEqual(sessionSource);
+    expect(publishedSource).not.toBe(sessionSource);
     const listener = vi.fn();
     const unsubscribe = dragSourceStore.subscribe(listener);
 

@@ -9,7 +9,10 @@ import { getSharedSlot } from './sharedState';
 import { containConsumerError } from './utils';
 
 /** A getter for a monitor's latest parameters, read fresh on each dispatch. */
-type MonitorGetter<TSourcePayload = any> = () => RegisterMonitorParameters<TSourcePayload>;
+type MonitorGetter<TSourcePayload = any, TDragData = any> = () => RegisterMonitorParameters<
+  TSourcePayload,
+  TDragData
+>;
 
 interface MonitorState {
   allMonitors: Set<MonitorGetter>;
@@ -173,7 +176,7 @@ export function clearActiveMonitors(): void {
   state.activeSource = null;
 }
 
-export interface RegisterMonitorParameters<TSourcePayload = unknown> {
+export interface RegisterMonitorParameters<TSourcePayload = unknown, TDragData = unknown> {
   /**
    * One or more drag source kinds observed by this monitor. Omit it to observe
    * every drag with `source.payload` typed as `unknown`.
@@ -185,7 +188,7 @@ export interface RegisterMonitorParameters<TSourcePayload = unknown> {
    * payloads. The last matching end callback still runs to close the original
    * observation. Return early from callbacks to apply more specific filters.
    */
-  accept?: DragAccept<TSourcePayload> | undefined;
+  accept?: DragAccept<TSourcePayload, TDragData> | undefined;
   /**
    * Event handler called when any matching drag starts (once per drag),
    * wherever it originated. Monitors registered during a drag observe only
@@ -193,7 +196,7 @@ export interface RegisterMonitorParameters<TSourcePayload = unknown> {
    */
   onMoveStart?:
     | ((
-        parameters: DraggableEventMap<TSourcePayload>['onMoveStart'],
+        parameters: DraggableEventMap<TSourcePayload, TDragData>['onMoveStart'],
         eventDetails: DraggableEventDetailsMap['onMoveStart'],
       ) => void)
     | undefined;
@@ -203,7 +206,7 @@ export interface RegisterMonitorParameters<TSourcePayload = unknown> {
    */
   onMove?:
     | ((
-        parameters: DraggableEventMap<TSourcePayload>['onMove'],
+        parameters: DraggableEventMap<TSourcePayload, TDragData>['onMove'],
         eventDetails: DraggableEventDetailsMap['onMove'],
       ) => void)
     | undefined;
@@ -213,7 +216,7 @@ export interface RegisterMonitorParameters<TSourcePayload = unknown> {
    */
   onTargetChange?:
     | ((
-        parameters: DraggableEventMap<TSourcePayload>['onTargetChange'],
+        parameters: DraggableEventMap<TSourcePayload, TDragData>['onTargetChange'],
         eventDetails: DraggableEventDetailsMap['onTargetChange'],
       ) => void)
     | undefined;
@@ -227,7 +230,7 @@ export interface RegisterMonitorParameters<TSourcePayload = unknown> {
    */
   onMoveEnd?:
     | ((
-        parameters: DraggableEventMap<TSourcePayload>['onMoveEnd'],
+        parameters: DraggableEventMap<TSourcePayload, TDragData>['onMoveEnd'],
         eventDetails: DraggableEventDetailsMap['onMoveEnd'],
       ) => void)
     | undefined;

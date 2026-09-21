@@ -20,6 +20,7 @@ import type {
 import { addDropTargetRegistration, removeDropTargetRegistration } from '../dropTarget';
 import { engageMonitorIfDragging, monitorRegistry, removeMonitor } from '../monitor';
 import { cancelDrag } from '../cancelDrag';
+import { createDragSource } from '../dragSource';
 import { dragSessionStore } from '../dragSessionStore';
 import {
   reset,
@@ -48,7 +49,7 @@ describe('lifecycle manager', () => {
     const onMoveEnd = vi.fn();
     const grabOffset = { x: 12, y: 8 };
     const handle = start({
-      payload: { element, kind: TEST_KIND.id, dragHandle: null, payload: {} },
+      payload: createDragSource(element, TEST_KIND.id, {}, null),
       getSourceHandlers: () => ({ onMoveStart, onMoveEnd }),
       initialInput: makeInput(),
       initialTarget: target,
@@ -94,7 +95,7 @@ describe('lifecycle manager', () => {
   ): DragSessionHandle | null {
     const element = createElement();
     return start({
-      payload: { element, kind: TEST_KIND.id, dragHandle: null, payload: {} },
+      payload: createDragSource(element, TEST_KIND.id, {}, null),
       getSourceHandlers: () => handlers,
       initialInput: makeInput(),
       initialTarget,
@@ -327,12 +328,7 @@ describe('lifecycle manager', () => {
       // commits React state.
       act(() => {
         start({
-          payload: {
-            element: source,
-            kind: TEST_KIND.id,
-            dragHandle: null,
-            payload: {},
-          },
+          payload: createDragSource(source, TEST_KIND.id, {}, null),
           getSourceHandlers: () => ({}),
           initialInput: {
             button: 0,
@@ -384,12 +380,7 @@ describe('lifecycle manager', () => {
       under.appendChild(source);
       act(() => {
         start({
-          payload: {
-            element: source,
-            kind: TEST_KIND.id,
-            dragHandle: null,
-            payload: {},
-          },
+          payload: createDragSource(source, TEST_KIND.id, {}, null),
           getSourceHandlers: () => ({}),
           initialInput: makeInput(),
           initialTarget: source,
@@ -443,12 +434,7 @@ describe('lifecycle manager', () => {
       inner.appendChild(source);
       act(() => {
         start({
-          payload: {
-            element: source,
-            kind: TEST_KIND.id,
-            dragHandle: null,
-            payload: {},
-          },
+          payload: createDragSource(source, TEST_KIND.id, {}, null),
           getSourceHandlers: () => ({}),
           initialInput: makeInput(),
           initialTarget: source,
@@ -1065,7 +1051,7 @@ describe('lifecycle manager', () => {
       const element = createElement();
       const onForceCleanup = vi.fn();
       const handle = start({
-        payload: { element, kind: TEST_KIND.id, dragHandle: null, payload: {} },
+        payload: createDragSource(element, TEST_KIND.id, {}, null),
         initialInput: {
           button: 0,
           buttons: 1,

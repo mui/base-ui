@@ -11,10 +11,11 @@ export type { UseActiveDragReturnValue } from './use-active-drag';
 // also remain available from `@base-ui/react/types`; both resolve to the
 // same declarations, so the star exports stay unambiguous).
 export type {
+  AcceptedDragData,
+  AcceptedDragPayload,
   BaseDragEvent,
   BeforeMoveStartEventDetails,
   DraggablePayload,
-  DraggablePayloadGetter,
   DragAccept,
   DragAcceptedKind,
   DragKind,
@@ -69,7 +70,6 @@ export type {
   DropTargetEventTarget,
   DropTargetChangeReason,
   DropTargetPayload,
-  DropTargetPayloadGetter,
   DropTargetResolutionContext,
 } from '../types/drag';
 

@@ -47,6 +47,7 @@ export type { DragActivation, DragActivationConfig } from '../utils/drag-and-dro
 
 export type {
   AcceptedDragPayload,
+  AcceptedDragData,
   AnyDragAccept,
   DragAccept,
   DragAcceptedKind,
@@ -101,9 +102,7 @@ export type {
   DragPreviewOffsetParameters,
   MoveStartContext,
   DraggablePayload,
-  DraggablePayloadGetter,
   DropTargetResolutionContext,
   DropTargetPayload,
-  DropTargetPayloadGetter,
   DropTargetEventTarget,
 } from './drag';

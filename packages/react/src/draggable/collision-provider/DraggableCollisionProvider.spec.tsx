@@ -88,3 +88,11 @@ declare const endEvent: Draggable.CollisionProvider.MoveEndEvent<CardPayload>;
 expectType<boolean, typeof endEvent.canceled>(endEvent.canceled);
 declare const props: Draggable.CollisionProvider.Props<CardPayload>;
 void props.kind;
+
+const dataKind = Draggable.createKind<{ id: string }, { offset: number }>('collision-data');
+<Draggable.CollisionProvider
+  kind={dataKind}
+  onMoveStart={({ source }) => {
+    expectType<{ offset: number } | undefined, typeof source.dragData>(source.dragData);
+  }}
+/>;

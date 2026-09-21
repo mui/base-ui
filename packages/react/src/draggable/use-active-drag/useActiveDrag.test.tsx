@@ -8,6 +8,7 @@ import { cancel, flushRaf, setupDragEngineTests } from '../../../test/dnd';
 setupDragEngineTests();
 
 const probeKind = Draggable.createKind<{ kind: 'probe' }>('probe');
+const probePayload = { kind: 'probe' as const };
 const otherKind = Draggable.createKind<{ n: number }>('other');
 
 function SourceProbe(props: { id?: string }) {
@@ -15,7 +16,7 @@ function SourceProbe(props: { id?: string }) {
   return (
     <Draggable.Root
       kind={probeKind}
-      getPayload={() => ({ kind: 'probe' as const })}
+      payload={probePayload}
       data-testid={`source-${props.id ?? 'noid'}`}
       data-source-kind={source?.payload.kind ?? 'none'}
     />

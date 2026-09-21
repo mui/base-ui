@@ -128,7 +128,7 @@ describe('Draggable.Target', () => {
           calls.push('canDrop');
           return true;
         }}
-        getPayload={() => ({ id: 'slot-1' })}
+        payload={{ id: 'slot-1' }}
         snap={() => {
           calls.push('snap');
           return { y: 4 };
@@ -1205,7 +1205,7 @@ describe('Draggable.Target', () => {
       <Draggable.Target
         accept={Draggable.anyKind}
         data-testid="target"
-        getPayload={() => ({ id: 'slot-1' })}
+        payload={{ id: 'slot-1' }}
         onDraggableDrop={({ target }) => {
           observed = target.payload.id;
         }}

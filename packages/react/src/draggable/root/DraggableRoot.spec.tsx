@@ -2,7 +2,6 @@ import * as React from 'react';
 import { expectType } from '#test-utils';
 import type {
   DraggablePayload,
-  DraggablePayloadGetter,
   DragEndReason,
   DragKind,
   DragSource,
@@ -60,7 +59,7 @@ expectType<DragKind<undefined>, typeof marker>(marker);
 // A payload resolver is checked against the kind rather than inferred from.
 <Draggable.Root
   kind={card}
-  getPayload={() => ({ id: 'a' })}
+  payload={{ id: 'a' }}
   onMoveStart={({ source }) => {
     expectType<CardPayload, typeof source.payload>(source.payload);
   }}
@@ -79,7 +78,7 @@ expectType<DragKind<undefined>, typeof marker>(marker);
 const grabOffset = Draggable.createKind<{ x: number }>('grab-offset');
 <Draggable.Root
   kind={grabOffset}
-  getPayload={({ input, element }) => ({ x: input.clientX - element.getBoundingClientRect().left })}
+  payload={{ x: 0 }}
   onMoveStart={({ source }) => {
     expectType<{ x: number }, typeof source.payload>(source.payload);
   }}
@@ -265,12 +264,8 @@ const ref: React.Ref<HTMLDivElement> = null;
 // Static and resolved payloads use distinct fields.
 type CardProps = Draggable.Root.Props<CardPayload>;
 const cardValueProps: CardProps = { kind: card, payload: { id: 'a' } };
-const cardCallbackProps: CardProps = { kind: card, getPayload: () => ({ id: 'a' }) };
 expectType<DraggablePayload<CardPayload>, NonNullable<typeof cardValueProps.payload>>(
   cardValueProps.payload!,
-);
-expectType<DraggablePayloadGetter<CardPayload>, NonNullable<typeof cardCallbackProps.getPayload>>(
-  cardCallbackProps.getPayload!,
 );
 
 // @ts-expect-error `Props` mirrors the component: a declared `TPayload` requires a payload.
@@ -377,3 +372,27 @@ const widenedCard: DragKind<unknown> = card;
 const observer: import('@base-ui/react/draggable').DragAcceptedKind = card;
 // @ts-expect-error an observational kind cannot be used to publish arbitrary payloads.
 <Draggable.Root<unknown> kind={observer} payload={null} />;
+
+const cardWithDragData = Draggable.createKind<CardPayload, { offset: number }>('card-with-data');
+<Draggable.Root
+  kind={cardWithDragData}
+  payload={{ id: 'a' }}
+  onMoveStart={({ source }) => {
+    expectType<{ offset: number } | undefined, typeof source.dragData>(source.dragData);
+    source.updatePayload({ id: 'b' });
+    source.updateDragData({ offset: 1 });
+    // @ts-expect-error payload updates preserve the kind's type.
+    source.updatePayload({ id: 1 });
+    // @ts-expect-error drag data is a separate type.
+    source.updateDragData({ id: 'b' });
+  }}
+/>;
+if (cardWithDragData.matches(untypedSource)) {
+  expectType<{ offset: number } | undefined, typeof untypedSource.dragData>(untypedSource.dragData);
+}
+<Draggable.Preview kind={cardWithDragData}>
+  {({ source }) => {
+    expectType<{ offset: number } | undefined, typeof source.dragData>(source.dragData);
+    return null;
+  }}
+</Draggable.Preview>;

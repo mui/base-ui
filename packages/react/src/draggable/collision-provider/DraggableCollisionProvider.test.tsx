@@ -550,25 +550,6 @@ describe('Draggable.CollisionProvider', () => {
     expect(changed.mock.calls.every(([event]) => event.collision !== null)).toBe(true);
   });
 
-  it('warns when a getPayload source has no collisionPayload', async () => {
-    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
-    try {
-      await renderDnd(
-        <Draggable.CollisionProvider kind={kind}>
-          <Draggable.Root kind={kind} getPayload={() => 'a'} data-testid="a">
-            <Draggable.Preview disabled />
-          </Draggable.Root>
-        </Draggable.CollisionProvider>,
-      );
-      // `warn()` dedupes per message process-wide, so this must be the first
-      // such mount of the file.
-      expect(warnSpy).toHaveBeenCalledTimes(1);
-      expect(warnSpy.mock.calls[0][0]).toMatch(/`getPayload` without `collisionPayload`/);
-    } finally {
-      warnSpy.mockRestore();
-    }
-  });
-
   it('reorders live from onCollisionChange and keeps resolving after the re-render', async () => {
     const initial = ['a', 'b', 'c'];
     function LiveList() {
@@ -836,7 +817,7 @@ describe('Draggable.CollisionProvider', () => {
     expect(b).not.toHaveAttribute('data-collision-after');
   });
 
-  it('does not call a pickup accessor to read destination identity', async () => {
+  it('does not call a pickup handler to read destination identity', async () => {
     const pickup = vi.fn(() => 'b');
     const ended = vi.fn();
     await renderDnd(
@@ -844,7 +825,13 @@ describe('Draggable.CollisionProvider', () => {
         <Draggable.Root kind={kind} payload="a" data-testid="a">
           <Draggable.Preview disabled />
         </Draggable.Root>
-        <Draggable.Root kind={kind} getPayload={pickup} collisionPayload="b" data-testid="b">
+        <Draggable.Root
+          kind={kind}
+          payload="b"
+          onMoveStart={pickup}
+          collisionPayload="b"
+          data-testid="b"
+        >
           <Draggable.Preview disabled />
         </Draggable.Root>
       </Draggable.CollisionProvider>,

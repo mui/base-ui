@@ -1,5 +1,5 @@
 import { Store, type ReadonlyStore } from '@base-ui/utils/store';
-import type { DragLocationHistory, DragSource } from '../../types/drag';
+import type { DragLocationHistory, DragSource, DropTargetRecord } from '../../types/drag';
 import { getSharedSlot } from './sharedState';
 import { retargetActivePreviewSource } from './activePreview';
 
@@ -43,7 +43,7 @@ const slot = getSharedSlot<DragSessionSlot>('dragSessionStore', () => {
     const source = session?.source ?? null;
     if (source !== state.sourceSnapshot) {
       state.sourceSnapshot = source;
-      state.sourceStore.setState(source);
+      state.sourceStore.setState(source ? { ...source } : null);
     }
   });
   return state;
@@ -56,6 +56,45 @@ const slot = getSharedSlot<DragSessionSlot>('dragSessionStore', () => {
 export const dragSessionStore: ReadonlyStore<DragSessionState | null> = slot.store;
 
 export const dragSourceStore: ReadonlyStore<DragSource | null> = slot.sourceStore;
+
+/** Publish an imperative data update to subscribers of the active source. */
+export function notifyDragSourceUpdated(source: DragSource): void {
+  const session = slot.store.state;
+  if (session?.source !== source) {
+    return;
+  }
+  slot.store.setState({ ...session });
+  // A session subscriber can synchronously cancel or start another drag.
+  if (slot.store.state?.source === source) {
+    slot.sourceStore.setState({ ...source });
+  }
+}
+
+const targetSnapshotOrigins = getSharedSlot(
+  'dragSessionStore.targetSnapshotOrigins',
+  () => new WeakMap<DropTargetRecord, DropTargetRecord>(),
+);
+
+/** Publish changed target data without resolving the hover stack again. */
+export function notifyDragTargetUpdated(source: DragSource, element: Element): void {
+  const session = slot.store.state;
+  if (session?.source !== source) {
+    return;
+  }
+  const location = cloneLocationHistory(session.location);
+  for (const entry of [location.initial, location.current, location.previous]) {
+    entry.dropTargets = entry.dropTargets.map((target) => {
+      if (target.element !== element) {
+        return target;
+      }
+      const original = targetSnapshotOrigins.get(target) ?? target;
+      const snapshot = { ...original };
+      targetSnapshotOrigins.set(snapshot, original);
+      return snapshot;
+    });
+  }
+  setDragSession({ ...session, location });
+}
 
 /** Internal: lifecycle-only writer. Not exported from `index.ts`. */
 export function setDragSession(state: DragSessionState | null): void {

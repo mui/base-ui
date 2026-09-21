@@ -33,12 +33,28 @@ import type {
   DragParametersWithInferredAccept,
 } from '../../types/dragRegistration';
 import type { RegisterDropTargetParameters } from './dropTarget';
-import type { AcceptedDragPayload, AnyDragAccept, DragCleanupFn, DragKind } from '../../types/drag';
+import type {
+  AcceptedDragData,
+  AcceptedDragPayload,
+  AnyDragAccept,
+  DragCleanupFn,
+  DragKind,
+} from '../../types/drag';
 import { onceCleanup } from './utils';
 
-export function registerDropTarget<TSourcePayload = unknown, TTargetPayload = unknown>(
+export function registerDropTarget<
+  TSourcePayload = unknown,
+  TTargetPayload = unknown,
+  TDragData = unknown,
+  TTargetDragData = unknown,
+>(
   element: HTMLElement,
-  getParameters: () => RegisterDropTargetParameters<TSourcePayload, TTargetPayload>,
+  getParameters: () => RegisterDropTargetParameters<
+    TSourcePayload,
+    TTargetPayload,
+    TDragData,
+    TTargetDragData
+  >,
 ): DragCleanupFn {
   if (process.env.NODE_ENV !== 'production') {
     // `kind` is what this target *is*; `accept` is what it takes. Reading the
@@ -51,7 +67,12 @@ export function registerDropTarget<TSourcePayload = unknown, TTargetPayload = un
     // and a dev-only check must neither let that escape registration nor report
     // it — the dispatch path already surfaces a throwing getter properly, and
     // logging it here too would double up.
-    let parameters: RegisterDropTargetParameters<TSourcePayload, TTargetPayload> | null = null;
+    let parameters: RegisterDropTargetParameters<
+      TSourcePayload,
+      TTargetPayload,
+      TDragData,
+      TTargetDragData
+    > | null = null;
     try {
       parameters = getParameters();
     } catch {
@@ -140,7 +161,7 @@ export function registerDropTarget<TSourcePayload = unknown, TTargetPayload = un
 export function registerAutoScroller<TAccept extends AnyDragAccept = DragKind<unknown>>(
   element: HTMLElement,
   getParameters: () => DragParametersWithInferredAccept<
-    RegisterAutoScrollerParameters<AcceptedDragPayload<TAccept>>,
+    RegisterAutoScrollerParameters<AcceptedDragPayload<TAccept>, AcceptedDragData<TAccept>>,
     TAccept
   >,
 ): DragCleanupFn {
@@ -159,7 +180,7 @@ export function registerAutoScroller<TAccept extends AnyDragAccept = DragKind<un
 // Keyed on the `accept` value it infers, like every other `accept`-taking API.
 export function registerMonitor<TAccept extends AnyDragAccept = DragKind<unknown>>(
   getMonitor: () => DragParametersWithInferredAccept<
-    RegisterMonitorParameters<AcceptedDragPayload<TAccept>>,
+    RegisterMonitorParameters<AcceptedDragPayload<TAccept>, AcceptedDragData<TAccept>>,
     TAccept
   >,
 ): DragCleanupFn {

@@ -27,7 +27,7 @@ const endingPreviews = getSharedSlot(
 export interface SyntheticPreviewSourceIdentity {
   kind: symbol;
   previewKey: string | number | undefined;
-  /** The static declaration, not the value returned by `getPayload`. */
+  /** The declared payload, used to reconnect the preview after a source remounts. */
   payload: unknown;
 }
 

@@ -169,7 +169,7 @@ export function isHoveredDropTarget(element: Element): boolean {
  * Cancel the active session at the lifecycle level. Fallback for
  * `engine.cancelDrag()`: the sensors record their session only after `start()` returns,
  * so a `cancelDrag()` from one of the synchronous start dispatches (the initial
- * stack's `canDrop` / `getPayload`, `onGenerateDragPreview`, `onMoveStart`) can
+ * stack's `canDrop`, `onGenerateDragPreview`, `onMoveStart`) can
  * reach the session only through this hook. A sensor-owned cancel tears the
  * lifecycle down first, which makes this a no-op.
  */
@@ -225,7 +225,7 @@ export function start(parameters: StartParameters): DragSessionHandle | null {
 
   // Seeded with an empty stack: the stack under the pickup point resolves below,
   // once `state.dragCancel` is armed and the monitors are active, so a resolver
-  // (`canDrop` / `getPayload`) that cancels at pickup ends the drag the same way
+  // (`canDrop`) that cancels at pickup ends the drag the same way
   // it does mid-drag rather than being ignored.
   const initialLocation: DragLocation = {
     input: initialInput,
@@ -641,7 +641,7 @@ export function start(parameters: StartParameters): DragSessionHandle | null {
     } finally {
       dispatching = false;
     }
-    // A consumer resolver (`getPayload` / `canDrop`) can synchronously cancel the
+    // A consumer resolver (`canDrop`) can synchronously cancel the
     // drag. Teardown already delivered the terminal events and cleared the
     // session, so do not mutate or publish location state for the dead drag.
     if (tornDown) {

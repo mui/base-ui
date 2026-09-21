@@ -88,3 +88,23 @@ export {
   RejectsMismatchedHandler,
   ForwardsDeclaredParameters,
 };
+
+const dataCard = Draggable.createKind<CardPayload, { offset: number }>('data-card');
+const dataFile = Draggable.createKind<FilePayload, { size: number }>('data-file');
+export function ObservesDragData() {
+  const active = Draggable.useActiveDrag(dataCard);
+  if (active) {
+    expectType<{ offset: number } | undefined, typeof active.dragData>(active.dragData);
+  }
+  Draggable.useDragMonitor({
+    accept: [dataCard, dataFile],
+    onMove: ({ source }) => {
+      expectType<{ offset: number } | { size: number } | undefined, typeof source.dragData>(
+        source.dragData,
+      );
+      if (dataFile.matches(source)) {
+        expectType<{ size: number } | undefined, typeof source.dragData>(source.dragData);
+      }
+    },
+  });
+}

@@ -964,7 +964,7 @@ function commitActivation(): void {
     clearPending(true);
     return;
   }
-  let parameters: DraggableConfig<any> & { pointerDragHandle?: DragHandle | undefined };
+  let parameters: DraggableConfig<any, any> & { pointerDragHandle?: DragHandle | undefined };
   try {
     parameters = getParameters();
   } catch (error) {

@@ -3,7 +3,7 @@ import * as React from 'react';
 import type { DragPreviewHandle } from '../../utils/drag-and-drop/dragPreviewDeclaration';
 import type { DragPreviewContext } from '../../utils/drag-and-drop/overlay/DragPreviewContext';
 
-export interface DraggableRootContext<TPayload = unknown> {
+export interface DraggableRootContext<TPayload = unknown, TDragData = unknown> {
   /**
    * Attach or detach a drag handle. Re-registers the draggable so the static
    * gesture setup follows a handle that mounts later. Stable.
@@ -15,7 +15,7 @@ export interface DraggableRootContext<TPayload = unknown> {
    */
   setHandleElement: (node: HTMLElement | null, token: object) => void;
   /** The link a `Draggable.Preview` declares into. Stable. */
-  previewHandle: DragPreviewHandle<TPayload>;
+  previewHandle: DragPreviewHandle<TPayload, TDragData>;
   /**
    * The `Draggable.Provider` visible from the root's own position — the
    * one the engine publishes preview content through. A `Draggable.Preview`
@@ -33,8 +33,8 @@ export interface DraggableRootContext<TPayload = unknown> {
 
 // The payload type is erased on the context: a `Draggable.Root<CardPayload>` and
 // its parts agree on `TPayload`, but the context itself is shared by every root.
-// `useDraggableRootContext<TPayload>()` restores it for the parts.
-export const DraggableRootContext = React.createContext<DraggableRootContext<any> | undefined>(
+// `useDraggableRootContext<TPayload, TDragData>()` restores it for the parts.
+export const DraggableRootContext = React.createContext<DraggableRootContext<any, any> | undefined>(
   undefined,
 );
 
@@ -47,13 +47,16 @@ export function throwMissingDraggableRootContext(): never {
   );
 }
 
-export function useDraggableRootContext<TPayload = unknown>(): DraggableRootContext<TPayload>;
-export function useDraggableRootContext<TPayload = unknown>(
+export function useDraggableRootContext<
+  TPayload = unknown,
+  TDragData = unknown,
+>(): DraggableRootContext<TPayload, TDragData>;
+export function useDraggableRootContext<TPayload = unknown, TDragData = unknown>(
   optional: true,
-): DraggableRootContext<TPayload> | undefined;
-export function useDraggableRootContext<TPayload = unknown>(
+): DraggableRootContext<TPayload, TDragData> | undefined;
+export function useDraggableRootContext<TPayload = unknown, TDragData = unknown>(
   optional = false,
-): DraggableRootContext<TPayload> | undefined {
+): DraggableRootContext<TPayload, TDragData> | undefined {
   const context = React.useContext(DraggableRootContext);
   if (context === undefined && !optional) {
     throwMissingDraggableRootContext();

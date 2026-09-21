@@ -6,7 +6,6 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 
 import {
-  AllDayRowDropPayload,
   buildWeekDays,
   calAllDayRowKind,
   calDayColumnKind,
@@ -16,7 +15,6 @@ import {
   calEventResizeKind,
   CalendarEvent,
   DAY_MS,
-  DayColumnDropPayload,
   diffDays,
   formatRange,
   formatTime,
@@ -203,9 +201,7 @@ function WeekAllDayCell(props: { dayMs: number }) {
         <Draggable.Target
           kind={calAllDayRowKind}
           accept={CAL_DRAG_KINDS}
-          getPayload={(): AllDayRowDropPayload => ({
-            dayMs: dayMsRef.current,
-          })}
+          payload={{ dayMs: dayMsRef.current }}
           onDraggableMove={({ source, target }) => {
             const next = resolveDropPreview(source, target);
             if (!next) {
@@ -368,6 +364,7 @@ function WeekDayColumn(props: { dayMs: number; events: CalendarEvent[] }) {
   const dayMsRef = useValueAsRef(dayMs);
   const hourPxRef = useValueAsRef(hourPx);
   const snapRef = useValueAsRef(snapMin);
+  const payload = React.useMemo(() => ({ anchorMs: dayMs, allDay: false }), [dayMs]);
 
   const segments = React.useMemo(() => getDayTimedSegments(events, dayMs), [events, dayMs]);
 
@@ -395,9 +392,7 @@ function WeekDayColumn(props: { dayMs: number; events: CalendarEvent[] }) {
         <Draggable.Target
           kind={calDayColumnKind}
           accept={CAL_DRAG_KINDS}
-          getPayload={(): DayColumnDropPayload => ({
-            dayMs: dayMsRef.current,
-          })}
+          payload={{ dayMs: dayMsRef.current }}
           canDrop={({ source }) => {
             // Don't accept all-day-only drags here — they belong in the all-day row.
             return !source.payload.allDay;
@@ -423,18 +418,20 @@ function WeekDayColumn(props: { dayMs: number; events: CalendarEvent[] }) {
           }}
         />
       }
-      getPayload={({ input, element }) => {
-        const rect = (element as HTMLElement).getBoundingClientRect();
+      payload={payload}
+      onMoveStart={({ source, location }) => {
+        const input = location.initial.input;
+        const rect = source.element.getBoundingClientRect();
         const offsetPx = input.clientY - rect.top;
         const rawMs = dayMsRef.current + offsetPx * (HOUR_MS / hourPxRef.current);
         const snapped = snapToMinutes(rawMs, snapRef.current);
-        return {
+        source.updatePayload({
           anchorMs: Math.max(
             dayMsRef.current,
             Math.min(dayMsRef.current + DAY_MS - MINUTE_MS, snapped),
           ),
           allDay: false,
-        };
+        });
       }}
       onMoveEnd={(moveEvent, moveDetails) => {
         if (moveDetails.reason === 'drop' && moveEvent.dropTarget !== null) {
@@ -496,7 +493,7 @@ function WeekTimedEvent(props: { dayMs: number; segment: TimedSegment }) {
   return (
     <Draggable.Root
       kind={calEventMoveKind}
-      getPayload={() => ({
+      payload={{
         eventId: eventRef.current.id,
         anchorStart: eventRef.current.start,
         anchorEnd: eventRef.current.end,
@@ -505,7 +502,7 @@ function WeekTimedEvent(props: { dayMs: number; segment: TimedSegment }) {
         // only the segment correction travels with the drag, non-zero for a
         // chip that renders the post-midnight part of an event.
         segmentOffsetMs: segment.visibleStart - eventRef.current.start,
-      })}
+      }}
       onMoveEnd={(moveEvent, moveDetails) => {
         if (moveDetails.reason === 'drop' && moveEvent.dropTarget !== null) {
           const preview = consumeDropPreview();

@@ -17,8 +17,8 @@ import { useRegistrationRef } from '../../utils/drag-and-drop/useRegistrationRef
  * re-registers and the freshest callbacks always apply.
  * @internal
  */
-export function useDraggableViewportElement<TSourcePayload = unknown>(
-  parameters: UseDraggableViewportElementParameters<TSourcePayload>,
+export function useDraggableViewportElement<TSourcePayload = unknown, TDragData = unknown>(
+  parameters: UseDraggableViewportElementParameters<TSourcePayload, TDragData>,
 ): UseDraggableViewportElementReturnValue {
   useDraggableContext();
   const getParameters = useStableCallback(
@@ -64,8 +64,10 @@ export function useDraggableViewportElement<TSourcePayload = unknown>(
   return { ref };
 }
 
-export type UseDraggableViewportElementParameters<TSourcePayload = unknown> =
-  RegisterAutoScrollerParameters<TSourcePayload>;
+export type UseDraggableViewportElementParameters<
+  TSourcePayload = unknown,
+  TDragData = unknown,
+> = RegisterAutoScrollerParameters<TSourcePayload, TDragData>;
 
 export interface UseDraggableViewportElementReturnValue {
   /** Ref callback to attach to the scroll container element. */

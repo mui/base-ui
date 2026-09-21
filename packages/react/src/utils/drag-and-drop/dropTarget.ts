@@ -23,9 +23,11 @@ import { createGetterStackRegistry } from './getterStackRegistry';
 import { getSharedSlot } from './sharedState';
 import { getComposedParentElement, safeCallConsumer } from './utils';
 import { DROP_TARGET_ATTR } from './dragAttributes';
+import { getParticipantPayload, resetParticipantPayload } from './participantData';
+import { dragSessionStore, notifyDragTargetUpdated } from './dragSessionStore';
 
 /** Getter for a single hook's latest drop-target parameters. */
-type DropTargetGetter = () => RegisterDropTargetParameters<any, any>;
+type DropTargetGetter = () => RegisterDropTargetParameters<any, any, any, any>;
 
 interface DropTargetState {
   /**
@@ -248,6 +250,15 @@ export function addDropTargetRegistration(
   return holds.add(element, getParameters);
 }
 
+const targetDragData = getSharedSlot(
+  'dropTarget.dragData',
+  () =>
+    new WeakMap<
+      DragSource,
+      WeakMap<DropTargetGetter, Map<symbol | undefined, { value: unknown }>>
+    >(),
+);
+
 /**
  * Drop one registration hold on `element`, removing {@link DROP_TARGET_ATTR} only
  * when the last hold is released. Returns `true` when it removed the target
@@ -260,7 +271,15 @@ export function removeDropTargetRegistration(
   getParameters: DropTargetGetter,
   beforeDelete?: () => void,
 ): boolean {
-  return holds.remove(element, getParameters, beforeDelete);
+  try {
+    return holds.remove(element, getParameters, beforeDelete);
+  } finally {
+    resetParticipantPayload(getParameters);
+    const source = dragSessionStore.state?.source;
+    if (source) {
+      targetDragData.get(source)?.delete(getParameters);
+    }
+  }
 }
 
 /**
@@ -281,7 +300,7 @@ export function resetForTests(): void {
   retiringRegistrations.clear();
 }
 
-type ConsumerCallbackName = 'canDrop' | 'getPayload' | 'snap' | 'getParameters' | 'collision';
+type ConsumerCallbackName = 'canDrop' | 'snap' | 'getParameters' | 'collision';
 
 /**
  * The active drag's pickup grab offset: the pointer at pickup minus the source's
@@ -300,13 +319,6 @@ const grabOffsetSlot = getSharedSlot<{ current: { x: number; y: number } | null 
 export function setSessionGrabOffset(offset: { x: number; y: number } | null): void {
   grabOffsetSlot.current = offset;
 }
-
-/**
- * Sentinel `safeCall` fallback for `getPayload`, distinguishing a value the
- * callback genuinely returned from a thrown failure: no return value can be
- * mistaken for it.
- */
-const PAYLOAD_ERROR = Symbol('payloadError');
 
 /**
  * A throwing callback costs the target its registration for this dispatch, so one
@@ -330,7 +342,7 @@ const DROP_REJECTED = Symbol('base-ui.dropTarget.rejected');
 
 const recordRegistrations = getSharedSlot(
   'dropTarget.recordRegistrations',
-  () => new WeakMap<DropTargetRecord, RegisterDropTargetParameters<any, any>>(),
+  () => new WeakMap<DropTargetRecord, RegisterDropTargetParameters<any, any, any, any>>(),
 );
 
 /**
@@ -343,18 +355,42 @@ const recordRegistrations = getSharedSlot(
 const registrationSnapshots = getSharedSlot(
   'dropTarget.registrationSnapshots',
   () =>
-    new WeakMap<RegisterDropTargetParameters<any, any>, RegisterDropTargetParameters<any, any>>(),
+    new WeakMap<
+      RegisterDropTargetParameters<any, any, any, any>,
+      RegisterDropTargetParameters<any, any, any, any>
+    >(),
 );
 
 function snapshotRegistration(
-  registration: RegisterDropTargetParameters<any, any>,
-): RegisterDropTargetParameters<any, any> {
+  registration: RegisterDropTargetParameters<any, any, any, any>,
+): RegisterDropTargetParameters<any, any, any, any> {
   let snapshot = registrationSnapshots.get(registration);
   if (snapshot === undefined) {
     snapshot = { ...registration };
     registrationSnapshots.set(registration, snapshot);
   }
   return snapshot;
+}
+
+/** Apply committed payload props, including changes between drags. */
+export function syncDropTargetPayload(
+  element: Element | null,
+  kind: symbol | undefined,
+  payload: unknown,
+): void {
+  if (!element) {
+    return;
+  }
+  const getter = getActiveRegistration(element);
+  if (!getter) {
+    return;
+  }
+  const payloadState = getParticipantPayload(getter, kind, payload);
+  const source = dragSessionStore.state?.source;
+  const changed = payloadState.sync(payload);
+  if (source && changed) {
+    notifyDragTargetUpdated(source, element);
+  }
 }
 
 const collisionResolvers = new WeakMap<
@@ -430,20 +466,56 @@ function resolveDropTargetOutcome(
     return null;
   }
 
-  // A value payload can't throw, so only the resolver needs the boundary.
-  const payload = registration.getPayload
-    ? safeCall('getPayload', element, () => registration.getPayload!(fullFeedback), PAYLOAD_ERROR)
-    : registration.payload;
-  // A throwing `getPayload` yields the sentinel: treat the target as inactive, like
-  // `canDrop: false`, instead of dispatching `onDraggableDrop` with a stand-in cast as the
-  // declared payload type.
-  if (payload === PAYLOAD_ERROR) {
-    return null;
+  const payloadState = getParticipantPayload(
+    getRegistration,
+    registration.kind?.id,
+    registration.payload,
+  );
+  payloadState.sync(registration.payload);
+  const source = feedback.source;
+  let sessionTargets = targetDragData.get(source);
+  if (!sessionTargets) {
+    sessionTargets = new WeakMap();
+    targetDragData.set(source, sessionTargets);
   }
-  const record = {
+  let registrationData = sessionTargets.get(getRegistration);
+  if (!registrationData) {
+    registrationData = new Map();
+    sessionTargets.set(getRegistration, registrationData);
+  }
+  const kind = registration.kind?.id;
+  let dragDataState = registrationData.get(kind);
+  if (!dragDataState) {
+    dragDataState = { value: undefined };
+    registrationData.set(kind, dragDataState);
+  }
+  const data = dragDataState;
+  const record: DropTargetRecord = {
     element,
-    kind: registration.kind?.id,
-    payload,
+    kind,
+    get payload() {
+      return payloadState.payload;
+    },
+    updatePayload(nextPayload) {
+      if (payloadState.update(nextPayload)) {
+        const activeSource = dragSessionStore.state?.source;
+        notifyDragTargetUpdated(
+          activeSource && getActiveRegistration(element) === getRegistration
+            ? activeSource
+            : source,
+          element,
+        );
+      }
+    },
+    get dragData() {
+      return data.value;
+    },
+    updateDragData(nextDragData) {
+      if (!Object.is(data.value, nextDragData)) {
+        data.value = nextDragData;
+        notifyDragTargetUpdated(source, element);
+      }
+    },
     ...createLocalPointReaders(element, fullFeedback, registration.snap),
   };
   recordRegistrations.set(record, snapshotRegistration(registration));
@@ -488,7 +560,7 @@ function snapAxis(value: number, steps: number | undefined): number {
 function createLocalPointReaders(
   element: Element,
   context: DropTargetResolutionContext,
-  snap: RegisterDropTargetParameters<any, any>['snap'],
+  snap: RegisterDropTargetParameters<any, any, any, any>['snap'],
 ): Pick<DropTargetRecord, 'getLocalPoint' | 'getSnappedLocalPoint'> {
   const { clientX, clientY } = context.input;
   const grabOffset = grabOffsetSlot.current;
@@ -616,7 +688,7 @@ type DropTargetEventName = keyof DropTargetEventMap & keyof RegisterDropTargetPa
  */
 export function captureDropTargetRegistration(
   record: DropTargetRecord,
-): (() => RegisterDropTargetParameters<any, any>) | undefined {
+): (() => RegisterDropTargetParameters<any, any, any, any>) | undefined {
   return getActiveRegistration(record.element);
 }
 
@@ -625,7 +697,7 @@ export function dispatchToDropTarget<K extends DropTargetEventName>(
   eventName: K,
   payload: DropTargetEventMap[K],
   eventDetails: DropTargetEventDetailsMap[K],
-  capturedRegistration?: () => RegisterDropTargetParameters<any, any>,
+  capturedRegistration?: () => RegisterDropTargetParameters<any, any, any, any>,
 ): void {
   const getRegistration =
     capturedRegistration ??
@@ -817,7 +889,12 @@ export function dispatchToAllDropTargets<K extends DropTargetEventName>(
  * own. `Draggable.Target` and `registerDropTarget` infer both, from `accept` and
  * `payload` respectively.
  */
-export type RegisterDropTargetParameters<TSourcePayload = unknown, TTargetPayload = unknown> = {
+export type RegisterDropTargetParameters<
+  TSourcePayload = unknown,
+  TTargetPayload = unknown,
+  TDragData = unknown,
+  TTargetDragData = unknown,
+> = {
   /**
    * The payload to attach to this target, read back as `target.payload` in its own
    * callbacks and on its record in `location.current.dropTargets`. Use it to identify which
@@ -826,12 +903,6 @@ export type RegisterDropTargetParameters<TSourcePayload = unknown, TTargetPayloa
    */
   payload?: TTargetPayload | undefined;
   /**
-   * Resolves this target's payload each time it is evaluated. Use this instead
-   * of `payload` when the value depends on the current drag or position.
-   */
-  getPayload?:
-    ((context: DropTargetResolutionContext<NoInfer<TSourcePayload>>) => TTargetPayload) | undefined;
-  /**
    * The target kind created with `Draggable.createKind`. It is available as
    * `target.kind` and on entries in `location.current.dropTargets`. Use the kind's `matches`
    * method to distinguish target kinds and narrow their payload types. Its payload
@@ -839,7 +910,7 @@ export type RegisterDropTargetParameters<TSourcePayload = unknown, TTargetPayloa
    *
    * Distinct from `accept`, which declares the **source** kinds this target takes.
    */
-  kind?: DragKind<NoInfer<TTargetPayload>> | undefined;
+  kind?: DragKind<NoInfer<TTargetPayload>, TTargetDragData> | undefined;
   /**
    * One or more drag source kinds accepted by this target.
    *
@@ -851,7 +922,7 @@ export type RegisterDropTargetParameters<TSourcePayload = unknown, TTargetPayloa
    * The target ignores a source whose kind is not accepted. An ancestor target can
    * still accept it. Base UI checks `accept` before `canDrop`.
    */
-  accept?: DragAccept<TSourcePayload> | undefined;
+  accept?: DragAccept<TSourcePayload, TDragData> | undefined;
   /**
    * Whether the drop target should ignore user interaction. A disabled target is
    * skipped by target resolution as if it weren't registered, so drags fall through
@@ -874,7 +945,9 @@ export type RegisterDropTargetParameters<TSourcePayload = unknown, TTargetPayloa
    * `false` would allow an item inside the container to receive the drop.
    */
   canDrop?:
-    | ((parameters: DropTargetResolutionContext<NoInfer<TSourcePayload>>) => boolean | 'reject')
+    | ((
+        parameters: DropTargetResolutionContext<NoInfer<TSourcePayload>, NoInfer<TDragData>>,
+      ) => boolean | 'reject')
     | undefined;
   /**
    * Divides the target's border box into equal steps for
@@ -890,7 +963,9 @@ export type RegisterDropTargetParameters<TSourcePayload = unknown, TTargetPayloa
    */
   snap?:
     | DragSnapSteps
-    | ((context: DropTargetResolutionContext<NoInfer<TSourcePayload>>) => DragSnapSteps | undefined)
+    | ((
+        context: DropTargetResolutionContext<NoInfer<TSourcePayload>, NoInfer<TDragData>>,
+      ) => DragSnapSteps | undefined)
     | undefined;
   /**
    * Event handler called when a matching drag starts while this target is already
@@ -902,7 +977,9 @@ export type RegisterDropTargetParameters<TSourcePayload = unknown, TTargetPayloa
         parameters: DropTargetEvent<
           'onDraggableStart',
           NoInfer<TSourcePayload>,
-          NoInfer<TTargetPayload>
+          NoInfer<TTargetPayload>,
+          NoInfer<TDragData>,
+          NoInfer<TTargetDragData>
         >,
         eventDetails: DropTargetEventDetailsMap['onDraggableStart'],
       ) => void)
@@ -920,7 +997,9 @@ export type RegisterDropTargetParameters<TSourcePayload = unknown, TTargetPayloa
         parameters: DropTargetEvent<
           'onDraggableMove',
           NoInfer<TSourcePayload>,
-          NoInfer<TTargetPayload>
+          NoInfer<TTargetPayload>,
+          NoInfer<TDragData>,
+          NoInfer<TTargetDragData>
         >,
         eventDetails: DropTargetEventDetailsMap['onDraggableMove'],
       ) => void)
@@ -931,7 +1010,9 @@ export type RegisterDropTargetParameters<TSourcePayload = unknown, TTargetPayloa
         parameters: DropTargetEvent<
           'onDraggableEnter',
           NoInfer<TSourcePayload>,
-          NoInfer<TTargetPayload>
+          NoInfer<TTargetPayload>,
+          NoInfer<TDragData>,
+          NoInfer<TTargetDragData>
         >,
         eventDetails: DropTargetEventDetailsMap['onDraggableEnter'],
       ) => void)
@@ -946,7 +1027,9 @@ export type RegisterDropTargetParameters<TSourcePayload = unknown, TTargetPayloa
         parameters: DropTargetEvent<
           'onDraggableLeave',
           NoInfer<TSourcePayload>,
-          NoInfer<TTargetPayload>
+          NoInfer<TTargetPayload>,
+          NoInfer<TDragData>,
+          NoInfer<TTargetDragData>
         >,
         eventDetails: DropTargetEventDetailsMap['onDraggableLeave'],
       ) => void)
@@ -959,7 +1042,12 @@ export type RegisterDropTargetParameters<TSourcePayload = unknown, TTargetPayloa
    */
   onDraggableDrop?:
     | ((
-        parameters: DropEvent<NoInfer<TSourcePayload>, NoInfer<TTargetPayload>>,
+        parameters: DropEvent<
+          NoInfer<TSourcePayload>,
+          NoInfer<TTargetPayload>,
+          NoInfer<TDragData>,
+          NoInfer<TTargetDragData>
+        >,
         eventDetails: DropTargetEventDetailsMap['onDraggableDrop'],
       ) => void)
     | undefined;

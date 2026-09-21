@@ -1,11 +1,6 @@
 import * as React from 'react';
 import { expectType } from '#test-utils';
-import type {
-  DropEvent,
-  DropTargetPayload,
-  DropTargetPayloadGetter,
-  DropTargetRecord,
-} from '@base-ui/react/draggable';
+import type { DropEvent, DropTargetPayload, DropTargetRecord } from '@base-ui/react/draggable';
 import { Draggable } from '@base-ui/react/draggable';
 
 interface CardPayload {
@@ -80,7 +75,7 @@ function DefaultKindTarget(props: Draggable.Target.Props) {
 // deriving the payload from.
 <Draggable.Target
   accept={Draggable.anyKind}
-  getPayload={({ source }) => ({ over: source.kind })}
+  payload={{ over: Symbol() }}
   onDraggableDrop={({ target }) => {
     expectType<{ over: symbol }, typeof target.payload>(target.payload);
   }}
@@ -207,8 +202,8 @@ declare const maybeSlotPayload: SlotPayload | undefined;
 <Draggable.Target<CardPayload, SlotPayload> accept={card} payload={{ index: 'first' }} />;
 
 <Draggable.Target<CardPayload, SlotPayload>
+  // @ts-expect-error getPayload has been removed.
   accept={card}
-  // @ts-expect-error the callback's return type must match it too.
   getPayload={() => ({ index: 'first' })}
 />;
 
@@ -275,14 +270,9 @@ const wideDrop = (parameters: DropEvent<unknown, unknown>) => parameters;
 // wrapper's props reads the same as before.
 type SlotProps = Draggable.Target.Props<CardPayload, SlotPayload>;
 const slotValueProps: SlotProps = { accept: card, payload: { index: 0 } };
-const slotCallbackProps: SlotProps = { accept: card, getPayload: () => ({ index: 0 }) };
 expectType<DropTargetPayload<SlotPayload>, NonNullable<typeof slotValueProps.payload>>(
   slotValueProps.payload!,
 );
-expectType<
-  DropTargetPayloadGetter<CardPayload, SlotPayload>,
-  NonNullable<typeof slotCallbackProps.getPayload>
->(slotCallbackProps.getPayload!);
 
 // @ts-expect-error `Props` mirrors the component: a declared `TTargetPayload` requires a payload.
 const slotMissingProps: SlotProps = { accept: card };
@@ -303,3 +293,48 @@ function Slot(props: SlotProps) {
 
 // @ts-expect-error target stack changes are observed on a source or monitor.
 <Draggable.Target onTargetChange={() => {}} />;
+
+const dragCard = Draggable.createKind<CardPayload, { offset: number }>('drag-card');
+const dragSlot = Draggable.createKind<SlotPayload, { entered: boolean }>('drag-slot');
+<Draggable.Target
+  accept={dragCard}
+  kind={dragSlot}
+  payload={{ index: 0 }}
+  onDraggableEnter={({ source, target }) => {
+    expectType<{ offset: number } | undefined, typeof source.dragData>(source.dragData);
+    expectType<{ entered: boolean } | undefined, typeof target.dragData>(target.dragData);
+    target.updatePayload({ index: 1 });
+    target.updateDragData({ entered: true });
+    // @ts-expect-error the target has its own drag data type.
+    target.updateDragData({ offset: 1 });
+    // @ts-expect-error the target keeps its payload type.
+    target.updatePayload({ id: 'a' });
+  }}
+/>;
+
+const dataOnlyTarget = Draggable.createKind<undefined, number>('data-only-target');
+<Draggable.Target
+  kind={dataOnlyTarget}
+  onDraggableEnter={({ target }) => {
+    expectType<number | undefined, typeof target.dragData>(target.dragData);
+  }}
+/>;
+
+const dragFile = Draggable.createKind<AttachmentPayload, { size: number }>('drag-file');
+<Draggable.Target
+  accept={[dragCard, dragFile]}
+  kind={dragSlot}
+  payload={{ index: 0 }}
+  onDraggableEnter={({ source, target }) => {
+    const data: { offset: number } | { size: number } | undefined = source.dragData;
+    source.updateDragData({ offset: 1 });
+    source.updateDragData({ size: 1 });
+    // @ts-expect-error accepted source drag data excludes unrelated values.
+    source.updateDragData({ entered: true });
+    void data;
+    expectType<{ entered: boolean } | undefined, typeof target.dragData>(target.dragData);
+    if (dragFile.matches(source)) {
+      expectType<{ size: number } | undefined, typeof source.dragData>(source.dragData);
+    }
+  }}
+/>;

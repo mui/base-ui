@@ -18,7 +18,9 @@ import type { DragDropManager } from '../../types/dragRegistration';
  * @public
  */
 export function useDragDropManager(): UseDragDropManagerReturnValue {
-  return useInnerDragEngine();
+  // The public signatures require payloads according to the caller's kind.
+  // Internal registrations accept optional payloads for component forwarding.
+  return useInnerDragEngine() as DragDropManager;
 }
 
 export namespace useDragDropManager {
@@ -43,14 +45,17 @@ export type {
   RegisterDropTargetParametersWithPayload,
   RegisterAutoScrollerParameters,
   RegisterMonitorParameters,
-  DragParametersWithOptionalPayload,
-  DragParametersWithRequiredPayload,
   DragParametersWithInferredAccept,
   DragParametersWithRequiredAccept,
   DragParametersWithTargetKind,
   DragObserverAccept,
 } from '../../types/dragRegistration';
-export type { AcceptedDragPayload, AnyDragAccept, DragKind } from '../../types/drag';
+export type {
+  AcceptedDragData,
+  AcceptedDragPayload,
+  AnyDragAccept,
+  DragKind,
+} from '../../types/drag';
 // The return type of every `register*` method, re-exported so typing a held
 // cleanup doesn't need a second import from `@base-ui/react/types`.
 export type { DragCleanupFn } from '../../types/drag';

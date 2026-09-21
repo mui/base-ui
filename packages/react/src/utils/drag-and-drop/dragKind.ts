@@ -26,7 +26,9 @@ const ANY_KIND_ID = Symbol.for('base-ui/drag-kind-sentinel:any');
  * Use {@link createGlobalKind} only when independently evaluated bundles deliberately
  * need to share a kind by a namespaced key.
  */
-export function createKind<TPayload = undefined>(name: string): DragKind<TPayload> {
+export function createKind<TPayload = undefined, TDragData = unknown>(
+  name: string,
+): DragKind<TPayload, TDragData> {
   return makeKind(name, Symbol(name));
 }
 
@@ -44,7 +46,9 @@ export function createKind<TPayload = undefined>(name: string): DragKind<TPayloa
  * Prefer {@link createKind} when the kind value can be shared directly.
  * @param key - A namespaced global key such as `'myapp/card'`.
  */
-export function createGlobalKind<TPayload = undefined>(key: string): DragKind<TPayload> {
+export function createGlobalKind<TPayload = undefined, TDragData = unknown>(
+  key: string,
+): DragKind<TPayload, TDragData> {
   const separatorIndex = key.indexOf('/');
   if (separatorIndex <= 0 || key.endsWith('/')) {
     throw new Error(
@@ -57,14 +61,14 @@ export function createGlobalKind<TPayload = undefined>(key: string): DragKind<TP
   return makeKind(key, Symbol.for(KIND_ID_PREFIX + key));
 }
 
-function makeKind<TPayload>(name: string, id: symbol): DragKind<TPayload> {
+function makeKind<TPayload, TDragData>(name: string, id: symbol): DragKind<TPayload, TDragData> {
   const matches = (value: DragSource<unknown> | DropTargetRecord<unknown>) => value.kind === id;
   return {
     name,
     id,
     // A type predicate can't be inferred from an implementation, so it is asserted here.
-    matches: matches as DragKind<TPayload>['matches'],
-  } as DragKind<TPayload>;
+    matches: matches as DragKind<TPayload, TDragData>['matches'],
+  } as DragKind<TPayload, TDragData>;
 }
 
 /**

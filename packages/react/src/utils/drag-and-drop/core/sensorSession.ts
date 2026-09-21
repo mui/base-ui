@@ -13,11 +13,12 @@ import { compileDragModifiers } from '../dragModifiers';
 import { attachDefaultDragPreview } from '../synthetic/defaultDragPreview';
 import { createSyntheticPreview, type SyntheticPreviewHandle } from '../synthetic/syntheticPreview';
 import type { DraggableConfig } from '../draggable';
-import type { DragSource, DragInput, DragStartReason } from '../../../types/drag';
+import { createDragSource } from '../dragSource';
+import type { DragInput, DragStartReason } from '../../../types/drag';
 
 export interface StartSensorSessionParameters {
   /** The draggable's latest parameters (kind/payload/event handlers). */
-  draggableParameters: DraggableConfig<any>;
+  draggableParameters: DraggableConfig<any, any>;
   element: HTMLElement;
   dragHandle: Element | null;
   initialInput: DragInput;
@@ -62,25 +63,15 @@ function startSensorSession(parameters: StartSensorSessionParameters): DragSessi
     onForceCleanup,
   } = parameters;
 
-  const payload = source.getPayload
-    ? source.getPayload({ input: initialInput, element, dragHandle })
-    : source.payload;
-
   if (parameters.isPickupCurrent?.() === false) {
     return null;
   }
-  const dragSource: DragSource = {
-    element,
-    kind: source.kind.id,
-    dragHandle,
-    payload,
-  };
+  const dragSource = createDragSource(element, source.kind.id, source.payload, dragHandle);
 
   // Read the draggable's latest parameters live on each dispatch so a source that
   // re-renders mid-drag runs its current handler closures. Falls back to the
   // last compatible snapshot if the element unregisters or changes kind mid-drag.
-  // `kind`/`payload` stay start-time (they live in `dragSource`); only
-  // handlers are read fresh.
+  // The kind stays fixed for the session; payload changes are handled by `dragSource`.
   //
   // Read `dragSource.element` rather than the start-time `element`: a virtualizer
   // can remount the source to a fresh node mid-drag, which re-registers under
@@ -92,9 +83,9 @@ function startSensorSession(parameters: StartSensorSessionParameters): DragSessi
   // registration layer already returns one object until its inputs change, and
   // this runs on every dispatch, so copying per call would rebuild the ~20-field
   // object each frame for nothing.
-  let lastCompatible: DraggableConfig<any> = source;
+  let lastCompatible: DraggableConfig<any, any> = source;
   let compatibleParameters = { ...source };
-  const getLatestParameters = (): DraggableConfig<any> => {
+  const getLatestParameters = (): DraggableConfig<any, any> => {
     const current = getRegistration(dragSource.element)?.();
     if (
       current !== undefined &&

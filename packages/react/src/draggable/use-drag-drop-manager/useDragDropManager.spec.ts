@@ -30,17 +30,15 @@ const detailedSlot = Draggable.createKind<{ index: number; label: string }>('det
 
 engine.registerDropTarget(element, () => ({
   accept: card,
-  // @ts-expect-error the producer kind cannot be widened to the incomplete payload.
-  kind: detailedSlot,
   // @ts-expect-error a target cannot publish incomplete data under a more specific kind.
+  kind: detailedSlot,
   payload: { index: 0 },
 }));
 engine.registerDropTarget(element, () => ({
   accept: card,
-  // @ts-expect-error the producer kind cannot be widened to the incomplete payload.
+  // @ts-expect-error the kind requires the complete payload.
   kind: detailedSlot,
-  // @ts-expect-error resolved target payloads must also contain every field promised by the kind.
-  getPayload: () => ({ index: 0 }),
+  payload: { index: 0 },
 }));
 // @ts-expect-error typed monitor parameters require a runtime filter.
 const missingMonitorAccept: RegisterMonitorParameters<CardPayload> = {};
@@ -133,7 +131,7 @@ interface MyPayload {
 const myPayloadKind = Draggable.createKind<MyPayload>('my-data');
 engine.registerDraggable<MyPayload>(element, () => ({
   kind: myPayloadKind,
-  getPayload: () => ({ foo: 'bar', count: 1 }),
+  payload: { foo: 'bar', count: 1 },
   onMoveStart: ({ source }) => {
     expectType<string, typeof source.payload.foo>(source.payload.foo);
     expectType<number, typeof source.payload.count>(source.payload.count);
@@ -146,7 +144,7 @@ engine.registerDraggable<MyPayload>(element, () => ({
 engine.registerDraggable<MyPayload>(element, () => ({
   kind: myPayloadKind,
   // @ts-expect-error the returned object is missing the required `count`.
-  getPayload: () => ({ foo: 'bar' }),
+  payload: { foo: 'bar' },
 }));
 
 // ---------------------------------------------------------------------------
@@ -200,7 +198,7 @@ engine.registerDropTarget(element, () => ({
 
 engine.registerDropTarget(element, () => ({
   accept: card,
-  getPayload: ({ source }) => ({ slot: source.payload.id.length }),
+  payload: { slot: 0 },
   onDraggableDrop: ({ target }) => {
     expectType<{ slot: number }, typeof target.payload>(target.payload);
   },
@@ -219,14 +217,14 @@ engine.registerDropTarget<typeof card, { slot: number }>(element, () => ({
 engine.registerDropTarget<typeof card, { slot: number }>(element, () => ({ accept: card }));
 
 declare const maybeSlotPayload: { slot: number } | undefined;
-// @ts-expect-error a required target payload cannot be explicitly undefined.
 engine.registerDropTarget<typeof card, { slot: number }>(element, () => ({
   accept: card,
+  // @ts-expect-error a required target payload cannot be explicitly undefined.
   payload: undefined,
 }));
-// @ts-expect-error a possibly undefined target payload cannot satisfy a required payload.
 engine.registerDropTarget<typeof card, { slot: number }>(element, () => ({
   accept: card,
+  // @ts-expect-error a possibly undefined target payload cannot satisfy a required payload.
   payload: maybeSlotPayload,
 }));
 // @ts-expect-error a required target payload getter cannot be explicitly undefined.
@@ -253,7 +251,7 @@ interface MyTargetPayload {
 const mySourceKind = Draggable.createKind<MySourcePayload>('my-source');
 engine.registerDropTarget<typeof mySourceKind, MyTargetPayload>(element, () => ({
   accept: mySourceKind,
-  getPayload: () => ({ columnId: 'col-1' }),
+  payload: { columnId: 'col-1' },
   canDrop: ({ source }) => {
     expectType<string, typeof source.payload.id>(source.payload.id);
     return true;
@@ -271,7 +269,7 @@ engine.registerDropTarget<typeof mySourceKind, MyTargetPayload>(element, () => (
 engine.registerDropTarget<typeof mySourceKind, MyTargetPayload>(element, () => ({
   accept: mySourceKind,
   // @ts-expect-error the returned object is missing the required `columnId`.
-  getPayload: () => ({}),
+  payload: {},
 }));
 
 // ---------------------------------------------------------------------------
@@ -364,3 +362,67 @@ expectType<{ index: number }, typeof extractedDrop.target.payload>(extractedDrop
 expectType<{ index: number }, typeof extractedDrop.dropTarget.payload>(
   extractedDrop.dropTarget.payload,
 );
+
+const dataCard = Draggable.createKind<CardPayload, { offset: number }>('data-card');
+const dataSlot = Draggable.createKind<{ slot: number }, { entered: boolean }>('data-slot');
+engine.registerDropTarget(element, () => ({
+  accept: dataCard,
+  kind: dataSlot,
+  payload: { slot: 0 },
+  onDraggableEnter: ({ source, target }) => {
+    expectType<{ offset: number } | undefined, typeof source.dragData>(source.dragData);
+    expectType<{ entered: boolean } | undefined, typeof target.dragData>(target.dragData);
+    source.updateDragData({ offset: 1 });
+    target.updateDragData({ entered: true });
+  },
+}));
+engine.registerMonitor(() => ({
+  accept: dataCard,
+  onMove: ({ source }) => {
+    expectType<{ offset: number } | undefined, typeof source.dragData>(source.dragData);
+  },
+}));
+
+const dataOnlyKind = Draggable.createKind<undefined, number>('data-only');
+engine.registerDraggable(element, () => ({
+  kind: dataOnlyKind,
+  onMove: ({ source }) => {
+    expectType<number | undefined, typeof source.dragData>(source.dragData);
+  },
+}));
+engine.registerDropTarget(element, () => ({
+  accept: dataCard,
+  kind: dataOnlyKind,
+  onDraggableEnter: ({ source, target }) => {
+    expectType<{ offset: number } | undefined, typeof source.dragData>(source.dragData);
+    expectType<number | undefined, typeof target.dragData>(target.dragData);
+    expectType<undefined, typeof target.payload>(target.payload);
+    target.updateDragData(1);
+    // @ts-expect-error the data-only target still checks its drag data.
+    target.updateDragData('invalid');
+    // @ts-expect-error a data-only target cannot acquire a different payload type.
+    target.updatePayload({ slot: 1 });
+  },
+}));
+
+const removedSourceGetter: import('@base-ui/react/draggable').RegisterDraggableParameters<CardPayload> =
+  {
+    kind: card,
+    payload: { id: 'a' },
+    // @ts-expect-error payload getters are replaced by the source methods.
+    getPayload: () => ({ id: 'b' }),
+  };
+engine.registerDraggable(element, () => ({ ...removedSourceGetter, payload: { id: 'a' } }));
+const removedTargetGetter: import('@base-ui/react/draggable').RegisterDropTargetParameters<
+  CardPayload,
+  { slot: number }
+> = {
+  accept: card,
+  payload: { slot: 0 },
+  // @ts-expect-error payload getters are replaced by the target methods.
+  getPayload: () => ({ slot: 1 }),
+};
+engine.registerDropTarget(element, () => ({ ...removedTargetGetter, payload: { slot: 0 } }));
+
+// @ts-expect-error a target kind with a payload cannot register without one.
+engine.registerDropTarget(element, () => ({ accept: card, kind: detailedSlot }));

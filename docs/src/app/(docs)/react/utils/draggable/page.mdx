@@ -71,7 +71,7 @@ const card = Draggable.createKind<CardPayload>('card');
 <Draggable.Root kind={card} payload={{ id }} />;
 ```
 
-A kind with a payload type requires `payload` or `getPayload`. Omit the type argument when the kind alone identifies the item and no payload is needed:
+A kind with a payload type requires `payload`. Omit the type argument when the kind alone identifies the item and no payload is needed:
 
 ```tsx title="An item with no data"
 const divider = Draggable.createKind('divider');
@@ -79,19 +79,55 @@ const divider = Draggable.createKind('divider');
 <Draggable.Root kind={divider} />;
 ```
 
-Pass `getPayload` instead when the payload depends on the gesture, such as the pointer's position within the element at pickup. It runs once, at drag start. `payload` itself is always data, so function-valued payloads are preserved without a wrapper.
+### Update the payload during a drag
 
-```tsx title="Deriving the payload from the gesture"
-const grabbedCard = Draggable.createKind<{ id: string; grabOffsetX: number }>('card');
+Call `source.updatePayload` from a drag callback to replace `source.payload` immediately. For example, capture the pointer's position within the element in `onMoveStart`:
+
+```tsx title="Updating the payload"
+const grabbedCard = Draggable.createKind<{ id: string; grabOffsetX?: number }>('card');
+const payload = React.useMemo(() => ({ id }), [id]);
 
 <Draggable.Root
   kind={grabbedCard}
-  getPayload={({ input, element }) => {
-    const rect = element.getBoundingClientRect();
-    return { id, grabOffsetX: input.clientX - rect.left };
+  payload={payload}
+  onMoveStart={({ source, location }) => {
+    const rect = source.element.getBoundingClientRect();
+    source.updatePayload({
+      ...source.payload,
+      grabOffsetX: location.initial.input.clientX - rect.left,
+    });
+  }}
+  onMove={({ source }) => {
+    console.log(source.payload.grabOffsetX);
   }}
 />;
 ```
+
+The update survives subsequent drags and re-renders while the `payload` prop keeps the same value. When that prop changes, its value replaces the imperative update. Memoize object payloads when unrelated re-renders should preserve the update. Keep payload objects stable when the component also subscribes to `useActiveDrag`, since changing the payload notifies that subscription. Function-valued payloads remain data and are never called by Base UI.
+
+### Store data for the current drag
+
+Call `source.updateDragData` to store data separately from the payload. Declare its type as the second generic argument of `createKind`. `source.dragData` starts as `undefined` for each drag and stays independent of changes to the `payload` prop.
+
+```tsx title="Updating drag data"
+const grabbedCard = Draggable.createKind<{ id: string }, { grabOffsetX: number }>('card');
+
+<Draggable.Root
+  kind={grabbedCard}
+  payload={{ id }}
+  onMoveStart={({ source, location }) => {
+    const rect = source.element.getBoundingClientRect();
+    source.updateDragData({ grabOffsetX: location.initial.input.clientX - rect.left });
+  }}
+  onMove={({ source }) => {
+    console.log(source.payload.id, source.dragData?.grabOffsetX);
+  }}
+/>;
+```
+
+`onMoveStart` runs after initial target eligibility checks and preview setup. Those earlier readers must handle `dragData` being `undefined`; initialize data needed for eligibility in the `payload` prop.
+
+`updatePayload` keeps all data in one object, but the payload type must cover both its initial and updated shapes. `updateDragData` keeps gesture data separate and preserves it across payload changes; callbacks must account for its initial `undefined` value.
 
 ### Share kinds between sources and targets
 
@@ -617,7 +653,29 @@ Every handler receives the event payload first. Its second argument, `eventDetai
 
 ### Attach data to a target
 
-`payload` attaches data to the target and is available as `target.payload` in its callbacks. Use `getPayload` when the data depends on the current drag. It runs on each resolution with the same context as `canDrop`. TypeScript infers `source.payload` from `accept` and `target.payload` from the target's payload.
+`payload` attaches data to the target and is available as `target.payload` in its callbacks. Call `target.updatePayload` to replace it; the update persists across drags until the payload prop changes. Call `target.updateDragData` for data that belongs to the current drag. Declare its type as the second generic argument of the target's kind. It starts as `undefined` on each drag and survives leaving and re-entering that target. TypeScript infers `source.payload` from `accept` and `target.payload` from the target's payload.
+
+Updates made in target enter or move callbacks are available to later callbacks. They do not immediately rerun `canDrop` or collision resolution. Callbacks that run before initialization must handle `target.dragData` being `undefined`.
+
+```tsx title="Updating target data"
+const column = Draggable.createKind<{ id: string }, { enteredAt: number }>('column');
+const columnPayload = React.useMemo(() => ({ id: columnId }), [columnId]);
+
+<Draggable.Target
+  kind={column}
+  accept={card}
+  payload={columnPayload}
+  onDraggableEnter={({ target }) => {
+    if (target.dragData === undefined) {
+      target.updateDragData({ enteredAt: performance.now() });
+    }
+  }}
+  onDraggableDrop={({ target }) => {
+    console.log(target.payload.id, target.dragData?.enteredAt);
+    target.updatePayload({ id: nextColumnId });
+  }}
+/>;
+```
 
 ```tsx title="Identifying the target"
 <Draggable.Target
@@ -1403,7 +1461,7 @@ To prevent pickup, call `eventDetails.cancel()` in `onBeforeMoveStart`. Calling 
 
 `previewKey` reconnects a settling cloned preview to the source after it remounts. Use a stable key for a virtualized or reordered item. In the [scrolling demo](#scrolling), the card keeps its key when it moves from the tray into a list. A disabled `Draggable.Root` at the destination lets the preview settle there without making the inserted card draggable.
 
-Within a `Draggable.CollisionProvider`, pass the provider's `kind` to each root. Set `collision={false}` to exclude a root as an insertion destination. Use `collisionElement` to measure a different element, such as a row wrapper around the drag handle. A root that uses `getPayload` must also pass `collisionPayload` with the static data the collision callbacks report; without it, the root is not a destination for other items.
+Within a `Draggable.CollisionProvider`, pass the provider's `kind` to each root. Set `collision={false}` to exclude a root as an insertion destination. Use `collisionElement` to measure a different element, such as a row wrapper around the drag handle. Use `collisionPayload` to override the payload reported by collision callbacks when the root is an insertion destination.
 
 <TypesDraggable.Root hideDescription />
 
@@ -1596,8 +1654,9 @@ Base UI reads the getter at different stages of a drag:
 | Parameters                                                                      | When Base UI reads them                                                                       |
 | :------------------------------------------------------------------------------ | :-------------------------------------------------------------------------------------------- |
 | Event callbacks and conditions, such as `onMove`, `canDrop`, and `onDragScroll` | On each event or evaluation.                                                                  |
-| Source `kind`, `payload`, `getPayload`, and preview settings                    | Once when the drag starts. Changes apply to the next drag.                                    |
-| Target `kind`, `payload`, and `getPayload`                                      | Each time the target is evaluated, including final drop resolution.                           |
+| Source `kind` and preview settings                                              | Once when the drag starts. Changes apply to the next drag.                                    |
+| Source `payload`                                                                | At pickup and when the registered payload changes during the drag.                            |
+| Target `kind` and `payload`                                                     | Each time the target is evaluated, including final drop resolution.                           |
 | Gesture styles and `dragHandle`                                                 | At registration and on the next `pointerdown`. Re-register to update idle styles immediately. |
 
 Base UI checks `disabled` and `dragHandle` before starting a drag. The getter's closure is not reactive. Re-register from an effect when its dependencies change, or read mutable refs from the getter to keep the registration mounted.
@@ -1608,7 +1667,7 @@ Base UI reads the nearest `Draggable.Provider` where `useDragDropManager` is ca
 
 ### `registerDraggable` method
 
-Register a drag source with `registerDraggable`. It accepts the [`Draggable.Root`](#root) options, including `kind`, `payload` or `getPayload`, `activation`, `disabled`, and the drag event callbacks. It also accepts `dragHandle` and `dragPreview`. `dragHandle` can be an element, ref, or function that restricts pickup to a handle.
+Register a drag source with `registerDraggable`. It accepts the [`Draggable.Root`](#root) options, including `kind`, `payload`, `activation`, `disabled`, and the drag event callbacks. It also accepts `dragHandle` and `dragPreview`. `dragHandle` can be an element, ref, or function that restricts pickup to a handle.
 
 ```tsx title="Register a drag source"
 manager.registerDraggable(element, () => ({ kind: card, payload: id }));

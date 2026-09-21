@@ -365,36 +365,6 @@ describe('engine.registerDropTarget', () => {
     expect(observedKind).toBe(cardKind.id);
   });
 
-  it('calls getPayload with correct feedback args', async () => {
-    const { engine } = await renderDnd();
-    const source = createElement();
-    const target = createElement();
-    const payload = vi.fn(() => ({ targetKey: 'targetValue' }));
-    const sourceKind = Draggable.createKind<{ sourceKey: string }>('payload-source');
-    engine.registerDraggable(source, {
-      kind: sourceKind,
-      getPayload: () => ({ sourceKey: 'sourceValue' }),
-    });
-    engine.registerDropTarget(target, { getPayload: payload });
-
-    fireEvent.dragStart(source);
-    await flushRaf();
-    fireEvent.dragEnter(target, { clientX: 40, clientY: 60 });
-    fireEvent.dragOver(target, { clientX: 40, clientY: 60 });
-    await flushRaf();
-
-    expect(payload).toHaveBeenCalled();
-    // The latest resolution reflects the coordinates and source it resolved with,
-    // not just the shape of the feedback object.
-    const callParameters = (payload.mock.calls.at(-1) as any)[0];
-    expect(callParameters).toHaveProperty('element', target);
-    expect(callParameters.input.clientX).toBe(40);
-    expect(callParameters.input.clientY).toBe(60);
-    expect(callParameters.source.element).toBe(source);
-    expect(callParameters.source.kind).toBe(sourceKind.id);
-    expect(callParameters.source.payload).toEqual({ sourceKey: 'sourceValue' });
-  });
-
   it('attaches a value payload to the target record', async () => {
     const { engine } = await renderDnd();
     const source = createElement();
@@ -1109,51 +1079,6 @@ describe('engine.registerDropTarget', () => {
     }
   });
 
-  // A throwing `getPayload` callback must make the target inactive rather than
-  // dispatching with a stand-in cast as the declared payload type.
-  it('treats a target whose getPayload callback throws as inactive', async () => {
-    const { engine } = await renderDnd();
-    const source = createElement();
-    const buggy = document.createElement('div');
-    const sane = document.createElement('div');
-    sane.style.width = '50px';
-    sane.style.height = '50px';
-    buggy.appendChild(sane);
-    document.body.appendChild(buggy);
-    registerCleanup(() => buggy.remove());
-
-    const onDropBuggy = vi.fn();
-    const onDragEnterSane = vi.fn();
-    engine.registerDraggable(source, {});
-    engine.registerDropTarget(buggy, {
-      getPayload: () => {
-        throw new Error('payload boom');
-      },
-      onDraggableDrop: onDropBuggy,
-      onDraggableEnter: onDropBuggy,
-    });
-    engine.registerDropTarget(sane, { onDraggableEnter: onDragEnterSane });
-
-    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
-
-    try {
-      fireEvent.dragStart(source);
-      await flushRaf();
-      fireEvent.dragEnter(sane);
-      fireEvent.dragOver(sane);
-      await flushRaf();
-
-      expect(consoleError).toHaveBeenCalled();
-      // Never reaches the stack, so it gets no events — and no sentinel leaks out
-      // as its payload.
-      expect(onDropBuggy).not.toHaveBeenCalled();
-      expect(onDragEnterSane).toHaveBeenCalled();
-    } finally {
-      fireEvent.dragEnd(source);
-      consoleError.mockRestore();
-    }
-  });
-
   // The parameters *getter* itself is consumer-supplied through the imperative
   // API. A throw there is contained like a throwing `canDrop`: logged, and the
   // target treated as unregistered, so the drag and every sibling keep working.
@@ -1520,7 +1445,7 @@ describe('engine.registerDropTarget', () => {
 
     engine.registerDraggable(sourceEl, {});
     engine.registerDropTarget(targetEl, {
-      getPayload: () => ({ id: 'tgt-low' }),
+      payload: { id: 'tgt-low' },
       onDraggableDrop: ({ target }) => {
         observedTargetId = target.payload.id as string;
       },
@@ -1543,10 +1468,10 @@ describe('engine.registerDropTarget', () => {
     const leavePayloads: unknown[] = [];
     let value = 'entry';
     engine.registerDraggable(source, {});
-    engine.registerDropTarget(target, {
-      getPayload: () => value,
+    engine.registerDropTarget(target, () => ({
+      payload: value,
       onDraggableLeave: ({ target }) => leavePayloads.push(target.payload),
-    });
+    }));
 
     await lift(source);
     await dragEnter(target, { clientY: 250 });
@@ -1571,10 +1496,10 @@ describe('engine.registerDropTarget', () => {
     const leavePayloads: unknown[] = [];
     let value = 'entry';
     engine.registerDraggable(source, {});
-    engine.registerDropTarget(target, {
-      getPayload: () => value,
+    engine.registerDropTarget(target, () => ({
+      payload: value,
       onDraggableLeave: ({ target }) => leavePayloads.push(target.payload),
-    });
+    }));
 
     await lift(source);
     await dragEnter(target, { clientY: 250 });
@@ -1592,11 +1517,11 @@ describe('engine.registerDropTarget', () => {
     const source = createElement();
     const hovered = createElement({ top: 200, height: 100 });
     const other = createElement({ top: 400, height: 100 });
-    const hoveredPayload = vi.fn(() => 'x');
+    const canDrop = vi.fn(() => true);
     const onDraggableLeave = vi.fn();
     engine.registerDraggable(source, {});
     const unregisterHovered = engine.registerDropTarget(hovered, {
-      getPayload: hoveredPayload,
+      canDrop,
       onDraggableLeave,
     });
     const unregisterOther = engine.registerDropTarget(other, {});
@@ -1607,13 +1532,13 @@ describe('engine.registerDropTarget', () => {
     // Unregistering a target outside the hovered stack cannot change the
     // resolved stack, so it must not re-resolve synchronously — a virtualizer
     // commit unregistering many off-screen targets would pay O(k) walks.
-    const callsBefore = hoveredPayload.mock.calls.length;
+    const callsBefore = canDrop.mock.calls.length;
     unregisterOther();
-    expect(hoveredPayload.mock.calls.length).toBe(callsBefore);
+    expect(canDrop.mock.calls.length).toBe(callsBefore);
 
     // The refresh coalesces into the same microtask the register path uses.
     await Promise.resolve();
-    expect(hoveredPayload.mock.calls.length).toBeGreaterThan(callsBefore);
+    expect(canDrop.mock.calls.length).toBeGreaterThan(callsBefore);
 
     // A *hovered* target's unregister still refreshes synchronously: its leave
     // must dispatch while the registration is still readable.

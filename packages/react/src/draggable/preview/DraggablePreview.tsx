@@ -20,12 +20,12 @@ import {
  *
  * Documentation: [Base UI Draggable](https://base-ui.com/react/utils/draggable)
  */
-export function DraggablePreview<TPayload>(
-  props: DraggablePreviewTypedProps<TPayload>,
+export function DraggablePreview<TPayload, TDragData = unknown>(
+  props: DraggablePreviewTypedProps<TPayload, TDragData>,
 ): React.ReactNode;
 export function DraggablePreview(props: DraggablePreviewProps): React.ReactNode;
-export function DraggablePreview<TPayload = unknown>(
-  props: DraggablePreviewProps | DraggablePreviewTypedProps<TPayload>,
+export function DraggablePreview<TPayload = unknown, TDragData = unknown>(
+  props: DraggablePreviewProps | DraggablePreviewTypedProps<TPayload, TDragData>,
 ): React.ReactNode {
   const getProps = useStableCallback(() => props);
   const useClone = props.children == null || props.children === false;
@@ -44,7 +44,7 @@ export function DraggablePreview<TPayload = unknown>(
   }, [useClone, props.className, props.style, props.render]);
 
   // Resolved per drag, not per render.
-  const render = useStableCallback((parameters: DragPreviewRenderEvent<TPayload>) => {
+  const render = useStableCallback((parameters: DragPreviewRenderEvent<TPayload, TDragData>) => {
     // The settings belong to the engine, which reads them off the declaration;
     // everything else belongs to the rendered element.
     const { children, kind, offset, modifiers, disabled, container, ...componentProps } =
@@ -65,7 +65,7 @@ export function DraggablePreview<TPayload = unknown>(
     return <DraggablePreviewElement componentProps={{ ...componentProps, children: resolved }} />;
   });
 
-  useDeclaredPreview<TPayload>(
+  useDeclaredPreview<TPayload, TDragData>(
     getProps,
     useClone ? null : render,
     useClone ? createClonedDragPreviewElement : createDragPreviewHostElement,
@@ -109,22 +109,22 @@ export interface DraggablePreviewProps
  * Props for a payload-aware preview. `kind` both types the render callback and
  * checks the active source before that callback runs.
  */
-export type DraggablePreviewTypedProps<TPayload> = Omit<
+export type DraggablePreviewTypedProps<TPayload, TDragData = unknown> = Omit<
   DraggablePreviewProps,
   'children' | 'kind'
 > & {
   /** The source kind whose payload the render callback accepts. */
-  kind: DragKind<TPayload>;
+  kind: DragKind<TPayload, TDragData>;
   /** Preview content, resolved once at drag start with the kind's payload type. */
   children?:
     | React.ReactNode
-    | ((parameters: DragPreviewRenderEvent<TPayload>) => React.ReactNode)
+    | ((parameters: DragPreviewRenderEvent<TPayload, TDragData>) => React.ReactNode)
     | undefined;
 };
 
 export namespace DraggablePreview {
   export type State = DraggablePreviewState;
-  export type Props<TPayload = unknown> = unknown extends TPayload
+  export type Props<TPayload = unknown, TDragData = unknown> = unknown extends TPayload
     ? DraggablePreviewProps
-    : DraggablePreviewTypedProps<TPayload>;
+    : DraggablePreviewTypedProps<TPayload, TDragData>;
 }

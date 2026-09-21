@@ -4,6 +4,7 @@ import { Store, useStore } from '@base-ui/utils/store';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { syncDropTargetPayload } from '../../utils/drag-and-drop/dropTarget';
 import { registerDropTarget } from '../../utils/drag-and-drop/registrations';
 import { scheduleDropTargetParameterRefresh } from '../../utils/drag-and-drop/core/lifecycleManager';
 import type { RegisterDropTargetParameters } from '../../types/dragRegistration';
@@ -56,6 +57,9 @@ export function useDraggableTargetElement(
   );
   const targetStateStore = useRefWithInit(createDragTargetStateStore).current;
   const elementRef = React.useRef<HTMLElement | null>(null);
+  useIsoLayoutEffect(() => {
+    syncDropTargetPayload(elementRef.current, parameters.kind?.id, parameters.payload);
+  });
   const registrationRef = useRegistrationRef<HTMLElement>((element) =>
     registerDropTarget(element, getParameters),
   );

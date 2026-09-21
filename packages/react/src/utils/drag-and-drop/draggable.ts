@@ -4,7 +4,6 @@ import type {
   DragKind,
   MoveStartContext,
   DraggablePayload,
-  DraggablePayloadGetter,
   DragPreviewParameters,
   BeforeMoveStartEventDetails,
   DraggableEventDetailsMap,
@@ -172,7 +171,7 @@ export function bindDraggableSensors(element: Element): DragCleanupFn {
   });
 }
 
-export type DraggableConfig<TPayload = undefined> = {
+export type DraggableConfig<TPayload = undefined, TDragData = unknown> = {
   element: HTMLElement;
   /** CSP nonce for the drag cursor stylesheet, wired by the React layer. @internal */
   styleNonce?: string | undefined;
@@ -187,11 +186,6 @@ export type DraggableConfig<TPayload = undefined> = {
   // wrapper spreading their `Props` from hitting a deferred conditional.
   payload?: DraggablePayload<TPayload> | undefined;
   /**
-   * Resolves the payload attached to this drag at drag start. Use this instead of
-   * `payload` when the value depends on the pickup gesture.
-   */
-  getPayload?: DraggablePayloadGetter<TPayload> | undefined;
-  /**
    * Stable identity used to reconnect a settling cloned preview to this source
    * after it remounts. Use the same key for the same logical item across the move.
    * Static payload identity is used as a fallback when it is referentially stable.
@@ -202,7 +196,7 @@ export type DraggableConfig<TPayload = undefined> = {
    * list accepted kinds in `accept`. The kind determines the type of `payload` and
    * `source.payload`.
    */
-  kind: DragKind<TPayload>;
+  kind: DragKind<TPayload, TDragData>;
   /**
    * Restricts drag initiation to a specific child element, ref, or resolver.
    * The handle should be available when the draggable is registered so it receives
@@ -220,7 +214,7 @@ export type DraggableConfig<TPayload = undefined> = {
   disabled?: boolean | undefined;
   /**
    * Event handler called when a drag is about to start, once the activation condition
-   * is met and before the preview is built and `getPayload` runs.
+   * is met and before the preview is built.
    * Call `eventDetails.cancel()` to prevent the drag from starting.
    */
   onBeforeMoveStart?:
@@ -254,14 +248,15 @@ export type DraggableConfig<TPayload = undefined> = {
    * For sources registered imperatively. A draggable that renders a preview part
    * describes its preview there instead.
    */
-  dragPreview?: DragPreviewParameters<NoInfer<TPayload>> | undefined;
+  dragPreview?: DragPreviewParameters<NoInfer<TPayload>, NoInfer<TDragData>> | undefined;
   /**
    * The preview part declared for this draggable, if any. Wired by the React layer;
    * the engine reads it once at drag start, before React can run, to decide between
    * cloning the source and building a host for custom content.
    * @internal
    */
-  getDragPreviewDeclaration?: (() => DragPreviewDeclaration<NoInfer<TPayload>> | null) | undefined;
+  getDragPreviewDeclaration?:
+    (() => DragPreviewDeclaration<NoInfer<TPayload>, NoInfer<TDragData>> | null) | undefined;
   /**
    * Event handler called once at the start of a drag, before `onMoveStart`,
    * while the preview is being built. The React layer installs its preview
@@ -269,7 +264,8 @@ export type DraggableConfig<TPayload = undefined> = {
    * @internal
    */
   onGenerateDragPreview?:
-    ((parameters: DragPreviewRenderEvent<NoInfer<TPayload>>) => void) | undefined;
+    | ((parameters: DragPreviewRenderEvent<NoInfer<TPayload>, NoInfer<TDragData>>) => void)
+    | undefined;
   /**
    * Event handler called once, synchronously when the drag starts. The drag preview
    * has already been resolved by then, so it is safe to measure or restyle the
@@ -277,7 +273,7 @@ export type DraggableConfig<TPayload = undefined> = {
    */
   onMoveStart?:
     | ((
-        parameters: DraggableEventMap<NoInfer<TPayload>>['onMoveStart'],
+        parameters: DraggableEventMap<NoInfer<TPayload>, NoInfer<TDragData>>['onMoveStart'],
         eventDetails: DraggableEventDetailsMap['onMoveStart'],
       ) => void)
     | undefined;
@@ -288,7 +284,7 @@ export type DraggableConfig<TPayload = undefined> = {
    */
   onMove?:
     | ((
-        parameters: DraggableEventMap<NoInfer<TPayload>>['onMove'],
+        parameters: DraggableEventMap<NoInfer<TPayload>, NoInfer<TDragData>>['onMove'],
         eventDetails: DraggableEventDetailsMap['onMove'],
       ) => void)
     | undefined;
@@ -298,7 +294,7 @@ export type DraggableConfig<TPayload = undefined> = {
    */
   onTargetChange?:
     | ((
-        parameters: DraggableEventMap<NoInfer<TPayload>>['onTargetChange'],
+        parameters: DraggableEventMap<NoInfer<TPayload>, NoInfer<TDragData>>['onTargetChange'],
         eventDetails: DraggableEventDetailsMap['onTargetChange'],
       ) => void)
     | undefined;
@@ -307,13 +303,13 @@ export type DraggableConfig<TPayload = undefined> = {
    * cancellation. Commit changes when `eventDetails.reason` is `'drop'`. Use
    * `try/finally` when cleanup must run even if committing throws or returns early.
    *
-   * A drag canceled during pickup, by a `cancelDrag()` from a target's `canDrop` or
-   * `getPayload` on the initial stack or while the preview is generated, fires this
+   * A drag canceled during pickup, by a `cancelDrag()` from a target's `canDrop`
+   * on the initial stack or while the preview is generated, fires this
    * with `canceled: true` and no preceding `onMoveStart`.
    */
   onMoveEnd?:
     | ((
-        parameters: DraggableEventMap<NoInfer<TPayload>>['onMoveEnd'],
+        parameters: DraggableEventMap<NoInfer<TPayload>, NoInfer<TDragData>>['onMoveEnd'],
         eventDetails: DraggableEventDetailsMap['onMoveEnd'],
       ) => void)
     | undefined;

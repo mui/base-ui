@@ -2,7 +2,12 @@
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { registerMonitor } from '../../utils/drag-and-drop/registrations';
-import type { AcceptedDragPayload, AnyDragAccept, DragKind } from '../../types/drag';
+import type {
+  AcceptedDragPayload,
+  AcceptedDragData,
+  AnyDragAccept,
+  DragKind,
+} from '../../types/drag';
 import type {
   DragParametersWithInferredAccept,
   RegisterMonitorParameters,
@@ -21,7 +26,7 @@ import type {
 // `accept: [task, file]` types `source.payload` as the union of theirs. See `AnyDragAccept`.
 export function useDragMonitor<TAccept extends AnyDragAccept = DragKind<unknown>>(
   parameters: DragParametersWithInferredAccept<
-    UseDragMonitorParameters<AcceptedDragPayload<TAccept>>,
+    UseDragMonitorParameters<AcceptedDragPayload<TAccept>, AcceptedDragData<TAccept>>,
     TAccept
   >,
 ): void {
@@ -31,7 +36,10 @@ export function useDragMonitor<TAccept extends AnyDragAccept = DragKind<unknown>
 
 // Keyed on the observed payload rather than on an `accept` value, like the props types.
 export namespace useDragMonitor {
-  export type Parameters<TSourcePayload = unknown> = UseDragMonitorParameters<TSourcePayload>;
+  export type Parameters<TSourcePayload = unknown, TDragData = unknown> = UseDragMonitorParameters<
+    TSourcePayload,
+    TDragData
+  >;
   export type ReturnValue = void;
 }
 
@@ -39,8 +47,10 @@ export namespace useDragMonitor {
  * Parameters for {@link useDragMonitor}. Defines the drag kinds to observe and the
  * lifecycle callbacks fired for every matching drag.
  */
-export type UseDragMonitorParameters<TSourcePayload = unknown> =
-  RegisterMonitorParameters<TSourcePayload>;
+export type UseDragMonitorParameters<
+  TSourcePayload = unknown,
+  TDragData = unknown,
+> = RegisterMonitorParameters<TSourcePayload, TDragData>;
 
 export type { RegisterMonitorParameters } from '../../types/dragRegistration';
 

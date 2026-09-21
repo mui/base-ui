@@ -207,7 +207,7 @@ interface AnnotationDragPayload {
   snapshot: Annotation;
 }
 
-const annotationKind = Draggable.createKind<AnnotationDragPayload>(
+const annotationKind = Draggable.createKind<undefined, AnnotationDragPayload>(
   'lineChartAnnotations:annotation',
 );
 
@@ -596,7 +596,9 @@ function AnnotationDraggable(props: {
       aria-label={label}
       // Read at pickup, which is exactly when the annotation has to be remembered:
       // from here on the state moves under the pointer and the original is gone.
-      getPayload={() => ({ id: annotation.id, handle, snapshot: annotation })}
+      onMoveStart={({ source }) => {
+        source.updateDragData({ id: annotation.id, handle, snapshot: annotation });
+      }}
       // A press also has to be able to mean "select" — and on a comment, "start
       // editing" — so the drag waits for real movement rather than the mouse
       // default of `immediate`.
@@ -612,9 +614,12 @@ function AnnotationDraggable(props: {
       modifiers={modifiers}
       disabled={disabled}
       onMove={({ source, location }) => {
+        if (!source.dragData) {
+          return;
+        }
         change(
           dragAnnotation(
-            source.payload,
+            source.dragData,
             location,
             snap,
             plotRef.current?.getBoundingClientRect() ?? null,
@@ -624,8 +629,8 @@ function AnnotationDraggable(props: {
       onMoveEnd={({ source, canceled }) => {
         // A normal release has nothing to commit — the annotation has been moving
         // all along. Escape is the case that needs the snapshot.
-        if (canceled) {
-          change(source.payload.snapshot);
+        if (canceled && source.dragData) {
+          change(source.dragData.snapshot);
         }
       }}
       className={className}

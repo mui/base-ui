@@ -14,7 +14,7 @@ import { getSharedSlot } from './sharedState';
 import { getComposedParentElement, resolveElementReference } from './utils';
 
 /** Getter for a single hook's latest draggable parameters, read fresh at gesture start. */
-type RegisteredDraggableConfig = DraggableConfig<any>;
+type RegisteredDraggableConfig = DraggableConfig<any, any>;
 
 type DraggableGetter = () => RegisteredDraggableConfig;
 

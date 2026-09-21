@@ -73,6 +73,8 @@ viewports, and sortable groups.
   - Anatomy
   - Provider
   - Pass data along
+    - Update the payload during a drag
+    - Store data for the current drag
     - Share kinds between sources and targets
   - Drag handle
   - Conditional drag
@@ -177,7 +179,7 @@ viewports, and sortable groups.
     - `cancelDrag` method
 - Exports:
   - Draggable - Root
-    - Props: activation, children, className, collision, collisionElement, collisionPayload, disabled, dragCursor, getPayload, kind, modifiers, onBeforeMoveStart, onMove, onMoveEnd, onMoveStart, onTargetChange, payload, previewKey, render, snap, style
+    - Props: activation, children, className, collision, collisionElement, collisionPayload, disabled, dragCursor, kind, modifiers, onBeforeMoveStart, onMove, onMoveEnd, onMoveStart, onTargetChange, payload, previewKey, render, snap, style
     - Data Attributes: data-disabled, data-dragging, data-ending-style
   - Draggable - Provider
     - Props: children
@@ -191,11 +193,7 @@ viewports, and sortable groups.
   - Draggable - createKind
     - Parameters: name
   - Draggable - DragCleanupFn
-  - Draggable - DraggablePayloadGetter
-    - Parameters: context
   - Draggable - DragModifier
-    - Parameters: context
-  - Draggable - DropTargetPayloadGetter
     - Parameters: context
   - Draggable - Handle
     - Props: className, disabled, render, style
@@ -217,7 +215,7 @@ viewports, and sortable groups.
   - Draggable - snapToGrid
     - Parameters: size
   - Draggable - Target
-    - Props: accept, canDrop, className, disabled, getPayload, kind, onDraggableDrop, onDraggableEnter, onDraggableLeave, onDraggableMove, onDraggableStart, payload, render, snap, style, trackDragOver
+    - Props: accept, canDrop, className, disabled, kind, onDraggableDrop, onDraggableEnter, onDraggableLeave, onDraggableMove, onDraggableStart, payload, render, snap, style, trackDragOver
     - Data Attributes: data-accepting, data-disabled, data-drag-over, data-drag-over-innermost, data-drop-target, data-rejected
   - Draggable - useActiveDrag
     - Parameters: accept
