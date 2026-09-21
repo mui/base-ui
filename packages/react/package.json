@@ -105,7 +105,8 @@
     "./internals/usePressAndHold": "./src/internals/usePressAndHold.ts",
     "./internals/useRenderElement": "./src/internals/useRenderElement.tsx",
     "./internals/useValueChanged": "./src/internals/useValueChanged.ts",
-    "./internals/useTransitionStatus": "./src/internals/useTransitionStatus.ts"
+    "./internals/useTransitionStatus": "./src/internals/useTransitionStatus.ts",
+    "./draggable": "./src/draggable/index.ts"
   },
   "imports": {
     "#test-utils": "./test/index.ts",
