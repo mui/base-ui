@@ -62,8 +62,6 @@ minimumReleaseAge: 4320
 minimumReleaseAgeExclude:
   - '@base-ui/*'
   - '@mui/internal-*'
-  # Renovate security update: js-yaml@4.3.2
-  - js-yaml@4.3.2
 # Drop exemptions from minimumReleaseAgeExclude once the lockfile stops resolving them,
 # so the security-update entries Renovate adds do not accumulate.
 minimumReleaseAgeExcludePrune: true
