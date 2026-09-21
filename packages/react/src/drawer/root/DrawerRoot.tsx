@@ -288,7 +288,8 @@ export interface DrawerRootProps<Payload = unknown> {
   /**
    * A ref to imperative actions.
    * - `unmount`: Manually unmounts the drawer.
-   * Call this after any externally controlled closing animation finishes.
+   * Call `preventUnmountOnClose()` in `onOpenChange` to manually control unmounting,
+   * then call this action after any externally controlled closing animation finishes.
    * - `close`: Closes the drawer imperatively when called.
    */
   actionsRef?: React.RefObject<DrawerRoot.Actions | null> | undefined;
@@ -367,7 +368,8 @@ export type DrawerRootChangeEventReason =
 
 export type DrawerRootChangeEventDetails =
   BaseUIChangeEventDetails<DrawerRoot.ChangeEventReason> & {
-    preventUnmountOnClose(): void;
+    /** Prevents the popup from unmounting until the `unmount` action is called. */
+    preventUnmountOnClose: () => void;
   };
 
 export type DrawerRootSnapPointChangeEventReason = DrawerRootChangeEventReason;
