@@ -22,8 +22,9 @@ import {
   useHoverInteractionSharedState,
 } from '../../floating-ui-react/hooks/useHoverInteractionSharedState';
 import {
+  closest,
   contains,
-  getTabbableAfterElement,
+  getTabbableNearElement,
   getNextTabbable,
   getPreviousTabbable,
   isOutsideEvent,
@@ -512,7 +513,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
       return null;
     }
 
-    return triggerElementRef.current?.closest('ul') ?? null;
+    return closest(triggerElementRef.current, 'ul');
   }
 
   const hoverProps = useHoverReferenceInteraction(context, {
@@ -766,7 +767,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
                   nextTabbable &&
                   contains(referenceElement, nextTabbable)
                 ) {
-                  nextTabbable = getTabbableAfterElement(afterInsideRef.current);
+                  nextTabbable = getTabbableNearElement(afterInsideRef.current, 1);
                 }
 
                 nextTabbable?.focus();

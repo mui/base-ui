@@ -5,6 +5,7 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { platform } from '@base-ui/utils/platform';
 import { useTimeout } from '@base-ui/utils/useTimeout';
 import { clamp } from '@base-ui/utils/clamp';
+import { NOOP } from '@base-ui/utils/empty';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useScrollAreaRootContext } from '../root/ScrollAreaRootContext';
 import { ScrollAreaViewportContext } from './ScrollAreaViewportContext';
@@ -16,6 +17,7 @@ import { styleDisableScrollbar } from '../../utils/styles';
 import { scrollAreaStateAttributesMapping } from '../root/stateAttributes';
 import type { HiddenState, ScrollAreaRootState } from '../root/ScrollAreaRoot';
 import { normalizeScrollOffset } from '../../utils/scrollEdges';
+import { getFiniteAnimations } from '../../utils/getFiniteAnimations';
 import * as ScrollAreaViewportCssVars from './ScrollAreaViewportCssVars';
 import * as ScrollAreaScrollbarCssVars from '../scrollbar/ScrollAreaScrollbarCssVars';
 
@@ -336,7 +338,7 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
     // Wait for subtree animations to finish, then recompute thumb geometry that
     // may have been affected by transform-based animations.
     waitForAnimationsTimeout.start(0, () => {
-      const animations = viewport.getAnimations({ subtree: true });
+      const animations = getFiniteAnimations(viewport, { subtree: true });
       if (animations.length === 0) {
         return;
       }
@@ -344,7 +346,8 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
       // `allSettled` never rejects, but `computeThumbPosition` can still run against a
       // torn-down tree once the animations resolve. Swallow instead of leaking an unhandled
       // rejection; `void` alone would only silence the floating-promise lint.
-      Promise.allSettled(animations.map((animation) => animation.finished))
+      // Discard fulfilled Animation values so unfinished animations cannot retain their targets.
+      Promise.allSettled(animations.map((animation) => animation.finished.then(NOOP)))
         .then(computeThumbPosition)
         .catch(() => {});
     });

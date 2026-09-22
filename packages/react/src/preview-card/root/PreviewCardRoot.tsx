@@ -152,7 +152,9 @@ export interface PreviewCardRootProps<Payload = unknown> {
   onOpenChangeComplete?: ((open: boolean) => void) | undefined;
   /**
    * A ref to imperative actions.
-   * - `unmount`: Unmounts the preview card popup.
+   * - `unmount`: Manually unmounts the preview card popup.
+   * Call `preventUnmountOnClose()` in `onOpenChange` to manually control unmounting,
+   * then call this action after any externally controlled closing animation finishes.
    * - `close`: Closes the preview card imperatively when called.
    */
   actionsRef?: React.RefObject<PreviewCardRoot.Actions | null> | undefined;
@@ -196,7 +198,8 @@ export type PreviewCardRootChangeEventReason =
 
 export type PreviewCardRootChangeEventDetails =
   BaseUIChangeEventDetails<PreviewCardRoot.ChangeEventReason> & {
-    preventUnmountOnClose(): void;
+    /** Prevents the popup from unmounting until the `unmount` action is called. */
+    preventUnmountOnClose: () => void;
   };
 
 export namespace PreviewCardRoot {

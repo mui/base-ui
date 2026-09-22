@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { addEventListener } from '@base-ui/utils/addEventListener';
+import { NOOP } from '@base-ui/utils/empty';
 import { useControlled } from '@base-ui/utils/useControlled';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
@@ -288,7 +289,8 @@ export interface DrawerRootProps<Payload = unknown> {
   /**
    * A ref to imperative actions.
    * - `unmount`: Manually unmounts the drawer.
-   * Call this after any externally controlled closing animation finishes.
+   * Call `preventUnmountOnClose()` in `onOpenChange` to manually control unmounting,
+   * then call this action after any externally controlled closing animation finishes.
    * - `close`: Closes the drawer imperatively when called.
    */
   actionsRef?: React.RefObject<DrawerRoot.Actions | null> | undefined;
@@ -367,7 +369,8 @@ export type DrawerRootChangeEventReason =
 
 export type DrawerRootChangeEventDetails =
   BaseUIChangeEventDetails<DrawerRoot.ChangeEventReason> & {
-    preventUnmountOnClose(): void;
+    /** Prevents the popup from unmounting until the `unmount` action is called. */
+    preventUnmountOnClose: () => void;
   };
 
 export type DrawerRootSnapPointChangeEventReason = DrawerRootChangeEventReason;
@@ -457,15 +460,34 @@ function DrawerProviderReporter() {
       return undefined;
     }
 
-    function handleCloseWatcher(event: Event) {
+    function handleCancel(event: Event) {
       if (!store.select('open')) {
         return;
       }
-      store.setOpen(false, createChangeEventDetails(REASONS.closeWatcher, event));
+
+      const eventDetails: Parameters<typeof store.setOpen>[1] = createChangeEventDetails(
+        REASONS.closeWatcher,
+        event,
+      );
+
+      if (!event.cancelable) {
+        // The browser lets only one close request per user activation be prevented; any further
+        // request closes the drawer regardless, like a native `<dialog>`.
+        eventDetails.cancel = NOOP;
+      }
+
+      store.setOpen(false, eventDetails);
+
+      if (eventDetails.isCanceled) {
+        // Keeps this watcher active for the next close request.
+        event.preventDefault();
+      }
     }
 
     const closeWatcher = new CloseWatcherCtor();
-    const unsubscribe = addEventListener(closeWatcher, 'close', handleCloseWatcher);
+    // The browser destroys the watcher before `close` fires, so the request is handled from
+    // `cancel`, where it can still be prevented.
+    const unsubscribe = addEventListener(closeWatcher, 'cancel', handleCancel);
 
     return () => {
       unsubscribe();
