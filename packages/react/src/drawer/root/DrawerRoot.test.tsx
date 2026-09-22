@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import * as React from 'react';
 import { Drawer } from '@base-ui/react/drawer';
 import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
@@ -1641,56 +1641,182 @@ describe('<Drawer.Root />', () => {
     }
   });
 
-  it('closes when CloseWatcher emits a close event', async () => {
-    const handleOpenChange = vi.fn();
-
+  describe('CloseWatcher', () => {
     class CloseWatcherStub extends EventTarget {
       static instances: CloseWatcherStub[] = [];
-      onclose: ((this: CloseWatcherStub, ev: Event) => void) | null = null;
-      oncancel: ((this: CloseWatcherStub, ev: Event) => void) | null = null;
-      destroy = vi.fn();
-      close = vi.fn();
-      requestClose = vi.fn();
+      active = true;
+
       constructor() {
         super();
         CloseWatcherStub.instances.push(this);
       }
+
+      destroy() {
+        this.active = false;
+      }
+
+      // Mirrors the browser: `cancel` fires first and can only be prevented while the page has
+      // history-action activation; otherwise the watcher is destroyed before `close` fires.
+      requestClose(cancelable: boolean) {
+        if (!this.active) {
+          return;
+        }
+
+        const cancelEvent = new Event('cancel', { cancelable });
+        this.dispatchEvent(cancelEvent);
+        if (cancelEvent.defaultPrevented) {
+          return;
+        }
+
+        this.destroy();
+        this.dispatchEvent(new Event('close'));
+      }
     }
 
-    const originalCloseWatcher = (window as Window & { CloseWatcher?: unknown | undefined })
-      .CloseWatcher;
-    (window as Window & { CloseWatcher?: typeof CloseWatcherStub | undefined }).CloseWatcher =
-      CloseWatcherStub;
+    const win = window as Window & { CloseWatcher?: unknown | undefined };
+    const originalCloseWatcher = win.CloseWatcher;
 
-    try {
-      await render(
-        <Drawer.Root defaultOpen onOpenChange={handleOpenChange}>
+    beforeEach(() => {
+      CloseWatcherStub.instances = [];
+      win.CloseWatcher = CloseWatcherStub;
+    });
+
+    afterEach(() => {
+      win.CloseWatcher = originalCloseWatcher;
+    });
+
+    function TestDrawer({
+      children = 'Drawer',
+      ...props
+    }: Omit<Drawer.Root.Props, 'children'> & { children?: React.ReactNode }) {
+      return (
+        <Drawer.Root {...props}>
           <Drawer.Portal>
             <Drawer.Viewport>
-              <Drawer.Popup>Drawer</Drawer.Popup>
+              <Drawer.Popup>{children}</Drawer.Popup>
             </Drawer.Viewport>
           </Drawer.Portal>
-        </Drawer.Root>,
+        </Drawer.Root>
       );
+    }
 
-      await flushMicrotasks();
+    function currentWatcher() {
+      return CloseWatcherStub.instances[CloseWatcherStub.instances.length - 1];
+    }
 
-      const instance = CloseWatcherStub.instances[CloseWatcherStub.instances.length - 1];
-      expect(instance).not.toBeUndefined();
-
+    async function requestClose(cancelable = true) {
       await act(async () => {
-        instance.dispatchEvent(new Event('close'));
-        instance.dispatchEvent(new Event('close'));
-        await flushMicrotasks();
+        currentWatcher().requestClose(cancelable);
       });
+    }
+
+    it('closes when the watcher requests a close', async () => {
+      const handleOpenChange = vi.fn();
+      await render(<TestDrawer defaultOpen onOpenChange={handleOpenChange} />);
+
+      await requestClose();
+
+      expect(handleOpenChange).toHaveBeenCalledExactlyOnceWith(
+        false,
+        expect.objectContaining({ reason: REASONS.closeWatcher }),
+      );
+      expect(screen.queryByRole('dialog')).toBe(null);
+      expect(currentWatcher().active).toBe(false);
+    });
+
+    it('keeps the same watcher active when a cancelable close request is canceled', async () => {
+      let shouldCancel = true;
+      const handleOpenChange = vi.fn((_open: boolean, details: Drawer.Root.ChangeEventDetails) => {
+        if (shouldCancel) {
+          details.cancel();
+        }
+      });
+      await render(<TestDrawer defaultOpen onOpenChange={handleOpenChange} />);
+      const watcher = currentWatcher();
+      const instanceCount = CloseWatcherStub.instances.length;
+
+      await requestClose();
 
       expect(handleOpenChange).toHaveBeenCalledTimes(1);
-      const lastCall = handleOpenChange.mock.calls[handleOpenChange.mock.calls.length - 1];
-      expect(lastCall?.[0]).toBe(false);
-      expect(lastCall?.[1]?.reason).toBe(REASONS.closeWatcher);
-    } finally {
-      (window as Window & { CloseWatcher?: unknown | undefined }).CloseWatcher =
-        originalCloseWatcher;
-    }
+      expect(screen.getByRole('dialog')).not.toBe(null);
+      expect(CloseWatcherStub.instances).toHaveLength(instanceCount);
+      expect(watcher.active).toBe(true);
+
+      shouldCancel = false;
+      await requestClose();
+
+      expect(handleOpenChange).toHaveBeenCalledTimes(2);
+      expect(screen.queryByRole('dialog')).toBe(null);
+      expect(watcher.active).toBe(false);
+    });
+
+    it('closes on a close request that cannot be prevented even if onOpenChange cancels it', async () => {
+      const handleOpenChange = vi.fn((_open: boolean, details: Drawer.Root.ChangeEventDetails) => {
+        details.cancel();
+      });
+      await render(<TestDrawer defaultOpen onOpenChange={handleOpenChange} />);
+
+      await requestClose(false);
+
+      expect(handleOpenChange).toHaveBeenCalledTimes(1);
+      const details = handleOpenChange.mock.calls[0][1];
+      expect(details.event.cancelable).toBe(false);
+      expect(details.isCanceled).toBe(false);
+      expect(screen.queryByRole('dialog')).toBe(null);
+      expect(currentWatcher().active).toBe(false);
+    });
+
+    it.each([false, true])(
+      'steps through content on back presses until one cannot be prevented (controlled: %s)',
+      async (controlled) => {
+        function SteppedDrawer() {
+          const [open, setOpen] = React.useState(true);
+          const [step, setStep] = React.useState(2);
+          return (
+            <TestDrawer
+              defaultOpen
+              open={controlled ? open : undefined}
+              onOpenChange={(nextOpen, details) => {
+                if (step > 0 && details.event.cancelable) {
+                  details.cancel();
+                  setStep(step - 1);
+                  return;
+                }
+                setOpen(nextOpen);
+              }}
+            >
+              step {step}
+            </TestDrawer>
+          );
+        }
+
+        await render(<SteppedDrawer />);
+        const watcher = currentWatcher();
+        const instanceCount = CloseWatcherStub.instances.length;
+
+        await requestClose();
+        expect(screen.getByRole('dialog')).toHaveTextContent('step 1');
+        expect(CloseWatcherStub.instances).toHaveLength(instanceCount);
+        expect(watcher.active).toBe(true);
+
+        await requestClose(false);
+        expect(screen.queryByRole('dialog')).toBe(null);
+        expect(watcher.active).toBe(false);
+      },
+    );
+
+    it('destroys the watcher on unmount', async () => {
+      const handleOpenChange = vi.fn((_open: boolean, details: Drawer.Root.ChangeEventDetails) => {
+        details.cancel();
+      });
+      const { unmount } = await render(<TestDrawer defaultOpen onOpenChange={handleOpenChange} />);
+      const watcher = currentWatcher();
+
+      await requestClose();
+      expect(watcher.active).toBe(true);
+
+      unmount();
+      expect(watcher.active).toBe(false);
+    });
   });
 });
