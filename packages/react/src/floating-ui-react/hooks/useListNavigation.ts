@@ -48,8 +48,8 @@ export type HighlightItemTarget = 'next' | 'previous' | 'first' | 'last' | 'none
 
 export interface UseListNavigationReturn extends ElementProps {
   /**
-   * Moves the highlight to `target`. A no-op while the list is closed, and while the list is a
-   * grid for the `'next'` and `'previous'` targets.
+   * Moves the highlight to `target`. A no-op while the list is closed. In a grid, `'next'` and
+   * `'previous'` step through the items in DOM order, like the main-orientation arrow keys.
    */
   highlightItem: (target: HighlightItemTarget) => void;
 }
@@ -754,11 +754,6 @@ export function useListNavigation(
           floatingFocusEl.focus({ preventScroll: true });
         }
       }
-      return;
-    }
-
-    // A grid has no single item "after" the current one, so relative targets are ignored.
-    if (isGrid && (target === 'next' || target === 'previous')) {
       return;
     }
 

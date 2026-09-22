@@ -13800,7 +13800,7 @@ describe('<Combobox.Root />', () => {
       });
     });
 
-    it('ignores next and previous in grid mode but still honors first', async () => {
+    it('steps through a grid in DOM order, like the horizontal arrow keys', async () => {
       const actionsRef = React.createRef<Combobox.Root.Actions>();
       await render(
         <Combobox.Root grid defaultOpen actionsRef={actionsRef}>
@@ -13826,21 +13826,31 @@ describe('<Combobox.Root />', () => {
 
       const input = screen.getByTestId('input');
 
-      act(() => actionsRef.current!.highlightItem('next'));
-      await flushMicrotasks();
-      expect(input).not.toHaveAttribute('aria-activedescendant');
-
-      act(() => actionsRef.current!.highlightItem('previous'));
-      await flushMicrotasks();
-      expect(input).not.toHaveAttribute('aria-activedescendant');
-
-      act(() => actionsRef.current!.highlightItem('first'));
-      await waitFor(() => {
+      function expectCell(name: string) {
         expect(input).toHaveAttribute(
           'aria-activedescendant',
-          screen.getByRole('gridcell', { name: '1' }).id,
+          screen.getByRole('gridcell', { name }).id,
         );
-      });
+      }
+
+      act(() => actionsRef.current!.highlightItem('next'));
+      await waitFor(() => expectCell('1'));
+
+      act(() => actionsRef.current!.highlightItem('next'));
+      await waitFor(() => expectCell('2'));
+
+      // Crossing a row boundary continues in DOM order, as ArrowRight does.
+      act(() => actionsRef.current!.highlightItem('next'));
+      await waitFor(() => expectCell('3'));
+
+      act(() => actionsRef.current!.highlightItem('previous'));
+      await waitFor(() => expectCell('2'));
+
+      act(() => actionsRef.current!.highlightItem('last'));
+      await waitFor(() => expectCell('4'));
+
+      act(() => actionsRef.current!.highlightItem('first'));
+      await waitFor(() => expectCell('1'));
     });
   });
 });

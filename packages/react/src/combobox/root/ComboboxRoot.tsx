@@ -126,8 +126,7 @@ export type ComboboxRootProps<
    * - `highlightItem`: Moves the highlight to the `'next'`, `'previous'`, `'first'` or `'last'`
    * item, or clears it with `'none'`. Useful for binding custom keyboard shortcuts.
    * `'next'` and `'previous'` wrap around when `loopFocus` is enabled and never move the
-   * highlight back to the input. Does nothing while the popup is closed, and
-   * `'next'`/`'previous'` do nothing when `grid` is enabled.
+   * highlight back to the input. Does nothing while the popup is closed.
    */
   actionsRef?: React.RefObject<ComboboxRoot.Actions | null> | undefined;
   /**
