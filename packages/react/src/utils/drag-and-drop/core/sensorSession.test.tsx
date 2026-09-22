@@ -14,6 +14,158 @@ setupDragEngineTests();
 describe('sensor session startup', () => {
   const { renderDnd } = createDndRenderer();
 
+  it('initializes drag data before target resolution and preview rendering, once per gesture', async () => {
+    const kind = Draggable.createKind<string, { offset: number }>('initial-data');
+    const first = { offset: 12 };
+    const next = { offset: 24 };
+    const getDragData = vi.fn(() => first);
+    const observations: unknown[] = [];
+    const preview = vi.fn(({ source }) => {
+      observations.push(source.dragData);
+      return <span>Preview</span>;
+    });
+    const onMoveStart = vi.fn(({ source }) => observations.push(source.dragData));
+    function Fixture({ initialize = getDragData }) {
+      return (
+        <Draggable.Target
+          accept={kind}
+          canDrop={({ source }) => {
+            observations.push(source.dragData);
+            return true;
+          }}
+        >
+          <Draggable.Root
+            kind={kind}
+            payload="event"
+            getDragData={initialize}
+            onMoveStart={onMoveStart}
+            data-testid="source"
+          >
+            <Draggable.Preview kind={kind}>{preview}</Draggable.Preview>
+          </Draggable.Root>
+        </Draggable.Target>
+      );
+    }
+    const { engine, rerender } = await renderDnd(<Fixture />);
+    expect(getDragData).not.toHaveBeenCalled();
+    await lift(screen.getByTestId('source'));
+    expect(getDragData).toHaveBeenCalledTimes(1);
+    expect(preview).toHaveBeenCalledTimes(1);
+    expect(observations.length).toBeGreaterThanOrEqual(2);
+    expect(observations.every((value) => value === first)).toBe(true);
+    const nextGetDragData = vi.fn(() => next);
+    await rerender(<Fixture initialize={nextGetDragData} />);
+    expect(nextGetDragData).not.toHaveBeenCalled();
+    expect(dragSessionStore.state?.source.dragData).toBe(first);
+    act(() => engine.cancelDrag());
+    observations.length = 0;
+    await lift(screen.getByTestId('source'));
+    expect(nextGetDragData).toHaveBeenCalledTimes(1);
+    expect(observations.every((value) => value === next)).toBe(true);
+  });
+
+  it('provides initialized data to the initial target resolver', async () => {
+    const { engine } = await renderDnd(<div />);
+    const kind = Draggable.createKind<string, number>('target-data');
+    const element = createElement();
+    const target = createElement();
+    const canDrop = vi.fn(({ source }) => source.dragData === 42);
+    engine.registerDropTarget(target, () => ({ accept: kind, canDrop }));
+    const result = createPreviewAndStartSession({
+      element,
+      dragHandle: null,
+      initialInput: getInput(new MouseEvent('pointerdown')),
+      initialTarget: target,
+      onForceCleanup: vi.fn(),
+      draggableParameters: { element, kind, payload: 'event', getDragData: () => 42 },
+    });
+    try {
+      expect(canDrop).toHaveBeenCalled();
+      expect(canDrop.mock.calls[0][0].source.dragData).toBe(42);
+      expect(dragSessionStore.state?.location.current.dropTargets[0]?.element).toBe(target);
+    } finally {
+      result?.session.controller.cancel();
+      result?.preview.destroy();
+    }
+  });
+
+  it('does not initialize drag data when pickup is vetoed', async () => {
+    const getDragData = vi.fn();
+    await renderDnd(
+      <Draggable.Root
+        data-testid="source"
+        getDragData={getDragData}
+        onBeforeMoveStart={(_, details) => details.cancel()}
+      />,
+    );
+    await lift(screen.getByTestId('source'), { expectNoDrag: true });
+    expect(getDragData).not.toHaveBeenCalled();
+  });
+
+  it.each(['throw', 'cancel'] as const)(
+    'cleans up when drag data initialization %ss',
+    async (action) => {
+      const { engine } = await renderDnd(<div />);
+      const element = createElement();
+      const kind = Draggable.createKind('data-failure');
+      const onMoveStart = vi.fn();
+      const onMoveEnd = vi.fn();
+      const release = vi.fn();
+      const start = () =>
+        createPreviewAndStartSession({
+          element,
+          dragHandle: null,
+          initialInput: getInput(new MouseEvent('pointerdown')),
+          initialTarget: element,
+          onForceCleanup: vi.fn(),
+          acquire: vi.fn(),
+          release,
+          draggableParameters: {
+            element,
+            kind,
+            onMoveStart,
+            onMoveEnd,
+            getDragData() {
+              if (action === 'throw') {
+                throw new Error('initialization failed');
+              }
+              engine.cancelDrag();
+              return 42;
+            },
+          },
+        });
+      let result;
+      let thrown;
+      try {
+        result = start();
+      } catch (error) {
+        thrown = error;
+      }
+      expect(thrown).toEqual(action === 'throw' ? new Error('initialization failed') : undefined);
+      expect(result).toBe(action === 'throw' ? undefined : null);
+      expect(onMoveEnd).toHaveBeenCalledTimes(action === 'cancel' ? 1 : 0);
+      expect(onMoveEnd.mock.calls[0]?.[0].canceled).toBe(action === 'cancel' ? true : undefined);
+      expect(onMoveStart).not.toHaveBeenCalled();
+      expect(release).toHaveBeenCalledTimes(1);
+      expect(dragSessionStore.state).toBeNull();
+      expect(dragPreviewStore.state).toBeNull();
+      expect(document.querySelector('[data-drag-preview]')).toBeNull();
+      expect(element).not.toHaveAttribute('data-dragging');
+      const next = createPreviewAndStartSession({
+        element,
+        dragHandle: null,
+        initialInput: getInput(new MouseEvent('pointerdown')),
+        initialTarget: element,
+        onForceCleanup: vi.fn(),
+        draggableParameters: { element, kind, onMoveStart },
+      });
+      expect(next).not.toBeNull();
+      expect(onMoveStart).toHaveBeenCalledTimes(1);
+      next?.session.controller.cancel();
+      next?.preview.destroy();
+    },
+  );
+
   it('removes a cloned preview when its offset callback throws', () => {
     const element = createElement();
     const kind = Draggable.createKind('offset-error');

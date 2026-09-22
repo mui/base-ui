@@ -25,6 +25,7 @@ import type {
   DropTargetEventMap,
   DragInput,
   DragPreviewRenderEvent,
+  MoveStartContext,
 } from '../../../types/drag';
 import { createDragEventDetails } from '../dragEventDetails';
 import {
@@ -1047,6 +1048,21 @@ export function start(parameters: StartParameters): DragSessionHandle | null {
     };
     state.isHovered = (element) => hoveredDropTargets.some((record) => record.element === element);
 
+    // Initialize within the guarded startup path, with cancellation already armed.
+    // A factory may cancel or throw just like a target resolver or preview renderer.
+    const getDragData = getSourceHandlers?.()?.getDragData;
+    if (getDragData) {
+      const dragData = getDragData({
+        input: initialInput,
+        element: source.element,
+        dragHandle: source.dragHandle,
+      });
+      if (tornDown) {
+        return null;
+      }
+      source.updateDragData(dragData);
+    }
+
     // The stack under the pickup point. Resolved only now, with `state.dragCancel`
     // armed and the monitors active, so a `cancelDrag()` from a resolver behaves
     // like one from `onGenerateDragPreview`: `doCancel` delivers the terminal
@@ -1100,6 +1116,7 @@ export function reset(): void {
 }
 
 export interface SourceHandlers {
+  getDragData?: ((context: MoveStartContext) => unknown) | undefined;
   /**
    * Engine-internal preview hook: the sensors' preview builder ends up here (see
    * `useInnerDragEngine`), never a consumer handler — the public parameter types
