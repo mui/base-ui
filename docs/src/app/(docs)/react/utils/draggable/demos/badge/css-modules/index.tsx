@@ -78,11 +78,12 @@ function DockSlot({
 }
 
 export default function CustomPreviewDashboard() {
-  const { widgets, moveWidget, onWidgetKeyDown, announcement } = useDashboardWidgets();
+  const { dashboardRef, widgets, moveWidget, onWidgetKeyDown, announcement } =
+    useDashboardWidgets();
 
   return (
     <Draggable.Provider>
-      <div className={styles.Root}>
+      <div ref={dashboardRef} className={styles.Root}>
         <div role="status" className={statusStyles.Status}>
           {announcement}
         </div>

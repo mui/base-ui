@@ -4,6 +4,29 @@ import { getSharedSlot } from '../sharedState';
 
 const STRUCTURAL_SELECTOR = /[>+~]|:(?:first|last|nth|only|empty|has)\b/;
 const PSEUDO_ELEMENT = /::(before|after|marker)\b/g;
+// These properties belong to the positioned clone, not its source layout.
+const PREVIEW_ROOT_PROPERTIES = new Set([
+  'position',
+  'top',
+  'right',
+  'bottom',
+  'left',
+  'box-sizing',
+  'pointer-events',
+  'will-change',
+  'translate',
+  'transform',
+  'z-index',
+]);
+
+function isPreviewRootProperty(name: string): boolean {
+  return (
+    PREVIEW_ROOT_PROPERTIES.has(name) ||
+    /^(?:margin|inset)(?:-|$)/.test(name) ||
+    /^(?:(?:min|max)-)?(?:width|height|inline-size|block-size)$/.test(name)
+  );
+}
+
 const NODE_ATTRIBUTE = 'data-drag-preview-node';
 const ids = getSharedSlot('dragPreviewStyleIds', () => ({ next: 0 }));
 
@@ -165,14 +188,13 @@ export function capturePreviewStyles(
         node,
         pseudo,
         values: Array.from(names)
-          // Motion never carries over. The root's `transform` is neutralized by
-          // the engine as well (see `NEUTRALIZED_PROPERTIES`): restoring it
-          // inline would beat that sheet and shift the clone off its anchor.
+          // Preserve the engine's root layout and neutralized motion while
+          // restoring contextual styles on descendants and pseudo-elements.
           .filter(
             (name) =>
               !name.startsWith('transition') &&
               !name.startsWith('animation') &&
-              !(node === clone && name === 'transform'),
+              !(node === clone && pseudo === '' && isPreviewRootProperty(name)),
           )
           .map((name) => [name, computed.getPropertyValue(name)] as const),
       };

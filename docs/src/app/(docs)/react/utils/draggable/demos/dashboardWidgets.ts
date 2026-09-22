@@ -1,5 +1,4 @@
 import * as React from 'react';
-import { ownerDocument } from '@base-ui/utils/owner';
 import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
 
 export type SlotId = 'left' | 'center' | 'right';
@@ -59,6 +58,7 @@ export function useDashboardWidgets(initialWidgets: WidgetData[] = INITIAL_WIDGE
   const [widgets, setWidgets] = React.useState(initialWidgets);
   const [announcement, setAnnouncement] = React.useState('');
   const focusFrame = useAnimationFrame();
+  const dashboardRef = React.useRef<HTMLDivElement | null>(null);
 
   function handleMoveWidget(widgetId: string, slot: SlotId) {
     const next = moveWidget(widgets, widgetId, slot);
@@ -83,13 +83,13 @@ export function useDashboardWidgets(initialWidgets: WidgetData[] = INITIAL_WIDGE
     }
     handleMoveWidget(widgetId, slot);
     // The widget remounts in its new slot, so focus its replacement after the update.
-    const doc = ownerDocument(event.currentTarget);
     focusFrame.request(() => {
-      doc.querySelector<HTMLElement>(`[data-widget-id="${widgetId}"]`)?.focus();
+      dashboardRef.current?.querySelector<HTMLElement>(`[data-widget-id="${widgetId}"]`)?.focus();
     });
   }
 
   return {
+    dashboardRef,
     widgets,
     moveWidget: handleMoveWidget,
     onWidgetKeyDown: handleWidgetKeyDown,

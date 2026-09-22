@@ -4,6 +4,8 @@ import { describe, it, expect, vi } from 'vitest';
 import { createDndRenderer } from '#test-utils';
 import { Draggable } from '../../../draggable';
 import { setupDragEngineTests, createElement, lift } from '../../../../test/dnd';
+import { createPreviewAndStartSession } from './sensorSession';
+import { getInput } from '../utils';
 import { dragPreviewStore } from '../overlay/dragPreviewStore';
 import { dragSessionStore, dragSourceStore } from '../dragSessionStore';
 
@@ -11,6 +13,32 @@ setupDragEngineTests();
 
 describe('sensor session startup', () => {
   const { renderDnd } = createDndRenderer();
+
+  it('removes a cloned preview when its offset callback throws', () => {
+    const element = createElement();
+    const kind = Draggable.createKind('offset-error');
+    expect(() =>
+      createPreviewAndStartSession({
+        element,
+        dragHandle: null,
+        initialInput: getInput(new MouseEvent('pointerdown', { clientX: 10, clientY: 10 })),
+        initialTarget: element,
+        onForceCleanup: vi.fn(),
+        draggableParameters: {
+          element,
+          kind,
+          dragPreview: {
+            offset() {
+              throw new Error('offset failed');
+            },
+          },
+        },
+      }),
+    ).toThrow('offset failed');
+    expect(document.querySelector('[data-drag-preview]')).toBeNull();
+    expect(element.parentElement?.querySelector('[popover]')).toBeNull();
+    expect(dragSessionStore.state).toBeNull();
+  });
 
   it('keeps source callbacks compatible when its kind changes mid-drag', async () => {
     const original = Draggable.createKind<string>('original');

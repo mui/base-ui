@@ -54,6 +54,14 @@ function ShapePiece({
 }
 
 export default function EngineShapeSorter() {
+  return (
+    <Draggable.Provider>
+      <ShapeSorter />
+    </Draggable.Provider>
+  );
+}
+
+function ShapeSorter() {
   // @highlight-start
   const manager = Draggable.useDragDropManager();
   // @highlight-end
@@ -110,47 +118,45 @@ export default function EngineShapeSorter() {
   }, [manager]);
 
   return (
-    <Draggable.Provider>
-      <div className={styles.Root}>
-        <div className={styles.Actions}>
-          {placed.length > 0 && (
-            <button type="button" className={styles.Reset} onClick={() => setPlaced([])}>
-              Reset
-            </button>
-          )}
-        </div>
+    <div className={styles.Root}>
+      <div className={styles.Actions}>
+        {placed.length > 0 && (
+          <button type="button" className={styles.Reset} onClick={() => setPlaced([])}>
+            Reset
+          </button>
+        )}
+      </div>
 
-        <div className={styles.Tray}>
-          {SHAPES.map((shape) => (
-            <div key={shape.id} className={styles.TraySlot}>
-              {!placed.includes(shape.id) && (
+      <div className={styles.Tray}>
+        {SHAPES.map((shape) => (
+          <div key={shape.id} className={styles.TraySlot}>
+            {!placed.includes(shape.id) && (
+              <ShapePiece shape={shape} elementRef={collect(pieceElements.current, shape.id)} />
+            )}
+          </div>
+        ))}
+      </div>
+
+      <div className={styles.Board}>
+        {SHAPES.map((shape) => {
+          const isPlaced = placed.includes(shape.id);
+
+          return (
+            <div
+              key={shape.id}
+              ref={collect(targetElements.current, shape.id)}
+              className={styles.Target}
+              data-accepting={activeShape === shape.id || undefined}
+              data-drag-over={overShape === shape.id || undefined}
+            >
+              <span className={styles.Cutout} data-shape={shape.id} aria-hidden="true" />
+              {isPlaced && (
                 <ShapePiece shape={shape} elementRef={collect(pieceElements.current, shape.id)} />
               )}
             </div>
-          ))}
-        </div>
-
-        <div className={styles.Board}>
-          {SHAPES.map((shape) => {
-            const isPlaced = placed.includes(shape.id);
-
-            return (
-              <div
-                key={shape.id}
-                ref={collect(targetElements.current, shape.id)}
-                className={styles.Target}
-                data-accepting={activeShape === shape.id || undefined}
-                data-drag-over={overShape === shape.id || undefined}
-              >
-                <span className={styles.Cutout} data-shape={shape.id} aria-hidden="true" />
-                {isPlaced && (
-                  <ShapePiece shape={shape} elementRef={collect(pieceElements.current, shape.id)} />
-                )}
-              </div>
-            );
-          })}
-        </div>
+          );
+        })}
       </div>
-    </Draggable.Provider>
+    </div>
   );
 }

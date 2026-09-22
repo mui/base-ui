@@ -83,12 +83,13 @@ function DockSlot({
 }
 
 export default function ContainedDashboard() {
-  const { widgets, moveWidget, onWidgetKeyDown, announcement } = useDashboardWidgets();
+  const { dashboardRef, widgets, moveWidget, onWidgetKeyDown, announcement } =
+    useDashboardWidgets();
   const frameRef = React.useRef<HTMLDivElement | null>(null);
 
   return (
     <Draggable.Provider>
-      <div className="flex w-full flex-col gap-4 select-none">
+      <div ref={dashboardRef} className="flex w-full flex-col gap-4 select-none">
         <div role="status" className="sr-only">
           {announcement}
         </div>

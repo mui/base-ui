@@ -4,7 +4,7 @@ import * as React from 'react';
 import { Draggable } from '@base-ui/react/draggable';
 import '@testing-library/jest-dom/vitest';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { fireEvent, screen, waitFor } from '@mui/internal-test-utils';
+import { createRenderer, fireEvent, screen, waitFor, within } from '@mui/internal-test-utils';
 // eslint-disable-next-line import/no-relative-packages
 import { createDndRenderer } from '../../../packages/react/test/dndEngine';
 // eslint-disable-next-line import/no-relative-packages
@@ -33,8 +33,22 @@ import HandleTailwind from '../app/(docs)/react/utils/draggable/demos/handle/tai
 import NestingCss from '../app/(docs)/react/utils/draggable/demos/targets/nesting/css-modules';
 import NestingTailwind from '../app/(docs)/react/utils/draggable/demos/targets/nesting/tailwind';
 
+import ManagerCss from '../app/(docs)/react/utils/draggable/demos/use-drag-drop-manager/hero/css-modules';
+import ManagerTailwind from '../app/(docs)/react/utils/draggable/demos/use-drag-drop-manager/hero/tailwind';
+
 setupDragEngineTests();
 afterEach(() => vi.unstubAllGlobals());
+
+describe('standalone manager demos', () => {
+  const { render } = createRenderer();
+  it.each([
+    ['CSS Modules', ManagerCss],
+    ['Tailwind', ManagerTailwind],
+  ] as const)('renders %s without an external provider', async (_name, Demo) => {
+    await render(<Demo />);
+    expect(screen.getByRole('img', { name: 'Circle' })).toBeVisible();
+  });
+});
 
 describe('draggable demos', () => {
   const { renderDnd } = createDndRenderer();
@@ -110,6 +124,24 @@ describe('draggable demos', () => {
       expect(screen.getByRole('status')).toHaveTextContent(
         'Conversion moved to Right dashboard slot.',
       );
+    });
+
+    it('keeps focus in the current dashboard when another dashboard is mounted', async () => {
+      const { user } = await renderDnd(
+        <React.Fragment>
+          <Demo />
+          <section data-testid="second-dashboard">
+            <Demo />
+          </section>
+        </React.Fragment>,
+      );
+      const dashboard = within(screen.getByTestId('second-dashboard'));
+      const widget = dashboard.getByRole('group', { name: 'Left dashboard slot' })
+        .firstElementChild as HTMLElement;
+      widget.focus();
+      await user.keyboard('{Alt>}{ArrowRight}{/Alt}');
+      const rightSlot = dashboard.getByRole('group', { name: 'Right dashboard slot' });
+      await waitFor(() => expect(rightSlot.firstElementChild).toHaveFocus());
     });
 
     it('skips an occupied slot to reach the next empty one', async () => {

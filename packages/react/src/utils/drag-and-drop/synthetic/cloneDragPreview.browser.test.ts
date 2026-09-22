@@ -177,6 +177,28 @@ describe.skipIf(isJSDOM)('createClonedDragPreviewElement (top layer)', () => {
     }
   });
 
+  it('keeps preview positioning when structural rules position the source', () => {
+    const sheet = document.createElement('style');
+    sheet.textContent =
+      '.List > .Card { position: absolute; left: 100px; top: 100px; margin: 20px; }';
+    document.head.appendChild(sheet);
+    list.className = 'List';
+    source.className = 'Card';
+    const rect = source.getBoundingClientRect();
+    const handle = createClonedDragPreviewElement(source, null)!;
+    try {
+      handle.element.style.translate = `${rect.left}px ${rect.top}px`;
+      const previewRect = handle.element.getBoundingClientRect();
+      expect(previewRect.left).toBeCloseTo(rect.left);
+      expect(previewRect.top).toBeCloseTo(rect.top);
+      expect(previewRect.width).toBeCloseTo(rect.width);
+      expect(previewRect.height).toBeCloseTo(rect.height);
+    } finally {
+      handle.destroy();
+      sheet.remove();
+    }
+  });
+
   it('does not restore a structural transform onto the clone root', () => {
     const sheet = document.createElement('style');
     sheet.textContent = '.List > .Card { transform: translateX(10px); rotate: 4deg; }';

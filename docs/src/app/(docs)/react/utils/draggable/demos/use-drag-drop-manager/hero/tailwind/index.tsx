@@ -56,6 +56,14 @@ function ShapePiece({
 }
 
 export default function EngineShapeSorter() {
+  return (
+    <Draggable.Provider>
+      <ShapeSorter />
+    </Draggable.Provider>
+  );
+}
+
+function ShapeSorter() {
   // @highlight-start
   const manager = Draggable.useDragDropManager();
   // @highlight-end
@@ -112,56 +120,54 @@ export default function EngineShapeSorter() {
   }, [manager]);
 
   return (
-    <Draggable.Provider>
-      <div className="flex w-full flex-col items-center select-none">
-        <div className="flex min-h-5 w-full max-w-md justify-end">
-          {placed.length > 0 && (
-            <button
-              type="button"
-              className="cursor-pointer border-0 bg-transparent p-0 font-[inherit] text-sm leading-5 text-neutral-500 underline underline-offset-2 hover:text-neutral-950 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-neutral-950 dark:text-neutral-400 dark:hover:text-white dark:focus-visible:outline-white"
-              onClick={() => setPlaced([])}
-            >
-              Reset
-            </button>
-          )}
-        </div>
+    <div className="flex w-full flex-col items-center select-none">
+      <div className="flex min-h-5 w-full max-w-md justify-end">
+        {placed.length > 0 && (
+          <button
+            type="button"
+            className="cursor-pointer border-0 bg-transparent p-0 font-[inherit] text-sm leading-5 text-neutral-500 underline underline-offset-2 hover:text-neutral-950 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-neutral-950 dark:text-neutral-400 dark:hover:text-white dark:focus-visible:outline-white"
+            onClick={() => setPlaced([])}
+          >
+            Reset
+          </button>
+        )}
+      </div>
 
-        <div className="grid w-full max-w-md grid-cols-3 py-3">
-          {SHAPES.map((shape) => (
-            <div key={shape.id} className="grid h-16 place-items-center">
-              {!placed.includes(shape.id) && (
+      <div className="grid w-full max-w-md grid-cols-3 py-3">
+        {SHAPES.map((shape) => (
+          <div key={shape.id} className="grid h-16 place-items-center">
+            {!placed.includes(shape.id) && (
+              <ShapePiece shape={shape} elementRef={collect(pieceElements.current, shape.id)} />
+            )}
+          </div>
+        ))}
+      </div>
+
+      <div className="grid w-full max-w-md grid-cols-3 border border-neutral-200 bg-neutral-50 p-3 dark:border-neutral-700 dark:bg-neutral-900">
+        {SHAPES.map((shape) => {
+          const isPlaced = placed.includes(shape.id);
+
+          return (
+            <div
+              key={shape.id}
+              ref={collect(targetElements.current, shape.id)}
+              className="grid h-24 place-items-center data-[accepting]:[&_[data-cutout]]:bg-neutral-300 data-[drag-over]:[&_[data-cutout]]:bg-neutral-400 dark:data-[accepting]:[&_[data-cutout]]:bg-neutral-600 dark:data-[drag-over]:[&_[data-cutout]]:bg-neutral-500"
+              data-accepting={activeShape === shape.id || undefined}
+              data-drag-over={overShape === shape.id || undefined}
+            >
+              <span
+                className={CUTOUT_CLASS}
+                data-cutout=""
+                data-shape={shape.id}
+                aria-hidden="true"
+              />
+              {isPlaced && (
                 <ShapePiece shape={shape} elementRef={collect(pieceElements.current, shape.id)} />
               )}
             </div>
-          ))}
-        </div>
-
-        <div className="grid w-full max-w-md grid-cols-3 border border-neutral-200 bg-neutral-50 p-3 dark:border-neutral-700 dark:bg-neutral-900">
-          {SHAPES.map((shape) => {
-            const isPlaced = placed.includes(shape.id);
-
-            return (
-              <div
-                key={shape.id}
-                ref={collect(targetElements.current, shape.id)}
-                className="grid h-24 place-items-center data-[accepting]:[&_[data-cutout]]:bg-neutral-300 data-[drag-over]:[&_[data-cutout]]:bg-neutral-400 dark:data-[accepting]:[&_[data-cutout]]:bg-neutral-600 dark:data-[drag-over]:[&_[data-cutout]]:bg-neutral-500"
-                data-accepting={activeShape === shape.id || undefined}
-                data-drag-over={overShape === shape.id || undefined}
-              >
-                <span
-                  className={CUTOUT_CLASS}
-                  data-cutout=""
-                  data-shape={shape.id}
-                  aria-hidden="true"
-                />
-                {isPlaced && (
-                  <ShapePiece shape={shape} elementRef={collect(pieceElements.current, shape.id)} />
-                )}
-              </div>
-            );
-          })}
-        </div>
+          );
+        })}
       </div>
-    </Draggable.Provider>
+    </div>
   );
 }

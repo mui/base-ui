@@ -33,6 +33,9 @@ export function attachDefaultDragPreview(
     return;
   }
 
+  // Own the element before invoking consumer code so pickup cleanup can release it.
+  preview.setPreviewElement(previewElement);
+
   // An offset callback needs the preview's rendered size, which a host doesn't have
   // until React fills it — so leave it to the renderer, which resolves it exactly
   // once, after the content lands. Every other form depends only on the source rect
@@ -52,5 +55,5 @@ export function attachDefaultDragPreview(
       input: isSourceOffset ? pressInput : input,
     });
   }
-  preview.setPreviewElement(previewElement, offset);
+  preview.setPreviewOffset(offset);
 }
