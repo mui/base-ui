@@ -71,6 +71,7 @@
     "./types": "./src/types/index.ts",
     "./unstable-use-media-query": "./src/unstable-use-media-query/index.ts",
     "./use-render": "./src/use-render/index.ts",
+    "./virtualizer": "./src/virtualizer/index.ts",
     "./internals/composite": "./src/internals/composite/index.ts",
     "./internals/constants": "./src/internals/constants.ts",
     "./internals/createBaseUIEventDetails": "./src/internals/createBaseUIEventDetails.ts",
@@ -104,7 +105,8 @@
     "./internals/usePressAndHold": "./src/internals/usePressAndHold.ts",
     "./internals/useRenderElement": "./src/internals/useRenderElement.tsx",
     "./internals/useValueChanged": "./src/internals/useValueChanged.ts",
-    "./internals/useTransitionStatus": "./src/internals/useTransitionStatus.ts"
+    "./internals/useTransitionStatus": "./src/internals/useTransitionStatus.ts",
+    "./draggable": "./src/draggable/index.ts"
   },
   "imports": {
     "#test-utils": "./test/index.ts",
@@ -132,6 +134,7 @@
     "@base-ui/utils": "workspace:*",
     "@floating-ui/react-dom": "^2.1.9",
     "@floating-ui/utils": "^0.2.12",
+    "@mui/x-virtualizer": "^0.7.1",
     "use-sync-external-store": "^1.7.0"
   },
   "devDependencies": {
