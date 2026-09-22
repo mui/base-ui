@@ -408,7 +408,13 @@ export type DropTargetEvent<
       DropTargetEventTarget<TTargetPayload, TTargetDragData>;
 
 /** Context passed to a draggable's `onBeforeMoveStart` callback. */
-export interface MoveStartContext {
+export interface MoveStartContext<TPayload = unknown, TDragData = unknown> {
+  /**
+   * The source being picked up. The same record is used if the drag starts.
+   * Call `updateDragData` to initialize gesture data before targets resolve and previews render.
+   * A canceled pickup does not carry its gesture data into the next attempt.
+   */
+  source: DragSource<TPayload, TDragData>;
   /** Pointer state at drag start. */
   input: DragInput;
   /** The draggable's own DOM element. */

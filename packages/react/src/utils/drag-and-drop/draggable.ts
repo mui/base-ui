@@ -215,7 +215,11 @@ export type DraggableConfig<TPayload = undefined, TDragData = unknown> = {
    * Call `eventDetails.cancel()` to prevent the drag.
    */
   onBeforeMoveStart?:
-    ((context: MoveStartContext, eventDetails: BeforeMoveStartEventDetails) => void) | undefined;
+    | ((
+        context: MoveStartContext<NoInfer<TPayload>, NoInfer<TDragData>>,
+        eventDetails: BeforeMoveStartEventDetails,
+      ) => void)
+    | undefined;
   /**
    * Determines when a pointer press starts a drag. Accepts one activation method for
    * every pointer type, a map with a method per pointer type, or an array to allow

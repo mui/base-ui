@@ -33,6 +33,7 @@ import { getSharedSlot } from '../sharedState';
 import { setActivePointerAccessors } from '../activePointer';
 import { createEventRootBinding, type DragEventRoot } from '../documentBinding';
 import type { DraggableConfig } from '../draggable';
+import { createDragSource } from '../dragSource';
 import { getRegistration, resolveDragHandle, resolveDraggablePickup } from '../draggableRegistry';
 import { hasInteractiveAncestorWithin } from '../interactiveElement';
 import {
@@ -1008,6 +1009,10 @@ function commitActivation(): void {
     return;
   }
 
+  // The candidate source has no published session or preview. Keep this record
+  // through pickup so data initialized by the veto callback reaches every handler.
+  const dragSource = createDragSource(element, parameters.kind.id, parameters.payload, dragHandle);
+
   // Let the consumer veto the drag as it is about to start. Dispatched before
   // any resource is allocated, so canceling leaves nothing to undo beyond the
   // pending phase itself — nothing has lifted yet.
@@ -1020,7 +1025,10 @@ function commitActivation(): void {
       event: pending.lastNativeEvent,
     }) as BeforeMoveStartEventDetails;
     try {
-      parameters.onBeforeMoveStart({ input: lastInput, element, dragHandle }, eventDetails);
+      parameters.onBeforeMoveStart(
+        { source: dragSource, input: lastInput, element, dragHandle },
+        eventDetails,
+      );
     } catch (error) {
       // A throwing consumer handler must not leave the pending phase armed.
       clearPending(true);
@@ -1075,6 +1083,7 @@ function commitActivation(): void {
   try {
     result = createPreviewAndStartSession({
       draggableParameters: parameters,
+      dragSource,
       element,
       dragHandle,
       initialInput: startInput,

@@ -910,8 +910,11 @@ describe('syntheticDrag sensor', () => {
     const el = createElement();
     const onMoveStart = vi.fn();
     let block = true;
+    const initialData: unknown[] = [];
     engine.registerDraggable(el, {
-      onBeforeMoveStart: (_, eventDetails) => {
+      onBeforeMoveStart: ({ source }, eventDetails) => {
+        initialData.push(source.dragData);
+        source.updateDragData({ offset: 12 });
         if (block) {
           eventDetails.cancel();
         }
@@ -935,6 +938,7 @@ describe('syntheticDrag sensor', () => {
     touchDown(el, 50, 50);
     await flushRaf();
     expect(onMoveStart).toHaveBeenCalledTimes(1);
+    expect(initialData).toEqual([undefined, undefined]);
 
     touchUp(50, 50);
   });
@@ -943,10 +947,13 @@ describe('syntheticDrag sensor', () => {
     const { engine } = await renderDnd();
     const el = createElement();
     const onMoveStart = vi.fn();
+    const initialData: unknown[] = [];
     let block = true;
     engine.registerDraggable(el, {
       activation: { pen: { type: 'immediate' } },
-      onBeforeMoveStart: () => {
+      onBeforeMoveStart: ({ source }) => {
+        initialData.push(source.dragData);
+        source.updateDragData({ offset: 12 });
         if (block) {
           engine.cancelDrag();
         }
@@ -965,15 +972,19 @@ describe('syntheticDrag sensor', () => {
     penDown(el, 50, 50);
     expect(onMoveStart).toHaveBeenCalledOnce();
     penUp(50, 50);
+    expect(initialData).toEqual([undefined, undefined]);
   });
 
   it('a throwing onBeforeMoveStart tears the pending phase down', async () => {
     const { engine } = await renderDnd();
     const el = createElement();
     const onMoveStart = vi.fn();
+    const initialData: unknown[] = [];
     let shouldThrow = true;
     engine.registerDraggable(el, () => ({
-      onBeforeMoveStart: () => {
+      onBeforeMoveStart: ({ source }) => {
+        initialData.push(source.dragData);
+        source.updateDragData({ offset: 12 });
         if (shouldThrow) {
           throw new Error('veto failed');
         }
@@ -1008,6 +1019,7 @@ describe('syntheticDrag sensor', () => {
     expect(onMoveStart).toHaveBeenCalledTimes(1);
 
     touchUp(50, 50);
+    expect(initialData).toEqual([undefined, undefined]);
   });
 
   it('a live registration getter throwing at activation tears the pending phase down', async () => {

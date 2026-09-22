@@ -21,7 +21,7 @@ Renders a `<div>` element.
 | dragCursor        | `string \| false`                                                                                                                                                                                                                   | `'grabbing'` | The CSS cursor shown across the document during a mouse or pen drag.&#xA;Pass `false` to manage the cursor yourself.                                                                                                                                                              |
 | kind              | `DragKind<TPayload, TDragData> \| DragKind<undefined, TDragData>`                                                                                                                                                                   | -            | The kind of this item, created with `Draggable.createKind`.&#xA;Defaults to the kind of the nearest `<Draggable.Provider>`, which carries no payload.                                                                                                                             |
 | modifiers         | `DragModifiers`                                                                                                                                                                                                                     | -            | One or more modifiers that constrain the drag, applied in order.&#xA;They affect both the preview and the drop position.&#xA;See [Constraining movement](https://base-ui.com/react/utils/draggable#constraining-movement).                                                        |
-| onBeforeMoveStart | `((context: MoveStartContext, eventDetails: BeforeMoveStartEventDetails) => void)`                                                                                                                                                  | -            | Event handler called just before a drag starts, once the activation threshold is met.&#xA;Call `eventDetails.cancel()` to prevent the drag.                                                                                                                                       |
+| onBeforeMoveStart | `((context: MoveStartContext<TPayload, TDragData>, eventDetails: BeforeMoveStartEventDetails) => void) \| ((context: MoveStartContext<undefined, TDragData>, eventDetails: BeforeMoveStartEventDetails) => void)`                   | -            | Event handler called just before a drag starts, once the activation threshold is met.&#xA;Call `eventDetails.cancel()` to prevent the drag.                                                                                                                                       |
 | onMove            | `((parameters: MoveEvent<TPayload, TDragData>, eventDetails: MoveEventDetails) => void) \| ((parameters: MoveEvent<undefined, TDragData>, eventDetails: MoveEventDetails) => void)`                                                 | -            | Event handler called as the pointer moves or a modifier key changes,&#xA;at most once per animation frame. Use a drop target's `onDraggableMove`&#xA;for hover feedback.                                                                                                          |
 | onMoveEnd         | `((parameters: MoveEndEvent<TPayload, TDragData>, eventDetails: MoveEndEventDetails) => void) \| ((parameters: MoveEndEvent<undefined, TDragData>, eventDetails: MoveEndEventDetails) => void)`                                     | -            | Event handler called once when the drag ends, after a drop, a release outside any&#xA;target, or a cancellation. `eventDetails.reason` is `'drop'` for a successful drop. A drag canceled during pickup fires this handler without a preceding `onMoveStart`.                     |
 | onMoveStart       | `((parameters: MoveStartEvent<TPayload, TDragData>, eventDetails: MoveStartEventDetails) => void) \| ((parameters: MoveStartEvent<undefined, TDragData>, eventDetails: MoveStartEventDetails) => void)`                             | -            | Event handler called once when the drag starts. The preview exists by then,&#xA;so the source can be measured or restyled safely.                                                                                                                                                 |
@@ -96,7 +96,7 @@ type DraggableRootPropsWithPayload<TPayload, TDragData = unknown> = {
    * Call `eventDetails.cancel()` to prevent the drag.
    */
   onBeforeMoveStart?: (
-    context: MoveStartContext,
+    context: MoveStartContext<TPayload, TDragData>,
     eventDetails: BeforeMoveStartEventDetails,
   ) => void;
   /**
@@ -851,7 +851,7 @@ type DraggableuseDragDropManagerReturnValue = {
           dragHandle?: DragHandle;
           disabled?: boolean;
           onBeforeMoveStart?: (
-            context: MoveStartContext,
+            context: MoveStartContext<undefined, TDragData | unknown>,
             eventDetails: BeforeMoveStartEventDetails,
           ) => void;
           activation?: DragActivationConfig | DragActivationConfig[];
@@ -1135,7 +1135,7 @@ type DragDropManager = {
           dragHandle?: DragHandle;
           disabled?: boolean;
           onBeforeMoveStart?: (
-            context: MoveStartContext,
+            context: MoveStartContext<undefined, TDragData | unknown>,
             eventDetails: BeforeMoveStartEventDetails,
           ) => void;
           activation?: DragActivationConfig | DragActivationConfig[];
@@ -2164,7 +2164,13 @@ type DraggableMoveEventDetails =
 Context passed to a draggable's `onBeforeMoveStart` callback.
 
 ```typescript
-type DraggableMoveStartContext = {
+type DraggableMoveStartContext<TPayload = unknown, TDragData = unknown> = {
+  /**
+   * The source being picked up. The same record is used if the drag starts.
+   * Call `updateDragData` to initialize gesture data before targets resolve and previews render.
+   * A canceled pickup does not carry its gesture data into the next attempt.
+   */
+  source: DragSource<TPayload, TDragData>;
   /** Pointer state at drag start. */
   input: DragInput;
   /** The draggable's own DOM element. */
@@ -2398,7 +2404,7 @@ type RegisterDraggableParameters<TPayload = undefined, TDragData = unknown> = {
    * Call `eventDetails.cancel()` to prevent the drag.
    */
   onBeforeMoveStart?: (
-    context: MoveStartContext,
+    context: MoveStartContext<TPayload, TDragData>,
     eventDetails: BeforeMoveStartEventDetails,
   ) => void;
   /**
@@ -2496,7 +2502,7 @@ type RegisterDraggableParametersWithPayload<TPayload, TDragData = unknown> = {
    * Call `eventDetails.cancel()` to prevent the drag.
    */
   onBeforeMoveStart?: (
-    context: MoveStartContext,
+    context: MoveStartContext<TPayload, TDragData>,
     eventDetails: BeforeMoveStartEventDetails,
   ) => void;
   /**
@@ -2860,7 +2866,7 @@ type UseDragDropManagerReturnValue = {
           dragHandle?: DragHandle;
           disabled?: boolean;
           onBeforeMoveStart?: (
-            context: MoveStartContext,
+            context: MoveStartContext<undefined, TDragData | unknown>,
             eventDetails: BeforeMoveStartEventDetails,
           ) => void;
           activation?: DragActivationConfig | DragActivationConfig[];

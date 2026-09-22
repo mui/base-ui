@@ -14,11 +14,13 @@ import { attachDefaultDragPreview } from '../synthetic/defaultDragPreview';
 import { createSyntheticPreview, type SyntheticPreviewHandle } from '../synthetic/syntheticPreview';
 import type { DraggableConfig } from '../draggable';
 import { createDragSource } from '../dragSource';
-import type { DragInput, DragStartReason } from '../../../types/drag';
+import type { DragInput, DragStartReason, DragSource } from '../../../types/drag';
 
 export interface StartSensorSessionParameters {
   /** The draggable's latest parameters (kind/payload/event handlers). */
   draggableParameters: DraggableConfig<any, any>;
+  /** Source prepared for onBeforeMoveStart, carried unchanged into the session. */
+  dragSource?: DragSource | undefined;
   element: HTMLElement;
   dragHandle: Element | null;
   initialInput: DragInput;
@@ -66,7 +68,8 @@ function startSensorSession(parameters: StartSensorSessionParameters): DragSessi
   if (parameters.isPickupCurrent?.() === false) {
     return null;
   }
-  const dragSource = createDragSource(element, source.kind.id, source.payload, dragHandle);
+  const dragSource =
+    parameters.dragSource ?? createDragSource(element, source.kind.id, source.payload, dragHandle);
 
   // Read the draggable's latest parameters live on each dispatch so a source that
   // re-renders mid-drag runs its current handler closures. Falls back to the

@@ -405,7 +405,7 @@ When the decision depends on the gesture itself, for example on which handle was
 
 ### Storing data during a drag
 
-Both `source` and `target` records let handlers store data for later handlers to read. Declare its type as the second type argument of `createKind`, and set it with `updateDragData`. It starts as `undefined` on each drag. For example, record where the item was grabbed when the drag starts, and read it on every move:
+Both `source` and `target` records let handlers store data for later handlers to read. Declare its type as the second type argument of `createKind`, and set it with `updateDragData`. It starts as `undefined` on each pickup. Initialize source data in `onBeforeMoveStart` to make it available to target resolution and custom previews. The same source continues into the accepted drag; canceled pickups do not carry their gesture data into the next attempt. For example:
 
 ```tsx title="Recording the grab position"
 const card = Draggable.createKind<string, { grabOffsetX: number }>('card');
@@ -413,9 +413,9 @@ const card = Draggable.createKind<string, { grabOffsetX: number }>('card');
 <Draggable.Root
   kind={card}
   payload={id}
-  onMoveStart={({ source, location }) => {
+  onBeforeMoveStart={({ source, input }) => {
     const rect = source.element.getBoundingClientRect();
-    source.updateDragData({ grabOffsetX: location.initial.input.clientX - rect.left });
+    source.updateDragData({ grabOffsetX: input.clientX - rect.left });
   }}
   onMove={({ source }) => {
     console.log(source.payload, source.dragData?.grabOffsetX);

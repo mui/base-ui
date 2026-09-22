@@ -3,8 +3,10 @@ import { act, screen } from '@mui/internal-test-utils';
 import { describe, it, expect, vi } from 'vitest';
 import { createDndRenderer } from '#test-utils';
 import { Draggable } from '../../../draggable';
-import { setupDragEngineTests, createElement, lift } from '../../../../test/dnd';
+import { setupDragEngineTests, createElement, lift, flushRaf } from '../../../../test/dnd';
 import { createPreviewAndStartSession } from './sensorSession';
+import { penDown, penUp } from '../../../../test/syntheticPointer';
+import type { DragSource } from '../../../types/drag';
 import { getInput } from '../utils';
 import { dragPreviewStore } from '../overlay/dragPreviewStore';
 import { dragSessionStore, dragSourceStore } from '../dragSessionStore';
@@ -13,6 +15,62 @@ setupDragEngineTests();
 
 describe('sensor session startup', () => {
   const { renderDnd } = createDndRenderer();
+
+  it('carries the typed pre-start source and data into target resolution, preview and start', async () => {
+    const kind = Draggable.createKind<string, { offset: number }>('prepared-source');
+    let candidate: DragSource<string, { offset: number }> | undefined;
+    const snapshots: unknown[] = [];
+    const canDrop = vi.fn(({ source }) => source.dragData?.offset === 12);
+    const preview = vi.fn(({ source }) => <span>{source.dragData?.offset}</span>);
+    const onMoveStart = vi.fn();
+    function Fixture({ offset = 12 }) {
+      return (
+        <React.Fragment>
+          <Draggable.Target accept={kind} canDrop={canDrop} data-testid="target" />
+          <Draggable.Root
+            kind={kind}
+            payload="event"
+            data-testid="source"
+            activation={{ pen: { type: 'immediate' } }}
+            onBeforeMoveStart={({ source }) => {
+              candidate = source;
+              snapshots.push(source.dragData);
+              source.updatePayload('updated');
+              source.updateDragData({ offset });
+              expect(dragSourceStore.state).toBeNull();
+              expect(document.querySelector('[data-drag-preview]')).toBeNull();
+            }}
+            onMoveStart={onMoveStart}
+          >
+            <Draggable.Preview kind={kind}>{preview}</Draggable.Preview>
+          </Draggable.Root>
+        </React.Fragment>
+      );
+    }
+    const { engine, rerender } = await renderDnd(<Fixture />);
+    vi.spyOn(document, 'elementFromPoint').mockReturnValue(screen.getByTestId('target'));
+    penDown(screen.getByTestId('source'), 10, 10);
+    await flushRaf();
+    expect(canDrop).toHaveBeenCalled();
+    expect(canDrop.mock.results[0].value).toBe(true);
+    expect(canDrop.mock.calls[0][0].source).toBe(candidate);
+    expect(preview.mock.results[0].value.props.children).toBe(12);
+    expect(preview.mock.calls[0][0].source).toBe(candidate);
+    expect(onMoveStart.mock.calls[0][0].source).toBe(candidate);
+    expect(candidate?.payload).toBe('updated');
+    expect(candidate?.dragData).toEqual({ offset: 12 });
+    await rerender(<Fixture offset={24} />);
+    expect(candidate?.dragData).toEqual({ offset: 12 });
+    act(() => engine.cancelDrag());
+    penUp(10, 10);
+    const previous = candidate;
+    penDown(screen.getByTestId('source'), 10, 10);
+    await flushRaf();
+    expect(candidate).not.toBe(previous);
+    expect(candidate?.dragData).toEqual({ offset: 24 });
+    expect(snapshots).toEqual([undefined, undefined]);
+    penUp(10, 10);
+  });
 
   it('removes a cloned preview when its offset callback throws', () => {
     const element = createElement();
