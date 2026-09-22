@@ -12,7 +12,7 @@ import clsx from 'clsx';
 import { Tabs } from '@base-ui/react/tabs';
 
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import { DragPageAutoScroll } from './DragPageAutoScroll';
+import { DragPageAutoScroll } from './_components/DragPageAutoScroll';
 
 import theme from './theme.module.css';
 import styles from './draggable-tabs.module.css';

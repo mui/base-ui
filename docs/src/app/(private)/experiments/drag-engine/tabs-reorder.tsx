@@ -12,7 +12,7 @@ import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { activeElement } from '@base-ui/utils/shadowDom';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import { DragPageAutoScroll } from './DragPageAutoScroll';
+import { DragPageAutoScroll } from './_components/DragPageAutoScroll';
 
 import styles from './tabs-reorder.module.css';
 

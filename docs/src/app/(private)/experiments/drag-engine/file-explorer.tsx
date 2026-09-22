@@ -3,7 +3,7 @@ import { Draggable } from '@base-ui/react/draggable';
 
 import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import { DragPageAutoScroll } from './DragPageAutoScroll';
+import { DragPageAutoScroll } from './_components/DragPageAutoScroll';
 
 import {
   INITIAL_NODES,
