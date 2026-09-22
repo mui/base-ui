@@ -4,7 +4,7 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useDraggableContext } from '../DraggableContext';
 import { registerAutoScroller } from '../../utils/drag-and-drop/registrations';
-import { wakeAutoScroll } from '../../utils/drag-and-drop/autoScroller';
+import { wakeAutoScroll, normalizeOverflowMargin } from '../../utils/drag-and-drop/autoScroller';
 import { sameAccept } from '../../utils/drag-and-drop/dragKind';
 import type { RegisterAutoScrollerParameters } from '../../utils/drag-and-drop/autoScroller';
 import { useRegistrationRef } from '../../utils/drag-and-drop/useRegistrationRef';
@@ -41,7 +41,12 @@ export function useDraggableViewportElement<TSourcePayload = unknown, TDragData 
   // change needs: the loop reads the parameters through `getParameters` every
   // frame, so no shared geometry/style cache has to be dropped for it to apply.
   const { accept, onDragScroll, disabled, maxSpeed } = parameters;
+  const { top, right, bottom, left } = normalizeOverflowMargin(parameters.overflowMargin);
   const previousRef = React.useRef({
+    top,
+    right,
+    bottom,
+    left,
     accept,
     onDragScroll,
     disabled,
@@ -53,13 +58,17 @@ export function useDraggableViewportElement<TSourcePayload = unknown, TDragData 
       sameAccept(previous.accept, accept) &&
       previous.onDragScroll === onDragScroll &&
       previous.disabled === disabled &&
-      previous.maxSpeed === maxSpeed
+      previous.maxSpeed === maxSpeed &&
+      previous.top === top &&
+      previous.right === right &&
+      previous.bottom === bottom &&
+      previous.left === left
     ) {
       return;
     }
-    previousRef.current = { accept, onDragScroll, disabled, maxSpeed };
+    previousRef.current = { accept, onDragScroll, disabled, maxSpeed, top, right, bottom, left };
     wakeAutoScroll();
-  }, [accept, onDragScroll, disabled, maxSpeed]);
+  }, [accept, onDragScroll, disabled, maxSpeed, top, right, bottom, left]);
 
   return { ref };
 }

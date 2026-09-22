@@ -1,7 +1,9 @@
+import * as React from 'react';
+import { Draggable } from '@base-ui/react/draggable';
 import { describe, it, expect, vi } from 'vitest';
 import { act, waitFor } from '@mui/internal-test-utils';
 import { createDndRenderer, firePointer, isJSDOM } from '#test-utils';
-import { registerCleanup, setupDragEngineTests } from '../../../test/dnd';
+import { registerCleanup, setupDragEngineTests, flushRaf } from '../../../test/dnd';
 
 setupDragEngineTests();
 
@@ -37,6 +39,70 @@ describe.skipIf(isJSDOM)('Draggable viewport scrolling in the browser', () => {
       });
     });
   }
+
+  it('scrolls outside a component viewport, stops beyond the margin, and cancels cleanly', async () => {
+    const onDragScroll = vi.fn();
+    const { engine } = await renderDnd(
+      <Draggable.Viewport
+        data-testid="overflow-viewport"
+        overflowMargin={{ bottom: 80 }}
+        onDragScroll={onDragScroll}
+        style={{ position: 'fixed', left: 0, top: 0, width: 200, height: 200, overflow: 'auto' }}
+      >
+        <div style={{ height: 1000 }} />
+      </Draggable.Viewport>,
+    );
+    const viewport = document.querySelector<HTMLElement>('[data-testid="overflow-viewport"]')!;
+    const source = element('position:fixed;left:300px;top:0;width:100px;height:50px');
+    engine.registerDraggable(source, { activation: { type: 'immediate' } });
+    start(source);
+    function move(y: number) {
+      act(() =>
+        firePointer.move(document.body, {
+          timeStamp: 200,
+          pointerId: 1,
+          pointerType: 'mouse',
+          buttons: 1,
+          clientX: 100,
+          clientY: y,
+        }),
+      );
+    }
+    move(250);
+    await waitFor(() => expect(viewport.scrollTop).toBeGreaterThan(0));
+    expect(onDragScroll.mock.calls.some(([event]) => event.input.clientY === 250)).toBe(true);
+    move(281);
+    await flushRaf();
+    await flushRaf();
+    await flushRaf();
+    const stoppedAt = viewport.scrollTop;
+    await flushRaf();
+    await flushRaf();
+    expect(viewport.scrollTop).toBe(stoppedAt);
+    move(250);
+    await waitFor(() => expect(viewport.scrollTop).toBeGreaterThan(stoppedAt));
+    act(() => engine.cancelDrag());
+    const canceledAt = viewport.scrollTop;
+    await flushRaf();
+    await flushRaf();
+    expect(viewport.scrollTop).toBe(canceledAt);
+  });
+
+  it('scrolls an outer viewport containing the pointer before an inner overflow margin', async () => {
+    const { engine } = await renderDnd();
+    const source = element('position:fixed;left:300px;top:0;width:100px;height:50px');
+    const outer = element('position:fixed;left:0;top:0;width:200px;height:200px;overflow:auto');
+    const inner = element('width:200px;height:100px;overflow:auto', outer);
+    element('height:1000px', inner);
+    element('height:1000px', outer);
+    engine.registerDraggable(source, { activation: { type: 'immediate' } });
+    engine.registerAutoScroller(inner, { overflowMargin: { bottom: 120 } });
+    engine.registerAutoScroller(outer, {});
+    start(source);
+    await waitFor(() => expect(outer.scrollTop).toBeGreaterThan(0));
+    expect(inner.scrollTop).toBe(0);
+    act(() => engine.cancelDrag());
+  });
 
   it('hits and drops onto content scrolled under a stationary pointer', async () => {
     const { engine } = await renderDnd();

@@ -42,6 +42,7 @@ export const DraggableViewport = React.forwardRef(function DraggableViewport<
     onDragScroll,
     disabled,
     maxSpeed,
+    overflowMargin,
     // Props forwarded to the DOM element
     ...elementProps
   } = componentProps;
@@ -53,6 +54,7 @@ export const DraggableViewport = React.forwardRef(function DraggableViewport<
     onDragScroll,
     disabled,
     maxSpeed,
+    overflowMargin,
   };
 
   const { ref } = useDraggableViewportElement<TSourcePayload, TDragData>(params);

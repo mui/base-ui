@@ -76,6 +76,7 @@ export type {
 export type * from './target/DraggableTarget';
 export type * from './viewport/DraggableViewport';
 export type {
+  AutoScrollOverflowMargin,
   DragAutoScrollEvent,
   DragAutoScrollEventDetails,
   DragAutoScrollDirection,

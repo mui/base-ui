@@ -36,6 +36,7 @@ export type {
 } from './dragRegistration';
 
 export type {
+  AutoScrollOverflowMargin,
   DragAutoScrollEvent,
   DragAutoScrollEventDetails,
   DragAutoScrollDirection,

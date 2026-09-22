@@ -24,6 +24,164 @@ setupDragEngineTests({ extraAfterEach: resetSyntheticDrag });
 describe('engine.registerAutoScroller', () => {
   const { renderDnd } = createDndRenderer();
 
+  describe('overflow margins', () => {
+    it.each([
+      { name: 'default', margin: undefined, x: 100, y: 210, scrolls: false },
+      { name: 'top', margin: { top: 30 }, x: 100, y: -30, scrolls: true },
+      { name: 'bottom', margin: { bottom: 30 }, x: 100, y: 230, scrolls: true },
+      { name: 'left', margin: { left: 30 }, x: -30, y: 100, scrolls: true },
+      { name: 'right', margin: { right: 30 }, x: 230, y: 100, scrolls: true },
+      { name: 'beyond bottom', margin: { bottom: 30 }, x: 100, y: 231, scrolls: false },
+      { name: 'omitted top', margin: { bottom: 30 }, x: 100, y: -1, scrolls: false },
+      { name: 'outside cross axis', margin: { bottom: 30 }, x: 201, y: 210, scrolls: false },
+      { name: 'corner', margin: 30, x: 220, y: 220, scrolls: true },
+      { name: 'beyond corner', margin: 30, x: 231, y: 220, scrolls: false },
+      { name: 'negative', margin: -30, x: 100, y: 210, scrolls: false },
+      { name: 'infinite', margin: Infinity, x: 100, y: 210, scrolls: false },
+      { name: 'NaN', margin: { bottom: NaN }, x: 100, y: 210, scrolls: false },
+    ])(
+      'resolves $name without changing the reported coordinates',
+      async ({ margin, x, y, scrolls }) => {
+        const { engine } = await renderDnd();
+        const source = createElement();
+        const scroller = makeEngageableScroller();
+        const onDragScroll = vi.fn();
+        engine.registerDraggable(source, {});
+        engine.registerAutoScroller(scroller, { overflowMargin: margin, onDragScroll });
+        await lift(source, { clientX: 100, clientY: 100 });
+        fireEvent.dragOver(scroller, { clientX: x, clientY: y });
+        await flushRaf();
+        await flushRaf();
+        await flushRaf();
+        expect(onDragScroll.mock.calls.length > 0).toBe(scrolls);
+        expect(
+          onDragScroll.mock.calls.every(
+            ([event]) => event.input.clientX === x && event.input.clientY === y,
+          ),
+        ).toBe(true);
+      },
+    );
+
+    it('caps outside engagement at the same speed as the real edge', async () => {
+      const clock = installFrameClock();
+      const { engine } = await renderDnd();
+      const source = createElement();
+      const scroller = makeEngageableScroller();
+      engine.registerDraggable(source, {});
+      engine.registerAutoScroller(scroller, { overflowMargin: 160, maxSpeed: 100 });
+      await lift(source, { clientX: 100, clientY: 100 });
+      fireEvent.dragOver(scroller, { clientX: 100, clientY: 200 });
+      await flushRaf();
+      await flushRaf();
+      clock.advance(1000);
+      await flushRaf();
+      vi.mocked(scroller.scrollBy).mockClear();
+      clock.advance(16);
+      await flushRaf();
+      const edgeDelta = maxVerticalDelta(scroller);
+      expect(edgeDelta).toBeCloseTo(1.6);
+      fireEvent.dragOver(scroller, { clientX: 100, clientY: 350 });
+      await flushRaf();
+      await flushRaf();
+      vi.mocked(scroller.scrollBy).mockClear();
+      clock.advance(16);
+      await flushRaf();
+      expect(maxVerticalDelta(scroller)).toBeCloseTo(edgeDelta);
+    });
+
+    it('gives an inside viewport priority, then falls back to a deeper outside candidate at its limit', async () => {
+      const { engine } = await renderDnd();
+      const source = createElement();
+      const outside = makeEngageableScroller();
+      const parent = createElement();
+      parent.appendChild(outside);
+      const inside = makeEngageableScroller();
+      inside.getBoundingClientRect = () => new DOMRect(0, 100, 200, 200);
+      engine.registerDraggable(source, {});
+      engine.registerAutoScroller(outside, { overflowMargin: { bottom: 160 } });
+      engine.registerAutoScroller(inside, {});
+      await lift(source, { clientX: 100, clientY: 100 });
+      fireEvent.dragOver(inside, { clientX: 100, clientY: 290 });
+      await flushRaf();
+      await flushRaf();
+      expect(inside.scrollBy).toHaveBeenCalled();
+      expect(outside.scrollBy).not.toHaveBeenCalled();
+      inside.scrollTop = inside.scrollHeight - inside.clientHeight;
+      await flushRaf();
+      expect(outside.scrollBy).toHaveBeenCalled();
+    });
+
+    it('uses modified positions inside a margin without scrolling the neighbour under the pointer', async () => {
+      const { engine } = await renderDnd();
+      const source = createElement();
+      const confined = makeEngageableScroller();
+      const neighbour = makeEngageableScroller();
+      neighbour.getBoundingClientRect = () => new DOMRect(200, 0, 200, 200);
+      engine.registerDraggable(source, {
+        modifiers: ({ point }) => ({ x: Math.min(point.x, 100), y: Math.min(point.y, 220) }),
+      });
+      engine.registerAutoScroller(neighbour, {});
+      engine.registerAutoScroller(confined, { overflowMargin: { bottom: 30 } });
+      await lift(source, { clientX: 100, clientY: 100 });
+      fireEvent.dragOver(neighbour, { clientX: 300, clientY: 290 });
+      await flushRaf();
+      await flushRaf();
+      await flushRaf();
+      expect(confined.scrollBy).toHaveBeenCalled();
+      expect(neighbour.scrollBy).not.toHaveBeenCalled();
+    });
+
+    it.each([false, true])(
+      'respects custom movement with consume=%s outside the viewport',
+      async (consume) => {
+        const { engine } = await renderDnd();
+        const source = createElement();
+        const outer = makeEngageableScroller();
+        const inner = makeEngageableScroller();
+        outer.appendChild(inner);
+        const pan = vi.fn();
+        engine.registerDraggable(source, {});
+        engine.registerAutoScroller(outer, { overflowMargin: 30 });
+        engine.registerAutoScroller(inner, {
+          overflowMargin: 30,
+          onDragScroll: (event, details) => {
+            details.cancel();
+            pan(event);
+            if (consume) {
+              details.consume();
+            }
+          },
+        });
+        await lift(source, { clientX: 100, clientY: 100 });
+        fireEvent.dragOver(inner, { clientX: 100, clientY: 220 });
+        await flushRaf();
+        await flushRaf();
+        expect(pan).toHaveBeenCalled();
+        expect(inner.scrollBy).not.toHaveBeenCalled();
+        expect(vi.mocked(outer.scrollBy).mock.calls.length > 0).toBe(!consume);
+      },
+    );
+
+    it('keeps physical left/right margins in RTL', async () => {
+      const { engine } = await renderDnd();
+      const source = createElement();
+      const scroller = makeEngageableScroller();
+      scroller.style.direction = 'rtl';
+      Object.defineProperty(scroller, 'scrollWidth', { value: 1000 });
+      Object.defineProperty(scroller, 'clientWidth', { value: 200 });
+      Object.defineProperty(scroller, 'scrollLeft', { value: -400, writable: true });
+      engine.registerDraggable(source, {});
+      engine.registerAutoScroller(scroller, { overflowMargin: { left: 30 } });
+      await lift(source, { clientX: 100, clientY: 100 });
+      fireEvent.dragOver(scroller, { clientX: -20, clientY: 100 });
+      await flushRaf();
+      await flushRaf();
+      expect(scroller.scrollBy).toHaveBeenCalledWith(
+        expect.objectContaining({ left: expect.any(Number), top: 0 }),
+      );
+    });
+  });
+
   it('reorders scrolling candidates when a registered viewport is reparented', async () => {
     const { engine } = await renderDnd();
     const source = createElement();

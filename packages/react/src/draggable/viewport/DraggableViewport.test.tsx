@@ -83,6 +83,32 @@ describe('Draggable.Viewport', () => {
     },
   }));
 
+  it('wakes for changed margins, compares edges by value, and does not forward the prop', async () => {
+    const scrollBy = vi.fn();
+    const { engine, rerender } = await renderDnd(<Scroller scrollByMock={scrollBy} />);
+    const source = createElement();
+    engine.registerDraggable(source, {});
+    await liftOutside(source);
+    const scroller = screen.getByTestId('scroller');
+    await dragTo(scroller, 100, 120);
+    expect(scrollBy).not.toHaveBeenCalled();
+    await rerender(<Scroller scrollByMock={scrollBy} overflowMargin={{ bottom: 30 }} />);
+    await flushRaf();
+    await flushRaf();
+    expect(scrollBy).toHaveBeenCalled();
+    expect(scroller).not.toHaveAttribute('overflowMargin');
+
+    await rerender(<Scroller scrollByMock={scrollBy} overflowMargin={{ bottom: 10 }} />);
+    await flushRaf();
+    scrollBy.mockClear();
+    const measure = vi.spyOn(scroller, 'getBoundingClientRect');
+    await rerender(<Scroller scrollByMock={scrollBy} overflowMargin={{ bottom: 10 }} />);
+    await flushRaf();
+    expect(measure).not.toHaveBeenCalled();
+    expect(scrollBy).not.toHaveBeenCalled();
+    fireEvent.drop(source);
+  });
+
   it('attaches and detaches cleanly without an active drag', async () => {
     const { unmount } = await renderDnd(<Scroller />);
     expect(screen.getByTestId('scroller')).toBeInTheDocument();

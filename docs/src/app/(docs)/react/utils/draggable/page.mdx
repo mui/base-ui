@@ -949,6 +949,26 @@ It also accepts a function, called on every scrolling frame:
 
 A `maxSpeed` of `0` stops the container and lets an ancestor scroll instead, like canceling in `onDragScroll`.
 
+### Auto-scroll outside the viewport
+
+`overflowMargin` lets scrolling continue when the drag moves outside a container. Pass a distance in CSS pixels for every edge, or an object to extend individual physical edges:
+
+```tsx title="Keep scrolling above and below a calendar"
+<Draggable.Viewport overflowMargin={{ top: 160, bottom: 160 }} />
+```
+
+The default is `0`. Omitted edges, negative values, and non-finite values are treated as `0`. With only `top` and `bottom` configured, the drag must stay within the viewport's horizontal bounds. To include the corners, extend the corresponding horizontal edges too:
+
+```tsx title="Extend every edge"
+<Draggable.Viewport overflowMargin={80} />
+```
+
+Inside the viewport, the edge zones and speed stay the same. Outside an enabled edge, scrolling keeps its maximum engagement and existing speed ramp, up to `maxSpeed`. It stops beyond the margin. Updating `overflowMargin` on a mounted `Draggable.Viewport` takes effect without another pointer move.
+
+Viewports containing the drag position get first use of each scrolling direction. Outside margins then compete for unclaimed directions, innermost first. Scroll limits and `onDragScroll`'s `cancel()` and `consume()` behavior still apply. Drag modifiers participate in deciding which viewport can scroll, just as they do without margins.
+
+The margin changes only auto-scrolling: it does not enlarge drop targets, move the preview, or change the coordinates passed to `onDragScroll`. It does not change document/page scrolling, which already continues when a captured pointer leaves the window.
+
 ### Custom auto-scrolling
 
 When Base UI can't scroll an element itself, for example a canvas panned with a CSS `transform`, use `onDragScroll` to apply the movement yourself. The element doesn't need scrollable `overflow`. Edge zones, acceleration, and nesting work the same as for a scroll container.
@@ -1210,7 +1230,10 @@ React.useEffect(() => {
   if (!scrollElement) {
     return undefined;
   }
-  return manager.registerAutoScroller(scrollElement, () => ({ maxSpeed: 600 }));
+  return manager.registerAutoScroller(scrollElement, () => ({
+    maxSpeed: 600,
+    overflowMargin: { top: 80, bottom: 80 },
+  }));
 }, [manager, gridApi]);
 ```
 
