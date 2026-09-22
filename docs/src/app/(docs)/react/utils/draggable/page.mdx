@@ -1106,15 +1106,9 @@ const cardDrag = Draggable.useActiveDrag(card);
 
 ## useDragMonitor
 
-Observes every drag on the page, wherever it started. A monitor has no element and needs no `<Draggable.Provider>`, so a status bar in the application shell can react to drags happening anywhere. Use it for status indicators, analytics, or to commit drops from one place instead of from each target.
+Observes drags anywhere on the page without an element or a `<Draggable.Provider>`. Use it for status indicators, analytics, or handling drops in one place.
 
-In the shape sorter below, the cutouts only declare what they accept. A monitor updates the status text and places each shape after a drop.
-
-import { DemoMonitorShapeSorter } from './demos/use-drag-monitor/hero';
-
-<DemoMonitorShapeSorter />
-
-Pass `accept` to observe only some [kinds](#kinds-and-payloads). It types `source.payload` the same way as a target's `accept`. Omit it to observe every drag with an `unknown` payload.
+Pass `accept` to filter by [kind](#kinds-and-payloads) and infer the type of `source.payload`. Omit it to observe every drag with an `unknown` payload.
 
 ```tsx title="Reacting to every stage of a drag"
 Draggable.useDragMonitor({
@@ -1135,27 +1129,21 @@ Draggable.useDragMonitor({
 });
 ```
 
-The handlers are the same as on `<Draggable.Root>`, minus `onBeforeMoveStart`. A monitor mounted during a drag observes the rest of it, so `onMoveEnd` can fire without a preceding `onMoveStart`.
+Monitors support the same handlers as `<Draggable.Root>`, except `onBeforeMoveStart`. A monitor mounted during a drag observes the remaining events, so `onMoveEnd` can fire without a preceding `onMoveStart`.
 
 <TypesDraggable.useDragMonitor hideDescription />
 
 ## useDragDropManager
 
-Returns the page-wide drag manager, for registering elements without rendering the Draggable parts. Use it to make an existing element draggable, to integrate a widget React doesn't render, or to scroll the page. It requires a `<Draggable.Provider>` above the component calling it.
+Returns the page-wide drag manager. Use it to register existing DOM elements as drag sources, drop targets, or scroll containers. The hook requires a `<Draggable.Provider>` above the calling component.
 
-The shape sorter below registers its pieces, cutouts, and monitor through the manager instead of `<Draggable.Root>`, `<Draggable.Target>`, and `useDragMonitor`.
-
-import { DemoEngineShapeSorter } from './demos/use-drag-drop-manager/hero';
-
-<DemoEngineShapeSorter />
-
-Every call returns the same manager. Calling the hook in two places doesn't isolate them, and `cancelDrag()` ends whichever drag is active. Use distinct kinds to keep unrelated features apart.
+All calls share the same manager, and `cancelDrag()` ends the active drag. Use distinct [kinds](#kinds-and-payloads) to keep unrelated features separate.
 
 ```tsx title="Getting the manager"
 const manager = Draggable.useDragDropManager();
 ```
 
-The registration methods take an element and a function returning its options, and return a cleanup function. Register from an effect and return the cleanup. The methods are stable, so they're safe to list as dependencies:
+Source, target, and scroll registrations take an element and a function returning its options. Monitor registration takes only the options function. Each method returns a cleanup function. Register in an effect and return the cleanup:
 
 ```tsx title="Registering from an effect"
 React.useEffect(() => {
@@ -1163,7 +1151,7 @@ React.useEffect(() => {
 }, [manager, id]);
 ```
 
-Base UI reads the options function at different times depending on the option:
+The manager and its registration methods are stable and can be listed as effect dependencies. Base UI reads each option at the following times:
 
 | Option                                                      | When it's read                                                                        |
 | :---------------------------------------------------------- | :------------------------------------------------------------------------------------ |
@@ -1228,7 +1216,7 @@ React.useEffect(() => {
 
 ### registerMonitor
 
-Registers a monitor, with the options of [`useDragMonitor`](#usedragmonitor). It takes only the options function:
+Registers a monitor with the options of [`useDragMonitor`](#usedragmonitor):
 
 ```tsx title="Registering a monitor"
 manager.registerMonitor(() => ({

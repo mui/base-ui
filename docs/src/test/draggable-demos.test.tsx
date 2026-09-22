@@ -4,7 +4,7 @@ import * as React from 'react';
 import { Draggable } from '@base-ui/react/draggable';
 import '@testing-library/jest-dom/vitest';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { createRenderer, fireEvent, screen, waitFor, within } from '@mui/internal-test-utils';
+import { fireEvent, screen, waitFor, within } from '@mui/internal-test-utils';
 // eslint-disable-next-line import/no-relative-packages
 import { createDndRenderer } from '../../../packages/react/test/dndEngine';
 // eslint-disable-next-line import/no-relative-packages
@@ -33,22 +33,8 @@ import HandleTailwind from '../app/(docs)/react/utils/draggable/demos/handle/tai
 import NestingCss from '../app/(docs)/react/utils/draggable/demos/targets/nesting/css-modules';
 import NestingTailwind from '../app/(docs)/react/utils/draggable/demos/targets/nesting/tailwind';
 
-import ManagerCss from '../app/(docs)/react/utils/draggable/demos/use-drag-drop-manager/hero/css-modules';
-import ManagerTailwind from '../app/(docs)/react/utils/draggable/demos/use-drag-drop-manager/hero/tailwind';
-
 setupDragEngineTests();
 afterEach(() => vi.unstubAllGlobals());
-
-describe('standalone manager demos', () => {
-  const { render } = createRenderer();
-  it.each([
-    ['CSS Modules', ManagerCss],
-    ['Tailwind', ManagerTailwind],
-  ] as const)('renders %s without an external provider', async (_name, Demo) => {
-    await render(<Demo />);
-    expect(screen.getByRole('img', { name: 'Circle' })).toBeVisible();
-  });
-});
 
 describe('draggable demos', () => {
   const { renderDnd } = createDndRenderer();
