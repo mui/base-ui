@@ -209,21 +209,23 @@ describe('draggable demos', () => {
     ['CSS Modules', ActivationCss],
     ['Tailwind', ActivationTailwind],
   ] as const)('activation with %s', (_name, Demo) => {
-    it.each(['touch', 'pen'])(
-      'keeps the dragging status on a %s double-tap',
-      async (pointerType) => {
-        await renderDnd(<Demo />);
-        fireEvent.click(screen.getByRole('button', { name: 'Double-click' }));
-        const source = screen.getByLabelText('Puck');
-        source.getBoundingClientRect = () => new DOMRect(0, 0, 100, 100);
-        const pointer = { pointerType, pointerId: 1, button: 0, clientX: 20, clientY: 20 };
-        firePointer.down(source, { ...pointer, buttons: 1, timeStamp: 100 });
-        firePointer.up(source, { ...pointer, buttons: 0, timeStamp: 150 });
-        firePointer.down(source, { ...pointer, buttons: 1, timeStamp: 200 });
-        expect(screen.getByRole('status')).toHaveTextContent('Move to the target');
-        firePointer.up(source, { ...pointer, buttons: 0, timeStamp: 250 });
-      },
-    );
+    it.each([
+      ['Double-click', 'touch'],
+      ['Double-click', 'pen'],
+      ['Move 5px or double-click', 'touch'],
+      ['Move 5px or double-click', 'pen'],
+    ])('keeps the dragging status for %s on a %s double-tap', async (mode, pointerType) => {
+      await renderDnd(<Demo />);
+      fireEvent.click(screen.getByRole('button', { name: mode }));
+      const source = screen.getByLabelText('Puck');
+      source.getBoundingClientRect = () => new DOMRect(0, 0, 100, 100);
+      const pointer = { pointerType, pointerId: 1, button: 0, clientX: 20, clientY: 20 };
+      firePointer.down(source, { ...pointer, buttons: 1, timeStamp: 100 });
+      firePointer.up(source, { ...pointer, buttons: 0, timeStamp: 150 });
+      firePointer.down(source, { ...pointer, buttons: 1, timeStamp: 200 });
+      expect(screen.getByRole('status')).toHaveTextContent('Move to the target');
+      firePointer.up(source, { ...pointer, buttons: 0, timeStamp: 250 });
+    });
   });
 
   describe('file explorer', () => {

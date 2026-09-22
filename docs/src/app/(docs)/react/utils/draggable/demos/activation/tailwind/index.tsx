@@ -17,6 +17,13 @@ const puckKind = Draggable.createKind('activation-puck');
 
 const ACTIVATION_MODES: ActivationMode[] = [
   {
+    id: 'immediate',
+    label: 'Immediate',
+    activation: { type: 'immediate' },
+    readyMessage: 'Activates as soon as you press.',
+    waitingMessage: 'Activating immediately…',
+  },
+  {
     id: 'double-click',
     label: 'Double-click',
     activation: { type: 'double-click' },
@@ -26,46 +33,58 @@ const ACTIVATION_MODES: ActivationMode[] = [
   },
   {
     id: 'distance-or-hold',
-    label: 'Move or hold',
+    label: 'Move 5px or hold 250ms',
     activation: [
-      { type: 'distance', distance: 12 },
+      { type: 'distance', distance: 5 },
       { type: 'press-hold', delay: 250 },
     ],
-    readyMessage: 'Move 12px or hold for 250ms to activate.',
+    readyMessage: 'Move 5px or hold for 250ms to activate.',
     waitingMessage: 'Waiting for movement or a hold…',
   },
   {
-    id: 'immediate',
-    label: 'Immediate',
-    activation: { type: 'immediate' },
-    readyMessage: 'Activates as soon as you press.',
-    waitingMessage: 'Activating immediately…',
+    id: 'distance-or-double-click',
+    label: 'Move 5px or double-click',
+    activation: [{ type: 'distance', distance: 5 }, { type: 'double-click' }],
+    readyMessage:
+      'Move 5px while pressed, or double-click to pick up. On touch, move or double-tap and hold.',
+    waitingMessage: 'Waiting for movement or a double-click…',
   },
   {
     id: 'distance-5',
-    label: '5 px',
+    label: 'Move 5px',
     activation: { type: 'distance', distance: 5 },
     readyMessage: 'Move 5px while pressed to activate.',
     waitingMessage: 'Waiting for 5px of movement…',
   },
   {
-    id: 'distance-24',
-    label: '24 px',
-    activation: { type: 'distance', distance: 24 },
-    readyMessage: 'Move 24px while pressed to activate.',
-    waitingMessage: 'Waiting for 24px of movement…',
-  },
-  {
     id: 'press-hold',
-    label: 'Hold',
+    label: 'Hold 250ms',
     activation: { type: 'press-hold', delay: 250 },
     readyMessage: 'Press and hold for 250ms to activate.',
     waitingMessage: 'Waiting for the 250ms hold…',
   },
 ];
 
+const ACTIVATION_GROUPS = [
+  {
+    label: 'Single criterion',
+    description: 'One activation object.',
+    modes: ACTIVATION_MODES.filter((mode) => !Array.isArray(mode.activation)),
+  },
+  {
+    label: 'Multiple criteria',
+    description: 'An array of alternatives. The first match starts the drag.',
+    modes: ACTIVATION_MODES.filter((mode) => Array.isArray(mode.activation)),
+  },
+];
+
 const PUCK_CLASS =
   'size-14 rounded-full border-0 bg-neutral-950 transition-opacity data-[dragging]:opacity-0 motion-safe:data-[drag-preview]:data-ending-style:transition-[translate] motion-safe:data-[drag-preview]:data-ending-style:duration-200 motion-safe:data-[drag-preview]:data-ending-style:ease-[cubic-bezier(0.2,0,0,1)] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-neutral-950 dark:bg-white dark:focus-visible:outline-white';
+
+function hasDoubleClickActivation(activation: ActivationMode['activation']) {
+  const criteria = Array.isArray(activation) ? activation : [activation];
+  return criteria.some((criterion) => criterion.type === 'double-click');
+}
 
 function Puck({
   mode,
@@ -86,7 +105,7 @@ function Puck({
       onPointerDown={(event) => {
         if (
           mode.id !== 'immediate' &&
-          (mode.id !== 'double-click' || event.pointerType === 'mouse')
+          (!hasDoubleClickActivation(mode.activation) || event.pointerType === 'mouse')
         ) {
           onPhaseChange('waiting');
         }
@@ -123,10 +142,9 @@ export default function ActivationLab() {
   const message = {
     ready: mode.readyMessage,
     waiting: mode.waitingMessage,
-    dragging:
-      mode.id === 'double-click'
-        ? 'Move to the target and click or release to drop. Escape cancels.'
-        : 'Activated — drag the puck to the target.',
+    dragging: hasDoubleClickActivation(mode.activation)
+      ? 'Move to the target and click or release to drop. Escape cancels.'
+      : 'Activated — drag the puck to the target.',
     dropped: 'Dropped. Reset to try again.',
   }[phase];
 
@@ -145,21 +163,29 @@ export default function ActivationLab() {
           )}
         </div>
 
-        <div
-          className="grid w-full max-w-md grid-cols-4 border border-neutral-200 dark:border-neutral-700"
-          role="group"
-          aria-label="Pointer activation"
-        >
-          {ACTIVATION_MODES.map((item) => (
-            <button
-              key={item.id}
-              type="button"
-              className="cursor-pointer border-0 border-r border-neutral-200 bg-transparent px-2 py-1.5 font-[inherit] text-sm leading-5 text-neutral-500 last:border-r-0 hover:bg-neutral-100 hover:text-neutral-950 focus-visible:z-10 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-neutral-950 aria-pressed:bg-neutral-950 aria-pressed:text-white dark:border-neutral-700 dark:text-neutral-400 dark:hover:bg-neutral-800 dark:hover:text-white dark:focus-visible:outline-white dark:aria-pressed:bg-white dark:aria-pressed:text-neutral-950"
-              aria-pressed={item.id === modeId}
-              onClick={() => selectMode(item.id)}
-            >
-              {item.label}
-            </button>
+        <div className="grid w-full max-w-md gap-5">
+          {ACTIVATION_GROUPS.map((group) => (
+            <fieldset key={group.label} className="m-0 min-w-0 border-0 p-0">
+              <legend className="p-0 text-sm leading-5 font-medium text-neutral-950 dark:text-white">
+                {group.label}
+              </legend>
+              <p className="mt-1 mb-2 text-sm leading-5 text-neutral-500 dark:text-neutral-400">
+                {group.description}
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {group.modes.map((item) => (
+                  <button
+                    key={item.id}
+                    type="button"
+                    className="cursor-pointer border border-neutral-200 bg-transparent px-2 py-1.5 font-[inherit] text-sm leading-5 text-neutral-500 hover:bg-neutral-100 hover:text-neutral-950 focus-visible:z-10 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-neutral-950 aria-pressed:bg-neutral-950 aria-pressed:text-white dark:border-neutral-700 dark:text-neutral-400 dark:hover:bg-neutral-800 dark:hover:text-white dark:focus-visible:outline-white dark:aria-pressed:bg-white dark:aria-pressed:text-neutral-950"
+                    aria-pressed={item.id === modeId}
+                    onClick={() => selectMode(item.id)}
+                  >
+                    {item.label}
+                  </button>
+                ))}
+              </div>
+            </fieldset>
           ))}
         </div>
 
@@ -200,7 +226,7 @@ export default function ActivationLab() {
           role="status"
         >
           <span className="shrink-0 font-medium text-neutral-950 dark:text-white">Status</span>
-          <span className="min-w-0 truncate text-neutral-500 dark:text-neutral-400">{message}</span>
+          <span className="min-w-0 text-neutral-500 dark:text-neutral-400">{message}</span>
         </div>
       </div>
     </Draggable.Provider>
