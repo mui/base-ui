@@ -127,8 +127,7 @@ export type ComboboxRootProps<
    * item, or clears it with `'none'`. Useful for binding custom keyboard shortcuts.
    * `'next'` and `'previous'` wrap around when `loopFocus` is enabled and never move the
    * highlight back to the input. Does nothing while the popup is closed, and
-   * `'next'`/`'previous'` do nothing when `grid` is enabled. `'none'` does nothing under `autoHighlight="always"`, which by definition
-   * always keeps an item highlighted.
+   * `'next'`/`'previous'` do nothing when `grid` is enabled.
    */
   actionsRef?: React.RefObject<ComboboxRoot.Actions | null> | undefined;
   /**
