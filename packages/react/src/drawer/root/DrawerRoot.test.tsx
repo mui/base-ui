@@ -1,6 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import * as React from 'react';
-import { Drawer } from '@base-ui/react/drawer';
+import {
+  Drawer,
+  DrawerCloseDataAttributes,
+  DrawerTriggerDataAttributes,
+} from '@base-ui/react/drawer';
 import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, firePointer, isJSDOM, waitSingleFrame } from '#test-utils';
 import { REASONS } from '../../internals/reasons';
@@ -572,6 +576,26 @@ function MissingRootContextConsumer() {
 
 describe('<Drawer.Root />', () => {
   const { render } = createRenderer();
+
+  it('exposes the attributes rendered by borrowed trigger and close parts', async () => {
+    const { user } = await render(
+      <Drawer.Root modal={false}>
+        <Drawer.Trigger>Open</Drawer.Trigger>
+        <Drawer.Trigger disabled>Disabled</Drawer.Trigger>
+        <Drawer.Close disabled>Close</Drawer.Close>
+      </Drawer.Root>,
+    );
+
+    const disabledTrigger = screen.getByRole('button', { name: 'Disabled' });
+    expect(disabledTrigger).toHaveAttribute(DrawerTriggerDataAttributes.disabled);
+
+    const closeButton = screen.getByRole('button', { name: 'Close' });
+    expect(closeButton).toHaveAttribute(DrawerCloseDataAttributes.disabled);
+
+    const trigger = screen.getByRole('button', { name: 'Open' });
+    await user.click(trigger);
+    expect(trigger).toHaveAttribute(DrawerTriggerDataAttributes.popupOpen);
+  });
 
   it.skipIf(isJSDOM)('uses a size-based swipe threshold', async () => {
     const handleOpenChange = vi.fn();

@@ -2,7 +2,7 @@ import { expect, vi, describe, beforeEach, it } from 'vitest';
 import * as React from 'react';
 import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, isJSDOM } from '#test-utils';
-import { Autocomplete } from '@base-ui/react/autocomplete';
+import { Autocomplete, AutocompleteSeparatorDataAttributes } from '@base-ui/react/autocomplete';
 import { Field } from '@base-ui/react/field';
 import { Form } from '@base-ui/react/form';
 import { Input } from '@base-ui/react/input';
@@ -15,6 +15,13 @@ describe('<Autocomplete.Root />', () => {
   });
 
   const { render, renderToString } = createRenderer();
+
+  it('exposes the orientation attribute rendered by Separator', async () => {
+    await render(<Autocomplete.Separator orientation="vertical" />);
+
+    const separator = screen.getByRole('presentation');
+    expect(separator).toHaveAttribute(AutocompleteSeparatorDataAttributes.orientation, 'vertical');
+  });
 
   describe('manual unmount lifecycle', () => {
     function Popup(
