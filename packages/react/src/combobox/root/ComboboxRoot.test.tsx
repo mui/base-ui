@@ -6728,6 +6728,49 @@ describe('<Combobox.Root />', () => {
       await waitFor(() => expect(onItemHighlighted.mock.lastCall?.[0]).toBe('2'));
     });
 
+    it('does not re-report the highlight on keys the grid does not handle', async () => {
+      const onItemHighlighted = vi.fn();
+      const { user } = await render(
+        <Combobox.Root grid onItemHighlighted={onItemHighlighted} defaultOpen>
+          <Combobox.Input data-testid="input" />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  <Combobox.Row>
+                    <Combobox.Item value="1">1</Combobox.Item>
+                    <Combobox.Item value="2">2</Combobox.Item>
+                  </Combobox.Row>
+                  <Combobox.Row>
+                    <Combobox.Item value="3">3</Combobox.Item>
+                    <Combobox.Item value="4">4</Combobox.Item>
+                  </Combobox.Row>
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByTestId('input');
+      await user.click(input);
+      await waitFor(() => expect(screen.getByRole('grid')).not.toBe(null));
+
+      await user.keyboard('{ArrowDown}');
+      await waitFor(() => expect(onItemHighlighted.mock.lastCall?.[0]).toBe('1'));
+      onItemHighlighted.mockClear();
+
+      // A modifier alone is not navigation; the grid navigator returns the unchanged index.
+      await user.keyboard('{Shift}');
+      await flushMicrotasks();
+      expect(onItemHighlighted).not.toHaveBeenCalled();
+
+      // A horizontal move is handled by the main-orientation path, once.
+      await user.keyboard('{ArrowRight}');
+      await waitFor(() => expect(onItemHighlighted.mock.lastCall?.[0]).toBe('2'));
+      expect(onItemHighlighted).toHaveBeenCalledTimes(1);
+    });
+
     // https://github.com/mui/base-ui/issues/4947
     it('moves the input caret on ArrowLeft when no item is highlighted in grid mode', async () => {
       const onItemHighlighted = vi.fn();

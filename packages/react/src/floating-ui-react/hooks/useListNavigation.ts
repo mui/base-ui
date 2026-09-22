@@ -630,7 +630,9 @@ export function useListNavigation(
         maxIndex,
       );
 
-      if (index != null) {
+      // The grid navigator returns the unchanged index for keys it does not handle, and
+      // reporting that as a navigation would re-emit the current highlight on every keydown.
+      if (index != null && index !== indexRef.current) {
         indexRef.current = index;
         onNavigate(event);
       }

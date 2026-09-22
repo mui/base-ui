@@ -18,7 +18,7 @@ const SHORTCUTS: Record<string, Combobox.Root.HighlightItemTarget> = {
 
 interface HighlightLogEntry {
   id: number;
-  value: string | undefined;
+  value: unknown;
   index: number;
   reason: string;
 }
@@ -111,7 +111,7 @@ export default function GridHighlightItem() {
       <ol className={styles.Log} aria-live="polite">
         {log.map((entry) => (
           <li key={entry.id} className={styles.LogEntry}>
-            <span className={styles.LogValue}>{entry.value ?? '(none)'}</span>
+            <span className={styles.LogValue}>{String(entry.value ?? '(none)')}</span>
             <span className={styles.LogMeta}>
               index {entry.index}, reason <code>{entry.reason}</code>
             </span>
