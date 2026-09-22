@@ -22,17 +22,7 @@ export default function ExampleAutocompleteKeyboardShortcuts() {
   }
 
   return (
-    <Autocomplete.Root
-      items={commands}
-      actionsRef={actionsRef}
-      // Passing `actionsRef` makes unmounting the popup your responsibility, so release it
-      // once the list closes. This demo has no exit animation, so it can unmount right away.
-      onOpenChange={(open) => {
-        if (!open) {
-          actionsRef.current?.unmount();
-        }
-      }}
-    >
+    <Autocomplete.Root items={commands} actionsRef={actionsRef}>
       <div className={styles.Field}>
         <label className={styles.Label}>
           Search commands

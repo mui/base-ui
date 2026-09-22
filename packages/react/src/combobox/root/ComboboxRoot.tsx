@@ -176,6 +176,7 @@ export type ComboboxRootHighlightItemTarget = AriaCombobox.HighlightItemTarget;
 
 export interface ComboboxRootActions {
   unmount: () => void;
+  close: () => void;
   highlightItem: (target: ComboboxRootHighlightItemTarget) => void;
 }
 
