@@ -186,13 +186,6 @@ export type DraggableConfig<TPayload = undefined, TDragData = unknown> = {
   // wrapper spreading their `Props` from hitting a deferred conditional.
   payload?: DraggablePayload<TPayload> | undefined;
   /**
-   * Initializes `source.dragData` once per drag, after activation is accepted and before
-   * drop targets resolve or custom preview content renders. Receives the activation input.
-   * Later renders do not reinitialize it; handlers can replace it with `source.updateDragData`.
-   * Without this callback, drag data starts as `undefined`.
-   */
-  getDragData?: ((context: MoveStartContext) => NoInfer<TDragData>) | undefined;
-  /**
    * A stable key that lets the settling preview find this item again after it remounts,
    * for example when a virtualized or reordered list recreates it.
    * Use the same key for the same item.

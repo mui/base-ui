@@ -51,7 +51,6 @@ export const DraggableRoot = React.forwardRef(function DraggableRoot<
     // land as an attribute.
     kind,
     payload,
-    getDragData,
     previewKey,
     collision = true,
     collisionElement,
@@ -79,7 +78,6 @@ export const DraggableRoot = React.forwardRef(function DraggableRoot<
   const params = {
     kind: kind ?? defaultKind,
     payload,
-    getDragData,
     previewKey,
     disabled,
     activation,
