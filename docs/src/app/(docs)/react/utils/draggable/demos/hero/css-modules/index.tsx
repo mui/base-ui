@@ -5,32 +5,21 @@ import * as React from 'react';
 
 import styles from '../../hero.module.css';
 
-const CARD_WIDTH = 128;
-const CARD_HEIGHT = 40;
-
-function DraggableHeroContent() {
+export default function DraggableHero() {
   const surfaceRef = React.useRef<HTMLDivElement | null>(null);
   const [position, setPosition] = React.useState({ x: 24, y: 24 });
 
   return (
-    <div className={styles.Root}>
-      {/* The surface is the drop target, so a release on it ends with the `drop` reason. */}
+    <Draggable.Provider>
       <Draggable.Target
         ref={surfaceRef}
-        trackDragOver={false}
         className={styles.Surface}
         onDraggableDrop={({ target }) => {
-          const surface = surfaceRef.current;
-          if (!surface) {
-            return;
-          }
-
-          // No snap steps are declared, so this is the exact source-anchored point.
           const point = target.getSnappedLocalPoint({ anchor: 'source' });
-          const surfaceRect = surface.getBoundingClientRect();
+          const rect = target.element.getBoundingClientRect();
           setPosition({
-            x: point.x * surfaceRect.width - surface.clientLeft,
-            y: point.y * surfaceRect.height - surface.clientTop,
+            x: point.x * rect.width - target.element.clientLeft,
+            y: point.y * rect.height - target.element.clientTop,
           });
         }}
       >
@@ -39,20 +28,12 @@ function DraggableHeroContent() {
           modifiers={Draggable.restrictToElement(surfaceRef)}
           // @highlight-end
           className={styles.Card}
-          style={{ left: position.x, top: position.y, width: CARD_WIDTH, height: CARD_HEIGHT }}
+          style={{ left: position.x, top: position.y }}
         >
           Drag me
           <Draggable.Preview />
         </Draggable.Root>
       </Draggable.Target>
-    </div>
-  );
-}
-
-export default function DraggableHero() {
-  return (
-    <Draggable.Provider>
-      <DraggableHeroContent />
     </Draggable.Provider>
   );
 }
