@@ -16,8 +16,10 @@ const EMPTY_SUBMENU_ROOT_CONTEXT = {};
  */
 export function MenuSubmenuRoot(props: MenuSubmenuRoot.Props): React.JSX.Element {
   const filter = React.useContext(MenuFilterProviderContext);
+
   if (filter !== null) {
     const FilterSubmenuRoot = filter.SubmenuRoot;
+
     return (
       <MenuFilterProviderContext.Provider value={null}>
         <FilterSubmenuRoot {...filter.options} {...props} />

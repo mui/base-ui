@@ -26,16 +26,18 @@ const MenuLinkItemPlain = React.forwardRef(function MenuLinkItem(
     ...elementProps
   } = componentProps;
 
+  const menuPositionerContext = useMenuPositionerContext(true);
+  const { store, virtualFocus, webkitItemSelected } = useMenuRootContext();
+
   const linkRef = React.useRef<HTMLAnchorElement | null>(null);
 
   const listItem = useCompositeListItem({ guess: true, label });
-  const menuPositionerContext = useMenuPositionerContext(true);
-  const nodeId = menuPositionerContext?.context.nodeId;
-  const { store, virtualFocus, webkitItemSelected } = useMenuRootContext();
   const id = useBaseUiId(idProp);
 
   const highlighted = store.useState('isActive', listItem.index);
   const itemProps = store.useState('itemProps');
+
+  const nodeId = menuPositionerContext?.context.nodeId;
   const typingRef = store.context.typingRef;
 
   const { getButtonProps, buttonRef } = useButton({
@@ -80,10 +82,13 @@ export const MenuLinkItem = React.forwardRef(function MenuLinkItem(
   forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
   const { keywords, ...linkItemProps } = props;
+
   const filter = useMenuFilterItem(props, forwardedRef);
+
   if (!filter.visible) {
     return null;
   }
+
   return <MenuLinkItemPlain {...linkItemProps} ref={filter.ref} />;
 });
 

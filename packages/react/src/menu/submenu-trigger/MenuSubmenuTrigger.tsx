@@ -48,10 +48,11 @@ const MenuSubmenuTriggerPlain = React.forwardRef(function MenuSubmenuTrigger(
   }
 
   const menuPositionerContext = useMenuPositionerContext();
+  const submenuRootContext = useMenuSubmenuRootContext();
 
   const { store, parentVirtualFocus, parentWebkitItemSelected } = context;
   const parentMenuStore = context.parent.store;
-  const submenuRootContext = useMenuSubmenuRootContext();
+
   const listItem = useCompositeListItem({ guess: true, label });
   const thisTriggerId = useBaseUiId(idProp);
 
@@ -61,6 +62,7 @@ const MenuSubmenuTriggerPlain = React.forwardRef(function MenuSubmenuTrigger(
   const popupId = store.useState('triggerPopupId', thisTriggerId);
 
   const baseRegisterTrigger = useTriggerRegistration(thisTriggerId, store);
+
   // Stable, so the merged ref on the rendered element keeps its identity for the trigger's whole
   // lifetime; the latest `closeDelay` is read when it runs.
   const registerTrigger = useStableCallback((element: Element | null) => {
@@ -81,6 +83,7 @@ const MenuSubmenuTriggerPlain = React.forwardRef(function MenuSubmenuTrigger(
   });
 
   const triggerElementRef = React.useRef<HTMLElement | null>(null);
+
   const handleTriggerElementRef = React.useCallback(
     (el: HTMLElement | null) => {
       triggerElementRef.current = el;
@@ -101,6 +104,7 @@ const MenuSubmenuTriggerPlain = React.forwardRef(function MenuSubmenuTrigger(
 
   const rootDisabled = store.useState('disabled');
   const parentDisabled = parentMenuStore.useState('disabled');
+
   const disabled = disabledProp || rootDisabled || parentDisabled;
 
   if (process.env.NODE_ENV !== 'production') {
@@ -238,11 +242,15 @@ export const MenuSubmenuTrigger = React.forwardRef(function MenuSubmenuTrigger(
   forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
   const { keywords, ...triggerProps } = props;
+
   const filter = useMenuFilterItem(props, forwardedRef, 'submenu-trigger');
+
   if (!filter.visible) {
     return null;
   }
+
   const mergedProps = filter.props ? mergeProps(filter.props, triggerProps) : triggerProps;
+
   return <MenuSubmenuTriggerPlain {...mergedProps} ref={filter.ref} />;
 });
 

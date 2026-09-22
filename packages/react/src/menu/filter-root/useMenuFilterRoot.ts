@@ -42,6 +42,7 @@ export function useMenuFilterRoot<Payload>(props: MenuFilterRootProps<Payload>, 
   const [inputFocusVisible, setInputFocusVisible] = React.useState(false);
 
   const focusOwnerRef = React.useRef<HTMLElement | null>(null);
+
   const hydrating = useIsHydrating();
 
   const handleInputValueChange = useStableCallback(

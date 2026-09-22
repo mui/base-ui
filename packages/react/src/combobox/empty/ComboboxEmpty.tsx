@@ -28,6 +28,7 @@ export const ComboboxEmpty = React.forwardRef(function ComboboxEmpty(
 
   const { filteredItems } = useComboboxDerivedItemsContext();
   const store = useComboboxRootContext();
+
   const emptyRef = useInitialLiveRegionTextMutation<HTMLDivElement>();
 
   const children = filteredItems.length === 0 ? childrenProp : null;

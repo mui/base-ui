@@ -279,6 +279,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
   const open = store.useState('open');
   const domReference = store.useState('domReferenceElement');
   const floating = store.useState('floatingElement');
+
   const { events, dataRef } = store.context;
 
   const getNodeId = useStableCallback(() => dataRef.current.floatingContext?.nodeId);

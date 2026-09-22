@@ -32,21 +32,21 @@ const MenuRadioItemPlain = React.forwardRef(function MenuRadioItem(
     ...elementProps
   } = componentProps;
 
-  const listItem = useCompositeListItem({ guess: true, label });
   const menuPositionerContext = useMenuPositionerContext(true);
   const { store, virtualFocus, webkitItemSelected } = useMenuRootContext();
-  const id = useBaseUiId(idProp);
-
-  const highlighted = store.useState('isActive', listItem.index);
-  const itemProps = store.useState('itemProps');
-
   const {
     value: selectedValue,
     setValue: setSelectedValue,
     disabled: groupDisabled,
   } = useMenuRadioGroupContext();
 
+  const listItem = useCompositeListItem({ guess: true, label });
+  const id = useBaseUiId(idProp);
+
+  const highlighted = store.useState('isActive', listItem.index);
+  const itemProps = store.useState('itemProps');
   const rootDisabled = store.useState('disabled');
+
   const disabled = disabledProp || groupDisabled || rootDisabled;
   const checked = selectedValue === value;
 
@@ -110,10 +110,13 @@ export const MenuRadioItem = React.forwardRef(function MenuRadioItem(
   forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
   const { keywords, ...radioItemProps } = props;
+
   const filter = useMenuFilterItem(props, forwardedRef);
+
   if (!filter.visible) {
     return null;
   }
+
   return <MenuRadioItemPlain {...radioItemProps} ref={filter.ref} />;
 });
 

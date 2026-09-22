@@ -18,11 +18,13 @@ export const MenuFilterPopup = React.forwardRef(function MenuFilterPopup(
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const { store, orientation } = useMenuRootContext();
+
   const open = store.useState('open');
   const parent = store.useState('parent');
   const openMethod = store.useState('openMethod');
   const lastOpenChangeReason = store.useState('lastOpenChangeReason');
   const trapsFocus = useStore(store, selectTrapsFocus);
+
   const interactionProps = useMenuFilterPopup(orientation);
 
   const openedByHover = open && lastOpenChangeReason === REASONS.triggerHover;

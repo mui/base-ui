@@ -57,6 +57,7 @@ export type MenuFilterPartScope =
 export function useMenuFilterImpl(scope: MenuFilterPartScope = 'root'): MenuFilterImpl | null {
   const impl = React.useContext(MenuFilterImplContext);
   const root = React.useContext(MenuRootContext);
+
   if (impl === null || root === undefined) {
     return null;
   }
@@ -82,6 +83,7 @@ export function useMenuFilterItem(
   scope: MenuFilterPartScope = 'root',
 ): MenuFilterItemResult {
   const impl = useMenuFilterImpl(scope);
+
   const useItem =
     (scope === 'submenu-trigger' ? impl?.useSubmenuTrigger : impl?.useItem) ?? useUnfilteredItem;
   const filter = useItem({
@@ -90,5 +92,6 @@ export function useMenuFilterItem(
     children: props.children,
   });
   const ref = useMergedRefs(forwardedRef, filter.ref);
+
   return { visible: filter.visible, ref, props: filter.props };
 }

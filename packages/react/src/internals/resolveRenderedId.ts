@@ -39,6 +39,7 @@ export function useRenderedId(
 ) {
   const id = resolveRenderedId(props, defaultId);
   const registeredId = id === defaultId ? undefined : id;
+
   const ref = React.useCallback(
     (element: HTMLElement | null) => setId?.(element ? registeredId : undefined),
     [registeredId, setId],

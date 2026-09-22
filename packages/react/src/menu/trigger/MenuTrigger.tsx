@@ -73,6 +73,7 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
   }
 
   const thisTriggerId = useBaseUiId(idProp);
+
   const isTriggerActive = store.useState('isTriggerActive', thisTriggerId);
   const floatingRootContext = store.useState('floatingRootContext');
   const isOpenedByThisTrigger = store.useState('isOpenedByTrigger', thisTriggerId);
@@ -84,6 +85,7 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
   const parent = useMenuParent();
   const compositeRootContext = useCompositeRootContext(true);
   const floatingTreeRootFromContext = useFloatingTree();
+
   const floatingTreeRoot: FloatingTreeStore = React.useMemo(() => {
     return floatingTreeRootFromContext ?? new FloatingTreeStore();
   }, [floatingTreeRootFromContext]);
@@ -109,6 +111,7 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
   const isInMenubar = parent.type === 'menubar';
 
   const rootDisabled = store.useState('disabled');
+
   const disabled = disabledProp || rootDisabled || (isInMenubar && parent.context.disabled);
 
   const { getButtonProps, buttonRef } = useButton({
@@ -364,6 +367,7 @@ export namespace MenuTrigger {
 function useStickIfOpen(open: boolean, openReason: string | null) {
   const stickIfOpenTimeout = useTimeout();
   const [stickIfOpen, setStickIfOpen] = React.useState(false);
+
   useIsoLayoutEffect(() => {
     if (open && openReason === REASONS.triggerHover) {
       // Only allow "patient" clicks to close the menu if it's open.

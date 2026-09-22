@@ -14,11 +14,13 @@ export const MenuListPlain = React.forwardRef(function MenuList(
   const { render, className, style, id: idProp, ...elementProps } = componentProps;
 
   const { store, orientation } = useMenuRootContext();
+
   const activeTriggerId = store.useState('activeTriggerId');
   const activeTriggerElement = store.useState('activeTriggerElement');
   const setListElement = store.useStateSetter('listElement');
 
   const id = useBaseUiId(idProp);
+
   const { ariaLabelledBy } = resolvePopupLabel(
     componentProps,
     activeTriggerElement,

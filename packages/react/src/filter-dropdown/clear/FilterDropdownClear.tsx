@@ -28,9 +28,11 @@ export const FilterDropdownClear = React.forwardRef(function FilterDropdownClear
 
   const context = useFilterDropdownRootContext();
   const value = useFilterDropdownValueContext();
+
   const disabled = context.disabled || disabledProp;
-  const { buttonRef, getButtonProps } = useButton({ disabled, native: nativeButton });
   const visible = value !== '';
+
+  const { buttonRef, getButtonProps } = useButton({ disabled, native: nativeButton });
 
   // `visible` is deliberately absent from the state: the component renders nothing when it is
   // false, so a `data-visible` attribute would be present on every rendered instance.

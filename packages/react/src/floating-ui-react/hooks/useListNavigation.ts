@@ -265,6 +265,7 @@ export function useListNavigation(
     nestedReturnFocusRef,
     grid: navigateGrid,
   } = props;
+
   const isGrid = navigateGrid != null;
 
   if (process.env.NODE_ENV !== 'production') {
@@ -296,6 +297,7 @@ export function useListNavigation(
 
   const floatingFocusElement = getFloatingFocusElement(floatingElement);
   const typeableComboboxReference = isTypeableCombobox(domReferenceElement);
+
   const floatingFocusElementRef = useValueAsRef(floatingFocusElement);
 
   const parentId = useFloatingParentNodeId();

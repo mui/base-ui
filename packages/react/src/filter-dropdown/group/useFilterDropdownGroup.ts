@@ -44,6 +44,7 @@ export interface UseFilterDropdownGroupReturnValue {
 export function useFilterDropdownGroup(): UseFilterDropdownGroupReturnValue {
   const { store } = useFilterDropdownItemContext();
   const parentContext = useFilterDropdownGroupContext();
+
   const [items, registerItem] = useItemRegistry<symbol, boolean>();
   const hidden = useStore(store, isGroupHidden, items);
 
@@ -51,6 +52,7 @@ export function useFilterDropdownGroup(): UseFilterDropdownGroupReturnValue {
   // registration. Report visibility upward or a group of groups would look empty.
   const groupId = useRefWithInit(() => Symbol('filter-dropdown-group')).current;
   const registerInParent = parentContext?.registerItem;
+
   useIsoLayoutEffect(
     () => registerInParent?.(groupId, !hidden),
     [registerInParent, groupId, hidden],

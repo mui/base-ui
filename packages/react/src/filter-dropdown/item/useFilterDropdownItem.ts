@@ -87,7 +87,9 @@ export function useFilterDropdownItem(
   const ref = React.useRef<HTMLElement | null>(null);
   const previousTextRef = React.useRef<string | undefined>(undefined);
   const previousKeywordsKeyRef = React.useRef(keywordsKey);
+
   const matched = useStore(store, selectors.isItemVisible, itemId);
+
   // An initial item is visible before registration (`visibleItemIds` is null), so start
   // registered and skip the mount re-render. A late item under an active filter starts
   // unregistered and renders once so its DOM text can be captured.

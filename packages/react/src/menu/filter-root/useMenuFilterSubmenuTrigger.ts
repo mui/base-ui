@@ -19,13 +19,16 @@ export function useMenuFilterSubmenuTrigger(params: MenuFilterItemParams): MenuF
   // submenu it opens renders a `role="dialog"` popup or a plain `role="menu"` one. The documented
   // plain-submenu recipe relies on the latter.
   const { store, virtualFocus } = useMenuRootContext();
+
   const open = store.useState('open');
   const mounted = store.useState('mounted');
   const parent = store.useState('parent');
+
   // The submenu root's provider shadows the enclosing one, but the trigger belongs to the list
   // it opens from, which is the parent menu's.
   const parentListRef = parent.type === 'menu' ? parent.store.context.itemDomElements : null;
   const parentContext = useFilterContextForList(parentListRef);
+
   const { visible, ref } = useFilterDropdownItem({
     ...params,
     context: parentContext,

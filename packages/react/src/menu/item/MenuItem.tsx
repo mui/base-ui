@@ -25,15 +25,17 @@ const MenuItemPlain = React.forwardRef(function MenuItem(
     ...elementProps
   } = componentProps;
 
-  const listItem = useCompositeListItem({ guess: true, label });
   const menuPositionerContext = useMenuPositionerContext(true);
   const { store, virtualFocus, webkitItemSelected } = useMenuRootContext();
+
+  const listItem = useCompositeListItem({ guess: true, label });
   const id = useBaseUiId(idProp);
 
   const rootDisabled = store.useState('disabled');
-  const disabled = disabledProp || rootDisabled;
   const highlighted = store.useState('isActive', listItem.index);
   const itemProps = store.useState('itemProps');
+
+  const disabled = disabledProp || rootDisabled;
 
   const { getItemProps, itemRef } = useMenuItem({
     closeOnClick,
@@ -71,10 +73,13 @@ export const MenuItem = React.forwardRef(function MenuItem(
   forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
   const { keywords, ...itemProps } = props;
+
   const filter = useMenuFilterItem(props, forwardedRef);
+
   if (!filter.visible) {
     return null;
   }
+
   return <MenuItemPlain {...itemProps} ref={filter.ref} />;
 });
 

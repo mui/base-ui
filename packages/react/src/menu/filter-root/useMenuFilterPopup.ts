@@ -24,6 +24,11 @@ export function useMenuFilterPopup(
   const direction = useDirection();
   const { focusOwnerRef } = context;
 
+  // Focus that entered a nested popup by keyboard, click, or `autoFocus` stays there until that
+  // popup unmounts, so crossing this popup on the way to the submenu doesn't bounce focus between
+  // the two inputs. Focus that merely followed the pointer in follows it back out.
+  const nestedFocusRef = React.useRef<Element | null>(null);
+
   React.useEffect(() => {
     if (process.env.NODE_ENV !== 'production' && context.open && focusOwnerRef.current === null) {
       console.warn(
@@ -32,11 +37,6 @@ export function useMenuFilterPopup(
       );
     }
   }, [context.open, focusOwnerRef]);
-
-  // Focus that entered a nested popup by keyboard, click, or `autoFocus` stays there until that
-  // popup unmounts, so crossing this popup on the way to the submenu doesn't bounce focus between
-  // the two inputs. Focus that merely followed the pointer in follows it back out.
-  const nestedFocusRef = React.useRef<Element | null>(null);
 
   return {
     // The input owns virtual focus.

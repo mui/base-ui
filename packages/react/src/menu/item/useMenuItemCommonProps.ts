@@ -75,9 +75,11 @@ export function useMenuItemCommonProps(params: UseMenuItemCommonPropsParameters)
     webkitItemSelected = false,
   } = params;
 
+  const contextMenuContext = useContextMenuRootContext(true);
+
   const { events: menuEvents } = store.useState('floatingTreeRoot');
   const open = store.useState('open');
-  const contextMenuContext = useContextMenuRootContext(true);
+
   const isContextMenu = contextMenuContext !== undefined;
   // `-1` rather than omitting it, which leaves links and buttons in the tab order.
   const tabIndex = !virtualFocus && open && highlighted ? 0 : -1;

@@ -18,11 +18,15 @@ export const FilterDropdownEmpty = React.forwardRef(function FilterDropdownEmpty
   const { render, className, style, ...elementProps } = componentProps;
 
   const { store } = useFilterDropdownItemContext();
+
   const isEmpty = useStore(store, selectors.isEmpty);
+
   // Items register in layout effects, which don't run on the server, so server markup would
   // otherwise show every item and the empty message at the same time.
   const hydrating = useIsHydrating();
+
   const visible = isEmpty && !hydrating;
+
   const emptyRef = useInitialLiveRegionTextMutation<HTMLDivElement>(visible);
 
   return useRenderElement('div', componentProps, {

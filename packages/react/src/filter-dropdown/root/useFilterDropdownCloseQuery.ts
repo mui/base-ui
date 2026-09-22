@@ -21,6 +21,7 @@ export function useFilterDropdownCloseQuery(parameters: UseFilterDropdownCloseQu
   const { open, value, onValueChange, onOpenChangeComplete } = parameters;
 
   const [closeQuery, setCloseQuery] = React.useState<string | null>(null);
+
   const previousOpenRef = React.useRef(open);
 
   // Snapshots closes routed through `onOpenChange`; the effect below covers a controlled `open`

@@ -70,6 +70,7 @@ export const MenuPopupPlain = React.forwardRef(function MenuPopup(
   const listElement = store.useState('listElement');
 
   const [id, registerIdRef] = useRenderedId(componentProps, defaultFloatingId, setFloatingId);
+
   const { ariaLabelledBy } = resolvePopupLabel(
     componentProps,
     activeTriggerElement,
@@ -131,6 +132,7 @@ export const MenuPopupPlain = React.forwardRef(function MenuPopup(
   // until a keyboard close hands the cursor back to the trigger.
   const parentStore = parent.type === 'menu' ? parent.store : null;
   const parentFocusRef = parentStore?.context.virtualFocusRef;
+
   const returnToParentInput = useStableCallback((closeType: InteractionType) => {
     if (closeType === 'keyboard') {
       parentStore?.highlightItem(activeTriggerElement, REASONS.keyboard);

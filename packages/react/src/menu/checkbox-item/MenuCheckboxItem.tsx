@@ -34,15 +34,17 @@ const MenuCheckboxItemPlain = React.forwardRef(function MenuCheckboxItem(
     ...elementProps
   } = componentProps;
 
-  const listItem = useCompositeListItem({ guess: true, label });
   const menuPositionerContext = useMenuPositionerContext(true);
   const { store, virtualFocus, webkitItemSelected } = useMenuRootContext();
+
+  const listItem = useCompositeListItem({ guess: true, label });
   const id = useBaseUiId(idProp);
 
   const rootDisabled = store.useState('disabled');
-  const disabled = disabledProp || rootDisabled;
   const highlighted = store.useState('isActive', listItem.index);
   const itemProps = store.useState('itemProps');
+
+  const disabled = disabledProp || rootDisabled;
 
   const { getItemProps, itemRef } = useMenuItem({
     closeOnClick,

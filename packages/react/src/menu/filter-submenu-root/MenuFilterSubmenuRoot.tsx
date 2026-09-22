@@ -38,8 +38,11 @@ type TriggerKeyDownEvent = BaseUIEvent<React.KeyboardEvent<HTMLElement>>;
 export function MenuFilterSubmenuRoot(props: MenuFilterSubmenuRootProps): React.JSX.Element {
   const parent = useMenuRootContext();
   const parentStore = parent.store;
+
   const parentDisabled = parentStore.useState('disabled');
+
   const { rootProps, dropdownProps } = useMenuFilterRoot(props, 'MenuSubmenuRoot');
+
   const parentReferenceRef = React.useRef<ParentReference | null>(null);
 
   function handleSubmenuEnter(trigger: HTMLElement) {
@@ -145,7 +148,9 @@ function MenuFilterSubmenuNavigation(props: MenuFilterSubmenuNavigationProps) {
 
   const { store, orientation } = useMenuRootContext();
   const direction = useDirection();
+
   const mounted = store.useState('mounted');
+
   const wasMountedRef = React.useRef(false);
 
   const handleReturnFocus = useStableCallback(() => {

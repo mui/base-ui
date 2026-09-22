@@ -46,22 +46,27 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
   } = props;
 
   const parentItemContext = React.useContext(FilterDropdownItemContext);
+
   const [registeredListId, setListId] = React.useState<string | undefined>(undefined);
   const [focusVisible, setFocusVisible] = React.useState(inputFocusVisible);
   const [keyboardModality, setKeyboardModality] = React.useState(inputFocusVisible);
-  // Both reset when the host reports a new value; doing it during render skips an extra commit.
   const [previousInputFocusVisible, setPreviousInputFocusVisible] =
     React.useState(inputFocusVisible);
+
+  // Both reset when the host reports a new value; doing it during render skips an extra commit.
   if (inputFocusVisible !== previousInputFocusVisible) {
     setPreviousInputFocusVisible(inputFocusVisible);
     setFocusVisible(inputFocusVisible);
     setKeyboardModality(inputFocusVisible);
   }
+
   const [registeredItems, registerItem, liveItems] = useItemRegistry<
     symbol,
     FilterDropdownItemRegistration
   >();
+
   const defaultId = useBaseUiId();
+
   const store = useRefWithInit(
     () =>
       new FilterDropdownStore({
@@ -71,10 +76,12 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
   ).current;
 
   const ownFocusOwnerRef = React.useRef<HTMLElement | null>(null);
-  const focusOwnerRef = externalFocusOwnerRef ?? ownFocusOwnerRef;
   const keyReplayRef = React.useRef(false);
   const lastFilterQueryRef = React.useRef<string | null>(null);
+
   const defaultMatches = React.useMemo(() => getFilter({ locale }).contains, [locale]);
+
+  const focusOwnerRef = externalFocusOwnerRef ?? ownFocusOwnerRef;
   const filterQuery = (query ?? value).trim();
   // An unused inline filter must not re-run auto-highlighting when the consumer re-renders.
   const matches = filterQuery === '' || filter === null ? null : (filter ?? defaultMatches);

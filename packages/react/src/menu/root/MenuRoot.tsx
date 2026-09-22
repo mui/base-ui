@@ -118,11 +118,13 @@ export const MenuRootInternal = fastComponent(function MenuRoot<Payload>(
   const contextMenuContext = useContextMenuRootContext(true);
   const parentMenuRootContext = useMenuRootContext(true);
   const menubarContext = useMenubarContext(true);
+
   // Depend on the stable pieces rather than the parent context object, so a parent context
   // invalidation doesn't cascade into every descendant root's context.
   const parentContextStore = parentMenuRootContext?.store;
   const parentVirtualFocus = parentMenuRootContext?.virtualFocus ?? false;
   const parentWebkitItemSelected = parentMenuRootContext?.webkitItemSelected ?? false;
+
   const parentFromContext: MenuParent = React.useMemo(() => {
     if (isSubmenu && parentContextStore) {
       return {
@@ -157,10 +159,13 @@ export const MenuRootInternal = fastComponent(function MenuRoot<Payload>(
   // React 17 resolves generated ids in an effect, so they must be read live rather than captured
   // in a state initializer.
   const defaultFloatingId = useBaseUiId();
+
   const [customFloatingId, setFloatingId] = React.useState<string | undefined>(undefined);
+
   // A registered `''` means the popup rendered with an explicitly empty id, so nothing may point
   // at the generated fallback.
   const floatingId = (customFloatingId ?? defaultFloatingId) || undefined;
+
   const floatingParentNodeIdFromContext = useFloatingParentNodeId();
 
   const parentMenuStore = parentFromContext.type === 'menu' ? parentFromContext.store : undefined;
@@ -211,6 +216,7 @@ export const MenuRootInternal = fastComponent(function MenuRoot<Payload>(
   store.useContextCallback('onOpenChangeComplete', onOpenChangeComplete);
 
   const floatingTreeRoot = store.useState('floatingTreeRoot');
+
   const floatingNodeIdFromContext = useFloatingNodeId(floatingTreeRoot);
 
   const open = store.useState('open');
@@ -220,7 +226,6 @@ export const MenuRootInternal = fastComponent(function MenuRoot<Payload>(
   const disabled = store.useState('disabled');
   const lastOpenChangeReason = store.useState('lastOpenChangeReason');
   const parent = store.useState('parent');
-
   const activeIndex = store.useState('activeIndex');
   const payload = store.useState('payload') as Payload | undefined;
   const floatingParentNodeId = store.useState('floatingParentNodeId');
@@ -596,10 +601,12 @@ export const MenuRootInternal = fastComponent(function MenuRoot<Payload>(
   });
 
   const onItemHighlighted = useStableCallback(onItemHighlightedProp);
+
   const lastHighlightRef = React.useRef<{ index: number; element: HTMLElement | undefined }>({
     index: -1,
     element: undefined,
   });
+
   // Runs when `activeIndex` commits and again when the item registry settles, since an index
   // can come to point at a different element while its value stays the same.
   const syncHighlightedItem = useStableCallback(() => {
@@ -625,6 +632,7 @@ export const MenuRootInternal = fastComponent(function MenuRoot<Payload>(
         element == null ? undefined : (store.context.itemLabels.current[nextIndex] ?? undefined),
     });
   });
+
   useIsoLayoutEffect(() => {
     syncHighlightedItem();
   }, [activeIndex, syncHighlightedItem]);
@@ -799,11 +807,13 @@ function getHighlightReason(
  */
 export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>): React.JSX.Element {
   const filter = React.useContext(MenuFilterProviderContext);
+
   if (filter === null) {
     return <MenuRootInternal {...props} />;
   }
 
   const FilterRoot = filter.Root;
+
   return (
     // The root consumes its provider so a plain submenu inside doesn't inherit it.
     <MenuFilterProviderContext.Provider value={null}>

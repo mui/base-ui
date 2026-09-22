@@ -31,6 +31,8 @@ export interface MenuFilterDropdownProps {
  */
 export function MenuFilterDropdown(props: MenuFilterDropdownProps) {
   const { store } = useMenuRootContext();
+  const isInMenubar = useMenubarContext(true) != null;
+
   const triggerId = store.useState('activeTriggerId');
   const triggerElement = store.useState('activeTriggerElement');
   const activeIndex = store.useState('activeIndex');
@@ -39,6 +41,7 @@ export function MenuFilterDropdown(props: MenuFilterDropdownProps) {
   const setActiveIndex = useStableCallback((index: number | null) => {
     store.setActiveIndex(index, REASONS.none);
   });
+
   // Only read when the popup takes focus, so it stays out of React state.
   const setInputAutoFocus = useStableCallback((autoFocus: boolean) => {
     store.context.virtualFocusAutoFocus = autoFocus;
@@ -46,7 +49,6 @@ export function MenuFilterDropdown(props: MenuFilterDropdownProps) {
 
   // The trigger announces a dialog and relays list navigation typed on it to the input, which
   // holds real focus while the popup is open.
-  const isInMenubar = useMenubarContext(true) != null;
   const filterTriggerProps = React.useMemo<HTMLProps>(
     () => ({
       'aria-haspopup': 'dialog',
@@ -81,6 +83,7 @@ export function MenuFilterDropdown(props: MenuFilterDropdownProps) {
     }),
     [store, isInMenubar],
   );
+
   store.useSyncedValue('filterTriggerProps', filterTriggerProps);
 
   return (

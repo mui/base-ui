@@ -28,9 +28,9 @@ export const MenuFilterList = React.forwardRef(function MenuFilterList(
 ) {
   const { syncHighlightedItem, orientation } = useMenuRootContext();
   const { onItemsChange, focusOwnerRef, keyReplayRef, triggerId } = useFilterDropdownRootContext();
-  const { ariaLabelledBy } = resolvePopupLabel(componentProps, null, triggerId ?? null);
   const { store: filterStore, listRef } = useFilterDropdownItemContext();
   const { subscribeMapChange } = useCompositeListContext();
+
   const handleReferenceKeyDown = useMenuFilterReferenceKeyDown();
 
   const handleKeyDown = useStableCallback(
@@ -105,6 +105,8 @@ export const MenuFilterList = React.forwardRef(function MenuFilterList(
   useIsoLayoutEffect(() => {
     return subscribeMapChange(handleItemMapChange);
   }, [subscribeMapChange, handleItemMapChange]);
+
+  const { ariaLabelledBy } = resolvePopupLabel(componentProps, null, triggerId ?? null);
 
   const listProps = mergeProps<typeof FilterDropdownList>(
     {

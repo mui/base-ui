@@ -17,7 +17,9 @@ export function useItemRegistry<Key, Item>(): readonly [
   ReadonlyMap<Key, Item>,
 ] {
   const itemRegistry = useRefWithInit(() => new Map<Key, Item>()).current;
+
   const [registryVersion, setRegistryVersion] = React.useState(0);
+
   const isUpdateScheduledRef = React.useRef(false);
 
   // Item effects can run without their parent rendering. Schedule one synchronous parent

@@ -23,6 +23,7 @@ export const MenuFilterInput = React.forwardRef(function MenuFilterInput(
   forwardedRef: React.ForwardedRef<HTMLInputElement>,
 ) {
   const { listRef, store } = useFilterDropdownItemContext();
+
   const handleReferenceKeyDown = useMenuFilterReferenceKeyDown();
 
   const inputProps = mergeProps<typeof FilterDropdownInput>(
