@@ -1036,7 +1036,7 @@ const card = Draggable.createGlobalKind<CardPayload>('myapp/card');
 const card = Draggable.createGlobalKind<CardPayload>('myapp/card');
 ```
 
-The key must contain a `/`. Use your app or package name as the prefix, since keys are shared by the whole page and a bare name like `'card'` could collide with another library. Both sides must also agree on the payload type: TypeScript can't check that across bundles, so a mismatch surfaces at runtime.
+Keys are shared by the whole page, so a bare name like `'card'` could collide with a kind from another library. Prefix keys with your app or package name. Both sides must also agree on the payload type: TypeScript can't check that across bundles, so a mismatch surfaces at runtime.
 
 Prefer `createKind` whenever the source and the target can import the same constant.
 

@@ -317,16 +317,16 @@ with the same key match each other from anywhere on the page.
 const card = Draggable.createGlobalKind<Card>('myapp/card');
 ```
 
-The key must contain a `/`. Prefix it with your app or package name, since keys
-are shared by the whole page. Both sides must agree on the payload type, which
-TypeScript can't check across bundles. Prefer [`createKind`](#createkind) whenever the
-source and the target can import the same constant.
+Keys are shared by the whole page, so prefix them with your app or package name
+to avoid colliding with another library's kinds. Both sides must agree on the
+payload type, which TypeScript can't check across bundles. Prefer
+[`createKind`](#createkind) whenever the source and the target can import the same constant.
 
 **Parameters:**
 
-| Parameter | Type     | Default | Description                              |
-| :-------- | :------- | :------ | :--------------------------------------- |
-| key       | `string` | -       | A namespaced key such as `'myapp/card'`. |
+| Parameter | Type     | Default | Description                   |
+| :-------- | :------- | :------ | :---------------------------- |
+| key       | `string` | -       | A key such as `'myapp/card'`. |
 
 **Return Value:**
 

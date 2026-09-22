@@ -39,24 +39,15 @@ export function createKind<TPayload = undefined, TDragData = unknown>(
  * const card = Draggable.createGlobalKind<Card>('myapp/card');
  * ```
  *
- * The key must contain a `/`. Prefix it with your app or package name, since keys
- * are shared by the whole page. Both sides must agree on the payload type, which
- * TypeScript can't check across bundles. Prefer {@link createKind} whenever the
- * source and the target can import the same constant.
- * @param key - A namespaced key such as `'myapp/card'`.
+ * Keys are shared by the whole page, so prefix them with your app or package name
+ * to avoid colliding with another library's kinds. Both sides must agree on the
+ * payload type, which TypeScript can't check across bundles. Prefer
+ * {@link createKind} whenever the source and the target can import the same constant.
+ * @param key - A key such as `'myapp/card'`.
  */
 export function createGlobalKind<TPayload = undefined, TDragData = unknown>(
   key: string,
 ): DragKind<TPayload, TDragData> {
-  const separatorIndex = key.indexOf('/');
-  if (separatorIndex <= 0 || key.endsWith('/')) {
-    throw new Error(
-      'Base UI: createGlobalKind requires a namespaced key. ' +
-        'Global drag kind keys are shared page-wide, so an unnamespaced key can collide with another integration and expose the wrong payload type. ' +
-        'Use a key such as "myapp/card". ' +
-        'See https://base-ui.com/react/utils/draggable',
-    );
-  }
   return makeKind(key, Symbol.for(KIND_ID_PREFIX + key));
 }
 
