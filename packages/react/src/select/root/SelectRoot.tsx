@@ -679,10 +679,9 @@ export interface SelectRootProps<Value, Multiple extends boolean | undefined = f
   modal?: boolean | undefined;
   /**
    * A ref to imperative actions.
-   * - `unmount`: Manually unmounts the select.
-   * Passing this ref alone does not keep the popup mounted.
-   * Call `preventUnmountOnClose()` in `onOpenChange` to manually control unmounting,
-   * then call this action after any externally controlled closing animation finishes.
+   * - `unmount`: Ends the closing phase of the select after an externally controlled closing animation finishes.
+   * Call `preventUnmountOnClose()` in `onOpenChange` first, otherwise the select completes closing on its own.
+   * Whether it leaves the DOM is decided by `keepMounted` on the portal.
    * - `close`: Closes the select imperatively when called.
    */
   actionsRef?: React.RefObject<SelectRootActions | null> | undefined;

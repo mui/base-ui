@@ -226,15 +226,8 @@ import { DemoSelectGrouped } from './demos/grouped';
 
 ## Closing animations
 
-The popup is unmounted automatically after its CSS closing animation finishes.
-Once the trigger has been interacted with, the popup stays in the DOM and is hidden instead, so that its items remain available for typeahead on the closed trigger.
-
-To control this step with an external animation library, call `eventDetails.preventUnmountOnClose()` in `onOpenChange` when `open` is `false`.
-Then call `actionsRef.current.unmount()` after the animation finishes.
-The opt-out applies to that close cycle and resets when the popup reopens.
-To close the popup programmatically while keeping this control, call `actionsRef.current.close()` instead of setting `open` directly, so `onOpenChange` still runs.
-`onOpenChangeComplete(false)` fires when the popup is unmounted or hidden.
-See the [animation guide](/react/handbook/animation#manual-unmounting) for a complete example.
+The popup stays rendered until its closing animation finishes.
+See [JavaScript animations](/react/handbook/animation#javascript-animations) for animating it with Motion and for manual control.
 
 ## API reference
 

@@ -260,10 +260,9 @@ export interface AutocompleteRootProps<ItemValue> extends Omit<
   itemToStringValue?: ((itemValue: ItemValue) => string) | undefined;
   /**
    * A ref to imperative actions.
-   * - `unmount`: Manually unmounts the autocomplete.
-   * Passing this ref alone does not keep the popup mounted.
-   * Call `preventUnmountOnClose()` in `onOpenChange` to manually control unmounting,
-   * then call this action after any externally controlled closing animation finishes.
+   * - `unmount`: Ends the closing phase of the autocomplete after an externally controlled closing animation finishes.
+   * Call `preventUnmountOnClose()` in `onOpenChange` first, otherwise the autocomplete completes closing on its own.
+   * Whether it leaves the DOM is decided by `keepMounted` on the portal.
    * - `close`: Closes the autocomplete imperatively when called.
    */
   actionsRef?: React.RefObject<AutocompleteRootActions | null> | undefined;
