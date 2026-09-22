@@ -3,9 +3,9 @@ import { Draggable } from '@base-ui/react/draggable';
 
 import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import { findClosestSlot } from './kanban-board-slots';
+import { findClosestSlot } from './kanban-placeholder-card-slots';
 
-import styles from './kanban-board.module.css';
+import styles from './kanban-placeholder-card.module.css';
 import controlsStyles from './controls.module.css';
 
 // A "snap to closest position" Kanban board built with `useDragMonitor`.

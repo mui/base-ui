@@ -6,7 +6,7 @@ import clsx from 'clsx';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 
 import theme from './theme.module.css';
-import styles from './kanban-snap.module.css';
+import styles from './kanban-line-indicator.module.css';
 
 // Demonstrates a Trello-style "snap to closest position" pattern using only
 // `useDragMonitor`. The monitor reads the pointer on every drag event and

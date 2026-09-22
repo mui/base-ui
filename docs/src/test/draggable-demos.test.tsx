@@ -1,6 +1,7 @@
 // @vitest-environment jsdom
 
 import * as React from 'react';
+import { Draggable } from '@base-ui/react/draggable';
 import '@testing-library/jest-dom/vitest';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { fireEvent, screen, waitFor } from '@mui/internal-test-utils';
@@ -22,11 +23,10 @@ import ScrollingTailwind from '../app/(docs)/react/utils/draggable/demos/scrolli
 import SortableLiveCss from '../app/(docs)/react/utils/draggable/demos/sortable-live/css-modules';
 import SortableLiveTailwind from '../app/(docs)/react/utils/draggable/demos/sortable-live/tailwind';
 
-import KanbanBoardExperiment from '../app/(private)/experiments/drag-engine/kanban-board';
-import WeekSchedulerExperiment from '../app/(private)/experiments/drag-engine/week-scheduler';
-import { findClosestSlot } from '../app/(private)/experiments/drag-engine/kanban-board-slots';
+import KanbanBoardExperiment from '../app/(private)/experiments/drag-engine/kanban-placeholder-card';
+import { findClosestSlot } from '../app/(private)/experiments/drag-engine/kanban-placeholder-card-slots';
 
-import TabsReorderExperiment from '../app/(private)/experiments/drag-engine/tabs-reorder';
+import { ControlledAddCloseExample } from '../app/(private)/experiments/drag-engine/draggable-tabs';
 
 import HandleCss from '../app/(docs)/react/utils/draggable/demos/handle/css-modules';
 import HandleTailwind from '../app/(docs)/react/utils/draggable/demos/handle/tailwind';
@@ -40,7 +40,13 @@ describe('draggable demos', () => {
   const { renderDnd } = createDndRenderer();
 
   describe('closing tabs', () => {
-    const Demo = TabsReorderExperiment;
+    function Demo() {
+      return (
+        <Draggable.Provider>
+          <ControlledAddCloseExample />
+        </Draggable.Provider>
+      );
+    }
     it('focuses the next tab after deleting the focused middle tab', async () => {
       const { user } = await renderDnd(<Demo />);
       await user.click(screen.getByRole('tab', { name: 'Activity' }));
@@ -164,18 +170,6 @@ describe('draggable demos', () => {
       expect(card.parentElement?.parentElement).toHaveTextContent('Done');
       expect(button).toHaveFocus();
       expect(screen.getByRole('status')).toHaveTextContent('Write the spec moved to Done.');
-    });
-  });
-
-  describe('calendar controls', () => {
-    const Demo = WeekSchedulerExperiment;
-    it('changes day and time without dragging', async () => {
-      const { user } = await renderDnd(<Demo />);
-      await user.selectOptions(screen.getByLabelText('Day'), '2');
-      await user.selectOptions(screen.getByLabelText('Start time'), '120');
-      expect(screen.getByRole('status')).toHaveTextContent('Wednesday, 11:00 to 12:00');
-      const column = document.querySelectorAll('[data-day-column]')[2];
-      expect(column).toHaveTextContent('Design review');
     });
   });
 
