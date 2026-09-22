@@ -148,7 +148,10 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
     }
 
     element.style.overflowAnchor = 'none';
-    element.style.paddingBottom = `${adjustment.computedPaddingBottom + roundedSlack}px`;
+    // Guarantee the visibility margin below the content regardless of the container's own
+    // bottom padding, so the last field never ends flush against the keyboard.
+    const paddingTopUp = Math.max(0, KEYBOARD_VISIBILITY_MARGIN - adjustment.computedPaddingBottom);
+    element.style.paddingBottom = `${adjustment.computedPaddingBottom + roundedSlack + paddingTopUp}px`;
     element.style.scrollPaddingBottom = `${
       adjustment.computedScrollPaddingBottom + KEYBOARD_VISIBILITY_MARGIN
     }px`;
