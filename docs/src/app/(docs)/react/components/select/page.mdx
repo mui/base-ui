@@ -15,6 +15,7 @@ import { DemoSelectHero } from './demos/hero';
 - **Prefer Combobox for large lists**: Select is not filterable, aside from basic keyboard typeahead functionality to find items by focusing and highlighting them. Prefer [Combobox](/react/components/combobox) instead of Select when the number of items is sufficiently large to warrant filtering.
 - **Special positioning behavior**: The select popup by default overlaps its trigger so the selected item's text is aligned with the trigger's value text. This behavior [can be disabled or customized](/react/components/select#positioning).
 - **Form controls must have an accessible name**: Prefer `<Select.Label>`, or provide an `aria-label` on `<Select.Trigger>` when no visible label is rendered. See [Labeling a select](#labeling-a-select) and the [forms guide](/react/handbook/forms).
+- **Closing animations**: The popup stays rendered until its closing animation finishes. See [JavaScript animations](/react/handbook/animation#javascript-animations) for animating it with Motion and for manual control.
 
 ## Anatomy
 
@@ -223,11 +224,6 @@ const groups: ProduceGroupItem[] = [
 import { DemoSelectGrouped } from './demos/grouped';
 
 <DemoSelectGrouped />
-
-## Closing animations
-
-The popup stays rendered until its closing animation finishes.
-See [JavaScript animations](/react/handbook/animation#javascript-animations) for animating it with Motion and for manual control.
 
 ## API reference
 
