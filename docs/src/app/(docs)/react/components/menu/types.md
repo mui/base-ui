@@ -17,7 +17,7 @@ Doesn't render its own HTML element.
 | open                 | `boolean`                                                                                              | -            | Whether the menu is currently open.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
 | onOpenChange         | `((open: boolean, eventDetails: Menu.Root.ChangeEventDetails) => void)`                                | -            | Event handler called when the menu is opened or closed.                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
 | highlightItemOnHover | `boolean`                                                                                              | `true`       | Whether moving the pointer over items should highlight them.&#xA;Disabling this prop allows CSS `:hover` to be differentiated from the `:focus` (`data-highlighted`) state.                                                                                                                                                                                                                                                                                                                                             |
-| actionsRef           | `React.RefObject<Menu.Root.Actions \| null>`                                                           | -            | A ref to imperative actions. `unmount`: Manually unmounts the menu.&#xA;Call this after any externally controlled closing animation finishes.`close`: When specified, the menu can be closed imperatively.                                                                                                                                                                                                                                                                                                              |
+| actionsRef           | `React.RefObject<Menu.Root.Actions \| null>`                                                           | -            | A ref to imperative actions. `unmount`: Manually unmounts the menu.&#xA;Call `preventUnmountOnClose()` in `onOpenChange` to manually control unmounting,&#xA;then call this action after any externally controlled closing animation finishes.`close`: When specified, the menu can be closed imperatively.                                                                                                                                                                                                             |
 | closeParentOnEsc     | `boolean`                                                                                              | `false`      | When in a submenu, determines whether pressing the Escape key&#xA;closes the entire menu, or only the current child menu.                                                                                                                                                                                                                                                                                                                                                                                               |
 | defaultTriggerId     | `string \| null`                                                                                       | -            | ID of the trigger that the menu is associated with.&#xA;This is useful in conjunction with the `defaultOpen` prop to create an initially open menu.                                                                                                                                                                                                                                                                                                                                                                     |
 | handle               | `Menu.Handle<Payload>`                                                                                 | -            | A handle to associate the menu with a trigger.&#xA;If specified, allows external triggers to control the menu's open state.                                                                                                                                                                                                                                                                                                                                                                                             |
@@ -93,7 +93,8 @@ type MenuRootChangeEventDetails = (
   isPropagationAllowed: boolean;
   /** The element that triggered the event, if applicable. */
   trigger: Element | undefined;
-  preventUnmountOnClose: preventUnmountOnClose;
+  /** Prevents the popup from unmounting until the `unmount` action is called. */
+  preventUnmountOnClose: () => void;
 };
 ```
 
@@ -624,7 +625,7 @@ Doesn't render its own HTML element.
 | open                 | `boolean`                                                                                              | -            | Whether the menu is currently open.                                                                                                                                                                                                                                                                                                                                                                                                    |
 | onOpenChange         | `((open: boolean, eventDetails: Menu.SubmenuRoot.ChangeEventDetails) => void)`                         | -            | Event handler called when the menu is opened or closed.                                                                                                                                                                                                                                                                                                                                                                                |
 | highlightItemOnHover | `boolean`                                                                                              | `true`       | Whether moving the pointer over items should highlight them.&#xA;Disabling this prop allows CSS `:hover` to be differentiated from the `:focus` (`data-highlighted`) state.                                                                                                                                                                                                                                                            |
-| actionsRef           | `React.RefObject<Menu.Root.Actions \| null>`                                                           | -            | A ref to imperative actions. `unmount`: Manually unmounts the menu.&#xA;Call this after any externally controlled closing animation finishes.`close`: When specified, the menu can be closed imperatively.                                                                                                                                                                                                                             |
+| actionsRef           | `React.RefObject<Menu.Root.Actions \| null>`                                                           | -            | A ref to imperative actions. `unmount`: Manually unmounts the menu.&#xA;Call `preventUnmountOnClose()` in `onOpenChange` to manually control unmounting,&#xA;then call this action after any externally controlled closing animation finishes.`close`: When specified, the menu can be closed imperatively.                                                                                                                            |
 | closeParentOnEsc     | `boolean`                                                                                              | `false`      | When in a submenu, determines whether pressing the Escape key&#xA;closes the entire menu, or only the current child menu.                                                                                                                                                                                                                                                                                                              |
 | loopFocus            | `boolean`                                                                                              | `true`       | Whether to loop keyboard focus back to the first item&#xA;when the end of the list is reached while using the arrow keys.                                                                                                                                                                                                                                                                                                              |
 | onItemHighlighted    | `((highlightedItem: HTMLElement \| undefined, eventDetails: Menu.Root.HighlightEventDetails) => void)` | -            | Callback fired when an item is highlighted or unhighlighted.&#xA;Receives the highlighted item element (or `undefined` if no item is highlighted) and details&#xA;containing the reason for the change and the item's text label.&#xA;The `reason` can be: `'keyboard'`: the highlight changed due to keyboard navigation.`'pointer'`: the highlight changed due to pointer hovering.`'none'`: the highlight changed programmatically. |
@@ -690,7 +691,8 @@ type MenuSubmenuRootChangeEventDetails = (
   isPropagationAllowed: boolean;
   /** The element that triggered the event, if applicable. */
   trigger: Element | undefined;
-  preventUnmountOnClose: preventUnmountOnClose;
+  /** Prevents the popup from unmounting until the `unmount` action is called. */
+  preventUnmountOnClose: () => void;
 };
 ```
 
@@ -818,7 +820,8 @@ type MenuRadioGroupChangeEventDetails = (
   isPropagationAllowed: boolean;
   /** The element that triggered the event, if applicable. */
   trigger: Element | undefined;
-  preventUnmountOnClose: preventUnmountOnClose;
+  /** Prevents the popup from unmounting until the `unmount` action is called. */
+  preventUnmountOnClose: () => void;
 };
 ```
 
@@ -1006,7 +1009,8 @@ type MenuCheckboxItemChangeEventDetails = (
   isPropagationAllowed: boolean;
   /** The element that triggered the event, if applicable. */
   trigger: Element | undefined;
-  preventUnmountOnClose: preventUnmountOnClose;
+  /** Prevents the popup from unmounting until the `unmount` action is called. */
+  preventUnmountOnClose: () => void;
 };
 ```
 
@@ -1365,12 +1369,6 @@ type Side = 'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start';
 
 ```typescript
 type Align = 'start' | 'center' | 'end';
-```
-
-### preventUnmountOnClose
-
-```typescript
-type preventUnmountOnClose = () => void;
 ```
 
 ### InteractionType

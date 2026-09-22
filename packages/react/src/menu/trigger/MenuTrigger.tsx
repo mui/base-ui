@@ -158,10 +158,17 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
   });
 
   React.useEffect(() => {
+    const doc = ownerDocument(triggerRef.current);
+
     if (isOpenedByThisTrigger && store.select('lastOpenChangeReason') === REASONS.triggerHover) {
-      const doc = ownerDocument(triggerRef.current);
       doc.addEventListener('mouseup', handleDocumentMouseUp, { once: true });
+
+      return () => {
+        doc.removeEventListener('mouseup', handleDocumentMouseUp);
+      };
     }
+
+    return undefined;
   }, [isOpenedByThisTrigger, handleDocumentMouseUp, store]);
 
   const parentMenubarHasSubmenuOpen = isInMenubar && parent.context.hasSubmenuOpen;
@@ -215,8 +222,10 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
   // A filterable menu keeps real focus inside its popup and publishes what its trigger needs.
   const filterTriggerProps = store.useState('filterTriggerProps');
 
-  const { preFocusGuardRef, handlePreFocusGuardFocus, handleFocusTargetFocus } =
-    useTriggerFocusGuards(store, triggerElementRef);
+  const { handlePreFocusGuardFocus, handleFocusTargetFocus } = useTriggerFocusGuards(
+    store,
+    triggerElementRef,
+  );
 
   const state: MenuTriggerState = {
     disabled,
@@ -285,7 +294,7 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
     return (
       <React.Fragment>
         <FocusGuard
-          ref={preFocusGuardRef}
+          ref={store.context.beforeTriggerFocusGuardRef}
           onFocus={handlePreFocusGuardFocus}
           key={`${thisTriggerId}-pre-focus-guard`}
         />

@@ -24,7 +24,7 @@ import {
 import {
   closest,
   contains,
-  getTabbableAfterElement,
+  getTabbableNearElement,
   getNextTabbable,
   getPreviousTabbable,
   isOutsideEvent,
@@ -767,7 +767,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
                   nextTabbable &&
                   contains(referenceElement, nextTabbable)
                 ) {
-                  nextTabbable = getTabbableAfterElement(afterInsideRef.current);
+                  nextTabbable = getTabbableNearElement(afterInsideRef.current, 1);
                 }
 
                 nextTabbable?.focus();

@@ -17,7 +17,7 @@ Doesn't render its own HTML element.
 | open                 | `boolean`                                                                                             | -            | Whether the menu is currently open.                                                                                                                                                                                                                                                                                                                                                                                                    |
 | onOpenChange         | `((open: boolean, eventDetails: ContextMenu.Root.ChangeEventDetails) => void)`                        | -            | Event handler called when the menu is opened or closed.                                                                                                                                                                                                                                                                                                                                                                                |
 | highlightItemOnHover | `boolean`                                                                                             | `true`       | Whether moving the pointer over items should highlight them.&#xA;Disabling this prop allows CSS `:hover` to be differentiated from the `:focus` (`data-highlighted`) state.                                                                                                                                                                                                                                                            |
-| actionsRef           | `React.RefObject<MenuRoot.Actions \| null>`                                                           | -            | A ref to imperative actions. `unmount`: Manually unmounts the menu.&#xA;Call this after any externally controlled closing animation finishes.`close`: When specified, the menu can be closed imperatively.                                                                                                                                                                                                                             |
+| actionsRef           | `React.RefObject<MenuRoot.Actions \| null>`                                                           | -            | A ref to imperative actions. `unmount`: Manually unmounts the menu.&#xA;Call `preventUnmountOnClose()` in `onOpenChange` to manually control unmounting,&#xA;then call this action after any externally controlled closing animation finishes.`close`: When specified, the menu can be closed imperatively.                                                                                                                            |
 | loopFocus            | `boolean`                                                                                             | `true`       | Whether to loop keyboard focus back to the first item&#xA;when the end of the list is reached while using the arrow keys.                                                                                                                                                                                                                                                                                                              |
 | onItemHighlighted    | `((highlightedItem: HTMLElement \| undefined, eventDetails: MenuRoot.HighlightEventDetails) => void)` | -            | Callback fired when an item is highlighted or unhighlighted.&#xA;Receives the highlighted item element (or `undefined` if no item is highlighted) and details&#xA;containing the reason for the change and the item's text label.&#xA;The `reason` can be: `'keyboard'`: the highlight changed due to keyboard navigation.`'pointer'`: the highlight changed due to pointer hovering.`'none'`: the highlight changed programmatically. |
 | onOpenChangeComplete | `((open: boolean) => void)`                                                                           | -            | Event handler called after any animations complete when the menu is opened or closed.                                                                                                                                                                                                                                                                                                                                                  |
@@ -508,7 +508,7 @@ Doesn't render its own HTML element.
 | open                 | `boolean`                                                                                             | -            | Whether the menu is currently open.                                                                                                                                                                                                                                                                                                                                                                                                    |
 | onOpenChange         | `((open: boolean, eventDetails: ContextMenu.SubmenuRoot.ChangeEventDetails) => void)`                 | -            | Event handler called when the menu is opened or closed.                                                                                                                                                                                                                                                                                                                                                                                |
 | highlightItemOnHover | `boolean`                                                                                             | `true`       | Whether moving the pointer over items should highlight them.&#xA;Disabling this prop allows CSS `:hover` to be differentiated from the `:focus` (`data-highlighted`) state.                                                                                                                                                                                                                                                            |
-| actionsRef           | `React.RefObject<MenuRoot.Actions \| null>`                                                           | -            | A ref to imperative actions. `unmount`: Manually unmounts the menu.&#xA;Call this after any externally controlled closing animation finishes.`close`: When specified, the menu can be closed imperatively.                                                                                                                                                                                                                             |
+| actionsRef           | `React.RefObject<MenuRoot.Actions \| null>`                                                           | -            | A ref to imperative actions. `unmount`: Manually unmounts the menu.&#xA;Call `preventUnmountOnClose()` in `onOpenChange` to manually control unmounting,&#xA;then call this action after any externally controlled closing animation finishes.`close`: When specified, the menu can be closed imperatively.                                                                                                                            |
 | closeParentOnEsc     | `boolean`                                                                                             | `false`      | When in a submenu, determines whether pressing the Escape key&#xA;closes the entire menu, or only the current child menu.                                                                                                                                                                                                                                                                                                              |
 | loopFocus            | `boolean`                                                                                             | `true`       | Whether to loop keyboard focus back to the first item&#xA;when the end of the list is reached while using the arrow keys.                                                                                                                                                                                                                                                                                                              |
 | onItemHighlighted    | `((highlightedItem: HTMLElement \| undefined, eventDetails: MenuRoot.HighlightEventDetails) => void)` | -            | Callback fired when an item is highlighted or unhighlighted.&#xA;Receives the highlighted item element (or `undefined` if no item is highlighted) and details&#xA;containing the reason for the change and the item's text label.&#xA;The `reason` can be: `'keyboard'`: the highlight changed due to keyboard navigation.`'pointer'`: the highlight changed due to pointer hovering.`'none'`: the highlight changed programmatically. |
@@ -574,7 +574,8 @@ type ContextMenuSubmenuRootChangeEventDetails = (
   isPropagationAllowed: boolean;
   /** The element that triggered the event, if applicable. */
   trigger: Element | undefined;
-  preventUnmountOnClose: preventUnmountOnClose;
+  /** Prevents the popup from unmounting until the `unmount` action is called. */
+  preventUnmountOnClose: () => void;
 };
 ```
 
@@ -702,7 +703,8 @@ type ContextMenuRadioGroupChangeEventDetails = (
   isPropagationAllowed: boolean;
   /** The element that triggered the event, if applicable. */
   trigger: Element | undefined;
-  preventUnmountOnClose: preventUnmountOnClose;
+  /** Prevents the popup from unmounting until the `unmount` action is called. */
+  preventUnmountOnClose: () => void;
 };
 ```
 
@@ -890,7 +892,8 @@ type ContextMenuCheckboxItemChangeEventDetails = (
   isPropagationAllowed: boolean;
   /** The element that triggered the event, if applicable. */
   trigger: Element | undefined;
-  preventUnmountOnClose: preventUnmountOnClose;
+  /** Prevents the popup from unmounting until the `unmount` action is called. */
+  preventUnmountOnClose: () => void;
 };
 ```
 
@@ -1007,12 +1010,6 @@ type Align = 'start' | 'center' | 'end';
 
 ```typescript
 type InteractionType = 'mouse' | 'touch' | 'pen' | 'keyboard' | '';
-```
-
-### preventUnmountOnClose
-
-```typescript
-type preventUnmountOnClose = () => void;
 ```
 
 ## Export Groups

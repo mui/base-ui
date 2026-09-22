@@ -50,6 +50,55 @@ describe('<Menu.Root />', () => {
 
   const { render } = createRenderer();
 
+  it('returns focus on Escape after a controlled root ignores a Shift+Tab close', async () => {
+    function TestMenu() {
+      const [open, setOpen] = React.useState(false);
+
+      return (
+        <Menu.Root
+          modal={false}
+          open={open}
+          onOpenChange={(nextOpen, details) => {
+            if (details.reason !== REASONS.focusOut) {
+              setOpen(nextOpen);
+            }
+          }}
+        >
+          <Menu.Trigger>Toggle</Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.Item>Item</Menu.Item>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>
+      );
+    }
+
+    const { user } = await render(<TestMenu />);
+    const trigger = screen.getByRole('button', { name: 'Toggle' });
+    await user.click(trigger);
+    await waitFor(() => {
+      expect(screen.getByRole('menu')).toHaveFocus();
+    });
+
+    await user.tab({ shift: true });
+    expect(trigger).toHaveFocus();
+    expect(trigger).toHaveAttribute('aria-expanded', 'true');
+
+    await user.keyboard('{ArrowDown}');
+    await waitFor(() => {
+      expect(screen.getByRole('menuitem')).toHaveFocus();
+    });
+
+    await user.keyboard('{Escape}');
+    await waitFor(() => {
+      expect(screen.queryByRole('menu')).toBe(null);
+    });
+    expect(trigger).toHaveFocus();
+  });
+
   popupConformanceTests({
     createComponent: (props) => (
       <Menu.Root {...props.root}>

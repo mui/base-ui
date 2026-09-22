@@ -64,6 +64,7 @@ type Context = PopupStoreContext<MenuRoot.ChangeEventDetails> & {
   /** Whether the virtual focus owner takes focus even when the menu opens on hover. */
   virtualFocusAutoFocus: boolean;
   readonly triggerFocusTargetRef: React.RefObject<HTMLElement | null>;
+  readonly beforeTriggerFocusGuardRef: React.RefObject<HTMLElement | null>;
   readonly beforeContentFocusGuardRef: React.RefObject<HTMLElement | null>;
 };
 
@@ -236,6 +237,7 @@ function createInitialContext(triggerElements: PopupTriggerMap): Context {
     virtualFocusRef: undefined,
     virtualFocusAutoFocus: false,
     triggerFocusTargetRef: React.createRef<HTMLElement>(),
+    beforeTriggerFocusGuardRef: React.createRef<HTMLElement>(),
     beforeContentFocusGuardRef: React.createRef<HTMLElement>(),
     onOpenChangeComplete: undefined,
     triggerElements,

@@ -795,7 +795,12 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
         closeTypeRef.current = getEventType(details.nativeEvent, lastInteractionTypeRef.current);
       }
 
-      if (details.reason === REASONS.triggerHover && details.nativeEvent.type === 'mouseleave') {
+      // Focus guards transfer focus themselves; other close handlers may still need return focus.
+      if (
+        (details.reason === REASONS.focusOut &&
+          details.triggerElement?.hasAttribute(createAttribute('focus-guard'))) ||
+        (details.reason === REASONS.triggerHover && details.nativeEvent.type === 'mouseleave')
+      ) {
         preventReturnFocusRef.current = true;
       }
 

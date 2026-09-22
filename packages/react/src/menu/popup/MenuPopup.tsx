@@ -207,6 +207,11 @@ export const MenuPopupPlain = React.forwardRef(function MenuPopup(
       explicitReturnFocus={finalFocus === undefined && dynamicReturnFocus ? false : undefined}
       initialFocus={initialFocus}
       restoreFocus
+      getInsideElements={
+        parent.type === undefined
+          ? () => [store.context.beforeTriggerFocusGuardRef.current]
+          : undefined
+      }
       externalTree={parent.type !== 'menubar' ? floatingTreeRoot : undefined}
       previousFocusableElement={activeTriggerElement as HTMLElement | null}
       nextFocusableElement={
