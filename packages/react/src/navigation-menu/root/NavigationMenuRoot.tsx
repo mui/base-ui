@@ -22,9 +22,13 @@ import {
 } from './NavigationMenuRootContext';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
-import { useTransitionStatus } from '../../internals/useTransitionStatus';
-import { type BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import { useUnmountAfterClose } from '../../internals/useUnmountAfterClose';
+import {
+  createChangeEventDetails,
+  type BaseUIChangeEventDetails,
+} from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
+import { attachPreventUnmountOnClose } from '../../utils/popups/popupStoreUtils';
 import * as NavigationMenuPositionerCssVars from '../positioner/NavigationMenuPositionerCssVars';
 import { setSharedFixedSize } from '../utils/setSharedFixedSize';
 
@@ -117,7 +121,55 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot<V
     owner: null,
   });
 
-  const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
+  const [preventUnmountOnClose, setPreventUnmountOnClose] = React.useState(false);
+  const {
+    mounted,
+    transitionStatus,
+    preventUnmountingOnClose,
+    forceUnmount: handleUnmount,
+  } = useUnmountAfterClose({
+    open,
+    ref: { current: popupElement },
+    preventUnmountOnClose,
+    setPreventUnmountOnClose,
+    onUnmount() {
+      const doc = ownerDocument(rootRef.current);
+      const activeEl = activeElement(doc);
+
+      const isReturnFocusBlocked = closeReasonRef.current
+        ? blockedReturnFocusReasons.has(closeReasonRef.current)
+        : false;
+
+      if (
+        !isReturnFocusBlocked &&
+        isHTMLElement(prevTriggerElementRef.current) &&
+        (activeEl === ownerDocument(popupElement).body || contains(popupElement, activeEl)) &&
+        popupElement
+      ) {
+        prevTriggerElementRef.current.focus({ preventScroll: true });
+        prevTriggerElementRef.current = undefined;
+      }
+
+      onOpenChangeComplete?.(false);
+      setActivationDirection(null);
+      setFloatingRootContext(undefined);
+
+      currentContentRef.current = null;
+      closeReasonRef.current = undefined;
+    },
+  });
+
+  // The viewport target may be the animated element instead of the popup.
+  useOpenChangeComplete({
+    enabled: mounted && !open && !preventUnmountingOnClose,
+    open,
+    ref: { current: viewportTargetElement },
+    onComplete() {
+      if (!open) {
+        handleUnmount();
+      }
+    },
+  });
 
   useIsoLayoutEffect(() => {
     if (open) {
@@ -152,14 +204,17 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot<V
   const setValue = useStableCallback(
     (
       nextValue: NavigationMenuRoot.Value<Value>,
-      eventDetails: NavigationMenuRoot.ChangeEventDetails,
+      eventDetails: Omit<NavigationMenuRoot.ChangeEventDetails, 'preventUnmountOnClose'>,
     ) => {
       if (nextValue == null) {
         closeReasonRef.current = eventDetails.reason;
       }
 
+      const changeEventDetails = eventDetails as NavigationMenuRoot.ChangeEventDetails;
+      const shouldPreventUnmountOnClose = attachPreventUnmountOnClose(changeEventDetails);
+
       if (nextValue !== value) {
-        onValueChange?.(nextValue, eventDetails);
+        onValueChange?.(nextValue, changeEventDetails);
       }
 
       if (eventDetails.isCanceled) {
@@ -167,6 +222,11 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot<V
       }
 
       if (nextValue == null) {
+        // A redundant close (for example the trigger's blur after an imperative close) skips
+        // `onValueChange`, so it can't opt out again and must not discard the recorded opt-out.
+        if (value != null) {
+          setPreventUnmountOnClose(shouldPreventUnmountOnClose());
+        }
         setActivationDirection(null);
         setFloatingRootContext(undefined);
       }
@@ -184,57 +244,14 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot<V
     },
   );
 
-  const handleUnmount = useStableCallback(() => {
-    const doc = ownerDocument(rootRef.current);
-    const activeEl = activeElement(doc);
-
-    const isReturnFocusBlocked = closeReasonRef.current
-      ? blockedReturnFocusReasons.has(closeReasonRef.current)
-      : false;
-
-    if (
-      !isReturnFocusBlocked &&
-      isHTMLElement(prevTriggerElementRef.current) &&
-      (activeEl === ownerDocument(popupElement).body || contains(popupElement, activeEl)) &&
-      popupElement
-    ) {
-      prevTriggerElementRef.current.focus({ preventScroll: true });
-      prevTriggerElementRef.current = undefined;
-    }
-
-    setMounted(false);
-    onOpenChangeComplete?.(false);
-    setActivationDirection(null);
-    setFloatingRootContext(undefined);
-
-    currentContentRef.current = null;
-    closeReasonRef.current = undefined;
-  });
-
-  // Providing `actionsRef` opts into manual unmounting, so close completion hooks leave it mounted.
-  React.useImperativeHandle(actionsRef, () => ({ unmount: handleUnmount }), [handleUnmount]);
-
-  useOpenChangeComplete({
-    enabled: !actionsRef,
-    open,
-    ref: { current: popupElement },
-    onComplete() {
-      if (!open) {
-        handleUnmount();
-      }
-    },
-  });
-
-  useOpenChangeComplete({
-    enabled: !actionsRef,
-    open,
-    ref: { current: viewportTargetElement },
-    onComplete() {
-      if (!open) {
-        handleUnmount();
-      }
-    },
-  });
+  React.useImperativeHandle(
+    actionsRef,
+    () => ({
+      unmount: handleUnmount,
+      close: () => setValue(null, createChangeEventDetails(REASONS.imperativeAction)),
+    }),
+    [handleUnmount, setValue],
+  );
 
   const contextActivationDirection = open ? activationDirection : null;
 
@@ -368,6 +385,10 @@ export interface NavigationMenuRootProps<Value = any> extends BaseUIComponentPro
 > {
   /**
    * A ref to imperative actions.
+   * - `unmount`: Ends the closing phase of the navigation menu popup after an externally controlled closing animation finishes.
+   * Call `preventUnmountOnClose()` in `onValueChange` first, otherwise the navigation menu popup completes closing on its own.
+   * Whether it leaves the DOM is decided by `keepMounted` on the portal.
+   * - `close`: Closes the navigation menu imperatively when called.
    */
   actionsRef?: React.RefObject<NavigationMenuRoot.Actions | null> | undefined;
   /**
@@ -414,6 +435,7 @@ export interface NavigationMenuRootProps<Value = any> extends BaseUIComponentPro
 
 export interface NavigationMenuRootActions {
   unmount: () => void;
+  close: () => void;
 }
 
 export type NavigationMenuRootChangeEventReason =
@@ -424,10 +446,14 @@ export type NavigationMenuRootChangeEventReason =
   | typeof REASONS.focusOut
   | typeof REASONS.escapeKey
   | typeof REASONS.linkPress
+  | typeof REASONS.imperativeAction
   | typeof REASONS.none;
 
 export type NavigationMenuRootChangeEventDetails =
-  BaseUIChangeEventDetails<NavigationMenuRoot.ChangeEventReason>;
+  BaseUIChangeEventDetails<NavigationMenuRoot.ChangeEventReason> & {
+    /** Prevents the popup from unmounting until the `unmount` action is called. */
+    preventUnmountOnClose: () => void;
+  };
 
 export namespace NavigationMenuRoot {
   export type State = NavigationMenuRootState;

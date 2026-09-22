@@ -15,6 +15,7 @@ import { DemoAutocompleteHero } from './demos/hero';
 - **Avoid when selection state is needed**: Use [Combobox](/react/components/combobox) instead of Autocomplete if the selection should be remembered and the input value cannot be custom. Unlike Combobox, Autocomplete's input can contain free-form text, as its suggestions only _optionally_ autocomplete the text.
 - **Can be used for filterable command pickers**: The input can be used as a filter for command items that perform an action when clicked when rendered inside the popup.
 - **Form controls must have an accessible name**: It can be created using a `<label>` element or the `Field` component. See the [forms guide](/react/handbook/forms).
+- **Closing animations**: The popup stays rendered until its closing animation finishes. See [JavaScript animations](/react/handbook/animation#javascript-animations) for animating it with Motion and for manual control.
 
 - **Translate the dismiss label**: Set `dismissButtonLabel` on `<Autocomplete.Root>` to label the visually hidden buttons that let screen reader users close the popup, for example `dismissButtonLabel="Fermer"` in French. The default is "Dismiss". The `locale` prop controls filtering and does not translate this label.
 

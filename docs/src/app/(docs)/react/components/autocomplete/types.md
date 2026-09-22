@@ -19,11 +19,11 @@ Doesn't render its own HTML element.
 | onValueChange        | `((value: string, eventDetails: Autocomplete.Root.ChangeEventDetails) => void)`                               | -           | Event handler called when the input value of the autocomplete changes.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
 | defaultOpen          | `boolean`                                                                                                     | `false`     | Whether the popup is initially open. To render a controlled popup, use the `open` prop instead.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
 | open                 | `boolean`                                                                                                     | -           | Whether the popup is currently open. Use when controlled.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
-| onOpenChange         | `((open: boolean, eventDetails: Autocomplete.Root.ChangeEventDetails) => void)`                               | -           | Event handler called when the popup is opened or closed.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
+| onOpenChange         | `((open: boolean, eventDetails: Autocomplete.Root.OpenChangeEventDetails) => void)`                           | -           | Event handler called when the popup is opened or closed.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
 | autoHighlight        | `boolean \| 'always'`                                                                                         | `false`     | Whether the first matching item is highlighted automatically. `true`: highlight after the user types and keep the highlight while the query changes.`'always'`: always highlight the first item.                                                                                                                                                                                                                                                                                                                                                                                                                                   |
 | keepHighlight        | `boolean`                                                                                                     | `false`     | Whether the highlighted item should be preserved when the pointer leaves the list.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
 | highlightItemOnHover | `boolean`                                                                                                     | `true`      | Whether moving the pointer over items should highlight them.&#xA;Disabling this prop allows CSS `:hover` to be differentiated from the `:focus` (`data-highlighted`) state.                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
-| actionsRef           | `React.RefObject<Autocomplete.Root.Actions \| null>`                                                          | -           | A ref to imperative actions. `unmount`: Manually unmounts the autocomplete.&#xA;Call this after any externally controlled closing animation finishes.                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| actionsRef           | `React.RefObject<Autocomplete.Root.Actions \| null>`                                                          | -           | A ref to imperative actions. `unmount`: Ends the closing phase of the autocomplete after an externally controlled closing animation finishes.&#xA;Call `preventUnmountOnClose()` in `onOpenChange` first, otherwise the autocomplete completes closing on its own.&#xA;Whether it leaves the DOM is decided by `keepMounted` on the portal.`close`: Closes the autocomplete imperatively when called.                                                                                                                                                                                                                              |
 | dismissButtonLabel   | `string`                                                                                                      | `'Dismiss'` | The accessible label for the visually hidden buttons that dismiss the popup.&#xA;Provide a translation when the application is not in English.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
 | filter               | `((item: ItemValue, query: string, itemToString?: ((item: ItemValue) => string)) => boolean) \| null`         | -           | AutocompleteFilter function used to match items against the input query.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
 | filteredItems        | `any[] \| Group<any>[] \| ItemValue[] \| Group<ItemValue>[]`                                                  | -           | Filtered items to display in the list.&#xA;When provided, the list uses these items instead of filtering the `items` prop internally.&#xA;When `items` is also provided, this array must preserve its flat or grouped structure.&#xA;Nullish entries are not supported, as in `items`.&#xA;Use when you want to control filtering logic externally with the `useFilter()` hook.                                                                                                                                                                                                                                                    |
@@ -62,7 +62,7 @@ type AutocompleteRootState = {};
 ### Root.Actions
 
 ```typescript
-type AutocompleteRootActions = { unmount: () => void };
+type AutocompleteRootActions = { unmount: () => void; close: () => void };
 ```
 
 ### Root.ChangeEventReason
@@ -82,6 +82,7 @@ type AutocompleteRootChangeEventReason =
   | 'clear-press'
   | 'chip-remove-press'
   | 'cancel-open'
+  | 'imperative-action'
   | 'none';
 ```
 
@@ -102,6 +103,7 @@ type AutocompleteRootChangeEventDetails = (
   | { reason: 'clear-press'; event: MouseEvent | PointerEvent | KeyboardEvent }
   | { reason: 'chip-remove-press'; event: MouseEvent | PointerEvent | KeyboardEvent }
   | { reason: 'cancel-open'; event: MouseEvent }
+  | { reason: 'imperative-action'; event: Event }
   | { reason: 'none'; event: Event }
 ) & {
   /** Cancels Base UI from handling the event. */
@@ -130,6 +132,41 @@ type AutocompleteRootHighlightEventDetails =
   | { reason: 'none'; event: Event; index: number }
   | { reason: 'keyboard'; event: KeyboardEvent; index: number }
   | { reason: 'pointer'; event: PointerEvent; index: number };
+```
+
+### Root.OpenChangeEventDetails
+
+```typescript
+type AutocompleteRootOpenChangeEventDetails = (
+  | { reason: 'trigger-press'; event: MouseEvent | PointerEvent | TouchEvent | KeyboardEvent }
+  | { reason: 'input-press'; event: MouseEvent | PointerEvent | TouchEvent | KeyboardEvent }
+  | { reason: 'outside-press'; event: MouseEvent | PointerEvent | TouchEvent }
+  | { reason: 'item-press'; event: MouseEvent | PointerEvent | KeyboardEvent }
+  | { reason: 'close-press'; event: MouseEvent | PointerEvent | KeyboardEvent }
+  | { reason: 'escape-key'; event: KeyboardEvent }
+  | { reason: 'list-navigation'; event: KeyboardEvent }
+  | { reason: 'focus-out'; event: KeyboardEvent | FocusEvent }
+  | { reason: 'input-change'; event: Event | InputEvent }
+  | { reason: 'input-clear'; event: Event | FocusEvent | InputEvent }
+  | { reason: 'clear-press'; event: MouseEvent | PointerEvent | KeyboardEvent }
+  | { reason: 'chip-remove-press'; event: MouseEvent | PointerEvent | KeyboardEvent }
+  | { reason: 'cancel-open'; event: MouseEvent }
+  | { reason: 'imperative-action'; event: Event }
+  | { reason: 'none'; event: Event }
+) & {
+  /** Cancels Base UI from handling the event. */
+  cancel: () => void;
+  /** Allows the event to propagate in cases where Base UI will stop the propagation. */
+  allowPropagation: () => void;
+  /** Indicates whether the event has been canceled. */
+  isCanceled: boolean;
+  /** Indicates whether the event is allowed to propagate. */
+  isPropagationAllowed: boolean;
+  /** The element that triggered the event, if applicable. */
+  trigger: Element | undefined;
+  /** Prevents the popup from unmounting until the `unmount` action is called. */
+  preventUnmountOnClose: () => void;
+};
 ```
 
 ### Trigger
@@ -1020,7 +1057,7 @@ type Orientation = 'horizontal' | 'vertical';
 
 ## Export Groups
 
-- `Autocomplete.Root`: `Autocomplete.Root`, `Autocomplete.Root.Props`, `Autocomplete.Root.State`, `Autocomplete.Root.Actions`, `Autocomplete.Root.ChangeEventReason`, `Autocomplete.Root.ChangeEventDetails`, `Autocomplete.Root.HighlightEventReason`, `Autocomplete.Root.HighlightEventDetails`
+- `Autocomplete.Root`: `Autocomplete.Root`, `Autocomplete.Root.Props`, `Autocomplete.Root.State`, `Autocomplete.Root.Actions`, `Autocomplete.Root.ChangeEventReason`, `Autocomplete.Root.ChangeEventDetails`, `Autocomplete.Root.OpenChangeEventDetails`, `Autocomplete.Root.HighlightEventReason`, `Autocomplete.Root.HighlightEventDetails`
 - `Autocomplete.Value`: `Autocomplete.Value`, `Autocomplete.Value.State`, `Autocomplete.Value.Props`
 - `Autocomplete.Trigger`: `Autocomplete.Trigger`, `Autocomplete.Trigger.State`, `Autocomplete.Trigger.Props`
 - `Autocomplete.Input`: `Autocomplete.Input`, `Autocomplete.Input.State`, `Autocomplete.Input.Props`
@@ -1043,7 +1080,7 @@ type Orientation = 'horizontal' | 'vertical';
 - `Autocomplete.Separator`: `Autocomplete.Separator`, `Autocomplete.Separator.Props`, `Autocomplete.Separator.State`
 - `Autocomplete.useFilter`
 - `Autocomplete.useFilteredItems`
-- `Default`: `AutocompleteSeparatorProps`, `AutocompleteSeparatorState`, `AutocompleteInputProps`, `AutocompleteInputState`, `AutocompleteIconProps`, `AutocompleteIconState`, `AutocompleteClearProps`, `AutocompleteClearState`, `AutocompletePopupProps`, `AutocompletePopupState`, `AutocompletePositionerProps`, `AutocompletePositionerState`, `AutocompleteListProps`, `AutocompleteListState`, `AutocompleteRowProps`, `AutocompleteRowState`, `AutocompleteArrowProps`, `AutocompleteArrowState`, `AutocompleteBackdropProps`, `AutocompleteBackdropState`, `AutocompletePortalProps`, `AutocompletePortalState`, `AutocompleteGroupProps`, `AutocompleteGroupState`, `AutocompleteGroupLabelProps`, `AutocompleteGroupLabelState`, `AutocompleteEmptyProps`, `AutocompleteEmptyState`, `AutocompleteStatusProps`, `AutocompleteStatusState`, `AutocompleteCollectionState`, `AutocompleteCollectionProps`, `AutocompleteFilter`, `AutocompleteFilterOptions`, `AutocompleteRootState`, `AutocompleteRootActions`, `AutocompleteRootChangeEventReason`, `AutocompleteRootChangeEventDetails`, `AutocompleteRootHighlightEventReason`, `AutocompleteRootHighlightEventDetails`, `AutocompleteRootProps`, `AutocompleteTriggerState`, `AutocompleteTriggerProps`, `AutocompleteInputGroupState`, `AutocompleteInputGroupProps`, `AutocompleteItemState`, `AutocompleteItemProps`, `AutocompleteValueState`, `AutocompleteValueProps`
+- `Default`: `AutocompleteSeparatorProps`, `AutocompleteSeparatorState`, `AutocompleteInputProps`, `AutocompleteInputState`, `AutocompleteIconProps`, `AutocompleteIconState`, `AutocompleteClearProps`, `AutocompleteClearState`, `AutocompletePopupProps`, `AutocompletePopupState`, `AutocompletePositionerProps`, `AutocompletePositionerState`, `AutocompleteListProps`, `AutocompleteListState`, `AutocompleteRowProps`, `AutocompleteRowState`, `AutocompleteArrowProps`, `AutocompleteArrowState`, `AutocompleteBackdropProps`, `AutocompleteBackdropState`, `AutocompletePortalProps`, `AutocompletePortalState`, `AutocompleteGroupProps`, `AutocompleteGroupState`, `AutocompleteGroupLabelProps`, `AutocompleteGroupLabelState`, `AutocompleteEmptyProps`, `AutocompleteEmptyState`, `AutocompleteStatusProps`, `AutocompleteStatusState`, `AutocompleteCollectionState`, `AutocompleteCollectionProps`, `AutocompleteFilter`, `AutocompleteFilterOptions`, `AutocompleteRootState`, `AutocompleteRootActions`, `AutocompleteRootChangeEventReason`, `AutocompleteRootChangeEventDetails`, `AutocompleteRootOpenChangeEventDetails`, `AutocompleteRootHighlightEventReason`, `AutocompleteRootHighlightEventDetails`, `AutocompleteRootProps`, `AutocompleteTriggerState`, `AutocompleteTriggerProps`, `AutocompleteInputGroupState`, `AutocompleteInputGroupProps`, `AutocompleteItemState`, `AutocompleteItemProps`, `AutocompleteValueState`, `AutocompleteValueProps`
 
 ## Canonical Types
 
@@ -1054,6 +1091,7 @@ Maps `Canonical`: `Alias` — Use Canonical when its namespace is already import
 - `Autocomplete.Root.Actions`: `AutocompleteRootActions`
 - `Autocomplete.Root.ChangeEventReason`: `AutocompleteRootChangeEventReason`
 - `Autocomplete.Root.ChangeEventDetails`: `AutocompleteRootChangeEventDetails`
+- `Autocomplete.Root.OpenChangeEventDetails`: `AutocompleteRootOpenChangeEventDetails`
 - `Autocomplete.Root.HighlightEventReason`: `AutocompleteRootHighlightEventReason`
 - `Autocomplete.Root.HighlightEventDetails`: `AutocompleteRootHighlightEventDetails`
 - `Autocomplete.Value.State`: `AutocompleteValueState`
