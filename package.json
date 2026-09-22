@@ -76,12 +76,13 @@
     "@mui/internal-code-infra": "0.0.4-canary.111",
     "@mui/internal-netlify-cache": "0.0.3-canary.5",
     "@mui/internal-test-utils": "2.0.18-canary.25",
-    "@next/eslint-plugin-next": "16.3.4",
+    "@netlify/types": "3.0.0",
+    "@next/eslint-plugin-next": "16.3.5",
     "@playwright/test": "1.62.1",
     "@tailwindcss/postcss": "4.3.3",
     "@testing-library/jest-dom": "7.0.1",
-    "@types/node": "22.20.1",
-    "@types/react": "19.2.18",
+    "@types/node": "22.20.2",
+    "@types/react": "19.3.0",
     "@typescript/native": "npm:typescript@7.0.2",
     "@vitejs/plugin-react": "6.1.1",
     "@vitest/browser-playwright": "4.1.11",
@@ -99,8 +100,8 @@
     "prettier": "3.9.6",
     "pretty-quick": "4.2.2",
     "publint": "0.3.24",
-    "react": "19.2.8",
-    "react-dom": "19.2.8",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
     "remark-mdx": "3.1.1",
     "rimraf": "6.1.3",
     "serve": "14.2.6",
@@ -110,11 +111,11 @@
     "terser": "5.51.2",
     "tsx": "4.23.13",
     "typescript": "npm:@typescript/typescript6@6.0.2",
-    "vite": "8.2.2",
+    "vite": "8.3.0",
     "vitest": "4.1.11"
   },
   "config": {
-    "valeVersion": "3.21.0"
+    "valeVersion": "3.22.0"
   },
   "packageManager": "pnpm@12.4.1",
   "engines": {

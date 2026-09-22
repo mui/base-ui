@@ -11,17 +11,17 @@ Doesn't render its own HTML element.
 
 **Root Props:**
 
-| Prop                 | Type                                                                           | Default | Description                                                                                                                                                                                                                                                                        |
-| :------------------- | :----------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| defaultOpen          | `boolean`                                                                      | `false` | Whether the preview card is initially open. To render a controlled preview card, use the `open` prop instead.                                                                                                                                                                      |
-| open                 | `boolean`                                                                      | -       | Whether the preview card is currently open.                                                                                                                                                                                                                                        |
-| onOpenChange         | `((open: boolean, eventDetails: PreviewCard.Root.ChangeEventDetails) => void)` | -       | Event handler called when the preview card is opened or closed.                                                                                                                                                                                                                    |
-| actionsRef           | `React.RefObject<PreviewCard.Root.Actions \| null>`                            | -       | A ref to imperative actions. `unmount`: Unmounts the preview card popup.`close`: Closes the preview card imperatively when called.                                                                                                                                                 |
-| defaultTriggerId     | `string \| null`                                                               | -       | ID of the trigger that the preview card is associated with.&#xA;This is useful in conjunction with the `defaultOpen` prop to create an initially open preview card.                                                                                                                |
-| handle               | `PreviewCard.Handle<Payload>`                                                  | -       | A handle to associate the preview card with a trigger.&#xA;If specified, allows external triggers to control the card's open state.&#xA;Can be created with the PreviewCard.createHandle() method.                                                                                 |
-| onOpenChangeComplete | `((open: boolean) => void)`                                                    | -       | Event handler called after any animations complete when the preview card is opened or closed.                                                                                                                                                                                      |
-| triggerId            | `string \| null`                                                               | -       | ID of the trigger that the preview card is associated with.&#xA;This is useful in conjunction with the `open` prop to create a controlled preview card.&#xA;There's no need to specify this prop when the preview card is uncontrolled (that is, when the `open` prop is not set). |
-| children             | `React.ReactNode \| PayloadChildRenderFunction<Payload>`                       | -       | The content of the preview card.&#xA;This can be a regular React node or a render function that receives the `payload` of the active trigger.                                                                                                                                      |
+| Prop                 | Type                                                                           | Default | Description                                                                                                                                                                                                                                                                                                            |
+| :------------------- | :----------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| defaultOpen          | `boolean`                                                                      | `false` | Whether the preview card is initially open. To render a controlled preview card, use the `open` prop instead.                                                                                                                                                                                                          |
+| open                 | `boolean`                                                                      | -       | Whether the preview card is currently open.                                                                                                                                                                                                                                                                            |
+| onOpenChange         | `((open: boolean, eventDetails: PreviewCard.Root.ChangeEventDetails) => void)` | -       | Event handler called when the preview card is opened or closed.                                                                                                                                                                                                                                                        |
+| actionsRef           | `React.RefObject<PreviewCard.Root.Actions \| null>`                            | -       | A ref to imperative actions. `unmount`: Manually unmounts the preview card popup.&#xA;Call `preventUnmountOnClose()` in `onOpenChange` to manually control unmounting,&#xA;then call this action after any externally controlled closing animation finishes.`close`: Closes the preview card imperatively when called. |
+| defaultTriggerId     | `string \| null`                                                               | -       | ID of the trigger that the preview card is associated with.&#xA;This is useful in conjunction with the `defaultOpen` prop to create an initially open preview card.                                                                                                                                                    |
+| handle               | `PreviewCard.Handle<Payload>`                                                  | -       | A handle to associate the preview card with a trigger.&#xA;If specified, allows external triggers to control the card's open state.&#xA;Can be created with the PreviewCard.createHandle() method.                                                                                                                     |
+| onOpenChangeComplete | `((open: boolean) => void)`                                                    | -       | Event handler called after any animations complete when the preview card is opened or closed.                                                                                                                                                                                                                          |
+| triggerId            | `string \| null`                                                               | -       | ID of the trigger that the preview card is associated with.&#xA;This is useful in conjunction with the `open` prop to create a controlled preview card.&#xA;There's no need to specify this prop when the preview card is uncontrolled (that is, when the `open` prop is not set).                                     |
+| children             | `React.ReactNode \| PayloadChildRenderFunction<Payload>`                       | -       | The content of the preview card.&#xA;This can be a regular React node or a render function that receives the `payload` of the active trigger.                                                                                                                                                                          |
 
 ### Root.Props
 
@@ -74,7 +74,8 @@ type PreviewCardRootChangeEventDetails = (
   isPropagationAllowed: boolean;
   /** The element that triggered the event, if applicable. */
   trigger: Element | undefined;
-  preventUnmountOnClose: preventUnmountOnClose;
+  /** Prevents the popup from unmounting until the `unmount` action is called. */
+  preventUnmountOnClose: () => void;
 };
 ```
 
@@ -753,12 +754,6 @@ type PreviewCardViewportDataAttributestransitioning = 'data-transitioning';
 
 ```typescript
 type PayloadChildRenderFunction = (arg: { payload: unknown | undefined }) => ReactNode;
-```
-
-### preventUnmountOnClose
-
-```typescript
-type preventUnmountOnClose = () => void;
 ```
 
 ### Side

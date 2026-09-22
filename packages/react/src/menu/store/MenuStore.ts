@@ -45,6 +45,7 @@ type Context = PopupStoreContext<MenuRoot.ChangeEventDetails> & {
   readonly itemLabels: React.RefObject<(string | null)[]>;
   allowMouseUpTriggerRef: React.RefObject<boolean>;
   readonly triggerFocusTargetRef: React.RefObject<HTMLElement | null>;
+  readonly beforeTriggerFocusGuardRef: React.RefObject<HTMLElement | null>;
   readonly beforeContentFocusGuardRef: React.RefObject<HTMLElement | null>;
 };
 
@@ -195,6 +196,7 @@ function createInitialContext(triggerElements: PopupTriggerMap): Context {
     itemLabels: { current: [] },
     allowMouseUpTriggerRef: { current: false },
     triggerFocusTargetRef: React.createRef<HTMLElement>(),
+    beforeTriggerFocusGuardRef: React.createRef<HTMLElement>(),
     beforeContentFocusGuardRef: React.createRef<HTMLElement>(),
     onOpenChangeComplete: undefined,
     triggerElements,

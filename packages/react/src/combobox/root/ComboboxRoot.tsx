@@ -119,15 +119,17 @@ export type ComboboxRootProps<
   defaultValue?: ComboboxInputValue<Value, Multiple> | null | undefined;
   /**
    * A ref to imperative actions.
-   * - `unmount`: Manually unmounts the combobox.
-   * Call this after any externally controlled closing animation finishes.
+   * - `unmount`: Ends the closing phase of the combobox after an externally controlled closing animation finishes.
+   * Call `preventUnmountOnClose()` in `onOpenChange` first, otherwise the combobox completes closing on its own.
+   * Whether it leaves the DOM is decided by `keepMounted` on the portal.
+   * - `close`: Closes the combobox imperatively when called.
    */
   actionsRef?: React.RefObject<ComboboxRoot.Actions | null> | undefined;
   /**
    * Event handler called when the popup is opened or closed.
    */
   onOpenChange?:
-    ((open: boolean, eventDetails: ComboboxRoot.ChangeEventDetails) => void) | undefined;
+    ((open: boolean, eventDetails: ComboboxRoot.OpenChangeEventDetails) => void) | undefined;
   /**
    * Event handler called when the input value changes.
    */
@@ -166,6 +168,8 @@ export interface ComboboxRootState extends AriaComboboxState {}
 
 export type ComboboxRootActions = AriaCombobox.Actions;
 
+export type ComboboxRootOpenChangeEventDetails = AriaCombobox.OpenChangeEventDetails;
+
 export type ComboboxRootChangeEventReason = AriaCombobox.ChangeEventReason;
 export type ComboboxRootChangeEventDetails = AriaCombobox.ChangeEventDetails;
 
@@ -182,6 +186,7 @@ export namespace ComboboxRoot {
   export type Actions = ComboboxRootActions;
   export type ChangeEventReason = ComboboxRootChangeEventReason;
   export type ChangeEventDetails = ComboboxRootChangeEventDetails;
+  export type OpenChangeEventDetails = ComboboxRootOpenChangeEventDetails;
   export type HighlightEventReason = ComboboxRootHighlightEventReason;
   export type HighlightEventDetails = ComboboxRootHighlightEventDetails;
 }
