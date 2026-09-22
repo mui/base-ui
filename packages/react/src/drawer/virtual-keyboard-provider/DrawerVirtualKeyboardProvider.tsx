@@ -34,6 +34,8 @@ const KEYBOARD_REALIGN_MAX_PASSES = 4;
 // Frames the alignment waits for the scroll destination to stop moving (layout reacting to
 // the focus change, e.g. a footer resizing over a CSS transition) before scrolling anyway.
 const KEYBOARD_SETTLE_FRAME_LIMIT = 60;
+// Wait for the layout viewport to stop resizing before measuring keyboard geometry.
+const LAYOUT_VIEWPORT_SETTLE_DELAY = 50;
 const INPUT_TAP_MOVE_THRESHOLD = 10;
 const INPUT_TAP_HIT_SLOP = 16;
 const KEYBOARD_INPUT_TYPES = new Set([
@@ -101,6 +103,7 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
   const focusedKeyboardTargetRef = React.useRef<HTMLElement | null>(null);
   const keyboardScrollAdjustmentRef = React.useRef<ScrollAdjustment | null>(null);
   const programmaticKeyboardFocusRef = React.useRef(false);
+  const getKeyboardViewportRef = React.useRef<(() => KeyboardVisualViewport | null) | null>(null);
   const keyboardFocusFrame = useAnimationFrame();
   const keyboardRealignTimeout = useTimeout();
 
@@ -195,6 +198,36 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
     let keyboardScrollDestination = 0;
     let keyboardScrollChecks = 0;
     let keyboardScrollObserved = -1;
+    let lastInnerHeight = -1;
+    let innerHeightChangedAt = 0;
+    // Visual viewport height last seen while the keyboard overlapped the layout viewport.
+    let keyboardVisualHeight = -1;
+
+    // New Chrome on iOS shrinks the layout viewport to the visual viewport. Remember the
+    // keyboard's visual height so detection survives the overlap disappearing; a substantial
+    // change in visual height clears it.
+    const getKeyboardViewport = (): KeyboardVisualViewport | null => {
+      if (!visualViewport || visualViewport.scale !== 1) {
+        return null;
+      }
+
+      if (win.innerHeight - visualViewport.height > KEYBOARD_RESIZE_THRESHOLD) {
+        keyboardVisualHeight = visualViewport.height;
+      } else if (
+        Math.abs(visualViewport.height - keyboardVisualHeight) > KEYBOARD_RESIZE_THRESHOLD
+      ) {
+        // Treat small viewport changes as browser chrome movement, not the software keyboard.
+        keyboardVisualHeight = -1;
+        return null;
+      }
+
+      const top = Math.max(0, visualViewport.offsetTop);
+      return {
+        top,
+        bottom: Math.min(win.innerHeight, top + visualViewport.height),
+      };
+    };
+    getKeyboardViewportRef.current = getKeyboardViewport;
 
     const setDrawerKeyboardInset = (inset: number) => {
       rootElement.style.setProperty(
@@ -206,6 +239,8 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
     const clearFocusedKeyboardTarget = () => {
       focusedKeyboardTargetRef.current = null;
       keyboardScrollElement = null;
+      lastInnerHeight = -1;
+      keyboardVisualHeight = -1;
       setDrawerKeyboardInset(0);
       restoreKeyboardScrollAdjustment();
       keyboardFocusFrame.cancel();
@@ -224,7 +259,7 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
         modal !== true ||
         nestedDrawerOpen ||
         !focusedKeyboardTargetRef.current ||
-        getKeyboardVisualViewport(win) == null
+        getKeyboardViewport() == null
       ) {
         return false;
       }
@@ -288,10 +323,24 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
       // keyboard inset and alignment are computed against the resting viewport.
       restoreWindowScroll();
 
-      const keyboardViewport = getKeyboardVisualViewport(win);
+      const keyboardViewport = getKeyboardViewport();
       if (!keyboardViewport) {
+        lastInnerHeight = -1;
         setDrawerKeyboardInset(0);
         restoreKeyboardScrollAdjustment();
+        return;
+      }
+
+      // New Chrome on iOS can report the final visual viewport while `innerHeight` is still
+      // shrinking. Wait for layout to settle to avoid excess inset/slack and a moving scroll
+      // destination. Safari keeps `innerHeight` stable, so its wait ends during keyboard opening.
+      const now = Date.now();
+      if (win.innerHeight !== lastInnerHeight) {
+        lastInnerHeight = win.innerHeight;
+        innerHeightChangedAt = now;
+      }
+      if (now - innerHeightChangedAt < LAYOUT_VIEWPORT_SETTLE_DELAY) {
+        keyboardFocusFrame.request(alignFocusedKeyboardTarget);
         return;
       }
 
@@ -448,7 +497,7 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
       // Covers every way focus can land with the keyboard already up: native moves (the
       // keyboard's previous/next arrows) and the tap path (which suppresses `focusout`
       // handling via the programmatic flag).
-      if (getKeyboardVisualViewport(win) != null) {
+      if (getKeyboardViewport() != null) {
         scheduleDelayedKeyboardRealign();
       }
 
@@ -464,7 +513,7 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
 
       if (captureFocusedKeyboardTarget(event.relatedTarget)) {
         const target = focusedKeyboardTargetRef.current;
-        const keyboardViewport = getKeyboardVisualViewport(win);
+        const keyboardViewport = getKeyboardViewport();
         // The delayed realign passes are scheduled by the `focusin` that follows once
         // focus lands on the captured target.
         if (target && keyboardViewport) {
@@ -491,6 +540,8 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
         addEventListener(visualViewport, 'scroll', handleViewportUpdate),
       );
     }
+    // Chrome can keep resizing the layout viewport after visual viewport events stop.
+    cleanupListeners.push(addEventListener(win, 'resize', handleViewportUpdate));
 
     const handleWindowScroll = () => {
       if (restoreWindowScroll()) {
@@ -526,6 +577,7 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
       cleanupListeners.forEach((cleanup) => cleanup());
       consumePreemptedFocus();
       clearFocusedKeyboardTarget();
+      getKeyboardViewportRef.current = null;
       rootElement.style.removeProperty(DrawerViewportCssVars.keyboardInset);
     };
   }, [
@@ -618,7 +670,7 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
       // reposition the caret, rather than blurring and re-focusing the same input.
       if (
         activeElement(ownerDocument(keyboardFocusTarget)) === keyboardFocusTarget &&
-        (!win.visualViewport || getKeyboardVisualViewport(win) != null)
+        (!win.visualViewport || getKeyboardViewportRef.current?.() != null)
       ) {
         resetTouchTrackingState();
         return;
@@ -855,24 +907,4 @@ function findKeyboardScrollTarget(target: HTMLElement, root: HTMLElement): HTMLE
     findScrollableTouchTarget(scrollStart, root, 'vertical') ??
     findScrollableTouchTarget(scrollStart, root, 'vertical', true)
   );
-}
-
-function getKeyboardVisualViewport(win: Window): KeyboardVisualViewport | null {
-  const visualViewport = win.visualViewport;
-
-  if (!visualViewport || visualViewport.scale !== 1) {
-    return null;
-  }
-
-  const reducedHeight = win.innerHeight - visualViewport.height;
-  // Treat small viewport changes as browser chrome movement, not the software keyboard.
-  if (reducedHeight <= KEYBOARD_RESIZE_THRESHOLD) {
-    return null;
-  }
-
-  const top = Math.max(0, visualViewport.offsetTop);
-  return {
-    top,
-    bottom: Math.min(win.innerHeight, top + visualViewport.height),
-  };
 }
