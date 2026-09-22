@@ -741,10 +741,12 @@ export interface MenuRootProps<Payload = unknown> {
    *   Call `preventUnmountOnClose()` in `onOpenChange` to manually control unmounting,
    *   then call this action after any externally controlled closing animation finishes.
    * - `close`: When specified, the menu can be closed imperatively.
-   * - `highlightItem`: Moves the highlight to the `'next'`, `'previous'`, `'first'` or `'last'`
-   *   item, or clears it with `'none'`, which hands focus back to the popup. Useful for
-   *   binding custom keyboard shortcuts. `'next'` and `'previous'` wrap around unless
-   *   `loopFocus` is disabled. Does nothing while the menu is closed.
+   * - `highlightItem`: Moves or clears the highlight while the menu is open.
+   *   `'next'` and `'previous'` move sequentially through the items and wrap unless `loopFocus`
+   *   is disabled. `'first'` and `'last'` highlight the first or last item. `'none'` clears the
+   *   highlight and hands focus back to the popup.
+   *   Calling this action does not open the menu. To highlight an item after opening it, call
+   *   the action from `onOpenChangeComplete` when `open` is `true`.
    */
   actionsRef?: React.RefObject<MenuRoot.Actions | null> | undefined;
   /**

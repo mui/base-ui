@@ -1794,11 +1794,15 @@ interface ComboboxRootProps<ItemValue, Item = ItemValue> {
    * Call `preventUnmountOnClose()` in `onOpenChange` first, otherwise the combobox completes closing on its own.
    * Whether it leaves the DOM is decided by `keepMounted` on the portal.
    * - `close`: Closes the combobox imperatively when called.
-   * - `highlightItem`: Moves the highlight to the `'next'`, `'previous'`, `'first'` or `'last'`
-   * item, or clears it with `'none'`. Useful for binding custom keyboard shortcuts.
-   * `'next'` and `'previous'` wrap around when `loopFocus` is enabled and never move the
-   * highlight back to the input. Does nothing while the popup is closed. `'none'` does nothing
-   * under `autoHighlight="always"`, which by definition always keeps an item highlighted.
+   * - `highlightItem`: Moves or clears the highlight while the popup is open.
+   *   `'next'` and `'previous'` move sequentially through the items, including across rows in a
+   *   grid, and wrap when `loopFocus` is enabled. Unlike the arrow keys, they never return the
+   *   highlight to the input. `'first'` and `'last'` highlight the first or last item.
+   *   `'none'` clears the highlight; with `autoHighlight="always"`, the highlight cannot be cleared.
+   *   Calling this action does not open the popup. To highlight an item after opening it, call
+   *   the action from `onOpenChangeComplete` when `open` is `true`.
+   *   Highlight changes requested through this action report the reason `'imperative-action'`
+   *   to `onItemHighlighted`.
    */
   actionsRef?: React.RefObject<AriaCombobox.Actions | null> | undefined;
   /**

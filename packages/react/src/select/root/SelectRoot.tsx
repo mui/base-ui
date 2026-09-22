@@ -685,10 +685,12 @@ export interface SelectRootProps<Value, Multiple extends boolean | undefined = f
    * Call `preventUnmountOnClose()` in `onOpenChange` first, otherwise the select completes closing on its own.
    * Whether it leaves the DOM is decided by `keepMounted` on the portal.
    * - `close`: Closes the select imperatively when called.
-   * - `highlightItem`: Moves the highlight to the `'next'`, `'previous'`, `'first'` or `'last'`
-   *   item, or clears it with `'none'`, which hands focus back to the popup. Useful for
-   *   binding custom keyboard shortcuts. `'next'` and `'previous'` never wrap: the highlight
-   *   stays on the last or first item. Does nothing while the popup is closed.
+   * - `highlightItem`: Moves or clears the highlight while the popup is open.
+   *   `'next'` and `'previous'` move sequentially through the items and never wrap: the
+   *   highlight stays on the last or first item. `'first'` and `'last'` highlight the first or
+   *   last item. `'none'` clears the highlight and hands focus back to the popup.
+   *   Calling this action does not open the popup. To highlight an item after opening it, call
+   *   the action from `onOpenChangeComplete` when `open` is `true`.
    */
   actionsRef?: React.RefObject<SelectRootActions | null> | undefined;
   /**
