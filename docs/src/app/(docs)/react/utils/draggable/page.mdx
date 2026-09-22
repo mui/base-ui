@@ -1026,11 +1026,19 @@ Creates a [kind](#kinds-and-payloads) to pass to a draggable's `kind` prop and t
 
 ## createGlobalKind
 
-Creates a kind identified by a string key instead of a unique value. Use it only when independently bundled parts of an application can't share the value returned by `createKind`. The same key identifies the same kind across bundles and hot reloads. Prefix the key with your app or package name, and use one payload type per key, since TypeScript can't check that two bundles agree.
+`createKind` matches kinds by identity: a target accepts a source only if both were given the same kind object, usually a constant they both import. That's impossible when the source and the target live in code that doesn't share modules, for example a plugin loaded at runtime, a micro-frontend, or two copies of the same package on one page. `createGlobalKind` solves this by using a string key as the identity. Two calls with the same key, from anywhere on the page, produce kinds that match each other:
 
-```tsx title="A kind shared across bundles"
+```tsx title="The same kind declared in two separate bundles"
+// In the host application
+const card = Draggable.createGlobalKind<CardPayload>('myapp/card');
+
+// In a plugin bundled separately
 const card = Draggable.createGlobalKind<CardPayload>('myapp/card');
 ```
+
+The key must contain a `/`. Use your app or package name as the prefix, since keys are shared by the whole page and a bare name like `'card'` could collide with another library. Both sides must also agree on the payload type: TypeScript can't check that across bundles, so a mismatch surfaces at runtime.
+
+Prefer `createKind` whenever the source and the target can import the same constant.
 
 <TypesDraggable.createGlobalKind hideDescription />
 

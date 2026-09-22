@@ -307,16 +307,20 @@ type DraggableCollisionProviderMoveEndEvent<TPayload = unknown, TDragData = unkn
 
 ### createGlobalKind
 
-Creates a kind identified by a string key, so that separately bundled code can
-share it without sharing a value.
+Creates a kind identified by a string key rather than by the returned object.
+Kinds from `createKind` match only when the source and the target received the
+same object, which code that doesn't share modules, such as a plugin loaded at
+runtime or a second copy of a package, can't do. Two `createGlobalKind` calls
+with the same key match each other from anywhere on the page.
 
 ```ts
 const card = Draggable.createGlobalKind<Card>('myapp/card');
 ```
 
-Every call with the same key returns the same kind. Prefix the key with your app
-or package name, and use one payload type per key, since TypeScript can't check
-that two bundles agree. Prefer [`createKind`](#createkind) when the value can be shared.
+The key must contain a `/`. Prefix it with your app or package name, since keys
+are shared by the whole page. Both sides must agree on the payload type, which
+TypeScript can't check across bundles. Prefer [`createKind`](#createkind) whenever the
+source and the target can import the same constant.
 
 **Parameters:**
 
