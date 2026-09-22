@@ -75,7 +75,7 @@ const divider = Draggable.createKind('divider');
 <Draggable.Root kind={divider} />;
 ```
 
-Base UI tracks the payload by identity. Prefer a primitive such as an ID, as above. When the payload has to be an object, memoize it so that unrelated re-renders don't replace it. A new object during a drag re-notifies `useActiveDrag` subscribers and discards any `updatePayload` call:
+Base UI tracks the payload by identity. Prefer a primitive such as an ID, as above. When the payload has to be an object, memoize it so that unrelated re-renders don't replace it. A new object during a drag re-notifies `useActiveDrag` subscribers and discards any `updatePayload` call:
 
 ```tsx title="A memoized object payload"
 const payload = React.useMemo(() => ({ id, column }), [id, column]);
@@ -224,7 +224,7 @@ Targets can be nested. The innermost target under the pointer that accepts the d
 
 ### Accepting drops
 
-`accept` decides by kind. For rules that depend on the item being dragged or on the target's current state, add `canDrop`. Base UI calls it every time it looks for a target under the pointer. Return `false` to skip this target and let an ancestor receive the drop, or `'reject'` to block the drop on this target and everything inside it:
+`accept` decides by kind. For rules that depend on the item being dragged or on the target's current state, add `canDrop`. Base UI calls it every time it looks for a target under the pointer. Return `false` to skip this target and let an ancestor receive the drop, or `'reject'` to block the drop on this target and everything inside it:
 
 ```tsx title="A column with a capacity"
 <Draggable.Target
@@ -269,7 +269,7 @@ import { DemoDragAutoScrollHero } from './demos/scrolling/hero';
 
 <DemoDragAutoScrollHero />
 
-A viewport scrolls while the pointer is near one of its edges and more content remains in that direction. It scrolls on the axes whose `overflow` is `auto` or `scroll`. Base UI looks for drop targets again as the content scrolls, so a target that slides under a stationary pointer can receive the drop.
+A viewport scrolls while the pointer is near one of its edges and more content remains in that direction. It scrolls on the axes whose `overflow` is `auto` or `scroll`. Base UI looks for drop targets again as the content scrolls, so a target that slides under a stationary pointer can receive the drop.
 
 Nesting follows the DOM tree. The innermost viewport scrolls first, and an ancestor viewport scrolls on the axes the inner one doesn't use or has exhausted. A vertical column inside a horizontal board scrolls each on its own axis.
 
@@ -307,11 +307,11 @@ A drag is a sequence of pointer events, so it can be driven from a test. Most of
 
 ### Choosing an environment
 
-jsdom has no layout and no `document.elementFromPoint`, so Base UI can't find a drop target there. A drag in jsdom starts, moves, and ends normally, but always with the `'outside-release'` reason. Use jsdom to test activation, `disabled` and `onBeforeMoveStart`, the lifecycle handlers, `data-dragging`, and the preview. Use a real browser, through Vitest browser mode or an end-to-end tool, to test drops, drag-over styling, sorting, and auto-scrolling.
+jsdom has no layout and no `document.elementFromPoint`, so Base UI can't find a drop target there. A drag in jsdom starts, moves, and ends normally, but always with the `'outside-release'` reason. Use jsdom to test activation, `disabled` and `onBeforeMoveStart`, the lifecycle handlers, `data-dragging`, and the preview. Use a real browser, through Vitest browser mode or an end-to-end tool, to test drops, drag-over styling, sorting, and auto-scrolling.
 
 ### Simulating a drag
 
-Use the `pointer` API of `@testing-library/user-event`. Press on the source, move past the activation threshold, then release. Native HTML5 drag events such as `dragstart` don't start a Base UI drag.
+Use the `pointer` API of `@testing-library/user-event`. Press on the source, move past the activation threshold, then release. Native HTML5 drag events such as `dragstart` don't start a Base UI drag.
 
 ```tsx title="A mouse drag"
 const user = userEvent.setup();
@@ -565,9 +565,9 @@ const snapToAngle: DragModifier = ({ point, shiftKey, initialPoint }) => {
 
 ### Drag preview
 
-While dragging, a copy of the source element follows the pointer. This clone keeps the element's classes, form values, canvas drawings, and scroll positions. Base UI renders it in the browser's top layer, so no scroll container clips it and nothing on the page paints over it.
+While dragging, a copy of the source element follows the pointer. This clone keeps the element's classes, form values, canvas drawings, and scroll positions. Base UI renders it in the browser's top layer, so no scroll container clips it and nothing on the page paints over it.
 
-Base UI rewrites the clone's IDs to keep the document valid, so style it with classes or `[data-drag-preview]` rather than ID selectors. Styles that depend on `:hover` or `:focus` don't apply to it. The clone also leaves out content that lives outside the DOM, such as a WebGL canvas, a playing video, or a shadow DOM. Render a [custom preview](#custom-preview) in those cases, or when the source is heavy enough that cloning it takes a visible moment.
+Base UI rewrites the clone's IDs to keep the document valid, so style it with classes or `[data-drag-preview]` rather than ID selectors. Styles that depend on `:hover` or `:focus` don't apply to it. The clone also leaves out content that lives outside the DOM, such as a WebGL canvas, a playing video, or a shadow DOM. Render a [custom preview](#custom-preview) in those cases, or when the source is heavy enough that cloning it takes a visible moment.
 
 Render `<Draggable.Preview>` without children to configure how the clone is placed. It renders no element of its own in that case:
 
@@ -651,7 +651,7 @@ Use the `offset` prop to position the preview relative to the pointer. It works 
 
 ### Preview container
 
-Base UI inserts the preview element next to the source in the DOM, so your CSS reaches it the same way. This extra sibling has two side effects during the drag:
+Base UI inserts the preview element next to the source in the DOM, so your CSS reaches it the same way. This extra sibling has two side effects during the drag:
 
 - Selectors that count from the end, such as `:last-child` and `:nth-last-child`, shift by one.
 - DOM queries over the siblings include the preview. Exclude it with `:not([data-drag-preview])` when measuring.
@@ -678,7 +678,7 @@ During a mouse or pen drag, the cursor is `grabbing` across the whole document, 
 }
 ```
 
-Base UI injects the cursor rule as a `<style>` element. See the [CSP guide](/react/utils/csp-provider) if your content security policy disallows it.
+Base UI injects the cursor rule as a `<style>` element. See the [CSP guide](/react/utils/csp-provider) if your content security policy disallows it.
 
 ### Styling the source and preview
 
@@ -694,11 +694,11 @@ Base UI injects the cursor rule as a `<style>` element. See the [CSP guide](/rea
 }
 ```
 
-Base UI prevents text selection on draggables and disables page scrolling during a drag. Avoid setting `touch-action` on the draggable or its handle, since it interferes with touch dragging. Set it on a wrapper instead.
+Base UI prevents text selection on draggables and disables page scrolling during a drag. Avoid setting `touch-action` on the draggable or its handle, since it interferes with touch dragging. Set it on a wrapper instead.
 
 #### Animating a drop
 
-After a release, the clone moves to the source's final position and receives `[data-ending-style]`. A release outside any target moves it back to the source. Add a `translate` transition to animate this, and Base UI keeps the clone mounted until the transition ends:
+After a release, the clone moves to the source's final position and receives `[data-ending-style]`. A release outside any target moves it back to the source. Add a `translate` transition to animate this, and Base UI keeps the clone mounted until the transition ends:
 
 ```css title="Settling into place"
 .Card[data-drag-preview][data-ending-style] {
@@ -714,7 +714,7 @@ The source also receives `[data-ending-style]` while the clone settles, so it ca
 }
 ```
 
-Base UI adds no animation of its own. Wrap the transitions you add in a `prefers-reduced-motion: no-preference` media query to respect the user's preference.
+Base UI adds no animation of its own. Wrap the transitions you add in a `prefers-reduced-motion: no-preference` media query to respect the user's preference.
 
 ### Drop position within a target
 
@@ -812,7 +812,7 @@ Tracking these states re-renders the target as the drag moves. Set `trackDragOve
 
 ### Native file drops
 
-Base UI drags carry no `dataTransfer`, so they can't exchange data with other windows or applications. To accept files from the desktop, add native `onDrop` and `onDragOver` handlers next to `onDraggableDrop`. Both kinds of drop can coexist on the same target:
+Base UI drags carry no `dataTransfer`, so they can't exchange data with other windows or applications. To accept files from the desktop, add native `onDrop` and `onDragOver` handlers next to `onDraggableDrop`. Both kinds of drop can coexist on the same target:
 
 ```jsx title="Accepting files from the desktop"
 <Draggable.Target
@@ -903,7 +903,7 @@ Both demos let the keyboard reorder the focused item with <kbd>Alt</kbd>+<kbd>�
 
 ### Auto-scroll direction
 
-CSS decides which axes can scroll. With `overflow-x: auto` and `overflow-y: hidden`, only horizontal scrolling is possible. To restrict further, cancel a direction in `onDragScroll`. Base UI calls the handler once per direction on every scrolling frame:
+CSS decides which axes can scroll. With `overflow-x: auto` and `overflow-y: hidden`, only horizontal scrolling is possible. To restrict further, cancel a direction in `onDragScroll`. Base UI calls the handler once per direction on every scrolling frame:
 
 ```tsx title="Horizontal only"
 <Draggable.Viewport
@@ -951,7 +951,7 @@ A `maxSpeed` of `0` stops the container and lets an ancestor scroll instead, lik
 
 ### Custom auto-scrolling
 
-When Base UI can't scroll an element itself, for example a canvas panned with a CSS `transform`, use `onDragScroll` to apply the movement yourself. The element doesn't need scrollable `overflow`. Edge zones, acceleration, and nesting work the same as for a scroll container.
+When Base UI can't scroll an element itself, for example a canvas panned with a CSS `transform`, use `onDragScroll` to apply the movement yourself. The element doesn't need scrollable `overflow`. Edge zones, acceleration, and nesting work the same as for a scroll container.
 
 import { DemoDragAutoScrollCanvas } from './demos/scrolling/canvas';
 
@@ -970,7 +970,7 @@ Render the viewport on the element that clips the canvas, not on the transformed
 />
 ```
 
-`x` and `y` are the distances Base UI would have passed to `scrollBy()` this frame, in pixels. A positive `x` moves the view right, so the content moves left. Apply them synchronously and from a ref rather than through React state, since Base UI looks for drop targets again on the next frame.
+`x` and `y` are the distances Base UI would have passed to `scrollBy()` this frame, in pixels. A positive `x` moves the view right, so the content moves left. Apply them synchronously and from a ref rather than through React state, since Base UI looks for drop targets again on the next frame.
 
 The handler runs once per direction, with the other axis set to `0`. At a bound the canvas can't move past, skip `consume()` so that an ancestor can scroll instead:
 
@@ -1163,7 +1163,7 @@ React.useEffect(() => {
 }, [manager, id]);
 ```
 
-Base UI reads the options function at different times depending on the option:
+Base UI reads the options function at different times depending on the option:
 
 | Option                                                      | When it's read                                                                        |
 | :---------------------------------------------------------- | :------------------------------------------------------------------------------------ |
@@ -1263,6 +1263,6 @@ export const metadata = {
     'Sortable List',
     'Auto Scroll',
     'Headless React Components',
-    'Base UI',
+    'Base UI',
   ],
 };
