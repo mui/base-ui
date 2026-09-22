@@ -5,6 +5,7 @@ import userEvent from '@testing-library/user-event';
 import { flushMicrotasks } from '@mui/internal-test-utils';
 import { isJSDOM, useTestInteractions } from '#test-utils';
 import { useClick, useDismiss, useFloating, useListNavigation } from '../index';
+import type { HighlightItemTarget } from './useListNavigation';
 import { gridNavigation } from './gridNavigation';
 import type { UseListNavigationProps } from '../types';
 import { Main as ComplexGrid } from '../../../test/floating-ui-tests/ComplexGrid';
@@ -680,12 +681,14 @@ describe('useListNavigation', () => {
   });
 
   describe('highlightItem', () => {
+    interface HighlightItemActions {
+      highlightItem: (target: HighlightItemTarget) => void;
+    }
+
     function HighlightItemApp(
       props: Omit<Partial<UseListNavigationProps>, 'listRef'> & {
         items?: string[];
-        actionsRef: React.RefObject<{
-          highlightItem: (target: 'next' | 'previous' | 'first' | 'last' | 'none') => void;
-        } | null>;
+        actionsRef: React.RefObject<HighlightItemActions | null>;
       },
     ) {
       const { items = ['one', 'two', 'three'], actionsRef, ...listProps } = props;
@@ -747,7 +750,7 @@ describe('useListNavigation', () => {
 
     it('passes the imperative source only for imperative navigation', async () => {
       const onNavigate = vi.fn();
-      const actionsRef = React.createRef<{ highlightItem: (target: 'next') => void }>();
+      const actionsRef = React.createRef<HighlightItemActions>();
       render(<HighlightItemApp actionsRef={actionsRef} onNavigate={onNavigate} />);
 
       act(() => actionsRef.current!.highlightItem('next'));
@@ -760,7 +763,7 @@ describe('useListNavigation', () => {
 
     it('does nothing while disabled', async () => {
       const onNavigate = vi.fn();
-      const actionsRef = React.createRef<{ highlightItem: (target: 'first') => void }>();
+      const actionsRef = React.createRef<HighlightItemActions>();
       render(<HighlightItemApp actionsRef={actionsRef} onNavigate={onNavigate} enabled={false} />);
 
       act(() => actionsRef.current!.highlightItem('first'));
@@ -770,9 +773,7 @@ describe('useListNavigation', () => {
 
     it('does nothing on an empty list', async () => {
       const onNavigate = vi.fn();
-      const actionsRef = React.createRef<{
-        highlightItem: (target: 'first' | 'last' | 'next' | 'previous') => void;
-      }>();
+      const actionsRef = React.createRef<HighlightItemActions>();
       render(<HighlightItemApp actionsRef={actionsRef} onNavigate={onNavigate} items={[]} />);
 
       act(() => {
@@ -787,7 +788,7 @@ describe('useListNavigation', () => {
 
     it('does nothing when every item is disabled', async () => {
       const onNavigate = vi.fn();
-      const actionsRef = React.createRef<{ highlightItem: (target: 'first' | 'next') => void }>();
+      const actionsRef = React.createRef<HighlightItemActions>();
       render(
         <HighlightItemApp
           actionsRef={actionsRef}
@@ -806,9 +807,7 @@ describe('useListNavigation', () => {
 
     it('stays on the only item of a single-item list when looping', async () => {
       const onNavigate = vi.fn();
-      const actionsRef = React.createRef<{
-        highlightItem: (target: 'next' | 'previous') => void;
-      }>();
+      const actionsRef = React.createRef<HighlightItemActions>();
       render(
         <HighlightItemApp
           actionsRef={actionsRef}
