@@ -36,11 +36,11 @@ function ShapePiece({ shape }: { shape: Shape }) {
   );
 }
 
-function MonitorShapeSorterContent() {
+export default function MonitorShapeSorter() {
   const [placed, setPlaced] = React.useState<ShapeId[]>([]);
   const [message, setMessage] = React.useState(IDLE_MESSAGE);
 
-  // @highlight-start
+  // @highlight-start @focus
   Draggable.useDragMonitor({
     accept: SHAPE_KINDS,
     onMoveStart: ({ source }) => {
@@ -75,54 +75,48 @@ function MonitorShapeSorterContent() {
   }
 
   return (
-    <div className={styles.Root}>
-      <div className={styles.Actions}>
-        {placed.length > 0 && (
-          <button type="button" className={styles.Reset} onClick={reset}>
-            Reset
-          </button>
-        )}
-      </div>
-
-      <div className={styles.Tray}>
-        {SHAPES.map((shape) => (
-          <div key={shape.id} className={styles.TraySlot}>
-            {!placed.includes(shape.id) && <ShapePiece shape={shape} />}
-          </div>
-        ))}
-      </div>
-
-      <div className={styles.Board}>
-        {SHAPES.map((shape) => {
-          const isPlaced = placed.includes(shape.id);
-
-          return (
-            <Draggable.Target
-              key={shape.id}
-              className={styles.Target}
-              kind={shape.kind}
-              payload={shape.id}
-              accept={shape.kind}
-            >
-              <span className={styles.Cutout} data-shape={shape.id} aria-hidden="true" />
-              {isPlaced && <ShapePiece shape={shape} />}
-            </Draggable.Target>
-          );
-        })}
-      </div>
-
-      <div className={monitorStyles.Monitor} role="status">
-        <span className={monitorStyles.MonitorLabel}>Monitor</span>
-        <span className={monitorStyles.MonitorMessage}>{message}</span>
-      </div>
-    </div>
-  );
-}
-
-export default function MonitorShapeSorter() {
-  return (
     <Draggable.Provider>
-      <MonitorShapeSorterContent />
+      <div className={styles.Root}>
+        <div className={styles.Actions}>
+          {placed.length > 0 && (
+            <button type="button" className={styles.Reset} onClick={reset}>
+              Reset
+            </button>
+          )}
+        </div>
+
+        <div className={styles.Tray}>
+          {SHAPES.map((shape) => (
+            <div key={shape.id} className={styles.TraySlot}>
+              {!placed.includes(shape.id) && <ShapePiece shape={shape} />}
+            </div>
+          ))}
+        </div>
+
+        <div className={styles.Board}>
+          {SHAPES.map((shape) => {
+            const isPlaced = placed.includes(shape.id);
+
+            return (
+              <Draggable.Target
+                key={shape.id}
+                className={styles.Target}
+                kind={shape.kind}
+                payload={shape.id}
+                accept={shape.kind}
+              >
+                <span className={styles.Cutout} data-shape={shape.id} aria-hidden="true" />
+                {isPlaced && <ShapePiece shape={shape} />}
+              </Draggable.Target>
+            );
+          })}
+        </div>
+
+        <div className={monitorStyles.Monitor} role="status">
+          <span className={monitorStyles.MonitorLabel}>Monitor</span>
+          <span className={monitorStyles.MonitorMessage}>{message}</span>
+        </div>
+      </div>
     </Draggable.Provider>
   );
 }

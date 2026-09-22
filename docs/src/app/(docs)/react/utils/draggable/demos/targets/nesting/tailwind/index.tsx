@@ -41,7 +41,7 @@ function Layer({ id }: { id: LayerId }) {
   );
 }
 
-function NestedDropTargetsContent() {
+export default function NestedDropTargets() {
   const [locations, setLocations] = React.useState<Record<LayerId, Location>>({
     chart: 'palette',
     note: 'palette',
@@ -58,49 +58,43 @@ function NestedDropTargetsContent() {
   }
 
   return (
-    <div className="flex w-full flex-col gap-3 select-none">
-      <div className="flex min-h-9 items-start gap-2">{renderLayers('palette')}</div>
-      <Draggable.Target
-        accept={layerKind}
-        onDraggableDrop={({ source }) => placeLayer(source.payload, 'canvas')}
-        className="relative box-border min-h-60 overflow-hidden border border-neutral-200 bg-neutral-50 bg-[radial-gradient(var(--color-neutral-300)_1px,transparent_1px)] bg-size-[20px_20px] p-3 transition-colors data-[drag-over-innermost]:border-neutral-950 data-[drag-over-innermost]:bg-neutral-100 dark:border-neutral-700 dark:bg-neutral-900 dark:bg-[radial-gradient(var(--color-neutral-700)_1px,transparent_1px)] dark:data-[drag-over-innermost]:border-white dark:data-[drag-over-innermost]:bg-neutral-800"
-      >
-        <span className="text-xs leading-4 font-semibold text-neutral-500 dark:text-neutral-400">
-          Canvas
-        </span>
-        <div className="absolute top-10 left-3 flex flex-col items-start gap-1.5">
-          {renderLayers('canvas')}
-        </div>
+    <Draggable.Provider>
+      <div className="flex w-full flex-col gap-3 select-none">
+        <div className="flex min-h-9 items-start gap-2">{renderLayers('palette')}</div>
         <Draggable.Target
           accept={layerKind}
-          // @highlight-start
-          canDrop={({ source }) => source.payload === 'chart'}
-          // @highlight-end
-          onDraggableDrop={({ source }) => placeLayer(source.payload, 'frame')}
-          className="absolute right-3 bottom-3 box-border flex h-32 w-[calc(100%-1.5rem)] flex-col gap-2 border border-dashed border-neutral-400 bg-white p-3 transition-colors data-[drag-over-innermost]:border-solid data-[drag-over-innermost]:border-neutral-950 data-[drag-over-innermost]:bg-neutral-100 sm:w-[min(55%,18rem)] dark:border-neutral-500 dark:bg-neutral-950 dark:data-[drag-over-innermost]:border-white dark:data-[drag-over-innermost]:bg-neutral-800"
+          onDraggableDrop={({ source }) => placeLayer(source.payload, 'canvas')}
+          className="relative box-border min-h-60 overflow-hidden border border-neutral-200 bg-neutral-50 bg-[radial-gradient(var(--color-neutral-300)_1px,transparent_1px)] bg-size-[20px_20px] p-3 transition-colors data-[drag-over-innermost]:border-neutral-950 data-[drag-over-innermost]:bg-neutral-100 dark:border-neutral-700 dark:bg-neutral-900 dark:bg-[radial-gradient(var(--color-neutral-700)_1px,transparent_1px)] dark:data-[drag-over-innermost]:border-white dark:data-[drag-over-innermost]:bg-neutral-800"
         >
           <span className="text-xs leading-4 font-semibold text-neutral-500 dark:text-neutral-400">
-            Frame (charts only)
+            Canvas
           </span>
-          <div className="flex flex-1 items-start">
-            {locations.chart === 'frame' ? (
-              <Layer id="chart" />
-            ) : (
-              <span className="text-sm leading-5 text-neutral-500 dark:text-neutral-400">
-                Drop the chart into the frame
-              </span>
-            )}
+          <div className="absolute top-10 left-3 flex flex-col items-start gap-1.5">
+            {renderLayers('canvas')}
           </div>
+          <Draggable.Target
+            accept={layerKind}
+            // @highlight-start @focus @padding 3
+            canDrop={({ source }) => source.payload === 'chart'}
+            // @highlight-end
+            onDraggableDrop={({ source }) => placeLayer(source.payload, 'frame')}
+            className="absolute right-3 bottom-3 box-border flex h-32 w-[calc(100%-1.5rem)] flex-col gap-2 border border-dashed border-neutral-400 bg-white p-3 transition-colors data-[drag-over-innermost]:border-solid data-[drag-over-innermost]:border-neutral-950 data-[drag-over-innermost]:bg-neutral-100 sm:w-[min(55%,18rem)] dark:border-neutral-500 dark:bg-neutral-950 dark:data-[drag-over-innermost]:border-white dark:data-[drag-over-innermost]:bg-neutral-800"
+          >
+            <span className="text-xs leading-4 font-semibold text-neutral-500 dark:text-neutral-400">
+              Frame (charts only)
+            </span>
+            <div className="flex flex-1 items-start">
+              {locations.chart === 'frame' ? (
+                <Layer id="chart" />
+              ) : (
+                <span className="text-sm leading-5 text-neutral-500 dark:text-neutral-400">
+                  Drop the chart into the frame
+                </span>
+              )}
+            </div>
+          </Draggable.Target>
         </Draggable.Target>
-      </Draggable.Target>
-    </div>
-  );
-}
-
-export default function NestedDropTargets() {
-  return (
-    <Draggable.Provider>
-      <NestedDropTargetsContent />
+      </div>
     </Draggable.Provider>
   );
 }

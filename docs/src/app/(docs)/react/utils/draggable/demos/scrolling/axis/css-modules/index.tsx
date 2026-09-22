@@ -64,7 +64,7 @@ function resolveDropIndex(track: HTMLElement, clientX: number): number {
   return index;
 }
 
-function AxisLaneContent() {
+export default function AxisLane() {
   const [stops, setStops] = React.useState(INITIAL_STOPS);
   const trackRef = React.useRef<HTMLDivElement | null>(null);
 
@@ -84,56 +84,49 @@ function AxisLaneContent() {
   }
 
   return (
-    <div className={styles.Root}>
-      <p className={styles.Hint}>
-        Drag a stop toward the left or right edge and the lane scrolls to follow. It only scrolls
-        sideways, so moving the pointer up or down never scrolls it.
-      </p>
-      {/* @highlight-start */}
-      <Draggable.Viewport
-        onDragScroll={({ direction }, eventDetails) => {
-          if (direction !== 'horizontal') {
-            eventDetails.cancel();
-          }
-        }}
-        className={styles.Lane}
-      >
-        {/* @highlight-end */}
-        <Draggable.Target
-          ref={trackRef}
-          className={styles.Track}
-          accept={stopKind}
-          trackDragOver={false}
-          onDraggableDrop={({ source, location }) => {
-            const track = trackRef.current;
-            if (track) {
-              moveStop(source.payload, resolveDropIndex(track, location.current.input.clientX));
-            }
-          }}
-        >
-          {stops.map((stop) => (
-            <Draggable.Root
-              key={stop.id}
-              kind={stopKind}
-              payload={stop.id}
-              data-stop
-              className={styles.Stop}
-            >
-              <GripIcon className={styles.Grip} />
-              {stop.label}
-            </Draggable.Root>
-          ))}
-        </Draggable.Target>
-      </Draggable.Viewport>
-    </div>
-  );
-}
-
-export default function AxisLane() {
-  return (
     <Draggable.Provider>
       <DragPageAutoScroll accept={stopKind} />
-      <AxisLaneContent />
+      <div className={styles.Root}>
+        <p className={styles.Hint}>
+          Drag a stop toward the left or right edge and the lane scrolls to follow. It only scrolls
+          sideways, so moving the pointer up or down never scrolls it.
+        </p>
+        {/* @highlight-start @focus */}
+        <Draggable.Viewport
+          onDragScroll={({ direction }, eventDetails) => {
+            if (direction !== 'horizontal') {
+              eventDetails.cancel();
+            }
+          }}
+          className={styles.Lane}
+        >
+          {/* @highlight-end */}
+          <Draggable.Target
+            ref={trackRef}
+            className={styles.Track}
+            accept={stopKind}
+            onDraggableDrop={({ source, location }) => {
+              const track = trackRef.current;
+              if (track) {
+                moveStop(source.payload, resolveDropIndex(track, location.current.input.clientX));
+              }
+            }}
+          >
+            {stops.map((stop) => (
+              <Draggable.Root
+                key={stop.id}
+                kind={stopKind}
+                payload={stop.id}
+                data-stop
+                className={styles.Stop}
+              >
+                <GripIcon className={styles.Grip} />
+                {stop.label}
+              </Draggable.Root>
+            ))}
+          </Draggable.Target>
+        </Draggable.Viewport>
+      </div>
     </Draggable.Provider>
   );
 }

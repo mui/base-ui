@@ -21,6 +21,7 @@ export default function DraggableHero() {
           });
         }}
       >
+        {/* @focus-start @min 8 */}
         {/* @highlight-start */}
         <Draggable.Root
           modifiers={Draggable.restrictToElement(surfaceRef)}
@@ -31,6 +32,7 @@ export default function DraggableHero() {
           Drag me
           <Draggable.Preview />
         </Draggable.Root>
+        {/* @focus-end */}
       </Draggable.Target>
     </Draggable.Provider>
   );

@@ -35,7 +35,7 @@ function Widget({
         <strong>{widget.value}</strong>
         <span>{widget.detail}</span>
       </div>
-      {/* @highlight-start */}
+      {/* @highlight-start @focus @padding 1 */}
       <Draggable.Preview className={styles.Badge} offset="pointer">
         <span className={styles.BadgeValue}>{widget.value}</span>
         {widget.title}

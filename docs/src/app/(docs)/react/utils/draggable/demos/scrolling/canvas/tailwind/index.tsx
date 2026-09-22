@@ -30,7 +30,7 @@ const PIN_CLASS =
   'dark:border-white dark:bg-neutral-950 dark:text-white dark:hover:bg-neutral-800 ' +
   'dark:focus-visible:outline-white dark:data-[drag-preview]:shadow-none';
 
-function CanvasPanContent() {
+export default function CanvasPan() {
   const [pins, setPins] = React.useState(INITIAL_PINS);
   const [archived, setArchived] = React.useState<string[]>([]);
   const viewportRef = React.useRef<HTMLDivElement | null>(null);
@@ -39,93 +39,89 @@ function CanvasPanContent() {
   const dragStartCameraRef = React.useRef({ x: 0, y: 0 });
 
   return (
-    <div className="flex w-full flex-col gap-4 select-none">
-      <p className="m-0 text-sm leading-5 text-neutral-500 dark:text-neutral-400">
-        Drag a pin to the bottom edge and hold still. The canvas has nothing to scroll, so it moves
-        its own camera, and the archive scrolls into reach.
-      </p>
-
-      <Draggable.Viewport
-        ref={viewportRef}
-        accept={pinKind}
-        className="relative box-border h-[260px] touch-none overflow-hidden border border-neutral-200 dark:border-neutral-700"
-        // @highlight-start
-        onDragScroll={({ x, y }, eventDetails) => {
-          eventDetails.cancel();
-          cameraRef.current = { x: cameraRef.current.x + x, y: cameraRef.current.y + y };
-          // Written straight to the DOM, not through state: the engine re-resolves
-          // what is under the pointer on the frame after this call.
-          const content = contentRef.current;
-          if (content) {
-            content.style.transform = `translate(${-cameraRef.current.x}px, ${-cameraRef.current.y}px)`;
-          }
-          eventDetails.consume();
-        }}
-        // @highlight-end
-      >
-        <div ref={contentRef} className="absolute inset-0 will-change-transform">
-          <Draggable.Target
-            accept={pinKind}
-            className="absolute box-border flex h-[90px] w-[160px] items-center justify-center border border-dashed border-neutral-400 text-[0.875rem] leading-5 text-neutral-500 data-[drag-over]:border-solid data-[drag-over]:border-neutral-950 data-[drag-over]:text-neutral-950 dark:border-neutral-500 dark:text-neutral-400 dark:data-[drag-over]:border-white dark:data-[drag-over]:text-white"
-            style={{ left: ARCHIVE.x, top: ARCHIVE.y }}
-            onDraggableDrop={({ source }) => {
-              setPins((previous) => previous.filter((pin) => pin.id !== source.payload));
-              setArchived((previous) => [...previous, source.payload]);
-            }}
-          >
-            Archive
-          </Draggable.Target>
-
-          {pins.map((pin) => (
-            <Draggable.Root
-              key={pin.id}
-              kind={pinKind}
-              payload={pin.id}
-              className={PIN_CLASS}
-              style={{ left: pin.x, top: pin.y }}
-              onMoveStart={() => {
-                dragStartCameraRef.current = cameraRef.current;
-              }}
-              onMoveEnd={({ location, canceled, dropTarget }) => {
-                if (canceled || dropTarget) {
-                  return;
-                }
-                // The pin must land under the pointer, and the canvas moved
-                // underneath it: add the camera's own delta to the pointer's.
-                const dx = location.current.input.clientX - location.initial.input.clientX;
-                const dy = location.current.input.clientY - location.initial.input.clientY;
-                const panX = cameraRef.current.x - dragStartCameraRef.current.x;
-                const panY = cameraRef.current.y - dragStartCameraRef.current.y;
-                setPins((previous) =>
-                  previous.map((entry) =>
-                    entry.id === pin.id
-                      ? { ...entry, x: entry.x + dx + panX, y: entry.y + dy + panY }
-                      : entry,
-                  ),
-                );
-              }}
-            >
-              {pin.label}
-              {/* The preview is a clone of the pin. Keep it inside the board rather
-                  than letting it trail off over the page. */}
-              <Draggable.Preview modifiers={Draggable.restrictToElement(viewportRef)} />
-            </Draggable.Root>
-          ))}
-        </div>
-      </Draggable.Viewport>
-
-      <p className="m-0 text-sm leading-5 text-neutral-500 dark:text-neutral-400">
-        Archived: {archived.length > 0 ? archived.join(', ') : 'nothing yet'}
-      </p>
-    </div>
-  );
-}
-
-export default function CanvasPan() {
-  return (
     <Draggable.Provider>
       <DragPageAutoScroll accept={pinKind} />
-      <CanvasPanContent />
+      <div className="flex w-full flex-col gap-4 select-none">
+        <p className="m-0 text-sm leading-5 text-neutral-500 dark:text-neutral-400">
+          Drag a pin to the bottom edge and hold still. The canvas has nothing to scroll, so it
+          moves its own camera, and the archive scrolls into reach.
+        </p>
+
+        <Draggable.Viewport
+          ref={viewportRef}
+          accept={pinKind}
+          className="relative box-border h-[260px] touch-none overflow-hidden border border-neutral-200 dark:border-neutral-700"
+          // The camera is written straight to the DOM: Base UI looks for drop targets
+          // again on the next frame, before React could re-render.
+          // @highlight-start @focus
+          onDragScroll={({ x, y }, eventDetails) => {
+            eventDetails.cancel();
+            const camera = cameraRef.current;
+            camera.x += x;
+            camera.y += y;
+            contentRef.current?.style.setProperty(
+              'transform',
+              `translate(${-camera.x}px, ${-camera.y}px)`,
+            );
+            eventDetails.consume();
+          }}
+          // @highlight-end
+        >
+          <div ref={contentRef} className="absolute inset-0 will-change-transform">
+            <Draggable.Target
+              accept={pinKind}
+              className="absolute box-border flex h-[90px] w-[160px] items-center justify-center border border-dashed border-neutral-400 text-[0.875rem] leading-5 text-neutral-500 data-[drag-over]:border-solid data-[drag-over]:border-neutral-950 data-[drag-over]:text-neutral-950 dark:border-neutral-500 dark:text-neutral-400 dark:data-[drag-over]:border-white dark:data-[drag-over]:text-white"
+              style={{ left: ARCHIVE.x, top: ARCHIVE.y }}
+              onDraggableDrop={({ source }) => {
+                setPins((previous) => previous.filter((pin) => pin.id !== source.payload));
+                setArchived((previous) => [...previous, source.payload]);
+              }}
+            >
+              Archive
+            </Draggable.Target>
+
+            {pins.map((pin) => (
+              <Draggable.Root
+                key={pin.id}
+                kind={pinKind}
+                payload={pin.id}
+                className={PIN_CLASS}
+                style={{ left: pin.x, top: pin.y }}
+                onMoveStart={() => {
+                  dragStartCameraRef.current = { ...cameraRef.current };
+                }}
+                onMoveEnd={({ location, canceled, dropTarget }) => {
+                  if (canceled || dropTarget) {
+                    return;
+                  }
+                  // The pin must land under the pointer, and the canvas moved
+                  // underneath it: add the camera's own delta to the pointer's.
+                  const dx = location.current.input.clientX - location.initial.input.clientX;
+                  const dy = location.current.input.clientY - location.initial.input.clientY;
+                  const panX = cameraRef.current.x - dragStartCameraRef.current.x;
+                  const panY = cameraRef.current.y - dragStartCameraRef.current.y;
+                  setPins((previous) =>
+                    previous.map((entry) =>
+                      entry.id === pin.id
+                        ? { ...entry, x: entry.x + dx + panX, y: entry.y + dy + panY }
+                        : entry,
+                    ),
+                  );
+                }}
+              >
+                {pin.label}
+                {/* The preview is a clone of the pin. Keep it inside the board rather
+                  than letting it trail off over the page. */}
+                <Draggable.Preview modifiers={Draggable.restrictToElement(viewportRef)} />
+              </Draggable.Root>
+            ))}
+          </div>
+        </Draggable.Viewport>
+
+        <p className="m-0 text-sm leading-5 text-neutral-500 dark:text-neutral-400">
+          Archived: {archived.length > 0 ? archived.join(', ') : 'nothing yet'}
+        </p>
+      </div>
     </Draggable.Provider>
   );
 }

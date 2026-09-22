@@ -38,7 +38,7 @@ function Layer({ id }: { id: LayerId }) {
   );
 }
 
-function NestedDropTargetsContent() {
+export default function NestedDropTargets() {
   const [locations, setLocations] = React.useState<Record<LayerId, Location>>({
     chart: 'palette',
     note: 'palette',
@@ -55,41 +55,35 @@ function NestedDropTargetsContent() {
   }
 
   return (
-    <div className={styles.Root}>
-      <div className={styles.Palette}>{renderLayers('palette')}</div>
-      <Draggable.Target
-        className={styles.Canvas}
-        accept={layerKind}
-        onDraggableDrop={({ source }) => placeLayer(source.payload, 'canvas')}
-      >
-        <span className={styles.Label}>Canvas</span>
-        <div className={styles.CanvasLayers}>{renderLayers('canvas')}</div>
-        <Draggable.Target
-          className={styles.Frame}
-          accept={layerKind}
-          // @highlight-start
-          canDrop={({ source }) => source.payload === 'chart'}
-          // @highlight-end
-          onDraggableDrop={({ source }) => placeLayer(source.payload, 'frame')}
-        >
-          <span className={styles.Label}>Frame (charts only)</span>
-          <div className={styles.FrameLayers}>
-            {locations.chart === 'frame' ? (
-              <Layer id="chart" />
-            ) : (
-              <span className={styles.Empty}>Drop the chart into the frame</span>
-            )}
-          </div>
-        </Draggable.Target>
-      </Draggable.Target>
-    </div>
-  );
-}
-
-export default function NestedDropTargets() {
-  return (
     <Draggable.Provider>
-      <NestedDropTargetsContent />
+      <div className={styles.Root}>
+        <div className={styles.Palette}>{renderLayers('palette')}</div>
+        <Draggable.Target
+          className={styles.Canvas}
+          accept={layerKind}
+          onDraggableDrop={({ source }) => placeLayer(source.payload, 'canvas')}
+        >
+          <span className={styles.Label}>Canvas</span>
+          <div className={styles.CanvasLayers}>{renderLayers('canvas')}</div>
+          <Draggable.Target
+            className={styles.Frame}
+            accept={layerKind}
+            // @highlight-start @focus @padding 3
+            canDrop={({ source }) => source.payload === 'chart'}
+            // @highlight-end
+            onDraggableDrop={({ source }) => placeLayer(source.payload, 'frame')}
+          >
+            <span className={styles.Label}>Frame (charts only)</span>
+            <div className={styles.FrameLayers}>
+              {locations.chart === 'frame' ? (
+                <Layer id="chart" />
+              ) : (
+                <span className={styles.Empty}>Drop the chart into the frame</span>
+              )}
+            </div>
+          </Draggable.Target>
+        </Draggable.Target>
+      </div>
     </Draggable.Provider>
   );
 }

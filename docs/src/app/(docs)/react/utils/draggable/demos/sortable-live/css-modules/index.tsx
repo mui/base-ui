@@ -76,6 +76,7 @@ export default function SortableLive() {
   });
   return (
     <Draggable.Provider>
+      {/* @highlight-start @focus */}
       <Draggable.CollisionProvider
         kind={taskKind}
         onMoveStart={() => {
@@ -92,6 +93,7 @@ export default function SortableLive() {
           destinationRef.current = null;
         }}
       >
+        {/* @highlight-end */}
         <div
           ref={listRef}
           className={styles.Root}

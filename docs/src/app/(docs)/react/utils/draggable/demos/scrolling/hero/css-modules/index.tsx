@@ -123,22 +123,6 @@ function DropZone({
   // Y offset (in the list's scrolled content) of the line previewing the drop.
   const [dropLineTop, setDropLineTop] = React.useState<number | null>(null);
 
-  const cards = (
-    <React.Fragment>
-      {tasks.map((task) => (
-        <Card key={task.id} task={task} />
-      ))}
-      {dropLineTop != null && (
-        <div className={styles.DropLine} style={{ top: dropLineTop }} aria-hidden="true" />
-      )}
-    </React.Fragment>
-  );
-  const scrollRegion = (
-    <Draggable.Viewport ref={listRef} className={styles.Cards} maxSpeed={maxSpeed}>
-      {cards}
-    </Draggable.Viewport>
-  );
-
   return (
     <Draggable.Target
       className={styles.Zone}
@@ -162,12 +146,21 @@ function DropZone({
       }}
     >
       <span className={styles.Label}>{label}</span>
-      {scrollRegion}
+      {/* @highlight-start @focus */}
+      <Draggable.Viewport ref={listRef} className={styles.Cards} maxSpeed={maxSpeed}>
+        {tasks.map((task) => (
+          <Card key={task.id} task={task} />
+        ))}
+        {dropLineTop != null && (
+          <div className={styles.DropLine} style={{ top: dropLineTop }} aria-hidden="true" />
+        )}
+      </Draggable.Viewport>
+      {/* @highlight-end */}
     </Draggable.Target>
   );
 }
 
-function AutoScrollBoardContent() {
+export default function AutoScrollBoard() {
   const [tasks, setTasks] = React.useState<Record<Zone, Task[]>>(INITIAL_TASKS);
   // Index into `UPCOMING`, so the tray always holds another card to drag.
   const [handedOut, setHandedOut] = React.useState(0);
@@ -203,9 +196,8 @@ function AutoScrollBoardContent() {
   }, [tasks]);
 
   return (
-    // @highlight-start
-    <React.Fragment>
-      {/* @highlight-end */}
+    <Draggable.Provider>
+      <DragPageAutoScroll accept={taskKind} />
       <div ref={rootRef} className={styles.Root}>
         <p className={styles.Hint}>
           Drag the card into either list, at the slot you want. Both lists scroll near their edges;
@@ -228,15 +220,6 @@ function AutoScrollBoardContent() {
           />
         </div>
       </div>
-    </React.Fragment>
-  );
-}
-
-export default function AutoScrollBoard() {
-  return (
-    <Draggable.Provider>
-      <DragPageAutoScroll accept={taskKind} />
-      <AutoScrollBoardContent />
     </Draggable.Provider>
   );
 }

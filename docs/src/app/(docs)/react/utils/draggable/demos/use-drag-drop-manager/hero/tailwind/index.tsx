@@ -24,6 +24,19 @@ const PIECE_CLASS =
 const CUTOUT_CLASS =
   'col-start-1 row-start-1 size-14 bg-neutral-200 transition-colors dark:bg-neutral-700 data-[shape=circle]:rounded-full data-[shape=triangle]:[clip-path:polygon(50%_4%,96%_96%,4%_96%)]';
 
+function collect(
+  elements: Map<ShapeId, HTMLElement>,
+  shape: ShapeId,
+): React.RefCallback<HTMLDivElement> {
+  return (element) => {
+    if (element) {
+      elements.set(shape, element);
+    } else {
+      elements.delete(shape);
+    }
+  };
+}
+
 function ShapePiece({
   shape,
   elementRef,
@@ -42,7 +55,7 @@ function ShapePiece({
   );
 }
 
-function EngineShapeSorterContent() {
+export default function EngineShapeSorter() {
   // @highlight-start
   const manager = Draggable.useDragDropManager();
   // @highlight-end
@@ -62,7 +75,7 @@ function EngineShapeSorterContent() {
     pieceElements.current.forEach((element, shapeId) => {
       const shape = SHAPES.find((item) => item.id === shapeId)!;
       cleanups.push(
-        // @highlight-start
+        // @highlight-start @focus @padding 1
         manager.registerDraggable(element, () => ({
           kind: shape.kind,
           payload: shape.id,
@@ -98,81 +111,57 @@ function EngineShapeSorterContent() {
     }));
   }, [manager]);
 
-  const pieceRef = (shape: ShapeId): React.RefCallback<HTMLDivElement> => {
-    return (element) => {
-      if (element) {
-        pieceElements.current.set(shape, element);
-      } else {
-        pieceElements.current.delete(shape);
-      }
-    };
-  };
-
-  const targetRef = (shape: ShapeId): React.RefCallback<HTMLDivElement> => {
-    return (element) => {
-      if (element) {
-        targetElements.current.set(shape, element);
-      } else {
-        targetElements.current.delete(shape);
-      }
-    };
-  };
-
-  return (
-    <div className="flex w-full flex-col items-center select-none">
-      <div className="flex min-h-5 w-full max-w-md justify-end">
-        {placed.length > 0 && (
-          <button
-            type="button"
-            className="cursor-pointer border-0 bg-transparent p-0 font-[inherit] text-sm leading-5 text-neutral-500 underline underline-offset-2 hover:text-neutral-950 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-neutral-950 dark:text-neutral-400 dark:hover:text-white dark:focus-visible:outline-white"
-            onClick={() => setPlaced([])}
-          >
-            Reset
-          </button>
-        )}
-      </div>
-
-      <div className="grid w-full max-w-md grid-cols-3 py-3">
-        {SHAPES.map((shape) => (
-          <div key={shape.id} className="grid h-16 place-items-center">
-            {!placed.includes(shape.id) && (
-              <ShapePiece shape={shape} elementRef={pieceRef(shape.id)} />
-            )}
-          </div>
-        ))}
-      </div>
-
-      <div className="grid w-full max-w-md grid-cols-3 border border-neutral-200 bg-neutral-50 p-3 dark:border-neutral-700 dark:bg-neutral-900">
-        {SHAPES.map((shape) => {
-          const isPlaced = placed.includes(shape.id);
-
-          return (
-            <div
-              key={shape.id}
-              ref={targetRef(shape.id)}
-              className="grid h-24 place-items-center data-[accepting]:[&_[data-cutout]]:bg-neutral-300 data-[drag-over]:[&_[data-cutout]]:bg-neutral-400 dark:data-[accepting]:[&_[data-cutout]]:bg-neutral-600 dark:data-[drag-over]:[&_[data-cutout]]:bg-neutral-500"
-              data-accepting={activeShape === shape.id || undefined}
-              data-drag-over={overShape === shape.id || undefined}
-            >
-              <span
-                className={CUTOUT_CLASS}
-                data-cutout=""
-                data-shape={shape.id}
-                aria-hidden="true"
-              />
-              {isPlaced && <ShapePiece shape={shape} elementRef={pieceRef(shape.id)} />}
-            </div>
-          );
-        })}
-      </div>
-    </div>
-  );
-}
-
-export default function EngineShapeSorter() {
   return (
     <Draggable.Provider>
-      <EngineShapeSorterContent />
+      <div className="flex w-full flex-col items-center select-none">
+        <div className="flex min-h-5 w-full max-w-md justify-end">
+          {placed.length > 0 && (
+            <button
+              type="button"
+              className="cursor-pointer border-0 bg-transparent p-0 font-[inherit] text-sm leading-5 text-neutral-500 underline underline-offset-2 hover:text-neutral-950 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-neutral-950 dark:text-neutral-400 dark:hover:text-white dark:focus-visible:outline-white"
+              onClick={() => setPlaced([])}
+            >
+              Reset
+            </button>
+          )}
+        </div>
+
+        <div className="grid w-full max-w-md grid-cols-3 py-3">
+          {SHAPES.map((shape) => (
+            <div key={shape.id} className="grid h-16 place-items-center">
+              {!placed.includes(shape.id) && (
+                <ShapePiece shape={shape} elementRef={collect(pieceElements.current, shape.id)} />
+              )}
+            </div>
+          ))}
+        </div>
+
+        <div className="grid w-full max-w-md grid-cols-3 border border-neutral-200 bg-neutral-50 p-3 dark:border-neutral-700 dark:bg-neutral-900">
+          {SHAPES.map((shape) => {
+            const isPlaced = placed.includes(shape.id);
+
+            return (
+              <div
+                key={shape.id}
+                ref={collect(targetElements.current, shape.id)}
+                className="grid h-24 place-items-center data-[accepting]:[&_[data-cutout]]:bg-neutral-300 data-[drag-over]:[&_[data-cutout]]:bg-neutral-400 dark:data-[accepting]:[&_[data-cutout]]:bg-neutral-600 dark:data-[drag-over]:[&_[data-cutout]]:bg-neutral-500"
+                data-accepting={activeShape === shape.id || undefined}
+                data-drag-over={overShape === shape.id || undefined}
+              >
+                <span
+                  className={CUTOUT_CLASS}
+                  data-cutout=""
+                  data-shape={shape.id}
+                  aria-hidden="true"
+                />
+                {isPlaced && (
+                  <ShapePiece shape={shape} elementRef={collect(pieceElements.current, shape.id)} />
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </div>
     </Draggable.Provider>
   );
 }

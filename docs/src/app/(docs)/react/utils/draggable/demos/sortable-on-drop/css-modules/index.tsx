@@ -81,11 +81,13 @@ export default function SortableOnDrop() {
   });
   return (
     <Draggable.Provider>
+      {/* @highlight-start @focus @padding 1 */}
       <Draggable.CollisionProvider
         kind={taskKind}
         onCollisionChange={trackCollision}
         onMoveEnd={reorder}
       >
+        {/* @highlight-end */}
         <div className={styles.Root} role="group" aria-label="Tasks reordered on drop">
           {tasks.map((task) => (
             <Task

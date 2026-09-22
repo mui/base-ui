@@ -128,26 +128,6 @@ function DropZone({
   // Y offset (in the list's scrolled content) of the line previewing the drop.
   const [dropLineTop, setDropLineTop] = React.useState<number | null>(null);
 
-  const cards = (
-    <React.Fragment>
-      {tasks.map((task) => (
-        <Card key={task.id} task={task} />
-      ))}
-      {dropLineTop != null && (
-        <div
-          style={{ top: dropLineTop }}
-          className="pointer-events-none absolute inset-x-0 h-0.5 -translate-y-1/2 bg-neutral-950 dark:bg-white"
-          aria-hidden="true"
-        />
-      )}
-    </React.Fragment>
-  );
-  const scrollRegion = (
-    <Draggable.Viewport ref={listRef} className={LIST_CLASS} maxSpeed={maxSpeed}>
-      {cards}
-    </Draggable.Viewport>
-  );
-
   return (
     <Draggable.Target
       className="box-border flex h-52 flex-col gap-2 border border-neutral-200 p-3 transition-colors data-[drag-over]:border-neutral-950 data-[drag-over]:bg-neutral-100 dark:border-neutral-700 dark:data-[drag-over]:border-white dark:data-[drag-over]:bg-neutral-800"
@@ -173,12 +153,25 @@ function DropZone({
       <span className="text-[0.75rem] leading-4 font-semibold text-neutral-500 dark:text-neutral-400">
         {label}
       </span>
-      {scrollRegion}
+      {/* @highlight-start @focus */}
+      <Draggable.Viewport ref={listRef} className={LIST_CLASS} maxSpeed={maxSpeed}>
+        {tasks.map((task) => (
+          <Card key={task.id} task={task} />
+        ))}
+        {dropLineTop != null && (
+          <div
+            style={{ top: dropLineTop }}
+            className="pointer-events-none absolute inset-x-0 h-0.5 -translate-y-1/2 bg-neutral-950 dark:bg-white"
+            aria-hidden="true"
+          />
+        )}
+      </Draggable.Viewport>
+      {/* @highlight-end */}
     </Draggable.Target>
   );
 }
 
-function AutoScrollBoardContent() {
+export default function AutoScrollBoard() {
   const [tasks, setTasks] = React.useState<Record<Zone, Task[]>>(INITIAL_TASKS);
   // Index into `UPCOMING`, so the tray always holds another card to drag.
   const [handedOut, setHandedOut] = React.useState(0);
@@ -214,9 +207,8 @@ function AutoScrollBoardContent() {
   }, [tasks]);
 
   return (
-    // @highlight-start
-    <React.Fragment>
-      {/* @highlight-end */}
+    <Draggable.Provider>
+      <DragPageAutoScroll accept={taskKind} />
       <div ref={rootRef} className="flex w-full flex-col gap-4 select-none">
         <p className="m-0 text-sm leading-5 text-neutral-500 dark:text-neutral-400">
           Drag the card into either list, at the slot you want. Both lists scroll near their edges;
@@ -239,15 +231,6 @@ function AutoScrollBoardContent() {
           />
         </div>
       </div>
-    </React.Fragment>
-  );
-}
-
-export default function AutoScrollBoard() {
-  return (
-    <Draggable.Provider>
-      <DragPageAutoScroll accept={taskKind} />
-      <AutoScrollBoardContent />
     </Draggable.Provider>
   );
 }

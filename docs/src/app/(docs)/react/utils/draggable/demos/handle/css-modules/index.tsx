@@ -28,7 +28,7 @@ function Widget({
       onKeyDown={(event) => onKeyDown(event, widget.id)}
     >
       <div className={styles.WidgetHeader}>
-        {/* @highlight-start */}
+        {/* @highlight-start @focus @padding 2 */}
         <Draggable.Handle className={styles.Handle}>
           <GripIcon className={styles.Grip} />
         </Draggable.Handle>
@@ -75,34 +75,28 @@ function DockSlot({
   );
 }
 
-function HandleDashboardContent() {
+export default function HandleDashboard() {
   const { widgets, moveWidget, onWidgetKeyDown, announcement } = useDashboardWidgets();
 
   return (
-    <div className={styles.Root}>
-      <div role="status" className={statusStyles.Status}>
-        {announcement}
-      </div>
-      <div className={styles.Grid}>
-        {SLOTS.map((slot) => (
-          <DockSlot
-            key={slot.id}
-            id={slot.id}
-            label={slot.label}
-            widget={widgets.find((widget) => widget.slot === slot.id)}
-            onMoveWidget={moveWidget}
-            onWidgetKeyDown={onWidgetKeyDown}
-          />
-        ))}
-      </div>
-    </div>
-  );
-}
-
-export default function HandleDashboard() {
-  return (
     <Draggable.Provider>
-      <HandleDashboardContent />
+      <div className={styles.Root}>
+        <div role="status" className={statusStyles.Status}>
+          {announcement}
+        </div>
+        <div className={styles.Grid}>
+          {SLOTS.map((slot) => (
+            <DockSlot
+              key={slot.id}
+              id={slot.id}
+              label={slot.label}
+              widget={widgets.find((widget) => widget.slot === slot.id)}
+              onMoveWidget={moveWidget}
+              onWidgetKeyDown={onWidgetKeyDown}
+            />
+          ))}
+        </div>
+      </div>
     </Draggable.Provider>
   );
 }

@@ -78,7 +78,7 @@ function Puck({
     <Draggable.Root
       className={`${PUCK_CLASS} cursor-grab`}
       kind={puckKind}
-      // @highlight-start
+      // @highlight-start @focus @padding 3
       activation={mode.activation}
       // @highlight-end
       role="img"
@@ -103,7 +103,7 @@ function Puck({
   );
 }
 
-function ActivationLabContent() {
+export default function ActivationLab() {
   const [modeId, setModeId] = React.useState('distance-5');
   const [phase, setPhase] = React.useState<Phase>('ready');
   const [dropped, setDropped] = React.useState(false);
@@ -131,84 +131,78 @@ function ActivationLabContent() {
   }[phase];
 
   return (
-    <div className="flex w-full flex-col items-center select-none">
-      <div className="flex min-h-5 w-full max-w-md justify-end">
-        {dropped && (
-          <button
-            type="button"
-            className="cursor-pointer border-0 bg-transparent p-0 font-[inherit] text-sm leading-5 text-neutral-500 underline underline-offset-2 hover:text-neutral-950 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-neutral-950 dark:text-neutral-400 dark:hover:text-white dark:focus-visible:outline-white"
-            onClick={reset}
-          >
-            Reset
-          </button>
-        )}
-      </div>
-
-      <div
-        className="grid w-full max-w-md grid-cols-4 border border-neutral-200 dark:border-neutral-700"
-        role="group"
-        aria-label="Pointer activation"
-      >
-        {ACTIVATION_MODES.map((item) => (
-          <button
-            key={item.id}
-            type="button"
-            className="cursor-pointer border-0 border-r border-neutral-200 bg-transparent px-2 py-1.5 font-[inherit] text-sm leading-5 text-neutral-500 last:border-r-0 hover:bg-neutral-100 hover:text-neutral-950 focus-visible:z-10 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-neutral-950 aria-pressed:bg-neutral-950 aria-pressed:text-white dark:border-neutral-700 dark:text-neutral-400 dark:hover:bg-neutral-800 dark:hover:text-white dark:focus-visible:outline-white dark:aria-pressed:bg-white dark:aria-pressed:text-neutral-950"
-            aria-pressed={item.id === modeId}
-            onClick={() => selectMode(item.id)}
-          >
-            {item.label}
-          </button>
-        ))}
-      </div>
-
-      <div className="grid w-full max-w-md grid-cols-[5rem_1fr_5rem] items-center px-2 py-7 sm:grid-cols-[6rem_1fr_6rem]">
-        <div className="grid justify-items-center gap-2">
-          <div className="grid size-20 place-items-center">
-            {!dropped && <Puck mode={mode} onPhaseChange={setPhase} />}
-          </div>
-          <span className="text-xs font-medium leading-4 text-neutral-500 dark:text-neutral-400">
-            Start
-          </span>
+    <Draggable.Provider>
+      <div className="flex w-full flex-col items-center select-none">
+        <div className="flex min-h-5 w-full max-w-md justify-end">
+          {dropped && (
+            <button
+              type="button"
+              className="cursor-pointer border-0 bg-transparent p-0 font-[inherit] text-sm leading-5 text-neutral-500 underline underline-offset-2 hover:text-neutral-950 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-neutral-950 dark:text-neutral-400 dark:hover:text-white dark:focus-visible:outline-white"
+              onClick={reset}
+            >
+              Reset
+            </button>
+          )}
         </div>
 
         <div
-          className="border-t border-dashed border-neutral-300 dark:border-neutral-600"
-          aria-hidden="true"
-        />
+          className="grid w-full max-w-md grid-cols-4 border border-neutral-200 dark:border-neutral-700"
+          role="group"
+          aria-label="Pointer activation"
+        >
+          {ACTIVATION_MODES.map((item) => (
+            <button
+              key={item.id}
+              type="button"
+              className="cursor-pointer border-0 border-r border-neutral-200 bg-transparent px-2 py-1.5 font-[inherit] text-sm leading-5 text-neutral-500 last:border-r-0 hover:bg-neutral-100 hover:text-neutral-950 focus-visible:z-10 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-neutral-950 aria-pressed:bg-neutral-950 aria-pressed:text-white dark:border-neutral-700 dark:text-neutral-400 dark:hover:bg-neutral-800 dark:hover:text-white dark:focus-visible:outline-white dark:aria-pressed:bg-white dark:aria-pressed:text-neutral-950"
+              aria-pressed={item.id === modeId}
+              onClick={() => selectMode(item.id)}
+            >
+              {item.label}
+            </button>
+          ))}
+        </div>
 
-        <div className="grid justify-items-center gap-2">
-          <Draggable.Target
-            className="grid size-20 place-items-center rounded-full border border-dashed border-neutral-400 transition-[border-color,background-color] data-[accepting]:bg-neutral-100 data-[drag-over]:border-solid data-[drag-over]:border-neutral-950 data-[drag-over]:bg-neutral-200 dark:border-neutral-500 dark:data-[accepting]:bg-neutral-800 dark:data-[drag-over]:border-white dark:data-[drag-over]:bg-neutral-700"
-            accept={puckKind}
-            onDraggableDrop={() => {
-              setDropped(true);
-              setPhase('dropped');
-            }}
-          >
-            {dropped && <span className={PUCK_CLASS} aria-hidden="true" />}
-          </Draggable.Target>
-          <span className="text-xs font-medium leading-4 text-neutral-500 dark:text-neutral-400">
-            Target
-          </span>
+        <div className="grid w-full max-w-md grid-cols-[5rem_1fr_5rem] items-center px-2 py-7 sm:grid-cols-[6rem_1fr_6rem]">
+          <div className="grid justify-items-center gap-2">
+            <div className="grid size-20 place-items-center">
+              {!dropped && <Puck mode={mode} onPhaseChange={setPhase} />}
+            </div>
+            <span className="text-xs font-medium leading-4 text-neutral-500 dark:text-neutral-400">
+              Start
+            </span>
+          </div>
+
+          <div
+            className="border-t border-dashed border-neutral-300 dark:border-neutral-600"
+            aria-hidden="true"
+          />
+
+          <div className="grid justify-items-center gap-2">
+            <Draggable.Target
+              className="grid size-20 place-items-center rounded-full border border-dashed border-neutral-400 transition-[border-color,background-color] data-[accepting]:bg-neutral-100 data-[drag-over]:border-solid data-[drag-over]:border-neutral-950 data-[drag-over]:bg-neutral-200 dark:border-neutral-500 dark:data-[accepting]:bg-neutral-800 dark:data-[drag-over]:border-white dark:data-[drag-over]:bg-neutral-700"
+              accept={puckKind}
+              onDraggableDrop={() => {
+                setDropped(true);
+                setPhase('dropped');
+              }}
+            >
+              {dropped && <span className={PUCK_CLASS} aria-hidden="true" />}
+            </Draggable.Target>
+            <span className="text-xs font-medium leading-4 text-neutral-500 dark:text-neutral-400">
+              Target
+            </span>
+          </div>
+        </div>
+
+        <div
+          className="flex w-full max-w-md items-baseline gap-3 border border-neutral-200 px-3 py-2 text-sm dark:border-neutral-700"
+          role="status"
+        >
+          <span className="shrink-0 font-medium text-neutral-950 dark:text-white">Status</span>
+          <span className="min-w-0 truncate text-neutral-500 dark:text-neutral-400">{message}</span>
         </div>
       </div>
-
-      <div
-        className="flex w-full max-w-md items-baseline gap-3 border border-neutral-200 px-3 py-2 text-sm dark:border-neutral-700"
-        role="status"
-      >
-        <span className="shrink-0 font-medium text-neutral-950 dark:text-white">Status</span>
-        <span className="min-w-0 truncate text-neutral-500 dark:text-neutral-400">{message}</span>
-      </div>
-    </div>
-  );
-}
-
-export default function ActivationLab() {
-  return (
-    <Draggable.Provider>
-      <ActivationLabContent />
     </Draggable.Provider>
   );
 }

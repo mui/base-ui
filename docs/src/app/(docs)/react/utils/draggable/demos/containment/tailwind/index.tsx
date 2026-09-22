@@ -28,7 +28,7 @@ function Widget({
       aria-keyshortcuts="Alt+ArrowLeft Alt+ArrowRight"
       onKeyDown={(event) => onKeyDown(event, widget.id)}
       className={WIDGET_CLASS}
-      // @highlight-start
+      // @highlight-start @focus @padding 3
       modifiers={Draggable.restrictToElement(frameRef)}
       // @highlight-end
     >
@@ -82,48 +82,42 @@ function DockSlot({
   );
 }
 
-function ContainedDashboardContent() {
+export default function ContainedDashboard() {
   const { widgets, moveWidget, onWidgetKeyDown, announcement } = useDashboardWidgets();
   const frameRef = React.useRef<HTMLDivElement | null>(null);
 
   return (
-    <div className="flex w-full flex-col gap-4 select-none">
-      <div role="status" className="sr-only">
-        {announcement}
-      </div>
-      <div
-        ref={frameRef}
-        className="border border-dashed border-neutral-400 p-4 dark:border-neutral-500"
-      >
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-          {SLOTS.map((slot) => (
-            <DockSlot
-              key={slot.id}
-              id={slot.id}
-              label={slot.label}
-              widget={widgets.find((widget) => widget.slot === slot.id)}
-              frameRef={frameRef}
-              onMoveWidget={moveWidget}
-              onWidgetKeyDown={onWidgetKeyDown}
-            />
-          ))}
-        </div>
-      </div>
-      <Draggable.Target
-        accept={widgetKind}
-        className="box-border flex min-h-24 flex-col justify-center gap-1 border border-dashed border-neutral-300 px-4 text-neutral-500 data-[drag-over]:border-solid data-[drag-over]:border-neutral-950 data-[drag-over]:bg-neutral-100 dark:border-neutral-700 dark:text-neutral-400 dark:data-[drag-over]:border-white dark:data-[drag-over]:bg-neutral-800"
-      >
-        <strong className="text-xs leading-4 font-semibold">Outside slot</strong>
-        <span className="text-sm leading-5">The drag cannot reach this target.</span>
-      </Draggable.Target>
-    </div>
-  );
-}
-
-export default function ContainedDashboard() {
-  return (
     <Draggable.Provider>
-      <ContainedDashboardContent />
+      <div className="flex w-full flex-col gap-4 select-none">
+        <div role="status" className="sr-only">
+          {announcement}
+        </div>
+        <div
+          ref={frameRef}
+          className="border border-dashed border-neutral-400 p-4 dark:border-neutral-500"
+        >
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+            {SLOTS.map((slot) => (
+              <DockSlot
+                key={slot.id}
+                id={slot.id}
+                label={slot.label}
+                widget={widgets.find((widget) => widget.slot === slot.id)}
+                frameRef={frameRef}
+                onMoveWidget={moveWidget}
+                onWidgetKeyDown={onWidgetKeyDown}
+              />
+            ))}
+          </div>
+        </div>
+        <Draggable.Target
+          accept={widgetKind}
+          className="box-border flex min-h-24 flex-col justify-center gap-1 border border-dashed border-neutral-300 px-4 text-neutral-500 data-[drag-over]:border-solid data-[drag-over]:border-neutral-950 data-[drag-over]:bg-neutral-100 dark:border-neutral-700 dark:text-neutral-400 dark:data-[drag-over]:border-white dark:data-[drag-over]:bg-neutral-800"
+        >
+          <strong className="text-xs leading-4 font-semibold">Outside slot</strong>
+          <span className="text-sm leading-5">The drag cannot reach this target.</span>
+        </Draggable.Target>
+      </div>
     </Draggable.Provider>
   );
 }

@@ -37,11 +37,11 @@ function ShapePiece({ shape }: { shape: Shape }) {
   );
 }
 
-function MonitorShapeSorterContent() {
+export default function MonitorShapeSorter() {
   const [placed, setPlaced] = React.useState<ShapeId[]>([]);
   const [message, setMessage] = React.useState(IDLE_MESSAGE);
 
-  // @highlight-start
+  // @highlight-start @focus
   Draggable.useDragMonitor({
     accept: SHAPE_KINDS,
     onMoveStart: ({ source }) => {
@@ -76,66 +76,60 @@ function MonitorShapeSorterContent() {
   }
 
   return (
-    <div className="flex w-full flex-col items-center select-none">
-      <div className="flex min-h-5 w-full max-w-md justify-end">
-        {placed.length > 0 && (
-          <button
-            type="button"
-            className="cursor-pointer border-0 bg-transparent p-0 font-[inherit] text-sm leading-5 text-neutral-500 underline underline-offset-2 hover:text-neutral-950 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-neutral-950 dark:text-neutral-400 dark:hover:text-white dark:focus-visible:outline-white"
-            onClick={reset}
-          >
-            Reset
-          </button>
-        )}
-      </div>
-
-      <div className="grid w-full max-w-md grid-cols-3 py-3">
-        {SHAPES.map((shape) => (
-          <div key={shape.id} className="grid h-16 place-items-center">
-            {!placed.includes(shape.id) && <ShapePiece shape={shape} />}
-          </div>
-        ))}
-      </div>
-
-      <div className="grid w-full max-w-md grid-cols-3 border border-neutral-200 bg-neutral-50 p-3 dark:border-neutral-700 dark:bg-neutral-900">
-        {SHAPES.map((shape) => {
-          const isPlaced = placed.includes(shape.id);
-
-          return (
-            <Draggable.Target
-              key={shape.id}
-              className="grid h-24 place-items-center data-[accepting]:[&_[data-cutout]]:bg-neutral-300 data-[drag-over]:[&_[data-cutout]]:bg-neutral-400 dark:data-[accepting]:[&_[data-cutout]]:bg-neutral-600 dark:data-[drag-over]:[&_[data-cutout]]:bg-neutral-500"
-              kind={shape.kind}
-              payload={shape.id}
-              accept={shape.kind}
-            >
-              <span
-                className={CUTOUT_CLASS}
-                data-cutout=""
-                data-shape={shape.id}
-                aria-hidden="true"
-              />
-              {isPlaced && <ShapePiece shape={shape} />}
-            </Draggable.Target>
-          );
-        })}
-      </div>
-
-      <div
-        className="mt-3 flex w-full max-w-md items-baseline gap-3 border border-neutral-200 px-3 py-2 text-sm dark:border-neutral-700"
-        role="status"
-      >
-        <span className="font-medium text-neutral-950 dark:text-white">Monitor</span>
-        <span className="min-w-0 truncate text-neutral-500 dark:text-neutral-400">{message}</span>
-      </div>
-    </div>
-  );
-}
-
-export default function MonitorShapeSorter() {
-  return (
     <Draggable.Provider>
-      <MonitorShapeSorterContent />
+      <div className="flex w-full flex-col items-center select-none">
+        <div className="flex min-h-5 w-full max-w-md justify-end">
+          {placed.length > 0 && (
+            <button
+              type="button"
+              className="cursor-pointer border-0 bg-transparent p-0 font-[inherit] text-sm leading-5 text-neutral-500 underline underline-offset-2 hover:text-neutral-950 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-neutral-950 dark:text-neutral-400 dark:hover:text-white dark:focus-visible:outline-white"
+              onClick={reset}
+            >
+              Reset
+            </button>
+          )}
+        </div>
+
+        <div className="grid w-full max-w-md grid-cols-3 py-3">
+          {SHAPES.map((shape) => (
+            <div key={shape.id} className="grid h-16 place-items-center">
+              {!placed.includes(shape.id) && <ShapePiece shape={shape} />}
+            </div>
+          ))}
+        </div>
+
+        <div className="grid w-full max-w-md grid-cols-3 border border-neutral-200 bg-neutral-50 p-3 dark:border-neutral-700 dark:bg-neutral-900">
+          {SHAPES.map((shape) => {
+            const isPlaced = placed.includes(shape.id);
+
+            return (
+              <Draggable.Target
+                key={shape.id}
+                className="grid h-24 place-items-center data-[accepting]:[&_[data-cutout]]:bg-neutral-300 data-[drag-over]:[&_[data-cutout]]:bg-neutral-400 dark:data-[accepting]:[&_[data-cutout]]:bg-neutral-600 dark:data-[drag-over]:[&_[data-cutout]]:bg-neutral-500"
+                kind={shape.kind}
+                payload={shape.id}
+                accept={shape.kind}
+              >
+                <span
+                  className={CUTOUT_CLASS}
+                  data-cutout=""
+                  data-shape={shape.id}
+                  aria-hidden="true"
+                />
+                {isPlaced && <ShapePiece shape={shape} />}
+              </Draggable.Target>
+            );
+          })}
+        </div>
+
+        <div
+          className="mt-3 flex w-full max-w-md items-baseline gap-3 border border-neutral-200 px-3 py-2 text-sm dark:border-neutral-700"
+          role="status"
+        >
+          <span className="font-medium text-neutral-950 dark:text-white">Monitor</span>
+          <span className="min-w-0 truncate text-neutral-500 dark:text-neutral-400">{message}</span>
+        </div>
+      </div>
     </Draggable.Provider>
   );
 }

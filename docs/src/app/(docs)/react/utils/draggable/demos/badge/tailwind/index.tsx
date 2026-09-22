@@ -40,7 +40,7 @@ function Widget({
           {widget.detail}
         </span>
       </div>
-      {/* @highlight-start */}
+      {/* @highlight-start @focus @padding 1 */}
       <Draggable.Preview className={BADGE_CLASS} offset="pointer">
         <span className={BADGE_VALUE_CLASS}>{widget.value}</span>
         {widget.title}

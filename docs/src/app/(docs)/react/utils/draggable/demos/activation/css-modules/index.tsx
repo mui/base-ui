@@ -77,7 +77,7 @@ function Puck({
     <Draggable.Root
       className={styles.Puck}
       kind={puckKind}
-      // @highlight-start
+      // @highlight-start @focus @padding 3
       activation={mode.activation}
       // @highlight-end
       role="img"
@@ -102,7 +102,7 @@ function Puck({
   );
 }
 
-function ActivationLabContent() {
+export default function ActivationLab() {
   const [modeId, setModeId] = React.useState('distance-5');
   const [phase, setPhase] = React.useState<Phase>('ready');
   const [dropped, setDropped] = React.useState(false);
@@ -130,66 +130,60 @@ function ActivationLabContent() {
   }[phase];
 
   return (
-    <div className={styles.Root}>
-      <div className={styles.Actions}>
-        {dropped && (
-          <button type="button" className={styles.Reset} onClick={reset}>
-            Reset
-          </button>
-        )}
-      </div>
-
-      <div className={styles.Modes} role="group" aria-label="Pointer activation">
-        {ACTIVATION_MODES.map((item) => (
-          <button
-            key={item.id}
-            type="button"
-            className={styles.Mode}
-            aria-pressed={item.id === modeId}
-            onClick={() => selectMode(item.id)}
-          >
-            {item.label}
-          </button>
-        ))}
-      </div>
-
-      <div className={styles.Stage}>
-        <div className={styles.Station}>
-          <div className={styles.Start}>
-            {!dropped && <Puck mode={mode} onPhaseChange={setPhase} />}
-          </div>
-          <span className={styles.StationLabel}>Start</span>
-        </div>
-
-        <div className={styles.Track} aria-hidden="true" />
-
-        <div className={styles.Station}>
-          <Draggable.Target
-            className={styles.Target}
-            accept={puckKind}
-            onDraggableDrop={() => {
-              setDropped(true);
-              setPhase('dropped');
-            }}
-          >
-            {dropped && <span className={styles.Puck} data-static="" aria-hidden="true" />}
-          </Draggable.Target>
-          <span className={styles.StationLabel}>Target</span>
-        </div>
-      </div>
-
-      <div className={styles.Status} role="status">
-        <span className={styles.StatusLabel}>Status</span>
-        <span className={styles.StatusMessage}>{message}</span>
-      </div>
-    </div>
-  );
-}
-
-export default function ActivationLab() {
-  return (
     <Draggable.Provider>
-      <ActivationLabContent />
+      <div className={styles.Root}>
+        <div className={styles.Actions}>
+          {dropped && (
+            <button type="button" className={styles.Reset} onClick={reset}>
+              Reset
+            </button>
+          )}
+        </div>
+
+        <div className={styles.Modes} role="group" aria-label="Pointer activation">
+          {ACTIVATION_MODES.map((item) => (
+            <button
+              key={item.id}
+              type="button"
+              className={styles.Mode}
+              aria-pressed={item.id === modeId}
+              onClick={() => selectMode(item.id)}
+            >
+              {item.label}
+            </button>
+          ))}
+        </div>
+
+        <div className={styles.Stage}>
+          <div className={styles.Station}>
+            <div className={styles.Start}>
+              {!dropped && <Puck mode={mode} onPhaseChange={setPhase} />}
+            </div>
+            <span className={styles.StationLabel}>Start</span>
+          </div>
+
+          <div className={styles.Track} aria-hidden="true" />
+
+          <div className={styles.Station}>
+            <Draggable.Target
+              className={styles.Target}
+              accept={puckKind}
+              onDraggableDrop={() => {
+                setDropped(true);
+                setPhase('dropped');
+              }}
+            >
+              {dropped && <span className={styles.Puck} data-static="" aria-hidden="true" />}
+            </Draggable.Target>
+            <span className={styles.StationLabel}>Target</span>
+          </div>
+        </div>
+
+        <div className={styles.Status} role="status">
+          <span className={styles.StatusLabel}>Status</span>
+          <span className={styles.StatusMessage}>{message}</span>
+        </div>
+      </div>
     </Draggable.Provider>
   );
 }

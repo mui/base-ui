@@ -28,7 +28,7 @@ function Widget({
       aria-keyshortcuts="Alt+ArrowLeft Alt+ArrowRight"
       onKeyDown={(event) => onKeyDown(event, widget.id)}
       className={styles.Widget}
-      // @highlight-start
+      // @highlight-start @focus @padding 3
       modifiers={Draggable.restrictToElement(frameRef)}
       // @highlight-end
     >
@@ -78,42 +78,36 @@ function DockSlot({
   );
 }
 
-function ContainedDashboardContent() {
+export default function ContainedDashboard() {
   const { widgets, moveWidget, onWidgetKeyDown, announcement } = useDashboardWidgets();
   const frameRef = React.useRef<HTMLDivElement | null>(null);
 
   return (
-    <div className={styles.Root}>
-      <div role="status" className={statusStyles.Status}>
-        {announcement}
-      </div>
-      <div ref={frameRef} className={styles.Frame}>
-        <div className={styles.Grid}>
-          {SLOTS.map((slot) => (
-            <DockSlot
-              key={slot.id}
-              id={slot.id}
-              label={slot.label}
-              widget={widgets.find((widget) => widget.slot === slot.id)}
-              frameRef={frameRef}
-              onMoveWidget={moveWidget}
-              onWidgetKeyDown={onWidgetKeyDown}
-            />
-          ))}
-        </div>
-      </div>
-      <Draggable.Target className={styles.OutsideSlot} accept={widgetKind}>
-        <strong>Outside slot</strong>
-        <span>The drag cannot reach this target.</span>
-      </Draggable.Target>
-    </div>
-  );
-}
-
-export default function ContainedDashboard() {
-  return (
     <Draggable.Provider>
-      <ContainedDashboardContent />
+      <div className={styles.Root}>
+        <div role="status" className={statusStyles.Status}>
+          {announcement}
+        </div>
+        <div ref={frameRef} className={styles.Frame}>
+          <div className={styles.Grid}>
+            {SLOTS.map((slot) => (
+              <DockSlot
+                key={slot.id}
+                id={slot.id}
+                label={slot.label}
+                widget={widgets.find((widget) => widget.slot === slot.id)}
+                frameRef={frameRef}
+                onMoveWidget={moveWidget}
+                onWidgetKeyDown={onWidgetKeyDown}
+              />
+            ))}
+          </div>
+        </div>
+        <Draggable.Target className={styles.OutsideSlot} accept={widgetKind}>
+          <strong>Outside slot</strong>
+          <span>The drag cannot reach this target.</span>
+        </Draggable.Target>
+      </div>
     </Draggable.Provider>
   );
 }
