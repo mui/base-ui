@@ -114,9 +114,7 @@ export function useFilterDropdownItem(
       }
       return registerItem(itemId, {
         getText: () => previousTextRef.current,
-        get keywords() {
-          return keywordsRef.current;
-        },
+        getKeywords: () => keywordsRef.current,
       });
     },
     [itemId, registerItem, resolveText, keywordsRef],

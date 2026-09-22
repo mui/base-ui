@@ -1,8 +1,15 @@
-import type { MenuFilterFunction } from './MenuFilterRoot';
-import type { MenuFilterProvider } from '../filter-provider/MenuFilterProvider';
+import type { MenuFilterProvider } from './MenuFilterProvider';
+
+/**
+ * Determines whether an item matches the current filter query.
+ *
+ * @param text The item's `label`, rendered text, or one of its `keywords`.
+ * @param query The trimmed filter query.
+ */
+export type MenuFilterFunction = (text: string, query: string) => boolean;
 
 /** The filtering props of `Menu.FilterProvider`, applied to the root directly inside it. */
-export interface MenuFilterRootFilterProps {
+export interface MenuFilterProviderOptions {
   /**
    * Replaces the default case-insensitive substring matching while the filter root controls which
    * registered items remain visible.

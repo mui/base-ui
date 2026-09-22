@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useStore } from '@base-ui/utils/store';
-import { useFilterDropdownPopup } from '../../filter-dropdown/popup/useFilterDropdownPopup';
+import { useMenuFilterPopup } from './useMenuFilterPopup';
 import type { FloatingFocusManagerProps } from '../../floating-ui-react/components/FloatingFocusManager';
 import { MenuPopupPlain, type MenuPopupProps } from '../popup/MenuPopup';
 import { useMenuRootContext } from '../root/MenuRootContext';
@@ -13,17 +13,17 @@ import { selectTrapsFocus } from './selectTrapsFocus';
  * A container for the filter input and item list.
  * Renders a `<div>` element with a `dialog` role.
  */
-export const FilteredMenuPopup = React.forwardRef(function FilteredMenuPopup(
+export const MenuFilterPopup = React.forwardRef(function MenuFilterPopup(
   props: MenuPopupProps,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { store, virtualFocusRef, virtualFocusAutoFocus } = useMenuRootContext();
+  const { store, orientation } = useMenuRootContext();
   const open = store.useState('open');
   const parent = store.useState('parent');
   const openMethod = store.useState('openMethod');
   const lastOpenChangeReason = store.useState('lastOpenChangeReason');
   const trapsFocus = useStore(store, selectTrapsFocus);
-  const interactionProps = useFilterDropdownPopup();
+  const interactionProps = useMenuFilterPopup(orientation);
 
   const openedByHover = open && lastOpenChangeReason === REASONS.triggerHover;
   const shouldFocusPopup =
@@ -40,12 +40,12 @@ export const FilteredMenuPopup = React.forwardRef(function FilteredMenuPopup(
     initialFocus = () => {
       // Touch and pen openings require explicit autofocus.
       if (
-        !virtualFocusAutoFocus &&
+        !store.context.virtualFocusAutoFocus &&
         (openedByHover || openMethod === 'touch' || openMethod === 'pen')
       ) {
         return false;
       }
-      return virtualFocusRef?.current ?? false;
+      return store.context.virtualFocusRef?.current ?? false;
     };
   }
 

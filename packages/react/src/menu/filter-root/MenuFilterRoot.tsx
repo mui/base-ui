@@ -1,8 +1,7 @@
 'use client';
 import * as React from 'react';
-import type { FilterDropdownRoot as FilterDropdownRootNamespace } from '../../filter-dropdown/root/FilterDropdownRoot';
 import { MenuRootInternal, type MenuRoot } from '../root/MenuRoot';
-import type { MenuFilterRootFilterProps } from './MenuFilterRootFilterProps';
+import type { MenuFilterProviderOptions } from '../filter-provider/MenuFilterProviderOptions';
 import { MenuFilterDropdown } from './MenuFilterDropdown';
 import { useMenuFilterRoot } from './useMenuFilterRoot';
 
@@ -12,8 +11,8 @@ import { useMenuFilterRoot } from './useMenuFilterRoot';
  *
  * @internal
  */
-export function MenuFilterRoot<Payload>(props: MenuFilterRoot.Props<Payload>): React.JSX.Element {
-  const { children, rootProps, dropdownProps } = useMenuFilterRoot(props, 'MenuFilterRoot');
+export function MenuFilterRoot<Payload>(props: MenuFilterRootProps<Payload>): React.JSX.Element {
+  const { children, rootProps, dropdownProps } = useMenuFilterRoot(props, 'MenuRoot');
 
   return (
     <MenuRootInternal
@@ -27,35 +26,5 @@ export function MenuFilterRoot<Payload>(props: MenuFilterRoot.Props<Payload>): R
   );
 }
 
-/**
- * Determines whether an item matches the current filter query.
- *
- * @param text The item's `label`, rendered text, or one of its `keywords`.
- * @param query The trimmed filter query.
- */
-export type MenuFilterFunction = (text: string, query: string) => boolean;
-
-export type MenuFilterRootProps<Payload = unknown> = Omit<
-  MenuRoot.Props<Payload>,
-  'closeParentOnEsc'
-> &
-  MenuFilterRootFilterProps;
-
-export interface MenuFilterRootState extends MenuRoot.State {}
-export type MenuFilterRootActions = MenuRoot.Actions;
-export type MenuFilterRootChangeEventReason = MenuRoot.ChangeEventReason;
-export type MenuFilterRootChangeEventDetails = MenuRoot.ChangeEventDetails;
-export type MenuFilterRootInputValueChangeEventReason =
-  FilterDropdownRootNamespace.ChangeEventReason;
-export type MenuFilterRootInputValueChangeEventDetails =
-  FilterDropdownRootNamespace.ChangeEventDetails;
-
-export namespace MenuFilterRoot {
-  export type Props<Payload = unknown> = MenuFilterRootProps<Payload>;
-  export type State = MenuFilterRootState;
-  export type Actions = MenuFilterRootActions;
-  export type ChangeEventReason = MenuFilterRootChangeEventReason;
-  export type ChangeEventDetails = MenuFilterRootChangeEventDetails;
-  export type InputValueChangeEventReason = MenuFilterRootInputValueChangeEventReason;
-  export type InputValueChangeEventDetails = MenuFilterRootInputValueChangeEventDetails;
-}
+export type MenuFilterRootProps<Payload = unknown> = MenuRoot.Props<Payload> &
+  MenuFilterProviderOptions;

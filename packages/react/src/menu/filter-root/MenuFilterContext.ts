@@ -1,16 +1,17 @@
 'use client';
 import * as React from 'react';
+import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { MenuRootContext } from '../root/MenuRootContext';
 import type { HTMLProps } from '../../internals/types';
-import type { FilteredMenuPopup } from './FilteredMenuPopup';
-import type { FilteredMenuGroup } from './FilteredMenuGroup';
-import type { FilteredMenuRadioGroup } from './FilteredMenuRadioGroup';
-import type { FilteredMenuList } from './FilteredMenuList';
+import type { MenuFilterPopup } from './MenuFilterPopup';
+import type { MenuFilterGroup } from './MenuFilterGroup';
+import type { MenuFilterRadioGroup } from './MenuFilterRadioGroup';
+import type { MenuFilterList } from './MenuFilterList';
 
 export interface MenuFilterItemParams {
-  label: string | undefined;
-  keywords: readonly string[] | undefined;
-  children: React.ReactNode;
+  label?: string | undefined;
+  keywords?: readonly string[] | undefined;
+  children?: React.ReactNode;
 }
 
 export interface MenuFilterItemResult {
@@ -24,15 +25,15 @@ export interface MenuFilterItemResult {
 
 /**
  * The filter implementation that a filterable root hands to the parts below it. Only the roots
- * `Menu.FilterProvider` renders import it, so a plain menu never bundles it. Parts whose whole structure differs are swapped as components; parts that only
- * register with the filter call an injected hook, so a menu that never renders them doesn't
- * bundle a second implementation.
+ * `Menu.FilterProvider` renders import it, so a plain menu never bundles it. Parts whose whole
+ * structure differs are swapped as components; parts that only register with the filter call an
+ * injected hook, so a menu that never renders them doesn't bundle a second implementation.
  */
 export interface MenuFilterImpl {
-  Popup: typeof FilteredMenuPopup;
-  List: typeof FilteredMenuList;
-  Group: typeof FilteredMenuGroup;
-  RadioGroup: typeof FilteredMenuRadioGroup;
+  Popup: typeof MenuFilterPopup;
+  List: typeof MenuFilterList;
+  Group: typeof MenuFilterGroup;
+  RadioGroup: typeof MenuFilterRadioGroup;
   /** Registers an item with the filter and reports whether it matches the query. */
   useItem: (params: MenuFilterItemParams) => MenuFilterItemResult;
   /** Like `useItem` for a submenu trigger, which is an item of the parent list. */
@@ -67,7 +68,27 @@ export function useMenuFilterImpl(scope: MenuFilterPartScope = 'root'): MenuFilt
 
 const UNFILTERED: MenuFilterItemResult = { visible: true, ref: null };
 
-/** The hook a plain menu's items call in place of the injected one. */
-export function useUnfilteredItem(): MenuFilterItemResult {
+function useUnfilteredItem(): MenuFilterItemResult {
   return UNFILTERED;
+}
+
+/**
+ * Registers an item part with the filter of the menu it belongs to. A plain menu's items are
+ * always visible.
+ */
+export function useMenuFilterItem(
+  props: MenuFilterItemParams,
+  forwardedRef: React.ForwardedRef<HTMLElement>,
+  scope: MenuFilterPartScope = 'root',
+): MenuFilterItemResult {
+  const impl = useMenuFilterImpl(scope);
+  const useItem =
+    (scope === 'submenu-trigger' ? impl?.useSubmenuTrigger : impl?.useItem) ?? useUnfilteredItem;
+  const filter = useItem({
+    label: props.label,
+    keywords: props.keywords,
+    children: props.children,
+  });
+  const ref = useMergedRefs(forwardedRef, filter.ref);
+  return { visible: filter.visible, ref, props: filter.props };
 }

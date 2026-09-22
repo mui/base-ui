@@ -22,12 +22,13 @@ export function getFilter(options: GetFilterParameters = {}): Filter {
   const collator = new Intl.Collator(locale, collatorOptions);
 
   const filter: Filter = {
-    contains(item, query, itemToString) {
+    contains<Item>(item: Item, query: string, itemToString?: (item: Item) => string) {
       if (!query) {
         return true;
       }
 
       const itemString = stringifyAsLabel(item, itemToString);
+
       for (let i = 0; i <= itemString.length - query.length; i += 1) {
         if (collator.compare(itemString.slice(i, i + query.length), query) === 0) {
           return true;
@@ -36,21 +37,23 @@ export function getFilter(options: GetFilterParameters = {}): Filter {
 
       return false;
     },
-    startsWith(item, query, itemToString) {
+    startsWith<Item>(item: Item, query: string, itemToString?: (item: Item) => string) {
       if (!query) {
         return true;
       }
 
       const itemString = stringifyAsLabel(item, itemToString);
+
       return collator.compare(itemString.slice(0, query.length), query) === 0;
     },
-    endsWith(item, query, itemToString) {
+    endsWith<Item>(item: Item, query: string, itemToString?: (item: Item) => string) {
       if (!query) {
         return true;
       }
 
       const itemString = stringifyAsLabel(item, itemToString);
       const queryLength = query.length;
+
       return (
         itemString.length >= queryLength &&
         collator.compare(itemString.slice(itemString.length - queryLength), query) === 0

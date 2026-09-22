@@ -8,7 +8,7 @@ import type { FilterDropdownFilter } from '../../filter-dropdown/root/FilterDrop
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { REASONS } from '../../internals/reasons';
 import type { BaseUIEvent, HTMLProps } from '../../internals/types';
-import type { MenuFilterRoot } from './MenuFilterRoot';
+import type { MenuFilterProvider } from '../filter-provider/MenuFilterProvider';
 import { MenuFilterImplContext } from './MenuFilterContext';
 import { MENU_FILTER_IMPL } from './MenuFilterImpl';
 
@@ -21,8 +21,7 @@ export interface MenuFilterDropdownProps {
   autoHighlight: boolean | 'always';
   locale: Intl.LocalesArgument | undefined;
   inputProps: HTMLProps;
-  onValueChange: (value: string, details: MenuFilterRoot.InputValueChangeEventDetails) => void;
-  onInputAutoFocusChange: (autoFocus: boolean) => void;
+  onValueChange: (value: string, details: MenuFilterProvider.InputValueChangeEventDetails) => void;
   children?: React.ReactNode;
 }
 
@@ -31,7 +30,7 @@ export interface MenuFilterDropdownProps {
  * substrate the list the menu navigates plus the props for the input that holds real focus.
  */
 export function MenuFilterDropdown(props: MenuFilterDropdownProps) {
-  const { store, virtualFocusRef } = useMenuRootContext();
+  const { store } = useMenuRootContext();
   const triggerId = store.useState('activeTriggerId');
   const triggerElement = store.useState('activeTriggerElement');
   const activeIndex = store.useState('activeIndex');
@@ -39,6 +38,10 @@ export function MenuFilterDropdown(props: MenuFilterDropdownProps) {
 
   const setActiveIndex = useStableCallback((index: number | null) => {
     store.setActiveIndex(index, REASONS.none);
+  });
+  // Only read when the popup takes focus, so it stays out of React state.
+  const setInputAutoFocus = useStableCallback((autoFocus: boolean) => {
+    store.context.virtualFocusAutoFocus = autoFocus;
   });
 
   // The trigger announces a dialog and relays list navigation typed on it to the input, which
@@ -91,7 +94,8 @@ export function MenuFilterDropdown(props: MenuFilterDropdownProps) {
         listRef={store.context.itemDomElements}
         activeIndex={activeIndex}
         setActiveIndex={setActiveIndex}
-        inputRef={virtualFocusRef}
+        inputRef={store.context.virtualFocusRef}
+        onInputAutoFocusChange={setInputAutoFocus}
       />
     </MenuFilterImplContext.Provider>
   );

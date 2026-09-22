@@ -5,7 +5,7 @@ import { useMenuRootContext } from '../root/MenuRootContext';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import type { BaseUIComponentProps } from '../../internals/types';
-import { resolveMenuPopupLabel } from '../popup/resolveMenuPopupLabel';
+import { resolvePopupLabel } from '../../internals/resolvePopupLabel';
 
 export const MenuListPlain = React.forwardRef(function MenuList(
   componentProps: MenuList.Props,
@@ -19,7 +19,7 @@ export const MenuListPlain = React.forwardRef(function MenuList(
   const setListElement = store.useStateSetter('listElement');
 
   const id = useBaseUiId(idProp);
-  const { ariaLabelledBy } = resolveMenuPopupLabel(
+  const { ariaLabelledBy } = resolvePopupLabel(
     componentProps,
     activeTriggerElement,
     activeTriggerId,

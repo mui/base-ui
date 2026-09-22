@@ -8,7 +8,7 @@ import { MenuRadioGroupPlain, type MenuRadioGroupProps } from '../radio-group/Me
  * Groups related radio items in the filter menu.
  * Renders a `<div>` element.
  */
-export const FilteredMenuRadioGroup = React.forwardRef(function FilteredMenuRadioGroup(
+export const MenuFilterRadioGroup = React.forwardRef(function MenuFilterRadioGroup(
   props: MenuRadioGroupProps,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {

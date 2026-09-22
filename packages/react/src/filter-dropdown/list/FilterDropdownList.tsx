@@ -7,7 +7,6 @@ import { useFilterDropdownRootContext } from '../root/FilterDropdownRootContext'
 import { FilterDropdownGroupContext } from '../group/FilterDropdownGroupContext';
 import { useRenderedId } from '../../internals/resolveRenderedId';
 import { getTarget } from '../../floating-ui-react/utils';
-import { resolveMenuPopupLabel } from '../../menu/popup/resolveMenuPopupLabel';
 
 /**
  * @internal
@@ -22,16 +21,11 @@ export const FilterDropdownList = React.forwardRef(function FilterDropdownList(
   const { setListId } = context;
 
   const [id, registerIdRef] = useRenderedId(componentProps, context.defaultListId, setListId);
-  // Also inspects a label supplied through a `render` element, which never appears in
-  // `elementProps`, so the trigger fallback doesn't override it.
-  const { ariaLabelledBy } = resolveMenuPopupLabel(componentProps, null, context.triggerId ?? null);
 
   const defaultProps: HTMLProps = {
-    role: 'menu',
     // Chromium includes scrollable elements in sequential focus navigation by default.
     tabIndex: -1,
     id,
-    'aria-labelledby': ariaLabelledBy,
     onMouseDown(event) {
       if (
         getTarget(event.nativeEvent) === event.currentTarget &&

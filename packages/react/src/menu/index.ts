@@ -20,7 +20,7 @@ export type * from './trigger/MenuTrigger';
 export type * from './submenu-trigger/MenuSubmenuTrigger';
 export type * from './viewport/MenuViewport';
 export type * from './filter-provider/MenuFilterProvider';
-export type { MenuFilterFunction } from './filter-root/MenuFilterRoot';
+export type { MenuFilterFunction } from './filter-provider/MenuFilterProviderOptions';
 export type * from './filter-input/MenuFilterInput';
 export type * from './list/MenuList';
 export type * from './filter-clear/MenuFilterClear';

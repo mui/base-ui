@@ -1,5 +1,5 @@
 import { ReactStore } from '@base-ui/utils/store';
-import { EMPTY_ARRAY, EMPTY_OBJECT } from '@base-ui/utils/empty';
+import { EMPTY_ARRAY, EMPTY_OBJECT, NOOP } from '@base-ui/utils/empty';
 import type { HTMLProps } from '../internals/types';
 
 export type State = {
@@ -47,6 +47,6 @@ export class FilterDropdownStore extends ReactStore<Readonly<State>, object, typ
  * inside a plain parent menu. Nothing registers and every item stays visible.
  */
 export const DETACHED_OWNER = {
-  registerItem: () => () => {},
+  registerItem: () => NOOP,
   store: new FilterDropdownStore(),
 };

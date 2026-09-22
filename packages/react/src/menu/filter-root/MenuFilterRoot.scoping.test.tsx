@@ -166,7 +166,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
             </Menu.Portal>
           </Menu.Root>,
         ),
-      ).rejects.toThrow('Base UI: Filter parts must be placed within a filterable menu.');
+      ).rejects.toThrow('Base UI: Filter parts are missing their filter context');
     } finally {
       errorSpy.mockRestore();
     }

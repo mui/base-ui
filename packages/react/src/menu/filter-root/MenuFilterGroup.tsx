@@ -8,7 +8,7 @@ import { MenuGroupPlain, type MenuGroupProps } from '../group/MenuGroup';
  * Groups related filter menu items with a corresponding label.
  * Renders a `<div>` element.
  */
-export const FilteredMenuGroup = React.forwardRef(function FilteredMenuGroup(
+export const MenuFilterGroup = React.forwardRef(function MenuFilterGroup(
   props: MenuGroupProps,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {

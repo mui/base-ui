@@ -1,7 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
-import { useMenuFilterImpl, useUnfilteredItem } from '../filter-root/MenuFilterContext';
+import { useMenuFilterItem } from '../filter-root/MenuFilterContext';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useBaseUiId } from '../../internals/useBaseUiId';
@@ -81,13 +80,11 @@ export const MenuLinkItem = React.forwardRef(function MenuLinkItem(
   forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
   const { keywords, ...linkItemProps } = props;
-  const useLinkItemFilter = useMenuFilterImpl()?.useItem ?? useUnfilteredItem;
-  const filter = useLinkItemFilter({ label: props.label, keywords, children: props.children });
-  const ref = useMergedRefs(forwardedRef, filter.ref);
+  const filter = useMenuFilterItem(props, forwardedRef);
   if (!filter.visible) {
     return null;
   }
-  return <MenuLinkItemPlain {...linkItemProps} ref={ref} />;
+  return <MenuLinkItemPlain {...linkItemProps} ref={filter.ref} />;
 });
 
 export interface MenuLinkItemState {
@@ -103,8 +100,8 @@ export interface MenuLinkItemProps extends BaseUIComponentProps<
   React.ComponentPropsWithRef<'a'>
 > {
   /**
-   * Overrides the text used for keyboard text navigation and filtering inside `Menu.FilterProvider`.
-   * Falls back to the rendered text when not provided.
+   * Overrides the text used for keyboard text navigation and filtering inside
+   * `Menu.FilterProvider`. Falls back to the rendered text when not provided.
    */
   label?: string | undefined;
   /**

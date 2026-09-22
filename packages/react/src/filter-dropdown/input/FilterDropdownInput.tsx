@@ -31,14 +31,11 @@ export const FilterDropdownInput = React.forwardRef(function FilterDropdownInput
 
   // `autoFocus` goes through the popup's initial focus so it applies on every open, including
   // hover opens, and runs once the popup is positioned. React's native handling would focus the
-  // input at mount, before positioning, and scroll it into view.
+  // input at mount, before positioning, and scroll it into view. The report outlives the input:
+  // a closing popup still decides its return focus after the input has unmounted.
   const { setInputAutoFocus } = context;
   useIsoLayoutEffect(() => {
-    if (!autoFocus) {
-      return undefined;
-    }
-    setInputAutoFocus(true);
-    return () => setInputAutoFocus(false);
+    setInputAutoFocus(autoFocus);
   }, [autoFocus, setInputAutoFocus]);
 
   const state: FilterDropdownInputState = {

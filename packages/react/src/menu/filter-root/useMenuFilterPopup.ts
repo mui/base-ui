@@ -8,11 +8,18 @@ import {
   getTarget,
   isTypeableElement,
 } from '../../floating-ui-react/utils';
-import { useFilterDropdownRootContext } from '../root/FilterDropdownRootContext';
-import { focusByPointer, isPointerFocusInProgress } from '../utils/focusByPointer';
+import { useFilterDropdownRootContext } from '../../filter-dropdown/root/FilterDropdownRootContext';
+import {
+  focusByPointer,
+  isPointerFocusInProgress,
+} from '../../filter-dropdown/utils/focusByPointer';
+import type { MenuRoot } from '../root/MenuRoot';
+import { isCrossOrientationCloseKey } from '../../floating-ui-react/hooks/useListNavigation';
 import { useDirection } from '../../internals/direction-context/DirectionContext';
 
-export function useFilterDropdownPopup(): React.HTMLAttributes<HTMLDivElement> {
+export function useMenuFilterPopup(
+  orientation: MenuRoot.Orientation,
+): React.HTMLAttributes<HTMLDivElement> {
   const context = useFilterDropdownRootContext();
   const direction = useDirection();
   const { focusOwnerRef } = context;
@@ -109,9 +116,7 @@ export function useFilterDropdownPopup(): React.HTMLAttributes<HTMLDivElement> {
         return;
       }
 
-      // The list is always vertical, so its cross-axis close key is the inline-start arrow.
-      const closeKey = direction === 'rtl' ? 'ArrowRight' : 'ArrowLeft';
-      if (event.key === closeKey) {
+      if (isCrossOrientationCloseKey(event.key, orientation, direction === 'rtl', false)) {
         focusOwnerRef.current?.focus({ preventScroll: true });
         // Nested popups bubble through this React tree, so keep the key from the parent.
         event.stopPropagation();

@@ -4,7 +4,7 @@ import { expect, describe, beforeEach, it } from 'vitest';
 import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, resetBrowserPointer } from '#test-utils';
 import { Menu } from '@base-ui/react/menu';
-import { FilterDropdown } from '..';
+import * as FilterDropdown from '../../../test/filterDropdown';
 
 describe('<FilterDropdown.Root />', () => {
   beforeEach(resetBrowserPointer);

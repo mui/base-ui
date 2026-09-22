@@ -175,7 +175,7 @@ describe('Menu filter parts conformance', () => {
 
     try {
       await expect(render(<Menu.FilterInput />)).rejects.toThrow(
-        'Base UI: Filter parts must be placed within a filterable menu.',
+        'Base UI: Filter parts are missing their filter context',
       );
     } finally {
       errorSpy.mockRestore();
@@ -187,7 +187,7 @@ describe('Menu filter parts conformance', () => {
 
     try {
       await expect(render(<Menu.FilterEmpty />)).rejects.toThrow(
-        'Base UI: Filter parts must be placed within a filterable menu.',
+        'Base UI: Filter parts are missing their filter context',
       );
     } finally {
       errorSpy.mockRestore();

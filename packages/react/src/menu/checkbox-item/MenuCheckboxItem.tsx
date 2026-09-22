@@ -2,8 +2,7 @@
 import * as React from 'react';
 import { useControlled } from '@base-ui/utils/useControlled';
 import { NOOP } from '@base-ui/utils/empty';
-import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
-import { useMenuFilterImpl, useUnfilteredItem } from '../filter-root/MenuFilterContext';
+import { useMenuFilterItem } from '../filter-root/MenuFilterContext';
 import { MenuCheckboxItemContext } from './MenuCheckboxItemContext';
 import { REGULAR_ITEM, useMenuItem } from '../item/useMenuItem';
 import { useCompositeListItem } from '../../internals/composite/list/useCompositeListItem';
@@ -116,9 +115,7 @@ export const MenuCheckboxItem = React.forwardRef(function MenuCheckboxItem(
     state: 'checked',
   });
 
-  const useItemFilter = useMenuFilterImpl()?.useItem ?? useUnfilteredItem;
-  const filter = useItemFilter({ label: props.label, keywords, children: props.children });
-  const ref = useMergedRefs(forwardedRef, filter.ref);
+  const filter = useMenuFilterItem(props, forwardedRef);
 
   function handleCheckedChange(
     nextChecked: boolean,
@@ -138,7 +135,7 @@ export const MenuCheckboxItem = React.forwardRef(function MenuCheckboxItem(
       {...itemProps}
       checked={checked}
       onCheckedChange={handleCheckedChange}
-      ref={ref}
+      ref={filter.ref}
     />
   );
 });
@@ -188,8 +185,8 @@ export interface MenuCheckboxItemProps
    */
   disabled?: boolean | undefined;
   /**
-   * Overrides the text used for keyboard text navigation and filtering inside `Menu.FilterProvider`.
-   * Falls back to the rendered text when not provided.
+   * Overrides the text used for keyboard text navigation and filtering inside
+   * `Menu.FilterProvider`. Falls back to the rendered text when not provided.
    */
   label?: string | undefined;
   /**

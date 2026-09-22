@@ -900,10 +900,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
         // `returnElement` if it is tabbable, otherwise its first tabbable child,
         // otherwise `returnElement` itself (which may not be tabbable at all).
         const tabbableReturnElement = getFirstTabbableElement(returnElement);
-        // Consumers opt out through `explicitReturnFocus`; everything else keeps the original
-        // rule, so a `finalFocus` value behaves the same as it does without this prop.
-        // Reading `.current` in the cleanup is deliberate: the latest prop value decides, and
-        // capturing it at effect setup would use a stale opt-out.
+        // Read in the cleanup on purpose: the latest `explicitReturnFocus` decides.
         const hasExplicitReturnFocus =
           // eslint-disable-next-line react-hooks/exhaustive-deps
           explicitReturnFocusRef.current ?? typeof returnFocusValueOrFn !== 'boolean';

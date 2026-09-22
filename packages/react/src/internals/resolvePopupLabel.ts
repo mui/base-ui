@@ -1,13 +1,13 @@
 import * as React from 'react';
 
-interface MenuPopupLabelProps {
+interface PopupLabelProps {
   'aria-label'?: string | undefined;
   'aria-labelledby'?: string | undefined;
   render?: unknown;
 }
 
-export function resolveMenuPopupLabel(
-  props: MenuPopupLabelProps,
+export function resolvePopupLabel(
+  props: PopupLabelProps,
   activeTriggerElement: Element | null,
   activeTriggerId: string | null,
 ) {

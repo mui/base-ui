@@ -80,10 +80,7 @@ export function useMenuItemCommonProps(params: UseMenuItemCommonPropsParameters)
   const contextMenuContext = useContextMenuRootContext(true);
   const isContextMenu = contextMenuContext !== undefined;
   // `-1` rather than omitting it, which leaves links and buttons in the tab order.
-  let tabIndex = -1;
-  if (!virtualFocus && open && highlighted) {
-    tabIndex = 0;
-  }
+  const tabIndex = !virtualFocus && open && highlighted ? 0 : -1;
 
   // `aria-selected` is not valid on `menuitem`, so it is scoped to the engine whose VoiceOver
   // support needs it. See `webkitItemSelected` on `MenuRootContext`.

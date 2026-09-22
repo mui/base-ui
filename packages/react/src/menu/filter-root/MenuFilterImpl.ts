@@ -1,16 +1,16 @@
-import { FilteredMenuPopup } from './FilteredMenuPopup';
-import { FilteredMenuList } from './FilteredMenuList';
-import { FilteredMenuGroup } from './FilteredMenuGroup';
-import { FilteredMenuRadioGroup } from './FilteredMenuRadioGroup';
+import { MenuFilterPopup } from './MenuFilterPopup';
+import { MenuFilterList } from './MenuFilterList';
+import { MenuFilterGroup } from './MenuFilterGroup';
+import { MenuFilterRadioGroup } from './MenuFilterRadioGroup';
 import { useFilterDropdownItem } from '../../filter-dropdown/item/useFilterDropdownItem';
-import { useFilteredMenuSubmenuTrigger } from './useFilteredMenuSubmenuTrigger';
+import { useMenuFilterSubmenuTrigger } from './useMenuFilterSubmenuTrigger';
 import type { MenuFilterImpl } from './MenuFilterContext';
 
 export const MENU_FILTER_IMPL: MenuFilterImpl = {
-  Popup: FilteredMenuPopup,
-  List: FilteredMenuList,
-  Group: FilteredMenuGroup,
-  RadioGroup: FilteredMenuRadioGroup,
+  Popup: MenuFilterPopup,
+  List: MenuFilterList,
+  Group: MenuFilterGroup,
+  RadioGroup: MenuFilterRadioGroup,
   useItem: useFilterDropdownItem,
-  useSubmenuTrigger: useFilteredMenuSubmenuTrigger,
+  useSubmenuTrigger: useMenuFilterSubmenuTrigger,
 };

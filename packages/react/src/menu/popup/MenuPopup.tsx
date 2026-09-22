@@ -21,7 +21,7 @@ import { COMPOSITE_KEYS } from '../../internals/composite/composite';
 import { getDisabledMountTransitionStyles } from '../../internals/getDisabledMountTransitionStyles';
 import { useMenuSubmenuRootContext } from '../submenu-root/MenuSubmenuRootContext';
 import { useRenderedId } from '../../internals/resolveRenderedId';
-import { resolveMenuPopupLabel } from './resolveMenuPopupLabel';
+import { resolvePopupLabel } from '../../internals/resolvePopupLabel';
 
 interface MenuPopupPlainProps extends MenuPopup.Props {
   /** A filter root's own initial focus target; the plain default focuses the popup or its list. */
@@ -52,26 +52,25 @@ export const MenuPopupPlain = React.forwardRef(function MenuPopup(
   const insideToolbar = useToolbarRootContext(true) != null;
 
   const open = store.useState('open');
-  const mounted = store.useState('mounted');
-  const popupProps = store.useState('popupProps');
   const transitionStatus = store.useState('transitionStatus');
+  const popupProps = store.useState('popupProps');
+  const mounted = store.useState('mounted');
   const instantType = store.useState('instantType');
-  const parent = store.useState('parent');
-  const rootId = store.useState('rootId');
-  const activeTriggerId = store.useState('activeTriggerId');
   const activeTriggerElement = store.useState('activeTriggerElement');
+  const parent = store.useState('parent');
+  const lastOpenChangeReason = store.useState('lastOpenChangeReason');
+  const rootId = store.useState('rootId');
   const floatingContext = store.useState('floatingRootContext');
   const floatingTreeRoot = store.useState('floatingTreeRoot');
-  const openMethod = store.useState('openMethod');
-  const lastOpenChangeReason = store.useState('lastOpenChangeReason');
   const closeDelay = store.useState('closeDelay');
   const hoverEnabled = store.useState('hoverEnabled');
   const disabled = store.useState('disabled');
-  const setPopupElement = store.useStateSetter('popupElement');
+  const openMethod = store.useState('openMethod');
+  const activeTriggerId = store.useState('activeTriggerId');
   const listElement = store.useState('listElement');
 
   const [id, registerIdRef] = useRenderedId(componentProps, defaultFloatingId, setFloatingId);
-  const { ariaLabelledBy } = resolveMenuPopupLabel(
+  const { ariaLabelledBy } = resolvePopupLabel(
     componentProps,
     activeTriggerElement,
     activeTriggerId,
@@ -125,6 +124,8 @@ export const MenuPopupPlain = React.forwardRef(function MenuPopup(
     closeDelay,
   });
 
+  const setPopupElement = store.useStateSetter('popupElement');
+
   // A virtually focused parent keeps real focus on its input, so its submenu trigger never blurs.
   // Real focus entering a plain submenu is the equivalent moment: the parent has no active item
   // until a keyboard close hands the cursor back to the trigger.
@@ -171,8 +172,8 @@ export const MenuPopupPlain = React.forwardRef(function MenuPopup(
           }
         },
         onFocus() {
-          if (parentFocusRef && !virtualFocus && parentStore?.state.activeIndex !== null) {
-            parentStore?.setActiveIndex(null, REASONS.none);
+          if (!virtualFocus && parentFocusRef && parentStore?.state.activeIndex != null) {
+            parentStore.setActiveIndex(null, REASONS.none);
           }
         },
       },
@@ -190,8 +191,9 @@ export const MenuPopupPlain = React.forwardRef(function MenuPopup(
     returnFocus = true;
   }
 
-  const resolvedReturnFocus =
-    submenuRootContext?.getReturnElement ?? (parentFocusRef ? returnToParentInput : returnFocus);
+  // Internal defaults rather than consumer targets, so focus that already moved is respected.
+  const dynamicReturnFocus =
+    submenuRootContext?.getReturnElement ?? (parentFocusRef ? returnToParentInput : undefined);
 
   return (
     <FloatingFocusManager
@@ -199,12 +201,8 @@ export const MenuPopupPlain = React.forwardRef(function MenuPopup(
       openInteractionType={openMethod}
       modal={isContextMenu || modalProp}
       disabled={!mounted}
-      returnFocus={finalFocus === undefined ? resolvedReturnFocus : finalFocus}
-      explicitReturnFocus={
-        finalFocus === undefined && (submenuRootContext?.getReturnElement || parentFocusRef)
-          ? false
-          : undefined
-      }
+      returnFocus={finalFocus ?? dynamicReturnFocus ?? returnFocus}
+      explicitReturnFocus={finalFocus === undefined && dynamicReturnFocus ? false : undefined}
       initialFocus={initialFocus}
       restoreFocus
       externalTree={parent.type !== 'menubar' ? floatingTreeRoot : undefined}

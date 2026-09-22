@@ -15,18 +15,20 @@ import {
   useFilterDropdownItemContext,
   useFilterDropdownRootContext,
 } from '../../filter-dropdown/root/FilterDropdownRootContext';
+import { resolvePopupLabel } from '../../internals/resolvePopupLabel';
 import type { BaseUIEvent } from '../../internals/types';
 
 /**
  * The list of a filterable menu: it takes the `menu` role while the popup is a dialog holding
  * the input, and it forwards keys that land on it to the input.
  */
-export const FilteredMenuList = React.forwardRef(function FilteredMenuList(
+export const MenuFilterList = React.forwardRef(function MenuFilterList(
   componentProps: MenuList.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const { syncHighlightedItem, orientation } = useMenuRootContext();
-  const { onItemsChange, focusOwnerRef, keyReplayRef } = useFilterDropdownRootContext();
+  const { onItemsChange, focusOwnerRef, keyReplayRef, triggerId } = useFilterDropdownRootContext();
+  const { ariaLabelledBy } = resolvePopupLabel(componentProps, null, triggerId ?? null);
   const { store: filterStore, listRef } = useFilterDropdownItemContext();
   const { subscribeMapChange } = useCompositeListContext();
   const handleReferenceKeyDown = useMenuFilterReferenceKeyDown();
@@ -106,6 +108,8 @@ export const FilteredMenuList = React.forwardRef(function FilteredMenuList(
 
   const listProps = mergeProps<typeof FilterDropdownList>(
     {
+      role: 'menu',
+      'aria-labelledby': ariaLabelledBy,
       'aria-orientation': orientation === 'horizontal' ? 'horizontal' : undefined,
       onKeyDown: handleKeyDown,
     },

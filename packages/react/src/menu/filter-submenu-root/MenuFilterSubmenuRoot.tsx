@@ -5,10 +5,9 @@ import { ownerDocument } from '@base-ui/utils/owner';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { isHTMLElement } from '@floating-ui/utils/dom';
-import { type MenuSubmenuRoot, type MenuSubmenuRootProps } from '../submenu-root/MenuSubmenuRoot';
+import type { MenuSubmenuRoot, MenuSubmenuRootProps } from '../submenu-root/MenuSubmenuRoot';
 import { MenuRootInternal, type MenuRoot } from '../root/MenuRoot';
-import { FilterDropdownRoot } from '../../filter-dropdown/root/FilterDropdownRoot';
-import type { MenuFilterRootFilterProps } from '../filter-root/MenuFilterRootFilterProps';
+import type { MenuFilterProviderOptions } from '../filter-provider/MenuFilterProviderOptions';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { MenuFilterDropdown } from '../filter-root/MenuFilterDropdown';
 import { isKeyboardOpen } from '../filter-root/isKeyboardOpen';
@@ -28,6 +27,7 @@ import { MenuSubmenuRootContext } from '../submenu-root/MenuSubmenuRootContext';
 import type { MenuStore } from '../store/MenuStore';
 
 type ParentReference = { reference: HTMLElement; trigger: HTMLElement };
+type TriggerKeyDownEvent = BaseUIEvent<React.KeyboardEvent<HTMLElement>>;
 
 /**
  * The filterable implementation of `Menu.SubmenuRoot`, rendered in its place when the submenu
@@ -35,16 +35,16 @@ type ParentReference = { reference: HTMLElement; trigger: HTMLElement };
  *
  * @internal
  */
-export function MenuFilterSubmenuRoot(props: MenuFilterSubmenuRoot.Props): React.JSX.Element {
+export function MenuFilterSubmenuRoot(props: MenuFilterSubmenuRootProps): React.JSX.Element {
   const parent = useMenuRootContext();
   const parentStore = parent.store;
   const parentDisabled = parentStore.useState('disabled');
-  const { rootProps, dropdownProps } = useMenuFilterRoot(props, 'MenuFilterSubmenuRoot');
+  const { rootProps, dropdownProps } = useMenuFilterRoot(props, 'MenuSubmenuRoot');
   const parentReferenceRef = React.useRef<ParentReference | null>(null);
 
   function handleSubmenuEnter(trigger: HTMLElement) {
     const focusedElement = parent.virtualFocus
-      ? parent.virtualFocusRef?.current
+      ? parentStore.context.virtualFocusRef?.current
       : activeElement(ownerDocument(trigger));
 
     if (isHTMLElement(focusedElement)) {
@@ -67,7 +67,7 @@ export function MenuFilterSubmenuRoot(props: MenuFilterSubmenuRoot.Props): React
     highlightTrigger(parentReference.trigger);
   }
 
-  function handleOpenChange(nextOpen: boolean, details: MenuFilterSubmenuRoot.ChangeEventDetails) {
+  function handleOpenChange(nextOpen: boolean, details: MenuSubmenuRoot.ChangeEventDetails) {
     rootProps.onOpenChange(nextOpen, details);
     if (details.isCanceled) {
       return;
@@ -80,7 +80,7 @@ export function MenuFilterSubmenuRoot(props: MenuFilterSubmenuRoot.Props): React
         // can hold real focus: the parent's input, not its untabbable trigger.
         parentReferenceRef.current = {
           reference: parent.virtualFocus
-            ? (parent.virtualFocusRef?.current ?? details.trigger)
+            ? (parentStore.context.virtualFocusRef?.current ?? details.trigger)
             : details.trigger,
           trigger: details.trigger,
         };
@@ -103,12 +103,11 @@ export function MenuFilterSubmenuRoot(props: MenuFilterSubmenuRoot.Props): React
       renderVirtualFocusChildren={(_, inputProps) => (
         <MenuFilterSubmenuNavigation
           parentStore={parentStore}
-          inputAutoFocus={rootProps.virtualFocusAutoFocus}
           parentOrientation={parent.orientation}
           parentLoopFocus={parent.loopFocus}
           getReturnElement={() =>
             parentReferenceRef.current?.reference ??
-            (parent.virtualFocus ? parent.virtualFocusRef?.current : null) ??
+            (parent.virtualFocus ? parentStore.context.virtualFocusRef?.current : null) ??
             null
           }
           onSubmenuEnter={handleSubmenuEnter}
@@ -128,7 +127,6 @@ interface MenuFilterSubmenuNavigationProps {
   parentStore: MenuStore<unknown>;
   parentOrientation: MenuRoot.Orientation;
   parentLoopFocus: boolean;
-  inputAutoFocus: boolean;
   onSubmenuEnter(trigger: HTMLElement): void;
   onSubmenuExit(): void;
   getReturnElement(): HTMLElement | null;
@@ -140,13 +138,12 @@ function MenuFilterSubmenuNavigation(props: MenuFilterSubmenuNavigationProps) {
     parentStore,
     parentOrientation,
     parentLoopFocus,
-    inputAutoFocus,
     onSubmenuEnter,
     onSubmenuExit,
     getReturnElement,
   } = props;
 
-  const { store, orientation, virtualFocusRef } = useMenuRootContext();
+  const { store, orientation } = useMenuRootContext();
   const direction = useDirection();
   const mounted = store.useState('mounted');
   const wasMountedRef = React.useRef(false);
@@ -160,7 +157,7 @@ function MenuFilterSubmenuNavigation(props: MenuFilterSubmenuNavigationProps) {
     const highlighted =
       activeIndex == null ? null : parentStore.context.itemDomElements.current[activeIndex];
     if (
-      inputAutoFocus &&
+      store.context.virtualFocusAutoFocus &&
       highlighted &&
       highlighted.hasAttribute('aria-haspopup') &&
       !store.context.triggerElements.hasElement(highlighted)
@@ -224,7 +221,7 @@ function MenuFilterSubmenuNavigation(props: MenuFilterSubmenuNavigationProps) {
     }
   }
 
-  const handleTriggerKeyDown = useStableCallback((event: React.KeyboardEvent<HTMLElement>) => {
+  const handleTriggerKeyDown = useStableCallback((event: TriggerKeyDownEvent) => {
     if (isMainOrientationKey(event.key, parentOrientation)) {
       const items = parentStore.context.itemDomElements.current;
       const currentIndex = items.indexOf(event.currentTarget);
@@ -233,10 +230,7 @@ function MenuFilterSubmenuNavigation(props: MenuFilterSubmenuNavigationProps) {
           ? event.key === 'ArrowDown'
           : event.key === (direction === 'rtl' ? 'ArrowLeft' : 'ArrowRight');
       const decrement = !movesForward;
-      // `EMPTY_ARRAY` is what the parent menu passes to `useListNavigation`, and it keeps
-      // `aria-disabled` items reachable so they stay discoverable. Omitting the option makes
-      // `findNonDisabledListIndex` fall back to the attribute check and skip them, which would
-      // make arrowing past this trigger behave differently from arrowing between ordinary items.
+      // Match the parent's `useListNavigation`: `aria-disabled` items stay reachable.
       let nextIndex = findNonDisabledListIndex(items, {
         startingIndex: currentIndex,
         decrement,
@@ -258,7 +252,7 @@ function MenuFilterSubmenuNavigation(props: MenuFilterSubmenuNavigationProps) {
         item.scrollIntoView?.({ block: 'nearest', inline: 'nearest' });
       }
 
-      (event as unknown as BaseUIEvent<React.KeyboardEvent>).preventBaseUIHandler();
+      event.preventBaseUIHandler();
       stopEvent(event);
       return;
     }
@@ -284,7 +278,7 @@ function MenuFilterSubmenuNavigation(props: MenuFilterSubmenuNavigationProps) {
       // is always virtually focused, so there is no roving-focus branch here.
       onSubmenuEnter(event.currentTarget);
       store.setActiveIndex(null, REASONS.keyboard);
-      virtualFocusRef?.current?.focus({ preventScroll: true });
+      store.context.virtualFocusRef?.current?.focus({ preventScroll: true });
       return;
     }
 
@@ -322,22 +316,4 @@ function MenuFilterSubmenuNavigation(props: MenuFilterSubmenuNavigationProps) {
   );
 }
 
-export type MenuFilterSubmenuRootProps = MenuSubmenuRootProps & MenuFilterRootFilterProps;
-
-export interface MenuFilterSubmenuRootState extends MenuSubmenuRoot.State {}
-export type MenuFilterSubmenuRootActions = MenuRoot.Actions;
-export type MenuFilterSubmenuRootChangeEventReason = MenuSubmenuRoot.ChangeEventReason;
-export type MenuFilterSubmenuRootChangeEventDetails = MenuSubmenuRoot.ChangeEventDetails;
-export type MenuFilterSubmenuRootInputValueChangeEventReason = FilterDropdownRoot.ChangeEventReason;
-export type MenuFilterSubmenuRootInputValueChangeEventDetails =
-  FilterDropdownRoot.ChangeEventDetails;
-
-export namespace MenuFilterSubmenuRoot {
-  export type Props = MenuFilterSubmenuRootProps;
-  export type State = MenuFilterSubmenuRootState;
-  export type Actions = MenuFilterSubmenuRootActions;
-  export type ChangeEventReason = MenuFilterSubmenuRootChangeEventReason;
-  export type ChangeEventDetails = MenuFilterSubmenuRootChangeEventDetails;
-  export type InputValueChangeEventReason = MenuFilterSubmenuRootInputValueChangeEventReason;
-  export type InputValueChangeEventDetails = MenuFilterSubmenuRootInputValueChangeEventDetails;
-}
+export type MenuFilterSubmenuRootProps = MenuSubmenuRootProps & MenuFilterProviderOptions;

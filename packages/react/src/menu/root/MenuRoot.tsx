@@ -49,50 +49,37 @@ import {
 
 interface MenuRootInternalProps<Payload> extends MenuRoot.Props<Payload> {
   /**
-   * @ignore
    * Marks this root as a submenu of the enclosing menu.
    */
   isSubmenu?: boolean | undefined;
   /**
-   * @ignore
    * Keeps real focus on an element inside the popup and navigates the list with
    * `aria-activedescendant`.
    */
   virtualFocus?: boolean | undefined;
   /**
-   * @ignore
    * Whether keyboard or virtual activation should initially highlight a filtered menu item.
    */
   virtualFocusInitialHighlight?: boolean | undefined;
   /**
-   * @ignore
    * The element that retains real focus while virtual list navigation is active.
    */
   virtualFocusRef?: React.RefObject<HTMLElement | null> | undefined;
   /**
-   * @ignore
    * Whether virtual focus can leave the list during arrow navigation.
    */
   allowEscape?: boolean | undefined;
   /**
-   * @ignore
    * Whether pointer leave should clear the active item.
    */
   resetOnPointerLeave?: boolean | undefined;
   /**
-   * @ignore
-   * Whether the virtual focus owner takes focus even when the menu opens on hover.
-   */
-  virtualFocusAutoFocus?: boolean | undefined;
-  /**
-   * @ignore
    * Renders internal virtual-focus adapters with the current navigation props.
    */
   renderVirtualFocusChildren?:
     | ((payload: { payload: Payload | undefined }, inputProps: HTMLProps) => React.ReactNode)
     | undefined;
   /**
-   * @ignore
    * Whether virtual-focus items need WebKit's `aria-selected` compatibility state.
    */
   webkitItemSelected?: boolean | undefined;
@@ -124,7 +111,6 @@ export const MenuRootInternal = fastComponent(function MenuRoot<Payload>(
     virtualFocusRef,
     allowEscape = true,
     resetOnPointerLeave = true,
-    virtualFocusAutoFocus = false,
     renderVirtualFocusChildren,
     webkitItemSelected = false,
   } = props;
@@ -196,26 +182,28 @@ export const MenuRootInternal = fastComponent(function MenuRoot<Payload>(
     animateInitialOpen ? parentMenuStore?.state.instantType : undefined,
   ).current;
 
-  const store = useRefWithInit(
-    () =>
-      new MenuStore<Payload>(
-        {
-          open: defaultOpen,
-          openProp,
-          activeTriggerId: defaultTriggerIdProp,
-          triggerIdProp,
-          parent: parentFromContext,
-          disabled: disabledProp,
-          highlightItemOnHover,
-          modal: parentFromContext.type === undefined ? modalProp : undefined,
-          rootId,
-          instantType: seededInstantType,
-          virtualFocus,
-        },
-        floatingId,
-        floatingParentNodeIdFromContext != null,
-      ),
-  ).current;
+  const store = useRefWithInit(() => {
+    const menuStore = new MenuStore<Payload>(
+      {
+        open: defaultOpen,
+        openProp,
+        activeTriggerId: defaultTriggerIdProp,
+        triggerIdProp,
+        parent: parentFromContext,
+        disabled: disabledProp,
+        highlightItemOnHover,
+        modal: parentFromContext.type === undefined ? modalProp : undefined,
+        rootId,
+        instantType: seededInstantType,
+        virtualFocus,
+      },
+      floatingId,
+      floatingParentNodeIdFromContext != null,
+    );
+    // A stable ref object, so descendants can read it during render from the first commit.
+    menuStore.context.virtualFocusRef = virtualFocusRef;
+    return menuStore;
+  }).current;
 
   store.useControlledProp('openProp', openProp);
   store.useControlledProp('triggerIdProp', triggerIdProp);
@@ -263,10 +251,6 @@ export const MenuRootInternal = fastComponent(function MenuRoot<Payload>(
     rootId,
     virtualFocus,
   });
-
-  useIsoLayoutEffect(() => {
-    store.context.virtualFocusRef = virtualFocusRef;
-  }, [store, virtualFocusRef]);
 
   useImplicitActiveTrigger(store);
   const { forceUnmount, transitionStatus } = useOpenStateTransitions(
@@ -584,8 +568,7 @@ export const MenuRootInternal = fastComponent(function MenuRoot<Payload>(
     // forwarded cross-axis keys while closed.
     openOnArrowKeyDown: parent.type !== 'context-menu' && !(virtualFocus && isSubmenu),
     externalTree: !virtualFocus && nested ? floatingTreeRoot : undefined,
-    nestedReturnFocusRef:
-      parent.type === 'menu' ? parentMenuRootContext?.virtualFocusRef : undefined,
+    nestedReturnFocusRef: parentMenuStore?.context.virtualFocusRef,
     focusItemOnHover: highlightItemOnHover,
     resetOnPointerLeave,
   });
@@ -753,8 +736,6 @@ export const MenuRootInternal = fastComponent(function MenuRoot<Payload>(
       defaultFloatingId,
       setFloatingId,
       virtualFocus,
-      virtualFocusRef,
-      virtualFocusAutoFocus,
       parentVirtualFocus,
       parentWebkitItemSelected,
       webkitItemSelected,
@@ -768,8 +749,6 @@ export const MenuRootInternal = fastComponent(function MenuRoot<Payload>(
       loopFocus,
       defaultFloatingId,
       virtualFocus,
-      virtualFocusRef,
-      virtualFocusAutoFocus,
       parentVirtualFocus,
       parentWebkitItemSelected,
       webkitItemSelected,

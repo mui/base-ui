@@ -14,11 +14,11 @@ import type { BaseUIEvent } from '../../internals/types';
  * Registers a submenu trigger with the parent menu's filter and adapts it to a filterable
  * submenu: the trigger lives inside its own submenu root, but it is an item of the parent list.
  */
-export function useFilteredMenuSubmenuTrigger(params: MenuFilterItemParams): MenuFilterItemResult {
+export function useMenuFilterSubmenuTrigger(params: MenuFilterItemParams): MenuFilterItemResult {
   // `virtualFocus` is set only by a filterable submenu root, so it tells this trigger whether the
   // submenu it opens renders a `role="dialog"` popup or a plain `role="menu"` one. The documented
   // plain-submenu recipe relies on the latter.
-  const { store, virtualFocus, virtualFocusRef, virtualFocusAutoFocus } = useMenuRootContext();
+  const { store, virtualFocus } = useMenuRootContext();
   const open = store.useState('open');
   const mounted = store.useState('mounted');
   const parent = store.useState('parent');
@@ -44,12 +44,12 @@ export function useFilteredMenuSubmenuTrigger(params: MenuFilterItemParams): Men
     if (
       event.type === 'click' &&
       store.select('open') &&
-      (virtualFocusAutoFocus ||
+      (store.context.virtualFocusAutoFocus ||
         interactionType === 'keyboard' ||
         (interactionType === 'mouse' &&
           store.select('lastOpenChangeReason') === REASONS.triggerPress))
     ) {
-      virtualFocusRef?.current?.focus({ preventScroll: true });
+      store.context.virtualFocusRef?.current?.focus({ preventScroll: true });
     }
   });
 
@@ -62,7 +62,7 @@ export function useFilteredMenuSubmenuTrigger(params: MenuFilterItemParams): Men
       // A plain parent menu moves DOM focus to whichever item the pointer crosses. While this
       // trigger's submenu is open and its input held focus, hand focus straight back so crossing
       // the trigger doesn't interrupt typing.
-      const focusOwner = virtualFocusRef?.current;
+      const focusOwner = store.context.virtualFocusRef?.current;
       if (focusOwner && store.select('open') && event.relatedTarget === focusOwner) {
         event.preventBaseUIHandler();
         focusOwner.focus({ preventScroll: true });

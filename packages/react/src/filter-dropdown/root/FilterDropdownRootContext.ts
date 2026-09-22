@@ -6,7 +6,7 @@ import type { FilterDropdownStore } from '../store';
 
 export interface FilterDropdownItemRegistration {
   getText: () => string | undefined;
-  keywords: readonly string[] | undefined;
+  getKeywords: () => readonly string[] | undefined;
 }
 
 export type FilterDropdownFilter = (text: string, query: string) => boolean;
@@ -45,8 +45,8 @@ export interface FilterDropdownItemContext {
 
 function throwMissingFilterRoot(): never {
   throw new Error(
-    'Base UI: Filter parts must be placed within a filterable menu. Wrap <Menu.Root> or ' +
-      '<Menu.SubmenuRoot> in <Menu.FilterProvider>; a plain menu cannot filter.',
+    'Base UI: Filter parts are missing their filter context and cannot access the query or items. ' +
+      'Wrap the component root in its filter provider.',
   );
 }
 

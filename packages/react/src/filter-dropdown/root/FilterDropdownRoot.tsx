@@ -49,6 +49,14 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
   const [registeredListId, setListId] = React.useState<string | undefined>(undefined);
   const [focusVisible, setFocusVisible] = React.useState(inputFocusVisible);
   const [keyboardModality, setKeyboardModality] = React.useState(inputFocusVisible);
+  // Both reset when the host reports a new value; doing it during render skips an extra commit.
+  const [previousInputFocusVisible, setPreviousInputFocusVisible] =
+    React.useState(inputFocusVisible);
+  if (inputFocusVisible !== previousInputFocusVisible) {
+    setPreviousInputFocusVisible(inputFocusVisible);
+    setFocusVisible(inputFocusVisible);
+    setKeyboardModality(inputFocusVisible);
+  }
   const [registeredItems, registerItem, liveItems] = useItemRegistry<
     symbol,
     FilterDropdownItemRegistration
@@ -87,11 +95,6 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
   const triggerId = externalTriggerId || undefined;
   const listId = (registeredListId ?? defaultListId) || undefined;
 
-  useIsoLayoutEffect(() => {
-    setFocusVisible(inputFocusVisible);
-    setKeyboardModality(inputFocusVisible);
-  }, [inputFocusVisible]);
-
   store.useSyncedValues({ activeIndex, inputProps, registeredItemCount: registeredItems.size });
 
   // Re-runs on the registry snapshot published once every item in the commit has registered,
@@ -126,11 +129,11 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
 
     const nextIds = new Set<symbol>();
     let hasNewMatch = currentIds === null;
-    liveItems.forEach(({ getText, keywords }, id) => {
+    liveItems.forEach(({ getText, getKeywords }, id) => {
       const filterText = getText();
       const itemMatches =
         (filterText != null && matches(filterText, filterQuery)) ||
-        keywords?.some((keyword) => matches(keyword, filterQuery));
+        getKeywords()?.some((keyword) => matches(keyword, filterQuery));
       if (itemMatches) {
         nextIds.add(id);
         hasNewMatch ||= !currentIds?.has(id);
@@ -282,6 +285,7 @@ export interface FilterDropdownRootProps {
   inputRef?: React.RefObject<HTMLElement | null> | undefined;
   /**
    * Reports whether the input asks to be focused whenever the popup opens.
+   * The last report stands after the input unmounts.
    */
   onInputAutoFocusChange?: ((autoFocus: boolean) => void) | undefined;
 }

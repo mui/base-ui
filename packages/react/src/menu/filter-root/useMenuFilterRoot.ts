@@ -5,11 +5,13 @@ import { useControlled } from '@base-ui/utils/useControlled';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useFilterDropdownCloseQuery } from '../../filter-dropdown/root/useFilterDropdownCloseQuery';
 import { useIsHydrating } from '../../utils/useIsHydrating';
-import type { MenuFilterRoot } from './MenuFilterRoot';
+import type { MenuFilterRootProps } from './MenuFilterRoot';
+import type { MenuRoot } from '../root/MenuRoot';
+import type { MenuFilterProvider } from '../filter-provider/MenuFilterProvider';
 import { isKeyboardOpen } from './isKeyboardOpen';
 
 /** Shared query, open state, and focus options for filterable roots and submenus. */
-export function useMenuFilterRoot<Payload>(props: MenuFilterRoot.Props<Payload>, name: string) {
+export function useMenuFilterRoot<Payload>(props: MenuFilterRootProps<Payload>, name: string) {
   const {
     children,
     open: openProp,
@@ -34,17 +36,16 @@ export function useMenuFilterRoot<Payload>(props: MenuFilterRoot.Props<Payload>,
   const [inputValue, setInputValue] = useControlled({
     controlled: inputValueProp,
     default: defaultInputValue,
-    name,
+    name: 'MenuFilterProvider',
     state: 'inputValue',
   });
   const [inputFocusVisible, setInputFocusVisible] = React.useState(false);
-  const [inputAutoFocus, setInputAutoFocus] = React.useState(false);
 
   const focusOwnerRef = React.useRef<HTMLElement | null>(null);
   const hydrating = useIsHydrating();
 
   const handleInputValueChange = useStableCallback(
-    (nextValue: string, details: MenuFilterRoot.InputValueChangeEventDetails) => {
+    (nextValue: string, details: MenuFilterProvider.InputValueChangeEventDetails) => {
       onInputValueChange?.(nextValue, details);
       if (!details.isCanceled) {
         setInputValue(nextValue);
@@ -60,7 +61,7 @@ export function useMenuFilterRoot<Payload>(props: MenuFilterRoot.Props<Payload>,
   });
 
   const handleOpenChange = useStableCallback(
-    (nextOpen: boolean, details: MenuFilterRoot.ChangeEventDetails) => {
+    (nextOpen: boolean, details: MenuRoot.ChangeEventDetails) => {
       onOpenChange?.(nextOpen, details);
       if (details.isCanceled) {
         return;
@@ -85,7 +86,6 @@ export function useMenuFilterRoot<Payload>(props: MenuFilterRoot.Props<Payload>,
       // Wait until after hydration so server and client markup agree.
       webkitItemSelected: !hydrating && platform.engine.webkit,
       virtualFocusRef: focusOwnerRef,
-      virtualFocusAutoFocus: inputAutoFocus,
       allowEscape: !autoHighlight,
       resetOnPointerLeave: autoHighlight !== 'always',
     },
@@ -98,7 +98,6 @@ export function useMenuFilterRoot<Payload>(props: MenuFilterRoot.Props<Payload>,
       autoHighlight,
       locale,
       onValueChange: handleInputValueChange,
-      onInputAutoFocusChange: setInputAutoFocus,
     },
   };
 }

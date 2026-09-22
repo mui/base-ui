@@ -1,8 +1,7 @@
 'use client';
 import * as React from 'react';
 import { NOOP } from '@base-ui/utils/empty';
-import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
-import { useMenuFilterImpl, useUnfilteredItem } from '../filter-root/MenuFilterContext';
+import { useMenuFilterItem } from '../filter-root/MenuFilterContext';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useBaseUiId } from '../../internals/useBaseUiId';
@@ -111,13 +110,11 @@ export const MenuRadioItem = React.forwardRef(function MenuRadioItem(
   forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
   const { keywords, ...radioItemProps } = props;
-  const useRadioItemFilter = useMenuFilterImpl()?.useItem ?? useUnfilteredItem;
-  const filter = useRadioItemFilter({ label: props.label, keywords, children: props.children });
-  const ref = useMergedRefs(forwardedRef, filter.ref);
+  const filter = useMenuFilterItem(props, forwardedRef);
   if (!filter.visible) {
     return null;
   }
-  return <MenuRadioItemPlain {...radioItemProps} ref={ref} />;
+  return <MenuRadioItemPlain {...radioItemProps} ref={filter.ref} />;
 });
 
 export interface MenuRadioItemState {
@@ -152,8 +149,8 @@ export interface MenuRadioItemProps
    */
   disabled?: boolean | undefined;
   /**
-   * Overrides the text used for keyboard text navigation and filtering inside `Menu.FilterProvider`.
-   * Falls back to the rendered text when not provided.
+   * Overrides the text used for keyboard text navigation and filtering inside
+   * `Menu.FilterProvider`. Falls back to the rendered text when not provided.
    */
   label?: string | undefined;
   /**

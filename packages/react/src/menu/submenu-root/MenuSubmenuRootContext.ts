@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import type { BaseUIEvent } from '../../internals/types';
 
 export const MenuSubmenuRootContext = React.createContext<MenuSubmenuRootContext | undefined>(
   undefined,
@@ -8,7 +9,7 @@ export const MenuSubmenuRootContext = React.createContext<MenuSubmenuRootContext
 export interface MenuSubmenuRootContext {
   /** The element that receives focus when the submenu closes; `false` leaves focus where it is. */
   getReturnElement?: (() => HTMLElement | null | false) | undefined;
-  onTriggerKeyDown?: ((event: React.KeyboardEvent<HTMLElement>) => void) | undefined;
+  onTriggerKeyDown?: ((event: BaseUIEvent<React.KeyboardEvent<HTMLElement>>) => void) | undefined;
   onPopupKeyDown?: ((event: React.KeyboardEvent) => void) | undefined;
 }
 

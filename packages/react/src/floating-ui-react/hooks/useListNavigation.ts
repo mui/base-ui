@@ -19,6 +19,7 @@ import {
   isIndexOutOfListBounds,
 } from '../utils/composite';
 import type { gridNavigation } from './gridNavigation';
+import { ARROW_DOWN, ARROW_LEFT, ARROW_RIGHT, ARROW_UP } from '../utils/constants';
 import {
   activeElement,
   contains,
@@ -29,11 +30,19 @@ import {
 } from '../utils/element';
 import { enqueueFocus } from '../utils/enqueueFocus';
 import { isVirtualClick, isVirtualPointerEvent, stopEvent } from '../utils/event';
-import { ARROW_DOWN, ARROW_LEFT, ARROW_RIGHT, ARROW_UP } from '../utils/constants';
 
-export type ListOrientation = 'vertical' | 'horizontal' | 'both' | undefined;
+// WebKit fires zero-delta `mousemove`/`pointermove` events when the list scrolls
+// beneath a stationary pointer, moving the highlight during keyboard navigation.
+// https://github.com/mui/base-ui/issues/4002
+function isStationaryWebKitPointer(event: React.MouseEvent | React.PointerEvent) {
+  return platform.engine.webkit && event.movementX === 0 && event.movementY === 0;
+}
 
-function matchesOrientation(orientation: ListOrientation, vertical: boolean, horizontal: boolean) {
+function doSwitch(
+  orientation: UseListNavigationProps['orientation'],
+  vertical: boolean,
+  horizontal: boolean,
+) {
   switch (orientation) {
     case 'vertical':
       return vertical;
@@ -44,56 +53,49 @@ function matchesOrientation(orientation: ListOrientation, vertical: boolean, hor
   }
 }
 
-export function isMainOrientationKey(key: string, orientation: ListOrientation) {
-  return matchesOrientation(
-    orientation,
-    key === ARROW_UP || key === ARROW_DOWN,
-    key === ARROW_LEFT || key === ARROW_RIGHT,
-  );
+export function isMainOrientationKey(
+  key: string,
+  orientation: UseListNavigationProps['orientation'],
+) {
+  const vertical = key === ARROW_UP || key === ARROW_DOWN;
+  const horizontal = key === ARROW_LEFT || key === ARROW_RIGHT;
+  return doSwitch(orientation, vertical, horizontal);
 }
 
-export function isMainOrientationToEndKey(key: string, orientation: ListOrientation, rtl: boolean) {
+export function isMainOrientationToEndKey(
+  key: string,
+  orientation: UseListNavigationProps['orientation'],
+  rtl: boolean,
+) {
+  const vertical = key === ARROW_DOWN;
+  const horizontal = rtl ? key === ARROW_LEFT : key === ARROW_RIGHT;
   return (
-    matchesOrientation(
-      orientation,
-      key === ARROW_DOWN,
-      rtl ? key === ARROW_LEFT : key === ARROW_RIGHT,
-    ) ||
-    key === 'Enter' ||
-    key === ' ' ||
-    key === ''
+    doSwitch(orientation, vertical, horizontal) || key === 'Enter' || key === ' ' || key === ''
   );
 }
 
-export function isCrossOrientationOpenKey(key: string, orientation: ListOrientation, rtl: boolean) {
-  return matchesOrientation(
-    orientation,
-    rtl ? key === ARROW_LEFT : key === ARROW_RIGHT,
-    key === ARROW_DOWN,
-  );
+export function isCrossOrientationOpenKey(
+  key: string,
+  orientation: UseListNavigationProps['orientation'],
+  rtl: boolean,
+) {
+  const vertical = rtl ? key === ARROW_LEFT : key === ARROW_RIGHT;
+  const horizontal = key === ARROW_DOWN;
+  return doSwitch(orientation, vertical, horizontal);
 }
 
 export function isCrossOrientationCloseKey(
   key: string,
-  orientation: ListOrientation,
+  orientation: UseListNavigationProps['orientation'],
   rtl: boolean,
   grid: boolean,
 ) {
+  const vertical = rtl ? key === ARROW_RIGHT : key === ARROW_LEFT;
+  const horizontal = key === ARROW_UP;
   if (orientation === 'both' || (orientation === 'horizontal' && grid)) {
     return key === 'Escape';
   }
-  return matchesOrientation(
-    orientation,
-    rtl ? key === ARROW_RIGHT : key === ARROW_LEFT,
-    key === ARROW_UP,
-  );
-}
-
-// WebKit fires zero-delta `mousemove`/`pointermove` events when the list scrolls
-// beneath a stationary pointer, moving the highlight during keyboard navigation.
-// https://github.com/mui/base-ui/issues/4002
-function isStationaryWebKitPointer(event: React.MouseEvent | React.PointerEvent) {
-  return platform.engine.webkit && event.movementX === 0 && event.movementY === 0;
+  return doSwitch(orientation, vertical, horizontal);
 }
 
 export interface UseListNavigationProps {
@@ -263,7 +265,6 @@ export function useListNavigation(
     nestedReturnFocusRef,
     grid: navigateGrid,
   } = props;
-
   const isGrid = navigateGrid != null;
 
   if (process.env.NODE_ENV !== 'production') {

@@ -2,9 +2,7 @@
 import * as React from 'react';
 import type { MenuFilterRoot } from '../filter-root/MenuFilterRoot';
 import type { MenuFilterSubmenuRoot } from '../filter-submenu-root/MenuFilterSubmenuRoot';
-import type { MenuFilterProviderProps } from './MenuFilterProvider';
-
-export type MenuFilterOptions = Omit<MenuFilterProviderProps, 'children'>;
+import type { MenuFilterProviderOptions } from './MenuFilterProviderOptions';
 
 /**
  * What `Menu.FilterProvider` hands to the root directly inside it: the filterable root
@@ -13,7 +11,7 @@ export type MenuFilterOptions = Omit<MenuFilterProviderProps, 'children'>;
 export interface MenuFilterProviderContext {
   Root: typeof MenuFilterRoot;
   SubmenuRoot: typeof MenuFilterSubmenuRoot;
-  options: MenuFilterOptions;
+  options: MenuFilterProviderOptions;
 }
 
 /**

@@ -7,8 +7,7 @@ import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { platform } from '@base-ui/utils/platform';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
-import { useMenuFilterImpl, useUnfilteredItem } from '../filter-root/MenuFilterContext';
+import { useMenuFilterItem } from '../filter-root/MenuFilterContext';
 import { mergeProps } from '../../merge-props';
 import { safePolygon, useClick, useHoverReferenceInteraction } from '../../floating-ui-react';
 import { BaseUIComponentProps, NonNativeButtonProps } from '../../internals/types';
@@ -54,14 +53,14 @@ const MenuSubmenuTriggerPlain = React.forwardRef(function MenuSubmenuTrigger(
   const parentMenuStore = context.parent.store;
   const submenuRootContext = useMenuSubmenuRootContext();
   const listItem = useCompositeListItem({ guess: true, label });
-  const id = useBaseUiId(idProp);
+  const thisTriggerId = useBaseUiId(idProp);
 
   const open = store.useState('open');
   const floatingRootContext = store.useState('floatingRootContext');
   const floatingTreeRoot = store.useState('floatingTreeRoot');
-  const popupId = store.useState('triggerPopupId', id);
+  const popupId = store.useState('triggerPopupId', thisTriggerId);
 
-  const baseRegisterTrigger = useTriggerRegistration(id, store);
+  const baseRegisterTrigger = useTriggerRegistration(thisTriggerId, store);
   // Stable, so the merged ref on the rendered element keeps its identity for the trigger's whole
   // lifetime; the latest `closeDelay` is read when it runs.
   const registerTrigger = useStableCallback((element: Element | null) => {
@@ -74,7 +73,7 @@ const MenuSubmenuTriggerPlain = React.forwardRef(function MenuSubmenuTrigger(
       (activeTriggerElement === element || store.select('activeTriggerId') == null)
     ) {
       store.update({
-        activeTriggerId: id ?? null,
+        activeTriggerId: thisTriggerId ?? null,
         activeTriggerElement: element,
         closeDelay,
       });
@@ -96,7 +95,7 @@ const MenuSubmenuTriggerPlain = React.forwardRef(function MenuSubmenuTrigger(
   useIsoLayoutEffect(() => {
     registerTrigger(triggerElementRef.current);
     return () => registerTrigger(null);
-  }, [registerTrigger, id, store]);
+  }, [registerTrigger, thisTriggerId, store]);
 
   store.useSyncedValue('closeDelay', closeDelay);
 
@@ -136,7 +135,7 @@ const MenuSubmenuTriggerPlain = React.forwardRef(function MenuSubmenuTrigger(
     closeOnClick: false,
     disabled,
     highlighted,
-    id,
+    id: thisTriggerId,
     store,
     typingRef: parentMenuStore.context.typingRef,
     nativeButton,
@@ -239,15 +238,12 @@ export const MenuSubmenuTrigger = React.forwardRef(function MenuSubmenuTrigger(
   forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
   const { keywords, ...triggerProps } = props;
-  const useTriggerFilter =
-    useMenuFilterImpl('submenu-trigger')?.useSubmenuTrigger ?? useUnfilteredItem;
-  const filter = useTriggerFilter({ label: props.label, keywords, children: props.children });
-  const ref = useMergedRefs(forwardedRef, filter.ref);
+  const filter = useMenuFilterItem(props, forwardedRef, 'submenu-trigger');
   if (!filter.visible) {
     return null;
   }
   const mergedProps = filter.props ? mergeProps(filter.props, triggerProps) : triggerProps;
-  return <MenuSubmenuTriggerPlain {...mergedProps} ref={ref} />;
+  return <MenuSubmenuTriggerPlain {...mergedProps} ref={filter.ref} />;
 });
 
 export interface MenuSubmenuTriggerState {
@@ -269,8 +265,8 @@ export interface MenuSubmenuTriggerProps
   extends NonNativeButtonProps, BaseUIComponentProps<'div', MenuSubmenuTriggerState> {
   onClick?: BaseUIComponentProps<'div', MenuSubmenuTriggerState>['onClick'] | undefined;
   /**
-   * Overrides the text used for keyboard text navigation and filtering inside `Menu.FilterProvider`.
-   * Falls back to the rendered text when not provided.
+   * Overrides the text used for keyboard text navigation and filtering inside
+   * `Menu.FilterProvider`. Falls back to the rendered text when not provided.
    */
   label?: string | undefined;
   /**

@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { MenuFilterRoot } from '../filter-root/MenuFilterRoot';
 import { MenuFilterSubmenuRoot } from '../filter-submenu-root/MenuFilterSubmenuRoot';
-import type { MenuFilterRootFilterProps } from '../filter-root/MenuFilterRootFilterProps';
+import type { MenuFilterProviderOptions } from './MenuFilterProviderOptions';
 import { MenuFilterProviderContext } from './MenuFilterProviderContext';
 import type { FilterDropdownRoot } from '../../filter-dropdown/root/FilterDropdownRootContext';
 
@@ -51,7 +51,7 @@ export function MenuFilterProvider(props: MenuFilterProvider.Props): React.JSX.E
   );
 }
 
-export interface MenuFilterProviderProps extends MenuFilterRootFilterProps {
+export interface MenuFilterProviderProps extends MenuFilterProviderOptions {
   children?: React.ReactNode;
 }
 
