@@ -415,6 +415,15 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
       return true;
     };
 
+    const handleFocus = (event: FocusEvent) => {
+      const target = focusedKeyboardTargetRef.current;
+      // iOS 27 dispatches focus before recording the native focus options. Reapply
+      // preventScroll here, before focusin, so keyboard-arrow navigation retains it.
+      if (restorePreemptedFocus && target && target === getTarget(event)) {
+        target.focus({ preventScroll: true });
+      }
+    };
+
     const handleFocusIn = (event: FocusEvent) => {
       // The programmatic transition is over once focus lands, which happens before
       // `.focus()` returns. Any later `focusout` is the consumer's own — an `onFocus`
@@ -502,6 +511,7 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
     };
 
     cleanupListeners.push(
+      addEventListener(doc, 'focus', handleFocus, true),
       addEventListener(doc, 'focusin', handleFocusIn, true),
       addEventListener(doc, 'focusout', handleFocusOut, true),
       addEventListener(win, 'scroll', handleWindowScroll),
@@ -631,6 +641,15 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
       // events, including `click`; redispatch an untrusted replacement on the
       // original tap target so click handlers still run with the tap coordinates.
       dispatchKeyboardClick(keyboardClickTarget, touch);
+      // Label activation refocuses its control without preventScroll. While the keyboard
+      // is opening, WebKit replaces the pending focus options even for an already-focused
+      // input. Reapply preventScroll without blurring or undoing a consumer's focus change.
+      if (
+        keyboardClickTarget !== keyboardFocusTarget &&
+        activeElement(ownerDocument(keyboardFocusTarget)) === keyboardFocusTarget
+      ) {
+        keyboardFocusTarget.focus({ preventScroll: true });
+      }
       resetTouchTrackingState();
       return;
     }
