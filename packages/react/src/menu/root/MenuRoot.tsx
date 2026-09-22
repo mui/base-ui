@@ -742,8 +742,9 @@ export interface MenuRootProps<Payload = unknown> {
    *   then call this action after any externally controlled closing animation finishes.
    * - `close`: When specified, the menu can be closed imperatively.
    * - `highlightItem`: Moves the highlight to the `'next'`, `'previous'`, `'first'` or `'last'`
-   *   item, or clears it with `'none'`. Useful for binding custom keyboard shortcuts.
-   *   Does nothing while the popup is closed.
+   *   item, or clears it with `'none'`, which hands focus back to the popup. Useful for
+   *   binding custom keyboard shortcuts. `'next'` and `'previous'` wrap around unless
+   *   `loopFocus` is disabled. Does nothing while the menu is closed.
    */
   actionsRef?: React.RefObject<MenuRoot.Actions | null> | undefined;
   /**
@@ -769,6 +770,14 @@ export interface MenuRootProps<Payload = unknown> {
   children?: React.ReactNode | PayloadChildRenderFunction<Payload>;
 }
 
+/**
+ * The item `highlightItem` moves the highlight to.
+ * - `'next'` and `'previous'` move relative to the current highlight, or enter the list from
+ *   the matching end when nothing is highlighted. They wrap around unless `loopFocus` is
+ *   disabled and never leave the list.
+ * - `'first'` and `'last'` jump to either end of the list.
+ * - `'none'` clears the highlight and hands focus back to the popup.
+ */
 export type MenuRootHighlightItemTarget = HighlightItemTarget;
 
 export interface MenuRootActions {

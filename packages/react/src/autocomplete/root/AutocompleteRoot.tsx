@@ -125,6 +125,14 @@ export function AutocompleteRoot<ItemValue>(
 
 export interface AutocompleteRootState extends AriaComboboxState {}
 
+/**
+ * The item `highlightItem` moves the highlight to.
+ * - `'next'` and `'previous'` move relative to the current highlight, or enter the list from
+ *   the matching end when nothing is highlighted. They wrap around when `loopFocus` is enabled
+ *   and never leave the list: `'previous'` on the first item does not move back to the input.
+ * - `'first'` and `'last'` jump to either end of the list.
+ * - `'none'` clears the highlight.
+ */
 export type AutocompleteRootHighlightItemTarget = AriaCombobox.HighlightItemTarget;
 
 export interface AutocompleteRootActions {
@@ -269,8 +277,9 @@ export interface AutocompleteRootProps<ItemValue> extends Omit<
    * - `close`: Closes the autocomplete imperatively when called.
    * - `highlightItem`: Moves the highlight to the `'next'`, `'previous'`, `'first'` or `'last'`
    * item, or clears it with `'none'`. Useful for binding custom keyboard shortcuts.
-   * Does nothing while the popup is closed, and `'next'`/`'previous'` do nothing when `grid`
-   * is enabled. `'none'` does nothing under `autoHighlight="always"`, which by definition
+   * `'next'` and `'previous'` wrap around when `loopFocus` is enabled and never move the
+   * highlight back to the input. Does nothing while the popup is closed, and
+   * `'next'`/`'previous'` do nothing when `grid` is enabled. `'none'` does nothing under `autoHighlight="always"`, which by definition
    * always keeps an item highlighted.
    */
   actionsRef?: React.RefObject<AutocompleteRootActions | null> | undefined;
@@ -286,7 +295,8 @@ export interface AutocompleteRootProps<ItemValue> extends Omit<
    * - `'keyboard'`: the highlight changed due to keyboard navigation.
    * - `'pointer'`: the highlight changed due to pointer hovering.
    * - `'imperative-action'`: the highlight changed via `actionsRef`'s `highlightItem`.
-   * - `'none'`: the highlight changed programmatically.
+   * - `'none'`: the highlight changed for another reason, such as `autoHighlight`, the item
+   *   list changing, or the popup opening or closing.
    */
   onItemHighlighted?:
     | ((

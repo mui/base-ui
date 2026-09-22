@@ -154,7 +154,7 @@ Arrow keys navigate the list out of the box. To bind additional shortcuts, such 
 
 `highlightItem()` accepts `'next'` and `'previous'` to move relative to the current highlight, `'first'` and `'last'` to jump to either end, and `'none'` to clear the highlight. `'next'` and `'previous'` wrap around at the ends unless `loopFocus` is disabled, and they never move the highlight back to the input.
 
-The action only applies while the popup is open, so open it first if a shortcut should also reveal the list. When `grid` is enabled, `'next'` and `'previous'` do nothing, because a grid has no single item that follows the current one — use the arrow keys or `'first'` and `'last'` instead.
+The action only applies while the popup is open. A call made in the same event as the one that opens the popup is dropped rather than queued, so a shortcut that should also reveal the list has to wait for the open to complete, for example by calling `highlightItem()` from `onOpenChangeComplete`. When `grid` is enabled, `'next'` and `'previous'` do nothing, because a grid has no single item that follows the current one — use the arrow keys or `'first'` and `'last'` instead.
 
 With `autoHighlight="always"`, `'none'` does nothing: that mode keeps an item highlighted at all times, so the prop takes precedence and no highlight change is reported.
 

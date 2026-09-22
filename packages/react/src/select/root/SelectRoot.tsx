@@ -686,8 +686,9 @@ export interface SelectRootProps<Value, Multiple extends boolean | undefined = f
    * Whether it leaves the DOM is decided by `keepMounted` on the portal.
    * - `close`: Closes the select imperatively when called.
    * - `highlightItem`: Moves the highlight to the `'next'`, `'previous'`, `'first'` or `'last'`
-   *   item, or clears it with `'none'`. Useful for binding custom keyboard shortcuts.
-   *   Does nothing while the popup is closed.
+   *   item, or clears it with `'none'`, which hands focus back to the popup. Useful for
+   *   binding custom keyboard shortcuts. `'next'` and `'previous'` never wrap: the highlight
+   *   stays on the last or first item. Does nothing while the popup is closed.
    */
   actionsRef?: React.RefObject<SelectRootActions | null> | undefined;
   /**
@@ -747,6 +748,14 @@ export interface SelectRootProps<Value, Multiple extends boolean | undefined = f
 
 export interface SelectRootState {}
 
+/**
+ * The item `highlightItem` moves the highlight to.
+ * - `'next'` and `'previous'` move relative to the current highlight, or enter the list from
+ *   the matching end when nothing is highlighted. They never wrap: the highlight stays on the
+ *   last or first item.
+ * - `'first'` and `'last'` jump to either end of the list.
+ * - `'none'` clears the highlight and hands focus back to the popup.
+ */
 export type SelectRootHighlightItemTarget = HighlightItemTarget;
 
 export interface SelectRootActions {

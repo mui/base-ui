@@ -13672,13 +13672,34 @@ describe('<Combobox.Root />', () => {
 
     it('does nothing while the popup is closed', async () => {
       const actionsRef = React.createRef<Combobox.Root.Actions>();
-      await render(<HighlightItemCombobox actionsRef={actionsRef} defaultOpen={false} />);
+      const { user } = await render(
+        <HighlightItemCombobox actionsRef={actionsRef} defaultOpen={false} />,
+      );
 
-      act(() => actionsRef.current!.highlightItem('first'));
+      act(() => actionsRef.current!.highlightItem('last'));
 
       await flushMicrotasks();
       expect(screen.queryByRole('listbox')).toBeNull();
       expectHighlighted(null);
+
+      // The call is dropped rather than queued: opening afterwards looks like any other open.
+      await user.click(screen.getByTestId('input'));
+      await user.keyboard('{ArrowDown}');
+      await screen.findByRole('listbox');
+      await waitFor(() => expectHighlighted('Apple'));
+    });
+
+    it('continues arrow-key navigation from the imperative position', async () => {
+      const actionsRef = React.createRef<Combobox.Root.Actions>();
+      const { user } = await render(<HighlightItemCombobox actionsRef={actionsRef} />);
+
+      await user.click(screen.getByTestId('input'));
+
+      act(() => actionsRef.current!.highlightItem('last'));
+      await waitFor(() => expectHighlighted('Cherry'));
+
+      await user.keyboard('{ArrowUp}');
+      await waitFor(() => expectHighlighted('Banana'));
     });
 
     it('reports the imperative-action reason to onItemHighlighted', async () => {
@@ -13693,7 +13714,88 @@ describe('<Combobox.Root />', () => {
       await waitFor(() => {
         expect(onItemHighlighted).toHaveBeenCalledWith(
           'Apple',
-          expect.objectContaining({ reason: REASONS.imperativeAction }),
+          expect.objectContaining({ reason: REASONS.imperativeAction, index: 0 }),
+        );
+      });
+
+      act(() => actionsRef.current!.highlightItem('none'));
+
+      await waitFor(() => {
+        expect(onItemHighlighted).toHaveBeenLastCalledWith(
+          undefined,
+          expect.objectContaining({ reason: REASONS.imperativeAction, index: -1 }),
+        );
+      });
+    });
+
+    it.skipIf(isJSDOM)('targets items an external virtualizer has not rendered', async () => {
+      // The list is sized to the full item count, so `'last'` resolves to the true last index
+      // even when that item is not mounted. The consumer scrolls on the `imperative-action`
+      // reason, as the virtualized docs demo does.
+      const items = Array.from({ length: 100 }, (_, index) => `item-${index}`);
+      const actionsRef = React.createRef<Combobox.Root.Actions>();
+      const onItemHighlighted = vi.fn();
+
+      function VirtualizedItems(props: { windowStart: number }) {
+        const filteredItems = Combobox.useFilteredItems<string>();
+        return filteredItems
+          .slice(props.windowStart, props.windowStart + 10)
+          .map((item, offset) => (
+            <Combobox.Item key={item} value={item} index={props.windowStart + offset}>
+              {item}
+            </Combobox.Item>
+          ));
+      }
+
+      function App() {
+        const [windowStart, setWindowStart] = React.useState(0);
+        return (
+          <Combobox.Root
+            items={items}
+            defaultOpen
+            virtualized
+            actionsRef={actionsRef}
+            onItemHighlighted={(item, details) => {
+              onItemHighlighted(item, details);
+              if (details.reason === REASONS.imperativeAction && item) {
+                setWindowStart(Math.max(0, details.index - 5));
+              }
+            }}
+          >
+            <Combobox.Input data-testid="input" />
+            <Combobox.Portal>
+              <Combobox.Positioner>
+                <Combobox.Popup>
+                  <Combobox.List>
+                    <VirtualizedItems windowStart={windowStart} />
+                  </Combobox.List>
+                </Combobox.Popup>
+              </Combobox.Positioner>
+            </Combobox.Portal>
+          </Combobox.Root>
+        );
+      }
+
+      await render(<App />);
+      await screen.findByRole('option', { name: 'item-0' });
+      expect(screen.queryByRole('option', { name: 'item-99' })).toBeNull();
+
+      act(() => actionsRef.current!.highlightItem('last'));
+
+      await waitFor(() => {
+        expect(onItemHighlighted).toHaveBeenLastCalledWith(
+          'item-99',
+          expect.objectContaining({ reason: REASONS.imperativeAction, index: 99 }),
+        );
+      });
+      await waitFor(() => expectHighlighted('item-99'));
+
+      act(() => actionsRef.current!.highlightItem('previous'));
+
+      await waitFor(() => {
+        expect(onItemHighlighted).toHaveBeenLastCalledWith(
+          'item-98',
+          expect.objectContaining({ reason: REASONS.imperativeAction, index: 98 }),
         );
       });
     });

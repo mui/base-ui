@@ -3093,6 +3093,14 @@ describe('<Autocomplete.Root />', () => {
           screen.getByRole('option', { name: 'Apple' }).id,
         ),
       );
+
+      act(() => actionsRef.current!.highlightItem('next'));
+      await waitFor(() =>
+        expect(input).toHaveAttribute(
+          'aria-activedescendant',
+          screen.getByRole('option', { name: 'Banana' }).id,
+        ),
+      );
     });
 
     it('keeps the inline cursor in sync when the highlight is cleared', async () => {
@@ -3112,6 +3120,16 @@ describe('<Autocomplete.Root />', () => {
       await waitFor(() =>
         expect(screen.getByRole('option', { name: 'Banana' })).not.toHaveAttribute(
           'data-highlighted',
+        ),
+      );
+
+      // And the cursor must have cleared with it: the next relative move enters the list from
+      // the start instead of continuing from Banana.
+      act(() => actionsRef.current!.highlightItem('next'));
+      await waitFor(() =>
+        expect(input).toHaveAttribute(
+          'aria-activedescendant',
+          screen.getByRole('option', { name: 'Apple' }).id,
         ),
       );
     });

@@ -731,12 +731,11 @@ export function useListNavigation(
     const list = listRef.current;
 
     if (target === 'none') {
-      // Capture the item losing the highlight before the index is cleared. Focus may only be
-      // reclaimed from that item, never from unrelated content that happens to live inside the
-      // popup - a nested non-portalled popup owning focus must keep it.
-      const previouslyHighlightedItem = isIndexOutOfListBounds(list, indexRef.current)
-        ? null
-        : list[indexRef.current];
+      // A focus move from an earlier call may still be queued for the next frame. Cancel it
+      // unconditionally: if it landed after the clear, the item's focus handler would resync the
+      // index and re-highlight the item that was just cleared.
+      cancelQueuedFocusRef.current?.();
+      cancelQueuedFocusRef.current = null;
 
       indexRef.current = -1;
       isPointerModalityRef.current = false;
@@ -744,13 +743,14 @@ export function useListNavigation(
       onNavigate(undefined, 'imperative');
 
       // With real DOM focus the highlight and the focused element must not diverge: leaving
-      // focus on the item would let Enter activate something that no longer looks highlighted.
-      // Mirrors the handoff `onPointerLeave` performs when it resets the highlight.
-      if (!virtual && previouslyHighlightedItem) {
+      // focus on an item would let Enter activate something that no longer looks highlighted.
+      // Focus is reclaimed from any item, not only the one the index pointed at, because a
+      // preceding move may not have applied its focus yet. It is never reclaimed from unrelated
+      // content inside the popup - a nested non-portalled popup owning focus must keep it.
+      if (!virtual) {
         const floatingFocusEl = floatingFocusElementRef.current;
-        const activeEl = activeElement(ownerDocument(previouslyHighlightedItem));
-        if (floatingFocusEl && contains(previouslyHighlightedItem, activeEl)) {
-          cancelQueuedFocusRef.current?.();
+        const activeEl = activeElement(ownerDocument(floatingFocusEl));
+        if (floatingFocusEl && list.some((item) => item && contains(item, activeEl))) {
           floatingFocusEl.focus({ preventScroll: true });
         }
       }

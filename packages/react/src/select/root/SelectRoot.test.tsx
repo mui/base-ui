@@ -6988,7 +6988,9 @@ describe('<Select.Root />', () => {
       const { user } = await render(<TestSelect actionsRef={actionsRef} />);
 
       await user.click(screen.getByTestId('trigger'));
-      await screen.findByRole('listbox');
+      const listbox = await screen.findByRole('listbox');
+      // Let the open sequence finish moving focus before driving the highlight.
+      await waitFor(() => expect(listbox).toHaveFocus());
 
       act(() => actionsRef.current!.highlightItem('first'));
       await waitFor(() => expect(screen.getByRole('option', { name: 'One' })).toHaveFocus());
@@ -7002,7 +7004,9 @@ describe('<Select.Root />', () => {
       const { user } = await render(<TestSelect actionsRef={actionsRef} />);
 
       await user.click(screen.getByTestId('trigger'));
-      await screen.findByRole('listbox');
+      const listbox = await screen.findByRole('listbox');
+      // Let the open sequence finish moving focus before driving the highlight.
+      await waitFor(() => expect(listbox).toHaveFocus());
 
       act(() => actionsRef.current!.highlightItem('last'));
       await waitFor(() => expect(screen.getByRole('option', { name: 'Three' })).toHaveFocus());
@@ -7022,7 +7026,9 @@ describe('<Select.Root />', () => {
       const { user } = await render(<TestSelect actionsRef={actionsRef} />);
 
       await user.click(screen.getByTestId('trigger'));
-      await screen.findByRole('listbox');
+      const listbox = await screen.findByRole('listbox');
+      // Let the open sequence finish moving focus before driving the highlight.
+      await waitFor(() => expect(listbox).toHaveFocus());
 
       act(() => actionsRef.current!.highlightItem('first'));
       const firstItem = screen.getByRole('option', { name: 'One' });
@@ -7030,17 +7036,55 @@ describe('<Select.Root />', () => {
 
       act(() => actionsRef.current!.highlightItem('none'));
       await waitFor(() => expect(firstItem).not.toHaveAttribute('data-highlighted'));
-      await waitFor(() => expect(firstItem).not.toHaveFocus());
+      // Focus goes back to the popup, not to the body.
+      await waitFor(() => expect(listbox).toHaveFocus());
+    });
+
+    it('moves relative to the selected item', async () => {
+      // Select pre-highlights the selected item on open, so relative targets start from it.
+      const actionsRef = React.createRef<Select.Root.Actions>();
+      const { user } = await render(
+        <Select.Root actionsRef={actionsRef} defaultValue="2">
+          <Select.Trigger data-testid="trigger">
+            <Select.Value />
+          </Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup>
+                <Select.Item value="1">One</Select.Item>
+                <Select.Item value="2">Two</Select.Item>
+                <Select.Item value="3">Three</Select.Item>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>,
+      );
+
+      await user.click(screen.getByTestId('trigger'));
+      await screen.findByRole('listbox');
+      await waitFor(() => expect(screen.getByRole('option', { name: 'Two' })).toHaveFocus());
+
+      act(() => actionsRef.current!.highlightItem('next'));
+      await waitFor(() => expect(screen.getByRole('option', { name: 'Three' })).toHaveFocus());
+
+      act(() => actionsRef.current!.highlightItem('previous'));
+      await waitFor(() => expect(screen.getByRole('option', { name: 'Two' })).toHaveFocus());
     });
 
     it('does nothing while the popup is closed', async () => {
       const actionsRef = React.createRef<Select.Root.Actions>();
-      await render(<TestSelect actionsRef={actionsRef} />);
+      const { user } = await render(<TestSelect actionsRef={actionsRef} />);
 
-      act(() => actionsRef.current!.highlightItem('first'));
+      act(() => actionsRef.current!.highlightItem('last'));
 
       await flushMicrotasks();
       expect(screen.queryByRole('listbox')).toBeNull();
+
+      // The call is dropped rather than queued: opening afterwards looks like any other open.
+      await user.click(screen.getByTestId('trigger'));
+      const listbox = await screen.findByRole('listbox');
+      await waitFor(() => expect(listbox).toHaveFocus());
+      expect(screen.getByRole('option', { name: 'Three' })).not.toHaveAttribute('data-highlighted');
     });
   });
 });
