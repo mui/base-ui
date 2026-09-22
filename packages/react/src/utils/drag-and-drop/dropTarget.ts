@@ -896,53 +896,36 @@ export type RegisterDropTargetParameters<
   TTargetDragData = unknown,
 > = {
   /**
-   * The payload to attach to this target, read back as `target.payload` in its own
-   * callbacks and on its record in `location.current.dropTargets`. Use it to identify which
-   * cell, row, or column a drag is over. Functions are preserved as ordinary
-   * payload values.
+   * The data attached to this target, available as `target.payload` in its handlers
+   * and on its record in `location.current.dropTargets`.
    */
   payload?: TTargetPayload | undefined;
   /**
-   * The target kind created with `Draggable.createKind`. It is available as
-   * `target.kind` and on entries in `location.current.dropTargets`. Use the kind's `matches`
-   * method to distinguish target kinds and narrow their payload types. Its payload
-   * type must match this target's `payload`.
-   *
-   * Distinct from `accept`, which declares the **source** kinds this target takes.
+   * The kind of this target, created with `Draggable.createKind`. Use its `matches`
+   * method to tell target kinds apart in a shared handler, which also types
+   * `target.payload`. Not to be confused with `accept`, which lists the kinds of
+   * draggable this target takes.
    */
   kind?: DragKind<NoInfer<TTargetPayload>, TTargetDragData> | undefined;
   /**
-   * One or more drag source kinds accepted by this target.
+   * One or more kinds of draggable this target accepts. Pass `Draggable.anyKind`
+   * to accept every drag, with `source.payload` typed as `unknown`.
    *
-   * Optional on `Draggable.Target`, where it defaults to the nearest provider's
-   * no-payload kind; required on `registerDropTarget`, which joins the page-wide
-   * manager directly. Pass `Draggable.anyKind` to accept every drag. In that case,
-   * `source.payload` is `unknown`.
-   *
-   * The target ignores a source whose kind is not accepted. An ancestor target can
-   * still accept it. Base UI checks `accept` before `canDrop`.
+   * Drags of other kinds ignore this target, but an ancestor target can still accept them.
    */
   accept?: DragAccept<TSourcePayload, TDragData> | undefined;
   /**
-   * Whether the drop target should ignore user interaction. A disabled target is
-   * skipped by target resolution as if it weren't registered, so drags fall through
-   * to ancestor targets. A hovered target disabled mid-drag leaves the active stack,
-   * with its `onDraggableLeave`, on the next resolution.
+   * Whether the target ignores drags. A disabled target is skipped, so drags fall
+   * through to ancestor targets.
    * @default false
    */
   disabled?: boolean | undefined;
   /**
-   * Predicate for whether this target should be considered a candidate for the
-   * current drag. Runs after `accept`.
+   * Decides whether the current drag can be dropped on this target. Runs after `accept`.
    *
-   * Return `false` to skip this target for the current resolution. Base UI continues
-   * through its ancestors, so a parent target can receive the drop. This differs from
-   * ignoring the drop inside `onDraggableDrop`, which does not give a parent target a chance.
-   *
-   * Return `'reject'` to block every drop at this position. Descendants, this target,
-   * and ancestors cannot receive the drop. While the drag is over the target, it has
-   * `data-rejected`. Use this for container rules such as a capacity limit. Returning
-   * `false` would allow an item inside the container to receive the drop.
+   * Return `false` to skip this target and let an ancestor receive the drop.
+   * Return `'reject'` to block the drop on this target, its nested targets, and its
+   * ancestors, for example when a column is full. The target then has `[data-rejected]`.
    */
   canDrop?:
     | ((
@@ -950,16 +933,12 @@ export type RegisterDropTargetParameters<
       ) => boolean | 'reject')
     | undefined;
   /**
-   * Divides the target's border box into equal steps for
-   * `getSnappedLocalPoint()`. For example, `{ y: 96 }` creates 15-minute slots in
-   * a day column, and `{ x: 7, y: 6 }` creates a month grid.
+   * Divides the target into equal steps for `getSnappedLocalPoint()`. For example,
+   * `{ y: 96 }` splits a day column into 15-minute slots, whatever its height.
+   * Accepts step counts or a function receiving the drag source.
    *
-   * Step counts do not depend on the target's pixel size. Pass a static value or
-   * a callback that receives the same context as `canDrop`. Return `undefined`
-   * to skip snapping.
-   *
-   * This differs from `snapToGrid`, which snaps the drag position for every target.
-   * `snap` changes only the value reported by this target.
+   * It only changes the value this target reports. Use the `snapToGrid` modifier
+   * to snap the preview itself.
    */
   snap?:
     | DragSnapSteps
@@ -968,9 +947,8 @@ export type RegisterDropTargetParameters<
       ) => DragSnapSteps | undefined)
     | undefined;
   /**
-   * Event handler called when a matching drag starts while this target is already
-   * under the pointer. It does not fire for drags that start elsewhere; use a
-   * monitor's `onMoveStart` to observe every drag.
+   * Event handler called when a drag starts while this target is already under the
+   * pointer. Use a monitor's `onMoveStart` to observe drags starting elsewhere.
    */
   onDraggableStart?:
     | ((
@@ -985,12 +963,9 @@ export type RegisterDropTargetParameters<
       ) => void)
     | undefined;
   /**
-   * Event handler called on each animation frame when the pointer or modifier
-   * keys change while the target is in the active stack. A target entered mid-drag
-   * also receives it on the frame it enters, right after `onDraggableEnter`; a
-   * target under the pointer at pickup receives `onDraggableStart` and
-   * `onDraggableEnter` only, then this on the first move. Put hover-tracking work
-   * here and use `onDraggableEnter` for enter-only side effects.
+   * Event handler called on every animation frame the pointer moves or a modifier key
+   * changes while the drag is over this target, starting with the frame it enters.
+   * Put hover feedback such as drop indicators here.
    */
   onDraggableMove?:
     | ((
@@ -1004,7 +979,7 @@ export type RegisterDropTargetParameters<
         eventDetails: DropTargetEventDetailsMap['onDraggableMove'],
       ) => void)
     | undefined;
-  /** Event handler called when this target enters the active stack. */
+  /** Event handler called when the drag moves over this target. */
   onDraggableEnter?:
     | ((
         parameters: DropTargetEvent<
@@ -1018,9 +993,8 @@ export type RegisterDropTargetParameters<
       ) => void)
     | undefined;
   /**
-   * Event handler called when this target leaves the active stack, because the
-   * pointer or modifier keys moved it away, or the drag ended. `eventDetails.reason`
-   * identifies what changed.
+   * Event handler called when the drag moves off this target, or ends.
+   * `eventDetails.reason` tells which.
    */
   onDraggableLeave?:
     | ((
@@ -1035,10 +1009,9 @@ export type RegisterDropTargetParameters<
       ) => void)
     | undefined;
   /**
-   * Event handler called on the innermost active drop target only, when the user
-   * releases the drag over it. Ancestor targets in the same stack do not receive
-   * `onDraggableDrop`, and it never fires on a cancel. To observe every drag end regardless of
-   * target depth or cancellation, use the source's or a monitor's `onMoveEnd`.
+   * Event handler called when the drag is released over this target. Only the innermost
+   * target under the pointer receives it, and it never fires on a cancel.
+   * Use the source's or a monitor's `onMoveEnd` to observe every drag end.
    */
   onDraggableDrop?:
     | ((

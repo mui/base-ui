@@ -2,26 +2,31 @@
 import { Draggable } from '@base-ui/react/draggable';
 
 import * as React from 'react';
-import { DashboardControls } from '../../DashboardControls';
 import { GripIcon } from '../../GripIcon';
 import { SLOTS, useDashboardWidgets, type SlotId, type WidgetData } from '../../dashboardWidgets';
 
 import styles from '../../containment.module.css';
-import controlsStyles from '../../dashboardControls.module.css';
+import statusStyles from '../../dashboardStatus.module.css';
 
 const widgetKind = Draggable.createKind<string>('draggable/contained-widget');
 
 function Widget({
   widget,
   frameRef,
+  onKeyDown,
 }: {
   widget: WidgetData;
   frameRef: React.RefObject<HTMLDivElement | null>;
+  onKeyDown: (event: React.KeyboardEvent<HTMLElement>, widgetId: string) => void;
 }) {
   return (
     <Draggable.Root
       kind={widgetKind}
       payload={widget.id}
+      data-widget-id={widget.id}
+      tabIndex={0}
+      aria-keyshortcuts="Alt+ArrowLeft Alt+ArrowRight"
+      onKeyDown={(event) => onKeyDown(event, widget.id)}
       className={styles.Widget}
       // @highlight-start
       modifiers={Draggable.restrictToElement(frameRef)}
@@ -45,12 +50,14 @@ function DockSlot({
   widget,
   frameRef,
   onMoveWidget,
+  onWidgetKeyDown,
 }: {
   id: SlotId;
   label: string;
   widget: WidgetData | undefined;
   frameRef: React.RefObject<HTMLDivElement | null>;
   onMoveWidget: (widgetId: string, slot: SlotId) => void;
+  onWidgetKeyDown: (event: React.KeyboardEvent<HTMLElement>, widgetId: string) => void;
 }) {
   return (
     <Draggable.Target
@@ -63,7 +70,7 @@ function DockSlot({
       onDraggableDrop={({ source }) => onMoveWidget(source.payload, id)}
     >
       {widget ? (
-        <Widget widget={widget} frameRef={frameRef} />
+        <Widget widget={widget} frameRef={frameRef} onKeyDown={onWidgetKeyDown} />
       ) : (
         <span className={styles.Empty}>Drop widget</span>
       )}
@@ -72,17 +79,12 @@ function DockSlot({
 }
 
 function ContainedDashboardContent() {
-  const { widgets, moveWidget, announcement } = useDashboardWidgets();
+  const { widgets, moveWidget, onWidgetKeyDown, announcement } = useDashboardWidgets();
   const frameRef = React.useRef<HTMLDivElement | null>(null);
 
   return (
     <div className={styles.Root}>
-      <DashboardControls
-        className={controlsStyles.Controls}
-        widgets={widgets}
-        onMoveWidget={moveWidget}
-      />
-      <div role="status" className={controlsStyles.Status}>
+      <div role="status" className={statusStyles.Status}>
         {announcement}
       </div>
       <div ref={frameRef} className={styles.Frame}>
@@ -95,6 +97,7 @@ function ContainedDashboardContent() {
               widget={widgets.find((widget) => widget.slot === slot.id)}
               frameRef={frameRef}
               onMoveWidget={moveWidget}
+              onWidgetKeyDown={onWidgetKeyDown}
             />
           ))}
         </div>

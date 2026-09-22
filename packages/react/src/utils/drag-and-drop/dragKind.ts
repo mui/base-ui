@@ -12,19 +12,15 @@ const KIND_ID_PREFIX = 'base-ui/drag-kind:';
 const ANY_KIND_ID = Symbol.for('base-ui/drag-kind-sentinel:any');
 
 /**
- * Creates a drag kind to pass to a draggable's `kind` and a drop target's
- * `accept`.
+ * Creates a kind to pass to a draggable's `kind` prop and a drop target's `accept` prop.
+ * The type argument declares the payload of the items of this kind.
  *
  * ```ts
  * const card = Draggable.createKind<Card>('card');
  * ```
  *
- * Each call creates a unique identity. Declare the kind once and share it with every
- * draggable and drop target in the interaction. The name is only a debugging aid.
- * Separate calls with the same name do not match.
- *
- * Use {@link createGlobalKind} only when independently evaluated bundles deliberately
- * need to share a kind by a namespaced key.
+ * Each call creates a unique kind, so declare it once and share the value with every
+ * draggable and drop target of the interaction. The name is only a debugging aid.
  */
 export function createKind<TPayload = undefined, TDragData = unknown>(
   name: string,
@@ -33,18 +29,17 @@ export function createKind<TPayload = undefined, TDragData = unknown>(
 }
 
 /**
- * Creates a drag kind shared across bundles using the same key.
+ * Creates a kind identified by a string key, so that separately bundled code can
+ * share it without sharing a value.
  *
  * ```ts
  * const card = Draggable.createGlobalKind<Card>('myapp/card');
  * ```
  *
- * The key is the runtime identity, so every call with the same key matches, including
- * calls made by another copy of the bundle. It must be namespaced (for example,
- * `'myapp/card'`) because using the same key with incompatible payload types bypasses
- * TypeScript and causes the integrations to exchange the wrong payload at runtime.
- * Prefer {@link createKind} when the kind value can be shared directly.
- * @param key - A namespaced global key such as `'myapp/card'`.
+ * Every call with the same key returns the same kind. Prefix the key with your app
+ * or package name, and use one payload type per key, since TypeScript can't check
+ * that two bundles agree. Prefer {@link createKind} when the value can be shared.
+ * @param key - A namespaced key such as `'myapp/card'`.
  */
 export function createGlobalKind<TPayload = undefined, TDragData = unknown>(
   key: string,
@@ -72,13 +67,13 @@ function makeKind<TPayload, TDragData>(name: string, id: symbol): DragKind<TPayl
 }
 
 /**
- * A catch-all kind for a drop target that accepts every drag on the page.
+ * A kind that matches every drag. Pass it to a drop target's `accept` prop to accept everything.
  *
  * ```tsx
  * <Draggable.Target accept={Draggable.anyKind} onDraggableDrop={commit} />
  * ```
  *
- * The accepted source's payload is `unknown` until narrowed with a specific kind.
+ * The resulting `source.payload` is `unknown` until narrowed with a specific kind's `matches` method.
  */
 export const anyDragKind: DragKind<unknown> = {
   name: 'any',

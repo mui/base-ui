@@ -46,15 +46,10 @@ export type RegisterDropTargetParameters<
   'accept'
 > & {
   /**
-   * One or more drag source kinds accepted by this target.
+   * One or more kinds of draggable this target accepts. Pass `Draggable.anyKind`
+   * to accept every drag, with `source.payload` typed as `unknown`.
    *
-   * Required here: `registerDropTarget` joins the page-wide manager directly, with
-   * no provider kind to default to, and `Draggable.Target` props with typed
-   * payloads need it to determine `source.payload`. Pass `Draggable.anyKind` to
-   * accept every drag. In that case, `source.payload` is `unknown`.
-   *
-   * The target ignores a source whose kind is not accepted. An ancestor target can
-   * still accept it. Base UI checks `accept` before `canDrop`.
+   * Drags of other kinds ignore this target, but an ancestor target can still accept them.
    */
   accept: NonNullable<
     InternalRegisterDropTargetParameters<
@@ -158,10 +153,7 @@ export type InternalDraggableParameters<
 };
 
 /**
- * Parameters accepted by `Draggable.Viewport` and `registerAutoScroller`.
- * Registered scroll containers, including the page, scroll during a drag.
- * Use these parameters to disable scrolling, limit the axes, change the speed,
- * or implement custom scrolling with `onDragScroll`.
+ * The options of `Draggable.Viewport` and `registerAutoScroller`.
  */
 export type RegisterAutoScrollerParameters<
   TSourcePayload = unknown,
@@ -176,20 +168,15 @@ export type RegisterMonitorParameters<
   DragObserverAccept<TSourcePayload, TDragData>;
 
 /**
- * The page-wide drag-and-drop manager returned by `useDragDropManager`.
+ * The page-wide drag manager returned by `useDragDropManager`.
  *
- * Each `register*` method takes a parameter getter and returns a cleanup that
- * unregisters. Callbacks and dynamic options are read when used; source identity,
- * preview settings, monitor eligibility, and idle gesture styles have the timing
- * documented by their registration methods.
+ * Each `register*` method takes a function returning the options, and returns a
+ * cleanup function that unregisters.
  */
 export interface DragDropManager {
   /**
-   * Registers a drag source and returns a cleanup that unregisters it.
-   *
-   * Base UI reads behavior from the getter on every event. It applies gesture
-   * styles when the element registers, then reads them again on the next pointer
-   * press. Re-register the element to update the idle styles immediately.
+   * Registers an element as a drag source, with the options of `Draggable.Root`.
+   * Returns a cleanup function that unregisters it.
    */
   // Overloaded so `payload` both drives inference and stays required once the
   // caller declares a `TPayload` of their own, mirroring `Draggable.Root`.
@@ -207,8 +194,8 @@ export interface DragDropManager {
     ): DragCleanupFn;
   };
   /**
-   * Registers a drop target, a place a matching drag can be released, and returns a
-   * cleanup that unregisters it.
+   * Registers an element as a drop target, with the options of `Draggable.Target`.
+   * Returns a cleanup function that unregisters it.
    */
   // Infer target data from its kind while requiring the declared payload.
   registerDropTarget: <
@@ -234,12 +221,9 @@ export interface DragDropManager {
       ([TTargetPayload] extends [undefined] ? {} : { payload: TTargetPayload }),
   ) => DragCleanupFn;
   /**
-   * Registers auto-scroll parameters for an element, and returns a cleanup that
-   * unregisters them.
-   *
-   * Each scroll container, including the page, needs its own registration. `disabled` excludes the element, and `overflow: hidden` or
-   * `overflow: clip` prevents the page from scrolling. For a canvas moved by a
-   * CSS `transform`, use `onDragScroll` to apply the scroll delta yourself.
+   * Registers a scroll container, with the options of `Draggable.Viewport`.
+   * Pass `document.documentElement` to scroll the page.
+   * Returns a cleanup function that unregisters it.
    */
   registerAutoScroller: <TAccept extends AnyDragAccept = DragKind<unknown>>(
     element: HTMLElement,
@@ -249,8 +233,8 @@ export interface DragDropManager {
     >,
   ) => DragCleanupFn;
   /**
-   * Registers a monitor that observes every matching drag, and returns a cleanup
-   * that unregisters it.
+   * Registers a monitor, with the options of `useDragMonitor`.
+   * Returns a cleanup function that unregisters it.
    */
   registerMonitor: <TAccept extends AnyDragAccept = DragKind<unknown>>(
     getParameters: () => DragParametersWithInferredAccept<
@@ -259,8 +243,8 @@ export interface DragDropManager {
     >,
   ) => DragCleanupFn;
   /**
-   * Cancels the drag in progress, if any.
-   * Fires `onMoveEnd` with `canceled: true`.
+   * Cancels the drag in progress, if any. `onMoveEnd` fires with `canceled: true`
+   * and the `'imperative-action'` reason.
    */
   cancelDrag: () => void;
 }

@@ -178,75 +178,68 @@ export type DraggableConfig<TPayload = undefined, TDragData = unknown> = {
   /** Whether the React layer has disabled runtime style elements. @internal */
   disableStyleElements?: boolean | undefined;
   /**
-   * The payload to attach to this drag, surfaced as `source.payload` on every
-   * drag-and-drop event. Functions are preserved as ordinary payload values.
+   * The data attached to this item, available as `source.payload` in every drag
+   * event and drop target handler.
    */
   // Optional here so the conditional requirement lives in one place: `Draggable.Root`
   // and `registerDraggable` re-impose it through an overload, which also keeps a
   // wrapper spreading their `Props` from hitting a deferred conditional.
   payload?: DraggablePayload<TPayload> | undefined;
   /**
-   * Stable identity used to reconnect a settling cloned preview to this source
-   * after it remounts. Use the same key for the same logical item across the move.
-   * Static payload identity is used as a fallback when it is referentially stable.
+   * A stable key that lets the settling preview find this item again after it remounts,
+   * for example when a virtualized or reordered list recreates it.
+   * Use the same key for the same item.
    */
   previewKey?: string | number | undefined;
   /**
-   * The drag kind created with `Draggable.createKind`. Drop targets and monitors
-   * list accepted kinds in `accept`. The kind determines the type of `payload` and
-   * `source.payload`.
+   * The kind of this item, created with `Draggable.createKind`. Drop targets and
+   * monitors list the kinds they accept in `accept`. It determines the type of `payload`.
    */
   kind: DragKind<TPayload, TDragData>;
   /**
-   * Restricts drag initiation to a specific child element, ref, or resolver.
-   * The handle should be available when the draggable is registered so it receives
-   * the gesture styles.
+   * The element that must be pressed to start a drag. Accepts an element, a ref,
+   * or a function returning one. It should exist when the item is registered.
    *
-   * For sources registered imperatively. A draggable component restricts pickup
-   * by rendering a `Draggable.Handle` instead.
+   * For sources registered with `registerDraggable`. `<Draggable.Root>` uses
+   * `<Draggable.Handle>` instead.
    */
   dragHandle?: DragHandle | undefined;
   /**
-   * Whether to disable dragging. Pointer presses keep their native behavior.
-   * Use `onBeforeMoveStart` instead when the decision depends on the gesture.
+   * Whether dragging is disabled. Pointer presses keep their normal behavior.
+   * Use `onBeforeMoveStart` when the decision depends on the gesture.
    * @default false
    */
   disabled?: boolean | undefined;
   /**
-   * Event handler called when a drag is about to start, once the activation condition
-   * is met and before the preview is built.
-   * Call `eventDetails.cancel()` to prevent the drag from starting.
+   * Event handler called just before a drag starts, once the activation threshold is met.
+   * Call `eventDetails.cancel()` to prevent the drag.
    */
   onBeforeMoveStart?:
     ((context: MoveStartContext, eventDetails: BeforeMoveStartEventDetails) => void) | undefined;
   /**
-   * Determines when a pointer press starts a drag. Mouse and pen use a 5px distance
-   * by default. Touch uses a 250ms press and hold. Pass one `DragActivation` for
-   * every pointer type or a map with per-type values. An array allows any of its
-   * activation methods. Double-click pickup follows the mouse until the next click;
-   * on touch and pen, the second tap of a double-tap picks up and the release drops.
+   * Determines when a pointer press starts a drag. Accepts one activation method for
+   * every pointer type, a map with a method per pointer type, or an array to allow
+   * several methods. By default, mouse and pen start after 5px of movement, and touch
+   * after a 250ms hold.
    */
   activation?: DragActivationConfig | readonly DragActivationConfig[] | undefined;
   /**
-   * Constrains pointer movement with one modifier or an array applied
-   * in order. See [DragModifier](https://base-ui.com/react/utils/draggable#dragmodifier) and the exported modifier presets.
+   * One or more modifiers that constrain the drag, applied in order.
+   * They affect both the preview and the drop position.
+   * See [Constraining movement](https://base-ui.com/react/utils/draggable#constraining-movement).
    */
   modifiers?: DragModifiers | undefined;
   /**
-   * CSS cursor applied across the document during a pointer drag. The drag preview
-   * has `pointer-events: none`, so otherwise the cursor would depend on the element
-   * under the pointer. Touch drags ignore this value.
+   * The CSS cursor shown across the document during a mouse or pen drag.
    * Pass `false` to manage the cursor yourself.
    * @default 'grabbing'
    */
   dragCursor?: string | false | undefined;
   /**
-   * The content and DOM container of the drag preview.
-   * Omit it to use a clone of the source. The clone preserves classes
-   * and live element state, but rewrites IDs to keep the document unique.
+   * The drag preview of this item. Omit it to use a clone of the source.
    *
-   * For sources registered imperatively. A draggable that renders a preview part
-   * describes its preview there instead.
+   * For sources registered with `registerDraggable`. `<Draggable.Root>` uses
+   * `<Draggable.Preview>` instead.
    */
   dragPreview?: DragPreviewParameters<NoInfer<TPayload>, NoInfer<TDragData>> | undefined;
   /**
@@ -267,9 +260,8 @@ export type DraggableConfig<TPayload = undefined, TDragData = unknown> = {
     | ((parameters: DragPreviewRenderEvent<NoInfer<TPayload>, NoInfer<TDragData>>) => void)
     | undefined;
   /**
-   * Event handler called once, synchronously when the drag starts. The drag preview
-   * has already been resolved by then, so it is safe to measure or restyle the
-   * source from here.
+   * Event handler called once when the drag starts. The preview exists by then,
+   * so the source can be measured or restyled safely.
    */
   onMoveStart?:
     | ((
@@ -278,9 +270,9 @@ export type DraggableConfig<TPayload = undefined, TDragData = unknown> = {
       ) => void)
     | undefined;
   /**
-   * Event handler called as the pointer moves or a modifier key changes, limited
-   * to one call per animation frame. Drop target stack changes do not call this handler.
-   * Use the drop target's `onDraggableMove` for hover behavior.
+   * Event handler called as the pointer moves or a modifier key changes,
+   * at most once per animation frame. Use a drop target's `onDraggableMove`
+   * for hover feedback.
    */
   onMove?:
     | ((
@@ -289,8 +281,7 @@ export type DraggableConfig<TPayload = undefined, TDragData = unknown> = {
       ) => void)
     | undefined;
   /**
-   * Event handler called when the active drop targets change,
-   * because one was entered or left.
+   * Event handler called when the drop targets under the pointer change.
    */
   onTargetChange?:
     | ((
@@ -299,13 +290,10 @@ export type DraggableConfig<TPayload = undefined, TDragData = unknown> = {
       ) => void)
     | undefined;
   /**
-   * Event handler called once when the drag ends after a drop, outside release, or
-   * cancellation. Commit changes when `eventDetails.reason` is `'drop'`. Use
-   * `try/finally` when cleanup must run even if committing throws or returns early.
+   * Event handler called once when the drag ends, after a drop, a release outside any
+   * target, or a cancellation. `eventDetails.reason` is `'drop'` for a successful drop.
    *
-   * A drag canceled during pickup, by a `cancelDrag()` from a target's `canDrop`
-   * on the initial stack or while the preview is generated, fires this
-   * with `canceled: true` and no preceding `onMoveStart`.
+   * A drag canceled during pickup fires this handler without a preceding `onMoveStart`.
    */
   onMoveEnd?:
     | ((

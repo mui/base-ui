@@ -7,8 +7,8 @@ import { useRenderElement } from '../../internals/useRenderElement';
 import { useDraggableRootContext } from '../root/DraggableRootContext';
 
 /**
- * Restricts the drag pickup to this element, leaving the rest of the source
- * interactive. Omit it to make the whole source draggable.
+ * The area of a draggable that starts a drag. The rest of the draggable stays interactive.
+ * Omit it to make the whole draggable start a drag.
  * Renders a `<span>` element.
  *
  * Documentation: [Base UI Draggable](https://base-ui.com/react/utils/draggable)
@@ -54,8 +54,7 @@ export interface DraggableHandleProps extends Omit<
   'disabled'
 > {
   /**
-   * A handle has no independent disabled state. Setting `disabled` here would
-   * leave the root draggable. Set `disabled` on `Draggable.Root` instead.
+   * Not supported. A handle follows the disabled state of its `<Draggable.Root>`.
    */
   disabled?: never | undefined;
 }

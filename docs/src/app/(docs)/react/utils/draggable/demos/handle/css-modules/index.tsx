@@ -2,18 +2,31 @@
 import { Draggable } from '@base-ui/react/draggable';
 
 import * as React from 'react';
-import { DashboardControls } from '../../DashboardControls';
 import { GripIcon } from '../../GripIcon';
 import { SLOTS, useDashboardWidgets, type SlotId, type WidgetData } from '../../dashboardWidgets';
 
 import styles from '../../handle.module.css';
-import controlsStyles from '../../dashboardControls.module.css';
+import statusStyles from '../../dashboardStatus.module.css';
 
 const widgetKind = Draggable.createKind<string>('draggable/handle-widget');
 
-function Widget({ widget }: { widget: WidgetData }) {
+function Widget({
+  widget,
+  onKeyDown,
+}: {
+  widget: WidgetData;
+  onKeyDown: (event: React.KeyboardEvent<HTMLElement>, widgetId: string) => void;
+}) {
   return (
-    <Draggable.Root kind={widgetKind} payload={widget.id} className={styles.Widget}>
+    <Draggable.Root
+      kind={widgetKind}
+      payload={widget.id}
+      className={styles.Widget}
+      data-widget-id={widget.id}
+      tabIndex={0}
+      aria-keyshortcuts="Alt+ArrowLeft Alt+ArrowRight"
+      onKeyDown={(event) => onKeyDown(event, widget.id)}
+    >
       <div className={styles.WidgetHeader}>
         {/* @highlight-start */}
         <Draggable.Handle className={styles.Handle}>
@@ -35,11 +48,13 @@ function DockSlot({
   label,
   widget,
   onMoveWidget,
+  onWidgetKeyDown,
 }: {
   id: SlotId;
   label: string;
   widget: WidgetData | undefined;
   onMoveWidget: (widgetId: string, slot: SlotId) => void;
+  onWidgetKeyDown: (event: React.KeyboardEvent<HTMLElement>, widgetId: string) => void;
 }) {
   return (
     <Draggable.Target
@@ -51,22 +66,21 @@ function DockSlot({
       canDrop={() => widget === undefined}
       onDraggableDrop={({ source }) => onMoveWidget(source.payload, id)}
     >
-      {widget ? <Widget widget={widget} /> : <span className={styles.Empty}>Drop widget</span>}
+      {widget ? (
+        <Widget widget={widget} onKeyDown={onWidgetKeyDown} />
+      ) : (
+        <span className={styles.Empty}>Drop widget</span>
+      )}
     </Draggable.Target>
   );
 }
 
 function HandleDashboardContent() {
-  const { widgets, moveWidget, announcement } = useDashboardWidgets();
+  const { widgets, moveWidget, onWidgetKeyDown, announcement } = useDashboardWidgets();
 
   return (
     <div className={styles.Root}>
-      <DashboardControls
-        className={controlsStyles.Controls}
-        widgets={widgets}
-        onMoveWidget={moveWidget}
-      />
-      <div role="status" className={controlsStyles.Status}>
+      <div role="status" className={statusStyles.Status}>
         {announcement}
       </div>
       <div className={styles.Grid}>
@@ -77,6 +91,7 @@ function HandleDashboardContent() {
             label={slot.label}
             widget={widgets.find((widget) => widget.slot === slot.id)}
             onMoveWidget={moveWidget}
+            onWidgetKeyDown={onWidgetKeyDown}
           />
         ))}
       </div>

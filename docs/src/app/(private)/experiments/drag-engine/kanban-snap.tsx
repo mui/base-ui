@@ -311,10 +311,11 @@ function DraggableCard({
   // No preview code: the engine clones the card, so the preview is the card
   // itself (`.card[data-drag-preview]` only deepens its shadow), lifted from the
   // grab point.
+  const payload = React.useMemo(() => ({ id: card.id, fromColumn: columnId }), [card.id, columnId]);
   return (
     <Draggable.Root
       kind={cardKind}
-      payload={{ id: card.id, fromColumn: columnId }}
+      payload={payload}
       data-card
       role="button"
       tabIndex={0}

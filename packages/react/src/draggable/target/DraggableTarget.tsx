@@ -29,7 +29,7 @@ const stateAttributesMapping: StateAttributesMapping<DraggableTargetState> = {
 };
 
 /**
- * Makes its element a drop target, so matching drag sources can be released on it.
+ * An area where a matching draggable can be dropped.
  * Renders a `<div>` element.
  *
  * Documentation: [Base UI Draggable](https://base-ui.com/react/utils/draggable#drop-targets)
@@ -40,12 +40,11 @@ export const DraggableTarget = React.forwardRef(function DraggableTarget<
 >(
   componentProps: Omit<DraggableTargetPropsBase<TSourcePayload, TTargetPayload>, 'accept'> & {
     /**
-     * One or more drag source kinds accepted by this target. Defaults to the
-     * nearest provider's no-payload kind. Pass `Draggable.anyKind` to accept every
-     * drag. In that case, `source.payload` is `unknown`.
+     * One or more kinds of draggable this target accepts. Defaults to the kind of the
+     * nearest `<Draggable.Provider>`. Pass `Draggable.anyKind` to accept every drag,
+     * with `source.payload` typed as `unknown`.
      *
-     * The target ignores a source whose kind is not accepted. An ancestor target can
-     * still accept it. Base UI checks `accept` before `canDrop`.
+     * Drags of other kinds ignore this target, but an ancestor target can still accept them.
      */
     accept?: DragAccept<TSourcePayload> | undefined;
     payload?: DropTargetPayload<TTargetPayload> | undefined;
@@ -194,27 +193,24 @@ export const DraggableTarget = React.forwardRef(function DraggableTarget<
 
 export interface DraggableTargetState {
   /**
-   * Whether a matching drag source is currently over this target or a nested
-   * descendant. Always `false` when `trackDragOver` is `false`.
+   * Whether a matching drag is over this target or one of its nested targets.
+   * Always `false` when `trackDragOver` is `false`.
    */
   dragOver: boolean;
   /**
-   * Whether this target accepts the current drag, regardless of pointer position.
-   * Use it to highlight all compatible drop targets. It is `false` when no drag is
-   * active, the target is disabled, or `trackDragOver` is `false`. The value is
-   * based on `accept`; `canDrop` is evaluated only for the current position.
+   * Whether this target accepts the drag in progress, regardless of the pointer position.
+   * Based on `accept` alone, so `canDrop` can still refuse the drop.
+   * Always `false` when `trackDragOver` is `false`.
    */
   accepting: boolean;
   /**
-   * Whether this is the innermost active target. A nested ancestor has `dragOver`
-   * true but `dragOverInnermost` false while a descendant target is active. Always
-   * `false` when `trackDragOver` is `false`.
+   * Whether this is the innermost target under the pointer, the one that would receive the drop.
+   * Always `false` when `trackDragOver` is `false`.
    */
   dragOverInnermost: boolean;
   /**
-   * Whether `canDrop` returned `'reject'` for the current position. Use it to
-   * display feedback such as a full column. It is mutually exclusive with
-   * `dragOver` and always `false` when `trackDragOver` is `false`.
+   * Whether `canDrop` returned `'reject'` for the current position.
+   * Always `false` when `trackDragOver` is `false`.
    */
   rejected: boolean;
   /** Whether the drop target is disabled. */
@@ -231,7 +227,11 @@ type DraggableTargetPropsBase<
     RegisterDropTargetParameters<TSourcePayload, TTargetPayload, TSourceDragData, TTargetDragData>,
     'payload'
   > & {
-    /** Whether to update drag-over state and attributes. @default true */
+    /**
+     * Whether to track the drag-over state and expose it through data attributes.
+     * Disable it on targets that don't use them to avoid re-rendering as the drag moves.
+     * @default true
+     */
     trackDragOver?: boolean | undefined;
   };
 
@@ -253,7 +253,7 @@ export type DraggableTargetProps<
     ? { accept?: DragAccept<TSourcePayload, TSourceDragData> | undefined }
     : { accept: DragAccept<TSourcePayload, TSourceDragData> });
 
-/** Props for a generic target wrapper whose payload is required. */
+/** Props for a generic `Draggable.Target` wrapper whose payload is always required. */
 export type DraggableTargetPropsWithPayload<
   TSourcePayload,
   TTargetPayload,

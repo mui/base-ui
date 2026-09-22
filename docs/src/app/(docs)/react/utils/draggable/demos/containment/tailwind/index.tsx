@@ -2,27 +2,31 @@
 import { Draggable } from '@base-ui/react/draggable';
 
 import * as React from 'react';
-import { DashboardControls } from '../../DashboardControls';
-import { dashboardControlsClassName } from '../../dashboardControlsTailwind';
 import { GripIcon } from '../../GripIcon';
 import { SLOTS, useDashboardWidgets, type SlotId, type WidgetData } from '../../dashboardWidgets';
 
 const widgetKind = Draggable.createKind<string>('draggable/contained-widget');
 
 const WIDGET_CLASS =
-  'box-border flex min-h-32 w-full cursor-grab flex-col border border-neutral-950 bg-white text-neutral-950 transition data-[dragging]:opacity-40 motion-safe:data-[drag-preview]:data-ending-style:transition-[translate] motion-safe:data-[drag-preview]:data-ending-style:duration-200 motion-safe:data-[drag-preview]:data-ending-style:ease-[cubic-bezier(0.2,0,0,1)] data-[drag-preview]:shadow-[0.25rem_0.25rem_0_rgb(0_0_0_/_12%)] hover:bg-neutral-100 dark:border-white dark:bg-neutral-950 dark:text-white dark:data-[drag-preview]:shadow-none dark:hover:bg-neutral-800';
+  'box-border flex min-h-32 w-full cursor-grab flex-col border border-neutral-950 bg-white text-neutral-950 transition data-[dragging]:opacity-40 motion-safe:data-[drag-preview]:data-ending-style:transition-[translate] motion-safe:data-[drag-preview]:data-ending-style:duration-200 motion-safe:data-[drag-preview]:data-ending-style:ease-[cubic-bezier(0.2,0,0,1)] data-[drag-preview]:shadow-[0.25rem_0.25rem_0_rgb(0_0_0_/_12%)] hover:bg-neutral-100 dark:border-white dark:bg-neutral-950 dark:text-white dark:data-[drag-preview]:shadow-none dark:hover:bg-neutral-800 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-neutral-950 dark:focus-visible:outline-white';
 
 function Widget({
   widget,
   frameRef,
+  onKeyDown,
 }: {
   widget: WidgetData;
   frameRef: React.RefObject<HTMLDivElement | null>;
+  onKeyDown: (event: React.KeyboardEvent<HTMLElement>, widgetId: string) => void;
 }) {
   return (
     <Draggable.Root
       kind={widgetKind}
       payload={widget.id}
+      data-widget-id={widget.id}
+      tabIndex={0}
+      aria-keyshortcuts="Alt+ArrowLeft Alt+ArrowRight"
+      onKeyDown={(event) => onKeyDown(event, widget.id)}
       className={WIDGET_CLASS}
       // @highlight-start
       modifiers={Draggable.restrictToElement(frameRef)}
@@ -48,12 +52,14 @@ function DockSlot({
   widget,
   frameRef,
   onMoveWidget,
+  onWidgetKeyDown,
 }: {
   id: SlotId;
   label: string;
   widget: WidgetData | undefined;
   frameRef: React.RefObject<HTMLDivElement | null>;
   onMoveWidget: (widgetId: string, slot: SlotId) => void;
+  onWidgetKeyDown: (event: React.KeyboardEvent<HTMLElement>, widgetId: string) => void;
 }) {
   return (
     <Draggable.Target
@@ -66,7 +72,7 @@ function DockSlot({
       onDraggableDrop={({ source }) => onMoveWidget(source.payload, id)}
     >
       {widget ? (
-        <Widget widget={widget} frameRef={frameRef} />
+        <Widget widget={widget} frameRef={frameRef} onKeyDown={onWidgetKeyDown} />
       ) : (
         <span className="text-xs leading-4 font-medium text-neutral-500 dark:text-neutral-400">
           Drop widget
@@ -77,16 +83,11 @@ function DockSlot({
 }
 
 function ContainedDashboardContent() {
-  const { widgets, moveWidget, announcement } = useDashboardWidgets();
+  const { widgets, moveWidget, onWidgetKeyDown, announcement } = useDashboardWidgets();
   const frameRef = React.useRef<HTMLDivElement | null>(null);
 
   return (
     <div className="flex w-full flex-col gap-4 select-none">
-      <DashboardControls
-        className={dashboardControlsClassName}
-        widgets={widgets}
-        onMoveWidget={moveWidget}
-      />
       <div role="status" className="sr-only">
         {announcement}
       </div>
@@ -103,6 +104,7 @@ function ContainedDashboardContent() {
               widget={widgets.find((widget) => widget.slot === slot.id)}
               frameRef={frameRef}
               onMoveWidget={moveWidget}
+              onWidgetKeyDown={onWidgetKeyDown}
             />
           ))}
         </div>

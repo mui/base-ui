@@ -1373,16 +1373,14 @@ export interface DragAutoScrollEventDetails {
   /** A generic `Event`, rather than the native pointer event. */
   event: Event;
   /**
-   * Keeps Base UI from scrolling the viewport natively in this direction. A
-   * surface that moves itself calls it and applies the movement synchronously,
-   * even when the proposed delta is zero.
+   * Prevents Base UI from scrolling the container in this direction.
    */
   cancel: () => void;
   /** Whether {@link cancel} has been called. */
   isCanceled: boolean;
   /**
-   * Withholds this direction from outer viewports. Leave it alone at a bound the
-   * surface cannot move past, so a registered ancestor can scroll instead.
+   * Claims this direction, so that ancestor viewports don't scroll on the same axis.
+   * Skip it at a bound the element can't move past, so an ancestor can scroll instead.
    */
   consume: () => void;
   /** Whether {@link consume} has been called. */
@@ -1473,32 +1471,21 @@ interface AutoScrollerState {
 
 export interface RegisterAutoScrollerParameters<TSourcePayload = unknown, TDragData = unknown> {
   /**
-   * One or more drag source kinds that can scroll this element. Omit it to scroll
+   * One or more kinds of draggable that scroll this container. Omit it to scroll
    * for every drag.
-   *
-   * An unaccepted drag does not scroll this element, even when its CSS allows
-   * scrolling. The accepted kinds determine the payload type passed to
-   * per-frame callbacks.
    */
   accept?: DragAccept<TSourcePayload, TDragData> | undefined;
   /**
-   * Whether to disable auto-scroll for this element. An ancestor can scroll on the
-   * excluded axes.
-   *
-   * Changing this value during a drag pauses or resumes scrolling.
-   *
-   * For a decision that depends on the drag, use `onDragScroll` instead.
+   * Whether auto-scrolling is disabled. An ancestor viewport can then scroll instead.
+   * Changing it during a drag pauses or resumes scrolling.
+   * Use `onDragScroll` for a decision that depends on the drag.
    * @default false
    */
   disabled?: boolean | undefined;
   /**
-   * How fast the container moves at the deepest point of an edge zone, in CSS
-   * pixels per second. Accepts a static value or a callback evaluated every
-   * frame the container is engaged.
-   *
-   * The default is `900`. Increase it for a large scroll range or reduce it for a
-   * short list. A value of `0` stops this container and lets an ancestor scroll,
-   * which is equivalent to preventing the default in `onDragScroll`.
+   * The scrolling speed reached at the container's edge, in pixels per second.
+   * Accepts a number or a function called on every scrolling frame.
+   * `0` stops this container and lets an ancestor viewport scroll instead.
    * @default 900
    */
   maxSpeed?:
@@ -1506,16 +1493,11 @@ export interface RegisterAutoScrollerParameters<TSourcePayload = unknown, TDragD
     | ((parameters: DragAutoScrollFrameContext<TSourcePayload, TDragData>) => number)
     | undefined;
   /**
-   * Called once for each proposed scroll direction. Native viewports scroll unless
-   * `eventDetails.cancel()` is called. For a surface without scrollable overflow,
-   * cancel and apply the movement synchronously yourself, even when the proposed
-   * delta is zero. Call `eventDetails.consume()` when the surface takes the direction
-   * to keep an outer viewport from scrolling on the same axis. Skip `consume()`
-   * at a bound the surface cannot move past.
-   *
-   * A viewport with a handler receives proposals for both directions, including
-   * one its overflow cannot scroll natively, so a custom surface can move on
-   * either. A handler that only observes can ignore directions it does not scroll.
+   * Event handler called once per direction on every scrolling frame.
+   * Call `eventDetails.cancel()` to prevent scrolling in that direction, or to apply
+   * the movement yourself for an element Base UI can't scroll, such as a panned canvas.
+   * After moving, call `eventDetails.consume()` to keep an ancestor viewport from
+   * scrolling on the same axis. Skip it at a bound the element can't move past.
    */
   onDragScroll?: DragAutoScrollHandler<TSourcePayload, TDragData> | undefined;
 }

@@ -25,11 +25,9 @@ const stateAttributesMapping: StateAttributesMapping<DraggableRootState> = {
 };
 
 /**
- * Makes its element a drag source, so it can be picked up with the pointer and
- * dropped on matching drop targets.
- * Renders a `<div>` element.
- *
+ * An element that can be picked up with the pointer and dropped on a matching drop target.
  * While dragging, a clone of the element follows the pointer by default.
+ * Renders a `<div>` element.
  *
  * Documentation: [Base UI Draggable](https://base-ui.com/react/utils/draggable)
  */
@@ -108,7 +106,7 @@ export const DraggableRoot = React.forwardRef(function DraggableRoot<
         'A Draggable.Root inside a Draggable.CollisionProvider has no explicit kind, ' +
           'so it is not a destination for other items. ' +
           'Pass the same kind as the provider to the root, or set collision={false} to opt out. ' +
-          'See https://base-ui.com/react/utils/draggable#collision-provider.',
+          'See https://base-ui.com/react/utils/draggable#collisionprovider.',
       );
     }
   }, [enclosingCollisionContext, kind, collision]);
@@ -172,7 +170,7 @@ export const DraggableRoot = React.forwardRef(function DraggableRoot<
 
 export interface DraggableRootState {
   /**
-   * Whether this element is the one currently being dragged.
+   * Whether this element is being dragged.
    */
   dragging: boolean;
   /**
@@ -197,11 +195,15 @@ type DraggableRootPropsBase<TPayload, TDragData = unknown> = Omit<
     'dragPreview' | 'dragHandle' | 'payload' | 'kind'
   > & {
     children?: React.ReactNode | undefined;
-    /** Whether this item can be a destination in the nearest matching collision provider. @default true */
+    /**
+     * Whether other items of the nearest matching collision provider can be dropped on this one.
+     * @default true
+     */
     collision?: boolean | undefined;
     /**
-     * Divides the collision element into equal steps for `getSnappedLocalPoint()`.
-     * Accepts step counts or a callback returning them. Does not affect the drag preview's position.
+     * Divides this item into equal steps for `getSnappedLocalPoint()` when another item
+     * is dragged over it. Accepts step counts or a function returning them.
+     * Doesn't affect the preview's position.
      */
     snap?:
       | DragSnapSteps
@@ -210,17 +212,19 @@ type DraggableRootPropsBase<TPayload, TDragData = unknown> = Omit<
         ) => DragSnapSteps | undefined)
       | undefined;
     /**
-     * The payload reported when this item is a collision destination.
+     * The payload reported by the collision provider when another item is dragged over this one.
      * Defaults to `payload`.
      */
     collisionPayload?: DraggablePayload<TPayload> | undefined;
     /**
-     * Returns the element used to detect collisions and measure pointer coordinates.
-     * Defaults to this root's element. Use a row wrapper to include padding around the item.
-     * Changing this callback alone does not change the measured element.
+     * Returns the element measured for collisions, for example a padded row wrapper
+     * so that the gaps between items count too. Defaults to the root's own element.
      */
     collisionElement?: ((element: HTMLElement) => HTMLElement) | undefined;
-    /** The source kind. Defaults to the nearest provider's no-payload kind. */
+    /**
+     * The kind of this item, created with `Draggable.createKind`.
+     * Defaults to the kind of the nearest `<Draggable.Provider>`, which carries no payload.
+     */
     kind?: DragKind<TPayload, TDragData> | undefined;
   };
 

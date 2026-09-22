@@ -15,11 +15,11 @@ export type UseActiveDragReturnValue<TPayload = unknown, TDragData = unknown> = 
 > | null;
 
 /**
- * Subscribes to the drag currently in progress, and returns its source, or `null` if
- * there is none. Observes every drag, regardless of which element started it.
+ * Returns the source of the drag in progress, or `null` when nothing is being dragged.
+ * Observes every drag on the page, wherever it started.
  *
- * Pass one kind or an array of kinds to `accept` to observe only matching drags.
- * Other drags return `null`, and `accept` determines the source payload type.
+ * Pass one or more kinds to observe only matching drags and type `source.payload`.
+ * Other drags return `null`.
  *
  * @public
  */

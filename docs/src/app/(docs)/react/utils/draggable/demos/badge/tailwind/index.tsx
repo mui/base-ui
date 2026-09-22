@@ -2,22 +2,34 @@
 import { Draggable } from '@base-ui/react/draggable';
 
 import * as React from 'react';
-import { DashboardControls } from '../../DashboardControls';
-import { dashboardControlsClassName } from '../../dashboardControlsTailwind';
 import { GripIcon } from '../../GripIcon';
 import { SLOTS, useDashboardWidgets, type SlotId, type WidgetData } from '../../dashboardWidgets';
 
 const widgetKind = Draggable.createKind<string>('draggable/preview-widget');
 
 const WIDGET_CLASS =
-  'box-border flex min-h-32 w-full cursor-grab flex-col border border-neutral-950 bg-white text-neutral-950 transition data-[dragging]:opacity-40 hover:bg-neutral-100 dark:border-white dark:bg-neutral-950 dark:text-white dark:hover:bg-neutral-800';
+  'box-border flex min-h-32 w-full cursor-grab flex-col border border-neutral-950 bg-white text-neutral-950 transition data-[dragging]:opacity-40 hover:bg-neutral-100 dark:border-white dark:bg-neutral-950 dark:text-white dark:hover:bg-neutral-800 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-neutral-950 dark:focus-visible:outline-white';
 const BADGE_CLASS =
   'inline-flex items-center gap-1.5 whitespace-nowrap border border-neutral-950 bg-white px-2 py-1 text-xs leading-4 font-semibold text-neutral-950 shadow-[0.25rem_0.25rem_0_rgb(0_0_0_/_12%)] dark:border-white dark:bg-neutral-950 dark:text-white dark:shadow-none';
 const BADGE_VALUE_CLASS = 'bg-neutral-950 px-1 text-white dark:bg-white dark:text-neutral-950';
 
-function Widget({ widget }: { widget: WidgetData }) {
+function Widget({
+  widget,
+  onKeyDown,
+}: {
+  widget: WidgetData;
+  onKeyDown: (event: React.KeyboardEvent<HTMLElement>, widgetId: string) => void;
+}) {
   return (
-    <Draggable.Root kind={widgetKind} payload={widget.id} className={WIDGET_CLASS}>
+    <Draggable.Root
+      kind={widgetKind}
+      payload={widget.id}
+      className={WIDGET_CLASS}
+      data-widget-id={widget.id}
+      tabIndex={0}
+      aria-keyshortcuts="Alt+ArrowLeft Alt+ArrowRight"
+      onKeyDown={(event) => onKeyDown(event, widget.id)}
+    >
       <div className="flex items-center gap-2 border-b border-neutral-200 px-3 py-2 text-xs leading-4 font-semibold dark:border-neutral-700">
         <GripIcon className="shrink-0 text-neutral-400 dark:text-neutral-500" />
         <span>{widget.title}</span>
@@ -43,11 +55,13 @@ function DockSlot({
   label,
   widget,
   onMoveWidget,
+  onWidgetKeyDown,
 }: {
   id: SlotId;
   label: string;
   widget: WidgetData | undefined;
   onMoveWidget: (widgetId: string, slot: SlotId) => void;
+  onWidgetKeyDown: (event: React.KeyboardEvent<HTMLElement>, widgetId: string) => void;
 }) {
   return (
     <Draggable.Target
@@ -60,7 +74,7 @@ function DockSlot({
       onDraggableDrop={({ source }) => onMoveWidget(source.payload, id)}
     >
       {widget ? (
-        <Widget widget={widget} />
+        <Widget widget={widget} onKeyDown={onWidgetKeyDown} />
       ) : (
         <span className="text-xs leading-4 font-medium text-neutral-500 dark:text-neutral-400">
           Drop widget
@@ -71,16 +85,11 @@ function DockSlot({
 }
 
 export default function CustomPreviewDashboard() {
-  const { widgets, moveWidget, announcement } = useDashboardWidgets();
+  const { widgets, moveWidget, onWidgetKeyDown, announcement } = useDashboardWidgets();
 
   return (
     <Draggable.Provider>
       <div className="flex w-full flex-col gap-4 select-none">
-        <DashboardControls
-          className={dashboardControlsClassName}
-          widgets={widgets}
-          onMoveWidget={moveWidget}
-        />
         <div role="status" className="sr-only">
           {announcement}
         </div>
@@ -92,6 +101,7 @@ export default function CustomPreviewDashboard() {
               label={slot.label}
               widget={widgets.find((widget) => widget.slot === slot.id)}
               onMoveWidget={moveWidget}
+              onWidgetKeyDown={onWidgetKeyDown}
             />
           ))}
         </div>

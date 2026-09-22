@@ -12,7 +12,9 @@ import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { activeElement } from '@base-ui/utils/shadowDom';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import { DragPageAutoScroll } from '../../../DragPageAutoScroll';
+import { DragPageAutoScroll } from './DragPageAutoScroll';
+
+import styles from './tabs-reorder.module.css';
 
 interface TabItem {
   id: string;
@@ -54,9 +56,6 @@ const INITIAL_TABS: TabItem[] = [
     description: 'Capture loose thoughts here before turning them into planned work.',
   },
 ];
-
-const TAB_CLASS =
-  'relative inline-flex h-full min-w-26 max-w-36 shrink-0 cursor-grab items-center gap-1.5 border-0 border-r border-solid border-neutral-200 bg-transparent py-0 pr-2.5 pl-3.5 text-[0.8125rem] leading-4 text-neutral-600 outline-none after:pointer-events-none after:absolute after:right-3 after:bottom-0 after:left-3 after:hidden after:h-0.5 after:bg-current data-[active]:bg-white data-[active]:text-neutral-950 data-[active]:after:block data-[dragging]:opacity-0 data-[drag-preview]:border data-[drag-preview]:border-solid data-[drag-preview]:border-neutral-950 data-[drag-preview]:bg-white data-[drag-preview]:text-neutral-950 data-[drag-preview]:opacity-100 data-[drag-preview]:shadow-[0.25rem_0.25rem_0_rgb(0_0_0_/_12%)] data-[drag-preview]:transition-none motion-safe:data-[drag-preview]:data-ending-style:transition-[translate] motion-safe:data-[drag-preview]:data-ending-style:duration-200 motion-safe:data-[drag-preview]:data-ending-style:ease-[cubic-bezier(0.2,0,0,1)] hover:text-neutral-950 focus-visible:z-10 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-neutral-950 dark:border-neutral-700 dark:text-neutral-400 dark:data-[active]:bg-neutral-950 dark:data-[active]:text-white dark:data-[drag-preview]:border-white dark:data-[drag-preview]:bg-neutral-950 dark:data-[drag-preview]:text-white dark:data-[drag-preview]:shadow-none dark:hover:text-white dark:focus-visible:outline-white';
 
 function reorderTabs(items: TabItem[], draggedId: string, overId: string, movingRight: boolean) {
   if (draggedId === overId) {
@@ -141,7 +140,7 @@ function DraggableTab(props: DraggableTabProps) {
 
   return (
     <Tabs.Tab
-      className={TAB_CLASS}
+      className={styles.Tab}
       value={item.id}
       // @highlight-start
       render={
@@ -174,11 +173,9 @@ function DraggableTab(props: DraggableTabProps) {
         />
       }
     >
-      <span className="pointer-events-none overflow-hidden text-ellipsis whitespace-nowrap">
-        {item.label}
-      </span>
+      <span className={styles.TabLabel}>{item.label}</span>
       <span
-        className="ml-auto inline-flex size-6 shrink-0 cursor-pointer items-center justify-center rounded-full text-neutral-500 hover:bg-neutral-200 hover:text-neutral-950 dark:hover:bg-neutral-700 dark:hover:text-white"
+        className={styles.Close}
         data-close-tab=""
         title={`Close ${item.label}`}
         onPointerDown={handleClosePointerDown}
@@ -287,15 +284,11 @@ function DraggableTabsContent() {
   });
 
   return (
-    <Tabs.Root
-      className="box-border w-full max-w-160 overflow-hidden border border-solid border-neutral-200 bg-white text-neutral-950 select-none [contain:inline-size] dark:border-neutral-700 dark:bg-neutral-950 dark:text-white"
-      value={selectedValue}
-      onValueChange={handleValueChange}
-    >
-      <div className="flex h-11 items-stretch border-b border-solid border-neutral-200 bg-neutral-100 dark:border-neutral-700 dark:bg-neutral-900">
+    <Tabs.Root className={styles.Workspace} value={selectedValue} onValueChange={handleValueChange}>
+      <div className={styles.TabBar}>
         <Tabs.List
           ref={listRef}
-          className="flex min-w-0 flex-1 overflow-x-auto overflow-y-hidden overscroll-x-contain [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          className={styles.TabList}
           activateOnFocus
           render={
             <Draggable.Target
@@ -350,7 +343,7 @@ function DraggableTabsContent() {
           </Draggable.CollisionProvider>
         </Tabs.List>
         <button
-          className="m-0 inline-flex w-11 shrink-0 cursor-pointer items-center justify-center border-0 border-l border-solid border-neutral-200 bg-transparent p-0 text-neutral-600 outline-none hover:bg-neutral-200 hover:text-neutral-950 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-neutral-950 dark:border-neutral-700 dark:text-neutral-400 dark:hover:bg-neutral-800 dark:hover:text-white dark:focus-visible:outline-white"
+          className={styles.AddButton}
           type="button"
           onClick={handleAdd}
           aria-label="Add tab"
@@ -360,38 +353,24 @@ function DraggableTabsContent() {
         </button>
       </div>
 
-      <div className="grid min-h-56">
+      <div className={styles.PanelViewport}>
         {items.length === 0 ? (
-          <div className="col-start-1 row-start-1 flex flex-col items-center justify-center gap-3 text-sm text-neutral-500">
-            <p className="m-0">No documents are open.</p>
-            <button
-              className="cursor-pointer border border-solid border-neutral-950 bg-transparent px-2.5 py-1.5 font-[inherit] text-neutral-950 hover:bg-neutral-100 focus-visible:-outline-offset-1 focus-visible:outline-2 focus-visible:outline-neutral-950 dark:border-white dark:text-white dark:hover:bg-neutral-800 dark:focus-visible:outline-white"
-              type="button"
-              onClick={handleAdd}
-            >
+          <div className={styles.Empty}>
+            <p>No documents are open.</p>
+            <button type="button" onClick={handleAdd}>
               Add a tab
             </button>
           </div>
         ) : (
           items.map((item) => (
-            <Tabs.Panel
-              key={item.id}
-              className="col-start-1 row-start-1 p-8 outline-none data-[hidden]:hidden focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-neutral-950 dark:focus-visible:outline-white max-[500px]:p-6"
-              value={item.id}
-            >
-              <span className="mb-2 block text-[0.6875rem] leading-4 font-semibold tracking-[0.08em] text-neutral-500 uppercase dark:text-neutral-400">
-                {item.eyebrow}
-              </span>
-              <h3 className="m-0 text-lg leading-6 font-semibold tracking-[-0.01em]">
-                {item.title}
-              </h3>
-              <p className="mt-1.5 mb-6 max-w-116 text-sm leading-5.5 text-neutral-600 dark:text-neutral-400">
-                {item.description}
-              </p>
-              <div className="flex flex-col gap-2" aria-hidden="true">
-                <span className="h-1.5 w-full bg-neutral-200 dark:bg-neutral-800" />
-                <span className="h-1.5 w-[82%] bg-neutral-200 dark:bg-neutral-800" />
-                <span className="h-1.5 w-[58%] bg-neutral-200 dark:bg-neutral-800" />
+            <Tabs.Panel key={item.id} className={styles.Panel} value={item.id}>
+              <span className={styles.Eyebrow}>{item.eyebrow}</span>
+              <h3>{item.title}</h3>
+              <p>{item.description}</p>
+              <div className={styles.Placeholder} aria-hidden="true">
+                <span />
+                <span />
+                <span />
               </div>
             </Tabs.Panel>
           ))

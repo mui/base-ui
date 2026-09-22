@@ -56,19 +56,19 @@ function clampPointToRect(context: DragModifierContext, rect: DOMRect): DragPosi
   };
 }
 
-/** Locks the drag to the vertical axis at its initial horizontal position. */
+/** Locks the drag to the vertical axis. */
 export const restrictToVerticalAxis: DragModifier = ({ point, initialPoint }) => ({
   x: initialPoint.x,
   y: point.y,
 });
 
-/** Locks the drag to the horizontal axis at its initial vertical position. */
+/** Locks the drag to the horizontal axis. */
 export const restrictToHorizontalAxis: DragModifier = ({ point, initialPoint }) => ({
   x: point.x,
   y: initialPoint.y,
 });
 
-/** Keep the drag within the viewport. */
+/** Keeps the drag inside the browser viewport. */
 export const restrictToWindowEdges: DragModifier = (context) => {
   const { point, previewRect, previewOffset } = context;
   const width = previewRect?.width ?? 0;
@@ -89,9 +89,9 @@ export const restrictToWindowEdges: DragModifier = (context) => {
 };
 
 /**
- * Keep the drag within an element's bounds. Pass the element, a ref object, or a
- * function returning it. The rect is read on every constrained move, so a
- * container that scrolls or resizes between moves is tracked.
+ * Keeps the drag inside an element. Accepts the element, a ref to it, or a function
+ * returning it. The element is measured on every move, so it can scroll or resize
+ * during the drag.
  */
 export function restrictToElement(element: DragElementReference): DragModifier {
   return (context) => {
@@ -103,7 +103,7 @@ export function restrictToElement(element: DragElementReference): DragModifier {
   };
 }
 
-/** Keep the drag within the source element's parent. */
+/** Keeps the drag inside the source element's parent. */
 export const restrictToParentElement: DragModifier = (context) => {
   // Composed parent: a draggable that is a direct child of a shadow root clamps
   // to the host instead of silently becoming a no-op.
@@ -115,12 +115,11 @@ export const restrictToParentElement: DragModifier = (context) => {
 };
 
 /**
- * Snap the drag to a grid, anchored at the point where the drag began. Pass a
- * single number for a square grid or `{ x, y }` for a rectangular one. A
- * non-positive step leaves that axis unsnapped.
+ * Snaps the drag to a grid anchored where the drag started. Pass a number for a
+ * square grid, or `{ x, y }` for a rectangular one. A step of `0` leaves that axis free.
  *
- * The step uses the source's coordinate system. For example, `snapToGrid(20)`
- * still snaps to a 20-unit grid when the canvas is zoomed to 70%.
+ * The step is in the source's own units, so `snapToGrid(20)` still snaps to a
+ * 20-unit grid on a zoomed canvas.
  */
 export function snapToGrid(size: number | { x: number; y: number }): DragModifier {
   const sizeX = typeof size === 'number' ? size : size.x;

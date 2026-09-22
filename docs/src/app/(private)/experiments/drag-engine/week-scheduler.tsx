@@ -3,7 +3,8 @@ import { Draggable, type DragModifier, type DragLocationHistory } from '@base-ui
 
 import * as React from 'react';
 
-import styles from '../../scheduler.module.css';
+import styles from './week-scheduler.module.css';
+import controlsStyles from './controls.module.css';
 
 const eventKind = Draggable.createKind('calendar-event');
 const dayColumnKind = Draggable.createKind<number>('calendar-day');
@@ -100,7 +101,7 @@ function SchedulerCalendarContent() {
 
   return (
     <div className={styles.Root}>
-      <fieldset className={styles.Controls}>
+      <fieldset className={controlsStyles.Controls}>
         <legend>Move Design review</legend>
         <label>
           Day{' '}
@@ -135,7 +136,7 @@ function SchedulerCalendarContent() {
           </select>
         </label>
       </fieldset>
-      <div role="status">
+      <div role="status" className={controlsStyles.Status}>
         Design review: {DAYS[event.day]}, {formatTime(event.minute)} to{' '}
         {formatTime(event.minute + EVENT_MINUTES)}.
       </div>

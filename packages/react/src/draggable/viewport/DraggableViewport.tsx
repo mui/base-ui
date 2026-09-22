@@ -16,8 +16,8 @@ import { useDraggableViewportElement } from './useDraggableViewportElement';
 import type { UseDraggableViewportElementParameters } from './useDraggableViewportElement';
 
 /**
- * Registers its element as a drag auto-scroll viewport.
- * Nested containers and the page need their own registrations to scroll.
+ * A scroll container that scrolls automatically when a drag nears its edges.
+ * Each container, including nested ones, needs its own viewport.
  * Renders a `<div>` element.
  *
  * Documentation: [Base UI Draggable](https://base-ui.com/react/utils/draggable)

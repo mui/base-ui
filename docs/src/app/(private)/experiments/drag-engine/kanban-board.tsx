@@ -3,9 +3,10 @@ import { Draggable } from '@base-ui/react/draggable';
 
 import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import { findClosestSlot } from '../slots';
+import { findClosestSlot } from './kanban-board-slots';
 
-import styles from '../../kanban.module.css';
+import styles from './kanban-board.module.css';
+import controlsStyles from './controls.module.css';
 
 // A "snap to closest position" Kanban board built with `useDragMonitor`.
 // The monitor reads the pointer on every drag event and resolves the
@@ -204,7 +205,7 @@ function KanbanBoardContent() {
     // demo lands on a registered target rather than falling outside every one.
     <Draggable.Target className={styles.Root} accept={cardKind} trackDragOver={false}>
       <form
-        className={styles.Controls}
+        className={controlsStyles.Controls}
         onSubmit={(event) => {
           event.preventDefault();
           const from = board.columnOrder.find((id) =>
@@ -265,7 +266,9 @@ function KanbanBoardContent() {
         </label>
         <button type="submit">Move card</button>
       </form>
-      <div role="status">{announcement}</div>
+      <div role="status" className={controlsStyles.Status}>
+        {announcement}
+      </div>
       <div className={styles.Board}>
         {board.columnOrder.map((id) => {
           const column = board.columns[id];
@@ -329,13 +332,9 @@ function KanbanColumn({
 }
 
 function DraggableCard({ card, columnId }: { card: Card; columnId: ColumnId }) {
+  const payload = React.useMemo(() => ({ id: card.id, fromColumn: columnId }), [card.id, columnId]);
   return (
-    <Draggable.Root
-      kind={cardKind}
-      payload={{ id: card.id, fromColumn: columnId }}
-      data-card
-      className={styles.Card}
-    >
+    <Draggable.Root kind={cardKind} payload={payload} data-card className={styles.Card}>
       {card.title}
       <Draggable.Preview />
     </Draggable.Root>

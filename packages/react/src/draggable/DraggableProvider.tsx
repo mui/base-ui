@@ -7,12 +7,10 @@ import { DraggableContext } from './DraggableContext';
 import { DraggablePreviewProvider } from './preview-provider/DraggablePreviewProvider';
 
 /**
- * Provides the default drag kind and supports custom previews for its descendants.
- * Required above drag components and `useDragDropManager`; `useDragMonitor` and
- * `useActiveDrag` observe the page-wide manager and work without it.
- * Renders no DOM element.
- * Sources and targets without an explicit kind only match within the same provider.
- * Explicit kinds can match across providers; the manager remains page-wide.
+ * Groups the drag sources, drop targets, and viewports of an interaction.
+ * It provides the default kind used by parts that declare none, and gives custom
+ * previews access to React context. Required above the Draggable parts and
+ * `useDragDropManager`. Doesn't render its own HTML element.
  *
  * Documentation: [Base UI Draggable](https://base-ui.com/react/utils/draggable#provider)
  */
@@ -29,7 +27,7 @@ export function DraggableProvider(props: DraggableProviderProps): React.ReactNod
 }
 
 export interface DraggableProviderProps {
-  /** The drag sources, targets, hooks, and previews sharing this boundary. */
+  /** The parts of the interaction. */
   children?: React.ReactNode | undefined;
 }
 

@@ -188,20 +188,18 @@ function WeekAllDayRow(props: { days: number[]; events: CalendarEvent[]; weekSta
 function WeekAllDayCell(props: { dayMs: number }) {
   const { dayMs } = props;
   const { dispatch, dropPreviewRef, setDropPreview, consumeDropPreview } = useCalendarView();
-  const dayMsRef = useValueAsRef(dayMs);
 
+  const createPayload = React.useMemo(() => ({ anchorMs: dayMs, allDay: true }), [dayMs]);
+  const cellPayload = React.useMemo(() => ({ dayMs }), [dayMs]);
   return (
     <Draggable.Root
       kind={calEventCreateKind}
-      payload={{
-        anchorMs: dayMsRef.current,
-        allDay: true,
-      }}
+      payload={createPayload}
       render={
         <Draggable.Target
           kind={calAllDayRowKind}
           accept={CAL_DRAG_KINDS}
-          payload={{ dayMs: dayMsRef.current }}
+          payload={cellPayload}
           onDraggableMove={({ source, target }) => {
             const next = resolveDropPreview(source, target);
             if (!next) {
@@ -253,19 +251,23 @@ function WeekAllDayBar(props: { event: CalendarEvent; segment: WeekEventSegment 
   const { dispatch, consumeDropPreview } = useCalendarView();
   const eventRef = useValueAsRef(event);
 
+  const movePayload = React.useMemo(
+    () => ({
+      eventId: event.id,
+      anchorStart: event.start,
+      anchorEnd: event.end,
+      allDay: event.allDay,
+      segmentOffsetMs: 0,
+    }),
+    [event.id, event.start, event.end, event.allDay],
+  );
   return (
     <Draggable.Root
       kind={calEventMoveKind}
       // An all-day bar only moves between days: ←/→ snap to the adjacent cell,
       // vertical arrows do nothing (the timed grid refuses all-day drags).
 
-      payload={{
-        eventId: eventRef.current.id,
-        anchorStart: eventRef.current.start,
-        anchorEnd: eventRef.current.end,
-        allDay: eventRef.current.allDay,
-        segmentOffsetMs: 0,
-      }}
+      payload={movePayload}
       onMoveEnd={(moveEvent, moveDetails) => {
         if (moveDetails.reason === 'drop' && moveEvent.dropTarget !== null) {
           const preview = consumeDropPreview();
@@ -385,6 +387,7 @@ function WeekDayColumn(props: { dayMs: number; events: CalendarEvent[] }) {
     };
   }, [dropPreview, dayMs, hourPx]);
 
+  const columnPayload = React.useMemo(() => ({ dayMs }), [dayMs]);
   return (
     <Draggable.Root
       kind={calEventCreateKind}
@@ -392,7 +395,7 @@ function WeekDayColumn(props: { dayMs: number; events: CalendarEvent[] }) {
         <Draggable.Target
           kind={calDayColumnKind}
           accept={CAL_DRAG_KINDS}
-          payload={{ dayMs: dayMsRef.current }}
+          payload={columnPayload}
           canDrop={({ source }) => {
             // Don't accept all-day-only drags here — they belong in the all-day row.
             return !source.payload.allDay;
@@ -490,19 +493,23 @@ function WeekTimedEvent(props: { dayMs: number; segment: TimedSegment }) {
   const top = ((segment.visibleStart - dayMs) / HOUR_MS) * hourPx;
   const height = Math.max(20, ((segment.visibleEnd - segment.visibleStart) / HOUR_MS) * hourPx);
 
+  const movePayload = React.useMemo(
+    () => ({
+      eventId: event.id,
+      anchorStart: event.start,
+      anchorEnd: event.end,
+      allDay: event.allDay,
+      // The within-chip grab offset is the engine's (`anchor: 'source'`);
+      // only the segment correction travels with the drag, non-zero for a
+      // chip that renders the post-midnight part of an event.
+      segmentOffsetMs: segment.visibleStart - event.start,
+    }),
+    [event.id, event.start, event.end, event.allDay, segment.visibleStart],
+  );
   return (
     <Draggable.Root
       kind={calEventMoveKind}
-      payload={{
-        eventId: eventRef.current.id,
-        anchorStart: eventRef.current.start,
-        anchorEnd: eventRef.current.end,
-        allDay: eventRef.current.allDay,
-        // The within-chip grab offset is the engine's (`anchor: 'source'`);
-        // only the segment correction travels with the drag, non-zero for a
-        // chip that renders the post-midnight part of an event.
-        segmentOffsetMs: segment.visibleStart - eventRef.current.start,
-      }}
+      payload={movePayload}
       onMoveEnd={(moveEvent, moveDetails) => {
         if (moveDetails.reason === 'drop' && moveEvent.dropTarget !== null) {
           const preview = consumeDropPreview();
@@ -546,6 +553,16 @@ function WeekResizeHandle(props: { event: CalendarEvent; edge: 'start' | 'end' }
   const { dispatch, consumeDropPreview } = useCalendarView();
   const eventRef = useValueAsRef(event);
 
+  const resizePayload = React.useMemo(
+    () => ({
+      eventId: event.id,
+      edge,
+      anchorStart: event.start,
+      anchorEnd: event.end,
+      allDay: event.allDay,
+    }),
+    [event.id, edge, event.start, event.end, event.allDay],
+  );
   return (
     <Draggable.Root
       render={<span />}
@@ -553,13 +570,7 @@ function WeekResizeHandle(props: { event: CalendarEvent; edge: 'start' | 'end' }
       // The handle is `aria-hidden`; without this it would still get
       // `tabIndex={0}` — focusable but invisible to screen readers.
 
-      payload={{
-        eventId: eventRef.current.id,
-        edge,
-        anchorStart: eventRef.current.start,
-        anchorEnd: eventRef.current.end,
-        allDay: eventRef.current.allDay,
-      }}
+      payload={resizePayload}
       onMoveEnd={(moveEvent, moveDetails) => {
         if (moveDetails.reason === 'drop' && moveEvent.dropTarget !== null) {
           const preview = consumeDropPreview();

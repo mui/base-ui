@@ -176,11 +176,3 @@
     color: oklch(70.8% 0 0deg);
   }
 }
-
-.Controls {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-end;
-  gap: 0.5rem;
-  font-size: 0.875rem;
-}

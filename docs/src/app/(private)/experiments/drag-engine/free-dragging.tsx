@@ -6,6 +6,8 @@ import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { ownerWindow } from '@base-ui/utils/owner';
 
+import styles from './free-dragging.module.css';
+
 const cardKind = Draggable.createKind<string>('figma-card');
 const CARD_WIDTH = 180;
 const CARD_HEIGHT = 42;
@@ -26,11 +28,6 @@ const INITIAL_LAYOUT: { id: string; fx: number; fy: number; label: string }[] = 
   { id: 'venus', fx: 0.5, fy: 0.62, label: 'Venus' },
   { id: 'earth', fx: 0.95, fy: 0.28, label: 'Earth' },
 ];
-
-// The preview is a clone of the card, so it keeps these classes: `data-dragging`
-// hides the source, `data-drag-preview` lifts the clone above the canvas.
-const CARD_CLASS =
-  'absolute box-border flex items-center border border-neutral-950 bg-white px-3 py-2.5 text-sm leading-5 text-neutral-950 dark:border-white dark:bg-neutral-950 dark:text-white cursor-grab transition-colors data-[dragging]:opacity-0 data-[drag-preview]:shadow-[0.25rem_0.25rem_0_rgb(0_0_0_/_12%)] dark:data-[drag-preview]:shadow-none hover:bg-neutral-100 dark:hover:bg-neutral-800 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-neutral-950 dark:focus-visible:outline-white';
 
 function BoardCard({
   card,
@@ -70,7 +67,7 @@ function BoardCard({
           onNudge(card.id, delta[0], delta[1]);
         }
       }}
-      className={CARD_CLASS}
+      className={styles.Card}
       style={{ left: card.x, top: card.y, width: CARD_WIDTH, height: CARD_HEIGHT }}
     >
       {card.label}
@@ -156,16 +153,14 @@ function FigmaBoardContent() {
   });
 
   return (
-    // Full-bleed: cancel the shared demo playground padding (2rem 1.5rem) so the
-    // canvas reaches the demo frame, with no inset gap and no inner border.
-    <div className="-mx-6 -my-8 flex w-[calc(100%+3rem)] flex-col gap-4 select-none">
+    <div className={styles.Root}>
       {/* The whole surface is a drop target, so a release on it counts as a real
           drop rather than a cancel. */}
       <Draggable.Target
+        className={styles.Surface}
         ref={surfaceRef}
         accept={cardKind}
         trackDragOver={false}
-        className="relative box-border h-64 overflow-hidden bg-neutral-50 sm:h-80 bg-[radial-gradient(var(--color-neutral-300)_1px,transparent_1px)] [background-size:20px_20px] dark:bg-neutral-900 dark:bg-[radial-gradient(var(--color-neutral-700)_1px,transparent_1px)]"
         onDraggableDrop={({ target, source }) => {
           const surface = surfaceRef.current;
           if (!surface) {

@@ -1,4 +1,6 @@
 import * as React from 'react';
+import { ownerDocument } from '@base-ui/utils/owner';
+import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
 
 export type SlotId = 'left' | 'center' | 'right';
 
@@ -8,7 +10,6 @@ export interface WidgetData {
   value: string;
   detail: string;
   slot: SlotId;
-  locked?: boolean;
 }
 
 export const SLOTS: { id: SlotId; label: string }[] = [
@@ -31,10 +32,33 @@ export function moveWidget(current: WidgetData[], widgetId: string, slot: SlotId
   return current.map((item) => (item.id === widgetId ? { ...item, slot } : item));
 }
 
-/** Widget placement shared by the drop handlers and the "Move to" form. */
+/** The nearest empty slot in `direction` from the widget's slot, or `undefined`. */
+export function findEmptySlot(
+  current: WidgetData[],
+  widgetId: string,
+  direction: -1 | 1,
+): SlotId | undefined {
+  const widget = current.find((item) => item.id === widgetId);
+  if (!widget) {
+    return undefined;
+  }
+  for (
+    let i = SLOTS.findIndex((slot) => slot.id === widget.slot) + direction;
+    SLOTS[i];
+    i += direction
+  ) {
+    if (!current.some((item) => item.slot === SLOTS[i].id)) {
+      return SLOTS[i].id;
+    }
+  }
+  return undefined;
+}
+
+/** Widget placement shared by the drop handlers and the keyboard shortcut. */
 export function useDashboardWidgets(initialWidgets: WidgetData[] = INITIAL_WIDGETS) {
   const [widgets, setWidgets] = React.useState(initialWidgets);
   const [announcement, setAnnouncement] = React.useState('');
+  const focusFrame = useAnimationFrame();
 
   function handleMoveWidget(widgetId: string, slot: SlotId) {
     const next = moveWidget(widgets, widgetId, slot);
@@ -47,5 +71,28 @@ export function useDashboardWidgets(initialWidgets: WidgetData[] = INITIAL_WIDGE
     setAnnouncement(`${widget.title} moved to ${target.label}.`);
   }
 
-  return { widgets, moveWidget: handleMoveWidget, announcement };
+  /** Alt+Arrow moves the focused widget to the nearest empty slot in that direction. */
+  function handleWidgetKeyDown(event: React.KeyboardEvent<HTMLElement>, widgetId: string) {
+    if (!event.altKey || (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight')) {
+      return;
+    }
+    event.preventDefault();
+    const slot = findEmptySlot(widgets, widgetId, event.key === 'ArrowLeft' ? -1 : 1);
+    if (!slot) {
+      return;
+    }
+    handleMoveWidget(widgetId, slot);
+    // The widget remounts in its new slot, so focus its replacement after the update.
+    const doc = ownerDocument(event.currentTarget);
+    focusFrame.request(() => {
+      doc.querySelector<HTMLElement>(`[data-widget-id="${widgetId}"]`)?.focus();
+    });
+  }
+
+  return {
+    widgets,
+    moveWidget: handleMoveWidget,
+    onWidgetKeyDown: handleWidgetKeyDown,
+    announcement,
+  };
 }

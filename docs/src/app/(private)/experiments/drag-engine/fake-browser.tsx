@@ -500,6 +500,7 @@ function DraggableEntry({
     registerEntry(node.id, element);
   });
 
+  const payload = React.useMemo(() => ({ type: 'existing' as const, id: node.id }), [node.id]);
   const draggable = (
     <Draggable.Root<AcceptedBookmarkDragPayload>
       ref={handleRef}
@@ -514,7 +515,7 @@ function DraggableEntry({
         node.type === 'folder' ? 'Control+Enter Meta+Enter Shift+F10' : 'Shift+F10'
       }
       kind={bookmarkKind}
-      payload={{ type: 'existing', id: node.id }}
+      payload={payload}
       title={node.type === 'bookmark' ? `${node.name}\n${node.url}` : node.name}
       activation={{ mouse: { type: 'distance', distance: 4 } }}
       onBeforeMoveStart={handleBeforeDragStart}
@@ -860,6 +861,15 @@ function BrowserTabs({
     });
   });
 
+  const endTargetPayload = React.useMemo(() => ({ index: tabs.length }), [tabs.length]);
+  const tabPayloads = React.useMemo(
+    () => tabs.map((tab) => ({ type: 'tab' as const, ...tab })),
+    [tabs],
+  );
+  const tabTargetPayloads = React.useMemo(
+    () => tabs.map((tab, index) => ({ index, tabId: tab.id })),
+    [tabs],
+  );
   return (
     <div className={styles.browserTabs}>
       <Tabs.List
@@ -870,7 +880,7 @@ function BrowserTabs({
           <Draggable.Target<AcceptedBookmarkDragPayload, TabDropTargetPayload>
             accept={acceptedTabKinds}
             kind={tabDropKind}
-            payload={{ index: tabs.length }}
+            payload={endTargetPayload}
             trackDragOver={false}
             render={
               <Draggable.Viewport
@@ -945,7 +955,7 @@ function BrowserTabs({
               render={
                 <Draggable.Root<AcceptedBookmarkDragPayload>
                   kind={tabKind}
-                  payload={{ type: 'tab', ...tab }}
+                  payload={tabPayloads[index]}
                   activation={{ mouse: { type: 'distance', distance: 5 } }}
                   onBeforeMoveStart={handleBeforeDragStart}
                   onMoveStart={handleDragStart}
@@ -963,7 +973,7 @@ function BrowserTabs({
                     <Draggable.Target<AcceptedBookmarkDragPayload, TabDropTargetPayload>
                       accept={acceptedTabKinds}
                       kind={tabDropKind}
-                      payload={{ index, tabId: tab.id }}
+                      payload={tabTargetPayloads[index]}
                       trackDragOver={false}
                       onDraggableMove={handleDrag}
                       render={
@@ -1000,7 +1010,7 @@ function BrowserTabs({
         className={styles.endTabDropArea}
         accept={acceptedTabKinds}
         kind={tabDropKind}
-        payload={{ index: tabs.length }}
+        payload={endTargetPayload}
         trackDragOver={false}
       >
         <button

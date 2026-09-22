@@ -60,101 +60,68 @@ Enables RTL behavior for Base UI components.
 
 ## Draggable
 
-Components and hooks for pointer-driven drag and drop: sources, targets, previews, auto-scroll
-viewports, and sortable groups.
+Drag and drop for pointer input, with drop targets, previews, sorting, and auto-scrolling.
 
 <details>
 
 <summary>Outline</summary>
 
-- Keywords: React Drag and Drop, Draggable, Drop Target, Drag Preview, Auto Scroll, Base UI
+- Keywords: React Drag and Drop, Draggable, Drop Target, Drag Preview, Sortable List, Auto Scroll, Headless React Components, Base UI
 - Sections:
   - Usage guidelines
   - Anatomy
-  - Provider
-  - Pass data along
-    - Update the payload during a drag
-    - Store data for the current drag
-    - Share kinds between sources and targets
-  - Drag handle
-  - Conditional drag
+  - Kinds and payloads
+    - Matching several kinds
   - Drag events
-    - Read the location history
-  - Re-rendering the source mid-drag
-  - Activation
-    - Multiple ways to pick up
-    - Double-click pickup
-  - Movement modifiers
-    - Modifiers on the preview
-    - Write your own
-    - Gating on a modifier key
-  - Drag previews
-    - Default preview
-    - Custom previews
-    - Configure the clone
-    - Drag without a preview
-    - Position the preview
-    - Render previews elsewhere
-    - Set the drag cursor
+    - Drag source events
+    - Drop target events
   - Drop targets
-    - Choose which items to accept
-    - Drop events
-    - Attach data to a target
-    - Read where in the target the pointer landed
-    - Snap to steps
-    - Nested drop targets
-    - Track the drag-over state
-    - Accept native file drops
-    - Both a source and a target
-  - Sorting with a collision provider
-    - Reorder on drop
-    - Reorder while dragging
-  - Scrolling
-    - Which containers scroll
-    - Customize a container that already scrolls
-      - Control when it scrolls
-      - Constrain the direction
-      - Tune the speed
-    - Implement custom scrolling
-    - Nested containers
-    - Both a scroll container and a drop target
+    - Accepting drops
+    - Identifying a target
+  - Auto-scrolling
     - Scrolling the page
-  - Styling
-    - Dimming the source
-    - Sizing a custom preview
-    - Animating a drop
-    - Highlight the innermost target
-    - The drag cursor
-    - Touch and selection styles
-    - Content security policy
-    - Reduced motion
-  - Accessibility
-    - Provide an alternative to dragging
-    - Add shortcuts for frequent moves
-    - Keep the operation focused
-    - Announce state changes
-    - Keep pointer handles out of the tab order
-    - Check it
   - Testing
-    - Pick the environment first
-    - Start a pointer drag
-    - Let a frame pass
-    - Assert on what a user can observe
-    - Clean up between tests
+    - Choosing an environment
+    - Simulating a drag
+    - Waiting and asserting
+    - Cleaning up
   - Examples
-    - Draggable tabs
-    - Calendar
-    - Free dragging
-    - Kanban board
-    - File explorer
+    - Drag handle
+    - Disabling a drag
+    - Storing data during a drag
+    - Activation
+      - Double-click pickup
+    - Constraining movement
+      - Custom modifiers
+    - Drag preview
+    - Custom preview
+    - Preview position
+    - Preview container
+    - Drag cursor
+    - Styling the source and preview
+      - Animating a drop
+    - Drop position within a target
+    - Nested drop targets
+    - Styling drop targets
+    - Native file drops
+    - One element with two roles
+    - Sorting a list
+    - Sorting while dragging
+    - Auto-scroll direction
+    - Auto-scroll speed
+    - Custom auto-scrolling
   - API reference
     - Provider
     - Root
     - Handle
     - Preview
-    - Collision provider
     - Target
     - Viewport
+    - CollisionProvider
+  - createKind
+  - createGlobalKind
+  - anyKind
+  - Modifiers
     - restrictToVerticalAxis
     - restrictToHorizontalAxis
     - restrictToParentElement
@@ -162,21 +129,14 @@ viewports, and sortable groups.
     - restrictToWindowEdges
     - snapToGrid
     - DragModifier
-    - createKind
-    - createGlobalKind
-    - Accepting any kind
   - useActiveDrag
   - useDragMonitor
-    - Filter by kind
-    - Drag events
   - useDragDropManager
-    - When each parameter is read
-    - `registerDraggable` method
-      - Drag preview
-    - `registerDropTarget` method
-    - `registerAutoScroller` method
-    - `registerMonitor` method
-    - `cancelDrag` method
+    - registerDraggable
+    - registerDropTarget
+    - registerAutoScroller
+    - registerMonitor
+    - cancelDrag
 - Exports:
   - Draggable - Root
     - Props: activation, children, className, collision, collisionElement, collisionPayload, disabled, dragCursor, kind, modifiers, onBeforeMoveStart, onMove, onMoveEnd, onMoveStart, onTargetChange, payload, previewKey, render, snap, style

@@ -12,8 +12,7 @@ import { firePointer } from '../../../packages/react/test/pointer';
 import { flushRaf, setupDragEngineTests } from '../../../packages/react/test/dnd';
 import ActivationCss from '../app/(docs)/react/utils/draggable/demos/activation/css-modules';
 import ActivationTailwind from '../app/(docs)/react/utils/draggable/demos/activation/tailwind';
-import FileExplorerCss from '../app/(docs)/react/utils/draggable/demos/examples/file-explorer/css-modules';
-import FileExplorerTailwind from '../app/(docs)/react/utils/draggable/demos/examples/file-explorer/tailwind';
+import FileExplorerExperiment from '../app/(private)/experiments/drag-engine/file-explorer';
 
 import SortableOnDropCss from '../app/(docs)/react/utils/draggable/demos/sortable-on-drop/css-modules';
 import SortableOnDropTailwind from '../app/(docs)/react/utils/draggable/demos/sortable-on-drop/tailwind';
@@ -23,19 +22,14 @@ import ScrollingTailwind from '../app/(docs)/react/utils/draggable/demos/scrolli
 import SortableLiveCss from '../app/(docs)/react/utils/draggable/demos/sortable-live/css-modules';
 import SortableLiveTailwind from '../app/(docs)/react/utils/draggable/demos/sortable-live/tailwind';
 
-import KanbanCss from '../app/(docs)/react/utils/draggable/demos/examples/kanban/css-modules';
-import KanbanTailwind from '../app/(docs)/react/utils/draggable/demos/examples/kanban/tailwind';
-import CalendarCss from '../app/(docs)/react/utils/draggable/demos/examples/scheduler/css-modules';
-import CalendarTailwind from '../app/(docs)/react/utils/draggable/demos/examples/scheduler/tailwind';
-import { findClosestSlot } from '../app/(docs)/react/utils/draggable/demos/examples/kanban/slots';
+import KanbanBoardExperiment from '../app/(private)/experiments/drag-engine/kanban-board';
+import WeekSchedulerExperiment from '../app/(private)/experiments/drag-engine/week-scheduler';
+import { findClosestSlot } from '../app/(private)/experiments/drag-engine/kanban-board-slots';
 
-import TabsCss from '../app/(docs)/react/utils/draggable/demos/examples/tabs/css-modules';
-import TabsTailwind from '../app/(docs)/react/utils/draggable/demos/examples/tabs/tailwind';
+import TabsReorderExperiment from '../app/(private)/experiments/drag-engine/tabs-reorder';
 
 import HandleCss from '../app/(docs)/react/utils/draggable/demos/handle/css-modules';
 import HandleTailwind from '../app/(docs)/react/utils/draggable/demos/handle/tailwind';
-import ConditionalCss from '../app/(docs)/react/utils/draggable/demos/conditional/css-modules';
-import ConditionalTailwind from '../app/(docs)/react/utils/draggable/demos/conditional/tailwind';
 import NestingCss from '../app/(docs)/react/utils/draggable/demos/targets/nesting/css-modules';
 import NestingTailwind from '../app/(docs)/react/utils/draggable/demos/targets/nesting/tailwind';
 
@@ -45,10 +39,8 @@ afterEach(() => vi.unstubAllGlobals());
 describe('draggable demos', () => {
   const { renderDnd } = createDndRenderer();
 
-  describe.each([
-    ['CSS Modules', TabsCss],
-    ['Tailwind', TabsTailwind],
-  ] as const)('closing tabs with %s', (_name, Demo) => {
+  describe('closing tabs', () => {
+    const Demo = TabsReorderExperiment;
     it('focuses the next tab after deleting the focused middle tab', async () => {
       const { user } = await renderDnd(<Demo />);
       await user.click(screen.getByRole('tab', { name: 'Activity' }));
@@ -96,37 +88,48 @@ describe('draggable demos', () => {
   describe.each([
     ['CSS Modules', HandleCss],
     ['Tailwind', HandleTailwind],
-  ] as const)('dashboard controls with %s', (_name, Demo) => {
-    it('moves a widget without dragging and retains control focus', async () => {
+  ] as const)('dashboard keyboard shortcut with %s', (_name, Demo) => {
+    it('moves the focused widget to the next empty slot and keeps it focused', async () => {
       const { user } = await renderDnd(<Demo />);
-      await user.selectOptions(screen.getByLabelText('Widget'), 'conversion');
-      await user.selectOptions(screen.getByLabelText('Move to'), 'right');
-      const button = screen.getByRole('button', { name: 'Move widget' });
-      button.focus();
-      await user.keyboard('{Enter}');
-      expect(screen.getByRole('group', { name: 'Right dashboard slot' })).toHaveTextContent(
-        'Conversion',
-      );
+      const widget = screen.getByRole('group', { name: 'Center dashboard slot' })
+        .firstElementChild as HTMLElement;
+      widget.focus();
+      await user.keyboard('{Alt>}{ArrowRight}{/Alt}');
+      const rightSlot = screen.getByRole('group', { name: 'Right dashboard slot' });
+      expect(rightSlot).toHaveTextContent('Conversion');
       expect(screen.getByRole('group', { name: 'Center dashboard slot' })).toHaveTextContent(
         'Drop widget',
       );
-      expect(button).toHaveFocus();
+      await waitFor(() => expect(rightSlot.firstElementChild).toHaveFocus());
       expect(screen.getByRole('status')).toHaveTextContent(
         'Conversion moved to Right dashboard slot.',
       );
     });
-  });
 
-  describe.each([
-    ['CSS Modules', ConditionalCss],
-    ['Tailwind', ConditionalTailwind],
-  ] as const)('conditional dashboard controls with %s', (_name, Demo) => {
-    it('excludes the pinned widget from the move controls', async () => {
-      await renderDnd(<Demo />);
-      const options = Array.from(
-        (screen.getByLabelText('Widget') as HTMLSelectElement).options,
-      ).map((option) => option.value);
-      expect(options).toEqual(['visitors']);
+    it('skips an occupied slot to reach the next empty one', async () => {
+      const { user } = await renderDnd(<Demo />);
+      const widget = screen.getByRole('group', { name: 'Left dashboard slot' })
+        .firstElementChild as HTMLElement;
+      widget.focus();
+      await user.keyboard('{Alt>}{ArrowRight}{/Alt}');
+      expect(screen.getByRole('group', { name: 'Right dashboard slot' })).toHaveTextContent(
+        'Visitors',
+      );
+      expect(screen.getByRole('group', { name: 'Center dashboard slot' })).toHaveTextContent(
+        'Conversion',
+      );
+    });
+
+    it('does nothing when no empty slot exists in that direction', async () => {
+      const { user } = await renderDnd(<Demo />);
+      const widget = screen.getByRole('group', { name: 'Center dashboard slot' })
+        .firstElementChild as HTMLElement;
+      widget.focus();
+      await user.keyboard('{Alt>}{ArrowLeft}{/Alt}');
+      expect(screen.getByRole('group', { name: 'Center dashboard slot' })).toHaveTextContent(
+        'Conversion',
+      );
+      expect(widget).toHaveFocus();
     });
   });
 
@@ -147,10 +150,8 @@ describe('draggable demos', () => {
     });
   });
 
-  describe.each([
-    ['CSS Modules', KanbanCss],
-    ['Tailwind', KanbanTailwind],
-  ] as const)('Kanban controls with %s', (_name, Demo) => {
+  describe('Kanban controls', () => {
+    const Demo = KanbanBoardExperiment;
     it('moves a card without dragging and retains control focus', async () => {
       const { user } = await renderDnd(<Demo />);
       await user.selectOptions(screen.getByLabelText('Move to'), 'done');
@@ -166,10 +167,8 @@ describe('draggable demos', () => {
     });
   });
 
-  describe.each([
-    ['CSS Modules', CalendarCss],
-    ['Tailwind', CalendarTailwind],
-  ] as const)('calendar controls with %s', (_name, Demo) => {
+  describe('calendar controls', () => {
+    const Demo = WeekSchedulerExperiment;
     it('changes day and time without dragging', async () => {
       const { user } = await renderDnd(<Demo />);
       await user.selectOptions(screen.getByLabelText('Day'), '2');
@@ -201,10 +200,8 @@ describe('draggable demos', () => {
     );
   });
 
-  describe.each([
-    ['CSS Modules', FileExplorerCss],
-    ['Tailwind', FileExplorerTailwind],
-  ] as const)('file explorer with %s', (_name, Demo) => {
+  describe('file explorer', () => {
+    const Demo = FileExplorerExperiment;
     it('moves a file with the keyboard and retains focus', async () => {
       const { user } = await renderDnd(<Demo />);
       const button = screen.getByRole('button', { name: 'Move item' });

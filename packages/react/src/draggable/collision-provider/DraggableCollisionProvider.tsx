@@ -21,11 +21,11 @@ import { createKind } from '../../utils/drag-and-drop/dragKind';
 import { DraggableCollisionContext, type CollisionParticipant } from './DraggableCollisionContext';
 import { useDraggableContext } from '../DraggableContext';
 
-/** The item under the pointer during a drag. */
+/** The item of the group under the pointer. */
 export interface DraggableCollision<TPayload = unknown, TDragData = unknown> {
   /**
-   * The item under the pointer. Use `payload` to identify it and `getLocalPoint()`
-   * or `getSnappedLocalPoint()` to choose an insertion position.
+   * The item under the pointer. Use `payload` to identify it, and `getLocalPoint()`
+   * or `getSnappedLocalPoint()` to decide on which side of it to insert.
    */
   target: DropTargetRecord<TPayload, TDragData>;
 }
@@ -34,9 +34,9 @@ export interface DraggableCollisionEvent<
   TPayload = unknown,
   TDragData = unknown,
 > extends BaseDragEvent<TPayload, TDragData> {
-  /** The item under the pointer, or `null` outside this group or over the dragged item. */
+  /** The item under the pointer, or `null` when outside the group or over the dragged item. */
   collision: DraggableCollision<TPayload, TDragData> | null;
-  /** The last collision reported by `onCollisionChange`, or `null` before the first call. */
+  /** The collision reported by the previous `onCollisionChange` call, or `null` before the first. */
   previousCollision: DraggableCollision<TPayload, TDragData> | null;
 }
 
@@ -45,20 +45,19 @@ export interface DraggableCollisionEndEvent<
   TDragData = unknown,
 > extends MoveEndEvent<TPayload, TDragData> {
   /**
-   * The item under the pointer at drop, or `null` on cancellation, outside this group,
-   * or over the dragged item.
+   * The item under the pointer at release, or `null` when the drag was canceled,
+   * released outside the group, or released over the dragged item.
    */
   collision: DraggableCollision<TPayload, TDragData> | null;
-  /** The last collision reported by `onCollisionChange`, or `null` before the first call. */
+  /** The collision reported by the previous `onCollisionChange` call, or `null` before the first. */
   previousCollision: DraggableCollision<TPayload, TDragData> | null;
 }
 
 /**
- * Groups draggables of the same kind and reports the item under the pointer.
- * Use its callbacks to choose an insertion position and update the item order.
- * Doesn't render an HTML element.
+ * Groups draggables of the same kind and reports which one is under the pointer, for sorting.
+ * Doesn't render its own HTML element.
  *
- * Documentation: [Base UI Draggable](https://base-ui.com/react/utils/draggable#collision-provider)
+ * Documentation: [Base UI Draggable](https://base-ui.com/react/utils/draggable#collisionprovider)
  */
 export function DraggableCollisionProvider<TPayload, TDragData = unknown>(
   props: DraggableCollisionProviderProps<TPayload, TDragData>,
@@ -245,11 +244,11 @@ export function DraggableCollisionProvider<TPayload, TDragData = unknown>(
 
 export interface DraggableCollisionProviderProps<TPayload = unknown, TDragData = unknown> {
   children?: React.ReactNode | undefined;
-  /** The kind of draggable items in this group. Pass the same kind to each `Draggable.Root`. */
+  /** The kind of the items in this group. Pass the same kind to each `<Draggable.Root>`. */
   kind: DragKind<TPayload, TDragData>;
   /**
-   * Whether the dragged item can be dropped on an item in this group.
-   * Return `false` to skip the item, or `'reject'` to reject the drop entirely.
+   * Whether the dragged item can be dropped on a given item of this group.
+   * Return `false` to skip the item, or `'reject'` to block the drop.
    */
   canCollide?:
     | ((context: {
@@ -258,15 +257,16 @@ export interface DraggableCollisionProviderProps<TPayload = unknown, TDragData =
       }) => boolean | 'reject')
     | undefined;
   /**
-   * Called when an item in this group starts dragging, or a dragged item first enters the group.
-   * The event describes the start of the drag, including when it started outside the group.
+   * Event handler called when an item of this group starts dragging, or when a drag
+   * that started elsewhere first enters the group.
    */
   onMoveStart?:
     | ((event: BaseDragEvent<TPayload, TDragData>, details: MoveStartEventDetails) => void)
     | undefined;
   /**
-   * Called as the pointer moves over items or leaves them.
-   * Compare the position computed from `collision` and `previousCollision` to skip unchanged updates.
+   * Event handler called when the item under the pointer changes, including when
+   * the pointer leaves the group. Compare `collision` with `previousCollision` to
+   * skip updates when the insertion position hasn't changed.
    */
   onCollisionChange?:
     | ((
@@ -275,7 +275,7 @@ export interface DraggableCollisionProviderProps<TPayload = unknown, TDragData =
       ) => void)
     | undefined;
   /**
-   * Called when a drag that started in or entered this group ends.
+   * Event handler called when a drag that involved this group ends.
    * Use `collision` to apply the final position, or `canceled` to restore the original order.
    */
   onMoveEnd?:

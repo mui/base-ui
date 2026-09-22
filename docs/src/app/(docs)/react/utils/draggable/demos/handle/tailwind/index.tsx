@@ -2,21 +2,33 @@
 import { Draggable } from '@base-ui/react/draggable';
 
 import * as React from 'react';
-import { DashboardControls } from '../../DashboardControls';
-import { dashboardControlsClassName } from '../../dashboardControlsTailwind';
 import { GripIcon } from '../../GripIcon';
 import { SLOTS, useDashboardWidgets, type SlotId, type WidgetData } from '../../dashboardWidgets';
 
 const widgetKind = Draggable.createKind<string>('draggable/handle-widget');
 
 const WIDGET_CLASS =
-  'box-border flex min-h-32 w-full flex-col border border-neutral-950 bg-white text-neutral-950 transition-opacity data-[dragging]:opacity-40 motion-safe:data-[drag-preview]:data-ending-style:transition-[translate] motion-safe:data-[drag-preview]:data-ending-style:duration-200 motion-safe:data-[drag-preview]:data-ending-style:ease-[cubic-bezier(0.2,0,0,1)] data-[drag-preview]:shadow-[0.25rem_0.25rem_0_rgb(0_0_0_/_12%)] dark:border-white dark:bg-neutral-950 dark:text-white dark:data-[drag-preview]:shadow-none';
+  'box-border flex min-h-32 w-full flex-col border border-neutral-950 bg-white text-neutral-950 transition-opacity data-[dragging]:opacity-40 motion-safe:data-[drag-preview]:data-ending-style:transition-[translate] motion-safe:data-[drag-preview]:data-ending-style:duration-200 motion-safe:data-[drag-preview]:data-ending-style:ease-[cubic-bezier(0.2,0,0,1)] data-[drag-preview]:shadow-[0.25rem_0.25rem_0_rgb(0_0_0_/_12%)] dark:border-white dark:bg-neutral-950 dark:text-white dark:data-[drag-preview]:shadow-none focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-neutral-950 dark:focus-visible:outline-white';
 const HANDLE_CLASS =
   'm-0 inline-flex shrink-0 cursor-grab items-center justify-center border-0 bg-transparent p-0 text-neutral-400 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-neutral-950 dark:text-neutral-500 dark:focus-visible:outline-white';
 
-function Widget({ widget }: { widget: WidgetData }) {
+function Widget({
+  widget,
+  onKeyDown,
+}: {
+  widget: WidgetData;
+  onKeyDown: (event: React.KeyboardEvent<HTMLElement>, widgetId: string) => void;
+}) {
   return (
-    <Draggable.Root kind={widgetKind} payload={widget.id} className={WIDGET_CLASS}>
+    <Draggable.Root
+      kind={widgetKind}
+      payload={widget.id}
+      className={WIDGET_CLASS}
+      data-widget-id={widget.id}
+      tabIndex={0}
+      aria-keyshortcuts="Alt+ArrowLeft Alt+ArrowRight"
+      onKeyDown={(event) => onKeyDown(event, widget.id)}
+    >
       <div className="flex items-center gap-2 border-b border-neutral-200 px-3 py-2 text-xs leading-4 font-semibold dark:border-neutral-700">
         {/* @highlight-start */}
         <Draggable.Handle className={HANDLE_CLASS}>
@@ -40,11 +52,13 @@ function DockSlot({
   label,
   widget,
   onMoveWidget,
+  onWidgetKeyDown,
 }: {
   id: SlotId;
   label: string;
   widget: WidgetData | undefined;
   onMoveWidget: (widgetId: string, slot: SlotId) => void;
+  onWidgetKeyDown: (event: React.KeyboardEvent<HTMLElement>, widgetId: string) => void;
 }) {
   return (
     <Draggable.Target
@@ -57,7 +71,7 @@ function DockSlot({
       onDraggableDrop={({ source }) => onMoveWidget(source.payload, id)}
     >
       {widget ? (
-        <Widget widget={widget} />
+        <Widget widget={widget} onKeyDown={onWidgetKeyDown} />
       ) : (
         <span className="text-xs leading-4 font-medium text-neutral-500 dark:text-neutral-400">
           Drop widget
@@ -68,15 +82,10 @@ function DockSlot({
 }
 
 function HandleDashboardContent() {
-  const { widgets, moveWidget, announcement } = useDashboardWidgets();
+  const { widgets, moveWidget, onWidgetKeyDown, announcement } = useDashboardWidgets();
 
   return (
     <div className="flex w-full flex-col gap-4 select-none">
-      <DashboardControls
-        className={dashboardControlsClassName}
-        widgets={widgets}
-        onMoveWidget={moveWidget}
-      />
       <div role="status" className="sr-only">
         {announcement}
       </div>
@@ -88,6 +97,7 @@ function HandleDashboardContent() {
             label={slot.label}
             widget={widgets.find((widget) => widget.slot === slot.id)}
             onMoveWidget={moveWidget}
+            onWidgetKeyDown={onWidgetKeyDown}
           />
         ))}
       </div>

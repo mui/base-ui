@@ -14,9 +14,9 @@ import type {
 } from '../../types/dragRegistration';
 
 /**
- * Observes every drag operation that matches `accept`, regardless of which
- * element started it. Use it for status indicators, analytics, or committing a
- * reorder on drop. A monitor has no element and needs no `Draggable.Provider`.
+ * Observes every drag on the page that matches `accept`, wherever it started.
+ * Use it for status indicators, analytics, or committing drops from one place.
+ * A monitor has no element and needs no `<Draggable.Provider>`.
  *
  * Documentation: [Base UI useDragMonitor](https://base-ui.com/react/utils/draggable#usedragmonitor)
  *
@@ -44,8 +44,7 @@ export namespace useDragMonitor {
 }
 
 /**
- * Parameters for {@link useDragMonitor}. Defines the drag kinds to observe and the
- * lifecycle callbacks fired for every matching drag.
+ * The kinds to observe and the event handlers called for every matching drag.
  */
 export type UseDragMonitorParameters<
   TSourcePayload = unknown,

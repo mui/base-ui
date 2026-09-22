@@ -39,7 +39,7 @@ export const settingsMetadata: SettingsMetadata<FigmaBoardSettings> = {
   },
 };
 
-const cardKind = Draggable.createKind<{ id: string }, CardDragPayload>('figmaBoard:card');
+const cardKind = Draggable.createKind<string, CardDragPayload>('figmaBoard:card');
 const CARD_WIDTH = 200;
 // The board is a fixed-size scroll surface; cards are clamped inside it so they
 // can never be created or dropped past an edge.
@@ -477,7 +477,7 @@ function BoardCard({
       // Capture where in the card the pointer grabbed (client px). The drop maps it
       // back to a surface position from a fresh surface rect, so it stays correct
       // even when auto-scroll moves the board mid-drag.
-      payload={{ id: card.id }}
+      payload={card.id}
       onMoveStart={({ source, location }) => {
         const rect = source.element.getBoundingClientRect();
         source.updateDragData({
@@ -523,7 +523,7 @@ function BoardCard({
           const newY =
             (location.current.input.clientY - source.dragData.grabOffsetY - rect.top) / scale;
           const position = clampToSurface(newX, newY, height);
-          onMove(source.payload.id, Math.round(position.x), Math.round(position.y));
+          onMove(source.payload, Math.round(position.x), Math.round(position.y));
         }
       }}
       className={(state) =>

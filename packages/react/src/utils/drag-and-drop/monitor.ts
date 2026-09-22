@@ -178,21 +178,16 @@ export function clearActiveMonitors(): void {
 
 export interface RegisterMonitorParameters<TSourcePayload = unknown, TDragData = unknown> {
   /**
-   * One or more drag source kinds observed by this monitor. Omit it to observe
-   * every drag with `source.payload` typed as `unknown`.
+   * One or more kinds of draggable to observe. Omit it to observe every drag,
+   * with `source.payload` typed as `unknown`.
    *
-   * Base UI evaluates this value when the monitor joins a drag, either at drag
-   * start or when the monitor registers during a drag. If the value excludes the
-   * drag, the monitor ignores its remaining events. If an observing monitor
-   * changes its accepted kinds, its updated callbacks only receive matching
-   * payloads. The last matching end callback still runs to close the original
-   * observation. Return early from callbacks to apply more specific filters.
+   * Evaluated when a drag starts, or when the monitor registers during a drag.
+   * A drag it excludes is ignored until it ends.
    */
   accept?: DragAccept<TSourcePayload, TDragData> | undefined;
   /**
-   * Event handler called when any matching drag starts (once per drag),
-   * wherever it originated. Monitors registered during a drag observe only
-   * subsequent events. A canceled pickup may have no start event.
+   * Event handler called once when a matching drag starts, wherever it started.
+   * A monitor registered during a drag doesn't receive it for that drag.
    */
   onMoveStart?:
     | ((
@@ -201,8 +196,8 @@ export interface RegisterMonitorParameters<TSourcePayload = unknown, TDragData =
       ) => void)
     | undefined;
   /**
-   * Event handler called as the pointer moves or a modifier key changes during any
-   * matching drag, at most once per animation frame.
+   * Event handler called as the pointer moves or a modifier key changes,
+   * at most once per animation frame.
    */
   onMove?:
     | ((
@@ -211,8 +206,7 @@ export interface RegisterMonitorParameters<TSourcePayload = unknown, TDragData =
       ) => void)
     | undefined;
   /**
-   * Event handler called when the active drop-target stack changes during any
-   * matching drag.
+   * Event handler called when the drop targets under the pointer change.
    */
   onTargetChange?:
     | ((
@@ -221,12 +215,12 @@ export interface RegisterMonitorParameters<TSourcePayload = unknown, TDragData =
       ) => void)
     | undefined;
   /**
-   * Event handler called once when the drag ends after a drop, outside release, or
-   * cancellation. `eventDetails.reason` identifies the outcome. `dropTarget` is the
-   * target of a release, or `null` when there was none.
+   * Event handler called once when the drag ends, after a drop, a release outside any
+   * target, or a cancellation. `eventDetails.reason` identifies the outcome, and
+   * `dropTarget` is the target of a drop, or `null`.
    *
-   * This can run without `onMoveStart` when pickup is canceled or the monitor
-   * registers during a drag. Do not assume start and end events are paired.
+   * It can fire without a preceding `onMoveStart`, for example when the monitor
+   * registered during the drag, so don't assume the two are paired.
    */
   onMoveEnd?:
     | ((

@@ -3,7 +3,7 @@ import { Draggable } from '@base-ui/react/draggable';
 
 import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import { DragPageAutoScroll } from '../../../DragPageAutoScroll';
+import { DragPageAutoScroll } from './DragPageAutoScroll';
 
 import {
   INITIAL_NODES,
@@ -12,30 +12,11 @@ import {
   getPath,
   type FileNode,
   type FileSystem,
-} from '../data';
+} from './file-explorer-data';
+import styles from './file-explorer.module.css';
+import controlsStyles from './controls.module.css';
 
 const nodeKind = Draggable.createKind<string>('file-explorer-node');
-
-// `data-[accepting]` lights up every valid destination at pickup (the dragged
-// folder itself also matches `accept`, so `not-data-dragging` leaves it dimmed
-// instead), `data-[drag-over-innermost]` marks the tile that would receive the
-// drop, and `data-[rejected]`'s dashed border reads as not allowed.
-const ITEM_CLASS =
-  'box-border flex cursor-grab flex-col items-center gap-1.5 border border-transparent px-2 py-3 text-center text-xs leading-4 text-neutral-950 transition-colors dark:text-white hover:bg-neutral-100 dark:hover:bg-neutral-800 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-neutral-950 dark:focus-visible:outline-white data-[dragging]:opacity-40 data-[accepting]:not-data-dragging:border-neutral-400 dark:data-[accepting]:not-data-dragging:border-neutral-500 data-[drag-over-innermost]:border-neutral-950 data-[drag-over-innermost]:bg-neutral-100 dark:data-[drag-over-innermost]:border-white dark:data-[drag-over-innermost]:bg-neutral-800 data-[rejected]:border-dashed data-[rejected]:border-neutral-400 dark:data-[rejected]:border-neutral-500';
-
-// The compact card that follows the pointer in place of a clone of the tile.
-const PREVIEW_CLASS =
-  'box-border flex items-center gap-1.5 whitespace-nowrap border border-neutral-950 bg-white px-2 py-1 text-xs leading-4 text-neutral-950 shadow-[0.25rem_0.25rem_0_rgb(0_0_0_/_12%)] dark:border-white dark:bg-neutral-950 dark:text-white dark:shadow-none';
-
-const ICON_CLASS = 'shrink-0 text-neutral-500 dark:text-neutral-400';
-
-const CRUMB_CLASS =
-  'box-border cursor-pointer border border-transparent px-2 py-1 text-neutral-500 transition-colors dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-neutral-950 dark:focus-visible:outline-white aria-[current]:text-neutral-950 dark:aria-[current]:text-white data-[accepting]:border-neutral-400 dark:data-[accepting]:border-neutral-500 data-[drag-over-innermost]:border-neutral-950 data-[drag-over-innermost]:bg-neutral-100 dark:data-[drag-over-innermost]:border-white dark:data-[drag-over-innermost]:bg-neutral-800';
-
-// The fixed height keeps the demo from resizing while navigating between
-// folders. The open folder takes the drop when the release misses every tile.
-const GRID_CLASS =
-  'box-border grid h-60 w-full grid-cols-[repeat(auto-fill,minmax(5.5rem,1fr))] content-start gap-2 overflow-y-auto border border-neutral-200 bg-neutral-50 p-3 dark:border-neutral-700 dark:bg-neutral-900 data-[drag-over-innermost]:border-neutral-950 dark:data-[drag-over-innermost]:border-white';
 
 function useKeyboardControls(onOpen: () => void) {
   return useStableCallback((event: React.KeyboardEvent<HTMLElement>) => {
@@ -89,11 +70,11 @@ function FileIcon({ className }: { className: string }) {
 // A compact card follows the pointer instead of a clone of the whole tile.
 function NodePreview({ node }: { node: FileNode }) {
   return (
-    <Draggable.Preview className={PREVIEW_CLASS} offset="pointer">
+    <Draggable.Preview className={styles.Preview} offset="pointer">
       {node.type === 'folder' ? (
-        <FolderIcon className={`size-4 ${ICON_CLASS}`} />
+        <FolderIcon className={styles.PreviewIcon} />
       ) : (
-        <FileIcon className={`size-4 ${ICON_CLASS}`} />
+        <FileIcon className={styles.PreviewIcon} />
       )}
       {node.name}
     </Draggable.Preview>
@@ -121,7 +102,7 @@ function FolderTile({
       payload={node.id}
       role="button"
       tabIndex={0}
-      className={ITEM_CLASS}
+      className={styles.Item}
       onClick={() => onOpen(node.id)}
       onKeyDownCapture={handleKeyDown}
       // @highlight-start
@@ -134,8 +115,8 @@ function FolderTile({
       }
       // @highlight-end
     >
-      <FolderIcon className={ICON_CLASS} />
-      <span className="max-w-full truncate">{node.name}</span>
+      <FolderIcon className={styles.Icon} />
+      <span className={styles.Label}>{node.name}</span>
       <NodePreview node={node} />
     </Draggable.Root>
   );
@@ -143,9 +124,9 @@ function FolderTile({
 
 function FileTile({ node }: { node: FileNode }) {
   return (
-    <Draggable.Root kind={nodeKind} payload={node.id} tabIndex={0} className={ITEM_CLASS}>
-      <FileIcon className={ICON_CLASS} />
-      <span className="max-w-full truncate">{node.name}</span>
+    <Draggable.Root kind={nodeKind} payload={node.id} tabIndex={0} className={styles.Item}>
+      <FileIcon className={styles.Icon} />
+      <span className={styles.Label}>{node.name}</span>
       <NodePreview node={node} />
     </Draggable.Root>
   );
@@ -176,7 +157,7 @@ function Crumb({
       render={
         <button
           type="button"
-          className={CRUMB_CLASS}
+          className={styles.Crumb}
           aria-current={isCurrent ? 'true' : undefined}
           onClick={() => onNavigate(folder.id)}
         >
@@ -210,8 +191,9 @@ export default function FileExplorer() {
     // Custom preview content renders beside the provider's children.
     <Draggable.Provider>
       <DragPageAutoScroll accept={nodeKind} />
-      <div className="flex w-full max-w-[28rem] flex-col gap-3 select-none">
+      <div className={styles.Root}>
         <form
+          className={controlsStyles.Controls}
           onSubmit={(event) => {
             event.preventDefault();
             moveNode(selectedId, destinationId);
@@ -257,12 +239,14 @@ export default function FileExplorer() {
             </button>
           </fieldset>
         </form>
-        <div role="status">{announcement}</div>
-        <nav aria-label="Breadcrumb" className="flex items-center gap-1 text-sm leading-5">
+        <div role="status" className={controlsStyles.Status}>
+          {announcement}
+        </div>
+        <nav aria-label="Breadcrumb" className={styles.Breadcrumb}>
           {path.map((folder, index) => (
             <React.Fragment key={folder.id}>
               {index > 0 && (
-                <span className="text-neutral-500 dark:text-neutral-400" aria-hidden="true">
+                <span className={styles.Separator} aria-hidden="true">
                   /
                 </span>
               )}
@@ -283,7 +267,7 @@ export default function FileExplorer() {
           accept={nodeKind}
           canDrop={({ source }) => canDropInto(nodes, currentFolderId, source.payload)}
           onDraggableDrop={({ source }) => moveNode(source.payload, currentFolderId)}
-          render={<Draggable.Viewport className={GRID_CLASS} />}
+          render={<Draggable.Viewport className={styles.Grid} />}
         >
           {children.map((node) =>
             node.type === 'folder' ? (
@@ -298,11 +282,7 @@ export default function FileExplorer() {
               <FileTile key={node.id} node={node} />
             ),
           )}
-          {children.length === 0 && (
-            <div className="col-span-full p-1 text-xs leading-4 text-neutral-500 dark:text-neutral-400">
-              This folder is empty
-            </div>
-          )}
+          {children.length === 0 && <div className={styles.Empty}>This folder is empty</div>}
         </Draggable.Target>
       </div>
     </Draggable.Provider>

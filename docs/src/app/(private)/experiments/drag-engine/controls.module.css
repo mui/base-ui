@@ -1,14 +1,27 @@
+/* Styling for the non-drag controls of the example experiments. */
 .Controls {
   display: flex;
   flex-wrap: wrap;
   align-items: flex-end;
   gap: 0.75rem;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
   color: oklch(14.5% 0 0deg);
   font-size: 0.875rem;
   line-height: 1.25rem;
 
   @media (prefers-color-scheme: dark) {
     color: white;
+  }
+
+  & legend {
+    padding: 0;
+    margin-bottom: 0.5rem;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    font-weight: 500;
   }
 
   & label {
@@ -81,17 +94,25 @@
         background-color: oklch(37.1% 0 0deg);
       }
     }
+
+    &[aria-disabled='true'] {
+      color: oklch(55.6% 0 0deg);
+      cursor: default;
+
+      @media (prefers-color-scheme: dark) {
+        color: oklch(70.8% 0 0deg);
+      }
+    }
   }
 }
 
 .Status {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip-path: inset(50%);
-  white-space: nowrap;
-  border: 0;
+  min-height: 1rem;
+  color: oklch(55.6% 0 0deg);
+  font-size: 0.75rem;
+  line-height: 1rem;
+
+  @media (prefers-color-scheme: dark) {
+    color: oklch(70.8% 0 0deg);
+  }
 }
