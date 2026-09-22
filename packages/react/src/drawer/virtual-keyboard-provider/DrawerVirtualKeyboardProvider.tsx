@@ -25,10 +25,6 @@ import {
 
 const KEYBOARD_RESIZE_THRESHOLD = 60;
 const KEYBOARD_VISIBILITY_MARGIN = 16;
-// Extra breathing room (px) added below the focused field, on top of its measured
-// keyboard overlap, so the field can be scrolled clear of the keyboard instead of
-// ending up flush against it. Only applied when there is actual overlap.
-const KEYBOARD_SCROLL_SLACK = 48;
 // Cadence of the settle-watching realign passes after focus moves with the keyboard open:
 // long enough for a smooth scroll to show progress between passes, short enough to recover
 // quickly from a scroll canceled by WebKit's reveal; the pass count covers CSS transitions
@@ -152,7 +148,11 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
     }
 
     element.style.overflowAnchor = 'none';
-    element.style.paddingBottom = `${adjustment.computedPaddingBottom + roundedSlack}px`;
+    // The baseline below the content is at least the visibility margin, so the last field
+    // never ends flush against the keyboard when the container's own padding is smaller.
+    element.style.paddingBottom = `${
+      roundedSlack + Math.max(adjustment.computedPaddingBottom, KEYBOARD_VISIBILITY_MARGIN)
+    }px`;
     element.style.scrollPaddingBottom = `${
       adjustment.computedScrollPaddingBottom + KEYBOARD_VISIBILITY_MARGIN
     }px`;
@@ -306,7 +306,7 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
       const scrollTargetRect = scrollTarget.getBoundingClientRect();
       const clippedBottom = Math.min(scrollTargetRect.bottom, keyboardViewport.bottom);
       const overlap = Math.max(0, scrollTargetRect.bottom - keyboardViewport.bottom);
-      setKeyboardScrollSlack(scrollTarget, overlap > 0 ? overlap + KEYBOARD_SCROLL_SLACK : 0);
+      setKeyboardScrollSlack(scrollTarget, overlap);
 
       const maxScrollTop = Math.max(0, scrollTarget.scrollHeight - scrollTarget.clientHeight);
       if (maxScrollTop <= 0) {

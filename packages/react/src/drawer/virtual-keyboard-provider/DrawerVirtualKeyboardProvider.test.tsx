@@ -149,7 +149,7 @@ describe('<Drawer.VirtualKeyboardProvider />', () => {
   }
 
   it.skipIf(isJSDOM)(
-    'adds scroll slack and centers the focused input while the visual viewport is reduced',
+    'compensates for keyboard overlap without adding extra spacing and centers the focused input',
     async () => {
       const restoreInnerHeight = mockWindowInnerHeight(800);
       const visualViewport = mockVisualViewport(800);
@@ -230,7 +230,7 @@ describe('<Drawer.VirtualKeyboardProvider />', () => {
         });
 
         await waitFor(() => {
-          expect(Number.parseFloat(scroll.style.paddingBottom)).toBeGreaterThan(20);
+          expect(scroll.style.paddingBottom).toBe('240px');
         });
         await waitFor(() => {
           expect(scroll.style.scrollPaddingBottom).not.toBe('');
@@ -258,6 +258,77 @@ describe('<Drawer.VirtualKeyboardProvider />', () => {
         });
         await waitFor(() => {
           expect(scroll.style.overflowAnchor).toBe('auto');
+        });
+      } finally {
+        visualViewport.restore();
+        restoreInnerHeight();
+      }
+    },
+  );
+
+  it.skipIf(isJSDOM)(
+    'tops the scroll container padding up to the visibility margin below the overlap',
+    async () => {
+      const restoreInnerHeight = mockWindowInnerHeight(800);
+      const visualViewport = mockVisualViewport(800);
+
+      try {
+        await render(
+          <Drawer.Root open modal={false}>
+            <Drawer.VirtualKeyboardProvider>
+              <Drawer.Portal>
+                <Drawer.Viewport>
+                  <Drawer.Popup>
+                    <Drawer.Content
+                      data-testid="scroll"
+                      style={{ height: 420, overflowY: 'auto', paddingBottom: 0 }}
+                    >
+                      <div style={{ height: 900 }} />
+                      <input data-testid="input" type="text" />
+                    </Drawer.Content>
+                  </Drawer.Popup>
+                </Drawer.Viewport>
+              </Drawer.Portal>
+            </Drawer.VirtualKeyboardProvider>
+          </Drawer.Root>,
+        );
+
+        const scroll = screen.getByTestId('scroll');
+        const input = screen.getByTestId('input');
+
+        Object.defineProperties(scroll, {
+          clientHeight: { configurable: true, value: 420 },
+          scrollHeight: { configurable: true, value: 1200 },
+        });
+        scroll.getBoundingClientRect = () =>
+          ({
+            top: 300,
+            bottom: 720,
+            height: 420,
+            left: 0,
+            right: 320,
+            width: 320,
+            x: 0,
+            y: 300,
+            toJSON: () => {},
+          }) as DOMRect;
+
+        await act(async () => {
+          input.focus();
+          visualViewport.resize(500);
+        });
+
+        // 220px of overlap plus the 16px margin the container's own padding does not cover.
+        await waitFor(() => {
+          expect(scroll.style.paddingBottom).toBe('236px');
+        });
+
+        await act(async () => {
+          input.blur();
+        });
+
+        await waitFor(() => {
+          expect(scroll.style.paddingBottom).toBe('0px');
         });
       } finally {
         visualViewport.restore();
