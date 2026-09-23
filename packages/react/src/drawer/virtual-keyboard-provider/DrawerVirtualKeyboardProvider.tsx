@@ -199,6 +199,19 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
     let keyboardScrollInnerHeight = -1;
     // Visual viewport height last seen while the keyboard overlapped the layout viewport.
     let keyboardVisualHeight = -1;
+    let smallViewportProbe: HTMLElement | null = null;
+
+    // New Chrome on iOS also shrinks the small viewport unit for the keyboard and resizes the
+    // layout viewport to match, moving fixed content itself. Safari leaves it alone.
+    const layoutViewportFollowsKeyboard = (visualHeight: number) => {
+      if (!smallViewportProbe) {
+        smallViewportProbe = doc.createElement('div');
+        smallViewportProbe.style.cssText =
+          'position:fixed;top:0;width:0;height:100vh;height:100svh;visibility:hidden;pointer-events:none';
+        doc.body.appendChild(smallViewportProbe);
+      }
+      return smallViewportProbe.offsetHeight - visualHeight <= KEYBOARD_RESIZE_THRESHOLD;
+    };
 
     // New Chrome on iOS shrinks the layout viewport to the visual viewport. Remember the
     // keyboard's visual height so detection survives the overlap disappearing; a substantial
@@ -220,7 +233,10 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
       const top = Math.max(0, visualViewport.offsetTop);
       return {
         top,
-        bottom: Math.min(win.innerHeight, top + visualViewport.height),
+        // The browser keeps fixed content above the keyboard, so an inset would lift it twice.
+        bottom: layoutViewportFollowsKeyboard(visualViewport.height)
+          ? win.innerHeight
+          : Math.min(win.innerHeight, top + visualViewport.height),
       };
     };
     getKeyboardViewportRef.current = getKeyboardViewport;
@@ -564,6 +580,7 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
       consumePreemptedFocus();
       clearFocusedKeyboardTarget();
       getKeyboardViewportRef.current = null;
+      smallViewportProbe?.remove();
       rootElement.style.removeProperty(DrawerViewportCssVars.keyboardInset);
     };
   }, [

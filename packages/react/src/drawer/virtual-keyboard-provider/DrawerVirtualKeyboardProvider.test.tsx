@@ -3929,6 +3929,62 @@ describe('<Drawer.VirtualKeyboardProvider />', () => {
     }
 
     it.skipIf(isJSDOM)(
+      'applies no keyboard inset or slack when the small viewport follows the keyboard',
+      async () => {
+        const innerHeight = mockResizableInnerHeight(800);
+        const visualViewport = mockVisualViewport(800);
+        // New Chrome on iOS shrinks `svh` for the keyboard before resizing the layout viewport.
+        let smallViewportHeight = 800;
+        const offsetHeight = Object.getOwnPropertyDescriptor(
+          HTMLElement.prototype,
+          'offsetHeight',
+        )!;
+        Object.defineProperty(HTMLElement.prototype, 'offsetHeight', {
+          configurable: true,
+          get(this: HTMLElement) {
+            return this.style.height === '100svh'
+              ? smallViewportHeight
+              : offsetHeight.get!.call(this);
+          },
+        });
+        vi.useFakeTimers();
+
+        try {
+          await renderKeyboardDrawer();
+
+          const viewport = screen.getByTestId('viewport');
+          const scroll = screen.getByTestId('scroll');
+          const input = screen.getByTestId('input');
+
+          // The scroller lays out inside the layout viewport; against the full-height one, the
+          // keyboard would overlap its bottom 220px.
+          scroll.getBoundingClientRect = () => new DOMRect(0, window.innerHeight - 500, 320, 420);
+
+          await act(async () => {
+            input.focus();
+            smallViewportHeight = 500;
+            visualViewport.resize(500);
+            vi.advanceTimersToNextFrame();
+          });
+          expect(viewport.style.getPropertyValue('--drawer-keyboard-inset')).toBe('0px');
+          expect(scroll.style.paddingBottom).toBe('20px');
+
+          await act(async () => {
+            innerHeight.resize(650);
+            vi.advanceTimersToNextFrame();
+          });
+          expect(viewport.style.getPropertyValue('--drawer-keyboard-inset')).toBe('0px');
+          expect(scroll.style.paddingBottom).toBe('20px');
+        } finally {
+          vi.useRealTimers();
+          Object.defineProperty(HTMLElement.prototype, 'offsetHeight', offsetHeight);
+          visualViewport.restore();
+          innerHeight.restore();
+        }
+      },
+    );
+
+    it.skipIf(isJSDOM)(
       'aligns the focused field once the layout viewport has shrunk to the visual viewport',
       async () => {
         const innerHeight = mockResizableInnerHeight(800);
