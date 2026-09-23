@@ -1,6 +1,9 @@
 'use client';
 import * as React from 'react';
 import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
+import { ownerDocument } from '@base-ui/utils/owner';
+import { activeElement, contains } from '@base-ui/utils/shadowDom';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useMenuFilterImpl } from '../filter-root/MenuFilterContext';
 import { FloatingFocusManager, useHoverFloatingInteraction } from '../../floating-ui-react';
@@ -133,12 +136,32 @@ export const MenuPopupPlain = React.forwardRef(function MenuPopup(
   const parentStore = parent.type === 'menu' ? parent.store : null;
   const parentFocusRef = parentStore?.context.virtualFocusRef;
 
-  const returnToParentInput = useStableCallback((closeType: InteractionType) => {
-    if (closeType === 'keyboard') {
-      parentStore?.highlightItem(activeTriggerElement, REASONS.keyboard);
+  // Hand focus and the cursor back as the submenu starts closing. Return focus waits for the exit
+  // animation, which would leave the parent input focused with nothing highlighted until then.
+  const returnToParent = useStableCallback(() => {
+    const focusOwner = parentFocusRef?.current;
+    if (virtualFocus || !parentStore?.select('open') || !focusOwner) {
+      return;
     }
-    return parentFocusRef?.current ?? null;
+
+    if (contains(store.context.popupRef.current, activeElement(ownerDocument(focusOwner)))) {
+      focusOwner.focus({ preventScroll: true });
+    }
+
+    const reason = store.select('lastOpenChangeReason');
+    if (
+      (reason === REASONS.listNavigation || reason === REASONS.escapeKey) &&
+      parentStore.state.activeIndex == null
+    ) {
+      parentStore.highlightItem(store.state.activeTriggerElement, REASONS.keyboard);
+    }
   });
+
+  useIsoLayoutEffect(() => {
+    if (!open) {
+      returnToParent();
+    }
+  }, [open, returnToParent]);
 
   const state: MenuPopupState = {
     transitionStatus,
@@ -194,8 +217,7 @@ export const MenuPopupPlain = React.forwardRef(function MenuPopup(
   }
 
   // Internal defaults rather than consumer targets, so focus that already moved is respected.
-  const dynamicReturnFocus =
-    submenuRootContext?.getReturnElement ?? (parentFocusRef ? returnToParentInput : undefined);
+  const dynamicReturnFocus = submenuRootContext?.getReturnElement ?? parentFocusRef;
 
   return (
     <FloatingFocusManager

@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { expect, describe, it, vi } from 'vitest';
 import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
+import userEvent from '@testing-library/user-event';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { Menu } from '@base-ui/react/menu';
 import { createRenderer, isJSDOM } from '#test-utils';
@@ -394,6 +395,87 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
     });
     expect(input).toHaveFocus();
     expect(input).toHaveAttribute('aria-activedescendant', trigger.id);
+  });
+
+  describe.skipIf(isJSDOM)('leaving a plain submenu while it animates out', () => {
+    function PlainSubmenuMenu() {
+      return (
+        <React.Fragment>
+          <style>
+            {'.exiting { transition: opacity 300ms; } .exiting[data-ending-style] { opacity: 0; }'}
+          </style>
+          <Menu.FilterProvider>
+            <Menu.Root defaultOpen>
+              <Menu.Trigger>Actions</Menu.Trigger>
+              <Menu.Portal>
+                <Menu.Positioner>
+                  <Menu.Popup>
+                    <Menu.FilterInput aria-label="Filter actions" />
+                    <Menu.List>
+                      <Menu.Item>Rename</Menu.Item>
+                      <Menu.SubmenuRoot>
+                        <Menu.SubmenuTrigger>Share</Menu.SubmenuTrigger>
+                        <Menu.Portal>
+                          <Menu.Positioner>
+                            <Menu.Popup className="exiting" data-testid="submenu">
+                              <Menu.Item>Email</Menu.Item>
+                            </Menu.Popup>
+                          </Menu.Positioner>
+                        </Menu.Portal>
+                      </Menu.SubmenuRoot>
+                    </Menu.List>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+          </Menu.FilterProvider>
+        </React.Fragment>
+      );
+    }
+
+    it.each(['ArrowLeft', 'Escape'])(
+      'highlights the trigger as soon as %s closes the submenu',
+      async (key) => {
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+        const { user } = await render(<PlainSubmenuMenu />);
+
+        const input = screen.getByRole('searchbox', { name: 'Filter actions' });
+        await waitFor(() => {
+          expect(input).toHaveFocus();
+        });
+        await user.keyboard('[ArrowDown][ArrowDown][ArrowRight]');
+        await waitFor(() => {
+          expect(screen.getByRole('menuitem', { name: 'Email' })).toHaveFocus();
+        });
+
+        await user.keyboard(`[${key}]`);
+
+        expect(screen.getByTestId('submenu')).toHaveAttribute('data-ending-style');
+        expect(input).toHaveFocus();
+        expect(screen.getByRole('menuitem', { name: 'Share' })).toHaveAttribute('data-highlighted');
+        expect(input).not.toHaveAttribute('data-highlighted');
+      },
+    );
+
+    it('returns focus to the input as soon as the pointer closes the submenu', async () => {
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+      await render(<PlainSubmenuMenu />);
+
+      // The bare instance skips user-event's pointer-events check, which a popup opened by hover
+      // fails while it transitions in.
+      await userEvent.hover(screen.getByRole('menuitem', { name: 'Share' }));
+      const email = await screen.findByRole('menuitem', { name: 'Email' });
+      await userEvent.hover(email);
+      await waitFor(() => {
+        expect(email).toHaveFocus();
+      });
+
+      await userEvent.hover(screen.getByRole('menuitem', { name: 'Rename' }));
+      await waitFor(() => {
+        expect(screen.getByTestId('submenu')).toHaveAttribute('data-ending-style');
+      });
+      expect(screen.getByRole('searchbox', { name: 'Filter actions' })).toHaveFocus();
+    });
   });
 
   describe('trigger key relay', () => {
