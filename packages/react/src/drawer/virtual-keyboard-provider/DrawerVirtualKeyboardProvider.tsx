@@ -61,7 +61,7 @@ interface ScrollAdjustment {
 interface KeyboardVisualViewport {
   readonly top: number;
   readonly bottom: number;
-  // The browser is still shrinking the layout viewport for the keyboard.
+  // The browser is still resizing the layout viewport to the visual viewport.
   readonly resizing: boolean;
 }
 
@@ -233,7 +233,7 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
         bottom: layoutFollowsKeyboard
           ? win.innerHeight
           : Math.min(win.innerHeight, top + visualViewport.height),
-        resizing: layoutFollowsKeyboard && win.innerHeight - visualViewport.height >= 1,
+        resizing: layoutFollowsKeyboard && Math.abs(win.innerHeight - visualViewport.height) >= 1,
       };
     };
     getKeyboardViewportRef.current = getKeyboardViewport;
@@ -267,21 +267,18 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
         modal !== true ||
         nestedDrawerOpen ||
         !focusedKeyboardTargetRef.current ||
+        (win.scrollX === baseScrollX && win.scrollY === baseScrollY) ||
         getKeyboardViewport() == null
       ) {
         return false;
       }
 
-      if (win.scrollX !== baseScrollX || win.scrollY !== baseScrollY) {
-        // Force an instant jump: the two-argument form defaults `behavior` to `auto`, which
-        // obeys the page's `scroll-behavior`, so a global `scroll-behavior: smooth` would
-        // animate the restore. The measurements that follow assume the page is already back
-        // at rest, and a smooth restore also re-emits `scroll`, re-entering this handler.
-        win.scrollTo({ left: baseScrollX, top: baseScrollY, behavior: 'instant' });
-        return true;
-      }
-
-      return false;
+      // Force an instant jump: the two-argument form defaults `behavior` to `auto`, which
+      // obeys the page's `scroll-behavior`, so a global `scroll-behavior: smooth` would
+      // animate the restore. The measurements that follow assume the page is already back
+      // at rest, and a smooth restore also re-emits `scroll`, re-entering this handler.
+      win.scrollTo({ left: baseScrollX, top: baseScrollY, behavior: 'instant' });
+      return true;
     };
 
     // Focus moved by the drawer itself goes through `focusKeyboardInputWithoutPageScroll`,

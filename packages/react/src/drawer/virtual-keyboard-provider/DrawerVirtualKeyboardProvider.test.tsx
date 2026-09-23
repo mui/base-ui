@@ -4095,6 +4095,61 @@ describe('<Drawer.VirtualKeyboardProvider />', () => {
     );
 
     it.skipIf(isJSDOM)(
+      'waits for the layout viewport to grow to a shorter keyboard before scrolling',
+      async () => {
+        const innerHeight = mockResizableInnerHeight(800);
+        const visualViewport = mockVisualViewport(800);
+        const smallViewport = mockSmallViewportHeight(800);
+        vi.useFakeTimers();
+
+        try {
+          await renderKeyboardDrawer();
+
+          const scroll = screen.getByTestId('scroll');
+          const input = screen.getByTestId('input');
+
+          mockScrollGeometry(scroll, input);
+          const scrollToSpy = vi.spyOn(scroll, 'scrollTo').mockImplementation(() => {});
+
+          await act(async () => {
+            input.focus();
+            smallViewport.set(500);
+            visualViewport.resize(500);
+            vi.advanceTimersToNextFrame();
+          });
+          await act(async () => {
+            innerHeight.resize(500);
+            await vi.advanceTimersByTimeAsync(2000);
+          });
+          expect(scrollToSpy).toHaveBeenCalledTimes(1);
+          scrollToSpy.mockClear();
+
+          // The keyboard gets shorter while staying open; the layout viewport follows later.
+          await act(async () => {
+            smallViewport.set(540);
+            visualViewport.resize(540);
+            vi.advanceTimersToNextFrame();
+            vi.advanceTimersToNextFrame();
+            vi.advanceTimersToNextFrame();
+          });
+          expect(scrollToSpy).not.toHaveBeenCalled();
+
+          await act(async () => {
+            innerHeight.resize(540);
+            vi.advanceTimersToNextFrame();
+            vi.advanceTimersToNextFrame();
+          });
+          expect(scrollToSpy).toHaveBeenCalledTimes(1);
+        } finally {
+          vi.useRealTimers();
+          smallViewport.restore();
+          visualViewport.restore();
+          innerHeight.restore();
+        }
+      },
+    );
+
+    it.skipIf(isJSDOM)(
       'does not treat a plain resize of both viewports as the software keyboard',
       async () => {
         const innerHeight = mockResizableInnerHeight(800);
