@@ -938,10 +938,11 @@ export function useListNavigation(
           }
 
           stopEvent(event);
-          store.setOpen(false, createChangeEventDetails(REASONS.focusOut, event.nativeEvent));
+          const details = createChangeEventDetails(REASONS.focusOut, event.nativeEvent);
+          store.setOpen(false, details);
 
           const returnElement = nestedReturnFocusRef?.current ?? domReferenceElement;
-          if (isHTMLElement(returnElement)) {
+          if (!details.isCanceled && isHTMLElement(returnElement)) {
             returnElement.focus();
           }
 

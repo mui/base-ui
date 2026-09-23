@@ -4959,6 +4959,55 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
         expect(screen.getByRole('button', { name: 'Actions' })).toHaveFocus();
       });
     });
+
+    it('keeps input focus when a Shift+Tab close is canceled', async () => {
+      const { user } = await render(
+        <Menu.FilterProvider>
+          <Menu.Root
+            defaultOpen
+            onOpenChange={(open, details) => {
+              if (!open) {
+                details.cancel();
+              }
+            }}
+          >
+            <Menu.Trigger>Actions</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.Input aria-label="Filter actions" />
+                  <Menu.List>
+                    <Menu.Item>Rename</Menu.Item>
+                  </Menu.List>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </Menu.FilterProvider>,
+      );
+
+      const input = screen.getByRole('searchbox', { name: 'Filter actions' });
+      await waitFor(() => {
+        expect(input).toHaveFocus();
+      });
+
+      if (isJSDOM) {
+        await user.tab({ shift: true });
+      } else {
+        const { userEvent: browserUser } = await import('vitest/browser');
+        await act(async () => {
+          await browserUser.keyboard('{Shift>}[Tab]{/Shift}');
+        });
+      }
+
+      expect(input).toHaveFocus();
+      expect(screen.getByRole('button', { name: 'Actions' })).toHaveAttribute(
+        'aria-expanded',
+        'true',
+      );
+      await user.type(input, 'r');
+      expect(input).toHaveValue('r');
+    });
   });
 
   describe('prop: keepMounted', () => {

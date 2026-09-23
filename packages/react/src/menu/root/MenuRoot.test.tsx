@@ -86,6 +86,38 @@ describe('<Menu.Root />', () => {
     expect(trigger).toHaveFocus();
   });
 
+  it('keeps focus in the menu when a Shift+Tab close is canceled', async () => {
+    const { user } = await render(
+      <Menu.Root
+        defaultOpen
+        onOpenChange={(open, details) => {
+          if (!open) {
+            details.cancel();
+          }
+        }}
+      >
+        <Menu.Trigger>Toggle</Menu.Trigger>
+        <Menu.Portal>
+          <Menu.Positioner>
+            <Menu.Popup>
+              <Menu.Item>Item</Menu.Item>
+            </Menu.Popup>
+          </Menu.Positioner>
+        </Menu.Portal>
+      </Menu.Root>,
+    );
+
+    const menu = screen.getByRole('menu');
+    await waitFor(() => {
+      expect(menu).toHaveFocus();
+    });
+
+    await user.tab({ shift: true });
+
+    expect(menu).toHaveFocus();
+    expect(screen.getByRole('button', { name: 'Toggle' })).toHaveAttribute('aria-expanded', 'true');
+  });
+
   popupConformanceTests({
     createComponent: (props) => (
       <Menu.Root {...props.root}>

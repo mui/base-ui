@@ -40,8 +40,9 @@ export function useMenuFilterReferenceKeyDown() {
       if (event.shiftKey) {
         stopEvent(event);
         const trigger = menuStore.state.activeTriggerElement;
-        menuStore.setOpen(false, createChangeEventDetails(REASONS.focusOut, event.nativeEvent));
-        if (isHTMLElement(trigger)) {
+        const details = createChangeEventDetails(REASONS.focusOut, event.nativeEvent);
+        menuStore.setOpen(false, details);
+        if (!details.isCanceled && isHTMLElement(trigger)) {
           trigger.focus();
         }
       }
