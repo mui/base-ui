@@ -969,7 +969,7 @@ describe('independent menu focus inside a filterable menu', () => {
       await waitFor(() => {
         expect(input).toHaveFocus();
       });
-      const clear = screen.getByRole('button', { name: 'Clear query' });
+      const clear = screen.getByLabelText('Clear query');
 
       await pressTab(user, false);
       await waitFor(() => {

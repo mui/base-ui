@@ -1483,7 +1483,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
       );
 
       // Clearing is rejected.
-      await user.click(screen.getByRole('button', { name: 'Clear filter' }));
+      await user.click(screen.getByLabelText('Clear filter'));
 
       expect(input).toHaveValue('app');
       expect(screen.getByRole('menuitem', { name: 'Apple' })).toBeVisible();
@@ -2641,7 +2641,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
       );
 
       expect(screen.getByRole('searchbox', { name: 'Filter fruit' })).toBeDisabled();
-      expect(screen.getByRole('button', { name: 'Clear filter' })).toBeDisabled();
+      expect(screen.getByLabelText('Clear filter')).toBeDisabled();
     });
 
     it('uses an updated custom filter function', async () => {
@@ -3537,7 +3537,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
       screen.getByRole('menuitem', { name: 'Banana' }).id,
     );
 
-    await user.click(screen.getByRole('button', { name: 'Clear filter' }));
+    await user.click(screen.getByLabelText('Clear filter'));
 
     // Apple takes index 0 back, so a kept highlight would activate the wrong item.
     await waitFor(() => {
@@ -4325,7 +4325,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
       const { user } = await renderReasonMenu(onValueChange);
 
       await user.type(screen.getByRole('searchbox', { name: 'Filter actions' }), 'r');
-      await user.click(screen.getByRole('button', { name: 'Clear filter' }));
+      await user.click(screen.getByLabelText('Clear filter'));
 
       expect(onValueChange).toHaveBeenLastCalledWith('', 'clear-press');
     });

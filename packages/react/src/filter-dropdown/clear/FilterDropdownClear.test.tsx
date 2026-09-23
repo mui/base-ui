@@ -49,11 +49,11 @@ describe('<FilterDropdown.Clear />', () => {
     );
 
     const input = screen.getByRole('searchbox', { name: 'Filter countries' });
-    await user.click(screen.getByRole('button', { name: 'Clear filter' }));
+    await user.click(screen.getByLabelText('Clear filter'));
 
     expect(input).toHaveValue('');
     expect(input).toHaveFocus();
-    expect(screen.queryByRole('button', { name: 'Clear filter' })).toBe(null);
+    expect(screen.queryByLabelText('Clear filter')).toBe(null);
     expect(onValueChange).toHaveBeenLastCalledWith(
       '',
       expect.objectContaining({ reason: 'clear-press' }),
@@ -70,7 +70,7 @@ describe('<FilterDropdown.Clear />', () => {
       </ControlledFilterDropdownRoot>,
     );
 
-    const clear = screen.getByRole('button', { name: 'Clear filter' });
+    const clear = screen.getByLabelText('Clear filter');
     expect(clear).toBeDisabled();
 
     await user.click(clear);

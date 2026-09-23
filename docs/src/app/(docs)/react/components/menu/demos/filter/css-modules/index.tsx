@@ -19,7 +19,7 @@ export default function ExampleMenuFilter() {
                   aria-label="Filter actions"
                   placeholder="e.g. Save"
                 />
-                <Menu.Clear className={styles.Clear} aria-label="Clear filter">
+                <Menu.Clear className={styles.Clear}>
                   <ClearIcon />
                 </Menu.Clear>
               </div>
@@ -154,7 +154,7 @@ function FilterableSubmenu(props: FilterableSubmenuProps) {
                   aria-label={props.inputLabel}
                   placeholder={props.placeholder}
                 />
-                <Menu.Clear className={styles.Clear} aria-label="Clear filter">
+                <Menu.Clear className={styles.Clear}>
                   <ClearIcon />
                 </Menu.Clear>
               </div>

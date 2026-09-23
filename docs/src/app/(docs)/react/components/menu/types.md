@@ -205,6 +205,7 @@ type MenuInputState = {
 ### Clear
 
 A button that clears the filter query. Renders nothing while the query is empty.
+It is excluded from the tab order and accessibility tree.
 Requires the menu to be wrapped in `Menu.FilterProvider`.
 Renders a `<button>` element.
 

@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { screen } from '@testing-library/react';
 import { expect, vi, describe, it } from 'vitest';
 import { Menu } from '@base-ui/react/menu';
 import { createRenderer, describeConformance } from '#test-utils';
@@ -52,6 +53,15 @@ describe('Menu filter parts conformance', () => {
     button: true,
     render: (node) => renderInPopup(node, { defaultValue: 'query' }),
   }));
+
+  it('excludes Clear from the tab order and accessibility tree', async () => {
+    await renderInPopup(<Menu.Clear aria-label="Clear filter" />, { defaultValue: 'query' });
+
+    const clear = screen.getByLabelText('Clear filter');
+    expect(clear).toHaveAttribute('tabindex', '-1');
+    expect(clear).toHaveAttribute('aria-hidden', 'true');
+    expect(screen.queryByRole('button', { name: 'Clear filter' })).toBe(null);
+  });
 
   describeConformance(<Menu.Empty />, () => ({
     refInstanceof: window.HTMLDivElement,

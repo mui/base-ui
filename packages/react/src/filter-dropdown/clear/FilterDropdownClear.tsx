@@ -46,6 +46,8 @@ export const FilterDropdownClear = React.forwardRef(function FilterDropdownClear
     ref: [forwardedRef, buttonRef],
     props: [
       {
+        tabIndex: -1,
+        'aria-hidden': true,
         onMouseDown(event) {
           // Avoid stealing focus from the input on pointer interaction.
           event.preventDefault();
