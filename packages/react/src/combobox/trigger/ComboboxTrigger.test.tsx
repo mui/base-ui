@@ -911,6 +911,104 @@ describe('<Combobox.Trigger />', () => {
   });
 
   describe('typeahead', () => {
+    it.each([
+      { keepMounted: false, hasOpened: false },
+      { keepMounted: true, hasOpened: false },
+      { keepMounted: false, hasOpened: true },
+      { keepMounted: true, hasOpened: true },
+    ])(
+      'skips disabled items when typing on a closed trigger (keepMounted: $keepMounted, hasOpened: $hasOpened)',
+      async ({ keepMounted, hasOpened }) => {
+        const onValueChange = vi.fn();
+        const { user } = await render(
+          <Combobox.Root
+            items={['apple', 'apricot', 'banana']}
+            defaultValue="banana"
+            onValueChange={onValueChange}
+          >
+            <Combobox.Trigger data-testid="trigger">
+              <Combobox.Value />
+            </Combobox.Trigger>
+            <Combobox.Portal keepMounted={keepMounted}>
+              <Combobox.Positioner>
+                <Combobox.Popup>
+                  <Combobox.Input data-testid="input" />
+                  <Combobox.List>
+                    {(item: string) => (
+                      <Combobox.Item key={item} value={item} disabled={item === 'apple'}>
+                        {item}
+                      </Combobox.Item>
+                    )}
+                  </Combobox.List>
+                </Combobox.Popup>
+              </Combobox.Positioner>
+            </Combobox.Portal>
+          </Combobox.Root>,
+        );
+
+        const trigger = screen.getByTestId('trigger');
+        await user.tab();
+        expect(trigger).toHaveFocus();
+
+        if (hasOpened) {
+          await user.click(trigger);
+          await screen.findByRole('option', { name: 'apple' });
+          await user.keyboard('{Escape}');
+        }
+
+        await waitFor(() => expect(trigger).toHaveFocus());
+
+        await user.keyboard('a');
+
+        expect(trigger).toHaveTextContent('apricot');
+        expect(onValueChange).toHaveBeenCalledExactlyOnceWith('apricot', expect.anything());
+        expect(trigger).toHaveAttribute('aria-expanded', 'false');
+
+        await user.click(trigger);
+        await user.type(screen.getByTestId('input'), 'ba');
+
+        expect(screen.getByRole('option', { name: 'banana' })).not.toBe(null);
+        expect(screen.queryByRole('option', { name: 'apricot' })).toBe(null);
+      },
+    );
+
+    it.each([false, true])(
+      'does not select when the only typeahead match is disabled (keepMounted: %s)',
+      async (keepMounted) => {
+        const onValueChange = vi.fn();
+        const { user } = await render(
+          <Combobox.Root defaultValue="banana" onValueChange={onValueChange}>
+            <Combobox.Trigger data-testid="trigger">
+              <Combobox.Value />
+            </Combobox.Trigger>
+            <Combobox.Portal keepMounted={keepMounted}>
+              <Combobox.Positioner>
+                <Combobox.Popup>
+                  <Combobox.Input />
+                  <Combobox.List>
+                    <Combobox.Item value="apple" disabled>
+                      apple
+                    </Combobox.Item>
+                    <Combobox.Item value="banana">banana</Combobox.Item>
+                  </Combobox.List>
+                </Combobox.Popup>
+              </Combobox.Positioner>
+            </Combobox.Portal>
+          </Combobox.Root>,
+        );
+
+        const trigger = screen.getByTestId('trigger');
+        await user.tab();
+        expect(trigger).toHaveFocus();
+
+        await user.keyboard('a');
+
+        expect(trigger).toHaveTextContent('banana');
+        expect(onValueChange).not.toHaveBeenCalled();
+        expect(trigger).toHaveAttribute('aria-expanded', 'false');
+      },
+    );
+
     it('selects item when typing on focused trigger (input inside popup)', async () => {
       const { user } = await render(
         <Combobox.Root items={['apple', 'banana', 'cherry']}>

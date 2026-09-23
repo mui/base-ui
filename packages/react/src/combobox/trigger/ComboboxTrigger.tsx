@@ -1,8 +1,10 @@
 'use client';
 import * as React from 'react';
+import * as ReactDOM from 'react-dom';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useTimeout } from '@base-ui/utils/useTimeout';
 import { ownerDocument } from '@base-ui/utils/owner';
+import { isElementDisabled } from '@base-ui/utils/isElementDisabled';
 import { BaseUIComponentProps, NativeButtonProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useButton } from '../../internals/use-button';
@@ -103,11 +105,14 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
     currentPointerTypeRef.current = event.pointerType;
   }
 
+  const typeaheadEnabled = !open && !readOnly && !comboboxDisabled && selectionMode === 'single';
+
   const { reference: triggerTypeaheadProps } = useTypeahead(floatingRootContext, {
     // Typeahead on a closed trigger commits a value rather than moving a highlight, so it stays
     // gated on `readOnly`.
-    enabled: !open && !readOnly && !comboboxDisabled && selectionMode === 'single',
+    enabled: typeaheadEnabled,
     listRef: store.context.labelsRef,
+    disabledIndices: (index) => isElementDisabled(store.context.listRef.current[index]),
     activeIndex,
     selectedIndex,
     onMatch(index) {
@@ -242,6 +247,21 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
           }
         },
         onKeyDown(event) {
+          if (
+            typeaheadEnabled &&
+            event.key.length === 1 &&
+            !event.ctrlKey &&
+            !event.metaKey &&
+            !event.altKey
+          ) {
+            // Register disabled states before typeahead matches, then restore derived labels.
+            if (!store.state.forceMounted) {
+              ReactDOM.flushSync(() => {
+                store.set('forceMounted', true);
+              });
+            }
+            store.context.forceMount();
+          }
           if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
             stopEvent(event);
             store.context.setOpen(
