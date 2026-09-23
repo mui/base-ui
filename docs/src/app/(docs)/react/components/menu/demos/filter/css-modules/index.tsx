@@ -19,9 +19,9 @@ export default function ExampleMenuFilter() {
                   aria-label="Filter actions"
                   placeholder="e.g. Save"
                 />
-                <Menu.InputClear className={styles.Clear} aria-label="Clear filter">
+                <Menu.Clear className={styles.Clear} aria-label="Clear filter">
                   <ClearIcon />
-                </Menu.InputClear>
+                </Menu.Clear>
               </div>
               <Menu.Empty className={styles.Empty}>No actions found.</Menu.Empty>
               <Menu.List className={styles.List}>
@@ -154,9 +154,9 @@ function FilterableSubmenu(props: FilterableSubmenuProps) {
                   aria-label={props.inputLabel}
                   placeholder={props.placeholder}
                 />
-                <Menu.InputClear className={styles.Clear} aria-label="Clear filter">
+                <Menu.Clear className={styles.Clear} aria-label="Clear filter">
                   <ClearIcon />
-                </Menu.InputClear>
+                </Menu.Clear>
               </div>
               <Menu.Empty className={styles.Empty}>{props.emptyText}</Menu.Empty>
               <Menu.List className={`${styles.List} ${styles.SubmenuList}`}>

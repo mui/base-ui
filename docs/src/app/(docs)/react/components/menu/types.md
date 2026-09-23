@@ -202,6 +202,41 @@ type MenuInputState = {
 };
 ```
 
+### Clear
+
+A button that clears the filter query. Renders nothing while the query is empty.
+Requires the menu to be wrapped in `Menu.FilterProvider`.
+Renders a `<button>` element.
+
+**Clear Props:**
+
+| Prop         | Type                                                                                     | Default | Description                                                                                                                                                                                   |
+| :----------- | :--------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| nativeButton | `boolean`                                                                                | `true`  | Whether the component renders a native `<button>` element when replacing it&#xA;via the `render` prop.&#xA;Set to `false` if the rendered element is not a button (for example, `<div>`).     |
+| disabled     | `boolean`                                                                                | `false` | Whether the component should ignore user interaction.                                                                                                                                         |
+| className    | `string \| ((state: Menu.Clear.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
+| style        | `React.CSSProperties \| ((state: Menu.Clear.State) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
+| render       | `ReactElement \| ((props: HTMLProps, state: Menu.Clear.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
+
+**Clear Data Attributes:**
+
+| Attribute     | Type | Description                          |
+| :------------ | :--- | :----------------------------------- |
+| data-disabled | -    | Present when the button is disabled. |
+
+### Clear.Props
+
+Re-export of [Clear](#clear) props.
+
+### Clear.State
+
+```typescript
+type MenuClearState = {
+  /** Whether the component should ignore user interaction. */
+  disabled: boolean;
+};
+```
+
 ### List
 
 A container for the menu items.
@@ -1129,7 +1164,7 @@ type ReturnValue = Menu.Handle<Payload>;
 ### FilterProvider
 
 Makes the menu directly inside it filterable: the popup can render `Menu.Input`,
-`Menu.InputClear`, and `Menu.Empty`, and the items inside `Menu.List` filter against
+`Menu.Clear`, and `Menu.Empty`, and the items inside `Menu.List` filter against
 the query.
 Wrap it around `Menu.Root` or `Menu.SubmenuRoot`. A submenu doesn't inherit it; wrap the
 submenu's root in its own provider to filter it too. This is the only part that bundles the
@@ -1213,41 +1248,6 @@ function close(): void;
 Closes the menu.
 
 This method should only be called in an event handler or an effect (not during rendering).
-
-### InputClear
-
-A button that clears the filter query. Renders nothing while the query is empty.
-Requires the menu to be wrapped in `Menu.FilterProvider`.
-Renders a `<button>` element.
-
-**InputClear Props:**
-
-| Prop         | Type                                                                                          | Default | Description                                                                                                                                                                                   |
-| :----------- | :-------------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| nativeButton | `boolean`                                                                                     | `true`  | Whether the component renders a native `<button>` element when replacing it&#xA;via the `render` prop.&#xA;Set to `false` if the rendered element is not a button (for example, `<div>`).     |
-| disabled     | `boolean`                                                                                     | `false` | Whether the component should ignore user interaction.                                                                                                                                         |
-| className    | `string \| ((state: Menu.InputClear.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
-| style        | `React.CSSProperties \| ((state: Menu.InputClear.State) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
-| render       | `ReactElement \| ((props: HTMLProps, state: Menu.InputClear.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
-
-**InputClear Data Attributes:**
-
-| Attribute     | Type | Description                          |
-| :------------ | :--- | :----------------------------------- |
-| data-disabled | -    | Present when the button is disabled. |
-
-### InputClear.Props
-
-Re-export of [InputClear](#inputclear) props.
-
-### InputClear.State
-
-```typescript
-type MenuInputClearState = {
-  /** Whether the component should ignore user interaction. */
-  disabled: boolean;
-};
-```
 
 ### LinkItem
 
@@ -1416,10 +1416,10 @@ type PayloadChildRenderFunction = (arg: { payload: unknown | undefined }) => Rea
 - `Menu.FilterProvider`: `Menu.FilterProvider`, `Menu.FilterProvider.Props`, `Menu.FilterProvider.InputValueChangeEventReason`, `Menu.FilterProvider.InputValueChangeEventDetails`
 - `Menu.Input`: `Menu.Input`, `Menu.Input.State`, `Menu.Input.Props`
 - `Menu.List`: `Menu.List`, `Menu.List.Props`, `Menu.List.State`
-- `Menu.InputClear`: `Menu.InputClear`, `Menu.InputClear.State`, `Menu.InputClear.Props`
+- `Menu.Clear`: `Menu.Clear`, `Menu.Clear.State`, `Menu.Clear.Props`
 - `Menu.Empty`: `Menu.Empty`, `Menu.Empty.State`, `Menu.Empty.Props`
 - `Menu.useFilter`
-- `Default`: `MenuFilterFunction`, `MenuFilter`, `MenuFilterOptions`, `MenuRootState`, `MenuRootProps`, `MenuRootActions`, `MenuRootChangeEventReason`, `MenuRootChangeEventDetails`, `MenuRootHighlightEventReason`, `MenuRootHighlightEventDetails`, `MenuRootOrientation`, `MenuParent`, `MenuArrowState`, `MenuArrowProps`, `MenuBackdropState`, `MenuBackdropProps`, `MenuCheckboxItemState`, `MenuCheckboxItemProps`, `MenuCheckboxItemChangeEventReason`, `MenuCheckboxItemChangeEventDetails`, `MenuCheckboxItemIndicatorProps`, `MenuCheckboxItemIndicatorState`, `MenuGroupLabelProps`, `MenuGroupLabelState`, `MenuGroupProps`, `MenuGroupState`, `MenuItemState`, `MenuItemProps`, `MenuLinkItemState`, `MenuLinkItemProps`, `MenuPopupProps`, `MenuPopupState`, `MenuPortalState`, `MenuPortalProps`, `MenuPositionerState`, `MenuPositionerProps`, `MenuRadioGroupProps`, `MenuRadioGroupState`, `MenuRadioGroupChangeEventReason`, `MenuRadioGroupChangeEventDetails`, `MenuRadioItemState`, `MenuRadioItemProps`, `MenuRadioItemIndicatorProps`, `MenuRadioItemIndicatorState`, `MenuSubmenuRootProps`, `MenuSubmenuRootState`, `MenuSubmenuRootChangeEventReason`, `MenuSubmenuRootChangeEventDetails`, `MenuTriggerProps`, `MenuTriggerState`, `MenuSubmenuTriggerState`, `MenuSubmenuTriggerProps`, `MenuViewportState`, `MenuViewportProps`, `MenuFilterProviderProps`, `MenuFilterProviderInputValueChangeEventReason`, `MenuFilterProviderInputValueChangeEventDetails`, `MenuInputState`, `MenuInputProps`, `MenuListState`, `MenuListProps`, `MenuInputClearState`, `MenuInputClearProps`, `MenuEmptyState`, `MenuEmptyProps`
+- `Default`: `MenuFilterFunction`, `MenuFilter`, `MenuFilterOptions`, `MenuRootState`, `MenuRootProps`, `MenuRootActions`, `MenuRootChangeEventReason`, `MenuRootChangeEventDetails`, `MenuRootHighlightEventReason`, `MenuRootHighlightEventDetails`, `MenuRootOrientation`, `MenuParent`, `MenuArrowState`, `MenuArrowProps`, `MenuBackdropState`, `MenuBackdropProps`, `MenuCheckboxItemState`, `MenuCheckboxItemProps`, `MenuCheckboxItemChangeEventReason`, `MenuCheckboxItemChangeEventDetails`, `MenuCheckboxItemIndicatorProps`, `MenuCheckboxItemIndicatorState`, `MenuGroupLabelProps`, `MenuGroupLabelState`, `MenuGroupProps`, `MenuGroupState`, `MenuItemState`, `MenuItemProps`, `MenuLinkItemState`, `MenuLinkItemProps`, `MenuPopupProps`, `MenuPopupState`, `MenuPortalState`, `MenuPortalProps`, `MenuPositionerState`, `MenuPositionerProps`, `MenuRadioGroupProps`, `MenuRadioGroupState`, `MenuRadioGroupChangeEventReason`, `MenuRadioGroupChangeEventDetails`, `MenuRadioItemState`, `MenuRadioItemProps`, `MenuRadioItemIndicatorProps`, `MenuRadioItemIndicatorState`, `MenuSubmenuRootProps`, `MenuSubmenuRootState`, `MenuSubmenuRootChangeEventReason`, `MenuSubmenuRootChangeEventDetails`, `MenuTriggerProps`, `MenuTriggerState`, `MenuSubmenuTriggerState`, `MenuSubmenuTriggerProps`, `MenuViewportState`, `MenuViewportProps`, `MenuFilterProviderProps`, `MenuFilterProviderInputValueChangeEventReason`, `MenuFilterProviderInputValueChangeEventDetails`, `MenuInputState`, `MenuInputProps`, `MenuListState`, `MenuListProps`, `MenuClearState`, `MenuClearProps`, `MenuEmptyState`, `MenuEmptyProps`
 
 ## Canonical Types
 
@@ -1482,7 +1482,7 @@ Maps `Canonical`: `Alias` — Use Canonical when its namespace is already import
 - `Menu.Input.Props`: `MenuInputProps`
 - `Menu.List.Props`: `MenuListProps`
 - `Menu.List.State`: `MenuListState`
-- `Menu.InputClear.State`: `MenuInputClearState`
-- `Menu.InputClear.Props`: `MenuInputClearProps`
+- `Menu.Clear.State`: `MenuClearState`
+- `Menu.Clear.Props`: `MenuClearProps`
 - `Menu.Empty.State`: `MenuEmptyState`
 - `Menu.Empty.Props`: `MenuEmptyProps`

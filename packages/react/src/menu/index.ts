@@ -23,7 +23,7 @@ export type * from './filter-provider/MenuFilterProvider';
 export type { MenuFilterFunction } from './filter-provider/MenuFilterProviderOptions';
 export type * from './input/MenuInput';
 export type * from './list/MenuList';
-export type * from './input-clear/MenuInputClear';
+export type * from './clear/MenuClear';
 export type * from './empty/MenuEmpty';
 export type {
   Filter as MenuFilter,

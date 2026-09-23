@@ -1443,7 +1443,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
               <Menu.Positioner>
                 <Menu.Popup>
                   <Menu.Input aria-label="Filter fruit" />
-                  <Menu.InputClear aria-label="Clear filter" />
+                  <Menu.Clear aria-label="Clear filter" />
                   <Menu.List>
                     <Menu.Item>Apple</Menu.Item>
                     <Menu.Item>Banana</Menu.Item>
@@ -2629,7 +2629,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
               <Menu.Positioner>
                 <Menu.Popup>
                   <Menu.Input aria-label="Filter fruit" />
-                  <Menu.InputClear aria-label="Clear filter" />
+                  <Menu.Clear aria-label="Clear filter" />
                   <Menu.List>
                     <Menu.Item>Apple</Menu.Item>
                   </Menu.List>
@@ -3515,7 +3515,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
             <Menu.Positioner>
               <Menu.Popup>
                 <Menu.Input aria-label="Filter actions" />
-                <Menu.InputClear aria-label="Clear filter" />
+                <Menu.Clear aria-label="Clear filter" />
                 <Menu.List>
                   <Menu.Item onClick={onClick}>Apple</Menu.Item>
                   <Menu.Item>Banana</Menu.Item>
@@ -4293,7 +4293,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
               <Menu.Positioner>
                 <Menu.Popup>
                   <Menu.Input aria-label="Filter actions" />
-                  <Menu.InputClear aria-label="Clear filter" />
+                  <Menu.Clear aria-label="Clear filter" />
                   <Menu.List>
                     <Menu.Item>Rename</Menu.Item>
                   </Menu.List>

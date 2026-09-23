@@ -47,7 +47,7 @@ describe('Menu filter parts conformance', () => {
     render: (node) => renderInPopup(node, undefined, false),
   }));
 
-  describeConformance(<Menu.InputClear />, () => ({
+  describeConformance(<Menu.Clear />, () => ({
     refInstanceof: window.HTMLButtonElement,
     button: true,
     render: (node) => renderInPopup(node, { defaultInputValue: 'query' }),
@@ -172,7 +172,7 @@ describe('Menu filter parts conformance', () => {
 
   it.each([
     ['Input', <Menu.Input />],
-    ['InputClear', <Menu.InputClear />],
+    ['Clear', <Menu.Clear />],
     ['Empty', <Menu.Empty />],
   ])('throws when <Menu.%s> is rendered without a filter provider', async (part, element) => {
     const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});

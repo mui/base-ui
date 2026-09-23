@@ -956,7 +956,7 @@ describe('independent menu focus inside a filterable menu', () => {
               <Menu.Positioner>
                 <Menu.Popup>
                   <Menu.Input aria-label="Filter actions" />
-                  <Menu.InputClear aria-label="Clear query" />
+                  <Menu.Clear aria-label="Clear query" />
                   <Menu.List>
                     <Menu.Item>Rename</Menu.Item>
                     <Menu.Item>Delete</Menu.Item>
