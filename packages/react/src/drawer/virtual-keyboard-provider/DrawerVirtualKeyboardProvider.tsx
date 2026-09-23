@@ -202,21 +202,9 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
     let keyboardVisualHeight = -1;
     let smallViewportProbe: HTMLElement | null = null;
 
-    // New Chrome on iOS also shrinks the small viewport unit for the keyboard and resizes the
-    // layout viewport to match, moving fixed content itself. Safari leaves it alone.
-    const layoutViewportFollowsKeyboard = (visualHeight: number) => {
-      if (!smallViewportProbe) {
-        smallViewportProbe = doc.createElement('div');
-        smallViewportProbe.style.cssText =
-          'position:fixed;top:0;width:0;height:100vh;height:100svh;visibility:hidden;pointer-events:none';
-        doc.body.appendChild(smallViewportProbe);
-      }
-      return smallViewportProbe.offsetHeight - visualHeight <= KEYBOARD_RESIZE_THRESHOLD;
-    };
-
-    // New Chrome on iOS shrinks the layout viewport to the visual viewport. Remember the
-    // keyboard's visual height so detection survives the overlap disappearing; a substantial
-    // change in visual height clears it.
+    // New Chrome on iOS shrinks `svh` for the keyboard, then the layout viewport down to the
+    // visual viewport, moving fixed content itself. Remembering the keyboard's visual height
+    // keeps it detected once the overlap is gone; a substantial change in visual height clears it.
     const getKeyboardViewport = (): KeyboardVisualViewport | null => {
       if (!visualViewport || visualViewport.scale !== 1) {
         return null;
@@ -231,20 +219,21 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
         return null;
       }
 
-      const top = Math.max(0, visualViewport.offsetTop);
-      if (layoutViewportFollowsKeyboard(visualViewport.height)) {
-        // The browser keeps fixed content above the keyboard, so an inset would lift it twice.
-        // The layout viewport shrinks all the way to the visual viewport, pausing on the way.
-        return {
-          top,
-          bottom: win.innerHeight,
-          resizing: win.innerHeight - visualViewport.height >= 1,
-        };
+      if (!smallViewportProbe) {
+        smallViewportProbe = doc.createElement('div');
+        smallViewportProbe.style.cssText = 'position:fixed;top:0;height:100svh;visibility:hidden';
+        doc.body.appendChild(smallViewportProbe);
       }
+      const layoutFollowsKeyboard =
+        smallViewportProbe.offsetHeight - visualViewport.height <= KEYBOARD_RESIZE_THRESHOLD;
+      const top = Math.max(0, visualViewport.offsetTop);
       return {
         top,
-        bottom: Math.min(win.innerHeight, top + visualViewport.height),
-        resizing: false,
+        // Fixed content already sits above the keyboard, so an inset would lift it twice.
+        bottom: layoutFollowsKeyboard
+          ? win.innerHeight
+          : Math.min(win.innerHeight, top + visualViewport.height),
+        resizing: layoutFollowsKeyboard && win.innerHeight - visualViewport.height >= 1,
       };
     };
     getKeyboardViewportRef.current = getKeyboardViewport;
