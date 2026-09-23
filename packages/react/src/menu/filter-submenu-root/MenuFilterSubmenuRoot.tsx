@@ -154,21 +154,6 @@ function MenuFilterSubmenuNavigation(props: MenuFilterSubmenuNavigationProps) {
   const wasMountedRef = React.useRef(false);
 
   const handleReturnFocus = useStableCallback(() => {
-    // With auto-focusing submenus, a sibling trigger under the pointer is about to open a popup
-    // that takes focus, so returning focus to the parent input in the meantime would only flash
-    // its highlight. If that submenu never opens, the parent popup reclaims focus on the next
-    // pointer move.
-    const activeIndex = parentStore.select('activeIndex');
-    const highlighted =
-      activeIndex == null ? null : parentStore.context.itemDomElements.current[activeIndex];
-    if (
-      store.context.virtualFocusAutoFocus &&
-      highlighted &&
-      highlighted.hasAttribute('aria-haspopup') &&
-      !store.context.triggerElements.hasElement(highlighted)
-    ) {
-      return false;
-    }
     // A plain parent has no input to return to. Focus the trigger this submenu opened from, as a
     // plain submenu does, so a hover close doesn't strand focus on the body.
     const [ownTrigger] = store.context.triggerElements.elements();

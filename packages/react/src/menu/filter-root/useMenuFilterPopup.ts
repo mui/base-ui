@@ -24,9 +24,9 @@ export function useMenuFilterPopup(
   const direction = useDirection();
   const { focusOwnerRef } = context;
 
-  // Focus that entered a nested popup by keyboard, click, or `autoFocus` stays there until that
-  // popup unmounts, so crossing this popup on the way to the submenu doesn't bounce focus between
-  // the two inputs. Focus that merely followed the pointer in follows it back out.
+  // Focus that entered a nested popup by keyboard, click, or `autoFocus` stays there while the
+  // pointer crosses the parent popup. Returning to a submenu trigger restores focus to the
+  // parent input. Focus that merely followed the pointer in follows it back out.
   const nestedFocusRef = React.useRef<Element | null>(null);
 
   React.useEffect(() => {
@@ -57,12 +57,8 @@ export function useMenuFilterPopup(
       }
 
       const activeEl = activeElement(ownerDocument(event.currentTarget));
-      // Only pull back focus that drifted outside the popup, unless a nested input retains it.
-      if (
-        activeEl === focusOwner ||
-        activeEl === nestedFocusRef.current ||
-        contains(event.currentTarget, activeEl)
-      ) {
+      // Only pull back focus that drifted outside the popup.
+      if (activeEl === focusOwner || contains(event.currentTarget, activeEl)) {
         return;
       }
 
@@ -83,9 +79,9 @@ export function useMenuFilterPopup(
       if (nearestPopup !== event.currentTarget) {
         return;
       }
-      // After a submenu that held focus unmounts, a sibling trigger under the pointer may be
-      // about to open a popup that takes focus, so leave focus alone until the pointer moves on.
-      if (overSubmenuTrigger && nestedFocusRef.current) {
+      // Keep intentional focus in nested popups unless the pointer returns to a submenu trigger,
+      // where the parent input should become the focus owner again.
+      if (nestedFocusRef.current && !overSubmenuTrigger) {
         return;
       }
       focusByPointer(focusOwner);

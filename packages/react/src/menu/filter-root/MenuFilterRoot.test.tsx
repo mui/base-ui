@@ -4698,6 +4698,8 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
       await waitFor(() => {
         expect(submenuInput).toHaveAttribute('data-highlighted');
       });
+      await user.click(submenuInput);
+      expect(submenuInput).toHaveFocus();
 
       // Back over the still-open submenu's trigger.
       fireEvent.mouseMove(submenuTrigger);
@@ -4708,6 +4710,53 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
       });
       expect(submenuInput).not.toHaveAttribute('data-highlighted');
       expect(submenuInput).toBeVisible();
+    });
+
+    it('restores the parent input highlight when the pointer returns from a plain submenu', async () => {
+      const { user } = await render(
+        <Menu.FilterProvider>
+          <Menu.Root defaultOpen>
+            <Menu.Trigger>Actions</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.Input aria-label="Filter actions" />
+                  <Menu.List>
+                    <Menu.SubmenuRoot>
+                      <Menu.SubmenuTrigger delay={0}>Share</Menu.SubmenuTrigger>
+                      <Menu.Portal>
+                        <Menu.Positioner>
+                          <Menu.Popup>
+                            <Menu.List>
+                              <Menu.Item>Email</Menu.Item>
+                            </Menu.List>
+                          </Menu.Popup>
+                        </Menu.Positioner>
+                      </Menu.Portal>
+                    </Menu.SubmenuRoot>
+                  </Menu.List>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </Menu.FilterProvider>,
+      );
+
+      const input = screen.getByRole('searchbox', { name: 'Filter actions' });
+      const trigger = screen.getByRole('menuitem', { name: 'Share' });
+      await user.hover(trigger);
+      const item = await screen.findByRole('menuitem', { name: 'Email' });
+      fireEvent.mouseMove(item);
+      expect(item).toHaveFocus();
+      await waitFor(() => {
+        expect(input).not.toHaveAttribute('data-highlighted');
+      });
+
+      fireEvent.mouseMove(trigger);
+      expect(input).toHaveFocus();
+      await waitFor(() => {
+        expect(input).toHaveAttribute('data-highlighted');
+      });
     });
 
     it('returns focus to the parent input once a pointer-opened submenu unmounts', async () => {
@@ -5005,7 +5054,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
       expect(secondInput).toHaveFocus();
     });
 
-    it('hands focus straight to the next auto-focusing submenu when the pointer moves between submenu triggers', async () => {
+    it('restores parent input focus before moving to the next auto-focusing submenu', async () => {
       const onRootInputFocus = vi.fn();
       const { user } = await render(
         <SiblingSubmenus autoFocus onRootInputFocus={onRootInputFocus} />,
@@ -5026,7 +5075,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
         expect(screen.getByRole('searchbox', { name: 'Filter Share' })).toHaveFocus();
       });
 
-      expect(onRootInputFocus).toHaveBeenCalledTimes(rootFocusCount);
+      expect(onRootInputFocus).toHaveBeenCalledTimes(rootFocusCount + 1);
       expect(screen.getByRole('searchbox', { name: 'Filter actions' })).not.toHaveAttribute(
         'data-highlighted',
       );
