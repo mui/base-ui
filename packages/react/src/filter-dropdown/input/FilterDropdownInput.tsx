@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import type { BaseUIComponentProps, BaseUIEvent } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
@@ -21,7 +20,7 @@ export const FilterDropdownInput = React.forwardRef(function FilterDropdownInput
   componentProps: FilterDropdownInput.Props,
   forwardedRef: React.ForwardedRef<HTMLInputElement>,
 ) {
-  const { render, className, style, disabled, autoFocus = false, ...elementProps } = componentProps;
+  const { render, className, style, disabled, ...elementProps } = componentProps;
 
   const context = useFilterDropdownRootContext();
   const { listRef } = useFilterDropdownItemContext();
@@ -29,16 +28,6 @@ export const FilterDropdownInput = React.forwardRef(function FilterDropdownInput
 
   const inputProps = context.store.useState('inputProps');
   const activeItemId = context.store.useState('activeItemId');
-
-  const { setInputAutoFocus } = context;
-
-  // `autoFocus` goes through the popup's initial focus so it applies on every open, including
-  // hover opens, and runs once the popup is positioned. React's native handling would focus the
-  // input at mount, before positioning, and scroll it into view. The report outlives the input:
-  // a closing popup still decides its return focus after the input has unmounted.
-  useIsoLayoutEffect(() => {
-    setInputAutoFocus(autoFocus);
-  }, [autoFocus, setInputAutoFocus]);
 
   const state: FilterDropdownInputState = {
     highlighted: context.inputFocusVisible && (!context.keyboardModality || activeItemId == null),

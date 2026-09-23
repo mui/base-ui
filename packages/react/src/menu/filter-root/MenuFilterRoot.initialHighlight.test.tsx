@@ -4,7 +4,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { Menu } from '@base-ui/react/menu';
 import { createRenderer, firePointer, resetBrowserPointer, waitSingleFrame } from '#test-utils';
 
-function Test(props: { autoFocus?: boolean; openOnHover?: boolean; onInputFocus?: () => void }) {
+function Test(props: { openOnHover?: boolean; onInputFocus?: () => void }) {
   return (
     <Menu.FilterProvider>
       <Menu.Root>
@@ -14,11 +14,7 @@ function Test(props: { autoFocus?: boolean; openOnHover?: boolean; onInputFocus?
         <Menu.Portal>
           <Menu.Positioner>
             <Menu.Popup>
-              <Menu.Input
-                aria-label="Filter actions"
-                autoFocus={props.autoFocus}
-                onFocus={props.onInputFocus}
-              />
+              <Menu.Input aria-label="Filter actions" onFocus={props.onInputFocus} />
               <Menu.Empty>No actions found.</Menu.Empty>
               <Menu.List>
                 <Menu.Item disabled>Unavailable</Menu.Item>
@@ -91,39 +87,35 @@ describe('filterable menu initial highlight', () => {
     expect(input).toHaveFocus();
   });
 
-  describe.each([false, true])('autoFocus=%s', (autoFocus) => {
-    it.each(['mouse', 'touch', 'pen'])('handles opening with %s', async (pointerType) => {
-      const onInputFocus = vi.fn();
-      await render(<Test autoFocus={autoFocus} onInputFocus={onInputFocus} />);
-      const trigger = screen.getByRole('button', { name: 'Actions' });
-      await act(async () => trigger.focus());
-      firePointer.down(trigger, { pointerType, timeStamp: 10 });
-      fireEvent.mouseDown(trigger, { detail: 1 });
-      firePointer.up(trigger, { pointerType, timeStamp: 20 });
-      fireEvent.mouseUp(trigger, { detail: 1 });
-      fireEvent.click(trigger, { detail: 1 });
+  it.each(['mouse', 'touch', 'pen'])('handles opening with %s', async (pointerType) => {
+    const onInputFocus = vi.fn();
+    await render(<Test onInputFocus={onInputFocus} />);
+    const trigger = screen.getByRole('button', { name: 'Actions' });
+    await act(async () => trigger.focus());
+    firePointer.down(trigger, { pointerType, timeStamp: 10 });
+    fireEvent.mouseDown(trigger, { detail: 1 });
+    firePointer.up(trigger, { pointerType, timeStamp: 20 });
+    fireEvent.mouseUp(trigger, { detail: 1 });
+    fireEvent.click(trigger, { detail: 1 });
 
-      const input = await screen.findByRole('searchbox', { name: 'Filter actions' });
-      await act(() => waitSingleFrame());
-      const shouldFocus = pointerType === 'mouse' || autoFocus;
-      await waitFor(() => expect(input.matches(':focus')).toBe(shouldFocus));
-      expect(onInputFocus.mock.calls.length > 0).toBe(shouldFocus);
-      expect(input).not.toHaveAttribute('aria-activedescendant');
-    });
+    const input = await screen.findByRole('searchbox', { name: 'Filter actions' });
+    await act(() => waitSingleFrame());
+    const shouldFocus = pointerType === 'mouse';
+    await waitFor(() => expect(input.matches(':focus')).toBe(shouldFocus));
+    expect(onInputFocus.mock.calls.length > 0).toBe(shouldFocus);
+    expect(input).not.toHaveAttribute('aria-activedescendant');
+  });
 
-    it('handles opening on hover', async () => {
-      const onInputFocus = vi.fn();
-      const { user } = await render(
-        <Test autoFocus={autoFocus} openOnHover onInputFocus={onInputFocus} />,
-      );
+  it('does not focus the input when opened on hover', async () => {
+    const onInputFocus = vi.fn();
+    const { user } = await render(<Test openOnHover onInputFocus={onInputFocus} />);
 
-      await user.hover(screen.getByRole('button', { name: 'Actions' }));
+    await user.hover(screen.getByRole('button', { name: 'Actions' }));
 
-      const input = await screen.findByRole('searchbox', { name: 'Filter actions' });
-      await act(() => waitSingleFrame());
-      await waitFor(() => expect(input.matches(':focus')).toBe(autoFocus));
-      expect(onInputFocus.mock.calls.length > 0).toBe(autoFocus);
-    });
+    const input = await screen.findByRole('searchbox', { name: 'Filter actions' });
+    await act(() => waitSingleFrame());
+    expect(input).not.toHaveFocus();
+    expect(onInputFocus).not.toHaveBeenCalled();
   });
 
   it('highlights the first action again when reopening', async () => {

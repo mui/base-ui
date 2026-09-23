@@ -47,8 +47,7 @@ export function useMenuFilterSubmenuTrigger(params: MenuFilterItemParams): MenuF
     if (
       event.type === 'click' &&
       store.select('open') &&
-      (store.context.virtualFocusAutoFocus ||
-        interactionType === 'keyboard' ||
+      (interactionType === 'keyboard' ||
         (interactionType === 'mouse' &&
           store.select('lastOpenChangeReason') === REASONS.triggerPress))
     ) {

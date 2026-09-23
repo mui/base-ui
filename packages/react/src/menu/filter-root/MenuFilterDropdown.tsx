@@ -42,11 +42,6 @@ export function MenuFilterDropdown(props: MenuFilterDropdownProps) {
     store.setActiveIndex(index, REASONS.none);
   });
 
-  // Only read when the popup takes focus, so it stays out of React state.
-  const setInputAutoFocus = useStableCallback((autoFocus: boolean) => {
-    store.context.virtualFocusAutoFocus = autoFocus;
-  });
-
   // The trigger announces a dialog and relays list navigation typed on it to the input, which
   // holds real focus while the popup is open.
   const filterTriggerProps = React.useMemo<HTMLProps>(
@@ -98,7 +93,6 @@ export function MenuFilterDropdown(props: MenuFilterDropdownProps) {
         activeIndex={activeIndex}
         setActiveIndex={setActiveIndex}
         inputRef={store.context.virtualFocusRef}
-        onInputAutoFocusChange={setInputAutoFocus}
       />
     </MenuFilterImplContext.Provider>
   );

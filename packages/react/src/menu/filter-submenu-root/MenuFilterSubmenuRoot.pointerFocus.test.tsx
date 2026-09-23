@@ -4,7 +4,7 @@ import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { Menu } from '@base-ui/react/menu';
 import { createRenderer, firePointer, resetBrowserPointer, waitSingleFrame } from '#test-utils';
 
-function Test(props: { filteredParent: boolean; autoFocus?: boolean; openOnHover?: boolean }) {
+function Test(props: { filteredParent: boolean; openOnHover?: boolean }) {
   const Provider = props.filteredParent ? Menu.FilterProvider : React.Fragment;
   return (
     <Provider>
@@ -23,10 +23,7 @@ function Test(props: { filteredParent: boolean; autoFocus?: boolean; openOnHover
                     <Menu.Portal>
                       <Menu.Positioner>
                         <Menu.Popup>
-                          <Menu.Input
-                            aria-label="Filter more actions"
-                            autoFocus={props.autoFocus}
-                          />
+                          <Menu.Input aria-label="Filter more actions" />
                           <Menu.List>
                             <Menu.Item>Share</Menu.Item>
                           </Menu.List>
@@ -64,31 +61,25 @@ describe.each([false, true])('submenu pointer focus with filteredParent=%s', (fi
   beforeEach(resetBrowserPointer);
   const { render } = createRenderer();
 
-  describe.each([false, true])('autoFocus=%s', (autoFocus) => {
-    it.each(['mouse', 'touch', 'pen'])(
-      'handles a %s press without hover opening',
-      async (pointerType) => {
-        await render(
-          <Test filteredParent={filteredParent} autoFocus={autoFocus} openOnHover={false} />,
-        );
-        await waitForParentFocus(filteredParent);
-        await press(screen.getByRole('menuitem', { name: 'More' }), pointerType);
-        const input = await screen.findByRole('searchbox', { name: 'Filter more actions' });
-        await act(() => waitSingleFrame());
-        await waitFor(() =>
-          expect(input.matches(':focus')).toBe(pointerType === 'mouse' || autoFocus),
-        );
-      },
-    );
-
-    it('handles a touch press with hover opening enabled', async () => {
-      await render(<Test filteredParent={filteredParent} autoFocus={autoFocus} />);
+  it.each(['mouse', 'touch', 'pen'])(
+    'handles a %s press without hover opening',
+    async (pointerType) => {
+      await render(<Test filteredParent={filteredParent} openOnHover={false} />);
       await waitForParentFocus(filteredParent);
-      await press(screen.getByRole('menuitem', { name: 'More' }), 'touch');
+      await press(screen.getByRole('menuitem', { name: 'More' }), pointerType);
       const input = await screen.findByRole('searchbox', { name: 'Filter more actions' });
       await act(() => waitSingleFrame());
-      await waitFor(() => expect(input.matches(':focus')).toBe(autoFocus));
-    });
+      await waitFor(() => expect(input.matches(':focus')).toBe(pointerType === 'mouse'));
+    },
+  );
+
+  it('does not focus the input after a touch press with hover opening enabled', async () => {
+    await render(<Test filteredParent={filteredParent} />);
+    await waitForParentFocus(filteredParent);
+    await press(screen.getByRole('menuitem', { name: 'More' }), 'touch');
+    const input = await screen.findByRole('searchbox', { name: 'Filter more actions' });
+    await act(() => waitSingleFrame());
+    expect(input).not.toHaveFocus();
   });
 
   it.each(['mouse', 'touch', 'pen'])(

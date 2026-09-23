@@ -61,8 +61,6 @@ type Context = PopupStoreContext<MenuRoot.ChangeEventDetails> & {
   allowMouseUpTriggerRef: React.RefObject<boolean>;
   /** The element that holds real focus while virtual list navigation is active. */
   virtualFocusRef: React.RefObject<HTMLElement | null> | undefined;
-  /** Whether the virtual focus owner takes focus even when the menu opens on hover. */
-  virtualFocusAutoFocus: boolean;
   readonly triggerFocusTargetRef: React.RefObject<HTMLElement | null>;
   readonly beforeTriggerFocusGuardRef: React.RefObject<HTMLElement | null>;
   readonly beforeContentFocusGuardRef: React.RefObject<HTMLElement | null>;
@@ -235,7 +233,6 @@ function createInitialContext(triggerElements: PopupTriggerMap): Context {
     highlightReason: 'none',
     allowMouseUpTriggerRef: { current: false },
     virtualFocusRef: undefined,
-    virtualFocusAutoFocus: false,
     triggerFocusTargetRef: React.createRef<HTMLElement>(),
     beforeTriggerFocusGuardRef: React.createRef<HTMLElement>(),
     beforeContentFocusGuardRef: React.createRef<HTMLElement>(),

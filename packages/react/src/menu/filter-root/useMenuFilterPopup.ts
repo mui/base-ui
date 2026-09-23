@@ -24,7 +24,7 @@ export function useMenuFilterPopup(
   const direction = useDirection();
   const { focusOwnerRef } = context;
 
-  // Focus that entered a nested popup by keyboard, click, or `autoFocus` stays there while the
+  // Focus that entered a nested popup by keyboard or click stays there while the
   // pointer crosses the parent popup. Returning to a submenu trigger restores focus to the
   // parent input. Focus that merely followed the pointer in follows it back out.
   const nestedFocusRef = React.useRef<Element | null>(null);

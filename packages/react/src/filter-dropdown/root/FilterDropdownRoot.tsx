@@ -42,7 +42,6 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
     setActiveIndex = NOOP,
     inputProps = EMPTY_OBJECT,
     inputRef: externalFocusOwnerRef,
-    onInputAutoFocusChange,
   } = props;
 
   const parentItemContext = React.useContext(FilterDropdownItemContext);
@@ -89,7 +88,6 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
     open && (autoHighlight === 'always' || (autoHighlight && filterQuery !== ''));
 
   const handleValueChange = useStableCallback(onValueChange ?? NOOP);
-  const setInputAutoFocus = useStableCallback(onInputAutoFocusChange ?? NOOP);
 
   const onItemsChange = useStableCallback((hasItems: boolean) => {
     setActiveIndex(autoHighlightEnabled && hasItems ? 0 : null);
@@ -185,7 +183,6 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
       setListId,
       focusOwnerRef,
       keyReplayRef,
-      setInputAutoFocus,
       setActiveIndex,
       onItemsChange,
       onValueChange: handleValueChange,
@@ -201,7 +198,6 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
       defaultListId,
       listId,
       focusOwnerRef,
-      setInputAutoFocus,
       setActiveIndex,
       onItemsChange,
       handleValueChange,
@@ -287,11 +283,6 @@ export interface FilterDropdownRootProps {
    * The host's ref for the filter input.
    */
   inputRef?: React.RefObject<HTMLElement | null> | undefined;
-  /**
-   * Reports whether the input asks to be focused whenever the popup opens.
-   * The last report stands after the input unmounts.
-   */
-  onInputAutoFocusChange?: ((autoFocus: boolean) => void) | undefined;
 }
 
 export namespace FilterDropdownRoot {

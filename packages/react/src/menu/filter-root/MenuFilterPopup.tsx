@@ -37,11 +37,7 @@ export const MenuFilterPopup = React.forwardRef(function MenuFilterPopup(
   let initialFocus: FloatingFocusManagerProps['initialFocus'] = false;
   if (shouldFocusPopup) {
     initialFocus = () => {
-      // Touch and pen openings require explicit autofocus.
-      if (
-        !store.context.virtualFocusAutoFocus &&
-        (openedByHover || openMethod === 'touch' || openMethod === 'pen')
-      ) {
+      if (openedByHover || openMethod === 'touch' || openMethod === 'pen') {
         return false;
       }
       return store.context.virtualFocusRef?.current ?? false;

@@ -27,8 +27,6 @@ export interface FilterDropdownRootContext {
   focusOwnerRef: React.RefObject<HTMLElement | null>;
   /** Set while the list hands a key back to the input, which refocuses it mid-navigation. */
   keyReplayRef: React.RefObject<boolean>;
-  /** Whether the input asks to be focused whenever the popup opens, hover opens included. */
-  setInputAutoFocus: (autoFocus: boolean) => void;
   setActiveIndex: (index: number | null) => void;
   onItemsChange: (hasItems: boolean) => void;
   onValueChange: (value: string, eventDetails: FilterDropdownRoot.ChangeEventDetails) => void;

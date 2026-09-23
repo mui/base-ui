@@ -5,7 +5,6 @@ import classes from './filtering-scope.module.css';
 
 export default function MenuFilteringScopeExperiment() {
   const [autoHighlight, setAutoHighlight] = React.useState(false);
-  const [focusOnHover, setFocusOnHover] = React.useState(false);
 
   return (
     <div className={classes.Page}>
@@ -23,16 +22,6 @@ export default function MenuFilteringScopeExperiment() {
         />
         autoHighlight
       </label>
-      <label className={classes.Option}>
-        <input
-          type="checkbox"
-          checked={focusOnHover}
-          onChange={(event) => setFocusOnHover(event.currentTarget.checked)}
-        />
-        Focus the submenu input when its trigger is hovered (Notion-like, via <code>autoFocus</code>
-        )
-      </label>
-
       <div className={classes.Examples}>
         <section className={classes.Example}>
           <h2>Root input only</h2>
@@ -43,7 +32,7 @@ export default function MenuFilteringScopeExperiment() {
         <section className={classes.Example}>
           <h2>Submenu input only</h2>
           <p>The root is a plain menu. Only the submenu filters.</p>
-          <SubmenuFilterOnly autoHighlight={autoHighlight} focusOnHover={focusOnHover} />
+          <SubmenuFilterOnly autoHighlight={autoHighlight} />
         </section>
 
         <section className={classes.Example}>
@@ -51,7 +40,7 @@ export default function MenuFilteringScopeExperiment() {
           <p>
             Every level filters. By default focus moves into a submenu once the pointer enters it.
           </p>
-          <NestedFilters autoHighlight={autoHighlight} focusOnHover={focusOnHover} />
+          <NestedFilters autoHighlight={autoHighlight} />
         </section>
       </div>
     </div>
@@ -92,7 +81,7 @@ function RootFilterOnly(props: { autoHighlight: boolean }) {
   );
 }
 
-function SubmenuFilterOnly(props: { autoHighlight: boolean; focusOnHover: boolean }) {
+function SubmenuFilterOnly(props: { autoHighlight: boolean }) {
   return (
     <Menu.Root>
       <Menu.Trigger className={classes.Trigger}>Open actions</Menu.Trigger>
@@ -108,11 +97,7 @@ function SubmenuFilterOnly(props: { autoHighlight: boolean; focusOnHover: boolea
                 <Menu.Portal>
                   <Menu.Positioner className={classes.Positioner} sideOffset={4}>
                     <Menu.Popup className={classes.Popup}>
-                      <Menu.Input
-                        className={classes.Input}
-                        aria-label="Filter destinations"
-                        autoFocus={props.focusOnHover}
-                      />
+                      <Menu.Input className={classes.Input} aria-label="Filter destinations" />
                       <Menu.List className={classes.List}>
                         <Menu.Item className={classes.Item}>Documents</Menu.Item>
                         <Menu.Item className={classes.Item}>Downloads</Menu.Item>
@@ -131,12 +116,7 @@ function SubmenuFilterOnly(props: { autoHighlight: boolean; focusOnHover: boolea
   );
 }
 
-function FilterableSubmenu(props: {
-  label: string;
-  items: string[];
-  autoHighlight: boolean;
-  focusOnHover: boolean;
-}) {
+function FilterableSubmenu(props: { label: string; items: string[]; autoHighlight: boolean }) {
   return (
     <Menu.FilterProvider autoHighlight={props.autoHighlight}>
       <Menu.SubmenuRoot>
@@ -149,7 +129,6 @@ function FilterableSubmenu(props: {
               <Menu.Input
                 className={classes.Input}
                 aria-label={`Filter ${props.label.toLowerCase()}`}
-                autoFocus={props.focusOnHover}
               />
               <Menu.List className={classes.List}>
                 {props.items.map((item) => (
@@ -166,7 +145,7 @@ function FilterableSubmenu(props: {
   );
 }
 
-function NestedFilters(props: { autoHighlight: boolean; focusOnHover: boolean }) {
+function NestedFilters(props: { autoHighlight: boolean }) {
   return (
     <Menu.FilterProvider autoHighlight={props.autoHighlight}>
       <Menu.Root>
