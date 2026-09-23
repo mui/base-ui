@@ -210,11 +210,12 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
         return null;
       }
 
-      if (win.innerHeight - visualViewport.height > KEYBOARD_RESIZE_THRESHOLD) {
-        keyboardVisualHeight = visualViewport.height;
-      } else if (
-        Math.abs(visualViewport.height - keyboardVisualHeight) > KEYBOARD_RESIZE_THRESHOLD
-      ) {
+      const layoutHeight = win.innerHeight;
+      const visualHeight = visualViewport.height;
+
+      if (layoutHeight - visualHeight > KEYBOARD_RESIZE_THRESHOLD) {
+        keyboardVisualHeight = visualHeight;
+      } else if (Math.abs(visualHeight - keyboardVisualHeight) > KEYBOARD_RESIZE_THRESHOLD) {
         keyboardVisualHeight = -1;
         return null;
       }
@@ -224,18 +225,19 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
         smallViewportProbe.style.cssText = 'position:fixed;top:0;height:100svh;visibility:hidden';
         doc.body.appendChild(smallViewportProbe);
       }
+
       const layoutFollowsKeyboard =
-        smallViewportProbe.offsetHeight - visualViewport.height <= KEYBOARD_RESIZE_THRESHOLD;
+        smallViewportProbe.offsetHeight - visualHeight <= KEYBOARD_RESIZE_THRESHOLD;
       const top = Math.max(0, visualViewport.offsetTop);
+
       return {
         top,
         // Fixed content already sits above the keyboard, so an inset would lift it twice.
-        bottom: layoutFollowsKeyboard
-          ? win.innerHeight
-          : Math.min(win.innerHeight, top + visualViewport.height),
-        resizing: layoutFollowsKeyboard && Math.abs(win.innerHeight - visualViewport.height) >= 1,
+        bottom: layoutFollowsKeyboard ? layoutHeight : Math.min(layoutHeight, top + visualHeight),
+        resizing: layoutFollowsKeyboard && Math.abs(layoutHeight - visualHeight) >= 1,
       };
     };
+
     getKeyboardViewportRef.current = getKeyboardViewport;
 
     const setDrawerKeyboardInset = (inset: number) => {
