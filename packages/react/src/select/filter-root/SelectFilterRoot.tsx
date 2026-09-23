@@ -114,7 +114,7 @@ export function SelectFilterRoot<Value, Multiple extends boolean | undefined = f
 /**
  * Determines whether an item matches the current filter query.
  *
- * @param text The item's `label`, rendered text, or one of its `keywords`.
+ * @param text The item's `label`, or its rendered text when the prop is not set.
  * @param query The trimmed filter query.
  */
 export type SelectFilterFunction = (text: string, query: string) => boolean;

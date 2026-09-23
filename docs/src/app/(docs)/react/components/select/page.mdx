@@ -269,13 +269,10 @@ import { DemoSelectFilter } from './demos/filter';
 
 #### Matching options
 
-Options match their text by default. Use `label` to override it and `keywords` to add search terms.
+Options match their text by default. Use `label` to override it.
 
-```jsx title="Labels and keywords"
-<Select.Item value="de" keywords={['Deutschland']}>
-  <Select.ItemText>Germany</Select.ItemText>
-</Select.Item>
-<Select.Item value="nl" label="Netherlands" keywords={['Holland']}>
+```jsx title="Labels"
+<Select.Item value="nl" label="Netherlands">
   <Select.ItemText>The Netherlands</Select.ItemText>
 </Select.Item>
 ```
@@ -283,7 +280,7 @@ Options match their text by default. Use `label` to override it and `keywords` t
 Empty groups are hidden. `<Select.FilterEmpty>` appears when no options match.
 
 Use `filter` to replace the default case-insensitive substring matching.
-It receives the trimmed query and each option's text or keywords, and keeps the option if any match.
+It receives each option's text and the trimmed query, and keeps the option when it returns `true`.
 
 ```jsx title="Custom matching"
 <Select.FilterProvider filter={(text, query) => text.startsWith(query)}>

@@ -262,16 +262,15 @@ export const SelectItem = React.memo(
     props: SelectItem.Props,
     forwardedRef: React.ForwardedRef<HTMLElement>,
   ) {
-    const { keywords, ...itemProps } = props;
     const useItemFilter = useSelectFilterImpl()?.useItem ?? useUnfilteredItem;
-    const filter = useItemFilter({ label: props.label, keywords, children: props.children });
+    const filter = useItemFilter({ label: props.label, children: props.children });
     const ref = useMergedRefs(forwardedRef, filter.ref);
     if (!filter.visible) {
       return null;
     }
     const plainProps = filter.props
-      ? mergeProps<typeof SelectItemPlain>(filter.props, itemProps)
-      : itemProps;
+      ? mergeProps<typeof SelectItemPlain>(filter.props, props)
+      : props;
     return <SelectItemPlain {...plainProps} ref={ref} />;
   }),
 );
@@ -310,11 +309,6 @@ export interface SelectItemProps
    * Defaults to the item text content if not provided.
    */
   label?: string | undefined;
-  /**
-   * Additional terms the item matches on when filtering inside `Select.FilterProvider`.
-   * A plain select ignores it.
-   */
-  keywords?: readonly string[] | undefined;
 }
 
 export namespace SelectItem {

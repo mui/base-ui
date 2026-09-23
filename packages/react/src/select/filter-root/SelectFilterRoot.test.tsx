@@ -166,7 +166,7 @@ describe('<Select.FilterProvider><Select.Root/></Select.FilterProvider>', () => 
       expect(input).toHaveFocus();
     });
 
-    it('matches items on their keywords', async () => {
+    it('matches items on their label', async () => {
       const { user } = await render(
         <Select.FilterProvider>
           <Select.Root defaultOpen>
@@ -178,7 +178,7 @@ describe('<Select.FilterProvider><Select.Root/></Select.FilterProvider>', () => 
                 <Select.Popup>
                   <Select.FilterInput aria-label="Filter" />
                   <Select.List>
-                    <Select.Item value="de" keywords={['Deutschland']}>
+                    <Select.Item value="de" label="Deutschland">
                       Germany
                     </Select.Item>
                     <Select.Item value="fr">France</Select.Item>
