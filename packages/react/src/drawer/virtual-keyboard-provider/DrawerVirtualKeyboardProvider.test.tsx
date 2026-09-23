@@ -3918,6 +3918,33 @@ describe('<Drawer.VirtualKeyboardProvider />', () => {
       );
     }
 
+    // New Chrome on iOS shrinks `svh` for the keyboard before resizing the layout viewport.
+    function mockSmallViewportHeight(initialHeight: number) {
+      const originalDescriptor = Object.getOwnPropertyDescriptor(
+        HTMLElement.prototype,
+        'offsetHeight',
+      )!;
+      let smallViewportHeight = initialHeight;
+
+      Object.defineProperty(HTMLElement.prototype, 'offsetHeight', {
+        configurable: true,
+        get(this: HTMLElement) {
+          return this.style.height === '100svh'
+            ? smallViewportHeight
+            : originalDescriptor.get!.call(this);
+        },
+      });
+
+      return {
+        set(nextHeight: number) {
+          smallViewportHeight = nextHeight;
+        },
+        restore() {
+          Object.defineProperty(HTMLElement.prototype, 'offsetHeight', originalDescriptor);
+        },
+      };
+    }
+
     function mockScrollGeometry(scroll: HTMLElement, input: HTMLElement) {
       Object.defineProperties(scroll, {
         clientHeight: { configurable: true, value: 380 },
@@ -3933,20 +3960,7 @@ describe('<Drawer.VirtualKeyboardProvider />', () => {
       async () => {
         const innerHeight = mockResizableInnerHeight(800);
         const visualViewport = mockVisualViewport(800);
-        // New Chrome on iOS shrinks `svh` for the keyboard before resizing the layout viewport.
-        let smallViewportHeight = 800;
-        const offsetHeight = Object.getOwnPropertyDescriptor(
-          HTMLElement.prototype,
-          'offsetHeight',
-        )!;
-        Object.defineProperty(HTMLElement.prototype, 'offsetHeight', {
-          configurable: true,
-          get(this: HTMLElement) {
-            return this.style.height === '100svh'
-              ? smallViewportHeight
-              : offsetHeight.get!.call(this);
-          },
-        });
+        const smallViewport = mockSmallViewportHeight(800);
         vi.useFakeTimers();
 
         try {
@@ -3962,7 +3976,7 @@ describe('<Drawer.VirtualKeyboardProvider />', () => {
 
           await act(async () => {
             input.focus();
-            smallViewportHeight = 500;
+            smallViewport.set(500);
             visualViewport.resize(500);
             vi.advanceTimersToNextFrame();
           });
@@ -3977,7 +3991,7 @@ describe('<Drawer.VirtualKeyboardProvider />', () => {
           expect(scroll.style.paddingBottom).toBe('20px');
         } finally {
           vi.useRealTimers();
-          Object.defineProperty(HTMLElement.prototype, 'offsetHeight', offsetHeight);
+          smallViewport.restore();
           visualViewport.restore();
           innerHeight.restore();
         }
@@ -4030,10 +4044,11 @@ describe('<Drawer.VirtualKeyboardProvider />', () => {
     );
 
     it.skipIf(isJSDOM)(
-      'scrolls the focused field once the layout viewport stops resizing',
+      'scrolls the focused field once the layout viewport reaches the visual viewport',
       async () => {
         const innerHeight = mockResizableInnerHeight(800);
         const visualViewport = mockVisualViewport(800);
+        const smallViewport = mockSmallViewportHeight(800);
         vi.useFakeTimers();
 
         try {
@@ -4047,25 +4062,32 @@ describe('<Drawer.VirtualKeyboardProvider />', () => {
 
           await act(async () => {
             input.focus();
+            smallViewport.set(500);
             visualViewport.resize(500);
             vi.advanceTimersToNextFrame();
           });
-          for (const height of [700, 600, 500]) {
-            // eslint-disable-next-line no-await-in-loop
-            await act(async () => {
-              innerHeight.resize(height);
-              vi.advanceTimersToNextFrame();
-            });
-          }
+          // The layout viewport can pause on its way down.
+          await act(async () => {
+            innerHeight.resize(700);
+            vi.advanceTimersToNextFrame();
+          });
+          await act(async () => {
+            innerHeight.resize(600);
+            vi.advanceTimersToNextFrame();
+            vi.advanceTimersToNextFrame();
+            vi.advanceTimersToNextFrame();
+          });
           expect(scrollToSpy).not.toHaveBeenCalled();
 
           await act(async () => {
+            innerHeight.resize(500);
             vi.advanceTimersToNextFrame();
             vi.advanceTimersToNextFrame();
           });
           expect(scrollToSpy).toHaveBeenCalledTimes(1);
         } finally {
           vi.useRealTimers();
+          smallViewport.restore();
           visualViewport.restore();
           innerHeight.restore();
         }

@@ -61,6 +61,8 @@ interface ScrollAdjustment {
 interface KeyboardVisualViewport {
   readonly top: number;
   readonly bottom: number;
+  // The browser is still shrinking the layout viewport for the keyboard.
+  readonly resizing: boolean;
 }
 
 interface KeyboardTouchTarget {
@@ -196,7 +198,6 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
     let keyboardScrollDestination = 0;
     let keyboardScrollChecks = 0;
     let keyboardScrollObserved = -1;
-    let keyboardScrollInnerHeight = -1;
     // Visual viewport height last seen while the keyboard overlapped the layout viewport.
     let keyboardVisualHeight = -1;
     let smallViewportProbe: HTMLElement | null = null;
@@ -231,12 +232,19 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
       }
 
       const top = Math.max(0, visualViewport.offsetTop);
+      if (layoutViewportFollowsKeyboard(visualViewport.height)) {
+        // The browser keeps fixed content above the keyboard, so an inset would lift it twice.
+        // The layout viewport shrinks all the way to the visual viewport, pausing on the way.
+        return {
+          top,
+          bottom: win.innerHeight,
+          resizing: win.innerHeight - visualViewport.height >= 1,
+        };
+      }
       return {
         top,
-        // The browser keeps fixed content above the keyboard, so an inset would lift it twice.
-        bottom: layoutViewportFollowsKeyboard(visualViewport.height)
-          ? win.innerHeight
-          : Math.min(win.innerHeight, top + visualViewport.height),
+        bottom: Math.min(win.innerHeight, top + visualViewport.height),
+        resizing: false,
       };
     };
     getKeyboardViewportRef.current = getKeyboardViewport;
@@ -372,11 +380,10 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
         (targetRect.top + targetRect.bottom - visibleTop - visibleBottom) / 2;
       const destination = Math.round(clamp(nextScrollTop, 0, maxScrollTop));
 
-      // New Chrome on iOS resizes the layout viewport across the keyboard animation, and WebKit
-      // restarts a smooth scroll re-issued on every frame of it, so wait for it to stop too.
+      // WebKit restarts a smooth scroll re-issued while the layout viewport resizes.
       const settled =
         keyboardScrollElement === scrollTarget &&
-        keyboardScrollInnerHeight === win.innerHeight &&
+        !keyboardViewport.resizing &&
         Math.abs(keyboardScrollDestination - destination) <= 1;
 
       if (!settled) {
@@ -389,7 +396,6 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
         const checks = keyboardScrollElement === scrollTarget ? keyboardScrollChecks + 1 : 1;
         keyboardScrollElement = scrollTarget;
         keyboardScrollDestination = destination;
-        keyboardScrollInnerHeight = win.innerHeight;
         keyboardScrollChecks = checks;
         keyboardScrollObserved = -1;
         // Re-check next frame; give up and scroll anyway if layout never settles.
@@ -415,7 +421,6 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
 
       keyboardScrollElement = scrollTarget;
       keyboardScrollDestination = destination;
-      keyboardScrollInnerHeight = win.innerHeight;
       keyboardScrollChecks = 0;
       keyboardScrollObserved = scrollTarget.scrollTop;
       animateKeyboardScroll(scrollTarget, destination);
