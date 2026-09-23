@@ -5078,7 +5078,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
     });
 
     it('closes and returns focus to the trigger on Shift+Tab from the input', async () => {
-      const { user } = await render(<QueryMenu modal={false} />);
+      const { user } = await render(<QueryMenu />);
 
       const input = screen.getByRole('searchbox', { name: 'Filter actions' });
       await waitFor(() => {

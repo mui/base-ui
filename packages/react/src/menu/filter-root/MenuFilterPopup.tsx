@@ -1,13 +1,11 @@
 'use client';
 import * as React from 'react';
-import { useStore } from '@base-ui/utils/store';
 import { useMenuFilterPopup } from './useMenuFilterPopup';
 import type { FloatingFocusManagerProps } from '../../floating-ui-react/components/FloatingFocusManager';
 import { MenuPopupPlain, type MenuPopupProps } from '../popup/MenuPopup';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { mergeProps } from '../../merge-props';
 import { REASONS } from '../../internals/reasons';
-import { selectTrapsFocus } from './selectTrapsFocus';
 
 /**
  * A container for the filter input and item list.
@@ -23,7 +21,6 @@ export const MenuFilterPopup = React.forwardRef(function MenuFilterPopup(
   const parent = store.useState('parent');
   const openMethod = store.useState('openMethod');
   const lastOpenChangeReason = store.useState('lastOpenChangeReason');
-  const trapsFocus = useStore(store, selectTrapsFocus);
 
   const interactionProps = useMenuFilterPopup(orientation);
 
@@ -58,7 +55,7 @@ export const MenuFilterPopup = React.forwardRef(function MenuFilterPopup(
       {...popupProps}
       role="dialog"
       initialFocus={initialFocus}
-      modal={trapsFocus}
+      modal={false}
       ref={forwardedRef}
     />
   );

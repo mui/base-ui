@@ -6,7 +6,6 @@ import { EMPTY_ARRAY } from '@base-ui/utils/empty';
 import { isHTMLElement } from '@floating-ui/utils/dom';
 import { useFilterDropdownItemContext } from '../../filter-dropdown/root/FilterDropdownRootContext';
 import { useMenuRootContext } from '../root/MenuRootContext';
-import { selectTrapsFocus } from './selectTrapsFocus';
 import { useDirection } from '../../internals/direction-context/DirectionContext';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
@@ -36,10 +35,9 @@ export function useMenuFilterReferenceKeyDown() {
 
     if (event.key === 'Tab') {
       // Mirror the plain menu: Shift+Tab closes the popup and returns focus to the trigger.
-      // The generic close branch in `useListNavigation` skips virtual focus, and a forward Tab
-      // already closes through focus-out once focus leaves the popup. A trapped popup keeps
-      // both Tabs inside instead.
-      if (event.shiftKey && !selectTrapsFocus(menuStore.state)) {
+      // The generic close branch in `useListNavigation` skips virtual focus. Forward Tab
+      // closes through focus-out once focus leaves the popup.
+      if (event.shiftKey) {
         stopEvent(event);
         const trigger = menuStore.state.activeTriggerElement;
         menuStore.setOpen(false, createChangeEventDetails(REASONS.focusOut, event.nativeEvent));

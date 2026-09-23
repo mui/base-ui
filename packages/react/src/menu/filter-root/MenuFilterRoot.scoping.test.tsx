@@ -816,7 +816,7 @@ describe('independent menu focus inside a filterable menu', () => {
     await waitFor(() => expect(screen.getByRole('button', { name: 'Independent' })).toHaveFocus());
   });
 
-  describe('focus trapping', () => {
+  describe('focus navigation', () => {
     // A real Tab keypress in the browser exercises the focus guards the way a user does.
     async function pressTab(
       user: { tab: (options?: { shift?: boolean }) => Promise<void> },
@@ -838,7 +838,7 @@ describe('independent menu focus inside a filterable menu', () => {
       return element.closest('[aria-hidden="true"], [inert]') !== null;
     }
 
-    function TrappedMenu(props: { modal?: boolean; submenu?: boolean }) {
+    function FocusMenu(props: { modal?: boolean; submenu?: boolean }) {
       return (
         <div>
           <Menu.FilterProvider>
@@ -923,79 +923,64 @@ describe('independent menu focus inside a filterable menu', () => {
       expect(isHiddenFromAssistiveTechnology(screen.getByTestId('after'))).toBe(false);
     });
 
-    it('keeps Tab inside a modal filterable popup', async () => {
-      const { user } = await render(<TrappedMenu />);
+    it('lets Tab leave a modal filterable popup and closes it', async () => {
+      const { user } = await render(<FocusMenu />);
       const input = screen.getByRole('searchbox', { name: 'Filter actions' });
       await waitFor(() => {
         expect(input).toHaveFocus();
       });
 
-      expect(isHiddenFromAssistiveTechnology(screen.getByTestId('after'))).toBe(true);
+      expect(isHiddenFromAssistiveTechnology(screen.getByTestId('after'))).toBe(false);
 
       await pressTab(user, false);
       await waitFor(() => {
-        expect(input).toHaveFocus();
+        expect(screen.getByTestId('after')).toHaveFocus();
       });
-      expect(screen.getByRole('menu')).not.toBe(null);
-
-      await pressTab(user, true);
       await waitFor(() => {
-        expect(input).toHaveFocus();
+        expect(screen.queryByRole('menu')).toBe(null);
       });
-      expect(screen.getByRole('menu')).not.toBe(null);
     });
 
-    it('reaches the clear button with Tab inside a trapped popup', async () => {
+    it('skips Clear when tabbing out of the popup', async () => {
       const { user } = await render(
-        <Menu.FilterProvider defaultValue="re">
-          <Menu.Root defaultOpen>
-            <Menu.Trigger>Actions</Menu.Trigger>
-            <Menu.Portal>
-              <Menu.Positioner>
-                <Menu.Popup>
-                  <Menu.Input aria-label="Filter actions" />
-                  <Menu.Clear aria-label="Clear query" />
-                  <Menu.List>
-                    <Menu.Item>Rename</Menu.Item>
-                    <Menu.Item>Delete</Menu.Item>
-                  </Menu.List>
-                </Menu.Popup>
-              </Menu.Positioner>
-            </Menu.Portal>
-          </Menu.Root>
-        </Menu.FilterProvider>,
+        <div>
+          <Menu.FilterProvider defaultValue="re">
+            <Menu.Root defaultOpen>
+              <Menu.Trigger>Actions</Menu.Trigger>
+              <Menu.Portal>
+                <Menu.Positioner>
+                  <Menu.Popup>
+                    <Menu.Input aria-label="Filter actions" />
+                    <Menu.Clear aria-label="Clear query" />
+                    <Menu.List>
+                      <Menu.Item>Rename</Menu.Item>
+                      <Menu.Item>Delete</Menu.Item>
+                    </Menu.List>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+          </Menu.FilterProvider>
+          <input data-testid="after" />
+        </div>,
       );
       const input = screen.getByRole('searchbox', { name: 'Filter actions' });
       await waitFor(() => {
         expect(input).toHaveFocus();
       });
-      const clear = screen.getByLabelText('Clear query');
+      expect(screen.getByLabelText('Clear query')).toHaveAttribute('tabindex', '-1');
 
       await pressTab(user, false);
       await waitFor(() => {
-        expect(clear).toHaveFocus();
+        expect(screen.getByTestId('after')).toHaveFocus();
       });
-
-      await pressTab(user, false);
       await waitFor(() => {
-        expect(input).toHaveFocus();
+        expect(screen.queryByRole('menu')).toBe(null);
       });
-
-      await pressTab(user, true);
-      await waitFor(() => {
-        expect(clear).toHaveFocus();
-      });
-
-      await user.keyboard('[Enter]');
-      await waitFor(() => {
-        expect(input).toHaveValue('');
-      });
-      expect(input).toHaveFocus();
-      expect(screen.queryByRole('button', { name: 'Clear query' })).toBe(null);
     });
 
-    it('closes a trapped popup with Escape and returns focus to the trigger', async () => {
-      const { user } = await render(<TrappedMenu />);
+    it('closes the popup with Escape and returns focus to the trigger', async () => {
+      const { user } = await render(<FocusMenu />);
       await waitFor(() => {
         expect(screen.getByRole('searchbox', { name: 'Filter actions' })).toHaveFocus();
       });
@@ -1011,7 +996,7 @@ describe('independent menu focus inside a filterable menu', () => {
     });
 
     it('lets Tab leave the popup with modal={false}', async () => {
-      const { user } = await render(<TrappedMenu modal={false} />);
+      const { user } = await render(<FocusMenu modal={false} />);
       const input = screen.getByRole('searchbox', { name: 'Filter actions' });
       await waitFor(() => {
         expect(input).toHaveFocus();
@@ -1054,8 +1039,8 @@ describe('independent menu focus inside a filterable menu', () => {
       expect(isHiddenFromAssistiveTechnology(screen.getByTestId('after'))).toBe(false);
     });
 
-    it('leaves a filterable submenu untrapped inside a trapped parent', async () => {
-      const { user } = await render(<TrappedMenu submenu />);
+    it('leaves a filterable submenu accessible inside its parent', async () => {
+      const { user } = await render(<FocusMenu submenu />);
       const input = screen.getByRole('searchbox', { name: 'Filter actions' });
       await waitFor(() => {
         expect(input).toHaveFocus();
@@ -1067,7 +1052,7 @@ describe('independent menu focus inside a filterable menu', () => {
       await waitFor(() => {
         expect(submenuInput).toHaveFocus();
       });
-      // The submenu runs no modal focus management of its own: the parent's still applies.
+      // The submenu runs no modal focus management of its own.
       expect(isHiddenFromAssistiveTechnology(screen.getByTestId('submenu-popup'))).toBe(false);
     });
   });
