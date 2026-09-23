@@ -444,6 +444,10 @@ const actionsRef = React.useRef<Menu.Root.Actions>(null);
 
 import { TypesMenu } from './types';
 
+### FilterProvider
+
+<TypesMenu.FilterProvider />
+
 ### Root
 
 <TypesMenu.Root />
@@ -477,6 +481,22 @@ The `Viewport` is optional — reach for it only when a single popup is opened b
 ### Arrow
 
 <TypesMenu.Arrow />
+
+### Input
+
+<TypesMenu.Input />
+
+### Clear
+
+<TypesMenu.Clear />
+
+### Empty
+
+<TypesMenu.Empty />
+
+### List
+
+<TypesMenu.List />
 
 ### Item
 
@@ -525,6 +545,12 @@ The `Viewport` is optional — reach for it only when a single popup is opened b
 ### Separator
 
 <TypesMenu.Separator />
+
+## useFilter
+
+When filtering items yourself, `Menu.useFilter` matches text according to the user's locale.
+
+<TypesMenu.useFilter hideDescription />
 
 ## createHandle
 
