@@ -382,6 +382,11 @@ export const SliderControl = React.forwardRef(function SliderControl(
   });
 
   const handleTouchStart = useStableCallback((nativeEvent: TouchEvent) => {
+    // Only the `touchstart` right after `pointerdown` belongs to the pointer gesture, so consume
+    // the flag here where it can't outlive a cancelled gesture.
+    const startedByPointer = pointerGestureRef.current;
+    pointerGestureRef.current = false;
+
     if (disabled) {
       return;
     }
@@ -400,7 +405,7 @@ export const SliderControl = React.forwardRef(function SliderControl(
 
     // The pointer handlers already started this gesture. Keep its state and only add the touch
     // listeners, which continue tracking the finger if the browser cancels the pointer.
-    if (!pointerGestureRef.current) {
+    if (!startedByPointer) {
       const fingerCoords = { x: touch.clientX, y: touch.clientY };
       startPressing(fingerCoords);
 
@@ -518,7 +523,8 @@ export const SliderControl = React.forwardRef(function SliderControl(
           }
 
           moveCountRef.current = 0;
-          pointerGestureRef.current = true;
+          // Mouse presses have no `touchstart` to consume the flag.
+          pointerGestureRef.current = event.pointerType !== 'mouse';
           const doc = ownerDocument(control);
           doc.addEventListener('pointermove', handleTouchMove, { passive: true });
           doc.addEventListener('pointerup', handleTouchEnd, { once: true });
