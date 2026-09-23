@@ -45,9 +45,7 @@ export const MenuListPlain = React.forwardRef(function MenuList(
 });
 
 /**
- * A container for the menu items.
- * When rendered, it takes the `menu` role from the popup, which lets the popup hold other
- * elements such as a filter input.
+ * Groups menu items so other content, such as a filter input, can share the popup.
  * Renders a `<div>` element.
  *
  * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)

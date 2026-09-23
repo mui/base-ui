@@ -139,7 +139,7 @@ export const FilterDropdownInput = React.forwardRef(function FilterDropdownInput
 export interface FilterDropdownInputState {
   /**
    * Whether the input shows its focus ring.
-   * Under keyboard modality it is cleared while an item is highlighted.
+   * Cleared when keyboard navigation highlights an item.
    */
   highlighted: boolean;
 }

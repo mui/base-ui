@@ -11,11 +11,9 @@ export type MenuFilterFunction = (text: string, query: string) => boolean;
 /** The filtering props of `Menu.FilterProvider`, applied to the root directly inside it. */
 export interface MenuFilterProviderOptions {
   /**
-   * Replaces the default case-insensitive substring matching while the filter root controls which
-   * registered items remain visible.
-   * Receives an item's label or rendered text together with the trimmed query, and keeps the item
-   * when it returns `true`.
-   * Pass `null` when filtering mapped items yourself and deciding which items to render.
+   * Replaces the default case-insensitive substring matching. Receives each item's label (or
+   * rendered text) and the trimmed query; return `true` to show the item.
+   * Pass `null` when rendering filtered items yourself.
    */
   filter?: MenuFilterFunction | null | undefined;
   /**

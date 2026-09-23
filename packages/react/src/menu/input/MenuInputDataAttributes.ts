@@ -1,5 +1,5 @@
 /**
  * Present while the input shows its focus ring.
- * Under keyboard modality it is cleared while an item is highlighted.
+ * Cleared when keyboard navigation highlights an item.
  */
 export const highlighted = 'data-highlighted';

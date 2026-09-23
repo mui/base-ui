@@ -343,7 +343,6 @@ import { DemoMenuDetachedTriggersFull } from './demos/detached-triggers-full';
 ### Filtering
 
 Wrap `<Menu.Root>` in `<Menu.FilterProvider>`, add `<Menu.Input>` to the popup, and put the items inside `<Menu.List>`.
-The popup uses a dialog role to contain both the input and the menu.
 
 ```jsx title="Filterable menu"
 <Menu.FilterProvider>
@@ -367,8 +366,7 @@ The popup uses a dialog role to contain both the input and the menu.
 ```
 
 Label the input with `aria-label`, `aria-labelledby`, or a visible `<label>`.
-Keyboard and screen reader activation highlight an item while keeping focus on the input.
-By default, arrow keys move between the input and items.
+Type to narrow the actions, then use the arrow keys to move through matching items.
 
 import { DemoMenuFilter } from './demos/filter';
 
@@ -522,8 +520,7 @@ The `Viewport` is optional — reach for it only when a single popup is opened b
 
 ## useFilter
 
-Matches items against a query using `Intl.Collator` for robust string matching.
-Use it when filtering items yourself with `filter={null}` on `<Menu.FilterProvider>`.
+When filtering items yourself, `Menu.useFilter` matches text according to the user's locale.
 
 <TypesMenu.useFilter hideDescription />
 

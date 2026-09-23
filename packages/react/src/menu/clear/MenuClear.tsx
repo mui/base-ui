@@ -8,10 +8,9 @@ import {
 import { useMenuFilterPart } from '../filter-root/MenuFilterContext';
 
 /**
- * A button that clears the filter query. Renders nothing while the query is empty.
- * It is excluded from the tab order and accessibility tree.
+ * A button that clears the input text.
  * Requires the menu to be wrapped in `Menu.FilterProvider`.
- * Renders a `<button>` element.
+ * Renders a `<button>` element when the input has text.
  *
  * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
  */

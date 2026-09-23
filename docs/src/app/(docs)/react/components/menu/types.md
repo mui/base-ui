@@ -181,9 +181,9 @@ Renders an `<input>` element.
 
 **Input Data Attributes:**
 
-| Attribute        | Type | Description                                                                                                           |
-| :--------------- | :--- | :-------------------------------------------------------------------------------------------------------------------- |
-| data-highlighted | -    | Present while the input shows its focus ring.&#xA;Under keyboard modality it is cleared while an item is highlighted. |
+| Attribute        | Type | Description                                                                                            |
+| :--------------- | :--- | :----------------------------------------------------------------------------------------------------- |
+| data-highlighted | -    | Present while the input shows its focus ring.&#xA;Cleared when keyboard navigation highlights an item. |
 
 ### Input.Props
 
@@ -195,7 +195,7 @@ Re-export of [Input](#input) props.
 type MenuInputState = {
   /**
    * Whether the input shows its focus ring.
-   * Under keyboard modality it is cleared while an item is highlighted.
+   * Cleared when keyboard navigation highlights an item.
    */
   highlighted: boolean;
 };
@@ -203,10 +203,9 @@ type MenuInputState = {
 
 ### Clear
 
-A button that clears the filter query. Renders nothing while the query is empty.
-It is excluded from the tab order and accessibility tree.
+A button that clears the input text.
 Requires the menu to be wrapped in `Menu.FilterProvider`.
-Renders a `<button>` element.
+Renders a `<button>` element when the input has text.
 
 **Clear Props:**
 
@@ -239,9 +238,7 @@ type MenuClearState = {
 
 ### List
 
-A container for the menu items.
-When rendered, it takes the `menu` role from the popup, which lets the popup hold other
-elements such as a filter input.
+Groups menu items so other content, such as a filter input, can share the popup.
 Renders a `<div>` element.
 
 **List Props:**
@@ -685,9 +682,7 @@ type MenuSeparatorState = {
 
 ### Empty
 
-A message shown when no items match the filter query and announced politely to screen readers.
-Renders nothing while items match, so screen readers don't count an empty node
-among the popup's contents.
+A message shown when the menu has no matching items.
 Requires the menu to be wrapped in `Menu.FilterProvider`.
 Renders a `<div>` element.
 
@@ -1163,25 +1158,22 @@ type ReturnValue = Menu.Handle<Payload>;
 
 ### FilterProvider
 
-Makes the menu directly inside it filterable: the popup can render `Menu.Input`,
-`Menu.Clear`, and `Menu.Empty`, and the items inside `Menu.List` filter against
-the query.
-Wrap it around `Menu.Root` or `Menu.SubmenuRoot`. A submenu doesn't inherit it; wrap the
-submenu's root in its own provider to filter it too. This is the only part that bundles the
-filter implementation.
+Enables filtering for the menu or submenu it wraps. Add `Menu.Input` to the popup and place
+its items in `Menu.List`.
+Wrap each searchable submenu in its own provider.
 Doesn't render its own HTML element.
 
 **FilterProvider Props:**
 
-| Prop          | Type                                                                                   | Default | Description                                                                                                                                                                                                                                                                                                                                               |
-| :------------ | :------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| defaultValue  | `string`                                                                               | -       | The uncontrolled filter query when the menu is initially rendered.&#xA;To render a controlled query, use the `value` prop instead.                                                                                                                                                                                                                        |
-| value         | `string`                                                                               | -       | The filter query. Use when controlled.&#xA;When the popup closes, `onValueChange` is called with an empty query. The controlled&#xA;value changes only when the consumer updates this prop.                                                                                                                                                               |
-| onValueChange | `((value: string, eventDetails: Menu.FilterProvider.ValueChangeEventDetails) => void)` | -       | Event handler called when the filter query changes.                                                                                                                                                                                                                                                                                                       |
-| autoHighlight | `boolean \| 'always'`                                                                  | `false` | Whether the first matching item is highlighted automatically. `true`: highlight after the user types and keep the highlight while the query changes.`'always'`: always highlight the first item.                                                                                                                                                          |
-| filter        | `MenuFilterFunction \| null`                                                           | -       | Replaces the default case-insensitive substring matching while the filter root controls which&#xA;registered items remain visible.&#xA;Receives an item's label or rendered text together with the trimmed query, and keeps the item&#xA;when it returns `true`.&#xA;Pass `null` when filtering mapped items yourself and deciding which items to render. |
-| locale        | `Intl.LocalesArgument`                                                                 | -       | Locale used when comparing an item against the query.&#xA;Defaults to the runtime's default locale.                                                                                                                                                                                                                                                       |
-| children      | `React.ReactNode`                                                                      | -       | -                                                                                                                                                                                                                                                                                                                                                         |
+| Prop          | Type                                                                                   | Default | Description                                                                                                                                                                                                                |
+| :------------ | :------------------------------------------------------------------------------------- | :------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| defaultValue  | `string`                                                                               | -       | The uncontrolled filter query when the menu is initially rendered.&#xA;To render a controlled query, use the `value` prop instead.                                                                                         |
+| value         | `string`                                                                               | -       | The filter query. Use when controlled.&#xA;When the popup closes, `onValueChange` is called with an empty query. The controlled&#xA;value changes only when the consumer updates this prop.                                |
+| onValueChange | `((value: string, eventDetails: Menu.FilterProvider.ValueChangeEventDetails) => void)` | -       | Event handler called when the filter query changes.                                                                                                                                                                        |
+| autoHighlight | `boolean \| 'always'`                                                                  | `false` | Whether the first matching item is highlighted automatically. `true`: highlight after the user types and keep the highlight while the query changes.`'always'`: always highlight the first item.                           |
+| filter        | `MenuFilterFunction \| null`                                                           | -       | Replaces the default case-insensitive substring matching. Receives each item's label (or&#xA;rendered text) and the trimmed query; return `true` to show the item.&#xA;Pass `null` when rendering filtered items yourself. |
+| locale        | `Intl.LocalesArgument`                                                                 | -       | Locale used when comparing an item against the query.&#xA;Defaults to the runtime's default locale.                                                                                                                        |
+| children      | `React.ReactNode`                                                                      | -       | -                                                                                                                                                                                                                          |
 
 ### FilterProvider.Props
 
