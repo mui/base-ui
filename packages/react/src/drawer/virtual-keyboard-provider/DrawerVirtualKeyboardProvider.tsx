@@ -216,7 +216,6 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
       } else if (
         Math.abs(visualViewport.height - keyboardVisualHeight) > KEYBOARD_RESIZE_THRESHOLD
       ) {
-        // Treat small viewport changes as browser chrome movement, not the software keyboard.
         keyboardVisualHeight = -1;
         return null;
       }
@@ -538,10 +537,10 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
       cleanupListeners.push(
         addEventListener(visualViewport, 'resize', handleViewportUpdate),
         addEventListener(visualViewport, 'scroll', handleViewportUpdate),
+        // Chrome can keep resizing the layout viewport after visual viewport events stop.
+        addEventListener(win, 'resize', handleViewportUpdate),
       );
     }
-    // Chrome can keep resizing the layout viewport after visual viewport events stop.
-    cleanupListeners.push(addEventListener(win, 'resize', handleViewportUpdate));
 
     const handleWindowScroll = () => {
       if (restoreWindowScroll()) {

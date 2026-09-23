@@ -4122,5 +4122,67 @@ describe('<Drawer.VirtualKeyboardProvider />', () => {
         }
       },
     );
+
+    it.skipIf(isJSDOM)(
+      'preserves native taps while the keyboard is open and refocuses once it closes',
+      async () => {
+        const innerHeight = mockResizableInnerHeight(800);
+        const visualViewport = mockVisualViewport(800);
+        vi.useFakeTimers();
+
+        try {
+          await renderKeyboardDrawer();
+
+          const input = screen.getByTestId('input');
+
+          const tap = async () => {
+            fireEvent.touchStart(input, {
+              touches: [createTouch(input, { clientX: 0, clientY: 0 })],
+            });
+            const touchEnd = createNativeTouchEnd(input, { clientX: 0, clientY: 0 });
+            await act(async () => {
+              input.dispatchEvent(touchEnd);
+            });
+            return touchEnd;
+          };
+
+          await act(async () => {
+            input.focus();
+            visualViewport.resize(500);
+            vi.advanceTimersToNextFrame();
+          });
+          await act(async () => {
+            innerHeight.resize(500);
+            await vi.advanceTimersByTimeAsync(200);
+          });
+
+          const focusSpy = vi.spyOn(input, 'focus');
+          const originalElementFromPoint = document.elementFromPoint;
+          document.elementFromPoint = () => input;
+
+          try {
+            // The overlap is gone, but the keyboard is still open.
+            expect((await tap()).defaultPrevented).toBe(false);
+            expect(focusSpy).not.toHaveBeenCalled();
+
+            await act(async () => {
+              visualViewport.resize(800);
+              innerHeight.resize(800);
+              await vi.advanceTimersByTimeAsync(200);
+            });
+
+            expect((await tap()).defaultPrevented).toBe(true);
+            expect(focusSpy).toHaveBeenCalledWith({ preventScroll: true });
+          } finally {
+            document.elementFromPoint = originalElementFromPoint;
+            focusSpy.mockRestore();
+          }
+        } finally {
+          vi.useRealTimers();
+          visualViewport.restore();
+          innerHeight.restore();
+        }
+      },
+    );
   });
 });
