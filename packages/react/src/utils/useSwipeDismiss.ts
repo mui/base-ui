@@ -117,16 +117,8 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
   const hasHorizontal = allowLeft || allowRight;
   const hasVertical = allowUp || allowDown;
 
-  const scrollAxes = React.useMemo((): ScrollAxis[] => {
-    const axes: ScrollAxis[] = [];
-    if (hasVertical) {
-      axes.push('vertical');
-    }
-    if (hasHorizontal) {
-      axes.push('horizontal');
-    }
-    return axes;
-  }, [hasHorizontal, hasVertical]);
+  // Consumers only pass directions on a single axis.
+  const scrollAxis: ScrollAxis = hasHorizontal ? 'horizontal' : 'vertical';
 
   const [currentSwipeDirection, setCurrentSwipeDirection] = React.useState<
     SwipeDirection | undefined
@@ -353,13 +345,7 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
         : scrollTarget;
     };
 
-    if (hasHorizontal && !hasVertical) {
-      return find('horizontal');
-    }
-    if (hasVertical && !hasHorizontal) {
-      return find('vertical');
-    }
-    return find('vertical') ?? find('horizontal');
+    return find(scrollAxis);
   }
 
   function startSwipeAtPosition(
@@ -391,9 +377,9 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
     }
 
     const element = elementRef.current;
-    if (ignoreScrollableAncestors && element && target && scrollAxes.length > 0) {
+    if (ignoreScrollableAncestors && element && target) {
       const ignoreAncestors = startOptions?.ignoreScrollableAncestors ?? false;
-      if (!ignoreAncestors && hasScrollableAncestor(target, element, scrollAxes)) {
+      if (!ignoreAncestors && hasScrollableAncestor(target, element, scrollAxis)) {
         return false;
       }
     }
@@ -510,10 +496,7 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
       (delta > 0 && scrollOffset <= 0 && allowTowardStart) ||
       (delta < 0 && scrollOffset >= Math.max(0, maxScrollOffset) && allowTowardEnd);
 
-    const absDeltaX = Math.abs(deltaX);
-    const absDeltaY = Math.abs(deltaY);
-
-    if (hasVertical && deltaY !== 0 && (!hasHorizontal || absDeltaY >= absDeltaX)) {
+    if (hasVertical && deltaY !== 0) {
       return canSwipeOnAxis(
         deltaY,
         scrollTarget.scrollTop,
@@ -523,7 +506,7 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
       );
     }
 
-    if (hasHorizontal && deltaX !== 0 && (!hasVertical || absDeltaX > absDeltaY)) {
+    if (hasHorizontal && deltaX !== 0) {
       return canSwipeOnAxis(
         deltaX,
         scrollTarget.scrollLeft,

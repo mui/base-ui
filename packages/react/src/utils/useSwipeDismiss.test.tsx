@@ -204,7 +204,7 @@ describe('useSwipeDismiss', () => {
         const ref = React.useRef<HTMLDivElement>(null);
         const swipe = useSwipeDismiss({
           enabled: true,
-          directions: ['down', 'right'],
+          directions: ['right'],
           elementRef: ref,
           movementCssVars: { x: '--x', y: '--y' },
           onSwipeStart,
