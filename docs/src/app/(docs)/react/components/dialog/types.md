@@ -408,6 +408,168 @@ Closes the dialog.
 
 This method should only be called in an event handler or an effect (not during rendering).
 
+## Additional Types
+
+### DialogBackdropDataAttributes.closed
+
+Present when the dialog is closed.
+
+```typescript
+type DialogBackdropDataAttributesclosed = 'data-closed';
+```
+
+### DialogBackdropDataAttributes.endingStyle
+
+Present when the dialog is animating out.
+
+```typescript
+type DialogBackdropDataAttributesendingStyle = 'data-ending-style';
+```
+
+### DialogBackdropDataAttributes.open
+
+Present when the dialog is open.
+
+```typescript
+type DialogBackdropDataAttributesopen = 'data-open';
+```
+
+### DialogBackdropDataAttributes.startingStyle
+
+Present when the dialog begins animating in.
+
+```typescript
+type DialogBackdropDataAttributesstartingStyle = 'data-starting-style';
+```
+
+### DialogCloseDataAttributes.disabled
+
+Present when the button is disabled.
+
+```typescript
+type DialogCloseDataAttributesdisabled = 'data-disabled';
+```
+
+### DialogPopupCssVariables.nestedDialogs
+
+Indicates how many dialogs are nested within.
+
+```typescript
+type DialogPopupCssVariablesnestedDialogs = '--nested-dialogs';
+```
+
+### DialogPopupDataAttributes.closed
+
+Present when the dialog is closed.
+
+```typescript
+type DialogPopupDataAttributesclosed = 'data-closed';
+```
+
+### DialogPopupDataAttributes.endingStyle
+
+Present when the dialog is animating out.
+
+```typescript
+type DialogPopupDataAttributesendingStyle = 'data-ending-style';
+```
+
+### DialogPopupDataAttributes.nested
+
+Present when the dialog is nested within another dialog.
+
+```typescript
+type DialogPopupDataAttributesnested = 'data-nested';
+```
+
+### DialogPopupDataAttributes.nestedDialogOpen
+
+Present when the dialog has other open dialogs nested within it.
+
+```typescript
+type DialogPopupDataAttributesnestedDialogOpen = 'data-nested-dialog-open';
+```
+
+### DialogPopupDataAttributes.open
+
+Present when the dialog is open.
+
+```typescript
+type DialogPopupDataAttributesopen = 'data-open';
+```
+
+### DialogPopupDataAttributes.startingStyle
+
+Present when the dialog begins animating in.
+
+```typescript
+type DialogPopupDataAttributesstartingStyle = 'data-starting-style';
+```
+
+### DialogTriggerDataAttributes.disabled
+
+Present when the trigger is disabled.
+
+```typescript
+type DialogTriggerDataAttributesdisabled = 'data-disabled';
+```
+
+### DialogTriggerDataAttributes.popupOpen
+
+Present when the corresponding dialog is open.
+
+```typescript
+type DialogTriggerDataAttributespopupOpen = 'data-popup-open';
+```
+
+### DialogViewportDataAttributes.closed
+
+Present when the dialog is closed.
+
+```typescript
+type DialogViewportDataAttributesclosed = 'data-closed';
+```
+
+### DialogViewportDataAttributes.endingStyle
+
+Present when the dialog is animating out.
+
+```typescript
+type DialogViewportDataAttributesendingStyle = 'data-ending-style';
+```
+
+### DialogViewportDataAttributes.nested
+
+Present when the dialog is nested within another dialog.
+
+```typescript
+type DialogViewportDataAttributesnested = 'data-nested';
+```
+
+### DialogViewportDataAttributes.nestedDialogOpen
+
+Present when the dialog has other open dialogs nested within it.
+
+```typescript
+type DialogViewportDataAttributesnestedDialogOpen = 'data-nested-dialog-open';
+```
+
+### DialogViewportDataAttributes.open
+
+Present when the dialog is open.
+
+```typescript
+type DialogViewportDataAttributesopen = 'data-open';
+```
+
+### DialogViewportDataAttributes.startingStyle
+
+Present when the dialog begins animating in.
+
+```typescript
+type DialogViewportDataAttributesstartingStyle = 'data-starting-style';
+```
+
 ## External Types
 
 ### InteractionType
@@ -435,7 +597,7 @@ type PayloadChildRenderFunction = (arg: { payload: unknown | undefined }) => Rea
 - `Dialog.Trigger`: `Dialog.Trigger`, `Dialog.Trigger.Props`, `Dialog.Trigger.State`
 - `Dialog.createHandle`
 - `Dialog.Handle`
-- `Default`: `DialogRootState`, `DialogRootProps`, `DialogRootActions`, `DialogRootChangeEventReason`, `DialogRootChangeEventDetails`, `DialogTriggerProps`, `DialogTriggerState`, `DialogPortalState`, `DialogPortalProps`, `DialogPopupProps`, `DialogPopupState`, `DialogBackdropProps`, `DialogBackdropState`, `DialogTitleProps`, `DialogTitleState`, `DialogDescriptionProps`, `DialogDescriptionState`, `DialogCloseProps`, `DialogCloseState`, `DialogViewportState`, `DialogViewportProps`
+- `Default`: `DialogBackdropDataAttributes.open`, `DialogBackdropDataAttributes.closed`, `DialogBackdropDataAttributes.startingStyle`, `DialogBackdropDataAttributes.endingStyle`, `DialogCloseDataAttributes.disabled`, `DialogPopupCssVariables.nestedDialogs`, `DialogPopupDataAttributes.open`, `DialogPopupDataAttributes.closed`, `DialogPopupDataAttributes.startingStyle`, `DialogPopupDataAttributes.endingStyle`, `DialogPopupDataAttributes.nested`, `DialogPopupDataAttributes.nestedDialogOpen`, `DialogViewportDataAttributes.open`, `DialogViewportDataAttributes.closed`, `DialogViewportDataAttributes.startingStyle`, `DialogViewportDataAttributes.endingStyle`, `DialogViewportDataAttributes.nested`, `DialogViewportDataAttributes.nestedDialogOpen`, `DialogTriggerDataAttributes.disabled`, `DialogTriggerDataAttributes.popupOpen`, `DialogRootState`, `DialogRootProps`, `DialogRootActions`, `DialogRootChangeEventReason`, `DialogRootChangeEventDetails`, `DialogTriggerProps`, `DialogTriggerState`, `DialogPortalState`, `DialogPortalProps`, `DialogPopupProps`, `DialogPopupState`, `DialogBackdropProps`, `DialogBackdropState`, `DialogTitleProps`, `DialogTitleState`, `DialogDescriptionProps`, `DialogDescriptionState`, `DialogCloseProps`, `DialogCloseState`, `DialogViewportState`, `DialogViewportProps`
 
 ## Canonical Types
 

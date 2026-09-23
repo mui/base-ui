@@ -238,6 +238,7 @@ An input that suggests options as you type.
     - Props: className, render, style
   - Autocomplete - Separator
     - Props: className, orientation, render, style
+    - Data Attributes: data-orientation
   - Autocomplete - Status
     - Props: className, render, style
   - Autocomplete - Empty
@@ -312,7 +313,7 @@ A button component that can be rendered as another tag or focusable when disable
   - Button
     - Props: className, focusableWhenDisabled, nativeButton, render, style
     - Data Attributes: data-disabled
-- Types: Button.Props, Button.State
+- Types: Button.Props, Button.State, ButtonDataAttributes.disabled
 
 </details>
 
@@ -373,7 +374,7 @@ Provides shared state to a series of checkboxes.
   - CheckboxGroup
     - Props: allValues, className, defaultValue, disabled, onValueChange, render, style, value
     - Data Attributes: data-disabled
-- Types: CheckboxGroup.ChangeEventDetails, CheckboxGroup.ChangeEventReason, CheckboxGroup.Props, CheckboxGroup.State
+- Types: CheckboxGroup.ChangeEventDetails, CheckboxGroup.ChangeEventReason, CheckboxGroup.Props, CheckboxGroup.State, CheckboxGroupDataAttributes.disabled
 
 </details>
 
@@ -511,6 +512,7 @@ An input combined with a list of predefined items to select.
     - Props: className, render, style
   - Combobox - Separator
     - Props: className, orientation, render, style
+    - Data Attributes: data-orientation
   - Combobox - Label
     - Props: className, render, style
   - Combobox - Status
@@ -610,6 +612,7 @@ A menu that appears at the pointer on right click or long press.
     - Props: className, render, style
   - Context Menu - Separator
     - Props: className, orientation, render, style
+    - Data Attributes: data-orientation
   - Context Menu - SubmenuRoot
     - Props: actionsRef, children, closeParentOnEsc, defaultOpen, disabled, highlightItemOnHover, loopFocus, onOpenChange, onOpenChangeComplete, open, orientation
   - Context Menu - SubmenuTrigger
@@ -758,6 +761,7 @@ A panel that slides in from the edge of the screen.
     - Props: children
   - Drawer - Trigger
     - Props: className, handle, id, nativeButton, payload, render, style
+    - Data Attributes: data-disabled, data-popup-open
   - Drawer - Portal
     - Props: className, container, keepMounted, render, style
   - Drawer - Backdrop
@@ -776,6 +780,7 @@ A panel that slides in from the edge of the screen.
     - Props: className, render, style
   - Drawer - Close
     - Props: className, nativeButton, render, style
+    - Data Attributes: data-disabled
   - Drawer - Viewport
     - Props: className, render, style
     - Data Attributes: data-closed, data-ending-style, data-nested, data-open, data-starting-style
@@ -910,7 +915,7 @@ A native input element that automatically works with [Field](/react/components/f
   - Input
     - Props: className, defaultValue, onValueChange, render, style, value
     - Data Attributes: data-dirty, data-disabled, data-filled, data-focused, data-invalid, data-touched, data-valid
-- Types: Input.ChangeEventDetails, Input.ChangeEventReason, Input.Props, Input.State
+- Types: Input.ChangeEventDetails, Input.ChangeEventReason, Input.Props, Input.State, InputDataAttributes.dirty, InputDataAttributes.disabled, InputDataAttributes.filled, InputDataAttributes.focused, InputDataAttributes.invalid, InputDataAttributes.touched, InputDataAttributes.valid
 
 </details>
 
@@ -1000,6 +1005,7 @@ A list of actions in a dropdown, enhanced with keyboard navigation.
     - Props: className, render, style
   - Menu - Separator
     - Props: className, orientation, render, style
+    - Data Attributes: data-orientation
   - Menu - SubmenuRoot
     - Props: actionsRef, children, closeParentOnEsc, defaultOpen, disabled, highlightItemOnHover, loopFocus, onOpenChange, onOpenChangeComplete, open, orientation
   - Menu - SubmenuTrigger
@@ -1046,7 +1052,7 @@ A menu bar providing commands and options for your application.
   - Menubar
     - Props: className, disabled, loopFocus, modal, orientation, render, style
     - Data Attributes: data-has-submenu-open, data-modal, data-orientation
-- Types: Menubar.Props, Menubar.State
+- Types: Menubar.Props, Menubar.State, MenubarDataAttributes.hasSubmenuOpen, MenubarDataAttributes.modal, MenubarDataAttributes.orientation
 
 </details>
 
@@ -1241,6 +1247,7 @@ A one-time password input composed of individual character slots.
     - Data Attributes: data-complete, data-dirty, data-disabled, data-filled, data-focused, data-invalid, data-readonly, data-required, data-touched, data-valid
   - OTP Field - Separator
     - Props: className, orientation, render, style
+    - Data Attributes: data-orientation
 - Types: OTPField.Input.Props, OTPField.Input.State, OTPField.Root.ChangeEventDetails, OTPField.Root.ChangeEventReason, OTPField.Root.CompleteEventDetails, OTPField.Root.CompleteEventReason, OTPField.Root.InvalidEventDetails, OTPField.Root.InvalidEventReason, OTPField.Root.Props, OTPField.Root.State, OTPField.Root.ValidationType, OTPField.Separator.Props, OTPField.Separator.State
 
 </details>
@@ -1452,7 +1459,7 @@ Provides shared state to a series of radio buttons.
   - RadioGroup
     - Props: className, defaultValue, disabled, form, inputRef, name, onValueChange, readOnly, render, required, style, value
     - Data Attributes: data-disabled
-- Types: Radio.Indicator.Props, Radio.Indicator.State, Radio.Root.Props, Radio.Root.State, RadioGroup.ChangeEventDetails, RadioGroup.ChangeEventReason, RadioGroup.Props, RadioGroup.State
+- Types: Radio.Indicator.Props, Radio.Indicator.State, Radio.Root.Props, Radio.Root.State, RadioGroup.ChangeEventDetails, RadioGroup.ChangeEventReason, RadioGroup.Props, RadioGroup.State, RadioGroupDataAttributes.disabled
 
 </details>
 
@@ -1586,6 +1593,7 @@ A common form component for choosing a predefined value in a dropdown menu.
     - Props: className, render, style
   - Select - Separator
     - Props: className, orientation, render, style
+    - Data Attributes: data-orientation
   - Select - Label
     - Props: className, render, style
   - Select - ItemText
@@ -1621,7 +1629,7 @@ A separator element accessible to screen readers.
   - Separator
     - Props: className, orientation, render, style
     - Data Attributes: data-orientation
-- Types: Separator.Props, Separator.State
+- Types: Separator.Props, Separator.State, SeparatorDataAttributes.orientation
 
 </details>
 
@@ -1856,7 +1864,7 @@ A two-state button that can be on or off.
   - Toggle
     - Props: className, defaultPressed, disabled, nativeButton, onPressedChange, pressed, render, style, value
     - Data Attributes: data-disabled, data-pressed
-- Types: Toggle.ChangeEventDetails, Toggle.ChangeEventReason, Toggle.Props, Toggle.State
+- Types: Toggle.ChangeEventDetails, Toggle.ChangeEventReason, Toggle.Props, Toggle.State, ToggleDataAttributes.disabled, ToggleDataAttributes.pressed
 
 </details>
 
@@ -1880,7 +1888,7 @@ Provides a shared state to a series of toggle buttons.
   - ToggleGroup
     - Props: className, defaultValue, disabled, loopFocus, multiple, onValueChange, orientation, render, style, value
     - Data Attributes: data-disabled, data-multiple, data-orientation
-- Types: ToggleGroup.ChangeEventDetails, ToggleGroup.ChangeEventReason, ToggleGroup.Props, ToggleGroup.State
+- Types: ToggleGroup.ChangeEventDetails, ToggleGroup.ChangeEventReason, ToggleGroup.Props, ToggleGroup.State, ToggleGroupDataAttributes.disabled, ToggleGroupDataAttributes.multiple, ToggleGroupDataAttributes.orientation
 
 </details>
 

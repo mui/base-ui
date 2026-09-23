@@ -77,6 +77,16 @@ type CheckboxGroupChangeEventDetails = {
 };
 ```
 
+## Additional Types
+
+### CheckboxGroupDataAttributes.disabled
+
+Present when the checkbox group is disabled.
+
+```typescript
+type CheckboxGroupDataAttributesdisabled = 'data-disabled';
+```
+
 ## Canonical Types
 
 Maps `Canonical`: `Alias` — Use Canonical when its namespace is already imported; otherwise use Alias.

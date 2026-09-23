@@ -156,12 +156,102 @@ type CollapsiblePanelState = {
 };
 ```
 
+## Additional Types
+
+### CollapsiblePanelCssVariables.collapsiblePanelHeight
+
+The collapsible panel's height.
+
+```typescript
+type CollapsiblePanelCssVariablescollapsiblePanelHeight = '--collapsible-panel-height';
+```
+
+### CollapsiblePanelCssVariables.collapsiblePanelWidth
+
+The collapsible panel's width.
+
+```typescript
+type CollapsiblePanelCssVariablescollapsiblePanelWidth = '--collapsible-panel-width';
+```
+
+### CollapsiblePanelDataAttributes.closed
+
+Present when the collapsible panel is closed.
+
+```typescript
+type CollapsiblePanelDataAttributesclosed = 'data-closed';
+```
+
+### CollapsiblePanelDataAttributes.endingStyle
+
+Present when the panel is animating out.
+
+```typescript
+type CollapsiblePanelDataAttributesendingStyle = 'data-ending-style';
+```
+
+### CollapsiblePanelDataAttributes.open
+
+Present when the collapsible panel is open.
+
+```typescript
+type CollapsiblePanelDataAttributesopen = 'data-open';
+```
+
+### CollapsiblePanelDataAttributes.startingStyle
+
+Present when the panel begins animating in.
+
+```typescript
+type CollapsiblePanelDataAttributesstartingStyle = 'data-starting-style';
+```
+
+### CollapsibleRootDataAttributes.closed
+
+Present when the collapsible is closed.
+
+```typescript
+type CollapsibleRootDataAttributesclosed = 'data-closed';
+```
+
+### CollapsibleRootDataAttributes.endingStyle
+
+Present when the collapsible is animating out.
+
+```typescript
+type CollapsibleRootDataAttributesendingStyle = 'data-ending-style';
+```
+
+### CollapsibleRootDataAttributes.open
+
+Present when the collapsible is open.
+
+```typescript
+type CollapsibleRootDataAttributesopen = 'data-open';
+```
+
+### CollapsibleRootDataAttributes.startingStyle
+
+Present when the collapsible begins animating in.
+
+```typescript
+type CollapsibleRootDataAttributesstartingStyle = 'data-starting-style';
+```
+
+### CollapsibleTriggerDataAttributes.panelOpen
+
+Present when the collapsible panel is open.
+
+```typescript
+type CollapsibleTriggerDataAttributespanelOpen = 'data-panel-open';
+```
+
 ## Export Groups
 
 - `Collapsible.Root`: `Collapsible.Root`, `Collapsible.Root.State`, `Collapsible.Root.Props`, `Collapsible.Root.ChangeEventReason`, `Collapsible.Root.ChangeEventDetails`
 - `Collapsible.Trigger`: `Collapsible.Trigger`, `Collapsible.Trigger.State`, `Collapsible.Trigger.Props`
 - `Collapsible.Panel`: `Collapsible.Panel`, `Collapsible.Panel.State`, `Collapsible.Panel.Props`
-- `Default`: `CollapsibleRootState`, `CollapsibleRootProps`, `CollapsibleRootChangeEventReason`, `CollapsibleRootChangeEventDetails`, `CollapsibleTriggerState`, `CollapsibleTriggerProps`, `CollapsiblePanelState`, `CollapsiblePanelProps`
+- `Default`: `CollapsibleRootDataAttributes.open`, `CollapsibleRootDataAttributes.closed`, `CollapsibleRootDataAttributes.startingStyle`, `CollapsibleRootDataAttributes.endingStyle`, `CollapsibleTriggerDataAttributes.panelOpen`, `CollapsiblePanelCssVariables.collapsiblePanelHeight`, `CollapsiblePanelCssVariables.collapsiblePanelWidth`, `CollapsiblePanelDataAttributes.open`, `CollapsiblePanelDataAttributes.closed`, `CollapsiblePanelDataAttributes.startingStyle`, `CollapsiblePanelDataAttributes.endingStyle`, `CollapsibleRootState`, `CollapsibleRootProps`, `CollapsibleRootChangeEventReason`, `CollapsibleRootChangeEventDetails`, `CollapsibleTriggerState`, `CollapsibleTriggerProps`, `CollapsiblePanelState`, `CollapsiblePanelProps`
 
 ## Canonical Types
 

@@ -222,6 +222,12 @@ Renders a `<div>` element.
 | style       | `React.CSSProperties \| ((state: SeparatorState) => React.CSSProperties \| undefined)` | -              | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
 | render      | `ReactElement \| ((props: HTMLProps, state: SeparatorState) => ReactElement)`          | -              | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
+**Separator Data Attributes:**
+
+| Attribute        | Type                         | Description                                 |
+| :--------------- | :--------------------------- | :------------------------------------------ |
+| data-orientation | `'horizontal' \| 'vertical'` | Indicates the orientation of the separator. |
+
 ### Separator.Props
 
 Re-export of [Separator](#separator) props.
@@ -233,6 +239,176 @@ type OTPFieldSeparatorState = {
   /** The orientation of the separator. */
   orientation: Orientation;
 };
+```
+
+## Additional Types
+
+### OTPFieldInputDataAttributes.complete
+
+Present when all slots are filled.
+
+```typescript
+type OTPFieldInputDataAttributescomplete = 'data-complete';
+```
+
+### OTPFieldInputDataAttributes.dirty
+
+Present when the OTP field's value has changed (when wrapped in Field.Root).
+
+```typescript
+type OTPFieldInputDataAttributesdirty = 'data-dirty';
+```
+
+### OTPFieldInputDataAttributes.disabled
+
+Present when the OTP field is disabled.
+
+```typescript
+type OTPFieldInputDataAttributesdisabled = 'data-disabled';
+```
+
+### OTPFieldInputDataAttributes.filled
+
+Present when the input contains a character.
+
+```typescript
+type OTPFieldInputDataAttributesfilled = 'data-filled';
+```
+
+### OTPFieldInputDataAttributes.focused
+
+Present when any OTP field input is focused.
+
+```typescript
+type OTPFieldInputDataAttributesfocused = 'data-focused';
+```
+
+### OTPFieldInputDataAttributes.invalid
+
+Present when the OTP field is in an invalid state (when wrapped in Field.Root).
+
+```typescript
+type OTPFieldInputDataAttributesinvalid = 'data-invalid';
+```
+
+### OTPFieldInputDataAttributes.readonly
+
+Present when the OTP field is readonly.
+
+```typescript
+type OTPFieldInputDataAttributesreadonly = 'data-readonly';
+```
+
+### OTPFieldInputDataAttributes.required
+
+Present when the OTP field is required.
+
+```typescript
+type OTPFieldInputDataAttributesrequired = 'data-required';
+```
+
+### OTPFieldInputDataAttributes.touched
+
+Present when the OTP field has been touched (when wrapped in Field.Root).
+
+```typescript
+type OTPFieldInputDataAttributestouched = 'data-touched';
+```
+
+### OTPFieldInputDataAttributes.valid
+
+Present when the OTP field is in a valid state (when wrapped in Field.Root).
+
+```typescript
+type OTPFieldInputDataAttributesvalid = 'data-valid';
+```
+
+### OTPFieldRootDataAttributes.complete
+
+Present when all slots are filled.
+
+```typescript
+type OTPFieldRootDataAttributescomplete = 'data-complete';
+```
+
+### OTPFieldRootDataAttributes.dirty
+
+Present when the OTP field's value has changed (when wrapped in Field.Root).
+
+```typescript
+type OTPFieldRootDataAttributesdirty = 'data-dirty';
+```
+
+### OTPFieldRootDataAttributes.disabled
+
+Present when the OTP field is disabled.
+
+```typescript
+type OTPFieldRootDataAttributesdisabled = 'data-disabled';
+```
+
+### OTPFieldRootDataAttributes.filled
+
+Present when the OTP field contains at least one character.
+
+```typescript
+type OTPFieldRootDataAttributesfilled = 'data-filled';
+```
+
+### OTPFieldRootDataAttributes.focused
+
+Present when one of the OTP field inputs is focused.
+
+```typescript
+type OTPFieldRootDataAttributesfocused = 'data-focused';
+```
+
+### OTPFieldRootDataAttributes.invalid
+
+Present when the OTP field is in an invalid state (when wrapped in Field.Root).
+
+```typescript
+type OTPFieldRootDataAttributesinvalid = 'data-invalid';
+```
+
+### OTPFieldRootDataAttributes.readonly
+
+Present when the OTP field is readonly.
+
+```typescript
+type OTPFieldRootDataAttributesreadonly = 'data-readonly';
+```
+
+### OTPFieldRootDataAttributes.required
+
+Present when the OTP field is required.
+
+```typescript
+type OTPFieldRootDataAttributesrequired = 'data-required';
+```
+
+### OTPFieldRootDataAttributes.touched
+
+Present when the OTP field has been touched (when wrapped in Field.Root).
+
+```typescript
+type OTPFieldRootDataAttributestouched = 'data-touched';
+```
+
+### OTPFieldRootDataAttributes.valid
+
+Present when the OTP field is in a valid state (when wrapped in Field.Root).
+
+```typescript
+type OTPFieldRootDataAttributesvalid = 'data-valid';
+```
+
+### OTPFieldSeparatorDataAttributes.orientation
+
+Indicates the orientation of the separator.
+
+```typescript
+type OTPFieldSeparatorDataAttributesorientation = 'data-orientation';
 ```
 
 ## External Types
@@ -254,7 +430,7 @@ type Orientation = 'horizontal' | 'vertical';
 - `OTPField.Root`: `OTPField.Root`, `OTPField.Root.State`, `OTPField.Root.Props`, `OTPField.Root.ValidationType`, `OTPField.Root.ChangeEventReason`, `OTPField.Root.ChangeEventDetails`, `OTPField.Root.InvalidEventReason`, `OTPField.Root.InvalidEventDetails`, `OTPField.Root.CompleteEventReason`, `OTPField.Root.CompleteEventDetails`
 - `OTPField.Input`: `OTPField.Input`, `OTPField.Input.State`, `OTPField.Input.Props`
 - `OTPField.Separator`: `OTPField.Separator`, `OTPField.Separator.Props`, `OTPField.Separator.State`
-- `Default`: `OTPFieldRootProps`, `OTPFieldRootState`, `OTPFieldRootChangeEventReason`, `OTPFieldRootChangeEventDetails`, `OTPFieldRootInvalidEventReason`, `OTPFieldRootInvalidEventDetails`, `OTPFieldRootCompleteEventReason`, `OTPFieldRootCompleteEventDetails`, `OTPFieldInputState`, `OTPFieldInputProps`
+- `Default`: `OTPFieldRootDataAttributes.complete`, `OTPFieldRootDataAttributes.disabled`, `OTPFieldRootDataAttributes.readonly`, `OTPFieldRootDataAttributes.required`, `OTPFieldRootDataAttributes.valid`, `OTPFieldRootDataAttributes.invalid`, `OTPFieldRootDataAttributes.touched`, `OTPFieldRootDataAttributes.dirty`, `OTPFieldRootDataAttributes.filled`, `OTPFieldRootDataAttributes.focused`, `OTPFieldInputDataAttributes.complete`, `OTPFieldInputDataAttributes.filled`, `OTPFieldInputDataAttributes.disabled`, `OTPFieldInputDataAttributes.readonly`, `OTPFieldInputDataAttributes.required`, `OTPFieldInputDataAttributes.valid`, `OTPFieldInputDataAttributes.invalid`, `OTPFieldInputDataAttributes.touched`, `OTPFieldInputDataAttributes.dirty`, `OTPFieldInputDataAttributes.focused`, `OTPFieldSeparatorDataAttributes.orientation`, `OTPFieldRootProps`, `OTPFieldRootState`, `OTPFieldRootChangeEventReason`, `OTPFieldRootChangeEventDetails`, `OTPFieldRootInvalidEventReason`, `OTPFieldRootInvalidEventDetails`, `OTPFieldRootCompleteEventReason`, `OTPFieldRootCompleteEventDetails`, `OTPFieldInputState`, `OTPFieldInputProps`
 
 ## Canonical Types
 
