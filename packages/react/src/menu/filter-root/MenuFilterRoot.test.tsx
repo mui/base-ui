@@ -4752,7 +4752,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
         expect(input).not.toHaveAttribute('data-highlighted');
       });
 
-      fireEvent.mouseMove(trigger);
+      fireEvent.mouseOver(trigger);
       expect(input).toHaveFocus();
       await waitFor(() => {
         expect(input).toHaveAttribute('data-highlighted');
@@ -5015,7 +5015,8 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
         expect(rootInput).toHaveFocus();
       });
 
-      await user.hover(screen.getByRole('menuitem', { name: 'Move to folder' }));
+      const submenuTrigger = screen.getByRole('menuitem', { name: 'Move to folder' });
+      await user.hover(submenuTrigger);
       const submenuInput = await screen.findByRole('searchbox', { name: 'Filter folders' });
       await waitFor(() => {
         expect(submenuInput).toHaveFocus();
@@ -5025,9 +5026,22 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
       });
       expect(rootInput).not.toHaveAttribute('data-highlighted');
 
+      // Further pointer movement over the trigger must not undo autoFocus before the pointer
+      // enters the submenu.
+      fireEvent.mouseMove(submenuTrigger);
+      expect(submenuInput).toHaveFocus();
+      fireEvent.mouseOver(submenuTrigger, {
+        relatedTarget: submenuTrigger,
+      });
+      expect(submenuInput).toHaveFocus();
+
       // The parent doesn't pull focus back while the pointer crosses it.
       fireEvent.mouseMove(screen.getByRole('menuitem', { name: 'Rename' }));
       expect(submenuInput).toHaveFocus();
+
+      fireEvent.mouseMove(submenuInput);
+      fireEvent.mouseOver(submenuTrigger);
+      expect(rootInput).toHaveFocus();
     });
 
     it('moves focus back to the parent input while the pointer moves between submenu triggers', async () => {
@@ -5065,15 +5079,19 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
       await waitFor(() => {
         expect(firstInput).toHaveFocus();
       });
+      fireEvent.mouseMove(firstInput);
       const rootFocusCount = onRootInputFocus.mock.calls.length;
 
-      await user.hover(screen.getByRole('menuitem', { name: 'Share' }));
+      const secondTrigger = screen.getByRole('menuitem', { name: 'Share' });
+      await user.hover(secondTrigger);
       await waitFor(() => {
         expect(firstInput).not.toBeInTheDocument();
       });
       await waitFor(() => {
         expect(screen.getByRole('searchbox', { name: 'Filter Share' })).toHaveFocus();
       });
+      fireEvent.mouseMove(secondTrigger);
+      expect(screen.getByRole('searchbox', { name: 'Filter Share' })).toHaveFocus();
 
       expect(onRootInputFocus).toHaveBeenCalledTimes(rootFocusCount + 1);
       expect(screen.getByRole('searchbox', { name: 'Filter actions' })).not.toHaveAttribute(

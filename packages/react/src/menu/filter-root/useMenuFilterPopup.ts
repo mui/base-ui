@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { isHTMLElement } from '@floating-ui/utils/dom';
+import { isElement, isHTMLElement } from '@floating-ui/utils/dom';
 import { ownerDocument } from '@base-ui/utils/owner';
 import {
   activeElement,
@@ -38,6 +38,53 @@ export function useMenuFilterPopup(
     }
   }, [context.open, focusOwnerRef]);
 
+  function restoreInputFocus(event: React.MouseEvent<HTMLDivElement>, enteredTrigger: boolean) {
+    const focusOwner = focusOwnerRef.current;
+    if (!context.open || !focusOwner) {
+      return;
+    }
+
+    const activeEl = activeElement(ownerDocument(event.currentTarget));
+    if (activeEl === focusOwner || contains(event.currentTarget, activeEl)) {
+      return;
+    }
+
+    // Nested popups are portalled, so their events still bubble through this React tree.
+    // The composed path only contains this popup when the pointer is really over it, and a
+    // closing popup must not re-capture focus during its exit transition.
+    let submenuTrigger: HTMLElement | null = null;
+    const nearestPopup = event.nativeEvent.composedPath().find((node) => {
+      if (!isHTMLElement(node)) {
+        return false;
+      }
+      if (node.getAttribute('role') === 'dialog' || node.hasAttribute('data-rootownerid')) {
+        return true;
+      }
+      if (node.hasAttribute('aria-haspopup')) {
+        submenuTrigger = node;
+      }
+      return false;
+    });
+    if (nearestPopup !== event.currentTarget) {
+      return;
+    }
+
+    // A nested popup that took focus keeps it while the pointer moves over the parent popup.
+    // Entering a submenu trigger returns focus to the parent's input.
+    if (nestedFocusRef.current && !(enteredTrigger && submenuTrigger)) {
+      return;
+    }
+    if (
+      enteredTrigger &&
+      submenuTrigger &&
+      isElement(event.relatedTarget) &&
+      contains(submenuTrigger, event.relatedTarget)
+    ) {
+      return;
+    }
+    focusByPointer(focusOwner);
+  }
+
   return {
     // The input owns virtual focus.
     'aria-activedescendant': undefined,
@@ -50,41 +97,12 @@ export function useMenuFilterPopup(
       }
     },
     onMouseMove(event) {
-      // This fires for every pointer frame over the popup, so bail before the path walk.
-      const focusOwner = focusOwnerRef.current;
-      if (!context.open || !focusOwner) {
-        return;
+      restoreInputFocus(event, false);
+    },
+    onMouseOver(event) {
+      if (nestedFocusRef.current) {
+        restoreInputFocus(event, true);
       }
-
-      const activeEl = activeElement(ownerDocument(event.currentTarget));
-      // Only pull back focus that drifted outside the popup.
-      if (activeEl === focusOwner || contains(event.currentTarget, activeEl)) {
-        return;
-      }
-
-      // Nested popups are portalled, so their events still bubble through this React tree.
-      // The composed path only contains this popup when the pointer is really over it, and a
-      // closing popup must not re-capture focus during its exit transition.
-      let overSubmenuTrigger = false;
-      const nearestPopup = event.nativeEvent.composedPath().find((node) => {
-        if (!isHTMLElement(node)) {
-          return false;
-        }
-        if (node.getAttribute('role') === 'dialog' || node.hasAttribute('data-rootownerid')) {
-          return true;
-        }
-        overSubmenuTrigger ||= node.hasAttribute('aria-haspopup');
-        return false;
-      });
-      if (nearestPopup !== event.currentTarget) {
-        return;
-      }
-      // Keep intentional focus in nested popups unless the pointer returns to a submenu trigger,
-      // where the parent input should become the focus owner again.
-      if (nestedFocusRef.current && !overSubmenuTrigger) {
-        return;
-      }
-      focusByPointer(focusOwner);
     },
     onFocus(event) {
       // `focusin` bubbles, so this also sees the owner itself being focused.
