@@ -20,12 +20,7 @@ import {
   useTypeahead,
 } from '../../floating-ui-react';
 import type { HighlightItemTarget } from '../../floating-ui-react/hooks/useListNavigation';
-import {
-  SelectFloatingContext,
-  SelectRootContext,
-  SelectRootPropsContext,
-  type SelectRootPropsContextValue,
-} from './SelectRootContext';
+import { SelectFloatingContext, SelectRootContext } from './SelectRootContext';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
 import { useRegisterFieldControl } from '../../internals/field-register-control/useRegisterFieldControl';
 import { useLabelableId } from '../../internals/labelable-provider/useLabelableId';
@@ -147,6 +142,10 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
           labelId: undefined,
           modal,
           multiple,
+          disabled,
+          readOnly,
+          required,
+          highlightItemOnHover,
           itemToStringLabel,
           itemToStringValue,
           isItemEqualToValue,
@@ -163,6 +162,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
           selectedIndex: null,
           popupProps: EMPTY_OBJECT,
           triggerProps: EMPTY_OBJECT,
+          itemProps: EMPTY_OBJECT,
           triggerElement: null,
           positionerElement: null,
           listElement: null,
@@ -456,6 +456,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     store.update({
       popupProps,
       triggerProps: mergedTriggerProps,
+      itemProps,
     });
   });
 
@@ -463,30 +464,23 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     id: generatedId,
     modal,
     multiple,
+    disabled,
+    readOnly,
+    required,
+    highlightItemOnHover,
     value,
     open,
     mounted,
     transitionStatus,
     popupProps,
     triggerProps: mergedTriggerProps,
+    itemProps,
     items,
     itemToStringLabel,
     itemToStringValue,
     isItemEqualToValue,
     openMethod: renderedOpenMethod,
   });
-
-  const rootPropsContextValue: SelectRootPropsContextValue = React.useMemo(
-    () => ({
-      disabled,
-      readOnly,
-      required,
-      multiple,
-      highlightItemOnHover,
-      itemProps,
-    }),
-    [disabled, readOnly, required, multiple, highlightItemOnHover, itemProps],
-  );
 
   const ref = useMergedRefs(inputRef, validation.inputRef);
 
@@ -514,11 +508,9 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
 
   return (
     <SelectRootContext.Provider value={store}>
-      <SelectRootPropsContext.Provider value={rootPropsContextValue}>
-        <SelectFloatingContext.Provider value={floatingContext}>
-          {children}
-        </SelectFloatingContext.Provider>
-      </SelectRootPropsContext.Provider>
+      <SelectFloatingContext.Provider value={floatingContext}>
+        {children}
+      </SelectFloatingContext.Provider>
       <input
         {...validation.getValidationProps(disabled, {
           onFocus() {
