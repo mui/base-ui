@@ -13,9 +13,9 @@ import {
   offset,
   useClick,
   useDismiss,
-  useFloating,
   useListNavigation,
 } from '../../src/floating-ui-react';
+import { useFloating } from './useFloating';
 import { Button } from './Button';
 import styles from './EmojiPicker.module.css';
 import { gridNavigationWithColumns } from './gridNavigationWithColumns';

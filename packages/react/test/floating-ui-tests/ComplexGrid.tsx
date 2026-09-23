@@ -5,9 +5,9 @@ import {
   FloatingFocusManager,
   useClick,
   useDismiss,
-  useFloating,
   useListNavigation,
 } from '../../src/floating-ui-react';
+import { useFloating } from './useFloating';
 import styles from './ComplexGrid.module.css';
 import { gridNavigationWithColumns } from './gridNavigationWithColumns';
 

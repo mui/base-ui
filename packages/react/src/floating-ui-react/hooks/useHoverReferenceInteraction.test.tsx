@@ -2,7 +2,7 @@ import { vi, expect, it, describe, beforeEach, afterEach } from 'vitest';
 import { act, fireEvent, flushMicrotasks, render, screen } from '@mui/internal-test-utils';
 import * as React from 'react';
 import { isJSDOM } from '#test-utils';
-import { useFloating } from './useFloating';
+import { useFloating } from '../../../test/floating-ui-tests/useFloating';
 import { safePolygon } from '../safePolygon';
 import { useHoverFloatingInteraction } from './useHoverFloatingInteraction';
 import { useHoverInteractionSharedState } from './useHoverInteractionSharedState';

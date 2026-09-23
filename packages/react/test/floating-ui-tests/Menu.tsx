@@ -19,7 +19,6 @@ import {
   shift,
   useClick,
   useDismiss,
-  useFloating,
   useFloatingNodeId,
   useFloatingParentNodeId,
   useFloatingTree,
@@ -27,6 +26,7 @@ import {
   useTypeahead,
   useFocus,
 } from '../../src/floating-ui-react';
+import { useFloating } from './useFloating';
 import { useHover } from './useHover';
 import { gridNavigation } from '../../src/floating-ui-react/hooks/gridNavigation';
 import { GRID_COLUMN_COUNT, renderGridRows } from './renderGridRows';

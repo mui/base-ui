@@ -4,8 +4,9 @@ import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event';
 import { flushMicrotasks } from '@mui/internal-test-utils';
 import { isJSDOM, useTestInteractions } from '#test-utils';
-import { useClick, useDismiss, useFloating, useListNavigation } from '../index';
+import { useClick, useDismiss, useListNavigation } from '../index';
 import type { HighlightItemTarget } from './useListNavigation';
+import { useFloating } from '../../../test/floating-ui-tests/useFloating';
 import { gridNavigation } from './gridNavigation';
 import type { UseListNavigationProps } from '../types';
 import { Main as ComplexGrid } from '../../../test/floating-ui-tests/ComplexGrid';

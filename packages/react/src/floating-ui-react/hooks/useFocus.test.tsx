@@ -2,7 +2,7 @@ import { expect, vi, beforeEach, afterEach, it } from 'vitest';
 import { act, fireEvent, render, screen } from '@mui/internal-test-utils';
 import * as React from 'react';
 import { isJSDOM, useTestInteractions } from '#test-utils';
-import { useFloating } from './useFloating';
+import { useFloating } from '../../../test/floating-ui-tests/useFloating';
 import { useFocus } from './useFocus';
 
 describe.skipIf(!isJSDOM)('useFocus', () => {

@@ -8,7 +8,8 @@ import { createChangeEventDetails } from '../../internals/createBaseUIEventDetai
 import { REASONS } from '../../internals/reasons';
 import { PopupTriggerMap } from '../../utils/popups';
 import { FloatingRootStore } from '../components/FloatingRootStore';
-import { useClientPoint, useFloating } from '../index';
+import { useClientPoint } from '../index';
+import { useFloating } from '../../../test/floating-ui-tests/useFloating';
 
 function expectLocation({ x, y }: Coords) {
   expect(Number(screen.getByTestId('x')?.textContent)).toBe(x);

@@ -15,10 +15,10 @@ import {
   shift,
   useClick,
   useDismiss,
-  useFloating,
   useFloatingNodeId,
   useFloatingParentNodeId,
 } from '../../src/floating-ui-react';
+import { useFloating } from './useFloating';
 import { useHover } from './useHover';
 import styles from './Popover.module.css';
 

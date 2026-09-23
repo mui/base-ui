@@ -11,12 +11,12 @@ import {
   FloatingPortal,
   FloatingTree,
   useDismiss,
-  useFloating,
   useFloatingNodeId,
   useFloatingParentNodeId,
   useFocus,
   useClick,
 } from '../index';
+import { useFloating } from '../../../test/floating-ui-tests/useFloating';
 import { REASONS } from '../../internals/reasons';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import type { UseDismissProps } from './useDismiss';

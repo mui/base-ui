@@ -4,7 +4,7 @@ import { flushMicrotasks, render, screen } from '@mui/internal-test-utils';
 import { PopupTriggerMap } from '../../utils/popups';
 import { FloatingRootStore } from '../components/FloatingRootStore';
 import type { UseFloatingReturn, VirtualElement } from '../types';
-import { useBaseUIFloating, useFloating } from './useFloating';
+import { useFloating } from '../../../test/floating-ui-tests/useFloating';
 
 function createRootStore(floatingElement: HTMLElement) {
   return new FloatingRootStore({
@@ -25,14 +25,14 @@ function Test({ rootContext }: { rootContext: FloatingRootStore }) {
   return null;
 }
 
-function BaseUITest({
+function RefsTest({
   rootContext,
   onRender,
 }: {
   rootContext: FloatingRootStore;
   onRender(value: UseFloatingReturn): void;
 }) {
-  const floating = useBaseUIFloating({ rootContext });
+  const floating = useFloating({ rootContext });
   onRender(floating);
 
   return (
@@ -65,7 +65,7 @@ test('uses the supplied root store while preserving DOM and position references'
   let floating: UseFloatingReturn | undefined;
 
   render(
-    <BaseUITest
+    <RefsTest
       rootContext={store}
       onRender={(value) => {
         floating = value;

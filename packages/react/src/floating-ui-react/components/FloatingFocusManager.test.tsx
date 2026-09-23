@@ -26,10 +26,10 @@ import {
   FloatingTree,
   useClick,
   useDismiss,
-  useFloating,
   useFloatingNodeId,
   useFloatingParentNodeId,
 } from '../index';
+import { useFloating } from '../../../test/floating-ui-tests/useFloating';
 import type { FloatingFocusManagerProps } from './FloatingFocusManager';
 import { Main as Navigation } from '../../../test/floating-ui-tests/Navigation';
 import { useHover } from '../../../test/floating-ui-tests/useHover';

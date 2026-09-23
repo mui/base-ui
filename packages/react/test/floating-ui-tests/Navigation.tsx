@@ -12,10 +12,10 @@ import {
   safePolygon,
   shift,
   useDismiss,
-  useFloating,
   useFloatingNodeId,
   useFocus,
 } from '../../src/floating-ui-react';
+import { useFloating } from './useFloating';
 import { useHover } from './useHover';
 import styles from './Navigation.module.css';
 

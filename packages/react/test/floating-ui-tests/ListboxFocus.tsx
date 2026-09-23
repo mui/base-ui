@@ -3,7 +3,8 @@ import * as React from 'react';
 import { useTestInteractions } from '#test-utils';
 import { CompositeList } from '../../src/internals/composite/list/CompositeList';
 import { useCompositeListItem } from '../../src/internals/composite/list/useCompositeListItem';
-import { useFloating, useListNavigation, useTypeahead } from '../../src/floating-ui-react';
+import { useListNavigation, useTypeahead } from '../../src/floating-ui-react';
+import { useFloating } from './useFloating';
 
 interface SelectContextValue {
   activeIndex: number | null;

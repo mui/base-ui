@@ -4,7 +4,8 @@ import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { useTestInteractions } from '#test-utils';
-import { useClick, useFloating, useTypeahead } from '../index';
+import { useClick, useTypeahead } from '../index';
+import { useFloating } from '../../../test/floating-ui-tests/useFloating';
 import type { UseTypeaheadProps } from './useTypeahead';
 
 beforeEach(() => {
