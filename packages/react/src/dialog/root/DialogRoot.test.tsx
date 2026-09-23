@@ -1645,6 +1645,181 @@ describe('<Dialog.Root />', () => {
     expect(handleOpenChange.mock.calls.length).toBe(0);
   });
 
+  // A closed shadow root truncates `composedPath()` for document listeners, and only
+  // trusted input runs React's microtask flush before the press reaches the host.
+  describe.skipIf(isJSDOM || !platform.engine.blink)('closed shadow root', () => {
+    const fixedAt = (top: number): React.CSSProperties => ({ position: 'fixed', top, left: 10 });
+    const fullscreen: React.CSSProperties = { position: 'fixed', inset: 0 };
+    const reactGlobals = globalThis as typeof globalThis & { IS_REACT_ACT_ENVIRONMENT?: boolean };
+
+    let host: HTMLElement;
+    let shadowRoot: ShadowRoot;
+    let container: HTMLElement;
+
+    beforeEach(() => {
+      host = document.body.appendChild(document.createElement('div'));
+      shadowRoot = host.attachShadow({ mode: 'closed' });
+      container = shadowRoot.appendChild(document.createElement('div'));
+    });
+
+    afterEach(async () => {
+      reactGlobals.IS_REACT_ACT_ENVIRONMENT = true;
+      await act(async () => {
+        host.remove();
+      });
+    });
+
+    async function nativeClick(testId: string) {
+      const { cdp } = await import('vitest/browser');
+      const session = cdp() as CDPSession;
+      const element = await waitFor(() => {
+        const found = shadowRoot.querySelector(`[data-testid="${testId}"]`);
+        expect(found).not.toBe(null);
+        return found!;
+      });
+      const frame = window.frameElement as HTMLIFrameElement | null;
+      const frameRect = frame?.getBoundingClientRect();
+      const scale = frameRect ? frameRect.width / window.innerWidth : 1;
+      const rect = element.getBoundingClientRect();
+      const point = {
+        x: (frameRect?.left ?? 0) + (frame?.clientLeft ?? 0) + (rect.left + rect.width / 2) * scale,
+        y: (frameRect?.top ?? 0) + (frame?.clientTop ?? 0) + (rect.top + rect.height / 2) * scale,
+      };
+      const clicked = new Promise<EventTarget | null>((resolve) => {
+        element.addEventListener('click', (event) => resolve(event.target), { once: true });
+      });
+
+      // Not wrapped in `act()`: it defers React's flush until after the host's listeners.
+      reactGlobals.IS_REACT_ACT_ENVIRONMENT = false;
+      await session.send('Input.dispatchMouseEvent', { type: 'mouseMoved', ...point });
+      await session.send('Input.dispatchMouseEvent', {
+        type: 'mousePressed',
+        ...point,
+        button: 'left',
+        buttons: 1,
+        clickCount: 1,
+      });
+      await session.send('Input.dispatchMouseEvent', {
+        type: 'mouseReleased',
+        ...point,
+        button: 'left',
+        buttons: 0,
+        clickCount: 1,
+      });
+      expect(await clicked).toBe(element);
+      await wait(50);
+      reactGlobals.IS_REACT_ACT_ENVIRONMENT = true;
+    }
+
+    function OuterDialog(props: {
+      modal: boolean;
+      onOpenChange: (open: boolean, details: Dialog.Root.ChangeEventDetails) => void;
+      children?: React.ReactNode;
+    }) {
+      const { modal, onOpenChange, children } = props;
+      return (
+        <Dialog.Root defaultOpen modal={modal} onOpenChange={onOpenChange}>
+          <Dialog.Portal container={shadowRoot}>
+            {modal && <Dialog.Backdrop style={fullscreen} />}
+            <Dialog.Popup data-testid="outer" style={fixedAt(10)}>
+              {children}
+            </Dialog.Popup>
+          </Dialog.Portal>
+        </Dialog.Root>
+      );
+    }
+
+    const nestedCases = [
+      {
+        name: 'modal dialog',
+        modal: true,
+        nested: (root: ShadowRoot) => (
+          <Dialog.Root>
+            <Dialog.Trigger data-testid="open-nested">Open nested</Dialog.Trigger>
+            <Dialog.Portal container={root}>
+              <Dialog.Backdrop style={fullscreen} />
+              <Dialog.Popup data-testid="nested" style={fixedAt(100)}>
+                <Dialog.Close data-testid="close-nested">Close</Dialog.Close>
+              </Dialog.Popup>
+            </Dialog.Portal>
+          </Dialog.Root>
+        ),
+      },
+      {
+        name: 'non-modal dialog',
+        modal: false,
+        nested: (root: ShadowRoot) => (
+          <Dialog.Root modal={false}>
+            <Dialog.Trigger data-testid="open-nested">Open nested</Dialog.Trigger>
+            <Dialog.Portal container={root}>
+              <Dialog.Popup data-testid="nested" style={fixedAt(100)}>
+                <Dialog.Close data-testid="close-nested">Close</Dialog.Close>
+              </Dialog.Popup>
+            </Dialog.Portal>
+          </Dialog.Root>
+        ),
+      },
+      {
+        name: 'alert dialog',
+        modal: true,
+        nested: (root: ShadowRoot) => (
+          <AlertDialog.Root>
+            <AlertDialog.Trigger data-testid="open-nested">Open nested</AlertDialog.Trigger>
+            <AlertDialog.Portal container={root}>
+              <AlertDialog.Backdrop style={fullscreen} />
+              <AlertDialog.Popup data-testid="nested" style={fixedAt(100)}>
+                <AlertDialog.Close data-testid="close-nested">Close</AlertDialog.Close>
+              </AlertDialog.Popup>
+            </AlertDialog.Portal>
+          </AlertDialog.Root>
+        ),
+      },
+    ];
+
+    it.for(nestedCases)(
+      'closing a nested $name keeps the parent open',
+      async ({ modal, nested }) => {
+        const handleOpenChange = vi.fn();
+
+        await render(
+          <OuterDialog modal={modal} onOpenChange={handleOpenChange}>
+            {nested(shadowRoot)}
+          </OuterDialog>,
+          { container },
+        );
+
+        await nativeClick('open-nested');
+        expect(shadowRoot.querySelector('[data-testid="nested"]')).not.toBe(null);
+
+        await nativeClick('close-nested');
+
+        expect(shadowRoot.querySelector('[data-testid="nested"]')).toBe(null);
+        expect(shadowRoot.querySelector('[data-testid="outer"]')).not.toBe(null);
+        expect(handleOpenChange).not.toHaveBeenCalled();
+      },
+    );
+
+    it('still dismisses on a press outside the popup', async () => {
+      const handleOpenChange = vi.fn();
+
+      await render(
+        <React.Fragment>
+          <div data-testid="outside" style={fixedAt(300)}>
+            Outside
+          </div>
+          <OuterDialog modal={false} onOpenChange={handleOpenChange} />
+        </React.Fragment>,
+        { container },
+      );
+
+      await nativeClick('outside');
+
+      expect(shadowRoot.querySelector('[data-testid="outer"]')).toBe(null);
+      expect(handleOpenChange.mock.calls.length).toBe(1);
+      expect(handleOpenChange.mock.calls[0][1].reason).toBe(REASONS.outsidePress);
+    });
+  });
+
   describe.skipIf(isJSDOM)('touch outside press', () => {
     function createTouch(
       target: EventTarget,
