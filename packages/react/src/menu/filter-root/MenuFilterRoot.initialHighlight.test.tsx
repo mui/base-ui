@@ -4,11 +4,13 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { Menu } from '@base-ui/react/menu';
 import { createRenderer, firePointer, resetBrowserPointer, waitSingleFrame } from '#test-utils';
 
-function Test(props: { autoFocus?: boolean; onInputFocus?: () => void }) {
+function Test(props: { autoFocus?: boolean; openOnHover?: boolean; onInputFocus?: () => void }) {
   return (
     <Menu.FilterProvider>
       <Menu.Root>
-        <Menu.Trigger>Actions</Menu.Trigger>
+        <Menu.Trigger openOnHover={props.openOnHover} delay={0}>
+          Actions
+        </Menu.Trigger>
         <Menu.Portal>
           <Menu.Positioner>
             <Menu.Popup>
@@ -107,6 +109,20 @@ describe('filterable menu initial highlight', () => {
       await waitFor(() => expect(input.matches(':focus')).toBe(shouldFocus));
       expect(onInputFocus.mock.calls.length > 0).toBe(shouldFocus);
       expect(input).not.toHaveAttribute('aria-activedescendant');
+    });
+
+    it('handles opening on hover', async () => {
+      const onInputFocus = vi.fn();
+      const { user } = await render(
+        <Test autoFocus={autoFocus} openOnHover onInputFocus={onInputFocus} />,
+      );
+
+      await user.hover(screen.getByRole('button', { name: 'Actions' }));
+
+      const input = await screen.findByRole('searchbox', { name: 'Filter actions' });
+      await act(() => waitSingleFrame());
+      await waitFor(() => expect(input.matches(':focus')).toBe(autoFocus));
+      expect(onInputFocus.mock.calls.length > 0).toBe(autoFocus);
     });
   });
 

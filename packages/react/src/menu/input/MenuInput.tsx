@@ -59,7 +59,8 @@ export const MenuInput = React.forwardRef(function MenuInput(
 export interface MenuInputState extends FilterDropdownInputState {}
 export interface MenuInputProps extends FilterDropdownInputProps {
   /**
-   * Whether to focus the input whenever the popup opens.
+   * Whether to focus the input when the menu opens on hover or with a touch or pen press.
+   * Opening the menu with a click or the keyboard always focuses the input.
    * @default false
    */
   autoFocus?: boolean | undefined;
