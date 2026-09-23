@@ -834,6 +834,47 @@ describe('<Slider.Root />', () => {
       expect(handleValueCommitted.mock.results.at(-1)?.value.reason).toBe(REASONS.inputChange);
     });
 
+    it('commits a touch track tap', async () => {
+      const handleValueCommitted = vi.fn();
+
+      function ControlledSlider() {
+        const [value, setValue] = React.useState(0);
+        return (
+          <Slider.Root
+            value={value}
+            onValueChange={setValue}
+            onValueCommitted={handleValueCommitted}
+          >
+            <Slider.Control data-testid="control">
+              <Slider.Thumb />
+            </Slider.Control>
+          </Slider.Root>
+        );
+      }
+
+      await render(<ControlledSlider />);
+
+      const sliderControl = screen.getByTestId('control');
+
+      vi.spyOn(sliderControl, 'getBoundingClientRect').mockImplementation(getHorizontalSliderRect);
+
+      const touches = createTouches([{ identifier: 1, clientX: 50, clientY: 0 }]);
+
+      // Browsers fire pointer events before the compatibility touch events.
+      fireEvent.pointerDown(sliderControl, {
+        pointerType: 'touch',
+        pointerId: 1,
+        buttons: 1,
+        clientX: 50,
+      });
+      fireEvent.touchStart(sliderControl, touches);
+      fireEvent.pointerUp(sliderControl, { pointerType: 'touch', pointerId: 1, clientX: 50 });
+      fireEvent.touchEnd(document.body, touches);
+
+      expect(handleValueCommitted.mock.calls.length).toBe(1);
+      expect(handleValueCommitted.mock.calls[0][0]).toBe(50);
+    });
+
     // Requires layout: the range drag relies on real thumb measurements.
     it.skipIf(isJSDOM)('array value', async () => {
       const handleValueCommitted = vi.fn((newValue: number[], eventDetails) => ({

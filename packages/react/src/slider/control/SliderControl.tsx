@@ -133,6 +133,9 @@ export const SliderControl = React.forwardRef(function SliderControl(
   // This value should be equal to the radius or half the width/height of the thumb.
   const insetThumbOffsetRef = React.useRef(0);
   const currentInteractionValueRef = React.useRef<number | number[] | null>(null);
+  // Whether `pointerdown` started the current gesture, so the `touchstart` that follows it
+  // doesn't restart it.
+  const pointerGestureRef = React.useRef(false);
   const latestValuesRef = useValueAsRef(values);
 
   function getThumbInput(el: Element | null | undefined) {
@@ -395,19 +398,24 @@ export const SliderControl = React.forwardRef(function SliderControl(
 
     touchIdRef.current = touch.identifier;
 
-    const fingerCoords = { x: touch.clientX, y: touch.clientY };
-    startPressing(fingerCoords);
+    // The pointer handlers already started this gesture. Keep its state and only add the touch
+    // listeners, which continue tracking the finger if the browser cancels the pointer.
+    if (!pointerGestureRef.current) {
+      const fingerCoords = { x: touch.clientX, y: touch.clientY };
+      startPressing(fingerCoords);
 
-    const finger = getFingerState(fingerCoords);
+      const finger = getFingerState(fingerCoords);
 
-    if (finger == null) {
-      return;
+      if (finger == null) {
+        return;
+      }
+
+      focusThumb(finger.thumbIndex);
+      setValueFromPointer(finger, REASONS.trackPress, nativeEvent);
+
+      moveCountRef.current = 0;
     }
 
-    focusThumb(finger.thumbIndex);
-    setValueFromPointer(finger, REASONS.trackPress, nativeEvent);
-
-    moveCountRef.current = 0;
     const doc = ownerDocument(controlRef.current);
     doc.addEventListener('touchmove', handleTouchMove, { passive: true });
     doc.addEventListener('touchend', handleTouchEnd, { passive: true });
@@ -421,6 +429,7 @@ export const SliderControl = React.forwardRef(function SliderControl(
     doc.removeEventListener('touchend', handleTouchEnd);
     pressedValuesRef.current = null;
     currentInteractionValueRef.current = null;
+    pointerGestureRef.current = false;
   });
 
   const focusFrame = useAnimationFrame();
@@ -509,6 +518,7 @@ export const SliderControl = React.forwardRef(function SliderControl(
           }
 
           moveCountRef.current = 0;
+          pointerGestureRef.current = true;
           const doc = ownerDocument(control);
           doc.addEventListener('pointermove', handleTouchMove, { passive: true });
           doc.addEventListener('pointerup', handleTouchEnd, { once: true });
