@@ -28,6 +28,7 @@ describe.skipIf(isJSDOM)('useTriggerFocusGuards', () => {
   ])('$name', ({ name, Component }) => {
     function TestPopup(props: {
       tabIndex?: number;
+      openOnHover?: boolean;
       open?: boolean;
       onOpenChange?: (open: boolean) => void;
       className?: string;
@@ -35,7 +36,9 @@ describe.skipIf(isJSDOM)('useTriggerFocusGuards', () => {
     }) {
       return (
         <Component.Root modal={false} open={props.open} onOpenChange={props.onOpenChange}>
-          <Component.Trigger tabIndex={props.tabIndex}>Toggle</Component.Trigger>
+          <Component.Trigger tabIndex={props.tabIndex} openOnHover={props.openOnHover} delay={0}>
+            Toggle
+          </Component.Trigger>
           <Component.Portal>
             <Component.Positioner>
               <Component.Popup
@@ -64,6 +67,55 @@ describe.skipIf(isJSDOM)('useTriggerFocusGuards', () => {
       });
       return trigger;
     }
+
+    it.each([
+      { finalFocusType: 'default' },
+      { finalFocusType: 'ref' },
+      { finalFocusType: 'function' },
+    ] as const)(
+      'closes and moves focus past the trigger when tabbing from the trigger of a hover-opened popup with $finalFocusType finalFocus',
+      async ({ finalFocusType }) => {
+        const finalFocusRef = React.createRef<HTMLButtonElement>();
+        const finalFocus = {
+          default: undefined,
+          ref: finalFocusRef,
+          function: () => true,
+        }[finalFocusType];
+
+        await render(
+          <div>
+            <style>{`
+              .popup { transition: opacity 200ms; }
+              .popup[data-ending-style] { opacity: 0; }
+            `}</style>
+            <TestPopup openOnHover className="popup" finalFocus={finalFocus} />
+            <button data-testid="after">After</button>
+            <button ref={finalFocusRef}>Final focus</button>
+          </div>,
+        );
+
+        const trigger = screen.getByRole('button', { name: 'Toggle' });
+        await act(async () => trigger.focus());
+        await user.hover(trigger);
+        await waitFor(() => {
+          expect(trigger).toHaveAttribute('aria-expanded', 'true');
+        });
+        // Menu moves focus into the popup when opened by hover.
+        await act(async () => trigger.focus());
+        expect(trigger).toHaveFocus();
+
+        await user.tab();
+
+        const after = screen.getByTestId('after');
+        expect(after).toHaveFocus();
+        // The return-focus bug only shows while the popup stays mounted for its exit transition.
+        expect(screen.getByTestId('popup')).not.toBe(null);
+        await waitFor(() => {
+          expect(screen.queryByTestId('popup')).toBe(null);
+        });
+        expect(after).toHaveFocus();
+      },
+    );
 
     describe.each(['forward', 'backward'] as const)('tabbing %s', (direction) => {
       /** Puts focus on the element the upcoming Tab should leave from. */

@@ -109,7 +109,13 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
       context={floatingContext}
       openInteractionType={openMethod}
       modal={focusManagerModal}
-      disabled={!mounted || openReason === REASONS.triggerHover}
+      // Staying disabled after a focus-out close stops a hover-opened popup's manager from
+      // enabling during the exit and returning focus away from where Tab moved it.
+      disabled={
+        !mounted ||
+        openReason === REASONS.triggerHover ||
+        (!open && openReason === REASONS.focusOut)
+      }
       initialFocus={resolvedInitialFocus}
       returnFocus={finalFocus}
       restoreFocus="popup"

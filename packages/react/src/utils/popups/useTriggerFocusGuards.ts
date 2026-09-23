@@ -61,8 +61,10 @@ export function useTriggerFocusGuards(
 
   function handleFocusTargetFocus(event: React.FocusEvent<HTMLElement>) {
     const positionerElement = store.select('positionerElement');
-    if (positionerElement && isOutsideEvent(event, positionerElement)) {
-      store.context.beforeContentFocusGuardRef.current?.focus();
+    // The content guard is absent when the popup's focus manager is disabled (hover-opened popover).
+    const contentFocusGuard = store.context.beforeContentFocusGuardRef.current;
+    if (positionerElement && contentFocusGuard && isOutsideEvent(event, positionerElement)) {
+      contentFocusGuard.focus();
     } else {
       closeAndFocus(event, 1, positionerElement);
     }
