@@ -224,7 +224,8 @@ export type DraggableConfig<TPayload = undefined, TDragData = unknown> = {
    * Determines when a pointer press starts a drag. Accepts one activation method for
    * every pointer type, a map with a method per pointer type, or an array to allow
    * several methods. By default, mouse and pen start after 5px of movement, and touch
-   * after a 250ms hold.
+   * after a 250ms hold. Set a pointer entry to `false` to disable pickup for that
+   * pointer type, overriding all methods in an array.
    */
   activation?: DragActivationConfig | readonly DragActivationConfig[] | undefined;
   /**

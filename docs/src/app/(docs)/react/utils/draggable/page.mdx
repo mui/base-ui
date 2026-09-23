@@ -473,6 +473,12 @@ Pass an array to allow several methods at once. The first one to complete starts
 />
 ```
 
+Set a pointer type to `false` to disable its pickup. Only do this if your app provides another way to perform the same operation with that input, such as touch-accessible move buttons or a custom pen gesture. Unlisted pointer types keep their defaults. In an activation array, `false` overrides all methods for that pointer type, including double-click or double-tap pickup.
+
+```tsx title="Disable touch and pen pickup"
+<Draggable.Root kind={card} payload={id} activation={{ touch: false, pen: false }} />
+```
+
 #### Double-click pickup
 
 With `{ type: 'double-click' }`, a mouse double-click picks the item up. It then follows the pointer without a held button and drops on the next click. With touch or pen, the second tap of a double-tap picks the item up while the pointer is still down, and releasing drops it. <kbd>Esc</kbd> or <kbd>Tab</kbd> cancels either gesture.

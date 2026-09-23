@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { act } from '@mui/internal-test-utils';
+import { act, fireEvent } from '@mui/internal-test-utils';
 import { createDndRenderer, firePointer } from '#test-utils';
 import {
   createElement,
@@ -19,6 +19,81 @@ setupDragEngineTests({
 
 describe('syntheticDrag activation', () => {
   const { renderDnd } = createDndRenderer();
+
+  it.each(['mouse', 'touch', 'pen'] as const)(
+    'leaves disabled %s gestures to the app without picking up the parent',
+    async (pointerType) => {
+      const { engine } = await renderDnd();
+      const parent = createElement();
+      const source = createElement();
+      parent.appendChild(source);
+      const onBeforeMoveStart = vi.fn();
+      const onParentMoveStart = vi.fn();
+      const onPointerMove = vi.fn();
+      source.addEventListener('pointermove', onPointerMove);
+      const releasePointerCapture = vi.fn();
+      source.releasePointerCapture = releasePointerCapture;
+      engine.registerDraggable(parent, {
+        activation: { type: 'immediate' },
+        onMoveStart: onParentMoveStart,
+      });
+      engine.registerDraggable(source, {
+        activation: { [pointerType]: false },
+        onBeforeMoveStart,
+      });
+      const input = { pointerType, pointerId: 1, buttons: 1 };
+      firePointer.down(source, { ...input, timeStamp: 10 });
+      await act(async () => {
+        await new Promise<void>((resolve) => {
+          setTimeout(resolve, 300);
+        });
+      });
+      expect(fireEvent.contextMenu(source)).toBe(true);
+      firePointer.move(source, { ...input, clientX: 30, timeStamp: 320 });
+      firePointer.up(source, { ...input, buttons: 0, clientX: 30, timeStamp: 330 });
+      expect(onPointerMove).toHaveBeenCalledTimes(1);
+      expect(onBeforeMoveStart).not.toHaveBeenCalled();
+      expect(onParentMoveStart).not.toHaveBeenCalled();
+      expect(releasePointerCapture).not.toHaveBeenCalled();
+      expect(fireEvent.click(source)).toBe(true);
+    },
+  );
+
+  it.each(['mouse', 'touch', 'pen'] as const)(
+    'does not let double-click or double-tap bypass disabled %s activation',
+    async (pointerType) => {
+      const { engine } = await renderDnd();
+      const source = createElement();
+      const onMoveStart = vi.fn();
+      engine.registerDraggable(source, {
+        activation: [{ type: 'double-click' }, { [pointerType]: false }],
+        onMoveStart,
+      });
+      const input = { pointerType, pointerId: 1, buttons: 1 };
+      firePointer.down(source, { ...input, timeStamp: 10 });
+      firePointer.up(source, { ...input, buttons: 0, timeStamp: 20 });
+      firePointer.down(source, { ...input, timeStamp: 100 });
+      firePointer.up(source, { ...input, buttons: 0, timeStamp: 110 });
+      fireEvent.doubleClick(source);
+      expect(onMoveStart).not.toHaveBeenCalled();
+    },
+  );
+
+  it('keeps default mouse activation when touch and pen are disabled', async () => {
+    const { engine } = await renderDnd();
+    const source = createElement();
+    const onMoveStart = vi.fn();
+    engine.registerDraggable(source, {
+      activation: { touch: false, pen: false },
+      onMoveStart,
+    });
+    const input = { pointerType: 'mouse', pointerId: 1, buttons: 1 };
+    firePointer.down(source, { ...input, timeStamp: 10 });
+    expect(onMoveStart).not.toHaveBeenCalled();
+    firePointer.move(source, { ...input, clientX: 10, timeStamp: 20 });
+    expect(onMoveStart).toHaveBeenCalledTimes(1);
+    firePointer.up(source, { ...input, buttons: 0, clientX: 10, timeStamp: 30 });
+  });
 
   it('default press-hold: holds through a small drift, starts at the drifted point, and drops on a target', async () => {
     const { engine } = await renderDnd();

@@ -27,6 +27,9 @@ export function resolveActivation(
     return [DEFAULT_ACTIVATION[pointerType]];
   }
   const configs = normalizeConfig(config);
+  if (isPointerDisabled(configs, pointerType)) {
+    return [];
+  }
   let addressed = configs.length === 0;
   const activations = configs.flatMap((activation) => {
     const specific = 'type' in activation ? activation : activation[pointerType];
@@ -51,12 +54,21 @@ export function hasDoubleClickActivation(
   if (config === undefined) {
     return false;
   }
-  return normalizeConfig(config).some((activation) => {
+  const configs = normalizeConfig(config);
+  if (isPointerDisabled(configs, pointerType)) {
+    return false;
+  }
+  return configs.some((activation) => {
     if ('type' in activation) {
       return activation.type === 'double-click';
     }
-    return activation[pointerType]?.type === 'double-click';
+    const specific = activation[pointerType];
+    return specific !== false && specific?.type === 'double-click';
   });
+}
+
+function isPointerDisabled(configs: DragActivationConfig[], pointerType: DragPointerType): boolean {
+  return configs.some((config) => !('type' in config) && config[pointerType] === false);
 }
 
 function normalizeConfig(
@@ -148,14 +160,15 @@ export type DragActivation =
 /**
  * A single activation applied to all pointer types, or a per-pointer map.
  * Missing entries fall back to the per-pointer defaults. Pass an array of these
- * values to enable multiple activation methods.
+ * values to enable multiple activation methods. Set a pointer entry to `false`
+ * to disable pickup for that pointer type, overriding all methods in an array.
  */
 export type DragActivationConfig =
   | DragActivation
   | {
-      mouse?: DragActivation | undefined;
-      touch?: DragActivation | undefined;
-      pen?: DragActivation | undefined;
+      mouse?: DragActivation | false | undefined;
+      touch?: DragActivation | false | undefined;
+      pen?: DragActivation | false | undefined;
     };
 
 export type ActivationDecision = 'pending' | 'activate' | 'cancel';

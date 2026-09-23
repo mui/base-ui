@@ -358,6 +358,8 @@ function GenericCard<TPayload>(props: Draggable.Root.PropsWithPayload<TPayload>)
 
 <Draggable.Root activation={[{ type: 'distance', distance: 8 }, { type: 'double-click' }]} />;
 <Draggable.Root activation={{ mouse: { type: 'double-click' } }} />;
+<Draggable.Root activation={{ mouse: false, touch: false, pen: false }} />;
+<Draggable.Root activation={[{ type: 'immediate' }, { touch: false, pen: false }]} />;
 // Double-tap pickup for touch and pen shares the `double-click` type.
 <Draggable.Root activation={{ touch: { type: 'double-click' } }} />;
 <Draggable.Root activation={{ pen: { type: 'double-click' } }} />;
