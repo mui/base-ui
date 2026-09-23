@@ -875,6 +875,46 @@ describe('<Slider.Root />', () => {
       expect(handleValueCommitted.mock.calls[0][0]).toBe(50);
     });
 
+    it('commits a touch drag after the browser cancels the pointer', async () => {
+      const handleValueCommitted = vi.fn();
+
+      await render(
+        <Slider.Root defaultValue={0} onValueCommitted={handleValueCommitted}>
+          <Slider.Control data-testid="control">
+            <Slider.Thumb />
+          </Slider.Control>
+        </Slider.Root>,
+      );
+
+      const sliderControl = screen.getByTestId('control');
+
+      vi.spyOn(sliderControl, 'getBoundingClientRect').mockImplementation(getHorizontalSliderRect);
+
+      fireEvent.pointerDown(sliderControl, {
+        pointerType: 'touch',
+        pointerId: 1,
+        buttons: 1,
+        clientX: 50,
+      });
+      fireEvent.touchStart(
+        sliderControl,
+        createTouches([{ identifier: 1, clientX: 50, clientY: 0 }]),
+      );
+      // Without `touch-action: none`, the browser cancels the pointer once it starts panning.
+      fireEvent.pointerCancel(sliderControl, { pointerType: 'touch', pointerId: 1 });
+      fireEvent.touchMove(
+        document.body,
+        createTouches([{ identifier: 1, clientX: 70, clientY: 0 }]),
+      );
+      fireEvent.touchEnd(
+        document.body,
+        createTouches([{ identifier: 1, clientX: 70, clientY: 0 }]),
+      );
+
+      expect(handleValueCommitted.mock.calls.length).toBe(1);
+      expect(handleValueCommitted.mock.calls[0][0]).toBe(70);
+    });
+
     // Requires layout: the range drag relies on real thumb measurements.
     it.skipIf(isJSDOM)('array value', async () => {
       const handleValueCommitted = vi.fn((newValue: number[], eventDetails) => ({
