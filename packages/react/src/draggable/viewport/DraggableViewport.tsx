@@ -1,5 +1,9 @@
 'use client';
 import * as React from 'react';
+import type {
+  DragAutoScrollEvent,
+  DragAutoScrollEventDetails,
+} from '../../utils/drag-and-drop/autoScroller';
 import { useRenderElement } from '../../internals/useRenderElement';
 import type { BaseUIComponentProps } from '../../internals/types';
 import type {
@@ -97,7 +101,21 @@ export type DraggableViewportProps<
 > = BaseUIComponentProps<'div', DraggableViewportState> &
   RegisterAutoScrollerParameters<TSourcePayload, TDragData>;
 
+export type DraggableViewportDragScrollEvent<
+  TPayload = unknown,
+  TDragData = unknown,
+> = DragAutoScrollEvent<TPayload, TDragData>;
+export type DraggableViewportDragScrollEventDetails = DragAutoScrollEventDetails;
+export type DraggableViewportDragScrollEventReason =
+  DraggableViewportDragScrollEventDetails['reason'];
+
 export namespace DraggableViewport {
+  export type DragScrollEvent<
+    TPayload = unknown,
+    TDragData = unknown,
+  > = DraggableViewportDragScrollEvent<TPayload, TDragData>;
+  export type DragScrollEventDetails = DraggableViewportDragScrollEventDetails;
+  export type DragScrollEventReason = DraggableViewportDragScrollEventReason;
   export type State = DraggableViewportState;
   export type Props<TSourcePayload = unknown, TDragData = unknown> = DraggableViewportProps<
     TSourcePayload,

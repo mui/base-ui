@@ -4,6 +4,16 @@ import { warn } from '@base-ui/utils/warn';
 import { DraggableCollisionContext } from '../collision-provider/DraggableCollisionContext';
 import { useDraggableContext } from '../DraggableContext';
 import type {
+  BeforeMoveStartEventDetails,
+  DropTargetChangeEvent,
+  DropTargetChangeEventDetails,
+  MoveEndEvent,
+  MoveEndEventDetails,
+  MoveEvent,
+  MoveEventDetails,
+  MoveStartContext,
+  MoveStartEvent,
+  MoveStartEventDetails,
   DragKind,
   DraggablePayload,
   DragSnapSteps,
@@ -252,7 +262,69 @@ type DraggableRootPayloadField<TPayload> = [TPayload] extends [undefined]
   ? { payload?: DraggablePayload<TPayload> | undefined }
   : RequiredDraggablePayload<TPayload>;
 
+export type DraggableRootBeforeMoveStartEvent<
+  TPayload = unknown,
+  TDragData = unknown,
+> = MoveStartContext<TPayload, TDragData>;
+export type DraggableRootBeforeMoveStartEventDetails = BeforeMoveStartEventDetails;
+export type DraggableRootBeforeMoveStartEventReason =
+  DraggableRootBeforeMoveStartEventDetails['reason'];
+export type DraggableRootMoveStartEvent<TPayload = unknown, TDragData = unknown> = MoveStartEvent<
+  TPayload,
+  TDragData
+>;
+export type DraggableRootMoveStartEventDetails = MoveStartEventDetails;
+export type DraggableRootMoveStartEventReason = DraggableRootMoveStartEventDetails['reason'];
+export type DraggableRootMoveEvent<TPayload = unknown, TDragData = unknown> = MoveEvent<
+  TPayload,
+  TDragData
+>;
+export type DraggableRootMoveEventDetails = MoveEventDetails;
+export type DraggableRootMoveEventReason = DraggableRootMoveEventDetails['reason'];
+export type DraggableRootTargetChangeEvent<
+  TPayload = unknown,
+  TDragData = unknown,
+> = DropTargetChangeEvent<TPayload, TDragData>;
+export type DraggableRootTargetChangeEventDetails = DropTargetChangeEventDetails;
+export type DraggableRootTargetChangeEventReason = DraggableRootTargetChangeEventDetails['reason'];
+export type DraggableRootMoveEndEvent<TPayload = unknown, TDragData = unknown> = MoveEndEvent<
+  TPayload,
+  TDragData
+>;
+export type DraggableRootMoveEndEventDetails = MoveEndEventDetails;
+export type DraggableRootMoveEndEventReason = DraggableRootMoveEndEventDetails['reason'];
+
 export namespace DraggableRoot {
+  export type BeforeMoveStartEvent<
+    TPayload = unknown,
+    TDragData = unknown,
+  > = DraggableRootBeforeMoveStartEvent<TPayload, TDragData>;
+  export type BeforeMoveStartEventDetails = DraggableRootBeforeMoveStartEventDetails;
+  export type BeforeMoveStartEventReason = DraggableRootBeforeMoveStartEventReason;
+  export type MoveStartEvent<TPayload = unknown, TDragData = unknown> = DraggableRootMoveStartEvent<
+    TPayload,
+    TDragData
+  >;
+  export type MoveStartEventDetails = DraggableRootMoveStartEventDetails;
+  export type MoveStartEventReason = DraggableRootMoveStartEventReason;
+  export type MoveEvent<TPayload = unknown, TDragData = unknown> = DraggableRootMoveEvent<
+    TPayload,
+    TDragData
+  >;
+  export type MoveEventDetails = DraggableRootMoveEventDetails;
+  export type MoveEventReason = DraggableRootMoveEventReason;
+  export type TargetChangeEvent<
+    TPayload = unknown,
+    TDragData = unknown,
+  > = DraggableRootTargetChangeEvent<TPayload, TDragData>;
+  export type TargetChangeEventDetails = DraggableRootTargetChangeEventDetails;
+  export type TargetChangeEventReason = DraggableRootTargetChangeEventReason;
+  export type MoveEndEvent<TPayload = unknown, TDragData = unknown> = DraggableRootMoveEndEvent<
+    TPayload,
+    TDragData
+  >;
+  export type MoveEndEventDetails = DraggableRootMoveEndEventDetails;
+  export type MoveEndEventReason = DraggableRootMoveEndEventReason;
   export type State = DraggableRootState;
   export type Props<TPayload = undefined, TDragData = unknown> = DraggableRootProps<
     TPayload,

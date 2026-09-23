@@ -4,6 +4,7 @@ import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import type {
+  MoveStartEvent,
   BaseDragEvent,
   DragKind,
   DragSource,
@@ -286,7 +287,39 @@ export interface DraggableCollisionProviderProps<TPayload = unknown, TDragData =
     | undefined;
 }
 
+export type DraggableCollisionProviderMoveStartEvent<
+  TPayload = unknown,
+  TDragData = unknown,
+> = MoveStartEvent<TPayload, TDragData>;
+export type DraggableCollisionProviderMoveStartEventDetails = MoveStartEventDetails;
+export type DraggableCollisionProviderMoveStartEventReason =
+  DraggableCollisionProviderMoveStartEventDetails['reason'];
+export type DraggableCollisionProviderCollisionChangeEvent<
+  TPayload = unknown,
+  TDragData = unknown,
+> = DraggableCollisionEvent<TPayload, TDragData>;
+export type DraggableCollisionProviderCollisionChangeEventDetails = DropTargetChangeEventDetails;
+export type DraggableCollisionProviderCollisionChangeEventReason =
+  DraggableCollisionProviderCollisionChangeEventDetails['reason'];
+export type DraggableCollisionProviderMoveEndEventDetails = MoveEndEventDetails;
+export type DraggableCollisionProviderMoveEndEventReason =
+  DraggableCollisionProviderMoveEndEventDetails['reason'];
+
 export namespace DraggableCollisionProvider {
+  export type MoveStartEvent<
+    TPayload = unknown,
+    TDragData = unknown,
+  > = DraggableCollisionProviderMoveStartEvent<TPayload, TDragData>;
+  export type MoveStartEventDetails = DraggableCollisionProviderMoveStartEventDetails;
+  export type MoveStartEventReason = DraggableCollisionProviderMoveStartEventReason;
+  export type CollisionChangeEvent<
+    TPayload = unknown,
+    TDragData = unknown,
+  > = DraggableCollisionProviderCollisionChangeEvent<TPayload, TDragData>;
+  export type CollisionChangeEventDetails = DraggableCollisionProviderCollisionChangeEventDetails;
+  export type CollisionChangeEventReason = DraggableCollisionProviderCollisionChangeEventReason;
+  export type MoveEndEventDetails = DraggableCollisionProviderMoveEndEventDetails;
+  export type MoveEndEventReason = DraggableCollisionProviderMoveEndEventReason;
   export type Props<TPayload = unknown, TDragData = unknown> = DraggableCollisionProviderProps<
     TPayload,
     TDragData

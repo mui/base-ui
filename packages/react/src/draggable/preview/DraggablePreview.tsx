@@ -125,7 +125,16 @@ export type DraggablePreviewTypedProps<TPayload, TDragData = unknown> = Omit<
     | undefined;
 };
 
+export type DraggablePreviewRenderEvent<
+  TPayload = unknown,
+  TDragData = unknown,
+> = DragPreviewRenderEvent<TPayload, TDragData>;
+
 export namespace DraggablePreview {
+  export type RenderEvent<TPayload = unknown, TDragData = unknown> = DraggablePreviewRenderEvent<
+    TPayload,
+    TDragData
+  >;
   export type State = DraggablePreviewState;
   export type Props<TPayload = unknown, TDragData = unknown> = unknown extends TPayload
     ? DraggablePreviewProps

@@ -58,6 +58,157 @@ type DraggableRootState = {
 };
 ```
 
+### Root.BeforeMoveStartEvent
+
+```typescript
+type DraggableRootBeforeMoveStartEvent<TPayload = unknown, TDragData = unknown> = {
+  /**
+   * The source being picked up. The same record is used if the drag starts.
+   * Call `updateDragData` to initialize gesture data before targets resolve and previews render.
+   * A canceled pickup does not carry its gesture data into the next attempt.
+   */
+  source: DragSource<TPayload, TDragData>;
+  /** Pointer state at drag start. */
+  input: DragInput;
+  /** The draggable's own DOM element. */
+  element: HTMLElement;
+  /** The element the user pressed. `null` when the whole draggable is its own handle. */
+  dragHandle: Element | null;
+};
+```
+
+### Root.BeforeMoveStartEventDetails
+
+```typescript
+type DraggableRootBeforeMoveStartEventDetails = (
+  | { reason: 'pointer'; event: PointerEvent }
+  | { reason: 'double-click'; event: PointerEvent | MouseEvent }
+) & {
+  /** Prevents the drag from starting. */
+  cancel: () => void;
+  /** Allows the native event to propagate when Base UI would stop it. */
+  allowPropagation: () => void;
+  /** Whether `cancel` has been called. */
+  isCanceled: boolean;
+  /** Whether `allowPropagation` has been called. */
+  isPropagationAllowed: boolean;
+  /** The element that initiated the pickup, when available. */
+  trigger: Element | undefined;
+};
+```
+
+### Root.BeforeMoveStartEventReason
+
+```typescript
+type DraggableRootBeforeMoveStartEventReason = 'pointer' | 'double-click';
+```
+
+### Root.MoveEndEvent
+
+```typescript
+type DraggableRootMoveEndEvent<TPayload = unknown, TDragData = unknown> = {
+  /** The pointer position and drop targets, now and at previous moments of the drag. */
+  location: DragLocationHistory;
+  /** The item being dragged. */
+  source: DragSource<TPayload, TDragData>;
+  /**
+   * Whether the drag was canceled rather than released. A release outside any drop
+   * target isn't a cancellation. Read `eventDetails.reason` for the exact outcome.
+   */
+  canceled: boolean;
+  /**
+   * The drop target that received the drop, or `null` when the drag was released
+   * outside any target or canceled.
+   */
+  dropTarget: DropTargetRecord | null;
+};
+```
+
+### Root.MoveEndEventDetails
+
+```typescript
+type DraggableRootMoveEndEventDetails =
+  | { reason: 'escape-key'; event: KeyboardEvent }
+  | { reason: 'tab-key'; event: KeyboardEvent }
+  | { reason: 'drop'; event: PointerEvent | MouseEvent }
+  | { reason: 'outside-release'; event: PointerEvent | MouseEvent }
+  | { reason: 'imperative-action'; event: Event }
+  | { reason: 'window-blur'; event: FocusEvent }
+  | { reason: 'page-hidden'; event: Event }
+  | { reason: 'pointer-canceled'; event: PointerEvent }
+  | { reason: 'capture-lost'; event: PointerEvent }
+  | { reason: 'missed-release'; event: PointerEvent }
+  | { reason: 'document-detached'; event: Event }
+  | { reason: 'handler-error'; event: Event };
+```
+
+### Root.MoveEndEventReason
+
+```typescript
+type DraggableRootMoveEndEventReason =
+  | 'escape-key'
+  | 'tab-key'
+  | 'drop'
+  | 'outside-release'
+  | 'imperative-action'
+  | 'window-blur'
+  | 'page-hidden'
+  | 'pointer-canceled'
+  | 'capture-lost'
+  | 'missed-release'
+  | 'document-detached'
+  | 'handler-error';
+```
+
+### Root.MoveEvent
+
+```typescript
+type DraggableRootMoveEvent<TPayload = unknown, TDragData = unknown> = {
+  /** The pointer position and drop targets, now and at previous moments of the drag. */
+  location: DragLocationHistory;
+  /** The item being dragged. */
+  source: DragSource<TPayload, TDragData>;
+};
+```
+
+### Root.MoveEventDetails
+
+```typescript
+type DraggableRootMoveEventDetails =
+  { reason: 'pointer'; event: PointerEvent } | { reason: 'modifier-key'; event: KeyboardEvent };
+```
+
+### Root.MoveEventReason
+
+```typescript
+type DraggableRootMoveEventReason = 'pointer' | 'modifier-key';
+```
+
+### Root.MoveStartEvent
+
+```typescript
+type DraggableRootMoveStartEvent<TPayload = unknown, TDragData = unknown> = {
+  /** The pointer position and drop targets, now and at previous moments of the drag. */
+  location: DragLocationHistory;
+  /** The item being dragged. */
+  source: DragSource<TPayload, TDragData>;
+};
+```
+
+### Root.MoveStartEventDetails
+
+```typescript
+type DraggableRootMoveStartEventDetails =
+  | { reason: 'pointer'; event: PointerEvent }
+  | { reason: 'double-click'; event: PointerEvent | MouseEvent };
+```
+
+### Root.MoveStartEventReason
+
+```typescript
+type DraggableRootMoveStartEventReason = 'pointer' | 'double-click';
+```
+
 ### Root.PropsWithPayload
 
 ```typescript
@@ -176,6 +327,59 @@ type DraggableRootPropsWithPayload<TPayload, TDragData = unknown> = {
 };
 ```
 
+### Root.TargetChangeEvent
+
+```typescript
+type DraggableRootTargetChangeEvent<TPayload = unknown, TDragData = unknown> = {
+  /** The pointer position and drop targets, now and at previous moments of the drag. */
+  location: DragLocationHistory;
+  /** The item being dragged. */
+  source: DragSource<TPayload, TDragData>;
+};
+```
+
+### Root.TargetChangeEventDetails
+
+```typescript
+type DraggableRootTargetChangeEventDetails =
+  | { reason: 'pointer'; event: PointerEvent }
+  | { reason: 'double-click'; event: PointerEvent | MouseEvent }
+  | { reason: 'modifier-key'; event: KeyboardEvent }
+  | { reason: 'escape-key'; event: KeyboardEvent }
+  | { reason: 'tab-key'; event: KeyboardEvent }
+  | { reason: 'drop'; event: PointerEvent | MouseEvent }
+  | { reason: 'outside-release'; event: PointerEvent | MouseEvent }
+  | { reason: 'imperative-action'; event: Event }
+  | { reason: 'window-blur'; event: FocusEvent }
+  | { reason: 'page-hidden'; event: Event }
+  | { reason: 'pointer-canceled'; event: PointerEvent }
+  | { reason: 'capture-lost'; event: PointerEvent }
+  | { reason: 'missed-release'; event: PointerEvent }
+  | { reason: 'document-detached'; event: Event }
+  | { reason: 'handler-error'; event: Event };
+```
+
+### Root.TargetChangeEventReason
+
+```typescript
+type DraggableRootTargetChangeEventReason =
+  | 'pointer'
+  | 'double-click'
+  | 'modifier-key'
+  | 'escape-key'
+  | 'tab-key'
+  | 'drop'
+  | 'outside-release'
+  | 'imperative-action'
+  | 'window-blur'
+  | 'page-hidden'
+  | 'pointer-canceled'
+  | 'capture-lost'
+  | 'missed-release'
+  | 'document-detached'
+  | 'handler-error';
+```
+
 ### Provider
 
 Groups the drag sources, drop targets, and viewports of an interaction.
@@ -231,6 +435,58 @@ type DraggableViewportState = {
 };
 ```
 
+### Viewport.DragScrollEvent
+
+```typescript
+type DraggableViewportDragScrollEvent<TPayload = unknown, TDragData = unknown> = {
+  /**
+   * How far to move horizontally this frame, in CSS pixels, with `scrollBy`
+   * semantics: a positive value moves the view right, so the content slides left
+   * under the pointer. Apply this delta as-is, without multiplying by elapsed time.
+   * `0` when the horizontal axis isn't engaged this frame.
+   */
+  x: number;
+  /** How far to move vertically this frame, in CSS pixels. A positive value moves the view down. */
+  y: number;
+  direction: DragAutoScrollDirection;
+  /**
+   * The position used to determine scrolling. It may differ from the modified
+   * drag position when a modifier separates that position from the pointer.
+   */
+  input: DragInput;
+  source: DragSource<TPayload, TDragData>;
+  element: HTMLElement;
+};
+```
+
+### Viewport.DragScrollEventDetails
+
+```typescript
+type DraggableViewportDragScrollEventDetails = {
+  /** Why the frame ran. Always `'pointer'`: the loop follows the pointer's position. */
+  reason: 'pointer';
+  /** A generic `Event`, rather than the native pointer event. */
+  event: Event;
+  /** Prevents Base UI from scrolling the container in this direction. */
+  cancel: () => void;
+  /** Whether `cancel` has been called. */
+  isCanceled: boolean;
+  /**
+   * Claims this direction, so that ancestor viewports don't scroll on the same axis.
+   * Skip it at a bound the element can't move past, so an ancestor can scroll instead.
+   */
+  consume: () => void;
+  /** Whether `consume` has been called. */
+  isConsumed: boolean;
+};
+```
+
+### Viewport.DragScrollEventReason
+
+```typescript
+type DraggableViewportDragScrollEventReason = 'pointer';
+```
+
 ### CollisionProvider
 
 Groups draggables of the same kind and reports which one is under the pointer, for sorting.
@@ -261,6 +517,63 @@ type DraggableCollisionProviderCollision<TPayload = unknown, TDragData = unknown
    */
   target: DropTargetRecord<TPayload, TDragData>;
 };
+```
+
+### CollisionProvider.CollisionChangeEvent
+
+```typescript
+type DraggableCollisionProviderCollisionChangeEvent<TPayload = unknown, TDragData = unknown> = {
+  /** The item under the pointer, or `null` when outside the group or over the dragged item. */
+  collision: DraggableCollision<TPayload, TDragData> | null;
+  /** The collision reported by the previous `onCollisionChange` call, or `null` before the first. */
+  previousCollision: DraggableCollision<TPayload, TDragData> | null;
+  /** The pointer position and drop targets, now and at previous moments of the drag. */
+  location: DragLocationHistory;
+  /** The item being dragged. */
+  source: DragSource<TPayload, TDragData>;
+};
+```
+
+### CollisionProvider.CollisionChangeEventDetails
+
+```typescript
+type DraggableCollisionProviderCollisionChangeEventDetails =
+  | { reason: 'pointer'; event: PointerEvent }
+  | { reason: 'double-click'; event: PointerEvent | MouseEvent }
+  | { reason: 'modifier-key'; event: KeyboardEvent }
+  | { reason: 'escape-key'; event: KeyboardEvent }
+  | { reason: 'tab-key'; event: KeyboardEvent }
+  | { reason: 'drop'; event: PointerEvent | MouseEvent }
+  | { reason: 'outside-release'; event: PointerEvent | MouseEvent }
+  | { reason: 'imperative-action'; event: Event }
+  | { reason: 'window-blur'; event: FocusEvent }
+  | { reason: 'page-hidden'; event: Event }
+  | { reason: 'pointer-canceled'; event: PointerEvent }
+  | { reason: 'capture-lost'; event: PointerEvent }
+  | { reason: 'missed-release'; event: PointerEvent }
+  | { reason: 'document-detached'; event: Event }
+  | { reason: 'handler-error'; event: Event };
+```
+
+### CollisionProvider.CollisionChangeEventReason
+
+```typescript
+type DraggableCollisionProviderCollisionChangeEventReason =
+  | 'pointer'
+  | 'double-click'
+  | 'modifier-key'
+  | 'escape-key'
+  | 'tab-key'
+  | 'drop'
+  | 'outside-release'
+  | 'imperative-action'
+  | 'window-blur'
+  | 'page-hidden'
+  | 'pointer-canceled'
+  | 'capture-lost'
+  | 'missed-release'
+  | 'document-detached'
+  | 'handler-error';
 ```
 
 ### CollisionProvider.CollisionEvent
@@ -304,6 +617,67 @@ type DraggableCollisionProviderMoveEndEvent<TPayload = unknown, TDragData = unkn
    */
   dropTarget: DropTargetRecord | null;
 };
+```
+
+### CollisionProvider.MoveEndEventDetails
+
+```typescript
+type DraggableCollisionProviderMoveEndEventDetails =
+  | { reason: 'escape-key'; event: KeyboardEvent }
+  | { reason: 'tab-key'; event: KeyboardEvent }
+  | { reason: 'drop'; event: PointerEvent | MouseEvent }
+  | { reason: 'outside-release'; event: PointerEvent | MouseEvent }
+  | { reason: 'imperative-action'; event: Event }
+  | { reason: 'window-blur'; event: FocusEvent }
+  | { reason: 'page-hidden'; event: Event }
+  | { reason: 'pointer-canceled'; event: PointerEvent }
+  | { reason: 'capture-lost'; event: PointerEvent }
+  | { reason: 'missed-release'; event: PointerEvent }
+  | { reason: 'document-detached'; event: Event }
+  | { reason: 'handler-error'; event: Event };
+```
+
+### CollisionProvider.MoveEndEventReason
+
+```typescript
+type DraggableCollisionProviderMoveEndEventReason =
+  | 'escape-key'
+  | 'tab-key'
+  | 'drop'
+  | 'outside-release'
+  | 'imperative-action'
+  | 'window-blur'
+  | 'page-hidden'
+  | 'pointer-canceled'
+  | 'capture-lost'
+  | 'missed-release'
+  | 'document-detached'
+  | 'handler-error';
+```
+
+### CollisionProvider.MoveStartEvent
+
+```typescript
+type DraggableCollisionProviderMoveStartEvent<TPayload = unknown, TDragData = unknown> = {
+  /** The pointer position and drop targets, now and at previous moments of the drag. */
+  location: DragLocationHistory;
+  /** The item being dragged. */
+  source: DragSource<TPayload, TDragData>;
+};
+```
+
+### CollisionProvider.MoveStartEventDetails
+
+```typescript
+type DraggableCollisionProviderMoveStartEventDetails =
+  | { reason: 'pointer'; event: PointerEvent }
+  | { reason: 'double-click'; event: PointerEvent | MouseEvent };
+```
+
+### CollisionProvider.MoveStartEventReason
+
+```typescript
+type DraggableCollisionProviderMoveStartEventReason = 'pointer' | 'double-click';
 ```
 
 ### createGlobalKind
@@ -479,6 +853,17 @@ Re-export of [Preview](#preview) props.
 type DraggablePreviewState = {};
 ```
 
+### Preview.RenderEvent
+
+```typescript
+type DraggablePreviewRenderEvent<TPayload = unknown, TDragData = unknown> = {
+  /** The pointer position and drop targets, now and at previous moments of the drag. */
+  location: DragLocationHistory;
+  /** The item being dragged. */
+  source: DragSource<TPayload, TDragData>;
+};
+```
+
 ### restrictToElement
 
 Keeps the drag inside an element. Accepts the element, a ref to it, or a function
@@ -651,6 +1036,196 @@ type DraggableTargetState = {
 };
 ```
 
+### Target.DropEvent
+
+```typescript
+type DraggableTargetDropEvent<
+  TSourcePayload = unknown,
+  TTargetPayload = unknown,
+  TDragData = unknown,
+  TTargetDragData = unknown,
+> = {
+  /** The item being dragged. */
+  source: DragSource<TSourcePayload, TDragData>;
+  /** The pointer position and drop targets, now and at previous moments of the drag. */
+  location: DragLocationHistory;
+  /** The drop target's own record. */
+  target: DropTargetRecord<TTargetPayload, TTargetDragData>;
+  dropTarget: DropTargetRecord<TTargetPayload, TTargetDragData>;
+};
+```
+
+### Target.DropEventDetails
+
+```typescript
+type DraggableTargetDropEventDetails = {
+  /** Why the event fired. */
+  reason: 'drop';
+  /**
+   * The native event. Reasons that don't come from a native event, such as
+   * `'imperative-action'`, carry a generic `Event`.
+   */
+  event: PointerEvent | MouseEvent;
+};
+```
+
+### Target.DropEventReason
+
+```typescript
+type DraggableTargetDropEventReason = 'drop';
+```
+
+### Target.EnterEvent
+
+```typescript
+type DraggableTargetEnterEvent<
+  TSourcePayload = unknown,
+  TTargetPayload = unknown,
+  TDragData = unknown,
+  TTargetDragData = unknown,
+> = {
+  /** The pointer position and drop targets, now and at previous moments of the drag. */
+  location: DragLocationHistory;
+  /** The item being dragged. */
+  source: DragSource<TSourcePayload, TDragData>;
+  /** The drop target's own record. */
+  target: DropTargetRecord<TTargetPayload, TTargetDragData>;
+};
+```
+
+### Target.EnterEventDetails
+
+```typescript
+type DraggableTargetEnterEventDetails =
+  | { reason: 'pointer'; event: PointerEvent }
+  | { reason: 'double-click'; event: PointerEvent | MouseEvent }
+  | { reason: 'modifier-key'; event: KeyboardEvent }
+  | { reason: 'escape-key'; event: KeyboardEvent }
+  | { reason: 'tab-key'; event: KeyboardEvent }
+  | { reason: 'drop'; event: PointerEvent | MouseEvent }
+  | { reason: 'outside-release'; event: PointerEvent | MouseEvent }
+  | { reason: 'imperative-action'; event: Event }
+  | { reason: 'window-blur'; event: FocusEvent }
+  | { reason: 'page-hidden'; event: Event }
+  | { reason: 'pointer-canceled'; event: PointerEvent }
+  | { reason: 'capture-lost'; event: PointerEvent }
+  | { reason: 'missed-release'; event: PointerEvent }
+  | { reason: 'document-detached'; event: Event }
+  | { reason: 'handler-error'; event: Event };
+```
+
+### Target.EnterEventReason
+
+```typescript
+type DraggableTargetEnterEventReason =
+  | 'pointer'
+  | 'double-click'
+  | 'modifier-key'
+  | 'escape-key'
+  | 'tab-key'
+  | 'drop'
+  | 'outside-release'
+  | 'imperative-action'
+  | 'window-blur'
+  | 'page-hidden'
+  | 'pointer-canceled'
+  | 'capture-lost'
+  | 'missed-release'
+  | 'document-detached'
+  | 'handler-error';
+```
+
+### Target.LeaveEvent
+
+```typescript
+type DraggableTargetLeaveEvent<
+  TSourcePayload = unknown,
+  TTargetPayload = unknown,
+  TDragData = unknown,
+  TTargetDragData = unknown,
+> = {
+  /** The pointer position and drop targets, now and at previous moments of the drag. */
+  location: DragLocationHistory;
+  /** The item being dragged. */
+  source: DragSource<TSourcePayload, TDragData>;
+  /** The drop target's own record. */
+  target: DropTargetRecord<TTargetPayload, TTargetDragData>;
+};
+```
+
+### Target.LeaveEventDetails
+
+```typescript
+type DraggableTargetLeaveEventDetails =
+  | { reason: 'pointer'; event: PointerEvent }
+  | { reason: 'double-click'; event: PointerEvent | MouseEvent }
+  | { reason: 'modifier-key'; event: KeyboardEvent }
+  | { reason: 'escape-key'; event: KeyboardEvent }
+  | { reason: 'tab-key'; event: KeyboardEvent }
+  | { reason: 'drop'; event: PointerEvent | MouseEvent }
+  | { reason: 'outside-release'; event: PointerEvent | MouseEvent }
+  | { reason: 'imperative-action'; event: Event }
+  | { reason: 'window-blur'; event: FocusEvent }
+  | { reason: 'page-hidden'; event: Event }
+  | { reason: 'pointer-canceled'; event: PointerEvent }
+  | { reason: 'capture-lost'; event: PointerEvent }
+  | { reason: 'missed-release'; event: PointerEvent }
+  | { reason: 'document-detached'; event: Event }
+  | { reason: 'handler-error'; event: Event };
+```
+
+### Target.LeaveEventReason
+
+```typescript
+type DraggableTargetLeaveEventReason =
+  | 'pointer'
+  | 'double-click'
+  | 'modifier-key'
+  | 'escape-key'
+  | 'tab-key'
+  | 'drop'
+  | 'outside-release'
+  | 'imperative-action'
+  | 'window-blur'
+  | 'page-hidden'
+  | 'pointer-canceled'
+  | 'capture-lost'
+  | 'missed-release'
+  | 'document-detached'
+  | 'handler-error';
+```
+
+### Target.MoveEvent
+
+```typescript
+type DraggableTargetMoveEvent<
+  TSourcePayload = unknown,
+  TTargetPayload = unknown,
+  TDragData = unknown,
+  TTargetDragData = unknown,
+> = {
+  /** The pointer position and drop targets, now and at previous moments of the drag. */
+  location: DragLocationHistory;
+  /** The item being dragged. */
+  source: DragSource<TSourcePayload, TDragData>;
+  /** The drop target's own record. */
+  target: DropTargetRecord<TTargetPayload, TTargetDragData>;
+};
+```
+
+### Target.MoveEventDetails
+
+```typescript
+type DraggableTargetMoveEventDetails =
+  { reason: 'pointer'; event: PointerEvent } | { reason: 'modifier-key'; event: KeyboardEvent };
+```
+
+### Target.MoveEventReason
+
+```typescript
+type DraggableTargetMoveEventReason = 'pointer' | 'modifier-key';
+```
+
 ### Target.PropsWithPayload
 
 ```typescript
@@ -705,22 +1280,14 @@ type DraggableTargetPropsWithPayload<
         context: DropTargetResolutionContext<TSourcePayload, TSourceDragData>,
       ) => DragSnapSteps | undefined);
   /**
-   * One or more kinds of draggable this target accepts. Pass `Draggable.anyKind`
-   * to accept every drag, with `source.payload` typed as `unknown`.
-   *
-   * Drags of other kinds ignore this target, but an ancestor target can still accept them.
+   * Event handler called when the drag is released over this target. Only the innermost
+   * target under the pointer receives it, and it never fires on a cancel.
+   * Use the source's or a monitor's `onMoveEnd` to observe every drag end.
    */
-  accept: NonNullable<DragAccept<TSourcePayload, TSourceDragData> | undefined>;
-  /**
-   * Decides whether the current drag can be dropped on this target. Runs after `accept`.
-   *
-   * Return `false` to skip this target and let an ancestor receive the drop.
-   * Return `'reject'` to block the drop on this target, its nested targets, and its
-   * ancestors, for example when a column is full. The target then has `[data-rejected]`.
-   */
-  canDrop?: (
-    parameters: DropTargetResolutionContext<TSourcePayload, TSourceDragData>,
-  ) => boolean | 'reject';
+  onDraggableDrop?: (
+    parameters: DropEvent<TSourcePayload, TTargetPayload, TSourceDragData, TTargetDragData>,
+    eventDetails: { reason: 'drop'; event: PointerEvent | MouseEvent },
+  ) => void;
   /**
    * Event handler called when a drag starts while this target is already under the
    * pointer. Use a monitor's `onMoveStart` to observe drags starting elsewhere.
@@ -768,14 +1335,22 @@ type DraggableTargetPropsWithPayload<
     eventDetails: DropTargetChangeEventDetails,
   ) => void;
   /**
-   * Event handler called when the drag is released over this target. Only the innermost
-   * target under the pointer receives it, and it never fires on a cancel.
-   * Use the source's or a monitor's `onMoveEnd` to observe every drag end.
+   * One or more kinds of draggable this target accepts. Pass `Draggable.anyKind`
+   * to accept every drag, with `source.payload` typed as `unknown`.
+   *
+   * Drags of other kinds ignore this target, but an ancestor target can still accept them.
    */
-  onDraggableDrop?: (
-    parameters: DropEvent<TSourcePayload, TTargetPayload, TSourceDragData, TTargetDragData>,
-    eventDetails: { reason: 'drop'; event: PointerEvent | MouseEvent },
-  ) => void;
+  accept: NonNullable<DragAccept<TSourcePayload, TSourceDragData> | undefined>;
+  /**
+   * Decides whether the current drag can be dropped on this target. Runs after `accept`.
+   *
+   * Return `false` to skip this target and let an ancestor receive the drop.
+   * Return `'reject'` to block the drop on this target, its nested targets, and its
+   * ancestors, for example when a column is full. The target then has `[data-rejected]`.
+   */
+  canDrop?: (
+    parameters: DropTargetResolutionContext<TSourcePayload, TSourceDragData>,
+  ) => boolean | 'reject';
   /**
    * Whether to track the drag-over state and expose it through data attributes.
    * Disable it on targets that don't use them to avoid re-rendering as the drag moves.
@@ -784,6 +1359,38 @@ type DraggableTargetPropsWithPayload<
   trackDragOver?: boolean;
   payload: TTargetPayload;
 };
+```
+
+### Target.StartEvent
+
+```typescript
+type DraggableTargetStartEvent<
+  TSourcePayload = unknown,
+  TTargetPayload = unknown,
+  TDragData = unknown,
+  TTargetDragData = unknown,
+> = {
+  /** The pointer position and drop targets, now and at previous moments of the drag. */
+  location: DragLocationHistory;
+  /** The item being dragged. */
+  source: DragSource<TSourcePayload, TDragData>;
+  /** The drop target's own record. */
+  target: DropTargetRecord<TTargetPayload, TTargetDragData>;
+};
+```
+
+### Target.StartEventDetails
+
+```typescript
+type DraggableTargetStartEventDetails =
+  | { reason: 'pointer'; event: PointerEvent }
+  | { reason: 'double-click'; event: PointerEvent | MouseEvent };
+```
+
+### Target.StartEventReason
+
+```typescript
+type DraggableTargetStartEventReason = 'pointer' | 'double-click';
 ```
 
 ### useActiveDrag
@@ -1953,11 +2560,11 @@ function handleDragEnter(event: DropTargetEvent<'onDraggableEnter', CardPayload,
 ```typescript
 type DraggableDropTargetEvent<
   K extends
+    | 'onDraggableDrop'
     | 'onDraggableStart'
     | 'onDraggableMove'
     | 'onDraggableEnter'
-    | 'onDraggableLeave'
-    | 'onDraggableDrop',
+    | 'onDraggableLeave',
   TSourcePayload = unknown,
   TTargetPayload = unknown,
   TDragData = unknown,
@@ -2606,15 +3213,14 @@ type RegisterDropTargetParameters<
         context: DropTargetResolutionContext<TSourcePayload, TDragData>,
       ) => DragSnapSteps | undefined);
   /**
-   * Decides whether the current drag can be dropped on this target. Runs after `accept`.
-   *
-   * Return `false` to skip this target and let an ancestor receive the drop.
-   * Return `'reject'` to block the drop on this target, its nested targets, and its
-   * ancestors, for example when a column is full. The target then has `[data-rejected]`.
+   * Event handler called when the drag is released over this target. Only the innermost
+   * target under the pointer receives it, and it never fires on a cancel.
+   * Use the source's or a monitor's `onMoveEnd` to observe every drag end.
    */
-  canDrop?: (
-    parameters: DropTargetResolutionContext<TSourcePayload, TDragData>,
-  ) => boolean | 'reject';
+  onDraggableDrop?: (
+    parameters: DropEvent<TSourcePayload, TTargetPayload, TDragData, TTargetDragData>,
+    eventDetails: { reason: 'drop'; event: PointerEvent | MouseEvent },
+  ) => void;
   /**
    * Event handler called when a drag starts while this target is already under the
    * pointer. Use a monitor's `onMoveStart` to observe drags starting elsewhere.
@@ -2662,14 +3268,15 @@ type RegisterDropTargetParameters<
     eventDetails: DropTargetChangeEventDetails,
   ) => void;
   /**
-   * Event handler called when the drag is released over this target. Only the innermost
-   * target under the pointer receives it, and it never fires on a cancel.
-   * Use the source's or a monitor's `onMoveEnd` to observe every drag end.
+   * Decides whether the current drag can be dropped on this target. Runs after `accept`.
+   *
+   * Return `false` to skip this target and let an ancestor receive the drop.
+   * Return `'reject'` to block the drop on this target, its nested targets, and its
+   * ancestors, for example when a column is full. The target then has `[data-rejected]`.
    */
-  onDraggableDrop?: (
-    parameters: DropEvent<TSourcePayload, TTargetPayload, TDragData, TTargetDragData>,
-    eventDetails: { reason: 'drop'; event: PointerEvent | MouseEvent },
-  ) => void;
+  canDrop?: (
+    parameters: DropTargetResolutionContext<TSourcePayload, TDragData>,
+  ) => boolean | 'reject';
   /**
    * One or more kinds of draggable this target accepts. Pass `Draggable.anyKind`
    * to accept every drag, with `source.payload` typed as `unknown`.
@@ -2719,15 +3326,14 @@ type RegisterDropTargetParametersWithPayload<
         context: DropTargetResolutionContext<TSourcePayload, TDragData>,
       ) => DragSnapSteps | undefined);
   /**
-   * Decides whether the current drag can be dropped on this target. Runs after `accept`.
-   *
-   * Return `false` to skip this target and let an ancestor receive the drop.
-   * Return `'reject'` to block the drop on this target, its nested targets, and its
-   * ancestors, for example when a column is full. The target then has `[data-rejected]`.
+   * Event handler called when the drag is released over this target. Only the innermost
+   * target under the pointer receives it, and it never fires on a cancel.
+   * Use the source's or a monitor's `onMoveEnd` to observe every drag end.
    */
-  canDrop?: (
-    parameters: DropTargetResolutionContext<TSourcePayload, TDragData>,
-  ) => boolean | 'reject';
+  onDraggableDrop?: (
+    parameters: DropEvent<TSourcePayload, TTargetPayload, TDragData, TTargetDragData>,
+    eventDetails: { reason: 'drop'; event: PointerEvent | MouseEvent },
+  ) => void;
   /**
    * Event handler called when a drag starts while this target is already under the
    * pointer. Use a monitor's `onMoveStart` to observe drags starting elsewhere.
@@ -2775,14 +3381,15 @@ type RegisterDropTargetParametersWithPayload<
     eventDetails: DropTargetChangeEventDetails,
   ) => void;
   /**
-   * Event handler called when the drag is released over this target. Only the innermost
-   * target under the pointer receives it, and it never fires on a cancel.
-   * Use the source's or a monitor's `onMoveEnd` to observe every drag end.
+   * Decides whether the current drag can be dropped on this target. Runs after `accept`.
+   *
+   * Return `false` to skip this target and let an ancestor receive the drop.
+   * Return `'reject'` to block the drop on this target, its nested targets, and its
+   * ancestors, for example when a column is full. The target then has `[data-rejected]`.
    */
-  onDraggableDrop?: (
-    parameters: DropEvent<TSourcePayload, TTargetPayload, TDragData, TTargetDragData>,
-    eventDetails: { reason: 'drop'; event: PointerEvent | MouseEvent },
-  ) => void;
+  canDrop?: (
+    parameters: DropTargetResolutionContext<TSourcePayload, TDragData>,
+  ) => boolean | 'reject';
   /**
    * One or more kinds of draggable this target accepts. Pass `Draggable.anyKind`
    * to accept every drag, with `source.payload` typed as `unknown`.
@@ -3002,25 +3609,25 @@ type updateDragData = (dragData: unknown) => void;
 
 ## Export Groups
 
-- `Draggable.Root`: `Draggable.Root`, `Draggable.Root.State`, `Draggable.Root.Props`, `Draggable.Root.PropsWithPayload`
+- `Draggable.Root`: `Draggable.Root`, `Draggable.Root.BeforeMoveStartEvent`, `Draggable.Root.BeforeMoveStartEventDetails`, `Draggable.Root.BeforeMoveStartEventReason`, `Draggable.Root.MoveStartEvent`, `Draggable.Root.MoveStartEventDetails`, `Draggable.Root.MoveStartEventReason`, `Draggable.Root.MoveEvent`, `Draggable.Root.MoveEventDetails`, `Draggable.Root.MoveEventReason`, `Draggable.Root.TargetChangeEvent`, `Draggable.Root.TargetChangeEventDetails`, `Draggable.Root.TargetChangeEventReason`, `Draggable.Root.MoveEndEvent`, `Draggable.Root.MoveEndEventDetails`, `Draggable.Root.MoveEndEventReason`, `Draggable.Root.State`, `Draggable.Root.Props`, `Draggable.Root.PropsWithPayload`
 - `Draggable.Handle`: `Draggable.Handle`, `Draggable.Handle.State`, `Draggable.Handle.Props`
-- `Draggable.Preview`: `Draggable.Preview`, `Draggable.Preview.State`, `Draggable.Preview.Props`
+- `Draggable.Preview`: `Draggable.Preview`, `Draggable.Preview.RenderEvent`, `Draggable.Preview.State`, `Draggable.Preview.Props`
 - `Draggable.Provider`: `Draggable.Provider`, `Draggable.Provider.Props`
 - `Draggable.useActiveDrag`: `Draggable.useActiveDrag`, `Draggable.useActiveDrag.ReturnValue`
 - `Draggable.createKind`
 - `Draggable.createGlobalKind`
-- `Default`: `Draggable.anyKind`, `Draggable.DragPointerType`, `Draggable.DragInput`, `Draggable.DragPosition`, `Draggable.DragLocalPoint`, `Draggable.DragSnapSteps`, `Draggable.DragSnappedLocalPointOptions`, `Draggable.DropTargetRecord`, `Draggable.DragLocation`, `Draggable.DragLocationHistory`, `Draggable.DragSource`, `Draggable.DragKind`, `Draggable.DragAccept`, `Draggable.DragAcceptedKind`, `Draggable.AnyDragAccept`, `Draggable.AcceptedDragPayload`, `Draggable.AcceptedDragData`, `Draggable.BaseDragEvent`, `Draggable.DragPreviewOffsetParameters`, `Draggable.DragPreviewOffset`, `Draggable.DragPreviewContainer`, `Draggable.DraggableEventMap`, `Draggable.DropTargetEventMap`, `Draggable.DragPreviewRenderEvent`, `Draggable.MoveStartEvent`, `Draggable.MoveEvent`, `Draggable.DropTargetChangeEvent`, `Draggable.MoveEndEvent`, `Draggable.DragDropEvent`, `Draggable.DropEvent`, `Draggable.DropTargetEvent`, `Draggable.MoveStartContext`, `Draggable.DraggablePayload`, `Draggable.DragHandle`, `Draggable.DragStartReason`, `Draggable.DragMoveReason`, `Draggable.BeforeMoveStartEventDetails`, `Draggable.DragCompletedReason`, `Draggable.DragCanceledReason`, `Draggable.DragEndReason`, `Draggable.DragDropReason`, `Draggable.DropTargetChangeReason`, `Draggable.DragEventDetails`, `Draggable.MoveStartEventDetails`, `Draggable.MoveEventDetails`, `Draggable.DropTargetChangeEventDetails`, `Draggable.DragDropEventDetails`, `Draggable.MoveEndEventDetails`, `Draggable.DraggableEventDetailsMap`, `Draggable.DropTargetEventDetailsMap`, `Draggable.DropTargetResolutionContext`, `Draggable.DropTargetPayload`, `Draggable.DropTargetEventTarget`, `Draggable.DragElementReference`, `Draggable.DragModifierContext`, `Draggable.DragModifiers`, `Draggable.DragPreviewSettings`, `Draggable.DragPreviewParameters`, `UseActiveDragReturnValue`, `AcceptedDragData`, `AcceptedDragPayload`, `BaseDragEvent`, `BeforeMoveStartEventDetails`, `DraggablePayload`, `DragAccept`, `DragAcceptedKind`, `DragKind`, `DragModifier`, `DragModifierContext`, `DragModifiers`, `DragElementReference`, `DragDropEvent`, `DragDropEventDetails`, `DragDropReason`, `MoveEndEvent`, `MoveEndEventDetails`, `DragEndReason`, `DragCanceledReason`, `DragCompletedReason`, `DragEventDetails`, `DraggableEventDetailsMap`, `DragHandle`, `DragInput`, `DragLocalPoint`, `DragLocation`, `DragLocationHistory`, `DraggableEventMap`, `MoveEvent`, `DragMoveReason`, `MoveEventDetails`, `MoveStartEventDetails`, `DropTargetChangeEventDetails`, `DragPosition`, `DragPreviewContainer`, `DragPreviewOffset`, `DragPreviewParameters`, `DragPreviewRenderEvent`, `DragPreviewSettings`, `DragSnappedLocalPointOptions`, `DragSnapSteps`, `DragSource`, `MoveStartContext`, `MoveStartEvent`, `DropTargetChangeEvent`, `DropTargetRecord`, `DragPointerType`, `DragPreviewOffsetParameters`, `DragActivation`, `DragActivationConfig`, `DropTargetEvent`, `DropTargetEventMap`, `DropTargetEventDetailsMap`, `DropEvent`, `DropTargetEventTarget`, `DropTargetChangeReason`, `DropTargetPayload`, `DropTargetResolutionContext`, `AutoScrollOverflowMargin`, `DragAutoScrollEvent`, `DragAutoScrollEventDetails`, `DragAutoScrollDirection`, `DragAutoScrollHandler`, `DragAutoScrollFrameContext`, `UseDragMonitorParameters`, `UseDragDropManagerReturnValue`, `DragDropManager`, `RegisterDraggableParameters`, `RegisterDraggableParametersWithPayload`, `RegisterDropTargetParameters`, `RegisterDropTargetParametersWithPayload`, `RegisterAutoScrollerParameters`, `RegisterMonitorParameters`, `DraggableRootState`, `DraggableRootProps`, `DraggableRootPropsWithPayload`, `DraggableHandleState`, `DraggableHandleProps`, `DraggablePreviewState`, `DraggablePreviewProps`, `DraggablePreviewTypedProps`, `DraggableProviderProps`, `DraggableTargetState`, `DraggableTargetProps`, `DraggableTargetPropsWithPayload`, `DraggableViewportState`, `DraggableViewportProps`, `DraggableCollision`, `DraggableCollisionEvent`, `DraggableCollisionEndEvent`, `DraggableCollisionProviderProps`
+- `Default`: `Draggable.anyKind`, `Draggable.DragPointerType`, `Draggable.DragInput`, `Draggable.DragPosition`, `Draggable.DragLocalPoint`, `Draggable.DragSnapSteps`, `Draggable.DragSnappedLocalPointOptions`, `Draggable.DropTargetRecord`, `Draggable.DragLocation`, `Draggable.DragLocationHistory`, `Draggable.DragSource`, `Draggable.DragKind`, `Draggable.DragAccept`, `Draggable.DragAcceptedKind`, `Draggable.AnyDragAccept`, `Draggable.AcceptedDragPayload`, `Draggable.AcceptedDragData`, `Draggable.BaseDragEvent`, `Draggable.DragPreviewOffsetParameters`, `Draggable.DragPreviewOffset`, `Draggable.DragPreviewContainer`, `Draggable.DraggableEventMap`, `Draggable.DropTargetEventMap`, `Draggable.DragPreviewRenderEvent`, `Draggable.MoveStartEvent`, `Draggable.MoveEvent`, `Draggable.DropTargetChangeEvent`, `Draggable.MoveEndEvent`, `Draggable.DragDropEvent`, `Draggable.DropEvent`, `Draggable.DropTargetEvent`, `Draggable.MoveStartContext`, `Draggable.DraggablePayload`, `Draggable.DragHandle`, `Draggable.DragStartReason`, `Draggable.DragMoveReason`, `Draggable.BeforeMoveStartEventDetails`, `Draggable.DragCompletedReason`, `Draggable.DragCanceledReason`, `Draggable.DragEndReason`, `Draggable.DragDropReason`, `Draggable.DropTargetChangeReason`, `Draggable.DragEventDetails`, `Draggable.MoveStartEventDetails`, `Draggable.MoveEventDetails`, `Draggable.DropTargetChangeEventDetails`, `Draggable.DragDropEventDetails`, `Draggable.MoveEndEventDetails`, `Draggable.DraggableEventDetailsMap`, `Draggable.DropTargetEventDetailsMap`, `Draggable.DropTargetResolutionContext`, `Draggable.DropTargetPayload`, `Draggable.DropTargetEventTarget`, `Draggable.DragElementReference`, `Draggable.DragModifierContext`, `Draggable.DragModifiers`, `Draggable.DragPreviewSettings`, `Draggable.DragPreviewParameters`, `UseActiveDragReturnValue`, `AcceptedDragData`, `AcceptedDragPayload`, `BaseDragEvent`, `BeforeMoveStartEventDetails`, `DraggablePayload`, `DragAccept`, `DragAcceptedKind`, `DragKind`, `DragModifier`, `DragModifierContext`, `DragModifiers`, `DragElementReference`, `DragDropEvent`, `DragDropEventDetails`, `DragDropReason`, `MoveEndEvent`, `MoveEndEventDetails`, `DragEndReason`, `DragCanceledReason`, `DragCompletedReason`, `DragEventDetails`, `DraggableEventDetailsMap`, `DragHandle`, `DragInput`, `DragLocalPoint`, `DragLocation`, `DragLocationHistory`, `DraggableEventMap`, `MoveEvent`, `DragMoveReason`, `MoveEventDetails`, `MoveStartEventDetails`, `DropTargetChangeEventDetails`, `DragPosition`, `DragPreviewContainer`, `DragPreviewOffset`, `DragPreviewParameters`, `DragPreviewRenderEvent`, `DragPreviewSettings`, `DragSnappedLocalPointOptions`, `DragSnapSteps`, `DragSource`, `MoveStartContext`, `MoveStartEvent`, `DropTargetChangeEvent`, `DropTargetRecord`, `DragPointerType`, `DragPreviewOffsetParameters`, `DragActivation`, `DragActivationConfig`, `DropTargetEvent`, `DropTargetEventMap`, `DropTargetEventDetailsMap`, `DropEvent`, `DropTargetEventTarget`, `DropTargetChangeReason`, `DropTargetPayload`, `DropTargetResolutionContext`, `AutoScrollOverflowMargin`, `DragAutoScrollEvent`, `DragAutoScrollEventDetails`, `DragAutoScrollDirection`, `DragAutoScrollHandler`, `DragAutoScrollFrameContext`, `UseDragMonitorParameters`, `UseDragDropManagerReturnValue`, `DragDropManager`, `RegisterDraggableParameters`, `RegisterDraggableParametersWithPayload`, `RegisterDropTargetParameters`, `RegisterDropTargetParametersWithPayload`, `RegisterAutoScrollerParameters`, `RegisterMonitorParameters`, `DraggableRootState`, `DraggableRootProps`, `DraggableRootPropsWithPayload`, `DraggableRootBeforeMoveStartEvent`, `DraggableRootBeforeMoveStartEventDetails`, `DraggableRootBeforeMoveStartEventReason`, `DraggableRootMoveStartEvent`, `DraggableRootMoveStartEventDetails`, `DraggableRootMoveStartEventReason`, `DraggableRootMoveEvent`, `DraggableRootMoveEventDetails`, `DraggableRootMoveEventReason`, `DraggableRootTargetChangeEvent`, `DraggableRootTargetChangeEventDetails`, `DraggableRootTargetChangeEventReason`, `DraggableRootMoveEndEvent`, `DraggableRootMoveEndEventDetails`, `DraggableRootMoveEndEventReason`, `DraggableHandleState`, `DraggableHandleProps`, `DraggablePreviewState`, `DraggablePreviewProps`, `DraggablePreviewTypedProps`, `DraggablePreviewRenderEvent`, `DraggableProviderProps`, `DraggableTargetState`, `DraggableTargetProps`, `DraggableTargetPropsWithPayload`, `DraggableTargetStartEvent`, `DraggableTargetStartEventDetails`, `DraggableTargetStartEventReason`, `DraggableTargetMoveEvent`, `DraggableTargetMoveEventDetails`, `DraggableTargetMoveEventReason`, `DraggableTargetEnterEvent`, `DraggableTargetEnterEventDetails`, `DraggableTargetEnterEventReason`, `DraggableTargetLeaveEvent`, `DraggableTargetLeaveEventDetails`, `DraggableTargetLeaveEventReason`, `DraggableTargetDropEvent`, `DraggableTargetDropEventDetails`, `DraggableTargetDropEventReason`, `DraggableViewportState`, `DraggableViewportProps`, `DraggableViewportDragScrollEvent`, `DraggableViewportDragScrollEventDetails`, `DraggableViewportDragScrollEventReason`, `DraggableCollision`, `DraggableCollisionEvent`, `DraggableCollisionEndEvent`, `DraggableCollisionProviderProps`, `DraggableCollisionProviderMoveStartEvent`, `DraggableCollisionProviderMoveStartEventDetails`, `DraggableCollisionProviderMoveStartEventReason`, `DraggableCollisionProviderCollisionChangeEvent`, `DraggableCollisionProviderCollisionChangeEventDetails`, `DraggableCollisionProviderCollisionChangeEventReason`, `DraggableCollisionProviderMoveEndEventDetails`, `DraggableCollisionProviderMoveEndEventReason`
 - `Draggable.restrictToVerticalAxis`
 - `Draggable.restrictToHorizontalAxis`
 - `Draggable.restrictToWindowEdges`
 - `Draggable.restrictToParentElement`
 - `Draggable.restrictToElement`
 - `Draggable.snapToGrid`
-- `Draggable.Target`: `Draggable.Target`, `Draggable.Target.State`, `Draggable.Target.Props`, `Draggable.Target.PropsWithPayload`
-- `Draggable.Viewport`: `Draggable.Viewport`, `Draggable.Viewport.State`, `Draggable.Viewport.Props`
+- `Draggable.Target`: `Draggable.Target`, `Draggable.Target.StartEvent`, `Draggable.Target.StartEventDetails`, `Draggable.Target.StartEventReason`, `Draggable.Target.MoveEvent`, `Draggable.Target.MoveEventDetails`, `Draggable.Target.MoveEventReason`, `Draggable.Target.EnterEvent`, `Draggable.Target.EnterEventDetails`, `Draggable.Target.EnterEventReason`, `Draggable.Target.LeaveEvent`, `Draggable.Target.LeaveEventDetails`, `Draggable.Target.LeaveEventReason`, `Draggable.Target.DropEvent`, `Draggable.Target.DropEventDetails`, `Draggable.Target.DropEventReason`, `Draggable.Target.State`, `Draggable.Target.Props`, `Draggable.Target.PropsWithPayload`
+- `Draggable.Viewport`: `Draggable.Viewport`, `Draggable.Viewport.DragScrollEvent`, `Draggable.Viewport.DragScrollEventDetails`, `Draggable.Viewport.DragScrollEventReason`, `Draggable.Viewport.State`, `Draggable.Viewport.Props`
 - `Draggable.useDragMonitor`: `Draggable.useDragMonitor`, `Draggable.useDragMonitor.Parameters`, `Draggable.useDragMonitor.ReturnValue`
 - `Draggable.useDragDropManager`: `Draggable.useDragDropManager`, `Draggable.useDragDropManager.ReturnValue`
-- `Draggable.CollisionProvider`: `Draggable.CollisionProvider`, `Draggable.CollisionProvider.Props`, `Draggable.CollisionProvider.Collision`, `Draggable.CollisionProvider.CollisionEvent`, `Draggable.CollisionProvider.MoveEndEvent`
+- `Draggable.CollisionProvider`: `Draggable.CollisionProvider`, `Draggable.CollisionProvider.MoveStartEvent`, `Draggable.CollisionProvider.MoveStartEventDetails`, `Draggable.CollisionProvider.MoveStartEventReason`, `Draggable.CollisionProvider.CollisionChangeEvent`, `Draggable.CollisionProvider.CollisionChangeEventDetails`, `Draggable.CollisionProvider.CollisionChangeEventReason`, `Draggable.CollisionProvider.MoveEndEventDetails`, `Draggable.CollisionProvider.MoveEndEventReason`, `Draggable.CollisionProvider.Props`, `Draggable.CollisionProvider.Collision`, `Draggable.CollisionProvider.CollisionEvent`, `Draggable.CollisionProvider.MoveEndEvent`
 - `Draggable.DragCleanupFn`
 - `Draggable.DragModifier`
 
@@ -3028,17 +3635,59 @@ type updateDragData = (dragData: unknown) => void;
 
 Maps `Canonical`: `Alias` — Use Canonical when its namespace is already imported; otherwise use Alias.
 
+- `Draggable.Root.BeforeMoveStartEvent`: `DraggableRootBeforeMoveStartEvent`
+- `Draggable.Root.BeforeMoveStartEventDetails`: `DraggableRootBeforeMoveStartEventDetails`
+- `Draggable.Root.BeforeMoveStartEventReason`: `DraggableRootBeforeMoveStartEventReason`
+- `Draggable.Root.MoveStartEvent`: `DraggableRootMoveStartEvent`
+- `Draggable.Root.MoveStartEventDetails`: `DraggableRootMoveStartEventDetails`
+- `Draggable.Root.MoveStartEventReason`: `DraggableRootMoveStartEventReason`
+- `Draggable.Root.MoveEvent`: `DraggableRootMoveEvent`
+- `Draggable.Root.MoveEventDetails`: `DraggableRootMoveEventDetails`
+- `Draggable.Root.MoveEventReason`: `DraggableRootMoveEventReason`
+- `Draggable.Root.TargetChangeEvent`: `DraggableRootTargetChangeEvent`
+- `Draggable.Root.TargetChangeEventDetails`: `DraggableRootTargetChangeEventDetails`
+- `Draggable.Root.TargetChangeEventReason`: `DraggableRootTargetChangeEventReason`
+- `Draggable.Root.MoveEndEvent`: `DraggableRootMoveEndEvent`
+- `Draggable.Root.MoveEndEventDetails`: `DraggableRootMoveEndEventDetails`
+- `Draggable.Root.MoveEndEventReason`: `DraggableRootMoveEndEventReason`
 - `Draggable.Root.State`: `DraggableRootState`
 - `Draggable.Root.Props`: `DraggableRootProps`
 - `Draggable.Root.PropsWithPayload`: `DraggableRootPropsWithPayload`
 - `Draggable.Handle.State`: `DraggableHandleState`
 - `Draggable.Handle.Props`: `DraggableHandleProps`
+- `Draggable.Preview.RenderEvent`: `DraggablePreviewRenderEvent`
 - `Draggable.Preview.State`: `DraggablePreviewState`
 - `Draggable.Preview.Props`: `DraggablePreviewProps`
 - `Draggable.Provider.Props`: `DraggableProviderProps`
+- `Draggable.Target.StartEvent`: `DraggableTargetStartEvent`
+- `Draggable.Target.StartEventDetails`: `DraggableTargetStartEventDetails`
+- `Draggable.Target.StartEventReason`: `DraggableTargetStartEventReason`
+- `Draggable.Target.MoveEvent`: `DraggableTargetMoveEvent`
+- `Draggable.Target.MoveEventDetails`: `DraggableTargetMoveEventDetails`
+- `Draggable.Target.MoveEventReason`: `DraggableTargetMoveEventReason`
+- `Draggable.Target.EnterEvent`: `DraggableTargetEnterEvent`
+- `Draggable.Target.EnterEventDetails`: `DraggableTargetEnterEventDetails`
+- `Draggable.Target.EnterEventReason`: `DraggableTargetEnterEventReason`
+- `Draggable.Target.LeaveEvent`: `DraggableTargetLeaveEvent`
+- `Draggable.Target.LeaveEventDetails`: `DraggableTargetLeaveEventDetails`
+- `Draggable.Target.LeaveEventReason`: `DraggableTargetLeaveEventReason`
+- `Draggable.Target.DropEvent`: `DraggableTargetDropEvent`
+- `Draggable.Target.DropEventDetails`: `DraggableTargetDropEventDetails`
+- `Draggable.Target.DropEventReason`: `DraggableTargetDropEventReason`
 - `Draggable.Target.State`: `DraggableTargetState`
 - `Draggable.Target.Props`: `DraggableTargetProps`
 - `Draggable.Target.PropsWithPayload`: `DraggableTargetPropsWithPayload`
+- `Draggable.Viewport.DragScrollEvent`: `DraggableViewportDragScrollEvent`
+- `Draggable.Viewport.DragScrollEventDetails`: `DraggableViewportDragScrollEventDetails`
+- `Draggable.Viewport.DragScrollEventReason`: `DraggableViewportDragScrollEventReason`
 - `Draggable.Viewport.State`: `DraggableViewportState`
 - `Draggable.Viewport.Props`: `DraggableViewportProps`
+- `Draggable.CollisionProvider.MoveStartEvent`: `DraggableCollisionProviderMoveStartEvent`
+- `Draggable.CollisionProvider.MoveStartEventDetails`: `DraggableCollisionProviderMoveStartEventDetails`
+- `Draggable.CollisionProvider.MoveStartEventReason`: `DraggableCollisionProviderMoveStartEventReason`
+- `Draggable.CollisionProvider.CollisionChangeEvent`: `DraggableCollisionProviderCollisionChangeEvent`
+- `Draggable.CollisionProvider.CollisionChangeEventDetails`: `DraggableCollisionProviderCollisionChangeEventDetails`
+- `Draggable.CollisionProvider.CollisionChangeEventReason`: `DraggableCollisionProviderCollisionChangeEventReason`
+- `Draggable.CollisionProvider.MoveEndEventDetails`: `DraggableCollisionProviderMoveEndEventDetails`
+- `Draggable.CollisionProvider.MoveEndEventReason`: `DraggableCollisionProviderMoveEndEventReason`
 - `Draggable.CollisionProvider.Props`: `DraggableCollisionProviderProps`

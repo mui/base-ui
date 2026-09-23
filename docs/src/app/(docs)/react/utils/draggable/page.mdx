@@ -113,6 +113,8 @@ Use `Draggable.anyKind` to accept every drag, for example on a trash zone. Its `
 
 Drag sources and drop targets both fire event handlers as a drag progresses. Every handler receives an event object first, and an `eventDetails` object second with the event `reason` and the native `event`.
 
+When extracting a handler, use the types on its component namespace, such as `Draggable.Root.MoveStartEvent<Payload>`, `Draggable.Root.MoveStartEventDetails`, and `Draggable.Root.MoveStartEventReason`. Target handlers expose corresponding types such as `Draggable.Target.DropEvent<SourcePayload, TargetPayload>` and `Draggable.Target.DropEventDetails`. Event types also accept drag-data type arguments when needed. The existing standalone event types remain available for shared handlers and imperative registrations.
+
 ### Drag source events
 
 `<Draggable.Root>` fires the handlers below, in this order:

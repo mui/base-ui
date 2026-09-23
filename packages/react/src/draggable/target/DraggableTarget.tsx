@@ -9,6 +9,8 @@ import type {
   DragParametersWithRequiredAccept,
 } from '../../types/dragRegistration';
 import type {
+  DropTargetEvent,
+  DropTargetEventDetailsMap,
   AcceptedDragPayload,
   AcceptedDragData,
   AnyDragAccept,
@@ -263,7 +265,88 @@ export type DraggableTargetPropsWithPayload<
   payload: DropTargetPayload<TTargetPayload>;
 };
 
+export type DraggableTargetStartEvent<
+  TSourcePayload = unknown,
+  TTargetPayload = unknown,
+  TDragData = unknown,
+  TTargetDragData = unknown,
+> = DropTargetEvent<'onDraggableStart', TSourcePayload, TTargetPayload, TDragData, TTargetDragData>;
+export type DraggableTargetStartEventDetails = DropTargetEventDetailsMap['onDraggableStart'];
+export type DraggableTargetStartEventReason = DraggableTargetStartEventDetails['reason'];
+export type DraggableTargetMoveEvent<
+  TSourcePayload = unknown,
+  TTargetPayload = unknown,
+  TDragData = unknown,
+  TTargetDragData = unknown,
+> = DropTargetEvent<'onDraggableMove', TSourcePayload, TTargetPayload, TDragData, TTargetDragData>;
+export type DraggableTargetMoveEventDetails = DropTargetEventDetailsMap['onDraggableMove'];
+export type DraggableTargetMoveEventReason = DraggableTargetMoveEventDetails['reason'];
+export type DraggableTargetEnterEvent<
+  TSourcePayload = unknown,
+  TTargetPayload = unknown,
+  TDragData = unknown,
+  TTargetDragData = unknown,
+> = DropTargetEvent<'onDraggableEnter', TSourcePayload, TTargetPayload, TDragData, TTargetDragData>;
+export type DraggableTargetEnterEventDetails = DropTargetEventDetailsMap['onDraggableEnter'];
+export type DraggableTargetEnterEventReason = DraggableTargetEnterEventDetails['reason'];
+export type DraggableTargetLeaveEvent<
+  TSourcePayload = unknown,
+  TTargetPayload = unknown,
+  TDragData = unknown,
+  TTargetDragData = unknown,
+> = DropTargetEvent<'onDraggableLeave', TSourcePayload, TTargetPayload, TDragData, TTargetDragData>;
+export type DraggableTargetLeaveEventDetails = DropTargetEventDetailsMap['onDraggableLeave'];
+export type DraggableTargetLeaveEventReason = DraggableTargetLeaveEventDetails['reason'];
+export type DraggableTargetDropEvent<
+  TSourcePayload = unknown,
+  TTargetPayload = unknown,
+  TDragData = unknown,
+  TTargetDragData = unknown,
+> = DropTargetEvent<'onDraggableDrop', TSourcePayload, TTargetPayload, TDragData, TTargetDragData>;
+export type DraggableTargetDropEventDetails = DropTargetEventDetailsMap['onDraggableDrop'];
+export type DraggableTargetDropEventReason = DraggableTargetDropEventDetails['reason'];
+
 export namespace DraggableTarget {
+  export type StartEvent<
+    TSourcePayload = unknown,
+    TTargetPayload = unknown,
+    TDragData = unknown,
+    TTargetDragData = unknown,
+  > = DraggableTargetStartEvent<TSourcePayload, TTargetPayload, TDragData, TTargetDragData>;
+  export type StartEventDetails = DraggableTargetStartEventDetails;
+  export type StartEventReason = DraggableTargetStartEventReason;
+  export type MoveEvent<
+    TSourcePayload = unknown,
+    TTargetPayload = unknown,
+    TDragData = unknown,
+    TTargetDragData = unknown,
+  > = DraggableTargetMoveEvent<TSourcePayload, TTargetPayload, TDragData, TTargetDragData>;
+  export type MoveEventDetails = DraggableTargetMoveEventDetails;
+  export type MoveEventReason = DraggableTargetMoveEventReason;
+  export type EnterEvent<
+    TSourcePayload = unknown,
+    TTargetPayload = unknown,
+    TDragData = unknown,
+    TTargetDragData = unknown,
+  > = DraggableTargetEnterEvent<TSourcePayload, TTargetPayload, TDragData, TTargetDragData>;
+  export type EnterEventDetails = DraggableTargetEnterEventDetails;
+  export type EnterEventReason = DraggableTargetEnterEventReason;
+  export type LeaveEvent<
+    TSourcePayload = unknown,
+    TTargetPayload = unknown,
+    TDragData = unknown,
+    TTargetDragData = unknown,
+  > = DraggableTargetLeaveEvent<TSourcePayload, TTargetPayload, TDragData, TTargetDragData>;
+  export type LeaveEventDetails = DraggableTargetLeaveEventDetails;
+  export type LeaveEventReason = DraggableTargetLeaveEventReason;
+  export type DropEvent<
+    TSourcePayload = unknown,
+    TTargetPayload = unknown,
+    TDragData = unknown,
+    TTargetDragData = unknown,
+  > = DraggableTargetDropEvent<TSourcePayload, TTargetPayload, TDragData, TTargetDragData>;
+  export type DropEventDetails = DraggableTargetDropEventDetails;
+  export type DropEventReason = DraggableTargetDropEventReason;
   export type State = DraggableTargetState;
   export type Props<
     TSourcePayload = undefined,
