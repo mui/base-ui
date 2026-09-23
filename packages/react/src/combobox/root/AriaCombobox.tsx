@@ -36,14 +36,14 @@ import {
   ComboboxInputValueContext,
 } from './ComboboxRootContext';
 import { selectors, type ComboboxStoreContext, type State as StoreState } from '../store';
-import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
+import { attachPreventUnmountOnClose } from '../../utils/popups/popupStoreUtils';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
 import { useRegisterFieldControl } from '../../internals/field-register-control/useRegisterFieldControl';
 import { useFormContext } from '../../internals/form-context/FormContext';
 import { useLabelableId } from '../../internals/labelable-provider/useLabelableId';
 import { createCollatorItemFilter, type FilterItemToString } from './utils';
 import { useCoreFilter } from './utils/useFilter';
-import { useTransitionStatus } from '../../internals/useTransitionStatus';
+import { useUnmountAfterClose } from '../../internals/useUnmountAfterClose';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
 import { isScrollableY } from '../../utils/scrollable';
 import type { BaseUIEvent, HTMLProps } from '../../internals/types';
@@ -570,7 +570,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
 
   const triggerRef = useValueAsRef(triggerElement);
 
-  const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
   const { openMethod, triggerProps } = useOpenInteractionType(open);
 
   const getStringifiedValueForForm = useStableCallback(() => fieldStringValue);
@@ -747,6 +746,8 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
     }
   });
 
+  const [preventUnmountOnClose, setPreventUnmountOnClose] = React.useState(false);
+
   const setOpen = useStableCallback(
     (nextOpen: boolean, eventDetails: AriaCombobox.ChangeEventDetails) => {
       if (open === nextOpen) {
@@ -765,7 +766,9 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
         eventDetails.allowPropagation();
       }
 
-      props.onOpenChange?.(nextOpen, eventDetails);
+      const openEventDetails = eventDetails as AriaCombobox.OpenChangeEventDetails;
+      const shouldPreventUnmountOnClose = attachPreventUnmountOnClose(openEventDetails);
+      props.onOpenChange?.(nextOpen, openEventDetails);
 
       if (eventDetails.isCanceled) {
         return;
@@ -810,6 +813,9 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
         }
       }
 
+      if (!nextOpen) {
+        setPreventUnmountOnClose(shouldPreventUnmountOnClose());
+      }
       setOpenUnwrapped(nextOpen);
 
       if (
@@ -926,8 +932,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
     }
   });
 
-  const handleUnmount = useStableCallback(() => {
-    setMounted(false);
+  const handleUnmountCleanup = useStableCallback(() => {
     onOpenChangeComplete?.(false);
     setQueryChangedAfterOpen(false);
     setCloseQuery(null);
@@ -980,18 +985,26 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
     return popupRef;
   }, [inline, positionerElement]);
 
-  useOpenChangeComplete({
-    enabled: !props.actionsRef,
+  const {
+    mounted,
+    transitionStatus,
+    forceUnmount: handleUnmount,
+  } = useUnmountAfterClose({
     open,
     ref: resolvedPopupRef,
-    onComplete() {
-      if (!open) {
-        handleUnmount();
-      }
-    },
+    preventUnmountOnClose,
+    setPreventUnmountOnClose,
+    onUnmount: handleUnmountCleanup,
   });
 
-  React.useImperativeHandle(props.actionsRef, () => ({ unmount: handleUnmount }), [handleUnmount]);
+  React.useImperativeHandle(
+    props.actionsRef,
+    () => ({
+      unmount: handleUnmount,
+      close: () => setOpen(false, createChangeEventDetails(REASONS.imperativeAction)),
+    }),
+    [handleUnmount, setOpen],
+  );
 
   useIsoLayoutEffect(
     function syncSelectedIndex() {
@@ -1706,7 +1719,7 @@ interface ComboboxRootProps<ItemValue, Item = ItemValue> {
    * Event handler called when the popup is opened or closed.
    */
   onOpenChange?:
-    ((open: boolean, eventDetails: AriaCombobox.ChangeEventDetails) => void) | undefined;
+    ((open: boolean, eventDetails: AriaCombobox.OpenChangeEventDetails) => void) | undefined;
   /**
    * Event handler called after any animations complete when the popup is opened or closed.
    */
@@ -1759,8 +1772,10 @@ interface ComboboxRootProps<ItemValue, Item = ItemValue> {
   defaultInputValue?: React.ComponentProps<'input'>['defaultValue'] | undefined;
   /**
    * A ref to imperative actions.
-   * - `unmount`: Manually unmounts the combobox.
-   * Call this after any externally controlled closing animation finishes.
+   * - `unmount`: Ends the closing phase of the combobox after an externally controlled closing animation finishes.
+   * Call `preventUnmountOnClose()` in `onOpenChange` first, otherwise the combobox completes closing on its own.
+   * Whether it leaves the DOM is decided by `keepMounted` on the portal.
+   * - `close`: Closes the combobox imperatively when called.
    */
   actionsRef?: React.RefObject<AriaCombobox.Actions | null> | undefined;
   /**
@@ -1936,6 +1951,7 @@ export namespace AriaCombobox {
 
   export interface Actions {
     unmount: () => void;
+    close: () => void;
   }
 
   export type HighlightEventReason =
@@ -1959,7 +1975,12 @@ export namespace AriaCombobox {
     | typeof REASONS.clearPress
     | typeof REASONS.chipRemovePress
     | typeof REASONS.cancelOpen
+    | typeof REASONS.imperativeAction
     | typeof REASONS.none;
+  export type OpenChangeEventDetails = ChangeEventDetails & {
+    /** Prevents the popup from unmounting until the `unmount` action is called. */
+    preventUnmountOnClose: () => void;
+  };
   export type ChangeEventDetails = BaseUIChangeEventDetails<ChangeEventReason> & {
     /**
      * When `reason` is `input-clear` in multiple mode, indicates whether an item press caused the
