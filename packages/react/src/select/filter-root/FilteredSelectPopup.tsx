@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useFilterDropdownPopup } from '../../filter-dropdown/popup/useFilterDropdownPopup';
+import { useMenuFilterPopup } from '../../menu/filter-root/useMenuFilterPopup';
 import { useFilterDropdownRootContext } from '../../filter-dropdown/root/FilterDropdownRootContext';
 import { SelectPopupPlain, type SelectPopupProps } from '../popup/SelectPopup';
 import { useSelectRootContext } from '../root/SelectRootContext';
@@ -20,7 +20,8 @@ export const FilteredSelectPopup = React.forwardRef(function FilteredSelectPopup
   const store = useSelectRootContext();
   const { focusOwnerRef } = useFilterDropdownRootContext();
   const { labelId: fieldLabelId } = useLabelableContext();
-  const interactionProps = useFilterDropdownPopup();
+  // A select's list is always vertical.
+  const interactionProps = useMenuFilterPopup('vertical');
   const trapsFocus = useSelectFilterTrapsFocus();
 
   const id = store.useState('id');
