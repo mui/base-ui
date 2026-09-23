@@ -42,6 +42,28 @@ import { isVirtualClick, isVirtualPointerEvent, stopEvent } from '../utils/event
 
 export const ESCAPE = 'Escape';
 
+/**
+ * Where a navigation originated. `'imperative'` marks a programmatic
+ * `highlightItem()` call so consumers can report it distinctly from keyboard or
+ * pointer navigation.
+ */
+export type ListNavigationSource = 'imperative';
+
+/**
+ * The item to highlight, relative to the currently highlighted one (`'next'`,
+ * `'previous'`) or to the list itself (`'first'`, `'last'`). `'none'` clears the
+ * highlight.
+ */
+export type HighlightItemTarget = 'next' | 'previous' | 'first' | 'last' | 'none';
+
+export interface UseListNavigationReturn extends ElementProps {
+  /**
+   * Moves the highlight to `target`. A no-op while the list is closed. In a grid, `'next'` and
+   * `'previous'` step through the items in DOM order, like the main-orientation arrow keys.
+   */
+  highlightItem: (target: HighlightItemTarget) => void;
+}
+
 // WebKit fires zero-delta `mousemove`/`pointermove` events when the list scrolls
 // beneath a stationary pointer, moving the highlight during keyboard navigation.
 // https://github.com/mui/base-ui/issues/4002
@@ -123,7 +145,12 @@ export interface UseListNavigationProps {
    * passed in a new `activeIndex`.
    */
   onNavigate?:
-    ((activeIndex: number | null, event: React.SyntheticEvent | undefined) => void) | undefined;
+    | ((
+        activeIndex: number | null,
+        event: React.SyntheticEvent | undefined,
+        source?: ListNavigationSource | undefined,
+      ) => void)
+    | undefined;
   /**
    * Whether the Hook is enabled, including all internal Effects and event
    * handlers.
@@ -247,7 +274,7 @@ export interface UseListNavigationProps {
 export function useListNavigation(
   context: FloatingRootContext | FloatingContext,
   props: UseListNavigationProps,
-): ElementProps {
+): UseListNavigationReturn {
   const {
     listRef,
     activeIndex,
@@ -312,9 +339,11 @@ export function useListNavigation(
   const keyRef = React.useRef<null | string>(null);
   const isPointerModalityRef = React.useRef(true);
 
-  const onNavigate = useStableCallback((event?: React.SyntheticEvent) => {
-    onNavigateProp(indexRef.current === -1 ? null : indexRef.current, event);
-  });
+  const onNavigate = useStableCallback(
+    (event?: React.SyntheticEvent, source?: ListNavigationSource) => {
+      onNavigateProp(indexRef.current === -1 ? null : indexRef.current, event, source);
+    },
+  );
 
   const previousMountedRef = React.useRef(!!floatingElement);
   const previousOpenRef = React.useRef(open);
@@ -675,7 +704,9 @@ export function useListNavigation(
         maxIndex,
       );
 
-      if (index != null) {
+      // The grid navigator returns the unchanged index for keys it does not handle, and
+      // reporting that as a navigation would re-emit the current highlight on every keydown.
+      if (index != null && index !== indexRef.current) {
         indexRef.current = index;
         onNavigate(event);
       }
@@ -759,6 +790,100 @@ export function useListNavigation(
 
       onNavigate(event);
     }
+  });
+
+  /**
+   * Moves the highlight imperatively, mirroring what the main-orientation arrow keys do while
+   * the popup is open. Unlike the key handlers, this never lands outside the list: `'previous'`
+   * from the first item wraps to the last one instead of escaping to the reference element.
+   */
+  const highlightItem = useStableCallback((target: HighlightItemTarget) => {
+    // Highlighting is meaningless while the list is closed, and calls are deliberately not
+    // queued: one made before the popup opens is dropped rather than replayed on open.
+    if (!enabled || !latestOpenRef.current) {
+      return;
+    }
+
+    const list = listRef.current;
+
+    if (target === 'none') {
+      // A focus move from an earlier call may still be queued for the next frame. Cancel it
+      // unconditionally: if it landed after the clear, the item's focus handler would resync the
+      // index and re-highlight the item that was just cleared.
+      cancelQueuedFocusRef.current?.();
+      cancelQueuedFocusRef.current = null;
+
+      indexRef.current = -1;
+      isPointerModalityRef.current = false;
+      forceSyncFocusRef.current = false;
+      onNavigate(undefined, 'imperative');
+
+      // With real DOM focus the highlight and the focused element must not diverge: leaving
+      // focus on an item would let Enter activate something that no longer looks highlighted.
+      // Focus is reclaimed from any item, not only the one the index pointed at, because a
+      // preceding move may not have applied its focus yet. It is never reclaimed from unrelated
+      // content inside the popup - a nested non-portalled popup owning focus must keep it.
+      if (!virtual) {
+        const floatingFocusEl = floatingFocusElementRef.current;
+        const activeEl = activeElement(ownerDocument(floatingFocusEl));
+        if (floatingFocusEl && list.some((item) => item && contains(item, activeEl))) {
+          floatingFocusEl.focus({ preventScroll: true });
+        }
+      }
+      return;
+    }
+
+    if (list.length === 0) {
+      return;
+    }
+
+    const disabled = disabledIndicesRef.current;
+    const minIndex = getMinListIndex(listRef, disabled);
+    const maxIndex = getMaxListIndex(listRef, disabled);
+    const currentIndex = indexRef.current;
+    const decrement = target === 'previous';
+
+    let nextIndex: number;
+
+    if (target === 'first') {
+      nextIndex = minIndex;
+    } else if (target === 'last') {
+      nextIndex = maxIndex;
+    } else if (isIndexOutOfListBounds(list, currentIndex)) {
+      // Nothing is highlighted yet, so both directions enter the list from their own end.
+      nextIndex = decrement ? maxIndex : minIndex;
+    } else if (decrement) {
+      if (currentIndex <= minIndex) {
+        // Wrapping stays inside the list: unlike ArrowUp, this never escapes to the reference.
+        nextIndex = loopFocus ? maxIndex : minIndex;
+      } else {
+        nextIndex = findNonDisabledListIndex(list, {
+          startingIndex: currentIndex,
+          decrement: true,
+          disabledIndices: disabled,
+        });
+      }
+    } else if (currentIndex >= maxIndex) {
+      nextIndex = loopFocus ? minIndex : maxIndex;
+    } else {
+      nextIndex = findNonDisabledListIndex(list, {
+        startingIndex: currentIndex,
+        disabledIndices: disabled,
+      });
+    }
+
+    // Every item can be disabled or hidden, in which case there is nothing to highlight.
+    if (isIndexOutOfListBounds(list, nextIndex)) {
+      return;
+    }
+
+    indexRef.current = nextIndex;
+    isPointerModalityRef.current = false;
+    forceSyncFocusRef.current = false;
+    // The caller had no chance to scroll the item into view, so always do it here regardless of
+    // the modality the user last interacted with.
+    forceScrollIntoViewRef.current = true;
+    onNavigate(undefined, 'imperative');
   });
 
   const item = React.useMemo(() => {
@@ -1009,7 +1134,7 @@ export function useListNavigation(
   }, [ariaActiveDescendantProp, trigger]);
 
   return React.useMemo(
-    () => (enabled ? { reference, floating, item, trigger } : {}),
-    [enabled, reference, floating, trigger, item],
+    () => ({ ...(enabled ? { reference, floating, item, trigger } : {}), highlightItem }),
+    [enabled, reference, floating, trigger, item, highlightItem],
   );
 }

@@ -29,7 +29,8 @@ export interface AlertDialogRootProps<Payload = unknown> extends Omit<
   /**
    * A ref to imperative actions.
    * - `unmount`: Manually unmounts the alert dialog.
-   * Call this after any externally controlled closing animation finishes.
+   * Call `preventUnmountOnClose()` in `onOpenChange` to manually control unmounting,
+   * then call this action after any externally controlled closing animation finishes.
    * - `close`: Closes the alert dialog imperatively when called.
    */
   actionsRef?: React.RefObject<AlertDialogRoot.Actions | null> | undefined;
@@ -46,7 +47,8 @@ export type AlertDialogRootActions = DialogRoot.Actions;
 export type AlertDialogRootChangeEventReason = DialogRoot.ChangeEventReason;
 export type AlertDialogRootChangeEventDetails =
   BaseUIChangeEventDetails<AlertDialogRoot.ChangeEventReason> & {
-    preventUnmountOnClose(): void;
+    /** Prevents the popup from unmounting until the `unmount` action is called. */
+    preventUnmountOnClose: () => void;
   };
 
 export namespace AlertDialogRoot {

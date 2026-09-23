@@ -1567,6 +1567,201 @@ describe('<Popover.Root />', () => {
         });
       });
 
+      it('does not repeat closing completion when `unmount` is called after the automatic unmount', async () => {
+        const actionsRef = React.createRef<Popover.Root.Actions>();
+        const onOpenChangeComplete = vi.fn();
+
+        const { user } = await render(
+          <TestPopover rootProps={{ actionsRef, onOpenChangeComplete }} />,
+        );
+
+        const trigger = screen.getByRole('button', { name: 'Toggle' });
+        await user.click(trigger);
+        await waitFor(() => {
+          expect(screen.queryByRole('dialog')).not.toBe(null);
+        });
+
+        await user.click(trigger);
+        await waitFor(() => {
+          expect(screen.queryByRole('dialog')).toBe(null);
+        });
+        expect(onOpenChangeComplete.mock.calls.filter(([open]) => !open)).toHaveLength(1);
+
+        await act(async () => actionsRef.current!.unmount());
+        expect(onOpenChangeComplete.mock.calls.filter(([open]) => !open)).toHaveLength(1);
+      });
+
+      it('keeps the opt-out when a controlled close is applied in a transition', async () => {
+        const actionsRef = React.createRef<Popover.Root.Actions>();
+        const onOpenChangeComplete = vi.fn();
+        function App() {
+          const [open, setOpen] = React.useState(true);
+          return (
+            <TestPopover
+              rootProps={{
+                open,
+                actionsRef,
+                onOpenChangeComplete,
+                onOpenChange: (nextOpen, details) => {
+                  if (!nextOpen) {
+                    details.preventUnmountOnClose();
+                  }
+                  React.startTransition(() => setOpen(nextOpen));
+                },
+              }}
+            />
+          );
+        }
+
+        const { user } = await render(<App />);
+        const trigger = screen.getByRole('button', { name: 'Toggle' });
+        await user.click(trigger);
+        await waitFor(() => {
+          expect(trigger).toHaveAttribute('aria-expanded', 'false');
+        });
+        expect(screen.queryByRole('dialog')).not.toBe(null);
+        expect(onOpenChangeComplete).not.toHaveBeenCalledWith(false);
+
+        await act(async () => actionsRef.current!.unmount());
+        expect(screen.queryByRole('dialog')).toBe(null);
+        expect(onOpenChangeComplete.mock.calls.filter(([open]) => !open)).toHaveLength(1);
+      });
+
+      it('ignores `unmount` while the popup is open', async () => {
+        const actionsRef = React.createRef<Popover.Root.Actions>();
+        const onOpenChangeComplete = vi.fn();
+        await render(
+          <TestPopover rootProps={{ defaultOpen: true, actionsRef, onOpenChangeComplete }} />,
+        );
+        const popup = screen.getByRole('dialog');
+
+        await act(async () => actionsRef.current!.unmount());
+
+        expect(screen.getByRole('dialog')).toBe(popup);
+        expect(popup).not.toHaveAttribute('data-starting-style');
+        expect(onOpenChangeComplete).not.toHaveBeenCalledWith(false);
+      });
+
+      it('unmounts when `close` and `unmount` are called in one batch', async () => {
+        const actionsRef = React.createRef<Popover.Root.Actions>();
+        const onOpenChangeComplete = vi.fn();
+        await render(
+          <TestPopover
+            rootProps={{
+              defaultOpen: true,
+              actionsRef,
+              onOpenChangeComplete,
+              onOpenChange: (open, details) => {
+                if (!open) {
+                  details.preventUnmountOnClose();
+                }
+              },
+            }}
+          />,
+        );
+
+        await act(async () => {
+          actionsRef.current!.close();
+          actionsRef.current!.unmount();
+        });
+
+        expect(screen.queryByRole('dialog')).toBe(null);
+        expect(onOpenChangeComplete.mock.calls.filter(([open]) => !open)).toHaveLength(1);
+      });
+
+      it('still unmounts on a later close after `unmount` was called while open', async () => {
+        const actionsRef = React.createRef<Popover.Root.Actions>();
+        const onOpenChangeComplete = vi.fn();
+        const { user } = await render(
+          <TestPopover rootProps={{ defaultOpen: true, actionsRef, onOpenChangeComplete }} />,
+        );
+
+        await act(async () => actionsRef.current!.unmount());
+        expect(screen.queryByRole('dialog')).not.toBe(null);
+
+        await user.click(screen.getByRole('button', { name: 'Toggle' }));
+        await waitFor(() => {
+          expect(screen.queryByRole('dialog')).toBe(null);
+        });
+        expect(onOpenChangeComplete).toHaveBeenLastCalledWith(false);
+      });
+
+      it('still unmounts on a later close after `unmount` and a reopen in one batch', async () => {
+        const actionsRef = React.createRef<Popover.Root.Actions>();
+        const onOpenChangeComplete = vi.fn();
+        let reopenOnComplete = true;
+        let optOut = true;
+        function App() {
+          const [open, setOpen] = React.useState(true);
+          return (
+            <TestPopover
+              rootProps={{
+                open,
+                actionsRef,
+                onOpenChange: (nextOpen, details) => {
+                  if (!nextOpen && optOut) {
+                    details.preventUnmountOnClose();
+                  }
+                  setOpen(nextOpen);
+                },
+                onOpenChangeComplete: (nextOpen) => {
+                  onOpenChangeComplete(nextOpen);
+                  // An exit-animation callback that reopens right after it unmounts.
+                  if (!nextOpen && reopenOnComplete) {
+                    reopenOnComplete = false;
+                    setOpen(true);
+                  }
+                },
+              }}
+            />
+          );
+        }
+
+        const { user } = await render(<App />);
+        await act(async () => actionsRef.current!.close());
+        expect(screen.queryByRole('dialog')).not.toBe(null);
+
+        await act(async () => actionsRef.current!.unmount());
+        expect(screen.queryByRole('dialog')).not.toBe(null);
+        expect(onOpenChangeComplete.mock.calls.filter(([open]) => !open)).toHaveLength(1);
+
+        optOut = false;
+        await user.click(screen.getByRole('button', { name: 'Toggle' }));
+        await waitFor(() => {
+          expect(screen.queryByRole('dialog')).toBe(null);
+        });
+        expect(onOpenChangeComplete.mock.calls.filter(([open]) => !open)).toHaveLength(2);
+      });
+
+      it('completes closing once when `unmount` is called twice in one batch', async () => {
+        const actionsRef = React.createRef<Popover.Root.Actions>();
+        const onOpenChangeComplete = vi.fn();
+        const { user } = await render(
+          <TestPopover
+            rootProps={{
+              defaultOpen: true,
+              actionsRef,
+              onOpenChangeComplete,
+              onOpenChange: (open, details) => {
+                if (!open) {
+                  details.preventUnmountOnClose();
+                }
+              },
+            }}
+          />,
+        );
+
+        await user.click(screen.getByRole('button', { name: 'Toggle' }));
+        expect(screen.queryByRole('dialog')).not.toBe(null);
+
+        await act(async () => {
+          actionsRef.current!.unmount();
+          actionsRef.current!.unmount();
+        });
+        expect(screen.queryByRole('dialog')).toBe(null);
+        expect(onOpenChangeComplete.mock.calls.filter(([open]) => !open)).toHaveLength(1);
+      });
+
       it('closes the popover when the `close` method is called', async () => {
         const actionsRef = React.createRef<Popover.Root.Actions>();
         await render(<TestPopover rootProps={{ defaultOpen: true, actionsRef }} />);

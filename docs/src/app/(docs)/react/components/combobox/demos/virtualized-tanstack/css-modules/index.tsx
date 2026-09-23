@@ -21,7 +21,12 @@ export default function ExampleVirtualizedCombobox() {
 
         const isStart = index === 0;
         const isEnd = index === virtualizer.options.count - 1;
-        const shouldScroll = reason === 'none' || (reason === 'keyboard' && (isStart || isEnd));
+        // `imperative-action` can jump anywhere in the list, so it always needs a scroll:
+        // unlike the arrow keys it can target an item that is not currently rendered.
+        const shouldScroll =
+          reason === 'none' ||
+          reason === 'imperative-action' ||
+          (reason === 'keyboard' && (isStart || isEnd));
 
         if (shouldScroll) {
           queueMicrotask(() => {
