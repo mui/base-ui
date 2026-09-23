@@ -578,43 +578,175 @@ type NavigationMenuLinkState = {
 
 ### NavigationMenuArrowDataAttributes
 
-Re-export of [Arrow](#arrow) data-attributes.
+Data attributes of [Arrow](#arrow).
+
+```typescript
+declare namespace NavigationMenuArrowDataAttributes {
+  /** Present when the popup is open. */
+  const open: 'data-open';
+  /** Present when the popup is closed. */
+  const closed: 'data-closed';
+  /** Indicates which side the popup is positioned relative to the trigger. */
+  const side: 'data-side';
+  /** Indicates how the popup is aligned relative to specified side. */
+  const align: 'data-align';
+  /** Present when the popup arrow is uncentered. */
+  const uncentered: 'data-uncentered';
+}
+```
 
 ### NavigationMenuBackdropDataAttributes
 
-Re-export of [Backdrop](#backdrop) data-attributes.
+Data attributes of [Backdrop](#backdrop).
+
+```typescript
+declare namespace NavigationMenuBackdropDataAttributes {
+  /** Present when the popup is open. */
+  const open: 'data-open';
+  /** Present when the popup is closed. */
+  const closed: 'data-closed';
+  /** Present when the popup begins animating in. */
+  const startingStyle: 'data-starting-style';
+  /** Present when the popup is animating out. */
+  const endingStyle: 'data-ending-style';
+}
+```
 
 ### NavigationMenuContentDataAttributes
 
-Re-export of [Content](#content) data-attributes.
+Data attributes of [Content](#content).
+
+```typescript
+declare namespace NavigationMenuContentDataAttributes {
+  /** Present when the popup is open. */
+  const open: 'data-open';
+  /** Present when the popup is closed. */
+  const closed: 'data-closed';
+  /** Present when the content begins animating in. */
+  const startingStyle: 'data-starting-style';
+  /** Present when the content is animating out. */
+  const endingStyle: 'data-ending-style';
+  /** Which direction another trigger was activated from. */
+  const activationDirection: 'data-activation-direction';
+}
+```
 
 ### NavigationMenuIconDataAttributes
 
-Re-export of [Icon](#icon) data-attributes.
+Data attributes of [Icon](#icon).
+
+```typescript
+declare namespace NavigationMenuIconDataAttributes {
+  /** Present when the navigation menu is open and the item is active. */
+  const popupOpen: 'data-popup-open';
+}
+```
 
 ### NavigationMenuLinkDataAttributes
 
-Re-export of [Link](#link) data-attributes.
+Data attributes of [Link](#link).
+
+```typescript
+declare namespace NavigationMenuLinkDataAttributes {
+  /** Present when the link is the currently active page. */
+  const active: 'data-active';
+}
+```
 
 ### NavigationMenuPopupCssVariables
 
-Re-export of [Popup](#popup) css-variables.
+CSS variables of [Popup](#popup).
+
+```typescript
+declare namespace NavigationMenuPopupCssVariables {
+  /** The fixed width of the popup element. */
+  const popupWidth: '--popup-width';
+  /** The fixed height of the popup element. */
+  const popupHeight: '--popup-height';
+}
+```
 
 ### NavigationMenuPopupDataAttributes
 
-Re-export of [Popup](#popup) data-attributes.
+Data attributes of [Popup](#popup).
+
+```typescript
+declare namespace NavigationMenuPopupDataAttributes {
+  /** Present when the popup is open. */
+  const open: 'data-open';
+  /** Present when the popup is closed. */
+  const closed: 'data-closed';
+  /** Present when the popup begins animating in. */
+  const startingStyle: 'data-starting-style';
+  /** Present when the popup is animating out. */
+  const endingStyle: 'data-ending-style';
+  /** Present when the anchor is hidden. */
+  const anchorHidden: 'data-anchor-hidden';
+  /** Indicates which side the popup is positioned relative to the trigger. */
+  const side: 'data-side';
+  /** Indicates how the popup is aligned relative to the specified side. */
+  const align: 'data-align';
+}
+```
 
 ### NavigationMenuPositionerCssVariables
 
-Re-export of [Positioner](#positioner) css-variables.
+CSS variables of [Positioner](#positioner).
+
+```typescript
+declare namespace NavigationMenuPositionerCssVariables {
+  /** The available width between the trigger and the edge of the viewport. */
+  const availableWidth: '--available-width';
+  /** The available height between the trigger and the edge of the viewport. */
+  const availableHeight: '--available-height';
+  /** The anchor's width. */
+  const anchorWidth: '--anchor-width';
+  /** The anchor's height. */
+  const anchorHeight: '--anchor-height';
+  /** The coordinates that this element is anchored to. Used for animations and transitions. */
+  const transformOrigin: '--transform-origin';
+  /** The fixed width of the positioner element. */
+  const positionerWidth: '--positioner-width';
+  /** The fixed height of the positioner element. */
+  const positionerHeight: '--positioner-height';
+}
+```
 
 ### NavigationMenuPositionerDataAttributes
 
-Re-export of [Positioner](#positioner) data-attributes.
+Data attributes of [Positioner](#positioner).
+
+```typescript
+declare namespace NavigationMenuPositionerDataAttributes {
+  /** Present when the popup is open. */
+  const open: 'data-open';
+  /** Present when the popup is closed. */
+  const closed: 'data-closed';
+  /** Present when the anchor is hidden. */
+  const anchorHidden: 'data-anchor-hidden';
+  /** Indicates which side the popup is positioned relative to the trigger. */
+  const side: 'data-side';
+  /** Indicates how the popup is aligned relative to the specified side. */
+  const align: 'data-align';
+  /** Present if animations should be instant. */
+  const instant: 'data-instant';
+}
+```
 
 ### NavigationMenuTriggerDataAttributes
 
-Re-export of [Trigger](#trigger) data-attributes.
+Data attributes of [Trigger](#trigger).
+
+```typescript
+declare namespace NavigationMenuTriggerDataAttributes {
+  /** Present when the corresponding navigation menu is open. */
+  const popupOpen: 'data-popup-open';
+  /** Present when the trigger is pressed. */
+  const pressed: 'data-pressed';
+  /** Present when the trigger is disabled. */
+  const disabled: 'data-disabled';
+}
+```
 
 ## External Types
 

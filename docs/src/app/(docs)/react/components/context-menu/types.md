@@ -978,59 +978,245 @@ type ContextMenuLinkItemState = {
 
 ### ContextMenuArrowDataAttributes
 
-Re-export of [Arrow](#arrow) data-attributes.
+Data attributes of [Arrow](#arrow).
+
+```typescript
+declare namespace ContextMenuArrowDataAttributes {
+  /** Present when the menu popup is open. */
+  const open: 'data-open';
+  /** Present when the menu popup is closed. */
+  const closed: 'data-closed';
+  /** Indicates which side the popup is positioned relative to the anchor. */
+  const side: 'data-side';
+  /** Indicates how the popup is aligned relative to specified side. */
+  const align: 'data-align';
+  /** Present when the menu arrow is uncentered. */
+  const uncentered: 'data-uncentered';
+}
+```
 
 ### ContextMenuBackdropDataAttributes
 
-Re-export of [Backdrop](#backdrop) data-attributes.
+Data attributes of [Backdrop](#backdrop).
+
+```typescript
+declare namespace ContextMenuBackdropDataAttributes {
+  /** Present when the menu is open. */
+  const open: 'data-open';
+  /** Present when the menu is closed. */
+  const closed: 'data-closed';
+  /** Present when the menu begins animating in. */
+  const startingStyle: 'data-starting-style';
+  /** Present when the menu is animating out. */
+  const endingStyle: 'data-ending-style';
+}
+```
 
 ### ContextMenuCheckboxItemDataAttributes
 
-Re-export of [CheckboxItem](#checkboxitem) data-attributes.
+Data attributes of [CheckboxItem](#checkboxitem).
+
+```typescript
+declare namespace ContextMenuCheckboxItemDataAttributes {
+  /** Present when the menu checkbox item is checked. */
+  const checked: 'data-checked';
+  /** Present when the menu checkbox item is not checked. */
+  const unchecked: 'data-unchecked';
+  /** Present when the menu checkbox item is disabled. */
+  const disabled: 'data-disabled';
+  /** Present when the menu checkbox item is highlighted. */
+  const highlighted: 'data-highlighted';
+}
+```
 
 ### ContextMenuCheckboxItemIndicatorDataAttributes
 
-Re-export of [CheckboxItemIndicator](#checkboxitemindicator) data-attributes.
+Data attributes of [CheckboxItemIndicator](#checkboxitemindicator).
+
+```typescript
+declare namespace ContextMenuCheckboxItemIndicatorDataAttributes {
+  /** Present when the menu checkbox item is checked. */
+  const checked: 'data-checked';
+  /** Present when the menu checkbox item is not checked. */
+  const unchecked: 'data-unchecked';
+  /** Present when the menu checkbox item is disabled. */
+  const disabled: 'data-disabled';
+  /** Present when the indicator begins animating in. */
+  const startingStyle: 'data-starting-style';
+  /** Present when the indicator is animating out. */
+  const endingStyle: 'data-ending-style';
+}
+```
 
 ### ContextMenuItemDataAttributes
 
-Re-export of [Item](#item) data-attributes.
+Data attributes of [Item](#item).
+
+```typescript
+declare namespace ContextMenuItemDataAttributes {
+  /** Present when the menu item is highlighted. */
+  const highlighted: 'data-highlighted';
+  /** Present when the menu item is disabled. */
+  const disabled: 'data-disabled';
+}
+```
 
 ### ContextMenuLinkItemDataAttributes
 
-Re-export of [LinkItem](#linkitem) data-attributes.
+Data attributes of [LinkItem](#linkitem).
+
+```typescript
+declare namespace ContextMenuLinkItemDataAttributes {
+  /** Present when the link is highlighted. */
+  const highlighted: 'data-highlighted';
+}
+```
 
 ### ContextMenuPopupDataAttributes
 
-Re-export of [Popup](#popup) data-attributes.
+Data attributes of [Popup](#popup).
+
+```typescript
+declare namespace ContextMenuPopupDataAttributes {
+  /** Present when the menu is open. */
+  const open: 'data-open';
+  /** Present when the menu is closed. */
+  const closed: 'data-closed';
+  /** Present when the menu begins animating in. */
+  const startingStyle: 'data-starting-style';
+  /** Present when the menu is animating out. */
+  const endingStyle: 'data-ending-style';
+  /** Indicates which side the popup is positioned relative to the anchor. */
+  const side: 'data-side';
+  /** Indicates how the popup is aligned relative to specified side. */
+  const align: 'data-align';
+  /** Present if animations should be instant. */
+  const instant: 'data-instant';
+}
+```
 
 ### ContextMenuPositionerCssVariables
 
-Re-export of [Positioner](#positioner) css-variables.
+CSS variables of [Positioner](#positioner).
+
+```typescript
+declare namespace ContextMenuPositionerCssVariables {
+  /** The available width between the anchor and the edge of the viewport. */
+  const availableWidth: '--available-width';
+  /** The available height between the anchor and the edge of the viewport. */
+  const availableHeight: '--available-height';
+  /** The anchor's width. */
+  const anchorWidth: '--anchor-width';
+  /** The anchor's height. */
+  const anchorHeight: '--anchor-height';
+  /** The coordinates that this element is anchored to. Used for animations and transitions. */
+  const transformOrigin: '--transform-origin';
+  /**
+   * The width of the menu's positioner.
+   * It is important to set `width` to this value when using CSS to animate size changes.
+   */
+  const positionerWidth: '--positioner-width';
+  /**
+   * The height of the menu's positioner.
+   * It is important to set `height` to this value when using CSS to animate size changes.
+   */
+  const positionerHeight: '--positioner-height';
+}
+```
 
 ### ContextMenuPositionerDataAttributes
 
-Re-export of [Positioner](#positioner) data-attributes.
+Data attributes of [Positioner](#positioner).
+
+```typescript
+declare namespace ContextMenuPositionerDataAttributes {
+  /** Present when the menu popup is open. */
+  const open: 'data-open';
+  /** Present when the menu popup is closed. */
+  const closed: 'data-closed';
+  /** Present when the anchor is hidden. */
+  const anchorHidden: 'data-anchor-hidden';
+  /** Indicates which side the popup is positioned relative to the anchor. */
+  const side: 'data-side';
+  /** Indicates how the popup is aligned relative to the specified side. */
+  const align: 'data-align';
+}
+```
 
 ### ContextMenuRadioItemDataAttributes
 
-Re-export of [RadioItem](#radioitem) data-attributes.
+Data attributes of [RadioItem](#radioitem).
+
+```typescript
+declare namespace ContextMenuRadioItemDataAttributes {
+  /** Present when the menu radio item is selected. */
+  const checked: 'data-checked';
+  /** Present when the menu radio item is not selected. */
+  const unchecked: 'data-unchecked';
+  /** Present when the menu radio item is disabled. */
+  const disabled: 'data-disabled';
+  /** Present when the menu radio item is highlighted. */
+  const highlighted: 'data-highlighted';
+}
+```
 
 ### ContextMenuRadioItemIndicatorDataAttributes
 
-Re-export of [RadioItemIndicator](#radioitemindicator) data-attributes.
+Data attributes of [RadioItemIndicator](#radioitemindicator).
+
+```typescript
+declare namespace ContextMenuRadioItemIndicatorDataAttributes {
+  /** Present when the menu radio item is selected. */
+  const checked: 'data-checked';
+  /** Present when the menu radio item is not selected. */
+  const unchecked: 'data-unchecked';
+  /** Present when the menu radio item is disabled. */
+  const disabled: 'data-disabled';
+  /** Present when the radio indicator begins animating in. */
+  const startingStyle: 'data-starting-style';
+  /** Present when the radio indicator is animating out. */
+  const endingStyle: 'data-ending-style';
+}
+```
 
 ### ContextMenuSeparatorDataAttributes
 
-Re-export of [Separator](#separator) data-attributes.
+Data attributes of [Separator](#separator).
+
+```typescript
+declare namespace ContextMenuSeparatorDataAttributes {
+  /** Indicates the orientation of the separator. */
+  const orientation: 'data-orientation';
+}
+```
 
 ### ContextMenuSubmenuTriggerDataAttributes
 
-Re-export of [SubmenuTrigger](#submenutrigger) data-attributes.
+Data attributes of [SubmenuTrigger](#submenutrigger).
+
+```typescript
+declare namespace ContextMenuSubmenuTriggerDataAttributes {
+  /** Present when the corresponding submenu is open. */
+  const popupOpen: 'data-popup-open';
+  /** Present when the submenu trigger is highlighted. */
+  const highlighted: 'data-highlighted';
+  /** Present when the submenu trigger is disabled. */
+  const disabled: 'data-disabled';
+}
+```
 
 ### ContextMenuTriggerDataAttributes
 
-Re-export of [Trigger](#trigger) data-attributes.
+Data attributes of [Trigger](#trigger).
+
+```typescript
+declare namespace ContextMenuTriggerDataAttributes {
+  /** Present when the corresponding context menu is open. */
+  const popupOpen: 'data-popup-open';
+  /** Present when the corresponding context menu is open. */
+  const pressed: 'data-pressed';
+}
+```
 
 ## External Types
 

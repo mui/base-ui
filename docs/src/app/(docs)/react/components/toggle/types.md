@@ -76,7 +76,16 @@ type ToggleChangeEventDetails = {
 
 ### ToggleDataAttributes
 
-Re-export of [Toggle](#toggle) data-attributes.
+Data attributes of [Toggle](#toggle).
+
+```typescript
+declare namespace ToggleDataAttributes {
+  /** Present when the toggle button is pressed. */
+  const pressed: 'data-pressed';
+  /** Present when the toggle button is disabled. */
+  const disabled: 'data-disabled';
+}
+```
 
 ## Canonical Types
 

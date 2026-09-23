@@ -100,7 +100,20 @@ type AvatarFallbackState = {
 
 ### AvatarImageDataAttributes
 
-Re-export of [Image](#image) data-attributes.
+Data attributes of [Image](#image).
+
+```typescript
+declare namespace AvatarImageDataAttributes {
+  /** Present while the image is loading. */
+  const loading: 'data-loading';
+  /** Present when the image failed to load. */
+  const error: 'data-error';
+  /** Present when the image begins animating in. */
+  const startingStyle: 'data-starting-style';
+  /** Present when the image is animating out. */
+  const endingStyle: 'data-ending-style';
+}
+```
 
 ### ImageLoadingStatus
 

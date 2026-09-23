@@ -1234,27 +1234,95 @@ type AccordionPanelState = {
 
 ### AccordionHeaderDataAttributes
 
-Re-export of [Header](#header) data-attributes.
+Data attributes of [Header](#header).
+
+\`\`\`typescript
+declare namespace AccordionHeaderDataAttributes {
+  /** Indicates the index of the accordion item. */
+  const index: 'data-index';
+  /** Present when the accordion item is disabled. */
+  const disabled: 'data-disabled';
+  /** Present when the accordion item is open. */
+  const open: 'data-open';
+}
+\`\`\`
 
 ### AccordionItemDataAttributes
 
-Re-export of [Item](#item) data-attributes.
+Data attributes of [Item](#item).
+
+\`\`\`typescript
+declare namespace AccordionItemDataAttributes {
+  /** Indicates the index of the accordion item. */
+  const index: 'data-index';
+  /** Present when the accordion item is disabled. */
+  const disabled: 'data-disabled';
+  /** Present when the accordion item is open. */
+  const open: 'data-open';
+}
+\`\`\`
 
 ### AccordionPanelCssVariables
 
-Re-export of [Panel](#panel) css-variables.
+CSS variables of [Panel](#panel).
+
+\`\`\`typescript
+declare namespace AccordionPanelCssVariables {
+  /** The accordion panel's height. */
+  const accordionPanelHeight: '--accordion-panel-height';
+  /** The accordion panel's width. */
+  const accordionPanelWidth: '--accordion-panel-width';
+}
+\`\`\`
 
 ### AccordionPanelDataAttributes
 
-Re-export of [Panel](#panel) data-attributes.
+Data attributes of [Panel](#panel).
+
+\`\`\`typescript
+declare namespace AccordionPanelDataAttributes {
+  /** Indicates the index of the accordion item. */
+  const index: 'data-index';
+  /** Present when the accordion panel is open. */
+  const open: 'data-open';
+  /** Indicates the orientation of the accordion. */
+  const orientation: 'data-orientation';
+  /** Present when the accordion item is disabled. */
+  const disabled: 'data-disabled';
+  /** Present when the panel begins animating in. */
+  const startingStyle: 'data-starting-style';
+  /** Present when the panel is animating out. */
+  const endingStyle: 'data-ending-style';
+}
+\`\`\`
 
 ### AccordionRootDataAttributes
 
-Re-export of [Root](#root) data-attributes.
+Data attributes of [Root](#root).
+
+\`\`\`typescript
+declare namespace AccordionRootDataAttributes {
+  /** Present when the accordion is disabled. */
+  const disabled: 'data-disabled';
+  /** Indicates the orientation of the accordion. */
+  const orientation: 'data-orientation';
+}
+\`\`\`
 
 ### AccordionTriggerDataAttributes
 
-Re-export of [Trigger](#trigger) data-attributes.
+Data attributes of [Trigger](#trigger).
+
+\`\`\`typescript
+declare namespace AccordionTriggerDataAttributes {
+  /** Indicates the index of the accordion item. */
+  const index: 'data-index';
+  /** Present when the accordion panel is open. */
+  const panelOpen: 'data-panel-open';
+  /** Present when the accordion item is disabled. */
+  const disabled: 'data-disabled';
+}
+\`\`\`
 
 ### AccordionValue
 

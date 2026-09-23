@@ -160,19 +160,61 @@ type CollapsiblePanelState = {
 
 ### CollapsiblePanelCssVariables
 
-Re-export of [Panel](#panel) css-variables.
+CSS variables of [Panel](#panel).
+
+```typescript
+declare namespace CollapsiblePanelCssVariables {
+  /** The collapsible panel's height. */
+  const collapsiblePanelHeight: '--collapsible-panel-height';
+  /** The collapsible panel's width. */
+  const collapsiblePanelWidth: '--collapsible-panel-width';
+}
+```
 
 ### CollapsiblePanelDataAttributes
 
-Re-export of [Panel](#panel) data-attributes.
+Data attributes of [Panel](#panel).
+
+```typescript
+declare namespace CollapsiblePanelDataAttributes {
+  /** Present when the collapsible panel is open. */
+  const open: 'data-open';
+  /** Present when the collapsible panel is closed. */
+  const closed: 'data-closed';
+  /** Present when the panel begins animating in. */
+  const startingStyle: 'data-starting-style';
+  /** Present when the panel is animating out. */
+  const endingStyle: 'data-ending-style';
+}
+```
 
 ### CollapsibleRootDataAttributes
 
-Re-export of [Root](#root) data-attributes.
+Data attributes of [Root](#root).
+
+```typescript
+declare namespace CollapsibleRootDataAttributes {
+  /** Present when the collapsible is open. */
+  const open: 'data-open';
+  /** Present when the collapsible is closed. */
+  const closed: 'data-closed';
+  /** Present when the collapsible begins animating in. */
+  const startingStyle: 'data-starting-style';
+  /** Present when the collapsible is animating out. */
+  const endingStyle: 'data-ending-style';
+}
+```
 
 ### CollapsibleTriggerDataAttributes
 
-Re-export of [Trigger](#trigger) data-attributes.
+Data attributes of [Trigger](#trigger).
+
+```typescript
+declare namespace CollapsibleTriggerDataAttributes {
+  /** Present when the collapsible panel is open. */
+  const panelOpen: 'data-panel-open';
+}
+```
 
 ## Export Groups
 

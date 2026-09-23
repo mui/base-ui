@@ -245,15 +245,72 @@ type OTPFieldSeparatorState = {
 
 ### OTPFieldInputDataAttributes
 
-Re-export of [Input](#input) data-attributes.
+Data attributes of [Input](#input).
+
+```typescript
+declare namespace OTPFieldInputDataAttributes {
+  /** Present when all slots are filled. */
+  const complete: 'data-complete';
+  /** Present when the input contains a character. */
+  const filled: 'data-filled';
+  /** Present when the OTP field is disabled. */
+  const disabled: 'data-disabled';
+  /** Present when the OTP field is readonly. */
+  const readonly: 'data-readonly';
+  /** Present when the OTP field is required. */
+  const required: 'data-required';
+  /** Present when the OTP field is in a valid state (when wrapped in Field.Root). */
+  const valid: 'data-valid';
+  /** Present when the OTP field is in an invalid state (when wrapped in Field.Root). */
+  const invalid: 'data-invalid';
+  /** Present when the OTP field has been touched (when wrapped in Field.Root). */
+  const touched: 'data-touched';
+  /** Present when the OTP field's value has changed (when wrapped in Field.Root). */
+  const dirty: 'data-dirty';
+  /** Present when any OTP field input is focused. */
+  const focused: 'data-focused';
+}
+```
 
 ### OTPFieldRootDataAttributes
 
-Re-export of [Root](#root) data-attributes.
+Data attributes of [Root](#root).
+
+```typescript
+declare namespace OTPFieldRootDataAttributes {
+  /** Present when all slots are filled. */
+  const complete: 'data-complete';
+  /** Present when the OTP field is disabled. */
+  const disabled: 'data-disabled';
+  /** Present when the OTP field is readonly. */
+  const readonly: 'data-readonly';
+  /** Present when the OTP field is required. */
+  const required: 'data-required';
+  /** Present when the OTP field is in a valid state (when wrapped in Field.Root). */
+  const valid: 'data-valid';
+  /** Present when the OTP field is in an invalid state (when wrapped in Field.Root). */
+  const invalid: 'data-invalid';
+  /** Present when the OTP field has been touched (when wrapped in Field.Root). */
+  const touched: 'data-touched';
+  /** Present when the OTP field's value has changed (when wrapped in Field.Root). */
+  const dirty: 'data-dirty';
+  /** Present when the OTP field contains at least one character. */
+  const filled: 'data-filled';
+  /** Present when one of the OTP field inputs is focused. */
+  const focused: 'data-focused';
+}
+```
 
 ### OTPFieldSeparatorDataAttributes
 
-Re-export of [Separator](#separator) data-attributes.
+Data attributes of [Separator](#separator).
+
+```typescript
+declare namespace OTPFieldSeparatorDataAttributes {
+  /** Indicates the orientation of the separator. */
+  const orientation: 'data-orientation';
+}
+```
 
 ## External Types
 

@@ -579,23 +579,64 @@ type ToastObject<Data extends {}> = {
 
 ### ToastActionDataAttributes
 
-Re-export of [Action](#action) data-attributes.
+Data attributes of [Action](#action).
+
+```typescript
+declare namespace ToastActionDataAttributes {
+  /** The type of the toast. */
+  const type: 'data-type';
+}
+```
 
 ### ToastArrowDataAttributes
 
-Re-export of [Arrow](#arrow) data-attributes.
+Data attributes of [Arrow](#arrow).
+
+```typescript
+declare namespace ToastArrowDataAttributes {
+  /** Indicates which side the toast is positioned relative to the anchor. */
+  const side: 'data-side';
+  /** Indicates how the toast is aligned relative to specified side. */
+  const align: 'data-align';
+  /** Present when the toast arrow is uncentered. */
+  const uncentered: 'data-uncentered';
+}
+```
 
 ### ToastCloseDataAttributes
 
-Re-export of [Close](#close) data-attributes.
+Data attributes of [Close](#close).
+
+```typescript
+declare namespace ToastCloseDataAttributes {
+  /** The type of the toast. */
+  const type: 'data-type';
+}
+```
 
 ### ToastContentDataAttributes
 
-Re-export of [Content](#content) data-attributes.
+Data attributes of [Content](#content).
+
+```typescript
+declare namespace ToastContentDataAttributes {
+  /** Present when the toast viewport is expanded. */
+  const expanded: 'data-expanded';
+  /** Present when the toast is behind the frontmost toast in the stack. */
+  const behind: 'data-behind';
+}
+```
 
 ### ToastDescriptionDataAttributes
 
-Re-export of [Description](#description) data-attributes.
+Data attributes of [Description](#description).
+
+```typescript
+declare namespace ToastDescriptionDataAttributes {
+  /** The type of the toast. */
+  const type: 'data-type';
+}
+```
 
 ### ToastManager
 
@@ -886,31 +927,112 @@ type ToastManagerUpdateOptions<Data extends {}> = {
 
 ### ToastPositionerCssVariables
 
-Re-export of [Positioner](#positioner) css-variables.
+CSS variables of [Positioner](#positioner).
+
+```typescript
+declare namespace ToastPositionerCssVariables {
+  /** The available width between the anchor and the edge of the viewport. */
+  const availableWidth: '--available-width';
+  /** The available height between the anchor and the edge of the viewport. */
+  const availableHeight: '--available-height';
+  /** The anchor's width. */
+  const anchorWidth: '--anchor-width';
+  /** The anchor's height. */
+  const anchorHeight: '--anchor-height';
+  /** The coordinates that this element is anchored to. Used for animations and transitions. */
+  const transformOrigin: '--transform-origin';
+}
+```
 
 ### ToastPositionerDataAttributes
 
-Re-export of [Positioner](#positioner) data-attributes.
+Data attributes of [Positioner](#positioner).
+
+```typescript
+declare namespace ToastPositionerDataAttributes {
+  /** Present when the anchor is hidden. */
+  const anchorHidden: 'data-anchor-hidden';
+  /** Indicates which side the toast is positioned relative to the trigger. */
+  const side: 'data-side';
+  /** Indicates how the toast is aligned relative to specified side. */
+  const align: 'data-align';
+}
+```
 
 ### ToastRootCssVariables
 
-Re-export of [Root](#root) css-variables.
+CSS variables of [Root](#root).
+
+```typescript
+declare namespace ToastRootCssVariables {
+  /** Indicates the index of the toast in the list. */
+  const index: '--toast-index';
+  /** Indicates the vertical pixels offset of the toast in the list when expanded. */
+  const offsetY: '--toast-offset-y';
+  /** Indicates the measured natural height of the toast in pixels. */
+  const height: '--toast-height';
+  /** Indicates the horizontal swipe movement of the toast. */
+  const swipeMovementX: '--toast-swipe-movement-x';
+  /** Indicates the vertical swipe movement of the toast. */
+  const swipeMovementY: '--toast-swipe-movement-y';
+}
+```
 
 ### ToastRootDataAttributes
 
-Re-export of [Root](#root) data-attributes.
+Data attributes of [Root](#root).
+
+```typescript
+declare namespace ToastRootDataAttributes {
+  /** Present when the toast is expanded in the viewport. */
+  const expanded: 'data-expanded';
+  /** Present when the toast was limited because the toast limit was exceeded. */
+  const limited: 'data-limited';
+  /** The type of the toast. */
+  const type: 'data-type';
+  /** Present when the toast is being swiped. */
+  const swiping: 'data-swiping';
+  /** The direction the toast was swiped. */
+  const swipeDirection: 'data-swipe-direction';
+  /** Present when the toast begins animating in. */
+  const startingStyle: 'data-starting-style';
+  /** Present when the toast is animating out. */
+  const endingStyle: 'data-ending-style';
+}
+```
 
 ### ToastTitleDataAttributes
 
-Re-export of [Title](#title) data-attributes.
+Data attributes of [Title](#title).
+
+```typescript
+declare namespace ToastTitleDataAttributes {
+  /** The type of the toast. */
+  const type: 'data-type';
+}
+```
 
 ### ToastViewportCssVariables
 
-Re-export of [Viewport](#viewport) css-variables.
+CSS variables of [Viewport](#viewport).
+
+```typescript
+declare namespace ToastViewportCssVariables {
+  /** Indicates the height of the frontmost toast. */
+  const frontmostHeight: '--toast-frontmost-height';
+}
+```
 
 ### ToastViewportDataAttributes
 
-Re-export of [Viewport](#viewport) data-attributes.
+Data attributes of [Viewport](#viewport).
+
+```typescript
+declare namespace ToastViewportDataAttributes {
+  /** Indicates toasts are expanded in the viewport. */
+  const expanded: 'data-expanded';
+}
+```
 
 ### UseToastManagerReturnValue
 

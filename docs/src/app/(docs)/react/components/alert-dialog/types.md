@@ -410,27 +410,97 @@ This method should only be called in an event handler or an effect (not during r
 
 ### AlertDialogBackdropDataAttributes
 
-Re-export of [Backdrop](#backdrop) data-attributes.
+Data attributes of [Backdrop](#backdrop).
+
+```typescript
+declare namespace AlertDialogBackdropDataAttributes {
+  /** Present when the dialog is open. */
+  const open: 'data-open';
+  /** Present when the dialog is closed. */
+  const closed: 'data-closed';
+  /** Present when the dialog begins animating in. */
+  const startingStyle: 'data-starting-style';
+  /** Present when the dialog is animating out. */
+  const endingStyle: 'data-ending-style';
+}
+```
 
 ### AlertDialogCloseDataAttributes
 
-Re-export of [Close](#close) data-attributes.
+Data attributes of [Close](#close).
+
+```typescript
+declare namespace AlertDialogCloseDataAttributes {
+  /** Present when the button is disabled. */
+  const disabled: 'data-disabled';
+}
+```
 
 ### AlertDialogPopupCssVariables
 
-Re-export of [Popup](#popup) css-variables.
+CSS variables of [Popup](#popup).
+
+```typescript
+declare namespace AlertDialogPopupCssVariables {
+  /** Indicates how many dialogs are nested within. */
+  const nestedDialogs: '--nested-dialogs';
+}
+```
 
 ### AlertDialogPopupDataAttributes
 
-Re-export of [Popup](#popup) data-attributes.
+Data attributes of [Popup](#popup).
+
+```typescript
+declare namespace AlertDialogPopupDataAttributes {
+  /** Present when the dialog is open. */
+  const open: 'data-open';
+  /** Present when the dialog is closed. */
+  const closed: 'data-closed';
+  /** Present when the dialog begins animating in. */
+  const startingStyle: 'data-starting-style';
+  /** Present when the dialog is animating out. */
+  const endingStyle: 'data-ending-style';
+  /** Present when the dialog is nested within another dialog. */
+  const nested: 'data-nested';
+  /** Present when the dialog has other open dialogs nested within it. */
+  const nestedDialogOpen: 'data-nested-dialog-open';
+}
+```
 
 ### AlertDialogTriggerDataAttributes
 
-Re-export of [Trigger](#trigger) data-attributes.
+Data attributes of [Trigger](#trigger).
+
+```typescript
+declare namespace AlertDialogTriggerDataAttributes {
+  /** Present when the trigger is disabled. */
+  const disabled: 'data-disabled';
+  /** Present when the corresponding alert dialog is open. */
+  const popupOpen: 'data-popup-open';
+}
+```
 
 ### AlertDialogViewportDataAttributes
 
-Re-export of [Viewport](#viewport) data-attributes.
+Data attributes of [Viewport](#viewport).
+
+```typescript
+declare namespace AlertDialogViewportDataAttributes {
+  /** Present when the dialog is open. */
+  const open: 'data-open';
+  /** Present when the dialog is closed. */
+  const closed: 'data-closed';
+  /** Present when the dialog begins animating in. */
+  const startingStyle: 'data-starting-style';
+  /** Present when the dialog is animating out. */
+  const endingStyle: 'data-ending-style';
+  /** Present when the dialog is nested within another dialog. */
+  const nested: 'data-nested';
+  /** Present when the dialog has other open dialogs nested within it. */
+  const nestedDialogOpen: 'data-nested-dialog-open';
+}
+```
 
 ## External Types
 

@@ -462,35 +462,163 @@ This method should only be called in an event handler or an effect (not during r
 
 ### PreviewCardArrowDataAttributes
 
-Re-export of [Arrow](#arrow) data-attributes.
+Data attributes of [Arrow](#arrow).
+
+```typescript
+declare namespace PreviewCardArrowDataAttributes {
+  /** Present when the preview card is open. */
+  const open: 'data-open';
+  /** Present when the preview card is closed. */
+  const closed: 'data-closed';
+  /** Indicates which side the popup is positioned relative to the trigger. */
+  const side: 'data-side';
+  /** Indicates how the popup is aligned relative to specified side. */
+  const align: 'data-align';
+  /** Present when the preview card arrow is uncentered. */
+  const uncentered: 'data-uncentered';
+}
+```
 
 ### PreviewCardBackdropDataAttributes
 
-Re-export of [Backdrop](#backdrop) data-attributes.
+Data attributes of [Backdrop](#backdrop).
+
+```typescript
+declare namespace PreviewCardBackdropDataAttributes {
+  /** Present when the preview card is open. */
+  const open: 'data-open';
+  /** Present when the preview card is closed. */
+  const closed: 'data-closed';
+  /** Present when the preview card begins animating in. */
+  const startingStyle: 'data-starting-style';
+  /** Present when the preview card is animating out. */
+  const endingStyle: 'data-ending-style';
+}
+```
 
 ### PreviewCardPopupDataAttributes
 
-Re-export of [Popup](#popup) data-attributes.
+Data attributes of [Popup](#popup).
+
+```typescript
+declare namespace PreviewCardPopupDataAttributes {
+  /** Present when the preview card is open. */
+  const open: 'data-open';
+  /** Present when the preview card is closed. */
+  const closed: 'data-closed';
+  /** Present when the preview card begins animating in. */
+  const startingStyle: 'data-starting-style';
+  /** Present when the preview card is animating out. */
+  const endingStyle: 'data-ending-style';
+  /** Indicates which side the popup is positioned relative to the trigger. */
+  const side: 'data-side';
+  /** Indicates how the popup is aligned relative to specified side. */
+  const align: 'data-align';
+}
+```
 
 ### PreviewCardPositionerCssVariables
 
-Re-export of [Positioner](#positioner) css-variables.
+CSS variables of [Positioner](#positioner).
+
+```typescript
+declare namespace PreviewCardPositionerCssVariables {
+  /** The available width between the trigger and the edge of the viewport. */
+  const availableWidth: '--available-width';
+  /** The available height between the trigger and the edge of the viewport. */
+  const availableHeight: '--available-height';
+  /** The anchor's width. */
+  const anchorWidth: '--anchor-width';
+  /** The anchor's height. */
+  const anchorHeight: '--anchor-height';
+  /** The coordinates that this element is anchored to. Used for animations and transitions. */
+  const transformOrigin: '--transform-origin';
+  /**
+   * The width of the preview card's positioner.
+   * It is important to set `width` to this value when using CSS to animate size changes.
+   */
+  const positionerWidth: '--positioner-width';
+  /**
+   * The height of the preview card's positioner.
+   * It is important to set `height` to this value when using CSS to animate size changes.
+   */
+  const positionerHeight: '--positioner-height';
+}
+```
 
 ### PreviewCardPositionerDataAttributes
 
-Re-export of [Positioner](#positioner) data-attributes.
+Data attributes of [Positioner](#positioner).
+
+```typescript
+declare namespace PreviewCardPositionerDataAttributes {
+  /** Present when the preview card is open. */
+  const open: 'data-open';
+  /** Present when the preview card is closed. */
+  const closed: 'data-closed';
+  /** Present when the anchor is hidden. */
+  const anchorHidden: 'data-anchor-hidden';
+  /** Indicates which side the popup is positioned relative to the trigger. */
+  const side: 'data-side';
+  /** Indicates how the popup is aligned relative to specified side. */
+  const align: 'data-align';
+}
+```
 
 ### PreviewCardTriggerDataAttributes
 
-Re-export of [Trigger](#trigger) data-attributes.
+Data attributes of [Trigger](#trigger).
+
+```typescript
+declare namespace PreviewCardTriggerDataAttributes {
+  /** Present when the corresponding preview card is open. */
+  const popupOpen: 'data-popup-open';
+}
+```
 
 ### PreviewCardViewportCssVariables
 
-Re-export of [Viewport](#viewport) css-variables.
+CSS variables of [Viewport](#viewport).
+
+```typescript
+declare namespace PreviewCardViewportCssVariables {
+  /**
+   * The width of the parent popup.
+   * This variable is placed on the 'previous' container and stores the width of the popup when the previous content was rendered.
+   * It can be used to freeze the dimensions of the popup when animating between different content.
+   */
+  const popupWidth: '--popup-width';
+  /**
+   * The height of the parent popup.
+   * This variable is placed on the 'previous' container and stores the height of the popup when the previous content was rendered.
+   * It can be used to freeze the dimensions of the popup when animating between different content.
+   */
+  const popupHeight: '--popup-height';
+}
+```
 
 ### PreviewCardViewportDataAttributes
 
-Re-export of [Viewport](#viewport) data-attributes.
+Data attributes of [Viewport](#viewport).
+
+```typescript
+declare namespace PreviewCardViewportDataAttributes {
+  /** Applied to the direct child of the viewport when no transitions are present or the new content when it's entering. */
+  const current: 'data-current';
+  /** Applied to the direct child of the viewport that contains the exiting content when transitions are present. */
+  const previous: 'data-previous';
+  /**
+   * Indicates the direction from which the popup was activated.
+   * This can be used to create directional animations based on how the popup was triggered.
+   * Contains space-separated values for both horizontal and vertical axes.
+   */
+  const activationDirection: 'data-activation-direction';
+  /** Indicates that the viewport is currently transitioning between old and new content. */
+  const transitioning: 'data-transitioning';
+  /** Present if animations should be instant. */
+  const instant: 'data-instant';
+}
+```
 
 ## External Types
 

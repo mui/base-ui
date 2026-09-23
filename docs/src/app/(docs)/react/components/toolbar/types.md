@@ -247,27 +247,81 @@ type ToolbarOrientation = 'horizontal' | 'vertical';
 
 ### ToolbarButtonDataAttributes
 
-Re-export of [Button](#button) data-attributes.
+Data attributes of [Button](#button).
+
+```typescript
+declare namespace ToolbarButtonDataAttributes {
+  /** Present when the button is disabled. */
+  const disabled: 'data-disabled';
+  /** Indicates the orientation of the toolbar. */
+  const orientation: 'data-orientation';
+  /** Present when the button remains focusable when disabled. */
+  const focusable: 'data-focusable';
+}
+```
 
 ### ToolbarGroupDataAttributes
 
-Re-export of [Group](#group) data-attributes.
+Data attributes of [Group](#group).
+
+```typescript
+declare namespace ToolbarGroupDataAttributes {
+  /** Present when the group is disabled. */
+  const disabled: 'data-disabled';
+  /** Indicates the orientation of the toolbar. */
+  const orientation: 'data-orientation';
+}
+```
 
 ### ToolbarInputDataAttributes
 
-Re-export of [Input](#input) data-attributes.
+Data attributes of [Input](#input).
+
+```typescript
+declare namespace ToolbarInputDataAttributes {
+  /** Present when the input is disabled. */
+  const disabled: 'data-disabled';
+  /** Indicates the orientation of the toolbar. */
+  const orientation: 'data-orientation';
+  /** Present when the input remains focusable when disabled. */
+  const focusable: 'data-focusable';
+}
+```
 
 ### ToolbarLinkDataAttributes
 
-Re-export of [Link](#link) data-attributes.
+Data attributes of [Link](#link).
+
+```typescript
+declare namespace ToolbarLinkDataAttributes {
+  /** Indicates the orientation of the toolbar. */
+  const orientation: 'data-orientation';
+}
+```
 
 ### ToolbarRootDataAttributes
 
-Re-export of [Root](#root) data-attributes.
+Data attributes of [Root](#root).
+
+```typescript
+declare namespace ToolbarRootDataAttributes {
+  /** Present when the toolbar is disabled. */
+  const disabled: 'data-disabled';
+  /** Indicates the orientation of the toolbar. */
+  const orientation: 'data-orientation';
+}
+```
 
 ### ToolbarSeparatorDataAttributes
 
-Re-export of [Separator](#separator) data-attributes.
+Data attributes of [Separator](#separator).
+
+```typescript
+declare namespace ToolbarSeparatorDataAttributes {
+  /** Indicates the orientation of the separator, which is perpendicular to the toolbar. */
+  const orientation: 'data-orientation';
+}
+```
 
 ## Export Groups
 

@@ -84,7 +84,18 @@ type ToggleGroupChangeEventDetails = {
 
 ### ToggleGroupDataAttributes
 
-Re-export of [ToggleGroup](#togglegroup) data-attributes.
+Data attributes of [ToggleGroup](#togglegroup).
+
+```typescript
+declare namespace ToggleGroupDataAttributes {
+  /** Present when the toggle group is disabled. */
+  const disabled: 'data-disabled';
+  /** Indicates the orientation of the toggle group. */
+  const orientation: 'data-orientation';
+  /** Present when the toggle group allows multiple buttons to be in the pressed state at the same time. */
+  const multiple: 'data-multiple';
+}
+```
 
 ## External Types
 

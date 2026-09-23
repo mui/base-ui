@@ -298,27 +298,101 @@ type TabsTabSize = { width: number; height: number };
 
 ### TabsIndicatorCssVariables
 
-Re-export of [Indicator](#indicator) css-variables.
+CSS variables of [Indicator](#indicator).
+
+```typescript
+declare namespace TabsIndicatorCssVariables {
+  /** Indicates the distance on the left side from the parent's container if the tab is active. */
+  const activeTabLeft: '--active-tab-left';
+  /** Indicates the distance on the right side from the parent's container if the tab is active. */
+  const activeTabRight: '--active-tab-right';
+  /** Indicates the distance on the top side from the parent's container if the tab is active. */
+  const activeTabTop: '--active-tab-top';
+  /** Indicates the distance on the bottom side from the parent's container if the tab is active. */
+  const activeTabBottom: '--active-tab-bottom';
+  /** Indicates the width of the tab if it is active. */
+  const activeTabWidth: '--active-tab-width';
+  /** Indicates the height of the tab if it is active. */
+  const activeTabHeight: '--active-tab-height';
+}
+```
 
 ### TabsIndicatorDataAttributes
 
-Re-export of [Indicator](#indicator) data-attributes.
+Data attributes of [Indicator](#indicator).
+
+```typescript
+declare namespace TabsIndicatorDataAttributes {
+  /** Indicates the direction of the activation (based on the previous active tab). */
+  const activationDirection: 'data-activation-direction';
+  /** Indicates the orientation of the tabs. */
+  const orientation: 'data-orientation';
+}
+```
 
 ### TabsListDataAttributes
 
-Re-export of [List](#list) data-attributes.
+Data attributes of [List](#list).
+
+```typescript
+declare namespace TabsListDataAttributes {
+  /** Indicates the direction of the activation (based on the previous active tab). */
+  const activationDirection: 'data-activation-direction';
+  /** Indicates the orientation of the tabs. */
+  const orientation: 'data-orientation';
+}
+```
 
 ### TabsPanelDataAttributes
 
-Re-export of [Panel](#panel) data-attributes.
+Data attributes of [Panel](#panel).
+
+```typescript
+declare namespace TabsPanelDataAttributes {
+  /** Indicates the index of the tab panel. */
+  const index: 'data-index';
+  /** Indicates the direction of the activation (based on the previous active tab). */
+  const activationDirection: 'data-activation-direction';
+  /** Indicates the orientation of the tabs. */
+  const orientation: 'data-orientation';
+  /** Present when the panel is hidden. */
+  const hidden: 'data-hidden';
+  /** Present when the panel begins animating in. */
+  const startingStyle: 'data-starting-style';
+  /** Present when the panel is animating out. */
+  const endingStyle: 'data-ending-style';
+}
+```
 
 ### TabsRootDataAttributes
 
-Re-export of [Root](#root) data-attributes.
+Data attributes of [Root](#root).
+
+```typescript
+declare namespace TabsRootDataAttributes {
+  /** Indicates the direction of the activation (based on the previous active tab). */
+  const activationDirection: 'data-activation-direction';
+  /** Indicates the orientation of the tabs. */
+  const orientation: 'data-orientation';
+}
+```
 
 ### TabsTabDataAttributes
 
-Re-export of [Tab](#tab) data-attributes.
+Data attributes of [Tab](#tab).
+
+```typescript
+declare namespace TabsTabDataAttributes {
+  /** Indicates the direction of the activation (based on the previous active tab). */
+  const activationDirection: 'data-activation-direction';
+  /** Indicates the orientation of the tabs. */
+  const orientation: 'data-orientation';
+  /** Present when the tab is disabled. */
+  const disabled: 'data-disabled';
+  /** Present when the tab is active. */
+  const active: 'data-active';
+}
+```
 
 ## Export Groups
 

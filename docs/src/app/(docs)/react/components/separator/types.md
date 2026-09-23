@@ -41,7 +41,14 @@ type SeparatorState = {
 
 ### SeparatorDataAttributes
 
-Re-export of [Separator](#separator) data-attributes.
+Data attributes of [Separator](#separator).
+
+```typescript
+declare namespace SeparatorDataAttributes {
+  /** Indicates the orientation of the separator. */
+  const orientation: 'data-orientation';
+}
+```
 
 ## External Types
 

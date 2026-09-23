@@ -49,7 +49,18 @@ type MenubarState = {
 
 ### MenubarDataAttributes
 
-Re-export of [Menubar](#menubar) data-attributes.
+Data attributes of [Menubar](#menubar).
+
+```typescript
+declare namespace MenubarDataAttributes {
+  /** Present when the corresponding menubar is modal. */
+  const modal: 'data-modal';
+  /** Determines the orientation of the menubar. */
+  const orientation: 'data-orientation';
+  /** Present when any submenu within the menubar is open. */
+  const hasSubmenuOpen: 'data-has-submenu-open';
+}
+```
 
 ## External Types
 

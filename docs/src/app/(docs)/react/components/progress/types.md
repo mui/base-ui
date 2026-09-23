@@ -192,23 +192,78 @@ type ProgressStatus = 'indeterminate' | 'progressing' | 'complete';
 
 ### ProgressIndicatorDataAttributes
 
-Re-export of [Indicator](#indicator) data-attributes.
+Data attributes of [Indicator](#indicator).
+
+```typescript
+declare namespace ProgressIndicatorDataAttributes {
+  /** Present when the progress has completed. */
+  const complete: 'data-complete';
+  /** Present when the progress is in indeterminate state. */
+  const indeterminate: 'data-indeterminate';
+  /** Present while the progress is progressing. */
+  const progressing: 'data-progressing';
+}
+```
 
 ### ProgressLabelDataAttributes
 
-Re-export of [Label](#label) data-attributes.
+Data attributes of [Label](#label).
+
+```typescript
+declare namespace ProgressLabelDataAttributes {
+  /** Present when the progress has completed. */
+  const complete: 'data-complete';
+  /** Present when the progress is in indeterminate state. */
+  const indeterminate: 'data-indeterminate';
+  /** Present while the progress is progressing. */
+  const progressing: 'data-progressing';
+}
+```
 
 ### ProgressRootDataAttributes
 
-Re-export of [Root](#root) data-attributes.
+Data attributes of [Root](#root).
+
+```typescript
+declare namespace ProgressRootDataAttributes {
+  /** Present when the progress has completed. */
+  const complete: 'data-complete';
+  /** Present when the progress is in indeterminate state. */
+  const indeterminate: 'data-indeterminate';
+  /** Present while the progress is progressing. */
+  const progressing: 'data-progressing';
+}
+```
 
 ### ProgressTrackDataAttributes
 
-Re-export of [Track](#track) data-attributes.
+Data attributes of [Track](#track).
+
+```typescript
+declare namespace ProgressTrackDataAttributes {
+  /** Present when the progress has completed. */
+  const complete: 'data-complete';
+  /** Present when the progress is in indeterminate state. */
+  const indeterminate: 'data-indeterminate';
+  /** Present while the progress is progressing. */
+  const progressing: 'data-progressing';
+}
+```
 
 ### ProgressValueDataAttributes
 
-Re-export of [Value](#value) data-attributes.
+Data attributes of [Value](#value).
+
+```typescript
+declare namespace ProgressValueDataAttributes {
+  /** Present when the progress has completed. */
+  const complete: 'data-complete';
+  /** Present when the progress is in indeterminate state. */
+  const indeterminate: 'data-indeterminate';
+  /** Present while the progress is progressing. */
+  const progressing: 'data-progressing';
+}
+```
 
 ## Export Groups
 

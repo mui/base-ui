@@ -177,11 +177,73 @@ type CheckboxIndicatorState = {
 
 ### CheckboxIndicatorDataAttributes
 
-Re-export of [Indicator](#indicator) data-attributes.
+Data attributes of [Indicator](#indicator).
+
+```typescript
+declare namespace CheckboxIndicatorDataAttributes {
+  /** Present when the checkbox is checked. */
+  const checked: 'data-checked';
+  /** Present when the checkbox is not checked. */
+  const unchecked: 'data-unchecked';
+  /** Present when the checkbox is in an indeterminate state. */
+  const indeterminate: 'data-indeterminate';
+  /** Present when the checkbox is disabled. */
+  const disabled: 'data-disabled';
+  /** Present when the checkbox is readonly. */
+  const readonly: 'data-readonly';
+  /** Present when the checkbox is required. */
+  const required: 'data-required';
+  /** Present when the checkbox indicator begins animating in. */
+  const startingStyle: 'data-starting-style';
+  /** Present when the checkbox indicator is animating out. */
+  const endingStyle: 'data-ending-style';
+  /** Present when the checkbox is in a valid state (when wrapped in Field.Root). */
+  const valid: 'data-valid';
+  /** Present when the checkbox is in an invalid state (when wrapped in Field.Root). */
+  const invalid: 'data-invalid';
+  /** Present when the checkbox has been touched (when wrapped in Field.Root). */
+  const touched: 'data-touched';
+  /** Present when the checkbox's value has changed (when wrapped in Field.Root). */
+  const dirty: 'data-dirty';
+  /** Present when the checkbox is checked (when wrapped in Field.Root). */
+  const filled: 'data-filled';
+  /** Present when the checkbox is focused (when wrapped in Field.Root). */
+  const focused: 'data-focused';
+}
+```
 
 ### CheckboxRootDataAttributes
 
-Re-export of [Root](#root) data-attributes.
+Data attributes of [Root](#root).
+
+```typescript
+declare namespace CheckboxRootDataAttributes {
+  /** Present when the checkbox is checked. */
+  const checked: 'data-checked';
+  /** Present when the checkbox is not checked. */
+  const unchecked: 'data-unchecked';
+  /** Present when the checkbox is in an indeterminate state. */
+  const indeterminate: 'data-indeterminate';
+  /** Present when the checkbox is disabled. */
+  const disabled: 'data-disabled';
+  /** Present when the checkbox is readonly. */
+  const readonly: 'data-readonly';
+  /** Present when the checkbox is required. */
+  const required: 'data-required';
+  /** Present when the checkbox is in a valid state (when wrapped in Field.Root). */
+  const valid: 'data-valid';
+  /** Present when the checkbox is in an invalid state (when wrapped in Field.Root). */
+  const invalid: 'data-invalid';
+  /** Present when the checkbox has been touched (when wrapped in Field.Root). */
+  const touched: 'data-touched';
+  /** Present when the checkbox's value has changed (when wrapped in Field.Root). */
+  const dirty: 'data-dirty';
+  /** Present when the checkbox is checked (when wrapped in Field.Root). */
+  const filled: 'data-filled';
+  /** Present when the checkbox is focused (when wrapped in Field.Root). */
+  const focused: 'data-focused';
+}
+```
 
 ## Export Groups
 

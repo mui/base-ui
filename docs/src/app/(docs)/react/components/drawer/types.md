@@ -660,39 +660,159 @@ type DrawerVirtualKeyboardProviderState = {};
 
 ### DrawerBackdropCssVariables
 
-Re-export of [Backdrop](#backdrop) css-variables.
+CSS variables of [Backdrop](#backdrop).
+
+```typescript
+declare namespace DrawerBackdropCssVariables {
+  /** The swipe progress of the drawer gesture. */
+  const swipeProgress: '--drawer-swipe-progress';
+}
+```
 
 ### DrawerBackdropDataAttributes
 
-Re-export of [Backdrop](#backdrop) data-attributes.
+Data attributes of [Backdrop](#backdrop).
+
+```typescript
+declare namespace DrawerBackdropDataAttributes {
+  /** Present when the drawer is open. */
+  const open: 'data-open';
+  /** Present when the drawer is closed. */
+  const closed: 'data-closed';
+  /** Present when the drawer begins animating in. */
+  const startingStyle: 'data-starting-style';
+  /** Present when the drawer is animating out. */
+  const endingStyle: 'data-ending-style';
+}
+```
 
 ### DrawerCloseDataAttributes
 
-Re-export of [Close](#close) data-attributes.
+Data attributes of [Close](#close).
+
+```typescript
+declare namespace DrawerCloseDataAttributes {
+  /** Present when the button is disabled. */
+  const disabled: 'data-disabled';
+}
+```
 
 ### DrawerPopupCssVariables
 
-Re-export of [Popup](#popup) css-variables.
+CSS variables of [Popup](#popup).
+
+```typescript
+declare namespace DrawerPopupCssVariables {
+  /** The number of nested drawers that are currently open. */
+  const nestedDrawers: '--nested-drawers';
+  /** The height of the drawer popup. */
+  const height: '--drawer-height';
+  /** The height of the frontmost open drawer in the current nested drawer stack. */
+  const frontmostHeight: '--drawer-frontmost-height';
+  /** The swipe movement on the X axis. */
+  const swipeMovementX: '--drawer-swipe-movement-x';
+  /** The swipe movement on the Y axis. */
+  const swipeMovementY: '--drawer-swipe-movement-y';
+  /** The snap point offset used for translating the drawer. */
+  const snapPointOffset: '--drawer-snap-point-offset';
+  /** A scalar (0.1-1) used to scale the swipe release transition duration in CSS. */
+  const swipeStrength: '--drawer-swipe-strength';
+}
+```
 
 ### DrawerPopupDataAttributes
 
-Re-export of [Popup](#popup) data-attributes.
+Data attributes of [Popup](#popup).
+
+```typescript
+declare namespace DrawerPopupDataAttributes {
+  /** Present when the drawer is open. */
+  const open: 'data-open';
+  /** Present when the drawer is closed. */
+  const closed: 'data-closed';
+  /** Present when the drawer begins animating in. */
+  const startingStyle: 'data-starting-style';
+  /** Present when the drawer is animating out. */
+  const endingStyle: 'data-ending-style';
+  /** Present when the drawer is at the expanded (full-height) snap point. */
+  const expanded: 'data-expanded';
+  /** Present when a nested drawer is open. */
+  const nestedDrawerOpen: 'data-nested-drawer-open';
+  /** Present when a nested drawer is being swiped. */
+  const nestedDrawerSwiping: 'data-nested-drawer-swiping';
+  /** Present when the drawer is dismissed by swiping. */
+  const swipeDismiss: 'data-swipe-dismiss';
+  /** Indicates the swipe direction. */
+  const swipeDirection: 'data-swipe-direction';
+  /** Present when the drawer is being swiped. */
+  const swiping: 'data-swiping';
+}
+```
 
 ### DrawerSwipeAreaDataAttributes
 
-Re-export of [SwipeArea](#swipearea) data-attributes.
+Data attributes of [SwipeArea](#swipearea).
+
+```typescript
+declare namespace DrawerSwipeAreaDataAttributes {
+  /** Present when the drawer is open. */
+  const open: 'data-open';
+  /** Present when the drawer is closed. */
+  const closed: 'data-closed';
+  /** Present when the swipe area is disabled. */
+  const disabled: 'data-disabled';
+  /** Indicates the swipe direction. */
+  const swipeDirection: 'data-swipe-direction';
+  /** Present when the drawer is being swiped. */
+  const swiping: 'data-swiping';
+}
+```
 
 ### DrawerTriggerDataAttributes
 
-Re-export of [Trigger](#trigger) data-attributes.
+Data attributes of [Trigger](#trigger).
+
+```typescript
+declare namespace DrawerTriggerDataAttributes {
+  /** Present when the trigger is disabled. */
+  const disabled: 'data-disabled';
+  /** Present when the corresponding dialog is open. */
+  const popupOpen: 'data-popup-open';
+}
+```
 
 ### DrawerViewportCssVariables
 
-Re-export of [Viewport](#viewport) css-variables.
+CSS variables of [Viewport](#viewport).
+
+```typescript
+declare namespace DrawerViewportCssVariables {
+  /**
+   * The software keyboard inset, measured from the bottom edge of the layout viewport.
+   * Present only when the drawer is wrapped in `Drawer.VirtualKeyboardProvider`.
+   */
+  const keyboardInset: '--drawer-keyboard-inset';
+}
+```
 
 ### DrawerViewportDataAttributes
 
-Re-export of [Viewport](#viewport) data-attributes.
+Data attributes of [Viewport](#viewport).
+
+```typescript
+declare namespace DrawerViewportDataAttributes {
+  /** Present when the drawer is open. */
+  const open: 'data-open';
+  /** Present when the drawer is closed. */
+  const closed: 'data-closed';
+  /** Present when the drawer begins animating in. */
+  const startingStyle: 'data-starting-style';
+  /** Present when the drawer is animating out. */
+  const endingStyle: 'data-ending-style';
+  /** Present when the drawer is nested within another drawer. */
+  const nested: 'data-nested';
+}
+```
 
 ## External Types
 

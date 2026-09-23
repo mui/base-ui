@@ -844,55 +844,232 @@ type SelectScrollDownArrowState = {};
 
 ### SelectArrowDataAttributes
 
-Re-export of [Arrow](#arrow) data-attributes.
+Data attributes of [Arrow](#arrow).
+
+```typescript
+declare namespace SelectArrowDataAttributes {
+  /** Present when the select popup is open. */
+  const open: 'data-open';
+  /** Present when the select popup is closed. */
+  const closed: 'data-closed';
+  /** Indicates which side the popup is positioned relative to the trigger. */
+  const side: 'data-side';
+  /** Indicates how the popup is aligned relative to specified side. */
+  const align: 'data-align';
+  /** Present when the select arrow is uncentered. */
+  const uncentered: 'data-uncentered';
+}
+```
 
 ### SelectBackdropDataAttributes
 
-Re-export of [Backdrop](#backdrop) data-attributes.
+Data attributes of [Backdrop](#backdrop).
+
+```typescript
+declare namespace SelectBackdropDataAttributes {
+  /** Present when the select is open. */
+  const open: 'data-open';
+  /** Present when the select is closed. */
+  const closed: 'data-closed';
+  /** Present when the select begins animating in. */
+  const startingStyle: 'data-starting-style';
+  /** Present when the select is animating out. */
+  const endingStyle: 'data-ending-style';
+}
+```
 
 ### SelectIconDataAttributes
 
-Re-export of [Icon](#icon) data-attributes.
+Data attributes of [Icon](#icon).
+
+```typescript
+declare namespace SelectIconDataAttributes {
+  /** Present when the corresponding popup is open. */
+  const popupOpen: 'data-popup-open';
+}
+```
 
 ### SelectItemDataAttributes
 
-Re-export of [Item](#item) data-attributes.
+Data attributes of [Item](#item).
+
+```typescript
+declare namespace SelectItemDataAttributes {
+  /** Present when the select item is selected. */
+  const selected: 'data-selected';
+  /** Present when the select item is highlighted. */
+  const highlighted: 'data-highlighted';
+  /** Present when the select item is disabled. */
+  const disabled: 'data-disabled';
+}
+```
 
 ### SelectItemIndicatorDataAttributes
 
-Re-export of [ItemIndicator](#itemindicator) data-attributes.
+Data attributes of [ItemIndicator](#itemindicator).
+
+```typescript
+declare namespace SelectItemIndicatorDataAttributes {
+  /** Present when the indicator begins animating in. */
+  const startingStyle: 'data-starting-style';
+  /** Present when the indicator is animating out. */
+  const endingStyle: 'data-ending-style';
+}
+```
 
 ### SelectPopupDataAttributes
 
-Re-export of [Popup](#popup) data-attributes.
+Data attributes of [Popup](#popup).
+
+```typescript
+declare namespace SelectPopupDataAttributes {
+  /** Present when the select is open. */
+  const open: 'data-open';
+  /** Present when the select is closed. */
+  const closed: 'data-closed';
+  /** Present when the select begins animating in. */
+  const startingStyle: 'data-starting-style';
+  /** Present when the select is animating out. */
+  const endingStyle: 'data-ending-style';
+  /** Indicates which side the popup is positioned relative to the trigger. */
+  const side: 'data-side';
+  /** Indicates how the popup is aligned relative to specified side. */
+  const align: 'data-align';
+}
+```
 
 ### SelectPositionerCssVariables
 
-Re-export of [Positioner](#positioner) css-variables.
+CSS variables of [Positioner](#positioner).
+
+```typescript
+declare namespace SelectPositionerCssVariables {
+  /** The available width between the trigger and the edge of the viewport. */
+  const availableWidth: '--available-width';
+  /** The available height between the trigger and the edge of the viewport. */
+  const availableHeight: '--available-height';
+  /** The anchor's width. */
+  const anchorWidth: '--anchor-width';
+  /** The anchor's height. */
+  const anchorHeight: '--anchor-height';
+  /** The coordinates that this element is anchored to. Used for animations and transitions. */
+  const transformOrigin: '--transform-origin';
+}
+```
 
 ### SelectPositionerDataAttributes
 
-Re-export of [Positioner](#positioner) data-attributes.
+Data attributes of [Positioner](#positioner).
+
+```typescript
+declare namespace SelectPositionerDataAttributes {
+  /** Present when the select popup is open. */
+  const open: 'data-open';
+  /** Present when the select popup is closed. */
+  const closed: 'data-closed';
+  /** Present when the anchor is hidden. */
+  const anchorHidden: 'data-anchor-hidden';
+  /** Indicates which side the popup is positioned relative to the trigger. */
+  const side: 'data-side';
+  /** Indicates how the popup is aligned relative to specified side. */
+  const align: 'data-align';
+}
+```
 
 ### SelectScrollDownArrowDataAttributes
 
-Re-export of [ScrollDownArrow](#scrolldownarrow) data-attributes.
+Data attributes of [ScrollDownArrow](#scrolldownarrow).
+
+```typescript
+declare namespace SelectScrollDownArrowDataAttributes {
+  /** Present when the scroll arrow begins animating in. */
+  const startingStyle: 'data-starting-style';
+  /** Present when the scroll arrow is animating out. */
+  const endingStyle: 'data-ending-style';
+  /** Indicates the direction of the scroll arrow. */
+  const direction: 'data-direction';
+  /** Present when the scroll arrow is visible. */
+  const visible: 'data-visible';
+  /** Indicates which side the popup is positioned relative to the trigger. */
+  const side: 'data-side';
+}
+```
 
 ### SelectScrollUpArrowDataAttributes
 
-Re-export of [ScrollUpArrow](#scrolluparrow) data-attributes.
+Data attributes of [ScrollUpArrow](#scrolluparrow).
+
+```typescript
+declare namespace SelectScrollUpArrowDataAttributes {
+  /** Present when the scroll arrow begins animating in. */
+  const startingStyle: 'data-starting-style';
+  /** Present when the scroll arrow is animating out. */
+  const endingStyle: 'data-ending-style';
+  /** Indicates the direction of the scroll arrow. */
+  const direction: 'data-direction';
+  /** Present when the scroll arrow is visible. */
+  const visible: 'data-visible';
+  /** Indicates which side the popup is positioned relative to the trigger. */
+  const side: 'data-side';
+}
+```
 
 ### SelectSeparatorDataAttributes
 
-Re-export of [Separator](#separator) data-attributes.
+Data attributes of [Separator](#separator).
+
+```typescript
+declare namespace SelectSeparatorDataAttributes {
+  /** Indicates the orientation of the separator. */
+  const orientation: 'data-orientation';
+}
+```
 
 ### SelectTriggerDataAttributes
 
-Re-export of [Trigger](#trigger) data-attributes.
+Data attributes of [Trigger](#trigger).
+
+```typescript
+declare namespace SelectTriggerDataAttributes {
+  /** Present when the corresponding select is open. */
+  const popupOpen: 'data-popup-open';
+  /** Present when the trigger is pressed. */
+  const pressed: 'data-pressed';
+  /** Present when the select is disabled. */
+  const disabled: 'data-disabled';
+  /** Present when the select is readonly. */
+  const readonly: 'data-readonly';
+  /** Indicates which side the corresponding popup is positioned relative to its anchor. */
+  const popupSide: 'data-popup-side';
+  /** Present when the select is required. */
+  const required: 'data-required';
+  /** Present when the select is in a valid state (when wrapped in Field.Root). */
+  const valid: 'data-valid';
+  /** Present when the select is in an invalid state (when wrapped in Field.Root). */
+  const invalid: 'data-invalid';
+  /** Present when the select has been touched (when wrapped in Field.Root). */
+  const touched: 'data-touched';
+  /** Present when the select's value has changed (when wrapped in Field.Root). */
+  const dirty: 'data-dirty';
+  /** Present when the select has a value (when wrapped in Field.Root). */
+  const filled: 'data-filled';
+  /** Present when the select trigger is focused (when wrapped in Field.Root). */
+  const focused: 'data-focused';
+  /** Present when the select doesn't have a value. */
+  const placeholder: 'data-placeholder';
+}
+```
 
 ### SelectValueDataAttributes
 
-Re-export of [Value](#value) data-attributes.
+Data attributes of [Value](#value).
+
+```typescript
+declare namespace SelectValueDataAttributes {
+  /** Present when the select doesn't have a value. */
+  const placeholder: 'data-placeholder';
+}
+```
 
 ## External Types
 

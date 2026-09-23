@@ -417,27 +417,145 @@ type FieldValidityData = {
 
 ### FieldControlDataAttributes
 
-Re-export of [Control](#control) data-attributes.
+Data attributes of [Control](#control).
+
+```typescript
+declare namespace FieldControlDataAttributes {
+  /** Present when the field is disabled. */
+  const disabled: 'data-disabled';
+  /** Present when the field is in a valid state. */
+  const valid: 'data-valid';
+  /** Present when the field is in an invalid state. */
+  const invalid: 'data-invalid';
+  /** Present when the field has been touched. */
+  const touched: 'data-touched';
+  /** Present when the field's value has changed. */
+  const dirty: 'data-dirty';
+  /** Present when the field is filled. */
+  const filled: 'data-filled';
+  /** Present when the field control is focused. */
+  const focused: 'data-focused';
+}
+```
 
 ### FieldDescriptionDataAttributes
 
-Re-export of [Description](#description) data-attributes.
+Data attributes of [Description](#description).
+
+```typescript
+declare namespace FieldDescriptionDataAttributes {
+  /** Present when the field is disabled. */
+  const disabled: 'data-disabled';
+  /** Present when the field is in a valid state. */
+  const valid: 'data-valid';
+  /** Present when the field is in an invalid state. */
+  const invalid: 'data-invalid';
+  /** Present when the field has been touched. */
+  const touched: 'data-touched';
+  /** Present when the field's value has changed. */
+  const dirty: 'data-dirty';
+  /** Present when the field is filled. */
+  const filled: 'data-filled';
+  /** Present when the field control is focused. */
+  const focused: 'data-focused';
+}
+```
 
 ### FieldErrorDataAttributes
 
-Re-export of [Error](#error) data-attributes.
+Data attributes of [Error](#error).
+
+```typescript
+declare namespace FieldErrorDataAttributes {
+  /** Present when the field is disabled. */
+  const disabled: 'data-disabled';
+  /** Present when the field is in a valid state. */
+  const valid: 'data-valid';
+  /** Present when the field is in an invalid state. */
+  const invalid: 'data-invalid';
+  /** Present when the field has been touched. */
+  const touched: 'data-touched';
+  /** Present when the field's value has changed. */
+  const dirty: 'data-dirty';
+  /** Present when the field is filled. */
+  const filled: 'data-filled';
+  /** Present when the field control is focused. */
+  const focused: 'data-focused';
+  /** Present when the error message begins animating in. */
+  const startingStyle: 'data-starting-style';
+  /** Present when the error message is animating out. */
+  const endingStyle: 'data-ending-style';
+}
+```
 
 ### FieldItemDataAttributes
 
-Re-export of [Item](#item) data-attributes.
+Data attributes of [Item](#item).
+
+```typescript
+declare namespace FieldItemDataAttributes {
+  /** Present when the field is disabled. */
+  const disabled: 'data-disabled';
+  /** Present when the field is in a valid state. */
+  const valid: 'data-valid';
+  /** Present when the field is in an invalid state. */
+  const invalid: 'data-invalid';
+  /** Present when the field has been touched. */
+  const touched: 'data-touched';
+  /** Present when the field's value has changed. */
+  const dirty: 'data-dirty';
+  /** Present when the field is filled. */
+  const filled: 'data-filled';
+  /** Present when the field control is focused. */
+  const focused: 'data-focused';
+}
+```
 
 ### FieldLabelDataAttributes
 
-Re-export of [Label](#label) data-attributes.
+Data attributes of [Label](#label).
+
+```typescript
+declare namespace FieldLabelDataAttributes {
+  /** Present when the field is disabled. */
+  const disabled: 'data-disabled';
+  /** Present when the field is in a valid state. */
+  const valid: 'data-valid';
+  /** Present when the field is in an invalid state. */
+  const invalid: 'data-invalid';
+  /** Present when the field has been touched. */
+  const touched: 'data-touched';
+  /** Present when the field's value has changed. */
+  const dirty: 'data-dirty';
+  /** Present when the field is filled. */
+  const filled: 'data-filled';
+  /** Present when the field control is focused. */
+  const focused: 'data-focused';
+}
+```
 
 ### FieldRootDataAttributes
 
-Re-export of [Root](#root) data-attributes.
+Data attributes of [Root](#root).
+
+```typescript
+declare namespace FieldRootDataAttributes {
+  /** Present when the field is disabled. */
+  const disabled: 'data-disabled';
+  /** Present when the field has been touched. */
+  const touched: 'data-touched';
+  /** Present when the field's value has changed. */
+  const dirty: 'data-dirty';
+  /** Present when the field is valid. */
+  const valid: 'data-valid';
+  /** Present when the field is invalid. */
+  const invalid: 'data-invalid';
+  /** Present when the field is filled. */
+  const filled: 'data-filled';
+  /** Present when the field control is focused. */
+  const focused: 'data-focused';
+}
+```
 
 ## External Types
 
