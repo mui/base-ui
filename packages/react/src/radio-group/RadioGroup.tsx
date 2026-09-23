@@ -1,6 +1,8 @@
 'use client';
 import * as React from 'react';
 import { useControlled } from '@base-ui/utils/useControlled';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import type { BaseUIComponentProps, HTMLProps } from '../internals/types';
 import { useBaseUiId } from '../internals/useBaseUiId';
@@ -100,41 +102,41 @@ export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
   );
   const groupInputRef = React.useRef<HTMLInputElement | null>(null);
   const firstEnabledInputRef = React.useRef<HTMLInputElement | null>(null);
+  const mergedInputRef = useMergedRefs(groupInputRef, inputRefProp);
+  const lastAppliedInputRef = React.useRef(mergedInputRef);
 
   // Only forwards the public `inputRef` and tracks the current representative for that forwarding.
   // The registry (`validation.registeredInputs`) is authoritative for validation and form-value
   // projection, so the group must not write `validation.inputRef`: a stale, unmounted radio left
   // there would become the Field's fallback once the registry empties and keep blocking submission.
-  function setInputRef(hiddenInput: HTMLInputElement | null) {
-    let cleanup: void | (() => void) | undefined = undefined;
-
-    if (inputRefProp) {
-      if (typeof inputRefProp === 'function') {
-        cleanup = inputRefProp(hiddenInput);
-      } else {
-        inputRefProp.current = hiddenInput;
-      }
+  const setInputRef = useStableCallback((hiddenInput: HTMLInputElement | null) => {
+    if (groupInputRef.current === hiddenInput && lastAppliedInputRef.current === mergedInputRef) {
+      return;
     }
 
-    groupInputRef.current = hiddenInput;
+    lastAppliedInputRef.current = mergedInputRef;
+    void mergedInputRef?.(hiddenInput);
+  });
 
-    return cleanup;
-  }
+  useIsoLayoutEffect(() => {
+    setInputRef(groupInputRef.current);
+  }, [mergedInputRef, setInputRef]);
 
   const registerInputRef = useStableCallback((input: HTMLInputElement | null) => {
-    if (!input || input.disabled) {
+    if (!input) {
       return undefined;
     }
 
-    if (!firstEnabledInputRef.current) {
-      firstEnabledInputRef.current = input;
-    }
+    if (!input.disabled) {
+      if (!firstEnabledInputRef.current) {
+        firstEnabledInputRef.current = input;
+      }
 
-    const currentInput = groupInputRef.current;
-    const cleanup =
-      input.checked || currentInput == null || currentInput.disabled
-        ? setInputRef(input)
-        : undefined;
+      const currentInput = groupInputRef.current;
+      if (input.checked || currentInput == null || currentInput.disabled) {
+        setInputRef(input);
+      }
+    }
 
     // Detach when this input unmounts while still forwarded, so consumers don't
     // keep holding a disconnected node. The input may have become the forwarded
@@ -144,14 +146,7 @@ export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
         firstEnabledInputRef.current = null;
       }
       if (groupInputRef.current === input) {
-        if (cleanup) {
-          cleanup();
-          groupInputRef.current = null;
-        } else {
-          void setInputRef(null);
-        }
-      } else {
-        cleanup?.();
+        setInputRef(null);
       }
     };
   });
@@ -183,8 +178,7 @@ export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
 
     const fallbackInput = firstEnabledInputRef.current;
     if (checkedValue == null && fallbackInput && !fallbackInput.disabled) {
-      // Imperative re-point outside React's ref lifecycle; the ref-callback cleanup isn't tracked here.
-      void setInputRef(fallbackInput);
+      setInputRef(fallbackInput);
     }
   });
 
