@@ -47,29 +47,9 @@ type MenubarState = {
 
 ## Additional Types
 
-### MenubarDataAttributes.hasSubmenuOpen
+### MenubarDataAttributes
 
-Present when any submenu within the menubar is open.
-
-```typescript
-type MenubarDataAttributeshasSubmenuOpen = 'data-has-submenu-open';
-```
-
-### MenubarDataAttributes.modal
-
-Present when the corresponding menubar is modal.
-
-```typescript
-type MenubarDataAttributesmodal = 'data-modal';
-```
-
-### MenubarDataAttributes.orientation
-
-Determines the orientation of the menubar.
-
-```typescript
-type MenubarDataAttributesorientation = 'data-orientation';
-```
+Re-export of [Menubar](#menubar) data-attributes.
 
 ## External Types
 

@@ -79,13 +79,9 @@ type CheckboxGroupChangeEventDetails = {
 
 ## Additional Types
 
-### CheckboxGroupDataAttributes.disabled
+### CheckboxGroupDataAttributes
 
-Present when the checkbox group is disabled.
-
-```typescript
-type CheckboxGroupDataAttributesdisabled = 'data-disabled';
-```
+Re-export of [CheckboxGroup](#checkboxgroup) data-attributes.
 
 ## Canonical Types
 

@@ -658,294 +658,41 @@ type DrawerVirtualKeyboardProviderState = {};
 
 ## Additional Types
 
-### DrawerBackdropCssVariables.swipeProgress
+### DrawerBackdropCssVariables
 
-The swipe progress of the drawer gesture.
+Re-export of [Backdrop](#backdrop) css-variables.
 
-```typescript
-type DrawerBackdropCssVariablesswipeProgress = '--drawer-swipe-progress';
-```
+### DrawerBackdropDataAttributes
 
-### DrawerBackdropDataAttributes.closed
+Re-export of [Backdrop](#backdrop) data-attributes.
 
-Present when the drawer is closed.
+### DrawerCloseDataAttributes
 
-```typescript
-type DrawerBackdropDataAttributesclosed = 'data-closed';
-```
+Re-export of [Close](#close) data-attributes.
 
-### DrawerBackdropDataAttributes.endingStyle
+### DrawerPopupCssVariables
 
-Present when the drawer is animating out.
+Re-export of [Popup](#popup) css-variables.
 
-```typescript
-type DrawerBackdropDataAttributesendingStyle = 'data-ending-style';
-```
+### DrawerPopupDataAttributes
 
-### DrawerBackdropDataAttributes.open
+Re-export of [Popup](#popup) data-attributes.
 
-Present when the drawer is open.
+### DrawerSwipeAreaDataAttributes
 
-```typescript
-type DrawerBackdropDataAttributesopen = 'data-open';
-```
+Re-export of [SwipeArea](#swipearea) data-attributes.
 
-### DrawerBackdropDataAttributes.startingStyle
+### DrawerTriggerDataAttributes
 
-Present when the drawer begins animating in.
+Re-export of [Trigger](#trigger) data-attributes.
 
-```typescript
-type DrawerBackdropDataAttributesstartingStyle = 'data-starting-style';
-```
+### DrawerViewportCssVariables
 
-### DrawerCloseDataAttributes.disabled
+Re-export of [Viewport](#viewport) css-variables.
 
-Present when the button is disabled.
+### DrawerViewportDataAttributes
 
-```typescript
-type DrawerCloseDataAttributesdisabled = 'data-disabled';
-```
-
-### DrawerPopupCssVariables.frontmostHeight
-
-The height of the frontmost open drawer in the current nested drawer stack.
-
-```typescript
-type DrawerPopupCssVariablesfrontmostHeight = '--drawer-frontmost-height';
-```
-
-### DrawerPopupCssVariables.height
-
-The height of the drawer popup.
-
-```typescript
-type DrawerPopupCssVariablesheight = '--drawer-height';
-```
-
-### DrawerPopupCssVariables.nestedDrawers
-
-The number of nested drawers that are currently open.
-
-```typescript
-type DrawerPopupCssVariablesnestedDrawers = '--nested-drawers';
-```
-
-### DrawerPopupCssVariables.snapPointOffset
-
-The snap point offset used for translating the drawer.
-
-```typescript
-type DrawerPopupCssVariablessnapPointOffset = '--drawer-snap-point-offset';
-```
-
-### DrawerPopupCssVariables.swipeMovementX
-
-The swipe movement on the X axis.
-
-```typescript
-type DrawerPopupCssVariablesswipeMovementX = '--drawer-swipe-movement-x';
-```
-
-### DrawerPopupCssVariables.swipeMovementY
-
-The swipe movement on the Y axis.
-
-```typescript
-type DrawerPopupCssVariablesswipeMovementY = '--drawer-swipe-movement-y';
-```
-
-### DrawerPopupCssVariables.swipeStrength
-
-A scalar (0.1-1) used to scale the swipe release transition duration in CSS.
-
-```typescript
-type DrawerPopupCssVariablesswipeStrength = '--drawer-swipe-strength';
-```
-
-### DrawerPopupDataAttributes.closed
-
-Present when the drawer is closed.
-
-```typescript
-type DrawerPopupDataAttributesclosed = 'data-closed';
-```
-
-### DrawerPopupDataAttributes.endingStyle
-
-Present when the drawer is animating out.
-
-```typescript
-type DrawerPopupDataAttributesendingStyle = 'data-ending-style';
-```
-
-### DrawerPopupDataAttributes.expanded
-
-Present when the drawer is at the expanded (full-height) snap point.
-
-```typescript
-type DrawerPopupDataAttributesexpanded = 'data-expanded';
-```
-
-### DrawerPopupDataAttributes.nestedDrawerOpen
-
-Present when a nested drawer is open.
-
-```typescript
-type DrawerPopupDataAttributesnestedDrawerOpen = 'data-nested-drawer-open';
-```
-
-### DrawerPopupDataAttributes.nestedDrawerSwiping
-
-Present when a nested drawer is being swiped.
-
-```typescript
-type DrawerPopupDataAttributesnestedDrawerSwiping = 'data-nested-drawer-swiping';
-```
-
-### DrawerPopupDataAttributes.open
-
-Present when the drawer is open.
-
-```typescript
-type DrawerPopupDataAttributesopen = 'data-open';
-```
-
-### DrawerPopupDataAttributes.startingStyle
-
-Present when the drawer begins animating in.
-
-```typescript
-type DrawerPopupDataAttributesstartingStyle = 'data-starting-style';
-```
-
-### DrawerPopupDataAttributes.swipeDirection
-
-Indicates the swipe direction.
-
-```typescript
-type DrawerPopupDataAttributesswipeDirection = 'data-swipe-direction';
-```
-
-### DrawerPopupDataAttributes.swipeDismiss
-
-Present when the drawer is dismissed by swiping.
-
-```typescript
-type DrawerPopupDataAttributesswipeDismiss = 'data-swipe-dismiss';
-```
-
-### DrawerPopupDataAttributes.swiping
-
-Present when the drawer is being swiped.
-
-```typescript
-type DrawerPopupDataAttributesswiping = 'data-swiping';
-```
-
-### DrawerSwipeAreaDataAttributes.closed
-
-Present when the drawer is closed.
-
-```typescript
-type DrawerSwipeAreaDataAttributesclosed = 'data-closed';
-```
-
-### DrawerSwipeAreaDataAttributes.disabled
-
-Present when the swipe area is disabled.
-
-```typescript
-type DrawerSwipeAreaDataAttributesdisabled = 'data-disabled';
-```
-
-### DrawerSwipeAreaDataAttributes.open
-
-Present when the drawer is open.
-
-```typescript
-type DrawerSwipeAreaDataAttributesopen = 'data-open';
-```
-
-### DrawerSwipeAreaDataAttributes.swipeDirection
-
-Indicates the swipe direction.
-
-```typescript
-type DrawerSwipeAreaDataAttributesswipeDirection = 'data-swipe-direction';
-```
-
-### DrawerSwipeAreaDataAttributes.swiping
-
-Present when the drawer is being swiped.
-
-```typescript
-type DrawerSwipeAreaDataAttributesswiping = 'data-swiping';
-```
-
-### DrawerTriggerDataAttributes.disabled
-
-Present when the trigger is disabled.
-
-```typescript
-type DrawerTriggerDataAttributesdisabled = 'data-disabled';
-```
-
-### DrawerTriggerDataAttributes.popupOpen
-
-Present when the corresponding dialog is open.
-
-```typescript
-type DrawerTriggerDataAttributespopupOpen = 'data-popup-open';
-```
-
-### DrawerViewportCssVariables.keyboardInset
-
-The software keyboard inset, measured from the bottom edge of the layout viewport.
-Present only when the drawer is wrapped in `Drawer.VirtualKeyboardProvider`.
-
-```typescript
-type DrawerViewportCssVariableskeyboardInset = '--drawer-keyboard-inset';
-```
-
-### DrawerViewportDataAttributes.closed
-
-Present when the drawer is closed.
-
-```typescript
-type DrawerViewportDataAttributesclosed = 'data-closed';
-```
-
-### DrawerViewportDataAttributes.endingStyle
-
-Present when the drawer is animating out.
-
-```typescript
-type DrawerViewportDataAttributesendingStyle = 'data-ending-style';
-```
-
-### DrawerViewportDataAttributes.nested
-
-Present when the drawer is nested within another drawer.
-
-```typescript
-type DrawerViewportDataAttributesnested = 'data-nested';
-```
-
-### DrawerViewportDataAttributes.open
-
-Present when the drawer is open.
-
-```typescript
-type DrawerViewportDataAttributesopen = 'data-open';
-```
-
-### DrawerViewportDataAttributes.startingStyle
-
-Present when the drawer begins animating in.
-
-```typescript
-type DrawerViewportDataAttributesstartingStyle = 'data-starting-style';
-```
+Re-export of [Viewport](#viewport) data-attributes.
 
 ## External Types
 
@@ -998,7 +745,7 @@ type SwipeDirection = 'up' | 'down' | 'left' | 'right';
 - `Drawer.VirtualKeyboardProvider`: `Drawer.VirtualKeyboardProvider`, `Drawer.VirtualKeyboardProvider.State`, `Drawer.VirtualKeyboardProvider.Props`
 - `Drawer.createHandle`
 - `Drawer.Handle`
-- `Default`: `DrawerBackdropCssVariables.swipeProgress`, `DrawerBackdropDataAttributes.open`, `DrawerBackdropDataAttributes.closed`, `DrawerBackdropDataAttributes.startingStyle`, `DrawerBackdropDataAttributes.endingStyle`, `DrawerPopupCssVariables.nestedDrawers`, `DrawerPopupCssVariables.height`, `DrawerPopupCssVariables.frontmostHeight`, `DrawerPopupCssVariables.swipeMovementX`, `DrawerPopupCssVariables.swipeMovementY`, `DrawerPopupCssVariables.snapPointOffset`, `DrawerPopupCssVariables.swipeStrength`, `DrawerPopupDataAttributes.open`, `DrawerPopupDataAttributes.closed`, `DrawerPopupDataAttributes.startingStyle`, `DrawerPopupDataAttributes.endingStyle`, `DrawerPopupDataAttributes.expanded`, `DrawerPopupDataAttributes.nestedDrawerOpen`, `DrawerPopupDataAttributes.nestedDrawerSwiping`, `DrawerPopupDataAttributes.swipeDismiss`, `DrawerPopupDataAttributes.swipeDirection`, `DrawerPopupDataAttributes.swiping`, `DrawerSwipeAreaDataAttributes.open`, `DrawerSwipeAreaDataAttributes.closed`, `DrawerSwipeAreaDataAttributes.disabled`, `DrawerSwipeAreaDataAttributes.swipeDirection`, `DrawerSwipeAreaDataAttributes.swiping`, `DrawerViewportCssVariables.keyboardInset`, `DrawerViewportDataAttributes.open`, `DrawerViewportDataAttributes.closed`, `DrawerViewportDataAttributes.startingStyle`, `DrawerViewportDataAttributes.endingStyle`, `DrawerViewportDataAttributes.nested`, `DrawerTriggerDataAttributes.disabled`, `DrawerTriggerDataAttributes.popupOpen`, `DrawerCloseDataAttributes.disabled`, `DrawerRootState`, `DrawerRootProps`, `DrawerRootActions`, `DrawerRootChangeEventReason`, `DrawerRootChangeEventDetails`, `DrawerRootSnapPointChangeEventReason`, `DrawerRootSnapPointChangeEventDetails`, `DrawerProviderState`, `DrawerProviderProps`, `DrawerIndentState`, `DrawerIndentProps`, `DrawerIndentBackgroundState`, `DrawerIndentBackgroundProps`, `DrawerTriggerProps`, `DrawerTriggerState`, `DrawerPortalState`, `DrawerPortalProps`, `DrawerPopupProps`, `DrawerPopupState`, `DrawerSwipeAreaProps`, `DrawerSwipeAreaState`, `DrawerContentProps`, `DrawerContentState`, `DrawerBackdropProps`, `DrawerBackdropState`, `DrawerViewportState`, `DrawerViewportProps`, `DrawerTitleProps`, `DrawerTitleState`, `DrawerDescriptionProps`, `DrawerDescriptionState`, `DrawerCloseProps`, `DrawerCloseState`, `DrawerVirtualKeyboardProviderState`, `DrawerVirtualKeyboardProviderProps`
+- `Default`: `DrawerBackdropCssVariables`, `DrawerBackdropDataAttributes`, `DrawerPopupCssVariables`, `DrawerPopupDataAttributes`, `DrawerSwipeAreaDataAttributes`, `DrawerViewportCssVariables`, `DrawerViewportDataAttributes`, `DrawerTriggerDataAttributes`, `DrawerCloseDataAttributes`, `DrawerRootState`, `DrawerRootProps`, `DrawerRootActions`, `DrawerRootChangeEventReason`, `DrawerRootChangeEventDetails`, `DrawerRootSnapPointChangeEventReason`, `DrawerRootSnapPointChangeEventDetails`, `DrawerProviderState`, `DrawerProviderProps`, `DrawerIndentState`, `DrawerIndentProps`, `DrawerIndentBackgroundState`, `DrawerIndentBackgroundProps`, `DrawerTriggerProps`, `DrawerTriggerState`, `DrawerPortalState`, `DrawerPortalProps`, `DrawerPopupProps`, `DrawerPopupState`, `DrawerSwipeAreaProps`, `DrawerSwipeAreaState`, `DrawerContentProps`, `DrawerContentState`, `DrawerBackdropProps`, `DrawerBackdropState`, `DrawerViewportState`, `DrawerViewportProps`, `DrawerTitleProps`, `DrawerTitleState`, `DrawerDescriptionProps`, `DrawerDescriptionState`, `DrawerCloseProps`, `DrawerCloseState`, `DrawerVirtualKeyboardProviderState`, `DrawerVirtualKeyboardProviderProps`
 
 ## Canonical Types
 

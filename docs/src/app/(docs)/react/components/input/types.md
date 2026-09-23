@@ -84,61 +84,9 @@ type InputChangeEventDetails = {
 
 ## Additional Types
 
-### InputDataAttributes.dirty
+### InputDataAttributes
 
-Present when the input's value has changed (when wrapped in Field.Root).
-
-```typescript
-type InputDataAttributesdirty = 'data-dirty';
-```
-
-### InputDataAttributes.disabled
-
-Present when the input is disabled.
-
-```typescript
-type InputDataAttributesdisabled = 'data-disabled';
-```
-
-### InputDataAttributes.filled
-
-Present when the input is filled (when wrapped in Field.Root).
-
-```typescript
-type InputDataAttributesfilled = 'data-filled';
-```
-
-### InputDataAttributes.focused
-
-Present when the input is focused (when wrapped in Field.Root).
-
-```typescript
-type InputDataAttributesfocused = 'data-focused';
-```
-
-### InputDataAttributes.invalid
-
-Present when the input is in an invalid state (when wrapped in Field.Root).
-
-```typescript
-type InputDataAttributesinvalid = 'data-invalid';
-```
-
-### InputDataAttributes.touched
-
-Present when the input has been touched (when wrapped in Field.Root).
-
-```typescript
-type InputDataAttributestouched = 'data-touched';
-```
-
-### InputDataAttributes.valid
-
-Present when the input is in a valid state (when wrapped in Field.Root).
-
-```typescript
-type InputDataAttributesvalid = 'data-valid';
-```
+Re-export of [Input](#input) data-attributes.
 
 ## Canonical Types
 

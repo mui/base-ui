@@ -460,293 +460,37 @@ This method should only be called in an event handler or an effect (not during r
 
 ## Additional Types
 
-### PreviewCardArrowDataAttributes.align
+### PreviewCardArrowDataAttributes
 
-Indicates how the popup is aligned relative to specified side.
+Re-export of [Arrow](#arrow) data-attributes.
 
-```typescript
-type PreviewCardArrowDataAttributesalign = 'data-align';
-```
+### PreviewCardBackdropDataAttributes
 
-### PreviewCardArrowDataAttributes.closed
+Re-export of [Backdrop](#backdrop) data-attributes.
 
-Present when the preview card is closed.
+### PreviewCardPopupDataAttributes
 
-```typescript
-type PreviewCardArrowDataAttributesclosed = 'data-closed';
-```
+Re-export of [Popup](#popup) data-attributes.
 
-### PreviewCardArrowDataAttributes.open
+### PreviewCardPositionerCssVariables
 
-Present when the preview card is open.
+Re-export of [Positioner](#positioner) css-variables.
 
-```typescript
-type PreviewCardArrowDataAttributesopen = 'data-open';
-```
+### PreviewCardPositionerDataAttributes
 
-### PreviewCardArrowDataAttributes.side
+Re-export of [Positioner](#positioner) data-attributes.
 
-Indicates which side the popup is positioned relative to the trigger.
+### PreviewCardTriggerDataAttributes
 
-```typescript
-type PreviewCardArrowDataAttributesside = 'data-side';
-```
+Re-export of [Trigger](#trigger) data-attributes.
 
-### PreviewCardArrowDataAttributes.uncentered
+### PreviewCardViewportCssVariables
 
-Present when the preview card arrow is uncentered.
+Re-export of [Viewport](#viewport) css-variables.
 
-```typescript
-type PreviewCardArrowDataAttributesuncentered = 'data-uncentered';
-```
+### PreviewCardViewportDataAttributes
 
-### PreviewCardBackdropDataAttributes.closed
-
-Present when the preview card is closed.
-
-```typescript
-type PreviewCardBackdropDataAttributesclosed = 'data-closed';
-```
-
-### PreviewCardBackdropDataAttributes.endingStyle
-
-Present when the preview card is animating out.
-
-```typescript
-type PreviewCardBackdropDataAttributesendingStyle = 'data-ending-style';
-```
-
-### PreviewCardBackdropDataAttributes.open
-
-Present when the preview card is open.
-
-```typescript
-type PreviewCardBackdropDataAttributesopen = 'data-open';
-```
-
-### PreviewCardBackdropDataAttributes.startingStyle
-
-Present when the preview card begins animating in.
-
-```typescript
-type PreviewCardBackdropDataAttributesstartingStyle = 'data-starting-style';
-```
-
-### PreviewCardPopupDataAttributes.align
-
-Indicates how the popup is aligned relative to specified side.
-
-```typescript
-type PreviewCardPopupDataAttributesalign = 'data-align';
-```
-
-### PreviewCardPopupDataAttributes.closed
-
-Present when the preview card is closed.
-
-```typescript
-type PreviewCardPopupDataAttributesclosed = 'data-closed';
-```
-
-### PreviewCardPopupDataAttributes.endingStyle
-
-Present when the preview card is animating out.
-
-```typescript
-type PreviewCardPopupDataAttributesendingStyle = 'data-ending-style';
-```
-
-### PreviewCardPopupDataAttributes.open
-
-Present when the preview card is open.
-
-```typescript
-type PreviewCardPopupDataAttributesopen = 'data-open';
-```
-
-### PreviewCardPopupDataAttributes.side
-
-Indicates which side the popup is positioned relative to the trigger.
-
-```typescript
-type PreviewCardPopupDataAttributesside = 'data-side';
-```
-
-### PreviewCardPopupDataAttributes.startingStyle
-
-Present when the preview card begins animating in.
-
-```typescript
-type PreviewCardPopupDataAttributesstartingStyle = 'data-starting-style';
-```
-
-### PreviewCardPositionerCssVariables.anchorHeight
-
-The anchor's height.
-
-```typescript
-type PreviewCardPositionerCssVariablesanchorHeight = '--anchor-height';
-```
-
-### PreviewCardPositionerCssVariables.anchorWidth
-
-The anchor's width.
-
-```typescript
-type PreviewCardPositionerCssVariablesanchorWidth = '--anchor-width';
-```
-
-### PreviewCardPositionerCssVariables.availableHeight
-
-The available height between the trigger and the edge of the viewport.
-
-```typescript
-type PreviewCardPositionerCssVariablesavailableHeight = '--available-height';
-```
-
-### PreviewCardPositionerCssVariables.availableWidth
-
-The available width between the trigger and the edge of the viewport.
-
-```typescript
-type PreviewCardPositionerCssVariablesavailableWidth = '--available-width';
-```
-
-### PreviewCardPositionerCssVariables.positionerHeight
-
-The height of the preview card's positioner.
-It is important to set `height` to this value when using CSS to animate size changes.
-
-```typescript
-type PreviewCardPositionerCssVariablespositionerHeight = '--positioner-height';
-```
-
-### PreviewCardPositionerCssVariables.positionerWidth
-
-The width of the preview card's positioner.
-It is important to set `width` to this value when using CSS to animate size changes.
-
-```typescript
-type PreviewCardPositionerCssVariablespositionerWidth = '--positioner-width';
-```
-
-### PreviewCardPositionerCssVariables.transformOrigin
-
-The coordinates that this element is anchored to. Used for animations and transitions.
-
-```typescript
-type PreviewCardPositionerCssVariablestransformOrigin = '--transform-origin';
-```
-
-### PreviewCardPositionerDataAttributes.align
-
-Indicates how the popup is aligned relative to specified side.
-
-```typescript
-type PreviewCardPositionerDataAttributesalign = 'data-align';
-```
-
-### PreviewCardPositionerDataAttributes.anchorHidden
-
-Present when the anchor is hidden.
-
-```typescript
-type PreviewCardPositionerDataAttributesanchorHidden = 'data-anchor-hidden';
-```
-
-### PreviewCardPositionerDataAttributes.closed
-
-Present when the preview card is closed.
-
-```typescript
-type PreviewCardPositionerDataAttributesclosed = 'data-closed';
-```
-
-### PreviewCardPositionerDataAttributes.open
-
-Present when the preview card is open.
-
-```typescript
-type PreviewCardPositionerDataAttributesopen = 'data-open';
-```
-
-### PreviewCardPositionerDataAttributes.side
-
-Indicates which side the popup is positioned relative to the trigger.
-
-```typescript
-type PreviewCardPositionerDataAttributesside = 'data-side';
-```
-
-### PreviewCardTriggerDataAttributes.popupOpen
-
-Present when the corresponding preview card is open.
-
-```typescript
-type PreviewCardTriggerDataAttributespopupOpen = 'data-popup-open';
-```
-
-### PreviewCardViewportCssVariables.popupHeight
-
-The height of the parent popup.
-This variable is placed on the 'previous' container and stores the height of the popup when the previous content was rendered.
-It can be used to freeze the dimensions of the popup when animating between different content.
-
-```typescript
-type PreviewCardViewportCssVariablespopupHeight = '--popup-height';
-```
-
-### PreviewCardViewportCssVariables.popupWidth
-
-The width of the parent popup.
-This variable is placed on the 'previous' container and stores the width of the popup when the previous content was rendered.
-It can be used to freeze the dimensions of the popup when animating between different content.
-
-```typescript
-type PreviewCardViewportCssVariablespopupWidth = '--popup-width';
-```
-
-### PreviewCardViewportDataAttributes.activationDirection
-
-Indicates the direction from which the popup was activated.
-This can be used to create directional animations based on how the popup was triggered.
-Contains space-separated values for both horizontal and vertical axes.
-
-```typescript
-type PreviewCardViewportDataAttributesactivationDirection = 'data-activation-direction';
-```
-
-### PreviewCardViewportDataAttributes.current
-
-Applied to the direct child of the viewport when no transitions are present or the new content when it's entering.
-
-```typescript
-type PreviewCardViewportDataAttributescurrent = 'data-current';
-```
-
-### PreviewCardViewportDataAttributes.instant
-
-Present if animations should be instant.
-
-```typescript
-type PreviewCardViewportDataAttributesinstant = 'data-instant';
-```
-
-### PreviewCardViewportDataAttributes.previous
-
-Applied to the direct child of the viewport that contains the exiting content when transitions are present.
-
-```typescript
-type PreviewCardViewportDataAttributesprevious = 'data-previous';
-```
-
-### PreviewCardViewportDataAttributes.transitioning
-
-Indicates that the viewport is currently transitioning between old and new content.
-
-```typescript
-type PreviewCardViewportDataAttributestransitioning = 'data-transitioning';
-```
+Re-export of [Viewport](#viewport) data-attributes.
 
 ## External Types
 
@@ -791,7 +535,7 @@ type OffsetFunction = (data: {
 - `PreviewCard.Viewport`: `PreviewCard.Viewport`, `PreviewCard.Viewport.Props`, `PreviewCard.Viewport.State`
 - `PreviewCard.createHandle`
 - `PreviewCard.Handle`
-- `Default`: `PreviewCardTriggerDataAttributes.popupOpen`, `PreviewCardPositionerCssVariables.availableWidth`, `PreviewCardPositionerCssVariables.availableHeight`, `PreviewCardPositionerCssVariables.anchorWidth`, `PreviewCardPositionerCssVariables.anchorHeight`, `PreviewCardPositionerCssVariables.transformOrigin`, `PreviewCardPositionerCssVariables.positionerWidth`, `PreviewCardPositionerCssVariables.positionerHeight`, `PreviewCardPositionerDataAttributes.open`, `PreviewCardPositionerDataAttributes.closed`, `PreviewCardPositionerDataAttributes.anchorHidden`, `PreviewCardPositionerDataAttributes.side`, `PreviewCardPositionerDataAttributes.align`, `PreviewCardPopupDataAttributes.open`, `PreviewCardPopupDataAttributes.closed`, `PreviewCardPopupDataAttributes.startingStyle`, `PreviewCardPopupDataAttributes.endingStyle`, `PreviewCardPopupDataAttributes.side`, `PreviewCardPopupDataAttributes.align`, `PreviewCardArrowDataAttributes.open`, `PreviewCardArrowDataAttributes.closed`, `PreviewCardArrowDataAttributes.side`, `PreviewCardArrowDataAttributes.align`, `PreviewCardArrowDataAttributes.uncentered`, `PreviewCardBackdropDataAttributes.open`, `PreviewCardBackdropDataAttributes.closed`, `PreviewCardBackdropDataAttributes.startingStyle`, `PreviewCardBackdropDataAttributes.endingStyle`, `PreviewCardViewportCssVariables.popupWidth`, `PreviewCardViewportCssVariables.popupHeight`, `PreviewCardViewportDataAttributes.current`, `PreviewCardViewportDataAttributes.previous`, `PreviewCardViewportDataAttributes.activationDirection`, `PreviewCardViewportDataAttributes.transitioning`, `PreviewCardViewportDataAttributes.instant`, `PreviewCardRootState`, `PreviewCardRootProps`, `PreviewCardRootActions`, `PreviewCardRootChangeEventReason`, `PreviewCardRootChangeEventDetails`, `PreviewCardTriggerState`, `PreviewCardTriggerProps`, `PreviewCardPortalState`, `PreviewCardPortalProps`, `PreviewCardPositionerState`, `PreviewCardPositionerProps`, `PreviewCardPopupState`, `PreviewCardPopupProps`, `PreviewCardArrowState`, `PreviewCardArrowProps`, `PreviewCardViewportState`, `PreviewCardViewportProps`, `PreviewCardBackdropState`, `PreviewCardBackdropProps`
+- `Default`: `PreviewCardTriggerDataAttributes`, `PreviewCardPositionerCssVariables`, `PreviewCardPositionerDataAttributes`, `PreviewCardPopupDataAttributes`, `PreviewCardArrowDataAttributes`, `PreviewCardBackdropDataAttributes`, `PreviewCardViewportCssVariables`, `PreviewCardViewportDataAttributes`, `PreviewCardRootState`, `PreviewCardRootProps`, `PreviewCardRootActions`, `PreviewCardRootChangeEventReason`, `PreviewCardRootChangeEventDetails`, `PreviewCardTriggerState`, `PreviewCardTriggerProps`, `PreviewCardPortalState`, `PreviewCardPortalProps`, `PreviewCardPositionerState`, `PreviewCardPositionerProps`, `PreviewCardPopupState`, `PreviewCardPopupProps`, `PreviewCardArrowState`, `PreviewCardArrowProps`, `PreviewCardViewportState`, `PreviewCardViewportProps`, `PreviewCardBackdropState`, `PreviewCardBackdropProps`
 
 ## Canonical Types
 

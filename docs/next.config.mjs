@@ -75,6 +75,7 @@ const typesGenerationOptions = {
     onlyUpdateIndexes: true,
   },
   ordering,
+  constantGroupPatterns: { dataAttributes: '*DataAttributes', cssVariables: '*CssVariables' },
   descriptionReplacements: [
     { pattern: '\\n\\nDocumentation: .*$', replacement: '', flags: 'm' },
     { pattern: 'Base UI', replacement: 'Base UI', flags: 'g' },

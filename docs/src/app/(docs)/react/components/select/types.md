@@ -842,453 +842,57 @@ type SelectScrollDownArrowState = {};
 
 ## Additional Types
 
-### SelectArrowDataAttributes.align
+### SelectArrowDataAttributes
 
-Indicates how the popup is aligned relative to specified side.
+Re-export of [Arrow](#arrow) data-attributes.
 
-```typescript
-type SelectArrowDataAttributesalign = 'data-align';
-```
+### SelectBackdropDataAttributes
 
-### SelectArrowDataAttributes.closed
+Re-export of [Backdrop](#backdrop) data-attributes.
 
-Present when the select popup is closed.
+### SelectIconDataAttributes
 
-```typescript
-type SelectArrowDataAttributesclosed = 'data-closed';
-```
+Re-export of [Icon](#icon) data-attributes.
 
-### SelectArrowDataAttributes.open
+### SelectItemDataAttributes
 
-Present when the select popup is open.
+Re-export of [Item](#item) data-attributes.
 
-```typescript
-type SelectArrowDataAttributesopen = 'data-open';
-```
+### SelectItemIndicatorDataAttributes
 
-### SelectArrowDataAttributes.side
+Re-export of [ItemIndicator](#itemindicator) data-attributes.
 
-Indicates which side the popup is positioned relative to the trigger.
+### SelectPopupDataAttributes
 
-```typescript
-type SelectArrowDataAttributesside = 'data-side';
-```
+Re-export of [Popup](#popup) data-attributes.
 
-### SelectArrowDataAttributes.uncentered
+### SelectPositionerCssVariables
 
-Present when the select arrow is uncentered.
+Re-export of [Positioner](#positioner) css-variables.
 
-```typescript
-type SelectArrowDataAttributesuncentered = 'data-uncentered';
-```
+### SelectPositionerDataAttributes
 
-### SelectBackdropDataAttributes.closed
+Re-export of [Positioner](#positioner) data-attributes.
 
-Present when the select is closed.
+### SelectScrollDownArrowDataAttributes
 
-```typescript
-type SelectBackdropDataAttributesclosed = 'data-closed';
-```
+Re-export of [ScrollDownArrow](#scrolldownarrow) data-attributes.
 
-### SelectBackdropDataAttributes.endingStyle
+### SelectScrollUpArrowDataAttributes
 
-Present when the select is animating out.
+Re-export of [ScrollUpArrow](#scrolluparrow) data-attributes.
 
-```typescript
-type SelectBackdropDataAttributesendingStyle = 'data-ending-style';
-```
+### SelectSeparatorDataAttributes
 
-### SelectBackdropDataAttributes.open
+Re-export of [Separator](#separator) data-attributes.
 
-Present when the select is open.
+### SelectTriggerDataAttributes
 
-```typescript
-type SelectBackdropDataAttributesopen = 'data-open';
-```
+Re-export of [Trigger](#trigger) data-attributes.
 
-### SelectBackdropDataAttributes.startingStyle
+### SelectValueDataAttributes
 
-Present when the select begins animating in.
-
-```typescript
-type SelectBackdropDataAttributesstartingStyle = 'data-starting-style';
-```
-
-### SelectIconDataAttributes.popupOpen
-
-Present when the corresponding popup is open.
-
-```typescript
-type SelectIconDataAttributespopupOpen = 'data-popup-open';
-```
-
-### SelectItemDataAttributes.disabled
-
-Present when the select item is disabled.
-
-```typescript
-type SelectItemDataAttributesdisabled = 'data-disabled';
-```
-
-### SelectItemDataAttributes.highlighted
-
-Present when the select item is highlighted.
-
-```typescript
-type SelectItemDataAttributeshighlighted = 'data-highlighted';
-```
-
-### SelectItemDataAttributes.selected
-
-Present when the select item is selected.
-
-```typescript
-type SelectItemDataAttributesselected = 'data-selected';
-```
-
-### SelectItemIndicatorDataAttributes.endingStyle
-
-Present when the indicator is animating out.
-
-```typescript
-type SelectItemIndicatorDataAttributesendingStyle = 'data-ending-style';
-```
-
-### SelectItemIndicatorDataAttributes.startingStyle
-
-Present when the indicator begins animating in.
-
-```typescript
-type SelectItemIndicatorDataAttributesstartingStyle = 'data-starting-style';
-```
-
-### SelectPopupDataAttributes.align
-
-Indicates how the popup is aligned relative to specified side.
-
-```typescript
-type SelectPopupDataAttributesalign = 'data-align';
-```
-
-### SelectPopupDataAttributes.closed
-
-Present when the select is closed.
-
-```typescript
-type SelectPopupDataAttributesclosed = 'data-closed';
-```
-
-### SelectPopupDataAttributes.endingStyle
-
-Present when the select is animating out.
-
-```typescript
-type SelectPopupDataAttributesendingStyle = 'data-ending-style';
-```
-
-### SelectPopupDataAttributes.open
-
-Present when the select is open.
-
-```typescript
-type SelectPopupDataAttributesopen = 'data-open';
-```
-
-### SelectPopupDataAttributes.side
-
-Indicates which side the popup is positioned relative to the trigger.
-
-```typescript
-type SelectPopupDataAttributesside = 'data-side';
-```
-
-### SelectPopupDataAttributes.startingStyle
-
-Present when the select begins animating in.
-
-```typescript
-type SelectPopupDataAttributesstartingStyle = 'data-starting-style';
-```
-
-### SelectPositionerCssVariables.anchorHeight
-
-The anchor's height.
-
-```typescript
-type SelectPositionerCssVariablesanchorHeight = '--anchor-height';
-```
-
-### SelectPositionerCssVariables.anchorWidth
-
-The anchor's width.
-
-```typescript
-type SelectPositionerCssVariablesanchorWidth = '--anchor-width';
-```
-
-### SelectPositionerCssVariables.availableHeight
-
-The available height between the trigger and the edge of the viewport.
-
-```typescript
-type SelectPositionerCssVariablesavailableHeight = '--available-height';
-```
-
-### SelectPositionerCssVariables.availableWidth
-
-The available width between the trigger and the edge of the viewport.
-
-```typescript
-type SelectPositionerCssVariablesavailableWidth = '--available-width';
-```
-
-### SelectPositionerCssVariables.transformOrigin
-
-The coordinates that this element is anchored to. Used for animations and transitions.
-
-```typescript
-type SelectPositionerCssVariablestransformOrigin = '--transform-origin';
-```
-
-### SelectPositionerDataAttributes.align
-
-Indicates how the popup is aligned relative to specified side.
-
-```typescript
-type SelectPositionerDataAttributesalign = 'data-align';
-```
-
-### SelectPositionerDataAttributes.anchorHidden
-
-Present when the anchor is hidden.
-
-```typescript
-type SelectPositionerDataAttributesanchorHidden = 'data-anchor-hidden';
-```
-
-### SelectPositionerDataAttributes.closed
-
-Present when the select popup is closed.
-
-```typescript
-type SelectPositionerDataAttributesclosed = 'data-closed';
-```
-
-### SelectPositionerDataAttributes.open
-
-Present when the select popup is open.
-
-```typescript
-type SelectPositionerDataAttributesopen = 'data-open';
-```
-
-### SelectPositionerDataAttributes.side
-
-Indicates which side the popup is positioned relative to the trigger.
-
-```typescript
-type SelectPositionerDataAttributesside = 'data-side';
-```
-
-### SelectScrollDownArrowDataAttributes.direction
-
-Indicates the direction of the scroll arrow.
-
-```typescript
-type SelectScrollDownArrowDataAttributesdirection = 'data-direction';
-```
-
-### SelectScrollDownArrowDataAttributes.endingStyle
-
-Present when the scroll arrow is animating out.
-
-```typescript
-type SelectScrollDownArrowDataAttributesendingStyle = 'data-ending-style';
-```
-
-### SelectScrollDownArrowDataAttributes.side
-
-Indicates which side the popup is positioned relative to the trigger.
-
-```typescript
-type SelectScrollDownArrowDataAttributesside = 'data-side';
-```
-
-### SelectScrollDownArrowDataAttributes.startingStyle
-
-Present when the scroll arrow begins animating in.
-
-```typescript
-type SelectScrollDownArrowDataAttributesstartingStyle = 'data-starting-style';
-```
-
-### SelectScrollDownArrowDataAttributes.visible
-
-Present when the scroll arrow is visible.
-
-```typescript
-type SelectScrollDownArrowDataAttributesvisible = 'data-visible';
-```
-
-### SelectScrollUpArrowDataAttributes.direction
-
-Indicates the direction of the scroll arrow.
-
-```typescript
-type SelectScrollUpArrowDataAttributesdirection = 'data-direction';
-```
-
-### SelectScrollUpArrowDataAttributes.endingStyle
-
-Present when the scroll arrow is animating out.
-
-```typescript
-type SelectScrollUpArrowDataAttributesendingStyle = 'data-ending-style';
-```
-
-### SelectScrollUpArrowDataAttributes.side
-
-Indicates which side the popup is positioned relative to the trigger.
-
-```typescript
-type SelectScrollUpArrowDataAttributesside = 'data-side';
-```
-
-### SelectScrollUpArrowDataAttributes.startingStyle
-
-Present when the scroll arrow begins animating in.
-
-```typescript
-type SelectScrollUpArrowDataAttributesstartingStyle = 'data-starting-style';
-```
-
-### SelectScrollUpArrowDataAttributes.visible
-
-Present when the scroll arrow is visible.
-
-```typescript
-type SelectScrollUpArrowDataAttributesvisible = 'data-visible';
-```
-
-### SelectSeparatorDataAttributes.orientation
-
-Indicates the orientation of the separator.
-
-```typescript
-type SelectSeparatorDataAttributesorientation = 'data-orientation';
-```
-
-### SelectTriggerDataAttributes.dirty
-
-Present when the select's value has changed (when wrapped in Field.Root).
-
-```typescript
-type SelectTriggerDataAttributesdirty = 'data-dirty';
-```
-
-### SelectTriggerDataAttributes.disabled
-
-Present when the select is disabled.
-
-```typescript
-type SelectTriggerDataAttributesdisabled = 'data-disabled';
-```
-
-### SelectTriggerDataAttributes.filled
-
-Present when the select has a value (when wrapped in Field.Root).
-
-```typescript
-type SelectTriggerDataAttributesfilled = 'data-filled';
-```
-
-### SelectTriggerDataAttributes.focused
-
-Present when the select trigger is focused (when wrapped in Field.Root).
-
-```typescript
-type SelectTriggerDataAttributesfocused = 'data-focused';
-```
-
-### SelectTriggerDataAttributes.invalid
-
-Present when the select is in an invalid state (when wrapped in Field.Root).
-
-```typescript
-type SelectTriggerDataAttributesinvalid = 'data-invalid';
-```
-
-### SelectTriggerDataAttributes.placeholder
-
-Present when the select doesn't have a value.
-
-```typescript
-type SelectTriggerDataAttributesplaceholder = 'data-placeholder';
-```
-
-### SelectTriggerDataAttributes.popupOpen
-
-Present when the corresponding select is open.
-
-```typescript
-type SelectTriggerDataAttributespopupOpen = 'data-popup-open';
-```
-
-### SelectTriggerDataAttributes.popupSide
-
-Indicates which side the corresponding popup is positioned relative to its anchor.
-
-```typescript
-type SelectTriggerDataAttributespopupSide = 'data-popup-side';
-```
-
-### SelectTriggerDataAttributes.pressed
-
-Present when the trigger is pressed.
-
-```typescript
-type SelectTriggerDataAttributespressed = 'data-pressed';
-```
-
-### SelectTriggerDataAttributes.readonly
-
-Present when the select is readonly.
-
-```typescript
-type SelectTriggerDataAttributesreadonly = 'data-readonly';
-```
-
-### SelectTriggerDataAttributes.required
-
-Present when the select is required.
-
-```typescript
-type SelectTriggerDataAttributesrequired = 'data-required';
-```
-
-### SelectTriggerDataAttributes.touched
-
-Present when the select has been touched (when wrapped in Field.Root).
-
-```typescript
-type SelectTriggerDataAttributestouched = 'data-touched';
-```
-
-### SelectTriggerDataAttributes.valid
-
-Present when the select is in a valid state (when wrapped in Field.Root).
-
-```typescript
-type SelectTriggerDataAttributesvalid = 'data-valid';
-```
-
-### SelectValueDataAttributes.placeholder
-
-Present when the select doesn't have a value.
-
-```typescript
-type SelectValueDataAttributesplaceholder = 'data-placeholder';
-```
+Re-export of [Value](#value) data-attributes.
 
 ## External Types
 
@@ -1348,7 +952,7 @@ type Orientation = 'horizontal' | 'vertical';
 - `Select.Group`: `Select.Group`, `Select.Group.State`, `Select.Group.Props`
 - `Select.GroupLabel`: `Select.GroupLabel`, `Select.GroupLabel.State`, `Select.GroupLabel.Props`
 - `Select.Separator`: `Select.Separator`, `Select.Separator.Props`, `Select.Separator.State`
-- `Default`: `SelectTriggerDataAttributes.popupOpen`, `SelectTriggerDataAttributes.pressed`, `SelectTriggerDataAttributes.disabled`, `SelectTriggerDataAttributes.readonly`, `SelectTriggerDataAttributes.popupSide`, `SelectTriggerDataAttributes.required`, `SelectTriggerDataAttributes.valid`, `SelectTriggerDataAttributes.invalid`, `SelectTriggerDataAttributes.touched`, `SelectTriggerDataAttributes.dirty`, `SelectTriggerDataAttributes.filled`, `SelectTriggerDataAttributes.focused`, `SelectTriggerDataAttributes.placeholder`, `SelectValueDataAttributes.placeholder`, `SelectIconDataAttributes.popupOpen`, `SelectBackdropDataAttributes.open`, `SelectBackdropDataAttributes.closed`, `SelectBackdropDataAttributes.startingStyle`, `SelectBackdropDataAttributes.endingStyle`, `SelectPositionerCssVariables.availableWidth`, `SelectPositionerCssVariables.availableHeight`, `SelectPositionerCssVariables.anchorWidth`, `SelectPositionerCssVariables.anchorHeight`, `SelectPositionerCssVariables.transformOrigin`, `SelectPositionerDataAttributes.open`, `SelectPositionerDataAttributes.closed`, `SelectPositionerDataAttributes.anchorHidden`, `SelectPositionerDataAttributes.side`, `SelectPositionerDataAttributes.align`, `SelectPopupDataAttributes.open`, `SelectPopupDataAttributes.closed`, `SelectPopupDataAttributes.startingStyle`, `SelectPopupDataAttributes.endingStyle`, `SelectPopupDataAttributes.side`, `SelectPopupDataAttributes.align`, `SelectItemDataAttributes.selected`, `SelectItemDataAttributes.highlighted`, `SelectItemDataAttributes.disabled`, `SelectItemIndicatorDataAttributes.startingStyle`, `SelectItemIndicatorDataAttributes.endingStyle`, `SelectArrowDataAttributes.open`, `SelectArrowDataAttributes.closed`, `SelectArrowDataAttributes.side`, `SelectArrowDataAttributes.align`, `SelectArrowDataAttributes.uncentered`, `SelectScrollDownArrowDataAttributes.startingStyle`, `SelectScrollDownArrowDataAttributes.endingStyle`, `SelectScrollDownArrowDataAttributes.direction`, `SelectScrollDownArrowDataAttributes.visible`, `SelectScrollDownArrowDataAttributes.side`, `SelectScrollUpArrowDataAttributes.startingStyle`, `SelectScrollUpArrowDataAttributes.endingStyle`, `SelectScrollUpArrowDataAttributes.direction`, `SelectScrollUpArrowDataAttributes.visible`, `SelectScrollUpArrowDataAttributes.side`, `SelectSeparatorDataAttributes.orientation`, `SelectRootProps`, `SelectRootState`, `SelectRootActions`, `SelectRootChangeEventReason`, `SelectRootOpenChangeEventDetails`, `SelectRootChangeEventDetails`, `SelectLabelState`, `SelectLabelProps`, `SelectTriggerState`, `SelectTriggerProps`, `SelectValueState`, `SelectValueProps`, `SelectIconState`, `SelectIconProps`, `SelectPortalState`, `SelectPortalProps`, `SelectBackdropState`, `SelectBackdropProps`, `SelectPositionerState`, `SelectPositionerProps`, `SelectPopupProps`, `SelectPopupState`, `SelectListProps`, `SelectListState`, `SelectItemState`, `SelectItemProps`, `SelectItemIndicatorState`, `SelectItemIndicatorProps`, `SelectItemTextState`, `SelectItemTextProps`, `SelectArrowState`, `SelectArrowProps`, `SelectScrollDownArrowState`, `SelectScrollDownArrowProps`, `SelectScrollUpArrowState`, `SelectScrollUpArrowProps`, `SelectGroupState`, `SelectGroupProps`, `SelectGroupLabelState`, `SelectGroupLabelProps`, `SelectSeparatorProps`, `SelectSeparatorState`
+- `Default`: `SelectTriggerDataAttributes`, `SelectValueDataAttributes`, `SelectIconDataAttributes`, `SelectBackdropDataAttributes`, `SelectPositionerCssVariables`, `SelectPositionerDataAttributes`, `SelectPopupDataAttributes`, `SelectItemDataAttributes`, `SelectItemIndicatorDataAttributes`, `SelectArrowDataAttributes`, `SelectScrollDownArrowDataAttributes`, `SelectScrollUpArrowDataAttributes`, `SelectSeparatorDataAttributes`, `SelectRootProps`, `SelectRootState`, `SelectRootActions`, `SelectRootChangeEventReason`, `SelectRootOpenChangeEventDetails`, `SelectRootChangeEventDetails`, `SelectLabelState`, `SelectLabelProps`, `SelectTriggerState`, `SelectTriggerProps`, `SelectValueState`, `SelectValueProps`, `SelectIconState`, `SelectIconProps`, `SelectPortalState`, `SelectPortalProps`, `SelectBackdropState`, `SelectBackdropProps`, `SelectPositionerState`, `SelectPositionerProps`, `SelectPopupProps`, `SelectPopupState`, `SelectListProps`, `SelectListState`, `SelectItemState`, `SelectItemProps`, `SelectItemIndicatorState`, `SelectItemIndicatorProps`, `SelectItemTextState`, `SelectItemTextProps`, `SelectArrowState`, `SelectArrowProps`, `SelectScrollDownArrowState`, `SelectScrollDownArrowProps`, `SelectScrollUpArrowState`, `SelectScrollUpArrowProps`, `SelectGroupState`, `SelectGroupProps`, `SelectGroupLabelState`, `SelectGroupLabelProps`, `SelectSeparatorProps`, `SelectSeparatorState`
 
 ## Canonical Types
 
