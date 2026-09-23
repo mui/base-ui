@@ -431,7 +431,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
 
   function handleOpenChange(
     nextOpen: boolean,
-    eventDetails: NavigationMenuRoot.ChangeEventDetails,
+    eventDetails: Omit<NavigationMenuRoot.ChangeEventDetails, 'preventUnmountOnClose'>,
   ) {
     const isHover = eventDetails.reason === REASONS.triggerHover;
 

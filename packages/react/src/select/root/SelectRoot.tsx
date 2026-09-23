@@ -19,23 +19,18 @@ import {
   useListNavigation,
   useTypeahead,
 } from '../../floating-ui-react';
-import {
-  SelectFloatingContext,
-  SelectRootContext,
-  SelectRootPropsContext,
-  type SelectRootPropsContextValue,
-} from './SelectRootContext';
+import { SelectFloatingContext, SelectRootContext } from './SelectRootContext';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
 import { useRegisterFieldControl } from '../../internals/field-register-control/useRegisterFieldControl';
 import { useLabelableId } from '../../internals/labelable-provider/useLabelableId';
-import { useTransitionStatus } from '../../internals/useTransitionStatus';
+import { useUnmountAfterClose } from '../../internals/useUnmountAfterClose';
 import { selectors, type SelectStoreContext, type State as StoreState } from '../store';
 import {
   type BaseUIChangeEventDetails,
   createChangeEventDetails,
 } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
-import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
+import { attachPreventUnmountOnClose } from '../../utils/popups/popupStoreUtils';
 import { useFormContext } from '../../internals/form-context/FormContext';
 import { type Group, stringifyAsLabel, stringifyAsValue } from '../../internals/resolveValueLabel';
 import {
@@ -136,7 +131,6 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   const alignItemWithTriggerActiveRef = React.useRef(false);
   const initialValueRef = React.useRef(value);
 
-  const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
   const { openMethod, triggerProps: interactionTypeProps } = useOpenInteractionType(open);
 
   const store = useRefWithInit(
@@ -147,13 +141,19 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
           labelId: undefined,
           modal,
           multiple,
+          disabled,
+          readOnly,
+          required,
+          highlightItemOnHover,
           itemToStringLabel,
           itemToStringValue,
           isItemEqualToValue,
           value,
           open,
-          mounted,
-          transitionStatus,
+          // Seeded with the initial values of `useUnmountAfterClose`, which is called after the
+          // store because its unmount cleanup writes to it. `useSyncedValues` keeps them in sync.
+          mounted: open,
+          transitionStatus: undefined,
           items,
           forceMount: false,
           openMethod: null,
@@ -161,6 +161,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
           selectedIndex: null,
           popupProps: EMPTY_OBJECT,
           triggerProps: EMPTY_OBJECT,
+          itemProps: EMPTY_OBJECT,
           triggerElement: null,
           positionerElement: null,
           listElement: null,
@@ -191,6 +192,27 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
         selectors,
       ),
   ).current;
+
+  const [preventUnmountOnClose, setPreventUnmountOnClose] = React.useState(false);
+  const {
+    mounted,
+    transitionStatus,
+    forceUnmount: handleUnmount,
+  } = useUnmountAfterClose({
+    open,
+    ref: popupRef,
+    preventUnmountOnClose,
+    setPreventUnmountOnClose,
+    onUnmount() {
+      store.update({
+        activeIndex: null,
+        openMethod: null,
+        scrollUpArrowVisible: false,
+        scrollDownArrowVisible: false,
+      });
+      onOpenChangeComplete?.(false);
+    },
+  });
 
   const activeIndex = store.useState('activeIndex');
   const selectedIndex = store.useState('selectedIndex');
@@ -265,12 +287,17 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
 
   const setOpen = useStableCallback(
     (nextOpen: boolean, eventDetails: SelectRoot.ChangeEventDetails) => {
-      onOpenChange?.(nextOpen, eventDetails);
+      const openEventDetails = eventDetails as SelectRoot.OpenChangeEventDetails;
+      const shouldPreventUnmountOnClose = attachPreventUnmountOnClose(openEventDetails);
+      onOpenChange?.(nextOpen, openEventDetails);
 
       if (eventDetails.isCanceled) {
         return;
       }
 
+      if (!nextOpen) {
+        setPreventUnmountOnClose(shouldPreventUnmountOnClose());
+      }
       setOpenUnwrapped(nextOpen);
 
       if (
@@ -287,29 +314,18 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     },
   );
 
-  const handleUnmount = useStableCallback(() => {
-    setMounted(false);
-    store.update({
-      activeIndex: null,
-      openMethod: null,
-      scrollUpArrowVisible: false,
-      scrollDownArrowVisible: false,
-    });
-    onOpenChangeComplete?.(false);
-  });
-
-  useOpenChangeComplete({
-    enabled: !actionsRef,
-    open,
-    ref: popupRef,
-    onComplete() {
-      if (!open) {
-        handleUnmount();
-      }
-    },
-  });
-
-  React.useImperativeHandle(actionsRef, () => ({ unmount: handleUnmount }), [handleUnmount]);
+  React.useImperativeHandle(
+    actionsRef,
+    () => ({
+      unmount: handleUnmount,
+      close: () => {
+        if (store.state.open) {
+          setOpen(false, createChangeEventDetails(REASONS.imperativeAction));
+        }
+      },
+    }),
+    [handleUnmount, setOpen, store],
+  );
 
   const setValue = useStableCallback(
     (nextValue: any, eventDetails: SelectRoot.ChangeEventDetails) => {
@@ -438,6 +454,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     store.update({
       popupProps,
       triggerProps: mergedTriggerProps,
+      itemProps,
     });
   });
 
@@ -445,30 +462,23 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     id: generatedId,
     modal,
     multiple,
+    disabled,
+    readOnly,
+    required,
+    highlightItemOnHover,
     value,
     open,
     mounted,
     transitionStatus,
     popupProps,
     triggerProps: mergedTriggerProps,
+    itemProps,
     items,
     itemToStringLabel,
     itemToStringValue,
     isItemEqualToValue,
     openMethod: renderedOpenMethod,
   });
-
-  const rootPropsContextValue: SelectRootPropsContextValue = React.useMemo(
-    () => ({
-      disabled,
-      readOnly,
-      required,
-      multiple,
-      highlightItemOnHover,
-      itemProps,
-    }),
-    [disabled, readOnly, required, multiple, highlightItemOnHover, itemProps],
-  );
 
   const ref = useMergedRefs(inputRef, validation.inputRef);
 
@@ -496,11 +506,9 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
 
   return (
     <SelectRootContext.Provider value={store}>
-      <SelectRootPropsContext.Provider value={rootPropsContextValue}>
-        <SelectFloatingContext.Provider value={floatingContext}>
-          {children}
-        </SelectFloatingContext.Provider>
-      </SelectRootPropsContext.Provider>
+      <SelectFloatingContext.Provider value={floatingContext}>
+        {children}
+      </SelectFloatingContext.Provider>
       <input
         {...validation.getValidationProps(disabled, {
           onFocus() {
@@ -642,7 +650,8 @@ export interface SelectRootProps<Value, Multiple extends boolean | undefined = f
   /**
    * Event handler called when the select popup is opened or closed.
    */
-  onOpenChange?: ((open: boolean, eventDetails: SelectRootChangeEventDetails) => void) | undefined;
+  onOpenChange?:
+    ((open: boolean, eventDetails: SelectRootOpenChangeEventDetails) => void) | undefined;
   /**
    * Event handler called after any animations complete when the select popup is opened or closed.
    */
@@ -662,8 +671,10 @@ export interface SelectRootProps<Value, Multiple extends boolean | undefined = f
   modal?: boolean | undefined;
   /**
    * A ref to imperative actions.
-   * - `unmount`: Manually unmounts the select.
-   * Call this after any externally controlled closing animation finishes.
+   * - `unmount`: Ends the closing phase of the select after an externally controlled closing animation finishes.
+   * Call `preventUnmountOnClose()` in `onOpenChange` first, otherwise the select completes closing on its own.
+   * Whether it leaves the DOM is decided by `keepMounted` on the portal.
+   * - `close`: Closes the select imperatively when called.
    */
   actionsRef?: React.RefObject<SelectRootActions | null> | undefined;
   /**
@@ -725,6 +736,7 @@ export interface SelectRootState {}
 
 export interface SelectRootActions {
   unmount: () => void;
+  close: () => void;
 }
 
 export type SelectRootChangeEventReason =
@@ -736,7 +748,13 @@ export type SelectRootChangeEventReason =
   | typeof REASONS.focusOut
   | typeof REASONS.listNavigation
   | typeof REASONS.cancelOpen
+  | typeof REASONS.imperativeAction
   | typeof REASONS.none;
+
+export type SelectRootOpenChangeEventDetails = SelectRootChangeEventDetails & {
+  /** Prevents the popup from unmounting until the `unmount` action is called. */
+  preventUnmountOnClose: () => void;
+};
 
 export type SelectRootChangeEventDetails = BaseUIChangeEventDetails<SelectRootChangeEventReason>;
 
@@ -749,4 +767,5 @@ export namespace SelectRoot {
   export type Actions = SelectRootActions;
   export type ChangeEventReason = SelectRootChangeEventReason;
   export type ChangeEventDetails = SelectRootChangeEventDetails;
+  export type OpenChangeEventDetails = SelectRootOpenChangeEventDetails;
 }
