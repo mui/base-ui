@@ -58,7 +58,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
       }
 
       const { user } = await render(
-        <Menu.FilterProvider defaultInputValue="e">
+        <Menu.FilterProvider defaultValue="e">
           <Menu.Root>
             <Menu.Trigger>Actions</Menu.Trigger>
             <Menu.Portal>
@@ -202,12 +202,12 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
       });
 
       it('updates the active descendant when filtering replaces a custom-id item', async () => {
-        function Test(props: { inputValue: string }) {
+        function Test(props: { value: string }) {
           return (
             <Menu.FilterProvider
               autoHighlight="always"
-              inputValue={props.inputValue}
-              onInputValueChange={() => {}}
+              value={props.value}
+              onValueChange={() => {}}
             >
               <Menu.Root open>
                 <Menu.Portal>
@@ -226,14 +226,14 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
           );
         }
 
-        const { setProps } = await render(<Test inputValue="" />);
+        const { setProps } = await render(<Test value="" />);
 
         const input = screen.getByRole('searchbox', { name: 'Filter fruit' });
         await waitFor(() => {
           expect(input).toHaveAttribute('aria-activedescendant', 'apple-item');
         });
 
-        await setProps({ inputValue: 'ban' });
+        await setProps({ value: 'ban' });
 
         await waitFor(() => {
           expect(input).toHaveAttribute('aria-activedescendant', 'banana-item');
@@ -632,7 +632,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
           const [query, setQuery] = React.useState('');
 
           return (
-            <Menu.FilterProvider autoHighlight inputValue={query} onInputValueChange={setQuery}>
+            <Menu.FilterProvider autoHighlight value={query} onValueChange={setQuery}>
               <Menu.Root open>
                 <Menu.Portal>
                   <Menu.Positioner>
@@ -820,7 +820,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
 
     it('uses the configured locale for default matching', async () => {
       await render(
-        <Menu.FilterProvider defaultInputValue="ı" locale="tr">
+        <Menu.FilterProvider defaultValue="ı" locale="tr">
           <Menu.Root open>
             <Menu.Trigger>Actions</Menu.Trigger>
             <Menu.Portal>
@@ -844,7 +844,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
 
     it('keeps Home and End as caret keys until an item is highlighted', async () => {
       const { user } = await render(
-        <Menu.FilterProvider defaultInputValue="rename">
+        <Menu.FilterProvider defaultValue="rename">
           <Menu.Root open>
             <Menu.Trigger>Actions</Menu.Trigger>
             <Menu.Portal>
@@ -1295,7 +1295,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
     });
 
     it('resets the input value once when the popup closes', async () => {
-      const onInputValueChange = vi.fn();
+      const onValueChange = vi.fn();
 
       function Test() {
         const [open, setOpen] = React.useState(true);
@@ -1305,7 +1305,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
             <button type="button" onClick={() => setOpen(false)}>
               Close
             </button>
-            <Menu.FilterProvider onInputValueChange={onInputValueChange}>
+            <Menu.FilterProvider onValueChange={onValueChange}>
               <Menu.Root open={open} modal={false}>
                 <Menu.Trigger>Fruit</Menu.Trigger>
                 <Menu.Portal>
@@ -1328,15 +1328,15 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
       const input = await screen.findByRole('searchbox', { name: 'Filter fruit' });
 
       await user.type(input, 'app');
-      onInputValueChange.mockClear();
+      onValueChange.mockClear();
 
       await user.click(screen.getByRole('button', { name: 'Close' }));
 
       await waitFor(() => {
-        expect(onInputValueChange).toHaveBeenCalledTimes(1);
+        expect(onValueChange).toHaveBeenCalledTimes(1);
       });
-      expect(onInputValueChange.mock.calls[0][0]).toBe('');
-      expect(onInputValueChange.mock.calls[0][1].reason).toBe('popup-close');
+      expect(onValueChange.mock.calls[0][0]).toBe('');
+      expect(onValueChange.mock.calls[0][1].reason).toBe('popup-close');
     });
 
     it.skipIf(isJSDOM)(
@@ -1434,8 +1434,8 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
     it('leaves the uncontrolled query and visible items unchanged when a change is canceled', async () => {
       const { user } = await render(
         <Menu.FilterProvider
-          defaultInputValue="app"
-          onInputValueChange={(_, eventDetails) => eventDetails.cancel()}
+          defaultValue="app"
+          onValueChange={(_, eventDetails) => eventDetails.cancel()}
         >
           <Menu.Root open>
             <Menu.Trigger>Fruit</Menu.Trigger>
@@ -1497,9 +1497,9 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
     it('clears a positional highlight when a controlled query replaces the visible item', async () => {
       const onAppleClick = vi.fn();
 
-      function Test(props: { inputValue: string }) {
+      function Test(props: { value: string }) {
         return (
-          <Menu.FilterProvider inputValue={props.inputValue} onInputValueChange={() => {}}>
+          <Menu.FilterProvider value={props.value} onValueChange={() => {}}>
             <Menu.Root open>
               <Menu.Trigger>Fruit</Menu.Trigger>
               <Menu.Portal>
@@ -1518,7 +1518,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
         );
       }
 
-      const { user, setProps } = await render(<Test inputValue="ban" />);
+      const { user, setProps } = await render(<Test value="ban" />);
       const input = screen.getByRole('searchbox', { name: 'Filter fruit' });
       await waitFor(() => {
         expect(input).toHaveFocus();
@@ -1531,7 +1531,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
         );
       });
 
-      await setProps({ inputValue: 'app' });
+      await setProps({ value: 'app' });
 
       expect(screen.getByRole('menuitem', { name: 'Apple' })).toBeVisible();
       expect(screen.queryByRole('menuitem', { name: 'Banana' })).toBe(null);
@@ -2622,7 +2622,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
 
     it('disables filter controls when the root is disabled', async () => {
       await render(
-        <Menu.FilterProvider defaultInputValue="a">
+        <Menu.FilterProvider defaultValue="a">
           <Menu.Root open disabled>
             <Menu.Trigger>Fruit</Menu.Trigger>
             <Menu.Portal>
@@ -2656,7 +2656,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
             <button type="button" onClick={() => setFilter(() => endsWith)}>
               Change filter
             </button>
-            <Menu.FilterProvider filter={filter} defaultInputValue="a">
+            <Menu.FilterProvider filter={filter} defaultValue="a">
               <Menu.Root open modal={false}>
                 <Menu.Trigger>Fruit</Menu.Trigger>
                 <Menu.Portal>
@@ -3054,7 +3054,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
 
     it('filters each menu item variant without changing its role', async () => {
       const { user } = await render(
-        <Menu.FilterProvider defaultInputValue="banana">
+        <Menu.FilterProvider defaultValue="banana">
           <Menu.Root open>
             <Menu.Trigger>Fruit</Menu.Trigger>
             <Menu.Portal>
@@ -3389,10 +3389,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
       const [query, setQuery] = React.useState('');
 
       return (
-        <Menu.FilterProvider
-          inputValue={query}
-          onInputValueChange={(nextQuery) => setQuery(nextQuery)}
-        >
+        <Menu.FilterProvider value={query} onValueChange={(nextQuery) => setQuery(nextQuery)}>
           <Menu.Root defaultOpen>
             <Menu.Trigger>Actions</Menu.Trigger>
             <Menu.Portal>
@@ -3564,8 +3561,8 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
         <React.Fragment>
           <button onClick={() => setOpen((value) => !value)}>toggle</button>
           <Menu.FilterProvider
-            inputValue={inputValue}
-            onInputValueChange={(value, details) => {
+            value={inputValue}
+            onValueChange={(value, details) => {
               if (details.reason === 'popup-close') {
                 details.cancel();
                 return;
@@ -4280,12 +4277,10 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
   });
 
   describe('input value change reasons', () => {
-    async function renderReasonMenu(onInputValueChange: (value: string, reason: string) => void) {
+    async function renderReasonMenu(onValueChange: (value: string, reason: string) => void) {
       return render(
         <Menu.FilterProvider
-          onInputValueChange={(value, eventDetails) =>
-            onInputValueChange(value, eventDetails.reason)
-          }
+          onValueChange={(value, eventDetails) => onValueChange(value, eventDetails.reason)}
         >
           <Menu.Root defaultOpen>
             <Menu.Trigger>Actions</Menu.Trigger>
@@ -4306,45 +4301,43 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
     }
 
     it('reports input-change while typing', async () => {
-      const onInputValueChange = vi.fn();
-      const { user } = await renderReasonMenu(onInputValueChange);
+      const onValueChange = vi.fn();
+      const { user } = await renderReasonMenu(onValueChange);
 
       await user.type(screen.getByRole('searchbox', { name: 'Filter actions' }), 'r');
 
-      expect(onInputValueChange).toHaveBeenCalledWith('r', 'input-change');
+      expect(onValueChange).toHaveBeenCalledWith('r', 'input-change');
     });
 
     it('reports input-clear when the field is emptied', async () => {
-      const onInputValueChange = vi.fn();
-      const { user } = await renderReasonMenu(onInputValueChange);
+      const onValueChange = vi.fn();
+      const { user } = await renderReasonMenu(onValueChange);
 
       const input = screen.getByRole('searchbox', { name: 'Filter actions' });
       await user.type(input, 'r');
       await user.clear(input);
 
-      expect(onInputValueChange).toHaveBeenLastCalledWith('', 'input-clear');
+      expect(onValueChange).toHaveBeenLastCalledWith('', 'input-clear');
     });
 
     it('reports clear-press when the clear button is used', async () => {
-      const onInputValueChange = vi.fn();
-      const { user } = await renderReasonMenu(onInputValueChange);
+      const onValueChange = vi.fn();
+      const { user } = await renderReasonMenu(onValueChange);
 
       await user.type(screen.getByRole('searchbox', { name: 'Filter actions' }), 'r');
       await user.click(screen.getByRole('button', { name: 'Clear filter' }));
 
-      expect(onInputValueChange).toHaveBeenLastCalledWith('', 'clear-press');
+      expect(onValueChange).toHaveBeenLastCalledWith('', 'clear-press');
     });
 
     it('reports popup-close when a controlled close discards the query', async () => {
-      const onInputValueChange = vi.fn();
+      const onValueChange = vi.fn();
 
       function ControlledOpen(props: { open: boolean }) {
         return (
           <Menu.FilterProvider
-            defaultInputValue="ren"
-            onInputValueChange={(value, eventDetails) =>
-              onInputValueChange(value, eventDetails.reason)
-            }
+            defaultValue="ren"
+            onValueChange={(value, eventDetails) => onValueChange(value, eventDetails.reason)}
           >
             <Menu.Root open={props.open}>
               <Menu.Trigger>Actions</Menu.Trigger>
@@ -4366,7 +4359,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
       const { setProps } = await render(<ControlledOpen open />);
       await setProps({ open: false });
 
-      expect(onInputValueChange).toHaveBeenCalledWith('', 'popup-close');
+      expect(onValueChange).toHaveBeenCalledWith('', 'popup-close');
     });
   });
 
@@ -5315,7 +5308,7 @@ describe('filterable menu navigation regressions', () => {
     }
     const filter = vi.fn((text: string, query: string) => text.includes(query));
     const { user } = await render(
-      <Menu.FilterProvider filter={filter} autoHighlight="always" defaultInputValue="Match">
+      <Menu.FilterProvider filter={filter} autoHighlight="always" defaultValue="Match">
         <Menu.Root defaultOpen>
           {() => (
             <React.Fragment>

@@ -1173,24 +1173,24 @@ Doesn't render its own HTML element.
 
 **FilterProvider Props:**
 
-| Prop               | Type                                                                                        | Default | Description                                                                                                                                                                                                                                                                                                                                               |
-| :----------------- | :------------------------------------------------------------------------------------------ | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| defaultInputValue  | `string`                                                                                    | -       | The uncontrolled filter query when the menu is initially rendered.&#xA;To render a controlled query, use the `inputValue` prop instead.                                                                                                                                                                                                                   |
-| inputValue         | `string`                                                                                    | -       | The filter query. Use when controlled.&#xA;When the popup closes, `onInputValueChange` is called with an empty query. The controlled&#xA;value changes only when the consumer updates this prop.                                                                                                                                                          |
-| onInputValueChange | `((value: string, eventDetails: Menu.FilterProvider.InputValueChangeEventDetails) => void)` | -       | Event handler called when the filter query changes.                                                                                                                                                                                                                                                                                                       |
-| autoHighlight      | `boolean \| 'always'`                                                                       | `false` | Whether the first matching item is highlighted automatically. `true`: highlight after the user types and keep the highlight while the query changes.`'always'`: always highlight the first item.                                                                                                                                                          |
-| filter             | `MenuFilterFunction \| null`                                                                | -       | Replaces the default case-insensitive substring matching while the filter root controls which&#xA;registered items remain visible.&#xA;Receives an item's label or rendered text together with the trimmed query, and keeps the item&#xA;when it returns `true`.&#xA;Pass `null` when filtering mapped items yourself and deciding which items to render. |
-| locale             | `Intl.LocalesArgument`                                                                      | -       | Locale used when comparing an item against the query.&#xA;Defaults to the runtime's default locale.                                                                                                                                                                                                                                                       |
-| children           | `React.ReactNode`                                                                           | -       | -                                                                                                                                                                                                                                                                                                                                                         |
+| Prop          | Type                                                                                   | Default | Description                                                                                                                                                                                                                                                                                                                                               |
+| :------------ | :------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| defaultValue  | `string`                                                                               | -       | The uncontrolled filter query when the menu is initially rendered.&#xA;To render a controlled query, use the `value` prop instead.                                                                                                                                                                                                                        |
+| value         | `string`                                                                               | -       | The filter query. Use when controlled.&#xA;When the popup closes, `onValueChange` is called with an empty query. The controlled&#xA;value changes only when the consumer updates this prop.                                                                                                                                                               |
+| onValueChange | `((value: string, eventDetails: Menu.FilterProvider.ValueChangeEventDetails) => void)` | -       | Event handler called when the filter query changes.                                                                                                                                                                                                                                                                                                       |
+| autoHighlight | `boolean \| 'always'`                                                                  | `false` | Whether the first matching item is highlighted automatically. `true`: highlight after the user types and keep the highlight while the query changes.`'always'`: always highlight the first item.                                                                                                                                                          |
+| filter        | `MenuFilterFunction \| null`                                                           | -       | Replaces the default case-insensitive substring matching while the filter root controls which&#xA;registered items remain visible.&#xA;Receives an item's label or rendered text together with the trimmed query, and keeps the item&#xA;when it returns `true`.&#xA;Pass `null` when filtering mapped items yourself and deciding which items to render. |
+| locale        | `Intl.LocalesArgument`                                                                 | -       | Locale used when comparing an item against the query.&#xA;Defaults to the runtime's default locale.                                                                                                                                                                                                                                                       |
+| children      | `React.ReactNode`                                                                      | -       | -                                                                                                                                                                                                                                                                                                                                                         |
 
 ### FilterProvider.Props
 
 Re-export of [FilterProvider](#filterprovider) props.
 
-### FilterProvider.InputValueChangeEventDetails
+### FilterProvider.ValueChangeEventDetails
 
 ```typescript
-type MenuFilterProviderInputValueChangeEventDetails = (
+type MenuFilterProviderValueChangeEventDetails = (
   | { reason: 'clear-press'; event: KeyboardEvent | MouseEvent | PointerEvent }
   | { reason: 'input-change'; event: Event | InputEvent }
   | { reason: 'input-clear'; event: Event | FocusEvent | InputEvent }
@@ -1209,10 +1209,10 @@ type MenuFilterProviderInputValueChangeEventDetails = (
 };
 ```
 
-### FilterProvider.InputValueChangeEventReason
+### FilterProvider.ValueChangeEventReason
 
 ```typescript
-type MenuFilterProviderInputValueChangeEventReason =
+type MenuFilterProviderValueChangeEventReason =
   'input-change' | 'input-clear' | 'clear-press' | 'popup-close';
 ```
 
@@ -1413,13 +1413,13 @@ type PayloadChildRenderFunction = (arg: { payload: unknown | undefined }) => Rea
 - `Menu.SubmenuTrigger`: `Menu.SubmenuTrigger`, `Menu.SubmenuTrigger.Props`, `Menu.SubmenuTrigger.State`
 - `Menu.Handle`
 - `Menu.createHandle`
-- `Menu.FilterProvider`: `Menu.FilterProvider`, `Menu.FilterProvider.Props`, `Menu.FilterProvider.InputValueChangeEventReason`, `Menu.FilterProvider.InputValueChangeEventDetails`
+- `Menu.FilterProvider`: `Menu.FilterProvider`, `Menu.FilterProvider.Props`, `Menu.FilterProvider.ValueChangeEventReason`, `Menu.FilterProvider.ValueChangeEventDetails`
 - `Menu.Input`: `Menu.Input`, `Menu.Input.State`, `Menu.Input.Props`
 - `Menu.List`: `Menu.List`, `Menu.List.Props`, `Menu.List.State`
 - `Menu.Clear`: `Menu.Clear`, `Menu.Clear.State`, `Menu.Clear.Props`
 - `Menu.Empty`: `Menu.Empty`, `Menu.Empty.State`, `Menu.Empty.Props`
 - `Menu.useFilter`
-- `Default`: `MenuFilterFunction`, `MenuFilter`, `MenuFilterOptions`, `MenuRootState`, `MenuRootProps`, `MenuRootActions`, `MenuRootChangeEventReason`, `MenuRootChangeEventDetails`, `MenuRootHighlightEventReason`, `MenuRootHighlightEventDetails`, `MenuRootOrientation`, `MenuParent`, `MenuArrowState`, `MenuArrowProps`, `MenuBackdropState`, `MenuBackdropProps`, `MenuCheckboxItemState`, `MenuCheckboxItemProps`, `MenuCheckboxItemChangeEventReason`, `MenuCheckboxItemChangeEventDetails`, `MenuCheckboxItemIndicatorProps`, `MenuCheckboxItemIndicatorState`, `MenuGroupLabelProps`, `MenuGroupLabelState`, `MenuGroupProps`, `MenuGroupState`, `MenuItemState`, `MenuItemProps`, `MenuLinkItemState`, `MenuLinkItemProps`, `MenuPopupProps`, `MenuPopupState`, `MenuPortalState`, `MenuPortalProps`, `MenuPositionerState`, `MenuPositionerProps`, `MenuRadioGroupProps`, `MenuRadioGroupState`, `MenuRadioGroupChangeEventReason`, `MenuRadioGroupChangeEventDetails`, `MenuRadioItemState`, `MenuRadioItemProps`, `MenuRadioItemIndicatorProps`, `MenuRadioItemIndicatorState`, `MenuSubmenuRootProps`, `MenuSubmenuRootState`, `MenuSubmenuRootChangeEventReason`, `MenuSubmenuRootChangeEventDetails`, `MenuTriggerProps`, `MenuTriggerState`, `MenuSubmenuTriggerState`, `MenuSubmenuTriggerProps`, `MenuViewportState`, `MenuViewportProps`, `MenuFilterProviderProps`, `MenuFilterProviderInputValueChangeEventReason`, `MenuFilterProviderInputValueChangeEventDetails`, `MenuInputState`, `MenuInputProps`, `MenuListState`, `MenuListProps`, `MenuClearState`, `MenuClearProps`, `MenuEmptyState`, `MenuEmptyProps`
+- `Default`: `MenuFilterFunction`, `MenuFilter`, `MenuFilterOptions`, `MenuRootState`, `MenuRootProps`, `MenuRootActions`, `MenuRootChangeEventReason`, `MenuRootChangeEventDetails`, `MenuRootHighlightEventReason`, `MenuRootHighlightEventDetails`, `MenuRootOrientation`, `MenuParent`, `MenuArrowState`, `MenuArrowProps`, `MenuBackdropState`, `MenuBackdropProps`, `MenuCheckboxItemState`, `MenuCheckboxItemProps`, `MenuCheckboxItemChangeEventReason`, `MenuCheckboxItemChangeEventDetails`, `MenuCheckboxItemIndicatorProps`, `MenuCheckboxItemIndicatorState`, `MenuGroupLabelProps`, `MenuGroupLabelState`, `MenuGroupProps`, `MenuGroupState`, `MenuItemState`, `MenuItemProps`, `MenuLinkItemState`, `MenuLinkItemProps`, `MenuPopupProps`, `MenuPopupState`, `MenuPortalState`, `MenuPortalProps`, `MenuPositionerState`, `MenuPositionerProps`, `MenuRadioGroupProps`, `MenuRadioGroupState`, `MenuRadioGroupChangeEventReason`, `MenuRadioGroupChangeEventDetails`, `MenuRadioItemState`, `MenuRadioItemProps`, `MenuRadioItemIndicatorProps`, `MenuRadioItemIndicatorState`, `MenuSubmenuRootProps`, `MenuSubmenuRootState`, `MenuSubmenuRootChangeEventReason`, `MenuSubmenuRootChangeEventDetails`, `MenuTriggerProps`, `MenuTriggerState`, `MenuSubmenuTriggerState`, `MenuSubmenuTriggerProps`, `MenuViewportState`, `MenuViewportProps`, `MenuFilterProviderProps`, `MenuFilterProviderValueChangeEventReason`, `MenuFilterProviderValueChangeEventDetails`, `MenuInputState`, `MenuInputProps`, `MenuListState`, `MenuListProps`, `MenuClearState`, `MenuClearProps`, `MenuEmptyState`, `MenuEmptyProps`
 
 ## Canonical Types
 
@@ -1476,8 +1476,8 @@ Maps `Canonical`: `Alias` — Use Canonical when its namespace is already import
 - `Menu.SubmenuTrigger.Props`: `MenuSubmenuTriggerProps`
 - `Menu.SubmenuTrigger.State`: `MenuSubmenuTriggerState`
 - `Menu.FilterProvider.Props`: `MenuFilterProviderProps`
-- `Menu.FilterProvider.InputValueChangeEventReason`: `MenuFilterProviderInputValueChangeEventReason`
-- `Menu.FilterProvider.InputValueChangeEventDetails`: `MenuFilterProviderInputValueChangeEventDetails`
+- `Menu.FilterProvider.ValueChangeEventReason`: `MenuFilterProviderValueChangeEventReason`
+- `Menu.FilterProvider.ValueChangeEventDetails`: `MenuFilterProviderValueChangeEventDetails`
 - `Menu.Input.State`: `MenuInputState`
 - `Menu.Input.Props`: `MenuInputProps`
 - `Menu.List.Props`: `MenuListProps`

@@ -32,19 +32,18 @@ export interface MenuFilterProviderOptions {
   locale?: Intl.LocalesArgument | undefined;
   /**
    * The uncontrolled filter query when the menu is initially rendered.
-   * To render a controlled query, use the `inputValue` prop instead.
+   * To render a controlled query, use the `value` prop instead.
    */
-  defaultInputValue?: string | undefined;
+  defaultValue?: string | undefined;
   /**
    * The filter query. Use when controlled.
-   * When the popup closes, `onInputValueChange` is called with an empty query. The controlled
+   * When the popup closes, `onValueChange` is called with an empty query. The controlled
    * value changes only when the consumer updates this prop.
    */
-  inputValue?: string | undefined;
+  value?: string | undefined;
   /**
    * Event handler called when the filter query changes.
    */
-  onInputValueChange?:
-    | ((value: string, eventDetails: MenuFilterProvider.InputValueChangeEventDetails) => void)
-    | undefined;
+  onValueChange?:
+    ((value: string, eventDetails: MenuFilterProvider.ValueChangeEventDetails) => void) | undefined;
 }

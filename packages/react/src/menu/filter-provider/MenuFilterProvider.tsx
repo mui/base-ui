@@ -18,34 +18,26 @@ import type { FilterDropdownRoot } from '../../filter-dropdown/root/FilterDropdo
  * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
  */
 export function MenuFilterProvider(props: MenuFilterProvider.Props): React.JSX.Element {
-  const {
-    children,
-    filter,
-    inputValue,
-    defaultInputValue,
-    onInputValueChange,
-    autoHighlight,
-    locale,
-  } = props;
+  const { children, filter, value, defaultValue, onValueChange, autoHighlight, locale } = props;
 
-  const value = React.useMemo(
+  const contextValue = React.useMemo(
     () => ({
       Root: MenuFilterRoot,
       SubmenuRoot: MenuFilterSubmenuRoot,
       options: {
         filter,
-        inputValue,
-        defaultInputValue,
-        onInputValueChange,
+        value,
+        defaultValue,
+        onValueChange,
         autoHighlight,
         locale,
       },
     }),
-    [filter, inputValue, defaultInputValue, onInputValueChange, autoHighlight, locale],
+    [filter, value, defaultValue, onValueChange, autoHighlight, locale],
   );
 
   return (
-    <MenuFilterProviderContext.Provider value={value}>
+    <MenuFilterProviderContext.Provider value={contextValue}>
       {children}
     </MenuFilterProviderContext.Provider>
   );
@@ -55,11 +47,11 @@ export interface MenuFilterProviderProps extends MenuFilterProviderOptions {
   children?: React.ReactNode;
 }
 
-export type MenuFilterProviderInputValueChangeEventReason = FilterDropdownRoot.ChangeEventReason;
-export type MenuFilterProviderInputValueChangeEventDetails = FilterDropdownRoot.ChangeEventDetails;
+export type MenuFilterProviderValueChangeEventReason = FilterDropdownRoot.ChangeEventReason;
+export type MenuFilterProviderValueChangeEventDetails = FilterDropdownRoot.ChangeEventDetails;
 
 export namespace MenuFilterProvider {
   export type Props = MenuFilterProviderProps;
-  export type InputValueChangeEventReason = MenuFilterProviderInputValueChangeEventReason;
-  export type InputValueChangeEventDetails = MenuFilterProviderInputValueChangeEventDetails;
+  export type ValueChangeEventReason = MenuFilterProviderValueChangeEventReason;
+  export type ValueChangeEventDetails = MenuFilterProviderValueChangeEventDetails;
 }

@@ -60,7 +60,7 @@ describe('<Menu.FilterProvider><Menu.SubmenuRoot/></Menu.FilterProvider>', () =>
 
   describe('prop: inputValue', () => {
     it('renders the controlled query and reports changes', async () => {
-      const onInputValueChange = vi.fn();
+      const onValueChange = vi.fn();
 
       function ControlledSubmenu() {
         const [inputValue, setInputValue] = React.useState('pro');
@@ -75,9 +75,9 @@ describe('<Menu.FilterProvider><Menu.SubmenuRoot/></Menu.FilterProvider>', () =>
                     <Menu.Input aria-label="Filter actions" />
                     <Menu.List>
                       <Menu.FilterProvider
-                        inputValue={inputValue}
-                        onInputValueChange={(nextValue, eventDetails) => {
-                          onInputValueChange(nextValue, eventDetails.reason);
+                        value={inputValue}
+                        onValueChange={(nextValue, eventDetails) => {
+                          onValueChange(nextValue, eventDetails.reason);
                           setInputValue(nextValue);
                         }}
                       >
@@ -113,7 +113,7 @@ describe('<Menu.FilterProvider><Menu.SubmenuRoot/></Menu.FilterProvider>', () =>
 
       await user.clear(input);
 
-      expect(onInputValueChange).toHaveBeenCalledWith('', 'input-clear');
+      expect(onValueChange).toHaveBeenCalledWith('', 'input-clear');
       await waitFor(() => {
         expect(screen.getByRole('menuitem', { name: 'Archive' })).not.toBe(null);
       });
@@ -131,8 +131,8 @@ describe('<Menu.FilterProvider><Menu.SubmenuRoot/></Menu.FilterProvider>', () =>
                     <Menu.Input aria-label="Filter actions" />
                     <Menu.List>
                       <Menu.FilterProvider
-                        defaultInputValue="pro"
-                        onInputValueChange={(_, eventDetails) => eventDetails.cancel()}
+                        defaultValue="pro"
+                        onValueChange={(_, eventDetails) => eventDetails.cancel()}
                       >
                         <Menu.SubmenuRoot defaultOpen>
                           <Menu.SubmenuTrigger>Move to</Menu.SubmenuTrigger>

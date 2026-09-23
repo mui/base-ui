@@ -109,10 +109,8 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
   });
 
   it('supports a controlled query', async () => {
-    const onInputValueChange = vi.fn();
-    const { user } = await render(
-      <FilterableMenu filterProps={{ inputValue: 'dup', onInputValueChange }} />,
-    );
+    const onValueChange = vi.fn();
+    const { user } = await render(<FilterableMenu filterProps={{ value: 'dup', onValueChange }} />);
     const input = screen.getByRole('searchbox', { name: 'Filter actions' });
 
     expect(input).toHaveValue('dup');
@@ -123,7 +121,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
       input.focus();
     });
     await user.type(input, 'x');
-    expect(onInputValueChange).toHaveBeenCalledWith('dupx', expect.anything());
+    expect(onValueChange).toHaveBeenCalledWith('dupx', expect.anything());
     // The consumer owns the value, so nothing changes until it updates the prop.
     expect(input).toHaveValue('dup');
   });
@@ -949,7 +947,7 @@ describe('independent menu focus inside a filterable menu', () => {
 
     it('reaches the clear button with Tab inside a trapped popup', async () => {
       const { user } = await render(
-        <Menu.FilterProvider defaultInputValue="re">
+        <Menu.FilterProvider defaultValue="re">
           <Menu.Root defaultOpen>
             <Menu.Trigger>Actions</Menu.Trigger>
             <Menu.Portal>

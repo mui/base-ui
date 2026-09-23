@@ -50,7 +50,7 @@ describe('Menu filter parts conformance', () => {
   describeConformance(<Menu.Clear />, () => ({
     refInstanceof: window.HTMLButtonElement,
     button: true,
-    render: (node) => renderInPopup(node, { defaultInputValue: 'query' }),
+    render: (node) => renderInPopup(node, { defaultValue: 'query' }),
   }));
 
   describeConformance(<Menu.Empty />, () => ({

@@ -21,7 +21,7 @@ export interface MenuFilterDropdownProps {
   autoHighlight: boolean | 'always';
   locale: Intl.LocalesArgument | undefined;
   inputProps: HTMLProps;
-  onValueChange: (value: string, details: MenuFilterProvider.InputValueChangeEventDetails) => void;
+  onValueChange: (value: string, details: MenuFilterProvider.ValueChangeEventDetails) => void;
   children?: React.ReactNode;
 }
 

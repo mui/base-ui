@@ -18,9 +18,9 @@ export function useMenuFilterRoot<Payload>(props: MenuFilterRootProps<Payload>, 
     defaultOpen = false,
     onOpenChange,
     onOpenChangeComplete,
-    inputValue: inputValueProp,
-    defaultInputValue = '',
-    onInputValueChange,
+    value: valueProp,
+    defaultValue = '',
+    onValueChange,
     filter,
     autoHighlight = false,
     locale,
@@ -34,10 +34,10 @@ export function useMenuFilterRoot<Payload>(props: MenuFilterRootProps<Payload>, 
     state: 'open',
   });
   const [inputValue, setInputValue] = useControlled({
-    controlled: inputValueProp,
-    default: defaultInputValue,
+    controlled: valueProp,
+    default: defaultValue,
     name: 'MenuFilterProvider',
-    state: 'inputValue',
+    state: 'value',
   });
   const [inputFocusVisible, setInputFocusVisible] = React.useState(false);
 
@@ -45,9 +45,9 @@ export function useMenuFilterRoot<Payload>(props: MenuFilterRootProps<Payload>, 
 
   const hydrating = useIsHydrating();
 
-  const handleInputValueChange = useStableCallback(
-    (nextValue: string, details: MenuFilterProvider.InputValueChangeEventDetails) => {
-      onInputValueChange?.(nextValue, details);
+  const handleValueChange = useStableCallback(
+    (nextValue: string, details: MenuFilterProvider.ValueChangeEventDetails) => {
+      onValueChange?.(nextValue, details);
       if (!details.isCanceled) {
         setInputValue(nextValue);
       }
@@ -57,7 +57,7 @@ export function useMenuFilterRoot<Payload>(props: MenuFilterRootProps<Payload>, 
   const closeQuery = useFilterDropdownCloseQuery({
     open,
     value: inputValue,
-    onValueChange: handleInputValueChange,
+    onValueChange: handleValueChange,
     onOpenChangeComplete,
   });
 
@@ -98,7 +98,7 @@ export function useMenuFilterRoot<Payload>(props: MenuFilterRootProps<Payload>, 
       filter,
       autoHighlight,
       locale,
-      onValueChange: handleInputValueChange,
+      onValueChange: handleValueChange,
     },
   };
 }
