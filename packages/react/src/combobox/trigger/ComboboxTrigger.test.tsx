@@ -911,6 +911,85 @@ describe('<Combobox.Trigger />', () => {
   });
 
   describe('typeahead', () => {
+    it('does not mount the popup for an unmatched key', async () => {
+      const renderItem = vi.fn((item: string) => (
+        <Combobox.Item key={item} value={item}>
+          {item}
+        </Combobox.Item>
+      ));
+      const onInputValueChange = vi.fn();
+      const { user } = await render(
+        <Combobox.Root
+          items={Array.from({ length: 2000 }, (_, index) => `Item ${index}`)}
+          defaultValue="Item 0"
+          onInputValueChange={onInputValueChange}
+        >
+          <Combobox.Trigger data-testid="trigger">
+            <Combobox.Value />
+          </Combobox.Trigger>
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.Input />
+                <Combobox.List>{renderItem}</Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      await user.tab();
+      await user.keyboard('z');
+
+      expect(renderItem).not.toHaveBeenCalled();
+      expect(onInputValueChange).not.toHaveBeenCalled();
+      expect(screen.getByTestId('trigger')).toHaveAttribute('aria-expanded', 'false');
+    });
+
+    it('skips disabled items from data without mounting the popup', async () => {
+      const renderItem = vi.fn((item: string) => (
+        <Combobox.Item key={item} value={item}>
+          {item}
+        </Combobox.Item>
+      ));
+      const onValueChange = vi.fn();
+      const { user } = await render(
+        <Combobox.Root
+          items={['apple', 'apricot', 'banana']}
+          defaultValue="banana"
+          isItemDisabled={(item) => item === 'apple'}
+          onValueChange={onValueChange}
+        >
+          <Combobox.Trigger data-testid="trigger">
+            <Combobox.Value />
+          </Combobox.Trigger>
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.Input />
+                <Combobox.List>{renderItem}</Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+      await user.tab();
+      await user.keyboard('a');
+
+      expect(trigger).toHaveTextContent('apricot');
+      expect(onValueChange).toHaveBeenCalledExactlyOnceWith('apricot', expect.anything());
+      expect(renderItem).not.toHaveBeenCalled();
+      expect(trigger).toHaveAttribute('aria-expanded', 'false');
+
+      await user.click(trigger);
+      expect(screen.getByRole('option', { name: 'apple' })).toHaveAttribute(
+        'aria-disabled',
+        'true',
+      );
+    });
+
     it('matches derived labels when the popup content suspends', async () => {
       const pending = new Promise(() => {});
 

@@ -11,6 +11,7 @@ import { useButton } from '../../internals/use-button';
 import {
   useComboboxFloatingContext,
   useComboboxInputValueContext,
+  useComboboxHasItemsContext,
   useComboboxRootContext,
 } from '../root/ComboboxRootContext';
 import { triggerStateAttributesMapping } from '../utils/stateAttributesMapping';
@@ -58,6 +59,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
   } = useFieldRootContext();
   const { labelId: fieldLabelId } = useLabelableContext();
   const store = useComboboxRootContext();
+  const hasItems = useComboboxHasItemsContext();
 
   const selectionMode = store.useState('selectionMode');
   const comboboxDisabled = store.useState('disabled');
@@ -75,6 +77,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
   const activeIndex = store.useState('activeIndex');
   const selectedIndex = store.useState('selectedIndex');
   const hasSelectedValue = store.useState('hasSelectedValue');
+  const isItemDisabled = store.useState('isItemDisabled');
 
   const floatingRootContext = useComboboxFloatingContext();
   const inputValue = useComboboxInputValueContext();
@@ -113,6 +116,10 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
     enabled: typeaheadEnabled,
     listRef: store.context.labelsRef,
     disabledIndices(index) {
+      const value = store.context.valuesRef.current[index];
+      if (value != null && isItemDisabled?.(value)) {
+        return true;
+      }
       const element = store.context.listRef.current[index];
       // Virtualized items may not have an element; absence does not imply disabled.
       return element != null && isElementDisabled(element);
@@ -258,8 +265,17 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
             !event.metaKey &&
             !event.altKey
           ) {
-            // Register disabled states before typeahead matches, then restore derived labels.
-            if (!store.state.forceMounted) {
+            if (hasItems) {
+              store.context.forceMount();
+            }
+            const hasPotentialMatch =
+              !hasItems ||
+              store.context.labelsRef.current.some((label) =>
+                label?.toLowerCase().startsWith(event.key.toLowerCase()),
+              );
+
+            // Without item data for disabled state, register matching items before typeahead.
+            if (hasPotentialMatch && (!hasItems || !isItemDisabled) && !store.state.forceMounted) {
               ReactDOM.flushSync(() => {
                 store.set('forceMounted', true);
               });

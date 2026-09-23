@@ -130,6 +130,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
     itemToStringLabel: itemToStringLabelProp,
     itemToStringValue,
     isItemEqualToValue = defaultItemEquality,
+    isItemDisabled,
     virtualized = false,
     inline: inlineProp = false,
     fillInputOnItemPress = true,
@@ -485,6 +486,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
         openOnInputClick,
         itemToStringLabel,
         isItemEqualToValue,
+        isItemDisabled,
         modal,
         autoHighlight: autoHighlightMode,
         submitOnItemClick,
@@ -1496,6 +1498,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
     modal,
     autoHighlight: autoHighlightMode,
     isItemEqualToValue,
+    isItemDisabled,
     submitOnItemClick,
     hasInputValue,
   };
@@ -1844,6 +1847,12 @@ interface ComboboxRootProps<ItemValue, Item = ItemValue> {
    * Defaults to `Object.is` comparison.
    */
   isItemEqualToValue?: ((itemValue: ItemValue, value: ItemValue) => boolean) | undefined;
+  /**
+   * Whether an item value is disabled. This also lets a closed trigger skip disabled items
+   * without mounting the popup to read each item's `disabled` prop.
+   * When combining this with `Combobox.Item disabled`, return `true` for those values here too.
+   */
+  isItemDisabled?: ((itemValue: ItemValue) => boolean) | undefined;
   /**
    * Whether the items are being externally virtualized.
    * @default false

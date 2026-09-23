@@ -56,6 +56,7 @@ export type State = {
   openOnInputClick: boolean;
   itemToStringLabel?: ((item: any) => string) | undefined;
   isItemEqualToValue: (itemValue: any, selectedValue: any) => boolean;
+  isItemDisabled: ((itemValue: any) => boolean) | undefined;
   modal: boolean;
   autoHighlight: false | 'always' | 'input-change';
   submitOnItemClick: boolean;
@@ -198,6 +199,7 @@ export const selectors = {
   virtualized: (state: State) => state.virtualized,
   itemToStringLabel: (state: State) => state.itemToStringLabel,
   isItemEqualToValue: (state: State) => state.isItemEqualToValue,
+  isItemDisabled: (state: State) => state.isItemDisabled,
   modal: (state: State) => state.modal,
   autoHighlight: (state: State) => state.autoHighlight,
 };

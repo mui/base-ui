@@ -88,6 +88,22 @@ Each `<Combobox.Item>` takes a `value` prop identifying it. Pass the item being 
 
 That item is what `value`, `defaultValue`, and `onValueChange` receive. To store IDs instead, see [Value selection with IDs](#value-selection-with-ids).
 
+When an item can be disabled, pass `isItemDisabled` to the root so a closed trigger can skip it during typeahead without rendering the popup. The predicate also disables the rendered item:
+
+```jsx title="Disabled items"
+<Combobox.Root items={fruits} isItemDisabled={(fruit) => fruit.disabled}>
+  <Combobox.List>
+    {(fruit) => (
+      <Combobox.Item key={fruit.id} value={fruit}>
+        {fruit.label}
+      </Combobox.Item>
+    )}
+  </Combobox.List>
+</Combobox.Root>
+```
+
+With `createItems()`, the predicate receives the derived selection value, such as an ID. If you also set `disabled` on individual `<Combobox.Item>` elements, ensure the predicate returns `true` for the same values. Without the predicate, the popup mounts on the first matching key to read the items' `disabled` props.
+
 ## Examples
 
 ### Typed wrapper component

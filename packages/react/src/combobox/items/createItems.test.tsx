@@ -1026,6 +1026,44 @@ describe('Combobox.createItems', () => {
       expect(screen.queryByRole('listbox')).toBe(null);
     });
 
+    it('uses derived values to skip disabled items while the popup is unmounted', async () => {
+      const fruits = [
+        { id: 1, name: 'Apple' },
+        { id: 2, name: 'Apricot' },
+        { id: 3, name: 'Banana' },
+      ];
+      const items = Combobox.createItems(fruits, {
+        getValue: getUserId,
+        getLabel: getUserName,
+      });
+      const renderItem = vi.fn((user: User) => (
+        <Combobox.Item key={user.id} value={user.id}>
+          {user.name}
+        </Combobox.Item>
+      ));
+      const { user } = await render(
+        <Combobox.Root items={items} defaultValue={3} isItemDisabled={(id) => id === 1}>
+          <Combobox.Trigger data-testid="trigger">
+            <Combobox.Value />
+          </Combobox.Trigger>
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>{renderItem}</Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      await user.tab();
+      await user.keyboard('a');
+
+      expect(renderItem).not.toHaveBeenCalled();
+      expect(screen.getByTestId('trigger')).toHaveTextContent('Apricot');
+      expect(screen.getByTestId('trigger')).toHaveAttribute('aria-expanded', 'false');
+    });
+
     it('does not stringify null when no value is selected', async () => {
       function App() {
         const items = userItems;
