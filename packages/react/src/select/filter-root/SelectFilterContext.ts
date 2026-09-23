@@ -7,7 +7,6 @@ import type { FilteredSelectGroup } from './FilteredSelectGroup';
 
 export interface SelectFilterItemParams {
   label: string | undefined;
-  keywords: readonly string[] | undefined;
   children: React.ReactNode;
 }
 

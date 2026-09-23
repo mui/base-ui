@@ -6,8 +6,8 @@ export interface SelectFilterRootFilterProps {
   /**
    * Replaces the default case-insensitive substring matching while the filter root controls which
    * registered items remain visible.
-   * Receives an item's label or rendered text and each of its keywords individually, together
-   * with the trimmed query. The item matches when the function returns `true` for any of them.
+   * Receives an item's label or rendered text together with the trimmed query, and keeps the item
+   * when it returns `true`.
    * Pass `null` when filtering the items yourself and deciding which items to render.
    */
   filter?: SelectFilterFunction | null | undefined;
