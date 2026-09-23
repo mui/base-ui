@@ -23,7 +23,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
                 <Menu.FilterInput aria-label="Filter actions" />
                 <Menu.List>
                   <Menu.Item>Rename</Menu.Item>
-                  <Menu.Item keywords={['remove']}>Delete</Menu.Item>
+                  <Menu.Item>Delete</Menu.Item>
                   <Menu.Item>Duplicate</Menu.Item>
                   {props.submenu}
                 </Menu.List>
@@ -49,14 +49,14 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
     expect(screen.getAllByRole('menuitem')).toHaveLength(3);
   });
 
-  it('filters items by text and keywords and shows the empty state', async () => {
+  it('filters items by text and shows the empty state', async () => {
     const { user } = await render(<FilterableMenu />);
     const input = screen.getByRole('searchbox', { name: 'Filter actions' });
 
     await act(async () => {
       input.focus();
     });
-    await user.type(input, 'rem');
+    await user.type(input, 'del');
 
     await waitFor(() => {
       expect(screen.queryByRole('menuitem', { name: 'Rename' })).toBe(null);
@@ -135,7 +135,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
         <Menu.Portal>
           <Menu.Positioner>
             <Menu.Popup>
-              <Menu.Item keywords={['remove']}>Delete</Menu.Item>
+              <Menu.Item>Delete</Menu.Item>
             </Menu.Popup>
           </Menu.Positioner>
         </Menu.Portal>
@@ -148,7 +148,6 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
     );
     expect(screen.getByRole('menu')).toBeVisible();
     expect(screen.queryByRole('dialog')).toBe(null);
-    expect(screen.getByRole('menuitem', { name: 'Delete' })).not.toHaveAttribute('keywords');
   });
 
   it('throws when a filter part is rendered in a plain menu', async () => {

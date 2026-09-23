@@ -241,15 +241,13 @@ export const MenuSubmenuTrigger = React.forwardRef(function MenuSubmenuTrigger(
   props: MenuSubmenuTrigger.Props,
   forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
-  const { keywords, ...triggerProps } = props;
-
   const filter = useMenuFilterItem(props, forwardedRef, 'submenu-trigger');
 
   if (!filter.visible) {
     return null;
   }
 
-  const mergedProps = filter.props ? mergeProps(filter.props, triggerProps) : triggerProps;
+  const mergedProps = filter.props ? mergeProps(filter.props, props) : props;
 
   return <MenuSubmenuTriggerPlain {...mergedProps} ref={filter.ref} />;
 });
@@ -277,11 +275,6 @@ export interface MenuSubmenuTriggerProps
    * `Menu.FilterProvider`. Falls back to the rendered text when not provided.
    */
   label?: string | undefined;
-  /**
-   * Additional terms the item matches on when filtering inside `Menu.FilterProvider`.
-   * A plain menu ignores it.
-   */
-  keywords?: readonly string[] | undefined;
   /**
    * @ignore
    */

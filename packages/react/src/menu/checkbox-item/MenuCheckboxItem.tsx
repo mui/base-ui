@@ -107,7 +107,7 @@ export const MenuCheckboxItem = React.forwardRef(function MenuCheckboxItem(
   props: MenuCheckboxItem.Props,
   forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
-  const { keywords, checked: checkedProp, defaultChecked, onCheckedChange, ...itemProps } = props;
+  const { checked: checkedProp, defaultChecked, onCheckedChange, ...itemProps } = props;
 
   // Owned above the element so an uncontrolled item keeps its state while a filter hides it.
   const [checked, setChecked] = useControlled({
@@ -191,11 +191,6 @@ export interface MenuCheckboxItemProps
    * `Menu.FilterProvider`. Falls back to the rendered text when not provided.
    */
   label?: string | undefined;
-  /**
-   * Additional terms the item matches on when filtering inside `Menu.FilterProvider`.
-   * A plain menu ignores it.
-   */
-  keywords?: readonly string[] | undefined;
   /**
    * @ignore
    */

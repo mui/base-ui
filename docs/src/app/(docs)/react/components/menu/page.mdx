@@ -377,19 +377,16 @@ import { DemoMenuFilter } from './demos/filter';
 
 #### Matching items
 
-Items match their text by default. Use `label` to override it and `keywords` to add search terms.
+Items match their text by default. Use `label` to override it.
 
-```jsx title="Labels and keywords"
-<Menu.Item keywords={['edit name']}>Rename</Menu.Item>
-<Menu.Item label="Move to folder" keywords={['organize']}>
-  Move
-</Menu.Item>
+```jsx title="Labels"
+<Menu.Item label="Move to folder">Move</Menu.Item>
 ```
 
 Empty groups are hidden. `<Menu.FilterEmpty>` appears when no items match.
 
 Use `filter` to replace the default case-insensitive substring matching.
-It receives the trimmed query and each item's text or keywords, and keeps the item if any match.
+It receives each item's text and the trimmed query, and keeps the item when it returns `true`.
 
 ```jsx title="Custom matching"
 <Menu.FilterProvider filter={(text, query) => text.startsWith(query)}>

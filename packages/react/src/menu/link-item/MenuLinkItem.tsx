@@ -81,15 +81,13 @@ export const MenuLinkItem = React.forwardRef(function MenuLinkItem(
   props: MenuLinkItem.Props,
   forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
-  const { keywords, ...linkItemProps } = props;
-
   const filter = useMenuFilterItem(props, forwardedRef);
 
   if (!filter.visible) {
     return null;
   }
 
-  return <MenuLinkItemPlain {...linkItemProps} ref={filter.ref} />;
+  return <MenuLinkItemPlain {...props} ref={filter.ref} />;
 });
 
 export interface MenuLinkItemState {
@@ -109,11 +107,6 @@ export interface MenuLinkItemProps extends BaseUIComponentProps<
    * `Menu.FilterProvider`. Falls back to the rendered text when not provided.
    */
   label?: string | undefined;
-  /**
-   * Additional terms the item matches on when filtering inside `Menu.FilterProvider`.
-   * A plain menu ignores it.
-   */
-  keywords?: readonly string[] | undefined;
   /**
    * @ignore
    */

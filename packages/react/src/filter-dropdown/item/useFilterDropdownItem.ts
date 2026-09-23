@@ -31,10 +31,6 @@ export interface UseFilterDropdownItemParameters {
    */
   label?: string | undefined;
   /**
-   * Additional terms the item matches on, beyond its label.
-   */
-  keywords?: readonly string[] | undefined;
-  /**
    * Keeps the nearest group visible while this filtered-out item must remain mounted.
    */
   retainGroup?: boolean | undefined;
@@ -72,7 +68,7 @@ export interface UseFilterDropdownItemReturnValue {
 export function useFilterDropdownItem(
   params: UseFilterDropdownItemParameters,
 ): UseFilterDropdownItemReturnValue {
-  const { label, keywords, retainGroup = false, children, context } = params;
+  const { label, retainGroup = false, children, context } = params;
 
   const nearestContext = useFilterDropdownItemContext(context !== undefined);
   const groupContext = useFilterDropdownGroupContext();
@@ -81,12 +77,9 @@ export function useFilterDropdownItem(
   const { registerItem, store } = owner ?? DETACHED_OWNER;
   const registerGroupItem = groupContext?.registerItem;
 
-  const keywordsKey = keywords?.join('\u0000');
-
   const itemId = useRefWithInit(() => Symbol('filter-dropdown-item')).current;
   const ref = React.useRef<HTMLElement | null>(null);
   const previousTextRef = React.useRef<string | undefined>(undefined);
-  const previousKeywordsKeyRef = React.useRef(keywordsKey);
 
   const matched = useStore(store, selectors.isItemVisible, itemId);
 
@@ -95,10 +88,8 @@ export function useFilterDropdownItem(
   // unregistered and renders once so its DOM text can be captured.
   const [registered, setRegistered] = React.useState(matched);
 
-  // Read through refs so `register` stays stable. An inline `keywords` array is a fresh reference
-  // on every render of the consumer's tree, which would otherwise re-register every item.
+  // Read through a ref so `register` stays stable while the children change identity.
   const childrenRef = useValueAsRef(children);
-  const keywordsRef = useValueAsRef(keywords);
 
   const resolveText = React.useCallback(() => {
     if (label != null) {
@@ -116,10 +107,9 @@ export function useFilterDropdownItem(
       }
       return registerItem(itemId, {
         getText: () => previousTextRef.current,
-        getKeywords: () => keywordsRef.current,
       });
     },
-    [itemId, registerItem, resolveText, keywordsRef],
+    [itemId, registerItem, resolveText],
   );
 
   useIsoLayoutEffect(() => {
@@ -133,18 +123,16 @@ export function useFilterDropdownItem(
     [registerGroupItem, itemId, retainGroup],
   );
 
-  // Re-register when filterable item data changes, so the active query runs again.
+  // Re-register when the item's text changes, so the active query runs again.
   useIsoLayoutEffect(() => {
     // Hidden custom components have no inspectable text. Their cached label has not changed.
     const text =
       resolveText() || (ref.current === null && label == null ? previousTextRef.current : '');
-    const keywordsChanged = keywordsKey !== previousKeywordsKeyRef.current;
-    if (text !== previousTextRef.current || keywordsChanged) {
+    if (text !== previousTextRef.current) {
       previousTextRef.current = text;
-      previousKeywordsKeyRef.current = keywordsKey;
       void register(text);
     }
-  }, [register, resolveText, children, keywordsKey, label]);
+  }, [register, resolveText, children, label]);
 
   return { visible: !registered || matched, ref };
 }

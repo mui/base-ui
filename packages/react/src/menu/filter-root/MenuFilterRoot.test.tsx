@@ -818,36 +818,6 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
       });
     });
 
-    it('matches items on their keywords', async () => {
-      const { user } = await render(
-        <Menu.FilterProvider>
-          <Menu.Root open>
-            <Menu.Trigger>Actions</Menu.Trigger>
-            <Menu.Portal>
-              <Menu.Positioner>
-                <Menu.Popup>
-                  <Menu.FilterInput aria-label="Filter actions" />
-                  <Menu.List>
-                    <Menu.Item keywords={['remove', 'trash']}>Delete</Menu.Item>
-                    <Menu.Item>Rename</Menu.Item>
-                  </Menu.List>
-                </Menu.Popup>
-              </Menu.Positioner>
-            </Menu.Portal>
-          </Menu.Root>
-        </Menu.FilterProvider>,
-      );
-
-      const input = await screen.findByRole('searchbox', { name: 'Filter actions' });
-      await user.type(input, 'trash');
-      await user.keyboard('[ArrowDown]');
-
-      await waitFor(() => {
-        expect(screen.getByRole('menuitem', { name: 'Delete' })).toBeVisible();
-      });
-      expect(screen.queryByRole('menuitem', { name: 'Rename' })).toBe(null);
-    });
-
     it('uses the configured locale for default matching', async () => {
       await render(
         <Menu.FilterProvider defaultInputValue="ı" locale="tr">
@@ -2722,33 +2692,6 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
       expect(screen.getByRole('menuitem', { name: 'Banana' })).toBeVisible();
     });
 
-    it('applies a custom filter to item keywords', async () => {
-      await render(
-        <Menu.FilterProvider
-          defaultInputValue="directory"
-          filter={(itemText, query) => itemText.startsWith(query)}
-        >
-          <Menu.Root open>
-            <Menu.Trigger>Actions</Menu.Trigger>
-            <Menu.Portal>
-              <Menu.Positioner>
-                <Menu.Popup>
-                  <Menu.FilterInput aria-label="Filter actions" />
-                  <Menu.List>
-                    <Menu.Item keywords={['directory']}>Move to folder</Menu.Item>
-                  </Menu.List>
-                </Menu.Popup>
-              </Menu.Positioner>
-            </Menu.Portal>
-          </Menu.Root>
-        </Menu.FilterProvider>,
-      );
-
-      await waitFor(() => {
-        expect(screen.getByRole('menuitem', { name: 'Move to folder' })).toBeVisible();
-      });
-    });
-
     it('filters a non-filterable submenu trigger from a filterable parent', async () => {
       const { user } = await render(
         <Menu.FilterProvider>
@@ -2826,7 +2769,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
       expect(screen.getByRole('menuitem', { name: 'Move to folder' })).toBeVisible();
     });
 
-    it('keeps a submenu trigger visible when the query matches its keywords', async () => {
+    it('matches a submenu trigger on its label', async () => {
       const { user } = await render(
         <Menu.FilterProvider>
           <Menu.Root defaultOpen>
@@ -2839,7 +2782,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
                     <Menu.Item>Rename</Menu.Item>
                     <Menu.FilterProvider>
                       <Menu.SubmenuRoot>
-                        <Menu.SubmenuTrigger keywords={['directory']}>
+                        <Menu.SubmenuTrigger label="Move to directory">
                           Move to folder
                         </Menu.SubmenuTrigger>
                         <Menu.Portal>
@@ -4202,7 +4145,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
                 <Menu.Popup>
                   <Menu.FilterInput aria-label="Filter actions" />
                   <Menu.List>
-                    <Menu.Item keywords={['trash']}>Delete</Menu.Item>
+                    <Menu.Item>Delete</Menu.Item>
                     <Menu.Item>Rename</Menu.Item>
                   </Menu.List>
                 </Menu.Popup>
@@ -4213,20 +4156,19 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
       );
     }
 
-    it('applies a custom filter to item text and keywords', async () => {
+    it('applies a custom filter to item text', async () => {
       const filter = vi.fn((text: string, query: string) => text.toLowerCase().startsWith(query));
 
       const { user } = await render(<CustomFilterMenu filter={filter} />);
 
-      await user.type(screen.getByRole('searchbox', { name: 'Filter actions' }), 'tra');
+      await user.type(screen.getByRole('searchbox', { name: 'Filter actions' }), 'de');
 
       await waitFor(() => {
         expect(screen.getByRole('menuitem', { name: 'Delete' })).toBeVisible();
       });
       expect(screen.queryByRole('menuitem', { name: 'Rename' })).toBe(null);
-      expect(filter).toHaveBeenCalledWith('Delete', 'tra');
-      expect(filter).toHaveBeenCalledWith('trash', 'tra');
-      expect(filter).toHaveBeenCalledWith('Rename', 'tra');
+      expect(filter).toHaveBeenCalledWith('Delete', 'de');
+      expect(filter).toHaveBeenCalledWith('Rename', 'de');
       expect(filter.mock.calls.every((args) => args.length === 2)).toBe(true);
     });
 

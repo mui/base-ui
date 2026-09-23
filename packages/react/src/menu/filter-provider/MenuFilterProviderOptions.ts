@@ -3,7 +3,7 @@ import type { MenuFilterProvider } from './MenuFilterProvider';
 /**
  * Determines whether an item matches the current filter query.
  *
- * @param text The item's `label`, rendered text, or one of its `keywords`.
+ * @param text The item's `label`, or its rendered text when the prop is not set.
  * @param query The trimmed filter query.
  */
 export type MenuFilterFunction = (text: string, query: string) => boolean;
@@ -13,8 +13,8 @@ export interface MenuFilterProviderOptions {
   /**
    * Replaces the default case-insensitive substring matching while the filter root controls which
    * registered items remain visible.
-   * Receives an item's label or rendered text and each of its keywords individually, together
-   * with the trimmed query. The item matches when the function returns `true` for any of them.
+   * Receives an item's label or rendered text together with the trimmed query, and keeps the item
+   * when it returns `true`.
    * Pass `null` when filtering mapped items yourself and deciding which items to render.
    */
   filter?: MenuFilterFunction | null | undefined;

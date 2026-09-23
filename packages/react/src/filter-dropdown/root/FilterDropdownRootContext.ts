@@ -6,7 +6,6 @@ import type { FilterDropdownStore } from '../store';
 
 export interface FilterDropdownItemRegistration {
   getText: () => string | undefined;
-  getKeywords: () => readonly string[] | undefined;
 }
 
 export type FilterDropdownFilter = (text: string, query: string) => boolean;

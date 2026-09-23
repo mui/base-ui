@@ -109,15 +109,13 @@ export const MenuRadioItem = React.forwardRef(function MenuRadioItem(
   props: MenuRadioItem.Props,
   forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
-  const { keywords, ...radioItemProps } = props;
-
   const filter = useMenuFilterItem(props, forwardedRef);
 
   if (!filter.visible) {
     return null;
   }
 
-  return <MenuRadioItemPlain {...radioItemProps} ref={filter.ref} />;
+  return <MenuRadioItemPlain {...props} ref={filter.ref} />;
 });
 
 export interface MenuRadioItemState {
@@ -156,11 +154,6 @@ export interface MenuRadioItemProps
    * `Menu.FilterProvider`. Falls back to the rendered text when not provided.
    */
   label?: string | undefined;
-  /**
-   * Additional terms the item matches on when filtering inside `Menu.FilterProvider`.
-   * A plain menu ignores it.
-   */
-  keywords?: readonly string[] | undefined;
   /**
    * @ignore
    */

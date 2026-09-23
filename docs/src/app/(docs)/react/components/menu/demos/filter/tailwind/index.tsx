@@ -73,9 +73,7 @@ export default function ExampleMenuFilter() {
                     options={exportOptions}
                   />
                   <Menu.Item className={itemClass}>Download a copy</Menu.Item>
-                  <Menu.Item className={itemClass} keywords={['remove', 'trash']}>
-                    Delete
-                  </Menu.Item>
+                  <Menu.Item className={itemClass}>Delete</Menu.Item>
                 </Menu.Group>
 
                 <Menu.RadioGroup data-filter-section defaultValue="date">

@@ -136,12 +136,9 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
 
     const nextIds = new Set<symbol>();
     let hasNewMatch = currentIds === null;
-    liveItems.forEach(({ getText, getKeywords }, id) => {
+    liveItems.forEach(({ getText }, id) => {
       const filterText = getText();
-      const itemMatches =
-        (filterText != null && matches(filterText, filterQuery)) ||
-        getKeywords()?.some((keyword) => matches(keyword, filterQuery));
-      if (itemMatches) {
+      if (filterText != null && matches(filterText, filterQuery)) {
         nextIds.add(id);
         hasNewMatch ||= !currentIds?.has(id);
       }
