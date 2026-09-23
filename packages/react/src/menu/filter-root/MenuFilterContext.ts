@@ -66,6 +66,20 @@ export function useMenuFilterImpl(scope: MenuFilterPartScope = 'root'): MenuFilt
   return filterable ? impl : null;
 }
 
+/**
+ * Throws unless the menu this part renders in is filterable, naming the part and the provider.
+ */
+export function useMenuFilterPart(part: string) {
+  if (useMenuFilterImpl() === null) {
+    throw new Error(
+      `Base UI: <Menu.${part}> must be placed in a menu wrapped in <Menu.FilterProvider>. ` +
+        'It reads the filter query and the matching items from the provider, which a plain menu ' +
+        'does not have. Wrap the <Menu.Root> or <Menu.SubmenuRoot> it belongs to in ' +
+        '<Menu.FilterProvider>. See https://base-ui.com/react/components/menu#filtering',
+    );
+  }
+}
+
 const UNFILTERED: MenuFilterItemResult = { visible: true, ref: null };
 
 function useUnfilteredItem(): MenuFilterItemResult {

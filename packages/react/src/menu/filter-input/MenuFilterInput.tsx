@@ -10,6 +10,7 @@ import { mergeProps } from '../../merge-props';
 import type { BaseUIEvent } from '../../internals/types';
 import { dispatchClickWithModifiers } from '../../utils/dispatchClickWithModifiers';
 import { useMenuFilterReferenceKeyDown } from '../filter-root/useMenuFilterReferenceKeyDown';
+import { useMenuFilterPart } from '../filter-root/MenuFilterContext';
 
 /**
  * A search field that filters the menu items.
@@ -22,6 +23,7 @@ export const MenuFilterInput = React.forwardRef(function MenuFilterInput(
   componentProps: MenuFilterInput.Props,
   forwardedRef: React.ForwardedRef<HTMLInputElement>,
 ) {
+  useMenuFilterPart('FilterInput');
   const { listRef, store } = useFilterDropdownItemContext();
 
   const handleReferenceKeyDown = useMenuFilterReferenceKeyDown();

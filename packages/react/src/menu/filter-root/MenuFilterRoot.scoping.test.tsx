@@ -166,7 +166,39 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
             </Menu.Portal>
           </Menu.Root>,
         ),
-      ).rejects.toThrow('Base UI: Filter parts are missing their filter context');
+      ).rejects.toThrow(
+        'Base UI: <Menu.FilterInput> must be placed in a menu wrapped in <Menu.FilterProvider>.',
+      );
+    } finally {
+      errorSpy.mockRestore();
+    }
+  });
+
+  it('throws when a filter part is rendered in a plain submenu of a filterable menu', async () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    try {
+      await expect(
+        render(
+          <FilterableMenu
+            submenu={
+              <Menu.SubmenuRoot defaultOpen>
+                <Menu.SubmenuTrigger>Move to</Menu.SubmenuTrigger>
+                <Menu.Portal>
+                  <Menu.Positioner>
+                    <Menu.Popup>
+                      <Menu.FilterInput aria-label="Filter folders" />
+                      <Menu.Item>Projects</Menu.Item>
+                    </Menu.Popup>
+                  </Menu.Positioner>
+                </Menu.Portal>
+              </Menu.SubmenuRoot>
+            }
+          />,
+        ),
+      ).rejects.toThrow(
+        'Base UI: <Menu.FilterInput> must be placed in a menu wrapped in <Menu.FilterProvider>.',
+      );
     } finally {
       errorSpy.mockRestore();
     }

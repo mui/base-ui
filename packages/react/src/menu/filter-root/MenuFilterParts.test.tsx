@@ -170,24 +170,16 @@ describe('Menu filter parts conformance', () => {
     }
   });
 
-  it('throws when a filter part is rendered without any root', async () => {
+  it.each([
+    ['FilterInput', <Menu.FilterInput />],
+    ['FilterClear', <Menu.FilterClear />],
+    ['FilterEmpty', <Menu.FilterEmpty />],
+  ])('throws when <Menu.%s> is rendered without a filter provider', async (part, element) => {
     const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
     try {
-      await expect(render(<Menu.FilterInput />)).rejects.toThrow(
-        'Base UI: Filter parts are missing their filter context',
-      );
-    } finally {
-      errorSpy.mockRestore();
-    }
-  });
-
-  it('throws when an item-context part is rendered without a root', async () => {
-    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-
-    try {
-      await expect(render(<Menu.FilterEmpty />)).rejects.toThrow(
-        'Base UI: Filter parts are missing their filter context',
+      await expect(render(element)).rejects.toThrow(
+        `Base UI: <Menu.${part}> must be placed in a menu wrapped in <Menu.FilterProvider>.`,
       );
     } finally {
       errorSpy.mockRestore();
