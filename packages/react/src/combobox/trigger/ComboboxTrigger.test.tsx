@@ -911,6 +911,102 @@ describe('<Combobox.Trigger />', () => {
   });
 
   describe('typeahead', () => {
+    it('uses updated disabled states when cycling a controlled value while closed', async () => {
+      const onValueChange = vi.fn();
+
+      function Test({ disabledItem }: { disabledItem: string }) {
+        const [value, setValue] = React.useState<string | null>('banana');
+
+        return (
+          <Combobox.Root
+            items={['apple', 'apricot', 'banana']}
+            value={value}
+            onValueChange={(nextValue) => {
+              setValue(nextValue);
+              onValueChange(nextValue);
+            }}
+          >
+            <Combobox.Trigger data-testid="trigger">
+              <Combobox.Value />
+            </Combobox.Trigger>
+            <Combobox.Portal>
+              <Combobox.Positioner>
+                <Combobox.Popup>
+                  <Combobox.Input />
+                  <Combobox.List>
+                    {(item: string) => (
+                      <Combobox.Item key={item} value={item} disabled={item === disabledItem}>
+                        {item}
+                      </Combobox.Item>
+                    )}
+                  </Combobox.List>
+                </Combobox.Popup>
+              </Combobox.Positioner>
+            </Combobox.Portal>
+          </Combobox.Root>
+        );
+      }
+
+      const { user, setProps } = await render(<Test disabledItem="apple" />);
+      const trigger = screen.getByTestId('trigger');
+
+      await user.tab();
+      await user.keyboard('a');
+      expect(trigger).toHaveTextContent('apricot');
+
+      await setProps({ disabledItem: 'apricot' });
+      await user.keyboard('a');
+
+      expect(trigger).toHaveTextContent('apple');
+      expect(onValueChange.mock.calls).toEqual([['apricot'], ['apple']]);
+      expect(trigger).toHaveAttribute('aria-expanded', 'false');
+    });
+
+    it.each([false, true])(
+      'matches unmounted virtualized items while skipping mounted disabled items (renderDisabledItem: %s)',
+      async (renderDisabledItem) => {
+        const onValueChange = vi.fn();
+        const { user } = await render(
+          <Combobox.Root
+            items={['apple', 'apricot', 'banana']}
+            defaultValue="banana"
+            virtualized
+            onValueChange={onValueChange}
+          >
+            <Combobox.Trigger data-testid="trigger">
+              <Combobox.Value />
+            </Combobox.Trigger>
+            <Combobox.Portal>
+              <Combobox.Positioner>
+                <Combobox.Popup>
+                  <Combobox.Input />
+                  <Combobox.List>
+                    {renderDisabledItem && (
+                      <Combobox.Item index={0} value="apple" disabled>
+                        apple
+                      </Combobox.Item>
+                    )}
+                    <Combobox.Item index={2} value="banana">
+                      banana
+                    </Combobox.Item>
+                  </Combobox.List>
+                </Combobox.Popup>
+              </Combobox.Positioner>
+            </Combobox.Portal>
+          </Combobox.Root>,
+        );
+
+        const trigger = screen.getByTestId('trigger');
+        await user.tab();
+        await user.keyboard('a');
+
+        const expectedValue = renderDisabledItem ? 'apricot' : 'apple';
+        expect(trigger).toHaveTextContent(expectedValue);
+        expect(onValueChange).toHaveBeenCalledExactlyOnceWith(expectedValue, expect.anything());
+        expect(trigger).toHaveAttribute('aria-expanded', 'false');
+      },
+    );
+
     it.each([
       { keepMounted: false, hasOpened: false },
       { keepMounted: true, hasOpened: false },

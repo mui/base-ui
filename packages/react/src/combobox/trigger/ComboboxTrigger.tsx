@@ -112,7 +112,11 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
     // gated on `readOnly`.
     enabled: typeaheadEnabled,
     listRef: store.context.labelsRef,
-    disabledIndices: (index) => isElementDisabled(store.context.listRef.current[index]),
+    disabledIndices(index) {
+      const element = store.context.listRef.current[index];
+      // Virtualized items may not have an element; absence does not imply disabled.
+      return element != null && isElementDisabled(element);
+    },
     activeIndex,
     selectedIndex,
     onMatch(index) {
