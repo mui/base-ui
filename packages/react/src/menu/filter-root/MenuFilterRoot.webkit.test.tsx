@@ -25,7 +25,7 @@ function Test() {
         <Menu.Portal>
           <Menu.Positioner>
             <Menu.Popup>
-              <Menu.FilterInput aria-label="Filter actions" />
+              <Menu.Input aria-label="Filter actions" />
               <Menu.List>
                 <Menu.Item>Apple</Menu.Item>
                 <Menu.Item>Banana</Menu.Item>
@@ -75,7 +75,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider> (WebKit)', () 
           <Menu.Portal>
             <Menu.Positioner>
               <Menu.Popup>
-                <Menu.FilterInput aria-label="Filter actions" />
+                <Menu.Input aria-label="Filter actions" />
                 <Menu.List>
                   <Menu.CheckboxItem defaultChecked>Details</Menu.CheckboxItem>
                   <Menu.RadioGroup defaultValue="date">
@@ -112,7 +112,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider> (WebKit)', () 
           <Menu.Portal>
             <Menu.Positioner>
               <Menu.Popup>
-                <Menu.FilterInput aria-label="Filter actions" />
+                <Menu.Input aria-label="Filter actions" />
                 <Menu.List>
                   <Menu.LinkItem href="#docs">Documentation</Menu.LinkItem>
                   <Menu.FilterProvider>
@@ -181,7 +181,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider> (WebKit)', () 
           <Menu.Portal>
             <Menu.Positioner>
               <Menu.Popup>
-                <Menu.FilterInput aria-label="Filter actions" />
+                <Menu.Input aria-label="Filter actions" />
                 <Menu.List>
                   <Menu.FilterProvider>
                     <Menu.SubmenuRoot>
@@ -189,7 +189,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider> (WebKit)', () 
                       <Menu.Portal>
                         <Menu.Positioner>
                           <Menu.Popup>
-                            <Menu.FilterInput aria-label="Filter more actions" />
+                            <Menu.Input aria-label="Filter more actions" />
                             <Menu.List>
                               <Menu.Item>Share</Menu.Item>
                             </Menu.List>

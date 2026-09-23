@@ -342,7 +342,7 @@ import { DemoMenuDetachedTriggersFull } from './demos/detached-triggers-full';
 
 ### Filtering
 
-Wrap `<Menu.Root>` in `<Menu.FilterProvider>`, add `<Menu.FilterInput>` to the popup, and put the items inside `<Menu.List>`.
+Wrap `<Menu.Root>` in `<Menu.FilterProvider>`, add `<Menu.Input>` to the popup, and put the items inside `<Menu.List>`.
 The popup uses a dialog role to contain both the input and the menu.
 
 ```jsx title="Filterable menu"
@@ -352,9 +352,9 @@ The popup uses a dialog role to contain both the input and the menu.
     <Menu.Portal>
       <Menu.Positioner>
         <Menu.Popup>
-          <Menu.FilterInput aria-label="Filter actions" />
-          <Menu.FilterClear>Clear</Menu.FilterClear>
-          <Menu.FilterEmpty>No results.</Menu.FilterEmpty>
+          <Menu.Input aria-label="Filter actions" />
+          <Menu.InputClear>Clear</Menu.InputClear>
+          <Menu.Empty>No results.</Menu.Empty>
           <Menu.List>
             <Menu.Item>Rename</Menu.Item>
             <Menu.Item>Delete</Menu.Item>
@@ -367,7 +367,7 @@ The popup uses a dialog role to contain both the input and the menu.
 ```
 
 Label the input with `aria-label`, `aria-labelledby`, or a visible `<label>`.
-Add `autoFocus` to `<Menu.FilterInput>` to focus it whenever the menu opens.
+Add `autoFocus` to `<Menu.Input>` to focus it whenever the menu opens.
 Keyboard and screen reader activation highlight an item while keeping focus on the input.
 By default, arrow keys move between the input and items.
 
@@ -383,7 +383,7 @@ Items match their text by default. Use `label` to override it.
 <Menu.Item label="Move to folder">Move</Menu.Item>
 ```
 
-Empty groups are hidden. `<Menu.FilterEmpty>` appears when no items match.
+Empty groups are hidden. `<Menu.Empty>` appears when no items match.
 
 Use `filter` to replace the default case-insensitive substring matching.
 It receives each item's text and the trimmed query, and keeps the item when it returns `true`.
@@ -477,17 +477,17 @@ The `Viewport` is optional — reach for it only when a single popup is opened b
 
 <TypesMenu.FilterProvider />
 
-### FilterInput
+### Input
 
-<TypesMenu.FilterInput />
+<TypesMenu.Input />
 
-### FilterClear
+### InputClear
 
-<TypesMenu.FilterClear />
+<TypesMenu.InputClear />
 
-### FilterEmpty
+### Empty
 
-<TypesMenu.FilterEmpty />
+<TypesMenu.Empty />
 
 ### Group
 

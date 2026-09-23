@@ -14,18 +14,18 @@ import { useMenuFilterPart } from '../filter-root/MenuFilterContext';
  *
  * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
  */
-export const MenuFilterClear = React.forwardRef(function MenuFilterClear(
-  props: MenuFilterClear.Props,
+export const MenuInputClear = React.forwardRef(function MenuInputClear(
+  props: MenuInputClear.Props,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
-  useMenuFilterPart('FilterClear');
+  useMenuFilterPart('InputClear');
   return <FilterDropdownClear {...props} ref={forwardedRef} />;
 });
 
-export interface MenuFilterClearState extends FilterDropdownClearState {}
-export interface MenuFilterClearProps extends FilterDropdownClearProps {}
+export interface MenuInputClearState extends FilterDropdownClearState {}
+export interface MenuInputClearProps extends FilterDropdownClearProps {}
 
-export namespace MenuFilterClear {
-  export type State = MenuFilterClearState;
-  export type Props = MenuFilterClearProps;
+export namespace MenuInputClear {
+  export type State = MenuInputClearState;
+  export type Props = MenuInputClearProps;
 }

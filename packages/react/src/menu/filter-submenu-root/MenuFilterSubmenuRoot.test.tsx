@@ -40,7 +40,7 @@ describe('<Menu.FilterProvider><Menu.SubmenuRoot/></Menu.FilterProvider>', () =>
                   <Menu.Portal>
                     <Menu.Positioner>
                       <Menu.Popup>
-                        <Menu.FilterInput aria-label="Filter folders" />
+                        <Menu.Input aria-label="Filter folders" />
                         <Menu.List data-testid="submenu-list">
                           <Menu.Item>Projects</Menu.Item>
                           <Menu.Item>Archive</Menu.Item>
@@ -72,7 +72,7 @@ describe('<Menu.FilterProvider><Menu.SubmenuRoot/></Menu.FilterProvider>', () =>
               <Menu.Portal>
                 <Menu.Positioner>
                   <Menu.Popup>
-                    <Menu.FilterInput aria-label="Filter actions" />
+                    <Menu.Input aria-label="Filter actions" />
                     <Menu.List>
                       <Menu.FilterProvider
                         inputValue={inputValue}
@@ -86,7 +86,7 @@ describe('<Menu.FilterProvider><Menu.SubmenuRoot/></Menu.FilterProvider>', () =>
                           <Menu.Portal>
                             <Menu.Positioner>
                               <Menu.Popup>
-                                <Menu.FilterInput aria-label="Filter folders" />
+                                <Menu.Input aria-label="Filter folders" />
                                 <Menu.List>
                                   <Menu.Item>Projects</Menu.Item>
                                   <Menu.Item>Archive</Menu.Item>
@@ -128,7 +128,7 @@ describe('<Menu.FilterProvider><Menu.SubmenuRoot/></Menu.FilterProvider>', () =>
               <Menu.Portal>
                 <Menu.Positioner>
                   <Menu.Popup>
-                    <Menu.FilterInput aria-label="Filter actions" />
+                    <Menu.Input aria-label="Filter actions" />
                     <Menu.List>
                       <Menu.FilterProvider
                         defaultInputValue="pro"
@@ -139,7 +139,7 @@ describe('<Menu.FilterProvider><Menu.SubmenuRoot/></Menu.FilterProvider>', () =>
                           <Menu.Portal>
                             <Menu.Positioner>
                               <Menu.Popup>
-                                <Menu.FilterInput aria-label="Filter folders" />
+                                <Menu.Input aria-label="Filter folders" />
                                 <Menu.List>
                                   <Menu.Item>Projects</Menu.Item>
                                 </Menu.List>
@@ -184,7 +184,7 @@ describe('<Menu.FilterProvider><Menu.SubmenuRoot/></Menu.FilterProvider>', () =>
                       <Menu.Portal>
                         <Menu.Positioner>
                           <Menu.Popup data-testid="submenu-popup">
-                            <Menu.FilterInput aria-label="Filter folders" autoFocus />
+                            <Menu.Input aria-label="Filter folders" autoFocus />
                             <Menu.List>
                               <Menu.Item>Projects</Menu.Item>
                             </Menu.List>
@@ -378,7 +378,7 @@ describe('<Menu.FilterProvider><Menu.SubmenuRoot/></Menu.FilterProvider>', () =>
                     <Menu.Portal>
                       <Menu.Positioner>
                         <Menu.Popup>
-                          <Menu.FilterInput aria-label="Filter folders" />
+                          <Menu.Input aria-label="Filter folders" />
                           <Menu.List>
                             <Menu.Item>Projects</Menu.Item>
                             <Menu.Item>Archive</Menu.Item>
@@ -456,7 +456,7 @@ describe('filtered submenu trigger navigation', () => {
                   <Menu.Portal>
                     <Menu.Positioner>
                       <Menu.Popup>
-                        <Menu.FilterInput aria-label="Filter child actions" />
+                        <Menu.Input aria-label="Filter child actions" />
                         <Menu.List>
                           <Menu.Item>Child</Menu.Item>
                         </Menu.List>

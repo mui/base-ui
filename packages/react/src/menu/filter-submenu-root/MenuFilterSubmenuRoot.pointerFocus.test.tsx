@@ -13,7 +13,7 @@ function Test(props: { filteredParent: boolean; autoFocus?: boolean; openOnHover
         <Menu.Portal>
           <Menu.Positioner>
             <Menu.Popup>
-              {props.filteredParent && <Menu.FilterInput aria-label="Filter actions" />}
+              {props.filteredParent && <Menu.Input aria-label="Filter actions" />}
               <Menu.List data-testid="parent-list">
                 <Menu.FilterProvider>
                   <Menu.SubmenuRoot>
@@ -23,7 +23,7 @@ function Test(props: { filteredParent: boolean; autoFocus?: boolean; openOnHover
                     <Menu.Portal>
                       <Menu.Positioner>
                         <Menu.Popup>
-                          <Menu.FilterInput
+                          <Menu.Input
                             aria-label="Filter more actions"
                             autoFocus={props.autoFocus}
                           />

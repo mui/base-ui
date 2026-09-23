@@ -14,16 +14,16 @@ export default function ExampleMenuFilter() {
           <Menu.Positioner className={styles.Positioner} sideOffset={8} align="start">
             <Menu.Popup className={styles.Popup}>
               <div className={styles.InputContainer}>
-                <Menu.FilterInput
+                <Menu.Input
                   className={styles.Input}
                   aria-label="Filter actions"
                   placeholder="e.g. Save"
                 />
-                <Menu.FilterClear className={styles.Clear} aria-label="Clear filter">
+                <Menu.InputClear className={styles.Clear} aria-label="Clear filter">
                   <ClearIcon />
-                </Menu.FilterClear>
+                </Menu.InputClear>
               </div>
-              <Menu.FilterEmpty className={styles.Empty}>No actions found.</Menu.FilterEmpty>
+              <Menu.Empty className={styles.Empty}>No actions found.</Menu.Empty>
               <Menu.List className={styles.List}>
                 <Menu.Group className={styles.Section}>
                   <Menu.GroupLabel className={styles.GroupLabel}>File</Menu.GroupLabel>
@@ -149,16 +149,16 @@ function FilterableSubmenu(props: FilterableSubmenuProps) {
           >
             <Menu.Popup className={styles.Popup}>
               <div className={styles.InputContainer}>
-                <Menu.FilterInput
+                <Menu.Input
                   className={styles.Input}
                   aria-label={props.inputLabel}
                   placeholder={props.placeholder}
                 />
-                <Menu.FilterClear className={styles.Clear} aria-label="Clear filter">
+                <Menu.InputClear className={styles.Clear} aria-label="Clear filter">
                   <ClearIcon />
-                </Menu.FilterClear>
+                </Menu.InputClear>
               </div>
-              <Menu.FilterEmpty className={styles.Empty}>{props.emptyText}</Menu.FilterEmpty>
+              <Menu.Empty className={styles.Empty}>{props.emptyText}</Menu.Empty>
               <Menu.List className={`${styles.List} ${styles.SubmenuList}`}>
                 {props.options.map((option) => (
                   <Menu.Item key={option} className={styles.Item}>

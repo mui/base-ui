@@ -7,8 +7,8 @@ import { MenuFilterProviderContext } from './MenuFilterProviderContext';
 import type { FilterDropdownRoot } from '../../filter-dropdown/root/FilterDropdownRootContext';
 
 /**
- * Makes the menu directly inside it filterable: the popup can render `Menu.FilterInput`,
- * `Menu.FilterClear`, and `Menu.FilterEmpty`, and the items inside `Menu.List` filter against
+ * Makes the menu directly inside it filterable: the popup can render `Menu.Input`,
+ * `Menu.InputClear`, and `Menu.Empty`, and the items inside `Menu.List` filter against
  * the query.
  * Wrap it around `Menu.Root` or `Menu.SubmenuRoot`. A submenu doesn't inherit it; wrap the
  * submenu's root in its own provider to filter it too. This is the only part that bundles the

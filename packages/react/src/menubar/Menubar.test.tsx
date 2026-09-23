@@ -1578,7 +1578,7 @@ describe('filterable menubar menus', () => {
               <Menu.Portal>
                 <Menu.Positioner>
                   <Menu.Popup>
-                    <Menu.FilterInput aria-label="Filter file actions" />
+                    <Menu.Input aria-label="Filter file actions" />
                     <Menu.List>
                       <Menu.Item>New file</Menu.Item>
                       <Menu.Item>Open file</Menu.Item>

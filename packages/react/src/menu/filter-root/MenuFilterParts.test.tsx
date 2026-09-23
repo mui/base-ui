@@ -17,7 +17,7 @@ describe('Menu filter parts conformance', () => {
           <Menu.Portal>
             <Menu.Positioner>
               <Menu.Popup>
-                {withInput && <Menu.FilterInput aria-label="Filter" />}
+                {withInput && <Menu.Input aria-label="Filter" />}
                 {node}
               </Menu.Popup>
             </Menu.Positioner>
@@ -42,18 +42,18 @@ describe('Menu filter parts conformance', () => {
       ),
   }));
 
-  describeConformance(<Menu.FilterInput />, () => ({
+  describeConformance(<Menu.Input />, () => ({
     refInstanceof: window.HTMLInputElement,
     render: (node) => renderInPopup(node, undefined, false),
   }));
 
-  describeConformance(<Menu.FilterClear />, () => ({
+  describeConformance(<Menu.InputClear />, () => ({
     refInstanceof: window.HTMLButtonElement,
     button: true,
     render: (node) => renderInPopup(node, { defaultInputValue: 'query' }),
   }));
 
-  describeConformance(<Menu.FilterEmpty />, () => ({
+  describeConformance(<Menu.Empty />, () => ({
     refInstanceof: window.HTMLDivElement,
     render: (node) => renderInPopup(node),
   }));
@@ -65,7 +65,7 @@ describe('Menu filter parts conformance', () => {
 
   describeConformance(
     <Menu.Popup>
-      <Menu.FilterInput aria-label="Filter" />
+      <Menu.Input aria-label="Filter" />
     </Menu.Popup>,
     () => ({
       refInstanceof: window.HTMLDivElement,
@@ -133,7 +133,7 @@ describe('Menu filter parts conformance', () => {
               {node}
               <Menu.Positioner>
                 <Menu.Popup>
-                  <Menu.FilterInput aria-label="Filter" />
+                  <Menu.Input aria-label="Filter" />
                 </Menu.Popup>
               </Menu.Positioner>
             </Menu.Portal>
@@ -171,9 +171,9 @@ describe('Menu filter parts conformance', () => {
   });
 
   it.each([
-    ['FilterInput', <Menu.FilterInput />],
-    ['FilterClear', <Menu.FilterClear />],
-    ['FilterEmpty', <Menu.FilterEmpty />],
+    ['Input', <Menu.Input />],
+    ['InputClear', <Menu.InputClear />],
+    ['Empty', <Menu.Empty />],
   ])('throws when <Menu.%s> is rendered without a filter provider', async (part, element) => {
     const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 

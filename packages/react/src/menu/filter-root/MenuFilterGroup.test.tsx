@@ -15,7 +15,7 @@ describe('filtered menu groups', () => {
           <Menu.Portal>
             <Menu.Positioner>
               <Menu.Popup>
-                <Menu.FilterInput aria-label="Filter actions" />
+                <Menu.Input aria-label="Filter actions" />
                 <Menu.List>
                   <Menu.Item>Rename</Menu.Item>
                   <Menu.RadioGroup data-testid="sort-group" defaultValue="date">
@@ -50,7 +50,7 @@ describe('filtered menu groups', () => {
           <Menu.Portal>
             <Menu.Positioner>
               <Menu.Popup>
-                <Menu.FilterInput aria-label="Filter actions" />
+                <Menu.Input aria-label="Filter actions" />
                 <Menu.List>
                   <Menu.Group data-testid="organize-group">
                     <Menu.GroupLabel>Organize</Menu.GroupLabel>
@@ -60,7 +60,7 @@ describe('filtered menu groups', () => {
                         <Menu.Portal keepMounted>
                           <Menu.Positioner>
                             <Menu.Popup>
-                              <Menu.FilterInput aria-label="Filter folders" />
+                              <Menu.Input aria-label="Filter folders" />
                               <Menu.List>
                                 <Menu.Group>
                                   <Menu.GroupLabel>Folders</Menu.GroupLabel>

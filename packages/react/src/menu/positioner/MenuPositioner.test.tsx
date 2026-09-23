@@ -69,7 +69,7 @@ describe('<Menu.Positioner />', () => {
           <Menu.Portal>
             <Menu.Positioner>
               <Menu.Popup>
-                <Menu.FilterInput aria-label="Filter" />
+                <Menu.Input aria-label="Filter" />
               </Menu.Popup>
             </Menu.Positioner>
           </Menu.Portal>

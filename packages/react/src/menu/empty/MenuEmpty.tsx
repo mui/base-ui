@@ -16,18 +16,18 @@ import { useMenuFilterPart } from '../filter-root/MenuFilterContext';
  *
  * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
  */
-export const MenuFilterEmpty = React.forwardRef(function MenuFilterEmpty(
-  props: MenuFilterEmpty.Props,
+export const MenuEmpty = React.forwardRef(function MenuEmpty(
+  props: MenuEmpty.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  useMenuFilterPart('FilterEmpty');
+  useMenuFilterPart('Empty');
   return <FilterDropdownEmpty {...props} ref={forwardedRef} />;
 });
 
-export interface MenuFilterEmptyState extends FilterDropdownEmptyState {}
-export interface MenuFilterEmptyProps extends FilterDropdownEmptyProps {}
+export interface MenuEmptyState extends FilterDropdownEmptyState {}
+export interface MenuEmptyProps extends FilterDropdownEmptyProps {}
 
-export namespace MenuFilterEmpty {
-  export type State = MenuFilterEmptyState;
-  export type Props = MenuFilterEmptyProps;
+export namespace MenuEmpty {
+  export type State = MenuEmptyState;
+  export type Props = MenuEmptyProps;
 }

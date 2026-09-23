@@ -22,8 +22,8 @@ export { MenuHandle as Handle, createMenuHandle as createHandle } from './store/
 
 // Filtering. The provider is the only part that bundles the filter implementation.
 export { MenuFilterProvider as FilterProvider } from './filter-provider/MenuFilterProvider';
-export { MenuFilterInput as FilterInput } from './filter-input/MenuFilterInput';
+export { MenuInput as Input } from './input/MenuInput';
 export { MenuList as List } from './list/MenuList';
-export { MenuFilterClear as FilterClear } from './filter-clear/MenuFilterClear';
-export { MenuFilterEmpty as FilterEmpty } from './filter-empty/MenuFilterEmpty';
+export { MenuInputClear as InputClear } from './input-clear/MenuInputClear';
+export { MenuEmpty as Empty } from './empty/MenuEmpty';
 export { getFilter as useFilter } from '../internals/filter';

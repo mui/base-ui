@@ -16,7 +16,7 @@ describe('<Menu.SubmenuTrigger />', () => {
           <Menu.Portal>
             <Menu.Positioner>
               <Menu.Popup>
-                <Menu.FilterInput aria-label="Filter actions" />
+                <Menu.Input aria-label="Filter actions" />
                 <Menu.List>
                   <Menu.Item>Rename</Menu.Item>
                   <Menu.FilterProvider>
@@ -25,7 +25,7 @@ describe('<Menu.SubmenuTrigger />', () => {
                       <Menu.Portal>
                         <Menu.Positioner>
                           <Menu.Popup>
-                            <Menu.FilterInput aria-label="Filter folders" />
+                            <Menu.Input aria-label="Filter folders" />
                             <Menu.List>
                               <Menu.Item>Documents</Menu.Item>
                             </Menu.List>
@@ -73,7 +73,7 @@ describe('<Menu.SubmenuTrigger />', () => {
             <Menu.Portal>
               <Menu.Positioner>
                 <Menu.Popup>
-                  <Menu.FilterInput aria-label="Filter actions" />
+                  <Menu.Input aria-label="Filter actions" />
                   <Menu.List>
                     <Menu.SubmenuRoot>
                       <Menu.SubmenuTrigger>Sort by</Menu.SubmenuTrigger>
@@ -109,7 +109,7 @@ describe('<Menu.SubmenuTrigger />', () => {
             <Menu.Portal>
               <Menu.Positioner>
                 <Menu.Popup>
-                  <Menu.FilterInput aria-label="Filter actions" />
+                  <Menu.Input aria-label="Filter actions" />
                   <Menu.List>
                     <Menu.FilterProvider>
                       <Menu.SubmenuRoot>

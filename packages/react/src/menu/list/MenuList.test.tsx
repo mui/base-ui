@@ -19,7 +19,7 @@ describe('<Menu.List />', () => {
           <Menu.Portal>
             <Menu.Positioner>
               <Menu.Popup>
-                <Menu.FilterInput aria-label="Filter actions" />
+                <Menu.Input aria-label="Filter actions" />
                 <Menu.List>
                   <Menu.Item>Rename</Menu.Item>
                   <Menu.Item onClick={onClick}>Delete</Menu.Item>
@@ -68,7 +68,7 @@ describe('<Menu.List />', () => {
           <Menu.Portal>
             <Menu.Positioner>
               <Menu.Popup>
-                <Menu.FilterInput aria-label="Filter actions" />
+                <Menu.Input aria-label="Filter actions" />
                 <Menu.List>
                   <Menu.Item>Rename</Menu.Item>
                   <Menu.Item>Delete</Menu.Item>
@@ -108,7 +108,7 @@ describe('<Menu.List />', () => {
           <Menu.Portal>
             <Menu.Positioner>
               <Menu.Popup>
-                <Menu.FilterInput aria-label="Filter actions" />
+                <Menu.Input aria-label="Filter actions" />
                 <Menu.List>
                   <Menu.Item>Rename</Menu.Item>
                   <Menu.Item>Delete</Menu.Item>
@@ -144,7 +144,7 @@ describe('<Menu.List />', () => {
           <Menu.Portal>
             <Menu.Positioner>
               <Menu.Popup>
-                <Menu.FilterInput aria-label="Filter fruit" />
+                <Menu.Input aria-label="Filter fruit" />
                 <Menu.List data-testid="list">
                   <Menu.Item>Apple</Menu.Item>
                   <Menu.Item>Banana</Menu.Item>
@@ -184,7 +184,7 @@ describe('<Menu.List />', () => {
             <Menu.Portal>
               <Menu.Positioner>
                 <Menu.Popup>
-                  <Menu.FilterInput aria-label="Filter fruit" />
+                  <Menu.Input aria-label="Filter fruit" />
                   <Menu.List data-testid="list">
                     <Menu.Item onClick={props.onPress}>Apple</Menu.Item>
                     <Menu.Item>Banana</Menu.Item>
@@ -296,7 +296,7 @@ describe('filterable menu list semantics', () => {
           <Menu.Portal>
             <Menu.Positioner>
               <Menu.Popup>
-                <Menu.FilterInput aria-label="Filter actions" />
+                <Menu.Input aria-label="Filter actions" />
                 <Menu.List>
                   <Menu.Item id="first-item">First</Menu.Item>
                   <Menu.Item id={props.secondId}>Second</Menu.Item>
@@ -337,7 +337,7 @@ describe('filterable menu list semantics', () => {
             <Menu.Portal>
               <Menu.Positioner>
                 <Menu.Popup>
-                  <Menu.FilterInput aria-label="Filter actions" />
+                  <Menu.Input aria-label="Filter actions" />
                   <Menu.List>
                     <Menu.Item id="alpha">Alpha</Menu.Item>
                     <Menu.Item id="apple">Apple</Menu.Item>

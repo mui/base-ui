@@ -251,7 +251,7 @@ describe('<FilterDropdown.Root />', () => {
               <Menu.Portal>
                 <Menu.Positioner>
                   <Menu.Popup>
-                    <Menu.FilterInput aria-label="Filter actions" />
+                    <Menu.Input aria-label="Filter actions" />
                     <Menu.List>
                       {props.items.map((item) => (
                         <Menu.Item key={item}>{item}</Menu.Item>
@@ -301,7 +301,7 @@ describe('<FilterDropdown.Root />', () => {
               <Menu.Portal>
                 <Menu.Positioner>
                   <Menu.Popup>
-                    <Menu.FilterInput aria-label="Filter actions" />
+                    <Menu.Input aria-label="Filter actions" />
                     <Menu.List>
                       {props.items.map((item) => (
                         <Menu.Item key={item}>{item}</Menu.Item>
@@ -356,7 +356,7 @@ describe('<FilterDropdown.Root />', () => {
             <Menu.Portal>
               <Menu.Positioner>
                 <Menu.Popup>
-                  <Menu.FilterInput aria-label="Filter actions" />
+                  <Menu.Input aria-label="Filter actions" />
                   <Menu.List>
                     {props.items.map((item) => (
                       <Menu.Item key={item}>{item}</Menu.Item>

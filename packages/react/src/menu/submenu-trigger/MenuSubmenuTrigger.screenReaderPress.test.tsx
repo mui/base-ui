@@ -173,7 +173,7 @@ describe.skipIf(isJSDOM)('<Menu.SubmenuTrigger /> with a screen reader press', (
           <Menu.Portal>
             <Menu.Positioner>
               <Menu.Popup>
-                <Menu.FilterInput aria-label="Filter actions" />
+                <Menu.Input aria-label="Filter actions" />
                 <Menu.List>
                   <Menu.Item>Share</Menu.Item>
                   <Menu.FilterProvider>
@@ -182,7 +182,7 @@ describe.skipIf(isJSDOM)('<Menu.SubmenuTrigger /> with a screen reader press', (
                       <Menu.Portal>
                         <Menu.Positioner>
                           <Menu.Popup data-testid="submenu">
-                            <Menu.FilterInput aria-label="Filter more" />
+                            <Menu.Input aria-label="Filter more" />
                             <Menu.List>
                               <Menu.Item>Alpha</Menu.Item>
                             </Menu.List>
@@ -220,7 +220,7 @@ describe.skipIf(isJSDOM)('<Menu.SubmenuTrigger /> with a screen reader press', (
           <Menu.Portal keepMounted>
             <Menu.Positioner>
               <Menu.Popup>
-                <Menu.FilterInput aria-label="Filter actions" />
+                <Menu.Input aria-label="Filter actions" />
                 <Menu.List>
                   <Menu.Item>Share</Menu.Item>
                   <Menu.FilterProvider>
@@ -229,7 +229,7 @@ describe.skipIf(isJSDOM)('<Menu.SubmenuTrigger /> with a screen reader press', (
                       <Menu.Portal keepMounted>
                         <Menu.Positioner>
                           <Menu.Popup data-testid="submenu">
-                            <Menu.FilterInput aria-label="Filter more" />
+                            <Menu.Input aria-label="Filter more" />
                             <Menu.List>
                               <Menu.Item>Alpha</Menu.Item>
                             </Menu.List>

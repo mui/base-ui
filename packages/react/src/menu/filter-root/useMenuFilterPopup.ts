@@ -32,7 +32,7 @@ export function useMenuFilterPopup(
   React.useEffect(() => {
     if (process.env.NODE_ENV !== 'production' && context.open && focusOwnerRef.current === null) {
       console.warn(
-        'Base UI: a filterable menu opened without a <Menu.FilterInput>. Render the input ' +
+        'Base UI: a filterable menu opened without a <Menu.Input>. Render the input ' +
           'inside <Menu.Popup>, or drop <Menu.FilterProvider> for a menu that does not filter.',
       );
     }

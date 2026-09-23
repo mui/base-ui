@@ -20,14 +20,14 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
           <Menu.Portal>
             <Menu.Positioner>
               <Menu.Popup>
-                <Menu.FilterInput aria-label="Filter actions" />
+                <Menu.Input aria-label="Filter actions" />
                 <Menu.List>
                   <Menu.Item>Rename</Menu.Item>
                   <Menu.Item>Delete</Menu.Item>
                   <Menu.Item>Duplicate</Menu.Item>
                   {props.submenu}
                 </Menu.List>
-                <Menu.FilterEmpty>No results</Menu.FilterEmpty>
+                <Menu.Empty>No results</Menu.Empty>
               </Menu.Popup>
             </Menu.Positioner>
           </Menu.Portal>
@@ -82,7 +82,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
           <Menu.Portal>
             <Menu.Positioner>
               <Menu.Popup>
-                <Menu.FilterInput aria-label="Filter actions" />
+                <Menu.Input aria-label="Filter actions" />
                 <Menu.List>
                   <Menu.Item onClick={onClick}>Rename</Menu.Item>
                   <Menu.Item>Delete</Menu.Item>
@@ -160,14 +160,14 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
             <Menu.Portal>
               <Menu.Positioner>
                 <Menu.Popup>
-                  <Menu.FilterInput />
+                  <Menu.Input />
                 </Menu.Popup>
               </Menu.Positioner>
             </Menu.Portal>
           </Menu.Root>,
         ),
       ).rejects.toThrow(
-        'Base UI: <Menu.FilterInput> must be placed in a menu wrapped in <Menu.FilterProvider>.',
+        'Base UI: <Menu.Input> must be placed in a menu wrapped in <Menu.FilterProvider>.',
       );
     } finally {
       errorSpy.mockRestore();
@@ -187,7 +187,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
                 <Menu.Portal>
                   <Menu.Positioner>
                     <Menu.Popup>
-                      <Menu.FilterInput aria-label="Filter folders" />
+                      <Menu.Input aria-label="Filter folders" />
                       <Menu.Item>Projects</Menu.Item>
                     </Menu.Popup>
                   </Menu.Positioner>
@@ -197,7 +197,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
           />,
         ),
       ).rejects.toThrow(
-        'Base UI: <Menu.FilterInput> must be placed in a menu wrapped in <Menu.FilterProvider>.',
+        'Base UI: <Menu.Input> must be placed in a menu wrapped in <Menu.FilterProvider>.',
       );
     } finally {
       errorSpy.mockRestore();
@@ -253,7 +253,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
               <Menu.Portal>
                 <Menu.Positioner>
                   <Menu.Popup>
-                    <Menu.FilterInput aria-label="Filter folders" />
+                    <Menu.Input aria-label="Filter folders" />
                     <Menu.List>
                       <Menu.Item>Projects</Menu.Item>
                       <Menu.Item>Archive</Menu.Item>
@@ -306,7 +306,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
                   <Menu.Portal>
                     <Menu.Positioner>
                       <Menu.Popup>
-                        <Menu.FilterInput aria-label="Filter folders" />
+                        <Menu.Input aria-label="Filter folders" />
                         <Menu.List>
                           <Menu.Item>Projects</Menu.Item>
                         </Menu.List>
@@ -346,7 +346,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
               <Menu.Portal>
                 <Menu.Positioner>
                   <Menu.Popup>
-                    <Menu.FilterInput aria-label="Filter actions" />
+                    <Menu.Input aria-label="Filter actions" />
                     <Menu.List>
                       <Menu.Item>Rename</Menu.Item>
                     </Menu.List>
@@ -378,7 +378,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
           <Menu.Portal>
             <Menu.Positioner>
               <Menu.Popup>
-                <Menu.FilterInput aria-label="Filter actions" />
+                <Menu.Input aria-label="Filter actions" />
                 <Menu.List>
                   <Menu.Item>Rename</Menu.Item>
                   <Menu.SubmenuRoot>
@@ -441,7 +441,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
               <Menu.Portal>
                 <Menu.Positioner>
                   <Menu.Popup className="exiting">
-                    <Menu.FilterInput aria-label="Filter actions" />
+                    <Menu.Input aria-label="Filter actions" />
                     <Menu.List>
                       <Menu.Item>Rename</Menu.Item>
                       <Menu.SubmenuRoot>
@@ -540,7 +540,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
             <Menu.Portal>
               <Menu.Positioner>
                 <Menu.Popup>
-                  <Menu.FilterInput aria-label="Filter actions" />
+                  <Menu.Input aria-label="Filter actions" />
                   <Menu.List>
                     <Menu.Item>Rename</Menu.Item>
                     <Menu.Item>Delete</Menu.Item>
@@ -623,7 +623,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
             <Menu.Portal>
               <Menu.Positioner>
                 <Menu.Popup>
-                  <Menu.FilterInput aria-label="Filter actions" />
+                  <Menu.Input aria-label="Filter actions" />
                   <Menu.List>
                     <Menu.Item>Rename</Menu.Item>
                   </Menu.List>
@@ -663,7 +663,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
 
         // Effects run twice under Strict Mode, so only the message is pinned.
         expect(warnSpy).toHaveBeenCalled();
-        expect(warnSpy.mock.calls[0][0]).toContain('opened without a <Menu.FilterInput>');
+        expect(warnSpy.mock.calls[0][0]).toContain('opened without a <Menu.Input>');
       } finally {
         warnSpy.mockRestore();
       }
@@ -681,7 +681,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
               <Menu.Portal>
                 <Menu.Positioner>
                   <Menu.Popup>
-                    <Menu.FilterInput aria-label="Filter actions" />
+                    <Menu.Input aria-label="Filter actions" />
                     <Menu.List>
                       <Menu.Item>Rename</Menu.Item>
                     </Menu.List>
@@ -713,7 +713,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
             <Menu.Portal>
               <Menu.Positioner>
                 <Menu.Popup>
-                  <Menu.FilterInput aria-label="Filter actions" />
+                  <Menu.Input aria-label="Filter actions" />
                   <Menu.List>
                     <Menu.Item>Rename</Menu.Item>
                     <Menu.Item label="Remove">Delete</Menu.Item>
@@ -790,7 +790,7 @@ describe('independent menu focus inside a filterable menu', () => {
           <Menu.Portal>
             <Menu.Positioner>
               <Menu.Popup>
-                <Menu.FilterInput aria-label="Filter parent" />
+                <Menu.Input aria-label="Filter parent" />
                 <Menu.List>
                   <Menu.Item>Parent action</Menu.Item>
                 </Menu.List>
@@ -849,7 +849,7 @@ describe('independent menu focus inside a filterable menu', () => {
               <Menu.Portal>
                 <Menu.Positioner>
                   <Menu.Popup data-testid="popup">
-                    <Menu.FilterInput aria-label="Filter actions" />
+                    <Menu.Input aria-label="Filter actions" />
                     <Menu.List>
                       <Menu.Item>Rename</Menu.Item>
                       {props.submenu && (
@@ -859,7 +859,7 @@ describe('independent menu focus inside a filterable menu', () => {
                             <Menu.Portal>
                               <Menu.Positioner>
                                 <Menu.Popup data-testid="submenu-popup">
-                                  <Menu.FilterInput aria-label="Filter more" />
+                                  <Menu.Input aria-label="Filter more" />
                                   <Menu.List>
                                     <Menu.Item>Share</Menu.Item>
                                   </Menu.List>
@@ -889,7 +889,7 @@ describe('independent menu focus inside a filterable menu', () => {
               <Menu.Portal>
                 <Menu.Positioner>
                   <Menu.Popup data-testid="popup">
-                    <Menu.FilterInput aria-label="Filter actions" />
+                    <Menu.Input aria-label="Filter actions" />
                     <Menu.List>
                       <Menu.Item>Rename</Menu.Item>
                     </Menu.List>
@@ -955,8 +955,8 @@ describe('independent menu focus inside a filterable menu', () => {
             <Menu.Portal>
               <Menu.Positioner>
                 <Menu.Popup>
-                  <Menu.FilterInput aria-label="Filter actions" />
-                  <Menu.FilterClear aria-label="Clear query" />
+                  <Menu.Input aria-label="Filter actions" />
+                  <Menu.InputClear aria-label="Clear query" />
                   <Menu.List>
                     <Menu.Item>Rename</Menu.Item>
                     <Menu.Item>Delete</Menu.Item>
@@ -1037,7 +1037,7 @@ describe('independent menu focus inside a filterable menu', () => {
             <Menu.Portal>
               <Menu.Positioner>
                 <Menu.Popup data-testid="popup">
-                  <Menu.FilterInput aria-label="Filter actions" />
+                  <Menu.Input aria-label="Filter actions" />
                   <Menu.List>
                     <Menu.Item>Rename</Menu.Item>
                   </Menu.List>

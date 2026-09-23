@@ -12,12 +12,12 @@ function Test(props: { autoFocus?: boolean; onInputFocus?: () => void }) {
         <Menu.Portal>
           <Menu.Positioner>
             <Menu.Popup>
-              <Menu.FilterInput
+              <Menu.Input
                 aria-label="Filter actions"
                 autoFocus={props.autoFocus}
                 onFocus={props.onInputFocus}
               />
-              <Menu.FilterEmpty>No actions found.</Menu.FilterEmpty>
+              <Menu.Empty>No actions found.</Menu.Empty>
               <Menu.List>
                 <Menu.Item disabled>Unavailable</Menu.Item>
                 <Menu.Item>Rename</Menu.Item>

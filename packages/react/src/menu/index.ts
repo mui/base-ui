@@ -21,10 +21,10 @@ export type * from './submenu-trigger/MenuSubmenuTrigger';
 export type * from './viewport/MenuViewport';
 export type * from './filter-provider/MenuFilterProvider';
 export type { MenuFilterFunction } from './filter-provider/MenuFilterProviderOptions';
-export type * from './filter-input/MenuFilterInput';
+export type * from './input/MenuInput';
 export type * from './list/MenuList';
-export type * from './filter-clear/MenuFilterClear';
-export type * from './filter-empty/MenuFilterEmpty';
+export type * from './input-clear/MenuInputClear';
+export type * from './empty/MenuEmpty';
 export type {
   Filter as MenuFilter,
   GetFilterParameters as MenuFilterOptions,

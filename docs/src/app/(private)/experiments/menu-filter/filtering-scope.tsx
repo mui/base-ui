@@ -66,7 +66,7 @@ function RootFilterOnly(props: { autoHighlight: boolean }) {
         <Menu.Portal>
           <Menu.Positioner className={classes.Positioner} sideOffset={8}>
             <Menu.Popup className={classes.Popup}>
-              <Menu.FilterInput className={classes.Input} aria-label="Filter root actions" />
+              <Menu.Input className={classes.Input} aria-label="Filter root actions" />
               <Menu.List className={classes.List}>
                 <Menu.Item className={classes.Item}>Rename</Menu.Item>
                 <Menu.SubmenuRoot>
@@ -108,7 +108,7 @@ function SubmenuFilterOnly(props: { autoHighlight: boolean; focusOnHover: boolea
                 <Menu.Portal>
                   <Menu.Positioner className={classes.Positioner} sideOffset={4}>
                     <Menu.Popup className={classes.Popup}>
-                      <Menu.FilterInput
+                      <Menu.Input
                         className={classes.Input}
                         aria-label="Filter destinations"
                         autoFocus={props.focusOnHover}
@@ -146,7 +146,7 @@ function FilterableSubmenu(props: {
         <Menu.Portal>
           <Menu.Positioner className={classes.Positioner} sideOffset={4}>
             <Menu.Popup className={classes.Popup}>
-              <Menu.FilterInput
+              <Menu.Input
                 className={classes.Input}
                 aria-label={`Filter ${props.label.toLowerCase()}`}
                 autoFocus={props.focusOnHover}
@@ -174,7 +174,7 @@ function NestedFilters(props: { autoHighlight: boolean; focusOnHover: boolean })
         <Menu.Portal>
           <Menu.Positioner className={classes.Positioner} sideOffset={8}>
             <Menu.Popup className={classes.Popup}>
-              <Menu.FilterInput className={classes.Input} aria-label="Filter actions" />
+              <Menu.Input className={classes.Input} aria-label="Filter actions" />
               <Menu.List className={classes.List}>
                 <Menu.Item className={classes.Item}>Rename</Menu.Item>
                 <Menu.Item className={classes.Item}>Duplicate</Menu.Item>

@@ -16,7 +16,7 @@ describe('filtered Menu items', () => {
           <Menu.Portal>
             <Menu.Positioner>
               <Menu.Popup>
-                <Menu.FilterInput aria-label="Filter actions" />
+                <Menu.Input aria-label="Filter actions" />
                 <Menu.List>
                   <Menu.Item closeOnClick={false} onClick={handleItemClick}>
                     Rename
@@ -64,7 +64,7 @@ describe('filtered Menu items', () => {
             <Menu.Portal>
               <Menu.Positioner>
                 <Menu.Popup>
-                  <Menu.FilterInput aria-label="Filter actions" />
+                  <Menu.Input aria-label="Filter actions" />
                   <Menu.List>
                     <Menu.Item>
                       {'Re'}
@@ -110,7 +110,7 @@ describe('filtered Menu items', () => {
             <Menu.Portal>
               <Menu.Positioner>
                 <Menu.Popup>
-                  <Menu.FilterInput aria-label="Filter actions" />
+                  <Menu.Input aria-label="Filter actions" />
                   <Menu.List>
                     <Menu.Item>Rename</Menu.Item>
                     <Menu.Item disabled onClick={onDisabledClick}>

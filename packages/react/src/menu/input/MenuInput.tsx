@@ -19,11 +19,11 @@ import { useMenuFilterPart } from '../filter-root/MenuFilterContext';
  *
  * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
  */
-export const MenuFilterInput = React.forwardRef(function MenuFilterInput(
-  componentProps: MenuFilterInput.Props,
+export const MenuInput = React.forwardRef(function MenuInput(
+  componentProps: MenuInput.Props,
   forwardedRef: React.ForwardedRef<HTMLInputElement>,
 ) {
-  useMenuFilterPart('FilterInput');
+  useMenuFilterPart('Input');
   const { listRef, store } = useFilterDropdownItemContext();
 
   const handleReferenceKeyDown = useMenuFilterReferenceKeyDown();
@@ -56,8 +56,8 @@ export const MenuFilterInput = React.forwardRef(function MenuFilterInput(
   return <FilterDropdownInput {...inputProps} ref={forwardedRef} />;
 });
 
-export interface MenuFilterInputState extends FilterDropdownInputState {}
-export interface MenuFilterInputProps extends FilterDropdownInputProps {
+export interface MenuInputState extends FilterDropdownInputState {}
+export interface MenuInputProps extends FilterDropdownInputProps {
   /**
    * Whether to focus the input whenever the popup opens.
    * @default false
@@ -65,7 +65,7 @@ export interface MenuFilterInputProps extends FilterDropdownInputProps {
   autoFocus?: boolean | undefined;
 }
 
-export namespace MenuFilterInput {
-  export type State = MenuFilterInputState;
-  export type Props = MenuFilterInputProps;
+export namespace MenuInput {
+  export type State = MenuInputState;
+  export type Props = MenuInputProps;
 }

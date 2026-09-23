@@ -39,7 +39,7 @@ describe('<Menu.List /> pointer presses', () => {
             <Menu.Portal>
               <Menu.Positioner>
                 <Menu.Popup>
-                  <Menu.FilterInput aria-label="Filter actions" />
+                  <Menu.Input aria-label="Filter actions" />
                   <Menu.List>
                     <Menu.Item>Rename</Menu.Item>
                   </Menu.List>
@@ -72,7 +72,7 @@ describe('<Menu.List /> pointer presses', () => {
               <Menu.Portal>
                 <Menu.Positioner>
                   <Menu.Popup>
-                    <Menu.FilterInput aria-label="Filter actions" />
+                    <Menu.Input aria-label="Filter actions" />
                     <Menu.List style={{ direction: 'rtl' }}>
                       <Menu.Item>Rename</Menu.Item>
                     </Menu.List>
@@ -116,7 +116,7 @@ describe('<Menu.Popup /> filter input focus', () => {
             <Menu.Portal>
               <Menu.Positioner>
                 <Menu.Popup>
-                  <Menu.FilterInput aria-label="Filter actions" />
+                  <Menu.Input aria-label="Filter actions" />
                   <button type="button">Extra action</button>
                   <Menu.List>
                     <Menu.Item>Rename</Menu.Item>
