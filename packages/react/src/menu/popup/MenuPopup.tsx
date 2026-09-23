@@ -138,9 +138,9 @@ export const MenuPopupPlain = React.forwardRef(function MenuPopup(
 
   // Hand focus and the cursor back as the submenu starts closing. Return focus waits for the exit
   // animation, which would leave the parent input focused with nothing highlighted until then.
-  const returnToParent = useStableCallback(() => {
+  const returnToParent = useStableCallback((trigger: Element | null, reason: string | null) => {
     const focusOwner = parentFocusRef?.current;
-    if (virtualFocus || !parentStore?.select('open') || !focusOwner) {
+    if (virtualFocus || store.select('open') || !parentStore?.select('open') || !focusOwner) {
       return;
     }
 
@@ -148,20 +148,24 @@ export const MenuPopupPlain = React.forwardRef(function MenuPopup(
       focusOwner.focus({ preventScroll: true });
     }
 
-    const reason = store.select('lastOpenChangeReason');
     if (
       (reason === REASONS.listNavigation || reason === REASONS.escapeKey) &&
       parentStore.state.activeIndex == null
     ) {
-      parentStore.highlightItem(store.state.activeTriggerElement, REASONS.keyboard);
+      parentStore.highlightItem(trigger, REASONS.keyboard);
     }
   });
 
   useIsoLayoutEffect(() => {
     if (!open) {
-      returnToParent();
+      // A parent closing in the same commit, such as on an item press, syncs its controlled `open`
+      // in its own layout effect, which runs after this one. An unmount can clear the trigger by
+      // then, so read it now.
+      const trigger = store.state.activeTriggerElement;
+      const reason = store.select('lastOpenChangeReason');
+      queueMicrotask(() => returnToParent(trigger, reason));
     }
-  }, [open, returnToParent]);
+  }, [open, store, returnToParent]);
 
   const state: MenuPopupState = {
     transitionStatus,

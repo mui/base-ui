@@ -409,7 +409,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
               <Menu.Trigger>Actions</Menu.Trigger>
               <Menu.Portal>
                 <Menu.Positioner>
-                  <Menu.Popup>
+                  <Menu.Popup className="exiting">
                     <Menu.FilterInput aria-label="Filter actions" />
                     <Menu.List>
                       <Menu.Item>Rename</Menu.Item>
@@ -456,6 +456,26 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
         expect(input).not.toHaveAttribute('data-highlighted');
       },
     );
+
+    it('keeps focus off the input while an item press closes the whole menu', async () => {
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+      const { user } = await render(<PlainSubmenuMenu />);
+
+      const input = screen.getByRole('searchbox', { name: 'Filter actions' });
+      await waitFor(() => {
+        expect(input).toHaveFocus();
+      });
+      await user.keyboard('[ArrowDown][ArrowDown][ArrowRight]');
+      await waitFor(() => {
+        expect(screen.getByRole('menuitem', { name: 'Email' })).toHaveFocus();
+      });
+
+      await user.keyboard('[Enter]');
+
+      expect(screen.getByTestId('submenu')).toHaveAttribute('data-ending-style');
+      expect(input).toBeInTheDocument();
+      expect(input).not.toHaveFocus();
+    });
 
     it('returns focus to the input as soon as the pointer closes the submenu', async () => {
       globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
