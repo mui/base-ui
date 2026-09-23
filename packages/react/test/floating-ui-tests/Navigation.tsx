@@ -65,10 +65,10 @@ export const NavigationItem = React.forwardRef<
     useHover(hasChildren ? context : fallbackContext, {
       handleClose: safePolygon(),
     }),
-    useFocus(context, {
+    useFocus(context.rootStore, {
       enabled: hasChildren,
     }),
-    useDismiss(context, {
+    useDismiss(context.rootStore, {
       enabled: hasChildren,
     }),
   ]);
@@ -89,7 +89,7 @@ export const NavigationItem = React.forwardRef<
       </li>
       <FloatingPortal>
         {open && (
-          <FloatingFocusManager context={context} modal={false} initialFocus={false}>
+          <FloatingFocusManager context={context.rootStore} modal={false} initialFocus={false}>
             <div
               data-testid="subnavigation"
               ref={refs.setFloating}

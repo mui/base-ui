@@ -19,11 +19,11 @@ describe.skipIf(!isJSDOM)('useHoverFloatingInteraction', () => {
     const [open, setOpen] = React.useState(false);
     const triggerElementRef = React.useRef<Element | null>(null);
     const { refs, context } = useFloating({ open, onOpenChange: setOpen });
-    const referenceProps = useHoverReferenceInteraction(context, {
+    const referenceProps = useHoverReferenceInteraction(context.rootStore, {
       triggerElementRef,
       delay: { close: props.closeDelay },
     });
-    useHoverFloatingInteraction(context, { closeDelay: props.closeDelay });
+    useHoverFloatingInteraction(context.rootStore, { closeDelay: props.closeDelay });
 
     return (
       <React.Fragment>

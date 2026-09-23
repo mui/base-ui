@@ -27,7 +27,9 @@ function App({
       setOpen(nextOpen);
     },
   });
-  const { getReferenceProps, getFloatingProps } = useTestInteractions([useClick(context, props)]);
+  const { getReferenceProps, getFloatingProps } = useTestInteractions([
+    useClick(context.rootStore, props),
+  ]);
   const Reference = typeable ? 'input' : 'button';
 
   return (
@@ -247,7 +249,7 @@ describe.skipIf(!isJSDOM)('useClick', () => {
       });
       const { getReferenceProps, getFloatingProps } = useTestInteractions([
         useHover(context),
-        useClick(context, { stickIfOpen: true }),
+        useClick(context.rootStore, { stickIfOpen: true }),
       ]);
 
       return (
@@ -277,7 +279,7 @@ describe.skipIf(!isJSDOM)('useClick', () => {
       });
       const { getReferenceProps, getFloatingProps } = useTestInteractions([
         useHover(context),
-        useClick(context, { stickIfOpen: false }),
+        useClick(context.rootStore, { stickIfOpen: false }),
       ]);
 
       return (

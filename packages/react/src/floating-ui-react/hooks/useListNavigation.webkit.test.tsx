@@ -27,8 +27,8 @@ function App() {
     onOpenChange: setOpen,
   });
   const { getReferenceProps, getFloatingProps, getItemProps } = useTestInteractions([
-    useClick(context),
-    useListNavigation(context, {
+    useClick(context.rootStore),
+    useListNavigation(context.rootStore, {
       listRef,
       activeIndex,
       onNavigate: setActiveIndex,

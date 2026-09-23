@@ -22,7 +22,7 @@ describe.skipIf(!isJSDOM)('useFocus', () => {
         onOpenChange: setOpen,
       });
       const { getReferenceProps, getFloatingProps } = useTestInteractions([
-        useFocus(context, { delay: 100 }),
+        useFocus(context.rootStore, { delay: 100 }),
       ]);
 
       return (

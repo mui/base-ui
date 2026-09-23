@@ -19,7 +19,7 @@ describe.skipIf(!isJSDOM)('useHoverReferenceInteraction', () => {
 
     function App({ block }: { block: boolean }) {
       const { context } = useFloating();
-      useHoverReferenceInteraction(context, {
+      useHoverReferenceInteraction(context.rootStore, {
         handleClose: safePolygon({ blockPointerEvents: block }),
       });
       const hoverInteraction = useHoverInteractionSharedState(context.rootStore);
@@ -49,7 +49,7 @@ describe.skipIf(!isJSDOM)('useHoverReferenceInteraction', () => {
         },
       });
 
-      const hoverProps = useHoverReferenceInteraction(context, {
+      const hoverProps = useHoverReferenceInteraction(context.rootStore, {
         mouseOnly: true,
         restMs: 100,
         delay: { close: 0 },
@@ -103,7 +103,7 @@ describe.skipIf(!isJSDOM)('useHoverReferenceInteraction', () => {
         },
       });
 
-      const hoverProps = useHoverReferenceInteraction(context, {
+      const hoverProps = useHoverReferenceInteraction(context.rootStore, {
         mouseOnly: true,
         restMs: 100,
         delay: { close: 0 },
@@ -175,7 +175,7 @@ describe.skipIf(!isJSDOM)('useHoverReferenceInteraction', () => {
         },
       });
 
-      const hoverProps = useHoverReferenceInteraction(context, {
+      const hoverProps = useHoverReferenceInteraction(context.rootStore, {
         mouseOnly: true,
         restMs: 100,
         delay: { close: 0 },
@@ -251,7 +251,7 @@ describe.skipIf(!isJSDOM)('useHoverReferenceInteraction', () => {
       (context.rootStore.state as { transitionStatus?: 'ending' | undefined }).transitionStatus =
         open ? undefined : 'ending';
 
-      const hoverProps = useHoverReferenceInteraction(context, {
+      const hoverProps = useHoverReferenceInteraction(context.rootStore, {
         mouseOnly: true,
         move: false,
         delay: { open: 500, close: 0 },
@@ -324,7 +324,7 @@ describe.skipIf(!isJSDOM)('useHoverReferenceInteraction', () => {
         );
       };
 
-      const hoverProps = useHoverReferenceInteraction(context, {
+      const hoverProps = useHoverReferenceInteraction(context.rootStore, {
         mouseOnly: true,
         move: false,
         delay: { open: 500, close: 0 },
@@ -388,11 +388,11 @@ describe.skipIf(!isJSDOM)('useHoverReferenceInteraction', () => {
       const [open, setOpen] = React.useState(false);
       const triggerElementRef = React.useRef<Element | null>(null);
       const { refs, context } = useFloating({ open, onOpenChange: setOpen });
-      const referenceProps = useHoverReferenceInteraction(context, {
+      const referenceProps = useHoverReferenceInteraction(context.rootStore, {
         triggerElementRef,
         ...props,
       });
-      useHoverFloatingInteraction(context);
+      useHoverFloatingInteraction(context.rootStore);
 
       return (
         <React.Fragment>
@@ -606,7 +606,9 @@ describe.skipIf(!isJSDOM)('useHoverReferenceInteraction', () => {
             setOpen(nextOpen);
           },
         });
-        const referenceProps = useHoverReferenceInteraction(context, { triggerElementRef });
+        const referenceProps = useHoverReferenceInteraction(context.rootStore, {
+          triggerElementRef,
+        });
 
         return (
           <React.Fragment>

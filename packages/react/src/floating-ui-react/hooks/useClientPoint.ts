@@ -3,7 +3,7 @@ import * as React from 'react';
 import { addEventListener } from '@base-ui/utils/addEventListener';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { getWindow } from '@floating-ui/utils/dom';
-import type { ContextData, ElementProps, FloatingContext, FloatingRootContext } from '../types';
+import type { ContextData, ElementProps, FloatingRootContext } from '../types';
 import { contains, getTarget } from '../utils/element';
 import { isMouseLikePointerType } from '../utils/event';
 
@@ -100,12 +100,10 @@ export interface UseClientPointProps {
  * @see https://floating-ui.com/docs/useClientPoint
  */
 export function useClientPoint(
-  context: FloatingRootContext | FloatingContext,
+  store: FloatingRootContext,
   props: UseClientPointProps = {},
 ): ElementProps {
   const { enabled = true, axis = 'both' } = props;
-
-  const store = 'rootStore' in context ? context.rootStore : context;
 
   const open = store.useState('open');
   const floating = store.useState('floatingElement');

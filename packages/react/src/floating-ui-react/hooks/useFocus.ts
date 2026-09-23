@@ -6,7 +6,7 @@ import { mergeCleanups } from '@base-ui/utils/mergeCleanups';
 import { ownerDocument } from '@base-ui/utils/owner';
 import { useTimeout } from '@base-ui/utils/useTimeout';
 import { getWindow, isElement, isHTMLElement } from '@floating-ui/utils/dom';
-import type { ElementProps, FloatingContext, FloatingRootContext } from '../types';
+import type { ElementProps, FloatingRootContext } from '../types';
 import { createAttribute } from '../utils/createAttribute';
 import {
   activeElement,
@@ -41,13 +41,8 @@ export interface UseFocusProps {
  * `:focus`.
  * @see https://floating-ui.com/docs/useFocus
  */
-export function useFocus(
-  context: FloatingRootContext | FloatingContext,
-  props: UseFocusProps = {},
-): ElementProps {
+export function useFocus(store: FloatingRootContext, props: UseFocusProps = {}): ElementProps {
   const { enabled = true, delay } = props;
-
-  const store = 'rootStore' in context ? context.rootStore : context;
 
   const { events, dataRef } = store.context;
 

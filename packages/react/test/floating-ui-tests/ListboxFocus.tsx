@@ -35,14 +35,14 @@ function Listbox({ children }: { children: React.ReactNode }) {
     setActiveIndex(index);
   }
 
-  const listNav = useListNavigation(context, {
+  const listNav = useListNavigation(context.rootStore, {
     listRef: elementsRef,
     activeIndex,
     selectedIndex,
     onNavigate: setActiveIndex,
     focusItemOnHover: false,
   });
-  const typeahead = useTypeahead(context, {
+  const typeahead = useTypeahead(context.rootStore, {
     listRef: labelsRef,
     activeIndex,
     selectedIndex,

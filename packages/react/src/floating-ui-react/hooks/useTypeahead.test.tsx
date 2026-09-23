@@ -28,7 +28,7 @@ const useImpl = ({
     onOpenChange: props.onOpenChange ?? setOpen,
   });
   const listRef = React.useRef(props.list ?? ['one', 'two', 'three']);
-  const typeahead = useTypeahead(context, {
+  const typeahead = useTypeahead(context.rootStore, {
     listRef,
     activeIndex,
     onMatch(index) {
@@ -37,7 +37,7 @@ const useImpl = ({
     },
     onTyping: props.onTyping,
   });
-  const click = useClick(context, {
+  const click = useClick(context.rootStore, {
     enabled: addUseClick,
   });
 
@@ -88,7 +88,7 @@ function ComboboxWithElementsRef(
   });
   const listRef = React.useRef(props.list ?? ['apple', 'apricot', 'banana']);
   const elementsRef = React.useRef<Array<HTMLElement | null>>([]);
-  const typeahead = useTypeahead(context, {
+  const typeahead = useTypeahead(context.rootStore, {
     listRef,
     elementsRef,
     activeIndex,

@@ -34,8 +34,8 @@ export function Main({ orientation = 'horizontal', loopFocus = false }: Props) {
   const disabledIndices = [0, 1, 2, 3, 4, 5, 6, 7, 10, 15, 45, 48];
 
   const { getReferenceProps, getFloatingProps, getItemProps } = useTestInteractions([
-    useClick(context),
-    useListNavigation(context, {
+    useClick(context.rootStore),
+    useListNavigation(context.rootStore, {
       listRef,
       activeIndex,
       onNavigate: setActiveIndex,
@@ -45,7 +45,7 @@ export function Main({ orientation = 'horizontal', loopFocus = false }: Props) {
       disabledIndices,
       grid,
     }),
-    useDismiss(context),
+    useDismiss(context.rootStore),
   ]);
 
   return (
@@ -56,7 +56,7 @@ export function Main({ orientation = 'horizontal', loopFocus = false }: Props) {
           Reference
         </button>
         {open && (
-          <FloatingFocusManager context={context}>
+          <FloatingFocusManager context={context.rootStore}>
             <div
               role="menu"
               ref={refs.setFloating}

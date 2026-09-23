@@ -22,7 +22,7 @@ function Tooltip({ children, label }: Props) {
     onOpenChange: setOpen,
   });
 
-  const { delayRef, isInstantPhase } = useDelayGroup(context, { open });
+  const { delayRef, isInstantPhase } = useDelayGroup(context.rootStore, { open });
   const hover = useHover(context, { delay: () => delayRef.current });
   const { getReferenceProps } = useTestInteractions([hover]);
 

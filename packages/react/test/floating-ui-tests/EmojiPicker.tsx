@@ -150,8 +150,8 @@ export function Main() {
   );
 
   const { getReferenceProps, getFloatingProps } = useTestInteractions([
-    useClick(context),
-    useDismiss(context),
+    useClick(context.rootStore),
+    useDismiss(context.rootStore),
     menuRoleProps,
   ]);
 
@@ -162,7 +162,7 @@ export function Main() {
     getFloatingProps: getListFloatingProps,
     getItemProps,
   } = useTestInteractions([
-    useListNavigation(context, {
+    useListNavigation(context.rootStore, {
       listRef,
       onNavigate: open ? setActiveIndex : undefined,
       activeIndex,
@@ -237,7 +237,7 @@ export function Main() {
           )}
           <FloatingPortal>
             {open && (
-              <FloatingFocusManager context={context} modal={false}>
+              <FloatingFocusManager context={context.rootStore} modal={false}>
                 <div
                   ref={refs.setFloating}
                   className={styles.Floating}

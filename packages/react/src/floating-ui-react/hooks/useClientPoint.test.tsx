@@ -55,7 +55,7 @@ function App({
     open: isOpen,
     onOpenChange: setIsOpen,
   });
-  const clientPoint = useClientPoint(context, {
+  const clientPoint = useClientPoint(context.rootStore, {
     enabled,
     axis,
   });

@@ -34,8 +34,8 @@ function App(
     onOpenChange: setOpen,
   });
   const { getReferenceProps, getFloatingProps, getItemProps } = useTestInteractions([
-    useClick(context),
-    useListNavigation(context, {
+    useClick(context.rootStore),
+    useListNavigation(context.rootStore, {
       ...props,
       listRef,
       activeIndex,
@@ -116,7 +116,7 @@ function VirtualizedGridRows({
   });
 
   const { getReferenceProps, getFloatingProps, getItemProps } = useTestInteractions([
-    useListNavigation(context, {
+    useListNavigation(context.rootStore, {
       listRef,
       activeIndex,
       onNavigate: setActiveIndex,
@@ -333,8 +333,8 @@ describe('useListNavigation', () => {
       });
 
       const { getReferenceProps, getFloatingProps, getItemProps } = useTestInteractions([
-        useDismiss(context),
-        useListNavigation(context, {
+        useDismiss(context.rootStore),
+        useListNavigation(context.rootStore, {
           listRef,
           activeIndex,
           onNavigate: setActiveIndex,
@@ -697,7 +697,7 @@ describe('useListNavigation', () => {
       const listRef = React.useRef<Array<HTMLLIElement | null>>([]);
       const [activeIndex, setActiveIndex] = React.useState<null | number>(null);
       const { refs, context } = useFloating({ open, onOpenChange: setOpen });
-      const listNavigation = useListNavigation(context, {
+      const listNavigation = useListNavigation(context.rootStore, {
         ...listProps,
         listRef,
         activeIndex,
@@ -1626,8 +1626,8 @@ describe('useListNavigation', () => {
         onOpenChange: setOpen,
       });
       const { getReferenceProps, getFloatingProps, getItemProps } = useTestInteractions([
-        useClick(context),
-        useListNavigation(context, {
+        useClick(context.rootStore),
+        useListNavigation(context.rootStore, {
           listRef,
           activeIndex,
           onNavigate: setActiveIndex,
