@@ -98,7 +98,7 @@ describe('Select filter parts conformance', () => {
 
     try {
       await expect(render(<Select.FilterEmpty />)).rejects.toThrow(
-        'Base UI: Filter parts must be placed within a filterable menu.',
+        'Base UI: Filter parts are missing their filter context',
       );
     } finally {
       errorSpy.mockRestore();
@@ -121,7 +121,7 @@ describe('Select filter parts conformance', () => {
             </Select.Portal>
           </Select.Root>,
         ),
-      ).rejects.toThrow('Base UI: Filter parts must be placed within a filterable menu.');
+      ).rejects.toThrow('Base UI: Filter parts are missing their filter context');
     } finally {
       errorSpy.mockRestore();
     }
