@@ -911,6 +911,33 @@ describe('<Combobox.Trigger />', () => {
   });
 
   describe('typeahead', () => {
+    it('matches derived labels when the popup content suspends', async () => {
+      const pending = new Promise(() => {});
+
+      function SuspendedContent(): React.ReactNode {
+        throw pending;
+      }
+
+      const { user } = await render(
+        <Combobox.Root items={['apple', 'banana']} defaultValue="banana">
+          <Combobox.Trigger data-testid="trigger">
+            <Combobox.Value />
+          </Combobox.Trigger>
+          <Combobox.Portal>
+            <React.Suspense fallback={null}>
+              <SuspendedContent />
+            </React.Suspense>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      await user.tab();
+      await user.keyboard('a');
+
+      expect(screen.getByTestId('trigger')).toHaveTextContent('apple');
+      expect(screen.getByTestId('trigger')).toHaveAttribute('aria-expanded', 'false');
+    });
+
     it('uses updated disabled states when cycling a controlled value while closed', async () => {
       const onValueChange = vi.fn();
 
