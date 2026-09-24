@@ -80,8 +80,6 @@ export function useMenuItemCommonProps(params: UseMenuItemCommonPropsParameters)
       },
       onClick(event: React.MouseEvent) {
         if (closeOnClick) {
-          // Forward the native event so `FloatingFocusManager` can classify the close
-          // interaction (keyboard vs. mouse) via `instanceof MouseEvent`.
           menuEvents.emit('close', { domEvent: event.nativeEvent, reason: REASONS.itemPress });
         }
       },
