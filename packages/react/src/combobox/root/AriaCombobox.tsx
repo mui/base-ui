@@ -590,9 +590,9 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
     if (items) {
       // Ensure typeahead works on a closed list.
       labelsRef.current = flatFilteredValues.map(stringifyValueLabel);
+    } else {
+      store.set('forceMounted', true);
     }
-
-    store.set('forceMounted', true);
   });
 
   /**

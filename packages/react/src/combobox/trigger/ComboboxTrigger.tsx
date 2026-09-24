@@ -143,6 +143,11 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
     store.set('triggerElement', element);
   });
 
+  const forceMountList = useStableCallback(() => {
+    store.context.forceMount();
+    store.set('forceMounted', true);
+  });
+
   const element = useRenderElement('button', componentProps, {
     ref: [forwardedRef, buttonRef, setTriggerElement],
     state,
@@ -171,7 +176,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
             return;
           }
 
-          focusTimeout.start(0, store.context.forceMount);
+          focusTimeout.start(0, forceMountList);
         },
         onBlur(event) {
           // If focus is moving into the popup, don't count it as a blur.
