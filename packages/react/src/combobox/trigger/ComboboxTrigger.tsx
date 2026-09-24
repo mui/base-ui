@@ -109,7 +109,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
     // gated on `readOnly`.
     enabled: !open && !readOnly && !comboboxDisabled && selectionMode === 'single',
     listRef: store.context.labelsRef,
-    disabledIndices: (index) => isElementDisabled(store.context.valuesRef.current[index]),
+    disabledIndices: (index) => isElementDisabled(store.context.listRef.current[index]),
     activeIndex,
     selectedIndex,
     onMatch(index) {
