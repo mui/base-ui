@@ -3258,6 +3258,25 @@ describe('<Slider.Root />', () => {
         expect(input).toHaveAttribute('aria-invalid', 'true');
       });
 
+      it('validationMode=onBlur preserves single-element array values', async () => {
+        const validate = vi.fn<(value: unknown) => null>(() => null);
+
+        await render(
+          <Field.Root validationMode="onBlur" validate={validate}>
+            <Slider.Root defaultValue={[25]}>
+              <Slider.Control>
+                <Slider.Thumb />
+              </Slider.Control>
+            </Slider.Root>
+          </Field.Root>,
+        );
+
+        fireEvent.blur(screen.getByRole('slider'));
+        await flushMicrotasks();
+
+        expect(validate.mock.calls[0][0]).toEqual([25]);
+      });
+
       it('validationMode=onChange', async () => {
         await render(
           <Field.Root
