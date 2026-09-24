@@ -232,6 +232,42 @@ describe('<Menu.Popup />', () => {
       });
     });
 
+    it('receives the interaction type of the item press that closed the menu', async () => {
+      const finalFocus = vi.fn(() => true);
+
+      const { user } = await render(
+        <Menu.Root>
+          <Menu.Trigger>Open</Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup finalFocus={finalFocus}>
+                <Menu.Item>Close</Menu.Item>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>,
+      );
+
+      const trigger = screen.getByText('Open');
+
+      await user.click(trigger);
+      const item = await screen.findByText('Close');
+      fireEvent.pointerDown(item, { pointerType: 'mouse' });
+      fireEvent.click(item, { detail: 1 });
+      await waitFor(() => {
+        expect(trigger).toHaveFocus();
+      });
+      expect(finalFocus).toHaveBeenLastCalledWith('mouse');
+
+      await user.keyboard('{Enter}');
+      await screen.findByText('Close');
+      await user.keyboard('{Enter}');
+      await waitFor(() => {
+        expect(trigger).toHaveFocus();
+      });
+      expect(finalFocus).toHaveBeenLastCalledWith('keyboard');
+    });
+
     it('uses default behavior when finalFocus returns null', async () => {
       function TestComponent() {
         return (
