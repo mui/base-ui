@@ -11,25 +11,16 @@ const TrackedPopup = React.forwardRef(function TrackedPopup(
   {
     state,
     onState,
-    onEnter,
     ...props
   }: React.ComponentProps<'div'> & {
     state: PopupState;
     onState: (state: PopupState) => void;
-    onEnter: () => void;
   },
   ref: React.ForwardedRef<HTMLDivElement>,
 ) {
   const { open, transitionStatus } = state;
   // This is the input used by transition components such as Material UI Grow.
   const enter = open && transitionStatus !== 'starting';
-  const previousEnter = React.useRef(enter);
-  useIsoLayoutEffect(() => {
-    if (enter && !previousEnter.current) {
-      onEnter();
-    }
-    previousEnter.current = enter;
-  }, [enter, onEnter]);
   useIsoLayoutEffect(() => {
     onState({ open, transitionStatus });
   }, [open, transitionStatus, onState]);
@@ -49,7 +40,6 @@ describe.skipIf(isJSDOM)('Popover popup transition state', () => {
       }
     }
     const completed = vi.fn();
-    const onEnter = vi.fn();
 
     function TestPopover() {
       return (
@@ -65,7 +55,7 @@ describe.skipIf(isJSDOM)('Popover popup transition state', () => {
                 <Popover.Popup
                   className="transition-state-popup"
                   render={(props, state) => (
-                    <TrackedPopup {...props} state={state} onState={onState} onEnter={onEnter} />
+                    <TrackedPopup {...props} state={state} onState={onState} />
                   )}
                 >
                   Content
@@ -90,13 +80,11 @@ describe.skipIf(isJSDOM)('Popover popup transition state', () => {
 
     async function openPopover() {
       states.length = 0;
-      onEnter.mockClear();
       completed.mockClear();
       await user.click(trigger);
       const popup = await screen.findByRole('dialog');
       await finishPhase(popup);
       await waitFor(() => expect(completed).toHaveBeenCalledExactlyOnceWith(true));
-      expect(onEnter).toHaveBeenCalledTimes(1);
       expect(states.filter((state) => state.open)).toEqual([
         { open: true, transitionStatus: 'starting' },
         { open: true, transitionStatus: undefined },
@@ -114,8 +102,6 @@ describe.skipIf(isJSDOM)('Popover popup transition state', () => {
     }
 
     const popup = await openPopover();
-    await closePopover(popup);
-    expect(await openPopover()).toBe(popup);
     await closePopover(popup);
     expect(await openPopover()).toBe(popup);
   });

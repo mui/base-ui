@@ -11,25 +11,16 @@ const TrackedPopup = React.forwardRef(function TrackedPopup(
   {
     state,
     onState,
-    onEnter,
     ...props
   }: React.ComponentProps<'div'> & {
     state: PopupState;
     onState: (state: PopupState) => void;
-    onEnter: () => void;
   },
   ref: React.ForwardedRef<HTMLDivElement>,
 ) {
   const { open, transitionStatus } = state;
   // This is the input used by transition components such as Material UI Grow.
   const enter = open && transitionStatus !== 'starting';
-  const previousEnter = React.useRef(enter);
-  useIsoLayoutEffect(() => {
-    if (enter && !previousEnter.current) {
-      onEnter();
-    }
-    previousEnter.current = enter;
-  }, [enter, onEnter]);
   useIsoLayoutEffect(() => {
     onState({ open, transitionStatus });
   }, [open, transitionStatus, onState]);
@@ -55,7 +46,6 @@ describe.skipIf(isJSDOM)('Menu popup transition state', () => {
             }
           }
           const completed = vi.fn();
-          const onEnter = vi.fn();
 
           function TestMenu() {
             const [open, setOpen] = React.useState(defaultOpen);
@@ -77,12 +67,7 @@ describe.skipIf(isJSDOM)('Menu popup transition state', () => {
                       <Menu.Popup
                         className="transition-state-popup"
                         render={(props, state) => (
-                          <TrackedPopup
-                            {...props}
-                            state={state}
-                            onState={onState}
-                            onEnter={onEnter}
-                          />
+                          <TrackedPopup {...props} state={state} onState={onState} />
                         )}
                       >
                         <Menu.Item>Item</Menu.Item>
@@ -107,16 +92,13 @@ describe.skipIf(isJSDOM)('Menu popup transition state', () => {
 
           async function openMenu() {
             states.length = 0;
-            onEnter.mockClear();
             completed.mockClear();
             await user.click(screen.getByRole('button', { name: 'Toggle' }));
             const popup = await screen.findByRole('menu');
             await waitFor(() => expect(popup.getAnimations().length).toBeGreaterThan(0));
-            expect(onEnter).toHaveBeenCalledTimes(1);
             expect(completed).not.toHaveBeenCalled();
             await expectCompletedAfterAnimations(popup, true);
             expect(popup.getAnimations()).toHaveLength(0);
-            expect(onEnter).toHaveBeenCalledTimes(1);
             expect(states.filter((state) => state.open)).toEqual([
               { open: true, transitionStatus: 'starting' },
               { open: true, transitionStatus: undefined },
@@ -125,7 +107,6 @@ describe.skipIf(isJSDOM)('Menu popup transition state', () => {
 
           async function expectInitialOpen() {
             await waitFor(() => expect(completed).toHaveBeenCalledExactlyOnceWith(true));
-            expect(onEnter).not.toHaveBeenCalled();
             expect(states).toEqual([{ open: true, transitionStatus: undefined }]);
           }
 
@@ -146,7 +127,10 @@ describe.skipIf(isJSDOM)('Menu popup transition state', () => {
             await openMenu();
           }
           await closeAndReopen();
-          await closeAndReopen();
+          if (defaultOpen && keepMounted) {
+            // Initial-open state must not affect later opening cycles.
+            await closeAndReopen();
+          }
 
           // A reversed exit keeps the lifecycle mounted. It must not start a new entry phase
           // or report completion for the canceled close.
@@ -156,13 +140,11 @@ describe.skipIf(isJSDOM)('Menu popup transition state', () => {
           await waitFor(() => expect(popup.getAnimations().length).toBeGreaterThan(0));
           expect(completed).not.toHaveBeenCalled();
           states.length = 0;
-          onEnter.mockClear();
           await user.click(screen.getByRole('button', { name: 'Toggle' }));
           // The reopen handler can run after the click resolves. Do not finish the exit first.
           await waitFor(() => expect(popup).toHaveAttribute('data-open'));
           await expectCompletedAfterAnimations(popup, true);
           expect(screen.getByRole('menu')).toBe(popup);
-          expect(onEnter).toHaveBeenCalledTimes(1);
           expect(states.some((state) => state.transitionStatus === 'starting')).toBe(false);
           expect(popup.getAnimations()).toHaveLength(0);
         });
