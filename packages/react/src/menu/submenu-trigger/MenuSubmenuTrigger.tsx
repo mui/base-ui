@@ -99,11 +99,7 @@ export const MenuSubmenuTrigger = React.forwardRef(function MenuSubmenuTrigger(
   }, [registerTrigger, thisTriggerId, store]);
 
   useIsoLayoutEffect(() => {
-    if (!open) {
-      return undefined;
-    }
-
-    if (!positionerElement) {
+    if (!open || !positionerElement) {
       return undefined;
     }
 
@@ -118,7 +114,8 @@ export const MenuSubmenuTrigger = React.forwardRef(function MenuSubmenuTrigger(
       });
     }
 
-    // The positioner contains the guard even when the portal is in a shadow root.
+    // Observe the guard inside its positioner: when the portal is in a shadow root, the
+    // trigger's focus event reports the shadow host as `relatedTarget`, not the guard.
     positionerElement.addEventListener('focusin', handleGuardFocus, true);
     return () => positionerElement.removeEventListener('focusin', handleGuardFocus, true);
   }, [open, positionerElement, store]);
