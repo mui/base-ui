@@ -16,6 +16,7 @@ import { DemoComboboxHero } from './demos/hero';
 - **Avoid for simple search widgets**: Combobox does not allow free-form text input. For search widgets, consider using [Autocomplete](/react/components/autocomplete) instead.
 - **Avoid when not rendering an input**: Use [Select](/react/components/select) instead of Combobox if no input is being rendered, which includes accessibility features specific to a listbox without an input.
 - **Form controls must have an accessible name**: If `<Combobox.Input>` is the form control, label it with a native `<label>` or `<Field.Label>`, or provide an `aria-label` when no visible label is rendered. `<Combobox.Label>` labels `<Combobox.Trigger>` and is intended for the [input-inside-popup](#input-inside-popup) pattern, where the trigger is the form control. See the [forms guide](/react/handbook/forms).
+- **Closing animations**: The popup stays rendered until its closing animation finishes. See [JavaScript animations](/react/handbook/animation#javascript-animations) for animating it with Motion and for manual control.
 
 ## Anatomy
 
@@ -338,6 +339,8 @@ import { DemoComboboxVirtualized } from './demos/virtualized';
 
 <DemoComboboxVirtualized />
 
+When using `highlightItem()`, scroll your virtualizer to the index reported by `onItemHighlighted` for the `'imperative-action'` reason. The highlighted item may not be rendered yet.
+
 #### Memoizing items
 
 Memoizing each item is a simpler alternative to virtualization for datasets up to roughly 1,000 items. Wrap each item in [`React.memo`](https://react.dev/reference/react/memo) and pass the item as a prop so unchanged items skip re-rendering. While memoization speeds up typing, it does not speed up opening; with a large enough number of items, the mount cost dominates, and virtualization becomes necessary to keep the open interaction fast on low-end devices.
@@ -359,6 +362,10 @@ const FruitItem = React.memo(function FruitItem({ item }: { item: Fruit }) {
 
 <Combobox.List>{(item: Fruit) => <FruitItem key={item.id} item={item} />}</Combobox.List>;
 ```
+
+### Custom keyboard shortcuts
+
+Use `actionsRef.highlightItem()` to navigate the open list with custom keyboard shortcuts, as shown in [the Autocomplete example](/react/components/autocomplete#custom-keyboard-shortcuts).
 
 ## API reference
 

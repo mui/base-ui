@@ -1254,6 +1254,62 @@ describe('<Drawer.Root />', () => {
     },
   );
 
+  it.skipIf(isJSDOM).each([false, true])(
+    'advances on a short flick with a trailing stationary sample: %s',
+    async (phantom) => {
+      const env = setupSwipeTestEnv();
+
+      try {
+        await render(<SnapPointSequentialSkipCase />);
+
+        const viewport = screen.getByTestId('viewport');
+        env.pointAt(screen.getByTestId('popup'));
+
+        await simulateTimedSwipe(viewport, [
+          { type: 'down', x: 100, y: 500, time: 992 },
+          { type: 'move', x: 100, y: 500, time: 1000 },
+          { type: 'move', x: 100, y: 488, time: 1016 },
+          { type: 'move', x: 100, y: 476, time: 1032 },
+          { type: 'move', x: 100, y: 464, time: 1048 },
+          ...(phantom ? [{ type: 'move' as const, x: 100, y: 463.5, time: 1064 }] : []),
+          { type: 'up', x: 100, y: phantom ? 463.5 : 464, time: phantom ? 1072 : 1056 },
+        ]);
+
+        expect(screen.getByTestId('active-snap').textContent).toBe('300px');
+      } finally {
+        env.cleanup();
+      }
+    },
+  );
+
+  it.skipIf(isJSDOM)(
+    'stays on the current snap point after repeated stationary samples',
+    async () => {
+      const env = setupSwipeTestEnv();
+
+      try {
+        await render(<SnapPointSequentialSkipCase />);
+
+        const viewport = screen.getByTestId('viewport');
+        env.pointAt(screen.getByTestId('popup'));
+
+        await simulateTimedSwipe(viewport, [
+          { type: 'down', x: 100, y: 500, time: 992 },
+          { type: 'move', x: 100, y: 500, time: 1000 },
+          { type: 'move', x: 100, y: 460, time: 1016 },
+          { type: 'move', x: 100, y: 460, time: 1032 },
+          { type: 'move', x: 100, y: 460, time: 1048 },
+          { type: 'move', x: 100, y: 460, time: 1064 },
+          { type: 'up', x: 100, y: 460, time: 1072 },
+        ]);
+
+        expect(screen.getByTestId('active-snap').textContent).toBe('100px');
+      } finally {
+        env.cleanup();
+      }
+    },
+  );
+
   it.skipIf(isJSDOM)(
     'advances to the next snap point on fast flicks when snapToSequentialPoints is enabled',
     async () => {

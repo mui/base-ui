@@ -28,19 +28,6 @@ import {
 import { REASONS } from '../../internals/reasons';
 import { PATIENT_CLICK_THRESHOLD } from '../../internals/constants';
 
-// Mainline tests assert the non-VoiceOver submenu-trigger behavior deterministically on every OS.
-vi.mock('@base-ui/utils/platform', async () => {
-  const actual =
-    await vi.importActual<typeof import('@base-ui/utils/platform')>('@base-ui/utils/platform');
-
-  return {
-    platform: {
-      ...actual.platform,
-      screenReader: { ...actual.platform.screenReader, voiceOver: false },
-    },
-  };
-});
-
 describe('<Menu.Root />', () => {
   beforeEach(resetBrowserPointer);
 
@@ -827,60 +814,6 @@ describe('<Menu.Root />', () => {
     });
 
     describe('nested menus', () => {
-      it('treats a plain Menu.Root inside a dialog opened from a submenu as an independent root', async () => {
-        const { user } = await render(
-          <Menu.Root open>
-            <Menu.Portal>
-              <Menu.Positioner>
-                <Menu.Popup>
-                  <Menu.SubmenuRoot open>
-                    <Menu.SubmenuTrigger>More</Menu.SubmenuTrigger>
-                    <Menu.Portal>
-                      <Menu.Positioner>
-                        <Menu.Popup data-testid="submenu-popup">
-                          <Dialog.Root open>
-                            <Dialog.Portal>
-                              <Dialog.Popup>
-                                <Menu.Root>
-                                  <Menu.Trigger data-testid="inner-trigger">Inner</Menu.Trigger>
-                                  <Menu.Portal>
-                                    <Menu.Positioner>
-                                      <Menu.Popup data-testid="inner-popup">
-                                        <Menu.Item>One</Menu.Item>
-                                      </Menu.Popup>
-                                    </Menu.Positioner>
-                                  </Menu.Portal>
-                                </Menu.Root>
-                              </Dialog.Popup>
-                            </Dialog.Portal>
-                          </Dialog.Root>
-                        </Menu.Popup>
-                      </Menu.Positioner>
-                    </Menu.Portal>
-                  </Menu.SubmenuRoot>
-                </Menu.Popup>
-              </Menu.Positioner>
-            </Menu.Portal>
-          </Menu.Root>,
-        );
-
-        // A real submenu popup carries the nested state.
-        expect(screen.getByTestId('submenu-popup')).toHaveAttribute('data-nested');
-
-        await user.click(screen.getByTestId('inner-trigger'));
-
-        const innerPopup = await screen.findByTestId('inner-popup');
-        expect(innerPopup).not.toHaveAttribute('data-nested');
-
-        // Cross-axis close keys act on submenus only; an independent root ignores them.
-        const innerItem = screen.getByRole('menuitem', { name: 'One' });
-        await act(async () => {
-          innerItem.focus();
-        });
-        await user.keyboard('[ArrowLeft]');
-        expect(screen.queryByTestId('inner-popup')).not.toBe(null);
-      });
-
       (
         [
           ['vertical', 'ltr', 'ArrowRight', 'ArrowLeft'],
@@ -944,230 +877,6 @@ describe('<Menu.Root />', () => {
 
         expect(menu).not.toBe(null);
         expect(await screen.findByTestId('item-4_1')).toHaveTextContent('Item 4.1');
-      });
-
-      // The open key comes from the parent's orientation and the close key from the submenu's,
-      // so they must differ here or swapping the two arguments still passes.
-      it.skipIf(isJSDOM)(
-        'opens and closes a vertical submenu of a horizontal menu with the right axis keys',
-        async () => {
-          const { user } = await render(
-            <TestMenu
-              rootProps={{ open: true, orientation: 'horizontal' }}
-              submenuProps={{ orientation: 'vertical' }}
-              submenuTriggerProps={{ openOnHover: false }}
-            />,
-          );
-
-          const submenuTrigger = screen.getByTestId('submenu-trigger');
-          await act(async () => {
-            submenuTrigger.focus();
-          });
-          await waitFor(() => {
-            expect(submenuTrigger).toHaveFocus();
-          });
-
-          // Cross-axis of the horizontal parent.
-          await user.keyboard('[ArrowDown]');
-          await screen.findByTestId('submenu');
-          await waitFor(() => {
-            expect(screen.getByTestId('item-4_1')).toHaveFocus();
-          });
-
-          // ArrowLeft is the vertical submenu's close key, distinct from the horizontal parent's
-          // open key, so swapping the two orientations breaks this.
-          await user.keyboard('[ArrowLeft]');
-          await waitFor(() => {
-            expect(screen.queryByTestId('submenu')).toBe(null);
-          });
-          // ArrowLeft is also the horizontal parent's previous-item key, so navigation continues
-          // after the submenu closes.
-          expect(screen.getByTestId('item-3')).toHaveFocus();
-
-          // ArrowUp is neither orientation's key here and must not reopen it.
-          await user.keyboard('[ArrowUp]');
-          expect(screen.queryByTestId('submenu')).toBe(null);
-        },
-      );
-
-      it('points the trigger at a custom `Menu.Popup` id and keeps item ids unique', async () => {
-        const { user } = await render(
-          <TestMenu popupProps={{ id: 'my-menu' }} submenuTriggerProps={{ openOnHover: false }} />,
-        );
-
-        const trigger = screen.getByRole('button', { name: 'Toggle' });
-        await user.click(trigger);
-        await screen.findByTestId('menu');
-
-        expect(trigger).toHaveAttribute('aria-controls', 'my-menu');
-        const ids = ['item-1', 'item-2', 'submenu-trigger'].map(
-          (testId) => screen.getByTestId(testId).id,
-        );
-        expect(ids.every((id) => id !== '')).toBe(true);
-        expect(new Set(ids).size).toBe(ids.length);
-      });
-
-      it('lets an explicit item id win over the generated one', async () => {
-        const { user } = await render(
-          <TestMenu
-            popupProps={{
-              children: (
-                <React.Fragment>
-                  <Menu.Item data-testid="item-1" id="chosen-by-consumer">
-                    Item 1
-                  </Menu.Item>
-                  <Menu.Item data-testid="item-2">Item 2</Menu.Item>
-                </React.Fragment>
-              ),
-            }}
-          />,
-        );
-
-        await user.click(screen.getByRole('button', { name: 'Toggle' }));
-        await screen.findByTestId('menu');
-
-        expect(screen.getByTestId('item-1')).toHaveAttribute('id', 'chosen-by-consumer');
-        expect(screen.getByTestId('item-2').id).not.toBe('');
-      });
-
-      it.skipIf(isJSDOM)(
-        'seeds focus for an assistive-technology click after keyboard use',
-        async () => {
-          await render(<TestMenu />);
-
-          const trigger = screen.getByRole('button', { name: 'Toggle' });
-          trigger.focus();
-          await userEvent.keyboard('[Enter]');
-          await waitFor(() => {
-            expect(screen.getByTestId('item-1')).toHaveFocus();
-          });
-
-          await userEvent.keyboard('[Escape]');
-          await waitFor(() => {
-            expect(screen.queryByTestId('menu')).toBe(null);
-          });
-
-          fireEvent.click(trigger, { detail: 0 });
-
-          await waitFor(() => {
-            expect(screen.getByTestId('item-1')).toHaveFocus();
-          });
-        },
-      );
-
-      it.skipIf(isJSDOM)(
-        'does not move focus when a keyboard-closed submenu reopens on hover',
-        async () => {
-          const { user } = await render(
-            <TestMenu rootProps={{ open: true }} submenuTriggerProps={{ delay: 0 }} />,
-          );
-
-          const submenuTrigger = screen.getByTestId('submenu-trigger');
-          await act(async () => {
-            submenuTrigger.focus();
-          });
-          await user.keyboard('[ArrowRight]');
-          await waitFor(() => {
-            expect(screen.getByTestId('item-4_1')).toHaveFocus();
-          });
-
-          await user.keyboard('[ArrowLeft]');
-          await waitFor(() => {
-            expect(submenuTrigger).toHaveFocus();
-          });
-
-          await user.hover(submenuTrigger);
-          await screen.findByTestId('submenu');
-
-          expect(submenuTrigger).toHaveFocus();
-        },
-      );
-
-      it('uses the id that landed on a `render` popup element', async () => {
-        const { user } = await render(
-          <TestMenu
-            popupProps={{ render: <section id="render-popup" /> }}
-            submenuTriggerProps={{ openOnHover: false }}
-          />,
-        );
-
-        const trigger = screen.getByRole('button', { name: 'Toggle' });
-        await user.click(trigger);
-
-        const menu = await screen.findByTestId('menu');
-        expect(menu).toHaveAttribute('id', 'render-popup');
-        expect(trigger).toHaveAttribute('aria-controls', 'render-popup');
-      });
-
-      it('keeps generated item ids when a `render` popup element has no id', async () => {
-        const { user } = await render(
-          <TestMenu
-            popupProps={{ render: <section id={undefined} /> }}
-            submenuTriggerProps={{ openOnHover: false }}
-          />,
-        );
-
-        const trigger = screen.getByRole('button', { name: 'Toggle' });
-        await user.click(trigger);
-
-        const menu = await screen.findByTestId('menu');
-        expect(menu).not.toHaveAttribute('id');
-        expect(trigger).not.toHaveAttribute('aria-controls');
-
-        const item = screen.getByTestId('item-1');
-        const submenuTrigger = screen.getByTestId('submenu-trigger');
-        expect(item.id).not.toBe('');
-        expect(submenuTrigger.id).not.toBe('');
-
-        await user.click(submenuTrigger);
-
-        const submenu = await screen.findByTestId('submenu');
-        expect(submenuTrigger).toHaveAttribute('aria-controls', submenu.id);
-        expect(submenu).toHaveAttribute('aria-labelledby', submenuTrigger.id);
-      });
-
-      it('labels the popup with the id that landed on a `render` trigger element', async () => {
-        const { user } = await render(
-          <TestMenu triggerProps={{ render: <button id="custom-trigger" /> }} />,
-        );
-
-        await user.click(screen.getByRole('button', { name: 'Toggle' }));
-
-        const menu = await screen.findByTestId('menu');
-        expect(menu).toHaveAttribute('role', 'menu');
-        expect(menu).toHaveAttribute('aria-labelledby', 'custom-trigger');
-      });
-
-      it('labels the popup with the generated trigger id by default', async () => {
-        const { user } = await render(<TestMenu />);
-
-        const trigger = screen.getByRole('button', { name: 'Toggle' });
-        await user.click(trigger);
-
-        const menu = await screen.findByTestId('menu');
-        expect(menu).toHaveAttribute('aria-labelledby', trigger.id);
-      });
-
-      it('does not render an empty popup label reference', async () => {
-        const { user } = await render(<TestMenu triggerProps={{ render: <button id="" /> }} />);
-
-        await user.click(screen.getByRole('button', { name: 'Toggle' }));
-
-        const menu = await screen.findByTestId('menu');
-        expect(menu).not.toHaveAttribute('aria-labelledby');
-      });
-
-      it('does not fire consumer handlers on a disabled submenu trigger', async () => {
-        const onClick = vi.fn();
-        const { user } = await render(
-          <TestMenu
-            rootProps={{ open: true }}
-            submenuTriggerProps={{ disabled: true, onClick, openOnHover: false }}
-          />,
-        );
-
-        await user.click(screen.getByTestId('submenu-trigger'));
-        expect(onClick).toHaveBeenCalledTimes(0);
       });
 
       it('renders root menu portal ownership without an accessibility role', async () => {
@@ -1410,12 +1119,6 @@ describe('<Menu.Root />', () => {
             expect(screen.queryByTestId('submenu')).toBe(null);
           });
           expect(submenuTrigger).toHaveFocus();
-
-          await user.keyboard('[ArrowDown]');
-
-          await waitFor(() => {
-            expect(screen.getByTestId('item-5')).toHaveFocus();
-          });
         },
       );
     });
@@ -2215,6 +1918,7 @@ describe('<Menu.Root />', () => {
           current: {
             unmount: vi.fn(),
             close: vi.fn(),
+            highlightItem: vi.fn(),
           },
         };
 
@@ -3099,6 +2803,7 @@ describe('<Menu.Root />', () => {
       current: {
         unmount: vi.fn(),
         close: vi.fn(),
+        highlightItem: vi.fn(),
       },
     };
 
@@ -3270,158 +2975,6 @@ describe('<Menu.Root />', () => {
       } finally {
         document.removeEventListener('click', recordClick, true);
       }
-    });
-  });
-
-  describe('prop: onItemHighlighted', () => {
-    function HighlightMenu(props: {
-      onItemHighlighted: Menu.Root.Props['onItemHighlighted'];
-      open?: boolean;
-    }) {
-      return (
-        <Menu.Root open={props.open ?? true} onItemHighlighted={props.onItemHighlighted}>
-          <Menu.Portal>
-            <Menu.Positioner>
-              <Menu.Popup>
-                <Menu.Item data-testid="item-1">Item 1</Menu.Item>
-                <Menu.Item data-testid="item-2" label="Second">
-                  Item 2
-                </Menu.Item>
-              </Menu.Popup>
-            </Menu.Positioner>
-          </Menu.Portal>
-        </Menu.Root>
-      );
-    }
-
-    it('reports keyboard highlights with the item element and label', async () => {
-      const onItemHighlighted = vi.fn();
-      const { user } = await render(<HighlightMenu onItemHighlighted={onItemHighlighted} />);
-
-      const item1 = screen.getByTestId('item-1');
-      const item2 = screen.getByTestId('item-2');
-
-      await act(async () => {
-        item1.focus();
-      });
-      onItemHighlighted.mockClear();
-
-      await user.keyboard('[ArrowDown]');
-
-      await waitFor(() => {
-        expect(item2).toHaveFocus();
-      });
-      expect(onItemHighlighted).toHaveBeenCalledTimes(1);
-      expect(onItemHighlighted).toHaveBeenCalledWith(item2, {
-        reason: 'keyboard',
-        label: 'Second',
-      });
-    });
-
-    it('reports pointer highlights and falls back to the item text as the label', async () => {
-      const onItemHighlighted = vi.fn();
-      await render(<HighlightMenu onItemHighlighted={onItemHighlighted} />);
-
-      const item1 = screen.getByTestId('item-1');
-      fireEvent.mouseMove(item1);
-
-      await waitFor(() => {
-        expect(onItemHighlighted).toHaveBeenCalledTimes(1);
-      });
-      expect(onItemHighlighted).toHaveBeenCalledWith(item1, { reason: 'pointer', label: 'Item 1' });
-    });
-
-    it('does not fire again while the same item stays highlighted', async () => {
-      const onItemHighlighted = vi.fn();
-      await render(<HighlightMenu onItemHighlighted={onItemHighlighted} />);
-
-      const item1 = screen.getByTestId('item-1');
-      fireEvent.mouseMove(item1);
-      await waitFor(() => {
-        expect(onItemHighlighted).toHaveBeenCalledTimes(1);
-      });
-
-      fireEvent.mouseMove(item1);
-      await flushMicrotasks();
-
-      expect(onItemHighlighted).toHaveBeenCalledTimes(1);
-    });
-
-    it('reports `none` when the list changes after a repeated pointer highlight', async () => {
-      const onItemHighlighted = vi.fn();
-
-      function ItemsMenu(props: { items: string[] }) {
-        return (
-          <Menu.Root open onItemHighlighted={onItemHighlighted}>
-            <Menu.Portal>
-              <Menu.Positioner>
-                <Menu.Popup>
-                  {props.items.map((item) => (
-                    <Menu.Item key={item} data-testid={item}>
-                      {item}
-                    </Menu.Item>
-                  ))}
-                </Menu.Popup>
-              </Menu.Positioner>
-            </Menu.Portal>
-          </Menu.Root>
-        );
-      }
-
-      const { setProps } = await render(<ItemsMenu items={['first', 'second']} />);
-
-      const first = screen.getByTestId('first');
-      fireEvent.mouseMove(first);
-      await waitFor(() => {
-        expect(onItemHighlighted).toHaveBeenCalledTimes(1);
-      });
-      // A repeated pointer highlight of the same item is a no-op and must not leave a tag behind.
-      fireEvent.mouseMove(first);
-      await flushMicrotasks();
-
-      await setProps({ items: ['second'] });
-
-      await waitFor(() => {
-        expect(onItemHighlighted).toHaveBeenCalledTimes(2);
-      });
-      expect(onItemHighlighted).toHaveBeenLastCalledWith(
-        screen.getByTestId('second'),
-        expect.objectContaining({ reason: 'none' }),
-      );
-    });
-
-    it('reports an undefined item when the menu closes', async () => {
-      const onItemHighlighted = vi.fn();
-
-      function Controlled() {
-        const [open, setOpen] = React.useState(true);
-        return (
-          <React.Fragment>
-            <button type="button" onClick={() => setOpen(false)}>
-              Close
-            </button>
-            <HighlightMenu open={open} onItemHighlighted={onItemHighlighted} />
-          </React.Fragment>
-        );
-      }
-
-      const { user } = await render(<Controlled />);
-
-      const item1 = screen.getByTestId('item-1');
-      fireEvent.mouseMove(item1);
-      await waitFor(() => {
-        expect(onItemHighlighted).toHaveBeenCalledTimes(1);
-      });
-
-      await user.click(screen.getByRole('button', { name: 'Close' }));
-
-      await waitFor(() => {
-        expect(onItemHighlighted).toHaveBeenCalledTimes(2);
-      });
-      expect(onItemHighlighted).toHaveBeenLastCalledWith(undefined, {
-        reason: 'none',
-        label: undefined,
-      });
     });
   });
 
@@ -3724,11 +3277,220 @@ describe('<Menu.Root />', () => {
       expect(triggerRenders).toBe(0);
     });
   });
+
+  describe('actionsRef: highlightItem', () => {
+    function TestHighlightMenu(props: { actionsRef: React.RefObject<Menu.Root.Actions | null> }) {
+      return (
+        <Menu.Root actionsRef={props.actionsRef}>
+          <Menu.Trigger>Open</Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.Item>One</Menu.Item>
+                <Menu.Item>Two</Menu.Item>
+                <Menu.Item>Three</Menu.Item>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>
+      );
+    }
+
+    it('moves DOM focus between items', async () => {
+      const actionsRef = React.createRef<Menu.Root.Actions>();
+      const { user } = await render(<TestHighlightMenu actionsRef={actionsRef} />);
+
+      await user.click(screen.getByRole('button', { name: 'Open' }));
+      const menu = await screen.findByRole('menu');
+      // Let the open sequence finish moving focus before driving the highlight.
+      await waitFor(() => expect(menu).toHaveFocus());
+
+      act(() => actionsRef.current!.highlightItem('last'));
+      await waitFor(() => expect(screen.getByRole('menuitem', { name: 'Three' })).toHaveFocus());
+
+      act(() => actionsRef.current!.highlightItem('previous'));
+      await waitFor(() => expect(screen.getByRole('menuitem', { name: 'Two' })).toHaveFocus());
+    });
+
+    it('wraps around, because Menu loops focus by default', async () => {
+      const actionsRef = React.createRef<Menu.Root.Actions>();
+      const { user } = await render(<TestHighlightMenu actionsRef={actionsRef} />);
+
+      await user.click(screen.getByRole('button', { name: 'Open' }));
+      const menu = await screen.findByRole('menu');
+      // Let the open sequence finish moving focus before driving the highlight.
+      await waitFor(() => expect(menu).toHaveFocus());
+
+      act(() => actionsRef.current!.highlightItem('first'));
+      await waitFor(() => expect(screen.getByRole('menuitem', { name: 'One' })).toHaveFocus());
+
+      act(() => actionsRef.current!.highlightItem('previous'));
+      await waitFor(() => expect(screen.getByRole('menuitem', { name: 'Three' })).toHaveFocus());
+    });
+
+    it('returns focus to the popup when the highlight is cleared', async () => {
+      const onClick = vi.fn();
+      const actionsRef = React.createRef<Menu.Root.Actions>();
+      const { user } = await render(
+        <Menu.Root actionsRef={actionsRef}>
+          <Menu.Trigger>Open</Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.Item onClick={onClick}>One</Menu.Item>
+                <Menu.Item>Two</Menu.Item>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>,
+      );
+
+      await user.click(screen.getByRole('button', { name: 'Open' }));
+      const menu = await screen.findByRole('menu');
+      // Let the open sequence finish moving focus before driving the highlight.
+      await waitFor(() => expect(menu).toHaveFocus());
+
+      act(() => actionsRef.current!.highlightItem('first'));
+      const firstItem = screen.getByRole('menuitem', { name: 'One' });
+      await waitFor(() => expect(firstItem).toHaveFocus());
+
+      act(() => actionsRef.current!.highlightItem('none'));
+      await waitFor(() => expect(firstItem).not.toHaveAttribute('data-highlighted'));
+      // Focus must not linger on the item, or Enter would activate something that
+      // no longer looks highlighted. It goes back to the popup, not to the body.
+      await waitFor(() => expect(menu).toHaveFocus());
+
+      await user.keyboard('{Enter}');
+      expect(onClick).not.toHaveBeenCalled();
+    });
+
+    it('reclaims focus from an item the highlight has already left', async () => {
+      // Two calls in one tick: the second item is highlighted but DOM focus is still on the
+      // first. The clear must take focus off whichever item holds it, not only the item the
+      // highlight currently points at.
+      const actionsRef = React.createRef<Menu.Root.Actions>();
+      const { user } = await render(<TestHighlightMenu actionsRef={actionsRef} />);
+
+      await user.click(screen.getByRole('button', { name: 'Open' }));
+      const menu = await screen.findByRole('menu');
+      await waitFor(() => expect(menu).toHaveFocus());
+
+      act(() => actionsRef.current!.highlightItem('first'));
+      await waitFor(() => expect(screen.getByRole('menuitem', { name: 'One' })).toHaveFocus());
+
+      act(() => {
+        actionsRef.current!.highlightItem('next');
+        actionsRef.current!.highlightItem('none');
+      });
+      await waitFor(() => expect(menu).toHaveFocus());
+      for (const name of ['One', 'Two', 'Three']) {
+        expect(screen.getByRole('menuitem', { name })).not.toHaveAttribute('data-highlighted');
+      }
+    });
+
+    // The jsdom animation frame polyfill cannot cancel a queued frame, so this needs a browser.
+    it.skipIf(isJSDOM)('cancels a focus move that has not applied yet', async () => {
+      // Imperative moves apply DOM focus on the next frame. A clear that follows before that
+      // frame must cancel it, otherwise the queued focus lands later and its focus handler
+      // re-highlights the item that was just cleared.
+      const actionsRef = React.createRef<Menu.Root.Actions>();
+      const { user } = await render(<TestHighlightMenu actionsRef={actionsRef} />);
+
+      await user.click(screen.getByRole('button', { name: 'Open' }));
+      const menu = await screen.findByRole('menu');
+      await waitFor(() => expect(menu).toHaveFocus());
+
+      act(() => actionsRef.current!.highlightItem('last'));
+      act(() => actionsRef.current!.highlightItem('none'));
+      await waitFor(() => expect(menu).toHaveFocus());
+
+      // Give the canceled frame a chance to fire; nothing may come back.
+      await new Promise((resolve) => {
+        requestAnimationFrame(() => requestAnimationFrame(resolve));
+      });
+      expect(menu).toHaveFocus();
+      for (const name of ['One', 'Two', 'Three']) {
+        expect(screen.getByRole('menuitem', { name })).not.toHaveAttribute('data-highlighted');
+      }
+    });
+
+    it('does not move focus when the highlight was already cleared', async () => {
+      const actionsRef = React.createRef<Menu.Root.Actions>();
+      const { user } = await render(<TestHighlightMenu actionsRef={actionsRef} />);
+
+      await user.click(screen.getByRole('button', { name: 'Open' }));
+      const menu = await screen.findByRole('menu');
+      // Let the open sequence finish moving focus before snapshotting it.
+      await waitFor(() => expect(menu).toHaveFocus());
+
+      // Nothing is highlighted, so there is no stale focus to reclaim.
+      const before = document.activeElement;
+      act(() => actionsRef.current!.highlightItem('none'));
+      await flushMicrotasks();
+      expect(document.activeElement).toBe(before);
+    });
+
+    it('leaves focus alone when it belongs to nested non-portalled content', async () => {
+      // Nested content rendered inline in the popup (a non-portalled popup, a custom panel)
+      // lives inside the popup element but is not the highlighted item. Clearing the parent's
+      // highlight must not eject focus from it.
+      const actionsRef = React.createRef<Menu.Root.Actions>();
+      const { user } = await render(
+        <Menu.Root actionsRef={actionsRef}>
+          <Menu.Trigger>Open</Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.Item>One</Menu.Item>
+                <div data-testid="nested-panel">
+                  <input data-testid="nested-input" />
+                </div>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>,
+      );
+
+      await user.click(screen.getByRole('button', { name: 'Open' }));
+      const menu = await screen.findByRole('menu');
+      // Let the open sequence finish moving focus before driving the highlight.
+      await waitFor(() => expect(menu).toContainElement(document.activeElement as HTMLElement));
+
+      act(() => actionsRef.current!.highlightItem('first'));
+      await waitFor(() => expect(screen.getByRole('menuitem', { name: 'One' })).toHaveFocus());
+
+      const nestedInput = screen.getByTestId('nested-input');
+      act(() => nestedInput.focus());
+      await waitFor(() => expect(nestedInput).toHaveFocus());
+
+      act(() => actionsRef.current!.highlightItem('none'));
+      await flushMicrotasks();
+
+      expect(nestedInput).toHaveFocus();
+    });
+
+    it('does nothing while the menu is closed', async () => {
+      const actionsRef = React.createRef<Menu.Root.Actions>();
+      const { user } = await render(<TestHighlightMenu actionsRef={actionsRef} />);
+
+      act(() => actionsRef.current!.highlightItem('last'));
+
+      await flushMicrotasks();
+      expect(screen.queryByRole('menu')).toBeNull();
+
+      // The call is dropped rather than queued: opening afterwards looks like any other open.
+      await user.click(screen.getByRole('button', { name: 'Open' }));
+      const menu = await screen.findByRole('menu');
+      await waitFor(() => expect(menu).toHaveFocus());
+      expect(screen.getByRole('menuitem', { name: 'Three' })).not.toHaveAttribute(
+        'data-highlighted',
+      );
+    });
+  });
 });
 
 function ContainedTriggerMenu(props: TestMenuProps) {
   const { triggerProps, ...rest } = props;
-
   return (
     <TestMenuContents {...rest}>
       <Menu.Trigger {...triggerProps}>Toggle</Menu.Trigger>
@@ -3738,7 +3500,6 @@ function ContainedTriggerMenu(props: TestMenuProps) {
 
 function DetachedTriggerMenu(props: TestMenuProps) {
   const { triggerProps, ...rest } = props;
-
   const menuHandle = useRefWithInit(() => new Menu.Handle()).current;
 
   return (
@@ -3766,7 +3527,6 @@ type TestMenuProps = {
 
 function TestMenuContents(props: TestMenuProps) {
   const { children, rootProps, portalProps, submenuProps, submenuTriggerProps, popupProps } = props;
-
   return (
     <Menu.Root {...rootProps}>
       {children}

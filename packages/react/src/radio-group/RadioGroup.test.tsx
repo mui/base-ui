@@ -416,6 +416,140 @@ describe('<RadioGroup />', () => {
     expect(inputRefSpy).toHaveBeenCalledTimes(callCountAfterMount);
   });
 
+  it('transfers the current input when the object inputRef changes', async () => {
+    const oldRef = React.createRef<HTMLInputElement>();
+    const newRef = React.createRef<HTMLInputElement>();
+    const radios = (
+      <React.Fragment>
+        <Radio.Root value="a" />
+        <Radio.Root value="b" />
+      </React.Fragment>
+    );
+    const { rerender, unmount } = await render(
+      <RadioGroup defaultValue="b" inputRef={oldRef}>
+        {radios}
+      </RadioGroup>,
+    );
+    const input = oldRef.current;
+    expect(input).toHaveAttribute('value', 'b');
+
+    await rerender(
+      <RadioGroup defaultValue="b" inputRef={newRef}>
+        {radios}
+      </RadioGroup>,
+    );
+
+    expect(oldRef.current).toBe(null);
+    expect(newRef.current).toBe(input);
+
+    await rerender(<RadioGroup defaultValue="b">{radios}</RadioGroup>);
+    expect(newRef.current).toBe(null);
+
+    await rerender(
+      <RadioGroup defaultValue="b" inputRef={newRef}>
+        {radios}
+      </RadioGroup>,
+    );
+    expect(newRef.current).toBe(input);
+
+    unmount();
+    expect(newRef.current).toBe(null);
+  });
+
+  it.each([false, true])(
+    'detaches the previous callback inputRef when it changes (cleanup: %s)',
+    async (returnsCleanup) => {
+      const cleanup = vi.fn();
+      const oldRef = vi.fn((input: HTMLInputElement | null) =>
+        input && returnsCleanup ? cleanup : undefined,
+      );
+      const newRef = vi.fn();
+      const radios = <Radio.Root value="a" />;
+      const { rerender } = await render(
+        <RadioGroup defaultValue="a" inputRef={oldRef}>
+          {radios}
+        </RadioGroup>,
+      );
+      const input = oldRef.mock.lastCall?.[0];
+      expect(input).toHaveAttribute('value', 'a');
+      oldRef.mockClear();
+      cleanup.mockClear();
+
+      await rerender(
+        <RadioGroup defaultValue="a" inputRef={newRef}>
+          {radios}
+        </RadioGroup>,
+      );
+
+      expect(newRef).toHaveBeenLastCalledWith(input);
+      expect(cleanup).toHaveBeenCalledTimes(returnsCleanup ? 1 : 0);
+      expect(oldRef.mock.calls).toEqual(returnsCleanup ? [] : [[null]]);
+    },
+  );
+
+  it('cleans up inputRef bindings when selecting, clearing, and unmounting', async () => {
+    const bindings = new Set<{ input: HTMLInputElement }>();
+    const inputRef = (input: HTMLInputElement | null) => {
+      if (!input) {
+        return undefined;
+      }
+      const binding = { input };
+      bindings.add(binding);
+      return () => {
+        bindings.delete(binding);
+      };
+    };
+
+    function App() {
+      const [value, setValue] = React.useState<string | null>('a');
+      return (
+        <React.Fragment>
+          <RadioGroup value={value} onValueChange={setValue} inputRef={inputRef}>
+            <Radio.Root value="a" data-testid="radio-a" />
+            <Radio.Root value="b" data-testid="radio-b" />
+          </RadioGroup>
+          <button type="button" onClick={() => setValue(null)}>
+            Clear
+          </button>
+        </React.Fragment>
+      );
+    }
+
+    const { unmount } = await render(<App />);
+    const inputA = screen.getByTestId('radio-a').nextElementSibling;
+    const inputB = screen.getByTestId('radio-b').nextElementSibling;
+    expect(Array.from(bindings, (binding) => binding.input)).toEqual([inputA]);
+
+    fireEvent.click(screen.getByTestId('radio-b'));
+    expect(Array.from(bindings, (binding) => binding.input)).toEqual([inputB]);
+
+    fireEvent.click(screen.getByText('Clear'));
+    expect(Array.from(bindings, (binding) => binding.input)).toEqual([inputA]);
+
+    unmount();
+    expect(bindings.size).toBe(0);
+  });
+
+  it('detaches inputRef when an initially disabled radio is enabled and then unmounted', async () => {
+    const inputRef = React.createRef<HTMLInputElement>();
+    const { rerender } = await render(
+      <RadioGroup inputRef={inputRef}>
+        <Radio.Root value="a" disabled />
+      </RadioGroup>,
+    );
+    expect(inputRef.current).toBe(null);
+
+    await rerender(
+      <RadioGroup inputRef={inputRef}>
+        <Radio.Root value="a" />
+      </RadioGroup>,
+    );
+    expect(inputRef.current).toHaveAttribute('value', 'a');
+
+    await rerender(<RadioGroup inputRef={inputRef} />);
+    expect(inputRef.current).toBe(null);
+  });
+
   it('skips disabled radios when assigning inputRef', async () => {
     const groupInputRef = React.createRef<HTMLInputElement>();
 
