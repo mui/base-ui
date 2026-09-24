@@ -1031,6 +1031,8 @@ describe('<Slider.Root />', () => {
           fireEvent.touchCancel(document.body);
         }
 
+        handleValueCommitted.mockClear();
+
         // Harness only: a prevented pointerdown still resets the flag but leaves the press to the
         // touch handler. Whether touch should respect the prevented pointerdown isn't pinned here.
         preventPointerDown = true;
