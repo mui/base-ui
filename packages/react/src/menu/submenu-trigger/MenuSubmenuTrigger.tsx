@@ -103,21 +103,21 @@ export const MenuSubmenuTrigger = React.forwardRef(function MenuSubmenuTrigger(
       return undefined;
     }
 
-    function handleGuardFocus(event: FocusEvent) {
+    function handleGuardFocusOut(event: FocusEvent) {
       if (getTarget(event) !== store.context.beforeContentFocusGuardRef.current) {
         return;
       }
 
-      focusReturnedThroughGuardRef.current = true;
-      queueMicrotask(() => {
-        focusReturnedThroughGuardRef.current = false;
-      });
+      focusReturnedThroughGuardRef.current = event.relatedTarget === triggerElementRef.current;
     }
 
-    // Observe the guard inside its positioner: when the portal is in a shadow root, the
-    // trigger's focus event reports the shadow host as `relatedTarget`, not the guard.
-    positionerElement.addEventListener('focusin', handleGuardFocus, true);
-    return () => positionerElement.removeEventListener('focusin', handleGuardFocus, true);
+    // Observe focus leaving the guard inside its positioner. When the portal is in a shadow root,
+    // the trigger's focus event can report the shadow host as `relatedTarget`, not the guard.
+    positionerElement.addEventListener('focusout', handleGuardFocusOut, true);
+    return () => {
+      focusReturnedThroughGuardRef.current = false;
+      positionerElement.removeEventListener('focusout', handleGuardFocusOut, true);
+    };
   }, [open, positionerElement, store]);
 
   store.useSyncedValue('closeDelay', closeDelay);
