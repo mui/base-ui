@@ -151,9 +151,9 @@ export interface PopoverRootProps<Payload = unknown> {
   onOpenChangeComplete?: ((open: boolean) => void) | undefined;
   /**
    * A ref to imperative actions.
-   * - `unmount`: Manually unmounts the popover.
-   * Call `preventUnmountOnClose()` in `onOpenChange` to manually control unmounting,
-   * then call this action after any externally controlled closing animation finishes.
+   * - `unmount`: Ends the closing phase of the popover after an externally controlled closing animation finishes.
+   * Call `preventUnmountOnClose()` in `onOpenChange` first, otherwise the popover completes closing on its own.
+   * Whether it leaves the DOM is decided by `keepMounted` on the portal.
    * - `close`: Closes the popover imperatively when called.
    */
   actionsRef?: React.RefObject<PopoverRoot.Actions | null> | undefined;
