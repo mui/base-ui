@@ -599,6 +599,13 @@ export function useOpenStateTransitions<State extends PopupStoreState<unknown>>(
     },
   });
 
+  // Seed the Root-owned store before parts subscribe, matching the hook's initial mounted state.
+  // Otherwise, an initially open Root looks like a reopen until the layout effect syncs the store.
+  useRefWithInit(() => {
+    store.set('mounted', mounted);
+    return null;
+  });
+
   store.useSyncedValues({ mounted, transitionStatus });
 
   return { forceUnmount, transitionStatus };
