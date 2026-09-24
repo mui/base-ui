@@ -28,6 +28,57 @@ describe('<Menu.SubmenuTrigger />', () => {
 
   afterEach(waitForAnimationFrame);
 
+  it('closes a plain submenu when focus returns through a guard to its trigger', async () => {
+    const { user } = await render(
+      <Menu.Root>
+        <Menu.Trigger>Actions</Menu.Trigger>
+        <Menu.Portal>
+          <Menu.Positioner>
+            <Menu.Popup>
+              <Menu.SubmenuRoot>
+                <Menu.SubmenuTrigger>More</Menu.SubmenuTrigger>
+                <Menu.Portal>
+                  <Menu.Positioner>
+                    <Menu.Popup data-testid="submenu">
+                      <Menu.Item>Alpha</Menu.Item>
+                    </Menu.Popup>
+                  </Menu.Positioner>
+                </Menu.Portal>
+              </Menu.SubmenuRoot>
+            </Menu.Popup>
+          </Menu.Positioner>
+        </Menu.Portal>
+      </Menu.Root>,
+    );
+
+    await user.keyboard('[Tab][Enter]');
+    const trigger = screen.getByRole('menuitem', { name: 'More' });
+    await waitFor(() => {
+      expect(trigger).toHaveFocus();
+    });
+    await user.keyboard('[ArrowRight]');
+    await waitFor(() => {
+      expect(screen.getByRole('menuitem', { name: 'Alpha' })).toHaveFocus();
+    });
+
+    const submenu = screen.getByTestId('submenu');
+    const guard = submenu.parentElement?.querySelector<HTMLElement>(
+      '[data-base-ui-focus-guard][data-type="inside"]',
+    );
+    expect(guard).not.toBe(null);
+
+    await act(async () => {
+      guard?.focus();
+    });
+    await waitFor(() => {
+      expect(trigger).toHaveFocus();
+    });
+
+    await waitFor(() => {
+      expect(screen.queryByTestId('submenu')).toBe(null);
+    });
+  });
+
   describeConformance(<Menu.SubmenuTrigger />, () => ({
     refInstanceof: window.HTMLDivElement,
     button: true,

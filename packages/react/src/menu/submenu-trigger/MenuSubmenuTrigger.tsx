@@ -7,6 +7,7 @@ import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { platform } from '@base-ui/utils/platform';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { contains } from '@base-ui/utils/shadowDom';
 import { safePolygon, useClick, useHoverReferenceInteraction } from '../../floating-ui-react';
 import { BaseUIComponentProps, NonNativeButtonProps } from '../../internals/types';
 import { useMenuRootContext } from '../root/MenuRootContext';
@@ -19,6 +20,7 @@ import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
 import { useTriggerRegistration } from '../../utils/popups';
 import { useMenuSubmenuRootContext } from '../submenu-root/MenuSubmenuRootContext';
 import { REASONS } from '../../internals/reasons';
+import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 
 const VOICE_OVER_EXPANDED_PROPS = { 'aria-expanded': undefined };
 
@@ -199,6 +201,18 @@ export const MenuSubmenuTrigger = React.forwardRef(function MenuSubmenuTrigger(
       {
         'aria-controls': popupId,
         tabIndex: open || highlighted ? 0 : -1,
+        onFocus(event) {
+          // A screen reader can return from the submenu to its trigger through a focus guard.
+          // Ignore direct focus from a submenu item: a screen reader press can cause that
+          // transition while the submenu is opening.
+          const isFocusGuardRelatedTarget =
+            contains(store.select('positionerElement'), event.relatedTarget) &&
+            !contains(store.context.popupRef.current, event.relatedTarget);
+
+          if (store.select('open') && isFocusGuardRelatedTarget) {
+            store.setOpen(false, createChangeEventDetails(REASONS.focusOut, event.nativeEvent));
+          }
+        },
         onBlur() {
           if (highlighted) {
             parentMenuStore.set('activeIndex', null);
