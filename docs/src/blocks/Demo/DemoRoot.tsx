@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { DemoVariant, DemoFile } from './types';
+import { DemoVariant } from './types';
 import { DemoContext } from './DemoContext';
 
 export function DemoRoot(props: DemoRoot.Props) {
@@ -11,11 +11,8 @@ export function DemoRoot(props: DemoRoot.Props) {
   }
 
   const [selectedVariant, setSelectedVariant] = React.useState(variants[0]);
-  const [selectedFile, setSelectedFile] = React.useState<DemoFile>(selectedVariant.files[0]);
 
-  React.useEffect(() => {
-    setSelectedFile(selectedVariant.files[0]);
-  }, [selectedVariant]);
+  const selectedFile = selectedVariant.files[0];
 
   const contextValue: DemoContext = React.useMemo(
     () =>
@@ -24,7 +21,6 @@ export function DemoRoot(props: DemoRoot.Props) {
         selectedVariant,
         selectedFile,
         setSelectedVariant,
-        setSelectedFile,
       }) satisfies DemoContext,
     [selectedVariant, selectedFile, variants],
   );

@@ -340,6 +340,34 @@ import { DemoMenuDetachedTriggersFull } from './demos/detached-triggers-full';
 
 <DemoMenuDetachedTriggersFull />
 
+### Custom keyboard shortcuts
+
+`<Menu.Root>` accepts an `actionsRef` whose `highlightItem()` action moves the highlight to the `'next'`, `'previous'`, `'first'` or `'last'` item, or clears it with `'none'`. Use it to bind shortcuts beyond the built-in arrow keys. Menu items receive real DOM focus, so the action moves focus along with the highlight, and `'none'` hands focus back to the popup. It wraps around at the ends unless `loopFocus` is disabled, and does nothing while the menu is closed.
+
+Because the items hold focus while the menu is open, attach the key handler to `<Menu.Popup>` rather than to the trigger:
+
+```tsx title="Binding a shortcut on the popup"
+const actionsRef = React.useRef<Menu.Root.Actions>(null);
+
+<Menu.Root actionsRef={actionsRef}>
+  <Menu.Trigger>Open</Menu.Trigger>
+  <Menu.Portal>
+    <Menu.Positioner>
+      <Menu.Popup
+        onKeyDown={(event) => {
+          if (event.ctrlKey && event.key === 'j') {
+            event.preventDefault();
+            actionsRef.current?.highlightItem('next');
+          }
+        }}
+      >
+        {/* items */}
+      </Menu.Popup>
+    </Menu.Positioner>
+  </Menu.Portal>
+</Menu.Root>;
+```
+
 ## API reference
 
 import { TypesMenu } from './types';

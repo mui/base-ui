@@ -1,6 +1,7 @@
 import { expect, vi, describe, beforeEach, it, afterEach } from 'vitest';
 import type { CDPSession } from '@vitest/browser-playwright';
 import * as React from 'react';
+import * as ReactDOM from 'react-dom';
 import { act, fireEvent, screen, waitFor, flushMicrotasks } from '@mui/internal-test-utils';
 import { AlertDialog } from '@base-ui/react/alert-dialog';
 import { Dialog } from '@base-ui/react/dialog';
@@ -1643,6 +1644,166 @@ describe('<Dialog.Root />', () => {
 
     expect(screen.getByRole('dialog')).not.toBe(null);
     expect(handleOpenChange.mock.calls.length).toBe(0);
+  });
+
+  describe('closed shadow root', () => {
+    const reactGlobals = globalThis as typeof globalThis & { IS_REACT_ACT_ENVIRONMENT?: boolean };
+
+    let host: HTMLElement;
+    let shadowRoot: ShadowRoot;
+    let container: HTMLElement;
+
+    beforeEach(() => {
+      host = document.body.appendChild(document.createElement('div'));
+      shadowRoot = host.attachShadow({ mode: 'closed' });
+      container = shadowRoot.appendChild(document.createElement('div'));
+    });
+
+    afterEach(async () => {
+      await act(async () => {
+        host.remove();
+      });
+    });
+
+    async function query(testId: string) {
+      const selector = `[data-testid="${testId}"]`;
+      return waitFor(() => {
+        const element = shadowRoot.querySelector(selector) ?? document.querySelector(selector);
+        expect(element).not.toBe(null);
+        return element as HTMLElement;
+      });
+    }
+
+    async function click(testId: string) {
+      const element = await query(testId);
+      // For trusted input, the browser flushes React's microtask-scheduled update before
+      // the press reaches the shadow host. `act()` and synthetic dispatch would defer it.
+      const flush = () => ReactDOM.flushSync(() => {});
+      shadowRoot.addEventListener('click', flush);
+      reactGlobals.IS_REACT_ACT_ENVIRONMENT = false;
+      try {
+        element.click();
+      } finally {
+        reactGlobals.IS_REACT_ACT_ENVIRONMENT = true;
+        shadowRoot.removeEventListener('click', flush);
+      }
+      await flushMicrotasks();
+    }
+
+    type PortalContainer = 'shadow root' | 'body' | undefined;
+
+    const resolveContainer = (target: PortalContainer) =>
+      target && { 'shadow root': shadowRoot, body: document.body }[target];
+
+    const nestedKinds = [
+      {
+        name: 'modal dialog',
+        modal: true,
+        render: (portalContainer: ShadowRoot | HTMLElement | undefined) => (
+          <Dialog.Root>
+            <Dialog.Trigger data-testid="open-nested">Open nested</Dialog.Trigger>
+            <Dialog.Portal container={portalContainer}>
+              <Dialog.Backdrop />
+              <Dialog.Popup data-testid="nested">
+                <Dialog.Close data-testid="close-nested">Close</Dialog.Close>
+              </Dialog.Popup>
+            </Dialog.Portal>
+          </Dialog.Root>
+        ),
+      },
+      {
+        name: 'non-modal dialog',
+        modal: false,
+        render: (portalContainer: ShadowRoot | HTMLElement | undefined) => (
+          <Dialog.Root modal={false}>
+            <Dialog.Trigger data-testid="open-nested">Open nested</Dialog.Trigger>
+            <Dialog.Portal container={portalContainer}>
+              <Dialog.Popup data-testid="nested">
+                <Dialog.Close data-testid="close-nested">Close</Dialog.Close>
+              </Dialog.Popup>
+            </Dialog.Portal>
+          </Dialog.Root>
+        ),
+      },
+      {
+        name: 'alert dialog',
+        modal: true,
+        render: (portalContainer: ShadowRoot | HTMLElement | undefined) => (
+          <AlertDialog.Root>
+            <AlertDialog.Trigger data-testid="open-nested">Open nested</AlertDialog.Trigger>
+            <AlertDialog.Portal container={portalContainer}>
+              <AlertDialog.Backdrop />
+              <AlertDialog.Popup data-testid="nested">
+                <AlertDialog.Close data-testid="close-nested">Close</AlertDialog.Close>
+              </AlertDialog.Popup>
+            </AlertDialog.Portal>
+          </AlertDialog.Root>
+        ),
+      },
+    ];
+
+    // `undefined` means the portal's default: the parent portal's node, else the body.
+    const portalSetups: Array<{ outer: PortalContainer; nested: PortalContainer }> = [
+      { outer: 'shadow root', nested: undefined },
+      { outer: 'shadow root', nested: 'shadow root' },
+      { outer: 'shadow root', nested: 'body' },
+      { outer: undefined, nested: undefined },
+      { outer: undefined, nested: 'shadow root' },
+    ];
+
+    describe.for(nestedKinds)('nested $name', (nestedKind) => {
+      it.for(portalSetups)(
+        'keeps the parent open on close (outer: $outer, nested: $nested)',
+        async ({ outer, nested }) => {
+          const handleOpenChange = vi.fn();
+
+          await render(
+            <Dialog.Root defaultOpen modal={nestedKind.modal} onOpenChange={handleOpenChange}>
+              <Dialog.Portal container={resolveContainer(outer)}>
+                {nestedKind.modal && <Dialog.Backdrop />}
+                <Dialog.Popup data-testid="outer">
+                  {nestedKind.render(resolveContainer(nested))}
+                </Dialog.Popup>
+              </Dialog.Portal>
+            </Dialog.Root>,
+            { container },
+          );
+
+          await click('open-nested');
+          await query('nested');
+
+          await click('close-nested');
+
+          expect(await query('outer')).not.toBe(null);
+          expect(shadowRoot.querySelector('[data-testid="nested"]')).toBe(null);
+          expect(document.querySelector('[data-testid="nested"]')).toBe(null);
+          expect(handleOpenChange).not.toHaveBeenCalled();
+        },
+      );
+    });
+
+    it('still dismisses on a press outside the popup', async () => {
+      const handleOpenChange = vi.fn();
+
+      await render(
+        <React.Fragment>
+          <div data-testid="outside">Outside</div>
+          <Dialog.Root defaultOpen modal={false} onOpenChange={handleOpenChange}>
+            <Dialog.Portal container={shadowRoot}>
+              <Dialog.Popup data-testid="outer" />
+            </Dialog.Portal>
+          </Dialog.Root>
+        </React.Fragment>,
+        { container },
+      );
+
+      await query('outer');
+      await click('outside');
+
+      expect(shadowRoot.querySelector('[data-testid="outer"]')).toBe(null);
+      expect(handleOpenChange.mock.calls.length).toBe(1);
+      expect(handleOpenChange.mock.calls[0][1].reason).toBe(REASONS.outsidePress);
+    });
   });
 
   describe.skipIf(isJSDOM)('touch outside press', () => {

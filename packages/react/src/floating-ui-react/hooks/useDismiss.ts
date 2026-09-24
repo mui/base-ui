@@ -291,6 +291,10 @@ export function useDismiss(
     };
   }, [events]);
 
+  // Not cleared in the listener effect's cleanup, which can run mid-press when a dependency
+  // changes. In a closed shadow root, the marker is the only inside-press signal.
+  React.useEffect(() => clearInsideReactTree, [clearInsideReactTree]);
+
   React.useEffect(() => {
     if (!open || !enabled) {
       // Reset in the effect body, not the cleanup, which also runs when a dependency
@@ -744,7 +748,6 @@ export function useDismiss(
       preventedPressSuppressionTimeout.clear();
       resetPressStartState();
       suppressNextOutsideClickRef.current = false;
-      clearInsideReactTree();
     };
   }, [
     dataRef,

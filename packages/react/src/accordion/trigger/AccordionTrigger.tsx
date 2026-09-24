@@ -43,7 +43,6 @@ export const AccordionTrigger = React.forwardRef(function AccordionTrigger(
 
   const { getButtonProps, buttonRef } = useButton({
     disabled,
-    focusableWhenDisabled: true,
     native: nativeButton,
   });
 

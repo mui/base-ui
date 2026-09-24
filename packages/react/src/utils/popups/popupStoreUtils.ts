@@ -14,8 +14,7 @@ import {
   useSyncedFloatingRootContext,
   type SyncedFloatingRootContextStore,
 } from '../../floating-ui-react/hooks/useSyncedFloatingRootContext';
-import { useTransitionStatus } from '../../internals/useTransitionStatus';
-import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
+import { useUnmountAfterClose } from '../../internals/useUnmountAfterClose';
 import type { HTMLProps } from '../../internals/types';
 import {
   createChangeEventDetails,
@@ -572,7 +571,8 @@ export function useImplicitActiveTrigger<State extends PopupStoreState<unknown>>
  *   popup on page load, SSR'd markup) appears without animating. Opt in for popups whose subtree
  *   only mounts in response to something the user did, such as a submenu inside a menu popup.
  *
- * @returns A function to forcibly unmount the popup.
+ * @returns A function to forcibly unmount the popup. It is a no-op once the popup is already
+ *   unmounted, so calling it after the automatic unmount doesn't repeat the completion callback.
  */
 export function useOpenStateTransitions<State extends PopupStoreState<unknown>>(
   open: boolean,
@@ -580,12 +580,25 @@ export function useOpenStateTransitions<State extends PopupStoreState<unknown>>(
   onUnmount?: () => void,
   animateInitialOpen?: boolean,
 ) {
-  const { mounted, setMounted, transitionStatus } = useTransitionStatus(
+  const { mounted, transitionStatus, forceUnmount } = useUnmountAfterClose({
     open,
-    false,
-    false,
+    ref: store.context.popupRef,
+    preventUnmountOnClose: store.useState('preventUnmountingOnClose'),
+    setPreventUnmountOnClose: (preventUnmountOnClose) =>
+      store.set('preventUnmountingOnClose', preventUnmountOnClose),
     animateInitialOpen,
-  );
+    onUnmount() {
+      store.update({
+        activeTriggerId: null,
+        activeTriggerElement: null,
+        mounted: false,
+        preventUnmountingOnClose: false,
+      });
+      onUnmount?.();
+      store.context.onOpenChangeComplete?.(false);
+    },
+  });
+
   // Seed the Root-owned store before parts subscribe, matching the hook's initial mounted state.
   // Otherwise, an initially open Root looks like a reopen until the layout effect syncs the store.
   useRefWithInit(() => {
@@ -593,39 +606,7 @@ export function useOpenStateTransitions<State extends PopupStoreState<unknown>>(
     return null;
   });
 
-  const preventUnmountingOnClose = store.useState('preventUnmountingOnClose');
-  // Opening starts a new close cycle. Clear during render so the close-completion hook below
-  // reads the synchronized value on the same pass.
-  const syncedPreventUnmountingOnClose = open ? false : preventUnmountingOnClose;
-
-  store.useSyncedValues({
-    mounted,
-    transitionStatus,
-    preventUnmountingOnClose: syncedPreventUnmountingOnClose,
-  });
-
-  const forceUnmount = useStableCallback(() => {
-    setMounted(false);
-    store.update({
-      activeTriggerId: null,
-      activeTriggerElement: null,
-      mounted: false,
-      preventUnmountingOnClose: false,
-    });
-    onUnmount?.();
-    store.context.onOpenChangeComplete?.(false);
-  });
-
-  useOpenChangeComplete({
-    enabled: mounted && !open && !syncedPreventUnmountingOnClose,
-    open,
-    ref: store.context.popupRef,
-    onComplete() {
-      if (!open) {
-        forceUnmount();
-      }
-    },
-  });
+  store.useSyncedValues({ mounted, transitionStatus });
 
   return { forceUnmount, transitionStatus };
 }
