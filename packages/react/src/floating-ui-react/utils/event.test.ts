@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
+import { platform } from '@base-ui/utils/platform';
 import { isVirtualPointerEvent } from './event';
 
 // The predicate short-circuits under jsdom, so pin the shape checks with the flag off.
@@ -21,6 +22,7 @@ function pointerEvent(overrides: Partial<PointerEvent>): PointerEvent {
     height: 1,
     pressure: 0,
     detail: 0,
+    buttons: 0,
     pointerType: 'mouse',
     ...overrides,
   } as PointerEvent;
@@ -33,6 +35,17 @@ describe('isVirtualPointerEvent', () => {
 
   it('ignores a pressed mouse', () => {
     expect(isVirtualPointerEvent(pointerEvent({ pressure: 0.5 }))).toBe(false);
+    expect(isVirtualPointerEvent(pointerEvent({ pressure: 0, buttons: 1 }))).toBe(false);
+  });
+
+  it('recognizes a TalkBack press with a pressed button on Android', () => {
+    Object.defineProperty(platform.os, 'android', { value: true, configurable: true });
+    try {
+      expect(isVirtualPointerEvent(pointerEvent({ buttons: 1 }))).toBe(true);
+      expect(isVirtualPointerEvent(pointerEvent({ buttons: 1, pressure: 0.5 }))).toBe(false);
+    } finally {
+      Object.defineProperty(platform.os, 'android', { value: false, configurable: true });
+    }
   });
 
   it('ignores the same shape on other pointer types', () => {

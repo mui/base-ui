@@ -38,6 +38,7 @@ function fireScreenReaderMouseDown(element: Element) {
     height: 1,
     pressure: 0,
     detail: 0,
+    buttons: 0,
   });
   fireEvent.mouseDown(element, { detail: 0 });
 }
@@ -149,13 +150,14 @@ describe.skipIf(isJSDOM)('<Menu.SubmenuTrigger /> with a screen reader press', (
     await user.click(screen.getByRole('button', { name: 'Open menu' }));
     const submenuTrigger = await screen.findByTestId('submenu-trigger');
 
-    // A real pressed mouse reports non-zero pressure, so it is not a virtual press.
+    // A real mouse press has a pressed button even when it reports no pressure.
     fireEvent.pointerDown(submenuTrigger, {
       pointerType: 'mouse',
       width: 1,
       height: 1,
-      pressure: 0.5,
+      pressure: 0,
       detail: 0,
+      buttons: 1,
     });
     fireEvent.mouseDown(submenuTrigger);
     fireEvent.click(submenuTrigger, { detail: 1 });
