@@ -104,11 +104,9 @@ export const MenuSubmenuTrigger = React.forwardRef(function MenuSubmenuTrigger(
     }
 
     function handleGuardFocusOut(event: FocusEvent) {
-      if (getTarget(event) !== store.context.beforeContentFocusGuardRef.current) {
-        return;
+      if (getTarget(event) === store.context.beforeContentFocusGuardRef.current) {
+        focusReturnedThroughGuardRef.current = event.relatedTarget === triggerElementRef.current;
       }
-
-      focusReturnedThroughGuardRef.current = event.relatedTarget === triggerElementRef.current;
     }
 
     // Observe focus leaving the guard inside its positioner. When the portal is in a shadow root,
