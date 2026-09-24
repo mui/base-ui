@@ -7,6 +7,7 @@ import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { platform } from '@base-ui/utils/platform';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { getTarget } from '@base-ui/utils/shadowDom';
 import { safePolygon, useClick, useHoverReferenceInteraction } from '../../floating-ui-react';
 import { BaseUIComponentProps, NonNativeButtonProps } from '../../internals/types';
 import { useMenuRootContext } from '../root/MenuRootContext';
@@ -59,6 +60,8 @@ export const MenuSubmenuTrigger = React.forwardRef(function MenuSubmenuTrigger(
 
   const thisTriggerId = useBaseUiId(idProp);
   const open = store.useState('open');
+  const focusReturnedThroughGuardRef = React.useRef(false);
+  const positionerElement = store.useState('positionerElement');
   const floatingRootContext = store.useState('floatingRootContext');
   const floatingTreeRoot = store.useState('floatingTreeRoot');
   const popupId = store.useState('triggerPopupId', thisTriggerId);
@@ -94,6 +97,31 @@ export const MenuSubmenuTrigger = React.forwardRef(function MenuSubmenuTrigger(
     registerTrigger(triggerElementRef.current);
     return () => registerTrigger(null);
   }, [registerTrigger, thisTriggerId, store]);
+
+  useIsoLayoutEffect(() => {
+    if (!open) {
+      return undefined;
+    }
+
+    if (!positionerElement) {
+      return undefined;
+    }
+
+    function handleGuardFocus(event: FocusEvent) {
+      if (getTarget(event) !== store.context.beforeContentFocusGuardRef.current) {
+        return;
+      }
+
+      focusReturnedThroughGuardRef.current = true;
+      queueMicrotask(() => {
+        focusReturnedThroughGuardRef.current = false;
+      });
+    }
+
+    // The positioner contains the guard even when the portal is in a shadow root.
+    positionerElement.addEventListener('focusin', handleGuardFocus, true);
+    return () => positionerElement.removeEventListener('focusin', handleGuardFocus, true);
+  }, [open, positionerElement, store]);
 
   store.useSyncedValue('closeDelay', closeDelay);
 
@@ -203,9 +231,8 @@ export const MenuSubmenuTrigger = React.forwardRef(function MenuSubmenuTrigger(
         onFocus(event) {
           // Close when a screen reader returns to the trigger so it can continue to the next
           // parent menu item. Hovering back to the trigger should leave the submenu open.
-          const focusGuard = store.context.beforeContentFocusGuardRef.current;
-
-          if (store.select('open') && focusGuard && event.relatedTarget === focusGuard) {
+          if (store.select('open') && focusReturnedThroughGuardRef.current) {
+            focusReturnedThroughGuardRef.current = false;
             store.setOpen(false, createChangeEventDetails(REASONS.focusOut, event.nativeEvent));
           }
         },
