@@ -344,6 +344,10 @@ export const SliderControl = React.forwardRef(function SliderControl(
   });
 
   const handleTouchEnd = useStableCallback((nativeEvent: TouchEvent | PointerEvent) => {
+    if (getFingerCoords(nativeEvent, touchIdRef) == null) {
+      return;
+    }
+
     setActive(-1);
     setDragging(false);
 
@@ -373,7 +377,6 @@ export const SliderControl = React.forwardRef(function SliderControl(
     }
 
     pressedThumbIndexRef.current = -1;
-    touchIdRef.current = null;
     // eslint-disable-next-line @typescript-eslint/no-use-before-define
     stopListening();
   });
@@ -432,6 +435,7 @@ export const SliderControl = React.forwardRef(function SliderControl(
     doc.removeEventListener('touchmove', handleTouchMove);
     doc.removeEventListener('touchend', handleTouchEnd);
     doc.removeEventListener('touchcancel', handleTouchEnd);
+    touchIdRef.current = null;
     pressedValuesRef.current = null;
     currentInteractionValueRef.current = null;
   });
