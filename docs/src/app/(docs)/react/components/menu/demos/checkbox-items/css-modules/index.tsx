@@ -7,6 +7,8 @@ export default function ExampleMenu() {
   const [showMinimap, setShowMinimap] = React.useState(true);
   const [showSearch, setShowSearch] = React.useState(true);
   const [showSidebar, setShowSidebar] = React.useState(false);
+  const allSettingsChecked = showMinimap && showSearch && showSidebar;
+  const someSettingsChecked = showMinimap || showSearch || showSidebar;
 
   return (
     <Menu.Root>
@@ -17,6 +19,26 @@ export default function ExampleMenu() {
         <Menu.Positioner className={styles.Positioner} sideOffset={8} align="start">
           <Menu.Popup className={styles.Popup}>
             <Menu.CheckboxItem
+              checked={allSettingsChecked}
+              indeterminate={someSettingsChecked && !allSettingsChecked}
+              aria-controls="workspace-minimap workspace-search workspace-sidebar"
+              onCheckedChange={(checked) => {
+                setShowMinimap(checked);
+                setShowSearch(checked);
+                setShowSidebar(checked);
+              }}
+              className={styles.CheckboxItem}
+            >
+              <Menu.CheckboxItemIndicator
+                className={styles.CheckboxItemIndicator}
+                render={(props, state) => (
+                  <span {...props}>{state.indeterminate ? <MinusIcon /> : <CheckIcon />}</span>
+                )}
+              />
+              <span className={styles.CheckboxItemText}>All settings</span>
+            </Menu.CheckboxItem>
+            <Menu.CheckboxItem
+              id="workspace-minimap"
               checked={showMinimap}
               onCheckedChange={setShowMinimap}
               className={styles.CheckboxItem}
@@ -27,6 +49,7 @@ export default function ExampleMenu() {
               <span className={styles.CheckboxItemText}>Minimap</span>
             </Menu.CheckboxItem>
             <Menu.CheckboxItem
+              id="workspace-search"
               checked={showSearch}
               onCheckedChange={setShowSearch}
               className={styles.CheckboxItem}
@@ -37,6 +60,7 @@ export default function ExampleMenu() {
               <span className={styles.CheckboxItemText}>Search</span>
             </Menu.CheckboxItem>
             <Menu.CheckboxItem
+              id="workspace-sidebar"
               checked={showSidebar}
               onCheckedChange={setShowSidebar}
               className={styles.CheckboxItem}
@@ -80,6 +104,22 @@ function CheckIcon(props: React.ComponentProps<'svg'>) {
       style={{ display: 'block', ...props.style }}
     >
       <path d="m2.5 8.5 4 4 7-9" />
+    </svg>
+  );
+}
+
+function MinusIcon(props: React.ComponentProps<'svg'>) {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
+      fill="none"
+      stroke="currentColor"
+      {...props}
+      style={{ display: 'block', ...props.style }}
+    >
+      <path d="M3 8h10" />
     </svg>
   );
 }

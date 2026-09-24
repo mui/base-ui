@@ -157,6 +157,82 @@ describe('<Menu.CheckboxItem />', () => {
       expect(item).toHaveAttribute('data-unchecked', '');
     });
 
+    it('supports the indeterminate state', async () => {
+      const renderSpy = vi.fn();
+      const { user } = await render(
+        <Menu.Root>
+          <Menu.Trigger>Open</Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.CheckboxItem
+                  indeterminate
+                  render={(props, state) => {
+                    renderSpy(state);
+                    return <div {...props}>Item</div>;
+                  }}
+                />
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>,
+      );
+
+      await user.click(screen.getByRole('button', { name: 'Open' }));
+
+      const item = screen.getByRole('menuitemcheckbox');
+      expect(item).toHaveAttribute('aria-checked', 'mixed');
+      expect(item).toHaveAttribute('data-indeterminate', '');
+      expect(item).not.toHaveAttribute('data-checked');
+      expect(item).not.toHaveAttribute('data-unchecked');
+      expect(renderSpy.mock.lastCall?.[0]).toHaveProperty('indeterminate', true);
+    });
+
+    it('prioritizes the indeterminate state over checked data attributes', async () => {
+      await render(
+        <Menu.Root open>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.CheckboxItem checked indeterminate>
+                  Item
+                </Menu.CheckboxItem>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>,
+      );
+
+      const item = screen.getByRole('menuitemcheckbox');
+      expect(item).toHaveAttribute('aria-checked', 'mixed');
+      expect(item).toHaveAttribute('data-indeterminate', '');
+      expect(item).not.toHaveAttribute('data-checked');
+      expect(item).not.toHaveAttribute('data-unchecked');
+    });
+
+    it('keeps the checked change callback boolean when indeterminate', async () => {
+      const onCheckedChange = vi.fn();
+      const { user } = await render(
+        <Menu.Root>
+          <Menu.Trigger>Open</Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.CheckboxItem indeterminate onCheckedChange={onCheckedChange}>
+                  Item
+                </Menu.CheckboxItem>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>,
+      );
+
+      await user.click(screen.getByRole('button', { name: 'Open' }));
+      await user.click(screen.getByRole('menuitemcheckbox'));
+
+      expect(onCheckedChange).toHaveBeenCalledWith(true, expect.anything());
+    });
+
     it(`toggles the checked state when Space is pressed`, async () => {
       const { user } = await render(
         <Menu.Root>

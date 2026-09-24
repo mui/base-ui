@@ -9,7 +9,7 @@ import { useMenuRootContext } from '../root/MenuRootContext';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import type { BaseUIComponentProps, NonNativeButtonProps } from '../../internals/types';
-import { itemMapping } from '../utils/stateAttributesMapping';
+import { getCheckboxItemStateAttributesMapping } from './getCheckboxItemStateAttributesMapping';
 import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
@@ -35,6 +35,7 @@ export const MenuCheckboxItem = React.forwardRef(function MenuCheckboxItem(
     closeOnClick = false,
     checked: checkedProp,
     defaultChecked,
+    indeterminate = false,
     onCheckedChange,
     style,
     ...elementProps
@@ -73,8 +74,9 @@ export const MenuCheckboxItem = React.forwardRef(function MenuCheckboxItem(
       disabled,
       highlighted,
       checked,
+      indeterminate,
     }),
-    [disabled, highlighted, checked],
+    [disabled, highlighted, checked, indeterminate],
   );
 
   function handleClick(event: React.MouseEvent) {
@@ -93,12 +95,12 @@ export const MenuCheckboxItem = React.forwardRef(function MenuCheckboxItem(
 
   const element = useRenderElement('div', componentProps, {
     state,
-    stateAttributesMapping: itemMapping,
+    stateAttributesMapping: getCheckboxItemStateAttributesMapping(state),
     props: [
       itemProps,
       {
         role: 'menuitemcheckbox',
-        'aria-checked': checked,
+        'aria-checked': indeterminate ? 'mixed' : checked,
         onClick: handleClick,
       },
       elementProps,
@@ -125,6 +127,10 @@ export interface MenuCheckboxItemState {
    * Whether the checkbox item is currently ticked.
    */
   checked: boolean;
+  /**
+   * Whether the checkbox item is in a mixed state.
+   */
+  indeterminate: boolean;
 }
 
 export interface MenuCheckboxItemProps
@@ -135,6 +141,11 @@ export interface MenuCheckboxItemProps
    * To render an uncontrolled checkbox item, use the `defaultChecked` prop instead.
    */
   checked?: boolean | undefined;
+  /**
+   * Whether the checkbox item is in a mixed state: neither ticked, nor unticked.
+   * @default false
+   */
+  indeterminate?: boolean | undefined;
   /**
    * Whether the checkbox item is initially ticked.
    *

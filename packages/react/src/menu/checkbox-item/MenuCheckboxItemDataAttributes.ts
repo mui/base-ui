@@ -7,6 +7,10 @@ export const checked = 'data-checked';
  */
 export const unchecked = 'data-unchecked';
 /**
+ * Present when the menu checkbox item is in an indeterminate state.
+ */
+export const indeterminate = 'data-indeterminate';
+/**
  * Present when the menu checkbox item is disabled.
  */
 export const disabled = 'data-disabled';

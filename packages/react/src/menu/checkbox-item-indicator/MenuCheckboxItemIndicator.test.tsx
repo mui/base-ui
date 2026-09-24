@@ -40,6 +40,70 @@ describe('<Menu.CheckboxItemIndicator />', () => {
     }
   });
 
+  it('renders and unmounts for an indeterminate checkbox item', async () => {
+    function Test({ indeterminate }: { indeterminate: boolean }) {
+      return (
+        <Menu.Root open>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.CheckboxItem indeterminate={indeterminate}>
+                  <Menu.CheckboxItemIndicator data-testid="indicator" />
+                </Menu.CheckboxItem>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>
+      );
+    }
+
+    const { rerender } = await render(<Test indeterminate />);
+
+    expect(screen.getByTestId('indicator')).toHaveAttribute('data-indeterminate', '');
+
+    await rerender(<Test indeterminate={false} />);
+
+    await waitFor(() => {
+      expect(screen.queryByTestId('indicator')).toBe(null);
+    });
+  });
+
+  it('updates the indicator state across checked and indeterminate values', async () => {
+    function Test({ value }: { value: 'checked' | 'indeterminate' | 'unchecked' }) {
+      return (
+        <Menu.Root open>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.CheckboxItem
+                  checked={value === 'checked'}
+                  indeterminate={value === 'indeterminate'}
+                >
+                  <Menu.CheckboxItemIndicator data-testid="indicator" keepMounted />
+                </Menu.CheckboxItem>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>
+      );
+    }
+
+    const { rerender } = await render(<Test value="checked" />);
+    const indicator = screen.getByTestId('indicator');
+
+    expect(indicator).toHaveAttribute('data-checked', '');
+
+    await rerender(<Test value="indeterminate" />);
+    expect(indicator).toHaveAttribute('data-indeterminate', '');
+    expect(indicator).not.toHaveAttribute('data-checked');
+
+    await rerender(<Test value="checked" />);
+    expect(indicator).toHaveAttribute('data-checked', '');
+
+    await rerender(<Test value="unchecked" />);
+    expect(indicator).toHaveAttribute('data-unchecked', '');
+  });
+
   it.skipIf(isJSDOM)(
     'should remove the indicator when there is no exit animation defined',
     async ({ onTestFinished }) => {
