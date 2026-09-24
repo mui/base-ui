@@ -586,6 +586,32 @@ describe('<Checkbox.Root />', () => {
 
   // flaky with user.click
   describe('with native <label>', () => {
+    it('uses an explicit aria-label instead of a wrapping label for the accessible name', async () => {
+      await render(
+        <label>
+          <Checkbox.Root aria-label="lease.pdf" />
+          <span>lease.pdf</span>
+        </label>,
+      );
+
+      expect(screen.getByRole('checkbox', { name: 'lease.pdf' })).not.toHaveAttribute(
+        'aria-labelledby',
+      );
+    });
+
+    it('uses an aria-label supplied through render instead of a wrapping label', async () => {
+      await render(
+        <label>
+          <Checkbox.Root render={<span aria-label="lease.pdf" />} />
+          <span>lease.pdf</span>
+        </label>,
+      );
+
+      expect(screen.getByRole('checkbox', { name: 'lease.pdf' })).not.toHaveAttribute(
+        'aria-labelledby',
+      );
+    });
+
     it('should toggle the checkbox when a wrapping <label> is clicked', async () => {
       await render(
         <label data-testid="label">

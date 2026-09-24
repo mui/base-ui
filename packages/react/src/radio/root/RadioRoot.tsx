@@ -42,6 +42,7 @@ export const RadioRoot = React.forwardRef(function RadioRoot<Value>(
     readOnly: readOnlyProp = false,
     required: requiredProp = false,
     'aria-labelledby': ariaLabelledByProp,
+    'aria-label': ariaLabelProp,
     value,
     inputRef: inputRefProp,
     nativeButton = false,
@@ -117,6 +118,7 @@ export const RadioRoot = React.forwardRef(function RadioRoot<Value>(
   const hiddenInputId = nativeButton ? undefined : inputId;
   const ariaLabelledBy = useAriaLabelledBy(
     ariaLabelledByProp,
+    ariaLabelProp,
     labelId,
     inputRef,
     !nativeButton,
@@ -127,6 +129,7 @@ export const RadioRoot = React.forwardRef(function RadioRoot<Value>(
     role: 'radio',
     'aria-checked': checked,
     'aria-labelledby': ariaLabelledBy,
+    'aria-label': ariaLabelProp,
     [ACTIVE_COMPOSITE_ITEM as string]: checked ? '' : undefined,
     id: nativeButton ? inputId : id,
     onKeyDown(event) {

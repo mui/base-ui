@@ -39,6 +39,7 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
     className,
     defaultChecked,
     'aria-labelledby': ariaLabelledByProp,
+    'aria-label': ariaLabelProp,
     form,
     id: idProp,
     inputRef: externalInputRef,
@@ -109,6 +110,7 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
   });
   const ariaLabelledBy = useAriaLabelledBy(
     ariaLabelledByProp,
+    ariaLabelProp,
     labelId,
     inputRef,
     !nativeButton,
@@ -122,6 +124,7 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
     'aria-readonly': readOnly || undefined,
     'aria-required': required || undefined,
     'aria-labelledby': ariaLabelledBy,
+    'aria-label': ariaLabelProp,
     onFocus() {
       if (!disabled) {
         setFocused(true);

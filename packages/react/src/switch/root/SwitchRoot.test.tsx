@@ -468,6 +468,19 @@ describe('<Switch.Root />', () => {
   });
 
   describe('with native <label>', () => {
+    it('uses an explicit aria-label instead of a wrapping label for the accessible name', async () => {
+      await render(
+        <label>
+          <Switch.Root aria-label="lease.pdf" />
+          <span>lease.pdf</span>
+        </label>,
+      );
+
+      expect(screen.getByRole('switch', { name: 'lease.pdf' })).not.toHaveAttribute(
+        'aria-labelledby',
+      );
+    });
+
     it('should toggle the switch when a wrapping <label> is clicked', async () => {
       const { user } = await render(
         <label data-testid="label">

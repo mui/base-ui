@@ -96,6 +96,17 @@ describe('<Radio.Root />', () => {
     expect(screen.getByRole('radio')).toHaveAttribute('aria-labelledby', label.id);
   });
 
+  it('uses an explicit aria-label instead of a wrapping label for the accessible name', async () => {
+    await render(
+      <label>
+        <Radio.Root value="" aria-label="lease.pdf" />
+        <span>lease.pdf</span>
+      </label>,
+    );
+
+    expect(screen.getByRole('radio', { name: 'lease.pdf' })).not.toHaveAttribute('aria-labelledby');
+  });
+
   it('updates fallback `aria-labelledby` when the hidden input id changes', async () => {
     function TestCase() {
       const [id, setId] = React.useState('radio-input-a');

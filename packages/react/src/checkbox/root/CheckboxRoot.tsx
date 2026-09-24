@@ -52,6 +52,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     className,
     defaultChecked = false,
     'aria-labelledby': ariaLabelledByProp,
+    'aria-label': ariaLabelProp,
     disabled: disabledProp = false,
     form,
     id: idProp,
@@ -164,6 +165,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
   const mergedInputRef = useMergedRefs(inputRefProp, inputRef, parent ? undefined : registerInput);
   const ariaLabelledBy = useAriaLabelledBy(
     ariaLabelledByProp,
+    ariaLabelProp,
     labelId,
     inputRef,
     !nativeButton,
@@ -300,6 +302,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
         'aria-readonly': readOnly || undefined,
         'aria-required': required || undefined,
         'aria-labelledby': ariaLabelledBy,
+        'aria-label': ariaLabelProp,
         [PARENT_CHECKBOX as string]: parent ? '' : undefined,
         onFocus() {
           if (!disabled) {

@@ -5,6 +5,7 @@ import { useBaseUiId } from '../useBaseUiId';
 
 export function useAriaLabelledBy(
   explicitAriaLabelledBy: string | undefined,
+  ariaLabel: string | undefined,
   labelId: string | undefined,
   labelSourceRef: React.RefObject<LabelSource | null>,
   enableFallback = true,
@@ -21,7 +22,7 @@ export function useAriaLabelledBy(
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useIsoLayoutEffect(() => {
     const nextAriaLabelledBy =
-      explicitAriaLabelledBy || labelId || !enableFallback
+      explicitAriaLabelledBy || ariaLabel || labelId || !enableFallback
         ? undefined
         : getAriaLabelledBy(labelSourceRef.current, generatedLabelId);
 

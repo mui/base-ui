@@ -49,6 +49,7 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
   const {
     'aria-describedby': ariaDescribedByProp,
     'aria-labelledby': ariaLabelledByProp,
+    'aria-label': ariaLabelProp,
     id: idProp,
     autoComplete = 'one-time-code',
     defaultValue = '',
@@ -120,7 +121,14 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
   );
 
   const id = useLabelableId({ id: idProp });
-  const ariaLabelledBy = useAriaLabelledBy(ariaLabelledByProp, labelId, firstInputRef, true, id);
+  const ariaLabelledBy = useAriaLabelledBy(
+    ariaLabelledByProp,
+    ariaLabelProp,
+    labelId,
+    firstInputRef,
+    true,
+    id,
+  );
   const inputAriaLabelledBy = ariaLabelledByProp == null ? ariaLabelledBy : undefined;
   const fieldDescriptionProps = getDescriptionProps({});
   const ariaDescribedBy = mergeAriaIds(
@@ -384,6 +392,7 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
         role: 'group',
         'aria-describedby': ariaDescribedBy,
         'aria-labelledby': ariaLabelledBy,
+        'aria-label': ariaLabelProp,
       },
       elementProps,
     ],

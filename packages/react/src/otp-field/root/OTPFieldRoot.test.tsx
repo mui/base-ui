@@ -17,6 +17,12 @@ describe('<OTPField.Root />', () => {
     render,
   }));
 
+  it('forwards an explicit aria-label to the group', async () => {
+    await render(<OTPField aria-label="Verification code" />);
+
+    expect(screen.getByRole('group', { name: 'Verification code' })).toBeInTheDocument();
+  });
+
   type OTPFieldProps = Omit<OTPFieldBase.Root.Props, 'children' | 'length'>;
 
   function OTPField(props: OTPFieldProps = {}) {
