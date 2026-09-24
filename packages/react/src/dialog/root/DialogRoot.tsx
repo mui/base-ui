@@ -60,8 +60,9 @@ export interface DialogRootProps<Payload = unknown> {
   disablePointerDismissal?: boolean | undefined;
   /**
    * A ref to imperative actions.
-   * - `unmount`: Manually unmounts the dialog.
-   * Call this after any externally controlled closing animation finishes.
+   * - `unmount`: Ends the closing phase of the dialog after an externally controlled closing animation finishes.
+   * Call `preventUnmountOnClose()` in `onOpenChange` first, otherwise the dialog completes closing on its own.
+   * Whether it leaves the DOM is decided by `keepMounted` on the portal.
    * - `close`: Closes the dialog imperatively when called.
    */
   actionsRef?: React.RefObject<DialogRoot.Actions | null> | undefined;
@@ -105,7 +106,8 @@ export type DialogRootChangeEventReason =
 
 export type DialogRootChangeEventDetails =
   BaseUIChangeEventDetails<DialogRoot.ChangeEventReason> & {
-    preventUnmountOnClose(): void;
+    /** Prevents the popup from unmounting until the `unmount` action is called. */
+    preventUnmountOnClose: () => void;
   };
 
 export namespace DialogRoot {

@@ -12,6 +12,10 @@ export type State = {
   labelId: string | undefined;
   modal: boolean;
   multiple: boolean;
+  disabled: boolean;
+  readOnly: boolean;
+  required: boolean;
+  highlightItemOnHover: boolean;
 
   items:
     | Record<string, React.ReactNode>
@@ -35,6 +39,7 @@ export type State = {
 
   popupProps: HTMLProps;
   triggerProps: HTMLProps;
+  itemProps: HTMLProps;
   triggerElement: HTMLElement | null;
   positionerElement: HTMLElement | null;
   listElement: HTMLDivElement | null;
@@ -81,6 +86,11 @@ export const selectors = {
   id: (state: State) => state.id,
   labelId: (state: State) => state.labelId,
   modal: (state: State) => state.modal,
+  multiple: (state: State) => state.multiple,
+  disabled: (state: State) => state.disabled,
+  readOnly: (state: State) => state.readOnly,
+  required: (state: State) => state.required,
+  highlightItemOnHover: (state: State) => state.highlightItemOnHover,
 
   items: (state: State) => state.items,
   itemToStringLabel: (state: State) => state.itemToStringLabel,
@@ -136,6 +146,7 @@ export const selectors = {
 
   popupProps: (state: State) => state.popupProps,
   triggerProps: (state: State) => state.triggerProps,
+  itemProps: (state: State) => state.itemProps,
   triggerElement: (state: State) => state.triggerElement,
   positionerElement: (state: State) => state.positionerElement,
   listElement: (state: State) => state.listElement,

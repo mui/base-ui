@@ -169,6 +169,36 @@ describe('<Slider.Control />', () => {
     });
   });
 
+  it('preserves single-element array values on track press', async () => {
+    const onValueChange = vi.fn();
+    const onValueCommitted = vi.fn();
+
+    await render(
+      <Slider.Root
+        defaultValue={[25]}
+        onValueChange={onValueChange}
+        onValueCommitted={onValueCommitted}
+      >
+        <Slider.Control data-testid="control">
+          <Slider.Thumb />
+        </Slider.Control>
+      </Slider.Root>,
+    );
+
+    const control = screen.getByTestId('control');
+    vi.spyOn(control, 'getBoundingClientRect').mockImplementation(getHorizontalSliderRect);
+    Object.defineProperties(control, {
+      setPointerCapture: { configurable: true, value: vi.fn() },
+      hasPointerCapture: { configurable: true, value: () => false },
+    });
+
+    fireEvent.pointerDown(control, { button: 0, buttons: 1, clientX: 50 });
+    fireEvent.pointerUp(document.body, { buttons: 0, clientX: 50 });
+
+    expect(onValueChange.mock.calls[0][0]).toEqual([50]);
+    expect(onValueCommitted.mock.calls[0][0]).toEqual([50]);
+  });
+
   it('releases pointer capture when the interaction ends', async () => {
     await render(
       <Slider.Root defaultValue={20}>
