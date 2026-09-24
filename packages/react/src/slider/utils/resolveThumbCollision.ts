@@ -1,6 +1,6 @@
 import { clamp } from '@base-ui/utils/clamp';
 import { getPushedThumbValues } from './getPushedThumbValues';
-import { SliderRootContext } from '../root/SliderRootContext';
+import type { SliderThumbCollisionBehavior } from '../root/SliderRootContext';
 
 export interface ResolveThumbCollisionResult {
   value: number | number[];
@@ -13,7 +13,7 @@ export interface ResolveThumbCollisionResult {
  * minify, so passing them positionally keeps this internal helper smaller in the bundle.
  */
 export function resolveThumbCollision(
-  behavior: SliderRootContext['thumbCollisionBehavior'],
+  behavior: SliderThumbCollisionBehavior,
   values: readonly number[],
   currentValues: readonly number[] | null | undefined,
   initialValues: readonly number[] | null | undefined,
