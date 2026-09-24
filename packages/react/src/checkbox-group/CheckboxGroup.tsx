@@ -66,6 +66,8 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
     state: 'value',
   });
 
+  const valueRef = React.useRef<string[] | null>(null);
+
   const setValue = useStableCallback(
     (v: string[], eventDetails: CheckboxGroup.ChangeEventDetails) => {
       onValueChange?.(v, eventDetails);
@@ -74,6 +76,9 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
         return;
       }
 
+      if (valueRef.current !== null) {
+        valueRef.current = v;
+      }
       setValueUnwrapped(v);
     },
   );
@@ -82,6 +87,7 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
     allValues,
     value,
     onValueChange: setValue,
+    valueRef,
   });
 
   // The group is the field's control and takes its name from `aria-labelledby`, so `Field.Label`
@@ -149,6 +155,7 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
     () => ({
       allValues,
       value,
+      valueRef,
       setValue,
       parent,
       disabled,

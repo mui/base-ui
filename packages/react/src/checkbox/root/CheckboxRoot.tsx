@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { useControlled } from '@base-ui/utils/useControlled';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
@@ -7,6 +8,7 @@ import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { visuallyHidden, visuallyHiddenInput } from '@base-ui/utils/visuallyHidden';
 import { ownerWindow } from '@base-ui/utils/owner';
 import { getDefaultFormSubmitter } from '@base-ui/utils/getDefaultFormSubmitter';
+import { CheckboxGroupPaintSelectionContext } from '../../checkbox-group/paint-selection-provider/CheckboxGroupPaintSelectionContext';
 import { getCheckboxStateAttributesMapping } from '../utils/getCheckboxStateAttributesMapping';
 import { dispatchClickWithModifiers } from '../../utils/dispatchClickWithModifiers';
 import { useRenderElement } from '../../internals/useRenderElement';
@@ -192,6 +194,65 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     validation.change(checked);
   });
 
+  const changeChecked = useStableCallback(
+    (nextChecked: boolean, details: CheckboxRoot.ChangeEventDetails) => {
+      onCheckedChange?.(nextChecked, details);
+
+      if (details.isCanceled) {
+        return;
+      }
+
+      groupOnChange?.(nextChecked, details);
+
+      if (details.isCanceled) {
+        return;
+      }
+
+      setCheckedState(nextChecked);
+
+      if (value !== undefined && groupContext !== undefined && !parent && !isGroupedWithParent) {
+        const currentValue = groupContext.valueRef.current ?? groupContext.value;
+        const nextGroupValue = nextChecked
+          ? currentValue.includes(value)
+            ? currentValue
+            : [...currentValue, value]
+          : currentValue.filter((item) => item !== value);
+
+        groupContext.setValue(nextGroupValue, details);
+      }
+    },
+  );
+
+  const paintContext = React.useContext(CheckboxGroupPaintSelectionContext);
+  const paintController =
+    groupContext?.setValue === paintContext?.owner && !parent && value !== undefined
+      ? paintContext?.controller
+      : undefined;
+  const getPaintState = useStableCallback(() => ({
+    checked: computedChecked && !computedIndeterminate,
+    disabled: Boolean(disabled || readOnly),
+  }));
+  const paintChecked = useStableCallback((nextChecked: boolean, event: PointerEvent) => {
+    if (!disabled && !readOnly && (nextChecked !== computedChecked || computedIndeterminate)) {
+      changeChecked(nextChecked, createChangeEventDetails(REASONS.none, event));
+    }
+  });
+  const unregisterPaint = React.useRef<(() => void) | undefined>(undefined);
+  const paintRef = React.useCallback(
+    (element: HTMLElement | null) => {
+      unregisterPaint.current?.();
+      unregisterPaint.current =
+        element && paintController
+          ? paintController.register(element, {
+              id: value,
+              getState: getPaintState,
+              setChecked: paintChecked,
+            })
+          : undefined;
+    },
+    [paintController, value, getPaintState, paintChecked],
+  );
+
   const inputProps = mergeProps<'input'>(
     {
       checked,
@@ -222,27 +283,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
         const nextChecked = event.currentTarget.checked;
         const details = createChangeEventDetails(REASONS.none, event.nativeEvent);
 
-        onCheckedChange?.(nextChecked, details);
-
-        if (details.isCanceled) {
-          return;
-        }
-
-        groupOnChange?.(nextChecked, details);
-
-        if (details.isCanceled) {
-          return;
-        }
-
-        setCheckedState(nextChecked);
-
-        if (value !== undefined && groupContext !== undefined && !parent && !isGroupedWithParent) {
-          const nextGroupValue = nextChecked
-            ? [...groupContext.value, value]
-            : groupContext.value.filter((item) => item !== value);
-
-          groupContext.setValue(nextGroupValue, details);
-        }
+        changeChecked(nextChecked, details);
       },
       onClick(event) {
         // The click dispatched from the root's `onClick` is an implementation detail
@@ -291,11 +332,14 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
 
   const element = useRenderElement('span', componentProps, {
     state,
-    ref: [buttonRef, controlRef, forwardedRef],
+    ref: [buttonRef, controlRef, forwardedRef, paintRef],
     props: [
       {
         id: rootId,
         role: 'checkbox',
+        onPointerDown(event: React.PointerEvent<HTMLElement>) {
+          paintController?.start(event.currentTarget, event.nativeEvent);
+        },
         'aria-checked': computedIndeterminate ? 'mixed' : computedChecked,
         'aria-readonly': readOnly || undefined,
         'aria-required': required || undefined,

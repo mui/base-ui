@@ -139,11 +139,28 @@ import { DemoCheckboxGroupNested } from './demos/nested';
 
 <DemoCheckboxGroupNested />
 
+## Paint selection
+
+Place `<CheckboxGroupPaintSelectionProvider>` inside `<CheckboxGroup>`, around the checkboxes, to enable paint selection.
+Press a checkbox with a mouse or pen, then drag across other checkboxes to apply the same checked state. Starting on a checked checkbox clears the painted items. Moving back over an item leaves its state unchanged.
+
+Painting stays within the same group and skips disabled and read-only checkboxes. Parent checkboxes do not participate.
+Touch gestures retain native scrolling. Clicking and keyboard selection continue to work normally.
+The provider is optional; omitting it excludes the paint controller from the bundle.
+
+import { DemoCheckboxGroupPaintSelection } from './demos/paint-selection';
+
+<DemoCheckboxGroupPaintSelection />
+
 ## API reference
 
 import { TypesCheckboxGroup } from './types';
 
-<TypesCheckboxGroup />
+<TypesCheckboxGroup.CheckboxGroup />
+
+### Paint selection provider
+
+<TypesCheckboxGroup.CheckboxGroupPaintSelectionProvider />
 
 export const metadata = {
   keywords: [

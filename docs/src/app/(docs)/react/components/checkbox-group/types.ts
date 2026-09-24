@@ -1,4 +1,9 @@
-import { CheckboxGroup } from '@base-ui/react/checkbox-group';
-import { createTypes } from 'docs/src/utils/createTypes';
+import { CheckboxGroup, CheckboxGroupPaintSelectionProvider } from '@base-ui/react/checkbox-group';
+import { createMultipleTypes } from 'docs/src/utils/createTypes';
 
-export const TypesCheckboxGroup = createTypes(import.meta.url, CheckboxGroup);
+const { types } = createMultipleTypes(import.meta.url, {
+  CheckboxGroup,
+  CheckboxGroupPaintSelectionProvider,
+});
+
+export const TypesCheckboxGroup = types;
