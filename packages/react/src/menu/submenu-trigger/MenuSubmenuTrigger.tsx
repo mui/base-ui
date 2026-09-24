@@ -203,8 +203,6 @@ export const MenuSubmenuTrigger = React.forwardRef(function MenuSubmenuTrigger(
         tabIndex: open || highlighted ? 0 : -1,
         onFocus(event) {
           // A screen reader can return from the submenu to its trigger through a focus guard.
-          // Ignore direct focus from a submenu item: a screen reader press can cause that
-          // transition while the submenu is opening.
           const isFocusGuardRelatedTarget =
             contains(store.select('positionerElement'), event.relatedTarget) &&
             !contains(store.context.popupRef.current, event.relatedTarget);
