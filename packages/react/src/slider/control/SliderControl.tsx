@@ -20,6 +20,7 @@ import { useDirection } from '../../internals/direction-context/DirectionContext
 import { useSliderRootContext } from '../root/SliderRootContext';
 import { sliderStateAttributesMapping } from '../root/stateAttributesMapping';
 import type { SliderRootState } from '../root/SliderRoot';
+import { isTouchLikePointerType } from '../../internals/usePressAndHold';
 import { getMidpoint } from '../utils/getMidpoint';
 import { roundValueToStep } from '../utils/roundValueToStep';
 import { validateMinimumDistance } from '../utils/validateMinimumDistance';
@@ -470,6 +471,8 @@ export const SliderControl = React.forwardRef(function SliderControl(
       {
         ['data-base-ui-slider-control' as string]: renderBeforeHydration ? '' : undefined,
         onPointerDown(event) {
+          // Replace a flag left by a cancelled gesture that had no `touchstart` to consume it.
+          pointerGestureRef.current = false;
           const control = controlRef.current;
           const target = getTarget(event.nativeEvent);
 
@@ -523,8 +526,8 @@ export const SliderControl = React.forwardRef(function SliderControl(
           }
 
           moveCountRef.current = 0;
-          // Only touch pointers have a following `touchstart` to consume the flag.
-          pointerGestureRef.current = event.pointerType === 'touch';
+          // Touch and pen presses can be followed by a compatibility `touchstart` (Apple Pencil).
+          pointerGestureRef.current = isTouchLikePointerType(event.pointerType);
           const doc = ownerDocument(control);
           doc.addEventListener('pointermove', handleTouchMove, { passive: true });
           doc.addEventListener('pointerup', handleTouchEnd, { once: true });
