@@ -20,6 +20,7 @@ import {
   useClick,
 } from '../../floating-ui-react';
 import { gridNavigation } from '../../floating-ui-react/hooks/gridNavigation';
+import type { HighlightItemTarget } from '../../floating-ui-react/hooks/useListNavigation';
 import { closest, contains, getTarget } from '../../floating-ui-react/utils';
 import {
   createChangeEventDetails,
@@ -997,15 +998,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
     onUnmount: handleUnmountCleanup,
   });
 
-  React.useImperativeHandle(
-    props.actionsRef,
-    () => ({
-      unmount: handleUnmount,
-      close: () => setOpen(false, createChangeEventDetails(REASONS.imperativeAction)),
-    }),
-    [handleUnmount, setOpen],
-  );
-
   useIsoLayoutEffect(
     function syncSelectedIndex() {
       const closeQueryReleased = previousCloseQueryRef.current !== null && closeQuery === null;
@@ -1382,24 +1374,50 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
     rtl: direction === 'rtl',
     disabledIndices: EMPTY_ARRAY,
     grid: grid ? gridNavigation : undefined,
-    onNavigate(nextActiveIndex, event) {
-      // Retain the highlight only while actually transitioning out or closed.
-      if ((!event && !open) || transitionStatus === 'ending') {
+    onNavigate(nextActiveIndex, event, source) {
+      // Retain the highlight only while actually transitioning out or closed. `inline` lists are
+      // navigable while `open` is false, and the floating store is told they are open (see the
+      // `useFloatingRootContext` call above), so they must not be vetoed here either: doing so
+      // would discard programmatic navigation while `useListNavigation` had already advanced its
+      // internal cursor, leaving the two permanently out of sync.
+      if ((!event && !open && !inline) || transitionStatus === 'ending') {
         return;
       }
 
-      if (!event) {
-        setIndices({
-          activeIndex: nextActiveIndex,
-        });
+      let type: AriaCombobox.HighlightEventReason;
+      if (source === 'imperative') {
+        type = REASONS.imperativeAction;
+      } else if (event) {
+        type = keyboardActiveRef.current ? REASONS.keyboard : REASONS.pointer;
       } else {
-        setIndices({
-          activeIndex: nextActiveIndex,
-          type: keyboardActiveRef.current ? REASONS.keyboard : REASONS.pointer,
-        });
+        type = REASONS.none;
       }
+
+      setIndices({ activeIndex: nextActiveIndex, type });
     },
   });
+
+  const highlightItem = useStableCallback((target: HighlightItemTarget) => {
+    // `autoHighlight="always"` guarantees an item is highlighted at all times, so a clear would
+    // be undone synchronously. Report nothing rather than emitting a state the component never
+    // rests in: consumers would otherwise see `undefined` followed by the first item again, and
+    // act on a highlight that was never observable.
+    if (target === 'none' && autoHighlightMode === 'always') {
+      return;
+    }
+
+    listNavigation.highlightItem(target);
+  });
+
+  React.useImperativeHandle(
+    props.actionsRef,
+    () => ({
+      unmount: handleUnmount,
+      close: () => setOpen(false, createChangeEventDetails(REASONS.imperativeAction)),
+      highlightItem,
+    }),
+    [handleUnmount, setOpen, highlightItem],
+  );
 
   const inputProps = React.useMemo(
     () =>
@@ -1776,6 +1794,15 @@ interface ComboboxRootProps<ItemValue, Item = ItemValue> {
    * Call `preventUnmountOnClose()` in `onOpenChange` first, otherwise the combobox completes closing on its own.
    * Whether it leaves the DOM is decided by `keepMounted` on the portal.
    * - `close`: Closes the combobox imperatively when called.
+   * - `highlightItem`: Moves or clears the highlight while the popup is open.
+   *   `'next'` and `'previous'` move sequentially through the items, including across rows in a
+   *   grid, and wrap when `loopFocus` is enabled. Unlike the arrow keys, they never return the
+   *   highlight to the input. `'first'` and `'last'` highlight the first or last item.
+   *   `'none'` clears the highlight; with `autoHighlight="always"`, the highlight cannot be cleared.
+   *   Calling this action does not open the popup. To highlight an item after opening it, call
+   *   the action from `onOpenChangeComplete` when `open` is `true`.
+   *   Highlight changes requested through this action report the reason `'imperative-action'`
+   *   to `onItemHighlighted`.
    */
   actionsRef?: React.RefObject<AriaCombobox.Actions | null> | undefined;
   /**
@@ -1784,7 +1811,9 @@ interface ComboboxRootProps<ItemValue, Item = ItemValue> {
    * The `reason` can be:
    * - `'keyboard'`: the highlight changed due to keyboard navigation.
    * - `'pointer'`: the highlight changed due to pointer hovering.
-   * - `'none'`: the highlight changed programmatically.
+   * - `'imperative-action'`: the highlight changed via `actionsRef`'s `highlightItem`.
+   * - `'none'`: the highlight changed for another reason, such as `autoHighlight`, the item
+   *   list changing, or the popup opening or closing.
    */
   onItemHighlighted?:
     | ((itemValue: ItemValue | undefined, eventDetails: AriaCombobox.HighlightEventDetails) => void)
@@ -1941,6 +1970,8 @@ export type AriaComboboxProps<
     | undefined;
 };
 
+export type AriaComboboxHighlightItemTarget = HighlightItemTarget;
+
 export namespace AriaCombobox {
   export type Props<Value, Mode extends SelectionMode = 'none', Item = Value> = AriaComboboxProps<
     Value,
@@ -1952,10 +1983,16 @@ export namespace AriaCombobox {
   export interface Actions {
     unmount: () => void;
     close: () => void;
+    highlightItem: (target: HighlightItemTarget) => void;
   }
 
+  export type HighlightItemTarget = AriaComboboxHighlightItemTarget;
+
   export type HighlightEventReason =
-    typeof REASONS.keyboard | typeof REASONS.pointer | typeof REASONS.none;
+    | typeof REASONS.keyboard
+    | typeof REASONS.pointer
+    | typeof REASONS.imperativeAction
+    | typeof REASONS.none;
   export type HighlightEventDetails = BaseUIGenericEventDetails<
     HighlightEventReason,
     { index: number }

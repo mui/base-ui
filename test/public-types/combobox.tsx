@@ -37,7 +37,11 @@ function useComboboxFilter(
 
 export const ComboboxHarness = React.forwardRef<HTMLInputElement, SimpleComboboxProps>(
   function ComboboxHarness(props, ref) {
-    const actionsRef = React.useRef<ComboboxActions>({ unmount() {}, close() {} });
+    const actionsRef = React.useRef<ComboboxActions>({
+      unmount() {},
+      close() {},
+      highlightItem() {},
+    });
     const filter = useComboboxFilter({ value: props.value, multiple: false });
 
     function handleValueChange(value: string | null, details: ComboboxChangeEventDetails) {
