@@ -7,7 +7,6 @@ import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { platform } from '@base-ui/utils/platform';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { contains } from '@base-ui/utils/shadowDom';
 import { safePolygon, useClick, useHoverReferenceInteraction } from '../../floating-ui-react';
 import { BaseUIComponentProps, NonNativeButtonProps } from '../../internals/types';
 import { useMenuRootContext } from '../root/MenuRootContext';
@@ -204,11 +203,9 @@ export const MenuSubmenuTrigger = React.forwardRef(function MenuSubmenuTrigger(
         onFocus(event) {
           // Close when a screen reader returns to the trigger so it can continue to the next
           // parent menu item. Hovering back to the trigger should leave the submenu open.
-          const isFocusGuardRelatedTarget =
-            contains(store.select('positionerElement'), event.relatedTarget) &&
-            !contains(store.context.popupRef.current, event.relatedTarget);
+          const focusGuard = store.context.beforeContentFocusGuardRef.current;
 
-          if (store.select('open') && isFocusGuardRelatedTarget) {
+          if (store.select('open') && focusGuard && event.relatedTarget === focusGuard) {
             store.setOpen(false, createChangeEventDetails(REASONS.focusOut, event.nativeEvent));
           }
         },
