@@ -349,6 +349,10 @@ export const SliderControl = React.forwardRef(function SliderControl(
   });
 
   const handleTouchEnd = useStableCallback((nativeEvent: TouchEvent | PointerEvent) => {
+    if (getFingerCoords(nativeEvent, touchIdRef) == null) {
+      return;
+    }
+
     setActive(-1);
     setDragging(false);
 
@@ -378,9 +382,18 @@ export const SliderControl = React.forwardRef(function SliderControl(
     }
 
     pressedThumbIndexRef.current = -1;
-    touchIdRef.current = null;
     // eslint-disable-next-line @typescript-eslint/no-use-before-define
     stopListening();
+  });
+
+  const handlePointerCancel = useStableCallback((nativeEvent: PointerEvent) => {
+    // The browser cancels a touch pointer once it starts panning, but the touch listeners keep
+    // tracking the finger until `touchend` or `touchcancel`.
+    if (touchIdRef.current != null) {
+      return;
+    }
+
+    handleTouchEnd(nativeEvent);
   });
 
   const handleTouchStart = useStableCallback((nativeEvent: TouchEvent) => {
@@ -426,14 +439,18 @@ export const SliderControl = React.forwardRef(function SliderControl(
     const doc = ownerDocument(controlRef.current);
     doc.addEventListener('touchmove', handleTouchMove, { passive: true });
     doc.addEventListener('touchend', handleTouchEnd, { passive: true });
+    doc.addEventListener('touchcancel', handleTouchEnd, { passive: true });
   });
 
   const stopListening = useStableCallback(() => {
     const doc = ownerDocument(controlRef.current);
     doc.removeEventListener('pointermove', handleTouchMove);
     doc.removeEventListener('pointerup', handleTouchEnd);
+    doc.removeEventListener('pointercancel', handlePointerCancel);
     doc.removeEventListener('touchmove', handleTouchMove);
     doc.removeEventListener('touchend', handleTouchEnd);
+    doc.removeEventListener('touchcancel', handleTouchEnd);
+    touchIdRef.current = null;
     pressedValuesRef.current = null;
     currentInteractionValueRef.current = null;
     pointerGestureRef.current = false;
@@ -532,6 +549,7 @@ export const SliderControl = React.forwardRef(function SliderControl(
           const doc = ownerDocument(control);
           doc.addEventListener('pointermove', handleTouchMove, { passive: true });
           doc.addEventListener('pointerup', handleTouchEnd, { once: true });
+          doc.addEventListener('pointercancel', handlePointerCancel, { once: true });
         },
       },
       elementProps,

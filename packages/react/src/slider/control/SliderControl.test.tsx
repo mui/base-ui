@@ -307,7 +307,188 @@ describe('<Slider.Control />', () => {
     },
   );
 
-  // Requires layout: the range drag relies on real thumb measurements.
+  describe('cancelled gestures', () => {
+    async function renderCancelTestSlider() {
+      const onValueChange = vi.fn();
+      const onValueCommitted = vi.fn();
+
+      function TestSlider({ disabled = false }) {
+        return (
+          <React.Fragment>
+            <Slider.Root
+              disabled={disabled}
+              defaultValue={20}
+              onValueChange={onValueChange}
+              onValueCommitted={onValueCommitted}
+            >
+              <Slider.Control data-testid="control">
+                <Slider.Thumb />
+              </Slider.Control>
+            </Slider.Root>
+            <div data-testid="elsewhere" />
+          </React.Fragment>
+        );
+      }
+
+      const { setProps } = await render(<TestSlider />);
+
+      const control = screen.getByTestId('control');
+      vi.spyOn(control, 'getBoundingClientRect').mockImplementation(getHorizontalSliderRect);
+      Object.defineProperties(control, {
+        setPointerCapture: { configurable: true, value: vi.fn() },
+        hasPointerCapture: { configurable: true, value: () => false },
+        releasePointerCapture: { configurable: true, value: vi.fn() },
+      });
+
+      return {
+        control,
+        elsewhere: screen.getByTestId('elsewhere'),
+        onValueChange,
+        onValueCommitted,
+        setProps,
+      };
+    }
+
+    it.skipIf(isJSDOM || typeof Touch === 'undefined').each(['touchEnd', 'touchCancel'] as const)(
+      'ignores %s from another finger during a touch drag',
+      async (eventName) => {
+        const { control, elsewhere, onValueChange, onValueCommitted } =
+          await renderCancelTestSlider();
+        const pointer = { pointerId: 1, pointerType: 'touch' };
+        const firstTouch = createTouches([{ identifier: 1, clientX: 40, clientY: 0 }]);
+        const secondTouch = createTouches([{ identifier: 2, clientX: 90, clientY: 0 }]);
+
+        fireEvent.pointerDown(control, { ...pointer, button: 0, buttons: 1, clientX: 40 });
+        fireEvent.touchStart(control, firstTouch);
+        fireEvent.touchMove(
+          document.body,
+          createTouches([{ identifier: 1, clientX: 70, clientY: 0 }]),
+        );
+        fireEvent.touchStart(elsewhere, secondTouch);
+        fireEvent[eventName](elsewhere, secondTouch);
+
+        expect(onValueCommitted).not.toHaveBeenCalled();
+        expect(control).toHaveAttribute('data-dragging', '');
+
+        const lastTouch = createTouches([{ identifier: 1, clientX: 80, clientY: 0 }]);
+        fireEvent.touchMove(document.body, lastTouch);
+        expect(onValueChange.mock.calls.at(-1)?.[0]).toBe(80);
+
+        fireEvent.touchCancel(document.body, lastTouch);
+        expect(onValueCommitted).toHaveBeenCalledExactlyOnceWith(
+          80,
+          expect.objectContaining({ reason: 'drag' }),
+        );
+        expect(control).not.toHaveAttribute('data-dragging');
+      },
+    );
+
+    it.skipIf(isJSDOM || typeof Touch === 'undefined').each(['mouse', 'pen'])(
+      'ends a cancelled %s drag after disabling and re-enabling during a touch drag',
+      async (pointerType) => {
+        const { control, elsewhere, onValueChange, onValueCommitted, setProps } =
+          await renderCancelTestSlider();
+
+        fireEvent.pointerDown(control, {
+          pointerId: 1,
+          pointerType: 'touch',
+          button: 0,
+          buttons: 1,
+          clientX: 40,
+        });
+        const touches = createTouches([{ identifier: 1, clientX: 40, clientY: 0 }]);
+        fireEvent.touchStart(control, touches);
+        await setProps({ disabled: true });
+        fireEvent.touchCancel(document.body, touches);
+        await setProps({ disabled: false });
+
+        const pointer = { pointerId: 7, pointerType };
+        fireEvent.pointerDown(control, { ...pointer, button: 0, buttons: 1, clientX: 50 });
+        fireEvent.pointerMove(document.body, { ...pointer, buttons: 1, clientX: 70 });
+        fireEvent.pointerCancel(document.body, pointer);
+
+        expect(onValueCommitted).toHaveBeenCalledExactlyOnceWith(
+          70,
+          expect.objectContaining({ reason: 'drag' }),
+        );
+        expect(control).not.toHaveAttribute('data-dragging');
+
+        onValueChange.mockClear();
+        fireEvent.pointerMove(elsewhere, { ...pointer, buttons: 1, clientX: 90 });
+        fireEvent.pointerUp(elsewhere, { ...pointer, buttons: 0, clientX: 90 });
+        expect(onValueChange).not.toHaveBeenCalled();
+        expect(onValueCommitted).toHaveBeenCalledTimes(1);
+      },
+    );
+
+    it.each(['mouse', 'pen'])(
+      'commits and ends a %s drag on pointercancel',
+      async (pointerType) => {
+        const { control, elsewhere, onValueChange, onValueCommitted } =
+          await renderCancelTestSlider();
+        const pointer = { pointerId: 7, pointerType };
+
+        fireEvent.pointerDown(control, { ...pointer, button: 0, buttons: 1, clientX: 40 });
+        fireEvent.pointerMove(document.body, { ...pointer, buttons: 1, clientX: 70 });
+        expect(control).toHaveAttribute('data-dragging', '');
+
+        fireEvent.pointerCancel(document.body, pointer);
+
+        expect(onValueCommitted.mock.calls.length).toBe(1);
+        expect(onValueCommitted.mock.calls[0][0]).toBe(70);
+        expect(control).not.toHaveAttribute('data-dragging');
+
+        onValueChange.mockClear();
+        fireEvent.pointerDown(elsewhere, { ...pointer, button: 0, buttons: 1, clientX: 90 });
+        fireEvent.pointerMove(elsewhere, { ...pointer, buttons: 1, clientX: 90 });
+        fireEvent.pointerUp(elsewhere, { ...pointer, buttons: 0, clientX: 90 });
+
+        expect(onValueChange).not.toHaveBeenCalled();
+        expect(onValueCommitted.mock.calls.length).toBe(1);
+      },
+    );
+
+    it.skipIf(isJSDOM || typeof Touch === 'undefined')(
+      'keeps a touch drag going after pointercancel and commits and ends it on touchcancel',
+      async () => {
+        const { control, elsewhere, onValueChange, onValueCommitted } =
+          await renderCancelTestSlider();
+        const pointer = { pointerId: 1, pointerType: 'touch' };
+
+        fireEvent.pointerDown(control, { ...pointer, button: 0, buttons: 1, clientX: 40 });
+        fireEvent.touchStart(control, createTouches([{ identifier: 1, clientX: 40, clientY: 0 }]));
+        // Without `touch-action: none`, the browser cancels the pointer once it starts panning.
+        fireEvent.pointerCancel(document.body, pointer);
+        fireEvent.touchMove(
+          document.body,
+          createTouches([{ identifier: 1, clientX: 70, clientY: 0 }]),
+        );
+
+        expect(onValueChange.mock.calls.at(-1)?.[0]).toBe(70);
+
+        fireEvent.touchCancel(
+          document.body,
+          createTouches([{ identifier: 1, clientX: 70, clientY: 0 }]),
+        );
+
+        expect(onValueCommitted.mock.calls.length).toBe(1);
+        expect(onValueCommitted.mock.calls[0][0]).toBe(70);
+        expect(control).not.toHaveAttribute('data-dragging');
+
+        onValueChange.mockClear();
+        const touches = createTouches([{ identifier: 2, clientX: 90, clientY: 0 }]);
+        fireEvent.pointerDown(elsewhere, { pointerId: 2, pointerType: 'touch', buttons: 1 });
+        fireEvent.touchStart(elsewhere, touches);
+        fireEvent.touchMove(document.body, touches);
+        fireEvent.pointerUp(elsewhere, { pointerId: 2, pointerType: 'touch', buttons: 0 });
+        fireEvent.touchEnd(document.body, touches);
+
+        expect(onValueChange).not.toHaveBeenCalled();
+        expect(onValueCommitted.mock.calls.length).toBe(1);
+      },
+    );
+  });
+
   it.skipIf(isJSDOM)(
     'does not resurrect a removed thumb value when the range shrinks mid-drag',
     async () => {
