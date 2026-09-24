@@ -1770,6 +1770,29 @@ describe('<Checkbox.Root />', () => {
     });
   });
 
+  it('prefers `aria-label` over an associated label', async () => {
+    await render(
+      <React.Fragment>
+        <label>
+          <Checkbox.Root aria-label="lease.pdf" />
+          lease.pdf
+        </label>
+        <Field.Root>
+          <Field.Label>
+            <Checkbox.Root aria-label="notes.txt" />
+            notes.txt
+          </Field.Label>
+        </Field.Root>
+      </React.Fragment>,
+    );
+
+    const [nativeLabelled, fieldLabelled] = screen.getAllByRole('checkbox');
+    expect(nativeLabelled).not.toHaveAttribute('aria-labelledby');
+    expect(nativeLabelled).toHaveAccessibleName('lease.pdf');
+    expect(fieldLabelled).not.toHaveAttribute('aria-labelledby');
+    expect(fieldLabelled).toHaveAccessibleName('notes.txt');
+  });
+
   it('can render a native button', async () => {
     const { container, user } = await render(<Checkbox.Root render={<button />} nativeButton />);
 

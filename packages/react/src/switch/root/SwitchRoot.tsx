@@ -113,6 +113,7 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
     inputRef,
     !nativeButton,
     hiddenInputId,
+    elementProps['aria-label'],
   );
 
   const rootProps: React.ComponentPropsWithRef<'span'> = {
