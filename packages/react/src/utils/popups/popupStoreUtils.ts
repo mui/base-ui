@@ -586,6 +586,13 @@ export function useOpenStateTransitions<State extends PopupStoreState<unknown>>(
     false,
     animateInitialOpen,
   );
+  // Seed the Root-owned store before parts subscribe, matching the hook's initial mounted state.
+  // Otherwise, an initially open Root looks like a reopen until the layout effect syncs the store.
+  useRefWithInit(() => {
+    store.set('mounted', mounted);
+    return null;
+  });
+
   const preventUnmountingOnClose = store.useState('preventUnmountingOnClose');
   // Opening starts a new close cycle. Clear during render so the close-completion hook below
   // reads the synchronized value on the same pass.

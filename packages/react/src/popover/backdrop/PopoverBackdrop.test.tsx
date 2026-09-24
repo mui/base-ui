@@ -2,6 +2,7 @@ import { expect, describe, it } from 'vitest';
 import { Popover } from '@base-ui/react/popover';
 import { createRenderer, describeConformance } from '#test-utils';
 import { screen, waitFor } from '@mui/internal-test-utils';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 
 describe('<Popover.Backdrop />', () => {
   const { render } = createRenderer();
@@ -12,6 +13,33 @@ describe('<Popover.Backdrop />', () => {
       return render(<Popover.Root open>{node}</Popover.Root>);
     },
   }));
+
+  [false, true].forEach((controlled) => {
+    it(`does not start an entry phase when initially open (controlled=${controlled})`, async () => {
+      const statuses = new Set<Popover.Backdrop.State['transitionStatus']>();
+
+      function RecordState({ state }: { state: Popover.Backdrop.State }) {
+        useIsoLayoutEffect(() => {
+          statuses.add(state.transitionStatus);
+        }, [state]);
+        return null;
+      }
+
+      await render(
+        <Popover.Root open={controlled ? true : undefined} defaultOpen={!controlled}>
+          <Popover.Backdrop
+            render={(props, state) => (
+              <div {...props}>
+                <RecordState state={state} />
+              </div>
+            )}
+          />
+        </Popover.Root>,
+      );
+
+      expect(statuses).toEqual(new Set([undefined]));
+    });
+  });
 
   it('sets `pointer-events: none` style on backdrop if opened by hover', async () => {
     const { user } = await render(
