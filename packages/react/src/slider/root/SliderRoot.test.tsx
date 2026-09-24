@@ -21,6 +21,7 @@ import type { SliderRoot } from './SliderRoot';
 import { createTouches, getHorizontalSliderRect } from '../utils/test-utils';
 
 const isWebKit = platform.engine.webkit;
+const isBlink = platform.engine.blink;
 
 const USD_NUMBER_FORMAT: Intl.NumberFormatOptions = {
   style: 'currency',
@@ -899,6 +900,48 @@ describe('<Slider.Root />', () => {
       expect(handleValueCommitted.mock.calls[0][0]).toBe(50);
     });
 
+    // Real touch input, so the browser decides the pointer and compatibility touch event order.
+    it.skipIf(isJSDOM || !isBlink)('commits a real touch track tap', async () => {
+      const { cdp } = await import('vitest/browser');
+      const reactGlobals = globalThis as typeof globalThis & {
+        IS_REACT_ACT_ENVIRONMENT?: boolean;
+      };
+      const handleValueCommitted = vi.fn();
+
+      await render(
+        <Slider.Root defaultValue={0} onValueCommitted={handleValueCommitted}>
+          <Slider.Control data-testid="control" style={{ width: 200, height: 20 }}>
+            <Slider.Thumb style={{ width: 10, height: 10 }} />
+          </Slider.Control>
+        </Slider.Root>,
+      );
+
+      const rect = screen.getByTestId('control').getBoundingClientRect();
+      // The tester renders inside a scaled iframe, and CDP takes top-level page coordinates.
+      const frameRect = window.frameElement?.getBoundingClientRect() ?? new DOMRect();
+      const scale = frameRect.width / window.innerWidth || 1;
+      const touchPoints = [
+        {
+          x: frameRect.left + (rect.left + rect.width / 2) * scale,
+          y: frameRect.top + (rect.top + rect.height / 2) * scale,
+        },
+      ];
+
+      reactGlobals.IS_REACT_ACT_ENVIRONMENT = false;
+      try {
+        const session = cdp();
+        await session.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints });
+        await session.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+
+        await waitFor(() => {
+          expect(handleValueCommitted.mock.calls.length).toBe(1);
+        });
+        expect(handleValueCommitted.mock.calls[0][0]).toBe(50);
+      } finally {
+        reactGlobals.IS_REACT_ACT_ENVIRONMENT = true;
+      }
+    });
+
     it('keeps tracking a touch drag with touch listeners after the browser cancels the pointer', async () => {
       const handleValueCommitted = vi.fn();
 
@@ -988,7 +1031,8 @@ describe('<Slider.Root />', () => {
           fireEvent.touchCancel(document.body);
         }
 
-        // Only the touch handler initializes the next press when its pointerdown is prevented.
+        // Harness only: a prevented pointerdown still resets the flag but leaves the press to the
+        // touch handler. Whether touch should respect the prevented pointerdown isn't pinned here.
         preventPointerDown = true;
         fireEvent.pointerDown(sliderControl, {
           pointerType: 'touch',
