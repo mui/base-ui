@@ -93,6 +93,7 @@ export const SliderControl = React.forwardRef(function SliderControl(
     disabled,
     dragging,
     inset,
+    isArrayValue,
     lastChangeReasonRef,
     max,
     min,
@@ -202,7 +203,7 @@ export const SliderControl = React.forwardRef(function SliderControl(
 
     if (!range) {
       return {
-        value: newValue,
+        value: isArrayValue ? [newValue] : newValue,
         thumbIndex,
         didSwap: false,
       };
