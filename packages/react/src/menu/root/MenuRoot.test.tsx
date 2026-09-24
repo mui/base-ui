@@ -3012,8 +3012,9 @@ describe('<Menu.Root />', () => {
 
   describe('prop: highlightItemOnHover', () => {
     it('highlights an item on mouse move by default', async () => {
+      const onItemHighlighted = vi.fn();
       await render(
-        <Menu.Root open>
+        <Menu.Root open onItemHighlighted={onItemHighlighted}>
           <Menu.Portal>
             <Menu.Positioner>
               <Menu.Popup>
@@ -3031,6 +3032,10 @@ describe('<Menu.Root />', () => {
 
       await waitFor(() => {
         expect(item2).toHaveFocus();
+      });
+      expect(onItemHighlighted).toHaveBeenLastCalledWith(item2, {
+        reason: REASONS.pointer,
+        label: 'Item 2',
       });
     });
 
