@@ -523,8 +523,8 @@ export const SliderControl = React.forwardRef(function SliderControl(
           }
 
           moveCountRef.current = 0;
-          // Mouse presses have no `touchstart` to consume the flag.
-          pointerGestureRef.current = event.pointerType !== 'mouse';
+          // Only touch pointers have a following `touchstart` to consume the flag.
+          pointerGestureRef.current = event.pointerType === 'touch';
           const doc = ownerDocument(control);
           doc.addEventListener('pointermove', handleTouchMove, { passive: true });
           doc.addEventListener('pointerup', handleTouchEnd, { once: true });

@@ -1,4 +1,4 @@
-import { expect, vi, describe, beforeAll, it } from 'vitest';
+import { expect, vi, describe, beforeAll, afterAll, it } from 'vitest';
 import * as React from 'react';
 import { act, flushMicrotasks, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { DirectionProvider, type TextDirection } from '@base-ui/react/direction-provider';
@@ -73,12 +73,35 @@ function TestMultiThumbSlider(props: SliderRoot.Props) {
 }
 
 describe('<Slider.Root />', () => {
-  beforeAll(function beforeHook() {
-    // jsdom implements PointerEvent now (jsdom#2527 is fixed), but not the pointer capture methods
-    // on Element, so the slider throws on `setPointerCapture`/`hasPointerCapture` without this.
-    // Note this also applies in real browsers, where it costs `pointerId` and `pointerType` on
-    // every event. Replace with stubs for the three capture methods to drop it.
-    (window as any).PointerEvent = window.MouseEvent;
+  const pointerCaptureMethods = [
+    'setPointerCapture',
+    'hasPointerCapture',
+    'releasePointerCapture',
+  ] as const;
+  const pointerCaptureDescriptors = pointerCaptureMethods.map((method) =>
+    Object.getOwnPropertyDescriptor(Element.prototype, method),
+  );
+
+  beforeAll(() => {
+    // Synthetic pointer events have no active pointer to capture. Preserve PointerEvent so
+    // gesture tests still exercise their pointerType and pointerId.
+    pointerCaptureMethods.forEach((method) => {
+      Object.defineProperty(Element.prototype, method, {
+        configurable: true,
+        value: vi.fn(() => false),
+      });
+    });
+  });
+
+  afterAll(() => {
+    pointerCaptureMethods.forEach((method, index) => {
+      const descriptor = pointerCaptureDescriptors[index];
+      if (descriptor) {
+        Object.defineProperty(Element.prototype, method, descriptor);
+      } else {
+        Reflect.deleteProperty(Element.prototype, method);
+      }
+    });
   });
 
   const { render, renderToString } = createRenderer();
@@ -915,42 +938,73 @@ describe('<Slider.Root />', () => {
       expect(handleValueCommitted.mock.calls[0][0]).toBe(70);
     });
 
-    it('handles a touch press normally after a cancelled pointer gesture', async () => {
-      const handleValueChange = vi.fn();
+    it.each(['mouse', 'pen', 'touch'])(
+      'handles a touch press normally after a cancelled %s gesture',
+      async (pointerType) => {
+        const handleValueChange = vi.fn();
+        const handleValueCommitted = vi.fn();
+        let preventPointerDown = false;
 
-      await render(
-        <Slider.Root defaultValue={0} onValueChange={handleValueChange}>
-          <Slider.Control data-testid="control">
-            <Slider.Thumb />
-          </Slider.Control>
-        </Slider.Root>,
-      );
+        await render(
+          <Slider.Root
+            defaultValue={0}
+            onValueChange={handleValueChange}
+            onValueCommitted={handleValueCommitted}
+          >
+            <Slider.Control
+              data-testid="control"
+              onPointerDown={(event) => {
+                if (preventPointerDown) {
+                  event.preventDefault();
+                }
+              }}
+            >
+              <Slider.Thumb />
+            </Slider.Control>
+          </Slider.Root>,
+        );
 
-      const sliderControl = screen.getByTestId('control');
+        const sliderControl = screen.getByTestId('control');
+        vi.spyOn(sliderControl, 'getBoundingClientRect').mockImplementation(
+          getHorizontalSliderRect,
+        );
 
-      vi.spyOn(sliderControl, 'getBoundingClientRect').mockImplementation(getHorizontalSliderRect);
+        fireEvent.pointerDown(sliderControl, {
+          pointerType,
+          pointerId: 1,
+          buttons: 1,
+          clientX: 50,
+        });
+        if (pointerType === 'touch') {
+          fireEvent.touchStart(
+            sliderControl,
+            createTouches([{ identifier: 1, clientX: 50, clientY: 0 }]),
+          );
+        }
+        expect(handleValueChange.mock.calls.at(-1)?.[0]).toBe(50);
+        fireEvent.pointerCancel(sliderControl, { pointerType, pointerId: 1 });
+        if (pointerType === 'touch') {
+          fireEvent.touchCancel(document.body);
+        }
 
-      fireEvent.pointerDown(sliderControl, {
-        pointerType: 'touch',
-        pointerId: 1,
-        buttons: 1,
-        clientX: 50,
-      });
-      fireEvent.touchStart(
-        sliderControl,
-        createTouches([{ identifier: 1, clientX: 50, clientY: 0 }]),
-      );
-      fireEvent.pointerCancel(sliderControl, { pointerType: 'touch', pointerId: 1 });
-      fireEvent.touchCancel(document.body);
+        // Only the touch handler initializes the next press when its pointerdown is prevented.
+        preventPointerDown = true;
+        fireEvent.pointerDown(sliderControl, {
+          pointerType: 'touch',
+          pointerId: 2,
+          buttons: 1,
+          clientX: 30,
+        });
+        const touches = createTouches([{ identifier: 2, clientX: 30, clientY: 0 }]);
+        fireEvent.touchStart(sliderControl, touches);
+        expect(handleValueChange.mock.calls.at(-1)?.[0]).toBe(30);
 
-      // A press whose `pointerdown` wasn't handled, so only the touch handler starts it.
-      fireEvent.touchStart(
-        sliderControl,
-        createTouches([{ identifier: 2, clientX: 30, clientY: 0 }]),
-      );
-
-      expect(handleValueChange.mock.calls.at(-1)?.[0]).toBe(30);
-    });
+        fireEvent.pointerUp(sliderControl, { pointerType: 'touch', pointerId: 2, clientX: 30 });
+        fireEvent.touchEnd(document.body, touches);
+        expect(handleValueCommitted.mock.calls.length).toBe(1);
+        expect(handleValueCommitted.mock.calls[0][0]).toBe(30);
+      },
+    );
 
     it('does not change the value on a touch tap on the thumb', async () => {
       const handleValueChange = vi.fn();
