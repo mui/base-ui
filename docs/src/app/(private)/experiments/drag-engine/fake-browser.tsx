@@ -722,7 +722,6 @@ function MoreMenu({
     index: startIndex,
     surfaceId: 'bar',
   };
-  const canDrop = useBookmarkCanDrop(intent);
 
   return (
     <Menu.Root open={openMenuIds.has(MORE_MENU_ID)} onOpenChange={handleOpenChange}>
@@ -730,7 +729,6 @@ function MoreMenu({
         accept={acceptedBookmarkKinds}
         kind={bookmarkDropKind}
         payload={intent}
-        canDrop={canDrop}
         trackDragOver={false}
         onDraggableEnter={handleDragEnter}
         render={

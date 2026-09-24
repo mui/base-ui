@@ -96,7 +96,9 @@ function findClosestColumn(clientX: number, elements: Map<ColumnId, HTMLElement>
 function computeSlotYs(columnEl: HTMLElement): number[] {
   const body = columnEl.querySelector('[data-column-body]') as HTMLElement | null;
   const scope = body ?? columnEl;
-  const cardEls = Array.from(scope.querySelectorAll('[data-card]')) as HTMLElement[];
+  const cardEls = Array.from(
+    scope.querySelectorAll<HTMLElement>('[data-card]:not([data-drag-preview])'),
+  );
 
   if (cardEls.length === 0) {
     return [scope.getBoundingClientRect().top];

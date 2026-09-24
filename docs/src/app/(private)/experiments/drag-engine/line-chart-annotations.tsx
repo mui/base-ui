@@ -626,12 +626,21 @@ function AnnotationDraggable(props: {
           ),
         );
       }}
-      onMoveEnd={({ source, canceled }) => {
-        // A normal release has nothing to commit — the annotation has been moving
-        // all along. Escape is the case that needs the snapshot.
-        if (canceled && source.dragData) {
-          change(source.dragData.snapshot);
+      onMoveEnd={({ source, location, canceled }) => {
+        if (!source.dragData) {
+          return;
         }
+        // The release can carry a newer position than the last animation frame.
+        change(
+          canceled
+            ? source.dragData.snapshot
+            : dragAnnotation(
+                source.dragData,
+                location,
+                snap,
+                plotRef.current?.getBoundingClientRect() ?? null,
+              ),
+        );
       }}
       className={className}
       style={style}

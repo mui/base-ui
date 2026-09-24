@@ -99,7 +99,9 @@ export function suppressNextClick(
     win,
     'click',
     (event) => {
-      if (shouldAllowClick?.(event)) {
+      // Keyboard and programmatic activation have no pointer compatibility
+      // click to consume. Keep waiting for the drag's actual click.
+      if (event.detail === 0 || shouldAllowClick?.(event)) {
         return;
       }
       // In the held-pointer mode the click being waited on is the held pointer's

@@ -1153,6 +1153,38 @@ describe('lifecycle manager', () => {
       removeMonitor(getMonitor);
     });
 
+    it.each(['manager', 'controller'] as const)(
+      'ignores %s cancellation from recovery callbacks',
+      (cancelVia) => {
+        let handle: DragSessionHandle | null = null;
+        const onMoveEnd = vi.fn<NonNullable<SourceHandlers['onMoveEnd']>>(() => {
+          if (cancelVia === 'manager') {
+            cancelDrag();
+          } else {
+            handle!.controller.cancel();
+          }
+        });
+        const monitorEnd = vi.fn();
+        const getMonitor = () => ({ onMoveEnd: monitorEnd });
+        monitorRegistry.add(getMonitor);
+        handle = startDragWithHandlers({
+          onMove: () => {
+            throw new Error('boom from onMove');
+          },
+          onMoveEnd,
+        });
+        act(() => {
+          expect(() => handle!.controller.update(makeInput(), null)).toThrow('boom from onMove');
+        });
+        expect(onMoveEnd).toHaveBeenCalledTimes(1);
+        expect(onMoveEnd.mock.calls[0][1].reason).toBe('handler-error');
+        expect(monitorEnd).toHaveBeenCalledTimes(1);
+        expect(monitorEnd.mock.calls[0][1].reason).toBe('handler-error');
+        expectEngineRecovered();
+        removeMonitor(getMonitor);
+      },
+    );
+
     it('delivers a terminal leave to hovered targets before handler-error teardown', () => {
       const target = createElement();
       const onDraggableEnter = vi.fn();

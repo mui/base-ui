@@ -112,9 +112,7 @@ function CalendarExperimentInner() {
   // `Draggable.Provider`, as this component is) and check it carries a calendar kind.
   const dragSource = Draggable.useActiveDrag();
   const isCalendarDragging =
-    dragSource != null &&
-    typeof dragSource.kind === 'string' &&
-    CAL_DRAG_KINDS.some((kind) => kind.matches(dragSource));
+    dragSource != null && CAL_DRAG_KINDS.some((kind) => kind.matches(dragSource));
   React.useEffect(() => {
     if (!isCalendarDragging) {
       setDropPreview(null);

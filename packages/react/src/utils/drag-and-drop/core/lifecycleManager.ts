@@ -342,6 +342,12 @@ export function start(parameters: StartParameters): DragSessionHandle | null {
     if (endDispatched || tornDown) {
       return;
     }
+    // Recovery owns the terminal sequence, including callbacks that cancel or
+    // unregister a target while its leave is being delivered.
+    endDispatched = true;
+    state.dragCancel = null;
+    state.refreshDropTargets = null;
+    state.shouldRefreshTargets = null;
     const endDetails = createDragEventDetails<DragEndReason>('handler-error');
     // Targets that observed an enter still need the matching terminal leave.
     // Dispatch only the target side here: the source callback that brought us
@@ -368,7 +374,6 @@ export function start(parameters: StartParameters): DragSessionHandle | null {
     const recoveryInput = location.current.input;
     location.previous = lastDispatched;
     location.current = { input: recoveryInput, dropTargets: [] };
-    endDispatched = true;
     const endPayload: DraggableEventMap['onMoveEnd'] = {
       location: snapshotLocation(),
       source,
@@ -919,7 +924,7 @@ export function start(parameters: StartParameters): DragSessionHandle | null {
   ): void {
     // See `doDrop`: the announcement between the sensor's `clearActive()` and
     // this call can already have ended the drag.
-    if (tornDown) {
+    if (tornDown || endDispatched) {
       return;
     }
     const endDetails = createDragEventDetails<DragEndReason>(reason, event);

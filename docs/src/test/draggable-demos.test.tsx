@@ -241,6 +241,35 @@ describe('draggable demos', () => {
     });
   });
   describe.each([
+    ['on-drop CSS Modules', SortableOnDropCss],
+    ['on-drop Tailwind', SortableOnDropTailwind],
+    ['live CSS Modules', SortableLiveCss],
+    ['live Tailwind', SortableLiveTailwind],
+  ] as const)('sorting announcements with %s', (_name, Demo) => {
+    it('announces accepted keyboard moves once and retains focus', async () => {
+      vi.stubGlobal(
+        'matchMedia',
+        vi.fn(() => ({ matches: true })),
+      );
+      const { user } = await renderDnd(<Demo />);
+      const source = screen.getByRole('button', { name: 'Write the spec' });
+      const status = screen.getByRole('status');
+      expect(status.textContent).toBe('');
+      source.focus();
+      await user.keyboard('{Alt>}{ArrowUp}{/Alt}');
+      expect(status.textContent).toBe('');
+      await user.keyboard('{Alt>}{ArrowDown}{/Alt}');
+      expect(source).toHaveFocus();
+      expect(status.textContent).toBe('Write the spec moved to position 2 of 4.');
+      expect(screen.getAllByRole('status')).toHaveLength(1);
+      await user.keyboard('{Alt>}{ArrowUp}{/Alt}');
+      expect(status.textContent).toBe('Write the spec moved to position 1 of 4.');
+      await user.keyboard('{Alt>}{ArrowUp}{/Alt}');
+      expect(status.textContent).toBe('Write the spec moved to position 1 of 4.');
+    });
+  });
+
+  describe.each([
     ['CSS Modules', SortableOnDropCss],
     ['Tailwind', SortableOnDropTailwind],
   ] as const)('reorder on drop with %s', (_name, Demo) => {

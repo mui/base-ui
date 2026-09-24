@@ -17,7 +17,7 @@ export interface CalendarEvent {
   end: number;
   /**
    * `true` for whole-day events. All-day events have start/end aligned to
-   * local midnight; their duration is a multiple of 24 hours.
+   * local midnight; their duration spans whole calendar days.
    */
   allDay: boolean;
 }
@@ -143,7 +143,9 @@ export function calendarReducer(state: CalendarState, action: CalendarAction): C
       const duration = event.end - event.start;
       const allDay = action.newAllDay ?? event.allDay;
       const start = allDay ? startOfDay(action.newStart) : action.newStart;
-      const end = start + duration;
+      const end = allDay
+        ? addDays(start, event.allDay ? spanDays(event) : Math.max(1, Math.ceil(duration / DAY_MS)))
+        : start + duration;
       return {
         ...state,
         events: {
@@ -163,9 +165,8 @@ export function calendarReducer(state: CalendarState, action: CalendarAction): C
       if (action.edge === 'start') {
         nextStart = event.allDay ? startOfDay(action.newTime) : action.newTime;
       } else {
-        // Round all-day end to next midnight so the duration stays day-aligned
-        // and a same-day resize collapses to a single 24h span.
-        nextEnd = event.allDay ? startOfDay(action.newTime) + DAY_MS : action.newTime;
+        // The preview already supplies an exclusive end boundary.
+        nextEnd = event.allDay ? startOfDay(action.newTime) : action.newTime;
       }
       // Clamp: if the dragged edge crossed the other one, swap so the event
       // stays valid (duration > 0). Resizing past the opposite edge "flips"
@@ -174,9 +175,9 @@ export function calendarReducer(state: CalendarState, action: CalendarAction): C
         if (event.allDay) {
           // Force a 1-day minimum for all-day events.
           if (action.edge === 'start') {
-            nextStart = nextEnd - DAY_MS;
+            nextStart = addDays(nextEnd, -1);
           } else {
-            nextEnd = nextStart + DAY_MS;
+            nextEnd = addDays(nextStart, 1);
           }
         } else if (action.edge === 'start') {
           nextStart = nextEnd - MIN_TIMED_DURATION_MS;
@@ -271,7 +272,12 @@ export function addDays(ms: number, days: number): number {
 
 export function addMonths(ms: number, months: number): number {
   const d = new Date(ms);
+  const day = d.getDate();
+  d.setDate(1);
   d.setMonth(d.getMonth() + months);
+  const endOfMonth = new Date(d);
+  endOfMonth.setMonth(endOfMonth.getMonth() + 1, 0);
+  d.setDate(Math.min(day, endOfMonth.getDate()));
   return d.getTime();
 }
 
@@ -328,7 +334,7 @@ export function buildWeekDays(weekStartMs: number): number[] {
 /** Inclusive day count an event spans. A 1h event = 1, a 2-day event = 2. */
 export function spanDays(event: { start: number; end: number; allDay: boolean }): number {
   if (event.allDay) {
-    return Math.max(1, Math.round((event.end - event.start) / DAY_MS));
+    return Math.max(1, diffDays(event.end, event.start));
   }
   // Timed events: count distinct local-midnight boundaries crossed, +1.
   const startDay = startOfDay(event.start);
@@ -475,7 +481,9 @@ export function resolveDropPreview(
       const start = dayMs + offset;
       return {
         start,
-        end: start + duration,
+        end: sourcePayload.allDay
+          ? addDays(start, diffDays(sourcePayload.anchorEnd, sourcePayload.anchorStart))
+          : start + duration,
         allDay: sourcePayload.allDay,
         intent: 'move',
       };
@@ -484,7 +492,12 @@ export function resolveDropPreview(
       const start = targetDayMs;
       return {
         start,
-        end: start + Math.max(DAY_MS, duration),
+        end: addDays(
+          start,
+          sourcePayload.allDay
+            ? Math.max(1, diffDays(sourcePayload.anchorEnd, sourcePayload.anchorStart))
+            : Math.max(1, Math.ceil(duration / DAY_MS)),
+        ),
         allDay: true,
         intent: 'move',
       };
@@ -507,11 +520,10 @@ export function resolveDropPreview(
   if (calEventResizeKind.matches(source)) {
     const sourcePayload = source.payload;
     if (calDayCellKind.matches(innermost)) {
-      // Month view resize: snap to whole-day end (start-of-day for start edge,
-      // start-of-day + 24h for end edge — handled in the reducer).
+      // Month view resize uses local midnight boundaries, with an exclusive end.
       const time = targetDayMs;
       if (sourcePayload.edge === 'start') {
-        const start = Math.min(time, sourcePayload.anchorEnd - DAY_MS);
+        const start = Math.min(time, addDays(sourcePayload.anchorEnd, -1));
         return {
           start,
           end: sourcePayload.anchorEnd,
@@ -520,7 +532,7 @@ export function resolveDropPreview(
           edge: 'start',
         };
       }
-      const end = Math.max(time + DAY_MS, sourcePayload.anchorStart + DAY_MS);
+      const end = Math.max(addDays(time, 1), addDays(sourcePayload.anchorStart, 1));
       return {
         start: sourcePayload.anchorStart,
         end,
@@ -532,7 +544,7 @@ export function resolveDropPreview(
     if (calAllDayRowKind.matches(innermost)) {
       const time = targetDayMs;
       if (sourcePayload.edge === 'start') {
-        const start = Math.min(time, sourcePayload.anchorEnd - DAY_MS);
+        const start = Math.min(time, addDays(sourcePayload.anchorEnd, -1));
         return {
           start,
           end: sourcePayload.anchorEnd,
@@ -541,7 +553,7 @@ export function resolveDropPreview(
           edge: 'start',
         };
       }
-      const end = Math.max(time + DAY_MS, sourcePayload.anchorStart + DAY_MS);
+      const end = Math.max(addDays(time, 1), addDays(sourcePayload.anchorStart, 1));
       return { start: sourcePayload.anchorStart, end, allDay: true, intent: 'resize', edge: 'end' };
     }
     if (calDayColumnKind.matches(innermost)) {
@@ -578,7 +590,7 @@ export function resolveDropPreview(
         const hi = Math.max(sourcePayload.anchorMs, dayMs);
         return {
           start: lo,
-          end: hi + DAY_MS,
+          end: addDays(hi, 1),
           allDay: true,
           intent: 'create',
         };
@@ -734,11 +746,11 @@ export function formatTime(ms: number): string {
 
 export function formatRange(startMs: number, endMs: number, allDay: boolean): string {
   if (allDay) {
-    const days = Math.max(1, Math.round((endMs - startMs) / DAY_MS));
+    const days = Math.max(1, diffDays(endMs, startMs));
     if (days === 1) {
       return RANGE_FORMATTER.format(startMs);
     }
-    return `${RANGE_FORMATTER.format(startMs)} – ${RANGE_FORMATTER.format(endMs - DAY_MS)} (${days} days)`;
+    return `${RANGE_FORMATTER.format(startMs)} – ${RANGE_FORMATTER.format(addDays(endMs, -1))} (${days} days)`;
   }
   const sameDay = isSameDay(startMs, endMs - 1);
   if (sameDay) {

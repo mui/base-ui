@@ -12,7 +12,8 @@ import {
   calEventMoveKind,
   calEventResizeKind,
   CalendarEvent,
-  DAY_MS,
+  addDays,
+  addMonths,
   diffDays,
   formatRange,
   isSameDay,
@@ -91,7 +92,7 @@ function MonthWeekRow(props: { weekStartMs: number; monthStart: number; events: 
     if (!dropPreview) {
       return null;
     }
-    const weekEnd = weekStartMs + 7 * DAY_MS;
+    const weekEnd = addDays(weekStartMs, 7);
     if (dropPreview.start >= weekEnd || dropPreview.end <= weekStartMs) {
       return null;
     }
@@ -104,7 +105,7 @@ function MonthWeekRow(props: { weekStartMs: number; monthStart: number; events: 
   }, [dropPreview, weekStartMs]);
 
   const days = React.useMemo(
-    () => Array.from({ length: 7 }, (_, i) => weekStartMs + i * DAY_MS),
+    () => Array.from({ length: 7 }, (_, i) => addDays(weekStartMs, i)),
     [weekStartMs],
   );
 
@@ -156,8 +157,7 @@ function MonthDayCell(props: { dayMs: number; monthStart: number }) {
     useCalendarView();
 
   const today = isSameDay(dayMs, todayMs);
-  const inMonth =
-    startOfDay(dayMs) >= monthStart && startOfDay(dayMs) < startOfMonth(monthStart + 32 * DAY_MS);
+  const inMonth = startOfDay(dayMs) >= monthStart && startOfDay(dayMs) < addMonths(monthStart, 1);
   const dayNum = new Date(dayMs).getDate();
 
   // The cell is both a draggable (for create) and a drop target (for any

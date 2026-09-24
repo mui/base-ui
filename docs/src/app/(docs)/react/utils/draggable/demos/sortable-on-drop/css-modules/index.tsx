@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { visuallyHidden } from '@base-ui/utils/visuallyHidden';
 import { Draggable } from '@base-ui/react/draggable';
 import {
   INITIAL_TASKS,
@@ -62,6 +63,7 @@ const Task = React.memo(function Task({
 
 export default function SortableOnDrop() {
   const [tasks, setTasks] = React.useState(INITIAL_TASKS);
+  const [announcement, setAnnouncement] = React.useState('');
   const [destination, setDestination] = React.useState<TaskDestination | null>(null);
   const trackCollision = useStableCallback(
     ({ collision, previousCollision }: Draggable.CollisionProvider.CollisionEvent<string>) => {
@@ -77,7 +79,12 @@ export default function SortableOnDrop() {
     setTasks((current) => moveTask(current, event));
   });
   const swap = useStableCallback((task: string, direction: 'up' | 'down') => {
-    setTasks((current) => swapTask(current, task, direction));
+    const next = swapTask(tasks, task, direction);
+    if (next === tasks) {
+      return;
+    }
+    setTasks(next);
+    setAnnouncement(`${task} moved to position ${next.indexOf(task) + 1} of ${next.length}.`);
   });
   return (
     <Draggable.Provider>
@@ -99,6 +106,9 @@ export default function SortableOnDrop() {
           ))}
         </div>
       </Draggable.CollisionProvider>
+      <span role="status" aria-live="polite" aria-atomic="true" style={visuallyHidden}>
+        {announcement}
+      </span>
     </Draggable.Provider>
   );
 }

@@ -1429,8 +1429,8 @@ Returns the page-wide drag manager. Use it to register drag sources, drop target
 scroll containers, and monitors without rendering the Draggable parts, and to
 cancel the drag in progress.
 
-Every call returns the same manager. Requires a `<Draggable.Provider>` above the
-component calling this hook.
+The manager is stable for each hook instance. All instances share the page's drag
+session. Requires a `<Draggable.Provider>` above the component calling this hook.
 
 **Return Value:**
 

@@ -3399,7 +3399,9 @@ describe('syntheticDrag sensor', () => {
       expect(onOutsideClick).toHaveBeenCalledOnce();
 
       act(() => {
-        source.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+        source.dispatchEvent(
+          new MouseEvent('click', { bubbles: true, cancelable: true, detail: 1 }),
+        );
       });
       expect(onOutsideClick).toHaveBeenCalledOnce();
     });
@@ -3420,13 +3422,13 @@ describe('syntheticDrag sensor', () => {
       touchUp(50, 50);
 
       act(() => {
-        el.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+        el.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, detail: 1 }));
       });
       expect(outsidePress).not.toHaveBeenCalled();
 
       // One shot only: the next click is a real one and must get through.
       act(() => {
-        el.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+        el.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, detail: 1 }));
       });
       expect(outsidePress).toHaveBeenCalledTimes(1);
     });
@@ -3452,7 +3454,7 @@ describe('syntheticDrag sensor', () => {
       });
 
       act(() => {
-        el.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+        el.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, detail: 1 }));
       });
       expect(onClick).toHaveBeenCalledTimes(1);
     });
@@ -3511,7 +3513,7 @@ describe('syntheticDrag sensor', () => {
         new PointerEvent('pointerup', { pointerId: 1, clientX: 0, clientY: 40, bubbles: true }),
       );
       act(() => {
-        el.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+        el.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, detail: 1 }));
       });
 
       expect(onClick).not.toHaveBeenCalled();
@@ -3623,7 +3625,7 @@ describe('syntheticDrag sensor', () => {
       // The original finger lifts; its compatibility click must still be eaten.
       touchUp(50, 50);
       act(() => {
-        el.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+        el.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, detail: 1 }));
       });
       expect(onClick).toHaveBeenCalledTimes(1);
     });
@@ -3663,7 +3665,9 @@ describe('syntheticDrag sensor', () => {
         new PointerEvent('pointerup', { pointerId: 2, clientX: 300, clientY: 300, bubbles: true }),
       );
       act(() => {
-        button.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+        button.dispatchEvent(
+          new MouseEvent('click', { bubbles: true, cancelable: true, detail: 1 }),
+        );
       });
 
       expect(onClick).toHaveBeenCalledTimes(1);
@@ -3697,7 +3701,7 @@ describe('syntheticDrag sensor', () => {
         new PointerEvent('pointerup', { pointerId: 1, clientX: 0, clientY: 0, bubbles: true }),
       );
       act(() => {
-        el.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+        el.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, detail: 1 }));
       });
 
       expect(onClick).toHaveBeenCalledTimes(1);

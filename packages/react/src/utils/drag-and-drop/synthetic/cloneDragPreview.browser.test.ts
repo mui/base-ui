@@ -290,6 +290,101 @@ describe.skipIf(isJSDOM)('createClonedDragPreviewElement (top layer)', () => {
     }
   });
 
+  it('preserves contextual styles from a cross-origin app stylesheet', () => {
+    const sheet = document.createElement('style');
+    sheet.textContent =
+      '.Card { color: blue !important; } .List > .Card { color: rgb(1, 2, 3) !important; padding: 20px; } .Card[data-drag-preview] { border: 3px solid green; }';
+    document.head.appendChild(sheet);
+    list.className = 'List';
+    source.className = 'Card';
+    const href = vi
+      .spyOn(sheet.sheet!, 'href', 'get')
+      .mockReturnValue('https://cdn.example.com/app.css');
+    const rules = vi.spyOn(sheet.sheet!, 'cssRules', 'get').mockImplementation(() => {
+      throw new DOMException('Stylesheet is cross-origin', 'SecurityError');
+    });
+    const handle = createClonedDragPreviewElement(source, null)!;
+    try {
+      expect(getComputedStyle(handle.element).color).toBe('rgb(1, 2, 3)');
+      expect(getComputedStyle(handle.element).padding).toBe('20px');
+      expect(getComputedStyle(handle.element).borderTopWidth).toBe('3px');
+    } finally {
+      handle.destroy();
+      rules.mockRestore();
+      href.mockRestore();
+      sheet.remove();
+    }
+  });
+
+  it('keeps important contextual declarations above surviving important base rules', () => {
+    const sheet = document.createElement('style');
+    sheet.textContent = `
+      .Card, .Child { color: rgb(0, 0, 255) !important; }
+      .List > .Card { color: rgb(255, 0, 0) !important; }
+      .List > .Card > .Child { color: rgb(0, 128, 0) !important; }
+      .Card[data-drag-preview] { border: 3px solid rgb(0, 128, 0); }
+    `;
+    document.head.appendChild(sheet);
+    list.className = 'List';
+    source.className = 'Card';
+    source.innerHTML = '<span class="Child">Card</span>';
+    const handle = createClonedDragPreviewElement(source, null)!;
+    try {
+      expect(getComputedStyle(handle.element).color).toBe('rgb(255, 0, 0)');
+      expect(getComputedStyle(handle.element.firstElementChild!).color).toBe('rgb(0, 128, 0)');
+      expect(getComputedStyle(handle.element).borderTopWidth).toBe('3px');
+    } finally {
+      handle.destroy();
+      sheet.remove();
+    }
+  });
+
+  it('keeps an explicit important preview override of a contextual source property', () => {
+    const sheet = document.createElement('style');
+    sheet.textContent = `
+      .List > .Card { color: rgb(255, 0, 0) !important; }
+      .Card[data-drag-preview] { color: rgb(0, 0, 255) !important; }
+    `;
+    document.head.appendChild(sheet);
+    list.className = 'List';
+    source.className = 'Card';
+    const handle = createClonedDragPreviewElement(source, null)!;
+    try {
+      expect(getComputedStyle(handle.element).color).toBe('rgb(0, 0, 255)');
+    } finally {
+      handle.destroy();
+      sheet.remove();
+    }
+  });
+
+  it('bounds subtree queries for unrelated styles and reads CSSOM changes on the next pickup', () => {
+    const sheet = document.createElement('style');
+    sheet.textContent = Array.from(
+      { length: 512 },
+      (_, index) => `.Other${index} > .Unrelated { color: red; }`,
+    ).join('\n');
+    document.head.appendChild(sheet);
+    list.className = 'List';
+    source.className = 'Card';
+    const query = vi.spyOn(source, 'querySelectorAll');
+    let handle = createClonedDragPreviewElement(source, null)!;
+    try {
+      // Includes cloning's descendant query. A rule-by-rule traversal needs 513.
+      expect(query.mock.calls.length).toBeLessThan(150);
+      handle.destroy();
+      sheet.sheet!.insertRule('.Card { color: blue !important; }');
+      sheet.sheet!.insertRule('.List > .Card { color: rgb(1, 2, 3) !important; }');
+      sheet.sheet!.insertRule('.Card[data-drag-preview] { border: 3px solid green; }');
+      handle = createClonedDragPreviewElement(source, null)!;
+      expect(getComputedStyle(handle.element).color).toBe('rgb(1, 2, 3)');
+      expect(getComputedStyle(handle.element).borderTopWidth).toBe('3px');
+    } finally {
+      handle.destroy();
+      query.mockRestore();
+      sheet.remove();
+    }
+  });
+
   it('neutralizes important source motion and allows an important ending transition', () => {
     const sheet = document.createElement('style');
     sheet.textContent = `.List .Card { transition: all 200ms !important; }

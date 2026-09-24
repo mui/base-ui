@@ -6,6 +6,7 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 
 import {
+  addDays,
   buildWeekDays,
   calAllDayRowKind,
   calDayColumnKind,
@@ -130,7 +131,7 @@ function WeekAllDayRow(props: { days: number[]; events: CalendarEvent[]; weekSta
     if (!dropPreview || !dropPreview.allDay) {
       return null;
     }
-    const weekEnd = weekStartMs + 7 * DAY_MS;
+    const weekEnd = addDays(weekStartMs, 7);
     if (dropPreview.start >= weekEnd || dropPreview.end <= weekStartMs) {
       return null;
     }

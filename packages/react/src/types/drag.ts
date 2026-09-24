@@ -82,11 +82,11 @@ export interface DropTargetRecord<TTargetPayload = unknown, TDragData = unknown>
   /**
    * The target's `payload`, or `undefined` when it has none.
    */
-  payload: TTargetPayload;
+  readonly payload: TTargetPayload;
   /** Replaces the payload until the `payload` prop changes. */
   updatePayload(payload: TTargetPayload): void;
   /** Data stored for this target during the current drag. Starts as `undefined`. */
-  dragData: TDragData | undefined;
+  readonly dragData: TDragData | undefined;
   /** Stores data for this target for the rest of the current drag. */
   updateDragData(dragData: TDragData): void;
   /**
@@ -169,13 +169,13 @@ export interface DragSource<TPayload = unknown, TDragData = unknown> {
   /**
    * The draggable's `payload`, or `undefined` when it has none.
    */
-  payload: TPayload;
+  readonly payload: TPayload;
   /**
    * Replaces the payload. The new value persists after the drag, until the `payload` prop changes.
    */
   updatePayload(payload: TPayload): void;
   /** Data stored for the current drag. Starts as `undefined` on every drag. */
-  dragData: TDragData | undefined;
+  readonly dragData: TDragData | undefined;
   /** Stores data for the rest of the current drag. */
   updateDragData(dragData: TDragData): void;
 }

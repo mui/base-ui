@@ -197,3 +197,18 @@ const previewProps: Draggable.Preview.Props<Payload, DragData> = {
   children: preview,
 };
 void previewProps;
+
+declare const source: Draggable.DragSource<Payload, DragData>;
+declare const target: Draggable.DropTargetRecord<TargetPayload, TargetDragData>;
+// @ts-expect-error Payload writes must use updatePayload.
+source.payload = { id: 'changed' };
+// @ts-expect-error Drag data writes must use updateDragData.
+source.dragData = { offset: 1 };
+// @ts-expect-error Payload writes must use updatePayload.
+target.payload = { index: 1 };
+// @ts-expect-error Drag data writes must use updateDragData.
+target.dragData = { entered: true };
+source.updatePayload({ id: 'changed' });
+source.updateDragData({ offset: 1 });
+target.updatePayload({ index: 1 });
+target.updateDragData({ entered: true });
