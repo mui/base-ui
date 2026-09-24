@@ -444,7 +444,10 @@ CSS variables of [Popup](#popup).
 
 ```typescript
 declare namespace DialogPopupCssVariables {
-  /** Indicates how many dialogs are nested within. */
+  /**
+   * Indicates how many dialogs are nested within.
+   * @type number
+   */
   const nestedDialogs: '--nested-dialogs';
 }
 ```

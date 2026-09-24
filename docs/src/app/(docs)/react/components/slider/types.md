@@ -591,7 +591,10 @@ Data attributes of [Control](#control).
 declare namespace SliderControlDataAttributes {
   /** Present while the user is dragging. */
   const dragging: 'data-dragging';
-  /** Indicates the orientation of the slider. */
+  /**
+   * Indicates the orientation of the slider.
+   * @type 'horizontal' | 'vertical'
+   */
   const orientation: 'data-orientation';
   /** Present when the slider is disabled. */
   const disabled: 'data-disabled';
@@ -616,7 +619,10 @@ Data attributes of [Indicator](#indicator).
 declare namespace SliderIndicatorDataAttributes {
   /** Present while the user is dragging. */
   const dragging: 'data-dragging';
-  /** Indicates the orientation of the slider. */
+  /**
+   * Indicates the orientation of the slider.
+   * @type 'horizontal' | 'vertical'
+   */
   const orientation: 'data-orientation';
   /** Present when the slider is disabled. */
   const disabled: 'data-disabled';
@@ -650,7 +656,10 @@ Data attributes of [Root](#root).
 declare namespace SliderRootDataAttributes {
   /** Present while the user is dragging. */
   const dragging: 'data-dragging';
-  /** Indicates the orientation of the slider. */
+  /**
+   * Indicates the orientation of the slider.
+   * @type 'horizontal' | 'vertical'
+   */
   const orientation: 'data-orientation';
   /** Present when the slider is disabled. */
   const disabled: 'data-disabled';
@@ -677,7 +686,10 @@ declare namespace SliderThumbDataAttributes {
   const index: 'data-index';
   /** Present while the user is dragging. */
   const dragging: 'data-dragging';
-  /** Indicates the orientation of the slider. */
+  /**
+   * Indicates the orientation of the slider.
+   * @type 'horizontal' | 'vertical'
+   */
   const orientation: 'data-orientation';
   /** Present when the slider is disabled. */
   const disabled: 'data-disabled';
@@ -702,7 +714,10 @@ Data attributes of [Track](#track).
 declare namespace SliderTrackDataAttributes {
   /** Present while the user is dragging. */
   const dragging: 'data-dragging';
-  /** Indicates the orientation of the slider. */
+  /**
+   * Indicates the orientation of the slider.
+   * @type 'horizontal' | 'vertical'
+   */
   const orientation: 'data-orientation';
   /** Present when the slider is disabled. */
   const disabled: 'data-disabled';
@@ -727,7 +742,10 @@ Data attributes of [Value](#value).
 declare namespace SliderValueDataAttributes {
   /** Present while the user is dragging. */
   const dragging: 'data-dragging';
-  /** Indicates the orientation of the slider. */
+  /**
+   * Indicates the orientation of the slider.
+   * @type 'horizontal' | 'vertical'
+   */
   const orientation: 'data-orientation';
   /** Present when the slider is disabled. */
   const disabled: 'data-disabled';

@@ -562,9 +562,15 @@ declare namespace PopoverArrowDataAttributes {
   const open: 'data-open';
   /** Present when the popup is closed. */
   const closed: 'data-closed';
-  /** Indicates which side the popup is positioned relative to the trigger. */
+  /**
+   * Indicates which side the popup is positioned relative to the trigger.
+   * @type 'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start'
+   */
   const side: 'data-side';
-  /** Indicates how the popup is aligned relative to specified side. */
+  /**
+   * Indicates how the popup is aligned relative to specified side.
+   * @type 'start' | 'center' | 'end'
+   */
   const align: 'data-align';
   /** Present when the popover arrow is uncentered. */
   const uncentered: 'data-uncentered';
@@ -615,11 +621,20 @@ declare namespace PopoverPopupDataAttributes {
   const startingStyle: 'data-starting-style';
   /** Present when the popup is animating out. */
   const endingStyle: 'data-ending-style';
-  /** Indicates which side the popup is positioned relative to the trigger. */
+  /**
+   * Indicates which side the popup is positioned relative to the trigger.
+   * @type 'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start'
+   */
   const side: 'data-side';
-  /** Indicates how the popup is aligned relative to specified side. */
+  /**
+   * Indicates how the popup is aligned relative to specified side.
+   * @type 'start' | 'center' | 'end'
+   */
   const align: 'data-align';
-  /** Present if animations should be instant. */
+  /**
+   * Present if animations should be instant.
+   * @type 'click' | 'dismiss' | 'focus' | 'trigger-change'
+   */
   const instant: 'data-instant';
 }
 ```
@@ -630,24 +645,41 @@ CSS variables of [Positioner](#positioner).
 
 ```typescript
 declare namespace PopoverPositionerCssVariables {
-  /** The available width between the trigger and the edge of the viewport. */
+  /**
+   * The available width between the trigger and the edge of the viewport.
+   * @type number
+   */
   const availableWidth: '--available-width';
-  /** The available height between the trigger and the edge of the viewport. */
+  /**
+   * The available height between the trigger and the edge of the viewport.
+   * @type number
+   */
   const availableHeight: '--available-height';
-  /** The anchor's width. */
+  /**
+   * The anchor's width.
+   * @type number
+   */
   const anchorWidth: '--anchor-width';
-  /** The anchor's height. */
+  /**
+   * The anchor's height.
+   * @type number
+   */
   const anchorHeight: '--anchor-height';
-  /** The coordinates that this element is anchored to. Used for animations and transitions. */
+  /**
+   * The coordinates that this element is anchored to. Used for animations and transitions.
+   * @type string
+   */
   const transformOrigin: '--transform-origin';
   /**
    * The width of the popover's positioner.
    * It is important to set `width` to this value when using CSS to animate size changes.
+   * @type number
    */
   const positionerWidth: '--positioner-width';
   /**
    * The height of the popover's positioner.
    * It is important to set `height` to this value when using CSS to animate size changes.
+   * @type number
    */
   const positionerHeight: '--positioner-height';
 }
@@ -665,9 +697,15 @@ declare namespace PopoverPositionerDataAttributes {
   const closed: 'data-closed';
   /** Present when the anchor is hidden. */
   const anchorHidden: 'data-anchor-hidden';
-  /** Indicates which side the popup is positioned relative to the trigger. */
+  /**
+   * Indicates which side the popup is positioned relative to the trigger.
+   * @type 'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start'
+   */
   const side: 'data-side';
-  /** Indicates how the popup is aligned relative to specified side. */
+  /**
+   * Indicates how the popup is aligned relative to specified side.
+   * @type 'start' | 'center' | 'end'
+   */
   const align: 'data-align';
 }
 ```
@@ -722,11 +760,15 @@ declare namespace PopoverViewportDataAttributes {
    * Indicates the direction from which the popup was activated.
    * This can be used to create directional animations based on how the popup was triggered.
    * Contains space-separated values for both horizontal and vertical axes.
+   * @type `${'left' | 'right' | ''} ${'down' | 'up' | ''}`
    */
   const activationDirection: 'data-activation-direction';
   /** Indicates that the viewport is currently transitioning between old and new content. */
   const transitioning: 'data-transitioning';
-  /** Present if animations should be instant. */
+  /**
+   * Present if animations should be instant.
+   * @type 'click' | 'dismiss' | 'focus' | 'trigger-change'
+   */
   const instant: 'data-instant';
 }
 ```

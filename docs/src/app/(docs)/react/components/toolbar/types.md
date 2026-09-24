@@ -253,7 +253,10 @@ Data attributes of [Button](#button).
 declare namespace ToolbarButtonDataAttributes {
   /** Present when the button is disabled. */
   const disabled: 'data-disabled';
-  /** Indicates the orientation of the toolbar. */
+  /**
+   * Indicates the orientation of the toolbar.
+   * @type 'horizontal' | 'vertical'
+   */
   const orientation: 'data-orientation';
   /** Present when the button remains focusable when disabled. */
   const focusable: 'data-focusable';
@@ -268,7 +271,10 @@ Data attributes of [Group](#group).
 declare namespace ToolbarGroupDataAttributes {
   /** Present when the group is disabled. */
   const disabled: 'data-disabled';
-  /** Indicates the orientation of the toolbar. */
+  /**
+   * Indicates the orientation of the toolbar.
+   * @type 'horizontal' | 'vertical'
+   */
   const orientation: 'data-orientation';
 }
 ```
@@ -281,7 +287,10 @@ Data attributes of [Input](#input).
 declare namespace ToolbarInputDataAttributes {
   /** Present when the input is disabled. */
   const disabled: 'data-disabled';
-  /** Indicates the orientation of the toolbar. */
+  /**
+   * Indicates the orientation of the toolbar.
+   * @type 'horizontal' | 'vertical'
+   */
   const orientation: 'data-orientation';
   /** Present when the input remains focusable when disabled. */
   const focusable: 'data-focusable';
@@ -294,7 +303,10 @@ Data attributes of [Link](#link).
 
 ```typescript
 declare namespace ToolbarLinkDataAttributes {
-  /** Indicates the orientation of the toolbar. */
+  /**
+   * Indicates the orientation of the toolbar.
+   * @type 'horizontal' | 'vertical'
+   */
   const orientation: 'data-orientation';
 }
 ```
@@ -307,7 +319,10 @@ Data attributes of [Root](#root).
 declare namespace ToolbarRootDataAttributes {
   /** Present when the toolbar is disabled. */
   const disabled: 'data-disabled';
-  /** Indicates the orientation of the toolbar. */
+  /**
+   * Indicates the orientation of the toolbar.
+   * @type 'horizontal' | 'vertical'
+   */
   const orientation: 'data-orientation';
 }
 ```
@@ -318,7 +333,10 @@ Data attributes of [Separator](#separator).
 
 ```typescript
 declare namespace ToolbarSeparatorDataAttributes {
-  /** Indicates the orientation of the separator, which is perpendicular to the toolbar. */
+  /**
+   * Indicates the orientation of the separator, which is perpendicular to the toolbar.
+   * @type 'horizontal' | 'vertical'
+   */
   const orientation: 'data-orientation';
 }
 ```

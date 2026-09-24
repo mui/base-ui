@@ -374,7 +374,10 @@ Data attributes of [Header](#header).
 
 ```typescript
 declare namespace AccordionHeaderDataAttributes {
-  /** Indicates the index of the accordion item. */
+  /**
+   * Indicates the index of the accordion item.
+   * @type number
+   */
   const index: 'data-index';
   /** Present when the accordion item is disabled. */
   const disabled: 'data-disabled';
@@ -389,7 +392,10 @@ Data attributes of [Item](#item).
 
 ```typescript
 declare namespace AccordionItemDataAttributes {
-  /** Indicates the index of the accordion item. */
+  /**
+   * Indicates the index of the accordion item.
+   * @type number
+   */
   const index: 'data-index';
   /** Present when the accordion item is disabled. */
   const disabled: 'data-disabled';
@@ -404,9 +410,15 @@ CSS variables of [Panel](#panel).
 
 ```typescript
 declare namespace AccordionPanelCssVariables {
-  /** The accordion panel's height. */
+  /**
+   * The accordion panel's height.
+   * @type number
+   */
   const accordionPanelHeight: '--accordion-panel-height';
-  /** The accordion panel's width. */
+  /**
+   * The accordion panel's width.
+   * @type number
+   */
   const accordionPanelWidth: '--accordion-panel-width';
 }
 ```
@@ -417,7 +429,10 @@ Data attributes of [Panel](#panel).
 
 ```typescript
 declare namespace AccordionPanelDataAttributes {
-  /** Indicates the index of the accordion item. */
+  /**
+   * Indicates the index of the accordion item.
+   * @type number
+   */
   const index: 'data-index';
   /** Present when the accordion panel is open. */
   const open: 'data-open';
@@ -451,7 +466,10 @@ Data attributes of [Trigger](#trigger).
 
 ```typescript
 declare namespace AccordionTriggerDataAttributes {
-  /** Indicates the index of the accordion item. */
+  /**
+   * Indicates the index of the accordion item.
+   * @type number
+   */
   const index: 'data-index';
   /** Present when the accordion panel is open. */
   const panelOpen: 'data-panel-open';

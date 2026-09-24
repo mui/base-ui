@@ -1104,9 +1104,15 @@ declare namespace MenuArrowDataAttributes {
   const open: 'data-open';
   /** Present when the menu popup is closed. */
   const closed: 'data-closed';
-  /** Indicates which side the popup is positioned relative to the anchor. */
+  /**
+   * Indicates which side the popup is positioned relative to the anchor.
+   * @type 'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start'
+   */
   const side: 'data-side';
-  /** Indicates how the popup is aligned relative to specified side. */
+  /**
+   * Indicates how the popup is aligned relative to specified side.
+   * @type 'start' | 'center' | 'end'
+   */
   const align: 'data-align';
   /** Present when the menu arrow is uncentered. */
   const uncentered: 'data-uncentered';
@@ -1215,11 +1221,20 @@ declare namespace MenuPopupDataAttributes {
   const startingStyle: 'data-starting-style';
   /** Present when the menu is animating out. */
   const endingStyle: 'data-ending-style';
-  /** Indicates which side the popup is positioned relative to the anchor. */
+  /**
+   * Indicates which side the popup is positioned relative to the anchor.
+   * @type 'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start'
+   */
   const side: 'data-side';
-  /** Indicates how the popup is aligned relative to specified side. */
+  /**
+   * Indicates how the popup is aligned relative to specified side.
+   * @type 'start' | 'center' | 'end'
+   */
   const align: 'data-align';
-  /** Present if animations should be instant. */
+  /**
+   * Present if animations should be instant.
+   * @type 'click' | 'dismiss' | 'group' | 'trigger-change'
+   */
   const instant: 'data-instant';
 }
 ```
@@ -1230,24 +1245,41 @@ CSS variables of [Positioner](#positioner).
 
 ```typescript
 declare namespace MenuPositionerCssVariables {
-  /** The available width between the anchor and the edge of the viewport. */
+  /**
+   * The available width between the anchor and the edge of the viewport.
+   * @type number
+   */
   const availableWidth: '--available-width';
-  /** The available height between the anchor and the edge of the viewport. */
+  /**
+   * The available height between the anchor and the edge of the viewport.
+   * @type number
+   */
   const availableHeight: '--available-height';
-  /** The anchor's width. */
+  /**
+   * The anchor's width.
+   * @type number
+   */
   const anchorWidth: '--anchor-width';
-  /** The anchor's height. */
+  /**
+   * The anchor's height.
+   * @type number
+   */
   const anchorHeight: '--anchor-height';
-  /** The coordinates that this element is anchored to. Used for animations and transitions. */
+  /**
+   * The coordinates that this element is anchored to. Used for animations and transitions.
+   * @type string
+   */
   const transformOrigin: '--transform-origin';
   /**
    * The width of the menu's positioner.
    * It is important to set `width` to this value when using CSS to animate size changes.
+   * @type number
    */
   const positionerWidth: '--positioner-width';
   /**
    * The height of the menu's positioner.
    * It is important to set `height` to this value when using CSS to animate size changes.
+   * @type number
    */
   const positionerHeight: '--positioner-height';
 }
@@ -1265,9 +1297,15 @@ declare namespace MenuPositionerDataAttributes {
   const closed: 'data-closed';
   /** Present when the anchor is hidden. */
   const anchorHidden: 'data-anchor-hidden';
-  /** Indicates which side the popup is positioned relative to the anchor. */
+  /**
+   * Indicates which side the popup is positioned relative to the anchor.
+   * @type 'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start'
+   */
   const side: 'data-side';
-  /** Indicates how the popup is aligned relative to the specified side. */
+  /**
+   * Indicates how the popup is aligned relative to the specified side.
+   * @type 'start' | 'center' | 'end'
+   */
   const align: 'data-align';
 }
 ```
@@ -1314,7 +1352,10 @@ Data attributes of [Separator](#separator).
 
 ```typescript
 declare namespace MenuSeparatorDataAttributes {
-  /** Indicates the orientation of the separator. */
+  /**
+   * Indicates the orientation of the separator.
+   * @type 'horizontal' | 'vertical'
+   */
   const orientation: 'data-orientation';
 }
 ```
@@ -1384,11 +1425,15 @@ declare namespace MenuViewportDataAttributes {
    * Indicates the direction from which the popup was activated.
    * This can be used to create directional animations based on how the popup was triggered.
    * Contains space-separated values for both horizontal and vertical axes.
+   * @type `${'left' | 'right' | ''} ${'down' | 'up' | ''}`
    */
   const activationDirection: 'data-activation-direction';
   /** Indicates that the viewport is currently transitioning between old and new content. */
   const transitioning: 'data-transitioning';
-  /** Present if animations should be instant. */
+  /**
+   * Present if animations should be instant.
+   * @type 'click' | 'dismiss' | 'group' | 'trigger-change'
+   */
   const instant: 'data-instant';
 }
 ```

@@ -991,9 +991,15 @@ declare namespace AutocompleteArrowDataAttributes {
   const open: 'data-open';
   /** Present when the popup is closed. */
   const closed: 'data-closed';
-  /** Indicates which side the popup is positioned relative to the trigger. */
+  /**
+   * Indicates which side the popup is positioned relative to the trigger.
+   * @type 'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start'
+   */
   const side: 'data-side';
-  /** Indicates how the popup is aligned relative to specified side. */
+  /**
+   * Indicates how the popup is aligned relative to specified side.
+   * @type 'start' | 'center' | 'end'
+   */
   const align: 'data-align';
   /** Present when the arrow is uncentered. */
   const uncentered: 'data-uncentered';
@@ -1075,7 +1081,10 @@ declare namespace AutocompleteInputDataAttributes {
   const disabled: 'data-disabled';
   /** Present when the component is readonly. */
   const readonly: 'data-readonly';
-  /** Indicates which side the corresponding popup is positioned relative to its anchor. */
+  /**
+   * Indicates which side the corresponding popup is positioned relative to its anchor.
+   * @type 'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start' | null
+   */
   const popupSide: 'data-popup-side';
   /** Present when the component is required. */
   const required: 'data-required';
@@ -1110,7 +1119,10 @@ declare namespace AutocompleteInputGroupDataAttributes {
   const disabled: 'data-disabled';
   /** Present when the component is readonly. */
   const readonly: 'data-readonly';
-  /** Indicates which side the corresponding popup is positioned relative to its anchor. */
+  /**
+   * Indicates which side the corresponding popup is positioned relative to its anchor.
+   * @type 'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start' | null
+   */
   const popupSide: 'data-popup-side';
   /** Present when the component is in a valid state (when wrapped in Field.Root). */
   const valid: 'data-valid';
@@ -1156,9 +1168,15 @@ declare namespace AutocompletePopupDataAttributes {
   const startingStyle: 'data-starting-style';
   /** Present when the popup is animating out. */
   const endingStyle: 'data-ending-style';
-  /** Indicates which side the popup is positioned relative to the trigger. */
+  /**
+   * Indicates which side the popup is positioned relative to the trigger.
+   * @type 'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start'
+   */
   const side: 'data-side';
-  /** Indicates how the popup is aligned relative to specified side. */
+  /**
+   * Indicates how the popup is aligned relative to specified side.
+   * @type 'start' | 'center' | 'end'
+   */
   const align: 'data-align';
   /** Present when the anchor is hidden. */
   const anchorHidden: 'data-anchor-hidden';
@@ -1173,15 +1191,30 @@ CSS variables of [Positioner](#positioner).
 
 ```typescript
 declare namespace AutocompletePositionerCssVariables {
-  /** The available width between the trigger and the edge of the viewport. */
+  /**
+   * The available width between the trigger and the edge of the viewport.
+   * @type number
+   */
   const availableWidth: '--available-width';
-  /** The available height between the trigger and the edge of the viewport. */
+  /**
+   * The available height between the trigger and the edge of the viewport.
+   * @type number
+   */
   const availableHeight: '--available-height';
-  /** The anchor's width. */
+  /**
+   * The anchor's width.
+   * @type number
+   */
   const anchorWidth: '--anchor-width';
-  /** The anchor's height. */
+  /**
+   * The anchor's height.
+   * @type number
+   */
   const anchorHeight: '--anchor-height';
-  /** The coordinates that this element is anchored to. Used for animations and transitions. */
+  /**
+   * The coordinates that this element is anchored to. Used for animations and transitions.
+   * @type string
+   */
   const transformOrigin: '--transform-origin';
 }
 ```
@@ -1198,9 +1231,15 @@ declare namespace AutocompletePositionerDataAttributes {
   const closed: 'data-closed';
   /** Present when the anchor is hidden. */
   const anchorHidden: 'data-anchor-hidden';
-  /** Indicates which side the popup is positioned relative to the trigger. */
+  /**
+   * Indicates which side the popup is positioned relative to the trigger.
+   * @type 'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start'
+   */
   const side: 'data-side';
-  /** Indicates how the popup is aligned relative to specified side. */
+  /**
+   * Indicates how the popup is aligned relative to specified side.
+   * @type 'start' | 'center' | 'end'
+   */
   const align: 'data-align';
   /** Present when the items list is empty. */
   const empty: 'data-empty';
@@ -1213,7 +1252,10 @@ Data attributes of [Separator](#separator).
 
 ```typescript
 declare namespace AutocompleteSeparatorDataAttributes {
-  /** Indicates the orientation of the separator. */
+  /**
+   * Indicates the orientation of the separator.
+   * @type 'horizontal' | 'vertical'
+   */
   const orientation: 'data-orientation';
 }
 ```
@@ -1232,7 +1274,10 @@ declare namespace AutocompleteTriggerDataAttributes {
   const disabled: 'data-disabled';
   /** Present when the component is readonly. */
   const readonly: 'data-readonly';
-  /** Indicates which side the corresponding popup is positioned relative to its anchor. */
+  /**
+   * Indicates which side the corresponding popup is positioned relative to its anchor.
+   * @type 'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start' | null
+   */
   const popupSide: 'data-popup-side';
   /** Present when the component is required. */
   const required: 'data-required';

@@ -583,7 +583,10 @@ Data attributes of [Action](#action).
 
 ```typescript
 declare namespace ToastActionDataAttributes {
-  /** The type of the toast. */
+  /**
+   * The type of the toast.
+   * @type string
+   */
   const type: 'data-type';
 }
 ```
@@ -594,9 +597,15 @@ Data attributes of [Arrow](#arrow).
 
 ```typescript
 declare namespace ToastArrowDataAttributes {
-  /** Indicates which side the toast is positioned relative to the anchor. */
+  /**
+   * Indicates which side the toast is positioned relative to the anchor.
+   * @type 'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start'
+   */
   const side: 'data-side';
-  /** Indicates how the toast is aligned relative to specified side. */
+  /**
+   * Indicates how the toast is aligned relative to specified side.
+   * @type 'start' | 'center' | 'end'
+   */
   const align: 'data-align';
   /** Present when the toast arrow is uncentered. */
   const uncentered: 'data-uncentered';
@@ -609,7 +618,10 @@ Data attributes of [Close](#close).
 
 ```typescript
 declare namespace ToastCloseDataAttributes {
-  /** The type of the toast. */
+  /**
+   * The type of the toast.
+   * @type string
+   */
   const type: 'data-type';
 }
 ```
@@ -620,9 +632,15 @@ Data attributes of [Content](#content).
 
 ```typescript
 declare namespace ToastContentDataAttributes {
-  /** Present when the toast viewport is expanded. */
+  /**
+   * Present when the toast viewport is expanded.
+   * @type boolean
+   */
   const expanded: 'data-expanded';
-  /** Present when the toast is behind the frontmost toast in the stack. */
+  /**
+   * Present when the toast is behind the frontmost toast in the stack.
+   * @type boolean
+   */
   const behind: 'data-behind';
 }
 ```
@@ -633,7 +651,10 @@ Data attributes of [Description](#description).
 
 ```typescript
 declare namespace ToastDescriptionDataAttributes {
-  /** The type of the toast. */
+  /**
+   * The type of the toast.
+   * @type string
+   */
   const type: 'data-type';
 }
 ```
@@ -931,15 +952,30 @@ CSS variables of [Positioner](#positioner).
 
 ```typescript
 declare namespace ToastPositionerCssVariables {
-  /** The available width between the anchor and the edge of the viewport. */
+  /**
+   * The available width between the anchor and the edge of the viewport.
+   * @type number
+   */
   const availableWidth: '--available-width';
-  /** The available height between the anchor and the edge of the viewport. */
+  /**
+   * The available height between the anchor and the edge of the viewport.
+   * @type number
+   */
   const availableHeight: '--available-height';
-  /** The anchor's width. */
+  /**
+   * The anchor's width.
+   * @type number
+   */
   const anchorWidth: '--anchor-width';
-  /** The anchor's height. */
+  /**
+   * The anchor's height.
+   * @type number
+   */
   const anchorHeight: '--anchor-height';
-  /** The coordinates that this element is anchored to. Used for animations and transitions. */
+  /**
+   * The coordinates that this element is anchored to. Used for animations and transitions.
+   * @type string
+   */
   const transformOrigin: '--transform-origin';
 }
 ```
@@ -952,9 +988,15 @@ Data attributes of [Positioner](#positioner).
 declare namespace ToastPositionerDataAttributes {
   /** Present when the anchor is hidden. */
   const anchorHidden: 'data-anchor-hidden';
-  /** Indicates which side the toast is positioned relative to the trigger. */
+  /**
+   * Indicates which side the toast is positioned relative to the trigger.
+   * @type 'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start'
+   */
   const side: 'data-side';
-  /** Indicates how the toast is aligned relative to specified side. */
+  /**
+   * Indicates how the toast is aligned relative to specified side.
+   * @type 'start' | 'center' | 'end'
+   */
   const align: 'data-align';
 }
 ```
@@ -965,15 +1007,30 @@ CSS variables of [Root](#root).
 
 ```typescript
 declare namespace ToastRootCssVariables {
-  /** Indicates the index of the toast in the list. */
+  /**
+   * Indicates the index of the toast in the list.
+   * @type number
+   */
   const index: '--toast-index';
-  /** Indicates the vertical pixels offset of the toast in the list when expanded. */
+  /**
+   * Indicates the vertical pixels offset of the toast in the list when expanded.
+   * @type number
+   */
   const offsetY: '--toast-offset-y';
-  /** Indicates the measured natural height of the toast in pixels. */
+  /**
+   * Indicates the measured natural height of the toast in pixels.
+   * @type number
+   */
   const height: '--toast-height';
-  /** Indicates the horizontal swipe movement of the toast. */
+  /**
+   * Indicates the horizontal swipe movement of the toast.
+   * @type number
+   */
   const swipeMovementX: '--toast-swipe-movement-x';
-  /** Indicates the vertical swipe movement of the toast. */
+  /**
+   * Indicates the vertical swipe movement of the toast.
+   * @type number
+   */
   const swipeMovementY: '--toast-swipe-movement-y';
 }
 ```
@@ -984,15 +1041,30 @@ Data attributes of [Root](#root).
 
 ```typescript
 declare namespace ToastRootDataAttributes {
-  /** Present when the toast is expanded in the viewport. */
+  /**
+   * Present when the toast is expanded in the viewport.
+   * @type boolean
+   */
   const expanded: 'data-expanded';
-  /** Present when the toast was limited because the toast limit was exceeded. */
+  /**
+   * Present when the toast was limited because the toast limit was exceeded.
+   * @type boolean
+   */
   const limited: 'data-limited';
-  /** The type of the toast. */
+  /**
+   * The type of the toast.
+   * @type string
+   */
   const type: 'data-type';
-  /** Present when the toast is being swiped. */
+  /**
+   * Present when the toast is being swiped.
+   * @type boolean
+   */
   const swiping: 'data-swiping';
-  /** The direction the toast was swiped. */
+  /**
+   * The direction the toast was swiped.
+   * @type 'up' | 'down' | 'left' | 'right'
+   */
   const swipeDirection: 'data-swipe-direction';
   /** Present when the toast begins animating in. */
   const startingStyle: 'data-starting-style';
@@ -1007,7 +1079,10 @@ Data attributes of [Title](#title).
 
 ```typescript
 declare namespace ToastTitleDataAttributes {
-  /** The type of the toast. */
+  /**
+   * The type of the toast.
+   * @type string
+   */
   const type: 'data-type';
 }
 ```
@@ -1018,7 +1093,10 @@ CSS variables of [Viewport](#viewport).
 
 ```typescript
 declare namespace ToastViewportCssVariables {
-  /** Indicates the height of the frontmost toast. */
+  /**
+   * Indicates the height of the frontmost toast.
+   * @type number
+   */
   const frontmostHeight: '--toast-frontmost-height';
 }
 ```
@@ -1029,7 +1107,10 @@ Data attributes of [Viewport](#viewport).
 
 ```typescript
 declare namespace ToastViewportDataAttributes {
-  /** Indicates toasts are expanded in the viewport. */
+  /**
+   * Indicates toasts are expanded in the viewport.
+   * @type boolean
+   */
   const expanded: 'data-expanded';
 }
 ```

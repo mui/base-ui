@@ -164,9 +164,15 @@ CSS variables of [Panel](#panel).
 
 ```typescript
 declare namespace CollapsiblePanelCssVariables {
-  /** The collapsible panel's height. */
+  /**
+   * The collapsible panel's height.
+   * @type number
+   */
   const collapsiblePanelHeight: '--collapsible-panel-height';
-  /** The collapsible panel's width. */
+  /**
+   * The collapsible panel's width.
+   * @type number
+   */
   const collapsiblePanelWidth: '--collapsible-panel-width';
 }
 ```

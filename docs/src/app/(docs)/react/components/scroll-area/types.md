@@ -351,9 +351,15 @@ CSS variables of [Root](#root).
 
 ```typescript
 declare namespace ScrollAreaRootCssVariables {
-  /** The scroll area's corner height. */
+  /**
+   * The scroll area's corner height.
+   * @type number
+   */
   const scrollAreaCornerHeight: '--scroll-area-corner-height';
-  /** The scroll area's corner width. */
+  /**
+   * The scroll area's corner width.
+   * @type number
+   */
   const scrollAreaCornerWidth: '--scroll-area-corner-width';
 }
 ```
@@ -387,9 +393,15 @@ CSS variables of [Scrollbar](#scrollbar).
 
 ```typescript
 declare namespace ScrollAreaScrollbarCssVariables {
-  /** The scroll area thumb's height. */
+  /**
+   * The scroll area thumb's height.
+   * @type number
+   */
   const scrollAreaThumbHeight: '--scroll-area-thumb-height';
-  /** The scroll area thumb's width. */
+  /**
+   * The scroll area thumb's width.
+   * @type number
+   */
   const scrollAreaThumbWidth: '--scroll-area-thumb-width';
 }
 ```
@@ -400,7 +412,10 @@ Data attributes of [Scrollbar](#scrollbar).
 
 ```typescript
 declare namespace ScrollAreaScrollbarDataAttributes {
-  /** Indicates the orientation of the scrollbar. */
+  /**
+   * Indicates the orientation of the scrollbar.
+   * @type 'horizontal' | 'vertical'
+   */
   const orientation: 'data-orientation';
   /** Present when the pointer is over the scroll area. */
   const hovering: 'data-hovering';
@@ -427,7 +442,10 @@ Data attributes of [Thumb](#thumb).
 
 ```typescript
 declare namespace ScrollAreaThumbDataAttributes {
-  /** Indicates the orientation of the scrollbar. */
+  /**
+   * Indicates the orientation of the scrollbar.
+   * @type 'horizontal' | 'vertical'
+   */
   const orientation: 'data-orientation';
   /** Present when the user scrolls inside the scroll area. */
   const scrolling: 'data-scrolling';
@@ -440,13 +458,25 @@ CSS variables of [Viewport](#viewport).
 
 ```typescript
 declare namespace ScrollAreaViewportCssVariables {
-  /** The distance from the horizontal start edge in pixels. */
+  /**
+   * The distance from the horizontal start edge in pixels.
+   * @type number
+   */
   const scrollAreaOverflowXStart: '--scroll-area-overflow-x-start';
-  /** The distance from the horizontal end edge in pixels. */
+  /**
+   * The distance from the horizontal end edge in pixels.
+   * @type number
+   */
   const scrollAreaOverflowXEnd: '--scroll-area-overflow-x-end';
-  /** The distance from the vertical start edge in pixels. */
+  /**
+   * The distance from the vertical start edge in pixels.
+   * @type number
+   */
   const scrollAreaOverflowYStart: '--scroll-area-overflow-y-start';
-  /** The distance from the vertical end edge in pixels. */
+  /**
+   * The distance from the vertical end edge in pixels.
+   * @type number
+   */
   const scrollAreaOverflowYEnd: '--scroll-area-overflow-y-end';
 }
 ```

@@ -302,17 +302,35 @@ CSS variables of [Indicator](#indicator).
 
 ```typescript
 declare namespace TabsIndicatorCssVariables {
-  /** Indicates the distance on the left side from the parent's container if the tab is active. */
+  /**
+   * Indicates the distance on the left side from the parent's container if the tab is active.
+   * @type number
+   */
   const activeTabLeft: '--active-tab-left';
-  /** Indicates the distance on the right side from the parent's container if the tab is active. */
+  /**
+   * Indicates the distance on the right side from the parent's container if the tab is active.
+   * @type number
+   */
   const activeTabRight: '--active-tab-right';
-  /** Indicates the distance on the top side from the parent's container if the tab is active. */
+  /**
+   * Indicates the distance on the top side from the parent's container if the tab is active.
+   * @type number
+   */
   const activeTabTop: '--active-tab-top';
-  /** Indicates the distance on the bottom side from the parent's container if the tab is active. */
+  /**
+   * Indicates the distance on the bottom side from the parent's container if the tab is active.
+   * @type number
+   */
   const activeTabBottom: '--active-tab-bottom';
-  /** Indicates the width of the tab if it is active. */
+  /**
+   * Indicates the width of the tab if it is active.
+   * @type number
+   */
   const activeTabWidth: '--active-tab-width';
-  /** Indicates the height of the tab if it is active. */
+  /**
+   * Indicates the height of the tab if it is active.
+   * @type number
+   */
   const activeTabHeight: '--active-tab-height';
 }
 ```
@@ -323,9 +341,15 @@ Data attributes of [Indicator](#indicator).
 
 ```typescript
 declare namespace TabsIndicatorDataAttributes {
-  /** Indicates the direction of the activation (based on the previous active tab). */
+  /**
+   * Indicates the direction of the activation (based on the previous active tab).
+   * @type 'left' | 'right' | 'up' | 'down' | 'none'
+   */
   const activationDirection: 'data-activation-direction';
-  /** Indicates the orientation of the tabs. */
+  /**
+   * Indicates the orientation of the tabs.
+   * @type 'horizontal' | 'vertical'
+   */
   const orientation: 'data-orientation';
 }
 ```
@@ -336,9 +360,15 @@ Data attributes of [List](#list).
 
 ```typescript
 declare namespace TabsListDataAttributes {
-  /** Indicates the direction of the activation (based on the previous active tab). */
+  /**
+   * Indicates the direction of the activation (based on the previous active tab).
+   * @type 'left' | 'right' | 'up' | 'down' | 'none'
+   */
   const activationDirection: 'data-activation-direction';
-  /** Indicates the orientation of the tabs. */
+  /**
+   * Indicates the orientation of the tabs.
+   * @type 'horizontal' | 'vertical'
+   */
   const orientation: 'data-orientation';
 }
 ```
@@ -351,9 +381,15 @@ Data attributes of [Panel](#panel).
 declare namespace TabsPanelDataAttributes {
   /** Indicates the index of the tab panel. */
   const index: 'data-index';
-  /** Indicates the direction of the activation (based on the previous active tab). */
+  /**
+   * Indicates the direction of the activation (based on the previous active tab).
+   * @type 'left' | 'right' | 'up' | 'down' | 'none'
+   */
   const activationDirection: 'data-activation-direction';
-  /** Indicates the orientation of the tabs. */
+  /**
+   * Indicates the orientation of the tabs.
+   * @type 'horizontal' | 'vertical'
+   */
   const orientation: 'data-orientation';
   /** Present when the panel is hidden. */
   const hidden: 'data-hidden';
@@ -370,9 +406,15 @@ Data attributes of [Root](#root).
 
 ```typescript
 declare namespace TabsRootDataAttributes {
-  /** Indicates the direction of the activation (based on the previous active tab). */
+  /**
+   * Indicates the direction of the activation (based on the previous active tab).
+   * @type 'left' | 'right' | 'up' | 'down' | 'none'
+   */
   const activationDirection: 'data-activation-direction';
-  /** Indicates the orientation of the tabs. */
+  /**
+   * Indicates the orientation of the tabs.
+   * @type 'horizontal' | 'vertical'
+   */
   const orientation: 'data-orientation';
 }
 ```
@@ -383,9 +425,15 @@ Data attributes of [Tab](#tab).
 
 ```typescript
 declare namespace TabsTabDataAttributes {
-  /** Indicates the direction of the activation (based on the previous active tab). */
+  /**
+   * Indicates the direction of the activation (based on the previous active tab).
+   * @type 'left' | 'right' | 'up' | 'down' | 'none'
+   */
   const activationDirection: 'data-activation-direction';
-  /** Indicates the orientation of the tabs. */
+  /**
+   * Indicates the orientation of the tabs.
+   * @type 'horizontal' | 'vertical'
+   */
   const orientation: 'data-orientation';
   /** Present when the tab is disabled. */
   const disabled: 'data-disabled';

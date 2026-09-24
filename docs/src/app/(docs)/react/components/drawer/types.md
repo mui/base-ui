@@ -664,7 +664,10 @@ CSS variables of [Backdrop](#backdrop).
 
 ```typescript
 declare namespace DrawerBackdropCssVariables {
-  /** The swipe progress of the drawer gesture. */
+  /**
+   * The swipe progress of the drawer gesture.
+   * @type number
+   */
   const swipeProgress: '--drawer-swipe-progress';
 }
 ```
@@ -703,19 +706,40 @@ CSS variables of [Popup](#popup).
 
 ```typescript
 declare namespace DrawerPopupCssVariables {
-  /** The number of nested drawers that are currently open. */
+  /**
+   * The number of nested drawers that are currently open.
+   * @type number
+   */
   const nestedDrawers: '--nested-drawers';
-  /** The height of the drawer popup. */
+  /**
+   * The height of the drawer popup.
+   * @type CSS
+   */
   const height: '--drawer-height';
-  /** The height of the frontmost open drawer in the current nested drawer stack. */
+  /**
+   * The height of the frontmost open drawer in the current nested drawer stack.
+   * @type CSS
+   */
   const frontmostHeight: '--drawer-frontmost-height';
-  /** The swipe movement on the X axis. */
+  /**
+   * The swipe movement on the X axis.
+   * @type CSS
+   */
   const swipeMovementX: '--drawer-swipe-movement-x';
-  /** The swipe movement on the Y axis. */
+  /**
+   * The swipe movement on the Y axis.
+   * @type CSS
+   */
   const swipeMovementY: '--drawer-swipe-movement-y';
-  /** The snap point offset used for translating the drawer. */
+  /**
+   * The snap point offset used for translating the drawer.
+   * @type CSS
+   */
   const snapPointOffset: '--drawer-snap-point-offset';
-  /** A scalar (0.1-1) used to scale the swipe release transition duration in CSS. */
+  /**
+   * A scalar (0.1-1) used to scale the swipe release transition duration in CSS.
+   * @type number
+   */
   const swipeStrength: '--drawer-swipe-strength';
 }
 ```
@@ -742,7 +766,10 @@ declare namespace DrawerPopupDataAttributes {
   const nestedDrawerSwiping: 'data-nested-drawer-swiping';
   /** Present when the drawer is dismissed by swiping. */
   const swipeDismiss: 'data-swipe-dismiss';
-  /** Indicates the swipe direction. */
+  /**
+   * Indicates the swipe direction.
+   * @type 'up' | 'down' | 'left' | 'right'
+   */
   const swipeDirection: 'data-swipe-direction';
   /** Present when the drawer is being swiped. */
   const swiping: 'data-swiping';
@@ -761,7 +788,10 @@ declare namespace DrawerSwipeAreaDataAttributes {
   const closed: 'data-closed';
   /** Present when the swipe area is disabled. */
   const disabled: 'data-disabled';
-  /** Indicates the swipe direction. */
+  /**
+   * Indicates the swipe direction.
+   * @type 'up' | 'down' | 'left' | 'right'
+   */
   const swipeDirection: 'data-swipe-direction';
   /** Present when the drawer is being swiped. */
   const swiping: 'data-swiping';
@@ -790,6 +820,7 @@ declare namespace DrawerViewportCssVariables {
   /**
    * The software keyboard inset, measured from the bottom edge of the layout viewport.
    * Present only when the drawer is wrapped in `Drawer.VirtualKeyboardProvider`.
+   * @type CSS
    */
   const keyboardInset: '--drawer-keyboard-inset';
 }

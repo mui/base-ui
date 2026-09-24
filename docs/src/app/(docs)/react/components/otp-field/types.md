@@ -307,7 +307,10 @@ Data attributes of [Separator](#separator).
 
 ```typescript
 declare namespace OTPFieldSeparatorDataAttributes {
-  /** Indicates the orientation of the separator. */
+  /**
+   * Indicates the orientation of the separator.
+   * @type 'horizontal' | 'vertical'
+   */
   const orientation: 'data-orientation';
 }
 ```
