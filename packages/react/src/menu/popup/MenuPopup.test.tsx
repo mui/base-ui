@@ -1,7 +1,7 @@
 import { expect, vi, describe, it } from 'vitest';
 import * as React from 'react';
 import { Menu } from '@base-ui/react/menu';
-import { createRenderer, describeConformance } from '#test-utils';
+import { createRenderer, describeConformance, wait } from '#test-utils';
 import { act, fireEvent, waitFor, screen } from '@mui/internal-test-utils';
 import { ToolbarRootContext } from '../../toolbar/root/ToolbarRootContext';
 
@@ -266,6 +266,36 @@ describe('<Menu.Popup />', () => {
         expect(trigger).toHaveFocus();
       });
       expect(finalFocus).toHaveBeenLastCalledWith('keyboard');
+    });
+
+    it('receives the mouse interaction type after a drag-release item selection', async () => {
+      const finalFocus = vi.fn(() => true);
+
+      await render(
+        <Menu.Root>
+          <Menu.Trigger>Open</Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup finalFocus={finalFocus}>
+                <Menu.Item>Close</Menu.Item>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>,
+      );
+
+      const trigger = screen.getByText('Open');
+      fireEvent.mouseDown(trigger);
+      const item = await screen.findByText('Close');
+
+      // Drag-release selection is only armed 200ms after the trigger press.
+      await act(() => wait(200));
+      fireEvent.mouseUp(item);
+
+      await waitFor(() => {
+        expect(screen.queryByText('Close')).toBe(null);
+      });
+      expect(finalFocus).toHaveBeenLastCalledWith('mouse');
     });
 
     it('uses default behavior when finalFocus returns null', async () => {
