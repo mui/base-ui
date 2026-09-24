@@ -117,7 +117,12 @@ export class PaintSelectionController<Item extends PaintSelectionItem> {
         add(first);
       }
       for (const [node, item] of self.items) {
-        if (!node.isConnected || visited.has(item.id) || item.getState().disabled) {
+        if (
+          !node.isConnected ||
+          ownerDocument(node) !== doc ||
+          visited.has(item.id) ||
+          item.getState().disabled
+        ) {
           continue;
         }
         const rect = node.getBoundingClientRect();

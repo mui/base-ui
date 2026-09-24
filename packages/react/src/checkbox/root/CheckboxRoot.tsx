@@ -212,11 +212,10 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
 
       if (value !== undefined && groupContext !== undefined && !parent && !isGroupedWithParent) {
         const currentValue = groupContext.valueRef.current ?? groupContext.value;
-        const nextGroupValue = nextChecked
-          ? currentValue.includes(value)
-            ? currentValue
-            : [...currentValue, value]
-          : currentValue.filter((item) => item !== value);
+        let nextGroupValue = currentValue.filter((item) => item !== value);
+        if (nextChecked) {
+          nextGroupValue = currentValue.includes(value) ? currentValue : [...currentValue, value];
+        }
 
         groupContext.setValue(nextGroupValue, details);
       }

@@ -1,4 +1,5 @@
 import * as React from 'react';
+import * as ReactDOM from 'react-dom';
 import { describe, it, expect, vi } from 'vitest';
 import { createRenderer, screen, fireEvent } from '@mui/internal-test-utils';
 import { Checkbox } from '@base-ui/react/checkbox';
@@ -182,6 +183,44 @@ describe.skipIf(isJSDOM)('<CheckboxGroupPaintSelectionProvider />', () => {
     expect(b).toHaveAttribute('aria-checked', 'true');
     expect(c).toHaveAttribute('aria-checked', 'false');
     expect(d).toHaveAttribute('aria-checked', 'false');
+  });
+
+  it('does not hit-test a portal in another document using local pointer coordinates', async () => {
+    function App() {
+      const [frame, setFrame] = React.useState<HTMLIFrameElement | null>(null);
+      return (
+        <CheckboxGroup>
+          <CheckboxGroupPaintSelectionProvider>
+            <Checkboxes />
+            <iframe
+              title="other document"
+              ref={setFrame}
+              style={{ position: 'absolute', left: 400, top: 0 }}
+            />
+            {frame?.contentDocument &&
+              ReactDOM.createPortal(
+                <Checkbox.Root
+                  aria-label="portal"
+                  value="portal"
+                  style={{ display: 'block', width: 24, height: 24, marginTop: 32 }}
+                />,
+                frame.contentDocument.body,
+              )}
+          </CheckboxGroupPaintSelectionProvider>
+        </CheckboxGroup>
+      );
+    }
+    await render(<App />);
+    const [a, , c] = screen.getAllByRole('checkbox');
+    const frame = screen.getByTitle('other document') as HTMLIFrameElement;
+    down(a);
+    move(c);
+    up(c);
+    expect(frame.contentDocument!.querySelector('[role="checkbox"]')).toHaveAttribute(
+      'aria-checked',
+      'false',
+    );
+    expect(c).toHaveAttribute('aria-checked', 'true');
   });
 
   it('skips disabled, read-only, and canceled checkboxes', async () => {
