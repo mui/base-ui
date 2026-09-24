@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { useControlled } from '@base-ui/utils/useControlled';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
@@ -66,7 +67,7 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
     state: 'value',
   });
 
-  const valueRef = React.useRef<string[] | null>(null);
+  const valueRef = useValueAsRef<string[] | null>(null);
 
   const setValue = useStableCallback(
     (v: string[], eventDetails: CheckboxGroup.ChangeEventDetails) => {
@@ -162,7 +163,7 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
       validation,
       registerControlId,
     }),
-    [allValues, value, setValue, parent, disabled, validation, registerControlId],
+    [allValues, value, valueRef, setValue, parent, disabled, validation, registerControlId],
   );
 
   const element = useRenderElement('div', componentProps, {

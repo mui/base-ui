@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { Checkbox } from '@base-ui/react/checkbox';
-import { CheckboxGroup, CheckboxGroupPaintSelectionProvider } from '@base-ui/react/checkbox-group';
+import { CheckboxGroup } from '@base-ui/react/checkbox-group';
 import styles from './index.module.css';
 
 export default function ExampleCheckboxGroupPaintSelection() {
@@ -12,7 +12,7 @@ export default function ExampleCheckboxGroupPaintSelection() {
       defaultValue={['fuji-apple']}
       className={styles.CheckboxGroup}
     >
-      <CheckboxGroupPaintSelectionProvider>
+      <Checkbox.PaintSelectionProvider>
         <div className={styles.Caption} id={id}>
           Apples
         </div>
@@ -43,7 +43,7 @@ export default function ExampleCheckboxGroupPaintSelection() {
           </Checkbox.Root>
           Granny Smith
         </label>
-      </CheckboxGroupPaintSelectionProvider>
+      </Checkbox.PaintSelectionProvider>
     </CheckboxGroup>
   );
 }

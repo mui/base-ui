@@ -338,6 +338,7 @@ An easily stylable checkbox component.
   - API reference
     - Root
     - Indicator
+    - PaintSelectionProvider
 - Exports:
   - Checkbox - Root
     - Props: checked, className, defaultChecked, disabled, form, id, indeterminate, inputRef, name, nativeButton, onCheckedChange, parent, readOnly, render, required, style, uncheckedValue, value
@@ -345,7 +346,9 @@ An easily stylable checkbox component.
   - Checkbox - Indicator
     - Props: className, keepMounted, render, style
     - Data Attributes: data-checked, data-dirty, data-disabled, data-ending-style, data-filled, data-focused, data-indeterminate, data-invalid, data-readonly, data-required, data-starting-style, data-touched, data-unchecked, data-valid
-- Types: Checkbox.Indicator.Props, Checkbox.Indicator.State, Checkbox.Root.ChangeEventDetails, Checkbox.Root.ChangeEventReason, Checkbox.Root.Props, Checkbox.Root.State
+  - Checkbox - PaintSelectionProvider
+    - Props: children
+- Types: Checkbox.Indicator.Props, Checkbox.Indicator.State, Checkbox.PaintSelectionProvider.Props, Checkbox.Root.ChangeEventDetails, Checkbox.Root.ChangeEventReason, Checkbox.Root.Props, Checkbox.Root.State
 
 </details>
 
@@ -369,17 +372,15 @@ Provides shared state to a series of checkboxes.
     - Form integration
     - Parent checkbox
     - Nested parent checkbox
-  - Paint selection
+    - Paint selection
   - API reference
     - CheckboxGroup
-    - CheckboxGroupPaintSelectionProvider
+    - Checkbox.PaintSelectionProvider
 - Exports:
   - CheckboxGroup
     - Props: allValues, className, defaultValue, disabled, onValueChange, render, style, value
     - Data Attributes: data-disabled
-  - CheckboxGroupPaintSelectionProvider
-    - Props: children
-- Types: CheckboxGroup.ChangeEventDetails, CheckboxGroup.ChangeEventReason, CheckboxGroup.Props, CheckboxGroup.State, CheckboxGroupPaintSelectionProvider.Props
+- Types: CheckboxGroup.ChangeEventDetails, CheckboxGroup.ChangeEventReason, CheckboxGroup.Props, CheckboxGroup.State
 
 </details>
 

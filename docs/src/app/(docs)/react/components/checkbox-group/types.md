@@ -77,26 +77,6 @@ type CheckboxGroupChangeEventDetails = {
 };
 ```
 
-### CheckboxGroupPaintSelectionProvider
-
-Enables painting checkboxes with a mouse or pen. Place inside a CheckboxGroup, around its checkboxes.
-Doesn't render an HTML element. Touch gestures retain native scrolling.
-
-**CheckboxGroupPaintSelectionProvider Props:**
-
-| Prop     | Type              | Default | Description |
-| :------- | :---------------- | :------ | :---------- |
-| children | `React.ReactNode` | -       | -           |
-
-### CheckboxGroupPaintSelectionProvider.Props
-
-Re-export of [CheckboxGroupPaintSelectionProvider](#checkboxgrouppaintselectionprovider) props.
-
-## Export Groups
-
-- `CheckboxGroup`: `CheckboxGroup`, `CheckboxGroup.State`, `CheckboxGroup.Props`, `CheckboxGroup.ChangeEventReason`, `CheckboxGroup.ChangeEventDetails`, `CheckboxGroupPaintSelectionProvider`, `CheckboxGroupPaintSelectionProvider.Props`, `CheckboxGroupState`, `CheckboxGroupProps`, `CheckboxGroupChangeEventReason`, `CheckboxGroupChangeEventDetails`, `CheckboxGroupPaintSelectionProviderProps`
-- `CheckboxGroupPaintSelectionProvider`: `CheckboxGroup`, `CheckboxGroup.State`, `CheckboxGroup.Props`, `CheckboxGroup.ChangeEventReason`, `CheckboxGroup.ChangeEventDetails`, `CheckboxGroupPaintSelectionProvider`, `CheckboxGroupPaintSelectionProvider.Props`, `CheckboxGroupState`, `CheckboxGroupProps`, `CheckboxGroupChangeEventReason`, `CheckboxGroupChangeEventDetails`, `CheckboxGroupPaintSelectionProviderProps`
-
 ## Canonical Types
 
 Maps `Canonical`: `Alias` — Use Canonical when its namespace is already imported; otherwise use Alias.
@@ -105,4 +85,3 @@ Maps `Canonical`: `Alias` — Use Canonical when its namespace is already import
 - `CheckboxGroup.Props`: `CheckboxGroupProps`
 - `CheckboxGroup.ChangeEventReason`: `CheckboxGroupChangeEventReason`
 - `CheckboxGroup.ChangeEventDetails`: `CheckboxGroupChangeEventDetails`
-- `CheckboxGroupPaintSelectionProvider.Props`: `CheckboxGroupPaintSelectionProviderProps`

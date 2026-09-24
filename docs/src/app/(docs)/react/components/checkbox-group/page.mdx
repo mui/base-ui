@@ -139,9 +139,9 @@ import { DemoCheckboxGroupNested } from './demos/nested';
 
 <DemoCheckboxGroupNested />
 
-## Paint selection
+### Paint selection
 
-Place `<CheckboxGroupPaintSelectionProvider>` inside `<CheckboxGroup>`, around the checkboxes, to enable paint selection.
+Place `<Checkbox.PaintSelectionProvider>` inside `<CheckboxGroup>`, around the checkboxes, to enable paint selection.
 Press a checkbox with a mouse or pen, then drag across other checkboxes to apply the same checked state. Starting on a checked checkbox clears the painted items. Moving back over an item leaves its state unchanged.
 
 Painting stays within the same group and skips disabled and read-only checkboxes. Parent checkboxes do not participate.
@@ -158,11 +158,11 @@ import { TypesCheckboxGroup } from './types';
 
 ### CheckboxGroup
 
-<TypesCheckboxGroup.CheckboxGroup />
+<TypesCheckboxGroup />
 
-### CheckboxGroupPaintSelectionProvider
+### Checkbox.PaintSelectionProvider
 
-<TypesCheckboxGroup.CheckboxGroupPaintSelectionProvider />
+See the [Checkbox.PaintSelectionProvider API reference](/react/components/checkbox#paintselectionprovider).
 
 export const metadata = {
   keywords: [

@@ -166,9 +166,11 @@ export class PaintSelectionController<Item extends PaintSelectionItem> {
     this.cleanup = cleanup;
   }
 
-  dispose() {
+  dispose = () => {
     this.cleanup?.();
-  }
+  };
+
+  disposeEffect = () => this.dispose;
 }
 
 /** Midpoint of the segment inside a rectangle, or null when they do not intersect. */
