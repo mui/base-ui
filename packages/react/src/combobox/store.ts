@@ -71,6 +71,8 @@ export type ComboboxStoreContext = {
   readonly listRef: React.RefObject<Array<HTMLElement | null>>;
   /** Item text labels in list order, used for typeahead. */
   readonly labelsRef: React.RefObject<Array<string | null>>;
+  /** Indicates which items are disabled. */
+  readonly disabledIndicesRef: React.RefObject<Array<boolean>>;
   /** The popup element. */
   readonly popupRef: React.RefObject<HTMLDivElement | null>;
   /** The empty-state element. */
