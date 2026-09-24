@@ -3,7 +3,6 @@ import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useTimeout } from '@base-ui/utils/useTimeout';
 import { ownerDocument } from '@base-ui/utils/owner';
-import { isElementDisabled } from '@base-ui/utils/isElementDisabled';
 import { BaseUIComponentProps, NativeButtonProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useButton } from '../../internals/use-button';
@@ -109,7 +108,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
     // gated on `readOnly`.
     enabled: !open && !readOnly && !comboboxDisabled && selectionMode === 'single',
     listRef: store.context.labelsRef,
-    disabledIndices: (index) => isElementDisabled(store.context.listRef.current[index]),
+    disabledIndices: (index) => store.context.valuesRef.current[index].disabled,
     activeIndex,
     selectedIndex,
     onMatch(index) {
