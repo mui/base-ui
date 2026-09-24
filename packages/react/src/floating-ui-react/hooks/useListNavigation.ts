@@ -31,8 +31,6 @@ import {
 import { enqueueFocus } from '../utils/enqueueFocus';
 import { isVirtualClick, isVirtualPointerEvent, stopEvent } from '../utils/event';
 
-export const ESCAPE = 'Escape';
-
 /**
  * Where a navigation originated. `'imperative'` marks a programmatic
  * `highlightItem()` call so consumers can report it distinctly from keyboard or
