@@ -10,8 +10,8 @@ import {
   getTaskRow,
   getTaskDestination,
   sameTaskDestination,
-  type TaskDestination,
 } from '../../sortableTasks';
+import type { TaskDestination } from '../../sortableTasks';
 import styles from '../sortable.module.css';
 
 const taskKind = Draggable.createKind<string>('sortable-drop-task');

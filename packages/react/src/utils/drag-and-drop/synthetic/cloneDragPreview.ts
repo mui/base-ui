@@ -15,8 +15,8 @@ import {
   parseComputedLinearTransform,
   parseRotateLinearTransform,
   parseScaleLinearTransform,
-  type LinearTransform,
 } from '../linearTransform';
+import type { LinearTransform } from '../linearTransform';
 
 /**
  * Properties the preview must not inherit from the source. The preview is

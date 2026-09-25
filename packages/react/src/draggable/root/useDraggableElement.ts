@@ -7,10 +7,8 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { warn } from '@base-ui/utils/warn';
 import { syncActiveDragSourcePayload } from '../../utils/drag-and-drop/dragSource';
 import { useRegisterSource } from '../../utils/drag-and-drop/useInnerDragEngine';
-import {
-  createDragPreviewHandle,
-  type DragPreviewHandle,
-} from '../../utils/drag-and-drop/dragPreviewDeclaration';
+import { createDragPreviewHandle } from '../../utils/drag-and-drop/dragPreviewDeclaration';
+import type { DragPreviewHandle } from '../../utils/drag-and-drop/dragPreviewDeclaration';
 import type {
   InternalDraggableParameters,
   RegisterSourceParameters,

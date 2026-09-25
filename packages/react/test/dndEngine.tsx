@@ -10,7 +10,8 @@
  */
 import * as React from 'react';
 import type { CreateRendererOptions, RenderOptions } from '@mui/internal-test-utils';
-import { createRenderer, type BaseUIRenderResult } from './createRenderer';
+import { createRenderer } from './createRenderer';
+import type { BaseUIRenderResult } from './createRenderer';
 import { installDndTestEnv, registerCleanup } from './dnd';
 import { anyDragKind, createKind } from '../src/utils/drag-and-drop/dragKind';
 import { DraggableProvider } from '../src/draggable/DraggableProvider';

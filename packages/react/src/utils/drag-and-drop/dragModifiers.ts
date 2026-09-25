@@ -13,8 +13,8 @@ import {
   getViewportSize,
   resolveElementReference,
   NO_MODIFIER_KEYS,
-  type DragModifierKeys,
 } from './utils';
+import type { DragModifierKeys } from './utils';
 import type { DraggablePosition } from '../../draggable/DraggableProvider';
 import type {
   DraggableRootModifier,

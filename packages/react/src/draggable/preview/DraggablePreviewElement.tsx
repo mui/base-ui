@@ -1,5 +1,5 @@
 'use client';
-import * as React from 'react';
+import type * as React from 'react';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { useRenderElement } from '../../internals/useRenderElement';
 import type { DraggablePreviewSettings, DraggablePreview } from './DraggablePreview';

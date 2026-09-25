@@ -9,23 +9,26 @@ import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { DragPageAutoScroll } from '../../../(docs)/react/utils/draggable/demos/DragPageAutoScroll';
 
+import type {
+  CalendarEvent,
+  CalendarViewMode,
+  CalendarViewContextValue,
+  DropPreview,
+} from './calendarLogic';
 import {
   addDays,
   addMonths,
   CAL_DRAG_KINDS,
   calendarReducer,
-  CalendarEvent,
-  CalendarViewMode,
   CalendarViewProvider,
-  CalendarViewContextValue,
   createSeedState,
-  DropPreview,
   startOfMonth,
   startOfWeek,
 } from './calendarLogic';
 import { CalendarMonthView } from './calendarViews/CalendarMonth';
 import { CalendarWeekView } from './calendarViews/CalendarWeek';
-import { SettingsMetadata, useExperimentSettings } from '../_components/SettingsPanel';
+import type { SettingsMetadata } from '../_components/SettingsPanel';
+import { useExperimentSettings } from '../_components/SettingsPanel';
 import theme from './theme.module.css';
 import styles from './calendar.module.css';
 

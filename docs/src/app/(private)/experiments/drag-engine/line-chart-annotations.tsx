@@ -7,7 +7,8 @@ import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { ownerDocument } from '@base-ui/utils/owner';
 
-import { SettingsMetadata, useExperimentSettings } from '../_components/SettingsPanel';
+import type { SettingsMetadata } from '../_components/SettingsPanel';
+import { useExperimentSettings } from '../_components/SettingsPanel';
 import theme from './theme.module.css';
 import styles from './line-chart-annotations.module.css';
 

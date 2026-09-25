@@ -1,5 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
-import { createDragPreviewHandle, type DragPreviewDeclaration } from './dragPreviewDeclaration';
+import { createDragPreviewHandle } from './dragPreviewDeclaration';
+import type { DragPreviewDeclaration } from './dragPreviewDeclaration';
 
 function createDeclaration(): DragPreviewDeclaration {
   return { render: () => null, createPreviewElement: () => null };

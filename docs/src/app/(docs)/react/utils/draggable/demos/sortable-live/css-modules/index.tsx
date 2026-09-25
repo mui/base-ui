@@ -10,8 +10,8 @@ import {
   getTaskRow,
   getTaskDestination,
   sameTaskDestination,
-  type TaskDestination,
 } from '../../sortableTasks';
+import type { TaskDestination } from '../../sortableTasks';
 import { useSortableAnimation } from '../../useSortableAnimation';
 import styles from '../sortable.module.css';
 

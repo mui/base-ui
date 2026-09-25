@@ -1,4 +1,5 @@
-import { Store, type ReadonlyStore } from '@base-ui/utils/store';
+import { Store } from '@base-ui/utils/store';
+import type { ReadonlyStore } from '@base-ui/utils/store';
 import type { DraggableLocationHistory } from '../../draggable/DraggableProvider';
 import type { DraggableRootRecord } from '../../draggable/root/DraggableRoot';
 import type { DraggableTargetRecord } from '../../draggable/target/DraggableTarget';

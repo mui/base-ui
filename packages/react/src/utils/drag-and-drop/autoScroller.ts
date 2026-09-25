@@ -13,12 +13,8 @@ import type {
 import type { DraggableRootRecord } from '../../draggable/root/DraggableRoot';
 import type { DragSourceEventValue, MoveEventDetails, DropTargetChangeEventDetails } from './types';
 import { matchesAccept } from './dragKind';
-import {
-  monitorRegistry,
-  engageMonitorIfDragging,
-  removeMonitor,
-  type RegisterMonitorParameters,
-} from './monitor';
+import { monitorRegistry, engageMonitorIfDragging, removeMonitor } from './monitor';
+import type { RegisterMonitorParameters } from './monitor';
 import { createGetterStackRegistry } from './getterStackRegistry';
 import { getSharedSlot } from './sharedState';
 import {
@@ -29,8 +25,8 @@ import {
   getViewportSize,
   isPointInRect,
   isRtlElement,
-  type OverflowFlags,
 } from './utils';
+import type { OverflowFlags } from './utils';
 import {
   getActiveHitElement,
   getRawActivePointerInput,

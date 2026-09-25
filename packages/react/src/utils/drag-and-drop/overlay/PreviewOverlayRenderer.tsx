@@ -1,9 +1,10 @@
 'use client';
-import * as React from 'react';
+import type * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { useStore } from '@base-ui/utils/store';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { dragPreviewStore, type DragPreviewState } from './dragPreviewStore';
+import { dragPreviewStore } from './dragPreviewStore';
+import type { DragPreviewState } from './dragPreviewStore';
 import type { DragPreviewContext } from './DragPreviewContext';
 import { setActivePreviewOffset } from '../activePreview';
 import { resolveDragPreviewOffset } from '../customDragPreview';

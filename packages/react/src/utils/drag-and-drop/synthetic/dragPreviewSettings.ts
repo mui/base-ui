@@ -6,11 +6,8 @@ import type {
   DraggablePreviewRenderParameters,
 } from '../../../draggable/preview/DraggablePreview';
 import type { DraggableRootModifiers } from '../../../draggable/root/DraggableRoot';
-import {
-  createClonedDragPreviewElement,
-  createDragPreviewHostElement,
-  type DragPreviewElementFactory,
-} from './cloneDragPreview';
+import { createClonedDragPreviewElement, createDragPreviewHostElement } from './cloneDragPreview';
+import type { DragPreviewElementFactory } from './cloneDragPreview';
 
 /**
  * The preview one drag will use, resolved from the draggable's registration and

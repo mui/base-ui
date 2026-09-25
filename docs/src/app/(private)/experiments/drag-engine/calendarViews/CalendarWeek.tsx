@@ -5,6 +5,7 @@ import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 
+import type { CalendarEvent, WeekEventSegment } from '../calendarLogic';
 import {
   addDays,
   buildWeekDays,
@@ -14,7 +15,6 @@ import {
   calEventCreateKind,
   calEventMoveKind,
   calEventResizeKind,
-  CalendarEvent,
   DAY_MS,
   diffDays,
   formatRange,
@@ -26,7 +26,6 @@ import {
   resolveDropPreview,
   snapToMinutes,
   useCalendarView,
-  WeekEventSegment,
 } from '../calendarLogic';
 import styles from '../calendar.module.css';
 

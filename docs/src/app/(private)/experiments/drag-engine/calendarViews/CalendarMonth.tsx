@@ -4,6 +4,7 @@ import { Draggable } from '@base-ui/react/draggable';
 import * as React from 'react';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 
+import type { CalendarEvent, WeekEventSegment } from '../calendarLogic';
 import {
   buildMonthGrid,
   calDayCellKind,
@@ -11,7 +12,6 @@ import {
   calEventCreateKind,
   calEventMoveKind,
   calEventResizeKind,
-  CalendarEvent,
   addDays,
   addMonths,
   diffDays,
@@ -22,7 +22,6 @@ import {
   startOfDay,
   startOfMonth,
   useCalendarView,
-  WeekEventSegment,
 } from '../calendarLogic';
 import styles from '../calendar.module.css';
 

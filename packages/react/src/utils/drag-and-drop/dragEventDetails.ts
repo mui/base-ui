@@ -3,10 +3,8 @@
  * argument: Base UI's generic event details, carrying the drag `location`.
  */
 
-import {
-  createGenericEventDetails,
-  type ReasonToEvent,
-} from '../../internals/createBaseUIEventDetails';
+import { createGenericEventDetails } from '../../internals/createBaseUIEventDetails';
+import type { ReasonToEvent } from '../../internals/createBaseUIEventDetails';
 import type { BaseUIEventReason } from '../../internals/reasons';
 import type { DraggableLocationHistory } from '../../draggable/DraggableProvider';
 import type { DragEndReason, DragEventDetails, MoveEndEventDetails } from './types';

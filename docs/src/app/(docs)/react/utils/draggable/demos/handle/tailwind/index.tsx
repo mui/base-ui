@@ -3,7 +3,8 @@ import { Draggable } from '@base-ui/react/draggable';
 
 import * as React from 'react';
 import { GripIcon } from '../../GripIcon';
-import { SLOTS, useDashboardWidgets, type SlotId, type WidgetData } from '../../dashboardWidgets';
+import { SLOTS, useDashboardWidgets } from '../../dashboardWidgets';
+import type { SlotId, WidgetData } from '../../dashboardWidgets';
 
 const widgetKind = Draggable.createKind<string>('draggable/handle-widget');
 

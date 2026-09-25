@@ -5,14 +5,8 @@ import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { DragPageAutoScroll } from './_components/DragPageAutoScroll';
 
-import {
-  INITIAL_NODES,
-  canDropInto,
-  getChildren,
-  getPath,
-  type FileNode,
-  type FileSystem,
-} from './file-explorer-data';
+import { INITIAL_NODES, canDropInto, getChildren, getPath } from './file-explorer-data';
+import type { FileNode, FileSystem } from './file-explorer-data';
 import styles from './file-explorer.module.css';
 import controlsStyles from './controls.module.css';
 

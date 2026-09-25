@@ -2,7 +2,8 @@ import type { DraggableRootRecord } from '../../draggable/root/DraggableRoot';
 import { getSharedSlot } from './sharedState';
 import { getRegistration } from './draggableRegistry';
 import { dragSessionStore, notifyDragSourceUpdated } from './dragSessionStore';
-import { getParticipantPayload, type ParticipantPayload } from './participantData';
+import { getParticipantPayload } from './participantData';
+import type { ParticipantPayload } from './participantData';
 
 const sourcePayloads = getSharedSlot(
   'dragSource.payloads',

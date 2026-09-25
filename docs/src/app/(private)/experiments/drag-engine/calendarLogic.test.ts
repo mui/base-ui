@@ -9,10 +9,8 @@ import {
   calendarReducer,
   layoutWeekSegments,
   resolveDropPreview,
-  type CalendarDragSource,
-  type CalendarDropPayload,
-  type CalendarEvent,
 } from './calendarLogic';
+import type { CalendarDragSource, CalendarDropPayload, CalendarEvent } from './calendarLogic';
 
 function day(year: number, month: number, date: number) {
   return new Date(year, month - 1, date).getTime();

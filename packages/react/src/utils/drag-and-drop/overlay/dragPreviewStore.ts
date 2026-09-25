@@ -1,4 +1,5 @@
-import { Store, type ReadonlyStore } from '@base-ui/utils/store';
+import { Store } from '@base-ui/utils/store';
+import type { ReadonlyStore } from '@base-ui/utils/store';
 import type * as React from 'react';
 import { getSharedSlot } from '../sharedState';
 import type { DraggableInput } from '../../../draggable/DraggableProvider';

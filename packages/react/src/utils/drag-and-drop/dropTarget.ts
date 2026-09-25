@@ -1,6 +1,7 @@
 import { isShadowRoot } from '@floating-ui/utils/dom';
 import { clamp } from '@base-ui/utils/clamp';
-import { resolveCollision, type CollisionResolutionRegistration } from './collisionResolution';
+import { resolveCollision } from './collisionResolution';
+import type { CollisionResolutionRegistration } from './collisionResolution';
 import type {
   DraggableInput,
   DraggableAccept,

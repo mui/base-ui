@@ -23,11 +23,10 @@ import type {
   DraggableRootActivation,
   DraggableRootBeforeMoveStartEventDetails,
 } from '../../../draggable/root/DraggableRoot';
-import {
-  canStart as canStartLifecycle,
-  type DragSessionController,
-} from '../core/lifecycleManager';
-import { createPreviewAndStartSession, type PreviewSessionHandle } from '../core/sensorSession';
+import { canStart as canStartLifecycle } from '../core/lifecycleManager';
+import type { DragSessionController } from '../core/lifecycleManager';
+import { createPreviewAndStartSession } from '../core/sensorSession';
+import type { PreviewSessionHandle } from '../core/sensorSession';
 import type { SyntheticPreviewHandle } from './syntheticPreview';
 import { clearActivePreviewHandle } from '../activePreview';
 import * as dragRootLock from './dragRootLock';
@@ -35,15 +34,12 @@ import * as dragCursor from './dragCursor';
 import { suppressNextClick } from './postDragClick';
 import { getSharedSlot } from '../sharedState';
 import { setActivePointerAccessors } from '../activePointer';
-import { createEventRootBinding, type DragEventRoot } from '../documentBinding';
+import { createEventRootBinding } from '../documentBinding';
+import type { DragEventRoot } from '../documentBinding';
 import type { DraggableConfig } from '../draggable';
 import { createDragSource } from '../dragSource';
-import {
-  getRegistration,
-  resolveDragHandle,
-  resolveDraggablePickup,
-  type DraggablePickup,
-} from '../draggableRegistry';
+import { getRegistration, resolveDragHandle, resolveDraggablePickup } from '../draggableRegistry';
+import type { DraggablePickup } from '../draggableRegistry';
 import { hasInteractiveAncestorWithin } from '../interactiveElement';
 import {
   getDropTargetShadowRoots,
@@ -53,11 +49,8 @@ import {
 import type { DraggableInput, DraggablePointerType } from '../../../draggable/DraggableProvider';
 import type { DraggableHandleReference } from '../../../draggable/handle/DraggableHandle';
 import type { DragCanceledReason, DragCleanupFn, DragMoveReason } from '../types';
-import {
-  modifyDragPoint,
-  createDragModifiersState,
-  type DragModifiersState,
-} from '../dragModifiers';
+import { modifyDragPoint, createDragModifiersState } from '../dragModifiers';
+import type { DragModifiersState } from '../dragModifiers';
 import {
   deepElementFromPoint,
   elementFromPointIgnoring,

@@ -24,12 +24,11 @@ import { registerTarget, registerMonitor } from '../../utils/drag-and-drop/regis
 import type { RegisterTargetParameters } from '../../utils/drag-and-drop/dropTarget';
 import { scheduleDropTargetParameterRefresh } from '../../utils/drag-and-drop/core/lifecycleManager';
 import { dragSessionStore, dragSourceStore } from '../../utils/drag-and-drop/dragSessionStore';
-import {
-  resolveCollision,
-  type CollisionResolutionRegistration,
-} from '../../utils/drag-and-drop/collisionResolution';
+import { resolveCollision } from '../../utils/drag-and-drop/collisionResolution';
+import type { CollisionResolutionRegistration } from '../../utils/drag-and-drop/collisionResolution';
 import { createKind } from '../../utils/drag-and-drop/dragKind';
-import { DraggableCollisionContext, type CollisionParticipant } from './DraggableCollisionContext';
+import { DraggableCollisionContext } from './DraggableCollisionContext';
+import type { CollisionParticipant } from './DraggableCollisionContext';
 import { useDraggableContext } from '../DraggableContext';
 
 /**

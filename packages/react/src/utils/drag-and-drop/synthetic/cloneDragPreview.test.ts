@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { installDndPolyfill } from '../../../../test/dndPolyfill';
-import { createClonedDragPreviewElement, type DragPreviewElementHandle } from './cloneDragPreview';
+import { createClonedDragPreviewElement } from './cloneDragPreview';
+import type { DragPreviewElementHandle } from './cloneDragPreview';
 
 installDndPolyfill();
 

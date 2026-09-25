@@ -1,10 +1,10 @@
 import * as React from 'react';
 import { expectType } from '#test-utils';
-import {
-  Draggable,
-  type DraggableKind,
-  type DraggableRootMoveStartValue as MoveStartValue,
-  type DraggableRootRecord,
+import { Draggable } from '@base-ui/react/draggable';
+import type {
+  DraggableKind,
+  DraggableRootMoveStartValue as MoveStartValue,
+  DraggableRootRecord,
 } from '@base-ui/react/draggable';
 
 interface CardPayload {

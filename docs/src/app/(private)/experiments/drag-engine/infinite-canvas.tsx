@@ -6,7 +6,8 @@ import clsx from 'clsx';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { DragPageAutoScroll } from '../../../(docs)/react/utils/draggable/demos/DragPageAutoScroll';
 
-import { SettingsMetadata, useExperimentSettings } from '../_components/SettingsPanel';
+import type { SettingsMetadata } from '../_components/SettingsPanel';
+import { useExperimentSettings } from '../_components/SettingsPanel';
 import theme from './theme.module.css';
 import styles from './infinite-canvas.module.css';
 

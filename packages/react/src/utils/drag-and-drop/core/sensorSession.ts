@@ -5,13 +5,15 @@
  * parameters and hands them to the lifecycle.
  */
 
-import { start, type DragSessionController } from './lifecycleManager';
+import { start } from './lifecycleManager';
+import type { DragSessionController } from './lifecycleManager';
 import { getRegistration } from '../draggableRegistry';
 import { setActivePreviewHandle } from '../activePreview';
 import { resolveDragPreview } from '../synthetic/dragPreviewSettings';
 import { compileDragModifiers } from '../dragModifiers';
 import { attachDefaultDragPreview } from '../synthetic/defaultDragPreview';
-import { createSyntheticPreview, type SyntheticPreviewHandle } from '../synthetic/syntheticPreview';
+import { createSyntheticPreview } from '../synthetic/syntheticPreview';
+import type { SyntheticPreviewHandle } from '../synthetic/syntheticPreview';
 import type { DraggableConfig } from '../draggable';
 import type { DraggableInput } from '../../../draggable/DraggableProvider';
 import type { DraggableRootRecord } from '../../../draggable/root/DraggableRoot';

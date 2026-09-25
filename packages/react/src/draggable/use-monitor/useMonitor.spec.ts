@@ -1,4 +1,5 @@
-import { Draggable, type UseDraggableMonitorParameters } from '@base-ui/react/draggable';
+import { Draggable } from '@base-ui/react/draggable';
+import type { UseDraggableMonitorParameters } from '@base-ui/react/draggable';
 import { expectType } from '#test-utils';
 
 interface CardPayload {

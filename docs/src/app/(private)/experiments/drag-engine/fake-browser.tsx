@@ -37,12 +37,14 @@ import {
   moveNode,
   removeNode,
   updateNode,
-  type BookmarkNode,
-  type BookmarkPage,
-  type BookmarkSeed,
-  type BookmarkTree,
-  type MoveValidity,
-  type ParentId,
+} from './bookmark-bar-model';
+import type {
+  BookmarkNode,
+  BookmarkPage,
+  BookmarkSeed,
+  BookmarkTree,
+  MoveValidity,
+  ParentId,
 } from './bookmark-bar-model';
 import styles from './bookmark-bar.module.css';
 
