@@ -57,7 +57,9 @@ overrides:
   ws: '^8.21.3'
 engineStrict: true
 updateNotifier: false
-blockExoticSubdeps: true
+# Relaxed while @mui/x-virtualizer is installed from the mui/mui-x#23687 preview, which depends
+# on a pkg.pr.new build of @mui/x-internals by URL. Restore `true` once a release includes it.
+blockExoticSubdeps: false
 minimumReleaseAge: 4320
 minimumReleaseAgeExclude:
   - '@base-ui/*'

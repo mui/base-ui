@@ -519,8 +519,8 @@ importers:
         specifier: ^0.2.12
         version: 0.2.12
       '@mui/x-virtualizer':
-        specifier: ^0.7.1
-        version: 0.7.2(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+        specifier: https://pkg.pr.new/mui/mui-x/@mui/x-virtualizer@6287b40
+        version: https://pkg.pr.new/mui/mui-x/@mui/x-virtualizer@6287b40(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       use-sync-external-store:
         specifier: ^1.7.0
         version: 1.7.0(react@19.3.0)
@@ -1416,8 +1416,8 @@ packages:
     resolution: {integrity: sha512-4zBIxpPzowiZpusoFkyGVwakdRJUyuH5PxQ/PrqghfdFWWasvnCdPfQXHrenDai+gyLARulZjZowCOj6fjT4pA==}
     engines: {node: '>=6.9.0'}
 
-  '@base-ui/utils@0.3.2':
-    resolution: {integrity: sha512-oWy1aq/I2GmYjpl4PhEAhzflF8VPGKgZeq0xAWTbfD5KBWyxcN0ZP2+WHSUm/5Z6lVMBDLReLcoXwSYoRc/zNQ==}
+  '@base-ui/utils@0.4.0':
+    resolution: {integrity: sha512-bO9fz25kKtPf+aZVyfQrC0PDmJdmVni31W2hCS5/Owb+inwdIL3XU26pCPRPlt4LSxZrBgLwubXQXQlKaFEZzw==}
     peerDependencies:
       '@types/react': ^17 || ^18 || ^19
       react: ^17 || ^18 || ^19
@@ -2388,15 +2388,17 @@ packages:
       '@types/react':
         optional: true
 
-  '@mui/x-internals@9.14.0':
-    resolution: {integrity: sha512-m4XkKIihP+uWvz18BgSOHtwxCBWtE3Qi2X9hZUdEGW5mk50umziYaCLn9B/3cT9qBU7LirEC8agqpWxDSYjaNw==}
+  '@mui/x-internals@https://pkg.pr.new/mui/mui-x/@mui/x-internals@6287b402c5beb20aef0c60b67e2ec1b9d1ad0fe1':
+    resolution: {integrity: sha512-e9wNvB7ZeVS9Q0BZfIz9jn3C1N3qTSlZdc2SL/3CG2XqoB0Hn/wdLFaUQ84RYKEotm1IwPtfP02xI3DnP217yQ==, tarball: https://pkg.pr.new/mui/mui-x/@mui/x-internals@6287b402c5beb20aef0c60b67e2ec1b9d1ad0fe1}
+    version: 9.14.0
     engines: {node: '>=14.0.0'}
     peerDependencies:
       react: ^17.0.0 || ^18.0.0 || ^19.0.0
       react-dom: ^17.0.0 || ^18.0.0 || ^19.0.0
 
-  '@mui/x-virtualizer@0.7.2':
-    resolution: {integrity: sha512-8JYK1KZe7rVMzBRxvEZYt0BYS5zXRDV0HPXqTSwe4TPPuldCjTII7IvlzkSC8yS24+2iDlYo5kBKdTJ8uzfMjg==}
+  '@mui/x-virtualizer@https://pkg.pr.new/mui/mui-x/@mui/x-virtualizer@6287b40':
+    resolution: {integrity: sha512-xUC0zfCn5rngfpQpEvc380tIf6SCfRLhm0cp0Kv2Cwp/4Bh6R70YfFvTIGO4gN6aOkAyPASQ2Yra1SEVSLdCOw==, tarball: https://pkg.pr.new/mui/mui-x/@mui/x-virtualizer@6287b40}
+    version: 0.7.2
     engines: {node: '>=14.0.0'}
     peerDependencies:
       react: ^17.0.0 || ^18.0.0 || ^19.0.0
@@ -10838,7 +10840,7 @@ snapshots:
       '@babel/helper-string-parser': 7.29.7
       '@babel/helper-validator-identifier': 7.29.7
 
-  '@base-ui/utils@0.3.2(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)':
+  '@base-ui/utils@0.4.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)':
     dependencies:
       '@babel/runtime': 7.29.7
       '@floating-ui/utils': 0.2.12
@@ -11887,24 +11889,23 @@ snapshots:
     optionalDependencies:
       '@types/react': 19.3.0
 
-  '@mui/x-internals@9.14.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)':
+  '@mui/x-internals@https://pkg.pr.new/mui/mui-x/@mui/x-internals@6287b402c5beb20aef0c60b67e2ec1b9d1ad0fe1(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)':
     dependencies:
       '@babel/runtime': 7.29.7
-      '@base-ui/utils': 0.3.2(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      '@base-ui/utils': 0.4.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@mui/utils': 9.4.0(@types/react@19.3.0)(react@19.3.0)
       react: 19.3.0
       react-dom: 19.3.0(react@19.3.0)
       reselect: 5.3.0
-      use-sync-external-store: 1.7.0(react@19.3.0)
     transitivePeerDependencies:
       - '@types/react'
 
-  '@mui/x-virtualizer@0.7.2(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)':
+  '@mui/x-virtualizer@https://pkg.pr.new/mui/mui-x/@mui/x-virtualizer@6287b40(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)':
     dependencies:
       '@babel/runtime': 7.29.7
-      '@base-ui/utils': 0.3.2(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      '@base-ui/utils': 0.4.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@mui/utils': 9.4.0(@types/react@19.3.0)(react@19.3.0)
-      '@mui/x-internals': 9.14.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      '@mui/x-internals': https://pkg.pr.new/mui/mui-x/@mui/x-internals@6287b402c5beb20aef0c60b67e2ec1b9d1ad0fe1(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       react: 19.3.0
       react-dom: 19.3.0(react@19.3.0)
     transitivePeerDependencies:
