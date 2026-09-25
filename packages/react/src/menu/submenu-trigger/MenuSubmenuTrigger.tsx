@@ -224,8 +224,9 @@ export const MenuSubmenuTrigger = React.forwardRef(function MenuSubmenuTrigger(
         'aria-controls': popupId,
         tabIndex: open || highlighted ? 0 : -1,
         onFocus(event) {
-          // Close when a screen reader returns to the trigger so it can continue to the next
-          // parent menu item. Hovering back to the trigger should leave the submenu open.
+          // Close when focus returns through the submenu's guard to its trigger. This also lets
+          // screen reader users move past the trigger in the parent menu. Direct focus from a
+          // submenu item, such as on hover, leaves the submenu open.
           if (store.select('open') && focusReturnedThroughGuardRef.current) {
             focusReturnedThroughGuardRef.current = false;
             store.setOpen(false, createChangeEventDetails(REASONS.focusOut, event.nativeEvent));
