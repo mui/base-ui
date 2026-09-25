@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import type { OTPFieldRoot, OTPFieldRootState } from './OTPFieldRoot';
+import { OTPFieldRoot, type OTPFieldRootState } from './OTPFieldRoot';
 import type { OTPFieldInputState } from '../input/OTPFieldInput';
 
 export interface OTPFieldRootContext {

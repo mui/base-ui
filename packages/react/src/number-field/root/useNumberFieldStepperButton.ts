@@ -10,7 +10,7 @@ import {
   createGenericEventDetails,
 } from '../../internals/createBaseUIEventDetails';
 import type { EventWithOptionalKeyState } from '../utils/types';
-import type { NumberFieldRoot, NumberFieldRootState } from './NumberFieldRoot';
+import { NumberFieldRoot, type NumberFieldRootState } from './NumberFieldRoot';
 import { REASONS } from '../../internals/reasons';
 import { useNumberFieldRootContext } from './NumberFieldRootContext';
 import { stateAttributesMapping } from '../utils/stateAttributesMapping';

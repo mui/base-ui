@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import type { NumberFieldRoot, NumberFieldRootState } from './NumberFieldRoot';
+import { NumberFieldRoot, type NumberFieldRootState } from './NumberFieldRoot';
 import type { EventWithOptionalKeyState, IncrementValueParameters } from '../utils/types';
 
 export type InputMode = 'numeric' | 'decimal' | 'text';
