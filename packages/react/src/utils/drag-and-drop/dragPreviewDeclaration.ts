@@ -1,6 +1,9 @@
 import { warn } from '@base-ui/utils/warn';
 import type * as React from 'react';
-import type { DraggablePreviewSettings, DraggablePreviewRenderParameters } from '../../types/drag';
+import type {
+  DraggablePreviewSettings,
+  DraggablePreviewRenderParameters,
+} from '../../draggable/preview/DraggablePreview';
 import type { DragPreviewElementFactory } from './synthetic/cloneDragPreview';
 
 /**

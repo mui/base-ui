@@ -1,4 +1,4 @@
-import type { DraggableInput } from '../../types/drag';
+import type { DraggableInput } from '../../draggable/DraggableProvider';
 import { getSharedSlot } from './sharedState';
 
 interface ActivePointerAccessors {

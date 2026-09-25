@@ -15,8 +15,9 @@ import {
 import { dragSessionStore } from '../../utils/drag-and-drop/dragSessionStore';
 import { registerTarget as registerTargetRaw } from '../../utils/drag-and-drop/registrations';
 import { anyDragKind } from '../../utils/drag-and-drop/dragKind';
-import type { MoveEventDetails, DraggableTargetRecord } from '../../types/drag';
-import type { RegisterTargetParameters } from '../../types/dragRegistration';
+import type { MoveEventDetails } from '../../utils/drag-and-drop/types';
+import type { DraggableTargetRecord } from '../target/DraggableTarget';
+import type { RegisterTargetParameters } from '../../utils/drag-and-drop/registrationTypes';
 
 setupDragEngineTests();
 

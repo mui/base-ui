@@ -1,4 +1,7 @@
-import type { DraggableTargetRecord, DraggableTargetResolutionContext } from '../../types/drag';
+import type {
+  DraggableTargetRecord,
+  DraggableTargetResolutionContext,
+} from '../../draggable/target/DraggableTarget';
 
 /** Internal registration hook: capture geometry before consumers can mutate the layout. */
 export const resolveCollision = Symbol.for('base-ui.resolveCollision');

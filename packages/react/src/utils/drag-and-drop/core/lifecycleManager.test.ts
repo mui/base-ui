@@ -9,15 +9,15 @@ import {
   setupDragEngineTests,
   splitEnd,
 } from '../../../../test/dnd';
+import type { DraggableInput } from '../../../draggable/DraggableProvider';
+import type { DraggableRootRecord } from '../../../draggable/root/DraggableRoot';
+import type { DraggableTargetRecord } from '../../../draggable/target/DraggableTarget';
 import type {
   DragDropEventDetails,
-  DraggableInput,
-  DraggableRootRecord,
   DragSourceEventValue,
-  DraggableTargetRecord,
   DropTargetChangeEventDetails,
   MoveEndEventDetails,
-} from '../../../types/drag';
+} from '../types';
 import { addDropTargetRegistration, removeDropTargetRegistration } from '../dropTarget';
 import { engageMonitorIfDragging, monitorRegistry, removeMonitor } from '../monitor';
 import { cancelDrag } from '../cancelDrag';

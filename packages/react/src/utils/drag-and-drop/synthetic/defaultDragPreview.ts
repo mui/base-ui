@@ -1,7 +1,7 @@
 import { resolveDragPreviewOffset } from '../customDragPreview';
 import type { SyntheticPreviewHandle } from './syntheticPreview';
 import type { ResolvedDragPreview } from './dragPreviewSettings';
-import type { DraggableInput, DraggablePosition } from '../../../types/drag';
+import type { DraggableInput, DraggablePosition } from '../../../draggable/DraggableProvider';
 
 /**
  * Build the element that follows the pointer, unless the draggable opted out.

@@ -1,9 +1,7 @@
 import { matchesAccept } from './dragKind';
+import type { DraggableAccept } from '../../draggable/DraggableProvider';
 import type {
-  DraggableAccept,
   DraggableRootRecord,
-  DragSourceEventValue,
-  DraggableEventDetailsMap,
   DraggableRootMoveEndEventDetails,
   DraggableRootMoveEndValue,
   DraggableRootMoveEventDetails,
@@ -12,7 +10,8 @@ import type {
   DraggableRootMoveValue,
   DraggableRootTargetChangeEventDetails,
   DraggableRootTargetChangeValue,
-} from '../../types/drag';
+} from '../../draggable/root/DraggableRoot';
+import type { DragSourceEventValue, DraggableEventDetailsMap } from './types';
 import { getSharedSlot } from './sharedState';
 import { containConsumerError } from './utils';
 

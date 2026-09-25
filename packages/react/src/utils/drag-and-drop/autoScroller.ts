@@ -4,17 +4,14 @@ import { closest, contains } from '@base-ui/utils/shadowDom';
 import { warn } from '@base-ui/utils/warn';
 import { WindowAnimationFrame } from '../windowAnimationFrame';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
-import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import type {
   DraggableAccept,
-  DraggableRootRecord,
-  DragSourceEventValue,
   DraggableInput,
   DraggableLocationHistory,
-  MoveEventDetails,
-  DropTargetChangeEventDetails,
-} from '../../types/drag';
+} from '../../draggable/DraggableProvider';
+import type { DraggableRootRecord } from '../../draggable/root/DraggableRoot';
+import type { DragSourceEventValue, MoveEventDetails, DropTargetChangeEventDetails } from './types';
 import { matchesAccept } from './dragKind';
 import {
   monitorRegistry,
@@ -42,6 +39,12 @@ import {
 import { dragSessionStore } from './dragSessionStore';
 import { DRAG_PREVIEW_ATTR } from './dragAttributes';
 import { getMaxScrollOffset } from '../scrollEdges';
+import type {
+  DraggableViewportDragScrollEventDetails,
+  DraggableViewportDragScrollValue,
+  DraggableViewportMaxSpeedContext,
+  DraggableViewportOverflowMargin,
+} from '../../draggable/viewport/DraggableViewport';
 
 const EDGE_THRESHOLD = 0.25;
 const MAX_EDGE_SIZE = 180;
@@ -1268,16 +1271,6 @@ function reportedPointHasCandidate(
   return false;
 }
 
-/** Outside distances in CSS pixels. Physical edges are independent of text direction. */
-export type DraggableViewportOverflowMargin =
-  | number
-  | {
-      top?: number | undefined;
-      right?: number | undefined;
-      bottom?: number | undefined;
-      left?: number | undefined;
-    };
-
 export function normalizeOverflowMargin(value: DraggableViewportOverflowMargin | undefined) {
   const edge = (amount: number | undefined) =>
     amount !== undefined && Number.isFinite(amount) ? Math.max(0, amount) : 0;
@@ -1407,66 +1400,6 @@ export function retainScrollMonitor(): () => void {
     }
   });
 }
-
-/** The argument of a viewport's `maxSpeed` function, called on every scrolling frame. */
-export interface DraggableViewportMaxSpeedContext<TSourcePayload = unknown, TDragData = unknown> {
-  /**
-   * The position used to determine scrolling. It may differ from the modified
-   * drag position when a modifier separates that position from the pointer.
-   */
-  input: DraggableInput;
-  source: DraggableRootRecord<TSourcePayload, TDragData>;
-  element: HTMLElement;
-}
-
-/** The first argument of `onDragScroll`: the dragged item and the movement for this frame. */
-export interface DraggableViewportDragScrollValue<TSourcePayload = unknown, TDragData = unknown> {
-  /** The item being dragged. */
-  source: DraggableRootRecord<TSourcePayload, TDragData>;
-  /**
-   * How far to move horizontally this frame, in CSS pixels, with `scrollBy`
-   * semantics: a positive value moves the view right, so the content slides left
-   * under the pointer. Apply this delta as-is, without multiplying by elapsed time.
-   * `0` when the horizontal axis isn't engaged this frame.
-   */
-  x: number;
-  /** How far to move vertically this frame, in CSS pixels. A positive value moves the view down. */
-  y: number;
-  /** The axis this call is about. `onDragScroll` is called once per engaged axis. */
-  direction: DraggableViewportDragScrollDirection;
-}
-
-export type DraggableViewportDragScrollDirection = 'horizontal' | 'vertical';
-
-/** The properties `onDragScroll`'s event details add to the Base UI change details. */
-export interface DraggableViewportDragScrollEventDetailsProperties {
-  /**
-   * The position used to determine scrolling. It may differ from the modified
-   * drag position when a modifier separates that position from the pointer.
-   */
-  input: DraggableInput;
-  /** The scroll container. */
-  element: HTMLElement;
-  /**
-   * Claims this direction, so that ancestor viewports don't scroll on the same axis.
-   * Skip it at a bound the element can't move past, so an ancestor can scroll instead.
-   */
-  consume: () => void;
-  /** Whether {@link consume} has been called. */
-  isConsumed: boolean;
-}
-
-/**
- * The event details passed as the second argument to `onDragScroll`.
- * Call `cancel()` to prevent Base UI from scrolling the container in this direction.
- * `event` is a placeholder: the scroll loop runs from animation frames, not from a native event.
- */
-export type DraggableViewportDragScrollEventDetails = BaseUIChangeEventDetails<
-  typeof REASONS.none,
-  DraggableViewportDragScrollEventDetailsProperties
->;
-export type DraggableViewportDragScrollEventReason =
-  DraggableViewportDragScrollEventDetails['reason'];
 
 function createAutoScrollEventDetails(
   input: DraggableInput,

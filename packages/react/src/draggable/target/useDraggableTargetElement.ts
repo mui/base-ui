@@ -7,7 +7,7 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { syncDropTargetPayload } from '../../utils/drag-and-drop/dropTarget';
 import { registerTarget } from '../../utils/drag-and-drop/registrations';
 import { scheduleDropTargetParameterRefresh } from '../../utils/drag-and-drop/core/lifecycleManager';
-import type { RegisterTargetParameters } from '../../types/dragRegistration';
+import type { RegisterTargetParameters } from '../../utils/drag-and-drop/registrationTypes';
 import { useRegistrationRef } from '../../utils/drag-and-drop/useRegistrationRef';
 import {
   createDragTargetStateStore,

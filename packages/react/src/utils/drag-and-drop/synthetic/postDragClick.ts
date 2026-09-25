@@ -23,7 +23,7 @@ import { NOOP } from '@base-ui/utils/empty';
 import { addEventListener } from '@base-ui/utils/addEventListener';
 import { WindowTimeout } from '../../windowTimeout';
 import { getSharedSlot } from '../sharedState';
-import type { DragCleanupFn } from '../../../types/drag';
+import type { DragCleanupFn } from '../types';
 
 /**
  * Backstop for the case where neither a compatibility click nor a further

@@ -15,12 +15,12 @@ import type {
   InternalDraggableParameters,
   RegisterSourceParameters,
   RegisterTargetParameters,
-} from '../../types/dragRegistration';
+} from '../../utils/drag-and-drop/registrationTypes';
 import type {
   CollisionParticipant,
   DraggableCollisionContextValue,
 } from '../collision-provider/DraggableCollisionContext';
-import type { DraggableRootRecord } from '../../types/drag';
+import type { DraggableRootRecord } from './DraggableRoot';
 import {
   dragSessionStore,
   dragSourceStore,

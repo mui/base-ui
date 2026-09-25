@@ -1,11 +1,11 @@
 'use client';
 import * as React from 'react';
+import type { DragCleanupFn } from '../../utils/drag-and-drop/types';
+import type { DraggableKind } from '../DraggableProvider';
 import type {
-  DragCleanupFn,
-  DraggableKind,
   DraggableTargetSnapSteps,
   DraggableTargetResolutionContext,
-} from '../../types/drag';
+} from '../target/DraggableTarget';
 
 export interface CollisionParticipant {
   kind: Pick<DraggableKind, 'id'>;

@@ -5,19 +5,17 @@ import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import type { BaseUIComponentProps } from '../../internals/types';
 import type {
   DraggableKind,
-  DraggablePreviewSettings,
-  DraggablePreviewRenderParameters,
-  DraggablePreviewOffset,
-  DraggablePreviewOffsetParameters,
-  DraggablePreviewContainer,
-  DraggablePreviewParameters,
-} from '../../types/drag';
+  DraggableInput,
+  DraggableLocationHistory,
+  DraggablePosition,
+} from '../DraggableProvider';
 import { DraggablePreviewElement } from './DraggablePreviewElement';
 import { useDeclaredPreview } from './useDeclaredPreview';
 import {
   createClonedDragPreviewElement,
   createDragPreviewHostElement,
 } from '../../utils/drag-and-drop/synthetic/cloneDragPreview';
+import type { DraggableRootModifiers, DraggableRootRecord } from '../root/DraggableRoot';
 
 /**
  * Configures what follows the pointer during a drag.
@@ -137,14 +135,99 @@ type DraggablePreviewTypedProps<TPayload, TDragData = unknown> = Omit<
     | undefined;
 };
 
-export type {
-  DraggablePreviewRenderParameters,
-  DraggablePreviewOffset,
-  DraggablePreviewOffsetParameters,
-  DraggablePreviewContainer,
-  DraggablePreviewSettings,
-  DraggablePreviewParameters,
-} from '../../types/drag';
+/**
+ * The argument of `<Draggable.Preview>`'s children function and of `registerSource`'s
+ * `preview.render`, called when the drag starts.
+ */
+export interface DraggablePreviewRenderParameters<TSourcePayload = unknown, TDragData = unknown> {
+  /** The item being dragged. */
+  source: DraggableRootRecord<TSourcePayload, TDragData>;
+  /** The pointer position and drop targets when the drag started. */
+  location: DraggableLocationHistory;
+}
+
+/** Parameters passed to a drag preview's `offset` callback. */
+export interface DraggablePreviewOffsetParameters {
+  /** The preview element, after its content has rendered, so it has a size. */
+  container: HTMLElement;
+  /** The drag source element's bounding rect at drag start, in client coordinates. */
+  sourceRect: DOMRect;
+  /** Pointer state at drag start. */
+  input: DraggableInput;
+}
+
+/**
+ * Where the drag preview sits relative to the pointer.
+ *
+ * - `'source'`: The preview lifts off the source without shifting.
+ * - `'pointer'`: The preview's top-left corner sits under the pointer.
+ * - `DraggablePosition`: A fixed offset from the preview's top-left corner to the pointer, in CSS pixels.
+ * - `function`: Called when the drag starts with the rendered preview, the source's
+ *   rectangle, and the pointer state. Returns the offset to use.
+ */
+export type DraggablePreviewOffset =
+  | DraggablePosition
+  | 'source'
+  | 'pointer'
+  | ((parameters: DraggablePreviewOffsetParameters) => DraggablePosition);
+
+/**
+ * Where the drag preview element is inserted in the DOM.
+ *
+ * - `HTMLElement`: This element.
+ * - `RefObject`: The element the ref points to.
+ * - `function`: Called when the drag starts with the source element. Returns the
+ *   container, or `null` to use the default.
+ */
+export type DraggablePreviewContainer =
+  | HTMLElement
+  | { current: HTMLElement | null }
+  | ((source: HTMLElement) => HTMLElement | null | undefined);
+
+/**
+ * How the drag preview is positioned. Read once, when the drag starts.
+ */
+export interface DraggablePreviewSettings {
+  /**
+   * Where the preview sits relative to the pointer.
+   * @default 'source'
+   */
+  offset?: DraggablePreviewOffset | undefined;
+  /**
+   * One or more modifiers that constrain the preview only. The drop position still
+   * follows the pointer. To constrain the drag itself, use `modifiers` on `Draggable.Root`.
+   */
+  modifiers?: DraggableRootModifiers | undefined;
+  /**
+   * Whether to show no preview. The drag still runs.
+   * @default false
+   */
+  disabled?: boolean | undefined;
+  /**
+   * Where to insert the preview element in the DOM. Defaults to beside the source,
+   * so the same CSS applies to it. Pass a container to keep selectors such as
+   * `:last-child` on the source's siblings unchanged during the drag.
+   */
+  container?: DraggablePreviewContainer | undefined;
+}
+
+/**
+ * The drag preview of a source registered with `registerSource`.
+ * Omit it to use a clone of the source. `Draggable.Root` uses `Draggable.Preview` instead.
+ */
+export interface DraggablePreviewParameters<
+  TSourcePayload = unknown,
+  TDragData = unknown,
+> extends DraggablePreviewSettings {
+  /**
+   * Renders the preview content instead of cloning the source.
+   * Return `null` to show no preview for this drag. It plays the role of
+   * `<Draggable.Preview>`'s children function, not of its `render` prop.
+   */
+  render?:
+    | ((parameters: DraggablePreviewRenderParameters<TSourcePayload, TDragData>) => React.ReactNode)
+    | undefined;
+}
 
 export namespace DraggablePreview {
   export type Offset = DraggablePreviewOffset;

@@ -4,39 +4,25 @@ import { useDraggableContext } from '../DraggableContext';
 import { useRenderElement } from '../../internals/useRenderElement';
 import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
 import type { BaseUIComponentProps } from '../../internals/types';
+import type { REASONS } from '../../internals/reasons';
 import type {
   RegisterTargetParameters,
   DragParametersWithRequiredAccept,
-} from '../../types/dragRegistration';
+} from '../../utils/drag-and-drop/registrationTypes';
 import type {
   AcceptedDragPayload,
   AcceptedDragData,
-  DraggableAccept,
-  DraggableKind,
-  DraggableTargetRecord,
-  DraggableTargetResolutionContext,
-  DraggableTargetStartValue,
-  DraggableTargetStartEventDetails,
-  DraggableTargetStartEventReason,
-  DraggableTargetMoveValue,
-  DraggableTargetMoveEventDetails,
-  DraggableTargetMoveEventReason,
-  DraggableTargetEnterValue,
-  DraggableTargetEnterEventDetails,
-  DraggableTargetEnterEventReason,
-  DraggableTargetLeaveValue,
-  DraggableTargetLeaveEventDetails,
-  DraggableTargetLeaveEventReason,
-  DraggableTargetDropValue,
-  DraggableTargetDropEventDetails,
-  DraggableTargetDropEventReason,
-  DraggableTargetSnapSteps,
-  DraggableTargetLocalPoint,
-  DraggableTargetSnappedLocalPointOptions,
-} from '../../types/drag';
+  DragEventDetails,
+  DropTargetChangeEventDetails,
+  DropTargetEventValue,
+  MoveEventDetails,
+  MoveStartEventDetails,
+} from '../../utils/drag-and-drop/types';
+import type { DraggableAccept, DraggableKind, DraggableInput } from '../DraggableProvider';
 import * as DraggableTargetDataAttributes from './DraggableTargetDataAttributes';
 import { useDraggableTargetElement } from './useDraggableTargetElement';
 import type { UseDraggableTargetElementParameters } from './useDraggableTargetElement';
+import type { DraggableRootRecord } from '../root/DraggableRoot';
 
 const stateAttributesMapping: StateAttributesMapping<DraggableTargetState> = {
   // The default mapping only lowercases the state key, which would yield
@@ -271,28 +257,159 @@ export type DraggableTargetProps<
     ? { accept?: DraggableAccept<TSourcePayload, TSourceDragData> | undefined }
     : { accept: DraggableAccept<TSourcePayload, TSourceDragData> });
 
-export type {
-  DraggableTargetRecord,
-  DraggableTargetResolutionContext,
-  DraggableTargetStartValue,
-  DraggableTargetStartEventDetails,
-  DraggableTargetStartEventReason,
-  DraggableTargetMoveValue,
-  DraggableTargetMoveEventDetails,
-  DraggableTargetMoveEventReason,
-  DraggableTargetEnterValue,
-  DraggableTargetEnterEventDetails,
-  DraggableTargetEnterEventReason,
-  DraggableTargetLeaveValue,
-  DraggableTargetLeaveEventDetails,
-  DraggableTargetLeaveEventReason,
-  DraggableTargetDropValue,
-  DraggableTargetDropEventDetails,
-  DraggableTargetDropEventReason,
-  DraggableTargetSnapSteps,
-  DraggableTargetLocalPoint,
-  DraggableTargetSnappedLocalPointOptions,
-} from '../../types/drag';
+/**
+ * Where the pointer is within a drop target, as a fraction of its size:
+ * `0` at the left or top edge, `1` at the right or bottom edge.
+ */
+export interface DraggableTargetLocalPoint {
+  x: number;
+  y: number;
+}
+
+/**
+ * The number of equal steps a drop target is divided into on each axis, for
+ * `getSnappedLocalPoint()`. An omitted axis isn't snapped. Steps don't depend on
+ * the target's size, so `{ y: 96 }` splits a day column into 15-minute slots at any height.
+ */
+export interface DraggableTargetSnapSteps {
+  x?: number | undefined;
+  y?: number | undefined;
+}
+
+/** Options for `getSnappedLocalPoint()` on a drop target record. */
+export interface DraggableTargetSnappedLocalPointOptions {
+  /**
+   * The point to snap: the pointer position, or the dragged element's top-left corner.
+   * Use `'source'` when committing where the element lands.
+   * @default 'pointer'
+   */
+  anchor?: 'pointer' | 'source' | undefined;
+}
+
+/** A drop target under the pointer. */
+export interface DraggableTargetRecord<TTargetPayload = unknown, TDragData = unknown> {
+  /** The drop target's own DOM element. */
+  element: Element;
+  /**
+   * The identity of the target's `kind`, or `undefined` when it has none.
+   * Test it with a kind's `matches` method, which also narrows `payload`.
+   */
+  kind: symbol | undefined;
+  /**
+   * The target's `payload`, or `undefined` when it has none.
+   */
+  readonly payload: TTargetPayload;
+  /** Replaces the payload until the `payload` prop changes. */
+  updatePayload(payload: TTargetPayload): void;
+  /** Data stored for this target during the current drag. Starts as `undefined`. */
+  readonly dragData: TDragData | undefined;
+  /** Stores data for this target for the rest of the current drag. */
+  updateDragData(dragData: TDragData): void;
+  /**
+   * Returns where the pointer is within this target, as a fraction of its size on
+   * each axis: `0` at the left or top edge, `1` at the right or bottom edge.
+   * Use it when a drop means a value spread across the target, such as a time in a day column:
+   *
+   * ```tsx
+   * <Draggable.Target
+   *   accept={eventKind}
+   *   onDraggableDrop={({ target }) => {
+   *     schedule(target.getLocalPoint().y * MINUTES_PER_DAY);
+   *   }}
+   * />
+   * ```
+   *
+   * The value isn't clamped, since an outer target can have the pointer outside its
+   * own box while a nested target is under it. A target with no size reports `0` on both axes.
+   */
+  getLocalPoint: () => DraggableTargetLocalPoint;
+  /**
+   * Returns `getLocalPoint()` rounded to the target's `snap` steps and clamped between `0` and `1`:
+   *
+   * ```tsx
+   * <Draggable.Target
+   *   accept={eventKind}
+   *   snap={{ y: 96 }}
+   *   onDraggableDrop={({ source, target }) => {
+   *     // Already a multiple of 15 minutes.
+   *     schedule(source.payload.id, target.getSnappedLocalPoint().y * MINUTES_PER_DAY);
+   *   }}
+   * />
+   * ```
+   *
+   * Pass `{ anchor: 'source' }` to snap the dragged element's top-left corner instead
+   * of the pointer. An axis without steps returns its clamped fraction.
+   */
+  getSnappedLocalPoint: (
+    options?: DraggableTargetSnappedLocalPointOptions,
+  ) => DraggableTargetLocalPoint;
+}
+
+/** The argument of a drop target's `canDrop` and `snap` functions. */
+export interface DraggableTargetResolutionContext<TSourcePayload = unknown, TDragData = unknown> {
+  /** The current pointer state. */
+  input: DraggableInput;
+  /** The item being dragged. */
+  source: DraggableRootRecord<TSourcePayload, TDragData>;
+  /** The drop target's own DOM element. */
+  element: Element;
+}
+
+export interface DraggableTargetStartValue<
+  TSourcePayload = unknown,
+  TTargetPayload = unknown,
+  TDragData = unknown,
+  TTargetDragData = unknown,
+> extends DropTargetEventValue<TSourcePayload, TTargetPayload, TDragData, TTargetDragData> {}
+
+export type DraggableTargetStartEventDetails = MoveStartEventDetails;
+
+export type DraggableTargetStartEventReason = DraggableTargetStartEventDetails['reason'];
+
+export interface DraggableTargetMoveValue<
+  TSourcePayload = unknown,
+  TTargetPayload = unknown,
+  TDragData = unknown,
+  TTargetDragData = unknown,
+> extends DropTargetEventValue<TSourcePayload, TTargetPayload, TDragData, TTargetDragData> {}
+
+export type DraggableTargetMoveEventDetails = MoveEventDetails;
+
+export type DraggableTargetMoveEventReason = DraggableTargetMoveEventDetails['reason'];
+
+export interface DraggableTargetEnterValue<
+  TSourcePayload = unknown,
+  TTargetPayload = unknown,
+  TDragData = unknown,
+  TTargetDragData = unknown,
+> extends DropTargetEventValue<TSourcePayload, TTargetPayload, TDragData, TTargetDragData> {}
+
+export type DraggableTargetEnterEventDetails = DropTargetChangeEventDetails;
+
+export type DraggableTargetEnterEventReason = DraggableTargetEnterEventDetails['reason'];
+
+export interface DraggableTargetLeaveValue<
+  TSourcePayload = unknown,
+  TTargetPayload = unknown,
+  TDragData = unknown,
+  TTargetDragData = unknown,
+> extends DropTargetEventValue<TSourcePayload, TTargetPayload, TDragData, TTargetDragData> {}
+
+export type DraggableTargetLeaveEventDetails = DropTargetChangeEventDetails;
+
+export type DraggableTargetLeaveEventReason = DraggableTargetLeaveEventDetails['reason'];
+
+export interface DraggableTargetDropValue<
+  TSourcePayload = unknown,
+  TTargetPayload = unknown,
+  TDragData = unknown,
+  TTargetDragData = unknown,
+> extends DropTargetEventValue<TSourcePayload, TTargetPayload, TDragData, TTargetDragData> {}
+
+// An interface so the API reference prints its name instead of expanding it.
+export interface DraggableTargetDropEventDetails extends DragEventDetails<DraggableTargetDropEventReason> {}
+
+export type DraggableTargetDropEventReason = typeof REASONS.drop;
 
 export namespace DraggableTarget {
   export type SnapSteps = DraggableTargetSnapSteps;

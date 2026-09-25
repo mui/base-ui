@@ -19,7 +19,7 @@ import { createDocumentBinding } from './documentBinding';
 import { createGetterStackRegistry } from './getterStackRegistry';
 import { getSharedSlot } from './sharedState';
 import { getComposedParentElement, getDragEventRoot } from './utils';
-import type { DragCleanupFn } from '../../types/drag';
+import type { DragCleanupFn } from './types';
 
 interface StaticSetupRefreshState {
   /**

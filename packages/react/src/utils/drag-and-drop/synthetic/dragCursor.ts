@@ -1,7 +1,7 @@
 import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
 import { getSharedSlot } from '../sharedState';
 import { getDropTargetShadowRoots, subscribeDropTargetShadowRoots } from '../dropTarget';
-import type { DragCleanupFn } from '../../../types/drag';
+import type { DragCleanupFn } from '../types';
 
 interface DragCursorState {
   /** The document whose root carries the drag class/var while locked; `null` otherwise. */

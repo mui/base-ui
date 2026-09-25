@@ -2,7 +2,7 @@ import { getSharedSlot } from './sharedState';
 import type { SyntheticPreviewHandle } from './synthetic/syntheticPreview';
 import type { DragPreviewElementHandle } from './synthetic/cloneDragPreview';
 import type { ResolvedDragPreview } from './synthetic/dragPreviewSettings';
-import type { DraggablePosition } from '../../types/drag';
+import type { DraggablePosition } from '../../draggable/DraggableProvider';
 
 /**
  * The active drag's preview handle, so the React layer can reach the element the

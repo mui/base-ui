@@ -2,16 +2,12 @@
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { registerMonitor } from '../../utils/drag-and-drop/registrations';
-import type {
-  AcceptedDragPayload,
-  DraggableAccept,
-  AcceptedDragData,
-  DraggableKind,
-} from '../../types/drag';
+import type { AcceptedDragPayload, AcceptedDragData } from '../../utils/drag-and-drop/types';
+import type { DraggableAccept, DraggableKind } from '../DraggableProvider';
 import type {
   DragParametersWithInferredAccept,
   RegisterMonitorParameters,
-} from '../../types/dragRegistration';
+} from '../../utils/drag-and-drop/registrationTypes';
 
 /**
  * Observes every drag on the page that matches `accept`, wherever it started.

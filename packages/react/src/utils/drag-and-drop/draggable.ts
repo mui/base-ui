@@ -1,9 +1,10 @@
+import type { DraggableKind } from '../../draggable/DraggableProvider';
+import type { DraggableHandleReference } from '../../draggable/handle/DraggableHandle';
 import type {
-  DragCleanupFn,
-  DraggableHandleReference,
-  DraggableKind,
-  DraggablePayload,
   DraggablePreviewRenderParameters,
+  DraggablePreviewParameters,
+} from '../../draggable/preview/DraggablePreview';
+import type {
   DraggableRootBeforeMoveStartEventDetails,
   DraggableRootBeforeMoveStartValue,
   DraggableRootMoveEndEventDetails,
@@ -15,10 +16,10 @@ import type {
   DraggableRootTargetChangeEventDetails,
   DraggableRootTargetChangeValue,
   DraggableRootModifiers,
-  DraggablePreviewParameters,
-} from '../../types/drag';
+  DraggableRootActivationConfig,
+} from '../../draggable/root/DraggableRoot';
+import type { DragCleanupFn, DraggablePayload } from './types';
 import type { DragPreviewDeclaration } from './dragPreviewDeclaration';
-import type { DraggableRootActivationConfig } from './activation';
 import { bindPointerListeners, unbindPointerListeners } from './synthetic/syntheticSensor';
 import { getRegistration } from './draggableRegistry';
 import { getSharedSlot } from './sharedState';

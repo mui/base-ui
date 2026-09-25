@@ -2,7 +2,7 @@ import { addEventListener } from '@base-ui/utils/addEventListener';
 import { ownerWindow } from '@base-ui/utils/owner';
 import { isShadowRoot } from '@floating-ui/utils/dom';
 import { getSharedSlot } from './sharedState';
-import type { DragCleanupFn } from '../../types/drag';
+import type { DragCleanupFn } from './types';
 
 export type DragEventRoot = Document | ShadowRoot;
 

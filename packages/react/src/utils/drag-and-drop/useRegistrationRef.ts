@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import type { DragCleanupFn } from '../../types/drag';
+import type { DragCleanupFn } from './types';
 
 /** A commit-safe getter used by long-lived drag registrations. */
 export type LatestGetter<T> = () => T;

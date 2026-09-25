@@ -13,7 +13,9 @@ import { compileDragModifiers } from '../dragModifiers';
 import { attachDefaultDragPreview } from '../synthetic/defaultDragPreview';
 import { createSyntheticPreview, type SyntheticPreviewHandle } from '../synthetic/syntheticPreview';
 import type { DraggableConfig } from '../draggable';
-import type { DraggableInput, DragStartReason, DraggableRootRecord } from '../../../types/drag';
+import type { DraggableInput } from '../../../draggable/DraggableProvider';
+import type { DraggableRootRecord } from '../../../draggable/root/DraggableRoot';
+import type { DragStartReason } from '../types';
 
 export interface StartSensorSessionParameters {
   /** The draggable's latest parameters (kind/payload/event handlers). */

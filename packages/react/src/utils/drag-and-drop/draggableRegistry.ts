@@ -7,7 +7,7 @@
 
 import { isElement, isHTMLElement } from '@floating-ui/utils/dom';
 import { contains } from '@base-ui/utils/shadowDom';
-import type { DragCleanupFn } from '../../types/drag';
+import type { DragCleanupFn } from './types';
 import type { DraggableConfig } from './draggable';
 import { createGetterStackRegistry } from './getterStackRegistry';
 import { getSharedSlot } from './sharedState';

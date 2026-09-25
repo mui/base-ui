@@ -36,4 +36,4 @@ export type {
   DraggableLocationHistory as LocationHistory,
   DraggablePointerType as PointerType,
   DraggablePosition as Position,
-} from '../types/drag';
+} from './DraggableProvider';

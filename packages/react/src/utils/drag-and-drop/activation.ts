@@ -1,4 +1,8 @@
-import type { DraggablePointerType } from '../../types/drag';
+import type { DraggablePointerType } from '../../draggable/DraggableProvider';
+import type {
+  DraggableRootActivation,
+  DraggableRootActivationConfig,
+} from '../../draggable/root/DraggableRoot';
 
 const MOVEMENT_TOLERANCE_PX = 5;
 
@@ -150,36 +154,5 @@ export function getActivationDelayMs(
   }
   return delay;
 }
-
-/**
- * When a `pointerdown` becomes a drag. Discriminated on `type`:
- * - `immediate`: any `pointerdown` starts the drag.
- * - `distance`: the drag starts after the pointer has moved by `distance` CSS pixels.
- * - `press-hold`: the drag starts after `delay` ms of holding still; movement
- *   larger than `tolerance` CSS pixels (default 5) cancels the gesture.
- * - `double-click`: with a mouse, the drag starts on a double-click, follows the
- *   pointer without a held button, and ends on the next primary click. With touch
- *   or pen, the drag starts on the second tap of a double-tap while the pointer
- *   is still down, and ends on release.
- */
-export type DraggableRootActivation =
-  | { type: 'immediate' }
-  | { type: 'distance'; distance: number }
-  | { type: 'press-hold'; delay: number; tolerance?: number | undefined }
-  | { type: 'double-click' };
-
-/**
- * A single activation applied to all pointer types, or a per-pointer map.
- * Missing entries fall back to the per-pointer defaults. Pass an array of these
- * values to enable multiple activation methods. Set a pointer entry to `false`
- * to disable pickup for that pointer type, overriding all methods in an array.
- */
-export type DraggableRootActivationConfig =
-  | DraggableRootActivation
-  | {
-      mouse?: DraggableRootActivation | false | undefined;
-      touch?: DraggableRootActivation | false | undefined;
-      pen?: DraggableRootActivation | false | undefined;
-    };
 
 export type ActivationDecision = 'pending' | 'activate' | 'cancel';

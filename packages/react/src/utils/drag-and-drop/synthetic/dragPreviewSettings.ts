@@ -2,10 +2,10 @@ import type * as React from 'react';
 import type { DraggableConfig } from '../draggable';
 import { resolveElementReference } from '../utils';
 import type {
-  DraggableRootModifiers,
   DraggablePreviewOffset,
   DraggablePreviewRenderParameters,
-} from '../../../types/drag';
+} from '../../../draggable/preview/DraggablePreview';
+import type { DraggableRootModifiers } from '../../../draggable/root/DraggableRoot';
 import {
   createClonedDragPreviewElement,
   createDragPreviewHostElement,

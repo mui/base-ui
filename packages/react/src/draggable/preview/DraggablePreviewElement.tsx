@@ -2,8 +2,7 @@
 import * as React from 'react';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { useRenderElement } from '../../internals/useRenderElement';
-import type { DraggablePreviewSettings } from '../../types/drag';
-import type { DraggablePreview } from './DraggablePreview';
+import type { DraggablePreviewSettings, DraggablePreview } from './DraggablePreview';
 
 const EMPTY_STATE: DraggablePreview.State = EMPTY_OBJECT;
 

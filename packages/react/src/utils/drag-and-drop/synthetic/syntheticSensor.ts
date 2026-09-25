@@ -18,8 +18,11 @@ import {
   getActivationDelayMs,
   hasDoubleClickActivation,
   resolveActivation,
-  type DraggableRootActivation,
 } from '../activation';
+import type {
+  DraggableRootActivation,
+  DraggableRootBeforeMoveStartEventDetails,
+} from '../../../draggable/root/DraggableRoot';
 import {
   canStart as canStartLifecycle,
   type DragSessionController,
@@ -47,15 +50,9 @@ import {
   getDropTargetShadowRootsByHost,
   subscribeDropTargetShadowRoots,
 } from '../dropTarget';
-import type {
-  DraggableRootBeforeMoveStartEventDetails,
-  DragCanceledReason,
-  DragCleanupFn,
-  DraggableHandleReference,
-  DraggableInput,
-  DragMoveReason,
-  DraggablePointerType,
-} from '../../../types/drag';
+import type { DraggableInput, DraggablePointerType } from '../../../draggable/DraggableProvider';
+import type { DraggableHandleReference } from '../../../draggable/handle/DraggableHandle';
+import type { DragCanceledReason, DragCleanupFn, DragMoveReason } from '../types';
 import {
   modifyDragPoint,
   createDragModifiersState,

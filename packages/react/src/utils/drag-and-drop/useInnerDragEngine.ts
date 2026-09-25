@@ -28,8 +28,8 @@ import type {
   InternalDragEngine,
   InternalDraggableParameters,
   RegisterSourceParameters,
-} from '../../types/dragRegistration';
-import type { DragCleanupFn } from '../../types/drag';
+} from './registrationTypes';
+import type { DragCleanupFn } from './types';
 
 import type { LatestGetter } from './useRegistrationRef';
 

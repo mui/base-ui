@@ -7,7 +7,7 @@ import { applySourceSizeVars } from '../customDragPreview';
 import { getSharedSlot } from '../sharedState';
 import { DRAG_PREVIEW_ATTR, DRAGGING_ATTR } from '../dragAttributes';
 import { getComposedParentElement, getElementScale, getElementZoom } from '../utils';
-import type { DraggablePosition } from '../../../types/drag';
+import type { DraggablePosition } from '../../../draggable/DraggableProvider';
 import {
   COMPUTED_MATRIX,
   identityLinearTransform,

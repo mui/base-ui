@@ -3,7 +3,7 @@ import { isJSDOM } from '#test-utils';
 import { installDndPolyfill } from '../../../../test/dndPolyfill';
 import { createSyntheticPreview, retargetEndingPreviewSource } from './syntheticPreview';
 import { restrictToElement, restrictToVerticalAxis } from '../dragModifiers';
-import type { DraggablePosition } from '../../../types/drag';
+import type { DraggablePosition } from '../../../draggable/DraggableProvider';
 import type { DragPreviewElementHandle } from './cloneDragPreview';
 
 installDndPolyfill();

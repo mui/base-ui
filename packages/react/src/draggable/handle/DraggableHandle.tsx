@@ -5,7 +5,6 @@ import { warn } from '@base-ui/utils/warn';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useDraggableRootContext } from '../root/DraggableRootContext';
-import type { DraggableHandleReference } from '../../types/drag';
 
 /**
  * The area of a draggable that starts a drag. The rest of the draggable stays interactive.
@@ -60,7 +59,16 @@ export interface DraggableHandleProps extends Omit<
   disabled?: never | undefined;
 }
 
-export type { DraggableHandleReference } from '../../types/drag';
+/**
+ * The element that must be pressed to start a drag, for the `handle` option of
+ * `registerSource`. `<Draggable.Root>` uses `<Draggable.Handle>` instead.
+ *
+ * - `Element`: This element.
+ * - `RefObject`: The element the ref points to.
+ * - `function`: Returns the handle, or `null` to make the whole draggable its own handle.
+ */
+export type DraggableHandleReference =
+  Element | { current: Element | null } | (() => Element | null | undefined);
 
 export namespace DraggableHandle {
   export type Reference = DraggableHandleReference;

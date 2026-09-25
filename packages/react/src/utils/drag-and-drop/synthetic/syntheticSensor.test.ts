@@ -11,7 +11,8 @@ import {
 import { cancelDrag } from '../cancelDrag';
 import { WindowAnimationFrame } from '../../windowAnimationFrame';
 import { dragSessionStore } from '../dragSessionStore';
-import type { DraggableRootModifier, DraggableTargetRecord } from '../../../types/drag';
+import type { DraggableRootModifier } from '../../../draggable/root/DraggableRoot';
+import type { DraggableTargetRecord } from '../../../draggable/target/DraggableTarget';
 import { restrictToVerticalAxis } from '../dragModifiers';
 import * as syntheticSensor from './syntheticSensor';
 import {

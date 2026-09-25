@@ -1,8 +1,8 @@
+import type { DraggablePosition } from '../../draggable/DraggableProvider';
 import type {
   DraggablePreviewOffset,
-  DraggablePosition,
   DraggablePreviewOffsetParameters,
-} from '../../types/drag';
+} from '../../draggable/preview/DraggablePreview';
 
 /**
  * Resolve a `DraggablePreviewOffset` (the `'source'`/`'pointer'` presets, a fixed

@@ -3,7 +3,7 @@ import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useDraggableRootContext } from '../root/DraggableRootContext';
 import type { DragPreviewDeclaration } from '../../utils/drag-and-drop/dragPreviewDeclaration';
-import type { DraggablePreviewSettings } from '../../types/drag';
+import type { DraggablePreviewSettings } from './DraggablePreview';
 import { useDragPreviewContext } from '../../utils/drag-and-drop/overlay/DragPreviewContext';
 import { throwMissingPreviewProvider } from '../../utils/drag-and-drop/overlay/missingPreviewProvider';
 import type { DragPreviewElementFactory } from '../../utils/drag-and-drop/synthetic/cloneDragPreview';

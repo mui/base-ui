@@ -10,13 +10,3 @@ export type * from './collision-provider/DraggableCollisionProvider';
 export type * from './use-active-drag/useActiveDrag';
 export type * from './use-monitor/useMonitor';
 export type * from './use-manager/useManager';
-export type {
-  DraggableAccept,
-  DraggableAcceptedKind,
-  DraggableInput,
-  DraggableKind,
-  DraggableLocation,
-  DraggableLocationHistory,
-  DraggablePointerType,
-  DraggablePosition,
-} from '../types/drag';

@@ -7,17 +7,19 @@ import type { BaseUIGenericEventDetails } from '../../internals/createBaseUIEven
 import type {
   DragEndReason,
   DragEventDetailsProperties,
-  DraggableKind,
-  DraggableRootRecord,
   DragSourceEventValue,
-  DraggableTargetRecord,
-  DraggableTargetResolutionContext,
   DropTargetChangeEventDetails,
   DropTargetChangeReason,
   MoveEndEventDetails,
   MoveEndEventDetailsProperties,
   MoveStartEventDetails,
-} from '../../types/drag';
+} from '../../utils/drag-and-drop/types';
+import type { DraggableKind } from '../DraggableProvider';
+import type { DraggableRootRecord } from '../root/DraggableRoot';
+import type {
+  DraggableTargetRecord,
+  DraggableTargetResolutionContext,
+} from '../target/DraggableTarget';
 import { registerTarget, registerMonitor } from '../../utils/drag-and-drop/registrations';
 import type { RegisterTargetParameters } from '../../utils/drag-and-drop/dropTarget';
 import { scheduleDropTargetParameterRefresh } from '../../utils/drag-and-drop/core/lifecycleManager';

@@ -1,15 +1,10 @@
-import type { DraggableConfig } from '../utils/drag-and-drop/draggable';
-import type { DragPreviewDeclaration } from '../utils/drag-and-drop/dragPreviewDeclaration';
-import type { RegisterTargetParameters as InternalRegisterTargetParameters } from '../utils/drag-and-drop/dropTarget';
-import type { RegisterViewportParameters as InternalRegisterViewportParameters } from '../utils/drag-and-drop/autoScroller';
-import type { RegisterMonitorParameters as InternalRegisterMonitorParameters } from '../utils/drag-and-drop/monitor';
-import type {
-  AcceptedDragPayload,
-  AcceptedDragData,
-  DraggableKind,
-  DraggableAccept,
-  DraggablePayload,
-} from './drag';
+import type { DraggableConfig } from './draggable';
+import type { DragPreviewDeclaration } from './dragPreviewDeclaration';
+import type { RegisterTargetParameters as InternalRegisterTargetParameters } from './dropTarget';
+import type { RegisterViewportParameters as InternalRegisterViewportParameters } from './autoScroller';
+import type { RegisterMonitorParameters as InternalRegisterMonitorParameters } from './monitor';
+import type { DraggableKind, DraggableAccept } from '../../draggable/DraggableProvider';
+import type { AcceptedDragPayload, AcceptedDragData, DraggablePayload } from './types';
 
 /** Parameters accepted by `Draggable.Root` and `registerSource`, except the element. */
 // `onGenerateDragPreview` is omitted because the engine overwrites it to publish the

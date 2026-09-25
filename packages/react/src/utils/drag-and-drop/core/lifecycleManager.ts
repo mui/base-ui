@@ -10,20 +10,22 @@
 import { ownerDocument } from '@base-ui/utils/owner';
 import { areArraysEqual } from '@base-ui/utils/areArraysEqual';
 import type {
+  DraggableLocation,
+  DraggableLocationHistory,
+  DraggableInput,
+} from '../../../draggable/DraggableProvider';
+import type { DraggablePreviewRenderParameters } from '../../../draggable/preview/DraggablePreview';
+import type { DraggableRootRecord } from '../../../draggable/root/DraggableRoot';
+import type { DraggableTargetRecord } from '../../../draggable/target/DraggableTarget';
+import type {
   DragCanceledReason,
   DragCleanupFn,
   DragEndReason,
-  DraggableLocation,
-  DraggableLocationHistory,
   DragMoveReason,
   DragStartReason,
-  DraggableTargetRecord,
-  DraggableRootRecord,
   DragSourceEventValue,
   DraggableEventDetailsMap,
-  DraggableInput,
-  DraggablePreviewRenderParameters,
-} from '../../../types/drag';
+} from '../types';
 import { createDragEventDetails, createMoveEndEventDetails } from '../dragEventDetails';
 import {
   getActiveDropTargetRegistration,

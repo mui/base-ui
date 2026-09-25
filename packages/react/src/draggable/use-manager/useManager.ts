@@ -6,7 +6,7 @@ import type {
   RegisterSourceParameters,
   RegisterTargetParameters,
   RegisterViewportParameters,
-} from '../../types/dragRegistration';
+} from '../../utils/drag-and-drop/registrationTypes';
 
 /**
  * Returns the page-wide drag manager. Use it to register drag sources, drop targets,

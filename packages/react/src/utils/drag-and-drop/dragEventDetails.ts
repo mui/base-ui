@@ -8,12 +8,8 @@ import {
   type ReasonToEvent,
 } from '../../internals/createBaseUIEventDetails';
 import type { BaseUIEventReason } from '../../internals/reasons';
-import type {
-  DragEndReason,
-  DragEventDetails,
-  DraggableLocationHistory,
-  MoveEndEventDetails,
-} from '../../types/drag';
+import type { DraggableLocationHistory } from '../../draggable/DraggableProvider';
+import type { DragEndReason, DragEventDetails, MoveEndEventDetails } from './types';
 
 /**
  * `event` is the native event behind the latest input. A drag with no native event

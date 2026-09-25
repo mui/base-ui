@@ -6,7 +6,7 @@ import { createDndRenderer } from '#test-utils';
 import { Draggable } from '@base-ui/react/draggable';
 import { dragSessionStore } from '../../utils/drag-and-drop/dragSessionStore';
 import { cancel, createElement, dragEnter, lift, setupDragEngineTests } from '../../../test/dnd';
-import type { DraggableTargetRecord } from '../../types/drag';
+import type { DraggableTargetRecord } from '../target/DraggableTarget';
 
 setupDragEngineTests();
 

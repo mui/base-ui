@@ -7,7 +7,7 @@ import { Draggable } from '@base-ui/react/draggable';
 import type {
   DraggableViewportDragScrollEventDetails,
   DraggableViewportDragScrollValue,
-} from '../../utils/drag-and-drop/autoScroller';
+} from './DraggableViewport';
 import {
   createElement,
   flushRaf,

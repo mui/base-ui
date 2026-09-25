@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import type { DraggableRootRecord, DraggableTargetRecord } from '../../types/drag';
+import type { DraggableRootRecord } from '../../draggable/root/DraggableRoot';
+import type { DraggableTargetRecord } from '../../draggable/target/DraggableTarget';
 import { anyDragKind, createGlobalKind, createKind, matchesAccept } from './dragKind';
 
 function sourceOfKind(kind: symbol): DraggableRootRecord<unknown> {

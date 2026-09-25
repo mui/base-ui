@@ -15,13 +15,13 @@ import {
   NO_MODIFIER_KEYS,
   type DragModifierKeys,
 } from './utils';
+import type { DraggablePosition } from '../../draggable/DraggableProvider';
 import type {
   DraggableRootModifier,
   DraggableRootModifierContext,
   DraggableRootModifiers,
   DraggableRootElementReference,
-  DraggablePosition,
-} from '../../types/drag';
+} from '../../draggable/root/DraggableRoot';
 
 const ZERO_OFFSET: DraggablePosition = { x: 0, y: 0 };
 

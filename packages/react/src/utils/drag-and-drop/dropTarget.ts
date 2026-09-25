@@ -4,16 +4,15 @@ import { resolveCollision, type CollisionResolutionRegistration } from './collis
 import type {
   DraggableInput,
   DraggableAccept,
-  DragCleanupFn,
   DraggableKind,
+} from '../../draggable/DraggableProvider';
+import type { DraggableRootRecord } from '../../draggable/root/DraggableRoot';
+import type {
   DraggableTargetLocalPoint,
   DraggableTargetSnappedLocalPointOptions,
   DraggableTargetSnapSteps,
   DraggableTargetResolutionContext,
   DraggableTargetRecord,
-  DraggableRootRecord,
-  DropTargetEventDetailsMap,
-  DropTargetEventValue,
   DraggableTargetStartEventDetails,
   DraggableTargetStartValue,
   DraggableTargetMoveEventDetails,
@@ -24,7 +23,8 @@ import type {
   DraggableTargetLeaveValue,
   DraggableTargetDropEventDetails,
   DraggableTargetDropValue,
-} from '../../types/drag';
+} from '../../draggable/target/DraggableTarget';
+import type { DragCleanupFn, DropTargetEventDetailsMap, DropTargetEventValue } from './types';
 import { matchesAccept } from './dragKind';
 import { createGetterStackRegistry } from './getterStackRegistry';
 import { getSharedSlot } from './sharedState';

@@ -1,9 +1,7 @@
 import { Store, type ReadonlyStore } from '@base-ui/utils/store';
-import type {
-  DraggableLocationHistory,
-  DraggableRootRecord,
-  DraggableTargetRecord,
-} from '../../types/drag';
+import type { DraggableLocationHistory } from '../../draggable/DraggableProvider';
+import type { DraggableRootRecord } from '../../draggable/root/DraggableRoot';
+import type { DraggableTargetRecord } from '../../draggable/target/DraggableTarget';
 import { getSharedSlot } from './sharedState';
 import { retargetActivePreviewSource } from './activePreview';
 

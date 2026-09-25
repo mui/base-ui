@@ -8,9 +8,9 @@ import { getRegistration } from '../../utils/drag-and-drop/draggableRegistry';
 import type {
   DraggableRootBeforeMoveStartValue,
   DraggableRootBeforeMoveStartEventDetails,
-} from '../../types/drag';
+} from '../root/DraggableRoot';
 import { useManager } from './useManager';
-import type { DraggableManager } from '../../types/dragRegistration';
+import type { DraggableManager } from '../../utils/drag-and-drop/registrationTypes';
 
 setupDragEngineTests();
 

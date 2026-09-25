@@ -4,12 +4,9 @@
  */
 
 import { areArraysEqual } from '@base-ui/utils/areArraysEqual';
-import type {
-  DraggableAccept,
-  DraggableKind,
-  DraggableRootRecord,
-  DraggableTargetRecord,
-} from '../../types/drag';
+import type { DraggableAccept, DraggableKind } from '../../draggable/DraggableProvider';
+import type { DraggableRootRecord } from '../../draggable/root/DraggableRoot';
+import type { DraggableTargetRecord } from '../../draggable/target/DraggableTarget';
 
 /** Namespaces explicitly global identities, so a key can't collide with another `Symbol.for`. */
 const KIND_ID_PREFIX = 'base-ui/drag-kind:';

@@ -14,12 +14,15 @@ import { reset } from '../../utils/drag-and-drop/core/lifecycleManager';
 import { restrictToHorizontalAxis } from '../../utils/drag-and-drop/dragModifiers';
 import { createKind } from '../../utils/drag-and-drop/dragKind';
 import { dragSessionStore } from '../../utils/drag-and-drop/dragSessionStore';
-import type { DraggableManager, RegisterViewportParameters } from '../../types/dragRegistration';
+import type {
+  DraggableManager,
+  RegisterViewportParameters,
+} from '../../utils/drag-and-drop/registrationTypes';
 import type {
   DraggableViewportDragScrollEventDetails,
   DraggableViewportMaxSpeedContext,
   DraggableViewportDragScrollValue,
-} from '../../utils/drag-and-drop/autoScroller';
+} from '../viewport/DraggableViewport';
 
 type DragAutoScrollHandler = NonNullable<RegisterViewportParameters['onDragScroll']>;
 

@@ -7,7 +7,7 @@ import { setupDragEngineTests, createElement, lift, flushRaf } from '../../../..
 import { createPreviewAndStartSession } from './sensorSession';
 import { createDragSource } from '../dragSource';
 import { penDown, penUp } from '../../../../test/syntheticPointer';
-import type { DraggableRootRecord } from '../../../types/drag';
+import type { DraggableRootRecord } from '../../../draggable/root/DraggableRoot';
 import { getInput } from '../utils';
 import { dragPreviewStore } from '../overlay/dragPreviewStore';
 import { dragSessionStore, dragSourceStore } from '../dragSessionStore';

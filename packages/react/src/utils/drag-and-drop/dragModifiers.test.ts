@@ -11,11 +11,11 @@ import {
   restrictToElement,
   snapToGrid,
 } from './dragModifiers';
+import type { DraggablePosition } from '../../draggable/DraggableProvider';
 import type {
   DraggableRootModifier,
   DraggableRootModifierContext,
-  DraggablePosition,
-} from '../../types/drag';
+} from '../../draggable/root/DraggableRoot';
 
 function makeRect(left: number, top: number, width: number, height: number): DOMRect {
   return {

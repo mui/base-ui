@@ -31,15 +31,10 @@ import type {
   RegisterViewportParameters,
   RegisterMonitorParameters,
   DragParametersWithInferredAccept,
-} from '../../types/dragRegistration';
+} from './registrationTypes';
 import type { RegisterTargetParameters } from './dropTarget';
-import type {
-  AcceptedDragData,
-  AcceptedDragPayload,
-  DraggableAccept,
-  DragCleanupFn,
-  DraggableKind,
-} from '../../types/drag';
+import type { DraggableAccept, DraggableKind } from '../../draggable/DraggableProvider';
+import type { AcceptedDragData, AcceptedDragPayload, DragCleanupFn } from './types';
 import { onceCleanup } from './utils';
 
 export function registerTarget<

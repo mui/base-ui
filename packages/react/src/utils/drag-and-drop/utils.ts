@@ -1,7 +1,11 @@
 import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
 import { isShadowRoot } from '@floating-ui/utils/dom';
 import { contains } from '@base-ui/utils/shadowDom';
-import type { DraggableInput, DraggablePointerType, DraggablePosition } from '../../types/drag';
+import type {
+  DraggableInput,
+  DraggablePointerType,
+  DraggablePosition,
+} from '../../draggable/DraggableProvider';
 import { getParentElement as getComposedParentElement } from '../getParentElement';
 import { getElementAtPoint } from '../getElementAtPoint';
 import {
