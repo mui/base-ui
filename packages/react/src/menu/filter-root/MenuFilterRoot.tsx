@@ -15,14 +15,13 @@ export function MenuFilterRoot<Payload>(props: MenuFilterRootProps<Payload>): Re
   const { children, rootProps, dropdownProps } = useMenuFilterRoot(props, 'MenuRoot');
 
   return (
-    <MenuRootInternal
-      {...rootProps}
-      renderVirtualFocusChildren={(payload, inputProps) => (
-        <MenuFilterDropdown {...dropdownProps} inputProps={inputProps}>
+    <MenuRootInternal {...rootProps}>
+      {(payload) => (
+        <MenuFilterDropdown {...dropdownProps}>
           {typeof children === 'function' ? children(payload) : children}
         </MenuFilterDropdown>
       )}
-    />
+    </MenuRootInternal>
   );
 }
 

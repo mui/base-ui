@@ -3,9 +3,8 @@ import * as React from 'react';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { EMPTY_OBJECT, NOOP } from '@base-ui/utils/empty';
+import { NOOP } from '@base-ui/utils/empty';
 import { getFilter } from '../../internals/filter';
-import type { HTMLProps } from '../../internals/types';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import { useItemRegistry } from '../../internals/useItemRegistry';
 import {
@@ -38,9 +37,7 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
     autoHighlight = false,
     triggerId: externalTriggerId,
     listRef,
-    activeIndex = null,
     setActiveIndex = NOOP,
-    inputProps = EMPTY_OBJECT,
     inputRef: externalFocusOwnerRef,
   } = props;
 
@@ -66,13 +63,7 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
 
   const defaultId = useBaseUiId();
 
-  const store = useRefWithInit(
-    () =>
-      new FilterDropdownStore({
-        activeIndex,
-        inputProps,
-      }),
-  ).current;
+  const store = useRefWithInit(() => new FilterDropdownStore()).current;
 
   const ownFocusOwnerRef = React.useRef<HTMLElement | null>(null);
   const keyReplayRef = React.useRef(false);
@@ -100,7 +91,7 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
   const triggerId = externalTriggerId || undefined;
   const listId = (registeredListId ?? defaultListId) || undefined;
 
-  store.useSyncedValues({ activeIndex, inputProps, registeredItemCount: registeredItems.size });
+  store.useSyncedValue('registeredItemCount', registeredItems.size);
 
   // Re-runs on the registry snapshot published once every item in the commit has registered,
   // and on the committed query, because a controlled consumer can reject a proposed change. It
@@ -268,17 +259,9 @@ export interface FilterDropdownRootProps {
    */
   listRef: React.RefObject<Array<HTMLElement | null>>;
   /**
-   * The index the host currently highlights.
-   */
-  activeIndex?: number | null | undefined;
-  /**
    * Moves the host's highlight.
    */
   setActiveIndex?: ((index: number | null) => void) | undefined;
-  /**
-   * The host's navigation props for the element holding real focus while the popup is open.
-   */
-  inputProps?: HTMLProps | undefined;
   /**
    * The host's ref for the filter input.
    */

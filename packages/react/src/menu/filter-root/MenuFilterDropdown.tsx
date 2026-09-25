@@ -20,14 +20,13 @@ export interface MenuFilterDropdownProps {
   filter: FilterDropdownFilter | null | undefined;
   autoHighlight: boolean | 'always';
   locale: Intl.LocalesArgument | undefined;
-  inputProps: HTMLProps;
   onValueChange: (value: string, details: MenuFilterProvider.ValueChangeEventDetails) => void;
   children?: React.ReactNode;
 }
 
 /**
  * Reads the menu store, which is only available below the menu root, and hands the filter
- * substrate the list the menu navigates plus the props for the input that holds real focus.
+ * substrate the list the menu navigates and the command that moves its highlight.
  */
 export function MenuFilterDropdown(props: MenuFilterDropdownProps) {
   const { store } = useMenuRootContext();
@@ -35,7 +34,6 @@ export function MenuFilterDropdown(props: MenuFilterDropdownProps) {
 
   const triggerId = store.useState('activeTriggerId');
   const triggerElement = store.useState('activeTriggerElement');
-  const activeIndex = store.useState('activeIndex');
   const disabled = store.useState('disabled');
 
   const setActiveIndex = useStableCallback((index: number | null) => {
@@ -90,7 +88,6 @@ export function MenuFilterDropdown(props: MenuFilterDropdownProps) {
         // fall back to a registered id that no element carries.
         triggerId={triggerElement ? triggerElement.id || null : triggerId}
         listRef={store.context.itemDomElements}
-        activeIndex={activeIndex}
         setActiveIndex={setActiveIndex}
         inputRef={store.context.virtualFocusRef}
       />

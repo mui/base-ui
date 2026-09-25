@@ -103,25 +103,22 @@ export function MenuFilterSubmenuRoot(props: MenuFilterSubmenuRootProps): React.
       isSubmenu
       disabled={parentDisabled || props.disabled}
       onOpenChange={handleOpenChange}
-      renderVirtualFocusChildren={(_, inputProps) => (
-        <MenuFilterSubmenuNavigation
-          parentStore={parentStore}
-          parentOrientation={parent.orientation}
-          parentLoopFocus={parent.loopFocus}
-          getReturnElement={() =>
-            parentReferenceRef.current?.reference ??
-            (parent.virtualFocus ? parentStore.context.virtualFocusRef?.current : null) ??
-            null
-          }
-          onSubmenuEnter={handleSubmenuEnter}
-          onSubmenuExit={handleSubmenuExit}
-        >
-          <MenuFilterDropdown {...dropdownProps} inputProps={inputProps}>
-            {props.children}
-          </MenuFilterDropdown>
-        </MenuFilterSubmenuNavigation>
-      )}
-    />
+    >
+      <MenuFilterSubmenuNavigation
+        parentStore={parentStore}
+        parentOrientation={parent.orientation}
+        parentLoopFocus={parent.loopFocus}
+        getReturnElement={() =>
+          parentReferenceRef.current?.reference ??
+          (parent.virtualFocus ? parentStore.context.virtualFocusRef?.current : null) ??
+          null
+        }
+        onSubmenuEnter={handleSubmenuEnter}
+        onSubmenuExit={handleSubmenuExit}
+      >
+        <MenuFilterDropdown {...dropdownProps}>{props.children}</MenuFilterDropdown>
+      </MenuFilterSubmenuNavigation>
+    </MenuRootInternal>
   );
 }
 

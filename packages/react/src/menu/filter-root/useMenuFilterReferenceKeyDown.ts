@@ -24,7 +24,7 @@ import {
  * plain menu.
  */
 export function useMenuFilterReferenceKeyDown() {
-  const { listRef, store: filterStore } = useFilterDropdownItemContext();
+  const { listRef } = useFilterDropdownItemContext();
   const { orientation, store: menuStore } = useMenuRootContext();
   const direction = useDirection();
 
@@ -66,7 +66,7 @@ export function useMenuFilterReferenceKeyDown() {
       return;
     }
 
-    const activeItem = listRef.current[filterStore.select('activeIndex') ?? -1];
+    const activeItem = listRef.current[menuStore.select('activeIndex') ?? -1];
     if (!activeItem) {
       // Left and Right move the caret while nothing is highlighted, so the vertical arrows are
       // what enter a horizontal list, from either end.

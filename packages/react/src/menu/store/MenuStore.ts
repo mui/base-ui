@@ -32,6 +32,10 @@ export type State<Payload> = PopupStoreState<Payload> & {
    * Published by the filter implementation so a plain menu never bundles them.
    */
   filterTriggerProps: HTMLProps;
+  /** List navigation props for the element that holds real focus under virtual focus. */
+  inputProps: HTMLProps;
+  /** The element at `activeIndex` once the item list settles. */
+  highlightedItem: HTMLElement | undefined;
   /**
    * Whether real focus stays inside the popup while the list is navigated with
    * `aria-activedescendant`. Set by a filter root; detached triggers read it once the root
@@ -91,6 +95,8 @@ const selectors = {
   virtualFocus: (state: State<unknown>) => state.virtualFocus,
   listElement: (state: State<unknown>) => state.listElement,
   filterTriggerProps: (state: State<unknown>) => state.filterTriggerProps,
+  inputProps: (state: State<unknown>) => state.inputProps,
+  highlightedItemId: (state: State<unknown>) => state.highlightedItem?.id || undefined,
   isActive: (state: State<unknown>, itemIndex: number) => state.activeIndex === itemIndex,
   hoverEnabled: (state: State<unknown>) => state.hoverEnabled,
   instantType: (state: State<unknown>) => state.instantType,
@@ -261,6 +267,8 @@ function createInitialState<Payload>(
     activeIndex: null,
     listElement: null,
     filterTriggerProps: EMPTY_OBJECT,
+    inputProps: EMPTY_OBJECT,
+    highlightedItem: undefined,
     virtualFocus: false,
     hoverEnabled: true,
     instantType: undefined,

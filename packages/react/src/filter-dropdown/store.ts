@@ -1,15 +1,9 @@
 import { ReactStore } from '@base-ui/utils/store';
-import { EMPTY_ARRAY, EMPTY_OBJECT, NOOP } from '@base-ui/utils/empty';
-import type { HTMLProps } from '../internals/types';
+import { EMPTY_OBJECT, NOOP } from '@base-ui/utils/empty';
 
 export type State = {
   visibleItemIds: ReadonlySet<symbol> | null;
   registeredItemCount: number;
-  /** Rendered items by list index. */
-  items: readonly (HTMLElement | null)[];
-  activeIndex: number | null;
-  /** The host's navigation props for the element that holds real focus while the popup is open. */
-  inputProps: HTMLProps;
 };
 
 export const selectors = {
@@ -20,25 +14,11 @@ export const selectors = {
       : state.visibleItemIds.size === 0,
   isItemVisible: (state: State, id: symbol) =>
     state.visibleItemIds === null || state.visibleItemIds.has(id),
-  activeIndex: (state: State) => state.activeIndex,
-  activeItemId: (state: State) => state.items[state.activeIndex ?? -1]?.id || undefined,
-  inputProps: (state: State) => state.inputProps,
 };
 
 export class FilterDropdownStore extends ReactStore<Readonly<State>, object, typeof selectors> {
-  constructor(initialState?: Partial<State>) {
-    super(
-      {
-        visibleItemIds: null,
-        registeredItemCount: 0,
-        items: EMPTY_ARRAY,
-        activeIndex: null,
-        inputProps: EMPTY_OBJECT,
-        ...initialState,
-      },
-      EMPTY_OBJECT,
-      selectors,
-    );
+  constructor() {
+    super({ visibleItemIds: null, registeredItemCount: 0 }, EMPTY_OBJECT, selectors);
   }
 }
 

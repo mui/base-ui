@@ -75,12 +75,6 @@ interface MenuRootInternalProps<Payload> extends MenuRoot.Props<Payload> {
    */
   resetOnPointerLeave?: boolean | undefined;
   /**
-   * Renders internal virtual-focus adapters with the current navigation props.
-   */
-  renderVirtualFocusChildren?:
-    | ((payload: { payload: Payload | undefined }, inputProps: HTMLProps) => React.ReactNode)
-    | undefined;
-  /**
    * Whether virtual-focus items need WebKit's `aria-selected` compatibility state.
    */
   webkitItemSelected?: boolean | undefined;
@@ -112,7 +106,6 @@ export const MenuRootInternal = fastComponent(function MenuRoot<Payload>(
     virtualFocusRef,
     allowEscape = true,
     resetOnPointerLeave = true,
-    renderVirtualFocusChildren,
     webkitItemSelected = false,
   } = props;
 
@@ -607,10 +600,7 @@ export const MenuRootInternal = fastComponent(function MenuRoot<Payload>(
 
   const onItemHighlighted = useStableCallback(onItemHighlightedProp);
 
-  const lastHighlightRef = React.useRef<{ index: number; element: HTMLElement | undefined }>({
-    index: -1,
-    element: undefined,
-  });
+  const lastHighlightIndexRef = React.useRef(-1);
 
   // Runs when `activeIndex` commits and again when the item registry settles, since an index
   // can come to point at a different element while its value stays the same.
@@ -623,11 +613,15 @@ export const MenuRootInternal = fastComponent(function MenuRoot<Payload>(
       return;
     }
     const nextIndex = element == null ? -1 : (index as number);
-    const last = lastHighlightRef.current;
-    if (last.index === nextIndex && last.element === element) {
+    const nextElement = element ?? undefined;
+    if (
+      lastHighlightIndexRef.current === nextIndex &&
+      store.state.highlightedItem === nextElement
+    ) {
       return;
     }
-    lastHighlightRef.current = { index: nextIndex, element: element ?? undefined };
+    lastHighlightIndexRef.current = nextIndex;
+    store.set('highlightedItem', nextElement);
     // The tag left by the write that produced this committed value.
     const reason = store.context.highlightReason;
     store.context.highlightReason = REASONS.none;
@@ -657,9 +651,10 @@ export const MenuRootInternal = fastComponent(function MenuRoot<Payload>(
     const { onFocus, ...rest } = listNavigation.trigger;
     return rest;
   }, [virtualFocus, listNavigation.reference, listNavigation.trigger]);
-  const inputProps: HTMLProps = virtualFocus
-    ? (listNavigation.reference ?? EMPTY_OBJECT)
-    : EMPTY_OBJECT;
+  store.useSyncedValue(
+    'inputProps',
+    virtualFocus ? (listNavigation.reference ?? EMPTY_OBJECT) : EMPTY_OBJECT,
+  );
 
   const activeTriggerProps = React.useMemo(() => {
     const mergedProps = mergeProps(
@@ -769,10 +764,7 @@ export const MenuRootInternal = fastComponent(function MenuRoot<Payload>(
     ],
   );
 
-  let renderedChildren = typeof children === 'function' ? children({ payload }) : children;
-  if (renderVirtualFocusChildren) {
-    renderedChildren = renderVirtualFocusChildren({ payload }, inputProps);
-  }
+  const renderedChildren = typeof children === 'function' ? children({ payload }) : children;
 
   let content = (
     <MenuRootContext.Provider value={context as MenuRootContext}>

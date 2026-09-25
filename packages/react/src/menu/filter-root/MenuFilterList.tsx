@@ -28,7 +28,7 @@ export const MenuFilterList = React.forwardRef(function MenuFilterList(
 ) {
   const { syncHighlightedItem, orientation } = useMenuRootContext();
   const { onItemsChange, focusOwnerRef, keyReplayRef, triggerId } = useFilterDropdownRootContext();
-  const { store: filterStore, listRef } = useFilterDropdownItemContext();
+  const { listRef } = useFilterDropdownItemContext();
   const { subscribeMapChange } = useCompositeListContext();
 
   const handleReferenceKeyDown = useMenuFilterReferenceKeyDown();
@@ -90,18 +90,8 @@ export const MenuFilterList = React.forwardRef(function MenuFilterList(
     if (changed && previousItems !== null) {
       onItemsChange(items.length > 0);
     }
-    syncHighlightedItem();
-
-    if (!changed) {
-      return;
-    }
     previousItemsRef.current = items;
-
-    // Composite items receive their final indexes from this map update. Publish after their
-    // synchronous layout updates commit so the active item's rendered id has settled.
-    queueMicrotask(() => {
-      filterStore.set('items', items);
-    });
+    syncHighlightedItem();
   });
 
   useIsoLayoutEffect(() => {

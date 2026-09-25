@@ -5,12 +5,12 @@ import {
   type FilterDropdownInputProps,
   type FilterDropdownInputState,
 } from '../../filter-dropdown/input/FilterDropdownInput';
-import { useFilterDropdownItemContext } from '../../filter-dropdown/root/FilterDropdownRootContext';
 import { mergeProps } from '../../merge-props';
 import type { BaseUIEvent } from '../../internals/types';
 import { dispatchClickWithModifiers } from '../../utils/dispatchClickWithModifiers';
 import { useMenuFilterReferenceKeyDown } from '../filter-root/useMenuFilterReferenceKeyDown';
 import { useMenuFilterPart } from '../filter-root/MenuFilterContext';
+import { useMenuRootContext } from '../root/MenuRootContext';
 
 /**
  * A search field that filters the menu items.
@@ -24,7 +24,9 @@ export const MenuInput = React.forwardRef(function MenuInput(
   forwardedRef: React.ForwardedRef<HTMLInputElement>,
 ) {
   useMenuFilterPart('Input');
-  const { listRef, store } = useFilterDropdownItemContext();
+  const { store } = useMenuRootContext();
+  const navigationProps = store.useState('inputProps');
+  const activeItemId = store.useState('highlightedItemId');
 
   const handleReferenceKeyDown = useMenuFilterReferenceKeyDown();
 
@@ -43,7 +45,7 @@ export const MenuInput = React.forwardRef(function MenuInput(
           return;
         }
 
-        const activeItem = listRef.current[store.select('activeIndex') ?? -1];
+        const activeItem = store.state.highlightedItem;
         if (activeItem) {
           event.preventDefault();
           dispatchClickWithModifiers(activeItem, event);
@@ -53,7 +55,14 @@ export const MenuInput = React.forwardRef(function MenuInput(
     componentProps,
   );
 
-  return <FilterDropdownInput {...inputProps} ref={forwardedRef} />;
+  return (
+    <FilterDropdownInput
+      {...inputProps}
+      activeItemId={activeItemId}
+      navigationProps={navigationProps}
+      ref={forwardedRef}
+    />
+  );
 });
 
 export interface MenuInputState extends FilterDropdownInputState {}

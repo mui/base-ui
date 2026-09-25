@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import type { BaseUIComponentProps, BaseUIEvent } from '../../internals/types';
+import type { BaseUIComponentProps, BaseUIEvent, HTMLProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
@@ -20,14 +20,12 @@ export const FilterDropdownInput = React.forwardRef(function FilterDropdownInput
   componentProps: FilterDropdownInput.Props,
   forwardedRef: React.ForwardedRef<HTMLInputElement>,
 ) {
-  const { render, className, style, disabled, ...elementProps } = componentProps;
+  const { render, className, style, disabled, activeItemId, navigationProps, ...elementProps } =
+    componentProps;
 
   const context = useFilterDropdownRootContext();
   const { listRef } = useFilterDropdownItemContext();
   const value = useFilterDropdownValueContext();
-
-  const inputProps = context.store.useState('inputProps');
-  const activeItemId = context.store.useState('activeItemId');
 
   const state: FilterDropdownInputState = {
     highlighted: context.inputFocusVisible && (!context.keyboardModality || activeItemId == null),
@@ -37,7 +35,7 @@ export const FilterDropdownInput = React.forwardRef(function FilterDropdownInput
     state,
     ref: [forwardedRef, context.focusOwnerRef],
     props: [
-      inputProps,
+      navigationProps,
       {
         type: 'text',
         disabled: context.disabled || disabled,
@@ -147,7 +145,16 @@ export interface FilterDropdownInputState {
 export interface FilterDropdownInputProps extends BaseUIComponentProps<
   'input',
   FilterDropdownInputState
-> {}
+> {
+  /**
+   * The id of the item the host highlights, which the input points at while it holds focus.
+   */
+  activeItemId?: string | undefined;
+  /**
+   * The host's list navigation props, which run after the input's own handlers.
+   */
+  navigationProps?: HTMLProps | undefined;
+}
 
 export namespace FilterDropdownInput {
   export type Props = FilterDropdownInputProps;
