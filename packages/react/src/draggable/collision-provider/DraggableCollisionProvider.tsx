@@ -18,7 +18,10 @@ import { registerDropTarget, registerMonitor } from '../../utils/drag-and-drop/r
 import type { RegisterDropTargetParameters } from '../../utils/drag-and-drop/dropTarget';
 import { scheduleDropTargetParameterRefresh } from '../../utils/drag-and-drop/core/lifecycleManager';
 import { dragSessionStore, dragSourceStore } from '../../utils/drag-and-drop/dragSessionStore';
-import { resolveCollision } from '../../utils/drag-and-drop/collisionResolution';
+import {
+  resolveCollision,
+  type CollisionResolutionRegistration,
+} from '../../utils/drag-and-drop/collisionResolution';
 import { createKind } from '../../utils/drag-and-drop/dragKind';
 import { DraggableCollisionContext, type CollisionParticipant } from './DraggableCollisionContext';
 import { useDraggableContext } from '../DraggableContext';
@@ -102,12 +105,10 @@ export function DraggableCollisionProvider<TPayload, TDragData = unknown>(
       // be copied every frame.
       let lastParticipant: CollisionParticipant | null = null;
       let lastConfig: DraggableCollisionProviderProps<TPayload, TDragData> | null = null;
-      let registration: RegisterDropTargetParameters<
-        TPayload,
-        TPayload,
-        TDragData,
-        TDragData
-      > | null = null;
+      let registration:
+        | (RegisterDropTargetParameters<TPayload, TPayload, TDragData, TDragData> &
+            CollisionResolutionRegistration<TPayload, TDragData>)
+        | null = null;
       const unregister = registerDropTarget<TPayload, TPayload, TDragData, TDragData>(
         element,
         () => {

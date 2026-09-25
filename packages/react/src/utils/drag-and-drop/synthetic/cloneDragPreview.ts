@@ -79,7 +79,9 @@ function ensureNeutralizerStyles(host: PreviewHost): void {
   // lives in an iframe/popout has its own `ShadowRoot` constructor, and this realm's
   // would never match — the neutralizer sheet would then land on the iframe document
   // instead of the shadow root, leaving the preview with the source's transitions.
-  const target: DocumentOrShadowRoot = isShadowRoot(root) ? root : ownerDocument(host);
+  const target: DocumentOrShadowRoot = isShadowRoot(root)
+    ? root
+    : ownerDocument(isShadowRoot(host) ? host.host : host);
   if (!('adoptedStyleSheets' in target)) {
     return;
   }

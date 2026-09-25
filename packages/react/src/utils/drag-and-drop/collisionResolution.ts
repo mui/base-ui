@@ -3,10 +3,10 @@ import type { DropTargetRecord, DropTargetResolutionContext } from '../../types/
 /** Internal registration hook: capture geometry before consumers can mutate the layout. */
 export const resolveCollision = Symbol.for('base-ui.resolveCollision');
 
-export interface CollisionResolutionRegistration {
+export interface CollisionResolutionRegistration<TPayload = unknown, TDragData = unknown> {
   [resolveCollision]?:
     | ((
-        target: DropTargetRecord,
+        target: DropTargetRecord<TPayload, TDragData>,
         context: DropTargetResolutionContext & { isDrop: boolean },
       ) => void)
     | undefined;
