@@ -2,7 +2,7 @@ import type { ReactStore } from '@base-ui/utils/store';
 import type { HTMLProps } from '../../internals/types';
 import type { BaseUIChangeEventDetails } from '../../types';
 import { applyPopupOpenChange, usePopupInteractionProps } from './popupStoreUtils';
-import { type PopupStoreContext, type PopupStoreState, popupStoreSelectors } from './store';
+import type { PopupStoreContext, PopupStoreState, popupStoreSelectors } from './store';
 
 type TestState = PopupStoreState<unknown> & {
   itemProps: HTMLProps;

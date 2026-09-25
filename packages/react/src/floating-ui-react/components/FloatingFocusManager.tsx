@@ -58,11 +58,7 @@ function getEventType(event: Event, lastInteractionType?: InteractionType): Inte
     return lastInteractionType || 'keyboard';
   }
   if ('pointerType' in event) {
-    // `click` may carry an empty pointerType (keyboard-triggered, or user-event in jsdom),
-    // so fall back to the last known pointer type before assuming keyboard.
-    return (
-      (event.pointerType as React.PointerEvent['pointerType']) || lastInteractionType || 'keyboard'
-    );
+    return (event.pointerType as React.PointerEvent['pointerType']) || 'keyboard';
   }
   if ('touches' in event) {
     return 'touch';

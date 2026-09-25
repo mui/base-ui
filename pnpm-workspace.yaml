@@ -24,6 +24,9 @@ allowBuilds:
 #
 # Remove each entry once the parent dependency ships the fixed version on its own.
 overrides:
+  # Keep @mui/internal-test-utils on the same user-event this repo pins: 14.6.7 reports an
+  # empty `pointerType` on synthetic clicks, which reads as a keyboard interaction.
+  '@testing-library/user-event': '14.6.3'
   # Screen recording is not needed for the tests and pulls in ffmpeg-static.
   '@guidepup/setup>@guidepup/record': '-'
   # via lerna -> minimatch, eslint-plugin-* -> minimatch (GHSA-3jxr-9vmj-r5cp)
