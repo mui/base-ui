@@ -351,6 +351,7 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
       const nativeEvent = eventDetails.event as Event;
       if (
         nextOpen === false &&
+        reason !== REASONS.itemPress &&
         nativeEvent?.type === 'click' &&
         (nativeEvent as PointerEvent).pointerType === 'touch' &&
         !allowTouchToCloseRef.current
