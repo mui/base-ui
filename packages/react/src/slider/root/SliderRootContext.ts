@@ -4,7 +4,7 @@ import type { Orientation } from '../../internals/types';
 import type { CompositeMetadata } from '../../internals/composite/list/CompositeList';
 import type { UseFieldValidationReturnValue } from '../../field/root/useFieldValidation';
 import type { ThumbMetadata } from '../thumb/SliderThumb';
-import type { SliderRoot, SliderRootState } from './SliderRoot';
+import { SliderRoot, type SliderRootState } from './SliderRoot';
 
 export interface SliderRootContext {
   /**
