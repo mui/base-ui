@@ -132,7 +132,7 @@ function DropZone({
     <Draggable.Target
       className="box-border flex h-52 flex-col gap-2 border border-neutral-200 p-3 transition-colors data-[drag-over]:border-neutral-950 data-[drag-over]:bg-neutral-100 dark:border-neutral-700 dark:data-[drag-over]:border-white dark:data-[drag-over]:bg-neutral-800"
       accept={taskKind}
-      onDraggableMove={({ location }) => {
+      onDraggableMove={(_, { location }) => {
         const container = listRef.current;
         if (!container) {
           return;
@@ -141,7 +141,7 @@ function DropZone({
         setDropLineTop(slotY - container.getBoundingClientRect().top + container.scrollTop);
       }}
       onDraggableLeave={() => setDropLineTop(null)}
-      onDraggableDrop={({ source, location }) => {
+      onDraggableDrop={({ source }, { location }) => {
         const container = listRef.current;
         if (container) {
           const { index } = resolveDrop(container, location.current.input.clientY);

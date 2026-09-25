@@ -55,12 +55,12 @@ describe.skipIf(isJSDOM)('drop target resolution (real hit testing)', () => {
 
     const onDraggableEnter = vi.fn();
     const onDrop = vi.fn();
-    engine.registerDraggable(source, {
+    engine.registerSource(source, {
       kind: cardKind,
       payload: 'card-1',
       activation: { mouse: { type: 'immediate' } },
     });
-    engine.registerDropTarget(target, {
+    engine.registerTarget(target, {
       accept: cardKind,
       onDraggableEnter,
       onDraggableDrop: onDrop,
@@ -95,12 +95,12 @@ describe.skipIf(isJSDOM)('drop target resolution (real hit testing)', () => {
 
     const onDraggableEnter = vi.fn();
     const onDrop = vi.fn();
-    engine.registerDraggable(source, {
+    engine.registerSource(source, {
       kind: cardKind,
       payload: 'card-1',
       activation: { mouse: { type: 'immediate' } },
     });
-    engine.registerDropTarget(target, {
+    engine.registerTarget(target, {
       accept: cardKind,
       onDraggableEnter,
       onDraggableDrop: onDrop,
@@ -134,12 +134,12 @@ describe.skipIf(isJSDOM)('drop target resolution (real hit testing)', () => {
     host.appendChild(slotted);
 
     const onDrop = vi.fn();
-    engine.registerDraggable(source, {
+    engine.registerSource(source, {
       kind: cardKind,
       payload: 'card-1',
       activation: { mouse: { type: 'immediate' } },
     });
-    engine.registerDropTarget(target, { accept: cardKind, onDraggableDrop: onDrop });
+    engine.registerTarget(target, { accept: cardKind, onDraggableDrop: onDrop });
 
     pointer('pointerdown', source, 50, 25);
     await flushRaf();
@@ -167,13 +167,13 @@ describe.skipIf(isJSDOM)('drop target resolution (real hit testing)', () => {
 
     const onOuterDrop = vi.fn();
     const onInnerDrop = vi.fn();
-    engine.registerDraggable(source, {
+    engine.registerSource(source, {
       kind: cardKind,
       payload: 'card-1',
       activation: { mouse: { type: 'immediate' } },
     });
-    engine.registerDropTarget(outer, { accept: cardKind, onDraggableDrop: onOuterDrop });
-    engine.registerDropTarget(inner, { accept: cardKind, onDraggableDrop: onInnerDrop });
+    engine.registerTarget(outer, { accept: cardKind, onDraggableDrop: onOuterDrop });
+    engine.registerTarget(inner, { accept: cardKind, onDraggableDrop: onInnerDrop });
 
     pointer('pointerdown', source, 50, 25);
     await flushRaf();
@@ -196,13 +196,13 @@ describe.skipIf(isJSDOM)('drop target resolution (real hit testing)', () => {
 
     const onDrop = vi.fn();
     const onMoveEnd = vi.fn();
-    engine.registerDraggable(source, {
+    engine.registerSource(source, {
       kind: cardKind,
       payload: 'card-1',
       activation: { mouse: { type: 'immediate' } },
       onMoveEnd,
     });
-    engine.registerDropTarget(target, { accept: cardKind, onDraggableDrop: onDrop });
+    engine.registerTarget(target, { accept: cardKind, onDraggableDrop: onDrop });
 
     pointer('pointerdown', source, 50, 25);
     await flushRaf();
@@ -215,8 +215,8 @@ describe.skipIf(isJSDOM)('drop target resolution (real hit testing)', () => {
 
     expect(onDrop).not.toHaveBeenCalled();
     expect(onMoveEnd).toHaveBeenCalledTimes(1);
-    expect(onMoveEnd.mock.calls[0][0].canceled).toBe(false);
-    expect(onMoveEnd.mock.calls[0][0].dropTarget).toBeNull();
+    expect(onMoveEnd.mock.calls[0][0].target).toBeNull();
+    expect(onMoveEnd.mock.calls[0][1].reason).toBe('outside-release');
   });
 
   /**
@@ -231,12 +231,12 @@ describe.skipIf(isJSDOM)('drop target resolution (real hit testing)', () => {
       const target = createBox(0, 200);
 
       const onDrop = vi.fn();
-      engine.registerDraggable(source, {
+      engine.registerSource(source, {
         kind: cardKind,
         payload: 'card-1',
         activation: { mouse: { type: 'immediate' } },
       });
-      engine.registerDropTarget(target, { accept: cardKind, onDraggableDrop: onDrop });
+      engine.registerTarget(target, { accept: cardKind, onDraggableDrop: onDrop });
 
       pointer('pointerdown', source, 50, 25);
       await flushRaf();
@@ -257,12 +257,12 @@ describe.skipIf(isJSDOM)('drop target resolution (real hit testing)', () => {
       const target = createBox(0, 200);
 
       const onDrop = vi.fn();
-      engine.registerDraggable(source, {
+      engine.registerSource(source, {
         kind: cardKind,
         payload: 'card-1',
         activation: { mouse: { type: 'immediate' } },
       });
-      engine.registerDropTarget(target, {
+      engine.registerTarget(target, {
         accept: cardKind,
         snap: { x: 4, y: 10 },
         onDraggableDrop: onDrop,
@@ -298,14 +298,14 @@ describe.skipIf(isJSDOM)('drop target resolution (real hit testing)', () => {
       outer.appendChild(inner);
 
       const onMove = vi.fn();
-      engine.registerDraggable(source, {
+      engine.registerSource(source, {
         kind: cardKind,
         payload: 'card-1',
         activation: { mouse: { type: 'immediate' } },
         onMove,
       });
-      engine.registerDropTarget(outer, { accept: cardKind });
-      engine.registerDropTarget(inner, { accept: cardKind });
+      engine.registerTarget(outer, { accept: cardKind });
+      engine.registerTarget(inner, { accept: cardKind });
 
       pointer('pointerdown', source, 50, 25);
       await flushRaf();
@@ -314,13 +314,13 @@ describe.skipIf(isJSDOM)('drop target resolution (real hit testing)', () => {
       await flushRaf();
       await flushRaf();
 
-      const { dropTargets } = onMove.mock.calls.at(-1)![0].location.current;
-      expect(dropTargets).toHaveLength(2);
+      const { targets } = onMove.mock.calls.at(-1)![1].location.current;
+      expect(targets).toHaveLength(2);
       // Innermost first.
-      expect(dropTargets[0].element).toBe(inner);
-      expect(dropTargets[0].getLocalPoint()).toEqual({ x: 0.5, y: 0.5 });
-      expect(dropTargets[1].element).toBe(outer);
-      expect(dropTargets[1].getLocalPoint()).toEqual({ x: 0.4, y: 0.5 });
+      expect(targets[0].element).toBe(inner);
+      expect(targets[0].getLocalPoint()).toEqual({ x: 0.5, y: 0.5 });
+      expect(targets[1].element).toBe(outer);
+      expect(targets[1].getLocalPoint()).toEqual({ x: 0.4, y: 0.5 });
     });
 
     it('measures once per record, however many times it is asked', async () => {
@@ -329,12 +329,12 @@ describe.skipIf(isJSDOM)('drop target resolution (real hit testing)', () => {
       const target = createBox(0, 200);
 
       const onDrop = vi.fn();
-      engine.registerDraggable(source, {
+      engine.registerSource(source, {
         kind: cardKind,
         payload: 'card-1',
         activation: { mouse: { type: 'immediate' } },
       });
-      engine.registerDropTarget(target, { accept: cardKind, onDraggableDrop: onDrop });
+      engine.registerTarget(target, { accept: cardKind, onDraggableDrop: onDrop });
 
       pointer('pointerdown', source, 50, 25);
       await flushRaf();
@@ -361,12 +361,12 @@ describe.skipIf(isJSDOM)('drop target resolution (real hit testing)', () => {
       const source = createBox(0, 0);
       const target = createBox(0, 200);
 
-      engine.registerDraggable(source, {
+      engine.registerSource(source, {
         kind: cardKind,
         payload: 'card-1',
         activation: { mouse: { type: 'immediate' } },
       });
-      engine.registerDropTarget(target, { accept: cardKind });
+      engine.registerTarget(target, { accept: cardKind });
 
       pointer('pointerdown', source, 50, 25);
       await flushRaf();
@@ -392,12 +392,12 @@ describe.skipIf(isJSDOM)('drop target resolution (real hit testing)', () => {
       const target = createBox(0, 200);
 
       const onDrop = vi.fn();
-      engine.registerDraggable(source, {
+      engine.registerSource(source, {
         kind: cardKind,
         payload: 'card-1',
         activation: { mouse: { type: 'immediate' } },
       });
-      engine.registerDropTarget(target, { accept: cardKind, onDraggableDrop: onDrop });
+      engine.registerTarget(target, { accept: cardKind, onDraggableDrop: onDrop });
 
       pointer('pointerdown', source, 50, 25);
       await flushRaf();

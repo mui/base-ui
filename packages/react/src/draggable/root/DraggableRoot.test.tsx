@@ -155,7 +155,7 @@ describe('Draggable.Root', () => {
     // Pin element bounds so the engine can resolve a pointer location.
     source.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
     const target = createElement();
-    engine.registerDropTarget(target, {});
+    engine.registerTarget(target, {});
 
     fireEvent.dragStart(source);
     await flushRaf();
@@ -471,7 +471,7 @@ describe('Draggable.Root', () => {
     const source = screen.getByTestId('drag');
     source.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
     const target = createElement();
-    engine.registerDropTarget(target, {});
+    engine.registerTarget(target, {});
 
     fireEvent.dragStart(source);
     await flushRaf();
@@ -515,7 +515,7 @@ describe('Draggable.Root', () => {
     const { engine, rerender } = await renderDnd(<Source mounted />);
     engine.registerMonitor({ onMoveEnd });
     const target = createElement({ top: 200, height: 100 });
-    engine.registerDropTarget(target, { onDraggableDrop: onDrop });
+    engine.registerTarget(target, { onDraggableDrop: onDrop });
     const source = screen.getByTestId('drag');
     source.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
 
@@ -537,7 +537,7 @@ describe('Draggable.Root', () => {
     expect(onDrop).toHaveBeenCalledTimes(1);
     expect(onMoveEnd).toHaveBeenCalledTimes(1);
     expect(onMoveEnd.mock.calls[0][1].reason).toBe('drop');
-    expect(onMoveEnd.mock.calls[0][0].dropTarget?.element).toBe(target);
+    expect(onMoveEnd.mock.calls[0][0].target?.element).toBe(target);
   });
 
   it('cleanup is idempotent and survives unmount mid-drag', async () => {
@@ -566,7 +566,8 @@ describe('Draggable.Root', () => {
 
     expect(dragSessionStore.getSnapshot()).toBeNull();
     expect(onMoveEnd).toHaveBeenCalledTimes(1);
-    expect(onMoveEnd.mock.calls[0][0].canceled).toBe(true);
+    expect(onMoveEnd.mock.calls[0][0].target).toBeNull();
+    expect(onMoveEnd.mock.calls[0][1].reason).toBe('escape-key');
 
     // The engine is not wedged: a fresh draggable starts a new drag.
     await renderDnd(<TestDraggable testId="next" />);
@@ -640,7 +641,7 @@ describe('Draggable.Root', () => {
       const source = screen.getByTestId('drag');
       source.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
       const target = createElement();
-      engine.registerDropTarget(target, {});
+      engine.registerTarget(target, {});
 
       fireEvent.dragStart(source);
       await flushRaf();
@@ -708,7 +709,7 @@ describe('Draggable.Root', () => {
           kind={testDragKind}
           data-testid="drag"
           modifiers={Draggable.restrictToVerticalAxis}
-          onMove={({ location }) => {
+          onMove={(_, { location }) => {
             moves.push({
               x: location.current.input.clientX,
               y: location.current.input.clientY,
@@ -744,7 +745,7 @@ describe('Draggable.Root', () => {
       const source = screen.getByTestId('drag');
       source.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
       const target = createElement();
-      engine.registerDropTarget(target, {});
+      engine.registerTarget(target, {});
 
       fireEvent.dragStart(source);
       await flushRaf();
@@ -755,9 +756,10 @@ describe('Draggable.Root', () => {
       await flushRaf();
 
       expect(onTargetChange).toHaveBeenCalledTimes(1);
-      const event = onTargetChange.mock.calls[0][0];
+      const [value, eventDetails] = onTargetChange.mock.calls[0];
+      expect(value.target?.element).toBe(target);
       expect(
-        event.location.current.dropTargets.map((record: { element: Element }) => record.element),
+        eventDetails.location.current.targets.map((record: { element: Element }) => record.element),
       ).toEqual([target]);
 
       cancel();
@@ -912,7 +914,7 @@ describe('Draggable.Root', () => {
         />,
       );
       const source = createElement();
-      engine.registerDraggable(source, {});
+      engine.registerSource(source, {});
 
       await rerender(
         <Draggable.Target
@@ -1033,7 +1035,7 @@ describe('Draggable.Root', () => {
       const first = getSource();
       first.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
       const target = createElement();
-      engine.registerDropTarget(target, {});
+      engine.registerTarget(target, {});
 
       fireEvent.dragStart(first);
       await flushRaf();
@@ -1081,7 +1083,7 @@ describe('Draggable.Root', () => {
       const source = screen.getByTestId('drag');
       source.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
       const target = createElement();
-      engine.registerDropTarget(target, {});
+      engine.registerTarget(target, {});
 
       fireEvent.dragStart(source);
       await flushRaf();
@@ -1671,7 +1673,7 @@ describe('Draggable.Root', () => {
             <Draggable.Root
               kind={testDragKind}
               data-testid="drag"
-              onMove={({ location }) => {
+              onMove={(_, { location }) => {
                 committedPoints.push({
                   x: location.current.input.clientX,
                   y: location.current.input.clientY,
@@ -1863,7 +1865,7 @@ describe('Draggable.Root', () => {
     });
   });
 
-  describe('imperative dragPreview', () => {
+  describe('imperative preview', () => {
     // An imperatively registered source has no component to hold a
     // `Draggable.Preview`, so it declares the preview on the registration itself.
     function ImperativeCard() {
@@ -1871,10 +1873,10 @@ describe('Draggable.Root', () => {
       const elementRef = React.useRef<HTMLDivElement>(null);
       React.useEffect(
         () =>
-          engine.registerDraggable(elementRef.current!, () => ({
+          engine.registerSource(elementRef.current!, () => ({
             kind: cardKind,
             payload: { id: 'a' },
-            dragPreview: { render: () => <span data-testid="preview">chip</span> },
+            preview: { render: () => <span data-testid="preview">chip</span> },
           })),
         [engine],
       );
@@ -1898,16 +1900,16 @@ describe('Draggable.Root', () => {
       expect(document.querySelector('.Card[data-drag-preview]')).toBeNull();
     });
 
-    it('still honours dragPreview.offset for an imperative preview', async () => {
+    it('still honours preview.offset for an imperative preview', async () => {
       function OffsetCard() {
         const engine = Draggable.useManager();
         const elementRef = React.useRef<HTMLDivElement>(null);
         React.useEffect(
           () =>
-            engine.registerDraggable(elementRef.current!, () => ({
+            engine.registerSource(elementRef.current!, () => ({
               kind: cardKind,
               payload: { id: 'a' },
-              dragPreview: {
+              preview: {
                 render: () => <span data-testid="preview">chip</span>,
                 offset: { x: 5, y: 6 },
               },
@@ -1932,16 +1934,16 @@ describe('Draggable.Root', () => {
       expect(host.style.translate).toBe('95px 114px');
     });
 
-    it('shows no preview at all with dragPreview.disabled', async () => {
+    it('shows no preview at all with preview.disabled', async () => {
       function DisabledCard() {
         const engine = Draggable.useManager();
         const elementRef = React.useRef<HTMLDivElement>(null);
         React.useEffect(
           () =>
-            engine.registerDraggable(elementRef.current!, () => ({
+            engine.registerSource(elementRef.current!, () => ({
               kind: cardKind,
               payload: { id: 'a' },
-              dragPreview: { disabled: true },
+              preview: { disabled: true },
             })),
           [engine],
         );
@@ -1958,17 +1960,17 @@ describe('Draggable.Root', () => {
       expect(source).toHaveAttribute('data-dragging');
     });
 
-    it('clamps an imperative preview to dragPreview.modifiers', async () => {
+    it('clamps an imperative preview to preview.modifiers', async () => {
       function BoundedCard() {
         const engine = Draggable.useManager();
         const elementRef = React.useRef<HTMLDivElement>(null);
         const boundsRef = React.useRef<HTMLDivElement>(null);
         React.useEffect(
           () =>
-            engine.registerDraggable(elementRef.current!, () => ({
+            engine.registerSource(elementRef.current!, () => ({
               kind: cardKind,
               payload: { id: 'a' },
-              dragPreview: {
+              preview: {
                 modifiers: Draggable.restrictToElement(boundsRef),
                 offset: 'pointer',
               },
@@ -1997,7 +1999,7 @@ describe('Draggable.Root', () => {
       expect(clone.style.translate).toBe('150px 170px');
     });
 
-    it('injects the clone into an explicit dragPreview.container', async () => {
+    it('injects the clone into an explicit preview.container', async () => {
       const host = document.createElement('div');
       document.body.appendChild(host);
       try {
@@ -2006,10 +2008,10 @@ describe('Draggable.Root', () => {
           const elementRef = React.useRef<HTMLDivElement>(null);
           React.useEffect(
             () =>
-              engine.registerDraggable(elementRef.current!, () => ({
+              engine.registerSource(elementRef.current!, () => ({
                 kind: cardKind,
                 payload: { id: 'a' },
-                dragPreview: { container: host },
+                preview: { container: host },
               })),
             [engine],
           );
@@ -2028,7 +2030,7 @@ describe('Draggable.Root', () => {
       }
     });
 
-    it('injects the preview into an explicit dragPreview.container over the PreviewProvider', async () => {
+    it('injects the preview into an explicit preview.container over the PreviewProvider', async () => {
       const host = document.createElement('div');
       document.body.appendChild(host);
       try {
@@ -2037,10 +2039,10 @@ describe('Draggable.Root', () => {
           const elementRef = React.useRef<HTMLDivElement>(null);
           React.useEffect(
             () =>
-              engine.registerDraggable(elementRef.current!, () => ({
+              engine.registerSource(elementRef.current!, () => ({
                 kind: cardKind,
                 payload: { id: 'a' },
-                dragPreview: {
+                preview: {
                   render: () => <span data-testid="preview">chip</span>,
                   container: host,
                 },

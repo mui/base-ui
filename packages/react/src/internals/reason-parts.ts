@@ -40,3 +40,16 @@ export const imperativeAction = 'imperative-action' as const;
 export const swipe = 'swipe' as const;
 
 export const windowResize = 'window-resize' as const;
+
+export const doubleClick = 'double-click' as const;
+export const modifierKey = 'modifier-key' as const;
+export const tabKey = 'tab-key' as const;
+export const windowBlur = 'window-blur' as const;
+export const pageHidden = 'page-hidden' as const;
+export const pointerCanceled = 'pointer-canceled' as const;
+export const captureLost = 'capture-lost' as const;
+export const missedRelease = 'missed-release' as const;
+export const documentDetached = 'document-detached' as const;
+export const handlerError = 'handler-error' as const;
+export const drop = 'drop' as const;
+export const outsideRelease = 'outside-release' as const;

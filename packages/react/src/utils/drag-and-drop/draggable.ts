@@ -1,15 +1,15 @@
 import type {
+  BeforeMoveStartEventDetails,
+  BeforeMoveStartValue,
   DragCleanupFn,
   DragHandle,
   DragKind,
-  MoveStartContext,
-  DraggablePayload,
-  DragPreviewParameters,
-  BeforeMoveStartEventDetails,
   DraggableEventDetailsMap,
-  DraggableEventMap,
-  DragPreviewRenderEvent,
+  DraggablePayload,
   DragModifiers,
+  DragPreviewParameters,
+  DragPreviewRenderParameters,
+  DragSourceEventValue,
 } from '../../types/drag';
 import type { DragPreviewDeclaration } from './dragPreviewDeclaration';
 import type { DragActivationConfig } from './activation';
@@ -39,7 +39,7 @@ const GESTURE_STYLES = [
 
 interface DraggableStaticSetupParameters {
   element: HTMLElement;
-  dragHandle?: DragHandle | undefined;
+  handle?: DragHandle | undefined;
   disabled?: boolean | undefined;
 }
 
@@ -115,7 +115,7 @@ export function applyDraggableStaticSetup(
   const resolveGestureElement = (dragHandle: DragHandle | undefined): HTMLElement =>
     (resolveElementReference(dragHandle, undefined) as HTMLElement | null) ?? element;
   let appliedDisabled = Boolean(parameters.disabled);
-  let appliedElement = resolveGestureElement(parameters.dragHandle);
+  let appliedElement = resolveGestureElement(parameters.handle);
   let releaseSetup = applyGestureSetup(appliedElement, parameters.disabled);
 
   const refreshFromRegistration = () => {
@@ -125,7 +125,7 @@ export function applyDraggableStaticSetup(
     }
     const latest = getParameters();
     const nextDisabled = Boolean(latest.disabled);
-    const nextElement = resolveGestureElement(latest.dragHandle);
+    const nextElement = resolveGestureElement(latest.handle);
     if (nextDisabled === appliedDisabled && nextElement === appliedElement) {
       return;
     }
@@ -163,7 +163,7 @@ export type DraggableConfig<TPayload = undefined, TDragData = unknown> = {
    * event and drop target handler.
    */
   // Optional here so the conditional requirement lives in one place: `Draggable.Root`
-  // and `registerDraggable` re-impose it through an overload, which also keeps a
+  // and `registerSource` re-impose it through an overload, which also keeps a
   // wrapper spreading their `Props` from hitting a deferred conditional.
   payload?: DraggablePayload<TPayload> | undefined;
   /**
@@ -181,10 +181,10 @@ export type DraggableConfig<TPayload = undefined, TDragData = unknown> = {
    * The element that must be pressed to start a drag. Accepts an element, a ref,
    * or a function returning one. It should exist when the item is registered.
    *
-   * For sources registered with `registerDraggable`. `<Draggable.Root>` uses
+   * For sources registered with `registerSource`. `<Draggable.Root>` uses
    * `<Draggable.Handle>` instead.
    */
-  dragHandle?: DragHandle | undefined;
+  handle?: DragHandle | undefined;
   /**
    * Whether dragging is disabled. Pointer presses keep their normal behavior.
    * Use `onBeforeMoveStart` when the decision depends on the gesture.
@@ -197,7 +197,7 @@ export type DraggableConfig<TPayload = undefined, TDragData = unknown> = {
    */
   onBeforeMoveStart?:
     | ((
-        context: MoveStartContext<NoInfer<TPayload>, NoInfer<TDragData>>,
+        value: BeforeMoveStartValue<NoInfer<TPayload>, NoInfer<TDragData>>,
         eventDetails: BeforeMoveStartEventDetails,
       ) => void)
     | undefined;
@@ -224,10 +224,10 @@ export type DraggableConfig<TPayload = undefined, TDragData = unknown> = {
   /**
    * The drag preview of this item. Omit it to use a clone of the source.
    *
-   * For sources registered with `registerDraggable`. `<Draggable.Root>` uses
+   * For sources registered with `registerSource`. `<Draggable.Root>` uses
    * `<Draggable.Preview>` instead.
    */
-  dragPreview?: DragPreviewParameters<NoInfer<TPayload>, NoInfer<TDragData>> | undefined;
+  preview?: DragPreviewParameters<NoInfer<TPayload>, NoInfer<TDragData>> | undefined;
   /**
    * The preview part declared for this draggable, if any. Wired by the React layer;
    * the engine reads it once at drag start, before React can run, to decide between
@@ -243,7 +243,7 @@ export type DraggableConfig<TPayload = undefined, TDragData = unknown> = {
    * @internal
    */
   onGenerateDragPreview?:
-    | ((parameters: DragPreviewRenderEvent<NoInfer<TPayload>, NoInfer<TDragData>>) => void)
+    | ((parameters: DragPreviewRenderParameters<NoInfer<TPayload>, NoInfer<TDragData>>) => void)
     | undefined;
   /**
    * Event handler called once when the drag starts. The preview exists by then,
@@ -251,7 +251,7 @@ export type DraggableConfig<TPayload = undefined, TDragData = unknown> = {
    */
   onMoveStart?:
     | ((
-        parameters: DraggableEventMap<NoInfer<TPayload>, NoInfer<TDragData>>['onMoveStart'],
+        value: DragSourceEventValue<NoInfer<TPayload>, NoInfer<TDragData>>,
         eventDetails: DraggableEventDetailsMap['onMoveStart'],
       ) => void)
     | undefined;
@@ -262,7 +262,7 @@ export type DraggableConfig<TPayload = undefined, TDragData = unknown> = {
    */
   onMove?:
     | ((
-        parameters: DraggableEventMap<NoInfer<TPayload>, NoInfer<TDragData>>['onMove'],
+        value: DragSourceEventValue<NoInfer<TPayload>, NoInfer<TDragData>>,
         eventDetails: DraggableEventDetailsMap['onMove'],
       ) => void)
     | undefined;
@@ -271,19 +271,20 @@ export type DraggableConfig<TPayload = undefined, TDragData = unknown> = {
    */
   onTargetChange?:
     | ((
-        parameters: DraggableEventMap<NoInfer<TPayload>, NoInfer<TDragData>>['onTargetChange'],
+        value: DragSourceEventValue<NoInfer<TPayload>, NoInfer<TDragData>>,
         eventDetails: DraggableEventDetailsMap['onTargetChange'],
       ) => void)
     | undefined;
   /**
    * Event handler called once when the drag ends, after a drop, a release outside any
-   * target, or a cancellation. `eventDetails.reason` is `'drop'` for a successful drop.
+   * target, or a cancellation. `target` is the target that received the drop, or `null`.
+   * `eventDetails.reason` tells why the drag ended.
    *
    * A drag canceled during pickup fires this handler without a preceding `onMoveStart`.
    */
   onMoveEnd?:
     | ((
-        parameters: DraggableEventMap<NoInfer<TPayload>, NoInfer<TDragData>>['onMoveEnd'],
+        value: DragSourceEventValue<NoInfer<TPayload>, NoInfer<TDragData>>,
         eventDetails: DraggableEventDetailsMap['onMoveEnd'],
       ) => void)
     | undefined;

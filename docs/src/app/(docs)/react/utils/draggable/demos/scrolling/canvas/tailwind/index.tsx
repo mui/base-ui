@@ -90,8 +90,8 @@ export default function CanvasPan() {
                 onMoveStart={() => {
                   dragStartCameraRef.current = { ...cameraRef.current };
                 }}
-                onMoveEnd={({ location, canceled, dropTarget }) => {
-                  if (canceled || dropTarget) {
+                onMoveEnd={(_, { reason, location }) => {
+                  if (reason !== 'outside-release') {
                     return;
                   }
                   // The pin must land under the pointer, and the canvas moved

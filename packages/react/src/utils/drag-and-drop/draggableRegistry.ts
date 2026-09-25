@@ -38,7 +38,7 @@ const holds = createGetterStackRegistry<HTMLElement, DraggableGetter>({
 });
 
 /** Register (or re-register) `element` as a draggable with the given parameters getter. */
-export function registerDraggable(
+export function addDraggableRegistration(
   element: HTMLElement,
   getParameters: DraggableGetter,
 ): DragCleanupFn {
@@ -63,7 +63,7 @@ export interface DraggablePickup {
 
 /** Resolve the handle that owns pointer pickup. */
 export function resolveDragHandle(parameters: RegisteredDraggableConfig): Element | null {
-  return resolveElementReference(parameters.dragHandle, undefined);
+  return resolveElementReference(parameters.handle, undefined);
 }
 
 /**

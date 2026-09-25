@@ -108,7 +108,7 @@ export default function AxisLane() {
             ref={trackRef}
             className="flex w-max gap-1.5"
             accept={stopKind}
-            onDraggableDrop={({ source, location }) => {
+            onDraggableDrop={({ source }, { location }) => {
               const track = trackRef.current;
               if (track) {
                 moveStop(source.payload, resolveDropIndex(track, location.current.input.clientX));

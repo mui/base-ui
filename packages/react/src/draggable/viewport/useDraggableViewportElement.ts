@@ -3,10 +3,10 @@ import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useDraggableContext } from '../DraggableContext';
-import { registerAutoScroller } from '../../utils/drag-and-drop/registrations';
+import { registerViewport } from '../../utils/drag-and-drop/registrations';
 import { wakeAutoScroll, normalizeOverflowMargin } from '../../utils/drag-and-drop/autoScroller';
 import { sameAccept } from '../../utils/drag-and-drop/dragKind';
-import type { RegisterAutoScrollerParameters } from '../../utils/drag-and-drop/autoScroller';
+import type { RegisterViewportParameters } from '../../utils/drag-and-drop/autoScroller';
 import { useRegistrationRef } from '../../utils/drag-and-drop/useRegistrationRef';
 
 /**
@@ -21,18 +21,16 @@ export function useDraggableViewportElement<TSourcePayload = unknown, TDragData 
   parameters: UseDraggableViewportElementParameters<TSourcePayload, TDragData>,
 ): UseDraggableViewportElementReturnValue {
   useDraggableContext();
-  const getParameters = useStableCallback(
-    () => parameters as RegisterAutoScrollerParameters<unknown>,
-  );
+  const getParameters = useStableCallback(() => parameters as RegisterViewportParameters<unknown>);
 
   // Registering mid-drag arms and wakes the loop with the latest live input.
-  // The public `registerAutoScroller` is keyed on the `accept` value; this
+  // The public `registerViewport` is keyed on the `accept` value; this
   // internal layer is keyed on the payload it promises (like the component's
   // implementation signature), so the parameters are erased to `unknown` here.
   // `disabled` rides along in the parameters (the engine reads it every frame)
   // rather than gating the registration, which would churn the engine's registry
   // — and its cached depth order — on every flip of the prop.
-  const ref = useRegistrationRef<HTMLElement>((node) => registerAutoScroller(node, getParameters));
+  const ref = useRegistrationRef<HTMLElement>((node) => registerViewport(node, getParameters));
 
   // A live parameter change must wake a loop that parked while the element was
   // disabled or declined scrolling. Compared against the previous values — by
@@ -76,7 +74,7 @@ export function useDraggableViewportElement<TSourcePayload = unknown, TDragData 
 export type UseDraggableViewportElementParameters<
   TSourcePayload = unknown,
   TDragData = unknown,
-> = RegisterAutoScrollerParameters<TSourcePayload, TDragData>;
+> = RegisterViewportParameters<TSourcePayload, TDragData>;
 
 export interface UseDraggableViewportElementReturnValue {
   /** Ref callback to attach to the scroll container element. */

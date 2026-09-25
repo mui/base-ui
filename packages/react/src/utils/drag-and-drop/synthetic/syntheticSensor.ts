@@ -12,7 +12,10 @@ import { contains, getTarget } from '@base-ui/utils/shadowDom';
 import { isHTMLElement } from '@floating-ui/utils/dom';
 import { WindowAnimationFrame } from '../../windowAnimationFrame';
 import { WindowTimeout } from '../../windowTimeout';
-import { createChangeEventDetails } from '../../../internals/createBaseUIEventDetails';
+import {
+  createChangeEventDetails,
+  type ReasonToEvent,
+} from '../../../internals/createBaseUIEventDetails';
 import {
   evaluateActivations,
   getActivationDelayMs,
@@ -55,6 +58,7 @@ import type {
   DragInput,
   DragMoveReason,
   DragPointerType,
+  DragStartReason,
 } from '../../../types/drag';
 import {
   modifyDragPoint,
@@ -368,8 +372,8 @@ function cancelActive(
 }
 
 /**
- * Programmatically cancel an in-progress pointer drag (fires `onMoveEnd` with
- * `canceled: true`). No-op when this sensor has no active session. Backs
+ * Programmatically cancel an in-progress pointer drag (fires `onMoveEnd` with a
+ * `null` target). No-op when this sensor has no active session. Backs
  * `engine.cancelDrag()`.
  */
 export function cancelActiveDrag(): void {
@@ -998,18 +1002,14 @@ function commitActivation(): void {
   // any resource is allocated, so canceling leaves nothing to undo beyond the
   // pending phase itself — nothing has lifted yet.
   if (parameters.onBeforeMoveStart) {
-    const eventDetails = createChangeEventDetails<
-      string,
-      Pick<BeforeMoveStartEventDetails, 'reason' | 'event'>
-    >(pending.activationKind, pending.lastNativeEvent, target, {
-      reason: pending.activationKind,
-      event: pending.lastNativeEvent,
-    }) as BeforeMoveStartEventDetails;
+    const eventDetails: BeforeMoveStartEventDetails = createChangeEventDetails(
+      pending.activationKind,
+      pending.lastNativeEvent as ReasonToEvent<DragStartReason> | undefined,
+      target,
+      { input: lastInput },
+    );
     try {
-      parameters.onBeforeMoveStart(
-        { source: dragSource, input: lastInput, element, dragHandle },
-        eventDetails,
-      );
+      parameters.onBeforeMoveStart({ source: dragSource }, eventDetails);
     } catch (error) {
       // A throwing consumer handler must not leave the pending phase armed.
       clearPending(true);

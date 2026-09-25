@@ -1,12 +1,12 @@
 import { describe, it, expect } from 'vitest';
-import type { DragSource, DropTargetRecord } from '../../types/drag';
+import type { DragSource, DraggableTargetRecord } from '../../types/drag';
 import { anyDragKind, createGlobalKind, createKind, matchesAccept } from './dragKind';
 
 function sourceOfKind(kind: symbol): DragSource<unknown> {
   return {
     element: document.createElement('div'),
     kind,
-    dragHandle: null,
+    handle: null,
     dragData: undefined,
     updatePayload() {},
     updateDragData() {},
@@ -14,7 +14,7 @@ function sourceOfKind(kind: symbol): DragSource<unknown> {
   };
 }
 
-function recordOfKind(kind: symbol | undefined): DropTargetRecord<unknown> {
+function recordOfKind(kind: symbol | undefined): DraggableTargetRecord<unknown> {
   return {
     element: document.createElement('div'),
     kind,

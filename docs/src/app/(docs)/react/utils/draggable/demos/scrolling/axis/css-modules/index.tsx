@@ -105,7 +105,7 @@ export default function AxisLane() {
             ref={trackRef}
             className={styles.Track}
             accept={stopKind}
-            onDraggableDrop={({ source, location }) => {
+            onDraggableDrop={({ source }, { location }) => {
               const track = trackRef.current;
               if (track) {
                 moveStop(source.payload, resolveDropIndex(track, location.current.input.clientX));

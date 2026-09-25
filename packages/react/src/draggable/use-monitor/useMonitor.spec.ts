@@ -1,4 +1,4 @@
-import { Draggable, type UseMonitorParameters } from '@base-ui/react/draggable';
+import { Draggable, type UseDraggableMonitorParameters } from '@base-ui/react/draggable';
 import { expectType } from '#test-utils';
 
 interface CardPayload {
@@ -23,9 +23,10 @@ function AcceptsOneKind() {
   Draggable.useMonitor({
     accept: card,
     onMoveStart: ({ source }) => expectType<CardPayload, typeof source.payload>(source.payload),
-    onMoveEnd: ({ source, canceled }) => {
+    onMoveEnd: ({ source, target }, { reason }) => {
       expectType<CardPayload, typeof source.payload>(source.payload);
-      expectType<boolean, typeof canceled>(canceled);
+      expectType<Draggable.Target.Record | null, typeof target>(target);
+      expectType<Draggable.DragEndReason, typeof reason>(reason);
     },
   });
 }
@@ -74,11 +75,11 @@ function RejectsMismatchedHandler() {
 // `Parameters` is keyed on the observed payload, and still forwards into the hook.
 const cardMonitor: Draggable.useMonitor.Parameters<CardPayload> = {
   accept: card,
-  onMoveEnd: ({ source, dropTarget }) => dropTarget && commit(source.payload.id),
+  onMoveEnd: ({ source, target }) => target && commit(source.payload.id),
 };
 
 function ForwardsDeclaredParameters() {
-  expectType<UseMonitorParameters<CardPayload>, typeof cardMonitor>(cardMonitor);
+  expectType<UseDraggableMonitorParameters<CardPayload>, typeof cardMonitor>(cardMonitor);
   Draggable.useMonitor(cardMonitor);
 }
 

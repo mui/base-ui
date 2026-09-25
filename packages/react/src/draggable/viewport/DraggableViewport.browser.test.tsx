@@ -54,7 +54,7 @@ describe.skipIf(isJSDOM)('Draggable viewport scrolling in the browser', () => {
     );
     const viewport = document.querySelector<HTMLElement>('[data-testid="overflow-viewport"]')!;
     const source = element('position:fixed;left:300px;top:0;width:100px;height:50px');
-    engine.registerDraggable(source, { activation: { type: 'immediate' } });
+    engine.registerSource(source, { activation: { type: 'immediate' } });
     start(source);
     function move(y: number) {
       act(() =>
@@ -70,7 +70,9 @@ describe.skipIf(isJSDOM)('Draggable viewport scrolling in the browser', () => {
     }
     move(250);
     await waitFor(() => expect(viewport.scrollTop).toBeGreaterThan(0));
-    expect(onDragScroll.mock.calls.some(([event]) => event.input.clientY === 250)).toBe(true);
+    expect(
+      onDragScroll.mock.calls.some(([, eventDetails]) => eventDetails.input.clientY === 250),
+    ).toBe(true);
     move(281);
     await flushRaf();
     await flushRaf();
@@ -95,9 +97,9 @@ describe.skipIf(isJSDOM)('Draggable viewport scrolling in the browser', () => {
     const inner = element('width:200px;height:100px;overflow:auto', outer);
     element('height:1000px', inner);
     element('height:1000px', outer);
-    engine.registerDraggable(source, { activation: { type: 'immediate' } });
-    engine.registerAutoScroller(inner, { overflowMargin: { bottom: 120 } });
-    engine.registerAutoScroller(outer, {});
+    engine.registerSource(source, { activation: { type: 'immediate' } });
+    engine.registerViewport(inner, { overflowMargin: { bottom: 120 } });
+    engine.registerViewport(outer, {});
     start(source);
     await waitFor(() => expect(outer.scrollTop).toBeGreaterThan(0));
     expect(inner.scrollTop).toBe(0);
@@ -112,9 +114,9 @@ describe.skipIf(isJSDOM)('Draggable viewport scrolling in the browser', () => {
     const target = element('position:absolute;top:250px;width:200px;height:100px', content);
     const enter = vi.fn();
     const drop = vi.fn();
-    engine.registerDraggable(source, { activation: { type: 'immediate' } });
-    engine.registerAutoScroller(viewport, {});
-    engine.registerDropTarget(target, { onDraggableEnter: enter, onDraggableDrop: drop });
+    engine.registerSource(source, { activation: { type: 'immediate' } });
+    engine.registerViewport(viewport, {});
+    engine.registerTarget(target, { onDraggableEnter: enter, onDraggableDrop: drop });
     start(source);
     await waitFor(() => expect(enter).toHaveBeenCalledTimes(1));
     expect(viewport.scrollTop).toBeGreaterThan(0);
@@ -140,9 +142,9 @@ describe.skipIf(isJSDOM)('Draggable viewport scrolling in the browser', () => {
     const inner = element('width:200px;height:200px;overflow:auto', outer);
     element('height:220px', inner);
     element('height:400px', outer);
-    engine.registerDraggable(source, { activation: { type: 'immediate' } });
-    engine.registerAutoScroller(inner, {});
-    engine.registerAutoScroller(outer, {});
+    engine.registerSource(source, { activation: { type: 'immediate' } });
+    engine.registerViewport(inner, {});
+    engine.registerViewport(outer, {});
     start(source);
     await waitFor(() => expect(outer.scrollTop).toBeGreaterThan(0));
     expect(inner.scrollTop).toBe(inner.scrollHeight - inner.clientHeight);

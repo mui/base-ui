@@ -2,8 +2,8 @@ import { matchesAccept } from './dragKind';
 import type {
   DragAccept,
   DragSource,
+  DragSourceEventValue,
   DraggableEventDetailsMap,
-  DraggableEventMap,
 } from '../../types/drag';
 import { getSharedSlot } from './sharedState';
 import { containConsumerError } from './utils';
@@ -104,8 +104,8 @@ export function activateMonitors(source: DragSource): void {
 }
 
 export function dispatchToMonitors<
-  K extends keyof DraggableEventMap & keyof RegisterMonitorParameters,
->(eventName: K, payload: DraggableEventMap[K], eventDetails: DraggableEventDetailsMap[K]): void {
+  K extends keyof DraggableEventDetailsMap & keyof RegisterMonitorParameters,
+>(eventName: K, value: DragSourceEventValue, eventDetails: DraggableEventDetailsMap[K]): void {
   if (state.activeMonitors.size === 0) {
     return;
   }
@@ -117,7 +117,7 @@ export function dispatchToMonitors<
   if (state.activeMonitors.size === 1) {
     const getMonitor = state.activeMonitors.values().next().value;
     if (getMonitor !== undefined) {
-      dispatchToMonitor(getMonitor, eventName, payload, eventDetails);
+      dispatchToMonitor(getMonitor, eventName, value, eventDetails);
     }
     return;
   }
@@ -129,14 +129,16 @@ export function dispatchToMonitors<
     if (!state.activeMonitors.has(getMonitor)) {
       continue;
     }
-    dispatchToMonitor(getMonitor, eventName, payload, eventDetails);
+    dispatchToMonitor(getMonitor, eventName, value, eventDetails);
   }
 }
 
-function dispatchToMonitor<K extends keyof DraggableEventMap & keyof RegisterMonitorParameters>(
+function dispatchToMonitor<
+  K extends keyof DraggableEventDetailsMap & keyof RegisterMonitorParameters,
+>(
   getMonitor: MonitorGetter,
   eventName: K,
-  payload: DraggableEventMap[K],
+  value: DragSourceEventValue,
   eventDetails: DraggableEventDetailsMap[K],
 ): void {
   // Contained per monitor, like each drop target's dispatch: a monitor is an
@@ -148,7 +150,7 @@ function dispatchToMonitor<K extends keyof DraggableEventMap & keyof RegisterMon
     () => {
       const current = getMonitor();
       let monitor = current;
-      if (matchesAccept(current.accept, payload.source)) {
+      if (matchesAccept(current.accept, value.source)) {
         rememberMatchedMonitor(getMonitor, current);
       } else {
         // Finish the observer that joined this drag, using its compatible closure.
@@ -163,9 +165,8 @@ function dispatchToMonitor<K extends keyof DraggableEventMap & keyof RegisterMon
         monitor = previous.snapshot;
       }
       const handler = monitor[eventName] as
-        | ((parameters: DraggableEventMap[K], details: DraggableEventDetailsMap[K]) => void)
-        | undefined;
-      handler?.(payload, eventDetails);
+        ((value: DragSourceEventValue, details: DraggableEventDetailsMap[K]) => void) | undefined;
+      handler?.(value, eventDetails);
     },
     undefined,
   );
@@ -191,7 +192,7 @@ export interface RegisterMonitorParameters<TSourcePayload = unknown, TDragData =
    */
   onMoveStart?:
     | ((
-        parameters: DraggableEventMap<TSourcePayload, TDragData>['onMoveStart'],
+        value: DragSourceEventValue<TSourcePayload, TDragData>,
         eventDetails: DraggableEventDetailsMap['onMoveStart'],
       ) => void)
     | undefined;
@@ -201,7 +202,7 @@ export interface RegisterMonitorParameters<TSourcePayload = unknown, TDragData =
    */
   onMove?:
     | ((
-        parameters: DraggableEventMap<TSourcePayload, TDragData>['onMove'],
+        value: DragSourceEventValue<TSourcePayload, TDragData>,
         eventDetails: DraggableEventDetailsMap['onMove'],
       ) => void)
     | undefined;
@@ -210,21 +211,21 @@ export interface RegisterMonitorParameters<TSourcePayload = unknown, TDragData =
    */
   onTargetChange?:
     | ((
-        parameters: DraggableEventMap<TSourcePayload, TDragData>['onTargetChange'],
+        value: DragSourceEventValue<TSourcePayload, TDragData>,
         eventDetails: DraggableEventDetailsMap['onTargetChange'],
       ) => void)
     | undefined;
   /**
    * Event handler called once when the drag ends, after a drop, a release outside any
-   * target, or a cancellation. `eventDetails.reason` identifies the outcome, and
-   * `dropTarget` is the target of a drop, or `null`.
+   * target, or a cancellation. `target` is the target that received the drop, or `null`,
+   * and `eventDetails.reason` tells why the drag ended.
    *
    * It can fire without a preceding `onMoveStart`, for example when the monitor
    * registered during the drag, so don't assume the two are paired.
    */
   onMoveEnd?:
     | ((
-        parameters: DraggableEventMap<TSourcePayload, TDragData>['onMoveEnd'],
+        value: DragSourceEventValue<TSourcePayload, TDragData>,
         eventDetails: DraggableEventDetailsMap['onMoveEnd'],
       ) => void)
     | undefined;

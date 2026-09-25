@@ -33,7 +33,7 @@ describe('Draggable.Target state props', () => {
       />,
     );
     const source = createElement();
-    engine.registerDraggable(source, {});
+    engine.registerSource(source, {});
     const target = screen.getByTestId('target');
     target.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
 

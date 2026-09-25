@@ -1,13 +1,13 @@
 'use client';
 import * as React from 'react';
 import type {
-  DragAutoScrollEvent,
+  DragAutoScrollValue,
   DragAutoScrollEventDetails,
 } from '../../utils/drag-and-drop/autoScroller';
 import { useRenderElement } from '../../internals/useRenderElement';
 import type { BaseUIComponentProps } from '../../internals/types';
 import type {
-  RegisterAutoScrollerParameters,
+  RegisterViewportParameters,
   DragParametersWithInferredAccept,
 } from '../../types/dragRegistration';
 import type {
@@ -94,26 +94,26 @@ export interface DraggableViewportState {
 
 // `disabled` is not redeclared here: an intersection member's JSDoc never reaches
 // the generated reference, so the description would ship nowhere. It lives on
-// `RegisterAutoScrollerParameters` instead, which this inherits.
+// `RegisterViewportParameters` instead, which this inherits.
 export type DraggableViewportProps<
   TSourcePayload = unknown,
   TDragData = unknown,
 > = BaseUIComponentProps<'div', DraggableViewportState> &
-  RegisterAutoScrollerParameters<TSourcePayload, TDragData>;
+  RegisterViewportParameters<TSourcePayload, TDragData>;
 
-export type DraggableViewportDragScrollEvent<
+export type DraggableViewportDragScrollValue<
   TPayload = unknown,
   TDragData = unknown,
-> = DragAutoScrollEvent<TPayload, TDragData>;
+> = DragAutoScrollValue<TPayload, TDragData>;
 export type DraggableViewportDragScrollEventDetails = DragAutoScrollEventDetails;
 export type DraggableViewportDragScrollEventReason =
   DraggableViewportDragScrollEventDetails['reason'];
 
 export namespace DraggableViewport {
-  export type DragScrollEvent<
+  export type DragScrollValue<
     TPayload = unknown,
     TDragData = unknown,
-  > = DraggableViewportDragScrollEvent<TPayload, TDragData>;
+  > = DraggableViewportDragScrollValue<TPayload, TDragData>;
   export type DragScrollEventDetails = DraggableViewportDragScrollEventDetails;
   export type DragScrollEventReason = DraggableViewportDragScrollEventReason;
   export type State = DraggableViewportState;

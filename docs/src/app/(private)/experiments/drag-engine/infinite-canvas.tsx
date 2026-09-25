@@ -124,9 +124,8 @@ function InfiniteCanvasContent() {
   Draggable.useMonitor({
     accept: noteKind,
     onMove: sampleParked,
-    onTargetChange: ({ location }) => {
-      const innermost = location.current.dropTargets[0];
-      setHovered(innermost?.element.getAttribute('data-bin-label') ?? '—');
+    onTargetChange: ({ target }) => {
+      setHovered(target?.element.getAttribute('data-bin-label') ?? '—');
     },
     onMoveEnd: () => {
       setHovered('—');
@@ -173,9 +172,9 @@ function InfiniteCanvasContent() {
 
       <Draggable.Viewport
         accept={noteKind}
-        onDragScroll={(details, eventDetails) => {
+        onDragScroll={(value, eventDetails) => {
           eventDetails.cancel();
-          applyScroll(details);
+          applyScroll(value);
           eventDetails.consume();
         }}
         className={styles.viewport}
@@ -209,8 +208,10 @@ function InfiniteCanvasContent() {
               onMoveStart={() => {
                 dragStartCameraRef.current = cameraRef.current;
               }}
-              onMoveEnd={({ location, canceled, dropTarget }) => {
-                if (canceled || dropTarget) {
+              onMoveEnd={(_, { reason, location }) => {
+                // Only a release over empty canvas moves the note: a cancel leaves it,
+                // and a drop hands it to the bin.
+                if (reason !== 'outside-release') {
                   return;
                 }
                 // The note has to end up under the pointer, and the content layer

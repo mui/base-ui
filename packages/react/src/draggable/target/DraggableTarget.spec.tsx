@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { expectType } from '#test-utils';
-import type { DropEvent, DropTargetPayload, DropTargetRecord } from '@base-ui/react/draggable';
+import type { DraggableTargetDropValue, DraggableTargetRecord } from '@base-ui/react/draggable';
 import { Draggable } from '@base-ui/react/draggable';
 
 interface CardPayload {
@@ -153,8 +153,11 @@ const targetCommand = () => 'run';
   }}
 />;
 
-// @ts-expect-error a handler declaring a payload `accept` doesn't promise is rejected.
-<Draggable.Target accept={card} onDraggableDrop={(event: DropEvent<TaskPayload>) => event} />;
+<Draggable.Target
+  accept={card}
+  // @ts-expect-error a handler declaring a payload `accept` doesn't promise is rejected.
+  onDraggableDrop={(value: Draggable.Target.DropValue<TaskPayload>) => value}
+/>;
 
 // A target's own `kind` identifies it on its records. It is checked against `payload`
 // rather than inferred from, so `payload` stays the one source of `target.payload`.
@@ -170,7 +173,7 @@ const targetCommand = () => 'run';
 
 // A kind narrows the records a handler walks, so a target can tell which of several
 // kinds of target the drag landed on.
-declare const untypedRecord: DropTargetRecord<unknown>;
+declare const untypedRecord: DraggableTargetRecord<unknown>;
 if (slot.matches(untypedRecord)) {
   expectType<SlotPayload, typeof untypedRecord.payload>(untypedRecord.payload);
 }
@@ -224,7 +227,7 @@ const ref: React.Ref<HTMLDivElement> = null;
   accept={card}
   onDrop={(event) => expectType<DataTransfer, typeof event.dataTransfer>(event.dataTransfer)}
   onDragOver={(event) => expectType<DataTransfer, typeof event.dataTransfer>(event.dataTransfer)}
-  onDraggableDrop={({ source, location }) => {
+  onDraggableDrop={({ source }, { location }) => {
     expectType<CardPayload, typeof source.payload>(source.payload);
     expectType<number, typeof location.current.input.clientX>(location.current.input.clientX);
   }}
@@ -242,7 +245,7 @@ const ref: React.Ref<HTMLDivElement> = null;
 // without `NoInfer` on the handlers, `TTargetPayload` here would come out as
 // `{ other: boolean }` and the mismatch would be reported against `payload`
 // instead of against the handler that caused it.
-const mismatchedDrop = (parameters: DropEvent<unknown, { other: boolean }>) => parameters;
+const mismatchedDrop = (value: DraggableTargetDropValue<unknown, { other: boolean }>) => value;
 <Draggable.Target
   accept={Draggable.anyKind}
   // @ts-expect-error the handler must match the payload, not redefine it.
@@ -252,14 +255,13 @@ const mismatchedDrop = (parameters: DropEvent<unknown, { other: boolean }>) => p
 />;
 
 // A wider handler still accepts the inferred payload.
-const wideDrop = (parameters: DropEvent<unknown, unknown>) => parameters;
+const wideDrop = (value: Draggable.Target.DropValue<unknown, unknown>) => value;
 <Draggable.Target
   accept={Draggable.anyKind}
   payload="inbox"
-  onDraggableDrop={(event) => {
-    wideDrop(event);
-    expectType<string, typeof event.target.payload>(event.target.payload);
-    expectType<string, typeof event.dropTarget.payload>(event.dropTarget.payload);
+  onDraggableDrop={(value) => {
+    wideDrop(value);
+    expectType<string, typeof value.target.payload>(value.target.payload);
   }}
   onDraggableMove={({ target }) => {
     expectType<string, typeof target.payload>(target.payload);
@@ -270,9 +272,7 @@ const wideDrop = (parameters: DropEvent<unknown, unknown>) => parameters;
 // wrapper's props reads the same as before.
 type SlotProps = Draggable.Target.Props<CardPayload, SlotPayload>;
 const slotValueProps: SlotProps = { accept: card, payload: { index: 0 } };
-expectType<DropTargetPayload<SlotPayload>, NonNullable<typeof slotValueProps.payload>>(
-  slotValueProps.payload!,
-);
+expectType<SlotPayload, NonNullable<typeof slotValueProps.payload>>(slotValueProps.payload!);
 
 // @ts-expect-error `Props` mirrors the component: a declared `TTargetPayload` requires a payload.
 const slotMissingProps: SlotProps = { accept: card };

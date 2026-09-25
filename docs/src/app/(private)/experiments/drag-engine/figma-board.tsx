@@ -478,7 +478,7 @@ function BoardCard({
       // back to a surface position from a fresh surface rect, so it stays correct
       // even when auto-scroll moves the board mid-drag.
       payload={card.id}
-      onMoveStart={({ source, location }) => {
+      onMoveStart={({ source }, { location }) => {
         const rect = source.element.getBoundingClientRect();
         source.updateDragData({
           id: card.id,
@@ -499,9 +499,8 @@ function BoardCard({
       modifiers={Draggable.restrictToElement(surfaceRef)}
       // Commit only a release over the surface. Escape and outside releases
       // still run the end handler but must not move the card.
-      onMoveEnd={(moveEvent, moveDetails) => {
-        if (moveDetails.reason === 'drop' && moveEvent.dropTarget !== null) {
-          const { source, location } = moveEvent;
+      onMoveEnd={({ source, target }, { location }) => {
+        if (target !== null) {
           if (!source.dragData) {
             return;
           }

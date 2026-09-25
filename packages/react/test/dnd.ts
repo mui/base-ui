@@ -19,9 +19,10 @@ import { resetForTests as resetAutoScroller } from '../src/utils/drag-and-drop/a
 import { clearPublishedDragPreview } from '../src/utils/drag-and-drop/overlay/dragPreviewStore';
 import { resetTouchTarget } from './syntheticPointer';
 import type {
-  DragDropEvent,
   DragDropEventDetails,
-  MoveEndEvent,
+  DragSource,
+  DragSourceEventValue,
+  DraggableTargetRecord,
   MoveEndEventDetails,
 } from '../src/types/drag';
 
@@ -457,19 +458,19 @@ export function resetDrag(): void {
  * `onMoveEnd` always follows, even when `onDrop` throws.
  */
 export function splitEnd<TPayload = unknown>(
-  onDrop: (event: DragDropEvent<TPayload>, details: DragDropEventDetails) => void,
-  onMoveEnd?: (event: MoveEndEvent<TPayload>, details: MoveEndEventDetails) => void,
-): (event: MoveEndEvent<TPayload>, details: MoveEndEventDetails) => void {
-  return (event, details) => {
+  onDrop: (
+    value: { source: DragSource<TPayload>; target: DraggableTargetRecord },
+    details: DragDropEventDetails,
+  ) => void,
+  onMoveEnd?: (value: DragSourceEventValue<TPayload>, details: MoveEndEventDetails) => void,
+): (value: DragSourceEventValue<TPayload>, details: MoveEndEventDetails) => void {
+  return (value, details) => {
     try {
-      if (details.reason === 'drop' && event.dropTarget !== null) {
-        onDrop(
-          { source: event.source, location: event.location, dropTarget: event.dropTarget },
-          { ...details, reason: 'drop' },
-        );
+      if (details.reason === 'drop' && value.target !== null) {
+        onDrop({ source: value.source, target: value.target }, details);
       }
     } finally {
-      onMoveEnd?.(event, details);
+      onMoveEnd?.(value, details);
     }
   };
 }

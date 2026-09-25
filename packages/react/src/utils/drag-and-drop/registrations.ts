@@ -28,11 +28,11 @@ import {
 } from './core/lifecycleManager';
 import { dragSessionStore } from './dragSessionStore';
 import type {
-  RegisterAutoScrollerParameters,
+  RegisterViewportParameters,
   RegisterMonitorParameters,
   DragParametersWithInferredAccept,
 } from '../../types/dragRegistration';
-import type { RegisterDropTargetParameters } from './dropTarget';
+import type { RegisterTargetParameters } from './dropTarget';
 import type {
   AcceptedDragData,
   AcceptedDragPayload,
@@ -42,14 +42,14 @@ import type {
 } from '../../types/drag';
 import { onceCleanup } from './utils';
 
-export function registerDropTarget<
+export function registerTarget<
   TSourcePayload = unknown,
   TTargetPayload = unknown,
   TDragData = unknown,
   TTargetDragData = unknown,
 >(
   element: HTMLElement,
-  getParameters: () => RegisterDropTargetParameters<
+  getParameters: () => RegisterTargetParameters<
     TSourcePayload,
     TTargetPayload,
     TDragData,
@@ -67,7 +67,7 @@ export function registerDropTarget<
     // and a dev-only check must neither let that escape registration nor report
     // it — the dispatch path already surfaces a throwing getter properly, and
     // logging it here too would double up.
-    let parameters: RegisterDropTargetParameters<
+    let parameters: RegisterTargetParameters<
       TSourcePayload,
       TTargetPayload,
       TDragData,
@@ -156,10 +156,10 @@ export function registerDropTarget<
 }
 
 // Keyed on the `accept` value it infers, like every other `accept`-taking API.
-export function registerAutoScroller<TAccept extends AnyDragAccept = DragKind<unknown>>(
+export function registerViewport<TAccept extends AnyDragAccept = DragKind<unknown>>(
   element: HTMLElement,
   getParameters: () => DragParametersWithInferredAccept<
-    RegisterAutoScrollerParameters<AcceptedDragPayload<TAccept>, AcceptedDragData<TAccept>>,
+    RegisterViewportParameters<AcceptedDragPayload<TAccept>, AcceptedDragData<TAccept>>,
     TAccept
   >,
 ): DragCleanupFn {

@@ -78,8 +78,8 @@ describe('documentBinding', () => {
       const source = document.createElement('div');
       inner.appendChild(source);
       const onMoveStart = vi.fn();
-      engine.registerDraggable(sibling, {});
-      engine.registerDraggable(source, { activation: { type: 'immediate' }, onMoveStart });
+      engine.registerSource(sibling, {});
+      engine.registerSource(source, { activation: { type: 'immediate' }, onMoveStart });
       act(() => {
         source.dispatchEvent(
           new PointerEvent('pointerdown', {
@@ -145,7 +145,7 @@ describe('documentBinding', () => {
     const { doc } = createIframeRealm();
     const el = createIframeElement(doc);
     const onMoveStart = vi.fn();
-    engine.registerDraggable(el, { onMoveStart });
+    engine.registerSource(el, { onMoveStart });
 
     // Press, then move past the 5px mouse activation distance.
     dispatchPointer(el, 'pointerdown', 0, 0, { button: 0, buttons: 1 });
@@ -167,13 +167,13 @@ describe('documentBinding', () => {
     const first = createIframeElement(doc);
     const second = createIframeElement(doc);
 
-    const cleanupFirst = engine.registerDraggable(first, {});
+    const cleanupFirst = engine.registerSource(first, {});
     // Documents keep a capture path for light DOM plus a bubble fallback for
     // events deliberately deferred to an inner closed-shadow binding.
     expect(callsOfType(addSpy, 'pointerdown')).toBe(2);
 
     // A second draggable in the same document reuses the installed listeners.
-    const cleanupSecond = engine.registerDraggable(second, {});
+    const cleanupSecond = engine.registerSource(second, {});
     expect(callsOfType(addSpy, 'pointerdown')).toBe(2);
 
     // Releasing a non-last holder keeps the listeners installed.
@@ -190,7 +190,7 @@ describe('documentBinding', () => {
     const { doc, win } = createIframeRealm();
     const addSpy = vi.spyOn(win, 'addEventListener');
     const el = createIframeElement(doc);
-    engine.registerDraggable(el, {});
+    engine.registerSource(el, {});
     const pointerListeners = addSpy.mock.calls
       .filter(([type]) => type === 'pointerdown')
       .map(([, listener]) => listener as EventListener);
@@ -207,7 +207,7 @@ describe('documentBinding', () => {
     const shadow = host.attachShadow({ mode: 'closed' });
     const inner = doc.createElement('div');
     shadow.appendChild(inner);
-    engine.registerDraggable(inner, {});
+    engine.registerSource(inner, {});
 
     composedPath.mockReturnValue([host]);
     pointerListeners.forEach((listener) => listener(event));

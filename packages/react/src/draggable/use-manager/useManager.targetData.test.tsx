@@ -6,7 +6,7 @@ import { createDndRenderer } from '#test-utils';
 import { Draggable } from '@base-ui/react/draggable';
 import { dragSessionStore } from '../../utils/drag-and-drop/dragSessionStore';
 import { cancel, createElement, dragEnter, lift, setupDragEngineTests } from '../../../test/dnd';
-import type { DropTargetRecord } from '../../types/drag';
+import type { DraggableTargetRecord } from '../../types/drag';
 
 setupDragEngineTests();
 
@@ -21,9 +21,9 @@ describe('drop target imperative data', () => {
     const source = createElement();
     const target = createElement();
     let declaredPayload = 'initial';
-    let current: DropTargetRecord<string, number> | undefined;
-    engine.registerDraggable(source, { kind: sourceKind });
-    engine.registerDropTarget(target, () => ({
+    let current: DraggableTargetRecord<string, number> | undefined;
+    engine.registerSource(source, { kind: sourceKind });
+    engine.registerTarget(target, () => ({
       accept: sourceKind,
       kind: targetKind,
       payload: declaredPayload,
@@ -55,9 +55,9 @@ describe('drop target imperative data', () => {
     const source = createElement();
     const target = createElement();
     const elsewhere = createElement();
-    let current: DropTargetRecord<string, number> | undefined;
-    engine.registerDraggable(source, { kind: sourceKind });
-    engine.registerDropTarget(target, {
+    let current: DraggableTargetRecord<string, number> | undefined;
+    engine.registerSource(source, { kind: sourceKind });
+    engine.registerTarget(target, {
       accept: sourceKind,
       kind: targetKind,
       payload: 'target',
@@ -89,8 +89,8 @@ describe('drop target imperative data', () => {
     const inner = createElement();
     outer.appendChild(inner);
     const observed: [string, number | undefined][] = [];
-    engine.registerDraggable(source, { kind: sourceKind });
-    engine.registerDropTarget(outer, {
+    engine.registerSource(source, { kind: sourceKind });
+    engine.registerTarget(outer, {
       accept: sourceKind,
       kind: targetKind,
       payload: 'outer',
@@ -98,7 +98,7 @@ describe('drop target imperative data', () => {
         observed.push([target.payload, target.dragData]);
       },
     });
-    engine.registerDropTarget(inner, {
+    engine.registerTarget(inner, {
       accept: sourceKind,
       kind: targetKind,
       payload: 'inner',
@@ -121,7 +121,7 @@ describe('drop target imperative data', () => {
   });
 
   it('preserves overrides on unrelated React renders and applies changed props between drags', async () => {
-    let current: DropTargetRecord<string, number> | undefined;
+    let current: DraggableTargetRecord<string, number> | undefined;
     function Target({ payload, revision }: { payload: string; revision: number }) {
       return (
         <Draggable.Target
@@ -138,7 +138,7 @@ describe('drop target imperative data', () => {
     }
     const { engine, rerender } = await renderDnd(<Target payload="initial" revision={0} />);
     const source = createElement();
-    engine.registerDraggable(source, { kind: sourceKind });
+    engine.registerSource(source, { kind: sourceKind });
     await lift(source);
     await dragEnter(screen.getByTestId('target'));
     act(() => current!.updatePayload('override'));
@@ -159,18 +159,15 @@ describe('drop target imperative data', () => {
 
   it('publishes repeated target updates to React session consumers', async () => {
     function Observer() {
-      const target = useStore(
-        dragSessionStore,
-        (session) => session?.location.current.dropTargets[0],
-      );
+      const target = useStore(dragSessionStore, (session) => session?.location.current.targets[0]);
       return <span data-testid="observer">{`${target?.payload}:${target?.dragData}`}</span>;
     }
     const { engine } = await renderDnd(<Observer />);
     const source = createElement();
     const target = createElement();
-    let current: DropTargetRecord<string, number> | undefined;
-    engine.registerDraggable(source, { kind: sourceKind });
-    engine.registerDropTarget(target, {
+    let current: DraggableTargetRecord<string, number> | undefined;
+    engine.registerSource(source, { kind: sourceKind });
+    engine.registerTarget(target, {
       accept: sourceKind,
       kind: targetKind,
       payload: 'initial',
@@ -204,24 +201,24 @@ describe('drop target imperative data', () => {
     const { engine } = await renderDnd();
     const source = createElement();
     const target = createElement();
-    let current: DropTargetRecord<string, number> | undefined;
+    let current: DraggableTargetRecord<string, number> | undefined;
     const parameters = {
       accept: sourceKind,
       kind: targetKind,
       payload: 'initial',
-      onDraggableEnter: ({ target: record }: { target: DropTargetRecord<string, number> }) => {
+      onDraggableEnter: ({ target: record }: { target: DraggableTargetRecord<string, number> }) => {
         current = record;
       },
     };
     const getParameters = () => parameters;
-    engine.registerDraggable(source, { kind: sourceKind });
-    const unregister = engine.registerDropTarget(target, getParameters);
+    engine.registerSource(source, { kind: sourceKind });
+    const unregister = engine.registerTarget(target, getParameters);
     await lift(source);
     await dragEnter(target);
     current!.updatePayload('override');
     current!.updateDragData(1);
     unregister();
-    engine.registerDropTarget(target, getParameters);
+    engine.registerTarget(target, getParameters);
     await dragEnter(target);
     expect(current!.payload).toBe('initial');
     expect(current!.dragData).toBeUndefined();

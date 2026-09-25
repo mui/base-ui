@@ -2,8 +2,13 @@ export { DraggableRoot as Root } from './root/DraggableRoot';
 export { DraggableHandle as Handle } from './handle/DraggableHandle';
 export { DraggablePreview as Preview } from './preview/DraggablePreview';
 export { DraggableProvider as Provider } from './DraggableProvider';
+export { DraggableTarget as Target } from './target/DraggableTarget';
+export { DraggableViewport as Viewport } from './viewport/DraggableViewport';
+export { DraggableCollisionProvider as CollisionProvider } from './collision-provider/DraggableCollisionProvider';
 
 export { useActiveDrag } from './use-active-drag';
+export { useMonitor } from './use-monitor/useMonitor';
+export { useManager } from './use-manager/useManager';
 
 export {
   createKind,
@@ -20,10 +25,39 @@ export {
   snapToGrid,
 } from '../utils/drag-and-drop/dragModifiers';
 
-export { DraggableTarget as Target } from './target/DraggableTarget';
-export { DraggableViewport as Viewport } from './viewport/DraggableViewport';
-export { useDragMonitor as useMonitor } from './use-drag-monitor/useDragMonitor';
-export { useDragDropManager as useManager } from './use-drag-drop-manager/useDragDropManager';
-export type * from '../types/drag';
-
-export { DraggableCollisionProvider as CollisionProvider } from './collision-provider/DraggableCollisionProvider';
+// The building blocks shared by several parts. Types that belong to one part live on
+// its namespace, such as `Draggable.Target.Record`.
+export type {
+  DragAccept,
+  DragCanceledReason,
+  DragCompletedReason,
+  DragElementReference,
+  DragEndReason,
+  DragHandle,
+  DragInput,
+  DragKind,
+  DragLocalPoint,
+  DragLocation,
+  DragLocationHistory,
+  DragModifier,
+  DragModifierContext,
+  DragModifiers,
+  DragMoveReason,
+  DragPointerType,
+  DragPosition,
+  DragPreviewContainer,
+  DragPreviewOffset,
+  DragPreviewOffsetParameters,
+  DragPreviewParameters,
+  DragPreviewSettings,
+  DragSnappedLocalPointOptions,
+  DragSnapSteps,
+  DragSource,
+  DragStartReason,
+} from '../types/drag';
+export type { DragActivation, DragActivationConfig } from '../utils/drag-and-drop/activation';
+export type {
+  AutoScrollOverflowMargin,
+  DragAutoScrollDirection,
+  DragAutoScrollFrameContext,
+} from '../utils/drag-and-drop/autoScroller';

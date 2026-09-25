@@ -5,19 +5,19 @@ import { createDndRenderer, firePointer } from '#test-utils';
 import { createElement, flushRaf, setupDragEngineTests } from '../../../test/dnd';
 import { dragSessionStore } from '../../utils/drag-and-drop/dragSessionStore';
 import { getRegistration } from '../../utils/drag-and-drop/draggableRegistry';
-import type { MoveStartContext, BeforeMoveStartEventDetails } from '../../types/drag';
-import { useDragDropManager } from './useDragDropManager';
-import type { DragDropManager } from '../../types/dragRegistration';
+import type { BeforeMoveStartValue, BeforeMoveStartEventDetails } from '../../types/drag';
+import { useManager } from './useManager';
+import type { DraggableManager } from '../../types/dragRegistration';
 
 setupDragEngineTests();
 
-describe('engine.registerDraggable', () => {
+describe('engine.registerSource', () => {
   const { renderDnd } = createDndRenderer();
 
   it('applies gesture styles to the element', async () => {
     const { engine } = await renderDnd();
     const el = createElement();
-    const cleanup = engine.registerDraggable(el, {});
+    const cleanup = engine.registerSource(el, {});
     expect(el.style.touchAction).toBe('manipulation');
     expect(el.style.userSelect).toBe('none');
     cleanup();
@@ -28,7 +28,7 @@ describe('engine.registerDraggable', () => {
     const el = createElement();
     let disabled = true;
     const onMoveStart = vi.fn();
-    engine.registerDraggable(el, () => ({
+    engine.registerSource(el, () => ({
       disabled,
       activation: { type: 'immediate' },
       onMoveStart,
@@ -54,11 +54,11 @@ describe('engine.registerDraggable', () => {
     const first = document.createElement('span');
     const second = document.createElement('span');
     el.append(first, second);
-    let dragHandle = first;
-    engine.registerDraggable(el, () => ({ dragHandle }));
+    let handle = first;
+    engine.registerSource(el, () => ({ handle }));
     expect(first.style.touchAction).toBe('manipulation');
 
-    dragHandle = second;
+    handle = second;
     firePointer.down(second, { pointerType: 'mouse', button: 0, buttons: 1, timeStamp: 100 });
     expect(first.style.touchAction).toBe('');
     expect(second.style.touchAction).toBe('manipulation');
@@ -68,7 +68,7 @@ describe('engine.registerDraggable', () => {
   it('restores styles on cleanup', async () => {
     const { engine } = await renderDnd();
     const el = createElement();
-    const cleanup = engine.registerDraggable(el, {});
+    const cleanup = engine.registerSource(el, {});
     cleanup();
     expect(el.style.touchAction).toBe('');
     expect(el.style.userSelect).toBe('');
@@ -83,7 +83,7 @@ describe('engine.registerDraggable', () => {
     style.webkitUserSelect = 'text';
     style.webkitTouchCallout = 'default';
 
-    const cleanup = engine.registerDraggable(el, { disabled: true });
+    const cleanup = engine.registerSource(el, { disabled: true });
 
     expect(style.touchAction).toBe('auto');
     expect(style.userSelect).toBe('text');
@@ -99,7 +99,7 @@ describe('engine.registerDraggable', () => {
     style.touchAction = 'auto';
     el.setAttribute('aria-roledescription', 'original role');
 
-    const cleanup = engine.registerDraggable(el, { disabled: true });
+    const cleanup = engine.registerSource(el, { disabled: true });
 
     style.touchAction = 'pan-y';
     el.setAttribute('aria-roledescription', 'consumer role');
@@ -112,8 +112,8 @@ describe('engine.registerDraggable', () => {
   it('restores gesture styles when only disabled registrants remain', async () => {
     const { engine } = await renderDnd();
     const el = createElement();
-    const cleanupDisabled = engine.registerDraggable(el, { disabled: true });
-    const cleanupEnabled = engine.registerDraggable(el, {});
+    const cleanupDisabled = engine.registerSource(el, { disabled: true });
+    const cleanupEnabled = engine.registerSource(el, {});
 
     expect(el.style.touchAction).toBe('manipulation');
     expect(el.style.userSelect).toBe('none');
@@ -131,7 +131,7 @@ describe('engine.registerDraggable', () => {
     const { engine } = await renderDnd();
     const el = createElement();
     const onMoveStart = vi.fn();
-    const cleanup = engine.registerDraggable(el, { onMoveStart });
+    const cleanup = engine.registerSource(el, { onMoveStart });
     cleanup();
 
     fireEvent.dragStart(el);
@@ -144,7 +144,7 @@ describe('engine.registerDraggable', () => {
   it('cleanup is safe to call twice', async () => {
     const { engine } = await renderDnd();
     const el = createElement();
-    const cleanup = engine.registerDraggable(el, {});
+    const cleanup = engine.registerSource(el, {});
     cleanup();
     cleanup();
     expect(el.style.touchAction).toBe('');
@@ -155,9 +155,9 @@ describe('engine.registerDraggable', () => {
     const el = createElement();
     const onMoveStart = vi.fn();
     const onBeforeMoveStart = vi.fn(
-      (_: MoveStartContext, eventDetails: BeforeMoveStartEventDetails) => eventDetails.cancel(),
+      (_: BeforeMoveStartValue, eventDetails: BeforeMoveStartEventDetails) => eventDetails.cancel(),
     );
-    engine.registerDraggable(el, {
+    engine.registerSource(el, {
       onBeforeMoveStart,
       onMoveStart,
     });
@@ -173,7 +173,7 @@ describe('engine.registerDraggable', () => {
     const { engine } = await renderDnd();
     const el = createElement();
     const onMoveStart = vi.fn();
-    engine.registerDraggable(el, {
+    engine.registerSource(el, {
       disabled: true,
       onMoveStart,
     });
@@ -192,8 +192,8 @@ describe('engine.registerDraggable', () => {
     outer.appendChild(inner);
     const onOuterStart = vi.fn();
     const onInnerStart = vi.fn();
-    engine.registerDraggable(outer, { onMoveStart: onOuterStart });
-    engine.registerDraggable(inner, { onMoveStart: onInnerStart });
+    engine.registerSource(outer, { onMoveStart: onOuterStart });
+    engine.registerSource(inner, { onMoveStart: onInnerStart });
 
     // The gesture begins on the inner element: pickup resolves the innermost
     // registered ancestor, so the inner draggable claims the drag.
@@ -214,8 +214,8 @@ describe('engine.registerDraggable', () => {
     outer.appendChild(inner);
     const onOuterStart = vi.fn();
     const onInnerStart = vi.fn();
-    engine.registerDraggable(outer, { onMoveStart: onOuterStart });
-    engine.registerDraggable(inner, { disabled: true, onMoveStart: onInnerStart });
+    engine.registerSource(outer, { onMoveStart: onOuterStart });
+    engine.registerSource(inner, { disabled: true, onMoveStart: onInnerStart });
 
     fireEvent.dragStart(inner);
     await flushRaf();
@@ -230,7 +230,7 @@ describe('engine.registerDraggable', () => {
     const el = createElement();
     const payload = { key: 'value' };
     const onMove = vi.fn();
-    engine.registerDraggable(el, {
+    engine.registerSource(el, {
       payload: { key: 'initial' },
       onMoveStart: ({ source }) => source.updatePayload(payload),
       onMove,
@@ -251,7 +251,7 @@ describe('engine.registerDraggable', () => {
     const el = createElement();
     const myFunction = vi.fn(() => 'command result');
     const onMoveStart = vi.fn();
-    engine.registerDraggable(el, { payload: myFunction, onMoveStart });
+    engine.registerSource(el, { payload: myFunction, onMoveStart });
 
     fireEvent.dragStart(el);
     await flushRaf();
@@ -264,7 +264,7 @@ describe('engine.registerDraggable', () => {
     const { engine } = await renderDnd();
     const el = createElement();
     const onMoveStart = vi.fn();
-    engine.registerDraggable(el, { payload: { key: 'value' }, onMoveStart });
+    engine.registerSource(el, { payload: { key: 'value' }, onMoveStart });
 
     fireEvent.dragStart(el);
     await flushRaf();
@@ -282,7 +282,7 @@ describe('engine.registerDraggable', () => {
     const { engine } = await renderDnd();
     const el = createElement();
     const onMoveStart = vi.fn();
-    engine.registerDraggable(el, { payload: value, onMoveStart });
+    engine.registerSource(el, { payload: value, onMoveStart });
 
     fireEvent.dragStart(el);
     await flushRaf();
@@ -294,7 +294,7 @@ describe('engine.registerDraggable', () => {
     const { engine } = await renderDnd();
     const el = createElement();
     const onMoveStart = vi.fn();
-    engine.registerDraggable(el, { onMoveStart });
+    engine.registerSource(el, { onMoveStart });
 
     fireEvent.dragStart(el);
     await flushRaf();
@@ -306,7 +306,7 @@ describe('engine.registerDraggable', () => {
     const { engine } = await renderDnd();
     const el = createElement();
     const onMoveStart = vi.fn();
-    engine.registerDraggable(el, { onMoveStart });
+    engine.registerSource(el, { onMoveStart });
 
     // Fires within the dragStart dispatch, no frame wait.
     fireEvent.dragStart(el);
@@ -318,8 +318,8 @@ describe('engine.registerDraggable', () => {
     const el = createElement();
     const target = createElement();
     const onMoveEnd = vi.fn();
-    engine.registerDraggable(el, { onMoveEnd });
-    engine.registerDropTarget(target, {});
+    engine.registerSource(el, { onMoveEnd });
+    engine.registerTarget(target, {});
 
     fireEvent.dragStart(el);
     await flushRaf();
@@ -336,8 +336,8 @@ describe('engine.registerDraggable', () => {
     const el = createElement();
     const target = createElement();
     const onMove = vi.fn();
-    engine.registerDraggable(el, { onMove });
-    engine.registerDropTarget(target, {});
+    engine.registerSource(el, { onMove });
+    engine.registerTarget(target, {});
 
     fireEvent.dragStart(el);
     await flushRaf();
@@ -362,8 +362,8 @@ describe('engine.registerDraggable', () => {
     const el = createElement();
     const onDragStartA = vi.fn();
     const onDragStartB = vi.fn();
-    engine.registerDraggable(el, { onMoveStart: onDragStartA });
-    const cleanupB = engine.registerDraggable(el, { onMoveStart: onDragStartB });
+    engine.registerSource(el, { onMoveStart: onDragStartA });
+    const cleanupB = engine.registerSource(el, { onMoveStart: onDragStartB });
 
     cleanupB();
 
@@ -377,19 +377,19 @@ describe('engine.registerDraggable', () => {
   it('throws before registering anything when the getter returns no kind', async () => {
     // The test engine defaults `kind`; reach the real manager for the plain-JS
     // shape the types forbid.
-    let manager: DragDropManager | null = null;
+    let manager: DraggableManager | null = null;
     function Capture() {
-      manager = useDragDropManager();
+      manager = useManager();
       return null;
     }
     await renderDnd(React.createElement(Capture));
     const el = createElement();
     const getParameters = (() => ({})) as unknown as Parameters<
-      DragDropManager['registerDraggable']
+      DraggableManager['registerSource']
     >[1];
 
-    expect(() => manager!.registerDraggable(el, getParameters)).toThrow(
-      'Base UI: registerDraggable() was called without a `kind`',
+    expect(() => manager!.registerSource(el, getParameters)).toThrow(
+      'Base UI: registerSource() was called without a `kind`',
     );
 
     // Nothing to clean up: no registry entry, no gesture styles.
@@ -405,8 +405,8 @@ describe('engine.registerDraggable', () => {
     const onDragStart1 = vi.fn();
     const onDragStart2 = vi.fn();
 
-    engine.registerDraggable(el1, { onMoveStart: onDragStart1 });
-    engine.registerDraggable(el2, { onMoveStart: onDragStart2 });
+    engine.registerSource(el1, { onMoveStart: onDragStart1 });
+    engine.registerSource(el2, { onMoveStart: onDragStart2 });
 
     fireEvent.dragStart(el1);
     await flushRaf();

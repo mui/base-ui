@@ -4,7 +4,7 @@ import type {
   DragCleanupFn,
   DragKind,
   DragSnapSteps,
-  DropTargetResolutionContext,
+  DraggableTargetResolutionContext,
 } from '../../types/drag';
 
 export interface CollisionParticipant {
@@ -12,7 +12,7 @@ export interface CollisionParticipant {
   payload: unknown;
   snap?:
     | DragSnapSteps
-    | ((context: DropTargetResolutionContext) => DragSnapSteps | undefined)
+    | ((context: DraggableTargetResolutionContext) => DragSnapSteps | undefined)
     | undefined;
   disabled?: boolean | undefined;
 }

@@ -1,10 +1,5 @@
 'use client';
-import {
-  Draggable,
-  type DragLocationHistory,
-  type DragModifier,
-  type DragModifiers,
-} from '@base-ui/react/draggable';
+import { Draggable } from '@base-ui/react/draggable';
 
 import * as React from 'react';
 import clsx from 'clsx';
@@ -452,7 +447,7 @@ function moveAnnotation(
 /** The drag so far, as a data-space move of the annotation that was picked up. */
 function dragAnnotation(
   payload: AnnotationDragPayload,
-  location: DragLocationHistory,
+  location: Draggable.DragLocationHistory,
   snap: boolean,
   plotRect: DOMRect | null,
 ): Annotation {
@@ -551,7 +546,7 @@ function useAnnotationsContext(): AnnotationsContextValue {
  */
 function angleSnapModifier(
   getGeometry: () => { pivot: PxPoint; bounds: Bounds } | null,
-): DragModifier {
+): Draggable.DragModifier {
   return ({ point, shiftKey }) => {
     if (!shiftKey) {
       return point;
@@ -572,7 +567,7 @@ function AnnotationDraggable(props: {
   label: string;
   className: string;
   style: React.CSSProperties;
-  modifiers?: DragModifiers | undefined;
+  modifiers?: Draggable.DragModifiers | undefined;
   disabled?: boolean | undefined;
   onDoubleClick?: (() => void) | undefined;
   children?: React.ReactNode | undefined;
@@ -613,7 +608,7 @@ function AnnotationDraggable(props: {
 
       modifiers={modifiers}
       disabled={disabled}
-      onMove={({ source, location }) => {
+      onMove={({ source }, { location }) => {
         if (!source.dragData) {
           return;
         }
@@ -626,10 +621,13 @@ function AnnotationDraggable(props: {
           ),
         );
       }}
-      onMoveEnd={({ source, location, canceled }) => {
+      onMoveEnd={({ source }, { reason, location }) => {
         if (!source.dragData) {
           return;
         }
+        // Nothing here is a drop target, so a completed drag ends with
+        // `'outside-release'`. Any other reason is a cancel.
+        const canceled = reason !== 'drop' && reason !== 'outside-release';
         // The release can carry a newer position than the last animation frame.
         change(
           canceled
@@ -699,7 +697,7 @@ function AnnotationSegment(props: {
   to: PxPoint;
   selected: boolean;
   arrow?: boolean | undefined;
-  modifiers?: DragModifiers | undefined;
+  modifiers?: Draggable.DragModifiers | undefined;
 }) {
   const { annotation, handle, label, from, to, selected, arrow, modifiers } = props;
   return (
@@ -722,7 +720,7 @@ function AnnotationHandlePoint(props: {
   handle: AnnotationHandle;
   label: string;
   point: PxPoint;
-  modifiers?: DragModifiers | undefined;
+  modifiers?: Draggable.DragModifiers | undefined;
 }) {
   const { annotation, handle, label, point, modifiers } = props;
   return (
@@ -764,7 +762,7 @@ const PLOT_BOUNDS: Bounds = {
 function useEndpointAngleSnap(
   annotation: SegmentAnnotation | ChannelAnnotation,
   handle: 'start' | 'end',
-): DragModifier {
+): Draggable.DragModifier {
   const { plotRef } = useAnnotationsContext();
   const pivot = toPx(handle === 'start' ? annotation.end : annotation.start);
   const range = endpointRange(annotation);

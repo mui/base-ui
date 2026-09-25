@@ -2,8 +2,8 @@ import { cancelActiveDrag as cancelActivePointerDrag } from './synthetic/synthet
 import { cancelLifecycleDrag } from './core/lifecycleManager';
 
 /**
- * Cancel the drag in progress, if any. Fires `onMoveEnd` with `canceled: true`
- * and is a no-op when nothing is being dragged.
+ * Cancel the drag in progress, if any. Fires `onMoveEnd` with a `null` target and
+ * the `'imperative-action'` reason, and is a no-op when nothing is being dragged.
  *
  * Carries no per-instance state, like the primitives in `./registrations`: the
  * drag state is global, so the engine simply re-exposes this as `cancelDrag`.

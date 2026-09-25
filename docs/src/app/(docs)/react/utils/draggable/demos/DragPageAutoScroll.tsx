@@ -31,7 +31,7 @@ export function DragPageAutoScroll({
     accept,
     onMoveStart: ({ source }) => {
       cleanup();
-      unregister.current = manager.registerAutoScroller(
+      unregister.current = manager.registerViewport(
         ownerDocument(source.element).documentElement,
         () => ({ accept }),
       );

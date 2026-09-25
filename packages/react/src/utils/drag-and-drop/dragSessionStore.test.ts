@@ -16,9 +16,9 @@ describe('dragSessionStore', () => {
   it('publishes a snapshot at drag start and clears on drop', async () => {
     const { engine } = await renderDnd();
     const source = createElement();
-    engine.registerDraggable(source, { payload: { kind: 'card' } });
+    engine.registerSource(source, { payload: { kind: 'card' } });
     const target = createElement();
-    engine.registerDropTarget(target, {});
+    engine.registerTarget(target, {});
 
     fireEvent.dragStart(source);
 
@@ -42,16 +42,16 @@ describe('dragSessionStore', () => {
   it('publishes a fresh location reference on drop-target stack changes', async () => {
     const { engine } = await renderDnd();
     const source = createElement();
-    engine.registerDraggable(source, {});
+    engine.registerSource(source, {});
     const target = createElement();
-    engine.registerDropTarget(target, {});
+    engine.registerTarget(target, {});
 
     fireEvent.dragStart(source);
     await flushRaf();
 
     const beforeEnter = dragSessionStore.state;
     expect(beforeEnter).not.toBeNull();
-    expect(beforeEnter!.location.current.dropTargets.length).toBe(0);
+    expect(beforeEnter!.location.current.targets.length).toBe(0);
 
     fireEvent.dragEnter(target);
     fireEvent.dragOver(target);
@@ -59,8 +59,8 @@ describe('dragSessionStore', () => {
 
     const afterEnter = dragSessionStore.state;
     expect(afterEnter).not.toBe(beforeEnter);
-    expect(afterEnter!.location.current.dropTargets.length).toBe(1);
-    expect(afterEnter!.location.current.dropTargets[0].element).toBe(target);
+    expect(afterEnter!.location.current.targets.length).toBe(1);
+    expect(afterEnter!.location.current.targets[0].element).toBe(target);
 
     fireEvent.drop(target);
     expect(dragSessionStore.state).toBeNull();
@@ -69,9 +69,9 @@ describe('dragSessionStore', () => {
   it('cancel via dragend clears the store', async () => {
     const { engine } = await renderDnd();
     const source = createElement();
-    engine.registerDraggable(source, {});
+    engine.registerSource(source, {});
     const target = createElement();
-    engine.registerDropTarget(target, {});
+    engine.registerTarget(target, {});
 
     fireEvent.dragStart(source);
     await flushRaf();
@@ -87,9 +87,9 @@ describe('dragSessionStore', () => {
   it('notifies subscribers when an active drop target unregisters mid-drag', async () => {
     const { engine } = await renderDnd();
     const source = createElement();
-    engine.registerDraggable(source, {});
+    engine.registerSource(source, {});
     const target = createElement();
-    const cleanup = engine.registerDropTarget(target, {});
+    const cleanup = engine.registerTarget(target, {});
 
     fireEvent.dragStart(source);
     await flushRaf();
@@ -97,7 +97,7 @@ describe('dragSessionStore', () => {
     fireEvent.dragOver(target);
     await flushRaf();
 
-    expect(dragSessionStore.state!.location.current.dropTargets.length).toBe(1);
+    expect(dragSessionStore.state!.location.current.targets.length).toBe(1);
 
     const listener = vi.fn();
     const unsubscribe = dragSessionStore.subscribe(listener);
@@ -105,7 +105,7 @@ describe('dragSessionStore', () => {
     cleanup();
 
     expect(listener).toHaveBeenCalledTimes(1);
-    expect(dragSessionStore.state!.location.current.dropTargets.length).toBe(0);
+    expect(dragSessionStore.state!.location.current.targets.length).toBe(0);
 
     unsubscribe();
     fireEvent.dragEnd(window);
@@ -114,9 +114,9 @@ describe('dragSessionStore', () => {
   it('gives each snapshot its own copy of the initial location', async () => {
     const { engine } = await renderDnd();
     const source = createElement();
-    engine.registerDraggable(source, {});
+    engine.registerSource(source, {});
     const target = createElement();
-    engine.registerDropTarget(target, {});
+    engine.registerTarget(target, {});
 
     fireEvent.dragStart(source);
     await flushRaf();
@@ -125,21 +125,21 @@ describe('dragSessionStore', () => {
     await flushRaf();
 
     const snapshot = dragSessionStore.state!;
-    const record = snapshot.location.current.dropTargets[0];
+    const record = snapshot.location.current.targets[0];
     expect(record.element).toBe(target);
     // A consumer mutating its snapshot's `initial` must corrupt neither the
     // engine's bookkeeping nor later snapshots built from it. The array is
     // typed `readonly`; the runtime clone is the guarantee for consumers that
     // bypass the types, which is what this exercises.
     // @ts-expect-error -- deliberate mutation of a readonly-typed array
-    snapshot.location.initial.dropTargets.push(record);
+    snapshot.location.initial.targets.push(record);
 
     fireEvent.dragLeave(target);
     await flushRaf();
 
     const next = dragSessionStore.state!;
     expect(next).not.toBe(snapshot);
-    expect(next.location.initial.dropTargets).toEqual([]);
+    expect(next.location.initial.targets).toEqual([]);
 
     cancel(target);
   });
@@ -147,9 +147,9 @@ describe('dragSessionStore', () => {
   it('subscribers receive every published snapshot', async () => {
     const { engine } = await renderDnd();
     const source = createElement();
-    engine.registerDraggable(source, {});
+    engine.registerSource(source, {});
     const target = createElement();
-    engine.registerDropTarget(target, {});
+    engine.registerTarget(target, {});
 
     const seen: Array<unknown> = [];
     const unsubscribe = dragSessionStore.subscribe((state) => {
@@ -173,7 +173,7 @@ describe('dragSessionStore', () => {
   it('keeps the session source identity across a retarget while republishing the source store', async () => {
     const { engine } = await renderDnd();
     const source = createElement();
-    engine.registerDraggable(source, {});
+    engine.registerSource(source, {});
 
     fireEvent.dragStart(source);
     await flushRaf();
@@ -206,8 +206,8 @@ describe('dragSessionStore', () => {
     const { engine } = await renderDnd();
     const source = createElement();
     const target = createElement();
-    engine.registerDraggable(source, {});
-    engine.registerDropTarget(target, {});
+    engine.registerSource(source, {});
+    engine.registerTarget(target, {});
     const listener = vi.fn();
     const unsubscribe = dragSourceStore.subscribe(listener);
 

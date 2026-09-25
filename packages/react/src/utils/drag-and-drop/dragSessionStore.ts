@@ -1,5 +1,5 @@
 import { Store, type ReadonlyStore } from '@base-ui/utils/store';
-import type { DragLocationHistory, DragSource, DropTargetRecord } from '../../types/drag';
+import type { DragLocationHistory, DragSource, DraggableTargetRecord } from '../../types/drag';
 import { getSharedSlot } from './sharedState';
 import { retargetActivePreviewSource } from './activePreview';
 
@@ -62,7 +62,7 @@ export function notifyDragSourceUpdated(source: DragSource): void {
 
 const targetSnapshotOrigins = getSharedSlot(
   'dragSessionStore.targetSnapshotOrigins',
-  () => new WeakMap<DropTargetRecord, DropTargetRecord>(),
+  () => new WeakMap<DraggableTargetRecord, DraggableTargetRecord>(),
 );
 
 /** Publish changed target data without resolving the hover stack again. */
@@ -73,7 +73,7 @@ export function notifyDragTargetUpdated(source: DragSource, element: Element): v
   }
   const location = cloneLocationHistory(session.location);
   for (const entry of [location.initial, location.current, location.previous]) {
-    entry.dropTargets = entry.dropTargets.map((target) => {
+    entry.targets = entry.targets.map((target) => {
       if (target.element !== element) {
         return target;
       }
@@ -168,7 +168,7 @@ export function createDragTargetStateStore(): DragTargetStateStore {
       value += DragTargetState.rejected;
     } else if (session?.dropTargetElements.has(element)) {
       value += DragTargetState.over;
-      if (session.location.current.dropTargets[0]?.element === element) {
+      if (session.location.current.targets[0]?.element === element) {
         value += DragTargetState.innermost;
       }
     }
@@ -291,11 +291,11 @@ export function isDraggingElement(
 export function cloneLocationHistory(location: DragLocationHistory): DragLocationHistory {
   return {
     grabOffset: location.grabOffset ? { ...location.grabOffset } : undefined,
-    initial: { input: location.initial.input, dropTargets: location.initial.dropTargets.slice() },
-    current: { input: location.current.input, dropTargets: location.current.dropTargets.slice() },
+    initial: { input: location.initial.input, targets: location.initial.targets.slice() },
+    current: { input: location.current.input, targets: location.current.targets.slice() },
     previous: {
       input: location.previous.input,
-      dropTargets: location.previous.dropTargets.slice(),
+      targets: location.previous.targets.slice(),
     },
   };
 }
@@ -312,7 +312,7 @@ export function buildSessionSnapshot(parameters: {
   rejectedTarget: Element | null;
 }): DragSessionState {
   const { source, location, rejectedTarget } = parameters;
-  const currentDropTargets = location.current.dropTargets;
+  const currentDropTargets = location.current.targets;
   const dropTargetElements = new Set<Element>();
   for (let i = 0; i < currentDropTargets.length; i += 1) {
     dropTargetElements.add(currentDropTargets[i].element);

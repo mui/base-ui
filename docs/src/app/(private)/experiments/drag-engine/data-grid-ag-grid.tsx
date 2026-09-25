@@ -397,21 +397,18 @@ function DataGridInner() {
             <div className={styles.columnSpacer} style={{ width: leadingWidth }} />
             <Draggable.CollisionProvider
               kind={columnKind}
-              onCollisionChange={({ source: dragged, collision, previousCollision, location }) => {
+              onCollisionChange={({ source: dragged, target }, { previousTarget, location }) => {
                 const delta = location.current.input.clientX - location.previous.input.clientX;
-                if (
-                  delta === 0 &&
-                  collision?.target.payload === previousCollision?.target.payload
-                ) {
+                if (delta === 0 && target?.payload === previousTarget?.payload) {
                   return;
                 }
-                if (collision) {
+                if (target) {
                   setColumns((current) =>
                     moveById(
                       current,
                       dragged.payload,
-                      collision.target.payload,
-                      getHorizontalCollisionAfter(collision, delta),
+                      target.payload,
+                      getHorizontalCollisionAfter(target, delta),
                     ),
                   );
                 }
@@ -431,26 +428,18 @@ function DataGridInner() {
             >
               <Draggable.CollisionProvider
                 kind={rowKind}
-                onCollisionChange={({
-                  source: dragged,
-                  collision,
-                  previousCollision,
-                  location,
-                }) => {
+                onCollisionChange={({ source: dragged, target }, { previousTarget, location }) => {
                   const delta = location.current.input.clientY - location.previous.input.clientY;
-                  if (
-                    delta === 0 &&
-                    collision?.target.payload === previousCollision?.target.payload
-                  ) {
+                  if (delta === 0 && target?.payload === previousTarget?.payload) {
                     return;
                   }
-                  if (collision) {
+                  if (target) {
                     setRows((current) =>
                       moveById(
                         current,
                         dragged.payload,
-                        collision.target.payload,
-                        delta ? delta > 0 : collision.target.getLocalPoint().y > 0.5,
+                        target.payload,
+                        delta ? delta > 0 : target.getLocalPoint().y > 0.5,
                       ),
                     );
                   }

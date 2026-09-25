@@ -6,15 +6,15 @@ import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { warn } from '@base-ui/utils/warn';
 import { syncActiveDragSourcePayload } from '../../utils/drag-and-drop/dragSource';
-import { useRegisterDraggable } from '../../utils/drag-and-drop/useInnerDragEngine';
+import { useRegisterSource } from '../../utils/drag-and-drop/useInnerDragEngine';
 import {
   createDragPreviewHandle,
   type DragPreviewHandle,
 } from '../../utils/drag-and-drop/dragPreviewDeclaration';
 import type {
   InternalDraggableParameters,
-  RegisterDraggableParameters,
-  RegisterDropTargetParameters,
+  RegisterSourceParameters,
+  RegisterTargetParameters,
 } from '../../types/dragRegistration';
 import type {
   CollisionParticipant,
@@ -43,16 +43,16 @@ function selectIsDragging(source: DragSource | null, r: ElementRef): boolean {
  * @internal
  */
 export function useDraggableElement<TPayload = undefined, TDragData = unknown>(
-  parameters: RegisterDraggableParameters<TPayload, TDragData>,
+  parameters: RegisterSourceParameters<TPayload, TDragData>,
   collisionOptions?: {
     context: DraggableCollisionContextValue;
     payload: unknown;
-    snap?: RegisterDropTargetParameters<TPayload, unknown, TDragData>['snap'] | undefined;
+    snap?: RegisterTargetParameters<TPayload, unknown, TDragData>['snap'] | undefined;
     enabled: boolean;
     element?: ((element: HTMLElement) => HTMLElement) | undefined;
   },
 ): UseDraggableElementReturnValue<TPayload, TDragData> {
-  const registerDraggable = useRegisterDraggable();
+  const registerSource = useRegisterSource();
   const payloadOwner = useRefWithInit(() => ({})).current;
   const options = { parameters, collision: collisionOptions };
   const getOptions = useStableCallback(() => options);
@@ -78,22 +78,22 @@ export function useDraggableElement<TPayload = undefined, TDragData = unknown>(
     // registration instead of rebuilding both on every engine dispatch.
     const getAttachedHandle = () => attachedHandlesRef.current[0]?.node ?? null;
     const getDragPreviewDeclaration = () => previewHandle.getDeclaration();
-    let lastParams: RegisterDraggableParameters<TPayload, TDragData> | null = null;
+    let lastParams: RegisterSourceParameters<TPayload, TDragData> | null = null;
     let normalized: InternalDraggableParameters<TPayload, TDragData> | null = null;
 
-    const unregisterSource = registerDraggable<TPayload, TDragData>(
+    const unregisterSource = registerSource<TPayload, TDragData>(
       element,
       () => {
         const params = getParameters();
         if (params === lastParams && normalized !== null) {
           return normalized;
         }
-        // An imperative `dragHandle` wins; otherwise fall back to the element
+        // An imperative `handle` wins; otherwise fall back to the element
         // behind `Draggable.Handle` (`null` there means the whole element is the handle).
         lastParams = params;
         normalized = {
           ...params,
-          dragHandle: params.dragHandle ?? getAttachedHandle,
+          handle: params.handle ?? getAttachedHandle,
           getDragPreviewDeclaration,
         };
         return normalized;
@@ -206,7 +206,7 @@ export function useDraggableElement<TPayload = undefined, TDragData = unknown>(
     }
     // Re-registration tears the static setup down and rebuilds it, which mid-gesture
     // would restore `user-select`/`touch-action` and drop the iOS touchmove guard.
-    // The live `dragHandle` closure already reads `attachedHandlesRef` fresh, so skip
+    // The live `handle` closure already reads `attachedHandlesRef` fresh, so skip
     // the teardown mid-drag and flush the re-registration when the drag ends.
     if (isDraggingElement(dragSessionStore.state, elementRef.current)) {
       pendingReconcileRef.current = true;

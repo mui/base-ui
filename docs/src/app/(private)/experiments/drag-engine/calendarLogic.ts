@@ -1,6 +1,5 @@
 import * as React from 'react';
 import { Draggable } from '@base-ui/react/draggable';
-import type { DropTargetRecord, DragSource } from '@base-ui/react/types';
 
 // -----------------------------------------------------------------------------
 // Domain types
@@ -450,8 +449,8 @@ export function createSeedState(today: number): CalendarState {
  * engine measured to resolve the target.
  */
 export function resolveDropPreview(
-  source: DragSource<CalendarDragSource>,
-  innermost: DropTargetRecord<CalendarDropPayload> | undefined,
+  source: Draggable.DragSource<CalendarDragSource>,
+  innermost: Draggable.Target.Record<CalendarDropPayload> | null,
 ): DropPreview | null {
   if (!innermost) {
     return null;

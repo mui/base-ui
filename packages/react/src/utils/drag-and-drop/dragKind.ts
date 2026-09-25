@@ -4,7 +4,7 @@
  */
 
 import { areArraysEqual } from '@base-ui/utils/areArraysEqual';
-import type { AnyDragAccept, DragKind, DragSource, DropTargetRecord } from '../../types/drag';
+import type { AnyDragAccept, DragKind, DragSource, DraggableTargetRecord } from '../../types/drag';
 
 /** Namespaces explicitly global identities, so a key can't collide with another `Symbol.for`. */
 const KIND_ID_PREFIX = 'base-ui/drag-kind:';
@@ -52,7 +52,8 @@ export function createGlobalKind<TPayload = undefined, TDragData = unknown>(
 }
 
 function makeKind<TPayload, TDragData>(name: string, id: symbol): DragKind<TPayload, TDragData> {
-  const matches = (value: DragSource<unknown> | DropTargetRecord<unknown>) => value.kind === id;
+  const matches = (value: DragSource<unknown> | DraggableTargetRecord<unknown>) =>
+    value.kind === id;
   return {
     name,
     id,

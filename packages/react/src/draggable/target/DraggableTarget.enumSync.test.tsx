@@ -38,7 +38,7 @@ describe('Draggable.Target enum sync', () => {
     expect(outer).not.toHaveAttribute(DraggableTargetDataAttributes.accepting);
 
     const source = createElement();
-    engine.registerDraggable(source, { kind: testDragKind });
+    engine.registerSource(source, { kind: testDragKind });
     fireEvent.dragStart(source);
     await flushRaf();
     fireEvent.dragEnter(inner);

@@ -24,14 +24,14 @@ describe('syntheticDrag double-click activation', () => {
     const onMove = vi.fn();
     const onDrop = vi.fn();
     const onClick = vi.fn();
-    engine.registerDraggable(source, {
+    engine.registerSource(source, {
       activation: { type: 'double-click' },
       onBeforeMoveStart,
       onMoveStart,
       onMove,
       modifiers: restrictToVerticalAxis,
     });
-    engine.registerDropTarget(target, { onDraggableDrop: onDrop });
+    engine.registerTarget(target, { onDraggableDrop: onDrop });
     target.addEventListener('click', onClick);
     registerCleanup(() => target.removeEventListener('click', onClick));
     const original = document.elementFromPoint;
@@ -53,13 +53,13 @@ describe('syntheticDrag double-click activation', () => {
       timeStamp: 20,
     });
     await flushRaf();
-    expect(onMove.mock.lastCall?.[0].location.current.input.clientX).toBe(20);
-    expect(onMove.mock.lastCall?.[0].location.current.input.clientY).toBe(80);
+    expect(onMove.mock.lastCall?.[1].location.current.input.clientX).toBe(20);
+    expect(onMove.mock.lastCall?.[1].location.current.input.clientY).toBe(80);
     firePointer.up(target, { pointerType: 'mouse', pointerId: 1, button: 0, timeStamp: 30 });
     expect(onDrop).not.toHaveBeenCalled();
     fireEvent.click(target, { detail: 1, button: 0, clientX: 90, clientY: 80 });
     expect(onDrop).toHaveBeenCalledTimes(1);
-    expect(onDrop.mock.calls[0][0].location.current.input.clientX).toBe(20);
+    expect(onDrop.mock.calls[0][1].location.current.input.clientX).toBe(20);
     expect(onClick).not.toHaveBeenCalled();
     fireEvent.click(target, { detail: 1 });
     expect(onClick).toHaveBeenCalledTimes(1);
@@ -71,7 +71,7 @@ describe('syntheticDrag double-click activation', () => {
     const target = document.createElement('button');
     document.body.append(target);
     registerCleanup(() => target.remove());
-    engine.registerDraggable(source, { activation: { type: 'double-click' } });
+    engine.registerSource(source, { activation: { type: 'double-click' } });
     fireEvent.doubleClick(source, { detail: 2, button: 0 });
 
     const onPress = vi.fn();
@@ -119,7 +119,7 @@ describe('syntheticDrag double-click activation', () => {
     const source = createElement();
     const onMoveEnd = vi.fn();
     const onClick = vi.fn();
-    engine.registerDraggable(source, { activation: { type: 'double-click' }, onMoveEnd });
+    engine.registerSource(source, { activation: { type: 'double-click' }, onMoveEnd });
     source.addEventListener('click', onClick);
     registerCleanup(() => source.removeEventListener('click', onClick));
     fireEvent.doubleClick(source, { detail: 2 });
@@ -133,7 +133,7 @@ describe('syntheticDrag double-click activation', () => {
     const { engine } = await renderDnd();
     const source = createElement();
     const onMoveStart = vi.fn();
-    engine.registerDraggable(source, {
+    engine.registerSource(source, {
       activation: { type: 'double-click' },
       onMoveStart,
       onBeforeMoveStart: (_, details) => details.cancel(),
@@ -151,9 +151,9 @@ describe('syntheticDrag double-click activation', () => {
     handle.append(input);
     const onMoveStart = vi.fn();
     let disabled = true;
-    engine.registerDraggable(source, () => ({
+    engine.registerSource(source, () => ({
       activation: { type: 'double-click' },
-      dragHandle: handle,
+      handle,
       disabled,
       onMoveStart,
     }));
@@ -171,7 +171,7 @@ describe('syntheticDrag double-click activation', () => {
     const source = createElement();
     const onMoveStart = vi.fn();
     const onMoveEnd = vi.fn();
-    engine.registerDraggable(source, {
+    engine.registerSource(source, {
       activation: { type: 'double-click' },
       onMoveStart,
       onMoveEnd,
@@ -197,7 +197,7 @@ describe('syntheticDrag double-click activation', () => {
     const source = createElement();
     const onBeforeMoveStart = vi.fn();
     const onMoveEnd = vi.fn();
-    engine.registerDraggable(source, {
+    engine.registerSource(source, {
       activation: [{ type: 'distance', distance: 10 }, { type: 'double-click' }],
       onBeforeMoveStart,
       onMoveEnd,
@@ -226,8 +226,8 @@ describe('syntheticDrag double-click activation', () => {
     const source = document.createElement('div');
     root.append(source);
     const onBeforeMoveStart = vi.fn((_, details) => details.cancel());
-    engine.registerDraggable(host, { activation: { type: 'double-click' }, onBeforeMoveStart });
-    engine.registerDraggable(source, { activation: { type: 'double-click' }, onBeforeMoveStart });
+    engine.registerSource(host, { activation: { type: 'double-click' }, onBeforeMoveStart });
+    engine.registerSource(source, { activation: { type: 'double-click' }, onBeforeMoveStart });
     fireEvent.doubleClick(source, { detail: 2, composed: true });
     expect(onBeforeMoveStart).toHaveBeenCalledTimes(1);
   });
@@ -244,14 +244,14 @@ describe('syntheticDrag double-click activation', () => {
       const onMove = vi.fn();
       const onMoveEnd = vi.fn();
       const onDrop = vi.fn();
-      engine.registerDraggable(source, {
+      engine.registerSource(source, {
         activation: { type: 'double-click' },
         onBeforeMoveStart,
         onMoveStart,
         onMove,
         onMoveEnd,
       });
-      engine.registerDropTarget(target, { onDraggableDrop: onDrop });
+      engine.registerTarget(target, { onDraggableDrop: onDrop });
       const original = document.elementFromPoint;
       document.elementFromPoint = () => target;
       registerCleanup(() => {
@@ -278,7 +278,7 @@ describe('syntheticDrag double-click activation', () => {
         timeStamp: 220,
       });
       await flushRaf();
-      expect(onMove.mock.lastCall?.[0].location.current.input.clientY).toBe(80);
+      expect(onMove.mock.lastCall?.[1].location.current.input.clientY).toBe(80);
 
       firePointer.up(target, {
         pointerType: 'touch',
@@ -297,7 +297,7 @@ describe('syntheticDrag double-click activation', () => {
       const { engine } = await renderDnd();
       const source = createElement();
       const onMoveStart = vi.fn();
-      engine.registerDraggable(source, { activation: { type: 'double-click' }, onMoveStart });
+      engine.registerSource(source, { activation: { type: 'double-click' }, onMoveStart });
       firePointer.down(source, { ...tap, pointerType: 'pen', pointerId: 1, timeStamp: 10 });
       firePointer.up(source, { ...tap, pointerType: 'pen', pointerId: 1, timeStamp: 40 });
       firePointer.down(source, { ...tap, pointerType: 'pen', pointerId: 1, timeStamp: 100 });
@@ -308,7 +308,7 @@ describe('syntheticDrag double-click activation', () => {
       const { engine } = await renderDnd();
       const source = createElement();
       const onMoveStart = vi.fn();
-      engine.registerDraggable(source, { activation: { type: 'double-click' }, onMoveStart });
+      engine.registerSource(source, { activation: { type: 'double-click' }, onMoveStart });
 
       // Too slow.
       firePointer.down(source, { ...tap, pointerType: 'touch', pointerId: 1, timeStamp: 10 });
@@ -349,7 +349,7 @@ describe('syntheticDrag double-click activation', () => {
       const { engine } = await renderDnd();
       const source = createElement();
       const onMoveStart = vi.fn();
-      engine.registerDraggable(source, { activation: { type: 'double-click' }, onMoveStart });
+      engine.registerSource(source, { activation: { type: 'double-click' }, onMoveStart });
 
       // A press released far from where it landed is a swipe, not a tap.
       firePointer.down(source, { ...tap, pointerType: 'touch', pointerId: 1, timeStamp: 10 });
@@ -376,7 +376,7 @@ describe('syntheticDrag double-click activation', () => {
       const source = createElement();
       const onBeforeMoveStart = vi.fn();
       const onMoveStart = vi.fn();
-      engine.registerDraggable(source, {
+      engine.registerSource(source, {
         activation: { touch: { type: 'double-click' } },
         onBeforeMoveStart,
         onMoveStart,
@@ -398,7 +398,7 @@ describe('syntheticDrag double-click activation', () => {
       const { engine } = await renderDnd();
       const source = createElement();
       const onMoveStart = vi.fn();
-      engine.registerDraggable(source, { activation: { type: 'double-click' }, onMoveStart });
+      engine.registerSource(source, { activation: { type: 'double-click' }, onMoveStart });
 
       // Chromium: `dblclick` is a `PointerEvent` reporting the touch.
       source.dispatchEvent(

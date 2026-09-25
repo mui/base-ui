@@ -87,7 +87,7 @@ describe('sensor session startup', () => {
         draggableParameters: {
           element,
           kind,
-          dragPreview: {
+          preview: {
             offset() {
               throw new Error('offset failed');
             },
@@ -292,7 +292,7 @@ describe('sensor session startup', () => {
     const nextProp = vi.fn();
     const onMoveStart = vi.fn();
     let payload = initial;
-    engine.registerDraggable(element, () => ({ payload, onMoveStart }));
+    engine.registerSource(element, () => ({ payload, onMoveStart }));
     await lift(element);
     const source = onMoveStart.mock.calls[0][0].source;
     act(() => source.updatePayload(replacement));
@@ -313,7 +313,7 @@ describe('sensor session startup', () => {
       const { engine } = await renderDnd();
       const element = createElement();
       const onMoveStart = vi.fn();
-      engine.registerDraggable(element, { onMoveStart });
+      engine.registerSource(element, { onMoveStart });
       await lift(element);
       const source = onMoveStart.mock.calls[0][0].source;
       const unsubscribe = dragSessionStore.subscribe((session) => {
@@ -335,7 +335,7 @@ describe('sensor session startup', () => {
     const { engine } = await renderDnd();
     const source = createElement();
     const onMoveStart = vi.fn();
-    engine.registerDraggable(source, {
+    engine.registerSource(source, {
       payload: 'item',
       modifiers: ({ point }) => {
         if (callback === 'modifier') {
@@ -343,7 +343,7 @@ describe('sensor session startup', () => {
         }
         return point;
       },
-      dragPreview: {
+      preview: {
         render: () => {
           if (callback === 'preview') {
             engine.cancelDrag();

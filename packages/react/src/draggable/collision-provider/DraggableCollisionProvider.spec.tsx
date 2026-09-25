@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { expectType } from '#test-utils';
 import { Draggable } from '@base-ui/react/draggable';
-import type { DragEndReason, DropTargetChangeReason } from '@base-ui/react/draggable';
 
 interface CardPayload {
   id: string;
@@ -19,27 +18,35 @@ const marker = Draggable.createKind('marker');
     expectType<CardPayload, typeof target>(target);
     return target.id === 'full' ? 'reject' : true;
   }}
-  onMoveStart={({ source }) => expectType<CardPayload, typeof source.payload>(source.payload)}
-  onCollisionChange={({ collision, previousCollision }, details) => {
-    if (collision) {
-      expectType<CardPayload, typeof collision.target.payload>(collision.target.payload);
-      const point = collision.target.getLocalPoint();
+  onMoveStart={({ source }, details) => {
+    expectType<CardPayload, typeof source.payload>(source.payload);
+    // @ts-expect-error nothing was reported before the start.
+    void details.previousTarget;
+  }}
+  onCollisionChange={({ target }, details) => {
+    if (target) {
+      expectType<CardPayload, typeof target.payload>(target.payload);
+      const point = target.getLocalPoint();
       expectType<number, typeof point.x>(point.x);
-      const snapped = collision.target.getSnappedLocalPoint({ anchor: 'source' });
+      const snapped = target.getSnappedLocalPoint({ anchor: 'source' });
       expectType<number, typeof snapped.y>(snapped.y);
     }
-    expectType<Draggable.CollisionProvider.Collision<CardPayload> | null, typeof previousCollision>(
-      previousCollision,
+    expectType<Draggable.Target.Record<CardPayload> | null, typeof details.previousTarget>(
+      details.previousTarget,
     );
-    expectType<DropTargetChangeReason, typeof details.reason>(details.reason);
+    expectType<
+      Draggable.DragStartReason | Draggable.DragMoveReason | Draggable.DragEndReason,
+      typeof details.reason
+    >(details.reason);
   }}
-  onMoveEnd={({ collision, canceled, dropTarget }, details) => {
-    expectType<boolean, typeof canceled>(canceled);
-    expectType<DragEndReason, typeof details.reason>(details.reason);
-    if (collision) {
-      expectType<CardPayload, typeof collision.target.payload>(collision.target.payload);
+  onMoveEnd={({ target }, details) => {
+    expectType<Draggable.DragEndReason, typeof details.reason>(details.reason);
+    expectType<Draggable.Target.Record<CardPayload> | null, typeof details.previousTarget>(
+      details.previousTarget,
+    );
+    if (target) {
+      expectType<CardPayload, typeof target.payload>(target.payload);
     }
-    void dropTarget;
   }}
 />;
 
@@ -57,9 +64,9 @@ const marker = Draggable.createKind('marker');
 // A kind without a payload types the callbacks with `undefined`.
 <Draggable.CollisionProvider
   kind={marker}
-  onCollisionChange={({ collision }) => {
-    if (collision) {
-      expectType<undefined, typeof collision.target.payload>(collision.target.payload);
+  onCollisionChange={({ target }) => {
+    if (target) {
+      expectType<undefined, typeof target.payload>(target.payload);
     }
   }}
 />;
@@ -77,15 +84,20 @@ void snapProps;
 <Draggable.CollisionProvider kind={card} placement="edges" />;
 
 // Exported aliases mirror the other parts.
-declare const collision: Draggable.CollisionProvider.Collision<CardPayload>;
-expectType<CardPayload, typeof collision.target.payload>(collision.target.payload);
-declare const collisionEvent: Draggable.CollisionProvider.CollisionEvent<CardPayload>;
-expectType<
-  Draggable.CollisionProvider.Collision<CardPayload> | null,
-  typeof collisionEvent.collision
->(collisionEvent.collision);
-declare const endEvent: Draggable.CollisionProvider.MoveEndEvent<CardPayload>;
-expectType<boolean, typeof endEvent.canceled>(endEvent.canceled);
+declare const startValue: Draggable.CollisionProvider.MoveStartValue<CardPayload>;
+expectType<CardPayload, typeof startValue.source.payload>(startValue.source.payload);
+declare const changeValue: Draggable.CollisionProvider.CollisionChangeValue<CardPayload>;
+expectType<Draggable.Target.Record<CardPayload> | null, typeof changeValue.target>(
+  changeValue.target,
+);
+declare const changeDetails: Draggable.CollisionProvider.CollisionChangeEventDetails<CardPayload>;
+expectType<Draggable.Target.Record<CardPayload> | null, typeof changeDetails.previousTarget>(
+  changeDetails.previousTarget,
+);
+declare const endValue: Draggable.CollisionProvider.MoveEndValue<CardPayload>;
+expectType<Draggable.Target.Record<CardPayload> | null, typeof endValue.target>(endValue.target);
+declare const endDetails: Draggable.CollisionProvider.MoveEndEventDetails<CardPayload>;
+expectType<Draggable.DragEndReason, typeof endDetails.reason>(endDetails.reason);
 declare const props: Draggable.CollisionProvider.Props<CardPayload>;
 void props.kind;
 

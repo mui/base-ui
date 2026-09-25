@@ -825,7 +825,7 @@ describe.skipIf(isJSDOM)('createClonedDragPreviewElement (top layer)', () => {
      */
     async function liftAndMeasure(): Promise<{ sourceRect: DOMRect; cloneRect: DOMRect }> {
       const { engine } = await renderDnd();
-      engine.registerDraggable(source, {});
+      engine.registerSource(source, {});
 
       const sourceRect = source.getBoundingClientRect();
       const pressX = sourceRect.left + 8;

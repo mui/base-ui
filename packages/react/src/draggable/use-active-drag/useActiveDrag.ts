@@ -20,11 +20,9 @@ export type UseActiveDragReturnValue<TPayload = unknown, TDragData = unknown> = 
  *
  * Pass one or more kinds to observe only matching drags and type `source.payload`.
  * Other drags return `null`.
- *
- * @public
  */
 // The type argument is the `accept` value rather than the payload it promises, so the
-// returned payload type is backed by the runtime filter. See `AnyDragAccept`.
+// returned payload type is backed by the runtime filter.
 export function useActiveDrag<TAccept extends AnyDragAccept | undefined>(
   accept: TAccept,
 ): UseActiveDragReturnValue<AcceptedDragPayload<TAccept>, AcceptedDragData<TAccept>>;

@@ -1,7 +1,11 @@
 import type * as React from 'react';
 import type { DraggableConfig } from '../draggable';
 import { resolveElementReference } from '../utils';
-import type { DragModifiers, DragPreviewOffset, DragPreviewRenderEvent } from '../../../types/drag';
+import type {
+  DragModifiers,
+  DragPreviewOffset,
+  DragPreviewRenderParameters,
+} from '../../../types/drag';
 import {
   createClonedDragPreviewElement,
   createDragPreviewHostElement,
@@ -22,7 +26,7 @@ export interface ResolvedDragPreview<TPayload = unknown> {
   /** Builds the element the engine moves; never read when `disabled`. */
   createPreviewElement: DragPreviewElementFactory;
   /** React content for a host preview; `null` for a clone of the source. */
-  render: ((parameters: DragPreviewRenderEvent<TPayload>) => React.ReactNode) | null;
+  render: ((parameters: DragPreviewRenderParameters<TPayload>) => React.ReactNode) | null;
 }
 
 /**
@@ -30,7 +34,7 @@ export interface ResolvedDragPreview<TPayload = unknown> {
  * preview element synchronously from here, before React can run.
  *
  * A declared part describes the preview completely and does not merge with the
- * registration's `dragPreview`, which only an imperative registration can set.
+ * registration's `preview`, which only an imperative registration can set.
  * @internal
  */
 export function resolveDragPreview<TPayload = unknown>(
@@ -38,7 +42,7 @@ export function resolveDragPreview<TPayload = unknown>(
   source: HTMLElement,
 ): ResolvedDragPreview<TPayload> {
   const declaration = parameters.getDragPreviewDeclaration?.() ?? null;
-  const settings = declaration ?? parameters.dragPreview;
+  const settings = declaration ?? parameters.preview;
   const render = settings?.render ?? null;
   const disabled = settings?.disabled ?? false;
   const createPreviewElement =

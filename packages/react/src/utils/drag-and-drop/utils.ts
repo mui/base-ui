@@ -33,7 +33,7 @@ export function onceCleanup(cleanup: () => void): () => void {
 
 /**
  * Resolve an element declared as a plain element, a ref, or a getter — the
- * shape shared by `dragHandle`, `container`, and `restrictToElement`'s `element`
+ * shape shared by `handle`, `container`, and `restrictToElement`'s `element`
  * — or `null` when unset. `argument` is handed to the getter form; `container`
  * passes the source element so a callback can find a container relative to it.
  */

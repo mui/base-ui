@@ -13,10 +13,10 @@ import {
   setupDragEngineTests,
 } from '../../../test/dnd';
 import { dragSessionStore } from '../../utils/drag-and-drop/dragSessionStore';
-import { registerDropTarget as registerDropTargetRaw } from '../../utils/drag-and-drop/registrations';
+import { registerTarget as registerTargetRaw } from '../../utils/drag-and-drop/registrations';
 import { anyDragKind } from '../../utils/drag-and-drop/dragKind';
-import type { MoveEvent, DropTargetRecord } from '../../types/drag';
-import type { RegisterDropTargetParameters } from '../../types/dragRegistration';
+import type { MoveEventDetails, DraggableTargetRecord } from '../../types/drag';
+import type { RegisterTargetParameters } from '../../types/dragRegistration';
 
 setupDragEngineTests();
 
@@ -24,13 +24,13 @@ const cardKind = Draggable.createKind('card');
 const columnKind = Draggable.createKind('column');
 const slotKind = Draggable.createKind('card-slot');
 
-describe('engine.registerDropTarget', () => {
+describe('engine.registerTarget', () => {
   const { renderDnd } = createDndRenderer();
 
   it('sets data-drop-target attribute on the element', async () => {
     const { engine } = await renderDnd();
     const el = createElement();
-    const cleanup = engine.registerDropTarget(el, {});
+    const cleanup = engine.registerTarget(el, {});
     expect(el.getAttribute('data-drop-target')).toBe('');
     cleanup();
   });
@@ -38,7 +38,7 @@ describe('engine.registerDropTarget', () => {
   it('removes data attribute on cleanup', async () => {
     const { engine } = await renderDnd();
     const el = createElement();
-    const cleanup = engine.registerDropTarget(el, {});
+    const cleanup = engine.registerTarget(el, {});
     cleanup();
     expect(el.hasAttribute('data-drop-target')).toBe(false);
   });
@@ -48,8 +48,8 @@ describe('engine.registerDropTarget', () => {
     const source = createElement();
     const target = createElement();
     const onDraggableEnter = vi.fn();
-    engine.registerDraggable(source, {});
-    engine.registerDropTarget(target, {
+    engine.registerSource(source, {});
+    engine.registerTarget(target, {
       canDrop: () => false,
       onDraggableEnter,
     });
@@ -69,8 +69,8 @@ describe('engine.registerDropTarget', () => {
     const target = createElement();
     const onDraggableEnter = vi.fn();
     const onDrop = vi.fn();
-    engine.registerDraggable(source, {});
-    engine.registerDropTarget(target, {
+    engine.registerSource(source, {});
+    engine.registerTarget(target, {
       disabled: true,
       onDraggableEnter,
       onDraggableDrop: onDrop,
@@ -97,9 +97,9 @@ describe('engine.registerDropTarget', () => {
     const outerOnDrop = vi.fn();
     const innerOnDrop = vi.fn();
 
-    engine.registerDraggable(source, {});
-    engine.registerDropTarget(outer, { onDraggableDrop: outerOnDrop });
-    engine.registerDropTarget(inner, { disabled: true, onDraggableDrop: innerOnDrop });
+    engine.registerSource(source, {});
+    engine.registerTarget(outer, { onDraggableDrop: outerOnDrop });
+    engine.registerTarget(inner, { disabled: true, onDraggableDrop: innerOnDrop });
 
     fireEvent.dragStart(source);
     await flushRaf();
@@ -125,12 +125,12 @@ describe('engine.registerDropTarget', () => {
     const source = createElement();
     const target = createElement();
     const seen: Record<string, Event | undefined> = {};
-    engine.registerDraggable(source, {
+    engine.registerSource(source, {
       onMove: (_payload, details) => {
         seen.drag = details.event;
       },
     });
-    engine.registerDropTarget(target, {
+    engine.registerTarget(target, {
       onDraggableEnter: (_payload, details) => {
         seen.enter = details.event;
         seen.change = details.event;
@@ -167,10 +167,10 @@ describe('engine.registerDropTarget', () => {
     const onDraggableEnter = vi.fn();
     const onDraggableLeave = vi.fn();
     let disabled = false;
-    engine.registerDraggable(source, {});
+    engine.registerSource(source, {});
     // The engine reads the getter on every resolution, so flipping `disabled`
     // needs no re-registration — exactly how the React layer's params behave.
-    engine.registerDropTarget(target, () => ({ disabled, onDraggableEnter, onDraggableLeave }));
+    engine.registerTarget(target, () => ({ disabled, onDraggableEnter, onDraggableLeave }));
 
     fireEvent.dragStart(source);
     await flushRaf();
@@ -198,9 +198,9 @@ describe('engine.registerDropTarget', () => {
     const onDraggableEnter = vi.fn();
     const onDraggableLeave = vi.fn();
     let allowed = true;
-    engine.registerDraggable(source, {});
+    engine.registerSource(source, {});
     // `canDrop` re-runs on every resolution, so a flip needs no re-registration.
-    engine.registerDropTarget(target, {
+    engine.registerTarget(target, {
       canDrop: () => allowed,
       onDraggableEnter,
       onDraggableLeave,
@@ -229,8 +229,8 @@ describe('engine.registerDropTarget', () => {
     const source = createElement();
     const target = createElement();
     const onDraggableEnter = vi.fn();
-    engine.registerDraggable(source, { kind: columnKind });
-    engine.registerDropTarget(target, { accept: cardKind, onDraggableEnter });
+    engine.registerSource(source, { kind: columnKind });
+    engine.registerTarget(target, { accept: cardKind, onDraggableEnter });
 
     fireEvent.dragStart(source);
     await flushRaf();
@@ -247,8 +247,8 @@ describe('engine.registerDropTarget', () => {
     const target = createElement();
     const canDrop = vi.fn(() => true);
     const onDraggableEnter = vi.fn();
-    engine.registerDraggable(source, { kind: columnKind });
-    engine.registerDropTarget(target, { accept: cardKind, canDrop, onDraggableEnter });
+    engine.registerSource(source, { kind: columnKind });
+    engine.registerTarget(target, { accept: cardKind, canDrop, onDraggableEnter });
 
     fireEvent.dragStart(source);
     await flushRaf();
@@ -269,8 +269,8 @@ describe('engine.registerDropTarget', () => {
     const source = createElement();
     const target = createElement();
     const onDraggableEnter = vi.fn();
-    engine.registerDraggable(source, { kind: cardKind });
-    engine.registerDropTarget(target, { accept: [cardKind, columnKind], onDraggableEnter });
+    engine.registerSource(source, { kind: cardKind });
+    engine.registerTarget(target, { accept: [cardKind, columnKind], onDraggableEnter });
 
     fireEvent.dragStart(source);
     await flushRaf();
@@ -286,8 +286,8 @@ describe('engine.registerDropTarget', () => {
     const source = createElement();
     const target = createElement();
     const onDraggableEnter = vi.fn();
-    engine.registerDraggable(source, { kind: cardKind });
-    engine.registerDropTarget(target, { onDraggableEnter });
+    engine.registerSource(source, { kind: cardKind });
+    engine.registerTarget(target, { onDraggableEnter });
 
     fireEvent.dragStart(source);
     await flushRaf();
@@ -303,8 +303,8 @@ describe('engine.registerDropTarget', () => {
     const source = createElement();
     const target = createElement();
     const onDraggableEnter = vi.fn();
-    engine.registerDraggable(source, { kind: Draggable.createGlobalKind('test/task') });
-    engine.registerDropTarget(target, {
+    engine.registerSource(source, { kind: Draggable.createGlobalKind('test/task') });
+    engine.registerTarget(target, {
       accept: Draggable.createGlobalKind('test/task'),
       onDraggableEnter,
     });
@@ -318,19 +318,19 @@ describe('engine.registerDropTarget', () => {
     expect(onDraggableEnter).toHaveBeenCalledTimes(1);
   });
 
-  it('drop target kind is exposed on `target` and on records in dropTargets', async () => {
+  it('drop target kind is exposed on `target` and on records in location targets', async () => {
     const { engine } = await renderDnd();
     const source = createElement();
     const target = createElement();
     let observedSelfKind: symbol | undefined;
     let observedRecordKind: symbol | undefined;
-    engine.registerDraggable(source, { kind: cardKind });
-    engine.registerDropTarget(target, {
+    engine.registerSource(source, { kind: cardKind });
+    engine.registerTarget(target, {
       kind: slotKind,
       accept: cardKind,
-      onDraggableEnter: ({ target, location }) => {
+      onDraggableEnter: ({ target }, { location }) => {
         observedSelfKind = target.kind;
-        observedRecordKind = location.current.dropTargets[0]?.kind;
+        observedRecordKind = location.current.targets[0]?.kind;
       },
     });
 
@@ -349,8 +349,8 @@ describe('engine.registerDropTarget', () => {
     const source = createElement();
     const target = createElement();
     let observedKind: symbol | undefined;
-    engine.registerDraggable(source, { kind: cardKind });
-    engine.registerDropTarget(target, {
+    engine.registerSource(source, { kind: cardKind });
+    engine.registerTarget(target, {
       onDraggableEnter: ({ source: src }) => {
         observedKind = src.kind;
       },
@@ -370,8 +370,8 @@ describe('engine.registerDropTarget', () => {
     const source = createElement();
     const target = createElement();
     const onDrop = vi.fn();
-    engine.registerDraggable(source, {});
-    engine.registerDropTarget(target, {
+    engine.registerSource(source, {});
+    engine.registerTarget(target, {
       payload: { targetKey: 'targetValue' },
       onDraggableDrop: onDrop,
     });
@@ -393,8 +393,8 @@ describe('engine.registerDropTarget', () => {
     const target = createElement();
     const command = vi.fn(() => 'command result');
     const onDrop = vi.fn();
-    engine.registerDraggable(source, {});
-    engine.registerDropTarget(target, { payload: command, onDraggableDrop: onDrop });
+    engine.registerSource(source, {});
+    engine.registerTarget(target, { payload: command, onDraggableDrop: onDrop });
 
     fireEvent.dragStart(source);
     await flushRaf();
@@ -419,8 +419,8 @@ describe('engine.registerDropTarget', () => {
     const source = createElement();
     const target = createElement();
     const onDrop = vi.fn();
-    engine.registerDraggable(source, {});
-    engine.registerDropTarget(target, { payload: value, onDraggableDrop: onDrop });
+    engine.registerSource(source, {});
+    engine.registerTarget(target, { payload: value, onDraggableDrop: onDrop });
 
     fireEvent.dragStart(source);
     await flushRaf();
@@ -438,8 +438,8 @@ describe('engine.registerDropTarget', () => {
     const source = createElement();
     const target = createElement();
     const onDrop = vi.fn();
-    engine.registerDraggable(source, {});
-    engine.registerDropTarget(target, { onDraggableDrop: onDrop });
+    engine.registerSource(source, {});
+    engine.registerTarget(target, { onDraggableDrop: onDrop });
 
     fireEvent.dragStart(source);
     await flushRaf();
@@ -457,8 +457,8 @@ describe('engine.registerDropTarget', () => {
     const source = createElement();
     const target = createElement();
     const onDraggableEnter = vi.fn();
-    engine.registerDraggable(source, {});
-    engine.registerDropTarget(target, { onDraggableEnter });
+    engine.registerSource(source, {});
+    engine.registerTarget(target, { onDraggableEnter });
 
     fireEvent.dragStart(source);
     await flushRaf();
@@ -480,8 +480,8 @@ describe('engine.registerDropTarget', () => {
     const target = createElement();
     const onDraggableEnter = vi.fn();
     const onMove = vi.fn();
-    engine.registerDraggable(source, {});
-    engine.registerDropTarget(target, { onDraggableEnter, onDraggableMove: onMove });
+    engine.registerSource(source, {});
+    engine.registerTarget(target, { onDraggableEnter, onDraggableMove: onMove });
 
     fireEvent.dragStart(source);
     await flushRaf();
@@ -507,8 +507,8 @@ describe('engine.registerDropTarget', () => {
     const source = createElement();
     const target = createElement();
     const onMove = vi.fn();
-    engine.registerDraggable(source, {});
-    engine.registerDropTarget(target, { onDraggableMove: onMove });
+    engine.registerSource(source, {});
+    engine.registerTarget(target, { onDraggableMove: onMove });
 
     fireEvent.dragStart(source);
     await flushRaf();
@@ -526,9 +526,9 @@ describe('engine.registerDropTarget', () => {
     const target1 = createElement();
     const target2 = createElement();
     const onDraggableLeave = vi.fn();
-    engine.registerDraggable(source, {});
-    engine.registerDropTarget(target1, { onDraggableLeave });
-    engine.registerDropTarget(target2, {});
+    engine.registerSource(source, {});
+    engine.registerTarget(target1, { onDraggableLeave });
+    engine.registerTarget(target2, {});
 
     fireEvent.dragStart(source);
     await flushRaf();
@@ -547,10 +547,10 @@ describe('engine.registerDropTarget', () => {
     // Capture the counts at dispatch time; the payload's `location` is mutated
     // in place, so asserting on the stashed object later would be meaningless.
     const leaveStacks: number[] = [];
-    engine.registerDraggable(source, {});
-    engine.registerDropTarget(target, {
-      onDraggableLeave: ({ location }) => {
-        leaveStacks.push(location.current.dropTargets.length);
+    engine.registerSource(source, {});
+    engine.registerTarget(target, {
+      onDraggableLeave: (_, { location }) => {
+        leaveStacks.push(location.current.targets.length);
       },
     });
 
@@ -571,8 +571,8 @@ describe('engine.registerDropTarget', () => {
     const source = createElement();
     const target = createElement();
     const onDrop = vi.fn();
-    engine.registerDraggable(source, {});
-    engine.registerDropTarget(target, { onDraggableDrop: onDrop });
+    engine.registerSource(source, {});
+    engine.registerTarget(target, { onDraggableDrop: onDrop });
 
     fireEvent.dragStart(source);
     await flushRaf();
@@ -585,9 +585,8 @@ describe('engine.registerDropTarget', () => {
     expect(onDrop).toHaveBeenCalledWith(
       expect.objectContaining({
         target: expect.objectContaining({ element: target }),
-        // `onDrop` only ever fires for a committed drop, so its reason is fixed.
-        dropTarget: expect.objectContaining({ element: target }),
       }),
+      // `onDrop` only ever fires for a committed drop, so its reason is fixed.
       expect.objectContaining({ reason: 'drop' }),
     );
   });
@@ -603,9 +602,9 @@ describe('engine.registerDropTarget', () => {
     const innerOnDrop = vi.fn();
     const monitorOnDrop = vi.fn();
 
-    engine.registerDraggable(source, {});
-    engine.registerDropTarget(outer, { onDraggableDrop: outerOnDrop });
-    engine.registerDropTarget(inner, { onDraggableDrop: innerOnDrop });
+    engine.registerSource(source, {});
+    engine.registerTarget(outer, { onDraggableDrop: outerOnDrop });
+    engine.registerTarget(inner, { onDraggableDrop: innerOnDrop });
     engine.registerMonitor({ onMoveEnd: monitorOnDrop });
 
     fireEvent.dragStart(source);
@@ -627,10 +626,10 @@ describe('engine.registerDropTarget', () => {
     // Outer is in the active stack but NOT innermost — its onDrop is skipped.
     expect(outerOnDrop).not.toHaveBeenCalled();
 
-    // Monitors still see the full chain via location.current.dropTargets.
+    // Monitors still see the full chain via location.current.targets.
     expect(monitorOnDrop).toHaveBeenCalledTimes(1);
-    const monitorCall = monitorOnDrop.mock.calls[0]![0];
-    expect(monitorCall.location.current.dropTargets.map((t: any) => t.element)).toEqual([
+    const monitorDetails = monitorOnDrop.mock.calls[0]![1];
+    expect(monitorDetails.location.current.targets.map((t: any) => t.element)).toEqual([
       inner,
       outer,
     ]);
@@ -646,9 +645,9 @@ describe('engine.registerDropTarget', () => {
     const outerOnDrop = vi.fn();
     const innerOnDrop = vi.fn();
 
-    engine.registerDraggable(source, {});
-    engine.registerDropTarget(outer, { onDraggableDrop: outerOnDrop });
-    engine.registerDropTarget(inner, { canDrop: () => false, onDraggableDrop: innerOnDrop });
+    engine.registerSource(source, {});
+    engine.registerTarget(outer, { onDraggableDrop: outerOnDrop });
+    engine.registerTarget(inner, { canDrop: () => false, onDraggableDrop: innerOnDrop });
 
     fireEvent.dragStart(source);
     await flushRaf();
@@ -681,11 +680,11 @@ describe('engine.registerDropTarget', () => {
     const cardOnDragEnter = vi.fn();
     const onMoveEnd = vi.fn();
 
-    engine.registerDraggable(source, { onMoveEnd });
+    engine.registerSource(source, { onMoveEnd });
     // The container-level rule (a capacity limit): with `false` the drop would
     // fall through to the accepting card inside, silently defeating the limit.
-    engine.registerDropTarget(column, { canDrop: () => 'reject', onDraggableDrop: columnOnDrop });
-    engine.registerDropTarget(card, {
+    engine.registerTarget(column, { canDrop: () => 'reject', onDraggableDrop: columnOnDrop });
+    engine.registerTarget(card, {
       onDraggableDrop: cardOnDrop,
       onDraggableEnter: cardOnDragEnter,
     });
@@ -706,7 +705,7 @@ describe('engine.registerDropTarget', () => {
     expect(columnOnDrop).not.toHaveBeenCalled();
     // Released over no resolved target: an outside release, not a cancel.
     expect(onMoveEnd).toHaveBeenCalledWith(
-      expect.objectContaining({ canceled: false, dropTarget: null }),
+      expect.objectContaining({ target: null }),
       expect.objectContaining({ reason: 'outside-release' }),
     );
   });
@@ -721,12 +720,12 @@ describe('engine.registerDropTarget', () => {
     const boardOnDrop = vi.fn();
     const boardOnDragEnter = vi.fn();
 
-    engine.registerDraggable(source, {});
-    engine.registerDropTarget(board, {
+    engine.registerSource(source, {});
+    engine.registerTarget(board, {
       onDraggableDrop: boardOnDrop,
       onDraggableEnter: boardOnDragEnter,
     });
-    engine.registerDropTarget(column, { canDrop: () => 'reject' });
+    engine.registerTarget(column, { canDrop: () => 'reject' });
 
     fireEvent.dragStart(source);
     await flushRaf();
@@ -748,12 +747,12 @@ describe('engine.registerDropTarget', () => {
     const onDraggableEnter = vi.fn();
     const onDraggableLeave = vi.fn();
     let full = true;
-    engine.registerDropTarget(target, {
+    engine.registerTarget(target, {
       canDrop: () => (full ? 'reject' : true),
       onDraggableEnter,
       onDraggableLeave,
     });
-    engine.registerDraggable(source, {});
+    engine.registerSource(source, {});
 
     fireEvent.dragStart(source);
     await flushRaf();
@@ -777,7 +776,7 @@ describe('engine.registerDropTarget', () => {
     // Targets are the default 200×100 stub rect at (0, 200) throughout, so every
     // expected fraction is arithmetic rather than a snapshot.
     async function dropAt(
-      parameters: Omit<RegisterDropTargetParameters<unknown, unknown>, 'accept'>,
+      parameters: Omit<RegisterTargetParameters<unknown, unknown>, 'accept'>,
       clientX: number,
       clientY: number,
     ) {
@@ -785,8 +784,8 @@ describe('engine.registerDropTarget', () => {
       const source = createElement();
       const target = createElement({ top: 200 });
       const onDrop = vi.fn();
-      engine.registerDraggable(source, {});
-      engine.registerDropTarget(target, { ...parameters, onDraggableDrop: onDrop });
+      engine.registerSource(source, {});
+      engine.registerTarget(target, { ...parameters, onDraggableDrop: onDrop });
 
       await lift(source);
       fireEvent.dragEnter(target, { clientX, clientY });
@@ -795,7 +794,7 @@ describe('engine.registerDropTarget', () => {
       fireEvent.drop(target, { clientX, clientY });
 
       expect(onDrop).toHaveBeenCalledTimes(1);
-      return onDrop.mock.calls[0][0].target as DropTargetRecord;
+      return onDrop.mock.calls[0][0].target as DraggableTargetRecord;
     }
 
     it('quantizes getSnappedLocalPoint to the declared steps with symmetric rounding', async () => {
@@ -851,8 +850,8 @@ describe('engine.registerDropTarget', () => {
       const source = createElement();
       const target = createElement({ top: 200 });
       const onDrop = vi.fn();
-      engine.registerDraggable(source, {});
-      engine.registerDropTarget(target, { snap: { y: 4 }, onDraggableDrop: onDrop });
+      engine.registerSource(source, {});
+      engine.registerTarget(target, { snap: { y: 4 }, onDraggableDrop: onDrop });
 
       await lift(source, { clientY: 30 });
       fireEvent.dragEnter(target, { clientY: 265 });
@@ -860,7 +859,7 @@ describe('engine.registerDropTarget', () => {
       await flushRaf();
       fireEvent.drop(target, { clientY: 265 });
 
-      const record = onDrop.mock.calls[0][0].target as DropTargetRecord;
+      const record = onDrop.mock.calls[0][0].target as DraggableTargetRecord;
       // Pointer: 0.65 → 0.75. Source top edge: (265 − 30 − 200) / 100 = 0.35 → 0.25.
       expect(record.getSnappedLocalPoint().y).toBe(0.75);
       expect(record.getSnappedLocalPoint({ anchor: 'source' }).y).toBe(0.25);
@@ -888,9 +887,9 @@ describe('engine.registerDropTarget', () => {
     const outerOnDragEnter = vi.fn();
     const innerOnDragEnter = vi.fn();
 
-    engine.registerDraggable(source, {});
-    engine.registerDropTarget(outer, { onDraggableEnter: outerOnDragEnter });
-    engine.registerDropTarget(inner, { onDraggableEnter: innerOnDragEnter });
+    engine.registerSource(source, {});
+    engine.registerTarget(outer, { onDraggableEnter: outerOnDragEnter });
+    engine.registerTarget(inner, { onDraggableEnter: innerOnDragEnter });
 
     fireEvent.dragStart(source);
     await flushRaf();
@@ -917,8 +916,8 @@ describe('engine.registerDropTarget', () => {
 
     const source = createElement();
     const onDraggableEnter = vi.fn();
-    engine.registerDraggable(source, {});
-    engine.registerDropTarget(outer, { onDraggableEnter });
+    engine.registerSource(source, {});
+    engine.registerTarget(outer, { onDraggableEnter });
 
     fireEvent.dragStart(source);
     await flushRaf();
@@ -937,8 +936,8 @@ describe('engine.registerDropTarget', () => {
     }
 
     expect(onDraggableEnter).toHaveBeenCalledTimes(1);
-    const payload = onDraggableEnter.mock.calls[0][0];
-    expect(payload.location.current.dropTargets[0].element).toBe(outer);
+    const details = onDraggableEnter.mock.calls[0][1];
+    expect(details.location.current.targets[0].element).toBe(outer);
   });
 
   it('collects ancestor drop targets when the inner target is a direct child of a shadow root', async () => {
@@ -956,9 +955,9 @@ describe('engine.registerDropTarget', () => {
     const source = createElement();
     const onDragEnterOuter = vi.fn();
     const onDragEnterInner = vi.fn();
-    engine.registerDraggable(source, {});
-    engine.registerDropTarget(outer, { onDraggableEnter: onDragEnterOuter });
-    engine.registerDropTarget(inner, { onDraggableEnter: onDragEnterInner });
+    engine.registerSource(source, {});
+    engine.registerTarget(outer, { onDraggableEnter: onDragEnterOuter });
+    engine.registerTarget(inner, { onDraggableEnter: onDragEnterInner });
 
     fireEvent.dragStart(source);
     await flushRaf();
@@ -981,7 +980,7 @@ describe('engine.registerDropTarget', () => {
 
     expect(onDragEnterInner).toHaveBeenCalledTimes(1);
     expect(onDragEnterOuter).toHaveBeenCalledTimes(1);
-    const elements = onDragEnterInner.mock.calls[0][0].location.current.dropTargets.map(
+    const elements = onDragEnterInner.mock.calls[0][1].location.current.targets.map(
       (record: { element: Element }) => record.element,
     );
     expect(elements).toEqual([inner, outer]);
@@ -1006,9 +1005,9 @@ describe('engine.registerDropTarget', () => {
     const source = createElement();
     const onDragEnterZone = vi.fn();
     const onDragEnterLight = vi.fn();
-    engine.registerDraggable(source, {});
-    engine.registerDropTarget(zone, { onDraggableEnter: onDragEnterZone });
-    engine.registerDropTarget(light, { onDraggableEnter: onDragEnterLight });
+    engine.registerSource(source, {});
+    engine.registerTarget(zone, { onDraggableEnter: onDragEnterZone });
+    engine.registerTarget(light, { onDraggableEnter: onDragEnterLight });
 
     fireEvent.dragStart(source);
     await flushRaf();
@@ -1024,7 +1023,7 @@ describe('engine.registerDropTarget', () => {
 
     expect(onDragEnterZone).toHaveBeenCalledTimes(1);
     expect(onDragEnterLight).toHaveBeenCalledTimes(1);
-    const elements = onDragEnterZone.mock.calls[0][0].location.current.dropTargets.map(
+    const elements = onDragEnterZone.mock.calls[0][1].location.current.targets.map(
       (record: { element: Element }) => record.element,
     );
     expect(elements).toEqual([zone, light]);
@@ -1046,13 +1045,13 @@ describe('engine.registerDropTarget', () => {
     registerCleanup(() => buggy.remove());
 
     const onDragEnterSane = vi.fn();
-    engine.registerDraggable(source, {});
-    engine.registerDropTarget(buggy, {
+    engine.registerSource(source, {});
+    engine.registerTarget(buggy, {
       canDrop: () => {
         throw new Error('canDrop boom');
       },
     });
-    engine.registerDropTarget(sane, { onDraggableEnter: onDragEnterSane });
+    engine.registerTarget(sane, { onDraggableEnter: onDragEnterSane });
 
     const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
 
@@ -1096,11 +1095,11 @@ describe('engine.registerDropTarget', () => {
     const onDragEnterSane = vi.fn();
     const onDropSane = vi.fn();
     const onMoveEnd = vi.fn();
-    engine.registerDraggable(source, { onMoveEnd });
-    engine.registerDropTarget(buggy, () => {
+    engine.registerSource(source, { onMoveEnd });
+    engine.registerTarget(buggy, () => {
       throw new Error('getParameters boom');
     });
-    engine.registerDropTarget(sane, {
+    engine.registerTarget(sane, {
       onDraggableEnter: onDragEnterSane,
       onDraggableDrop: onDropSane,
     });
@@ -1136,8 +1135,8 @@ describe('engine.registerDropTarget', () => {
     const onDrop = vi.fn();
     const onMoveEnd = vi.fn();
     let shouldThrow = false;
-    engine.registerDraggable(source, { onMoveEnd });
-    engine.registerDropTarget(target, () => {
+    engine.registerSource(source, { onMoveEnd });
+    engine.registerTarget(target, () => {
       if (shouldThrow) {
         throw new Error('getParameters boom');
       }
@@ -1163,7 +1162,8 @@ describe('engine.registerDropTarget', () => {
       // but the drag itself still ends cleanly.
       expect(onDrop).not.toHaveBeenCalled();
       expect(onMoveEnd).toHaveBeenCalledTimes(1);
-      expect(onMoveEnd.mock.calls[0][0].canceled).toBe(false);
+      expect(onMoveEnd.mock.calls[0][0].target).toBeNull();
+      expect(onMoveEnd.mock.calls[0][1].reason).toBe('outside-release');
     } finally {
       fireEvent.dragEnd(source);
       consoleError.mockRestore();
@@ -1175,8 +1175,8 @@ describe('engine.registerDropTarget', () => {
     const source = createElement();
     const target = createElement();
     const onDraggableEnter = vi.fn();
-    engine.registerDraggable(source, {});
-    const cleanupDrop = engine.registerDropTarget(target, { onDraggableEnter });
+    engine.registerSource(source, {});
+    const cleanupDrop = engine.registerTarget(target, { onDraggableEnter });
 
     cleanupDrop();
 
@@ -1199,9 +1199,9 @@ describe('engine.registerDropTarget', () => {
     const target = createElement();
     const onDropA = vi.fn();
     const onDropB = vi.fn();
-    engine.registerDraggable(source, {});
-    engine.registerDropTarget(target, { onDraggableDrop: onDropA });
-    const cleanupB = engine.registerDropTarget(target, { onDraggableDrop: onDropB });
+    engine.registerSource(source, {});
+    engine.registerTarget(target, { onDraggableDrop: onDropA });
+    const cleanupB = engine.registerTarget(target, { onDraggableDrop: onDropB });
 
     cleanupB();
     expect(target.hasAttribute('data-drop-target')).toBe(true);
@@ -1224,7 +1224,7 @@ describe('engine.registerDropTarget', () => {
       const target = createElement();
       const onDrop = vi.fn();
       let cleanupTarget: () => void = () => {};
-      engine.registerDraggable(source, {
+      engine.registerSource(source, {
         // The source is told the drop landed first and tears its zones down,
         // unregistering the very target the drop was resolved to. The engine
         // snapshots the registration before the end dispatch, so the target's
@@ -1233,7 +1233,7 @@ describe('engine.registerDropTarget', () => {
           cleanupTarget();
         },
       });
-      cleanupTarget = engine.registerDropTarget(target, { onDraggableDrop: onDrop });
+      cleanupTarget = engine.registerTarget(target, { onDraggableDrop: onDrop });
 
       fireEvent.dragStart(source);
       await flushRaf();
@@ -1256,8 +1256,8 @@ describe('engine.registerDropTarget', () => {
         initialInput: { clientX: number; clientY: number };
         currentInput: { clientX: number; clientY: number };
       } | null = null;
-      engine.registerDraggable(source, {
-        onMoveStart: ({ location }) => {
+      engine.registerSource(source, {
+        onMoveStart: (_, { location }) => {
           firstEvent = {
             previousInput: location.previous.input,
             initialInput: location.initial.input,
@@ -1279,7 +1279,7 @@ describe('engine.registerDropTarget', () => {
     });
 
     it('keeps a registration a leave handler re-creates on the same element', async () => {
-      // A target that remounts from its own `onDraggableLeave` calls `registerDropTarget`
+      // A target that remounts from its own `onDraggableLeave` calls `registerTarget`
       // while the retiring entry is still in the registry, so the new hold lands in
       // it — and used to be deleted along with it, leaving a target that never
       // resolved again.
@@ -1287,15 +1287,13 @@ describe('engine.registerDropTarget', () => {
       const source = createElement();
       const target = createElement({ top: 200, height: 100 });
       const onDropAfterRemount = vi.fn();
-      engine.registerDraggable(source, {});
+      engine.registerSource(source, {});
 
       // The leave this target receives *as it unregisters* is dispatched from
       // inside `remove()`, while the retiring entry is still in the registry.
-      const unregister = engine.registerDropTarget(target, {
+      const unregister = engine.registerTarget(target, {
         onDraggableLeave: () => {
-          registerCleanup(
-            engine.registerDropTarget(target, { onDraggableDrop: onDropAfterRemount }),
-          );
+          registerCleanup(engine.registerTarget(target, { onDraggableDrop: onDropAfterRemount }));
         },
       });
 
@@ -1322,11 +1320,11 @@ describe('engine.registerDropTarget', () => {
       const { engine } = await renderDnd();
       const source = createElement();
       const target = createElement({ top: 0, height: 400 });
-      const events: MoveEvent[] = [];
-      engine.registerDraggable(source, {
-        onMove: (event) => events.push(event),
+      const events: MoveEventDetails[] = [];
+      engine.registerSource(source, {
+        onMove: (_, eventDetails) => events.push(eventDetails),
       });
-      engine.registerDropTarget(target, {});
+      engine.registerTarget(target, {});
 
       fireEvent.dragStart(source, { clientX: 0, clientY: 0 });
       await flushRaf();
@@ -1337,7 +1335,7 @@ describe('engine.registerDropTarget', () => {
       expect(events.length).toBeGreaterThan(0);
       const stashed = events.at(-1)!;
       const stashedY = stashed.location.current.input.clientY;
-      const stashedStack = stashed.location.current.dropTargets;
+      const stashedStack = stashed.location.current.targets;
 
       fireEvent.dragOver(target, { clientX: 0, clientY: 300 });
       await flushRaf();
@@ -1347,7 +1345,7 @@ describe('engine.registerDropTarget', () => {
       expect(stashed.location.current.input.clientY).toBe(stashedY);
       expect(events.at(-1)!.location.current.input.clientY).toBe(300);
       // ...and owns its stack, rather than aliasing the next event's.
-      expect(events.at(-1)!.location.current.dropTargets).not.toBe(stashedStack);
+      expect(events.at(-1)!.location.current.targets).not.toBe(stashedStack);
     });
 
     it('advances previous.input once per delivered event, not once per raw sample', async () => {
@@ -1359,15 +1357,15 @@ describe('engine.registerDropTarget', () => {
       const source = createElement();
       const target = createElement({ top: 0, height: 400 });
       const samples: Array<{ previous: number; current: number }> = [];
-      engine.registerDraggable(source, {
-        onMove: ({ location }) => {
+      engine.registerSource(source, {
+        onMove: (_, { location }) => {
           samples.push({
             previous: location.previous.input.clientY,
             current: location.current.input.clientY,
           });
         },
       });
-      engine.registerDropTarget(target, {});
+      engine.registerTarget(target, {});
 
       fireEvent.dragStart(source, { clientX: 0, clientY: 0 });
       await flushRaf();
@@ -1403,7 +1401,7 @@ describe('engine.registerDropTarget', () => {
       const outerEnter = vi.fn();
       const outerLeave = vi.fn();
       let cleanupInner: () => void = () => {};
-      engine.registerDraggable(source, {
+      engine.registerSource(source, {
         // Tearing down zones on drag end: the inner target — still under the
         // pointer — unregisters synchronously inside the cancel's onMoveEnd.
         // A live `refreshDropTargets` would re-resolve the emptied stack, find
@@ -1413,11 +1411,11 @@ describe('engine.registerDropTarget', () => {
           cleanupInner();
         },
       });
-      engine.registerDropTarget(outer, {
+      engine.registerTarget(outer, {
         onDraggableEnter: outerEnter,
         onDraggableLeave: outerLeave,
       });
-      cleanupInner = engine.registerDropTarget(inner, {});
+      cleanupInner = engine.registerTarget(inner, {});
 
       fireEvent.dragStart(source);
       await flushRaf();
@@ -1443,8 +1441,8 @@ describe('engine.registerDropTarget', () => {
 
     let observedTargetId: string | undefined;
 
-    engine.registerDraggable(sourceEl, {});
-    engine.registerDropTarget(targetEl, {
+    engine.registerSource(sourceEl, {});
+    engine.registerTarget(targetEl, {
       payload: { id: 'tgt-low' },
       onDraggableDrop: ({ target }) => {
         observedTargetId = target.payload.id as string;
@@ -1467,8 +1465,8 @@ describe('engine.registerDropTarget', () => {
     const target = createElement({ top: 200, height: 100 });
     const leavePayloads: unknown[] = [];
     let value = 'entry';
-    engine.registerDraggable(source, {});
-    engine.registerDropTarget(target, () => ({
+    engine.registerSource(source, {});
+    engine.registerTarget(target, () => ({
       payload: value,
       onDraggableLeave: ({ target }) => leavePayloads.push(target.payload),
     }));
@@ -1495,8 +1493,8 @@ describe('engine.registerDropTarget', () => {
     const target = createElement({ top: 200, height: 100 });
     const leavePayloads: unknown[] = [];
     let value = 'entry';
-    engine.registerDraggable(source, {});
-    engine.registerDropTarget(target, () => ({
+    engine.registerSource(source, {});
+    engine.registerTarget(target, () => ({
       payload: value,
       onDraggableLeave: ({ target }) => leavePayloads.push(target.payload),
     }));
@@ -1519,12 +1517,12 @@ describe('engine.registerDropTarget', () => {
     const other = createElement({ top: 400, height: 100 });
     const canDrop = vi.fn(() => true);
     const onDraggableLeave = vi.fn();
-    engine.registerDraggable(source, {});
-    const unregisterHovered = engine.registerDropTarget(hovered, {
+    engine.registerSource(source, {});
+    const unregisterHovered = engine.registerTarget(hovered, {
       canDrop,
       onDraggableLeave,
     });
-    const unregisterOther = engine.registerDropTarget(other, {});
+    const unregisterOther = engine.registerTarget(other, {});
 
     await lift(source);
     await dragEnter(hovered, { clientY: 250 });
@@ -1555,14 +1553,14 @@ describe('engine.registerDropTarget', () => {
     outer.appendChild(inner);
 
     const currentStacks: Element[][] = [];
-    engine.registerDraggable(source, {});
+    engine.registerSource(source, {});
     engine.registerMonitor({
-      onTargetChange: ({ location }) => {
-        currentStacks.push(location.current.dropTargets.map((record) => record.element));
+      onTargetChange: (_, { location }) => {
+        currentStacks.push(location.current.targets.map((record) => record.element));
       },
     });
     let unregisterOuter: (() => void) | null = null;
-    engine.registerDropTarget(inner, {
+    engine.registerTarget(inner, {
       onDraggableEnter: () => {
         // Runs while the [outer] → [inner, outer] fan-out is in flight, with
         // outer in the published stack: its unregister requests a synchronous
@@ -1572,7 +1570,7 @@ describe('engine.registerDropTarget', () => {
       },
     });
     const outerOnDragLeave = vi.fn();
-    unregisterOuter = engine.registerDropTarget(outer, { onDraggableLeave: outerOnDragLeave });
+    unregisterOuter = engine.registerTarget(outer, { onDraggableLeave: outerOnDragLeave });
 
     fireEvent.dragStart(source);
     await flushRaf();
@@ -1589,7 +1587,7 @@ describe('engine.registerDropTarget', () => {
     // still hovered.
     expect(currentStacks.at(-1)).toEqual([inner]);
     expect(
-      dragSessionStore.getSnapshot()?.location.current.dropTargets.map((record) => record.element),
+      dragSessionStore.getSnapshot()?.location.current.targets.map((record) => record.element),
     ).toEqual([inner]);
     // And the outer target still gets the `onDraggableLeave` it was owed. Deferring the
     // refresh is what makes that hard: the registry entry is deleted as the
@@ -1605,7 +1603,7 @@ describe('engine.registerDropTarget', () => {
 
     // `kind` is what the target *is*; reading it as `accept` compiles and then
     // silently takes every drag on the page.
-    engine.registerDropTarget(target, { kind: cardKind });
+    engine.registerTarget(target, { kind: cardKind });
 
     expect(spy).toHaveBeenCalledTimes(1);
     expect(String(spy.mock.calls[0][0])).toContain('declares `kind` but no `accept`');
@@ -1613,7 +1611,7 @@ describe('engine.registerDropTarget', () => {
     // Declaring both is the normal way to give a target an identity.
     spy.mockClear();
     const other = createElement();
-    engine.registerDropTarget(other, { kind: cardKind, accept: cardKind });
+    engine.registerTarget(other, { kind: cardKind, accept: cardKind });
     expect(spy).not.toHaveBeenCalled();
 
     spy.mockRestore();
@@ -1628,7 +1626,7 @@ describe('engine.registerDropTarget', () => {
     // where the target would otherwise silently take every drag on the page.
     // The raw registration API is used directly: the test wrapper opts
     // accept-less fixtures into `anyDragKind` on purpose.
-    const cleanup = registerDropTargetRaw(target, () => ({}));
+    const cleanup = registerTargetRaw(target, () => ({}));
     registerCleanup(cleanup);
 
     expect(spy).toHaveBeenCalledTimes(1);
@@ -1637,7 +1635,7 @@ describe('engine.registerDropTarget', () => {
     // `anyDragKind` is the explicit way to accept everything.
     spy.mockClear();
     const other = createElement();
-    const otherCleanup = registerDropTargetRaw(other, () => ({ accept: anyDragKind }));
+    const otherCleanup = registerTargetRaw(other, () => ({ accept: anyDragKind }));
     registerCleanup(otherCleanup);
     expect(spy).not.toHaveBeenCalled();
 

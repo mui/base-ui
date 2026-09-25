@@ -9,14 +9,11 @@ import type {
   DragLocalPoint,
   DragSnappedLocalPointOptions,
   DragSnapSteps,
-  DropEvent,
-  DropTargetEvent,
-  DropTargetResolutionContext,
-  DropTargetEventTarget,
-  DropTargetRecord,
+  DraggableTargetResolutionContext,
+  DraggableTargetRecord,
   DragSource,
   DropTargetEventDetailsMap,
-  DropTargetEventMap,
+  DropTargetEventValue,
 } from '../../types/drag';
 import { matchesAccept } from './dragKind';
 import { createGetterStackRegistry } from './getterStackRegistry';
@@ -26,7 +23,7 @@ import { DROP_TARGET_ATTR } from './dragAttributes';
 import { getParticipantPayload, resetParticipantPayload } from './participantData';
 import { dragSessionStore, notifyDragTargetUpdated } from './dragSessionStore';
 
-type AnyDropTargetParameters = RegisterDropTargetParameters<any, any, any, any>;
+type AnyDropTargetParameters = RegisterTargetParameters<any, any, any, any>;
 /** Getter for a single hook's latest drop-target parameters. */
 type DropTargetGetter = () => AnyDropTargetParameters;
 
@@ -320,7 +317,7 @@ const DROP_REJECTED = Symbol('base-ui.dropTarget.rejected');
 
 const recordRegistrations = getSharedSlot(
   'dropTarget.recordRegistrations',
-  () => new WeakMap<DropTargetRecord, AnyDropTargetParameters>(),
+  () => new WeakMap<DraggableTargetRecord, AnyDropTargetParameters>(),
 );
 
 /**
@@ -366,13 +363,13 @@ export function syncDropTargetPayload(
 }
 
 const collisionResolvers = new WeakMap<
-  DropTargetRecord,
+  DraggableTargetRecord,
   NonNullable<CollisionResolutionRegistration[typeof resolveCollision]>
 >();
 
 /** Measure only the winning participant, immediately before dispatch can mutate its layout. */
 export function captureDropTargetCollision(
-  target: DropTargetRecord | undefined | null,
+  target: DraggableTargetRecord | undefined | null,
   input: DragInput,
   source: DragSource,
   isDrop = false,
@@ -392,7 +389,7 @@ export function captureDropTargetCollision(
 }
 
 /**
- * Resolve a single element against the active drag: returns a `DropTargetRecord`
+ * Resolve a single element against the active drag: returns a `DraggableTargetRecord`
  * when the element is registered, not `disabled`, and its `accept` and
  * `canDrop` both pass; `null` when it abstains; {@link DROP_REJECTED} when its
  * `canDrop` refuses the drop outright. Shared by the DOM walk in
@@ -400,8 +397,8 @@ export function captureDropTargetCollision(
  */
 function resolveDropTargetOutcome(
   element: Element,
-  feedback: Omit<DropTargetResolutionContext, 'element'>,
-): DropTargetRecord | null | typeof DROP_REJECTED {
+  feedback: Omit<DraggableTargetResolutionContext, 'element'>,
+): DraggableTargetRecord | null | typeof DROP_REJECTED {
   const getRegistration = getActiveRegistration(element);
   if (!getRegistration) {
     return null;
@@ -424,7 +421,7 @@ function resolveDropTargetOutcome(
   if (!matchesAccept(registration.accept, feedback.source as DragSource)) {
     return null;
   }
-  const fullFeedback: DropTargetResolutionContext = { ...feedback, element };
+  const fullFeedback: DraggableTargetResolutionContext = { ...feedback, element };
 
   // Then dynamic `canDrop`, with throws contained per-target so they don't abort the walk.
   const canDropVerdict = registration.canDrop
@@ -462,7 +459,7 @@ function resolveDropTargetOutcome(
     registrationData.set(kind, dragDataState);
   }
   const data = dragDataState;
-  const record: DropTargetRecord = {
+  const record: DraggableTargetRecord = {
     element,
     kind,
     get payload() {
@@ -531,9 +528,9 @@ function snapAxis(value: number, steps: number | undefined): number {
  */
 function createLocalPointReaders(
   element: Element,
-  context: DropTargetResolutionContext,
+  context: DraggableTargetResolutionContext,
   snap: AnyDropTargetParameters['snap'],
-): Pick<DropTargetRecord, 'getLocalPoint' | 'getSnappedLocalPoint'> {
+): Pick<DraggableTargetRecord, 'getLocalPoint' | 'getSnappedLocalPoint'> {
   const { clientX, clientY } = context.input;
   const grabOffset = grabOffsetSlot.current;
 
@@ -622,10 +619,10 @@ function createLocalPointReaders(
  */
 export function getDropTargetsOver(
   target: Element | null,
-  feedback: Omit<DropTargetResolutionContext, 'element'>,
+  feedback: Omit<DraggableTargetResolutionContext, 'element'>,
   onReject?: (element: Element) => void,
-): DropTargetRecord[] {
-  const result: DropTargetRecord[] = [];
+): DraggableTargetRecord[] {
+  const result: DraggableTargetRecord[] = [];
 
   for (let node = target; node !== null; node = getComposedParentElement(node)) {
     // Keyed on the attribute, not the registry: while a target unregisters, its
@@ -649,8 +646,7 @@ export function getDropTargetsOver(
   return result;
 }
 
-// `onMoveEnd` is source/monitor only, so it is excluded from the indexable key set.
-type DropTargetEventName = keyof DropTargetEventMap & keyof RegisterDropTargetParameters;
+type DropTargetEventName = keyof DropTargetEventDetailsMap & keyof RegisterTargetParameters;
 
 /**
  * The element's active registration getter. The drop path captures it up front
@@ -661,9 +657,9 @@ type DropTargetEventName = keyof DropTargetEventMap & keyof RegisterDropTargetPa
 export { getActiveRegistration as getActiveDropTargetRegistration };
 
 export function dispatchToDropTarget<K extends DropTargetEventName>(
-  record: DropTargetRecord,
+  record: DraggableTargetRecord,
   eventName: K,
-  payload: DropTargetEventMap[K],
+  source: DragSource,
   eventDetails: DropTargetEventDetailsMap[K],
   capturedRegistration?: DropTargetGetter,
 ): void {
@@ -684,22 +680,18 @@ export function dispatchToDropTarget<K extends DropTargetEventName>(
   }
   // A leave can outlive the kind contract that produced its record.
   const compatible =
-    matchesAccept(registration.accept, payload.source) && registration.kind?.id === record.kind;
+    matchesAccept(registration.accept, source) && registration.kind?.id === record.kind;
   const parameters = compatible ? registration : recordRegistrations.get(record);
   if (!parameters) {
     return;
   }
   const handler = parameters[eventName] as
-    | ((
-        parameters: DropTargetEventMap[K] & DropTargetEventTarget,
-        eventDetails: DropTargetEventDetailsMap[K],
-      ) => void)
-    | undefined;
-  handler?.({ ...payload, target: record }, eventDetails);
+    ((value: DropTargetEventValue, eventDetails: DropTargetEventDetailsMap[K]) => void) | undefined;
+  handler?.({ source, target: record }, eventDetails);
 }
 
 /** Remove the record held against `element` from the hovered bookkeeping. */
-function removeHoveredRecord(hovered: DropTargetRecord[], element: Element): void {
+function removeHoveredRecord(hovered: DraggableTargetRecord[], element: Element): void {
   const index = hovered.findIndex((record) => record.element === element);
   if (index !== -1) {
     hovered.splice(index, 1);
@@ -707,7 +699,10 @@ function removeHoveredRecord(hovered: DropTargetRecord[], element: Element): voi
 }
 
 /** Swap the stale record for `fresh` (same element) in the hovered bookkeeping. */
-function replaceHoveredRecord(hovered: DropTargetRecord[], fresh: DropTargetRecord): void {
+function replaceHoveredRecord(
+  hovered: DraggableTargetRecord[],
+  fresh: DraggableTargetRecord,
+): void {
   const index = hovered.findIndex((record) => record.element === fresh.element);
   if (index === -1) {
     hovered.push(fresh);
@@ -725,8 +720,8 @@ function replaceHoveredRecord(hovered: DropTargetRecord[], fresh: DropTargetReco
  * time while every intermediate `onDraggableMove` reported fresh ones.
  */
 export function refreshHoveredRecords(
-  hovered: DropTargetRecord[],
-  fresh: readonly DropTargetRecord[],
+  hovered: DraggableTargetRecord[],
+  fresh: readonly DraggableTargetRecord[],
 ): void {
   // Runs on every element-equal move frame: between change dispatches the hovered
   // list mirrors the resolved stack order, so the index-aligned record almost always
@@ -758,12 +753,12 @@ export function refreshHoveredRecords(
  * leave goes out.
  */
 export function dispatchTerminalDropTargetLeave(
-  record: DropTargetRecord,
-  payload: DropTargetEventMap['onDraggableLeave'],
+  record: DraggableTargetRecord,
+  source: DragSource,
   eventDetails: DropTargetEventDetailsMap['onDraggableLeave'],
-  hovered: DropTargetRecord[],
+  hovered: DraggableTargetRecord[],
 ): void {
-  dispatchDropTargetLeave(record, payload, eventDetails, hovered);
+  dispatchDropTargetLeave(record, source, eventDetails, hovered);
 }
 
 /**
@@ -772,14 +767,14 @@ export function dispatchTerminalDropTargetLeave(
  * not re-leave this target.
  */
 function dispatchDropTargetLeave(
-  record: DropTargetRecord,
-  payload: DropTargetEventMap['onDraggableLeave'],
+  record: DraggableTargetRecord,
+  source: DragSource,
   eventDetails: DropTargetEventDetailsMap['onDraggableLeave'],
-  hovered: DropTargetRecord[],
+  hovered: DraggableTargetRecord[],
 ): void {
   removeHoveredRecord(hovered, record.element);
   try {
-    dispatchToDropTarget(record, 'onDraggableLeave', payload, eventDetails);
+    dispatchToDropTarget(record, 'onDraggableLeave', source, eventDetails);
   } finally {
     releaseRetiringDropTarget(record.element);
   }
@@ -797,12 +792,12 @@ function dispatchDropTargetLeave(
  * hover state.
  */
 export function dispatchDropTargetChange(
-  previous: readonly DropTargetRecord[],
-  current: readonly DropTargetRecord[],
-  payload: DropTargetEventMap['onDraggableEnter'],
+  previous: readonly DraggableTargetRecord[],
+  current: readonly DraggableTargetRecord[],
+  source: DragSource,
   eventDetails: DropTargetEventDetailsMap['onDraggableEnter'],
   shouldContinue: () => boolean,
-  hovered: DropTargetRecord[],
+  hovered: DraggableTargetRecord[],
 ): void {
   const currByElement = new Map(current.map((r) => [r.element, r] as const));
   const visited = new Set<Element>();
@@ -817,7 +812,7 @@ export function dispatchDropTargetChange(
     if (fresh) {
       replaceHoveredRecord(hovered, fresh);
     } else {
-      dispatchDropTargetLeave(record, payload, eventDetails, hovered);
+      dispatchDropTargetLeave(record, source, eventDetails, hovered);
     }
   }
 
@@ -831,7 +826,7 @@ export function dispatchDropTargetChange(
     // Added before delivery: if the enter handler cancels the
     // drag, the terminal dispatch owes this target a balancing leave.
     hovered.push(record);
-    dispatchToDropTarget(record, 'onDraggableEnter', payload, eventDetails);
+    dispatchToDropTarget(record, 'onDraggableEnter', source, eventDetails);
   }
 
   // Fully delivered: sync the bookkeeping to the canonical, bubble-ordered stack.
@@ -840,9 +835,9 @@ export function dispatchDropTargetChange(
 }
 
 export function dispatchToAllDropTargets<K extends DropTargetEventName>(
-  targets: readonly DropTargetRecord[],
+  targets: readonly DraggableTargetRecord[],
   eventName: K,
-  payload: DropTargetEventMap[K],
+  source: DragSource,
   eventDetails: DropTargetEventDetailsMap[K],
   shouldContinue: () => boolean,
 ): void {
@@ -852,18 +847,18 @@ export function dispatchToAllDropTargets<K extends DropTargetEventName>(
     if (!shouldContinue()) {
       return;
     }
-    dispatchToDropTarget(record, eventName, payload, eventDetails);
+    dispatchToDropTarget(record, eventName, source, eventDetails);
   }
 }
 
 /**
- * Parameters accepted by `Draggable.Target` and `registerDropTarget`, except the element.
+ * Parameters accepted by `Draggable.Target` and `registerTarget`, except the element.
  *
  * `TSourcePayload` is the payload the accepted kinds carry and `TTargetPayload` this target's
- * own. `Draggable.Target` and `registerDropTarget` infer both, from `accept` and
+ * own. `Draggable.Target` and `registerTarget` infer both, from `accept` and
  * `payload` respectively.
  */
-export type RegisterDropTargetParameters<
+export type RegisterTargetParameters<
   TSourcePayload = unknown,
   TTargetPayload = unknown,
   TDragData = unknown,
@@ -871,7 +866,7 @@ export type RegisterDropTargetParameters<
 > = {
   /**
    * The data attached to this target, available as `target.payload` in its handlers
-   * and on its record in `location.current.dropTargets`.
+   * and on its record in `location.current.targets`.
    */
   payload?: TTargetPayload | undefined;
   /**
@@ -903,7 +898,7 @@ export type RegisterDropTargetParameters<
    */
   canDrop?:
     | ((
-        parameters: DropTargetResolutionContext<NoInfer<TSourcePayload>, NoInfer<TDragData>>,
+        parameters: DraggableTargetResolutionContext<NoInfer<TSourcePayload>, NoInfer<TDragData>>,
       ) => boolean | 'reject')
     | undefined;
   /**
@@ -917,7 +912,7 @@ export type RegisterDropTargetParameters<
   snap?:
     | DragSnapSteps
     | ((
-        context: DropTargetResolutionContext<NoInfer<TSourcePayload>, NoInfer<TDragData>>,
+        context: DraggableTargetResolutionContext<NoInfer<TSourcePayload>, NoInfer<TDragData>>,
       ) => DragSnapSteps | undefined)
     | undefined;
   /**
@@ -926,8 +921,7 @@ export type RegisterDropTargetParameters<
    */
   onDraggableStart?:
     | ((
-        parameters: DropTargetEvent<
-          'onDraggableStart',
+        value: DropTargetEventValue<
           NoInfer<TSourcePayload>,
           NoInfer<TTargetPayload>,
           NoInfer<TDragData>,
@@ -943,8 +937,7 @@ export type RegisterDropTargetParameters<
    */
   onDraggableMove?:
     | ((
-        parameters: DropTargetEvent<
-          'onDraggableMove',
+        value: DropTargetEventValue<
           NoInfer<TSourcePayload>,
           NoInfer<TTargetPayload>,
           NoInfer<TDragData>,
@@ -956,8 +949,7 @@ export type RegisterDropTargetParameters<
   /** Event handler called when the drag moves over this target. */
   onDraggableEnter?:
     | ((
-        parameters: DropTargetEvent<
-          'onDraggableEnter',
+        value: DropTargetEventValue<
           NoInfer<TSourcePayload>,
           NoInfer<TTargetPayload>,
           NoInfer<TDragData>,
@@ -972,8 +964,7 @@ export type RegisterDropTargetParameters<
    */
   onDraggableLeave?:
     | ((
-        parameters: DropTargetEvent<
-          'onDraggableLeave',
+        value: DropTargetEventValue<
           NoInfer<TSourcePayload>,
           NoInfer<TTargetPayload>,
           NoInfer<TDragData>,
@@ -989,7 +980,7 @@ export type RegisterDropTargetParameters<
    */
   onDraggableDrop?:
     | ((
-        parameters: DropEvent<
+        value: DropTargetEventValue<
           NoInfer<TSourcePayload>,
           NoInfer<TTargetPayload>,
           NoInfer<TDragData>,

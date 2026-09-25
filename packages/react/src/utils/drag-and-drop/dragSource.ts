@@ -24,7 +24,7 @@ export function createDragSource(
   const source: DragSource = {
     element,
     kind,
-    dragHandle,
+    handle: dragHandle,
     get payload() {
       return readPayload();
     },

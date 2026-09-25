@@ -14,14 +14,19 @@ import { reset } from '../../utils/drag-and-drop/core/lifecycleManager';
 import { restrictToHorizontalAxis } from '../../utils/drag-and-drop/dragModifiers';
 import { createKind } from '../../utils/drag-and-drop/dragKind';
 import { dragSessionStore } from '../../utils/drag-and-drop/dragSessionStore';
-import type { DragDropManager, RegisterAutoScrollerParameters } from '../../types/dragRegistration';
-import type { DragAutoScrollFrameContext } from '../../utils/drag-and-drop/autoScroller';
+import type { DraggableManager, RegisterViewportParameters } from '../../types/dragRegistration';
+import type {
+  DragAutoScrollEventDetails,
+  DragAutoScrollFrameContext,
+  DragAutoScrollHandler,
+  DragAutoScrollValue,
+} from '../../utils/drag-and-drop/autoScroller';
 
 // The synthetic-drag test below leaves an active session; clear its rAF tick
 // in the extra teardown so it doesn't fire after `document` is torn down.
 setupDragEngineTests({ extraAfterEach: resetSyntheticDrag });
 
-describe('engine.registerAutoScroller', () => {
+describe('engine.registerViewport', () => {
   const { renderDnd } = createDndRenderer();
 
   describe('overflow margins', () => {
@@ -46,8 +51,8 @@ describe('engine.registerAutoScroller', () => {
         const source = createElement();
         const scroller = makeEngageableScroller();
         const onDragScroll = vi.fn();
-        engine.registerDraggable(source, {});
-        engine.registerAutoScroller(scroller, { overflowMargin: margin, onDragScroll });
+        engine.registerSource(source, {});
+        engine.registerViewport(scroller, { overflowMargin: margin, onDragScroll });
         await lift(source, { clientX: 100, clientY: 100 });
         fireEvent.dragOver(scroller, { clientX: x, clientY: y });
         await flushRaf();
@@ -56,7 +61,8 @@ describe('engine.registerAutoScroller', () => {
         expect(onDragScroll.mock.calls.length > 0).toBe(scrolls);
         expect(
           onDragScroll.mock.calls.every(
-            ([event]) => event.input.clientX === x && event.input.clientY === y,
+            ([, eventDetails]) =>
+              eventDetails.input.clientX === x && eventDetails.input.clientY === y,
           ),
         ).toBe(true);
       },
@@ -67,8 +73,8 @@ describe('engine.registerAutoScroller', () => {
       const { engine } = await renderDnd();
       const source = createElement();
       const scroller = makeEngageableScroller();
-      engine.registerDraggable(source, {});
-      engine.registerAutoScroller(scroller, { overflowMargin: 160, maxSpeed: 100 });
+      engine.registerSource(source, {});
+      engine.registerViewport(scroller, { overflowMargin: 160, maxSpeed: 100 });
       await lift(source, { clientX: 100, clientY: 100 });
       fireEvent.dragOver(scroller, { clientX: 100, clientY: 200 });
       await flushRaf();
@@ -97,9 +103,9 @@ describe('engine.registerAutoScroller', () => {
       parent.appendChild(outside);
       const inside = makeEngageableScroller();
       inside.getBoundingClientRect = () => new DOMRect(0, 100, 200, 200);
-      engine.registerDraggable(source, {});
-      engine.registerAutoScroller(outside, { overflowMargin: { bottom: 160 } });
-      engine.registerAutoScroller(inside, {});
+      engine.registerSource(source, {});
+      engine.registerViewport(outside, { overflowMargin: { bottom: 160 } });
+      engine.registerViewport(inside, {});
       await lift(source, { clientX: 100, clientY: 100 });
       fireEvent.dragOver(inside, { clientX: 100, clientY: 290 });
       await flushRaf();
@@ -117,11 +123,11 @@ describe('engine.registerAutoScroller', () => {
       const confined = makeEngageableScroller();
       const neighbour = makeEngageableScroller();
       neighbour.getBoundingClientRect = () => new DOMRect(200, 0, 200, 200);
-      engine.registerDraggable(source, {
+      engine.registerSource(source, {
         modifiers: ({ point }) => ({ x: Math.min(point.x, 100), y: Math.min(point.y, 220) }),
       });
-      engine.registerAutoScroller(neighbour, {});
-      engine.registerAutoScroller(confined, { overflowMargin: { bottom: 30 } });
+      engine.registerViewport(neighbour, {});
+      engine.registerViewport(confined, { overflowMargin: { bottom: 30 } });
       await lift(source, { clientX: 100, clientY: 100 });
       fireEvent.dragOver(neighbour, { clientX: 300, clientY: 290 });
       await flushRaf();
@@ -140,9 +146,9 @@ describe('engine.registerAutoScroller', () => {
         const inner = makeEngageableScroller();
         outer.appendChild(inner);
         const pan = vi.fn();
-        engine.registerDraggable(source, {});
-        engine.registerAutoScroller(outer, { overflowMargin: 30 });
-        engine.registerAutoScroller(inner, {
+        engine.registerSource(source, {});
+        engine.registerViewport(outer, { overflowMargin: 30 });
+        engine.registerViewport(inner, {
           overflowMargin: 30,
           onDragScroll: (event, details) => {
             details.cancel();
@@ -170,8 +176,8 @@ describe('engine.registerAutoScroller', () => {
       Object.defineProperty(scroller, 'scrollWidth', { value: 1000 });
       Object.defineProperty(scroller, 'clientWidth', { value: 200 });
       Object.defineProperty(scroller, 'scrollLeft', { value: -400, writable: true });
-      engine.registerDraggable(source, {});
-      engine.registerAutoScroller(scroller, { overflowMargin: { left: 30 } });
+      engine.registerSource(source, {});
+      engine.registerViewport(scroller, { overflowMargin: { left: 30 } });
       await lift(source, { clientX: 100, clientY: 100 });
       fireEvent.dragOver(scroller, { clientX: -20, clientY: 100 });
       await flushRaf();
@@ -189,21 +195,17 @@ describe('engine.registerAutoScroller', () => {
     const inner = createElement();
     outer.getBoundingClientRect = () => new DOMRect(0, 0, 200, 200);
     inner.getBoundingClientRect = () => new DOMRect(400, 0, 200, 200);
-    const outerScroll = vi.fn<
-      import('../../utils/drag-and-drop/autoScroller').DragAutoScrollHandler
-    >((_, details) => {
+    const outerScroll = vi.fn<DragAutoScrollHandler>((_, details) => {
       details.cancel();
       details.consume();
     });
-    const innerScroll = vi.fn<
-      import('../../utils/drag-and-drop/autoScroller').DragAutoScrollHandler
-    >((_, details) => {
+    const innerScroll = vi.fn<DragAutoScrollHandler>((_, details) => {
       details.cancel();
       details.consume();
     });
-    engine.registerDraggable(source, {});
-    engine.registerAutoScroller(outer, { onDragScroll: outerScroll });
-    engine.registerAutoScroller(inner, { onDragScroll: innerScroll });
+    engine.registerSource(source, {});
+    engine.registerViewport(outer, { onDragScroll: outerScroll });
+    engine.registerViewport(inner, { onDragScroll: innerScroll });
     await lift(source, { clientX: 190, clientY: 190 });
     await flushRaf();
     expect(outerScroll).toHaveBeenCalled();
@@ -228,8 +230,8 @@ describe('engine.registerAutoScroller', () => {
       Object.defineProperty(scroller, 'clientWidth', { value: 200 });
       let armed = false;
       const onDragScroll = vi.fn(() => engine.cancelDrag());
-      engine.registerDraggable(source, {});
-      engine.registerAutoScroller(scroller, () => {
+      engine.registerSource(source, {});
+      engine.registerViewport(scroller, () => {
         if (armed && mode === 'parameters') {
           engine.cancelDrag();
         }
@@ -258,10 +260,10 @@ describe('engine.registerAutoScroller', () => {
     const { engine } = await renderDnd();
     const source = createElement();
     const survivor = makeEngageableScroller();
-    engine.registerDraggable(source, {});
-    engine.registerAutoScroller(survivor, {});
+    engine.registerSource(source, {});
+    engine.registerViewport(survivor, {});
     const cleanups = Array.from({ length: 20 }, () =>
-      engine.registerAutoScroller(makeEngageableScroller(), {}),
+      engine.registerViewport(makeEngageableScroller(), {}),
     );
     await lift(source, { clientX: 100, clientY: 100 });
     await flushRaf();
@@ -287,8 +289,8 @@ describe('engine.registerAutoScroller', () => {
     const preview = document.createElement('div');
     preview.setAttribute('data-drag-preview', '');
     scroller.appendChild(preview);
-    engine.registerDraggable(source, {});
-    engine.registerAutoScroller(scroller, {});
+    engine.registerSource(source, {});
+    engine.registerViewport(scroller, {});
     await lift(source, { clientX: 100, clientY: 100 });
     await flushRaf();
     await flushRaf();
@@ -315,16 +317,18 @@ describe('engine.registerAutoScroller', () => {
     scroller.style.overflowX = 'hidden';
     scroller.style.overflowY = 'auto';
     const onDragScroll = vi.fn();
-    engine.registerDraggable(source, {});
-    engine.registerAutoScroller(scroller, { onDragScroll });
+    engine.registerSource(source, {});
+    engine.registerViewport(scroller, { onDragScroll });
     await driveIntoEdgeZone(source, scroller);
     expect(onDragScroll).toHaveBeenCalled();
     expect(scroller.scrollBy).toHaveBeenCalled();
-    const [event, eventDetails] = onDragScroll.mock.calls[0];
-    expect(event).toMatchObject({ direction: 'vertical', x: 0, element: scroller });
-    expect(eventDetails.reason).toBe('pointer');
+    const [value, eventDetails] = onDragScroll.mock.calls[0];
+    expect(value).toMatchObject({ direction: 'vertical', x: 0 });
+    expect(eventDetails.element).toBe(scroller);
+    expect(eventDetails.reason).toBe('none');
     expect(eventDetails.event).toBeInstanceOf(Event);
     expect(eventDetails.isCanceled).toBe(false);
+    expect(eventDetails.isPropagationAllowed).toBe(false);
     expect(eventDetails.isConsumed).toBe(false);
   });
 
@@ -336,8 +340,8 @@ describe('engine.registerAutoScroller', () => {
     const scrollBy = vi.fn();
     surface.scrollBy = scrollBy;
     const deltas: number[] = [];
-    engine.registerDraggable(source, {});
-    engine.registerAutoScroller(surface, {
+    engine.registerSource(source, {});
+    engine.registerViewport(surface, {
       onDragScroll({ y }, eventDetails) {
         eventDetails.cancel();
         deltas.push(y);
@@ -367,8 +371,8 @@ describe('engine.registerAutoScroller', () => {
     const scroller = makeEngageableScroller();
     scroller.scrollTop = 800;
     const pan = vi.fn();
-    engine.registerDraggable(source, {});
-    engine.registerAutoScroller(scroller, {
+    engine.registerSource(source, {});
+    engine.registerViewport(scroller, {
       onDragScroll(details, eventDetails) {
         eventDetails.cancel();
         pan(details);
@@ -386,8 +390,8 @@ describe('engine.registerAutoScroller', () => {
     const { engine } = await renderDnd();
     const source = createElement();
     const scroller = makeEngageableScroller();
-    engine.registerDraggable(source, {});
-    const cleanup = engine.registerAutoScroller(scroller, {});
+    engine.registerSource(source, {});
+    const cleanup = engine.registerViewport(scroller, {});
     await driveIntoEdgeZone(source, scroller);
     expect(scroller.scrollBy).toHaveBeenCalled();
 
@@ -409,8 +413,8 @@ describe('engine.registerAutoScroller', () => {
     const onDragScroll = vi.fn();
     const scrollBy = vi.fn();
     scroller.scrollBy = scrollBy;
-    engine.registerDraggable(source, {});
-    engine.registerAutoScroller(scroller, { onDragScroll });
+    engine.registerSource(source, {});
+    engine.registerViewport(scroller, { onDragScroll });
     await lift(source, { clientX: 100, clientY: 100 });
     fireEvent.dragOver(scroller, { clientX: 190, clientY: 190 });
     await flushRaf();
@@ -427,8 +431,8 @@ describe('engine.registerAutoScroller', () => {
     const source = createElement();
     const scroller = makeEngageableScroller();
     const error = vi.spyOn(console, 'error').mockImplementation(() => {});
-    engine.registerDraggable(source, {});
-    engine.registerAutoScroller(scroller, {
+    engine.registerSource(source, {});
+    engine.registerViewport(scroller, {
       onDragScroll() {
         throw new Error('scroll failed');
       },
@@ -446,7 +450,7 @@ describe('engine.registerAutoScroller', () => {
   it('returns a cleanup function', async () => {
     const { engine } = await renderDnd();
     const el = createElement();
-    const cleanup = engine.registerAutoScroller(el, {});
+    const cleanup = engine.registerViewport(el, {});
     expect(typeof cleanup).toBe('function');
     cleanup();
   });
@@ -454,7 +458,7 @@ describe('engine.registerAutoScroller', () => {
   it('cleanup is safe to call twice', async () => {
     const { engine } = await renderDnd();
     const el = createElement();
-    const cleanup = engine.registerAutoScroller(el, {});
+    const cleanup = engine.registerViewport(el, {});
     cleanup();
     expect(() => cleanup()).not.toThrow();
   });
@@ -472,8 +476,8 @@ describe('engine.registerAutoScroller', () => {
     return scroller;
   }
 
-  function enableUnrelatedViewport(engine: Pick<DragDropManager, 'registerAutoScroller'>): void {
-    registerCleanup(engine.registerAutoScroller(document.createElement('div'), () => ({})));
+  function enableUnrelatedViewport(engine: Pick<DraggableManager, 'registerViewport'>): void {
+    registerCleanup(engine.registerViewport(document.createElement('div'), () => ({})));
   }
 
   // Drive the pointer into the scroller's bottom edge zone and let the loop run
@@ -528,8 +532,8 @@ describe('engine.registerAutoScroller', () => {
     const source = createElement();
     const scroller = makeEngageableScroller();
 
-    engine.registerDraggable(source, {});
-    engine.registerAutoScroller(scroller, {});
+    engine.registerSource(source, {});
+    engine.registerViewport(scroller, {});
 
     await driveIntoEdgeZone(source, scroller);
 
@@ -552,13 +556,13 @@ describe('engine.registerAutoScroller', () => {
     const buggy = makeEngageableScroller();
     const sane = makeEngageableScroller();
 
-    engine.registerDraggable(source, {});
-    engine.registerAutoScroller(buggy, {
+    engine.registerSource(source, {});
+    engine.registerViewport(buggy, {
       onDragScroll() {
         throw new Error('onDragScroll boom');
       },
     });
-    engine.registerAutoScroller(sane, {});
+    engine.registerViewport(sane, {});
 
     const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
 
@@ -584,14 +588,14 @@ describe('engine.registerAutoScroller', () => {
     const buggy = makeEngageableScroller();
     const sane = makeEngageableScroller();
 
-    engine.registerDraggable(source, {});
-    engine.registerAutoScroller(buggy, {
+    engine.registerSource(source, {});
+    engine.registerViewport(buggy, {
       onDragScroll(_event, eventDetails) {
         eventDetails.consume();
         throw new Error('onDragScroll boom');
       },
     });
-    engine.registerAutoScroller(sane, {});
+    engine.registerViewport(sane, {});
 
     const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
 
@@ -613,12 +617,12 @@ describe('engine.registerAutoScroller', () => {
     const buggy = makeEngageableScroller();
     const sane = makeEngageableScroller();
 
-    engine.registerDraggable(source, {});
+    engine.registerSource(source, {});
     // The getter itself throws — before the engine can even read `shouldScroll`.
-    engine.registerAutoScroller(buggy, () => {
+    engine.registerViewport(buggy, () => {
       throw new Error('getParameters boom');
     });
-    engine.registerAutoScroller(sane, {});
+    engine.registerViewport(sane, {});
 
     const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
 
@@ -652,9 +656,9 @@ describe('engine.registerAutoScroller', () => {
     Object.defineProperty(foreign, 'clientHeight', { value: 200 });
     foreignDoc.body.appendChild(foreign);
 
-    engine.registerDraggable(source, {});
-    engine.registerAutoScroller(foreign, {});
-    engine.registerAutoScroller(local, {});
+    engine.registerSource(source, {});
+    engine.registerViewport(foreign, {});
+    engine.registerViewport(local, {});
 
     await driveIntoEdgeZone(source, local);
 
@@ -669,8 +673,8 @@ describe('engine.registerAutoScroller', () => {
     const source = createElement();
     const scroller = makeEngageableScroller();
 
-    engine.registerDraggable(source, {});
-    engine.registerAutoScroller(scroller, {
+    engine.registerSource(source, {});
+    engine.registerViewport(scroller, {
       onDragScroll: (_event, eventDetails) => {
         eventDetails.cancel();
       },
@@ -699,8 +703,8 @@ describe('engine.registerAutoScroller', () => {
     Object.defineProperty(plain, 'scrollHeight', { value: 1000 });
     Object.defineProperty(plain, 'clientHeight', { value: 200 });
 
-    engine.registerDraggable(source, {});
-    engine.registerAutoScroller(plain, {});
+    engine.registerSource(source, {});
+    engine.registerViewport(plain, {});
 
     await driveIntoEdgeZone(source, plain);
     expect(plain.scrollBy).not.toHaveBeenCalled();
@@ -712,7 +716,7 @@ describe('engine.registerAutoScroller', () => {
     // mid-drag while the live pointer is already parked in its bottom edge
     // zone, scrolls — so the non-call above is the gate, not a dead loop.
     const control = makeEngageableScroller();
-    engine.registerAutoScroller(control, {});
+    engine.registerViewport(control, {});
     fireEvent.dragOver(control, { clientX: 100, clientY: 190 });
     await flushRaf();
     await flushRaf();
@@ -728,11 +732,11 @@ describe('engine.registerAutoScroller', () => {
     const scrollByMock = scroller.scrollBy as ReturnType<typeof vi.fn>;
     // Asymmetric answers so both halves observe which hold is active: the
     // second allows the scroll the first forbids.
-    const first = vi.fn<(context: DragAutoScrollFrameContext) => boolean>(() => false);
-    const second = vi.fn<(context: DragAutoScrollFrameContext) => boolean>(() => true);
+    const first = vi.fn<(value: DragAutoScrollValue) => boolean>(() => false);
+    const second = vi.fn<(value: DragAutoScrollValue) => boolean>(() => true);
 
-    engine.registerDraggable(source, {});
-    engine.registerAutoScroller(scroller, {
+    engine.registerSource(source, {});
+    engine.registerViewport(scroller, {
       onDragScroll: (details, eventDetails) => {
         if (!first(details)) {
           eventDetails.cancel();
@@ -740,7 +744,7 @@ describe('engine.registerAutoScroller', () => {
         }
       },
     });
-    const releaseSecond = engine.registerAutoScroller(scroller, {
+    const releaseSecond = engine.registerViewport(scroller, {
       onDragScroll: (details, eventDetails) => {
         if (!second(details)) {
           eventDetails.cancel();
@@ -780,8 +784,8 @@ describe('engine.registerAutoScroller', () => {
     const surface = createElement({ top: 0, height: 200, left: 0, width: 200 });
     const pan = vi.fn();
 
-    engine.registerDraggable(source, {});
-    const cleanupScroll = engine.registerAutoScroller(surface, {
+    engine.registerSource(source, {});
+    const cleanupScroll = engine.registerViewport(surface, {
       onDragScroll: (details, eventDetails) => {
         eventDetails.cancel();
         pan(details);
@@ -806,8 +810,8 @@ describe('engine.registerAutoScroller', () => {
     Object.defineProperty(scroller, 'scrollHeight', { value: 1000 });
     Object.defineProperty(scroller, 'clientHeight', { value: 100 });
 
-    engine.registerDraggable(source, {});
-    engine.registerAutoScroller(scroller, {});
+    engine.registerSource(source, {});
+    engine.registerViewport(scroller, {});
 
     // Route moves through the scroller element so the bridge replays them as
     // pointer moves the engine resolves; each position is outside the scroller's
@@ -849,9 +853,9 @@ describe('engine.registerAutoScroller', () => {
 
     // The axis lock pins every reported input's y to the grab point (10), which
     // is outside the scroller entirely.
-    engine.registerDraggable(source, { modifiers: restrictToHorizontalAxis });
-    engine.registerAutoScroller(scroller, {
-      onDragScroll: ({ input }) => {
+    engine.registerSource(source, { modifiers: restrictToHorizontalAxis });
+    engine.registerViewport(scroller, {
+      onDragScroll: (_, { input }) => {
         seenY.push(input.clientY);
       },
     });
@@ -889,10 +893,10 @@ describe('engine.registerAutoScroller', () => {
     // container while the drag itself stays in the bottom edge zone. Edge-testing
     // the raw point alone would skip the container here — and the candidate chain
     // is anchored at the clamped point, so the two halves would disagree.
-    engine.registerDraggable(source, {
+    engine.registerSource(source, {
       modifiers: ({ point }) => ({ x: point.x, y: Math.min(point.y, 190) }),
     });
-    engine.registerAutoScroller(scroller, {});
+    engine.registerViewport(scroller, {});
 
     await lift(source, { clientX: 100, clientY: 100 });
     // Physically past the bottom of the scroller (rect ends at 200).
@@ -921,13 +925,13 @@ describe('engine.registerAutoScroller', () => {
     const listA = makeList(0);
     const listB = makeList(200);
 
-    engine.registerDraggable(source, {
+    engine.registerSource(source, {
       modifiers: ({ point }) => ({ x: Math.min(point.x, 190), y: Math.min(point.y, 190) }),
     });
     // B is registered first so it is also visited first: without the reported
     // point taking precedence, B would consume the vertical axis before A runs.
-    engine.registerAutoScroller(listB, {});
-    engine.registerAutoScroller(listA, {});
+    engine.registerViewport(listB, {});
+    engine.registerViewport(listA, {});
 
     await lift(source, { clientX: 100, clientY: 100 });
     // The physical pointer sits in B's bottom edge zone; the reported point is
@@ -947,7 +951,7 @@ describe('engine.registerAutoScroller', () => {
     const source = createElement();
     const scroller = makeEngageableScroller();
 
-    engine.registerDraggable(source, {});
+    engine.registerSource(source, {});
 
     // Start the drag with NO scroller registered yet. Grab at the scroller's
     // vertical CENTRE (y=100 of 200), which is in no edge zone, so the frame the
@@ -957,7 +961,7 @@ describe('engine.registerAutoScroller', () => {
     // Register the scroller mid-drag: it joins the in-flight drag's candidate
     // set, but the pointer is parked at the centre — in no edge zone — so
     // nothing scrolls yet.
-    engine.registerAutoScroller(scroller, {});
+    engine.registerViewport(scroller, {});
     await flushRaf();
     await flushRaf();
     expect(scroller.scrollBy).not.toHaveBeenCalled();
@@ -978,7 +982,7 @@ describe('engine.registerAutoScroller', () => {
     const surface = createElement({ top: 0, height: 200, left: 0, width: 200 });
     const pan = vi.fn();
 
-    engine.registerDraggable(source, {});
+    engine.registerSource(source, {});
 
     // Park the pointer in the bottom edge zone of a container that is not yet a
     // candidate — nothing engages, so the loop parks itself. Flush until the
@@ -998,7 +1002,7 @@ describe('engine.registerAutoScroller', () => {
     // The panel-opening case: the container is registered while the pointer has
     // already stopped moving, so no input will arrive to wake the parked loop.
     // The registration itself has to buy the frame.
-    engine.registerAutoScroller(surface, {
+    engine.registerViewport(surface, {
       onDragScroll: (details, eventDetails) => {
         eventDetails.cancel();
         pan(details);
@@ -1015,8 +1019,8 @@ describe('engine.registerAutoScroller', () => {
     const source = createElement();
     const scroller = makeEngageableScroller();
 
-    engine.registerDraggable(source, {});
-    engine.registerAutoScroller(scroller, {});
+    engine.registerSource(source, {});
+    engine.registerViewport(scroller, {});
 
     // Park the pointer in the scroller's bottom edge zone: the loop is engaged
     // and scrolls every frame with no further pointer movement.
@@ -1030,7 +1034,7 @@ describe('engine.registerAutoScroller', () => {
     // or restarted the loop would halt a scroll with no fresh move to recover
     // on.
     const other = createElement({ top: 500, height: 100, left: 0, width: 100 });
-    engine.registerAutoScroller(other, {});
+    engine.registerViewport(other, {});
     await flushRaf();
     await flushRaf();
     expect(scrollByMock).toHaveBeenCalled();
@@ -1047,11 +1051,11 @@ describe('engine.registerAutoScroller', () => {
       // axis and starve the accepting one.
       const picky = makeEngageableScroller();
       const open = makeEngageableScroller();
-      const pickyShouldScroll = vi.fn<(context: DragAutoScrollFrameContext) => boolean>(() => true);
+      const pickyShouldScroll = vi.fn<(value: DragAutoScrollValue) => boolean>(() => true);
 
       // The drag's kind is the renderer's default `testDragKind`.
-      engine.registerDraggable(source, {});
-      engine.registerAutoScroller(picky, {
+      engine.registerSource(source, {});
+      engine.registerViewport(picky, {
         accept: otherKind,
         onDragScroll: (details, eventDetails) => {
           if (!pickyShouldScroll(details)) {
@@ -1060,7 +1064,7 @@ describe('engine.registerAutoScroller', () => {
           }
         },
       });
-      engine.registerAutoScroller(open, { accept: [otherKind, testDragKind] });
+      engine.registerViewport(open, { accept: [otherKind, testDragKind] });
 
       await driveIntoEdgeZone(source, picky);
 
@@ -1081,9 +1085,9 @@ describe('engine.registerAutoScroller', () => {
     const target = createElement({ top: 150, height: 50, left: 0, width: 200 });
     const onDraggableEnter = vi.fn();
 
-    engine.registerDraggable(source, {});
-    engine.registerAutoScroller(scroller, {});
-    engine.registerDropTarget(target, { onDraggableEnter });
+    engine.registerSource(source, {});
+    engine.registerViewport(scroller, {});
+    engine.registerTarget(target, { onDraggableEnter });
 
     // Park the pointer in the scroller's bottom edge zone, hovering the
     // scroller itself: the loop engages and scrolls every frame.
@@ -1109,8 +1113,8 @@ describe('engine.registerAutoScroller', () => {
     const source = createElement();
     const scroller = makeEngageableScroller();
 
-    engine.registerDraggable(source, {});
-    engine.registerAutoScroller(scroller, {});
+    engine.registerSource(source, {});
+    engine.registerViewport(scroller, {});
 
     await driveIntoEdgeZone(source, scroller);
     const scrollByMock = scroller.scrollBy as ReturnType<typeof vi.fn>;
@@ -1146,8 +1150,8 @@ describe('engine.registerAutoScroller', () => {
     Object.defineProperty(scroller, 'scrollHeight', { value: 3000 });
     Object.defineProperty(scroller, 'clientHeight', { value: 1000 });
 
-    engine.registerDraggable(source, {});
-    engine.registerAutoScroller(scroller, {});
+    engine.registerSource(source, {});
+    engine.registerViewport(scroller, {});
 
     await lift(source, { clientX: 100, clientY: 500 });
 
@@ -1187,9 +1191,9 @@ describe('engine.registerAutoScroller', () => {
     Object.defineProperty(inner, 'clientHeight', { value: 200 });
     shadow.appendChild(inner);
 
-    engine.registerDraggable(source, {});
-    engine.registerAutoScroller(outer, {});
-    engine.registerAutoScroller(inner, {});
+    engine.registerSource(source, {});
+    engine.registerViewport(outer, {});
+    engine.registerViewport(inner, {});
 
     // Both boxes span y=0..200, so y=190 is in both bottom edge zones.
     await driveIntoEdgeZone(source, outer);
@@ -1261,9 +1265,9 @@ describe('engine.registerAutoScroller', () => {
       const outer = makeScroller({ top: 0, height: 300, left: 0, width: 200 });
       const inner = makeScroller({ top: 0, height: 100, left: 0, width: 200 }, outer.element);
 
-      engine.registerDraggable(source, {});
-      engine.registerAutoScroller(outer.element, {});
-      engine.registerAutoScroller(inner.element, {});
+      engine.registerSource(source, {});
+      engine.registerViewport(outer.element, {});
+      engine.registerViewport(inner.element, {});
 
       await lift(source, { clientX: 100, clientY: 90 });
       fireEvent.dragOver(inner.element, { clientX: 100, clientY: 90 });
@@ -1286,9 +1290,9 @@ describe('engine.registerAutoScroller', () => {
       const outer = makeScroller({ top: 0, height: 200, left: 0, width: 200 }, document.body, true);
       const inner = makeScroller({ top: 0, height: 200, left: 0, width: 200 }, outer.element, true);
 
-      engine.registerDraggable(source, {});
-      engine.registerAutoScroller(outer.element, {});
-      engine.registerAutoScroller(inner.element, {
+      engine.registerSource(source, {});
+      engine.registerViewport(outer.element, {});
+      engine.registerViewport(inner.element, {
         onDragScroll: (details, eventDetails) => {
           const allowedDirection = 'vertical';
           if (allowedDirection !== details.direction) {
@@ -1332,9 +1336,9 @@ describe('engine.registerAutoScroller', () => {
       outer.element.appendChild(inner);
       registerCleanupElement(inner);
 
-      engine.registerDraggable(source, {});
-      engine.registerAutoScroller(outer.element, {});
-      engine.registerAutoScroller(inner, {});
+      engine.registerSource(source, {});
+      engine.registerViewport(outer.element, {});
+      engine.registerViewport(inner, {});
 
       await lift(source, { clientX: 100, clientY: 100 });
       fireEvent.dragOver(inner, { clientX: 100, clientY: 190 });
@@ -1364,9 +1368,9 @@ describe('engine.registerAutoScroller', () => {
       // handler from the docs. It must not withhold the axis from the outer.
       const observe = vi.fn();
 
-      engine.registerDraggable(source, {});
-      engine.registerAutoScroller(outer.element, {});
-      engine.registerAutoScroller(inner, { onDragScroll: observe });
+      engine.registerSource(source, {});
+      engine.registerViewport(outer.element, {});
+      engine.registerViewport(inner, { onDragScroll: observe });
 
       await lift(source, { clientX: 100, clientY: 100 });
       fireEvent.dragOver(inner, { clientX: 100, clientY: 190 });
@@ -1391,9 +1395,9 @@ describe('engine.registerAutoScroller', () => {
       outer.element.appendChild(inner);
       const innerPan = vi.fn();
 
-      engine.registerDraggable(source, {});
-      engine.registerAutoScroller(outer.element, {});
-      const cleanupInner = engine.registerAutoScroller(inner, {
+      engine.registerSource(source, {});
+      engine.registerViewport(outer.element, {});
+      const cleanupInner = engine.registerViewport(inner, {
         onDragScroll: (details, eventDetails) => {
           eventDetails.cancel();
           innerPan(details);
@@ -1450,8 +1454,8 @@ describe('engine.registerAutoScroller', () => {
         const source = createElement();
         const scroller = makeScroller({ top: 0, height: 200, left: 0, width: 200 });
 
-        engine.registerDraggable(source, {});
-        engine.registerAutoScroller(scroller.element, {});
+        engine.registerSource(source, {});
+        engine.registerViewport(scroller.element, {});
 
         // The loop must still call `scrollBy` (and mark the axis consumed) on
         // engagement intent alone — otherwise nested-scroller hand-off would break
@@ -1533,7 +1537,7 @@ describe('engine.registerAutoScroller', () => {
       const container = makeContainer();
       const source = makeNestedSource(container.element);
 
-      engine.registerDraggable(source, {});
+      engine.registerSource(source, {});
       enableUnrelatedViewport(engine);
 
       await driveTo(source, container.element, 100, 190);
@@ -1546,8 +1550,8 @@ describe('engine.registerAutoScroller', () => {
       const outer = makeContainer();
       const inner = makeContainer({ parent: outer.element });
       const source = makeNestedSource(inner.element);
-      engine.registerDraggable(source, {});
-      engine.registerAutoScroller(outer.element, {});
+      engine.registerSource(source, {});
+      engine.registerViewport(outer.element, {});
 
       await driveTo(source, inner.element, 100, 190);
 
@@ -1565,8 +1569,8 @@ describe('engine.registerAutoScroller', () => {
       container.element.appendChild(inner);
       const source = makeNestedSource(container.element);
 
-      engine.registerDraggable(source, {});
-      engine.registerAutoScroller(container.element, {});
+      engine.registerSource(source, {});
+      engine.registerViewport(container.element, {});
 
       await driveTo(source, container.element, 100, 190);
       expect(container.scrollBy).not.toHaveBeenCalled();
@@ -1588,8 +1592,8 @@ describe('engine.registerAutoScroller', () => {
       const second = document.createElement('div');
       container.element.append(first, second);
       const source = createElement();
-      engine.registerDraggable(source, {});
-      engine.registerAutoScroller(container.element, {});
+      engine.registerSource(source, {});
+      engine.registerViewport(container.element, {});
 
       await driveTo(source, first, 100, 190);
 
@@ -1610,8 +1614,8 @@ describe('engine.registerAutoScroller', () => {
       const row = document.createElement('div');
       container.element.append(row);
       const source = createElement();
-      engine.registerDraggable(source, {});
-      engine.registerAutoScroller(container.element, {});
+      engine.registerSource(source, {});
+      engine.registerViewport(container.element, {});
 
       await driveTo(source, row, 100, 190);
       expect(container.scrollBy).toHaveBeenCalled();
@@ -1640,9 +1644,9 @@ describe('engine.registerAutoScroller', () => {
       const first = makeContainer();
       const second = makeContainer({ rect: { left: 300, top: 0, width: 200, height: 200 } });
       const source = createElement();
-      engine.registerDraggable(source, {});
-      engine.registerAutoScroller(first.element, {});
-      engine.registerAutoScroller(second.element, {});
+      engine.registerSource(source, {});
+      engine.registerViewport(first.element, {});
+      engine.registerViewport(second.element, {});
 
       await driveTo(source, first.element, 100, 190);
       expect(first.scrollBy).toHaveBeenCalled();
@@ -1669,9 +1673,9 @@ describe('engine.registerAutoScroller', () => {
       const list = makeContainer({ parent: column });
       const source = createElement();
 
-      engine.registerDraggable(source, {});
-      engine.registerDropTarget(column, {});
-      engine.registerAutoScroller(list.element, {});
+      engine.registerSource(source, {});
+      engine.registerTarget(column, {});
+      engine.registerViewport(list.element, {});
 
       await driveTo(source, list.element, 100, 190);
 
@@ -1683,8 +1687,8 @@ describe('engine.registerAutoScroller', () => {
       const container = makeContainer({ vertical: false });
       const source = makeNestedSource(container.element);
 
-      engine.registerDraggable(source, {});
-      engine.registerAutoScroller(container.element, {});
+      engine.registerSource(source, {});
+      engine.registerViewport(container.element, {});
 
       await driveTo(source, container.element, 100, 190);
 
@@ -1697,9 +1701,9 @@ describe('engine.registerAutoScroller', () => {
       const column = makeContainer({ parent: board.element });
       const source = makeNestedSource(column.element);
 
-      engine.registerDraggable(source, {});
-      engine.registerAutoScroller(board.element, {});
-      engine.registerAutoScroller(column.element, {});
+      engine.registerSource(source, {});
+      engine.registerViewport(board.element, {});
+      engine.registerViewport(column.element, {});
 
       await driveTo(source, column.element, 190, 190);
 
@@ -1723,9 +1727,9 @@ describe('engine.registerAutoScroller', () => {
       const { engine } = await renderDnd();
       const { sourceContainer, targetContainer, source, target } = renderTwoContainers();
 
-      engine.registerDraggable(source, {});
-      engine.registerDropTarget(target, {});
-      engine.registerAutoScroller(targetContainer.element, {});
+      engine.registerSource(source, {});
+      engine.registerTarget(target, {});
+      engine.registerViewport(targetContainer.element, {});
 
       await driveTo(source, target, 100, 190);
 
@@ -1737,9 +1741,9 @@ describe('engine.registerAutoScroller', () => {
       const { engine } = await renderDnd();
       const { targetContainer, source, target } = renderTwoContainers();
 
-      engine.registerDraggable(source, {});
-      engine.registerDropTarget(target, {});
-      engine.registerAutoScroller(targetContainer.element, {});
+      engine.registerSource(source, {});
+      engine.registerTarget(target, {});
+      engine.registerViewport(targetContainer.element, {});
 
       await driveTo(source, targetContainer.element, 100, 190);
 
@@ -1752,8 +1756,8 @@ describe('engine.registerAutoScroller', () => {
       const source = makeNestedSource(sourceContainer.element);
       const outsider = createElement({ top: 150, height: 50, left: 0, width: 200 });
 
-      engine.registerDraggable(source, {});
-      engine.registerAutoScroller(sourceContainer.element, {});
+      engine.registerSource(source, {});
+      engine.registerViewport(sourceContainer.element, {});
 
       await driveTo(source, outsider, 100, 190);
 
@@ -1764,12 +1768,14 @@ describe('engine.registerAutoScroller', () => {
       const { engine } = await renderDnd();
       const container = makeContainer();
       const source = makeNestedSource(container.element);
-      const shouldScroll = vi.fn<(context: DragAutoScrollFrameContext) => boolean>(() => false);
+      const shouldScroll = vi.fn<
+        (value: DragAutoScrollValue, eventDetails: DragAutoScrollEventDetails) => boolean
+      >(() => false);
 
-      engine.registerDraggable(source, {});
-      engine.registerAutoScroller(container.element, {
+      engine.registerSource(source, {});
+      engine.registerViewport(container.element, {
         onDragScroll: (details, eventDetails) => {
-          if (!shouldScroll(details)) {
+          if (!shouldScroll(details, eventDetails)) {
             eventDetails.cancel();
             return;
           }
@@ -1779,7 +1785,7 @@ describe('engine.registerAutoScroller', () => {
       await driveTo(source, container.element, 100, 190);
 
       expect(shouldScroll).toHaveBeenCalled();
-      expect(shouldScroll.mock.calls[0][0].element).toBe(container.element);
+      expect(shouldScroll.mock.calls[0][1].element).toBe(container.element);
       expect(container.scrollBy).not.toHaveBeenCalled();
     });
 
@@ -1788,8 +1794,8 @@ describe('engine.registerAutoScroller', () => {
       const container = makeContainer();
       const source = makeNestedSource(container.element);
 
-      engine.registerDraggable(source, {}); // the renderer's default `testDragKind`
-      engine.registerAutoScroller(container.element, {
+      engine.registerSource(source, {}); // the renderer's default `testDragKind`
+      engine.registerViewport(container.element, {
         accept: createKind<unknown>('base-ui-test/other-viewport'),
       });
 
@@ -1803,7 +1809,7 @@ describe('engine.registerAutoScroller', () => {
       const viewport = makeContainer({ overflow: 'visible' });
       const source = makeNestedSource(viewport.element);
 
-      engine.registerDraggable(source, {});
+      engine.registerSource(source, {});
       // Another viewport keeps the scroll loop alive, so the non-call below is
       // the ancestor's, not a parked loop's.
       enableUnrelatedViewport(engine);
@@ -1819,11 +1825,11 @@ describe('engine.registerAutoScroller', () => {
       const source = makeNestedSource(viewport.element);
       const pan = vi.fn();
 
-      engine.registerDraggable(source, {});
-      engine.registerAutoScroller(viewport.element, {
+      engine.registerSource(source, {});
+      engine.registerViewport(viewport.element, {
         onDragScroll: (details, eventDetails) => {
           eventDetails.cancel();
-          pan(details);
+          pan(details, eventDetails);
           eventDetails.consume();
         },
       });
@@ -1831,7 +1837,7 @@ describe('engine.registerAutoScroller', () => {
       await driveTo(source, viewport.element, 100, 190);
 
       expect(pan).toHaveBeenCalled();
-      expect(pan.mock.calls[0][0].element).toBe(viewport.element);
+      expect(pan.mock.calls[0][1].element).toBe(viewport.element);
       expect(viewport.scrollBy).not.toHaveBeenCalled();
     });
   });
@@ -1900,7 +1906,7 @@ describe('engine.registerAutoScroller', () => {
       const source = createElement();
       const page = mockPageScroller();
 
-      engine.registerDraggable(source, {});
+      engine.registerSource(source, {});
 
       await drive(source, 400, 590);
 
@@ -1912,12 +1918,12 @@ describe('engine.registerAutoScroller', () => {
       const source = createElement();
       const page = mockPageScroller();
 
-      engine.registerDraggable(source, {});
+      engine.registerSource(source, {});
       // The page can't be opted out with a component — `Draggable.Viewport`
       // renders a `<div>`, and there is nowhere to put one on `<html>` — so the
       // imperative registration is the escape hatch for it.
       registerCleanup(
-        engine.registerAutoScroller(document.documentElement, () => ({
+        engine.registerViewport(document.documentElement, () => ({
           onDragScroll: (_event, eventDetails) => {
             eventDetails.cancel();
           },
@@ -1934,8 +1940,8 @@ describe('engine.registerAutoScroller', () => {
       const source = createElement();
       const page = mockPageScroller();
 
-      engine.registerDraggable(source, {});
-      registerCleanup(engine.registerAutoScroller(page.element, {}));
+      engine.registerSource(source, {});
+      registerCleanup(engine.registerViewport(page.element, {}));
 
       await drive(source, 400, 590);
 
@@ -1947,8 +1953,8 @@ describe('engine.registerAutoScroller', () => {
       const { engine } = await renderDnd();
       const source = createElement();
       const page = mockPageScroller();
-      engine.registerDraggable(source, {});
-      registerCleanup(engine.registerAutoScroller(page.element, {}));
+      engine.registerSource(source, {});
+      registerCleanup(engine.registerViewport(page.element, {}));
 
       await drive(source, 400, page.element.clientHeight + 100);
       await flushRaf();
@@ -1965,11 +1971,11 @@ describe('engine.registerAutoScroller', () => {
       const source = createElement();
       const page = mockPageScroller();
 
-      engine.registerDraggable(source, {});
+      engine.registerSource(source, {});
       // `document.body` with default styling is not an overflow container of
       // its own, so the registration must map to the page scroller instead of
       // being silently inert.
-      registerCleanup(engine.registerAutoScroller(document.body, {}));
+      registerCleanup(engine.registerViewport(document.body, {}));
 
       await drive(source, 400, 590);
 
@@ -2022,8 +2028,8 @@ describe('engine.registerAutoScroller', () => {
         }
       });
 
-      engine.registerDraggable(source, {});
-      registerCleanup(engine.registerAutoScroller(document.body, {}));
+      engine.registerSource(source, {});
+      registerCleanup(engine.registerViewport(document.body, {}));
 
       await drive(source, 400, 590);
 
@@ -2040,8 +2046,8 @@ describe('engine.registerAutoScroller', () => {
       styleOverflow(document.documentElement, { overflow: 'auto' });
       styleOverflow(document.body, { overflow: 'hidden' });
 
-      engine.registerDraggable(source, {});
-      registerCleanup(engine.registerAutoScroller(page.element, {}));
+      engine.registerSource(source, {});
+      registerCleanup(engine.registerViewport(page.element, {}));
 
       await drive(source, 400, 590);
 
@@ -2054,8 +2060,8 @@ describe('engine.registerAutoScroller', () => {
       const page = mockPageScroller();
       styleOverflow(document.documentElement, { overflowY: 'hidden' });
 
-      engine.registerDraggable(source, {});
-      registerCleanup(engine.registerAutoScroller(page.element, {}));
+      engine.registerSource(source, {});
+      registerCleanup(engine.registerViewport(page.element, {}));
 
       await drive(source, 400, 590);
       expect(page.scrollBy).not.toHaveBeenCalled();
@@ -2074,8 +2080,8 @@ describe('engine.registerAutoScroller', () => {
       const page = mockPageScroller();
       styleOverflow(document.documentElement, { overflowX: 'hidden' });
 
-      engine.registerDraggable(source, {});
-      registerCleanup(engine.registerAutoScroller(page.element, {}));
+      engine.registerSource(source, {});
+      registerCleanup(engine.registerViewport(page.element, {}));
 
       await drive(source, 700, 300);
       expect(page.scrollBy).not.toHaveBeenCalled();
@@ -2095,8 +2101,8 @@ describe('engine.registerAutoScroller', () => {
       // while `<html>` stays `visible`, so the page is stopped on that axis.
       styleOverflow(document.body, { overflowY: 'hidden' });
 
-      engine.registerDraggable(source, {});
-      registerCleanup(engine.registerAutoScroller(page.element, {}));
+      engine.registerSource(source, {});
+      registerCleanup(engine.registerViewport(page.element, {}));
 
       await drive(source, 400, 590);
 
@@ -2108,8 +2114,8 @@ describe('engine.registerAutoScroller', () => {
       const source = createElement();
       const page = mockPageScroller();
 
-      engine.registerDraggable(source, {});
-      registerCleanup(engine.registerAutoScroller(page.element, {}));
+      engine.registerSource(source, {});
+      registerCleanup(engine.registerViewport(page.element, {}));
 
       // Top edge of a page scrolled down by 500px. Against the mocked bounding
       // rect (top -500, height 2000) the pointer would sit 510px into a 2000px
@@ -2125,8 +2131,8 @@ describe('engine.registerAutoScroller', () => {
       const source = createElement();
       const page = mockPageScroller();
 
-      engine.registerDraggable(source, {});
-      registerCleanup(engine.registerAutoScroller(page.element, {}));
+      engine.registerSource(source, {});
+      registerCleanup(engine.registerViewport(page.element, {}));
 
       // Right edge (x > 620), vertically centred (no vertical edge).
       await drive(source, 700, 300);
@@ -2140,9 +2146,9 @@ describe('engine.registerAutoScroller', () => {
       const source = createElement();
       const page = mockPageScroller();
 
-      engine.registerDraggable(source, {});
+      engine.registerSource(source, {});
       registerCleanup(
-        engine.registerAutoScroller(page.element, {
+        engine.registerViewport(page.element, {
           onDragScroll: (details, eventDetails) => {
             const allowedDirection = 'vertical';
             if (allowedDirection !== details.direction) {
@@ -2165,9 +2171,9 @@ describe('engine.registerAutoScroller', () => {
       const source = createElement();
       const page = mockPageScroller();
 
-      engine.registerDraggable(source, {});
+      engine.registerSource(source, {});
       registerCleanup(
-        engine.registerAutoScroller(page.element, {
+        engine.registerViewport(page.element, {
           onDragScroll: (_event, eventDetails) => {
             eventDetails.cancel();
           },
@@ -2191,8 +2197,8 @@ describe('engine.registerAutoScroller', () => {
       Object.defineProperty(inner, 'clientHeight', { value: 200 });
       inner.appendChild(source);
 
-      engine.registerDraggable(source, {});
-      engine.registerAutoScroller(inner, {});
+      engine.registerSource(source, {});
+      engine.registerViewport(inner, {});
 
       await drive(source, 400, 590);
 
@@ -2214,9 +2220,9 @@ describe('engine.registerAutoScroller', () => {
       Object.defineProperty(inner, 'scrollHeight', { value: 1000 });
       Object.defineProperty(inner, 'clientHeight', { value: 200 });
 
-      engine.registerDraggable(source, {});
-      registerCleanup(engine.registerAutoScroller(page.element, {}));
-      const cleanupInner = engine.registerAutoScroller(inner, {});
+      engine.registerSource(source, {});
+      registerCleanup(engine.registerViewport(page.element, {}));
+      const cleanupInner = engine.registerViewport(inner, {});
 
       await drive(source, 400, 590);
 
@@ -2244,8 +2250,8 @@ describe('engine.registerAutoScroller', () => {
       page.element.style.direction = 'rtl';
       registerCleanup(() => page.element.style.removeProperty('direction'));
 
-      engine.registerDraggable(source, {});
-      registerCleanup(engine.registerAutoScroller(page.element, {}));
+      engine.registerSource(source, {});
+      registerCleanup(engine.registerViewport(page.element, {}));
 
       // RIGHT (home) edge: naive LTR math (`0 + 800 < 2000`) would engage, but
       // there is nothing to scroll back toward.
@@ -2279,10 +2285,10 @@ describe('engine.registerAutoScroller', () => {
       addSpacer('10px', '4000px');
       registerCleanup(() => window.scrollTo(0, 0));
 
-      engine.registerDraggable(source, {
+      engine.registerSource(source, {
         activation: { touch: { type: 'immediate' } },
       });
-      registerCleanup(engine.registerAutoScroller(document.documentElement, {}));
+      registerCleanup(engine.registerViewport(document.documentElement, {}));
 
       const centerX = Math.floor(document.documentElement.clientWidth / 2);
       const viewportHeight = document.documentElement.clientHeight;
@@ -2315,10 +2321,10 @@ describe('engine.registerAutoScroller', () => {
       });
       addSpacer('4000px', '10px');
 
-      engine.registerDraggable(source, {
+      engine.registerSource(source, {
         activation: { touch: { type: 'immediate' } },
       });
-      registerCleanup(engine.registerAutoScroller(document.documentElement, {}));
+      registerCleanup(engine.registerViewport(document.documentElement, {}));
 
       const centerY = Math.floor(document.documentElement.clientHeight / 2);
       const viewportWidth = document.documentElement.clientWidth;
@@ -2352,10 +2358,10 @@ describe('engine.registerAutoScroller', () => {
       });
       addSpacer('4000px', '10px');
 
-      engine.registerDraggable(source, {
+      engine.registerSource(source, {
         activation: { touch: { type: 'immediate' } },
       });
-      registerCleanup(engine.registerAutoScroller(document.documentElement, {}));
+      registerCleanup(engine.registerViewport(document.documentElement, {}));
 
       const centerY = Math.floor(document.documentElement.clientHeight / 2);
       const viewportWidth = document.documentElement.clientWidth;
@@ -2380,8 +2386,8 @@ describe('engine.registerAutoScroller', () => {
     const source = createElement();
     const scroller = makeEngageableScroller();
 
-    engine.registerDraggable(source, {});
-    engine.registerAutoScroller(scroller, {});
+    engine.registerSource(source, {});
+    engine.registerViewport(scroller, {});
 
     // Engage in the bottom edge zone: the loop reschedules itself every frame.
     await driveIntoEdgeZone(source, scroller);
@@ -2408,8 +2414,8 @@ describe('engine.registerAutoScroller', () => {
     Object.defineProperty(scroller, 'scrollHeight', { value: 1000 });
     Object.defineProperty(scroller, 'clientHeight', { value: 200 });
 
-    engine.registerDraggable(source, {});
-    engine.registerAutoScroller(scroller, {});
+    engine.registerSource(source, {});
+    engine.registerViewport(scroller, {});
 
     // Park the pointer in the top edge zone so the loop engages and keeps
     // rescheduling itself while the drag is live.
@@ -2494,10 +2500,10 @@ describe('engine.registerAutoScroller', () => {
       Object.defineProperty(scroller, 'scrollHeight', { value: 1000 });
       Object.defineProperty(scroller, 'clientHeight', { value: 200 });
 
-      engine.registerDraggable(source, {
+      engine.registerSource(source, {
         activation: { touch: { type: 'immediate' } },
       });
-      engine.registerAutoScroller(scroller, {});
+      engine.registerViewport(scroller, {});
 
       // Pointer in the top edge zone (y=10 of 200).
       startTouchDrag(source, 100, 10);
@@ -2538,10 +2544,10 @@ describe('engine.registerAutoScroller', () => {
       Object.defineProperty(scroller, 'scrollWidth', { value: 1000 });
       Object.defineProperty(scroller, 'clientWidth', { value: 200 });
 
-      engine.registerDraggable(source, {
+      engine.registerSource(source, {
         activation: { touch: { type: 'immediate' } },
       });
-      engine.registerAutoScroller(scroller, {
+      engine.registerViewport(scroller, {
         onDragScroll: (details, eventDetails) => {
           const allowedDirection = 'vertical';
           if (allowedDirection !== details.direction) {
@@ -2585,10 +2591,10 @@ describe('engine.registerAutoScroller', () => {
       // Mid-range (-400 of a max extent of 800): both directions available.
       const scroller = makeRtlScroller(-400);
 
-      engine.registerDraggable(source, {
+      engine.registerSource(source, {
         activation: { touch: { type: 'immediate' } },
       });
-      engine.registerAutoScroller(scroller, {});
+      engine.registerViewport(scroller, {});
 
       // LEFT edge (x=10), vertically centred → scroll further leftward, so the
       // deltas must be negative and never positive.
@@ -2618,10 +2624,10 @@ describe('engine.registerAutoScroller', () => {
       // Home position: `scrollLeft` is 0 in RTL.
       const scroller = makeRtlScroller(0);
 
-      engine.registerDraggable(source, {
+      engine.registerSource(source, {
         activation: { touch: { type: 'immediate' } },
       });
-      engine.registerAutoScroller(scroller, {});
+      engine.registerViewport(scroller, {});
 
       // RIGHT edge at home: nothing to scroll back toward. Naive LTR math
       // (`scrollLeft + clientWidth < scrollWidth` → 0 + 200 < 1000) would
@@ -2686,8 +2692,8 @@ describe('engine.registerAutoScroller', () => {
       // Fully scrolled: 800 + 200 === 1000.
       const scroller = makeScrollerAt({ scrollTop: 800 });
 
-      engine.registerDraggable(source, {});
-      engine.registerAutoScroller(scroller, {});
+      engine.registerSource(source, {});
+      engine.registerViewport(scroller, {});
 
       await drive(source, scroller, 100, 190);
 
@@ -2702,8 +2708,8 @@ describe('engine.registerAutoScroller', () => {
       // overshoot the limit by half a pixel.
       const scroller = makeScrollerAt({ scrollTop: 799.5 });
 
-      engine.registerDraggable(source, {});
-      engine.registerAutoScroller(scroller, {});
+      engine.registerSource(source, {});
+      engine.registerViewport(scroller, {});
 
       await drive(source, scroller, 100, 190);
 
@@ -2715,8 +2721,8 @@ describe('engine.registerAutoScroller', () => {
       const source = createElement();
       const scroller = makeScrollerAt({ scrollTop: 0 });
 
-      engine.registerDraggable(source, {});
-      engine.registerAutoScroller(scroller, {});
+      engine.registerSource(source, {});
+      engine.registerViewport(scroller, {});
 
       await drive(source, scroller, 100, 10);
 
@@ -2729,8 +2735,8 @@ describe('engine.registerAutoScroller', () => {
       // 799.5 exercises the `Math.ceil` guard the exhausted right edge relies on.
       const scroller = makeScrollerAt({ scrollLeft: 799.5 });
 
-      engine.registerDraggable(source, {});
-      engine.registerAutoScroller(scroller, {});
+      engine.registerSource(source, {});
+      engine.registerViewport(scroller, {});
 
       await drive(source, scroller, 190, 100);
 
@@ -2743,8 +2749,8 @@ describe('engine.registerAutoScroller', () => {
       const scroller = makeScrollerAt({ scrollLeft: 800 });
       const pan = vi.fn();
 
-      engine.registerDraggable(source, {});
-      engine.registerAutoScroller(scroller, {
+      engine.registerSource(source, {});
+      engine.registerViewport(scroller, {
         onDragScroll(details, eventDetails) {
           eventDetails.cancel();
           pan(details);
@@ -2765,8 +2771,8 @@ describe('engine.registerAutoScroller', () => {
       const scroller = makeScrollerAt({});
       const onDragScroll = vi.fn();
 
-      engine.registerDraggable(source, {});
-      engine.registerAutoScroller(scroller, { onDragScroll });
+      engine.registerSource(source, {});
+      engine.registerViewport(scroller, { onDragScroll });
 
       await drive(source, scroller, 190, 190);
 
@@ -2785,8 +2791,8 @@ describe('engine.registerAutoScroller', () => {
       const source = createElement();
       const scroller = makeScrollerAt({ scrollLeft: 0 });
 
-      engine.registerDraggable(source, {});
-      engine.registerAutoScroller(scroller, {});
+      engine.registerSource(source, {});
+      engine.registerViewport(scroller, {});
 
       await drive(source, scroller, 10, 100);
 
@@ -2802,8 +2808,8 @@ describe('engine.registerAutoScroller', () => {
       const scroller = makeScrollerAt({ scrollTop: 400, scrollLeft: 400 });
       const scrollByMock = scroller.scrollBy as ReturnType<typeof vi.fn>;
 
-      engine.registerDraggable(source, {});
-      engine.registerAutoScroller(scroller, {});
+      engine.registerSource(source, {});
+      engine.registerViewport(scroller, {});
 
       await lift(source, { clientX: 100, clientY: 100 });
 
@@ -2841,8 +2847,8 @@ describe('engine.registerAutoScroller', () => {
       const source = createElement();
       const scroller = makeEngageableScroller();
 
-      engine.registerDraggable(source, {});
-      engine.registerAutoScroller(scroller, {});
+      engine.registerSource(source, {});
+      engine.registerViewport(scroller, {});
 
       // `driveIntoEdgeZone` parks the pointer at y=190 of a 200px box, i.e. 0.8
       // deep into the 50px bottom edge zone.
@@ -2882,8 +2888,8 @@ describe('engine.registerAutoScroller', () => {
         const source = createElement();
         const scroller = makeEngageableScroller();
 
-        engine.registerDraggable(source, {});
-        engine.registerAutoScroller(scroller, {});
+        engine.registerSource(source, {});
+        engine.registerViewport(scroller, {});
 
         // Engage at 0.8 depth (y=190 of the 200px box). The clock stands still,
         // so every engaged frame applies a 0 delta and the ramp's elapsed time is
@@ -2942,8 +2948,8 @@ describe('engine.registerAutoScroller', () => {
       const source = createElement();
       const scroller = makeEngageableScroller();
 
-      engine.registerDraggable(source, {});
-      engine.registerAutoScroller(scroller, {});
+      engine.registerSource(source, {});
+      engine.registerViewport(scroller, {});
 
       // Lift at the box's vertical centre, in no edge zone.
       await lift(source, { clientX: 100, clientY: 100 });
@@ -2992,14 +2998,14 @@ describe('engine.registerAutoScroller', () => {
     // The delta one 16ms frame applies at full ramp, for a scroller registered
     // with `parameters`. The scroller sits at 0..200 and the pointer parks at
     // y=190, which is 0.8 of the way into the 50px bottom edge zone.
-    async function measureFrameDelta(parameters: RegisterAutoScrollerParameters): Promise<number> {
+    async function measureFrameDelta(parameters: RegisterViewportParameters): Promise<number> {
       const { engine } = await renderDnd();
       const clock = installFrameClock();
       const source = createElement();
       const scroller = makeEngageableScroller();
 
-      engine.registerDraggable(source, {});
-      engine.registerAutoScroller(scroller, parameters);
+      engine.registerSource(source, {});
+      engine.registerViewport(scroller, parameters);
 
       await driveIntoEdgeZone(source, scroller);
       // Past the 400ms ramp, so `rampFactor` is pinned at 1.
@@ -3071,9 +3077,9 @@ describe('engine.registerAutoScroller', () => {
       // makes `inner` the one the depth order reaches first.
       outer.appendChild(inner);
 
-      engine.registerDraggable(source, {});
-      engine.registerAutoScroller(inner, { maxSpeed: 0 });
-      engine.registerAutoScroller(outer, {});
+      engine.registerSource(source, {});
+      engine.registerViewport(inner, { maxSpeed: 0 });
+      engine.registerViewport(outer, {});
 
       await driveIntoEdgeZone(source, inner);
       clock.advance(1000);
@@ -3114,8 +3120,8 @@ describe('engine.registerAutoScroller', () => {
       viewport.style.overflow = 'visible';
       const pan = vi.fn();
 
-      engine.registerDraggable(source, {});
-      engine.registerAutoScroller(viewport, {
+      engine.registerSource(source, {});
+      engine.registerViewport(viewport, {
         maxSpeed: 300,
         onDragScroll: (details, eventDetails) => {
           eventDetails.cancel();
@@ -3184,8 +3190,8 @@ describe('engine.registerAutoScroller', () => {
       const viewport = makeViewport();
       const pan = vi.fn();
 
-      engine.registerDraggable(source, {});
-      engine.registerAutoScroller(viewport, {
+      engine.registerSource(source, {});
+      engine.registerViewport(viewport, {
         onDragScroll: (details, eventDetails) => {
           eventDetails.cancel();
           pan(details);
@@ -3209,8 +3215,8 @@ describe('engine.registerAutoScroller', () => {
         const source = createElement();
         const viewport = makeViewport();
 
-        engine.registerDraggable(source, {});
-        engine.registerAutoScroller(viewport, {});
+        engine.registerSource(source, {});
+        engine.registerViewport(viewport, {});
 
         await driveTo(source, viewport, 100, 190);
 
@@ -3242,8 +3248,8 @@ describe('engine.registerAutoScroller', () => {
         const viewport = makeViewport();
         const pan = vi.fn();
 
-        engine.registerDraggable(source, {});
-        engine.registerAutoScroller(viewport, {
+        engine.registerSource(source, {});
+        engine.registerViewport(viewport, {
           onDragScroll: (details, eventDetails) => {
             eventDetails.cancel();
             pan(details);
@@ -3263,24 +3269,24 @@ describe('engine.registerAutoScroller', () => {
       const viewport = makeViewport();
       const pan = vi.fn();
 
-      engine.registerDraggable(source, {});
-      engine.registerAutoScroller(viewport, {
+      engine.registerSource(source, {});
+      engine.registerViewport(viewport, {
         onDragScroll: (details, eventDetails) => {
           eventDetails.cancel();
-          pan(details);
+          pan(details, eventDetails);
           eventDetails.consume();
         },
       });
 
       await driveTo(source, viewport, 100, 190);
 
-      const context = pan.mock.calls[0][0];
-      expect(context.element).toBe(viewport);
-      expect(context.source.element).toBe(source);
-      expect(context.input.clientX).toBe(100);
-      expect(context.input.clientY).toBe(190);
-      expect(typeof context.x).toBe('number');
-      expect(typeof context.y).toBe('number');
+      const [value, eventDetails] = pan.mock.calls[0];
+      expect(eventDetails.element).toBe(viewport);
+      expect(value.source.element).toBe(source);
+      expect(eventDetails.input.clientX).toBe(100);
+      expect(eventDetails.input.clientY).toBe(190);
+      expect(typeof value.x).toBe('number');
+      expect(typeof value.y).toBe('number');
     });
 
     it('never runs for a drag its accept rejects', async () => {
@@ -3291,8 +3297,8 @@ describe('engine.registerAutoScroller', () => {
       const viewport = makeViewport();
       const pan = vi.fn();
 
-      engine.registerDraggable(source, { kind: rejected, payload: undefined });
-      engine.registerAutoScroller(viewport, {
+      engine.registerSource(source, { kind: rejected, payload: undefined });
+      engine.registerViewport(viewport, {
         accept: accepted,
         onDragScroll: (details, eventDetails) => {
           eventDetails.cancel();
@@ -3313,8 +3319,8 @@ describe('engine.registerAutoScroller', () => {
       const viewport = makeViewport();
       const pan = vi.fn();
 
-      engine.registerDraggable(source, { kind: accepted, payload: undefined });
-      engine.registerAutoScroller(viewport, {
+      engine.registerSource(source, { kind: accepted, payload: undefined });
+      engine.registerViewport(viewport, {
         accept: accepted,
         onDragScroll: (details, eventDetails) => {
           eventDetails.cancel();
@@ -3335,8 +3341,8 @@ describe('engine.registerAutoScroller', () => {
       const viewport = makeViewport();
       const pan = vi.fn();
 
-      engine.registerDraggable(source, {});
-      engine.registerAutoScroller(viewport, {
+      engine.registerSource(source, {});
+      engine.registerViewport(viewport, {
         onDragScroll: (details, eventDetails) => {
           const allowedDirection = 'vertical';
           if (allowedDirection !== details.direction) {
@@ -3369,7 +3375,7 @@ describe('engine.registerAutoScroller', () => {
       // its `scrollBy` arguments instead would be vacuous: JSDOM pins every rAF
       // timestamp to 0, so both deltas are 0 whichever axis engaged.
       async function renderNested(
-        onDragScroll: import('../../utils/drag-and-drop/autoScroller').DragAutoScrollHandler,
+        onDragScroll: DragAutoScrollHandler,
         outerAllowedAxis?: 'vertical' | 'horizontal',
       ) {
         const { engine } = await renderDnd();
@@ -3398,8 +3404,8 @@ describe('engine.registerAutoScroller', () => {
         inner.style.overflow = 'visible';
         outer.appendChild(inner);
 
-        engine.registerDraggable(source, {});
-        engine.registerAutoScroller(outer, {
+        engine.registerSource(source, {});
+        engine.registerViewport(outer, {
           onDragScroll: (details, eventDetails) => {
             const allowedDirection = outerAllowedAxis ?? 'all';
             if (allowedDirection !== 'all' && allowedDirection !== details.direction) {
@@ -3408,7 +3414,7 @@ describe('engine.registerAutoScroller', () => {
             }
           },
         });
-        engine.registerAutoScroller(inner, { onDragScroll });
+        engine.registerViewport(inner, { onDragScroll });
 
         await lift(source, { clientX: 100, clientY: 100 });
         fireEvent.dragOver(inner, { clientX: 190, clientY: 190 });
@@ -3506,10 +3512,10 @@ describe('engine.registerAutoScroller', () => {
       const { engine } = await renderDnd();
       const source = createElement();
       const viewport = makeViewport();
-      const pan = vi.fn<(context: DragAutoScrollFrameContext) => null>(() => null);
+      const pan = vi.fn<(value: DragAutoScrollValue) => null>(() => null);
 
-      engine.registerDraggable(source, {});
-      engine.registerAutoScroller(viewport, {
+      engine.registerSource(source, {});
+      engine.registerViewport(viewport, {
         // Neither prevented nor stopped: the surface declines the direction. The
         // default (a native scroll) is a no-op on an element with no overflow.
         onDragScroll: (details) => {
@@ -3565,10 +3571,10 @@ describe('engine.registerAutoScroller', () => {
         });
 
         let panned = 0;
-        engine.registerDraggable(source, {
+        engine.registerSource(source, {
           activation: { touch: { type: 'immediate' } },
         });
-        engine.registerAutoScroller(viewport, {
+        engine.registerViewport(viewport, {
           onDragScroll: (details, eventDetails) => {
             eventDetails.cancel();
             (({ y }) => {
@@ -3581,7 +3587,7 @@ describe('engine.registerAutoScroller', () => {
           },
         });
         const onDraggableEnter = vi.fn();
-        engine.registerDropTarget(target, { onDraggableEnter });
+        engine.registerTarget(target, { onDraggableEnter });
 
         // The pointer parks in the bottom edge zone and never moves again.
         startTouchDrag(source, 200, 380);
@@ -3605,8 +3611,8 @@ describe('engine.registerAutoScroller', () => {
       const viewport = makeViewport();
       const pan = vi.fn();
 
-      engine.registerDraggable(source, {});
-      engine.registerAutoScroller(viewport, {
+      engine.registerSource(source, {});
+      engine.registerViewport(viewport, {
         onDragScroll: (details, eventDetails) => {
           eventDetails.cancel();
           pan(details);
@@ -3642,10 +3648,10 @@ describe('engine.registerAutoScroller', () => {
     Object.defineProperty(scroller, 'scrollHeight', { value: 1000 });
     Object.defineProperty(scroller, 'clientHeight', { value: 100 });
 
-    engine.registerDraggable(source, {
+    engine.registerSource(source, {
       activation: { touch: { type: 'immediate' } },
     });
-    engine.registerAutoScroller(scroller, {});
+    engine.registerViewport(scroller, {});
 
     const down = new PointerEvent('pointerdown', {
       pointerType: 'touch',
@@ -3686,7 +3692,7 @@ describe('engine.registerAutoScroller', () => {
 
 // Real layout only: jsdom has no scrolling, so every assertion above targets the
 // `scrollBy` stub. These pin the sign and axis of what actually moves.
-describe.skipIf(isJSDOM)('engine.registerAutoScroller (real scrolling)', () => {
+describe.skipIf(isJSDOM)('engine.registerViewport (real scrolling)', () => {
   const { renderDnd } = createDndRenderer();
 
   function makeRealScroller(): HTMLElement {
@@ -3712,8 +3718,8 @@ describe.skipIf(isJSDOM)('engine.registerAutoScroller (real scrolling)', () => {
     const source = createElement();
     const scroller = makeRealScroller();
     scroller.scrollTop = 400;
-    engine.registerDraggable(source, {});
-    engine.registerAutoScroller(scroller, {});
+    engine.registerSource(source, {});
+    engine.registerViewport(scroller, {});
 
     await lift(source, { clientX: 100, clientY: 100 });
     fireEvent.dragOver(scroller, { clientX: 100, clientY: 195 });
@@ -3732,8 +3738,8 @@ describe.skipIf(isJSDOM)('engine.registerAutoScroller (real scrolling)', () => {
     const source = createElement();
     const scroller = makeRealScroller();
     scroller.scrollLeft = 400;
-    engine.registerDraggable(source, {});
-    engine.registerAutoScroller(scroller, {});
+    engine.registerSource(source, {});
+    engine.registerViewport(scroller, {});
 
     await lift(source, { clientX: 100, clientY: 100 });
     fireEvent.dragOver(scroller, { clientX: 195, clientY: 100 });

@@ -37,7 +37,7 @@ describe('useManager', () => {
         (node: HTMLDivElement | null) => {
           if (node) {
             registrations += 1;
-            cleanupRef.current = engine.registerDraggable(node, () => ({
+            cleanupRef.current = engine.registerSource(node, () => ({
               kind: itemKind,
               onMoveStart: () => labelRef.current,
             }));
@@ -82,7 +82,7 @@ describe('useManager', () => {
       const ref = React.useCallback(
         (node: HTMLDivElement | null) => {
           if (node) {
-            cleanupRef.current = engine.registerDraggable(node, () => paramsRef.current);
+            cleanupRef.current = engine.registerSource(node, () => paramsRef.current);
           } else {
             cleanupRef.current?.();
             cleanupRef.current = null;
@@ -116,7 +116,7 @@ describe('useManager', () => {
 
     const { engine } = await renderDnd(<Harness />);
     const source = createElement();
-    engine.registerDraggable(source, {});
+    engine.registerSource(source, {});
 
     fireEvent.dragStart(source);
     await flushRaf();
@@ -129,7 +129,7 @@ describe('useManager', () => {
 
     const { engine } = await renderDnd();
     const source = createElement();
-    engine.registerDraggable(source, { onMoveEnd });
+    engine.registerSource(source, { onMoveEnd });
 
     fireEvent.dragStart(source);
     await flushRaf();
@@ -139,7 +139,7 @@ describe('useManager', () => {
     });
 
     expect(onMoveEnd).toHaveBeenCalledTimes(1);
-    expect(onMoveEnd.mock.calls[0][0].canceled).toBe(true);
+    expect(onMoveEnd.mock.calls[0][0].target).toBeNull();
     expect(onMoveEnd.mock.calls[0][1].reason).toBe('imperative-action');
   });
 });

@@ -1,10 +1,5 @@
 'use client';
-import {
-  Draggable,
-  type BeforeMoveStartEventDetails,
-  type DragKind,
-  type MoveStartContext,
-} from '@base-ui/react/draggable';
+import { Draggable } from '@base-ui/react/draggable';
 
 import * as React from 'react';
 import { getHorizontalCollisionAfter } from 'docs/src/utils/getHorizontalCollisionAfter';
@@ -149,7 +144,7 @@ function PlusIcon() {
 
 interface DraggableTabProps {
   item: TabItem;
-  kind: DragKind<string>;
+  kind: Draggable.DragKind<string>;
   listRef: React.RefObject<HTMLDivElement | null>;
   draggable: boolean;
   closable: boolean;
@@ -177,7 +172,10 @@ function DraggableTab(props: DraggableTabProps) {
   } = props;
 
   const handleBeforeDragStart = useStableCallback(
-    (_context: MoveStartContext, eventDetails: BeforeMoveStartEventDetails) => {
+    (
+      _value: Draggable.Root.BeforeMoveStartValue<string>,
+      eventDetails: Draggable.Root.BeforeMoveStartEventDetails,
+    ) => {
       if (eventDetails.trigger?.closest('[data-close-tab]')) {
         eventDetails.cancel();
         return;
@@ -232,9 +230,9 @@ function DraggableTab(props: DraggableTabProps) {
           modifiers={Draggable.restrictToHorizontalAxis}
           onBeforeMoveStart={handleBeforeDragStart}
           onMoveStart={onMoveStart}
-          onMoveEnd={(moveEvent, moveDetails) => {
+          onMoveEnd={({ target }) => {
             try {
-              if (moveDetails.reason === 'drop' && moveEvent.dropTarget !== null) {
+              if (target !== null) {
                 onDrop();
               }
             } finally {
@@ -274,7 +272,7 @@ function DraggableTab(props: DraggableTabProps) {
 interface SortableTabsProps {
   items: TabItem[];
   setItems: React.Dispatch<React.SetStateAction<TabItem[]>>;
-  kind: DragKind<string>;
+  kind: Draggable.DragKind<string>;
   selectedValue: string | null;
   defaultValue?: string | undefined;
   controlled?: boolean | undefined;
@@ -401,21 +399,20 @@ function SortableTabs(props: SortableTabsProps) {
         >
           <Draggable.CollisionProvider
             kind={kind}
-            onCollisionChange={({ source, collision, previousCollision }) => {
+            onCollisionChange={({ source, target }, { previousTarget }) => {
               if (
-                collision &&
-                previousCollision &&
-                collision.target.payload === previousCollision.target.payload &&
-                getHorizontalCollisionAfter(collision) ===
-                  getHorizontalCollisionAfter(previousCollision)
+                target &&
+                previousTarget &&
+                target.payload === previousTarget.payload &&
+                getHorizontalCollisionAfter(target) === getHorizontalCollisionAfter(previousTarget)
               ) {
                 return;
               }
-              if (collision) {
+              if (target) {
                 handleDragOverTab(
                   source.payload,
-                  collision.target.payload,
-                  getHorizontalCollisionAfter(collision),
+                  target.payload,
+                  getHorizontalCollisionAfter(target),
                 );
               }
             }}

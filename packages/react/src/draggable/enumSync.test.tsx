@@ -79,7 +79,7 @@ describe('Draggable enum sync', () => {
     );
     const source = screen.getByTestId('drag');
     const target = createElement();
-    engine.registerDropTarget(target, {});
+    engine.registerTarget(target, {});
 
     fireEvent.dragStart(source);
     await flushRaf();

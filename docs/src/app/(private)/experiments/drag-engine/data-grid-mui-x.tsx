@@ -438,26 +438,23 @@ function DataGridInner() {
             <div className={styles.columnSpacer} style={{ width: leadingWidth }} />
             <Draggable.CollisionProvider
               kind={columnKind}
-              onCollisionChange={({ collision }) => {
-                if (collision) {
-                  onColumnDragOver(
-                    collision.target.payload,
-                    !getHorizontalCollisionAfter(collision),
-                  );
+              onCollisionChange={({ target }) => {
+                if (target) {
+                  onColumnDragOver(target.payload, !getHorizontalCollisionAfter(target));
                 } else {
                   setDropIndicator(null);
                 }
               }}
-              onMoveEnd={({ source: dragged, collision }) => {
-                if (collision) {
+              onMoveEnd={({ source: dragged, target }) => {
+                if (target) {
                   setColumns((current) => {
-                    const index = current.findIndex((item) => item.id === collision.target.payload);
+                    const index = current.findIndex((item) => item.id === target.payload);
                     return index === -1
                       ? current
                       : moveToIndex(
                           current,
                           dragged.payload,
-                          index + (getHorizontalCollisionAfter(collision) ? 1 : 0),
+                          index + (getHorizontalCollisionAfter(target) ? 1 : 0),
                         );
                   });
                 }
@@ -481,28 +478,23 @@ function DataGridInner() {
             >
               <Draggable.CollisionProvider
                 kind={rowKind}
-                onCollisionChange={({ collision }) => {
-                  if (collision) {
-                    onRowDragOver(
-                      collision.target.payload,
-                      collision.target.getLocalPoint().y <= 0.5,
-                    );
+                onCollisionChange={({ target }) => {
+                  if (target) {
+                    onRowDragOver(target.payload, target.getLocalPoint().y <= 0.5);
                   } else {
                     setDropIndicator(null);
                   }
                 }}
-                onMoveEnd={({ source: dragged, collision }) => {
-                  if (collision) {
+                onMoveEnd={({ source: dragged, target }) => {
+                  if (target) {
                     setRows((current) => {
-                      const index = current.findIndex(
-                        (item) => item.id === collision.target.payload,
-                      );
+                      const index = current.findIndex((item) => item.id === target.payload);
                       return index === -1
                         ? current
                         : moveToIndex(
                             current,
                             dragged.payload,
-                            index + (collision.target.getLocalPoint().y > 0.5 ? 1 : 0),
+                            index + (target.getLocalPoint().y > 0.5 ? 1 : 0),
                           );
                     });
                   }

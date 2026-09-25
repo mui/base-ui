@@ -111,9 +111,9 @@ Use `Draggable.anyKind` to accept every drag, for example on a trash zone. Its `
 
 ## Drag events
 
-Drag sources and drop targets both fire event handlers as a drag progresses. Every handler receives an event object first, and an `eventDetails` object second with the event `reason` and the native `event`.
+Drag sources and drop targets both fire event handlers as a drag progresses. Every handler receives a value first, with the drag `source` and the `target` it is over, and an `eventDetails` object second with the event `reason`, the native `event`, and the drag `location`.
 
-When extracting a handler, use the types on its component namespace, such as `Draggable.Root.MoveStartEvent<Payload>`, `Draggable.Root.MoveStartEventDetails`, and `Draggable.Root.MoveStartEventReason`. Target handlers expose corresponding types such as `Draggable.Target.DropEvent<SourcePayload, TargetPayload>` and `Draggable.Target.DropEventDetails`. Event types also accept drag-data type arguments when needed. The existing standalone event types remain available for shared handlers and imperative registrations.
+When extracting a handler, use the types on its component namespace, such as `Draggable.Root.MoveStartValue<Payload>`, `Draggable.Root.MoveStartEventDetails`, and `Draggable.Root.MoveStartEventReason`. Target handlers expose corresponding types such as `Draggable.Target.DropValue<SourcePayload, TargetPayload>` and `Draggable.Target.DropEventDetails`. Value types also accept drag-data type arguments when needed.
 
 ### Drag source events
 
@@ -124,8 +124,8 @@ When extracting a handler, use the types on its component namespace, such as `Dr
   kind={card}
   payload={id}
   // Fires just before the drag starts. Call `eventDetails.cancel()` to prevent it.
-  onBeforeMoveStart={({ input }, eventDetails) => {
-    if (input.altKey) {
+  onBeforeMoveStart={(_, eventDetails) => {
+    if (eventDetails.input.altKey) {
       eventDetails.cancel();
     }
   }}
@@ -133,32 +133,30 @@ When extracting a handler, use the types on its component namespace, such as `Dr
   // source can be measured or restyled safely.
   onMoveStart={({ source }) => console.log('lifted', source.payload)}
   // Fires as the pointer moves, at most once per animation frame.
-  onMove={({ location }) => {
+  onMove={(_, { location }) => {
     const { clientX, clientY } = location.current.input;
     console.log('at', clientX, clientY);
   }}
   // Fires when the drop targets under the pointer change.
-  onTargetChange={({ location }) =>
-    console.log('over', location.current.dropTargets[0]?.payload ?? 'nothing')
-  }
+  onTargetChange={({ target }) => console.log('over', target?.payload ?? 'nothing')}
   // Fires once when the drag ends, whether it was dropped, released
   // outside a target, or canceled.
-  onMoveEnd={(event, eventDetails) => {
-    if (eventDetails.reason === 'drop' && event.dropTarget !== null) {
-      console.log('dropped on', event.dropTarget.payload);
+  onMoveEnd={({ target }) => {
+    if (target) {
+      console.log('dropped on', target.payload);
     }
   }}
 />
 ```
 
-Commit a successful drop in `onMoveEnd` when `eventDetails.reason` is `'drop'`. A release outside any target also ends with `event.canceled` set to `false`, so that flag alone doesn't identify a drop. When the handler also clears temporary state, use `try/finally` so the cleanup runs even if committing throws:
+Commit a successful drop in `onMoveEnd`. There, `target` is the target that received the drop, or `null` when the drag was canceled or released elsewhere, and `eventDetails.reason` says why the drag ended. When the handler also clears temporary state, use `try/finally` so the cleanup runs even if committing throws:
 
 ```tsx title="Committing a drop"
 <Draggable.Root
-  onMoveEnd={(event, eventDetails) => {
+  onMoveEnd={({ source, target }) => {
     try {
-      if (eventDetails.reason === 'drop' && event.dropTarget !== null) {
-        commitMove(event.source.payload, event.dropTarget.payload);
+      if (target) {
+        commitMove(source.payload, target.payload);
       }
     } finally {
       clearDragState();
@@ -167,7 +165,7 @@ Commit a successful drop in `onMoveEnd` when `eventDetails.reason` is `'drop'`. 
 />
 ```
 
-Every event carries the drag `source` and a `location` history:
+Every handler receives the drag `source` and `target` in its first argument, and a `location` history in `eventDetails`:
 
 - `location.current` is the pointer position and the drop targets under it, innermost first, for this event.
 - `location.previous` is the same information at the previous event. Compare it with `location.current` to detect what changed.
@@ -180,7 +178,7 @@ To observe every drag on the page rather than one source, use [`useMonitor`](#us
 
 ### Drop target events
 
-`<Draggable.Target>` fires the handlers below. They receive the drag `source`, the target's own record as `target`, and the same `location` history:
+`<Draggable.Target>` fires the handlers below. Their first argument holds the drag `source` and the target's own record as `target`, and `eventDetails` holds the same `location` history:
 
 ```tsx title="Reacting to a drag over a target"
 <Draggable.Target
@@ -190,7 +188,7 @@ To observe every drag on the page rather than one source, use [`useMonitor`](#us
   onDraggableEnter={({ source }) => console.log(source.payload, 'entered')}
   // Fires on every animation frame the pointer moves while over this target.
   // Hover feedback such as drop indicators belongs here.
-  onDraggableMove={({ location }) => {
+  onDraggableMove={(_, { location }) => {
     const { clientX, clientY } = location.current.input;
     highlightSlotAt(clientX, clientY);
   }}
@@ -245,7 +243,7 @@ Most targets don't need extra data. A target rendered for each row or column can
 <Draggable.Target accept={card} onDraggableDrop={({ source }) => move(source.payload, zone)} />
 ```
 
-Pass `payload` when other code must identify the target, for instance a monitor reading `location.current.dropTargets`. The value is available as `target.payload` in the target's own handlers:
+Pass `payload` when other code must identify the target, for instance a source or monitor handler reading the `target` it receives. The value is available as `target.payload` there and in the target's own handlers:
 
 ```tsx title="Identifying the target from its payload"
 <Draggable.Target
@@ -290,7 +288,7 @@ const manager = Draggable.useManager();
 
 React.useEffect(
   () =>
-    manager.registerAutoScroller(document.documentElement, () => ({
+    manager.registerViewport(document.documentElement, () => ({
       onDragScroll({ direction }, eventDetails) {
         if (direction === 'horizontal') {
           eventDetails.cancel();
@@ -350,11 +348,11 @@ await waitFor(() => {
 });
 ```
 
-Assert on what a user could observe: the data attributes on the source and targets, and the arguments your handlers received. Handlers take two arguments, so check `mock.calls[0][0]` for the event and `mock.calls[0][1]` for the details rather than `toHaveBeenCalledWith` with a single argument. A successful drop has the `'drop'` reason:
+Assert on what a user could observe: the data attributes on the source and targets, and the arguments your handlers received. Handlers take two arguments, so check `mock.calls[0][0]` for the value and `mock.calls[0][1]` for the details rather than `toHaveBeenCalledWith` with a single argument. A successful drop has the `'drop'` reason:
 
 ```tsx title="Asserting on a drop"
 expect(onMoveEnd).toHaveBeenCalledTimes(1);
-expect(onMoveEnd.mock.calls[0][0].dropTarget?.payload).toBe('done');
+expect(onMoveEnd.mock.calls[0][0].target?.payload).toBe('done');
 expect(onMoveEnd.mock.calls[0][1].reason).toBe('drop');
 ```
 
@@ -397,8 +395,8 @@ When the decision depends on the gesture itself, for example on which handle was
 <Draggable.Root
   kind={card}
   payload={id}
-  onBeforeMoveStart={({ input }, eventDetails) => {
-    if (input.altKey) {
+  onBeforeMoveStart={(_, eventDetails) => {
+    if (eventDetails.input.altKey) {
       eventDetails.cancel();
     }
   }}
@@ -415,7 +413,7 @@ const card = Draggable.createKind<string, { grabOffsetX: number }>('card');
 <Draggable.Root
   kind={card}
   payload={id}
-  onBeforeMoveStart={({ source, input }) => {
+  onBeforeMoveStart={({ source }, { input }) => {
     const rect = source.element.getBoundingClientRect();
     source.updateDragData({ grabOffsetX: input.clientX - rect.left });
   }}
@@ -536,9 +534,9 @@ import { DemoContainedDrag } from './demos/containment';
 A modifier is a function that receives the proposed `point` and returns the point to use. It also receives the `initialPoint` where the drag started, the raw pointer `input`, the source and preview rectangles, the element's `scale`, and the modifier keys held during the current event. It runs on every frame, so keep it cheap.
 
 ```tsx title="Snapping to fixed rows"
-import { type DragModifier } from '@base-ui/react/draggable';
+import { Draggable } from '@base-ui/react/draggable';
 
-const snapToRows: DragModifier = ({ point }) => ({
+const snapToRows: Draggable.DragModifier = ({ point }) => ({
   x: point.x,
   y: nearest(ROW_TOPS, point.y),
 });
@@ -547,7 +545,7 @@ const snapToRows: DragModifier = ({ point }) => ({
 Points are in client pixels, matching `getBoundingClientRect()`. On a zoomed or scaled canvas, multiply a canvas distance by `scale` to convert it to client pixels. `scale` is `1` when nothing is scaled.
 
 ```tsx title="Moving by 20 canvas units"
-const nudgeRight: DragModifier = ({ point, scale }) => ({
+const nudgeRight: Draggable.DragModifier = ({ point, scale }) => ({
   x: point.x + 20 * scale.x,
   y: point.y,
 });
@@ -556,7 +554,7 @@ const nudgeRight: DragModifier = ({ point, scale }) => ({
 The `ctrlKey`, `shiftKey`, `altKey`, and `metaKey` flags let a modifier react to keys held during the drag. Pressing or releasing a key reapplies the modifiers on the next frame.
 
 ```tsx title="Snapping to 45° while Shift is held"
-const snapToAngle: DragModifier = ({ point, shiftKey, initialPoint }) => {
+const snapToAngle: Draggable.DragModifier = ({ point, shiftKey, initialPoint }) => {
   if (!shiftKey) {
     return point;
   }
@@ -857,37 +855,37 @@ The same applies to the other parts. A scrollable list that accepts drops can be
 
 Use `<Draggable.CollisionProvider>` to reorder a group of draggables. Pass the same `kind` to the provider and to each `<Draggable.Root>` inside it. The provider reports which item is under the pointer, and your handlers decide where to insert the dragged item.
 
-Update the order in `onMoveEnd`. The event's `collision.target.payload` identifies the item under the pointer, and `collision.target.getLocalPoint()` tells which half of it the pointer is in. For a vertical list, a `y` above `0.5` means the bottom half. `collision` is `null` when the drag was canceled, released outside the group, or released over the dragged item itself.
+Update the order in `onMoveEnd`. The `target.payload` it receives identifies the item under the pointer, and `target.getLocalPoint()` tells which half of it the pointer is in. For a vertical list, a `y` above `0.5` means the bottom half. `target` is `null` when the drag was canceled, released outside the group, or released over the dragged item itself.
 
 import { DemoSortableOnDrop } from './demos/sortable-on-drop';
 
 <DemoSortableOnDrop />
 
-To show an insertion indicator, compute the position in `onCollisionChange` and store it in state. The event includes the `previousCollision`, so you can skip updates when the position hasn't changed:
+To show an insertion indicator, compute the position in `onCollisionChange` and store it in state. Its `eventDetails` include the `previousTarget`, so you can skip updates when the position hasn't changed:
 
 ```tsx title="Tracking the insertion position"
-function getPosition(collision) {
+function getPosition(target) {
   return (
-    collision && {
-      id: collision.target.payload,
-      placement: collision.target.getLocalPoint().y > 0.5 ? 'after' : 'before',
+    target && {
+      id: target.payload,
+      placement: target.getLocalPoint().y > 0.5 ? 'after' : 'before',
     }
   );
 }
 
 <Draggable.CollisionProvider
   kind={task}
-  onCollisionChange={({ collision, previousCollision }) => {
-    const next = getPosition(collision);
-    const previous = getPosition(previousCollision);
+  onCollisionChange={({ target }, eventDetails) => {
+    const next = getPosition(target);
+    const previous = getPosition(eventDetails.previousTarget);
     if (next?.id !== previous?.id || next?.placement !== previous?.placement) {
       setPosition(next);
     }
   }}
-  onMoveEnd={({ collision }) => {
+  onMoveEnd={({ source, target }) => {
     setPosition(null);
-    if (collision) {
-      moveTask(collision);
+    if (target) {
+      moveTask(source.payload, getPosition(target));
     }
   }}
 />;
@@ -897,13 +895,13 @@ By default, the provider measures each item's own element. Pass `collisionElemen
 
 ### Sorting while dragging
 
-To move items as the drag goes, update the order in `onCollisionChange` instead of `onMoveEnd`. Compare `location.current.input` with `location.previous.input` to place the item according to the pointer's direction.
+To move items as the drag goes, update the order in `onCollisionChange` instead of `onMoveEnd`. Compare `location.current.input` with `location.previous.input`, both on `eventDetails`, to place the item according to the pointer's direction.
 
 import { DemoSortableLive } from './demos/sortable-live';
 
 <DemoSortableLive />
 
-Save the original order in `onMoveStart`, and restore it in `onMoveEnd` when `event.canceled` is `true` or `event.dropTarget` is `null`. A release over the dragged item itself has a `dropTarget` but a `null` collision. Keep the current order in that case.
+Save the original order in `onMoveStart`, and restore it in `onMoveEnd` when `eventDetails.reason` isn't `'drop'`, which means the drag was canceled or released outside any target. A release over the dragged item itself has the `'drop'` reason but a `null` target. Keep the current order in that case.
 
 When items animate into their new positions, pass `collisionElement` to measure a wrapper that stays still during the animation. For long lists, memoize the items and keep their handlers stable so that a reorder only moves DOM nodes.
 
@@ -1144,14 +1142,13 @@ Draggable.useMonitor({
   // Fires once when a matching drag starts.
   onMoveStart: ({ source }) => console.log('picked up', source.payload.title),
   // Fires as the pointer moves, at most once per animation frame.
-  onMove: ({ location }) => console.log('at', location.current.input.clientX),
+  onMove: (_, { location }) => console.log('at', location.current.input.clientX),
   // Fires when the drop targets under the pointer change.
-  onTargetChange: ({ location }) =>
-    console.log('over', location.current.dropTargets[0]?.payload ?? 'nothing'),
+  onTargetChange: ({ target }) => console.log('over', target?.payload ?? 'nothing'),
   // Fires once when the drag ends.
-  onMoveEnd: ({ source, dropTarget }, eventDetails) => {
-    if (eventDetails.reason === 'drop' && dropTarget !== null) {
-      console.log('dropped', source.payload.title, 'on', dropTarget.payload);
+  onMoveEnd: ({ source, target }) => {
+    if (target) {
+      console.log('dropped', source.payload.title, 'on', target.payload);
     }
   },
 });
@@ -1175,60 +1172,60 @@ Source, target, and scroll registrations take an element and a function returnin
 
 ```tsx title="Registering from an effect"
 React.useEffect(() => {
-  return manager.registerDraggable(element, () => ({ kind: card, payload: id }));
+  return manager.registerSource(element, () => ({ kind: card, payload: id }));
 }, [manager, id]);
 ```
 
 The manager and its registration methods are stable and can be listed as effect dependencies. Base UI reads each option at the following times:
 
-| Option                                                      | When it's read                                                                        |
-| :---------------------------------------------------------- | :------------------------------------------------------------------------------------ |
-| Event handlers and predicates, such as `canDrop`            | Every time they're needed, so they see the latest closure.                            |
-| A source's `kind` and preview settings                      | Once when a drag starts.                                                              |
-| A source's `payload`                                        | At pickup, and whenever it changes during the drag.                                   |
-| A target's `kind` and `payload`                             | Each time the target is evaluated, including on drop.                                 |
-| `disabled`, `dragHandle`, and the styles applied while idle | At registration and on the next `pointerdown`. Re-register to apply a change at once. |
+| Option                                                  | When it's read                                                                        |
+| :------------------------------------------------------ | :------------------------------------------------------------------------------------ |
+| Event handlers and predicates, such as `canDrop`        | Every time they're needed, so they see the latest closure.                            |
+| A source's `kind` and preview settings                  | Once when a drag starts.                                                              |
+| A source's `payload`                                    | At pickup, and whenever it changes during the drag.                                   |
+| A target's `kind` and `payload`                         | Each time the target is evaluated, including on drop.                                 |
+| `disabled`, `handle`, and the styles applied while idle | At registration and on the next `pointerdown`. Re-register to apply a change at once. |
 
-### registerDraggable
+### registerSource
 
-Registers a drag source. It accepts the options of [`<Draggable.Root>`](#root), plus `dragHandle` to restrict pickup to an element, and `dragPreview` to configure the preview:
+Registers a drag source. It accepts the options of [`<Draggable.Root>`](#root), plus `handle` to restrict pickup to an element, and `preview` to configure the preview:
 
 ```tsx title="Registering a source"
-manager.registerDraggable(element, () => ({
+manager.registerSource(element, () => ({
   kind: card,
   payload: id,
-  dragHandle: handleRef,
-  dragPreview: { offset: 'pointer' },
+  handle: handleRef,
+  preview: { offset: 'pointer' },
 }));
 ```
 
-`dragPreview` takes the options of [`<Draggable.Preview>`](#preview). Pass a `render` function instead of children to show custom content:
+`preview` takes the options of [`<Draggable.Preview>`](#preview). Pass a `render` function instead of children to show custom content:
 
 ```tsx title="A custom preview for a registered source"
-manager.registerDraggable(element, () => ({
+manager.registerSource(element, () => ({
   kind: card,
   payload: id,
-  dragPreview: {
+  preview: {
     render: ({ source }) => <span className="Chip">{source.payload}</span>,
     offset: 'pointer',
   },
 }));
 ```
 
-### registerDropTarget
+### registerTarget
 
 Registers a drop target. It accepts the options of [`<Draggable.Target>`](#target), except `trackDragOver`, since there is no React state to update. `accept` is required here.
 
 ```tsx title="Registering a target"
-manager.registerDropTarget(element, () => ({
+manager.registerTarget(element, () => ({
   accept: card,
   onDraggableDrop: ({ source }) => moveCard(source.payload),
 }));
 ```
 
-TypeScript infers `source.payload` from `accept` but can't infer the target's own `payload` through the options function. Pass both type arguments, as in `registerDropTarget<typeof card, SlotPayload>`, when the target reads `target.payload`.
+TypeScript infers `source.payload` from `accept` but can't infer the target's own `payload` through the options function. Pass both type arguments, as in `registerTarget<typeof card, SlotPayload>`, when the target reads `target.payload`.
 
-### registerAutoScroller
+### registerViewport
 
 Registers a scroll container, with the options of [`<Draggable.Viewport>`](#viewport). Use it to [scroll the page](#scrolling-the-page), or for a container rendered by code you don't control:
 
@@ -1238,7 +1235,7 @@ React.useEffect(() => {
   if (!scrollElement) {
     return undefined;
   }
-  return manager.registerAutoScroller(scrollElement, () => ({
+  return manager.registerViewport(scrollElement, () => ({
     maxSpeed: 600,
     overflowMargin: { top: 80, bottom: 80 },
   }));
@@ -1259,7 +1256,7 @@ manager.registerMonitor(() => ({
 
 ### cancelDrag
 
-Ends the drag in progress. `onMoveEnd` fires with `canceled: true` and the `'imperative-action'` reason. It does nothing when no drag is active. Use it when a route change, a dialog, or a deleted record invalidates the drag:
+Ends the drag in progress. `onMoveEnd` fires with a `null` target and the `'imperative-action'` reason. It does nothing when no drag is active. Use it when a route change, a dialog, or a deleted record invalidates the drag:
 
 ```tsx title="Canceling on navigation"
 const manager = Draggable.useManager();

@@ -3,12 +3,17 @@ import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
 import { closest, contains } from '@base-ui/utils/shadowDom';
 import { warn } from '@base-ui/utils/warn';
 import { WindowAnimationFrame } from '../windowAnimationFrame';
+import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import { REASONS } from '../../internals/reasons';
 import type {
   DragAccept,
   DragSource,
+  DragSourceEventValue,
   DragInput,
-  DraggableEventMap,
   DragLocationHistory,
+  MoveEventDetails,
+  DropTargetChangeEventDetails,
 } from '../../types/drag';
 import { matchesAccept } from './dragKind';
 import {
@@ -60,12 +65,12 @@ const RAMP_UP_DURATION = 400;
 const MAX_FRAME_DELTA_MS = 64;
 
 /** A getter for a scroller's latest parameters, so `scrollLoop` reads the freshest callbacks each frame. */
-type ScrollerGetter<TSourcePayload = any, TDragData = any> = () => RegisterAutoScrollerParameters<
+type ScrollerGetter<TSourcePayload = any, TDragData = any> = () => RegisterViewportParameters<
   TSourcePayload,
   TDragData
 >;
 
-const state = getSharedSlot<AutoScrollerState>('registerAutoScroller', () => ({
+const state = getSharedSlot<AutoScrollerState>('registerViewport', () => ({
   scrollers: new Map<HTMLElement, ScrollerGetter[]>(),
   scrollLoopRaf: null,
   scrollWindow: null,
@@ -321,7 +326,7 @@ function safeCall<T>(
  * neither with anything to diagnose.
  */
 function resolveMaxSpeed(
-  registration: RegisterAutoScrollerParameters,
+  registration: RegisterViewportParameters,
   element: HTMLElement,
   feedback: DragAutoScrollFrameContext,
 ): number {
@@ -631,7 +636,7 @@ function runScrollFrame(timestamp: number): void {
       candidates.set(element, null);
       return null;
     }
-    const registration = safeCall<RegisterAutoScrollerParameters | null>(
+    const registration = safeCall<RegisterViewportParameters | null>(
       'getParameters',
       element,
       getParameters,
@@ -739,7 +744,7 @@ function runScrollFrame(timestamp: number): void {
 
       // `probe`, not the raw pointer: this is the point the engine just decided this
       // container's edge zones from, so a consumer re-deriving the same test
-      // (`onDragScroll: (event, { input, element }) => isPointInRect(input…, element…)`)
+      // (`onDragScroll: (value, { input, element }) => isPointInRect(input…, element…)`)
       // reaches the same answer. Reporting the raw pointer would tell a consumer the
       // drag is outside a container the engine is busy scrolling.
       const feedback = { input: probe, source: currentSource, element };
@@ -819,18 +824,18 @@ function runScrollFrame(timestamp: number): void {
             if (!axis.engaged) {
               continue;
             }
-            const event: DragAutoScrollEvent = {
-              ...feedback,
+            const value: DragAutoScrollValue = {
+              source: currentSource,
               x: axis.x,
               y: axis.y,
               direction: axis.direction,
             };
-            const eventDetails = createAutoScrollEventDetails();
+            const eventDetails = createAutoScrollEventDetails(probe, element);
             const succeeded = safeCall(
               'onDragScroll',
               element,
               () => {
-                onDragScroll(event, eventDetails);
+                onDragScroll(value, eventDetails);
                 return true;
               },
               false,
@@ -1298,7 +1303,7 @@ function expandScrollRect(rect: ScrollRect, margin: ReturnType<typeof normalizeO
 type ScrollRect = Pick<DOMRect, 'top' | 'right' | 'bottom' | 'left' | 'width' | 'height'>;
 interface ScrollCandidate {
   getParameters: ScrollerGetter;
-  registration: RegisterAutoScrollerParameters;
+  registration: RegisterViewportParameters;
   pageScroller: HTMLElement | null;
   rect: ScrollRect;
   overflowRect: Pick<ScrollRect, 'top' | 'right' | 'bottom' | 'left'>;
@@ -1306,10 +1311,10 @@ interface ScrollCandidate {
 
 // Re-seed the loop from any fresh drag input; shared by `onMove` and
 // `onTargetChange`, which need identical handling.
-function refreshDragInput({
-  location,
-  source,
-}: DraggableEventMap['onMove'] | DraggableEventMap['onTargetChange']): void {
+function refreshDragInput(
+  { source }: DragSourceEventValue,
+  { location }: MoveEventDetails | DropTargetChangeEventDetails,
+): void {
   if (!state.enabled) {
     return;
   }
@@ -1331,13 +1336,10 @@ function setDragInput(location: DragLocationHistory, source: DragSource): void {
  * innermost-first, so this is simply its head.
  */
 function getInnermostDropTargetElement(location: DragLocationHistory): Element | null {
-  return location.current.dropTargets[0]?.element ?? null;
+  return location.current.targets[0]?.element ?? null;
 }
 
-function startScrollSession({
-  location,
-  source,
-}: Pick<DraggableEventMap['onMoveStart'], 'location' | 'source'>): void {
+function startScrollSession(source: DragSource, location: DragLocationHistory): void {
   // A drag that ended abnormally with the loop *parked* leaves `enabled` set
   // and the last input/source referenced: the loop's own no-session
   // self-termination only runs when a frame fires. Clear that state before
@@ -1350,7 +1352,7 @@ function startScrollSession({
 // The engine-internal monitor that drives the scroll loop, registered from the
 // first auto-scroller registration.
 const SCROLL_MONITOR_PARAMS: RegisterMonitorParameters = {
-  onMoveStart: startScrollSession,
+  onMoveStart: ({ source }, { location }) => startScrollSession(source, location),
   onMove: refreshDragInput,
   onTargetChange: refreshDragInput,
   onMoveEnd: () => {
@@ -1377,7 +1379,7 @@ export function retainScrollMonitor(): () => void {
     engageMonitorIfDragging(getMonitor);
     const session = dragSessionStore.getSnapshot();
     if (session) {
-      startScrollSession(session);
+      startScrollSession(session.source, session.location);
     }
   }
   const retainedMonitor = state.scrollMonitorGetter;
@@ -1417,11 +1419,10 @@ export interface DragAutoScrollFrameContext<TSourcePayload = unknown, TDragData 
   element: HTMLElement;
 }
 
-/** The data passed to a custom viewport's `onDragScroll` handler. */
-export interface DragAutoScrollEvent<
-  TSourcePayload = unknown,
-  TDragData = unknown,
-> extends DragAutoScrollFrameContext<TSourcePayload, TDragData> {
+/** The first argument of `onDragScroll`: the dragged item and the movement for this frame. */
+export interface DragAutoScrollValue<TSourcePayload = unknown, TDragData = unknown> {
+  /** The item being dragged. */
+  source: DragSource<TSourcePayload, TDragData>;
   /**
    * How far to move horizontally this frame, in CSS pixels, with `scrollBy`
    * semantics: a positive value moves the view right, so the content slides left
@@ -1431,23 +1432,21 @@ export interface DragAutoScrollEvent<
   x: number;
   /** How far to move vertically this frame, in CSS pixels. A positive value moves the view down. */
   y: number;
+  /** The axis this call is about. `onDragScroll` is called once per engaged axis. */
   direction: DragAutoScrollDirection;
 }
 
 export type DragAutoScrollDirection = 'horizontal' | 'vertical';
 
-/** The event details passed as the second argument to `onDragScroll`. */
-export interface DragAutoScrollEventDetails {
-  /** Why the frame ran. Always `'pointer'`: the loop follows the pointer's position. */
-  reason: 'pointer';
-  /** A generic `Event`, rather than the native pointer event. */
-  event: Event;
+/** The properties `onDragScroll`'s event details add to the Base UI change details. */
+export interface DragAutoScrollEventDetailsProperties {
   /**
-   * Prevents Base UI from scrolling the container in this direction.
+   * The position used to determine scrolling. It may differ from the modified
+   * drag position when a modifier separates that position from the pointer.
    */
-  cancel: () => void;
-  /** Whether {@link cancel} has been called. */
-  isCanceled: boolean;
+  input: DragInput;
+  /** The scroll container. */
+  element: HTMLElement;
   /**
    * Claims this direction, so that ancestor viewports don't scroll on the same axis.
    * Skip it at a bound the element can't move past, so an ancestor can scroll instead.
@@ -1457,24 +1456,37 @@ export interface DragAutoScrollEventDetails {
   isConsumed: boolean;
 }
 
-function createAutoScrollEventDetails(): DragAutoScrollEventDetails {
-  const details: DragAutoScrollEventDetails = {
-    reason: 'pointer',
-    event: new Event('base-ui'),
-    isCanceled: false,
-    isConsumed: false,
-    cancel() {
-      details.isCanceled = true;
+/**
+ * The event details passed as the second argument to `onDragScroll`.
+ * Call `cancel()` to prevent Base UI from scrolling the container in this direction.
+ */
+export type DragAutoScrollEventDetails = BaseUIChangeEventDetails<
+  typeof REASONS.none,
+  DragAutoScrollEventDetailsProperties
+>;
+
+function createAutoScrollEventDetails(
+  input: DragInput,
+  element: HTMLElement,
+): DragAutoScrollEventDetails {
+  const details: DragAutoScrollEventDetails = createChangeEventDetails(
+    REASONS.none,
+    undefined,
+    undefined,
+    {
+      input,
+      element,
+      isConsumed: false,
+      consume() {
+        details.isConsumed = true;
+      },
     },
-    consume() {
-      details.isConsumed = true;
-    },
-  };
+  );
   return details;
 }
 
 export type DragAutoScrollHandler<TSourcePayload = unknown, TDragData = unknown> = (
-  event: DragAutoScrollEvent<TSourcePayload, TDragData>,
+  value: DragAutoScrollValue<TSourcePayload, TDragData>,
   eventDetails: DragAutoScrollEventDetails,
 ) => void;
 
@@ -1539,7 +1551,7 @@ interface AutoScrollerState {
   rtlCache: WeakMap<HTMLElement, boolean>;
 }
 
-export interface RegisterAutoScrollerParameters<TSourcePayload = unknown, TDragData = unknown> {
+export interface RegisterViewportParameters<TSourcePayload = unknown, TDragData = unknown> {
   /**
    * How far outside the container a drag can continue auto-scrolling, in CSS pixels.
    * A number applies to every edge; an object sets physical edges independently.

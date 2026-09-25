@@ -1,10 +1,8 @@
 import * as React from 'react';
 import { expectType } from '#test-utils';
 import type {
-  DragAutoScrollEvent,
-  DragAutoScrollEventDetails,
-  DragAutoScrollDirection,
-  DragAutoScrollHandler,
+  DraggableViewportDragScrollValue,
+  DraggableViewportDragScrollEventDetails,
 } from '@base-ui/react/draggable';
 import { Draggable } from '@base-ui/react/draggable';
 
@@ -12,6 +10,9 @@ interface CardPayload {
   id: string;
 }
 const card = Draggable.createKind<CardPayload>('card');
+type DragScrollHandler<TPayload = unknown> = NonNullable<
+  Draggable.Viewport.Props<TPayload>['onDragScroll']
+>;
 <Draggable.Viewport />;
 <Draggable.Viewport disabled />;
 <Draggable.Viewport
@@ -20,20 +21,29 @@ const card = Draggable.createKind<CardPayload>('card');
   onDragOverCapture={(event) =>
     expectType<DataTransfer, typeof event.dataTransfer>(event.dataTransfer)
   }
-  onDragScroll={(event, eventDetails) => {
-    expectType<CardPayload, typeof event.source.payload>(event.source.payload);
-    expectType<HTMLElement, typeof event.element>(event.element);
-    expectType<number, typeof event.input.clientX>(event.input.clientX);
-    expectType<number, typeof event.x>(event.x);
-    expectType<number, typeof event.y>(event.y);
-    expectType<DragAutoScrollDirection, typeof event.direction>(event.direction);
-    expectType<DragAutoScrollEvent<CardPayload>, typeof event>(event);
-    expectType<'pointer', typeof eventDetails.reason>(eventDetails.reason);
+  onDragScroll={(value, eventDetails) => {
+    expectType<CardPayload, typeof value.source.payload>(value.source.payload);
+    expectType<number, typeof value.x>(value.x);
+    expectType<number, typeof value.y>(value.y);
+    expectType<Draggable.DragAutoScrollDirection, typeof value.direction>(value.direction);
+    expectType<DraggableViewportDragScrollValue<CardPayload>, typeof value>(value);
+    expectType<Draggable.Viewport.DragScrollValue<CardPayload>, typeof value>(value);
+    expectType<HTMLElement, typeof eventDetails.element>(eventDetails.element);
+    expectType<number, typeof eventDetails.input.clientX>(eventDetails.input.clientX);
+    expectType<'none', typeof eventDetails.reason>(eventDetails.reason);
+    expectType<Draggable.Viewport.DragScrollEventReason, typeof eventDetails.reason>(
+      eventDetails.reason,
+    );
     expectType<Event, typeof eventDetails.event>(eventDetails.event);
-    expectType<DragAutoScrollEventDetails, typeof eventDetails>(eventDetails);
+    expectType<DraggableViewportDragScrollEventDetails, typeof eventDetails>(eventDetails);
+    expectType<Draggable.Viewport.DragScrollEventDetails, typeof eventDetails>(eventDetails);
     expectType<boolean, typeof eventDetails.isCanceled>(eventDetails.isCanceled);
+    expectType<boolean, typeof eventDetails.isPropagationAllowed>(
+      eventDetails.isPropagationAllowed,
+    );
     expectType<boolean, typeof eventDetails.isConsumed>(eventDetails.isConsumed);
     eventDetails.cancel();
+    eventDetails.allowPropagation();
     eventDetails.consume();
   }}
 />;
@@ -45,8 +55,10 @@ const card = Draggable.createKind<CardPayload>('card');
 <Draggable.Viewport maxSpeed={300} />;
 <Draggable.Viewport
   accept={card}
-  maxSpeed={({ source }) => {
+  maxSpeed={({ source, element, input }) => {
     expectType<CardPayload, typeof source.payload>(source.payload);
+    expectType<HTMLElement, typeof element>(element);
+    expectType<number, typeof input.clientX>(input.clientX);
     return 1800;
   }}
 />;
@@ -54,6 +66,7 @@ const card = Draggable.createKind<CardPayload>('card');
 <Draggable.Viewport maxSpeed="300px" />;
 // @ts-expect-error axis selection now uses onDragScroll.
 <Draggable.Viewport allowedAxis="vertical" />;
+
 // @ts-expect-error scroll interception now uses onDragScroll.
 <Draggable.Viewport canScroll={() => false} />;
 // @ts-expect-error custom movement now uses onDragScroll.
@@ -66,7 +79,7 @@ const card = Draggable.createKind<CardPayload>('card');
 />;
 const ref: React.Ref<HTMLDivElement> = null;
 <Draggable.Viewport ref={ref} />;
-const scroll: DragAutoScrollHandler = ({ direction }, eventDetails) => {
+const scroll: DragScrollHandler = ({ direction }, eventDetails) => {
   if (direction === 'horizontal') {
     eventDetails.cancel();
   }
@@ -76,7 +89,7 @@ type CardScrollerProps = Draggable.Viewport.Props<CardPayload>;
 function CardScroller(props: CardScrollerProps) {
   return <Draggable.Viewport<CardPayload> {...props} />;
 }
-const scrollCards: DragAutoScrollHandler<CardPayload> = ({ source }) => {
+const scrollCards: DragScrollHandler<CardPayload> = ({ source }) => {
   expectType<CardPayload, typeof source.payload>(source.payload);
 };
 // @ts-expect-error a typed observer requires a runtime filter.

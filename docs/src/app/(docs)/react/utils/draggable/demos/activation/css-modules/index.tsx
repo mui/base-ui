@@ -1,5 +1,5 @@
 'use client';
-import { Draggable, type DragActivationConfig } from '@base-ui/react/draggable';
+import { Draggable } from '@base-ui/react/draggable';
 
 import * as React from 'react';
 
@@ -10,7 +10,7 @@ type Phase = 'ready' | 'waiting' | 'dragging' | 'dropped';
 interface ActivationMode {
   id: string;
   label: string;
-  activation: DragActivationConfig | readonly DragActivationConfig[];
+  activation: Draggable.DragActivationConfig | readonly Draggable.DragActivationConfig[];
   readyMessage: string;
   waitingMessage: string;
 }

@@ -4,13 +4,13 @@ import { fireEvent } from '@testing-library/react';
 import { createDndRenderer, testDragKind } from '#test-utils';
 import { Draggable } from '@base-ui/react/draggable';
 import { createElement, dragOver, flushRaf, setupDragEngineTests } from '../../../test/dnd';
-import { useDragMonitor } from './useDragMonitor';
+import { useMonitor } from './useMonitor';
 import { monitorRegistry } from '../../utils/drag-and-drop/monitor';
 
 setupDragEngineTests();
 
-function Monitor(props: useDragMonitor.Parameters) {
-  useDragMonitor(props);
+function Monitor(props: useMonitor.Parameters) {
+  useMonitor(props);
   return null;
 }
 
@@ -22,7 +22,7 @@ describe('useMonitor', () => {
     const onMoveEnd = vi.fn();
     const { engine } = await renderDnd(<Monitor onMoveStart={onMoveStart} onMoveEnd={onMoveEnd} />);
     const el = createElement();
-    engine.registerDraggable(el, {});
+    engine.registerSource(el, {});
 
     fireEvent.dragStart(el);
     await flushRaf();
@@ -56,7 +56,7 @@ describe('useMonitor', () => {
     });
 
     const el = createElement();
-    engine.registerDraggable(el, {});
+    engine.registerSource(el, {});
     fireEvent.dragStart(el);
     await flushRaf();
 
@@ -82,7 +82,7 @@ describe('useMonitor', () => {
     expect(monitorRegistry.size).toBe(sizeBefore + 1);
 
     const el = createElement();
-    engine.registerDraggable(el, {});
+    engine.registerSource(el, {});
     fireEvent.dragStart(el);
     await flushRaf();
     fireEvent.drop(el);
@@ -97,7 +97,7 @@ describe('useMonitor', () => {
     const onMoveEnd = vi.fn();
     const { rerender, engine } = await renderDnd(<div />);
     const el = createElement();
-    engine.registerDraggable(el, {});
+    engine.registerSource(el, {});
 
     fireEvent.dragStart(el);
     await flushRaf();
@@ -118,7 +118,7 @@ describe('useMonitor', () => {
     const onMoveStart = vi.fn();
     const { rerender, engine } = await renderDnd(<div />);
     const el = createElement();
-    engine.registerDraggable(el, {});
+    engine.registerSource(el, {});
 
     fireEvent.dragStart(el);
     await flushRaf();
@@ -148,7 +148,7 @@ describe('useMonitor', () => {
     await rerender(<div />);
 
     const el = createElement();
-    engine.registerDraggable(el, {});
+    engine.registerSource(el, {});
     fireEvent.dragStart(el);
     await flushRaf();
 

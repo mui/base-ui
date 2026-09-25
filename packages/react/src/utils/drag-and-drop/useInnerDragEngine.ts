@@ -8,9 +8,8 @@ import { useCSPContext } from '../../internals/csp-context/CSPContext';
 import type { CSPContextValue } from '../../internals/csp-context/CSPContext';
 import { applyDraggableStaticSetup, bindDraggableSensors } from './draggable';
 import type { DraggableConfig } from './draggable';
-// Aliased to avoid shadowing the public `registerDraggable` method name.
-import { registerDraggable as registerDraggableInRegistry } from './draggableRegistry';
-import { registerAutoScroller, registerDropTarget, registerMonitor } from './registrations';
+import { addDraggableRegistration } from './draggableRegistry';
+import { registerViewport, registerTarget, registerMonitor } from './registrations';
 import { onceCleanup } from './utils';
 import { setParticipantOwner } from './participantData';
 import { cancelDrag } from './cancelDrag';
@@ -28,7 +27,7 @@ import { retargetEndingPreviewSource } from './synthetic/syntheticPreview';
 import type {
   InternalDragEngine,
   InternalDraggableParameters,
-  RegisterDraggableParameters,
+  RegisterSourceParameters,
 } from '../../types/dragRegistration';
 import type { DragCleanupFn } from '../../types/drag';
 
@@ -44,9 +43,9 @@ export class DragEngineBase {
     private readonly getCSPContext: LatestGetter<CSPContextValue>,
   ) {}
 
-  registerDraggable = <TPayload = undefined, TDragData = unknown>(
+  registerSource = <TPayload = undefined, TDragData = unknown>(
     element: HTMLElement,
-    get: () => RegisterDraggableParameters<TPayload, TDragData>,
+    get: () => RegisterSourceParameters<TPayload, TDragData>,
     payloadOwner?: object,
   ): DragCleanupFn => {
     const initial = get();
@@ -58,7 +57,7 @@ export class DragEngineBase {
     // be a bare `TypeError` deep in the engine.
     if (initial.kind == null) {
       throw new Error(
-        'Base UI: registerDraggable() was called without a `kind`, so the drag source ' +
+        'Base UI: registerSource() was called without a `kind`, so the drag source ' +
           'cannot be matched against any drop target or monitor `accept` and the ' +
           'registration cannot be completed. ' +
           'Create one with `Draggable.createKind` and pass it as `kind`. ' +
@@ -157,10 +156,10 @@ export class DragEngineBase {
     // One-time static DOM setup, read once at registration.
     const restoreStatic = applyDraggableStaticSetup({
       element,
-      dragHandle: initial.dragHandle,
+      handle: initial.handle,
       disabled: initial.disabled,
     });
-    const unregister = registerDraggableInRegistry(element, getNormalized);
+    const unregister = addDraggableRegistration(element, getNormalized);
     retargetEndingPreviewSource(element, {
       kind: initial.kind.id,
       previewKey: initial.previewKey,
@@ -180,9 +179,9 @@ export class DragEngineImpl extends DragEngineBase implements InternalDragEngine
   cancelDrag = cancelDrag;
 
   // The stateless primitives, re-exposed as methods (see `./registrations`).
-  registerDropTarget = registerDropTarget;
+  registerTarget = registerTarget;
 
-  registerAutoScroller = registerAutoScroller;
+  registerViewport = registerViewport;
 
   registerMonitor = registerMonitor;
 }
@@ -196,8 +195,8 @@ export class DragEngineImpl extends DragEngineBase implements InternalDragEngine
  * the drop-target and monitor registrations into every bundle containing a
  * `Draggable.Root`.
  */
-export function useRegisterDraggable(): DragEngineBase['registerDraggable'] {
-  return useDragEngineInstance(DragEngineBase).registerDraggable;
+export function useRegisterSource(): DragEngineBase['registerSource'] {
+  return useDragEngineInstance(DragEngineBase).registerSource;
 }
 
 /** One engine instance per hook call, bound to the nearest preview provider and CSP context. */

@@ -56,23 +56,28 @@ export default function SortableLive() {
   const initialOrder = React.useRef(tasks);
   const listRef = useSortableAnimation(tasks);
   const destinationRef = React.useRef<TaskDestination | null>(null);
-  const reorder = useStableCallback((event: Draggable.CollisionProvider.CollisionEvent<string>) => {
-    const next = getTaskDestination(event.collision);
-    const previous = destinationRef.current;
-    if (next) {
-      const delta = event.location.current.input.clientY - event.location.previous.input.clientY;
-      if (delta !== 0) {
-        next.placement = delta > 0 ? 'after' : 'before';
-      } else if (next.id === previous?.id) {
-        next.placement = previous.placement;
+  const reorder = useStableCallback(
+    (
+      value: Draggable.CollisionProvider.CollisionChangeValue<string>,
+      { location }: { location: Draggable.DragLocationHistory },
+    ) => {
+      const next = getTaskDestination(value.target);
+      const previous = destinationRef.current;
+      if (next) {
+        const delta = location.current.input.clientY - location.previous.input.clientY;
+        if (delta !== 0) {
+          next.placement = delta > 0 ? 'after' : 'before';
+        } else if (next.id === previous?.id) {
+          next.placement = previous.placement;
+        }
       }
-    }
-    if (sameTaskDestination(next, previous)) {
-      return;
-    }
-    destinationRef.current = next;
-    setTasks((current) => moveTask(current, event, next?.placement));
-  });
+      if (sameTaskDestination(next, previous)) {
+        return;
+      }
+      destinationRef.current = next;
+      setTasks((current) => moveTask(current, value, next?.placement));
+    },
+  );
   const swap = useStableCallback((task: string, direction: 'up' | 'down') => {
     const next = swapTask(tasks, task, direction);
     if (next === tasks) {
@@ -91,11 +96,11 @@ export default function SortableLive() {
           destinationRef.current = null;
         }}
         onCollisionChange={reorder}
-        onMoveEnd={(event) => {
-          if (event.canceled || !event.dropTarget) {
-            setTasks(initialOrder.current);
+        onMoveEnd={(value, eventDetails) => {
+          if (eventDetails.reason === 'drop') {
+            reorder(value, eventDetails);
           } else {
-            reorder(event);
+            setTasks(initialOrder.current);
           }
           destinationRef.current = null;
         }}
