@@ -48,6 +48,40 @@ describe('<Select.Positioner />', () => {
     },
   }));
 
+  it('disables anchor tracking by default when alignItemWithTrigger is active', async () => {
+    await render(
+      <Select.Root open>
+        <Trigger>Trigger</Trigger>
+        <Select.Portal>
+          <Select.Positioner>
+            <Select.Popup>Popup</Select.Popup>
+          </Select.Positioner>
+        </Select.Portal>
+      </Select.Root>,
+    );
+
+    expect(useAnchorPositioningSpy).toHaveBeenCalled();
+    expect(useAnchorPositioningSpy.mock.calls[0]?.[0].disableAnchorTracking).toBe(true);
+    expect(useAnchorPositioningSpy.mock.calls[0]?.[0].updatePositionStrategy).toBeUndefined();
+  });
+
+  it('disables anchor tracking with updatePositionStrategy="optimized"', async () => {
+    await render(
+      <Select.Root open>
+        <Trigger>Trigger</Trigger>
+        <Select.Portal>
+          <Select.Positioner updatePositionStrategy="optimized">
+            <Select.Popup>Popup</Select.Popup>
+          </Select.Positioner>
+        </Select.Portal>
+      </Select.Root>,
+    );
+
+    expect(useAnchorPositioningSpy).toHaveBeenCalled();
+    expect(useAnchorPositioningSpy.mock.calls[0]?.[0].disableAnchorTracking).toBe(true);
+    expect(useAnchorPositioningSpy.mock.calls[0]?.[0].updatePositionStrategy).toBe('optimized');
+  });
+
   const baselineX = 10;
   const baselineY = 36;
   const popupWidth = 52;

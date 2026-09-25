@@ -70,6 +70,8 @@ When set to `true` (its default) there are a few important points to note about 
   Additionally, the trigger must be at least 20px from the edges of the top and bottom of the viewport, or it will also fall back.
 - **Other positioning props are ignored**: Props like `side` or `align` have no effect unless the prop is set to `false` or when in fallback mode.
 
+When `alignItemWithTrigger` is active, Select suppresses anchor tracking by default with the `optimized` position update strategy. Set `updatePositionStrategy="always"` to track an animated or transformed trigger; this enables tracking even while `alignItemWithTrigger` is active. Explicitly setting `disableAnchorTracking` to `true` still disables tracking.
+
 ## Examples
 
 ### Typed wrapper component
