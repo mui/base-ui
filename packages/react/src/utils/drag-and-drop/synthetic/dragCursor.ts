@@ -203,10 +203,8 @@ function restoreLockedRoot(): void {
       root.style.removeProperty(CURSOR_VAR);
     }
   }
+  // The saved values are overwritten by the next lock before they are read again.
   state.lockedDocument = null;
-  state.savedCursorValue = '';
-  state.savedDraggingClass = false;
-  state.savedStyleClass = false;
 }
 
 /**
@@ -221,10 +219,4 @@ export function lock(element: Element, cursor: string, options?: DragCursorStyle
   applyCursorLock(element, cursor, options);
 }
 
-export function unlock(): void {
-  restoreLockedRoot();
-}
-
-export function resetForTests(): void {
-  restoreLockedRoot();
-}
+export { restoreLockedRoot as unlock, restoreLockedRoot as resetForTests };

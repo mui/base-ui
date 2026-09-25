@@ -128,18 +128,6 @@ export function addScrollerRegistration(
 }
 
 /**
- * Wake a parked loop so the next frame re-evaluates the live parameters at the
- * current pointer position. React registrations call this after a parameter
- * change, because the loop may have parked while the element was disabled or
- * dynamically declined scrolling. The parameters are read through the getter
- * every frame, so nothing cached has to be dropped for a change to apply.
- * @internal
- */
-export function wakeAutoScroll(): void {
-  wakeScrollLoop();
-}
-
-/**
  * Refresh computed-style caches and wake the loop, for a restyle that can alter
  * whether a candidate scrolls or which side is its inline end without changing
  * the observed ancestor chain. The next frame re-reads both computed-style
@@ -150,8 +138,7 @@ function refreshAutoScroll(): void {
   if (!state.enabled) {
     return;
   }
-  state.overflowCache = new WeakMap();
-  state.rtlCache = new WeakMap();
+  resetStyleCaches();
   state.chainAnchor = null;
   wakeScrollLoop();
 }
@@ -181,48 +168,63 @@ function refreshAutoScroll(): void {
  * change is the one restyle this routing picks up a frame late (on the next
  * chain change); rare enough to trade for a quiet loop.
  */
+function isPreviewMutation(record: MutationRecord): boolean {
+  const target = record.target;
+  return target.nodeType === ELEMENT_NODE && closest(target as Element, PREVIEW_SELECTOR) !== null;
+}
+
+/** Every element a batch of `childList` records added or removed. */
+function collectMovedElements(records: MutationRecord[]): Set<Node> {
+  const moved = new Set<Node>();
+  for (const record of records) {
+    if (record.type !== 'childList' || isPreviewMutation(record)) {
+      continue;
+    }
+    for (const nodes of [record.addedNodes, record.removedNodes]) {
+      for (const node of nodes) {
+        if (node.nodeType === ELEMENT_NODE) {
+          moved.add(node);
+        }
+      }
+    }
+  }
+  return moved;
+}
+
+/** Whether a registered scroller, or one of its ancestors, was among `moved`. */
+function movesScrollerAncestor(moved: Set<Node>): boolean {
+  if (moved.size === 0) {
+    return false;
+  }
+  for (const scroller of state.scrollers.keys()) {
+    for (let node: Element | null = scroller; node; node = getComposedParentElement(node)) {
+      if (moved.has(node)) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
 function handleObservedMutations(records: MutationRecord[]): void {
   if (!state.enabled) {
     return;
   }
+  // Walk viewport ancestors once per batch instead of checking every moved row
+  // against every viewport. Ordinary content growth preserves both style caches
+  // and the depth order.
+  if (movesScrollerAncestor(collectMovedElements(records))) {
+    invalidateScrollerOrder();
+    refreshAutoScroll();
+    return;
+  }
   let wake = false;
-  let checkedTopology = false;
   for (const record of records) {
     const target = record.target;
-    if (target.nodeType === ELEMENT_NODE && closest(target as Element, PREVIEW_SELECTOR) !== null) {
+    if (isPreviewMutation(record)) {
       continue;
     }
-    if (record.type === 'childList') {
-      if (!checkedTopology) {
-        checkedTopology = true;
-        // Walk viewport ancestors once per batch instead of checking every
-        // moved row against every viewport. Ordinary content growth preserves
-        // both style caches and the depth order.
-        const moved = new Set(
-          records
-            .filter((mutation) => mutation.type === 'childList')
-            .flatMap((mutation) =>
-              [...mutation.addedNodes, ...mutation.removedNodes].filter(
-                (node) => node.nodeType === ELEMENT_NODE,
-              ),
-            ),
-        );
-        if (moved.size > 0) {
-          for (const scroller of state.scrollers.keys()) {
-            for (let node: Element | null = scroller; node; node = getComposedParentElement(node)) {
-              if (moved.has(node)) {
-                invalidateScrollerOrder();
-                refreshAutoScroll();
-                return;
-              }
-            }
-          }
-        }
-      }
-      wake = true;
-      continue;
-    }
-    if (target.nodeType !== ELEMENT_NODE) {
+    if (record.type === 'childList' || target.nodeType !== ELEMENT_NODE) {
       wake = true;
       continue;
     }
@@ -348,12 +350,8 @@ function canScrollDown(el: Element): boolean {
 // and `scrollLeft + clientWidth < scrollWidth` always reads as scrollable. Work
 // in a direction-normalized coordinate where the home edge is 0 and the far edge
 // is the max scroll extent, so both edges are detected identically in LTR/RTL.
-// Distance already scrolled away from the (right-hand) home edge in RTL, always
-// ≥ 0 (RTL `scrollLeft` is ≤ 0). Only the RTL branches need this; the LTR
-// branches read `el.scrollLeft` directly.
-function getScrollFromStart(el: Element): number {
-  return -el.scrollLeft;
-}
+// In RTL `scrollLeft` is ≤ 0, so `-el.scrollLeft` is the distance already
+// scrolled away from the (right-hand) home edge.
 
 // `Math.ceil`/`Math.floor` guard against Chrome 115+ fractional scroll units.
 function canScrollLeft(el: Element, rtl: boolean): boolean {
@@ -361,13 +359,13 @@ function canScrollLeft(el: Element, rtl: boolean): boolean {
   // possible until the far extent is reached; in LTR it moves TOWARD the
   // (left-hand) home edge, so it is possible while anything is scrolled off it.
   return rtl
-    ? Math.ceil(getScrollFromStart(el)) < getMaxScrollOffset(el.scrollWidth, el.clientWidth)
+    ? Math.ceil(-el.scrollLeft) < getMaxScrollOffset(el.scrollWidth, el.clientWidth)
     : el.scrollLeft > 0;
 }
 
 function canScrollRight(el: Element, rtl: boolean): boolean {
   return rtl
-    ? Math.floor(getScrollFromStart(el)) > 0
+    ? Math.floor(-el.scrollLeft) > 0
     : Math.ceil(el.scrollLeft) + el.clientWidth < el.scrollWidth;
 }
 
@@ -426,22 +424,18 @@ function resolvePageScroller(element: HTMLElement): HTMLElement | null {
  * still `ltr`. Reading the root there leaves the left edge never auto-scrolling
  * and the right edge spinning against the home edge.
  */
-function directionSourceFor(scrollTarget: HTMLElement): HTMLElement {
-  const doc = ownerDocument(scrollTarget);
-  const isPageScroller =
-    scrollTarget === (doc.scrollingElement ?? doc.documentElement) ||
-    scrollTarget === doc.documentElement;
+function directionSourceFor(scrollTarget: HTMLElement, isPageScroller: boolean): HTMLElement {
   if (!isPageScroller) {
     return scrollTarget;
   }
   // Always read `body` for the page scroller: an unstyled `body` inherits the
   // root's direction, so this is right whether or not it carries one of its own.
-  const body = doc.body as HTMLElement | null;
+  const body = ownerDocument(scrollTarget).body as HTMLElement | null;
   return body ?? scrollTarget;
 }
 
-function resolveRtl(scrollTarget: HTMLElement): boolean {
-  return readCached(state.rtlCache, directionSourceFor(scrollTarget), isRtlElement);
+function resolveRtl(scrollTarget: HTMLElement, isPageScroller: boolean): boolean {
+  return readCached(state.rtlCache, directionSourceFor(scrollTarget, isPageScroller), isRtlElement);
 }
 
 // The viewport in client coordinates. `getViewportSize` is the engine's single
@@ -698,6 +692,7 @@ function runScrollFrame(timestamp: number): void {
       }
       const { rect, overflowRect, registration, pageScroller } = candidate;
       const scrollTarget = pageScroller ?? element;
+      const isPageScroller = pageScroller !== null;
       // Page scrolling already clamps captured pointers beyond the viewport.
       // Element margins don't change that existing behavior.
       const probe = pageScroller
@@ -768,8 +763,9 @@ function runScrollFrame(timestamp: number): void {
         scrollX = getEdgeScrollDepth(
           relativeX,
           rect.width,
-          () => hasHandler || canScrollLeft(scrollTarget, resolveRtl(scrollTarget)),
-          () => hasHandler || canScrollRight(scrollTarget, resolveRtl(scrollTarget)),
+          () => hasHandler || canScrollLeft(scrollTarget, resolveRtl(scrollTarget, isPageScroller)),
+          () =>
+            hasHandler || canScrollRight(scrollTarget, resolveRtl(scrollTarget, isPageScroller)),
         );
       }
 
@@ -802,14 +798,17 @@ function runScrollFrame(timestamp: number): void {
         // A scroll container moves every axis it engaged, having only engaged the
         // ones it had room on. Each axis gets its own event so a handler can cancel
         // vertical or horizontal movement independently.
-        let movedAxis: 'all' | DragAutoScrollDirection | null = 'all';
         // Whether this element withholds the axis from outer viewports. Without a
         // handler every engaged axis is: the element scrolls it natively.
         let claimedX = scrollX !== 0;
         let claimedY = scrollY !== 0;
+        // Whether anything moved (or a handler took over) on this element; a
+        // claimed axis is always a handled one.
+        let handledX = true;
+        let handledY = true;
         if (onDragScroll !== undefined) {
-          let handledX = false;
-          let handledY = false;
+          handledX = false;
+          handledY = false;
           claimedX = false;
           claimedY = false;
           const axes = [
@@ -846,10 +845,11 @@ function runScrollFrame(timestamp: number): void {
             let shouldScroll = false;
             if (!eventDetails.isCanceled) {
               if (axis.direction === 'horizontal' && nativeOverflow.x) {
+                const rtl = resolveRtl(scrollTarget, isPageScroller);
                 shouldScroll =
                   scrollX < 0
-                    ? canScrollLeft(scrollTarget, resolveRtl(scrollTarget))
-                    : canScrollRight(scrollTarget, resolveRtl(scrollTarget));
+                    ? canScrollLeft(scrollTarget, rtl)
+                    : canScrollRight(scrollTarget, rtl);
               } else if (axis.direction === 'vertical' && nativeOverflow.y) {
                 shouldScroll =
                   scrollY < 0 ? canScrollUp(scrollTarget) : canScrollDown(scrollTarget);
@@ -876,11 +876,6 @@ function runScrollFrame(timestamp: number): void {
               claimedY = claimed;
             }
           }
-          if (handledX) {
-            movedAxis = handledY ? 'all' : 'horizontal';
-          } else {
-            movedAxis = handledY ? 'vertical' : null;
-          }
         } else {
           // `behavior: 'instant'` so a CSS `scroll-behavior: smooth` on the container
           // can't turn each per-frame delta into a competing smooth animation.
@@ -891,14 +886,14 @@ function runScrollFrame(timestamp: number): void {
         // first engaged frame `frameSpeed` is 0 (ramp-up), so keying off
         // `finalScroll*` would leave the axis unconsumed and let an outer scroller
         // also scroll it for that frame.
-        if (claimedY && (movedAxis === 'all' || movedAxis === 'vertical')) {
+        if (claimedY) {
           verticalConsumed = true;
         }
-        if (claimedX && (movedAxis === 'all' || movedAxis === 'horizontal')) {
+        if (claimedX) {
           horizontalConsumed = true;
         }
 
-        if (movedAxis === null) {
+        if (!handledX && !handledY) {
           // Nothing moved, so this element must not hold the loop awake: a surface
           // parked at its own bound would otherwise burn a frame forever under a
           // stationary pointer. Dropping it also lets the end-of-frame sweep reset
@@ -1027,13 +1022,6 @@ function clearScrollerMutationObservers(): void {
  * scroll; the chain is watched for cache invalidation, not for discovery.
  */
 function observeChainMutations(...anchors: Element[]): void {
-  state.chainMutationObserver ??= new (ownerWindow(anchors[0]).MutationObserver)(
-    handleObservedMutations,
-  );
-  const observer = state.chainMutationObserver;
-  const records = observer.takeRecords();
-  observer.disconnect();
-
   const doc = ownerDocument(anchors[0]);
   const elements = new Set<Element>([doc.documentElement]);
   if (doc.body) {
@@ -1044,6 +1032,12 @@ function observeChainMutations(...anchors: Element[]): void {
       elements.add(node);
     }
   }
+  state.chainMutationObserver ??= new (ownerWindow(anchors[0]).MutationObserver)(
+    handleObservedMutations,
+  );
+  const observer = state.chainMutationObserver;
+  const records = observer.takeRecords();
+  observer.disconnect();
   for (const element of elements) {
     // A previously visited container may have been restyled while outside
     // both observed chains. Shared ancestors keep their cached measurements.
@@ -1094,6 +1088,16 @@ function wakeScrollLoop(): void {
   state.lastTimestamp = 0;
   state.scrollLoopRaf = requestScrollFrame();
 }
+
+/**
+ * Wake a parked loop so the next frame re-evaluates the live parameters at the
+ * current pointer position. React registrations call this after a parameter
+ * change, because the loop may have parked while the element was disabled or
+ * dynamically declined scrolling. The parameters are read through the getter
+ * every frame, so nothing cached has to be dropped for a change to apply.
+ * @internal
+ */
+export { wakeScrollLoop as wakeAutoScroll };
 
 function startScrollLoop(): void {
   clearIdleMutationObserver();
@@ -1272,11 +1276,13 @@ export type AutoScrollOverflowMargin =
 export function normalizeOverflowMargin(value: AutoScrollOverflowMargin | undefined) {
   const edge = (amount: number | undefined) =>
     amount !== undefined && Number.isFinite(amount) ? Math.max(0, amount) : 0;
+  const edges =
+    typeof value === 'number' ? { top: value, right: value, bottom: value, left: value } : value;
   return {
-    top: edge(typeof value === 'number' ? value : value?.top),
-    right: edge(typeof value === 'number' ? value : value?.right),
-    bottom: edge(typeof value === 'number' ? value : value?.bottom),
-    left: edge(typeof value === 'number' ? value : value?.left),
+    top: edge(edges?.top),
+    right: edge(edges?.right),
+    bottom: edge(edges?.bottom),
+    left: edge(edges?.left),
   };
 }
 

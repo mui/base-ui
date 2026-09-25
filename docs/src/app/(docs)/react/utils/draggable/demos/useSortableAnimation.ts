@@ -17,6 +17,9 @@ export function useSortableAnimation(items: readonly string[]) {
     const reduceMotion = ownerWindow(list).matchMedia('(prefers-reduced-motion: reduce)').matches;
     const listTop = list.getBoundingClientRect().top;
     const nextPositions = new Map<Element, number>();
+    // Measure every row before touching any animation: cancelling one dirties
+    // layout, and interleaving reads with writes would force a reflow per row.
+    const measurements: { row: Element; item: HTMLElement; top: number; offset: number }[] = [];
     for (const row of list.children) {
       const item = row.querySelector<HTMLElement>('[data-sortable-item]');
       if (!item) {
@@ -24,10 +27,16 @@ export function useSortableAnimation(items: readonly string[]) {
       }
       const rowTop = row.getBoundingClientRect().top;
       // Page scrolling and layout shifts must not change the stored row position.
-      const top = rowTop - listTop;
-      const previousTop = positions.current.get(row);
       // Include an unfinished animation's offset so rapid reorders don't jump.
-      const offset = item.getBoundingClientRect().top - rowTop;
+      measurements.push({
+        row,
+        item,
+        top: rowTop - listTop,
+        offset: item.getBoundingClientRect().top - rowTop,
+      });
+    }
+    for (const { row, item, top, offset } of measurements) {
+      const previousTop = positions.current.get(row);
       animations.current.get(item)?.cancel();
       animations.current.delete(item);
       nextPositions.set(row, top);

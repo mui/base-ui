@@ -28,6 +28,7 @@ function createPreviewElement(
     positionScale: { x: 1, y: 1 },
     destroyed: false,
     ensureConnected() {},
+    prepareForDrop() {},
     destroy() {
       this.destroyed = true;
       element.remove();

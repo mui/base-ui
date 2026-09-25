@@ -23,31 +23,21 @@ export interface DragSessionState {
 interface DragSessionSlot {
   store: Store<DragSessionState | null>;
   sourceStore: Store<DragSource | null>;
-  sourceSnapshot: DragSource | null;
+  /** The session source `sourceStore` last published, so a re-entrant write mirrors once. */
+  mirroredSource: DragSource | null;
   sourceVersion: number;
   targetListeners: Map<Element, Set<() => void>>;
   allTargetListeners: Set<() => void>;
 }
 
-const slot = getSharedSlot<DragSessionSlot>('dragSessionStore', () => {
-  const state: DragSessionSlot = {
-    store: new Store<DragSessionState | null>(null),
-    sourceStore: new Store<DragSource | null>(null),
-    sourceSnapshot: null,
-    sourceVersion: 0,
-    targetListeners: new Map<Element, Set<() => void>>(),
-    allTargetListeners: new Set<() => void>(),
-  };
-  // The shared stores live for the lifetime of the page.
-  void state.store.subscribe((session) => {
-    const source = session?.source ?? null;
-    if (source !== state.sourceSnapshot) {
-      state.sourceSnapshot = source;
-      state.sourceStore.setState(source ? { ...source } : null);
-    }
-  });
-  return state;
-});
+const slot = getSharedSlot<DragSessionSlot>('dragSessionStore', () => ({
+  store: new Store<DragSessionState | null>(null),
+  sourceStore: new Store<DragSource | null>(null),
+  mirroredSource: null,
+  sourceVersion: 0,
+  targetListeners: new Map<Element, Set<() => void>>(),
+  allTargetListeners: new Set<() => void>(),
+}));
 
 /**
  * Read-only handle to the singleton drag-session store. Subscribe with
@@ -99,16 +89,27 @@ export function notifyDragTargetUpdated(source: DragSource, element: Element): v
 /** Internal: lifecycle-only writer. Not exported from `index.ts`. */
 export function setDragSession(state: DragSessionState | null): void {
   const previous = slot.store.state;
-  if (previous?.source !== state?.source) {
+  const sourceChanged = previous?.source !== state?.source;
+  if (sourceChanged) {
     slot.sourceVersion += 1;
   }
   slot.store.setState(state);
+  // Mirror the source for its own subscribers, as a copy: `useStore` re-runs a
+  // selector only on a new snapshot reference, and the same `source` object is
+  // mutated in place across the drag (see `updateDragSourceElement`). Read back
+  // from the store rather than `state`: a session subscriber can synchronously
+  // write again, and whichever call runs this last must publish the final source.
+  const source = slot.store.state?.source ?? null;
+  if (source !== slot.mirroredSource) {
+    slot.mirroredSource = source;
+    slot.sourceStore.setState(source ? { ...source } : null);
+  }
 
   const listeners = new Set<() => void>();
   // `accepting` changes for potentially every target only when the source
   // changes (drag start/end). Ordinary movement notifies only elements whose
   // over/rejected relationship can have changed.
-  if (previous?.source !== state?.source) {
+  if (sourceChanged) {
     for (const listener of slot.allTargetListeners) {
       listeners.add(listener);
     }

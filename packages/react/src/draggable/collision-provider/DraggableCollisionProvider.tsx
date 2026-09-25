@@ -15,6 +15,7 @@ import type {
   MoveStartEventDetails,
 } from '../../types/drag';
 import { registerDropTarget, registerMonitor } from '../../utils/drag-and-drop/registrations';
+import type { RegisterDropTargetParameters } from '../../utils/drag-and-drop/dropTarget';
 import { scheduleDropTargetParameterRefresh } from '../../utils/drag-and-drop/core/lifecycleManager';
 import { dragSessionStore, dragSourceStore } from '../../utils/drag-and-drop/dragSessionStore';
 import { resolveCollision } from '../../utils/drag-and-drop/collisionResolution';
@@ -95,12 +96,29 @@ export function DraggableCollisionProvider<TPayload, TDragData = unknown>(
     ) => {
       participants.set(sourceElement, (participants.get(sourceElement) ?? 0) + 1);
       participantElements.add(element);
+      // Rebuilt only when the participant or this provider's props change: the
+      // engine reads the getter at least twice per frame per walked target and
+      // snapshots registrations by identity, so a fresh object per call would
+      // be copied every frame.
+      let lastParticipant: CollisionParticipant | null = null;
+      let lastConfig: DraggableCollisionProviderProps<TPayload, TDragData> | null = null;
+      let registration: RegisterDropTargetParameters<
+        TPayload,
+        TPayload,
+        TDragData,
+        TDragData
+      > | null = null;
       const unregister = registerDropTarget<TPayload, TPayload, TDragData, TDragData>(
         element,
         () => {
           const participant = getParticipant();
           const config = getProps();
-          return {
+          if (registration !== null && participant === lastParticipant && config === lastConfig) {
+            return registration;
+          }
+          lastParticipant = participant;
+          lastConfig = config;
+          registration = {
             [resolveCollision]: (
               record: DropTargetRecord<TPayload, TDragData>,
               context: { source: DragSource },
@@ -122,6 +140,7 @@ export function DraggableCollisionProvider<TPayload, TDragData = unknown>(
             canDrop: ({ source }) =>
               config.canCollide?.({ source, target: participant.payload as TPayload }) ?? true,
           };
+          return registration;
         },
       );
       return () => {

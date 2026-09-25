@@ -26,8 +26,9 @@ import { DROP_TARGET_ATTR } from './dragAttributes';
 import { getParticipantPayload, resetParticipantPayload } from './participantData';
 import { dragSessionStore, notifyDragTargetUpdated } from './dragSessionStore';
 
+type AnyDropTargetParameters = RegisterDropTargetParameters<any, any, any, any>;
 /** Getter for a single hook's latest drop-target parameters. */
-type DropTargetGetter = () => RegisterDropTargetParameters<any, any, any, any>;
+type DropTargetGetter = () => AnyDropTargetParameters;
 
 interface DropTargetState {
   /**
@@ -49,10 +50,11 @@ interface DropTargetState {
    * decrements what the retain incremented even if the node has since moved.
    */
   retainedRoots: WeakMap<Element, ShadowRoot[]>;
-  /** Closed shadow roots indexed by host for pointer hit-testing. */
+  /**
+   * Closed shadow roots indexed by host for pointer hit-testing, maintained
+   * alongside `shadowRoots` (open roots stay reachable through `host.shadowRoot`).
+   */
   shadowRootsByHost: Map<Element, ShadowRoot>;
-  /** Whether the host index needs to be rebuilt. */
-  shadowRootsByHostDirty: boolean;
 }
 
 const state = getSharedSlot<DropTargetState>('dropTarget', () => ({
@@ -60,7 +62,6 @@ const state = getSharedSlot<DropTargetState>('dropTarget', () => ({
   shadowRoots: new Map<ShadowRoot, number>(),
   retainedRoots: new WeakMap<Element, ShadowRoot[]>(),
   shadowRootsByHost: new Map<Element, ShadowRoot>(),
-  shadowRootsByHostDirty: true,
 }));
 
 type ShadowRootChangeListener = (root: ShadowRoot, registered: boolean) => void;
@@ -103,7 +104,9 @@ function retainShadowRoot(element: Element): void {
     const count = state.shadowRoots.get(root) ?? 0;
     state.shadowRoots.set(root, count + 1);
     if (count === 0) {
-      state.shadowRootsByHostDirty = true;
+      if (root.mode === 'closed') {
+        state.shadowRootsByHost.set(root.host, root);
+      }
       for (const listener of shadowRootChangeListeners) {
         listener(root, true);
       }
@@ -128,7 +131,7 @@ function releaseShadowRoot(element: Element): void {
     }
     if (count <= 1) {
       state.shadowRoots.delete(root);
-      state.shadowRootsByHostDirty = true;
+      state.shadowRootsByHost.delete(root.host);
       for (const listener of shadowRootChangeListeners) {
         listener(root, false);
       }
@@ -151,25 +154,7 @@ export function getDropTargetShadowRoots(): Iterable<ShadowRoot> {
  * only when the registered root set changes, so drag frames can reuse it.
  */
 export function getDropTargetShadowRootsByHost(): ReadonlyMap<Element, ShadowRoot> {
-  const cached = state.shadowRootsByHost;
-  if (!state.shadowRootsByHostDirty) {
-    return cached;
-  }
-
-  cached.clear();
-  for (const retained of state.shadowRoots.keys()) {
-    let root: Node = retained;
-    // A retained root can sit inside another shadow tree. Index each closed
-    // boundary on the chain; open roots remain reachable through `host.shadowRoot`.
-    while (isShadowRoot(root)) {
-      if (root.mode === 'closed') {
-        cached.set(root.host, root);
-      }
-      root = root.host.getRootNode();
-    }
-  }
-  state.shadowRootsByHostDirty = false;
-  return cached;
+  return state.shadowRootsByHost;
 }
 
 /** Watch roots entering and leaving the registered drop-target set. */
@@ -238,16 +223,11 @@ export function clearRetiringDropTargets(): void {
 
 /**
  * Register `element` as a drop target with a live parameters getter, pushing it
- * onto the element's stack of holds. Returns `true` when this was the first
- * registration on the element, so the caller can run first-time side effects. Pass
- * the same `getParameters` to {@link removeDropTargetRegistration} so each hold
- * releases its own getter.
+ * onto the element's stack of holds. Pass the same `getParameters` to
+ * {@link removeDropTargetRegistration} so each hold releases its own getter.
  */
-export function addDropTargetRegistration(
-  element: Element,
-  getParameters: DropTargetGetter,
-): boolean {
-  return holds.add(element, getParameters);
+export function addDropTargetRegistration(element: Element, getParameters: DropTargetGetter): void {
+  holds.add(element, getParameters);
 }
 
 const targetDragData = getSharedSlot(
@@ -261,18 +241,17 @@ const targetDragData = getSharedSlot(
 
 /**
  * Drop one registration hold on `element`, removing {@link DROP_TARGET_ATTR} only
- * when the last hold is released. Returns `true` when it removed the target
- * entirely. `beforeDelete` runs before the registry entry is deleted, so a caller
- * can refresh the lifecycle while the registration is still readable, for the
- * `onDraggableLeave` dispatch.
+ * when the last hold is released. `beforeDelete` runs before the registry entry
+ * is deleted, so a caller can refresh the lifecycle while the registration is
+ * still readable, for the `onDraggableLeave` dispatch.
  */
 export function removeDropTargetRegistration(
   element: Element,
   getParameters: DropTargetGetter,
   beforeDelete?: () => void,
-): boolean {
+): void {
   try {
-    return holds.remove(element, getParameters, beforeDelete);
+    holds.remove(element, getParameters, beforeDelete);
   } finally {
     resetParticipantPayload(getParameters);
     const source = dragSessionStore.state?.source;
@@ -295,7 +274,6 @@ export function resetForTests(): void {
   state.shadowRoots.clear();
   state.retainedRoots = new WeakMap<Element, ShadowRoot[]>();
   state.shadowRootsByHost.clear();
-  state.shadowRootsByHostDirty = true;
   shadowRootChangeListeners.clear();
   retiringRegistrations.clear();
 }
@@ -342,7 +320,7 @@ const DROP_REJECTED = Symbol('base-ui.dropTarget.rejected');
 
 const recordRegistrations = getSharedSlot(
   'dropTarget.recordRegistrations',
-  () => new WeakMap<DropTargetRecord, RegisterDropTargetParameters<any, any, any, any>>(),
+  () => new WeakMap<DropTargetRecord, AnyDropTargetParameters>(),
 );
 
 /**
@@ -354,16 +332,10 @@ const recordRegistrations = getSharedSlot(
  */
 const registrationSnapshots = getSharedSlot(
   'dropTarget.registrationSnapshots',
-  () =>
-    new WeakMap<
-      RegisterDropTargetParameters<any, any, any, any>,
-      RegisterDropTargetParameters<any, any, any, any>
-    >(),
+  () => new WeakMap<AnyDropTargetParameters, AnyDropTargetParameters>(),
 );
 
-function snapshotRegistration(
-  registration: RegisterDropTargetParameters<any, any, any, any>,
-): RegisterDropTargetParameters<any, any, any, any> {
+function snapshotRegistration(registration: AnyDropTargetParameters): AnyDropTargetParameters {
   let snapshot = registrationSnapshots.get(registration);
   if (snapshot === undefined) {
     snapshot = { ...registration };
@@ -560,7 +532,7 @@ function snapAxis(value: number, steps: number | undefined): number {
 function createLocalPointReaders(
   element: Element,
   context: DropTargetResolutionContext,
-  snap: RegisterDropTargetParameters<any, any, any, any>['snap'],
+  snap: AnyDropTargetParameters['snap'],
 ): Pick<DropTargetRecord, 'getLocalPoint' | 'getSnappedLocalPoint'> {
   const { clientX, clientY } = context.input;
   const grabOffset = grabOffsetSlot.current;
@@ -681,23 +653,19 @@ export function getDropTargetsOver(
 type DropTargetEventName = keyof DropTargetEventMap & keyof RegisterDropTargetParameters;
 
 /**
- * Pre-capture the active registration getter for a record so a later dispatch
- * survives the target unregistering in between. Used by the drop path: the
- * source's `onMoveEnd` (told the drop landed first) may synchronously tear
- * down its zones, and the drop it was just told about must still be delivered.
+ * The element's active registration getter. The drop path captures it up front
+ * so the dispatch survives the target unregistering in between: the source's
+ * `onMoveEnd` (told the drop landed first) may synchronously tear down its
+ * zones, and the drop it was just told about must still be delivered.
  */
-export function captureDropTargetRegistration(
-  record: DropTargetRecord,
-): (() => RegisterDropTargetParameters<any, any, any, any>) | undefined {
-  return getActiveRegistration(record.element);
-}
+export { getActiveRegistration as getActiveDropTargetRegistration };
 
 export function dispatchToDropTarget<K extends DropTargetEventName>(
   record: DropTargetRecord,
   eventName: K,
   payload: DropTargetEventMap[K],
   eventDetails: DropTargetEventDetailsMap[K],
-  capturedRegistration?: () => RegisterDropTargetParameters<any, any, any, any>,
+  capturedRegistration?: DropTargetGetter,
 ): void {
   const getRegistration =
     capturedRegistration ??
@@ -795,7 +763,20 @@ export function dispatchTerminalDropTargetLeave(
   eventDetails: DropTargetEventDetailsMap['onDraggableLeave'],
   hovered: DropTargetRecord[],
 ): void {
-  // Removed before the leave is delivered, as in `dispatchDropTargetChange`.
+  dispatchDropTargetLeave(record, payload, eventDetails, hovered);
+}
+
+/**
+ * Deliver one `onDraggableLeave`. The record leaves `hovered` *before* the
+ * dispatch: if the leave handler cancels the drag, the terminal dispatch must
+ * not re-leave this target.
+ */
+function dispatchDropTargetLeave(
+  record: DropTargetRecord,
+  payload: DropTargetEventMap['onDraggableLeave'],
+  eventDetails: DropTargetEventDetailsMap['onDraggableLeave'],
+  hovered: DropTargetRecord[],
+): void {
   removeHoveredRecord(hovered, record.element);
   try {
     dispatchToDropTarget(record, 'onDraggableLeave', payload, eventDetails);
@@ -836,14 +817,7 @@ export function dispatchDropTargetChange(
     if (fresh) {
       replaceHoveredRecord(hovered, fresh);
     } else {
-      // Removed before the leave is delivered: if the leave handler cancels the
-      // drag, the terminal dispatch must not re-leave this target.
-      removeHoveredRecord(hovered, record.element);
-      try {
-        dispatchToDropTarget(record, 'onDraggableLeave', payload, eventDetails);
-      } finally {
-        releaseRetiringDropTarget(record.element);
-      }
+      dispatchDropTargetLeave(record, payload, eventDetails, hovered);
     }
   }
 

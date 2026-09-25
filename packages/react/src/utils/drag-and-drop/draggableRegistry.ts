@@ -50,21 +50,6 @@ export function getRegistration(element: HTMLElement): DraggableGetter | undefin
   return holds.getActive(element);
 }
 
-/**
- * Walk up from `target` (crossing shadow boundaries) to the nearest registered
- * draggable element, or `null` when none is found.
- */
-export function findRegisteredAncestor(target: Element | null): HTMLElement | null {
-  let node: Element | null = target;
-  while (node) {
-    if (isHTMLElement(node) && state.registry.has(node)) {
-      return node;
-    }
-    node = getComposedParentElement(node);
-  }
-  return null;
-}
-
 export interface DraggablePickup {
   /** The nearest registered draggable ancestor of the event target. */
   element: HTMLElement;
@@ -93,30 +78,29 @@ export function resolveDraggablePickup(rawTarget: EventTarget | null): Draggable
   if (!target) {
     return null;
   }
-  // Walk the registered-draggable ancestor chain. The innermost registered
-  // draggable may gate pickup on its own drag handle; if the gesture began
-  // outside that handle — or the draggable is `disabled` — fall through to an
-  // *outer* registered draggable rather than becoming drag-inert — so a nested
-  // card inside a draggable list item still starts the outer drag.
-  let searchFrom: Element | null = target;
-  while (searchFrom) {
-    const element = findRegisteredAncestor(searchFrom);
-    if (!element) {
-      return null;
+  // Walk the registered-draggable ancestor chain (crossing shadow boundaries).
+  // The innermost registered draggable may gate pickup on its own drag handle;
+  // if the gesture began outside that handle — or the draggable is `disabled` —
+  // fall through to an *outer* registered draggable rather than becoming
+  // drag-inert — so a nested card inside a draggable list item still starts the
+  // outer drag.
+  for (let node: Element | null = target; node !== null; node = getComposedParentElement(node)) {
+    if (!isHTMLElement(node)) {
+      continue;
     }
-    const getParameters = getRegistration(element);
-    if (getParameters) {
-      const parameters = getParameters();
-      const dragHandle = resolveDragHandle(parameters);
-      // With a configured drag handle, only pick up if the gesture began within
-      // it — so an action control elsewhere inside the draggable keeps its own
-      // behaviour. A `disabled` draggable can never start a drag, so it is
-      // skipped the same way. Otherwise continue from this element's parent.
-      if (!parameters.disabled && (!dragHandle || contains(dragHandle, target))) {
-        return { element, target, parameters, dragHandle };
-      }
+    const getParameters = holds.getActive(node);
+    if (getParameters === undefined) {
+      continue;
     }
-    searchFrom = getComposedParentElement(element);
+    const parameters = getParameters();
+    const dragHandle = resolveDragHandle(parameters);
+    // With a configured drag handle, only pick up if the gesture began within
+    // it — so an action control elsewhere inside the draggable keeps its own
+    // behaviour. A `disabled` draggable can never start a drag, so it is
+    // skipped the same way. Otherwise continue from this element's parent.
+    if (!parameters.disabled && (!dragHandle || contains(dragHandle, target))) {
+      return { element: node, target, parameters, dragHandle };
+    }
   }
   return null;
 }

@@ -201,6 +201,14 @@ export function capturePreviewStyles(
   let sheet: CSSStyleSheet | null = null;
   let sheetRoot: Document | ShadowRoot | null = null;
 
+  function detachSheet() {
+    if (sheetRoot) {
+      sheetRoot.adoptedStyleSheets = sheetRoot.adoptedStyleSheets.filter(
+        (value) => value !== sheet,
+      );
+    }
+  }
+
   function reconnect() {
     if (!sheet) {
       return;
@@ -210,11 +218,7 @@ export function capturePreviewStyles(
     if (sheetRoot === target && target.adoptedStyleSheets.includes(sheet)) {
       return;
     }
-    if (sheetRoot) {
-      sheetRoot.adoptedStyleSheets = sheetRoot.adoptedStyleSheets.filter(
-        (value) => value !== sheet,
-      );
-    }
+    detachSheet();
     sheetRoot = target;
     target.adoptedStyleSheets = [...target.adoptedStyleSheets, sheet];
   }
@@ -310,12 +314,6 @@ export function capturePreviewStyles(
       snapshots.length = 0;
     },
     reconnect,
-    destroy() {
-      if (sheetRoot) {
-        sheetRoot.adoptedStyleSheets = sheetRoot.adoptedStyleSheets.filter(
-          (value) => value !== sheet,
-        );
-      }
-    },
+    destroy: detachSheet,
   };
 }

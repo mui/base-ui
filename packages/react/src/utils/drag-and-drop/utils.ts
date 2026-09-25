@@ -391,15 +391,21 @@ function usableScale(value: number): number {
   return Number.isFinite(value) && value > 0 ? value : 1;
 }
 
+/**
+ * The element's own `zoom`, or `1` when it has none. Falls back to the inline
+ * declaration for engines whose computed style does not expose `zoom`.
+ */
+function getOwnZoom(node: Element, style: CSSStyleDeclaration): number {
+  const value = Number.parseFloat(style.zoom || (node as HTMLElement).style?.zoom || '');
+  return Number.isFinite(value) && value > 0 ? value : 1;
+}
+
 /** CSS zoom remains cumulative even when a preview enters the top layer. */
 export function getElementZoom(element: HTMLElement): number {
   const win = ownerWindow(element);
   let zoom = 1;
   for (let node: Element | null = element; node; node = getComposedParentElement(node)) {
-    const value = Number.parseFloat(win.getComputedStyle(node).zoom);
-    if (Number.isFinite(value) && value > 0) {
-      zoom *= value;
-    }
+    zoom *= getOwnZoom(node, win.getComputedStyle(node));
   }
   return zoom;
 }
@@ -415,9 +421,8 @@ export function getElementZoom(element: HTMLElement): number {
  * rotation at 1 and still reports the scale composed with it.
  *
  * Returns `1` on either axis it cannot read.
- * Set `includeZoom` to false when only transforms are escaped, as in a top-layer preview.
  */
-export function getElementScale(element: HTMLElement, includeZoom = true): DragPosition {
+export function getElementScale(element: HTMLElement): DragPosition {
   const win = ownerWindow(element);
   let matrix = identityLinearTransform;
   let zoom = 1;
@@ -446,10 +451,7 @@ export function getElementScale(element: HTMLElement, includeZoom = true): DragP
     }
     // `zoom` never reaches the matrix — it is not a transform — but it is the other way a
     // surface is scaled, and it compounds down the tree the same way.
-    const elementZoom = Number.parseFloat(style.zoom || (node as HTMLElement).style?.zoom || '');
-    if (includeZoom && Number.isFinite(elementZoom) && elementZoom > 0) {
-      zoom *= elementZoom;
-    }
+    zoom *= getOwnZoom(node, style);
     if (node.hasAttribute('popover') && node.matches(':popover-open')) {
       escapedTransforms = true;
     }

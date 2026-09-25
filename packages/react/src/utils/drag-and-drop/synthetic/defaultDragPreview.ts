@@ -28,7 +28,7 @@ export function attachDefaultDragPreview(
     return;
   }
 
-  const previewElement = settings.createPreviewElement?.(element, settings.container);
+  const previewElement = settings.createPreviewElement(element, settings.container);
   if (!previewElement) {
     return;
   }

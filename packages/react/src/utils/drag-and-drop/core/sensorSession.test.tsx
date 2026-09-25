@@ -5,6 +5,7 @@ import { createDndRenderer } from '#test-utils';
 import { Draggable } from '../../../draggable';
 import { setupDragEngineTests, createElement, lift, flushRaf } from '../../../../test/dnd';
 import { createPreviewAndStartSession } from './sensorSession';
+import { createDragSource } from '../dragSource';
 import { penDown, penUp } from '../../../../test/syntheticPointer';
 import type { DragSource } from '../../../types/drag';
 import { getInput } from '../utils';
@@ -79,6 +80,7 @@ describe('sensor session startup', () => {
       createPreviewAndStartSession({
         element,
         dragHandle: null,
+        dragSource: createDragSource(element, kind.id, undefined, null),
         initialInput: getInput(new MouseEvent('pointerdown', { clientX: 10, clientY: 10 })),
         initialTarget: element,
         onForceCleanup: vi.fn(),

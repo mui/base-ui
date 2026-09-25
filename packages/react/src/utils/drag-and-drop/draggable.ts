@@ -29,6 +29,14 @@ const gestureSetups = getSharedSlot<WeakMap<Element, GestureSetupEntry>>(
   () => new WeakMap<Element, GestureSetupEntry>(),
 );
 
+/** The inline styles that make an element pick up pointer gestures instead of the browser. */
+const GESTURE_STYLES = [
+  { property: 'touchAction', cssName: 'touch-action', value: 'manipulation' },
+  { property: 'userSelect', cssName: 'user-select', value: 'none' },
+  { property: 'webkitUserSelect', cssName: '-webkit-user-select', value: 'none' },
+  { property: 'webkitTouchCallout', cssName: '-webkit-touch-callout', value: 'none' },
+] as const;
+
 interface DraggableStaticSetupParameters {
   element: HTMLElement;
   dragHandle?: DragHandle | undefined;
@@ -50,57 +58,29 @@ function applyGestureSetup(
   let entry = gestureSetups.get(gestureElement);
   if (!entry) {
     const gestureStyle = gestureElement.style as CSSStyleDeclaration & Record<string, string>;
-    // Some CSS properties are unavailable in jsdom or other browser engines.
-    // Restore those to an empty string instead of assigning undefined.
-    const previous = {
-      touchAction: gestureStyle.touchAction ?? '',
-      userSelect: gestureStyle.userSelect ?? '',
-      webkitUserSelect: gestureStyle.webkitUserSelect ?? '',
-      webkitTouchCallout: gestureStyle.webkitTouchCallout ?? '',
-    };
-    const priorities = {
-      touchAction: gestureStyle.getPropertyPriority('touch-action'),
-      userSelect: gestureStyle.getPropertyPriority('user-select'),
-      webkitUserSelect: gestureStyle.getPropertyPriority('-webkit-user-select'),
-      webkitTouchCallout: gestureStyle.getPropertyPriority('-webkit-touch-callout'),
-    };
-    gestureStyle.touchAction = 'manipulation';
-    gestureStyle.userSelect = 'none';
-    gestureStyle.webkitUserSelect = 'none';
-    gestureStyle.webkitTouchCallout = 'none';
+    // Read every previous value before writing any: `userSelect` and
+    // `webkitUserSelect` alias each other in some engines. Some properties are
+    // unavailable in jsdom or other engines; restore those to an empty string
+    // instead of assigning undefined.
+    const saved = GESTURE_STYLES.map((declaration) => ({
+      ...declaration,
+      previous: gestureStyle[declaration.property] ?? '',
+      priority: gestureStyle.getPropertyPriority(declaration.cssName),
+    }));
+    for (const { property, value } of saved) {
+      gestureStyle[property] = value;
+    }
     entry = {
       count: 0,
       restore() {
-        if (gestureStyle.touchAction === 'manipulation') {
-          gestureStyle.touchAction = previous.touchAction;
-          if (priorities.touchAction) {
-            gestureStyle.setProperty('touch-action', previous.touchAction, priorities.touchAction);
+        for (const { property, cssName, value, previous, priority } of saved) {
+          // Left alone when a consumer wrote something else since.
+          if (gestureStyle[property] !== value) {
+            continue;
           }
-        }
-        if (gestureStyle.userSelect === 'none') {
-          gestureStyle.userSelect = previous.userSelect;
-          if (priorities.userSelect) {
-            gestureStyle.setProperty('user-select', previous.userSelect, priorities.userSelect);
-          }
-        }
-        if (gestureStyle.webkitUserSelect === 'none') {
-          gestureStyle.webkitUserSelect = previous.webkitUserSelect;
-          if (priorities.webkitUserSelect) {
-            gestureStyle.setProperty(
-              '-webkit-user-select',
-              previous.webkitUserSelect,
-              priorities.webkitUserSelect,
-            );
-          }
-        }
-        if (gestureStyle.webkitTouchCallout === 'none') {
-          gestureStyle.webkitTouchCallout = previous.webkitTouchCallout;
-          if (priorities.webkitTouchCallout) {
-            gestureStyle.setProperty(
-              '-webkit-touch-callout',
-              previous.webkitTouchCallout,
-              priorities.webkitTouchCallout,
-            );
+          gestureStyle[property] = previous;
+          if (priority) {
+            gestureStyle.setProperty(cssName, previous, priority);
           }
         }
       },
@@ -131,9 +111,11 @@ export function applyDraggableStaticSetup(
   parameters: DraggableStaticSetupParameters,
 ): DragCleanupFn {
   const { element } = parameters;
+  /** The node the gesture styles land on: the handle when there is one, else the element. */
+  const resolveGestureElement = (dragHandle: DragHandle | undefined): HTMLElement =>
+    (resolveElementReference(dragHandle, undefined) as HTMLElement | null) ?? element;
   let appliedDisabled = Boolean(parameters.disabled);
-  let appliedElement =
-    (resolveElementReference(parameters.dragHandle, undefined) as HTMLElement | null) ?? element;
+  let appliedElement = resolveGestureElement(parameters.dragHandle);
   let releaseSetup = applyGestureSetup(appliedElement, parameters.disabled);
 
   const refreshFromRegistration = () => {
@@ -143,8 +125,7 @@ export function applyDraggableStaticSetup(
     }
     const latest = getParameters();
     const nextDisabled = Boolean(latest.disabled);
-    const nextElement =
-      (resolveElementReference(latest.dragHandle, undefined) as HTMLElement | null) ?? element;
+    const nextElement = resolveGestureElement(latest.dragHandle);
     if (nextDisabled === appliedDisabled && nextElement === appliedElement) {
       return;
     }

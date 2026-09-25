@@ -26,8 +26,8 @@ export function resolveActivation(
   if (config === undefined) {
     return [DEFAULT_ACTIVATION[pointerType]];
   }
-  const configs = normalizeConfig(config);
-  if (isPointerDisabled(configs, pointerType)) {
+  const configs = getEnabledConfigs(config, pointerType);
+  if (configs === null) {
     return [];
   }
   let addressed = configs.length === 0;
@@ -51,11 +51,8 @@ export function hasDoubleClickActivation(
   config: DragActivationConfig | readonly DragActivationConfig[] | undefined,
   pointerType: DragPointerType,
 ): boolean {
-  if (config === undefined) {
-    return false;
-  }
-  const configs = normalizeConfig(config);
-  if (isPointerDisabled(configs, pointerType)) {
+  const configs = config === undefined ? null : getEnabledConfigs(config, pointerType);
+  if (configs === null) {
     return false;
   }
   return configs.some((activation) => {
@@ -67,17 +64,19 @@ export function hasDoubleClickActivation(
   });
 }
 
-function isPointerDisabled(configs: DragActivationConfig[], pointerType: DragPointerType): boolean {
-  return configs.some((config) => !('type' in config) && config[pointerType] === false);
-}
-
-function normalizeConfig(
+/**
+ * The config entries as a list, or `null` when any per-pointer map turns
+ * `pointerType` off (`{ touch: false }`), which disables every form of pickup.
+ */
+function getEnabledConfigs(
   config: DragActivationConfig | readonly DragActivationConfig[],
-): DragActivationConfig[] {
-  if (Array.isArray(config)) {
-    return [...config] as DragActivationConfig[];
-  }
-  return [config as DragActivationConfig];
+  pointerType: DragPointerType,
+): readonly DragActivationConfig[] | null {
+  const configs: readonly DragActivationConfig[] = Array.isArray(config)
+    ? config
+    : [config as DragActivationConfig];
+  const disabled = configs.some((entry) => !('type' in entry) && entry[pointerType] === false);
+  return disabled ? null : configs;
 }
 
 function squaredDistance(a: { x: number; y: number }, b: { x: number; y: number }): number {
@@ -86,58 +85,68 @@ function squaredDistance(a: { x: number; y: number }, b: { x: number; y: number 
   return dx * dx + dy * dy;
 }
 
+/** One activation's verdict on the gesture so far. */
 export function evaluateActivation(
-  activation: DragActivation | readonly DragActivation[],
+  activation: DragActivation,
   origin: { x: number; y: number },
   current: { x: number; y: number },
   elapsedMs: number,
 ): ActivationDecision {
-  const activations = Array.isArray(activation) ? activation : [activation];
-  if (activations.length === 0) {
-    return 'cancel';
-  }
-
-  let hasPending = false;
-  for (const activation of activations) {
-    switch (activation.type) {
-      case 'immediate':
-        return 'activate';
-      case 'distance': {
-        const threshold = activation.distance * activation.distance;
-        if (squaredDistance(origin, current) >= threshold) {
-          return 'activate';
-        }
-        hasPending = true;
-        break;
-      }
-      case 'press-hold': {
-        const tolerance = activation.tolerance ?? MOVEMENT_TOLERANCE_PX;
-        const toleranceSq = tolerance * tolerance;
-        if (squaredDistance(origin, current) <= toleranceSq && elapsedMs >= activation.delay) {
-          return 'activate';
-        }
-        if (squaredDistance(origin, current) <= toleranceSq) {
-          hasPending = true;
-        }
-        break;
-      }
-      case 'double-click':
-        break;
-      default:
-        break;
+  switch (activation.type) {
+    case 'immediate':
+      return 'activate';
+    case 'distance': {
+      const threshold = activation.distance * activation.distance;
+      return squaredDistance(origin, current) >= threshold ? 'activate' : 'pending';
     }
+    case 'press-hold': {
+      const tolerance = activation.tolerance ?? MOVEMENT_TOLERANCE_PX;
+      if (squaredDistance(origin, current) > tolerance * tolerance) {
+        return 'cancel';
+      }
+      return elapsedMs >= activation.delay ? 'activate' : 'pending';
+    }
+    // Handled by the `dblclick` and double-tap paths, never evaluated here.
+    case 'double-click':
+    default:
+      return 'cancel';
   }
-  return hasPending ? 'pending' : 'cancel';
 }
 
-export function getActivationDelayMs(
-  activation: DragActivation | readonly DragActivation[],
-): number | null {
-  const activations = Array.isArray(activation) ? activation : [activation];
-  const delays = activations
-    .filter((activation) => activation.type === 'press-hold')
-    .map((activation) => activation.delay);
-  return delays.length > 0 ? Math.min(...delays) : null;
+/**
+ * Evaluate every pending activation at once. Any one activating activates the
+ * gesture (OR semantics); the ones that canceled are pruned, since a hold that
+ * exceeded its tolerance cannot recover by moving back.
+ */
+export function evaluateActivations(
+  activations: readonly DragActivation[],
+  origin: { x: number; y: number },
+  current: { x: number; y: number },
+  elapsedMs: number,
+): { activate: boolean; remaining: DragActivation[] } {
+  let activate = false;
+  const remaining: DragActivation[] = [];
+  for (const activation of activations) {
+    const decision = evaluateActivation(activation, origin, current, elapsedMs);
+    if (decision === 'activate') {
+      activate = true;
+    }
+    if (decision !== 'cancel') {
+      remaining.push(activation);
+    }
+  }
+  return { activate, remaining };
+}
+
+/** The earliest press-hold deadline among `activations`, or `null` without one. */
+export function getActivationDelayMs(activations: readonly DragActivation[]): number | null {
+  let delay: number | null = null;
+  for (const activation of activations) {
+    if (activation.type === 'press-hold' && (delay === null || activation.delay < delay)) {
+      delay = activation.delay;
+    }
+  }
+  return delay;
 }
 
 /**

@@ -1,7 +1,7 @@
 import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
 import { NOOP } from '@base-ui/utils/empty';
 import { warn } from '@base-ui/utils/warn';
-import { isShadowRoot } from '@floating-ui/utils/dom';
+import { isElement, isShadowRoot } from '@floating-ui/utils/dom';
 import { capturePreviewStyles } from './previewStyles';
 import { applySourceSizeVars } from '../customDragPreview';
 import { getSharedSlot } from '../sharedState';
@@ -73,19 +73,19 @@ const neutralizerSheets = getSharedSlot(
   () => new WeakMap<DocumentOrShadowRoot, CSSStyleSheet>(),
 );
 
-function ensureNeutralizerStyles(host: Element | ShadowRoot | Document): void {
-  const root = 'getRootNode' in host ? host.getRootNode() : host;
+function ensureNeutralizerStyles(host: PreviewHost): void {
+  const root = host.getRootNode();
   // Realm-safe `instanceof` (`isShadowRoot`): a draggable inside a shadow root that
   // lives in an iframe/popout has its own `ShadowRoot` constructor, and this realm's
   // would never match — the neutralizer sheet would then land on the iframe document
   // instead of the shadow root, leaving the preview with the source's transitions.
-  const target: DocumentOrShadowRoot = isShadowRoot(root) ? root : ownerDocument(host as Element);
+  const target: DocumentOrShadowRoot = isShadowRoot(root) ? root : ownerDocument(host);
   if (!('adoptedStyleSheets' in target)) {
     return;
   }
   let sheet = neutralizerSheets.get(target);
   if (!sheet) {
-    sheet = new (ownerWindow(host as Element).CSSStyleSheet)();
+    sheet = new (ownerWindow(host).CSSStyleSheet)();
     sheet.replaceSync(NEUTRALIZER_CSS);
     neutralizerSheets.set(target, sheet);
   }
@@ -109,12 +109,13 @@ export interface DragPreviewElementHandle {
   /**
    * Re-home the preview if its host was torn out mid-drag (a virtualizer recycling
    * the row, a `dangerouslySetInnerHTML` parent re-rendering). Cheap enough to call
-   * every frame — the happy path is a single `isConnected` read.
+   * every frame — the happy path is an `isConnected` read plus, for a top-layer
+   * preview, a `:popover-open` match.
    */
   ensureConnected(): void;
   destroy(): void;
   /** Restore motion rules before the ending-style transition is measured. */
-  prepareForDrop?: (() => void) | undefined;
+  prepareForDrop(): void;
 }
 
 export type DragPreviewElementFactory = (
@@ -242,7 +243,7 @@ function cloneWithoutCustomElements(
   const cloneNodes: Element[] = [];
 
   function cloneNode(node: Node): Node {
-    if (!(node instanceof win.Element)) {
+    if (!isElement(node)) {
       return node.cloneNode(false);
     }
 
@@ -773,7 +774,6 @@ function createPreparedDragPreviewElement(
   const restoredMotion = new Map<string, string>();
   let contextualStyles: ReturnType<typeof capturePreviewStyles> | undefined;
   if (options.clone) {
-    applySourceSizeVars(element, { width, height });
     // Read from the source while the clone is still detached: it is never inserted
     // beside the source, which would shift every sibling's `:nth-child` index and
     // snapshot the clone at a position the source does not occupy.

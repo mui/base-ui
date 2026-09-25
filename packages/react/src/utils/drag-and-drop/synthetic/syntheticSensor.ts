@@ -9,11 +9,12 @@ import { NOOP } from '@base-ui/utils/empty';
 import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
 import { addEventListener } from '@base-ui/utils/addEventListener';
 import { contains, getTarget } from '@base-ui/utils/shadowDom';
+import { isHTMLElement } from '@floating-ui/utils/dom';
 import { WindowAnimationFrame } from '../../windowAnimationFrame';
 import { WindowTimeout } from '../../windowTimeout';
 import { createChangeEventDetails } from '../../../internals/createBaseUIEventDetails';
 import {
-  evaluateActivation,
+  evaluateActivations,
   getActivationDelayMs,
   hasDoubleClickActivation,
   resolveActivation,
@@ -34,7 +35,12 @@ import { setActivePointerAccessors } from '../activePointer';
 import { createEventRootBinding, type DragEventRoot } from '../documentBinding';
 import type { DraggableConfig } from '../draggable';
 import { createDragSource } from '../dragSource';
-import { getRegistration, resolveDragHandle, resolveDraggablePickup } from '../draggableRegistry';
+import {
+  getRegistration,
+  resolveDragHandle,
+  resolveDraggablePickup,
+  type DraggablePickup,
+} from '../draggableRegistry';
 import { hasInteractiveAncestorWithin } from '../interactiveElement';
 import {
   getDropTargetShadowRoots,
@@ -79,8 +85,6 @@ interface SyntheticDragState {
   /** The pointer type of the last `pointerdown` anywhere (see `onDoubleClick`). */
   lastPointerDownType: DragPointerType | null;
   cleanupContextMenuSuppression: DragCleanupFn | null;
-  /** Lets terminal handlers run intentional `.click()` calls before suppression. */
-  terminalCallbacksRunning: boolean;
 }
 
 const state = getSharedSlot<SyntheticDragState>('syntheticDrag', () => ({
@@ -89,7 +93,6 @@ const state = getSharedSlot<SyntheticDragState>('syntheticDrag', () => ({
   lastTap: null,
   lastPointerDownType: null,
   cleanupContextMenuSuppression: null,
-  terminalCallbacksRunning: false,
 }));
 const handledPointerDownEvents = getSharedSlot<WeakSet<Event>>(
   'syntheticDrag.handledPointerDownEvents',
@@ -261,7 +264,6 @@ function clearActive(
     suppressNextClick(
       session.element,
       pointerAtTeardown === 'held' ? session.pointerId : undefined,
-      () => state.terminalCallbacksRunning,
     );
   }
 
@@ -358,15 +360,10 @@ function cancelActive(
   // cancel would leave the lifecycle active forever — `canStart()` false for the
   // rest of the page's life — so the lifecycle is ended either way. `tearDown` is
   // idempotent, so this is safe even when `clearActive` already forced it.
-  state.terminalCallbacksRunning = true;
   try {
-    try {
-      clearActive(false, POINTER_AT_CANCEL[reason]);
-    } finally {
-      controller.cancel(input, reason, event);
-    }
+    clearActive(false, POINTER_AT_CANCEL[reason]);
   } finally {
-    state.terminalCallbacksRunning = false;
+    controller.cancel(input, reason, event);
   }
 }
 
@@ -393,8 +390,7 @@ export function cancelActiveDrag(): void {
  * are inert for it.
  */
 function isScrollbarPress(event: MouseEvent, element: Element): boolean {
-  const win = ownerWindow(element);
-  if (!(element instanceof win.HTMLElement)) {
+  if (!isHTMLElement(element)) {
     return false;
   }
   // An element with no scrollable overflow has no gutter at all, and the offsets
@@ -442,6 +438,40 @@ function isScrollbarPress(event: MouseEvent, element: Element): boolean {
   return false;
 }
 
+/**
+ * The draggable a press picks up, or `null` when the press must stay an
+ * ordinary press. Shared by the pointer and double-click paths so both apply
+ * the same gates.
+ */
+function resolvePressPickup(event: MouseEvent): DraggablePickup | null {
+  const pickup = resolveDraggablePickup(getTarget(event));
+  if (!pickup) {
+    return null;
+  }
+  // A disabled draggable never arms the pending phase, so the press behaves like
+  // an ordinary click: no contextmenu suppression, and a natively-draggable
+  // descendant (`<img>`, `<a href>`) keeps its native HTML5 drag. A *dynamic*
+  // veto belongs in `onBeforeMoveStart`, dispatched at activation commit.
+  if (pickup.parameters.disabled) {
+    return null;
+  }
+  // A control nested inside the draggable owns its own press. Without it, pressing an inline rename
+  // input and moving to select text crosses the activation threshold and the drag
+  // `preventDefault()`s the selection away.
+  if (hasInteractiveAncestorWithin(pickup.target, pickup.dragHandle ?? pickup.element)) {
+    return null;
+  }
+  // Same rule, for the one "control" that isn't an element: a classic scrollbar
+  // is part of its element's box and hit-tests to that element, so a press on the
+  // scrollbar of a list nested inside a draggable walks up to the draggable and
+  // arms the gesture — and the default mouse activation commits after 5px of
+  // thumb travel, picking up the whole card the user was only trying to scroll.
+  if (isScrollbarPress(event, pickup.target)) {
+    return null;
+  }
+  return pickup;
+}
+
 function onPointerDown(event: Event): void {
   if (handledPointerDownEvents.has(event)) {
     return;
@@ -463,38 +493,13 @@ function onPointerDown(event: Event): void {
     return;
   }
 
-  const pickup = resolveDraggablePickup(getTarget(pointerEvent));
+  const pickup = resolvePressPickup(pointerEvent);
   if (!pickup) {
     return;
   }
-  const { element, target, parameters, dragHandle } = pickup;
-  const handle = dragHandle ?? element;
+  const { element, target, parameters } = pickup;
 
   const initialInput = getInput(pointerEvent);
-
-  // A disabled draggable never arms the pending phase, so the press behaves like
-  // an ordinary click: no contextmenu suppression, and a natively-draggable
-  // descendant (`<img>`, `<a href>`) keeps its native HTML5 drag. A *dynamic*
-  // veto belongs in `onBeforeMoveStart`, dispatched at activation commit.
-  if (parameters.disabled) {
-    return;
-  }
-
-  // A control nested inside the draggable owns its own press. Without it, pressing an inline rename
-  // input and moving to select text crosses the activation threshold and the drag
-  // `preventDefault()`s the selection away.
-  if (hasInteractiveAncestorWithin(target, handle)) {
-    return;
-  }
-
-  // Same rule, for the one "control" that isn't an element: a classic scrollbar
-  // is part of its element's box and hit-tests to that element, so a press on the
-  // scrollbar of a list nested inside a draggable walks up to the draggable and
-  // arms the gesture — and the default mouse activation commits after 5px of
-  // thumb travel, picking up the whole card the user was only trying to scroll.
-  if (isScrollbarPress(pointerEvent, target)) {
-    return;
-  }
 
   if (!canStartLifecycle()) {
     return;
@@ -646,18 +651,8 @@ function onDoubleClick(event: Event): void {
   if (!recoverDetachedSession(event) || !canStartLifecycle()) {
     return;
   }
-  const pickup = resolveDraggablePickup(getTarget(mouseEvent));
-  if (
-    !pickup ||
-    pickup.parameters.disabled ||
-    !hasDoubleClickActivation(pickup.parameters.activation, 'mouse')
-  ) {
-    return;
-  }
-  if (hasInteractiveAncestorWithin(pickup.target, pickup.dragHandle ?? pickup.element)) {
-    return;
-  }
-  if (isScrollbarPress(mouseEvent, pickup.target)) {
+  const pickup = resolvePressPickup(mouseEvent);
+  if (!pickup || !hasDoubleClickActivation(pickup.parameters.activation, 'mouse')) {
     return;
   }
   const input = getInput(mouseEvent);
@@ -774,11 +769,9 @@ function preventContextMenu(event: Event): void {
   // as long as the button was held. Touch and pen still need the pending-phase
   // suppression, because their press-hold *is* the gesture the OS would answer
   // with a context menu, and that arrives before activation.
-  if (state.active) {
-    event.preventDefault();
-    return;
-  }
-  if (state.pending && state.pending.pointerType !== 'mouse') {
+  // The pending-phase listener is only installed for touch and pen (see
+  // `onPointerDown`), so a pending session here is never a mouse one.
+  if (state.active || state.pending) {
     event.preventDefault();
   }
 }
@@ -848,19 +841,7 @@ function evaluatePendingActivation(clientX: number, clientY: number, now: number
   const elapsed = now - pending.startedAt;
   const origin = { x: pending.originX, y: pending.originY };
   const current = { x: clientX, y: clientY };
-  // One pass: each activation's verdict both prunes the list (once a hold
-  // exceeds its tolerance it cannot recover by moving back) and decides.
-  let activate = false;
-  const remaining: DragActivation[] = [];
-  for (const activation of pending.activation) {
-    const decision = evaluateActivation(activation, origin, current, elapsed);
-    if (decision === 'activate') {
-      activate = true;
-    }
-    if (decision !== 'cancel') {
-      remaining.push(activation);
-    }
-  }
+  const { activate, remaining } = evaluateActivations(pending.activation, origin, current, elapsed);
   const pruned = remaining.length !== pending.activation.length;
   pending.activation = remaining;
   if (activate) {
@@ -1131,10 +1112,8 @@ function commitActivation(): void {
     lastHitElement: initialTarget,
     captureTarget,
     pointerId,
-    pointerType,
-    activationKind: pending.activationKind,
     heldPointer: pending.heldPointer,
-    controller: session.controller,
+    controller: session,
     preview,
     lastInput,
     lastNativeEvent: pending.lastNativeEvent,
@@ -1516,15 +1495,10 @@ function dropActiveAtPointer(pointerEvent: PointerEvent | MouseEvent): void {
   // See `cancelActive`: the lifecycle has to be ended even if the sensor-side
   // teardown throws, or no drag can ever start again.
   active.preview.prepareForDrop();
-  state.terminalCallbacksRunning = true;
   try {
-    try {
-      clearActive(true, active.heldPointer ? 'released' : 'none');
-    } finally {
-      controller.drop(input, target, pointerEvent);
-    }
+    clearActive(true, active.heldPointer ? 'released' : 'none');
   } finally {
-    state.terminalCallbacksRunning = false;
+    controller.drop(input, target, pointerEvent);
   }
 }
 
@@ -1694,7 +1668,6 @@ export function resetForTests(): void {
   clearActive(false, 'none');
   clearLastTap();
   state.lastPointerDownType = null;
-  state.terminalCallbacksRunning = false;
   state.cleanupContextMenuSuppression?.();
 }
 
@@ -1762,8 +1735,6 @@ interface ActiveSession {
   /** Holds the gesture's pointer capture — the document body, never the dragged element. */
   captureTarget: Element;
   pointerId: number;
-  pointerType: DragPointerType;
-  activationKind: 'pointer' | 'double-click';
   /** See `PendingSession.heldPointer`. */
   heldPointer: boolean;
   controller: DragSessionController;

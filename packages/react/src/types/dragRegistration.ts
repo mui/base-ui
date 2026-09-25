@@ -119,8 +119,6 @@ export interface InternalDragEngine extends Omit<
   registerDraggable: <TPayload = undefined, TDragData = unknown>(
     element: HTMLElement,
     getParameters: () => RegisterDraggableParameters<TPayload, TDragData>,
-    /** Whether parameter identity is an immutable revision key. React-backed registrations opt in. */
-    cacheParameters?: boolean,
     payloadOwner?: object,
   ) => DragCleanupFn;
   registerDropTarget: <

@@ -31,7 +31,10 @@ const ZERO_OFFSET: DragPosition = { x: 0, y: 0 };
  * this contains the preview the user actually sees rather than the bare cursor;
  * on a preview part the offset is zero and `point` is the top-left itself.
  */
-function clampPointToRect(context: DragModifierContext, rect: DOMRect): DragPosition {
+function clampPointToRect(
+  context: DragModifierContext,
+  rect: Pick<DOMRect, 'left' | 'top' | 'right' | 'bottom' | 'width' | 'height'>,
+): DragPosition {
   const { point } = context;
   // An element that went `display: none` (or detached) mid-drag reports a 0×0
   // rect at the origin; clamping to it would pin the whole drag to (0, 0).
@@ -70,22 +73,15 @@ export const restrictToHorizontalAxis: DragModifier = ({ point, initialPoint }) 
 
 /** Keeps the drag inside the browser viewport. */
 export const restrictToWindowEdges: DragModifier = (context) => {
-  const { point, previewRect, previewOffset } = context;
-  const width = previewRect?.width ?? 0;
-  const height = previewRect?.height ?? 0;
-  const viewport = getViewportSize(context.ownerWindow);
-  return {
-    x: clamp(
-      point.x,
-      previewOffset.x,
-      Math.max(previewOffset.x, viewport.width - width + previewOffset.x),
-    ),
-    y: clamp(
-      point.y,
-      previewOffset.y,
-      Math.max(previewOffset.y, viewport.height - height + previewOffset.y),
-    ),
-  };
+  const { width, height } = getViewportSize(context.ownerWindow);
+  return clampPointToRect(context, {
+    left: 0,
+    top: 0,
+    right: width,
+    bottom: height,
+    width,
+    height,
+  });
 };
 
 /**

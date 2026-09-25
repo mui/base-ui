@@ -129,13 +129,7 @@ export function lock(element: Element): void {
   applyRootLock(element);
 }
 
-export function unlock(): void {
-  restoreLockedStyles();
-}
-
-export function resetForTests(): void {
-  restoreLockedStyles();
-}
+export { restoreLockedStyles as unlock, restoreLockedStyles as resetForTests };
 
 type LockedProperty =
   'touchAction' | 'userSelect' | 'webkitUserSelect' | 'webkitTouchCallout' | 'overscrollBehavior';

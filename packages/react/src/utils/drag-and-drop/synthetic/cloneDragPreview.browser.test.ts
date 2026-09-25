@@ -82,7 +82,7 @@ describe.skipIf(isJSDOM)('createClonedDragPreviewElement (top layer)', () => {
       expect(getComputedStyle(handle.element).transitionDuration).toBe('0s');
       expect(getComputedStyle(handle.element).transform).toBe('none');
       handle.element.setAttribute('data-ending-style', '');
-      handle.prepareForDrop?.();
+      handle.prepareForDrop();
       expect(getComputedStyle(handle.element).transitionProperty).toBe('translate');
       expect(getComputedStyle(handle.element).transitionDuration).toBe('0.1s');
     } finally {
@@ -396,7 +396,7 @@ describe.skipIf(isJSDOM)('createClonedDragPreviewElement (top layer)', () => {
     try {
       expect(getComputedStyle(handle.element).transitionDuration).toBe('0s');
       handle.element.setAttribute('data-ending-style', '');
-      handle.prepareForDrop?.();
+      handle.prepareForDrop();
       expect(getComputedStyle(handle.element).transitionProperty).toBe('translate');
       expect(getComputedStyle(handle.element).transitionDuration).toBe('0.1s');
     } finally {

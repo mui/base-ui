@@ -16,7 +16,10 @@ import type {
   RegisterDraggableParameters,
   RegisterDropTargetParameters,
 } from '../../types/dragRegistration';
-import type { DraggableCollisionContextValue } from '../collision-provider/DraggableCollisionContext';
+import type {
+  CollisionParticipant,
+  DraggableCollisionContextValue,
+} from '../collision-provider/DraggableCollisionContext';
 import type { DragSource } from '../../types/drag';
 import {
   dragSessionStore,
@@ -95,23 +98,29 @@ export function useDraggableElement<TPayload = undefined, TDragData = unknown>(
         };
         return normalized;
       },
-      // React replaces `params` each render, so identity is a sound revision key.
-      // Imperative registrations intentionally leave this off: their getter may
-      // mutate and return one stable object while behavior changes per event.
-      true,
       payloadOwner,
     );
     const collisionConfig = getCollision();
     if (!collisionConfig?.enabled) {
       return unregisterSource;
     }
+    // Rebuilt only on a render: the provider's drop-target getter is read at
+    // least twice per frame per walked participant, and the engine snapshots
+    // registrations by identity.
+    let lastCollisionOptions: typeof options | null = null;
+    let participant: CollisionParticipant | null = null;
     const unregisterCollision = collisionConfig.context.register(
       collisionConfig.element?.(element) ?? element,
       () => {
-        const collision = getCollision();
+        const currentOptions = getOptions();
+        if (participant !== null && currentOptions === lastCollisionOptions) {
+          return participant;
+        }
+        lastCollisionOptions = currentOptions;
+        const collision = currentOptions.collision;
         const snap = collision?.snap;
-        return {
-          kind: getParameters().kind,
+        participant = {
+          kind: currentOptions.parameters.kind,
           payload: collision?.payload,
           snap:
             typeof snap === 'function'
@@ -126,6 +135,7 @@ export function useDraggableElement<TPayload = undefined, TDragData = unknown>(
           // A disabled source stays a destination; only `collision={false}` opts out.
           disabled: !collision?.enabled,
         };
+        return participant;
       },
       element,
     );

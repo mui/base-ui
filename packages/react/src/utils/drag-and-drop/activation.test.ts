@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   DEFAULT_ACTIVATION,
   evaluateActivation,
+  evaluateActivations,
   getActivationDelayMs,
   hasDoubleClickActivation,
   resolveActivation,
@@ -67,9 +68,9 @@ describe('activation', () => {
 
   describe('getActivationDelayMs', () => {
     it('returns the delay only for press-hold', () => {
-      expect(getActivationDelayMs({ type: 'immediate' })).toBeNull();
-      expect(getActivationDelayMs({ type: 'distance', distance: 5 })).toBeNull();
-      expect(getActivationDelayMs({ type: 'press-hold', delay: 250, tolerance: 5 })).toBe(250);
+      expect(getActivationDelayMs([{ type: 'immediate' }])).toBeNull();
+      expect(getActivationDelayMs([{ type: 'distance', distance: 5 }])).toBeNull();
+      expect(getActivationDelayMs([{ type: 'press-hold', delay: 250, tolerance: 5 }])).toBe(250);
     });
   });
 
@@ -188,8 +189,10 @@ describe('activation', () => {
       { type: 'press-hold', delay: 100, tolerance: 2 },
       { type: 'distance', distance: 10 },
     ] as const;
-    expect(evaluateActivation(config, { x: 0, y: 0 }, { x: 5, y: 0 }, 20)).toBe('pending');
-    expect(evaluateActivation(config, { x: 0, y: 0 }, { x: 10, y: 0 }, 30)).toBe('activate');
+    const first = evaluateActivations(config, { x: 0, y: 0 }, { x: 5, y: 0 }, 20);
+    expect(first.activate).toBe(false);
+    expect(first.remaining).toEqual([{ type: 'distance', distance: 10 }]);
+    expect(evaluateActivations(config, { x: 0, y: 0 }, { x: 10, y: 0 }, 30).activate).toBe(true);
   });
 
   it('chooses the earliest hold timer', () => {

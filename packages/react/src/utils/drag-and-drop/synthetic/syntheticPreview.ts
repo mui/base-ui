@@ -113,8 +113,7 @@ export function createSyntheticPreview(
   // retrying once it is drawn. `getClientRects` is that signal without a size
   // requirement: an empty host still reports its box, a hidden or detached one
   // reports none.
-  let previewScale: DragPosition = DEFAULT_SCALE;
-  let previewScaleMeasured = false;
+  let previewScale: DragPosition | null = null;
   // The last coordinates written to the current preview. Axis locks and grid
   // snaps often resolve several pointer samples to the same point; avoid
   // invalidating style for an identical `translate`.
@@ -128,60 +127,59 @@ export function createSyntheticPreview(
   let lastKeys: DragModifierKeys = NO_MODIFIER_KEYS;
 
   function positionPreviewElement(): void {
-    if (previewElement) {
-      // A virtualizer can recycle the source's row (and its parent) mid-drag,
-      // taking the clone's host with it. Re-home it before writing the position.
-      previewElement.ensureConnected();
-      let proposedX = lastX - previewOffsetX;
-      let proposedY = lastY - previewOffsetY;
-      initialProposed ??= { x: proposedX, y: proposedY };
-      if (modifiers) {
-        const currentPreview = previewElement;
-        const { element } = currentPreview;
-        if (!previewScaleMeasured && element.getClientRects().length > 0) {
-          previewScale = getElementScale(element);
-          previewScaleMeasured = true;
-        }
-        const constrained = applyDragModifiers(
-          modifiers,
-          { x: proposedX, y: proposedY },
-          {
-            initialPoint: initialProposed,
-            input: { x: lastX, y: lastY },
-            sourceElement: sourceElement as HTMLElement,
-            sourceRect: previewElement.sourceRect,
-            // The preview is what these modifiers move, so a step in "its own units" is
-            // measured against the preview rather than the source.
-            scale: previewScale,
-            // `point` is the top-left itself here, so the offset is zero.
-            previewOffset: ZERO_OFFSET,
-            keys: lastKeys,
-            ownerWindow: ownerWindow(element),
-            getPreviewRect: () => element.getBoundingClientRect(),
-          },
-        );
-        if (destroyed || previewElement !== currentPreview) {
-          return;
-        }
-        proposedX = constrained.x;
-        proposedY = constrained.y;
+    if (!previewElement) {
+      return;
+    }
+    const currentPreview = previewElement;
+    const element = currentPreview.element;
+    // A virtualizer can recycle the source's row (and its parent) mid-drag,
+    // taking the clone's host with it. Re-home it before writing the position.
+    currentPreview.ensureConnected();
+    let proposedX = lastX - previewOffsetX;
+    let proposedY = lastY - previewOffsetY;
+    initialProposed ??= { x: proposedX, y: proposedY };
+    if (modifiers) {
+      if (previewScale === null && element.getClientRects().length > 0) {
+        previewScale = getElementScale(element);
       }
-      // The `translate` property, not `transform`: the individual properties
-      // compose as `translate × rotate × scale × transform`, so `translate` is
-      // outermost and a consumer `rotate`/`scale` on the preview spins it about
-      // its own box. Through `transform`, the shared `transform-origin` sits at
-      // the box's *layout* position (the viewport corner — the preview is `fixed`
-      // at 0,0), so a `rotate: 4deg` would swing the translated preview around a
-      // pivot hundreds of pixels away, dozens of pixels off the pointer.
-      const element = previewElement.element;
-      proposedX /= previewElement.positionScale.x;
-      proposedY /= previewElement.positionScale.y;
-      if (element !== positionedElement || proposedX !== positionedX || proposedY !== positionedY) {
-        element.style.translate = `${proposedX}px ${proposedY}px`;
-        positionedElement = element;
-        positionedX = proposedX;
-        positionedY = proposedY;
+      const constrained = applyDragModifiers(
+        modifiers,
+        { x: proposedX, y: proposedY },
+        {
+          initialPoint: initialProposed,
+          input: { x: lastX, y: lastY },
+          sourceElement: sourceElement as HTMLElement,
+          sourceRect: currentPreview.sourceRect,
+          // The preview is what these modifiers move, so a step in "its own units" is
+          // measured against the preview rather than the source.
+          scale: previewScale ?? DEFAULT_SCALE,
+          // `point` is the top-left itself here, so the offset is zero.
+          previewOffset: ZERO_OFFSET,
+          keys: lastKeys,
+          ownerWindow: ownerWindow(element),
+          getPreviewRect: () => element.getBoundingClientRect(),
+        },
+      );
+      if (destroyed || previewElement !== currentPreview) {
+        return;
       }
+      proposedX = constrained.x;
+      proposedY = constrained.y;
+    }
+    // The `translate` property, not `transform`: the individual properties
+    // compose as `translate × rotate × scale × transform`, so `translate` is
+    // outermost and a consumer `rotate`/`scale` on the preview spins it about
+    // its own box. Through `transform`, the shared `transform-origin` sits at
+    // the box's *layout* position (the viewport corner — the preview is `fixed`
+    // at 0,0), so a `rotate: 4deg` would swing the translated preview around a
+    // pivot hundreds of pixels away, dozens of pixels off the pointer.
+    proposedX /= currentPreview.positionScale.x;
+    proposedY /= currentPreview.positionScale.y;
+    if (element !== positionedElement || proposedX !== positionedX || proposedY !== positionedY) {
+      element.style.translate = `${proposedX}px ${proposedY}px`;
+      positionedElement = element;
+      positionedX = proposedX;
+      positionedY = proposedY;
     }
   }
 
@@ -232,8 +230,7 @@ export function createSyntheticPreview(
       previewElement?.destroy();
       previewElement = preview;
       positionedElement = null;
-      previewScale = DEFAULT_SCALE;
-      previewScaleMeasured = false;
+      previewScale = null;
       previewOffsetX = offset?.x ?? 0;
       previewOffsetY = offset?.y ?? 0;
       initialProposed = null;
@@ -331,7 +328,7 @@ export function createSyntheticPreview(
           endingPreviewRegistrations.add(registration);
         }
         element.setAttribute(ENDING_STYLE_ATTR, '');
-        endingPreview.prepareForDrop?.();
+        endingPreview.prepareForDrop();
 
         // Drop-handler updates scheduled later in the release event commit before
         // this frame. Measure then, so the destination is the source's final

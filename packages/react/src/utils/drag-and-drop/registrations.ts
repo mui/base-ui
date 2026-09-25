@@ -109,12 +109,10 @@ export function registerDropTarget<
   // registers here while the lifecycle's stack still points at the old, detached
   // one, so re-resolve to let this fresh target re-enter the stack.
   //
-  // Not gated on `firstRegistration`: an element re-registering from inside its own
+  // Not gated on first registration: an element re-registering from inside its own
   // `onDraggableLeave` keeps its existing entry, yet still needs the refresh to rejoin
-  // the stack before the next pointer update.
-  if (isActive()) {
-    scheduleDropTargetParameterRefresh(undefined, true);
-  }
+  // the stack before the next pointer update. A no-op without an active drag.
+  scheduleDropTargetParameterRefresh(undefined, true);
 
   return onceCleanup(() => {
     // A hovered element must re-resolve *synchronously* so reactive subscribers,

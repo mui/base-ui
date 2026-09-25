@@ -4,10 +4,10 @@ import { getRegistration } from './draggableRegistry';
 import { dragSessionStore, notifyDragSourceUpdated } from './dragSessionStore';
 import { getParticipantPayload, type ParticipantPayload } from './participantData';
 
-const { sourcePayloads, payloadSync } = getSharedSlot('dragSource.data', () => ({
-  sourcePayloads: new WeakMap<DragSource, ParticipantPayload>(),
-  payloadSync: new WeakMap<DragSource, (payload: unknown) => void>(),
-}));
+const sourcePayloads = getSharedSlot(
+  'dragSource.payloads',
+  () => new WeakMap<DragSource, ParticipantPayload>(),
+);
 
 /** Create the mutable data shared by every callback in one drag. */
 export function createDragSource(
@@ -56,11 +56,6 @@ export function createDragSource(
   }
 
   sourcePayloads.set(source, data);
-  payloadSync.set(source, (nextPayload) => {
-    if (data.sync(nextPayload)) {
-      notifyDragSourceUpdated(source);
-    }
-  });
   return source;
 }
 
@@ -75,7 +70,9 @@ export function syncActiveDragSourcePayload(
   }
   const source = dragSessionStore.state?.source;
   if (source?.element === element && source.kind === kind) {
-    payloadSync.get(source)?.(payload);
+    if (sourcePayloads.get(source)?.sync(payload)) {
+      notifyDragSourceUpdated(source);
+    }
   } else {
     const registration = getRegistration(element);
     if (registration) {
