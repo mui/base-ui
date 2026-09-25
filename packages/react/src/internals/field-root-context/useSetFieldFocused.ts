@@ -31,15 +31,16 @@ export function useSetFieldFocused(
 
   // Re-run when `disabled` changes so a focused control releases the field even when the browser
   // does not fire `blur`. The setup reclaims focus that no focus event reported: StrictMode
-  // re-running effects after a mount-time focus, or a control focused before hydration.
+  // re-running effects after a mount-time focus, a control focused before hydration, or an
+  // `aria-disabled` control re-enabled while it kept focus.
   useIsoLayoutEffect(() => {
     const el = focusTargetRef.current;
-    if ((el?.getRootNode() as Document | undefined)?.activeElement === el) {
+    const root = el?.getRootNode() as Document | ShadowRoot | undefined;
+    if (root?.activeElement === el) {
       setFieldFocused(true);
     }
     return () => setFieldFocused(false);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [disabled, setFieldFocused]);
+  }, [disabled, focusTargetRef, setFieldFocused]);
 
   return setFieldFocused;
 }
