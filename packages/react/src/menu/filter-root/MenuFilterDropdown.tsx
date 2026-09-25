@@ -2,7 +2,6 @@
 import * as React from 'react';
 import { useControlled } from '@base-ui/utils/useControlled';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import { ownerWindow } from '@base-ui/utils/owner';
 import { useMenubarContext } from '../../menubar/MenubarContext';
 import { FilterDropdownRoot } from '../../filter-dropdown/root/FilterDropdownRoot';
 import { useFilterDropdownCloseQuery } from '../../filter-dropdown/root/useFilterDropdownCloseQuery';
@@ -13,6 +12,7 @@ import type { BaseUIEvent, HTMLProps } from '../../internals/types';
 import type { MenuFilterProvider } from '../filter-provider/MenuFilterProvider';
 import { MenuFilterImplContext } from './MenuFilterContext';
 import { MENU_FILTER_IMPL } from './MenuFilterImpl';
+import { useMenuFilterKeyDown } from './useMenuFilterKeyDown';
 
 export interface MenuFilterDropdownProps {
   value: string | undefined;
@@ -65,12 +65,14 @@ export function MenuFilterDropdown(props: MenuFilterDropdownProps) {
     onValueChange: handleValueChange,
   });
 
+  const handleInputKeyDown = useMenuFilterKeyDown(value !== '');
+
   const setActiveIndex = useStableCallback((index: number | null) => {
     store.setActiveIndex(index, REASONS.none);
   });
 
-  // The trigger announces a dialog and relays list navigation typed on it to the input, which
-  // holds real focus while the popup is open.
+  // The trigger announces a dialog and routes list navigation typed on it as the input would,
+  // since the input holds real focus while the popup is open.
   const filterTriggerProps = React.useMemo<HTMLProps>(
     () => ({
       'aria-haspopup': 'dialog',
@@ -89,10 +91,8 @@ export function MenuFilterDropdown(props: MenuFilterDropdownProps) {
           !event.altKey;
 
         if (isVerticalArrow) {
-          const KeyboardEventConstructor = ownerWindow(focusOwner).KeyboardEvent;
-          focusOwner.dispatchEvent(new KeyboardEventConstructor(event.type, event.nativeEvent));
-          // Let the forwarded navigation commit before focus would seed the first item.
-          queueMicrotask(() => focusOwner.focus({ preventScroll: true }));
+          focusOwner.focus({ preventScroll: true });
+          handleInputKeyDown(event);
           event.preventDefault();
           event.preventBaseUIHandler();
         } else if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
@@ -103,7 +103,7 @@ export function MenuFilterDropdown(props: MenuFilterDropdownProps) {
         }
       },
     }),
-    [store, isInMenubar],
+    [store, isInMenubar, handleInputKeyDown],
   );
 
   store.useSyncedValue('filterTriggerProps', filterTriggerProps);

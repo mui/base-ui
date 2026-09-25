@@ -818,7 +818,6 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
       onItemHighlighted.mockClear();
 
       await setProps({ inserted: true, onItemHighlighted });
-      await act(async () => {});
 
       expect(onItemHighlighted.mock.calls.map(([item]) => item?.textContent)).toEqual([undefined]);
       expect(input).not.toHaveAttribute('aria-activedescendant');

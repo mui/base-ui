@@ -4574,6 +4574,57 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
       fireEvent.keyDown(input, { key: 'Escape' });
       expect(onPopupKeyDown).toHaveBeenCalledTimes(1);
     });
+
+    it('lets a consumer key handler on the input opt out of list navigation and activation', async () => {
+      const onPress = vi.fn();
+      await render(
+        <Menu.FilterProvider>
+          <Menu.Root defaultOpen>
+            <Menu.Trigger>Actions</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.Input
+                    aria-label="Filter actions"
+                    onKeyDown={(event) => {
+                      if (event.key === 'ArrowUp' || event.key === 'Enter') {
+                        event.preventBaseUIHandler();
+                      }
+                    }}
+                  />
+                  <Menu.List>
+                    <Menu.Item onClick={onPress}>Rename</Menu.Item>
+                    <Menu.Item>Delete</Menu.Item>
+                  </Menu.List>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </Menu.FilterProvider>,
+      );
+
+      const input = screen.getByRole('searchbox', { name: 'Filter actions' });
+      await waitFor(() => {
+        expect(input).toHaveFocus();
+      });
+
+      fireEvent.keyDown(input, { key: 'ArrowDown' });
+      await waitFor(() => {
+        expect(input).toHaveAttribute(
+          'aria-activedescendant',
+          screen.getByRole('menuitem', { name: 'Rename' }).id,
+        );
+      });
+
+      fireEvent.keyDown(input, { key: 'ArrowUp' });
+      fireEvent.keyDown(input, { key: 'Enter' });
+
+      expect(input).toHaveAttribute(
+        'aria-activedescendant',
+        screen.getByRole('menuitem', { name: 'Rename' }).id,
+      );
+      expect(onPress).not.toHaveBeenCalled();
+    });
   });
 
   describe('focus ownership inside the popup', () => {

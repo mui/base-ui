@@ -5,10 +5,9 @@ import {
   type FilterDropdownInputProps,
   type FilterDropdownInputState,
 } from '../../filter-dropdown/input/FilterDropdownInput';
+import { useFilterDropdownValueContext } from '../../filter-dropdown/root/FilterDropdownRootContext';
 import { mergeProps } from '../../merge-props';
-import type { BaseUIEvent } from '../../internals/types';
-import { dispatchClickWithModifiers } from '../../utils/dispatchClickWithModifiers';
-import { useMenuFilterReferenceKeyDown } from '../filter-root/useMenuFilterReferenceKeyDown';
+import { useMenuFilterKeyDown } from '../filter-root/useMenuFilterKeyDown';
 import { useMenuFilterPart } from '../filter-root/MenuFilterContext';
 import { useMenuRootContext } from '../root/MenuRootContext';
 
@@ -25,33 +24,15 @@ export const MenuInput = React.forwardRef(function MenuInput(
 ) {
   useMenuFilterPart('Input');
   const { store } = useMenuRootContext();
-  const navigationProps = store.useState('inputProps');
+  const value = useFilterDropdownValueContext();
+
+  const { onKeyDown, ...navigationProps } = store.useState('inputProps');
   const activeItemId = store.useState('highlightedItemId');
 
-  const handleReferenceKeyDown = useMenuFilterReferenceKeyDown();
+  const handleKeyDown = useMenuFilterKeyDown(value !== '');
 
   const inputProps = mergeProps<typeof FilterDropdownInput>(
-    {
-      onKeyDown(event: BaseUIEvent<React.KeyboardEvent<HTMLInputElement>>) {
-        handleReferenceKeyDown(event);
-        // List navigation forwards cross-axis keys to the highlighted item but leaves activation
-        // keys to a typeable reference, so Enter is committed here.
-        if (event.key !== 'Enter') {
-          return;
-        }
-
-        // Enter that commits an IME composition belongs to the input, not the list.
-        if (event.which === 229) {
-          return;
-        }
-
-        const activeItem = store.state.highlightedItem;
-        if (activeItem) {
-          event.preventDefault();
-          dispatchClickWithModifiers(activeItem, event);
-        }
-      },
-    },
+    { onKeyDown: handleKeyDown },
     componentProps,
   );
 

@@ -34,7 +34,6 @@ import {
 } from '../../context-menu/root/ContextMenuRootContext';
 import { mergeProps } from '../../merge-props';
 import { useAnimationsFinished } from '../../internals/useAnimationsFinished';
-import type { HTMLProps } from '../../internals/types';
 import { MenuStore, type State as MenuStoreState } from '../store/MenuStore';
 import { MenuHandle } from '../store/MenuHandle';
 import {
