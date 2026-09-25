@@ -115,6 +115,100 @@ describe('<Combobox.Positioner />', () => {
     },
   );
 
+  it.skipIf(isJSDOM)(
+    'tracks the anchor on each frame while its ancestor transform changes',
+    async () => {
+      const inputRef = React.createRef<HTMLInputElement>();
+      const animatedContainerRef = React.createRef<HTMLDivElement>();
+      const positionerRef = React.createRef<HTMLDivElement>();
+      const resizeObserverErrors: string[] = [];
+      const handleError = (event: ErrorEvent) => {
+        if (event.message.includes('ResizeObserver loop')) {
+          resizeObserverErrors.push(event.message);
+        }
+      };
+      let animation: Animation | undefined;
+      let unmount: (() => void) | undefined;
+
+      window.addEventListener('error', handleError);
+
+      try {
+        const view = await render(
+          <div ref={animatedContainerRef} style={{ position: 'fixed', top: 20, left: 20 }}>
+            <Combobox.Root open>
+              <Combobox.Input ref={inputRef} style={{ width: 100 }} />
+              <Combobox.Portal>
+                <Combobox.Positioner
+                  ref={positionerRef}
+                  align="start"
+                  updatePositionStrategy="always"
+                  collisionAvoidance={{
+                    side: 'none',
+                    align: 'none',
+                    fallbackAxisSide: 'none',
+                  }}
+                >
+                  <Combobox.Popup>
+                    <Combobox.List>
+                      <Combobox.Item value="One">One</Combobox.Item>
+                    </Combobox.List>
+                  </Combobox.Popup>
+                </Combobox.Positioner>
+              </Combobox.Portal>
+            </Combobox.Root>
+          </div>,
+        );
+        unmount = view.unmount;
+
+        await waitFor(() => {
+          expect(positionerRef.current!.getBoundingClientRect().left).toBeCloseTo(
+            inputRef.current!.getBoundingClientRect().left,
+            0,
+          );
+        });
+
+        const initialLeft = inputRef.current!.getBoundingClientRect().left;
+        await React.act(async () => {
+          // An ancestor transform changes the visual anchor rect without changing its layout size.
+          animation = animatedContainerRef.current!.animate(
+            [
+              { transform: 'translateX(0px) scale(1)' },
+              { transform: 'translateX(120px) scale(1.1)' },
+            ],
+            { duration: 1000, easing: 'linear', fill: 'both' },
+          );
+          animation.pause();
+          animation.currentTime = 0;
+
+          const assertPositionAt = async (currentTime: number) => {
+            animation!.currentTime = currentTime;
+            await new Promise<void>((resolve) => {
+              requestAnimationFrame(() => resolve());
+            });
+
+            const anchorLeft = inputRef.current!.getBoundingClientRect().left;
+
+            expect(anchorLeft).toBeGreaterThan(initialLeft + 10);
+            // Check the same frame; optimized observers may reposition it in a later task.
+            expect(positionerRef.current!.getBoundingClientRect().left).toBeCloseTo(anchorLeft, 0);
+          };
+
+          await assertPositionAt(250);
+          await assertPositionAt(500);
+          await assertPositionAt(750);
+        });
+
+        expect(resizeObserverErrors).toEqual([]);
+      } finally {
+        await React.act(async () => {
+          animation?.cancel();
+          unmount?.();
+        });
+        window.removeEventListener('error', handleError);
+      }
+    },
+  );
+
   describe.skipIf(isJSDOM)('default anchor', () => {
     it('uses the input when input group is absent', async () => {
       const inputWidth = 120;
