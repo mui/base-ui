@@ -1699,8 +1699,8 @@ describe('queued focus', () => {
       onOpenChange: setOpen,
     });
     const { getReferenceProps, getFloatingProps, getItemProps } = useTestInteractions([
-      useClick(context),
-      useListNavigation(context, {
+      useClick(context.rootStore),
+      useListNavigation(context.rootStore, {
         listRef,
         activeIndex,
         onNavigate: setActiveIndex,
@@ -1713,7 +1713,7 @@ describe('queued focus', () => {
         <button data-testid="nav-1" onClick={() => setActiveIndex(1)} />
         <button data-testid="nav-2" onClick={() => setActiveIndex(2)} />
         {open && (
-          <FloatingFocusManager context={context}>
+          <FloatingFocusManager context={context.rootStore}>
             <div role="menu" {...getFloatingProps({ ref: refs.setFloating })}>
               <button data-testid="close" type="button" />
               <ul>
