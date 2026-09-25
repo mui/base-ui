@@ -774,6 +774,55 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
         label: undefined,
       });
     });
+
+    it('does not report the item that takes the highlighted index when an item is inserted', async () => {
+      function InsertMenu(props: {
+        inserted: boolean;
+        onItemHighlighted: Menu.Root.Props['onItemHighlighted'];
+      }) {
+        return (
+          <Menu.FilterProvider>
+            <Menu.Root open onItemHighlighted={props.onItemHighlighted}>
+              <Menu.Portal>
+                <Menu.Positioner>
+                  <Menu.Popup>
+                    <Menu.Input aria-label="Filter actions" />
+                    <Menu.List>
+                      {props.inserted && <Menu.Item>Archive</Menu.Item>}
+                      <Menu.Item>Rename</Menu.Item>
+                      <Menu.Item>Delete</Menu.Item>
+                      <Menu.Item>Duplicate</Menu.Item>
+                    </Menu.List>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+          </Menu.FilterProvider>
+        );
+      }
+
+      const onItemHighlighted = vi.fn();
+      const { user, setProps } = await render(
+        <InsertMenu inserted={false} onItemHighlighted={onItemHighlighted} />,
+      );
+      const input = screen.getByRole('searchbox', { name: 'Filter actions' });
+
+      await act(async () => {
+        input.focus();
+      });
+      await user.keyboard('[ArrowDown][ArrowDown]');
+      expect(onItemHighlighted).toHaveBeenLastCalledWith(
+        screen.getByRole('menuitem', { name: 'Delete' }),
+        expect.anything(),
+      );
+      onItemHighlighted.mockClear();
+
+      await setProps({ inserted: true, onItemHighlighted });
+      await act(async () => {});
+
+      expect(onItemHighlighted.mock.calls.map(([item]) => item?.textContent)).toEqual([undefined]);
+      expect(input).not.toHaveAttribute('aria-activedescendant');
+    });
   });
 });
 

@@ -78,14 +78,21 @@ export const MenuFilterList = React.forwardRef(function MenuFilterList(
   const previousItemsRef = React.useRef<readonly (HTMLElement | null)[] | null>(null);
 
   const handleItemMapChange = useStableCallback(() => {
-    syncHighlightedItem();
     const items = [...listRef.current];
     const previousItems = previousItemsRef.current;
-    if (
-      previousItems !== null &&
-      previousItems.length === items.length &&
-      items.every((item, index) => item === previousItems[index])
-    ) {
+    const changed =
+      previousItems === null ||
+      previousItems.length !== items.length ||
+      items.some((item, index) => item !== previousItems[index]);
+
+    // A positional highlight must not silently move to another action when live items are
+    // inserted, removed, or reordered, so it's invalidated before the highlight is reported.
+    if (changed && previousItems !== null) {
+      onItemsChange(items.length > 0);
+    }
+    syncHighlightedItem();
+
+    if (!changed) {
       return;
     }
     previousItemsRef.current = items;
@@ -93,11 +100,6 @@ export const MenuFilterList = React.forwardRef(function MenuFilterList(
     // Composite items receive their final indexes from this map update. Publish after their
     // synchronous layout updates commit so the active item's rendered id has settled.
     queueMicrotask(() => {
-      if (previousItems !== null) {
-        // A positional highlight must not silently move to another action when live items are
-        // inserted, removed, or reordered.
-        onItemsChange(items.length > 0);
-      }
       filterStore.set('items', items);
     });
   });
