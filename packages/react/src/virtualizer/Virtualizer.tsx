@@ -1508,6 +1508,43 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
    * which only fire when a size actually changes, so the visible geometry stays exact even when
    * this is called and nothing moved.
    */
+  /**
+   * Measures the laid-out rows the engine has no measurement for, and commits their heights to its
+   * geometry at once. Their ResizeObserver reports the same heights a frame later, which then
+   * changes nothing.
+   */
+  const measureNewRows = useStableCallback(() => {
+    const api = muiApiRef.current;
+    const rowsParent = getRowsParent();
+
+    if (api == null || rowsParent == null) {
+      return;
+    }
+
+    let measuredAny = false;
+    for (const element of getLaidOutRowElements(rowsParent)) {
+      const rowIndex = Number(element.dataset.rowIndex);
+      const row = rows[rowIndex];
+      // A declared height is final, and was never going to be measured.
+      const declared = row != null && fixedItemHeight != null && !isGroupHeaderRow(row.model);
+
+      if (row != null && !declared && !isRowMeasured(row.id)) {
+        const height = element.getBoundingClientRect().height;
+
+        if (height > 0) {
+          api.rowsMeta.storeRowHeightMeasurement(row.id, height);
+          adaptive.markMeasured(row.id);
+          api.rowsMeta.setLastMeasuredRowIndex(rowIndex);
+          measuredAny = true;
+        }
+      }
+    }
+
+    if (measuredAny) {
+      api.rowsMeta.hydrateRowsMeta();
+    }
+  });
+
   const remeasure = useStableCallback(() => {
     // A per-item estimate resolves against the layout too, and it is derived per collection rather
     // than per render, so an invalidation has to reach it as well. Re-rendering is what re-derives
@@ -1577,6 +1614,7 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
     gesture,
     onScrollApplied: syncEngineWithScrollWrite,
     settleGeometry,
+    measureNewRows,
     pendingScroll,
     getRowsParent,
     isWindowInPlace,

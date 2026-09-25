@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { clamp } from '@base-ui/utils/clamp';
+import { ownerWindow } from '@base-ui/utils/owner';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { getMaxScrollOffset } from '../utils/scrollEdges';
@@ -26,6 +27,8 @@ export interface ScrollAnchorSnapshot<RowModel> {
   virtualOffset: number | null;
   rowsMeta: RowsGeometry;
   rows: VirtualizerRow<RowModel>[];
+  /** The first row laid out when the snapshot was taken, standing for the rendered window. */
+  firstLaidOutRowIndex: number | null;
 }
 
 export interface UseScrollAnchorParameters<RowModel> {
@@ -35,6 +38,11 @@ export interface UseScrollAnchorParameters<RowModel> {
   onScrollApplied: (scrollTop: number) => void;
   /** Commits the engine's pending geometry, recomputing every row position. */
   settleGeometry: () => void;
+  /**
+   * Measures the laid-out rows that have not been measured yet and commits their heights to the
+   * engine's geometry at once, rather than when their ResizeObserver reports a frame later.
+   */
+  measureNewRows: () => void;
   pendingScroll: PendingScroll;
   /**
    * The element whose children — or grandchildren, one group wrapper deep — are the laid-out
@@ -119,6 +127,7 @@ export function useScrollAnchor<RowModel>(
     readRowsGeometry,
     rowsInsetTotal,
     settleGeometry: settleEngineGeometry,
+    measureNewRows,
     trailingHeight,
   } = parameters;
 
@@ -201,7 +210,7 @@ export function useScrollAnchor<RowModel>(
       virtualOffset,
     };
 
-    if (Math.abs(nextScrollTop - scrollTop) >= 1) {
+    if (Math.abs(nextScrollTop - scrollTop) >= getSmallestCorrection(scrollElement)) {
       pendingScroll.noteProgrammaticScroll(nextScrollTop);
       scrollElement.scrollTo({ behavior: 'instant' as ScrollBehavior, top: nextScrollTop });
       onScrollApplied(nextScrollTop);
@@ -232,6 +241,25 @@ export function useScrollAnchor<RowModel>(
     // measurements then land in the commit right after the request settles, which would have
     // nothing to compare against otherwise.
     const isRequestPending = pendingScroll.isPending();
+
+    // The engine can change the rendered window while nothing scrolls, most often when it
+    // rebalances its buffers once a scroll settles. Rows it mounts above the viewport have not
+    // been measured: the window places them by their estimates, but they lay out at their real
+    // heights and move everything below them, before their ResizeObserver reports anything.
+    // Measuring them now makes that a geometry change like any other, corrected below from the
+    // geometry, which keeps the scroll position consistent with where the engine places rows.
+    const firstLaidOutRowIndex = getFirstLaidOutRowIndex(rowsParent);
+    const snapshotBeforeMeasuring = snapshotRef.current;
+    if (
+      snapshotBeforeMeasuring !== null &&
+      !isRequestPending &&
+      !gesture.isScrollbarDrag() &&
+      snapshotBeforeMeasuring.rowsMeta === readRowsGeometry() &&
+      snapshotBeforeMeasuring.firstLaidOutRowIndex !== firstLaidOutRowIndex &&
+      Math.abs(scrollElement.scrollTop - snapshotBeforeMeasuring.scrollTop) < 1
+    ) {
+      measureNewRows();
+    }
 
     const latestRowsMeta = readRowsGeometry();
     // MUI publishes the store update before React commits the matching row positions. We can still
@@ -299,12 +327,13 @@ export function useScrollAnchor<RowModel>(
         }
       }
 
-      if (shouldPinToBottom || Math.abs(shift) >= 1) {
+      const smallestCorrection = getSmallestCorrection(scrollElement);
+      if (shouldPinToBottom || Math.abs(shift) >= smallestCorrection) {
         const nextScrollTop = shouldPinToBottom
           ? maxScrollTop
           : clamp(scrollTop + shift, 0, maxScrollTop);
 
-        if (Math.abs(nextScrollTop - scrollTop) >= 1) {
+        if (Math.abs(nextScrollTop - scrollTop) >= smallestCorrection) {
           scrollTop = nextScrollTop;
           pendingScroll.noteProgrammaticScroll(nextScrollTop);
           scrollElement.scrollTo({ behavior: 'instant' as ScrollBehavior, top: nextScrollTop });
@@ -329,6 +358,7 @@ export function useScrollAnchor<RowModel>(
             scrollTop,
             virtualOffset,
             rowsMeta: latestRowsMeta,
+            firstLaidOutRowIndex,
           };
         }
       }
@@ -356,6 +386,7 @@ export function useScrollAnchor<RowModel>(
           scrollTop,
           virtualOffset,
           rowsMeta,
+          firstLaidOutRowIndex,
         };
         return;
       }
@@ -380,10 +411,26 @@ export function useScrollAnchor<RowModel>(
             virtualOffset: rowsMeta.positions[anchor.rowIndex] ?? null,
             rowsMeta,
             rows,
+            firstLaidOutRowIndex,
           };
   });
 
   return React.useMemo(() => ({ settleGeometry }), [settleGeometry]);
+}
+
+/**
+ * The smallest shift worth correcting. The browser places the scroll position on device pixels,
+ * so a correction of at least half of one lands the content on the device pixel nearest to where
+ * it was, and anything smaller cannot be corrected at all. A whole CSS pixel would let a shift of
+ * two device pixels through on a high-density display, and on screen that is a visible jump.
+ */
+function getSmallestCorrection(scrollElement: HTMLElement) {
+  return 0.5 / (ownerWindow(scrollElement).devicePixelRatio || 1);
+}
+
+function getFirstLaidOutRowIndex(rowsParent: HTMLElement) {
+  const [first] = getLaidOutRowElements(rowsParent);
+  return first == null ? null : Number(first.dataset.rowIndex);
 }
 
 /**

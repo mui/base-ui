@@ -968,6 +968,84 @@ describe('<Virtualizer /> windowing', () => {
   );
 
   it.skipIf(isJSDOM)(
+    'keeps the content still when the settled window mounts unmeasured rows above it',
+    async () => {
+      vi.restoreAllMocks();
+
+      // The first rows seed a short estimate, and a block of tall rows sits above the
+      // destination, so the rows mounted above it later are all taller than estimated.
+      const renderItem = (item: TestItem, index: number) => (
+        <TestListItem style={{ height: index >= 250 && index < 300 ? 60 : 20 }}>
+          {item.label}
+        </TestListItem>
+      );
+
+      await render(
+        <TestVirtualizedList
+          estimatedItemHeight={20}
+          overscanPx={0}
+          render={<div data-testid="virtualizer" style={{ height: 120, width: 200 }} />}
+          items={createItems(1000)}
+        >
+          {renderItem}
+        </TestVirtualizedList>,
+      );
+      const virtualizer = screen.getByTestId('virtualizer');
+      await screen.findByText('Item 1');
+
+      // Jump past the tall rows in one scroll: the whole buffer goes below the viewport, so none
+      // of the rows above the destination are mounted or measured.
+      virtualizer.scrollTop = 300 * 20;
+      fireEvent.scroll(virtualizer);
+      await screen.findByText('Item 301');
+
+      const getRowTop = (label: string) => {
+        const element = screen.queryByText(label)?.closest<HTMLElement>('[data-row-index]');
+        return element == null || element.style.position === 'absolute'
+          ? null
+          : element.getBoundingClientRect().top;
+      };
+      await act(async () => {
+        await new Promise((resolve) => {
+          requestAnimationFrame(resolve);
+        });
+      });
+      const trackedTop = getRowTop('Item 301');
+      expect(trackedTop).not.toBe(null);
+
+      // The engine rebalances its buffer a second after the last scroll, mounting the tall rows
+      // above the viewport. Watch every frame until well after that and their measurement.
+      const disturbances: string[] = [];
+      let watching = true;
+      const watchFrame = () => {
+        if (!watching) {
+          return;
+        }
+        const top = getRowTop('Item 301');
+        if (top === null) {
+          disturbances.push('Item 301 left the window');
+        } else if (Math.abs(top - trackedTop!) > 2) {
+          disturbances.push(`Item 301 moved from ${trackedTop!.toFixed(1)} to ${top.toFixed(1)}`);
+        }
+        requestAnimationFrame(watchFrame);
+      };
+      requestAnimationFrame(watchFrame);
+      try {
+        await act(
+          () =>
+            new Promise((resolve) => {
+              setTimeout(resolve, 1600);
+            }),
+        );
+      } finally {
+        watching = false;
+      }
+
+      expect(disturbances).toEqual([]);
+    },
+  );
+
+  it.skipIf(isJSDOM)(
     'keeps the content anchored when an estimate refresh shrinks the total above the bottom',
     async () => {
       vi.restoreAllMocks();
@@ -1429,7 +1507,11 @@ describe('<Virtualizer /> windowing', () => {
         }
         items={createItems(100)}
       >
-        {(item: TestItem) => <TestListItem>{item.label}</TestListItem>}
+        {(item: TestItem) => (
+          // The rows are laid out for real in a browser, and their observers report that height,
+          // not the mocked rectangle: declare the height the rest of the test assumes.
+          <TestListItem style={{ height: 20 }}>{item.label}</TestListItem>
+        )}
       </TestVirtualizedList>,
     );
 
