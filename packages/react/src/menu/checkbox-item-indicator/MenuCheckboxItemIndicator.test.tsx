@@ -3,6 +3,7 @@ import * as React from 'react';
 import { Menu } from '@base-ui/react/menu';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
+import { MenuCheckboxItemContext } from '../checkbox-item/MenuCheckboxItemContext';
 
 describe('<Menu.CheckboxItemIndicator />', () => {
   beforeEach(() => {
@@ -38,6 +39,66 @@ describe('<Menu.CheckboxItemIndicator />', () => {
     } finally {
       errorSpy.mockRestore();
     }
+  });
+
+  it('renders for an indeterminate checkbox item', async () => {
+    const renderSpy = vi.fn();
+
+    await render(
+      <MenuCheckboxItemContext.Provider
+        value={{ checked: false, indeterminate: true, disabled: false, highlighted: false }}
+      >
+        <Menu.CheckboxItemIndicator
+          data-testid="indicator"
+          render={(props, state) => {
+            renderSpy(state);
+            return <span {...props} />;
+          }}
+        />
+      </MenuCheckboxItemContext.Provider>,
+    );
+
+    const indicator = screen.getByTestId('indicator');
+    expect(indicator).toHaveAttribute('data-indeterminate', '');
+    expect(indicator).not.toHaveAttribute('data-checked');
+    expect(indicator).not.toHaveAttribute('data-unchecked');
+    expect(renderSpy.mock.lastCall?.[0]).toHaveProperty('indeterminate', true);
+  });
+
+  it('updates the indicator state across checked and indeterminate values', async () => {
+    function Test({ value }: { value: 'checked' | 'indeterminate' | 'unchecked' }) {
+      return (
+        <Menu.Root open>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.CheckboxItem
+                  checked={value === 'checked'}
+                  indeterminate={value === 'indeterminate'}
+                >
+                  <Menu.CheckboxItemIndicator data-testid="indicator" keepMounted />
+                </Menu.CheckboxItem>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>
+      );
+    }
+
+    const { rerender } = await render(<Test value="checked" />);
+    const indicator = screen.getByTestId('indicator');
+
+    expect(indicator).toHaveAttribute('data-checked', '');
+
+    await rerender(<Test value="indeterminate" />);
+    expect(indicator).toHaveAttribute('data-indeterminate', '');
+    expect(indicator).not.toHaveAttribute('data-checked');
+
+    await rerender(<Test value="checked" />);
+    expect(indicator).toHaveAttribute('data-checked', '');
+
+    await rerender(<Test value="unchecked" />);
+    expect(indicator).toHaveAttribute('data-unchecked', '');
   });
 
   it.skipIf(isJSDOM)(

@@ -5,13 +5,9 @@ import * as MenuCheckboxItemDataAttributes from '../checkbox-item/MenuCheckboxIt
 export const itemMapping: StateAttributesMapping<{ checked: boolean }> = {
   checked(value): Record<string, string> {
     if (value) {
-      return {
-        [MenuCheckboxItemDataAttributes.checked]: '',
-      };
+      return { [MenuCheckboxItemDataAttributes.checked]: '' };
     }
-    return {
-      [MenuCheckboxItemDataAttributes.unchecked]: '',
-    };
+    return { [MenuCheckboxItemDataAttributes.unchecked]: '' };
   },
   ...transitionStatusMapping,
 };
