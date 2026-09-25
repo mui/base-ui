@@ -12,34 +12,16 @@ import type {
   UseFloatingOptions,
   UseFloatingReturn,
 } from '../types';
-import { useFloatingRootContext } from './useFloatingRootContext';
 
 /**
  * Provides data to position a floating element and context to add interactions.
+ * The caller supplies the root store, which owns the reference and floating elements.
  * @see https://floating-ui.com/docs/useFloating
- */
-export function useFloating(options: UseFloatingOptions = {}): UseFloatingReturn {
-  const internalStore = useFloatingRootContext(options);
-  const store = options.rootContext || internalStore;
-
-  return useFloatingWithStore(options, store);
-}
-
-/**
- * Base UI's private `useFloating` path. The caller must supply the root store, so this skips the
- * internal root-context hook used by the public Floating UI-compatible API.
  */
 export function useBaseUIFloating(
   options: UseFloatingOptions & { rootContext: FloatingRootStore },
 ): UseFloatingReturn {
-  return useFloatingWithStore(options, options.rootContext);
-}
-
-function useFloatingWithStore(
-  options: UseFloatingOptions,
-  store: FloatingRootStore,
-): UseFloatingReturn {
-  const { nodeId, externalTree } = options;
+  const { nodeId, externalTree, rootContext: store } = options;
 
   const referenceElement = store.useState('referenceElement');
   const floatingElement = store.useState('floatingElement');
@@ -48,12 +30,6 @@ function useFloatingWithStore(
   const floatingId = store.useState('floatingId');
 
   const [positionReference, setPositionReferenceRaw] = React.useState<ReferenceType | null>(null);
-  const [localDomReference, setLocalDomReference] = React.useState<
-    NarrowedElement<ReferenceType> | null | undefined
-  >(undefined);
-  const [localFloatingElement, setLocalFloatingElement] = React.useState<
-    HTMLElement | null | undefined
-  >(undefined);
 
   const domReferenceRef = React.useRef<NarrowedElement<ReferenceType> | null>(null);
 
@@ -76,20 +52,6 @@ function useFloatingWithStore(
     },
   });
 
-  const localDomReferenceElement = isElement(localDomReference)
-    ? (localDomReference as Element)
-    : null;
-
-  const syncedFloatingElement =
-    localFloatingElement === undefined ? store.state.floatingElement : localFloatingElement;
-
-  store.useSyncedValue('referenceElement', localDomReference ?? null);
-  store.useSyncedValue(
-    'domReferenceElement',
-    localDomReference === undefined ? domReferenceElement : localDomReferenceElement,
-  );
-  store.useSyncedValue('floatingElement', syncedFloatingElement);
-
   const setPositionReference = React.useCallback(
     (node: ReferenceType | null) => {
       const computedPositionReference = isElement(node)
@@ -107,46 +69,13 @@ function useFloatingWithStore(
     [position.refs],
   );
 
-  const setReference = React.useCallback(
-    (node: ReferenceType | null) => {
-      if (isElement(node) || node === null) {
-        (domReferenceRef as React.RefObject<Element | null>).current = node;
-        setLocalDomReference(node as NarrowedElement<ReferenceType> | null);
-      }
-
-      // Backwards-compatibility for passing a virtual element to `reference`
-      // after it has set the DOM reference.
-      if (
-        isElement(position.refs.reference.current) ||
-        position.refs.reference.current === null ||
-        // Don't allow setting virtual elements using the old technique back to
-        // `null` to support `positionReference` + an unstable `reference`
-        // callback ref.
-        (node !== null && !isElement(node))
-      ) {
-        position.refs.setReference(node);
-      }
-    },
-    [position.refs, setLocalDomReference],
-  );
-
-  const setFloating = React.useCallback(
-    (node: HTMLElement | null) => {
-      setLocalFloatingElement(node);
-      position.refs.setFloating(node);
-    },
-    [position.refs],
-  );
-
   const refs = React.useMemo(
     () => ({
       ...position.refs,
-      setReference,
-      setFloating,
       setPositionReference,
       domReference: domReferenceRef,
     }),
-    [position.refs, setReference, setFloating, setPositionReference],
+    [position.refs, setPositionReference],
   );
 
   const elements = React.useMemo(

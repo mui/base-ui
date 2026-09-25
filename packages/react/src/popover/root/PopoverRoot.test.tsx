@@ -991,6 +991,32 @@ describe('<Popover.Root />', () => {
       });
 
       describe('with focusable elements between the trigger and the popup', () => {
+        it('closes and moves focus before the trigger when tabbing backward from the focused trigger', async () => {
+          const { user } = await render(
+            <div>
+              <input data-testid="before" />
+              <TestPopover
+                rootProps={{ defaultOpen: true }}
+                popupProps={{ children: <input data-testid="input-inside" /> }}
+              />
+              <input />
+            </div>,
+          );
+
+          const trigger = screen.getByTestId('trigger');
+          await act(async () => trigger.focus());
+
+          await user.tab({ shift: true });
+
+          await waitFor(() => {
+            expect(screen.getByTestId('before')).toHaveFocus();
+          });
+
+          await waitFor(() => {
+            expect(screen.queryByTestId('popover-popup')).toBe(null);
+          });
+        });
+
         it('moves focus to the element following the trigger when tabbing forward from the open popup', async () => {
           const { user } = await render(
             <div>

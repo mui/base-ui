@@ -1,11 +1,15 @@
-import { vi, expect, it } from 'vitest';
+import { vi, expect, it, describe, beforeEach, afterEach } from 'vitest';
 import { act, fireEvent, flushMicrotasks, render, screen } from '@mui/internal-test-utils';
 import * as React from 'react';
 import { isJSDOM } from '#test-utils';
-import { useFloating } from './useFloating';
+import { useFloating } from '../../../test/floating-ui-tests/useFloating';
 import { safePolygon } from '../safePolygon';
+import { useHoverFloatingInteraction } from './useHoverFloatingInteraction';
 import { useHoverInteractionSharedState } from './useHoverInteractionSharedState';
-import { useHoverReferenceInteraction } from './useHoverReferenceInteraction';
+import {
+  useHoverReferenceInteraction,
+  type UseHoverReferenceInteractionProps,
+} from './useHoverReferenceInteraction';
 import { REASONS } from '../../internals/reasons';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 
@@ -15,7 +19,7 @@ describe.skipIf(!isJSDOM)('useHoverReferenceInteraction', () => {
 
     function App({ block }: { block: boolean }) {
       const { context } = useFloating();
-      useHoverReferenceInteraction(context, {
+      useHoverReferenceInteraction(context.rootStore, {
         handleClose: safePolygon({ blockPointerEvents: block }),
       });
       const hoverInteraction = useHoverInteractionSharedState(context.rootStore);
@@ -45,7 +49,7 @@ describe.skipIf(!isJSDOM)('useHoverReferenceInteraction', () => {
         },
       });
 
-      const hoverProps = useHoverReferenceInteraction(context, {
+      const hoverProps = useHoverReferenceInteraction(context.rootStore, {
         mouseOnly: true,
         restMs: 100,
         delay: { close: 0 },
@@ -99,7 +103,7 @@ describe.skipIf(!isJSDOM)('useHoverReferenceInteraction', () => {
         },
       });
 
-      const hoverProps = useHoverReferenceInteraction(context, {
+      const hoverProps = useHoverReferenceInteraction(context.rootStore, {
         mouseOnly: true,
         restMs: 100,
         delay: { close: 0 },
@@ -171,7 +175,7 @@ describe.skipIf(!isJSDOM)('useHoverReferenceInteraction', () => {
         },
       });
 
-      const hoverProps = useHoverReferenceInteraction(context, {
+      const hoverProps = useHoverReferenceInteraction(context.rootStore, {
         mouseOnly: true,
         restMs: 100,
         delay: { close: 0 },
@@ -247,7 +251,7 @@ describe.skipIf(!isJSDOM)('useHoverReferenceInteraction', () => {
       (context.rootStore.state as { transitionStatus?: 'ending' | undefined }).transitionStatus =
         open ? undefined : 'ending';
 
-      const hoverProps = useHoverReferenceInteraction(context, {
+      const hoverProps = useHoverReferenceInteraction(context.rootStore, {
         mouseOnly: true,
         move: false,
         delay: { open: 500, close: 0 },
@@ -320,7 +324,7 @@ describe.skipIf(!isJSDOM)('useHoverReferenceInteraction', () => {
         );
       };
 
-      const hoverProps = useHoverReferenceInteraction(context, {
+      const hoverProps = useHoverReferenceInteraction(context.rootStore, {
         mouseOnly: true,
         move: false,
         delay: { open: 500, close: 0 },
@@ -369,5 +373,264 @@ describe.skipIf(!isJSDOM)('useHoverReferenceInteraction', () => {
     expect(onOpenChange).toHaveBeenCalledTimes(2);
     expect(onOpenChange.mock.calls[1][0]).toBe(true);
     expect(screen.queryByRole('tooltip')).not.toBe(null);
+  });
+
+  describe('hover semantics', () => {
+    beforeEach(() => {
+      vi.useFakeTimers();
+    });
+
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    function App(props: UseHoverReferenceInteractionProps) {
+      const [open, setOpen] = React.useState(false);
+      const triggerElementRef = React.useRef<Element | null>(null);
+      const { refs, context } = useFloating({ open, onOpenChange: setOpen });
+      const referenceProps = useHoverReferenceInteraction(context.rootStore, {
+        triggerElementRef,
+        ...props,
+      });
+      useHoverFloatingInteraction(context.rootStore);
+
+      return (
+        <React.Fragment>
+          <button
+            {...referenceProps}
+            ref={(node) => {
+              refs.setReference(node);
+              triggerElementRef.current = node;
+            }}
+          />
+          {open && <div role="tooltip" ref={refs.setFloating} />}
+        </React.Fragment>
+      );
+    }
+
+    it('opens on mouseenter', async () => {
+      render(<App />);
+
+      fireEvent.mouseEnter(screen.getByRole('button'));
+
+      expect(screen.getByRole('tooltip')).toBeInTheDocument();
+      await flushMicrotasks();
+    });
+
+    it('closes on mouseleave', () => {
+      render(<App />);
+
+      fireEvent.mouseEnter(screen.getByRole('button'));
+      fireEvent.mouseLeave(screen.getByRole('button'));
+
+      expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+    });
+
+    it('closes when the pointer moves onto the floating element without safePolygon', async () => {
+      render(<App />);
+
+      fireEvent.mouseEnter(screen.getByRole('button'));
+      await flushMicrotasks();
+
+      fireEvent(
+        screen.getByRole('button'),
+        new MouseEvent('mouseleave', { relatedTarget: screen.getByRole('tooltip') }),
+      );
+
+      expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+    });
+
+    describe('prop: delay', () => {
+      it('symmetric number', async () => {
+        render(<App delay={1000} />);
+
+        fireEvent.mouseEnter(screen.getByRole('button'));
+
+        await act(async () => {
+          vi.advanceTimersByTime(999);
+        });
+
+        expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+
+        await act(async () => {
+          vi.advanceTimersByTime(1);
+        });
+
+        expect(screen.getByRole('tooltip')).toBeInTheDocument();
+      });
+
+      it('open', async () => {
+        render(<App delay={{ open: 500 }} />);
+
+        fireEvent.mouseEnter(screen.getByRole('button'));
+
+        await act(async () => {
+          vi.advanceTimersByTime(499);
+        });
+
+        expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+
+        await act(async () => {
+          vi.advanceTimersByTime(1);
+        });
+
+        expect(screen.getByRole('tooltip')).toBeInTheDocument();
+      });
+
+      it('close', async () => {
+        render(<App delay={{ close: 500 }} />);
+
+        fireEvent.mouseEnter(screen.getByRole('button'));
+        fireEvent.mouseLeave(screen.getByRole('button'));
+
+        await act(async () => {
+          vi.advanceTimersByTime(499);
+        });
+
+        expect(screen.getByRole('tooltip')).toBeInTheDocument();
+
+        await act(async () => {
+          vi.advanceTimersByTime(1);
+        });
+
+        expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+      });
+
+      it('open with close 0', async () => {
+        render(<App delay={{ open: 500 }} />);
+
+        fireEvent.mouseEnter(screen.getByRole('button'));
+
+        await act(async () => {
+          vi.advanceTimersByTime(499);
+        });
+
+        fireEvent.mouseLeave(screen.getByRole('button'));
+
+        await act(async () => {
+          vi.advanceTimersByTime(1);
+        });
+
+        expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+      });
+
+      it('restMs + nullish open delay should respect restMs', async () => {
+        render(<App restMs={100} delay={{ close: 100 }} />);
+
+        fireEvent.mouseEnter(screen.getByRole('button'));
+
+        await act(async () => {
+          vi.advanceTimersByTime(99);
+        });
+
+        expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+      });
+    });
+
+    it('restMs', async () => {
+      render(<App restMs={100} />);
+
+      const button = screen.getByRole('button');
+
+      const originalDispatchEvent = button.dispatchEvent;
+      const spy = vi.spyOn(button, 'dispatchEvent').mockImplementation((event) => {
+        Object.defineProperty(event, 'movementX', { value: 10 });
+        Object.defineProperty(event, 'movementY', { value: 10 });
+        return originalDispatchEvent.call(button, event);
+      });
+
+      fireEvent.mouseMove(button);
+
+      await act(async () => {
+        vi.advanceTimersByTime(99);
+      });
+
+      fireEvent.mouseMove(button);
+
+      await act(async () => {
+        vi.advanceTimersByTime(1);
+      });
+
+      expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+
+      fireEvent.mouseMove(button);
+
+      await act(async () => {
+        vi.advanceTimersByTime(100);
+      });
+
+      expect(screen.getByRole('tooltip')).toBeInTheDocument();
+
+      spy.mockRestore();
+    });
+
+    it('restMs does not reset timer for minor mouse movement', async () => {
+      render(<App restMs={100} />);
+
+      const button = screen.getByRole('button');
+
+      const originalDispatchEvent = button.dispatchEvent;
+      const spy = vi.spyOn(button, 'dispatchEvent').mockImplementation((event) => {
+        Object.defineProperty(event, 'movementX', { value: 1 });
+        Object.defineProperty(event, 'movementY', { value: 0 });
+        return originalDispatchEvent.call(button, event);
+      });
+
+      fireEvent.mouseMove(button);
+
+      await act(async () => {
+        vi.advanceTimersByTime(99);
+      });
+
+      fireEvent.mouseMove(button);
+
+      await act(async () => {
+        vi.advanceTimersByTime(1);
+      });
+
+      expect(screen.getByRole('tooltip')).toBeInTheDocument();
+
+      spy.mockRestore();
+    });
+
+    it('reports the hover reason', async () => {
+      const reasons: string[] = [];
+
+      function ReasonApp() {
+        const [open, setOpen] = React.useState(false);
+        const triggerElementRef = React.useRef<Element | null>(null);
+        const { refs, context } = useFloating({
+          open,
+          onOpenChange(nextOpen, details) {
+            reasons.push(details.reason);
+            setOpen(nextOpen);
+          },
+        });
+        const referenceProps = useHoverReferenceInteraction(context.rootStore, {
+          triggerElementRef,
+        });
+
+        return (
+          <React.Fragment>
+            <button
+              {...referenceProps}
+              ref={(node) => {
+                refs.setReference(node);
+                triggerElementRef.current = node;
+              }}
+            />
+            {open && <div role="tooltip" ref={refs.setFloating} />}
+          </React.Fragment>
+        );
+      }
+
+      render(<ReasonApp />);
+      const button = screen.getByRole('button');
+      fireEvent.mouseEnter(button);
+      await flushMicrotasks();
+      fireEvent.mouseLeave(button);
+
+      expect(reasons).toEqual([REASONS.triggerHover, REASONS.triggerHover]);
+    });
   });
 });
