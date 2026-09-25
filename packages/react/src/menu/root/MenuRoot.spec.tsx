@@ -4,7 +4,7 @@ import { Menu } from '@base-ui/react/menu';
 <Menu.Root
   onItemHighlighted={(item, details) => {
     const element: HTMLElement | undefined = item;
-    const reason: 'keyboard' | 'pointer' | 'none' = details.reason;
+    const reason: 'keyboard' | 'pointer' | 'imperative-action' | 'none' = details.reason;
     const label: string | undefined = details.label;
 
     // @ts-expect-error committed highlight changes do not expose a native event

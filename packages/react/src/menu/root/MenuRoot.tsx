@@ -551,8 +551,11 @@ export const MenuRootInternal = fastComponent(function MenuRoot<Payload>(
     triggerOrientation: virtualFocus ? 'vertical' : orientation,
     rtl: direction === 'rtl',
     disabledIndices: EMPTY_ARRAY,
-    onNavigate(nextActiveIndex, event) {
-      store.setActiveIndex(nextActiveIndex, getHighlightReason(event));
+    onNavigate(nextActiveIndex, event, source) {
+      store.setActiveIndex(
+        nextActiveIndex,
+        source === 'imperative' ? REASONS.imperativeAction : getHighlightReason(event),
+      );
     },
     // A virtual-focus submenu's keyboard opening is orchestrated by its navigation wrapper based
     // on both menus' orientations; the generic arrow-key opening would also react to the parent's
@@ -865,7 +868,9 @@ export interface MenuRootProps<Payload = unknown> {
    * The `reason` can be:
    * - `'keyboard'`: the highlight changed due to keyboard navigation.
    * - `'pointer'`: the highlight changed due to pointer hovering.
-   * - `'none'`: the highlight changed programmatically.
+   * - `'imperative-action'`: the highlight changed via `actionsRef`'s `highlightItem`.
+   * - `'none'`: the highlight changed for another reason, such as `autoHighlight`, the item
+   *   list changing, or the popup opening or closing.
    */
   onItemHighlighted?:
     | ((
@@ -906,6 +911,8 @@ export interface MenuRootProps<Payload = unknown> {
    *   highlight and hands focus back to the popup.
    *   Calling this action does not open the menu. To highlight an item after opening it, call
    *   the action from `onOpenChangeComplete` when `open` is `true`.
+   *   Highlight changes requested through this action report the reason `'imperative-action'`
+   *   to `onItemHighlighted`.
    */
   actionsRef?: React.RefObject<MenuRoot.Actions | null> | undefined;
   /**
@@ -968,7 +975,10 @@ export type MenuRootChangeEventDetails = BaseUIChangeEventDetails<MenuRoot.Chang
 };
 
 export type MenuRootHighlightEventReason =
-  typeof REASONS.keyboard | typeof REASONS.pointer | typeof REASONS.none;
+  | typeof REASONS.keyboard
+  | typeof REASONS.pointer
+  | typeof REASONS.imperativeAction
+  | typeof REASONS.none;
 
 export interface MenuRootHighlightEventDetails {
   /**

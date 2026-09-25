@@ -3367,9 +3367,10 @@ describe('<Menu.Root />', () => {
 
     it('returns focus to the popup when the highlight is cleared', async () => {
       const onClick = vi.fn();
+      const onItemHighlighted = vi.fn();
       const actionsRef = React.createRef<Menu.Root.Actions>();
       const { user } = await render(
-        <Menu.Root actionsRef={actionsRef}>
+        <Menu.Root actionsRef={actionsRef} onItemHighlighted={onItemHighlighted}>
           <Menu.Trigger>Open</Menu.Trigger>
           <Menu.Portal>
             <Menu.Positioner>
@@ -3390,12 +3391,20 @@ describe('<Menu.Root />', () => {
       act(() => actionsRef.current!.highlightItem('first'));
       const firstItem = screen.getByRole('menuitem', { name: 'One' });
       await waitFor(() => expect(firstItem).toHaveFocus());
+      expect(onItemHighlighted).toHaveBeenLastCalledWith(firstItem, {
+        reason: 'imperative-action',
+        label: 'One',
+      });
 
       act(() => actionsRef.current!.highlightItem('none'));
       await waitFor(() => expect(firstItem).not.toHaveAttribute('data-highlighted'));
       // Focus must not linger on the item, or Enter would activate something that
       // no longer looks highlighted. It goes back to the popup, not to the body.
       await waitFor(() => expect(menu).toHaveFocus());
+      expect(onItemHighlighted).toHaveBeenLastCalledWith(undefined, {
+        reason: 'imperative-action',
+        label: undefined,
+      });
 
       await user.keyboard('{Enter}');
       expect(onClick).not.toHaveBeenCalled();

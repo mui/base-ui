@@ -704,10 +704,11 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
     function HighlightMenu(props: {
       onItemHighlighted: Menu.Root.Props['onItemHighlighted'];
       autoHighlight?: boolean;
+      actionsRef?: React.RefObject<Menu.Root.Actions | null>;
     }) {
       return (
         <Menu.FilterProvider autoHighlight={props.autoHighlight}>
-          <Menu.Root open onItemHighlighted={props.onItemHighlighted}>
+          <Menu.Root open onItemHighlighted={props.onItemHighlighted} actionsRef={props.actionsRef}>
             <Menu.Portal>
               <Menu.Positioner>
                 <Menu.Popup>
@@ -742,6 +743,39 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
         reason: 'keyboard',
         label: 'Remove',
       });
+    });
+
+    it('reports imperative highlights and clears while the input keeps focus', async () => {
+      const onItemHighlighted = vi.fn();
+      const actionsRef = React.createRef<Menu.Root.Actions>();
+      const { user } = await render(
+        <HighlightMenu actionsRef={actionsRef} onItemHighlighted={onItemHighlighted} />,
+      );
+      const input = screen.getByRole('searchbox', { name: 'Filter actions' });
+      await waitFor(() => expect(input).toHaveFocus());
+
+      act(() => actionsRef.current!.highlightItem('last'));
+      const item = screen.getByRole('menuitem', { name: 'Duplicate' });
+      await waitFor(() => expect(input).toHaveAttribute('aria-activedescendant', item.id));
+      expect(onItemHighlighted).toHaveBeenLastCalledWith(item, {
+        reason: 'imperative-action',
+        label: 'Duplicate',
+      });
+      expect(input).toHaveFocus();
+
+      act(() => actionsRef.current!.highlightItem('none'));
+      await waitFor(() => expect(input).not.toHaveAttribute('aria-activedescendant'));
+      expect(onItemHighlighted).toHaveBeenLastCalledWith(undefined, {
+        reason: 'imperative-action',
+        label: undefined,
+      });
+      expect(input).toHaveFocus();
+
+      await user.keyboard('[ArrowDown]');
+      expect(onItemHighlighted).toHaveBeenLastCalledWith(
+        screen.getByRole('menuitem', { name: 'Rename' }),
+        { reason: 'keyboard', label: 'Rename' },
+      );
     });
 
     it('reports the auto-highlighted item as a programmatic change', async () => {
