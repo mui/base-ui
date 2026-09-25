@@ -69,6 +69,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
   const rootId = store.useState('id');
   const comboboxLabelId = store.useState('labelId');
   const open = store.useState('open');
+  const mounted = store.useState('mounted');
   const selectedValue = store.useState('selectedValue');
   const activeIndex = store.useState('activeIndex');
   const selectedIndex = store.useState('selectedIndex');
@@ -252,6 +253,35 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
               createChangeEventDetails(REASONS.listNavigation, event.nativeEvent),
             );
             store.context.inputRef.current?.focus();
+            return;
+          }
+
+          // In the input-inside-popup pattern the Trigger is the keyboard
+          // entry point when the popup is closed. Mirror ComboboxInput's
+          // Escape clear so users can reset the value without opening the
+          // popup first.
+          if (event.key === 'Escape' && inputInsidePopup && !mounted && !disabled && !readOnly) {
+            const isClear =
+              selectionMode === 'multiple' && Array.isArray(selectedValue)
+                ? selectedValue.length === 0
+                : selectedValue === null;
+
+            const details = createChangeEventDetails(REASONS.escapeKey, event.nativeEvent);
+
+            // Mirror ComboboxInput and always reset the input value first, so a
+            // controlled `inputValue` is cleared even when nothing is selected.
+            store.context.setInputValue('', details);
+
+            // Only clear the selected value when there is something to clear.
+            // Clearing an already-empty value would fire `onValueChange` with no change.
+            if (!isClear) {
+              const value = selectionMode === 'multiple' ? [] : null;
+              store.context.setSelectedValue(value, details);
+
+              if (!store.state.inline && !details.isPropagationAllowed) {
+                event.stopPropagation();
+              }
+            }
           }
         },
       },
