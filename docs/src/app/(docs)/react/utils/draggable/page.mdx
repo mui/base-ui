@@ -176,8 +176,8 @@ Commit a successful drop in `onMoveEnd`. There, `target` is the target that rece
 - `'window-blur'`, `'page-hidden'`: the window lost focus, or the page was hidden.
 - `'pointer-canceled'`: the browser or the operating system canceled the pointer.
 - `'capture-lost'`: another element captured the pointer during the drag.
-- `'missed-release'`: the button was released without Base UI receiving the event.
-- `'handler-error'`: one of your handlers threw. Base UI cancels the drag and rethrows the error separately.
+- `'missed-release'`: the button was released without Base UI receiving the event.
+- `'handler-error'`: one of your handlers threw. Base UI cancels the drag and rethrows the error separately.
 - `'document-detached'`: the document was removed, for example when an iframe closed.
 
 Apart from `onBeforeMoveStart`, every handler receives the drag `source` and `target` in its first argument, and a `location` history in `eventDetails`:
