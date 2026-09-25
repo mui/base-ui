@@ -1,4 +1,4 @@
-import { expect, vi } from 'vitest';
+import { expect, vi, describe, it } from 'vitest';
 import * as React from 'react';
 import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { Switch } from '@base-ui/react/switch';
@@ -170,6 +170,29 @@ describe('<Switch.Root />', () => {
         expect(labelA.id).not.toBe(labelB.id);
         expect(switchEl).toHaveAttribute('aria-labelledby', labelB.id);
       });
+    });
+
+    it('prefers `aria-label` over an associated label', async () => {
+      await render(
+        <React.Fragment>
+          <label>
+            <Switch.Root aria-label="Wi-Fi" />
+            Wi-Fi
+          </label>
+          <Field.Root>
+            <Field.Label>
+              <Switch.Root aria-label="Bluetooth" />
+              Bluetooth
+            </Field.Label>
+          </Field.Root>
+        </React.Fragment>,
+      );
+
+      const [nativeLabelled, fieldLabelled] = screen.getAllByRole('switch');
+      expect(nativeLabelled).not.toHaveAttribute('aria-labelledby');
+      expect(nativeLabelled).toHaveAccessibleName('Wi-Fi');
+      expect(fieldLabelled).not.toHaveAttribute('aria-labelledby');
+      expect(fieldLabelled).toHaveAccessibleName('Bluetooth');
     });
   });
 

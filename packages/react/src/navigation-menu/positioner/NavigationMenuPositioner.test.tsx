@@ -1,4 +1,4 @@
-import { beforeEach, expect, vi } from 'vitest';
+import { beforeEach, expect, vi, describe, it } from 'vitest';
 import { NavigationMenu } from '@base-ui/react/navigation-menu';
 import { createRenderer, describeConformance } from '#test-utils';
 

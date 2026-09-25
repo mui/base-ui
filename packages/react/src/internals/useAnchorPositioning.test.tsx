@@ -1,7 +1,7 @@
-import { expect, vi } from 'vitest';
+import { expect, vi, describe, beforeEach, it } from 'vitest';
 import * as React from 'react';
 import { createRenderer } from '#test-utils';
-import { useFloating } from '../floating-ui-react';
+import { useFloating } from '../../test/floating-ui-tests/useFloating';
 import {
   useAnchorPositioningWithHook,
   type UseAnchorPositioningParameters,

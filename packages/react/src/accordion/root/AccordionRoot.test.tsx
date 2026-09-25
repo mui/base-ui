@@ -1,4 +1,4 @@
-import { expect, vi } from 'vitest';
+import { expect, vi, describe, it } from 'vitest';
 import * as React from 'react';
 import { fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { Accordion } from '@base-ui/react/accordion';
@@ -787,6 +787,30 @@ describe('<Accordion.Root />', () => {
       expect(trigger).toHaveAttribute('aria-expanded', 'true');
       expect(screen.queryByText(PANEL_CONTENT_1)).not.toBe(null);
       expect(onValueChange.mock.calls.length).toBe(1);
+    });
+
+    it('keeps an array item value intact while multiple', async () => {
+      const itemValue = ['section', 'details'];
+      const onValueChange = vi.fn();
+
+      await render(
+        <Accordion.Root multiple onValueChange={onValueChange}>
+          <Accordion.Item value={itemValue}>
+            <Accordion.Header>
+              <Accordion.Trigger>Trigger 1</Accordion.Trigger>
+            </Accordion.Header>
+            <Accordion.Panel>{PANEL_CONTENT_1}</Accordion.Panel>
+          </Accordion.Item>
+        </Accordion.Root>,
+      );
+
+      const trigger = screen.getByRole('button');
+
+      fireEvent.click(trigger);
+
+      expect(onValueChange.mock.calls[0][0]).toEqual([itemValue]);
+      expect(trigger).toHaveAttribute('aria-expanded', 'true');
+      expect(screen.queryByText(PANEL_CONTENT_1)).not.toBe(null);
     });
   });
 

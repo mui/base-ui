@@ -123,6 +123,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     format,
     handleInputChange,
     inset,
+    isArrayValue,
     labelId,
     largeStep,
     locale,
@@ -359,7 +360,9 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
         setFocused(false);
 
         if (validationMode === 'onBlur') {
-          validation.commit(getSliderValue(thumbValue, index, min, max, range, sliderValues));
+          validation.commit(
+            getSliderValue(thumbValue, index, min, max, isArrayValue, sliderValues),
+          );
         }
       },
       onKeyDown(event: React.KeyboardEvent) {

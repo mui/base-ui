@@ -1,11 +1,13 @@
-import { vi, expect } from 'vitest';
+import { vi, expect, beforeEach, test, it } from 'vitest';
 
 /* eslint-disable react/jsx-fragments */
 import * as React from 'react';
 import { act, fireEvent, render, screen } from '@mui/internal-test-utils';
 
 import { isJSDOM, useTestInteractions } from '#test-utils';
-import { FloatingDelayGroup, useDelayGroup, useFloating, useHover } from '../index';
+import { FloatingDelayGroup, useDelayGroup } from '../index';
+import { useFloating } from '../../../test/floating-ui-tests/useFloating';
+import { useHover } from '../../../test/floating-ui-tests/useHover';
 
 interface Props {
   label: string;
@@ -20,7 +22,7 @@ function Tooltip({ children, label }: Props) {
     onOpenChange: setOpen,
   });
 
-  const { delayRef, isInstantPhase } = useDelayGroup(context, { open });
+  const { delayRef, isInstantPhase } = useDelayGroup(context.rootStore, { open });
   const hover = useHover(context, { delay: () => delayRef.current });
   const { getReferenceProps } = useTestInteractions([hover]);
 

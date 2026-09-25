@@ -1,9 +1,9 @@
 'use client';
 import * as React from 'react';
+import { clamp } from '@base-ui/utils/clamp';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { ownerDocument } from '@base-ui/utils/owner';
-import { clamp } from '@base-ui/utils/clamp';
-import { contains, getTarget } from '../floating-ui-react/utils';
+import { closest, contains, getTarget } from '../floating-ui-react/utils';
 import { findScrollableTouchTarget, hasScrollableAncestor, type ScrollAxis } from './scrollable';
 import { getElementAtPoint } from './getElementAtPoint';
 import { getElementTransform } from './getElementTransform';
@@ -30,10 +30,10 @@ type SwipeProgressDetailsInternal = {
 
 const DEFAULT_SWIPE_THRESHOLD = 40;
 const REVERSE_CANCEL_THRESHOLD = 10;
-const MIN_DRAG_THRESHOLD = 1;
 const MIN_VELOCITY_DURATION_MS = 50;
 const MIN_RELEASE_VELOCITY_DURATION_MS = 16;
 const MAX_RELEASE_VELOCITY_AGE_MS = 80;
+const MIN_VELOCITY_SAMPLE_DISTANCE = 1;
 const DEFAULT_IGNORE_SELECTOR = 'button,a,input,select,textarea,label,[role="button"]';
 
 export function getDisplacement(direction: SwipeDirection, deltaX: number, deltaY: number) {
@@ -117,16 +117,8 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
   const hasHorizontal = allowLeft || allowRight;
   const hasVertical = allowUp || allowDown;
 
-  const scrollAxes = React.useMemo((): ScrollAxis[] => {
-    const axes: ScrollAxis[] = [];
-    if (hasVertical) {
-      axes.push('vertical');
-    }
-    if (hasHorizontal) {
-      axes.push('horizontal');
-    }
-    return axes;
-  }, [hasHorizontal, hasVertical]);
+  // Consumers only pass directions on a single axis.
+  const scrollAxis: ScrollAxis = hasHorizontal ? 'horizontal' : 'vertical';
 
   const [currentSwipeDirection, setCurrentSwipeDirection] = React.useState<
     SwipeDirection | undefined
@@ -142,7 +134,6 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
   const maxSwipeDisplacementRef = React.useRef(0);
   const cancelledSwipeRef = React.useRef(false);
   const swipeCancelBaselineRef = React.useRef({ x: 0, y: 0 });
-  const lockedDirectionRef = React.useRef<'horizontal' | 'vertical' | null>(null);
   const isFirstPointerMoveRef = React.useRef(false);
   const pendingSwipeRef = React.useRef(false);
   const pendingSwipeStartPosRef = React.useRef<{ x: number; y: number } | null>(null);
@@ -156,6 +147,7 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
   >(null);
   const swipeStartTimeRef = React.useRef<number | null>(null);
   const lastDragSampleRef = React.useRef<{ x: number; y: number; time: number } | null>(null);
+  const hasStationarySampleRef = React.useRef(false);
   const lastDragVelocityRef = React.useRef({ x: 0, y: 0 });
   const lastProgressDetailsRef = React.useRef<SwipeProgressDetailsInternal | null>(null);
   const isSwipingRef = React.useRef(false);
@@ -259,8 +251,19 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
 
     const lastSample = lastDragSampleRef.current;
     if (lastSample && timeStamp > lastSample.time) {
-      const durationMs = Math.max(timeStamp - lastSample.time, MIN_RELEASE_VELOCITY_DURATION_MS);
+      // Some Android devices emit one effectively stationary move immediately before release.
+      // Keep the last moving sample and its timestamp. Repeated stationary moves still clear
+      // the velocity, and a release after a hold still expires the last moving sample.
+      const stationary =
+        Math.abs(offset.x - lastSample.x) < MIN_VELOCITY_SAMPLE_DISTANCE &&
+        Math.abs(offset.y - lastSample.y) < MIN_VELOCITY_SAMPLE_DISTANCE;
+      const skipSample = stationary && !hasStationarySampleRef.current;
+      hasStationarySampleRef.current = stationary;
+      if (skipSample) {
+        return;
+      }
 
+      const durationMs = Math.max(timeStamp - lastSample.time, MIN_RELEASE_VELOCITY_DURATION_MS);
       lastDragVelocityRef.current = {
         x: (offset.x - lastSample.x) / durationMs,
         y: (offset.y - lastSample.y) / durationMs,
@@ -285,7 +288,6 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
     maxSwipeDisplacementRef.current = 0;
     cancelledSwipeRef.current = false;
     swipeCancelBaselineRef.current = { x: 0, y: 0 };
-    lockedDirectionRef.current = null;
     isFirstPointerMoveRef.current = false;
     lastMovePosRef.current = null;
     pendingSwipeRef.current = false;
@@ -295,6 +297,7 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
     elementSizeRef.current = { width: 0, height: 0 };
     swipeStartTimeRef.current = null;
     lastDragSampleRef.current = null;
+    hasStationarySampleRef.current = false;
     lastDragVelocityRef.current = { x: 0, y: 0 };
     lastProgressDetailsRef.current = null;
     syncDragStyles(false);
@@ -342,13 +345,7 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
         : scrollTarget;
     };
 
-    if (hasHorizontal && !hasVertical) {
-      return find('horizontal');
-    }
-    if (hasVertical && !hasHorizontal) {
-      return find('vertical');
-    }
-    return find('vertical') ?? find('horizontal');
+    return find(scrollAxis);
   }
 
   function startSwipeAtPosition(
@@ -374,15 +371,15 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
     }
     swipeFromScrollableRef.current = Boolean(scrollableTarget && ignoreScrollableTarget);
 
-    const isInteractiveElement = target ? target.closest(ignoreSelector) : false;
+    const isInteractiveElement = closest(target, ignoreSelector);
     if (isInteractiveElement && (!touchLike || ignoreSelectorWhenTouch)) {
       return false;
     }
 
     const element = elementRef.current;
-    if (ignoreScrollableAncestors && element && target && scrollAxes.length > 0) {
+    if (ignoreScrollableAncestors && element && target) {
       const ignoreAncestors = startOptions?.ignoreScrollableAncestors ?? false;
-      if (!ignoreAncestors && hasScrollableAncestor(target, element, scrollAxes)) {
+      if (!ignoreAncestors && hasScrollableAncestor(target, element, scrollAxis)) {
         return false;
       }
     }
@@ -393,6 +390,9 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
 
     dragStartPosRef.current = position;
     swipeStartTimeRef.current = getValidTimeStamp(event.timeStamp);
+    lastDragSampleRef.current = null;
+    hasStationarySampleRef.current = false;
+    lastDragVelocityRef.current = { x: 0, y: 0 };
     swipeCancelBaselineRef.current = position;
     lastMovePosRef.current = position;
     swipeThresholdRef.current = swipeThresholdDefault;
@@ -416,7 +416,6 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
     onSwipeStart?.(event.nativeEvent as SwipeDismissNativeEvent);
 
     setSwiping(true);
-    lockedDirectionRef.current = null;
     isFirstPointerMoveRef.current = true;
     updateSwipeProgress(0);
     syncDragStyles(true);
@@ -443,7 +442,6 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
     }
 
     setSwiping(false);
-    lockedDirectionRef.current = null;
 
     const resolvedInitialTransform = initialTransformRef.current;
 
@@ -498,10 +496,7 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
       (delta > 0 && scrollOffset <= 0 && allowTowardStart) ||
       (delta < 0 && scrollOffset >= Math.max(0, maxScrollOffset) && allowTowardEnd);
 
-    const absDeltaX = Math.abs(deltaX);
-    const absDeltaY = Math.abs(deltaY);
-
-    if (hasVertical && deltaY !== 0 && (!hasHorizontal || absDeltaY >= absDeltaX)) {
+    if (hasVertical && deltaY !== 0) {
       return canSwipeOnAxis(
         deltaY,
         scrollTarget.scrollTop,
@@ -511,7 +506,7 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
       );
     }
 
-    if (hasHorizontal && deltaX !== 0 && (!hasVertical || absDeltaX > absDeltaY)) {
+    if (hasHorizontal && deltaX !== 0) {
       return canSwipeOnAxis(
         deltaX,
         scrollTarget.scrollLeft,
@@ -599,6 +594,8 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
         if (moveTime !== null) {
           swipeStartTimeRef.current = moveTime;
         }
+        lastDragSampleRef.current = null;
+        hasStationarySampleRef.current = false;
       }
     }
 
@@ -626,30 +623,9 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
     const cancelDeltaY = clientY - swipeCancelBaselineRef.current.y;
     const cancelDeltaX = clientX - swipeCancelBaselineRef.current.x;
 
-    let lockedDirection = lockedDirectionRef.current;
-    if (lockedDirection === null && hasHorizontal && hasVertical) {
-      const movementDistance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
-      if (movementDistance >= MIN_DRAG_THRESHOLD) {
-        lockedDirection = Math.abs(deltaX) > Math.abs(deltaY) ? 'horizontal' : 'vertical';
-        lockedDirectionRef.current = lockedDirection;
-      }
-    }
-
     let candidate: SwipeDirection | undefined;
     if (!intendedSwipeDirectionRef.current) {
-      if (lockedDirection === 'vertical') {
-        if (deltaY > 0) {
-          candidate = 'down';
-        } else if (deltaY < 0) {
-          candidate = 'up';
-        }
-      } else if (lockedDirection === 'horizontal') {
-        if (deltaX > 0) {
-          candidate = 'right';
-        } else if (deltaX < 0) {
-          candidate = 'left';
-        }
-      } else if (Math.abs(deltaX) >= Math.abs(deltaY)) {
+      if (Math.abs(deltaX) >= Math.abs(deltaY)) {
         candidate = deltaX > 0 ? 'right' : 'left';
       } else {
         candidate = deltaY > 0 ? 'down' : 'up';
@@ -688,21 +664,11 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
     let newOffsetX = initialTransformRef.current.x;
     let newOffsetY = initialTransformRef.current.y;
 
-    if (lockedDirection === 'horizontal') {
-      if (hasHorizontal) {
-        newOffsetX += dampedDelta.x;
-      }
-    } else if (lockedDirection === 'vertical') {
-      if (hasVertical) {
-        newOffsetY += dampedDelta.y;
-      }
-    } else {
-      if (hasHorizontal) {
-        newOffsetX += dampedDelta.x;
-      }
-      if (hasVertical) {
-        newOffsetY += dampedDelta.y;
-      }
+    if (hasHorizontal) {
+      newOffsetX += dampedDelta.x;
+    }
+    if (hasVertical) {
+      newOffsetY += dampedDelta.y;
     }
 
     // Only rewrite drag styles when the drag offset actually changed. `syncDragStyles` writes the
@@ -767,7 +733,6 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
     }
 
     setSwiping(false);
-    lockedDirectionRef.current = null;
     resetPendingSwipeState();
     sawPrimaryButtonsOnMoveRef.current = false;
 
@@ -798,10 +763,10 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
         const deltaFromLastSampleY = resolvedDragOffset.y - lastSample.y;
         const sampleVelocityX = deltaFromLastSampleX / sampleDurationMs;
         const sampleVelocityY = deltaFromLastSampleY / sampleDurationMs;
-        if (sampleVelocityX !== 0) {
+        if (Math.abs(deltaFromLastSampleX) >= MIN_VELOCITY_SAMPLE_DISTANCE) {
           releaseVelocityX = sampleVelocityX;
         }
-        if (sampleVelocityY !== 0) {
+        if (Math.abs(deltaFromLastSampleY) >= MIN_VELOCITY_SAMPLE_DISTANCE) {
           releaseVelocityY = sampleVelocityY;
         }
       } else {

@@ -1,3 +1,4 @@
+import { describe } from 'vitest';
 import { Popover } from '@base-ui/react/popover';
 import { createRenderer, describeConformance } from '#test-utils';
 

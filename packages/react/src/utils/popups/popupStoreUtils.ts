@@ -14,8 +14,7 @@ import {
   useSyncedFloatingRootContext,
   type SyncedFloatingRootContextStore,
 } from '../../floating-ui-react/hooks/useSyncedFloatingRootContext';
-import { useTransitionStatus } from '../../internals/useTransitionStatus';
-import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
+import { useUnmountAfterClose } from '../../internals/useUnmountAfterClose';
 import type { HTMLProps } from '../../internals/types';
 import {
   createChangeEventDetails,
@@ -184,7 +183,11 @@ export function useTriggerRegistration<State extends PopupStoreState<unknown>>(
 
 type PopupOpenState = Pick<
   PopupStoreState<unknown>,
-  'open' | 'preventUnmountingOnClose' | 'activeTriggerId' | 'activeTriggerElement'
+  | 'open'
+  | 'preventUnmountingOnClose'
+  | 'activeTriggerId'
+  | 'activeTriggerElement'
+  | 'openedWithoutTrigger'
 >;
 
 export function createPopupOpenState(
@@ -217,6 +220,12 @@ export function createPopupOpenState(
     preventUnmountingOnClose,
     activeTriggerId,
     activeTriggerElement,
+    // An open request without a trigger (a handle's `open(null)` or `openWithPayload()`) must not
+    // be reassociated with a lone registered trigger later on. Controlled and default opens never
+    // pass through here, so they keep claiming a lone trigger. A close request keeps the flag: a
+    // controlled root may decline it and stay open, so the Root clears the flag only once the
+    // popup is effectively closed.
+    openedWithoutTrigger: open ? trigger == null : state.openedWithoutTrigger,
   };
 }
 
@@ -344,10 +353,11 @@ export function useTriggerDataForwarding<
       return;
     }
 
-    if (activeTriggerId == null && open) {
+    if (activeTriggerId == null && open && !store.state.openedWithoutTrigger) {
       // If a popup is already open, a detached trigger can mount before any active trigger
       // has been established. Claim the first registered trigger so trigger-owned focus
-      // management and ARIA relationships work.
+      // management and ARIA relationships work. A popup opened deliberately without a trigger
+      // stays unassociated so the trigger's `payload` does not replace the programmatic one.
       const changes = {
         activeTriggerId: triggerId ?? null,
         activeTriggerElement: element,
@@ -395,7 +405,8 @@ export type PayloadChildRenderFunction<Payload> = (arg: {
  * Keeps trigger registration state synchronized while the popup is open.
  *
  * When a popup opens without an explicit trigger id and exactly one trigger is registered, that
- * trigger is claimed as the active trigger. When the active trigger id is still registered but its
+ * trigger is claimed as the active trigger, unless the open request deliberately carried no trigger
+ * (`openedWithoutTrigger`). When the active trigger id is still registered but its
  * element changed, the active element is refreshed. When the active trigger id is missing from the
  * registry but the same element is still registered under a different id (e.g. the rendered trigger
  * carries its own DOM `id` that differs from Base UI's internal trigger id), the active id is
@@ -439,6 +450,12 @@ export function useImplicitActiveTrigger<State extends PopupStoreState<unknown>>
       resolvedActiveTriggerIdRef.current = null;
       if (store.state.triggerCount !== 0) {
         store.set('triggerCount', 0);
+      }
+      // The flag is cleared only here, once the popup is effectively closed: a controlled root may
+      // decline a close request and stay open, and a controlled close never reaches
+      // `createPopupOpenState` at all.
+      if (store.state.openedWithoutTrigger) {
+        store.set('openedWithoutTrigger', false);
       }
       return;
     }
@@ -485,7 +502,12 @@ export function useImplicitActiveTrigger<State extends PopupStoreState<unknown>>
       resolvedActiveTriggerIdRef.current = null;
     }
 
-    if (!lostActiveTriggerId && !currentActiveTriggerId && triggerCount === 1) {
+    if (
+      !lostActiveTriggerId &&
+      !currentActiveTriggerId &&
+      !store.state.openedWithoutTrigger &&
+      triggerCount === 1
+    ) {
       const iteratorResult = store.context.triggerElements.entries().next();
       if (!iteratorResult.done) {
         const [implicitTriggerId, implicitTriggerElement] = iteratorResult.value;
@@ -549,7 +571,8 @@ export function useImplicitActiveTrigger<State extends PopupStoreState<unknown>>
  *   popup on page load, SSR'd markup) appears without animating. Opt in for popups whose subtree
  *   only mounts in response to something the user did, such as a submenu inside a menu popup.
  *
- * @returns A function to forcibly unmount the popup.
+ * @returns A function to forcibly unmount the popup. It is a no-op once the popup is already
+ *   unmounted, so calling it after the automatic unmount doesn't repeat the completion callback.
  */
 export function useOpenStateTransitions<State extends PopupStoreState<unknown>>(
   open: boolean,
@@ -557,45 +580,33 @@ export function useOpenStateTransitions<State extends PopupStoreState<unknown>>(
   onUnmount?: () => void,
   animateInitialOpen?: boolean,
 ) {
-  const { mounted, setMounted, transitionStatus } = useTransitionStatus(
-    open,
-    false,
-    false,
-    animateInitialOpen,
-  );
-  const preventUnmountingOnClose = store.useState('preventUnmountingOnClose');
-  // Opening starts a new close cycle. Clear during render so the close-completion hook below
-  // reads the synchronized value on the same pass.
-  const syncedPreventUnmountingOnClose = open ? false : preventUnmountingOnClose;
-
-  store.useSyncedValues({
-    mounted,
-    transitionStatus,
-    preventUnmountingOnClose: syncedPreventUnmountingOnClose,
-  });
-
-  const forceUnmount = useStableCallback(() => {
-    setMounted(false);
-    store.update({
-      activeTriggerId: null,
-      activeTriggerElement: null,
-      mounted: false,
-      preventUnmountingOnClose: false,
-    });
-    onUnmount?.();
-    store.context.onOpenChangeComplete?.(false);
-  });
-
-  useOpenChangeComplete({
-    enabled: mounted && !open && !syncedPreventUnmountingOnClose,
+  const { mounted, transitionStatus, forceUnmount } = useUnmountAfterClose({
     open,
     ref: store.context.popupRef,
-    onComplete() {
-      if (!open) {
-        forceUnmount();
-      }
+    preventUnmountOnClose: store.useState('preventUnmountingOnClose'),
+    setPreventUnmountOnClose: (preventUnmountOnClose) =>
+      store.set('preventUnmountingOnClose', preventUnmountOnClose),
+    animateInitialOpen,
+    onUnmount() {
+      store.update({
+        activeTriggerId: null,
+        activeTriggerElement: null,
+        mounted: false,
+        preventUnmountingOnClose: false,
+      });
+      onUnmount?.();
+      store.context.onOpenChangeComplete?.(false);
     },
   });
+
+  // Seed the Root-owned store before parts subscribe, matching the hook's initial mounted state.
+  // Otherwise, an initially open Root looks like a reopen until the layout effect syncs the store.
+  useRefWithInit(() => {
+    store.set('mounted', mounted);
+    return null;
+  });
+
+  store.useSyncedValues({ mounted, transitionStatus });
 
   return { forceUnmount, transitionStatus };
 }

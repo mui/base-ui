@@ -1,4 +1,4 @@
-import { vi, expect } from 'vitest';
+import { vi, expect, beforeEach, describe, test } from 'vitest';
 
 import { act, fireEvent, flushMicrotasks, render, screen, waitFor } from '@mui/internal-test-utils';
 import userEvent from '@testing-library/user-event';
@@ -11,12 +11,12 @@ import {
   FloatingPortal,
   FloatingTree,
   useDismiss,
-  useFloating,
   useFloatingNodeId,
   useFloatingParentNodeId,
   useFocus,
   useClick,
 } from '../index';
+import { useFloating } from '../../../test/floating-ui-tests/useFloating';
 import { REASONS } from '../../internals/reasons';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import type { UseDismissProps } from './useDismiss';
@@ -54,7 +54,9 @@ function App(
       }
     },
   });
-  const { getReferenceProps, getFloatingProps } = useTestInteractions([useDismiss(context, props)]);
+  const { getReferenceProps, getFloatingProps } = useTestInteractions([
+    useDismiss(context.rootStore, props),
+  ]);
 
   return (
     <React.Fragment>
@@ -122,7 +124,9 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
             setOpen(true);
           },
         });
-        const { getReferenceProps, getFloatingProps } = useTestInteractions([useDismiss(context)]);
+        const { getReferenceProps, getFloatingProps } = useTestInteractions([
+          useDismiss(context.rootStore),
+        ]);
 
         return (
           <React.Fragment>
@@ -195,7 +199,7 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
           outsidePress: boolean;
         }) {
           const { getFloatingProps } = useTestInteractions([
-            useDismiss(context, { outsidePress, outsidePressEvent: 'sloppy' }),
+            useDismiss(context.rootStore, { outsidePress, outsidePressEvent: 'sloppy' }),
           ]);
 
           return <button type="button" {...getFloatingProps()} />;
@@ -276,7 +280,7 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
           onOpenChange: setIsOpen,
         });
 
-        const dismiss = useDismiss(context);
+        const dismiss = useDismiss(context.rootStore);
 
         const { getReferenceProps, getFloatingProps } = useTestInteractions([dismiss]);
 
@@ -284,7 +288,7 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
           <React.Fragment>
             <button {...getReferenceProps({ ref: refs.setReference })} />
             {isOpen && (
-              <FloatingFocusManager context={context}>
+              <FloatingFocusManager context={context.rootStore}>
                 <div role="dialog" {...getFloatingProps({ ref: refs.setFloating })} />
               </FloatingFocusManager>
             )}
@@ -312,7 +316,7 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
           onOpenChange: setIsOpen,
         });
 
-        const dismiss = useDismiss(context);
+        const dismiss = useDismiss(context.rootStore);
         const { getReferenceProps, getFloatingProps } = useTestInteractions([dismiss]);
 
         return (
@@ -352,7 +356,7 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
           onOpenChange: setIsOpen,
         });
 
-        const dismiss = useDismiss(context);
+        const dismiss = useDismiss(context.rootStore);
         const { getReferenceProps, getFloatingProps } = useTestInteractions([dismiss]);
 
         return (
@@ -360,7 +364,7 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
             <button {...getReferenceProps({ ref: refs.setReference })} />
             {isOpen && (
               <FloatingPortal container={shadowRoot}>
-                <FloatingFocusManager context={context}>
+                <FloatingFocusManager context={context.rootStore}>
                   <div role="dialog" {...getFloatingProps({ ref: refs.setFloating })} />
                 </FloatingFocusManager>
               </FloatingPortal>
@@ -403,7 +407,7 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
           onOpenChange: setIsOpen,
         });
 
-        const dismiss = useDismiss(context);
+        const dismiss = useDismiss(context.rootStore);
 
         const { getReferenceProps, getFloatingProps } = useTestInteractions([dismiss]);
 
@@ -421,7 +425,7 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
                 {modal == null ? (
                   dialogJsx
                 ) : (
-                  <FloatingFocusManager context={context} modal={modal}>
+                  <FloatingFocusManager context={context.rootStore} modal={modal}>
                     {dialogJsx}
                   </FloatingFocusManager>
                 )}
@@ -522,7 +526,9 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
           onOpenChange: setOpen,
         });
 
-        const { getReferenceProps, getFloatingProps } = useTestInteractions([useDismiss(context)]);
+        const { getReferenceProps, getFloatingProps } = useTestInteractions([
+          useDismiss(context.rootStore),
+        ]);
 
         return (
           <React.Fragment>
@@ -571,14 +577,14 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
       });
 
       const { getReferenceProps, getFloatingProps } = useTestInteractions([
-        useDismiss(context, props),
+        useDismiss(context.rootStore, props),
       ]);
 
       return (
         <FloatingNode id={nodeId}>
           <button {...getReferenceProps({ ref: refs.setReference })} />
           {open && (
-            <FloatingFocusManager context={context}>
+            <FloatingFocusManager context={context.rootStore}>
               <div {...getFloatingProps({ ref: refs.setFloating })} data-testid={testId}>
                 {children}
               </div>
@@ -727,10 +733,10 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
             onOpenChange: setTooltipOpen,
           });
 
-          const popoverInteractions = useTestInteractions([useDismiss(popover.context)]);
+          const popoverInteractions = useTestInteractions([useDismiss(popover.context.rootStore)]);
           const tooltipInteractions = useTestInteractions([
-            useFocus(tooltip.context),
-            useDismiss(tooltip.context),
+            useFocus(tooltip.context.rootStore),
+            useDismiss(tooltip.context.rootStore),
           ]);
 
           return (
@@ -933,7 +939,7 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
       });
 
       const { getReferenceProps, getFloatingProps } = useTestInteractions([
-        useDismiss(context, props),
+        useDismiss(context.rootStore, props),
       ]);
 
       return (
@@ -941,7 +947,7 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
           <button {...getReferenceProps({ ref: refs.setReference })} />
           {open && (
             <FloatingPortal>
-              <FloatingFocusManager context={context}>
+              <FloatingFocusManager context={context.rootStore}>
                 <div {...getFloatingProps({ ref: refs.setFloating })}>
                   <span>{id}</span>
                   {children}
@@ -1095,7 +1101,7 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
         const [open, setOpen] = React.useState(false);
         const { refs, context } = useFloating({ open, onOpenChange: setOpen });
         const { getFloatingProps } = useTestInteractions([
-          useDismiss(context, { outsidePressEvent: 'intentional' }),
+          useDismiss(context.rootStore, { outsidePressEvent: 'intentional' }),
         ]);
 
         return (
@@ -1150,7 +1156,7 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
         const [open, setOpen] = React.useState(true);
         const { refs, context } = useFloating({ open, onOpenChange: setOpen });
         const { getReferenceProps, getFloatingProps } = useTestInteractions([
-          useDismiss(context, { outsidePressEvent: 'intentional' }),
+          useDismiss(context.rootStore, { outsidePressEvent: 'intentional' }),
         ]);
 
         return (
@@ -1194,7 +1200,7 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
         const floating = useFloating({ open, onOpenChange: setOpen });
         context = floating.context;
         const { getReferenceProps, getFloatingProps } = useTestInteractions([
-          useDismiss(floating.context, { outsidePressEvent: 'intentional' }),
+          useDismiss(floating.context.rootStore, { outsidePressEvent: 'intentional' }),
         ]);
 
         return (
@@ -1241,7 +1247,7 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
         const floating = useFloating({ open, onOpenChange: setOpen });
         context = floating.context;
         const { getReferenceProps, getFloatingProps } = useTestInteractions([
-          useDismiss(floating.context, { outsidePressEvent: 'intentional' }),
+          useDismiss(floating.context.rootStore, { outsidePressEvent: 'intentional' }),
         ]);
 
         return (
@@ -1385,7 +1391,7 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
         const [open, setOpen] = React.useState(true);
         const { refs, context } = useFloating({ open, onOpenChange: setOpen });
         const { getReferenceProps, getFloatingProps } = useTestInteractions([
-          useDismiss(context, { outsidePressEvent: 'intentional' }),
+          useDismiss(context.rootStore, { outsidePressEvent: 'intentional' }),
         ]);
 
         return (
@@ -1429,7 +1435,7 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
         const [open, setOpen] = React.useState(true);
         const { refs, context } = useFloating({ open, onOpenChange: setOpen });
         const { getReferenceProps, getFloatingProps } = useTestInteractions([
-          useDismiss(context, { outsidePressEvent: 'intentional' }),
+          useDismiss(context.rootStore, { outsidePressEvent: 'intentional' }),
         ]);
 
         return (
@@ -1470,7 +1476,7 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
         const [open, setOpen] = React.useState(true);
         const { refs, context } = useFloating({ open, onOpenChange: setOpen });
         const { getReferenceProps, getFloatingProps } = useTestInteractions([
-          useDismiss(context, { outsidePressEvent: 'intentional' }),
+          useDismiss(context.rootStore, { outsidePressEvent: 'intentional' }),
         ]);
 
         return (
@@ -1522,8 +1528,8 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
         onOpenChange: setOpen,
       });
 
-      const click = useClick(context);
-      const dismiss = useDismiss(context);
+      const click = useClick(context.rootStore);
+      const dismiss = useDismiss(context.rootStore);
 
       const { getReferenceProps, getFloatingProps } = useTestInteractions([click, dismiss]);
 
@@ -1534,7 +1540,7 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
           </button>
           {open && (
             <FloatingPortal container={portalContainer}>
-              <FloatingFocusManager context={context} modal={false}>
+              <FloatingFocusManager context={context.rootStore} modal={false}>
                 <div ref={refs.setFloating} style={floatingStyles} {...getFloatingProps()}>
                   {children}
                 </div>

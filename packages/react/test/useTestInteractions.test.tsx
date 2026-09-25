@@ -1,4 +1,4 @@
-import { vi, expect } from 'vitest';
+import { vi, expect, describe, it } from 'vitest';
 import * as React from 'react';
 import { render } from '@testing-library/react';
 import { useTestInteractions } from './useTestInteractions';
@@ -129,6 +129,8 @@ describe('useTestInteractions', () => {
   });
 
   it('prop getters are memoized', () => {
+    const effectRuns = vi.fn();
+
     function App() {
       const [, setCount] = React.useState(0);
       const propsList = React.useMemo(
@@ -143,6 +145,7 @@ describe('useTestInteractions', () => {
       const { getReferenceProps, getFloatingProps, getItemProps } = useTestInteractions(propsList);
 
       React.useEffect(() => {
+        effectRuns();
         setCount((count) => count + 1);
       }, [getReferenceProps, getFloatingProps, getItemProps]);
 
@@ -150,5 +153,8 @@ describe('useTestInteractions', () => {
     }
 
     render(<App />);
+
+    // The getters must be stable across the re-render forced by the effect.
+    expect(effectRuns).toHaveBeenCalledTimes(1);
   });
 });

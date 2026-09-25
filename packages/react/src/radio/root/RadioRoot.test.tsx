@@ -1,4 +1,4 @@
-import { expect, vi } from 'vitest';
+import { expect, vi, describe, it } from 'vitest';
 import * as React from 'react';
 import { Radio } from '@base-ui/react/radio';
 import { RadioGroup } from '@base-ui/react/radio-group';
@@ -132,6 +132,21 @@ describe('<Radio.Root />', () => {
       expect(labelA.id).not.toBe(labelB.id);
       expect(radio).toHaveAttribute('aria-labelledby', labelB.id);
     });
+  });
+
+  it('prefers `aria-label` over an associated label', async () => {
+    await render(
+      <RadioGroup>
+        <label>
+          <Radio.Root value="a" aria-label="Apple" />
+          Apple
+        </label>
+      </RadioGroup>,
+    );
+
+    const radio = screen.getByRole('radio');
+    expect(radio).not.toHaveAttribute('aria-labelledby');
+    expect(radio).toHaveAccessibleName('Apple');
   });
 
   describe('prop: onClick', () => {

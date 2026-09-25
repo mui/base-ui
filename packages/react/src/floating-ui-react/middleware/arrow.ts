@@ -20,16 +20,11 @@ export interface ArrowOptions {
    * @default 0
    */
   padding?: Padding | undefined;
-  /**
-   * Which element to use as the offset parent.
-   * @default 'real'
-   */
-  offsetParent: 'real' | 'floating';
 }
 
 /**
- * Fork of the original `arrow` middleware from Floating UI that allows
- * configuring the offset parent.
+ * Fork of the original `arrow` middleware from Floating UI that always uses the floating element
+ * as the arrow's offset parent.
  */
 export const baseArrow = (options: ArrowOptions | Derivable<ArrowOptions>): Middleware => ({
   name: 'arrow',
@@ -37,7 +32,7 @@ export const baseArrow = (options: ArrowOptions | Derivable<ArrowOptions>): Midd
   async fn(state) {
     const { x, y, placement, rects, platform, elements, middlewareData } = state;
     // Since `element` is required, we don't Partial<> the type.
-    const { element, padding = 0, offsetParent = 'real' } = evaluate(options, state) || {};
+    const { element, padding = 0 } = evaluate(options, state) || {};
 
     if (element == null) {
       return {};
@@ -57,14 +52,7 @@ export const baseArrow = (options: ArrowOptions | Derivable<ArrowOptions>): Midd
       rects.reference[length] + rects.reference[axis] - coords[axis] - rects.floating[length];
     const startDiff = coords[axis] - rects.reference[axis];
 
-    const arrowOffsetParent =
-      offsetParent === 'real' ? await platform.getOffsetParent?.(element) : elements.floating;
-    let clientSize = elements.floating[clientProp] || rects.floating[length];
-
-    // DOM platform can return `window` as the `offsetParent`.
-    if (!clientSize || !(await platform.isElement?.(arrowOffsetParent))) {
-      clientSize = elements.floating[clientProp] || rects.floating[length];
-    }
+    const clientSize = elements.floating[clientProp] || rects.floating[length];
 
     const centerToReference = endDiff / 2 - startDiff / 2;
 

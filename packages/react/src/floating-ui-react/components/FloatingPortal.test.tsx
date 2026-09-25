@@ -1,8 +1,9 @@
-import { expect } from 'vitest';
+import { expect, test } from 'vitest';
 import * as React from 'react';
 import { fireEvent, flushMicrotasks, render, screen } from '@mui/internal-test-utils';
 import { isJSDOM } from '#test-utils';
-import { FloatingFocusManager, FloatingPortal, useFloating } from '../index';
+import { FloatingFocusManager, FloatingPortal } from '../index';
+import { useFloating } from '../../../test/floating-ui-tests/useFloating';
 import { FloatingPortalLite } from '../../utils/FloatingPortalLite';
 import type { UseFloatingPortalNodeProps } from './FloatingPortal';
 
@@ -144,7 +145,7 @@ describe.skipIf(!isJSDOM)('FloatingPortal', () => {
 
       return (
         <FloatingPortal id="custom-portal">
-          <FloatingFocusManager context={context} modal={false}>
+          <FloatingFocusManager context={context.rootStore} modal={false}>
             <div ref={refs.setFloating} />
           </FloatingFocusManager>
         </FloatingPortal>
