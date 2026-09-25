@@ -115,6 +115,75 @@ describe('<Combobox.Positioner />', () => {
     },
   );
 
+  it.skipIf(isJSDOM)(
+    'tracks an anchor during a transform animation without a resize loop',
+    async () => {
+      const inputRef = React.createRef<HTMLInputElement>();
+      const animatedContainerRef = React.createRef<HTMLDivElement>();
+      const positionerRef = React.createRef<HTMLDivElement>();
+      const resizeObserverErrors: string[] = [];
+      const handleError = (event: ErrorEvent) => {
+        if (event.message.includes('ResizeObserver loop')) {
+          resizeObserverErrors.push(event.message);
+        }
+      };
+      let animation: Animation | undefined;
+
+      window.addEventListener('error', handleError);
+
+      try {
+        await render(
+          <div ref={animatedContainerRef} style={{ position: 'fixed', top: 20, left: 20 }}>
+            <Combobox.Root open>
+              <Combobox.Input ref={inputRef} style={{ width: 100 }} />
+              <Combobox.Portal>
+                <Combobox.Positioner
+                  ref={positionerRef}
+                  align="start"
+                  updatePositionStrategy="always"
+                >
+                  <Combobox.Popup>
+                    <Combobox.List>
+                      <Combobox.Item value="One">One</Combobox.Item>
+                    </Combobox.List>
+                  </Combobox.Popup>
+                </Combobox.Positioner>
+              </Combobox.Portal>
+            </Combobox.Root>
+          </div>,
+        );
+
+        await waitFor(() => {
+          expect(positionerRef.current!.getBoundingClientRect().left).toBeCloseTo(
+            inputRef.current!.getBoundingClientRect().left,
+            0,
+          );
+        });
+
+        const initialLeft = inputRef.current!.getBoundingClientRect().left;
+        animation = animatedContainerRef.current!.animate(
+          [
+            { transform: 'translateX(0px) scale(1)' },
+            { transform: 'translateX(120px) scale(1.1)' },
+          ],
+          { duration: 2000, easing: 'linear' },
+        );
+
+        await waitFor(() => {
+          const anchorLeft = inputRef.current!.getBoundingClientRect().left;
+
+          expect(anchorLeft).toBeGreaterThan(initialLeft + 10);
+          expect(positionerRef.current!.getBoundingClientRect().left).toBeCloseTo(anchorLeft, 0);
+        });
+
+        expect(resizeObserverErrors).toEqual([]);
+      } finally {
+        animation?.cancel();
+        window.removeEventListener('error', handleError);
+      }
+    },
+  );
+
   describe.skipIf(isJSDOM)('default anchor', () => {
     it('uses the input when input group is absent', async () => {
       const inputWidth = 120;

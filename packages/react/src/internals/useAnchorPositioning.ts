@@ -151,6 +151,7 @@ export function useAnchorPositioningWithHook(
     sticky = false,
     arrowPadding = 5,
     disableAnchorTracking = false,
+    updatePositionStrategy = 'optimized',
     inline: inlineMiddleware,
     // Private parameters
     keepMounted = false,
@@ -468,8 +469,11 @@ export function useAnchorPositioningWithHook(
       ancestorScroll: !disableAnchorTracking,
       elementResize: !disableAnchorTracking && typeof ResizeObserver !== 'undefined',
       layoutShift: !disableAnchorTracking && typeof IntersectionObserver !== 'undefined',
+      ...(updatePositionStrategy === 'always' && !disableAnchorTracking
+        ? { animationFrame: true }
+        : {}),
     }),
-    [disableAnchorTracking],
+    [disableAnchorTracking, updatePositionStrategy],
   );
 
   const {
@@ -744,10 +748,19 @@ export interface UseAnchorPositioningSharedParameters {
    */
   arrowPadding?: number | undefined;
   /**
-   * Whether to disable the popup from tracking any layout shift of its positioning anchor.
+   * Whether to disable the popup from tracking its positioning anchor. When `true`, this disables
+   * scroll, resize, layout shift, and animation frame tracking, including `updatePositionStrategy="always"`.
    * @default false
    */
   disableAnchorTracking?: boolean | undefined;
+  /**
+   * How the popup tracks the position of its anchor element. `optimized` uses resize, layout shift,
+   * and scroll observers; `always` recalculates the position on every animation frame. Use `always`
+   * when the anchor is animated or transformed.
+   * `disableAnchorTracking` disables tracking for either strategy.
+   * @default 'optimized'
+   */
+  updatePositionStrategy?: 'optimized' | 'always' | undefined;
   /**
    * Determines how to handle collisions when positioning the popup.
    *

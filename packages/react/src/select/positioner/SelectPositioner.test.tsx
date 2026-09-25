@@ -1,8 +1,27 @@
-import { expect, describe, it } from 'vitest';
+import { expect, describe, it, vi, beforeEach } from 'vitest';
 import * as React from 'react';
 import { Select } from '@base-ui/react/select';
 import { screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
+
+const useAnchorPositioningSpy = vi.hoisted(() => vi.fn());
+
+vi.mock('../../internals/useAnchorPositioning', async () => {
+  const actual = await vi.importActual<typeof import('../../internals/useAnchorPositioning')>(
+    '../../internals/useAnchorPositioning',
+  );
+
+  return {
+    ...actual,
+    useAnchorPositioning: ((...args: Parameters<typeof actual.useAnchorPositioning>) => {
+      useAnchorPositioningSpy(...args);
+      const [params] = args;
+      // The hook's animation-frame loop is tested separately; keep this prop-forwarding test
+      // isolated from JSDOM's requestAnimationFrame teardown.
+      return actual.useAnchorPositioning({ ...params, updatePositionStrategy: 'optimized' });
+    }) satisfies typeof actual.useAnchorPositioning,
+  };
+});
 
 const Trigger = React.forwardRef(function Trigger(
   props: Select.Trigger.Props,
@@ -12,6 +31,10 @@ const Trigger = React.forwardRef(function Trigger(
 });
 
 describe('<Select.Positioner />', () => {
+  beforeEach(() => {
+    useAnchorPositioningSpy.mockClear();
+  });
+
   const { render } = createRenderer();
 
   describeConformance(<Select.Positioner />, () => ({
@@ -33,6 +56,39 @@ describe('<Select.Positioner />', () => {
   const anchorHeight = 36;
   const triggerStyle = { width: anchorWidth, height: anchorHeight };
   const popupStyle = { width: popupWidth, height: popupHeight };
+
+  it('tracks an animated anchor when updatePositionStrategy is always', async () => {
+    await render(
+      <Select.Root open>
+        <Trigger>Trigger</Trigger>
+        <Select.Portal>
+          <Select.Positioner updatePositionStrategy="always">
+            <Select.Popup>Popup</Select.Popup>
+          </Select.Positioner>
+        </Select.Portal>
+      </Select.Root>,
+    );
+
+    expect(useAnchorPositioningSpy).toHaveBeenCalled();
+    expect(useAnchorPositioningSpy.mock.calls[0]?.[0].disableAnchorTracking).toBe(false);
+    expect(useAnchorPositioningSpy.mock.calls[0]?.[0].updatePositionStrategy).toBe('always');
+  });
+
+  it('allows disableAnchorTracking to override updatePositionStrategy', async () => {
+    await render(
+      <Select.Root open>
+        <Trigger>Trigger</Trigger>
+        <Select.Portal>
+          <Select.Positioner updatePositionStrategy="always" disableAnchorTracking>
+            <Select.Popup>Popup</Select.Popup>
+          </Select.Positioner>
+        </Select.Portal>
+      </Select.Root>,
+    );
+
+    expect(useAnchorPositioningSpy).toHaveBeenCalled();
+    expect(useAnchorPositioningSpy.mock.calls[0]?.[0].disableAnchorTracking).toBe(true);
+  });
 
   describe.skipIf(isJSDOM)('prop: sideOffset', () => {
     it('offsets the side when a number is specified', async () => {

@@ -220,7 +220,7 @@ An input that suggests options as you type.
     - Props: className, render, style
     - Data Attributes: data-closed, data-ending-style, data-open, data-starting-style
   - Autocomplete - Positioner
-    - Props: align, alignOffset, anchor, arrowPadding, className, collisionAvoidance, collisionBoundary, collisionPadding, disableAnchorTracking, positionMethod, render, side, sideOffset, sticky, style
+    - Props: align, alignOffset, anchor, arrowPadding, className, collisionAvoidance, collisionBoundary, collisionPadding, disableAnchorTracking, positionMethod, render, side, sideOffset, sticky, style, updatePositionStrategy
     - Data Attributes: data-align, data-anchor-hidden, data-closed, data-empty, data-open, data-side
     - CSS Variables: --anchor-height, --anchor-width, --available-height, --available-width, --transform-origin
   - Autocomplete - Popup
@@ -494,7 +494,7 @@ An input combined with a list of predefined items to select.
     - Props: className, render, style
     - Data Attributes: data-closed, data-ending-style, data-open, data-starting-style
   - Combobox - Positioner
-    - Props: align, alignOffset, anchor, arrowPadding, className, collisionAvoidance, collisionBoundary, collisionPadding, disableAnchorTracking, positionMethod, render, side, sideOffset, sticky, style
+    - Props: align, alignOffset, anchor, arrowPadding, className, collisionAvoidance, collisionBoundary, collisionPadding, disableAnchorTracking, positionMethod, render, side, sideOffset, sticky, style, updatePositionStrategy
     - Data Attributes: data-align, data-anchor-hidden, data-closed, data-empty, data-open, data-side
     - CSS Variables: --anchor-height, --anchor-width, --available-height, --available-width, --transform-origin
   - Combobox - Popup
@@ -594,7 +594,7 @@ A menu that appears at the pointer on right click or long press.
     - Props: className, render, style
     - Data Attributes: data-closed, data-ending-style, data-open, data-starting-style
   - Context Menu - Positioner
-    - Props: align, alignOffset, anchor, arrowPadding, className, collisionAvoidance, collisionBoundary, collisionPadding, disableAnchorTracking, render, side, sideOffset, sticky, style
+    - Props: align, alignOffset, anchor, arrowPadding, className, collisionAvoidance, collisionBoundary, collisionPadding, disableAnchorTracking, render, side, sideOffset, sticky, style, updatePositionStrategy
     - Data Attributes: data-align, data-anchor-hidden, data-closed, data-open, data-side
     - CSS Variables: --anchor-height, --anchor-width, --available-height, --available-width, --positioner-height, --positioner-width, --transform-origin
   - Context Menu - Popup
@@ -981,7 +981,7 @@ A list of actions in a dropdown, enhanced with keyboard navigation.
     - Props: className, render, style
     - Data Attributes: data-closed, data-ending-style, data-open, data-starting-style
   - Menu - Positioner
-    - Props: align, alignOffset, anchor, arrowPadding, className, collisionAvoidance, collisionBoundary, collisionPadding, disableAnchorTracking, positionMethod, render, side, sideOffset, sticky, style
+    - Props: align, alignOffset, anchor, arrowPadding, className, collisionAvoidance, collisionBoundary, collisionPadding, disableAnchorTracking, positionMethod, render, side, sideOffset, sticky, style, updatePositionStrategy
     - Data Attributes: data-align, data-anchor-hidden, data-closed, data-open, data-side
     - CSS Variables: --anchor-height, --anchor-width, --available-height, --available-width, --positioner-height, --positioner-width, --transform-origin
   - Menu - Popup
@@ -1137,7 +1137,7 @@ A collection of links and menus for website navigation.
     - Props: className, render, style
     - Data Attributes: data-closed, data-ending-style, data-open, data-starting-style
   - Navigation Menu - Positioner
-    - Props: align, alignOffset, anchor, arrowPadding, className, collisionAvoidance, collisionBoundary, collisionPadding, disableAnchorTracking, positionMethod, render, side, sideOffset, sticky, style
+    - Props: align, alignOffset, anchor, arrowPadding, className, collisionAvoidance, collisionBoundary, collisionPadding, disableAnchorTracking, positionMethod, render, side, sideOffset, sticky, style, updatePositionStrategy
     - Data Attributes: data-align, data-anchor-hidden, data-closed, data-instant, data-open, data-side
     - CSS Variables: --anchor-height, --anchor-width, --available-height, --available-width, --positioner-height, --positioner-width, --transform-origin
   - Navigation Menu - Popup
@@ -1295,7 +1295,7 @@ An accessible popup anchored to a button.
     - Props: className, render, style
     - Data Attributes: data-closed, data-ending-style, data-open, data-starting-style
   - Popover - Positioner
-    - Props: align, alignOffset, anchor, arrowPadding, className, collisionAvoidance, collisionBoundary, collisionPadding, disableAnchorTracking, positionMethod, render, side, sideOffset, sticky, style
+    - Props: align, alignOffset, anchor, arrowPadding, className, collisionAvoidance, collisionBoundary, collisionPadding, disableAnchorTracking, positionMethod, render, side, sideOffset, sticky, style, updatePositionStrategy
     - Data Attributes: data-align, data-anchor-hidden, data-closed, data-open, data-side
     - CSS Variables: --anchor-height, --anchor-width, --available-height, --available-width, --positioner-height, --positioner-width, --transform-origin
   - Popover - Popup
@@ -1365,7 +1365,7 @@ A link that shows a destination preview without interrupting keyboard or screen 
     - Props: className, render, style
     - Data Attributes: data-closed, data-ending-style, data-open, data-starting-style
   - Preview Card - Positioner
-    - Props: align, alignOffset, anchor, arrowPadding, className, collisionAvoidance, collisionBoundary, collisionPadding, disableAnchorTracking, positionMethod, render, side, sideOffset, sticky, style
+    - Props: align, alignOffset, anchor, arrowPadding, className, collisionAvoidance, collisionBoundary, collisionPadding, disableAnchorTracking, positionMethod, render, side, sideOffset, sticky, style, updatePositionStrategy
     - Data Attributes: data-align, data-anchor-hidden, data-closed, data-open, data-side
     - CSS Variables: --anchor-height, --anchor-width, --available-height, --available-width, --positioner-height, --positioner-width, --transform-origin
   - Preview Card - Popup
@@ -1572,7 +1572,7 @@ A common form component for choosing a predefined value in a dropdown menu.
     - Props: className, render, style
     - Data Attributes: data-closed, data-ending-style, data-open, data-starting-style
   - Select - Positioner
-    - Props: align, alignItemWithTrigger, alignOffset, anchor, arrowPadding, className, collisionAvoidance, collisionBoundary, collisionPadding, disableAnchorTracking, positionMethod, render, side, sideOffset, sticky, style
+    - Props: align, alignItemWithTrigger, alignOffset, anchor, arrowPadding, className, collisionAvoidance, collisionBoundary, collisionPadding, disableAnchorTracking, positionMethod, render, side, sideOffset, sticky, style, updatePositionStrategy
     - Data Attributes: data-align, data-anchor-hidden, data-closed, data-open, data-side
     - CSS Variables: --anchor-height, --anchor-width, --available-height, --available-width, --transform-origin
   - Select - Popup
@@ -1811,7 +1811,7 @@ Generates toast notifications.
   - Toast - Portal
     - Props: className, container, render, style
   - Toast - Positioner
-    - Props: align, alignOffset, anchor, arrowPadding, className, collisionAvoidance, collisionBoundary, collisionPadding, disableAnchorTracking, positionMethod, render, side, sideOffset, sticky, style, toast
+    - Props: align, alignOffset, anchor, arrowPadding, className, collisionAvoidance, collisionBoundary, collisionPadding, disableAnchorTracking, positionMethod, render, side, sideOffset, sticky, style, toast, updatePositionStrategy
     - Data Attributes: data-align, data-anchor-hidden, data-side
     - CSS Variables: --anchor-height, --anchor-width, --available-height, --available-width, --transform-origin
   - Toast - Arrow
@@ -1983,7 +1983,7 @@ A popup that appears when an element is hovered or focused, showing a hint for s
   - Tooltip - Portal
     - Props: className, container, keepMounted, render, style
   - Tooltip - Positioner
-    - Props: align, alignOffset, anchor, arrowPadding, className, collisionAvoidance, collisionBoundary, collisionPadding, disableAnchorTracking, positionMethod, render, side, sideOffset, sticky, style
+    - Props: align, alignOffset, anchor, arrowPadding, className, collisionAvoidance, collisionBoundary, collisionPadding, disableAnchorTracking, positionMethod, render, side, sideOffset, sticky, style, updatePositionStrategy
     - Data Attributes: data-align, data-anchor-hidden, data-closed, data-open, data-side
     - CSS Variables: --anchor-height, --anchor-width, --available-height, --available-width, --positioner-height, --positioner-width, --transform-origin
   - Tooltip - Popup

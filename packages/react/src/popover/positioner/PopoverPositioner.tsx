@@ -47,6 +47,7 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
     arrowPadding,
     sticky,
     disableAnchorTracking = false,
+    updatePositionStrategy,
     collisionAvoidance = POPUP_COLLISION_AVOIDANCE,
     ...elementProps
   } = componentProps;
@@ -85,6 +86,7 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
     collisionPadding,
     sticky,
     disableAnchorTracking,
+    updatePositionStrategy,
     keepMounted,
     nodeId,
     collisionAvoidance,

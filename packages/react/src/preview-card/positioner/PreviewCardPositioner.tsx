@@ -40,6 +40,7 @@ export const PreviewCardPositioner = React.forwardRef(function PreviewCardPositi
     arrowPadding = 5,
     sticky = false,
     disableAnchorTracking = false,
+    updatePositionStrategy,
     collisionAvoidance = POPUP_COLLISION_AVOIDANCE,
     style,
     ...elementProps
@@ -71,6 +72,7 @@ export const PreviewCardPositioner = React.forwardRef(function PreviewCardPositi
     collisionPadding,
     sticky,
     disableAnchorTracking,
+    updatePositionStrategy,
     keepMounted,
     nodeId,
     collisionAvoidance,

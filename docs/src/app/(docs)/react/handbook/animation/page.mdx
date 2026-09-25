@@ -5,6 +5,17 @@
 
 Base UI components can be animated using CSS transitions, CSS animations, or JavaScript animation libraries. Each component provides a number of data attributes to target its states, as well as a few attributes specifically for animation.
 
+## Tracking animated anchors
+
+If a positioner's anchor is inside an element whose `transform` or `scale` changes during an
+animation, set `updatePositionStrategy="always"` on the positioner. It recalculates the popup's
+position on every animation frame while it is mounted. The default, `"optimized"`, tracks scroll,
+resizes, and layout shifts. `disableAnchorTracking` disables both strategies.
+
+```jsx
+<Combobox.Positioner updatePositionStrategy="always">{/* ... */}</Combobox.Positioner>
+```
+
 ## CSS transitions
 
 Use the following Base UI attributes for creating transitions when a component becomes visible or hidden:
