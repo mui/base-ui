@@ -1,4 +1,5 @@
-import { Mock, vi, expect, describe, beforeEach, afterEach, it } from 'vitest';
+import type { Mock } from 'vitest';
+import { vi, expect, describe, beforeEach, afterEach, it } from 'vitest';
 import * as React from 'react';
 import { Avatar } from '@base-ui/react/avatar';
 import { waitFor, screen } from '@mui/internal-test-utils';

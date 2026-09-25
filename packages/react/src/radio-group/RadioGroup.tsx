@@ -20,7 +20,7 @@ import { useLabelableContext } from '../internals/labelable-provider/LabelableCo
 import { useValueChanged } from '../internals/useValueChanged';
 import { RadioGroupContext } from './RadioGroupContext';
 import type { BaseUIChangeEventDetails } from '../internals/createBaseUIEventDetails';
-import { REASONS } from '../internals/reasons';
+import type { REASONS } from '../internals/reasons';
 
 const MODIFIER_KEYS = [SHIFT];
 
@@ -227,9 +227,6 @@ export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
     'aria-disabled': disabled || undefined,
     'aria-readonly': readOnly || undefined,
     'aria-labelledby': ariaLabelledby,
-    onFocus() {
-      setFocused(true);
-    },
     onBlur(event) {
       if (!contains(event.currentTarget, event.relatedTarget)) {
         setTouched(false);
@@ -244,7 +241,6 @@ export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
     onKeyDownCapture(event) {
       if (event.key.startsWith('Arrow')) {
         setTouched(true);
-        setFocused(true);
       }
     },
   };

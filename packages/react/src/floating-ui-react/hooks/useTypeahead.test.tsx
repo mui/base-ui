@@ -4,7 +4,8 @@ import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { useTestInteractions } from '#test-utils';
-import { useClick, useFloating, useTypeahead } from '../index';
+import { useClick, useTypeahead } from '../index';
+import { useFloating } from '../../../test/floating-ui-tests/useFloating';
 import type { UseTypeaheadProps } from './useTypeahead';
 
 beforeEach(() => {
@@ -27,7 +28,7 @@ const useImpl = ({
     onOpenChange: props.onOpenChange ?? setOpen,
   });
   const listRef = React.useRef(props.list ?? ['one', 'two', 'three']);
-  const typeahead = useTypeahead(context, {
+  const typeahead = useTypeahead(context.rootStore, {
     listRef,
     activeIndex,
     onMatch(index) {
@@ -36,7 +37,7 @@ const useImpl = ({
     },
     onTyping: props.onTyping,
   });
-  const click = useClick(context, {
+  const click = useClick(context.rootStore, {
     enabled: addUseClick,
   });
 
@@ -87,7 +88,7 @@ function ComboboxWithElementsRef(
   });
   const listRef = React.useRef(props.list ?? ['apple', 'apricot', 'banana']);
   const elementsRef = React.useRef<Array<HTMLElement | null>>([]);
-  const typeahead = useTypeahead(context, {
+  const typeahead = useTypeahead(context.rootStore, {
     listRef,
     elementsRef,
     activeIndex,

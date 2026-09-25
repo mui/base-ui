@@ -5,7 +5,8 @@ import { mergeObjects } from '@base-ui/utils/mergeObjects';
 import { warn } from '@base-ui/utils/warn';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import type { BaseUIComponentProps, ComponentRenderFn, HTMLProps } from './types';
-import { getStateAttributesProps, StateAttributesMapping } from './getStateAttributesProps';
+import type { StateAttributesMapping } from './getStateAttributesProps';
+import { getStateAttributesProps } from './getStateAttributesProps';
 import { resolveClassName } from '../utils/resolveClassName';
 import { resolveStyle } from '../utils/resolveStyle';
 import { mergeProps, mergePropsN, mergeClassNames } from '../merge-props';
@@ -195,14 +196,8 @@ function evaluateRenderProp<T extends React.ElementType, S>(
 
     return React.cloneElement(render, mergedProps);
   }
-  if (element) {
-    if (typeof element === 'string') {
-      return renderTag(element, props);
-    }
-  }
-  // Unreachable, but the typings on `useRenderElement` need to be reworked
-  // to annotate it correctly.
-  throw new Error('Base UI: Render element or function are not defined.');
+  // `element` is always provided when there is no `render` prop.
+  return renderTag(element as IntrinsicTagName, props);
 }
 
 function warnIfRenderPropLooksLikeComponent(renderFn: { name: string }) {

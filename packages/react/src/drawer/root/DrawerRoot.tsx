@@ -7,17 +7,14 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { ownerWindow } from '@base-ui/utils/owner';
 import { platform } from '@base-ui/utils/platform';
-import {
-  DrawerRootContext,
-  type DrawerNestedSwipeProgressStore,
-  type DrawerSwipeDirection,
-  useDrawerRootContext,
-  type DrawerSnapPoint,
+import { DrawerRootContext, useDrawerRootContext } from './DrawerRootContext';
+import type {
+  DrawerNestedSwipeProgressStore,
+  DrawerSwipeDirection,
+  DrawerSnapPoint,
 } from './DrawerRootContext';
-import {
-  createChangeEventDetails,
-  type BaseUIChangeEventDetails,
-} from '../../internals/createBaseUIEventDetails';
+import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import { useDialogRootContext } from '../../dialog/root/DialogRootContext';
 import { useRenderDialogRoot } from '../../dialog/root/useRenderDialogRoot';

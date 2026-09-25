@@ -25,15 +25,15 @@ import { useFieldRootContext } from '../../internals/field-root-context/FieldRoo
 import { useRegisterFieldControl } from '../../internals/field-register-control/useRegisterFieldControl';
 import { useLabelableId } from '../../internals/labelable-provider/useLabelableId';
 import { useUnmountAfterClose } from '../../internals/useUnmountAfterClose';
-import { selectors, type SelectStoreContext, type State as StoreState } from '../store';
-import {
-  type BaseUIChangeEventDetails,
-  createChangeEventDetails,
-} from '../../internals/createBaseUIEventDetails';
+import { selectors } from '../store';
+import type { SelectStoreContext, State as StoreState } from '../store';
+import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import { attachPreventUnmountOnClose } from '../../utils/popups/popupStoreUtils';
 import { useFormContext } from '../../internals/form-context/FormContext';
-import { type Group, stringifyAsLabel, stringifyAsValue } from '../../internals/resolveValueLabel';
+import { stringifyAsLabel, stringifyAsValue } from '../../internals/resolveValueLabel';
+import type { Group } from '../../internals/resolveValueLabel';
 import {
   defaultItemEquality,
   findSelectionIndex,

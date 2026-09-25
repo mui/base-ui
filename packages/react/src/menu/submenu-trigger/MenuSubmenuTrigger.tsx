@@ -9,7 +9,7 @@ import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { getTarget } from '@base-ui/utils/shadowDom';
 import { safePolygon, useClick, useHoverReferenceInteraction } from '../../floating-ui-react';
-import { BaseUIComponentProps, NonNativeButtonProps } from '../../internals/types';
+import type { BaseUIComponentProps, NonNativeButtonProps } from '../../internals/types';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import { triggerOpenStateMapping } from '../../utils/popupStateMapping';

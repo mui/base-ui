@@ -19,10 +19,8 @@ import {
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import { createAttribute } from '../utils/createAttribute';
-import {
-  useRenderElement,
-  type UseRenderElementComponentProps,
-} from '../../internals/useRenderElement';
+import { useRenderElement } from '../../internals/useRenderElement';
+import type { UseRenderElementComponentProps } from '../../internals/useRenderElement';
 import { ownerVisuallyHidden } from '../../internals/constants';
 import type { BaseUIComponentProps } from '../../internals/types';
 

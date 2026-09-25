@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { type MenuRoot } from '../menu/root/MenuRoot';
+import type { MenuRoot } from '../menu/root/MenuRoot';
 
 export interface MenubarContext {
   modal: boolean;

@@ -5,9 +5,9 @@ import {
   FloatingFocusManager,
   useClick,
   useDismiss,
-  useFloating,
   useListNavigation,
 } from '../../src/floating-ui-react';
+import { useFloating } from './useFloating';
 import styles from './ComplexGrid.module.css';
 import { gridNavigationWithColumns } from './gridNavigationWithColumns';
 
@@ -40,8 +40,8 @@ export function Main({ orientation = 'horizontal', loopFocus = false, rtl = fals
   const disabledIndices = [0, 1, 2, 3, 4, 5, 6, 9, 14, 23, 35];
 
   const { getReferenceProps, getFloatingProps, getItemProps } = useTestInteractions([
-    useClick(context),
-    useListNavigation(context, {
+    useClick(context.rootStore),
+    useListNavigation(context.rootStore, {
       listRef,
       activeIndex,
       onNavigate: setActiveIndex,
@@ -52,7 +52,7 @@ export function Main({ orientation = 'horizontal', loopFocus = false, rtl = fals
       disabledIndices,
       grid,
     }),
-    useDismiss(context),
+    useDismiss(context.rootStore),
   ]);
 
   return (
@@ -63,7 +63,7 @@ export function Main({ orientation = 'horizontal', loopFocus = false, rtl = fals
           Reference
         </button>
         {open && (
-          <FloatingFocusManager context={context}>
+          <FloatingFocusManager context={context.rootStore}>
             <div
               ref={refs.setFloating}
               data-testid="floating"

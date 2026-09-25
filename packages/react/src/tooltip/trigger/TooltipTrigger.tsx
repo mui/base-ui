@@ -10,7 +10,7 @@ import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { usePopupHandleStore, useTriggerDataForwarding } from '../../utils/popups';
 import { useBaseUiId } from '../../internals/useBaseUiId';
-import { TooltipHandle } from '../store/TooltipHandle';
+import type { TooltipHandle } from '../store/TooltipHandle';
 import { useTooltipProviderContext } from '../provider/TooltipProviderContext';
 import {
   safePolygon,
@@ -18,7 +18,7 @@ import {
   useFocus,
   useHoverReferenceInteraction,
 } from '../../floating-ui-react';
-import { closest, contains } from '../../floating-ui-react/utils/element';
+import { closest, contains, getTarget } from '../../floating-ui-react/utils/element';
 import { isMouseLikePointerType } from '../../floating-ui-react/utils/event';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
@@ -31,22 +31,8 @@ import { OPEN_DELAY } from '../utils/constants';
 const TOOLTIP_TRIGGER_IDENTIFIER = 'data-base-ui-tooltip-trigger';
 
 function getTargetElement(event: Event): Element | null {
-  if ('composedPath' in event) {
-    const path = event.composedPath();
-    for (let i = 0; i < path.length; i += 1) {
-      const element = path[i];
-      if (isElement(element)) {
-        return element;
-      }
-    }
-  }
-
-  const target = event.target;
-  if (isElement(target)) {
-    return target;
-  }
-
-  return null;
+  const target = getTarget(event);
+  return isElement(target) ? target : null;
 }
 
 /**

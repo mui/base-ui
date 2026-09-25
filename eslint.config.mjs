@@ -18,6 +18,7 @@ const playgroundRootDir = path.join(dirname, 'playground', 'vite-app');
 const baseConfig = createBaseConfig({
   baseDirectory: dirname,
   markdown: true,
+  consistentTypeImports: true,
 });
 
 // Flat config replaces rule options rather than merging them, so any block that sets
@@ -159,6 +160,12 @@ export default defineConfig(
     extends: createTestConfig(),
     rules: {
       'mui/add-undef-to-optional': 'off',
+      // Tests type lazily-loaded modules with `typeof import('./x')`, which the rule's
+      // `disallowTypeAnnotations` default rejects. Top-level type imports stay enforced.
+      '@typescript-eslint/consistent-type-imports': [
+        'error',
+        { fixStyle: 'separate-type-imports', disallowTypeAnnotations: false },
+      ],
       // These helpers assert internally (shared between multiple tests).
       'vitest/expect-expect': [
         'error',

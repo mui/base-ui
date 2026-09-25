@@ -12,7 +12,8 @@ import { ownerDocument } from '@base-ui/utils/owner';
 import { platform } from '@base-ui/utils/platform';
 import { formatNumber } from '@base-ui/utils/formatNumber';
 import { activeElement } from '../../floating-ui-react/utils';
-import { InputMode, NumberFieldRootContext } from './NumberFieldRootContext';
+import type { InputMode } from './NumberFieldRootContext';
+import { NumberFieldRootContext } from './NumberFieldRootContext';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
 import { useFormContext } from '../../internals/form-context/FormContext';
 import type { FieldRootState } from '../../field/root/FieldRoot';
@@ -31,14 +32,19 @@ import {
   PLUS_SIGNS_WITH_ASCII,
 } from '../utils/parse';
 import { toValidatedNumber } from '../utils/validate';
-import { EventWithOptionalKeyState } from '../utils/types';
-import type { ChangeEventCustomProperties, IncrementValueParameters } from '../utils/types';
+import type {
+  EventWithOptionalKeyState,
+  ChangeEventCustomProperties,
+  IncrementValueParameters,
+} from '../utils/types';
 import {
   createChangeEventDetails,
   createGenericEventDetails,
-  type BaseUIChangeEventDetails,
-  type BaseUIGenericEventDetails,
-  type ReasonToEvent,
+} from '../../internals/createBaseUIEventDetails';
+import type {
+  BaseUIChangeEventDetails,
+  BaseUIGenericEventDetails,
+  ReasonToEvent,
 } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 

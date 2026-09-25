@@ -10,23 +10,21 @@ import {
   FloatingTree,
   useFloatingNodeId,
   useFloatingParentNodeId,
-  type FloatingRootContext,
 } from '../../floating-ui-react';
+import type { FloatingRootContext } from '../../floating-ui-react';
 import { activeElement, contains } from '../../floating-ui-react/utils';
 import { useRenderElement } from '../../internals/useRenderElement';
 import {
-  type NavigationMenuPopupAutoSizeResetState,
   NavigationMenuRootContext,
   NavigationMenuTreeContext,
   useNavigationMenuRootContext,
 } from './NavigationMenuRootContext';
+import type { NavigationMenuPopupAutoSizeResetState } from './NavigationMenuRootContext';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
 import { useUnmountAfterClose } from '../../internals/useUnmountAfterClose';
-import {
-  createChangeEventDetails,
-  type BaseUIChangeEventDetails,
-} from '../../internals/createBaseUIEventDetails';
+import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import { attachPreventUnmountOnClose } from '../../utils/popups/popupStoreUtils';
 import * as NavigationMenuPositionerCssVars from '../positioner/NavigationMenuPositionerCssVars';
