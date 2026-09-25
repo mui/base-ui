@@ -111,6 +111,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
     // gated on `readOnly`.
     enabled: !open && !readOnly && !comboboxDisabled && selectionMode === 'single',
     listRef: store.context.labelsRef,
+    disabledIndices: (index) => store.context.disabledIndicesRef.current[index] === true,
     activeIndex,
     selectedIndex,
     onMatch(index) {
@@ -145,6 +146,11 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
     store.set('triggerElement', element);
   });
 
+  const forceMountList = useStableCallback(() => {
+    store.context.forceMount();
+    store.set('forceMounted', true);
+  });
+
   const element = useRenderElement('button', componentProps, {
     ref: [forwardedRef, buttonRef, triggerRef, setTriggerElement],
     state,
@@ -173,7 +179,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
             return;
           }
 
-          focusTimeout.start(0, store.context.forceMount);
+          focusTimeout.start(0, forceMountList);
         },
         onBlur(event) {
           // If focus is moving into the popup, don't count it as a blur.
