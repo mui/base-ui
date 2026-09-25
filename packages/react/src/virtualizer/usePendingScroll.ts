@@ -247,19 +247,21 @@ export function usePendingScroll<RowModel>(
     }
   });
 
-  const waitForMeasurement = useStableCallback((rowIndex: number) => {
+  const isRowLaidOut = useStableCallback((rowIndex: number) => {
     const rowsParent = getRowsParent();
-    if (
+    return (
       rowsParent != null &&
       getLaidOutRowElements(rowsParent).some(
         (element) => Number(element.dataset.rowIndex) === rowIndex,
       )
-    ) {
-      // A first measurement matching the estimate only changes the engine's measured flag;
-      // it does not publish new geometry. Retry after ResizeObserver has had a chance to
-      // deliver it, or the request can wait forever for a geometry update that never comes.
-      measurementFrame.request(() => retryRef.current?.());
-    }
+    );
+  });
+
+  const waitForMeasurement = useStableCallback(() => {
+    // A first measurement matching the estimate only changes the engine's measured flag;
+    // it does not publish new geometry. Retry after ResizeObserver has had a chance to
+    // deliver it, or the request can wait forever for a geometry update that never comes.
+    measurementFrame.request(() => retryRef.current?.());
   });
 
   const scrollRowIntoView = useStableCallback(
@@ -275,9 +277,12 @@ export function usePendingScroll<RowModel>(
 
       // The first pass may scroll using estimates so the destination mounts. The retry waits for
       // the real row measurement; treating an estimated position as final can leave only the
-      // zero-sized focus proxy mounted after row heights expand.
-      if (requireMeasurement && !measured) {
-        waitForMeasurement(rowIndex);
+      // zero-sized focus proxy mounted after row heights expand. Rows measured above the
+      // destination can move it out of the window before it is measured itself, and nothing
+      // would measure it there, so a destination that is no longer laid out is scrolled to
+      // again from the current geometry.
+      if (requireMeasurement && !measured && isRowLaidOut(rowIndex)) {
+        waitForMeasurement();
         return false;
       }
 
@@ -346,7 +351,9 @@ export function usePendingScroll<RowModel>(
       }
 
       if (!measured) {
-        waitForMeasurement(rowIndex);
+        if (isRowLaidOut(rowIndex)) {
+          waitForMeasurement();
+        }
         return false;
       }
 
