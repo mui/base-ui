@@ -18,10 +18,8 @@ import {
 import { findScrollableTouchTarget } from '../../utils/scrollable';
 import { getElementAtPoint } from '../../utils/getElementAtPoint';
 import * as DrawerViewportCssVars from '../viewport/DrawerViewportCssVars';
-import {
-  DrawerVirtualKeyboardContext,
-  type DrawerVirtualKeyboardContext as DrawerVirtualKeyboardContextValue,
-} from './DrawerVirtualKeyboardContext';
+import { DrawerVirtualKeyboardContext } from './DrawerVirtualKeyboardContext';
+import type { DrawerVirtualKeyboardContext as DrawerVirtualKeyboardContextValue } from './DrawerVirtualKeyboardContext';
 
 const KEYBOARD_RESIZE_THRESHOLD = 60;
 const KEYBOARD_VISIBILITY_MARGIN = 16;

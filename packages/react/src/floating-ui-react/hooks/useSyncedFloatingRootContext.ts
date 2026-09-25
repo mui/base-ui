@@ -2,9 +2,9 @@
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import type { ReactStore } from '@base-ui/utils/store';
 import { isElement } from '@floating-ui/utils/dom';
-import { BaseUIChangeEventDetails } from '../../types';
-import { PopupStoreContext, PopupStoreSelectors, PopupStoreState } from '../../utils/popups';
-import { FloatingRootState, FloatingRootStore } from '../components/FloatingRootStore';
+import type { BaseUIChangeEventDetails } from '../../types';
+import type { PopupStoreContext, PopupStoreSelectors, PopupStoreState } from '../../utils/popups';
+import type { FloatingRootState, FloatingRootStore } from '../components/FloatingRootStore';
 
 /**
  * Narrowed to the store members this hook uses so consumers do not need to provide

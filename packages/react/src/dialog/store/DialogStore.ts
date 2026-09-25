@@ -1,14 +1,12 @@
 import * as React from 'react';
 import { ReactStore } from '@base-ui/utils/store';
-import { type InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
-import { type DialogRoot } from '../root/DialogRoot';
+import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
+import type { DialogRoot } from '../root/DialogRoot';
 import { NullStore } from '../../utils/NullStore';
+import type { PopupStoreContext, PopupTriggerDataStore, PopupStoreState } from '../../utils/popups';
 import {
   createInitialPopupStoreState,
-  PopupStoreContext,
   popupStoreSelectors,
-  PopupTriggerDataStore,
-  PopupStoreState,
   PopupTriggerMap,
   createPopupOpenState,
 } from '../../utils/popups';

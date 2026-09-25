@@ -2,10 +2,8 @@
 import type * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { getTabbableNearElement, isOutsideEvent } from '../../floating-ui-react/utils';
-import {
-  type BaseUIChangeEventDetails,
-  createChangeEventDetails,
-} from '../../internals/createBaseUIEventDetails';
+import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 
 /**

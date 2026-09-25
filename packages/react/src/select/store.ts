@@ -1,10 +1,11 @@
-import { ReactStore } from '@base-ui/utils/store';
-import { type InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
+import type { ReactStore } from '@base-ui/utils/store';
+import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import type { TransitionStatus } from '../internals/useTransitionStatus';
 import type { HTMLProps } from '../internals/types';
 import type { Side } from '../internals/useAnchorPositioning';
 import { compareItemEquality } from '../internals/itemEquality';
-import { type Group, hasNullItemLabel, stringifyAsValue } from '../internals/resolveValueLabel';
+import { hasNullItemLabel, stringifyAsValue } from '../internals/resolveValueLabel';
+import type { Group } from '../internals/resolveValueLabel';
 import type { SelectRoot } from './root/SelectRoot';
 
 export type State = {

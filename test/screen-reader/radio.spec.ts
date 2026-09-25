@@ -1,5 +1,6 @@
 import { expect } from '@playwright/test';
-import { screenReaderTest as test, type ScreenReaderPlaywright } from '@guidepup/playwright';
+import { screenReaderTest as test } from '@guidepup/playwright';
+import type { ScreenReaderPlaywright } from '@guidepup/playwright';
 
 const MAX_NAVIGATION_STEPS = 10;
 

@@ -2,7 +2,8 @@
 import * as React from 'react';
 import { Menu } from '@base-ui/react/menu';
 import menuDemoStyles from 'docs/src/app/(docs)/react/components/menu/demos/submenu/css-modules/index.module.css';
-import PerformanceBenchmark, { BenchmarkVariant } from './utils/benchmark';
+import type { BenchmarkVariant } from './utils/benchmark';
+import PerformanceBenchmark from './utils/benchmark';
 import styles from './performance.module.css';
 
 const MENU_ITEM_COUNT = 50;

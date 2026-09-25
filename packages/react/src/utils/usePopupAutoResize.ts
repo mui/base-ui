@@ -6,8 +6,8 @@ import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { NOOP, EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { useAnimationsFinished } from '../internals/useAnimationsFinished';
 import { getCssDimensions } from './getCssDimensions';
-import { Dimensions } from '../floating-ui-react/types';
-import { Side } from '../internals/useAnchorPositioning';
+import type { Dimensions } from '../floating-ui-react/types';
+import type { Side } from '../internals/useAnchorPositioning';
 import * as CommonPopupCssVars from './CommonPopupCssVars';
 import * as CommonPositionerCssVars from './CommonPositionerCssVars';
 

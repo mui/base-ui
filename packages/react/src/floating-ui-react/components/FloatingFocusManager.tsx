@@ -30,8 +30,8 @@ import {
   isTabbable,
   getNextTabbable,
   getPreviousTabbable,
-  type FocusableElement,
 } from '../utils/tabbable';
+import type { FocusableElement } from '../utils/tabbable';
 import { getNodeAncestors, getNodeChildren } from '../utils/nodes';
 import { isElementVisible } from '../utils/composite';
 import type { FloatingRootContext } from '../types';
@@ -42,9 +42,9 @@ import { enqueueFocus } from '../utils/enqueueFocus';
 import { markOthers } from '../utils/markOthers';
 import { usePortalContext } from './FloatingPortal';
 import { useFloatingTree } from './FloatingTree';
-import { FloatingTreeStore } from '../components/FloatingTreeStore';
+import type { FloatingTreeStore } from '../components/FloatingTreeStore';
 import { CLICK_TRIGGER_IDENTIFIER } from '../../internals/constants';
-import { FloatingUIOpenChangeDetails } from '../../internals/types';
+import type { FloatingUIOpenChangeDetails } from '../../internals/types';
 import { resolveRef } from '../../utils/resolveRef';
 
 function getEventType(event: Event, lastInteractionType?: InteractionType): InteractionType {

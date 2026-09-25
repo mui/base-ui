@@ -4,7 +4,7 @@ import { visuallyHidden } from '@base-ui/utils/visuallyHidden';
 import { formatNumber } from '@base-ui/utils/formatNumber';
 import { clamp } from '@base-ui/utils/clamp';
 import { MeterRootContext } from './MeterRootContext';
-import { BaseUIComponentProps, HTMLProps } from '../../internals/types';
+import type { BaseUIComponentProps, HTMLProps } from '../../internals/types';
 import { valueToPercent } from '../../utils/valueToPercent';
 import { useRenderElement } from '../../internals/useRenderElement';
 

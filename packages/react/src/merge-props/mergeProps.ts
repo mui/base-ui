@@ -1,4 +1,4 @@
-import * as React from 'react';
+import type * as React from 'react';
 import { mergeObjects } from '@base-ui/utils/mergeObjects';
 import type { BaseUIEvent, WithBaseUIEvent } from '../internals/types';
 

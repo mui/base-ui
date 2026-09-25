@@ -18,7 +18,7 @@ import {
 } from '../utils/element';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
-import { FloatingUIOpenChangeDetails } from '../../internals/types';
+import type { FloatingUIOpenChangeDetails } from '../../internals/types';
 
 const isMacSafari = platform.os.mac && platform.engine.webkit;
 

@@ -4,12 +4,12 @@ import { useControlled } from '@base-ui/utils/useControlled';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { warn } from '@base-ui/utils/warn';
 import { EMPTY_ARRAY } from '@base-ui/utils/empty';
-import { BaseUIComponentProps, Orientation } from '../../internals/types';
+import type { BaseUIComponentProps, Orientation } from '../../internals/types';
 import { CompositeList } from '../../internals/composite/list/CompositeList';
 import { AccordionRootContext } from './AccordionRootContext';
 import { useRenderElement } from '../../internals/useRenderElement';
-import { type BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
-import { REASONS } from '../../internals/reasons';
+import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import type { REASONS } from '../../internals/reasons';
 
 const rootStateAttributesMapping = {
   value: () => null,
