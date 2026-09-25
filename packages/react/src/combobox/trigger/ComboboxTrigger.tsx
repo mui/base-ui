@@ -83,7 +83,8 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
   const listEmpty = useListEmpty();
   const popupSide = usePopupSide(store);
 
-  const setFocused = useSetFieldFocused(disabled);
+  const triggerRef = React.useRef<HTMLElement | null>(null);
+  const setFocused = useSetFieldFocused(disabled, triggerRef);
 
   useLabelableId({ id: inputInsidePopup ? idProp : undefined });
   const id = inputInsidePopup ? (idProp ?? rootId) : idProp;
@@ -145,7 +146,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
   });
 
   const element = useRenderElement('button', componentProps, {
-    ref: [forwardedRef, buttonRef, setTriggerElement],
+    ref: [forwardedRef, buttonRef, triggerRef, setTriggerElement],
     state,
     props: [
       triggerProps,

@@ -73,12 +73,11 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
   const disabled = fieldDisabled || disabledProp;
   const name = fieldName ?? nameProp;
 
-  const setFocused = useSetFieldFocused(disabled);
-
   const inputRef = React.useRef<HTMLInputElement>(null);
   const handleInputRef = useMergedRefs(inputRef, externalInputRef, validation.inputRef);
 
   const switchRef = React.useRef<HTMLButtonElement | null>(null);
+  const setFocused = useSetFieldFocused(disabled, switchRef);
 
   const id = useBaseUiId();
 

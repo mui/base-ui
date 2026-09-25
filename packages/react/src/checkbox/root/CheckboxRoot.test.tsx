@@ -1508,6 +1508,25 @@ describe('<Checkbox.Root />', () => {
 
         expect(screen.getByTestId('root')).not.toHaveAttribute('data-focused');
       });
+
+      it('is kept when the checkbox is focused during mount in StrictMode', async () => {
+        function FocusOnMount() {
+          const ref = React.useRef<HTMLButtonElement>(null);
+          React.useEffect(() => {
+            ref.current?.focus();
+          }, []);
+          return (
+            <Field.Root data-testid="root">
+              <Checkbox.Root ref={ref} />
+            </Field.Root>
+          );
+        }
+
+        // `render` is strict, so the checkbox's effects re-run after the mount-time focus.
+        await render(<FocusOnMount />);
+
+        expect(screen.getByTestId('root')).toHaveAttribute('data-focused', '');
+      });
     });
 
     it('[data-invalid]', async () => {

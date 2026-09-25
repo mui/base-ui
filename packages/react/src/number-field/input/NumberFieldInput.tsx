@@ -83,7 +83,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
     useFieldRootContext();
   const { labelId } = useLabelableContext();
 
-  const setFocused = useSetFieldFocused(disabled);
+  const setFocused = useSetFieldFocused(disabled, inputRef);
 
   const blockRevalidationRef = React.useRef(false);
   const pendingCaretRef = React.useRef<number | null>(null);

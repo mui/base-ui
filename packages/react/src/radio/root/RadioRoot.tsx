@@ -77,7 +77,6 @@ export const RadioRoot = React.forwardRef(function RadioRoot<Value>(
   const { labelId, getDescriptionProps } = useLabelableContext();
 
   const disabled = fieldDisabled || fieldItemContext.disabled || disabledGroup || disabledProp;
-  const setFieldFocused = useSetFieldFocused(disabled);
   const readOnly = readOnlyGroup || readOnlyProp;
   const required = requiredGroup || requiredProp;
   const form = formGroup;
@@ -85,6 +84,7 @@ export const RadioRoot = React.forwardRef(function RadioRoot<Value>(
   const checked = groupContext ? checkedValue === value : value === '';
 
   const radioRef = React.useRef<HTMLElement>(null);
+  const setFieldFocused = useSetFieldFocused(disabled, radioRef);
   const inputRef = React.useRef<HTMLInputElement>(null);
 
   const registerFieldInput = validation?.registerInput;

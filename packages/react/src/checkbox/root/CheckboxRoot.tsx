@@ -95,8 +95,6 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
   const name = fieldName ?? nameProp;
   const value = valueProp ?? name;
 
-  const setFocused = useSetFieldFocused(disabled);
-
   const id = useBaseUiId();
 
   // A `CheckboxGroup` is the field's control and takes its name from `aria-labelledby`, so the
@@ -128,6 +126,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
   const groupValue = groupContext?.value;
 
   const controlRef = React.useRef<HTMLButtonElement>(null);
+  const setFocused = useSetFieldFocused(disabled, controlRef);
 
   const { getButtonProps, buttonRef } = useButton({
     disabled,

@@ -531,10 +531,13 @@ describe('<Field.Control />', () => {
     function Controls(props: { firstMounted?: boolean; firstDisabled?: boolean }) {
       const { firstMounted = true, firstDisabled = false } = props;
       return (
-        <Field.Root data-testid="root">
-          <Field.Label data-testid="label">Name</Field.Label>
-          {firstMounted && <Field.Control data-testid="first" disabled={firstDisabled} />}
-        </Field.Root>
+        <React.Fragment>
+          <Field.Root data-testid="root">
+            <Field.Label data-testid="label">Name</Field.Label>
+            {firstMounted && <Field.Control data-testid="first" disabled={firstDisabled} />}
+          </Field.Root>
+          <button type="button" data-testid="outside" />
+        </React.Fragment>
       );
     }
 
@@ -590,13 +593,15 @@ describe('<Field.Control />', () => {
       await setProps({ firstDisabled: true });
       expect(screen.getByTestId('root')).not.toHaveAttribute('data-focused');
 
+      // Browsers move focus off a disabled control; jsdom leaves it as the active element.
+      act(() => {
+        screen.getByTestId('outside').focus();
+      });
+
       await setProps({ firstDisabled: false });
       expect(screen.getByTestId('root')).not.toHaveAttribute('data-focused');
 
-      // jsdom leaves a disabled control as the active element, so blur first to make the
-      // refocus fire a real focus event.
       act(() => {
-        control.blur();
         control.focus();
       });
       expect(screen.getByTestId('root')).toHaveAttribute('data-focused', '');

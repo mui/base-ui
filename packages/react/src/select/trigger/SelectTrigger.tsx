@@ -66,8 +66,6 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
   const { readOnly, required, disabled: selectDisabled } = useSelectRootPropsContext();
   const disabled = fieldDisabled || selectDisabled || disabledProp;
 
-  const setFocused = useSetFieldFocused(disabled);
-
   const open = store.useState('open');
   const mounted = store.useState('mounted');
   const value = store.useState('value');
@@ -88,6 +86,7 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
   const positionerRef = useValueAsRef(positionerElement);
 
   const triggerRef = React.useRef<HTMLElement | null>(null);
+  const setFocused = useSetFieldFocused(disabled, triggerRef);
 
   const { getButtonProps, buttonRef } = useButton({
     disabled,

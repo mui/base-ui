@@ -89,7 +89,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
   const disabled = fieldDisabled || comboboxDisabled || disabledProp;
   const listEmpty = useListEmpty();
 
-  const setFocused = useSetFieldFocused(disabled);
+  const setFocused = useSetFieldFocused(disabled, store.context.inputRef);
 
   const isInsidePopup = hasPositionerParent || inline;
   const focusManagerModal = !isInsidePopup || modal;

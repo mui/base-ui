@@ -152,10 +152,9 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
 
   const { setTouched, validationMode } = useFieldRootContext();
 
-  const setFocused = useSetFieldFocused(disabled);
-
   const thumbRef = React.useRef<HTMLElement>(null);
   const inputRef = React.useRef<HTMLInputElement>(null);
+  const setFocused = useSetFieldFocused(disabled, inputRef);
   const restoringFocusVisibleRef = React.useRef(false);
 
   // Attached to the `input` (not the thumb wrapper) so `event.currentTarget` is the

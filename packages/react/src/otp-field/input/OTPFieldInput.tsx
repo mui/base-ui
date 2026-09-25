@@ -66,7 +66,7 @@ export const OTPFieldInput = React.forwardRef(function OTPFieldInput(
 
   const { ref: listItemRef, index } = useCompositeListItem({ guess: true });
   const inputRef = React.useRef<HTMLInputElement | null>(null);
-  const setFocused = useSetFieldFocused(disabled, setRootFocused);
+  const setFocused = useSetFieldFocused(disabled, inputRef, setRootFocused);
   const direction = useDirection();
 
   const slotValue = value[index] ?? '';

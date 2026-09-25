@@ -1,4 +1,5 @@
 'use client';
+import type * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useFieldRootContext } from './FieldRootContext';
@@ -13,6 +14,7 @@ import { useFieldRootContext } from './FieldRootContext';
  */
 export function useSetFieldFocused(
   disabled: boolean | undefined,
+  focusTargetRef: React.RefObject<Element | null>,
   onFocusedChange?: ((focused: boolean) => void) | undefined,
 ) {
   const { setFocused, focusOwnerRef } = useFieldRootContext();
@@ -20,22 +22,24 @@ export function useSetFieldFocused(
   const setFieldFocused = useStableCallback((focused: boolean) => {
     // A disabled target can still be focused (`aria-disabled` elements stay programmatically
     // focusable), but must not publish the field's focused styling.
-    if (focused && disabled) {
-      return;
+    if (focused ? !disabled : focusOwnerRef.current === setFieldFocused) {
+      focusOwnerRef.current = focused && setFieldFocused;
+      onFocusedChange?.(focused);
+      setFocused(focused);
     }
-
-    if (!focused && focusOwnerRef.current !== setFieldFocused) {
-      return;
-    }
-
-    focusOwnerRef.current = focused ? setFieldFocused : undefined;
-    onFocusedChange?.(focused);
-    setFocused(focused);
   });
 
-  // Re-run the cleanup when `disabled` changes so a focused control releases the field even when
-  // the browser does not fire `blur`.
-  useIsoLayoutEffect(() => () => setFieldFocused(false), [disabled, setFieldFocused]);
+  // Re-run when `disabled` changes so a focused control releases the field even when the browser
+  // does not fire `blur`. The setup reclaims focus that no focus event reported: StrictMode
+  // re-running effects after a mount-time focus, or a control focused before hydration.
+  useIsoLayoutEffect(() => {
+    const el = focusTargetRef.current;
+    if ((el?.getRootNode() as Document | undefined)?.activeElement === el) {
+      setFieldFocused(true);
+    }
+    return () => setFieldFocused(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [disabled, setFieldFocused]);
 
   return setFieldFocused;
 }
