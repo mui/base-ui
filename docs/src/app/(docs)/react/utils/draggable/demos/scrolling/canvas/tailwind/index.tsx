@@ -90,14 +90,18 @@ export default function CanvasPan() {
                 onMoveStart={() => {
                   dragStartCameraRef.current = { ...cameraRef.current };
                 }}
-                onMoveEnd={(_, { reason, location }) => {
-                  if (reason !== 'outside-release') {
+                onMoveEnd={(_, eventDetails) => {
+                  if (eventDetails.reason !== 'outside-release') {
                     return;
                   }
                   // The pin must land under the pointer, and the canvas moved
                   // underneath it: add the camera's own delta to the pointer's.
-                  const dx = location.current.input.clientX - location.initial.input.clientX;
-                  const dy = location.current.input.clientY - location.initial.input.clientY;
+                  const dx =
+                    eventDetails.location.current.input.clientX -
+                    eventDetails.location.initial.input.clientX;
+                  const dy =
+                    eventDetails.location.current.input.clientY -
+                    eventDetails.location.initial.input.clientY;
                   const panX = cameraRef.current.x - dragStartCameraRef.current.x;
                   const panY = cameraRef.current.y - dragStartCameraRef.current.y;
                   setPins((previous) =>

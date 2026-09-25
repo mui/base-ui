@@ -67,10 +67,10 @@ export default function SortableOnDrop() {
   const trackCollision = useStableCallback(
     (
       { target }: Draggable.CollisionProvider.CollisionChangeValue<string>,
-      { previousTarget }: Draggable.CollisionProvider.CollisionChangeEventDetails<string>,
+      eventDetails: Draggable.CollisionProvider.CollisionChangeEventDetails<string>,
     ) => {
       const next = getTaskDestination(target);
-      if (sameTaskDestination(next, getTaskDestination(previousTarget))) {
+      if (sameTaskDestination(next, getTaskDestination(eventDetails.previousTarget))) {
         return;
       }
       setDestination(next);

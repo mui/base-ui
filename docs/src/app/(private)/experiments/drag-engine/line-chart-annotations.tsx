@@ -608,30 +608,30 @@ function AnnotationDraggable(props: {
 
       modifiers={modifiers}
       disabled={disabled}
-      onMove={({ source }, { location }) => {
+      onMove={({ source }, eventDetails) => {
         if (!source.dragData) {
           return;
         }
         change(
           dragAnnotation(
             source.dragData,
-            location,
+            eventDetails.location,
             snap,
             plotRef.current?.getBoundingClientRect() ?? null,
           ),
         );
       }}
-      onMoveEnd={({ source }, { canceled, location }) => {
+      onMoveEnd={({ source }, eventDetails) => {
         if (!source.dragData) {
           return;
         }
         // The release can carry a newer position than the last animation frame.
         change(
-          canceled
+          eventDetails.canceled
             ? source.dragData.snapshot
             : dragAnnotation(
                 source.dragData,
-                location,
+                eventDetails.location,
                 snap,
                 plotRef.current?.getBoundingClientRect() ?? null,
               ),

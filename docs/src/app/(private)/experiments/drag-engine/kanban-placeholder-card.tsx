@@ -171,15 +171,15 @@ function KanbanBoardContent() {
   Draggable.useMonitor({
     accept: cardKind,
     // @highlight-end
-    onMoveStart: ({ source }, { location }) => {
-      const { clientX, clientY } = location.current.input;
+    onMoveStart: ({ source }, eventDetails) => {
+      const { clientX, clientY } = eventDetails.location.current.input;
       const slot = computeSlot(clientX, clientY, columnElementsRef.current);
       setPlaceholder(
         slot ? { ...slot, height: source.element.getBoundingClientRect().height } : null,
       );
     },
-    onMove: ({ source }, { location }) => {
-      const { clientX, clientY } = location.current.input;
+    onMove: ({ source }, eventDetails) => {
+      const { clientX, clientY } = eventDetails.location.current.input;
       const slot = computeSlot(clientX, clientY, columnElementsRef.current);
       setPlaceholder(
         slot ? { ...slot, height: source.element.getBoundingClientRect().height } : null,
@@ -188,9 +188,9 @@ function KanbanBoardContent() {
     // The placeholder always shows the nearest slot, even when the pointer is
     // between columns or just outside the board. Commit that same slot on a real
     // release; an Escape/blur cancellation only clears the placeholder.
-    onMoveEnd: ({ source }, { canceled, location }) => {
-      if (!canceled) {
-        const { clientX, clientY } = location.current.input;
+    onMoveEnd: ({ source }, eventDetails) => {
+      if (!eventDetails.canceled) {
+        const { clientX, clientY } = eventDetails.location.current.input;
         const drop = computeSlot(clientX, clientY, columnElementsRef.current);
         if (drop) {
           moveCard(source.payload.id, source.payload.fromColumn, drop.columnId, drop.insertIndex);

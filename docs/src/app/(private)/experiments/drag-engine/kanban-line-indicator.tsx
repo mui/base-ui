@@ -216,17 +216,17 @@ function KanbanSnapContent() {
 
   Draggable.useMonitor({
     accept: cardKind,
-    onMoveStart: (_, { location }) => {
-      const { clientX, clientY } = location.current.input;
+    onMoveStart: (_, eventDetails) => {
+      const { clientX, clientY } = eventDetails.location.current.input;
       setIndicator(computeIndicator(clientX, clientY, columnElementsRef.current));
     },
-    onMove: (_, { location }) => {
-      const { clientX, clientY } = location.current.input;
+    onMove: (_, eventDetails) => {
+      const { clientX, clientY } = eventDetails.location.current.input;
       setIndicator(computeIndicator(clientX, clientY, columnElementsRef.current));
     },
-    onMoveEnd: ({ source }, { canceled, location }) => {
-      if (!canceled) {
-        const { clientX, clientY } = location.current.input;
+    onMoveEnd: ({ source }, eventDetails) => {
+      if (!eventDetails.canceled) {
+        const { clientX, clientY } = eventDetails.location.current.input;
         const drop = computeIndicator(clientX, clientY, columnElementsRef.current);
         if (drop) {
           moveCard(source.payload.id, source.payload.fromColumn, drop.columnId, drop.insertIndex);

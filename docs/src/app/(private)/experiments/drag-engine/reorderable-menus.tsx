@@ -233,12 +233,13 @@ function ReorderableMenu() {
           >
             <Draggable.CollisionProvider
               kind={menuItemKind}
-              onCollisionChange={({ source, target }, { previousTarget }) => {
+              onCollisionChange={({ source, target }, eventDetails) => {
                 if (
                   target &&
-                  previousTarget &&
-                  target.payload === previousTarget.payload &&
-                  target.getLocalPoint().y > 0.5 === previousTarget.getLocalPoint().y > 0.5
+                  eventDetails.previousTarget &&
+                  target.payload === eventDetails.previousTarget.payload &&
+                  target.getLocalPoint().y > 0.5 ===
+                    eventDetails.previousTarget.getLocalPoint().y > 0.5
                 ) {
                   return;
                 }
@@ -289,12 +290,13 @@ function ReorderableContextMenu() {
           >
             <Draggable.CollisionProvider
               kind={menuItemKind}
-              onCollisionChange={({ source, target }, { previousTarget }) => {
+              onCollisionChange={({ source, target }, eventDetails) => {
                 if (
                   target &&
-                  previousTarget &&
-                  target.payload === previousTarget.payload &&
-                  target.getLocalPoint().y > 0.5 === previousTarget.getLocalPoint().y > 0.5
+                  eventDetails.previousTarget &&
+                  target.payload === eventDetails.previousTarget.payload &&
+                  target.getLocalPoint().y > 0.5 ===
+                    eventDetails.previousTarget.getLocalPoint().y > 0.5
                 ) {
                   return;
                 }

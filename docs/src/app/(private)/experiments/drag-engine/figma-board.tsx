@@ -478,12 +478,12 @@ function BoardCard({
       // back to a surface position from a fresh surface rect, so it stays correct
       // even when auto-scroll moves the board mid-drag.
       payload={card.id}
-      onMoveStart={({ source }, { location }) => {
+      onMoveStart={({ source }, eventDetails) => {
         const rect = source.element.getBoundingClientRect();
         source.updateDragData({
           id: card.id,
-          grabOffsetX: location.initial.input.clientX - rect.left,
-          grabOffsetY: location.initial.input.clientY - rect.top,
+          grabOffsetX: eventDetails.location.initial.input.clientX - rect.left,
+          grabOffsetY: eventDetails.location.initial.input.clientY - rect.top,
         });
       }}
       disabled={editing}
@@ -499,7 +499,7 @@ function BoardCard({
       modifiers={Draggable.restrictToElement(surfaceRef)}
       // Commit only a release over the surface. Escape and outside releases
       // still run the end handler but must not move the card.
-      onMoveEnd={({ source, target }, { location }) => {
+      onMoveEnd={({ source, target }, eventDetails) => {
         if (target !== null) {
           if (!source.dragData) {
             return;
@@ -518,9 +518,13 @@ function BoardCard({
           const rect = surface.getBoundingClientRect();
           const height = cardRef.current?.offsetHeight ?? CARD_MIN_HEIGHT;
           const newX =
-            (location.current.input.clientX - source.dragData.grabOffsetX - rect.left) / scale;
+            (eventDetails.location.current.input.clientX -
+              source.dragData.grabOffsetX -
+              rect.left) /
+            scale;
           const newY =
-            (location.current.input.clientY - source.dragData.grabOffsetY - rect.top) / scale;
+            (eventDetails.location.current.input.clientY - source.dragData.grabOffsetY - rect.top) /
+            scale;
           const position = clampToSurface(newX, newY, height);
           onMove(source.payload, Math.round(position.x), Math.round(position.y));
         }

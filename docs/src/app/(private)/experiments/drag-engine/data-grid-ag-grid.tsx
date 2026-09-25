@@ -397,9 +397,11 @@ function DataGridInner() {
             <div className={styles.columnSpacer} style={{ width: leadingWidth }} />
             <Draggable.CollisionProvider
               kind={columnKind}
-              onCollisionChange={({ source: dragged, target }, { previousTarget, location }) => {
-                const delta = location.current.input.clientX - location.previous.input.clientX;
-                if (delta === 0 && target?.payload === previousTarget?.payload) {
+              onCollisionChange={({ source: dragged, target }, eventDetails) => {
+                const delta =
+                  eventDetails.location.current.input.clientX -
+                  eventDetails.location.previous.input.clientX;
+                if (delta === 0 && target?.payload === eventDetails.previousTarget?.payload) {
                   return;
                 }
                 if (target) {
@@ -428,9 +430,11 @@ function DataGridInner() {
             >
               <Draggable.CollisionProvider
                 kind={rowKind}
-                onCollisionChange={({ source: dragged, target }, { previousTarget, location }) => {
-                  const delta = location.current.input.clientY - location.previous.input.clientY;
-                  if (delta === 0 && target?.payload === previousTarget?.payload) {
+                onCollisionChange={({ source: dragged, target }, eventDetails) => {
+                  const delta =
+                    eventDetails.location.current.input.clientY -
+                    eventDetails.location.previous.input.clientY;
+                  if (delta === 0 && target?.payload === eventDetails.previousTarget?.payload) {
                     return;
                   }
                   if (target) {

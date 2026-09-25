@@ -399,12 +399,13 @@ function SortableTabs(props: SortableTabsProps) {
         >
           <Draggable.CollisionProvider
             kind={kind}
-            onCollisionChange={({ source, target }, { previousTarget }) => {
+            onCollisionChange={({ source, target }, eventDetails) => {
               if (
                 target &&
-                previousTarget &&
-                target.payload === previousTarget.payload &&
-                getHorizontalCollisionAfter(target) === getHorizontalCollisionAfter(previousTarget)
+                eventDetails.previousTarget &&
+                target.payload === eventDetails.previousTarget.payload &&
+                getHorizontalCollisionAfter(target) ===
+                  getHorizontalCollisionAfter(eventDetails.previousTarget)
               ) {
                 return;
               }

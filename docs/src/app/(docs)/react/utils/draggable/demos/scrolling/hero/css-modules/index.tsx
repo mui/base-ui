@@ -127,19 +127,19 @@ function DropZone({
     <Draggable.Target
       className={styles.Zone}
       accept={taskKind}
-      onDraggableMove={(_, { location }) => {
+      onDraggableMove={(_, eventDetails) => {
         const container = listRef.current;
         if (!container) {
           return;
         }
-        const { slotY } = resolveDrop(container, location.current.input.clientY);
+        const { slotY } = resolveDrop(container, eventDetails.location.current.input.clientY);
         setDropLineTop(slotY - container.getBoundingClientRect().top + container.scrollTop);
       }}
       onDraggableLeave={() => setDropLineTop(null)}
-      onDraggableDrop={({ source }, { location }) => {
+      onDraggableDrop={({ source }, eventDetails) => {
         const container = listRef.current;
         if (container) {
-          const { index } = resolveDrop(container, location.current.input.clientY);
+          const { index } = resolveDrop(container, eventDetails.location.current.input.clientY);
           onInsert(source.payload, index);
         }
         setDropLineTop(null);

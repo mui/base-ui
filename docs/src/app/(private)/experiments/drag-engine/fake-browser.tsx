@@ -1498,12 +1498,12 @@ function BookmarkBar() {
     },
     onMove: syncDropIntents,
     onTargetChange: syncDropIntents,
-    onMoveEnd({ source }, { reason, location }) {
+    onMoveEnd({ source }, eventDetails) {
       try {
-        if (reason !== 'drop') {
+        if (eventDetails.reason !== 'drop') {
           return;
         }
-        const bookmarkTarget = location.current.targets.find((candidate) =>
+        const bookmarkTarget = eventDetails.location.current.targets.find((candidate) =>
           bookmarkDropKind.matches(candidate),
         );
         if (bookmarkTarget && bookmarkDropKind.matches(bookmarkTarget)) {
@@ -1527,7 +1527,7 @@ function BookmarkBar() {
         const sourceNode =
           source.payload.type === 'existing' ? tree.nodes[source.payload.id] : null;
         const tabIntent = resolveTabDropIntent(
-          location.current.targets,
+          eventDetails.location.current.targets,
           sourceNode?.type === 'bookmark',
         );
         if (!tabIntent) {

@@ -208,17 +208,21 @@ function InfiniteCanvasContent() {
               onMoveStart={() => {
                 dragStartCameraRef.current = cameraRef.current;
               }}
-              onMoveEnd={(_, { reason, location }) => {
+              onMoveEnd={(_, eventDetails) => {
                 // Only a release over empty canvas moves the note: a cancel leaves it,
                 // and a drop hands it to the bin.
-                if (reason !== 'outside-release') {
+                if (eventDetails.reason !== 'outside-release') {
                   return;
                 }
                 // The note has to end up under the pointer, and the content layer
                 // moved underneath it: a note painted at `content - camera` needs
                 // both the pointer's client delta and the camera's own.
-                const dx = location.current.input.clientX - location.initial.input.clientX;
-                const dy = location.current.input.clientY - location.initial.input.clientY;
+                const dx =
+                  eventDetails.location.current.input.clientX -
+                  eventDetails.location.initial.input.clientX;
+                const dy =
+                  eventDetails.location.current.input.clientY -
+                  eventDetails.location.initial.input.clientY;
                 const panX = cameraRef.current.x - dragStartCameraRef.current.x;
                 const panY = cameraRef.current.y - dragStartCameraRef.current.y;
                 setNotes((previous) =>

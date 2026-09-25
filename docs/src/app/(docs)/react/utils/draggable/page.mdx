@@ -133,8 +133,8 @@ When extracting a handler, use the types on its component namespace, such as `Dr
   // source can be measured or restyled safely.
   onMoveStart={({ source }) => console.log('lifted', source.payload)}
   // Fires as the pointer moves, at most once per animation frame.
-  onMove={(_, { location }) => {
-    const { clientX, clientY } = location.current.input;
+  onMove={(_, eventDetails) => {
+    const { clientX, clientY } = eventDetails.location.current.input;
     console.log('at', clientX, clientY);
   }}
   // Fires when the drop targets under the pointer change.
@@ -203,8 +203,8 @@ To observe every drag on the page rather than one source, use [`useMonitor`](#us
   onDraggableEnter={({ source }) => console.log(source.payload, 'entered')}
   // Fires on every animation frame the pointer moves while over this target.
   // Hover feedback such as drop indicators belongs here.
-  onDraggableMove={(_, { location }) => {
-    const { clientX, clientY } = location.current.input;
+  onDraggableMove={(_, eventDetails) => {
+    const { clientX, clientY } = eventDetails.location.current.input;
     highlightSlotAt(clientX, clientY);
   }}
   // Fires when the drag moves off this target, or ends.
@@ -428,9 +428,9 @@ const card = Draggable.createKind<string, { grabOffsetX: number }>('card');
 <Draggable.Root
   kind={card}
   payload={id}
-  onBeforeMoveStart={({ source }, { input }) => {
+  onBeforeMoveStart={({ source }, eventDetails) => {
     const rect = source.element.getBoundingClientRect();
-    source.updateDragData({ grabOffsetX: input.clientX - rect.left });
+    source.updateDragData({ grabOffsetX: eventDetails.input.clientX - rect.left });
   }}
   onMove={({ source }) => {
     console.log(source.payload, source.dragData?.grabOffsetX);
@@ -1199,7 +1199,7 @@ Draggable.useMonitor({
   // Fires once when a matching drag starts.
   onMoveStart: ({ source }) => console.log('picked up', source.payload.title),
   // Fires as the pointer moves, at most once per animation frame.
-  onMove: (_, { location }) => console.log('at', location.current.input.clientX),
+  onMove: (_, eventDetails) => console.log('at', eventDetails.location.current.input.clientX),
   // Fires when the drop targets under the pointer change.
   onTargetChange: ({ target }) => console.log('over', target?.payload ?? 'nothing'),
   // Fires once when the drag ends.

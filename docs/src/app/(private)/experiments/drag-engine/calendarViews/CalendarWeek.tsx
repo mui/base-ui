@@ -423,8 +423,8 @@ function WeekDayColumn(props: { dayMs: number; events: CalendarEvent[] }) {
         />
       }
       payload={payload}
-      onMoveStart={({ source }, { location }) => {
-        const input = location.initial.input;
+      onMoveStart={({ source }, eventDetails) => {
+        const input = eventDetails.location.initial.input;
         const rect = source.element.getBoundingClientRect();
         const offsetPx = input.clientY - rect.top;
         const rawMs = dayMsRef.current + offsetPx * (HOUR_MS / hourPxRef.current);
