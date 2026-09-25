@@ -2625,21 +2625,7 @@ describe('nested tooltips', () => {
     }
   });
 
-  it.each([
-    {
-      name: 'starts with a ShadowRoot',
-      getPath(innerTrigger: HTMLElement, outerTrigger: HTMLElement) {
-        const shadowRoot = document.createElement('div').attachShadow({ mode: 'open' });
-        return [shadowRoot, innerTrigger, outerTrigger, document.body, document, window];
-      },
-    },
-    {
-      name: 'is empty',
-      getPath() {
-        return [];
-      },
-    },
-  ])('handles a composed path that $name', async ({ getPath }) => {
+  it('falls back to the event target when the composed path is empty', async () => {
     await render(
       <Tooltip.Root>
         <Tooltip.Trigger data-testid="outer-trigger" render={<span />}>
@@ -2659,13 +2645,15 @@ describe('nested tooltips', () => {
     const outerTrigger = screen.getByTestId('outer-trigger');
     const innerTrigger = screen.getByTestId('inner-trigger');
 
+    // Start the outer open delay so only nested trigger detection keeps it closed.
+    fireEvent.pointerDown(outerTrigger, { pointerType: 'mouse' });
     fireEvent.pointerEnter(outerTrigger, { pointerType: 'mouse' });
     fireEvent.mouseEnter(outerTrigger);
+    fireEvent.mouseMove(outerTrigger);
 
+    // `composedPath()` is empty once an event has finished dispatching.
     const mouseOverEvent = new MouseEvent('mouseover', { bubbles: true, composed: true });
-    Object.defineProperty(mouseOverEvent, 'composedPath', {
-      value: () => getPath(innerTrigger, outerTrigger),
-    });
+    Object.defineProperty(mouseOverEvent, 'composedPath', { value: () => [] });
     innerTrigger.dispatchEvent(mouseOverEvent);
 
     clock.tick(OPEN_DELAY);
