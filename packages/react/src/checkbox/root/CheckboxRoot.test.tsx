@@ -1793,6 +1793,30 @@ describe('<Checkbox.Root />', () => {
     expect(fieldLabelled).toHaveAccessibleName('notes.txt');
   });
 
+  it.each(['', ' ', '\n\t '])('ignores a blank `aria-label` (%j)', async (ariaLabel) => {
+    await render(
+      <React.Fragment>
+        <label>
+          <Checkbox.Root aria-label={ariaLabel} />
+          Native label
+        </label>
+        <Field.Root>
+          <Field.Label>
+            <Checkbox.Root aria-label={ariaLabel} />
+            Field label
+          </Field.Label>
+        </Field.Root>
+        <label htmlFor="blank-aria-label">Sibling label</label>
+        <Checkbox.Root id="blank-aria-label" aria-label={ariaLabel} />
+      </React.Fragment>,
+    );
+
+    const [nativeLabelled, fieldLabelled, siblingLabelled] = screen.getAllByRole('checkbox');
+    expect(nativeLabelled).toHaveAccessibleName('Native label');
+    expect(fieldLabelled).toHaveAccessibleName('Field label');
+    expect(siblingLabelled).toHaveAccessibleName('Sibling label');
+  });
+
   it('can render a native button', async () => {
     const { container, user } = await render(<Checkbox.Root render={<button />} nativeButton />);
 

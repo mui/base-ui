@@ -14,8 +14,9 @@ export function useAriaLabelledBy(
   const [fallbackAriaLabelledBy, setFallbackAriaLabelledBy] = React.useState<string | undefined>();
 
   const generatedLabelId = useBaseUiId(labelSourceId ? `${labelSourceId}-label` : undefined);
-  // `aria-label` wins over any associated label, as it does on native inputs.
-  const implicitLabelId = ariaLabel ? undefined : labelId;
+  // A non-blank `aria-label` wins over any associated label, as it does on native inputs.
+  const hasAriaLabel = Boolean(ariaLabel?.trim());
+  const implicitLabelId = hasAriaLabel ? undefined : labelId;
   const ariaLabelledBy = explicitAriaLabelledBy ?? implicitLabelId ?? fallbackAriaLabelledBy;
 
   // Fallback for <span> controls labelled by wrapping/sibling native <label>.
@@ -24,7 +25,7 @@ export function useAriaLabelledBy(
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useIsoLayoutEffect(() => {
     const nextAriaLabelledBy =
-      explicitAriaLabelledBy || labelId || ariaLabel || !enableFallback
+      explicitAriaLabelledBy || labelId || hasAriaLabel || !enableFallback
         ? undefined
         : getAriaLabelledBy(labelSourceRef.current, generatedLabelId);
 
