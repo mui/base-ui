@@ -175,14 +175,16 @@ type CheckboxIndicatorState = {
 
 ### PaintSelectionProvider
 
-Enables painting checkboxes with a mouse or pen. Place inside a CheckboxGroup, around its checkboxes.
-Doesn't render an HTML element. Touch gestures retain native scrolling.
+Enables painting checkboxes with a mouse or pen in the checkbox group it wraps.
+Touch gestures retain native scrolling.
+Doesn't render its own HTML element.
 
 **PaintSelectionProvider Props:**
 
-| Prop     | Type              | Default | Description |
-| :------- | :---------------- | :------ | :---------- |
-| children | `React.ReactNode` | -       | -           |
+| Prop     | Type              | Default | Description                                                                   |
+| :------- | :---------------- | :------ | :---------------------------------------------------------------------------- |
+| disabled | `boolean`         | `false` | Whether painting is disabled. Clicking and keyboard interaction keep working. |
+| children | `React.ReactNode` | -       | -                                                                             |
 
 ### PaintSelectionProvider.Props
 

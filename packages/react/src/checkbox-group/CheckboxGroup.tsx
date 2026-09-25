@@ -18,6 +18,7 @@ import { useLabelableId } from '../internals/labelable-provider/useLabelableId';
 import type { BaseUIComponentProps } from '../internals/types';
 import { fieldValidityMapping } from '../internals/field-constants/constants';
 import { useCheckboxGroupParent } from './useCheckboxGroupParent';
+import { CheckboxGroupPaintSelectionFeatureContext } from './paint-selection-provider/CheckboxGroupPaintSelectionContext';
 import type { BaseUIChangeEventDetails } from '../internals/createBaseUIEventDetails';
 import { REASONS } from '../internals/reasons';
 import { useFormContext } from '../internals/form-context/FormContext';
@@ -42,8 +43,15 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
     render,
     value: externalValue,
     style,
+    children,
     ...elementProps
   } = componentProps;
+
+  const paintSelection = React.useContext(CheckboxGroupPaintSelectionFeatureContext);
+  const content = React.useMemo(
+    () => (paintSelection ? paintSelection.render(children) : children),
+    [paintSelection, children],
+  );
 
   const {
     disabled: fieldDisabled,
@@ -174,6 +182,7 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
         id: idProp,
         role: 'group',
         'aria-labelledby': labelId,
+        children: content,
       },
       elementProps,
       getDescriptionProps,
@@ -182,7 +191,16 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
   });
 
   return (
-    <CheckboxGroupContext.Provider value={contextValue}>{element}</CheckboxGroupContext.Provider>
+    <CheckboxGroupContext.Provider value={contextValue}>
+      {paintSelection ? (
+        // A nested group doesn't inherit the provider of this one.
+        <CheckboxGroupPaintSelectionFeatureContext.Provider value={undefined}>
+          {element}
+        </CheckboxGroupPaintSelectionFeatureContext.Provider>
+      ) : (
+        element
+      )}
+    </CheckboxGroupContext.Provider>
   );
 });
 

@@ -6,12 +6,12 @@ import { CheckboxGroup } from '@base-ui/react/checkbox-group';
 export default function ExampleCheckboxGroupPaintSelection() {
   const id = React.useId();
   return (
-    <CheckboxGroup
-      aria-labelledby={id}
-      defaultValue={['fuji-apple']}
-      className="flex flex-col items-start gap-1 text-neutral-950 dark:text-white"
-    >
-      <Checkbox.PaintSelectionProvider>
+    <Checkbox.PaintSelectionProvider>
+      <CheckboxGroup
+        aria-labelledby={id}
+        defaultValue={['fuji-apple']}
+        className="flex flex-col items-start gap-1 text-neutral-950 dark:text-white"
+      >
         <div className="text-sm font-bold" id={id}>
           Apples
         </div>
@@ -54,8 +54,8 @@ export default function ExampleCheckboxGroupPaintSelection() {
           </Checkbox.Root>
           Granny Smith
         </label>
-      </Checkbox.PaintSelectionProvider>
-    </CheckboxGroup>
+      </CheckboxGroup>
+    </Checkbox.PaintSelectionProvider>
   );
 }
 

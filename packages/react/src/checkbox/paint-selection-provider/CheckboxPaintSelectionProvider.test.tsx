@@ -1,6 +1,7 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { describe, it, expect, vi } from 'vitest';
+import { afterEach, describe, it, expect, vi } from 'vitest';
+import { reset as resetWarnings } from '@base-ui/utils/warn';
 import { createRenderer, screen, fireEvent } from '@mui/internal-test-utils';
 import { Checkbox } from '@base-ui/react/checkbox';
 import { CheckboxGroup } from '@base-ui/react/checkbox-group';
@@ -71,21 +72,39 @@ function up(element: HTMLElement) {
 describe.skipIf(isJSDOM)('<Checkbox.PaintSelectionProvider />', () => {
   const { render } = createRenderer();
 
+  it('does not paint while disabled', async () => {
+    await render(
+      <Checkbox.PaintSelectionProvider disabled>
+        <CheckboxGroup>
+          <Checkboxes />
+        </CheckboxGroup>
+      </Checkbox.PaintSelectionProvider>,
+    );
+    const [a, b, c] = screen.getAllByRole('checkbox');
+    down(a);
+    move(c);
+    up(c);
+    fireEvent.click(c, { detail: 1 });
+    expect(a).toHaveAttribute('aria-checked', 'false');
+    expect(b).toHaveAttribute('aria-checked', 'false');
+    expect(c).toHaveAttribute('aria-checked', 'true');
+  });
+
   it.each([false, true])(
     'paints skipped items and preserves its intent on backtracking, controlled=%s',
     async (controlled) => {
       function App() {
         const [value, setValue] = React.useState(['b']);
         return (
-          <CheckboxGroup
-            value={controlled ? value : undefined}
-            defaultValue={['b']}
-            onValueChange={setValue}
-          >
-            <Checkbox.PaintSelectionProvider>
+          <Checkbox.PaintSelectionProvider>
+            <CheckboxGroup
+              value={controlled ? value : undefined}
+              defaultValue={['b']}
+              onValueChange={setValue}
+            >
               <Checkboxes />
-            </Checkbox.PaintSelectionProvider>
-          </CheckboxGroup>
+            </CheckboxGroup>
+          </Checkbox.PaintSelectionProvider>
         );
       }
       await render(<App />);
@@ -114,20 +133,20 @@ describe.skipIf(isJSDOM)('<Checkbox.PaintSelectionProvider />', () => {
     async (withParent) => {
       const onValueChange = vi.fn();
       await render(
-        <CheckboxGroup
-          defaultValue={['a']}
-          allValues={withParent ? ['a', 'b'] : undefined}
-          onValueChange={onValueChange}
-        >
-          <Checkbox.PaintSelectionProvider>
+        <Checkbox.PaintSelectionProvider>
+          <CheckboxGroup
+            defaultValue={['a']}
+            allValues={withParent ? ['a', 'b'] : undefined}
+            onValueChange={onValueChange}
+          >
             <Checkbox.Root
               value="a"
               indeterminate
               style={{ display: 'block', width: 24, height: 24 }}
             />
             <Checkbox.Root value="b" style={{ display: 'block', width: 24, height: 24 }} />
-          </Checkbox.PaintSelectionProvider>
-        </CheckboxGroup>,
+          </CheckboxGroup>
+        </Checkbox.PaintSelectionProvider>,
       );
       const [a, b] = screen.getAllByRole('checkbox');
       down(a);
@@ -140,16 +159,16 @@ describe.skipIf(isJSDOM)('<Checkbox.PaintSelectionProvider />', () => {
   it('registers a replacement rendered element', async () => {
     function App({ replace = false }) {
       return (
-        <CheckboxGroup>
-          <Checkbox.PaintSelectionProvider>
+        <Checkbox.PaintSelectionProvider>
+          <CheckboxGroup>
             <Checkbox.Root
               value="a"
               render={replace ? <div /> : <span />}
               style={{ display: 'block', width: 24, height: 24 }}
             />
             <Checkbox.Root value="b" style={{ display: 'block', width: 24, height: 24 }} />
-          </Checkbox.PaintSelectionProvider>
-        </CheckboxGroup>
+          </CheckboxGroup>
+        </Checkbox.PaintSelectionProvider>
       );
     }
     const { setProps } = await render(<App />);
@@ -165,13 +184,13 @@ describe.skipIf(isJSDOM)('<Checkbox.PaintSelectionProvider />', () => {
   it('paints the visible part of a clipped checkbox and skips fully clipped items', async () => {
     await render(
       <React.Fragment>
-        <CheckboxGroup>
-          <Checkbox.PaintSelectionProvider>
+        <Checkbox.PaintSelectionProvider>
+          <CheckboxGroup>
             <div style={{ height: 42, overflow: 'hidden' }}>
               <Checkboxes />
             </div>
-          </Checkbox.PaintSelectionProvider>
-        </CheckboxGroup>
+          </CheckboxGroup>
+        </Checkbox.PaintSelectionProvider>
         <div data-testid="destination" style={{ width: 24, height: 150 }} />
       </React.Fragment>,
     );
@@ -189,8 +208,8 @@ describe.skipIf(isJSDOM)('<Checkbox.PaintSelectionProvider />', () => {
     function App() {
       const [frame, setFrame] = React.useState<HTMLIFrameElement | null>(null);
       return (
-        <CheckboxGroup>
-          <Checkbox.PaintSelectionProvider>
+        <Checkbox.PaintSelectionProvider>
+          <CheckboxGroup>
             <Checkboxes />
             <iframe
               title="other document"
@@ -206,8 +225,8 @@ describe.skipIf(isJSDOM)('<Checkbox.PaintSelectionProvider />', () => {
                 />,
                 frame.contentDocument.body,
               )}
-          </Checkbox.PaintSelectionProvider>
-        </CheckboxGroup>
+          </CheckboxGroup>
+        </Checkbox.PaintSelectionProvider>
       );
     }
     await render(<App />);
@@ -225,11 +244,11 @@ describe.skipIf(isJSDOM)('<Checkbox.PaintSelectionProvider />', () => {
 
   it('skips disabled, read-only, and canceled checkboxes', async () => {
     await render(
-      <CheckboxGroup>
-        <Checkbox.PaintSelectionProvider>
+      <Checkbox.PaintSelectionProvider>
+        <CheckboxGroup>
           <Checkboxes disabled="b" readOnly="c" cancel="d" />
-        </Checkbox.PaintSelectionProvider>
-      </CheckboxGroup>,
+        </CheckboxGroup>
+      </Checkbox.PaintSelectionProvider>,
     );
     const [a, b, c, d] = screen.getAllByRole('checkbox');
     down(a);
@@ -244,30 +263,30 @@ describe.skipIf(isJSDOM)('<Checkbox.PaintSelectionProvider />', () => {
   it('isolates nested groups, sibling groups, and standalone checkboxes', async () => {
     await render(
       <React.Fragment>
-        <CheckboxGroup>
-          <Checkbox.PaintSelectionProvider>
+        <Checkbox.PaintSelectionProvider>
+          <CheckboxGroup>
             <Checkbox.Root
               aria-label="first"
               value="first"
               style={{ display: 'block', width: 24, height: 24 }}
             />
-            <CheckboxGroup>
-              <Checkbox.PaintSelectionProvider>
+            <Checkbox.PaintSelectionProvider>
+              <CheckboxGroup>
                 <Checkboxes />
-              </Checkbox.PaintSelectionProvider>
-            </CheckboxGroup>
+              </CheckboxGroup>
+            </Checkbox.PaintSelectionProvider>
             <Checkbox.Root
               aria-label="last"
               value="last"
               style={{ display: 'block', width: 24, height: 24 }}
             />
-          </Checkbox.PaintSelectionProvider>
-        </CheckboxGroup>
-        <CheckboxGroup>
-          <Checkbox.PaintSelectionProvider>
+          </CheckboxGroup>
+        </Checkbox.PaintSelectionProvider>
+        <Checkbox.PaintSelectionProvider>
+          <CheckboxGroup>
             <Checkboxes />
-          </Checkbox.PaintSelectionProvider>
-        </CheckboxGroup>
+          </CheckboxGroup>
+        </Checkbox.PaintSelectionProvider>
         <Checkbox.Root aria-label="outside" style={{ display: 'block', width: 24, height: 24 }} />
       </React.Fragment>,
     );
@@ -287,11 +306,11 @@ describe.skipIf(isJSDOM)('<Checkbox.PaintSelectionProvider />', () => {
 
   it('keeps click and keyboard activation and ignores touch dragging', async () => {
     const { user } = await render(
-      <CheckboxGroup>
-        <Checkbox.PaintSelectionProvider>
+      <Checkbox.PaintSelectionProvider>
+        <CheckboxGroup>
           <Checkboxes />
-        </Checkbox.PaintSelectionProvider>
-      </CheckboxGroup>,
+        </CheckboxGroup>
+      </Checkbox.PaintSelectionProvider>,
     );
     const [a, b, c] = screen.getAllByRole('checkbox');
     down(a);
@@ -310,11 +329,11 @@ describe.skipIf(isJSDOM)('<Checkbox.PaintSelectionProvider />', () => {
   it.each(['pointercancel', 'blur', 'unmount'])('cleans up after %s', async (end) => {
     const onValueChange = vi.fn();
     const { unmount } = await render(
-      <CheckboxGroup onValueChange={onValueChange}>
-        <Checkbox.PaintSelectionProvider>
+      <Checkbox.PaintSelectionProvider>
+        <CheckboxGroup onValueChange={onValueChange}>
           <Checkboxes />
-        </Checkbox.PaintSelectionProvider>
-      </CheckboxGroup>,
+        </CheckboxGroup>
+      </Checkbox.PaintSelectionProvider>,
     );
     const [a, b, c] = screen.getAllByRole('checkbox');
     down(a);
@@ -333,16 +352,16 @@ describe.skipIf(isJSDOM)('<Checkbox.PaintSelectionProvider />', () => {
 
   it('accumulates parent-group children and leaves the parent checkbox out of painting', async () => {
     await render(
-      <CheckboxGroup allValues={names}>
-        <Checkbox.PaintSelectionProvider>
+      <Checkbox.PaintSelectionProvider>
+        <CheckboxGroup allValues={names}>
           <Checkbox.Root
             parent
             aria-label="all"
             style={{ display: 'block', width: 24, height: 24 }}
           />
           <Checkboxes />
-        </Checkbox.PaintSelectionProvider>
-      </CheckboxGroup>,
+        </CheckboxGroup>
+      </Checkbox.PaintSelectionProvider>,
     );
     const [parent, a, b, c, d] = screen.getAllByRole('checkbox');
     down(a);
@@ -362,11 +381,11 @@ describe.skipIf(isJSDOM)('<Checkbox.PaintSelectionProvider />', () => {
   it('respects a controlled owner refusing the proposed changes', async () => {
     const onValueChange = vi.fn();
     await render(
-      <CheckboxGroup value={[]} onValueChange={onValueChange}>
-        <Checkbox.PaintSelectionProvider>
+      <Checkbox.PaintSelectionProvider>
+        <CheckboxGroup value={[]} onValueChange={onValueChange}>
           <Checkboxes />
-        </Checkbox.PaintSelectionProvider>
-      </CheckboxGroup>,
+        </CheckboxGroup>
+      </Checkbox.PaintSelectionProvider>,
     );
     const [a, b, c] = screen.getAllByRole('checkbox');
     down(a);
@@ -376,6 +395,50 @@ describe.skipIf(isJSDOM)('<Checkbox.PaintSelectionProvider />', () => {
     expect(onValueChange.mock.lastCall?.[0]).toEqual(['c']);
     for (const item of [a, b, c]) {
       expect(item).toHaveAttribute('aria-checked', 'false');
+    }
+  });
+});
+
+describe('<Checkbox.PaintSelectionProvider /> placement', () => {
+  const { render } = createRenderer();
+
+  afterEach(() => {
+    resetWarnings();
+  });
+
+  it('warns when rendered inside a checkbox group', async () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    try {
+      await render(
+        <CheckboxGroup>
+          <Checkbox.PaintSelectionProvider>
+            <Checkboxes />
+          </Checkbox.PaintSelectionProvider>
+        </CheckboxGroup>,
+      );
+      expect(warnSpy).toHaveBeenCalledWith(
+        expect.stringContaining(
+          '`Checkbox.PaintSelectionProvider` has no effect on checkboxes outside the checkbox group it wraps.',
+        ),
+      );
+    } finally {
+      warnSpy.mockRestore();
+    }
+  });
+
+  it('does not warn around a checkbox group', async () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    try {
+      await render(
+        <Checkbox.PaintSelectionProvider>
+          <CheckboxGroup>
+            <Checkboxes />
+          </CheckboxGroup>
+        </Checkbox.PaintSelectionProvider>,
+      );
+      expect(warnSpy).not.toHaveBeenCalled();
+    } finally {
+      warnSpy.mockRestore();
     }
   });
 });

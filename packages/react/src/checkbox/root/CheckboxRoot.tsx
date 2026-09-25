@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { warn } from '@base-ui/utils/warn';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { useControlled } from '@base-ui/utils/useControlled';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
@@ -8,7 +9,10 @@ import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { visuallyHidden, visuallyHiddenInput } from '@base-ui/utils/visuallyHidden';
 import { ownerWindow } from '@base-ui/utils/owner';
 import { getDefaultFormSubmitter } from '@base-ui/utils/getDefaultFormSubmitter';
-import { CheckboxGroupPaintSelectionContext } from '../../checkbox-group/paint-selection-provider/CheckboxGroupPaintSelectionContext';
+import {
+  CheckboxGroupPaintSelectionContext,
+  CheckboxGroupPaintSelectionFeatureContext,
+} from '../../checkbox-group/paint-selection-provider/CheckboxGroupPaintSelectionContext';
 import { getCheckboxStateAttributesMapping } from '../utils/getCheckboxStateAttributesMapping';
 import { dispatchClickWithModifiers } from '../../utils/dispatchClickWithModifiers';
 import { useRenderElement } from '../../internals/useRenderElement';
@@ -221,6 +225,23 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
       }
     },
   );
+
+  /* istanbul ignore else -- `process.env.NODE_ENV` is a build-time constant under test */
+  if (process.env.NODE_ENV !== 'production') {
+    // Each group resets the provider context, so a checkbox that still sees it sits
+    // between a provider and a group, or has no group at all.
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const misplacedPaintSelection = React.useContext(CheckboxGroupPaintSelectionFeatureContext);
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    React.useEffect(() => {
+      if (misplacedPaintSelection) {
+        warn(
+          '`Checkbox.PaintSelectionProvider` has no effect on checkboxes outside the checkbox group it wraps.',
+          'Render it around `CheckboxGroup` instead of inside it.',
+        );
+      }
+    }, [misplacedPaintSelection]);
+  }
 
   const paintContext = React.useContext(CheckboxGroupPaintSelectionContext);
   const paintController =

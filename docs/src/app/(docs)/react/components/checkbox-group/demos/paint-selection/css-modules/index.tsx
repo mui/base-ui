@@ -7,12 +7,12 @@ import styles from './index.module.css';
 export default function ExampleCheckboxGroupPaintSelection() {
   const id = React.useId();
   return (
-    <CheckboxGroup
-      aria-labelledby={id}
-      defaultValue={['fuji-apple']}
-      className={styles.CheckboxGroup}
-    >
-      <Checkbox.PaintSelectionProvider>
+    <Checkbox.PaintSelectionProvider>
+      <CheckboxGroup
+        aria-labelledby={id}
+        defaultValue={['fuji-apple']}
+        className={styles.CheckboxGroup}
+      >
         <div className={styles.Caption} id={id}>
           Apples
         </div>
@@ -43,8 +43,8 @@ export default function ExampleCheckboxGroupPaintSelection() {
           </Checkbox.Root>
           Granny Smith
         </label>
-      </Checkbox.PaintSelectionProvider>
-    </CheckboxGroup>
+      </CheckboxGroup>
+    </Checkbox.PaintSelectionProvider>
   );
 }
 
