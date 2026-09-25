@@ -81,7 +81,7 @@
     "@playwright/test": "1.62.1",
     "@tailwindcss/postcss": "4.3.3",
     "@testing-library/jest-dom": "7.0.1",
-    "@types/node": "22.20.2",
+    "@types/node": "22.20.4",
     "@types/react": "19.3.0",
     "@typescript/native": "npm:typescript@7.0.2",
     "@vitejs/plugin-react": "6.1.1",
@@ -120,6 +120,6 @@
   "packageManager": "pnpm@12.5.1",
   "engines": {
     "pnpm": "12.5.1",
-    "node": ">=22.23.2"
+    "node": ">=22.23.3"
   }
 }
