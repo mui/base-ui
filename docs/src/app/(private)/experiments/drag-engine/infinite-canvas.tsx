@@ -121,7 +121,7 @@ function InfiniteCanvasContent() {
     setPainted({ x: -matrix.m41, y: -matrix.m42 });
   });
 
-  Draggable.useDragMonitor({
+  Draggable.useMonitor({
     accept: noteKind,
     onMove: sampleParked,
     onTargetChange: ({ location }) => {

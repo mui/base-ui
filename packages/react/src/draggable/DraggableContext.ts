@@ -14,7 +14,7 @@ export function useDraggableContext(): DraggableContextValue {
   if (context === null) {
     throw new Error(
       'Base UI: Draggable.Provider is missing, so the drag kind and preview boundary cannot be resolved. ' +
-        'Place <Draggable.Provider> above the draggable, drop target, and viewport parts and above any component calling useDragDropManager. ' +
+        'Place <Draggable.Provider> above the draggable, drop target, and viewport parts and above any component calling useManager. ' +
         'See https://base-ui.com/react/utils/draggable.',
     );
   }

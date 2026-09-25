@@ -15,7 +15,7 @@ function PointerCaptureContent() {
     return () => document.body.removeEventListener('gotpointercapture', handleGotCapture);
   }, []);
 
-  Draggable.useDragMonitor({
+  Draggable.useMonitor({
     accept: itemKind,
     onMoveEnd: () => setEndCount((count) => count + 1),
   });

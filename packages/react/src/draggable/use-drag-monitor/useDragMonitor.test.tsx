@@ -14,7 +14,7 @@ function Monitor(props: useDragMonitor.Parameters) {
   return null;
 }
 
-describe('useDragMonitor', () => {
+describe('useMonitor', () => {
   const { renderDnd } = createDndRenderer();
 
   it('registers a monitor that receives events during a drag', async () => {

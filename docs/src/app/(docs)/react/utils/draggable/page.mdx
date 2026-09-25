@@ -176,7 +176,7 @@ Every event carries the drag `source` and a `location` history:
 
 A drag keeps going if the source element leaves the DOM, for example when a virtualized list unmounts the dragged row. Identify the dragged item with `source.payload` rather than its element. To stop a drag from code, for example when the dragged record is deleted, call [`cancelDrag`](#canceldrag).
 
-To observe every drag on the page rather than one source, use [`useDragMonitor`](#usedragmonitor).
+To observe every drag on the page rather than one source, use [`useMonitor`](#usemonitor).
 
 ### Drop target events
 
@@ -283,10 +283,10 @@ Pass `disabled` to pause a viewport, for example while a list is filtered. Pass 
 
 ### Scrolling the page
 
-The page doesn't scroll during a drag by default. Since `<Draggable.Viewport>` renders an element, register the document with [`useDragDropManager`](#usedragdropmanager) instead. It accepts the same options as the viewport part:
+The page doesn't scroll during a drag by default. Since `<Draggable.Viewport>` renders an element, register the document with [`useManager`](#usemanager) instead. It accepts the same options as the viewport part:
 
 ```tsx title="Letting the page scroll vertically"
-const manager = Draggable.useDragDropManager();
+const manager = Draggable.useManager();
 
 React.useEffect(
   () =>
@@ -1132,14 +1132,14 @@ const cardDrag = Draggable.useActiveDrag(card);
 
 <TypesDraggable.useActiveDrag hideDescription />
 
-## useDragMonitor
+## useMonitor
 
 Observes drags anywhere on the page without an element or a `<Draggable.Provider>`. Use it for status indicators, analytics, or handling drops in one place.
 
 Pass `accept` to filter by [kind](#kinds-and-payloads) and infer the type of `source.payload`. Omit it to observe every drag with an `unknown` payload.
 
 ```tsx title="Reacting to every stage of a drag"
-Draggable.useDragMonitor({
+Draggable.useMonitor({
   accept: card,
   // Fires once when a matching drag starts.
   onMoveStart: ({ source }) => console.log('picked up', source.payload.title),
@@ -1159,16 +1159,16 @@ Draggable.useDragMonitor({
 
 Monitors support the same handlers as `<Draggable.Root>`, except `onBeforeMoveStart`. A monitor mounted during a drag observes the remaining events, so `onMoveEnd` can fire without a preceding `onMoveStart`.
 
-<TypesDraggable.useDragMonitor hideDescription />
+<TypesDraggable.useMonitor hideDescription />
 
-## useDragDropManager
+## useManager
 
 Returns the page-wide drag manager. Use it to register existing DOM elements as drag sources, drop targets, or scroll containers. The hook requires a `<Draggable.Provider>` above the calling component.
 
 All calls share the same manager, and `cancelDrag()` ends the active drag. Use distinct [kinds](#kinds-and-payloads) to keep unrelated features separate.
 
 ```tsx title="Getting the manager"
-const manager = Draggable.useDragDropManager();
+const manager = Draggable.useManager();
 ```
 
 Source, target, and scroll registrations take an element and a function returning its options. Monitor registration takes only the options function. Each method returns a cleanup function. Register in an effect and return the cleanup:
@@ -1247,7 +1247,7 @@ React.useEffect(() => {
 
 ### registerMonitor
 
-Registers a monitor with the options of [`useDragMonitor`](#usedragmonitor):
+Registers a monitor with the options of [`useMonitor`](#usemonitor):
 
 ```tsx title="Registering a monitor"
 manager.registerMonitor(() => ({
@@ -1262,14 +1262,14 @@ manager.registerMonitor(() => ({
 Ends the drag in progress. `onMoveEnd` fires with `canceled: true` and the `'imperative-action'` reason. It does nothing when no drag is active. Use it when a route change, a dialog, or a deleted record invalidates the drag:
 
 ```tsx title="Canceling on navigation"
-const manager = Draggable.useDragDropManager();
+const manager = Draggable.useManager();
 
 React.useEffect(() => {
   return router.subscribe(() => manager.cancelDrag());
 }, [manager]);
 ```
 
-<TypesDraggable.useDragDropManager hideDescription />
+<TypesDraggable.useManager hideDescription />
 
 <TypesDraggableAdditional />
 

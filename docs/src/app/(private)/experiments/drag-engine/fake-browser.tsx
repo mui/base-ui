@@ -1491,7 +1491,7 @@ function BookmarkBar() {
     },
   );
 
-  Draggable.useDragMonitor({
+  Draggable.useMonitor({
     accept: acceptedTabKinds,
     onMoveStart(event) {
       setActiveDragId(event.source.payload.id);

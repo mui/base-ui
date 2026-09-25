@@ -10,7 +10,7 @@ import type { DragDropManager } from '../../types/dragRegistration';
  * The manager is stable for each hook instance. All instances share the page's drag
  * session. Requires a `<Draggable.Provider>` above the component calling this hook.
  *
- * Documentation: [Base UI useDragDropManager](https://base-ui.com/react/utils/draggable#usedragdropmanager)
+ * Documentation: [Base UI useManager](https://base-ui.com/react/utils/draggable#usemanager)
  *
  * @public
  */
@@ -25,7 +25,7 @@ export namespace useDragDropManager {
 }
 
 /**
- * The page-wide drag manager returned by {@link useDragDropManager}.
+ * The page-wide drag manager returned by `Draggable.useManager`.
  */
 export interface UseDragDropManagerReturnValue extends DragDropManager {}
 

@@ -10,7 +10,7 @@ import { DraggablePreviewProvider } from './preview-provider/DraggablePreviewPro
  * Groups the drag sources, drop targets, and viewports of an interaction.
  * It provides the default kind used by parts that declare none, and gives custom
  * previews access to React context. Required above the Draggable parts and
- * `useDragDropManager`. Doesn't render its own HTML element.
+ * `useManager`. Doesn't render its own HTML element.
  *
  * Documentation: [Base UI Draggable](https://base-ui.com/react/utils/draggable#provider)
  */

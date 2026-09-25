@@ -166,7 +166,7 @@ export type RegisterMonitorParameters<
   DragObserverAccept<TSourcePayload, TDragData>;
 
 /**
- * The page-wide drag manager returned by `useDragDropManager`.
+ * The page-wide drag manager returned by `useManager`.
  *
  * Each `register*` method takes a function returning the options, and returns a
  * cleanup function that unregisters.
@@ -231,7 +231,7 @@ export interface DragDropManager {
     >,
   ) => DragCleanupFn;
   /**
-   * Registers a monitor, with the options of `useDragMonitor`.
+   * Registers a monitor, with the options of `useMonitor`.
    * Returns a cleanup function that unregisters it.
    */
   registerMonitor: <TAccept extends AnyDragAccept = DragKind<unknown>>(

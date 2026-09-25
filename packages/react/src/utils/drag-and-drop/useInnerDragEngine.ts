@@ -217,7 +217,7 @@ function useDragEngineInstance<T extends DragEngineBase>(
 }
 
 /**
- * Full engine hook used by `useDragDropManager`. Preview content resolves through
+ * Full engine hook used by `useManager`. Preview content resolves through
  * the provider nearest this hook call; registrations and sensors remain global.
  */
 export function useInnerDragEngine(): InternalDragEngine {

@@ -10,7 +10,7 @@ setupDragEngineTests();
 
 const itemKind = Draggable.createKind('item');
 
-describe('useDragDropManager', () => {
+describe('useManager', () => {
   const { renderDnd } = createDndRenderer();
 
   it('returns the same engine across rerenders, so registrations survive', async () => {
@@ -21,7 +21,7 @@ describe('useDragDropManager', () => {
     let registrations = 0;
 
     function Harness({ label }: { label: string }) {
-      const engine = Draggable.useDragDropManager();
+      const engine = Draggable.useManager();
       // Collected after commit, not during render: React 18's Strict Mode
       // double-render re-runs ref initializers and discards the first pass, so
       // a render-time push would record an instance that never mounted.
@@ -73,7 +73,7 @@ describe('useDragDropManager', () => {
     const second = vi.fn();
 
     function Harness({ onMoveStart }: { onMoveStart: () => void }) {
-      const engine = Draggable.useDragDropManager();
+      const engine = Draggable.useManager();
       const paramsRef = React.useRef({ kind: itemKind, onMoveStart });
       // Keep the object identity stable: the imperative getter contract is
       // value-live, so internal React registration caching must not leak here.
@@ -109,7 +109,7 @@ describe('useDragDropManager', () => {
     const onMoveStart = vi.fn();
 
     function Harness() {
-      const engine = Draggable.useDragDropManager();
+      const engine = Draggable.useManager();
       React.useEffect(() => engine.registerMonitor(() => ({ onMoveStart })), [engine]);
       return null;
     }

@@ -1,5 +1,6 @@
 import { Draggable } from '@base-ui/react/draggable';
 import type {
+  UseManagerReturnValue,
   RegisterDraggableParameters,
   RegisterMonitorParameters,
   RegisterAutoScrollerParameters,
@@ -17,7 +18,9 @@ import { expectType } from '#test-utils';
 
 // Type-only file: nothing here runs, so the hook is never actually called —
 // `declare` gives us its return type without tripping the rules-of-hooks lint.
-declare const engine: ReturnType<typeof Draggable.useDragDropManager>;
+declare const engine: ReturnType<typeof Draggable.useManager>;
+expectType<UseManagerReturnValue, typeof engine>(engine);
+expectType<Draggable.useManager.ReturnValue, typeof engine>(engine);
 declare const element: HTMLElement;
 
 interface CardPayload {

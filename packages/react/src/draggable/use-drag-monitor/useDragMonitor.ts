@@ -18,7 +18,7 @@ import type {
  * Use it for status indicators, analytics, or committing drops from one place.
  * A monitor has no element and needs no `<Draggable.Provider>`.
  *
- * Documentation: [Base UI useDragMonitor](https://base-ui.com/react/utils/draggable#usedragmonitor)
+ * Documentation: [Base UI useMonitor](https://base-ui.com/react/utils/draggable#usemonitor)
  *
  * @public
  */

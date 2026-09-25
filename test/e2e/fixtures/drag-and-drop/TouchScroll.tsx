@@ -15,7 +15,7 @@ function TouchScrollContent() {
   const [startCount, setStartCount] = React.useState(0);
   const [endCount, setEndCount] = React.useState(0);
 
-  Draggable.useDragMonitor({
+  Draggable.useMonitor({
     accept: itemKind,
     onMoveStart: () => setStartCount((count) => count + 1),
     onMoveEnd: (event, details) => {

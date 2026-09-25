@@ -83,9 +83,9 @@ export type {
   DragAutoScrollHandler,
   DragAutoScrollFrameContext,
 } from '../utils/drag-and-drop/autoScroller';
-export type { UseDragMonitorParameters } from './use-drag-monitor/useDragMonitor';
-export type { UseDragDropManagerReturnValue } from './use-drag-drop-manager/useDragDropManager';
-// The parameter types of every `useDragDropManager` registration method, so a
+export type { UseDragMonitorParameters as UseMonitorParameters } from './use-drag-monitor/useDragMonitor';
+export type { UseDragDropManagerReturnValue as UseManagerReturnValue } from './use-drag-drop-manager/useDragDropManager';
+// The parameter types of every `useManager` registration method, so a
 // consumer can type a held registration without a second import from
 // `@base-ui/react/types`.
 export type {

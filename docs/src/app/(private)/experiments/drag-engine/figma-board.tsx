@@ -624,7 +624,7 @@ interface Measurement {
 function PreviewReadout({ zoom }: { zoom: number }) {
   const [measurement, setMeasurement] = React.useState<Measurement | null>(null);
 
-  Draggable.useDragMonitor({
+  Draggable.useMonitor({
     accept: cardKind,
     onMove: ({ source }) => {
       const element = source.element;

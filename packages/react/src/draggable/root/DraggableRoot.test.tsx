@@ -1867,7 +1867,7 @@ describe('Draggable.Root', () => {
     // An imperatively registered source has no component to hold a
     // `Draggable.Preview`, so it declares the preview on the registration itself.
     function ImperativeCard() {
-      const engine = Draggable.useDragDropManager();
+      const engine = Draggable.useManager();
       const elementRef = React.useRef<HTMLDivElement>(null);
       React.useEffect(
         () =>
@@ -1900,7 +1900,7 @@ describe('Draggable.Root', () => {
 
     it('still honours dragPreview.offset for an imperative preview', async () => {
       function OffsetCard() {
-        const engine = Draggable.useDragDropManager();
+        const engine = Draggable.useManager();
         const elementRef = React.useRef<HTMLDivElement>(null);
         React.useEffect(
           () =>
@@ -1934,7 +1934,7 @@ describe('Draggable.Root', () => {
 
     it('shows no preview at all with dragPreview.disabled', async () => {
       function DisabledCard() {
-        const engine = Draggable.useDragDropManager();
+        const engine = Draggable.useManager();
         const elementRef = React.useRef<HTMLDivElement>(null);
         React.useEffect(
           () =>
@@ -1960,7 +1960,7 @@ describe('Draggable.Root', () => {
 
     it('clamps an imperative preview to dragPreview.modifiers', async () => {
       function BoundedCard() {
-        const engine = Draggable.useDragDropManager();
+        const engine = Draggable.useManager();
         const elementRef = React.useRef<HTMLDivElement>(null);
         const boundsRef = React.useRef<HTMLDivElement>(null);
         React.useEffect(
@@ -2002,7 +2002,7 @@ describe('Draggable.Root', () => {
       document.body.appendChild(host);
       try {
         function ContainedCard() {
-          const engine = Draggable.useDragDropManager();
+          const engine = Draggable.useManager();
           const elementRef = React.useRef<HTMLDivElement>(null);
           React.useEffect(
             () =>
@@ -2033,7 +2033,7 @@ describe('Draggable.Root', () => {
       document.body.appendChild(host);
       try {
         function ContainedCard() {
-          const engine = Draggable.useDragDropManager();
+          const engine = Draggable.useManager();
           const elementRef = React.useRef<HTMLDivElement>(null);
           React.useEffect(
             () =>

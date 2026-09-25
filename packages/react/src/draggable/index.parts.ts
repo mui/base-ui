@@ -22,8 +22,8 @@ export {
 
 export { DraggableTarget as Target } from './target/DraggableTarget';
 export { DraggableViewport as Viewport } from './viewport/DraggableViewport';
-export { useDragMonitor } from './use-drag-monitor/useDragMonitor';
-export { useDragDropManager } from './use-drag-drop-manager/useDragDropManager';
+export { useDragMonitor as useMonitor } from './use-drag-monitor/useDragMonitor';
+export { useDragDropManager as useManager } from './use-drag-drop-manager/useDragDropManager';
 export type * from '../types/drag';
 
 export { DraggableCollisionProvider as CollisionProvider } from './collision-provider/DraggableCollisionProvider';

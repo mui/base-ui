@@ -21,13 +21,13 @@ export function DragPageAutoScroll({
 }: {
   accept: NonNullable<Draggable.Viewport.Props['accept']>;
 }) {
-  const manager = Draggable.useDragDropManager();
+  const manager = Draggable.useManager();
   const unregister = React.useRef<(() => void) | null>(null);
   const cleanup = useStableCallback(() => {
     unregister.current?.();
     unregister.current = null;
   });
-  Draggable.useDragMonitor({
+  Draggable.useMonitor({
     accept,
     onMoveStart: ({ source }) => {
       cleanup();

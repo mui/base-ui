@@ -8,7 +8,7 @@ import { lift, dragEnter, drop, setupDragEngineTests } from '../../test/dnd';
 setupDragEngineTests();
 
 function Manager() {
-  Draggable.useDragDropManager();
+  Draggable.useManager();
   return null;
 }
 
@@ -33,7 +33,7 @@ describe('Draggable.Provider', () => {
     const onMoveStart = vi.fn();
     const onMoveEnd = vi.fn();
     function ShellMonitor() {
-      Draggable.useDragMonitor({ onMoveStart, onMoveEnd });
+      Draggable.useMonitor({ onMoveStart, onMoveEnd });
       return null;
     }
     render(
@@ -142,7 +142,7 @@ describe('Draggable.Provider', () => {
   });
   it('provides drag context to custom preview content', async () => {
     function PreviewContent() {
-      Draggable.useDragDropManager();
+      Draggable.useManager();
       return <span data-testid="custom-preview">Preview</span>;
     }
     await renderDnd(

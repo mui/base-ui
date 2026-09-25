@@ -4,7 +4,7 @@
  * Deliberately their own module, separate from `DragEngineImpl`: a drop target,
  * a monitor or an auto-scroller needs none of the engine's preview wiring or
  * draggable static setup. Importing them from
- * here keeps `Draggable.Target`, `Draggable.Viewport` and `useDragMonitor` off
+ * here keeps `Draggable.Target`, `Draggable.Viewport` and `useMonitor` off
  * that whole graph — the preview clone and pointer sensor — so an app that only
  * accepts drops pays for what it uses.
  *

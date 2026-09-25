@@ -386,7 +386,7 @@ type DraggableRootTargetChangeEventReason =
 Groups the drag sources, drop targets, and viewports of an interaction.
 It provides the default kind used by parts that declare none, and gives custom
 previews access to React context. Required above the Draggable parts and
-`useDragDropManager`. Doesn't render its own HTML element.
+`useManager`. Doesn't render its own HTML element.
 
 **Provider Props:**
 
@@ -1423,7 +1423,7 @@ type DraggableuseActiveDragReturnValue<TPayload = unknown, TDragData = unknown> 
 > | null;
 ```
 
-### useDragDropManager
+### useManager
 
 Returns the page-wide drag manager. Use it to register drag sources, drop targets,
 scroll containers, and monitors without rendering the Draggable parts, and to
@@ -1435,13 +1435,13 @@ session. Requires a `<Draggable.Provider>` above the component calling this hook
 **Return Value:**
 
 ```tsx
-type ReturnValue = UseDragDropManagerReturnValue;
+type ReturnValue = UseManagerReturnValue;
 ```
 
-### useDragDropManager.ReturnValue
+### useManager.ReturnValue
 
 ```typescript
-type DraggableuseDragDropManagerReturnValue = {
+type DraggableuseManagerReturnValue = {
   /**
    * Registers an element as a drag source, with the options of `Draggable.Root`.
    * Returns a cleanup function that unregisters it.
@@ -1520,7 +1520,7 @@ type DraggableuseDragDropManagerReturnValue = {
     >,
   ) => DragCleanupFn;
   /**
-   * Registers a monitor, with the options of `useDragMonitor`.
+   * Registers a monitor, with the options of `useMonitor`.
    * Returns a cleanup function that unregisters it.
    */
   registerMonitor: <TAccept extends AnyDragAccept = DragKind>(
@@ -1537,7 +1537,7 @@ type DraggableuseDragDropManagerReturnValue = {
 };
 ```
 
-### useDragMonitor
+### useMonitor
 
 Observes every drag on the page that matches `accept`, wherever it started.
 Use it for status indicators, analytics, or committing drops from one place.
@@ -1545,9 +1545,9 @@ A monitor has no element and needs no `<Draggable.Provider>`.
 
 **Parameters:**
 
-| Parameter  | Type                                                                                                                   | Default | Description |
-| :--------- | :--------------------------------------------------------------------------------------------------------------------- | :------ | :---------- |
-| parameters | `DragParametersWithInferredAccept<UseDragMonitorParameters<TPayload \| unknown, TDragData \| unknown>, AnyDragAccept>` | -       | -           |
+| Parameter  | Type                                                                                                               | Default | Description |
+| :--------- | :----------------------------------------------------------------------------------------------------------------- | :------ | :---------- |
+| parameters | `DragParametersWithInferredAccept<UseMonitorParameters<TPayload \| unknown, TDragData \| unknown>, AnyDragAccept>` | -       | -           |
 
 **Return Value:**
 
@@ -1555,10 +1555,10 @@ A monitor has no element and needs no `<Draggable.Provider>`.
 type ReturnValue = void;
 ```
 
-### useDragMonitor.Parameters
+### useMonitor.Parameters
 
 ```typescript
-type DraggableuseDragMonitorParameters<TSourcePayload = unknown, TDragData = unknown> = {
+type DraggableuseMonitorParameters<TSourcePayload = unknown, TDragData = unknown> = {
   accept?: DragAccept<TSourcePayload, TDragData>;
   /**
    * Event handler called once when a matching drag starts, wherever it started.
@@ -1596,10 +1596,10 @@ type DraggableuseDragMonitorParameters<TSourcePayload = unknown, TDragData = unk
 };
 ```
 
-### useDragMonitor.ReturnValue
+### useMonitor.ReturnValue
 
 ```typescript
-type DraggableuseDragMonitorReturnValue = Draggable.useDragMonitor.ReturnValue;
+type DraggableuseMonitorReturnValue = Draggable.useMonitor.ReturnValue;
 ```
 
 ## Additional Types
@@ -1725,7 +1725,7 @@ type DragAutoScrollFrameContext<TSourcePayload = unknown, TDragData = unknown> =
 
 ### DragDropManager
 
-The page-wide drag manager returned by `useDragDropManager`.
+The page-wide drag manager returned by `useManager`.
 
 Each `register*` method takes a function returning the options, and returns a
 cleanup function that unregisters.
@@ -1810,7 +1810,7 @@ type DragDropManager = {
     >,
   ) => DragCleanupFn;
   /**
-   * Registers a monitor, with the options of `useDragMonitor`.
+   * Registers a monitor, with the options of `useMonitor`.
    * Returns a cleanup function that unregisters it.
    */
   registerMonitor: <TAccept extends AnyDragAccept = DragKind>(
@@ -3459,12 +3459,12 @@ type UseActiveDragReturnValue<TPayload = unknown, TDragData = unknown> = DragSou
 > | null;
 ```
 
-### UseDragDropManagerReturnValue
+### UseManagerReturnValue
 
-The page-wide drag manager returned by [`useDragDropManager`](#usedragdropmanager).
+The page-wide drag manager returned by `Draggable.useManager`.
 
 ```typescript
-type UseDragDropManagerReturnValue = {
+type UseManagerReturnValue = {
   /**
    * Registers an element as a drag source, with the options of `Draggable.Root`.
    * Returns a cleanup function that unregisters it.
@@ -3543,7 +3543,7 @@ type UseDragDropManagerReturnValue = {
     >,
   ) => DragCleanupFn;
   /**
-   * Registers a monitor, with the options of `useDragMonitor`.
+   * Registers a monitor, with the options of `useMonitor`.
    * Returns a cleanup function that unregisters it.
    */
   registerMonitor: <TAccept extends AnyDragAccept = DragKind>(
@@ -3560,12 +3560,12 @@ type UseDragDropManagerReturnValue = {
 };
 ```
 
-### UseDragMonitorParameters
+### UseMonitorParameters
 
 The kinds to observe and the event handlers called for every matching drag.
 
 ```typescript
-type UseDragMonitorParameters<
+type UseMonitorParameters<
   TSourcePayload = unknown,
   TDragData = unknown,
 > = RegisterMonitorParameters<TSourcePayload, TDragData>;
@@ -3625,7 +3625,7 @@ type updateDragData = (dragData: unknown) => void;
 - `Draggable.useActiveDrag`: `Draggable.useActiveDrag`, `Draggable.useActiveDrag.ReturnValue`
 - `Draggable.createKind`
 - `Draggable.createGlobalKind`
-- `Default`: `Draggable.anyKind`, `Draggable.DragPointerType`, `Draggable.DragInput`, `Draggable.DragPosition`, `Draggable.DragLocalPoint`, `Draggable.DragSnapSteps`, `Draggable.DragSnappedLocalPointOptions`, `Draggable.DropTargetRecord`, `Draggable.DragLocation`, `Draggable.DragLocationHistory`, `Draggable.DragSource`, `Draggable.DragKind`, `Draggable.DragAccept`, `Draggable.DragAcceptedKind`, `Draggable.AnyDragAccept`, `Draggable.AcceptedDragPayload`, `Draggable.AcceptedDragData`, `Draggable.BaseDragEvent`, `Draggable.DragPreviewOffsetParameters`, `Draggable.DragPreviewOffset`, `Draggable.DragPreviewContainer`, `Draggable.DraggableEventMap`, `Draggable.DropTargetEventMap`, `Draggable.DragPreviewRenderEvent`, `Draggable.MoveStartEvent`, `Draggable.MoveEvent`, `Draggable.DropTargetChangeEvent`, `Draggable.MoveEndEvent`, `Draggable.DragDropEvent`, `Draggable.DropEvent`, `Draggable.DropTargetEvent`, `Draggable.MoveStartContext`, `Draggable.DraggablePayload`, `Draggable.DragHandle`, `Draggable.DragStartReason`, `Draggable.DragMoveReason`, `Draggable.BeforeMoveStartEventDetails`, `Draggable.DragCompletedReason`, `Draggable.DragCanceledReason`, `Draggable.DragEndReason`, `Draggable.DragDropReason`, `Draggable.DropTargetChangeReason`, `Draggable.DragEventDetails`, `Draggable.MoveStartEventDetails`, `Draggable.MoveEventDetails`, `Draggable.DropTargetChangeEventDetails`, `Draggable.DragDropEventDetails`, `Draggable.MoveEndEventDetails`, `Draggable.DraggableEventDetailsMap`, `Draggable.DropTargetEventDetailsMap`, `Draggable.DropTargetResolutionContext`, `Draggable.DropTargetPayload`, `Draggable.DropTargetEventTarget`, `Draggable.DragElementReference`, `Draggable.DragModifierContext`, `Draggable.DragModifiers`, `Draggable.DragPreviewSettings`, `Draggable.DragPreviewParameters`, `UseActiveDragReturnValue`, `AcceptedDragData`, `AcceptedDragPayload`, `BaseDragEvent`, `BeforeMoveStartEventDetails`, `DraggablePayload`, `DragAccept`, `DragAcceptedKind`, `DragKind`, `DragModifier`, `DragModifierContext`, `DragModifiers`, `DragElementReference`, `DragDropEvent`, `DragDropEventDetails`, `DragDropReason`, `MoveEndEvent`, `MoveEndEventDetails`, `DragEndReason`, `DragCanceledReason`, `DragCompletedReason`, `DragEventDetails`, `DraggableEventDetailsMap`, `DragHandle`, `DragInput`, `DragLocalPoint`, `DragLocation`, `DragLocationHistory`, `DraggableEventMap`, `MoveEvent`, `DragMoveReason`, `MoveEventDetails`, `MoveStartEventDetails`, `DropTargetChangeEventDetails`, `DragPosition`, `DragPreviewContainer`, `DragPreviewOffset`, `DragPreviewParameters`, `DragPreviewRenderEvent`, `DragPreviewSettings`, `DragSnappedLocalPointOptions`, `DragSnapSteps`, `DragSource`, `MoveStartContext`, `MoveStartEvent`, `DropTargetChangeEvent`, `DropTargetRecord`, `DragPointerType`, `DragPreviewOffsetParameters`, `DragActivation`, `DragActivationConfig`, `DropTargetEvent`, `DropTargetEventMap`, `DropTargetEventDetailsMap`, `DropEvent`, `DropTargetEventTarget`, `DropTargetChangeReason`, `DropTargetPayload`, `DropTargetResolutionContext`, `AutoScrollOverflowMargin`, `DragAutoScrollEvent`, `DragAutoScrollEventDetails`, `DragAutoScrollDirection`, `DragAutoScrollHandler`, `DragAutoScrollFrameContext`, `UseDragMonitorParameters`, `UseDragDropManagerReturnValue`, `DragDropManager`, `RegisterDraggableParameters`, `RegisterDraggableParametersWithPayload`, `RegisterDropTargetParameters`, `RegisterDropTargetParametersWithPayload`, `RegisterAutoScrollerParameters`, `RegisterMonitorParameters`, `DraggableRootState`, `DraggableRootProps`, `DraggableRootPropsWithPayload`, `DraggableRootBeforeMoveStartEvent`, `DraggableRootBeforeMoveStartEventDetails`, `DraggableRootBeforeMoveStartEventReason`, `DraggableRootMoveStartEvent`, `DraggableRootMoveStartEventDetails`, `DraggableRootMoveStartEventReason`, `DraggableRootMoveEvent`, `DraggableRootMoveEventDetails`, `DraggableRootMoveEventReason`, `DraggableRootTargetChangeEvent`, `DraggableRootTargetChangeEventDetails`, `DraggableRootTargetChangeEventReason`, `DraggableRootMoveEndEvent`, `DraggableRootMoveEndEventDetails`, `DraggableRootMoveEndEventReason`, `DraggableHandleState`, `DraggableHandleProps`, `DraggablePreviewState`, `DraggablePreviewProps`, `DraggablePreviewTypedProps`, `DraggablePreviewRenderEvent`, `DraggableProviderProps`, `DraggableTargetState`, `DraggableTargetProps`, `DraggableTargetPropsWithPayload`, `DraggableTargetStartEvent`, `DraggableTargetStartEventDetails`, `DraggableTargetStartEventReason`, `DraggableTargetMoveEvent`, `DraggableTargetMoveEventDetails`, `DraggableTargetMoveEventReason`, `DraggableTargetEnterEvent`, `DraggableTargetEnterEventDetails`, `DraggableTargetEnterEventReason`, `DraggableTargetLeaveEvent`, `DraggableTargetLeaveEventDetails`, `DraggableTargetLeaveEventReason`, `DraggableTargetDropEvent`, `DraggableTargetDropEventDetails`, `DraggableTargetDropEventReason`, `DraggableViewportState`, `DraggableViewportProps`, `DraggableViewportDragScrollEvent`, `DraggableViewportDragScrollEventDetails`, `DraggableViewportDragScrollEventReason`, `DraggableCollision`, `DraggableCollisionEvent`, `DraggableCollisionEndEvent`, `DraggableCollisionProviderProps`, `DraggableCollisionProviderMoveStartEvent`, `DraggableCollisionProviderMoveStartEventDetails`, `DraggableCollisionProviderMoveStartEventReason`, `DraggableCollisionProviderCollisionChangeEvent`, `DraggableCollisionProviderCollisionChangeEventDetails`, `DraggableCollisionProviderCollisionChangeEventReason`, `DraggableCollisionProviderMoveEndEventDetails`, `DraggableCollisionProviderMoveEndEventReason`
+- `Default`: `Draggable.anyKind`, `Draggable.DragPointerType`, `Draggable.DragInput`, `Draggable.DragPosition`, `Draggable.DragLocalPoint`, `Draggable.DragSnapSteps`, `Draggable.DragSnappedLocalPointOptions`, `Draggable.DropTargetRecord`, `Draggable.DragLocation`, `Draggable.DragLocationHistory`, `Draggable.DragSource`, `Draggable.DragKind`, `Draggable.DragAccept`, `Draggable.DragAcceptedKind`, `Draggable.AnyDragAccept`, `Draggable.AcceptedDragPayload`, `Draggable.AcceptedDragData`, `Draggable.BaseDragEvent`, `Draggable.DragPreviewOffsetParameters`, `Draggable.DragPreviewOffset`, `Draggable.DragPreviewContainer`, `Draggable.DraggableEventMap`, `Draggable.DropTargetEventMap`, `Draggable.DragPreviewRenderEvent`, `Draggable.MoveStartEvent`, `Draggable.MoveEvent`, `Draggable.DropTargetChangeEvent`, `Draggable.MoveEndEvent`, `Draggable.DragDropEvent`, `Draggable.DropEvent`, `Draggable.DropTargetEvent`, `Draggable.MoveStartContext`, `Draggable.DraggablePayload`, `Draggable.DragHandle`, `Draggable.DragStartReason`, `Draggable.DragMoveReason`, `Draggable.BeforeMoveStartEventDetails`, `Draggable.DragCompletedReason`, `Draggable.DragCanceledReason`, `Draggable.DragEndReason`, `Draggable.DragDropReason`, `Draggable.DropTargetChangeReason`, `Draggable.DragEventDetails`, `Draggable.MoveStartEventDetails`, `Draggable.MoveEventDetails`, `Draggable.DropTargetChangeEventDetails`, `Draggable.DragDropEventDetails`, `Draggable.MoveEndEventDetails`, `Draggable.DraggableEventDetailsMap`, `Draggable.DropTargetEventDetailsMap`, `Draggable.DropTargetResolutionContext`, `Draggable.DropTargetPayload`, `Draggable.DropTargetEventTarget`, `Draggable.DragElementReference`, `Draggable.DragModifierContext`, `Draggable.DragModifiers`, `Draggable.DragPreviewSettings`, `Draggable.DragPreviewParameters`, `UseActiveDragReturnValue`, `AcceptedDragData`, `AcceptedDragPayload`, `BaseDragEvent`, `BeforeMoveStartEventDetails`, `DraggablePayload`, `DragAccept`, `DragAcceptedKind`, `DragKind`, `DragModifier`, `DragModifierContext`, `DragModifiers`, `DragElementReference`, `DragDropEvent`, `DragDropEventDetails`, `DragDropReason`, `MoveEndEvent`, `MoveEndEventDetails`, `DragEndReason`, `DragCanceledReason`, `DragCompletedReason`, `DragEventDetails`, `DraggableEventDetailsMap`, `DragHandle`, `DragInput`, `DragLocalPoint`, `DragLocation`, `DragLocationHistory`, `DraggableEventMap`, `MoveEvent`, `DragMoveReason`, `MoveEventDetails`, `MoveStartEventDetails`, `DropTargetChangeEventDetails`, `DragPosition`, `DragPreviewContainer`, `DragPreviewOffset`, `DragPreviewParameters`, `DragPreviewRenderEvent`, `DragPreviewSettings`, `DragSnappedLocalPointOptions`, `DragSnapSteps`, `DragSource`, `MoveStartContext`, `MoveStartEvent`, `DropTargetChangeEvent`, `DropTargetRecord`, `DragPointerType`, `DragPreviewOffsetParameters`, `DragActivation`, `DragActivationConfig`, `DropTargetEvent`, `DropTargetEventMap`, `DropTargetEventDetailsMap`, `DropEvent`, `DropTargetEventTarget`, `DropTargetChangeReason`, `DropTargetPayload`, `DropTargetResolutionContext`, `AutoScrollOverflowMargin`, `DragAutoScrollEvent`, `DragAutoScrollEventDetails`, `DragAutoScrollDirection`, `DragAutoScrollHandler`, `DragAutoScrollFrameContext`, `UseMonitorParameters`, `UseManagerReturnValue`, `DragDropManager`, `RegisterDraggableParameters`, `RegisterDraggableParametersWithPayload`, `RegisterDropTargetParameters`, `RegisterDropTargetParametersWithPayload`, `RegisterAutoScrollerParameters`, `RegisterMonitorParameters`, `DraggableRootState`, `DraggableRootProps`, `DraggableRootPropsWithPayload`, `DraggableRootBeforeMoveStartEvent`, `DraggableRootBeforeMoveStartEventDetails`, `DraggableRootBeforeMoveStartEventReason`, `DraggableRootMoveStartEvent`, `DraggableRootMoveStartEventDetails`, `DraggableRootMoveStartEventReason`, `DraggableRootMoveEvent`, `DraggableRootMoveEventDetails`, `DraggableRootMoveEventReason`, `DraggableRootTargetChangeEvent`, `DraggableRootTargetChangeEventDetails`, `DraggableRootTargetChangeEventReason`, `DraggableRootMoveEndEvent`, `DraggableRootMoveEndEventDetails`, `DraggableRootMoveEndEventReason`, `DraggableHandleState`, `DraggableHandleProps`, `DraggablePreviewState`, `DraggablePreviewProps`, `DraggablePreviewTypedProps`, `DraggablePreviewRenderEvent`, `DraggableProviderProps`, `DraggableTargetState`, `DraggableTargetProps`, `DraggableTargetPropsWithPayload`, `DraggableTargetStartEvent`, `DraggableTargetStartEventDetails`, `DraggableTargetStartEventReason`, `DraggableTargetMoveEvent`, `DraggableTargetMoveEventDetails`, `DraggableTargetMoveEventReason`, `DraggableTargetEnterEvent`, `DraggableTargetEnterEventDetails`, `DraggableTargetEnterEventReason`, `DraggableTargetLeaveEvent`, `DraggableTargetLeaveEventDetails`, `DraggableTargetLeaveEventReason`, `DraggableTargetDropEvent`, `DraggableTargetDropEventDetails`, `DraggableTargetDropEventReason`, `DraggableViewportState`, `DraggableViewportProps`, `DraggableViewportDragScrollEvent`, `DraggableViewportDragScrollEventDetails`, `DraggableViewportDragScrollEventReason`, `DraggableCollision`, `DraggableCollisionEvent`, `DraggableCollisionEndEvent`, `DraggableCollisionProviderProps`, `DraggableCollisionProviderMoveStartEvent`, `DraggableCollisionProviderMoveStartEventDetails`, `DraggableCollisionProviderMoveStartEventReason`, `DraggableCollisionProviderCollisionChangeEvent`, `DraggableCollisionProviderCollisionChangeEventDetails`, `DraggableCollisionProviderCollisionChangeEventReason`, `DraggableCollisionProviderMoveEndEventDetails`, `DraggableCollisionProviderMoveEndEventReason`
 - `Draggable.restrictToVerticalAxis`
 - `Draggable.restrictToHorizontalAxis`
 - `Draggable.restrictToWindowEdges`
@@ -3634,8 +3634,8 @@ type updateDragData = (dragData: unknown) => void;
 - `Draggable.snapToGrid`
 - `Draggable.Target`: `Draggable.Target`, `Draggable.Target.StartEvent`, `Draggable.Target.StartEventDetails`, `Draggable.Target.StartEventReason`, `Draggable.Target.MoveEvent`, `Draggable.Target.MoveEventDetails`, `Draggable.Target.MoveEventReason`, `Draggable.Target.EnterEvent`, `Draggable.Target.EnterEventDetails`, `Draggable.Target.EnterEventReason`, `Draggable.Target.LeaveEvent`, `Draggable.Target.LeaveEventDetails`, `Draggable.Target.LeaveEventReason`, `Draggable.Target.DropEvent`, `Draggable.Target.DropEventDetails`, `Draggable.Target.DropEventReason`, `Draggable.Target.State`, `Draggable.Target.Props`, `Draggable.Target.PropsWithPayload`
 - `Draggable.Viewport`: `Draggable.Viewport`, `Draggable.Viewport.DragScrollEvent`, `Draggable.Viewport.DragScrollEventDetails`, `Draggable.Viewport.DragScrollEventReason`, `Draggable.Viewport.State`, `Draggable.Viewport.Props`
-- `Draggable.useDragMonitor`: `Draggable.useDragMonitor`, `Draggable.useDragMonitor.Parameters`, `Draggable.useDragMonitor.ReturnValue`
-- `Draggable.useDragDropManager`: `Draggable.useDragDropManager`, `Draggable.useDragDropManager.ReturnValue`
+- `Draggable.useMonitor`: `Draggable.useMonitor`, `Draggable.useMonitor.Parameters`, `Draggable.useMonitor.ReturnValue`
+- `Draggable.useManager`: `Draggable.useManager`, `Draggable.useManager.ReturnValue`
 - `Draggable.CollisionProvider`: `Draggable.CollisionProvider`, `Draggable.CollisionProvider.MoveStartEvent`, `Draggable.CollisionProvider.MoveStartEventDetails`, `Draggable.CollisionProvider.MoveStartEventReason`, `Draggable.CollisionProvider.CollisionChangeEvent`, `Draggable.CollisionProvider.CollisionChangeEventDetails`, `Draggable.CollisionProvider.CollisionChangeEventReason`, `Draggable.CollisionProvider.MoveEndEventDetails`, `Draggable.CollisionProvider.MoveEndEventReason`, `Draggable.CollisionProvider.Props`, `Draggable.CollisionProvider.Collision`, `Draggable.CollisionProvider.CollisionEvent`, `Draggable.CollisionProvider.MoveEndEvent`
 - `Draggable.DragCleanupFn`
 - `Draggable.DragModifier`

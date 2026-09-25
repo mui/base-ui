@@ -9,7 +9,7 @@ import theme from './theme.module.css';
 import styles from './kanban-line-indicator.module.css';
 
 // Demonstrates a Trello-style "snap to closest position" pattern using only
-// `useDragMonitor`. The monitor reads the pointer on every drag event and
+// `useMonitor`. The monitor reads the pointer on every drag event and
 // resolves two things: the horizontally-closest column, and the vertically-
 // closest insertion slot within that column. A line indicator renders at the
 // resolved slot. Drops land precisely there, even when the pointer is outside
@@ -214,7 +214,7 @@ function KanbanSnapContent() {
     },
   );
 
-  Draggable.useDragMonitor({
+  Draggable.useMonitor({
     accept: cardKind,
     onMoveStart: ({ location }) => {
       const { clientX, clientY } = location.current.input;

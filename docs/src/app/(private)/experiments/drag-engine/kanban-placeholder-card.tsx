@@ -8,7 +8,7 @@ import { findClosestSlot } from './kanban-placeholder-card-slots';
 import styles from './kanban-placeholder-card.module.css';
 import controlsStyles from './controls.module.css';
 
-// A "snap to closest position" Kanban board built with `useDragMonitor`.
+// A "snap to closest position" Kanban board built with `useMonitor`.
 // The monitor reads the pointer on every drag event and resolves the
 // horizontally-closest column and the vertically-closest insertion slot within
 // it. An empty placeholder card renders in that slot, so the cards part to make
@@ -168,7 +168,7 @@ function KanbanBoardContent() {
   );
 
   // @highlight-start
-  Draggable.useDragMonitor({
+  Draggable.useMonitor({
     accept: cardKind,
     // @highlight-end
     onMoveStart: ({ source, location }) => {

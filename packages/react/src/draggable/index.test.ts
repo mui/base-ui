@@ -24,8 +24,8 @@ describe('Draggable namespace', () => {
         'restrictToWindowEdges',
         'snapToGrid',
         'useActiveDrag',
-        'useDragDropManager',
-        'useDragMonitor',
+        'useManager',
+        'useMonitor',
       ].sort(),
     );
   });
