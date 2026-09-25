@@ -1097,7 +1097,7 @@ describe('Draggable.Root', () => {
       expect(second).not.toBe(first);
       // The clone now settles onto the new node: the source marking moved with it.
       expect(second).toHaveAttribute('data-dragging');
-      expect(second).toHaveAttribute('data-ending-style');
+      expect(second).toHaveAttribute('data-settling');
       expect(first).not.toHaveAttribute('data-dragging');
       expect(clone.isConnected).toBe(true);
 
@@ -1108,7 +1108,7 @@ describe('Draggable.Root', () => {
       await flushRaf();
       expect(clone.isConnected).toBe(false);
       expect(second).not.toHaveAttribute('data-dragging');
-      expect(second).not.toHaveAttribute('data-ending-style');
+      expect(second).not.toHaveAttribute('data-settling');
     });
 
     it('clears the clone and data-dragging after a real drop', async () => {

@@ -212,7 +212,7 @@ describe('syntheticPreview', () => {
 
       expect(preview.element).toHaveAttribute('data-ending-style');
       expect(source).toHaveAttribute('data-dragging');
-      expect(source).toHaveAttribute('data-ending-style');
+      expect(source).toHaveAttribute('data-settling');
       expect(preview.destroyed).toBe(false);
 
       frames.shift()!(0);
@@ -224,7 +224,7 @@ describe('syntheticPreview', () => {
       await Promise.resolve();
       expect(preview.destroyed).toBe(true);
       expect(source).not.toHaveAttribute('data-dragging');
-      expect(source).not.toHaveAttribute('data-ending-style');
+      expect(source).not.toHaveAttribute('data-settling');
     });
 
     it.each(['duration', 'iterations'])('ignores animations with infinite %s', (property) => {
@@ -291,7 +291,7 @@ describe('syntheticPreview', () => {
       vi.advanceTimersByTime(1);
       expect(preview.destroyed).toBe(true);
       expect(source).not.toHaveAttribute('data-dragging');
-      expect(source).not.toHaveAttribute('data-ending-style');
+      expect(source).not.toHaveAttribute('data-settling');
     });
 
     it('settles on a matching source that remounts in another container', async () => {
@@ -340,8 +340,8 @@ describe('syntheticPreview', () => {
       });
 
       expect(destination).toHaveAttribute('data-dragging');
-      expect(destination).toHaveAttribute('data-ending-style');
-      expect(source).not.toHaveAttribute('data-ending-style');
+      expect(destination).toHaveAttribute('data-settling');
+      expect(source).not.toHaveAttribute('data-settling');
       frames.shift()!(0);
       expect(preview.element.style.translate).toBe('240px 160px');
       expect(preview.destroyed).toBe(false);
@@ -351,7 +351,7 @@ describe('syntheticPreview', () => {
       await Promise.resolve();
       expect(preview.destroyed).toBe(true);
       expect(destination).not.toHaveAttribute('data-dragging');
-      expect(destination).not.toHaveAttribute('data-ending-style');
+      expect(destination).not.toHaveAttribute('data-settling');
     });
 
     it('does not retarget a settling source without an unambiguous identity', () => {
@@ -386,7 +386,7 @@ describe('syntheticPreview', () => {
       });
 
       expect(destination).not.toHaveAttribute('data-dragging');
-      expect(destination).not.toHaveAttribute('data-ending-style');
+      expect(destination).not.toHaveAttribute('data-settling');
       frames.shift()!(0);
       expect(preview.destroyed).toBe(true);
     });
@@ -413,7 +413,7 @@ describe('syntheticPreview', () => {
       frames.shift()!(0);
       expect(preview.destroyed).toBe(true);
       expect(source).not.toHaveAttribute('data-dragging');
-      expect(source).not.toHaveAttribute('data-ending-style');
+      expect(source).not.toHaveAttribute('data-settling');
     });
 
     it('does not preserve a custom preview whose React content is ending', () => {

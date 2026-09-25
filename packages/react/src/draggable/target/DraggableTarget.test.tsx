@@ -53,8 +53,8 @@ describe('Draggable.Target', () => {
 
     await rerender(<Swappable swapped />);
     const second = screen.getByTestId('b');
-    expect(first).not.toHaveAttribute('data-drop-target');
-    expect(second).toHaveAttribute('data-drop-target');
+    expect(first).not.toHaveAttribute('data-base-ui-drop-target');
+    expect(second).toHaveAttribute('data-base-ui-drop-target');
     fireEvent.dragEnter(second);
     await flushRaf();
     expect(second).toHaveAttribute('data-drag-over');
@@ -72,7 +72,7 @@ describe('Draggable.Target', () => {
   it('marks the element as a drop target once attached', async () => {
     await renderDnd(<Draggable.Target accept={Draggable.anyKind} data-testid="target" />);
     const el = screen.getByTestId('target');
-    expect(el).toHaveAttribute('data-drop-target', '');
+    expect(el).toHaveAttribute('data-base-ui-drop-target', '');
   });
 
   it('removes the drop-target attribute on unmount', async () => {
@@ -81,7 +81,7 @@ describe('Draggable.Target', () => {
     );
     const el = screen.getByTestId('target');
     unmount();
-    expect(el).not.toHaveAttribute('data-drop-target');
+    expect(el).not.toHaveAttribute('data-base-ui-drop-target');
   });
 
   it('does not forward engine parameters to the DOM element', async () => {
@@ -312,14 +312,14 @@ describe('Draggable.Target', () => {
 
     const { rerender } = await renderDnd(<Swappable swapped={false} />);
     const first = screen.getByTestId('a');
-    expect(first).toHaveAttribute('data-drop-target', '');
+    expect(first).toHaveAttribute('data-base-ui-drop-target', '');
 
     await rerender(<Swappable swapped />);
     const second = screen.getByTestId('b');
     // The old node was deregistered and the new node registered, so the drop
     // target follows the swap instead of going dead on the detached node.
-    expect(first).not.toHaveAttribute('data-drop-target');
-    expect(second).toHaveAttribute('data-drop-target', '');
+    expect(first).not.toHaveAttribute('data-base-ui-drop-target');
+    expect(second).toHaveAttribute('data-base-ui-drop-target', '');
   });
 
   it('resolves the new params when a hovered target remounts with changed params in one commit', async () => {
@@ -1279,7 +1279,7 @@ describe('Draggable.Target', () => {
       const el = screen.getByText('Card');
       // One node carries both registrations: the drop target attribute and the
       // gesture setup the engine applies to a drag source.
-      expect(el).toHaveAttribute('data-drop-target', '');
+      expect(el).toHaveAttribute('data-base-ui-drop-target', '');
       expect(el.style.touchAction).toBe('manipulation');
     });
 
@@ -1342,7 +1342,7 @@ describe('Draggable.Target', () => {
       expect(a).not.toHaveAttribute('data-drag-over');
 
       fireEvent.drop(b);
-      expect(a).toHaveAttribute('data-ending-style');
+      expect(a).toHaveAttribute('data-settling');
       await flushRaf();
       expect(a).not.toHaveAttribute('data-dragging');
     });

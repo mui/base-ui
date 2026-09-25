@@ -727,10 +727,10 @@ After a release, the clone moves to the source's final position and receives `[d
 }
 ```
 
-The source also receives `[data-ending-style]` while the clone settles, so it can act as an empty placeholder until the clone arrives:
+The source receives `[data-settling]` while the clone settles, so it can act as an empty placeholder until the clone arrives:
 
 ```css title="Hiding the source until the clone arrives"
-.Card[data-ending-style]:not([data-drag-preview]) {
+.Card[data-settling] {
   color: transparent;
 }
 ```

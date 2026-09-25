@@ -27,11 +27,11 @@ const slotKind = Draggable.createKind('card-slot');
 describe('engine.registerTarget', () => {
   const { renderDnd } = createDndRenderer();
 
-  it('sets data-drop-target attribute on the element', async () => {
+  it('sets the internal drop target marker on the element', async () => {
     const { engine } = await renderDnd();
     const el = createElement();
     const cleanup = engine.registerTarget(el, {});
-    expect(el.getAttribute('data-drop-target')).toBe('');
+    expect(el.getAttribute('data-base-ui-drop-target')).toBe('');
     cleanup();
   });
 
@@ -40,7 +40,7 @@ describe('engine.registerTarget', () => {
     const el = createElement();
     const cleanup = engine.registerTarget(el, {});
     cleanup();
-    expect(el.hasAttribute('data-drop-target')).toBe(false);
+    expect(el.hasAttribute('data-base-ui-drop-target')).toBe(false);
   });
 
   it('canDrop returning false prevents the element from being a target', async () => {
@@ -820,7 +820,7 @@ describe('engine.registerTarget', () => {
 
     it('evaluates a snap callback lazily, once per record, with the resolution context', async () => {
       const snap = vi.fn(({ element }: { element: Element }) => {
-        expect(element).toHaveAttribute('data-drop-target');
+        expect(element).toHaveAttribute('data-base-ui-drop-target');
         return { y: 4 };
       });
       const record = await dropAt({ snap }, 150, 235);
@@ -1236,7 +1236,7 @@ describe('engine.registerTarget', () => {
     const cleanupB = engine.registerTarget(target, { onDraggableDrop: onDropB });
 
     cleanupB();
-    expect(target.hasAttribute('data-drop-target')).toBe(true);
+    expect(target.hasAttribute('data-base-ui-drop-target')).toBe(true);
 
     fireEvent.dragStart(source);
     await flushRaf();
@@ -1336,7 +1336,7 @@ describe('engine.registerTarget', () => {
       unregister();
 
       // The re-registration survived, marker attribute and all.
-      expect(target).toHaveAttribute('data-drop-target');
+      expect(target).toHaveAttribute('data-base-ui-drop-target');
 
       await dragOver(target, { clientY: 250 });
       fireEvent.drop(target, { clientY: 250 });

@@ -8,7 +8,7 @@ import type { DraggableRootModifier, DraggablePosition } from '../../../types/dr
 import type { DragModifierKeys } from '../utils';
 import { applyDragModifiers } from '../dragModifiers';
 import { getSharedSlot } from '../sharedState';
-import { DRAGGING_ATTR, ENDING_STYLE_ATTR } from '../dragAttributes';
+import { DRAGGING_ATTR, ENDING_STYLE_ATTR, SETTLING_ATTR } from '../dragAttributes';
 import { getElementScale, NO_MODIFIER_KEYS } from '../utils';
 
 const ZERO_OFFSET: DraggablePosition = { x: 0, y: 0 };
@@ -190,7 +190,7 @@ export function createSyntheticPreview(
 
     const previousSource = sourceElement;
     previousSource.removeAttribute(DRAGGING_ATTR);
-    previousSource.removeAttribute(ENDING_STYLE_ATTR);
+    previousSource.removeAttribute(SETTLING_ATTR);
     if (endingCleanup && endingPreviews.get(previousSource) === endingCleanup) {
       endingPreviews.delete(previousSource);
     }
@@ -207,7 +207,7 @@ export function createSyntheticPreview(
     }
     sourceElement.setAttribute(DRAGGING_ATTR, '');
     if (endingCleanup) {
-      sourceElement.setAttribute(ENDING_STYLE_ATTR, '');
+      sourceElement.setAttribute(SETTLING_ATTR, '');
     }
   }
 
@@ -307,7 +307,7 @@ export function createSyntheticPreview(
           if (endingPreviews.get(sourceElement) === cleanup) {
             endingPreviews.delete(sourceElement);
             sourceElement.removeAttribute(DRAGGING_ATTR);
-            sourceElement.removeAttribute(ENDING_STYLE_ATTR);
+            sourceElement.removeAttribute(SETTLING_ATTR);
           }
           endingCleanup = null;
         };
@@ -315,7 +315,7 @@ export function createSyntheticPreview(
         endingCleanup = cleanup;
         endingPreviews.get(sourceElement)?.();
         endingPreviews.set(sourceElement, cleanup);
-        sourceElement.setAttribute(ENDING_STYLE_ATTR, '');
+        sourceElement.setAttribute(SETTLING_ATTR, '');
         if (sourceIdentity) {
           registration = {
             identity: sourceIdentity,

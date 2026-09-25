@@ -14,8 +14,14 @@
  */
 export const DRAGGING_ATTR = 'data-dragging';
 
-/** Set on the source and the preview while the drop transition plays. */
+/** Set on the preview while its drop transition plays. */
 export const ENDING_STYLE_ATTR = 'data-ending-style';
+
+/**
+ * Set on the source while the preview settles into its final position. The source
+ * isn't leaving, so it gets its own attribute rather than `data-ending-style`.
+ */
+export const SETTLING_ATTR = 'data-settling';
 
 /**
  * Marks the preview so consumers can style it with the source's own selector —
@@ -25,5 +31,8 @@ export const ENDING_STYLE_ATTR = 'data-ending-style';
  */
 export const DRAG_PREVIEW_ATTR = 'data-drag-preview';
 
-/** Marks every registered drop target, so the hit-test walk can find them with one selector. */
-export const DROP_TARGET_ATTR = 'data-drop-target';
+/**
+ * Marks every registered drop target, so the hit-test walk can find them with one selector.
+ * Internal, hence the `data-base-ui-` prefix: it isn't a styling hook.
+ */
+export const DROP_TARGET_ATTR = 'data-base-ui-drop-target';

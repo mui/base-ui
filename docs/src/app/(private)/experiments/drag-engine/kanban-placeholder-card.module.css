@@ -144,7 +144,7 @@
   }
 
   /* Keep the committed card looking like the placeholder until the clone arrives. */
-  &[data-ending-style]:not([data-drag-preview]) {
+  &[data-settling] {
     color: transparent;
   }
 

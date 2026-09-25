@@ -31,8 +31,6 @@ describe('Draggable.Target enum sync', () => {
     const inner = screen.getByTestId('inner');
     const full = screen.getByTestId('full');
 
-    // Present for as long as the element is registered, drag or no drag.
-    expect(outer).toHaveAttribute(DraggableTargetDataAttributes.dropTarget);
     expect(screen.getByTestId('off')).toHaveAttribute(DraggableTargetDataAttributes.disabled);
     expect(outer).not.toHaveAttribute(DraggableTargetDataAttributes.dragOver);
     expect(outer).not.toHaveAttribute(DraggableTargetDataAttributes.accepting);

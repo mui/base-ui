@@ -1,5 +1,3 @@
-import { TransitionStatusDataAttributes } from '../../internals/stateAttributesMapping';
-
 /**
  * Present on the source element while it is being dragged.
  * A cloned preview never carries this attribute, so a `[data-dragging]`
@@ -12,7 +10,7 @@ export const dragging = 'data-dragging';
  * outside a target. Use it to keep the source styled as a placeholder until
  * the preview's ending animation finishes.
  */
-export const endingStyle = TransitionStatusDataAttributes.endingStyle;
+export const settling = 'data-settling';
 /**
  * Present while the draggable is disabled.
  */

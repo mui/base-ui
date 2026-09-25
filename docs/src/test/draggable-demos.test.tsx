@@ -349,9 +349,9 @@ describe('draggable demos', () => {
           selector: ':not([data-drag-preview])',
         });
         expect(source.isConnected).toBe(false);
-        expect(destination).toHaveAttribute('data-ending-style');
+        expect(destination).toHaveAttribute('data-settling');
         expect(destination).toHaveAttribute('data-disabled');
-        expect(screen.getByText('Cancel the trial')).not.toHaveAttribute('data-ending-style');
+        expect(screen.getByText('Cancel the trial')).not.toHaveAttribute('data-settling');
         await flushRaf();
       } finally {
         if (originalScrollIntoView) {

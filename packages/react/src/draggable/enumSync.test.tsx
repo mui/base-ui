@@ -71,7 +71,7 @@ describe('Draggable enum sync', () => {
     expect(source).toHaveAttribute(DraggableRootDataAttributes.dragging);
   });
 
-  it('names the source ending attribute per DraggableRootDataAttributes', async () => {
+  it('names the source settling attribute per DraggableRootDataAttributes', async () => {
     const { engine } = await renderDnd(
       <Draggable.Root kind={testDragKind} data-testid="drag">
         <Draggable.Preview />
@@ -86,8 +86,8 @@ describe('Draggable enum sync', () => {
     fireEvent.dragEnter(target);
     fireEvent.drop(target);
 
-    expect(source).toHaveAttribute(DraggableRootDataAttributes.endingStyle);
+    expect(source).toHaveAttribute(DraggableRootDataAttributes.settling);
     await flushRaf();
-    expect(source).not.toHaveAttribute(DraggableRootDataAttributes.endingStyle);
+    expect(source).not.toHaveAttribute(DraggableRootDataAttributes.settling);
   });
 });
