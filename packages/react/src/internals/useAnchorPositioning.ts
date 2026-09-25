@@ -758,6 +758,8 @@ export interface UseAnchorPositioningSharedParameters {
    * and scroll observers; `always` recalculates the position on every animation frame. Use `always`
    * when the anchor is animated or transformed.
    * `disableAnchorTracking` disables tracking for either strategy.
+   * In Select, `optimized` suppresses tracking while `alignItemWithTrigger` is active (its default
+   * for mouse input). `always` enables tracking unless `disableAnchorTracking` is `true`.
    * @default 'optimized'
    */
   updatePositionStrategy?: 'optimized' | 'always' | undefined;
