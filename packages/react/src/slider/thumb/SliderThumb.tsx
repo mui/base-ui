@@ -29,6 +29,7 @@ import { useCompositeListItem } from '../../internals/composite/list/useComposit
 import { useDirection } from '../../internals/direction-context/DirectionContext';
 import { PrehydrationScript } from '../../internals/PrehydrationScript';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
+import { useSetFieldFocused } from '../../internals/field-root-context/useSetFieldFocused';
 import { contains } from '../../floating-ui-react/utils';
 import { matchesFocusVisible } from '../../floating-ui-react/utils/element';
 import { useLabelableId } from '../../internals/labelable-provider/useLabelableId';
@@ -122,6 +123,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     format,
     handleInputChange,
     inset,
+    isArrayValue,
     labelId,
     largeStep,
     locale,
@@ -149,10 +151,11 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
   const vertical = orientation === 'vertical';
   const rtl = direction === 'rtl';
 
-  const { setTouched, setFocused, validationMode } = useFieldRootContext();
+  const { setTouched, validationMode } = useFieldRootContext();
 
   const thumbRef = React.useRef<HTMLElement>(null);
   const inputRef = React.useRef<HTMLInputElement>(null);
+  const setFocused = useSetFieldFocused(disabled, inputRef);
   const restoringFocusVisibleRef = React.useRef(false);
 
   // Attached to the `input` (not the thumb wrapper) so `event.currentTarget` is the
@@ -357,7 +360,9 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
         setFocused(false);
 
         if (validationMode === 'onBlur') {
-          validation.commit(getSliderValue(thumbValue, index, min, max, range, sliderValues));
+          validation.commit(
+            getSliderValue(thumbValue, index, min, max, isArrayValue, sliderValues),
+          );
         }
       },
       onKeyDown(event: React.KeyboardEvent) {

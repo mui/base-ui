@@ -44,6 +44,46 @@ describe('<Tooltip.Viewport />', () => {
     expect(currentContainer!.textContent).toBe('Content');
   });
 
+  it.skipIf(isJSDOM)('anchors the positioner from the far edge while it transitions', async () => {
+    await render(
+      <Tooltip.Root>
+        <style>{`[data-testid="positioner"] { transition: transform 100ms; }`}</style>
+        {/* Leave room on the left so the popup does not flip. */}
+        <Tooltip.Trigger
+          delay={0}
+          closeDelay={0}
+          style={{ position: 'fixed', top: 200, left: 300 }}
+        >
+          Trigger
+        </Tooltip.Trigger>
+        <Tooltip.Portal>
+          <Tooltip.Positioner side="left" data-testid="positioner">
+            <Tooltip.Popup>
+              <Tooltip.Viewport>Content</Tooltip.Viewport>
+            </Tooltip.Popup>
+          </Tooltip.Positioner>
+        </Tooltip.Portal>
+      </Tooltip.Root>,
+    );
+
+    const trigger = screen.getByRole('button', { name: 'Trigger' });
+
+    await act(async () => trigger.focus());
+
+    const positioner = await screen.findByTestId('positioner');
+
+    await waitFor(() => {
+      expect(positioner).toHaveAttribute('data-side', 'left');
+    });
+
+    // A transitioning popup on the left side is positioned from the right edge so a size change
+    // keeps its far edge in place.
+    await waitFor(() => {
+      expect(positioner.style.right).not.toBe('');
+    });
+    expect(positioner.style.left).toBe('');
+  });
+
   it.skipIf(isJSDOM)('should mirror the instant animation type of the tooltip', async () => {
     await render(
       <Tooltip.Root>

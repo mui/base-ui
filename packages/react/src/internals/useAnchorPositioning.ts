@@ -382,7 +382,6 @@ export function useAnchorPositioningWithHook(
         element: arrowRef.current || ownerDocument(state.elements.floating).createElement('div'),
         // No padding for the fake arrow: it would displace aligned popups on narrow anchors.
         padding: arrowRef.current ? arrowPadding : 0,
-        offsetParent: 'floating',
       }),
       [arrowPadding],
     ),

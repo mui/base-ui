@@ -4,7 +4,7 @@ import { useTimeout, Timeout } from '@base-ui/utils/useTimeout';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 
 import { getDelay } from '../hooks/useHoverShared';
-import type { FloatingRootContext, Delay, FloatingContext } from '../types';
+import type { FloatingRootContext, Delay } from '../types';
 import {
   BaseUIChangeEventDetails,
   createChangeEventDetails,
@@ -139,12 +139,11 @@ interface UseDelayGroupReturn {
  * @internal
  */
 export function useDelayGroup(
-  context: FloatingRootContext | FloatingContext,
+  store: FloatingRootContext,
   options: UseDelayGroupOptions = { open: false },
 ): UseDelayGroupReturn {
   const { open } = options;
 
-  const store = 'rootStore' in context ? context.rootStore : context;
   const floatingId = store.useState('floatingId');
 
   const groupContext = React.useContext(FloatingDelayGroupContext);

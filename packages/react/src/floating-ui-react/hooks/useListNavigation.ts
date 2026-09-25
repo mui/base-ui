@@ -11,7 +11,7 @@ import { createChangeEventDetails } from '../../internals/createBaseUIEventDetai
 import { REASONS } from '../../internals/reasons';
 import { useFloatingParentNodeId, useFloatingTree } from '../components/FloatingTree';
 import { FloatingTreeStore } from '../components/FloatingTreeStore';
-import type { ElementProps, FloatingContext, FloatingRootContext } from '../types';
+import type { ElementProps, FloatingRootContext } from '../types';
 import {
   findNonDisabledListIndex,
   getMaxListIndex,
@@ -265,7 +265,7 @@ export interface UseListNavigationProps {
  * @see https://floating-ui.com/docs/useListNavigation
  */
 export function useListNavigation(
-  context: FloatingRootContext | FloatingContext,
+  store: FloatingRootContext,
   props: UseListNavigationProps,
 ): UseListNavigationReturn {
   const {
@@ -313,8 +313,6 @@ export function useListNavigation(
       );
     }
   }
-
-  const store = 'rootStore' in context ? context.rootStore : context;
 
   const open = store.useState('open');
   const floatingElement = store.useState('floatingElement');

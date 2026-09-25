@@ -2,7 +2,8 @@ import { vi, it, describe, expect } from 'vitest';
 import * as React from 'react';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { useTestInteractions } from '#test-utils';
-import { useClick, useFloating, useListNavigation } from '../index';
+import { useClick, useListNavigation } from '../index';
+import { useFloating } from '../../../test/floating-ui-tests/useFloating';
 
 vi.mock('@base-ui/utils/platform', async () => {
   const actual =
@@ -26,8 +27,8 @@ function App() {
     onOpenChange: setOpen,
   });
   const { getReferenceProps, getFloatingProps, getItemProps } = useTestInteractions([
-    useClick(context),
-    useListNavigation(context, {
+    useClick(context.rootStore),
+    useListNavigation(context.rootStore, {
       listRef,
       activeIndex,
       onNavigate: setActiveIndex,
