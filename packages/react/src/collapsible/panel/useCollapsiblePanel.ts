@@ -4,6 +4,7 @@ import { addEventListener } from '@base-ui/utils/addEventListener';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { AnimationFrame } from '@base-ui/utils/useAnimationFrame';
+import { Timeout } from '@base-ui/utils/useTimeout';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { warn } from '@base-ui/utils/warn';
@@ -363,22 +364,90 @@ export function useCollapsiblePanel(
         return undefined;
       }
 
-      function handleBeforeMatch(event: Event) {
+      const revealDecisionTimeout = Timeout.create();
+      let revertRevealFrame = -1;
+
+      // Reverting must wait until the browser has measured the match, and React
+      // cannot do it: it keeps rendering the same `hidden` and `data-starting-style`
+      // props while the panel stays closed, so it never rewrites attributes that were
+      // changed behind its back (the browser removes `hidden` as part of the reveal).
+      //
+      // Whether the open arrived is decided in a task, not a frame: `setOpen` has
+      // already scheduled React's own task by the time the timeout is queued, so the
+      // decision drains after the commit even when a busy main thread delays both,
+      // whereas a rendering update could preempt the still-queued commit and make an
+      // animation frame read a stale value. When the consumer ignores the open, no
+      // commit is ever scheduled and the decision holds. The DOM revert then runs
+      // in a frame so it stays atomic with respect to paint.
+      const scheduleRevealRevert = (
+        revertSkippedMotion: boolean,
+        restoreStartingStyle: boolean,
+      ) => {
+        revealDecisionTimeout.start(0, () => {
+          if (latestOpenRef.current) {
+            return;
+          }
+
+          revertRevealFrame = AnimationFrame.request(() => {
+            if (latestOpenRef.current) {
+              return;
+            }
+
+            if (revertSkippedMotion) {
+              // The open never happened, so the next one is an ordinary open that
+              // should keep its author-defined motion.
+              shouldSkipNextOpenRef.current = false;
+            }
+
+            if (restoreStartingStyle) {
+              panel.setAttribute(CollapsiblePanelDataAttributes.startingStyle, '');
+            }
+
+            panel.setAttribute('hidden', 'until-found');
+          });
+        });
+      };
+
+      // Declared as a `const` after the null check so `panel` stays narrowed: the
+      // handler must touch the same element the listener is attached to.
+      const handleBeforeMatch = (event: Event) => {
         const eventDetails = createChangeEventDetails(REASONS.none, event);
 
         onOpenChange(true, eventDetails);
 
         if (eventDetails.isCanceled) {
+          // A canceled reveal means the panel must stay hidden, so undo the
+          // browser's removal of `hidden` and keep the content searchable.
+          scheduleRevealRevert(false, false);
           return;
         }
 
         shouldSkipNextOpenRef.current = true;
-        setOpen(true);
-      }
 
-      return addEventListener(panel, 'beforematch', handleBeforeMatch);
+        // The browser removes `hidden` and measures the match in the same task that
+        // dispatches this event, while the React state update below only lands in a
+        // later one. Panels kept collapsed by persisted starting styles would still
+        // be zero-sized at that point and the match highlight is dropped, so drop
+        // those styles synchronously here.
+        const hadStartingStyle = panel.hasAttribute(CollapsiblePanelDataAttributes.startingStyle);
+        panel.removeAttribute(CollapsiblePanelDataAttributes.startingStyle);
+
+        setOpen(true);
+
+        // A controlled panel whose `onOpenChange` is ignored never receives the open
+        // state, so return it to the fully closed state once the browser has measured.
+        scheduleRevealRevert(true, hadStartingStyle);
+      };
+
+      const cleanupBeforeMatchListener = addEventListener(panel, 'beforematch', handleBeforeMatch);
+
+      return () => {
+        revealDecisionTimeout.clear();
+        AnimationFrame.cancel(revertRevealFrame);
+        cleanupBeforeMatchListener();
+      };
     },
-    [onOpenChange, setOpen],
+    [latestOpenRef, onOpenChange, setOpen],
   );
 
   const shouldRender = keepMounted || hiddenUntilFound || mounted || open;
