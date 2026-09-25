@@ -1,4 +1,4 @@
-import { FloatingEvents } from '../types';
+import type { FloatingEvents } from '../types';
 
 export function createEventEmitter(): FloatingEvents {
   const map = new Map<string, Set<(data: any) => void>>();

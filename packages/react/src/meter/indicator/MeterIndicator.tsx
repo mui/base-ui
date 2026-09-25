@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { BaseUIComponentProps } from '../../internals/types';
+import type { BaseUIComponentProps } from '../../internals/types';
 import type { MeterRootState } from '../root/MeterRoot';
 import { useMeterRootContext } from '../root/MeterRootContext';
 import { useRenderElement } from '../../internals/useRenderElement';

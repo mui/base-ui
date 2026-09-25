@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import {
+import type {
   BaseUIComponentProps,
   Orientation as BaseOrientation,
   HTMLProps,

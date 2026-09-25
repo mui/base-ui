@@ -3,12 +3,11 @@ import * as React from 'react';
 import { fastComponent } from '@base-ui/utils/fastHooks';
 import { useDismiss, FloatingTree } from '../../floating-ui-react';
 import { PopoverRootContext, usePopoverRootContext } from './PopoverRootContext';
-import { PopoverStore, type State as PopoverStoreState } from '../store/PopoverStore';
-import { PopoverHandle } from '../store/PopoverHandle';
-import {
-  createChangeEventDetails,
-  type BaseUIChangeEventDetails,
-} from '../../internals/createBaseUIEventDetails';
+import { PopoverStore } from '../store/PopoverStore';
+import type { State as PopoverStoreState } from '../store/PopoverStore';
+import type { PopoverHandle } from '../store/PopoverHandle';
+import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import {
   PopupHandleAttachment,
@@ -17,8 +16,8 @@ import {
   useOpenStateTransitions,
   usePopupInteractionProps,
   usePopupRootSync,
-  type PayloadChildRenderFunction,
 } from '../../utils/popups';
+import type { PayloadChildRenderFunction } from '../../utils/popups';
 
 const PopoverRootComponent = fastComponent(function PopoverRootComponent<Payload>({
   props,
@@ -151,8 +150,9 @@ export interface PopoverRootProps<Payload = unknown> {
   onOpenChangeComplete?: ((open: boolean) => void) | undefined;
   /**
    * A ref to imperative actions.
-   * - `unmount`: Manually unmounts the popover.
-   * Call this after any externally controlled closing animation finishes.
+   * - `unmount`: Ends the closing phase of the popover after an externally controlled closing animation finishes.
+   * Call `preventUnmountOnClose()` in `onOpenChange` first, otherwise the popover completes closing on its own.
+   * Whether it leaves the DOM is decided by `keepMounted` on the portal.
    * - `close`: Closes the popover imperatively when called.
    */
   actionsRef?: React.RefObject<PopoverRoot.Actions | null> | undefined;
@@ -213,7 +213,8 @@ export type PopoverRootChangeEventReason =
   | typeof REASONS.none;
 export type PopoverRootChangeEventDetails =
   BaseUIChangeEventDetails<PopoverRoot.ChangeEventReason> & {
-    preventUnmountOnClose(): void;
+    /** Prevents the popup from unmounting until the `unmount` action is called. */
+    preventUnmountOnClose: () => void;
   };
 
 export namespace PopoverRoot {

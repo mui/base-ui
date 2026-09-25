@@ -1,5 +1,6 @@
 import * as React from 'react';
-import { Combobox, type ComboboxItemCollection } from '@base-ui/react/combobox';
+import { Combobox } from '@base-ui/react/combobox';
+import type { ComboboxItemCollection } from '@base-ui/react/combobox';
 
 interface User {
   id: number;
@@ -37,7 +38,11 @@ function useComboboxFilter(
 
 export const ComboboxHarness = React.forwardRef<HTMLInputElement, SimpleComboboxProps>(
   function ComboboxHarness(props, ref) {
-    const actionsRef = React.useRef<ComboboxActions>({ unmount() {} });
+    const actionsRef = React.useRef<ComboboxActions>({
+      unmount() {},
+      close() {},
+      highlightItem() {},
+    });
     const filter = useComboboxFilter({ value: props.value, multiple: false });
 
     function handleValueChange(value: string | null, details: ComboboxChangeEventDetails) {

@@ -8,12 +8,12 @@ import {
   triggerOpenStateMapping,
   pressableTriggerOpenStateMapping,
 } from '../../utils/popupStateMapping';
-import { StateAttributesMapping } from '../../internals/getStateAttributesProps';
+import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { CLICK_TRIGGER_IDENTIFIER } from '../../internals/constants';
 import { safePolygon, useClick, useHoverReferenceInteraction } from '../../floating-ui-react';
 import { OPEN_DELAY } from '../utils/constants';
-import { PopoverHandle } from '../store/PopoverHandle';
+import type { PopoverHandle } from '../store/PopoverHandle';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import { FocusGuard } from '../../utils/FocusGuard';
 import { REASONS } from '../../internals/reasons';

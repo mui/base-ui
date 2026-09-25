@@ -20,6 +20,7 @@ import { useDirection } from '../../internals/direction-context/DirectionContext
 import { useSliderRootContext } from '../root/SliderRootContext';
 import { sliderStateAttributesMapping } from '../root/stateAttributesMapping';
 import type { SliderRootState } from '../root/SliderRoot';
+import { isTouchLikePointerType } from '../../internals/usePressAndHold';
 import { getMidpoint } from '../utils/getMidpoint';
 import { roundValueToStep } from '../utils/roundValueToStep';
 import { validateMinimumDistance } from '../utils/validateMinimumDistance';
@@ -92,6 +93,7 @@ export const SliderControl = React.forwardRef(function SliderControl(
     disabled,
     dragging,
     inset,
+    isArrayValue,
     lastChangeReasonRef,
     max,
     min,
@@ -133,6 +135,9 @@ export const SliderControl = React.forwardRef(function SliderControl(
   // This value should be equal to the radius or half the width/height of the thumb.
   const insetThumbOffsetRef = React.useRef(0);
   const currentInteractionValueRef = React.useRef<number | number[] | null>(null);
+  // Whether `pointerdown` started the current gesture, so the `touchstart` that follows it
+  // doesn't restart it.
+  const pointerGestureRef = React.useRef(false);
   const latestValuesRef = useValueAsRef(values);
 
   function getThumbInput(el: Element | null | undefined) {
@@ -198,7 +203,7 @@ export const SliderControl = React.forwardRef(function SliderControl(
 
     if (!range) {
       return {
-        value: newValue,
+        value: isArrayValue ? [newValue] : newValue,
         thumbIndex,
         didSwap: false,
       };
@@ -344,6 +349,10 @@ export const SliderControl = React.forwardRef(function SliderControl(
   });
 
   const handleTouchEnd = useStableCallback((nativeEvent: TouchEvent | PointerEvent) => {
+    if (getFingerCoords(nativeEvent, touchIdRef) == null) {
+      return;
+    }
+
     setActive(-1);
     setDragging(false);
 
@@ -373,12 +382,26 @@ export const SliderControl = React.forwardRef(function SliderControl(
     }
 
     pressedThumbIndexRef.current = -1;
-    touchIdRef.current = null;
     // eslint-disable-next-line @typescript-eslint/no-use-before-define
     stopListening();
   });
 
+  const handlePointerCancel = useStableCallback((nativeEvent: PointerEvent) => {
+    // The browser cancels a touch pointer once it starts panning, but the touch listeners keep
+    // tracking the finger until `touchend` or `touchcancel`.
+    if (touchIdRef.current != null) {
+      return;
+    }
+
+    handleTouchEnd(nativeEvent);
+  });
+
   const handleTouchStart = useStableCallback((nativeEvent: TouchEvent) => {
+    // Only the `touchstart` right after `pointerdown` belongs to the pointer gesture, so consume
+    // the flag here where it can't outlive a cancelled gesture.
+    const startedByPointer = pointerGestureRef.current;
+    pointerGestureRef.current = false;
+
     if (disabled) {
       return;
     }
@@ -395,32 +418,42 @@ export const SliderControl = React.forwardRef(function SliderControl(
 
     touchIdRef.current = touch.identifier;
 
-    const fingerCoords = { x: touch.clientX, y: touch.clientY };
-    startPressing(fingerCoords);
+    // The pointer handlers already started this gesture. Keep its state and only add the touch
+    // listeners, which continue tracking the finger if the browser cancels the pointer.
+    if (!startedByPointer) {
+      const fingerCoords = { x: touch.clientX, y: touch.clientY };
+      startPressing(fingerCoords);
 
-    const finger = getFingerState(fingerCoords);
+      const finger = getFingerState(fingerCoords);
 
-    if (finger == null) {
-      return;
+      if (finger == null) {
+        return;
+      }
+
+      focusThumb(finger.thumbIndex);
+      setValueFromPointer(finger, REASONS.trackPress, nativeEvent);
+
+      moveCountRef.current = 0;
     }
 
-    focusThumb(finger.thumbIndex);
-    setValueFromPointer(finger, REASONS.trackPress, nativeEvent);
-
-    moveCountRef.current = 0;
     const doc = ownerDocument(controlRef.current);
     doc.addEventListener('touchmove', handleTouchMove, { passive: true });
     doc.addEventListener('touchend', handleTouchEnd, { passive: true });
+    doc.addEventListener('touchcancel', handleTouchEnd, { passive: true });
   });
 
   const stopListening = useStableCallback(() => {
     const doc = ownerDocument(controlRef.current);
     doc.removeEventListener('pointermove', handleTouchMove);
     doc.removeEventListener('pointerup', handleTouchEnd);
+    doc.removeEventListener('pointercancel', handlePointerCancel);
     doc.removeEventListener('touchmove', handleTouchMove);
     doc.removeEventListener('touchend', handleTouchEnd);
+    doc.removeEventListener('touchcancel', handleTouchEnd);
+    touchIdRef.current = null;
     pressedValuesRef.current = null;
     currentInteractionValueRef.current = null;
+    pointerGestureRef.current = false;
   });
 
   const focusFrame = useAnimationFrame();
@@ -456,6 +489,8 @@ export const SliderControl = React.forwardRef(function SliderControl(
       {
         ['data-base-ui-slider-control' as string]: renderBeforeHydration ? '' : undefined,
         onPointerDown(event) {
+          // Replace a flag left by a cancelled gesture that had no `touchstart` to consume it.
+          pointerGestureRef.current = false;
           const control = controlRef.current;
           const target = getTarget(event.nativeEvent);
 
@@ -509,9 +544,12 @@ export const SliderControl = React.forwardRef(function SliderControl(
           }
 
           moveCountRef.current = 0;
+          // Touch and pen presses can be followed by a compatibility `touchstart` (Apple Pencil).
+          pointerGestureRef.current = isTouchLikePointerType(event.pointerType);
           const doc = ownerDocument(control);
           doc.addEventListener('pointermove', handleTouchMove, { passive: true });
           doc.addEventListener('pointerup', handleTouchEnd, { once: true });
+          doc.addEventListener('pointercancel', handlePointerCancel, { once: true });
         },
       },
       elementProps,

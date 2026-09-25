@@ -6,7 +6,7 @@ import { screen } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { NOOP } from '../../internals/noop';
 import { ToolbarRootContext } from '../root/ToolbarRootContext';
-import { type Orientation } from '../../internals/types';
+import type { Orientation } from '../../internals/types';
 import { CompositeRootContext } from '../../internals/composite/root/CompositeRootContext';
 import { ARROW_UP, ARROW_DOWN, ARROW_LEFT, ARROW_RIGHT } from '../../internals/composite/composite';
 

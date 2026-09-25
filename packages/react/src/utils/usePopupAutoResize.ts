@@ -6,8 +6,8 @@ import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { NOOP, EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { useAnimationsFinished } from '../internals/useAnimationsFinished';
 import { getCssDimensions } from './getCssDimensions';
-import { Dimensions } from '../floating-ui-react/types';
-import { Side } from '../internals/useAnchorPositioning';
+import type { Dimensions } from '../floating-ui-react/types';
+import type { Side } from '../internals/useAnchorPositioning';
 import * as CommonPopupCssVars from './CommonPopupCssVars';
 import * as CommonPositionerCssVars from './CommonPositionerCssVars';
 
@@ -31,9 +31,6 @@ export function usePopupAutoResize(parameters: UsePopupAutoResizeParameters) {
   const animationFrame = useAnimationFrame();
 
   const committedDimensionsRef = React.useRef<Dimensions | null>(null);
-  const isInitialRenderRef = React.useRef(true);
-
-  const restoreAnchoringStylesRef = React.useRef(NOOP);
 
   const onMeasureLayout = useStableCallback(onMeasureLayoutParam);
   const onMeasureLayoutComplete = useStableCallback(onMeasureLayoutCompleteParam);
@@ -46,8 +43,6 @@ export function usePopupAutoResize(parameters: UsePopupAutoResizeParameters) {
   useIsoLayoutEffect(() => {
     // Reset the state when the popup is closed.
     if (!mounted) {
-      restoreAnchoringStylesRef.current = NOOP;
-      isInitialRenderRef.current = true;
       committedDimensionsRef.current = null;
       return undefined;
     }
@@ -56,7 +51,7 @@ export function usePopupAutoResize(parameters: UsePopupAutoResizeParameters) {
       return undefined;
     }
 
-    restoreAnchoringStylesRef.current = applyElementStyles(
+    const restoreAnchoringStyles = applyElementStyles(
       popupElement,
       anchoringStyles as Record<string, string>,
     );
@@ -76,17 +71,13 @@ export function usePopupAutoResize(parameters: UsePopupAutoResizeParameters) {
       restorePopupPosition();
       restorePopupTransform();
       restorePositionerAvailableSize();
-    }
-
-    function restoreMeasurementOverridesIncludingScale() {
-      restoreMeasurementOverrides();
       restorePopupScale();
     }
 
     onMeasureLayout?.();
 
     // Initial render (for each time the popup opens).
-    if (isInitialRenderRef.current || committedDimensionsRef.current === null) {
+    if (committedDimensionsRef.current === null) {
       setPositionerCssSize(positionerElement, 'max-content');
 
       const dimensions = getCssDimensions(popupElement);
@@ -94,15 +85,10 @@ export function usePopupAutoResize(parameters: UsePopupAutoResizeParameters) {
       committedDimensionsRef.current = dimensions;
 
       setPositionerCssSize(positionerElement, dimensions);
-      restoreMeasurementOverridesIncludingScale();
+      restoreMeasurementOverrides();
       onMeasureLayoutComplete?.(null, dimensions);
 
-      isInitialRenderRef.current = false;
-
-      return () => {
-        restoreAnchoringStylesRef.current();
-        restoreAnchoringStylesRef.current = NOOP;
-      };
+      return restoreAnchoringStyles;
     }
 
     // Subsequent renders while open (when `content` changes).
@@ -115,7 +101,7 @@ export function usePopupAutoResize(parameters: UsePopupAutoResizeParameters) {
     committedDimensionsRef.current = newDimensions;
 
     setPopupCssSize(popupElement, previousDimensions);
-    restoreMeasurementOverridesIncludingScale();
+    restoreMeasurementOverrides();
     onMeasureLayoutComplete?.(previousDimensions, newDimensions);
 
     setPositionerCssSize(positionerElement, newDimensions);
@@ -134,8 +120,7 @@ export function usePopupAutoResize(parameters: UsePopupAutoResizeParameters) {
     return () => {
       abortController.abort();
       animationFrame.cancel();
-      restoreAnchoringStylesRef.current();
-      restoreAnchoringStylesRef.current = NOOP;
+      restoreAnchoringStyles();
     };
   }, [
     content,

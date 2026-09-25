@@ -7,6 +7,7 @@ import { stopEvent } from '../../floating-ui-react/utils';
 import { useCompositeListItem } from '../../internals/composite/list/useCompositeListItem';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useDirection } from '../../internals/direction-context/DirectionContext';
+import { useSetFieldFocused } from '../../internals/field-root-context/useSetFieldFocused';
 import { useRenderElement } from '../../internals/useRenderElement';
 import {
   createChangeEventDetails,
@@ -57,6 +58,7 @@ export const OTPFieldInput = React.forwardRef(function OTPFieldInput(
     readOnly,
     required,
     normalizeValue,
+    setFocused: setRootFocused,
     setValue,
     state,
     validationType,
@@ -65,6 +67,7 @@ export const OTPFieldInput = React.forwardRef(function OTPFieldInput(
 
   const { ref: listItemRef, index } = useCompositeListItem({ guess: true });
   const inputRef = React.useRef<HTMLInputElement | null>(null);
+  const setFocused = useSetFieldFocused(disabled, inputRef, setRootFocused);
   const direction = useDirection();
 
   // While an IME composition is active, Safari exposes the in-progress text through `onChange`
@@ -171,6 +174,7 @@ export const OTPFieldInput = React.forwardRef(function OTPFieldInput(
         return;
       }
 
+      setFocused(true);
       handleInputFocus(index, event);
     },
     onBlur(event) {
@@ -178,6 +182,8 @@ export const OTPFieldInput = React.forwardRef(function OTPFieldInput(
         return;
       }
 
+      // Focus moving to a sibling slot stays inside the root; `handleInputBlur` clears the
+      // focused state only when focus leaves the root, so slot-to-slot moves don't churn it.
       handleInputBlur(event);
     },
     onCompositionStart() {

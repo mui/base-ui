@@ -6,11 +6,11 @@ import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useSelectFloatingContext, useSelectRootContext } from '../root/SelectRootContext';
 import { CompositeList } from '../../internals/composite/list/CompositeList';
 import type { BaseUIComponentProps } from '../../internals/types';
-import {
-  useAnchorPositioning,
-  type Align,
-  type Side,
-  type UseAnchorPositioningSharedParameters,
+import { useAnchorPositioning } from '../../internals/useAnchorPositioning';
+import type {
+  Align,
+  Side,
+  UseAnchorPositioningSharedParameters,
 } from '../../internals/useAnchorPositioning';
 import { SelectPositionerContext } from './SelectPositionerContext';
 import { InternalBackdrop } from '../../utils/InternalBackdrop';

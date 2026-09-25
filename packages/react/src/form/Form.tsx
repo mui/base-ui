@@ -2,10 +2,8 @@
 import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
-import {
-  createGenericEventDetails,
-  type BaseUIGenericEventDetails,
-} from '../internals/createBaseUIEventDetails';
+import { createGenericEventDetails } from '../internals/createBaseUIEventDetails';
+import type { BaseUIGenericEventDetails } from '../internals/createBaseUIEventDetails';
 import { REASONS } from '../internals/reasons';
 import type { BaseUIComponentProps } from '../internals/types';
 import { FormContext } from '../internals/form-context/FormContext';
