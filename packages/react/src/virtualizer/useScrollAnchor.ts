@@ -2,6 +2,7 @@
 import * as React from 'react';
 import { clamp } from '@base-ui/utils/clamp';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { getMaxScrollOffset } from '../utils/scrollEdges';
 import type { VirtualizerRow } from '../internals/virtualization/types';
 import type { PendingScroll } from './usePendingScroll';
@@ -32,6 +33,13 @@ export interface UseScrollAnchorParameters<RowModel> {
   gesture: ScrollGesture;
   /** Hands a position written here to the engine, which the browser tells only a task later. */
   onScrollApplied: (scrollTop: number) => void;
+  /**
+   * Hands a position written outside React's commit to the engine at once, so the window it
+   * commits is the one that position calls for.
+   */
+  onScrollAppliedNow: () => void;
+  /** Commits the engine's pending geometry, recomputing every row position. */
+  settleGeometry: () => void;
   pendingScroll: PendingScroll;
   /**
    * The element whose children — or grandchildren, one group wrapper deep — are the laid-out
@@ -57,6 +65,14 @@ export interface UseScrollAnchorParameters<RowModel> {
   trailingHeight: number;
 }
 
+export interface ScrollAnchor {
+  /**
+   * Commits a geometry rewrite with the content the user is looking at held in place, in a single
+   * window. See {@link useScrollAnchor}.
+   */
+  settleGeometry: () => void;
+}
+
 /**
  * Keeps the content the user is looking at where it is, across geometry updates.
  *
@@ -71,22 +87,35 @@ export interface UseScrollAnchorParameters<RowModel> {
  * pinned instead: preserving the top row in that case would leave newly measured content below the
  * viewport.
  *
+ * Compensating after the commit is too late for a rewrite this component starts itself, such as an
+ * estimate refresh: the engine recomputes its window inside the rewrite, from the scroll position
+ * it last observed, and a rewrite that moves the content far enough commits a window around the
+ * wrong rows. The rows around the viewport then unmount and mount again once the correction
+ * reaches the engine, which loses their focus and any state inside them, even though nothing is
+ * painted in between. The returned `settleGeometry` commits such a rewrite outside React's commit
+ * instead, corrects the scroll position from the fresh geometry before React renders, and hands
+ * it to the engine at once, so the only window committed is the corrected one.
+ *
  * Must be declared after `usePendingScroll`, whose outstanding request repositions absolutely from
  * fresh geometry and so supersedes anchoring, and before `useAdaptiveEstimateRefresh`, whose
- * rewrites this compensates for on the resulting commit.
+ * rewrites go through the returned `settleGeometry`.
  *
- * A candidate for the engine itself: beside `hydrateRowsMeta` it could set `ignoreNextScrollEvent`
- * and skip the scroll-event round trip that an external `scrollTop` write costs. What it should
+ * A candidate for the engine itself: beside `hydrateRowsMeta` it could correct its own scroll
+ * position and set `ignoreNextScrollEvent`, which would skip both the extra window and the
+ * scroll-event round trip that an external `scrollTop` write costs. What it should
  * anchor on is not settled, though — it holds the topmost visible row, and once the adaptive
  * estimate has settled that lets a selection lower in the viewport drift under a geometry rewrite
  * (see the alignment test kept on `Virtualizer.combobox.test.tsx`). Resolve that before proposing
  * it upstream.
  */
-export function useScrollAnchor<RowModel>(parameters: UseScrollAnchorParameters<RowModel>): void {
+export function useScrollAnchor<RowModel>(
+  parameters: UseScrollAnchorParameters<RowModel>,
+): ScrollAnchor {
   const {
     enabled,
     gesture,
     onScrollApplied,
+    onScrollAppliedNow,
     pendingScroll,
     getRowsParent,
     isWindowInPlace,
@@ -95,10 +124,106 @@ export function useScrollAnchor<RowModel>(parameters: UseScrollAnchorParameters<
     scrollElementRef,
     readRowsGeometry,
     rowsInsetTotal,
+    settleGeometry: settleEngineGeometry,
     trailingHeight,
   } = parameters;
 
   const snapshotRef = React.useRef<ScrollAnchorSnapshot<RowModel> | null>(null);
+
+  /**
+   * Whether the snapshot still describes what the user is looking at, so the rewrite can be
+   * anchored on it rather than compensated for after the commit.
+   */
+  const canAnchorRewrite = useStableCallback(() => {
+    const scrollElement = scrollElementRef.current;
+    const previous = snapshotRef.current;
+
+    return (
+      enabled &&
+      scrollElement != null &&
+      previous != null &&
+      previous.rows === rows &&
+      previous.virtualOffset != null &&
+      // The snapshot was taken against the geometry being replaced, at the position still held.
+      previous.rowsMeta === readRowsGeometry() &&
+      Math.abs(scrollElement.scrollTop - previous.scrollTop) < 1 &&
+      // A pending request repositions from the fresh geometry, and waits to see it in the same
+      // commit; a scrollbar drag dictates the position.
+      !pendingScroll.isPending() &&
+      !gesture.isScrollbarDrag()
+    );
+  });
+
+  const settleAnchored = useStableCallback(() => {
+    const scrollElement = scrollElementRef.current;
+    const previous = snapshotRef.current;
+
+    // Checked again: a commit may have moved the content or the user may have scrolled since the
+    // rewrite was queued. The layout effect then compensates on the commit, as for any rewrite.
+    if (!canAnchorRewrite() || scrollElement == null || previous?.virtualOffset == null) {
+      settleEngineGeometry();
+      return;
+    }
+
+    const scrollTop = scrollElement.scrollTop;
+    // The engine recomputes its window from the scroll position it last observed while this
+    // runs. Outside React's commit, that window is only stored: React renders it later in this
+    // task, by which time the corrected one below has replaced it.
+    settleEngineGeometry();
+    const latestRowsMeta = readRowsGeometry();
+    const virtualOffset = latestRowsMeta.positions[previous.rowIndex];
+
+    if (latestRowsMeta === previous.rowsMeta || virtualOffset == null) {
+      return;
+    }
+
+    const maxScrollTop = getMaxScrollOffset(
+      latestRowsMeta.currentPageTotalHeight + rowsInsetTotal + trailingHeight,
+      scrollElement.clientHeight,
+    );
+    const pinnedToBottom =
+      previous.maxScrollTop > 0 && Math.abs(previous.scrollTop - previous.maxScrollTop) < 1;
+    let nextScrollTop = scrollTop;
+    if (pinnedToBottom) {
+      nextScrollTop = maxScrollTop;
+    } else if (scrollTop > 0) {
+      // When pinned to the very top, stay there, mirroring native scroll anchoring.
+      nextScrollTop = clamp(scrollTop + virtualOffset - previous.virtualOffset, 0, maxScrollTop);
+    }
+
+    // The content has not been resized yet, so a position past its current end would be clamped.
+    // The layout effect makes that correction once the commit has grown the content.
+    if (nextScrollTop - (scrollElement.scrollHeight - scrollElement.clientHeight) >= 1) {
+      return;
+    }
+
+    // Record the write, so the commit that follows compares the rows against the position they
+    // were placed for rather than correcting for the write a second time. The geometry stays the
+    // one the rows were measured against: the commit still checks where they actually landed.
+    snapshotRef.current = {
+      ...previous,
+      maxScrollTop,
+      scrollTop: nextScrollTop,
+      virtualOffset,
+    };
+
+    if (Math.abs(nextScrollTop - scrollTop) >= 1) {
+      pendingScroll.noteProgrammaticScroll(nextScrollTop);
+      scrollElement.scrollTo({ behavior: 'instant' as ScrollBehavior, top: nextScrollTop });
+      onScrollAppliedNow();
+    }
+  });
+
+  const settleGeometry = useStableCallback(() => {
+    if (!canAnchorRewrite()) {
+      settleEngineGeometry();
+      return;
+    }
+
+    // Called from a layout effect, where the engine could not commit the corrected window
+    // synchronously. A microtask still runs before the browser paints.
+    queueMicrotask(settleAnchored);
+  });
 
   useIsoLayoutEffect(() => {
     const scrollElement = scrollElementRef.current;
@@ -265,6 +390,8 @@ export function useScrollAnchor<RowModel>(parameters: UseScrollAnchorParameters<
             rows,
           };
   });
+
+  return React.useMemo(() => ({ settleGeometry }), [settleGeometry]);
 }
 
 /**

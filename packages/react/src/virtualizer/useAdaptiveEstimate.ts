@@ -261,7 +261,10 @@ export interface UseAdaptiveEstimateRefreshParameters<RowModel> {
   rows: VirtualizerRow<RowModel>[];
   /** The engine's row geometry, which republishes on every hydration. */
   rowsMeta: unknown;
-  /** Commits the refreshed estimate to the engine's geometry in one update. */
+  /**
+   * Commits the refreshed estimate to the engine's geometry in one update, holding the content the
+   * user is looking at in place. It may do so after this pass returns, before the next paint.
+   */
   settleGeometry: () => void;
 }
 
@@ -274,8 +277,9 @@ export interface UseAdaptiveEstimateRefreshParameters<RowModel> {
  * Waiting for idle also lets the first measurements settle, which keeps the list from chasing
  * an average that is still wrong.
  *
- * Re-estimating rows above the viewport shifts their positions, and scroll anchoring compensates
- * for that on the resulting commit — so this must be declared after `useScrollAnchor`.
+ * Re-estimating rows above the viewport shifts their positions, so the refresh commits through
+ * scroll anchoring, which keeps the content in place and the window around it mounted — so this
+ * must be declared after `useScrollAnchor`.
  */
 export function useAdaptiveEstimateRefresh<RowModel>(
   parameters: UseAdaptiveEstimateRefreshParameters<RowModel>,

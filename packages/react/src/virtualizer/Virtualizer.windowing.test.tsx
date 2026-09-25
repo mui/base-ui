@@ -1044,33 +1044,37 @@ describe('<Virtualizer /> windowing', () => {
       );
       expect(trackedElement).not.toBe(null);
 
-      // Watch every frame until the refresh settles: the row the user is looking at must not
-      // move on screen even though the geometry rewrite clamps the scroll position. Frames rather
-      // than DOM mutations: the engine learns the corrected position from a scroll event
-      // dispatched after the correction, so it commits a window for the stale position first,
-      // within the same task and before anything is painted.
+      // Watch every committed state until the refresh settles, not just painted frames: the row
+      // the user is looking at must stay mounted, as the same element, and must not move on
+      // screen even though the geometry rewrite clamps the scroll position. A window committed
+      // for a stale position and corrected before the paint would still remount the row, losing
+      // its focus and any state inside it.
       const disturbances: string[] = [];
-      let watching = true;
-      const watchFrame = () => {
-        if (!watching) {
-          return;
-        }
+      const observer = new MutationObserver(() => {
         const element = virtualizer.querySelector<HTMLElement>(
           `[data-row-index="${tracked!.index}"]`,
         );
         if (element === null || element.style.position === 'absolute') {
           disturbances.push(`row ${tracked!.index} left the window`);
-        } else {
-          const offset = element.getBoundingClientRect().top;
-          if (Math.abs(offset - tracked!.offset) > 2) {
-            disturbances.push(
-              `row ${tracked!.index} moved from ${tracked!.offset.toFixed(1)} to ${offset.toFixed(1)}`,
-            );
-          }
+          return;
         }
-        requestAnimationFrame(watchFrame);
-      };
-      requestAnimationFrame(watchFrame);
+        if (element !== trackedElement) {
+          disturbances.push(`row ${tracked!.index} was remounted`);
+          return;
+        }
+        const offset = element.getBoundingClientRect().top;
+        if (Math.abs(offset - tracked!.offset) > 2) {
+          disturbances.push(
+            `row ${tracked!.index} moved from ${tracked!.offset.toFixed(1)} to ${offset.toFixed(1)}`,
+          );
+        }
+      });
+      observer.observe(virtualizer, {
+        subtree: true,
+        childList: true,
+        attributes: true,
+        attributeFilter: ['style'],
+      });
 
       const scrollHeightBeforeRefresh = virtualizer.scrollHeight;
       try {
@@ -1085,7 +1089,7 @@ describe('<Virtualizer /> windowing', () => {
             }),
         );
       } finally {
-        watching = false;
+        observer.disconnect();
       }
 
       expect(disturbances).toEqual([]);

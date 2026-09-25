@@ -733,6 +733,21 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
       }
     });
   });
+  /**
+   * Hands a position written outside React's commit to the engine in place. The event updates the
+   * position the engine windows from, and commits the window it calls for when that differs from
+   * the one last rendered. The engine's window can already have been recomputed from the previous
+   * position without being rendered yet, and when the corrected window matches the rendered one
+   * the event leaves that stale window standing, so the window is recomputed once more.
+   */
+  const syncEngineWithScrollWriteNow = useStableCallback(() => {
+    const scrollElement = scrollElementRef.current;
+
+    if (scrollElement != null) {
+      scrollElement.dispatchEvent(new (ownerWindow(scrollElement).Event)('scroll'));
+      muiApiRef.current?.forceUpdateRenderContext();
+    }
+  });
 
   const layout = useRefWithInit(
     () =>
@@ -1579,10 +1594,12 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
     [getIndexAtOffset, getItemMetrics, remeasure, resetScroll, scrollToIndex],
   );
 
-  useScrollAnchor<VirtualizerRowModel<Value>>({
+  const scrollAnchor = useScrollAnchor<VirtualizerRowModel<Value>>({
     enabled,
     gesture,
     onScrollApplied: syncEngineWithScrollWrite,
+    onScrollAppliedNow: syncEngineWithScrollWriteNow,
+    settleGeometry,
     pendingScroll,
     getRowsParent,
     isWindowInPlace,
@@ -1696,7 +1713,7 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
         };
 
   // Declared after `useScrollAnchor`: refreshing the estimate re-positions rows above the
-  // viewport, and anchoring compensates for that on the resulting commit.
+  // viewport, and the refresh commits through anchoring so the content stays where it is.
   useAdaptiveEstimateRefresh<VirtualizerItemRowModel<Value>>({
     adaptive,
     defaultEstimatedItemHeight,
@@ -1707,7 +1724,7 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
     renderContext: itemRenderContext,
     rows: itemRows,
     rowsMeta,
-    settleGeometry,
+    settleGeometry: scrollAnchor.settleGeometry,
   });
 
   // Declared last: anchoring reads an outstanding request while it still stands, and a request
