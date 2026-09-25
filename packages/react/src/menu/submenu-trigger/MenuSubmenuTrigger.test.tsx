@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, vi, expect, describe, it } from 'vitest';
-import { act, fireEvent, waitFor, screen } from '@mui/internal-test-utils';
+import { act, fireEvent, flushMicrotasks, waitFor, screen } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { DirectionProvider } from '@base-ui/react/direction-provider';
 import { Menu } from '@base-ui/react/menu';
@@ -28,7 +28,7 @@ describe('<Menu.SubmenuTrigger />', () => {
 
   afterEach(waitForAnimationFrame);
 
-  it('closes a plain submenu when focus returns through a guard to its trigger', async () => {
+  it('keeps a submenu open on direct trigger focus but closes it on guard return', async () => {
     const { user } = await render(
       <Menu.Root>
         <Menu.Trigger>Actions</Menu.Trigger>
@@ -58,8 +58,19 @@ describe('<Menu.SubmenuTrigger />', () => {
       expect(trigger).toHaveFocus();
     });
     await user.keyboard('[ArrowRight]');
+    const item = screen.getByRole('menuitem', { name: 'Alpha' });
     await waitFor(() => {
-      expect(screen.getByRole('menuitem', { name: 'Alpha' })).toHaveFocus();
+      expect(item).toHaveFocus();
+    });
+
+    await act(async () => {
+      trigger.focus();
+    });
+    await flushMicrotasks();
+    expect(screen.getByTestId('submenu')).not.toBe(null);
+
+    await act(async () => {
+      item.focus();
     });
 
     const submenu = screen.getByTestId('submenu');
@@ -137,6 +148,7 @@ describe('<Menu.SubmenuTrigger />', () => {
         await act(async () => {
           trigger.focus();
         });
+        await flushMicrotasks();
         expect(shadowRoot.querySelector('[data-testid="submenu"]')).not.toBe(null);
 
         await act(async () => {
