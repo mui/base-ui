@@ -139,6 +139,8 @@ expectType<Draggable.Target.LeaveEventDetails, (typeof TargetLeave)[1]>(TargetLe
 expectType<Draggable.Target.LeaveEventReason, (typeof TargetLeave)[1]['reason']>(
   TargetLeave[1].reason,
 );
+// @ts-expect-error `canceled` is on `onMoveEnd` only; a leave reads `reason`.
+void TargetLeave[1].canceled;
 
 declare const TargetDrop: Parameters<
   NonNullable<
@@ -217,6 +219,11 @@ expectType<
   Draggable.Target.Record<Payload, DragData> | null,
   (typeof CollisionProviderMoveEnd)[1]['previousTarget']
 >(CollisionProviderMoveEnd[1].previousTarget);
+expectType<boolean, (typeof CollisionProviderMoveEnd)[1]['canceled']>(
+  CollisionProviderMoveEnd[1].canceled,
+);
+// @ts-expect-error `canceled` is on `onMoveEnd` only.
+void CollisionProviderCollisionChange[1].canceled;
 
 declare const ViewportDragScroll: Parameters<
   NonNullable<Draggable.Viewport.Props<Payload, DragData>['onDragScroll']>

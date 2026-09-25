@@ -65,6 +65,9 @@ describe('lifecycle manager', () => {
 
     expect(onMoveEnd.mock.calls[0][1].location.grabOffset).toEqual({ x: 12, y: 8 });
     expect(onDraggableLeave.mock.calls[0][1].location.grabOffset).toEqual({ x: 12, y: 8 });
+    expect(onMoveEnd.mock.calls[0][1].canceled).toBe(false);
+    // `canceled` belongs to `onMoveEnd` only; the terminal leave has no such flag.
+    expect(onDraggableLeave.mock.calls[0][1]).not.toHaveProperty('canceled');
     removeDropTargetRegistration(target, getTarget);
   });
 
@@ -145,6 +148,7 @@ describe('lifecycle manager', () => {
     expect(() => handle!.update(makeInput(), null)).toThrow('move failed');
     expect(monitorEnd).toHaveBeenCalledTimes(1);
     expect(monitorEnd.mock.calls[0][1].reason).toBe('handler-error');
+    expect(monitorEnd.mock.calls[0][1].canceled).toBe(true);
     removeMonitor(getMonitor);
   });
 
@@ -1197,6 +1201,7 @@ describe('lifecycle manager', () => {
       expect(onMoveEnd.mock.calls[0][0].target).toBeNull();
       expect(onMoveEnd.mock.calls[0][1].location.current.targets).toEqual([]);
       expect(onMoveEnd.mock.calls[0][1].reason).toBe('handler-error');
+      expect(onMoveEnd.mock.calls[0][1].canceled).toBe(true);
       expect(monitorEnd).toHaveBeenCalledTimes(1);
       expect(isActive()).toBe(false);
 
@@ -1257,6 +1262,7 @@ describe('lifecycle manager', () => {
 
       expect(onDraggableLeave).toHaveBeenCalledTimes(1);
       expect(onDraggableLeave.mock.calls[0][1].reason).toBe('handler-error');
+      expect(onDraggableLeave.mock.calls[0][1]).not.toHaveProperty('canceled');
       expectEngineRecovered();
 
       removeDropTargetRegistration(target, getTargetParams);

@@ -48,7 +48,7 @@ import {
   subscribeDropTargetShadowRoots,
 } from '../dropTarget';
 import type {
-  BeforeMoveStartEventDetails,
+  DraggableRootBeforeMoveStartEventDetails,
   DragCanceledReason,
   DragCleanupFn,
   DraggableHandleReference,
@@ -1004,7 +1004,7 @@ function commitActivation(): void {
   // any resource is allocated, so canceling leaves nothing to undo beyond the
   // pending phase itself — nothing has lifted yet.
   if (parameters.onBeforeMoveStart) {
-    const eventDetails: BeforeMoveStartEventDetails = createChangeEventDetails(
+    const eventDetails: DraggableRootBeforeMoveStartEventDetails = createChangeEventDetails(
       pending.activationKind,
       pending.lastNativeEvent,
       target,

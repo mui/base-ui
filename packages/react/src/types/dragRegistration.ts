@@ -6,7 +6,6 @@ import type { RegisterMonitorParameters as InternalRegisterMonitorParameters } f
 import type {
   AcceptedDragPayload,
   AcceptedDragData,
-  DragCleanupFn,
   DraggableKind,
   DraggableAccept,
   DraggablePayload,
@@ -50,12 +49,6 @@ export type RegisterTargetParameters<
   >;
 };
 
-/** Checks a target's payload against its own kind. */
-export type DragParametersWithTargetKind<TKind extends DraggableKind<any, any> | undefined> = {
-  kind?: TKind | undefined;
-  payload?: NoInfer<AcceptedDragPayload<TKind>> | undefined;
-};
-
 /**
  * Preserves the accepted kinds while inferring callback payload types.
  */
@@ -96,7 +89,7 @@ export interface InternalDragEngine extends Omit<
     element: HTMLElement,
     getParameters: () => RegisterSourceParameters<TPayload, TDragData>,
     payloadOwner?: object,
-  ) => DragCleanupFn;
+  ) => () => void;
   registerTarget: <
     TSourcePayload = unknown,
     TTargetPayload = unknown,
@@ -110,7 +103,7 @@ export interface InternalDragEngine extends Omit<
       TDragData,
       TTargetDragData
     >,
-  ) => DragCleanupFn;
+  ) => () => void;
 }
 
 /**
@@ -153,21 +146,21 @@ export interface DraggableManager {
    * Returns a cleanup function that unregisters it.
    */
   // Overloaded so `payload` both drives inference and stays required once the
-  // caller declares a `TPayload` of their own, mirroring `Draggable.Root`.
+  // caller declares a `TPayload` of their own, mirroring `Draggable.Root.Props`.
   registerSource: {
     <TPayload, TDragData = unknown>(
       element: HTMLElement,
       getParameters: () => RegisterSourceParameters<TPayload, TDragData> & {
         payload: DraggablePayload<TPayload>;
       },
-    ): DragCleanupFn;
+    ): () => void;
     <TKind extends DraggableKind<undefined, any> = DraggableKind<undefined>>(
       element: HTMLElement,
       getParameters: () => Omit<
         RegisterSourceParameters<undefined, AcceptedDragData<TKind>>,
         'kind'
       > & { kind: TKind },
-    ): DragCleanupFn;
+    ): () => void;
   };
   /**
    * Registers an element as a drop target, with the options of `Draggable.Target`.
@@ -192,10 +185,11 @@ export interface DraggableManager {
         'kind'
       >,
       TAccept
-    > &
-      DragParametersWithTargetKind<TKind> &
-      ([TTargetPayload] extends [undefined] ? {} : { payload: TTargetPayload }),
-  ) => DragCleanupFn;
+    > & {
+      kind?: TKind | undefined;
+      payload?: NoInfer<AcceptedDragPayload<TKind>> | undefined;
+    } & ([TTargetPayload] extends [undefined] ? {} : { payload: TTargetPayload }),
+  ) => () => void;
   /**
    * Registers a scroll container, with the options of `Draggable.Viewport`.
    * Pass `document.documentElement` to scroll the page.
@@ -207,7 +201,7 @@ export interface DraggableManager {
       RegisterViewportParameters<AcceptedDragPayload<TAccept>, AcceptedDragData<TAccept>>,
       TAccept
     >,
-  ) => DragCleanupFn;
+  ) => () => void;
   /**
    * Registers a monitor, with the options of `useMonitor`.
    * Returns a cleanup function that unregisters it.
@@ -217,7 +211,7 @@ export interface DraggableManager {
       RegisterMonitorParameters<AcceptedDragPayload<TAccept>, AcceptedDragData<TAccept>>,
       TAccept
     >,
-  ) => DragCleanupFn;
+  ) => () => void;
   /**
    * Cancels the drag in progress, if any. `onMoveEnd` fires with a `null` target
    * and the `'imperative-action'` reason.

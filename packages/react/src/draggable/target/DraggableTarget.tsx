@@ -130,7 +130,7 @@ export const DraggableTarget = React.forwardRef(function DraggableTarget<
     props: [{ children }, elementProps],
     stateAttributesMapping,
   });
-  // Overloaded like `Draggable.Root` so a declared `TTargetPayload` can't omit `payload`
+  // Overloaded, unlike `Draggable.Root`, so a declared `TTargetPayload` can't omit `payload`
   // and leave `target.payload` typed while the engine delivers `undefined`.
   // The fallback's target payload is `undefined`, not `unknown`: `kind` is typed from it,
   // so a payload-carrying `kind={column}` with no `payload` is rejected here rather
@@ -289,9 +289,6 @@ export type {
   DraggableTargetDropValue,
   DraggableTargetDropEventDetails,
   DraggableTargetDropEventReason,
-} from '../../types/drag';
-
-export type {
   DraggableTargetSnapSteps,
   DraggableTargetLocalPoint,
   DraggableTargetSnappedLocalPointOptions,

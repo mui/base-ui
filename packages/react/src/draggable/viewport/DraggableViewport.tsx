@@ -109,9 +109,6 @@ export type {
   DraggableViewportDragScrollValue,
   DraggableViewportDragScrollEventDetails,
   DraggableViewportDragScrollEventReason,
-} from '../../utils/drag-and-drop/autoScroller';
-
-export type {
   DraggableViewportOverflowMargin,
   DraggableViewportDragScrollDirection,
   DraggableViewportMaxSpeedContext,

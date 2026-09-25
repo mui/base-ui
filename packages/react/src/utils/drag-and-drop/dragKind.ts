@@ -5,7 +5,7 @@
 
 import { areArraysEqual } from '@base-ui/utils/areArraysEqual';
 import type {
-  AnyDragAccept,
+  DraggableAccept,
   DraggableKind,
   DraggableRootRecord,
   DraggableTargetRecord,
@@ -97,7 +97,7 @@ export const anyDragKind: DraggableKind<unknown> = {
  * source's own kind.
  */
 export function matchesAccept(
-  accept: AnyDragAccept | undefined,
+  accept: DraggableAccept<unknown> | undefined,
   // Only `kind` is read, so this accepts a source carrying any payload.
   source: Pick<DraggableRootRecord<unknown>, 'kind'>,
 ): boolean {
@@ -115,7 +115,10 @@ export function matchesAccept(
  * inline array (`accept={[card, file]}`) whose identity changes every render
  * while the kinds inside don't.
  */
-export function sameAccept(a: AnyDragAccept | undefined, b: AnyDragAccept | undefined): boolean {
+export function sameAccept(
+  a: DraggableAccept<unknown> | undefined,
+  b: DraggableAccept<unknown> | undefined,
+): boolean {
   if (a === b) {
     return true;
   }

@@ -168,9 +168,9 @@ export type DraggableConfig<TPayload = undefined, TDragData = unknown> = {
    * The data attached to this item, available as `source.payload` in every drag
    * event and drop target handler.
    */
-  // Optional here so the conditional requirement lives in one place: `Draggable.Root`
-  // and `registerSource` re-impose it through an overload, which also keeps a
-  // wrapper spreading their `Props` from hitting a deferred conditional.
+  // Optional here so the requirement lives at the public boundaries:
+  // `Draggable.Root.Props` re-imposes it with a conditional type, and
+  // `registerSource` with an overload.
   payload?: DraggablePayload<TPayload> | undefined;
   /**
    * A stable key that lets the settling preview find this item again after it remounts,
@@ -275,7 +275,9 @@ export type DraggableConfig<TPayload = undefined, TDragData = unknown> = {
       ) => void)
     | undefined;
   /**
-   * Event handler called when the drop targets under the pointer change.
+   * Event handler called when the drop targets under the pointer change, including when
+   * the drag ends. Cancel-specific cleanup belongs in `onMoveEnd`, whose
+   * `eventDetails.canceled` flags a cancel.
    */
   onTargetChange?:
     | ((
@@ -286,7 +288,8 @@ export type DraggableConfig<TPayload = undefined, TDragData = unknown> = {
   /**
    * Event handler called once when the drag ends, after a drop, a release outside any
    * target, or a cancellation. `target` is the target that received the drop, or `null`.
-   * `eventDetails.reason` tells why the drag ended.
+   * `eventDetails.canceled` tells a cancel from a release, and `eventDetails.reason` says
+   * exactly why the drag ended.
    *
    * A drag canceled during pickup fires this handler without a preceding `onMoveStart`.
    */

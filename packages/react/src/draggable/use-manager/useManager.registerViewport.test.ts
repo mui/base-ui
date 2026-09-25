@@ -18,9 +18,10 @@ import type { DraggableManager, RegisterViewportParameters } from '../../types/d
 import type {
   DraggableViewportDragScrollEventDetails,
   DraggableViewportMaxSpeedContext,
-  DragAutoScrollHandler,
   DraggableViewportDragScrollValue,
 } from '../../utils/drag-and-drop/autoScroller';
+
+type DragAutoScrollHandler = NonNullable<RegisterViewportParameters['onDragScroll']>;
 
 // The synthetic-drag test below leaves an active session; clear its rAF tick
 // in the extra teardown so it doesn't fire after `document` is torn down.

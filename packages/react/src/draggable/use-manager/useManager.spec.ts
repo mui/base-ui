@@ -1,5 +1,6 @@
 import { Draggable } from '@base-ui/react/draggable';
 import type {
+  DraggableAcceptedKind,
   UseDraggableManagerReturnValue,
   DraggableManagerRegisterSourceParameters,
   DraggableManagerRegisterMonitorParameters,
@@ -7,7 +8,6 @@ import type {
   DraggableManagerRegisterTargetParameters,
 } from '@base-ui/react/draggable';
 import { expectType } from '#test-utils';
-import type { DraggableAcceptedKind } from '../../types/drag';
 
 // Type-only file: nothing here runs, so the hook is never actually called —
 // `declare` gives us its return type without tripping the rules-of-hooks lint.

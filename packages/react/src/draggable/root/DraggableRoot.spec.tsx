@@ -1,13 +1,11 @@
 import * as React from 'react';
 import { expectType } from '#test-utils';
-import { Draggable } from '@base-ui/react/draggable';
-
-type DraggableKind<TPayload = unknown, TDragData = unknown> = Draggable.Kind<TPayload, TDragData>;
-type DraggableRootRecord<TPayload = unknown, TDragData = unknown> = Draggable.Root.Record<
-  TPayload,
-  TDragData
->;
-type MoveStartValue<TPayload = unknown> = Draggable.Root.MoveStartValue<TPayload>;
+import {
+  Draggable,
+  type DraggableKind,
+  type DraggableRootMoveStartValue as MoveStartValue,
+  type DraggableRootRecord,
+} from '@base-ui/react/draggable';
 
 interface CardPayload {
   id: string;
@@ -273,7 +271,7 @@ const cardMissingProps: CardProps = { kind: card };
 // @ts-expect-error and it requires the kind that carries it.
 const cardMissingKind: CardProps = { payload: { id: 'a' } };
 
-// A wrapper forwarding these props satisfies the component's overloads.
+// A wrapper forwarding these props satisfies the component's signature.
 function Card(props: CardProps) {
   return <Draggable.Root {...props} />;
 }
@@ -331,13 +329,14 @@ void GenericCardWithoutRestatement;
   onMoveEnd={({ source }) => expectType<CardPayload, typeof source.payload>(source.payload)}
 />;
 
-// A successful drop is a non-null `target`; the reason tells a cancel from an outside release.
+// A successful drop is a non-null `target`; `canceled` tells a cancel from an outside release.
 <Draggable.Root
   kind={card}
   payload={{ id: 'a' }}
   onMoveEnd={({ target }, eventDetails) => {
     expectType<Draggable.Target.Record | null, typeof target>(target);
     expectType<Draggable.Root.MoveEndEventReason, typeof eventDetails.reason>(eventDetails.reason);
+    expectType<boolean, typeof eventDetails.canceled>(eventDetails.canceled);
     expectType<Draggable.LocationHistory, typeof eventDetails.location>(eventDetails.location);
     if (target !== null) {
       expectType<Draggable.Target.Record, typeof target>(target);

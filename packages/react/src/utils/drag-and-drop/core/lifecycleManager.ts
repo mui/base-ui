@@ -24,11 +24,7 @@ import type {
   DraggableInput,
   DraggablePreviewRenderParameters,
 } from '../../../types/drag';
-import {
-  createDragEventDetails,
-  createMoveEndEventDetails,
-  withDragLocation,
-} from '../dragEventDetails';
+import { createDragEventDetails, createMoveEndEventDetails } from '../dragEventDetails';
 import {
   getActiveDropTargetRegistration,
   captureDropTargetCollision,
@@ -696,7 +692,11 @@ export function start(parameters: StartParameters): DragSessionController | null
         // same targets in this frame: consumer handlers (and any rect they read)
         // would otherwise run twice on every entry frame.
         if (!dragDispatchFollows && newDropTargets.length > 0) {
-          const entryDetails = withDragLocation(moveDetails, snapshotLocation());
+          const entryDetails = createDragEventDetails(
+            lastInputReason,
+            lastInputEvent,
+            snapshotLocation(),
+          );
           dispatchToAllDropTargets(newDropTargets, 'onDraggableMove', source, entryDetails, isLive);
         }
       } catch (error) {

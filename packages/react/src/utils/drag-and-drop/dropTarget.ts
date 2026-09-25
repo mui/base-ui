@@ -972,7 +972,8 @@ export type RegisterTargetParameters<
     | undefined;
   /**
    * Event handler called when the drag moves off this target, or ends.
-   * `eventDetails.reason` tells which.
+   * `eventDetails.reason` tells which. Cancel-specific cleanup belongs in the source's
+   * or a monitor's `onMoveEnd`, whose `eventDetails.canceled` flags a cancel.
    */
   onDraggableLeave?:
     | ((

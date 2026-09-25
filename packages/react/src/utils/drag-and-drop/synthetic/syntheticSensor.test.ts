@@ -1474,6 +1474,7 @@ describe('syntheticDrag sensor', () => {
 
     expect(onMoveEnd).toHaveBeenCalledTimes(1);
     expect(onMoveEnd.mock.calls[0][1].reason).toBe(expected);
+    expect(onMoveEnd.mock.calls[0][1].canceled).toBe(true);
   });
 
   it('the Escape that cancels a drag does not reach other listeners', async () => {

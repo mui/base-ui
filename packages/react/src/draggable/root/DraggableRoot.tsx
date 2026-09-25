@@ -198,8 +198,8 @@ export interface DraggableRootState {
   disabled: boolean;
 }
 
-// Every `Draggable.Root` prop except its payload fields; the overloads and `Props` below
-// each add it back with their own optionality. See `DraggableConfig.payload`.
+// Every `Draggable.Root` prop except `kind`'s requirement and `payload`: `DraggableRootProps`
+// adds them back with the optionality the kind's payload implies.
 type DraggableRootPropsBase<TPayload, TDragData = unknown> = Omit<
   BaseUIComponentProps<'div', DraggableRootState>,
   // - `children` is widened below.
@@ -251,10 +251,24 @@ export type DraggableRootProps<TPayload = undefined, TDragData = unknown> = Drag
   DraggableRootPayloadField<TPayload> &
   ([TPayload] extends [undefined] ? {} : { kind: DraggableKind<TPayload, TDragData> });
 
-type RequiredDraggablePayload<TPayload> = { payload: DraggablePayload<TPayload> };
+type RequiredDraggablePayload<TPayload> = {
+  /**
+   * The data attached to this item, available as `source.payload` in every drag event
+   * and drop target handler. Its type comes from `kind`, and it is required when the
+   * kind declares one.
+   */
+  payload: DraggablePayload<TPayload>;
+};
 
 type DraggableRootPayloadField<TPayload> = [TPayload] extends [undefined]
-  ? { payload?: DraggablePayload<TPayload> | undefined }
+  ? {
+      /**
+       * The data attached to this item, available as `source.payload` in every drag event
+       * and drop target handler. Its type comes from `kind`, and it is required when the
+       * kind declares one.
+       */
+      payload?: DraggablePayload<TPayload> | undefined;
+    }
   : RequiredDraggablePayload<TPayload>;
 
 export type {
@@ -273,9 +287,6 @@ export type {
   DraggableRootMoveEndValue,
   DraggableRootMoveEndEventDetails,
   DraggableRootMoveEndEventReason,
-} from '../../types/drag';
-
-export type {
   DraggableRootRecord,
   DraggableRootModifier,
   DraggableRootModifiers,

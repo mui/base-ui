@@ -305,6 +305,7 @@ describe('Draggable.CollisionProvider', () => {
     await dragOver(b, { clientY: 180 });
     cancel();
     expect(ended.mock.lastCall?.[1].reason).toBe('escape-key');
+    expect(ended.mock.lastCall?.[1].canceled).toBe(true);
     expect(ended.mock.lastCall?.[0].target).toBeNull();
     expect(ended.mock.lastCall?.[1].previousTarget).toBeNull();
   });
@@ -355,6 +356,7 @@ describe('Draggable.CollisionProvider', () => {
     await dragOver(b);
     drop(b);
     expect(ended.mock.lastCall?.[1].reason).toBe('outside-release');
+    expect(ended.mock.lastCall?.[1].canceled).toBe(false);
     expect(ended.mock.lastCall?.[0].target).toBeNull();
   });
 
@@ -589,10 +591,10 @@ describe('Draggable.CollisionProvider', () => {
               return remaining;
             });
           }}
-          onMoveEnd={(_, { reason }) => {
+          onMoveEnd={(_, { canceled }) => {
             // A drop onto the dragged item's own slot also reports no target, so
-            // restore on the cancel reasons rather than on `target === null`.
-            if (reason !== 'drop' && reason !== 'outside-release') {
+            // restore on `canceled` rather than on `target === null`.
+            if (canceled) {
               setItems(initial);
             }
           }}
@@ -674,6 +676,7 @@ describe('Draggable.CollisionProvider', () => {
     drop(a, { clientY: 80 });
     expect(ended).toHaveBeenCalledTimes(1);
     expect(ended.mock.calls[0][1].reason).toBe('drop');
+    expect(ended.mock.calls[0][1].canceled).toBe(false);
     expect(ended.mock.calls[0][0].target).toBeNull();
   });
 
@@ -778,6 +781,7 @@ describe('Draggable.CollisionProvider', () => {
     await lift(screen.getByTestId('a'));
     drop(screen.getByTestId('b'));
     expect(ended.mock.lastCall?.[1].reason).toBe('outside-release');
+    expect(ended.mock.lastCall?.[1].canceled).toBe(false);
     expect(ended.mock.lastCall?.[0].target).toBeNull();
   });
   it('captures final coordinates before a source callback changes layout', async () => {

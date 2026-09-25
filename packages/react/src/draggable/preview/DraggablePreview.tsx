@@ -137,9 +137,8 @@ type DraggablePreviewTypedProps<TPayload, TDragData = unknown> = Omit<
     | undefined;
 };
 
-export type { DraggablePreviewRenderParameters } from '../../types/drag';
-
 export type {
+  DraggablePreviewRenderParameters,
   DraggablePreviewOffset,
   DraggablePreviewOffsetParameters,
   DraggablePreviewContainer,

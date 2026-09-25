@@ -225,8 +225,9 @@ export interface RegisterMonitorParameters<TSourcePayload = unknown, TDragData =
     | undefined;
   /**
    * Event handler called once when the drag ends, after a drop, a release outside any
-   * target, or a cancellation. `target` is the target that received the drop, or `null`,
-   * and `eventDetails.reason` tells why the drag ended.
+   * target, or a cancellation. `target` is the target that received the drop, or `null`.
+   * `eventDetails.canceled` tells a cancel from a release, and `eventDetails.reason` says
+   * exactly why the drag ended.
    *
    * It can fire without a preceding `onMoveStart`, for example when the monitor
    * registered during the drag, so don't assume the two are paired.

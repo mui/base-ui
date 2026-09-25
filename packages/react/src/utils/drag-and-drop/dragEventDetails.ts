@@ -30,14 +30,6 @@ export function createDragEventDetails<TReason extends BaseUIEventReason>(
   }) as DragEventDetails<TReason>;
 }
 
-/** The same `reason` and `event` with another `location`. */
-export function withDragLocation<TReason extends string>(
-  details: DragEventDetails<TReason>,
-  location: DraggableLocationHistory,
-): DragEventDetails<TReason> {
-  return { ...details, location };
-}
-
 /**
  * The details of `onMoveEnd`, whose `canceled` flag is derived from the reason: every
  * reason other than a drop or a release outside any target is a cancel.

@@ -1488,11 +1488,6 @@ function createAutoScrollEventDetails(
   return details;
 }
 
-export type DragAutoScrollHandler<TSourcePayload = unknown, TDragData = unknown> = (
-  value: DraggableViewportDragScrollValue<TSourcePayload, TDragData>,
-  eventDetails: DraggableViewportDragScrollEventDetails,
-) => void;
-
 interface AutoScrollerState {
   /** Each scroll container maps to the stack of getters held against it (merged refs). */
   scrollers: Map<HTMLElement, ScrollerGetter[]>;

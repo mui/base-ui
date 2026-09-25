@@ -5,7 +5,10 @@ import { createDndRenderer, firePointer } from '#test-utils';
 import { createElement, flushRaf, setupDragEngineTests } from '../../../test/dnd';
 import { dragSessionStore } from '../../utils/drag-and-drop/dragSessionStore';
 import { getRegistration } from '../../utils/drag-and-drop/draggableRegistry';
-import type { BeforeMoveStartValue, BeforeMoveStartEventDetails } from '../../types/drag';
+import type {
+  DraggableRootBeforeMoveStartValue,
+  DraggableRootBeforeMoveStartEventDetails,
+} from '../../types/drag';
 import { useManager } from './useManager';
 import type { DraggableManager } from '../../types/dragRegistration';
 
@@ -155,7 +158,10 @@ describe('engine.registerSource', () => {
     const el = createElement();
     const onMoveStart = vi.fn();
     const onBeforeMoveStart = vi.fn(
-      (_: BeforeMoveStartValue, eventDetails: BeforeMoveStartEventDetails) => eventDetails.cancel(),
+      (
+        _: DraggableRootBeforeMoveStartValue,
+        eventDetails: DraggableRootBeforeMoveStartEventDetails,
+      ) => eventDetails.cancel(),
     );
     engine.registerSource(el, {
       onBeforeMoveStart,

@@ -157,7 +157,7 @@ Commit a successful drop in `onMoveEnd`. There, `target` is the target that rece
   payload={id}
   onMoveEnd={({ source, target }) => {
     try {
-      if (target && column.matches(target)) {
+      if (target && columnKind.matches(target)) {
         commitMove(source.payload, target.payload);
       }
     } finally {
@@ -166,6 +166,19 @@ Commit a successful drop in `onMoveEnd`. There, `target` is the target that rece
   }}
 />
 ```
+
+`eventDetails.reason` is one of the following. Handle reasons you don't recognize too, since more cancel reasons may be added:
+
+- `'drop'`: the item was released over a drop target that accepted it, or over its own slot in a collision provider.
+- `'outside-release'`: the item was released outside any accepting drop target.
+- `'escape-key'`, `'tab-key'`: the user pressed <kbd>Esc</kbd> or <kbd>Tab</kbd>.
+- `'imperative-action'`: the application called `cancelDrag()`.
+- `'window-blur'`, `'page-hidden'`: the window lost focus, or the page was hidden.
+- `'pointer-canceled'`: the browser or the operating system canceled the pointer.
+- `'capture-lost'`: another element captured the pointer during the drag.
+- `'missed-release'`: the button was released without Base UI receiving the event.
+- `'handler-error'`: one of your handlers threw. Base UI cancels the drag and rethrows the error separately.
+- `'document-detached'`: the document was removed, for example when an iframe closed.
 
 Apart from `onBeforeMoveStart`, every handler receives the drag `source` and `target` in its first argument, and a `location` history in `eventDetails`:
 
@@ -1016,18 +1029,20 @@ The handler runs once per direction, with the other axis set to `0`. At a bound 
 
 ### Typed wrapper component
 
-The following example wraps `<Draggable.Root>` for items of any kind. `Draggable.Root.Props<Payload>` keeps `payload` required whenever the kind declares one:
+The following example wraps `<Draggable.Root>` for items of any kind. `Draggable.Root.Props<Payload>` keeps `payload` required whenever the kind declares one. Give `Payload` a default of `undefined`, like the component, so the wrapper also works without a kind. Type it with `Draggable.Root.Props<Payload>` rather than `React.ComponentProps<typeof Draggable.Root>`, which fills `Payload` with `unknown`, a payload no kind matches:
 
 ```tsx title="A wrapper for items of any kind"
 import * as React from 'react';
 import { Draggable } from '@base-ui/react/draggable';
 
-export function SortableItem<Payload>(props: Draggable.Root.Props<Payload>): React.JSX.Element {
+export function SortableItem<Payload = undefined>(
+  props: Draggable.Root.Props<Payload>,
+): React.JSX.Element {
   return <Draggable.Root {...props} />;
 }
 ```
 
-A wrapper that destructures its props can't forward the rest as is: while `Payload` is generic, TypeScript can't tell whether `payload` is required. Declare `kind` and `payload` explicitly in that case:
+A wrapper that destructures its props can't forward the rest as is: while `Payload` is generic, TypeScript can't tell whether `payload` is required. Declare `kind` and `payload` explicitly in that case. Such a wrapper requires both, so pass `payload={undefined}` for a kind without a payload:
 
 ```tsx title="A wrapper that adds a handle"
 export function SortableItem<Payload>({

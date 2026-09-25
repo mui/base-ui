@@ -69,9 +69,10 @@ describe('engine.registerMonitor', () => {
     const [value, details] = onMoveEnd.mock.calls[0];
     expect(details.location.current.targets).toEqual([]);
     // A `dragend` with no preceding `drop` is an Escape cancel (see the test
-    // bridge), so the reason is a cancel reason and there is no target: handlers
-    // rely on those instead of inspecting `targets`.
+    // bridge): handlers read `canceled` and the null target instead of
+    // inspecting `targets`.
     expect(details.reason).toBe('escape-key');
+    expect(details.canceled).toBe(true);
     expect(value.target).toBeNull();
   });
 
