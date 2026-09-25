@@ -45,7 +45,7 @@
     "radix-ui": "^1.6.7",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
-    "react-error-boundary": "6.1.5",
+    "react-error-boundary": "6.1.6",
     "react-hook-form": "^7.88.0",
     "remark-gfm": "^4.0.1",
     "remark-parse": "^11.0.0",
