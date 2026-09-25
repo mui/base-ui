@@ -8,7 +8,12 @@ import {
   type ReasonToEvent,
 } from '../../internals/createBaseUIEventDetails';
 import type { BaseUIEventReason } from '../../internals/reasons';
-import type { DragEventDetails, DragLocationHistory } from '../../types/drag';
+import type {
+  DragEndReason,
+  DragEventDetails,
+  DraggableLocationHistory,
+  MoveEndEventDetails,
+} from '../../types/drag';
 
 /**
  * `event` is the native event behind the latest input. A drag with no native event
@@ -18,7 +23,7 @@ import type { DragEventDetails, DragLocationHistory } from '../../types/drag';
 export function createDragEventDetails<TReason extends BaseUIEventReason>(
   reason: TReason,
   event: Event | undefined,
-  location: DragLocationHistory,
+  location: DraggableLocationHistory,
 ): DragEventDetails<TReason> {
   return createGenericEventDetails(reason, event as ReasonToEvent<TReason> | undefined, {
     location,
@@ -28,7 +33,22 @@ export function createDragEventDetails<TReason extends BaseUIEventReason>(
 /** The same `reason` and `event` with another `location`. */
 export function withDragLocation<TReason extends string>(
   details: DragEventDetails<TReason>,
-  location: DragLocationHistory,
+  location: DraggableLocationHistory,
 ): DragEventDetails<TReason> {
   return { ...details, location };
+}
+
+/**
+ * The details of `onMoveEnd`, whose `canceled` flag is derived from the reason: every
+ * reason other than a drop or a release outside any target is a cancel.
+ */
+export function createMoveEndEventDetails(
+  reason: DragEndReason,
+  event: Event | undefined,
+  location: DraggableLocationHistory,
+): MoveEndEventDetails {
+  return createGenericEventDetails(reason, event as ReasonToEvent<DragEndReason> | undefined, {
+    location,
+    canceled: reason !== 'drop' && reason !== 'outside-release',
+  }) as MoveEndEventDetails;
 }

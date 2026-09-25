@@ -188,8 +188,8 @@ function KanbanBoardContent() {
     // The placeholder always shows the nearest slot, even when the pointer is
     // between columns or just outside the board. Commit that same slot on a real
     // release; an Escape/blur cancellation only clears the placeholder.
-    onMoveEnd: ({ source }, { reason, location }) => {
-      if (reason === 'drop' || reason === 'outside-release') {
+    onMoveEnd: ({ source }, { canceled, location }) => {
+      if (!canceled) {
         const { clientX, clientY } = location.current.input;
         const drop = computeSlot(clientX, clientY, columnElementsRef.current);
         if (drop) {

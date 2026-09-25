@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { useRenderElement } from '../../internals/useRenderElement';
-import type { DragPreviewSettings } from '../../types/drag';
+import type { DraggablePreviewSettings } from '../../types/drag';
 import type { DraggablePreview } from './DraggablePreview';
 
 const EMPTY_STATE: DraggablePreview.State = EMPTY_OBJECT;
@@ -29,7 +29,7 @@ export namespace DraggablePreviewElement {
   /** The `Draggable.Preview`'s own props, snapshotted at drag start. */
   export type ComponentProps = Omit<
     DraggablePreview.Props,
-    'children' | keyof DragPreviewSettings
+    'children' | keyof DraggablePreviewSettings
   > & {
     children?: React.ReactNode | undefined;
   };

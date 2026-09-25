@@ -4,9 +4,13 @@ import { warn } from '@base-ui/utils/warn';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import type { BaseUIComponentProps } from '../../internals/types';
 import type {
-  DragKind,
-  DragPreviewSettings,
+  DraggableKind,
+  DraggablePreviewSettings,
   DraggablePreviewRenderParameters,
+  DraggablePreviewOffset,
+  DraggablePreviewOffsetParameters,
+  DraggablePreviewContainer,
+  DraggablePreviewParameters,
 } from '../../types/drag';
 import { DraggablePreviewElement } from './DraggablePreviewElement';
 import { useDeclaredPreview } from './useDeclaredPreview';
@@ -91,7 +95,7 @@ export interface DraggablePreviewProps
       // so there is no node for a ref to point at when this component renders.
       'children' | 'ref'
     >,
-    DragPreviewSettings {
+    DraggablePreviewSettings {
   /**
    * Whether to show no preview. The drag still runs.
    * @default false
@@ -122,7 +126,7 @@ type DraggablePreviewTypedProps<TPayload, TDragData = unknown> = Omit<
    * The kind of the dragged item, which types `source.payload` in the render function.
    * Drags of other kinds show no preview.
    */
-  kind: DragKind<TPayload, TDragData>;
+  kind: DraggableKind<TPayload, TDragData>;
   /**
    * The preview content. Pass a function to build the content from the drag source
    * when the drag starts. It can return `null` to show no preview for that drag.
@@ -135,7 +139,23 @@ type DraggablePreviewTypedProps<TPayload, TDragData = unknown> = Omit<
 
 export type { DraggablePreviewRenderParameters } from '../../types/drag';
 
+export type {
+  DraggablePreviewOffset,
+  DraggablePreviewOffsetParameters,
+  DraggablePreviewContainer,
+  DraggablePreviewSettings,
+  DraggablePreviewParameters,
+} from '../../types/drag';
+
 export namespace DraggablePreview {
+  export type Offset = DraggablePreviewOffset;
+  export type OffsetParameters = DraggablePreviewOffsetParameters;
+  export type Container = DraggablePreviewContainer;
+  export type Settings = DraggablePreviewSettings;
+  export type Parameters<
+    TSourcePayload = unknown,
+    TDragData = unknown,
+  > = DraggablePreviewParameters<TSourcePayload, TDragData>;
   export type RenderParameters<
     TPayload = unknown,
     TDragData = unknown,

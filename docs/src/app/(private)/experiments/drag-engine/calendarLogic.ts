@@ -449,7 +449,7 @@ export function createSeedState(today: number): CalendarState {
  * engine measured to resolve the target.
  */
 export function resolveDropPreview(
-  source: Draggable.DragSource<CalendarDragSource>,
+  source: Draggable.Root.Record<CalendarDragSource>,
   innermost: Draggable.Target.Record<CalendarDropPayload> | null,
 ): DropPreview | null {
   if (!innermost) {

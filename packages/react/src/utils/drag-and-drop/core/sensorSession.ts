@@ -13,16 +13,16 @@ import { compileDragModifiers } from '../dragModifiers';
 import { attachDefaultDragPreview } from '../synthetic/defaultDragPreview';
 import { createSyntheticPreview, type SyntheticPreviewHandle } from '../synthetic/syntheticPreview';
 import type { DraggableConfig } from '../draggable';
-import type { DragInput, DragStartReason, DragSource } from '../../../types/drag';
+import type { DraggableInput, DragStartReason, DraggableRootRecord } from '../../../types/drag';
 
 export interface StartSensorSessionParameters {
   /** The draggable's latest parameters (kind/payload/event handlers). */
   draggableParameters: DraggableConfig<any, any>;
   /** Source prepared for onBeforeMoveStart, carried unchanged into the session. */
-  dragSource: DragSource;
+  dragSource: DraggableRootRecord;
   element: HTMLElement;
   dragHandle: Element | null;
-  initialInput: DragInput;
+  initialInput: DraggableInput;
   initialTarget: Element | null;
   /**
    * The native event the pickup committed on (see `StartParameters.initialEvent`),
@@ -42,7 +42,7 @@ export interface StartSensorSessionParameters {
 }
 
 /**
- * Resolve the draggable's `payload`, build the `DragSource` and the
+ * Resolve the draggable's `payload`, build the `DraggableRootRecord` and the
  * source-handler map, then start the lifecycle. Returns the session handle, or
  * `null` when the lifecycle declined to start (a concurrent drag is already
  * active, or a resolver or start handler canceled pickup).
@@ -177,7 +177,7 @@ export function createPreviewAndStartSession(
     // The press, carried as an input so the preview's default `'source'` offset can
     // anchor on it: the preview measures its own (untransformed) box, so it must not
     // reuse `grabOffset`, which is relative to the transformed rect above.
-    const pressInput: DragInput = pressPoint
+    const pressInput: DraggableInput = pressPoint
       ? { ...initialInput, clientX: pressPoint.x, clientY: pressPoint.y }
       : initialInput;
 

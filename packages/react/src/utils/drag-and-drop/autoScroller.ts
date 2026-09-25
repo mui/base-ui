@@ -7,11 +7,11 @@ import { createChangeEventDetails } from '../../internals/createBaseUIEventDetai
 import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import type {
-  DragAccept,
-  DragSource,
+  DraggableAccept,
+  DraggableRootRecord,
   DragSourceEventValue,
-  DragInput,
-  DragLocationHistory,
+  DraggableInput,
+  DraggableLocationHistory,
   MoveEventDetails,
   DropTargetChangeEventDetails,
 } from '../../types/drag';
@@ -328,7 +328,7 @@ function safeCall<T>(
 function resolveMaxSpeed(
   registration: RegisterViewportParameters,
   element: HTMLElement,
-  feedback: DragAutoScrollFrameContext,
+  feedback: DraggableViewportMaxSpeedContext,
 ): number {
   const { maxSpeed } = registration;
   if (maxSpeed === undefined) {
@@ -1194,7 +1194,7 @@ export function resetForTests(): void {
  * holds it on the row the drag started from. Falls back to the reported input for
  * a drag the synthetic sensor doesn't own.
  */
-function resolveScrollInput(reported: DragInput): DragInput {
+function resolveScrollInput(reported: DraggableInput): DraggableInput {
   return getRawActivePointerInput() ?? reported;
 }
 
@@ -1222,11 +1222,11 @@ function resolveScrollInput(reported: DragInput): DragInput {
  * container the item can still be dropped in.
  */
 function resolveProbePoint(
-  raw: DragInput,
-  reported: DragInput | null,
+  raw: DraggableInput,
+  reported: DraggableInput | null,
   rect: { left: number; top: number; right: number; bottom: number },
   preferReported: boolean,
-): DragInput | null {
+): DraggableInput | null {
   const reportedInside =
     reported !== null && isPointInRect(reported.clientX, reported.clientY, rect);
   if (preferReported && !reportedInside) {
@@ -1248,8 +1248,8 @@ function resolveProbePoint(
  */
 function reportedPointHasCandidate(
   sortedElements: ReadonlyArray<HTMLElement>,
-  raw: DragInput,
-  reported: DragInput | null,
+  raw: DraggableInput,
+  reported: DraggableInput | null,
   readCandidate: (element: HTMLElement) => ScrollCandidate | null,
 ): boolean {
   if (reported === null || (reported.clientX === raw.clientX && reported.clientY === raw.clientY)) {
@@ -1269,7 +1269,7 @@ function reportedPointHasCandidate(
 }
 
 /** Outside distances in CSS pixels. Physical edges are independent of text direction. */
-export type AutoScrollOverflowMargin =
+export type DraggableViewportOverflowMargin =
   | number
   | {
       top?: number | undefined;
@@ -1278,7 +1278,7 @@ export type AutoScrollOverflowMargin =
       left?: number | undefined;
     };
 
-export function normalizeOverflowMargin(value: AutoScrollOverflowMargin | undefined) {
+export function normalizeOverflowMargin(value: DraggableViewportOverflowMargin | undefined) {
   const edge = (amount: number | undefined) =>
     amount !== undefined && Number.isFinite(amount) ? Math.max(0, amount) : 0;
   const edges =
@@ -1322,7 +1322,7 @@ function refreshDragInput(
   wakeScrollLoop();
 }
 
-function setDragInput(location: DragLocationHistory, source: DragSource): void {
+function setDragInput(location: DraggableLocationHistory, source: DraggableRootRecord): void {
   state.currentInput = resolveScrollInput(location.current.input);
   state.currentReportedInput = location.current.input;
   state.currentSource = source;
@@ -1335,11 +1335,11 @@ function setDragInput(location: DragLocationHistory, source: DragSource): void {
  * and falls back to this when no hit element is available. The stack is published
  * innermost-first, so this is simply its head.
  */
-function getInnermostDropTargetElement(location: DragLocationHistory): Element | null {
+function getInnermostDropTargetElement(location: DraggableLocationHistory): Element | null {
   return location.current.targets[0]?.element ?? null;
 }
 
-function startScrollSession(source: DragSource, location: DragLocationHistory): void {
+function startScrollSession(source: DraggableRootRecord, location: DraggableLocationHistory): void {
   // A drag that ended abnormally with the loop *parked* leaves `enabled` set
   // and the last input/source referenced: the loop's own no-session
   // self-termination only runs when a frame fires. Clear that state before
@@ -1409,20 +1409,20 @@ export function retainScrollMonitor(): () => void {
 }
 
 /** The argument of a viewport's `maxSpeed` function, called on every scrolling frame. */
-export interface DragAutoScrollFrameContext<TSourcePayload = unknown, TDragData = unknown> {
+export interface DraggableViewportMaxSpeedContext<TSourcePayload = unknown, TDragData = unknown> {
   /**
    * The position used to determine scrolling. It may differ from the modified
    * drag position when a modifier separates that position from the pointer.
    */
-  input: DragInput;
-  source: DragSource<TSourcePayload, TDragData>;
+  input: DraggableInput;
+  source: DraggableRootRecord<TSourcePayload, TDragData>;
   element: HTMLElement;
 }
 
 /** The first argument of `onDragScroll`: the dragged item and the movement for this frame. */
 export interface DraggableViewportDragScrollValue<TSourcePayload = unknown, TDragData = unknown> {
   /** The item being dragged. */
-  source: DragSource<TSourcePayload, TDragData>;
+  source: DraggableRootRecord<TSourcePayload, TDragData>;
   /**
    * How far to move horizontally this frame, in CSS pixels, with `scrollBy`
    * semantics: a positive value moves the view right, so the content slides left
@@ -1433,10 +1433,10 @@ export interface DraggableViewportDragScrollValue<TSourcePayload = unknown, TDra
   /** How far to move vertically this frame, in CSS pixels. A positive value moves the view down. */
   y: number;
   /** The axis this call is about. `onDragScroll` is called once per engaged axis. */
-  direction: DragAutoScrollDirection;
+  direction: DraggableViewportDragScrollDirection;
 }
 
-export type DragAutoScrollDirection = 'horizontal' | 'vertical';
+export type DraggableViewportDragScrollDirection = 'horizontal' | 'vertical';
 
 /** The properties `onDragScroll`'s event details add to the Base UI change details. */
 export interface DraggableViewportDragScrollEventDetailsProperties {
@@ -1444,7 +1444,7 @@ export interface DraggableViewportDragScrollEventDetailsProperties {
    * The position used to determine scrolling. It may differ from the modified
    * drag position when a modifier separates that position from the pointer.
    */
-  input: DragInput;
+  input: DraggableInput;
   /** The scroll container. */
   element: HTMLElement;
   /**
@@ -1469,7 +1469,7 @@ export type DraggableViewportDragScrollEventReason =
   DraggableViewportDragScrollEventDetails['reason'];
 
 function createAutoScrollEventDetails(
-  input: DragInput,
+  input: DraggableInput,
   element: HTMLElement,
 ): DraggableViewportDragScrollEventDetails {
   const details: DraggableViewportDragScrollEventDetails = createChangeEventDetails(
@@ -1509,7 +1509,7 @@ interface AutoScrollerState {
   scrollMonitorGetter: (() => RegisterMonitorParameters) | null;
   scrollMonitorRetainers: number;
   lastTimestamp: number;
-  currentInput: DragInput | null;
+  currentInput: DraggableInput | null;
   /**
    * The `modifiers`-constrained point the lifecycle reported, kept alongside the
    * physical one in {@link currentInput}. A clamping modifier separates the two,
@@ -1517,8 +1517,8 @@ interface AutoScrollerState {
    * hit-tests the modified position), so the edge tests need it to stay in the
    * same coordinate space as the chain they are testing (see {@link resolveProbePoint}).
    */
-  currentReportedInput: DragInput | null;
-  currentSource: DragSource | null;
+  currentReportedInput: DraggableInput | null;
+  currentSource: DraggableRootRecord | null;
   /** The innermost drop target under the pointer; a fallback anchor for the candidate walk. */
   currentDropTargetElement: Element | null;
   /** When the pointer first entered each element's edge zone. */
@@ -1564,12 +1564,12 @@ export interface RegisterViewportParameters<TSourcePayload = unknown, TDragData 
    * Does not change drop targets, layout, or document/page scrolling.
    * @default 0
    */
-  overflowMargin?: AutoScrollOverflowMargin | undefined;
+  overflowMargin?: DraggableViewportOverflowMargin | undefined;
   /**
    * One or more kinds of draggable that scroll this container. Omit it to scroll
    * for every drag.
    */
-  accept?: DragAccept<TSourcePayload, TDragData> | undefined;
+  accept?: DraggableAccept<TSourcePayload, TDragData> | undefined;
   /**
    * Whether auto-scrolling is disabled. An ancestor viewport can then scroll instead.
    * Changing it during a drag pauses or resumes scrolling.
@@ -1585,7 +1585,7 @@ export interface RegisterViewportParameters<TSourcePayload = unknown, TDragData 
    */
   maxSpeed?:
     | number
-    | ((parameters: DragAutoScrollFrameContext<TSourcePayload, TDragData>) => number)
+    | ((parameters: DraggableViewportMaxSpeedContext<TSourcePayload, TDragData>) => number)
     | undefined;
   /**
    * Event handler called once per direction on every scrolling frame.

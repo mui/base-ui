@@ -18,10 +18,8 @@ expectType<Draggable.Root.BeforeMoveStartEventDetails, (typeof RootBeforeMoveSta
 expectType<Draggable.Root.BeforeMoveStartEventReason, (typeof RootBeforeMoveStart)[1]['reason']>(
   RootBeforeMoveStart[1].reason,
 );
-expectType<Draggable.DragInput, (typeof RootBeforeMoveStart)[1]['input']>(
-  RootBeforeMoveStart[1].input,
-);
-expectType<Draggable.DragSource<Payload, DragData>, (typeof RootBeforeMoveStart)[0]['source']>(
+expectType<Draggable.Input, (typeof RootBeforeMoveStart)[1]['input']>(RootBeforeMoveStart[1].input);
+expectType<Draggable.Root.Record<Payload, DragData>, (typeof RootBeforeMoveStart)[0]['source']>(
   RootBeforeMoveStart[0].source,
 );
 // @ts-expect-error Targets aren't resolved before pickup.
@@ -39,7 +37,7 @@ expectType<Draggable.Root.MoveStartEventDetails, (typeof RootMoveStart)[1]>(Root
 expectType<Draggable.Root.MoveStartEventReason, (typeof RootMoveStart)[1]['reason']>(
   RootMoveStart[1].reason,
 );
-expectType<Draggable.DragLocationHistory, (typeof RootMoveStart)[1]['location']>(
+expectType<Draggable.LocationHistory, (typeof RootMoveStart)[1]['location']>(
   RootMoveStart[1].location,
 );
 
@@ -47,7 +45,7 @@ declare const RootMove: Parameters<NonNullable<Draggable.Root.Props<Payload, Dra
 expectType<Draggable.Root.MoveValue<Payload, DragData>, (typeof RootMove)[0]>(RootMove[0]);
 expectType<Draggable.Root.MoveEventDetails, (typeof RootMove)[1]>(RootMove[1]);
 expectType<Draggable.Root.MoveEventReason, (typeof RootMove)[1]['reason']>(RootMove[1].reason);
-expectType<Draggable.DragLocationHistory, (typeof RootMove)[1]['location']>(RootMove[1].location);
+expectType<Draggable.LocationHistory, (typeof RootMove)[1]['location']>(RootMove[1].location);
 // @ts-expect-error The location moved to the event details.
 void RootMove[0].location;
 
@@ -77,8 +75,9 @@ expectType<Draggable.Target.Record | null, (typeof RootMoveEnd)[0]['target']>(
 );
 // @ts-expect-error `dropTarget` was replaced by `target`.
 void RootMoveEnd[0].dropTarget;
-// @ts-expect-error Cancellation is read from `target` and `eventDetails.reason`.
+// @ts-expect-error Cancellation is read from `eventDetails.canceled`, not from the value.
 void RootMoveEnd[0].canceled;
+expectType<boolean, (typeof RootMoveEnd)[1]['canceled']>(RootMoveEnd[1].canceled);
 
 declare const TargetStart: Parameters<
   NonNullable<
@@ -111,9 +110,7 @@ expectType<Draggable.Target.MoveEventDetails, (typeof TargetMove)[1]>(TargetMove
 expectType<Draggable.Target.MoveEventReason, (typeof TargetMove)[1]['reason']>(
   TargetMove[1].reason,
 );
-expectType<Draggable.DragLocationHistory, (typeof TargetMove)[1]['location']>(
-  TargetMove[1].location,
-);
+expectType<Draggable.LocationHistory, (typeof TargetMove)[1]['location']>(TargetMove[1].location);
 
 declare const TargetEnter: Parameters<
   NonNullable<
@@ -233,9 +230,7 @@ expectType<Draggable.Viewport.DragScrollEventDetails, (typeof ViewportDragScroll
 expectType<Draggable.Viewport.DragScrollEventReason, (typeof ViewportDragScroll)[1]['reason']>(
   ViewportDragScroll[1].reason,
 );
-expectType<Draggable.DragInput, (typeof ViewportDragScroll)[1]['input']>(
-  ViewportDragScroll[1].input,
-);
+expectType<Draggable.Input, (typeof ViewportDragScroll)[1]['input']>(ViewportDragScroll[1].input);
 expectType<HTMLElement, (typeof ViewportDragScroll)[1]['element']>(ViewportDragScroll[1].element);
 // @ts-expect-error The pointer state moved to the event details.
 void ViewportDragScroll[0].input;
@@ -243,7 +238,7 @@ void ViewportDragScroll[0].input;
 const preview = (parameters: Draggable.Preview.RenderParameters<Payload, DragData>) => {
   expectType<Payload, typeof parameters.source.payload>(parameters.source.payload);
   expectType<DragData | undefined, typeof parameters.source.dragData>(parameters.source.dragData);
-  expectType<Draggable.DragLocationHistory, typeof parameters.location>(parameters.location);
+  expectType<Draggable.LocationHistory, typeof parameters.location>(parameters.location);
   return null;
 };
 const previewProps: Draggable.Preview.Props<Payload, DragData> = {
@@ -252,7 +247,7 @@ const previewProps: Draggable.Preview.Props<Payload, DragData> = {
 };
 void previewProps;
 
-declare const source: Draggable.DragSource<Payload, DragData>;
+declare const source: Draggable.Root.Record<Payload, DragData>;
 declare const target: Draggable.Target.Record<TargetPayload, TargetDragData>;
 // @ts-expect-error Payload writes must use updatePayload.
 source.payload = { id: 'changed' };

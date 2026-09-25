@@ -11,8 +11,8 @@ import {
 } from '../../../../test/dnd';
 import type {
   DragDropEventDetails,
-  DragInput,
-  DragSource,
+  DraggableInput,
+  DraggableRootRecord,
   DragSourceEventValue,
   DraggableTargetRecord,
   DropTargetChangeEventDetails,
@@ -68,7 +68,7 @@ describe('lifecycle manager', () => {
     removeDropTargetRegistration(target, getTarget);
   });
 
-  function makeInput(): DragInput {
+  function makeInput(): DraggableInput {
     return {
       button: 0,
       buttons: 1,
@@ -837,7 +837,7 @@ describe('lifecycle manager', () => {
       expect(onMoveEnd).toHaveBeenCalledTimes(1);
       expect(onMoveEnd).toHaveBeenCalledWith(
         expect.objectContaining({ target: null }),
-        expect.objectContaining({ reason: 'outside-release' }),
+        expect.objectContaining({ reason: 'outside-release', canceled: false }),
       );
     });
 
@@ -941,7 +941,10 @@ describe('lifecycle manager', () => {
       const events: string[] = [];
       // Typed through the parameter list so `mock.calls[0]` keeps both arguments.
       const onDrop = vi.fn(
-        (_: { source: DragSource; target: DraggableTargetRecord }, __: DragDropEventDetails) => {
+        (
+          _: { source: DraggableRootRecord; target: DraggableTargetRecord },
+          __: DragDropEventDetails,
+        ) => {
           events.push('source-drop');
         },
       );
@@ -964,6 +967,7 @@ describe('lifecycle manager', () => {
       expect(onDrop.mock.calls[0][0].target.element).toBe(target);
       expect(onDrop.mock.calls[0][1].reason).toBe('drop');
       expect(onMoveEnd.mock.calls[0][1].reason).toBe('drop');
+      expect(onMoveEnd.mock.calls[0][1].canceled).toBe(false);
     });
 
     it("pins the source's own onTargetChange payload and ordering", async () => {
@@ -1517,7 +1521,9 @@ describe('lifecycle manager', () => {
       expect(onMoveEnd).toHaveBeenCalledTimes(1);
       expect(onMoveEnd.mock.calls[0][0].target).toBeNull();
       expect(onMoveEnd.mock.calls[0][1].reason).toBe('imperative-action');
+      expect(onMoveEnd.mock.calls[0][1].canceled).toBe(true);
       expect(monitorOnDragEnd).toHaveBeenCalledTimes(1);
+      expect(monitorOnDragEnd.mock.calls[0][1].canceled).toBe(true);
       // The drag ended before the start fan-out reached the monitors; a start
       // after the end would invert the lifecycle order.
       expect(monitorOnDragStart).not.toHaveBeenCalled();

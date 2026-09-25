@@ -1,20 +1,20 @@
 import type {
-  DragPreviewOffset,
-  DragPosition,
-  DragPreviewOffsetParameters,
+  DraggablePreviewOffset,
+  DraggablePosition,
+  DraggablePreviewOffsetParameters,
 } from '../../types/drag';
 
 /**
- * Resolve a `DragPreviewOffset` (the `'source'`/`'pointer'` presets, a fixed
- * `DragPosition`, or a callback) into a concrete pointer-relative offset.
+ * Resolve a `DraggablePreviewOffset` (the `'source'`/`'pointer'` presets, a fixed
+ * `DraggablePosition`, or a callback) into a concrete pointer-relative offset.
  *
  * Defaults to `'source'`: the preview keeps the grab point it was picked up by,
  * so a cloned preview lifts off the element without shifting.
  */
 export function resolveDragPreviewOffset(
-  offset: DragPreviewOffset | undefined,
-  params: DragPreviewOffsetParameters,
-): DragPosition {
+  offset: DraggablePreviewOffset | undefined,
+  params: DraggablePreviewOffsetParameters,
+): DraggablePosition {
   if (offset === 'pointer') {
     return { x: 0, y: 0 };
   }

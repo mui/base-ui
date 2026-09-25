@@ -11,7 +11,7 @@ import {
 import { cancelDrag } from '../cancelDrag';
 import { WindowAnimationFrame } from '../../windowAnimationFrame';
 import { dragSessionStore } from '../dragSessionStore';
-import type { DragModifier, DraggableTargetRecord } from '../../../types/drag';
+import type { DraggableRootModifier, DraggableTargetRecord } from '../../../types/drag';
 import { restrictToVerticalAxis } from '../dragModifiers';
 import * as syntheticSensor from './syntheticSensor';
 import {
@@ -2986,7 +2986,7 @@ describe('syntheticDrag sensor', () => {
 
   describe('modifiers', () => {
     /** Records the Shift state each application saw, and constrains nothing. */
-    function makeShiftProbe(): { modifier: DragModifier; seen: boolean[] } {
+    function makeShiftProbe(): { modifier: DraggableRootModifier; seen: boolean[] } {
       const seen: boolean[] = [];
       return {
         seen,

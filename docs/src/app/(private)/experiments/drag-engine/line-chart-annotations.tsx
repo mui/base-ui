@@ -447,7 +447,7 @@ function moveAnnotation(
 /** The drag so far, as a data-space move of the annotation that was picked up. */
 function dragAnnotation(
   payload: AnnotationDragPayload,
-  location: Draggable.DragLocationHistory,
+  location: Draggable.LocationHistory,
   snap: boolean,
   plotRect: DOMRect | null,
 ): Annotation {
@@ -546,7 +546,7 @@ function useAnnotationsContext(): AnnotationsContextValue {
  */
 function angleSnapModifier(
   getGeometry: () => { pivot: PxPoint; bounds: Bounds } | null,
-): Draggable.DragModifier {
+): Draggable.Root.Modifier {
   return ({ point, shiftKey }) => {
     if (!shiftKey) {
       return point;
@@ -567,7 +567,7 @@ function AnnotationDraggable(props: {
   label: string;
   className: string;
   style: React.CSSProperties;
-  modifiers?: Draggable.DragModifiers | undefined;
+  modifiers?: Draggable.Root.Modifiers | undefined;
   disabled?: boolean | undefined;
   onDoubleClick?: (() => void) | undefined;
   children?: React.ReactNode | undefined;
@@ -621,13 +621,10 @@ function AnnotationDraggable(props: {
           ),
         );
       }}
-      onMoveEnd={({ source }, { reason, location }) => {
+      onMoveEnd={({ source }, { canceled, location }) => {
         if (!source.dragData) {
           return;
         }
-        // Nothing here is a drop target, so a completed drag ends with
-        // `'outside-release'`. Any other reason is a cancel.
-        const canceled = reason !== 'drop' && reason !== 'outside-release';
         // The release can carry a newer position than the last animation frame.
         change(
           canceled
@@ -697,7 +694,7 @@ function AnnotationSegment(props: {
   to: PxPoint;
   selected: boolean;
   arrow?: boolean | undefined;
-  modifiers?: Draggable.DragModifiers | undefined;
+  modifiers?: Draggable.Root.Modifiers | undefined;
 }) {
   const { annotation, handle, label, from, to, selected, arrow, modifiers } = props;
   return (
@@ -720,7 +717,7 @@ function AnnotationHandlePoint(props: {
   handle: AnnotationHandle;
   label: string;
   point: PxPoint;
-  modifiers?: Draggable.DragModifiers | undefined;
+  modifiers?: Draggable.Root.Modifiers | undefined;
 }) {
   const { annotation, handle, label, point, modifiers } = props;
   return (
@@ -762,7 +759,7 @@ const PLOT_BOUNDS: Bounds = {
 function useEndpointAngleSnap(
   annotation: SegmentAnnotation | ChannelAnnotation,
   handle: 'start' | 'end',
-): Draggable.DragModifier {
+): Draggable.Root.Modifier {
   const { plotRef } = useAnnotationsContext();
   const pivot = toPx(handle === 'start' ? annotation.end : annotation.start);
   const range = endpointRange(annotation);

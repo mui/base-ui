@@ -11,7 +11,11 @@ import {
   restrictToElement,
   snapToGrid,
 } from './dragModifiers';
-import type { DragModifier, DragModifierContext, DragPosition } from '../../types/drag';
+import type {
+  DraggableRootModifier,
+  DraggableRootModifierContext,
+  DraggablePosition,
+} from '../../types/drag';
 
 function makeRect(left: number, top: number, width: number, height: number): DOMRect {
   return {
@@ -40,7 +44,9 @@ function makeWindow(
   } as unknown as Window;
 }
 
-function makeContext(overrides: Partial<DragModifierContext> = {}): DragModifierContext {
+function makeContext(
+  overrides: Partial<DraggableRootModifierContext> = {},
+): DraggableRootModifierContext {
   return {
     point: { x: 0, y: 0 },
     initialPoint: { x: 0, y: 0 },
@@ -357,7 +363,7 @@ describe('applyDragModifiers', () => {
 
   it('hands every modifier the keys held by the event that produced the move', () => {
     const seen: Array<Record<string, boolean>> = [];
-    const probe: DragModifier = (context) => {
+    const probe: DraggableRootModifier = (context) => {
       seen.push({
         ctrlKey: context.ctrlKey,
         shiftKey: context.shiftKey,
@@ -391,7 +397,7 @@ describe('applyDragModifiers', () => {
     expect(getPreviewRect).not.toHaveBeenCalled();
 
     const reads: Array<DOMRect | null> = [];
-    const probe: DragModifier = (context) => {
+    const probe: DraggableRootModifier = (context) => {
       reads.push(context.previewRect);
       return context.point;
     };
@@ -464,8 +470,8 @@ describe('modifyDragPoint', () => {
   it('feeds the preview offset and rect from the preview handle', () => {
     const boundary = document.createElement('div');
     boundary.getBoundingClientRect = () => makeRect(0, 0, 200, 200);
-    const offsets: DragPosition[] = [];
-    const probe: DragModifier = (context) => {
+    const offsets: DraggablePosition[] = [];
+    const probe: DraggableRootModifier = (context) => {
       offsets.push({ ...context.previewOffset });
       return context.point;
     };

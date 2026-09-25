@@ -7,8 +7,8 @@ import type {
   AcceptedDragPayload,
   AcceptedDragData,
   DragCleanupFn,
-  DragKind,
-  DragAccept,
+  DraggableKind,
+  DraggableAccept,
   DraggablePayload,
 } from './drag';
 
@@ -51,7 +51,7 @@ export type RegisterTargetParameters<
 };
 
 /** Checks a target's payload against its own kind. */
-export type DragParametersWithTargetKind<TKind extends DragKind<any, any> | undefined> = {
+export type DragParametersWithTargetKind<TKind extends DraggableKind<any, any> | undefined> = {
   kind?: TKind | undefined;
   payload?: NoInfer<AcceptedDragPayload<TKind>> | undefined;
 };
@@ -61,7 +61,7 @@ export type DragParametersWithTargetKind<TKind extends DragKind<any, any> | unde
  */
 export type DragParametersWithInferredAccept<
   TParameters,
-  TAccept extends DragAccept<unknown>,
+  TAccept extends DraggableAccept<unknown>,
 > = TParameters &
   (unknown extends AcceptedDragPayload<TAccept>
     ? { accept?: TAccept | undefined }
@@ -69,15 +69,15 @@ export type DragParametersWithInferredAccept<
 
 /** A typed observer must declare which source kinds provide its payload. */
 export type DragObserverAccept<TSourcePayload, TDragData = unknown> = unknown extends TSourcePayload
-  ? { accept?: DragAccept<TSourcePayload, TDragData> | undefined }
-  : { accept: DragAccept<TSourcePayload, TDragData> };
+  ? { accept?: DraggableAccept<TSourcePayload, TDragData> | undefined }
+  : { accept: DraggableAccept<TSourcePayload, TDragData> };
 
 /**
  * Preserves the accepted kinds while requiring `accept`.
  */
 export type DragParametersWithRequiredAccept<
   TParameters,
-  TAccept extends DragAccept<unknown>,
+  TAccept extends DraggableAccept<unknown>,
 > = TParameters & {
   /** One or more drag source kinds accepted by this target. */
   accept: TAccept;
@@ -161,7 +161,7 @@ export interface DraggableManager {
         payload: DraggablePayload<TPayload>;
       },
     ): DragCleanupFn;
-    <TKind extends DragKind<undefined, any> = DragKind<undefined>>(
+    <TKind extends DraggableKind<undefined, any> = DraggableKind<undefined>>(
       element: HTMLElement,
       getParameters: () => Omit<
         RegisterSourceParameters<undefined, AcceptedDragData<TKind>>,
@@ -175,10 +175,10 @@ export interface DraggableManager {
    */
   // Infer target data from its kind while requiring the declared payload.
   registerTarget: <
-    TAccept extends DragAccept<unknown> = DragKind<unknown>,
+    TAccept extends DraggableAccept<unknown> = DraggableKind<unknown>,
     TTargetPayload = undefined,
-    TKind extends DragKind<NoInfer<TTargetPayload>, any> | undefined =
-      DragKind<TTargetPayload> | undefined,
+    TKind extends DraggableKind<NoInfer<TTargetPayload>, any> | undefined =
+      DraggableKind<TTargetPayload> | undefined,
   >(
     element: HTMLElement,
     getParameters: () => DragParametersWithRequiredAccept<
@@ -201,7 +201,7 @@ export interface DraggableManager {
    * Pass `document.documentElement` to scroll the page.
    * Returns a cleanup function that unregisters it.
    */
-  registerViewport: <TAccept extends DragAccept<unknown> = DragKind<unknown>>(
+  registerViewport: <TAccept extends DraggableAccept<unknown> = DraggableKind<unknown>>(
     element: HTMLElement,
     getParameters: () => DragParametersWithInferredAccept<
       RegisterViewportParameters<AcceptedDragPayload<TAccept>, AcceptedDragData<TAccept>>,
@@ -212,7 +212,7 @@ export interface DraggableManager {
    * Registers a monitor, with the options of `useMonitor`.
    * Returns a cleanup function that unregisters it.
    */
-  registerMonitor: <TAccept extends DragAccept<unknown> = DragKind<unknown>>(
+  registerMonitor: <TAccept extends DraggableAccept<unknown> = DraggableKind<unknown>>(
     getParameters: () => DragParametersWithInferredAccept<
       RegisterMonitorParameters<AcceptedDragPayload<TAccept>, AcceptedDragData<TAccept>>,
       TAccept

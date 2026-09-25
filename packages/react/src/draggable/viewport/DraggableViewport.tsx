@@ -4,6 +4,9 @@ import type {
   DraggableViewportDragScrollValue,
   DraggableViewportDragScrollEventDetails,
   DraggableViewportDragScrollEventReason,
+  DraggableViewportOverflowMargin,
+  DraggableViewportDragScrollDirection,
+  DraggableViewportMaxSpeedContext,
 } from '../../utils/drag-and-drop/autoScroller';
 import { useRenderElement } from '../../internals/useRenderElement';
 import type { BaseUIComponentProps } from '../../internals/types';
@@ -11,7 +14,12 @@ import type {
   RegisterViewportParameters,
   DragParametersWithInferredAccept,
 } from '../../types/dragRegistration';
-import type { AcceptedDragPayload, DragAccept, AcceptedDragData, DragKind } from '../../types/drag';
+import type {
+  AcceptedDragPayload,
+  DraggableAccept,
+  AcceptedDragData,
+  DraggableKind,
+} from '../../types/drag';
 import { useDraggableViewportElement } from './useDraggableViewportElement';
 import type { UseDraggableViewportElementParameters } from './useDraggableViewportElement';
 
@@ -74,7 +82,7 @@ export const DraggableViewport = React.forwardRef(function DraggableViewport<
   ): React.JSX.Element;
   // Private inference overload for heterogeneous `accept` arrays. Explicit
   // component generics use the payload-keyed overload above.
-  <TAccept extends DragAccept<unknown> = DragKind<unknown>>(
+  <TAccept extends DraggableAccept<unknown> = DraggableKind<unknown>>(
     props: DragParametersWithInferredAccept<
       DraggableViewportProps<AcceptedDragPayload<TAccept>, AcceptedDragData<TAccept>>,
       TAccept
@@ -103,7 +111,19 @@ export type {
   DraggableViewportDragScrollEventReason,
 } from '../../utils/drag-and-drop/autoScroller';
 
+export type {
+  DraggableViewportOverflowMargin,
+  DraggableViewportDragScrollDirection,
+  DraggableViewportMaxSpeedContext,
+} from '../../utils/drag-and-drop/autoScroller';
+
 export namespace DraggableViewport {
+  export type OverflowMargin = DraggableViewportOverflowMargin;
+  export type DragScrollDirection = DraggableViewportDragScrollDirection;
+  export type MaxSpeedContext<
+    TSourcePayload = unknown,
+    TDragData = unknown,
+  > = DraggableViewportMaxSpeedContext<TSourcePayload, TDragData>;
   export type DragScrollValue<
     TPayload = unknown,
     TDragData = unknown,

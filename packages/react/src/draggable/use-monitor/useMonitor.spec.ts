@@ -26,7 +26,7 @@ function AcceptsOneKind() {
     onMoveEnd: ({ source, target }, { reason }) => {
       expectType<CardPayload, typeof source.payload>(source.payload);
       expectType<Draggable.Target.Record | null, typeof target>(target);
-      expectType<Draggable.DragEndReason, typeof reason>(reason);
+      expectType<Draggable.Root.MoveEndEventReason, typeof reason>(reason);
     },
   });
 }

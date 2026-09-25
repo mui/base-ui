@@ -25,7 +25,7 @@ type DragScrollHandler<TPayload = unknown> = NonNullable<
     expectType<CardPayload, typeof value.source.payload>(value.source.payload);
     expectType<number, typeof value.x>(value.x);
     expectType<number, typeof value.y>(value.y);
-    expectType<Draggable.DragAutoScrollDirection, typeof value.direction>(value.direction);
+    expectType<Draggable.Viewport.DragScrollDirection, typeof value.direction>(value.direction);
     expectType<DraggableViewportDragScrollValue<CardPayload>, typeof value>(value);
     expectType<Draggable.Viewport.DragScrollValue<CardPayload>, typeof value>(value);
     expectType<HTMLElement, typeof eventDetails.element>(eventDetails.element);

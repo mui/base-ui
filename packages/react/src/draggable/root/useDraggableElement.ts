@@ -20,7 +20,7 @@ import type {
   CollisionParticipant,
   DraggableCollisionContextValue,
 } from '../collision-provider/DraggableCollisionContext';
-import type { DragSource } from '../../types/drag';
+import type { DraggableRootRecord } from '../../types/drag';
 import {
   dragSessionStore,
   dragSourceStore,
@@ -33,7 +33,7 @@ import { useRegistrationRef } from '../../utils/drag-and-drop/useRegistrationRef
 // the node behind the ref even when a virtualizer swaps it. Module-scope
 // (stable-identity) selector so `useStore`'s selector-identity fast path holds.
 type ElementRef = { readonly current: Element | null };
-function selectIsDragging(source: DragSource | null, r: ElementRef): boolean {
+function selectIsDragging(source: DraggableRootRecord | null, r: ElementRef): boolean {
   return source?.element === r.current;
 }
 
@@ -128,7 +128,7 @@ export function useDraggableElement<TPayload = undefined, TDragData = unknown>(
                   // The provider accepts only this participant's source kind.
                   return snap({
                     ...context,
-                    source: context.source as DragSource<TPayload, TDragData>,
+                    source: context.source as DraggableRootRecord<TPayload, TDragData>,
                   });
                 }
               : snap,

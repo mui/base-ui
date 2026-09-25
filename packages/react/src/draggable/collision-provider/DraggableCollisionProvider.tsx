@@ -7,14 +7,15 @@ import type { BaseUIGenericEventDetails } from '../../internals/createBaseUIEven
 import type {
   DragEndReason,
   DragEventDetailsProperties,
-  DragKind,
-  DragSource,
+  DraggableKind,
+  DraggableRootRecord,
   DragSourceEventValue,
   DraggableTargetRecord,
   DraggableTargetResolutionContext,
   DropTargetChangeEventDetails,
   DropTargetChangeReason,
   MoveEndEventDetails,
+  MoveEndEventDetailsProperties,
   MoveStartEventDetails,
 } from '../../types/drag';
 import { registerTarget, registerMonitor } from '../../utils/drag-and-drop/registrations';
@@ -52,7 +53,7 @@ export function DraggableCollisionProvider<TPayload, TDragData = unknown>(
     createKind<TPayload, TDragData>('collision-participant'),
   ).current;
   const involvedRef = React.useRef(false);
-  const removedSource = React.useRef<DragSource | null>(null);
+  const removedSource = React.useRef<DraggableRootRecord | null>(null);
   const previous = React.useRef<DraggableTargetRecord<TPayload, TDragData> | null>(null);
   // The start of a drag this group did not own, replayed to `onMoveStart` if the
   // drag later reaches one of its participants, so the start/end pair always closes.
@@ -90,7 +91,7 @@ export function DraggableCollisionProvider<TPayload, TDragData = unknown>(
         registration = {
           [resolveCollision]: (
             record: DraggableTargetRecord<TPayload, TDragData>,
-            context: { source: DragSource },
+            context: { source: DraggableRootRecord },
           ) => {
             if (sourceElement === context.source.element || captured.has(record)) {
               return;
@@ -236,7 +237,7 @@ export function DraggableCollisionProvider<TPayload, TDragData = unknown>(
 export interface DraggableCollisionProviderProps<TPayload = unknown, TDragData = unknown> {
   children?: React.ReactNode | undefined;
   /** The kind of the items in this group. Pass the same kind to each `<Draggable.Root>`. */
-  kind: DragKind<TPayload, TDragData>;
+  kind: DraggableKind<TPayload, TDragData>;
   /**
    * Whether the dragged item can be dropped on a given item of this group.
    * Receives the drag `source`, the pointer `input`, and the item's `payload` and `element`.
@@ -291,7 +292,7 @@ export interface DraggableCollisionProviderCollisionChangeValue<
   TDragData = unknown,
 > {
   /** The item being dragged. */
-  source: DragSource<TPayload, TDragData>;
+  source: DraggableRootRecord<TPayload, TDragData>;
   /**
    * The item of this group under the pointer, or `null` when the pointer is outside the
    * group or over the dragged item. Use `payload` to identify it, and `getLocalPoint()`
@@ -306,15 +307,18 @@ export interface DraggableCollisionProviderCollisionChangeValue<
 }
 
 /** The properties the collision provider's details add to the drag event details. */
-type DraggableCollisionProviderEventDetailsProperties<TPayload, TDragData> =
-  DragEventDetailsProperties & {
-    /**
-     * The `target` reported by the previous `onCollisionChange` call, or `null` before
-     * the first. Records are rebuilt as the pointer moves, so compare `payload` or
-     * `element` to tell whether the item changed.
-     */
-    previousTarget: DraggableTargetRecord<TPayload, TDragData> | null;
-  };
+type DraggableCollisionProviderEventDetailsProperties<
+  TPayload,
+  TDragData,
+  TBase = DragEventDetailsProperties,
+> = TBase & {
+  /**
+   * The `target` reported by the previous `onCollisionChange` call, or `null` before
+   * the first. Records are rebuilt as the pointer moves, so compare `payload` or
+   * `element` to tell whether the item changed.
+   */
+  previousTarget: DraggableTargetRecord<TPayload, TDragData> | null;
+};
 
 export type DraggableCollisionProviderMoveStartValue<
   TPayload = unknown,
@@ -341,7 +345,11 @@ export type DraggableCollisionProviderMoveEndEventDetails<
   TDragData = unknown,
 > = BaseUIGenericEventDetails<
   DragEndReason,
-  DraggableCollisionProviderEventDetailsProperties<TPayload, TDragData>
+  DraggableCollisionProviderEventDetailsProperties<
+    TPayload,
+    TDragData,
+    MoveEndEventDetailsProperties
+  >
 >;
 export type DraggableCollisionProviderMoveEndEventReason =
   DraggableCollisionProviderMoveEndEventDetails['reason'];

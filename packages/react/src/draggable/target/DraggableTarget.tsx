@@ -11,8 +11,8 @@ import type {
 import type {
   AcceptedDragPayload,
   AcceptedDragData,
-  DragAccept,
-  DragKind,
+  DraggableAccept,
+  DraggableKind,
   DraggableTargetRecord,
   DraggableTargetResolutionContext,
   DraggableTargetStartValue,
@@ -30,6 +30,9 @@ import type {
   DraggableTargetDropValue,
   DraggableTargetDropEventDetails,
   DraggableTargetDropEventReason,
+  DraggableTargetSnapSteps,
+  DraggableTargetLocalPoint,
+  DraggableTargetSnappedLocalPointOptions,
 } from '../../types/drag';
 import * as DraggableTargetDataAttributes from './DraggableTargetDataAttributes';
 import { useDraggableTargetElement } from './useDraggableTargetElement';
@@ -61,7 +64,7 @@ export const DraggableTarget = React.forwardRef(function DraggableTarget<
      *
      * Drags of other kinds ignore this target, but an ancestor target can still accept them.
      */
-    accept?: DragAccept<TSourcePayload> | undefined;
+    accept?: DraggableAccept<TSourcePayload> | undefined;
     payload?: TTargetPayload | undefined;
   },
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
@@ -160,7 +163,7 @@ export const DraggableTarget = React.forwardRef(function DraggableTarget<
       DraggableTargetPropsBase<TSourcePayload, TTargetPayload, TSourceDragData, TTargetDragData>,
       'kind'
     > & {
-      kind?: DragKind<TTargetPayload, TTargetDragData> | undefined;
+      kind?: DraggableKind<TTargetPayload, TTargetDragData> | undefined;
       payload: NoInfer<TTargetPayload>;
     },
   ): React.JSX.Element;
@@ -169,7 +172,7 @@ export const DraggableTarget = React.forwardRef(function DraggableTarget<
       payload?: undefined;
     },
   ): React.JSX.Element;
-  <TAccept extends DragAccept<unknown>, TTargetPayload>(
+  <TAccept extends DraggableAccept<unknown>, TTargetPayload>(
     props: DragParametersWithRequiredAccept<
       DraggableTargetPropsBase<
         AcceptedDragPayload<TAccept>,
@@ -179,7 +182,7 @@ export const DraggableTarget = React.forwardRef(function DraggableTarget<
       TAccept
     > & { kind?: undefined; payload: TTargetPayload },
   ): React.JSX.Element;
-  <TAccept extends DragAccept<unknown>, TTargetPayload, TTargetDragData = unknown>(
+  <TAccept extends DraggableAccept<unknown>, TTargetPayload, TTargetDragData = unknown>(
     props: DragParametersWithRequiredAccept<
       Omit<
         DraggableTargetPropsBase<
@@ -191,9 +194,9 @@ export const DraggableTarget = React.forwardRef(function DraggableTarget<
         'kind'
       >,
       TAccept
-    > & { kind: DragKind<TTargetPayload, TTargetDragData>; payload: NoInfer<TTargetPayload> },
+    > & { kind: DraggableKind<TTargetPayload, TTargetDragData>; payload: NoInfer<TTargetPayload> },
   ): React.JSX.Element;
-  <TAccept extends DragAccept<unknown>, TTargetDragData = unknown>(
+  <TAccept extends DraggableAccept<unknown>, TTargetDragData = unknown>(
     props: DragParametersWithRequiredAccept<
       DraggableTargetPropsBase<
         AcceptedDragPayload<TAccept>,
@@ -265,8 +268,8 @@ export type DraggableTargetProps<
 > &
   DraggableTargetPayloadField<TTargetPayload> &
   ([TSourcePayload, TTargetPayload] extends [undefined, undefined]
-    ? { accept?: DragAccept<TSourcePayload, TSourceDragData> | undefined }
-    : { accept: DragAccept<TSourcePayload, TSourceDragData> });
+    ? { accept?: DraggableAccept<TSourcePayload, TSourceDragData> | undefined }
+    : { accept: DraggableAccept<TSourcePayload, TSourceDragData> });
 
 export type {
   DraggableTargetRecord,
@@ -288,7 +291,16 @@ export type {
   DraggableTargetDropEventReason,
 } from '../../types/drag';
 
+export type {
+  DraggableTargetSnapSteps,
+  DraggableTargetLocalPoint,
+  DraggableTargetSnappedLocalPointOptions,
+} from '../../types/drag';
+
 export namespace DraggableTarget {
+  export type SnapSteps = DraggableTargetSnapSteps;
+  export type LocalPoint = DraggableTargetLocalPoint;
+  export type SnappedLocalPointOptions = DraggableTargetSnappedLocalPointOptions;
   export type Record<TTargetPayload = unknown, TDragData = unknown> = DraggableTargetRecord<
     TTargetPayload,
     TDragData

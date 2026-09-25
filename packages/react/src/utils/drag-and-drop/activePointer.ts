@@ -1,8 +1,8 @@
-import type { DragInput } from '../../types/drag';
+import type { DraggableInput } from '../../types/drag';
 import { getSharedSlot } from './sharedState';
 
 interface ActivePointerAccessors {
-  getInput(): DragInput | null;
+  getInput(): DraggableInput | null;
   getHitElement(): Element | null;
   notifyScroll(): void;
 }
@@ -17,7 +17,7 @@ export function setActivePointerAccessors(accessors: ActivePointerAccessors): vo
   slot.accessors = accessors;
 }
 
-export function getRawActivePointerInput(): DragInput | null {
+export function getRawActivePointerInput(): DraggableInput | null {
   return slot.accessors?.getInput() ?? null;
 }
 

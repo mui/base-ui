@@ -1,4 +1,4 @@
-import type { DragSource } from '../../types/drag';
+import type { DraggableRootRecord } from '../../types/drag';
 import { getSharedSlot } from './sharedState';
 import { getRegistration } from './draggableRegistry';
 import { dragSessionStore, notifyDragSourceUpdated } from './dragSessionStore';
@@ -6,7 +6,7 @@ import { getParticipantPayload, type ParticipantPayload } from './participantDat
 
 const sourcePayloads = getSharedSlot(
   'dragSource.payloads',
-  () => new WeakMap<DragSource, ParticipantPayload>(),
+  () => new WeakMap<DraggableRootRecord, ParticipantPayload>(),
 );
 
 /** Create the mutable data shared by every callback in one drag. */
@@ -15,13 +15,13 @@ export function createDragSource(
   kind: symbol,
   initialPayload: unknown,
   dragHandle: Element | null,
-): DragSource {
+): DraggableRootRecord {
   const registration = getRegistration(element);
   const data = getParticipantPayload(registration ?? {}, kind, initialPayload);
   data.sync(initialPayload);
   let dragData: unknown;
 
-  const source: DragSource = {
+  const source: DraggableRootRecord = {
     element,
     kind,
     handle: dragHandle,

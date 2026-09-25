@@ -7,7 +7,7 @@ import { applySourceSizeVars } from '../customDragPreview';
 import { getSharedSlot } from '../sharedState';
 import { DRAG_PREVIEW_ATTR, DRAGGING_ATTR } from '../dragAttributes';
 import { getComposedParentElement, getElementScale, getElementZoom } from '../utils';
-import type { DragPosition } from '../../../types/drag';
+import type { DraggablePosition } from '../../../types/drag';
 import {
   COMPUTED_MATRIX,
   identityLinearTransform,
@@ -107,7 +107,7 @@ export interface DragPreviewElementHandle {
   /** The source's border box at drag start. Measured once; reused by the callers. */
   readonly sourceRect: DOMRect;
   /** Viewport pixels per CSS translation unit of the preview. */
-  readonly positionScale: DragPosition;
+  readonly positionScale: DraggablePosition;
   /**
    * Re-home the preview if its host was torn out mid-drag (a virtualizer recycling
    * the row, a `dangerouslySetInnerHTML` parent re-rendering). Cheap enough to call
@@ -551,7 +551,7 @@ function getUntransformedSourceRect(
   height: number,
   sourceStyle: CSSStyleDeclaration,
   win: Window & typeof globalThis,
-  ancestorScale: DragPosition,
+  ancestorScale: DraggablePosition,
 ): DOMRect {
   const fallback = () =>
     new win.DOMRect(
@@ -590,7 +590,7 @@ function getUntransformedSourceRect(
 /** Measure the layout anchor in viewport coordinates, undoing the source's own transform. */
 export function measurePreviewSource(source: HTMLElement): {
   sourceRect: DOMRect;
-  scale: DragPosition;
+  scale: DraggablePosition;
 } {
   // `getBoundingClientRect` includes the source's own transform. The clone
   // renders with `transform` neutralized but re-applies the individual

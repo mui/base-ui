@@ -149,7 +149,7 @@ When extracting a handler, use the types on its component namespace, such as `Dr
 />
 ```
 
-Commit a successful drop in `onMoveEnd`. There, `target` is the target that received the drop, or `null` when the drag was canceled or released elsewhere, and `eventDetails.reason` says why the drag ended. A source can land on targets of any kind, so `target.payload` is `unknown` until you narrow it with the target's [kind](#identifying-a-target). When the handler also clears temporary state, use `try/finally` so the cleanup runs even if committing throws:
+Commit a successful drop in `onMoveEnd`. There, `target` is the target that received the drop, or `null` when the drag was canceled or released elsewhere. `eventDetails.canceled` tells a cancel, such as <kbd>Esc</kbd> or `cancelDrag()`, from a release, and `eventDetails.reason` says exactly why the drag ended. A source can land on targets of any kind, so `target.payload` is `unknown` until you narrow it with the target's [kind](#identifying-a-target). When the handler also clears temporary state, use `try/finally` so the cleanup runs even if committing throws:
 
 ```tsx title="Committing a drop"
 <Draggable.Root
@@ -538,7 +538,7 @@ A modifier is a function that receives the proposed `point` and returns the poin
 ```tsx title="Snapping to fixed rows"
 import { Draggable } from '@base-ui/react/draggable';
 
-const snapToRows: Draggable.DragModifier = ({ point }) => ({
+const snapToRows: Draggable.Root.Modifier = ({ point }) => ({
   x: point.x,
   y: nearest(ROW_TOPS, point.y),
 });
@@ -547,7 +547,7 @@ const snapToRows: Draggable.DragModifier = ({ point }) => ({
 Points are in client pixels, matching `getBoundingClientRect()`. On a zoomed or scaled canvas, multiply a canvas distance by `scale` to convert it to client pixels. `scale` is `1` when nothing is scaled.
 
 ```tsx title="Moving by 20 canvas units"
-const nudgeRight: Draggable.DragModifier = ({ point, scale }) => ({
+const nudgeRight: Draggable.Root.Modifier = ({ point, scale }) => ({
   x: point.x + 20 * scale.x,
   y: point.y,
 });
@@ -556,7 +556,7 @@ const nudgeRight: Draggable.DragModifier = ({ point, scale }) => ({
 The `ctrlKey`, `shiftKey`, `altKey`, and `metaKey` flags let a modifier react to keys held during the drag. Pressing or releasing a key reapplies the modifiers on the next frame.
 
 ```tsx title="Snapping to 45° while Shift is held"
-const snapToAngle: Draggable.DragModifier = ({ point, shiftKey, initialPoint }) => {
+const snapToAngle: Draggable.Root.Modifier = ({ point, shiftKey, initialPoint }) => {
   if (!shiftKey) {
     return point;
   }
@@ -1023,7 +1023,7 @@ import * as React from 'react';
 import { Draggable } from '@base-ui/react/draggable';
 
 export function SortableItem<Payload>(
-  props: Draggable.Root.Props<Payload> & { kind: Draggable.DragKind<Payload>; payload: Payload },
+  props: Draggable.Root.Props<Payload> & { kind: Draggable.Kind<Payload>; payload: Payload },
 ): React.JSX.Element {
   return <Draggable.Root {...props} className="Item" />;
 }
@@ -1102,7 +1102,7 @@ A kind that matches every drag. Pass it to a target's `accept` prop to accept ev
 
 ## Modifiers
 
-The built-in [movement modifiers](#constraining-movement). Pass them to the `modifiers` prop of `<Draggable.Root>` or `<Draggable.Preview>`.
+The built-in [movement modifiers](#constraining-movement). Pass them to the `modifiers` prop of `<Draggable.Root>` or `<Draggable.Preview>`. To write your own, type it as `Draggable.Root.Modifier`, as shown in [Custom modifiers](#custom-modifiers).
 
 ### restrictToVerticalAxis
 
@@ -1127,12 +1127,6 @@ The built-in [movement modifiers](#constraining-movement). Pass them to the `mod
 ### snapToGrid
 
 <TypesDraggable.snapToGrid />
-
-### DragModifier
-
-The type of a [custom modifier](#custom-modifiers).
-
-<TypesDraggable.DragModifier hideDescription />
 
 ## useActiveDrag
 

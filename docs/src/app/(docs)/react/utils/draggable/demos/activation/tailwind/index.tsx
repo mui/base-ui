@@ -8,7 +8,7 @@ type Phase = 'ready' | 'waiting' | 'dragging' | 'dropped';
 interface ActivationMode {
   id: string;
   label: string;
-  activation: Draggable.DragActivationConfig | readonly Draggable.DragActivationConfig[];
+  activation: Draggable.Root.ActivationConfig | readonly Draggable.Root.ActivationConfig[];
   readyMessage: string;
   waitingMessage: string;
 }

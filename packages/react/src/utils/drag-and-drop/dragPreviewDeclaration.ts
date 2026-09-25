@@ -1,6 +1,6 @@
 import { warn } from '@base-ui/utils/warn';
 import type * as React from 'react';
-import type { DragPreviewSettings, DraggablePreviewRenderParameters } from '../../types/drag';
+import type { DraggablePreviewSettings, DraggablePreviewRenderParameters } from '../../types/drag';
 import type { DragPreviewElementFactory } from './synthetic/cloneDragPreview';
 
 /**
@@ -12,7 +12,7 @@ import type { DragPreviewElementFactory } from './synthetic/cloneDragPreview';
 export interface DragPreviewDeclaration<
   TPayload = unknown,
   TDragData = unknown,
-> extends DragPreviewSettings {
+> extends DraggablePreviewSettings {
   /** Builds the engine-owned preview element. @internal */
   createPreviewElement: DragPreviewElementFactory;
   /**

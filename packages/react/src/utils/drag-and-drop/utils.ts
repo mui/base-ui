@@ -1,7 +1,7 @@
 import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
 import { isShadowRoot } from '@floating-ui/utils/dom';
 import { contains } from '@base-ui/utils/shadowDom';
-import type { DragInput, DragPointerType, DragPosition } from '../../types/drag';
+import type { DraggableInput, DraggablePointerType, DraggablePosition } from '../../types/drag';
 import { getParentElement as getComposedParentElement } from '../getParentElement';
 import { getElementAtPoint } from '../getElementAtPoint';
 import {
@@ -13,7 +13,7 @@ import {
 } from './linearTransform';
 
 /** The four modifier keys, as every event that carries them reports them. */
-export type DragModifierKeys = Pick<DragInput, 'ctrlKey' | 'shiftKey' | 'altKey' | 'metaKey'>;
+export type DragModifierKeys = Pick<DraggableInput, 'ctrlKey' | 'shiftKey' | 'altKey' | 'metaKey'>;
 
 /**
  * Wrap a cleanup so calling it more than once (or after React has already run
@@ -168,15 +168,15 @@ export function isPointInRect(
   return x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom;
 }
 
-export function normalizePointerType(raw: string | undefined): DragPointerType {
+export function normalizePointerType(raw: string | undefined): DraggablePointerType {
   if (raw === 'touch' || raw === 'pen') {
     return raw;
   }
   return 'mouse';
 }
 
-/** Build an `DragInput` snapshot from a pointer event. */
-export function getInput(event: MouseEvent & { pointerType?: string | undefined }): DragInput {
+/** Build an `DraggableInput` snapshot from a pointer event. */
+export function getInput(event: MouseEvent & { pointerType?: string | undefined }): DraggableInput {
   return {
     button: event.button,
     buttons: event.buttons,
@@ -193,11 +193,11 @@ export function getInput(event: MouseEvent & { pointerType?: string | undefined 
 }
 
 /**
- * Rebase a `DragInput` onto `point`, shifting the page coordinates by the same
+ * Rebase a `DraggableInput` onto `point`, shifting the page coordinates by the same
  * delta. Shared by both sensor stacks so consumer predicates are asked about
  * the position the cursor would land on rather than the one it is leaving.
  */
-export function remapInput(input: DragInput, point: DragPosition): DragInput {
+export function remapInput(input: DraggableInput, point: DraggablePosition): DraggableInput {
   if (point.x === input.clientX && point.y === input.clientY) {
     return input;
   }
@@ -422,7 +422,7 @@ export function getElementZoom(element: HTMLElement): number {
  *
  * Returns `1` on either axis it cannot read.
  */
-export function getElementScale(element: HTMLElement): DragPosition {
+export function getElementScale(element: HTMLElement): DraggablePosition {
   const win = ownerWindow(element);
   let matrix = identityLinearTransform;
   let zoom = 1;

@@ -20,7 +20,7 @@ import { clearPublishedDragPreview } from '../src/utils/drag-and-drop/overlay/dr
 import { resetTouchTarget } from './syntheticPointer';
 import type {
   DragDropEventDetails,
-  DragSource,
+  DraggableRootRecord,
   DragSourceEventValue,
   DraggableTargetRecord,
   MoveEndEventDetails,
@@ -459,7 +459,7 @@ export function resetDrag(): void {
  */
 export function splitEnd<TPayload = unknown>(
   onDrop: (
-    value: { source: DragSource<TPayload>; target: DraggableTargetRecord },
+    value: { source: DraggableRootRecord<TPayload>; target: DraggableTargetRecord },
     details: DragDropEventDetails,
   ) => void,
   onMoveEnd?: (value: DragSourceEventValue<TPayload>, details: MoveEndEventDetails) => void,

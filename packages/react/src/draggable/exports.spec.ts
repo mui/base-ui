@@ -9,7 +9,7 @@ declare const moveEndValue: Exports.Draggable.Root.MoveEndValue<{ id: string }>;
 expectType<Exports.DraggableRootMoveEndValue<{ id: string }>, typeof moveEndValue>(moveEndValue);
 declare const manager: Exports.UseDraggableManagerReturnValue;
 expectType<Exports.Draggable.useManager.ReturnValue, typeof manager>(manager);
-declare const acceptedKind: Exports.Draggable.DragAcceptedKind;
+declare const acceptedKind: Exports.Draggable.AcceptedKind;
 void acceptedKind;
 
 // Unprefixed names are gone from the flat exports.
@@ -39,9 +39,9 @@ type RemovedCollision = Exports.Draggable.CollisionProvider.Collision;
 type RemovedPreviewRenderEvent = Exports.Draggable.Preview.RenderEvent;
 
 // `@base-ui/react/types` exports no drag types: they live on the Draggable entry point.
-// @ts-expect-error use `Draggable.DragKind` instead.
-type RemovedSharedDragKind = BaseUITypes.DragKind;
-// @ts-expect-error use `Draggable.DragSource` instead.
-type RemovedSharedDragSource = BaseUITypes.DragSource;
+// @ts-expect-error use `Draggable.Kind` instead.
+type RemovedSharedDragKind = BaseUITypes.DraggableKind;
+// @ts-expect-error use `Draggable.Root.Record` instead.
+type RemovedSharedDragSource = BaseUITypes.DraggableRootRecord;
 // @ts-expect-error use `Draggable.Target.Record` instead.
 type RemovedSharedDropTargetRecord = BaseUITypes.DropTargetRecord;

@@ -8,10 +8,10 @@ import type { REASONS } from '../internals/reasons';
 export type DragCleanupFn = () => void;
 
 /** Pointer device that initiated the drag. */
-export type DragPointerType = 'mouse' | 'pen' | 'touch';
+export type DraggablePointerType = 'mouse' | 'pen' | 'touch';
 
 /** The pointer state at the moment a drag event fires. */
-export interface DragInput {
+export interface DraggableInput {
   /**
    * `MouseEvent.button` semantics: 0 = primary, 1 = middle, 2 = secondary.
    * Move-derived events (`onMove`, `onTargetChange`) carry `-1`, as no button changed.
@@ -29,7 +29,7 @@ export interface DragInput {
   /** Pointer Y relative to the document, in CSS pixels (includes scroll). */
   pageY: number;
   /** The pointer device that produced this input. */
-  pointerType: DragPointerType;
+  pointerType: DraggablePointerType;
   /** Whether the Control key was held. */
   ctrlKey: boolean;
   /** Whether the Shift key was held. */
@@ -41,7 +41,7 @@ export interface DragInput {
 }
 
 /** A 2D coordinate in CSS pixels. */
-export interface DragPosition {
+export interface DraggablePosition {
   x: number;
   y: number;
 }
@@ -50,7 +50,7 @@ export interface DragPosition {
  * Where the pointer is within a drop target, as a fraction of its size:
  * `0` at the left or top edge, `1` at the right or bottom edge.
  */
-export interface DragLocalPoint {
+export interface DraggableTargetLocalPoint {
   x: number;
   y: number;
 }
@@ -60,13 +60,13 @@ export interface DragLocalPoint {
  * `getSnappedLocalPoint()`. An omitted axis isn't snapped. Steps don't depend on
  * the target's size, so `{ y: 96 }` splits a day column into 15-minute slots at any height.
  */
-export interface DragSnapSteps {
+export interface DraggableTargetSnapSteps {
   x?: number | undefined;
   y?: number | undefined;
 }
 
 /** Options for `getSnappedLocalPoint()` on a drop target record. */
-export interface DragSnappedLocalPointOptions {
+export interface DraggableTargetSnappedLocalPointOptions {
   /**
    * The point to snap: the pointer position, or the dragged element's top-left corner.
    * Use `'source'` when committing where the element lands.
@@ -111,7 +111,7 @@ export interface DraggableTargetRecord<TTargetPayload = unknown, TDragData = unk
    * The value isn't clamped, since an outer target can have the pointer outside its
    * own box while a nested target is under it. A target with no size reports `0` on both axes.
    */
-  getLocalPoint: () => DragLocalPoint;
+  getLocalPoint: () => DraggableTargetLocalPoint;
   /**
    * Returns `getLocalPoint()` rounded to the target's `snap` steps and clamped between `0` and `1`:
    *
@@ -129,39 +129,41 @@ export interface DraggableTargetRecord<TTargetPayload = unknown, TDragData = unk
    * Pass `{ anchor: 'source' }` to snap the dragged element's top-left corner instead
    * of the pointer. An axis without steps returns its clamped fraction.
    */
-  getSnappedLocalPoint: (options?: DragSnappedLocalPointOptions) => DragLocalPoint;
+  getSnappedLocalPoint: (
+    options?: DraggableTargetSnappedLocalPointOptions,
+  ) => DraggableTargetLocalPoint;
 }
 
 /**
  * The pointer state and the drop targets under the pointer at one moment.
  */
-export interface DragLocation {
+export interface DraggableLocation {
   /** The pointer state. */
-  input: DragInput;
+  input: DraggableInput;
   /** The drop targets under the pointer that accept the drag, innermost first. */
   targets: readonly DraggableTargetRecord[];
 }
 
 /** Where the drag is and has been, available as `eventDetails.location` in drag handlers. */
-export interface DragLocationHistory {
+export interface DraggableLocationHistory {
   /** The pointer's offset from the source's top-left corner at pickup, in CSS pixels. */
-  grabOffset?: DragPosition | undefined;
+  grabOffset?: DraggablePosition | undefined;
   /** The location where the drag started. */
-  initial: DragLocation;
+  initial: DraggableLocation;
   /** The location at the moment this event fires. */
-  current: DragLocation;
+  current: DraggableLocation;
   /**
    * The location at the previous event. On the first event of a drag, it holds the
    * pickup position and no drop targets.
    */
-  previous: DragLocation;
+  previous: DraggableLocation;
 }
 
 /**
  * The item being dragged, carried by every drag event.
  * It stays usable if its element unmounts during the drag, for example in a virtualized list.
  */
-export interface DragSource<TPayload = unknown, TDragData = unknown> {
+export interface DraggableRootRecord<TPayload = unknown, TDragData = unknown> {
   /** The draggable's own DOM element. */
   element: HTMLElement;
   /**
@@ -195,7 +197,7 @@ declare class DragKindPayload<TPayload, TDragData> {
  * `Draggable.createGlobalKind`. Its payload type is declared once and types
  * `source.payload` and `target.payload` everywhere the kind is used.
  */
-export interface DragKind<
+export interface DraggableKind<
   in out TPayload = unknown,
   in out TDragData = unknown,
 > extends DragKindPayload<TPayload, TDragData> {
@@ -211,7 +213,7 @@ export interface DragKind<
   /**
    * Whether a drag source is of this kind. Narrows its `payload` type.
    */
-  matches(source: DragSource<unknown>): source is DragSource<TPayload, TDragData>;
+  matches(source: DraggableRootRecord<unknown>): source is DraggableRootRecord<TPayload, TDragData>;
   /**
    * Whether a drop target is of this kind. Narrows its `payload` type.
    */
@@ -224,39 +226,40 @@ export interface DragKind<
  * One or more kinds accepted by a drop target, viewport, or monitor.
  * They determine the type of `source.payload`.
  */
-export type DragAccept<TPayload, TDragData = unknown> =
-  DragAcceptedKind<TPayload, TDragData> | ReadonlyArray<DragAcceptedKind<TPayload, TDragData>>;
+export type DraggableAccept<TPayload, TDragData = unknown> =
+  | DraggableAcceptedKind<TPayload, TDragData>
+  | ReadonlyArray<DraggableAcceptedKind<TPayload, TDragData>>;
 
 /** A kind used to observe payloads, without declaring a payload under that kind. */
-export type DragAcceptedKind<TPayload = unknown, TDragData = unknown> = Pick<
-  DragKind<TPayload, TDragData>,
+export type DraggableAcceptedKind<TPayload = unknown, TDragData = unknown> = Pick<
+  DraggableKind<TPayload, TDragData>,
   'name' | 'id' | 'matches'
 >;
 
 /** A drag kind or array of kinds accepted by generic registration APIs. */
-export type AnyDragAccept = DragAccept<unknown>;
+export type AnyDragAccept = DraggableAccept<unknown>;
 
 /**
  * The payload type declared by `accept`. An array produces a union, and an omitted
  * `accept` produces `unknown`.
  */
 // Distributive on purpose, so both the array entries and an `accept` that is itself a
-// union (a wrapper forwarding `DragAccept<T>`) resolve to the union of their payloads.
+// union (a wrapper forwarding `DraggableAccept<T>`) resolve to the union of their payloads.
 export type AcceptedDragPayload<TAccept> =
-  TAccept extends DragAcceptedKind<infer TPayload, any>
+  TAccept extends DraggableAcceptedKind<infer TPayload, any>
     ? TPayload
     : TAccept extends ReadonlyArray<infer TKind>
-      ? TKind extends DragAcceptedKind<infer TPayload, any>
+      ? TKind extends DraggableAcceptedKind<infer TPayload, any>
         ? TPayload
         : never
       : unknown;
 
 /** The drag data declared by accepted kinds. An array produces a union. */
 export type AcceptedDragData<TAccept> =
-  TAccept extends DragAcceptedKind<any, infer TDragData>
+  TAccept extends DraggableAcceptedKind<any, infer TDragData>
     ? TDragData
     : TAccept extends ReadonlyArray<infer TKind>
-      ? TKind extends DragAcceptedKind<any, infer TDragData>
+      ? TKind extends DraggableAcceptedKind<any, infer TDragData>
         ? TDragData
         : never
       : unknown;
@@ -272,7 +275,7 @@ export interface DragSourceEventValue<
   TTargetDragData = unknown,
 > {
   /** The item being dragged. */
-  source: DragSource<TSourcePayload, TDragData>;
+  source: DraggableRootRecord<TSourcePayload, TDragData>;
   /**
    * The drop target that would receive the drop if the drag were released now, or
    * `null` when there is none: `eventDetails.location.current.targets[0]`.
@@ -290,7 +293,7 @@ export interface DropTargetEventValue<
   TTargetDragData = unknown,
 > {
   /** The item being dragged. */
-  source: DragSource<TSourcePayload, TDragData>;
+  source: DraggableRootRecord<TSourcePayload, TDragData>;
   /** This drop target's own record. */
   target: DraggableTargetRecord<TTargetPayload, TTargetDragData>;
 }
@@ -302,25 +305,25 @@ export interface BeforeMoveStartValue<TPayload = unknown, TDragData = unknown> {
    * Call `updateDragData` to initialize gesture data before targets resolve and previews render.
    * A canceled pickup does not carry its gesture data into the next attempt.
    */
-  source: DragSource<TPayload, TDragData>;
+  source: DraggableRootRecord<TPayload, TDragData>;
 }
 
 /** The argument of a drag preview's render function, called when the drag starts. */
 export interface DraggablePreviewRenderParameters<TSourcePayload = unknown, TDragData = unknown> {
   /** The item being dragged. */
-  source: DragSource<TSourcePayload, TDragData>;
+  source: DraggableRootRecord<TSourcePayload, TDragData>;
   /** The pointer position and drop targets when the drag started. */
-  location: DragLocationHistory;
+  location: DraggableLocationHistory;
 }
 
 /** Parameters passed to a drag preview's `offset` callback. */
-export interface DragPreviewOffsetParameters {
+export interface DraggablePreviewOffsetParameters {
   /** The preview element, after its content has rendered, so it has a size. */
   container: HTMLElement;
   /** The drag source element's bounding rect at drag start, in client coordinates. */
   sourceRect: DOMRect;
   /** Pointer state at drag start. */
-  input: DragInput;
+  input: DraggableInput;
 }
 
 /**
@@ -328,12 +331,15 @@ export interface DragPreviewOffsetParameters {
  *
  * - `'source'`: The preview lifts off the source without shifting.
  * - `'pointer'`: The preview's top-left corner sits under the pointer.
- * - `DragPosition`: A fixed offset from the preview's top-left corner to the pointer, in CSS pixels.
+ * - `DraggablePosition`: A fixed offset from the preview's top-left corner to the pointer, in CSS pixels.
  * - `function`: Called when the drag starts with the rendered preview, the source's
  *   rectangle, and the pointer state. Returns the offset to use.
  */
-export type DragPreviewOffset =
-  DragPosition | 'source' | 'pointer' | ((parameters: DragPreviewOffsetParameters) => DragPosition);
+export type DraggablePreviewOffset =
+  | DraggablePosition
+  | 'source'
+  | 'pointer'
+  | ((parameters: DraggablePreviewOffsetParameters) => DraggablePosition);
 
 /**
  * Where the drag preview element is inserted in the DOM.
@@ -343,7 +349,7 @@ export type DragPreviewOffset =
  * - `function`: Called when the drag starts with the source element. Returns the
  *   container, or `null` to use the default.
  */
-export type DragPreviewContainer =
+export type DraggablePreviewContainer =
   | HTMLElement
   | { current: HTMLElement | null }
   | ((source: HTMLElement) => HTMLElement | null | undefined);
@@ -360,7 +366,8 @@ export type DraggablePayload<TPayload> = NoInfer<TPayload>;
  * - `RefObject`: The element the ref points to.
  * - `function`: Returns the handle, or `null` to make the whole draggable its own handle.
  */
-export type DragHandle = Element | { current: Element | null } | (() => Element | null | undefined);
+export type DraggableHandleReference =
+  Element | { current: Element | null } | (() => Element | null | undefined);
 
 /**
  * How a drag started: a pointer press that met its activation threshold, or a
@@ -420,7 +427,7 @@ export type DropTargetChangeReason = DragStartReason | DragMoveReason | DragEndR
 /** The properties every drag event details object adds to `reason` and `event`. */
 export interface DragEventDetailsProperties {
   /** The pointer position and drop targets, now and at previous moments of the drag. */
-  location: DragLocationHistory;
+  location: DraggableLocationHistory;
 }
 
 /**
@@ -436,7 +443,7 @@ export type DragEventDetails<TReason extends string> = BaseUIGenericEventDetails
 /** The properties `onBeforeMoveStart`'s event details add to the Base UI change details. */
 export interface BeforeMoveStartEventDetailsProperties {
   /** The pointer state at pickup. */
-  input: DragInput;
+  input: DraggableInput;
 }
 
 /** The event details passed to `onBeforeMoveStart`. Call `cancel()` to prevent the drag. */
@@ -453,8 +460,26 @@ export type MoveEventDetails = DragEventDetails<DragMoveReason>;
 export type DropTargetChangeEventDetails = DragEventDetails<DropTargetChangeReason>;
 /** The event details passed to `onDraggableDrop`. */
 export type DragDropEventDetails = DragEventDetails<DragDropReason>;
+/** The properties `onMoveEnd`'s event details add to the drag event details. */
+export interface MoveEndEventDetailsProperties extends DragEventDetailsProperties {
+  /**
+   * Whether the drag was canceled rather than released, for example with Escape or
+   * `cancelDrag()`. A release outside any drop target is not a cancel.
+   *
+   * Other Base UI events describe what happened through `reason` alone. A drag keeps
+   * this flag as well because cancel reasons are open-ended: more may be added, so a
+   * check against a list of them would silently miss the new ones. Read `canceled` to
+   * tell a cancel from a release, and `reason` to tell a drop (`'drop'`) from a release
+   * outside any drop target (`'outside-release'`).
+   */
+  canceled: boolean;
+}
+
 /** The event details passed to `onMoveEnd`. */
-export type MoveEndEventDetails = DragEventDetails<DragEndReason>;
+export type MoveEndEventDetails = BaseUIGenericEventDetails<
+  DragEndReason,
+  MoveEndEventDetailsProperties
+>;
 
 /** Maps each drag source and monitor event to the details object its handler receives second. */
 export interface DraggableEventDetailsMap {
@@ -476,9 +501,9 @@ export interface DropTargetEventDetailsMap {
 /** The argument of a drop target's `canDrop` and `snap` functions. */
 export interface DraggableTargetResolutionContext<TSourcePayload = unknown, TDragData = unknown> {
   /** The current pointer state. */
-  input: DragInput;
+  input: DraggableInput;
   /** The item being dragged. */
-  source: DragSource<TSourcePayload, TDragData>;
+  source: DraggableRootRecord<TSourcePayload, TDragData>;
   /** The drop target's own DOM element. */
   element: Element;
 }
@@ -487,23 +512,23 @@ export interface DraggableTargetResolutionContext<TSourcePayload = unknown, TDra
  * An element, a ref to one, or a function returning one. Resolved on every move,
  * so a ref can become available during a drag.
  */
-export type DragElementReference =
+export type DraggableRootElementReference =
   HTMLElement | { current: HTMLElement | null } | (() => HTMLElement | null | undefined);
 
-/** The argument of a {@link DragModifier}, on every frame of a drag. */
-export interface DragModifierContext {
+/** The argument of a {@link DraggableRootModifier}, on every frame of a drag. */
+export interface DraggableRootModifierContext {
   /**
    * The point to constrain, in client pixels. On `Draggable.Root`, it's the pointer
    * position. On `Draggable.Preview`, it's the preview's proposed top-left corner.
    */
-  point: DragPosition;
+  point: DraggablePosition;
   /** The same point when the drag started. Axis locks and grid snaps anchor to it. */
-  initialPoint: DragPosition;
+  initialPoint: DraggablePosition;
   /**
    * The point before any modifier of this chain ran, in client pixels.
    * On `Draggable.Preview`, it already includes the root's modifiers.
    */
-  input: DragPosition;
+  input: DraggablePosition;
   /** The drag source element. */
   sourceElement: HTMLElement;
   /** The source element's bounding rectangle when the drag started. */
@@ -513,14 +538,14 @@ export interface DragModifierContext {
    * ancestors. `1` when nothing is scaled. Multiply a distance in the element's own
    * units by this value to convert it to client pixels.
    */
-  scale: DragPosition;
+  scale: DraggablePosition;
   /** The preview element's current bounding rectangle, or `null` when there is no preview. */
   previewRect: DOMRect | null;
   /**
    * The offset from the preview's top-left corner to `point`. `{ x: 0, y: 0 }` on
    * `Draggable.Preview` and when there is no preview.
    */
-  previewOffset: DragPosition;
+  previewOffset: DraggablePosition;
   /**
    * Whether the Control key is held. Pressing or releasing a modifier key
    * reapplies the modifiers on the next frame.
@@ -541,29 +566,30 @@ export interface DragModifierContext {
  * returns the point to use. Use it to lock an axis, snap to a grid, or keep the drag
  * inside an element.
  */
-export type DragModifier = (context: DragModifierContext) => DragPosition;
+export type DraggableRootModifier = (context: DraggableRootModifierContext) => DraggablePosition;
 
 /**
- * One or more {@link DragModifier}s, applied in order. Each receives the previous one's
+ * One or more {@link DraggableRootModifier}s, applied in order. Each receives the previous one's
  * result. Falsy entries are skipped, so a modifier can be applied conditionally,
  * as in `[locked && restrictToVerticalAxis, snapToGrid(8)]`.
  */
-export type DragModifiers = DragModifier | ReadonlyArray<DragModifier | false | null | undefined>;
+export type DraggableRootModifiers =
+  DraggableRootModifier | ReadonlyArray<DraggableRootModifier | false | null | undefined>;
 
 /**
  * How the drag preview is positioned. Read once, when the drag starts.
  */
-export interface DragPreviewSettings {
+export interface DraggablePreviewSettings {
   /**
    * Where the preview sits relative to the pointer.
    * @default 'source'
    */
-  offset?: DragPreviewOffset | undefined;
+  offset?: DraggablePreviewOffset | undefined;
   /**
    * One or more modifiers that constrain the preview only. The drop position still
    * follows the pointer. To constrain the drag itself, use `modifiers` on `Draggable.Root`.
    */
-  modifiers?: DragModifiers | undefined;
+  modifiers?: DraggableRootModifiers | undefined;
   /**
    * Whether to show no preview. The drag still runs.
    * @default false
@@ -574,17 +600,17 @@ export interface DragPreviewSettings {
    * so the same CSS applies to it. Pass a container to keep selectors such as
    * `:last-child` on the source's siblings unchanged during the drag.
    */
-  container?: DragPreviewContainer | undefined;
+  container?: DraggablePreviewContainer | undefined;
 }
 
 /**
  * The drag preview of a source registered with `registerSource`.
  * Omit it to use a clone of the source. `Draggable.Root` uses `Draggable.Preview` instead.
  */
-export interface DragPreviewParameters<
+export interface DraggablePreviewParameters<
   TSourcePayload = unknown,
   TDragData = unknown,
-> extends DragPreviewSettings {
+> extends DraggablePreviewSettings {
   /**
    * Renders the preview content instead of cloning the source.
    * Return `null` to show no preview for this drag.
@@ -627,6 +653,21 @@ export interface DraggableRootMoveEndValue<
   TDragData = unknown,
 > extends DragSourceEventValue<TPayload, TDragData> {}
 export type DraggableRootMoveEndEventDetails = MoveEndEventDetails;
+/**
+ * Why a drag ended. Handle unknown reasons too, since more cancel reasons may be added:
+ * read `eventDetails.canceled` to tell a cancel from a release.
+ *
+ * - `'drop'`: Released over a drop target that accepted it.
+ * - `'outside-release'`: Released outside any accepting drop target.
+ * - `'escape-key'` / `'tab-key'`: The user pressed Escape or Tab.
+ * - `'imperative-action'`: The application called `cancelDrag()`.
+ * - `'window-blur'` / `'page-hidden'`: The window lost focus, or the page was hidden.
+ * - `'pointer-canceled'`: The browser or the operating system canceled the pointer.
+ * - `'capture-lost'`: Another element captured the pointer during the drag.
+ * - `'missed-release'`: The button was released without Base UI receiving the event.
+ * - `'handler-error'`: One of your handlers threw. The error is rethrown separately.
+ * - `'document-detached'`: The document was removed, for example a closed iframe.
+ */
 export type DraggableRootMoveEndEventReason = DraggableRootMoveEndEventDetails['reason'];
 
 export interface DraggableTargetStartValue<

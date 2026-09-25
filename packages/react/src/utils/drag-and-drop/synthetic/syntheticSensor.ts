@@ -18,7 +18,7 @@ import {
   getActivationDelayMs,
   hasDoubleClickActivation,
   resolveActivation,
-  type DragActivation,
+  type DraggableRootActivation,
 } from '../activation';
 import {
   canStart as canStartLifecycle,
@@ -51,10 +51,10 @@ import type {
   BeforeMoveStartEventDetails,
   DragCanceledReason,
   DragCleanupFn,
-  DragHandle,
-  DragInput,
+  DraggableHandleReference,
+  DraggableInput,
   DragMoveReason,
-  DragPointerType,
+  DraggablePointerType,
 } from '../../../types/drag';
 import {
   modifyDragPoint,
@@ -83,7 +83,7 @@ interface SyntheticDragState {
   /** The first tap of a possible touch/pen double-tap (see `recordTap`). */
   lastTap: TapRecord | null;
   /** The pointer type of the last `pointerdown` anywhere (see `onDoubleClick`). */
-  lastPointerDownType: DragPointerType | null;
+  lastPointerDownType: DraggablePointerType | null;
   cleanupContextMenuSuppression: DragCleanupFn | null;
 }
 
@@ -345,7 +345,7 @@ const POINTER_AT_CANCEL: Record<DragCanceledReason, PointerAtTeardown> = {
 };
 
 function cancelActive(
-  input?: DragInput,
+  input?: DraggableInput,
   reason: DragCanceledReason = 'imperative-action',
   event?: Event,
 ): void {
@@ -689,7 +689,11 @@ function onDoubleClick(event: Event): void {
  * a double-tap. The release confirms it: a `pointercancel` (native scroll took
  * the gesture) or a release far from the press is a swipe, not a tap.
  */
-function recordTap(element: HTMLElement, pointerEvent: PointerEvent, pointerType: DragPointerType) {
+function recordTap(
+  element: HTMLElement,
+  pointerEvent: PointerEvent,
+  pointerType: DraggablePointerType,
+) {
   clearLastTap();
   const win = ownerWindow(element);
   const tap: TapRecord = {
@@ -743,7 +747,7 @@ function clearLastTap(): void {
 function isSecondTap(
   element: HTMLElement,
   pointerEvent: PointerEvent,
-  pointerType: DragPointerType,
+  pointerType: DraggablePointerType,
 ): boolean {
   const tap = state.lastTap;
   return (
@@ -946,7 +950,9 @@ function commitActivation(): void {
     clearPending(true);
     return;
   }
-  let parameters: DraggableConfig<any, any> & { pointerDragHandle?: DragHandle | undefined };
+  let parameters: DraggableConfig<any, any> & {
+    pointerDragHandle?: DraggableHandleReference | undefined;
+  };
   try {
     parameters = getParameters();
   } catch (error) {
@@ -1345,7 +1351,7 @@ function resolveTargetUnderPointer(
  * input drives both the drop hit-test and the preview, so a modifier governs
  * resolution as well as the visual.
  */
-function modifyActiveInput(active: ActiveSession, input: DragInput): DragInput {
+function modifyActiveInput(active: ActiveSession, input: DraggableInput): DraggableInput {
   if (!active.modifiers) {
     return input;
   }
@@ -1615,7 +1621,7 @@ function onActiveVisibilityChange(event: Event): void {
  * again. Auto-scroll reads it to keep a modifier from parking the drag point
  * outside a scroll container the user is pushing against.
  */
-export function getRawActivePointerInput(): DragInput | null {
+export function getRawActivePointerInput(): DraggableInput | null {
   return state.active?.lastInput ?? null;
 }
 
@@ -1670,7 +1676,7 @@ export function resetForTests(): void {
 interface TapRecord {
   element: HTMLElement;
   pointerId: number;
-  pointerType: DragPointerType;
+  pointerType: DraggablePointerType;
   clientX: number;
   clientY: number;
   timeStamp: number;
@@ -1689,8 +1695,8 @@ interface PendingSession {
    */
   target: Element;
   pointerId: number;
-  pointerType: DragPointerType;
-  activation: DragActivation[];
+  pointerType: DraggablePointerType;
+  activation: DraggableRootActivation[];
   /** How the pickup happened, reported to `onBeforeMoveStart` as `eventDetails.reason`. */
   activationKind: 'pointer' | 'double-click';
   /**
@@ -1702,7 +1708,7 @@ interface PendingSession {
   heldPointer: boolean;
   originX: number;
   originY: number;
-  lastInput: DragInput;
+  lastInput: DraggableInput;
   /** The native event behind `lastInput`, carried into `onBeforeMoveStart`'s details. */
   lastNativeEvent: PointerEvent | MouseEvent;
   startedAt: number;
@@ -1735,7 +1741,7 @@ interface ActiveSession {
   heldPointer: boolean;
   controller: DragSessionController;
   preview: SyntheticPreviewHandle;
-  lastInput: DragInput;
+  lastInput: DraggableInput;
   /**
    * The native event `lastInput` was read from, handed to `controller.update` so
    * the move-derived handlers get a real `eventDetails.event` (modifier keys,

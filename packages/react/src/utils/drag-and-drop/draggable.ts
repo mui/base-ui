@@ -1,7 +1,7 @@
 import type {
   DragCleanupFn,
-  DragHandle,
-  DragKind,
+  DraggableHandleReference,
+  DraggableKind,
   DraggablePayload,
   DraggablePreviewRenderParameters,
   DraggableRootBeforeMoveStartEventDetails,
@@ -14,11 +14,11 @@ import type {
   DraggableRootMoveValue,
   DraggableRootTargetChangeEventDetails,
   DraggableRootTargetChangeValue,
-  DragModifiers,
-  DragPreviewParameters,
+  DraggableRootModifiers,
+  DraggablePreviewParameters,
 } from '../../types/drag';
 import type { DragPreviewDeclaration } from './dragPreviewDeclaration';
-import type { DragActivationConfig } from './activation';
+import type { DraggableRootActivationConfig } from './activation';
 import { bindPointerListeners, unbindPointerListeners } from './synthetic/syntheticSensor';
 import { getRegistration } from './draggableRegistry';
 import { getSharedSlot } from './sharedState';
@@ -45,7 +45,7 @@ const GESTURE_STYLES = [
 
 interface DraggableStaticSetupParameters {
   element: HTMLElement;
-  handle?: DragHandle | undefined;
+  handle?: DraggableHandleReference | undefined;
   disabled?: boolean | undefined;
 }
 
@@ -118,7 +118,7 @@ export function applyDraggableStaticSetup(
 ): DragCleanupFn {
   const { element } = parameters;
   /** The node the gesture styles land on: the handle when there is one, else the element. */
-  const resolveGestureElement = (dragHandle: DragHandle | undefined): HTMLElement =>
+  const resolveGestureElement = (dragHandle: DraggableHandleReference | undefined): HTMLElement =>
     (resolveElementReference(dragHandle, undefined) as HTMLElement | null) ?? element;
   let appliedDisabled = Boolean(parameters.disabled);
   let appliedElement = resolveGestureElement(parameters.handle);
@@ -182,7 +182,7 @@ export type DraggableConfig<TPayload = undefined, TDragData = unknown> = {
    * The kind of this item, created with `Draggable.createKind`. Drop targets and
    * monitors list the kinds they accept in `accept`. It determines the type of `payload`.
    */
-  kind: DragKind<TPayload, TDragData>;
+  kind: DraggableKind<TPayload, TDragData>;
   /**
    * The element that must be pressed to start a drag. Accepts an element, a ref,
    * or a function returning one. It should exist when the item is registered.
@@ -190,7 +190,7 @@ export type DraggableConfig<TPayload = undefined, TDragData = unknown> = {
    * For sources registered with `registerSource`. `<Draggable.Root>` uses
    * `<Draggable.Handle>` instead.
    */
-  handle?: DragHandle | undefined;
+  handle?: DraggableHandleReference | undefined;
   /**
    * Whether dragging is disabled. Pointer presses keep their normal behavior.
    * Use `onBeforeMoveStart` when the decision depends on the gesture.
@@ -214,13 +214,13 @@ export type DraggableConfig<TPayload = undefined, TDragData = unknown> = {
    * after a 250ms hold. Set a pointer entry to `false` to disable pickup for that
    * pointer type, overriding all methods in an array.
    */
-  activation?: DragActivationConfig | readonly DragActivationConfig[] | undefined;
+  activation?: DraggableRootActivationConfig | readonly DraggableRootActivationConfig[] | undefined;
   /**
    * One or more modifiers that constrain the drag, applied in order.
    * They affect both the preview and the drop position.
    * See [Constraining movement](https://base-ui.com/react/utils/draggable#constraining-movement).
    */
-  modifiers?: DragModifiers | undefined;
+  modifiers?: DraggableRootModifiers | undefined;
   /**
    * The CSS cursor shown across the document during a mouse or pen drag.
    * Pass `false` to manage the cursor yourself.
@@ -233,7 +233,7 @@ export type DraggableConfig<TPayload = undefined, TDragData = unknown> = {
    * For sources registered with `registerSource`. `<Draggable.Root>` uses
    * `<Draggable.Preview>` instead.
    */
-  preview?: DragPreviewParameters<NoInfer<TPayload>, NoInfer<TDragData>> | undefined;
+  preview?: DraggablePreviewParameters<NoInfer<TPayload>, NoInfer<TDragData>> | undefined;
   /**
    * The preview part declared for this draggable, if any. Wired by the React layer;
    * the engine reads it once at drag start, before React can run, to decide between

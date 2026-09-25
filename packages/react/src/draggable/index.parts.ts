@@ -25,40 +25,15 @@ export {
   snapToGrid,
 } from '../utils/drag-and-drop/dragModifiers';
 
-// The building blocks shared by several parts. Types that belong to one part live on
-// its namespace, such as `Draggable.Target.Record`.
+// The types every part uses. Types that belong to one part live on its namespace,
+// such as `Draggable.Root.Record` or `Draggable.Target.Record`.
 export type {
-  DragAccept,
-  DragAcceptedKind,
-  DragCanceledReason,
-  DragCompletedReason,
-  DragElementReference,
-  DragEndReason,
-  DragHandle,
-  DragInput,
-  DragKind,
-  DragLocalPoint,
-  DragLocation,
-  DragLocationHistory,
-  DragModifier,
-  DragModifierContext,
-  DragModifiers,
-  DragMoveReason,
-  DragPointerType,
-  DragPosition,
-  DragPreviewContainer,
-  DragPreviewOffset,
-  DragPreviewOffsetParameters,
-  DragPreviewParameters,
-  DragPreviewSettings,
-  DragSnappedLocalPointOptions,
-  DragSnapSteps,
-  DragSource,
-  DragStartReason,
+  DraggableAccept as Accept,
+  DraggableAcceptedKind as AcceptedKind,
+  DraggableInput as Input,
+  DraggableKind as Kind,
+  DraggableLocation as Location,
+  DraggableLocationHistory as LocationHistory,
+  DraggablePointerType as PointerType,
+  DraggablePosition as Position,
 } from '../types/drag';
-export type { DragActivation, DragActivationConfig } from '../utils/drag-and-drop/activation';
-export type {
-  AutoScrollOverflowMargin,
-  DragAutoScrollDirection,
-  DragAutoScrollFrameContext,
-} from '../utils/drag-and-drop/autoScroller';

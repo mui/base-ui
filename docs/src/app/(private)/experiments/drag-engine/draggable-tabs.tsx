@@ -144,7 +144,7 @@ function PlusIcon() {
 
 interface DraggableTabProps {
   item: TabItem;
-  kind: Draggable.DragKind<string>;
+  kind: Draggable.Kind<string>;
   listRef: React.RefObject<HTMLDivElement | null>;
   draggable: boolean;
   closable: boolean;
@@ -272,7 +272,7 @@ function DraggableTab(props: DraggableTabProps) {
 interface SortableTabsProps {
   items: TabItem[];
   setItems: React.Dispatch<React.SetStateAction<TabItem[]>>;
-  kind: Draggable.DragKind<string>;
+  kind: Draggable.Kind<string>;
   selectedValue: string | null;
   defaultValue?: string | undefined;
   controlled?: boolean | undefined;

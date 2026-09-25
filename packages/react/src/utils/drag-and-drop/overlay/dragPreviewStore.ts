@@ -1,7 +1,7 @@
 import { Store, type ReadonlyStore } from '@base-ui/utils/store';
 import type * as React from 'react';
 import { getSharedSlot } from '../sharedState';
-import type { DragPreviewOffset, DragInput } from '../../../types/drag';
+import type { DraggablePreviewOffset, DraggableInput } from '../../../types/drag';
 import type { DragPreviewContext } from './DragPreviewContext';
 
 /**
@@ -20,9 +20,9 @@ export interface DragPreviewState {
   context: DragPreviewContext;
   node: React.ReactNode;
   host: HTMLElement;
-  offset: DragPreviewOffset | undefined;
+  offset: DraggablePreviewOffset | undefined;
   sourceRect: DOMRect;
-  input: DragInput;
+  input: DraggableInput;
 }
 
 const slot = getSharedSlot<{ store: Store<DragPreviewState | null> }>('dragPreview.store', () => ({

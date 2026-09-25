@@ -51,7 +51,7 @@ describe('calendar date changes', () => {
         anchorStart: event.start,
         anchorEnd: event.end,
       },
-    } as Draggable.DragSource<CalendarDragSource>;
+    } as Draggable.Root.Record<CalendarDragSource>;
     const preview = resolveDropPreview(source, target(day(2026, 1, 12)))!;
     const state = calendarReducer(
       { events: { event }, order: ['event'] },
@@ -77,7 +77,7 @@ describe('calendar date changes', () => {
       const source = {
         kind: calEventCreateKind.id,
         payload: { anchorMs: start, allDay: true },
-      } as Draggable.DragSource<CalendarDragSource>;
+      } as Draggable.Root.Record<CalendarDragSource>;
       const preview = resolveDropPreview(source, target(start))!;
       expect(preview.end).toBe(day(year, month, date + 1));
       expect(new Date(preview.end).getHours()).toBe(0);

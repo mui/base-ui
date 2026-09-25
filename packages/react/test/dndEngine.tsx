@@ -15,7 +15,7 @@ import { installDndTestEnv, registerCleanup } from './dnd';
 import { anyDragKind, createKind } from '../src/utils/drag-and-drop/dragKind';
 import { DraggableProvider } from '../src/draggable/DraggableProvider';
 import { useManager } from '../src/draggable/use-manager/useManager';
-import type { DragAccept, DragKind } from '../src/types/drag';
+import type { DraggableAccept, DraggableKind } from '../src/types/drag';
 import type {
   DraggableManager,
   RegisterSourceParameters,
@@ -40,14 +40,14 @@ type TestDraggableParameters<TPayload, TDragData = unknown> = Omit<
   RegisterSourceParameters<TPayload, TDragData>,
   'kind' | 'payload'
 > & {
-  kind?: DragKind<TPayload, TDragData> | undefined;
+  kind?: DraggableKind<TPayload, TDragData> | undefined;
   payload?: TPayload | undefined;
 };
 
 type TestTargetParameters<TSourcePayload, TTargetPayload, TSourceDragData, TTargetDragData> = Omit<
   RegisterTargetParameters<TSourcePayload, TTargetPayload, TSourceDragData, TTargetDragData>,
   'kind'
-> & { kind?: DragKind<TTargetPayload, TTargetDragData> };
+> & { kind?: DraggableKind<TTargetPayload, TTargetDragData> };
 
 /** A plain value or a getter for it — a test-only convenience (see {@link asGetter}). */
 type MaybeGetter<T> = T | (() => T);
@@ -181,7 +181,7 @@ function withAutoCleanup(engine: DraggableManager): DndTestEngine {
         // code. Left alone when `kind` is declared: the kind-without-accept
         // warning has its own test and must keep firing.
         return declared.accept === undefined && declared.kind === undefined
-          ? { ...declared, accept: anyDragKind as DragAccept<TSourcePayload, TSourceDragData> }
+          ? { ...declared, accept: anyDragKind as DraggableAccept<TSourcePayload, TSourceDragData> }
           : declared;
       });
       registerCleanup(cleanup);

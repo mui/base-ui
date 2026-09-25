@@ -224,8 +224,8 @@ function KanbanSnapContent() {
       const { clientX, clientY } = location.current.input;
       setIndicator(computeIndicator(clientX, clientY, columnElementsRef.current));
     },
-    onMoveEnd: ({ source }, { reason, location }) => {
-      if (reason === 'drop' || reason === 'outside-release') {
+    onMoveEnd: ({ source }, { canceled, location }) => {
+      if (!canceled) {
         const { clientX, clientY } = location.current.input;
         const drop = computeIndicator(clientX, clientY, columnElementsRef.current);
         if (drop) {

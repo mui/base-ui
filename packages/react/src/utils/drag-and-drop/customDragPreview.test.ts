@@ -23,7 +23,7 @@ describe('resolveDragPreviewOffset', () => {
     } as const,
   };
 
-  it('passes a fixed DragPosition through unchanged', () => {
+  it('passes a fixed DraggablePosition through unchanged', () => {
     expect(resolveDragPreviewOffset({ x: 7, y: 11 }, params)).toEqual({ x: 7, y: 11 });
   });
 

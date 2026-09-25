@@ -17,7 +17,7 @@ import { dragSessionStore } from '../../utils/drag-and-drop/dragSessionStore';
 import type { DraggableManager, RegisterViewportParameters } from '../../types/dragRegistration';
 import type {
   DraggableViewportDragScrollEventDetails,
-  DragAutoScrollFrameContext,
+  DraggableViewportMaxSpeedContext,
   DragAutoScrollHandler,
   DraggableViewportDragScrollValue,
 } from '../../utils/drag-and-drop/autoScroller';
@@ -3041,7 +3041,7 @@ describe('engine.registerViewport', () => {
     });
 
     it('accepts a callback, evaluated with the frame context', async () => {
-      const seen: DragAutoScrollFrameContext[] = [];
+      const seen: DraggableViewportMaxSpeedContext[] = [];
       const delta = await measureFrameDelta({
         maxSpeed: (context) => {
           seen.push(context);

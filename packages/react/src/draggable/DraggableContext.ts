@@ -1,10 +1,10 @@
 'use client';
 
 import * as React from 'react';
-import type { DragKind } from '../types/drag';
+import type { DraggableKind } from '../types/drag';
 
 export interface DraggableContextValue {
-  defaultKind: DragKind<undefined>;
+  defaultKind: DraggableKind<undefined>;
 }
 
 export const DraggableContext = React.createContext<DraggableContextValue | null>(null);

@@ -1,5 +1,9 @@
 import { Store, type ReadonlyStore } from '@base-ui/utils/store';
-import type { DragLocationHistory, DragSource, DraggableTargetRecord } from '../../types/drag';
+import type {
+  DraggableLocationHistory,
+  DraggableRootRecord,
+  DraggableTargetRecord,
+} from '../../types/drag';
 import { getSharedSlot } from './sharedState';
 import { retargetActivePreviewSource } from './activePreview';
 
@@ -8,8 +12,8 @@ import { retargetActivePreviewSource } from './activePreview';
  * subscribers. `null` when no drag is in progress.
  */
 export interface DragSessionState {
-  source: DragSource;
-  location: DragLocationHistory;
+  source: DraggableRootRecord;
+  location: DraggableLocationHistory;
   /** Element refs of every drop target in the active stack. Enables O(1) membership lookups. */
   dropTargetElements: ReadonlySet<Element>;
   /**
@@ -22,9 +26,9 @@ export interface DragSessionState {
 
 interface DragSessionSlot {
   store: Store<DragSessionState | null>;
-  sourceStore: Store<DragSource | null>;
+  sourceStore: Store<DraggableRootRecord | null>;
   /** The session source `sourceStore` last published, so a re-entrant write mirrors once. */
-  mirroredSource: DragSource | null;
+  mirroredSource: DraggableRootRecord | null;
   sourceVersion: number;
   targetListeners: Map<Element, Set<() => void>>;
   allTargetListeners: Set<() => void>;
@@ -32,7 +36,7 @@ interface DragSessionSlot {
 
 const slot = getSharedSlot<DragSessionSlot>('dragSessionStore', () => ({
   store: new Store<DragSessionState | null>(null),
-  sourceStore: new Store<DragSource | null>(null),
+  sourceStore: new Store<DraggableRootRecord | null>(null),
   mirroredSource: null,
   sourceVersion: 0,
   targetListeners: new Map<Element, Set<() => void>>(),
@@ -45,10 +49,10 @@ const slot = getSharedSlot<DragSessionSlot>('dragSessionStore', () => ({
  */
 export const dragSessionStore: ReadonlyStore<DragSessionState | null> = slot.store;
 
-export const dragSourceStore: ReadonlyStore<DragSource | null> = slot.sourceStore;
+export const dragSourceStore: ReadonlyStore<DraggableRootRecord | null> = slot.sourceStore;
 
 /** Publish an imperative data update to subscribers of the active source. */
-export function notifyDragSourceUpdated(source: DragSource): void {
+export function notifyDragSourceUpdated(source: DraggableRootRecord): void {
   const session = slot.store.state;
   if (session?.source !== source) {
     return;
@@ -66,7 +70,7 @@ const targetSnapshotOrigins = getSharedSlot(
 );
 
 /** Publish changed target data without resolving the hover stack again. */
-export function notifyDragTargetUpdated(source: DragSource, element: Element): void {
+export function notifyDragTargetUpdated(source: DraggableRootRecord, element: Element): void {
   const session = slot.store.state;
   if (session?.source !== source) {
     return;
@@ -261,7 +265,7 @@ function updateDragSourceElement(oldElement: Element, newElement: HTMLElement): 
  * The session's `source` is mutated rather than replaced, so
  * `dragSessionStore.state.source` stays `===` the `source` on every event of the
  * drag. `dragSourceStore` publishes a fresh copy instead (its React subscribers
- * need a new reference to re-render), so a `DragSource` read from there must not
+ * need a new reference to re-render), so a `DraggableRootRecord` read from there must not
  * be compared by identity against an event's `source`.
  */
 export function retargetDragSource(oldElement: Element, newElement: HTMLElement): void {
@@ -282,13 +286,13 @@ export function isDraggingElement(
 }
 
 /**
- * Clone a `DragLocationHistory`, giving each entry its own copy of the stack.
+ * Clone a `DraggableLocationHistory`, giving each entry its own copy of the stack.
  * The lifecycle's `location` is live mutable bookkeeping, so everything handed
  * out — session snapshots here, per-dispatch event payloads in the lifecycle —
  * must go through this one clone: a shape change updated in only one hand-out
  * path would silently leak live engine references again.
  */
-export function cloneLocationHistory(location: DragLocationHistory): DragLocationHistory {
+export function cloneLocationHistory(location: DraggableLocationHistory): DraggableLocationHistory {
   return {
     grabOffset: location.grabOffset ? { ...location.grabOffset } : undefined,
     initial: { input: location.initial.input, targets: location.initial.targets.slice() },
@@ -302,13 +306,13 @@ export function cloneLocationHistory(location: DragLocationHistory): DragLocatio
 
 /**
  * Build a fresh `DragSessionState` from the lifecycle's mutable
- * `DragLocationHistory`, rebuilding nested objects and arrays so `useStore`
+ * `DraggableLocationHistory`, rebuilding nested objects and arrays so `useStore`
  * `Object.is` comparisons see a new reference per update. Snapshots build only
  * on stack change, so the clone is cheap.
  */
 export function buildSessionSnapshot(parameters: {
-  source: DragSource;
-  location: DragLocationHistory;
+  source: DraggableRootRecord;
+  location: DraggableLocationHistory;
   rejectedTarget: Element | null;
 }): DragSessionState {
   const { source, location, rejectedTarget } = parameters;

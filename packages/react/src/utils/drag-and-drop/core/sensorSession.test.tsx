@@ -7,7 +7,7 @@ import { setupDragEngineTests, createElement, lift, flushRaf } from '../../../..
 import { createPreviewAndStartSession } from './sensorSession';
 import { createDragSource } from '../dragSource';
 import { penDown, penUp } from '../../../../test/syntheticPointer';
-import type { DragSource } from '../../../types/drag';
+import type { DraggableRootRecord } from '../../../types/drag';
 import { getInput } from '../utils';
 import { dragPreviewStore } from '../overlay/dragPreviewStore';
 import { dragSessionStore, dragSourceStore } from '../dragSessionStore';
@@ -19,7 +19,7 @@ describe('sensor session startup', () => {
 
   it('carries the typed pre-start source and data into target resolution, preview and start', async () => {
     const kind = Draggable.createKind<string, { offset: number }>('prepared-source');
-    let candidate: DragSource<string, { offset: number }> | undefined;
+    let candidate: DraggableRootRecord<string, { offset: number }> | undefined;
     const snapshots: unknown[] = [];
     const canDrop = vi.fn(({ source }) => source.dragData?.offset === 12);
     const preview = vi.fn(({ source }) => <span>{source.dragData?.offset}</span>);

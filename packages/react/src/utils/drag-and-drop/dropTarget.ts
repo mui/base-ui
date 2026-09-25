@@ -2,16 +2,16 @@ import { isShadowRoot } from '@floating-ui/utils/dom';
 import { clamp } from '@base-ui/utils/clamp';
 import { resolveCollision, type CollisionResolutionRegistration } from './collisionResolution';
 import type {
-  DragInput,
-  DragAccept,
+  DraggableInput,
+  DraggableAccept,
   DragCleanupFn,
-  DragKind,
-  DragLocalPoint,
-  DragSnappedLocalPointOptions,
-  DragSnapSteps,
+  DraggableKind,
+  DraggableTargetLocalPoint,
+  DraggableTargetSnappedLocalPointOptions,
+  DraggableTargetSnapSteps,
   DraggableTargetResolutionContext,
   DraggableTargetRecord,
-  DragSource,
+  DraggableRootRecord,
   DropTargetEventDetailsMap,
   DropTargetEventValue,
   DraggableTargetStartEventDetails,
@@ -241,7 +241,7 @@ const targetDragData = getSharedSlot(
   'dropTarget.dragData',
   () =>
     new WeakMap<
-      DragSource,
+      DraggableRootRecord,
       WeakMap<DropTargetGetter, Map<symbol | undefined, { value: unknown }>>
     >(),
 );
@@ -380,8 +380,8 @@ const collisionResolvers = new WeakMap<
 /** Measure only the winning participant, immediately before dispatch can mutate its layout. */
 export function captureDropTargetCollision(
   target: DraggableTargetRecord | undefined | null,
-  input: DragInput,
-  source: DragSource,
+  input: DraggableInput,
+  source: DraggableRootRecord,
   isDrop = false,
 ): void {
   if (!target) {
@@ -428,7 +428,7 @@ function resolveDropTargetOutcome(
   }
   // Cheap kind filter first, before allocating the feedback object. This path
   // runs per walked target per frame, where most targets fail here.
-  if (!matchesAccept(registration.accept, feedback.source as DragSource)) {
+  if (!matchesAccept(registration.accept, feedback.source as DraggableRootRecord)) {
     return null;
   }
   const fullFeedback: DraggableTargetResolutionContext = { ...feedback, element };
@@ -552,7 +552,7 @@ function createLocalPointReaders(
     return rect;
   }
 
-  function localPoint(offsetX: number, offsetY: number): DragLocalPoint {
+  function localPoint(offsetX: number, offsetY: number): DraggableTargetLocalPoint {
     const measured = measureRect();
     // Zero on an axis with no extent, which is what an empty or detached element
     // measures as, rather than dividing by it.
@@ -562,17 +562,17 @@ function createLocalPointReaders(
     };
   }
 
-  let rawMemo: DragLocalPoint | null = null;
-  const getLocalPoint = (): DragLocalPoint => {
+  let rawMemo: DraggableTargetLocalPoint | null = null;
+  const getLocalPoint = (): DraggableTargetLocalPoint => {
     if (rawMemo === null) {
       rawMemo = localPoint(0, 0);
     }
     return rawMemo;
   };
 
-  let steps: DragSnapSteps | undefined;
+  let steps: DraggableTargetSnapSteps | undefined;
   let stepsResolved = false;
-  function resolveSteps(): DragSnapSteps | undefined {
+  function resolveSteps(): DraggableTargetSnapSteps | undefined {
     if (!stepsResolved) {
       stepsResolved = true;
       steps =
@@ -584,10 +584,12 @@ function createLocalPointReaders(
   }
 
   const snappedMemos: {
-    pointer?: DragLocalPoint | undefined;
-    source?: DragLocalPoint | undefined;
+    pointer?: DraggableTargetLocalPoint | undefined;
+    source?: DraggableTargetLocalPoint | undefined;
   } = {};
-  const getSnappedLocalPoint = (options?: DragSnappedLocalPointOptions): DragLocalPoint => {
+  const getSnappedLocalPoint = (
+    options?: DraggableTargetSnappedLocalPointOptions,
+  ): DraggableTargetLocalPoint => {
     // Documented fallback: `'source'` with no grab offset known (no live session
     // at resolution) anchors on the pointer rather than failing.
     const anchor = options?.anchor === 'source' && grabOffset !== null ? 'source' : 'pointer';
@@ -669,7 +671,7 @@ export { getActiveRegistration as getActiveDropTargetRegistration };
 export function dispatchToDropTarget<K extends DropTargetEventName>(
   record: DraggableTargetRecord,
   eventName: K,
-  source: DragSource,
+  source: DraggableRootRecord,
   eventDetails: DropTargetEventDetailsMap[K],
   capturedRegistration?: DropTargetGetter,
 ): void {
@@ -764,7 +766,7 @@ export function refreshHoveredRecords(
  */
 export function dispatchTerminalDropTargetLeave(
   record: DraggableTargetRecord,
-  source: DragSource,
+  source: DraggableRootRecord,
   eventDetails: DropTargetEventDetailsMap['onDraggableLeave'],
   hovered: DraggableTargetRecord[],
 ): void {
@@ -778,7 +780,7 @@ export function dispatchTerminalDropTargetLeave(
  */
 function dispatchDropTargetLeave(
   record: DraggableTargetRecord,
-  source: DragSource,
+  source: DraggableRootRecord,
   eventDetails: DropTargetEventDetailsMap['onDraggableLeave'],
   hovered: DraggableTargetRecord[],
 ): void {
@@ -804,7 +806,7 @@ function dispatchDropTargetLeave(
 export function dispatchDropTargetChange(
   previous: readonly DraggableTargetRecord[],
   current: readonly DraggableTargetRecord[],
-  source: DragSource,
+  source: DraggableRootRecord,
   eventDetails: DropTargetEventDetailsMap['onDraggableEnter'],
   shouldContinue: () => boolean,
   hovered: DraggableTargetRecord[],
@@ -847,7 +849,7 @@ export function dispatchDropTargetChange(
 export function dispatchToAllDropTargets<K extends DropTargetEventName>(
   targets: readonly DraggableTargetRecord[],
   eventName: K,
-  source: DragSource,
+  source: DraggableRootRecord,
   eventDetails: DropTargetEventDetailsMap[K],
   shouldContinue: () => boolean,
 ): void {
@@ -885,14 +887,14 @@ export type RegisterTargetParameters<
    * `target.payload`. Not to be confused with `accept`, which lists the kinds of
    * draggable this target takes.
    */
-  kind?: DragKind<NoInfer<TTargetPayload>, TTargetDragData> | undefined;
+  kind?: DraggableKind<NoInfer<TTargetPayload>, TTargetDragData> | undefined;
   /**
    * One or more kinds of draggable this target accepts. Pass `Draggable.anyKind`
    * to accept every drag, with `source.payload` typed as `unknown`.
    *
    * Drags of other kinds ignore this target, but an ancestor target can still accept them.
    */
-  accept?: DragAccept<TSourcePayload, TDragData> | undefined;
+  accept?: DraggableAccept<TSourcePayload, TDragData> | undefined;
   /**
    * Whether the target ignores drags. A disabled target is skipped, so drags fall
    * through to ancestor targets.
@@ -920,10 +922,10 @@ export type RegisterTargetParameters<
    * to snap the preview itself.
    */
   snap?:
-    | DragSnapSteps
+    | DraggableTargetSnapSteps
     | ((
         context: DraggableTargetResolutionContext<NoInfer<TSourcePayload>, NoInfer<TDragData>>,
-      ) => DragSnapSteps | undefined)
+      ) => DraggableTargetSnapSteps | undefined)
     | undefined;
   /**
    * Event handler called when a drag starts while this target is already under the

@@ -7,7 +7,7 @@ import type {
   DraggableManagerRegisterTargetParameters,
 } from '@base-ui/react/draggable';
 import { expectType } from '#test-utils';
-import type { DragAcceptedKind } from '../../types/drag';
+import type { DraggableAcceptedKind } from '../../types/drag';
 
 // Type-only file: nothing here runs, so the hook is never actually called —
 // `declare` gives us its return type without tripping the rules-of-hooks lint.
@@ -49,18 +49,20 @@ engine.registerViewport<typeof card>(element, () => ({}));
 // registration methods require, without importing a component namespace.
 const engineCard = Draggable.createKind<CardPayload>('engine-card');
 const globalItem = Draggable.createGlobalKind('app/item');
-expectType<Draggable.DragKind<CardPayload>, typeof engineCard>(engineCard);
-expectType<Draggable.DragKind<undefined>, typeof globalItem>(globalItem);
-expectType<Draggable.DragKind<unknown>, typeof Draggable.anyKind>(Draggable.anyKind);
-const snapSteps: Draggable.DragSnapSteps = { x: 4, y: 8 };
-const snappedPointOptions: Draggable.DragSnappedLocalPointOptions = { anchor: 'source' };
-expectType<Draggable.DragSnapSteps, typeof snapSteps>(snapSteps);
-expectType<Draggable.DragSnappedLocalPointOptions, typeof snappedPointOptions>(snappedPointOptions);
+expectType<Draggable.Kind<CardPayload>, typeof engineCard>(engineCard);
+expectType<Draggable.Kind<undefined>, typeof globalItem>(globalItem);
+expectType<Draggable.Kind<unknown>, typeof Draggable.anyKind>(Draggable.anyKind);
+const snapSteps: Draggable.Target.SnapSteps = { x: 4, y: 8 };
+const snappedPointOptions: Draggable.Target.SnappedLocalPointOptions = { anchor: 'source' };
+expectType<Draggable.Target.SnapSteps, typeof snapSteps>(snapSteps);
+expectType<Draggable.Target.SnappedLocalPointOptions, typeof snappedPointOptions>(
+  snappedPointOptions,
+);
 
-// An observational DragAcceptedKind accepts payload-bearing kinds. The factory's
+// An observational DraggableAcceptedKind accepts payload-bearing kinds. The factory's
 // default remains `undefined`, as asserted by `marker` above.
-const observedKind: DragAcceptedKind = card;
-expectType<DragAcceptedKind, typeof observedKind>(observedKind);
+const observedKind: DraggableAcceptedKind = card;
+expectType<DraggableAcceptedKind, typeof observedKind>(observedKind);
 
 // ---------------------------------------------------------------------------
 // registerSource
@@ -76,8 +78,8 @@ engine.registerSource(element, () => ({
   onMoveEnd: ({ source, target }, { reason, location }) => {
     expectType<CardPayload, typeof source.payload>(source.payload);
     expectType<Draggable.Target.Record | null, typeof target>(target);
-    expectType<Draggable.DragEndReason, typeof reason>(reason);
-    expectType<Draggable.DragLocationHistory, typeof location>(location);
+    expectType<Draggable.Root.MoveEndEventReason, typeof reason>(reason);
+    expectType<Draggable.LocationHistory, typeof location>(location);
   },
 }));
 
@@ -359,7 +361,7 @@ engine.registerTarget<typeof card, unknown>(element, () => ({
 }));
 
 // @ts-expect-error an observational kind cannot declare a target's payload.
-engine.registerTarget<typeof card, unknown, DragAcceptedKind>(element, () => ({
+engine.registerTarget<typeof card, unknown, DraggableAcceptedKind>(element, () => ({
   accept: card,
   kind: observedKind,
   payload: null,

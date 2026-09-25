@@ -19,10 +19,15 @@ import type {
   DraggableRootMoveEndValue,
   DraggableRootMoveEndEventDetails,
   DraggableRootMoveEndEventReason,
-  DragKind,
+  DraggableKind,
   DraggablePayload,
-  DragSnapSteps,
+  DraggableTargetSnapSteps,
   DraggableTargetResolutionContext,
+  DraggableRootRecord,
+  DraggableRootModifier,
+  DraggableRootModifiers,
+  DraggableRootModifierContext,
+  DraggableRootElementReference,
 } from '../../types/drag';
 import { useRenderElement } from '../../internals/useRenderElement';
 import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
@@ -31,6 +36,10 @@ import type { RegisterSourceParameters } from '../../types/dragRegistration';
 import { useDraggableElement } from './useDraggableElement';
 import { DraggableRootContext } from './DraggableRootContext';
 import { useDragPreviewContext } from '../../utils/drag-and-drop/overlay/DragPreviewContext';
+import type {
+  DraggableRootActivation,
+  DraggableRootActivationConfig,
+} from '../../utils/drag-and-drop/activation';
 
 const stateAttributesMapping: StateAttributesMapping<DraggableRootState> = {
   // The engine owns `data-dragging`: it lands only once the preview has been built
@@ -218,10 +227,10 @@ type DraggableRootPropsBase<TPayload, TDragData = unknown> = Omit<
      * Doesn't affect the preview's position.
      */
     snap?:
-      | DragSnapSteps
+      | DraggableTargetSnapSteps
       | ((
           context: DraggableTargetResolutionContext<NoInfer<TPayload>, NoInfer<TDragData>>,
-        ) => DragSnapSteps | undefined)
+        ) => DraggableTargetSnapSteps | undefined)
       | undefined;
     /**
      * The payload reported by the collision provider when another item is dragged over this one.
@@ -237,7 +246,7 @@ type DraggableRootPropsBase<TPayload, TDragData = unknown> = Omit<
      * The kind of this item, created with `Draggable.createKind`.
      * Defaults to the kind of the nearest `<Draggable.Provider>`, which carries no payload.
      */
-    kind?: DragKind<TPayload, TDragData> | undefined;
+    kind?: DraggableKind<TPayload, TDragData> | undefined;
   };
 
 export type DraggableRootProps<TPayload = undefined, TDragData = unknown> = DraggableRootPropsBase<
@@ -245,14 +254,14 @@ export type DraggableRootProps<TPayload = undefined, TDragData = unknown> = Drag
   TDragData
 > &
   DraggableRootPayloadField<TPayload> &
-  ([TPayload] extends [undefined] ? {} : { kind: DragKind<TPayload, TDragData> });
+  ([TPayload] extends [undefined] ? {} : { kind: DraggableKind<TPayload, TDragData> });
 
 /** The props of a `Draggable.Root` whose payload is always required. */
 type DraggableRootPropsWithPayload<TPayload, TDragData = unknown> = DraggableRootPropsBase<
   TPayload,
   TDragData
 > & {
-  kind: DragKind<TPayload, TDragData>;
+  kind: DraggableKind<TPayload, TDragData>;
 } & RequiredDraggablePayload<TPayload>;
 
 type RequiredDraggablePayload<TPayload> = { payload: DraggablePayload<TPayload> };
@@ -279,7 +288,30 @@ export type {
   DraggableRootMoveEndEventReason,
 } from '../../types/drag';
 
+export type {
+  DraggableRootRecord,
+  DraggableRootModifier,
+  DraggableRootModifiers,
+  DraggableRootModifierContext,
+  DraggableRootElementReference,
+} from '../../types/drag';
+
+export type {
+  DraggableRootActivation,
+  DraggableRootActivationConfig,
+} from '../../utils/drag-and-drop/activation';
+
 export namespace DraggableRoot {
+  export type Activation = DraggableRootActivation;
+  export type ActivationConfig = DraggableRootActivationConfig;
+  export type Record<TPayload = unknown, TDragData = unknown> = DraggableRootRecord<
+    TPayload,
+    TDragData
+  >;
+  export type Modifier = DraggableRootModifier;
+  export type Modifiers = DraggableRootModifiers;
+  export type ModifierContext = DraggableRootModifierContext;
+  export type ElementReference = DraggableRootElementReference;
   export type BeforeMoveStartValue<
     TPayload = unknown,
     TDragData = unknown,

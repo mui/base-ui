@@ -2,23 +2,23 @@
 import * as React from 'react';
 import type {
   DragCleanupFn,
-  DragKind,
-  DragSnapSteps,
+  DraggableKind,
+  DraggableTargetSnapSteps,
   DraggableTargetResolutionContext,
 } from '../../types/drag';
 
 export interface CollisionParticipant {
-  kind: Pick<DragKind, 'id'>;
+  kind: Pick<DraggableKind, 'id'>;
   payload: unknown;
   snap?:
-    | DragSnapSteps
-    | ((context: DraggableTargetResolutionContext) => DragSnapSteps | undefined)
+    | DraggableTargetSnapSteps
+    | ((context: DraggableTargetResolutionContext) => DraggableTargetSnapSteps | undefined)
     | undefined;
   disabled?: boolean | undefined;
 }
 
 export interface DraggableCollisionContextValue {
-  kind: Pick<DragKind, 'id'>;
+  kind: Pick<DraggableKind, 'id'>;
   parent: DraggableCollisionContextValue | null;
   register: (
     element: HTMLElement,

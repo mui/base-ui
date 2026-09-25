@@ -1,8 +1,8 @@
 import { describe, it, expect } from 'vitest';
-import type { DragSource, DraggableTargetRecord } from '../../types/drag';
+import type { DraggableRootRecord, DraggableTargetRecord } from '../../types/drag';
 import { anyDragKind, createGlobalKind, createKind, matchesAccept } from './dragKind';
 
-function sourceOfKind(kind: symbol): DragSource<unknown> {
+function sourceOfKind(kind: symbol): DraggableRootRecord<unknown> {
   return {
     element: document.createElement('div'),
     kind,

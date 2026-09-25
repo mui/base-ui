@@ -3,7 +3,7 @@ import { isJSDOM } from '#test-utils';
 import { installDndPolyfill } from '../../../../test/dndPolyfill';
 import { createSyntheticPreview, retargetEndingPreviewSource } from './syntheticPreview';
 import { restrictToElement, restrictToVerticalAxis } from '../dragModifiers';
-import type { DragPosition } from '../../../types/drag';
+import type { DraggablePosition } from '../../../types/drag';
 import type { DragPreviewElementHandle } from './cloneDragPreview';
 
 installDndPolyfill();
@@ -586,10 +586,10 @@ describe('preview modifiers', () => {
     const handle = createHandle(source);
     const preview = createPreviewElement(50, 30);
     const contexts: Array<{
-      point: DragPosition;
-      initialPoint: DragPosition;
-      input: DragPosition;
-      previewOffset: DragPosition;
+      point: DraggablePosition;
+      initialPoint: DraggablePosition;
+      input: DraggablePosition;
+      previewOffset: DraggablePosition;
       sourceElement: HTMLElement;
       sourceRect: DOMRect;
       previewRect: DOMRect | null;

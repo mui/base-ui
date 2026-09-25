@@ -129,7 +129,7 @@ Drag and drop for pointer input, with drop targets, previews, sorting, and auto-
     - restrictToElement
     - restrictToWindowEdges
     - snapToGrid
-    - DragModifier
+    - DraggableRootModifier
   - useActiveDrag
   - useMonitor
   - useManager
@@ -153,11 +153,11 @@ Drag and drop for pointer input, with drop targets, previews, sorting, and auto-
     - Parameters: key
   - Draggable - createKind
     - Parameters: name
-  - Draggable - DragModifier
-    - Parameters: context
   - Draggable - Handle
     - Props: className, disabled, render, style
     - Data Attributes: data-disabled
+  - Draggable - Modifier
+    - Parameters: context
   - Draggable - Preview
     - Props: children, className, container, disabled, kind, modifiers, offset, render, style
     - Data Attributes: data-drag-preview, data-ending-style
@@ -182,7 +182,7 @@ Drag and drop for pointer input, with drop targets, previews, sorting, and auto-
   - Draggable - useManager
   - Draggable - useMonitor
     - Parameters: parameters
-- Types: Draggable.CollisionProvider.CollisionChangeEventDetails, Draggable.CollisionProvider.CollisionChangeEventReason, Draggable.CollisionProvider.CollisionChangeValue, Draggable.CollisionProvider.MoveEndEventDetails, Draggable.CollisionProvider.MoveEndEventReason, Draggable.CollisionProvider.MoveEndValue, Draggable.CollisionProvider.MoveStartEventDetails, Draggable.CollisionProvider.MoveStartEventReason, Draggable.CollisionProvider.MoveStartValue, Draggable.CollisionProvider.Props, Draggable.Handle.Props, Draggable.Handle.State, Draggable.Preview.Props, Draggable.Preview.RenderParameters, Draggable.Preview.State, Draggable.Provider.Props, Draggable.Root.BeforeMoveStartEventDetails, Draggable.Root.BeforeMoveStartEventReason, Draggable.Root.BeforeMoveStartValue, Draggable.Root.MoveEndEventDetails, Draggable.Root.MoveEndEventReason, Draggable.Root.MoveEndValue, Draggable.Root.MoveEventDetails, Draggable.Root.MoveEventReason, Draggable.Root.MoveStartEventDetails, Draggable.Root.MoveStartEventReason, Draggable.Root.MoveStartValue, Draggable.Root.MoveValue, Draggable.Root.Props, Draggable.Root.State, Draggable.Root.TargetChangeEventDetails, Draggable.Root.TargetChangeEventReason, Draggable.Root.TargetChangeValue, Draggable.Target.DropEventDetails, Draggable.Target.DropEventReason, Draggable.Target.DropValue, Draggable.Target.EnterEventDetails, Draggable.Target.EnterEventReason, Draggable.Target.EnterValue, Draggable.Target.LeaveEventDetails, Draggable.Target.LeaveEventReason, Draggable.Target.LeaveValue, Draggable.Target.MoveEventDetails, Draggable.Target.MoveEventReason, Draggable.Target.MoveValue, Draggable.Target.Props, Draggable.Target.Record, Draggable.Target.ResolutionContext, Draggable.Target.StartEventDetails, Draggable.Target.StartEventReason, Draggable.Target.StartValue, Draggable.Target.State, Draggable.Viewport.DragScrollEventDetails, Draggable.Viewport.DragScrollEventReason, Draggable.Viewport.DragScrollValue, Draggable.Viewport.Props, Draggable.Viewport.State, Draggable.useActiveDrag.ReturnValue, Draggable.useManager.RegisterMonitorParameters, Draggable.useManager.RegisterSourceParameters, Draggable.useManager.RegisterTargetParameters, Draggable.useManager.RegisterViewportParameters, Draggable.useManager.ReturnValue, Draggable.useMonitor.Parameters, Draggable.useMonitor.ReturnValue
+- Types: Draggable.CollisionProvider.CollisionChangeEventDetails, Draggable.CollisionProvider.CollisionChangeEventReason, Draggable.CollisionProvider.CollisionChangeValue, Draggable.CollisionProvider.MoveEndEventDetails, Draggable.CollisionProvider.MoveEndEventReason, Draggable.CollisionProvider.MoveEndValue, Draggable.CollisionProvider.MoveStartEventDetails, Draggable.CollisionProvider.MoveStartEventReason, Draggable.CollisionProvider.MoveStartValue, Draggable.CollisionProvider.Props, Draggable.Handle.Props, Draggable.Handle.Reference, Draggable.Handle.State, Draggable.Preview.Container, Draggable.Preview.Offset, Draggable.Preview.OffsetParameters, Draggable.Preview.Parameters, Draggable.Preview.Props, Draggable.Preview.RenderParameters, Draggable.Preview.Settings, Draggable.Preview.State, Draggable.Provider.Props, Draggable.Root.Activation, Draggable.Root.ActivationConfig, Draggable.Root.BeforeMoveStartEventDetails, Draggable.Root.BeforeMoveStartEventReason, Draggable.Root.BeforeMoveStartValue, Draggable.Root.ElementReference, Draggable.Root.ModifierContext, Draggable.Root.Modifiers, Draggable.Root.MoveEndEventDetails, Draggable.Root.MoveEndEventReason, Draggable.Root.MoveEndValue, Draggable.Root.MoveEventDetails, Draggable.Root.MoveEventReason, Draggable.Root.MoveStartEventDetails, Draggable.Root.MoveStartEventReason, Draggable.Root.MoveStartValue, Draggable.Root.MoveValue, Draggable.Root.Props, Draggable.Root.Record, Draggable.Root.State, Draggable.Root.TargetChangeEventDetails, Draggable.Root.TargetChangeEventReason, Draggable.Root.TargetChangeValue, Draggable.Target.DropEventDetails, Draggable.Target.DropEventReason, Draggable.Target.DropValue, Draggable.Target.EnterEventDetails, Draggable.Target.EnterEventReason, Draggable.Target.EnterValue, Draggable.Target.LeaveEventDetails, Draggable.Target.LeaveEventReason, Draggable.Target.LeaveValue, Draggable.Target.LocalPoint, Draggable.Target.MoveEventDetails, Draggable.Target.MoveEventReason, Draggable.Target.MoveValue, Draggable.Target.Props, Draggable.Target.Record, Draggable.Target.ResolutionContext, Draggable.Target.SnapSteps, Draggable.Target.SnappedLocalPointOptions, Draggable.Target.StartEventDetails, Draggable.Target.StartEventReason, Draggable.Target.StartValue, Draggable.Target.State, Draggable.Viewport.DragScrollDirection, Draggable.Viewport.DragScrollEventDetails, Draggable.Viewport.DragScrollEventReason, Draggable.Viewport.DragScrollValue, Draggable.Viewport.MaxSpeedContext, Draggable.Viewport.OverflowMargin, Draggable.Viewport.Props, Draggable.Viewport.State, Draggable.useActiveDrag.ReturnValue, Draggable.useManager.RegisterMonitorParameters, Draggable.useManager.RegisterSourceParameters, Draggable.useManager.RegisterTargetParameters, Draggable.useManager.RegisterViewportParameters, Draggable.useManager.ReturnValue, Draggable.useMonitor.Parameters, Draggable.useMonitor.ReturnValue
 
 </details>
 

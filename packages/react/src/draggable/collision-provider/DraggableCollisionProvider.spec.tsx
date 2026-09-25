@@ -37,12 +37,14 @@ const marker = Draggable.createKind('marker');
       details.previousTarget,
     );
     expectType<
-      Draggable.DragStartReason | Draggable.DragMoveReason | Draggable.DragEndReason,
+      | Draggable.Root.MoveStartEventReason
+      | Draggable.Root.MoveEventReason
+      | Draggable.Root.MoveEndEventReason,
       typeof details.reason
     >(details.reason);
   }}
   onMoveEnd={({ target }, details) => {
-    expectType<Draggable.DragEndReason, typeof details.reason>(details.reason);
+    expectType<Draggable.Root.MoveEndEventReason, typeof details.reason>(details.reason);
     expectType<Draggable.Target.Record<CardPayload> | null, typeof details.previousTarget>(
       details.previousTarget,
     );
@@ -99,7 +101,7 @@ expectType<Draggable.Target.Record<CardPayload> | null, typeof changeDetails.pre
 declare const endValue: Draggable.CollisionProvider.MoveEndValue<CardPayload>;
 expectType<Draggable.Target.Record<CardPayload> | null, typeof endValue.target>(endValue.target);
 declare const endDetails: Draggable.CollisionProvider.MoveEndEventDetails<CardPayload>;
-expectType<Draggable.DragEndReason, typeof endDetails.reason>(endDetails.reason);
+expectType<Draggable.Root.MoveEndEventReason, typeof endDetails.reason>(endDetails.reason);
 declare const props: Draggable.CollisionProvider.Props<CardPayload>;
 void props.kind;
 

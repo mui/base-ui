@@ -4,7 +4,12 @@
  */
 
 import { areArraysEqual } from '@base-ui/utils/areArraysEqual';
-import type { AnyDragAccept, DragKind, DragSource, DraggableTargetRecord } from '../../types/drag';
+import type {
+  AnyDragAccept,
+  DraggableKind,
+  DraggableRootRecord,
+  DraggableTargetRecord,
+} from '../../types/drag';
 
 /** Namespaces explicitly global identities, so a key can't collide with another `Symbol.for`. */
 const KIND_ID_PREFIX = 'base-ui/drag-kind:';
@@ -24,7 +29,7 @@ const ANY_KIND_ID = Symbol.for('base-ui/drag-kind-sentinel:any');
  */
 export function createKind<TPayload = undefined, TDragData = unknown>(
   name: string,
-): DragKind<TPayload, TDragData> {
+): DraggableKind<TPayload, TDragData> {
   return makeKind(name, Symbol(name));
 }
 
@@ -47,19 +52,22 @@ export function createKind<TPayload = undefined, TDragData = unknown>(
  */
 export function createGlobalKind<TPayload = undefined, TDragData = unknown>(
   key: string,
-): DragKind<TPayload, TDragData> {
+): DraggableKind<TPayload, TDragData> {
   return makeKind(key, Symbol.for(KIND_ID_PREFIX + key));
 }
 
-function makeKind<TPayload, TDragData>(name: string, id: symbol): DragKind<TPayload, TDragData> {
-  const matches = (value: DragSource<unknown> | DraggableTargetRecord<unknown>) =>
+function makeKind<TPayload, TDragData>(
+  name: string,
+  id: symbol,
+): DraggableKind<TPayload, TDragData> {
+  const matches = (value: DraggableRootRecord<unknown> | DraggableTargetRecord<unknown>) =>
     value.kind === id;
   return {
     name,
     id,
     // A type predicate can't be inferred from an implementation, so it is asserted here.
-    matches: matches as DragKind<TPayload, TDragData>['matches'],
-  } as DragKind<TPayload, TDragData>;
+    matches: matches as DraggableKind<TPayload, TDragData>['matches'],
+  } as DraggableKind<TPayload, TDragData>;
 }
 
 /**
@@ -71,7 +79,7 @@ function makeKind<TPayload, TDragData>(name: string, id: symbol): DragKind<TPayl
  *
  * The resulting `source.payload` is `unknown` until narrowed with a specific kind's `matches` method.
  */
-export const anyDragKind: DragKind<unknown> = {
+export const anyDragKind: DraggableKind<unknown> = {
   name: 'any',
   // Interned, and matched on `.id` rather than object identity, because a doubly bundled
   // engine (or a hot reload) has two copies of this module. An identity check across them
@@ -80,8 +88,8 @@ export const anyDragKind: DragKind<unknown> = {
   // Never called: `matchesAccept` short-circuits on this id, and nothing declares
   // `anyDragKind` as its `kind`. Answering `true` keeps it honest if a consumer does
   // reach for it as a predicate.
-  matches: ((value: unknown) => value != null) as unknown as DragKind<unknown>['matches'],
-} as DragKind<unknown>;
+  matches: ((value: unknown) => value != null) as unknown as DraggableKind<unknown>['matches'],
+} as DraggableKind<unknown>;
 
 /**
  * Tests a source against an `accept` declaration. Omitted (monitors, auto-scrollers) or
@@ -91,15 +99,15 @@ export const anyDragKind: DragKind<unknown> = {
 export function matchesAccept(
   accept: AnyDragAccept | undefined,
   // Only `kind` is read, so this accepts a source carrying any payload.
-  source: Pick<DragSource<unknown>, 'kind'>,
+  source: Pick<DraggableRootRecord<unknown>, 'kind'>,
 ): boolean {
-  if (accept === undefined || (accept as DragKind<unknown>).id === ANY_KIND_ID) {
+  if (accept === undefined || (accept as DraggableKind<unknown>).id === ANY_KIND_ID) {
     return true;
   }
   if (Array.isArray(accept)) {
     return accept.some((kind) => kind.id === ANY_KIND_ID || kind.id === source.kind);
   }
-  return (accept as DragKind<unknown>).id === source.kind;
+  return (accept as DraggableKind<unknown>).id === source.kind;
 }
 
 /**

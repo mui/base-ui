@@ -4,16 +4,16 @@ import { getFiniteAnimations } from '../../getFiniteAnimations';
 import { WindowAnimationFrame } from '../../windowAnimationFrame';
 import { WindowTimeout } from '../../windowTimeout';
 import { measurePreviewSource, type DragPreviewElementHandle } from './cloneDragPreview';
-import type { DragModifier, DragPosition } from '../../../types/drag';
+import type { DraggableRootModifier, DraggablePosition } from '../../../types/drag';
 import type { DragModifierKeys } from '../utils';
 import { applyDragModifiers } from '../dragModifiers';
 import { getSharedSlot } from '../sharedState';
 import { DRAGGING_ATTR, ENDING_STYLE_ATTR } from '../dragAttributes';
 import { getElementScale, NO_MODIFIER_KEYS } from '../utils';
 
-const ZERO_OFFSET: DragPosition = { x: 0, y: 0 };
+const ZERO_OFFSET: DraggablePosition = { x: 0, y: 0 };
 /** No ancestor transform: what `getElementScale` reports for an unscaled element. */
-const DEFAULT_SCALE: DragPosition = { x: 1, y: 1 };
+const DEFAULT_SCALE: DraggablePosition = { x: 1, y: 1 };
 const MIN_SETTLING_WATCHDOG_MS = 1000;
 const MAX_SETTLING_WATCHDOG_MS = 30000;
 
@@ -91,13 +91,13 @@ export function createSyntheticPreview(
   // Opt-in preview-level `modifiers`, compiled to a non-empty list, or
   // `null` for none. Constrains where the preview is drawn without touching the
   // drag itself (the root's `modifiers` does that).
-  let modifiers: ReadonlyArray<DragModifier> | null = null;
+  let modifiers: ReadonlyArray<DraggableRootModifier> | null = null;
   // The preview's proposed top-left on the first frame positioned with the
   // current element and offset — the reference a preview-level axis lock or grid
   // snaps against. Reset whenever the element or offset changes (a preview
   // adopted mid-drag, a callback offset resolving late), so the anchor is never
   // a proposal computed from a stale offset.
-  let initialProposed: DragPosition | null = null;
+  let initialProposed: DraggablePosition | null = null;
   // The ancestor scale applied to the preview, measured once rather than per frame:
   // `getElementScale` walks to the root reading computed styles, which is a style
   // recalc this would otherwise pay for on every positioned frame. The scale can only
@@ -113,7 +113,7 @@ export function createSyntheticPreview(
   // retrying once it is drawn. `getClientRects` is that signal without a size
   // requirement: an empty host still reports its box, a hidden or detached one
   // reports none.
-  let previewScale: DragPosition | null = null;
+  let previewScale: DraggablePosition | null = null;
   // The last coordinates written to the current preview. Axis locks and grid
   // snaps often resolve several pointer samples to the same point; avoid
   // invalidating style for an identical `translate`.
@@ -222,7 +222,7 @@ export function createSyntheticPreview(
       hasPosition = true;
       positionPreviewElement();
     },
-    setPreviewElement(preview: DragPreviewElementHandle | null, offset?: DragPosition): void {
+    setPreviewElement(preview: DragPreviewElementHandle | null, offset?: DraggablePosition): void {
       if (destroyed) {
         preview?.destroy();
         return;
@@ -246,7 +246,7 @@ export function createSyntheticPreview(
       sourceElement.setAttribute(DRAGGING_ATTR, '');
     },
     retargetSource,
-    setPreviewOffset(offset: DragPosition): void {
+    setPreviewOffset(offset: DraggablePosition): void {
       // A `Draggable.Preview` whose offset is a callback can only be resolved once React
       // has rendered its content and the element has a size, which happens after
       // the engine placed it. Re-anchor it then, without waiting for a pointer move
@@ -271,10 +271,10 @@ export function createSyntheticPreview(
     getPreviewElement(): DragPreviewElementHandle | null {
       return previewElement;
     },
-    getPreviewOffset(): DragPosition {
+    getPreviewOffset(): DraggablePosition {
       return { x: previewOffsetX, y: previewOffsetY };
     },
-    setModifiers(next: ReadonlyArray<DragModifier> | null): void {
+    setModifiers(next: ReadonlyArray<DraggableRootModifier> | null): void {
       modifiers = next;
     },
     prepareForDrop(): void {
@@ -379,7 +379,7 @@ export interface SyntheticPreviewHandle {
    * Adopt the preview element to position with the drag, or `null` to release it.
    * The engine writes only its `translate`.
    */
-  setPreviewElement(preview: DragPreviewElementHandle | null, offset?: DragPosition): void;
+  setPreviewElement(preview: DragPreviewElementHandle | null, offset?: DraggablePosition): void;
   /**
    * Mark the source as being dragged. Called once the preview exists, so a
    * `[data-dragging]` rule can't affect the geometry the preview was measured from.
@@ -388,19 +388,19 @@ export interface SyntheticPreviewHandle {
   /** Follow the drag source to a fresh node when a virtualizer remounts it mid-drag. */
   retargetSource(element: HTMLElement): void;
   /** Re-anchor the preview once React has rendered content into it and it has a size. */
-  setPreviewOffset(offset: DragPosition): void;
+  setPreviewOffset(offset: DraggablePosition): void;
   /** Destroy the preview element. */
   removePreviewElement(): void;
   /** The adopted preview element, or `null`. */
   getPreviewElement(): DragPreviewElementHandle | null;
   /** The offset from the preview's top-left to the cursor (see `setPreviewOffset`). */
-  getPreviewOffset(): DragPosition;
+  getPreviewOffset(): DraggablePosition;
   /**
    * Install preview-level modifiers, applied to the preview's proposed
    * position each frame. Pass `null` to remove them.
-   * See `DragPreviewSettings.modifiers`.
+   * See `DraggablePreviewSettings.modifiers`.
    */
-  setModifiers(modifiers: ReadonlyArray<DragModifier> | null): void;
+  setModifiers(modifiers: ReadonlyArray<DraggableRootModifier> | null): void;
   /** Preserve an engine-owned clone long enough to animate it back to the source after release. */
   prepareForDrop(): void;
   destroy(): void;

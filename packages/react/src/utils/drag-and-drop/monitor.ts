@@ -1,7 +1,7 @@
 import { matchesAccept } from './dragKind';
 import type {
-  DragAccept,
-  DragSource,
+  DraggableAccept,
+  DraggableRootRecord,
   DragSourceEventValue,
   DraggableEventDetailsMap,
   DraggableRootMoveEndEventDetails,
@@ -27,7 +27,7 @@ interface MonitorState {
   /** Monitor getters observing the current drag (their `accept` matched). */
   activeMonitors: Set<MonitorGetter>;
   /** The active drag's source, so a monitor registered mid-drag can join it. */
-  activeSource: DragSource | null;
+  activeSource: DraggableRootRecord | null;
 }
 
 const state = getSharedSlot<MonitorState>('registerMonitor', () => ({
@@ -99,7 +99,7 @@ export function removeMonitor(getMonitor: MonitorGetter): void {
   matchedMonitors.delete(getMonitor);
 }
 
-export function activateMonitors(source: DragSource): void {
+export function activateMonitors(source: DraggableRootRecord): void {
   // Mutate in place so a duplicate bundled copy of the engine shares the set.
   state.activeMonitors.clear();
   // Remember the source before the loop: `engageMonitorIfDragging` reads it,
@@ -193,7 +193,7 @@ export interface RegisterMonitorParameters<TSourcePayload = unknown, TDragData =
    * Evaluated when a drag starts, or when the monitor registers during a drag.
    * A drag it excludes is ignored until it ends.
    */
-  accept?: DragAccept<TSourcePayload, TDragData> | undefined;
+  accept?: DraggableAccept<TSourcePayload, TDragData> | undefined;
   /**
    * Event handler called once when a matching drag starts, wherever it started.
    * A monitor registered during a drag doesn't receive it for that drag.

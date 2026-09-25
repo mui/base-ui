@@ -2,7 +2,7 @@ import { getSharedSlot } from './sharedState';
 import type { SyntheticPreviewHandle } from './synthetic/syntheticPreview';
 import type { DragPreviewElementHandle } from './synthetic/cloneDragPreview';
 import type { ResolvedDragPreview } from './synthetic/dragPreviewSettings';
-import type { DragPosition } from '../../types/drag';
+import type { DraggablePosition } from '../../types/drag';
 
 /**
  * The active drag's preview handle, so the React layer can reach the element the
@@ -86,7 +86,7 @@ export function getActivePreview(): DragPreviewElementHandle | null {
  * size. Only an offset *callback* needs this — every other form is resolved from
  * the source rect alone, before React runs. A no-op when no drag is active.
  */
-export function setActivePreviewOffset(offset: DragPosition): void {
+export function setActivePreviewOffset(offset: DraggablePosition): void {
   slot.handle?.setPreviewOffset(offset);
 }
 

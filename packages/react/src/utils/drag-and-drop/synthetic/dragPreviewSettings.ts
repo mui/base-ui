@@ -2,8 +2,8 @@ import type * as React from 'react';
 import type { DraggableConfig } from '../draggable';
 import { resolveElementReference } from '../utils';
 import type {
-  DragModifiers,
-  DragPreviewOffset,
+  DraggableRootModifiers,
+  DraggablePreviewOffset,
   DraggablePreviewRenderParameters,
 } from '../../../types/drag';
 import {
@@ -18,8 +18,8 @@ import {
  * @internal
  */
 export interface ResolvedDragPreview<TPayload = unknown> {
-  offset: DragPreviewOffset | undefined;
-  modifiers: DragModifiers | undefined;
+  offset: DraggablePreviewOffset | undefined;
+  modifiers: DraggableRootModifiers | undefined;
   /** Already resolved to an element; `null` injects the preview in place. */
   container: HTMLElement | null;
   disabled: boolean;
