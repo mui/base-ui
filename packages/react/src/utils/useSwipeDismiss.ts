@@ -1007,6 +1007,15 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
     } as React.CSSProperties;
   }, [dragDismissed, movementCssVars]);
 
+  const handlePointerLeave = useStableCallback((event: React.PointerEvent) => {
+    const element = elementRef.current;
+    if (isSwipingRef.current && event.pointerType !== 'touch' && element) {
+      // A pointer-events:none viewport stops receiving events outside its popup. Capture before
+      // leaving it so a sub-threshold drag still receives subsequent movement and release.
+      safelyChangePointerCapture(element, event.pointerId, 'setPointerCapture');
+    }
+  });
+
   const getPointerProps = React.useCallback(() => {
     if (!enabled) {
       return {};
@@ -1015,10 +1024,11 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
     return {
       onPointerDown: handleStart,
       onPointerMove: handleMove,
+      onPointerLeave: handlePointerLeave,
       onPointerUp: handleEnd,
       onPointerCancel: handleEnd,
     } as const;
-  }, [enabled, handleEnd, handleMove, handleStart]);
+  }, [enabled, handleEnd, handleMove, handlePointerLeave, handleStart]);
 
   const getTouchProps = React.useCallback(() => {
     if (!enabled) {
@@ -1125,6 +1135,7 @@ export interface UseSwipeDismissReturnValue {
   getPointerProps: () => {
     onPointerDown?: ((event: React.PointerEvent) => void) | undefined;
     onPointerMove?: ((event: React.PointerEvent) => void) | undefined;
+    onPointerLeave?: ((event: React.PointerEvent) => void) | undefined;
     onPointerUp?: ((event: React.PointerEvent) => void) | undefined;
     onPointerCancel?: ((event: React.PointerEvent) => void) | undefined;
   };

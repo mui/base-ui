@@ -64,6 +64,30 @@ describe('e2e', () => {
     await browser.close();
   });
 
+  describe('<Drawer />', () => {
+    it('ends a drag that leaves a non-modal popup before the capture threshold', async () => {
+      await renderFixture('drawer/NonModalSwipe');
+
+      const popup = page.getByTestId('popup');
+      const box = (await popup.boundingBox())!;
+      const y = box.y + 100;
+
+      await page.mouse.move(box.x + 2, y);
+      await page.mouse.down();
+      await page.mouse.move(box.x + 1, y);
+      await page.mouse.move(box.x - 20, y);
+      await page.mouse.up();
+
+      await expect(popup).not.toHaveAttribute('data-swiping', '');
+      await expect(popup).not.toHaveCSS('transition-property', 'none');
+
+      // Returning with no buttons pressed must not finish a stale swipe and dismiss the drawer.
+      await page.mouse.move(box.x + box.width - 20, y);
+      await expect(popup).toBeVisible();
+      await expect(popup).toHaveAttribute('data-open', '');
+    });
+  });
+
   describe('<Field />', () => {
     describe('validationMode=onChange', () => {
       it('<Field.Control />', async () => {
