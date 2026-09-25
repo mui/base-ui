@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { useControlled } from '@base-ui/utils/useControlled';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
@@ -17,6 +18,7 @@ import { useLabelableId } from '../internals/labelable-provider/useLabelableId';
 import type { BaseUIComponentProps } from '../internals/types';
 import { fieldValidityMapping } from '../internals/field-constants/constants';
 import { useCheckboxGroupParent } from './useCheckboxGroupParent';
+import { CheckboxGroupPaintSelectionFeatureContext } from './paint-selection-provider/CheckboxGroupPaintSelectionContext';
 import type { BaseUIChangeEventDetails } from '../internals/createBaseUIEventDetails';
 import type { REASONS } from '../internals/reasons';
 import { useFormContext } from '../internals/form-context/FormContext';
@@ -41,8 +43,15 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
     render,
     value: externalValue,
     style,
+    children,
     ...elementProps
   } = componentProps;
+
+  const paintSelection = React.useContext(CheckboxGroupPaintSelectionFeatureContext);
+  const content = React.useMemo(
+    () => (paintSelection ? paintSelection.render(children) : children),
+    [paintSelection, children],
+  );
 
   const {
     disabled: fieldDisabled,
@@ -66,6 +75,8 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
     state: 'value',
   });
 
+  const valueRef = useValueAsRef<string[] | null>(null);
+
   const setValue = useStableCallback(
     (v: string[], eventDetails: CheckboxGroup.ChangeEventDetails) => {
       onValueChange?.(v, eventDetails);
@@ -74,6 +85,9 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
         return;
       }
 
+      if (valueRef.current !== null) {
+        valueRef.current = v;
+      }
       setValueUnwrapped(v);
     },
   );
@@ -82,6 +96,7 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
     allValues,
     value,
     onValueChange: setValue,
+    valueRef,
   });
 
   // The group is the field's control and takes its name from `aria-labelledby`, so `Field.Label`
@@ -149,13 +164,14 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
     () => ({
       allValues,
       value,
+      valueRef,
       setValue,
       parent,
       disabled,
       validation,
       registerControlId,
     }),
-    [allValues, value, setValue, parent, disabled, validation, registerControlId],
+    [allValues, value, valueRef, setValue, parent, disabled, validation, registerControlId],
   );
 
   const element = useRenderElement('div', componentProps, {
@@ -166,6 +182,7 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
         id: idProp,
         role: 'group',
         'aria-labelledby': labelId,
+        children: content,
       },
       elementProps,
       getDescriptionProps,
@@ -174,7 +191,16 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
   });
 
   return (
-    <CheckboxGroupContext.Provider value={contextValue}>{element}</CheckboxGroupContext.Provider>
+    <CheckboxGroupContext.Provider value={contextValue}>
+      {paintSelection ? (
+        // A nested group doesn't inherit the provider of this one.
+        <CheckboxGroupPaintSelectionFeatureContext.Provider value={undefined}>
+          {element}
+        </CheckboxGroupPaintSelectionFeatureContext.Provider>
+      ) : (
+        element
+      )}
+    </CheckboxGroupContext.Provider>
   );
 });
 
