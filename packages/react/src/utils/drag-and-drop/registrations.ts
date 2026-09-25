@@ -36,7 +36,7 @@ import type { RegisterTargetParameters } from './dropTarget';
 import type {
   AcceptedDragData,
   AcceptedDragPayload,
-  AnyDragAccept,
+  DragAccept,
   DragCleanupFn,
   DragKind,
 } from '../../types/drag';
@@ -156,7 +156,7 @@ export function registerTarget<
 }
 
 // Keyed on the `accept` value it infers, like every other `accept`-taking API.
-export function registerViewport<TAccept extends AnyDragAccept = DragKind<unknown>>(
+export function registerViewport<TAccept extends DragAccept<unknown> = DragKind<unknown>>(
   element: HTMLElement,
   getParameters: () => DragParametersWithInferredAccept<
     RegisterViewportParameters<AcceptedDragPayload<TAccept>, AcceptedDragData<TAccept>>,
@@ -176,7 +176,7 @@ export function registerViewport<TAccept extends AnyDragAccept = DragKind<unknow
 }
 
 // Keyed on the `accept` value it infers, like every other `accept`-taking API.
-export function registerMonitor<TAccept extends AnyDragAccept = DragKind<unknown>>(
+export function registerMonitor<TAccept extends DragAccept<unknown> = DragKind<unknown>>(
   getMonitor: () => DragParametersWithInferredAccept<
     RegisterMonitorParameters<AcceptedDragPayload<TAccept>, AcceptedDragData<TAccept>>,
     TAccept

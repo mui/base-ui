@@ -16,10 +16,10 @@ import { createKind } from '../../utils/drag-and-drop/dragKind';
 import { dragSessionStore } from '../../utils/drag-and-drop/dragSessionStore';
 import type { DraggableManager, RegisterViewportParameters } from '../../types/dragRegistration';
 import type {
-  DragAutoScrollEventDetails,
+  DraggableViewportDragScrollEventDetails,
   DragAutoScrollFrameContext,
   DragAutoScrollHandler,
-  DragAutoScrollValue,
+  DraggableViewportDragScrollValue,
 } from '../../utils/drag-and-drop/autoScroller';
 
 // The synthetic-drag test below leaves an active session; clear its rAF tick
@@ -732,8 +732,8 @@ describe('engine.registerViewport', () => {
     const scrollByMock = scroller.scrollBy as ReturnType<typeof vi.fn>;
     // Asymmetric answers so both halves observe which hold is active: the
     // second allows the scroll the first forbids.
-    const first = vi.fn<(value: DragAutoScrollValue) => boolean>(() => false);
-    const second = vi.fn<(value: DragAutoScrollValue) => boolean>(() => true);
+    const first = vi.fn<(value: DraggableViewportDragScrollValue) => boolean>(() => false);
+    const second = vi.fn<(value: DraggableViewportDragScrollValue) => boolean>(() => true);
 
     engine.registerSource(source, {});
     engine.registerViewport(scroller, {
@@ -1051,7 +1051,9 @@ describe('engine.registerViewport', () => {
       // axis and starve the accepting one.
       const picky = makeEngageableScroller();
       const open = makeEngageableScroller();
-      const pickyShouldScroll = vi.fn<(value: DragAutoScrollValue) => boolean>(() => true);
+      const pickyShouldScroll = vi.fn<(value: DraggableViewportDragScrollValue) => boolean>(
+        () => true,
+      );
 
       // The drag's kind is the renderer's default `testDragKind`.
       engine.registerSource(source, {});
@@ -1769,7 +1771,10 @@ describe('engine.registerViewport', () => {
       const container = makeContainer();
       const source = makeNestedSource(container.element);
       const shouldScroll = vi.fn<
-        (value: DragAutoScrollValue, eventDetails: DragAutoScrollEventDetails) => boolean
+        (
+          value: DraggableViewportDragScrollValue,
+          eventDetails: DraggableViewportDragScrollEventDetails,
+        ) => boolean
       >(() => false);
 
       engine.registerSource(source, {});
@@ -3512,7 +3517,7 @@ describe('engine.registerViewport', () => {
       const { engine } = await renderDnd();
       const source = createElement();
       const viewport = makeViewport();
-      const pan = vi.fn<(value: DragAutoScrollValue) => null>(() => null);
+      const pan = vi.fn<(value: DraggableViewportDragScrollValue) => null>(() => null);
 
       engine.registerSource(source, {});
       engine.registerViewport(viewport, {

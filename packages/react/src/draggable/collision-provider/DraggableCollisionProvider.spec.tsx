@@ -13,10 +13,12 @@ const marker = Draggable.createKind('marker');
 // The payload type flows from `kind` into every callback.
 <Draggable.CollisionProvider
   kind={card}
-  canCollide={({ source, target }) => {
+  canCollide={({ source, input, element, payload }) => {
     expectType<CardPayload, typeof source.payload>(source.payload);
-    expectType<CardPayload, typeof target>(target);
-    return target.id === 'full' ? 'reject' : true;
+    expectType<number, typeof input.clientX>(input.clientX);
+    expectType<Element, typeof element>(element);
+    expectType<CardPayload, typeof payload>(payload);
+    return payload.id === 'full' ? 'reject' : true;
   }}
   onMoveStart={({ source }, details) => {
     expectType<CardPayload, typeof source.payload>(source.payload);

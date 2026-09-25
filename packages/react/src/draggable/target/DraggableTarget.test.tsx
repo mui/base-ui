@@ -228,6 +228,44 @@ describe('Draggable.Target', () => {
     touchUp(10, 10);
   });
 
+  it('reports the target under the pickup point as `target` to the source and monitor onMoveStart', async () => {
+    const { engine } = await renderDnd(
+      <Draggable.Target accept={Draggable.anyKind} data-testid="pickup-target">
+        <div data-testid="pickup-source" />
+      </Draggable.Target>,
+    );
+
+    const wrapper = screen.getByTestId('pickup-target');
+    const nestedSource = screen.getByTestId('pickup-source') as HTMLElement;
+    wrapper.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
+    nestedSource.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
+    const sourceStart = vi.fn();
+    const monitorStart = vi.fn();
+    engine.registerSource(nestedSource, {
+      kind: cardKind,
+      payload: { id: 'a' },
+      activation: { touch: { type: 'immediate' } },
+      onMoveStart: sourceStart,
+    });
+    engine.registerMonitor({ onMoveStart: monitorStart });
+
+    // Raw pointer events: the bridge starts every drag with nothing under the pointer.
+    const hitTest = vi.spyOn(document, 'elementFromPoint').mockReturnValue(nestedSource);
+    registerCleanup(() => hitTest.mockRestore());
+
+    touchDown(nestedSource, 10, 10);
+    await flushRaf();
+
+    expect(sourceStart).toHaveBeenCalledTimes(1);
+    const [sourceValue, sourceDetails] = sourceStart.mock.calls[0];
+    expect(sourceValue.target?.element).toBe(wrapper);
+    expect(sourceValue.target).toBe(sourceDetails.location.current.targets[0]);
+    expect(monitorStart).toHaveBeenCalledTimes(1);
+    expect(monitorStart.mock.calls[0][0].target?.element).toBe(wrapper);
+
+    touchUp(10, 10);
+  });
+
   it('fires onDraggableEnter and onDrop exactly once when mounted under Strict Mode', async () => {
     // Strict Mode double-invokes the registration effect (register → cleanup →
     // register); a leaked duplicate hold would run the callbacks once per hold.

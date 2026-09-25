@@ -289,7 +289,7 @@ describe('lifecycle manager', () => {
       expect(order).toEqual(['start', 'drop']);
     });
 
-    it('delivers onMove with the expected payload', async () => {
+    it('delivers onMove with the source and the target under the pointer', async () => {
       const { engine } = await renderDnd();
       const el = createElement();
       const target = createElement();
@@ -306,8 +306,56 @@ describe('lifecycle manager', () => {
       await flushRaf();
 
       expect(onMove).toHaveBeenCalled();
-      const payload = onMove.mock.calls[0][0];
-      expect(payload.source.element).toBe(el);
+      const value = onMove.mock.lastCall![0];
+      expect(value.source.element).toBe(el);
+      expect(value.target?.element).toBe(target);
+    });
+
+    it('reports the innermost current target as `target` to source and monitor move handlers', async () => {
+      const { engine } = await renderDnd();
+      const el = createElement();
+      const outer = createElement();
+      const inner = createElement();
+      outer.append(inner);
+      const handlers = {
+        sourceMove: vi.fn(),
+        sourceTargetChange: vi.fn(),
+        monitorMove: vi.fn(),
+        monitorTargetChange: vi.fn(),
+      };
+
+      engine.registerSource(el, {
+        onMove: handlers.sourceMove,
+        onTargetChange: handlers.sourceTargetChange,
+      });
+      engine.registerTarget(outer, {});
+      engine.registerTarget(inner, {});
+      engine.registerMonitor({
+        onMove: handlers.monitorMove,
+        onTargetChange: handlers.monitorTargetChange,
+      });
+
+      fireEvent.dragStart(el);
+      await flushRaf();
+      fireEvent.dragOver(inner);
+      await flushRaf();
+      // Leave every target, so the stack empties.
+      fireEvent.dragLeave(inner);
+      await flushRaf();
+
+      for (const handler of Object.values(handlers)) {
+        const calls = handler.mock.calls as [DragSourceEventValue, DropTargetChangeEventDetails][];
+        expect(calls.map(([value]) => value.target?.element ?? null)).toEqual(
+          expect.arrayContaining([inner, null]),
+        );
+        for (const [value, details] of calls) {
+          expect(value.target).toBe(details.location.current.targets[0] ?? null);
+        }
+      }
+
+      act(() => {
+        cancelDrag();
+      });
     });
 
     it('fires onMoveStart only on drop targets already under the pointer at pickup', async () => {

@@ -1,6 +1,6 @@
 import { warn } from '@base-ui/utils/warn';
 import type * as React from 'react';
-import type { DragPreviewSettings, DragPreviewRenderParameters } from '../../types/drag';
+import type { DragPreviewSettings, DraggablePreviewRenderParameters } from '../../types/drag';
 import type { DragPreviewElementFactory } from './synthetic/cloneDragPreview';
 
 /**
@@ -24,7 +24,7 @@ export interface DragPreviewDeclaration<
    * choice lives here rather than being signalled by mounting.
    */
   render:
-    ((parameters: DragPreviewRenderParameters<TPayload, TDragData>) => React.ReactNode) | null;
+    ((parameters: DraggablePreviewRenderParameters<TPayload, TDragData>) => React.ReactNode) | null;
 }
 
 /**

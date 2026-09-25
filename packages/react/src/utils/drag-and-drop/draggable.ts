@@ -1,15 +1,21 @@
 import type {
-  BeforeMoveStartEventDetails,
-  BeforeMoveStartValue,
   DragCleanupFn,
   DragHandle,
   DragKind,
-  DraggableEventDetailsMap,
   DraggablePayload,
+  DraggablePreviewRenderParameters,
+  DraggableRootBeforeMoveStartEventDetails,
+  DraggableRootBeforeMoveStartValue,
+  DraggableRootMoveEndEventDetails,
+  DraggableRootMoveEndValue,
+  DraggableRootMoveEventDetails,
+  DraggableRootMoveStartEventDetails,
+  DraggableRootMoveStartValue,
+  DraggableRootMoveValue,
+  DraggableRootTargetChangeEventDetails,
+  DraggableRootTargetChangeValue,
   DragModifiers,
   DragPreviewParameters,
-  DragPreviewRenderParameters,
-  DragSourceEventValue,
 } from '../../types/drag';
 import type { DragPreviewDeclaration } from './dragPreviewDeclaration';
 import type { DragActivationConfig } from './activation';
@@ -197,8 +203,8 @@ export type DraggableConfig<TPayload = undefined, TDragData = unknown> = {
    */
   onBeforeMoveStart?:
     | ((
-        value: BeforeMoveStartValue<NoInfer<TPayload>, NoInfer<TDragData>>,
-        eventDetails: BeforeMoveStartEventDetails,
+        value: DraggableRootBeforeMoveStartValue<NoInfer<TPayload>, NoInfer<TDragData>>,
+        eventDetails: DraggableRootBeforeMoveStartEventDetails,
       ) => void)
     | undefined;
   /**
@@ -243,7 +249,9 @@ export type DraggableConfig<TPayload = undefined, TDragData = unknown> = {
    * @internal
    */
   onGenerateDragPreview?:
-    | ((parameters: DragPreviewRenderParameters<NoInfer<TPayload>, NoInfer<TDragData>>) => void)
+    | ((
+        parameters: DraggablePreviewRenderParameters<NoInfer<TPayload>, NoInfer<TDragData>>,
+      ) => void)
     | undefined;
   /**
    * Event handler called once when the drag starts. The preview exists by then,
@@ -251,8 +259,8 @@ export type DraggableConfig<TPayload = undefined, TDragData = unknown> = {
    */
   onMoveStart?:
     | ((
-        value: DragSourceEventValue<NoInfer<TPayload>, NoInfer<TDragData>>,
-        eventDetails: DraggableEventDetailsMap['onMoveStart'],
+        value: DraggableRootMoveStartValue<NoInfer<TPayload>, NoInfer<TDragData>>,
+        eventDetails: DraggableRootMoveStartEventDetails,
       ) => void)
     | undefined;
   /**
@@ -262,8 +270,8 @@ export type DraggableConfig<TPayload = undefined, TDragData = unknown> = {
    */
   onMove?:
     | ((
-        value: DragSourceEventValue<NoInfer<TPayload>, NoInfer<TDragData>>,
-        eventDetails: DraggableEventDetailsMap['onMove'],
+        value: DraggableRootMoveValue<NoInfer<TPayload>, NoInfer<TDragData>>,
+        eventDetails: DraggableRootMoveEventDetails,
       ) => void)
     | undefined;
   /**
@@ -271,8 +279,8 @@ export type DraggableConfig<TPayload = undefined, TDragData = unknown> = {
    */
   onTargetChange?:
     | ((
-        value: DragSourceEventValue<NoInfer<TPayload>, NoInfer<TDragData>>,
-        eventDetails: DraggableEventDetailsMap['onTargetChange'],
+        value: DraggableRootTargetChangeValue<NoInfer<TPayload>, NoInfer<TDragData>>,
+        eventDetails: DraggableRootTargetChangeEventDetails,
       ) => void)
     | undefined;
   /**
@@ -284,8 +292,8 @@ export type DraggableConfig<TPayload = undefined, TDragData = unknown> = {
    */
   onMoveEnd?:
     | ((
-        value: DragSourceEventValue<NoInfer<TPayload>, NoInfer<TDragData>>,
-        eventDetails: DraggableEventDetailsMap['onMoveEnd'],
+        value: DraggableRootMoveEndValue<NoInfer<TPayload>, NoInfer<TDragData>>,
+        eventDetails: DraggableRootMoveEndEventDetails,
       ) => void)
     | undefined;
 };

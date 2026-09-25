@@ -903,6 +903,9 @@ describe('syntheticDrag sensor', () => {
     expect(value.source.element).toBe(el);
     expect(eventDetails.reason).toBe('pointer');
     expect(eventDetails.input.pointerType).toBe('pen');
+    // The input is the activation point, not the press.
+    expect(eventDetails.input.clientX).toBe(60);
+    expect(eventDetails.input.clientY).toBe(50);
     expect(eventDetails.event).toBeInstanceOf(PointerEvent);
     expect(eventDetails.trigger).toBe(trigger);
     // Not canceled, so the drag started right after.
@@ -917,12 +920,15 @@ describe('syntheticDrag sensor', () => {
     const onMoveStart = vi.fn();
     let block = true;
     const initialData: unknown[] = [];
+    const canceledStates: boolean[] = [];
     engine.registerSource(el, {
       onBeforeMoveStart: ({ source }, eventDetails) => {
         initialData.push(source.dragData);
         source.updateDragData({ offset: 12 });
         if (block) {
+          canceledStates.push(eventDetails.isCanceled);
           eventDetails.cancel();
+          canceledStates.push(eventDetails.isCanceled);
         }
       },
       activation: { touch: { type: 'immediate' } },
@@ -932,6 +938,7 @@ describe('syntheticDrag sensor', () => {
     touchDown(el, 50, 50);
     await flushRaf();
     expect(onMoveStart).not.toHaveBeenCalled();
+    expect(canceledStates).toEqual([false, true]);
     // The canceled commit tore the pending phase down and restored the source's
     // `draggable` attribute.
     expect(el.hasAttribute('draggable')).toBe(false);
@@ -1892,7 +1899,7 @@ describe('syntheticDrag sensor', () => {
     expect(dropDetails.location.current.input.clientY).toBe(80);
   });
 
-  it('payload pointerType is "touch" for synthetic drags', async () => {
+  it('reports a "touch" pointerType in the onMoveStart location for synthetic drags', async () => {
     const { engine } = await renderDnd();
     const el = createElement();
     const onMoveStart = vi.fn();
@@ -2410,12 +2417,14 @@ describe('syntheticDrag sensor', () => {
       await flushRaf();
 
       // pointerup with a target-less elementFromPoint result must still
-      // fire `onMoveEnd` (cancel-shaped: targets empty), not leave the
-      // engine stuck.
+      // fire `onMoveEnd` as an outside release (no target, not a cancel),
+      // not leave the engine stuck.
       touchUp(-50, -50);
 
       expect(onMoveEnd).toHaveBeenCalledTimes(1);
-      const details = onMoveEnd.mock.calls[0][1];
+      const [value, details] = onMoveEnd.mock.calls[0];
+      expect(details.reason).toBe('outside-release');
+      expect(value.target).toBeNull();
       expect(details.location.current.targets).toEqual([]);
     } finally {
       document.elementFromPoint = originalEFP;

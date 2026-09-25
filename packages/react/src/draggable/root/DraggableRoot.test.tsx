@@ -205,6 +205,39 @@ describe('Draggable.Root', () => {
     expect(source).toHaveClass('idle');
   });
 
+  it('reports the Draggable.Handle element as source.handle', async () => {
+    const onBeforeMoveStart = vi.fn();
+    const onMoveStart = vi.fn();
+    await renderDnd(
+      <Draggable.Root
+        kind={testDragKind}
+        onBeforeMoveStart={onBeforeMoveStart}
+        onMoveStart={onMoveStart}
+      >
+        <Draggable.Handle data-testid="handle" />
+      </Draggable.Root>,
+    );
+    const handle = screen.getByTestId('handle');
+
+    await lift(handle);
+
+    expect(onBeforeMoveStart.mock.calls[0][0].source.handle).toBe(handle);
+    expect(onMoveStart.mock.calls[0][0].source.handle).toBe(handle);
+    cancel();
+  });
+
+  it('reports a null source.handle without a Draggable.Handle', async () => {
+    const onBeforeMoveStart = vi.fn();
+    const onMoveStart = vi.fn();
+    await renderDnd(<TestDraggable options={{ onBeforeMoveStart, onMoveStart }} />);
+
+    await lift(screen.getByTestId('drag'));
+
+    expect(onBeforeMoveStart.mock.calls[0][0].source.handle).toBeNull();
+    expect(onMoveStart.mock.calls[0][0].source.handle).toBeNull();
+    cancel();
+  });
+
   it('blocks the drag when disabled', async () => {
     const onMoveStart = vi.fn();
     await renderDnd(<TestDraggable options={{ disabled: true, onMoveStart }} />);

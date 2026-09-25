@@ -5,8 +5,8 @@ import { act } from '@mui/internal-test-utils';
 import { createDndRenderer, describeConformance, isJSDOM, testDragKind } from '#test-utils';
 import { Draggable } from '@base-ui/react/draggable';
 import type {
-  DragAutoScrollEventDetails,
-  DragAutoScrollValue,
+  DraggableViewportDragScrollEventDetails,
+  DraggableViewportDragScrollValue,
 } from '../../utils/drag-and-drop/autoScroller';
 import {
   createElement,
@@ -19,12 +19,17 @@ import { createKind } from '../../utils/drag-and-drop/dragKind';
 
 type RootProps = Draggable.Viewport.Props;
 type ShouldScrollFn = (
-  value: DragAutoScrollValue,
-  eventDetails: DragAutoScrollEventDetails,
+  value: DraggableViewportDragScrollValue,
+  eventDetails: DraggableViewportDragScrollEventDetails,
 ) => boolean;
-type SelectDirectionFn = (value: DragAutoScrollValue) => 'all' | 'horizontal' | 'vertical';
+type SelectDirectionFn = (
+  value: DraggableViewportDragScrollValue,
+) => 'all' | 'horizontal' | 'vertical';
 type MaxSpeedFn = Extract<RootProps['maxSpeed'], (...args: never) => unknown>;
-type PanFn = (value: DragAutoScrollValue, eventDetails: DragAutoScrollEventDetails) => void;
+type PanFn = (
+  value: DraggableViewportDragScrollValue,
+  eventDetails: DraggableViewportDragScrollEventDetails,
+) => void;
 
 setupDragEngineTests();
 

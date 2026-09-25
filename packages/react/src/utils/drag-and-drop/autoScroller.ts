@@ -317,7 +317,7 @@ function safeCall<T>(
   call: () => T,
   fallback: T,
 ): T {
-  return safeCallConsumer('auto-scroller', callbackName, element, call, fallback);
+  return safeCallConsumer('viewport', callbackName, element, call, fallback);
 }
 
 /**
@@ -824,7 +824,7 @@ function runScrollFrame(timestamp: number): void {
             if (!axis.engaged) {
               continue;
             }
-            const value: DragAutoScrollValue = {
+            const value: DraggableViewportDragScrollValue = {
               source: currentSource,
               x: axis.x,
               y: axis.y,
@@ -1408,7 +1408,7 @@ export function retainScrollMonitor(): () => void {
   });
 }
 
-/** Live drag context passed to the per-frame callbacks. */
+/** The argument of a viewport's `maxSpeed` function, called on every scrolling frame. */
 export interface DragAutoScrollFrameContext<TSourcePayload = unknown, TDragData = unknown> {
   /**
    * The position used to determine scrolling. It may differ from the modified
@@ -1420,7 +1420,7 @@ export interface DragAutoScrollFrameContext<TSourcePayload = unknown, TDragData 
 }
 
 /** The first argument of `onDragScroll`: the dragged item and the movement for this frame. */
-export interface DragAutoScrollValue<TSourcePayload = unknown, TDragData = unknown> {
+export interface DraggableViewportDragScrollValue<TSourcePayload = unknown, TDragData = unknown> {
   /** The item being dragged. */
   source: DragSource<TSourcePayload, TDragData>;
   /**
@@ -1439,7 +1439,7 @@ export interface DragAutoScrollValue<TSourcePayload = unknown, TDragData = unkno
 export type DragAutoScrollDirection = 'horizontal' | 'vertical';
 
 /** The properties `onDragScroll`'s event details add to the Base UI change details. */
-export interface DragAutoScrollEventDetailsProperties {
+export interface DraggableViewportDragScrollEventDetailsProperties {
   /**
    * The position used to determine scrolling. It may differ from the modified
    * drag position when a modifier separates that position from the pointer.
@@ -1459,17 +1459,20 @@ export interface DragAutoScrollEventDetailsProperties {
 /**
  * The event details passed as the second argument to `onDragScroll`.
  * Call `cancel()` to prevent Base UI from scrolling the container in this direction.
+ * `event` is a placeholder: the scroll loop runs from animation frames, not from a native event.
  */
-export type DragAutoScrollEventDetails = BaseUIChangeEventDetails<
+export type DraggableViewportDragScrollEventDetails = BaseUIChangeEventDetails<
   typeof REASONS.none,
-  DragAutoScrollEventDetailsProperties
+  DraggableViewportDragScrollEventDetailsProperties
 >;
+export type DraggableViewportDragScrollEventReason =
+  DraggableViewportDragScrollEventDetails['reason'];
 
 function createAutoScrollEventDetails(
   input: DragInput,
   element: HTMLElement,
-): DragAutoScrollEventDetails {
-  const details: DragAutoScrollEventDetails = createChangeEventDetails(
+): DraggableViewportDragScrollEventDetails {
+  const details: DraggableViewportDragScrollEventDetails = createChangeEventDetails(
     REASONS.none,
     undefined,
     undefined,
@@ -1486,8 +1489,8 @@ function createAutoScrollEventDetails(
 }
 
 export type DragAutoScrollHandler<TSourcePayload = unknown, TDragData = unknown> = (
-  value: DragAutoScrollValue<TSourcePayload, TDragData>,
-  eventDetails: DragAutoScrollEventDetails,
+  value: DraggableViewportDragScrollValue<TSourcePayload, TDragData>,
+  eventDetails: DraggableViewportDragScrollEventDetails,
 ) => void;
 
 interface AutoScrollerState {
@@ -1591,5 +1594,10 @@ export interface RegisterViewportParameters<TSourcePayload = unknown, TDragData 
    * After moving, call `eventDetails.consume()` to keep an ancestor viewport from
    * scrolling on the same axis. Skip it at a bound the element can't move past.
    */
-  onDragScroll?: DragAutoScrollHandler<TSourcePayload, TDragData> | undefined;
+  onDragScroll?:
+    | ((
+        value: DraggableViewportDragScrollValue<TSourcePayload, TDragData>,
+        eventDetails: DraggableViewportDragScrollEventDetails,
+      ) => void)
+    | undefined;
 }

@@ -2,12 +2,7 @@
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { registerMonitor } from '../../utils/drag-and-drop/registrations';
-import type {
-  AcceptedDragPayload,
-  AcceptedDragData,
-  AnyDragAccept,
-  DragKind,
-} from '../../types/drag';
+import type { AcceptedDragPayload, DragAccept, AcceptedDragData, DragKind } from '../../types/drag';
 import type {
   DragParametersWithInferredAccept,
   RegisterMonitorParameters,
@@ -22,7 +17,7 @@ import type {
  */
 // The type argument is the `accept` value rather than the payload it promises, so
 // `accept: [task, file]` types `source.payload` as the union of theirs.
-export function useMonitor<TAccept extends AnyDragAccept = DragKind<unknown>>(
+export function useMonitor<TAccept extends DragAccept<unknown> = DragKind<unknown>>(
   parameters: DragParametersWithInferredAccept<
     UseDraggableMonitorParameters<AcceptedDragPayload<TAccept>, AcceptedDragData<TAccept>>,
     TAccept

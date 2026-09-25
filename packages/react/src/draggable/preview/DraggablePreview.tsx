@@ -3,7 +3,11 @@ import * as React from 'react';
 import { warn } from '@base-ui/utils/warn';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import type { BaseUIComponentProps } from '../../internals/types';
-import type { DragKind, DragPreviewSettings, DragPreviewRenderParameters } from '../../types/drag';
+import type {
+  DragKind,
+  DragPreviewSettings,
+  DraggablePreviewRenderParameters,
+} from '../../types/drag';
 import { DraggablePreviewElement } from './DraggablePreviewElement';
 import { useDeclaredPreview } from './useDeclaredPreview';
 import {
@@ -44,7 +48,7 @@ export function DraggablePreview<TPayload = unknown, TDragData = unknown>(
 
   // Resolved per drag, not per render.
   const render = useStableCallback(
-    (parameters: DragPreviewRenderParameters<TPayload, TDragData>) => {
+    (parameters: DraggablePreviewRenderParameters<TPayload, TDragData>) => {
       // The settings belong to the engine, which reads them off the declaration;
       // everything else belongs to the rendered element.
       const { children, kind, offset, modifiers, disabled, container, ...componentProps } =
@@ -100,7 +104,9 @@ export interface DraggablePreviewProps
    * `unknown` unless a `kind` is passed.
    */
   children?:
-    React.ReactNode | ((parameters: DragPreviewRenderParameters) => React.ReactNode) | undefined;
+    | React.ReactNode
+    | ((parameters: DraggablePreviewRenderParameters) => React.ReactNode)
+    | undefined;
   /** Omitted when the preview content doesn't depend on the payload. */
   kind?: undefined;
 }
@@ -123,14 +129,11 @@ type DraggablePreviewTypedProps<TPayload, TDragData = unknown> = Omit<
    */
   children?:
     | React.ReactNode
-    | ((parameters: DragPreviewRenderParameters<TPayload, TDragData>) => React.ReactNode)
+    | ((parameters: DraggablePreviewRenderParameters<TPayload, TDragData>) => React.ReactNode)
     | undefined;
 };
 
-export type DraggablePreviewRenderParameters<
-  TPayload = unknown,
-  TDragData = unknown,
-> = DragPreviewRenderParameters<TPayload, TDragData>;
+export type { DraggablePreviewRenderParameters } from '../../types/drag';
 
 export namespace DraggablePreview {
   export type RenderParameters<

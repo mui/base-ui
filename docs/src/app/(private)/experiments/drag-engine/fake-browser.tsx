@@ -1470,7 +1470,7 @@ function BookmarkBar() {
   const syncDropIntents = useStableCallback(
     (
       value: { source: { payload: AcceptedBookmarkDragPayload } },
-      eventDetails: { location: Draggable.DragLocationHistory },
+      eventDetails: Draggable.Root.TargetChangeEventDetails,
     ) => {
       const { targets } = eventDetails.location.current;
       const source = value.source.payload;

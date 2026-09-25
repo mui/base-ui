@@ -12,10 +12,7 @@ import { contains, getTarget } from '@base-ui/utils/shadowDom';
 import { isHTMLElement } from '@floating-ui/utils/dom';
 import { WindowAnimationFrame } from '../../windowAnimationFrame';
 import { WindowTimeout } from '../../windowTimeout';
-import {
-  createChangeEventDetails,
-  type ReasonToEvent,
-} from '../../../internals/createBaseUIEventDetails';
+import { createChangeEventDetails } from '../../../internals/createBaseUIEventDetails';
 import {
   evaluateActivations,
   getActivationDelayMs,
@@ -58,7 +55,6 @@ import type {
   DragInput,
   DragMoveReason,
   DragPointerType,
-  DragStartReason,
 } from '../../../types/drag';
 import {
   modifyDragPoint,
@@ -1004,7 +1000,7 @@ function commitActivation(): void {
   if (parameters.onBeforeMoveStart) {
     const eventDetails: BeforeMoveStartEventDetails = createChangeEventDetails(
       pending.activationKind,
-      pending.lastNativeEvent as ReasonToEvent<DragStartReason> | undefined,
+      pending.lastNativeEvent,
       target,
       { input: lastInput },
     );

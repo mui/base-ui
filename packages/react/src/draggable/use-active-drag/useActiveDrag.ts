@@ -4,8 +4,8 @@ import { dragSourceStore } from '../../utils/drag-and-drop/dragSessionStore';
 import { matchesAccept } from '../../utils/drag-and-drop/dragKind';
 import type {
   AcceptedDragPayload,
+  DragAccept,
   AcceptedDragData,
-  AnyDragAccept,
   DragSource,
 } from '../../types/drag';
 
@@ -23,11 +23,11 @@ export type UseActiveDragReturnValue<TPayload = unknown, TDragData = unknown> = 
  */
 // The type argument is the `accept` value rather than the payload it promises, so the
 // returned payload type is backed by the runtime filter.
-export function useActiveDrag<TAccept extends AnyDragAccept | undefined>(
+export function useActiveDrag<TAccept extends DragAccept<unknown> | undefined>(
   accept: TAccept,
 ): UseActiveDragReturnValue<AcceptedDragPayload<TAccept>, AcceptedDragData<TAccept>>;
 export function useActiveDrag(accept?: undefined): UseActiveDragReturnValue;
-export function useActiveDrag(accept?: AnyDragAccept): UseActiveDragReturnValue {
+export function useActiveDrag(accept?: DragAccept<unknown>): UseActiveDragReturnValue {
   // The filter lives inside the selector so a drag this consumer rejects stays
   // `null` across the store's publishes: a drag of another kind starting, ending,
   // or retargeting then re-renders none of the (possibly many) rejecting
@@ -38,7 +38,7 @@ export function useActiveDrag(accept?: AnyDragAccept): UseActiveDragReturnValue 
 
 function selectAcceptedDragSource(
   source: DragSource | null,
-  accept: AnyDragAccept | undefined,
+  accept: DragAccept<unknown> | undefined,
 ): DragSource | null {
   if (source === null || !matchesAccept(accept, source)) {
     return null;

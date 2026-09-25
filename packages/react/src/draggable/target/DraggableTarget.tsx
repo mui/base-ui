@@ -9,16 +9,27 @@ import type {
   DragParametersWithRequiredAccept,
 } from '../../types/dragRegistration';
 import type {
-  DropTargetEventDetailsMap,
-  DropTargetEventValue,
   AcceptedDragPayload,
   AcceptedDragData,
-  AnyDragAccept,
   DragAccept,
   DragKind,
-  DraggableTargetRecord as DraggableTargetRecordType,
-  DraggableTargetResolutionContext as DraggableTargetResolutionContextType,
-  DropTargetPayload,
+  DraggableTargetRecord,
+  DraggableTargetResolutionContext,
+  DraggableTargetStartValue,
+  DraggableTargetStartEventDetails,
+  DraggableTargetStartEventReason,
+  DraggableTargetMoveValue,
+  DraggableTargetMoveEventDetails,
+  DraggableTargetMoveEventReason,
+  DraggableTargetEnterValue,
+  DraggableTargetEnterEventDetails,
+  DraggableTargetEnterEventReason,
+  DraggableTargetLeaveValue,
+  DraggableTargetLeaveEventDetails,
+  DraggableTargetLeaveEventReason,
+  DraggableTargetDropValue,
+  DraggableTargetDropEventDetails,
+  DraggableTargetDropEventReason,
 } from '../../types/drag';
 import * as DraggableTargetDataAttributes from './DraggableTargetDataAttributes';
 import { useDraggableTargetElement } from './useDraggableTargetElement';
@@ -51,7 +62,7 @@ export const DraggableTarget = React.forwardRef(function DraggableTarget<
      * Drags of other kinds ignore this target, but an ancestor target can still accept them.
      */
     accept?: DragAccept<TSourcePayload> | undefined;
-    payload?: DropTargetPayload<TTargetPayload> | undefined;
+    payload?: TTargetPayload | undefined;
   },
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
@@ -158,7 +169,7 @@ export const DraggableTarget = React.forwardRef(function DraggableTarget<
       payload?: undefined;
     },
   ): React.JSX.Element;
-  <TAccept extends AnyDragAccept, TTargetPayload>(
+  <TAccept extends DragAccept<unknown>, TTargetPayload>(
     props: DragParametersWithRequiredAccept<
       DraggableTargetPropsBase<
         AcceptedDragPayload<TAccept>,
@@ -168,7 +179,7 @@ export const DraggableTarget = React.forwardRef(function DraggableTarget<
       TAccept
     > & { kind?: undefined; payload: TTargetPayload },
   ): React.JSX.Element;
-  <TAccept extends AnyDragAccept, TTargetPayload, TTargetDragData = unknown>(
+  <TAccept extends DragAccept<unknown>, TTargetPayload, TTargetDragData = unknown>(
     props: DragParametersWithRequiredAccept<
       Omit<
         DraggableTargetPropsBase<
@@ -182,7 +193,7 @@ export const DraggableTarget = React.forwardRef(function DraggableTarget<
       TAccept
     > & { kind: DragKind<TTargetPayload, TTargetDragData>; payload: NoInfer<TTargetPayload> },
   ): React.JSX.Element;
-  <TAccept extends AnyDragAccept, TTargetDragData = unknown>(
+  <TAccept extends DragAccept<unknown>, TTargetDragData = unknown>(
     props: DragParametersWithRequiredAccept<
       DraggableTargetPropsBase<
         AcceptedDragPayload<TAccept>,
@@ -241,7 +252,7 @@ type DraggableTargetPropsBase<
 
 type DraggableTargetPayloadField<TTargetPayload> = [TTargetPayload] extends [undefined]
   ? { payload?: undefined }
-  : { payload: DropTargetPayload<NoInfer<TTargetPayload>> };
+  : { payload: NoInfer<TTargetPayload> };
 
 export type DraggableTargetProps<
   TSourcePayload = undefined,
@@ -257,57 +268,25 @@ export type DraggableTargetProps<
     ? { accept?: DragAccept<TSourcePayload, TSourceDragData> | undefined }
     : { accept: DragAccept<TSourcePayload, TSourceDragData> });
 
-/** A drop target under the pointer. */
-export type DraggableTargetRecord<
-  TTargetPayload = unknown,
-  TDragData = unknown,
-> = DraggableTargetRecordType<TTargetPayload, TDragData>;
-/** The argument of a drop target's `canDrop` and `snap` functions. */
-export type DraggableTargetResolutionContext<
-  TSourcePayload = unknown,
-  TDragData = unknown,
-> = DraggableTargetResolutionContextType<TSourcePayload, TDragData>;
-
-export type DraggableTargetStartValue<
-  TSourcePayload = unknown,
-  TTargetPayload = unknown,
-  TDragData = unknown,
-  TTargetDragData = unknown,
-> = DropTargetEventValue<TSourcePayload, TTargetPayload, TDragData, TTargetDragData>;
-export type DraggableTargetStartEventDetails = DropTargetEventDetailsMap['onDraggableStart'];
-export type DraggableTargetStartEventReason = DraggableTargetStartEventDetails['reason'];
-export type DraggableTargetMoveValue<
-  TSourcePayload = unknown,
-  TTargetPayload = unknown,
-  TDragData = unknown,
-  TTargetDragData = unknown,
-> = DropTargetEventValue<TSourcePayload, TTargetPayload, TDragData, TTargetDragData>;
-export type DraggableTargetMoveEventDetails = DropTargetEventDetailsMap['onDraggableMove'];
-export type DraggableTargetMoveEventReason = DraggableTargetMoveEventDetails['reason'];
-export type DraggableTargetEnterValue<
-  TSourcePayload = unknown,
-  TTargetPayload = unknown,
-  TDragData = unknown,
-  TTargetDragData = unknown,
-> = DropTargetEventValue<TSourcePayload, TTargetPayload, TDragData, TTargetDragData>;
-export type DraggableTargetEnterEventDetails = DropTargetEventDetailsMap['onDraggableEnter'];
-export type DraggableTargetEnterEventReason = DraggableTargetEnterEventDetails['reason'];
-export type DraggableTargetLeaveValue<
-  TSourcePayload = unknown,
-  TTargetPayload = unknown,
-  TDragData = unknown,
-  TTargetDragData = unknown,
-> = DropTargetEventValue<TSourcePayload, TTargetPayload, TDragData, TTargetDragData>;
-export type DraggableTargetLeaveEventDetails = DropTargetEventDetailsMap['onDraggableLeave'];
-export type DraggableTargetLeaveEventReason = DraggableTargetLeaveEventDetails['reason'];
-export type DraggableTargetDropValue<
-  TSourcePayload = unknown,
-  TTargetPayload = unknown,
-  TDragData = unknown,
-  TTargetDragData = unknown,
-> = DropTargetEventValue<TSourcePayload, TTargetPayload, TDragData, TTargetDragData>;
-export type DraggableTargetDropEventDetails = DropTargetEventDetailsMap['onDraggableDrop'];
-export type DraggableTargetDropEventReason = DraggableTargetDropEventDetails['reason'];
+export type {
+  DraggableTargetRecord,
+  DraggableTargetResolutionContext,
+  DraggableTargetStartValue,
+  DraggableTargetStartEventDetails,
+  DraggableTargetStartEventReason,
+  DraggableTargetMoveValue,
+  DraggableTargetMoveEventDetails,
+  DraggableTargetMoveEventReason,
+  DraggableTargetEnterValue,
+  DraggableTargetEnterEventDetails,
+  DraggableTargetEnterEventReason,
+  DraggableTargetLeaveValue,
+  DraggableTargetLeaveEventDetails,
+  DraggableTargetLeaveEventReason,
+  DraggableTargetDropValue,
+  DraggableTargetDropEventDetails,
+  DraggableTargetDropEventReason,
+} from '../../types/drag';
 
 export namespace DraggableTarget {
   export type Record<TTargetPayload = unknown, TDragData = unknown> = DraggableTargetRecord<

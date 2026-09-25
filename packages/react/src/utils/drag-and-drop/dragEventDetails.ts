@@ -7,17 +7,15 @@ import {
   createGenericEventDetails,
   type ReasonToEvent,
 } from '../../internals/createBaseUIEventDetails';
-import type { REASONS } from '../../internals/reasons';
+import type { BaseUIEventReason } from '../../internals/reasons';
 import type { DragEventDetails, DragLocationHistory } from '../../types/drag';
-
-type BaseUIReason = (typeof REASONS)[keyof typeof REASONS];
 
 /**
  * `event` is the native event behind the latest input. A drag with no native event
  * behind it, such as a programmatic `cancelDrag()`, gets Base UI's placeholder event,
  * so `eventDetails.event` is never `undefined`.
  */
-export function createDragEventDetails<TReason extends BaseUIReason>(
+export function createDragEventDetails<TReason extends BaseUIEventReason>(
   reason: TReason,
   event: Event | undefined,
   location: DragLocationHistory,

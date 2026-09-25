@@ -53,7 +53,7 @@ describe('engine.registerMonitor', () => {
     expect(value.target?.element).toBe(target);
   });
 
-  it('monitor onMoveEnd fires with empty targets when the drag ends outside any target', async () => {
+  it('monitor onMoveEnd fires with no target when the drag is canceled with Escape', async () => {
     const { engine } = await renderDnd();
     const el = createElement();
     const onMoveEnd = vi.fn();
@@ -62,7 +62,7 @@ describe('engine.registerMonitor', () => {
 
     fireEvent.dragStart(el);
     await flushRaf();
-    // End the drag without ever entering a drop target (cancel / no-target).
+    // Cancel the drag without ever entering a drop target.
     fireEvent.dragEnd(el);
 
     expect(onMoveEnd).toHaveBeenCalledTimes(1);

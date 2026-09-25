@@ -4,6 +4,14 @@ import type {
   DragSource,
   DragSourceEventValue,
   DraggableEventDetailsMap,
+  DraggableRootMoveEndEventDetails,
+  DraggableRootMoveEndValue,
+  DraggableRootMoveEventDetails,
+  DraggableRootMoveStartEventDetails,
+  DraggableRootMoveStartValue,
+  DraggableRootMoveValue,
+  DraggableRootTargetChangeEventDetails,
+  DraggableRootTargetChangeValue,
 } from '../../types/drag';
 import { getSharedSlot } from './sharedState';
 import { containConsumerError } from './utils';
@@ -192,8 +200,8 @@ export interface RegisterMonitorParameters<TSourcePayload = unknown, TDragData =
    */
   onMoveStart?:
     | ((
-        value: DragSourceEventValue<TSourcePayload, TDragData>,
-        eventDetails: DraggableEventDetailsMap['onMoveStart'],
+        value: DraggableRootMoveStartValue<TSourcePayload, TDragData>,
+        eventDetails: DraggableRootMoveStartEventDetails,
       ) => void)
     | undefined;
   /**
@@ -202,8 +210,8 @@ export interface RegisterMonitorParameters<TSourcePayload = unknown, TDragData =
    */
   onMove?:
     | ((
-        value: DragSourceEventValue<TSourcePayload, TDragData>,
-        eventDetails: DraggableEventDetailsMap['onMove'],
+        value: DraggableRootMoveValue<TSourcePayload, TDragData>,
+        eventDetails: DraggableRootMoveEventDetails,
       ) => void)
     | undefined;
   /**
@@ -211,8 +219,8 @@ export interface RegisterMonitorParameters<TSourcePayload = unknown, TDragData =
    */
   onTargetChange?:
     | ((
-        value: DragSourceEventValue<TSourcePayload, TDragData>,
-        eventDetails: DraggableEventDetailsMap['onTargetChange'],
+        value: DraggableRootTargetChangeValue<TSourcePayload, TDragData>,
+        eventDetails: DraggableRootTargetChangeEventDetails,
       ) => void)
     | undefined;
   /**
@@ -225,8 +233,8 @@ export interface RegisterMonitorParameters<TSourcePayload = unknown, TDragData =
    */
   onMoveEnd?:
     | ((
-        value: DragSourceEventValue<TSourcePayload, TDragData>,
-        eventDetails: DraggableEventDetailsMap['onMoveEnd'],
+        value: DraggableRootMoveEndValue<TSourcePayload, TDragData>,
+        eventDetails: DraggableRootMoveEndEventDetails,
       ) => void)
     | undefined;
 }

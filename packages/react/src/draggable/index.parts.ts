@@ -29,6 +29,7 @@ export {
 // its namespace, such as `Draggable.Target.Record`.
 export type {
   DragAccept,
+  DragAcceptedKind,
   DragCanceledReason,
   DragCompletedReason,
   DragElementReference,

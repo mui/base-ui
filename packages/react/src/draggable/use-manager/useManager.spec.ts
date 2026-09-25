@@ -8,7 +8,6 @@ import type {
 } from '@base-ui/react/draggable';
 import { expectType } from '#test-utils';
 import type { DragAcceptedKind } from '../../types/drag';
-import type { RegisterTargetParametersWithPayload } from '../../types/dragRegistration';
 
 // Type-only file: nothing here runs, so the hook is never actually called —
 // `declare` gives us its return type without tripping the rules-of-hooks lint.
@@ -157,17 +156,34 @@ expectType<DraggableManagerRegisterTargetParameters, typeof validDropTargetParam
 // @ts-expect-error every public drop target must declare what it accepts.
 const missingAccept: DraggableManagerRegisterTargetParameters = {};
 
-const validDropTargetWithPayload: RegisterTargetParametersWithPayload<
+// @ts-expect-error declaring a target payload does not make `accept` optional.
+const missingAcceptWithPayload: DraggableManagerRegisterTargetParameters<
   CardPayload,
   { slot: number }
-> = { accept: card, payload: { slot: 1 } };
-expectType<{ slot: number }, typeof validDropTargetWithPayload.payload>(
-  validDropTargetWithPayload.payload,
-);
+> = { payload: { slot: 1 } };
 
-// @ts-expect-error adding a local payload does not make `accept` optional.
-const missingAcceptWithPayload: RegisterTargetParametersWithPayload<CardPayload, { slot: number }> =
-  { payload: { slot: 1 } };
+// @ts-expect-error a declared target payload type makes `payload` required.
+const missingTargetPayload: DraggableManagerRegisterTargetParameters<
+  CardPayload,
+  { slot: number }
+> = { accept: card };
+
+// @ts-expect-error a declared source payload type makes `payload` required.
+const missingSourcePayload: Draggable.useManager.RegisterSourceParameters<CardPayload> = {
+  kind: card,
+};
+
+// Options declared ahead of time with the public types are accepted as they are.
+const sourceOptions: Draggable.useManager.RegisterSourceParameters<CardPayload> = {
+  kind: card,
+  payload: { id: 'a' },
+};
+engine.registerSource(element, () => sourceOptions);
+
+const targetOptions: Draggable.useManager.RegisterTargetParameters<CardPayload, { slot: number }> =
+  { accept: card, payload: { slot: 1 } };
+expectType<{ slot: number }, typeof targetOptions.payload>(targetOptions.payload);
+engine.registerTarget(element, () => targetOptions);
 
 // `accept` types the source it hands the callbacks, with no type argument.
 engine.registerTarget(element, () => ({

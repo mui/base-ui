@@ -142,7 +142,7 @@ export interface DragLocation {
   targets: readonly DraggableTargetRecord[];
 }
 
-/** The locations carried by every drag event. */
+/** Where the drag is and has been, available as `eventDetails.location` in drag handlers. */
 export interface DragLocationHistory {
   /** The pointer's offset from the source's top-left corner at pickup, in CSS pixels. */
   grabOffset?: DragPosition | undefined;
@@ -275,8 +275,8 @@ export interface DragSourceEventValue<
   source: DragSource<TSourcePayload, TDragData>;
   /**
    * The drop target that would receive the drop if the drag were released now, or
-   * `null` when there is none. This is `location.current.targets[0]`.
-   * When the drag ends, it is the target that received the drop, or `null` when the drag
+   * `null` when there is none: `eventDetails.location.current.targets[0]`.
+   * In `onMoveEnd`, it is the target that received the drop, or `null` when the drag
    * was canceled or released outside any target.
    */
   target: DraggableTargetRecord<TTargetPayload, TTargetDragData> | null;
@@ -306,7 +306,7 @@ export interface BeforeMoveStartValue<TPayload = unknown, TDragData = unknown> {
 }
 
 /** The argument of a drag preview's render function, called when the drag starts. */
-export interface DragPreviewRenderParameters<TSourcePayload = unknown, TDragData = unknown> {
+export interface DraggablePreviewRenderParameters<TSourcePayload = unknown, TDragData = unknown> {
   /** The item being dragged. */
   source: DragSource<TSourcePayload, TDragData>;
   /** The pointer position and drop targets when the drag started. */
@@ -483,9 +483,6 @@ export interface DraggableTargetResolutionContext<TSourcePayload = unknown, TDra
   element: Element;
 }
 
-/** A drop target's payload value. */
-export type DropTargetPayload<TTargetPayload> = TTargetPayload;
-
 /**
  * An element, a ref to one, or a function returning one. Resolved on every move,
  * so a ref can become available during a drag.
@@ -593,6 +590,82 @@ export interface DragPreviewParameters<
    * Return `null` to show no preview for this drag.
    */
   render?:
-    | ((parameters: DragPreviewRenderParameters<TSourcePayload, TDragData>) => React.ReactNode)
+    | ((parameters: DraggablePreviewRenderParameters<TSourcePayload, TDragData>) => React.ReactNode)
     | undefined;
 }
+
+// The per-event types of each part, named after the part and the event. The parts
+// re-export them and alias them on their namespace, such as `Draggable.Root.MoveValue`.
+
+export interface DraggableRootBeforeMoveStartValue<
+  TPayload = unknown,
+  TDragData = unknown,
+> extends BeforeMoveStartValue<TPayload, TDragData> {}
+export type DraggableRootBeforeMoveStartEventDetails = BeforeMoveStartEventDetails;
+export type DraggableRootBeforeMoveStartEventReason =
+  DraggableRootBeforeMoveStartEventDetails['reason'];
+export interface DraggableRootMoveStartValue<
+  TPayload = unknown,
+  TDragData = unknown,
+> extends DragSourceEventValue<TPayload, TDragData> {}
+export type DraggableRootMoveStartEventDetails = MoveStartEventDetails;
+export type DraggableRootMoveStartEventReason = DraggableRootMoveStartEventDetails['reason'];
+export interface DraggableRootMoveValue<
+  TPayload = unknown,
+  TDragData = unknown,
+> extends DragSourceEventValue<TPayload, TDragData> {}
+export type DraggableRootMoveEventDetails = MoveEventDetails;
+export type DraggableRootMoveEventReason = DraggableRootMoveEventDetails['reason'];
+export interface DraggableRootTargetChangeValue<
+  TPayload = unknown,
+  TDragData = unknown,
+> extends DragSourceEventValue<TPayload, TDragData> {}
+export type DraggableRootTargetChangeEventDetails = DropTargetChangeEventDetails;
+export type DraggableRootTargetChangeEventReason = DraggableRootTargetChangeEventDetails['reason'];
+export interface DraggableRootMoveEndValue<
+  TPayload = unknown,
+  TDragData = unknown,
+> extends DragSourceEventValue<TPayload, TDragData> {}
+export type DraggableRootMoveEndEventDetails = MoveEndEventDetails;
+export type DraggableRootMoveEndEventReason = DraggableRootMoveEndEventDetails['reason'];
+
+export interface DraggableTargetStartValue<
+  TSourcePayload = unknown,
+  TTargetPayload = unknown,
+  TDragData = unknown,
+  TTargetDragData = unknown,
+> extends DropTargetEventValue<TSourcePayload, TTargetPayload, TDragData, TTargetDragData> {}
+export type DraggableTargetStartEventDetails = DropTargetEventDetailsMap['onDraggableStart'];
+export type DraggableTargetStartEventReason = DraggableTargetStartEventDetails['reason'];
+export interface DraggableTargetMoveValue<
+  TSourcePayload = unknown,
+  TTargetPayload = unknown,
+  TDragData = unknown,
+  TTargetDragData = unknown,
+> extends DropTargetEventValue<TSourcePayload, TTargetPayload, TDragData, TTargetDragData> {}
+export type DraggableTargetMoveEventDetails = DropTargetEventDetailsMap['onDraggableMove'];
+export type DraggableTargetMoveEventReason = DraggableTargetMoveEventDetails['reason'];
+export interface DraggableTargetEnterValue<
+  TSourcePayload = unknown,
+  TTargetPayload = unknown,
+  TDragData = unknown,
+  TTargetDragData = unknown,
+> extends DropTargetEventValue<TSourcePayload, TTargetPayload, TDragData, TTargetDragData> {}
+export type DraggableTargetEnterEventDetails = DropTargetEventDetailsMap['onDraggableEnter'];
+export type DraggableTargetEnterEventReason = DraggableTargetEnterEventDetails['reason'];
+export interface DraggableTargetLeaveValue<
+  TSourcePayload = unknown,
+  TTargetPayload = unknown,
+  TDragData = unknown,
+  TTargetDragData = unknown,
+> extends DropTargetEventValue<TSourcePayload, TTargetPayload, TDragData, TTargetDragData> {}
+export type DraggableTargetLeaveEventDetails = DropTargetEventDetailsMap['onDraggableLeave'];
+export type DraggableTargetLeaveEventReason = DraggableTargetLeaveEventDetails['reason'];
+export interface DraggableTargetDropValue<
+  TSourcePayload = unknown,
+  TTargetPayload = unknown,
+  TDragData = unknown,
+  TTargetDragData = unknown,
+> extends DropTargetEventValue<TSourcePayload, TTargetPayload, TDragData, TTargetDragData> {}
+export type DraggableTargetDropEventDetails = DropTargetEventDetailsMap['onDraggableDrop'];
+export type DraggableTargetDropEventReason = DraggableTargetDropEventDetails['reason'];

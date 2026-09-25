@@ -32,7 +32,7 @@ export namespace useManager {
   > = DraggableManagerRegisterSourceParameters<TPayload, TDragData>;
   export type RegisterTargetParameters<
     TSourcePayload = unknown,
-    TTargetPayload = unknown,
+    TTargetPayload = undefined,
     TDragData = unknown,
     TTargetDragData = unknown,
   > = DraggableManagerRegisterTargetParameters<
@@ -56,19 +56,30 @@ export namespace useManager {
  */
 export interface UseDraggableManagerReturnValue extends DraggableManager {}
 
-/** The options of `registerSource`: the options of `Draggable.Root`, plus `handle` and `preview`. */
+/**
+ * The options of `registerSource`: the options of `Draggable.Root`, plus `handle` and `preview`.
+ * `payload` is required when `TPayload` is declared.
+ */
 export type DraggableManagerRegisterSourceParameters<
   TPayload = undefined,
   TDragData = unknown,
-> = RegisterSourceParameters<TPayload, TDragData>;
+> = Omit<RegisterSourceParameters<TPayload, TDragData>, 'payload'> &
+  ([TPayload] extends [undefined] ? { payload?: undefined } : { payload: TPayload });
 
-/** The options of `registerTarget`: the options of `Draggable.Target`. */
+/**
+ * The options of `registerTarget`: the options of `Draggable.Target`.
+ * `payload` is required when `TTargetPayload` is declared.
+ */
 export type DraggableManagerRegisterTargetParameters<
   TSourcePayload = unknown,
-  TTargetPayload = unknown,
+  TTargetPayload = undefined,
   TDragData = unknown,
   TTargetDragData = unknown,
-> = RegisterTargetParameters<TSourcePayload, TTargetPayload, TDragData, TTargetDragData>;
+> = Omit<
+  RegisterTargetParameters<TSourcePayload, TTargetPayload, TDragData, TTargetDragData>,
+  'payload'
+> &
+  ([TTargetPayload] extends [undefined] ? { payload?: undefined } : { payload: TTargetPayload });
 
 /** The options of `registerViewport`: the options of `Draggable.Viewport`. */
 export type DraggableManagerRegisterViewportParameters<

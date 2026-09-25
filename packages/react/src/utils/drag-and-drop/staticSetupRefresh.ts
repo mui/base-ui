@@ -1,7 +1,7 @@
 /**
  * Per-document dispatch for the draggable static-setup refresh.
  *
- * The refresh contract is documented on `addDraggableRegistration`: the gesture styles
+ * The refresh contract is documented on `DraggableManager.registerSource`: the gesture styles
  * are applied from the parameters read at registration and
  * refreshed at the next pointer press, so an imperative consumer that mutates
  * parameters in place isn't left with stale styles forever.

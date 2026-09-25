@@ -123,6 +123,9 @@ describe('Draggable.CollisionProvider', () => {
     expect(ended.mock.lastCall?.[1].reason).toBe('drop');
     expect(ended.mock.lastCall?.[0].target?.element).toBe(b);
     expect(ended.mock.lastCall?.[0].target).toMatchObject({ payload: 'b' });
+    // The end reports the last collision delivered as its previous target.
+    expect(ended.mock.lastCall?.[1].previousTarget).not.toBeNull();
+    expect(ended.mock.lastCall?.[1].previousTarget).toBe(changed.mock.lastCall?.[0].target);
   });
 
   it('lets a consumer bail out within the same computed position', async () => {
@@ -303,6 +306,7 @@ describe('Draggable.CollisionProvider', () => {
     cancel();
     expect(ended.mock.lastCall?.[1].reason).toBe('escape-key');
     expect(ended.mock.lastCall?.[0].target).toBeNull();
+    expect(ended.mock.lastCall?.[1].previousTarget).toBeNull();
   });
 
   it('clears collisions on explicit nested targets without overriding their drop', async () => {
@@ -423,9 +427,29 @@ describe('Draggable.CollisionProvider', () => {
     await dragOver(b, { clientY: 180 });
     expect(targetStart).toHaveBeenCalledTimes(1);
     expect(targetStart.mock.calls[0][0].source.element).toBe(a);
+    // The replayed start names the item the drag reached.
+    expect(targetStart.mock.calls[0][0].target?.element).toBe(b);
+    expect(targetStart.mock.calls[0][0].target).toMatchObject({ payload: 'b' });
     cancel();
     expect(targetEnd).toHaveBeenCalledTimes(1);
     expect(order).toEqual(['start', 'change', 'change', 'end']);
+  });
+
+  it('reports no target to onMoveStart when the drag starts on one of its items', async () => {
+    const started = vi.fn();
+    await renderDnd(
+      <Draggable.CollisionProvider kind={kind} onMoveStart={started}>
+        <Items />
+      </Draggable.CollisionProvider>,
+    );
+    const {
+      items: [a],
+    } = measure();
+    await lift(a);
+    expect(started).toHaveBeenCalledTimes(1);
+    expect(started.mock.calls[0][0].source.element).toBe(a);
+    expect(started.mock.calls[0][0].target).toBeNull();
+    cancel();
   });
 
   it('does not replay onMoveStart to a group the drag never reached', async () => {
@@ -653,6 +677,29 @@ describe('Draggable.CollisionProvider', () => {
     expect(ended.mock.calls[0][0].target).toBeNull();
   });
 
+  it('passes the item under the pointer to canCollide', async () => {
+    const canCollide = vi.fn(() => true);
+    await renderDnd(
+      <Draggable.CollisionProvider kind={kind} canCollide={canCollide}>
+        <Items />
+      </Draggable.CollisionProvider>,
+    );
+    const {
+      items: [a, b],
+    } = measure();
+    await lift(a);
+    await dragOver(b, { clientY: 180 });
+    expect(canCollide).toHaveBeenCalledWith(
+      expect.objectContaining({
+        source: expect.objectContaining({ element: a }),
+        input: expect.objectContaining({ clientY: 180 }),
+        element: b,
+        payload: 'b',
+      }),
+    );
+    cancel();
+  });
+
   it("vetoes the whole target stack when canCollide returns 'reject'", async () => {
     const changed = vi.fn();
     const containerDrop = vi.fn();
@@ -661,7 +708,7 @@ describe('Draggable.CollisionProvider', () => {
         <Draggable.CollisionProvider
           kind={kind}
           onCollisionChange={changed}
-          canCollide={({ target }) => (target === 'b' ? 'reject' : true)}
+          canCollide={({ payload }) => (payload === 'b' ? 'reject' : true)}
         >
           <Items />
         </Draggable.CollisionProvider>

@@ -1,8 +1,9 @@
 'use client';
 import * as React from 'react';
 import type {
-  DragAutoScrollValue,
-  DragAutoScrollEventDetails,
+  DraggableViewportDragScrollValue,
+  DraggableViewportDragScrollEventDetails,
+  DraggableViewportDragScrollEventReason,
 } from '../../utils/drag-and-drop/autoScroller';
 import { useRenderElement } from '../../internals/useRenderElement';
 import type { BaseUIComponentProps } from '../../internals/types';
@@ -10,12 +11,7 @@ import type {
   RegisterViewportParameters,
   DragParametersWithInferredAccept,
 } from '../../types/dragRegistration';
-import type {
-  AcceptedDragPayload,
-  AcceptedDragData,
-  AnyDragAccept,
-  DragKind,
-} from '../../types/drag';
+import type { AcceptedDragPayload, DragAccept, AcceptedDragData, DragKind } from '../../types/drag';
 import { useDraggableViewportElement } from './useDraggableViewportElement';
 import type { UseDraggableViewportElementParameters } from './useDraggableViewportElement';
 
@@ -78,7 +74,7 @@ export const DraggableViewport = React.forwardRef(function DraggableViewport<
   ): React.JSX.Element;
   // Private inference overload for heterogeneous `accept` arrays. Explicit
   // component generics use the payload-keyed overload above.
-  <TAccept extends AnyDragAccept = DragKind<unknown>>(
+  <TAccept extends DragAccept<unknown> = DragKind<unknown>>(
     props: DragParametersWithInferredAccept<
       DraggableViewportProps<AcceptedDragPayload<TAccept>, AcceptedDragData<TAccept>>,
       TAccept
@@ -101,13 +97,11 @@ export type DraggableViewportProps<
 > = BaseUIComponentProps<'div', DraggableViewportState> &
   RegisterViewportParameters<TSourcePayload, TDragData>;
 
-export type DraggableViewportDragScrollValue<
-  TPayload = unknown,
-  TDragData = unknown,
-> = DragAutoScrollValue<TPayload, TDragData>;
-export type DraggableViewportDragScrollEventDetails = DragAutoScrollEventDetails;
-export type DraggableViewportDragScrollEventReason =
-  DraggableViewportDragScrollEventDetails['reason'];
+export type {
+  DraggableViewportDragScrollValue,
+  DraggableViewportDragScrollEventDetails,
+  DraggableViewportDragScrollEventReason,
+} from '../../utils/drag-and-drop/autoScroller';
 
 export namespace DraggableViewport {
   export type DragScrollValue<

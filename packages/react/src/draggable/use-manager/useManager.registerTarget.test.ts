@@ -544,15 +544,9 @@ describe('engine.registerTarget', () => {
     const { engine } = await renderDnd();
     const source = createElement();
     const target = createElement();
-    // Capture the counts at dispatch time; the payload's `location` is mutated
-    // in place, so asserting on the stashed object later would be meaningless.
-    const leaveStacks: number[] = [];
+    const onDraggableLeave = vi.fn();
     engine.registerSource(source, {});
-    engine.registerTarget(target, {
-      onDraggableLeave: (_, { location }) => {
-        leaveStacks.push(location.current.targets.length);
-      },
-    });
+    engine.registerTarget(target, { onDraggableLeave });
 
     fireEvent.dragStart(source);
     await flushRaf();
@@ -563,7 +557,9 @@ describe('engine.registerTarget', () => {
 
     // A leave handler deriving "still hovered?" from `location.current` must see
     // the same shape on drop as on cancel: the target already out of the stack.
-    expect(leaveStacks).toEqual([0]);
+    // Each dispatch gets its own `location` snapshot, so reading it afterwards is safe.
+    expect(onDraggableLeave).toHaveBeenCalledTimes(1);
+    expect(onDraggableLeave.mock.calls[0][1].location.current.targets).toEqual([]);
   });
 
   it('fires onDrop when a drop occurs on the target', async () => {
@@ -898,6 +894,42 @@ describe('engine.registerTarget', () => {
 
     expect(innerOnDragEnter).toHaveBeenCalledTimes(1);
     expect(outerOnDragEnter).toHaveBeenCalledTimes(1);
+  });
+
+  it('nested targets: each target receives its own record as `target`', async () => {
+    const { engine } = await renderDnd();
+    const source = createElement();
+    const outer = createElement();
+    const inner = createElement();
+    outer.appendChild(inner);
+
+    const outerEnter = vi.fn();
+    const outerMove = vi.fn();
+    const innerEnter = vi.fn();
+    const innerMove = vi.fn();
+
+    engine.registerSource(source, {});
+    engine.registerTarget(outer, { onDraggableEnter: outerEnter, onDraggableMove: outerMove });
+    engine.registerTarget(inner, { onDraggableEnter: innerEnter, onDraggableMove: innerMove });
+
+    fireEvent.dragStart(source);
+    await flushRaf();
+    fireEvent.dragEnter(inner);
+    fireEvent.dragOver(inner);
+    await flushRaf();
+
+    expect(outerEnter).toHaveBeenCalledTimes(1);
+    expect(outerMove).toHaveBeenCalled();
+    // The outer target is told about itself, not about the innermost target that
+    // leads the stack (and would receive the drop).
+    const [outerValue, outerDetails] = outerEnter.mock.calls[0];
+    expect(outerValue.target.element).toBe(outer);
+    expect(outerDetails.location.current.targets[0].element).toBe(inner);
+    expect(outerMove.mock.lastCall?.[0].target.element).toBe(outer);
+    expect(innerEnter.mock.calls[0][0].target.element).toBe(inner);
+    expect(innerMove.mock.lastCall?.[0].target.element).toBe(inner);
+
+    cancel();
   });
 
   it('crosses shadow-DOM boundaries when collecting drop targets', async () => {

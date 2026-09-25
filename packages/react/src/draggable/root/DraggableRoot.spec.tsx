@@ -171,10 +171,10 @@ if (card.matches(untypedSource)) {
 
 // `registerSource({ preview })` is the imperative escape hatch; a component describes its
 // preview with a preview part, and its handle with a handle part.
-// @ts-expect-error
+// @ts-expect-error `preview` is only a `registerSource()` option: use `Draggable.Preview`.
 <Draggable.Root kind={marker} preview={{ offset: 'pointer' }} />;
-// @ts-expect-error
-<Draggable.Root kind={marker} handle={null} />;
+// @ts-expect-error `handle` is only a `registerSource()` option: use `Draggable.Handle`.
+<Draggable.Root kind={marker} handle={document.body} />;
 
 // Without a kind, the preview stays payload-agnostic and narrows at the use site.
 <Draggable.Root kind={card} payload={{ id: 'a' }}>

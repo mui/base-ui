@@ -22,7 +22,7 @@ import type {
   DragSourceEventValue,
   DraggableEventDetailsMap,
   DragInput,
-  DragPreviewRenderParameters,
+  DraggablePreviewRenderParameters,
 } from '../../../types/drag';
 import { createDragEventDetails, withDragLocation } from '../dragEventDetails';
 import {
@@ -1023,7 +1023,7 @@ export function start(parameters: StartParameters): DragSessionController | null
     location.initial = { input: initialInput, targets: initialDropTargets };
     location.current = location.initial;
 
-    const previewPayload: DragPreviewRenderParameters = {
+    const previewPayload: DraggablePreviewRenderParameters = {
       location: snapshotLocation(),
       source,
     };
@@ -1070,7 +1070,7 @@ export interface SourceHandlers {
    * `useInnerDragEngine`), never a consumer handler — the public parameter types
    * omit it.
    */
-  onGenerateDragPreview?: ((parameters: DragPreviewRenderParameters) => void) | undefined;
+  onGenerateDragPreview?: ((parameters: DraggablePreviewRenderParameters) => void) | undefined;
   onMoveStart?:
     | ((value: DragSourceEventValue, eventDetails: DraggableEventDetailsMap['onMoveStart']) => void)
     | undefined;

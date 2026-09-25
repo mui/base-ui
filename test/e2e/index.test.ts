@@ -439,7 +439,7 @@ describe('e2e', () => {
             JSON.stringify({ startCount: 1, endCount: 1 }),
           );
           await expect(touchPage.getByTestId('drop-status')).toHaveText(
-            JSON.stringify({ dropCount: 1, reason: 'drop', canceled: false }),
+            JSON.stringify({ dropCount: 1, reason: 'drop', dropped: true }),
           );
           expect(await touchPage.evaluate(() => window.scrollY)).toBe(0);
         });
@@ -459,7 +459,7 @@ describe('e2e', () => {
             JSON.stringify({ startCount: 1, endCount: 1 }),
           );
           await expect(touchPage.getByTestId('drop-status')).toHaveText(
-            JSON.stringify({ dropCount: 1, reason: 'drop', canceled: false }),
+            JSON.stringify({ dropCount: 1, reason: 'drop', dropped: true }),
           );
           expect(await touchPage.evaluate(() => window.scrollY)).toBe(0);
         });

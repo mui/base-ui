@@ -14,6 +14,16 @@ import type {
   DragSource,
   DropTargetEventDetailsMap,
   DropTargetEventValue,
+  DraggableTargetStartEventDetails,
+  DraggableTargetStartValue,
+  DraggableTargetMoveEventDetails,
+  DraggableTargetMoveValue,
+  DraggableTargetEnterEventDetails,
+  DraggableTargetEnterValue,
+  DraggableTargetLeaveEventDetails,
+  DraggableTargetLeaveValue,
+  DraggableTargetDropEventDetails,
+  DraggableTargetDropValue,
 } from '../../types/drag';
 import { matchesAccept } from './dragKind';
 import { createGetterStackRegistry } from './getterStackRegistry';
@@ -921,13 +931,13 @@ export type RegisterTargetParameters<
    */
   onDraggableStart?:
     | ((
-        value: DropTargetEventValue<
+        value: DraggableTargetStartValue<
           NoInfer<TSourcePayload>,
           NoInfer<TTargetPayload>,
           NoInfer<TDragData>,
           NoInfer<TTargetDragData>
         >,
-        eventDetails: DropTargetEventDetailsMap['onDraggableStart'],
+        eventDetails: DraggableTargetStartEventDetails,
       ) => void)
     | undefined;
   /**
@@ -937,25 +947,25 @@ export type RegisterTargetParameters<
    */
   onDraggableMove?:
     | ((
-        value: DropTargetEventValue<
+        value: DraggableTargetMoveValue<
           NoInfer<TSourcePayload>,
           NoInfer<TTargetPayload>,
           NoInfer<TDragData>,
           NoInfer<TTargetDragData>
         >,
-        eventDetails: DropTargetEventDetailsMap['onDraggableMove'],
+        eventDetails: DraggableTargetMoveEventDetails,
       ) => void)
     | undefined;
   /** Event handler called when the drag moves over this target. */
   onDraggableEnter?:
     | ((
-        value: DropTargetEventValue<
+        value: DraggableTargetEnterValue<
           NoInfer<TSourcePayload>,
           NoInfer<TTargetPayload>,
           NoInfer<TDragData>,
           NoInfer<TTargetDragData>
         >,
-        eventDetails: DropTargetEventDetailsMap['onDraggableEnter'],
+        eventDetails: DraggableTargetEnterEventDetails,
       ) => void)
     | undefined;
   /**
@@ -964,13 +974,13 @@ export type RegisterTargetParameters<
    */
   onDraggableLeave?:
     | ((
-        value: DropTargetEventValue<
+        value: DraggableTargetLeaveValue<
           NoInfer<TSourcePayload>,
           NoInfer<TTargetPayload>,
           NoInfer<TDragData>,
           NoInfer<TTargetDragData>
         >,
-        eventDetails: DropTargetEventDetailsMap['onDraggableLeave'],
+        eventDetails: DraggableTargetLeaveEventDetails,
       ) => void)
     | undefined;
   /**
@@ -980,13 +990,13 @@ export type RegisterTargetParameters<
    */
   onDraggableDrop?:
     | ((
-        value: DropTargetEventValue<
+        value: DraggableTargetDropValue<
           NoInfer<TSourcePayload>,
           NoInfer<TTargetPayload>,
           NoInfer<TDragData>,
           NoInfer<TTargetDragData>
         >,
-        eventDetails: DropTargetEventDetailsMap['onDraggableDrop'],
+        eventDetails: DraggableTargetDropEventDetails,
       ) => void)
     | undefined;
 };

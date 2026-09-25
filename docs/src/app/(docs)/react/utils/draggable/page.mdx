@@ -111,9 +111,9 @@ Use `Draggable.anyKind` to accept every drag, for example on a trash zone. Its `
 
 ## Drag events
 
-Drag sources and drop targets both fire event handlers as a drag progresses. Every handler receives a value first, with the drag `source` and the `target` it is over, and an `eventDetails` object second with the event `reason`, the native `event`, and the drag `location`.
+Drag sources and drop targets both fire event handlers as a drag progresses. Every handler receives a value first, with the drag `source` and the `target` it is over, and an `eventDetails` object second with the event `reason`, the native `event`, and the drag `location`. `onBeforeMoveStart` is the exception: it runs before any target is resolved, so its value holds only the `source`, and its `eventDetails` carry the pointer `input` and `cancel()`.
 
-When extracting a handler, use the types on its component namespace, such as `Draggable.Root.MoveStartValue<Payload>`, `Draggable.Root.MoveStartEventDetails`, and `Draggable.Root.MoveStartEventReason`. Target handlers expose corresponding types such as `Draggable.Target.DropValue<SourcePayload, TargetPayload>` and `Draggable.Target.DropEventDetails`. Value types also accept drag-data type arguments when needed.
+When extracting a handler, use the types on its component namespace, such as `Draggable.Root.MoveStartValue<Payload>`, `Draggable.Root.MoveStartEventDetails`, and `Draggable.Root.MoveStartEventReason`. Target handlers expose corresponding types such as `Draggable.Target.DropValue<SourcePayload, TargetPayload>` and `Draggable.Target.DropEventDetails`. Value types also accept drag-data type arguments when needed. Monitor and `registerSource` handlers use the `Draggable.Root` types, and `registerTarget` handlers use the `Draggable.Target` ones.
 
 ### Drag source events
 
@@ -149,13 +149,15 @@ When extracting a handler, use the types on its component namespace, such as `Dr
 />
 ```
 
-Commit a successful drop in `onMoveEnd`. There, `target` is the target that received the drop, or `null` when the drag was canceled or released elsewhere, and `eventDetails.reason` says why the drag ended. When the handler also clears temporary state, use `try/finally` so the cleanup runs even if committing throws:
+Commit a successful drop in `onMoveEnd`. There, `target` is the target that received the drop, or `null` when the drag was canceled or released elsewhere, and `eventDetails.reason` says why the drag ended. A source can land on targets of any kind, so `target.payload` is `unknown` until you narrow it with the target's [kind](#identifying-a-target). When the handler also clears temporary state, use `try/finally` so the cleanup runs even if committing throws:
 
 ```tsx title="Committing a drop"
 <Draggable.Root
+  kind={card}
+  payload={id}
   onMoveEnd={({ source, target }) => {
     try {
-      if (target) {
+      if (target && column.matches(target)) {
         commitMove(source.payload, target.payload);
       }
     } finally {
@@ -165,7 +167,7 @@ Commit a successful drop in `onMoveEnd`. There, `target` is the target that rece
 />
 ```
 
-Every handler receives the drag `source` and `target` in its first argument, and a `location` history in `eventDetails`:
+Apart from `onBeforeMoveStart`, every handler receives the drag `source` and `target` in its first argument, and a `location` history in `eventDetails`:
 
 - `location.current` is the pointer position and the drop targets under it, innermost first, for this event.
 - `location.previous` is the same information at the previous event. Compare it with `location.current` to detect what changed.
@@ -1010,6 +1012,21 @@ The handler runs once per direction, with the other axis set to `0`. At a bound 
     }
   }}
 />
+```
+
+### Typed wrapper component
+
+The following example wraps `<Draggable.Root>` for items of any kind. Inside a generic component, `Draggable.Root.Props<Payload>` can't tell whether `Payload` is `undefined`, so declare `kind` and `payload` explicitly to keep them required and checked against each other:
+
+```tsx title="A wrapper for items of any kind"
+import * as React from 'react';
+import { Draggable } from '@base-ui/react/draggable';
+
+export function SortableItem<Payload>(
+  props: Draggable.Root.Props<Payload> & { kind: Draggable.DragKind<Payload>; payload: Payload },
+): React.JSX.Element {
+  return <Draggable.Root {...props} className="Item" />;
+}
 ```
 
 ## API reference

@@ -4,7 +4,7 @@ import { resolveElementReference } from '../utils';
 import type {
   DragModifiers,
   DragPreviewOffset,
-  DragPreviewRenderParameters,
+  DraggablePreviewRenderParameters,
 } from '../../../types/drag';
 import {
   createClonedDragPreviewElement,
@@ -26,7 +26,7 @@ export interface ResolvedDragPreview<TPayload = unknown> {
   /** Builds the element the engine moves; never read when `disabled`. */
   createPreviewElement: DragPreviewElementFactory;
   /** React content for a host preview; `null` for a clone of the source. */
-  render: ((parameters: DragPreviewRenderParameters<TPayload>) => React.ReactNode) | null;
+  render: ((parameters: DraggablePreviewRenderParameters<TPayload>) => React.ReactNode) | null;
 }
 
 /**

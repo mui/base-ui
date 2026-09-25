@@ -6,12 +6,10 @@ import type { RegisterMonitorParameters as InternalRegisterMonitorParameters } f
 import type {
   AcceptedDragPayload,
   AcceptedDragData,
-  AnyDragAccept,
   DragCleanupFn,
   DragKind,
   DragAccept,
   DraggablePayload,
-  DropTargetPayload,
 } from './drag';
 
 /** Parameters accepted by `Draggable.Root` and `registerSource`, except the element. */
@@ -25,12 +23,6 @@ export type RegisterSourceParameters<TPayload = undefined, TDragData = unknown> 
   | 'styleNonce'
   | 'disableStyleElements'
 >;
-
-/** Registration parameters for a draggable with a required payload. */
-export type RegisterSourceParametersWithPayload<
-  TPayload,
-  TDragData = unknown,
-> = RegisterSourceParameters<TPayload, TDragData> & { payload: DraggablePayload<TPayload> };
 
 /** Public drop-target parameters, whose `accept` declaration is required. */
 export type RegisterTargetParameters<
@@ -58,16 +50,6 @@ export type RegisterTargetParameters<
   >;
 };
 
-/** Drop target registration parameters whose local payload is required. */
-export type RegisterTargetParametersWithPayload<
-  TSourcePayload,
-  TTargetPayload,
-  TDragData = unknown,
-  TTargetDragData = unknown,
-> = RegisterTargetParameters<TSourcePayload, TTargetPayload, TDragData, TTargetDragData> & {
-  payload: DropTargetPayload<TTargetPayload>;
-};
-
 /** Checks a target's payload against its own kind. */
 export type DragParametersWithTargetKind<TKind extends DragKind<any, any> | undefined> = {
   kind?: TKind | undefined;
@@ -79,7 +61,7 @@ export type DragParametersWithTargetKind<TKind extends DragKind<any, any> | unde
  */
 export type DragParametersWithInferredAccept<
   TParameters,
-  TAccept extends AnyDragAccept,
+  TAccept extends DragAccept<unknown>,
 > = TParameters &
   (unknown extends AcceptedDragPayload<TAccept>
     ? { accept?: TAccept | undefined }
@@ -95,7 +77,7 @@ export type DragObserverAccept<TSourcePayload, TDragData = unknown> = unknown ex
  */
 export type DragParametersWithRequiredAccept<
   TParameters,
-  TAccept extends AnyDragAccept,
+  TAccept extends DragAccept<unknown>,
 > = TParameters & {
   /** One or more drag source kinds accepted by this target. */
   accept: TAccept;
@@ -175,7 +157,9 @@ export interface DraggableManager {
   registerSource: {
     <TPayload, TDragData = unknown>(
       element: HTMLElement,
-      getParameters: () => RegisterSourceParametersWithPayload<TPayload, TDragData>,
+      getParameters: () => RegisterSourceParameters<TPayload, TDragData> & {
+        payload: DraggablePayload<TPayload>;
+      },
     ): DragCleanupFn;
     <TKind extends DragKind<undefined, any> = DragKind<undefined>>(
       element: HTMLElement,
@@ -191,7 +175,7 @@ export interface DraggableManager {
    */
   // Infer target data from its kind while requiring the declared payload.
   registerTarget: <
-    TAccept extends AnyDragAccept = DragKind<unknown>,
+    TAccept extends DragAccept<unknown> = DragKind<unknown>,
     TTargetPayload = undefined,
     TKind extends DragKind<NoInfer<TTargetPayload>, any> | undefined =
       DragKind<TTargetPayload> | undefined,
@@ -217,7 +201,7 @@ export interface DraggableManager {
    * Pass `document.documentElement` to scroll the page.
    * Returns a cleanup function that unregisters it.
    */
-  registerViewport: <TAccept extends AnyDragAccept = DragKind<unknown>>(
+  registerViewport: <TAccept extends DragAccept<unknown> = DragKind<unknown>>(
     element: HTMLElement,
     getParameters: () => DragParametersWithInferredAccept<
       RegisterViewportParameters<AcceptedDragPayload<TAccept>, AcceptedDragData<TAccept>>,
@@ -228,7 +212,7 @@ export interface DraggableManager {
    * Registers a monitor, with the options of `useMonitor`.
    * Returns a cleanup function that unregisters it.
    */
-  registerMonitor: <TAccept extends AnyDragAccept = DragKind<unknown>>(
+  registerMonitor: <TAccept extends DragAccept<unknown> = DragKind<unknown>>(
     getParameters: () => DragParametersWithInferredAccept<
       RegisterMonitorParameters<AcceptedDragPayload<TAccept>, AcceptedDragData<TAccept>>,
       TAccept

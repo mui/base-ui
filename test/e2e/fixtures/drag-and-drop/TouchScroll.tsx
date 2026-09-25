@@ -11,16 +11,16 @@ const itemKind = Draggable.createKind('e2e-touch-scroll');
 function TouchScrollContent() {
   const [mounted, setMounted] = React.useState(true);
   const [dropCount, setDropCount] = React.useState(0);
-  const [result, setResult] = React.useState<{ reason: string; canceled: boolean } | null>(null);
+  const [result, setResult] = React.useState<{ reason: string; dropped: boolean } | null>(null);
   const [startCount, setStartCount] = React.useState(0);
   const [endCount, setEndCount] = React.useState(0);
 
   Draggable.useMonitor({
     accept: itemKind,
     onMoveStart: () => setStartCount((count) => count + 1),
-    onMoveEnd: (event, details) => {
+    onMoveEnd: ({ target }, details) => {
       setEndCount((count) => count + 1);
-      setResult({ reason: details.reason, canceled: event.canceled });
+      setResult({ reason: details.reason, dropped: target !== null });
     },
   });
 

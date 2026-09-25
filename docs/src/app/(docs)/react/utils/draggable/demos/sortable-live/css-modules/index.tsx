@@ -59,7 +59,7 @@ export default function SortableLive() {
   const reorder = useStableCallback(
     (
       value: Draggable.CollisionProvider.CollisionChangeValue<string>,
-      { location }: { location: Draggable.DragLocationHistory },
+      { location }: Draggable.CollisionProvider.CollisionChangeEventDetails<string>,
     ) => {
       const next = getTaskDestination(value.target);
       const previous = destinationRef.current;
