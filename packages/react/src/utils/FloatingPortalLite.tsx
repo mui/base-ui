@@ -1,14 +1,11 @@
 'use client';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { type BaseUIComponentProps } from '../internals/types';
+import type { BaseUIComponentProps } from '../internals/types';
 import { useFloatingPortalNode } from '../floating-ui-react/components/FloatingPortal';
 
 type PortalContainer =
-  | HTMLElement
-  | ShadowRoot
-  | React.RefObject<HTMLElement | ShadowRoot | null>
-  | null;
+  HTMLElement | ShadowRoot | React.RefObject<HTMLElement | ShadowRoot | null> | null;
 
 /**
  * `FloatingPortal` includes tabbable logic handling for focus management.
@@ -21,7 +18,7 @@ export const FloatingPortalLite = React.forwardRef(function FloatingPortalLite(
 ) {
   const { children, container, className, render, style, ...elementProps } = componentProps;
 
-  const { portalNode, portalSubtree } = useFloatingPortalNode({
+  const { node: portalNode, subtree: portalSubtree } = useFloatingPortalNode({
     container,
     ref: forwardedRef,
     componentProps,

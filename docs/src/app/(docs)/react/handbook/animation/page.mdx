@@ -76,16 +76,25 @@ Use the following Base UI attributes for creating CSS animations when a compone
 
 ## JavaScript animations
 
-JavaScript animation libraries such as [Motion](https://motion.dev) require control of the mounting and unmounting lifecycle of components in order for exit animations to play.
+JavaScript animation libraries such as [Motion](https://motion.dev) need the popup to stay rendered while its exit animation plays, and Base UI to know when that animation is over.
 
-Base UI relies on [`element.getAnimations()`](https://developer.mozilla.org/en-US/docs/Web/API/Element/getAnimations) to detect if animations have finished on an element. When using Motion, `opacity` animations are reflected in `element.getAnimations()`, so Base UI automatically waits for the animation finish before unmounting the component. If `opacity` isn't part of your animation (such as in a translating drawer component), you should still animate it using a value close to `1` (such as `opacity: 0.9999`), so that Base UI can detect the animation.
+When a popup closes, `open` becomes `false` right away, but the popup stays rendered in a closing phase until its closing animation finishes.
+Base UI detects animations on the popup element. CSS animations are always detected, and so are Motion animations that include `opacity`.
+Once the animation ends, the popup is removed from the DOM, or hidden if the `<Portal>` has `keepMounted`, and `onOpenChangeComplete(false)` fires.
+
+This leaves two choices:
+
+- **Where does the popup go when closed?** Removed from the DOM with `<AnimatePresence>`, or kept in the DOM with `keepMounted`.
+- **Who ends the closing phase?** Base UI, when it can detect the animation, or you, with [manual unmounting](#manual-unmounting).
+
+The examples below animate `opacity`, so Base UI ends the closing phase on its own.
 
 ### Animating components unmounted from DOM when closed with Motion
 
-Most popup components like Popover, Dialog, Tooltip, and Menu are unmounted from the DOM when they are closed by default. To animate them with Motion:
+Most popup components like Popover, Dialog, Tooltip, and Menu are removed from the DOM when they are closed by default. To animate them with Motion:
 
 - Make the component controlled with the `open` prop so `<AnimatePresence>` can see the state as a child
-- Specify `keepMounted` on the `<Portal>` part
+- Specify `keepMounted` on the `<Portal>` part so Base UI doesn't remove it before the exit animation has played
 - Use the `render` prop to compose the `<Popup>` with `motion.div`
 
 import { DemoAnimatedPopoverMotionKeepMountedFalse } from './demos/animated-popover-motion-keep-mounted-false';
@@ -168,7 +177,7 @@ function App() {
 
 ### Animating Select component with Motion
 
-The Select component is initially unmounted but remains mounted after interaction. To animate it with Motion, a mix of the two previous approaches is needed.
+The Select component is removed from the DOM until its first interaction and stays in the DOM after that. To animate it with Motion, a mix of the two previous approaches is needed.
 
 import { DemoAnimatedSelectMotion } from './demos/animated-select-motion';
 
@@ -176,7 +185,10 @@ import { DemoAnimatedSelectMotion } from './demos/animated-select-motion';
 
 ### Manual unmounting
 
-For full control, you can manually unmount the component when it's closed once animations have finished using an `actionsRef` passed to the `<Root>`:
+Use this when Base UI can't detect your closing animation, for example when it doesn't animate `opacity`, or when the popup should stay in its closing phase until something other than an animation completes.
+
+Call `eventDetails.preventUnmountOnClose()` in `onOpenChange` when the component closes, then call `unmount()` on the `actionsRef` passed to the `<Root>` once the animation finishes.
+This ends the closing phase, and `onOpenChangeComplete(false)` fires. Whether the popup leaves the DOM is still decided by `keepMounted`.
 
 ```jsx title="manual-unmount.tsx"
 function App() {
@@ -184,8 +196,16 @@ function App() {
   const actionsRef = React.useRef(null); // @highlight-text "actionsRef"
 
   return (
-    {/* @highlight-text "actionsRef" */}
-    <Popover.Root open={open} onOpenChange={setOpen} actionsRef={actionsRef}>
+    <Popover.Root
+      open={open}
+      onOpenChange={(nextOpen, eventDetails) => {
+        if (!nextOpen) {
+          eventDetails.preventUnmountOnClose(); // @highlight-text "preventUnmountOnClose"
+        }
+        setOpen(nextOpen);
+      }}
+      actionsRef={actionsRef} // @highlight-text "actionsRef"
+    >
       <Popover.Trigger>Trigger</Popover.Trigger>
       <AnimatePresence>
         {open && (

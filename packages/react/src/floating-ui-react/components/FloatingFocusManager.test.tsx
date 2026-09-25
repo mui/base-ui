@@ -1,10 +1,12 @@
-import { test, vi, expect } from 'vitest';
+import { test, vi, expect, beforeEach, describe } from 'vitest';
 /* eslint-disable jsx-a11y/role-has-required-aria-props */
 /* eslint-disable no-promise-executor-return */
 /* eslint-disable react/function-component-definition */
 
 /* eslint-disable react/jsx-fragments */
 import userEvent from '@testing-library/user-event';
+import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import {
   flushMicrotasks,
   act,
@@ -24,13 +26,13 @@ import {
   FloatingTree,
   useClick,
   useDismiss,
-  useFloating,
   useFloatingNodeId,
   useFloatingParentNodeId,
-  useHover,
 } from '../index';
+import { useFloating } from '../../../test/floating-ui-tests/useFloating';
 import type { FloatingFocusManagerProps } from './FloatingFocusManager';
 import { Main as Navigation } from '../../../test/floating-ui-tests/Navigation';
+import { useHover } from '../../../test/floating-ui-tests/useHover';
 
 // TODO (@Janpot) It looks like the toHaveFocus assertion from @mui/internal-test-utils
 // is not working correctly with iframes and nested documents. Helper as a workaround
@@ -94,7 +96,7 @@ function App(
         <FloatingFocusManager
           {...props}
           initialFocus={props.initialFocus === 'two' ? ref : props.initialFocus}
-          context={context}
+          context={context.rootStore}
         >
           <div role="dialog" ref={refs.setFloating} data-testid="floating">
             <button data-testid="one">close</button>
@@ -126,7 +128,7 @@ function RadioApp() {
     <>
       <button data-testid="reference" ref={refs.setReference} onClick={() => setOpen(!open)} />
       {open && (
-        <FloatingFocusManager context={context}>
+        <FloatingFocusManager context={context.rootStore}>
           <div role="dialog" ref={refs.setFloating}>
             <input type="radio" name="group" data-testid="radio-one" />
             <input type="radio" name="group" defaultChecked data-testid="radio-two" />
@@ -155,8 +157,8 @@ function Dialog({ render, open: passedOpen = false, children }: DialogProps) {
   });
 
   const { getReferenceProps, getFloatingProps } = useTestInteractions([
-    useClick(context),
-    useDismiss(context, { bubbles: false }),
+    useClick(context.rootStore),
+    useDismiss(context.rootStore, { bubbles: false }),
   ]);
 
   return (
@@ -167,7 +169,7 @@ function Dialog({ render, open: passedOpen = false, children }: DialogProps) {
       )}
       <FloatingPortal>
         {open && (
-          <FloatingFocusManager context={context}>
+          <FloatingFocusManager context={context.rootStore}>
             <div {...getFloatingProps({ ref: refs.setFloating })}>
               {render({
                 close: () => setOpen(false),
@@ -355,7 +357,7 @@ describe('FloatingFocusManager', () => {
             onOpenChange: setIsOpen,
           });
 
-          const click = useClick(context);
+          const click = useClick(context.rootStore);
 
           const { getReferenceProps, getFloatingProps } = useTestInteractions([click]);
 
@@ -366,7 +368,7 @@ describe('FloatingFocusManager', () => {
               )}
               {isOpen && (
                 <FloatingPortal>
-                  <FloatingFocusManager context={context}>
+                  <FloatingFocusManager context={context.rootStore}>
                     <div ref={refs.setFloating} {...getFloatingProps()}>
                       <button
                         data-testid="remove"
@@ -409,7 +411,7 @@ describe('FloatingFocusManager', () => {
             onOpenChange: setIsOpen,
           });
 
-          const click = useClick(context);
+          const click = useClick(context.rootStore);
 
           const { getReferenceProps, getFloatingProps } = useTestInteractions([click]);
 
@@ -420,7 +422,7 @@ describe('FloatingFocusManager', () => {
               )}
               {isOpen && (
                 <FloatingPortal>
-                  <FloatingFocusManager context={context} modal={false}>
+                  <FloatingFocusManager context={context.rootStore} modal={false}>
                     <div ref={refs.setFloating} {...getFloatingProps()}>
                       <button
                         data-testid="remove"
@@ -464,8 +466,8 @@ describe('FloatingFocusManager', () => {
               onOpenChange: setIsOpen,
             });
 
-            const click = useClick(context);
-            const dismiss = useDismiss(context);
+            const click = useClick(context.rootStore);
+            const dismiss = useDismiss(context.rootStore);
 
             const { getReferenceProps, getFloatingProps } = useTestInteractions([click, dismiss]);
 
@@ -475,7 +477,7 @@ describe('FloatingFocusManager', () => {
                   reference
                 </button>
                 {isOpen && (
-                  <FloatingFocusManager context={context}>
+                  <FloatingFocusManager context={context.rootStore}>
                     <div ref={refs.setFloating} {...getFloatingProps()} data-testid="floating" />
                   </FloatingFocusManager>
                 )}
@@ -517,8 +519,8 @@ describe('FloatingFocusManager', () => {
             onOpenChange: setIsOpen,
           });
 
-          const click = useClick(context);
-          const dismiss = useDismiss(context);
+          const click = useClick(context.rootStore);
+          const dismiss = useDismiss(context.rootStore);
 
           const { getReferenceProps, getFloatingProps } = useTestInteractions([click, dismiss]);
 
@@ -528,7 +530,7 @@ describe('FloatingFocusManager', () => {
                 reference
               </button>
               {isOpen && (
-                <FloatingFocusManager context={context}>
+                <FloatingFocusManager context={context.rootStore}>
                   <div ref={refs.setFloating} {...getFloatingProps()} data-testid="floating" />
                 </FloatingFocusManager>
               )}
@@ -560,8 +562,8 @@ describe('FloatingFocusManager', () => {
             onOpenChange: setIsOpen,
           });
 
-          const click = useClick(context);
-          const dismiss = useDismiss(context);
+          const click = useClick(context.rootStore);
+          const dismiss = useDismiss(context.rootStore);
 
           const { getReferenceProps, getFloatingProps } = useTestInteractions([click, dismiss]);
 
@@ -571,7 +573,7 @@ describe('FloatingFocusManager', () => {
                 reference
               </button>
               {isOpen && (
-                <FloatingFocusManager context={context}>
+                <FloatingFocusManager context={context.rootStore}>
                   <div ref={refs.setFloating} {...getFloatingProps()} data-testid="floating" />
                 </FloatingFocusManager>
               )}
@@ -612,8 +614,8 @@ describe('FloatingFocusManager', () => {
             onOpenChange: setIsOpen,
           });
 
-          const click = useClick(context);
-          const dismiss = useDismiss(context);
+          const click = useClick(context.rootStore);
+          const dismiss = useDismiss(context.rootStore);
 
           const { getReferenceProps, getFloatingProps } = useTestInteractions([click, dismiss]);
 
@@ -623,7 +625,7 @@ describe('FloatingFocusManager', () => {
                 reference
               </button>
               {isOpen && (
-                <FloatingFocusManager context={context}>
+                <FloatingFocusManager context={context.rootStore}>
                   <div ref={refs.setFloating} {...getFloatingProps()} data-testid="floating" />
                 </FloatingFocusManager>
               )}
@@ -663,7 +665,7 @@ describe('FloatingFocusManager', () => {
 
           const { refs, context } = useFloating({ open: isOpen, onOpenChange: setIsOpen });
 
-          const click = useClick(context);
+          const click = useClick(context.rootStore);
           const { getReferenceProps, getFloatingProps } = useTestInteractions([click]);
 
           return (
@@ -671,7 +673,7 @@ describe('FloatingFocusManager', () => {
               <button data-testid="reference" ref={refs.setReference} {...getReferenceProps()} />
               <FloatingPortal>
                 {isOpen && (
-                  <FloatingFocusManager context={context} returnFocus={() => undefined}>
+                  <FloatingFocusManager context={context.rootStore} returnFocus={() => undefined}>
                     <div ref={refs.setFloating} {...getFloatingProps()}>
                       <button data-testid="close" onClick={() => setIsOpen(false)} />
                     </div>
@@ -737,8 +739,8 @@ describe('FloatingFocusManager', () => {
           onOpenChange: setOpen,
         });
 
-        const click = useClick(context);
-        const dismiss = useDismiss(context);
+        const click = useClick(context.rootStore);
+        const dismiss = useDismiss(context.rootStore);
 
         const { getReferenceProps, getFloatingProps } = useTestInteractions([click, dismiss]);
 
@@ -747,7 +749,7 @@ describe('FloatingFocusManager', () => {
             {React.cloneElement(children, getReferenceProps({ ref: refs.setReference }))}
             {open && (
               <FloatingPortal container={portalRef}>
-                <FloatingFocusManager context={context} modal={false}>
+                <FloatingFocusManager context={context.rootStore} modal={false}>
                   <div ref={refs.setFloating} style={floatingStyles} {...getFloatingProps()}>
                     {render()}
                   </div>
@@ -939,7 +941,7 @@ describe('FloatingFocusManager', () => {
                 onClick={() => setOpen(true)}
               />
               {open && (
-                <FloatingFocusManager context={context} modal={false}>
+                <FloatingFocusManager context={context.rootStore} modal={false}>
                   <div role="dialog" ref={refs.setFloating} data-testid="floating">
                     <button data-base-ui-click-trigger="" data-testid="nested-trigger" />
                   </div>
@@ -984,7 +986,7 @@ describe('FloatingFocusManager', () => {
               <button data-testid="btn-1" />
               <button data-testid="btn-2" />
               {open && (
-                <FloatingFocusManager context={context} modal={false}>
+                <FloatingFocusManager context={context.rootStore} modal={false}>
                   <div role="listbox" ref={refs.setFloating} data-testid="floating" />
                 </FloatingFocusManager>
               )}
@@ -1009,7 +1011,7 @@ describe('FloatingFocusManager', () => {
           return (
             <>
               <button data-testid="reference" ref={refs.setReference} />
-              <FloatingFocusManager context={context} modal>
+              <FloatingFocusManager context={context.rootStore} modal>
                 <div ref={refs.setFloating} data-testid="floating" tabIndex={-1} />
               </FloatingFocusManager>
             </>
@@ -1055,8 +1057,8 @@ describe('FloatingFocusManager', () => {
           });
 
           const { getReferenceProps, getFloatingProps } = useTestInteractions([
-            useClick(context),
-            useDismiss(context, { bubbles: false }),
+            useClick(context.rootStore),
+            useDismiss(context.rootStore, { bubbles: false }),
           ]);
 
           return (
@@ -1068,7 +1070,7 @@ describe('FloatingFocusManager', () => {
                 )}
               <FloatingPortal>
                 {open && (
-                  <FloatingFocusManager context={context} modal={modal}>
+                  <FloatingFocusManager context={context.rootStore} modal={modal}>
                     <div {...getFloatingProps({ ref: refs.setFloating })}>
                       {render({
                         close: () => setOpen(false),
@@ -1155,7 +1157,7 @@ describe('FloatingFocusManager', () => {
                 <button data-testid="btn-2" />
               </div>
               {isOpen && (
-                <FloatingFocusManager context={context}>
+                <FloatingFocusManager context={context.rootStore}>
                   <div ref={refs.setFloating} data-testid="floating" />
                 </FloatingFocusManager>
               )}
@@ -1203,7 +1205,7 @@ describe('FloatingFocusManager', () => {
               </div>
               {isOpen && (
                 <FloatingFocusManager
-                  context={context}
+                  context={context.rootStore}
                   getInsideElements={() => [dismissRef.current]}
                 >
                   <>
@@ -1247,7 +1249,7 @@ describe('FloatingFocusManager', () => {
                 <button data-testid="btn-2" />
               </div>
               {isOpen && (
-                <FloatingFocusManager context={context} modal={false}>
+                <FloatingFocusManager context={context.rootStore} modal={false}>
                   <div role="listbox" ref={refs.setFloating} data-testid="floating" />
                 </FloatingFocusManager>
               )}
@@ -1301,7 +1303,7 @@ describe('FloatingFocusManager', () => {
               </div>
               <div data-testid="outside-sibling" />
               {isOpen && (
-                <FloatingFocusManager context={context} modal={false}>
+                <FloatingFocusManager context={context.rootStore} modal={false}>
                   <div role="listbox" ref={refs.setFloating} data-testid="floating" />
                 </FloatingFocusManager>
               )}
@@ -1355,7 +1357,7 @@ describe('FloatingFocusManager', () => {
               />
               <button data-testid="toggle" onClick={() => setDisabled((v) => !v)} />
               {isOpen && (
-                <FloatingFocusManager context={context} disabled={disabled}>
+                <FloatingFocusManager context={context.rootStore} disabled={disabled}>
                   <div ref={refs.setFloating} data-testid="floating" role="dialog" />
                 </FloatingFocusManager>
               )}
@@ -1385,7 +1387,7 @@ describe('FloatingFocusManager', () => {
             onOpenChange: setIsOpen,
           });
 
-          const click = useClick(context);
+          const click = useClick(context.rootStore);
 
           const { getReferenceProps, getFloatingProps } = useTestInteractions([click]);
 
@@ -1394,7 +1396,7 @@ describe('FloatingFocusManager', () => {
               <button data-testid="reference" ref={refs.setReference} {...getReferenceProps()} />
               <button data-testid="toggle" onClick={() => setDisabled((v) => !v)} />
               {isOpen && (
-                <FloatingFocusManager context={context} disabled={disabled}>
+                <FloatingFocusManager context={context.rootStore} disabled={disabled}>
                   <div ref={refs.setFloating} data-testid="floating" {...getFloatingProps()} />
                 </FloatingFocusManager>
               )}
@@ -1418,15 +1420,15 @@ describe('FloatingFocusManager', () => {
             onOpenChange: setIsOpen,
           });
 
-          const click = useClick(context);
-          const dismiss = useDismiss(context);
+          const click = useClick(context.rootStore);
+          const dismiss = useDismiss(context.rootStore);
 
           const { getReferenceProps, getFloatingProps } = useTestInteractions([click, dismiss]);
 
           return (
             <>
               <button data-testid="reference" ref={refs.setReference} {...getReferenceProps()} />
-              <FloatingFocusManager context={context} disabled={!isOpen} modal={false}>
+              <FloatingFocusManager context={context.rootStore} disabled={!isOpen} modal={false}>
                 <div ref={refs.setFloating} data-testid="floating" {...getFloatingProps()}>
                   <button data-testid="child" />
                 </div>
@@ -1465,6 +1467,182 @@ describe('FloatingFocusManager', () => {
         expect(screen.getByTestId('reference')).toHaveFocus();
       });
 
+      test('resets close modality between keep-mounted open sessions', async () => {
+        const finalFocus = vi.fn((_closeType: InteractionType) => true);
+
+        function App() {
+          const [isOpen, setIsOpen] = React.useState(false);
+
+          const { refs, context } = useFloating({
+            open: isOpen,
+            onOpenChange: setIsOpen,
+          });
+
+          const click = useClick(context.rootStore);
+          const dismiss = useDismiss(context.rootStore);
+          const { getReferenceProps, getFloatingProps } = useTestInteractions([click, dismiss]);
+
+          return (
+            <>
+              <button data-testid="reference" ref={refs.setReference} {...getReferenceProps()} />
+              <button data-testid="controlled-open" onClick={() => setIsOpen(true)} />
+              <button data-testid="controlled-close" onClick={() => setIsOpen(false)} />
+              <FloatingPortal>
+                <FloatingFocusManager
+                  context={context.rootStore}
+                  disabled={!isOpen}
+                  returnFocus={finalFocus}
+                >
+                  <div ref={refs.setFloating} {...getFloatingProps()}>
+                    <button data-testid="child" />
+                  </div>
+                </FloatingFocusManager>
+              </FloatingPortal>
+            </>
+          );
+        }
+
+        render(<App />);
+
+        const reference = screen.getByTestId('reference');
+        const focusSpy = vi.spyOn(reference, 'focus');
+
+        try {
+          await userEvent.click(reference);
+          await waitFor(() => {
+            expect(screen.getByTestId('child')).toHaveFocus();
+          });
+
+          await userEvent.keyboard('{Escape}');
+          await waitFor(() => {
+            expect(focusSpy).toHaveBeenCalledWith({
+              preventScroll: true,
+              focusVisible: true,
+            });
+          });
+          expect(finalFocus).toHaveBeenLastCalledWith('keyboard');
+
+          focusSpy.mockClear();
+
+          await userEvent.click(reference);
+          await waitFor(() => {
+            expect(screen.getByTestId('child')).toHaveFocus();
+          });
+
+          fireEvent.click(screen.getByTestId('controlled-close'));
+
+          await waitFor(() => {
+            expect(focusSpy).toHaveBeenCalledWith({ preventScroll: true });
+          });
+          expect(focusSpy).not.toHaveBeenCalledWith(
+            expect.objectContaining({ focusVisible: true }),
+          );
+          expect(finalFocus).toHaveBeenLastCalledWith('');
+
+          focusSpy.mockClear();
+          finalFocus.mockClear();
+
+          fireEvent.click(screen.getByTestId('controlled-open'));
+          await waitFor(() => {
+            expect(screen.getByTestId('child')).toHaveFocus();
+          });
+
+          fireEvent.pointerDown(reference, { pointerType: 'mouse' });
+          fireEvent.click(screen.getByTestId('controlled-close'));
+
+          await waitFor(() => {
+            expect(focusSpy).toHaveBeenCalledWith({ preventScroll: true });
+          });
+          expect(focusSpy).not.toHaveBeenCalledWith(
+            expect.objectContaining({ focusVisible: true }),
+          );
+          expect(finalFocus).toHaveBeenCalledWith('');
+
+          focusSpy.mockClear();
+          finalFocus.mockClear();
+
+          fireEvent.click(screen.getByTestId('controlled-open'));
+          await waitFor(() => {
+            expect(screen.getByTestId('child')).toHaveFocus();
+          });
+
+          fireEvent.click(reference, { detail: 0 });
+
+          await waitFor(() => {
+            expect(focusSpy).toHaveBeenCalledWith({
+              preventScroll: true,
+              focusVisible: true,
+            });
+          });
+          expect(finalFocus).toHaveBeenCalledWith('keyboard');
+        } finally {
+          focusSpy.mockRestore();
+        }
+      });
+
+      test('preserves keyboard close modality when reopening before focus restoration', async () => {
+        function App() {
+          const [isOpen, setIsOpen] = React.useState(false);
+          const [reopenOnClose, setReopenOnClose] = React.useState(false);
+
+          const { refs, context } = useFloating({
+            open: isOpen,
+            onOpenChange: setIsOpen,
+          });
+
+          const click = useClick(context.rootStore);
+          const dismiss = useDismiss(context.rootStore);
+          const { getReferenceProps, getFloatingProps } = useTestInteractions([click, dismiss]);
+
+          useIsoLayoutEffect(() => {
+            if (!isOpen && reopenOnClose) {
+              setReopenOnClose(false);
+              setIsOpen(true);
+            }
+          }, [isOpen, reopenOnClose]);
+
+          return (
+            <>
+              <span data-testid="open-state">{String(isOpen)}</span>
+              <button data-testid="reference" ref={refs.setReference} {...getReferenceProps()} />
+              <button data-testid="reopen-on-close" onClick={() => setReopenOnClose(true)} />
+              <FloatingPortal>
+                <FloatingFocusManager context={context.rootStore} disabled={!isOpen}>
+                  <div ref={refs.setFloating} {...getFloatingProps()}>
+                    <button data-testid="child" />
+                  </div>
+                </FloatingFocusManager>
+              </FloatingPortal>
+            </>
+          );
+        }
+
+        render(<App />);
+
+        const reference = screen.getByTestId('reference');
+        const focusSpy = vi.spyOn(reference, 'focus');
+
+        try {
+          await userEvent.click(reference);
+          await waitFor(() => {
+            expect(screen.getByTestId('child')).toHaveFocus();
+          });
+
+          fireEvent.click(screen.getByTestId('reopen-on-close'));
+          await userEvent.keyboard('{Escape}');
+
+          await waitFor(() => {
+            expect(focusSpy).toHaveBeenCalledWith({
+              preventScroll: true,
+              focusVisible: true,
+            });
+          });
+          expect(screen.getByTestId('open-state')).toHaveTextContent('true');
+        } finally {
+          focusSpy.mockRestore();
+        }
+      });
+
       test('clears outside pointer state between keep-mounted open sessions', async () => {
         let readInsideReactTree = () => false;
 
@@ -1478,8 +1656,8 @@ describe('FloatingFocusManager', () => {
 
           readInsideReactTree = () => context.dataRef.current.insideReactTree;
 
-          const click = useClick(context);
-          const dismiss = useDismiss(context);
+          const click = useClick(context.rootStore);
+          const dismiss = useDismiss(context.rootStore);
 
           const { getReferenceProps, getFloatingProps } = useTestInteractions([click, dismiss]);
 
@@ -1489,7 +1667,7 @@ describe('FloatingFocusManager', () => {
               <button data-testid="before" />
               <button data-testid="reference" ref={refs.setReference} {...getReferenceProps()} />
               <FloatingPortal>
-                <FloatingFocusManager context={context} disabled={!isOpen} modal={false}>
+                <FloatingFocusManager context={context.rootStore} disabled={!isOpen} modal={false}>
                   <div ref={refs.setFloating} data-testid="floating" {...getFloatingProps()}>
                     <button data-testid="child" />
                   </div>
@@ -1548,7 +1726,7 @@ describe('FloatingFocusManager', () => {
               />
               <FloatingPortal>
                 {open && (
-                  <FloatingFocusManager context={context} modal={false}>
+                  <FloatingFocusManager context={context.rootStore} modal={false}>
                     <div data-testid="floating" ref={refs.setFloating}>
                       <span tabIndex={0} data-testid="inside" />
                     </div>
@@ -1594,7 +1772,7 @@ describe('FloatingFocusManager', () => {
               </div>
               <FloatingPortal>
                 {open && (
-                  <FloatingFocusManager context={context} modal={false}>
+                  <FloatingFocusManager context={context.rootStore} modal={false}>
                     <div data-testid="floating" ref={refs.setFloating}>
                       <span tabIndex={0} data-testid="inside" />
                     </div>
@@ -1616,6 +1794,90 @@ describe('FloatingFocusManager', () => {
         expect(screen.getByTestId('reference-sibling-2')).not.toHaveAttribute('data-base-ui-inert');
       });
 
+      test('renders the aria-owns owner without changing regular reference semantics', async () => {
+        function App() {
+          const [open, setOpen] = React.useState(false);
+          const { refs, context } = useFloating({
+            open,
+            onOpenChange: setOpen,
+          });
+
+          return (
+            <>
+              <button
+                data-testid="reference"
+                ref={refs.setReference}
+                onClick={() => setOpen(true)}
+              />
+              <FloatingPortal>
+                {open && (
+                  <FloatingFocusManager context={context.rootStore} modal={false}>
+                    <div data-testid="floating" ref={refs.setFloating}>
+                      <span tabIndex={0} data-testid="inside" />
+                    </div>
+                  </FloatingFocusManager>
+                )}
+              </FloatingPortal>
+            </>
+          );
+        }
+
+        render(<App />);
+
+        await userEvent.click(screen.getByTestId('reference'));
+        await flushMicrotasks();
+
+        const reference = screen.getByTestId('reference');
+        const portalNode = screen.getByTestId('floating').closest('[data-base-ui-portal]');
+        const portalNodeId = portalNode?.id ?? '';
+        const owner = portalNode?.ownerDocument.querySelector('span[aria-owns]');
+
+        expect(portalNodeId).not.toBe('');
+        expect(owner).not.toHaveAttribute('role');
+        expect(owner).toHaveAttribute('aria-owns', portalNodeId);
+        expect(reference).not.toHaveAttribute('aria-owns');
+      });
+
+      test('supports setting the aria-owns owner role explicitly', async () => {
+        function App() {
+          const [open, setOpen] = React.useState(false);
+          const { refs, context } = useFloating({
+            open,
+            onOpenChange: setOpen,
+          });
+
+          return (
+            <>
+              <button
+                data-testid="reference"
+                ref={refs.setReference}
+                onClick={() => setOpen(true)}
+              />
+              <FloatingPortal portalOwnerRole="group">
+                {open && (
+                  <FloatingFocusManager context={context.rootStore} modal={false}>
+                    <div data-testid="floating" ref={refs.setFloating}>
+                      <span tabIndex={0} data-testid="inside" />
+                    </div>
+                  </FloatingFocusManager>
+                )}
+              </FloatingPortal>
+            </>
+          );
+        }
+
+        render(<App />);
+
+        await userEvent.click(screen.getByTestId('reference'));
+        await flushMicrotasks();
+
+        const portalNode = screen.getByTestId('floating').closest('[data-base-ui-portal]');
+        const owner = portalNode?.ownerDocument.querySelector('span[aria-owns]');
+
+        expect(portalNode).not.toBe(null);
+        expect(owner).toHaveAttribute('role', 'group');
+      });
+
       test('shift+tab', async () => {
         function App() {
           const [open, setOpen] = React.useState(false);
@@ -1634,7 +1896,7 @@ describe('FloatingFocusManager', () => {
               />
               <FloatingPortal>
                 {open && (
-                  <FloatingFocusManager context={context} modal={false}>
+                  <FloatingFocusManager context={context.rootStore} modal={false}>
                     <div data-testid="floating" ref={refs.setFloating}>
                       <span tabIndex={0} data-testid="inside" />
                     </div>
@@ -1718,7 +1980,7 @@ describe('FloatingFocusManager', () => {
         onOpenChange: setIsOpen,
       });
 
-      const click = useClick(context);
+      const click = useClick(context.rootStore);
       const { getReferenceProps, getFloatingProps } = useTestInteractions([click]);
 
       return (
@@ -1727,7 +1989,7 @@ describe('FloatingFocusManager', () => {
           <button ref={refs.setReference} {...getReferenceProps()} data-testid="reference" />
           {isOpen && (
             <FloatingFocusManager
-              context={context}
+              context={context.rootStore}
               restoreFocus={restoreFocus}
               initialFocus={twoRef}
             >
@@ -1807,7 +2069,7 @@ describe('FloatingFocusManager', () => {
     });
   });
 
-  describe.skipIf(!isJSDOM)('JSDOM-only coverage', () => {
+  describe.skipIf(!isJSDOM)('JSDOM-only combobox and focus return coverage', () => {
     test('trapped combobox prevents focus moving outside floating element', async () => {
       function App() {
         const [isOpen, setIsOpen] = React.useState(false);
@@ -1830,8 +2092,8 @@ describe('FloatingFocusManager', () => {
           }),
           [isOpen],
         );
-        const dismiss = useDismiss(context);
-        const click = useClick(context);
+        const dismiss = useDismiss(context.rootStore);
+        const click = useClick(context.rootStore);
 
         const { getReferenceProps, getFloatingProps } = useTestInteractions([role, dismiss, click]);
 
@@ -1844,7 +2106,7 @@ describe('FloatingFocusManager', () => {
               role="combobox"
             />
             {isOpen && (
-              <FloatingFocusManager context={context}>
+              <FloatingFocusManager context={context.rootStore}>
                 <div ref={refs.setFloating} style={floatingStyles} {...getFloatingProps()}>
                   <button>one</button>
                   <button>two</button>
@@ -1889,8 +2151,8 @@ describe('FloatingFocusManager', () => {
           }),
           [isOpen],
         );
-        const dismiss = useDismiss(context);
-        const click = useClick(context);
+        const dismiss = useDismiss(context.rootStore);
+        const click = useClick(context.rootStore);
 
         const { getReferenceProps, getFloatingProps } = useTestInteractions([role, dismiss, click]);
 
@@ -1904,7 +2166,11 @@ describe('FloatingFocusManager', () => {
             />
             {isOpen && (
               <FloatingPortal>
-                <FloatingFocusManager context={context} initialFocus={false} modal={false}>
+                <FloatingFocusManager
+                  context={context.rootStore}
+                  initialFocus={false}
+                  modal={false}
+                >
                   <div ref={refs.setFloating} style={floatingStyles} {...getFloatingProps()}>
                     <button>one</button>
                     <button>two</button>
@@ -1936,11 +2202,11 @@ describe('FloatingFocusManager', () => {
         onOpenChange: (open: boolean) => void;
       }) {
         const { refs, context } = useFloating({ open, onOpenChange });
-        const dismiss = useDismiss(context);
+        const dismiss = useDismiss(context.rootStore);
         const { getFloatingProps } = useTestInteractions([dismiss]);
 
         return (
-          <FloatingFocusManager context={context}>
+          <FloatingFocusManager context={context.rootStore}>
             <div ref={refs.setFloating} {...getFloatingProps()}>
               <button data-testid="child-reference" />
             </div>
@@ -1957,8 +2223,8 @@ describe('FloatingFocusManager', () => {
           onOpenChange: setIsOpen,
         });
 
-        const dismiss = useDismiss(context);
-        const click = useClick(context);
+        const dismiss = useDismiss(context.rootStore);
+        const click = useClick(context.rootStore);
 
         const { getReferenceProps, getFloatingProps } = useTestInteractions([click, dismiss]);
 
@@ -1970,7 +2236,7 @@ describe('FloatingFocusManager', () => {
               {...getReferenceProps()}
             />
             {isOpen && (
-              <FloatingFocusManager context={context}>
+              <FloatingFocusManager context={context.rootStore}>
                 <div ref={refs.setFloating} {...getFloatingProps()}>
                   Parent Floating
                   <button
@@ -2034,7 +2300,7 @@ describe('FloatingFocusManager', () => {
               })}
             />
             {isOpen && (
-              <FloatingFocusManager context={context}>
+              <FloatingFocusManager context={context.rootStore}>
                 <div ref={refs.setFloating} data-testid="outer">
                   <div {...getFloatingProps()} data-testid="inner" />
                 </div>
@@ -2061,7 +2327,7 @@ describe('FloatingFocusManager', () => {
           onOpenChange: setIsOpen,
         });
 
-        const click = useClick(context);
+        const click = useClick(context.rootStore);
 
         const { getReferenceProps, getFloatingProps } = useTestInteractions([click]);
 
@@ -2074,7 +2340,7 @@ describe('FloatingFocusManager', () => {
               role="combobox"
             />
             {isOpen && (
-              <FloatingFocusManager context={context} initialFocus={false}>
+              <FloatingFocusManager context={context.rootStore} initialFocus={false}>
                 <div ref={refs.setFloating} {...getFloatingProps()} data-testid="floating">
                   <button tabIndex={-1}>one</button>
                 </div>
@@ -2103,7 +2369,7 @@ describe('FloatingFocusManager', () => {
           onOpenChange: setIsOpen,
         });
 
-        const click = useClick(context);
+        const click = useClick(context.rootStore);
         const { getReferenceProps, getFloatingProps } = useTestInteractions([click]);
 
         return (
@@ -2115,7 +2381,7 @@ describe('FloatingFocusManager', () => {
               role="combobox"
             />
             {isOpen && (
-              <FloatingFocusManager context={context} initialFocus={false} modal>
+              <FloatingFocusManager context={context.rootStore} initialFocus={false} modal>
                 <div ref={refs.setFloating} {...getFloatingProps()} data-testid="floating">
                   <button tabIndex={-1}>one</button>
                 </div>
@@ -2168,7 +2434,7 @@ describe('FloatingFocusManager', () => {
           <>
             <button ref={refs.setReference} {...getReferenceProps()} data-testid="reference" />
             {isOpen && (
-              <FloatingFocusManager context={context}>
+              <FloatingFocusManager context={context.rootStore}>
                 <div ref={refs.setFloating} {...getFloatingProps()} data-testid="floating" />
               </FloatingFocusManager>
             )}
@@ -2209,7 +2475,7 @@ describe('FloatingFocusManager', () => {
           <>
             <button ref={refs.setReference} {...getReferenceProps()} data-testid="reference" />
             {isOpen && (
-              <FloatingFocusManager context={context}>
+              <FloatingFocusManager context={context.rootStore}>
                 <div ref={refs.setFloating} {...getFloatingProps()} data-testid="floating" />
               </FloatingFocusManager>
             )}
@@ -2244,7 +2510,7 @@ describe('FloatingFocusManager', () => {
               onClick={() => setIsOpen(true)}
             />
             {isOpen && (
-              <FloatingFocusManager context={context} initialFocus={false} modal={false}>
+              <FloatingFocusManager context={context.rootStore} initialFocus={false} modal={false}>
                 <div ref={refs.setFloating} data-testid="floating" role="dialog" />
               </FloatingFocusManager>
             )}
@@ -2273,7 +2539,7 @@ describe('FloatingFocusManager', () => {
         return (
           <>
             <button data-testid="reference" ref={refs.setReference} />
-            <FloatingFocusManager context={context} initialFocus={false} modal={false}>
+            <FloatingFocusManager context={context.rootStore} initialFocus={false} modal={false}>
               <div ref={refs.setFloating} data-testid="floating" role="dialog">
                 {hasTabbableContent && <button data-testid="inside" />}
               </div>
@@ -2310,7 +2576,7 @@ describe('FloatingFocusManager', () => {
           onOpenChange: setIsOpen,
         });
 
-        const click = useClick(context);
+        const click = useClick(context.rootStore);
         const { getReferenceProps, getFloatingProps } = useTestInteractions([click]);
 
         return (
@@ -2324,7 +2590,7 @@ describe('FloatingFocusManager', () => {
               ref
             </button>
             {isOpen && (
-              <FloatingFocusManager context={context} initialFocus={false} modal={false}>
+              <FloatingFocusManager context={context.rootStore} initialFocus={false} modal={false}>
                 <div
                   ref={refs.setFloating}
                   role="listbox"
@@ -2363,7 +2629,7 @@ describe('FloatingFocusManager', () => {
               onClick={() => setIsOpen(true)}
             />
             {isOpen && (
-              <FloatingFocusManager context={context} modal={false}>
+              <FloatingFocusManager context={context.rootStore} modal={false}>
                 <div ref={refs.setFloating} data-testid="floating" role="dialog" />
               </FloatingFocusManager>
             )}
@@ -2392,7 +2658,7 @@ describe('FloatingFocusManager', () => {
           onOpenChange: setIsOpen,
         });
 
-        const click = useClick(context);
+        const click = useClick(context.rootStore);
         const { getReferenceProps, getFloatingProps } = useTestInteractions([click]);
 
         return (
@@ -2400,7 +2666,7 @@ describe('FloatingFocusManager', () => {
             <button data-testid="reference" ref={refs.setReference} {...getReferenceProps()} />
             {isOpen && (
               <FloatingPortal>
-                <FloatingFocusManager context={context} modal={false}>
+                <FloatingFocusManager context={context.rootStore} modal={false}>
                   <div
                     ref={refs.setFloating}
                     data-testid="floating"

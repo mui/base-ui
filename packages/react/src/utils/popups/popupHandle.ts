@@ -1,8 +1,6 @@
 import { AnimationFrame } from '@base-ui/utils/useAnimationFrame';
-import {
-  createChangeEventDetails,
-  type BaseUIChangeEventDetails,
-} from '../../internals/createBaseUIEventDetails';
+import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import type { PopupTriggerMap } from './popupTriggerMap';
 
@@ -19,6 +17,12 @@ export interface PopupHandleStoreProvider<HandleStore> {
    * Store currently exposed by the handle.
    */
   readonly store: HandleStore;
+
+  /**
+   * Stable store used to reproduce the server-rendered trigger snapshot during hydration.
+   * @internal
+   */
+  readonly serverStore: HandleStore;
 
   /**
    * Subscribes to changes of the exposed store pointer.
@@ -115,6 +119,15 @@ export class BasePopupHandle<
   }
 
   /**
+   * Stable fallback store used for server rendering and hydration. Root stores cannot be recorded on
+   * the handle during render because a handle can be shared by concurrent server-rendered requests.
+   * @internal
+   */
+  get serverStore(): HandleStore {
+    return this.fallbackStore;
+  }
+
+  /**
    * Subscribes to changes of the attached store pointer so detached triggers re-render and re-bind
    * when a root attaches or detaches. Returns a function that removes the listener.
    * @internal
@@ -129,8 +142,8 @@ export class BasePopupHandle<
 
   /**
    * Points the handle at a root's store and notifies subscribers so detached triggers re-render and
-   * re-register into it (their registration ref re-fires on the store-pointer change). Returns a
-   * cleanup function that detaches the store again.
+   * re-register into it (their registration effect migrates them when the store pointer changes).
+   * Returns a cleanup function that detaches the store again.
    * @internal
    */
   attachStore(newStore: Store) {

@@ -1,10 +1,11 @@
-import { vi, expect } from 'vitest';
+import { vi, expect, beforeEach, describe, it } from 'vitest';
 import * as React from 'react';
 import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { useTestInteractions } from '#test-utils';
-import { useClick, useFloating, useTypeahead } from '../index';
+import { useClick, useTypeahead } from '../index';
+import { useFloating } from '../../../test/floating-ui-tests/useFloating';
 import type { UseTypeaheadProps } from './useTypeahead';
 
 beforeEach(() => {
@@ -27,7 +28,7 @@ const useImpl = ({
     onOpenChange: props.onOpenChange ?? setOpen,
   });
   const listRef = React.useRef(props.list ?? ['one', 'two', 'three']);
-  const typeahead = useTypeahead(context, {
+  const typeahead = useTypeahead(context.rootStore, {
     listRef,
     activeIndex,
     onMatch(index) {
@@ -36,7 +37,7 @@ const useImpl = ({
     },
     onTyping: props.onTyping,
   });
-  const click = useClick(context, {
+  const click = useClick(context.rootStore, {
     enabled: addUseClick,
   });
 
@@ -87,7 +88,7 @@ function ComboboxWithElementsRef(
   });
   const listRef = React.useRef(props.list ?? ['apple', 'apricot', 'banana']);
   const elementsRef = React.useRef<Array<HTMLElement | null>>([]);
-  const typeahead = useTypeahead(context, {
+  const typeahead = useTypeahead(context.rootStore, {
     listRef,
     elementsRef,
     activeIndex,
@@ -155,45 +156,51 @@ describe('useTypeahead', () => {
     expect(spy).toHaveBeenCalledWith(0);
   });
 
-  it('starts from the current activeIndex and correctly loops', async () => {
-    const spy = vi.fn();
-    render(<Combobox onMatch={spy} list={['Toy Story 2', 'Toy Story 3', 'Toy Story 4']} />);
+  it.each([false, true])(
+    'starts from the current activeIndex and correctly loops (strict: %s)',
+    async (strict) => {
+      const spy = vi.fn();
+      const combobox = (
+        <Combobox onMatch={spy} list={['Toy Story 2', 'Toy Story 3', 'Toy Story 4']} />
+      );
+      render(strict ? <React.StrictMode>{combobox}</React.StrictMode> : combobox);
 
-    await userEvent.click(screen.getByRole('combobox'));
+      await userEvent.click(screen.getByRole('combobox'));
 
-    await userEvent.keyboard('t');
-    await userEvent.keyboard('o');
-    await userEvent.keyboard('y');
-    expect(spy).toHaveBeenCalledWith(0);
+      await userEvent.keyboard('t');
+      await userEvent.keyboard('o');
+      await userEvent.keyboard('y');
+      expect(spy).toHaveBeenCalledWith(0);
 
-    spy.mockReset();
+      spy.mockReset();
 
-    await userEvent.keyboard('t');
-    await userEvent.keyboard('o');
-    await userEvent.keyboard('y');
-    expect(spy).not.toHaveBeenCalled();
+      await userEvent.keyboard('t');
+      await userEvent.keyboard('o');
+      await userEvent.keyboard('y');
+      expect(spy).not.toHaveBeenCalled();
 
-    vi.advanceTimersByTime(750);
+      vi.advanceTimersByTime(750);
 
-    await userEvent.keyboard('t');
-    await userEvent.keyboard('o');
-    await userEvent.keyboard('y');
-    expect(spy).toHaveBeenCalledWith(1);
+      await userEvent.keyboard('t');
+      await userEvent.keyboard('o');
+      await userEvent.keyboard('y');
+      expect(spy).toHaveBeenCalledWith(1);
 
-    vi.advanceTimersByTime(750);
+      vi.advanceTimersByTime(750);
 
-    await userEvent.keyboard('t');
-    await userEvent.keyboard('o');
-    await userEvent.keyboard('y');
-    expect(spy).toHaveBeenCalledWith(2);
+      await userEvent.keyboard('t');
+      await userEvent.keyboard('o');
+      await userEvent.keyboard('y');
+      expect(spy).toHaveBeenCalledWith(2);
 
-    vi.advanceTimersByTime(750);
+      vi.advanceTimersByTime(750);
 
-    await userEvent.keyboard('t');
-    await userEvent.keyboard('o');
-    await userEvent.keyboard('y');
-    expect(spy).toHaveBeenCalledWith(0);
-  });
+      await userEvent.keyboard('t');
+      await userEvent.keyboard('o');
+      await userEvent.keyboard('y');
+      expect(spy).toHaveBeenCalledWith(0);
+    },
+  );
 
   it('capslock characters continue to match', async () => {
     const spy = vi.fn();

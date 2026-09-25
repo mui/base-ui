@@ -10,8 +10,10 @@ import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { visuallyHidden, visuallyHiddenInput } from '@base-ui/utils/visuallyHidden';
 import { ownerDocument } from '@base-ui/utils/owner';
 import { platform } from '@base-ui/utils/platform';
+import { formatNumber } from '@base-ui/utils/formatNumber';
 import { activeElement } from '../../floating-ui-react/utils';
-import { InputMode, NumberFieldRootContext } from './NumberFieldRootContext';
+import type { InputMode } from './NumberFieldRootContext';
+import { NumberFieldRootContext } from './NumberFieldRootContext';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
 import { useFormContext } from '../../internals/form-context/FormContext';
 import type { FieldRootState } from '../../field/root/FieldRoot';
@@ -29,16 +31,20 @@ import {
   MINUS_SIGNS_WITH_ASCII,
   PLUS_SIGNS_WITH_ASCII,
 } from '../utils/parse';
-import { formatNumber } from '../../utils/formatNumber';
 import { toValidatedNumber } from '../utils/validate';
-import { EventWithOptionalKeyState } from '../utils/types';
-import type { ChangeEventCustomProperties, IncrementValueParameters } from '../utils/types';
+import type {
+  EventWithOptionalKeyState,
+  ChangeEventCustomProperties,
+  IncrementValueParameters,
+} from '../utils/types';
 import {
   createChangeEventDetails,
   createGenericEventDetails,
-  type BaseUIChangeEventDetails,
-  type BaseUIGenericEventDetails,
-  type ReasonToEvent,
+} from '../../internals/createBaseUIEventDetails';
+import type {
+  BaseUIChangeEventDetails,
+  BaseUIGenericEventDetails,
+  ReasonToEvent,
 } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 
@@ -64,7 +70,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
     readOnly = false,
     form,
     name: nameProp,
-    defaultValue,
+    defaultValue = null,
     value: valueProp,
     onValueChange: onValueChangeProp,
     onValueCommitted: onValueCommittedProp,
@@ -107,14 +113,13 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
 
   const id = useLabelableId({ id: idProp });
 
-  const [valueUnwrapped, setValueUnwrapped] = useControlled<number | null>({
+  const [value, setValueUnwrapped] = useControlled({
     controlled: valueProp,
     default: defaultValue,
     name: 'NumberField',
     state: 'value',
   });
 
-  const value = valueUnwrapped ?? null;
   const valueRef = useValueAsRef(value);
 
   useIsoLayoutEffect(() => {
@@ -339,6 +344,20 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
     [minWithDefault],
   );
 
+  // Programmatic focus leaves the caret at the start (Chrome/Firefox) or selects the whole value
+  // (Safari). Store the caret at the end before focusing: every engine restores the stored
+  // selection on `focus()`, and a selection the consumer sets in `onFocus` still wins. Keyboard
+  // and pointer focus keep the browser's native selection behavior.
+  const focusInput = useStableCallback(() => {
+    const input = inputRef.current;
+    if (!input) {
+      return;
+    }
+    const length = input.value.length;
+    input.setSelectionRange(length, length);
+    input.focus();
+  });
+
   // React attaches `onWheel` as a passive listener, so calling `preventDefault` there is ignored.
   // Attach a native (non-passive) `wheel` listener to the input instead to prevent page scrolling.
   React.useEffect(
@@ -357,6 +376,18 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
           return;
         }
 
+        // Some browsers deliver shift + wheel on the horizontal axis, so there the horizontal
+        // delta is the intended vertical one. Touchpads emit sub-pixel noise on the cross axis,
+        // so compare the axes rather than requiring an exact zero.
+        const isHorizontal = Math.abs(event.deltaX) > Math.abs(event.deltaY);
+        const delta = event.shiftKey && isHorizontal ? event.deltaX : event.deltaY;
+
+        // Ignore horizontal gestures so the page can scroll instead of scrubbing. Shift is exempt:
+        // its gesture is horizontal wherever the browser swaps the axis.
+        if (delta === 0 || (!event.shiftKey && isHorizontal)) {
+          return;
+        }
+
         // Prevent the default behavior to avoid scrolling the page.
         event.preventDefault();
         allowInputSyncRef.current = true;
@@ -366,9 +397,9 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
         // Each wheel turn is a discrete, final change, so commit it immediately like keyboard
         // steps (gated on an actual change so boundary no-ops don't commit).
         const changed = incrementValue(amount, {
-          direction: event.deltaY > 0 ? -1 : 1,
+          direction: delta > 0 ? -1 : 1,
           event,
-          reason: 'wheel',
+          reason: REASONS.wheel,
         });
         if (changed) {
           onValueCommitted(
@@ -408,6 +439,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
   const contextValue: NumberFieldRootContext = React.useMemo(
     () => ({
       inputRef,
+      focusInput,
       minWithDefault,
       maxWithDefault,
       id,
@@ -433,6 +465,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
     }),
     [
       inputRef,
+      focusInput,
       minWithDefault,
       maxWithDefault,
       id,
@@ -467,7 +500,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
       <input
         {...validation.getValidationProps(disabled, {
           onFocus() {
-            inputRef.current?.focus();
+            focusInput();
           },
           onChange(event: React.ChangeEvent<HTMLInputElement>) {
             // Workaround for https://github.com/react/react/issues/9023
@@ -614,8 +647,7 @@ export interface NumberFieldRootProps extends Omit<
    * - `'scrub'` for scrub area drags
    */
   onValueChange?:
-    | ((value: number | null, eventDetails: NumberFieldRoot.ChangeEventDetails) => void)
-    | undefined;
+    ((value: number | null, eventDetails: NumberFieldRoot.ChangeEventDetails) => void) | undefined;
   /**
    * Callback function that is fired when the value is committed.
    * It runs later than `onValueChange`, when:
@@ -628,8 +660,7 @@ export interface NumberFieldRootProps extends Omit<
    * **Warning**: This is a generic event not a change event.
    */
   onValueCommitted?:
-    | ((value: number | null, eventDetails: NumberFieldRoot.CommitEventDetails) => void)
-    | undefined;
+    ((value: number | null, eventDetails: NumberFieldRoot.CommitEventDetails) => void) | undefined;
   /**
    * The locale of the input element.
    * Defaults to the user's runtime locale.

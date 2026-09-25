@@ -1,4 +1,4 @@
-import { getFormatter } from '../../utils/formatNumber';
+import { getFormatter } from '@base-ui/utils/formatNumber';
 
 // Han numerals in digit order, with both zero forms first ('零' at 0, '〇' at 1), so a
 // character's digit value is `max(indexOf - 1, 0)`.

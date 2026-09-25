@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { BaseUIComponentProps } from '../../internals/types';
+import type { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import {
   useComboboxDerivedItemsContext,
@@ -33,7 +33,7 @@ export const ComboboxEmpty = React.forwardRef(function ComboboxEmpty(
   const children = filteredItems.length === 0 ? childrenProp : null;
 
   return useRenderElement('div', componentProps, {
-    ref: [forwardedRef, store.state.emptyRef, emptyRef],
+    ref: [forwardedRef, store.context.emptyRef, emptyRef],
     props: [
       {
         children,

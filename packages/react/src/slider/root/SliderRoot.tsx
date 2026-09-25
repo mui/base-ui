@@ -5,23 +5,23 @@ import { useControlled } from '@base-ui/utils/useControlled';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { warn } from '@base-ui/utils/warn';
+import { clamp } from '@base-ui/utils/clamp';
+import { areArraysEqual } from '@base-ui/utils/areArraysEqual';
 import type { BaseUIComponentProps, Orientation } from '../../internals/types';
 import {
   createChangeEventDetails,
   createGenericEventDetails,
-  type BaseUIChangeEventDetails,
-  type BaseUIGenericEventDetails,
+} from '../../internals/createBaseUIEventDetails';
+import type {
+  BaseUIChangeEventDetails,
+  BaseUIGenericEventDetails,
 } from '../../internals/createBaseUIEventDetails';
 import { useValueChanged } from '../../internals/useValueChanged';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import { useRenderElement } from '../../internals/useRenderElement';
-import { clamp } from '../../internals/clamp';
-import { areArraysEqual } from '../../internals/areArraysEqual';
 import { activeElement, contains } from '../../floating-ui-react/utils';
-import {
-  CompositeList,
-  type CompositeMetadata,
-} from '../../internals/composite/list/CompositeList';
+import { CompositeList } from '../../internals/composite/list/CompositeList';
+import type { CompositeMetadata } from '../../internals/composite/list/CompositeList';
 import type { FieldRootState } from '../../field/root/FieldRoot';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
 import { useRegisterFieldControl } from '../../internals/field-register-control/useRegisterFieldControl';
@@ -132,7 +132,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
   const pressedThumbIndexRef = React.useRef(-1);
   // The values when the current drag interaction started.
   const pressedValuesRef = React.useRef<readonly number[] | null>(null);
-  const lastChangeReasonRef = React.useRef<SliderRoot.ChangeEventReason>('none');
+  const lastChangeReasonRef = React.useRef<SliderRoot.ChangeEventReason>(REASONS.none);
 
   // We can't use the :active browser pseudo-classes.
   // - The active state isn't triggered when clicking on the rail.
@@ -309,6 +309,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       handleInputChange,
       indicatorPosition,
       inset: thumbAlignment !== 'center',
+      isArrayValue: range,
       labelId: ariaLabelledby,
       rootLabelId: defaultLabelId,
       largeStep,
@@ -359,6 +360,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       name,
       onValueCommitted,
       orientation,
+      range,
       registerFieldControlRef,
       setActive,
       setValue,

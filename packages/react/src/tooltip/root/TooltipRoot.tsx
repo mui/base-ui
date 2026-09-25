@@ -5,20 +5,20 @@ import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { TooltipRootContext } from './TooltipRootContext';
 import { useClientPoint, useDismiss } from '../../floating-ui-react';
+import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import {
-  type BaseUIChangeEventDetails,
-  createChangeEventDetails,
-} from '../../internals/createBaseUIEventDetails';
-import {
+  PopupHandleAttachment,
   useImplicitActiveTrigger,
   usePopupRootStore,
   useOpenStateTransitions,
   usePopupInteractionProps,
-  type PayloadChildRenderFunction,
 } from '../../utils/popups';
+import type { PayloadChildRenderFunction } from '../../utils/popups';
 import { mergeProps } from '../../merge-props';
 import { TooltipStore } from '../store/TooltipStore';
-import { type TooltipHandle } from '../store/TooltipHandle';
+import type { State as TooltipStoreState } from '../store/TooltipStore';
+import type { TooltipHandle } from '../store/TooltipHandle';
 import { REASONS } from '../../internals/reasons';
 
 /**
@@ -46,7 +46,6 @@ export const TooltipRoot = fastComponent(function TooltipRoot<Payload>(
   } = props;
 
   const store = usePopupRootStore(
-    handle,
     (floatingId, nested) =>
       new TooltipStore<Payload>(
         {
@@ -90,7 +89,9 @@ export const TooltipRoot = fastComponent(function TooltipRoot<Payload>(
   // 2) Closing because another tooltip opened (reason === 'none')
   // Otherwise, allow the animation to play. In particular, do not disable animations
   // during the 'ending' phase unless it's due to a sibling opening.
-  const previousInstantTypeRef = React.useRef<string | undefined | null>(null);
+  const previousInstantTypeRef = React.useRef<TooltipStoreState<Payload>['instantType'] | null>(
+    null,
+  );
 
   useIsoLayoutEffect(() => {
     if (openState && disabled) {
@@ -137,6 +138,7 @@ export const TooltipRoot = fastComponent(function TooltipRoot<Payload>(
 
   return (
     <TooltipRootContext.Provider value={store as TooltipRootContext}>
+      {handle && <PopupHandleAttachment handle={handle} store={store} />}
       {shouldRenderInteractions && (
         <TooltipInteractions store={store} disabled={disabled} trackCursorAxis={trackCursorAxis} />
       )}
@@ -163,8 +165,7 @@ export interface TooltipRootProps<Payload = unknown> {
    * Event handler called when the tooltip is opened or closed.
    */
   onOpenChange?:
-    | ((open: boolean, eventDetails: TooltipRoot.ChangeEventDetails) => void)
-    | undefined;
+    ((open: boolean, eventDetails: TooltipRoot.ChangeEventDetails) => void) | undefined;
   /**
    * Event handler called after any animations complete when the tooltip is opened or closed.
    */
@@ -181,7 +182,9 @@ export interface TooltipRootProps<Payload = unknown> {
   trackCursorAxis?: 'none' | 'x' | 'y' | 'both' | undefined;
   /**
    * A ref to imperative actions.
-   * - `unmount`: Unmounts the tooltip popup.
+   * - `unmount`: Ends the closing phase of the tooltip after an externally controlled closing animation finishes.
+   * Call `preventUnmountOnClose()` in `onOpenChange` first, otherwise the tooltip completes closing on its own.
+   * Whether it leaves the DOM is decided by `keepMounted` on the portal.
    * - `close`: Closes the tooltip imperatively when called.
    */
   actionsRef?: React.RefObject<TooltipRoot.Actions | null> | undefined;
@@ -231,7 +234,8 @@ export type TooltipRootChangeEventReason =
 
 export type TooltipRootChangeEventDetails =
   BaseUIChangeEventDetails<TooltipRoot.ChangeEventReason> & {
-    preventUnmountOnClose(): void;
+    /** Prevents the popup from unmounting until the `unmount` action is called. */
+    preventUnmountOnClose: () => void;
   };
 
 export namespace TooltipRoot {

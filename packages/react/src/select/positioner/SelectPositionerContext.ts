@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import type { Side, UseAnchorPositioningReturnValue } from '../../utils/useAnchorPositioning';
+import type { Side, UseAnchorPositioningReturnValue } from '../../internals/useAnchorPositioning';
 
 export interface SelectPositionerContext extends Omit<UseAnchorPositioningReturnValue, 'side'> {
   side: 'none' | Side;

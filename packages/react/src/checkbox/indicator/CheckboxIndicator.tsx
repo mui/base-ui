@@ -6,7 +6,8 @@ import { getCheckboxStateAttributesMapping } from '../utils/getCheckboxStateAttr
 import type { CheckboxRootState } from '../root/CheckboxRoot';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
-import { type TransitionStatus, useTransitionStatus } from '../../internals/useTransitionStatus';
+import { useTransitionStatus } from '../../internals/useTransitionStatus';
+import type { TransitionStatus } from '../../internals/useTransitionStatus';
 import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
 import { transitionStatusMapping } from '../../internals/stateAttributesMapping';
 
@@ -36,6 +37,8 @@ export const CheckboxIndicator = React.forwardRef(function CheckboxIndicator(
   };
 
   useOpenChangeComplete({
+    batch: true,
+    enabled: !rendered,
     open: rendered,
     ref: indicatorRef,
     onComplete() {

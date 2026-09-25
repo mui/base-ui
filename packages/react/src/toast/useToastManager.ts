@@ -110,7 +110,11 @@ export interface UseToastManagerReturnValue<Data extends object = any> {
   toasts: ToastObject<Data>[];
   add: <T extends Data = Data>(options: ToastManagerAddOptions<T>) => string;
   close: (toastId?: string) => void;
-  update: <T extends Data = Data>(toastId: string, options: ToastManagerUpdateOptions<T>) => void;
+  update: <T extends Data = Data>(
+    toastId: string,
+    options:
+      ToastManagerUpdateOptions<T> | ((prevToast: ToastObject<T>) => ToastManagerUpdateOptions<T>),
+  ) => void;
   promise: <Value, T extends Data = Data>(
     promise: Promise<Value>,
     options: ToastManagerPromiseOptions<Value, T>,

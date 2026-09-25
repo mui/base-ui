@@ -3,7 +3,7 @@ import * as React from 'react';
 import { usePreviewCardRootContext } from '../root/PreviewCardContext';
 import { PreviewCardPortalContext } from './PreviewCardPortalContext';
 import { FloatingPortalLite } from '../../utils/FloatingPortalLite';
-import { type BaseUIComponentProps } from '../../internals/types';
+import type { BaseUIComponentProps } from '../../internals/types';
 
 /**
  * A portal element that moves the popup to a different part of the DOM.
@@ -48,11 +48,7 @@ export interface PreviewCardPortalProps extends BaseUIComponentProps<
    * A parent element to render the portal element into.
    */
   container?:
-    | HTMLElement
-    | ShadowRoot
-    | React.RefObject<HTMLElement | ShadowRoot | null>
-    | null
-    | undefined;
+    HTMLElement | ShadowRoot | React.RefObject<HTMLElement | ShadowRoot | null> | null | undefined;
 }
 
 export namespace PreviewCardPortal {

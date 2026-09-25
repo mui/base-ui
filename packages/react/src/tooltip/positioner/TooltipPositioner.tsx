@@ -2,12 +2,12 @@
 import * as React from 'react';
 import { useTooltipRootContext } from '../root/TooltipRootContext';
 import { TooltipPositionerContext } from './TooltipPositionerContext';
-import {
-  useAnchorPositioning,
-  type Side,
-  type Align,
-  type UseAnchorPositioningSharedParameters,
-} from '../../utils/useAnchorPositioning';
+import { useAnchorPositioning } from '../../internals/useAnchorPositioning';
+import type {
+  Side,
+  Align,
+  UseAnchorPositioningSharedParameters,
+} from '../../internals/useAnchorPositioning';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useTooltipPortalContext } from '../portal/TooltipPortalContext';
 import { POPUP_COLLISION_AVOIDANCE } from '../../internals/constants';

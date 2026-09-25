@@ -3,9 +3,11 @@ import * as React from 'react';
 import { SafeReact } from '@base-ui/utils/safeReact';
 import { warn } from '@base-ui/utils/warn';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { formatNumber } from '@base-ui/utils/formatNumber';
 import { useNumberFieldRootContext } from '../root/NumberFieldRootContext';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
+import { useSetFieldFocused } from '../../internals/field-root-context/useSetFieldFocused';
 import { useRegisterFieldControl } from '../../internals/field-register-control/useRegisterFieldControl';
 import { useFormContext } from '../../internals/form-context/FormContext';
 import { useLabelableContext } from '../../internals/labelable-provider/LabelableContext';
@@ -26,7 +28,6 @@ import {
   createChangeEventDetails,
   createGenericEventDetails,
 } from '../../internals/createBaseUIEventDetails';
-import { formatNumber } from '../../utils/formatNumber';
 import { useValueChanged } from '../../internals/useValueChanged';
 import { REASONS } from '../../internals/reasons';
 import { hasNumberFormatRoundingOptions, removeFloatingPointErrors } from '../utils/validate';
@@ -78,11 +79,12 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
   const { disabled, readOnly, required, value, inputValue } = state;
 
   const { clearErrors } = useFormContext();
-  const { validationMode, setTouched, setFocused, invalid, shouldValidateOnChange, validation } =
+  const { validationMode, setTouched, invalid, shouldValidateOnChange, validation } =
     useFieldRootContext();
   const { labelId } = useLabelableContext();
 
-  const hasTouchedInputRef = React.useRef(false);
+  const setFocused = useSetFieldFocused(disabled, inputRef);
+
   const blockRevalidationRef = React.useRef(false);
   const pendingCaretRef = React.useRef<number | null>(null);
 
@@ -133,18 +135,6 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
       }
 
       setFocused(true);
-
-      if (hasTouchedInputRef.current) {
-        return;
-      }
-
-      hasTouchedInputRef.current = true;
-
-      // Browsers set selection at the start of the input field by default. We want to set it at
-      // the end for the first focus.
-      const target = event.currentTarget;
-      const length = target.value.length;
-      target.setSelectionRange(length, length);
     },
     onBlur(event) {
       if (event.defaultPrevented || disabled) {

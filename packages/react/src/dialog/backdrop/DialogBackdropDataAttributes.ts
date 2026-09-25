@@ -1,20 +1,18 @@
 import { CommonPopupDataAttributes } from '../../utils/popupStateMapping';
 
-export enum DialogBackdropDataAttributes {
-  /**
-   * Present when the dialog is open.
-   */
-  open = CommonPopupDataAttributes.open,
-  /**
-   * Present when the dialog is closed.
-   */
-  closed = CommonPopupDataAttributes.closed,
-  /**
-   * Present when the dialog begins animating in.
-   */
-  startingStyle = CommonPopupDataAttributes.startingStyle,
-  /**
-   * Present when the dialog is animating out.
-   */
-  endingStyle = CommonPopupDataAttributes.endingStyle,
-}
+/**
+ * Present when the dialog is open.
+ */
+export const open = CommonPopupDataAttributes.open;
+/**
+ * Present when the dialog is closed.
+ */
+export const closed = CommonPopupDataAttributes.closed;
+/**
+ * Present when the dialog begins animating in.
+ */
+export const startingStyle = CommonPopupDataAttributes.startingStyle;
+/**
+ * Present when the dialog is animating out.
+ */
+export const endingStyle = CommonPopupDataAttributes.endingStyle;

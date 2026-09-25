@@ -31,7 +31,7 @@ export const MenuCheckboxItem = React.forwardRef(function MenuCheckboxItem(
     id: idProp,
     label,
     nativeButton = false,
-    disabled = false,
+    disabled: disabledProp = false,
     closeOnClick = false,
     checked: checkedProp,
     defaultChecked,
@@ -45,6 +45,8 @@ export const MenuCheckboxItem = React.forwardRef(function MenuCheckboxItem(
   const id = useBaseUiId(idProp);
 
   const { store } = useMenuRootContext();
+  const rootDisabled = store.useState('disabled');
+  const disabled = disabledProp || rootDisabled;
   const highlighted = store.useState('isActive', listItem.index);
   const itemProps = store.useState('itemProps');
 
@@ -144,8 +146,7 @@ export interface MenuCheckboxItemProps
    * Event handler called when the checkbox item is ticked or unticked.
    */
   onCheckedChange?:
-    | ((checked: boolean, eventDetails: MenuCheckboxItem.ChangeEventDetails) => void)
-    | undefined;
+    ((checked: boolean, eventDetails: MenuCheckboxItem.ChangeEventDetails) => void) | undefined;
   /**
    * The click handler for the menu item.
    */

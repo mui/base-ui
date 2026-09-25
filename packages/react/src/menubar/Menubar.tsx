@@ -6,14 +6,15 @@ import {
   useFloatingNodeId,
   useFloatingTree,
 } from '../floating-ui-react';
-import { type MenuRoot } from '../menu/root/MenuRoot';
-import { BaseUIComponentProps } from '../internals/types';
+import type { MenuRoot } from '../menu/root/MenuRoot';
+import type { BaseUIComponentProps } from '../internals/types';
 import { MenubarContext, useMenubarContext } from './MenubarContext';
 import { CompositeRoot } from '../internals/composite/root/CompositeRoot';
 import { useBaseUiId } from '../internals/useBaseUiId';
-import { MenuOpenEventDetails } from '../menu/utils/types';
-import { StateAttributesMapping } from '../internals/getStateAttributesProps';
-import { MenubarDataAttributes } from './MenubarDataAttributes';
+import type { MenuOpenEventDetails } from '../menu/utils/types';
+import type { StateAttributesMapping } from '../internals/getStateAttributesProps';
+import * as MenubarDataAttributes from './MenubarDataAttributes';
+import { REASONS } from '../internals/reasons';
 
 const menubarStateAttributesMapping: StateAttributesMapping<MenubarState> = {
   hasSubmenuOpen(value) {
@@ -53,7 +54,6 @@ export const Menubar = React.forwardRef(function Menubar(
     hasSubmenuOpen,
   };
 
-  const contentRef = React.useRef<HTMLDivElement>(null);
   const allowMouseUpTriggerRef = React.useRef(false);
 
   const context: MenubarContext = React.useMemo(
@@ -81,7 +81,7 @@ export const Menubar = React.forwardRef(function Menubar(
             style={style}
             state={state}
             stateAttributesMapping={menubarStateAttributesMapping}
-            refs={[forwardedRef, setContentElement, contentRef]}
+            refs={[forwardedRef, setContentElement]}
             props={[{ role: 'menubar', id, 'aria-orientation': orientation }, elementProps]}
             orientation={orientation}
             loopFocus={loopFocus}
@@ -109,7 +109,10 @@ function MenubarContent(props: React.PropsWithChildren<{}>) {
         if (!rootContext.hasSubmenuOpen) {
           rootContext.setHasSubmenuOpen(true);
         }
-      } else if (details.reason !== 'sibling-open' && details.reason !== 'list-navigation') {
+      } else if (
+        details.reason !== REASONS.siblingOpen &&
+        details.reason !== REASONS.listNavigation
+      ) {
         rootContext.setHasSubmenuOpen(false);
       }
     }

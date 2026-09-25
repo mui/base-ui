@@ -1,43 +1,46 @@
 'use client';
-import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { ReactStore } from '@base-ui/utils/store';
+import type { ReactStore } from '@base-ui/utils/store';
 import { isElement } from '@floating-ui/utils/dom';
-import { BaseUIChangeEventDetails } from '../../types';
-import { PopupStoreContext, PopupStoreSelectors, PopupStoreState } from '../../utils/popups';
-import { FloatingRootState, FloatingRootStore } from '../components/FloatingRootStore';
+import type { BaseUIChangeEventDetails } from '../../types';
+import type { PopupStoreContext, PopupStoreSelectors, PopupStoreState } from '../../utils/popups';
+import type { FloatingRootState, FloatingRootStore } from '../components/FloatingRootStore';
+
+/**
+ * Narrowed to the store members this hook uses so consumers do not need to provide
+ * unrelated store capabilities.
+ */
+export type SyncedFloatingRootContextStore<State extends PopupStoreState<unknown>> = Pick<
+  ReactStore<Readonly<State>, PopupStoreContext<never>, PopupStoreSelectors>,
+  'context' | 'state' | 'useState' | 'useSyncedValue'
+>;
 
 export interface UseSyncedFloatingRootContextOptions<
   State extends PopupStoreState<unknown>,
-  ContextEventDetails extends BaseUIChangeEventDetails<string>,
   OpenChangeEventDetails extends BaseUIChangeEventDetails<string>,
 > {
-  popupStore: ReactStore<State, PopupStoreContext<ContextEventDetails>, PopupStoreSelectors>;
+  popupStore: SyncedFloatingRootContextStore<State>;
   /**
    * Whether the Popup element is passed to Floating UI as the floating element instead of the default Positioner.
    */
   treatPopupAsFloatingElement?: boolean | undefined;
-  floatingRootContext?: FloatingRootStore | undefined;
+  floatingRootContext: FloatingRootStore;
   floatingId: string | undefined;
   nested: boolean;
   onOpenChange(open: boolean, eventDetails: OpenChangeEventDetails): void;
 }
 
 /**
- * Keeps a FloatingRootStore in sync with the provided PopupStore.
- * Uses the provided FloatingRootStore when one exists, otherwise creates one once and updates it on every render.
+ * Keeps the provided FloatingRootStore in sync with the provided PopupStore.
  */
 export function useSyncedFloatingRootContext<
   State extends PopupStoreState<unknown>,
-  ContextEventDetails extends BaseUIChangeEventDetails<string>,
   OpenChangeEventDetails extends BaseUIChangeEventDetails<string>,
->(
-  options: UseSyncedFloatingRootContextOptions<State, ContextEventDetails, OpenChangeEventDetails>,
-): FloatingRootStore {
+>(options: UseSyncedFloatingRootContextOptions<State, OpenChangeEventDetails>): FloatingRootStore {
   const {
     popupStore,
     treatPopupAsFloatingElement = false,
-    floatingRootContext: floatingRootContextProp,
+    floatingRootContext: store,
     floatingId,
     nested,
     onOpenChange,
@@ -48,39 +51,29 @@ export function useSyncedFloatingRootContext<
   const floatingElement = popupStore.useState(
     treatPopupAsFloatingElement ? 'popupElement' : 'positionerElement',
   );
-  const triggerElements = popupStore.context.triggerElements;
 
   const handleOpenChange = onOpenChange as (
     open: boolean,
     eventDetails: BaseUIChangeEventDetails<string>,
   ) => void;
 
-  const internalStoreRef = React.useRef<FloatingRootStore | null>(null);
-  if (floatingRootContextProp === undefined && internalStoreRef.current === null) {
-    internalStoreRef.current = new FloatingRootStore({
-      open,
-      transitionStatus: undefined,
-      referenceElement,
-      floatingElement,
-      triggerElements,
-      onOpenChange: handleOpenChange,
-      floatingId,
-      syncOnly: true,
-      nested,
-    });
-  }
-
-  const store = floatingRootContextProp ?? internalStoreRef.current!;
-
   popupStore.useSyncedValue('floatingId', floatingId as State['floatingId']);
 
   useIsoLayoutEffect(() => {
-    const valuesToSync: Partial<FloatingRootState> = {
+    const valuesToSync = {
       open,
       floatingId,
       referenceElement,
       floatingElement,
-    };
+    } as Pick<
+      FloatingRootState,
+      | 'open'
+      | 'floatingId'
+      | 'referenceElement'
+      | 'floatingElement'
+      | 'domReferenceElement'
+      | 'positionReference'
+    >;
 
     if (isElement(referenceElement)) {
       valuesToSync.domReferenceElement = referenceElement;

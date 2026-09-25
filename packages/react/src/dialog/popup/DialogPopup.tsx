@@ -1,15 +1,16 @@
 'use client';
 import * as React from 'react';
-import { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
+import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import { FloatingFocusManager } from '../../floating-ui-react';
 import { useDialogRootContext } from '../root/DialogRootContext';
 import { useRenderElement } from '../../internals/useRenderElement';
-import { type BaseUIComponentProps } from '../../internals/types';
-import { type TransitionStatus } from '../../internals/useTransitionStatus';
+import type { BaseUIComponentProps } from '../../internals/types';
+import type { TransitionStatus } from '../../internals/useTransitionStatus';
 import { useDialogPortalContext } from '../portal/DialogPortalContext';
 import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
 import { COMPOSITE_KEYS } from '../../internals/composite/composite';
 import { FOCUSABLE_POPUP_PROPS, createDefaultInitialFocus } from '../../utils/popups';
+import * as DialogPopupCssVars from './DialogPopupCssVars';
 import { dialogStateAttributesMapping } from '../utils/stateAttributesMapping';
 
 /**
@@ -84,7 +85,7 @@ export const DialogPopup = React.forwardRef(function DialogPopup(
           }
         },
         style: {
-          '--nested-dialogs': nestedOpenDialogCount,
+          [DialogPopupCssVars.nestedDialogs]: nestedOpenDialogCount,
         } as React.CSSProperties,
       },
       elementProps,

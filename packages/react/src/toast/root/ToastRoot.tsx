@@ -6,26 +6,29 @@ import { ownerDocument } from '@base-ui/utils/owner';
 import { inertValue } from '@base-ui/utils/inertValue';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import { activeElement, contains, getTarget } from '../../floating-ui-react/utils';
+import { activeElement, closest, contains, getTarget } from '../../floating-ui-react/utils';
 import type { BaseUIComponentProps, HTMLProps } from '../../internals/types';
 import type { ToastObject as ToastObjectType } from '../useToastManager';
 import { ToastRootContext } from './ToastRootContext';
 import { transitionStatusMapping } from '../../internals/stateAttributesMapping';
 import type { TransitionStatus } from '../../internals/useTransitionStatus';
 import { useToastProviderContext } from '../provider/ToastProviderContext';
-import { StateAttributesMapping } from '../../internals/getStateAttributesProps';
+import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
 import {
   BASE_UI_SWIPE_IGNORE_SELECTOR,
   LEGACY_SWIPE_IGNORE_SELECTOR,
 } from '../../internals/constants';
-import { getDisplacement, getElementTransform } from '../../utils/useSwipeDismiss';
+import { getDisplacement } from '../../utils/useSwipeDismiss';
+import { getElementTransform } from '../../utils/getElementTransform';
+import * as ToastRootCssVars from './ToastRootCssVars';
+import * as ToastRootDataAttributes from './ToastRootDataAttributes';
 
 export const toastRootStateAttributesMapping: StateAttributesMapping<ToastRootState> = {
   ...transitionStatusMapping,
   swipeDirection(value) {
-    return value ? { 'data-swipe-direction': value } : null;
+    return value ? { [ToastRootDataAttributes.swipeDirection]: value } : null;
   },
 };
 
@@ -245,7 +248,8 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
 
     const target = getTarget(event.nativeEvent) as HTMLElement | null;
 
-    const isInteractiveElement = target?.closest(
+    const isInteractiveElement = closest(
+      target,
       `button,a,input,textarea,[role="button"],${TOAST_SWIPE_IGNORE_SELECTOR}`,
     );
 
@@ -323,6 +327,8 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
     const cancelDeltaY = clientY - swipeCancelBaselineRef.current.y;
     const cancelDeltaX = clientX - swipeCancelBaselineRef.current.x;
 
+    let resolvedLockedDirection = lockedDirection;
+
     if (!isRealSwipe) {
       const movementDistance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
       if (movementDistance >= MIN_DRAG_THRESHOLD) {
@@ -335,20 +341,21 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
         if (hasHorizontal && hasVertical) {
           const absX = Math.abs(deltaX);
           const absY = Math.abs(deltaY);
-          setLockedDirection(absX > absY ? 'horizontal' : 'vertical');
+          resolvedLockedDirection = absX > absY ? 'horizontal' : 'vertical';
+          setLockedDirection(resolvedLockedDirection);
         }
       }
     }
 
     let candidate: 'up' | 'down' | 'left' | 'right' | undefined;
     if (!intendedSwipeDirectionRef.current) {
-      if (lockedDirection === 'vertical') {
+      if (resolvedLockedDirection === 'vertical') {
         if (deltaY > 0) {
           candidate = 'down';
         } else if (deltaY < 0) {
           candidate = 'up';
         }
-      } else if (lockedDirection === 'horizontal') {
+      } else if (resolvedLockedDirection === 'horizontal') {
         if (deltaX > 0) {
           candidate = 'right';
         } else if (deltaX < 0) {
@@ -389,11 +396,11 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
     const hasHorizontalDir = swipeDirections.includes('left') || swipeDirections.includes('right');
     const hasVerticalDir = swipeDirections.includes('up') || swipeDirections.includes('down');
 
-    if (lockedDirection !== 'vertical' && hasHorizontalDir) {
+    if (resolvedLockedDirection !== 'vertical' && hasHorizontalDir) {
       newOffsetX += dampedDelta.x;
     }
 
-    if (lockedDirection !== 'horizontal' && hasVerticalDir) {
+    if (resolvedLockedDirection !== 'horizontal' && hasVerticalDir) {
       newOffsetY += dampedDelta.y;
     }
 
@@ -446,8 +453,8 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
       transform: isSwiping
         ? `translateX(${dragOffset.x}px) translateY(${dragOffset.y}px) scale(${initialTransform.scale})`
         : undefined,
-      ['--toast-swipe-movement-x']: `${deltaX}px`,
-      ['--toast-swipe-movement-y']: `${deltaY}px`,
+      [ToastRootCssVars.swipeMovementX]: `${deltaX}px`,
+      [ToastRootCssVars.swipeMovementY]: `${deltaY}px`,
     };
   }
 
@@ -468,9 +475,10 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
     inert: inertValue(toast.limited),
     style: {
       ...getDragStyles(),
-      ['--toast-index' as string]: toast.transitionStatus === 'ending' ? domIndex : visibleIndex,
-      ['--toast-offset-y' as string]: `${offsetY}px`,
-      ['--toast-height' as string]: toast.height ? `${toast.height}px` : undefined,
+      [ToastRootCssVars.index as string]:
+        toast.transitionStatus === 'ending' ? domIndex : visibleIndex,
+      [ToastRootCssVars.offsetY as string]: `${offsetY}px`,
+      [ToastRootCssVars.height as string]: toast.height ? `${toast.height}px` : undefined,
     },
   };
 
@@ -544,12 +552,7 @@ export interface ToastRootProps extends BaseUIComponentProps<'div', ToastRootSta
    * @default ['down', 'right']
    */
   swipeDirection?:
-    | 'up'
-    | 'down'
-    | 'left'
-    | 'right'
-    | ('up' | 'down' | 'left' | 'right')[]
-    | undefined;
+    'up' | 'down' | 'left' | 'right' | ('up' | 'down' | 'left' | 'right')[] | undefined;
 }
 
 export namespace ToastRoot {

@@ -15,6 +15,7 @@ import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
 import { FocusGuard } from '../../utils/FocusGuard';
 import {
   activeElement,
+  closest,
   contains,
   getTarget,
   isTypeableCombobox,
@@ -29,11 +30,11 @@ import {
   isTabbable,
   getNextTabbable,
   getPreviousTabbable,
-  type FocusableElement,
 } from '../utils/tabbable';
+import type { FocusableElement } from '../utils/tabbable';
 import { getNodeAncestors, getNodeChildren } from '../utils/nodes';
 import { isElementVisible } from '../utils/composite';
-import type { FloatingContext, FloatingRootContext } from '../types';
+import type { FloatingRootContext } from '../types';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import { createAttribute } from '../utils/createAttribute';
@@ -41,9 +42,9 @@ import { enqueueFocus } from '../utils/enqueueFocus';
 import { markOthers } from '../utils/markOthers';
 import { usePortalContext } from './FloatingPortal';
 import { useFloatingTree } from './FloatingTree';
-import { FloatingTreeStore } from '../components/FloatingTreeStore';
+import type { FloatingTreeStore } from '../components/FloatingTreeStore';
 import { CLICK_TRIGGER_IDENTIFIER } from '../../internals/constants';
-import { FloatingUIOpenChangeDetails } from '../../internals/types';
+import type { FloatingUIOpenChangeDetails } from '../../internals/types';
 import { resolveRef } from '../../utils/resolveRef';
 
 function getEventType(event: Event, lastInteractionType?: InteractionType): InteractionType {
@@ -149,7 +150,7 @@ export interface FloatingFocusManagerProps {
   /**
    * The floating context returned from `useFloatingRootContext`.
    */
-  context: FloatingRootContext | FloatingContext;
+  context: FloatingRootContext;
   /**
    * The interaction type used to open the floating element.
    */
@@ -250,7 +251,7 @@ export interface FloatingFocusManagerProps {
  */
 export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JSX.Element {
   const {
-    context,
+    context: store,
     children,
     disabled = false,
     initialFocus = true,
@@ -265,8 +266,6 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     externalTree,
     getInsideElements,
   } = props;
-
-  const store = 'rootStore' in context ? context.rootStore : context;
 
   const open = store.useState('open');
   const domReference = store.useState('domReferenceElement');
@@ -371,7 +370,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
       lastInteractionTypeRef.current =
         (event.pointerType as React.PointerEvent['pointerType']) || 'keyboard';
 
-      if (target?.closest(`[${CLICK_TRIGGER_IDENTIFIER}]`)) {
+      if (closest(target, `[${CLICK_TRIGGER_IDENTIFIER}]`)) {
         isPointerDownRef.current = true;
         // Reset on the next tick so a single click on a click-trigger doesn't
         // permanently suppress focus-out closing for the lifetime of the instance.
@@ -667,6 +666,9 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
       return;
     }
 
+    closeTypeRef.current = '';
+    lastInteractionTypeRef.current = '';
+
     const doc = ownerDocument(floatingFocusElement);
     const previouslyFocusedElement = activeElement(doc);
 
@@ -762,7 +764,12 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
         closeTypeRef.current = getEventType(details.nativeEvent, lastInteractionTypeRef.current);
       }
 
-      if (details.reason === REASONS.triggerHover && details.nativeEvent.type === 'mouseleave') {
+      // Focus guards transfer focus themselves; other close handlers may still need return focus.
+      if (
+        (details.reason === REASONS.focusOut &&
+          details.triggerElement?.hasAttribute(createAttribute('focus-guard'))) ||
+        (details.reason === REASONS.triggerHover && details.nativeEvent.type === 'mouseleave')
+      ) {
         preventReturnFocusRef.current = true;
       }
 
@@ -803,11 +810,11 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
 
     events.on('openchange', onOpenChangeLocal);
 
-    function getReturnElement() {
+    function getReturnElement(closeType: InteractionType) {
       const returnFocusValueOrFn = returnFocusRef.current;
       let resolvedReturnFocusValue =
         typeof returnFocusValueOrFn === 'function'
-          ? returnFocusValueOrFn(closeTypeRef.current)
+          ? returnFocusValueOrFn(closeType)
           : returnFocusValueOrFn;
 
       // `null` should fallback to default behavior in case of an empty ref.
@@ -855,7 +862,8 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
 
       // eslint-disable-next-line react-hooks/exhaustive-deps
       const returnFocusValueOrFn = returnFocusRef.current;
-      const returnElement = getReturnElement();
+      const closeType = closeTypeRef.current;
+      const returnElement = getReturnElement(closeType);
 
       queueMicrotask(() => {
         // `returnElement` if it is tabbable, otherwise its first tabbable child,
@@ -875,7 +883,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
             : true)
         ) {
           const focusOptions: FocusOptions = { preventScroll: true };
-          if (closeTypeRef.current === 'keyboard') {
+          if (closeType === 'keyboard') {
             focusOptions.focusVisible = true;
           }
           tabbableReturnElement.focus(focusOptions);

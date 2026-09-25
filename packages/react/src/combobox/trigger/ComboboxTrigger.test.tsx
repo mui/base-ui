@@ -1,4 +1,4 @@
-import { expect, vi } from 'vitest';
+import { expect, vi, describe, it } from 'vitest';
 import * as React from 'react';
 import { Combobox } from '@base-ui/react/combobox';
 import { Autocomplete } from '@base-ui/react/autocomplete';
@@ -205,8 +205,8 @@ describe('<Combobox.Trigger />', () => {
     function SparseRegistry() {
       const store = useComboboxRootContext();
       useIsoLayoutEffect(() => {
-        store.state.labelsRef.current[0] = 'apple';
-        delete store.state.valuesRef.current[0];
+        store.context.labelsRef.current[0] = 'apple';
+        delete store.context.valuesRef.current[0];
       }, [store]);
       return null;
     }
@@ -226,7 +226,21 @@ describe('<Combobox.Trigger />', () => {
   });
 
   describe('prop: readOnly', () => {
-    it('should not open popup when readOnly', async () => {
+    it('applies the data-readonly style hook only when readOnly', async () => {
+      const { setProps } = await render(
+        <Combobox.Root readOnly>
+          <Combobox.Trigger data-testid="trigger">Open</Combobox.Trigger>
+        </Combobox.Root>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+      expect(trigger).toHaveAttribute('data-readonly', '');
+
+      await setProps({ readOnly: false });
+      expect(trigger).not.toHaveAttribute('data-readonly');
+    });
+
+    it('opens the popup when readOnly', async () => {
       const { user } = await render(
         <Combobox.Root readOnly>
           <Combobox.Trigger data-testid="trigger">Open</Combobox.Trigger>
@@ -246,10 +260,15 @@ describe('<Combobox.Trigger />', () => {
       const trigger = screen.getByTestId('trigger');
       await user.click(trigger);
 
-      expect(screen.queryByRole('listbox')).toBe(null);
+      expect(await screen.findByRole('listbox')).toHaveAttribute('aria-readonly', 'true');
     });
 
-    it.each(['ArrowDown', 'ArrowUp'])('does not open on %s when readOnly', async (key) => {
+    it.each([
+      { name: 'ArrowDown', key: '{ArrowDown}' },
+      { name: 'ArrowUp', key: '{ArrowUp}' },
+      { name: 'Enter', key: '{Enter}' },
+      { name: 'Space', key: '[Space]' },
+    ])('opens on $name when readOnly', async ({ key }) => {
       const onOpenChange = vi.fn();
       const { user } = await render(
         <Combobox.Root readOnly onOpenChange={onOpenChange}>
@@ -269,10 +288,38 @@ describe('<Combobox.Trigger />', () => {
 
       const trigger = screen.getByTestId('trigger');
       trigger.focus();
-      await user.keyboard(`{${key}}`);
+      await user.keyboard(key);
 
-      expect(onOpenChange).not.toHaveBeenCalled();
-      expect(screen.queryByRole('listbox')).toBe(null);
+      expect(onOpenChange).toHaveBeenCalledTimes(1);
+      expect(await screen.findByRole('listbox')).not.toBe(null);
+    });
+
+    it('does not commit a value with typeahead on a closed trigger', async () => {
+      const onValueChange = vi.fn();
+      const { user } = await render(
+        <Combobox.Root readOnly onValueChange={onValueChange}>
+          <Combobox.Trigger data-testid="trigger">
+            <Combobox.Value />
+          </Combobox.Trigger>
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  <Combobox.Item value="apple">apple</Combobox.Item>
+                  <Combobox.Item value="banana">banana</Combobox.Item>
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+      trigger.focus();
+      await user.keyboard('b');
+
+      expect(onValueChange).not.toHaveBeenCalled();
+      expect(trigger).toHaveAttribute('data-placeholder');
     });
 
     it('should not toggle when readOnly=false (control)', async () => {
@@ -654,8 +701,10 @@ describe('<Combobox.Trigger />', () => {
 
   describe('cancel-open', () => {
     it('closes the popup when mouseup occurs outside the trigger bounds', async () => {
+      const onOpenChange = vi.fn();
+
       await render(
-        <Combobox.Root>
+        <Combobox.Root onOpenChange={onOpenChange}>
           <Combobox.Trigger data-testid="trigger">Open</Combobox.Trigger>
           <Combobox.Portal>
             <Combobox.Positioner>
@@ -680,6 +729,8 @@ describe('<Combobox.Trigger />', () => {
       await waitFor(() => {
         expect(screen.queryByRole('listbox')).toBe(null);
       });
+      expect(onOpenChange.mock.lastCall?.[0]).toBe(false);
+      expect(onOpenChange.mock.lastCall?.[1].reason).toBe(REASONS.cancelOpen);
     });
 
     it('keeps the popup open when mouseup remains near the trigger bounds', async () => {
@@ -781,6 +832,34 @@ describe('<Combobox.Trigger />', () => {
       expect(trigger).not.toHaveAttribute('aria-required');
     });
 
+    it('sets aria-readonly attribute when readOnly (input inside popup)', async () => {
+      await render(
+        <Combobox.Root readOnly>
+          <Combobox.Trigger data-testid="trigger" />
+        </Combobox.Root>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+      expect(trigger).toHaveAttribute('role', 'combobox');
+      expect(trigger).toHaveAttribute('aria-readonly', 'true');
+    });
+
+    it('does not set aria-readonly attribute when the input is outside the popup', async () => {
+      await render(
+        <Combobox.Root readOnly>
+          <Combobox.Input data-testid="input" />
+          <Combobox.Trigger data-testid="trigger" />
+        </Combobox.Root>,
+      );
+
+      // Without the `combobox` role the trigger is a plain button, so `aria-readonly` wouldn't
+      // apply to it. The input carries the state instead.
+      const trigger = screen.getByTestId('trigger');
+      expect(trigger).not.toHaveAttribute('role');
+      expect(trigger).not.toHaveAttribute('aria-readonly');
+      expect(screen.getByTestId('input')).toHaveAttribute('aria-readonly', 'true');
+    });
+
     it('sets all aria attributes on the input when closed', async () => {
       await render(
         <Combobox.Root>
@@ -867,49 +946,53 @@ describe('<Combobox.Trigger />', () => {
       expect(screen.queryByRole('listbox')).toBe(null);
     });
 
-    it('selects item when typing after the popup has been opened and closed (items prop)', async () => {
-      const { user } = await render(
-        <Combobox.Root items={['apple', 'banana', 'cherry']}>
-          <Combobox.Trigger data-testid="trigger">
-            <Combobox.Value data-testid="value" />
-          </Combobox.Trigger>
-          <Combobox.Portal>
-            <Combobox.Positioner>
-              <Combobox.Popup>
-                <Combobox.List>
-                  {(item: string) => (
-                    <Combobox.Item key={item} value={item}>
-                      {item}
-                    </Combobox.Item>
-                  )}
-                </Combobox.List>
-              </Combobox.Popup>
-            </Combobox.Positioner>
-          </Combobox.Portal>
-        </Combobox.Root>,
-      );
+    it.each([false, true])(
+      'selects item when typing after the popup has been opened and closed (items prop, strict: %s)',
+      async (strict) => {
+        const { user } = await render(
+          <Combobox.Root items={['apple', 'banana', 'cherry']}>
+            <Combobox.Trigger data-testid="trigger">
+              <Combobox.Value data-testid="value" />
+            </Combobox.Trigger>
+            <Combobox.Portal>
+              <Combobox.Positioner>
+                <Combobox.Popup>
+                  <Combobox.List>
+                    {(item: string) => (
+                      <Combobox.Item key={item} value={item}>
+                        {item}
+                      </Combobox.Item>
+                    )}
+                  </Combobox.List>
+                </Combobox.Popup>
+              </Combobox.Positioner>
+            </Combobox.Portal>
+          </Combobox.Root>,
+          { strict },
+        );
 
-      const trigger = screen.getByTestId('trigger');
+        const trigger = screen.getByTestId('trigger');
 
-      // Opening mounts the list (rendered labels overwrite the derived ones) and closing
-      // unmounts it, clearing the registered labels. Typeahead must still work afterwards.
-      await user.click(trigger);
-      await screen.findByRole('listbox');
-      await user.keyboard('{Escape}');
-      await waitFor(() => {
-        expect(screen.queryByRole('listbox')).toBe(null);
-      });
-      // Focus returns to the trigger asynchronously after close.
-      await waitFor(() => {
-        expect(trigger).toHaveFocus();
-      });
+        // Opening mounts the list (rendered labels overwrite the derived ones) and closing
+        // unmounts it, clearing the registered labels. Typeahead must still work afterwards.
+        await user.click(trigger);
+        await screen.findByRole('listbox');
+        await user.keyboard('{Escape}');
+        await waitFor(() => {
+          expect(screen.queryByRole('listbox')).toBe(null);
+        });
+        // Focus returns to the trigger asynchronously after close.
+        await waitFor(() => {
+          expect(trigger).toHaveFocus();
+        });
 
-      await user.keyboard('b');
+        await user.keyboard('b');
 
-      await waitFor(() => {
-        expect(trigger).toHaveTextContent('banana');
-      });
-    });
+        await waitFor(() => {
+          expect(trigger).toHaveTextContent('banana');
+        });
+      },
+    );
 
     it.each([false, true])(
       'cycles to the next matching item when typing after open/close (no items prop, keepMounted %s)',

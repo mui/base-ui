@@ -4,11 +4,9 @@ import { useTimeout, Timeout } from '@base-ui/utils/useTimeout';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 
 import { getDelay } from '../hooks/useHoverShared';
-import type { FloatingRootContext, Delay, FloatingContext } from '../types';
-import {
-  BaseUIChangeEventDetails,
-  createChangeEventDetails,
-} from '../../internals/createBaseUIEventDetails';
+import type { FloatingRootContext, Delay } from '../types';
+import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 
 interface ContextValue {
@@ -17,7 +15,7 @@ interface ContextValue {
   delayRef: React.RefObject<Delay>;
   initialDelayRef: React.RefObject<Delay>;
   timeout: Timeout;
-  currentIdRef: React.RefObject<any>;
+  currentIdRef: React.RefObject<string | null | undefined>;
   currentContextRef: React.RefObject<{
     onOpenChange: (open: boolean, eventDetails: BaseUIChangeEventDetails<any>) => void;
     setIsInstantPhase: (value: boolean) => void;
@@ -115,6 +113,10 @@ interface UseDelayGroupOptions {
 
 interface UseDelayGroupReturn {
   /**
+   * The id of the floating element keeping the delay group active.
+   */
+  activeIdRef: React.RefObject<string | null | undefined>;
+  /**
    * The delay reference object.
    */
   delayRef: React.RefObject<Delay>;
@@ -135,12 +137,11 @@ interface UseDelayGroupReturn {
  * @internal
  */
 export function useDelayGroup(
-  context: FloatingRootContext | FloatingContext,
+  store: FloatingRootContext,
   options: UseDelayGroupOptions = { open: false },
 ): UseDelayGroupReturn {
   const { open } = options;
 
-  const store = 'rootStore' in context ? context.rootStore : context;
   const floatingId = store.useState('floatingId');
 
   const groupContext = React.useContext(FloatingDelayGroupContext);
@@ -156,23 +157,13 @@ export function useDelayGroup(
 
   const [isInstantPhase, setIsInstantPhase] = React.useState(false);
   const openRef = React.useRef(open);
-  const isUnmountedRef = React.useRef(false);
 
   useIsoLayoutEffect(() => {
     openRef.current = open;
   }, [open]);
 
   useIsoLayoutEffect(() => {
-    return () => {
-      isUnmountedRef.current = true;
-    };
-  }, []);
-
-  useIsoLayoutEffect(() => {
     function unset() {
-      if (!isUnmountedRef.current) {
-        setIsInstantPhase(false);
-      }
       currentContextRef.current?.setIsInstantPhase(false);
       currentIdRef.current = null;
       currentContextRef.current = null;
@@ -277,10 +268,11 @@ export function useDelayGroup(
 
   return React.useMemo(
     () => ({
+      activeIdRef: currentIdRef,
       hasProvider,
       delayRef,
       isInstantPhase,
     }),
-    [hasProvider, delayRef, isInstantPhase],
+    [currentIdRef, hasProvider, delayRef, isInstantPhase],
   );
 }

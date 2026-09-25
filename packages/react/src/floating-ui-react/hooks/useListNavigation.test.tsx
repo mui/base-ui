@@ -4,7 +4,9 @@ import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event';
 import { flushMicrotasks } from '@mui/internal-test-utils';
 import { isJSDOM, useTestInteractions } from '#test-utils';
-import { FloatingFocusManager, useClick, useDismiss, useFloating, useListNavigation } from '../index';
+import { FloatingFocusManager, useClick, useDismiss, useListNavigation } from '../index';
+import type { HighlightItemTarget } from './useListNavigation';
+import { useFloating } from '../../../test/floating-ui-tests/useFloating';
 import { gridNavigation } from './gridNavigation';
 import type { UseListNavigationProps } from '../types';
 import { Main as ComplexGrid } from '../../../test/floating-ui-tests/ComplexGrid';
@@ -32,8 +34,8 @@ function App(
     onOpenChange: setOpen,
   });
   const { getReferenceProps, getFloatingProps, getItemProps } = useTestInteractions([
-    useClick(context),
-    useListNavigation(context, {
+    useClick(context.rootStore),
+    useListNavigation(context.rootStore, {
       ...props,
       listRef,
       activeIndex,
@@ -114,7 +116,7 @@ function VirtualizedGridRows({
   });
 
   const { getReferenceProps, getFloatingProps, getItemProps } = useTestInteractions([
-    useListNavigation(context, {
+    useListNavigation(context.rootStore, {
       listRef,
       activeIndex,
       onNavigate: setActiveIndex,
@@ -177,6 +179,17 @@ function VirtualizedGridRows({
 }
 
 describe('useListNavigation', () => {
+  it('does not add role-dependent aria-orientation', async () => {
+    render(<App orientation="horizontal" />);
+
+    fireEvent.keyDown(screen.getByRole('button'), { key: 'ArrowRight' });
+    await waitFor(() => {
+      expect(screen.getByTestId('item-0')).toHaveFocus();
+    });
+
+    expect(screen.getByRole('menu')).not.toHaveAttribute('aria-orientation');
+  });
+
   it('opens on ArrowDown and focuses first item', async () => {
     render(<App />);
 
@@ -320,8 +333,8 @@ describe('useListNavigation', () => {
       });
 
       const { getReferenceProps, getFloatingProps, getItemProps } = useTestInteractions([
-        useDismiss(context),
-        useListNavigation(context, {
+        useDismiss(context.rootStore),
+        useListNavigation(context.rootStore, {
           listRef,
           activeIndex,
           onNavigate: setActiveIndex,
@@ -668,6 +681,155 @@ describe('useListNavigation', () => {
     });
   });
 
+  describe('highlightItem', () => {
+    interface HighlightItemActions {
+      highlightItem: (target: HighlightItemTarget) => void;
+    }
+
+    function HighlightItemApp(
+      props: Omit<Partial<UseListNavigationProps>, 'listRef'> & {
+        items?: string[];
+        actionsRef: React.RefObject<HighlightItemActions | null>;
+      },
+    ) {
+      const { items = ['one', 'two', 'three'], actionsRef, ...listProps } = props;
+      const [open, setOpen] = React.useState(true);
+      const listRef = React.useRef<Array<HTMLLIElement | null>>([]);
+      const [activeIndex, setActiveIndex] = React.useState<null | number>(null);
+      const { refs, context } = useFloating({ open, onOpenChange: setOpen });
+      const listNavigation = useListNavigation(context.rootStore, {
+        ...listProps,
+        listRef,
+        activeIndex,
+        onNavigate(index, event, source) {
+          setActiveIndex(index);
+          listProps.onNavigate?.(index, event, source);
+        },
+      });
+      const { getReferenceProps, getFloatingProps, getItemProps } = useTestInteractions([
+        listNavigation,
+      ]);
+
+      React.useImperativeHandle(
+        actionsRef,
+        () => ({ highlightItem: listNavigation.highlightItem }),
+        [listNavigation.highlightItem],
+      );
+
+      return (
+        <React.Fragment>
+          <button {...getReferenceProps({ ref: refs.setReference })} />
+          {open && (
+            <div role="menu" {...getFloatingProps({ ref: refs.setFloating })}>
+              <ul>
+                {items.map((string, index) => (
+                  // eslint-disable-next-line
+                  <li
+                    data-testid={`item-${index}`}
+                    aria-selected={activeIndex === index}
+                    key={string}
+                    tabIndex={-1}
+                    aria-disabled={
+                      Array.isArray(listProps.disabledIndices) &&
+                      listProps.disabledIndices.includes(index)
+                    }
+                    {...getItemProps({
+                      ref(node: HTMLLIElement) {
+                        listRef.current[index] = node;
+                      },
+                    })}
+                  >
+                    {string}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </React.Fragment>
+      );
+    }
+
+    it('passes the imperative source only for imperative navigation', async () => {
+      const onNavigate = vi.fn();
+      const actionsRef = React.createRef<HighlightItemActions>();
+      render(<HighlightItemApp actionsRef={actionsRef} onNavigate={onNavigate} />);
+
+      act(() => actionsRef.current!.highlightItem('next'));
+      expect(onNavigate).toHaveBeenLastCalledWith(0, undefined, 'imperative');
+
+      fireEvent.keyDown(screen.getByRole('menu'), { key: 'ArrowDown' });
+      expect(onNavigate).toHaveBeenLastCalledWith(1, expect.anything(), undefined);
+      await flushMicrotasks();
+    });
+
+    it('does nothing while disabled', async () => {
+      const onNavigate = vi.fn();
+      const actionsRef = React.createRef<HighlightItemActions>();
+      render(<HighlightItemApp actionsRef={actionsRef} onNavigate={onNavigate} enabled={false} />);
+
+      act(() => actionsRef.current!.highlightItem('first'));
+      expect(onNavigate).not.toHaveBeenCalled();
+      await flushMicrotasks();
+    });
+
+    it('does nothing on an empty list', async () => {
+      const onNavigate = vi.fn();
+      const actionsRef = React.createRef<HighlightItemActions>();
+      render(<HighlightItemApp actionsRef={actionsRef} onNavigate={onNavigate} items={[]} />);
+
+      act(() => {
+        actionsRef.current!.highlightItem('first');
+        actionsRef.current!.highlightItem('last');
+        actionsRef.current!.highlightItem('next');
+        actionsRef.current!.highlightItem('previous');
+      });
+      expect(onNavigate).not.toHaveBeenCalled();
+      await flushMicrotasks();
+    });
+
+    it('does nothing when every item is disabled', async () => {
+      const onNavigate = vi.fn();
+      const actionsRef = React.createRef<HighlightItemActions>();
+      render(
+        <HighlightItemApp
+          actionsRef={actionsRef}
+          onNavigate={onNavigate}
+          disabledIndices={[0, 1, 2]}
+        />,
+      );
+
+      act(() => {
+        actionsRef.current!.highlightItem('first');
+        actionsRef.current!.highlightItem('next');
+      });
+      expect(onNavigate).not.toHaveBeenCalled();
+      await flushMicrotasks();
+    });
+
+    it('stays on the only item of a single-item list when looping', async () => {
+      const onNavigate = vi.fn();
+      const actionsRef = React.createRef<HighlightItemActions>();
+      render(
+        <HighlightItemApp
+          actionsRef={actionsRef}
+          onNavigate={onNavigate}
+          items={['one']}
+          loopFocus
+        />,
+      );
+
+      act(() => actionsRef.current!.highlightItem('next'));
+      expect(onNavigate).toHaveBeenLastCalledWith(0, undefined, 'imperative');
+
+      act(() => actionsRef.current!.highlightItem('next'));
+      expect(onNavigate).toHaveBeenLastCalledWith(0, undefined, 'imperative');
+
+      act(() => actionsRef.current!.highlightItem('previous'));
+      expect(onNavigate).toHaveBeenLastCalledWith(0, undefined, 'imperative');
+      await flushMicrotasks();
+    });
+  });
+
   describe('prop: openOnArrowKeyDown', () => {
     it('opens on ArrowDown when true', async () => {
       render(<App openOnArrowKeyDown />);
@@ -770,7 +932,7 @@ describe('useListNavigation', () => {
       const spy = vi.fn();
       render(<App onNavigate={spy} />);
       fireEvent.click(screen.getByRole('button'));
-      fireEvent.mouseMove(screen.getByTestId('item-1'));
+      fireEvent.mouseMove(screen.getByTestId('item-1'), { movementX: 10, movementY: 10 });
       expect(screen.getByTestId('item-1')).toHaveFocus();
       fireEvent.pointerLeave(screen.getByTestId('item-1'));
       expect(screen.getByRole('menu')).toHaveFocus();
@@ -783,7 +945,7 @@ describe('useListNavigation', () => {
       render(<App focusItemOnOpen={false} selectedIndex={1} onNavigate={(index) => spy(index)} />);
 
       fireEvent.click(screen.getByRole('button'));
-      fireEvent.mouseMove(screen.getByTestId('item-1'));
+      fireEvent.mouseMove(screen.getByTestId('item-1'), { movementX: 10, movementY: 10 });
 
       expect(screen.getByTestId('item-1')).toHaveFocus();
       expect(spy).toHaveBeenCalledWith(1);
@@ -794,7 +956,7 @@ describe('useListNavigation', () => {
       const spy = vi.fn();
       render(<App onNavigate={spy} focusItemOnOpen={false} focusItemOnHover={false} />);
       fireEvent.click(screen.getByRole('button'));
-      fireEvent.mouseMove(screen.getByTestId('item-1'));
+      fireEvent.mouseMove(screen.getByTestId('item-1'), { movementX: 10, movementY: 10 });
       expect(screen.getByTestId('item-1')).not.toHaveFocus();
       expect(spy).toHaveBeenCalledTimes(0);
       await flushMicrotasks();
@@ -840,7 +1002,7 @@ describe('useListNavigation', () => {
         },
       });
 
-      fireEvent.mouseMove(item);
+      fireEvent.mouseMove(item, { movementX: 10, movementY: 10 });
 
       await waitFor(() => {
         expect(item).toHaveFocus();
@@ -1464,8 +1626,8 @@ describe('useListNavigation', () => {
         onOpenChange: setOpen,
       });
       const { getReferenceProps, getFloatingProps, getItemProps } = useTestInteractions([
-        useClick(context),
-        useListNavigation(context, {
+        useClick(context.rootStore),
+        useListNavigation(context.rootStore, {
           listRef,
           activeIndex,
           onNavigate: setActiveIndex,

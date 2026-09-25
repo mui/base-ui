@@ -6,7 +6,7 @@ import type { BaseUIComponentProps } from '../../internals/types';
 import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useBaseUiId } from '../../internals/useBaseUiId';
-import { PreviewCardHandle } from '../store/PreviewCardHandle';
+import type { PreviewCardHandle } from '../store/PreviewCardHandle';
 import {
   getInlineRectTriggerProps,
   usePopupHandleStore,

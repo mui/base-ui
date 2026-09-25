@@ -1,7 +1,7 @@
 'use client';
 import type * as React from 'react';
 import { DialogPortal } from '../../dialog/portal/DialogPortal';
-import { type BaseUIComponentProps } from '../../internals/types';
+import type { BaseUIComponentProps } from '../../internals/types';
 
 /**
  * A portal element that moves the popup to a different part of the DOM.
@@ -24,11 +24,7 @@ export interface DrawerPortalProps extends BaseUIComponentProps<'div', DrawerPor
    * A parent element to render the portal element into.
    */
   container?:
-    | HTMLElement
-    | ShadowRoot
-    | React.RefObject<HTMLElement | ShadowRoot | null>
-    | null
-    | undefined;
+    HTMLElement | ShadowRoot | React.RefObject<HTMLElement | ShadowRoot | null> | null | undefined;
 }
 
 export interface DrawerPortal {

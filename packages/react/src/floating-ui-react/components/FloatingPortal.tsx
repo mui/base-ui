@@ -19,10 +19,8 @@ import {
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import { createAttribute } from '../utils/createAttribute';
-import {
-  useRenderElement,
-  type UseRenderElementComponentProps,
-} from '../../internals/useRenderElement';
+import { useRenderElement } from '../../internals/useRenderElement';
+import type { UseRenderElementComponentProps } from '../../internals/useRenderElement';
 import { ownerVisuallyHidden } from '../../internals/constants';
 import type { BaseUIComponentProps } from '../../internals/types';
 
@@ -53,18 +51,19 @@ const attr = createAttribute('portal');
 export interface UseFloatingPortalNodeProps {
   ref?: React.Ref<HTMLDivElement> | undefined;
   container?:
-    | HTMLElement
-    | ShadowRoot
-    | null
-    | React.RefObject<HTMLElement | ShadowRoot | null>
-    | undefined;
+    HTMLElement | ShadowRoot | null | React.RefObject<HTMLElement | ShadowRoot | null> | undefined;
   componentProps?: UseRenderElementComponentProps<any> | undefined;
   elementProps?: React.HTMLAttributes<HTMLDivElement> | undefined;
 }
 
 export interface UseFloatingPortalNodeResult {
-  portalNode: HTMLElement | null;
-  portalSubtree: React.ReactPortal | null;
+  node: HTMLElement | null;
+  /**
+   * The `id` attribute of the portal node. On React 17 it is `undefined` until the `useId`
+   * polyfill assigns it in an effect after the node has been created.
+   */
+  nodeId: string | undefined;
+  subtree: React.ReactPortal | null;
 }
 
 export function useFloatingPortalNode(
@@ -102,11 +101,6 @@ export function useFloatingPortalNode(
       return;
     }
 
-    // React 17 does not use React.useId().
-    if (uniqueId == null) {
-      return;
-    }
-
     const resolvedContainer =
       (containerProp && (isNode(containerProp) ? containerProp : containerProp.current)) ??
       parentPortalNode ??
@@ -126,7 +120,7 @@ export function useFloatingPortalNode(
       setPortalNode(null);
       setContainerElement(resolvedContainer);
     }
-  }, [containerProp, parentPortalNode, uniqueId]);
+  }, [containerProp, parentPortalNode]);
 
   const portalElement = useRenderElement('div', componentProps, {
     ref: [ref, setPortalNodeRef],
@@ -147,8 +141,13 @@ export function useFloatingPortalNode(
       : null;
 
   return {
-    portalNode,
-    portalSubtree,
+    node: portalNode,
+    // `id` and `render` props can override or remove the generated ID. Use the exact
+    // rendered value so `aria-owns` never points at an ID absent from the DOM.
+    nodeId: React.isValidElement<{ id?: string | undefined }>(portalElement)
+      ? portalElement.props.id
+      : undefined,
+    subtree: portalSubtree,
   };
 }
 
@@ -165,9 +164,14 @@ export const FloatingPortal = React.forwardRef(function FloatingPortal(
   componentProps: FloatingPortal.Props<any>,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, style, children, container, ...elementProps } = componentProps;
+  const { render, className, style, children, container, portalOwnerRole, ...elementProps } =
+    componentProps;
 
-  const { portalNode, portalSubtree } = useFloatingPortalNode({
+  const {
+    node: portalNode,
+    nodeId: portalNodeId,
+    subtree: portalSubtree,
+  } = useFloatingPortalNode({
     container,
     ref: forwardedRef,
     componentProps,
@@ -261,7 +265,7 @@ export const FloatingPortal = React.forwardRef(function FloatingPortal(
           />
         )}
         {shouldRenderGuards && portalNode && (
-          <span aria-owns={portalNode.id} style={ownerVisuallyHidden} />
+          <span role={portalOwnerRole} aria-owns={portalNodeId} style={ownerVisuallyHidden} />
         )}
         {portalNode && ReactDOM.createPortal(children, portalNode)}
         {shouldRenderGuards && portalNode && (
@@ -300,5 +304,10 @@ export namespace FloatingPortal {
      * A parent element to render the portal element into.
      */
     container?: UseFloatingPortalNodeProps['container'] | undefined;
+    /**
+     * @ignore
+     * The role for the hidden `aria-owns` owner element.
+     */
+    portalOwnerRole?: React.AriaRole | undefined;
   }
 }

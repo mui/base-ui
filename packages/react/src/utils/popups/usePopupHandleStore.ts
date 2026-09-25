@@ -32,5 +32,5 @@ export function usePopupHandleStore<HandleStore>(
     return handle === undefined ? undefined : handle.store;
   }, [handle]);
 
-  return useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
+  return useSyncExternalStore(subscribe, getSnapshot, () => handle?.serverStore);
 }

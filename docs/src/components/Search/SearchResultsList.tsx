@@ -41,26 +41,40 @@ export function SearchResultsList({
           </Autocomplete.GroupLabel>
         )}
         <Autocomplete.Collection>
-          {(result: SearchResult, i) => (
-            <Autocomplete.Item
-              key={result.id || i}
-              value={result}
-              render={
-                <Link
-                  href={buildResultUrl(result)}
-                  onNavigate={() => onResultNavigate(result)}
-                  tabIndex={-1}
+          {(result: SearchResult, i) => {
+            const href = buildResultUrl(result);
+            const isStaticFile = href.endsWith('.md') || href.endsWith('.txt');
+
+            return (
+              <Autocomplete.Item
+                key={result.id || i}
+                value={result}
+                render={
+                  isStaticFile ? (
+                    // eslint-disable-next-line jsx-a11y/control-has-associated-label
+                    <a
+                      href={href}
+                      onClick={(event) => {
+                        if (isUnmodifiedLeftClick(event)) {
+                          onResultNavigate(result);
+                        }
+                      }}
+                      tabIndex={-1}
+                    />
+                  ) : (
+                    <Link href={href} onNavigate={() => onResultNavigate(result)} tabIndex={-1} />
+                  )
+                }
+                className={classes.item}
+              >
+                <SearchResultItem
+                  result={result}
+                  classes={classes}
+                  separatorVariant={separatorVariant}
                 />
-              }
-              className={classes.item}
-            >
-              <SearchResultItem
-                result={result}
-                classes={classes}
-                separatorVariant={separatorVariant}
-              />
-            </Autocomplete.Item>
-          )}
+              </Autocomplete.Item>
+            );
+          }}
         </Autocomplete.Collection>
       </Autocomplete.Group>
     ),
@@ -68,6 +82,17 @@ export function SearchResultsList({
   );
 
   return <Autocomplete.List className={className}>{renderGroup}</Autocomplete.List>;
+}
+
+function isUnmodifiedLeftClick(event: React.MouseEvent<HTMLAnchorElement>) {
+  return (
+    !event.defaultPrevented &&
+    event.button === 0 &&
+    !event.altKey &&
+    !event.ctrlKey &&
+    !event.metaKey &&
+    !event.shiftKey
+  );
 }
 
 function SearchResultItem({

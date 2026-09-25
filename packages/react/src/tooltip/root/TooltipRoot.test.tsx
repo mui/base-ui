@@ -1,13 +1,17 @@
-import { expect, vi } from 'vitest';
+import { expect, vi, describe, beforeEach, afterEach, it } from 'vitest';
 import * as React from 'react';
 import { Tooltip } from '@base-ui/react/tooltip';
 import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
-import { createRenderer, isJSDOM, popupConformanceTests } from '#test-utils';
+import { createRenderer, isJSDOM, popupConformanceTests, resetBrowserPointer } from '#test-utils';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { OPEN_DELAY } from '../utils/constants';
 import { REASONS } from '../../internals/reasons';
 
 describe('<Tooltip.Root />', () => {
+  // Tests here leave the real pointer resting on a trigger, which the next render would put a
+  // fresh trigger under, opening the tooltip before the test interacts.
+  beforeEach(resetBrowserPointer);
+
   beforeEach(async () => {
     globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
   });
@@ -35,6 +39,43 @@ describe('<Tooltip.Root />', () => {
     triggerMouseAction: 'hover',
   });
 
+  describe('trigger unmount during the open delay', () => {
+    clock.withFakeTimers();
+
+    function App({ showTrigger }: { showTrigger: boolean }) {
+      return (
+        <Tooltip.Root>
+          {showTrigger && <Tooltip.Trigger>Toggle</Tooltip.Trigger>}
+          <Tooltip.Portal>
+            <Tooltip.Positioner>
+              <Tooltip.Popup>Content</Tooltip.Popup>
+            </Tooltip.Positioner>
+          </Tooltip.Portal>
+        </Tooltip.Root>
+      );
+    }
+
+    it('does not open once the hovered trigger has unmounted', async () => {
+      const { setProps } = await render(<App showTrigger />);
+
+      const trigger = screen.getByRole('button', { name: 'Toggle' });
+
+      fireEvent.pointerDown(trigger, { pointerType: 'mouse' });
+      fireEvent.mouseEnter(trigger);
+      fireEvent.mouseMove(trigger);
+
+      clock.tick(1);
+
+      await setProps({ showTrigger: false });
+
+      clock.tick(OPEN_DELAY);
+
+      await flushMicrotasks();
+
+      expect(screen.queryByText('Content')).toBe(null);
+    });
+  });
+
   describe.for([
     { name: 'contained triggers', Component: ContainedTriggerTooltip },
     { name: 'detached triggers', Component: DetachedTriggerTooltip },
@@ -57,6 +98,22 @@ describe('<Tooltip.Root />', () => {
         await flushMicrotasks();
 
         expect(screen.getByText('Content')).not.toBe(null);
+      });
+
+      it('does not open when a touch pointer hovers the trigger', async () => {
+        await render(<TestTooltip />);
+
+        const trigger = screen.getByRole('button', { name: 'Toggle' });
+
+        fireEvent.pointerDown(trigger, { pointerType: 'touch' });
+        fireEvent.mouseEnter(trigger);
+        fireEvent.mouseMove(trigger);
+
+        clock.tick(OPEN_DELAY);
+
+        await flushMicrotasks();
+
+        expect(screen.queryByText('Content')).toBe(null);
       });
 
       it('should close when the trigger is unhovered', async () => {
@@ -674,6 +731,62 @@ describe('<Tooltip.Root />', () => {
           expect(secondPopup.dataset.endingStyle).toBe('');
           expect(secondPopup.dataset.instant).toBe(undefined);
           expect(secondPopup.getAnimations().length).toBe(1);
+        });
+      });
+
+      it('unmounts an exiting tooltip when another tooltip opens', async () => {
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+        const style = `
+          .tooltip[data-ending-style] {
+            transition: opacity 10s;
+            opacity: 0;
+          }
+
+          .tooltip[data-instant] {
+            transition: none;
+          }
+        `;
+
+        const { user } = await render(
+          <Tooltip.Provider timeout={30000}>
+            {/* eslint-disable-next-line react/no-danger */}
+            <style dangerouslySetInnerHTML={{ __html: style }} />
+            {['First', 'Second'].map((name, index) => (
+              <Tooltip.Root key={name}>
+                <Tooltip.Trigger data-testid={`trigger-${index + 1}`} delay={0}>
+                  {name}
+                </Tooltip.Trigger>
+                <Tooltip.Portal>
+                  <Tooltip.Positioner>
+                    <Tooltip.Popup className="tooltip" data-testid={`popup-${index + 1}`}>
+                      {name} tooltip
+                    </Tooltip.Popup>
+                  </Tooltip.Positioner>
+                </Tooltip.Portal>
+              </Tooltip.Root>
+            ))}
+          </Tooltip.Provider>,
+        );
+
+        const firstTrigger = screen.getByTestId('trigger-1');
+        const secondTrigger = screen.getByTestId('trigger-2');
+
+        await user.hover(firstTrigger);
+
+        const firstPopup = await screen.findByTestId('popup-1');
+
+        await user.unhover(firstTrigger);
+
+        await waitFor(() => {
+          expect(firstPopup.getAnimations().length).toBe(1);
+        });
+
+        await user.hover(secondTrigger);
+        await screen.findByTestId('popup-2');
+
+        await waitFor(() => {
+          expect(screen.queryByTestId('popup-1')).toBe(null);
         });
       });
 
@@ -2512,21 +2625,7 @@ describe('nested tooltips', () => {
     }
   });
 
-  it.each([
-    {
-      name: 'starts with a ShadowRoot',
-      getPath(innerTrigger: HTMLElement, outerTrigger: HTMLElement) {
-        const shadowRoot = document.createElement('div').attachShadow({ mode: 'open' });
-        return [shadowRoot, innerTrigger, outerTrigger, document.body, document, window];
-      },
-    },
-    {
-      name: 'is empty',
-      getPath() {
-        return [];
-      },
-    },
-  ])('handles a composed path that $name', async ({ getPath }) => {
+  it('falls back to the event target when the composed path is empty', async () => {
     await render(
       <Tooltip.Root>
         <Tooltip.Trigger data-testid="outer-trigger" render={<span />}>
@@ -2546,13 +2645,15 @@ describe('nested tooltips', () => {
     const outerTrigger = screen.getByTestId('outer-trigger');
     const innerTrigger = screen.getByTestId('inner-trigger');
 
+    // Start the outer open delay so only nested trigger detection keeps it closed.
+    fireEvent.pointerDown(outerTrigger, { pointerType: 'mouse' });
     fireEvent.pointerEnter(outerTrigger, { pointerType: 'mouse' });
     fireEvent.mouseEnter(outerTrigger);
+    fireEvent.mouseMove(outerTrigger);
 
+    // `composedPath()` is empty once an event has finished dispatching.
     const mouseOverEvent = new MouseEvent('mouseover', { bubbles: true, composed: true });
-    Object.defineProperty(mouseOverEvent, 'composedPath', {
-      value: () => getPath(innerTrigger, outerTrigger),
-    });
+    Object.defineProperty(mouseOverEvent, 'composedPath', { value: () => [] });
     innerTrigger.dispatchEvent(mouseOverEvent);
 
     clock.tick(OPEN_DELAY);

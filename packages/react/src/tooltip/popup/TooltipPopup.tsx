@@ -3,12 +3,12 @@ import * as React from 'react';
 import { useTooltipRootContext } from '../root/TooltipRootContext';
 import { useTooltipPositionerContext } from '../positioner/TooltipPositionerContext';
 import type { BaseUIComponentProps } from '../../internals/types';
-import type { Align, Side } from '../../utils/useAnchorPositioning';
+import type { Align, Side } from '../../internals/useAnchorPositioning';
 import { popupTransitionStateMapping } from '../../utils/popupStateMapping';
 import type { TransitionStatus } from '../../internals/useTransitionStatus';
 import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
 import { useRenderElement } from '../../internals/useRenderElement';
-import { getDisabledMountTransitionStyles } from '../../utils/getDisabledMountTransitionStyles';
+import { getDisabledMountTransitionStyles } from '../../internals/getDisabledMountTransitionStyles';
 import { useHoverFloatingInteraction } from '../../floating-ui-react';
 import { FOCUSABLE_POPUP_PROPS } from '../../utils/popups';
 

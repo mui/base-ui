@@ -1,9 +1,10 @@
-import { expect } from 'vitest';
+import { expect, describe, it } from 'vitest';
 import { Toolbar } from '@base-ui/react/toolbar';
-import { DirectionProvider, type TextDirection } from '@base-ui/react/direction-provider';
+import { DirectionProvider } from '@base-ui/react/direction-provider';
+import type { TextDirection } from '@base-ui/react/direction-provider';
 import { screen } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
-import { type Orientation } from '../../internals/types';
+import type { Orientation } from '../../internals/types';
 import { useToolbarRootContext } from './ToolbarRootContext';
 
 describe('<Toolbar.Root />', () => {

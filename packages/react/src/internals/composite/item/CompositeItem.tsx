@@ -1,14 +1,11 @@
 'use client';
-import * as React from 'react';
+import type * as React from 'react';
 import { EMPTY_OBJECT, EMPTY_ARRAY } from '@base-ui/utils/empty';
 import { useRenderElement } from '../../useRenderElement';
 import { useCompositeItem } from './useCompositeItem';
 import type { BaseUIComponentProps } from '../../types';
-import { StateAttributesMapping } from '../../getStateAttributesProps';
+import type { StateAttributesMapping } from '../../getStateAttributesProps';
 
-/**
- * @internal
- */
 export function CompositeItem<Metadata, State extends Record<string, any>>(
   componentProps: CompositeItem.Props<Metadata, State>,
 ) {

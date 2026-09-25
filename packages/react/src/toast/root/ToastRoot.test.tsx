@@ -1,4 +1,4 @@
-import { expect } from 'vitest';
+import { expect, describe, it } from 'vitest';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { Toast } from '@base-ui/react/toast';
@@ -6,6 +6,7 @@ import { act, screen, fireEvent, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import type { ToastManagerAddOptions } from '../useToastManager';
 import { List, Button } from '../utils/test-utils';
+import { toastRootStateAttributesMapping } from './ToastRoot';
 
 const toast: Toast.Root.ToastObject = {
   id: 'test',
@@ -86,6 +87,27 @@ describe('<Toast.Root />', () => {
       );
     },
   }));
+
+  it('maps the active swipe direction to its data attribute', () => {
+    expect(toastRootStateAttributesMapping.swipeDirection!('left')).toEqual({
+      'data-swipe-direction': 'left',
+    });
+  });
+
+  it('sets the vertical offset CSS variable', async () => {
+    const { user } = await render(
+      <Toast.Provider>
+        <Toast.Viewport>
+          <List />
+        </Toast.Viewport>
+        <Button />
+      </Toast.Provider>,
+    );
+
+    await user.click(screen.getByRole('button', { name: 'add' }));
+
+    expect(screen.getByTestId('root').style.getPropertyValue('--toast-offset-y')).not.toBe('');
+  });
 
   it('keeps dynamic title and description ids synchronized with mounted label parts', async () => {
     function App() {
@@ -859,6 +881,59 @@ describe('<Toast.Root />', () => {
 
       await waitFor(() => {
         expect(screen.queryByTestId('toast-root')).toBe(null);
+      });
+    });
+
+    it('locks to a single axis on the first move of a two-axis swipe', async () => {
+      await render(
+        <Toast.Provider>
+          <Toast.Viewport>
+            <SwipeTestToast swipeDirection={['down', 'right']} />
+          </Toast.Viewport>
+          <SwipeTestButton />
+        </Toast.Provider>,
+      );
+
+      fireEvent.click(screen.getByRole('button', { name: 'add toast' }));
+
+      const toastElement = screen.getByTestId('toast-root');
+      Object.defineProperty(toastElement, 'setPointerCapture', {
+        configurable: true,
+        value: () => {},
+      });
+      Object.defineProperty(toastElement, 'releasePointerCapture', {
+        configurable: true,
+        value: () => {},
+      });
+
+      fireEvent.pointerDown(toastElement, {
+        clientX: 100,
+        clientY: 100,
+        button: 0,
+        bubbles: true,
+        pointerId: 1,
+      });
+      fireEvent.pointerMove(toastElement, {
+        clientX: 101,
+        clientY: 101,
+        bubbles: true,
+        pointerId: 1,
+      });
+      fireEvent.pointerMove(toastElement, {
+        clientX: 120,
+        clientY: 150,
+        bubbles: true,
+        pointerId: 1,
+      });
+
+      expect(toastElement.style.getPropertyValue('--toast-swipe-movement-x')).toBe('0px');
+      expect(toastElement.style.getPropertyValue('--toast-swipe-movement-y')).not.toBe('0px');
+
+      fireEvent.pointerUp(toastElement, {
+        clientX: 120,
+        clientY: 150,
+        bubbles: true,
+        pointerId: 1,
       });
     });
 

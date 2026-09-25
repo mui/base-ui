@@ -9,10 +9,10 @@ import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { isElement } from '@floating-ui/utils/dom';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
-import { FloatingUIOpenChangeDetails, HTMLProps } from '../../internals/types';
+import type { FloatingUIOpenChangeDetails, HTMLProps } from '../../internals/types';
 import { useFloatingTree } from '../components/FloatingTree';
 import type { FloatingTreeStore } from '../components/FloatingTreeStore';
-import type { Delay, FloatingContext, FloatingRootContext } from '../types';
+import type { Delay, FloatingRootContext } from '../types';
 import { contains, getTarget } from '../utils/element';
 import { isMouseLikePointerType } from '../utils/event';
 import {
@@ -72,7 +72,7 @@ const EMPTY_REF: Readonly<React.RefObject<Element | null>> = { current: null };
  * elements.
  */
 export function useHoverReferenceInteraction(
-  context: FloatingRootContext | FloatingContext,
+  store: FloatingRootContext,
   props: UseHoverReferenceInteractionProps = {},
 ): HTMLProps | undefined {
   const {
@@ -90,8 +90,6 @@ export function useHoverReferenceInteraction(
     shouldOpen: shouldOpenProp,
     guardStaleOpen = false,
   } = props;
-
-  const store = 'rootStore' in context ? context.rootStore : context;
 
   const { dataRef, events } = store.context;
 
@@ -157,7 +155,7 @@ export function useHoverReferenceInteraction(
 
   if (isActiveTrigger) {
     // eslint-disable-next-line no-underscore-dangle
-    instance.handleCloseOptions = handleCloseRef.current?.__options;
+    instance.handleCloseOptions = handleClose?.__options;
   }
 
   React.useEffect(() => cleanupMouseMoveHandler, [cleanupMouseMoveHandler]);

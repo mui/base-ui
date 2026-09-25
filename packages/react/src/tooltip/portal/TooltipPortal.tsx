@@ -3,7 +3,7 @@ import * as React from 'react';
 import { useTooltipRootContext } from '../root/TooltipRootContext';
 import { TooltipPortalContext } from './TooltipPortalContext';
 import { FloatingPortalLite } from '../../utils/FloatingPortalLite';
-import { type BaseUIComponentProps } from '../../internals/types';
+import type { BaseUIComponentProps } from '../../internals/types';
 
 /**
  * A portal element that moves the popup to a different part of the DOM.
@@ -45,11 +45,7 @@ export interface TooltipPortalProps extends BaseUIComponentProps<'div', TooltipP
    * A parent element to render the portal element into.
    */
   container?:
-    | HTMLElement
-    | ShadowRoot
-    | React.RefObject<HTMLElement | ShadowRoot | null>
-    | null
-    | undefined;
+    HTMLElement | ShadowRoot | React.RefObject<HTMLElement | ShadowRoot | null> | null | undefined;
 }
 
 export namespace TooltipPortal {

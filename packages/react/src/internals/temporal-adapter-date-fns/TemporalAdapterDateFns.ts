@@ -40,7 +40,7 @@ import { isSameYear } from 'date-fns/isSameYear';
 import { isSameMonth } from 'date-fns/isSameMonth';
 import { isValid } from 'date-fns/isValid';
 import { isWithinInterval } from 'date-fns/isWithinInterval';
-import { Locale as DateFnsLocale } from 'date-fns/locale';
+import type { Locale as DateFnsLocale } from 'date-fns/locale';
 import { enUS } from 'date-fns/locale/en-US';
 import { parse } from 'date-fns/parse';
 import { setDate } from 'date-fns/setDate';
@@ -58,7 +58,7 @@ import { startOfSecond } from 'date-fns/startOfSecond';
 import { startOfYear } from 'date-fns/startOfYear';
 import { startOfWeek } from 'date-fns/startOfWeek';
 import { TZDate } from '@date-fns/tz';
-import {
+import type {
   TemporalAdapterFormats,
   DateBuilderReturnType,
   TemporalTimezone,
@@ -83,6 +83,7 @@ const FORMATS: TemporalAdapterFormats = {
   // Letter formats
   month3Letters: 'MMM',
   monthFullLetter: 'MMMM',
+  monthFullLetterStandalone: 'LLLL',
   weekday: 'EEEE',
   weekday3Letters: 'EEE',
   weekday1Letter: 'EEEEE',

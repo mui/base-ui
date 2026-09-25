@@ -1,4 +1,4 @@
-import { expect, vi } from 'vitest';
+import { expect, vi, describe, it } from 'vitest';
 import * as React from 'react';
 import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { Checkbox } from '@base-ui/react/checkbox';
@@ -8,7 +8,10 @@ import { Form } from '@base-ui/react/form';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 
 describe('<Checkbox.Root />', () => {
-  const { render } = createRenderer();
+  const { render, renderToString } = createRenderer();
+  // StrictMode re-runs a newly mounted control's layout effect after the outgoing control's
+  // cleanup, which hides id-handoff bugs that only show up in production.
+  const { render: renderNonStrict } = createRenderer({ strict: false });
 
   describeConformance(<Checkbox.Root />, () => ({
     refInstanceof: window.HTMLSpanElement,
@@ -33,6 +36,98 @@ describe('<Checkbox.Root />', () => {
       const { container } = await render(<Checkbox.Root role="switch" />);
       expect(container.firstElementChild as HTMLElement).toHaveAttribute('role', 'switch');
     });
+  });
+
+  describe('id', () => {
+    function TestCase(props: {
+      checkboxId?: string | undefined;
+      checkboxKey?: React.Key | undefined;
+      nativeButton: boolean;
+    }) {
+      const { checkboxId, checkboxKey, nativeButton } = props;
+
+      return (
+        <Field.Root>
+          <Field.Label data-testid="label">Label</Field.Label>
+          <Checkbox.Root
+            key={checkboxKey}
+            id={checkboxId}
+            nativeButton={nativeButton}
+            render={nativeButton ? <button /> : undefined}
+          />
+        </Field.Root>
+      );
+    }
+
+    function getLabelControl(nativeButton: boolean) {
+      return nativeButton
+        ? screen.getByRole('checkbox')
+        : document.querySelector<HTMLInputElement>('input[type="checkbox"]')!;
+    }
+
+    it.each([false, true])(
+      'drops an explicit id when the prop is removed (nativeButton=%s)',
+      async (nativeButton) => {
+        const { rerender } = await render(
+          <TestCase checkboxId="explicit" nativeButton={nativeButton} />,
+        );
+
+        const label = screen.getByTestId('label');
+        expect(getLabelControl(nativeButton)).toHaveAttribute('id', 'explicit');
+        expect(label).toHaveAttribute('for', 'explicit');
+
+        await rerender(<TestCase nativeButton={nativeButton} />);
+
+        const control = getLabelControl(nativeButton);
+        expect(control.id).not.toBe('');
+        expect(control).not.toHaveAttribute('id', 'explicit');
+        expect(label).toHaveAttribute('for', control.id);
+      },
+    );
+
+    it.each([false, true])(
+      'does not reuse an unmounted Checkbox id for a keyed id-less Checkbox (nativeButton=%s)',
+      async (nativeButton) => {
+        const { rerender } = await renderNonStrict(
+          <TestCase checkboxKey="explicit" checkboxId="explicit" nativeButton={nativeButton} />,
+        );
+
+        const label = screen.getByTestId('label');
+        expect(getLabelControl(nativeButton)).toHaveAttribute('id', 'explicit');
+        expect(label).toHaveAttribute('for', 'explicit');
+
+        await rerender(<TestCase checkboxKey="generated" nativeButton={nativeButton} />);
+
+        const control = getLabelControl(nativeButton);
+        expect(control.id).not.toBe('');
+        expect(control).not.toHaveAttribute('id', 'explicit');
+        expect(label).toHaveAttribute('for', control.id);
+      },
+    );
+
+    // An explicit `id` only reaches the DOM once registration runs, so the server markup carries
+    // the provider's generated id on both the label and the control. Rendering `id` right away
+    // would instead leave `Field.Label`'s `for` pointing at nothing until hydration.
+    it.each([false, true])(
+      'defers an explicit id until hydration but keeps Field.Label associated during SSR (nativeButton=%s)',
+      async (nativeButton) => {
+        const { hydrate } = renderToString(
+          <TestCase checkboxId="explicit" nativeButton={nativeButton} />,
+        );
+
+        const control = getLabelControl(nativeButton);
+        expect(control.id).not.toBe('');
+        expect(control).not.toHaveAttribute('id', 'explicit');
+        expect(screen.getByTestId('label')).toHaveAttribute('for', control.id);
+
+        hydrate();
+
+        await waitFor(() => {
+          expect(getLabelControl(nativeButton)).toHaveAttribute('id', 'explicit');
+        });
+        expect(screen.getByTestId('label')).toHaveAttribute('for', 'explicit');
+      },
+    );
   });
 
   describe('prop: onClick', () => {
@@ -369,6 +464,31 @@ describe('<Checkbox.Root />', () => {
       const [, input] = screen.getAllByRole<HTMLInputElement>('checkbox', {
         hidden: true,
       });
+      expect(input.indeterminate).toBe(true);
+    });
+
+    it('keeps the native input state when checked changes while indeterminate remains', async () => {
+      function App() {
+        const [checked, setChecked] = React.useState(false);
+        return (
+          <Checkbox.Root
+            data-testid="button"
+            indeterminate
+            checked={checked}
+            onCheckedChange={setChecked}
+          />
+        );
+      }
+
+      await render(<App />);
+
+      // Clicking the hidden input natively clears `indeterminate` before toggling.
+      fireEvent.click(screen.getByTestId('button'));
+
+      const [, input] = screen.getAllByRole<HTMLInputElement>('checkbox', {
+        hidden: true,
+      });
+      expect(input.checked).toBe(true);
       expect(input.indeterminate).toBe(true);
     });
 
@@ -1260,6 +1380,33 @@ describe('<Checkbox.Root />', () => {
         expect(button).not.toHaveAttribute('data-filled', '');
       });
 
+      it('clears [data-filled] when a controlled checkbox remounts unchecked', async () => {
+        function App() {
+          const [unchecked, setUnchecked] = React.useState(false);
+          return (
+            <Field.Root data-testid="root">
+              <Checkbox.Root
+                key={String(unchecked)}
+                checked={!unchecked}
+                onCheckedChange={() => {}}
+              />
+              <button type="button" onClick={() => setUnchecked(true)}>
+                clear
+              </button>
+            </Field.Root>
+          );
+        }
+
+        await render(<App />);
+
+        const root = screen.getByTestId('root');
+        expect(root).toHaveAttribute('data-filled', '');
+
+        fireEvent.click(screen.getByText('clear'));
+
+        expect(root).not.toHaveAttribute('data-filled');
+      });
+
       it('adds [data-filled] attribute when any checkbox is filled when inside a group', async () => {
         await render(
           <Field.Root>
@@ -1320,6 +1467,66 @@ describe('<Checkbox.Root />', () => {
       fireEvent.focus(button);
 
       expect(button).not.toHaveAttribute('data-focused');
+    });
+
+    describe('[data-focused] without a blur event', () => {
+      function Checkboxes(props: { firstMounted?: boolean; firstDisabled?: boolean }) {
+        const { firstMounted = true, firstDisabled = false } = props;
+        return (
+          <Field.Root data-testid="root">
+            {firstMounted && <Checkbox.Root data-testid="first" disabled={firstDisabled} />}
+          </Field.Root>
+        );
+      }
+
+      it('is removed when the focused checkbox becomes disabled', async () => {
+        const { setProps } = await render(<Checkboxes />);
+
+        const button = screen.getByTestId('first');
+        act(() => {
+          button.focus();
+        });
+
+        expect(screen.getByTestId('root')).toHaveAttribute('data-focused', '');
+
+        await setProps({ firstDisabled: true });
+
+        expect(screen.getByTestId('root')).not.toHaveAttribute('data-focused');
+        expect(button).not.toHaveAttribute('data-focused');
+      });
+
+      it('is removed when the focused checkbox unmounts', async () => {
+        const { setProps } = await render(<Checkboxes />);
+
+        act(() => {
+          screen.getByTestId('first').focus();
+        });
+
+        expect(screen.getByTestId('root')).toHaveAttribute('data-focused', '');
+
+        await setProps({ firstMounted: false });
+
+        expect(screen.getByTestId('root')).not.toHaveAttribute('data-focused');
+      });
+
+      it('is kept when the checkbox is focused during mount in StrictMode', async () => {
+        function FocusOnMount() {
+          const ref = React.useRef<HTMLButtonElement>(null);
+          React.useEffect(() => {
+            ref.current?.focus();
+          }, []);
+          return (
+            <Field.Root data-testid="root">
+              <Checkbox.Root ref={ref} />
+            </Field.Root>
+          );
+        }
+
+        // `render` is strict, so the checkbox's effects re-run after the mount-time focus.
+        await render(<FocusOnMount />);
+
+        expect(screen.getByTestId('root')).toHaveAttribute('data-focused', '');
+      });
     });
 
     it('[data-invalid]', async () => {
@@ -1620,6 +1827,120 @@ describe('<Checkbox.Root />', () => {
       expect(labelB.id).not.toBe('');
       expect(labelA.id).not.toBe(labelB.id);
       expect(checkbox).toHaveAttribute('aria-labelledby', labelB.id);
+    });
+  });
+
+  it('prefers `aria-label` over an associated label', async () => {
+    await render(
+      <React.Fragment>
+        <label>
+          <Checkbox.Root aria-label="lease.pdf" />
+          lease.pdf
+        </label>
+        <Field.Root>
+          <Field.Label>
+            <Checkbox.Root aria-label="notes.txt" />
+            notes.txt
+          </Field.Label>
+        </Field.Root>
+      </React.Fragment>,
+    );
+
+    const [nativeLabelled, fieldLabelled] = screen.getAllByRole('checkbox');
+    expect(nativeLabelled).not.toHaveAttribute('aria-labelledby');
+    expect(nativeLabelled).toHaveAccessibleName('lease.pdf');
+    expect(fieldLabelled).not.toHaveAttribute('aria-labelledby');
+    expect(fieldLabelled).toHaveAccessibleName('notes.txt');
+  });
+
+  it.each(['', ' ', '\n\t '])('ignores a blank `aria-label` (%j)', async (ariaLabel) => {
+    await render(
+      <React.Fragment>
+        <label>
+          <Checkbox.Root aria-label={ariaLabel} />
+          Native label
+        </label>
+        <Field.Root>
+          <Field.Label>
+            <Checkbox.Root aria-label={ariaLabel} />
+            Field label
+          </Field.Label>
+        </Field.Root>
+        <label htmlFor="blank-aria-label">Sibling label</label>
+        <Checkbox.Root id="blank-aria-label" aria-label={ariaLabel} />
+      </React.Fragment>,
+    );
+
+    const [nativeLabelled, fieldLabelled, siblingLabelled] = screen.getAllByRole('checkbox');
+    expect(nativeLabelled).toHaveAccessibleName('Native label');
+    expect(fieldLabelled).toHaveAccessibleName('Field label');
+    expect(siblingLabelled).toHaveAccessibleName('Sibling label');
+  });
+
+  describe.each(['native', 'Field.Label'])('dynamic %s label', (labelType) => {
+    function TestCase({
+      ariaLabel,
+      showLabel = true,
+    }: {
+      ariaLabel?: string;
+      showLabel?: boolean;
+    }) {
+      return (
+        <Field.Root>
+          {showLabel &&
+            (labelType === 'native' ? (
+              <label htmlFor="dynamic-label">Associated label</label>
+            ) : (
+              <Field.Label>Associated label</Field.Label>
+            ))}
+          <Checkbox.Root id="dynamic-label" aria-label={ariaLabel} />
+        </Field.Root>
+      );
+    }
+
+    it('updates the accessible name when `aria-label` is added, cleared, or removed', async () => {
+      const { setProps } = await render(<TestCase />);
+      const checkbox = screen.getByRole('checkbox');
+
+      expect(checkbox).toHaveAccessibleName('Associated label');
+
+      await setProps({ ariaLabel: 'Custom name' });
+      expect(checkbox).toHaveAccessibleName('Custom name');
+
+      await setProps({ ariaLabel: ' \n\t ' });
+      expect(checkbox).toHaveAccessibleName('Associated label');
+
+      await setProps({ ariaLabel: 'Custom name' });
+      expect(checkbox).toHaveAccessibleName('Custom name');
+
+      await setProps({ ariaLabel: undefined });
+      expect(checkbox).toHaveAccessibleName('Associated label');
+    });
+
+    it('updates the accessible name when the associated label mounts and unmounts', async () => {
+      const { setProps } = await render(<TestCase showLabel={false} />);
+      const checkbox = screen.getByRole('checkbox');
+
+      expect(checkbox).toHaveAccessibleName('');
+
+      await setProps({ showLabel: true });
+      expect(checkbox).toHaveAccessibleName('Associated label');
+
+      await setProps({ showLabel: false });
+      expect(checkbox).toHaveAccessibleName('');
+      expect(checkbox).not.toHaveAttribute('aria-labelledby');
+
+      await setProps({ ariaLabel: 'Custom name' });
+      expect(checkbox).toHaveAccessibleName('Custom name');
+
+      await setProps({ showLabel: true, ariaLabel: 'Custom name' });
+      expect(checkbox).toHaveAccessibleName('Custom name');
+
+      await setProps({ showLabel: false, ariaLabel: 'Custom name' });
+      expect(checkbox).toHaveAccessibleName('Custom name');
+
+      await setProps({ showLabel: true, ariaLabel: undefined });
+      expect(checkbox).toHaveAccessibleName('Associated label');
     });
   });
 

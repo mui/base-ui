@@ -17,11 +17,11 @@ import {
   useNavigationMenuTreeContext,
 } from '../root/NavigationMenuRootContext';
 import { useNavigationMenuPortalContext } from '../portal/NavigationMenuPortalContext';
-import {
-  type Align,
-  type Side,
-  type UseAnchorPositioningSharedParameters,
-} from '../../utils/useAnchorPositioning';
+import type {
+  Align,
+  Side,
+  UseAnchorPositioningSharedParameters,
+} from '../../internals/useAnchorPositioning';
 import { useNavigationMenuAnchorPositioning } from '../utils/useNavigationMenuAnchorPositioning';
 import { NavigationMenuPositionerContext } from './NavigationMenuPositionerContext';
 import { DROPDOWN_COLLISION_AVOIDANCE, POPUP_COLLISION_AVOIDANCE } from '../../internals/constants';

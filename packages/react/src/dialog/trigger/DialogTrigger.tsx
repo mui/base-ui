@@ -1,12 +1,13 @@
 'use client';
 import * as React from 'react';
+import { fastComponentRef } from '@base-ui/utils/fastHooks';
 import { useDialogRootContext } from '../root/DialogRootContext';
 import { useButton } from '../../internals/use-button/useButton';
 import { useRenderElement } from '../../internals/useRenderElement';
 import type { BaseUIComponentProps, NativeButtonProps } from '../../internals/types';
 import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
 import { CLICK_TRIGGER_IDENTIFIER } from '../../internals/constants';
-import { DialogHandle } from '../store/DialogHandle';
+import type { DialogHandle } from '../store/DialogHandle';
 import { usePopupHandleStore, useTriggerDataForwarding } from '../../utils/popups';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import { useClick } from '../../floating-ui-react';
@@ -18,7 +19,7 @@ import { useOpenMethodTriggerProps } from '../../utils/useOpenInteractionType';
  *
  * Documentation: [Base UI Dialog](https://base-ui.com/react/components/dialog)
  */
-export const DialogTrigger = React.forwardRef(function DialogTrigger(
+export const DialogTrigger = fastComponentRef(function DialogTrigger(
   componentProps: DialogTrigger.Props,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {

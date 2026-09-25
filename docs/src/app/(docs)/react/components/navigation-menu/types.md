@@ -11,19 +11,19 @@ Renders a `<nav>` element at the root, or `<div>` element when nested.
 
 **Root Props:**
 
-| Prop                 | Type                                                                                              | Default        | Description                                                                                                                                                                                                                                         |
-| :------------------- | :------------------------------------------------------------------------------------------------ | :------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| defaultValue         | `Value \| null`                                                                                   | `null`         | The uncontrolled value of the item that should be initially selected. To render a controlled navigation menu, use the `value` prop instead.                                                                                                         |
-| value                | `Value \| null`                                                                                   | `null`         | The controlled value of the navigation menu item that should be currently open.&#xA;When non-nullish, the menu will be open. When nullish, the menu will be closed. To render an uncontrolled navigation menu, use the `defaultValue` prop instead. |
-| onValueChange        | `((value: Value \| null, eventDetails: NavigationMenu.Root.ChangeEventDetails) => void)`          | -              | Callback fired when the value changes.                                                                                                                                                                                                              |
-| actionsRef           | `React.RefObject<NavigationMenu.Root.Actions \| null>`                                            | -              | A ref to imperative actions.                                                                                                                                                                                                                        |
-| onOpenChangeComplete | `((open: boolean) => void)`                                                                       | -              | Event handler called after any animations complete when the navigation menu is closed.                                                                                                                                                              |
-| delay                | `number`                                                                                          | `50`           | How long to wait before opening the navigation popup. Specified in milliseconds.                                                                                                                                                                    |
-| closeDelay           | `number`                                                                                          | `50`           | How long to wait before closing the navigation popup. Specified in milliseconds.                                                                                                                                                                    |
-| orientation          | `'horizontal' \| 'vertical'`                                                                      | `'horizontal'` | The orientation of the navigation menu.                                                                                                                                                                                                             |
-| className            | `string \| ((state: NavigationMenu.Root.State) => string \| undefined)`                           | -              | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                                                                            |
-| style                | `React.CSSProperties \| ((state: NavigationMenu.Root.State) => React.CSSProperties \| undefined)` | -              | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                                                                         |
-| render               | `ReactElement \| ((props: HTMLProps, state: NavigationMenu.Root.State) => ReactElement)`          | -              | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render.                                                       |
+| Prop                 | Type                                                                                              | Default        | Description                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| :------------------- | :------------------------------------------------------------------------------------------------ | :------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| defaultValue         | `Value \| null`                                                                                   | `null`         | The uncontrolled value of the item that should be initially selected. To render a controlled navigation menu, use the `value` prop instead.                                                                                                                                                                                                                                                                                 |
+| value                | `Value \| null`                                                                                   | `null`         | The controlled value of the navigation menu item that should be currently open.&#xA;When non-nullish, the menu will be open. When nullish, the menu will be closed. To render an uncontrolled navigation menu, use the `defaultValue` prop instead.                                                                                                                                                                         |
+| onValueChange        | `((value: Value \| null, eventDetails: NavigationMenu.Root.ChangeEventDetails) => void)`          | -              | Callback fired when the value changes.                                                                                                                                                                                                                                                                                                                                                                                      |
+| actionsRef           | `React.RefObject<NavigationMenu.Root.Actions \| null>`                                            | -              | A ref to imperative actions. `unmount`: Ends the closing phase of the navigation menu popup after an externally controlled closing animation finishes.&#xA;Call `preventUnmountOnClose()` in `onValueChange` first, otherwise the navigation menu popup completes closing on its own.&#xA;Whether it leaves the DOM is decided by `keepMounted` on the portal.`close`: Closes the navigation menu imperatively when called. |
+| onOpenChangeComplete | `((open: boolean) => void)`                                                                       | -              | Event handler called after any animations complete when the navigation menu is closed.                                                                                                                                                                                                                                                                                                                                      |
+| delay                | `number`                                                                                          | `50`           | How long to wait before opening the navigation popup. Specified in milliseconds.                                                                                                                                                                                                                                                                                                                                            |
+| closeDelay           | `number`                                                                                          | `50`           | How long to wait before closing the navigation popup. Specified in milliseconds.                                                                                                                                                                                                                                                                                                                                            |
+| orientation          | `'horizontal' \| 'vertical'`                                                                      | `'horizontal'` | The orientation of the navigation menu.                                                                                                                                                                                                                                                                                                                                                                                     |
+| className            | `string \| ((state: NavigationMenu.Root.State) => string \| undefined)`                           | -              | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                                                                                                                                                                                                                                                    |
+| style                | `React.CSSProperties \| ((state: NavigationMenu.Root.State) => React.CSSProperties \| undefined)` | -              | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                                                                                                                                                                                                                                                 |
+| render               | `ReactElement \| ((props: HTMLProps, state: NavigationMenu.Root.State) => ReactElement)`          | -              | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render.                                                                                                                                                                                                                               |
 
 ### Root.Props
 
@@ -43,7 +43,7 @@ type NavigationMenuRootState = {
 ### Root.Actions
 
 ```typescript
-type NavigationMenuRootActions = { unmount: () => void };
+type NavigationMenuRootActions = { unmount: () => void; close: () => void };
 ```
 
 ### Root.ChangeEventReason
@@ -57,6 +57,7 @@ type NavigationMenuRootChangeEventReason =
   | 'focus-out'
   | 'escape-key'
   | 'link-press'
+  | 'imperative-action'
   | 'none';
 ```
 
@@ -71,6 +72,7 @@ type NavigationMenuRootChangeEventDetails = (
   | { reason: 'focus-out'; event: KeyboardEvent | FocusEvent }
   | { reason: 'escape-key'; event: KeyboardEvent }
   | { reason: 'link-press'; event: MouseEvent | PointerEvent }
+  | { reason: 'imperative-action'; event: Event }
   | { reason: 'none'; event: Event }
 ) & {
   /** Cancels Base UI from handling the event. */
@@ -83,6 +85,8 @@ type NavigationMenuRootChangeEventDetails = (
   isPropagationAllowed: boolean;
   /** The element that triggered the event, if applicable. */
   trigger: Element | undefined;
+  /** Prevents the popup from unmounting until the `unmount` action is called. */
+  preventUnmountOnClose: () => void;
 };
 ```
 
@@ -103,6 +107,7 @@ Renders a `<button>` element.
 | Prop         | Type                                                                                                 | Default | Description                                                                                                                                                                                   |
 | :----------- | :--------------------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | nativeButton | `boolean`                                                                                            | `true`  | Whether the component renders a native `<button>` element when replacing it&#xA;via the `render` prop.&#xA;Set to `false` if the rendered element is not a button (for example, `<div>`).     |
+| disabled     | `boolean`                                                                                            | `false` | Whether the component should ignore user interaction.                                                                                                                                         |
 | className    | `string \| ((state: NavigationMenu.Trigger.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
 | style        | `React.CSSProperties \| ((state: NavigationMenu.Trigger.State) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
 | render       | `ReactElement \| ((props: HTMLProps, state: NavigationMenu.Trigger.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
@@ -113,6 +118,7 @@ Renders a `<button>` element.
 | :-------------- | :--- | :------------------------------------------------------ |
 | data-popup-open | -    | Present when the corresponding navigation menu is open. |
 | data-pressed    | -    | Present when the trigger is pressed.                    |
+| data-disabled   | -    | Present when the trigger is disabled.                   |
 
 ### Trigger.Props
 
@@ -124,6 +130,8 @@ Re-export of [Trigger](#trigger) props.
 type NavigationMenuTriggerState = {
   /** If `true`, the popup is open and the item is active. */
   open: boolean;
+  /** Whether the component should ignore user interaction. */
+  disabled: boolean;
 };
 ```
 

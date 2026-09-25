@@ -2,9 +2,10 @@
 import * as React from 'react';
 import { useMenuRadioItemContext } from '../radio-item/MenuRadioItemContext';
 import { useRenderElement } from '../../internals/useRenderElement';
-import { BaseUIComponentProps } from '../../internals/types';
+import type { BaseUIComponentProps } from '../../internals/types';
 import { itemMapping } from '../utils/stateAttributesMapping';
-import { TransitionStatus, useTransitionStatus } from '../../internals/useTransitionStatus';
+import type { TransitionStatus } from '../../internals/useTransitionStatus';
+import { useTransitionStatus } from '../../internals/useTransitionStatus';
 import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
 
 /**
@@ -26,6 +27,8 @@ export const MenuRadioItemIndicator = React.forwardRef(function MenuRadioItemInd
   const { transitionStatus, mounted, setMounted } = useTransitionStatus(item.checked);
 
   useOpenChangeComplete({
+    batch: true,
+    enabled: !item.checked,
     open: item.checked,
     ref: indicatorRef,
     onComplete() {

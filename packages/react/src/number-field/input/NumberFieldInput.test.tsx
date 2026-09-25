@@ -1,4 +1,4 @@
-import { expect, vi } from 'vitest';
+import { expect, vi, describe, it } from 'vitest';
 import * as React from 'react';
 import { act, screen, fireEvent } from '@mui/internal-test-utils';
 import { NumberField } from '@base-ui/react/number-field';
@@ -146,9 +146,9 @@ describe('<NumberField.Input />', () => {
     const input = screen.getByRole('textbox');
     await act(async () => input.focus());
     fireEvent.keyDown(input, { key: 'ArrowUp', altKey: true });
-    expect(input).toHaveValue('0.3');
+    expect(input).toHaveValue(new Intl.NumberFormat().format(0.3));
     fireEvent.keyDown(input, { key: 'ArrowDown', altKey: true });
-    expect(input).toHaveValue('0.2');
+    expect(input).toHaveValue(new Intl.NumberFormat().format(0.2));
   });
 
   it('advances by a smallStep finer than 3 fraction digits', async () => {
@@ -1048,7 +1048,7 @@ describe('<NumberField.Input />', () => {
       setProps({ value: 1.2399 });
     });
 
-    expect(input).toHaveValue(new Intl.NumberFormat('en-US', format).format(1.2399));
+    expect(input).toHaveValue(new Intl.NumberFormat(undefined, format).format(1.2399));
   });
 
   it.each([
@@ -1202,7 +1202,7 @@ describe('<NumberField.Input />', () => {
     );
 
     const input = screen.getByRole('textbox');
-    const formattedOverflow = new Intl.NumberFormat('en-US', format).format(Number.MAX_VALUE);
+    const formattedOverflow = new Intl.NumberFormat(undefined, format).format(Number.MAX_VALUE);
 
     await act(async () => {
       input.focus();
@@ -1517,6 +1517,25 @@ describe('<NumberField.Input />', () => {
       const { input, pressMinus } = await renderSigned();
       input.setSelectionRange(0, input.value.length);
       expect(pressMinus()).toBe(true);
+    });
+  });
+
+  describe('focus selection', () => {
+    it('keeps the selection the browser set when focus moves into the input', async () => {
+      await render(
+        <NumberField.Root defaultValue={100}>
+          <NumberField.Input />
+        </NumberField.Root>,
+      );
+
+      const input = screen.getByRole<HTMLInputElement>('textbox');
+
+      // Tabbing into an input natively selects the whole value before the focus event fires.
+      input.setSelectionRange(0, input.value.length);
+      await act(async () => input.focus());
+
+      expect(input.selectionStart).toBe(0);
+      expect(input.selectionEnd).toBe(input.value.length);
     });
   });
 

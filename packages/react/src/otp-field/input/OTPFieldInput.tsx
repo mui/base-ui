@@ -2,10 +2,12 @@
 import * as React from 'react';
 import { SafeReact } from '@base-ui/utils/safeReact';
 import { warn } from '@base-ui/utils/warn';
+import { platform } from '@base-ui/utils/platform';
 import { stopEvent } from '../../floating-ui-react/utils';
 import { useCompositeListItem } from '../../internals/composite/list/useCompositeListItem';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useDirection } from '../../internals/direction-context/DirectionContext';
+import { useSetFieldFocused } from '../../internals/field-root-context/useSetFieldFocused';
 import { useRenderElement } from '../../internals/useRenderElement';
 import {
   createChangeEventDetails,
@@ -56,6 +58,7 @@ export const OTPFieldInput = React.forwardRef(function OTPFieldInput(
     readOnly,
     required,
     normalizeValue,
+    setFocused: setRootFocused,
     setValue,
     state,
     validationType,
@@ -64,7 +67,14 @@ export const OTPFieldInput = React.forwardRef(function OTPFieldInput(
 
   const { ref: listItemRef, index } = useCompositeListItem({ guess: true });
   const inputRef = React.useRef<HTMLInputElement | null>(null);
+  const setFocused = useSetFieldFocused(disabled, inputRef, setRootFocused);
   const direction = useDirection();
+
+  // While an IME composition is active, Safari exposes the in-progress text through `onChange`
+  // as an accumulating string (`d`, then `dd`, then `ddd`). Committing those intermediate values
+  // would treat them as bulk input and fill too many slots, so the text is only buffered here
+  // and committed once on `compositionend`.
+  const [composingValue, setComposingValue] = React.useState<string | null>(null);
 
   const slotValue = value[index] ?? '';
   const inputState = getOTPFieldInputState(state, slotValue, index);
@@ -72,6 +82,7 @@ export const OTPFieldInput = React.forwardRef(function OTPFieldInput(
   const inheritedLabel = externalAriaLabelledBy ?? inputAriaLabelledBy;
   const ariaLabel = index === 0 ? undefined : slotAriaLabel;
 
+  /* istanbul ignore else -- `process.env.NODE_ENV` is a build-time constant under test */
   if (process.env.NODE_ENV !== 'production') {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     React.useEffect(() => {
@@ -87,9 +98,52 @@ export const OTPFieldInput = React.forwardRef(function OTPFieldInput(
     }, [index, slotAriaLabel]);
   }
 
+  function commitValue(
+    rawValue: string,
+    reason: typeof REASONS.inputChange | typeof REASONS.inputPaste,
+    event: React.SyntheticEvent<HTMLInputElement>,
+  ) {
+    const [nextDigits, didRejectCharacters] = normalizeOTPValueWithDetails(
+      rawValue,
+      length,
+      validationType,
+      normalizeValue,
+    );
+
+    if (didRejectCharacters) {
+      reportValueInvalid(rawValue, createGenericEventDetails(reason, event.nativeEvent));
+    }
+
+    if (nextDigits === '') {
+      // Typed input edits the slot in place: clear it, or restore its character when every
+      // typed character was rejected. An empty or fully rejected paste changes nothing.
+      if (reason === REASONS.inputChange) {
+        if (rawValue === '') {
+          setValue(
+            removeOTPCharacter(value, index),
+            createChangeEventDetails(REASONS.inputClear, event.nativeEvent),
+          );
+        } else if (slotValue !== '') {
+          event.currentTarget.value = slotValue;
+          event.currentTarget.select();
+        }
+      }
+      return;
+    }
+
+    const committedValue = setValue(
+      replaceOTPValue(value, index, nextDigits, length, validationType, normalizeValue),
+      createChangeEventDetails(reason, event.nativeEvent),
+    );
+
+    if (committedValue != null) {
+      queueFocusInput(Math.min(index + nextDigits.length, length - 1), committedValue);
+    }
+  }
+
   const inputProps: React.ComponentProps<'input'> = {
     id: getInputId(index),
-    value: slotValue,
+    value: composingValue ?? slotValue,
     type: mask ? 'password' : 'text',
     inputMode,
     autoComplete: index === 0 ? autoComplete : 'off',
@@ -120,6 +174,7 @@ export const OTPFieldInput = React.forwardRef(function OTPFieldInput(
         return;
       }
 
+      setFocused(true);
       handleInputFocus(index, event);
     },
     onBlur(event) {
@@ -127,62 +182,44 @@ export const OTPFieldInput = React.forwardRef(function OTPFieldInput(
         return;
       }
 
+      // Focus moving to a sibling slot stays inside the root; `handleInputBlur` clears the
+      // focused state only when focus leaves the root, so slot-to-slot moves don't churn it.
       handleInputBlur(event);
+    },
+    onCompositionStart() {
+      // Some Android keyboards report all text as always-composing, so Android keeps
+      // committing through `onChange`.
+      if (!platform.os.android) {
+        setComposingValue(slotValue);
+      }
+    },
+    onCompositionEnd(event) {
+      if (composingValue == null) {
+        return;
+      }
+
+      setComposingValue(null);
+
+      if (!disabled && !readOnly) {
+        commitValue(event.currentTarget.value, REASONS.inputChange, event);
+      }
     },
     onChange(event) {
       if (event.defaultPrevented || disabled || readOnly) {
         return;
       }
 
-      const rawValue = event.currentTarget.value;
-      const [nextDigits, didRejectCharacters] = normalizeOTPValueWithDetails(
-        rawValue,
-        length,
-        validationType,
-        normalizeValue,
-      );
-
-      if (didRejectCharacters) {
-        reportValueInvalid(
-          rawValue,
-          createGenericEventDetails(REASONS.inputChange, event.nativeEvent),
-        );
-      }
-
-      if (nextDigits === '') {
-        if (rawValue === '') {
-          setValue(
-            removeOTPCharacter(value, index),
-            createChangeEventDetails(REASONS.inputClear, event.nativeEvent),
-          );
-        } else if (slotValue !== '') {
-          event.currentTarget.value = slotValue;
-          event.currentTarget.select();
-        }
+      if (composingValue != null) {
+        setComposingValue(event.currentTarget.value);
         return;
       }
 
-      const nextValue = replaceOTPValue(
-        value,
-        index,
-        nextDigits,
-        length,
-        validationType,
-        normalizeValue,
-      );
-
-      const committedValue = setValue(
-        nextValue,
-        createChangeEventDetails(REASONS.inputChange, event.nativeEvent),
-      );
-
-      if (committedValue != null) {
-        const nextInput = Math.min(index + nextDigits.length, length - 1);
-        queueFocusInput(nextInput, committedValue);
-      }
+      commitValue(event.currentTarget.value, REASONS.inputChange, event);
     },
     onKeyDown(event) {
-      if (event.defaultPrevented || disabled) {
+      // Browsers deliver real key names (such as `Backspace`) for keydowns inside a composition.
+      // The IME owns editing until `compositionend`, so OTP commands must not run on them.
+      if (event.defaultPrevented || disabled || composingValue != null) {
         return;
       }
 
@@ -275,6 +312,7 @@ export const OTPFieldInput = React.forwardRef(function OTPFieldInput(
       try {
         rawValue = event.clipboardData?.getData('text/plain') ?? '';
       } catch {
+        /* istanbul ignore else -- `process.env.NODE_ENV` is a build-time constant under test */
         if (process.env.NODE_ENV !== 'production') {
           const ownerStackMessage = SafeReact.captureOwnerStack?.() || '';
           warn(
@@ -287,34 +325,7 @@ export const OTPFieldInput = React.forwardRef(function OTPFieldInput(
       }
 
       event.preventDefault();
-
-      const [nextDigits, didRejectCharacters] = normalizeOTPValueWithDetails(
-        rawValue,
-        length,
-        validationType,
-        normalizeValue,
-      );
-
-      if (didRejectCharacters) {
-        reportValueInvalid(
-          rawValue,
-          createGenericEventDetails(REASONS.inputPaste, event.nativeEvent),
-        );
-      }
-
-      if (nextDigits === '') {
-        return;
-      }
-
-      const committedValue = setValue(
-        replaceOTPValue(value, index, nextDigits, length, validationType, normalizeValue),
-        createChangeEventDetails(REASONS.inputPaste, event.nativeEvent),
-      );
-
-      if (committedValue != null) {
-        const nextInput = Math.min(index + nextDigits.length, length - 1);
-        queueFocusInput(nextInput, committedValue);
-      }
+      commitValue(rawValue, REASONS.inputPaste, event);
     },
   };
 

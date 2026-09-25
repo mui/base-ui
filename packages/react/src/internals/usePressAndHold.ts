@@ -169,6 +169,15 @@ export function usePressAndHold(params: UsePressAndHoldParameters): UsePressAndH
     [stopAutoChange],
   );
 
+  React.useEffect(() => {
+    if (disabled) {
+      isPressedRef.current = false;
+      isTouchingButtonRef.current = false;
+      pointerTypeRef.current = '';
+      stopAutoChange();
+    }
+  }, [disabled, stopAutoChange]);
+
   const pointerHandlers: UsePressAndHoldReturnValue['pointerHandlers'] = {
     onTouchStart() {
       isTouchingButtonRef.current = true;
@@ -254,6 +263,8 @@ export function usePressAndHold(params: UsePressAndHoldParameters): UsePressAndH
 
       stopAutoChange();
     },
+    // Local fallback for the window `pointerup` listener, which an ancestor can stop from
+    // reaching the window by calling `stopPropagation`.
     onMouseUp() {
       if (isTouchingButtonRef.current) {
         return;

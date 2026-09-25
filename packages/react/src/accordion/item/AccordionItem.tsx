@@ -1,14 +1,11 @@
 'use client';
 import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
-import { BaseUIComponentProps } from '../../internals/types';
+import type { BaseUIComponentProps } from '../../internals/types';
 import { useBaseUiId } from '../../internals/useBaseUiId';
-import {
-  useCollapsibleRoot,
-  type UseCollapsibleRootParameters,
-} from '../../collapsible/root/useCollapsibleRoot';
-import type { CollapsibleRoot, CollapsibleRootState } from '../../collapsible/root/CollapsibleRoot';
+import { useCollapsibleRoot } from '../../collapsible/root/useCollapsibleRoot';
+import type { UseCollapsibleRootParameters } from '../../collapsible/root/useCollapsibleRoot';
+import type { CollapsibleRoot } from '../../collapsible/root/CollapsibleRoot';
 import { CollapsibleRootContext } from '../../collapsible/root/CollapsibleRootContext';
 import { useCompositeListItem } from '../../internals/composite/list/useCompositeListItem';
 import type { AccordionRootState } from '../root/AccordionRoot';
@@ -16,8 +13,8 @@ import { useAccordionRootContext } from '../root/AccordionRootContext';
 import { AccordionItemContext } from './AccordionItemContext';
 import { accordionStateAttributesMapping } from './stateAttributesMapping';
 import { useRenderElement } from '../../internals/useRenderElement';
-import { type BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
-import { REASONS } from '../../internals/reasons';
+import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import type { REASONS } from '../../internals/reasons';
 
 /**
  * Groups an accordion header with the corresponding panel.
@@ -40,7 +37,6 @@ export const AccordionItem = React.forwardRef(function AccordionItem(
   } = componentProps;
 
   const { ref: listItemRef, index } = useCompositeListItem();
-  const mergedRef = useMergedRefs(forwardedRef, listItemRef);
 
   const {
     disabled: contextDisabled,
@@ -55,19 +51,7 @@ export const AccordionItem = React.forwardRef(function AccordionItem(
 
   const disabled = disabledProp || contextDisabled;
 
-  const isOpen = React.useMemo(() => {
-    if (!openValues) {
-      return false;
-    }
-
-    for (let i = 0; i < openValues.length; i += 1) {
-      if (openValues[i] === value) {
-        return true;
-      }
-    }
-
-    return false;
-  }, [openValues, value]);
+  const isOpen = openValues.includes(value);
 
   const onOpenChange = useStableCallback(
     (nextOpen: boolean, eventDetails: CollapsibleRoot.ChangeEventDetails) => {
@@ -87,22 +71,17 @@ export const AccordionItem = React.forwardRef(function AccordionItem(
     disabled,
   });
 
-  const collapsibleState: CollapsibleRootState = React.useMemo(
-    () => ({
-      open: collapsible.open,
-      disabled: collapsible.disabled,
-      transitionStatus: collapsible.transitionStatus,
-    }),
-    [collapsible.open, collapsible.disabled, collapsible.transitionStatus],
-  );
-
   const collapsibleContext: CollapsibleRootContext = React.useMemo(
     () => ({
       ...collapsible,
       onOpenChange,
-      state: collapsibleState,
+      state: {
+        open: collapsible.open,
+        disabled: collapsible.disabled,
+        transitionStatus: collapsible.transitionStatus,
+      },
     }),
-    [collapsible, collapsibleState, onOpenChange],
+    [collapsible, onOpenChange],
   );
 
   const state: AccordionItemState = React.useMemo(
@@ -117,21 +96,25 @@ export const AccordionItem = React.forwardRef(function AccordionItem(
   );
 
   const defaultTriggerId = useBaseUiId();
-  const [triggerId, setTriggerId] = React.useState<string | undefined>();
+  // `undefined` uses the initial generated fallback; `null` means the trigger unmounted.
+  const [registeredTriggerId, setTriggerId] = React.useState<string | null | undefined>();
+  const triggerId =
+    registeredTriggerId === null ? undefined : (registeredTriggerId ?? defaultTriggerId);
 
   const accordionItemContext: AccordionItemContext = React.useMemo(
     () => ({
+      defaultTriggerId,
       open: isOpen,
       state,
       setTriggerId,
-      triggerId: triggerId ?? defaultTriggerId,
+      triggerId,
     }),
     [defaultTriggerId, isOpen, state, setTriggerId, triggerId],
   );
 
   const element = useRenderElement('div', componentProps, {
     state,
-    ref: mergedRef,
+    ref: [forwardedRef, listItemRef],
     props: elementProps,
     stateAttributesMapping: accordionStateAttributesMapping,
   });
@@ -182,8 +165,7 @@ export interface AccordionItemProps
    * Event handler called when the panel is opened or closed.
    */
   onOpenChange?:
-    | ((open: boolean, eventDetails: AccordionItem.ChangeEventDetails) => void)
-    | undefined;
+    ((open: boolean, eventDetails: AccordionItem.ChangeEventDetails) => void) | undefined;
 }
 
 export type AccordionItemChangeEventReason = typeof REASONS.triggerPress | typeof REASONS.none;

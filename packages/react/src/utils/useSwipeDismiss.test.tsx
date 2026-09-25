@@ -1,7 +1,7 @@
-import { beforeAll, describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import * as React from 'react';
 import { fireEvent, flushMicrotasks, screen } from '@mui/internal-test-utils';
-import { createRenderer, isJSDOM } from '#test-utils';
+import { createRenderer, firePointer, isJSDOM } from '#test-utils';
 import { useSwipeDismiss } from './useSwipeDismiss';
 
 function SwipeBox() {
@@ -51,12 +51,6 @@ function createTouch(target: EventTarget, point: { clientX: number; clientY: num
 }
 
 describe('useSwipeDismiss', () => {
-  beforeAll(function beforeHook() {
-    // PointerEvent not fully implemented in jsdom, causing fireEvent.pointer* to ignore options.
-    // https://github.com/jsdom/jsdom/issues/2527
-    (window as any).PointerEvent = window.MouseEvent;
-  });
-
   const { render } = createRenderer();
 
   it('does not start swiping within a scrollable element when ignoreScrollableAncestors is true', async () => {
@@ -140,6 +134,136 @@ describe('useSwipeDismiss', () => {
       document.elementFromPoint = originalElementFromPoint;
     }
   });
+
+  it.skipIf(isJSDOM)('starts a touch swipe when the page scroller is `body`', async () => {
+    const onSwipeStart = vi.fn();
+
+    function SwipeBoxFixed() {
+      const ref = React.useRef<HTMLDivElement>(null);
+      const swipe = useSwipeDismiss({
+        enabled: true,
+        directions: ['down'],
+        elementRef: ref,
+        movementCssVars: { x: '--x', y: '--y' },
+        onSwipeStart,
+      });
+
+      return (
+        <div
+          data-testid="el"
+          ref={ref}
+          style={{ ...swipe.getDragStyles(), position: 'fixed', inset: 0 }}
+          {...swipe.getTouchProps()}
+        />
+      );
+    }
+
+    const { body } = document;
+    const html = document.documentElement;
+    const previousBodyStyle = body.style.cssText;
+    const previousHtmlStyle = html.style.cssText;
+    // A reset that turns `body` into a real scroll container instead of letting its overflow
+    // propagate to the viewport.
+    html.style.cssText = 'height: 100%; overflow-y: auto';
+    body.style.cssText = 'height: 100%; overflow-y: auto';
+
+    try {
+      await render(
+        <React.Fragment>
+          <div style={{ height: 5000 }} />
+          <SwipeBoxFixed />
+        </React.Fragment>,
+      );
+
+      // Being at the start edge is what made the upward move fail: it can only pass the
+      // scroll-edge gate when the container is scrolled to the end.
+      expect(body.scrollTop).toBe(0);
+      expect(body.scrollHeight).toBeGreaterThan(body.clientHeight);
+
+      const element = screen.getByTestId('el');
+      fireEvent.touchStart(element, {
+        touches: [createTouch(element, { clientX: 50, clientY: 300 })],
+      });
+      fireEvent.touchMove(element, {
+        touches: [createTouch(element, { clientX: 50, clientY: 260 })],
+      });
+
+      expect(onSwipeStart).toHaveBeenCalledTimes(1);
+    } finally {
+      body.style.cssText = previousBodyStyle;
+      html.style.cssText = previousHtmlStyle;
+    }
+  });
+
+  it.skipIf(isJSDOM)(
+    'keeps gating on a scrollable descendant of the other axis when `body` scrolls the page',
+    async () => {
+      const onSwipeStart = vi.fn();
+
+      function SwipeBoxCrossAxis() {
+        const ref = React.useRef<HTMLDivElement>(null);
+        const swipe = useSwipeDismiss({
+          enabled: true,
+          directions: ['right'],
+          elementRef: ref,
+          movementCssVars: { x: '--x', y: '--y' },
+          onSwipeStart,
+        });
+
+        return (
+          <div
+            data-testid="el"
+            ref={ref}
+            style={{ ...swipe.getDragStyles(), position: 'fixed', inset: 0 }}
+            {...swipe.getTouchProps()}
+          >
+            <div
+              data-testid="scroll"
+              style={{ overflowX: 'auto', overflowY: 'hidden', width: '100%', height: '100%' }}
+            >
+              <div style={{ width: 5000, height: 20 }} />
+            </div>
+          </div>
+        );
+      }
+
+      const { body } = document;
+      const html = document.documentElement;
+      const previousBodyStyle = body.style.cssText;
+      const previousHtmlStyle = html.style.cssText;
+      html.style.cssText = 'height: 100%; overflow-y: auto';
+      body.style.cssText = 'height: 100%; overflow-y: auto';
+
+      try {
+        await render(
+          <React.Fragment>
+            <div style={{ height: 5000 }} />
+            <SwipeBoxCrossAxis />
+          </React.Fragment>,
+        );
+
+        const scroll = screen.getByTestId('scroll');
+        // Away from the start edge, so the horizontal scroller must refuse the rightward swipe.
+        scroll.scrollLeft = 20;
+
+        expect(body.scrollHeight).toBeGreaterThan(body.clientHeight);
+        expect(scroll.scrollWidth).toBeGreaterThan(scroll.clientWidth);
+        expect(scroll.scrollLeft).toBeGreaterThan(0);
+
+        fireEvent.touchStart(scroll, {
+          touches: [createTouch(scroll, { clientX: 50, clientY: 300 })],
+        });
+        fireEvent.touchMove(scroll, {
+          touches: [createTouch(scroll, { clientX: 90, clientY: 300 })],
+        });
+
+        expect(onSwipeStart).not.toHaveBeenCalled();
+      } finally {
+        body.style.cssText = previousBodyStyle;
+        html.style.cssText = previousHtmlStyle;
+      }
+    },
+  );
 
   it('does not prevent touch scrolling during swipe interactions', async () => {
     await render(<SwipeBox />);
@@ -695,6 +819,104 @@ describe('useSwipeDismiss', () => {
     expect(onDismiss).toHaveBeenCalled();
   });
 
+  it.each([false, true])(
+    'snapshots swipeThreshold for the active gesture (strict: %s)',
+    async (strict) => {
+      const onDismiss = vi.fn();
+
+      function SwipeBoxThreshold({ swipeThreshold }: { swipeThreshold: number }) {
+        const ref = React.useRef<HTMLDivElement>(null);
+        const swipe = useSwipeDismiss({
+          enabled: true,
+          directions: ['down'],
+          elementRef: ref,
+          movementCssVars: { x: '--x', y: '--y' },
+          swipeThreshold,
+          onDismiss,
+        });
+
+        return (
+          <div
+            data-testid="el"
+            ref={ref}
+            style={swipe.getDragStyles()}
+            {...swipe.getPointerProps()}
+          />
+        );
+      }
+
+      const { setProps } = await render(<SwipeBoxThreshold swipeThreshold={50} />, { strict });
+      const element = screen.getByTestId('el');
+
+      fireEvent.pointerDown(element, {
+        button: 0,
+        buttons: 1,
+        pointerId: 1,
+        clientX: 0,
+        clientY: 0,
+        bubbles: true,
+        pointerType: 'mouse',
+      });
+      fireEvent.pointerMove(element, {
+        pointerId: 1,
+        buttons: 1,
+        clientX: 0,
+        clientY: 0,
+        bubbles: true,
+      });
+
+      await setProps({ swipeThreshold: 10 });
+
+      fireEvent.pointerMove(element, {
+        pointerId: 1,
+        buttons: 1,
+        clientX: 0,
+        clientY: 20,
+        bubbles: true,
+      });
+      fireEvent.pointerUp(element, {
+        pointerId: 1,
+        clientX: 0,
+        clientY: 20,
+        bubbles: true,
+      });
+
+      expect(onDismiss).not.toHaveBeenCalled();
+
+      fireEvent.pointerDown(element, {
+        button: 0,
+        buttons: 1,
+        pointerId: 2,
+        clientX: 0,
+        clientY: 0,
+        bubbles: true,
+        pointerType: 'mouse',
+      });
+      fireEvent.pointerMove(element, {
+        pointerId: 2,
+        buttons: 1,
+        clientX: 0,
+        clientY: 0,
+        bubbles: true,
+      });
+      fireEvent.pointerMove(element, {
+        pointerId: 2,
+        buttons: 1,
+        clientX: 0,
+        clientY: 20,
+        bubbles: true,
+      });
+      fireEvent.pointerUp(element, {
+        pointerId: 2,
+        clientX: 0,
+        clientY: 20,
+        bubbles: true,
+      });
+
+      expect(onDismiss).toHaveBeenCalledTimes(1);
+    },
+  );
+
   it('fires onSwipingChange on start and end', async () => {
     const onSwipingChange = vi.fn();
 
@@ -1167,7 +1389,7 @@ describe('useSwipeDismiss', () => {
     expect(onDismiss).not.toHaveBeenCalled();
   });
 
-  it.skipIf(!isJSDOM)('provides swipe velocity on release', async () => {
+  it('provides swipe velocity on release', async () => {
     const onRelease = vi.fn();
 
     function SwipeBoxReleaseVelocity() {
@@ -1192,11 +1414,10 @@ describe('useSwipeDismiss', () => {
 
     vi.useFakeTimers();
     try {
-      vi.setSystemTime(new Date(1000));
       await render(<SwipeBoxReleaseVelocity />);
       const element = screen.getByTestId('release-velocity');
 
-      fireEvent.pointerDown(element, {
+      firePointer.down(element, {
         button: 0,
         buttons: 1,
         pointerId: 1,
@@ -1211,8 +1432,7 @@ describe('useSwipeDismiss', () => {
 
       await flushMicrotasks();
 
-      vi.setSystemTime(new Date(1100));
-      fireEvent.pointerMove(element, {
+      firePointer.move(element, {
         pointerId: 1,
         buttons: 1,
         clientX: 0,
@@ -1225,8 +1445,7 @@ describe('useSwipeDismiss', () => {
 
       await flushMicrotasks();
 
-      vi.setSystemTime(new Date(1200));
-      fireEvent.pointerMove(element, {
+      firePointer.move(element, {
         pointerId: 1,
         buttons: 1,
         clientX: 50,
@@ -1239,8 +1458,7 @@ describe('useSwipeDismiss', () => {
 
       await flushMicrotasks();
 
-      vi.setSystemTime(new Date(1300));
-      fireEvent.pointerUp(element, {
+      firePointer.up(element, {
         pointerId: 1,
         clientX: 50,
         clientY: 0,
@@ -1258,7 +1476,7 @@ describe('useSwipeDismiss', () => {
     }
   });
 
-  it.skipIf(!isJSDOM)('provides release velocity from the latest swipe movement', async () => {
+  it('provides release velocity from the latest swipe movement', async () => {
     const onRelease = vi.fn();
 
     function SwipeBoxReleaseVelocity() {
@@ -1283,11 +1501,10 @@ describe('useSwipeDismiss', () => {
 
     vi.useFakeTimers();
     try {
-      vi.setSystemTime(new Date(1000));
       await render(<SwipeBoxReleaseVelocity />);
       const element = screen.getByTestId('release-velocity-latest');
 
-      fireEvent.pointerDown(element, {
+      firePointer.down(element, {
         button: 0,
         buttons: 1,
         pointerId: 1,
@@ -1302,8 +1519,7 @@ describe('useSwipeDismiss', () => {
 
       await flushMicrotasks();
 
-      vi.setSystemTime(new Date(1100));
-      fireEvent.pointerMove(element, {
+      firePointer.move(element, {
         pointerId: 1,
         buttons: 1,
         clientX: 0,
@@ -1316,8 +1532,7 @@ describe('useSwipeDismiss', () => {
 
       await flushMicrotasks();
 
-      vi.setSystemTime(new Date(1200));
-      fireEvent.pointerMove(element, {
+      firePointer.move(element, {
         pointerId: 1,
         buttons: 1,
         clientX: 50,
@@ -1330,8 +1545,7 @@ describe('useSwipeDismiss', () => {
 
       await flushMicrotasks();
 
-      vi.setSystemTime(new Date(1216));
-      fireEvent.pointerMove(element, {
+      firePointer.move(element, {
         pointerId: 1,
         buttons: 1,
         clientX: 70,
@@ -1344,8 +1558,7 @@ describe('useSwipeDismiss', () => {
 
       await flushMicrotasks();
 
-      vi.setSystemTime(new Date(1224));
-      fireEvent.pointerUp(element, {
+      firePointer.up(element, {
         pointerId: 1,
         clientX: 70,
         clientY: 0,
@@ -1363,7 +1576,547 @@ describe('useSwipeDismiss', () => {
     }
   });
 
-  it.skipIf(!isJSDOM)('clamps short swipe durations when computing velocity', async () => {
+  it.each([
+    { trailingTime: 1040, releaseTime: 1048, expectedVelocity: 1.25 },
+    { trailingTime: 1040, releaseTime: 1113, expectedVelocity: 0 },
+    { trailingTime: 1113, releaseTime: 1121, expectedVelocity: 0 },
+  ])(
+    'handles a stationary move at $trailingTime and release at $releaseTime',
+    async ({ trailingTime, releaseTime, expectedVelocity }) => {
+      const onRelease = vi.fn();
+
+      function SwipeBoxTrailingSample() {
+        const ref = React.useRef<HTMLDivElement>(null);
+        const swipe = useSwipeDismiss({
+          enabled: true,
+          directions: ['down'],
+          elementRef: ref,
+          movementCssVars: { x: '--x', y: '--y' },
+          onRelease,
+        });
+
+        return (
+          <div
+            data-testid="release-velocity-trailing-sample"
+            ref={ref}
+            style={swipe.getDragStyles()}
+            {...swipe.getPointerProps()}
+          />
+        );
+      }
+
+      vi.useFakeTimers();
+      try {
+        await render(<SwipeBoxTrailingSample />);
+        const element = screen.getByTestId('release-velocity-trailing-sample');
+
+        firePointer.down(element, {
+          button: 0,
+          buttons: 1,
+          pointerId: 1,
+          clientX: 0,
+          clientY: 0,
+          bubbles: true,
+          pointerType: 'mouse',
+          movementX: 0,
+          movementY: 0,
+          timeStamp: 1000,
+        });
+
+        await flushMicrotasks();
+
+        firePointer.move(element, {
+          pointerId: 1,
+          buttons: 1,
+          clientX: 0,
+          clientY: 20,
+          bubbles: true,
+          movementX: 0,
+          movementY: 20,
+          timeStamp: 1008,
+        });
+
+        await flushMicrotasks();
+
+        firePointer.move(element, {
+          pointerId: 1,
+          buttons: 1,
+          clientX: 0,
+          clientY: 40,
+          bubbles: true,
+          movementX: 0,
+          movementY: 20,
+          timeStamp: 1016,
+        });
+
+        await flushMicrotasks();
+
+        firePointer.move(element, {
+          pointerId: 1,
+          buttons: 1,
+          clientX: 0,
+          clientY: 60,
+          bubbles: true,
+          movementX: 0,
+          movementY: 20,
+          timeStamp: 1024,
+        });
+
+        await flushMicrotasks();
+
+        firePointer.move(element, {
+          pointerId: 1,
+          buttons: 1,
+          clientX: 0,
+          clientY: 80,
+          bubbles: true,
+          movementX: 0,
+          movementY: 20,
+          timeStamp: 1032,
+        });
+
+        await flushMicrotasks();
+
+        // Chrome on Android emits an effectively stationary sample right before `pointerup`.
+        firePointer.move(element, {
+          pointerId: 1,
+          buttons: 1,
+          clientX: 0,
+          clientY: 80.5,
+          bubbles: true,
+          movementX: 0,
+          movementY: 0.5,
+          timeStamp: trailingTime,
+        });
+
+        await flushMicrotasks();
+
+        firePointer.up(element, {
+          pointerId: 1,
+          clientX: 0,
+          clientY: 80.5,
+          bubbles: true,
+          timeStamp: releaseTime,
+        });
+
+        await flushMicrotasks();
+
+        // Keep the last moving sample (20px / 16ms), unless it is older than 80ms.
+        const details = onRelease.mock.calls[0]?.[0];
+        expect(details?.releaseVelocityY).toBeCloseTo(expectedVelocity, 4);
+        expect(details?.releaseVelocityX).toBeCloseTo(0, 2);
+      } finally {
+        vi.useRealTimers();
+      }
+    },
+  );
+
+  it('keeps release velocity when moves arrive sparsely', async () => {
+    const onRelease = vi.fn();
+
+    function SwipeBoxSparseSamples() {
+      const ref = React.useRef<HTMLDivElement>(null);
+      const swipe = useSwipeDismiss({
+        enabled: true,
+        directions: ['down'],
+        elementRef: ref,
+        movementCssVars: { x: '--x', y: '--y' },
+        onRelease,
+      });
+
+      return (
+        <div
+          data-testid="release-velocity-sparse"
+          ref={ref}
+          style={swipe.getDragStyles()}
+          {...swipe.getPointerProps()}
+        />
+      );
+    }
+
+    vi.useFakeTimers();
+    try {
+      await render(<SwipeBoxSparseSamples />);
+      const element = screen.getByTestId('release-velocity-sparse');
+
+      firePointer.down(element, {
+        button: 0,
+        buttons: 1,
+        pointerId: 1,
+        clientX: 0,
+        clientY: 0,
+        bubbles: true,
+        pointerType: 'mouse',
+        movementX: 0,
+        movementY: 0,
+        timeStamp: 1000,
+      });
+
+      await flushMicrotasks();
+
+      firePointer.move(element, {
+        pointerId: 1,
+        buttons: 1,
+        clientX: 0,
+        clientY: 20,
+        bubbles: true,
+        movementX: 0,
+        movementY: 20,
+        timeStamp: 1060,
+      });
+
+      await flushMicrotasks();
+
+      firePointer.move(element, {
+        pointerId: 1,
+        buttons: 1,
+        clientX: 0,
+        clientY: 200,
+        bubbles: true,
+        movementX: 0,
+        movementY: 180,
+        timeStamp: 1120,
+      });
+
+      await flushMicrotasks();
+
+      firePointer.move(element, {
+        pointerId: 1,
+        buttons: 1,
+        clientX: 0,
+        clientY: 200.5,
+        bubbles: true,
+        movementX: 0,
+        movementY: 0.5,
+        timeStamp: 1128,
+      });
+
+      await flushMicrotasks();
+
+      firePointer.up(element, {
+        pointerId: 1,
+        clientX: 0,
+        clientY: 200.5,
+        bubbles: true,
+        timeStamp: 1136,
+      });
+
+      await flushMicrotasks();
+
+      // Keep the last moving sample: 180px over 60ms.
+      const details = onRelease.mock.calls[0]?.[0];
+      expect(details?.releaseVelocityY).toBeCloseTo(3, 4);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('measures release velocity from the first move rather than the press', async () => {
+    const onRelease = vi.fn();
+
+    function SwipeBoxHeldPress() {
+      const ref = React.useRef<HTMLDivElement>(null);
+      const swipe = useSwipeDismiss({
+        enabled: true,
+        directions: ['down'],
+        elementRef: ref,
+        movementCssVars: { x: '--x', y: '--y' },
+        onRelease,
+      });
+
+      return (
+        <div
+          data-testid="release-velocity-held-press"
+          ref={ref}
+          style={swipe.getDragStyles()}
+          {...swipe.getPointerProps()}
+        />
+      );
+    }
+
+    vi.useFakeTimers();
+    try {
+      await render(<SwipeBoxHeldPress />);
+      const element = screen.getByTestId('release-velocity-held-press');
+
+      firePointer.down(element, {
+        button: 0,
+        buttons: 1,
+        pointerId: 1,
+        clientX: 0,
+        clientY: 0,
+        bubbles: true,
+        pointerType: 'mouse',
+        movementX: 0,
+        movementY: 0,
+        timeStamp: 1000,
+      });
+
+      await flushMicrotasks();
+
+      // The first move arrives 200ms after the press and re-anchors the drag origin.
+      firePointer.move(element, {
+        pointerId: 1,
+        buttons: 1,
+        clientX: 0,
+        clientY: 5,
+        bubbles: true,
+        movementX: 0,
+        movementY: 5,
+        timeStamp: 1200,
+      });
+
+      await flushMicrotasks();
+
+      firePointer.move(element, {
+        pointerId: 1,
+        buttons: 1,
+        clientX: 0,
+        clientY: 15,
+        bubbles: true,
+        movementX: 0,
+        movementY: 10,
+        timeStamp: 1208,
+      });
+
+      await flushMicrotasks();
+
+      firePointer.up(element, {
+        pointerId: 1,
+        clientX: 0,
+        clientY: 15,
+        bubbles: true,
+        timeStamp: 1216,
+      });
+
+      await flushMicrotasks();
+
+      // 10px over the 16ms minimum duration. Measuring from the press would report 0.05.
+      const details = onRelease.mock.calls[0]?.[0];
+      expect(details?.releaseVelocityY).toBeCloseTo(0.625, 4);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('decays release velocity while the pointer stays pinned', async () => {
+    const onRelease = vi.fn();
+
+    function SwipeBoxPinned() {
+      const ref = React.useRef<HTMLDivElement>(null);
+      const swipe = useSwipeDismiss({
+        enabled: true,
+        directions: ['down'],
+        elementRef: ref,
+        movementCssVars: { x: '--x', y: '--y' },
+        onRelease,
+      });
+
+      return (
+        <div
+          data-testid="release-velocity-pinned"
+          ref={ref}
+          style={swipe.getDragStyles()}
+          {...swipe.getPointerProps()}
+        />
+      );
+    }
+
+    vi.useFakeTimers();
+    try {
+      await render(<SwipeBoxPinned />);
+      const element = screen.getByTestId('release-velocity-pinned');
+
+      firePointer.down(element, {
+        button: 0,
+        buttons: 1,
+        pointerId: 1,
+        clientX: 0,
+        clientY: 0,
+        bubbles: true,
+        pointerType: 'mouse',
+        movementX: 0,
+        movementY: 0,
+        timeStamp: 1000,
+      });
+
+      await flushMicrotasks();
+
+      firePointer.move(element, {
+        pointerId: 1,
+        buttons: 1,
+        clientX: 0,
+        clientY: 0,
+        bubbles: true,
+        movementX: 0,
+        movementY: 0,
+        timeStamp: 1000,
+      });
+
+      await flushMicrotasks();
+
+      firePointer.move(element, {
+        pointerId: 1,
+        buttons: 1,
+        clientX: 0,
+        clientY: 20,
+        bubbles: true,
+        movementX: 0,
+        movementY: 20,
+        timeStamp: 1016,
+      });
+
+      await flushMicrotasks();
+
+      // An off-screen mouse keeps emitting moves at the pinned coordinates.
+      for (const timeStamp of [1032, 1048, 1064]) {
+        firePointer.move(element, {
+          pointerId: 1,
+          buttons: 1,
+          clientX: 0,
+          clientY: 20,
+          bubbles: true,
+          movementX: 0,
+          movementY: 0,
+          timeStamp,
+        });
+
+        // eslint-disable-next-line no-await-in-loop
+        await flushMicrotasks();
+      }
+
+      firePointer.up(element, {
+        pointerId: 1,
+        clientX: 0,
+        clientY: 20,
+        bubbles: true,
+        timeStamp: 1072,
+      });
+
+      await flushMicrotasks();
+
+      // Repeated stationary samples clear the velocity from the last movement.
+      const details = onRelease.mock.calls[0]?.[0];
+      expect(details?.releaseVelocityY).toBe(0);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('does not report a previous gesture velocity for a release without movement', async () => {
+    const onRelease = vi.fn();
+
+    function SwipeBoxStaleVelocity() {
+      const ref = React.useRef<HTMLDivElement>(null);
+      const swipe = useSwipeDismiss({
+        enabled: true,
+        directions: ['down'],
+        elementRef: ref,
+        movementCssVars: { x: '--x', y: '--y' },
+        onRelease,
+      });
+
+      return (
+        <div
+          data-testid="release-velocity-stale"
+          ref={ref}
+          style={swipe.getDragStyles()}
+          {...swipe.getPointerProps()}
+        />
+      );
+    }
+
+    vi.useFakeTimers();
+    try {
+      await render(<SwipeBoxStaleVelocity />);
+      const element = screen.getByTestId('release-velocity-stale');
+
+      firePointer.down(element, {
+        button: 0,
+        buttons: 1,
+        pointerId: 1,
+        clientX: 0,
+        clientY: 0,
+        bubbles: true,
+        pointerType: 'mouse',
+        movementX: 0,
+        movementY: 0,
+        timeStamp: 1000,
+      });
+
+      await flushMicrotasks();
+
+      firePointer.move(element, {
+        pointerId: 1,
+        buttons: 1,
+        clientX: 0,
+        clientY: 40,
+        bubbles: true,
+        movementX: 0,
+        movementY: 40,
+        timeStamp: 1008,
+      });
+
+      await flushMicrotasks();
+
+      firePointer.move(element, {
+        pointerId: 1,
+        buttons: 1,
+        clientX: 0,
+        clientY: 120,
+        bubbles: true,
+        movementX: 0,
+        movementY: 80,
+        timeStamp: 1016,
+      });
+
+      await flushMicrotasks();
+
+      firePointer.up(element, {
+        pointerId: 1,
+        clientX: 0,
+        clientY: 120,
+        bubbles: true,
+        timeStamp: 1024,
+      });
+
+      await flushMicrotasks();
+
+      expect(onRelease.mock.calls[0]?.[0]?.releaseVelocityY).toBeGreaterThan(1);
+
+      firePointer.down(element, {
+        button: 0,
+        buttons: 1,
+        pointerId: 2,
+        clientX: 0,
+        clientY: 0,
+        bubbles: true,
+        pointerType: 'mouse',
+        movementX: 0,
+        movementY: 0,
+        timeStamp: 5000,
+      });
+
+      await flushMicrotasks();
+
+      firePointer.up(element, {
+        pointerId: 2,
+        clientX: 0,
+        clientY: 0,
+        bubbles: true,
+        timeStamp: 5016,
+      });
+
+      await flushMicrotasks();
+
+      const secondRelease = onRelease.mock.calls[1]?.[0];
+      expect(secondRelease?.releaseVelocityY).toBe(0);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('clamps short swipe durations when computing velocity', async () => {
     const onRelease = vi.fn();
 
     function SwipeBoxReleaseVelocity() {
@@ -1388,11 +2141,10 @@ describe('useSwipeDismiss', () => {
 
     vi.useFakeTimers();
     try {
-      vi.setSystemTime(new Date(1000));
       await render(<SwipeBoxReleaseVelocity />);
       const element = screen.getByTestId('release-velocity-short');
 
-      fireEvent.pointerDown(element, {
+      firePointer.down(element, {
         button: 0,
         buttons: 1,
         pointerId: 1,
@@ -1407,8 +2159,7 @@ describe('useSwipeDismiss', () => {
 
       await flushMicrotasks();
 
-      vi.setSystemTime(new Date(1005));
-      fireEvent.pointerMove(element, {
+      firePointer.move(element, {
         pointerId: 1,
         buttons: 1,
         clientX: 0,
@@ -1421,8 +2172,7 @@ describe('useSwipeDismiss', () => {
 
       await flushMicrotasks();
 
-      vi.setSystemTime(new Date(1010));
-      fireEvent.pointerMove(element, {
+      firePointer.move(element, {
         pointerId: 1,
         buttons: 1,
         clientX: 30,
@@ -1435,8 +2185,7 @@ describe('useSwipeDismiss', () => {
 
       await flushMicrotasks();
 
-      vi.setSystemTime(new Date(1015));
-      fireEvent.pointerUp(element, {
+      firePointer.up(element, {
         pointerId: 1,
         clientX: 30,
         clientY: 0,

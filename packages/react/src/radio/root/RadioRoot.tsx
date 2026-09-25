@@ -17,6 +17,7 @@ import { ACTIVE_COMPOSITE_ITEM } from '../../internals/composite/constants';
 import { CompositeItem } from '../../internals/composite/item/CompositeItem';
 import type { FieldRootState } from '../../field/root/FieldRoot';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
+import { useSetFieldFocused } from '../../internals/field-root-context/useSetFieldFocused';
 import { useFieldItemContext } from '../../field/item/FieldItemContext';
 import { useLabelableContext } from '../../internals/labelable-provider/LabelableContext';
 import { useAriaLabelledBy } from '../../internals/labelable-provider/useAriaLabelledBy';
@@ -29,7 +30,7 @@ import { RadioRootContext } from './RadioRootContext';
  * Represents the radio button itself.
  * Renders a `<span>` element and a hidden `<input>` beside.
  *
- * Documentation: [Base UI Radio](https://base-ui.com/react/components/radio)
+ * Documentation: [Base UI Radio](https://base-ui.com/react/components/radio-group)
  */
 export const RadioRoot = React.forwardRef(function RadioRoot<Value>(
   componentProps: RadioRoot.Props<Value>,
@@ -83,6 +84,7 @@ export const RadioRoot = React.forwardRef(function RadioRoot<Value>(
   const checked = groupContext ? checkedValue === value : value === '';
 
   const radioRef = React.useRef<HTMLElement>(null);
+  const setFieldFocused = useSetFieldFocused(disabled, radioRef);
   const inputRef = React.useRef<HTMLInputElement>(null);
 
   const registerFieldInput = validation?.registerInput;
@@ -113,11 +115,7 @@ export const RadioRoot = React.forwardRef(function RadioRoot<Value>(
   }, [checked, disabled, registerInputRef]);
 
   const id = useBaseUiId();
-  const inputId = useLabelableId({
-    id: idProp,
-    implicit: false,
-    controlRef: radioRef,
-  });
+  const inputId = useLabelableId({ id: idProp });
   const hiddenInputId = nativeButton ? undefined : inputId;
   const ariaLabelledBy = useAriaLabelledBy(
     ariaLabelledByProp,
@@ -125,6 +123,7 @@ export const RadioRoot = React.forwardRef(function RadioRoot<Value>(
     inputRef,
     !nativeButton,
     hiddenInputId,
+    elementProps['aria-label'],
   );
 
   const rootProps: React.ComponentPropsWithRef<'span'> = {
@@ -155,6 +154,8 @@ export const RadioRoot = React.forwardRef(function RadioRoot<Value>(
       dispatchClickWithModifiers(input, event);
     },
     onFocus(event) {
+      setFieldFocused(true);
+
       if (event.defaultPrevented || disabled || readOnly || !touched) {
         return;
       }
@@ -162,6 +163,13 @@ export const RadioRoot = React.forwardRef(function RadioRoot<Value>(
       inputRef.current?.click();
 
       setTouched(false);
+    },
+    onBlur() {
+      // A grouped radio's exit is cleared by the group's `contains`-guarded blur handler, so
+      // radio-to-radio moves inside the group don't churn the focused state.
+      if (!groupContext) {
+        setFieldFocused(false);
+      }
     },
   };
 

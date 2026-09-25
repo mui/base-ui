@@ -1,4 +1,4 @@
-import { expect, vi } from 'vitest';
+import { expect, vi, describe, it } from 'vitest';
 import * as React from 'react';
 import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { Switch } from '@base-ui/react/switch';
@@ -170,6 +170,29 @@ describe('<Switch.Root />', () => {
         expect(labelA.id).not.toBe(labelB.id);
         expect(switchEl).toHaveAttribute('aria-labelledby', labelB.id);
       });
+    });
+
+    it('prefers `aria-label` over an associated label', async () => {
+      await render(
+        <React.Fragment>
+          <label>
+            <Switch.Root aria-label="Wi-Fi" />
+            Wi-Fi
+          </label>
+          <Field.Root>
+            <Field.Label>
+              <Switch.Root aria-label="Bluetooth" />
+              Bluetooth
+            </Field.Label>
+          </Field.Root>
+        </React.Fragment>,
+      );
+
+      const [nativeLabelled, fieldLabelled] = screen.getAllByRole('switch');
+      expect(nativeLabelled).not.toHaveAttribute('aria-labelledby');
+      expect(nativeLabelled).toHaveAccessibleName('Wi-Fi');
+      expect(fieldLabelled).not.toHaveAttribute('aria-labelledby');
+      expect(fieldLabelled).toHaveAccessibleName('Bluetooth');
     });
   });
 
@@ -977,6 +1000,33 @@ describe('<Switch.Root />', () => {
         expect(button).not.toHaveAttribute('data-filled');
       });
 
+      it('clears [data-filled] when a controlled switch remounts unchecked', async () => {
+        function App() {
+          const [unchecked, setUnchecked] = React.useState(false);
+          return (
+            <Field.Root data-testid="root">
+              <Switch.Root
+                key={String(unchecked)}
+                checked={!unchecked}
+                onCheckedChange={() => {}}
+              />
+              <button type="button" onClick={() => setUnchecked(true)}>
+                clear
+              </button>
+            </Field.Root>
+          );
+        }
+
+        await render(<App />);
+
+        const root = screen.getByTestId('root');
+        expect(root).toHaveAttribute('data-filled', '');
+
+        fireEvent.click(screen.getByText('clear'));
+
+        expect(root).not.toHaveAttribute('data-filled');
+      });
+
       it('removes [data-filled] attribute when unchecked after being initially checked', async () => {
         await render(
           <Field.Root>
@@ -1026,6 +1076,48 @@ describe('<Switch.Root />', () => {
       fireEvent.focus(button);
 
       expect(button).not.toHaveAttribute('data-focused');
+    });
+
+    describe('[data-focused] without a blur event', () => {
+      function Switches(props: { firstMounted?: boolean; firstDisabled?: boolean }) {
+        const { firstMounted = true, firstDisabled = false } = props;
+        return (
+          <Field.Root data-testid="root">
+            {firstMounted && <Switch.Root data-testid="first" disabled={firstDisabled} />}
+          </Field.Root>
+        );
+      }
+
+      it('is removed when the focused switch becomes disabled', async () => {
+        const { setProps } = await render(<Switches />);
+
+        const button = screen.getByTestId('first');
+        act(() => {
+          button.focus();
+        });
+
+        expect(screen.getByTestId('root')).toHaveAttribute('data-focused', '');
+        expect(button).toHaveAttribute('data-focused', '');
+
+        await setProps({ firstDisabled: true });
+
+        expect(screen.getByTestId('root')).not.toHaveAttribute('data-focused');
+        expect(button).not.toHaveAttribute('data-focused');
+      });
+
+      it('is removed when the focused switch unmounts', async () => {
+        const { setProps } = await render(<Switches />);
+
+        act(() => {
+          screen.getByTestId('first').focus();
+        });
+
+        expect(screen.getByTestId('root')).toHaveAttribute('data-focused', '');
+
+        await setProps({ firstMounted: false });
+
+        expect(screen.getByTestId('root')).not.toHaveAttribute('data-focused');
+      });
     });
 
     it('prop: validationMode=onSubmit', async () => {

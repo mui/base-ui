@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { expect, vi } from 'vitest';
+import { expect, vi, describe, it } from 'vitest';
 import { Toast } from '@base-ui/react/toast';
 import { createRenderer, describeConformance } from '#test-utils';
 import { screen } from '@mui/internal-test-utils';
@@ -224,6 +224,40 @@ describe('<Toast.Title />', () => {
 
     expect(screen.queryByText('Toast title')).toBe(null);
     expect(rootElement.getAttribute('aria-labelledby')).toBe(null);
+  });
+
+  it('does not let an older title cleanup clear a newer title', async () => {
+    function Fixture({ titles }: { titles: 'old' | 'both' | 'new' }) {
+      return (
+        <Toast.Provider>
+          <Toast.Viewport>
+            <Toast.Root toast={{ id: 'test' }} data-testid="root">
+              {titles !== 'new' && (
+                <Toast.Title key="old" id="old-title">
+                  Old
+                </Toast.Title>
+              )}
+              {titles !== 'old' && (
+                <Toast.Title key="new" id="new-title">
+                  New
+                </Toast.Title>
+              )}
+            </Toast.Root>
+          </Toast.Viewport>
+        </Toast.Provider>
+      );
+    }
+
+    const { rerender } = await render(<Fixture titles="old" />);
+
+    const root = screen.getByTestId('root');
+    expect(root).toHaveAttribute('aria-labelledby', 'old-title');
+
+    await rerender(<Fixture titles="both" />);
+    expect(root).toHaveAttribute('aria-labelledby', 'new-title');
+
+    await rerender(<Fixture titles="new" />);
+    expect(root).toHaveAttribute('aria-labelledby', 'new-title');
   });
 
   it('renders the toast title through a childless render prop', async () => {

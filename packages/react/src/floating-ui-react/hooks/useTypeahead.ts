@@ -4,8 +4,9 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useTimeout } from '@base-ui/utils/useTimeout';
 import { EMPTY_ARRAY } from '@base-ui/utils/empty';
-import { isElementVisible, isListIndexDisabled, type DisabledIndices } from '../utils/composite';
-import type { ElementProps, FloatingContext, FloatingRootContext } from '../types';
+import { isElementVisible, isListIndexDisabled } from '../utils/composite';
+import type { DisabledIndices } from '../utils/composite';
+import type { ElementProps, FloatingRootContext } from '../types';
 import { contains } from '../utils/element';
 import { stopEvent } from '../utils/event';
 
@@ -68,10 +69,7 @@ export interface UseTypeaheadProps {
  * types, often used in tandem with `useListNavigation()`.
  * @see https://floating-ui.com/docs/useTypeahead
  */
-export function useTypeahead(
-  context: FloatingRootContext | FloatingContext,
-  props: UseTypeaheadProps,
-): ElementProps {
+export function useTypeahead(store: FloatingRootContext, props: UseTypeaheadProps): ElementProps {
   const {
     listRef,
     elementsRef,
@@ -83,8 +81,6 @@ export function useTypeahead(
     resetMs = 750,
     selectedIndex = null,
   } = props;
-
-  const store = 'rootStore' in context ? context.rootStore : context;
 
   const open = store.useState('open');
 
@@ -237,13 +233,6 @@ export function useTypeahead(
       stringRef.current = '';
     }
   }, [open, selectedIndex, timeout]);
-
-  useIsoLayoutEffect(() => {
-    // Sync arrow key navigation but not typeahead navigation.
-    if (open && stringRef.current === '') {
-      prevIndexRef.current = selectedIndex ?? activeIndex ?? -1;
-    }
-  }, [open, selectedIndex, activeIndex]);
 
   const sharedProps = React.useMemo(() => ({ onKeyDown, onBlur }), [onKeyDown, onBlur]);
 

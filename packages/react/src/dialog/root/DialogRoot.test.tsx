@@ -1,5 +1,7 @@
-import { expect, vi } from 'vitest';
+import { expect, vi, describe, beforeEach, it, afterEach } from 'vitest';
+import type { CDPSession } from '@vitest/browser-playwright';
 import * as React from 'react';
+import * as ReactDOM from 'react-dom';
 import { act, fireEvent, screen, waitFor, flushMicrotasks } from '@mui/internal-test-utils';
 import { AlertDialog } from '@base-ui/react/alert-dialog';
 import { Dialog } from '@base-ui/react/dialog';
@@ -9,9 +11,13 @@ import { Select } from '@base-ui/react/select';
 import { NumberField } from '@base-ui/react/number-field';
 import { ScrollArea } from '@base-ui/react/scroll-area';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { platform } from '@base-ui/utils/platform';
 import { useTimeout } from '@base-ui/utils/useTimeout';
 import { REASONS } from '../../internals/reasons';
 import { useDialogRootContext } from './DialogRootContext';
+import { DialogStore } from '../store/DialogStore';
+import { DialogInteractions } from './useDialogRoot';
 
 describe('<Dialog.Root />', () => {
   const { render } = createRenderer();
@@ -32,6 +38,203 @@ describe('<Dialog.Root />', () => {
     render,
     triggerMouseAction: 'click',
     expectedPopupRole: 'dialog',
+  });
+
+  it.skipIf(isJSDOM || !platform.engine.blink)(
+    'ignores a native click whose pointerdown opened the dialog',
+    async () => {
+      const { cdp } = await import('vitest/browser');
+      const openChangeSpy = vi.fn();
+      const documentClicks: MouseEvent[] = [];
+
+      function App() {
+        const [open, setOpen] = React.useState(false);
+
+        return (
+          <React.Fragment>
+            <button type="button" onPointerDown={() => setOpen(true)}>
+              Open
+            </button>
+            <Dialog.Root
+              open={open}
+              onOpenChange={(nextOpen, eventDetails) => {
+                openChangeSpy(nextOpen, eventDetails.reason);
+                setOpen(nextOpen);
+              }}
+            >
+              <Dialog.Portal>
+                <Dialog.Backdrop data-testid="backdrop" style={{ position: 'fixed', inset: 0 }} />
+                <Dialog.Popup data-testid="popup">Dialog</Dialog.Popup>
+              </Dialog.Portal>
+            </Dialog.Root>
+          </React.Fragment>
+        );
+      }
+
+      await render(<App />);
+
+      const openButton = screen.getByRole('button', { name: 'Open' });
+      const frame = window.frameElement as HTMLIFrameElement | null;
+      const frameRect = frame?.getBoundingClientRect();
+      const buttonRect = openButton.getBoundingClientRect();
+      const buttonCenter = {
+        x:
+          (frameRect?.left ?? 0) +
+          (frame?.clientLeft ?? 0) +
+          buttonRect.left +
+          buttonRect.width / 2,
+        y: (frameRect?.top ?? 0) + (frame?.clientTop ?? 0) + buttonRect.top + buttonRect.height / 2,
+      };
+      const session = cdp() as CDPSession;
+
+      function recordClick(event: MouseEvent) {
+        documentClicks.push(event);
+      }
+
+      document.addEventListener('click', recordClick, true);
+
+      try {
+        await act(async () => {
+          await session.send('Input.dispatchMouseEvent', {
+            type: 'mouseMoved',
+            ...buttonCenter,
+          });
+          await session.send('Input.dispatchMouseEvent', {
+            type: 'mousePressed',
+            ...buttonCenter,
+            button: 'left',
+            buttons: 1,
+            clickCount: 1,
+          });
+        });
+
+        await waitFor(() => {
+          expect(screen.queryByTestId('popup')).not.toBe(null);
+        });
+
+        await act(async () => {
+          await session.send('Input.dispatchMouseEvent', {
+            type: 'mouseReleased',
+            ...buttonCenter,
+            button: 'left',
+            buttons: 0,
+            clickCount: 1,
+          });
+        });
+
+        // The browser synthesizes the gesture's click asynchronously after
+        // the release; wait for it instead of sleeping a fixed amount.
+        await waitFor(() => {
+          expect(documentClicks.some((event) => event.isTrusted)).toBe(true);
+        });
+
+        const trustedClick = documentClicks.find((event) => event.isTrusted);
+        expect(trustedClick?.target).not.toBe(openButton);
+        // The click must land outside the popup subtree so it is evaluated as
+        // an outside press; a click inside the popup would be ignored for a
+        // different reason and stop covering the press-observed guard.
+        expect(screen.getByTestId('popup').contains(trustedClick?.target as Node)).toBe(false);
+        expect(screen.queryByTestId('popup')).not.toBe(null);
+        expect(openChangeSpy).not.toHaveBeenCalledWith(false, REASONS.outsidePress);
+
+        // The guard must only suppress the gesture that opened the dialog. A
+        // fresh press observed while open still dismisses — without this the
+        // suite would stay green if the press were never recorded for trusted
+        // input at all.
+        await act(async () => {
+          await session.send('Input.dispatchMouseEvent', {
+            type: 'mousePressed',
+            ...buttonCenter,
+            button: 'left',
+            buttons: 1,
+            clickCount: 1,
+          });
+          await session.send('Input.dispatchMouseEvent', {
+            type: 'mouseReleased',
+            ...buttonCenter,
+            button: 'left',
+            buttons: 0,
+            clickCount: 1,
+          });
+        });
+
+        await waitFor(() => {
+          expect(screen.queryByTestId('popup')).toBe(null);
+        });
+        expect(openChangeSpy).toHaveBeenCalledWith(false, REASONS.outsidePress);
+      } finally {
+        document.removeEventListener('click', recordClick, true);
+      }
+    },
+  );
+
+  it('reports nested drawer counts before passive effects', async () => {
+    const childStore = new DialogStore(
+      {
+        open: true,
+        mounted: true,
+        modal: false,
+        disablePointerDismissal: false,
+      },
+      undefined,
+      true,
+    );
+    const parentStore = new DialogStore(undefined, undefined, false);
+    let mountPassiveEffectFlushed = false;
+    let teardownPassiveEffectFlushed = false;
+    let mountedBeforePassiveEffect: boolean | null = null;
+    let unmountedBeforePassiveEffect: boolean | null = null;
+    let phase: 'mount' | 'teardown' = 'mount';
+
+    Object.assign(parentStore.context, {
+      onNestedDialogOpen(dialogCount: number, drawerCount: number) {
+        if (drawerCount > 0 && mountedBeforePassiveEffect === null) {
+          mountedBeforePassiveEffect = !mountPassiveEffectFlushed;
+        }
+        if (
+          phase === 'teardown' &&
+          dialogCount === 0 &&
+          drawerCount === 0 &&
+          unmountedBeforePassiveEffect === null
+        ) {
+          unmountedBeforePassiveEffect = !teardownPassiveEffectFlushed;
+        }
+      },
+    });
+
+    function PassiveEffectBoundary() {
+      useIsoLayoutEffect(
+        () => () => {
+          teardownPassiveEffectFlushed = false;
+        },
+        [],
+      );
+
+      React.useEffect(() => {
+        mountPassiveEffectFlushed = true;
+        return () => {
+          teardownPassiveEffectFlushed = true;
+        };
+      }, []);
+
+      return null;
+    }
+
+    const { unmount } = await render(
+      <React.Fragment>
+        <PassiveEffectBoundary />
+        <DialogInteractions store={childStore} parentContext={parentStore.context} isDrawer />
+      </React.Fragment>,
+    );
+
+    expect(mountedBeforePassiveEffect).toBe(true);
+
+    phase = 'teardown';
+    await act(async () => {
+      unmount();
+    });
+
+    expect(unmountedBeforePassiveEffect).toBe(true);
   });
 
   it('keeps trigger ownership when another trigger mounts while open', async () => {
@@ -409,20 +612,6 @@ describe('<Dialog.Root />', () => {
       });
     });
 
-    describe('prop: modal', () => {
-      it('makes other interactive elements on the page inert when a modal dialog is open', async () => {
-        await render(<TestDialog rootProps={{ defaultOpen: true, modal: true }} />);
-
-        expect(screen.getByRole('presentation', { hidden: true })).not.toBe(null);
-      });
-
-      it('does not make other interactive elements on the page inert when a non-modal dialog is open', async () => {
-        await render(<TestDialog rootProps={{ defaultOpen: true, modal: false }} />);
-
-        expect(screen.queryByRole('presentation')).toBe(null);
-      });
-    });
-
     describe('prop: disablePointerDismissal', () => {
       (
         [
@@ -452,12 +641,7 @@ describe('<Dialog.Root />', () => {
           fireEvent.mouseDown(outside);
           fireEvent.click(outside);
           expect(handleOpenChange.mock.calls.length === 1).toBe(expectDismissed);
-
-          if (expectDismissed) {
-            expect(screen.queryByRole('dialog')).toBe(null);
-          } else {
-            expect(screen.queryByRole('dialog')).not.toBe(null);
-          }
+          expect(screen.queryByRole('dialog') === null).toBe(expectDismissed);
         });
       });
     });
@@ -679,6 +863,18 @@ describe('<Dialog.Root />', () => {
     });
 
     describe('prop: modal', () => {
+      it('makes other interactive elements on the page inert when a modal dialog is open', async () => {
+        await render(<TestDialog rootProps={{ defaultOpen: true, modal: true }} />);
+
+        expect(screen.getByRole('presentation', { hidden: true })).not.toBe(null);
+      });
+
+      it('does not make other interactive elements on the page inert when a non-modal dialog is open', async () => {
+        await render(<TestDialog rootProps={{ defaultOpen: true, modal: false }} />);
+
+        expect(screen.queryByRole('presentation')).toBe(null);
+      });
+
       it('should render an internal backdrop when `true`', async () => {
         const { user } = await render(
           <div>
@@ -1448,6 +1644,166 @@ describe('<Dialog.Root />', () => {
 
     expect(screen.getByRole('dialog')).not.toBe(null);
     expect(handleOpenChange.mock.calls.length).toBe(0);
+  });
+
+  describe('closed shadow root', () => {
+    const reactGlobals = globalThis as typeof globalThis & { IS_REACT_ACT_ENVIRONMENT?: boolean };
+
+    let host: HTMLElement;
+    let shadowRoot: ShadowRoot;
+    let container: HTMLElement;
+
+    beforeEach(() => {
+      host = document.body.appendChild(document.createElement('div'));
+      shadowRoot = host.attachShadow({ mode: 'closed' });
+      container = shadowRoot.appendChild(document.createElement('div'));
+    });
+
+    afterEach(async () => {
+      await act(async () => {
+        host.remove();
+      });
+    });
+
+    async function query(testId: string) {
+      const selector = `[data-testid="${testId}"]`;
+      return waitFor(() => {
+        const element = shadowRoot.querySelector(selector) ?? document.querySelector(selector);
+        expect(element).not.toBe(null);
+        return element as HTMLElement;
+      });
+    }
+
+    async function click(testId: string) {
+      const element = await query(testId);
+      // For trusted input, the browser flushes React's microtask-scheduled update before
+      // the press reaches the shadow host. `act()` and synthetic dispatch would defer it.
+      const flush = () => ReactDOM.flushSync(() => {});
+      shadowRoot.addEventListener('click', flush);
+      reactGlobals.IS_REACT_ACT_ENVIRONMENT = false;
+      try {
+        element.click();
+      } finally {
+        reactGlobals.IS_REACT_ACT_ENVIRONMENT = true;
+        shadowRoot.removeEventListener('click', flush);
+      }
+      await flushMicrotasks();
+    }
+
+    type PortalContainer = 'shadow root' | 'body' | undefined;
+
+    const resolveContainer = (target: PortalContainer) =>
+      target && { 'shadow root': shadowRoot, body: document.body }[target];
+
+    const nestedKinds = [
+      {
+        name: 'modal dialog',
+        modal: true,
+        render: (portalContainer: ShadowRoot | HTMLElement | undefined) => (
+          <Dialog.Root>
+            <Dialog.Trigger data-testid="open-nested">Open nested</Dialog.Trigger>
+            <Dialog.Portal container={portalContainer}>
+              <Dialog.Backdrop />
+              <Dialog.Popup data-testid="nested">
+                <Dialog.Close data-testid="close-nested">Close</Dialog.Close>
+              </Dialog.Popup>
+            </Dialog.Portal>
+          </Dialog.Root>
+        ),
+      },
+      {
+        name: 'non-modal dialog',
+        modal: false,
+        render: (portalContainer: ShadowRoot | HTMLElement | undefined) => (
+          <Dialog.Root modal={false}>
+            <Dialog.Trigger data-testid="open-nested">Open nested</Dialog.Trigger>
+            <Dialog.Portal container={portalContainer}>
+              <Dialog.Popup data-testid="nested">
+                <Dialog.Close data-testid="close-nested">Close</Dialog.Close>
+              </Dialog.Popup>
+            </Dialog.Portal>
+          </Dialog.Root>
+        ),
+      },
+      {
+        name: 'alert dialog',
+        modal: true,
+        render: (portalContainer: ShadowRoot | HTMLElement | undefined) => (
+          <AlertDialog.Root>
+            <AlertDialog.Trigger data-testid="open-nested">Open nested</AlertDialog.Trigger>
+            <AlertDialog.Portal container={portalContainer}>
+              <AlertDialog.Backdrop />
+              <AlertDialog.Popup data-testid="nested">
+                <AlertDialog.Close data-testid="close-nested">Close</AlertDialog.Close>
+              </AlertDialog.Popup>
+            </AlertDialog.Portal>
+          </AlertDialog.Root>
+        ),
+      },
+    ];
+
+    // `undefined` means the portal's default: the parent portal's node, else the body.
+    const portalSetups: Array<{ outer: PortalContainer; nested: PortalContainer }> = [
+      { outer: 'shadow root', nested: undefined },
+      { outer: 'shadow root', nested: 'shadow root' },
+      { outer: 'shadow root', nested: 'body' },
+      { outer: undefined, nested: undefined },
+      { outer: undefined, nested: 'shadow root' },
+    ];
+
+    describe.for(nestedKinds)('nested $name', (nestedKind) => {
+      it.for(portalSetups)(
+        'keeps the parent open on close (outer: $outer, nested: $nested)',
+        async ({ outer, nested }) => {
+          const handleOpenChange = vi.fn();
+
+          await render(
+            <Dialog.Root defaultOpen modal={nestedKind.modal} onOpenChange={handleOpenChange}>
+              <Dialog.Portal container={resolveContainer(outer)}>
+                {nestedKind.modal && <Dialog.Backdrop />}
+                <Dialog.Popup data-testid="outer">
+                  {nestedKind.render(resolveContainer(nested))}
+                </Dialog.Popup>
+              </Dialog.Portal>
+            </Dialog.Root>,
+            { container },
+          );
+
+          await click('open-nested');
+          await query('nested');
+
+          await click('close-nested');
+
+          expect(await query('outer')).not.toBe(null);
+          expect(shadowRoot.querySelector('[data-testid="nested"]')).toBe(null);
+          expect(document.querySelector('[data-testid="nested"]')).toBe(null);
+          expect(handleOpenChange).not.toHaveBeenCalled();
+        },
+      );
+    });
+
+    it('still dismisses on a press outside the popup', async () => {
+      const handleOpenChange = vi.fn();
+
+      await render(
+        <React.Fragment>
+          <div data-testid="outside">Outside</div>
+          <Dialog.Root defaultOpen modal={false} onOpenChange={handleOpenChange}>
+            <Dialog.Portal container={shadowRoot}>
+              <Dialog.Popup data-testid="outer" />
+            </Dialog.Portal>
+          </Dialog.Root>
+        </React.Fragment>,
+        { container },
+      );
+
+      await query('outer');
+      await click('outside');
+
+      expect(shadowRoot.querySelector('[data-testid="outer"]')).toBe(null);
+      expect(handleOpenChange.mock.calls.length).toBe(1);
+      expect(handleOpenChange.mock.calls[0][1].reason).toBe(REASONS.outsidePress);
+    });
   });
 
   describe.skipIf(isJSDOM)('touch outside press', () => {

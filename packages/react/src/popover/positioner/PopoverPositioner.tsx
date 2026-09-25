@@ -5,12 +5,12 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { FloatingNode, useFloatingNodeId } from '../../floating-ui-react';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
 import { PopoverPositionerContext } from './PopoverPositionerContext';
-import {
-  useAnchorPositioning,
-  type Side,
-  type Align,
-  type UseAnchorPositioningSharedParameters,
-} from '../../utils/useAnchorPositioning';
+import { useAnchorPositioning } from '../../internals/useAnchorPositioning';
+import type {
+  Side,
+  Align,
+  UseAnchorPositioningSharedParameters,
+} from '../../internals/useAnchorPositioning';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { usePopoverPortalContext } from '../portal/PopoverPortalContext';
 import { InternalBackdrop } from '../../utils/InternalBackdrop';
@@ -69,7 +69,7 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
 
   const prevTriggerElementRef = React.useRef<Element | null>(null);
 
-  const runOnceAnimationsFinish = useAnimationsFinished(positionerElement, false, false);
+  const runOnceAnimationsFinish = useAnimationsFinished(positionerElement);
 
   const positioning = useAnchorPositioning({
     anchor,

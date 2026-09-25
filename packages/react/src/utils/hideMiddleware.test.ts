@@ -1,10 +1,6 @@
-import { expect, vi } from 'vitest';
-import {
-  hide as nativeHide,
-  type MiddlewareState,
-  type Rect,
-  type SideObject,
-} from '@floating-ui/react-dom';
+import { expect, vi, describe, it } from 'vitest';
+import { hide as nativeHide } from '@floating-ui/react-dom';
+import type { MiddlewareState, Rect, SideObject } from '@floating-ui/react-dom';
 import { hide } from './hideMiddleware';
 
 const floatingRect: Rect = { x: 0, y: 0, width: 5, height: 5 };

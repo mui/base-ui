@@ -1,5 +1,5 @@
 'use client';
-import * as React from 'react';
+import type * as React from 'react';
 import { useId } from '@base-ui/utils/useId';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useToastRootContext } from '../root/ToastRootContext';
@@ -43,9 +43,8 @@ export function useToastLabelElement(
     }
 
     setId(id);
-
     return () => {
-      setId(undefined);
+      setId((currentId) => (currentId === id ? undefined : currentId));
     };
   }, [shouldRender, id, setId]);
 

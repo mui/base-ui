@@ -1,9 +1,12 @@
-import { expect, vi } from 'vitest';
+import { expect, vi, describe, it } from 'vitest';
 import * as React from 'react';
 import { screen, fireEvent, act } from '@mui/internal-test-utils';
 import { NumberField } from '@base-ui/react/number-field';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { CHANGE_VALUE_TICK_DELAY, START_AUTO_CHANGE_DELAY } from '../utils/constants';
+
+// Mirrors the touch settle delay in `usePressAndHold`.
+const TOUCH_TIMEOUT = 50;
 
 describe('<NumberField.Increment />', () => {
   const { render, clock } = createRenderer();
@@ -276,6 +279,15 @@ describe('<NumberField.Increment />', () => {
   describe('press and hold', () => {
     clock.withFakeTimers();
 
+    function TestNumberField(props: { disabled: boolean }) {
+      return (
+        <NumberField.Root defaultValue={0} disabled={props.disabled}>
+          <NumberField.Increment />
+          <NumberField.Input />
+        </NumberField.Root>
+      );
+    }
+
     it('increments continuously when holding pointerdown', async () => {
       await render(
         <NumberField.Root defaultValue={0}>
@@ -304,6 +316,152 @@ describe('<NumberField.Increment />', () => {
       clock.tick(CHANGE_VALUE_TICK_DELAY);
 
       expect(input).toHaveValue('4');
+    });
+
+    it('stops the hold on release when an ancestor stops pointerup propagation', async () => {
+      await render(
+        <div onPointerUp={(event) => event.stopPropagation()}>
+          <NumberField.Root defaultValue={0}>
+            <NumberField.Increment />
+            <NumberField.Input />
+          </NumberField.Root>
+        </div>,
+      );
+
+      const button = screen.getByRole('button');
+      const input = screen.getByRole('textbox');
+
+      fireEvent.pointerDown(button, { pointerType: 'mouse' });
+
+      expect(input).toHaveValue('1');
+
+      fireEvent.pointerUp(button, { pointerType: 'mouse' });
+      fireEvent.mouseUp(button);
+
+      clock.tick(START_AUTO_CHANGE_DELAY);
+      clock.tick(CHANGE_VALUE_TICK_DELAY);
+      clock.tick(CHANGE_VALUE_TICK_DELAY);
+
+      expect(input).toHaveValue('1');
+    });
+
+    it('cancels an active mouse press-and-hold interaction when disabled', async () => {
+      const { setProps } = await render(<TestNumberField disabled={false} />);
+
+      const input = screen.getByRole('textbox');
+      const increment = screen.getByRole('button', { name: 'Increase' });
+
+      fireEvent.pointerDown(increment, {
+        button: 0,
+        pointerType: 'mouse',
+      });
+
+      expect(input).toHaveValue('1');
+
+      await setProps({ disabled: true });
+
+      clock.tick(START_AUTO_CHANGE_DELAY);
+      clock.tick(CHANGE_VALUE_TICK_DELAY);
+      clock.tick(CHANGE_VALUE_TICK_DELAY);
+
+      expect(input).toHaveValue('1');
+
+      await setProps({ disabled: false });
+      fireEvent.mouseLeave(increment);
+      fireEvent.mouseEnter(increment);
+
+      expect(input).toHaveValue('1');
+    });
+
+    it('cancels the compatibility click from a touch press when disabled', async () => {
+      const { setProps } = await render(<TestNumberField disabled={false} />);
+
+      const input = screen.getByRole('textbox');
+      const increment = screen.getByRole('button', { name: 'Increase' });
+
+      fireEvent.touchStart(increment);
+      fireEvent.pointerDown(increment, { pointerType: 'touch' });
+
+      await setProps({ disabled: true });
+      await setProps({ disabled: false });
+
+      fireEvent.pointerUp(increment, { pointerType: 'touch' });
+      fireEvent.touchEnd(increment);
+      fireEvent.mouseEnter(increment);
+      fireEvent.click(increment, { detail: 1 });
+
+      expect(input).toHaveValue('0');
+    });
+
+    it('starts the hold once a touch press settles and ignores the compatibility click', async () => {
+      await render(<TestNumberField disabled={false} />);
+
+      const input = screen.getByRole('textbox');
+      const increment = screen.getByRole('button', { name: 'Increase' });
+
+      fireEvent.touchStart(increment);
+      fireEvent.pointerDown(increment, { pointerType: 'touch' });
+
+      expect(input).toHaveValue('0');
+
+      clock.tick(TOUCH_TIMEOUT);
+
+      expect(input).toHaveValue('1');
+
+      clock.tick(START_AUTO_CHANGE_DELAY);
+      clock.tick(CHANGE_VALUE_TICK_DELAY);
+      clock.tick(CHANGE_VALUE_TICK_DELAY);
+
+      expect(input).toHaveValue('3');
+
+      fireEvent.pointerUp(increment, { pointerType: 'touch' });
+      fireEvent.touchEnd(increment);
+      fireEvent.click(increment, { detail: 1 });
+
+      clock.tick(CHANGE_VALUE_TICK_DELAY);
+
+      expect(input).toHaveValue('3');
+    });
+
+    it('does not start the hold when the touch moves like a scroll', async () => {
+      await render(<TestNumberField disabled={false} />);
+
+      const input = screen.getByRole('textbox');
+      const increment = screen.getByRole('button', { name: 'Increase' });
+
+      fireEvent.touchStart(increment);
+      fireEvent.pointerDown(increment, { pointerType: 'touch', clientX: 0, clientY: 0 });
+      fireEvent.pointerMove(increment, { pointerType: 'touch', clientX: 0, clientY: 20 });
+
+      clock.tick(TOUCH_TIMEOUT);
+      clock.tick(START_AUTO_CHANGE_DELAY);
+      clock.tick(CHANGE_VALUE_TICK_DELAY);
+
+      expect(input).toHaveValue('0');
+    });
+
+    it('treats a touch press with several small moves as a tap', async () => {
+      await render(<TestNumberField disabled={false} />);
+
+      const input = screen.getByRole('textbox');
+      const increment = screen.getByRole('button', { name: 'Increase' });
+
+      fireEvent.touchStart(increment);
+      fireEvent.pointerDown(increment, { pointerType: 'touch', clientX: 0, clientY: 0 });
+      fireEvent.pointerMove(increment, { pointerType: 'touch', clientX: 1, clientY: 0 });
+      fireEvent.pointerMove(increment, { pointerType: 'touch', clientX: 2, clientY: 0 });
+      fireEvent.pointerMove(increment, { pointerType: 'touch', clientX: 3, clientY: 0 });
+
+      clock.tick(TOUCH_TIMEOUT);
+      clock.tick(START_AUTO_CHANGE_DELAY);
+
+      expect(input).toHaveValue('0');
+
+      fireEvent.pointerUp(increment, { pointerType: 'touch' });
+      fireEvent.touchEnd(increment);
+      fireEvent.click(increment, { detail: 1 });
+
+      expect(input).toHaveValue('1');
     });
 
     it('removes the global release listener when unmounted during a hold', async () => {
@@ -672,6 +830,24 @@ describe('<NumberField.Increment />', () => {
     expect(onValueChange.mock.calls.map((call) => call[0])).toEqual([100, 100, 1]);
     expect(input).toHaveValue('100');
     expect(onValueCommitted).not.toHaveBeenCalled();
+  });
+
+  it('places the caret at the end of the input when a mouse press focuses it', async () => {
+    await render(
+      <NumberField.Root defaultValue={100}>
+        <NumberField.Increment />
+        <NumberField.Input />
+      </NumberField.Root>,
+    );
+
+    const button = screen.getByRole('button');
+    const input = screen.getByRole<HTMLInputElement>('textbox');
+
+    fireEvent.pointerDown(button, { pointerType: 'mouse', button: 0 });
+
+    expect(document.activeElement).toBe(input);
+    expect(input.selectionStart).toBe(input.value.length);
+    expect(input.selectionEnd).toBe(input.value.length);
   });
 
   it('treats pen pointer as touch-like', async () => {

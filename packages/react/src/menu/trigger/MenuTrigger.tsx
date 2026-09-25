@@ -20,7 +20,7 @@ import { contains } from '../../floating-ui-react/utils';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { pressableTriggerOpenStateMapping } from '../../utils/popupStateMapping';
 import { useRenderElement } from '../../internals/useRenderElement';
-import { BaseUIComponentProps, NativeButtonProps } from '../../internals/types';
+import type { BaseUIComponentProps, NativeButtonProps } from '../../internals/types';
 import { useButton } from '../../internals/use-button/useButton';
 import { isMouseWithinBounds } from '../../utils/getPseudoElementBounds';
 import { CompositeItem } from '../../internals/composite/item/CompositeItem';
@@ -31,9 +31,9 @@ import { useTriggerFocusGuards } from '../../utils/popups/useTriggerFocusGuards'
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import { REASONS } from '../../internals/reasons';
 import { useMixedToggleClickHandler } from '../../utils/useMixedToggleClickHandler';
-import { MenuHandle } from '../store/MenuHandle';
+import type { MenuHandle } from '../store/MenuHandle';
 import { useMenubarContext } from '../../menubar/MenubarContext';
-import { MenuParent } from '../root/MenuRoot';
+import type { MenuParent } from '../root/MenuRoot';
 import { PATIENT_CLICK_THRESHOLD } from '../../internals/constants';
 import { FocusGuard } from '../../utils/FocusGuard';
 import { mergeProps } from '../../merge-props';
@@ -154,10 +154,17 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
   });
 
   React.useEffect(() => {
+    const doc = ownerDocument(triggerRef.current);
+
     if (isOpenedByThisTrigger && store.select('lastOpenChangeReason') === REASONS.triggerHover) {
-      const doc = ownerDocument(triggerRef.current);
       doc.addEventListener('mouseup', handleDocumentMouseUp, { once: true });
+
+      return () => {
+        doc.removeEventListener('mouseup', handleDocumentMouseUp);
+      };
     }
+
+    return undefined;
   }, [isOpenedByThisTrigger, handleDocumentMouseUp, store]);
 
   const parentMenubarHasSubmenuOpen = isInMenubar && parent.context.hasSubmenuOpen;
@@ -209,8 +216,10 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
 
   const rootTriggerProps = store.useState('triggerProps', isMountedByThisTrigger);
 
-  const { preFocusGuardRef, handlePreFocusGuardFocus, handleFocusTargetFocus } =
-    useTriggerFocusGuards(store, triggerElementRef);
+  const { handlePreFocusGuardFocus, handleFocusTargetFocus } = useTriggerFocusGuards(
+    store,
+    triggerElementRef,
+  );
 
   const state: MenuTriggerState = {
     disabled,
@@ -276,7 +285,7 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
     return (
       <React.Fragment>
         <FocusGuard
-          ref={preFocusGuardRef}
+          ref={store.context.beforeTriggerFocusGuardRef}
           onFocus={handlePreFocusGuardFocus}
           key={`${thisTriggerId}-pre-focus-guard`}
         />
@@ -359,7 +368,7 @@ function useStickIfOpen(open: boolean, openReason: string | null) {
   const stickIfOpenTimeout = useTimeout();
   const [stickIfOpen, setStickIfOpen] = React.useState(false);
   useIsoLayoutEffect(() => {
-    if (open && openReason === 'trigger-hover') {
+    if (open && openReason === REASONS.triggerHover) {
       // Only allow "patient" clicks to close the menu if it's open.
       // If they clicked within 500ms of the menu opening, keep it open.
       setStickIfOpen(true);

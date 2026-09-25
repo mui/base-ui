@@ -1,4 +1,4 @@
-import { expect, vi } from 'vitest';
+import { expect, vi, describe, it } from 'vitest';
 import * as React from 'react';
 import { screen, act, fireEvent, reactMajor } from '@mui/internal-test-utils';
 import { NumberField } from '@base-ui/react/number-field';
@@ -146,6 +146,27 @@ describe('<NumberField.ScrubArea />', () => {
 
       expect(root).not.toHaveAttribute('data-scrubbing');
     });
+
+    it('keeps a selection the consumer sets in onFocus when a mouse press focuses the input', async () => {
+      await render(
+        <NumberField.Root defaultValue={100}>
+          <NumberField.Input onFocus={(event) => event.currentTarget.select()} />
+          <NumberField.ScrubArea data-testid="scrub-area" />
+        </NumberField.Root>,
+      );
+
+      const input = screen.getByRole<HTMLInputElement>('textbox');
+
+      await act(async () => {
+        screen
+          .getByTestId('scrub-area')
+          .dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, pointerType: 'mouse' }));
+      });
+
+      expect(input).toHaveFocus();
+      expect(input.selectionStart).toBe(0);
+      expect(input.selectionEnd).toBe(input.value.length);
+    });
   });
 
   // Only run the following tests in Chromium/Firefox.
@@ -195,6 +216,9 @@ describe('<NumberField.ScrubArea />', () => {
     const scaleGetter = vi.spyOn(visualViewport, 'scale', 'get').mockImplementation(() => scale);
     const addEventListener = vi.spyOn(window, 'addEventListener');
     const removeEventListener = vi.spyOn(window, 'removeEventListener');
+    const pointerLock = vi
+      .spyOn(document.body, 'requestPointerLock')
+      .mockImplementation(() => Promise.resolve());
 
     try {
       await render(
@@ -245,6 +269,7 @@ describe('<NumberField.ScrubArea />', () => {
       scaleGetter.mockRestore();
       addEventListener.mockRestore();
       removeEventListener.mockRestore();
+      pointerLock.mockRestore();
     }
   });
 
@@ -452,7 +477,7 @@ describe('<NumberField.ScrubArea />', () => {
         scrubArea.dispatchEvent(createPointerMoveEvent({ movementX: 0 }));
       });
 
-      expect(screen.getByRole('textbox')).toHaveValue('3.5');
+      expect(screen.getByRole('textbox')).toHaveValue(new Intl.NumberFormat().format(3.5));
       expect(onValueChange).not.toHaveBeenCalled();
     });
 

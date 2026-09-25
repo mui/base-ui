@@ -2,12 +2,12 @@
 import * as React from 'react';
 import { isElement } from '@floating-ui/utils/dom';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
-import {
-  useAnchorPositioning,
-  type Side,
-  type Align,
-  type UseAnchorPositioningSharedParameters,
-} from '../../utils/useAnchorPositioning';
+import { useAnchorPositioning } from '../../internals/useAnchorPositioning';
+import type {
+  Side,
+  Align,
+  UseAnchorPositioningSharedParameters,
+} from '../../internals/useAnchorPositioning';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { POPUP_COLLISION_AVOIDANCE } from '../../internals/constants';
 import { ToastPositionerContext } from './ToastPositionerContext';
@@ -16,6 +16,7 @@ import { NOOP } from '../../internals/noop';
 import type { ToastObject } from '../useToastManager';
 import { useToastProviderContext } from '../provider/ToastProviderContext';
 import { usePositioner } from '../../utils/usePositioner';
+import * as ToastRootCssVars from '../root/ToastRootCssVars';
 
 /**
  * Positions the toast against the anchor.
@@ -97,7 +98,8 @@ export const ToastPositioner = React.forwardRef(function ToastPositioner(
   const element = usePositioner(componentProps, state, {
     styles: {
       ...positioning.positionerStyles,
-      ['--toast-index' as string]: toast.transitionStatus === 'ending' ? domIndex : visibleIndex,
+      [ToastRootCssVars.index as string]:
+        toast.transitionStatus === 'ending' ? domIndex : visibleIndex,
     },
     transitionStatus: toast.transitionStatus,
     props: elementProps,

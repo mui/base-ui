@@ -6,7 +6,7 @@ import { mergeCleanups } from '@base-ui/utils/mergeCleanups';
 import { ownerDocument } from '@base-ui/utils/owner';
 import { useTimeout } from '@base-ui/utils/useTimeout';
 import { getWindow, isElement, isHTMLElement } from '@floating-ui/utils/dom';
-import type { ElementProps, FloatingContext, FloatingRootContext } from '../types';
+import type { ElementProps, FloatingRootContext } from '../types';
 import { createAttribute } from '../utils/createAttribute';
 import {
   activeElement,
@@ -18,7 +18,7 @@ import {
 } from '../utils/element';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
-import { FloatingUIOpenChangeDetails } from '../../internals/types';
+import type { FloatingUIOpenChangeDetails } from '../../internals/types';
 
 const isMacSafari = platform.os.mac && platform.engine.webkit;
 
@@ -33,7 +33,7 @@ export interface UseFocusProps {
    * Waits for the specified time before opening.
    * @default undefined
    */
-  delay?: number | (() => number | undefined) | undefined;
+  delay?: number | undefined;
 }
 
 /**
@@ -41,13 +41,8 @@ export interface UseFocusProps {
  * `:focus`.
  * @see https://floating-ui.com/docs/useFocus
  */
-export function useFocus(
-  context: FloatingRootContext | FloatingContext,
-  props: UseFocusProps = {},
-): ElementProps {
+export function useFocus(store: FloatingRootContext, props: UseFocusProps = {}): ElementProps {
   const { enabled = true, delay } = props;
-
-  const store = 'rootStore' in context ? context.rootStore : context;
 
   const { events, dataRef } = store.context;
 
@@ -78,6 +73,7 @@ export function useFocus(
         currentDomReference === activeElement(ownerDocument(currentDomReference))
       ) {
         blockFocusRef.current = true;
+        blockedReferenceRef.current = currentDomReference;
       }
     }
 
@@ -158,13 +154,8 @@ export function useFocus(
         );
 
         const { nativeEvent, currentTarget } = event;
-        const delayValue = typeof delay === 'function' ? delay() : delay;
 
-        if (
-          (store.select('open') && movedFromOtherEnabledTrigger) ||
-          delayValue === 0 ||
-          delayValue === undefined
-        ) {
+        if ((store.select('open') && movedFromOtherEnabledTrigger) || !delay) {
           store.setOpen(
             true,
             createChangeEventDetails(
@@ -176,7 +167,7 @@ export function useFocus(
           return;
         }
 
-        timeout.start(delayValue, () => {
+        timeout.start(delay, () => {
           if (blockFocusRef.current) {
             return;
           }

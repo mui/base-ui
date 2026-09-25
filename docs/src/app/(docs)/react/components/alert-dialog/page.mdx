@@ -38,46 +38,9 @@ import { AlertDialog } from '@base-ui/react/alert-dialog';
 
 In order to open a dialog using a menu, control the dialog state and open it imperatively using the `onClick` handler on the menu item.
 
-```tsx title="Connecting a dialog to a menu"
-import * as React from 'react';
-import { AlertDialog } from '@base-ui/react/alert-dialog';
-import { Menu } from '@base-ui/react/menu';
+import { DemoAlertDialogOpenFromMenu } from './demos/open-from-menu';
 
-function ExampleMenu() {
-  const [dialogOpen, setDialogOpen] = React.useState(false);
-
-  return (
-    <React.Fragment>
-      <Menu.Root>
-        <Menu.Trigger>Open menu</Menu.Trigger>
-        <Menu.Portal>
-          <Menu.Positioner>
-            <Menu.Popup>
-              {/* @highlight-start */}
-              {/* Open the dialog when the menu item is clicked */}
-              <Menu.Item onClick={() => setDialogOpen(true)}>Open dialog</Menu.Item>
-              {/* @highlight-end */}
-            </Menu.Popup>
-          </Menu.Positioner>
-        </Menu.Portal>
-      </Menu.Root>
-
-      {/* @highlight-start */}
-      {/* Control the dialog state */}
-      <AlertDialog.Root open={dialogOpen} onOpenChange={setDialogOpen}>
-        {/* @highlight-end */}
-        <AlertDialog.Portal>
-          <AlertDialog.Backdrop />
-          <AlertDialog.Popup>
-            {/* prettier-ignore */}
-            {/* Rest of the dialog */}
-          </AlertDialog.Popup>
-        </AlertDialog.Portal>
-      </AlertDialog.Root>
-    </React.Fragment>
-  );
-}
-```
+<DemoAlertDialogOpenFromMenu />
 
 ### Close confirmation
 

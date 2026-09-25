@@ -4,6 +4,8 @@ import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { platform } from '@base-ui/utils/platform';
 import { useTimeout } from '@base-ui/utils/useTimeout';
+import { clamp } from '@base-ui/utils/clamp';
+import { NOOP } from '@base-ui/utils/empty';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useScrollAreaRootContext } from '../root/ScrollAreaRootContext';
 import { ScrollAreaViewportContext } from './ScrollAreaViewportContext';
@@ -11,18 +13,19 @@ import { useRenderElement } from '../../internals/useRenderElement';
 import { useDirection } from '../../internals/direction-context/DirectionContext';
 import { getOffset } from '../utils/getOffset';
 import { MIN_THUMB_SIZE } from '../constants';
-import { clamp } from '../../internals/clamp';
 import { styleDisableScrollbar } from '../../utils/styles';
 import { scrollAreaStateAttributesMapping } from '../root/stateAttributes';
 import type { HiddenState, ScrollAreaRootState } from '../root/ScrollAreaRoot';
 import { normalizeScrollOffset } from '../../utils/scrollEdges';
+import { getFiniteAnimations } from '../../utils/getFiniteAnimations';
+import * as ScrollAreaViewportCssVars from './ScrollAreaViewportCssVars';
+import * as ScrollAreaScrollbarCssVars from '../scrollbar/ScrollAreaScrollbarCssVars';
 
-// CSS variable names inlined so `ScrollAreaViewportCssVars` tree-shakes out.
 const OVERFLOW_EDGE_VARS = [
-  '--scroll-area-overflow-x-start',
-  '--scroll-area-overflow-x-end',
-  '--scroll-area-overflow-y-start',
-  '--scroll-area-overflow-y-end',
+  ScrollAreaViewportCssVars.scrollAreaOverflowXStart,
+  ScrollAreaViewportCssVars.scrollAreaOverflowXEnd,
+  ScrollAreaViewportCssVars.scrollAreaOverflowYStart,
+  ScrollAreaViewportCssVars.scrollAreaOverflowYEnd,
 ];
 
 // Module-level flag to ensure we only register the CSS properties once,
@@ -214,7 +217,7 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
 
       const thumbOffsetY = applyOverscrollThumb(
         thumbYEl,
-        '--scroll-area-thumb-height',
+        ScrollAreaScrollbarCssVars.scrollAreaThumbHeight,
         scrollTop,
         maxScrollTop,
         scrollableContentHeight,
@@ -234,7 +237,7 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
 
       const offsetX = applyOverscrollThumb(
         thumbXEl,
-        '--scroll-area-thumb-width',
+        ScrollAreaScrollbarCssVars.scrollAreaThumbWidth,
         scrollFromStart,
         maxScrollLeft,
         scrollableContentWidth,
@@ -278,12 +281,8 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
   });
 
   useIsoLayoutEffect(() => {
-    if (!viewportRef.current) {
-      return;
-    }
-
     removeCSSVariableInheritance();
-  }, [viewportRef]);
+  }, []);
 
   useIsoLayoutEffect(() => {
     // Wait for scrollbar and thumb refs after hidden-state toggles, refresh math on direction
@@ -339,12 +338,16 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
     // Wait for subtree animations to finish, then recompute thumb geometry that
     // may have been affected by transform-based animations.
     waitForAnimationsTimeout.start(0, () => {
-      const animations = viewport.getAnimations({ subtree: true });
+      const animations = getFiniteAnimations(viewport, { subtree: true });
       if (animations.length === 0) {
         return;
       }
 
-      Promise.allSettled(animations.map((animation) => animation.finished))
+      // `allSettled` never rejects, but `computeThumbPosition` can still run against a
+      // torn-down tree once the animations resolve. Swallow instead of leaking an unhandled
+      // rejection; `void` alone would only silence the floating-promise lint.
+      // Discard fulfilled Animation values so unfinished animations cannot retain their targets.
+      Promise.allSettled(animations.map((animation) => animation.finished.then(NOOP)))
         .then(computeThumbPosition)
         .catch(() => {});
     });

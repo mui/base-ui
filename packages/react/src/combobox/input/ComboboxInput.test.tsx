@@ -1,4 +1,4 @@
-import { expect, vi } from 'vitest';
+import { expect, vi, describe, it } from 'vitest';
 import * as React from 'react';
 import { Combobox } from '@base-ui/react/combobox';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
@@ -155,6 +155,32 @@ describe('<Combobox.Input />', () => {
       expect(input).toHaveAttribute('aria-expanded', 'true');
       expect(input).toHaveAttribute('aria-controls', listbox.id);
     });
+
+    // An inline list is exposed for as long as it's rendered, so a non-input control carries
+    // the combobox ARIA attributes from the start rather than waiting for the open state.
+    it('applies combobox aria attributes to an inline <textarea> before it is interacted with', async () => {
+      await render(
+        <Combobox.Root inline items={['apple', 'banana']}>
+          <Combobox.Input data-testid="input" render={<textarea />} />
+          <Combobox.List>
+            {(item: string) => (
+              <Combobox.Item key={item} value={item}>
+                {item}
+              </Combobox.Item>
+            )}
+          </Combobox.List>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByTestId('input');
+      const listbox = screen.getByRole('listbox');
+
+      expect(input).toHaveAttribute('role', 'combobox');
+      expect(input).toHaveAttribute('aria-expanded', 'true');
+      expect(input).toHaveAttribute('aria-controls', listbox.id);
+      expect(input).toHaveAttribute('aria-haspopup', 'listbox');
+      expect(input).toHaveAttribute('aria-autocomplete', 'list');
+    });
   });
 
   describe('prop: readOnly', () => {
@@ -170,7 +196,7 @@ describe('<Combobox.Input />', () => {
       expect(input).toHaveAttribute('readonly');
     });
 
-    it('should not open popup when readOnly', async () => {
+    it('should open popup when readOnly', async () => {
       const { user } = await render(
         <Combobox.Root readOnly>
           <Combobox.Input data-testid="input" />
@@ -190,12 +216,13 @@ describe('<Combobox.Input />', () => {
       const input = screen.getByTestId('input');
       await user.click(input);
 
-      expect(screen.queryByRole('listbox')).toBe(null);
+      expect(await screen.findByRole('listbox')).toHaveAttribute('aria-readonly', 'true');
     });
 
-    it('should prevent keyboard interactions when readOnly', async () => {
+    it('should not change the input value when typing while readOnly', async () => {
+      const onInputValueChange = vi.fn();
       const { user } = await render(
-        <Combobox.Root readOnly>
+        <Combobox.Root readOnly onInputValueChange={onInputValueChange}>
           <Combobox.Input data-testid="input" />
           <Combobox.Portal>
             <Combobox.Positioner>
@@ -213,7 +240,9 @@ describe('<Combobox.Input />', () => {
       const input = screen.getByTestId('input');
 
       await user.type(input, 'a');
-      expect(screen.queryByRole('listbox')).toBe(null);
+
+      expect(input).toHaveValue('');
+      expect(onInputValueChange).not.toHaveBeenCalled();
     });
 
     it('allows interactions when readOnly={false}', async () => {

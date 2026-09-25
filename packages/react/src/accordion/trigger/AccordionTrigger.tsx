@@ -2,12 +2,19 @@
 import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { triggerOpenStateMapping } from '../../utils/collapsibleOpenStateMapping';
-import { BaseUIComponentProps, NativeButtonProps } from '../../internals/types';
+import type { BaseUIComponentProps, NativeButtonProps } from '../../internals/types';
 import { useButton } from '../../internals/use-button';
 import { useCollapsibleRootContext } from '../../collapsible/root/CollapsibleRootContext';
+import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
 import type { AccordionItemState } from '../item/AccordionItem';
 import { useAccordionItemContext } from '../item/AccordionItemContext';
+import { accordionStateAttributesMapping } from '../item/stateAttributesMapping';
 import { useRenderElement } from '../../internals/useRenderElement';
+
+const stateAttributesMapping: StateAttributesMapping<AccordionItemState> = {
+  ...accordionStateAttributesMapping,
+  ...triggerOpenStateMapping,
+};
 
 /**
  * A button that opens and closes the corresponding panel.
@@ -36,20 +43,19 @@ export const AccordionTrigger = React.forwardRef(function AccordionTrigger(
 
   const { getButtonProps, buttonRef } = useButton({
     disabled,
-    focusableWhenDisabled: true,
     native: nativeButton,
   });
 
-  const { state, setTriggerId, triggerId: id } = useAccordionItemContext();
+  const { defaultTriggerId, state, setTriggerId } = useAccordionItemContext();
+  const registeredId = idProp || undefined;
+  const id = registeredId ?? defaultTriggerId;
 
   useIsoLayoutEffect(() => {
-    if (idProp) {
-      setTriggerId(idProp);
-    }
+    setTriggerId((currentId) => registeredId ?? (currentId === null ? undefined : currentId));
     return () => {
-      setTriggerId(undefined);
+      setTriggerId((currentId) => (currentId === registeredId ? null : currentId));
     };
-  }, [idProp, setTriggerId]);
+  }, [registeredId, setTriggerId]);
 
   const props = {
     'aria-controls': open ? panelId : undefined,
@@ -62,7 +68,7 @@ export const AccordionTrigger = React.forwardRef(function AccordionTrigger(
     state,
     ref: [forwardedRef, buttonRef],
     props: [props, elementProps, getButtonProps],
-    stateAttributesMapping: triggerOpenStateMapping,
+    stateAttributesMapping,
   });
 
   return element;

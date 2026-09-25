@@ -24,6 +24,12 @@
     }
   }
 
+  /* Inline code placed directly in a block has no `.frame` or `pre` to carry the inset above. */
+  .CodeBlockRoot > code {
+    display: block;
+    padding: 0.5rem 0.75rem;
+  }
+
   .CodeBlockPanel {
     font-size: var(--font-size-14);
     line-height: 1;
@@ -88,6 +94,11 @@
       outline: 2px solid var(--gray-t2);
       outline-offset: 0;
     }
+  }
+
+  .CodeBlockRoot > .CodeBlockPreContainer:first-child .CodeBlockViewport {
+    border-top-left-radius: calc(var(--radius-12) - 1px);
+    border-top-right-radius: calc(var(--radius-12) - 1px);
   }
 
   .CodeBlockPreInline {
