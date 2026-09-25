@@ -327,7 +327,9 @@ export function useAdaptiveEstimateRefresh<RowModel>(
     // Only sample the settled rendered range. MUI's cache retains measurements after rows unmount,
     // including transient measurements taken while a popup is initially resolving its width.
     // Treating every cached entry as authoritative biases the estimate long after the DOM settles.
-    let windowSampledInFull = true;
+    // An empty window, such as the one the engine renders before the scrollport is measured, has
+    // not been sampled at all, so it cannot declare the refinement exhausted.
+    let windowSampledInFull = lastRowIndex > firstRowIndex;
     for (let rowIndex = firstRowIndex; rowIndex < lastRowIndex; rowIndex += 1) {
       const row = rows[rowIndex];
       const measuredHeight = row == null ? null : readMeasuredHeight(row.id);
