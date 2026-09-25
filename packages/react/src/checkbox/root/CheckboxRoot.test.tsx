@@ -1770,6 +1770,120 @@ describe('<Checkbox.Root />', () => {
     });
   });
 
+  it('prefers `aria-label` over an associated label', async () => {
+    await render(
+      <React.Fragment>
+        <label>
+          <Checkbox.Root aria-label="lease.pdf" />
+          lease.pdf
+        </label>
+        <Field.Root>
+          <Field.Label>
+            <Checkbox.Root aria-label="notes.txt" />
+            notes.txt
+          </Field.Label>
+        </Field.Root>
+      </React.Fragment>,
+    );
+
+    const [nativeLabelled, fieldLabelled] = screen.getAllByRole('checkbox');
+    expect(nativeLabelled).not.toHaveAttribute('aria-labelledby');
+    expect(nativeLabelled).toHaveAccessibleName('lease.pdf');
+    expect(fieldLabelled).not.toHaveAttribute('aria-labelledby');
+    expect(fieldLabelled).toHaveAccessibleName('notes.txt');
+  });
+
+  it.each(['', ' ', '\n\t '])('ignores a blank `aria-label` (%j)', async (ariaLabel) => {
+    await render(
+      <React.Fragment>
+        <label>
+          <Checkbox.Root aria-label={ariaLabel} />
+          Native label
+        </label>
+        <Field.Root>
+          <Field.Label>
+            <Checkbox.Root aria-label={ariaLabel} />
+            Field label
+          </Field.Label>
+        </Field.Root>
+        <label htmlFor="blank-aria-label">Sibling label</label>
+        <Checkbox.Root id="blank-aria-label" aria-label={ariaLabel} />
+      </React.Fragment>,
+    );
+
+    const [nativeLabelled, fieldLabelled, siblingLabelled] = screen.getAllByRole('checkbox');
+    expect(nativeLabelled).toHaveAccessibleName('Native label');
+    expect(fieldLabelled).toHaveAccessibleName('Field label');
+    expect(siblingLabelled).toHaveAccessibleName('Sibling label');
+  });
+
+  describe.each(['native', 'Field.Label'])('dynamic %s label', (labelType) => {
+    function TestCase({
+      ariaLabel,
+      showLabel = true,
+    }: {
+      ariaLabel?: string;
+      showLabel?: boolean;
+    }) {
+      return (
+        <Field.Root>
+          {showLabel &&
+            (labelType === 'native' ? (
+              <label htmlFor="dynamic-label">Associated label</label>
+            ) : (
+              <Field.Label>Associated label</Field.Label>
+            ))}
+          <Checkbox.Root id="dynamic-label" aria-label={ariaLabel} />
+        </Field.Root>
+      );
+    }
+
+    it('updates the accessible name when `aria-label` is added, cleared, or removed', async () => {
+      const { setProps } = await render(<TestCase />);
+      const checkbox = screen.getByRole('checkbox');
+
+      expect(checkbox).toHaveAccessibleName('Associated label');
+
+      await setProps({ ariaLabel: 'Custom name' });
+      expect(checkbox).toHaveAccessibleName('Custom name');
+
+      await setProps({ ariaLabel: ' \n\t ' });
+      expect(checkbox).toHaveAccessibleName('Associated label');
+
+      await setProps({ ariaLabel: 'Custom name' });
+      expect(checkbox).toHaveAccessibleName('Custom name');
+
+      await setProps({ ariaLabel: undefined });
+      expect(checkbox).toHaveAccessibleName('Associated label');
+    });
+
+    it('updates the accessible name when the associated label mounts and unmounts', async () => {
+      const { setProps } = await render(<TestCase showLabel={false} />);
+      const checkbox = screen.getByRole('checkbox');
+
+      expect(checkbox).toHaveAccessibleName('');
+
+      await setProps({ showLabel: true });
+      expect(checkbox).toHaveAccessibleName('Associated label');
+
+      await setProps({ showLabel: false });
+      expect(checkbox).toHaveAccessibleName('');
+      expect(checkbox).not.toHaveAttribute('aria-labelledby');
+
+      await setProps({ ariaLabel: 'Custom name' });
+      expect(checkbox).toHaveAccessibleName('Custom name');
+
+      await setProps({ showLabel: true, ariaLabel: 'Custom name' });
+      expect(checkbox).toHaveAccessibleName('Custom name');
+
+      await setProps({ showLabel: false, ariaLabel: 'Custom name' });
+      expect(checkbox).toHaveAccessibleName('Custom name');
+
+      await setProps({ showLabel: true, ariaLabel: undefined });
+      expect(checkbox).toHaveAccessibleName('Associated label');
+    });
+  });
+
   it('can render a native button', async () => {
     const { container, user } = await render(<Checkbox.Root render={<button />} nativeButton />);
 

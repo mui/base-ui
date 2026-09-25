@@ -168,6 +168,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     inputRef,
     !nativeButton,
     controlId,
+    elementProps['aria-label'],
   );
 
   useIsoLayoutEffect(() => {
