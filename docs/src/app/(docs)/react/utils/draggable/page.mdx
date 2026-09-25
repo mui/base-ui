@@ -1046,6 +1046,20 @@ export function SortableItem<Payload>({
 }
 ```
 
+A generic `<Draggable.Target>` wrapper declares `accept`, and `payload` when the target has one, in the same way. This applies whether it spreads or destructures its props:
+
+```tsx title="A drop target for items of any kind"
+export function Slot<Source, Payload>({
+  children,
+  ...props
+}: Draggable.Target.Props<Source, Payload> & {
+  accept: Draggable.Accept<Source>;
+  payload: Payload;
+}): React.JSX.Element {
+  return <Draggable.Target {...props}>{children}</Draggable.Target>;
+}
+```
+
 ## API reference
 
 import { TypesDraggable, TypesDraggableAdditional } from './types';

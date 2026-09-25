@@ -338,3 +338,47 @@ const dragFile = Draggable.createKind<AttachmentPayload, { size: number }>('drag
     }
   }}
 />;
+
+// Generic wrappers. With the target and source payloads still open, a wrapper
+// restates `accept` (and `payload` when the target has one) to reach an overload,
+// whether it spreads or destructures its props.
+interface WrapperTask {
+  id: string;
+}
+interface WrapperZone {
+  name: string;
+}
+const wrapperTask = Draggable.createKind<WrapperTask>('wrapper-task');
+
+function ConcreteSlot(props: Draggable.Target.Props<WrapperTask, WrapperZone>) {
+  return <Draggable.Target {...props} />;
+}
+<ConcreteSlot accept={wrapperTask} payload={{ name: 'a' }} />;
+
+function OpenSlot<Source, Payload>(props: Draggable.Target.Props<Source, Payload>) {
+  // @ts-expect-error an open `Props` can't tell which overload applies.
+  return <Draggable.Target {...props} />;
+}
+void OpenSlot;
+
+function GenericSlot<Source, Payload>({
+  children,
+  ...props
+}: Draggable.Target.Props<Source, Payload> & {
+  accept: Draggable.Accept<Source>;
+  payload: Payload;
+}) {
+  return <Draggable.Target {...props}>{children}</Draggable.Target>;
+}
+<GenericSlot
+  accept={wrapperTask}
+  payload={{ name: 'a' }}
+  onDraggableDrop={({ source, target }) => source.payload.id + target.payload.name}
+/>;
+
+function SourceOnlySlot<Source>(
+  props: Draggable.Target.Props<Source> & { accept: Draggable.Accept<Source> },
+) {
+  return <Draggable.Target {...props} />;
+}
+<SourceOnlySlot accept={wrapperTask} onDraggableDrop={({ source }) => source.payload.id} />;
