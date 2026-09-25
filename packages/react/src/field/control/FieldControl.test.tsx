@@ -527,6 +527,102 @@ describe('<Field.Control />', () => {
     expect(screen.getByText('Required')).toBeInTheDocument();
   });
 
+  describe('[data-focused]', () => {
+    function Controls(props: { firstMounted?: boolean; firstDisabled?: boolean }) {
+      const { firstMounted = true, firstDisabled = false } = props;
+      return (
+        <React.Fragment>
+          <Field.Root data-testid="root">
+            <Field.Label data-testid="label">Name</Field.Label>
+            {firstMounted && <Field.Control data-testid="first" disabled={firstDisabled} />}
+          </Field.Root>
+          <button type="button" data-testid="outside" />
+        </React.Fragment>
+      );
+    }
+
+    it('is removed when the focused control becomes disabled', async () => {
+      const { setProps } = await render(<Controls />);
+
+      const control = screen.getByTestId('first');
+      act(() => {
+        control.focus();
+      });
+
+      expect(screen.getByTestId('root')).toHaveAttribute('data-focused', '');
+      expect(control).toHaveAttribute('data-focused', '');
+
+      await setProps({ firstDisabled: true });
+
+      expect(screen.getByTestId('root')).not.toHaveAttribute('data-focused');
+      expect(control).not.toHaveAttribute('data-focused');
+      expect(screen.getByTestId('label')).not.toHaveAttribute('data-focused');
+    });
+
+    it('is removed when the field root becomes disabled', async () => {
+      function TestCase(props: { disabled?: boolean }) {
+        const { disabled = false } = props;
+        return (
+          <Field.Root data-testid="root" disabled={disabled}>
+            <Field.Control data-testid="control" />
+          </Field.Root>
+        );
+      }
+
+      const { setProps } = await render(<TestCase />);
+
+      act(() => {
+        screen.getByTestId('control').focus();
+      });
+      expect(screen.getByTestId('root')).toHaveAttribute('data-focused', '');
+
+      await setProps({ disabled: true });
+
+      expect(screen.getByTestId('root')).not.toHaveAttribute('data-focused');
+    });
+
+    it('can be re-acquired after the control is re-enabled', async () => {
+      const { setProps } = await render(<Controls />);
+
+      const control = screen.getByTestId('first');
+      act(() => {
+        control.focus();
+      });
+      expect(screen.getByTestId('root')).toHaveAttribute('data-focused', '');
+
+      await setProps({ firstDisabled: true });
+      expect(screen.getByTestId('root')).not.toHaveAttribute('data-focused');
+
+      // Browsers move focus off a disabled control; jsdom leaves it as the active element.
+      act(() => {
+        screen.getByTestId('outside').focus();
+      });
+
+      await setProps({ firstDisabled: false });
+      expect(screen.getByTestId('root')).not.toHaveAttribute('data-focused');
+
+      act(() => {
+        control.focus();
+      });
+      expect(screen.getByTestId('root')).toHaveAttribute('data-focused', '');
+    });
+
+    it('is removed when the focused control unmounts', async () => {
+      const { setProps } = await render(<Controls />);
+
+      act(() => {
+        screen.getByTestId('first').focus();
+      });
+
+      expect(screen.getByTestId('root')).toHaveAttribute('data-focused', '');
+
+      await setProps({ firstMounted: false });
+
+      expect(screen.getByTestId('root')).not.toHaveAttribute('data-focused');
+      expect(screen.getByTestId('label')).not.toHaveAttribute('data-focused');
+    });
+  });
+
   it.skipIf(isJSDOM)('should sync focused state when autoFocus is used with SSR', async () => {
     vi.spyOn(console, 'error')
       .mockName('console.error')
