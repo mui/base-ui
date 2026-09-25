@@ -20,11 +20,30 @@ export type State<Payload> = PopupStoreState<Payload> & {
   disabled: boolean;
   modal: boolean | undefined;
   openMethod: InteractionType | null;
+  /** Whether the popup last opened from the keyboard or an assistive-technology press. */
+  keyboardOpen: boolean;
   allowMouseEnter: boolean;
   highlightItemOnHover: boolean;
   parent: MenuParent;
   rootId: string | undefined;
   activeIndex: number | null;
+  /** The `Menu.List` element, which takes the `menu` role from the popup when rendered. */
+  listElement: HTMLElement | null;
+  /**
+   * Props a filter root adds to its triggers (dialog semantics and the key relay to the input).
+   * Published by the filter implementation so a plain menu never bundles them.
+   */
+  filterTriggerProps: HTMLProps;
+  /** List navigation props for the element that holds real focus under virtual focus. */
+  inputProps: HTMLProps;
+  /** The element at `activeIndex` once the item list settles. */
+  highlightedItem: HTMLElement | undefined;
+  /**
+   * Whether real focus stays inside the popup while the list is navigated with
+   * `aria-activedescendant`. Set by a filter root; detached triggers read it once the root
+   * attaches.
+   */
+  virtualFocus: boolean;
   hoverEnabled: boolean;
   instantType: 'dismiss' | 'click' | 'group' | 'trigger-change' | undefined;
   openChangeReason: MenuRoot.ChangeEventReason | null;
@@ -43,7 +62,11 @@ type Context = PopupStoreContext<MenuRoot.ChangeEventDetails> & {
   readonly typingRef: React.RefObject<boolean>;
   readonly itemDomElements: React.RefObject<(HTMLElement | null)[]>;
   readonly itemLabels: React.RefObject<(string | null)[]>;
+  /** Why the next `activeIndex` write happens, consumed by `onItemHighlighted` on commit. */
+  highlightReason: MenuRoot.HighlightEventReason;
   allowMouseUpTriggerRef: React.RefObject<boolean>;
+  /** The element that holds real focus while virtual list navigation is active. */
+  virtualFocusRef: React.RefObject<HTMLElement | null> | undefined;
   readonly triggerFocusTargetRef: React.RefObject<HTMLElement | null>;
   readonly beforeTriggerFocusGuardRef: React.RefObject<HTMLElement | null>;
   readonly beforeContentFocusGuardRef: React.RefObject<HTMLElement | null>;
@@ -59,6 +82,7 @@ const selectors = {
     (state.parent.type === undefined || state.parent.type === 'context-menu') &&
     (state.modal ?? true),
   openMethod: (state: State<unknown>) => state.openMethod,
+  keyboardOpen: (state: State<unknown>) => state.keyboardOpen,
 
   allowMouseEnter: (state: State<unknown>) => state.allowMouseEnter,
   highlightItemOnHover: (state: State<unknown>) => state.highlightItemOnHover,
@@ -71,6 +95,11 @@ const selectors = {
     return state.parent.type !== undefined ? state.parent.context.rootId : state.rootId;
   },
   activeIndex: (state: State<unknown>) => state.activeIndex,
+  virtualFocus: (state: State<unknown>) => state.virtualFocus,
+  listElement: (state: State<unknown>) => state.listElement,
+  filterTriggerProps: (state: State<unknown>) => state.filterTriggerProps,
+  inputProps: (state: State<unknown>) => state.inputProps,
+  highlightedItemId: (state: State<unknown>) => state.highlightedItem?.id || undefined,
   isActive: (state: State<unknown>, itemIndex: number) => state.activeIndex === itemIndex,
   hoverEnabled: (state: State<unknown>) => state.hoverEnabled,
   instantType: (state: State<unknown>) => state.instantType,
@@ -167,6 +196,22 @@ export class MenuStore<Payload> extends ReactStore<Readonly<State<Payload>>, Con
     this.state.floatingRootContext.context.events.emit('setOpen', { open, eventDetails });
   }
 
+  setActiveIndex(activeIndex: number | null, reason: MenuRoot.HighlightEventReason) {
+    // Only a write that changes the index is reported. Tagging a no-op would let a later
+    // registry-driven re-emit report this reason instead of `none`.
+    if (this.state.activeIndex !== activeIndex) {
+      this.context.highlightReason = reason;
+    }
+    this.set('activeIndex', activeIndex);
+  }
+
+  highlightItem(element: Element | null, reason: MenuRoot.HighlightEventReason) {
+    const index = this.context.itemDomElements.current.indexOf(element as HTMLElement);
+    if (index > -1) {
+      this.setActiveIndex(index, reason);
+    }
+  }
+
   private unsubscribeParentListener: (() => void) | null = null;
 }
 
@@ -194,7 +239,9 @@ function createInitialContext(triggerElements: PopupTriggerMap): Context {
     typingRef: { current: false },
     itemDomElements: { current: [] },
     itemLabels: { current: [] },
+    highlightReason: 'none',
     allowMouseUpTriggerRef: { current: false },
+    virtualFocusRef: undefined,
     triggerFocusTargetRef: React.createRef<HTMLElement>(),
     beforeTriggerFocusGuardRef: React.createRef<HTMLElement>(),
     beforeContentFocusGuardRef: React.createRef<HTMLElement>(),
@@ -214,6 +261,7 @@ function createInitialState<Payload>(
     disabled: false,
     modal: true,
     openMethod: null,
+    keyboardOpen: false,
     allowMouseEnter: false,
     highlightItemOnHover: true,
     parent: {
@@ -221,13 +269,18 @@ function createInitialState<Payload>(
     },
     rootId: undefined,
     activeIndex: null,
+    listElement: null,
+    filterTriggerProps: EMPTY_OBJECT,
+    inputProps: EMPTY_OBJECT,
+    highlightedItem: undefined,
+    virtualFocus: false,
     hoverEnabled: true,
     instantType: undefined,
     openChangeReason: null,
     floatingTreeRoot: new FloatingTreeStore(),
     floatingNodeId: undefined,
     floatingParentNodeId: null,
-    itemProps: EMPTY_OBJECT as HTMLProps,
+    itemProps: EMPTY_OBJECT,
     keyboardEventRelay: undefined,
     closeDelay: 0,
     adaptiveOrigin: undefined,

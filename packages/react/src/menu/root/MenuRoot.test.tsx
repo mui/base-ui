@@ -86,6 +86,38 @@ describe('<Menu.Root />', () => {
     expect(trigger).toHaveFocus();
   });
 
+  it('keeps focus in the menu when a Shift+Tab close is canceled', async () => {
+    const { user } = await render(
+      <Menu.Root
+        defaultOpen
+        onOpenChange={(open, details) => {
+          if (!open) {
+            details.cancel();
+          }
+        }}
+      >
+        <Menu.Trigger>Toggle</Menu.Trigger>
+        <Menu.Portal>
+          <Menu.Positioner>
+            <Menu.Popup>
+              <Menu.Item>Item</Menu.Item>
+            </Menu.Popup>
+          </Menu.Positioner>
+        </Menu.Portal>
+      </Menu.Root>,
+    );
+
+    const menu = screen.getByRole('menu');
+    await waitFor(() => {
+      expect(menu).toHaveFocus();
+    });
+
+    await user.tab({ shift: true });
+
+    expect(menu).toHaveFocus();
+    expect(screen.getByRole('button', { name: 'Toggle' })).toHaveAttribute('aria-expanded', 'true');
+  });
+
   popupConformanceTests({
     createComponent: (props) => (
       <Menu.Root {...props.root}>
@@ -2980,8 +3012,9 @@ describe('<Menu.Root />', () => {
 
   describe('prop: highlightItemOnHover', () => {
     it('highlights an item on mouse move by default', async () => {
+      const onItemHighlighted = vi.fn();
       await render(
-        <Menu.Root open>
+        <Menu.Root open onItemHighlighted={onItemHighlighted}>
           <Menu.Portal>
             <Menu.Positioner>
               <Menu.Popup>
@@ -2999,6 +3032,10 @@ describe('<Menu.Root />', () => {
 
       await waitFor(() => {
         expect(item2).toHaveFocus();
+      });
+      expect(onItemHighlighted).toHaveBeenLastCalledWith(item2, {
+        reason: REASONS.pointer,
+        label: 'Item 2',
       });
     });
 
@@ -3237,6 +3274,47 @@ describe('<Menu.Root />', () => {
     });
   });
 
+  describe('trigger render cost', () => {
+    it('does not re-render the trigger while navigating the list', async () => {
+      let triggerRenders = 0;
+
+      const { user } = await render(
+        <Menu.Root>
+          <Menu.Trigger
+            render={(props) => {
+              triggerRenders += 1;
+              return <button type="button" {...props} />;
+            }}
+          >
+            Toggle
+          </Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                {Array.from({ length: 10 }, (_, index) => (
+                  <Menu.Item key={index}>{`Item ${index}`}</Menu.Item>
+                ))}
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>,
+      );
+
+      await user.click(screen.getByRole('button', { name: 'Toggle' }));
+      await screen.findByRole('menu');
+      await flushMicrotasks();
+
+      triggerRenders = 0;
+      await user.keyboard('[ArrowDown][ArrowDown][ArrowDown]');
+      await flushMicrotasks();
+
+      // The trigger's props do not depend on which item is highlighted. Keeping this at zero is
+      // what stops `useListNavigation` from rebuilding them on every key, which re-rendered every
+      // trigger of every menu and select in the library.
+      expect(triggerRenders).toBe(0);
+    });
+  });
+
   describe('actionsRef: highlightItem', () => {
     function TestHighlightMenu(props: { actionsRef: React.RefObject<Menu.Root.Actions | null> }) {
       return (
@@ -3289,9 +3367,10 @@ describe('<Menu.Root />', () => {
 
     it('returns focus to the popup when the highlight is cleared', async () => {
       const onClick = vi.fn();
+      const onItemHighlighted = vi.fn();
       const actionsRef = React.createRef<Menu.Root.Actions>();
       const { user } = await render(
-        <Menu.Root actionsRef={actionsRef}>
+        <Menu.Root actionsRef={actionsRef} onItemHighlighted={onItemHighlighted}>
           <Menu.Trigger>Open</Menu.Trigger>
           <Menu.Portal>
             <Menu.Positioner>
@@ -3312,12 +3391,20 @@ describe('<Menu.Root />', () => {
       act(() => actionsRef.current!.highlightItem('first'));
       const firstItem = screen.getByRole('menuitem', { name: 'One' });
       await waitFor(() => expect(firstItem).toHaveFocus());
+      expect(onItemHighlighted).toHaveBeenLastCalledWith(firstItem, {
+        reason: 'imperative-action',
+        label: 'One',
+      });
 
       act(() => actionsRef.current!.highlightItem('none'));
       await waitFor(() => expect(firstItem).not.toHaveAttribute('data-highlighted'));
       // Focus must not linger on the item, or Enter would activate something that
       // no longer looks highlighted. It goes back to the popup, not to the body.
       await waitFor(() => expect(menu).toHaveFocus());
+      expect(onItemHighlighted).toHaveBeenLastCalledWith(undefined, {
+        reason: 'imperative-action',
+        label: undefined,
+      });
 
       await user.keyboard('{Enter}');
       expect(onClick).not.toHaveBeenCalled();

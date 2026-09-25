@@ -1,0 +1,94 @@
+'use client';
+import * as React from 'react';
+import { ownerWindow } from '@base-ui/utils/owner';
+import type { BaseUIComponentProps, HTMLProps } from '../../internals/types';
+import { useRenderElement } from '../../internals/useRenderElement';
+import { useFilterDropdownRootContext } from '../root/FilterDropdownRootContext';
+import { FilterDropdownGroupContext } from '../group/FilterDropdownGroupContext';
+import { useRenderedId } from '../../internals/resolveRenderedId';
+import { getTarget } from '../../floating-ui-react/utils';
+
+/**
+ * @internal
+ */
+export const FilterDropdownList = React.forwardRef(function FilterDropdownList(
+  componentProps: FilterDropdownList.Props,
+  forwardedRef: React.ForwardedRef<HTMLDivElement>,
+) {
+  const { render, className, style, id: idProp, ...elementProps } = componentProps;
+
+  const context = useFilterDropdownRootContext();
+  const { setListId } = context;
+
+  const [id, registerIdRef] = useRenderedId(componentProps, context.defaultListId, setListId);
+
+  const defaultProps: HTMLProps = {
+    // Chromium includes scrollable elements in sequential focus navigation by default.
+    tabIndex: -1,
+    id,
+    onMouseDown(event) {
+      if (
+        getTarget(event.nativeEvent) === event.currentTarget &&
+        !isScrollbarPress(event.currentTarget, event.nativeEvent)
+      ) {
+        // Keep focus on the virtual focus owner when the list background is pressed, while
+        // allowing items and the scrollbar to receive their native pointer interactions.
+        event.preventDefault();
+      }
+    },
+    onPointerMove() {
+      context.setKeyboardModality(false);
+    },
+    onPointerDown() {
+      context.setKeyboardModality(false);
+    },
+  };
+
+  return useRenderElement('div', componentProps, {
+    ref: [forwardedRef, registerIdRef],
+    props: [
+      defaultProps,
+      elementProps,
+      {
+        // The list's groups and items belong to this root's query. A nested root's list renders
+        // inside an enclosing group, which must not count them as its own members.
+        children: (
+          <FilterDropdownGroupContext.Provider value={null}>
+            {elementProps.children}
+          </FilterDropdownGroupContext.Provider>
+        ),
+      },
+    ],
+  });
+});
+
+function isScrollbarPress(element: HTMLElement, event: MouseEvent) {
+  const verticalScrollbarWidth = element.offsetWidth - element.clientWidth;
+  const horizontalScrollbarHeight = element.offsetHeight - element.clientHeight;
+  const isRtl = ownerWindow(element).getComputedStyle(element).direction === 'rtl';
+
+  const pressedVerticalScrollbar =
+    element.scrollHeight > element.clientHeight &&
+    verticalScrollbarWidth > 0 &&
+    (isRtl ? event.offsetX <= verticalScrollbarWidth : event.offsetX > element.clientWidth);
+  const pressedHorizontalScrollbar =
+    element.scrollWidth > element.clientWidth &&
+    horizontalScrollbarHeight > 0 &&
+    event.offsetY > element.clientHeight;
+
+  return pressedVerticalScrollbar || pressedHorizontalScrollbar;
+}
+
+export interface FilterDropdownListState {}
+
+export interface FilterDropdownListProps extends BaseUIComponentProps<
+  'div',
+  FilterDropdownListState
+> {
+  id?: string | undefined;
+}
+
+export namespace FilterDropdownList {
+  export type Props = FilterDropdownListProps;
+  export type State = FilterDropdownListState;
+}

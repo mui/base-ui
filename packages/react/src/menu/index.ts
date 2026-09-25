@@ -19,3 +19,13 @@ export type * from './submenu-root/MenuSubmenuRoot';
 export type * from './trigger/MenuTrigger';
 export type * from './submenu-trigger/MenuSubmenuTrigger';
 export type * from './viewport/MenuViewport';
+export type * from './filter-provider/MenuFilterProvider';
+export type { MenuFilterFunction } from './filter-provider/MenuFilterProviderOptions';
+export type * from './input/MenuInput';
+export type * from './list/MenuList';
+export type * from './clear/MenuClear';
+export type * from './empty/MenuEmpty';
+export type {
+  Filter as MenuFilter,
+  GetFilterParameters as MenuFilterOptions,
+} from '../internals/filter';

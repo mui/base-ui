@@ -195,6 +195,12 @@ export interface FloatingFocusManagerProps {
     | ((closeType: InteractionType) => boolean | HTMLElement | null | void)
     | undefined;
   /**
+   * Whether `returnFocus` is an explicit consumer target. Internal dynamic defaults use `false`
+   * so focus that has already moved outside the floating tree is respected.
+   * @internal
+   */
+  explicitReturnFocus?: boolean | undefined;
+  /**
    * Determines where focus should be restored if focus inside the floating element is lost
    * (such as due to the removal of the currently focused element from the DOM).
    *
@@ -256,6 +262,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     disabled = false,
     initialFocus = true,
     returnFocus = true,
+    explicitReturnFocus,
     restoreFocus = false,
     modal = true,
     closeOnFocusOut = true,
@@ -270,6 +277,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
   const open = store.useState('open');
   const domReference = store.useState('domReferenceElement');
   const floating = store.useState('floatingElement');
+
   const { events, dataRef } = store.context;
 
   const getNodeId = useStableCallback(() => dataRef.current.floatingContext?.nodeId);
@@ -283,6 +291,9 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
 
   const initialFocusRef = useValueAsRef(initialFocus);
   const returnFocusRef = useValueAsRef(returnFocus);
+  // Read through a ref so a mid-open change can't re-run the return-focus effect, whose cleanup
+  // would move focus while the floating element is still open.
+  const explicitReturnFocusRef = useValueAsRef(explicitReturnFocus);
   const openInteractionTypeRef = useValueAsRef(openInteractionType);
   const openRef = useValueAsRef(open);
 
@@ -710,13 +721,20 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
 
       const hadFocusInside = contains(floatingFocusElement, activeElement(doc));
 
+      // Screen readers re-sync focus to their cursor right after a synthesized press. A focus
+      // that lands a frame later reads as a stray move and gets pulled back to the reference.
+      const openEvent = dataRef.current.openEvent;
+      const openedByVirtualPress =
+        openEvent?.type === 'mousedown' && isVirtualClick(openEvent as MouseEvent);
+
       // enqueueFocus returns a rAF-cancel function; we intentionally don't cancel this focus.
       void enqueueFocus(elToFocus, {
+        sync: openedByVirtualPress,
         preventScroll: elToFocus === floatingFocusElement,
         shouldFocus() {
-          // This focus is queued on the next animation frame. If the floating element has closed
-          // before it runs — e.g. tabbing out of a kept-mounted popup — don't pull focus back
-          // onto the initial element after it has legitimately moved elsewhere.
+          // If the floating element has closed before this runs — e.g. tabbing out of a
+          // kept-mounted popup — don't pull focus back onto the initial element after it has
+          // legitimately moved elsewhere.
           if (!openRef.current) {
             return false;
           }
@@ -742,12 +760,23 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     initialFocusRef,
     openInteractionTypeRef,
     openRef,
+    dataRef,
   ]);
+
+  // A return-focus queued by the effect cleanup. If the effect re-arms in the same commit, a
+  // dependency changed while the popup stayed open, so the cleanup was not a close.
+  const pendingReturnFocusRef = React.useRef<{ cancelled: boolean } | null>(null);
 
   // Track return focus targets and restore focus on unmount/close.
   useIsoLayoutEffect(() => {
     if (disabled || !floatingFocusElement) {
+      pendingReturnFocusRef.current = null;
       return undefined;
+    }
+
+    if (pendingReturnFocusRef.current) {
+      pendingReturnFocusRef.current.cancelled = true;
+      pendingReturnFocusRef.current = null;
     }
 
     const doc = ownerDocument(floatingFocusElement);
@@ -865,13 +894,23 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
       const closeType = closeTypeRef.current;
       const returnElement = getReturnElement(closeType);
 
+      const job = { cancelled: false };
+      pendingReturnFocusRef.current = job;
+
       queueMicrotask(() => {
+        if (pendingReturnFocusRef.current === job) {
+          pendingReturnFocusRef.current = null;
+        }
         // `returnElement` if it is tabbable, otherwise its first tabbable child,
         // otherwise `returnElement` itself (which may not be tabbable at all).
         const tabbableReturnElement = getFirstTabbableElement(returnElement);
-        const hasExplicitReturnFocus = typeof returnFocusValueOrFn !== 'boolean';
+        // Read in the cleanup on purpose: the latest `explicitReturnFocus` decides.
+        const hasExplicitReturnFocus =
+          // eslint-disable-next-line react-hooks/exhaustive-deps
+          explicitReturnFocusRef.current ?? typeof returnFocusValueOrFn !== 'boolean';
 
         if (
+          !job.cancelled &&
           returnFocusValueOrFn &&
           !preventReturnFocusRef.current &&
           isHTMLElement(tabbableReturnElement) &&
@@ -889,6 +928,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
           tabbableReturnElement.focus(focusOptions);
         }
 
+        // A cancelled return must also clear suppression before the next close.
         preventReturnFocusRef.current = false;
       });
     };
@@ -897,6 +937,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     floating,
     floatingFocusElement,
     returnFocusRef,
+    explicitReturnFocusRef,
     openInteractionTypeRef,
     events,
     tree,
