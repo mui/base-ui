@@ -73,7 +73,7 @@
     "@guidepup/playwright": "0.19.1",
     "@guidepup/setup": "0.25.2",
     "@microsoft/api-extractor": "7.59.0",
-    "@mui/internal-code-infra": "0.1.1-canary.0",
+    "@mui/internal-code-infra": "0.1.1-canary.1",
     "@mui/internal-netlify-cache": "0.1.1-canary.0",
     "@mui/internal-test-utils": "2.1.1-canary.0",
     "@netlify/types": "3.0.0",
