@@ -972,7 +972,9 @@ describe('<Virtualizer /> windowing', () => {
       vi.restoreAllMocks();
 
       // Tall rows up front seed a high estimate; the short remainder keeps lowering the average
-      // as it is measured, so each refresh shrinks the virtual total.
+      // as it is measured, so each refresh shrinks the virtual total. A refresh moves every
+      // unmeasured row, so the collection is long enough for a small change in the average to
+      // shrink the total by more than the distance to the bottom.
       const renderShrinkingItem = (item: TestItem, index: number) => (
         <TestListItem style={{ height: index < 10 ? 100 : 20 }}>{item.label}</TestListItem>
       );
@@ -982,20 +984,21 @@ describe('<Virtualizer /> windowing', () => {
           estimatedItemHeight={20}
           overscanPx={0}
           render={<div data-testid="virtualizer" style={{ height: 120, width: 200 }} />}
-          items={createItems(300)}
+          items={createItems(3000)}
         >
           {renderShrinkingItem}
         </TestVirtualizedList>,
       );
 
       const virtualizer = screen.getByTestId('virtualizer');
-      await waitFor(() => expect(virtualizer.scrollHeight).toBeGreaterThan(20000));
+      // The tall rows seed the estimate: wait for it to reach well past the static `3000 × 20`.
+      await waitFor(() => expect(virtualizer.scrollHeight).toBeGreaterThan(120000));
 
       // Scrollbar-drag to the very bottom, release, and let the first refresh settle pinned.
       fireEvent.mouseDown(virtualizer);
       virtualizer.scrollTop = virtualizer.scrollHeight;
       fireEvent.scroll(virtualizer);
-      await screen.findByText('Item 300');
+      await screen.findByText('Item 3000');
       fireEvent.mouseUp(virtualizer);
       await act(
         () =>
@@ -1004,9 +1007,11 @@ describe('<Virtualizer /> windowing', () => {
           }),
       );
 
-      // Scroll up a little; the rows this mounts measure short, so the next idle refresh shrinks
-      // the total below the current scroll position and the browser clamps `scrollTop`.
-      virtualizer.scrollTop -= 240;
+      // Scroll up past the rows measured at the bottom: the engine's buffer spans fifteen rows at
+      // the seeded estimate, so settling there measured several dozen of the short rows. The rows
+      // this scroll mounts are new samples, so the next idle refresh shrinks the total below the
+      // current scroll position and the browser clamps `scrollTop`.
+      virtualizer.scrollTop -= 2000;
       fireEvent.scroll(virtualizer);
       await act(
         () =>
@@ -1039,30 +1044,33 @@ describe('<Virtualizer /> windowing', () => {
       );
       expect(trackedElement).not.toBe(null);
 
-      // Watch every committed state until the refresh settles: the row the user is looking at
-      // must not move on screen even though the geometry rewrite clamps the scroll position.
+      // Watch every frame until the refresh settles: the row the user is looking at must not
+      // move on screen even though the geometry rewrite clamps the scroll position. Frames rather
+      // than DOM mutations: the engine learns the corrected position from a scroll event
+      // dispatched after the correction, so it commits a window for the stale position first,
+      // within the same task and before anything is painted.
       const disturbances: string[] = [];
-      const observer = new MutationObserver(() => {
+      let watching = true;
+      const watchFrame = () => {
+        if (!watching) {
+          return;
+        }
         const element = virtualizer.querySelector<HTMLElement>(
           `[data-row-index="${tracked!.index}"]`,
         );
         if (element === null || element.style.position === 'absolute') {
           disturbances.push(`row ${tracked!.index} left the window`);
-          return;
+        } else {
+          const offset = element.getBoundingClientRect().top;
+          if (Math.abs(offset - tracked!.offset) > 2) {
+            disturbances.push(
+              `row ${tracked!.index} moved from ${tracked!.offset.toFixed(1)} to ${offset.toFixed(1)}`,
+            );
+          }
         }
-        const offset = element.getBoundingClientRect().top;
-        if (Math.abs(offset - tracked!.offset) > 2) {
-          disturbances.push(
-            `row ${tracked!.index} moved from ${tracked!.offset.toFixed(1)} to ${offset.toFixed(1)}`,
-          );
-        }
-      });
-      observer.observe(virtualizer, {
-        subtree: true,
-        childList: true,
-        attributes: true,
-        attributeFilter: ['style'],
-      });
+        requestAnimationFrame(watchFrame);
+      };
+      requestAnimationFrame(watchFrame);
 
       const scrollHeightBeforeRefresh = virtualizer.scrollHeight;
       try {
@@ -1077,7 +1085,7 @@ describe('<Virtualizer /> windowing', () => {
             }),
         );
       } finally {
-        observer.disconnect();
+        watching = false;
       }
 
       expect(disturbances).toEqual([]);
