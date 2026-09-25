@@ -34,7 +34,7 @@ describe('<Menu.SubmenuTrigger />', () => {
         <Menu.Trigger>Actions</Menu.Trigger>
         <Menu.Portal>
           <Menu.Positioner>
-            <Menu.Popup>
+            <Menu.Popup data-testid="parent-menu">
               <Menu.SubmenuRoot>
                 <Menu.SubmenuTrigger>More</Menu.SubmenuTrigger>
                 <Menu.Portal>
@@ -45,6 +45,7 @@ describe('<Menu.SubmenuTrigger />', () => {
                   </Menu.Positioner>
                 </Menu.Portal>
               </Menu.SubmenuRoot>
+              <Menu.Item>Play Next</Menu.Item>
             </Menu.Popup>
           </Menu.Positioner>
         </Menu.Portal>
@@ -77,6 +78,12 @@ describe('<Menu.SubmenuTrigger />', () => {
     await waitFor(() => {
       expect(screen.queryByTestId('submenu')).toBe(null);
     });
+    expect(screen.getByTestId('parent-menu')).not.toBe(null);
+
+    await user.keyboard('[ArrowDown]');
+    await waitFor(() => {
+      expect(screen.getByRole('menuitem', { name: 'Play Next' })).toHaveFocus();
+    });
   });
 
   it.skipIf(isJSDOM)(
@@ -92,7 +99,7 @@ describe('<Menu.SubmenuTrigger />', () => {
             <Menu.Trigger>Actions</Menu.Trigger>
             <Menu.Portal>
               <Menu.Positioner>
-                <Menu.Popup>
+                <Menu.Popup data-testid="parent-menu">
                   <Menu.SubmenuRoot>
                     <Menu.SubmenuTrigger>More</Menu.SubmenuTrigger>
                     <Menu.Portal container={shadowRoot}>
@@ -103,6 +110,7 @@ describe('<Menu.SubmenuTrigger />', () => {
                       </Menu.Positioner>
                     </Menu.Portal>
                   </Menu.SubmenuRoot>
+                  <Menu.Item>Play Next</Menu.Item>
                 </Menu.Popup>
               </Menu.Positioner>
             </Menu.Portal>
@@ -142,6 +150,12 @@ describe('<Menu.SubmenuTrigger />', () => {
         });
         await waitFor(() => {
           expect(shadowRoot.querySelector('[data-testid="submenu"]')).toBe(null);
+        });
+        expect(screen.getByTestId('parent-menu')).not.toBe(null);
+
+        await user.keyboard('[ArrowDown]');
+        await waitFor(() => {
+          expect(screen.getByRole('menuitem', { name: 'Play Next' })).toHaveFocus();
         });
       } finally {
         host.remove();
