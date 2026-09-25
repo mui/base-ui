@@ -1016,16 +1016,33 @@ The handler runs once per direction, with the other axis set to `0`. At a bound 
 
 ### Typed wrapper component
 
-The following example wraps `<Draggable.Root>` for items of any kind. Inside a generic component, `Draggable.Root.Props<Payload>` can't tell whether `Payload` is `undefined`, so declare `kind` and `payload` explicitly to keep them required and checked against each other:
+The following example wraps `<Draggable.Root>` for items of any kind. `Draggable.Root.Props<Payload>` keeps `payload` required whenever the kind declares one:
 
 ```tsx title="A wrapper for items of any kind"
 import * as React from 'react';
 import { Draggable } from '@base-ui/react/draggable';
 
-export function SortableItem<Payload>(
-  props: Draggable.Root.Props<Payload> & { kind: Draggable.Kind<Payload>; payload: Payload },
-): React.JSX.Element {
-  return <Draggable.Root {...props} className="Item" />;
+export function SortableItem<Payload>(props: Draggable.Root.Props<Payload>): React.JSX.Element {
+  return <Draggable.Root {...props} />;
+}
+```
+
+A wrapper that destructures its props can't forward the rest as is: while `Payload` is generic, TypeScript can't tell whether `payload` is required. Declare `kind` and `payload` explicitly in that case:
+
+```tsx title="A wrapper that adds a handle"
+export function SortableItem<Payload>({
+  children,
+  ...props
+}: Draggable.Root.Props<Payload> & {
+  kind: Draggable.Kind<Payload>;
+  payload: Payload;
+}): React.JSX.Element {
+  return (
+    <Draggable.Root {...props}>
+      <Draggable.Handle aria-hidden="true">⠿</Draggable.Handle>
+      {children}
+    </Draggable.Root>
+  );
 }
 ```
 

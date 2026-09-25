@@ -179,18 +179,13 @@ export const DraggableRoot = React.forwardRef(function DraggableRoot<
   return (
     <DraggableRootContext.Provider value={contextValue}>{element}</DraggableRootContext.Provider>
   );
-  // Overloaded so `payload` stays required for a kind that declares one: a
-  // `kind={card}` with no payload can't leave the engine emitting `undefined` where a
-  // `Card` was promised. Expressing that as a conditional on the props type instead
-  // would make it a deferred conditional a generic wrapper can't spread into.
-}) as {
-  <TPayload, TDragData = unknown>(
-    props: DraggableRootPropsWithPayload<TPayload, TDragData>,
-  ): React.JSX.Element;
-  <TDragData = unknown>(
-    props: DraggableRootPropsBase<undefined, TDragData> & { payload?: undefined },
-  ): React.JSX.Element;
-};
+  // One generic signature, like `Select.Root`: `Props` makes `payload` required for a
+  // kind that declares one, so a `kind={card}` with no payload can't leave the engine
+  // emitting `undefined` where a `Card` was promised. A generic wrapper can spread its
+  // `Props<Payload>` straight through, since the argument infers from the same alias.
+}) as <TPayload = undefined, TDragData = unknown>(
+  props: DraggableRootProps<TPayload, TDragData>,
+) => React.JSX.Element;
 
 export interface DraggableRootState {
   /**
@@ -255,14 +250,6 @@ export type DraggableRootProps<TPayload = undefined, TDragData = unknown> = Drag
 > &
   DraggableRootPayloadField<TPayload> &
   ([TPayload] extends [undefined] ? {} : { kind: DraggableKind<TPayload, TDragData> });
-
-/** The props of a `Draggable.Root` whose payload is always required. */
-type DraggableRootPropsWithPayload<TPayload, TDragData = unknown> = DraggableRootPropsBase<
-  TPayload,
-  TDragData
-> & {
-  kind: DraggableKind<TPayload, TDragData>;
-} & RequiredDraggablePayload<TPayload>;
 
 type RequiredDraggablePayload<TPayload> = { payload: DraggablePayload<TPayload> };
 

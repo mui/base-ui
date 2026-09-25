@@ -279,14 +279,36 @@ function Card(props: CardProps) {
 }
 <Card kind={card} payload={{ id: 'a' }} onMoveStart={({ source }) => source.payload.id} />;
 
-// A generic wrapper has to spell out the requirement itself: with `TPayload` still
-// open, the one in `Props` is a deferred conditional the overloads can't see through.
-function GenericCard<TPayload>(
-  props: Draggable.Root.Props<TPayload> & { kind: DraggableKind<TPayload>; payload: TPayload },
-) {
+// A generic wrapper can forward its props as they are, like `Select.Root`'s wrappers.
+function GenericCard<TPayload>(props: Draggable.Root.Props<TPayload>) {
   return <Draggable.Root {...props} />;
 }
 <GenericCard kind={card} payload={{ id: 'a' }} />;
+// @ts-expect-error the wrapper still requires the payload the kind declares.
+<GenericCard kind={card} />;
+
+// Destructuring leaves TypeScript unable to tell whether `payload` is required while
+// `TPayload` is open, so a wrapper that does it restates `kind` and `payload`.
+function GenericCardWithHandle<TPayload>({
+  children,
+  ...props
+}: Draggable.Root.Props<TPayload> & { kind: Draggable.Kind<TPayload>; payload: TPayload }) {
+  return (
+    <Draggable.Root {...props}>
+      <Draggable.Handle />
+      {children}
+    </Draggable.Root>
+  );
+}
+<GenericCardWithHandle kind={card} payload={{ id: 'a' }} />;
+function GenericCardWithoutRestatement<TPayload>({
+  children,
+  ...props
+}: Draggable.Root.Props<TPayload>) {
+  // @ts-expect-error the rest of an open `Props` hides whether `payload` is required.
+  return <Draggable.Root {...props}>{children}</Draggable.Root>;
+}
+void GenericCardWithoutRestatement;
 // @ts-expect-error the wrapper still checks the payload against the kind.
 <GenericCard kind={card} payload={{ id: 1 }} />;
 
