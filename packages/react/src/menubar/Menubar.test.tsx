@@ -121,6 +121,98 @@ describe('<Menubar />', () => {
     expect(outside).toHaveFocus();
   });
 
+  describe('focus when a menu closes', () => {
+    it('returns focus to the trigger after Escape', async () => {
+      const { user } = await render(<ContainedTriggerMenubar />);
+      const fileTrigger = screen.getByTestId('file-trigger');
+
+      await act(async () => {
+        fileTrigger.focus();
+      });
+      await user.keyboard('{Enter}');
+      await screen.findByTestId('file-menu');
+
+      await user.keyboard('{Escape}');
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('file-menu')).toBe(null);
+      });
+      await waitFor(() => {
+        expect(fileTrigger).toHaveFocus();
+      });
+    });
+
+    it('returns focus to the trigger after clicking an item', async () => {
+      const { user } = await render(<ContainedTriggerMenubar />);
+      const fileTrigger = screen.getByTestId('file-trigger');
+
+      await user.click(fileTrigger);
+      await screen.findByTestId('file-menu');
+
+      await user.click(screen.getByTestId('file-item-1'));
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('file-menu')).toBe(null);
+      });
+      await waitFor(() => {
+        expect(fileTrigger).toHaveFocus();
+      });
+    });
+  });
+
+  describe('controlled handoff', () => {
+    for (const animationsDisabled of [true, false]) {
+      describe(`animations ${animationsDisabled ? 'disabled' : 'enabled'}`, () => {
+        beforeEach(() => {
+          globalThis.BASE_UI_ANIMATIONS_DISABLED = animationsDisabled;
+        });
+
+        it('moves the open menu when the application changes the controlled value', async () => {
+          const apiRef = React.createRef<SetOpenMenu | null>();
+          await render(<ControlledMenubar apiRef={apiRef} />);
+
+          await act(async () => {
+            apiRef.current!('file');
+          });
+          await screen.findByTestId('file-menu');
+
+          await act(async () => {
+            apiRef.current!('edit');
+          });
+
+          await screen.findByTestId('edit-menu');
+          await waitFor(() => {
+            expect(screen.queryByTestId('file-menu')).toBe(null);
+          });
+        });
+
+        it('moves the open menu while focus is inside the menu it replaces', async () => {
+          const apiRef = React.createRef<SetOpenMenu | null>();
+          const { user } = await render(<ControlledMenubar apiRef={apiRef} />);
+
+          // Open through the trigger so focus really is inside the popup, which is
+          // what makes the closing menu hand focus back to its own trigger.
+          await user.click(screen.getByTestId('file-trigger'));
+          await screen.findByTestId('file-menu');
+
+          await act(async () => {
+            apiRef.current!('edit');
+          });
+
+          await screen.findByTestId('edit-menu');
+          await waitFor(() => {
+            expect(screen.queryByTestId('file-menu')).toBe(null);
+          });
+          await waitFor(() => {
+            expect(screen.getByTestId('edit-menu')).toContainElement(
+              document.activeElement as HTMLElement,
+            );
+          });
+        });
+      });
+    }
+  });
+
   // All these tests run for contained, detached and multiple contained triggers.
   // The rendered menubar has the same structure in most cases.
   describe.for([
@@ -1259,6 +1351,38 @@ function ContainedTriggerMenubar(props: Menubar.Props) {
           </Menu.Positioner>
         </Menu.Portal>
       </Menu.Root>
+    </Menubar>
+  );
+}
+
+type SetOpenMenu = (openMenu: string | null) => void;
+
+/**
+ * One piece of application state names the open menu, the way an application
+ * drives a menubar itself. `apiRef` moves that state with no user event at all.
+ */
+function ControlledMenubar(props: { apiRef: React.RefObject<SetOpenMenu | null> }) {
+  const [openMenu, setOpenMenu] = React.useState<string | null>(null);
+  props.apiRef.current = setOpenMenu;
+
+  return (
+    <Menubar style={{ display: 'flex' }}>
+      {['file', 'edit'].map((id) => (
+        <Menu.Root
+          key={id}
+          open={openMenu === id}
+          onOpenChange={(nextOpen) => setOpenMenu(nextOpen ? id : null)}
+        >
+          <Menu.Trigger data-testid={`${id}-trigger`}>{id}</Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner data-testid={`${id}-menu`}>
+              <Menu.Popup>
+                <Menu.Item>{id} item</Menu.Item>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>
+      ))}
     </Menubar>
   );
 }
