@@ -11,10 +11,8 @@ import {
   waitFor,
 } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance, firePointer, isJSDOM } from '#test-utils';
-import {
-  type DrawerProviderContext,
-  useDrawerProviderContext,
-} from '../provider/DrawerProviderContext';
+import { useDrawerProviderContext } from '../provider/DrawerProviderContext';
+import type { DrawerProviderContext } from '../provider/DrawerProviderContext';
 import { useDialogRootContext } from '../../dialog/root/DialogRootContext';
 import type { DialogStore } from '../../dialog/store/DialogStore';
 

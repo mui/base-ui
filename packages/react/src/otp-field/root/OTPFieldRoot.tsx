@@ -23,8 +23,10 @@ import type { BaseUIComponentProps } from '../../internals/types';
 import {
   createChangeEventDetails,
   createGenericEventDetails,
-  type BaseUIChangeEventDetails,
-  type BaseUIGenericEventDetails,
+} from '../../internals/createBaseUIEventDetails';
+import type {
+  BaseUIChangeEventDetails,
+  BaseUIGenericEventDetails,
 } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import { OTPFieldRootContext } from './OTPFieldRootContext';
@@ -33,8 +35,8 @@ import {
   getOTPValidationConfig,
   normalizeOTPValue,
   normalizeOTPValueWithDetails,
-  type OTPValidationType,
 } from '../utils/otp';
+import type { OTPValidationType } from '../utils/otp';
 
 /**
  * Groups all OTP field parts and manages their state.

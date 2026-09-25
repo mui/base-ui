@@ -4,21 +4,19 @@ import { fastComponent } from '@base-ui/utils/fastHooks';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useDismiss, FloatingTree } from '../../floating-ui-react';
 import { PreviewCardRootContext, usePreviewCardRootContext } from './PreviewCardContext';
-import {
-  createChangeEventDetails,
-  type BaseUIChangeEventDetails,
-} from '../../internals/createBaseUIEventDetails';
+import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import { PreviewCardStore } from '../store/PreviewCardStore';
+import type { PayloadChildRenderFunction } from '../../utils/popups';
 import {
-  PayloadChildRenderFunction,
   PopupHandleAttachment,
   useImplicitActiveTrigger,
   usePopupRootStore,
   useOpenStateTransitions,
   usePopupInteractionProps,
 } from '../../utils/popups';
-import { PreviewCardHandle } from '../store/PreviewCardHandle';
+import type { PreviewCardHandle } from '../store/PreviewCardHandle';
 
 function PreviewCardRootComponent<Payload>(props: PreviewCardRoot.Props<Payload>) {
   const {

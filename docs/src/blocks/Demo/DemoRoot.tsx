@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { DemoVariant } from './types';
+import type { DemoVariant } from './types';
 import { DemoContext } from './DemoContext';
 
 export function DemoRoot(props: DemoRoot.Props) {

@@ -1,7 +1,8 @@
 import { expect, vi, describe, beforeAll, afterAll, it } from 'vitest';
 import * as React from 'react';
 import { act, flushMicrotasks, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
-import { DirectionProvider, type TextDirection } from '@base-ui/react/direction-provider';
+import { DirectionProvider } from '@base-ui/react/direction-provider';
+import type { TextDirection } from '@base-ui/react/direction-provider';
 import { Field } from '@base-ui/react/field';
 import { Slider } from '@base-ui/react/slider';
 import { Form } from '@base-ui/react/form';

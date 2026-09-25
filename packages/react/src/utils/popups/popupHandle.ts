@@ -1,8 +1,6 @@
 import { AnimationFrame } from '@base-ui/utils/useAnimationFrame';
-import {
-  createChangeEventDetails,
-  type BaseUIChangeEventDetails,
-} from '../../internals/createBaseUIEventDetails';
+import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import type { PopupTriggerMap } from './popupTriggerMap';
 

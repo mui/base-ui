@@ -2,7 +2,8 @@
 import * as React from 'react';
 import { Tooltip as BaseTooltip } from '@base-ui/react/tooltip';
 import { Tooltip as RadixTooltip } from 'radix-ui';
-import PerformanceBenchmark, { BenchmarkVariant } from './utils/benchmark';
+import type { BenchmarkVariant } from './utils/benchmark';
+import PerformanceBenchmark from './utils/benchmark';
 import styles from './performance.module.css';
 
 const COUNT = 2000;

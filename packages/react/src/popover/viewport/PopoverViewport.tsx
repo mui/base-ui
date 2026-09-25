@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
 import { usePopoverPositionerContext } from '../positioner/PopoverPositionerContext';
-import { BaseUIComponentProps } from '../../internals/types';
+import type { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { popupViewportStateMapping, usePopupViewport } from '../../utils/usePopupViewport';
 

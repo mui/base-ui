@@ -1,12 +1,10 @@
 'use client';
 import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import { BaseUIComponentProps } from '../../internals/types';
+import type { BaseUIComponentProps } from '../../internals/types';
 import { useBaseUiId } from '../../internals/useBaseUiId';
-import {
-  useCollapsibleRoot,
-  type UseCollapsibleRootParameters,
-} from '../../collapsible/root/useCollapsibleRoot';
+import { useCollapsibleRoot } from '../../collapsible/root/useCollapsibleRoot';
+import type { UseCollapsibleRootParameters } from '../../collapsible/root/useCollapsibleRoot';
 import type { CollapsibleRoot } from '../../collapsible/root/CollapsibleRoot';
 import { CollapsibleRootContext } from '../../collapsible/root/CollapsibleRootContext';
 import { useCompositeListItem } from '../../internals/composite/list/useCompositeListItem';
@@ -15,8 +13,8 @@ import { useAccordionRootContext } from '../root/AccordionRootContext';
 import { AccordionItemContext } from './AccordionItemContext';
 import { accordionStateAttributesMapping } from './stateAttributesMapping';
 import { useRenderElement } from '../../internals/useRenderElement';
-import { type BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
-import { REASONS } from '../../internals/reasons';
+import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import type { REASONS } from '../../internals/reasons';
 
 /**
  * Groups an accordion header with the corresponding panel.

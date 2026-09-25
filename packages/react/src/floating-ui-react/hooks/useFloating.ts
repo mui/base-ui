@@ -1,9 +1,10 @@
 'use client';
 import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { useFloating as usePosition, type VirtualElement } from '@floating-ui/react-dom';
+import { useFloating as usePosition } from '@floating-ui/react-dom';
+import type { VirtualElement } from '@floating-ui/react-dom';
 import { isElement } from '@floating-ui/utils/dom';
-import { FloatingRootStore } from '../components/FloatingRootStore';
+import type { FloatingRootStore } from '../components/FloatingRootStore';
 import { useFloatingTree } from '../components/FloatingTree';
 import type {
   FloatingContext,

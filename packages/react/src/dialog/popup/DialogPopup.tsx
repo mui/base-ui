@@ -1,11 +1,11 @@
 'use client';
 import * as React from 'react';
-import { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
+import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import { FloatingFocusManager } from '../../floating-ui-react';
 import { useDialogRootContext } from '../root/DialogRootContext';
 import { useRenderElement } from '../../internals/useRenderElement';
-import { type BaseUIComponentProps } from '../../internals/types';
-import { type TransitionStatus } from '../../internals/useTransitionStatus';
+import type { BaseUIComponentProps } from '../../internals/types';
+import type { TransitionStatus } from '../../internals/useTransitionStatus';
 import { useDialogPortalContext } from '../portal/DialogPortalContext';
 import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
 import { COMPOSITE_KEYS } from '../../internals/composite/composite';

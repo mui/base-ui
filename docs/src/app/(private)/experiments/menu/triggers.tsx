@@ -4,7 +4,8 @@ import { Menu } from '@base-ui/react/menu';
 import { StoreInspector } from '@base-ui/utils/store';
 import demoStyles from 'docs/src/app/(docs)/react/components/menu/demos/submenu/css-modules/index.module.css';
 import viewportStyles from 'docs/src/app/(docs)/react/components/menu/demos/detached-triggers-full/css-modules/index.module.css';
-import { SettingsMetadata, useExperimentSettings } from '../_components/SettingsPanel';
+import type { SettingsMetadata } from '../_components/SettingsPanel';
+import { useExperimentSettings } from '../_components/SettingsPanel';
 import styles from './triggers.module.css';
 
 interface Settings {

@@ -1,11 +1,8 @@
 'use client';
 import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import {
-  DrawerProviderContext,
-  type DrawerVisualState,
-  type DrawerVisualStateStore,
-} from './DrawerProviderContext';
+import { DrawerProviderContext } from './DrawerProviderContext';
+import type { DrawerVisualState, DrawerVisualStateStore } from './DrawerProviderContext';
 
 /**
  * Provides a shared context for coordinating global Drawer UI, such as indent/background effects based on whether any Drawer is open.

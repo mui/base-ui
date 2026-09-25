@@ -1,11 +1,11 @@
 import { expect } from 'vitest';
 // TODO Temporal: Replace with `@base-ui/react/types` import when Temporal components will become public.
-import {
+import type {
   TemporalAdapter,
   TemporalSupportedObject,
   TemporalTimezone,
 } from '../../src/internals/temporal';
-import { DescribeGregorianAdapterTestSuite } from './describeGregorianAdapter.types';
+import type { DescribeGregorianAdapterTestSuite } from './describeGregorianAdapter.types';
 import { TEST_DATE_ISO_STRING, TEST_DATE_LOCALE_STRING } from './describeGregorianAdapter.utils';
 
 /**

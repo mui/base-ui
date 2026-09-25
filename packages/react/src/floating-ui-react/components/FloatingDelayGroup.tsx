@@ -5,10 +5,8 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 
 import { getDelay } from '../hooks/useHoverShared';
 import type { FloatingRootContext, Delay } from '../types';
-import {
-  BaseUIChangeEventDetails,
-  createChangeEventDetails,
-} from '../../internals/createBaseUIEventDetails';
+import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 
 interface ContextValue {

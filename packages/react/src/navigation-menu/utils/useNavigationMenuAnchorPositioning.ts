@@ -2,10 +2,10 @@
 import { useBaseUIFloating } from '../../floating-ui-react/hooks/useFloating';
 import { useFloatingRootContext } from '../../floating-ui-react/hooks/useFloatingRootContext';
 import type { UseFloatingOptions } from '../../floating-ui-react/types';
-import {
-  useAnchorPositioningWithHook,
-  type UseAnchorPositioningParameters,
-  type UseAnchorPositioningReturnValue,
+import { useAnchorPositioningWithHook } from '../../internals/useAnchorPositioning';
+import type {
+  UseAnchorPositioningParameters,
+  UseAnchorPositioningReturnValue,
 } from '../../internals/useAnchorPositioning';
 
 function useFloatingWithFallbackStore(options: UseFloatingOptions) {
