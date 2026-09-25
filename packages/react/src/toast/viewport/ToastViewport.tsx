@@ -3,7 +3,6 @@ import * as React from 'react';
 import { addEventListener } from '@base-ui/utils/addEventListener';
 import { mergeCleanups } from '@base-ui/utils/mergeCleanups';
 import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
-import { visuallyHidden } from '@base-ui/utils/visuallyHidden';
 import { useTimeout } from '@base-ui/utils/useTimeout';
 import { activeElement, contains, getTarget } from '../../floating-ui-react/utils';
 import { FocusGuard } from '../../utils/FocusGuard';
@@ -40,7 +39,6 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
   const frontmostHeight = toasts[0]?.height;
 
   const hasTransitioningToasts = toasts.some((toast) => toast.transitionStatus === 'ending');
-  const highPriorityToasts = toasts.filter((toast) => toast.priority === 'high');
 
   React.useEffect(() => {
     // `store.state.viewport` isn't available on the first render, since the portal node hasn't yet
@@ -217,9 +215,6 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
   const defaultProps: HTMLProps = {
     tabIndex: -1,
     role: 'region',
-    'aria-live': 'polite',
-    'aria-atomic': false,
-    'aria-relevant': 'additions text',
     'aria-label': 'Notifications',
     onMouseEnter: handleMouseEnter,
     onMouseMove: handleMouseEnter,
@@ -266,16 +261,6 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
     <React.Fragment>
       {focusGuard}
       {element}
-      {!focused && highPriorityToasts.length > 0 && (
-        <div style={visuallyHidden}>
-          {highPriorityToasts.map((toast) => (
-            <div key={toast.id} role="alert" aria-atomic>
-              <div>{toast.title}</div>
-              <div>{toast.description}</div>
-            </div>
-          ))}
-        </div>
-      )}
     </React.Fragment>
   );
 });
