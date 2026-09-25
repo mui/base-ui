@@ -166,7 +166,7 @@ If the CI job fails, then you most likely need to run the commands that failed l
 This checks whether generated files—such as error codes and inlined scripts—are up to date.
 If the CI job fails, run the command from the failed step locally and commit the changes.
 
-#### ci/circleci: jsdom tests
+#### ci/circleci: JSDOM tests
 
 This runs the unit tests in a `jsdom` environment.
 You can narrow the scope of tests run with `pnpm test:jsdom <ComponentName>`.
