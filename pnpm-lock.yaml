@@ -507,7 +507,7 @@ importers:
   packages/react:
     dependencies:
       '@babel/runtime':
-        specifier: ^7.29.7
+        specifier: ^7.29.7 || ^8.0.0
         version: 7.29.7
       '@base-ui/utils':
         specifier: workspace:*
@@ -572,7 +572,7 @@ importers:
   packages/utils:
     dependencies:
       '@babel/runtime':
-        specifier: ^7.29.7
+        specifier: ^7.29.7 || ^8.0.0
         version: 7.29.7
       '@floating-ui/utils':
         specifier: ^0.2.12
