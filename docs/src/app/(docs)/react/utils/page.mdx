@@ -4,6 +4,7 @@
 
 - CSP Provider - ([Outline](#csp-provider), [Contents](./csp-provider/page.mdx))
 - Direction Provider - ([Outline](#direction-provider), [Contents](./direction-provider/page.mdx))
+- Draggable [New] - ([Outline](#draggable), [Contents](./draggable/page.mdx))
 - mergeProps - ([Outline](#mergeprops), [Contents](./merge-props/page.mdx))
 - useRender - ([Outline](#userender), [Contents](./use-render/page.mdx))
 
@@ -56,6 +57,138 @@ Enables RTL behavior for Base UI components.
 </details>
 
 [Read more](./direction-provider/page.mdx)
+
+## Draggable
+
+Drag and drop for pointer input, with drop targets, previews, sorting, and auto-scrolling.
+
+<details>
+
+<summary>Outline</summary>
+
+- Keywords: React Drag and Drop, Draggable, Drop Target, Drag Preview, Sortable List, Auto Scroll, Headless React Components, Base UI
+- Sections:
+  - Usage guidelines
+  - Anatomy
+  - Kinds and payloads
+    - Matching several kinds
+  - Drag events
+    - Drag source events
+    - Drop target events
+  - Drop targets
+    - Accepting drops
+    - Identifying a target
+  - Auto-scrolling
+    - Scrolling the page
+  - Testing
+    - Choosing an environment
+    - Simulating a drag
+    - Waiting and asserting
+    - Cleaning up
+  - Examples
+    - Drag handle
+    - Disabling a drag
+    - Storing data during a drag
+    - Activation
+      - Double-click pickup
+    - Constraining movement
+      - Custom modifiers
+    - Drag preview
+    - Custom preview
+    - Preview position
+    - Preview container
+    - Drag cursor
+    - Styling the source and preview
+      - Animating a drop
+    - Drop position within a target
+    - Nested drop targets
+    - Styling drop targets
+    - Native file drops
+    - One element with two roles
+    - Sorting a list
+    - Sorting while dragging
+    - Auto-scroll direction
+    - Auto-scroll speed
+    - Auto-scroll outside the viewport
+    - Custom auto-scrolling
+    - Typed wrapper component
+  - API reference
+    - Provider
+    - Root
+    - Handle
+    - Preview
+    - Target
+    - Viewport
+    - CollisionProvider
+  - createKind
+  - createGlobalKind
+  - anyKind constant
+  - Modifiers
+    - restrictToVerticalAxis
+    - restrictToHorizontalAxis
+    - restrictToParentElement
+    - restrictToElement
+    - restrictToWindowEdges
+    - snapToGrid
+  - useActiveDrag
+  - useMonitor
+  - useManager
+    - registerSource
+    - registerTarget
+    - registerViewport
+    - registerMonitor
+    - cancelDrag
+- Exports:
+  - Draggable - Root
+    - Props: activation, children, className, collision, collisionElement, collisionPayload, disabled, dragCursor, kind, modifiers, onBeforeMoveStart, onMove, onMoveEnd, onMoveStart, onTargetChange, payload, previewKey, render, snap, style
+    - Data Attributes: data-disabled, data-dragging, data-settling
+  - Draggable - Provider
+    - Props: children
+  - Draggable - Viewport
+    - Props: accept, className, disabled, maxSpeed, onDragScroll, overflowMargin, render, style
+    - Data Attributes: data-disabled
+  - Draggable - CollisionProvider
+    - Props: canCollide, children, kind, onCollisionChange, onMoveEnd, onMoveStart
+  - Draggable - createGlobalKind
+    - Parameters: key
+  - Draggable - createKind
+    - Parameters: name
+  - Draggable - Handle
+    - Props: className, disabled, render, style
+    - Data Attributes: data-disabled
+  - Draggable - Modifier
+    - Parameters: context
+  - Draggable - Preview
+    - Props: children, className, container, disabled, kind, modifiers, offset, render, style
+    - Data Attributes: data-drag-preview, data-ending-style
+    - CSS Variables: --drag-source-height, --drag-source-width
+  - Draggable - restrictToElement
+    - Parameters: element
+  - Draggable - restrictToHorizontalAxis
+    - Parameters: context
+  - Draggable - restrictToParentElement
+    - Parameters: context
+  - Draggable - restrictToVerticalAxis
+    - Parameters: context
+  - Draggable - restrictToWindowEdges
+    - Parameters: context
+  - Draggable - snapToGrid
+    - Parameters: size
+  - Draggable - Target
+    - Props: accept, canDrop, className, disabled, kind, onDraggableDrop, onDraggableEnter, onDraggableLeave, onDraggableMove, onDraggableStart, payload, render, snap, style, trackDragOver
+    - Data Attributes: data-accepting, data-disabled, data-drag-over, data-drag-over-innermost, data-rejected
+  - Draggable - useActiveDrag
+    - Parameters: accept
+  - Draggable - useManager
+  - Draggable - useMonitor
+    - Parameters: parameters
+  - DraggableRootModifier
+    - Parameters: context
+- Types: Draggable.CollisionProvider.CollisionChangeEventDetails, Draggable.CollisionProvider.CollisionChangeEventReason, Draggable.CollisionProvider.CollisionChangeValue, Draggable.CollisionProvider.MoveEndEventDetails, Draggable.CollisionProvider.MoveEndEventReason, Draggable.CollisionProvider.MoveEndValue, Draggable.CollisionProvider.MoveStartEventDetails, Draggable.CollisionProvider.MoveStartEventReason, Draggable.CollisionProvider.MoveStartValue, Draggable.CollisionProvider.Props, Draggable.Handle.Props, Draggable.Handle.Reference, Draggable.Handle.State, Draggable.Preview.Container, Draggable.Preview.Offset, Draggable.Preview.OffsetParameters, Draggable.Preview.Parameters, Draggable.Preview.Props, Draggable.Preview.RenderParameters, Draggable.Preview.Settings, Draggable.Preview.State, Draggable.Provider.Props, Draggable.Root.Activation, Draggable.Root.ActivationConfig, Draggable.Root.BeforeMoveStartEventDetails, Draggable.Root.BeforeMoveStartEventReason, Draggable.Root.BeforeMoveStartValue, Draggable.Root.ElementReference, Draggable.Root.ModifierContext, Draggable.Root.Modifiers, Draggable.Root.MoveEndEventDetails, Draggable.Root.MoveEndEventReason, Draggable.Root.MoveEndValue, Draggable.Root.MoveEventDetails, Draggable.Root.MoveEventReason, Draggable.Root.MoveStartEventDetails, Draggable.Root.MoveStartEventReason, Draggable.Root.MoveStartValue, Draggable.Root.MoveValue, Draggable.Root.Props, Draggable.Root.Record, Draggable.Root.State, Draggable.Root.TargetChangeEventDetails, Draggable.Root.TargetChangeEventReason, Draggable.Root.TargetChangeValue, Draggable.Target.DropEventDetails, Draggable.Target.DropEventReason, Draggable.Target.DropValue, Draggable.Target.EnterEventDetails, Draggable.Target.EnterEventReason, Draggable.Target.EnterValue, Draggable.Target.LeaveEventDetails, Draggable.Target.LeaveEventReason, Draggable.Target.LeaveValue, Draggable.Target.LocalPoint, Draggable.Target.MoveEventDetails, Draggable.Target.MoveEventReason, Draggable.Target.MoveValue, Draggable.Target.Props, Draggable.Target.Record, Draggable.Target.ResolutionContext, Draggable.Target.SnapSteps, Draggable.Target.SnappedLocalPointOptions, Draggable.Target.StartEventDetails, Draggable.Target.StartEventReason, Draggable.Target.StartValue, Draggable.Target.State, Draggable.Viewport.DragScrollDirection, Draggable.Viewport.DragScrollEventDetails, Draggable.Viewport.DragScrollEventReason, Draggable.Viewport.DragScrollValue, Draggable.Viewport.MaxSpeedContext, Draggable.Viewport.OverflowMargin, Draggable.Viewport.Props, Draggable.Viewport.State, Draggable.useActiveDrag.ReturnValue, Draggable.useManager.RegisterMonitorParameters, Draggable.useManager.RegisterSourceParameters, Draggable.useManager.RegisterTargetParameters, Draggable.useManager.RegisterViewportParameters, Draggable.useManager.ReturnValue, Draggable.useMonitor.Parameters, Draggable.useMonitor.ReturnValue
+
+</details>
+
+[Read more](./draggable/page.mdx)
 
 ## mergeProps
 

@@ -1,0 +1,38 @@
+/**
+ * The data attributes the engine writes on consumer elements, in one place so a
+ * rename or an addition is a single edit. The public `*DataAttributes` enums of
+ * `Draggable.Root`, `Draggable.Preview`, and `Draggable.Target` restate these for the docs;
+ * their `enumSync` tests keep the two in step.
+ */
+
+/**
+ * Set on the drag source for the whole drag, so a consumer can dim it with one
+ * CSS rule — `[data-dragging] { opacity: 0.4 }`. The default preview is a clone
+ * anchored to the grab point, so it starts out exactly on top of the source;
+ * without dimming the two read as one element. The engine deliberately does not
+ * hide the source itself — that is an opinion the CSS should own.
+ */
+export const DRAGGING_ATTR = 'data-dragging';
+
+/** Set on the preview while its drop transition plays. */
+export const ENDING_STYLE_ATTR = 'data-ending-style';
+
+/**
+ * Set on the source while the preview settles into its final position. The source
+ * isn't leaving, so it gets its own attribute rather than `data-ending-style`.
+ */
+export const SETTLING_ATTR = 'data-settling';
+
+/**
+ * Marks the preview so consumers can style it with the source's own selector —
+ * `.Card[data-drag-preview] { box-shadow: … }`. This only works because the clone
+ * keeps the source's classes. Clones preserve computed styles lost through the
+ * preview wrapper; preview rules participate in that initial snapshot.
+ */
+export const DRAG_PREVIEW_ATTR = 'data-drag-preview';
+
+/**
+ * Marks every registered drop target, so the hit-test walk can find them with one selector.
+ * Internal, hence the `data-base-ui-` prefix: it isn't a styling hook.
+ */
+export const DROP_TARGET_ATTR = 'data-base-ui-drop-target';

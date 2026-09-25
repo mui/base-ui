@@ -52,10 +52,31 @@ function CallableReturnValue({ name, data }: { name: string; data: CallableData[
   return (
     <div className="ReferenceBlock">
       <SectionHeading>Return value</SectionHeading>
-      {data.type}
-      {data.detailedType && <CodeBlock.Root>{data.detailedType}</CodeBlock.Root>}
+      {React.Children.toArray(data.type)}
+      {data.detailedType && (
+        <CodeBlock.Root>{React.Children.toArray(data.detailedType)}</CodeBlock.Root>
+      )}
     </div>
   );
+}
+
+// Parameter rows and return value rows both use `${name}-${field}` anchors. When the
+// return value has a property named like a parameter, as `createKind(name)` returning
+// a kind with a `name`, give its rows their own prefix so the page keeps unique ids.
+// Only then, so existing anchors such as `#ToastuseToastManager-promise` stay stable.
+function getReturnValueName(data: CallableData) {
+  if (data.returnValue?.kind !== 'object') {
+    return data.name;
+  }
+  const parameterNames = new Set(
+    data.expandedProperties
+      ? Object.keys(data.expandedProperties)
+      : (data.parameters ?? []).map((parameter) => parameter.name),
+  );
+  const collides = Object.keys(data.returnValue.properties).some((property) =>
+    parameterNames.has(property),
+  );
+  return collides ? `${data.name}ReturnValue` : data.name;
 }
 
 function CallableReferenceSection({
@@ -109,7 +130,7 @@ function CallableReferenceSection({
         </React.Fragment>
       )}
 
-      <CallableReturnValue name={data.name} data={data.returnValue} />
+      <CallableReturnValue name={getReturnValueName(data)} data={data.returnValue} />
 
       {additionalTypes && additionalTypes.length > 0 && (
         <AdditionalTypes data={additionalTypes} multiple={multiple} />

@@ -100,7 +100,7 @@ const nextConfig = {
         as: '*.ts',
         loaders: ['@mui/internal-docs-infra/pipeline/loadPrecomputedSitemap'],
       },
-      './src/app/**/demos/*/index.ts': {
+      './src/app/**/demos/**/index.ts': {
         as: '*.ts',
         loaders: [
           {
@@ -132,7 +132,7 @@ const nextConfig = {
       use: [defaultLoaders.babel, '@mui/internal-docs-infra/pipeline/loadPrecomputedSitemap'],
     });
     config.module.rules.push({
-      test: /[/\\\\]demos[/\\\\][^/\\\\]+[/\\\\]index\.ts$/,
+      test: /[/\\\\]demos[/\\\\](?:[^/\\\\]+[/\\\\])+index\.ts$/,
       use: [
         defaultLoaders.babel,
         {

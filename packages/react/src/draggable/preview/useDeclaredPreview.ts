@@ -1,0 +1,76 @@
+'use client';
+import * as React from 'react';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { useDraggableRootContext } from '../root/DraggableRootContext';
+import type { DragPreviewDeclaration } from '../../utils/drag-and-drop/dragPreviewDeclaration';
+import type { DraggablePreviewSettings } from './DraggablePreview';
+import { useDragPreviewContext } from '../../utils/drag-and-drop/overlay/DragPreviewContext';
+import { throwMissingPreviewProvider } from '../../utils/drag-and-drop/overlay/missingPreviewProvider';
+import type { DragPreviewElementFactory } from '../../utils/drag-and-drop/synthetic/cloneDragPreview';
+
+/**
+ * Tell the draggable what its preview is. Pass `render` to own the content, or
+ * `null` for a clone of the source.
+ * @internal
+ */
+export function useDeclaredPreview<TPayload = unknown, TDragData = unknown>(
+  getProps: () => DraggablePreviewSettings,
+  render: DragPreviewDeclaration<TPayload, TDragData>['render'],
+  createPreviewElement: DragPreviewElementFactory,
+  disabled = false,
+): void {
+  const { previewHandle, previewContext: rootPreviewContext } = useDraggableRootContext<
+    TPayload,
+    TDragData
+  >();
+  const previewContext = useDragPreviewContext();
+
+  // Content needs a React tree to render in. Fail here rather than at drag start,
+  // so the stack points at the part that declared it. A `Draggable.Preview`
+  // without children passes `null`; its clone is created outside React.
+  if (!disabled && render !== null && previewContext === null) {
+    throwMissingPreviewProvider();
+  }
+  // The engine publishes through the provider seen from the *root's* position. A
+  // provider mounted between the root and this part passes the check above but is
+  // not the one the content reaches — with none above the root, the drag would
+  // throw mid-gesture at drag start instead of here.
+  if (!disabled && render !== null && previewContext !== rootPreviewContext) {
+    throw new Error(
+      'Base UI: the <Draggable.Provider> for this preview is inside its ' +
+        '<Draggable.Root>, so the root cannot use it to render the preview. ' +
+        'Move the provider above the <Draggable.Root>. ' +
+        'See https://base-ui.com/react/utils/draggable.',
+    );
+  }
+
+  const declaration = React.useMemo<DragPreviewDeclaration<TPayload, TDragData>>(() => {
+    // Mapped over `Required<…>` so every setting has to be plucked here: settings
+    // are all optional, so a new one added to `DraggablePreviewSettings` would
+    // otherwise type-check while being silently dropped on its way to the engine.
+    const declared: {
+      [K in keyof Required<DragPreviewDeclaration<TPayload, TDragData>>]: DragPreviewDeclaration<
+        TPayload,
+        TDragData
+      >[K];
+    } = {
+      render,
+      createPreviewElement,
+      get offset() {
+        return getProps().offset;
+      },
+      get modifiers() {
+        return getProps().modifiers;
+      },
+      get disabled() {
+        return getProps().disabled;
+      },
+      get container() {
+        return getProps().container;
+      },
+    };
+    return declared;
+  }, [getProps, render, createPreviewElement]);
+
+  useIsoLayoutEffect(() => previewHandle.declare(declaration), [previewHandle, declaration]);
+}
