@@ -1,0 +1,325 @@
+# Virtualizer
+
+<Subtitle>Renders only the visible items of a large list.</Subtitle>
+<Meta
+  name="description"
+  content="A virtualization provider for Base UI lists that renders only the visible items, while handling keyboard navigation, scrolling, and accessibility metadata."
+/>
+
+## Anatomy
+
+Import the component and place it inside the list of a component that supports virtualization:
+
+```jsx title="Anatomy"
+import { Virtualizer } from '@base-ui/react/virtualizer';
+
+// prettier-ignore
+<Combobox.List>
+  <Virtualizer>
+    {(item) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+  </Virtualizer>
+</Combobox.List>
+```
+
+`<Virtualizer>` renders a window of the visible and overscanned items instead of the whole collection, and connects to the surrounding list so that keyboard navigation, scrolling, selection, and accessibility metadata keep working for items that are not mounted.
+
+It can be used inside `<Combobox.List>` and `<Autocomplete.List>`, or on its own by passing the collection to its `items` prop.
+
+## Rendering items
+
+Pass the collection to the `items` prop on the list root, and use the virtualizer as the only item-rendering child of the list. Its `children` is a function that receives an item and its index in the filtered collection, and must return exactly one item component:
+
+```jsx title="Rendering items"
+<Combobox.Root items={items} itemToStringLabel={(item) => item.name}>
+  {/* ... */}
+  <Combobox.List>
+    <Virtualizer getItemKey={(item) => item.id}>
+      {(item) => <Combobox.Item value={item}>{item.name}</Combobox.Item>}
+    </Virtualizer>
+  </Combobox.List>
+</Combobox.Root>
+```
+
+Grid mode is not currently supported.
+
+Use `getItemKey` to provide stable identity when item values are objects or when TypeScript cannot infer the item type. For primitive values, you can instead declare the item type explicitly, such as `<Virtualizer<string>>`.
+
+## Grouped collections
+
+A grouped collection is an array of groups, each an object with an `items` array, as for the list components: a collection whose elements carry an `items` array is taken for a grouped one. Pass it as `items` together with `renderGroupHeader`, which renders the element carrying a group's name. Inside `<Combobox.List>` that element is `<Combobox.GroupLabel>`; the virtualizer wraps each group's rendered items in a `role="group"` element labeled by it, so `<Combobox.Group>` is not used. The virtualizer only knows a group by its `items`, so annotate the group parameter with your own group type to read anything else from it:
+
+```tsx title="Grouped items in a Combobox"
+<Combobox.Root items={groups} itemToStringLabel={(item: Produce) => item.name}>
+  {/* ... */}
+  <Combobox.List>
+    <Virtualizer
+      getItemKey={(item: Produce) => item.id}
+      getGroupKey={(group: ProduceGroup) => group.value}
+      renderGroupHeader={(group: ProduceGroup) => (
+        <Combobox.GroupLabel>{group.value}</Combobox.GroupLabel>
+      )}
+    >
+      {(item) => <Combobox.Item value={item}>{item.name}</Combobox.Item>}
+    </Virtualizer>
+  </Combobox.List>
+</Combobox.Root>
+```
+
+In a list of your own, the header renderer receives the group's name attributes as its third argument, to spread onto the element that names the group:
+
+```tsx title="Grouped items in a custom list"
+<Virtualizer
+  items={groups}
+  getItemKey={(item: Produce) => item.id}
+  getGroupKey={(group: ProduceGroup) => group.value}
+  renderGroupHeader={(group: ProduceGroup, groupIndex, headerProps) => (
+    <div {...headerProps}>{group.value}</div>
+  )}
+  role="listbox"
+>
+  {(item, index, itemProps) => (
+    <div {...itemProps} role="option">
+      {item.name}
+    </div>
+  )}
+</Virtualizer>
+```
+
+Group headers are rows of their own: they are measured like items, and `estimatedGroupHeaderHeight` is the height assumed for a header before it is measured. It defaults to the static `estimatedItemHeight`, and accepts a function receiving the group and its index. Headers never feed the running average that refines the item estimate.
+
+Item indexes count items only, across all groups, so `activeIndex`, `scrollToIndex`, `isItemDisabled`, and `aria-posinset` mean the same thing in a grouped collection as in a flat one. `getIndexAtOffset` answers a header's offset with the first item of its group; for an empty group, with the item that follows it, or the last item when nothing follows. It returns `null` only when the collection has no items, however many headers it renders.
+
+Groups are identified by their index in the collection by default. Provide `getGroupKey` when a collection can be filtered: once a group drops out, the groups behind it would otherwise change identity. A group with no items renders its header.
+
+The wrapper the virtualizer renders around a group spans only the rendered part of that group, so it is not intended for styling; style the header and the items instead.
+
+## Styling
+
+The virtualizer is the scroll container, so constrain its height or maximum height. Without a height constraint, every item is rendered and virtualization provides no benefit. In the [table layout](#tables), the same goes for the element around the table.
+
+The `--total-size` CSS variable contains the estimated or measured height of the virtual content. It can be combined with `--available-height` from the positioner to keep the popup within the viewport:
+
+```css title="Constraining the scroll container"
+.Scroller {
+  height: min(22.5rem, var(--total-size));
+  max-height: calc(var(--available-height) - 0.5rem);
+  overflow: auto;
+}
+```
+
+CSS `scroll-padding-top` and `scroll-padding-bottom` on the scroll container are respected when keyboard navigation scrolls an item into view. An inset that depends on the item being scrolled to, rather than being fixed in CSS, travels with the scroll instead — see [Leaving room at an edge](#leaving-room-at-an-edge).
+
+## Sizing items
+
+`estimatedItemHeight` is the height used for items that have not been measured yet. It defaults to `32` pixels, and a static number is automatically refined with the running average of measured items. Pass a function receiving the item and its index to keep full control over per-item estimates.
+
+`overscanPx` controls the extra pixel buffer rendered before and after the visible range. It defaults to the larger of 150px and the first item's estimated height. The buffer is at least fifteen estimated rows in total, whatever the prop asks for: half of it on each side while the list is at rest, and all of it ahead of the viewport while the list scrolls, so that native scrolling has rows to move through before the next window is rendered.
+
+### Items of a known height
+
+Items are measured by default, which is what lets them vary. When a collection's items are known to be uniform, `itemHeight` declares that height instead:
+
+```jsx title="Declaring the item height"
+<Virtualizer items={items} getItemKey={(item) => item.id} itemHeight={32}>
+  {/* ... */}
+</Virtualizer>
+```
+
+Items are then positioned arithmetically: none of them is observed for resizes, none feeds the running average, and the scroll height is exact from the first render rather than converging as measurements arrive. It replaces `estimatedItemHeight`, which describes a height to assume until one is measured.
+
+Only declare a height the items genuinely have. An item that turns out to be a different height is still laid out this many pixels from the next one, and nothing corrects it — so leave it out for items whose height depends on their content, on the width available, or on a font that loads later. In a grouped collection it covers the items; group headers are content of your own and are measured as they always are.
+
+## Disabled items
+
+The `disabled` prop only marks a rendered item as disabled, so it is unavailable while the item is outside the rendered window. Pass `isItemDisabled` to the list root instead — it is the predicate keyboard navigation uses, including for items that are not mounted. Its index argument is the item's index in the filtered and limited collection.
+
+## Scrolling to an item
+
+`actionsRef` exposes `scrollToIndex`, which scrolls an item into view by its index in the filtered collection, including when the item is outside the rendered window:
+
+```tsx title="Scrolling to an item"
+const virtualizer = React.useRef<Virtualizer.Actions>(null);
+
+// prettier-ignore
+<Virtualizer actionsRef={virtualizer}>{/* ... */}</Virtualizer>;
+
+virtualizer.current?.scrollToIndex(500, { align: 'center' });
+```
+
+### Leaving room at an edge
+
+`paddingStart` and `paddingEnd` keep the item clear of an inset at the start or end edge of the scrollport, in place of its `scroll-padding-top` and `scroll-padding-bottom`. They are for an inset the caller knows and CSS does not: an overlay whose height depends on the item being scrolled to, such as a tree pinning the ancestors of the row it scrolls to. The edge left out keeps the scrollport's own `scroll-padding`.
+
+The same fields belong to an activation, so a scroll that has to leave room for an overlay does not have to become imperative:
+
+```jsx title="Scrolling below an overlay"
+virtualizer.current?.scrollToIndex(index, { align: 'start', paddingStart: overlayHeight });
+
+// prettier-ignore
+<Virtualizer activeIndex={{ index, align: 'start', paddingStart: overlayHeight }}>
+  {/* ... */}
+</Virtualizer>;
+```
+
+## Standalone lists
+
+Pass the collection to the virtualizer's own `items` prop to window a list that Base UI does not provide. Nothing else is required, so the virtualizer can be dropped into any scrolling list:
+
+```jsx title="Windowing a custom list"
+<Virtualizer items={items} getItemKey={(item) => item.id} role="listbox">
+  {(item, index, itemProps) => (
+    <div {...itemProps} role="option">
+      {item.name}
+    </div>
+  )}
+</Virtualizer>
+```
+
+The third argument of `children` carries the item's accessibility and collection metadata — `aria-posinset`, `aria-setsize`, and `data-index`. Spread it onto the element that represents the item, so assistive technology reports the whole collection rather than the mounted window. Items rendered by a list's own item component, such as `<Combobox.Item>`, receive it automatically.
+
+### Items placed relative to something else
+
+`aria-posinset` and `aria-setsize` describe the item's place in the flat collection, which is the set a listbox's options belong to. They are wrong for a collection whose items are placed relative to something else: a tree item is the third child of its folder, not the 4,201st row of the flattened list, and a grid cell is placed by its row and column. Set `itemAria="none"` for those, and state the position yourself:
+
+```jsx title="Declining the collection ARIA"
+<Virtualizer items={rows} getItemKey={(row) => row.id} itemAria="none" role="tree">
+  {(row, index, itemProps) => (
+    <div
+      {...itemProps}
+      role="treeitem"
+      aria-level={row.depth + 1}
+      aria-posinset={row.indexAmongSiblings + 1}
+      aria-setsize={row.siblingCount}
+    >
+      {row.name}
+    </div>
+  )}
+</Virtualizer>
+```
+
+Everything else the metadata carries — `data-index`, and in the [table layout](#tables) the row's measurement — is unaffected, so the argument is still spread as it is. `totalItems` only feeds `aria-setsize`, so it has nothing to do here.
+
+Set `activeIndex` to the item the list treats as active. The virtualizer keeps that item mounted even when it falls outside the rendered window, so it can hold focus or be referenced by `aria-activedescendant`, and scrolls it into view.
+
+Whether an activation should scroll depends on what caused it, not on which item ended up active: a keypress should bring the item into view, while a highlight following the pointer must leave the viewport alone — the cursor is already there, and moving the list would slide the next item under it. So the activation carries that decision, alongside the alignment it wants:
+
+```jsx title="Activating an item"
+// A keypress: scroll it into view.
+setActive({ index: nextIndex });
+
+// Jumping to the end of the collection reads better resting against that edge.
+setActive({ index: items.length - 1, align: 'end' });
+
+// A hover: highlight without moving the list.
+setActive({ index, scroll: false });
+```
+
+Passing a bare index is shorthand for `{ index }`, so `activeIndex={5}` activates and scrolls. Because the scroll travels with the index rather than in a prop of its own, the two cannot disagree, and re-rendering with an equal activation does not scroll again.
+
+Everything a list root normally coordinates stays with your list: filtering, keyboard navigation, selection, and clamping `activeIndex` to the current collection.
+
+## Hosting the virtualizer in your own list
+
+A list component can publish its collection to the virtualizer instead of the consumer passing one, which is how `<Combobox.List>` works: the virtualizer is dropped inside the list, with no `items` prop, and the list keeps owning filtering, keyboard navigation and selection.
+
+A component of your own does the same by publishing two contexts. `VirtualizerHostContext` carries the stable wiring — the registry, the context your `<Item>` reads its metadata from, and the name diagnostics use — and `VirtualizerHostStateContext` carries the collection and the active item, which change as the list does:
+
+```tsx title="Publishing a collection to the virtualizer"
+import {
+  createVirtualizerRegistry,
+  Virtualizer,
+  VirtualizerHostContext,
+  VirtualizerHostStateContext,
+} from '@base-ui/react/virtualizer';
+
+const ItemContext = React.createContext<Virtualizer.ItemMetadata | undefined>(undefined);
+
+function List(props: { items: Item[]; activeIndex: number; children: React.ReactNode }) {
+  const registry = React.useRef(createVirtualizerRegistry()).current;
+  const host = React.useMemo<Virtualizer.Host>(
+    () => ({ componentName: 'Tree', registry, virtualItemContext: ItemContext }),
+    [registry],
+  );
+  const state = React.useMemo<Virtualizer.HostState>(
+    () => ({ activeIndex: { index: props.activeIndex }, items: props.items }),
+    [props.activeIndex, props.items],
+  );
+
+  return (
+    <VirtualizerHostContext.Provider value={host}>
+      <VirtualizerHostStateContext.Provider value={state}>
+        {props.children}
+      </VirtualizerHostStateContext.Provider>
+    </VirtualizerHostContext.Provider>
+  );
+}
+```
+
+The two are separate on purpose: an `<Item>` reads the host context to tell that it is inside a list at all, so anything changing per keystroke must travel through the state context instead.
+
+What the host publishes:
+
+- `items` is the flat, ordered sequence to window. A hierarchy is published as the sequence it is displayed as — a tree publishes its expanded rows in order — and the hierarchy itself stays in your own item metadata. A grouped list publishes `groups` as a partition of that same sequence, never instead of it.
+- `activeIndex` is the activation, the same one the [`activeIndex` prop](#standalone-lists) takes: an index alone scrolls, and `{ index, scroll: false }` activates without moving the viewport. `align`, `paddingStart` and `paddingEnd` travel with it.
+- `itemAria` declares what the host's items need. Leave it out for a listbox, whose options are placed in the flat collection; publish `'none'` for a tree or a grid, whose items are placed relative to something else, and state the position in your own item part.
+- `registry` lets the host reach the virtualizer's geometry: `getItemMetrics`, `getIndexAtOffset` and `scrollToIndex` are on `registry.virtualizer` while one is mounted, so a sticky header of your own can be positioned without an `actionsRef`.
+- `windowingSuspended` asks for every item to be mounted for a moment, and **must be cleared while the virtualizer is still mounted**, since that transition is what makes it measure its viewport again.
+
+Your item part reads the metadata from the context you published and spreads it onto the element representing the item, the way `<Combobox.Item>` does:
+
+```tsx title="Reading the item metadata"
+function Item(props: { children: React.ReactNode }) {
+  const virtualItem = React.useContext(ItemContext);
+  return <div {...virtualItem?.props}>{props.children}</div>;
+}
+```
+
+Item parts rendered outside the list element — a sticky copy of a row, say — must not see these contexts, or they register as items the virtualizer does not own and take metadata belonging to a row they are not. Publish the contexts around the list element rather than the root, and where a part can be rendered elsewhere, provide `undefined` for both around it, as `<Combobox.Root>` does for a root nested inside another list's item.
+
+## Tables
+
+Set `layout="table"` to virtualize the rows of a `<table>`. The virtualizer then renders a `<tbody>` instead of a scrolling `<div>`, and the element the item renderer returns is the row itself: a `<tr>`, with the renderer's third argument spread onto it. The markup stays a table, so column widths from a `<colgroup>`, a sticky `<thead>`, and the table's own accessibility semantics keep working.
+
+import { DemoVirtualizerTable } from './demos/table';
+
+<DemoVirtualizerTable />
+
+The scroll container is an element of your own around the table: the nearest ancestor with `overflow: auto` or `overflow: scroll`, which is also the element a `position: sticky` header sticks to. Constrain its height. The section is stuck to the scrollport the way a list's rows are, with insets that let native scrolling move its rows and that hold them on screen once a scroll outruns them, until the next window is rendered. Two `<tbody>` elements rendered around it, one before and one after, reserve the space of the rows outside the window. Use `border-collapse: collapse` on the table, or a zero `border-spacing`, since spacing would otherwise only be counted for the rendered rows.
+
+Give sticky header cells a `z-index`: the section is positioned too, and comes later in the table, so without one it paints over them. This layout relies on `position: sticky` applying to table row groups, which current browsers support.
+
+The third argument of `children` carries the row's measurement along with its metadata, so it has to reach the `<tr>` element. It includes a `style` for a row kept mounted outside the window; add styles of your own through `className`, or merge them into the `style` it carries rather than replacing it.
+
+Rows are identified by their index in the collection, so set `aria-rowcount` on the table and `aria-rowindex` on each row from the renderer's index, counting the header row, for assistive technology to describe the whole table rather than the mounted window.
+
+Everything else works as it does in a list. `activeIndex` keeps the active row mounted outside the window, so it can hold focus while keyboard navigation moves through the collection; `actionsRef` scrolls to rows by index; and `scroll-padding-top` on the scroll container keeps a scrolled row clear of a sticky header. Content passed to `trailing` is rendered as rows after the section's reserved space, and a grouped collection renders its group headers as rows among the items, without a wrapper around each group.
+
+## Third-party virtualizers
+
+A third-party virtualization library can be used instead when your application already uses one, or needs behavior that `<Virtualizer>` does not provide. Set the `virtualized` prop on the list root to opt out of the built-in item indexing, and coordinate filtering, item indexes, scrolling, and accessibility metadata yourself. See [virtualized Combobox](/react/components/combobox#virtualized) for a complete example.
+
+## API reference
+
+import { TypesVirtualizer, TypesVirtualizerAdditionalTypes } from './types';
+
+### Virtualizer
+
+<TypesVirtualizer />
+
+<TypesVirtualizerAdditionalTypes />
+
+export const metadata = {
+  keywords: [
+    'Base UI Virtualizer',
+    'React virtualization',
+    'React windowing',
+    'Virtualized combobox',
+    'Virtualized listbox',
+    'Large lists',
+    'Infinite lists',
+    'Row virtualization',
+    'Virtualized table',
+    'Overscan',
+    'Estimated item height',
+  ],
+};
