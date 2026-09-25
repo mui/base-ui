@@ -15,7 +15,7 @@ import { focusByPointer, isPointerFocusInProgress } from '../utils/focusByPointe
  * @internal
  */
 export const FilterDropdownInput = React.forwardRef(function FilterDropdownInput(
-  componentProps: FilterDropdownInput.Props,
+  componentProps: FilterDropdownInputHostProps,
   forwardedRef: React.ForwardedRef<HTMLInputElement>,
 ) {
   const { render, className, style, disabled, activeItemId, navigationProps, ...elementProps } =
@@ -109,7 +109,9 @@ export interface FilterDropdownInputState {
 export interface FilterDropdownInputProps extends BaseUIComponentProps<
   'input',
   FilterDropdownInputState
-> {
+> {}
+
+interface FilterDropdownInputHostProps extends FilterDropdownInputProps {
   /**
    * The id of the item the host highlights, which the input points at while it holds focus.
    */
