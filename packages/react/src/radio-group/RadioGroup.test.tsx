@@ -9,11 +9,11 @@ import { Form } from '@base-ui/react/form';
 import { DirectionProvider } from '@base-ui/react/direction-provider';
 import type { TextDirection } from '@base-ui/react/direction-provider';
 import { isJSDOM, createRenderer } from '#test-utils';
-import { act, screen, fireEvent } from '@mui/internal-test-utils';
+import { act, screen, fireEvent, waitFor } from '@mui/internal-test-utils';
 import { describeConformance } from '../../test/describeConformance';
 
 describe('<RadioGroup />', () => {
-  const { render } = createRenderer();
+  const { render, renderToString } = createRenderer();
 
   describeConformance(<RadioGroup />, () => ({
     refInstanceof: window.HTMLDivElement,
@@ -1674,6 +1674,35 @@ describe('<RadioGroup />', () => {
 
       expect(radioGroup.getAttribute('aria-labelledby')).toBe(legend.getAttribute('id'));
     });
+
+    it.skipIf(isJSDOM)(
+      'labels a server-rendered radio group from the fieldset legend',
+      async () => {
+        const { hydrate } = renderToString(
+          <Field.Root name="test">
+            <Fieldset.Root render={<RadioGroup />}>
+              <Fieldset.Legend>Legend</Fieldset.Legend>
+              <Field.Item>
+                <Radio.Root value="a" />
+              </Field.Item>
+            </Fieldset.Root>
+          </Field.Root>,
+        );
+
+        const legend = screen.getByText('Legend');
+        expect(legend.id).not.toBe('');
+        expect(screen.getByRole('radiogroup')).toHaveAttribute('aria-labelledby', legend.id);
+
+        hydrate();
+
+        await waitFor(() => {
+          expect(screen.getByRole('radiogroup')).toHaveAttribute(
+            'aria-labelledby',
+            screen.getByText('Legend').id,
+          );
+        });
+      },
+    );
 
     it('updates label precedence without retaining replaced or unmounted IDs', async () => {
       function App() {
