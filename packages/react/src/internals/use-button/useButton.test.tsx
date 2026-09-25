@@ -115,6 +115,42 @@ describe('useButton', () => {
     });
   });
 
+  describe('param: disabled', () => {
+    function DisabledButton(props: React.HTMLAttributes<HTMLSpanElement>) {
+      const { getButtonProps } = useButton({ disabled: true, native: false });
+
+      return <span {...getButtonProps(props)}>Disabled</span>;
+    }
+
+    it('non-native button: is not focusable', async () => {
+      const { user } = await render(<DisabledButton />);
+
+      const button = screen.getByRole('button');
+
+      expect(button).not.toHaveAttribute('tabindex');
+
+      await user.keyboard('[Tab]');
+      expect(button).not.toHaveFocus();
+
+      await user.click(button);
+      expect(button).not.toHaveFocus();
+    });
+
+    it('non-native button: does not cancel the pointerdown default action', async () => {
+      await render(<DisabledButton />);
+
+      const button = screen.getByRole('button');
+      const pointerDown = new PointerEvent('pointerdown', { bubbles: true, cancelable: true });
+
+      button.dispatchEvent(pointerDown);
+
+      // Focus, text selection and dragging are one default action. Canceling it to keep focus
+      // off the button also made the label impossible to select with the mouse, so the button is
+      // kept unfocusable instead and the default action is left alone.
+      expect(pointerDown.defaultPrevented).toBe(false);
+    });
+  });
+
   describe('param: focusableWhenDisabled', () => {
     it('allows disabled buttons to be focused', async () => {
       function TestButton(props: React.ButtonHTMLAttributes<HTMLButtonElement>) {

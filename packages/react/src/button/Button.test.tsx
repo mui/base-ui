@@ -155,7 +155,7 @@ describe('<Button />', () => {
       expect(button).not.toHaveAttribute('disabled');
       expect(button).toHaveAttribute('data-disabled');
       expect(button).toHaveAttribute('aria-disabled', 'true');
-      expect(button).toHaveAttribute('tabindex', '-1');
+      expect(button).not.toHaveAttribute('tabindex');
 
       await user.keyboard('[Tab]');
       expect(button).not.toHaveFocus();
