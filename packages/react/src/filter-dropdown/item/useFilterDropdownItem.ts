@@ -91,12 +91,26 @@ export function useFilterDropdownItem(
   // Read through a ref so `register` stays stable while the children change identity.
   const childrenRef = useValueAsRef(children);
 
+  // What the children last read as, to tell whether they changed while the item rendered no text.
+  const childrenTextRef = React.useRef<string | undefined>(undefined);
+
   const resolveText = React.useCallback(() => {
     if (label != null) {
       return label;
     }
-    // A filtered-out item has no DOM node left, so fall back to its children.
-    return ref.current?.textContent ?? childrenText(childrenRef.current);
+    const fromChildren = childrenText(childrenRef.current);
+    const previousChildrenText = childrenTextRef.current;
+    childrenTextRef.current = fromChildren;
+    if (ref.current !== null) {
+      return ref.current.textContent ?? '';
+    }
+    // A filtered-out item has no DOM node left. Its children are only a stand-in for the text it
+    // renders, which can differ (a translation component, for example), so the cached text wins
+    // unless the children changed.
+    if (previousTextRef.current !== undefined && fromChildren === previousChildrenText) {
+      return previousTextRef.current;
+    }
+    return fromChildren;
   }, [label, childrenRef]);
 
   const register = React.useCallback(
@@ -125,9 +139,7 @@ export function useFilterDropdownItem(
 
   // Re-register when the item's text changes, so the active query runs again.
   useIsoLayoutEffect(() => {
-    // Hidden custom components have no inspectable text. Their cached label has not changed.
-    const text =
-      resolveText() || (ref.current === null && label == null ? previousTextRef.current : '');
+    const text = resolveText();
     if (text !== previousTextRef.current) {
       previousTextRef.current = text;
       void register(text);

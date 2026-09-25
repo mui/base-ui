@@ -94,6 +94,79 @@ describe('filtered Menu items', () => {
       });
       expect(screen.queryByRole('menuitem', { name: 'Delete' })).toBe(null);
     });
+
+    it('keeps the rendered text of a hidden item whose children render different text', async () => {
+      const translations: Record<string, string> = { Rename: 'Zmień nazwę', Delete: 'Usuń' };
+      function Translate(props: { children: string }) {
+        return translations[props.children];
+      }
+
+      function Test(props: { value: string; tick: number }) {
+        return (
+          <Menu.FilterProvider value={props.value}>
+            <Menu.Root open>
+              <Menu.Portal>
+                <Menu.Positioner>
+                  <Menu.Popup data-tick={props.tick}>
+                    <Menu.Input aria-label="Filter actions" />
+                    <Menu.List>
+                      <Menu.Item>
+                        <Translate>Rename</Translate>
+                      </Menu.Item>
+                      <Menu.Item>
+                        <Translate>Delete</Translate>
+                      </Menu.Item>
+                    </Menu.List>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+          </Menu.FilterProvider>
+        );
+      }
+
+      const { setProps } = await render(<Test value="" tick={0} />);
+
+      await setProps({ value: 'usu', tick: 0 });
+      expect(screen.queryByRole('menuitem', { name: 'Zmień nazwę' })).toBe(null);
+
+      // Re-render the hidden item with the same children.
+      await setProps({ value: 'usu', tick: 1 });
+
+      await setProps({ value: 'zmie', tick: 1 });
+      expect(screen.getByRole('menuitem', { name: 'Zmień nazwę' })).toBeVisible();
+      expect(screen.queryByRole('menuitem', { name: 'Usuń' })).toBe(null);
+    });
+
+    it('matches the new children of an item that changed while it was filtered out', async () => {
+      function Test(props: { value: string; label: string }) {
+        return (
+          <Menu.FilterProvider value={props.value}>
+            <Menu.Root open>
+              <Menu.Portal>
+                <Menu.Positioner>
+                  <Menu.Popup>
+                    <Menu.Input aria-label="Filter actions" />
+                    <Menu.List>
+                      <Menu.Item>{props.label}</Menu.Item>
+                      <Menu.Item>Delete</Menu.Item>
+                    </Menu.List>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+          </Menu.FilterProvider>
+        );
+      }
+
+      const { setProps } = await render(<Test value="" label="Rename" />);
+
+      await setProps({ value: 'del', label: 'Rename' });
+      await setProps({ value: 'del', label: 'Duplicate' });
+      await setProps({ value: 'dup', label: 'Duplicate' });
+
+      expect(screen.getByRole('menuitem', { name: 'Duplicate' })).toBeVisible();
+    });
   });
 
   describe('disabled items', () => {
