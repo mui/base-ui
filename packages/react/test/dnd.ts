@@ -18,13 +18,13 @@ import { resetForTests as resetPostDragClick } from '../src/utils/drag-and-drop/
 import { resetForTests as resetAutoScroller } from '../src/utils/drag-and-drop/autoScroller';
 import { clearPublishedDragPreview } from '../src/utils/drag-and-drop/overlay/dragPreviewStore';
 import { resetTouchTarget } from './syntheticPointer';
+import type { DraggableRootRecord } from '../src/draggable/root/DraggableRoot';
+import type { DraggableTargetRecord } from '../src/draggable/target/DraggableTarget';
 import type {
   DragDropEventDetails,
-  DraggableRootRecord,
   DragSourceEventValue,
-  DraggableTargetRecord,
   MoveEndEventDetails,
-} from '../src/types/drag';
+} from '../src/utils/drag-and-drop/types';
 
 // ---------------------------------------------------------------------------
 // Fake elements

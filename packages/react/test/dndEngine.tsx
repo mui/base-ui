@@ -15,13 +15,13 @@ import { installDndTestEnv, registerCleanup } from './dnd';
 import { anyDragKind, createKind } from '../src/utils/drag-and-drop/dragKind';
 import { DraggableProvider } from '../src/draggable/DraggableProvider';
 import { useManager } from '../src/draggable/use-manager/useManager';
-import type { DraggableAccept, DraggableKind } from '../src/types/drag';
+import type { DraggableAccept, DraggableKind } from '../src/draggable/DraggableProvider';
 import type {
   DraggableManager,
   RegisterSourceParameters,
   RegisterViewportParameters,
   RegisterMonitorParameters,
-} from '../src/types/dragRegistration';
+} from '../src/utils/drag-and-drop/registrationTypes';
 import type { RegisterTargetParameters } from '../src/utils/drag-and-drop/dropTarget';
 
 /**
