@@ -328,8 +328,8 @@ export function usePendingScroll<RowModel>(
           viewportScrollTopRef.current = null;
           viewportScrollFrame.cancel();
           requiresMeasurementRef.current = true;
-          // The native scroll event is asynchronous, and the engine commits the window the
-          // written position calls for from inside it, before the browser paints that position.
+          // The engine adopts the written position and renders the window it calls for in the
+          // commit that follows, before the browser paints that position.
           onScrollApplied(appliedScrollTop);
         } else {
           // A newly opened popup runs this before its scrollable overflow exists, and the browser
@@ -386,8 +386,8 @@ export function usePendingScroll<RowModel>(
               (element) => Number(element.dataset.rowIndex) === rowIndex,
             );
       // A window held at the scrollport's edge, after the write outran it, holds the row where it
-      // does not belong: where the row is now says nothing about where it will be once the engine
-      // places the next window, from inside the scroll event that follows the write a task later.
+      // does not belong: where the row is now says nothing about where it will be once the window
+      // the engine computed for the written position commits.
       if (!isWindowInPlace()) {
         return false;
       }

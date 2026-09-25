@@ -49,8 +49,9 @@ describe('<Virtualizer /> windowing', () => {
     );
 
     // Three rows cover the scrollport, and the engine keeps a buffer of at least fifteen estimated
-    // rows around the window, half of it on each side while the list is at rest.
-    await waitFor(() => expect(screen.getAllByRole('listitem')).toHaveLength(12));
+    // rows around the window. At the top of the list, the half that would sit above the first row
+    // goes below the window instead.
+    await waitFor(() => expect(screen.getAllByRole('listitem')).toHaveLength(19));
 
     expect(screen.getByText('Item 5')).not.toBe(null);
     expect(screen.queryByText('Item 20')).toBe(null);

@@ -717,36 +717,14 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
   });
 
   /**
-   * Hands a position this component wrote to the engine, which observes the scrollport through
-   * its scroll events alone: the browser dispatches one a task after the write, and a test
-   * environment without layout never does, while the window that position calls for is what the
-   * next paint has to show. Queued rather than dispatched in place: the writes are made from
-   * layout effects, and the engine flushes the commit the event calls for synchronously, which it
-   * cannot do from inside one. A microtask still runs before the browser paints.
+   * Hands a position this component wrote to the engine, which would otherwise learn it only
+   * from the scroll event the browser dispatches a task later, and read a correction as the user
+   * scrolling in whichever direction it went. The engine keeps the scroll direction and renders
+   * the window for the position through its store, so this is safe to call from a layout effect,
+   * and the window it renders is the one the next paint shows.
    */
   const syncEngineWithScrollWrite = useStableCallback(() => {
-    queueMicrotask(() => {
-      const scrollElement = scrollElementRef.current;
-
-      if (scrollElement != null) {
-        scrollElement.dispatchEvent(new (ownerWindow(scrollElement).Event)('scroll'));
-      }
-    });
-  });
-  /**
-   * Hands a position written outside React's commit to the engine in place. The event updates the
-   * position the engine windows from, and commits the window it calls for when that differs from
-   * the one last rendered. The engine's window can already have been recomputed from the previous
-   * position without being rendered yet, and when the corrected window matches the rendered one
-   * the event leaves that stale window standing, so the window is recomputed once more.
-   */
-  const syncEngineWithScrollWriteNow = useStableCallback(() => {
-    const scrollElement = scrollElementRef.current;
-
-    if (scrollElement != null) {
-      scrollElement.dispatchEvent(new (ownerWindow(scrollElement).Event)('scroll'));
-      muiApiRef.current?.forceUpdateRenderContext();
-    }
+    muiApiRef.current?.syncScrollPosition();
   });
 
   const layout = useRefWithInit(
@@ -1598,7 +1576,6 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
     enabled,
     gesture,
     onScrollApplied: syncEngineWithScrollWrite,
-    onScrollAppliedNow: syncEngineWithScrollWriteNow,
     settleGeometry,
     pendingScroll,
     getRowsParent,

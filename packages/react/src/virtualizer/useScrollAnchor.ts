@@ -33,11 +33,6 @@ export interface UseScrollAnchorParameters<RowModel> {
   gesture: ScrollGesture;
   /** Hands a position written here to the engine, which the browser tells only a task later. */
   onScrollApplied: (scrollTop: number) => void;
-  /**
-   * Hands a position written outside React's commit to the engine at once, so the window it
-   * commits is the one that position calls for.
-   */
-  onScrollAppliedNow: () => void;
   /** Commits the engine's pending geometry, recomputing every row position. */
   settleGeometry: () => void;
   pendingScroll: PendingScroll;
@@ -101,8 +96,8 @@ export interface ScrollAnchor {
  * rewrites go through the returned `settleGeometry`.
  *
  * A candidate for the engine itself: beside `hydrateRowsMeta` it could correct its own scroll
- * position and set `ignoreNextScrollEvent`, which would skip both the extra window and the
- * scroll-event round trip that an external `scrollTop` write costs. What it should
+ * position, instead of this hook writing one and handing it over through `syncScrollPosition`,
+ * which would skip the window computed for the stale position. What it should
  * anchor on is not settled, though — it holds the topmost visible row, and once the adaptive
  * estimate has settled that lets a selection lower in the viewport drift under a geometry rewrite
  * (see the alignment test kept on `Virtualizer.combobox.test.tsx`). Resolve that before proposing
@@ -115,7 +110,6 @@ export function useScrollAnchor<RowModel>(
     enabled,
     gesture,
     onScrollApplied,
-    onScrollAppliedNow,
     pendingScroll,
     getRowsParent,
     isWindowInPlace,
@@ -210,7 +204,7 @@ export function useScrollAnchor<RowModel>(
     if (Math.abs(nextScrollTop - scrollTop) >= 1) {
       pendingScroll.noteProgrammaticScroll(nextScrollTop);
       scrollElement.scrollTo({ behavior: 'instant' as ScrollBehavior, top: nextScrollTop });
-      onScrollAppliedNow();
+      onScrollApplied(nextScrollTop);
     }
   });
 
@@ -220,9 +214,7 @@ export function useScrollAnchor<RowModel>(
       return;
     }
 
-    // Called from a layout effect, where the engine could not commit the corrected window
-    // synchronously. A microtask still runs before the browser paints.
-    queueMicrotask(settleAnchored);
+    settleAnchored();
   });
 
   useIsoLayoutEffect(() => {
@@ -316,8 +308,8 @@ export function useScrollAnchor<RowModel>(
           scrollTop = nextScrollTop;
           pendingScroll.noteProgrammaticScroll(nextScrollTop);
           scrollElement.scrollTo({ behavior: 'instant' as ScrollBehavior, top: nextScrollTop });
-          // The engine observes the written position when the asynchronous scroll event arrives,
-          // and commits the window it calls for from inside that event, before the browser paints.
+          // The engine adopts the written position and renders the window it calls for in the
+          // commit that follows, before the browser paints.
           onScrollApplied(nextScrollTop);
         }
       }

@@ -133,7 +133,7 @@
     "@base-ui/utils": "workspace:*",
     "@floating-ui/react-dom": "^2.1.9",
     "@floating-ui/utils": "^0.2.12",
-    "@mui/x-virtualizer": "https://pkg.pr.new/mui/mui-x/@mui/x-virtualizer@6287b40",
+    "@mui/x-virtualizer": "https://pkg.pr.new/mui/mui-x/@mui/x-virtualizer@fa40052",
     "use-sync-external-store": "^1.7.0"
   },
   "devDependencies": {

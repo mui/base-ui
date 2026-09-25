@@ -100,8 +100,9 @@ describe('<Virtualizer /> itemHeight', () => {
       // Exact from the first render: 100 items of 20 pixels, with no measured row in it.
       expect(virtualizer.style.getPropertyValue('--total-size')).toBe('2000px');
       // Three rows cover the scrollport, and the engine keeps a buffer of at least fifteen
-      // declared rows around the window, half of it on each side while the list is at rest.
-      await waitFor(() => expect(screen.getAllByRole('option')).toHaveLength(12));
+      // rows around the window. At the top of the list, the half that would sit above the first row
+      // goes below the window instead.
+      await waitFor(() => expect(screen.getAllByRole('option')).toHaveLength(19));
       expect(screen.queryByText('Item 20')).toBe(null);
 
       // A row the observer never took cannot be notified about: the geometry is unmoved by a
@@ -112,7 +113,7 @@ describe('<Virtualizer /> itemHeight', () => {
       });
 
       expect(virtualizer.style.getPropertyValue('--total-size')).toBe('2000px');
-      expect(screen.getAllByRole('option')).toHaveLength(12);
+      expect(screen.getAllByRole('option')).toHaveLength(19);
     } finally {
       resizeObserver.restore();
     }
