@@ -589,6 +589,208 @@ describe('<Drawer.Viewport />', () => {
     expect(handleOpenChange).not.toHaveBeenCalled();
   });
 
+  it('does not start touch swipes on the matching axis from elements with data-base-ui-swipe-ignore="y"', async () => {
+    const handleOpenChange = vi.fn();
+
+    await render(
+      <Drawer.Root open onOpenChange={handleOpenChange} swipeDirection="down">
+        <Drawer.Portal>
+          <Drawer.Backdrop data-testid="backdrop" />
+          <Drawer.Viewport data-testid="viewport">
+            <Drawer.Popup>
+              <div data-testid="target" data-base-ui-swipe-ignore="y">
+                Action
+              </div>
+            </Drawer.Popup>
+          </Drawer.Viewport>
+        </Drawer.Portal>
+      </Drawer.Root>,
+    );
+
+    const target = screen.getByTestId('target');
+    const backdrop = screen.getByTestId('backdrop');
+    const originalElementFromPoint = document.elementFromPoint;
+    document.elementFromPoint = () => target;
+
+    try {
+      fireEvent.touchStart(target, {
+        touches: [
+          createTouch(target, {
+            clientX: 0,
+            clientY: 0,
+          }),
+        ],
+      });
+
+      fireEvent.touchMove(target, {
+        touches: [
+          createTouch(target, {
+            clientX: 0,
+            clientY: 40,
+          }),
+        ],
+      });
+
+      await flushMicrotasks();
+    } finally {
+      document.elementFromPoint = originalElementFromPoint;
+    }
+
+    expect(backdrop).not.toHaveAttribute('data-swiping');
+    expect(handleOpenChange).not.toHaveBeenCalled();
+  });
+
+  it('still allows touch swipes on the cross axis from elements with data-base-ui-swipe-ignore="x"', async () => {
+    const handleOpenChange = vi.fn();
+
+    await render(
+      <Drawer.Root open onOpenChange={handleOpenChange} swipeDirection="down">
+        <Drawer.Portal>
+          <Drawer.Backdrop data-testid="backdrop" />
+          <Drawer.Viewport data-testid="viewport">
+            <Drawer.Popup>
+              <div data-testid="target" data-base-ui-swipe-ignore="x">
+                Action
+              </div>
+            </Drawer.Popup>
+          </Drawer.Viewport>
+        </Drawer.Portal>
+      </Drawer.Root>,
+    );
+
+    const target = screen.getByTestId('target');
+    const backdrop = screen.getByTestId('backdrop');
+    const originalElementFromPoint = document.elementFromPoint;
+    document.elementFromPoint = () => target;
+
+    try {
+      fireEvent.touchStart(target, {
+        touches: [
+          createTouch(target, {
+            clientX: 0,
+            clientY: 0,
+          }),
+        ],
+      });
+
+      fireEvent.touchMove(target, {
+        touches: [
+          createTouch(target, {
+            clientX: 0,
+            clientY: 40,
+          }),
+        ],
+      });
+
+      await flushMicrotasks();
+
+      expect(backdrop).toHaveAttribute('data-swiping', '');
+    } finally {
+      document.elementFromPoint = originalElementFromPoint;
+    }
+  });
+
+  it('does not start touch swipes on the matching axis from elements with data-base-ui-swipe-ignore="x"', async () => {
+    const handleOpenChange = vi.fn();
+
+    await render(
+      <Drawer.Root open onOpenChange={handleOpenChange} swipeDirection="right">
+        <Drawer.Portal>
+          <Drawer.Backdrop data-testid="backdrop" />
+          <Drawer.Viewport data-testid="viewport">
+            <Drawer.Popup>
+              <div data-testid="target" data-base-ui-swipe-ignore="x">
+                Action
+              </div>
+            </Drawer.Popup>
+          </Drawer.Viewport>
+        </Drawer.Portal>
+      </Drawer.Root>,
+    );
+
+    const target = screen.getByTestId('target');
+    const backdrop = screen.getByTestId('backdrop');
+    const originalElementFromPoint = document.elementFromPoint;
+    document.elementFromPoint = () => target;
+
+    try {
+      fireEvent.touchStart(target, {
+        touches: [
+          createTouch(target, {
+            clientX: 0,
+            clientY: 0,
+          }),
+        ],
+      });
+
+      fireEvent.touchMove(target, {
+        touches: [
+          createTouch(target, {
+            clientX: 40,
+            clientY: 0,
+          }),
+        ],
+      });
+
+      await flushMicrotasks();
+    } finally {
+      document.elementFromPoint = originalElementFromPoint;
+    }
+
+    expect(backdrop).not.toHaveAttribute('data-swiping');
+    expect(handleOpenChange).not.toHaveBeenCalled();
+  });
+
+  it('still allows touch swipes on the cross axis from elements with data-base-ui-swipe-ignore="y"', async () => {
+    const handleOpenChange = vi.fn();
+
+    await render(
+      <Drawer.Root open onOpenChange={handleOpenChange} swipeDirection="right">
+        <Drawer.Portal>
+          <Drawer.Backdrop data-testid="backdrop" />
+          <Drawer.Viewport data-testid="viewport">
+            <Drawer.Popup>
+              <div data-testid="target" data-base-ui-swipe-ignore="y">
+                Action
+              </div>
+            </Drawer.Popup>
+          </Drawer.Viewport>
+        </Drawer.Portal>
+      </Drawer.Root>,
+    );
+
+    const target = screen.getByTestId('target');
+    const backdrop = screen.getByTestId('backdrop');
+    const originalElementFromPoint = document.elementFromPoint;
+    document.elementFromPoint = () => target;
+
+    try {
+      fireEvent.touchStart(target, {
+        touches: [
+          createTouch(target, {
+            clientX: 0,
+            clientY: 0,
+          }),
+        ],
+      });
+
+      fireEvent.touchMove(target, {
+        touches: [
+          createTouch(target, {
+            clientX: 40,
+            clientY: 0,
+          }),
+        ],
+      });
+
+      await flushMicrotasks();
+
+      expect(backdrop).toHaveAttribute('data-swiping', '');
+    } finally {
+      document.elementFromPoint = originalElementFromPoint;
+    }
+  });
+
   it('does not prevent native touch scrolling in portaled descendants', async () => {
     const portalContainer = document.createElement('div');
     document.body.append(portalContainer);

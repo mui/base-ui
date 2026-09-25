@@ -33,7 +33,10 @@ import { DrawerViewportContext } from './DrawerViewportContext';
 import { TransitionStatusDataAttributes } from '../../internals/stateAttributesMapping';
 import { findScrollableTouchTarget } from '../../utils/scrollable';
 import type { ScrollAxis } from '../../utils/scrollable';
-import { BASE_UI_SWIPE_IGNORE_SELECTOR } from '../../internals/constants';
+import {
+  BASE_UI_SWIPE_IGNORE_ATTRIBUTE,
+  BASE_UI_SWIPE_IGNORE_SELECTOR,
+} from '../../internals/constants';
 import { getElementAtPoint } from '../../utils/getElementAtPoint';
 import type { BaseUIComponentProps } from '../../internals/types';
 import type { TransitionStatus } from '../../internals/useTransitionStatus';
@@ -907,7 +910,10 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
             event.clientX,
             event.clientY,
           );
-          if (isSwipeIgnoredTarget(elementAtPoint) || isDrawerContentTarget(elementAtPoint)) {
+          if (
+            isSwipeIgnoredTarget(elementAtPoint, scrollAxis) ||
+            isDrawerContentTarget(elementAtPoint)
+          ) {
             return;
           }
 
@@ -973,7 +979,7 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
 
           virtualKeyboard?.onTouchStart(event);
 
-          if (isSwipeIgnoredTarget(elementAtPoint)) {
+          if (isSwipeIgnoredTarget(elementAtPoint, scrollAxis)) {
             resetTouchSwipeState(true);
             return;
           }
@@ -1056,8 +1062,23 @@ function setBackdropSwipingAttribute(backdropElement: HTMLElement | null, swipin
   backdropElement?.toggleAttribute(DrawerPopupDataAttributes.swiping, swiping);
 }
 
-function isSwipeIgnoredTarget(target: Element | null): boolean {
-  return Boolean(closest(target, BASE_UI_SWIPE_IGNORE_SELECTOR));
+function isSwipeIgnoredTarget(target: Element | null, axis: ScrollAxis): boolean {
+  const ignoredElement = closest(target, BASE_UI_SWIPE_IGNORE_SELECTOR);
+  if (!ignoredElement) {
+    return false;
+  }
+
+  // A value of `x`/`y` restricts the ignore to swipes along that axis only. Any other value,
+  // including the bare attribute, ignores swipes in every direction.
+  const axisValue = ignoredElement.getAttribute(BASE_UI_SWIPE_IGNORE_ATTRIBUTE);
+  if (axisValue === 'x') {
+    return axis === 'horizontal';
+  }
+  if (axisValue === 'y') {
+    return axis === 'vertical';
+  }
+
+  return true;
 }
 
 function isDrawerContentTarget(target: Element | null): boolean {
