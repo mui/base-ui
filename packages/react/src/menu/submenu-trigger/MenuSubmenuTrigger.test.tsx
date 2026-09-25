@@ -77,7 +77,7 @@ describe('<Menu.SubmenuTrigger />', () => {
     const guard = submenu.parentElement?.querySelector<HTMLElement>(
       '[data-base-ui-focus-guard][data-type="inside"]',
     );
-    expect(guard).not.toBe(null);
+    expect(guard).toBeTruthy();
 
     await act(async () => {
       guard?.focus();
@@ -142,7 +142,7 @@ describe('<Menu.SubmenuTrigger />', () => {
         const guard = submenu?.parentElement?.querySelector<HTMLElement>(
           '[data-base-ui-focus-guard][data-type="inside"]',
         );
-        expect(guard).not.toBe(null);
+        expect(guard).toBeTruthy();
 
         const item = shadowRoot.querySelector<HTMLElement>('[role="menuitem"]');
         await act(async () => {
