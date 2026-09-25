@@ -4,7 +4,7 @@ import * as React from 'react';
 import { createRenderer } from '#test-utils';
 import { reactMajor } from '@mui/internal-test-utils';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
-import type { BaseUIComponentProps, ComponentRenderFn, HTMLProps } from './types';
+import type { BaseUIComponentProps, BaseUIEvent, ComponentRenderFn, HTMLProps } from './types';
 import { useRenderElement } from './useRenderElement';
 
 describe('useRenderElement', () => {
@@ -83,6 +83,18 @@ describe('useRenderElement', () => {
             onClick: props.onClick,
           },
         ],
+      },
+    );
+  }
+
+  function GetterPropsTestComponent(props: {
+    onClick: (event: BaseUIEvent<React.MouseEvent<HTMLButtonElement>>) => void;
+  }) {
+    return useRenderElement(
+      'button',
+      {},
+      {
+        props: [() => ({ onClick: props.onClick })],
       },
     );
   }
@@ -195,6 +207,19 @@ describe('useRenderElement', () => {
       element.dispatchEvent(new MouseEvent('contextmenu', { bubbles: true })),
     ).not.toThrow();
     expect(handleContextMenu).toHaveBeenCalledTimes(1);
+  });
+
+  it('augments handlers returned by props getters', async () => {
+    const handleClick = vi.fn((event: BaseUIEvent<React.MouseEvent<HTMLButtonElement>>) => {
+      expect(typeof event.preventBaseUIHandler).toBe('function');
+      event.preventBaseUIHandler();
+    });
+
+    const { container } = await render(<GetterPropsTestComponent onClick={handleClick} />);
+
+    (container.firstElementChild as HTMLButtonElement).click();
+
+    expect(handleClick).toHaveBeenCalledTimes(1);
   });
 
   it('does not resolve props when disabled', async () => {

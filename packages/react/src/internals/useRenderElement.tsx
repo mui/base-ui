@@ -4,7 +4,7 @@ import { getReactElementRef } from '@base-ui/utils/getReactElementRef';
 import { mergeObjects } from '@base-ui/utils/mergeObjects';
 import { warn } from '@base-ui/utils/warn';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
-import type { BaseUIComponentProps, ComponentRenderFn, HTMLProps } from './types';
+import type { BaseUIComponentProps, ComponentRenderFn, HTMLProps, WithBaseUIEvent } from './types';
 import { getStateAttributesProps, StateAttributesMapping } from './getStateAttributesProps';
 import { resolveClassName } from '../utils/resolveClassName';
 import { resolveStyle } from '../utils/resolveStyle';
@@ -240,8 +240,11 @@ function renderTag(Tag: string, props: Record<string, any>) {
 }
 
 type RenderFunctionProps<TagName> = TagName extends keyof React.JSX.IntrinsicElements
-  ? React.JSX.IntrinsicElements[TagName]
-  : React.HTMLAttributes<any>;
+  ? WithBaseUIEvent<React.JSX.IntrinsicElements[TagName]>
+  : WithBaseUIEvent<React.HTMLAttributes<any>>;
+type RenderPropsGetter<TagName> = (
+  props: RenderFunctionProps<TagName>,
+) => RenderFunctionProps<TagName>;
 
 export type UseRenderElementParameters<
   State,
@@ -272,11 +275,7 @@ export type UseRenderElementParameters<
    */
   props?:
     | RenderFunctionProps<TagName>
-    | Array<
-        | RenderFunctionProps<TagName>
-        | undefined
-        | ((props: RenderFunctionProps<TagName>) => RenderFunctionProps<TagName>)
-      >
+    | Array<RenderFunctionProps<TagName> | RenderPropsGetter<TagName> | undefined>
     | undefined;
   /**
    * A mapping of state to `data-*` attributes.
