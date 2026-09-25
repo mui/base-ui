@@ -6,6 +6,7 @@ import { EMPTY_ARRAY } from '@base-ui/utils/empty';
 import { isHTMLElement } from '@floating-ui/utils/dom';
 import { useFilterDropdownItemContext } from '../../filter-dropdown/root/FilterDropdownRootContext';
 import { useMenuRootContext } from '../root/MenuRootContext';
+import { useMenuSubmenuRootContext } from '../submenu-root/MenuSubmenuRootContext';
 import { useDirection } from '../../internals/direction-context/DirectionContext';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
@@ -27,6 +28,7 @@ export function useMenuFilterReferenceKeyDown() {
   const { listRef } = useFilterDropdownItemContext();
   const { orientation, store: menuStore } = useMenuRootContext();
   const direction = useDirection();
+  const submenuContext = useMenuSubmenuRootContext();
 
   return useStableCallback((event: BaseUIEvent<React.KeyboardEvent<HTMLElement>>) => {
     if (event.which === 229) {
@@ -39,11 +41,15 @@ export function useMenuFilterReferenceKeyDown() {
       // closes through focus-out once focus leaves the popup.
       if (event.shiftKey) {
         stopEvent(event);
-        const trigger = menuStore.state.activeTriggerElement;
+        // A submenu returns to the element that held focus in its parent, which is the parent's
+        // input rather than its untabbable trigger when the parent is filterable too.
+        const returnElement =
+          (menuStore.state.parent.type === 'menu' && submenuContext?.getReturnElement?.()) ||
+          menuStore.state.activeTriggerElement;
         const details = createChangeEventDetails(REASONS.focusOut, event.nativeEvent);
         menuStore.setOpen(false, details);
-        if (!details.isCanceled && isHTMLElement(trigger)) {
-          trigger.focus();
+        if (!details.isCanceled && isHTMLElement(returnElement)) {
+          returnElement.focus();
         }
       }
       return;

@@ -41,7 +41,7 @@ export function MenuFilterSubmenuRoot(props: MenuFilterSubmenuRootProps): React.
 
   const parentDisabled = parentStore.useState('disabled');
 
-  const { rootProps, dropdownProps } = useMenuFilterRoot(props, 'MenuSubmenuRoot');
+  const { rootProps, dropdownProps } = useMenuFilterRoot(props);
 
   const parentReferenceRef = React.useRef<ParentReference | null>(null);
 
@@ -71,7 +71,7 @@ export function MenuFilterSubmenuRoot(props: MenuFilterSubmenuRootProps): React.
   }
 
   function handleOpenChange(nextOpen: boolean, details: MenuSubmenuRoot.ChangeEventDetails) {
-    rootProps.onOpenChange(nextOpen, details);
+    rootProps.onOpenChange?.(nextOpen, details);
     if (details.isCanceled) {
       return;
     }

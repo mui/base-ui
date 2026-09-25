@@ -59,10 +59,6 @@ interface MenuRootInternalProps<Payload> extends MenuRoot.Props<Payload> {
    */
   virtualFocus?: boolean | undefined;
   /**
-   * Whether keyboard or virtual activation should initially highlight a filtered menu item.
-   */
-  virtualFocusInitialHighlight?: boolean | undefined;
-  /**
    * The element that retains real focus while virtual list navigation is active.
    */
   virtualFocusRef?: React.RefObject<HTMLElement | null> | undefined;
@@ -102,7 +98,6 @@ export const MenuRootInternal = fastComponent(function MenuRoot<Payload>(
     highlightItemOnHover = true,
     isSubmenu = false,
     virtualFocus = false,
-    virtualFocusInitialHighlight = false,
     virtualFocusRef,
     allowEscape = true,
     resetOnPointerLeave = true,
@@ -221,6 +216,7 @@ export const MenuRootInternal = fastComponent(function MenuRoot<Payload>(
   const lastOpenChangeReason = store.useState('lastOpenChangeReason');
   const parent = store.useState('parent');
   const activeIndex = store.useState('activeIndex');
+  const keyboardOpen = store.useState('keyboardOpen');
   const payload = store.useState('payload') as Payload | undefined;
   const floatingParentNodeId = store.useState('floatingParentNodeId');
 
@@ -447,9 +443,12 @@ export const MenuRootInternal = fastComponent(function MenuRoot<Payload>(
       ) as ReturnType<typeof createPopupOpenState> & {
         openChangeReason: MenuRoot.ChangeEventReason;
         instantType: MenuStoreState<Payload>['instantType'];
+        keyboardOpen: boolean;
       };
 
       popupOpenState.openChangeReason = reason;
+      popupOpenState.keyboardOpen =
+        nextOpen && (reason === REASONS.listNavigation || isKeyboardClick);
 
       if (
         parent.type === 'menubar' &&
@@ -545,7 +544,7 @@ export const MenuRootInternal = fastComponent(function MenuRoot<Payload>(
     loopFocus,
     // Filtered menus keep DOM focus on the input, while keyboard and virtual opens initially
     // highlight an item as ordinary menus do. The input remains part of the arrow-key loop.
-    focusItemOnOpen: virtualFocus ? virtualFocusInitialHighlight : undefined,
+    focusItemOnOpen: virtualFocus ? keyboardOpen : undefined,
     allowEscape: virtualFocus && loopFocus && allowEscape,
     orientation,
     // A virtual-focus list can navigate on either axis, but its trigger always opens on the

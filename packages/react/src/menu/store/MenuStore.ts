@@ -20,6 +20,8 @@ export type State<Payload> = PopupStoreState<Payload> & {
   disabled: boolean;
   modal: boolean | undefined;
   openMethod: InteractionType | null;
+  /** Whether the popup last opened from the keyboard or an assistive-technology press. */
+  keyboardOpen: boolean;
   allowMouseEnter: boolean;
   highlightItemOnHover: boolean;
   parent: MenuParent;
@@ -80,6 +82,7 @@ const selectors = {
     (state.parent.type === undefined || state.parent.type === 'context-menu') &&
     (state.modal ?? true),
   openMethod: (state: State<unknown>) => state.openMethod,
+  keyboardOpen: (state: State<unknown>) => state.keyboardOpen,
 
   allowMouseEnter: (state: State<unknown>) => state.allowMouseEnter,
   highlightItemOnHover: (state: State<unknown>) => state.highlightItemOnHover,
@@ -258,6 +261,7 @@ function createInitialState<Payload>(
     disabled: false,
     modal: true,
     openMethod: null,
+    keyboardOpen: false,
     allowMouseEnter: false,
     highlightItemOnHover: true,
     parent: {

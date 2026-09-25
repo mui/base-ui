@@ -12,7 +12,7 @@ import { useMenuFilterRoot } from './useMenuFilterRoot';
  * @internal
  */
 export function MenuFilterRoot<Payload>(props: MenuFilterRootProps<Payload>): React.JSX.Element {
-  const { children, rootProps, dropdownProps } = useMenuFilterRoot(props, 'MenuRoot');
+  const { children, rootProps, dropdownProps } = useMenuFilterRoot(props);
 
   return (
     <MenuRootInternal {...rootProps}>
