@@ -13,7 +13,11 @@ export function PackageManagerSnippetRoot(props: PackageManagerSnippetRoot.Props
   const [value, setValue] = React.useState(options[0].value);
 
   const handleValueChange = React.useCallback(
-    (newValue: string) => {
+    (newValue: string | null) => {
+      if (newValue === null) {
+        return;
+      }
+
       setGlobalPreference(newValue);
     },
     [setGlobalPreference],
