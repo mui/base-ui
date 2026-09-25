@@ -121,6 +121,7 @@ export const RadioRoot = React.forwardRef(function RadioRoot<Value>(
     inputRef,
     !nativeButton,
     hiddenInputId,
+    elementProps['aria-label'],
   );
 
   const rootProps: React.ComponentPropsWithRef<'span'> = {

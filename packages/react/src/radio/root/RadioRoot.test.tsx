@@ -133,6 +133,21 @@ describe('<Radio.Root />', () => {
     });
   });
 
+  it('prefers `aria-label` over an associated label', async () => {
+    await render(
+      <RadioGroup>
+        <label>
+          <Radio.Root value="a" aria-label="Apple" />
+          Apple
+        </label>
+      </RadioGroup>,
+    );
+
+    const radio = screen.getByRole('radio');
+    expect(radio).not.toHaveAttribute('aria-labelledby');
+    expect(radio).toHaveAccessibleName('Apple');
+  });
+
   describe('prop: onClick', () => {
     it('propagates a single click event to ancestors per user click', async () => {
       const handleParentClick = vi.fn();
