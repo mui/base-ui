@@ -7,8 +7,9 @@ import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { platform } from '@base-ui/utils/platform';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { getTarget } from '@base-ui/utils/shadowDom';
 import { safePolygon, useClick, useHoverReferenceInteraction } from '../../floating-ui-react';
-import { BaseUIComponentProps, NonNativeButtonProps } from '../../internals/types';
+import type { BaseUIComponentProps, NonNativeButtonProps } from '../../internals/types';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
@@ -19,6 +20,7 @@ import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
 import { useTriggerRegistration } from '../../utils/popups';
 import { useMenuSubmenuRootContext } from '../submenu-root/MenuSubmenuRootContext';
 import { REASONS } from '../../internals/reasons';
+import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 
 const VOICE_OVER_EXPANDED_PROPS = { 'aria-expanded': undefined };
 
@@ -58,6 +60,8 @@ export const MenuSubmenuTrigger = React.forwardRef(function MenuSubmenuTrigger(
 
   const thisTriggerId = useBaseUiId(idProp);
   const open = store.useState('open');
+  const focusReturnedThroughGuardRef = React.useRef(false);
+  const positionerElement = store.useState('positionerElement');
   const floatingRootContext = store.useState('floatingRootContext');
   const floatingTreeRoot = store.useState('floatingTreeRoot');
   const popupId = store.useState('triggerPopupId', thisTriggerId);
@@ -93,6 +97,26 @@ export const MenuSubmenuTrigger = React.forwardRef(function MenuSubmenuTrigger(
     registerTrigger(triggerElementRef.current);
     return () => registerTrigger(null);
   }, [registerTrigger, thisTriggerId, store]);
+
+  useIsoLayoutEffect(() => {
+    if (!open || !positionerElement) {
+      return undefined;
+    }
+
+    function handleGuardFocusOut(event: FocusEvent) {
+      if (getTarget(event) === store.context.beforeContentFocusGuardRef.current) {
+        focusReturnedThroughGuardRef.current = event.relatedTarget === triggerElementRef.current;
+      }
+    }
+
+    // Observe focus leaving the guard inside its positioner. When the portal is in a shadow root,
+    // the trigger's focus event can report the shadow host as `relatedTarget`, not the guard.
+    positionerElement.addEventListener('focusout', handleGuardFocusOut, true);
+    return () => {
+      focusReturnedThroughGuardRef.current = false;
+      positionerElement.removeEventListener('focusout', handleGuardFocusOut, true);
+    };
+  }, [open, positionerElement, store]);
 
   store.useSyncedValue('closeDelay', closeDelay);
 
@@ -199,6 +223,15 @@ export const MenuSubmenuTrigger = React.forwardRef(function MenuSubmenuTrigger(
       {
         'aria-controls': popupId,
         tabIndex: open || highlighted ? 0 : -1,
+        onFocus(event) {
+          // Close when focus returns through the submenu's guard to its trigger. This also lets
+          // screen reader users move past the trigger in the parent menu. Direct focus from a
+          // submenu item, such as on hover, leaves the submenu open.
+          if (store.select('open') && focusReturnedThroughGuardRef.current) {
+            focusReturnedThroughGuardRef.current = false;
+            store.setOpen(false, createChangeEventDetails(REASONS.focusOut, event.nativeEvent));
+          }
+        },
         onBlur() {
           if (highlighted) {
             parentMenuStore.set('activeIndex', null);

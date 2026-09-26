@@ -5,21 +5,20 @@ import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { TooltipRootContext } from './TooltipRootContext';
 import { useClientPoint, useDismiss } from '../../floating-ui-react';
-import {
-  type BaseUIChangeEventDetails,
-  createChangeEventDetails,
-} from '../../internals/createBaseUIEventDetails';
+import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import {
   PopupHandleAttachment,
   useImplicitActiveTrigger,
   usePopupRootStore,
   useOpenStateTransitions,
   usePopupInteractionProps,
-  type PayloadChildRenderFunction,
 } from '../../utils/popups';
+import type { PayloadChildRenderFunction } from '../../utils/popups';
 import { mergeProps } from '../../merge-props';
-import { TooltipStore, type State as TooltipStoreState } from '../store/TooltipStore';
-import { type TooltipHandle } from '../store/TooltipHandle';
+import { TooltipStore } from '../store/TooltipStore';
+import type { State as TooltipStoreState } from '../store/TooltipStore';
+import type { TooltipHandle } from '../store/TooltipHandle';
 import { REASONS } from '../../internals/reasons';
 
 /**
@@ -183,9 +182,9 @@ export interface TooltipRootProps<Payload = unknown> {
   trackCursorAxis?: 'none' | 'x' | 'y' | 'both' | undefined;
   /**
    * A ref to imperative actions.
-   * - `unmount`: Manually unmounts the tooltip popup.
-   * Call `preventUnmountOnClose()` in `onOpenChange` to manually control unmounting,
-   * then call this action after any externally controlled closing animation finishes.
+   * - `unmount`: Ends the closing phase of the tooltip after an externally controlled closing animation finishes.
+   * Call `preventUnmountOnClose()` in `onOpenChange` first, otherwise the tooltip completes closing on its own.
+   * Whether it leaves the DOM is decided by `keepMounted` on the portal.
    * - `close`: Closes the tooltip imperatively when called.
    */
   actionsRef?: React.RefObject<TooltipRoot.Actions | null> | undefined;

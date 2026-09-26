@@ -1,15 +1,11 @@
-import * as React from 'react';
-import {
-  ConformanceOptions,
-  MuiRenderResult,
-  RenderOptions,
-  createDescribe,
-} from '@mui/internal-test-utils';
+import type * as React from 'react';
+import type { ConformanceOptions, MuiRenderResult, RenderOptions } from '@mui/internal-test-utils';
+import { createDescribe } from '@mui/internal-test-utils';
 import { testPropForwarding } from './conformanceTests/propForwarding';
 import { testRefForwarding } from './conformanceTests/refForwarding';
 import { testRenderProp } from './conformanceTests/renderProp';
 import { testClassName } from './conformanceTests/className';
-import { BaseUIRenderResult } from './createRenderer';
+import type { BaseUIRenderResult } from './createRenderer';
 
 export type ConformantComponentProps = {
   render?: React.ReactElement<unknown> | ((props: Record<string, unknown>) => React.ReactNode);

@@ -16,28 +16,27 @@ import {
   useTypeahead,
   useSyncedFloatingRootContext,
 } from '../../floating-ui-react';
+import type { HighlightItemTarget } from '../../floating-ui-react/hooks/useListNavigation';
 import { MenuRootContext, useMenuRootContext } from './MenuRootContext';
-import { MenubarContext, useMenubarContext } from '../../menubar/MenubarContext';
+import type { MenubarContext } from '../../menubar/MenubarContext';
+import { useMenubarContext } from '../../menubar/MenubarContext';
 import { TYPEAHEAD_RESET_MS } from '../../internals/constants';
 import { useDirection } from '../../internals/direction-context/DirectionContext';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
-import {
-  createChangeEventDetails,
-  type BaseUIChangeEventDetails,
-} from '../../internals/createBaseUIEventDetails';
+import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
-import {
-  ContextMenuRootContext,
-  useContextMenuRootContext,
-} from '../../context-menu/root/ContextMenuRootContext';
+import type { ContextMenuRootContext } from '../../context-menu/root/ContextMenuRootContext';
+import { useContextMenuRootContext } from '../../context-menu/root/ContextMenuRootContext';
 import { mergeProps } from '../../merge-props';
 import { useAnimationsFinished } from '../../internals/useAnimationsFinished';
-import { MenuStore, type State as MenuStoreState } from '../store/MenuStore';
-import { MenuHandle } from '../store/MenuHandle';
+import { MenuStore } from '../store/MenuStore';
+import type { State as MenuStoreState } from '../store/MenuStore';
+import type { MenuHandle } from '../store/MenuHandle';
+import type { PayloadChildRenderFunction } from '../../utils/popups';
 import {
   attachPreventUnmountOnClose,
   FOCUSABLE_POPUP_PROPS,
-  PayloadChildRenderFunction,
   createPopupOpenState,
   PopupHandleAttachment,
   useImplicitActiveTrigger,
@@ -448,12 +447,6 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
     store.setOpen(false, createChangeEventDetails(REASONS.imperativeAction));
   }, [store]);
 
-  React.useImperativeHandle(
-    actionsRef,
-    () => ({ unmount: forceUnmount, close: handleImperativeClose }),
-    [forceUnmount, handleImperativeClose],
-  );
-
   let ctx: ContextMenuRootContext | undefined;
   if (parent.type === 'context-menu') {
     ctx = parent.context;
@@ -507,6 +500,16 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
     externalTree: nested ? floatingTreeRoot : undefined,
     focusItemOnHover: highlightItemOnHover,
   });
+
+  React.useImperativeHandle(
+    actionsRef,
+    () => ({
+      unmount: forceUnmount,
+      close: handleImperativeClose,
+      highlightItem: listNavigation.highlightItem,
+    }),
+    [forceUnmount, handleImperativeClose, listNavigation.highlightItem],
+  );
 
   const onTyping = React.useCallback(
     (nextTyping: boolean) => {
@@ -732,10 +735,16 @@ export interface MenuRootProps<Payload = unknown> {
   closeParentOnEsc?: boolean | undefined;
   /**
    * A ref to imperative actions.
-   * - `unmount`: Manually unmounts the menu.
-   *   Call `preventUnmountOnClose()` in `onOpenChange` to manually control unmounting,
-   *   then call this action after any externally controlled closing animation finishes.
-   * - `close`: When specified, the menu can be closed imperatively.
+   * - `unmount`: Ends the closing phase of the menu after an externally controlled closing animation finishes.
+   *   Call `preventUnmountOnClose()` in `onOpenChange` first, otherwise the menu completes closing on its own.
+   *   Whether it leaves the DOM is decided by `keepMounted` on the portal.
+   * - `close`: Closes the menu imperatively when called.
+   * - `highlightItem`: Moves or clears the highlight while the menu is open.
+   *   `'next'` and `'previous'` move sequentially through the items and wrap unless `loopFocus`
+   *   is disabled. `'first'` and `'last'` highlight the first or last item. `'none'` clears the
+   *   highlight and hands focus back to the popup.
+   *   Calling this action does not open the menu. To highlight an item after opening it, call
+   *   the action from `onOpenChangeComplete` when `open` is `true`.
    */
   actionsRef?: React.RefObject<MenuRoot.Actions | null> | undefined;
   /**
@@ -761,9 +770,20 @@ export interface MenuRootProps<Payload = unknown> {
   children?: React.ReactNode | PayloadChildRenderFunction<Payload>;
 }
 
+/**
+ * The item `highlightItem` moves the highlight to.
+ * - `'next'` and `'previous'` move relative to the current highlight, or enter the list from
+ *   the matching end when nothing is highlighted. They wrap around unless `loopFocus` is
+ *   disabled and never leave the list.
+ * - `'first'` and `'last'` jump to either end of the list.
+ * - `'none'` clears the highlight and hands focus back to the popup.
+ */
+export type MenuRootHighlightItemTarget = HighlightItemTarget;
+
 export interface MenuRootActions {
   unmount: () => void;
   close: () => void;
+  highlightItem: (target: MenuRootHighlightItemTarget) => void;
 }
 
 export type MenuRootChangeEventReason =
@@ -814,6 +834,7 @@ export namespace MenuRoot {
   export type State = MenuRootState;
   export type Props<Payload = unknown> = MenuRootProps<Payload>;
   export type Actions = MenuRootActions;
+  export type HighlightItemTarget = MenuRootHighlightItemTarget;
   export type ChangeEventReason = MenuRootChangeEventReason;
   export type ChangeEventDetails = MenuRootChangeEventDetails;
   export type Orientation = MenuRootOrientation;

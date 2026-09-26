@@ -976,6 +976,7 @@ describe('<Menu.Root />', () => {
         });
 
         expect(submenuTrigger).toHaveFocus();
+        expect(screen.getByTestId('menu')).not.toBe(null);
       });
 
       it('closes the entire tree when clicking outside the deepest submenu', async () => {
@@ -1918,6 +1919,7 @@ describe('<Menu.Root />', () => {
           current: {
             unmount: vi.fn(),
             close: vi.fn(),
+            highlightItem: vi.fn(),
           },
         };
 
@@ -2802,6 +2804,7 @@ describe('<Menu.Root />', () => {
       current: {
         unmount: vi.fn(),
         close: vi.fn(),
+        highlightItem: vi.fn(),
       },
     };
 
@@ -3232,6 +3235,216 @@ describe('<Menu.Root />', () => {
       await user.keyboard('{ArrowDown}'); // loops back to Add to Library
 
       expect(screen.queryByRole('menuitem', { name: 'Add to Library' })).toHaveFocus();
+    });
+  });
+
+  describe('actionsRef: highlightItem', () => {
+    function TestHighlightMenu(props: { actionsRef: React.RefObject<Menu.Root.Actions | null> }) {
+      return (
+        <Menu.Root actionsRef={props.actionsRef}>
+          <Menu.Trigger>Open</Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.Item>One</Menu.Item>
+                <Menu.Item>Two</Menu.Item>
+                <Menu.Item>Three</Menu.Item>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>
+      );
+    }
+
+    it('moves DOM focus between items', async () => {
+      const actionsRef = React.createRef<Menu.Root.Actions>();
+      const { user } = await render(<TestHighlightMenu actionsRef={actionsRef} />);
+
+      await user.click(screen.getByRole('button', { name: 'Open' }));
+      const menu = await screen.findByRole('menu');
+      // Let the open sequence finish moving focus before driving the highlight.
+      await waitFor(() => expect(menu).toHaveFocus());
+
+      act(() => actionsRef.current!.highlightItem('last'));
+      await waitFor(() => expect(screen.getByRole('menuitem', { name: 'Three' })).toHaveFocus());
+
+      act(() => actionsRef.current!.highlightItem('previous'));
+      await waitFor(() => expect(screen.getByRole('menuitem', { name: 'Two' })).toHaveFocus());
+    });
+
+    it('wraps around, because Menu loops focus by default', async () => {
+      const actionsRef = React.createRef<Menu.Root.Actions>();
+      const { user } = await render(<TestHighlightMenu actionsRef={actionsRef} />);
+
+      await user.click(screen.getByRole('button', { name: 'Open' }));
+      const menu = await screen.findByRole('menu');
+      // Let the open sequence finish moving focus before driving the highlight.
+      await waitFor(() => expect(menu).toHaveFocus());
+
+      act(() => actionsRef.current!.highlightItem('first'));
+      await waitFor(() => expect(screen.getByRole('menuitem', { name: 'One' })).toHaveFocus());
+
+      act(() => actionsRef.current!.highlightItem('previous'));
+      await waitFor(() => expect(screen.getByRole('menuitem', { name: 'Three' })).toHaveFocus());
+    });
+
+    it('returns focus to the popup when the highlight is cleared', async () => {
+      const onClick = vi.fn();
+      const actionsRef = React.createRef<Menu.Root.Actions>();
+      const { user } = await render(
+        <Menu.Root actionsRef={actionsRef}>
+          <Menu.Trigger>Open</Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.Item onClick={onClick}>One</Menu.Item>
+                <Menu.Item>Two</Menu.Item>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>,
+      );
+
+      await user.click(screen.getByRole('button', { name: 'Open' }));
+      const menu = await screen.findByRole('menu');
+      // Let the open sequence finish moving focus before driving the highlight.
+      await waitFor(() => expect(menu).toHaveFocus());
+
+      act(() => actionsRef.current!.highlightItem('first'));
+      const firstItem = screen.getByRole('menuitem', { name: 'One' });
+      await waitFor(() => expect(firstItem).toHaveFocus());
+
+      act(() => actionsRef.current!.highlightItem('none'));
+      await waitFor(() => expect(firstItem).not.toHaveAttribute('data-highlighted'));
+      // Focus must not linger on the item, or Enter would activate something that
+      // no longer looks highlighted. It goes back to the popup, not to the body.
+      await waitFor(() => expect(menu).toHaveFocus());
+
+      await user.keyboard('{Enter}');
+      expect(onClick).not.toHaveBeenCalled();
+    });
+
+    it('reclaims focus from an item the highlight has already left', async () => {
+      // Two calls in one tick: the second item is highlighted but DOM focus is still on the
+      // first. The clear must take focus off whichever item holds it, not only the item the
+      // highlight currently points at.
+      const actionsRef = React.createRef<Menu.Root.Actions>();
+      const { user } = await render(<TestHighlightMenu actionsRef={actionsRef} />);
+
+      await user.click(screen.getByRole('button', { name: 'Open' }));
+      const menu = await screen.findByRole('menu');
+      await waitFor(() => expect(menu).toHaveFocus());
+
+      act(() => actionsRef.current!.highlightItem('first'));
+      await waitFor(() => expect(screen.getByRole('menuitem', { name: 'One' })).toHaveFocus());
+
+      act(() => {
+        actionsRef.current!.highlightItem('next');
+        actionsRef.current!.highlightItem('none');
+      });
+      await waitFor(() => expect(menu).toHaveFocus());
+      for (const name of ['One', 'Two', 'Three']) {
+        expect(screen.getByRole('menuitem', { name })).not.toHaveAttribute('data-highlighted');
+      }
+    });
+
+    // The jsdom animation frame polyfill cannot cancel a queued frame, so this needs a browser.
+    it.skipIf(isJSDOM)('cancels a focus move that has not applied yet', async () => {
+      // Imperative moves apply DOM focus on the next frame. A clear that follows before that
+      // frame must cancel it, otherwise the queued focus lands later and its focus handler
+      // re-highlights the item that was just cleared.
+      const actionsRef = React.createRef<Menu.Root.Actions>();
+      const { user } = await render(<TestHighlightMenu actionsRef={actionsRef} />);
+
+      await user.click(screen.getByRole('button', { name: 'Open' }));
+      const menu = await screen.findByRole('menu');
+      await waitFor(() => expect(menu).toHaveFocus());
+
+      act(() => actionsRef.current!.highlightItem('last'));
+      act(() => actionsRef.current!.highlightItem('none'));
+      await waitFor(() => expect(menu).toHaveFocus());
+
+      // Give the canceled frame a chance to fire; nothing may come back.
+      await new Promise((resolve) => {
+        requestAnimationFrame(() => requestAnimationFrame(resolve));
+      });
+      expect(menu).toHaveFocus();
+      for (const name of ['One', 'Two', 'Three']) {
+        expect(screen.getByRole('menuitem', { name })).not.toHaveAttribute('data-highlighted');
+      }
+    });
+
+    it('does not move focus when the highlight was already cleared', async () => {
+      const actionsRef = React.createRef<Menu.Root.Actions>();
+      const { user } = await render(<TestHighlightMenu actionsRef={actionsRef} />);
+
+      await user.click(screen.getByRole('button', { name: 'Open' }));
+      const menu = await screen.findByRole('menu');
+      // Let the open sequence finish moving focus before snapshotting it.
+      await waitFor(() => expect(menu).toHaveFocus());
+
+      // Nothing is highlighted, so there is no stale focus to reclaim.
+      const before = document.activeElement;
+      act(() => actionsRef.current!.highlightItem('none'));
+      await flushMicrotasks();
+      expect(document.activeElement).toBe(before);
+    });
+
+    it('leaves focus alone when it belongs to nested non-portalled content', async () => {
+      // Nested content rendered inline in the popup (a non-portalled popup, a custom panel)
+      // lives inside the popup element but is not the highlighted item. Clearing the parent's
+      // highlight must not eject focus from it.
+      const actionsRef = React.createRef<Menu.Root.Actions>();
+      const { user } = await render(
+        <Menu.Root actionsRef={actionsRef}>
+          <Menu.Trigger>Open</Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.Item>One</Menu.Item>
+                <div data-testid="nested-panel">
+                  <input data-testid="nested-input" />
+                </div>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>,
+      );
+
+      await user.click(screen.getByRole('button', { name: 'Open' }));
+      const menu = await screen.findByRole('menu');
+      // Let the open sequence finish moving focus before driving the highlight.
+      await waitFor(() => expect(menu).toContainElement(document.activeElement as HTMLElement));
+
+      act(() => actionsRef.current!.highlightItem('first'));
+      await waitFor(() => expect(screen.getByRole('menuitem', { name: 'One' })).toHaveFocus());
+
+      const nestedInput = screen.getByTestId('nested-input');
+      act(() => nestedInput.focus());
+      await waitFor(() => expect(nestedInput).toHaveFocus());
+
+      act(() => actionsRef.current!.highlightItem('none'));
+      await flushMicrotasks();
+
+      expect(nestedInput).toHaveFocus();
+    });
+
+    it('does nothing while the menu is closed', async () => {
+      const actionsRef = React.createRef<Menu.Root.Actions>();
+      const { user } = await render(<TestHighlightMenu actionsRef={actionsRef} />);
+
+      act(() => actionsRef.current!.highlightItem('last'));
+
+      await flushMicrotasks();
+      expect(screen.queryByRole('menu')).toBeNull();
+
+      // The call is dropped rather than queued: opening afterwards looks like any other open.
+      await user.click(screen.getByRole('button', { name: 'Open' }));
+      const menu = await screen.findByRole('menu');
+      await waitFor(() => expect(menu).toHaveFocus());
+      expect(screen.getByRole('menuitem', { name: 'Three' })).not.toHaveAttribute(
+        'data-highlighted',
+      );
     });
   });
 });

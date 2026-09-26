@@ -1,9 +1,7 @@
 'use client';
 import { popupStateMapping } from './popupStateMapping';
-import {
-  useRenderElement,
-  type UseRenderElementComponentProps,
-} from '../internals/useRenderElement';
+import { useRenderElement } from '../internals/useRenderElement';
+import type { UseRenderElementComponentProps } from '../internals/useRenderElement';
 import { getDisabledMountTransitionStyles } from '../internals/getDisabledMountTransitionStyles';
 import type { TransitionStatus } from '../internals/useTransitionStatus';
 

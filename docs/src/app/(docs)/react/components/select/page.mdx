@@ -225,6 +225,36 @@ import { DemoSelectGrouped } from './demos/grouped';
 
 <DemoSelectGrouped />
 
+### Custom keyboard shortcuts
+
+`<Select.Root>` accepts an `actionsRef` whose `highlightItem()` action moves the highlight to the `'next'`, `'previous'`, `'first'` or `'last'` item, or clears it with `'none'`. Use it to bind shortcuts beyond the built-in arrow keys. Select items receive real DOM focus, so the action moves focus along with the highlight, and `'none'` hands focus back to the popup. Select does not loop focus, so `'next'` on the last item and `'previous'` on the first one leave the highlight where it is. The action does nothing while the popup is closed.
+
+Because the items hold focus while the popup is open, attach the key handler to `<Select.Popup>` rather than to the trigger:
+
+```tsx title="Binding a shortcut on the popup"
+const actionsRef = React.useRef<Select.Root.Actions>(null);
+
+<Select.Root actionsRef={actionsRef}>
+  <Select.Trigger>
+    <Select.Value />
+  </Select.Trigger>
+  <Select.Portal>
+    <Select.Positioner>
+      <Select.Popup
+        onKeyDown={(event) => {
+          if (event.ctrlKey && event.key === 'j') {
+            event.preventDefault();
+            actionsRef.current?.highlightItem('next');
+          }
+        }}
+      >
+        {/* items */}
+      </Select.Popup>
+    </Select.Positioner>
+  </Select.Portal>
+</Select.Root>;
+```
+
 ## API reference
 
 import { TypesSelect } from './types';

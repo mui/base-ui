@@ -3,7 +3,7 @@ import * as React from 'react';
 import { addEventListener } from '@base-ui/utils/addEventListener';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { getWindow } from '@floating-ui/utils/dom';
-import type { ContextData, ElementProps, FloatingContext, FloatingRootContext } from '../types';
+import type { ContextData, ElementProps, FloatingRootContext } from '../types';
 import { contains, getTarget } from '../utils/element';
 import { isMouseLikePointerType } from '../utils/event';
 
@@ -37,8 +37,8 @@ function createVirtualElement(
         ['mouseenter', 'mousemove'].includes(data.dataRef.current.openEvent?.type || '') &&
         data.pointerType !== 'touch';
 
-      let width = domRect.width;
-      let height = domRect.height;
+      const width = data.axis === 'y' ? domRect.width : 0;
+      const height = data.axis === 'x' ? domRect.height : 0;
       let x = domRect.x;
       let y = domRect.y;
 
@@ -52,17 +52,10 @@ function createVirtualElement(
 
       x -= offsetX || 0;
       y -= offsetY || 0;
-      width = 0;
-      height = 0;
 
       if (!isAutoUpdateEvent || canTrackCursorOnAutoUpdate) {
-        width = data.axis === 'y' ? domRect.width : 0;
-        height = data.axis === 'x' ? domRect.height : 0;
         x = isXAxis && data.x != null ? data.x : x;
         y = isYAxis && data.y != null ? data.y : y;
-      } else if (isAutoUpdateEvent && !canTrackCursorOnAutoUpdate) {
-        height = data.axis === 'x' ? domRect.height : height;
-        width = data.axis === 'y' ? domRect.width : width;
       }
 
       isAutoUpdateEvent = true;
@@ -107,12 +100,10 @@ export interface UseClientPointProps {
  * @see https://floating-ui.com/docs/useClientPoint
  */
 export function useClientPoint(
-  context: FloatingRootContext | FloatingContext,
+  store: FloatingRootContext,
   props: UseClientPointProps = {},
 ): ElementProps {
   const { enabled = true, axis = 'both' } = props;
-
-  const store = 'rootStore' in context ? context.rootStore : context;
 
   const open = store.useState('open');
   const floating = store.useState('floatingElement');

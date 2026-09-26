@@ -2,23 +2,22 @@
 import * as React from 'react';
 import { useControlled } from '@base-ui/utils/useControlled';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { ownerDocument } from '@base-ui/utils/owner';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useTimeout } from '@base-ui/utils/useTimeout';
-import { type FieldRootState } from '../root/FieldRoot';
+import type { FieldRootState } from '../root/FieldRoot';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
+import { useSetFieldFocused } from '../../internals/field-root-context/useSetFieldFocused';
 import { useRegisterFieldControl } from '../../internals/field-register-control/useRegisterFieldControl';
 import { useFormContext } from '../../internals/form-context/FormContext';
 import { useLabelableContext } from '../../internals/labelable-provider/LabelableContext';
 import { useLabelableId } from '../../internals/labelable-provider/useLabelableId';
 import { fieldValidityMapping } from '../../internals/field-constants/constants';
-import { BaseUIComponentProps } from '../../internals/types';
+import type { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useValueChanged } from '../../internals/useValueChanged';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
-import { activeElement } from '../../floating-ui-react/utils';
 
 /**
  * The form control to label and validate.
@@ -55,7 +54,6 @@ export const FieldControl = React.forwardRef(function FieldControl(
     setTouched,
     setDirty,
     validityData,
-    setFocused,
     setFilled,
     validationMode,
     validation,
@@ -116,13 +114,8 @@ export const FieldControl = React.forwardRef(function FieldControl(
   });
 
   const inputRef = React.useRef<HTMLElement>(null);
+  const setFocused = useSetFieldFocused(disabled, inputRef);
   const enterValidationTimeout = useTimeout();
-
-  useIsoLayoutEffect(() => {
-    if (autoFocus && inputRef.current === activeElement(ownerDocument(inputRef.current))) {
-      setFocused(true);
-    }
-  }, [autoFocus, setFocused]);
 
   const element = useRenderElement('input', componentProps, {
     ref: [forwardedRef, inputRef],

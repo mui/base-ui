@@ -1,7 +1,8 @@
 'use client';
 import * as React from 'react';
 import type { BaseUIComponentProps } from '../internals/types';
-import { type TransitionStatus, useTransitionStatus } from '../internals/useTransitionStatus';
+import { useTransitionStatus } from '../internals/useTransitionStatus';
+import type { TransitionStatus } from '../internals/useTransitionStatus';
 import { useOpenChangeComplete } from '../internals/useOpenChangeComplete';
 import { useRenderElement } from '../internals/useRenderElement';
 import { transitionStatusMapping } from '../internals/stateAttributesMapping';

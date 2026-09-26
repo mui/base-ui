@@ -2,7 +2,8 @@
 import * as React from 'react';
 import { Select } from '@base-ui/react/select';
 import { Select as RadixSelect } from 'radix-ui';
-import PerformanceBenchmark, { BenchmarkVariant } from './utils/benchmark';
+import type { BenchmarkVariant } from './utils/benchmark';
+import PerformanceBenchmark from './utils/benchmark';
 import styles from './performance.module.css';
 
 const ITEM_COUNT = 1000;

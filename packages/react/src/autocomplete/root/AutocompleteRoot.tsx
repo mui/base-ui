@@ -1,9 +1,11 @@
 'use client';
 import * as React from 'react';
-import { AriaCombobox, type AriaComboboxState } from '../../combobox/root/AriaCombobox';
+import { AriaCombobox } from '../../combobox/root/AriaCombobox';
+import type { AriaComboboxState } from '../../combobox/root/AriaCombobox';
 import { useCoreFilter } from '../../combobox/root/utils/useFilter';
 import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
-import { stringifyAsLabel, type Group } from '../../internals/resolveValueLabel';
+import { stringifyAsLabel } from '../../internals/resolveValueLabel';
+import type { Group } from '../../internals/resolveValueLabel';
 import { REASONS } from '../../internals/reasons';
 
 /**
@@ -125,9 +127,20 @@ export function AutocompleteRoot<ItemValue>(
 
 export interface AutocompleteRootState extends AriaComboboxState {}
 
+/**
+ * The item `highlightItem` moves the highlight to.
+ * - `'next'` and `'previous'` move relative to the current highlight, or enter the list from
+ *   the matching end when nothing is highlighted. They wrap around when `loopFocus` is enabled
+ *   and never leave the list: `'previous'` on the first item does not move back to the input.
+ * - `'first'` and `'last'` jump to either end of the list.
+ * - `'none'` clears the highlight.
+ */
+export type AutocompleteRootHighlightItemTarget = AriaCombobox.HighlightItemTarget;
+
 export interface AutocompleteRootActions {
   unmount: () => void;
   close: () => void;
+  highlightItem: (target: AutocompleteRootHighlightItemTarget) => void;
 }
 
 export type AutocompleteRootChangeEventReason = AriaCombobox.ChangeEventReason;
@@ -264,6 +277,15 @@ export interface AutocompleteRootProps<ItemValue> extends Omit<
    * Call `preventUnmountOnClose()` in `onOpenChange` first, otherwise the autocomplete completes closing on its own.
    * Whether it leaves the DOM is decided by `keepMounted` on the portal.
    * - `close`: Closes the autocomplete imperatively when called.
+   * - `highlightItem`: Moves or clears the highlight while the popup is open.
+   *   `'next'` and `'previous'` move sequentially through the items, including across rows in a
+   *   grid, and wrap when `loopFocus` is enabled. Unlike the arrow keys, they never return the
+   *   highlight to the input. `'first'` and `'last'` highlight the first or last item.
+   *   `'none'` clears the highlight; with `autoHighlight="always"`, the highlight cannot be cleared.
+   *   Calling this action does not open the popup. To highlight an item after opening it, call
+   *   the action from `onOpenChangeComplete` when `open` is `true`.
+   *   Highlight changes requested through this action report the reason `'imperative-action'`
+   *   to `onItemHighlighted`.
    */
   actionsRef?: React.RefObject<AutocompleteRootActions | null> | undefined;
   /**
@@ -277,7 +299,9 @@ export interface AutocompleteRootProps<ItemValue> extends Omit<
    * The `reason` can be:
    * - `'keyboard'`: the highlight changed due to keyboard navigation.
    * - `'pointer'`: the highlight changed due to pointer hovering.
-   * - `'none'`: the highlight changed programmatically.
+   * - `'imperative-action'`: the highlight changed via `actionsRef`'s `highlightItem`.
+   * - `'none'`: the highlight changed for another reason, such as `autoHighlight`, the item
+   *   list changing, or the popup opening or closing.
    */
   onItemHighlighted?:
     | ((
@@ -296,6 +320,7 @@ export namespace AutocompleteRoot {
   export type Props<ItemValue> = AutocompleteRootProps<ItemValue>;
   export type State = AutocompleteRootState;
   export type Actions = AutocompleteRootActions;
+  export type HighlightItemTarget = AutocompleteRootHighlightItemTarget;
   export type ChangeEventReason = AutocompleteRootChangeEventReason;
   export type ChangeEventDetails = AutocompleteRootChangeEventDetails;
   export type OpenChangeEventDetails = AutocompleteRootOpenChangeEventDetails;

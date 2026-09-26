@@ -17,10 +17,10 @@ import {
   useNavigationMenuTreeContext,
 } from '../root/NavigationMenuRootContext';
 import { useNavigationMenuPortalContext } from '../portal/NavigationMenuPortalContext';
-import {
-  type Align,
-  type Side,
-  type UseAnchorPositioningSharedParameters,
+import type {
+  Align,
+  Side,
+  UseAnchorPositioningSharedParameters,
 } from '../../internals/useAnchorPositioning';
 import { useNavigationMenuAnchorPositioning } from '../utils/useNavigationMenuAnchorPositioning';
 import { NavigationMenuPositionerContext } from './NavigationMenuPositionerContext';
