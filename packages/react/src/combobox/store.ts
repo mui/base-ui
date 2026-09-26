@@ -60,6 +60,7 @@ export type State = {
   autoHighlight: false | 'always' | 'input-change';
   submitOnItemClick: boolean;
   hasInputValue: boolean;
+  dismissButtonLabel: string;
 };
 
 /**
@@ -199,6 +200,7 @@ export const selectors = {
   itemToStringLabel: (state: State) => state.itemToStringLabel,
   isItemEqualToValue: (state: State) => state.isItemEqualToValue,
   modal: (state: State) => state.modal,
+  dismissButtonLabel: (state: State) => state.dismissButtonLabel,
   autoHighlight: (state: State) => state.autoHighlight,
 };
 

@@ -15,6 +15,7 @@ type DismissEvent = React.MouseEvent<HTMLElement> | React.KeyboardEvent<HTMLElem
 export const ComboboxInternalDismissButton = React.forwardRef<HTMLSpanElement>(
   function ComboboxInternalDismissButton(_, forwardedRef) {
     const store = useComboboxRootContext();
+    const dismissButtonLabel = store.useState('dismissButtonLabel');
 
     const { buttonRef, getButtonProps } = useButton({
       native: false,
@@ -37,7 +38,7 @@ export const ComboboxInternalDismissButton = React.forwardRef<HTMLSpanElement>(
       <span
         ref={mergedRef}
         {...dismissProps}
-        aria-label="Dismiss"
+        aria-label={dismissButtonLabel}
         tabIndex={undefined}
         style={visuallyHiddenInput}
       />

@@ -140,6 +140,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
     autoComplete = 'list',
     formAutoComplete,
     locale,
+    dismissButtonLabel = 'Dismiss',
     submitOnItemClick = false,
   } = props;
 
@@ -491,6 +492,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
         autoHighlight: autoHighlightMode,
         submitOnItemClick,
         hasInputValue,
+        dismissButtonLabel,
         mounted: false,
         forceMounted: false,
         transitionStatus: 'idle',
@@ -1517,6 +1519,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
     isItemEqualToValue,
     submitOnItemClick,
     hasInputValue,
+    dismissButtonLabel,
   };
 
   useIsoLayoutEffect(() => {
@@ -1925,6 +1928,12 @@ interface ComboboxRootProps<ItemValue, Item = ItemValue> {
    * Defaults to the user's runtime locale.
    */
   locale?: Intl.LocalesArgument | undefined;
+  /**
+   * The accessible label for the visually hidden buttons that dismiss the popup.
+   * Provide a translation when the application is not in English.
+   * @default 'Dismiss'
+   */
+  dismissButtonLabel?: string | undefined;
   /**
    * Whether clicking an item should submit the owning form.
    * @default false
