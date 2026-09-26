@@ -20,6 +20,19 @@ describe('<ScrollArea.Viewport />', () => {
     },
   }));
 
+  it('does not use a presentational role on the focusable viewport', async () => {
+    await render(
+      <ScrollArea.Root>
+        <ScrollArea.Viewport tabIndex={0} data-testid="viewport" />
+      </ScrollArea.Root>,
+    );
+
+    const viewport = screen.getByTestId('viewport');
+
+    expect(viewport).not.toHaveAttribute('role', 'presentation');
+    expect(viewport).toHaveAttribute('tabindex', '0');
+  });
+
   it('handles a user scroll callback unmounting the viewport', async () => {
     function App() {
       const [mounted, setMounted] = React.useState(true);
