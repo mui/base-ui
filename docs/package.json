@@ -66,7 +66,7 @@
     "@types/unist": "3.0.3",
     "cross-env": "10.1.0",
     "mdast-util-mdx-jsx": "3.2.0",
-    "motion": "13.2.0",
+    "motion": "13.4.2",
     "prettier": "3.9.8",
     "remark-parse": "11.0.0",
     "remark-stringify": "11.0.0",
@@ -76,6 +76,6 @@
     "typescript": "npm:@typescript/typescript6@6.0.2",
     "unified": "11.0.5",
     "unist-util-visit": "5.1.0",
-    "zod": "4.5.4"
+    "zod": "4.6.5"
   }
 }
