@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
-import { getSide, getAlignment, type Rect, getSideAxis } from '@floating-ui/utils';
+import { getSide, getAlignment, getSideAxis } from '@floating-ui/utils';
+import type { Rect } from '@floating-ui/utils';
 import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
@@ -12,18 +13,20 @@ import {
   offset,
   shift as floatingShift,
   size,
-  type UseFloatingOptions,
-  type UseFloatingReturn,
-  type Placement,
-  type FloatingRootContext,
-  type VirtualElement,
-  type Padding,
-  type FloatingContext,
-  type Side as PhysicalSide,
-  type MiddlewareState,
-  type AutoUpdateOptions,
-  type Middleware,
-  type FloatingTreeStore,
+} from '../floating-ui-react';
+import type {
+  UseFloatingOptions,
+  UseFloatingReturn,
+  Placement,
+  FloatingRootContext,
+  VirtualElement,
+  Padding,
+  FloatingContext,
+  Side as PhysicalSide,
+  MiddlewareState,
+  AutoUpdateOptions,
+  Middleware,
+  FloatingTreeStore,
 } from '../floating-ui-react';
 import { useBaseUIFloating } from '../floating-ui-react/hooks/useFloating';
 import { useDirection } from './direction-context/DirectionContext';
@@ -376,7 +379,6 @@ export function useAnchorPositioningWithHook(
         element: arrowRef.current || ownerDocument(state.elements.floating).createElement('div'),
         // No padding for the fake arrow: it would displace aligned popups on narrow anchors.
         padding: arrowRef.current ? arrowPadding : 0,
-        offsetParent: 'floating',
       }),
       [arrowPadding],
     ),

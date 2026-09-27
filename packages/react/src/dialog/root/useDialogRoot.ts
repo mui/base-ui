@@ -4,7 +4,7 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useScrollLock } from '@base-ui/utils/useScrollLock';
 import { useDismiss } from '../../floating-ui-react';
 import { contains, getTarget } from '../../floating-ui-react/utils';
-import { DialogStore } from '../store/DialogStore';
+import type { DialogStore } from '../store/DialogStore';
 import { usePopupInteractionProps } from '../../utils/popups';
 
 export function DialogInteractions({

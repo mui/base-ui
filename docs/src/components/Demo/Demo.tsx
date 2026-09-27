@@ -227,7 +227,7 @@ export function Demo({ className, ...demoProps }: DemoProps) {
         open={demo.expanded}
         onOpenChange={onOpenChange}
       >
-        <div role="figure" aria-label="Component demo code">
+        <figure aria-label="Component demo code">
           <div className="DemoToolbar">
             {/* One ScrollArea drives the edge-fade indicators at every viewport.
                 Below --sm the actions sit inside it (they scroll with the tabs);
@@ -264,7 +264,7 @@ export function Demo({ className, ...demoProps }: DemoProps) {
               </GhostButton>
             }
           />
-        </div>
+        </figure>
       </Collapsible.Root>
     </div>
   );

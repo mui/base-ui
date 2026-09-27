@@ -2,10 +2,8 @@
 import * as React from 'react';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
-import {
-  NavigationMenuItemContext,
-  NavigationMenuItemContextValue,
-} from './NavigationMenuItemContext';
+import type { NavigationMenuItemContextValue } from './NavigationMenuItemContext';
+import { NavigationMenuItemContext } from './NavigationMenuItemContext';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 
 /**

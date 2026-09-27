@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { FloatingPortal } from '../../floating-ui-react';
-import { type BaseUIComponentProps } from '../../internals/types';
+import type { BaseUIComponentProps } from '../../internals/types';
 import { useNavigationMenuRootContext } from '../root/NavigationMenuRootContext';
 import { NavigationMenuPortalContext } from './NavigationMenuPortalContext';
 

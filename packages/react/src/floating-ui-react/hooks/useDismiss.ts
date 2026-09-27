@@ -16,8 +16,8 @@ import {
 } from '@floating-ui/utils/dom';
 import { platform } from '@base-ui/utils/platform';
 import { useFloatingTree } from '../components/FloatingTree';
-import { FloatingTreeStore } from '../components/FloatingTreeStore';
-import type { ElementProps, FloatingContext, FloatingRootContext } from '../types';
+import type { FloatingTreeStore } from '../components/FloatingTreeStore';
+import type { ElementProps, FloatingRootContext } from '../types';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import type { FloatingUIOpenChangeDetails } from '../../internals/types';
 import { REASONS } from '../../internals/reasons';
@@ -113,10 +113,7 @@ export interface UseDismissProps {
  * the user presses the `escape` key or outside of the floating element.
  * @see https://floating-ui.com/docs/useDismiss
  */
-export function useDismiss(
-  context: FloatingRootContext | FloatingContext,
-  props: UseDismissProps = {},
-): ElementProps {
+export function useDismiss(store: FloatingRootContext, props: UseDismissProps = {}): ElementProps {
   const {
     enabled = true,
     escapeKey = true,
@@ -126,8 +123,6 @@ export function useDismiss(
     bubbles,
     externalTree,
   } = props;
-
-  const store = 'rootStore' in context ? context.rootStore : context;
 
   const open = store.useState('open');
   const floatingElement = store.useState('floatingElement');
@@ -290,6 +285,10 @@ export function useDismiss(
       events.off('openchange', handleOpenChange);
     };
   }, [events]);
+
+  // Not cleared in the listener effect's cleanup, which can run mid-press when a dependency
+  // changes. In a closed shadow root, the marker is the only inside-press signal.
+  React.useEffect(() => clearInsideReactTree, [clearInsideReactTree]);
 
   React.useEffect(() => {
     if (!open || !enabled) {
@@ -744,7 +743,6 @@ export function useDismiss(
       preventedPressSuppressionTimeout.clear();
       resetPressStartState();
       suppressNextOutsideClickRef.current = false;
-      clearInsideReactTree();
     };
   }, [
     dataRef,

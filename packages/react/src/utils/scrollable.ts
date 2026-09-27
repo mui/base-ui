@@ -41,16 +41,14 @@ export function isScrollable(
 export function hasScrollableAncestor(
   target: HTMLElement,
   root: HTMLElement,
-  axes: ScrollAxis[],
+  axis: ScrollAxis,
 ): boolean {
   // `getParentNode` crosses shadow boundaries (and slots), so a target inside a shadow root
   // still walks up to scrollable ancestors in the light DOM.
   let node: Node | null = target;
   while (isHTMLElement(node) && node !== root && !isLastTraversableNode(node)) {
-    for (const axis of axes) {
-      if (isScrollable(node, axis)) {
-        return true;
-      }
+    if (isScrollable(node, axis)) {
+      return true;
     }
     node = getParentNode(node);
   }

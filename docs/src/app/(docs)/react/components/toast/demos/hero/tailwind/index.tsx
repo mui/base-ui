@@ -17,12 +17,12 @@ export default function ExampleToast() {
 
 function ToastButton() {
   const toastManager = Toast.useToastManager();
-  const [count, setCount] = React.useState(0);
+  const countRef = React.useRef(0);
 
   function createToast() {
-    setCount((prev) => prev + 1);
+    countRef.current += 1;
     toastManager.add({
-      title: `Toast ${count + 1} created`,
+      title: `Toast ${countRef.current} created`,
       description: 'This is a toast notification.',
     });
   }

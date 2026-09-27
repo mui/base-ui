@@ -1,8 +1,8 @@
 'use client';
 import * as React from 'react';
 import { platform } from '@base-ui/utils/platform';
-import { HTMLProps } from '../../internals/types';
-import { MenuStore } from '../store/MenuStore';
+import type { HTMLProps } from '../../internals/types';
+import type { MenuStore } from '../store/MenuStore';
 import { REASONS } from '../../internals/reasons';
 import { useContextMenuRootContext } from '../../context-menu/root/ContextMenuRootContext';
 import { dispatchClickWithModifiers } from '../../utils/dispatchClickWithModifiers';

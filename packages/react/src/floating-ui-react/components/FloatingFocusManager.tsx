@@ -31,11 +31,11 @@ import {
   getNextTabbable,
   getPreviousTabbable,
   getTabExitTarget,
-  type FocusableElement,
 } from '../utils/tabbable';
+import type { FocusableElement } from '../utils/tabbable';
 import { getNodeAncestors, getNodeChildren } from '../utils/nodes';
 import { isElementVisible } from '../utils/composite';
-import type { FloatingContext, FloatingRootContext } from '../types';
+import type { FloatingRootContext } from '../types';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import { createAttribute } from '../utils/createAttribute';
@@ -43,9 +43,9 @@ import { enqueueFocus } from '../utils/enqueueFocus';
 import { markOthers } from '../utils/markOthers';
 import { usePortalContext } from './FloatingPortal';
 import { useFloatingTree } from './FloatingTree';
-import { FloatingTreeStore } from '../components/FloatingTreeStore';
+import type { FloatingTreeStore } from '../components/FloatingTreeStore';
 import { CLICK_TRIGGER_IDENTIFIER } from '../../internals/constants';
-import { FloatingUIOpenChangeDetails } from '../../internals/types';
+import type { FloatingUIOpenChangeDetails } from '../../internals/types';
 import { resolveRef } from '../../utils/resolveRef';
 
 function getEventType(event: Event, lastInteractionType?: InteractionType): InteractionType {
@@ -151,7 +151,7 @@ export interface FloatingFocusManagerProps {
   /**
    * The floating context returned from `useFloatingRootContext`.
    */
-  context: FloatingRootContext | FloatingContext;
+  context: FloatingRootContext;
   /**
    * The interaction type used to open the floating element.
    */
@@ -252,7 +252,7 @@ export interface FloatingFocusManagerProps {
  */
 export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JSX.Element {
   const {
-    context,
+    context: store,
     children,
     disabled = false,
     initialFocus = true,
@@ -267,8 +267,6 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     externalTree,
     getInsideElements,
   } = props;
-
-  const store = 'rootStore' in context ? context.rootStore : context;
 
   const open = store.useState('open');
   const domReference = store.useState('domReferenceElement');
@@ -778,7 +776,12 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
         closeTypeRef.current = getEventType(details.nativeEvent, lastInteractionTypeRef.current);
       }
 
-      if (details.reason === REASONS.triggerHover && details.nativeEvent.type === 'mouseleave') {
+      // Focus guards transfer focus themselves; other close handlers may still need return focus.
+      if (
+        (details.reason === REASONS.focusOut &&
+          details.triggerElement?.hasAttribute(createAttribute('focus-guard'))) ||
+        (details.reason === REASONS.triggerHover && details.nativeEvent.type === 'mouseleave')
+      ) {
         preventReturnFocusRef.current = true;
       }
 

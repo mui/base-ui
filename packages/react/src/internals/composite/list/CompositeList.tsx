@@ -4,7 +4,8 @@ import * as React from 'react';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { CompositeListContext, type CompositeListRegistration } from './CompositeListContext';
+import { CompositeListContext } from './CompositeListContext';
+import type { CompositeListRegistration } from './CompositeListContext';
 
 export type CompositeMetadata<CustomMetadata> = {
   index: number;

@@ -4,21 +4,19 @@ import { fastComponent } from '@base-ui/utils/fastHooks';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useDismiss, FloatingTree } from '../../floating-ui-react';
 import { PreviewCardRootContext, usePreviewCardRootContext } from './PreviewCardContext';
-import {
-  createChangeEventDetails,
-  type BaseUIChangeEventDetails,
-} from '../../internals/createBaseUIEventDetails';
+import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import { PreviewCardStore } from '../store/PreviewCardStore';
+import type { PayloadChildRenderFunction } from '../../utils/popups';
 import {
-  PayloadChildRenderFunction,
   PopupHandleAttachment,
   useImplicitActiveTrigger,
   usePopupRootStore,
   useOpenStateTransitions,
   usePopupInteractionProps,
 } from '../../utils/popups';
-import { PreviewCardHandle } from '../store/PreviewCardHandle';
+import type { PreviewCardHandle } from '../store/PreviewCardHandle';
 
 function PreviewCardRootComponent<Payload>(props: PreviewCardRoot.Props<Payload>) {
   const {
@@ -152,7 +150,9 @@ export interface PreviewCardRootProps<Payload = unknown> {
   onOpenChangeComplete?: ((open: boolean) => void) | undefined;
   /**
    * A ref to imperative actions.
-   * - `unmount`: Unmounts the preview card popup.
+   * - `unmount`: Ends the closing phase of the preview card after an externally controlled closing animation finishes.
+   * Call `preventUnmountOnClose()` in `onOpenChange` first, otherwise the preview card completes closing on its own.
+   * Whether it leaves the DOM is decided by `keepMounted` on the portal.
    * - `close`: Closes the preview card imperatively when called.
    */
   actionsRef?: React.RefObject<PreviewCardRoot.Actions | null> | undefined;
@@ -196,7 +196,8 @@ export type PreviewCardRootChangeEventReason =
 
 export type PreviewCardRootChangeEventDetails =
   BaseUIChangeEventDetails<PreviewCardRoot.ChangeEventReason> & {
-    preventUnmountOnClose(): void;
+    /** Prevents the popup from unmounting until the `unmount` action is called. */
+    preventUnmountOnClose: () => void;
   };
 
 export namespace PreviewCardRoot {
