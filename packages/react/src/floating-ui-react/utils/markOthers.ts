@@ -2,6 +2,7 @@
 // https://github.com/theKashey/aria-hidden/blob/9220c8f4a4fd35f63bee5510a9f41a37264382d4/src/index.ts
 import { getNodeName, isShadowRoot } from '@floating-ui/utils/dom';
 import { ownerDocument } from '@base-ui/utils/owner';
+import { CANDIDATE_SELECTOR } from './tabbable';
 
 type Undo = () => void;
 
@@ -89,20 +90,20 @@ const collectOutsideElements = (
 type TabIndexRestoreEntry = [element: Element, originalTabIndex: string | null];
 const focusRestoreMap = new WeakMap<Element, TabIndexRestoreEntry[]>();
 
-// TODO investigate importing from packages/react/src/floating-ui-react/utils/tabbable.ts for SST
-const focusableSelector = [
-  'a[href]',
-  'area[href]',
-  'input:not([disabled])',
-  'select:not([disabled])',
-  'textarea:not([disabled])',
-  'button:not([disabled])',
-  'iframe',
-  'audio[controls]',
-  'video[controls]',
-  '[contenteditable]:not([contenteditable="false"])',
-  '[tabindex]',
-].join(',');
+// // TODO investigate importing from packages/react/src/floating-ui-react/utils/tabbable.ts for SST
+// const focusableSelector = [
+//   'a[href]',
+//   'area[href]',
+//   'input:not([disabled])',
+//   'select:not([disabled])',
+//   'textarea:not([disabled])',
+//   'button:not([disabled])',
+//   'iframe',
+//   'audio[controls]',
+//   'video[controls]',
+//   '[contenteditable]:not([contenteditable="false"])',
+//   '[tabindex]',
+// ].join(',');
 
 /**
  * Function to remove focusable elements from tab order
@@ -111,17 +112,20 @@ function removeFromTabOrder(node: Element): TabIndexRestoreEntry[] {
   const targets: Element[] = []; // Init targets array
 
   // Push original node if focusable
-  if (node.matches?.(focusableSelector)) {
+  if (node.matches?.(CANDIDATE_SELECTOR)) {
     targets.push(node);
   }
   // Push focusable descendent nodes
   if (node.querySelectorAll) {
-    targets.push(...node.querySelectorAll(focusableSelector));
+    targets.push(...node.querySelectorAll(CANDIDATE_SELECTOR));
   }
   const restore: TabIndexRestoreEntry[] = []; // Init to restore array
 
   // Loop through tabbable target elements in tree
   targets.forEach((element) => {
+    if (element.matches(':disabled')) {
+      return;
+    }
     const tabIndex = element.getAttribute('tabindex');
 
     // Negative tabIndex already removes element from tab order

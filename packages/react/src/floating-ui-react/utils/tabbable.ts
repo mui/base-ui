@@ -8,7 +8,7 @@ import type { FloatingNodeType } from '../types';
 
 export type FocusableElement = HTMLElement | SVGElement;
 
-const CANDIDATE_SELECTOR =
+export const CANDIDATE_SELECTOR =
   'a[href],button,input,select,textarea,summary,details,iframe,object,embed,[tabindex],[contenteditable]:not([contenteditable="false"]),audio[controls],video[controls]';
 
 function getParentElement(element: Element) {
