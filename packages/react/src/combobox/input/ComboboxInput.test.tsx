@@ -1070,7 +1070,6 @@ describe('<Combobox.Input />', () => {
 
       expect(link).not.toHaveAttribute('tabindex');
     });
-
   });
 
   describe('data state attributes', () => {

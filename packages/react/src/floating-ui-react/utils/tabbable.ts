@@ -2,6 +2,9 @@ import { getComputedStyle, getNodeName, isHTMLElement, isShadowRoot } from '@flo
 import { ownerDocument } from '@base-ui/utils/owner';
 import { activeElement, contains } from './element';
 import { isElementVisible } from './composite';
+import { isElementInFloatingTree } from './nodes';
+import { createAttribute } from './createAttribute';
+import { FloatingNodeType } from '../types';
 
 export type FocusableElement = HTMLElement | SVGElement;
 
@@ -223,24 +226,52 @@ export function getPreviousTabbable(referenceElement: Element | null): Focusable
   );
 }
 
-function getTabbableNearElement(referenceElement: Element | null, dir: 1 | -1) {
+// Distinguishes no destination found from referenceElement not being trackable
+type NearResult =
+  { found: true; element: FocusableElement } | { found: false; isCandidate: boolean };
+
+function findTabbableNear(
+  referenceElement: Element,
+  direction: 1 | -1,
+  shouldSkip: (element: FocusableElement) => boolean,
+): NearResult {
+  // Locate referenceElement among the document's tab-order candidates
+  const list: FocusableElement[] = [];
+  appendCandidates(ownerDocument(referenceElement).body, list);
+  const index = list.indexOf(referenceElement as FocusableElement);
+  if (index === -1) {
+    return { found: false, isCandidate: false };
+  }
+
+  const candidates = list.filter(isFocusableElement);
+  for (let offset = 1; offset < list.length; offset += 1) {
+    const element = list[(index + direction * offset + list.length) % list.length];
+    if (isTabbable(element) && isTabbableRadio(element, candidates) && !shouldSkip(element)) {
+      return { found: true, element };
+    }
+  }
+
+  return { found: false, isCandidate: true };
+}
+
+export function getTabbableNearElement(
+  referenceElement: Element | null,
+  direction: 1 | -1,
+  exclude?: Element | null,
+): FocusableElement | null {
   if (!referenceElement) {
     return null;
   }
 
-  const list = tabbable(ownerDocument(referenceElement).body);
-  const elementCount = list.length;
-  if (elementCount === 0) {
-    return null;
+  const result = findTabbableNear(referenceElement, direction, (element) =>
+    contains(exclude, element),
+  );
+  if (result.found) {
+    return result.element;
   }
 
-  const index = list.indexOf(referenceElement as FocusableElement);
-  if (index === -1) {
-    return null;
-  }
-
-  const nextIndex = (index + dir + elementCount) % elementCount;
-  return list[nextIndex];
+  // Fall back to reference element when tracked candidate but nothing else qualified, return null if not in tab order
+  return result.isCandidate ? (referenceElement as FocusableElement) : null; // TODO investigate typecast
 }
 
 export function getTabbableAfterElement(referenceElement: Element | null): FocusableElement | null {
@@ -279,4 +310,23 @@ export function enableFocusInside(container: HTMLElement) {
       element.removeAttribute('tabindex');
     }
   });
+}
+
+export function getTabExitTarget(
+  referenceElement: Element | null,
+  direction: 1 | -1,
+  nodes: Array<FloatingNodeType>,
+): FocusableElement | null {
+  if (!referenceElement) {
+    return null;
+  }
+
+  const result = findTabbableNear(
+    referenceElement,
+    direction,
+    (element) =>
+      element.hasAttribute(createAttribute('focus-guard')) ||
+      isElementInFloatingTree(element, nodes),
+  );
+  return result.found ? result.element : null;
 }

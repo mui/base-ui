@@ -1,4 +1,5 @@
 import type { FloatingNodeType } from '../types';
+import { contains } from './element';
 
 /* eslint-disable @typescript-eslint/no-loop-func */
 
@@ -51,4 +52,25 @@ export function getNodeAncestors(nodes: Array<FloatingNodeType>, id: string | un
   }
 
   return allAncestors;
+}
+
+export function isElementInFloatingTree(element: Element, nodes: Array<FloatingNodeType>): boolean {
+  return nodes.some((node) => {
+    const context = node.context;
+    if (!context?.open) {
+      return false;
+    }
+
+    const { domReference, floating } = context.elements;
+    if (domReference && (domReference === element || contains(domReference, element))) {
+      return true;
+    }
+    if (floating && (floating === element || contains(floating, element))) {
+      return true;
+    }
+
+    return context.rootStore.context.triggerElements.hasMatchingElement(
+      (trigger) => trigger === element || contains(trigger, element),
+    );
+  });
 }

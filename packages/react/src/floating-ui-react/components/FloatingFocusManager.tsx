@@ -30,6 +30,7 @@ import {
   isTabbable,
   getNextTabbable,
   getPreviousTabbable,
+  getTabExitTarget,
   type FocusableElement,
 } from '../utils/tabbable';
 import { getNodeAncestors, getNodeChildren } from '../utils/nodes';
@@ -627,12 +628,23 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
       portalContext?.afterOutsideRef.current,
       ...getResolvedInsideElements(),
     ];
+
+    // Keep the untrapped combobox's tab/shift+tab exits reachable
+    const treeNodes = tree?.nodesRef.current ?? [];
+    const comboboxTabExits = isUntrappedTypeableCombobox
+      ? [
+          getTabExitTarget(domReference, -1, treeNodes),
+          getTabExitTarget(domReference, 1, treeNodes),
+        ]
+      : [];
+
     const insideElements = [
       ...controlInsideElements,
       rootAncestorComboboxDomReference,
       resolveRef(previousFocusableElement),
       resolveRef(nextFocusableElement),
       isUntrappedTypeableCombobox ? domReference : null,
+      ...comboboxTabExits,
     ].filter((x): x is Element => x != null);
 
     const ariaHiddenCleanup = markOthers(insideElements, {
