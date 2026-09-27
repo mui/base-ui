@@ -90,21 +90,6 @@ const collectOutsideElements = (
 type TabIndexRestoreEntry = [element: Element, originalTabIndex: string | null];
 const focusRestoreMap = new WeakMap<Element, TabIndexRestoreEntry[]>();
 
-// // TODO investigate importing from packages/react/src/floating-ui-react/utils/tabbable.ts for SST
-// const focusableSelector = [
-//   'a[href]',
-//   'area[href]',
-//   'input:not([disabled])',
-//   'select:not([disabled])',
-//   'textarea:not([disabled])',
-//   'button:not([disabled])',
-//   'iframe',
-//   'audio[controls]',
-//   'video[controls]',
-//   '[contenteditable]:not([contenteditable="false"])',
-//   '[tabindex]',
-// ].join(',');
-
 /**
  * Function to remove focusable elements from tab order
  */
