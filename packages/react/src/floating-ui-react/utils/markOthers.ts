@@ -87,7 +87,6 @@ const collectOutsideElements = (
 };
 
 type TabIndexRestoreEntry = [element: Element, originalTabIndex: string | null];
-
 const focusRestoreMap = new WeakMap<Element, TabIndexRestoreEntry[]>();
 
 // TODO investigate importing from packages/react/src/floating-ui-react/utils/tabbable.ts for SST
@@ -125,8 +124,8 @@ function removeFromTabOrder(node: Element): TabIndexRestoreEntry[] {
   targets.forEach((element) => {
     const tabIndex = element.getAttribute('tabindex');
 
-    // TODO investigate handling of existing negative tabIndex values, maybe skip eg -2
-    if (tabIndex === '-1') {
+    // Negative tabIndex already removes element from tab order
+    if (tabIndex !== null && Number(tabIndex) < 0) {
       return;
     }
     restore.push([element, tabIndex]);
@@ -143,7 +142,7 @@ function restoreTabOrder(node: Element): void {
   if (!restore) {
     return;
   }
-  focusRestoreMap.delete(node); // TODO here or after complete?
+  focusRestoreMap.delete(node);
 
   // Loop through tabIndex restore entries
   restore.forEach(([element, tabIndex]) => {

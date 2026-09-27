@@ -4,7 +4,7 @@ import { activeElement, contains } from './element';
 import { isElementVisible } from './composite';
 import { isElementInFloatingTree } from './nodes';
 import { createAttribute } from './createAttribute';
-import { FloatingNodeType } from '../types';
+import type { FloatingNodeType } from '../types';
 
 export type FocusableElement = HTMLElement | SVGElement;
 
@@ -226,9 +226,9 @@ export function getPreviousTabbable(referenceElement: Element | null): Focusable
   );
 }
 
-// Distinguishes no destination found from referenceElement not being trackable
 type NearResult =
-  { found: true; element: FocusableElement } | { found: false; isCandidate: boolean };
+  | { found: true; element: FocusableElement }
+  | { found: false; trackedElement: FocusableElement | null };
 
 function findTabbableNear(
   referenceElement: Element,
@@ -240,7 +240,7 @@ function findTabbableNear(
   appendCandidates(ownerDocument(referenceElement).body, list);
   const index = list.indexOf(referenceElement as FocusableElement);
   if (index === -1) {
-    return { found: false, isCandidate: false };
+    return { found: false, trackedElement: null };
   }
 
   const candidates = list.filter(isFocusableElement);
@@ -251,7 +251,7 @@ function findTabbableNear(
     }
   }
 
-  return { found: false, isCandidate: true };
+  return { found: false, trackedElement: list[index] };
 }
 
 export function getTabbableNearElement(
@@ -262,16 +262,13 @@ export function getTabbableNearElement(
   if (!referenceElement) {
     return null;
   }
-
   const result = findTabbableNear(referenceElement, direction, (element) =>
     contains(exclude, element),
   );
   if (result.found) {
     return result.element;
   }
-
-  // Fall back to reference element when tracked candidate but nothing else qualified, return null if not in tab order
-  return result.isCandidate ? (referenceElement as FocusableElement) : null; // TODO investigate typecast
+  return result.trackedElement;
 }
 
 export function getTabbableAfterElement(referenceElement: Element | null): FocusableElement | null {
