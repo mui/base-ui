@@ -99,6 +99,68 @@ const collectOutsideElements = (
   return outside;
 };
 
+type TabIndexRestoreEntry = [element: Element, originalTabIndex: string | null];
+
+const focusRestoreMap = new WeakMap<Element, TabIndexRestoreEntry[]>();
+
+// TODO investigate importing from packages/react/src/floating-ui-react/utils/tabbable.ts for SST
+const focusableSelector = ['a[href]', 'area[href]', 'input:not([disabled])', 'select:not([disabled])', 'textarea:not([disabled])', 'button:not([disabled])', 'iframe', 'audio[controls]', 'video[controls]', '[contenteditable]:not([contenteditable="false"])', '[tabindex]'].join(',');
+
+/**
+ * Function to remove focusable elements from tab order
+ * TODO exempt natural next-tabbable neighbor in FloatingFocusManager/insideElements? Investigate untrapped combobox case
+ */
+function removeFromTabOrder(node: Element): TabIndexRestoreEntry[] {
+  const targets: Element[] = [] // Init targets array
+
+  // Push original node if focusable
+  if (node.matches?.(focusableSelector)) {
+    targets.push(node)
+  }
+  // Push focusable descendent nodes
+  if (node.querySelectorAll) {
+    targets.push(...node.querySelectorAll(focusableSelector))
+  }
+  const restore: TabIndexRestoreEntry[] = []; // Init to restore array
+
+  // Loop through tabbable target elements in tree
+  targets.forEach(element => {
+    const tabIndex = element.getAttribute('tabindex')
+
+    // TODO investigate handling of existing negative tabIndex values, maybe skip eg -2
+    if (tabIndex === '-1') {
+      return
+    }
+    restore.push([element, tabIndex]);
+    element.setAttribute('tabindex', '-1')
+  })
+  return restore;
+}
+
+
+/**
+ * Function to restore tab order state to altered elements
+ */
+function restoreTabOrder(node: Element): void {
+  const restore = focusRestoreMap.get(node);
+  if (!restore) {
+    return;
+  }
+  focusRestoreMap.delete(node); // TODO here or after complete?
+
+  // Loop through tabIndex restore entries
+  restore.forEach(([element, tabIndex]) => {
+    if (element.getAttribute('tabindex') !== '-1') {
+      return;
+    }
+    if (tabIndex === null) {
+      element.removeAttribute('tabindex');
+    } else {
+      element.setAttribute('tabindex', tabIndex)
+    }
+  })
+}
+
 function applyAttributeToOthers(
   uncorrectedAvoidElements: Element[],
   body: HTMLElement,
@@ -153,6 +215,9 @@ function applyAttributeToOthers(
       if (!alreadyHidden) {
         node.setAttribute(controlAttribute, controlAttribute === 'inert' ? '' : 'true');
       }
+      if (controlAttribute === 'aria-hidden' && counterValue === 1 && !alreadyHidden) {
+        focusRestoreMap.set(node, removeFromTabOrder(node));
+      }
     });
   }
 
@@ -184,6 +249,7 @@ function applyAttributeToOthers(
           }
 
           uncontrolledElementsSet?.delete(element);
+          restoreTabOrder(element)
         }
       });
     }
