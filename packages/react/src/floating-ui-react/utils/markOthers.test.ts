@@ -1,4 +1,4 @@
-import { expect, afterEach, test } from 'vitest';
+import { expect, afterEach, test, describe } from 'vitest';
 import { markOthers } from './markOthers';
 
 afterEach(() => {
@@ -310,4 +310,80 @@ test('uses shadow root host as avoid element when parent chain includes anchor',
   cleanup();
 
   expect(outside.getAttribute('aria-hidden')).toBe(null);
+});
+
+describe('tab order of aria-hidden content', () => {
+  test('removes focusable descendants from the tab order and restores them on cleanup', () => {
+    document.body.innerHTML = `
+      <nav id="nav">
+        <a id="link" href="#">Link</a>
+        <button id="button">Button</button>
+        <div id="custom" tabindex="0">Custom</div>
+        <span id="plain">Not focusable</span>
+      </nav>
+      <div id="popup"></div>
+    `;
+    const byId = (id: string) => document.getElementById(id)!;
+
+    const cleanup = markOthers([byId('popup')], { ariaHidden: true });
+
+    expect(byId('nav').getAttribute('aria-hidden')).toBe('true');
+    expect(byId('link').getAttribute('tabindex')).toBe('-1');
+    expect(byId('button').getAttribute('tabindex')).toBe('-1');
+    expect(byId('custom').getAttribute('tabindex')).toBe('-1');
+    expect(byId('plain').hasAttribute('tabindex')).toBe(false);
+
+    cleanup();
+
+    expect(byId('link').hasAttribute('tabindex')).toBe(false);
+    expect(byId('button').hasAttribute('tabindex')).toBe(false);
+    expect(byId('custom').getAttribute('tabindex')).toBe('0');
+  });
+
+  test('does not touch the tab order when mark is used without ariaHidden', () => {
+    document.body.innerHTML = `<button id="button">Button</button><div id="popup"></div>`;
+    const cleanup = markOthers([document.getElementById('popup')!]);
+
+    expect(document.getElementById('button')!.hasAttribute('tabindex')).toBe(false);
+
+    cleanup();
+  });
+
+  test('only restores once the last of several overlapping locks releases', () => {
+    document.body.innerHTML = `<button id="button">Button</button><div id="popup"></div><div id="nested"></div>`;
+    const button = document.getElementById('button')!;
+
+    const cleanupOuter = markOthers([document.getElementById('popup')!], { ariaHidden: true });
+    const cleanupNested = markOthers(
+      [document.getElementById('popup')!, document.getElementById('nested')!],
+      { ariaHidden: true },
+    );
+
+    cleanupNested();
+    expect(button.getAttribute('tabindex')).toBe('-1');
+
+    cleanupOuter();
+    expect(button.hasAttribute('tabindex')).toBe(false);
+  });
+
+  test('leaves an element that was already tabindex="-1" untouched', () => {
+    document.body.innerHTML = `<div id="toolbar"><button id="item" tabindex="-1">Item</button></div><div id="popup"></div>`;
+    const item = document.getElementById('item')!;
+
+    const cleanup = markOthers([document.getElementById('popup')!], { ariaHidden: true });
+    expect(item.getAttribute('tabindex')).toBe('-1');
+
+    cleanup();
+    expect(item.getAttribute('tabindex')).toBe('-1');
+  });
+
+  test('does not touch tab order in a subtree the caller had already aria-hidden themselves', () => {
+    document.body.innerHTML = `<div id="own" aria-hidden="true"><button id="button">B</button></div><div id="popup"></div>`;
+    const cleanup = markOthers([document.getElementById('popup')!], { ariaHidden: true });
+
+    expect(document.getElementById('button')!.hasAttribute('tabindex')).toBe(false);
+
+    cleanup();
+    expect(document.getElementById('own')!.getAttribute('aria-hidden')).toBe('true');
+  });
 });

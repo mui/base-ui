@@ -1012,6 +1012,65 @@ describe('<Combobox.Input />', () => {
       });
       expect(screen.queryByRole('listbox')).toBe(null);
     });
+
+    it('takes aria-hidden outside content out of the tab order while open, except the Tab exits', async () => {
+      const { user } = await render(
+        <div>
+          <nav>
+            <a href="#home" data-testid="link">
+              Home
+            </a>
+          </nav>
+          <button type="button" data-testid="before">
+            before
+          </button>
+          <Combobox.Root items={['apple', 'banana']}>
+            <Combobox.Input />
+            <Combobox.Portal>
+              <Combobox.Positioner>
+                <Combobox.Popup>
+                  <Combobox.List>
+                    {(item: string) => (
+                      <Combobox.Item key={item} value={item}>
+                        {item}
+                      </Combobox.Item>
+                    )}
+                  </Combobox.List>
+                </Combobox.Popup>
+              </Combobox.Positioner>
+            </Combobox.Portal>
+          </Combobox.Root>
+          <button type="button" data-testid="after">
+            after
+          </button>
+        </div>,
+      );
+
+      const link = screen.getByTestId('link');
+
+      await user.click(screen.getByRole('combobox'));
+      await waitFor(() => {
+        expect(screen.getByRole('listbox')).not.toBe(null);
+      });
+
+      // Hidden from assistive tech and from Tab.
+      expect(link.closest('[aria-hidden="true"]')).not.toBe(null);
+      expect(link).toHaveAttribute('tabindex', '-1');
+
+      // The elements Tab / Shift+Tab move to stay exposed and tabbable.
+      expect(screen.getByTestId('before').closest('[aria-hidden="true"]')).toBe(null);
+      expect(screen.getByTestId('before')).not.toHaveAttribute('tabindex');
+      expect(screen.getByTestId('after').closest('[aria-hidden="true"]')).toBe(null);
+      expect(screen.getByTestId('after')).not.toHaveAttribute('tabindex');
+
+      await user.keyboard('{Escape}');
+      await waitFor(() => {
+        expect(screen.queryByRole('listbox')).toBe(null);
+      });
+
+      expect(link).not.toHaveAttribute('tabindex');
+    });
+
   });
 
   describe('data state attributes', () => {
