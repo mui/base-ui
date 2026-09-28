@@ -6,10 +6,8 @@ import { useFloating } from '../../../test/floating-ui-tests/useFloating';
 import { safePolygon } from '../safePolygon';
 import { useHoverFloatingInteraction } from './useHoverFloatingInteraction';
 import { useHoverInteractionSharedState } from './useHoverInteractionSharedState';
-import {
-  useHoverReferenceInteraction,
-  type UseHoverReferenceInteractionProps,
-} from './useHoverReferenceInteraction';
+import { useHoverReferenceInteraction } from './useHoverReferenceInteraction';
+import type { UseHoverReferenceInteractionProps } from './useHoverReferenceInteraction';
 import { REASONS } from '../../internals/reasons';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 

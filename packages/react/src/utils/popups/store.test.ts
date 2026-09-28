@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { createInitialPopupStoreState, popupStoreSelectors, type PopupStoreState } from './store';
+import { createInitialPopupStoreState, popupStoreSelectors } from './store';
+import type { PopupStoreState } from './store';
 import { PopupTriggerMap } from './popupTriggerMap';
 
 function createState(state: Partial<PopupStoreState<unknown>>) {

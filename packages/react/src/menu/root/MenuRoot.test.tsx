@@ -1008,6 +1008,7 @@ describe('<Menu.Root />', () => {
         });
 
         expect(submenuTrigger).toHaveFocus();
+        expect(screen.getByTestId('menu')).not.toBe(null);
       });
 
       it('closes the entire tree when clicking outside the deepest submenu', async () => {

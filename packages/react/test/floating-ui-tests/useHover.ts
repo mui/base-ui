@@ -10,7 +10,7 @@ import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { isElement } from '@floating-ui/utils/dom';
 import { createChangeEventDetails } from '../../src/internals/createBaseUIEventDetails';
 import { REASONS } from '../../src/internals/reasons';
-import { FloatingUIOpenChangeDetails } from '../../src/internals/types';
+import type { FloatingUIOpenChangeDetails } from '../../src/internals/types';
 import {
   useFloatingParentNodeId,
   useFloatingTree,

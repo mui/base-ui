@@ -1,9 +1,6 @@
 import * as React from 'react';
-import {
-  Combobox,
-  type ComboboxItemCollection,
-  type CreateComboboxItemsOptions,
-} from '@base-ui/react/combobox';
+import { Combobox } from '@base-ui/react/combobox';
+import type { ComboboxItemCollection, CreateComboboxItemsOptions } from '@base-ui/react/combobox';
 import { expectType } from '#test-utils';
 import { mergeProps } from '../../merge-props';
 import { REASONS } from '../../internals/reasons';

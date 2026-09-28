@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { type MenuStore } from '../store/MenuStore';
+import type { MenuStore } from '../store/MenuStore';
 import type { MenuParent, MenuRoot } from './MenuRoot';
 
 export interface MenuRootContext<Payload = unknown> {

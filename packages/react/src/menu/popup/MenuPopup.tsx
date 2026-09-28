@@ -243,9 +243,7 @@ export const MenuPopupPlain = React.forwardRef(function MenuPopup(
       nextFocusableElement={
         parent.type === undefined ? store.context.triggerFocusTargetRef : undefined
       }
-      beforeContentFocusGuardRef={
-        parent.type === undefined ? store.context.beforeContentFocusGuardRef : undefined
-      }
+      beforeContentFocusGuardRef={store.context.beforeContentFocusGuardRef}
     >
       {element}
     </FloatingFocusManager>

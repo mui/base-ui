@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
-import { useForm, revalidateLogic, DeepKeys, ValidationError } from '@tanstack/react-form';
+import type { DeepKeys, ValidationError } from '@tanstack/react-form';
+import { useForm, revalidateLogic } from '@tanstack/react-form';
 import { Button } from '../../components/button';
 import { CheckboxGroup } from '../../components/checkbox-group';
 import { RadioGroup } from '../../components/radio-group';

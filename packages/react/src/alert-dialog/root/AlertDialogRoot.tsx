@@ -1,6 +1,6 @@
 'use client';
-import * as React from 'react';
-import { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import type * as React from 'react';
+import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import type { DialogRoot } from '../../dialog/root/DialogRoot';
 import { useRenderDialogRoot } from '../../dialog/root/useRenderDialogRoot';
 import type { AlertDialogHandle } from '../handle';

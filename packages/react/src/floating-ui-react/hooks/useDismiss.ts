@@ -16,7 +16,7 @@ import {
 } from '@floating-ui/utils/dom';
 import { platform } from '@base-ui/utils/platform';
 import { useFloatingTree } from '../components/FloatingTree';
-import { FloatingTreeStore } from '../components/FloatingTreeStore';
+import type { FloatingTreeStore } from '../components/FloatingTreeStore';
 import type { ElementProps, FloatingRootContext } from '../types';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import type { FloatingUIOpenChangeDetails } from '../../internals/types';

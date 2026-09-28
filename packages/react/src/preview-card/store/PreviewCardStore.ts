@@ -1,17 +1,19 @@
 import * as React from 'react';
 import { ReactStore } from '@base-ui/utils/store';
+import type {
+  InlineRectCoords,
+  PopupStoreContext,
+  PopupStoreState,
+  PopupTriggerStoreKeys,
+} from '../../utils/popups';
 import {
   applyPopupOpenChange,
   createInitialPopupStoreState,
-  InlineRectCoords,
-  PopupStoreContext,
   popupStoreSelectors,
-  PopupStoreState,
   PopupTriggerMap,
-  type PopupTriggerStoreKeys,
   updateInlineRectCoords,
 } from '../../utils/popups';
-import { type PreviewCardRoot } from '../root/PreviewCardRoot';
+import type { PreviewCardRoot } from '../root/PreviewCardRoot';
 import { REASONS } from '../../internals/reasons';
 import { NullStore } from '../../utils/NullStore';
 import { CLOSE_DELAY } from '../utils/constants';

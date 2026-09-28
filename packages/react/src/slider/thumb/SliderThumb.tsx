@@ -8,7 +8,7 @@ import { ownerWindow } from '@base-ui/utils/owner';
 import { script as prehydrationScript } from '#prehydration/slider/thumb';
 import { clamp } from '@base-ui/utils/clamp';
 import { formatNumber } from '@base-ui/utils/formatNumber';
-import { BaseUIComponentProps } from '../../internals/types';
+import type { BaseUIComponentProps } from '../../internals/types';
 import { mergeProps } from '../../merge-props';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import { useIsHydrating } from '../../utils/useIsHydrating';

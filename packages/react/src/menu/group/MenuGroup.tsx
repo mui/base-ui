@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useMenuFilterImpl } from '../filter-root/MenuFilterContext';
-import { BaseUIComponentProps } from '../../internals/types';
+import type { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { MenuGroupContext } from './MenuGroupContext';
 

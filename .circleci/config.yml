@@ -35,7 +35,7 @@ default-job: &default-job
   working_directory: /tmp/base-ui
   executor:
     name: code-infra/mui-node
-    node-version: '22.23.2'
+    node-version: '22.23.3'
 
 default-context: &default-context
   context:

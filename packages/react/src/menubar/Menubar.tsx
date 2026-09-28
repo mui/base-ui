@@ -6,13 +6,13 @@ import {
   useFloatingNodeId,
   useFloatingTree,
 } from '../floating-ui-react';
-import { type MenuRoot } from '../menu/root/MenuRoot';
-import { BaseUIComponentProps } from '../internals/types';
+import type { MenuRoot } from '../menu/root/MenuRoot';
+import type { BaseUIComponentProps } from '../internals/types';
 import { MenubarContext, useMenubarContext } from './MenubarContext';
 import { CompositeRoot } from '../internals/composite/root/CompositeRoot';
 import { useBaseUiId } from '../internals/useBaseUiId';
-import { MenuOpenEventDetails } from '../menu/utils/types';
-import { StateAttributesMapping } from '../internals/getStateAttributesProps';
+import type { MenuOpenEventDetails } from '../menu/utils/types';
+import type { StateAttributesMapping } from '../internals/getStateAttributesProps';
 import * as MenubarDataAttributes from './MenubarDataAttributes';
 import { REASONS } from '../internals/reasons';
 

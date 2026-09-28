@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { type FieldRootState } from '../root/FieldRoot';
+import type { FieldRootState } from '../root/FieldRoot';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
 import { useLabelableContext } from '../../internals/labelable-provider/LabelableContext';
 import { fieldValidityMapping } from '../../internals/field-constants/constants';
@@ -12,7 +12,8 @@ import { useRenderElement } from '../../internals/useRenderElement';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
 import { transitionStatusMapping } from '../../internals/stateAttributesMapping';
-import { type TransitionStatus, useTransitionStatus } from '../../internals/useTransitionStatus';
+import { useTransitionStatus } from '../../internals/useTransitionStatus';
+import type { TransitionStatus } from '../../internals/useTransitionStatus';
 
 const stateAttributesMapping: StateAttributesMapping<FieldErrorState> = {
   ...fieldValidityMapping,

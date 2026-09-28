@@ -1,5 +1,5 @@
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
-import { REASONS } from './reasons';
+import type { REASONS } from './reasons';
 
 interface ReasonToEventMap {
   [REASONS.none]: Event;

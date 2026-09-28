@@ -4,7 +4,7 @@
 // @ts-nocheck
 'use client';
 import { DateTime, Info } from 'luxon';
-import {
+import type {
   TemporalAdapterFormats,
   DateBuilderReturnType,
   TemporalTimezone,

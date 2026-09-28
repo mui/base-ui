@@ -9,7 +9,7 @@ import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { isElement } from '@floating-ui/utils/dom';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
-import { FloatingUIOpenChangeDetails, HTMLProps } from '../../internals/types';
+import type { FloatingUIOpenChangeDetails, HTMLProps } from '../../internals/types';
 import { useFloatingTree } from '../components/FloatingTree';
 import type { FloatingTreeStore } from '../components/FloatingTreeStore';
 import type { Delay, FloatingRootContext } from '../types';

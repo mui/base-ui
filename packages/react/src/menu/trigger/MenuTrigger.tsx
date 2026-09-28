@@ -31,9 +31,9 @@ import { useTriggerFocusGuards } from '../../utils/popups/useTriggerFocusGuards'
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import { REASONS } from '../../internals/reasons';
 import { useMixedToggleClickHandler } from '../../utils/useMixedToggleClickHandler';
-import { MenuHandle } from '../store/MenuHandle';
+import type { MenuHandle } from '../store/MenuHandle';
 import { useMenubarContext } from '../../menubar/MenubarContext';
-import { MenuParent } from '../root/MenuRoot';
+import type { MenuParent } from '../root/MenuRoot';
 import { PATIENT_CLICK_THRESHOLD } from '../../internals/constants';
 import { FocusGuard } from '../../utils/FocusGuard';
 import { mergeProps } from '../../merge-props';

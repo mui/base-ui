@@ -10,7 +10,7 @@ import { isHTMLElement } from '@floating-ui/utils/dom';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import { useFloatingParentNodeId, useFloatingTree } from '../components/FloatingTree';
-import { FloatingTreeStore } from '../components/FloatingTreeStore';
+import type { FloatingTreeStore } from '../components/FloatingTreeStore';
 import type { ElementProps, FloatingRootContext } from '../types';
 import {
   findNonDisabledListIndex,

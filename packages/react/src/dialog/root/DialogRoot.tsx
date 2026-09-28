@@ -1,10 +1,10 @@
 'use client';
-import * as React from 'react';
+import type * as React from 'react';
 import { fastComponent } from '@base-ui/utils/fastHooks';
 import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
-import { REASONS } from '../../internals/reasons';
-import { DialogHandle } from '../store/DialogHandle';
-import { type PayloadChildRenderFunction } from '../../utils/popups';
+import type { REASONS } from '../../internals/reasons';
+import type { DialogHandle } from '../store/DialogHandle';
+import type { PayloadChildRenderFunction } from '../../utils/popups';
 import { useRenderDialogRoot } from './useRenderDialogRoot';
 
 /**
