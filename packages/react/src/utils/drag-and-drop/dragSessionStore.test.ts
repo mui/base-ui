@@ -1,7 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
-import { fireEvent } from '@testing-library/react';
 import { createDndRenderer } from '#test-utils';
-import { cancel, createElement, flushRaf, setupDragEngineTests } from '../../../test/dnd';
+import { cancel, createElement, flushRaf, setupDragEngineTests, fireDrag } from '../../../test/dnd';
 import { dragSessionStore, dragSourceStore, retargetDragSource } from './dragSessionStore';
 
 setupDragEngineTests();
@@ -20,7 +19,7 @@ describe('dragSessionStore', () => {
     const target = createElement();
     engine.registerTarget(target, {});
 
-    fireEvent.dragStart(source);
+    fireDrag.dragStart(source);
 
     // start() publishes the session snapshot synchronously, just before it
     // dispatches onMoveStart.
@@ -31,11 +30,11 @@ describe('dragSessionStore', () => {
 
     await flushRaf();
 
-    fireEvent.dragEnter(target);
-    fireEvent.dragOver(target);
+    fireDrag.dragEnter(target);
+    fireDrag.dragOver(target);
     await flushRaf();
 
-    fireEvent.drop(target);
+    fireDrag.drop(target);
     expect(dragSessionStore.state).toBeNull();
   });
 
@@ -46,15 +45,15 @@ describe('dragSessionStore', () => {
     const target = createElement();
     engine.registerTarget(target, {});
 
-    fireEvent.dragStart(source);
+    fireDrag.dragStart(source);
     await flushRaf();
 
     const beforeEnter = dragSessionStore.state;
     expect(beforeEnter).not.toBeNull();
     expect(beforeEnter!.location.current.targets.length).toBe(0);
 
-    fireEvent.dragEnter(target);
-    fireEvent.dragOver(target);
+    fireDrag.dragEnter(target);
+    fireDrag.dragOver(target);
     await flushRaf();
 
     const afterEnter = dragSessionStore.state;
@@ -62,7 +61,7 @@ describe('dragSessionStore', () => {
     expect(afterEnter!.location.current.targets.length).toBe(1);
     expect(afterEnter!.location.current.targets[0].element).toBe(target);
 
-    fireEvent.drop(target);
+    fireDrag.drop(target);
     expect(dragSessionStore.state).toBeNull();
   });
 
@@ -73,14 +72,14 @@ describe('dragSessionStore', () => {
     const target = createElement();
     engine.registerTarget(target, {});
 
-    fireEvent.dragStart(source);
+    fireDrag.dragStart(source);
     await flushRaf();
-    fireEvent.dragEnter(target);
-    fireEvent.dragOver(target);
+    fireDrag.dragEnter(target);
+    fireDrag.dragOver(target);
     await flushRaf();
     expect(dragSessionStore.state).not.toBeNull();
 
-    cancel(target);
+    cancel();
     expect(dragSessionStore.state).toBeNull();
   });
 
@@ -91,10 +90,10 @@ describe('dragSessionStore', () => {
     const target = createElement();
     const cleanup = engine.registerTarget(target, {});
 
-    fireEvent.dragStart(source);
+    fireDrag.dragStart(source);
     await flushRaf();
-    fireEvent.dragEnter(target);
-    fireEvent.dragOver(target);
+    fireDrag.dragEnter(target);
+    fireDrag.dragOver(target);
     await flushRaf();
 
     expect(dragSessionStore.state!.location.current.targets.length).toBe(1);
@@ -108,7 +107,7 @@ describe('dragSessionStore', () => {
     expect(dragSessionStore.state!.location.current.targets.length).toBe(0);
 
     unsubscribe();
-    fireEvent.dragEnd(window);
+    fireDrag.dragEnd();
   });
 
   it('gives each snapshot its own copy of the initial location', async () => {
@@ -118,10 +117,10 @@ describe('dragSessionStore', () => {
     const target = createElement();
     engine.registerTarget(target, {});
 
-    fireEvent.dragStart(source);
+    fireDrag.dragStart(source);
     await flushRaf();
-    fireEvent.dragEnter(target);
-    fireEvent.dragOver(target);
+    fireDrag.dragEnter(target);
+    fireDrag.dragOver(target);
     await flushRaf();
 
     const snapshot = dragSessionStore.state!;
@@ -134,14 +133,14 @@ describe('dragSessionStore', () => {
     // @ts-expect-error -- deliberate mutation of a readonly-typed array
     snapshot.location.initial.targets.push(record);
 
-    fireEvent.dragLeave(target);
+    fireDrag.dragLeave();
     await flushRaf();
 
     const next = dragSessionStore.state!;
     expect(next).not.toBe(snapshot);
     expect(next.location.initial.targets).toEqual([]);
 
-    cancel(target);
+    cancel();
   });
 
   it('subscribers receive every published snapshot', async () => {
@@ -156,12 +155,12 @@ describe('dragSessionStore', () => {
       seen.push(state);
     });
 
-    fireEvent.dragStart(source);
+    fireDrag.dragStart(source);
     await flushRaf();
-    fireEvent.dragEnter(target);
-    fireEvent.dragOver(target);
+    fireDrag.dragEnter(target);
+    fireDrag.dragOver(target);
     await flushRaf();
-    fireEvent.drop(target);
+    fireDrag.drop(target);
 
     // start, target-change, teardown.
     expect(seen.length).toBeGreaterThanOrEqual(3);
@@ -175,7 +174,7 @@ describe('dragSessionStore', () => {
     const source = createElement();
     engine.registerSource(source, {});
 
-    fireEvent.dragStart(source);
+    fireDrag.dragStart(source);
     await flushRaf();
 
     const sessionSource = dragSessionStore.state!.source;
@@ -211,16 +210,16 @@ describe('dragSessionStore', () => {
     const listener = vi.fn();
     const unsubscribe = dragSourceStore.subscribe(listener);
 
-    fireEvent.dragStart(source);
+    fireDrag.dragStart(source);
     await flushRaf();
     expect(listener).toHaveBeenCalledTimes(1);
 
-    fireEvent.dragEnter(target);
-    fireEvent.dragOver(target);
+    fireDrag.dragEnter(target);
+    fireDrag.dragOver(target);
     await flushRaf();
     expect(listener).toHaveBeenCalledTimes(1);
 
-    fireEvent.drop(target);
+    fireDrag.drop(target);
     expect(listener).toHaveBeenCalledTimes(2);
     expect(dragSourceStore.state).toBeNull();
     unsubscribe();

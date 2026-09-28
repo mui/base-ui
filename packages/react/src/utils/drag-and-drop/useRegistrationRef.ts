@@ -4,9 +4,6 @@ import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import type { DragCleanupFn } from './types';
 
-/** A commit-safe getter used by long-lived drag registrations. */
-export type LatestGetter<T> = () => T;
-
 /**
  * A stable ref callback that registers the attached element and tears the
  * registration down when the node detaches or is swapped. `register` is read

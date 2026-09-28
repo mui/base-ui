@@ -45,19 +45,14 @@ export type AcceptedDragData<TAccept> =
  * The first argument of the drag handlers of a source, a monitor, and a collision provider:
  * the dragged item and the target it is over.
  */
-export interface DragSourceEventValue<
-  TSourcePayload = unknown,
-  TDragData = unknown,
-  TTargetPayload = unknown,
-  TTargetDragData = unknown,
-> {
+export interface DragSourceEventValue<TSourcePayload = unknown, TDragData = unknown> {
   /** The item being dragged. */
   source: DraggableRootRecord<TSourcePayload, TDragData>;
   /**
    * The drop target that would receive the drop if the drag were released now, or
    * `null` when there is none: `eventDetails.location.current.targets[0]`.
    */
-  target: DraggableTargetRecord<TTargetPayload, TTargetDragData> | null;
+  target: DraggableTargetRecord | null;
 }
 
 /** The first argument of a drop target's handlers: the dragged item and this target. */

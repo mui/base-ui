@@ -55,10 +55,12 @@ export function parseScaleLinearTransform(scale: string): LinearTransform | null
   if (!scale || scale === 'none') {
     return null;
   }
-  const parts = scale.trim().split(/\s+/);
-  const x = Number(parts[0]);
-  const y = parts.length > 1 ? Number(parts[1]) : x;
-  return Number.isFinite(x) && Number.isFinite(y) ? { a: x, b: 0, c: 0, d: y } : null;
+  const parts = scale.trim().split(/\s+/).map(Number);
+  if (parts.length > 3 || !parts.every(Number.isFinite)) {
+    return null;
+  }
+  const [x, y = x] = parts;
+  return { a: x, b: 0, c: 0, d: y };
 }
 
 /** Parse the `rotate` longhand, optionally requiring an in-plane rotation. */

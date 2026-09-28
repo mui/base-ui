@@ -5,13 +5,16 @@
  * parameters and hands them to the lifecycle.
  */
 
+import { ownerDocument } from '@base-ui/utils/owner';
 import { start } from './lifecycleManager';
 import type { DragSessionController } from './lifecycleManager';
 import { getRegistration } from '../draggableRegistry';
-import { setActivePreviewHandle } from '../activePreview';
-import { resolveDragPreview } from '../synthetic/dragPreviewSettings';
+import { getDropTargetShadowRootsByHost } from '../dropTarget';
+import { elementFromPointIgnoring } from '../utils';
+import { clearActivePreviewHandle, setActivePreviewHandle } from '../activePreview';
+import { attachDefaultDragPreview, resolveDragPreview } from '../synthetic/pickupPreview';
 import { compileDragModifiers } from '../dragModifiers';
-import { attachDefaultDragPreview } from '../synthetic/defaultDragPreview';
+import * as dragRootLock from '../synthetic/dragRootLock';
 import { createSyntheticPreview } from '../synthetic/syntheticPreview';
 import type { SyntheticPreviewHandle } from '../synthetic/syntheticPreview';
 import type { DraggableConfig } from '../draggable';
@@ -44,13 +47,22 @@ export interface CreatePreviewSessionParameters {
   onForceCleanup: () => void;
   /** Whether the sensor still owns the pickup after consumer callbacks. */
   isPickupCurrent: () => boolean;
-  /**
-   * Acquire a sensor-specific resource once the preview handle is published
-   * (the pointer sensor's root scroll lock).
-   */
-  acquire: () => void;
-  /** Undo `acquire` when the pickup throws or the lifecycle refuses. */
-  release: () => void;
+}
+
+/** The element under a client point, excluding the drag's own preview. */
+export function hitTestUnderPreview(
+  element: Element,
+  preview: SyntheticPreviewHandle,
+  clientX: number,
+  clientY: number,
+): Element | null {
+  return elementFromPointIgnoring(
+    ownerDocument(element),
+    clientX,
+    clientY,
+    preview.getPreviewElement()?.element ?? null,
+    getDropTargetShadowRootsByHost(),
+  );
 }
 
 export interface PreviewSessionHandle {
@@ -64,7 +76,7 @@ export interface PreviewSessionHandle {
  * On success returns the session and the preview it owns. When the pickup
  * throws or the lifecycle refuses to start (a drag is already running or pickup was canceled), every
  * resource acquired here is undone — the preview is destroyed, the published
- * handle slot is restored, `release` runs — and the sensor only has its own
+ * handle is cleared, the root lock is released — and the sensor only has its own
  * pre-pickup state left to clean up. A throw is re-thrown after the undo.
  */
 export function createPreviewAndStartSession(
@@ -81,20 +93,19 @@ export function createPreviewAndStartSession(
     pressPoint,
     onForceCleanup,
     isPickupCurrent,
-    acquire,
-    release,
   } = parameters;
 
   let preview: SyntheticPreviewHandle | null = null;
-  let restoreActivePreviewSlot: (() => void) | null = null;
-  let acquired = false;
+  let locked = false;
   let session: DragSessionController | null = null;
 
   const undo = () => {
-    restoreActivePreviewSlot?.();
-    preview?.destroy();
-    if (acquired) {
-      release();
+    if (preview) {
+      clearActivePreviewHandle(preview);
+      preview.destroy();
+    }
+    if (locked) {
+      dragRootLock.unlock();
     }
   };
 
@@ -134,9 +145,9 @@ export function createPreviewAndStartSession(
     // Publish before the session starts: the lifecycle dispatches
     // `onGenerateDragPreview` synchronously from `start()`, and the
     // React layer resolves the preview host from this slot while handling it.
-    restoreActivePreviewSlot = setActivePreviewHandle(preview, previewSettings);
-    acquire();
-    acquired = true;
+    setActivePreviewHandle(preview, previewSettings);
+    dragRootLock.lock(element);
+    locked = true;
     // Seed the preview to the current input position so the first frame
     // isn't placed at (−10000, −10000) visibly. The pickup event's keys go with it, so a
     // preview modifier gated on one is honored from the very first placement.
@@ -157,24 +168,13 @@ export function createPreviewAndStartSession(
     // the new element and re-points `dragSource.element` at it (see
     // `retargetDragSource`). The old element's registration is gone, so
     // resolving against the live node keeps the fresh handler closures flowing.
-    //
-    // The snapshot is copied only when the getter hands back a new object. The
-    // registration layer already returns one object until its inputs change, and
-    // this runs on every dispatch, so copying per call would rebuild the ~20-field
-    // object each frame for nothing.
-    let lastCompatible: DraggableConfig<any, any> = draggableParameters;
-    let compatibleParameters = { ...draggableParameters };
+    let latest: DraggableConfig<any, any> = draggableParameters;
     const getLatestParameters = (): DraggableConfig<any, any> => {
       const current = getRegistration(dragSource.element)?.();
-      if (
-        current !== undefined &&
-        current !== lastCompatible &&
-        current.kind.id === dragSource.kind
-      ) {
-        lastCompatible = current;
-        compatibleParameters = { ...current };
+      if (current !== undefined && current.kind.id === dragSource.kind) {
+        latest = current;
       }
-      return compatibleParameters;
+      return latest;
     };
 
     const sessionPreview = preview;
@@ -186,9 +186,7 @@ export function createPreviewAndStartSession(
       initialEvent,
       startReason,
       grabOffset,
-      synthetic: {
-        getPreviewElement: () => sessionPreview.getPreviewElement()?.element ?? null,
-      },
+      hitTest: (clientX, clientY) => hitTestUnderPreview(element, sessionPreview, clientX, clientY),
       onForceCleanup,
     });
   } catch (error) {
@@ -197,9 +195,7 @@ export function createPreviewAndStartSession(
   }
 
   if (!session) {
-    // The lifecycle refused (a drag is already running or pickup was canceled). Restore whatever the slot
-    // held before this pickup published — the refusing drag is still in progress
-    // and its handle must keep flowing.
+    // The lifecycle refused (a drag is already running or pickup was canceled).
     undo();
     return null;
   }

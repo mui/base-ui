@@ -1,9 +1,9 @@
 import * as React from 'react';
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { fireEvent, screen, render as rtlRender } from '@testing-library/react';
+import { screen, render as rtlRender } from '@testing-library/react';
 import { isJSDOM, testDragKind } from '#test-utils';
 import { Draggable } from '@base-ui/react/draggable';
-import { setupDragEngineTests } from '../../../test/dnd';
+import { setupDragEngineTests, fireDrag } from '../../../test/dnd';
 import { DraggableProvider } from '../DraggableProvider';
 
 setupDragEngineTests();
@@ -54,7 +54,7 @@ describe.skipIf(isJSDOM)('Draggable.Preview (cascade)', () => {
     );
 
     const source = screen.getByTestId('drag');
-    fireEvent.dragStart(source);
+    fireDrag.dragStart(source);
 
     // The React half: content rendered in the provider's tree, so the theme reaches it.
     expect(screen.getByTestId('preview')).toHaveTextContent('dark');

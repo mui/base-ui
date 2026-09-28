@@ -1,5 +1,3 @@
-'use client';
-
 type AnimationFrameId = number;
 
 const EMPTY = null;
@@ -10,10 +8,6 @@ const EMPTY = null;
  * so closing an iframe also stops its pending work. Cleanup tolerates a closed window.
  */
 export class WindowAnimationFrame {
-  static request(fn: FrameRequestCallback, ownerWindow: Window) {
-    return ownerWindow.requestAnimationFrame(fn);
-  }
-
   static cancel(id: AnimationFrameId, ownerWindow: Window) {
     try {
       ownerWindow.cancelAnimationFrame(id);
@@ -28,10 +22,10 @@ export class WindowAnimationFrame {
 
   request(fn: () => void) {
     this.cancel();
-    this.currentId = WindowAnimationFrame.request(() => {
+    this.currentId = this.ownerWindow.requestAnimationFrame(() => {
       this.currentId = EMPTY;
       fn();
-    }, this.ownerWindow);
+    });
   }
 
   cancel = () => {

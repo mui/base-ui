@@ -1,9 +1,9 @@
 import * as React from 'react';
 import { describe, it, expect } from 'vitest';
-import { fireEvent, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import { createDndRenderer } from '#test-utils';
 import { Draggable } from '@base-ui/react/draggable';
-import { cancel, flushRaf, setupDragEngineTests } from '../../../test/dnd';
+import { cancel, flushRaf, setupDragEngineTests, fireDrag } from '../../../test/dnd';
 
 setupDragEngineTests();
 
@@ -32,12 +32,12 @@ describe('Draggable.useActiveDrag', () => {
 
     expect(node.dataset.sourceKind).toBe('none');
 
-    fireEvent.dragStart(node);
+    fireDrag.dragStart(node);
     await flushRaf();
 
     expect(node.dataset.sourceKind).toBe('probe');
 
-    fireEvent.drop(node);
+    fireDrag.drop(node);
 
     expect(node.dataset.sourceKind).toBe('none');
   });
@@ -60,7 +60,7 @@ describe('Draggable.useActiveDrag', () => {
     const watcher = screen.getByTestId('watcher');
     expect(watcher.dataset.active).toBe('no');
 
-    fireEvent.dragStart(node);
+    fireDrag.dragStart(node);
     await flushRaf();
     expect(watcher.dataset.active).toBe('yes');
 
@@ -86,7 +86,7 @@ describe('Draggable.useActiveDrag', () => {
     const node = screen.getByTestId('source-card-3');
     const commitsBeforeDrag = commits;
 
-    fireEvent.dragStart(node);
+    fireDrag.dragStart(node);
     await flushRaf();
     expect(screen.getByTestId('other').dataset.other).toBe('none');
     cancel();
@@ -120,7 +120,7 @@ describe('Draggable.useActiveDrag', () => {
     const node = screen.getByTestId('source-card-9');
     const observers = screen.getByTestId('observers');
 
-    fireEvent.dragStart(node);
+    fireDrag.dragStart(node);
     await flushRaf();
 
     expect(observers.dataset.matching).toBe('probe');

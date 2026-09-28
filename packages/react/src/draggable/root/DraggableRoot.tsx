@@ -45,9 +45,7 @@ export const DraggableRoot = React.forwardRef(function DraggableRoot<
   TPayload = undefined,
   TDragData = unknown,
 >(
-  componentProps: DraggableRootPropsBase<TPayload, TDragData> & {
-    payload?: DraggablePayload<TPayload> | undefined;
-  },
+  componentProps: DraggableRootPropsBase<TPayload, TDragData>,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
@@ -183,8 +181,8 @@ export interface DraggableRootState {
   disabled: boolean;
 }
 
-// Every `Draggable.Root` prop except `kind`'s requirement and `payload`: `DraggableRootProps`
-// adds them back with the optionality the kind's payload implies.
+// Every `Draggable.Root` prop, with `kind` and `payload` optional: `DraggableRootProps`
+// requires both when the kind declares a payload.
 type DraggableRootPropsBase<TPayload, TDragData = unknown> = Omit<
   BaseUIComponentProps<'div', DraggableRootState>,
   // - `children` is widened below.
@@ -194,7 +192,7 @@ type DraggableRootPropsBase<TPayload, TDragData = unknown> = Omit<
   // The preview is described by a `Draggable.Preview` (with or without children)
   // rendered inside this component, and the drag handle by a `Draggable.Handle`,
   // never from here.
-  Omit<RegisterSourceParameters<TPayload, TDragData>, 'preview' | 'handle' | 'payload' | 'kind'> & {
+  Omit<RegisterSourceParameters<TPayload, TDragData>, 'preview' | 'handle' | 'kind'> & {
     children?: React.ReactNode | undefined;
     /**
      * Whether other items of the nearest matching collision provider can be dropped on this one.
@@ -233,28 +231,9 @@ export type DraggableRootProps<TPayload = undefined, TDragData = unknown> = Drag
   TPayload,
   TDragData
 > &
-  DraggableRootPayloadField<TPayload> &
-  ([TPayload] extends [undefined] ? {} : { kind: DraggableKind<TPayload, TDragData> });
-
-type RequiredDraggablePayload<TPayload> = {
-  /**
-   * The data attached to this item, available as `source.payload` in every drag event
-   * and drop target handler. Its type comes from `kind`, and it is required when the
-   * kind declares one.
-   */
-  payload: DraggablePayload<TPayload>;
-};
-
-type DraggableRootPayloadField<TPayload> = [TPayload] extends [undefined]
-  ? {
-      /**
-       * The data attached to this item, available as `source.payload` in every drag event
-       * and drop target handler. Its type comes from `kind`, and it is required when the
-       * kind declares one.
-       */
-      payload?: DraggablePayload<TPayload> | undefined;
-    }
-  : RequiredDraggablePayload<TPayload>;
+  ([TPayload] extends [undefined]
+    ? {}
+    : { kind: DraggableKind<TPayload, TDragData>; payload: DraggablePayload<TPayload> });
 
 /**
  * The item being dragged, carried by every drag event.

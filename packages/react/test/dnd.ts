@@ -1,22 +1,20 @@
 /**
  * Shared drag-and-drop test utilities for the drag engine and its consumers.
- *
- * The DnD event polyfill and the native→synthetic bridge are installed lazily
- * (see {@link installDndTestEnv}), so importing this module has no side effects.
+ * Importing this module has no side effects.
  */
 import { afterEach, beforeEach } from 'vitest';
 import { reset as resetWarnings } from '@base-ui/utils/warn';
-import { act, fireEvent } from '@mui/internal-test-utils';
-import { installDndPolyfill } from './dndPolyfill';
+import { act } from '@mui/internal-test-utils';
 import { waitSingleFrame } from './wait';
 import { reset, isActive as isDragActive } from '../src/utils/drag-and-drop/core/lifecycleManager';
 import { resetForTests as resetSyntheticSensor } from '../src/utils/drag-and-drop/synthetic/syntheticSensor';
 import { resetForTests as resetDropTargets } from '../src/utils/drag-and-drop/dropTarget';
-import { resetForTests as resetDragRootLock } from '../src/utils/drag-and-drop/synthetic/dragRootLock';
-import { resetForTests as resetDragCursor } from '../src/utils/drag-and-drop/synthetic/dragCursor';
+import { unlock as resetDragRootLock } from '../src/utils/drag-and-drop/synthetic/dragRootLock';
+import { unlock as resetDragCursor } from '../src/utils/drag-and-drop/synthetic/dragCursor';
 import { resetForTests as resetPostDragClick } from '../src/utils/drag-and-drop/synthetic/postDragClick';
 import { resetForTests as resetAutoScroller } from '../src/utils/drag-and-drop/autoScroller';
 import { clearPublishedDragPreview } from '../src/utils/drag-and-drop/overlay/dragPreviewStore';
+import { runAllCleanups } from '../src/utils/drag-and-drop/utils';
 import { resetTouchTarget } from './syntheticPointer';
 import type { DraggableRootRecord } from '../src/draggable/root/DraggableRoot';
 import type { DraggableTargetRecord } from '../src/draggable/target/DraggableTarget';
@@ -69,34 +67,6 @@ export function registerCleanup(fn: () => void): void {
 }
 
 /**
- * Run every queued cleanup, then rethrow the first failure.
- *
- * Swallowing the throw entirely would hide a teardown regression — a cleanup
- * that leaves an element registered, or an attribute behind — behind a green
- * suite, which is exactly the class of bug these cleanups exist to catch. The
- * remaining cleanups still run first so one failure can't cascade into
- * cross-test leakage.
- */
-function drainCleanupQueue(): void {
-  let firstError: unknown;
-  let failed = false;
-  while (cleanupQueue.length > 0) {
-    const fn = cleanupQueue.pop()!;
-    try {
-      fn();
-    } catch (error) {
-      if (!failed) {
-        failed = true;
-        firstError = error;
-      }
-    }
-  }
-  if (failed) {
-    throw firstError;
-  }
-}
-
-/**
  * Install the standard `afterEach` for drag engine tests:
  *
  * 1. Drain the cleanup queue (LIFO).
@@ -106,56 +76,37 @@ function drainCleanupQueue(): void {
  *
  * Every step runs even when an earlier one throws — global engine state must be
  * reset before the next test regardless — and the first failure is rethrown
- * afterwards, so a broken cleanup fails its own test instead of quietly leaking.
+ * afterwards, so a broken cleanup fails its own test instead of quietly leaking
+ * behind a green suite.
  */
 export function setupDragEngineTests(): void {
-  installDndTestEnv();
   // `warn()` dedupes per message process-wide; reset it so warning-count
   // assertions do not depend on test order or on `.only`.
   beforeEach(() => {
     resetWarnings();
   });
   afterEach(() => {
-    let firstError: unknown;
-    let failed = false;
-    const run = (step: () => void) => {
-      try {
-        step();
-      } catch (error) {
-        if (!failed) {
-          failed = true;
-          firstError = error;
-        }
-      }
-    };
-    run(drainCleanupQueue);
-    run(cleanupElements);
-    run(resetDrag);
-    if (failed) {
-      throw firstError;
-    }
+    runAllCleanups([...cleanupQueue.splice(0).reverse(), cleanupElements, resetDrag]);
   });
 }
 
 // ---------------------------------------------------------------------------
-// Native → synthetic drag bridge
+// Drag gestures
 // ---------------------------------------------------------------------------
 //
-// Tests drive drags with `fireEvent.dragStart/dragEnter/dragOver/drop` — the
-// HTML5 drag events. The engine, however, only listens to pointer events and
-// resolves drop targets via `document.elementFromPoint`. This bridge listens
-// for those native drag events and replays each as the matching mouse-pointer
-// gesture, routing `elementFromPoint` at the dragged-over element so the engine
-// sees exactly the drag the test described. Installed by `setupDragEngineTests`.
+// The engine only listens to pointer events and resolves drop targets via
+// `document.elementFromPoint`. `fireDrag` describes a drag in HTML5 drag-event
+// terms — start on a source, enter or hover a target, drop — and replays each
+// step as the matching mouse-pointer gesture, routing `elementFromPoint` at the
+// element the step names so the engine sees exactly the drag the test described.
 //
-// What the bridge cannot prove: it *pins* `elementFromPoint` to the element the
-// test named, and its drops carry no meaningful coordinates. So a drop that
-// routes correctly here can still resolve a different target in a real browser,
-// where the hit-test answers from layout. Anything whose correctness depends on
-// real geometry — nested target resolution, edge zones, collision — needs a
-// browser test (`describe.skipIf(isJSDOM)`), and a drag driven from raw pointer
-// events rather than through this bridge (see the synthetic sensor's
-// "documented pointer-drag recipe" tests).
+// What this cannot prove: it *pins* `elementFromPoint` to the element the test
+// named, and its drops carry no meaningful coordinates. So a drop that routes
+// correctly here can still resolve a different target in a real browser, where
+// the hit-test answers from layout. Anything whose correctness depends on real
+// geometry — nested target resolution, edge zones, collision — needs a browser
+// test (`describe.skipIf(isJSDOM)`), and a drag driven from raw pointer events
+// (see the synthetic sensor's "documented pointer-drag recipe" tests).
 
 interface DragEventInput {
   clientX?: number | undefined;
@@ -167,20 +118,22 @@ interface DragEventInput {
 }
 
 const DRAG_POINTER_ID = 1;
+const PRESSED = { button: 0, buttons: 1 };
+const MOVING = { button: -1, buttons: 1 };
+const RELEASED = { button: 0, buttons: 0 };
 
-// How far the bridge nudges the pointer to clear the engine's mouse activation
-// distance (5px). A native drag only fires `dragstart` after the OS threshold
-// is crossed, so the bridge replays that movement to start the synthetic drag.
+// How far `dragStart` nudges the pointer to clear the engine's mouse activation
+// distance (5px). A native drag only starts past the OS threshold, so the
+// gesture replays that movement to start the synthetic drag.
 const DRAG_ACTIVATION_DISTANCE_PX = 6;
 
-// The source element of the active bridged drag (the `dragstart` target). Mouse
-// move/up events are dispatched here because the engine binds its active-phase
-// listeners to the pointerdown target.
-let bridgeSource: HTMLElement | null = null;
+// The source element of the active drag. Mouse move/up events are dispatched
+// here because the engine binds its active-phase listeners to the pointerdown
+// target.
+let dragSource: HTMLElement | null = null;
 // What `document.elementFromPoint` resolves to — the element under the pointer.
 let hitTarget: Element | null = null;
 let originalElementFromPoint: ((x: number, y: number) => Element | null) | null = null;
-let bridgeInstalled = false;
 
 function installElementFromPoint(): void {
   if (originalElementFromPoint) {
@@ -201,121 +154,95 @@ function restoreElementFromPoint(): void {
 function dispatchPointer(
   type: string,
   target: EventTarget,
-  source: DragEventInput,
+  input: DragEventInput,
   button: { button: number; buttons: number },
 ): void {
   target.dispatchEvent(
     new PointerEvent(type, {
       pointerType: 'mouse',
       pointerId: DRAG_POINTER_ID,
-      clientX: source.clientX ?? 0,
-      clientY: source.clientY ?? 0,
+      clientX: input.clientX ?? 0,
+      clientY: input.clientY ?? 0,
       button: button.button,
       buttons: button.buttons,
-      altKey: source.altKey ?? false,
-      ctrlKey: source.ctrlKey ?? false,
-      shiftKey: source.shiftKey ?? false,
-      metaKey: source.metaKey ?? false,
+      altKey: input.altKey ?? false,
+      ctrlKey: input.ctrlKey ?? false,
+      shiftKey: input.shiftKey ?? false,
+      metaKey: input.metaKey ?? false,
       bubbles: true,
       cancelable: true,
     }),
   );
 }
 
-function onBridgeDragStart(event: Event): void {
-  const dragEvent = event as DragEvent;
-  const source = dragEvent.target as HTMLElement | null;
-  if (!source) {
+/** Move the active drag, with `target` under the pointer. */
+function moveTo(target: Element | null, input: DragEventInput = {}): void {
+  if (!dragSource) {
     return;
   }
-  installElementFromPoint();
-  // No drop target under the pointer until a `dragenter`/`dragover` routes one.
-  hitTarget = null;
-  bridgeSource = source;
-  // The mouse activation default is a 5px distance, so a bare pointerdown won't
-  // start the drag. Replay the movement a native drag implies (it only fires
-  // `dragstart` past the OS threshold): press, nudge clear of the distance to
-  // commit activation, then settle back onto the dragstart point so the active
-  // drag is positioned exactly where the gesture began.
-  dispatchPointer('pointerdown', source, dragEvent, { button: 0, buttons: 1 });
-  const activationInput: DragEventInput = {
-    clientX: (dragEvent.clientX ?? 0) + DRAG_ACTIVATION_DISTANCE_PX,
-    clientY: dragEvent.clientY ?? 0,
-    altKey: dragEvent.altKey,
-    ctrlKey: dragEvent.ctrlKey,
-    shiftKey: dragEvent.shiftKey,
-    metaKey: dragEvent.metaKey,
-  };
-  dispatchPointer('pointermove', source, activationInput, { button: -1, buttons: 1 });
-  dispatchPointer('pointermove', source, dragEvent, { button: -1, buttons: 1 });
-}
-
-function onBridgeDragMove(event: Event): void {
-  if (!bridgeSource) {
-    return;
-  }
-  const dragEvent = event as DragEvent;
-  // `dragenter`/`dragover` hover a target; the engine resolves it from
-  // `elementFromPoint` on its next frame.
-  hitTarget = dragEvent.target as Element | null;
-  dispatchPointer('pointermove', bridgeSource, dragEvent, { button: -1, buttons: 1 });
-}
-
-function onBridgeDragLeave(event: Event): void {
-  if (!bridgeSource) {
-    return;
-  }
-  // Leaving a target / the window: nothing under the pointer now.
-  hitTarget = null;
-  dispatchPointer('pointermove', bridgeSource, event as DragEvent, { button: -1, buttons: 1 });
-}
-
-function onBridgeDrop(event: Event): void {
-  if (!bridgeSource) {
-    return;
-  }
-  const dragEvent = event as DragEvent;
-  hitTarget = dragEvent.target as Element | null;
-  dispatchPointer('pointerup', bridgeSource, dragEvent, { button: 0, buttons: 0 });
-  bridgeSource = null;
-}
-
-function onBridgeDragEnd(): void {
-  if (!bridgeSource) {
-    return;
-  }
-  // A `dragend` with no preceding `drop` is a cancel — the engine cancels an
-  // active drag on Escape. Dispatch a raw event (not `fireEvent`) so it lands
-  // synchronously even when fired re-entrantly inside the `dragend` dispatch.
-  window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
-  bridgeSource = null;
-}
-
-function installNativeToSyntheticBridge(): void {
-  if (bridgeInstalled) {
-    return;
-  }
-  bridgeInstalled = true;
-  document.addEventListener('dragstart', onBridgeDragStart, true);
-  document.addEventListener('dragenter', onBridgeDragMove, true);
-  document.addEventListener('dragover', onBridgeDragMove, true);
-  document.addEventListener('dragleave', onBridgeDragLeave, true);
-  document.addEventListener('drop', onBridgeDrop, true);
-  document.addEventListener('dragend', onBridgeDragEnd, true);
+  hitTarget = target;
+  dispatchPointer('pointermove', dragSource, input, MOVING);
 }
 
 /**
- * Install the DnD polyfills and the native→synthetic bridge. Idempotent.
- *
- * Called from `setupDragEngineTests()` and `createDndRenderer()`, so every drag
- * test path gets the environment before it dispatches events — while suites that
- * merely import the shared test barrel keep the native `DragEvent`/`DataTransfer`
- * and an unpatched document.
+ * Synchronous drag steps, each wrapped in `act`. Unlike the async helpers below,
+ * they don't flush the engine's frame, so a test controls exactly when it runs.
  */
-export function installDndTestEnv(): void {
-  installDndPolyfill();
-  installNativeToSyntheticBridge();
-}
+export const fireDrag = {
+  /**
+   * Press on `source`, move past the activation distance, then settle back onto
+   * the press point so the drag is positioned exactly where the gesture began.
+   * Nothing is under the pointer until a `dragEnter`/`dragOver` routes a target.
+   */
+  dragStart(source: HTMLElement, input: DragEventInput = {}): void {
+    act(() => {
+      installElementFromPoint();
+      hitTarget = null;
+      dragSource = source;
+      dispatchPointer('pointerdown', source, input, PRESSED);
+      dispatchPointer(
+        'pointermove',
+        source,
+        { ...input, clientX: (input.clientX ?? 0) + DRAG_ACTIVATION_DISTANCE_PX },
+        MOVING,
+      );
+      dispatchPointer('pointermove', source, input, MOVING);
+    });
+  },
+  /** Move onto `target`; the engine resolves it on its next frame. */
+  dragEnter(target: Element, input?: DragEventInput): void {
+    act(() => moveTo(target, input));
+  },
+  /** Keep moving over `target`. */
+  dragOver(target: Element, input?: DragEventInput): void {
+    act(() => moveTo(target, input));
+  },
+  /** Move off every target. */
+  dragLeave(input?: DragEventInput): void {
+    act(() => moveTo(null, input));
+  },
+  /** Release over `target`. */
+  drop(target: Element, input: DragEventInput = {}): void {
+    act(() => {
+      if (!dragSource) {
+        return;
+      }
+      hitTarget = target;
+      dispatchPointer('pointerup', dragSource, input, RELEASED);
+      dragSource = null;
+    });
+  },
+  /** End the drag without a drop: the engine cancels an active drag on Escape. */
+  dragEnd(): void {
+    act(() => {
+      if (!dragSource) {
+        return;
+      }
+      window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+      dragSource = null;
+    });
+  },
+};
 
 /**
  * Flush one requestAnimationFrame tick.
@@ -332,9 +259,8 @@ export async function flushRaf(): Promise<void> {
 // Drag sequence helpers
 // ---------------------------------------------------------------------------
 //
-// These fire the HTML5 drag events the bridge above replays as pointer
-// gestures. The cadence mirrors the engine's: `dragstart`/`dragover` defer work
-// to a rAF, so they flush; `dragenter`/`drop` are synchronous edges.
+// `fireDrag` steps with the engine's cadence: starting and hovering defer work
+// to a rAF, so they flush; entering and dropping are synchronous edges.
 
 /** Start a drag on an element and flush the deferred `onMoveStart`. */
 export async function lift(
@@ -348,9 +274,9 @@ export async function lift(
   },
 ): Promise<void> {
   const { expectNoDrag = false, ...overrides } = input ?? {};
-  fireEvent.dragStart(element, overrides);
+  fireDrag.dragStart(element, overrides);
   await flushRaf();
-  // The bridge clears the default 5px mouse activation with a hardcoded ~6px
+  // `dragStart` clears the default 5px mouse activation with a hardcoded ~6px
   // nudge (see DRAG_ACTIVATION_DISTANCE_PX). A fixture registered with a larger
   // custom activation distance would silently not start a drag here, making the
   // caller's `not.toHaveBeenCalled()` assertions vacuous — fail loudly instead.
@@ -367,25 +293,25 @@ export async function lift(
 
 /** Drag onto a drop target and flush so the engine's frame resolves it. */
 export async function dragEnter(element: HTMLElement, input?: DragEventInput): Promise<void> {
-  fireEvent.dragEnter(element, input);
+  fireDrag.dragEnter(element, input);
   await flushRaf();
 }
 
 /** Continue dragging over a drop target. */
 export async function dragOver(element: HTMLElement, input?: DragEventInput): Promise<void> {
-  fireEvent.dragOver(element, input);
+  fireDrag.dragOver(element, input);
   await flushRaf();
 }
 
 /** Drop on a target. */
 export function drop(element: HTMLElement, input?: DragEventInput): void {
-  fireEvent.drop(element, input);
+  fireDrag.drop(element, input);
 }
 
-/** Cancel a drag (leave the window, then end it). */
-export function cancel(element: HTMLElement = document.body): void {
-  fireEvent.dragLeave(element);
-  fireEvent.dragEnd(element);
+/** Cancel a drag (leave every target, then end it). */
+export function cancel(): void {
+  fireDrag.dragLeave();
+  fireDrag.dragEnd();
 }
 
 /** Force-end any pending drag state. Runs in `setupDragEngineTests()`'s `afterEach`. */
@@ -416,7 +342,7 @@ function resetDrag(): void {
   // test can't leak them into the next one.
   resetDropTargets();
   restoreElementFromPoint();
-  bridgeSource = null;
+  dragSource = null;
   // Clear the synthetic-pointer helpers' latched touch target so one test's
   // gesture can't route the next test's touch/pen dispatches.
   resetTouchTarget();

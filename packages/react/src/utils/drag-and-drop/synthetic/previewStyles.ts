@@ -2,7 +2,7 @@ import { ownerWindow } from '@base-ui/utils/owner';
 import { isShadowRoot } from '@floating-ui/utils/dom';
 import { getSharedSlot } from '../sharedState';
 import * as DraggablePreviewDataAttributes from '../../../draggable/preview/DraggablePreviewDataAttributes';
-import { adoptStyleSheet, getStyleRoot, unadoptStyleSheet } from '../utils';
+import { adoptStyleSheet, getDragEventRoot, unadoptStyleSheet } from '../utils';
 
 const STRUCTURAL_SELECTOR = /[>+~]|:(?:first|last|nth|only|empty|has)\b/;
 const PSEUDO_ELEMENT = /::(before|after|marker)\b/g;
@@ -46,15 +46,13 @@ const RULES_PER_SOURCE_NODE = 64;
  * position it does not share with the source (it ends up first in the wrapper,
  * and could only be appended after every existing sibling) would resolve
  * `:nth-child`, `:first-child`, `:last-child` and combinator rules to the wrong
- * value. `sourceNodes` and `cloneNodes` are the two trees in the same order, so
- * each snapshot is keyed by the clone node it is later restored onto.
+ * value. `sourceNodes` and `cloneNodes` are the two trees in the same order, rooted
+ * at the source and its clone, so each snapshot is keyed by the clone node it is
+ * later restored onto.
  */
-export function capturePreviewStyles(
-  source: HTMLElement,
-  sourceNodes: Element[],
-  clone: HTMLElement,
-  cloneNodes: Element[],
-) {
+export function capturePreviewStyles(sourceNodes: Element[], cloneNodes: Element[]) {
+  const source = sourceNodes[0];
+  const clone = cloneNodes[0];
   const win = ownerWindow(source);
   const root = source.getRootNode() as Document | ShadowRoot;
   const properties = new Map<Element, Properties>();
@@ -176,11 +174,8 @@ export function capturePreviewStyles(
     }
   }
 
-  const snapshots = Array.from(properties, ([sourceNode, byPseudo]) => {
-    const node = clonesBySource.get(sourceNode);
-    if (!node) {
-      return [];
-    }
+  const snapshots = Array.from(properties).flatMap(([sourceNode, byPseudo]) => {
+    const node = clonesBySource.get(sourceNode)!;
     return Array.from(byPseudo, ([pseudo, names]) => {
       const computed = win.getComputedStyle(sourceNode, pseudo || null);
       return {
@@ -198,7 +193,7 @@ export function capturePreviewStyles(
           .map(([name, priority]) => [name, computed.getPropertyValue(name), priority] as const),
       };
     });
-  }).flat();
+  });
   let sheet: CSSStyleSheet | null = null;
   let sheetRoot: Document | ShadowRoot | null = null;
 
@@ -212,7 +207,7 @@ export function capturePreviewStyles(
     if (!sheet) {
       return;
     }
-    const target = getStyleRoot(clone);
+    const target = getDragEventRoot(clone);
     if (sheetRoot !== target) {
       detachSheet();
       sheetRoot = target;

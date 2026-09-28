@@ -1,9 +1,9 @@
 import * as React from 'react';
 import { describe, it, expect } from 'vitest';
-import { fireEvent, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import { createDndRenderer, testDragKind } from '#test-utils';
 import { Draggable } from '@base-ui/react/draggable';
-import { createElement, flushRaf, setupDragEngineTests } from '../../../test/dnd';
+import { createElement, flushRaf, setupDragEngineTests, fireDrag } from '../../../test/dnd';
 import * as DraggableTargetDataAttributes from './DraggableTargetDataAttributes';
 
 setupDragEngineTests();
@@ -36,10 +36,10 @@ describe('Draggable.Target enum sync', () => {
 
     const source = createElement();
     engine.registerSource(source, { kind: testDragKind });
-    fireEvent.dragStart(source);
+    fireDrag.dragStart(source);
     await flushRaf();
-    fireEvent.dragEnter(inner);
-    fireEvent.dragOver(inner);
+    fireDrag.dragEnter(inner);
+    fireDrag.dragOver(inner);
     await flushRaf();
 
     // Every accepting target is marked from the moment the drag starts, wherever
@@ -56,17 +56,17 @@ describe('Draggable.Target enum sync', () => {
     // A rejecting target marks itself while hovered, and only while hovered,
     // without ever entering the stack.
     expect(full).not.toHaveAttribute(DraggableTargetDataAttributes.rejected);
-    fireEvent.dragEnter(full);
-    fireEvent.dragOver(full);
+    fireDrag.dragEnter(full);
+    fireDrag.dragOver(full);
     await flushRaf();
     expect(full).toHaveAttribute(DraggableTargetDataAttributes.rejected);
     expect(full).not.toHaveAttribute(DraggableTargetDataAttributes.dragOver);
-    fireEvent.dragEnter(inner);
-    fireEvent.dragOver(inner);
+    fireDrag.dragEnter(inner);
+    fireDrag.dragOver(inner);
     await flushRaf();
     expect(full).not.toHaveAttribute(DraggableTargetDataAttributes.rejected);
 
-    fireEvent.drop(inner);
+    fireDrag.drop(inner);
     await flushRaf();
 
     // Every drag-scoped attribute clears with the drag; a regression here would

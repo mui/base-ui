@@ -107,20 +107,11 @@ export function useDraggableElement<TPayload = undefined, TDragData = unknown>(
         }
         lastCollisionOptions = currentOptions;
         const collision = currentOptions.collision;
-        const snap = collision?.snap;
         participant = {
           kind: currentOptions.parameters.kind,
           payload: collision?.payload,
-          snap:
-            typeof snap === 'function'
-              ? (context) => {
-                  // The provider accepts only this participant's source kind.
-                  return snap({
-                    ...context,
-                    source: context.source as DraggableRootRecord<TPayload, TDragData>,
-                  });
-                }
-              : snap,
+          // The provider accepts only this participant's source kind.
+          snap: collision?.snap as CollisionParticipant['snap'],
           // A disabled source stays a destination; only `collision={false}` opts out.
           disabled: !collision?.enabled,
         };
@@ -228,8 +219,7 @@ export function useDraggableElement<TPayload = undefined, TDragData = unknown>(
   const dragging = useStore(dragSourceStore, selectIsDragging, elementRef);
 
   // Flush a reconcile skipped mid-drag: `dragging` flipping false re-renders this
-  // hook, so the swapped handle (or changed a11y inputs) receives the static
-  // setup as soon as the drag ends.
+  // hook, so the swapped handle receives the static setup as soon as the drag ends.
   useIsoLayoutEffect(() => {
     if (!dragging && pendingReconcileRef.current) {
       pendingReconcileRef.current = false;

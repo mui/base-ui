@@ -6,7 +6,7 @@ export { DraggableTarget as Target } from './target/DraggableTarget';
 export { DraggableViewport as Viewport } from './viewport/DraggableViewport';
 export { DraggableCollisionProvider as CollisionProvider } from './collision-provider/DraggableCollisionProvider';
 
-export { useActiveDrag } from './use-active-drag';
+export { useActiveDrag } from './use-active-drag/useActiveDrag';
 export { useMonitor } from './use-monitor/useMonitor';
 export { useManager } from './use-manager/useManager';
 

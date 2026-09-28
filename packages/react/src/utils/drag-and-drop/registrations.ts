@@ -18,8 +18,8 @@ import {
   removeDropTargetRegistration,
   retainRetiringDropTarget,
 } from './dropTarget';
-import { addScrollerRegistration, retainScrollMonitor } from './autoScroller';
-import { monitorRegistry, engageMonitorIfDragging, removeMonitor } from './monitor';
+import { addScrollerRegistration } from './autoScroller';
+import { addMonitor, removeMonitor } from './monitor';
 import {
   isActive,
   isHoveredDropTarget,
@@ -158,16 +158,7 @@ export function registerViewport<TAccept extends DraggableAccept<unknown> = Drag
     TAccept
   >,
 ): DragCleanupFn {
-  // Ref-counted so merged refs on one node don't clobber each other.
-  const removeScroller = addScrollerRegistration(element, getParameters);
-  // Auto-scroll is an explicit feature boundary: the first registered region
-  // arms scrolling for registered viewports.
-  const releaseScrollMonitor = retainScrollMonitor();
-
-  return onceCleanup(() => {
-    removeScroller();
-    releaseScrollMonitor();
-  });
+  return addScrollerRegistration(element, getParameters);
 }
 
 // Keyed on the `accept` value it infers, like every other `accept`-taking API.
@@ -177,9 +168,7 @@ export function registerMonitor<TAccept extends DraggableAccept<unknown> = Dragg
     TAccept
   >,
 ): DragCleanupFn {
-  monitorRegistry.add(getMonitor);
-  // A monitor registered mid-drag joins the in-progress drag for its remainder.
-  engageMonitorIfDragging(getMonitor);
+  addMonitor(getMonitor);
 
   return onceCleanup(() => {
     removeMonitor(getMonitor);

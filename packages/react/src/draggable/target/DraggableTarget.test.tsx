@@ -11,6 +11,7 @@ import {
   lift,
   registerCleanup,
   setupDragEngineTests,
+  fireDrag,
 } from '../../../test/dnd';
 import { touchDown, touchUp } from '../../../test/syntheticPointer';
 import { dragSessionStore } from '../../utils/drag-and-drop/dragSessionStore';
@@ -47,8 +48,8 @@ describe('Draggable.Target', () => {
     const source = createElement();
     engine.registerSource(source, {});
     const first = screen.getByTestId('a');
-    fireEvent.dragStart(source);
-    fireEvent.dragEnter(first);
+    fireDrag.dragStart(source);
+    fireDrag.dragEnter(first);
     await flushRaf();
     expect(first).toHaveAttribute('data-drag-over');
 
@@ -56,17 +57,17 @@ describe('Draggable.Target', () => {
     const second = screen.getByTestId('b');
     expect(first).not.toHaveAttribute('data-base-ui-drop-target');
     expect(second).toHaveAttribute('data-base-ui-drop-target');
-    fireEvent.dragEnter(second);
+    fireDrag.dragEnter(second);
     await flushRaf();
     expect(second).toHaveAttribute('data-drag-over');
 
-    fireEvent.dragOver(source);
+    fireDrag.dragOver(source);
     await flushRaf();
     expect(second).not.toHaveAttribute('data-drag-over');
-    fireEvent.dragEnter(second);
+    fireDrag.dragEnter(second);
     await flushRaf();
     expect(second).toHaveAttribute('data-drag-over');
-    fireEvent.dragEnd(source);
+    fireDrag.dragEnd();
     expect(second).not.toHaveAttribute('data-drag-over');
   });
 
@@ -154,12 +155,12 @@ describe('Draggable.Target', () => {
     const target = screen.getByTestId('target');
     target.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
 
-    fireEvent.dragStart(source);
+    fireDrag.dragStart(source);
     await flushRaf();
-    fireEvent.dragEnter(target, { clientY: 35 });
-    fireEvent.dragOver(target, { clientY: 35 });
+    fireDrag.dragEnter(target, { clientY: 35 });
+    fireDrag.dragOver(target, { clientY: 35 });
     await flushRaf();
-    fireEvent.drop(target, { clientY: 35 });
+    fireDrag.drop(target, { clientY: 35 });
 
     expect(observed.kind).toBe(slotKind.id);
     expect(observed.data).toBe('slot-1');
@@ -287,12 +288,12 @@ describe('Draggable.Target', () => {
     const target = screen.getByTestId('target');
     target.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
 
-    fireEvent.dragStart(source);
+    fireDrag.dragStart(source);
     await flushRaf();
-    fireEvent.dragEnter(target);
-    fireEvent.dragOver(target);
+    fireDrag.dragEnter(target);
+    fireDrag.dragOver(target);
     await flushRaf();
-    fireEvent.drop(target);
+    fireDrag.drop(target);
 
     expect(onDraggableEnter).toHaveBeenCalledTimes(1);
     expect(onDrop).toHaveBeenCalledTimes(1);
@@ -353,10 +354,10 @@ describe('Draggable.Target', () => {
     const first = screen.getByTestId('target');
     first.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
 
-    fireEvent.dragStart(source);
+    fireDrag.dragStart(source);
     await flushRaf();
-    fireEvent.dragEnter(first);
-    fireEvent.dragOver(first);
+    fireDrag.dragEnter(first);
+    fireDrag.dragOver(first);
     await flushRaf();
     expect(enterBefore).toHaveBeenCalledTimes(1);
     expect(first).toHaveAttribute('data-drag-over');
@@ -389,7 +390,7 @@ describe('Draggable.Target', () => {
     expect(first.isConnected).toBe(false);
     expect(second).toHaveAttribute('data-drag-over');
 
-    fireEvent.drop(second);
+    fireDrag.drop(second);
   });
 
   it('releases outside when the hovered target unmounted before the drop', async () => {
@@ -411,17 +412,17 @@ describe('Draggable.Target', () => {
     const target = screen.getByTestId('target');
     target.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
 
-    fireEvent.dragStart(source);
+    fireDrag.dragStart(source);
     await flushRaf();
-    fireEvent.dragEnter(target);
-    fireEvent.dragOver(target);
+    fireDrag.dragEnter(target);
+    fireDrag.dragOver(target);
     await flushRaf();
     expect(target).toHaveAttribute('data-drag-over');
 
     // A virtualizer recycles the hovered row; the pointer releases where it was.
     await rerender(<Fixture mounted={false} />);
     await flushRaf();
-    fireEvent.drop(document.body);
+    fireDrag.drop(document.body);
 
     expect(onDrop).not.toHaveBeenCalled();
     expect(onMoveEnd).toHaveBeenCalledTimes(1);
@@ -452,16 +453,16 @@ describe('Draggable.Target', () => {
       />,
     );
 
-    fireEvent.dragStart(source);
+    fireDrag.dragStart(source);
     await flushRaf();
-    fireEvent.dragEnter(target);
-    fireEvent.dragOver(target);
+    fireDrag.dragEnter(target);
+    fireDrag.dragOver(target);
     await flushRaf();
 
     expect(firstOnDragEnter).not.toHaveBeenCalled();
     expect(secondOnDragEnter).toHaveBeenCalledTimes(1);
 
-    fireEvent.drop(target);
+    fireDrag.drop(target);
   });
 
   it('does not expose parameters from a suspended render', async () => {
@@ -510,14 +511,14 @@ describe('Draggable.Target', () => {
     await act(async () => Promise.resolve());
     expect(suspendedRender).toHaveBeenCalled();
 
-    fireEvent.dragStart(source);
+    fireDrag.dragStart(source);
     await flushRaf();
-    fireEvent.dragEnter(target);
+    fireDrag.dragEnter(target);
     await flushRaf();
 
     expect(committedCanDrop).toHaveBeenCalled();
     expect(suspendedCanDrop).not.toHaveBeenCalled();
-    fireEvent.drop(target);
+    fireDrag.drop(target);
   });
 
   it('fires onDraggableLeave when a hovered target unregisters mid-drag', async () => {
@@ -536,10 +537,10 @@ describe('Draggable.Target', () => {
     const target = screen.getByTestId('target');
     target.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
 
-    fireEvent.dragStart(source);
+    fireDrag.dragStart(source);
     await flushRaf();
-    fireEvent.dragEnter(target);
-    fireEvent.dragOver(target);
+    fireDrag.dragEnter(target);
+    fireDrag.dragOver(target);
     await flushRaf();
     expect(onDraggableEnter).toHaveBeenCalledTimes(1);
 
@@ -565,10 +566,10 @@ describe('Draggable.Target', () => {
     outer.appendChild(inner);
     engine.registerTarget(outer, {});
 
-    fireEvent.dragStart(source);
+    fireDrag.dragStart(source);
     await flushRaf();
-    fireEvent.dragEnter(inner);
-    fireEvent.dragOver(inner);
+    fireDrag.dragEnter(inner);
+    fireDrag.dragOver(inner);
     await flushRaf();
 
     // Only the outer target is registered so far.
@@ -580,7 +581,7 @@ describe('Draggable.Target', () => {
 
     expect(dragSessionStore.getSnapshot()?.location.current.targets[0]?.element).toBe(inner);
 
-    fireEvent.drop(inner);
+    fireDrag.drop(inner);
   });
 
   it('canDrop returning false prevents this target from receiving callbacks', async () => {
@@ -598,10 +599,10 @@ describe('Draggable.Target', () => {
     const target = screen.getByTestId('target');
     target.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
 
-    fireEvent.dragStart(source);
+    fireDrag.dragStart(source);
     await flushRaf();
-    fireEvent.dragEnter(target);
-    fireEvent.dragOver(target);
+    fireDrag.dragEnter(target);
+    fireDrag.dragOver(target);
     await flushRaf();
 
     expect(onDraggableEnter).not.toHaveBeenCalled();
@@ -638,12 +639,12 @@ describe('Draggable.Target', () => {
     const target = screen.getByTestId('target');
     target.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
 
-    fireEvent.dragStart(source);
+    fireDrag.dragStart(source);
     await flushRaf();
-    fireEvent.dragEnter(target);
-    fireEvent.dragOver(target);
+    fireDrag.dragEnter(target);
+    fireDrag.dragOver(target);
     await flushRaf();
-    fireEvent.drop(target);
+    fireDrag.drop(target);
 
     // Like `canDrop: () => false`, a disabled target is skipped entirely.
     expect(onDraggableEnter).not.toHaveBeenCalled();
@@ -675,10 +676,10 @@ describe('Draggable.Target', () => {
     const target = screen.getByTestId('target');
     target.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
 
-    fireEvent.dragStart(source);
+    fireDrag.dragStart(source);
     await flushRaf();
-    fireEvent.dragEnter(target);
-    fireEvent.dragOver(target);
+    fireDrag.dragEnter(target);
+    fireDrag.dragOver(target);
     await flushRaf();
     expect(onDraggableEnter).toHaveBeenCalledTimes(1);
     expect(target).toHaveAttribute('data-drag-over');
@@ -696,7 +697,7 @@ describe('Draggable.Target', () => {
     expect(onDraggableEnter).toHaveBeenCalledTimes(2);
     expect(target).toHaveAttribute('data-drag-over');
 
-    fireEvent.drop(target);
+    fireDrag.drop(target);
   });
 
   it('a hovered target whose accept narrows mid-drag leaves the stack without pointer movement', async () => {
@@ -731,10 +732,10 @@ describe('Draggable.Target', () => {
     const target = screen.getByTestId('target');
     target.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
 
-    fireEvent.dragStart(source);
+    fireDrag.dragStart(source);
     await flushRaf();
-    fireEvent.dragEnter(target);
-    fireEvent.dragOver(target);
+    fireDrag.dragEnter(target);
+    fireDrag.dragOver(target);
     await flushRaf();
     expect(onDraggableEnter).toHaveBeenCalledTimes(1);
     expect(target).toHaveAttribute('data-drag-over');
@@ -758,7 +759,7 @@ describe('Draggable.Target', () => {
     expect(onDraggableEnter).toHaveBeenCalledTimes(2);
     expect(target).toHaveAttribute('data-drag-over');
 
-    fireEvent.drop(target);
+    fireDrag.drop(target);
   });
 
   it('accept filters which source kinds reach the target', async () => {
@@ -775,10 +776,10 @@ describe('Draggable.Target', () => {
     const target = screen.getByTestId('target');
     target.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
 
-    fireEvent.dragStart(source);
+    fireDrag.dragStart(source);
     await flushRaf();
-    fireEvent.dragEnter(target);
-    fireEvent.dragOver(target);
+    fireDrag.dragEnter(target);
+    fireDrag.dragOver(target);
     await flushRaf();
 
     expect(onDraggableEnter).not.toHaveBeenCalled();
@@ -800,12 +801,12 @@ describe('Draggable.Target', () => {
     outer.getBoundingClientRect = () => new DOMRect(0, 0, 200, 200);
     inner.getBoundingClientRect = () => new DOMRect(50, 50, 100, 100);
 
-    fireEvent.dragStart(source);
+    fireDrag.dragStart(source);
     await flushRaf();
 
     // Over the outer only.
-    fireEvent.dragEnter(outer);
-    fireEvent.dragOver(outer);
+    fireDrag.dragEnter(outer);
+    fireDrag.dragOver(outer);
     await flushRaf();
 
     expect(outer).toHaveAttribute('data-drag-over');
@@ -814,8 +815,8 @@ describe('Draggable.Target', () => {
 
     // Now over the inner (nested inside outer): the outer stays `over` but is no
     // longer the innermost active target.
-    fireEvent.dragEnter(inner);
-    fireEvent.dragOver(inner);
+    fireDrag.dragEnter(inner);
+    fireDrag.dragOver(inner);
     await flushRaf();
 
     expect(outer).toHaveAttribute('data-drag-over');
@@ -825,8 +826,8 @@ describe('Draggable.Target', () => {
 
     // Back out to the outer only: it regains innermost status and the inner
     // loses its drag-over state entirely.
-    fireEvent.dragEnter(outer);
-    fireEvent.dragOver(outer);
+    fireDrag.dragEnter(outer);
+    fireDrag.dragOver(outer);
     await flushRaf();
 
     expect(outer).toHaveAttribute('data-drag-over');
@@ -834,7 +835,7 @@ describe('Draggable.Target', () => {
     expect(inner).not.toHaveAttribute('data-drag-over');
     expect(inner).not.toHaveAttribute('data-drag-over-innermost');
 
-    fireEvent.drop(outer);
+    fireDrag.drop(outer);
   });
 
   it('flips drag-over state off and fires onDraggableLeave when the pointer leaves for empty space, then re-enters', async () => {
@@ -853,17 +854,17 @@ describe('Draggable.Target', () => {
     const target = screen.getByTestId('target');
     target.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
 
-    fireEvent.dragStart(source);
+    fireDrag.dragStart(source);
     await flushRaf();
-    fireEvent.dragEnter(target);
-    fireEvent.dragOver(target);
+    fireDrag.dragEnter(target);
+    fireDrag.dragOver(target);
     await flushRaf();
     expect(onDraggableEnter).toHaveBeenCalledTimes(1);
     expect(target).toHaveAttribute('data-drag-over');
     expect(target).toHaveAttribute('data-drag-over-innermost');
 
     // Off the target into empty space: the drag stays live with no hovered target.
-    fireEvent.dragLeave(target);
+    fireDrag.dragLeave();
     await flushRaf();
 
     expect(onDraggableLeave).toHaveBeenCalledTimes(1);
@@ -871,15 +872,15 @@ describe('Draggable.Target', () => {
     expect(target).not.toHaveAttribute('data-drag-over-innermost');
 
     // Back onto the same target: a fresh enter, not a resumed hover.
-    fireEvent.dragEnter(target);
-    fireEvent.dragOver(target);
+    fireDrag.dragEnter(target);
+    fireDrag.dragOver(target);
     await flushRaf();
 
     expect(onDraggableEnter).toHaveBeenCalledTimes(2);
     expect(target).toHaveAttribute('data-drag-over');
     expect(target).toHaveAttribute('data-drag-over-innermost');
 
-    fireEvent.drop(target);
+    fireDrag.drop(target);
   });
 
   it('reflects drag-over state across the drag lifecycle by default (trackDragOver defaults to true)', async () => {
@@ -893,16 +894,16 @@ describe('Draggable.Target', () => {
 
     expect(target).not.toHaveAttribute('data-drag-over');
 
-    fireEvent.dragStart(source);
+    fireDrag.dragStart(source);
     await flushRaf();
-    fireEvent.dragEnter(target);
-    fireEvent.dragOver(target);
+    fireDrag.dragEnter(target);
+    fireDrag.dragOver(target);
     await flushRaf();
 
     expect(target).toHaveAttribute('data-drag-over');
     expect(target).toHaveAttribute('data-drag-over-innermost');
 
-    fireEvent.drop(target);
+    fireDrag.drop(target);
 
     expect(target).not.toHaveAttribute('data-drag-over');
     expect(target).not.toHaveAttribute('data-drag-over-innermost');
@@ -924,30 +925,30 @@ describe('Draggable.Target', () => {
     const target = screen.getByTestId('target');
     target.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
 
-    fireEvent.dragStart(source);
+    fireDrag.dragStart(source);
     await flushRaf();
     expect(target).not.toHaveAttribute('data-rejected');
     expect(target).toHaveClass('open');
 
-    fireEvent.dragEnter(target);
-    fireEvent.dragOver(target);
+    fireDrag.dragEnter(target);
+    fireDrag.dragOver(target);
     await flushRaf();
     expect(target).toHaveAttribute('data-rejected');
     expect(target).toHaveClass('rejected');
     expect(target).not.toHaveAttribute('data-drag-over');
 
-    fireEvent.dragLeave(target);
+    fireDrag.dragLeave();
     await flushRaf();
     expect(target).not.toHaveAttribute('data-rejected');
     expect(target).toHaveClass('open');
 
     // Still rejecting on re-entry, and cleared with the drag.
-    fireEvent.dragEnter(target);
-    fireEvent.dragOver(target);
+    fireDrag.dragEnter(target);
+    fireDrag.dragOver(target);
     await flushRaf();
     expect(target).toHaveAttribute('data-rejected');
 
-    fireEvent.drop(target);
+    fireDrag.drop(target);
     expect(target).not.toHaveAttribute('data-rejected');
   });
 
@@ -972,10 +973,10 @@ describe('Draggable.Target', () => {
     const target = screen.getByTestId('target');
     target.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
 
-    fireEvent.dragStart(source);
+    fireDrag.dragStart(source);
     await flushRaf();
-    fireEvent.dragEnter(target);
-    fireEvent.dragOver(target);
+    fireDrag.dragEnter(target);
+    fireDrag.dragOver(target);
     await flushRaf();
     expect(target).toHaveAttribute('data-drag-over');
 
@@ -1007,16 +1008,16 @@ describe('Draggable.Target', () => {
     const source = createElement();
     engine.registerSource(source, {});
     const target = screen.getByTestId('active');
-    fireEvent.dragStart(source);
+    fireDrag.dragStart(source);
     await flushRaf();
-    fireEvent.dragEnter(target);
-    fireEvent.dragOver(target);
+    fireDrag.dragEnter(target);
+    fireDrag.dragOver(target);
     await flushRaf();
 
     canDrop.mockClear();
     await rerender(<Fixture allowed={false} />);
     expect(canDrop).not.toHaveBeenCalled();
-    fireEvent.drop(target);
+    fireDrag.drop(target);
   });
 
   it('coalesces inline canDrop changes from one render into one resolution', async () => {
@@ -1041,17 +1042,17 @@ describe('Draggable.Target', () => {
     engine.registerSource(source, {});
     const target = screen.getByTestId('target-0');
 
-    fireEvent.dragStart(source);
+    fireDrag.dragStart(source);
     await flushRaf();
-    fireEvent.dragEnter(target);
-    fireEvent.dragOver(target);
+    fireDrag.dragEnter(target);
+    fireDrag.dragOver(target);
     await flushRaf();
 
     canDrop.mockClear();
     await rerender(<Fixture revision={1} />);
 
     expect(canDrop).toHaveBeenCalledTimes(1);
-    fireEvent.drop(target);
+    fireDrag.drop(target);
   });
 
   it('passes the drag-over state to a className callback', async () => {
@@ -1069,15 +1070,15 @@ describe('Draggable.Target', () => {
 
     expect(target).toHaveClass('idle');
 
-    fireEvent.dragStart(source);
+    fireDrag.dragStart(source);
     await flushRaf();
-    fireEvent.dragEnter(target);
-    fireEvent.dragOver(target);
+    fireDrag.dragEnter(target);
+    fireDrag.dragOver(target);
     await flushRaf();
 
     expect(target).toHaveClass('is-over');
 
-    fireEvent.drop(target);
+    fireDrag.drop(target);
   });
 
   it('does not re-render on drag activity when trackDragOver is false', async () => {
@@ -1111,10 +1112,10 @@ describe('Draggable.Target', () => {
     const trackedBefore = trackedRenders.mock.calls.length;
     const untrackedBefore = untrackedRenders.mock.calls.length;
 
-    fireEvent.dragStart(source);
+    fireDrag.dragStart(source);
     await flushRaf();
-    fireEvent.dragEnter(tracked);
-    fireEvent.dragOver(tracked);
+    fireDrag.dragEnter(tracked);
+    fireDrag.dragOver(tracked);
     await flushRaf();
 
     // The tracked target re-renders for its own enter...
@@ -1122,10 +1123,10 @@ describe('Draggable.Target', () => {
 
     // ...while the untracked target's constant selector never flips, even across
     // its own enter and the drop.
-    fireEvent.dragEnter(untracked);
-    fireEvent.dragOver(untracked);
+    fireDrag.dragEnter(untracked);
+    fireDrag.dragOver(untracked);
     await flushRaf();
-    fireEvent.drop(untracked);
+    fireDrag.drop(untracked);
 
     expect(untrackedRenders.mock.calls.length).toBe(untrackedBefore);
   });
@@ -1144,7 +1145,7 @@ describe('Draggable.Target', () => {
     const acceptingBefore = acceptingRenders.mock.calls.length;
     const rejectingBefore = rejectingRenders.mock.calls.length;
 
-    fireEvent.dragStart(source);
+    fireDrag.dragStart(source);
     await flushRaf();
 
     expect(acceptingRenders.mock.calls.length).toBeGreaterThan(acceptingBefore);
@@ -1178,12 +1179,12 @@ describe('Draggable.Target', () => {
     const hovered = screen.getByTestId('hovered');
     hovered.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
 
-    fireEvent.dragStart(source);
+    fireDrag.dragStart(source);
     await flushRaf();
     const unrelatedAfterStart = unrelatedRenders.mock.calls.length;
 
-    fireEvent.dragEnter(hovered);
-    fireEvent.dragOver(hovered);
+    fireDrag.dragEnter(hovered);
+    fireDrag.dragOver(hovered);
     await flushRaf();
 
     expect(hoveredRenders.mock.calls.length).toBeGreaterThan(1);
@@ -1204,7 +1205,7 @@ describe('Draggable.Target', () => {
     engine.registerSource(source, {});
     const rendersBeforeDrag = className.mock.calls.length;
 
-    fireEvent.dragStart(source);
+    fireDrag.dragStart(source);
     await flushRaf();
 
     expect(className).toHaveBeenCalledTimes(rendersBeforeDrag);
@@ -1225,12 +1226,12 @@ describe('Draggable.Target', () => {
     const target = screen.getByTestId('target');
     target.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
 
-    fireEvent.dragStart(source);
+    fireDrag.dragStart(source);
     await flushRaf();
-    fireEvent.dragEnter(target);
-    fireEvent.dragOver(target);
+    fireDrag.dragEnter(target);
+    fireDrag.dragOver(target);
     await flushRaf();
-    fireEvent.drop(target);
+    fireDrag.drop(target);
 
     // Skipping the drag-over subscription must not skip the registration: the
     // element is still a real drop target, it just renders no feedback.
@@ -1255,12 +1256,12 @@ describe('Draggable.Target', () => {
     const target = screen.getByTestId('target');
     target.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
 
-    fireEvent.dragStart(source);
+    fireDrag.dragStart(source);
     await flushRaf();
-    fireEvent.dragEnter(target);
-    fireEvent.dragOver(target);
+    fireDrag.dragEnter(target);
+    fireDrag.dragOver(target);
     await flushRaf();
-    fireEvent.drop(target);
+    fireDrag.drop(target);
 
     expect(observed).toBe('slot-1');
   });
@@ -1330,15 +1331,15 @@ describe('Draggable.Target', () => {
       const item = screen.getByTestId('item');
       item.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
 
-      fireEvent.dragStart(source);
+      fireDrag.dragStart(source);
       await flushRaf();
-      fireEvent.dragEnter(item);
-      fireEvent.dragOver(item);
+      fireDrag.dragEnter(item);
+      fireDrag.dragOver(item);
       await flushRaf();
 
       expect(item).toHaveAttribute('data-drag-over');
 
-      fireEvent.drop(item);
+      fireDrag.drop(item);
       expect(item).not.toHaveAttribute('data-drag-over');
     });
 
@@ -1363,19 +1364,19 @@ describe('Draggable.Target', () => {
       a.getBoundingClientRect = () => new DOMRect(0, 0, 200, 50);
       b.getBoundingClientRect = () => new DOMRect(0, 50, 200, 50);
 
-      fireEvent.dragStart(a);
+      fireDrag.dragStart(a);
       await flushRaf();
       expect(a).toHaveAttribute('data-dragging');
 
-      fireEvent.dragEnter(b);
-      fireEvent.dragOver(b);
+      fireDrag.dragEnter(b);
+      fireDrag.dragOver(b);
       await flushRaf();
 
       expect(b).toHaveAttribute('data-drag-over');
       expect(a).toHaveAttribute('data-dragging');
       expect(a).not.toHaveAttribute('data-drag-over');
 
-      fireEvent.drop(b);
+      fireDrag.drop(b);
       expect(a).toHaveAttribute('data-settling');
       await flushRaf();
       expect(a).not.toHaveAttribute('data-dragging');

@@ -1,10 +1,10 @@
 import * as React from 'react';
 import { describe, it, expect, vi } from 'vitest';
-import { fireEvent, screen, render as rtlRender } from '@testing-library/react';
+import { screen, render as rtlRender } from '@testing-library/react';
 import { act } from '@mui/internal-test-utils';
 import { testDragKind } from '#test-utils';
 import { Draggable } from '@base-ui/react/draggable';
-import { setupDragEngineTests, lift, flushRaf } from '../../../test/dnd';
+import { setupDragEngineTests, lift, flushRaf, fireDrag } from '../../../test/dnd';
 import { DraggableProvider } from '../DraggableProvider';
 
 setupDragEngineTests();
@@ -21,7 +21,7 @@ describe('Draggable.Preview', () => {
     );
     const source = screen.getByTestId('drag');
     source.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
-    fireEvent.dragStart(source);
+    fireDrag.dragStart(source);
     expect(document.querySelector('[data-drag-preview]')).toHaveTextContent('Source content');
   });
 
@@ -36,7 +36,7 @@ describe('Draggable.Preview', () => {
     );
     const source = screen.getByTestId('drag');
     source.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
-    fireEvent.dragStart(source);
+    fireDrag.dragStart(source);
     expect(document.querySelector('[data-drag-preview]')).toBeNull();
   });
 
@@ -97,7 +97,7 @@ describe('Draggable.Preview', () => {
 
       const source = screen.getByTestId('drag');
       source.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
-      fireEvent.dragStart(source);
+      fireDrag.dragStart(source);
 
       // The settings belong to the engine and are plucked from the spread props; a
       // missed pluck would land `offset` or `container` here as an attribute.
@@ -126,7 +126,7 @@ describe('Draggable.Preview', () => {
 
     const source = screen.getByTestId('drag');
     source.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
-    fireEvent.dragStart(source);
+    fireDrag.dragStart(source);
 
     // `disabled` means there is no preview element to inject, so resolving the
     // reference anyway would run consumer code for nothing.
@@ -147,7 +147,7 @@ describe('Draggable.Preview', () => {
 
     const source = screen.getByTestId('drag');
     source.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
-    fireEvent.dragStart(source);
+    fireDrag.dragStart(source);
 
     expect(renderPreview).not.toHaveBeenCalled();
     expect(document.querySelector('[data-drag-preview]')).toBeNull();
@@ -267,15 +267,15 @@ describe('Draggable.Preview', () => {
     a.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
     b.getBoundingClientRect = () => new DOMRect(0, 200, 200, 100);
 
-    fireEvent.dragStart(a);
+    fireDrag.dragStart(a);
     expect(screen.getByText('Preview A')).toBeInTheDocument();
 
-    // End A and start B without an intervening commit. Dispatched raw rather than
-    // through `fireEvent`, which flushes between calls — the single flush is the
-    // whole point of the test.
+    // End A and start B without an intervening commit: the nested `act` calls
+    // flush only once the outer one exits — the single flush is the whole point
+    // of the test.
     act(() => {
-      a.dispatchEvent(new DragEvent('drop', { bubbles: true, cancelable: true }));
-      b.dispatchEvent(new DragEvent('dragstart', { bubbles: true, cancelable: true }));
+      fireDrag.drop(a);
+      fireDrag.dragStart(b);
     });
 
     expect(screen.queryByText('Preview A')).toBeNull();

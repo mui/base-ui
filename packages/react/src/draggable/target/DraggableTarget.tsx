@@ -238,10 +238,6 @@ type DraggableTargetPropsBase<
     trackDragOver?: boolean | undefined;
   };
 
-type DraggableTargetPayloadField<TTargetPayload> = [TTargetPayload] extends [undefined]
-  ? { payload?: undefined }
-  : { payload: NoInfer<TTargetPayload> };
-
 export type DraggableTargetProps<
   TSourcePayload = undefined,
   TTargetPayload = undefined,
@@ -251,7 +247,9 @@ export type DraggableTargetProps<
   DraggableTargetPropsBase<TSourcePayload, TTargetPayload, TSourceDragData, TTargetDragData>,
   'accept'
 > &
-  DraggableTargetPayloadField<TTargetPayload> &
+  ([TTargetPayload] extends [undefined]
+    ? { payload?: undefined }
+    : { payload: NoInfer<TTargetPayload> }) &
   ([TSourcePayload, TTargetPayload] extends [undefined, undefined]
     ? { accept?: DraggableAccept<TSourcePayload, TSourceDragData> | undefined }
     : { accept: DraggableAccept<TSourcePayload, TSourceDragData> });

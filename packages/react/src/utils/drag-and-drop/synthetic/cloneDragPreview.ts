@@ -3,16 +3,17 @@ import { NOOP } from '@base-ui/utils/empty';
 import { warn } from '@base-ui/utils/warn';
 import { isElement, isShadowRoot } from '@floating-ui/utils/dom';
 import { capturePreviewStyles } from './previewStyles';
-import { applySourceSizeVars } from '../customDragPreview';
 import { getSharedSlot } from '../sharedState';
+import * as DraggablePreviewCssVars from '../../../draggable/preview/DraggablePreviewCssVars';
 import * as DraggablePreviewDataAttributes from '../../../draggable/preview/DraggablePreviewDataAttributes';
 import * as DraggableRootDataAttributes from '../../../draggable/root/DraggableRootDataAttributes';
 import {
   adoptStyleSheet,
   getComposedParentElement,
+  getDragEventRoot,
   getElementScale,
   getElementZoom,
-  getStyleRoot,
+  getOwnZoom,
 } from '../utils';
 import type { DraggablePosition } from '../../../draggable/DraggableProvider';
 import {
@@ -85,7 +86,7 @@ function ensureNeutralizerStyles(host: PreviewHost): void {
   // lives in an iframe/popout has its own `ShadowRoot` constructor, and this realm's
   // would never match — the neutralizer sheet would then land on the iframe document
   // instead of the shadow root, leaving the preview with the source's transitions.
-  const target = isShadowRoot(host) ? host : getStyleRoot(host);
+  const target = isShadowRoot(host) ? host : getDragEventRoot(host);
   if (!('adoptedStyleSheets' in target)) {
     return;
   }
@@ -126,6 +127,8 @@ type PreviewHost = HTMLElement | ShadowRoot;
 
 const HTML_NAMESPACE = 'http://www.w3.org/1999/xhtml';
 const XLINK_NAMESPACE = 'http://www.w3.org/1999/xlink';
+/** Appended to every id in the clone, so it never duplicates one in the document. */
+const ID_SUFFIX = '-drag-preview';
 
 /**
  * The node the preview hangs off. A draggable that is a *direct* child of a shadow
@@ -137,7 +140,7 @@ function hostOf(node: Node): PreviewHost | null {
   if (parent && isShadowRoot(parent)) {
     return parent;
   }
-  return (node as Element).parentElement ?? null;
+  return node.parentElement;
 }
 
 /**
@@ -282,7 +285,7 @@ function cloneWithoutCustomElements(
 }
 
 /** Strip state the clone must not carry, and neutralize nodes that would re-run. */
-function sanitize(clone: HTMLElement, cloneNodes: Element[], idSuffix: string): void {
+function sanitize(clone: HTMLElement, cloneNodes: Element[]): void {
   // Duplicate ids would poison `getElementById`, `<label for>` and
   // `aria-labelledby`. Rewrite them, then re-point references inside the clone.
   // This deliberately means external `#id` selectors do not style the preview;
@@ -323,7 +326,7 @@ function sanitize(clone: HTMLElement, cloneNodes: Element[], idSuffix: string): 
 
     const id = node.getAttribute('id');
     if (id) {
-      const next = `${id}${idSuffix}`;
+      const next = `${id}${ID_SUFFIX}`;
       rewritten.set(id, next);
       node.setAttribute('id', next);
     }
@@ -388,13 +391,13 @@ function sanitize(clone: HTMLElement, cloneNodes: Element[], idSuffix: string): 
  * The two node lists are zipped, which is only sound while they are still
  * structurally identical — so this runs on the freshly-cloned tree, before
  * `sanitize()` removes anything from it. Scroll offsets are no-ops on a detached
- * node, so they are deferred to `applyPostInsertion`.
+ * node, so they are deferred to the returned function, run once the clone is inserted.
  */
 function copyLiveState(
   sourceNodes: Element[],
   cloneNodes: Element[],
   win: Window & typeof globalThis,
-): { applyPostInsertion: () => void } {
+): () => void {
   const scrolls: Array<{ node: HTMLElement; top: number; left: number }> = [];
 
   for (let i = 0; i < sourceNodes.length; i += 1) {
@@ -437,13 +440,11 @@ function copyLiveState(
     }
   }
 
-  return {
-    applyPostInsertion() {
-      for (const { node, top, left } of scrolls) {
-        node.scrollTop = top;
-        node.scrollLeft = left;
-      }
-    },
+  return () => {
+    for (const { node, top, left } of scrolls) {
+      node.scrollTop = top;
+      node.scrollLeft = left;
+    }
   };
 }
 
@@ -472,27 +473,20 @@ function prepareDragPreviewClone(
     cloneNodes = [element, ...Array.from(element.querySelectorAll('*'))];
   }
 
-  const { applyPostInsertion } = copyLiveState(sourceNodes, cloneNodes, win);
-  sanitize(element, cloneNodes, '-drag-preview');
+  const applyPostInsertion = copyLiveState(sourceNodes, cloneNodes, win);
+  sanitize(element, cloneNodes);
   element.removeAttribute(DraggableRootDataAttributes.dragging);
 
   return { element, sourceNodes, nodes: cloneNodes, applyPostInsertion };
 }
 
-/** A `transform` that only translates, which leaves the box's size untouched. */
-const TRANSLATE_ONLY = /^translate(3d|X|Y)?\([^)]*\)$/;
-
 /**
- * Whether a computed `transform` only translates. Browsers resolve the computed
- * `transform` of a rendered element to matrix form, so the literal
- * `translate(…)` spelling only ever appears in non-rendering environments —
- * a pure translation has to be recognized in its matrix form too: an identity
- * matrix with only the offset components (`m41`/`m42`/`m43`) free.
+ * Whether a computed `transform` only translates, which leaves the box's size
+ * untouched. Browsers resolve the computed `transform` of a rendered element to
+ * matrix form, so a pure translation is an identity matrix with only the offset
+ * components (`m41`/`m42`/`m43`) free.
  */
 function isTranslationOnly(transform: string): boolean {
-  if (TRANSLATE_ONLY.test(transform)) {
-    return true;
-  }
   const matrix = transform.match(COMPUTED_MATRIX);
   if (!matrix) {
     return false;
@@ -523,9 +517,8 @@ function getLinearTransform(sourceStyle: CSSStyleDeclaration): LinearTransform |
   }
 
   if (sourceStyle.scale !== 'none') {
-    const parts = sourceStyle.scale.trim().split(/\s+/);
     const scale = parseScaleLinearTransform(sourceStyle.scale);
-    if (!scale || parts.length > 3 || parts.some((part) => !Number.isFinite(Number(part)))) {
+    if (!scale) {
       return null;
     }
     matrix = multiplyLinearTransforms(matrix, scale);
@@ -615,7 +608,7 @@ export function measurePreviewSource(source: HTMLElement): {
     (sourceStyle.rotate !== '' && sourceStyle.rotate !== 'none');
   const parent = getComposedParentElement(source) as HTMLElement | null;
   const parentScale = parent ? getElementScale(parent) : { x: 1, y: 1 };
-  const ownZoom = Number.parseFloat(sourceStyle.zoom) || 1;
+  const ownZoom = getOwnZoom(source, sourceStyle);
   const ancestorScale = { x: parentScale.x * ownZoom, y: parentScale.y * ownZoom };
   const width = hasTransform ? source.offsetWidth * ancestorScale.x : untransformedRect.width;
   const height = hasTransform ? source.offsetHeight * ancestorScale.y : untransformedRect.height;
@@ -723,7 +716,6 @@ export function createDragPreviewElement(
     // (see `positionPreviewElement`), and it overwrites any `translate` the
     // source carried.
     translate: '-10000px -10000px',
-    zIndex: '2147483647',
     // A clone must keep the box it had in the layout it just left; a custom preview
     // sizes itself to its own content.
     ...(isClone
@@ -775,7 +767,7 @@ export function createDragPreviewElement(
     // Read from the source while the clone is still detached: it is never inserted
     // beside the source, which would shift every sibling's `:nth-child` index and
     // snapshot the clone at a position the source does not occupy.
-    contextualStyles = capturePreviewStyles(source, clone.sourceNodes, element, clone.nodes);
+    contextualStyles = capturePreviewStyles(clone.sourceNodes, clone.nodes);
   }
   wrapper.appendChild(element);
 
@@ -798,7 +790,10 @@ export function createDragPreviewElement(
               .some((duration) => Number.parseFloat(duration) > 0)
           : value !== 'none';
       if (activeMotion && value && value === sourceStyle.getPropertyValue(property)) {
-        restoredMotion.set(property, value);
+        // `transform` is geometry rather than motion, so it stays neutralized for the drop.
+        if (property !== 'transform') {
+          restoredMotion.set(property, value);
+        }
         element.style.setProperty(property, 'none', 'important');
       }
     }
@@ -827,10 +822,15 @@ export function createDragPreviewElement(
     const scaleX = positionScale.x / zoom;
     const scaleY = positionScale.y / zoom;
     wrapper.style.scale = scaleX === 1 && scaleY === 1 ? 'none' : `${scaleX} ${scaleY}`;
-    applySourceSizeVars(element, {
-      width: sourceRect.width / positionScale.x,
-      height: sourceRect.height / positionScale.y,
-    });
+    // Expose the source's size to the preview content.
+    element.style.setProperty(
+      DraggablePreviewCssVars.dragSourceWidth,
+      `${sourceRect.width / positionScale.x}px`,
+    );
+    element.style.setProperty(
+      DraggablePreviewCssVars.dragSourceHeight,
+      `${sourceRect.height / positionScale.y}px`,
+    );
   }
 
   function openInTopLayer(): void {
@@ -918,9 +918,6 @@ export function createDragPreviewElement(
     prepareForDrop() {
       // Allow a distinct ending rule without reviving inherited source motion.
       for (const [property, inheritedValue] of restoredMotion) {
-        if (property === 'transform') {
-          continue;
-        }
         element.style.removeProperty(property);
         if (
           ownerWindow(element).getComputedStyle(element).getPropertyValue(property) ===

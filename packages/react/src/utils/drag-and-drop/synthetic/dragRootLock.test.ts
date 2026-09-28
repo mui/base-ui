@@ -35,8 +35,8 @@ describe('dragRootLock', () => {
   });
 
   afterEach(() => {
-    dragRootLock.resetForTests();
-    // Restore `<html>` *and* `<body>` independently of `resetForTests`: the lock
+    dragRootLock.unlock();
+    // Restore `<html>` *and* `<body>` independently of `unlock`: the lock
     // writes to both, so a regression in the module's own restore path must fail
     // its test rather than leak body styles into every later one.
     restoreStyles(document.documentElement, originals.html);
@@ -162,19 +162,5 @@ describe('dragRootLock', () => {
   it('unlock() without a matching lock() is a no-op', () => {
     dragRootLock.unlock();
     expect(document.documentElement.style.touchAction).toBe(originals.html.touchAction);
-  });
-
-  it('resetForTests() restores the inline styles the lock wrote', () => {
-    const root = document.documentElement;
-    root.style.touchAction = 'pan-y';
-    root.style.userSelect = 'text';
-
-    dragRootLock.lock(document.body);
-    expect(root.style.touchAction).toBe('none');
-
-    dragRootLock.resetForTests();
-
-    expect(root.style.touchAction).toBe('pan-y');
-    expect(root.style.userSelect).toBe('text');
   });
 });

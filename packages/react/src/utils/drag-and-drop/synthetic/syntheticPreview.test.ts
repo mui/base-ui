@@ -39,9 +39,16 @@ function createPreviewElement(
 const activeHandles: Array<{ destroy(): void }> = [];
 const attachedSources: HTMLElement[] = [];
 
+/** An identity no remounted source matches, so settling previews never retarget. */
+const UNMATCHED_IDENTITY = {
+  kind: Symbol('test-source'),
+  previewKey: undefined,
+  payload: undefined,
+};
+
 /** `createSyntheticPreview` with the handle queued for `afterEach` destruction. */
 function createHandle(source: HTMLElement): ReturnType<typeof createSyntheticPreview> {
-  const handle = createSyntheticPreview(source);
+  const handle = createSyntheticPreview(source, UNMATCHED_IDENTITY);
   activeHandles.push(handle);
   return handle;
 }
@@ -124,19 +131,10 @@ describe('syntheticPreview', () => {
   });
 
   describe('setPreviewElement', () => {
-    it('positions a preview adopted mid-drag immediately', () => {
-      const handle = createHandle(document.body);
-      handle.update(100, 200);
-      const preview = createPreviewElement();
-      handle.setPreviewElement(preview, { x: 10, y: 20 });
-      // Positioned right away from the last update, not only on the next frame.
-      expect(preview.element.style.translate).toBe('90px 180px');
-    });
-
     it('exposes the adopted preview element and destroys it on release', () => {
       const handle = createHandle(document.body);
       const preview = createPreviewElement();
-      handle.setPreviewElement(preview, { x: 0, y: 0 });
+      handle.setPreviewElement(preview);
       expect(handle.getPreviewElement()).toBe(preview);
       handle.removePreviewElement();
       expect(handle.getPreviewElement()).toBeNull();
@@ -148,7 +146,7 @@ describe('syntheticPreview', () => {
       // filled the host, which is after the engine placed it.
       const handle = createHandle(document.body);
       const preview = createPreviewElement();
-      handle.setPreviewElement(preview, { x: 0, y: 0 });
+      handle.setPreviewElement(preview);
       handle.update(100, 200);
       expect(preview.element.style.translate).toBe('100px 200px');
 
@@ -163,19 +161,6 @@ describe('syntheticPreview', () => {
       handle.setPreviewElement(preview);
       handle.destroy();
       expect(preview.destroyed).toBe(true);
-    });
-
-    it('destroys a preview handed to it after destroy()', () => {
-      const handle = createHandle(document.body);
-      handle.destroy();
-
-      // A drag can end while the React tree building the preview is mid-commit;
-      // adopting (or ignoring) the late element would leak it in the DOM.
-      const preview = createPreviewElement();
-      handle.setPreviewElement(preview, { x: 0, y: 0 });
-
-      expect(preview.destroyed).toBe(true);
-      expect(handle.getPreviewElement()).toBeNull();
     });
 
     it('keeps a cloned preview mounted through its authored drop transition', async () => {
@@ -425,20 +410,13 @@ describe('syntheticPreview', () => {
   });
 
   describe('getPreviewOffset', () => {
-    it('returns the offset set with the element, and follows setPreviewOffset', () => {
+    it('starts at zero and follows setPreviewOffset', () => {
       const handle = createHandle(document.body);
       expect(handle.getPreviewOffset()).toEqual({ x: 0, y: 0 });
 
-      const preview = createPreviewElement();
-      handle.setPreviewElement(preview, { x: 3, y: 4 });
-      expect(handle.getPreviewOffset()).toEqual({ x: 3, y: 4 });
-
+      handle.setPreviewElement(createPreviewElement());
       handle.setPreviewOffset({ x: 7, y: 8 });
       expect(handle.getPreviewOffset()).toEqual({ x: 7, y: 8 });
-
-      // Adopting a new element without an offset resets it.
-      handle.setPreviewElement(createPreviewElement());
-      expect(handle.getPreviewOffset()).toEqual({ x: 0, y: 0 });
     });
   });
 });
@@ -468,7 +446,7 @@ describe('preview modifiers', () => {
     const handle = createHandle(document.body);
     const preview = createPreviewElement(50, 30);
     handle.setModifiers([restrictToVerticalAxis]);
-    handle.setPreviewElement(preview, { x: 0, y: 0 });
+    handle.setPreviewElement(preview);
 
     // The first frame anchors the locked axis at x = 100.
     handle.update(100, 100);
@@ -499,7 +477,7 @@ describe('preview modifiers', () => {
         return point;
       },
     ]);
-    handle.setPreviewElement(preview, { x: 0, y: 0 });
+    handle.setPreviewElement(preview);
 
     // Detached: the measurement must not run yet, and must not latch its answer.
     handle.update(100, 100);
@@ -527,7 +505,7 @@ describe('preview modifiers', () => {
         return point;
       },
     ]);
-    handle.setPreviewElement(preview, { x: 0, y: 0 });
+    handle.setPreviewElement(preview);
 
     const parent = createSource();
     parent.style.transform = 'matrix(2, 0, 0, 2, 0, 0)';
@@ -556,7 +534,7 @@ describe('preview modifiers', () => {
         return point;
       },
     ]);
-    handle.setPreviewElement(preview, { x: 0, y: 0 });
+    handle.setPreviewElement(preview);
 
     handle.update(100, 100);
     expect(seen.at(-1)).toBe(false);
@@ -571,7 +549,7 @@ describe('preview modifiers', () => {
     const boundary = document.createElement('div');
     boundary.getBoundingClientRect = () => new DOMRect(0, 0, 200, 200);
     handle.setModifiers([() => ({ x: 500, y: 500 }), restrictToElement(boundary)]);
-    handle.setPreviewElement(preview, { x: 0, y: 0 });
+    handle.setPreviewElement(preview);
 
     handle.update(50, 60);
     // The element clamp is the outer modifier: 200−50=150, 200−30=170.
@@ -605,7 +583,8 @@ describe('preview modifiers', () => {
         return context.point;
       },
     ]);
-    handle.setPreviewElement(preview, { x: 10, y: 20 });
+    handle.setPreviewElement(preview);
+    handle.setPreviewOffset({ x: 10, y: 20 });
     handle.update(100, 200);
 
     expect(contexts).toHaveLength(1);
@@ -625,7 +604,7 @@ describe('preview modifiers', () => {
     const handle = createHandle(document.body);
     const preview = createPreviewElement(50, 30);
     handle.setModifiers([restrictToVerticalAxis]);
-    handle.setPreviewElement(preview, { x: 0, y: 0 });
+    handle.setPreviewElement(preview);
 
     handle.update(100, 100);
     handle.update(400, 250);
@@ -640,26 +619,6 @@ describe('preview modifiers', () => {
     expect(preview.element.style.translate).toBe('390px 280px');
   });
 
-  it('re-anchors when a preview element is adopted mid-drag', () => {
-    const handle = createHandle(document.body);
-    handle.setModifiers([restrictToVerticalAxis]);
-    const first = createPreviewElement(50, 30);
-    handle.setPreviewElement(first, { x: 0, y: 0 });
-
-    handle.update(100, 100);
-    handle.update(400, 250);
-    expect(first.element.style.translate).toBe('100px 250px');
-
-    // A `Draggable.Preview` replacing the clone anchors where it lands, not at
-    // the proposal computed for the previous element.
-    const second = createPreviewElement(50, 30);
-    handle.setPreviewElement(second, { x: 0, y: 0 });
-    expect(second.element.style.translate).toBe('400px 250px');
-
-    handle.update(500, 300);
-    expect(second.element.style.translate).toBe('400px 300px');
-  });
-
   it('leaves the frame unconstrained when a modifier throws', () => {
     const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
     const handle = createHandle(document.body);
@@ -669,7 +628,7 @@ describe('preview modifiers', () => {
         throw new Error('broken modifier');
       },
     ]);
-    handle.setPreviewElement(preview, { x: 0, y: 0 });
+    handle.setPreviewElement(preview);
 
     expect(() => handle.update(123, 456)).not.toThrow();
     expect(preview.element.style.translate).toBe('123px 456px');
@@ -685,7 +644,7 @@ describe('preview modifiers', () => {
     const preview = createPreviewElement(50, 30);
     handle.setModifiers([restrictToVerticalAxis]);
     handle.setModifiers(null);
-    handle.setPreviewElement(preview, { x: 0, y: 0 });
+    handle.setPreviewElement(preview);
     handle.update(100, 100);
     handle.update(400, 250);
     expect(preview.element.style.translate).toBe('400px 250px');

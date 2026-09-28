@@ -2,6 +2,8 @@ import { describe, it, expect, vi, afterEach } from 'vitest';
 import { isJSDOM } from '#test-utils';
 import { deepElementFromPoint, elementFromPointIgnoring, getElementScale } from './utils';
 
+const NO_SHADOW_ROOTS: ReadonlyMap<Element, ShadowRoot> = new Map();
+
 function makeEl(): HTMLElement {
   const el = document.createElement('div');
   document.body.appendChild(el);
@@ -19,7 +21,7 @@ describe('elementFromPointIgnoring', () => {
     const preview = makeEl();
     const spy = vi.spyOn(document, 'elementFromPoint').mockReturnValue(underlying);
 
-    expect(elementFromPointIgnoring(document, 10, 20, preview)).toBe(underlying);
+    expect(elementFromPointIgnoring(document, 10, 20, preview, NO_SHADOW_ROOTS)).toBe(underlying);
     // No re-hit needed: the first result already wasn't the preview.
     expect(spy).toHaveBeenCalledTimes(1);
   });
@@ -36,7 +38,7 @@ describe('elementFromPointIgnoring', () => {
       return preview.style.display === 'none' ? underlying : inner;
     });
 
-    expect(elementFromPointIgnoring(document, 10, 20, preview)).toBe(underlying);
+    expect(elementFromPointIgnoring(document, 10, 20, preview, NO_SHADOW_ROOTS)).toBe(underlying);
     expect(spy).toHaveBeenCalledTimes(2);
     // The preview's display is restored afterwards.
     expect(preview.style.display).toBe('');
@@ -46,14 +48,14 @@ describe('elementFromPointIgnoring', () => {
     const underlying = makeEl();
     vi.spyOn(document, 'elementFromPoint').mockReturnValue(underlying);
 
-    expect(elementFromPointIgnoring(document, 10, 20, null)).toBe(underlying);
+    expect(elementFromPointIgnoring(document, 10, 20, null, NO_SHADOW_ROOTS)).toBe(underlying);
   });
 
   it('returns null when nothing is under the pointer', () => {
     const preview = makeEl();
     vi.spyOn(document, 'elementFromPoint').mockReturnValue(null);
 
-    expect(elementFromPointIgnoring(document, 10, 20, preview)).toBeNull();
+    expect(elementFromPointIgnoring(document, 10, 20, preview, NO_SHADOW_ROOTS)).toBeNull();
   });
 
   it('descends into an open shadow root instead of stopping at the host', () => {
@@ -67,7 +69,7 @@ describe('elementFromPointIgnoring', () => {
 
     // A document-level hit stops at the shadow host; a drop target inside the
     // shadow tree would never be entered without the descent.
-    expect(elementFromPointIgnoring(document, 10, 20, null)).toBe(inner);
+    expect(elementFromPointIgnoring(document, 10, 20, null, NO_SHADOW_ROOTS)).toBe(inner);
   });
 
   it('stops descending when the shadow root resolves back to its host', () => {
@@ -76,7 +78,7 @@ describe('elementFromPointIgnoring', () => {
     (shadow as unknown as { elementFromPoint: () => Element }).elementFromPoint = () => host;
     vi.spyOn(document, 'elementFromPoint').mockReturnValue(host);
 
-    expect(elementFromPointIgnoring(document, 10, 20, null)).toBe(host);
+    expect(elementFromPointIgnoring(document, 10, 20, null, NO_SHADOW_ROOTS)).toBe(host);
   });
 });
 
@@ -99,7 +101,7 @@ describe('deepElementFromPoint', () => {
     (innerShadow as unknown as { elementFromPoint: () => Element }).elementFromPoint = () => leaf;
     vi.spyOn(document, 'elementFromPoint').mockReturnValue(outerHost);
 
-    expect(deepElementFromPoint(document, 10, 20)).toBe(leaf);
+    expect(deepElementFromPoint(document, 10, 20, NO_SHADOW_ROOTS)).toBe(leaf);
   });
 
   it('descends through closed ancestors of a retained shadow root', () => {
@@ -135,7 +137,7 @@ describe('deepElementFromPoint', () => {
     host.attachShadow({ mode: 'open' });
     vi.spyOn(document, 'elementFromPoint').mockReturnValue(host);
 
-    expect(deepElementFromPoint(document, 10, 20)).toBe(host);
+    expect(deepElementFromPoint(document, 10, 20, NO_SHADOW_ROOTS)).toBe(host);
   });
 
   it('returns null in a document that cannot hit-test at all', () => {
@@ -145,8 +147,8 @@ describe('deepElementFromPoint', () => {
     // sensor and refuse every later pickup — it has to degrade to "no target".
     const doc = { elementFromPoint: undefined } as unknown as Document;
 
-    expect(deepElementFromPoint(doc, 10, 20)).toBeNull();
-    expect(elementFromPointIgnoring(doc, 10, 20, null)).toBeNull();
+    expect(deepElementFromPoint(doc, 10, 20, NO_SHADOW_ROOTS)).toBeNull();
+    expect(elementFromPointIgnoring(doc, 10, 20, null, NO_SHADOW_ROOTS)).toBeNull();
   });
 });
 

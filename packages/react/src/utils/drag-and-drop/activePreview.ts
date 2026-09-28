@@ -1,6 +1,6 @@
 import { getSharedSlot } from './sharedState';
 import type { SyntheticPreviewHandle } from './synthetic/syntheticPreview';
-import type { ResolvedDragPreview } from './synthetic/dragPreviewSettings';
+import type { ResolvedDragPreview } from './synthetic/pickupPreview';
 
 /**
  * The active drag's preview handle, so the React layer can reach the element the
@@ -9,7 +9,7 @@ import type { ResolvedDragPreview } from './synthetic/dragPreviewSettings';
  */
 interface ActivePreviewSlot {
   handle: SyntheticPreviewHandle | null;
-  settings: ResolvedDragPreview<any> | null;
+  settings: ResolvedDragPreview | null;
 }
 
 const slot = getSharedSlot<ActivePreviewSlot>('activeDragPreview', () => ({
@@ -19,25 +19,14 @@ const slot = getSharedSlot<ActivePreviewSlot>('activeDragPreview', () => ({
 
 /**
  * Sensor-only: publish the active drag's preview handle and the settings behind it.
- * Returns a restore function for pickups that publish before the lifecycle accepts
- * the session: when it refuses (a drag is already running), the previous drag's
- * handle must come back instead of being cleared, or its retarget/offset paths
- * would silently no-op for the rest of that drag.
+ * Released with `clearActivePreviewHandle`, whether the pickup is undone or the drag ends.
  */
 export function setActivePreviewHandle(
   handle: SyntheticPreviewHandle,
-  settings: ResolvedDragPreview<any>,
-): () => void {
-  const previousHandle = slot.handle;
-  const previousSettings = slot.settings;
+  settings: ResolvedDragPreview,
+): void {
   slot.handle = handle;
   slot.settings = settings;
-  return () => {
-    if (slot.handle === handle) {
-      slot.handle = previousHandle;
-      slot.settings = previousSettings;
-    }
-  };
 }
 
 /**
@@ -56,7 +45,7 @@ export function clearActivePreviewHandle(handle: SyntheticPreviewHandle): void {
  * The settings the active drag's preview was built from. The React layer reads them
  * to decide whether it has any content to render at all.
  */
-export function getActiveDragPreviewSettings(): ResolvedDragPreview<any> | null {
+export function getActiveDragPreviewSettings(): ResolvedDragPreview | null {
   return slot.settings;
 }
 

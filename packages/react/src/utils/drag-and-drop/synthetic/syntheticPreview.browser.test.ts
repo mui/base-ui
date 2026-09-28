@@ -4,6 +4,8 @@ import { flushRaf } from '../../../../test/dnd';
 import { createDragPreviewElement } from './cloneDragPreview';
 import { createSyntheticPreview } from './syntheticPreview';
 
+const SOURCE_IDENTITY = { kind: Symbol('test-source'), previewKey: undefined, payload: undefined };
+
 describe.skipIf(isJSDOM)('syntheticPreview drop transition', () => {
   const animationsFlag = globalThis as { BASE_UI_ANIMATIONS_DISABLED?: boolean | undefined };
 
@@ -41,7 +43,7 @@ describe.skipIf(isJSDOM)('syntheticPreview drop transition', () => {
     parent.appendChild(source);
     document.body.appendChild(parent);
     const clone = createDragPreviewElement(source, null, true)!;
-    const preview = createSyntheticPreview(source);
+    const preview = createSyntheticPreview(source, SOURCE_IDENTITY);
     try {
       preview.setPreviewElement(clone);
       preview.update(300, 300);
@@ -95,8 +97,8 @@ describe.skipIf(isJSDOM)('syntheticPreview drop transition', () => {
       const clone = createDragPreviewElement(source, null, true);
       expect(clone).not.toBeNull();
 
-      const preview = createSyntheticPreview(source);
-      preview.setPreviewElement(clone);
+      const preview = createSyntheticPreview(source, SOURCE_IDENTITY);
+      preview.setPreviewElement(clone!);
       preview.update(10, 20);
       preview.markSourceDragging();
 

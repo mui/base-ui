@@ -66,8 +66,6 @@ export function getDragEventRoot(node: Element): Document | ShadowRoot {
   return isShadowRoot(root) ? root : ownerDocument(node);
 }
 
-const EMPTY_SHADOW_ROOTS_BY_HOST: ReadonlyMap<Element, ShadowRoot> = new Map();
-
 /**
  * Hit-test what sits under (`clientX`, `clientY`), descending into open shadow
  * roots: `elementFromPoint` on the document stops at the shadow *host*, so a drop
@@ -85,7 +83,7 @@ export function deepElementFromPoint(
   doc: Document,
   clientX: number,
   clientY: number,
-  rootsByHost: ReadonlyMap<Element, ShadowRoot> = EMPTY_SHADOW_ROOTS_BY_HOST,
+  rootsByHost: ReadonlyMap<Element, ShadowRoot>,
 ): Element | null {
   let hit = getElementAtPoint(doc, clientX, clientY);
   let innerRoot = hit ? (hit.shadowRoot ?? rootsByHost.get(hit)) : undefined;
@@ -114,7 +112,7 @@ export function elementFromPointIgnoring(
   clientX: number,
   clientY: number,
   ignore: HTMLElement | null,
-  rootsByHost: ReadonlyMap<Element, ShadowRoot> = EMPTY_SHADOW_ROOTS_BY_HOST,
+  rootsByHost: ReadonlyMap<Element, ShadowRoot>,
 ): Element | null {
   const found = deepElementFromPoint(doc, clientX, clientY, rootsByHost);
   if (!found || ignore == null || !contains(ignore, found)) {
@@ -189,10 +187,7 @@ export function getInput(event: MouseEvent & { pointerType?: string | undefined 
     pageX: event.pageX,
     pageY: event.pageY,
     pointerType: normalizePointerType(event.pointerType),
-    ctrlKey: event.ctrlKey,
-    shiftKey: event.shiftKey,
-    altKey: event.altKey,
-    metaKey: event.metaKey,
+    ...getModifierKeys(event),
   };
 }
 
@@ -250,10 +245,11 @@ export function modifierKeysChanged(a: DragModifierKeys, b: DragModifierKeys): b
  *
  * `message` states what threw and what the engine did instead — never that the
  * error follows, which the console already shows. Every one of these strings
- * ships in the production bundle, so they stay to the point.
+ * ships in the production bundle, so they stay to the point. Pass a function
+ * to build it only once something actually threw.
  */
 export function containConsumerError<T>(
-  message: string,
+  message: string | (() => string),
   element: Element | null,
   call: () => T,
   fallback: T,
@@ -261,16 +257,13 @@ export function containConsumerError<T>(
   try {
     return call();
   } catch (error) {
-    reportConsumerError(message, element, error);
+    const text = typeof message === 'function' ? message() : message;
+    if (element === null) {
+      console.error(text, error);
+    } else {
+      console.error(text, element, error);
+    }
     return fallback;
-  }
-}
-
-function reportConsumerError(message: string, element: Element | null, error: unknown): void {
-  if (element === null) {
-    console.error(message, error);
-  } else {
-    console.error(message, element, error);
   }
 }
 
@@ -308,16 +301,12 @@ export function safeCallConsumer<T>(
   call: () => T,
   fallback: T,
 ): T {
-  try {
-    return call();
-  } catch (error) {
-    reportConsumerError(
-      `Base UI: ${subject} "${callbackName}" threw and was skipped for this drag.`,
-      element,
-      error,
-    );
-    return fallback;
-  }
+  return containConsumerError(
+    () => `Base UI: ${subject} "${callbackName}" threw and was skipped for this drag.`,
+    element,
+    call,
+    fallback,
+  );
 }
 
 /**
@@ -399,9 +388,8 @@ function usableScale(value: number): number {
  * The element's own `zoom`, or `1` when it has none. Falls back to the inline
  * declaration for engines whose computed style does not expose `zoom`.
  */
-function getOwnZoom(node: Element, style: CSSStyleDeclaration): number {
-  const value = Number.parseFloat(style.zoom || (node as HTMLElement).style?.zoom || '');
-  return Number.isFinite(value) && value > 0 ? value : 1;
+export function getOwnZoom(node: Element, style: CSSStyleDeclaration): number {
+  return usableScale(Number.parseFloat(style.zoom || (node as HTMLElement).style?.zoom || ''));
 }
 
 /** CSS zoom remains cumulative even when a preview enters the top layer. */
@@ -468,12 +456,6 @@ export function getElementScale(element: HTMLElement): DraggablePosition {
     x: usableScale(Math.hypot(matrix.a, matrix.b) * zoom),
     y: usableScale(Math.hypot(matrix.c, matrix.d) * zoom),
   };
-}
-
-/** The document or shadow root whose style sheets apply to `element`. */
-export function getStyleRoot(element: Element): Document | ShadowRoot {
-  const root = element.getRootNode();
-  return isShadowRoot(root) ? root : ownerDocument(element);
 }
 
 /** Add `sheet` to `root`'s adopted style sheets unless it is already there. */

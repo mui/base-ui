@@ -21,11 +21,13 @@ import type {
   DraggableTargetResolutionContext,
 } from '../target/DraggableTarget';
 import { registerTarget, registerMonitor } from '../../utils/drag-and-drop/registrations';
-import type { RegisterTargetParameters } from '../../utils/drag-and-drop/dropTarget';
+import { resolveCollision } from '../../utils/drag-and-drop/dropTarget';
+import type {
+  CollisionResolutionRegistration,
+  RegisterTargetParameters,
+} from '../../utils/drag-and-drop/dropTarget';
 import { scheduleDropTargetParameterRefresh } from '../../utils/drag-and-drop/core/lifecycleManager';
 import { dragSessionStore, dragSourceStore } from '../../utils/drag-and-drop/dragSessionStore';
-import { resolveCollision } from '../../utils/drag-and-drop/collisionResolution';
-import type { CollisionResolutionRegistration } from '../../utils/drag-and-drop/collisionResolution';
 import { createKind } from '../../utils/drag-and-drop/dragKind';
 import { DraggableCollisionContext } from './DraggableCollisionContext';
 import type { CollisionParticipant } from './DraggableCollisionContext';
@@ -186,7 +188,9 @@ export function DraggableCollisionProvider<TPayload, TDragData = unknown>(
       removedSource.current = null;
       pendingStart.current = null;
       if (involvedRef.current) {
-        props.onMoveStart?.({ source: value.source, target: resolve(value.target) }, details);
+        // The engine captures participants from the first move or target change
+        // on, so a drag starting in this group has no target yet.
+        props.onMoveStart?.({ source: value.source, target: null }, details);
       } else {
         pendingStart.current = { source: value.source, details };
       }

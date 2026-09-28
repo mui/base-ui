@@ -1,8 +1,7 @@
 import * as React from 'react';
 import { describe, it, expect, vi } from 'vitest';
-import { fireEvent } from '@testing-library/react';
 import { createDndRenderer, firePointer } from '#test-utils';
-import { createElement, flushRaf, setupDragEngineTests } from '../../../test/dnd';
+import { createElement, flushRaf, setupDragEngineTests, fireDrag } from '../../../test/dnd';
 import { dragSessionStore } from '../../utils/drag-and-drop/dragSessionStore';
 import { getRegistration } from '../../utils/drag-and-drop/draggableRegistry';
 import type {
@@ -137,7 +136,7 @@ describe('engine.registerSource', () => {
     const cleanup = engine.registerSource(el, { onMoveStart });
     cleanup();
 
-    fireEvent.dragStart(el);
+    fireDrag.dragStart(el);
     await flushRaf();
 
     expect(onMoveStart).not.toHaveBeenCalled();
@@ -168,7 +167,7 @@ describe('engine.registerSource', () => {
       onMoveStart,
     });
 
-    fireEvent.dragStart(el);
+    fireDrag.dragStart(el);
     await flushRaf();
 
     expect(onBeforeMoveStart).toHaveBeenCalledTimes(1);
@@ -184,7 +183,7 @@ describe('engine.registerSource', () => {
       onMoveStart,
     });
 
-    fireEvent.dragStart(el);
+    fireDrag.dragStart(el);
     await flushRaf();
 
     expect(onMoveStart).not.toHaveBeenCalled();
@@ -203,7 +202,7 @@ describe('engine.registerSource', () => {
 
     // The gesture begins on the inner element: pickup resolves the innermost
     // registered ancestor, so the inner draggable claims the drag.
-    fireEvent.dragStart(inner);
+    fireDrag.dragStart(inner);
     await flushRaf();
 
     expect(onInnerStart).toHaveBeenCalledTimes(1);
@@ -223,7 +222,7 @@ describe('engine.registerSource', () => {
     engine.registerSource(outer, { onMoveStart: onOuterStart });
     engine.registerSource(inner, { disabled: true, onMoveStart: onInnerStart });
 
-    fireEvent.dragStart(inner);
+    fireDrag.dragStart(inner);
     await flushRaf();
 
     expect(onInnerStart).not.toHaveBeenCalled();
@@ -242,11 +241,11 @@ describe('engine.registerSource', () => {
       onMove,
     });
 
-    fireEvent.dragStart(el);
+    fireDrag.dragStart(el);
     await flushRaf();
-    fireEvent.dragOver(el, { clientX: 40, clientY: 40 });
+    fireDrag.dragOver(el, { clientX: 40, clientY: 40 });
     await flushRaf();
-    fireEvent.dragOver(el, { clientX: 80, clientY: 80 });
+    fireDrag.dragOver(el, { clientX: 80, clientY: 80 });
     await flushRaf();
 
     expect(onMove.mock.lastCall?.[0].source.payload).toBe(payload);
@@ -259,7 +258,7 @@ describe('engine.registerSource', () => {
     const onMoveStart = vi.fn();
     engine.registerSource(el, { payload: myFunction, onMoveStart });
 
-    fireEvent.dragStart(el);
+    fireDrag.dragStart(el);
     await flushRaf();
 
     expect(onMoveStart.mock.calls[0][0].source.payload).toBe(myFunction);
@@ -272,7 +271,7 @@ describe('engine.registerSource', () => {
     const onMoveStart = vi.fn();
     engine.registerSource(el, { payload: { key: 'value' }, onMoveStart });
 
-    fireEvent.dragStart(el);
+    fireDrag.dragStart(el);
     await flushRaf();
 
     expect(onMoveStart.mock.calls[0][0].source.payload).toEqual({ key: 'value' });
@@ -290,7 +289,7 @@ describe('engine.registerSource', () => {
     const onMoveStart = vi.fn();
     engine.registerSource(el, { payload: value, onMoveStart });
 
-    fireEvent.dragStart(el);
+    fireDrag.dragStart(el);
     await flushRaf();
 
     expect(onMoveStart.mock.calls[0][0].source.payload).toBe(value);
@@ -302,7 +301,7 @@ describe('engine.registerSource', () => {
     const onMoveStart = vi.fn();
     engine.registerSource(el, { onMoveStart });
 
-    fireEvent.dragStart(el);
+    fireDrag.dragStart(el);
     await flushRaf();
 
     expect(onMoveStart.mock.calls[0][0].source.payload).toBe(undefined);
@@ -315,7 +314,7 @@ describe('engine.registerSource', () => {
     engine.registerSource(el, { onMoveStart });
 
     // Fires within the dragStart dispatch, no frame wait.
-    fireEvent.dragStart(el);
+    fireDrag.dragStart(el);
     expect(onMoveStart).toHaveBeenCalledTimes(1);
   });
 
@@ -327,12 +326,12 @@ describe('engine.registerSource', () => {
     engine.registerSource(el, { onMoveEnd });
     engine.registerTarget(target, {});
 
-    fireEvent.dragStart(el);
+    fireDrag.dragStart(el);
     await flushRaf();
-    fireEvent.dragEnter(target);
-    fireEvent.dragOver(target);
+    fireDrag.dragEnter(target);
+    fireDrag.dragOver(target);
     await flushRaf();
-    fireEvent.drop(target);
+    fireDrag.drop(target);
 
     expect(onMoveEnd).toHaveBeenCalledTimes(1);
   });
@@ -345,10 +344,10 @@ describe('engine.registerSource', () => {
     engine.registerSource(el, { onMove });
     engine.registerTarget(target, {});
 
-    fireEvent.dragStart(el);
+    fireDrag.dragStart(el);
     await flushRaf();
 
-    fireEvent.dragOver(target);
+    fireDrag.dragOver(target);
     await flushRaf();
 
     expect(onMove).toHaveBeenCalled();
@@ -373,7 +372,7 @@ describe('engine.registerSource', () => {
 
     cleanupB();
 
-    fireEvent.dragStart(el);
+    fireDrag.dragStart(el);
     await flushRaf();
 
     expect(onDragStartA).toHaveBeenCalledTimes(1);
@@ -414,11 +413,11 @@ describe('engine.registerSource', () => {
     engine.registerSource(el1, { onMoveStart: onDragStart1 });
     engine.registerSource(el2, { onMoveStart: onDragStart2 });
 
-    fireEvent.dragStart(el1);
+    fireDrag.dragStart(el1);
     await flushRaf();
     expect(onDragStart1).toHaveBeenCalledTimes(1);
 
-    fireEvent.dragStart(el2);
+    fireDrag.dragStart(el2);
     await flushRaf();
     expect(onDragStart2).not.toHaveBeenCalled();
   });

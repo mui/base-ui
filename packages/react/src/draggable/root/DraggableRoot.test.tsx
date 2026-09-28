@@ -12,6 +12,7 @@ import {
   registerCleanup,
   setupDragEngineTests,
   splitEnd,
+  fireDrag,
 } from '../../../test/dnd';
 import { dragSessionStore } from '../../utils/drag-and-drop/dragSessionStore';
 import { getRegistration } from '../../utils/drag-and-drop/draggableRegistry';
@@ -86,7 +87,7 @@ describe('Draggable.Root', () => {
     const source = screen.getByTestId('bare');
     source.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
 
-    fireEvent.dragStart(source);
+    fireDrag.dragStart(source);
 
     const clone = source.parentElement!.querySelector('[data-drag-preview]');
     expect(clone).not.toBeNull();
@@ -131,7 +132,7 @@ describe('Draggable.Root', () => {
     card.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
     const firstHandle = screen.getByTestId('handle');
 
-    fireEvent.dragStart(firstHandle);
+    fireDrag.dragStart(firstHandle);
     await flushRaf();
     expect(dragSessionStore.getSnapshot()?.source.element).toBe(card);
 
@@ -157,16 +158,16 @@ describe('Draggable.Root', () => {
     const target = createElement();
     engine.registerTarget(target, {});
 
-    fireEvent.dragStart(source);
+    fireDrag.dragStart(source);
     await flushRaf();
 
     expect(source).toHaveClass('dragging');
 
-    fireEvent.dragEnter(target);
-    fireEvent.dragOver(target);
+    fireDrag.dragEnter(target);
+    fireDrag.dragOver(target);
     await flushRaf();
 
-    fireEvent.drop(target);
+    fireDrag.drop(target);
     await flushRaf();
 
     expect(source).toHaveClass('idle');
@@ -177,7 +178,7 @@ describe('Draggable.Root', () => {
     const source = screen.getByTestId('drag');
     source.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
 
-    fireEvent.dragStart(source);
+    fireDrag.dragStart(source);
     await flushRaf();
     expect(source).toHaveClass('dragging');
 
@@ -198,7 +199,7 @@ describe('Draggable.Root', () => {
     );
     const source = screen.getByTestId('drag');
 
-    fireEvent.dragStart(source);
+    fireDrag.dragStart(source);
     await flushRaf();
 
     expect(onMoveStart).not.toHaveBeenCalled();
@@ -243,7 +244,7 @@ describe('Draggable.Root', () => {
     await renderDnd(<TestDraggable options={{ disabled: true, onMoveStart }} />);
     const source = screen.getByTestId('drag');
 
-    fireEvent.dragStart(source);
+    fireDrag.dragStart(source);
     await flushRaf();
 
     expect(onMoveStart).not.toHaveBeenCalled();
@@ -276,9 +277,9 @@ describe('Draggable.Root', () => {
       />,
     );
     const source = screen.getByTestId('drag');
-    fireEvent.dragStart(source);
+    fireDrag.dragStart(source);
     await flushRaf();
-    fireEvent.dragOver(source, { clientX: 40, clientY: 40 });
+    fireDrag.dragOver(source, { clientX: 40, clientY: 40 });
     await flushRaf();
     expect(onMove.mock.lastCall?.[0].source.payload).toEqual({ token: 'abc' });
   });
@@ -296,7 +297,7 @@ describe('Draggable.Root', () => {
     // here as a `payload` attribute.
     expect(source.hasAttribute('payload')).toBe(false);
 
-    fireEvent.dragStart(source);
+    fireDrag.dragStart(source);
     await flushRaf();
 
     expect(onMoveStart).toHaveBeenCalledTimes(1);
@@ -331,7 +332,7 @@ describe('Draggable.Root', () => {
     expect(secondParameters).not.toBe(firstParameters);
     expect(getParameters()).toBe(secondParameters);
 
-    fireEvent.dragStart(source);
+    fireDrag.dragStart(source);
     await flushRaf();
 
     expect(firstOnDragStart).not.toHaveBeenCalled();
@@ -377,7 +378,7 @@ describe('Draggable.Root', () => {
     await act(async () => Promise.resolve());
     expect(suspendedRender).toHaveBeenCalled();
 
-    fireEvent.dragStart(screen.getByTestId('drag'));
+    fireDrag.dragStart(screen.getByTestId('drag'));
     await flushRaf();
 
     expect(committedOnDragStart).toHaveBeenCalledTimes(1);
@@ -428,7 +429,7 @@ describe('Draggable.Root', () => {
     const first = screen.getByTestId('a');
     first.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
 
-    fireEvent.dragStart(first);
+    fireDrag.dragStart(first);
     await flushRaf();
     expect(first).toHaveClass('dragging');
     expect(dragSessionStore.getSnapshot()?.source.element).toBe(first);
@@ -455,7 +456,7 @@ describe('Draggable.Root', () => {
     const el = screen.getByTestId('drag');
     el.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
 
-    fireEvent.dragStart(el);
+    fireDrag.dragStart(el);
     await flushRaf();
     expect(dragSessionStore.getSnapshot()?.source.element).toBe(el);
 
@@ -506,7 +507,7 @@ describe('Draggable.Root', () => {
     const target = createElement();
     engine.registerTarget(target, {});
 
-    fireEvent.dragStart(source);
+    fireDrag.dragStart(source);
     await flushRaf();
     expect(source).toHaveClass('dragging');
 
@@ -522,10 +523,10 @@ describe('Draggable.Root', () => {
 
     // The drag still completes: re-registration must not have unbound the sensors
     // out from under the live gesture.
-    fireEvent.dragEnter(target);
-    fireEvent.dragOver(target);
+    fireDrag.dragEnter(target);
+    fireDrag.dragOver(target);
     await flushRaf();
-    fireEvent.drop(target);
+    fireDrag.drop(target);
     await flushRaf();
 
     expect(onMoveEnd).toHaveBeenCalledTimes(1);
@@ -552,7 +553,7 @@ describe('Draggable.Root', () => {
     const source = screen.getByTestId('drag');
     source.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
 
-    fireEvent.dragStart(source);
+    fireDrag.dragStart(source);
     await flushRaf();
     // A list re-rendering on pickup can unmount the very row being dragged.
     await rerender(<Source mounted={false} />);
@@ -579,7 +580,7 @@ describe('Draggable.Root', () => {
     const source = screen.getByTestId('drag');
     source.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
 
-    fireEvent.dragStart(source);
+    fireDrag.dragStart(source);
     await flushRaf();
 
     expect(() => unmount()).not.toThrow();
@@ -676,12 +677,12 @@ describe('Draggable.Root', () => {
       const target = createElement();
       engine.registerTarget(target, {});
 
-      fireEvent.dragStart(source);
+      fireDrag.dragStart(source);
       await flushRaf();
-      fireEvent.dragEnter(target);
-      fireEvent.dragOver(target);
+      fireDrag.dragEnter(target);
+      fireDrag.dragOver(target);
       await flushRaf();
-      fireEvent.drop(target);
+      fireDrag.drop(target);
       await flushRaf();
 
       // A double-mounted registration would run the handlers once per hold.
@@ -780,12 +781,12 @@ describe('Draggable.Root', () => {
       const target = createElement();
       engine.registerTarget(target, {});
 
-      fireEvent.dragStart(source);
+      fireDrag.dragStart(source);
       await flushRaf();
       expect(onTargetChange).not.toHaveBeenCalled();
 
-      fireEvent.dragEnter(target);
-      fireEvent.dragOver(target);
+      fireDrag.dragEnter(target);
+      fireDrag.dragOver(target);
       await flushRaf();
 
       expect(onTargetChange).toHaveBeenCalledTimes(1);
@@ -963,7 +964,7 @@ describe('Draggable.Root', () => {
 
       await lift(source);
       await dragOver(target, { clientY: 250 });
-      fireEvent.drop(target, { clientY: 250 });
+      fireDrag.drop(target, { clientY: 250 });
       await flushRaf();
 
       expect(stale).not.toHaveBeenCalled();
@@ -989,7 +990,7 @@ describe('Draggable.Root', () => {
 
       expect(document.querySelector('[data-drag-preview]')).toBeNull();
 
-      fireEvent.dragStart(source);
+      fireDrag.dragStart(source);
 
       // The clone lives in the source's own parent, keeps its classes, and is
       // marked so consumers can style it with `.Card[data-drag-preview]`.
@@ -1005,7 +1006,7 @@ describe('Draggable.Root', () => {
       const source = screen.getByTestId('drag');
       source.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
 
-      fireEvent.dragStart(source);
+      fireDrag.dragStart(source);
 
       // `[data-dragging] { opacity: .4 }` must dim the source alone — if the clone
       // carried the attribute the preview would fade with it.
@@ -1032,7 +1033,7 @@ describe('Draggable.Root', () => {
       const source = screen.getByTestId('drag');
       source.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
 
-      fireEvent.dragStart(source);
+      fireDrag.dragStart(source);
       expect(document.querySelector('[data-drag-preview]')).not.toBeNull();
 
       cancel();
@@ -1070,10 +1071,10 @@ describe('Draggable.Root', () => {
       const target = createElement();
       engine.registerTarget(target, {});
 
-      fireEvent.dragStart(first);
+      fireDrag.dragStart(first);
       await flushRaf();
-      fireEvent.dragEnter(target);
-      fireEvent.dragOver(target);
+      fireDrag.dragEnter(target);
+      fireDrag.dragOver(target);
       await flushRaf();
 
       // An authored drop transition keeps the clone settling past the drop.
@@ -1088,7 +1089,7 @@ describe('Draggable.Root', () => {
       clone.getAnimations = () =>
         [{ effect: { getTiming: () => ({ iterations: 1 }) }, finished }] as unknown as Animation[];
 
-      fireEvent.drop(target);
+      fireDrag.drop(target);
       expect(clone).toHaveAttribute('data-ending-style');
       expect(first).toHaveAttribute('data-dragging');
 
@@ -1118,14 +1119,14 @@ describe('Draggable.Root', () => {
       const target = createElement();
       engine.registerTarget(target, {});
 
-      fireEvent.dragStart(source);
+      fireDrag.dragStart(source);
       await flushRaf();
       expect(document.querySelector('[data-drag-preview]')).not.toBeNull();
 
-      fireEvent.dragEnter(target);
-      fireEvent.dragOver(target);
+      fireDrag.dragEnter(target);
+      fireDrag.dragOver(target);
       await flushRaf();
-      fireEvent.drop(target);
+      fireDrag.drop(target);
 
       // A clone gets an ending-style frame so an authored transition can settle
       // it into the source. With no transition, it is gone before that frame paints.
@@ -1187,7 +1188,7 @@ describe('Draggable.Root', () => {
       const source = screen.getByTestId('drag');
       source.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
 
-      fireEvent.dragStart(source);
+      fireDrag.dragStart(source);
 
       expect(document.querySelector('[data-drag-preview]')).toBeNull();
       // The source is still marked, so it can be styled while it is being dragged.
@@ -1201,7 +1202,7 @@ describe('Draggable.Root', () => {
       const source = screen.getByTestId('drag');
       source.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
 
-      fireEvent.dragStart(source);
+      fireDrag.dragStart(source);
 
       expect(document.querySelector('.Card[data-drag-preview]')).not.toBeNull();
     });
@@ -1259,7 +1260,7 @@ describe('Draggable.Root', () => {
       const source = screen.getByTestId('drag');
       source.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
 
-      fireEvent.dragStart(source);
+      fireDrag.dragStart(source);
 
       // The React layer reports only *hosts* as the active preview, so a declared
       // clone must not be mistaken for "no preview" and torn down.
@@ -1330,7 +1331,7 @@ describe('Draggable.Root', () => {
       const source = screen.getByTestId('drag');
       source.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
 
-      fireEvent.dragStart(source);
+      fireDrag.dragStart(source);
       // eslint-disable-next-line testing-library/no-unnecessary-act -- flushing the detached fallback root, not the RTL tree
       await act(async () => {});
 
@@ -1360,7 +1361,7 @@ describe('Draggable.Root', () => {
       const source = screen.getByTestId('drag');
       source.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
 
-      fireEvent.dragStart(source);
+      fireDrag.dragStart(source);
 
       // The clone carries the source's class; a host never does.
       expect(document.querySelector('.Card[data-drag-preview]')).not.toBeNull();
@@ -1388,7 +1389,7 @@ describe('Draggable.Root', () => {
       const source = screen.getByTestId('drag');
       source.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
 
-      fireEvent.dragStart(source);
+      fireDrag.dragStart(source);
 
       expect(screen.getByTestId('preview')).toHaveTextContent('x');
       expect(document.querySelector('.Card[data-drag-preview]')).toBeNull();
@@ -1417,7 +1418,7 @@ describe('Draggable.Root', () => {
 
       expect(screen.queryByTestId('preview')).toBeNull();
 
-      fireEvent.dragStart(source);
+      fireDrag.dragStart(source);
 
       // The overlay committed synchronously inside the dragstart handler.
       expect(screen.getByTestId('preview')).toHaveTextContent('hello');
@@ -1438,7 +1439,7 @@ describe('Draggable.Root', () => {
       const source = screen.getByTestId('drag');
       source.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
 
-      fireEvent.dragStart(source);
+      fireDrag.dragStart(source);
 
       expect(screen.getByTestId('preview')).toBeInTheDocument();
       // No clone of the source: declaring content opts out of cloning entirely,
@@ -1451,7 +1452,7 @@ describe('Draggable.Root', () => {
       const source = screen.getByTestId('drag');
       source.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
 
-      fireEvent.dragStart(source);
+      fireDrag.dragStart(source);
       expect(screen.getByTestId('preview')).toBeInTheDocument();
 
       // The synthetic engine positions the preview each frame, so it stays
@@ -1476,7 +1477,7 @@ describe('Draggable.Root', () => {
       const source = screen.getByTestId('drag');
       source.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
 
-      fireEvent.dragStart(source);
+      fireDrag.dragStart(source);
       // eslint-disable-next-line testing-library/no-unnecessary-act -- would flush a fallback root, if one existed
       await act(async () => {});
 
@@ -1496,7 +1497,7 @@ describe('Draggable.Root', () => {
       const source = screen.getByTestId('drag');
       source.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
 
-      fireEvent.dragStart(source);
+      fireDrag.dragStart(source);
 
       expect(document.querySelector('[data-drag-preview]')).toHaveClass('Card');
     });
@@ -1512,7 +1513,7 @@ describe('Draggable.Root', () => {
       const source = screen.getByTestId('drag');
       source.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
 
-      fireEvent.dragStart(source);
+      fireDrag.dragStart(source);
 
       const element = screen.getByTestId('preview').parentElement as HTMLElement;
       expect(element).toHaveAttribute('id', 'chip');
@@ -1532,7 +1533,7 @@ describe('Draggable.Root', () => {
       const source = screen.getByTestId('drag');
       source.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
 
-      fireEvent.dragStart(source);
+      fireDrag.dragStart(source);
 
       // The settings belong to the engine; only the rendering props reach the DOM.
       // (`modifiers` is function-valued and never serializes to an attribute, so
@@ -1561,7 +1562,7 @@ describe('Draggable.Root', () => {
       const source = screen.getByTestId('drag');
       source.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
 
-      fireEvent.dragStart(source);
+      fireDrag.dragStart(source);
       expect(screen.getByTestId('preview')).toHaveTextContent('dark');
       // Both at once, which is the point of separating the two: the content reads
       // the app's context *and* the element stays where the app's contextual CSS
@@ -1581,7 +1582,7 @@ describe('Draggable.Root', () => {
       const source = screen.getByTestId('drag');
       source.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
 
-      fireEvent.dragStart(source);
+      fireDrag.dragStart(source);
 
       // `className` styles the part, not the host the engine transforms — so the
       // host keeps owning geometry while the consumer owns the look.
@@ -1600,7 +1601,7 @@ describe('Draggable.Root', () => {
       const source = screen.getByTestId('drag');
       source.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
 
-      fireEvent.dragStart(source);
+      fireDrag.dragStart(source);
 
       const element = screen.getByTestId('preview').parentElement as HTMLElement;
       expect(element.tagName).toBe('SECTION');
@@ -1636,7 +1637,7 @@ describe('Draggable.Root', () => {
       const source = screen.getByTestId('drag');
       source.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
 
-      fireEvent.dragStart(source);
+      fireDrag.dragStart(source);
       // eslint-disable-next-line testing-library/no-unnecessary-act -- flushing the detached fallback root, not the RTL tree
       await act(async () => {});
 
@@ -1654,7 +1655,7 @@ describe('Draggable.Root', () => {
       const source = screen.getByTestId('drag');
       source.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
 
-      fireEvent.dragStart(source);
+      fireDrag.dragStart(source);
 
       // Exactly once, and against the element the content actually rendered into —
       // a consumer centering on `container.offsetWidth` must not measure some other box.
@@ -1687,7 +1688,7 @@ describe('Draggable.Root', () => {
       const source = screen.getByTestId('drag');
       source.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
 
-      fireEvent.dragStart(source);
+      fireDrag.dragStart(source);
 
       // The documented `--drag-source-*` vars must be set on the overlay the
       // React preview renders into (not only the vanilla synthetic container).
@@ -1757,7 +1758,7 @@ describe('Draggable.Root', () => {
       const source = screen.getByTestId('drag');
       source.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
 
-      fireEvent.dragStart(source);
+      fireDrag.dragStart(source);
 
       // The content is portaled into an engine-owned host that sits in the
       // source's own parent — the same place a cloned preview goes. A provider
@@ -1785,7 +1786,7 @@ describe('Draggable.Root', () => {
       const source = screen.getByTestId('drag');
       source.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
 
-      fireEvent.dragStart(source);
+      fireDrag.dragStart(source);
 
       // `container` is the only thing that relocates a preview — and it is a part
       // prop now, not imperative-only.
@@ -1811,7 +1812,7 @@ describe('Draggable.Root', () => {
       const source = screen.getByTestId('drag');
       source.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
 
-      fireEvent.dragStart(source);
+      fireDrag.dragStart(source);
 
       // The callback form reaches a container the caller has no ref to.
       const host = screen.getByTestId('preview').closest('[data-drag-preview]') as HTMLElement;
@@ -1837,7 +1838,7 @@ describe('Draggable.Root', () => {
       const source = screen.getByTestId('drag');
       source.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
 
-      fireEvent.dragStart(source);
+      fireDrag.dragStart(source);
 
       // The preview part configures the engine-built clone without custom content.
       const clone = document.querySelector('.Card[data-drag-preview]') as HTMLElement;
@@ -1864,7 +1865,7 @@ describe('Draggable.Root', () => {
       const source = screen.getByTestId('drag');
       source.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
 
-      fireEvent.dragStart(source);
+      fireDrag.dragStart(source);
 
       const clone = document.querySelector('.Card[data-drag-preview]') as HTMLElement;
       expect(clone.parentElement!.parentElement).toBe(screen.getByTestId('late-container'));
@@ -1925,7 +1926,7 @@ describe('Draggable.Root', () => {
       const source = screen.getByTestId('drag');
       source.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
 
-      fireEvent.dragStart(source);
+      fireDrag.dragStart(source);
 
       expect(screen.getByTestId('preview')).toBeInTheDocument();
       // Exactly one preview: the declaration must suppress the clone, not race it.
@@ -1987,7 +1988,7 @@ describe('Draggable.Root', () => {
       const source = screen.getByTestId('drag');
       source.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
 
-      fireEvent.dragStart(source);
+      fireDrag.dragStart(source);
 
       expect(document.querySelector('[data-drag-preview]')).toBeNull();
       expect(source).toHaveAttribute('data-dragging');
@@ -2055,7 +2056,7 @@ describe('Draggable.Root', () => {
         const source = screen.getByTestId('drag');
         source.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
 
-        fireEvent.dragStart(source);
+        fireDrag.dragStart(source);
 
         expect(host.querySelector('[data-drag-preview]')).not.toBeNull();
       } finally {
@@ -2093,7 +2094,7 @@ describe('Draggable.Root', () => {
         const source = screen.getByTestId('drag');
         source.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
 
-        fireEvent.dragStart(source);
+        fireDrag.dragStart(source);
 
         expect(host.contains(screen.getByTestId('preview'))).toBe(true);
       } finally {

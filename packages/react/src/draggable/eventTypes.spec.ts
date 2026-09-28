@@ -73,8 +73,6 @@ expectType<Draggable.Root.MoveEndEventReason, (typeof RootMoveEnd)[1]['reason']>
 expectType<Draggable.Target.Record | null, (typeof RootMoveEnd)[0]['target']>(
   RootMoveEnd[0].target,
 );
-// @ts-expect-error `dropTarget` was replaced by `target`.
-void RootMoveEnd[0].dropTarget;
 // @ts-expect-error Cancellation is read from `eventDetails.canceled`, not from the value.
 void RootMoveEnd[0].canceled;
 expectType<boolean, (typeof RootMoveEnd)[1]['canceled']>(RootMoveEnd[1].canceled);
@@ -197,8 +195,6 @@ expectType<
   Draggable.Target.Record<Payload, DragData> | null,
   (typeof CollisionProviderCollisionChange)[1]['previousTarget']
 >(CollisionProviderCollisionChange[1].previousTarget);
-// @ts-expect-error The `collision` wrapper was removed; read `target` instead.
-void CollisionProviderCollisionChange[0].collision;
 
 declare const CollisionProviderMoveEnd: Parameters<
   NonNullable<Draggable.CollisionProvider.Props<Payload, DragData>['onMoveEnd']>

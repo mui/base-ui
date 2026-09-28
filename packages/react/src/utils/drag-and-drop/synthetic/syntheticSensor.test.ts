@@ -335,7 +335,7 @@ describe('syntheticDrag sensor', () => {
     // The throw surfaces, but it does not cost the drag its ending: the sensor
     // ends the lifecycle in a `finally`, so the terminal events still go out and
     // the engine is startable again. Without that, one throw out of the sensor's
-    // own teardown would leave `canStart()` false for the rest of the page's life.
+    // own teardown would leave `isActive()` true for the rest of the page's life.
     expect(onMoveEnd).toHaveBeenCalledTimes(1);
     expect(dragSessionStore.getSnapshot()).toBe(null);
   });
@@ -1060,6 +1060,47 @@ describe('syntheticDrag sensor', () => {
     expect(el.hasAttribute('draggable')).toBe(false);
 
     penDown(el, 50, 50);
+    penMove(60, 50);
+    await flushRaf();
+    expect(onMoveStart).toHaveBeenCalledTimes(1);
+    penUp(60, 50);
+  });
+
+  it('a handle getter throwing at activation tears the pending phase down', async () => {
+    const { engine } = await renderDnd();
+    const el = createElement();
+    const handle = document.createElement('span');
+    el.appendChild(handle);
+    const onMoveStart = vi.fn();
+    let throwOnNextRead = false;
+    engine.registerSource(el, {
+      handle: () => {
+        if (throwOnNextRead) {
+          throwOnNextRead = false;
+          throw new Error('handle getter failed');
+        }
+        return handle;
+      },
+      onMoveStart,
+    });
+
+    penDown(handle, 50, 50);
+    throwOnNextRead = true;
+    const onError = (event: Event) => event.preventDefault();
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    window.addEventListener('error', onError);
+    try {
+      penMove(60, 50);
+    } finally {
+      window.removeEventListener('error', onError);
+      consoleErrorSpy.mockRestore();
+    }
+    await flushRaf();
+
+    expect(onMoveStart).not.toHaveBeenCalled();
+    expect(el.hasAttribute('draggable')).toBe(false);
+
+    penDown(handle, 50, 50);
     penMove(60, 50);
     await flushRaf();
     expect(onMoveStart).toHaveBeenCalledTimes(1);

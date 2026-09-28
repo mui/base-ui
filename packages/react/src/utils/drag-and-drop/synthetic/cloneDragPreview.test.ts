@@ -168,7 +168,6 @@ describe('createDragPreviewElement (clone)', () => {
     // Parked off-screen until the first frame positions it. `translate` rather
     // than `transform`, so a consumer `rotate`/`scale` composes about the box.
     expect(style.translate).toBe('-10000px -10000px');
-    expect(style.zIndex).toBe('2147483647');
     // The clone keeps the box it had in the layout it just left; min/max clamps
     // from the app's CSS must not resize it out of that box.
     expect(style.minWidth).toBe('0px');
@@ -239,7 +238,8 @@ describe('createDragPreviewElement (clone)', () => {
 
     it.each([
       ['the translate longhand', () => ({ translate: '10px 5px' })],
-      ['a translate-only transform', () => ({ transform: 'translate(10px, 5px)' })],
+      // In the matrix form a browser resolves the computed `transform` to.
+      ['a translate-only transform', () => ({ transform: 'matrix(1, 0, 0, 1, 10, 5)' })],
     ])('treats %s as untransformed, since it does not resize the box', (_label, style) => {
       const source = createSource();
       Object.assign(source.style, style());

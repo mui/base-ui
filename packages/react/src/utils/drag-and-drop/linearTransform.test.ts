@@ -63,6 +63,8 @@ describe('linear transforms', () => {
     ['none', null],
     ['Infinity', null],
     ['2 invalid', null],
+    ['2 3 invalid', null],
+    ['1 2 3 4', null],
   ])('parses the scale longhand %s', (value, expected) => {
     expect(parseScaleLinearTransform(value)).toEqual(expected);
   });

@@ -20,7 +20,7 @@ function createTrees() {
   const clone = source.cloneNode(true) as HTMLElement;
   const sourceNodes = [source, ...Array.from(source.querySelectorAll('*'))];
   const cloneNodes = [clone, ...Array.from(clone.querySelectorAll('*'))];
-  return { source, clone, sourceNodes, cloneNodes };
+  return { sourceNodes, cloneNodes };
 }
 
 describe('capturePreviewStyles', () => {
@@ -43,7 +43,7 @@ describe('capturePreviewStyles', () => {
     'falls back to a computed-style snapshot when the sheet %s hides its rules',
     (href) => {
       adopt(createUnreadableSheet(href));
-      const { source, clone, sourceNodes, cloneNodes } = createTrees();
+      const { sourceNodes, cloneNodes } = createTrees();
       // jsdom's pseudo-element declarations are not iterable; a browser's are.
       const measure = vi.spyOn(window, 'getComputedStyle').mockImplementation(
         () =>
@@ -56,7 +56,7 @@ describe('capturePreviewStyles', () => {
           }) as unknown as CSSStyleDeclaration,
       );
 
-      capturePreviewStyles(source, sourceNodes, clone, cloneNodes);
+      capturePreviewStyles(sourceNodes, cloneNodes);
 
       // Snapshots are read from the source tree, never from the detached clone.
       const measured = new Set(measure.mock.calls.map(([node]) => node));

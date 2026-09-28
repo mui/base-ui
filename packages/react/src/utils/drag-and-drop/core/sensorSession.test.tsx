@@ -86,8 +86,6 @@ describe('sensor session startup', () => {
         pressPoint: { x: 10, y: 10 },
         onForceCleanup: vi.fn(),
         isPickupCurrent: () => true,
-        acquire: vi.fn(),
-        release: vi.fn(),
         draggableParameters: {
           element,
           kind,

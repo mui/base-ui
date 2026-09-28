@@ -1,7 +1,5 @@
 import { isShadowRoot } from '@floating-ui/utils/dom';
 import { clamp } from '@base-ui/utils/clamp';
-import { resolveCollision } from './collisionResolution';
-import type { CollisionResolutionRegistration } from './collisionResolution';
 import type { DraggableAccept, DraggableKind } from '../../draggable/DraggableProvider';
 import type { DraggableRootRecord } from '../../draggable/root/DraggableRoot';
 import type {
@@ -39,6 +37,27 @@ type AnyDropTargetParameters = RegisterTargetParameters<any, any, any, any>;
 /** Getter for a single hook's latest drop-target parameters. */
 type DropTargetGetter = () => AnyDropTargetParameters;
 
+type ShadowRootChangeListener = (root: ShadowRoot, registered: boolean) => void;
+
+/** A registration's `dragData`, scoped to one drag and one target kind. */
+interface TargetDragData {
+  source: DraggableRootRecord;
+  kind: symbol | undefined;
+  value: unknown;
+}
+
+/** The registration a record was resolved from. */
+interface RecordRegistration {
+  getParameters: DropTargetGetter;
+  /** See {@link DropTargetState.registrationSnapshots}. */
+  snapshot: AnyDropTargetParameters;
+}
+
+/**
+ * Shared across bundle copies: with a doubly-bundled engine, the copy that
+ * registers or unregisters a target, the one that started the drag, and the one
+ * resolving and dispatching to targets can all differ.
+ */
 interface DropTargetState {
   /**
    * Maps each registered target element to the stack of parameter getters held
@@ -64,6 +83,45 @@ interface DropTargetState {
    * alongside `shadowRoots` (open roots stay reachable through `host.shadowRoot`).
    */
   shadowRootsByHost: Map<Element, ShadowRoot>;
+  /** Told when a root joins or leaves `shadowRoots` (see {@link trackDropTargetShadowRoots}). */
+  shadowRootChangeListeners: Set<ShadowRootChangeListener>;
+  /**
+   * Getters for targets that unregistered while still hovered, held only until the
+   * `onDraggableLeave` they are owed has gone out.
+   *
+   * `registrations.ts` routes a hovered target's unregister to the *synchronous*
+   * refresh precisely so the leave dispatches while its registration is still
+   * readable. That works until the unregister happens from inside a consumer
+   * fan-out, or before `onMoveStart`: the refresh can then only queue itself
+   * (`refreshPending`), while `getterStackRegistry.remove`'s `finally` deletes the
+   * entry regardless — so by the time the queued round runs, the element has no
+   * active hold and `dispatchToDropTarget` would have nothing to dispatch through.
+   *
+   * Keyed by the retiring element rather than kept per session: entries are
+   * released the moment their leave is delivered, and {@link clearRetiringDropTargets}
+   * sweeps whatever a torn-down drag left behind.
+   */
+  retiring: Map<Element, DropTargetGetter>;
+  /**
+   * The active drag's pickup grab offset: the pointer at pickup minus the source's
+   * border-box origin, in client pixels, measured before any `[data-dragging]`
+   * styling applies. Written by the lifecycle for the session's duration and
+   * captured per record for `getSnappedLocalPoint({ anchor: 'source' })`.
+   */
+  grabOffset: { x: number; y: number } | null;
+  /** Each registration's `dragData`, replaced when the drag or its target kind changes. */
+  dragData: WeakMap<DropTargetGetter, TargetDragData>;
+  recordRegistrations: WeakMap<DraggableTargetRecord, RecordRegistration>;
+  /**
+   * The frozen copy held against each parameters object a getter has returned.
+   * A record keeps a copy rather than the object itself because a getter can return
+   * one object and mutate it in place (`() => targetOptions`), which would rewrite
+   * the parameters `dispatchToDropTarget` falls back to for that record. Resolution
+   * produces a record per walked target per frame, while the React layer hands back
+   * the same parameters object until the target re-renders — so copy once per object
+   * and share it across the records resolved from it.
+   */
+  registrationSnapshots: WeakMap<AnyDropTargetParameters, AnyDropTargetParameters>;
 }
 
 const state = getSharedSlot<DropTargetState>('dropTarget', () => ({
@@ -71,14 +129,13 @@ const state = getSharedSlot<DropTargetState>('dropTarget', () => ({
   shadowRoots: new Map<ShadowRoot, number>(),
   retainedRoots: new WeakMap<Element, ShadowRoot[]>(),
   shadowRootsByHost: new Map<Element, ShadowRoot>(),
+  shadowRootChangeListeners: new Set<ShadowRootChangeListener>(),
+  retiring: new Map<Element, DropTargetGetter>(),
+  grabOffset: null,
+  dragData: new WeakMap<DropTargetGetter, TargetDragData>(),
+  recordRegistrations: new WeakMap<DraggableTargetRecord, RecordRegistration>(),
+  registrationSnapshots: new WeakMap<AnyDropTargetParameters, AnyDropTargetParameters>(),
 }));
-
-type ShadowRootChangeListener = (root: ShadowRoot, registered: boolean) => void;
-
-const shadowRootChangeListeners = getSharedSlot<Set<ShadowRootChangeListener>>(
-  'dropTarget.shadowRootChangeListeners',
-  () => new Set(),
-);
 
 const holds = createGetterStackRegistry<Element, DropTargetGetter>({
   entries: state.registry,
@@ -116,7 +173,7 @@ function retainShadowRoot(element: Element): void {
       if (root.mode === 'closed') {
         state.shadowRootsByHost.set(root.host, root);
       }
-      for (const listener of shadowRootChangeListeners) {
+      for (const listener of state.shadowRootChangeListeners) {
         listener(root, true);
       }
     }
@@ -134,14 +191,12 @@ function releaseShadowRoot(element: Element): void {
   }
   state.retainedRoots.delete(element);
   for (const root of retained) {
-    const count = state.shadowRoots.get(root);
-    if (count === undefined) {
-      continue;
-    }
-    if (count <= 1) {
+    // Every root in `retained` was counted by the matching retain.
+    const count = state.shadowRoots.get(root)!;
+    if (count === 1) {
       state.shadowRoots.delete(root);
       state.shadowRootsByHost.delete(root.host);
-      for (const listener of shadowRootChangeListeners) {
+      for (const listener of state.shadowRootChangeListeners) {
         listener(root, false);
       }
     } else {
@@ -182,46 +237,15 @@ export function trackDropTargetShadowRoots(
   for (const shadowRoot of state.shadowRoots.keys()) {
     listener(shadowRoot, true);
   }
-  shadowRootChangeListeners.add(listener);
+  state.shadowRootChangeListeners.add(listener);
   return () => {
-    shadowRootChangeListeners.delete(listener);
+    state.shadowRootChangeListeners.delete(listener);
     for (const cleanup of attached.values()) {
       cleanup?.();
     }
     attached.clear();
   };
 }
-
-/**
- * The active parameter getter for `element`: the last hold registered against
- * it, or `undefined` when nothing is registered.
- */
-function getActiveRegistration(element: Element): DropTargetGetter | undefined {
-  return holds.getActive(element);
-}
-
-/**
- * Getters for targets that unregistered while still hovered, held only until the
- * `onDraggableLeave` they are owed has gone out.
- *
- * `registrations.ts` routes a hovered target's unregister to the *synchronous*
- * refresh precisely so the leave dispatches while its registration is still
- * readable. That works until the unregister happens from inside a consumer
- * fan-out: the refresh can then only queue itself (`refreshPending`), while
- * `getterStackRegistry.remove`'s `finally` deletes the entry regardless — so by
- * the time the queued round runs, `getActiveRegistration` is `undefined` and
- * `dispatchToDropTarget` returns without dispatching anything.
- *
- * Module-level rather than per-session: the retiring element is the key, entries
- * are released the moment their leave is delivered, and {@link clearRetiringDropTargets}
- * sweeps whatever a torn-down drag left behind. Shared like every other registry
- * here: with a doubly-bundled engine, the copy that unregisters the hovered
- * target is not necessarily the copy whose queued refresh delivers the leave.
- */
-const retiringRegistrations = getSharedSlot<Map<Element, DropTargetGetter>>(
-  'dropTarget.retiring',
-  () => new Map(),
-);
 
 /**
  * Hold `getParameters` readable across this element's unregistration.
@@ -234,18 +258,13 @@ const retiringRegistrations = getSharedSlot<Map<Element, DropTargetGetter>>(
  */
 export function retainRetiringDropTarget(element: Element, getParameters: DropTargetGetter): void {
   if (holds.getActive(element) === getParameters) {
-    retiringRegistrations.set(element, getParameters);
+    state.retiring.set(element, getParameters);
   }
-}
-
-/** Drop the retiring hold once the element's terminal leave has been dispatched. */
-function releaseRetiringDropTarget(element: Element): void {
-  retiringRegistrations.delete(element);
 }
 
 /** Drop every retiring hold; run from the lifecycle's teardown. */
 export function clearRetiringDropTargets(): void {
-  retiringRegistrations.clear();
+  state.retiring.clear();
 }
 
 /**
@@ -256,15 +275,6 @@ export function clearRetiringDropTargets(): void {
 export function addDropTargetRegistration(element: Element, getParameters: DropTargetGetter): void {
   holds.add(element, getParameters);
 }
-
-const targetDragData = getSharedSlot(
-  'dropTarget.dragData',
-  () =>
-    new WeakMap<
-      DraggableRootRecord,
-      WeakMap<DropTargetGetter, Map<symbol | undefined, { value: unknown }>>
-    >(),
-);
 
 /**
  * Drop one registration hold on `element`, removing {@link DROP_TARGET_ATTR} only
@@ -281,10 +291,7 @@ export function removeDropTargetRegistration(
     holds.remove(element, getParameters, beforeDelete);
   } finally {
     resetParticipantPayload(getParameters);
-    const source = dragSessionStore.state?.source;
-    if (source) {
-      targetDragData.get(source)?.delete(getParameters);
-    }
+    state.dragData.delete(getParameters);
   }
 }
 
@@ -297,32 +304,24 @@ export function resetForTests(): void {
   for (const element of state.registry.keys()) {
     element.removeAttribute(DROP_TARGET_ATTR);
   }
+  // Cleared in place: `holds` keeps a reference to this map.
   state.registry.clear();
   state.shadowRoots.clear();
   state.retainedRoots = new WeakMap<Element, ShadowRoot[]>();
   state.shadowRootsByHost.clear();
-  shadowRootChangeListeners.clear();
-  retiringRegistrations.clear();
+  state.shadowRootChangeListeners.clear();
+  state.retiring.clear();
+  state.grabOffset = null;
+  state.dragData = new WeakMap<DropTargetGetter, TargetDragData>();
+  state.recordRegistrations = new WeakMap<DraggableTargetRecord, RecordRegistration>();
+  state.registrationSnapshots = new WeakMap<AnyDropTargetParameters, AnyDropTargetParameters>();
 }
 
 type ConsumerCallbackName = 'canDrop' | 'snap' | 'getParameters';
 
-/**
- * The active drag's pickup grab offset: the pointer at pickup minus the source's
- * border-box origin, in client pixels, measured before any `[data-dragging]`
- * styling applies. Written by the lifecycle for the session's duration and
- * captured per record for `getSnappedLocalPoint({ anchor: 'source' })`. Shared
- * like the registries: the copy that started the drag and the copy resolving
- * targets can be different bundle copies.
- */
-const grabOffsetSlot = getSharedSlot<{ current: { x: number; y: number } | null }>(
-  'dropTarget.grabOffset',
-  () => ({ current: null }),
-);
-
 /** Lifecycle-only writer; pass `null` on teardown. */
 export function setSessionGrabOffset(offset: { x: number; y: number } | null): void {
-  grabOffsetSlot.current = offset;
+  state.grabOffset = offset;
 }
 
 /**
@@ -345,32 +344,27 @@ function safeCall<T>(
  */
 const DROP_REJECTED = Symbol('base-ui.dropTarget.rejected');
 
-const recordRegistrations = getSharedSlot(
-  'dropTarget.recordRegistrations',
-  () => new WeakMap<DraggableTargetRecord, AnyDropTargetParameters>(),
-);
-
-/**
- * The frozen copy held against each parameters object a getter has returned.
- * A record keeps a copy rather than the object itself because a getter can return
- * one object and mutate it in place (`() => targetOptions`), which would rewrite
- * the parameters `dispatchToDropTarget` falls back to for that record. Resolution
- * produces a record per walked target per frame, while the React layer hands back
- * the same parameters object until the target re-renders — so copy once per object
- * and share it across the records resolved from it.
- */
-const registrationSnapshots = getSharedSlot(
-  'dropTarget.registrationSnapshots',
-  () => new WeakMap<AnyDropTargetParameters, AnyDropTargetParameters>(),
-);
-
 function snapshotRegistration(registration: AnyDropTargetParameters): AnyDropTargetParameters {
-  let snapshot = registrationSnapshots.get(registration);
+  let snapshot = state.registrationSnapshots.get(registration);
   if (snapshot === undefined) {
     snapshot = { ...registration };
-    registrationSnapshots.set(registration, snapshot);
+    state.registrationSnapshots.set(registration, snapshot);
   }
   return snapshot;
+}
+
+/** The registration's `dragData` for this drag, starting from `undefined` for a new drag or kind. */
+function getTargetDragData(
+  getParameters: DropTargetGetter,
+  source: DraggableRootRecord,
+  kind: symbol | undefined,
+): TargetDragData {
+  let data = state.dragData.get(getParameters);
+  if (data === undefined || data.source !== source || data.kind !== kind) {
+    data = { source, kind, value: undefined };
+    state.dragData.set(getParameters, data);
+  }
+  return data;
 }
 
 /** Apply committed payload props, including changes between drags. */
@@ -391,6 +385,15 @@ export function syncDropTargetPayload(
   }
 }
 
+/** Internal registration hook: capture geometry before consumers can mutate the layout. */
+export const resolveCollision = Symbol.for('base-ui.resolveCollision');
+
+export interface CollisionResolutionRegistration<TPayload = unknown, TDragData = unknown> {
+  [resolveCollision]?:
+    | ((target: DraggableTargetRecord<TPayload, TDragData>, source: DraggableRootRecord) => void)
+    | undefined;
+}
+
 /** Measure only the winning participant, immediately before dispatch can mutate its layout. */
 export function captureDropTargetCollision(
   target: DraggableTargetRecord | undefined | null,
@@ -399,7 +402,7 @@ export function captureDropTargetCollision(
   if (!target) {
     return;
   }
-  const registration = recordRegistrations.get(target) as
+  const registration = state.recordRegistrations.get(target)?.snapshot as
     CollisionResolutionRegistration | undefined;
   registration?.[resolveCollision]?.(target, source);
 }
@@ -414,7 +417,7 @@ function resolveDropTargetOutcome(
   element: Element,
   feedback: Omit<DraggableTargetResolutionContext, 'element'>,
 ): DraggableTargetRecord | null | typeof DROP_REJECTED {
-  const getRegistration = getActiveRegistration(element);
+  const getRegistration = holds.getActive(element);
   if (!getRegistration) {
     return null;
   }
@@ -433,7 +436,8 @@ function resolveDropTargetOutcome(
   }
   // Cheap kind filter first, before allocating the feedback object. This path
   // runs per walked target per frame, where most targets fail here.
-  if (!matchesAccept(registration.accept, feedback.source as DraggableRootRecord)) {
+  const source = feedback.source;
+  if (!matchesAccept(registration.accept, source)) {
     return null;
   }
   const fullFeedback: DraggableTargetResolutionContext = { ...feedback, element };
@@ -450,30 +454,10 @@ function resolveDropTargetOutcome(
     return null;
   }
 
-  const payloadState = getParticipantPayload(
-    getRegistration,
-    registration.kind?.id,
-    registration.payload,
-  );
-  payloadState.sync(registration.payload);
-  const source = feedback.source;
-  let sessionTargets = targetDragData.get(source);
-  if (!sessionTargets) {
-    sessionTargets = new WeakMap();
-    targetDragData.set(source, sessionTargets);
-  }
-  let registrationData = sessionTargets.get(getRegistration);
-  if (!registrationData) {
-    registrationData = new Map();
-    sessionTargets.set(getRegistration, registrationData);
-  }
   const kind = registration.kind?.id;
-  let dragDataState = registrationData.get(kind);
-  if (!dragDataState) {
-    dragDataState = { value: undefined };
-    registrationData.set(kind, dragDataState);
-  }
-  const data = dragDataState;
+  const payloadState = getParticipantPayload(getRegistration, kind, registration.payload);
+  payloadState.sync(registration.payload);
+  const data = getTargetDragData(getRegistration, source, kind);
   const record: DraggableTargetRecord = {
     element,
     kind,
@@ -484,9 +468,7 @@ function resolveDropTargetOutcome(
       if (payloadState.update(nextPayload)) {
         const activeSource = dragSessionStore.state?.source;
         notifyDragTargetUpdated(
-          activeSource && getActiveRegistration(element) === getRegistration
-            ? activeSource
-            : source,
+          activeSource && holds.getActive(element) === getRegistration ? activeSource : source,
           element,
         );
       }
@@ -502,7 +484,10 @@ function resolveDropTargetOutcome(
     },
     ...createLocalPointReaders(element, fullFeedback, registration.snap),
   };
-  recordRegistrations.set(record, snapshotRegistration(registration));
+  state.recordRegistrations.set(record, {
+    getParameters: getRegistration,
+    snapshot: snapshotRegistration(registration),
+  });
   return record;
 }
 
@@ -543,7 +528,7 @@ function createLocalPointReaders(
   snap: AnyDropTargetParameters['snap'],
 ): Pick<DraggableTargetRecord, 'getLocalPoint' | 'getSnappedLocalPoint'> {
   const { clientX, clientY } = context.input;
-  const grabOffset = grabOffsetSlot.current;
+  const grabOffset = state.grabOffset;
 
   let rect: DOMRect | null = null;
   function measureRect(): DOMRect {
@@ -662,26 +647,25 @@ export function getDropTargetsOver(
 type DropTargetEventName = keyof DropTargetEventDetailsMap & keyof RegisterTargetParameters;
 
 /**
- * The element's active registration getter. The drop path captures it up front
- * so the dispatch survives the target unregistering in between: the source's
- * `onMoveEnd` (told the drop landed first) may synchronously tear down its
- * zones, and the drop it was just told about must still be delivered.
+ * Deliver `eventName` to the target behind `record`, through the element's
+ * active registration, or its retiring one when it unregistered while hovered
+ * with its leave still owed (see {@link DropTargetState.retiring}).
+ *
+ * A drop goes through the registration that resolved the record instead: the
+ * source's `onMoveEnd` (told the drop landed first) may synchronously tear down
+ * its zones, and the drop it was just told about must still be delivered.
  */
-export { getActiveRegistration as getActiveDropTargetRegistration };
-
 export function dispatchToDropTarget<K extends DropTargetEventName>(
   record: DraggableTargetRecord,
   eventName: K,
   source: DraggableRootRecord,
   eventDetails: DropTargetEventDetailsMap[K],
-  capturedRegistration?: DropTargetGetter,
 ): void {
+  const resolvedRegistration = state.recordRegistrations.get(record);
   const getRegistration =
-    capturedRegistration ??
-    getActiveRegistration(record.element) ??
-    // Unregistered while hovered, with its leave still owed (see
-    // `retiringRegistrations`).
-    retiringRegistrations.get(record.element);
+    eventName === 'onDraggableDrop'
+      ? resolvedRegistration?.getParameters
+      : (holds.getActive(record.element) ?? state.retiring.get(record.element));
   if (!getRegistration) {
     return;
   }
@@ -694,7 +678,7 @@ export function dispatchToDropTarget<K extends DropTargetEventName>(
   // A leave can outlive the kind contract that produced its record.
   const compatible =
     matchesAccept(registration.accept, source) && registration.kind?.id === record.kind;
-  const parameters = compatible ? registration : recordRegistrations.get(record);
+  const parameters = compatible ? registration : resolvedRegistration?.snapshot;
   if (!parameters) {
     return;
   }
@@ -754,32 +738,20 @@ export function refreshHoveredRecords(
 }
 
 /**
- * Deliver the terminal `onDraggableLeave` one still-hovered target is owed at the
- * end of a drag.
- *
- * Distinct from a one-record {@link dispatchDropTargetChange} round: that one
- * ends by resetting `hovered` to the (empty) current stack, so after the first
- * target's leave the remaining targets would already read as not hovered. A leave
- * handler that unregisters a sibling then routes it down the coalesced path,
- * which cannot dispatch the leave that sibling is still owed. Here `hovered` only
- * loses the record being left, so every other target stays hovered until its own
- * leave goes out.
- */
-export function dispatchTerminalDropTargetLeave(
-  record: DraggableTargetRecord,
-  source: DraggableRootRecord,
-  eventDetails: DropTargetEventDetailsMap['onDraggableLeave'],
-  hovered: DraggableTargetRecord[],
-): void {
-  dispatchDropTargetLeave(record, source, eventDetails, hovered);
-}
-
-/**
  * Deliver one `onDraggableLeave`. The record leaves `hovered` *before* the
  * dispatch: if the leave handler cancels the drag, the terminal dispatch must
  * not re-leave this target.
+ *
+ * The lifecycle also calls it for each terminal leave a still-hovered target is
+ * owed at the end of a drag. A one-record {@link dispatchDropTargetChange} round
+ * would not do there: it ends by resetting `hovered` to the (empty) current
+ * stack, so after the first target's leave the remaining targets would already
+ * read as not hovered. A leave handler that unregisters a sibling then routes it
+ * down the coalesced path, which cannot dispatch the leave that sibling is still
+ * owed. Here `hovered` only loses the record being left, so every other target
+ * stays hovered until its own leave goes out.
  */
-function dispatchDropTargetLeave(
+export function dispatchDropTargetLeave(
   record: DraggableTargetRecord,
   source: DraggableRootRecord,
   eventDetails: DropTargetEventDetailsMap['onDraggableLeave'],
@@ -789,7 +761,8 @@ function dispatchDropTargetLeave(
   try {
     dispatchToDropTarget(record, 'onDraggableLeave', source, eventDetails);
   } finally {
-    releaseRetiringDropTarget(record.element);
+    // The leave its retiring hold was kept for has gone out.
+    state.retiring.delete(record.element);
   }
 }
 

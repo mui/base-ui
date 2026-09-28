@@ -29,8 +29,7 @@ export function useActiveDrag(accept?: DraggableAccept<unknown>): UseActiveDragR
   // `null` across the store's publishes: a drag of another kind starting, ending,
   // or retargeting then re-renders none of the (possibly many) rejecting
   // consumers. An inline `accept` array only re-runs the selector once per render.
-  const source = useStore(dragSourceStore, selectAcceptedDragSource, accept);
-  return source;
+  return useStore(dragSourceStore, selectAcceptedDragSource, accept);
 }
 
 function selectAcceptedDragSource(

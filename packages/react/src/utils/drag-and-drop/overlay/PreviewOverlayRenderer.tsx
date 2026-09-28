@@ -5,9 +5,10 @@ import { useStore } from '@base-ui/utils/store';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { dragPreviewStore } from './dragPreviewStore';
 import type { DragPreviewState } from './dragPreviewStore';
+import { useDraggableContext } from '../../../draggable/DraggableContext';
 import type { DraggableContextValue } from '../../../draggable/DraggableContext';
 import { getActivePreviewHandle } from '../activePreview';
-import { resolveDragPreviewOffset } from '../customDragPreview';
+import { resolveDragPreviewOffset } from '../synthetic/pickupPreview';
 
 // Stable identity so `useStore`'s selector fast path holds. The provider context
 // is passed separately and selects only the preview published from its subtree.
@@ -30,24 +31,16 @@ function selectPreviewState(
  * Selects previews published by its `Draggable.Provider`, so the content
  * renders in the same React tree while the drag itself stays global.
  */
-export function PreviewOverlayRenderer(props: {
-  previewContext: DraggableContextValue;
-}): React.ReactNode {
-  const { previewContext } = props;
+export function PreviewOverlayRenderer(): React.ReactNode {
+  const previewContext = useDraggableContext();
   const preview = useStore(dragPreviewStore, selectPreviewState, previewContext);
 
-  // The pointer sensor publishes the preview host before this renders.
-  const active = preview != null;
-
   useIsoLayoutEffect(() => {
-    if (!active) {
-      return;
-    }
     // Only an offset *callback* depends on the preview's rendered size, which the
     // host only has now that the content is in it. Every other form was already
     // resolved from the source rect when the engine placed the host, so re-running
     // it here would be a no-op.
-    if (typeof preview.offset !== 'function') {
+    if (!preview || typeof preview.offset !== 'function') {
       return;
     }
     getActivePreviewHandle()?.setPreviewOffset(
@@ -57,9 +50,9 @@ export function PreviewOverlayRenderer(props: {
         input: preview.input,
       }),
     );
-  }, [active, preview]);
+  }, [preview]);
 
-  if (!active) {
+  if (!preview) {
     return null;
   }
   // The portal keeps the content in this React tree — so it inherits the context

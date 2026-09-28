@@ -1,9 +1,11 @@
 'use client';
 import * as React from 'react';
+import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { warn } from '@base-ui/utils/warn';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import type { BaseUIComponentProps } from '../../internals/types';
+import { useRenderElement } from '../../internals/useRenderElement';
 import type {
   DraggableKind,
   DraggableInput,
@@ -12,7 +14,6 @@ import type {
 } from '../DraggableProvider';
 import { useDraggableContext } from '../DraggableContext';
 import { useDraggableRootContext } from '../root/DraggableRootContext';
-import { DraggablePreviewElement } from './DraggablePreviewElement';
 import type { DragPreviewDeclaration } from '../../utils/drag-and-drop/dragPreviewDeclaration';
 import type { DraggableRootModifiers, DraggableRootRecord } from '../root/DraggableRoot';
 
@@ -69,7 +70,7 @@ export function DraggablePreview<TPayload = unknown, TDragData = unknown>(
       if (resolved == null || resolved === false) {
         return resolved;
       }
-      return <DraggablePreviewElement componentProps={{ ...componentProps, children: resolved }} />;
+      return <PreviewElement {...componentProps}>{resolved}</PreviewElement>;
     },
   );
 
@@ -98,6 +99,30 @@ export function DraggablePreview<TPayload = unknown, TDragData = unknown>(
 
   return null;
 }
+
+const EMPTY_STATE: DraggablePreviewState = EMPTY_OBJECT;
+
+/**
+ * The element a `Draggable.Preview` declares. Rendered by the overlay, inside the
+ * engine-owned host that follows the pointer — not where the `Draggable.Preview`
+ * was written.
+ */
+function PreviewElement(props: PreviewElementProps): React.ReactNode {
+  const { className, style, render, ...elementProps } = props;
+
+  return useRenderElement('div', props, {
+    state: EMPTY_STATE,
+    props: elementProps,
+  });
+}
+
+/** The `Draggable.Preview`'s own props, snapshotted at drag start. */
+type PreviewElementProps = Omit<
+  DraggablePreviewProps,
+  'children' | keyof DraggablePreviewSettings
+> & {
+  children?: React.ReactNode | undefined;
+};
 
 export interface DraggablePreviewState {}
 

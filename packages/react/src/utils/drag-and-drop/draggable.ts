@@ -95,16 +95,11 @@ function applyGestureSetup(
     gestureSetups.set(gestureElement, entry);
   }
   entry.count += 1;
-  const activeEntry = entry;
   return onceCleanup(() => {
-    const current = gestureSetups.get(gestureElement);
-    if (current !== activeEntry) {
-      return;
-    }
-    current.count -= 1;
-    if (current.count === 0) {
+    entry.count -= 1;
+    if (entry.count === 0) {
       gestureSetups.delete(gestureElement);
-      current.restore();
+      entry.restore();
     }
   });
 }
@@ -166,8 +161,9 @@ export type DraggableConfig<TPayload = undefined, TDragData = unknown> = {
   /** Whether the React layer has disabled runtime style elements. @internal */
   disableStyleElements?: boolean | undefined;
   /**
-   * The data attached to this item, available as `source.payload` in every drag
-   * event and drop target handler.
+   * The data attached to this item, available as `source.payload` in every drag event
+   * and drop target handler. Its type comes from `kind`, and it is required when the
+   * kind declares one.
    */
   // Optional here so the requirement lives at the public boundaries:
   // `Draggable.Root.Props` re-imposes it with a conditional type, and

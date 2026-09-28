@@ -1,10 +1,10 @@
 import * as React from 'react';
 import { describe, it, expect, vi } from 'vitest';
-import { fireEvent, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import { act } from '@mui/internal-test-utils';
 import { createDndRenderer } from '#test-utils';
 import { Draggable } from '@base-ui/react/draggable';
-import { createElement, flushRaf, setupDragEngineTests } from '../../../test/dnd';
+import { createElement, flushRaf, setupDragEngineTests, fireDrag } from '../../../test/dnd';
 
 setupDragEngineTests();
 
@@ -98,7 +98,7 @@ describe('useManager', () => {
 
     const source = screen.getByTestId('source');
     source.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
-    fireEvent.dragStart(source);
+    fireDrag.dragStart(source);
     await flushRaf();
 
     expect(first).not.toHaveBeenCalled();
@@ -118,7 +118,7 @@ describe('useManager', () => {
     const source = createElement();
     engine.registerSource(source, {});
 
-    fireEvent.dragStart(source);
+    fireDrag.dragStart(source);
     await flushRaf();
 
     expect(onMoveStart).toHaveBeenCalledTimes(1);
@@ -131,7 +131,7 @@ describe('useManager', () => {
     const source = createElement();
     engine.registerSource(source, { onMoveEnd });
 
-    fireEvent.dragStart(source);
+    fireDrag.dragStart(source);
     await flushRaf();
 
     act(() => {

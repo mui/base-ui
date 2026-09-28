@@ -1,9 +1,14 @@
 import * as React from 'react';
 import { describe, it, expect, vi } from 'vitest';
-import { fireEvent } from '@testing-library/react';
 import { createDndRenderer, testDragKind } from '#test-utils';
 import { Draggable } from '@base-ui/react/draggable';
-import { createElement, dragOver, flushRaf, setupDragEngineTests } from '../../../test/dnd';
+import {
+  createElement,
+  dragOver,
+  flushRaf,
+  setupDragEngineTests,
+  fireDrag,
+} from '../../../test/dnd';
 import { useMonitor } from './useMonitor';
 import { monitorRegistry } from '../../utils/drag-and-drop/monitor';
 
@@ -24,7 +29,7 @@ describe('useMonitor', () => {
     const el = createElement();
     engine.registerSource(el, {});
 
-    fireEvent.dragStart(el);
+    fireDrag.dragStart(el);
     await flushRaf();
 
     expect(onMoveStart).toHaveBeenCalledTimes(1);
@@ -35,7 +40,7 @@ describe('useMonitor', () => {
       expect.objectContaining({ reason: 'pointer' }),
     );
 
-    fireEvent.drop(el);
+    fireDrag.drop(el);
 
     expect(onMoveEnd).toHaveBeenCalledTimes(1);
   });
@@ -57,13 +62,13 @@ describe('useMonitor', () => {
 
     const el = createElement();
     engine.registerSource(el, {});
-    fireEvent.dragStart(el);
+    fireDrag.dragStart(el);
     await flushRaf();
 
     expect(firstOnDragStart).not.toHaveBeenCalled();
     expect(secondOnDragStart).toHaveBeenCalledTimes(1);
 
-    fireEvent.drop(el);
+    fireDrag.drop(el);
   });
 
   it('registers exactly once and fires callbacks once per event under Strict Mode', async () => {
@@ -83,9 +88,9 @@ describe('useMonitor', () => {
 
     const el = createElement();
     engine.registerSource(el, {});
-    fireEvent.dragStart(el);
+    fireDrag.dragStart(el);
     await flushRaf();
-    fireEvent.drop(el);
+    fireDrag.drop(el);
 
     expect(onMoveStart).toHaveBeenCalledTimes(1);
     expect(onMoveEnd).toHaveBeenCalledTimes(1);
@@ -99,14 +104,14 @@ describe('useMonitor', () => {
     const el = createElement();
     engine.registerSource(el, {});
 
-    fireEvent.dragStart(el);
+    fireDrag.dragStart(el);
     await flushRaf();
 
     await rerender(<Monitor accept={otherKind} onMove={onMove} onMoveEnd={onMoveEnd} />);
 
     await dragOver(el, { clientX: 40, clientY: 40 });
     await dragOver(el, { clientX: 80, clientY: 80 });
-    fireEvent.drop(el);
+    fireDrag.drop(el);
     await flushRaf();
 
     expect(onMove).not.toHaveBeenCalled();
@@ -120,7 +125,7 @@ describe('useMonitor', () => {
     const el = createElement();
     engine.registerSource(el, {});
 
-    fireEvent.dragStart(el);
+    fireDrag.dragStart(el);
     await flushRaf();
 
     await rerender(<Monitor accept={testDragKind} onMoveStart={onMoveStart} onMove={onMove} />);
@@ -138,7 +143,7 @@ describe('useMonitor', () => {
 
     expect(onMove).toHaveBeenCalledTimes(2);
 
-    fireEvent.drop(el);
+    fireDrag.drop(el);
   });
 
   it('unmounting the monitor stops it from receiving events', async () => {
@@ -149,11 +154,11 @@ describe('useMonitor', () => {
 
     const el = createElement();
     engine.registerSource(el, {});
-    fireEvent.dragStart(el);
+    fireDrag.dragStart(el);
     await flushRaf();
 
     expect(onMoveStart).not.toHaveBeenCalled();
 
-    fireEvent.drop(el);
+    fireDrag.drop(el);
   });
 });

@@ -9,11 +9,13 @@ const LOCKED_PROPS: Array<{ style: LockedProperty; property: string; value: stri
   { style: 'overscrollBehavior', property: 'overscroll-behavior', value: 'none' },
 ];
 
+type SavedStyles = Partial<Record<LockedProperty, { value: string | undefined; priority: string }>>;
+
 interface LockedRoot {
   /** `<html>` and `<body>`, in that order. */
   elements: HTMLElement[];
   /** Saved per-element styles, parallel to `elements`. */
-  saved: Array<Partial<Record<LockedProperty, { value: string | undefined; priority: string }>>>;
+  saved: SavedStyles[];
 }
 
 interface DragRootLockState {
@@ -34,10 +36,8 @@ const state = getSharedSlot<DragRootLockState>('dragRootLock', () => ({
 function collectLockElements(doc: Document): HTMLElement[] {
   const elements: HTMLElement[] = [];
   let current: Document | null = doc;
-  const seen = new Set<Document>();
 
-  while (current && !seen.has(current)) {
-    seen.add(current);
+  while (current) {
     elements.push(current.documentElement);
     if (current.body) {
       elements.push(current.body);
@@ -54,40 +54,6 @@ function collectLockElements(doc: Document): HTMLElement[] {
   }
 
   return elements;
-}
-
-function applyRootLock(element: Element): void {
-  // Lock both `<html>` and `<body>` on the dragged element's document and every
-  // reachable ancestor document. iOS Safari and some Android browsers honour
-  // `touch-action`/`overscroll-behavior` on `body` independently of `html`;
-  // locking only one element lets scroll still leak through during a synthetic
-  // drag, and locking only the inner document lets an iframe's host page scroll.
-  const doc = ownerDocument(element);
-  const elements = collectLockElements(doc);
-
-  const saved: Array<
-    Partial<Record<LockedProperty, { value: string | undefined; priority: string }>>
-  > = [];
-  // Read all originals before writing any: `userSelect`/`webkitUserSelect` alias
-  // each other, so interleaved save+set would capture the locked value instead.
-  for (const el of elements) {
-    const elSaved: Partial<
-      Record<LockedProperty, { value: string | undefined; priority: string }>
-    > = {};
-    for (const { style, property } of LOCKED_PROPS) {
-      elSaved[style] = {
-        value: el.style[style as keyof CSSStyleDeclaration] as string | undefined,
-        priority: el.style.getPropertyPriority(property),
-      };
-    }
-    saved.push(elSaved);
-  }
-  for (const el of elements) {
-    for (const { style, value } of LOCKED_PROPS) {
-      (el.style as unknown as Record<string, string>)[style] = value;
-    }
-  }
-  state.locked = { elements, saved };
 }
 
 function restoreLockedStyles(): void {
@@ -126,10 +92,34 @@ export function lock(element: Element): void {
   if (state.locked !== null) {
     return;
   }
-  applyRootLock(element);
+  // Lock both `<html>` and `<body>` on the dragged element's document and every
+  // reachable ancestor document. iOS Safari and some Android browsers honour
+  // `touch-action`/`overscroll-behavior` on `body` independently of `html`;
+  // locking only one element lets scroll still leak through during a synthetic
+  // drag, and locking only the inner document lets an iframe's host page scroll.
+  const elements = collectLockElements(ownerDocument(element));
+
+  // Read all originals before writing any: `userSelect`/`webkitUserSelect` alias
+  // each other, so interleaved save+set would capture the locked value instead.
+  const saved = elements.map((el) => {
+    const elSaved: SavedStyles = {};
+    for (const { style, property } of LOCKED_PROPS) {
+      elSaved[style] = {
+        value: el.style[style as keyof CSSStyleDeclaration] as string | undefined,
+        priority: el.style.getPropertyPriority(property),
+      };
+    }
+    return elSaved;
+  });
+  for (const el of elements) {
+    for (const { style, value } of LOCKED_PROPS) {
+      (el.style as unknown as Record<string, string>)[style] = value;
+    }
+  }
+  state.locked = { elements, saved };
 }
 
-export { restoreLockedStyles as unlock, restoreLockedStyles as resetForTests };
+export { restoreLockedStyles as unlock };
 
 type LockedProperty =
   'touchAction' | 'userSelect' | 'webkitUserSelect' | 'webkitTouchCallout' | 'overscrollBehavior';

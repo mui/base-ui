@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { applySourceSizeVars, resolveDragPreviewOffset } from './customDragPreview';
+import { resolveDragPreviewOffset } from './pickupPreview';
 
 describe('resolveDragPreviewOffset', () => {
   const params = {
@@ -43,15 +43,5 @@ describe('resolveDragPreviewOffset', () => {
     // A cloned preview has to lift off the
     // element without shifting under the pointer.
     expect(resolveDragPreviewOffset(undefined, params)).toEqual({ x: 15, y: 15 });
-  });
-});
-
-describe('applySourceSizeVars', () => {
-  it('sets --drag-source-width/height from the source rect', () => {
-    const container = document.createElement('div');
-    applySourceSizeVars(container, new DOMRect(40, 80, 120, 60));
-
-    expect(container.style.getPropertyValue('--drag-source-width')).toBe('120px');
-    expect(container.style.getPropertyValue('--drag-source-height')).toBe('60px');
   });
 });

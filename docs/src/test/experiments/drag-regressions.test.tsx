@@ -2,11 +2,11 @@
 import * as React from 'react';
 import '@testing-library/jest-dom/vitest';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { fireEvent, screen } from '@mui/internal-test-utils';
+import { screen } from '@mui/internal-test-utils';
 // eslint-disable-next-line import/no-relative-packages
 import { createDndRenderer } from '../../../../packages/react/test/dndEngine';
 // eslint-disable-next-line import/no-relative-packages
-import { flushRaf, setupDragEngineTests } from '../../../../packages/react/test/dnd';
+import { fireDrag, flushRaf, setupDragEngineTests } from '../../../../packages/react/test/dnd';
 import { ExperimentSettingsContext } from '../../app/(private)/experiments/_components/SettingsPanel';
 import Calendar from '../../app/(private)/experiments/drag-engine/calendar';
 import Kanban from '../../app/(private)/experiments/drag-engine/kanban-line-indicator';
@@ -46,11 +46,11 @@ describe('drag experiment regressions', () => {
     const [source, target] = document.querySelectorAll<HTMLElement>('[data-cal-day]');
     source.getBoundingClientRect = () => new DOMRect(0, 0, 100, 100);
     target.getBoundingClientRect = () => new DOMRect(100, 0, 100, 100);
-    fireEvent.dragStart(source, { clientX: 20, clientY: 20 });
-    fireEvent.dragOver(target, { clientX: 120, clientY: 20 });
+    fireDrag.dragStart(source, { clientX: 20, clientY: 20 });
+    fireDrag.dragOver(target, { clientX: 120, clientY: 20 });
     await flushRaf();
     expect(document.querySelector('[data-intent="create"]')).not.toBeNull();
-    fireEvent.dragEnd(source);
+    fireDrag.dragEnd();
     expect(document.querySelector('[data-intent="create"]')).toBeNull();
   });
 
@@ -74,12 +74,12 @@ describe('drag experiment regressions', () => {
       return new DOMRect(Math.max(columnIndex, 0) * 250, 0, 200, 200);
     });
     const source = screen.getByText('Write spec');
-    fireEvent.dragStart(source, { clientX: 20, clientY: 20 });
-    fireEvent.dragOver(document.body, { clientX: 20, clientY: 110 });
+    fireDrag.dragStart(source, { clientX: 20, clientY: 20 });
+    fireDrag.dragOver(document.body, { clientX: 20, clientY: 110 });
     await flushRaf();
     expect(document.querySelector('[data-card][data-drag-preview]')).not.toBeNull();
     expect(bodies[0].lastElementChild).toHaveStyle({ top: '95px' });
-    fireEvent.drop(document.body, { clientX: 20, clientY: 95 });
+    fireDrag.drop(document.body, { clientX: 20, clientY: 95 });
     expect(
       Array.from(
         bodies[0].querySelectorAll('[data-card]:not([data-drag-preview])'),
@@ -106,11 +106,11 @@ describe('drag experiment regressions', () => {
     await renderDnd(<FakeBrowser />);
     const source = screen.getByRole('menuitem', { name: 'Science' });
     const more = screen.getByRole('menuitem', { name: /More bookmarks/ });
-    fireEvent.dragStart(source, { clientX: 10, clientY: 10 });
-    fireEvent.dragOver(more, { clientX: 15, clientY: 15 });
+    fireDrag.dragStart(source, { clientX: 10, clientY: 10 });
+    fireDrag.dragOver(more, { clientX: 15, clientY: 15 });
     await flushRaf();
     expect(more).toHaveAttribute('aria-expanded', 'true');
-    fireEvent.dragEnd(source);
+    fireDrag.dragEnd();
     await flushRaf();
   });
 
@@ -122,8 +122,8 @@ describe('drag experiment regressions', () => {
     );
     const source = screen.getByLabelText('Horizontal line at 84.0');
     source.getBoundingClientRect = () => new DOMRect(0, 0, 728, 10);
-    fireEvent.dragStart(source, { clientX: 20, clientY: 20 });
-    fireEvent.drop(document.body, { clientX: 20, clientY: 55.2 });
+    fireDrag.dragStart(source, { clientX: 20, clientY: 20 });
+    fireDrag.drop(document.body, { clientX: 20, clientY: 55.2 });
     expect(screen.getByLabelText('Horizontal line at 73.0')).toBeInTheDocument();
   });
 });

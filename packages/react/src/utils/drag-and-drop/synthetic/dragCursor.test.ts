@@ -48,7 +48,7 @@ function activeCursorVar(): string {
 
 describe('dragCursor', () => {
   afterEach(() => {
-    dragCursor.resetForTests();
+    dragCursor.unlock();
     resetDropTargets();
   });
 

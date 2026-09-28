@@ -340,13 +340,6 @@ engine.registerViewport(element, () => ({
 // The method registers nothing, takes nothing, and returns nothing.
 expectType<() => void, typeof engine.cancelDrag>(engine.cancelDrag);
 
-const removedMonitorCallback: DraggableManagerRegisterMonitorParameters = {
-  accept: Draggable.anyKind,
-  // @ts-expect-error successful drops are handled through onMoveEnd.
-  onDrop: () => {},
-};
-engine.registerMonitor(() => removedMonitorCallback);
-
 engine.registerSource<unknown>(element, () => ({
   // @ts-expect-error an explicit generic must not widen the producer kind.
   kind: card,
@@ -412,24 +405,6 @@ engine.registerTarget(element, () => ({
     target.updatePayload({ slot: 1 });
   },
 }));
-
-const removedSourceGetter: Draggable.useManager.RegisterSourceParameters<CardPayload> = {
-  kind: card,
-  payload: { id: 'a' },
-  // @ts-expect-error payload getters are replaced by the source methods.
-  getPayload: () => ({ id: 'b' }),
-};
-engine.registerSource(element, () => ({ ...removedSourceGetter, payload: { id: 'a' } }));
-const removedTargetGetter: Draggable.useManager.RegisterTargetParameters<
-  CardPayload,
-  { slot: number }
-> = {
-  accept: card,
-  payload: { slot: 0 },
-  // @ts-expect-error payload getters are replaced by the target methods.
-  getPayload: () => ({ slot: 1 }),
-};
-engine.registerTarget(element, () => ({ ...removedTargetGetter, payload: { slot: 0 } }));
 
 // @ts-expect-error a target kind with a payload cannot register without one.
 engine.registerTarget(element, () => ({ accept: card, kind: detailedSlot }));

@@ -83,20 +83,17 @@ export function useDraggableTargetElement(
   // transient state of a same-commit remount mid-registration and churn a
   // spurious leave/enter pair.
   const { disabled, accept, canDrop } = parameters;
-  const previousDisabledRef = React.useRef(disabled);
-  const previousAcceptRef = React.useRef(accept);
-  const previousCanDropRef = React.useRef(canDrop);
+  const previousRef = React.useRef({ disabled, accept, canDrop });
   useIsoLayoutEffect(() => {
+    const previous = previousRef.current;
     if (
-      previousDisabledRef.current === disabled &&
-      sameAccept(previousAcceptRef.current, accept) &&
-      previousCanDropRef.current === canDrop
+      previous.disabled === disabled &&
+      sameAccept(previous.accept, accept) &&
+      previous.canDrop === canDrop
     ) {
       return;
     }
-    previousDisabledRef.current = disabled;
-    previousAcceptRef.current = accept;
-    previousCanDropRef.current = canDrop;
+    previousRef.current = { disabled, accept, canDrop };
     // Parameter changes re-resolve from the last event target rather than
     // hit-testing the live DOM again. An inline `canDrop` commonly changes
     // identity after its own `onMove` updates preview state; re-hit-testing the

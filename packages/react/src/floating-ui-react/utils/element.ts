@@ -1,9 +1,8 @@
 import { isElement, isHTMLElement } from '@floating-ui/utils/dom';
 import { platform } from '@base-ui/utils/platform';
 import { activeElement, closest, contains, getTarget } from '@base-ui/utils/shadowDom';
-import { FOCUSABLE_ATTRIBUTE, TYPEABLE_SELECTOR } from './constants';
+import { FOCUSABLE_ATTRIBUTE, INTERACTIVE_ELEMENT_SELECTOR, TYPEABLE_SELECTOR } from './constants';
 import type { PopupTriggerMap } from '../../utils/popups';
-import { INTERACTIVE_ELEMENT_SELECTOR } from '../../utils/isInteractiveElement';
 import * as TooltipTriggerDataAttributes from '../../tooltip/trigger/TooltipTriggerDataAttributes';
 
 export { activeElement, closest, contains, getTarget };

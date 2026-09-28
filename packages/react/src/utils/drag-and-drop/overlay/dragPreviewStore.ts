@@ -7,8 +7,9 @@ import type { DraggablePreviewOffset } from '../../../draggable/preview/Draggabl
 import type { DraggableContextValue } from '../../../draggable/DraggableContext';
 
 /**
- * The active drag's custom preview content, published at drag start by the
- * `Draggable.Preview` that declared it.
+ * The active drag's custom preview content, published at drag start from
+ * `onGenerateDragPreview` for a `Draggable.Preview` with children or a
+ * `registerSource` `preview.render`.
  *
  * `host` is the element the engine injected next to the source (or into the
  * configured container) and positions each frame; React only fills it. `sourceRect`
@@ -27,19 +28,17 @@ export interface DragPreviewState {
   input: DraggableInput;
 }
 
-const slot = getSharedSlot<{ store: Store<DragPreviewState | null> }>('dragPreview.store', () => ({
-  store: new Store<DragPreviewState | null>(null),
-}));
+const store = getSharedSlot('dragPreview.store', () => new Store<DragPreviewState | null>(null));
 
 /** The active React-rendered preview, shared by every `Draggable.Provider`. */
-export const dragPreviewStore: ReadonlyStore<DragPreviewState | null> = slot.store;
+export const dragPreviewStore: ReadonlyStore<DragPreviewState | null> = store;
 
 /** Publish `state` for the provider whose React tree should render it. */
 export function publishDragPreview(
   context: DraggableContextValue,
   state: Omit<DragPreviewState, 'context'>,
 ): void {
-  slot.store.setState({ ...state, context });
+  store.setState({ ...state, context });
 }
 
 /**
@@ -47,5 +46,5 @@ export function publishDragPreview(
  * the active preview handle instead.
  */
 export function clearPublishedDragPreview(): void {
-  slot.store.setState(null);
+  store.setState(null);
 }

@@ -10,7 +10,7 @@ import { createDndRenderer } from '../../../packages/react/test/dndEngine';
 // eslint-disable-next-line import/no-relative-packages
 import { firePointer } from '../../../packages/react/test/pointer';
 // eslint-disable-next-line import/no-relative-packages
-import { flushRaf, setupDragEngineTests } from '../../../packages/react/test/dnd';
+import { fireDrag, flushRaf, setupDragEngineTests } from '../../../packages/react/test/dnd';
 import ActivationCss from '../app/(docs)/react/utils/draggable/demos/activation/css-modules';
 import ActivationTailwind from '../app/(docs)/react/utils/draggable/demos/activation/tailwind';
 import FileExplorerExperiment from '../app/(private)/experiments/drag-engine/file-explorer';
@@ -165,12 +165,12 @@ describe('draggable demos', () => {
       await renderDnd(<Demo />);
       const frame = screen.getByText('Frame (charts only)').parentElement!;
       const note = screen.getByText('Note');
-      fireEvent.dragStart(note, { clientX: 10, clientY: 10 });
-      fireEvent.drop(frame, { clientX: 20, clientY: 20 });
+      fireDrag.dragStart(note, { clientX: 10, clientY: 10 });
+      fireDrag.drop(frame, { clientX: 20, clientY: 20 });
       const moved = screen.getByText('Note', { selector: ':not([data-drag-preview])' });
       expect(moved.parentElement).toBe(screen.getByText('Canvas').nextElementSibling);
       expect(frame).toHaveTextContent('Drop the chart into the frame');
-      fireEvent.dragEnd(note);
+      fireDrag.dragEnd();
     });
   });
 
@@ -282,26 +282,26 @@ describe('draggable demos', () => {
         item.parentElement!.getBoundingClientRect = () => new DOMRect(0, index * 48, 320, 48);
       });
       const [source, target] = items;
-      fireEvent.dragStart(source, { clientX: 100, clientY: 20 });
-      fireEvent.dragOver(source, { clientX: 100, clientY: 20 });
+      fireDrag.dragStart(source, { clientX: 100, clientY: 20 });
+      fireDrag.dragOver(source, { clientX: 100, clientY: 20 });
       await flushRaf();
       expect(source).toHaveAttribute('data-self-drop');
 
       // The pointer is in the gap above the second card, where the line is drawn.
-      fireEvent.dragOver(target.parentElement!, { clientX: 100, clientY: 49 });
+      fireDrag.dragOver(target.parentElement!, { clientX: 100, clientY: 49 });
       await flushRaf();
       expect(target).toHaveAttribute('data-drop-position', 'before');
       expect(source).not.toHaveAttribute('data-self-drop');
 
-      fireEvent.dragOver(source, { clientX: 100, clientY: 20 });
+      fireDrag.dragOver(source, { clientX: 100, clientY: 20 });
       await flushRaf();
       expect(source).toHaveAttribute('data-self-drop');
       expect(target).not.toHaveAttribute('data-drop-position', 'before');
 
-      fireEvent.dragOver(document.body, { clientX: 500, clientY: 500 });
+      fireDrag.dragOver(document.body, { clientX: 500, clientY: 500 });
       await flushRaf();
       expect(source).not.toHaveAttribute('data-self-drop');
-      fireEvent.dragEnd(source);
+      fireDrag.dragEnd();
     });
 
     it('commits the position when dropping in row padding', async () => {
@@ -313,8 +313,8 @@ describe('draggable demos', () => {
         item.parentElement!.getBoundingClientRect = () => new DOMRect(0, index * 48, 320, 48);
       });
       const [source, , target] = items;
-      fireEvent.dragStart(source, { clientX: 100, clientY: 20 });
-      fireEvent.drop(target.parentElement!, { clientX: 100, clientY: 97 });
+      fireDrag.dragStart(source, { clientX: 100, clientY: 20 });
+      fireDrag.drop(target.parentElement!, { clientX: 100, clientY: 97 });
       expect(
         Array.from(group.querySelectorAll('button:not([data-drag-preview])')).map(
           (item) => item.textContent,
@@ -343,8 +343,8 @@ describe('draggable demos', () => {
         const target = screen.getByText('Default').parentElement!;
         source.getBoundingClientRect = () => new DOMRect(0, 0, 120, 30);
         target.getBoundingClientRect = () => new DOMRect(0, 100, 300, 200);
-        fireEvent.dragStart(source, { clientX: 20, clientY: 10 });
-        fireEvent.drop(target, { clientX: 20, clientY: 120 });
+        fireDrag.dragStart(source, { clientX: 20, clientY: 10 });
+        fireDrag.drop(target, { clientX: 20, clientY: 120 });
         const destination = screen.getByText('Renew passport', {
           selector: ':not([data-drag-preview])',
         });

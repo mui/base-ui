@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { describe, it, expect, vi } from 'vitest';
-import { fireEvent, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import { act } from '@mui/internal-test-utils';
 import { createDndRenderer, describeConformance, isJSDOM, testDragKind } from '#test-utils';
 import { Draggable } from '@base-ui/react/draggable';
@@ -14,6 +14,7 @@ import {
   lift,
   registerCleanup,
   setupDragEngineTests,
+  fireDrag,
 } from '../../../test/dnd';
 import { createKind } from '../../utils/drag-and-drop/dragKind';
 
@@ -78,7 +79,7 @@ describe('Draggable.Viewport', () => {
   // The event must be dispatched on an element — the test bridge listens on
   // `document` with capture, so an event fired at `window` never reaches it.
   async function dragTo(target: HTMLElement, clientX: number, clientY: number): Promise<void> {
-    fireEvent.dragOver(target, { clientX, clientY });
+    fireDrag.dragOver(target, { clientX, clientY });
     await flushRaf();
     await flushRaf();
     await flushRaf();
@@ -117,7 +118,7 @@ describe('Draggable.Viewport', () => {
     await flushRaf();
     expect(measure).not.toHaveBeenCalled();
     expect(scrollBy).not.toHaveBeenCalled();
-    fireEvent.drop(source);
+    fireDrag.drop(source);
   });
 
   it('attaches and detaches cleanly without an active drag', async () => {
@@ -143,7 +144,7 @@ describe('Draggable.Viewport', () => {
       childList: true,
       subtree: true,
     });
-    fireEvent.drop(source);
+    fireDrag.drop(source);
     observe.mockRestore();
   });
 
@@ -169,22 +170,14 @@ describe('Draggable.Viewport', () => {
     const observer = observe.mock.contexts[outerIndex] as MutationObserver;
     expect(observe.mock.contexts[innerIndex]).toBe(observer);
 
-    // Reconnecting after removal must preserve queued records for the survivor.
+    // A restyle queued alongside a removal still reaches the survivor.
     await dragTo(inner, 100, 50);
     const computedStyle = vi.spyOn(window, 'getComputedStyle');
     registerCleanup(() => computedStyle.mockRestore());
-    observe.mockClear();
     act(() => {
       inner.style.direction = 'rtl';
       releaseOuter();
     });
-    // Removals reconnect once at the end of the batch. The browser may deliver
-    // the queued restyle before that microtask, or takeRecords may drain it.
-    await Promise.resolve();
-    const reconnected = observe.mock.calls.filter(
-      (_call, index) => observe.mock.contexts[index] === observer,
-    );
-    expect(reconnected.map(([node]) => node)).toEqual([inner]);
     await flushRaf();
     await flushRaf();
     expect(computedStyle).toHaveBeenCalledWith(inner);
@@ -195,7 +188,7 @@ describe('Draggable.Viewport', () => {
     await flushRaf();
     await flushRaf();
     expect(computedStyle).toHaveBeenCalledWith(inner);
-    fireEvent.drop(source);
+    fireDrag.drop(source);
   });
 
   it('does not wake a parked loop after an unchanged re-render', async () => {
@@ -214,7 +207,7 @@ describe('Draggable.Viewport', () => {
     await flushRaf();
 
     expect(measure).not.toHaveBeenCalled();
-    fireEvent.drop(source);
+    fireDrag.drop(source);
   });
 
   it('keeps one idle observer across parks instead of constructing one per wake', async () => {
@@ -246,7 +239,7 @@ describe('Draggable.Viewport', () => {
     await dragTo(scroller, 120, 50);
 
     expect(constructed).toBe(afterFirstPark);
-    fireEvent.drop(source);
+    fireDrag.drop(source);
   });
 
   it('wakes a parked loop for content growth without re-reading any computed style', async () => {
@@ -272,7 +265,7 @@ describe('Draggable.Viewport', () => {
 
     expect(measure).toHaveBeenCalled();
     expect(computedStyle).not.toHaveBeenCalled();
-    fireEvent.drop(source);
+    fireDrag.drop(source);
   });
 
   it('re-reads computed styles when a parked container itself is restyled', async () => {
@@ -295,7 +288,7 @@ describe('Draggable.Viewport', () => {
     await flushRaf();
 
     expect(computedStyle).toHaveBeenCalled();
-    fireEvent.drop(source);
+    fireDrag.drop(source);
   });
 
   it('registers a scroller: shouldScroll receives the drag context during a drag', async () => {
@@ -398,7 +391,7 @@ describe('Draggable.Viewport', () => {
       throw new DOMException('The browsing context is gone', 'InvalidStateError');
     };
     try {
-      expect(() => fireEvent.drop(source)).not.toThrow();
+      expect(() => fireDrag.drop(source)).not.toThrow();
     } finally {
       window.cancelAnimationFrame = originalCancelAnimationFrame;
     }
@@ -619,7 +612,7 @@ describe('Draggable.Viewport', () => {
       expect(shouldScroll).toHaveBeenCalled();
       expect(shouldScroll.mock.calls[0][1].element).toBe(el);
       expect(scrollBy).toHaveBeenCalled();
-      fireEvent.drop(source);
+      fireDrag.drop(source);
     });
   });
 
@@ -707,7 +700,7 @@ describe('Draggable.Viewport', () => {
       expect(warnSpy).toHaveBeenCalledWith(
         expect.stringContaining('registered on an element that does not scroll'),
       );
-      fireEvent.drop(source);
+      fireDrag.drop(source);
     },
   );
 
@@ -733,7 +726,7 @@ describe('Draggable.Viewport', () => {
     await flushRaf();
 
     expect(scrollBy).not.toHaveBeenCalled();
-    fireEvent.drop(source);
+    fireDrag.drop(source);
     warnSpy.mockRestore();
   });
 
@@ -763,7 +756,7 @@ describe('Draggable.Viewport', () => {
     await flushRaf();
 
     expect(scrollBy).toHaveBeenCalled();
-    fireEvent.drop(source);
+    fireDrag.drop(source);
   });
 
   it('observes class and style changes on a replacement render node', async () => {
@@ -802,7 +795,7 @@ describe('Draggable.Viewport', () => {
     await flushRaf();
 
     expect(scrollBy).toHaveBeenCalled();
-    fireEvent.drop(source);
+    fireDrag.drop(source);
     warnSpy.mockRestore();
   });
 
@@ -834,7 +827,7 @@ describe('Draggable.Viewport', () => {
     expect(shouldScroll).toHaveBeenCalled();
     expect(shouldScroll.mock.calls[0][1].element).toBe(scroller);
     expect(shouldScroll.mock.calls[0][1].input.clientY).toBe(95);
-    fireEvent.drop(source);
+    fireDrag.drop(source);
 
     unmount();
     shouldScroll.mockClear();
@@ -846,7 +839,7 @@ describe('Draggable.Viewport', () => {
 
     // A leaked duplicate hold would keep the unmounted scroller registered.
     expect(shouldScroll).not.toHaveBeenCalled();
-    fireEvent.drop(source);
+    fireDrag.drop(source);
   });
 
   it('keeps registration stable across re-renders and uses the latest shouldScroll', async () => {

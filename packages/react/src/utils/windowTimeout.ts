@@ -1,5 +1,3 @@
-'use client';
-
 type TimeoutId = number;
 
 const EMPTY = 0 as TimeoutId;

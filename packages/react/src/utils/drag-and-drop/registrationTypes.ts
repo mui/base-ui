@@ -1,21 +1,26 @@
 import type { DraggableConfig } from './draggable';
-import type { DragPreviewDeclaration } from './dragPreviewDeclaration';
 import type { RegisterTargetParameters as InternalRegisterTargetParameters } from './dropTarget';
 import type { RegisterViewportParameters as InternalRegisterViewportParameters } from './autoScroller';
 import type { RegisterMonitorParameters as InternalRegisterMonitorParameters } from './monitor';
 import type { DraggableKind, DraggableAccept } from '../../draggable/DraggableProvider';
 import type { AcceptedDragPayload, AcceptedDragData, DraggablePayload } from './types';
 
-/** Parameters accepted by `Draggable.Root` and `registerSource`, except the element. */
+/**
+ * The public parameters plus the channel through which a `Draggable.Preview` reaches
+ * the engine. Consumers never write that field, which is why it is absent from
+ * `RegisterSourceParameters`.
+ */
 // `onGenerateDragPreview` is omitted because the engine overwrites it to publish the
 // preview it built.
-export type RegisterSourceParameters<TPayload = undefined, TDragData = unknown> = Omit<
+export type InternalDraggableParameters<TPayload = undefined, TDragData = unknown> = Omit<
   DraggableConfig<TPayload, TDragData>,
-  | 'element'
-  | 'onGenerateDragPreview'
-  | 'getDragPreviewDeclaration'
-  | 'styleNonce'
-  | 'disableStyleElements'
+  'element' | 'onGenerateDragPreview' | 'styleNonce' | 'disableStyleElements'
+>;
+
+/** Parameters accepted by `Draggable.Root` and `registerSource`, except the element. */
+export type RegisterSourceParameters<TPayload = undefined, TDragData = unknown> = Omit<
+  InternalDraggableParameters<TPayload, TDragData>,
+  'getDragPreviewDeclaration'
 >;
 
 /** Public drop-target parameters, whose `accept` declaration is required. */
@@ -100,19 +105,6 @@ export interface InternalDragEngine extends Omit<
     >,
   ) => () => void;
 }
-
-/**
- * The public parameters plus the channel through which a `Draggable.Preview` reaches
- * the engine. Consumers never write that field, which is why it is absent from
- * `RegisterSourceParameters`.
- */
-export type InternalDraggableParameters<
-  TPayload = undefined,
-  TDragData = unknown,
-> = RegisterSourceParameters<TPayload, TDragData> & {
-  getDragPreviewDeclaration?:
-    (() => DragPreviewDeclaration<NoInfer<TPayload>, NoInfer<TDragData>> | null) | undefined;
-};
 
 /**
  * The options of `Draggable.Viewport` and `registerViewport`.

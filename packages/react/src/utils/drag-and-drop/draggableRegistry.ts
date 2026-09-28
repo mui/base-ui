@@ -18,23 +18,8 @@ type RegisteredDraggableConfig = DraggableConfig<any, any>;
 
 type DraggableGetter = () => RegisteredDraggableConfig;
 
-interface RegistryState {
-  /**
-   * Maps each registered element to the stack of parameter getters held against
-   * it — one per `Draggable.Root` whose ref landed on the node (merged-ref
-   * composition). The last getter wins (a re-registration refreshes the
-   * closures); each cleanup removes *its own* getter by identity, so releasing a
-   * non-last hold can't strand the surviving hook's parameters.
-   */
-  registry: WeakMap<HTMLElement, DraggableGetter[]>;
-}
-
-const state = getSharedSlot<RegistryState>('draggableRegistry', () => ({
-  registry: new WeakMap<HTMLElement, DraggableGetter[]>(),
-}));
-
 const holds = createGetterStackRegistry<HTMLElement, DraggableGetter>({
-  entries: state.registry,
+  entries: getSharedSlot('draggableRegistry', () => new WeakMap<HTMLElement, DraggableGetter[]>()),
 });
 
 /** Register (or re-register) `element` as a draggable with the given parameters getter. */
@@ -71,7 +56,7 @@ export function resolveDragHandle(parameters: RegisteredDraggableConfig): Elemen
  * target, find the nearest registered draggable ancestor, read its latest
  * parameters, resolve the drag handle, and enforce the handle-`contains` gate.
  * Returns `null` when the gesture must not start. Callers still run their own
- * `onBeforeMoveStart` dispatch and `canStartLifecycle`.
+ * `onBeforeMoveStart` dispatch and the lifecycle's `isActive` check.
  */
 export function resolveDraggablePickup(rawTarget: EventTarget | null): DraggablePickup | null {
   const target = isElement(rawTarget) ? rawTarget : null;

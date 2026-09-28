@@ -1,4 +1,4 @@
-import { INTERACTIVE_ELEMENT_SELECTOR } from '../isInteractiveElement';
+import { INTERACTIVE_ELEMENT_SELECTOR } from '../../floating-ui-react/utils/constants';
 import { getComposedParentElement } from './utils';
 
 // Native controls that own pointer gestures but are not covered by the shared

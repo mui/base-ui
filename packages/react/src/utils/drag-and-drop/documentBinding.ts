@@ -16,17 +16,74 @@ export interface DocumentBinding {
   unbind(root: DragEventRoot): void;
 }
 
-interface CreateDocumentBindingOptions {
+interface CreateEventRootBindingOptions {
   slot: string;
-  install: (root: DragEventRoot) => DragCleanupFn;
+  /** The listener for each event type, keyed by type. */
+  listeners: Record<string, (event: Event) => void>;
 }
 
-export function createDocumentBinding(options: CreateDocumentBindingOptions): DocumentBinding {
-  const { slot, install } = options;
+export function createEventRootBinding(options: CreateEventRootBindingOptions): DocumentBinding {
+  const { slot, listeners } = options;
   const bindings = getSharedSlot<WeakMap<DragEventRoot, DocumentBindingEntry>>(
     slot,
     () => new WeakMap<DragEventRoot, DocumentBindingEntry>(),
   );
+  const boundShadowRoots = getSharedSlot<Set<ShadowRoot>>(
+    `${slot}.shadowRoots`,
+    () => new Set<ShadowRoot>(),
+  );
+
+  const crossesBoundShadowRoot = (event: Event, currentRoot: DragEventRoot): boolean => {
+    // Both window wrappers below ask this for every event of a bound type
+    // anywhere on the page, for as long as one binding exists; `composedPath()`
+    // materializes the whole ancestor chain, so don't build it unless a shadow
+    // root is bound.
+    if (boundShadowRoots.size === 0) {
+      return false;
+    }
+    const path = event.composedPath();
+    for (const root of boundShadowRoots.keys()) {
+      if (
+        root !== currentRoot &&
+        path.includes(root.host) &&
+        (!isShadowRoot(currentRoot) || path.indexOf(root.host) < path.indexOf(currentRoot))
+      ) {
+        return true;
+      }
+    }
+    return false;
+  };
+
+  const install = (root: DragEventRoot): DragCleanupFn => {
+    const shadowRoot = isShadowRoot(root);
+    const target = shadowRoot ? root : ownerWindow(root.documentElement);
+    if (shadowRoot) {
+      boundShadowRoots.add(root);
+    }
+    // Use fresh wrappers so deferred cleanup cannot remove a later binding.
+    const onCapture = (event: Event) => {
+      if (!crossesBoundShadowRoot(event, root)) {
+        listeners[event.type](event);
+      }
+    };
+    const onBubble = (event: Event) => {
+      if (crossesBoundShadowRoot(event, root)) {
+        listeners[event.type](event);
+      }
+    };
+    const offs = Object.keys(listeners).flatMap((type) => [
+      addEventListener(target, type, onCapture, { capture: true }),
+      addEventListener(target, type, onBubble),
+    ]);
+    return () => {
+      for (const off of offs) {
+        off();
+      }
+      if (shadowRoot) {
+        boundShadowRoots.delete(root);
+      }
+    };
+  };
 
   return {
     bind(root: DragEventRoot): void {
@@ -49,70 +106,4 @@ export function createDocumentBinding(options: CreateDocumentBindingOptions): Do
       }
     },
   };
-}
-
-interface CreateEventRootBindingOptions {
-  slot: string;
-  shadowRootsSlot: string;
-  type: string;
-  listener: (event: Event) => void;
-}
-
-export function createEventRootBinding(options: CreateEventRootBindingOptions): DocumentBinding {
-  const { slot, shadowRootsSlot, type, listener } = options;
-  const boundShadowRoots = getSharedSlot<Set<ShadowRoot>>(
-    shadowRootsSlot,
-    () => new Set<ShadowRoot>(),
-  );
-
-  const crossesBoundShadowRoot = (event: Event, currentRoot: DragEventRoot): boolean => {
-    // Both window wrappers below ask this for every event of `type` anywhere on
-    // the page, for as long as one binding exists; `composedPath()` materializes
-    // the whole ancestor chain, so don't build it unless a shadow root is bound.
-    if (boundShadowRoots.size === 0) {
-      return false;
-    }
-    const path = event.composedPath();
-    for (const root of boundShadowRoots.keys()) {
-      if (
-        root !== currentRoot &&
-        path.includes(root.host) &&
-        (!isShadowRoot(currentRoot) || path.indexOf(root.host) < path.indexOf(currentRoot))
-      ) {
-        return true;
-      }
-    }
-    return false;
-  };
-
-  return createDocumentBinding({
-    slot,
-    install(root) {
-      const shadowRoot = isShadowRoot(root);
-      const target = shadowRoot ? root : ownerWindow(root.documentElement);
-      if (shadowRoot) {
-        boundShadowRoots.add(root);
-      }
-      // Use fresh wrappers so deferred cleanup cannot remove a later binding.
-      const onCapture = (event: Event) => {
-        if (!crossesBoundShadowRoot(event, root)) {
-          listener(event);
-        }
-      };
-      const onBubble = (event: Event) => {
-        if (crossesBoundShadowRoot(event, root)) {
-          listener(event);
-        }
-      };
-      const offCapture = addEventListener(target, type, onCapture, { capture: true });
-      const offBubble = addEventListener(target, type, onBubble);
-      return () => {
-        offCapture();
-        offBubble();
-        if (shadowRoot) {
-          boundShadowRoots.delete(root);
-        }
-      };
-    },
-  });
 }

@@ -18,14 +18,8 @@ import { isActive } from './core/lifecycleManager';
 import { publishDragPreview } from './overlay/dragPreviewStore';
 import { getActiveDragPreviewSettings, getActivePreviewHandle } from './activePreview';
 import { retargetEndingPreviewSource } from './synthetic/syntheticPreview';
-import type {
-  InternalDragEngine,
-  InternalDraggableParameters,
-  RegisterSourceParameters,
-} from './registrationTypes';
+import type { InternalDragEngine, InternalDraggableParameters } from './registrationTypes';
 import type { DragCleanupFn } from './types';
-
-import type { LatestGetter } from './useRegistrationRef';
 
 /**
  * Draggable registration shared by `Draggable.Root` and the imperative engine.
@@ -33,13 +27,13 @@ import type { LatestGetter } from './useRegistrationRef';
  */
 export class DragEngineBase {
   constructor(
-    private readonly getPreviewContext: LatestGetter<DraggableContextValue>,
-    private readonly getCSPContext: LatestGetter<CSPContextValue>,
+    private readonly getPreviewContext: () => DraggableContextValue,
+    private readonly getCSPContext: () => CSPContextValue,
   ) {}
 
   registerSource = <TPayload = undefined, TDragData = unknown>(
     element: HTMLElement,
-    get: () => RegisterSourceParameters<TPayload, TDragData>,
+    get: () => InternalDraggableParameters<TPayload, TDragData>,
     payloadOwner?: object,
   ): DragCleanupFn => {
     const initial = get();
@@ -106,9 +100,7 @@ export class DragEngineBase {
     let lastCSPContext: CSPContextValue | null = null;
     let normalized: DraggableConfig<TPayload, TDragData> | null = null;
     const getNormalized = (): DraggableConfig<TPayload, TDragData> => {
-      // `Draggable.Root` adds the preview-declaration channel to what it returns
-      // here; the public parameter type hides it, since consumers never set it.
-      const params = get() as InternalDraggableParameters<TPayload, TDragData>;
+      const params = get();
       const cspContext = this.getCSPContext();
       if (
         normalized !== null &&
@@ -133,7 +125,8 @@ export class DragEngineBase {
       setParticipantOwner(getNormalized, payloadOwner);
     }
 
-    // One-time static DOM setup, read once at registration.
+    // Static DOM setup, read at registration. The pointer sensor bound below
+    // refreshes it from the live registration on each press.
     const restoreStatic = applyDraggableStaticSetup({
       element,
       handle: initial.handle,
@@ -182,8 +175,8 @@ export function useRegisterSource(): DragEngineBase['registerSource'] {
 /** One engine instance per hook call, bound to the nearest `Draggable.Provider` and CSP context. */
 function useDragEngineInstance<T extends DragEngineBase>(
   Engine: new (
-    getPreviewContext: LatestGetter<DraggableContextValue>,
-    getCSPContext: LatestGetter<CSPContextValue>,
+    getPreviewContext: () => DraggableContextValue,
+    getCSPContext: () => CSPContextValue,
   ) => T,
 ): T {
   const previewContext = useDraggableContext();

@@ -33,40 +33,22 @@ export function useDraggableViewportElement<TSourcePayload = unknown, TDragData 
   const ref = useRegistrationRef<HTMLElement>((node) => registerViewport(node, getParameters));
 
   // A live parameter change must wake a loop that parked while the element was
-  // disabled or declined scrolling. Compared against the previous values — by
-  // content for `accept`, commonly an inline array — rather than trusted as
-  // effect deps, so a render that changes nothing wakes nothing. A wake is all a
-  // change needs: the loop reads the parameters through `getParameters` every
-  // frame, so no shared geometry/style cache has to be dropped for it to apply.
+  // disabled or declined scrolling. `accept`, commonly an inline array, is
+  // compared by content so a render that changes nothing wakes nothing. A wake is
+  // all a change needs: the loop reads the parameters through `getParameters`
+  // every frame, so no shared geometry/style cache has to be dropped for it to
+  // apply. The mount-time wake is a no-op: the registration already woke the loop.
   const { accept, onDragScroll, disabled, maxSpeed } = parameters;
   const { top, right, bottom, left } = normalizeOverflowMargin(parameters.overflowMargin);
-  const previousRef = React.useRef({
-    top,
-    right,
-    bottom,
-    left,
-    accept,
-    onDragScroll,
-    disabled,
-    maxSpeed,
-  });
+  const previousAcceptRef = React.useRef(accept);
   useIsoLayoutEffect(() => {
-    const previous = previousRef.current;
-    if (
-      sameAccept(previous.accept, accept) &&
-      previous.onDragScroll === onDragScroll &&
-      previous.disabled === disabled &&
-      previous.maxSpeed === maxSpeed &&
-      previous.top === top &&
-      previous.right === right &&
-      previous.bottom === bottom &&
-      previous.left === left
-    ) {
+    if (sameAccept(previousAcceptRef.current, accept)) {
       return;
     }
-    previousRef.current = { accept, onDragScroll, disabled, maxSpeed, top, right, bottom, left };
+    previousAcceptRef.current = accept;
     wakeAutoScroll();
-  }, [accept, onDragScroll, disabled, maxSpeed, top, right, bottom, left]);
+  }, [accept]);
+  useIsoLayoutEffect(wakeAutoScroll, [onDragScroll, disabled, maxSpeed, top, right, bottom, left]);
 
   return { ref };
 }

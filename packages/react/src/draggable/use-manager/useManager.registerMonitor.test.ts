@@ -1,8 +1,13 @@
 import { describe, it, expect, vi } from 'vitest';
-import { fireEvent } from '@testing-library/react';
 import { createDndRenderer } from '#test-utils';
 import { Draggable } from '@base-ui/react/draggable';
-import { createElement, flushRaf, setupDragEngineTests, splitEnd } from '../../../test/dnd';
+import {
+  createElement,
+  flushRaf,
+  setupDragEngineTests,
+  splitEnd,
+  fireDrag,
+} from '../../../test/dnd';
 
 setupDragEngineTests();
 
@@ -19,7 +24,7 @@ describe('engine.registerMonitor', () => {
     engine.registerSource(el, { kind: cardKind });
     engine.registerMonitor({ onMoveStart });
 
-    fireEvent.dragStart(el);
+    fireDrag.dragStart(el);
     await flushRaf();
 
     expect(onMoveStart).toHaveBeenCalledTimes(1);
@@ -40,12 +45,12 @@ describe('engine.registerMonitor', () => {
     engine.registerTarget(target, { accept: cardKind });
     engine.registerMonitor({ onMoveEnd });
 
-    fireEvent.dragStart(el);
+    fireDrag.dragStart(el);
     await flushRaf();
-    fireEvent.dragEnter(target);
-    fireEvent.dragOver(target);
+    fireDrag.dragEnter(target);
+    fireDrag.dragOver(target);
     await flushRaf();
-    fireEvent.drop(target);
+    fireDrag.drop(target);
 
     expect(onMoveEnd).toHaveBeenCalledTimes(1);
     const [value, details] = onMoveEnd.mock.calls[0];
@@ -60,10 +65,10 @@ describe('engine.registerMonitor', () => {
     engine.registerSource(el, { kind: cardKind });
     engine.registerMonitor({ onMoveEnd });
 
-    fireEvent.dragStart(el);
+    fireDrag.dragStart(el);
     await flushRaf();
     // Cancel the drag without ever entering a drop target.
-    fireEvent.dragEnd(el);
+    fireDrag.dragEnd();
 
     expect(onMoveEnd).toHaveBeenCalledTimes(1);
     const [value, details] = onMoveEnd.mock.calls[0];
@@ -86,13 +91,13 @@ describe('engine.registerMonitor', () => {
     engine.registerSource(columnEl, { kind: columnKind });
     engine.registerMonitor({ accept: cardKind, onMoveStart });
 
-    fireEvent.dragStart(cardEl);
+    fireDrag.dragStart(cardEl);
     await flushRaf();
-    fireEvent.drop(cardEl);
+    fireDrag.drop(cardEl);
 
-    fireEvent.dragStart(columnEl);
+    fireDrag.dragStart(columnEl);
     await flushRaf();
-    fireEvent.drop(columnEl);
+    fireDrag.drop(columnEl);
 
     expect(onMoveStart).toHaveBeenCalledTimes(1);
     expect(onMoveStart).toHaveBeenCalledWith(
@@ -113,13 +118,13 @@ describe('engine.registerMonitor', () => {
     engine.registerSource(columnEl, { kind: columnKind });
     engine.registerMonitor({ onMoveStart });
 
-    fireEvent.dragStart(cardEl);
+    fireDrag.dragStart(cardEl);
     await flushRaf();
-    fireEvent.drop(cardEl);
+    fireDrag.drop(cardEl);
 
-    fireEvent.dragStart(columnEl);
+    fireDrag.dragStart(columnEl);
     await flushRaf();
-    fireEvent.drop(columnEl);
+    fireDrag.drop(columnEl);
 
     expect(onMoveStart).toHaveBeenCalledTimes(2);
   });
@@ -132,13 +137,13 @@ describe('engine.registerMonitor', () => {
     engine.registerSource(el, {});
     const cleanupMonitor = engine.registerMonitor({ onMoveStart, onMoveEnd });
 
-    fireEvent.dragStart(el);
+    fireDrag.dragStart(el);
     await flushRaf();
     expect(onMoveStart).toHaveBeenCalledTimes(1);
 
     cleanupMonitor();
 
-    fireEvent.drop(el);
+    fireDrag.drop(el);
     expect(onMoveEnd).not.toHaveBeenCalled();
   });
 
@@ -151,7 +156,7 @@ describe('engine.registerMonitor', () => {
     engine.registerMonitor({ onMoveStart: onDragStart1 });
     engine.registerMonitor({ onMoveStart: onDragStart2 });
 
-    fireEvent.dragStart(el);
+    fireDrag.dragStart(el);
     await flushRaf();
 
     expect(onDragStart1).toHaveBeenCalledTimes(1);
@@ -172,7 +177,7 @@ describe('engine.registerMonitor', () => {
     });
     cleanupMonitor2 = engine.registerMonitor({ onMoveStart: onDragStart2 });
 
-    fireEvent.dragStart(el);
+    fireDrag.dragStart(el);
     await flushRaf();
 
     expect(onDragStart2).not.toHaveBeenCalled();
@@ -192,7 +197,7 @@ describe('engine.registerMonitor', () => {
     engine.registerTarget(target, {});
 
     // Start the drag BEFORE the monitor exists — its onMoveStart has already fired.
-    fireEvent.dragStart(el);
+    fireDrag.dragStart(el);
     await flushRaf();
 
     engine.registerMonitor({
@@ -203,11 +208,11 @@ describe('engine.registerMonitor', () => {
     });
 
     // Subsequent events must reach the late monitor.
-    fireEvent.dragEnter(target);
+    fireDrag.dragEnter(target);
     await flushRaf();
-    fireEvent.dragOver(target);
+    fireDrag.dragOver(target);
     await flushRaf();
-    fireEvent.drop(target);
+    fireDrag.drop(target);
 
     // The monitor joined after onMoveStart, so it never sees it...
     expect(onMoveStart).not.toHaveBeenCalled();
@@ -229,14 +234,14 @@ describe('engine.registerMonitor', () => {
     engine.registerSource(cardEl, { kind: cardKind });
     engine.registerTarget(target, {});
 
-    fireEvent.dragStart(cardEl);
+    fireDrag.dragStart(cardEl);
     await flushRaf();
 
     // Registered mid-drag with an `accept` that excludes the live source kind:
     // it must NOT join the in-progress 'card' drag.
     engine.registerMonitor({ accept: columnKind, onMoveEnd });
 
-    fireEvent.drop(target);
+    fireDrag.drop(target);
     expect(onMoveEnd).not.toHaveBeenCalled();
   });
 
@@ -261,7 +266,7 @@ describe('engine.registerMonitor', () => {
 
     const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
     try {
-      fireEvent.dragStart(el);
+      fireDrag.dragStart(el);
       await flushRaf();
 
       // The throw was contained and logged...
@@ -269,10 +274,10 @@ describe('engine.registerMonitor', () => {
       // ...and the sibling monitor still observes the drag.
       expect(onDragStartSane).toHaveBeenCalledTimes(1);
 
-      fireEvent.dragEnter(target);
-      fireEvent.dragOver(target);
+      fireDrag.dragEnter(target);
+      fireDrag.dragOver(target);
       await flushRaf();
-      fireEvent.drop(target);
+      fireDrag.drop(target);
 
       // The drag itself was never aborted: it ends with a delivered drop.
       expect(onDrop).toHaveBeenCalledTimes(1);
@@ -294,7 +299,7 @@ describe('engine.registerMonitor', () => {
     engine.registerSource(el, { onMoveEnd });
     engine.registerTarget(target, {});
 
-    fireEvent.dragStart(el);
+    fireDrag.dragStart(el);
     await flushRaf();
 
     const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
@@ -306,7 +311,7 @@ describe('engine.registerMonitor', () => {
       ).not.toThrow();
       expect(consoleError).toHaveBeenCalled();
 
-      fireEvent.drop(target);
+      fireDrag.drop(target);
       expect(onMoveEnd).toHaveBeenCalledTimes(1);
     } finally {
       consoleError.mockRestore();

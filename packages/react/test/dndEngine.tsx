@@ -12,7 +12,7 @@ import * as React from 'react';
 import type { CreateRendererOptions, RenderOptions } from '@mui/internal-test-utils';
 import { createRenderer } from './createRenderer';
 import type { BaseUIRenderResult } from './createRenderer';
-import { installDndTestEnv, registerCleanup } from './dnd';
+import { registerCleanup } from './dnd';
 import { anyDragKind, createKind } from '../src/utils/drag-and-drop/dragKind';
 import { DraggableProvider } from '../src/draggable/DraggableProvider';
 import { useManager } from '../src/draggable/use-manager/useManager';
@@ -79,7 +79,7 @@ type InternalRegisterTarget = <
  * parameters object (wrapped into a getter by {@link asGetter}) so fixtures stay
  * terse. Production code never sees this loosened shape.
  */
-export interface DndTestEngine {
+interface DndTestEngine {
   registerSource: <TPayload = undefined, TDragData = unknown>(
     element: HTMLElement,
     parameters: MaybeGetter<TestDraggableParameters<TPayload, TDragData>>,
@@ -105,7 +105,7 @@ export interface DndTestEngine {
   cancelDrag: DraggableManager['cancelDrag'];
 }
 
-export interface DndRenderResult extends BaseUIRenderResult {
+interface DndRenderResult extends BaseUIRenderResult {
   /** The drag engine, with cleanups auto-queued for teardown. */
   engine: DndTestEngine;
 }
@@ -224,7 +224,7 @@ function NoUi(): null {
   return null;
 }
 
-export interface DndTestRenderer extends ReturnType<typeof createRenderer> {
+interface DndTestRenderer extends ReturnType<typeof createRenderer> {
   /**
    * Render `ui` inside a `Draggable.Provider` and return the render result
    * plus the `engine` itself. Call with no element to mount just
@@ -239,10 +239,10 @@ export interface DndTestRenderer extends ReturnType<typeof createRenderer> {
 
 /**
  * Like `createRenderer()`, plus a `renderDnd` that mounts a `Draggable.Provider` and
- * exposes the engine's drag engine. Call once per `describe`.
+ * exposes the engine's drag engine. Call once per `describe`, in a file that calls
+ * `setupDragEngineTests()`, which installs the drag test environment.
  */
 export function createDndRenderer(globalOptions?: CreateRendererOptions): DndTestRenderer {
-  installDndTestEnv();
   const renderer = createRenderer(globalOptions);
 
   async function renderDnd(

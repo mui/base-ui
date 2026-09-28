@@ -56,7 +56,10 @@ function dispatchPointer(
   });
 }
 
-function callsOfType(spy: { mock: { calls: unknown[][] } }, type: 'pointerdown'): number {
+function callsOfType(
+  spy: { mock: { calls: unknown[][] } },
+  type: 'pointerdown' | 'dblclick',
+): number {
   return spy.mock.calls.filter(([eventType]) => eventType === type).length;
 }
 
@@ -116,10 +119,10 @@ describe('documentBinding', () => {
     const deliveries: Array<['outer' | 'inner', number]> = [];
     const binding = createEventRootBinding({
       slot: 'documentBinding.test.nested',
-      shadowRootsSlot: 'documentBinding.test.nested.shadowRoots',
-      type: 'pointerdown',
-      listener: (event) => {
-        deliveries.push([event.currentTarget === outer ? 'outer' : 'inner', event.eventPhase]);
+      listeners: {
+        pointerdown: (event) => {
+          deliveries.push([event.currentTarget === outer ? 'outer' : 'inner', event.eventPhase]);
+        },
       },
     });
     binding.bind(outer);
@@ -138,6 +141,35 @@ describe('documentBinding', () => {
       ['inner', Event.CAPTURING_PHASE],
       ['outer', Event.BUBBLING_PHASE],
     ]);
+  });
+
+  it('refreshes the static setup of a draggable inside a closed shadow root', async () => {
+    const { engine } = await renderDnd();
+    const host = document.createElement('div');
+    document.body.appendChild(host);
+    registerCleanup(() => host.remove());
+    const shadow = host.attachShadow({ mode: 'closed' });
+    const source = document.createElement('div');
+    shadow.appendChild(source);
+    let disabled = true;
+    engine.registerSource(source, () => ({ disabled }));
+    expect(source.style.touchAction || '').toBe('');
+
+    disabled = false;
+    act(() => {
+      source.dispatchEvent(
+        new PointerEvent('pointerdown', {
+          bubbles: true,
+          composed: true,
+          button: 0,
+          buttons: 1,
+          pointerId: 1,
+          pointerType: 'mouse',
+        }),
+      );
+    });
+
+    expect(source.style.touchAction).toBe('manipulation');
   });
 
   it('pointer pickup works for a draggable registered in an iframe document', async () => {
@@ -171,26 +203,33 @@ describe('documentBinding', () => {
     // Documents keep a capture path for light DOM plus a bubble fallback for
     // events deliberately deferred to an inner closed-shadow binding.
     expect(callsOfType(addSpy, 'pointerdown')).toBe(2);
+    expect(callsOfType(addSpy, 'dblclick')).toBe(2);
 
     // A second draggable in the same document reuses the installed listeners.
     const cleanupSecond = engine.registerSource(second, {});
     expect(callsOfType(addSpy, 'pointerdown')).toBe(2);
+    expect(callsOfType(addSpy, 'dblclick')).toBe(2);
 
     // Releasing a non-last holder keeps the listeners installed.
     cleanupFirst();
     expect(callsOfType(removeSpy, 'pointerdown')).toBe(0);
+    expect(callsOfType(removeSpy, 'dblclick')).toBe(0);
 
     // The last holder tears them down.
     cleanupSecond();
     expect(callsOfType(removeSpy, 'pointerdown')).toBe(2);
+    expect(callsOfType(removeSpy, 'dblclick')).toBe(2);
   });
 
-  it('walks the composed path only once a shadow root is bound', async () => {
-    const { engine } = await renderDnd();
+  it('walks the composed path only once a shadow root is bound', () => {
     const { doc, win } = createIframeRealm();
     const addSpy = vi.spyOn(win, 'addEventListener');
-    const el = createIframeElement(doc);
-    engine.registerSource(el, {});
+    const binding = createEventRootBinding({
+      slot: 'documentBinding.test.composedPath',
+      listeners: { pointerdown: () => {} },
+    });
+    binding.bind(doc);
+    registerCleanup(() => binding.unbind(doc));
     const pointerListeners = addSpy.mock.calls
       .filter(([type]) => type === 'pointerdown')
       .map(([, listener]) => listener as EventListener);
@@ -205,9 +244,8 @@ describe('documentBinding', () => {
 
     const host = createIframeElement(doc);
     const shadow = host.attachShadow({ mode: 'closed' });
-    const inner = doc.createElement('div');
-    shadow.appendChild(inner);
-    engine.registerSource(inner, {});
+    binding.bind(shadow);
+    registerCleanup(() => binding.unbind(shadow));
 
     composedPath.mockReturnValue([host]);
     pointerListeners.forEach((listener) => listener(event));

@@ -132,34 +132,6 @@ function adoptShadowRootCursor(shadowRoot: ShadowRoot, doc: Document): DragClean
   return () => unadoptStyleSheet(shadowRoot, adoptedSheet);
 }
 
-function applyCursorLock(
-  element: Element,
-  cursor: string,
-  options: DragCursorStyleOptions = {},
-): void {
-  const doc = ownerDocument(element);
-  const root = doc.documentElement;
-  // Snapshot a pre-existing inline `--drag-cursor` (a consumer may set it to
-  // theme the default) so unlock restores it instead of removing it.
-  state.savedCursorValue = root.style.getPropertyValue(CURSOR_VAR);
-  state.savedCursorPriority = root.style.getPropertyPriority(CURSOR_VAR);
-  state.savedDraggingClass = root.classList.contains(DRAGGING_CLASS);
-  state.savedStyleClass = root.classList.contains(STYLE_CLASS);
-  root.style.setProperty(CURSOR_VAR, cursor);
-  root.classList.add(DRAGGING_CLASS);
-  if (!options.disableStyleElements && ensureStyleInjected(doc, options.nonce)) {
-    root.classList.add(STYLE_CLASS);
-    // A drop target mounting inside a new shadow root mid-drag gets the sheet too;
-    // one unmounting takes it with it, so the root is left as it was found.
-    state.unsubscribeShadowRoots = trackDropTargetShadowRoots((shadowRoot) =>
-      adoptShadowRootCursor(shadowRoot, doc),
-    );
-  } else {
-    root.classList.remove(STYLE_CLASS);
-  }
-  state.lockedDocument = doc;
-}
-
 function restoreLockedRoot(): void {
   state.unsubscribeShadowRoots?.();
   state.unsubscribeShadowRoots = null;
@@ -183,11 +155,31 @@ function restoreLockedRoot(): void {
  * global lifecycle admits one pointer session, so `lockedDocument` is also the
  * single-holder latch and a repeated call cannot overwrite the saved cursor.
  */
-export function lock(element: Element, cursor: string, options?: DragCursorStyleOptions): void {
+export function lock(element: Element, cursor: string, options: DragCursorStyleOptions = {}): void {
   if (state.lockedDocument !== null) {
     return;
   }
-  applyCursorLock(element, cursor, options);
+  const doc = ownerDocument(element);
+  const root = doc.documentElement;
+  // Snapshot a pre-existing inline `--drag-cursor` (a consumer may set it to
+  // theme the default) so unlock restores it instead of removing it.
+  state.savedCursorValue = root.style.getPropertyValue(CURSOR_VAR);
+  state.savedCursorPriority = root.style.getPropertyPriority(CURSOR_VAR);
+  state.savedDraggingClass = root.classList.contains(DRAGGING_CLASS);
+  state.savedStyleClass = root.classList.contains(STYLE_CLASS);
+  root.style.setProperty(CURSOR_VAR, cursor);
+  root.classList.add(DRAGGING_CLASS);
+  if (!options.disableStyleElements && ensureStyleInjected(doc, options.nonce)) {
+    root.classList.add(STYLE_CLASS);
+    // A drop target mounting inside a new shadow root mid-drag gets the sheet too;
+    // one unmounting takes it with it, so the root is left as it was found.
+    state.unsubscribeShadowRoots = trackDropTargetShadowRoots((shadowRoot) =>
+      adoptShadowRootCursor(shadowRoot, doc),
+    );
+  } else {
+    root.classList.remove(STYLE_CLASS);
+  }
+  state.lockedDocument = doc;
 }
 
-export { restoreLockedRoot as unlock, restoreLockedRoot as resetForTests };
+export { restoreLockedRoot as unlock };

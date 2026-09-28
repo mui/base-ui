@@ -1,5 +1,5 @@
 /**
- * Per-document dispatch for the draggable static-setup refresh.
+ * Per-element dispatch for the draggable static-setup refresh.
  *
  * Serves `applyDraggableStaticSetup` (`draggable.ts`): the gesture styles are
  * applied from the parameters read at registration and refreshed from the live
@@ -7,19 +7,15 @@
  * `disabled` or `handle` changes without re-registering isn't left with stale
  * styles forever.
  *
- * The entry point is the event the pointer sensor already watches, so one
- * capture listener per document or shadow root covers every draggable there.
- * Each interaction walks up from its target and refreshes every registered
- * draggable on the way.
+ * The pointer sensor already listens for `pointerdown` at every document or
+ * shadow root holding a draggable, so it calls {@link refreshStaticSetups} for
+ * each press rather than this module binding a listener of its own.
  */
 
-import { addEventListener } from '@base-ui/utils/addEventListener';
-import { getTarget } from '@base-ui/utils/shadowDom';
 import { isElement } from '@floating-ui/utils/dom';
-import { createDocumentBinding } from './documentBinding';
 import { createGetterStackRegistry } from './getterStackRegistry';
 import { getSharedSlot } from './sharedState';
-import { getComposedParentElement, getDragEventRoot } from './utils';
+import { getComposedParentElement } from './utils';
 import type { DragCleanupFn } from './types';
 
 interface StaticSetupRefreshState {
@@ -38,12 +34,15 @@ const state = getSharedSlot<StaticSetupRefreshState>('staticSetupRefresh', () =>
 }));
 
 // The same per-element hold/release the draggable, drop-target and auto-scroller
-// registries use, over this module's own backing store. `onInteraction` reads the
-// whole stack off `state.refreshes` directly, as the auto-scroller does.
+// registries use, over this module's own backing store. `refreshStaticSetups`
+// reads the whole stack off `state.refreshes` directly, as the auto-scroller does.
 const holds = createGetterStackRegistry<Element, () => void>({ entries: state.refreshes });
 
-function onInteraction(event: Event): void {
-  const target = getTarget(event);
+/**
+ * Refresh the static setup of every registered draggable containing `target`,
+ * the target of a pointer press.
+ */
+export function refreshStaticSetups(target: EventTarget | null): void {
   if (!isElement(target)) {
     return;
   }
@@ -65,31 +64,11 @@ function onInteraction(event: Event): void {
   }
 }
 
-const documentBinding = createDocumentBinding({
-  slot: 'staticSetupRefresh.documentBindings',
-  install: (doc) => {
-    // Capture-phase, so a consumer handler stopping propagation can't starve it.
-    const offPointerDown = addEventListener(doc, 'pointerdown', onInteraction, { capture: true });
-    return () => {
-      offPointerDown();
-    };
-  },
-});
-
 /**
- * Refresh `element`'s static setup on the next pointer press inside it.
- * Returns a cleanup releasing both the callback and this event root's listener share.
+ * Refresh `element`'s static setup on the next pointer press inside it. Relies
+ * on the pointer sensor being bound at `element`'s event root, which
+ * `registerSource` does for every draggable. Returns a cleanup releasing the callback.
  */
 export function registerStaticSetupRefresh(element: Element, refresh: () => void): DragCleanupFn {
-  const release = holds.hold(element, refresh);
-  // Captured once, so the cleanup releases the share it actually took: an
-  // element adopted into another document mid-life would otherwise decrement a
-  // counter it never incremented, tearing down that document's listeners under
-  // a live draggable.
-  const root = getDragEventRoot(element);
-  documentBinding.bind(root);
-  return () => {
-    release();
-    documentBinding.unbind(root);
-  };
+  return holds.hold(element, refresh);
 }

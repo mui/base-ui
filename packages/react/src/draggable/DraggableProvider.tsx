@@ -26,7 +26,7 @@ export function DraggableProvider(props: DraggableProviderProps): React.ReactNod
   return (
     <DraggableContext.Provider value={contextValue}>
       {children}
-      <PreviewOverlayRenderer previewContext={contextValue} />
+      <PreviewOverlayRenderer />
     </DraggableContext.Provider>
   );
 }

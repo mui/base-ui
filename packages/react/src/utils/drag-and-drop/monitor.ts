@@ -68,7 +68,7 @@ export const monitorRegistry = state.allMonitors;
  * `onMoveStart` has already fired, so it only receives subsequent events. No-op
  * when no drag is active or the monitor is already engaged.
  */
-export function engageMonitorIfDragging(getMonitor: MonitorGetter): void {
+function engageMonitorIfDragging(getMonitor: MonitorGetter): void {
   const activeSource = state.activeSource;
   // Skip monitors already engaged for this drag so the activation loop and the
   // mid-drag registration path can't add the same getter twice.
@@ -89,6 +89,12 @@ export function engageMonitorIfDragging(getMonitor: MonitorGetter): void {
     state.activeMonitors.add(getMonitor);
     rememberMatchedMonitor(getMonitor, monitor);
   }
+}
+
+/** Register a monitor getter. One registered mid-drag joins the drag for its remainder. */
+export function addMonitor(getMonitor: MonitorGetter): void {
+  state.allMonitors.add(getMonitor);
+  engageMonitorIfDragging(getMonitor);
 }
 
 /** Remove a monitor getter from both the registry and the active set. */
@@ -114,18 +120,6 @@ export function dispatchToMonitors<
   K extends keyof DraggableEventDetailsMap & keyof RegisterMonitorParameters,
 >(eventName: K, value: DragSourceEventValue, eventDetails: DraggableEventDetailsMap[K]): void {
   if (state.activeMonitors.size === 0) {
-    return;
-  }
-
-  // The auto-scroll monitor is the common case. Dispatch it directly
-  // rather than allocating a one-entry snapshot for every drag frame. Nothing
-  // can engage between reading the entry and invoking it, and a monitor added
-  // by the handler still cannot receive the in-flight event.
-  if (state.activeMonitors.size === 1) {
-    const getMonitor = state.activeMonitors.values().next().value;
-    if (getMonitor !== undefined) {
-      dispatchToMonitor(getMonitor, eventName, value, eventDetails);
-    }
     return;
   }
 
