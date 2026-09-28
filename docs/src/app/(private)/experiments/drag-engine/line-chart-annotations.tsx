@@ -197,7 +197,6 @@ type Annotation = LineAnnotation | CommentAnnotation;
 type AnnotationHandle = 'body' | 'start' | 'end' | 'height' | 'anchor';
 
 interface AnnotationDragPayload {
-  id: string;
   handle: AnnotationHandle;
   /** The annotation as it was at pickup, so Escape can put it back. */
   snapshot: Annotation;
@@ -593,20 +592,11 @@ function AnnotationDraggable(props: {
       // Read at pickup, which is exactly when the annotation has to be remembered:
       // from here on the state moves under the pointer and the original is gone.
       onMoveStart={(eventDetails) => {
-        eventDetails.source.updateDragData({ id: annotation.id, handle, snapshot: annotation });
+        eventDetails.source.updateDragData({ handle, snapshot: annotation });
       }}
       // A press also has to be able to mean "select" — and on a comment, "start
-      // editing" — so the drag waits for real movement rather than the mouse
-      // default of `immediate`.
+      // editing" — so the drag waits for real movement.
       activation={{ mouse: { type: 'distance', distance: 3 } }}
-      // Nothing in the plot is a drop target, so the default "snap to the nearest
-      // accepting target in this direction" has nothing to aim at: nudge instead.
-
-      // `annotation` is the live one, already moved by the presses so far, so these
-      // report where the drag has got to rather than where it began. The default
-      // `dropped` names the drop target it landed on, and ends with "No drop
-      // target" for every drag here, where landing on nothing is the whole design.
-
       modifiers={modifiers}
       disabled={disabled}
       onMove={(eventDetails) => {
@@ -641,18 +631,7 @@ function AnnotationDraggable(props: {
       className={className}
       style={style}
       onDoubleClick={onDoubleClick}
-      // Selection follows focus so keyboard selection and deletion target the
-      // annotation consistently with pointer selection.
-      onFocus={() => select(annotation.id)}
-      onPointerDown={(event) => {
-        select(annotation.id);
-        // Keep focus on the part that was pressed so Delete targets this
-        // annotation — except while a comment is being edited, where taking focus
-        // would blur the textarea the press was aimed at.
-        if (!disabled) {
-          event.currentTarget.focus();
-        }
-      }}
+      onPointerDown={() => select(annotation.id)}
     >
       {children}
       {/* No preview. The annotation itself moves, because a line has to redraw as
@@ -689,7 +668,6 @@ function segmentStyle(from: PxPoint, to: PxPoint): React.CSSProperties {
 /** A draggable line: the visible rule plus the strip that catches the pointer. */
 function AnnotationSegment(props: {
   annotation: LineAnnotation;
-  handle: AnnotationHandle;
   label: string;
   from: PxPoint;
   to: PxPoint;
@@ -697,11 +675,11 @@ function AnnotationSegment(props: {
   arrow?: boolean | undefined;
   modifiers?: Draggable.Root.Modifiers | undefined;
 }) {
-  const { annotation, handle, label, from, to, selected, arrow, modifiers } = props;
+  const { annotation, label, from, to, selected, arrow, modifiers } = props;
   return (
     <AnnotationDraggable
       annotation={annotation}
-      handle={handle}
+      handle="body"
       label={label}
       modifiers={modifiers}
       className={clsx(styles.segment, selected && styles.segmentSelected)}
@@ -802,13 +780,12 @@ function ValueLineView({
     <React.Fragment>
       <AnnotationSegment
         annotation={annotation}
-        handle="body"
         label={describeAnnotation(annotation)}
         from={from}
         to={to}
         selected={selected}
         // The whole behavior of a value line: it only travels along the axis it
-        // reads from. The lock applies to arrow presses too.
+        // reads from.
         modifiers={
           horizontal ? Draggable.restrictToVerticalAxis : Draggable.restrictToHorizontalAxis
         }
@@ -844,7 +821,6 @@ function SegmentView({
     <React.Fragment>
       <AnnotationSegment
         annotation={annotation}
-        handle="body"
         label={label}
         from={start}
         to={end}
@@ -893,8 +869,7 @@ function ChannelView({
     <React.Fragment>
       {/* The band between the two lines, grabbable over its exact shape: a
           full-plot box clipped to the parallelogram takes pointer events only
-          where it paints. A pointer convenience only — an outline on a clipped
-          element is clipped away too. */}
+          where it paints. */}
       <AnnotationDraggable
         annotation={annotation}
         handle="body"
@@ -906,7 +881,6 @@ function ChannelView({
       />
       <AnnotationSegment
         annotation={annotation}
-        handle="body"
         label={label}
         from={start}
         to={end}
@@ -914,7 +888,6 @@ function ChannelView({
       />
       <AnnotationSegment
         annotation={annotation}
-        handle="body"
         label={`${label}, parallel`}
         from={parallelStart}
         to={parallelEnd}
@@ -1088,8 +1061,7 @@ function creationHint(pending: PendingCreation | null, toolLabel: string | null)
   }
   return (
     'Click an annotation to select it · drag it or its handles · Shift while dragging an ' +
-    'endpoint snaps to 45° · Space picks it up for the arrow keys, where Shift means bigger ' +
-    'steps instead · Delete to remove · double-click a comment to edit'
+    'endpoint snaps to 45° · Delete to remove · double-click a comment to edit'
   );
 }
 
@@ -1211,9 +1183,8 @@ function LineChartAnnotationsContent() {
     setEditingId((prev) => (prev === id ? null : prev));
   });
 
-  // Delete acts on the selection wherever focus happens to be: the annotation that
-  // held it is the one about to be removed, and after a creation nothing holds it
-  // at all. Whatever is being typed into keeps its own Backspace.
+  // Delete acts on the selection wherever focus happens to be, since annotations
+  // can't take focus. Whatever is being typed into keeps its own Backspace.
   useIsoLayoutEffect(() => {
     const plot = plotRef.current;
     if (!plot || selectedId === null || editingId !== null) {

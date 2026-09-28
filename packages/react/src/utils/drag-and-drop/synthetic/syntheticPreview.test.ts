@@ -15,8 +15,6 @@ function createPreviewElement(
   isHost = true,
 ): DragPreviewElementHandle & { destroyed: boolean } {
   const element = document.createElement('div');
-  Object.defineProperty(element, 'offsetWidth', { value: width, configurable: true });
-  Object.defineProperty(element, 'offsetHeight', { value: height, configurable: true });
   element.getBoundingClientRect = () => new DOMRect(0, 0, width, height);
   return {
     element,
@@ -143,7 +141,7 @@ describe('syntheticPreview', () => {
     });
 
     it('re-anchors the preview when the offset is resolved after its content renders', () => {
-      // A `DragPreview` with an offset callback can only be measured once React has
+      // A `Draggable.Preview` with an offset callback can only be measured once React has
       // filled the host, which is after the engine placed it.
       const handle = createHandle(document.body);
       const preview = createPreviewElement();

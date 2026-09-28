@@ -4,8 +4,8 @@ import type { ResolvedDragPreview } from './synthetic/pickupPreview';
 
 /**
  * The active drag's preview handle, so the React layer can reach the element the
- * engine built for it — regardless of input mode — along with the settings the
- * sensor resolved it from, so React never resolves them a second time.
+ * engine built for it, along with the settings the sensor resolved it from, so
+ * React never resolves them a second time.
  */
 interface ActivePreviewSlot {
   handle: SyntheticPreviewHandle | null;

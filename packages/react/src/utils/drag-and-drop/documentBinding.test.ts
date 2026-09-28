@@ -8,7 +8,7 @@ import { createEventRootBinding } from './documentBinding';
 setupDragEngineTests();
 
 /**
- * Mount an iframe and return its document/window. The sensors bind their
+ * Mount an iframe and return its document/window. The pointer sensor binds its
  * listeners per owner document, so registering a draggable inside the iframe
  * must install (and later remove) listeners there, not on the top window.
  */
@@ -18,7 +18,7 @@ function createIframeRealm(): { doc: Document; win: Window } {
   registerCleanup(() => iframe.remove());
   const doc = iframe.contentDocument!;
   const win = iframe.contentWindow!;
-  // jsdom documents don't implement elementFromPoint; the sensors call it on the
+  // jsdom documents don't implement elementFromPoint; the sensor calls it on the
   // owner document during pickup (mirrors the stub the polyfill installs on the
   // top document).
   doc.elementFromPoint = () => null;

@@ -146,9 +146,10 @@ export type DraggableConfig<TPayload = undefined, TDragData = unknown> = {
   /** Whether the React layer has disabled runtime style elements. @internal */
   disableStyleElements?: boolean | undefined;
   /**
-   * The data attached to this item, available as `eventDetails.source.payload` in every
-   * drag event and drop target handler. Its type comes from `kind`, and it is required
-   * when the kind declares one.
+   * The data attached to this item, available as `source.payload` wherever the item is
+   * passed to your code: on the event details of every drag handler, in a drop target's
+   * `canDrop`, and in the preview. Its type comes from `kind`, and it is required when
+   * the kind declares one.
    */
   // Optional here so the requirement lives at the public boundaries:
   // `Draggable.Root.Props` re-imposes it with a conditional type, and

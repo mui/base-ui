@@ -9,6 +9,7 @@ import {
   splitEnd,
 } from '../../../../test/dnd';
 import { cancelDrag } from '../cancelDrag';
+import { notifyExternalScroll } from '../activePointer';
 import { WindowAnimationFrame } from '../../windowAnimationFrame';
 import { dragSessionStore } from '../dragSessionStore';
 import type { DraggableRootModifier } from '../../../draggable/root/DraggableRoot';
@@ -888,7 +889,7 @@ describe('syntheticDrag sensor', () => {
 
     penDown(trigger, 50, 50);
     await flushRaf();
-    // Not at pointerdown: the veto waits for the activation modifier.
+    // Not at pointerdown: the veto waits for the activation threshold.
     expect(onBeforeMoveStart).not.toHaveBeenCalled();
 
     penMove(60, 50); // 10px from origin — clears the 5px distance threshold
@@ -2887,7 +2888,7 @@ describe('syntheticDrag sensor', () => {
       // A scroll inside a shadow root doesn't compose, so the document capture
       // listener never sees it; the auto-scroller reports it through this hook.
       state.hit = tgtB;
-      syntheticSensor.notifyExternalScroll();
+      notifyExternalScroll();
       await flushRaf();
       await flushRaf();
 
@@ -2898,7 +2899,7 @@ describe('syntheticDrag sensor', () => {
     });
 
     it('notifyExternalScroll() is a no-op with no active pointer drag', () => {
-      expect(() => syntheticSensor.notifyExternalScroll()).not.toThrow();
+      expect(() => notifyExternalScroll()).not.toThrow();
     });
 
     it.each([false, true])(

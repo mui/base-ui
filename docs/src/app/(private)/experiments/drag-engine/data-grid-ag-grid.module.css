@@ -150,10 +150,7 @@
 
 /* Drag preview ---------------------------------------------------------- */
 
-/*
- * `DragPreview` content, rendered in the `Draggable.Provider` that wraps the
- * grid — OUTSIDE `.root`, so the element carries `theme.tokens` itself.
- */
+/* `Draggable.Preview` content, inserted next to the dragged header cell or row. */
 .preview {
   display: inline-flex;
   align-items: center;

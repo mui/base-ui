@@ -113,11 +113,6 @@ export interface DropPreview {
   allDay: boolean;
   /** What the drop will actually do — informs the preview outline and label. */
   intent: 'move' | 'resize' | 'create';
-  /**
-   * For resize-only previews, which edge is being dragged. Lets the preview
-   * draw the correct edge highlight and the reducer pick the right field.
-   */
-  edge?: 'start' | 'end';
 }
 
 // -----------------------------------------------------------------------------
@@ -128,8 +123,6 @@ export type CalendarAction =
   | { type: 'MOVE_EVENT'; id: EventId; newStart: number; newAllDay?: boolean }
   | { type: 'RESIZE_EVENT'; id: EventId; edge: 'start' | 'end'; newTime: number }
   | { type: 'CREATE_EVENT'; event: CalendarEvent }
-  | { type: 'DELETE_EVENT'; id: EventId }
-  | { type: 'UPDATE_EVENT'; id: EventId; patch: Partial<CalendarEvent> }
   | { type: 'RESET'; state: CalendarState };
 
 export function calendarReducer(state: CalendarState, action: CalendarAction): CalendarState {
@@ -167,9 +160,8 @@ export function calendarReducer(state: CalendarState, action: CalendarAction): C
         // The preview already supplies an exclusive end boundary.
         nextEnd = event.allDay ? startOfDay(action.newTime) : action.newTime;
       }
-      // Clamp: if the dragged edge crossed the other one, swap so the event
-      // stays valid (duration > 0). Resizing past the opposite edge "flips"
-      // the gesture into shrinking from the other side.
+      // Clamp: if the dragged edge crossed the other one, keep a minimum duration
+      // (one day, or `MIN_TIMED_DURATION_MS`) so the event stays valid.
       if (nextEnd <= nextStart) {
         if (event.allDay) {
           // Force a 1-day minimum for all-day events.
@@ -200,29 +192,6 @@ export function calendarReducer(state: CalendarState, action: CalendarAction): C
       return {
         events: { ...state.events, [action.event.id]: action.event },
         order: [...state.order, action.event.id],
-      };
-    }
-
-    case 'DELETE_EVENT': {
-      if (!state.events[action.id]) {
-        return state;
-      }
-      const nextEvents = { ...state.events };
-      delete nextEvents[action.id];
-      return {
-        events: nextEvents,
-        order: state.order.filter((id) => id !== action.id),
-      };
-    }
-
-    case 'UPDATE_EVENT': {
-      const event = state.events[action.id];
-      if (!event) {
-        return state;
-      }
-      return {
-        ...state,
-        events: { ...state.events, [action.id]: { ...event, ...action.patch } },
       };
     }
 
@@ -286,12 +255,6 @@ export function diffDays(aMs: number, bMs: number): number {
 
 export function isSameDay(aMs: number, bMs: number): boolean {
   return startOfDay(aMs) === startOfDay(bMs);
-}
-
-export function clampToDay(ms: number, dayMs: number): number {
-  const dayStart = startOfDay(dayMs);
-  const dayEnd = dayStart + DAY_MS;
-  return Math.max(dayStart, Math.min(dayEnd - MINUTE_MS, ms));
 }
 
 export function snapToMinutes(ms: number, stepMinutes: number): number {
@@ -442,8 +405,8 @@ export function createSeedState(today: number): CalendarState {
 // -----------------------------------------------------------------------------
 
 /**
- * Read the drop target the engine reports as innermost and turn it into a
- * concrete (start, end, allDay) suggestion the reducer can apply. No DOM
+ * Turn the drop target under the pointer into a concrete (start, end, allDay)
+ * suggestion the reducer can apply. No DOM
  * measurement and no rounding here: the day columns declare `snap`, so
  * `getSnappedLocalPoint` hands back an on-grid fraction from the rect the
  * engine measured to resolve the target.
@@ -528,7 +491,6 @@ export function resolveDropPreview(
           end: sourcePayload.anchorEnd,
           allDay: sourcePayload.allDay,
           intent: 'resize',
-          edge: 'start',
         };
       }
       const end = Math.max(addDays(time, 1), addDays(sourcePayload.anchorStart, 1));
@@ -537,7 +499,6 @@ export function resolveDropPreview(
         end,
         allDay: sourcePayload.allDay,
         intent: 'resize',
-        edge: 'end',
       };
     }
     if (calAllDayRowKind.matches(innermost)) {
@@ -549,11 +510,10 @@ export function resolveDropPreview(
           end: sourcePayload.anchorEnd,
           allDay: true,
           intent: 'resize',
-          edge: 'start',
         };
       }
       const end = Math.max(addDays(time, 1), addDays(sourcePayload.anchorStart, 1));
-      return { start: sourcePayload.anchorStart, end, allDay: true, intent: 'resize', edge: 'end' };
+      return { start: sourcePayload.anchorStart, end, allDay: true, intent: 'resize' };
     }
     if (calDayColumnKind.matches(innermost)) {
       const pointerMs = timedMsAt(targetDayMs);
@@ -564,7 +524,6 @@ export function resolveDropPreview(
           end: sourcePayload.anchorEnd,
           allDay: false,
           intent: 'resize',
-          edge: 'start',
         };
       }
       const end = Math.max(pointerMs, sourcePayload.anchorStart + MIN_TIMED_DURATION_MS);
@@ -573,7 +532,6 @@ export function resolveDropPreview(
         end,
         allDay: false,
         intent: 'resize',
-        edge: 'end',
       };
     }
     return null;
@@ -653,28 +611,25 @@ export function layoutWeekSegments(
       return b.end - a.end;
     });
 
-  const tracks: { eventId: EventId; endCol: number }[] = [];
+  // The last column each track is occupied up to.
+  const trackEndCols: number[] = [];
   const segments: WeekEventSegment[] = [];
 
   for (const event of visible) {
     const startMs = Math.max(event.start, weekStartMs);
     const endMs = Math.min(event.end, weekEndMs);
     const startCol = Math.max(0, Math.min(6, diffDays(startMs, weekStartMs)));
-    // For all-day, end is exclusive midnight. For timed, count by
-    // last-day-with-content using `end - 1ms`.
-    const lastDay = event.allDay
-      ? diffDays(endMs - 1, weekStartMs)
-      : diffDays(endMs - 1, weekStartMs);
+    // The end is exclusive (midnight for all-day), so count the last day with
+    // content using `end - 1ms`.
+    const lastDay = diffDays(endMs - 1, weekStartMs);
     const endCol = Math.max(startCol, Math.min(6, lastDay));
     const span = endCol - startCol + 1;
 
-    let track = tracks.findIndex((t) => t.endCol < startCol);
+    let track = trackEndCols.findIndex((trackEndCol) => trackEndCol < startCol);
     if (track === -1) {
-      track = tracks.length;
-      tracks.push({ eventId: event.id, endCol });
-    } else {
-      tracks[track] = { eventId: event.id, endCol };
+      track = trackEndCols.length;
     }
+    trackEndCols[track] = endCol;
 
     segments.push({
       eventId: event.id,
@@ -694,16 +649,15 @@ export function layoutWeekSegments(
 
 export interface CalendarViewContextValue {
   events: CalendarEvent[];
-  eventsRef: React.RefObject<CalendarEvent[]>;
   dispatch: React.Dispatch<CalendarAction>;
   /** Snap granularity in minutes, applied to timed drags. */
   snapMinutes: number;
   weekStartsOn: 0 | 1;
-  /** Pixels per hour in the week view. Constant for now. */
+  /** Pixels per hour in the week view. */
   hourPx: number;
   /**
    * Captured at the experiment's mount so render code can compare without
-   * calling `Date.now()` (flagged as impure). Updates on Reset.
+   * calling `Date.now()` (flagged as impure). Updates on Today and Reset.
    */
   todayMs: number;
   dropPreview: DropPreview | null;
@@ -756,21 +710,4 @@ export function formatRange(startMs: number, endMs: number, allDay: boolean): st
     return `${formatTime(startMs)} – ${formatTime(endMs)}`;
   }
   return `${RANGE_FORMATTER.format(startMs)} ${formatTime(startMs)} – ${RANGE_FORMATTER.format(endMs)} ${formatTime(endMs)}`;
-}
-
-export function formatDuration(ms: number): string {
-  const totalMin = Math.max(0, Math.round(ms / MINUTE_MS));
-  if (totalMin >= 24 * 60) {
-    const days = Math.round(ms / DAY_MS);
-    return `${days}d`;
-  }
-  const h = Math.floor(totalMin / 60);
-  const m = totalMin % 60;
-  if (h === 0) {
-    return `${m}m`;
-  }
-  if (m === 0) {
-    return `${h}h`;
-  }
-  return `${h}h ${m}m`;
 }

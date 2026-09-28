@@ -122,8 +122,8 @@ const RELEASED = { button: 0, buttons: 0 };
 const DRAG_ACTIVATION_DISTANCE_PX = 6;
 
 // The source element of the active drag. Mouse move/up events are dispatched
-// here because the engine binds its active-phase listeners to the pointerdown
-// target.
+// here and propagate to the document and window, where the engine's
+// active-phase listeners live.
 let dragSource: HTMLElement | null = null;
 // What `document.elementFromPoint` resolves to — the element under the pointer.
 let hitTarget: Element | null = null;

@@ -113,7 +113,7 @@ describe('Draggable.Target', () => {
 
   it('forwards every engine parameter to the registration', async () => {
     // The component relists each parameter by hand into a cast object, so a dropped
-    // entry is invisible to the type checker. `onMoveStart` is absent here: it only
+    // entry is invisible to the type checker. `onDraggableStart` is absent here: it only
     // fires for a source nested inside the target, which the next test pins.
     const calls: string[] = [];
     const record = (name: string) => () => {
@@ -178,8 +178,8 @@ describe('Draggable.Target', () => {
     }
   });
 
-  it('receives onMoveStart for a source nested inside it, and not for one outside', async () => {
-    // A target only sees `onMoveStart` when it is already in the stack as the
+  it('receives onDraggableStart for a source nested inside it, and not for one outside', async () => {
+    // A target only sees `onDraggableStart` when it is already in the stack as the
     // drag begins, which is exactly the nested-source case. Existing coverage
     // supplied the callback without ever pinning that it fires.
     const nestedStart = vi.fn();
@@ -324,10 +324,9 @@ describe('Draggable.Target', () => {
   });
 
   it('resolves the new params when a hovered target remounts with changed params in one commit', async () => {
-    // A key swap plus a param change land in the same commit: the new node's
-    // registration is read by the mid-drag refresh before the params ref has been
-    // committed by its layout effect, which is exactly the window the
-    // `next ?? current` getter fallback covers.
+    // A key swap plus a param change land in the same commit: the new node
+    // registers mid-drag, and the refresh that resolves it must read the new
+    // render's params rather than the previous ones.
     const enterBefore = vi.fn();
     const enterAfter = vi.fn();
     const log: string[] = [];
@@ -654,7 +653,7 @@ describe('Draggable.Target', () => {
   });
 
   it('a hovered target disabled mid-drag leaves the stack without pointer movement, and re-enters on re-enable', async () => {
-    // A `disabled` flip triggers an eager `refreshDropTargets()` from a layout
+    // A `disabled` flip schedules an eager drop-target refresh from a layout
     // effect: with a stationary pointer there is no next move to re-resolve on,
     // so the flip itself must deliver the leave (and the re-enable the enter).
     const onDraggableEnter = vi.fn();

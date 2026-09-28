@@ -127,7 +127,7 @@ export function attachDragPreview(
     resolveDragPreviewOffset(settings.offset, {
       container: previewElement.element,
       // The rect the preview actually occupies: for a transformed source this is the
-      // untransformed box the clone is anchored on (see `createDragPreviewElement`),
+      // untransformed box the clone is anchored on (see `measurePreviewSource`),
       // not the transformed one `getBoundingClientRect` reports, so the clone lifts off
       // exactly where the source sits.
       sourceRect: previewElement.sourceRect,

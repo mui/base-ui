@@ -12,10 +12,7 @@ import { getSharedSlot } from './sharedState';
 import { containConsumerError } from './utils';
 
 /** A getter for a monitor's latest parameters, read fresh on each dispatch. */
-type MonitorGetter<TSourcePayload = any, TDragData = any> = () => RegisterMonitorParameters<
-  TSourcePayload,
-  TDragData
->;
+type MonitorGetter = () => RegisterMonitorParameters<any, any>;
 
 interface MatchedMonitor {
   /** The parameters object the getter returned, to tell a fresh one from the last. */
@@ -25,6 +22,7 @@ interface MatchedMonitor {
 }
 
 interface MonitorState {
+  /** The monitor registry: a getter per monitor for its latest parameters. */
   allMonitors: Set<MonitorGetter>;
   /** Monitor getters observing the current drag (their `accept` matched). */
   activeMonitors: Set<MonitorGetter>;
@@ -51,9 +49,6 @@ function rememberMatchedMonitor(getMonitor: MonitorGetter, parameters: RegisterM
     state.matchedMonitors.set(getMonitor, { parameters, snapshot: { ...parameters } });
   }
 }
-
-/** The monitor registry: a getter per monitor for its latest parameters. */
-export const monitorRegistry = state.allMonitors;
 
 /**
  * Evaluate a just-registered monitor against an in-progress drag so it observes

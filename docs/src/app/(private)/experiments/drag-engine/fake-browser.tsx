@@ -179,7 +179,6 @@ interface BookmarkBarContextValue {
   getMoveValidity: (sourceId: string, parentId: ParentId, index: number) => MoveValidity;
   moveNode: (sourceId: string, parentId: ParentId, index: number) => void;
   setMenuOpen: (id: string, open: boolean) => void;
-  resolveFocusTarget: (id: string) => HTMLElement | null;
   editNode: (id: string) => void;
   deleteNode: (id: string) => void;
   cutNode: (id: string) => void;
@@ -272,13 +271,11 @@ function useOverflowCount(
 
 function DropZone({
   intent,
-  label: _label,
   className,
   onDraggableEnter,
   onDraggableLeave,
 }: {
   intent: DropIntent;
-  label: string;
   className: string;
   onDraggableEnter?: (() => void) | undefined;
   onDraggableLeave?: (() => void) | undefined;
@@ -303,12 +300,10 @@ function DropZone({
 
 function FolderDropZone({
   intent,
-  label,
   className,
   folderId,
 }: {
   intent: DropIntent;
-  label: string;
   className: string;
   folderId: string;
 }) {
@@ -322,7 +317,6 @@ function FolderDropZone({
   return (
     <DropZone
       intent={intent}
-      label={label}
       className={className}
       onDraggableEnter={handleDragEnter}
       onDraggableLeave={handleDragLeave}
@@ -364,11 +358,7 @@ function DropZones({
       data-folder={node.type === 'folder' ? '' : undefined}
       aria-hidden="true"
     >
-      <DropZone
-        intent={beforeIntent}
-        label={`Place before ${node.name}`}
-        className={styles.dropBefore}
-      />
+      <DropZone intent={beforeIntent} className={styles.dropBefore} />
       {node.type === 'folder' && (
         <FolderDropZone
           intent={{
@@ -377,16 +367,11 @@ function DropZones({
             index: tree.children[node.id]?.length ?? 0,
             surfaceId,
           }}
-          label={`Move into ${node.name}`}
           className={styles.dropInside}
           folderId={node.id}
         />
       )}
-      <DropZone
-        intent={afterIntent}
-        label={`Place after ${node.name}`}
-        className={styles.dropAfter}
-      />
+      <DropZone intent={afterIntent} className={styles.dropAfter} />
     </span>
   );
 }
@@ -951,7 +936,6 @@ function BrowserTabs({
                 <Draggable.Root<AcceptedBookmarkDragPayload>
                   kind={tabKind}
                   payload={tabPayloads[index]}
-                  activation={{ mouse: { type: 'distance', distance: 5 } }}
                   onBeforeMoveStart={handleBeforeDragStart}
                   onMoveStart={handleDragStart}
                   onMoveEnd={(eventDetails) => {
@@ -963,7 +947,6 @@ function BrowserTabs({
                       handleDragEnd();
                     }
                   }}
-
                   render={
                     <Draggable.Target<AcceptedBookmarkDragPayload, TabDropTargetPayload>
                       accept={acceptedTabKinds}
@@ -975,7 +958,7 @@ function BrowserTabs({
                         <button
                           type="button"
                           aria-label={tab.name}
-                          aria-keyshortcuts="Alt+Enter Alt+ArrowLeft Alt+ArrowRight Delete"
+                          aria-keyshortcuts="Alt+ArrowLeft Alt+ArrowRight Delete"
                           onKeyDown={handleKeyDown}
                         />
                       }
@@ -996,7 +979,6 @@ function BrowserTabs({
               >
                 ×
               </span>
-              <Draggable.Preview />
             </Tabs.Tab>
           );
         })}
@@ -1564,7 +1546,7 @@ function BookmarkBar() {
     },
   });
 
-  // Hovering a tab with a bookmark for a moment previews it in that tab.
+  // Hovering a tab with a bookmark for a moment switches to that tab.
   const replacementTabId = tabDropIntent?.type === 'replace' ? tabDropIntent.tabId : null;
   React.useEffect(() => {
     if (!replacementTabId) {
@@ -1906,7 +1888,6 @@ function BookmarkBar() {
       getMoveValidity: getValidity,
       moveNode: handleMoveNode,
       setMenuOpen,
-      resolveFocusTarget,
       editNode: handleEditNode,
       deleteNode: handleDeleteNode,
       cutNode: handleCutNode,
@@ -1927,7 +1908,6 @@ function BookmarkBar() {
       getValidity,
       handleMoveNode,
       setMenuOpen,
-      resolveFocusTarget,
       handleEditNode,
       handleDeleteNode,
       handleCutNode,

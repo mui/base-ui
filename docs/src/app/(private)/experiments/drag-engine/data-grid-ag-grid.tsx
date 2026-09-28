@@ -10,7 +10,7 @@ import { DragPageAutoScroll } from '../../../(docs)/react/utils/draggable/demos/
 import theme from './theme.module.css';
 import styles from './data-grid-ag-grid.module.css';
 
-// AG-Grid-style live reordering on the Plus pointer engine.
+// AG-Grid-style live reordering on the drag engine.
 //
 //   • Drag a column header sideways and the columns shift live (move/insert),
 //     committing the instant you cross a neighbour's edge (AG-Grid-style, not
@@ -271,8 +271,8 @@ function GridRow({
         >
           {row.cells.name}
         </Draggable.Preview>
-        {/* Rows initiate from the grip only, so cell text stays selectable. */}
-        <Draggable.Handle render={<span />} className={styles.rowGrip} aria-hidden>
+        {/* Rows initiate from the grip only. */}
+        <Draggable.Handle className={styles.rowGrip} aria-hidden>
           <Grip />
         </Draggable.Handle>
         {/* Spacers stand in for the unmounted columns either side of the window,
@@ -361,7 +361,7 @@ function DataGridInner() {
         and auto-scroll; the dragged row/column keeps its drag alive even when it scrolls out of
         view and unmounts.
       </p>
-      <p className={styles.meta} data-testid="window-meta">
+      <p className={styles.meta}>
         Rendered rows {start}–{end} of {rows.length} · columns {startCol}–{endCol} of{' '}
         {columns.length}
       </p>

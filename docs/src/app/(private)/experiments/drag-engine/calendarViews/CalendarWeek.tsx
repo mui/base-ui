@@ -237,7 +237,6 @@ function WeekAllDayCell(props: { dayMs: number }) {
         }
       }}
       className={styles.weekAllDayCell}
-      data-cal-allday-cell
     >
       {/* The drag source is the all-day cell itself; a clone of it would be a
           full-width preview. The in-grid drop preview shows the range being created. */}
@@ -264,9 +263,7 @@ function WeekAllDayBar(props: { event: CalendarEvent; segment: WeekEventSegment 
   return (
     <Draggable.Root
       kind={calEventMoveKind}
-      // An all-day bar only moves between days: ←/→ snap to the adjacent cell,
-      // vertical arrows do nothing (the timed grid refuses all-day drags).
-
+      // An all-day bar only moves between days: the timed grid refuses all-day drags.
       payload={movePayload}
       onMoveEnd={(eventDetails) => {
         if (eventDetails.target !== null) {
@@ -455,7 +452,6 @@ function WeekDayColumn(props: { dayMs: number; events: CalendarEvent[] }) {
         }
       }}
       className={styles.weekColumn}
-      data-cal-day-column
     >
       <Draggable.Preview offset="pointer">
         <div className={styles.dragPreview}>
@@ -567,9 +563,6 @@ function WeekResizeHandle(props: { event: CalendarEvent; edge: 'start' | 'end' }
     <Draggable.Root
       render={<span />}
       kind={calEventResizeKind}
-      // The handle is `aria-hidden`; without this it would still get
-      // `tabIndex={0}` — focusable but invisible to screen readers.
-
       payload={resizePayload}
       onMoveEnd={(eventDetails) => {
         if (eventDetails.target !== null) {
@@ -589,7 +582,7 @@ function WeekResizeHandle(props: { event: CalendarEvent; edge: 'start' | 'end' }
       aria-hidden="true"
     >
       <Draggable.Preview offset="pointer">
-        <div className={styles.dragPreview} data-intent="resize">
+        <div className={styles.dragPreview}>
           <div className={styles.dragPreviewTitle}>{event.title}</div>
           <div className={styles.dragPreviewMeta}>
             {edge === 'start' ? 'Resize start' : 'Resize end'}

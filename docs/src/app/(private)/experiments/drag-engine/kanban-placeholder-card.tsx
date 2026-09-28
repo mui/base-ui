@@ -167,10 +167,8 @@ function KanbanBoardContent() {
     },
   );
 
-  // @highlight-start
   Draggable.useMonitor({
     accept: cardKind,
-    // @highlight-end
     onMoveStart: (eventDetails) => {
       const { clientX, clientY } = eventDetails.location.current.input;
       const slot = computeSlot(clientX, clientY, columnElementsRef.current);
@@ -345,7 +343,6 @@ function DraggableCard({ card, columnId }: { card: Card; columnId: ColumnId }) {
   return (
     <Draggable.Root kind={cardKind} payload={payload} data-card className={styles.Card}>
       {card.title}
-      <Draggable.Preview />
     </Draggable.Root>
   );
 }

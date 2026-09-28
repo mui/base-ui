@@ -93,15 +93,13 @@ function findClosestColumn(clientX: number, elements: Map<ColumnId, HTMLElement>
 //   index 1..n-1      — between consecutive cards (midpoint of the gap)
 //   index n           — below the last card
 // For empty columns the only slot is the body's top edge.
-function computeSlotYs(columnEl: HTMLElement): number[] {
-  const body = columnEl.querySelector('[data-column-body]') as HTMLElement | null;
-  const scope = body ?? columnEl;
+function computeSlotYs(body: HTMLElement): number[] {
   const cardEls = Array.from(
-    scope.querySelectorAll<HTMLElement>('[data-card]:not([data-drag-preview])'),
+    body.querySelectorAll<HTMLElement>('[data-card]:not([data-drag-preview])'),
   );
 
   if (cardEls.length === 0) {
-    return [scope.getBoundingClientRect().top];
+    return [body.getBoundingClientRect().top];
   }
 
   const slotYs: number[] = [cardEls[0].getBoundingClientRect().top];
@@ -146,7 +144,7 @@ function computeIndicator(
     return null;
   }
   const bodyTop = body.getBoundingClientRect().top;
-  const { index, slotY } = findClosestSlot(computeSlotYs(columnEl), clientY);
+  const { index, slotY } = findClosestSlot(computeSlotYs(body), clientY);
   return { columnId, insertIndex: index, top: slotY - bodyTop };
 }
 
@@ -315,9 +313,8 @@ function DraggableCard({
   columnId: ColumnId;
   boundaryRef: React.RefObject<HTMLDivElement | null>;
 }) {
-  // No preview code: the engine clones the card, so the preview is the card
-  // itself (`.card[data-drag-preview]` only deepens its shadow), lifted from the
-  // grab point.
+  // The engine clones the card, so the preview is the card itself
+  // (`.card[data-drag-preview]` only adds a shadow), lifted from the grab point.
   const payload = React.useMemo(() => ({ id: card.id, fromColumn: columnId }), [card.id, columnId]);
   return (
     <Draggable.Root

@@ -99,9 +99,6 @@
   flex: none;
   border: 1px solid var(--dnd-border);
   background: var(--dnd-surface);
-
-  /* Focused only from code, to receive Delete once something is selected. */
-  outline: none;
 }
 
 /* ---------------------------------------------------------------------------
@@ -168,7 +165,6 @@
   transform-origin: 0 50%;
   pointer-events: auto;
   cursor: grab;
-  outline: none;
 }
 
 .segmentLine {
@@ -182,10 +178,6 @@
 
 .segmentSelected .segmentLine {
   border-top-width: 3px;
-}
-
-.segment:focus-visible {
-  outline: 2px solid var(--dnd-ink);
 }
 
 .segment[data-dragging] {
@@ -213,17 +205,11 @@
   background: var(--dnd-surface);
   pointer-events: auto;
   cursor: grab;
-  outline: none;
 }
 
 .handle:hover,
 .handle[data-dragging] {
   background: var(--dnd-ink);
-}
-
-.handle:focus-visible {
-  outline: 2px solid var(--dnd-ink);
-  outline-offset: 2px;
 }
 
 /* A box the size of the whole plot, clipped to the channel's parallelogram: the
@@ -275,7 +261,6 @@
   line-height: 1rem;
   pointer-events: auto;
   cursor: grab;
-  outline: none;
 }
 
 .commentBoxSelected {
@@ -285,11 +270,6 @@
 
 .commentBoxEditing {
   cursor: text;
-}
-
-.commentBox:focus-visible {
-  outline: 2px solid var(--dnd-ink);
-  outline-offset: 2px;
 }
 
 .commentText {

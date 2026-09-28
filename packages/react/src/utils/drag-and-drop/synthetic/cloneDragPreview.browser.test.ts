@@ -557,8 +557,8 @@ describe.skipIf(isJSDOM)('createDragPreviewElement (top layer)', () => {
 
   it('sizes the clone from the untransformed box of a transformed source', () => {
     // `getBoundingClientRect` includes the source's own transform (240×60 here),
-    // but the clone renders untransformed — the engine overwrites `transform` to
-    // position it — so it must be sized from `offsetWidth`/`offsetHeight`.
+    // but the clone renders with `transform` neutralized, so it must be sized from
+    // `offsetWidth`/`offsetHeight`.
     source.style.transform = 'scale(2)';
 
     const handle = createDragPreviewElement(source, null, true)!;
@@ -609,7 +609,7 @@ describe.skipIf(isJSDOM)('createDragPreviewElement (top layer)', () => {
 
     const handle = createDragPreviewElement(source, null, true)!;
 
-    // `scale` is not neutralized (unlike `translate` it composes around the box's
+    // `scale` is not neutralized (unlike `transform`, it composes around the box's
     // centre without displacing the anchor), so the clone re-applies it and looks
     // exactly like the element that was grabbed. That only works because the box
     // it applies to is the *untransformed* one — sizing from the transformed AABB
@@ -671,7 +671,7 @@ describe.skipIf(isJSDOM)('createDragPreviewElement (top layer)', () => {
   });
 
   it('drops the source transition and animation so the preview tracks the pointer', () => {
-    // Every frame writes `transform`; a source transition would ease each of
+    // Every frame writes `translate`; a source transition would ease each of
     // those writes and the preview would trail the pointer for the whole drag.
     source.style.transition = 'transform 200ms ease';
     source.style.animation = 'spin 1s linear infinite';

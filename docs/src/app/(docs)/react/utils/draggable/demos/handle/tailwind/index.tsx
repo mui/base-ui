@@ -11,7 +11,7 @@ const widgetKind = Draggable.createKind<string>('draggable/handle-widget');
 const WIDGET_CLASS =
   'box-border flex min-h-32 w-full flex-col border border-neutral-950 bg-white text-neutral-950 transition-opacity data-[dragging]:opacity-40 motion-safe:data-[drag-preview]:data-ending-style:transition-[translate] motion-safe:data-[drag-preview]:data-ending-style:duration-200 motion-safe:data-[drag-preview]:data-ending-style:ease-[cubic-bezier(0.2,0,0,1)] data-[drag-preview]:shadow-[0.25rem_0.25rem_0_rgb(0_0_0_/_12%)] dark:border-white dark:bg-neutral-950 dark:text-white dark:data-[drag-preview]:shadow-none focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-neutral-950 dark:focus-visible:outline-white';
 const HANDLE_CLASS =
-  'm-0 inline-flex shrink-0 cursor-grab items-center justify-center border-0 bg-transparent p-0 text-neutral-400 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-neutral-950 dark:text-neutral-500 dark:focus-visible:outline-white';
+  'inline-flex shrink-0 cursor-grab items-center justify-center text-neutral-400 dark:text-neutral-500';
 
 function Widget({
   widget,

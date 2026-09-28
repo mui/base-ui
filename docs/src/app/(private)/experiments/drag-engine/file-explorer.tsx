@@ -3,7 +3,7 @@ import { Draggable } from '@base-ui/react/draggable';
 
 import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import { DragPageAutoScroll } from './_components/DragPageAutoScroll';
+import { DragPageAutoScroll } from '../../../(docs)/react/utils/draggable/demos/DragPageAutoScroll';
 
 import { INITIAL_NODES, canDropInto, getChildren, getPath } from './file-explorer-data';
 import type { FileNode, FileSystem } from './file-explorer-data';
@@ -99,7 +99,6 @@ function FolderTile({
       className={styles.Item}
       onClick={() => onOpen(node.id)}
       onKeyDownCapture={handleKeyDown}
-      // @highlight-start
       render={
         <Draggable.Target
           accept={nodeKind}
@@ -107,7 +106,6 @@ function FolderTile({
           onDraggableDrop={(eventDetails) => onMove(eventDetails.source.payload, node.id)}
         />
       }
-      // @highlight-end
     >
       <FolderIcon className={styles.Icon} />
       <span className={styles.Label}>{node.name}</span>

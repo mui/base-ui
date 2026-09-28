@@ -6,10 +6,11 @@
  * window, where the engine's pending- and active-phase listeners live.
  * `setupDragEngineTests()` clears the latched target between tests.
  *
- * Touch helpers dispatch both pointer events and the corresponding touch
- * events a real browser fires alongside them (the engine's only touch listener
- * is the active-phase `touchmove` scroll guard). Pen helpers dispatch
- * pointer events only — pen drags ignore the iPadOS-synthesised touch stream.
+ * `touchUp` and `touchCancel` also dispatch the `touchend`/`touchcancel` a real
+ * browser fires alongside the pointer event. The other helpers dispatch pointer
+ * events only: the engine's only touch listener is the active-phase `touchmove`
+ * scroll guard, which tests dispatch themselves, and pen drags ignore the
+ * iPadOS-synthesised touch stream.
  *
  * Every dispatch is wrapped in `act` because tests mount a `Draggable.Provider`
  * that subscribes to the drag session store: a raw dispatch that starts or ends a
@@ -42,7 +43,7 @@ function pointerDown(
   x: number,
   y: number,
   pointerId: number,
-): PointerEvent {
+): void {
   touchDownTarget = target;
   const ev = new PointerEvent('pointerdown', {
     pointerType,
@@ -55,7 +56,6 @@ function pointerDown(
     cancelable: true,
   });
   dispatch(target, ev);
-  return ev;
 }
 
 function pointerMove(
@@ -63,7 +63,7 @@ function pointerMove(
   x: number,
   y: number,
   pointerId: number,
-): PointerEvent {
+): void {
   const ev = new PointerEvent('pointermove', {
     pointerType,
     pointerId,
@@ -76,7 +76,6 @@ function pointerMove(
     cancelable: true,
   });
   dispatch(getTouchDownTarget(), ev);
-  return ev;
 }
 
 function pointerUp(
@@ -106,12 +105,12 @@ function pointerCancel(pointerType: SyntheticPointerType, pointerId: number): vo
   dispatch(getTouchDownTarget(), pe);
 }
 
-export function touchDown(target: EventTarget, x: number, y: number, pointerId = 1): PointerEvent {
-  return pointerDown('touch', target, x, y, pointerId);
+export function touchDown(target: EventTarget, x: number, y: number, pointerId = 1): void {
+  pointerDown('touch', target, x, y, pointerId);
 }
 
-export function touchMove(x: number, y: number, pointerId = 1): PointerEvent {
-  return pointerMove('touch', x, y, pointerId);
+export function touchMove(x: number, y: number, pointerId = 1): void {
+  pointerMove('touch', x, y, pointerId);
 }
 
 function makeTouch(x: number, y: number, identifier = 1): Touch {
@@ -186,12 +185,12 @@ export function touchCancel(pointerId = 1): void {
   dispatchTouchEvent('touchcancel', 0, 0);
 }
 
-export function penDown(target: EventTarget, x: number, y: number, pointerId = 1): PointerEvent {
-  return pointerDown('pen', target, x, y, pointerId);
+export function penDown(target: EventTarget, x: number, y: number, pointerId = 1): void {
+  pointerDown('pen', target, x, y, pointerId);
 }
 
-export function penMove(x: number, y: number, pointerId = 1): PointerEvent {
-  return pointerMove('pen', x, y, pointerId);
+export function penMove(x: number, y: number, pointerId = 1): void {
+  pointerMove('pen', x, y, pointerId);
 }
 
 export function penUp(x: number, y: number, pointerId = 1): void {

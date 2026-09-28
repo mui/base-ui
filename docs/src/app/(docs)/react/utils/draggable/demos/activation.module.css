@@ -217,7 +217,6 @@
 .Puck {
   width: 3.5rem;
   height: 3.5rem;
-  border: 0;
   border-radius: 50%;
   background-color: oklch(14.5% 0 0deg);
   cursor: grab;
@@ -225,15 +224,6 @@
 
   @media (prefers-color-scheme: dark) {
     background-color: white;
-  }
-
-  &:focus-visible {
-    outline: 2px solid oklch(14.5% 0 0deg);
-    outline-offset: 4px;
-
-    @media (prefers-color-scheme: dark) {
-      outline-color: white;
-    }
   }
 
   &[data-dragging] {

@@ -11,7 +11,7 @@ import { DragPageAutoScroll } from '../../../(docs)/react/utils/draggable/demos/
 import theme from './theme.module.css';
 import styles from './data-grid-mui-x.module.css';
 
-// MUI X Data Grid–style reordering on the Plus pointer engine, contrasted with
+// MUI X Data Grid–style reordering on the drag engine, contrasted with
 // the AG-Grid demo. Nothing moves DURING the drag: the source dims and a single
 // thin drop-indicator line (vertical for columns, horizontal for rows) shows
 // where the item will land; the move COMMITS ON DROP.
@@ -393,12 +393,12 @@ function DataGridInner() {
       <h1 className={styles.title}>Data Grid — MUI X style</h1>
       <p className={styles.hint}>
         Drag a column header (dropping over any part of the grid, not just the header) or a row (by
-        its handle). Nothing moves during the drag: the source dims and a single blue line marks the
+        its handle). Nothing moves during the drag: the source dims and a single line marks the
         insertion point; the move commits on drop. The line snaps to gaps between items, so it never
         splits into two indicators side by side. Rows and columns are both windowed: only the
         visible slice is mounted, and dragging a column to either edge auto-scrolls sideways.
       </p>
-      <p className={styles.meta} data-testid="window-meta">
+      <p className={styles.meta}>
         Rendered rows {start}–{end} of {rows.length} · columns {startCol}–{endCol} of{' '}
         {columns.length}
       </p>

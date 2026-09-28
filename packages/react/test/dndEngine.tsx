@@ -124,9 +124,8 @@ function withAutoCleanup(engine: DraggableManager): DndTestEngine {
       // exercise kind matching have to declare one.
       const cleanup = registerSourceInternal<TPayload, TDragData>(element, () => {
         const declared = getParameters();
-        // The test-local payload union stays inference-friendly; the public alias
-        // adds a callable-value guard an unresolved `TPayload` can't satisfy
-        // structurally, so re-assert the parameter shape at the boundary.
+        // `testDragKind` declares no drag data, so it can't satisfy an open
+        // `TDragData`: re-assert the parameter shape at the boundary.
         return {
           ...declared,
           kind: declared.kind ?? testDragKind,
@@ -146,9 +145,9 @@ function withAutoCleanup(engine: DraggableManager): DndTestEngine {
         TestTargetParameters<TSourcePayload, TTargetPayload, TSourceDragData, TTargetDragData>
       >,
     ) => {
-      // Same as `registerSource` above: the public signature is overloaded so
-      // an explicit `TTargetPayload` requires a `payload`, but fixtures declare the
-      // type and omit the payload all the time.
+      // Same as `registerSource` above: the public signature requires a `payload`
+      // once `TTargetPayload` is declared, but fixtures declare the type and omit
+      // the payload all the time.
       const registerTargetInternal = engine.registerTarget as InternalDragEngine['registerTarget'];
       const getParameters = asGetter(parameters);
       const cleanup = registerTargetInternal<

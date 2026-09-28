@@ -148,7 +148,7 @@ export class DragEngineBase {
   };
 }
 
-export class DragEngineImpl extends DragEngineBase implements InternalDragEngine {
+class DragEngineImpl extends DragEngineBase implements InternalDragEngine {
   cancelDrag = cancelDrag;
 
   // The stateless primitives, re-exposed as methods (see `./registrations`).

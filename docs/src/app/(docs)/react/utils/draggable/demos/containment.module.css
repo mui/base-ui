@@ -158,8 +158,7 @@
   font-weight: 500;
 }
 
-.WidgetBody span,
-.OutsideSlot span {
+.WidgetBody span {
   color: oklch(55.6% 0 0deg);
   font-size: 0.75rem;
   line-height: 1rem;

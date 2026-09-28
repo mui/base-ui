@@ -14,11 +14,6 @@
   }
 }
 
-/*
- * CSS Modules demos revert Tailwind's preflight with `all: revert-layer`, which
- * also drops the page's font smoothing and renders text heavier than the
- * Tailwind variant. Restore it so both variants render text identically.
- */
 .Root,
 .Root * {
   font-synthesis: none;
@@ -104,8 +99,6 @@
   padding: 0.5rem 0.625rem;
   border: 1px solid oklch(14.5% 0 0deg);
   background-color: white;
-  /* Inherit the page font; CSS Modules demos revert Tailwind's preflight. */
-  font: inherit;
   font-size: 0.875rem;
   line-height: 1.25rem;
   color: oklch(14.5% 0 0deg);
@@ -127,15 +120,6 @@
       @media (prefers-color-scheme: dark) {
         background-color: oklch(26.9% 0 0deg);
       }
-    }
-  }
-
-  &:focus-visible {
-    outline: 2px solid oklch(14.5% 0 0deg);
-    outline-offset: -1px;
-
-    @media (prefers-color-scheme: dark) {
-      outline-color: white;
     }
   }
 

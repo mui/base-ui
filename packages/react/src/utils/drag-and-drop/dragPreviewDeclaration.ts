@@ -18,7 +18,7 @@ export interface DragPreviewDeclaration<TPayload = unknown, TDragData = unknown>
    * Resolves the preview content at drag start. Returning `null` or `false`
    * declines the preview for this drag.
    *
-   * `null` declares a clone of the source, which the engine builds without React.
+   * `render: null` declares a clone of the source, which the engine builds without React.
    * Read synchronously at drag start, before React can run — which is why the
    * choice lives here rather than being signalled by mounting.
    */

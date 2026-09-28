@@ -288,7 +288,6 @@ describe('Draggable.Viewport', () => {
         onDragScroll={(eventDetails) => {
           if (!shouldScroll(eventDetails)) {
             eventDetails.cancel();
-            return;
           }
         }}
       />,
@@ -323,7 +322,6 @@ describe('Draggable.Viewport', () => {
         onDragScroll={(eventDetails) => {
           if (!shouldScroll(eventDetails)) {
             eventDetails.cancel();
-            return;
           }
         }}
         data-testid="scroller"
@@ -392,7 +390,7 @@ describe('Draggable.Viewport', () => {
     expect(scrollBy).toHaveBeenCalled();
   });
 
-  // The scroll DELTA is `scroll{X,Y} * frameSpeed`, and `frameSpeed` derives
+  // The scroll DELTA is `depth * frameSpeed`, and `frameSpeed` derives
   // from the elapsed time between rAF timestamps. The jsdom rAF stub
   // (`test/setupVitest.ts`) passes `performance.now()`, so timestamps advance
   // there too and the nonzero-delta assertions carry meaning in both
@@ -406,7 +404,6 @@ describe('Draggable.Viewport', () => {
             const allowedDirection = 'horizontal';
             if (allowedDirection !== eventDetails.direction) {
               eventDetails.cancel();
-              return;
             }
           }}
           scrollByMock={scrollBy}
@@ -450,7 +447,6 @@ describe('Draggable.Viewport', () => {
           const allowedDirection = vertical(eventDetails);
           if (allowedDirection !== 'all' && allowedDirection !== eventDetails.direction) {
             eventDetails.cancel();
-            return;
           }
         }}
         scrollByMock={scrollBy}
@@ -476,7 +472,6 @@ describe('Draggable.Viewport', () => {
           const allowedDirection = horizontal(eventDetails);
           if (allowedDirection !== 'all' && allowedDirection !== eventDetails.direction) {
             eventDetails.cancel();
-            return;
           }
         }}
         scrollByMock={scrollBy}
@@ -538,7 +533,6 @@ describe('Draggable.Viewport', () => {
           onDragScroll={(eventDetails) => {
             if (!shouldScroll(eventDetails)) {
               eventDetails.cancel();
-              return;
             }
           }}
           scrollByMock={scrollBy}
@@ -561,7 +555,6 @@ describe('Draggable.Viewport', () => {
           onDragScroll={(eventDetails) => {
             if (!shouldScroll(eventDetails)) {
               eventDetails.cancel();
-              return;
             }
           }}
           scrollByMock={scrollBy}
@@ -588,7 +581,6 @@ describe('Draggable.Viewport', () => {
           onDragScroll={(eventDetails) => {
             if (!shouldScroll(eventDetails)) {
               eventDetails.cancel();
-              return;
             }
           }}
           scrollByMock={scrollBy}
@@ -801,7 +793,6 @@ describe('Draggable.Viewport', () => {
           onDragScroll={(eventDetails) => {
             if (!shouldScroll(eventDetails)) {
               eventDetails.cancel();
-              return;
             }
           }}
         />
@@ -832,7 +823,7 @@ describe('Draggable.Viewport', () => {
     fireDrag.drop(source);
   });
 
-  it('keeps registration stable across re-renders and uses the latest shouldScroll', async () => {
+  it('keeps registration stable across re-renders and uses the latest onDragScroll', async () => {
     const first = vi.fn<ShouldScrollFn>(() => true);
     const second = vi.fn<ShouldScrollFn>(() => false);
     const scrollBy = vi.fn();
@@ -841,7 +832,6 @@ describe('Draggable.Viewport', () => {
         onDragScroll={(eventDetails) => {
           if (!first(eventDetails)) {
             eventDetails.cancel();
-            return;
           }
         }}
         scrollByMock={scrollBy}
@@ -856,7 +846,6 @@ describe('Draggable.Viewport', () => {
         onDragScroll={(eventDetails) => {
           if (!second(eventDetails)) {
             eventDetails.cancel();
-            return;
           }
         }}
         scrollByMock={scrollBy}
@@ -888,7 +877,6 @@ describe('Draggable.Viewport', () => {
           onDragScroll={(eventDetails) => {
             if (!shouldScroll(eventDetails)) {
               eventDetails.cancel();
-              return;
             }
           }}
           scrollByMock={scrollBy}
@@ -913,7 +901,6 @@ describe('Draggable.Viewport', () => {
           onDragScroll={(eventDetails) => {
             if (!shouldScroll(eventDetails)) {
               eventDetails.cancel();
-              return;
             }
           }}
           scrollByMock={scrollBy}
@@ -935,7 +922,7 @@ describe('Draggable.Viewport', () => {
     });
 
     it('forwards maxSpeed to the engine', async () => {
-      // The root rebuilds the engine parameters by hand, so a prop dropped from
+      // The viewport rebuilds the engine parameters by hand, so a prop dropped from
       // that object still typechecks and still stays off the DOM — the sibling
       // test above would keep passing while the container silently reverted to
       // the default speed. The callback form proves it arrived.

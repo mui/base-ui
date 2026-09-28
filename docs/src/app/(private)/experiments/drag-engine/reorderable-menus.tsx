@@ -207,8 +207,8 @@ function ReorderableItem(props: ReorderableItemProps) {
     >
       <GripIcon className={styles.icon} />
       {entry.label}
-      {/* Constrain only the clone. The pointer must remain free so releasing
-          outside the popup can still cancel. */}
+      {/* Constrain only the clone. The pointer must remain free so a release
+          outside the popup lands on no target and restores the order. */}
       <Draggable.Preview modifiers={Draggable.restrictToElement(popupRef)} />
     </Item>
   );

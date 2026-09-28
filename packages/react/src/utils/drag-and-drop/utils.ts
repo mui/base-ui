@@ -177,7 +177,7 @@ export function normalizePointerType(raw: string | undefined): DraggablePointerT
   return 'mouse';
 }
 
-/** Build an `DraggableInput` snapshot from a pointer event. */
+/** Build a `DraggableInput` snapshot from a pointer event. */
 export function getInput(event: MouseEvent & { pointerType?: string | undefined }): DraggableInput {
   return {
     button: event.button,

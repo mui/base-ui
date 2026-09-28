@@ -10,13 +10,20 @@ import {
   fireDrag,
 } from '../../../test/dnd';
 import { useMonitor } from './useMonitor';
-import { monitorRegistry } from '../../utils/drag-and-drop/monitor';
+import { getSharedSlot } from '../../utils/drag-and-drop/sharedState';
 
 setupDragEngineTests();
 
 function Monitor(props: useMonitor.Parameters) {
   useMonitor(props);
   return null;
+}
+
+// The engine's monitor registry (see `monitor.ts`).
+function getMonitorRegistry(): ReadonlySet<unknown> {
+  return getSharedSlot<{ allMonitors: Set<unknown> }>('registerMonitor', () => {
+    throw new Error('The monitor state is not initialized.');
+  }).allMonitors;
 }
 
 describe('useMonitor', () => {
@@ -49,12 +56,12 @@ describe('useMonitor', () => {
     const firstOnDragStart = vi.fn();
     const secondOnDragStart = vi.fn();
     const { rerender, engine } = await renderDnd(<Monitor onMoveStart={firstOnDragStart} />);
-    const registrationsBefore = Array.from(monitorRegistry);
+    const registrationsBefore = Array.from(getMonitorRegistry());
 
     await rerender(<Monitor onMoveStart={secondOnDragStart} />);
 
     // Same getters, same order: the re-render did not re-register the monitor.
-    const registrationsAfter = Array.from(monitorRegistry);
+    const registrationsAfter = Array.from(getMonitorRegistry());
     expect(registrationsAfter.length).toBe(registrationsBefore.length);
     registrationsBefore.forEach((getter, index) => {
       expect(registrationsAfter[index]).toBe(getter);
@@ -77,14 +84,14 @@ describe('useMonitor', () => {
     // per hold.
     const onMoveStart = vi.fn();
     const onMoveEnd = vi.fn();
-    const sizeBefore = monitorRegistry.size;
+    const sizeBefore = getMonitorRegistry().size;
     const { engine } = await renderDnd(
       <React.StrictMode>
         <Monitor onMoveStart={onMoveStart} onMoveEnd={onMoveEnd} />
       </React.StrictMode>,
     );
 
-    expect(monitorRegistry.size).toBe(sizeBefore + 1);
+    expect(getMonitorRegistry().size).toBe(sizeBefore + 1);
 
     const el = createElement();
     engine.registerSource(el, {});

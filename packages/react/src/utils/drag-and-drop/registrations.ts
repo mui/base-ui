@@ -106,7 +106,7 @@ export function registerTarget<
 
   return onceCleanup(() => {
     // A hovered element must re-resolve *synchronously* so reactive subscribers,
-    // such as `Draggable.Target`'s `over` state, observe it leaving the stack. The
+    // such as `Draggable.Target`'s `dragOver` state, observe it leaving the stack. The
     // registry entry is deleted only after the refresh, so the lifecycle can still
     // dispatch this target's leave events as it drops out.
     //

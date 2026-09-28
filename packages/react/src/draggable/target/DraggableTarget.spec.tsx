@@ -72,16 +72,6 @@ function DefaultKindTarget(props: Draggable.Target.Props) {
   }}
 />;
 
-// A payload resolver infers from its return type, and sees the drag it is
-// deriving the payload from.
-<Draggable.Target
-  accept={Draggable.anyKind}
-  payload={{ over: Symbol() }}
-  onDraggableDrop={(eventDetails) => {
-    expectType<{ over: symbol }, typeof eventDetails.target.payload>(eventDetails.target.payload);
-  }}
-/>;
-
 // The payload need not be an object.
 <Draggable.Target
   accept={Draggable.anyKind}

@@ -350,24 +350,17 @@ describe('syntheticDrag activation', () => {
       x: number,
       y: number,
       buttons: number,
-      offsets?: { offsetX: number; offsetY: number },
     ): void {
       const event = new PointerEvent(type, {
         pointerType: 'mouse',
         pointerId: 11,
         clientX: x,
         clientY: y,
-        button: buttons === 0 ? 0 : 0,
+        button: 0,
         buttons,
         bubbles: true,
         cancelable: true,
       });
-      if (offsets) {
-        // jsdom does no layout, so `offsetX`/`offsetY` are always 0 — stand in for
-        // what a browser would report relative to the list's padding edge.
-        Object.defineProperty(event, 'offsetX', { value: offsets.offsetX });
-        Object.defineProperty(event, 'offsetY', { value: offsets.offsetY });
-      }
       act(() => {
         target.dispatchEvent(event);
       });
@@ -488,8 +481,8 @@ describe('syntheticDrag activation', () => {
       const { engine } = await renderDnd();
       const card = createElement();
       const inert = document.createElement('div');
-      // No scrollable overflow, so there is no gutter and the offsets below are
-      // measuring the element's borders — a border press is an ordinary press.
+      // No scrollable overflow, so there is no gutter and the guard's offsets would
+      // be measuring the element's borders — a border press is an ordinary press.
       Object.defineProperty(inert, 'clientWidth', { value: 0 });
       Object.defineProperty(inert, 'clientHeight', { value: 0 });
       card.appendChild(inert);

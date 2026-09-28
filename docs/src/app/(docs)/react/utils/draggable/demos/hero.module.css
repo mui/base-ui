@@ -28,7 +28,6 @@
   height: 2.5rem;
   border: 1px solid oklch(14.5% 0 0deg);
   background-color: white;
-  font: inherit;
   font-size: 0.875rem;
   line-height: 1.25rem;
   color: oklch(14.5% 0 0deg);
@@ -48,15 +47,6 @@
       @media (prefers-color-scheme: dark) {
         background-color: oklch(26.9% 0 0deg);
       }
-    }
-  }
-
-  &:focus-visible {
-    outline: 2px solid oklch(14.5% 0 0deg);
-    outline-offset: -1px;
-
-    @media (prefers-color-scheme: dark) {
-      outline-color: white;
     }
   }
 

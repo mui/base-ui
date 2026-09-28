@@ -36,16 +36,12 @@ function draggingClass(state: Draggable.Root.State) {
 
 function TestDraggable<TPayload = undefined>(props: {
   options?: Partial<Draggable.Root.Props<TPayload>>;
-  mounted?: boolean;
   testId?: string;
 }) {
-  const { options, mounted = true, testId = 'drag' } = props;
-  if (!mounted) {
-    return null;
-  }
-  // `Draggable.Root`'s overloads need `payload` to be statically present once
+  const { options, testId = 'drag' } = props;
+  // `Draggable.Root`'s props need `payload` to be statically present once
   // `TPayload` is declared. This helper forwards whatever a fixture hands it — most
-  // pass no payload at all — so widen past the overloads rather than making every
+  // pass no payload at all — so widen past the props type rather than making every
   // fixture declare one. `kind` defaults to the shared test kind, and a fixture
   // exercising kind matching (or a typed payload) passes its own.
   const Root = Draggable.Root as React.ComponentType<any>;
@@ -286,11 +282,11 @@ describe('Draggable.Root', () => {
   });
 
   it('keeps the registration stable across re-renders and calls the latest callbacks', async () => {
-    const firstOnDragStart = vi.fn();
-    const secondOnDragStart = vi.fn();
+    const firstOnMoveStart = vi.fn();
+    const secondOnMoveStart = vi.fn();
 
     const { rerender } = await renderDnd(
-      <TestDraggable options={{ onMoveStart: firstOnDragStart }} />,
+      <TestDraggable options={{ onMoveStart: firstOnMoveStart }} />,
     );
     const source = screen.getByTestId('drag');
     // Registration applies the gesture styles, which prove the element is registered.
@@ -304,7 +300,7 @@ describe('Draggable.Root', () => {
     // Re-render with a brand-new onMoveStart function reference. The
     // registration must NOT tear down and re-register — only the wrapped
     // callback should read the fresh prop.
-    await rerender(<TestDraggable options={{ onMoveStart: secondOnDragStart }} />);
+    await rerender(<TestDraggable options={{ onMoveStart: secondOnMoveStart }} />);
     // Same DOM node, still registered — no re-registration happened.
     expect(screen.getByTestId('drag')).toBe(source);
     expect(source.style.touchAction).toBe('manipulation');
@@ -315,13 +311,13 @@ describe('Draggable.Root', () => {
     fireDrag.dragStart(source);
     await flushRaf();
 
-    expect(firstOnDragStart).not.toHaveBeenCalled();
-    expect(secondOnDragStart).toHaveBeenCalledTimes(1);
+    expect(firstOnMoveStart).not.toHaveBeenCalled();
+    expect(secondOnMoveStart).toHaveBeenCalledTimes(1);
   });
 
   it('does not expose parameters from a suspended render', async () => {
-    const committedOnDragStart = vi.fn();
-    const suspendedOnDragStart = vi.fn();
+    const committedOnMoveStart = vi.fn();
+    const suspendedOnMoveStart = vi.fn();
     const never = new Promise<void>(() => {});
     const suspendedRender = vi.fn();
 
@@ -345,7 +341,7 @@ describe('Draggable.Root', () => {
           </button>
           <React.Suspense fallback="Loading">
             <TestDraggable
-              options={{ onMoveStart: suspend ? suspendedOnDragStart : committedOnDragStart }}
+              options={{ onMoveStart: suspend ? suspendedOnMoveStart : committedOnMoveStart }}
             />
             {suspend && <SuspendingChild />}
           </React.Suspense>
@@ -361,8 +357,8 @@ describe('Draggable.Root', () => {
     fireDrag.dragStart(screen.getByTestId('drag'));
     await flushRaf();
 
-    expect(committedOnDragStart).toHaveBeenCalledTimes(1);
-    expect(suspendedOnDragStart).not.toHaveBeenCalled();
+    expect(committedOnMoveStart).toHaveBeenCalledTimes(1);
+    expect(suspendedOnMoveStart).not.toHaveBeenCalled();
   });
 
   it('re-registers when the element behind the ref is swapped without remounting', async () => {
@@ -469,7 +465,6 @@ describe('Draggable.Root', () => {
           data-tick={tick}
           className={draggingClass}
           onMoveEnd={splitEnd(onDrop, onMoveEnd)}
-
           ref={(node) => {
             void node;
           }}
@@ -949,9 +944,9 @@ describe('Draggable.Root', () => {
   });
 
   describe('default clone preview', () => {
-    function PlainDraggable(props: { options?: Partial<Draggable.Root.Props> }) {
+    function PlainDraggable() {
       return (
-        <Draggable.Root kind={testDragKind} {...props.options} data-testid="drag" className="Card">
+        <Draggable.Root kind={testDragKind} data-testid="drag" className="Card">
           Card
         </Draggable.Root>
       );
@@ -1361,11 +1356,10 @@ describe('Draggable.Root', () => {
       options?: Partial<Draggable.Root.Props<any>>;
       preview?: Draggable.Preview.Props['children'];
       previewProps?: Omit<Draggable.Preview.Props, 'children'>;
-      testId?: string;
     }) {
-      const { options, preview, previewProps, testId = 'drag' } = props;
+      const { options, preview, previewProps } = props;
       return (
-        <Draggable.Root kind={testDragKind} {...options} data-testid={testId}>
+        <Draggable.Root kind={testDragKind} {...options} data-testid="drag">
           <Draggable.Preview {...previewProps}>{preview}</Draggable.Preview>
         </Draggable.Root>
       );

@@ -770,8 +770,8 @@ export function dispatchDropTargetLeave(
 }
 
 /**
- * Dispatch `onTargetChange` to every previous and current target, plus
- * `onDraggableLeave` for targets that left and `onDraggableEnter` for targets that entered.
+ * Dispatch `onDraggableLeave` to the targets that left and `onDraggableEnter` to the
+ * targets that entered.
  *
  * `shouldContinue` is re-checked before every delivery: a handler can cancel the
  * drag re-entrantly, and the remaining targets must then receive nothing, as the

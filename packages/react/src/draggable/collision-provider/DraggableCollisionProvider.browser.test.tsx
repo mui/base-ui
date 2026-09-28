@@ -53,7 +53,7 @@ describe.skipIf(isJSDOM)('Draggable.CollisionProvider (real hit testing)', () =>
     const first = changed.mock.lastCall![0];
     expect(first.target.getLocalPoint()).toEqual({ x: 0.5, y: 0.2 });
     expect(first.target.getSnappedLocalPoint().y).toBe(0.25);
-    expect(changed.mock.lastCall![0].previousTarget).toBeNull();
+    expect(first.previousTarget).toBeNull();
 
     firePointer.move(source, { ...pointer, clientY: 430, timeStamp: 200 });
     await flushRaf();

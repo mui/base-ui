@@ -81,7 +81,6 @@ interface Card {
 }
 
 interface CardDragPayload {
-  id: string;
   /** Where inside the card the pointer grabbed, in client pixels. */
   grabOffsetX: number;
   grabOffsetY: number;
@@ -475,24 +474,19 @@ function BoardCard({
     <Draggable.Root
       ref={cardRef}
       kind={cardKind}
+      payload={card.id}
       // Capture where in the card the pointer grabbed (client px). The drop maps it
       // back to a surface position from a fresh surface rect, so it stays correct
       // even when auto-scroll moves the board mid-drag.
-      payload={card.id}
       onMoveStart={(eventDetails) => {
         const rect = eventDetails.source.element.getBoundingClientRect();
         eventDetails.source.updateDragData({
-          id: card.id,
           grabOffsetX: eventDetails.location.initial.input.clientX - rect.left,
           grabOffsetY: eventDetails.location.initial.input.clientY - rect.top,
         });
       }}
       disabled={editing}
       data-compensate-preview={compensatePreview ? '' : undefined}
-      // Distance activation instead of the `immediate` mouse default: a plain click
-      // — and the second click of a double-click-to-edit — must not be swallowed by
-      // a drag that commits on pointerdown. A real drag still starts after a 5px move.
-      activation={{ mouse: { type: 'distance', distance: 5 } }}
       // Clamp the drag to the surface. A modifier
       // governs drop resolution too, so a release off the board resolves the
       // surface instead of cancelling. The surface rect is client-space, so this

@@ -1148,7 +1148,7 @@ describe('lifecycle manager', () => {
       });
     });
 
-    it('every drag handler receives the details object', async () => {
+    it("reports each drag handler's reason on its details", async () => {
       const { engine } = await renderDnd();
       const el = createElement();
       const target = createElement();

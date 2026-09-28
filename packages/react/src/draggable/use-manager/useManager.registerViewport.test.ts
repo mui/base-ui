@@ -477,7 +477,7 @@ describe('engine.registerViewport', () => {
     expect(eventDetails.isConsumed).toBe(false);
   });
 
-  it('keeps a custom surface engaged when its handler only prevents the default', async () => {
+  it('keeps a custom surface engaged when its handler only cancels', async () => {
     const { engine } = await renderDnd();
     const source = createElement();
     // No native overflow at all: a canvas that pans itself.
@@ -490,8 +490,8 @@ describe('engine.registerViewport', () => {
       onDragScroll(eventDetails) {
         eventDetails.cancel();
         deltas.push(eventDetails.y);
-        // The documented "canvas with bounds" pattern: propagation stops only
-        // once the surface actually moved, which needs a non-zero delta first.
+        // The documented "canvas with bounds" pattern: it consumes only once the
+        // surface actually moved, which needs a non-zero delta first.
         if (eventDetails.y !== 0) {
           eventDetails.consume();
         }
@@ -610,8 +610,8 @@ describe('engine.registerViewport', () => {
     expect(() => cleanup()).not.toThrow();
   });
 
-  // A scroller the loop can actually engage: a real overflow container (so
-  // `isOverflowElement` accepts it) with room to scroll down, sitting under the
+  // A scroller the loop can actually engage: a real overflow container (so the
+  // loop's overflow gate accepts it) with room to scroll down, sitting under the
   // pointer's bottom edge zone.
   function makeEngageableScroller(): HTMLElement {
     const scroller = createElement({ top: 0, height: 200, left: 0, width: 200 });
@@ -683,7 +683,7 @@ describe('engine.registerViewport', () => {
 
     await driveIntoEdgeZone(source, scroller);
 
-    // Positive control for the `shouldScroll` / `cleanup` negatives below: with the
+    // Positive control for the `cancel()` / `cleanup` negatives below: with the
     // scroller genuinely overflowing and the pointer in its bottom edge zone, the
     // loop must fire `scrollBy` at least once.
     expect(scroller.scrollBy).toHaveBeenCalled();
@@ -722,13 +722,13 @@ describe('engine.registerViewport', () => {
       expect(sane.scrollBy).toHaveBeenCalled();
     } finally {
       // End the drag before restoring the spy so later loop frames can't call
-      // the throwing `shouldScroll` and log after the spy is gone.
+      // the throwing `onDragScroll` and log after the spy is gone.
       fireDrag.dragEnd();
       consoleError.mockRestore();
     }
   });
 
-  it('keeps other scrollers scrolling when a scroller throws after stopping propagation', async () => {
+  it('keeps other scrollers scrolling when a scroller throws after consuming', async () => {
     const { engine } = await renderDnd();
     const source = createElement();
     const buggy = makeEngageableScroller();
@@ -764,7 +764,7 @@ describe('engine.registerViewport', () => {
     const sane = makeEngageableScroller();
 
     engine.registerSource(source, {});
-    // The getter itself throws — before the engine can even read `shouldScroll`.
+    // The getter itself throws — before the engine can even read `onDragScroll`.
     engine.registerViewport(buggy, () => {
       throw new Error('getParameters boom');
     });
@@ -814,7 +814,7 @@ describe('engine.registerViewport', () => {
     expect(foreign.scrollBy).not.toHaveBeenCalled();
   });
 
-  it('preventDefault prevents native scrolling', async () => {
+  it('cancel() prevents native scrolling', async () => {
     const { engine } = await renderDnd();
     const source = createElement();
     const scroller = makeEngageableScroller();
@@ -829,7 +829,7 @@ describe('engine.registerViewport', () => {
     await driveIntoEdgeZone(source, scroller);
 
     // The pointer is in the edge zone of a real overflow container (the positive
-    // control above proves that engages the loop), so a non-call here is `shouldScroll`
+    // control above proves that engages the loop), so a non-call here is `cancel()`
     // suppressing it, not the loop never engaging.
     expect(scroller.scrollBy).not.toHaveBeenCalled();
   });
@@ -890,7 +890,6 @@ describe('engine.registerViewport', () => {
       onDragScroll: (eventDetails) => {
         if (!first(eventDetails)) {
           eventDetails.cancel();
-          return;
         }
       },
     });
@@ -898,7 +897,6 @@ describe('engine.registerViewport', () => {
       onDragScroll: (eventDetails) => {
         if (!second(eventDetails)) {
           eventDetails.cancel();
-          return;
         }
       },
     });
@@ -910,8 +908,8 @@ describe('engine.registerViewport', () => {
     expect(scrollByMock).toHaveBeenCalled();
     fireDrag.dragEnd();
 
-    // Releasing the second hold un-shadows the first, whose `shouldScroll: false`
-    // now suppresses the scroll the second allowed.
+    // Releasing the second hold un-shadows the first, whose `false` answer now
+    // cancels the scroll the second allowed.
     releaseSecond();
     first.mockClear();
     second.mockClear();
@@ -927,10 +925,7 @@ describe('engine.registerViewport', () => {
     const { engine } = await renderDnd();
     const source = createElement();
     // A delegating surface, whose `pan` would run every frame if the
-    // registration were still live (see the positive control above). Not a plain
-    // `overflow: auto` container: the ancestor walk infers one of those from the
-    // hit element whether or not it was ever registered, so its scrolling would
-    // outlive the cleanup and say nothing about the registry.
+    // registration were still live (see the positive control above).
     const surface = createElement({ top: 0, height: 200, left: 0, width: 200 });
     const pan = vi.fn();
 
@@ -1211,7 +1206,6 @@ describe('engine.registerViewport', () => {
         onDragScroll: (eventDetails) => {
           if (!pickyShouldScroll(eventDetails)) {
             eventDetails.cancel();
-            return;
           }
         },
       });
@@ -1448,7 +1442,6 @@ describe('engine.registerViewport', () => {
           const allowedDirection = 'vertical';
           if (allowedDirection !== eventDetails.direction) {
             eventDetails.cancel();
-            return;
           }
         },
       });
@@ -1515,7 +1508,7 @@ describe('engine.registerViewport', () => {
       Object.defineProperty(inner, 'clientHeight', { value: 200 });
       outer.element.appendChild(inner);
       registerCleanupElement(inner);
-      // Neither prevents the default nor stops propagation: the analytics-style
+      // Neither cancels nor consumes: the analytics-style
       // handler from the docs. It must not withhold the axis from the outer.
       const observe = vi.fn();
 
@@ -1625,9 +1618,8 @@ describe('engine.registerViewport', () => {
   });
 
   // ---------------------------------------------------------------------------
-  // Inferred scroll containers
+  // Explicit scroll containers
   // ---------------------------------------------------------------------------
-  //
   describe('explicit scroll containers', () => {
     interface ExplicitScroller {
       element: HTMLElement;
@@ -1930,7 +1922,6 @@ describe('engine.registerViewport', () => {
         onDragScroll: (eventDetails) => {
           if (!shouldScroll(eventDetails)) {
             eventDetails.cancel();
-            return;
           }
         },
       });
@@ -1998,10 +1989,9 @@ describe('engine.registerViewport', () => {
   // Page (viewport) scrolling
   // ---------------------------------------------------------------------------
   //
-  // The page is the outermost scroll container of every drag — the ancestor
-  // walk ends at the document root — and `document.documentElement` is also what
-  // an app registers to configure it. Either way the loop bypasses the overflow
-  // gate, measures the edge zones against the visual viewport, and scrolls
+  // The page scrolls only when an app registers `document.documentElement` (or a
+  // `body` that maps to it). The loop then reads the page's overflow rather than
+  // the element's, measures the edge zones against the viewport, and scrolls
   // through the scrolling element. These tests install deterministic
   // metrics on the shared documentElement (jsdom reports 0 for all of them and
   // implements no `scrollBy`) as configurable own properties, restored through
@@ -2306,7 +2296,6 @@ describe('engine.registerViewport', () => {
             const allowedDirection = 'vertical';
             if (allowedDirection !== eventDetails.direction) {
               eventDetails.cancel();
-              return;
             }
           },
         }),
@@ -2556,7 +2545,7 @@ describe('engine.registerViewport', () => {
     expect(scrollByMock).not.toHaveBeenCalled();
   });
 
-  it('stops the scroll loop when the drag is torn down without an onDrop to monitors', async () => {
+  it('stops the scroll loop when the drag is torn down without an onMoveEnd to monitors', async () => {
     const { engine } = await renderDnd();
     const source = createElement();
     // Scrollable container whose top edge zone (y < 50) engages the loop.
@@ -2579,7 +2568,7 @@ describe('engine.registerViewport', () => {
 
     // An abnormal end — a consumer callback throwing — tears the lifecycle down
     // via `reset()`, which runs `clearActiveMonitors()` WITHOUT ever dispatching
-    // `onDrop` to the scroll monitor, so `stopScrollLoop` never fires. This is
+    // `onMoveEnd` to the scroll monitor, so `stopScrollLoop` never fires. This is
     // the historical leak that left the loop scrolling forever; `reset()` here
     // reproduces exactly that teardown shape.
     act(() => {
@@ -2705,7 +2694,6 @@ describe('engine.registerViewport', () => {
           const allowedDirection = 'vertical';
           if (allowedDirection !== eventDetails.direction) {
             eventDetails.cancel();
-            return;
           }
         },
       });
@@ -3267,7 +3255,7 @@ describe('engine.registerViewport', () => {
       }
     });
 
-    it('scales an pan delta the same way', async () => {
+    it('scales a pan delta the same way', async () => {
       const { engine } = await renderDnd();
       const clock = installFrameClock();
       const source = createElement();
@@ -3386,9 +3374,9 @@ describe('engine.registerViewport', () => {
       }
     });
 
-    // Each of the four `shouldScrollUp/Down/Left/Right` limit checks would reject an
-    // element with no scroll extent, so all four have to be skipped — not just
-    // the vertical pair a single fixture would cover.
+    // Each of the four `canScrollToward` limit checks (up, down, left, right)
+    // would reject an element with no scroll extent, so all four have to be
+    // skipped — not just the vertical pair a single fixture would cover.
     const EDGES = [
       { name: 'top', clientX: 100, clientY: 10 },
       { name: 'bottom', clientX: 100, clientY: 190 },
@@ -3418,7 +3406,7 @@ describe('engine.registerViewport', () => {
       });
     }
 
-    it('passes the same live drag context shouldScroll receives, plus the delta', async () => {
+    it('passes the live drag context, plus the delta', async () => {
       const { engine } = await renderDnd();
       const source = createElement();
       const viewport = makeViewport();
@@ -3519,11 +3507,11 @@ describe('engine.registerViewport', () => {
       expect(pan.mock.calls.every(([context]) => context.x === 0)).toBe(true);
     });
 
-    // What a delegating surface returns is the only thing deciding which axes an
-    // ancestor container gets, so every case is measured through the same
-    // fixture: a delegating viewport nested inside a real scroll container that
-    // shares its box. The pointer sits in the bottom AND right edge zones of
-    // both, and the inner one is depth-sorted first.
+    // Which directions a delegating surface consumes is the only thing deciding
+    // which axes an ancestor container gets, so every case is measured through
+    // the same fixture: a delegating viewport nested inside a real scroll
+    // container that shares its box. The pointer sits in the bottom AND right
+    // edge zones of both, and the inner one is depth-sorted first.
     describe('axis hand-off', () => {
       // `outerAllowedAxis` restricts the outer container to a single axis, so
       // whether it engages at all *is* the per-axis signal. Reading the axis off
@@ -3565,7 +3553,6 @@ describe('engine.registerViewport', () => {
             const allowedDirection = outerAllowedAxis ?? 'all';
             if (allowedDirection !== 'all' && allowedDirection !== eventDetails.direction) {
               eventDetails.cancel();
-              return;
             }
           },
         });
@@ -3577,10 +3564,10 @@ describe('engine.registerViewport', () => {
         await flushRaf();
         await flushRaf();
 
-        return { outerScrollBy, source };
+        return { outerScrollBy };
       }
 
-      it('stopping propagation claims both proposed axes', async () => {
+      it('consuming claims both proposed axes', async () => {
         const { outerScrollBy } = await renderNested((eventDetails) => {
           eventDetails.cancel();
           eventDetails.consume();
@@ -3610,12 +3597,12 @@ describe('engine.registerViewport', () => {
         expect(outerScrollBy).not.toHaveBeenCalled();
       });
 
-      it('preventing the default without stopping propagation releases both axes', async () => {
+      it('canceling without consuming releases both axes', async () => {
         const { outerScrollBy } = await renderNested((eventDetails) => {
           eventDetails.cancel();
         }, 'vertical');
         // A surface parked at its own bounds must not swallow the axis it didn't
-        // move — including the vertical one every other return value holds on to.
+        // move — including the vertical one every other handler here consumes.
         expect(outerScrollBy).toHaveBeenCalled();
       });
 
@@ -3629,7 +3616,7 @@ describe('engine.registerViewport', () => {
 
           expect(consoleError).toHaveBeenCalled();
           // The surface demonstrably didn't move, so it is treated exactly like
-          // one that prevents the default without stopping propagation rather than silently eating the axes.
+          // one that cancels without consuming rather than silently eating the axes.
           expect(result.outerScrollBy).toHaveBeenCalled();
         } finally {
           // End the drag before restoring the spy, so later loop frames can't log
@@ -3667,9 +3654,7 @@ describe('engine.registerViewport', () => {
       const { engine } = await renderDnd();
       const source = createElement();
       const viewport = makeViewport();
-      const pan = vi.fn<(eventDetails: DraggableViewportDragScrollEventDetails) => null>(
-        () => null,
-      );
+      const pan = vi.fn();
 
       engine.registerSource(source, {});
       engine.registerViewport(viewport, {
@@ -3685,7 +3670,7 @@ describe('engine.registerViewport', () => {
 
       // A surface that declines must not hold the loop awake, or it burns a
       // frame — and a sensor frame, through `notifyExternalScroll` — forever under
-      // a stationary pointer. (Preventing the default is the opposite signal: it
+      // a stationary pointer. (Canceling is the opposite signal: it
       // keeps the surface engaged so its speed can ramp up from zero.)
       pan.mockClear();
       await flushRaf();
@@ -3734,12 +3719,10 @@ describe('engine.registerViewport', () => {
         engine.registerViewport(viewport, {
           onDragScroll: (eventDetails) => {
             eventDetails.cancel();
-            (({ y }) => {
-              panned += y;
-              // Written synchronously, which is the contract the API documents:
-              // the engine hit-tests against this on the very next frame.
-              content.style.transform = `translateY(${-panned}px)`;
-            })(eventDetails);
+            panned += eventDetails.y;
+            // Written synchronously, which is the contract the API documents:
+            // the engine hit-tests against this on the very next frame.
+            content.style.transform = `translateY(${-panned}px)`;
             eventDetails.consume();
           },
         });

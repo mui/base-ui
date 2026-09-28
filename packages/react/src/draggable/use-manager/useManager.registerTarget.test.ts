@@ -134,13 +134,11 @@ describe('engine.registerTarget', () => {
     engine.registerTarget(target, {
       onDraggableEnter: (details) => {
         seen.enter = details.event;
-        seen.change = details.event;
       },
     });
 
     await lift(source);
-    // Entering the target: the change round dispatches `onTargetChange` and
-    // `onDraggableEnter` synchronously.
+    // Entering the target: the change round dispatches `onDraggableEnter` synchronously.
     fireDrag.dragEnter(target, { shiftKey: true, clientX: 30, clientY: 40 });
     fireDrag.dragOver(target, { shiftKey: true, clientX: 30, clientY: 40 });
     await flushRaf();
@@ -153,7 +151,7 @@ describe('engine.registerTarget', () => {
     // `DragEventDetails` narrows `event` to a `PointerEvent` for these reasons, so
     // reading a modifier off it has to actually work — a fabricated placeholder
     // would type-check and silently answer `undefined`.
-    for (const name of ['enter', 'change', 'drag'] as const) {
+    for (const name of ['enter', 'drag'] as const) {
       expect(seen[name]).toBeInstanceOf(PointerEvent);
       expect((seen[name] as PointerEvent).shiftKey).toBe(true);
     }
@@ -922,7 +920,7 @@ describe('engine.registerTarget', () => {
     expect(outerMove).toHaveBeenCalled();
     // The outer target is told about itself, not about the innermost target that
     // leads the stack (and would receive the drop).
-    const [outerDetails] = outerEnter.mock.calls[0];
+    const outerDetails = outerEnter.mock.calls[0][0];
     expect(outerDetails.target.element).toBe(outer);
     expect(outerDetails.location.current.targets[0].element).toBe(inner);
     expect(outerMove.mock.lastCall?.[0].target.element).toBe(outer);

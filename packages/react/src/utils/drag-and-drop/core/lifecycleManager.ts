@@ -265,8 +265,8 @@ export function start(parameters: StartParameters): DragSessionController | null
 
   // Whether `onMoveStart` has gone out. A refresh requested before that — a
   // consumer unregistering a target from `onGenerateDragPreview` — would resolve
-  // and dispatch `onTargetChange`/`onMove` to targets that have not had
-  // `onMoveStart` yet, so it queues like a mid-round one.
+  // and dispatch `onDraggableEnter`/`onDraggableMove` to targets that have not
+  // had `onDraggableStart` yet, so it queues like a mid-round one.
   let startDispatched = false;
 
   // The targets whose hover state has actually been delivered. Mutated by
@@ -1099,8 +1099,8 @@ export interface StartParameters {
   /**
    * Getter for the drag source's latest event handlers, read fresh on every
    * dispatch so a draggable that re-renders mid-drag runs its current closures
-   * rather than the ones captured at drag start (only `kind` stays
-   * start-time — see the payload snapshot).
+   * rather than the ones captured at drag start (only the source's `kind` stays
+   * start-time).
    */
   getSourceHandlers: () => SourceHandlers;
   initialInput: DraggableInput;

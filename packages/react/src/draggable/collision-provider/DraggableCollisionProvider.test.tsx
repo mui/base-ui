@@ -389,7 +389,6 @@ describe('Draggable.CollisionProvider', () => {
 
   it('replays onMoveStart to a group that only becomes involved through a collision', async () => {
     const targetStart = vi.fn();
-    const targetChange = vi.fn();
     const targetEnd = vi.fn();
     const order: string[] = [];
     await renderDnd(
@@ -405,9 +404,8 @@ describe('Draggable.CollisionProvider', () => {
             order.push('start');
             targetStart(eventDetails);
           }}
-          onCollisionChange={(eventDetails) => {
+          onCollisionChange={() => {
             order.push('change');
-            targetChange(eventDetails);
           }}
           onMoveEnd={(eventDetails) => {
             order.push('end');
@@ -575,7 +573,6 @@ describe('Draggable.CollisionProvider', () => {
       return (
         <Draggable.CollisionProvider
           kind={kind}
-
           onCollisionChange={({ source, target, location }) => {
             if (!target) {
               return;

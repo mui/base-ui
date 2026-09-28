@@ -689,11 +689,11 @@ function runScrollFrame(timestamp: number): void {
         continue;
       }
 
-      // `probe`, not the raw pointer: this is the point the engine just decided this
-      // container's edge zones from, so a consumer re-deriving the same test from
-      // `onDragScroll`'s `eventDetails.input` and `eventDetails.element` reaches the
-      // same answer. Reporting the raw pointer would tell a consumer the drag is
-      // outside a container the engine is busy scrolling.
+      // `maxSpeed` and `onDragScroll` both get `probe` as `input`, not the raw
+      // pointer: this is the point the engine just decided this container's edge
+      // zones from, so a consumer re-deriving the same test from `input` and
+      // `element` reaches the same answer. Reporting the raw pointer would tell a
+      // consumer the drag is outside a container the engine is busy scrolling.
       const feedback = { input: probe, source: currentSource, element };
 
       const depth = { x: 0, y: 0 };

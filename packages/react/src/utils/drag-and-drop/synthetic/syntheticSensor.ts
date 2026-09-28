@@ -954,8 +954,11 @@ function commitActivation(): void {
     });
 
     if (!result) {
-      // The lifecycle refused (a drag is already running).
-      clearPending(true);
+      // The lifecycle refused (a drag is already running), or consumer code ended
+      // the pickup while its preview was built.
+      if (state.pending === pending) {
+        clearPending(true);
+      }
       return;
     }
 
@@ -1435,7 +1438,7 @@ function getRawActivePointerInput(): DraggableInput | null {
  * container inside a shadow root with no drop target, which neither listener
  * observes. A no-op when no pointer drag is active.
  */
-export function notifyExternalScroll(): void {
+function notifyExternalScroll(): void {
   const active = state.active;
   if (active) {
     active.frameDirty = true;

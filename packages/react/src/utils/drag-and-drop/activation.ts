@@ -155,4 +155,4 @@ export function getActivationDelayMs(
   return delay;
 }
 
-export type ActivationDecision = 'pending' | 'activate' | 'cancel';
+type ActivationDecision = 'pending' | 'activate' | 'cancel';

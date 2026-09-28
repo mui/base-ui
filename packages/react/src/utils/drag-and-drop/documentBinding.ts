@@ -11,7 +11,7 @@ interface DocumentBindingEntry {
   cleanup: DragCleanupFn;
 }
 
-export interface DocumentBinding {
+interface DocumentBinding {
   bind(root: DragEventRoot): void;
   unbind(root: DragEventRoot): void;
 }

@@ -108,8 +108,7 @@ function MonthWeekRow(props: { weekStartMs: number; monthStart: number; events: 
     [weekStartMs],
   );
 
-  // Reserve at least one track of vertical room so the preview ghost has
-  // somewhere to render even on a week with no real events.
+  // The preview ghost renders on the row below the week's last track.
   const segmentTracks = segments.length > 0 ? Math.max(...segments.map((s) => s.track)) + 1 : 0;
   const previewRow = previewSegment ? segmentTracks + 1 : null;
 
@@ -161,8 +160,7 @@ function MonthDayCell(props: { dayMs: number; monthStart: number }) {
 
   // The cell is both a draggable (for create) and a drop target (for any
   // calendar drag landing on it). The two registrations live on the same
-  // element; drag activation falls through to the cell only when the
-  // pointerdown didn't land on a child draggable (e.g. an event bar).
+  // element.
   const createPayload = React.useMemo(() => ({ anchorMs: dayMs, allDay: true }), [dayMs]);
   const cellPayload = React.useMemo(() => ({ dayMs }), [dayMs]);
   return (
@@ -200,7 +198,6 @@ function MonthDayCell(props: { dayMs: number; monthStart: number }) {
           if (preview?.intent !== 'create') {
             return;
           }
-          // The reducer assigns an id; we hand the engine an event template.
           dispatch({
             type: 'CREATE_EVENT',
             event: {
@@ -263,9 +260,6 @@ function MonthEventBar(props: { event: CalendarEvent; segment: WeekEventSegment 
   return (
     <Draggable.Root
       kind={calEventMoveKind}
-      // The day cells form a grid the default navigation already walks; the
-      // preset removes the pixel-nudge fallback at the month's edges.
-
       payload={movePayload}
       onMoveEnd={(eventDetails) => {
         if (eventDetails.target !== null) {
@@ -333,9 +327,6 @@ function MonthResizeHandle(props: { event: CalendarEvent; edge: 'start' | 'end' 
     <Draggable.Root
       render={<span />}
       kind={calEventResizeKind}
-      // The handle is `aria-hidden`; without this it would still get
-      // `tabIndex={0}` — focusable but invisible to screen readers.
-
       payload={resizePayload}
       onMoveEnd={(eventDetails) => {
         if (eventDetails.target !== null) {
@@ -358,7 +349,7 @@ function MonthResizeHandle(props: { event: CalendarEvent; edge: 'start' | 'end' 
       {/* The source is a few pixels wide, so anchoring the info card to it would
           strand the card at the handle's corner: hang it off the pointer instead. */}
       <Draggable.Preview offset="pointer">
-        <div className={styles.dragPreview} data-intent="resize">
+        <div className={styles.dragPreview}>
           <div className={styles.dragPreviewTitle}>{event.title}</div>
           <div className={styles.dragPreviewMeta}>
             {edge === 'start' ? 'Resize start' : 'Resize end'}

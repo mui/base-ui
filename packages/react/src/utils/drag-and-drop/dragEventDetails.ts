@@ -1,6 +1,7 @@
 /**
- * Builds the `eventDetails` object every drag handler receives: Base UI's generic
- * event details, carrying the drag `location`, the dragged `source` and a `target`.
+ * Builds the `eventDetails` object of the drag lifecycle handlers, from `onMoveStart`
+ * to `onMoveEnd`: Base UI's generic event details, carrying the drag `location`, the
+ * dragged `source` and a `target`.
  */
 
 import { createGenericEventDetails } from '../../internals/createBaseUIEventDetails';

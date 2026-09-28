@@ -9,7 +9,7 @@ import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { activeElement } from '@base-ui/utils/shadowDom';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import { DragPageAutoScroll } from './_components/DragPageAutoScroll';
+import { DragPageAutoScroll } from '../../../(docs)/react/utils/draggable/demos/DragPageAutoScroll';
 
 import theme from './theme.module.css';
 import styles from './draggable-tabs.module.css';
@@ -221,9 +221,6 @@ function DraggableTab(props: DraggableTabProps) {
           kind={kind}
           payload={item.id}
           disabled={!draggable}
-          // Enter and Space stay with Tabs. Alt+Arrow provides the equivalent
-          // keyboard reorder action without taking over tab selection.
-          activation={{ mouse: { type: 'distance', distance: 5 } }}
           modifiers={Draggable.restrictToHorizontalAxis}
           onBeforeMoveStart={handleBeforeDragStart}
           onMoveStart={onMoveStart}

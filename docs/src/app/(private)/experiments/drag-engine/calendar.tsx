@@ -89,9 +89,8 @@ function CalendarExperimentInner() {
         .filter((event): event is CalendarEvent => event != null),
     [state],
   );
-  const eventsRef = useValueAsRef(events);
   // Captured once so render code can compare without calling `Date.now()`
-  // (flagged impure during render). Refreshed on Reset.
+  // (flagged impure during render). Refreshed on Today and Reset.
   const [todayMs, setTodayMs] = React.useState<number>(() => Date.now());
 
   // Anchor controls which month or week we're viewing. `today` resets it.
@@ -125,7 +124,6 @@ function CalendarExperimentInner() {
   const contextValue = React.useMemo<CalendarViewContextValue>(
     () => ({
       events,
-      eventsRef,
       dispatch,
       snapMinutes: snapMin,
       weekStartsOn,
@@ -138,7 +136,6 @@ function CalendarExperimentInner() {
     }),
     [
       events,
-      eventsRef,
       snapMin,
       weekStartsOn,
       hourPx,

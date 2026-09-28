@@ -156,24 +156,11 @@
   align-items: center;
   justify-content: center;
   flex: none;
-  margin: 0;
-  padding: 0;
-  border: 0;
-  background: none;
   color: oklch(70.8% 0 0deg);
   cursor: grab;
 
   @media (prefers-color-scheme: dark) {
     color: oklch(55.6% 0 0deg);
-  }
-
-  &:focus-visible {
-    outline: 2px solid oklch(14.5% 0 0deg);
-    outline-offset: -1px;
-
-    @media (prefers-color-scheme: dark) {
-      outline-color: white;
-    }
   }
 }
 

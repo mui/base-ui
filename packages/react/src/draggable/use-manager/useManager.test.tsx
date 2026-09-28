@@ -68,7 +68,7 @@ describe('useManager', () => {
     expect(registrations).toBe(afterMount);
   });
 
-  it('reads the current callbacks and locale through live refs, not the mount-time ones', async () => {
+  it('reads the current callbacks through live refs, not the mount-time ones', async () => {
     const first = vi.fn();
     const second = vi.fn();
 

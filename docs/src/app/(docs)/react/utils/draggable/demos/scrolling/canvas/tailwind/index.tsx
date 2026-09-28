@@ -25,10 +25,9 @@ const ARCHIVE = { x: 60, y: 520 };
 const PIN_CLASS =
   'absolute box-border cursor-grab border border-neutral-950 bg-white px-2.5 py-1.5 ' +
   'text-[0.875rem] leading-5 whitespace-nowrap text-neutral-950 transition-colors hover:bg-neutral-100 ' +
-  'focus-visible:-outline-offset-1 focus-visible:outline-2 focus-visible:outline-neutral-950 ' +
   'data-[dragging]:opacity-40 data-[drag-preview]:shadow-[0.25rem_0.25rem_0_rgb(0_0_0/12%)] ' +
   'dark:border-white dark:bg-neutral-950 dark:text-white dark:hover:bg-neutral-800 ' +
-  'dark:focus-visible:outline-white dark:data-[drag-preview]:shadow-none';
+  'dark:data-[drag-preview]:shadow-none';
 
 export default function CanvasPan() {
   const [pins, setPins] = React.useState(INITIAL_PINS);
