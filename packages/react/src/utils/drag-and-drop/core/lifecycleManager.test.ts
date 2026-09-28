@@ -110,10 +110,11 @@ describe('lifecycle manager', () => {
   function startDragWithHandlers(
     handlers: SourceHandlers,
     initialTarget: Element | null = null,
+    kind: { id: symbol } = TEST_KIND,
   ): DragSessionController | null {
     const element = createElement();
     return start({
-      payload: createDragSource(element, TEST_KIND.id, {}, null),
+      payload: createDragSource(element, kind.id, {}, null),
       getSourceHandlers: () => handlers,
       initialInput: makeInput(),
       initialTarget,
@@ -163,23 +164,40 @@ describe('lifecycle manager', () => {
     };
     addMonitor(getMonitor);
     registerCleanup(() => removeMonitor(getMonitor));
-    const startKind = (kind: typeof cardKind) =>
-      start({
-        payload: createDragSource(createElement(), kind.id, {}, null),
-        getSourceHandlers: () => ({}),
-        initialInput: makeInput(),
-        initialTarget: null,
-        startReason: 'pointer',
-        grabOffset: { x: 0, y: 0 },
-        hitTest,
-        onForceCleanup: () => {},
-      });
 
-    startKind(cardKind);
+    startDragWithHandlers({}, null, cardKind);
     expect(isActive()).toBe(false);
 
-    startKind(fileKind)!.cancel();
+    startDragWithHandlers({}, null, fileKind)!.cancel();
 
+    expect(onMoveEnd).not.toHaveBeenCalled();
+  });
+
+  it('does not engage a monitor for a drag its getter started instead', () => {
+    const cardKind = createKind('card');
+    const fileKind = createKind('file');
+    const onMove = vi.fn();
+    const onMoveEnd = vi.fn();
+    let restartPickup = true;
+    let restarted: DragSessionController | null = null;
+    const getMonitor = () => {
+      if (restartPickup) {
+        restartPickup = false;
+        cancelDrag();
+        restarted = startDragWithHandlers({}, null, fileKind);
+      }
+      return { accept: cardKind, onMove, onMoveEnd };
+    };
+    addMonitor(getMonitor);
+    registerCleanup(() => removeMonitor(getMonitor));
+
+    startDragWithHandlers({}, null, cardKind);
+    expect(isActive()).toBe(true);
+
+    restarted!.update(makeInput(), null, new Event('pointermove'), 'pointer');
+    restarted!.cancel();
+
+    expect(onMove).not.toHaveBeenCalled();
     expect(onMoveEnd).not.toHaveBeenCalled();
   });
 
