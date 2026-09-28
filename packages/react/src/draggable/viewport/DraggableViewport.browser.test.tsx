@@ -149,45 +149,51 @@ describe.skipIf(isJSDOM)('Draggable viewport scrolling in the browser', () => {
     act(() => engine.cancelDrag());
   });
 
-  it('stops scrolling when a new ancestor restyle hides the overflow of a moved viewport', async () => {
-    const style = document.createElement('style');
-    style.textContent = '.scroll-locked > * { overflow: hidden !important; }';
-    document.head.appendChild(style);
-    registerCleanup(() => style.remove());
-    // Once hidden, the viewport no longer scrolls, which the engine reports.
-    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
-    registerCleanup(() => warnSpy.mockRestore());
-    const { engine } = await renderDnd();
-    const source = element('position:fixed;left:300px;top:0;width:100px;height:50px');
-    const from = element('');
-    const to = element('');
-    const viewport = element(
-      'position:fixed;left:0;top:0;width:200px;height:200px;overflow:auto',
-      from,
-    );
-    element('height:1000px', viewport);
-    engine.registerSource(source, { activation: { type: 'immediate' } });
-    engine.registerViewport(viewport, {});
-    start(source);
-    await waitFor(() => expect(viewport.scrollTop).toBeGreaterThan(0));
+  it.each([
+    ['a wrapper', (from: HTMLElement): ParentNode => from],
+    ['a shadow root', (from: HTMLElement): ParentNode => from.attachShadow({ mode: 'open' })],
+  ])(
+    'stops scrolling when a new ancestor hides the overflow of a viewport moved out of %s',
+    async (_, getContainer) => {
+      const style = document.createElement('style');
+      style.textContent = '.scroll-locked > * { overflow: hidden !important; }';
+      document.head.appendChild(style);
+      registerCleanup(() => style.remove());
+      // Once hidden, the viewport no longer scrolls, which the engine reports.
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      registerCleanup(() => warnSpy.mockRestore());
+      const { engine } = await renderDnd();
+      const source = element('position:fixed;left:300px;top:0;width:100px;height:50px');
+      const from = element('');
+      const to = element('');
+      const viewport = document.createElement('div');
+      viewport.style.cssText = 'position:fixed;left:0;top:0;width:200px;height:200px;overflow:auto';
+      getContainer(from).appendChild(viewport);
+      registerCleanup(() => viewport.remove());
+      element('height:1000px', viewport);
+      engine.registerSource(source, { activation: { type: 'immediate' } });
+      engine.registerViewport(viewport, {});
+      start(source);
+      await waitFor(() => expect(viewport.scrollTop).toBeGreaterThan(0));
 
-    // Moving the viewport resets its scroll position.
-    act(() => {
-      to.appendChild(viewport);
-    });
-    await waitFor(() => expect(viewport.scrollTop).toBeGreaterThan(0));
+      // Moving the viewport resets its scroll position.
+      act(() => {
+        to.appendChild(viewport);
+      });
+      await waitFor(() => expect(viewport.scrollTop).toBeGreaterThan(0));
 
-    act(() => {
-      to.className = 'scroll-locked';
-    });
-    await flushRaf();
-    const lockedAt = viewport.scrollTop;
-    await flushRaf();
-    await flushRaf();
-    await flushRaf();
-    expect(viewport.scrollTop).toBe(lockedAt);
-    act(() => engine.cancelDrag());
-  });
+      act(() => {
+        to.className = 'scroll-locked';
+      });
+      await flushRaf();
+      const lockedAt = viewport.scrollTop;
+      await flushRaf();
+      await flushRaf();
+      await flushRaf();
+      expect(viewport.scrollTop).toBe(lockedAt);
+      act(() => engine.cancelDrag());
+    },
+  );
 
   it('scrolls an outer viewport containing the pointer before an inner overflow margin', async () => {
     const { engine } = await renderDnd();

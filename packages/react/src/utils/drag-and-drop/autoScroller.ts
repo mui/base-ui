@@ -2,6 +2,7 @@ import { clamp } from '@base-ui/utils/clamp';
 import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
 import { closest } from '@base-ui/utils/shadowDom';
 import { warn } from '@base-ui/utils/warn';
+import { isShadowRoot } from '@floating-ui/utils/dom';
 import { WindowAnimationFrame } from '../windowAnimationFrame';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
@@ -479,6 +480,9 @@ function sortAndObserveScrollers(doc: Document): HTMLElement[] {
   if (doc.body) {
     chain.add(doc.body);
   }
+  // The composed walk steps from a shadow root's top-level children straight to
+  // its host, so the roots are collected separately to observe their children.
+  const shadowRoots = new Set<ShadowRoot>();
   for (const el of state.scrollers.keys()) {
     const observed = ownerDocument(el) === doc;
     let depth = 0;
@@ -489,11 +493,14 @@ function sortAndObserveScrollers(doc: Document): HTMLElement[] {
       depth += 1;
       if (observed) {
         chain.add(node);
+        if (node.parentNode && isShadowRoot(node.parentNode)) {
+          shadowRoots.add(node.parentNode);
+        }
       }
     }
     depths.set(el, depth);
   }
-  observeChainMutations(doc, chain);
+  observeChainMutations(doc, chain, shadowRoots);
   return [...depths.keys()].sort((a, b) => depths.get(b)! - depths.get(a)!);
 }
 
@@ -939,7 +946,11 @@ function clearScrollerMutationObservers(): void {
  * themselves. The style caches only hold registered containers and
  * `<html>`/`<body>`, so where the pointer is doesn't matter.
  */
-function observeChainMutations(doc: Document, elements: Set<Element>): void {
+function observeChainMutations(
+  doc: Document,
+  elements: Set<Element>,
+  shadowRoots: Set<ShadowRoot>,
+): void {
   state.chainMutationObserver ??= new (ownerWindow(doc.documentElement).MutationObserver)(
     handleObservedMutations,
   );
@@ -962,6 +973,9 @@ function observeChainMutations(doc: Document, elements: Set<Element>): void {
       attributeFilter: MUTATION_OBSERVER_OPTIONS.attributeFilter,
       childList: true,
     });
+  }
+  for (const shadowRoot of shadowRoots) {
+    observer.observe(shadowRoot, { childList: true });
   }
   state.observedChainElements = elements;
   handleObservedMutations(records);
