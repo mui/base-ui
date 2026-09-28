@@ -68,6 +68,10 @@ describe.skipIf(isJSDOM)('Draggable viewport scrolling in the browser', () => {
         }),
       );
     }
+    move(100);
+    await flushRaf();
+    await flushRaf();
+    await flushRaf();
     move(250);
     await waitFor(() => expect(viewport.scrollTop).toBeGreaterThan(0));
     expect(
@@ -81,6 +85,15 @@ describe.skipIf(isJSDOM)('Draggable viewport scrolling in the browser', () => {
     await flushRaf();
     await flushRaf();
     expect(viewport.scrollTop).toBe(stoppedAt);
+    move(250);
+    await flushRaf();
+    await flushRaf();
+    await flushRaf();
+    expect(viewport.scrollTop).toBe(stoppedAt);
+    move(100);
+    await flushRaf();
+    await flushRaf();
+    await flushRaf();
     move(250);
     await waitFor(() => expect(viewport.scrollTop).toBeGreaterThan(stoppedAt));
     act(() => engine.cancelDrag());

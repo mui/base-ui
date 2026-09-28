@@ -103,6 +103,9 @@ describe('Draggable.Viewport', () => {
     await rerender(<Scroller scrollByMock={scrollBy} overflowMargin={{ bottom: 30 }} />);
     await flushRaf();
     await flushRaf();
+    expect(scrollBy).not.toHaveBeenCalled();
+    await dragTo(scroller, 100, 50);
+    await dragTo(scroller, 100, 120);
     expect(scrollBy).toHaveBeenCalled();
     expect(scroller).not.toHaveAttribute('overflowMargin');
 
