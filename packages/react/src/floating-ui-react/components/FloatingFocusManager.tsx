@@ -631,8 +631,8 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     const treeNodes = tree?.nodesRef.current ?? [];
     const comboboxTabExits = isUntrappedTypeableCombobox
       ? [
-          getTabExitTarget(domReference, -1, treeNodes),  // Previous tab exit (shift + tab)
-          getTabExitTarget(domReference, 1, treeNodes),   // Tab exit (shift)
+          getTabExitTarget(domReference, -1, treeNodes), // Previous tab exit (shift + tab)
+          getTabExitTarget(domReference, 1, treeNodes), // Tab exit (shift)
         ]
       : [];
 
