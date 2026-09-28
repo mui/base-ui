@@ -14,12 +14,13 @@ export default function DraggableHero() {
       <Draggable.Target
         ref={surfaceRef}
         className={styles.Surface}
-        onDraggableDrop={({ target }) => {
-          const point = target.getSnappedLocalPoint({ anchor: 'source' });
-          const rect = target.element.getBoundingClientRect();
+        onDraggableDrop={(eventDetails) => {
+          const surface = eventDetails.target.element;
+          const point = eventDetails.target.getSnappedLocalPoint({ anchor: 'source' });
+          const rect = surface.getBoundingClientRect();
           setPosition({
-            x: point.x * rect.width - target.element.clientLeft,
-            y: point.y * rect.height - target.element.clientTop,
+            x: point.x * rect.width - surface.clientLeft,
+            y: point.y * rect.height - surface.clientTop,
           });
         }}
       >

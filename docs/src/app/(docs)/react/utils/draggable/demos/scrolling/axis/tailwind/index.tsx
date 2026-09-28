@@ -96,8 +96,8 @@ export default function AxisLane() {
         </p>
         {/* @highlight-start @focus */}
         <Draggable.Viewport
-          onDragScroll={({ direction }, eventDetails) => {
-            if (direction !== 'horizontal') {
+          onDragScroll={(eventDetails) => {
+            if (eventDetails.direction !== 'horizontal') {
               eventDetails.cancel();
             }
           }}
@@ -108,11 +108,11 @@ export default function AxisLane() {
             ref={trackRef}
             className="flex w-max gap-1.5"
             accept={stopKind}
-            onDraggableDrop={({ source }, eventDetails) => {
+            onDraggableDrop={(eventDetails) => {
               const track = trackRef.current;
               if (track) {
                 moveStop(
-                  source.payload,
+                  eventDetails.source.payload,
                   resolveDropIndex(track, eventDetails.location.current.input.clientX),
                 );
               }

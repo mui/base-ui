@@ -172,10 +172,7 @@ function DraggableTab(props: DraggableTabProps) {
   } = props;
 
   const handleBeforeDragStart = useStableCallback(
-    (
-      _value: Draggable.Root.BeforeMoveStartValue<string>,
-      eventDetails: Draggable.Root.BeforeMoveStartEventDetails,
-    ) => {
+    (eventDetails: Draggable.Root.BeforeMoveStartEventDetails<string>) => {
       if (eventDetails.trigger?.closest('[data-close-tab]')) {
         eventDetails.cancel();
         return;
@@ -230,9 +227,9 @@ function DraggableTab(props: DraggableTabProps) {
           modifiers={Draggable.restrictToHorizontalAxis}
           onBeforeMoveStart={handleBeforeDragStart}
           onMoveStart={onMoveStart}
-          onMoveEnd={({ target }) => {
+          onMoveEnd={(eventDetails) => {
             try {
-              if (target !== null) {
+              if (eventDetails.target !== null) {
                 onDrop();
               }
             } finally {
@@ -387,8 +384,8 @@ function SortableTabs(props: SortableTabsProps) {
               trackDragOver={false}
               render={
                 <Draggable.Viewport
-                  onDragScroll={({ direction }, eventDetails) => {
-                    if (direction !== 'horizontal') {
+                  onDragScroll={(eventDetails) => {
+                    if (eventDetails.direction !== 'horizontal') {
                       eventDetails.cancel();
                     }
                   }}
@@ -399,21 +396,21 @@ function SortableTabs(props: SortableTabsProps) {
         >
           <Draggable.CollisionProvider
             kind={kind}
-            onCollisionChange={({ source, target }, eventDetails) => {
+            onCollisionChange={(eventDetails) => {
               if (
-                target &&
+                eventDetails.target &&
                 eventDetails.previousTarget &&
-                target.payload === eventDetails.previousTarget.payload &&
-                getHorizontalCollisionAfter(target) ===
+                eventDetails.target.payload === eventDetails.previousTarget.payload &&
+                getHorizontalCollisionAfter(eventDetails.target) ===
                   getHorizontalCollisionAfter(eventDetails.previousTarget)
               ) {
                 return;
               }
-              if (target) {
+              if (eventDetails.target) {
                 handleDragOverTab(
-                  source.payload,
-                  target.payload,
-                  getHorizontalCollisionAfter(target),
+                  eventDetails.source.payload,
+                  eventDetails.target.payload,
+                  getHorizontalCollisionAfter(eventDetails.target),
                 );
               }
             }}

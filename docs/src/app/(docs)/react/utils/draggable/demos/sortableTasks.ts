@@ -6,18 +6,20 @@ export const INITIAL_TASKS = ['Write the spec', 'Sketch the UI', 'Set up the rep
 /** Move the dragged task next to the item under the pointer; unchanged input returns `current`. */
 export function moveTask(
   current: string[],
-  { source, target }: Draggable.CollisionProvider.CollisionChangeValue<string>,
-  placement = target && (target.getLocalPoint().y > 0.5 ? 'after' : 'before'),
+  eventDetails: Draggable.CollisionProvider.CollisionChangeEventDetails<string>,
+  placement = getTaskDestination(eventDetails.target)?.placement,
 ): string[] {
+  const target = eventDetails.target;
   if (!target) {
     return current;
   }
-  const remaining = current.filter((task) => task !== source.payload);
+  const dragged = eventDetails.source.payload;
+  const remaining = current.filter((task) => task !== dragged);
   const index = remaining.indexOf(target.payload);
   if (index === -1) {
     return current;
   }
-  remaining.splice(index + (placement === 'after' ? 1 : 0), 0, source.payload);
+  remaining.splice(index + (placement === 'after' ? 1 : 0), 0, dragged);
   return remaining.every((task, position) => task === current[position]) ? current : remaining;
 }
 

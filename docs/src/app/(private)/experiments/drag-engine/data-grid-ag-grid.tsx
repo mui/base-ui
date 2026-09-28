@@ -374,9 +374,11 @@ function DataGridInner() {
           // horizontally. The viewport scrolls on both axes, so without this a
           // column dragged near the top edge would also scroll the rows away
           // under it.
-          onDragScroll={({ direction, source: dragged }, eventDetails) => {
-            const allowedDirection = rowKind.matches(dragged) ? 'vertical' : 'horizontal';
-            if (direction !== allowedDirection) {
+          onDragScroll={(eventDetails) => {
+            const allowedDirection = rowKind.matches(eventDetails.source)
+              ? 'vertical'
+              : 'horizontal';
+            if (eventDetails.direction !== allowedDirection) {
               eventDetails.cancel();
             }
           }}
@@ -397,7 +399,8 @@ function DataGridInner() {
             <div className={styles.columnSpacer} style={{ width: leadingWidth }} />
             <Draggable.CollisionProvider
               kind={columnKind}
-              onCollisionChange={({ source: dragged, target }, eventDetails) => {
+              onCollisionChange={(eventDetails) => {
+                const target = eventDetails.target;
                 const delta =
                   eventDetails.location.current.input.clientX -
                   eventDetails.location.previous.input.clientX;
@@ -408,7 +411,7 @@ function DataGridInner() {
                   setColumns((current) =>
                     moveById(
                       current,
-                      dragged.payload,
+                      eventDetails.source.payload,
                       target.payload,
                       getHorizontalCollisionAfter(target, delta),
                     ),
@@ -430,7 +433,8 @@ function DataGridInner() {
             >
               <Draggable.CollisionProvider
                 kind={rowKind}
-                onCollisionChange={({ source: dragged, target }, eventDetails) => {
+                onCollisionChange={(eventDetails) => {
+                  const target = eventDetails.target;
                   const delta =
                     eventDetails.location.current.input.clientY -
                     eventDetails.location.previous.input.clientY;
@@ -441,7 +445,7 @@ function DataGridInner() {
                     setRows((current) =>
                       moveById(
                         current,
-                        dragged.payload,
+                        eventDetails.source.payload,
                         target.payload,
                         delta ? delta > 0 : target.getLocalPoint().y > 0.5,
                       ),

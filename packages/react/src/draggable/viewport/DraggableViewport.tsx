@@ -116,8 +116,10 @@ export interface DraggableViewportMaxSpeedContext<TSourcePayload = unknown, TDra
   element: HTMLElement;
 }
 
-/** The first argument of `onDragScroll`: the dragged item and the movement for this frame. */
-export interface DraggableViewportDragScrollValue<TSourcePayload = unknown, TDragData = unknown> {
+export type DraggableViewportDragScrollDirection = 'horizontal' | 'vertical';
+
+/** The properties `onDragScroll`'s event details add to the Base UI change details. */
+interface DraggableViewportDragScrollEventDetailsProperties<TSourcePayload, TDragData> {
   /** The item being dragged. */
   source: DraggableRootRecord<TSourcePayload, TDragData>;
   /**
@@ -134,12 +136,6 @@ export interface DraggableViewportDragScrollValue<TSourcePayload = unknown, TDra
   y: number;
   /** The axis this call is about. `onDragScroll` is called once per engaged axis. */
   direction: DraggableViewportDragScrollDirection;
-}
-
-export type DraggableViewportDragScrollDirection = 'horizontal' | 'vertical';
-
-/** The properties `onDragScroll`'s event details add to the Base UI change details. */
-interface DraggableViewportDragScrollEventDetailsProperties {
   /**
    * The position used to determine scrolling. It may differ from the modified
    * drag position when a modifier separates that position from the pointer.
@@ -157,14 +153,17 @@ interface DraggableViewportDragScrollEventDetailsProperties {
 }
 
 /**
- * The event details passed as the second argument to `onDragScroll`.
+ * The event details passed to `onDragScroll`.
  * Call `cancel()` to prevent Base UI from scrolling the container in this direction.
  * `event` is a placeholder: the scroll loop runs from animation frames, not from a native event.
  */
 // An interface so the API reference prints its name instead of expanding it.
-export interface DraggableViewportDragScrollEventDetails extends BaseUIChangeEventDetails<
+export interface DraggableViewportDragScrollEventDetails<
+  TSourcePayload = unknown,
+  TDragData = unknown,
+> extends BaseUIChangeEventDetails<
   DraggableViewportDragScrollEventReason,
-  DraggableViewportDragScrollEventDetailsProperties
+  DraggableViewportDragScrollEventDetailsProperties<TSourcePayload, TDragData>
 > {}
 
 export type DraggableViewportDragScrollEventReason = typeof REASONS.none;
@@ -176,11 +175,10 @@ export namespace DraggableViewport {
     TSourcePayload = unknown,
     TDragData = unknown,
   > = DraggableViewportMaxSpeedContext<TSourcePayload, TDragData>;
-  export type DragScrollValue<
-    TPayload = unknown,
+  export type DragScrollEventDetails<
+    TSourcePayload = unknown,
     TDragData = unknown,
-  > = DraggableViewportDragScrollValue<TPayload, TDragData>;
-  export type DragScrollEventDetails = DraggableViewportDragScrollEventDetails;
+  > = DraggableViewportDragScrollEventDetails<TSourcePayload, TDragData>;
   export type DragScrollEventReason = DraggableViewportDragScrollEventReason;
   export type State = DraggableViewportState;
   export type Props<TSourcePayload = unknown, TDragData = unknown> = DraggableViewportProps<

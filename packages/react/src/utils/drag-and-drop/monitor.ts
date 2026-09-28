@@ -3,15 +3,11 @@ import type { DraggableAccept } from '../../draggable/DraggableProvider';
 import type {
   DraggableRootRecord,
   DraggableRootMoveEndEventDetails,
-  DraggableRootMoveEndValue,
   DraggableRootMoveEventDetails,
   DraggableRootMoveStartEventDetails,
-  DraggableRootMoveStartValue,
-  DraggableRootMoveValue,
   DraggableRootTargetChangeEventDetails,
-  DraggableRootTargetChangeValue,
 } from '../../draggable/root/DraggableRoot';
-import type { DragSourceEventValue, DraggableEventDetailsMap } from './types';
+import type { DraggableEventDetailsMap } from './types';
 import { getSharedSlot } from './sharedState';
 import { containConsumerError } from './utils';
 
@@ -119,7 +115,7 @@ export function activateMonitors(source: DraggableRootRecord): void {
 
 export function dispatchToMonitors<
   K extends keyof DraggableEventDetailsMap & keyof RegisterMonitorParameters,
->(eventName: K, value: DragSourceEventValue, eventDetails: DraggableEventDetailsMap[K]): void {
+>(eventName: K, eventDetails: DraggableEventDetailsMap[K]): void {
   if (state.activeMonitors.size === 0) {
     return;
   }
@@ -138,7 +134,7 @@ export function dispatchToMonitors<
       null,
       () => {
         let monitor = getMonitor();
-        if (matchesAccept(monitor.accept, value.source)) {
+        if (matchesAccept(monitor.accept, eventDetails.source)) {
           rememberMatchedMonitor(getMonitor, monitor);
         } else {
           // Finish the observer that joined this drag, using its compatible closure.
@@ -153,8 +149,8 @@ export function dispatchToMonitors<
           monitor = previous.snapshot;
         }
         const handler = monitor[eventName] as
-          ((value: DragSourceEventValue, details: DraggableEventDetailsMap[K]) => void) | undefined;
-        handler?.(value, eventDetails);
+          ((eventDetails: DraggableEventDetailsMap[K]) => void) | undefined;
+        handler?.(eventDetails);
       },
       undefined,
     );
@@ -180,43 +176,30 @@ export interface RegisterMonitorParameters<TSourcePayload = unknown, TDragData =
    * A monitor registered during a drag doesn't receive it for that drag.
    */
   onMoveStart?:
-    | ((
-        value: DraggableRootMoveStartValue<TSourcePayload, TDragData>,
-        eventDetails: DraggableRootMoveStartEventDetails,
-      ) => void)
+    | ((eventDetails: DraggableRootMoveStartEventDetails<TSourcePayload, TDragData>) => void)
     | undefined;
   /**
    * Event handler called as the pointer moves or a modifier key changes,
    * at most once per animation frame.
    */
   onMove?:
-    | ((
-        value: DraggableRootMoveValue<TSourcePayload, TDragData>,
-        eventDetails: DraggableRootMoveEventDetails,
-      ) => void)
-    | undefined;
+    ((eventDetails: DraggableRootMoveEventDetails<TSourcePayload, TDragData>) => void) | undefined;
   /**
    * Event handler called when the drop targets under the pointer change.
    */
   onTargetChange?:
-    | ((
-        value: DraggableRootTargetChangeValue<TSourcePayload, TDragData>,
-        eventDetails: DraggableRootTargetChangeEventDetails,
-      ) => void)
+    | ((eventDetails: DraggableRootTargetChangeEventDetails<TSourcePayload, TDragData>) => void)
     | undefined;
   /**
    * Event handler called once when the drag ends, after a drop, a release outside any
-   * target, or a cancellation. `target` is the target that received the drop, or `null`.
-   * `eventDetails.canceled` tells a cancel from a release, and `eventDetails.reason` says
-   * exactly why the drag ended.
+   * target, or a cancellation. `eventDetails.target` is the target that received the drop,
+   * or `null`. `eventDetails.canceled` tells a cancel from a release, and
+   * `eventDetails.reason` says exactly why the drag ended.
    *
    * It can fire without a preceding `onMoveStart`, for example when the monitor
    * registered during the drag, so don't assume the two are paired.
    */
   onMoveEnd?:
-    | ((
-        value: DraggableRootMoveEndValue<TSourcePayload, TDragData>,
-        eventDetails: DraggableRootMoveEndEventDetails,
-      ) => void)
+    | ((eventDetails: DraggableRootMoveEndEventDetails<TSourcePayload, TDragData>) => void)
     | undefined;
 }

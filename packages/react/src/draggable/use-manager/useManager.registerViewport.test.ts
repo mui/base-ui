@@ -20,7 +20,6 @@ import type {
 import type {
   DraggableViewportDragScrollEventDetails,
   DraggableViewportMaxSpeedContext,
-  DraggableViewportDragScrollValue,
 } from '../viewport/DraggableViewport';
 
 type DragAutoScrollHandler = NonNullable<RegisterViewportParameters['onDragScroll']>;
@@ -62,7 +61,7 @@ describe('engine.registerViewport', () => {
         expect(onDragScroll.mock.calls.length > 0).toBe(scrolls);
         expect(
           onDragScroll.mock.calls.every(
-            ([, eventDetails]) =>
+            ([eventDetails]) =>
               eventDetails.input.clientX === x && eventDetails.input.clientY === y,
           ),
         ).toBe(true);
@@ -163,7 +162,7 @@ describe('engine.registerViewport', () => {
       engine.registerSource(source, {});
       engine.registerViewport(outer, { overflowMargin: 30, onDragScroll });
       const unregisterInner = engine.registerViewport(inner, {
-        onDragScroll: (_, details) => {
+        onDragScroll: (details) => {
           details.cancel();
           details.consume();
         },
@@ -261,9 +260,9 @@ describe('engine.registerViewport', () => {
         engine.registerViewport(outer, { overflowMargin: 30 });
         engine.registerViewport(inner, {
           overflowMargin: 30,
-          onDragScroll: (event, details) => {
+          onDragScroll: (details) => {
             details.cancel();
-            pan(event);
+            pan(details);
             if (consume) {
               details.consume();
             }
@@ -306,11 +305,11 @@ describe('engine.registerViewport', () => {
     const inner = createElement();
     outer.getBoundingClientRect = () => new DOMRect(0, 0, 200, 200);
     inner.getBoundingClientRect = () => new DOMRect(400, 0, 200, 200);
-    const outerScroll = vi.fn<DragAutoScrollHandler>((_, details) => {
+    const outerScroll = vi.fn<DragAutoScrollHandler>((details) => {
       details.cancel();
       details.consume();
     });
-    const innerScroll = vi.fn<DragAutoScrollHandler>((_, details) => {
+    const innerScroll = vi.fn<DragAutoScrollHandler>((details) => {
       details.cancel();
       details.consume();
     });
@@ -468,8 +467,8 @@ describe('engine.registerViewport', () => {
     await driveIntoEdgeZone(source, scroller);
     expect(onDragScroll).toHaveBeenCalled();
     expect(scroller.scrollBy).toHaveBeenCalled();
-    const [value, eventDetails] = onDragScroll.mock.calls[0];
-    expect(value).toMatchObject({ direction: 'vertical', x: 0 });
+    const [eventDetails] = onDragScroll.mock.calls[0];
+    expect(eventDetails).toMatchObject({ direction: 'vertical', x: 0 });
     expect(eventDetails.element).toBe(scroller);
     expect(eventDetails.reason).toBe('none');
     expect(eventDetails.event).toBeInstanceOf(Event);
@@ -488,12 +487,12 @@ describe('engine.registerViewport', () => {
     const deltas: number[] = [];
     engine.registerSource(source, {});
     engine.registerViewport(surface, {
-      onDragScroll({ y }, eventDetails) {
+      onDragScroll(eventDetails) {
         eventDetails.cancel();
-        deltas.push(y);
+        deltas.push(eventDetails.y);
         // The documented "canvas with bounds" pattern: propagation stops only
         // once the surface actually moved, which needs a non-zero delta first.
-        if (y !== 0) {
+        if (eventDetails.y !== 0) {
           eventDetails.consume();
         }
       },
@@ -519,9 +518,9 @@ describe('engine.registerViewport', () => {
     const pan = vi.fn();
     engine.registerSource(source, {});
     engine.registerViewport(scroller, {
-      onDragScroll(details, eventDetails) {
+      onDragScroll(eventDetails) {
         eventDetails.cancel();
-        pan(details);
+        pan(eventDetails);
         eventDetails.consume();
       },
     });
@@ -565,7 +564,9 @@ describe('engine.registerViewport', () => {
     fireDrag.dragOver(scroller, { clientX: 190, clientY: 190 });
     await flushRaf();
     await flushRaf();
-    expect(onDragScroll.mock.calls.some(([event]) => event.direction === 'horizontal')).toBe(true);
+    expect(
+      onDragScroll.mock.calls.some(([eventDetails]) => eventDetails.direction === 'horizontal'),
+    ).toBe(true);
     expect(scroller.scrollBy).toHaveBeenCalledWith(expect.objectContaining({ left: 0 }));
     expect(
       scrollBy.mock.calls.every(([options]) => typeof options === 'object' && options.left === 0),
@@ -735,7 +736,7 @@ describe('engine.registerViewport', () => {
 
     engine.registerSource(source, {});
     engine.registerViewport(buggy, {
-      onDragScroll(_event, eventDetails) {
+      onDragScroll(eventDetails) {
         eventDetails.consume();
         throw new Error('onDragScroll boom');
       },
@@ -820,7 +821,7 @@ describe('engine.registerViewport', () => {
 
     engine.registerSource(source, {});
     engine.registerViewport(scroller, {
-      onDragScroll: (_event, eventDetails) => {
+      onDragScroll: (eventDetails) => {
         eventDetails.cancel();
       },
     });
@@ -877,21 +878,25 @@ describe('engine.registerViewport', () => {
     const scrollByMock = scroller.scrollBy as ReturnType<typeof vi.fn>;
     // Asymmetric answers so both halves observe which hold is active: the
     // second allows the scroll the first forbids.
-    const first = vi.fn<(value: DraggableViewportDragScrollValue) => boolean>(() => false);
-    const second = vi.fn<(value: DraggableViewportDragScrollValue) => boolean>(() => true);
+    const first = vi.fn<(eventDetails: DraggableViewportDragScrollEventDetails) => boolean>(
+      () => false,
+    );
+    const second = vi.fn<(eventDetails: DraggableViewportDragScrollEventDetails) => boolean>(
+      () => true,
+    );
 
     engine.registerSource(source, {});
     engine.registerViewport(scroller, {
-      onDragScroll: (details, eventDetails) => {
-        if (!first(details)) {
+      onDragScroll: (eventDetails) => {
+        if (!first(eventDetails)) {
           eventDetails.cancel();
           return;
         }
       },
     });
     const releaseSecond = engine.registerViewport(scroller, {
-      onDragScroll: (details, eventDetails) => {
-        if (!second(details)) {
+      onDragScroll: (eventDetails) => {
+        if (!second(eventDetails)) {
           eventDetails.cancel();
           return;
         }
@@ -931,9 +936,9 @@ describe('engine.registerViewport', () => {
 
     engine.registerSource(source, {});
     const cleanupScroll = engine.registerViewport(surface, {
-      onDragScroll: (details, eventDetails) => {
+      onDragScroll: (eventDetails) => {
         eventDetails.cancel();
-        pan(details);
+        pan(eventDetails);
         eventDetails.consume();
       },
     });
@@ -1000,7 +1005,7 @@ describe('engine.registerViewport', () => {
     // is outside the scroller entirely.
     engine.registerSource(source, { modifiers: restrictToHorizontalAxis });
     engine.registerViewport(scroller, {
-      onDragScroll: (_, { input }) => {
+      onDragScroll: ({ input }) => {
         seenY.push(input.clientY);
       },
     });
@@ -1147,9 +1152,9 @@ describe('engine.registerViewport', () => {
     // already stopped moving, so no input will arrive to wake the parked loop.
     // The registration itself has to buy the frame.
     engine.registerViewport(surface, {
-      onDragScroll: (details, eventDetails) => {
+      onDragScroll: (eventDetails) => {
         eventDetails.cancel();
-        pan(details);
+        pan(eventDetails);
         eventDetails.consume();
       },
     });
@@ -1195,16 +1200,16 @@ describe('engine.registerViewport', () => {
       // axis and starve the accepting one.
       const picky = makeEngageableScroller();
       const open = makeEngageableScroller();
-      const pickyShouldScroll = vi.fn<(value: DraggableViewportDragScrollValue) => boolean>(
-        () => true,
-      );
+      const pickyShouldScroll = vi.fn<
+        (eventDetails: DraggableViewportDragScrollEventDetails) => boolean
+      >(() => true);
 
       // The drag's kind is the renderer's default `testDragKind`.
       engine.registerSource(source, {});
       engine.registerViewport(picky, {
         accept: otherKind,
-        onDragScroll: (details, eventDetails) => {
-          if (!pickyShouldScroll(details)) {
+        onDragScroll: (eventDetails) => {
+          if (!pickyShouldScroll(eventDetails)) {
             eventDetails.cancel();
             return;
           }
@@ -1439,9 +1444,9 @@ describe('engine.registerViewport', () => {
       engine.registerSource(source, {});
       engine.registerViewport(outer.element, {});
       engine.registerViewport(inner.element, {
-        onDragScroll: (details, eventDetails) => {
+        onDragScroll: (eventDetails) => {
           const allowedDirection = 'vertical';
-          if (allowedDirection !== details.direction) {
+          if (allowedDirection !== eventDetails.direction) {
             eventDetails.cancel();
             return;
           }
@@ -1524,7 +1529,9 @@ describe('engine.registerViewport', () => {
       await flushRaf();
       await flushRaf();
 
-      expect(observe.mock.calls.some(([event]) => event.direction === 'vertical')).toBe(true);
+      expect(
+        observe.mock.calls.some(([eventDetails]) => eventDetails.direction === 'vertical'),
+      ).toBe(true);
       expect(innerScrollBy).not.toHaveBeenCalled();
       expect(outer.scrollBy).toHaveBeenCalled();
     });
@@ -1544,9 +1551,9 @@ describe('engine.registerViewport', () => {
       engine.registerSource(source, {});
       engine.registerViewport(outer.element, {});
       const cleanupInner = engine.registerViewport(inner, {
-        onDragScroll: (details, eventDetails) => {
+        onDragScroll: (eventDetails) => {
           eventDetails.cancel();
-          innerPan(details);
+          innerPan(eventDetails);
           eventDetails.consume();
         },
       });
@@ -1915,16 +1922,13 @@ describe('engine.registerViewport', () => {
       const container = makeContainer();
       const source = makeNestedSource(container.element);
       const shouldScroll = vi.fn<
-        (
-          value: DraggableViewportDragScrollValue,
-          eventDetails: DraggableViewportDragScrollEventDetails,
-        ) => boolean
+        (eventDetails: DraggableViewportDragScrollEventDetails) => boolean
       >(() => false);
 
       engine.registerSource(source, {});
       engine.registerViewport(container.element, {
-        onDragScroll: (details, eventDetails) => {
-          if (!shouldScroll(details, eventDetails)) {
+        onDragScroll: (eventDetails) => {
+          if (!shouldScroll(eventDetails)) {
             eventDetails.cancel();
             return;
           }
@@ -1934,7 +1938,7 @@ describe('engine.registerViewport', () => {
       await driveTo(source, container.element, 100, 190);
 
       expect(shouldScroll).toHaveBeenCalled();
-      expect(shouldScroll.mock.calls[0][1].element).toBe(container.element);
+      expect(shouldScroll.mock.calls[0][0].element).toBe(container.element);
       expect(container.scrollBy).not.toHaveBeenCalled();
     });
 
@@ -1976,9 +1980,9 @@ describe('engine.registerViewport', () => {
 
       engine.registerSource(source, {});
       engine.registerViewport(viewport.element, {
-        onDragScroll: (details, eventDetails) => {
+        onDragScroll: (eventDetails) => {
           eventDetails.cancel();
-          pan(details, eventDetails);
+          pan(eventDetails);
           eventDetails.consume();
         },
       });
@@ -1986,7 +1990,7 @@ describe('engine.registerViewport', () => {
       await driveTo(source, viewport.element, 100, 190);
 
       expect(pan).toHaveBeenCalled();
-      expect(pan.mock.calls[0][1].element).toBe(viewport.element);
+      expect(pan.mock.calls[0][0].element).toBe(viewport.element);
       expect(viewport.scrollBy).not.toHaveBeenCalled();
     });
   });
@@ -2073,7 +2077,7 @@ describe('engine.registerViewport', () => {
       // imperative registration is the escape hatch for it.
       registerCleanup(
         engine.registerViewport(document.documentElement, () => ({
-          onDragScroll: (_event, eventDetails) => {
+          onDragScroll: (eventDetails) => {
             eventDetails.cancel();
           },
         })),
@@ -2298,9 +2302,9 @@ describe('engine.registerViewport', () => {
       engine.registerSource(source, {});
       registerCleanup(
         engine.registerViewport(page.element, {
-          onDragScroll: (details, eventDetails) => {
+          onDragScroll: (eventDetails) => {
             const allowedDirection = 'vertical';
-            if (allowedDirection !== details.direction) {
+            if (allowedDirection !== eventDetails.direction) {
               eventDetails.cancel();
               return;
             }
@@ -2323,7 +2327,7 @@ describe('engine.registerViewport', () => {
       engine.registerSource(source, {});
       registerCleanup(
         engine.registerViewport(page.element, {
-          onDragScroll: (_event, eventDetails) => {
+          onDragScroll: (eventDetails) => {
             eventDetails.cancel();
           },
         }),
@@ -2697,9 +2701,9 @@ describe('engine.registerViewport', () => {
         activation: { touch: { type: 'immediate' } },
       });
       engine.registerViewport(scroller, {
-        onDragScroll: (details, eventDetails) => {
+        onDragScroll: (eventDetails) => {
           const allowedDirection = 'vertical';
-          if (allowedDirection !== details.direction) {
+          if (allowedDirection !== eventDetails.direction) {
             eventDetails.cancel();
             return;
           }
@@ -2900,9 +2904,9 @@ describe('engine.registerViewport', () => {
 
       engine.registerSource(source, {});
       engine.registerViewport(scroller, {
-        onDragScroll(details, eventDetails) {
+        onDragScroll(eventDetails) {
           eventDetails.cancel();
-          pan(details);
+          pan(eventDetails);
           eventDetails.consume();
         },
       });
@@ -2926,13 +2930,15 @@ describe('engine.registerViewport', () => {
       await drive(source, scroller, 190, 190);
 
       const horizontal = onDragScroll.mock.calls.filter(
-        ([event]) => event.direction === 'horizontal',
+        ([eventDetails]) => eventDetails.direction === 'horizontal',
       );
-      const vertical = onDragScroll.mock.calls.filter(([event]) => event.direction === 'vertical');
+      const vertical = onDragScroll.mock.calls.filter(
+        ([eventDetails]) => eventDetails.direction === 'vertical',
+      );
       expect(horizontal.length).toBeGreaterThan(0);
       expect(vertical.length).toBeGreaterThan(0);
-      expect(horizontal.every(([event]) => event.y === 0)).toBe(true);
-      expect(vertical.every(([event]) => event.x === 0)).toBe(true);
+      expect(horizontal.every(([eventDetails]) => eventDetails.y === 0)).toBe(true);
+      expect(vertical.every(([eventDetails]) => eventDetails.x === 0)).toBe(true);
     });
 
     it('does not scroll left when the container is at the left limit', async () => {
@@ -3272,9 +3278,9 @@ describe('engine.registerViewport', () => {
       engine.registerSource(source, {});
       engine.registerViewport(viewport, {
         maxSpeed: 300,
-        onDragScroll: (details, eventDetails) => {
+        onDragScroll: (eventDetails) => {
           eventDetails.cancel();
-          pan(details);
+          pan(eventDetails);
           eventDetails.consume();
         },
       });
@@ -3341,9 +3347,9 @@ describe('engine.registerViewport', () => {
 
       engine.registerSource(source, {});
       engine.registerViewport(viewport, {
-        onDragScroll: (details, eventDetails) => {
+        onDragScroll: (eventDetails) => {
           eventDetails.cancel();
-          pan(details);
+          pan(eventDetails);
           eventDetails.consume();
         },
       });
@@ -3399,9 +3405,9 @@ describe('engine.registerViewport', () => {
 
         engine.registerSource(source, {});
         engine.registerViewport(viewport, {
-          onDragScroll: (details, eventDetails) => {
+          onDragScroll: (eventDetails) => {
             eventDetails.cancel();
-            pan(details);
+            pan(eventDetails);
             eventDetails.consume();
           },
         });
@@ -3420,22 +3426,22 @@ describe('engine.registerViewport', () => {
 
       engine.registerSource(source, {});
       engine.registerViewport(viewport, {
-        onDragScroll: (details, eventDetails) => {
+        onDragScroll: (eventDetails) => {
           eventDetails.cancel();
-          pan(details, eventDetails);
+          pan(eventDetails);
           eventDetails.consume();
         },
       });
 
       await driveTo(source, viewport, 100, 190);
 
-      const [value, eventDetails] = pan.mock.calls[0];
+      const [eventDetails] = pan.mock.calls[0];
       expect(eventDetails.element).toBe(viewport);
-      expect(value.source.element).toBe(source);
+      expect(eventDetails.source.element).toBe(source);
       expect(eventDetails.input.clientX).toBe(100);
       expect(eventDetails.input.clientY).toBe(190);
-      expect(typeof value.x).toBe('number');
-      expect(typeof value.y).toBe('number');
+      expect(typeof eventDetails.x).toBe('number');
+      expect(typeof eventDetails.y).toBe('number');
     });
 
     it('never runs for a drag its accept rejects', async () => {
@@ -3449,9 +3455,9 @@ describe('engine.registerViewport', () => {
       engine.registerSource(source, { kind: rejected, payload: undefined });
       engine.registerViewport(viewport, {
         accept: accepted,
-        onDragScroll: (details, eventDetails) => {
+        onDragScroll: (eventDetails) => {
           eventDetails.cancel();
-          pan(details);
+          pan(eventDetails);
           eventDetails.consume();
         },
       });
@@ -3471,9 +3477,9 @@ describe('engine.registerViewport', () => {
       engine.registerSource(source, { kind: accepted, payload: undefined });
       engine.registerViewport(viewport, {
         accept: accepted,
-        onDragScroll: (details, eventDetails) => {
+        onDragScroll: (eventDetails) => {
           eventDetails.cancel();
-          pan(details);
+          pan(eventDetails);
           eventDetails.consume();
         },
       });
@@ -3492,14 +3498,14 @@ describe('engine.registerViewport', () => {
 
       engine.registerSource(source, {});
       engine.registerViewport(viewport, {
-        onDragScroll: (details, eventDetails) => {
+        onDragScroll: (eventDetails) => {
           const allowedDirection = 'vertical';
-          if (allowedDirection !== details.direction) {
+          if (allowedDirection !== eventDetails.direction) {
             eventDetails.cancel();
             return;
           }
           eventDetails.cancel();
-          pan(details);
+          pan(eventDetails);
           eventDetails.consume();
         },
       });
@@ -3555,9 +3561,9 @@ describe('engine.registerViewport', () => {
 
         engine.registerSource(source, {});
         engine.registerViewport(outer, {
-          onDragScroll: (details, eventDetails) => {
+          onDragScroll: (eventDetails) => {
             const allowedDirection = outerAllowedAxis ?? 'all';
-            if (allowedDirection !== 'all' && allowedDirection !== details.direction) {
+            if (allowedDirection !== 'all' && allowedDirection !== eventDetails.direction) {
               eventDetails.cancel();
               return;
             }
@@ -3575,7 +3581,7 @@ describe('engine.registerViewport', () => {
       }
 
       it('stopping propagation claims both proposed axes', async () => {
-        const { outerScrollBy } = await renderNested((_event, eventDetails) => {
+        const { outerScrollBy } = await renderNested((eventDetails) => {
           eventDetails.cancel();
           eventDetails.consume();
         });
@@ -3583,9 +3589,9 @@ describe('engine.registerViewport', () => {
       });
 
       it('stopping vertical propagation releases horizontal movement to the outer container', async () => {
-        const { outerScrollBy } = await renderNested(({ direction }, eventDetails) => {
+        const { outerScrollBy } = await renderNested((eventDetails) => {
           eventDetails.cancel();
-          if (direction === 'vertical') {
+          if (eventDetails.direction === 'vertical') {
             eventDetails.consume();
           }
         }, 'horizontal');
@@ -3593,9 +3599,9 @@ describe('engine.registerViewport', () => {
       });
 
       it('stopping vertical propagation keeps the claimed direction', async () => {
-        const { outerScrollBy } = await renderNested(({ direction }, eventDetails) => {
+        const { outerScrollBy } = await renderNested((eventDetails) => {
           eventDetails.cancel();
-          if (direction === 'vertical') {
+          if (eventDetails.direction === 'vertical') {
             eventDetails.consume();
           }
         }, 'vertical');
@@ -3605,7 +3611,7 @@ describe('engine.registerViewport', () => {
       });
 
       it('preventing the default without stopping propagation releases both axes', async () => {
-        const { outerScrollBy } = await renderNested((_event, eventDetails) => {
+        const { outerScrollBy } = await renderNested((eventDetails) => {
           eventDetails.cancel();
         }, 'vertical');
         // A surface parked at its own bounds must not swallow the axis it didn't
@@ -3645,10 +3651,10 @@ describe('engine.registerViewport', () => {
         // Held frame clock: identical rAF timestamps keep every delta at 0.
         installFrameClock();
         const seen: number[] = [];
-        const { outerScrollBy } = await renderNested(({ y }, eventDetails) => {
+        const { outerScrollBy } = await renderNested((eventDetails) => {
           eventDetails.cancel();
           eventDetails.consume();
-          seen.push(y);
+          seen.push(eventDetails.y);
         });
 
         expect(seen.length).toBeGreaterThan(0);
@@ -3661,7 +3667,9 @@ describe('engine.registerViewport', () => {
       const { engine } = await renderDnd();
       const source = createElement();
       const viewport = makeViewport();
-      const pan = vi.fn<(value: DraggableViewportDragScrollValue) => null>(() => null);
+      const pan = vi.fn<(eventDetails: DraggableViewportDragScrollEventDetails) => null>(
+        () => null,
+      );
 
       engine.registerSource(source, {});
       engine.registerViewport(viewport, {
@@ -3724,14 +3732,14 @@ describe('engine.registerViewport', () => {
           activation: { touch: { type: 'immediate' } },
         });
         engine.registerViewport(viewport, {
-          onDragScroll: (details, eventDetails) => {
+          onDragScroll: (eventDetails) => {
             eventDetails.cancel();
             (({ y }) => {
               panned += y;
               // Written synchronously, which is the contract the API documents:
               // the engine hit-tests against this on the very next frame.
               content.style.transform = `translateY(${-panned}px)`;
-            })(details);
+            })(eventDetails);
             eventDetails.consume();
           },
         });
@@ -3762,9 +3770,9 @@ describe('engine.registerViewport', () => {
 
       engine.registerSource(source, {});
       engine.registerViewport(viewport, {
-        onDragScroll: (details, eventDetails) => {
+        onDragScroll: (eventDetails) => {
           eventDetails.cancel();
-          pan(details);
+          pan(eventDetails);
           eventDetails.consume();
         },
       });

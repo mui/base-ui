@@ -22,7 +22,6 @@ import type {
   DragEndReason,
   DragMoveReason,
   DragStartReason,
-  DragSourceEventValue,
   DraggableEventDetailsMap,
 } from '../types';
 import type { DraggableConfig } from '../draggable';
@@ -233,13 +232,6 @@ export function start(parameters: StartParameters): DragSessionController | null
     return { ...leaveLocation, previous: leaveLocation.current, current: { input, targets: [] } };
   }
 
-  /** The value source and monitor handlers receive: the source and the innermost target. */
-  function createSourceValue(
-    target: DraggableTargetRecord | null | undefined,
-  ): DragSourceEventValue {
-    return { source, target: target ?? null };
-  }
-
   // The location snapshot at the last delivered event. Sensors can coalesce
   // several native samples before calling `update`, so `previous` advances at
   // dispatch rather than at raw input frequency.
@@ -391,6 +383,8 @@ export function start(parameters: StartParameters): DragSessionController | null
         'handler-error',
         undefined,
         createTerminalLeaveLocation(location.current.input),
+        source,
+        null,
       );
       containConsumerError(
         'Base UI: a drag handler threw while another handler error was being recovered. ' +
@@ -400,7 +394,6 @@ export function start(parameters: StartParameters): DragSessionController | null
           dispatchDropTargetChange(
             departedDropTargets,
             [],
-            source,
             leaveDetails,
             isLive,
             hoveredDropTargets,
@@ -410,16 +403,21 @@ export function start(parameters: StartParameters): DragSessionController | null
     }
     location.previous = lastDispatched;
     location.current = { input: location.current.input, targets: [] };
-    const endValue = createSourceValue(null);
-    const endDetails = createMoveEndEventDetails('handler-error', undefined, snapshotLocation());
+    const endDetails = createMoveEndEventDetails(
+      'handler-error',
+      undefined,
+      snapshotLocation(),
+      source,
+      null,
+    );
     containConsumerError(
       'Base UI: a drag handler threw, so the drag was torn down. ' +
         'The terminal onMoveEnd is best-effort.',
       null,
-      () => getSourceHandlers().onMoveEnd?.(endValue, endDetails),
+      () => getSourceHandlers().onMoveEnd?.(endDetails),
       undefined,
     );
-    dispatchToMonitors('onMoveEnd', endValue, endDetails);
+    dispatchToMonitors('onMoveEnd', endDetails);
   }
 
   // A fresh snapshot, nested arrays included, so `useStore`'s `Object.is`
@@ -490,25 +488,24 @@ export function start(parameters: StartParameters): DragSessionController | null
   // Keeps `onMoveStart` ahead of any onDraggableDrop/onDraggableEnter: a collection that hasn't
   // seen onMoveStart has an empty dragged-item set and would swallow the drop.
   function dispatchDragStart(): void {
-    const startValue = createSourceValue(location.current.targets[0]);
-    const startDetails = createDragEventDetails(startReason, lastInputEvent, snapshotLocation());
+    const startDetails = createDragEventDetails(
+      startReason,
+      lastInputEvent,
+      snapshotLocation(),
+      source,
+      location.current.targets[0] ?? null,
+    );
     dispatching = true;
     try {
-      getSourceHandlers().onMoveStart?.(startValue, startDetails);
+      getSourceHandlers().onMoveStart?.(startDetails);
       // A source `onMoveStart` can synchronously cancel the drag (public
       // `cancelDrag()`); the cancel already delivered the terminal events, so
       // the targets/monitors must not see a start for a drag that just ended.
       if (tornDown) {
         return;
       }
-      dispatchToAllDropTargets(
-        location.current.targets,
-        'onDraggableStart',
-        source,
-        startDetails,
-        isLive,
-      );
-      dispatchToMonitors('onMoveStart', startValue, startDetails);
+      dispatchToAllDropTargets(location.current.targets, 'onDraggableStart', startDetails, isLive);
+      dispatchToMonitors('onMoveStart', startDetails);
       // The stack under the pickup point is published in `dropTargetElements` and
       // owed a terminal `onDraggableLeave` by `doDrop`/`doCancel`, so it has to be told
       // it was entered too. The only other emitter of `onDraggableEnter` is
@@ -525,7 +522,7 @@ export function start(parameters: StartParameters): DragSessionController | null
           break;
         }
         hoveredDropTargets.push(record);
-        dispatchToDropTarget(record, 'onDraggableEnter', source, startDetails);
+        dispatchToDropTarget(record, 'onDraggableEnter', startDetails);
       }
     } catch (error) {
       recover(error);
@@ -543,20 +540,26 @@ export function start(parameters: StartParameters): DragSessionController | null
   function dispatchDrag(): void {
     // See `lastDispatched`: `previous` reflects the last delivered event.
     location.previous = lastDispatched;
-    const dragDetails = createDragEventDetails(lastInputReason, lastInputEvent, snapshotLocation());
-    const { targets } = dragDetails.location.current;
-    const dragValue = createSourceValue(targets[0]);
+    const locationSnapshot = snapshotLocation();
+    const { targets } = locationSnapshot.current;
+    const dragDetails = createDragEventDetails(
+      lastInputReason,
+      lastInputEvent,
+      locationSnapshot,
+      source,
+      targets[0] ?? null,
+    );
     dispatching = true;
     // recover on throw (see dispatchDragStart)
     try {
       captureDropTargetCollision(targets[0], source);
-      getSourceHandlers().onMove?.(dragValue, dragDetails);
+      getSourceHandlers().onMove?.(dragDetails);
       // A source `onMove` can synchronously cancel; deliver nothing further.
       if (tornDown) {
         return;
       }
-      dispatchToAllDropTargets(targets, 'onDraggableMove', source, dragDetails, isLive);
-      dispatchToMonitors('onMove', dragValue, dragDetails);
+      dispatchToAllDropTargets(targets, 'onDraggableMove', dragDetails, isLive);
+      dispatchToMonitors('onMove', dragDetails);
     } catch (error) {
       recover(error);
     } finally {
@@ -627,16 +630,14 @@ export function start(parameters: StartParameters): DragSessionController | null
     currentTargets: readonly DraggableTargetRecord[],
     changeDetails: DraggableEventDetailsMap['onTargetChange'],
   ): boolean {
-    const changeValue = createSourceValue(currentTargets[0]);
     captureDropTargetCollision(currentTargets[0], source);
-    getSourceHandlers().onTargetChange?.(changeValue, changeDetails);
+    getSourceHandlers().onTargetChange?.(changeDetails);
     if (tornDown) {
       return false;
     }
     dispatchDropTargetChange(
       previousTargets,
       currentTargets,
-      source,
       changeDetails,
       isLive,
       hoveredDropTargets,
@@ -644,7 +645,7 @@ export function start(parameters: StartParameters): DragSessionController | null
     if (tornDown) {
       return false;
     }
-    dispatchToMonitors('onTargetChange', changeValue, changeDetails);
+    dispatchToMonitors('onTargetChange', changeDetails);
     return !tornDown;
   }
 
@@ -692,6 +693,8 @@ export function start(parameters: StartParameters): DragSessionController | null
         lastInputReason,
         lastInputEvent,
         snapshotLocation(),
+        source,
+        newDropTargets[0] ?? null,
       );
       dispatching = true;
       // recover on throw (see dispatchDragStart)
@@ -710,8 +713,10 @@ export function start(parameters: StartParameters): DragSessionController | null
             lastInputReason,
             lastInputEvent,
             snapshotLocation(),
+            source,
+            newDropTargets[0],
           );
-          dispatchToAllDropTargets(newDropTargets, 'onDraggableMove', source, entryDetails, isLive);
+          dispatchToAllDropTargets(newDropTargets, 'onDraggableMove', entryDetails, isLive);
         }
       } catch (error) {
         recover(error);
@@ -820,7 +825,13 @@ export function start(parameters: StartParameters): DragSessionController | null
     // recover on throw (see dispatchDragStart)
     try {
       if (!areArraysEqual(previousDropTargets, freshDropTargets, dropTargetRecordsEqual)) {
-        const changeDetails = createDragEventDetails(endReason, event, snapshotLocation());
+        const changeDetails = createDragEventDetails(
+          endReason,
+          event,
+          snapshotLocation(),
+          source,
+          innermostDropTarget,
+        );
         // A dead round means a consumer canceled re-entrantly; the cancel path
         // already ran `onMoveEnd`/teardown, so skip the drop.
         if (!dispatchChangeRound(previousDropTargets, freshDropTargets, changeDetails)) {
@@ -840,11 +851,16 @@ export function start(parameters: StartParameters): DragSessionController | null
       // target stack from here on; `tearDown()` clears the slots anyway.
       disarmSessionHooks();
 
-      const endValue = createSourceValue(innermostDropTarget);
-      const endDetails = createMoveEndEventDetails(endReason, event, snapshotLocation());
+      const endDetails = createMoveEndEventDetails(
+        endReason,
+        event,
+        snapshotLocation(),
+        source,
+        innermostDropTarget,
+      );
       // Deliver the source end once, even if its commit handler throws.
       endDispatched = true;
-      captureTerminalError(() => getSourceHandlers().onMoveEnd?.(endValue, endDetails));
+      captureTerminalError(() => getSourceHandlers().onMoveEnd?.(endDetails));
       // A consumer `onMoveEnd` can synchronously tear the session down; teardown
       // then already notified the targets/monitors, so don't double-dispatch.
       if (!tornDown) {
@@ -854,12 +870,18 @@ export function start(parameters: StartParameters): DragSessionController | null
         // pre-dispatch snapshot so a re-entrant refresh can't redirect the drop,
         // and an `onMoveEnd` that unregistered the target can't swallow it.
         if (innermostDropTarget) {
-          const dropDetails = createDragEventDetails('drop', event, snapshotLocation());
+          const dropDetails = createDragEventDetails(
+            'drop',
+            event,
+            snapshotLocation(),
+            source,
+            innermostDropTarget,
+          );
           captureTerminalError(() =>
-            dispatchToDropTarget(innermostDropTarget, 'onDraggableDrop', source, dropDetails),
+            dispatchToDropTarget(innermostDropTarget, 'onDraggableDrop', dropDetails),
           );
         }
-        dispatchToMonitors('onMoveEnd', endValue, endDetails);
+        dispatchToMonitors('onMoveEnd', endDetails);
 
         // Fire final `onDraggableLeave` for any targets still hovered so imperative
         // hover state clears (the success path never emits a change to empty).
@@ -873,13 +895,15 @@ export function start(parameters: StartParameters): DragSessionController | null
             endReason,
             event,
             createTerminalLeaveLocation(input),
+            source,
+            null,
           );
           for (const target of departedDropTargets) {
             if (!isLive()) {
               break;
             }
             captureTerminalError(() =>
-              dispatchDropTargetLeave(target, source, leaveDetails, hoveredDropTargets),
+              dispatchDropTargetLeave(target, leaveDetails, hoveredDropTargets),
             );
           }
         }
@@ -926,6 +950,8 @@ export function start(parameters: StartParameters): DragSessionController | null
           reason,
           event,
           snapshotLocation(),
+          source,
+          null,
         );
         // A dead round means a consumer tore the session down re-entrantly and
         // the terminal `onMoveEnd` already fired; don't dispatch again.
@@ -936,12 +962,11 @@ export function start(parameters: StartParameters): DragSessionController | null
 
       // A `null` target with a cancel reason (and the empty `targets` stack) lets
       // source/monitor `onMoveEnd` handlers tell a cancel from a real drop.
-      const endValue = createSourceValue(null);
-      const endDetails = createMoveEndEventDetails(reason, event, snapshotLocation());
+      const endDetails = createMoveEndEventDetails(reason, event, snapshotLocation(), source, null);
       endDispatched = true;
-      captureTerminalError(() => getSourceHandlers().onMoveEnd?.(endValue, endDetails));
+      captureTerminalError(() => getSourceHandlers().onMoveEnd?.(endDetails));
       if (!tornDown) {
-        dispatchToMonitors('onMoveEnd', endValue, endDetails);
+        dispatchToMonitors('onMoveEnd', endDetails);
       }
     } catch (error) {
       recover(error);

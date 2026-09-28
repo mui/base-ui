@@ -12,7 +12,7 @@ import type {
   DraggableLocationHistory,
 } from '../../draggable/DraggableProvider';
 import type { DraggableRootRecord } from '../../draggable/root/DraggableRoot';
-import type { DragSourceEventValue, MoveEventDetails, DropTargetChangeEventDetails } from './types';
+import type { MoveEventDetails, DropTargetChangeEventDetails } from './types';
 import { matchesAccept } from './dragKind';
 import { addMonitor, removeMonitor } from './monitor';
 import type { RegisterMonitorParameters } from './monitor';
@@ -33,8 +33,8 @@ import { dragSessionStore } from './dragSessionStore';
 import * as DraggablePreviewDataAttributes from '../../draggable/preview/DraggablePreviewDataAttributes';
 import { getMaxScrollOffset } from '../scrollEdges';
 import type {
+  DraggableViewportDragScrollDirection,
   DraggableViewportDragScrollEventDetails,
-  DraggableViewportDragScrollValue,
   DraggableViewportMaxSpeedContext,
   DraggableViewportOverflowMargin,
 } from '../../draggable/viewport/DraggableViewport';
@@ -98,7 +98,7 @@ const holds = createGetterStackRegistry<HTMLElement, ScrollerGetter>({
 // The engine-internal monitor that drives the scroll loop, installed by the
 // first viewport registration.
 const SCROLL_MONITOR_PARAMS: RegisterMonitorParameters = {
-  onMoveStart: ({ source }, { location }) => startScrollSession(source, location),
+  onMoveStart: (eventDetails) => startScrollSession(eventDetails.source, eventDetails.location),
   onMove: refreshDragInput,
   onTargetChange: refreshDragInput,
   onMoveEnd: stopScrollLoop,
@@ -690,10 +690,10 @@ function runScrollFrame(timestamp: number): void {
       }
 
       // `probe`, not the raw pointer: this is the point the engine just decided this
-      // container's edge zones from, so a consumer re-deriving the same test
-      // (`onDragScroll: (value, { input, element }) => isPointInRect(input…, element…)`)
-      // reaches the same answer. Reporting the raw pointer would tell a consumer the
-      // drag is outside a container the engine is busy scrolling.
+      // container's edge zones from, so a consumer re-deriving the same test from
+      // `onDragScroll`'s `eventDetails.input` and `eventDetails.element` reaches the
+      // same answer. Reporting the raw pointer would tell a consumer the drag is
+      // outside a container the engine is busy scrolling.
       const feedback = { input: probe, source: currentSource, element };
 
       const depth = { x: 0, y: 0 };
@@ -758,18 +758,19 @@ function runScrollFrame(timestamp: number): void {
           continue;
         }
         const delta = depth[axis] * frameSpeed;
-        const value: DraggableViewportDragScrollValue = {
-          source: currentSource,
-          x: axis === 'x' ? delta : 0,
-          y: axis === 'y' ? delta : 0,
-          direction: axis === 'x' ? 'horizontal' : 'vertical',
-        };
-        const eventDetails = createAutoScrollEventDetails(probe, element);
+        const eventDetails = createAutoScrollEventDetails(
+          currentSource,
+          axis === 'x' ? delta : 0,
+          axis === 'y' ? delta : 0,
+          axis === 'x' ? 'horizontal' : 'vertical',
+          probe,
+          element,
+        );
         const succeeded = safeCall(
           'onDragScroll',
           element,
           () => {
-            onDragScroll(value, eventDetails);
+            onDragScroll(eventDetails);
             return true;
           },
           false,
@@ -786,7 +787,7 @@ function runScrollFrame(timestamp: number): void {
           nativeOverflow[axis] &&
           canScrollToward(scrollTarget, axis, depth[axis], isPageScroller);
         if (shouldScroll) {
-          scrollTarget.scrollBy({ left: value.x, top: value.y, behavior: 'instant' });
+          scrollTarget.scrollBy({ left: eventDetails.x, top: eventDetails.y, behavior: 'instant' });
         }
         // Two separate signals. `cancel()` says the handler took the axis over
         // (a custom surface moving itself), which keeps the element engaged so
@@ -1071,14 +1072,11 @@ interface ScrollCandidate {
 
 // Re-seed the loop from any fresh drag input; shared by `onMove` and
 // `onTargetChange`, which need identical handling.
-function refreshDragInput(
-  { source }: DragSourceEventValue,
-  { location }: MoveEventDetails | DropTargetChangeEventDetails,
-): void {
+function refreshDragInput(eventDetails: MoveEventDetails | DropTargetChangeEventDetails): void {
   if (state.currentSource === null) {
     return;
   }
-  setDragInput(location, source);
+  setDragInput(eventDetails.location, eventDetails.source);
   wakeScrollLoop();
 }
 
@@ -1100,6 +1098,10 @@ function startScrollSession(source: DraggableRootRecord, location: DraggableLoca
 }
 
 function createAutoScrollEventDetails(
+  source: DraggableRootRecord,
+  x: number,
+  y: number,
+  direction: DraggableViewportDragScrollDirection,
   input: DraggableInput,
   element: HTMLElement,
 ): DraggableViewportDragScrollEventDetails {
@@ -1108,6 +1110,10 @@ function createAutoScrollEventDetails(
     undefined,
     undefined,
     {
+      source,
+      x,
+      y,
+      direction,
       input,
       element,
       isConsumed: false,
@@ -1205,9 +1211,6 @@ export interface RegisterViewportParameters<TSourcePayload = unknown, TDragData 
    * scrolling on the same axis. Skip it at a bound the element can't move past.
    */
   onDragScroll?:
-    | ((
-        value: DraggableViewportDragScrollValue<TSourcePayload, TDragData>,
-        eventDetails: DraggableViewportDragScrollEventDetails,
-      ) => void)
+    | ((eventDetails: DraggableViewportDragScrollEventDetails<TSourcePayload, TDragData>) => void)
     | undefined;
 }

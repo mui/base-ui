@@ -75,7 +75,7 @@ describe.skipIf(isJSDOM)('Draggable viewport scrolling in the browser', () => {
     move(250);
     await waitFor(() => expect(viewport.scrollTop).toBeGreaterThan(0));
     expect(
-      onDragScroll.mock.calls.some(([, eventDetails]) => eventDetails.input.clientY === 250),
+      onDragScroll.mock.calls.some(([eventDetails]) => eventDetails.input.clientY === 250),
     ).toBe(true);
     move(281);
     await flushRaf();

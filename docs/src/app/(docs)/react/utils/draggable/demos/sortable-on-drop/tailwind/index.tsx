@@ -28,9 +28,11 @@ const Task = React.memo(function Task({
 }) {
   const rowRef = React.useRef<HTMLDivElement | null>(null);
   const [selfDrop, setSelfDrop] = React.useState(false);
-  const trackSelfDrop = useStableCallback(({ target }: Draggable.Root.MoveStartValue<string>) => {
-    setSelfDrop(target?.element === rowRef.current);
-  });
+  const trackSelfDrop = useStableCallback(
+    (eventDetails: Draggable.Root.TargetChangeEventDetails<string>) => {
+      setSelfDrop(eventDetails.target?.element === rowRef.current);
+    },
+  );
 
   return (
     <div data-sortable-row ref={rowRef} className="px-[9px] py-1">
@@ -65,21 +67,20 @@ export default function SortableOnDrop() {
   const [announcement, setAnnouncement] = React.useState('');
   const [destination, setDestination] = React.useState<TaskDestination | null>(null);
   const trackCollision = useStableCallback(
-    (
-      { target }: Draggable.CollisionProvider.CollisionChangeValue<string>,
-      eventDetails: Draggable.CollisionProvider.CollisionChangeEventDetails<string>,
-    ) => {
-      const next = getTaskDestination(target);
+    (eventDetails: Draggable.CollisionProvider.CollisionChangeEventDetails<string>) => {
+      const next = getTaskDestination(eventDetails.target);
       if (sameTaskDestination(next, getTaskDestination(eventDetails.previousTarget))) {
         return;
       }
       setDestination(next);
     },
   );
-  const reorder = useStableCallback((value: Draggable.CollisionProvider.MoveEndValue<string>) => {
-    setDestination(null);
-    setTasks((current) => moveTask(current, value));
-  });
+  const reorder = useStableCallback(
+    (eventDetails: Draggable.CollisionProvider.MoveEndEventDetails<string>) => {
+      setDestination(null);
+      setTasks((current) => moveTask(current, eventDetails));
+    },
+  );
   const swap = useStableCallback((task: string, direction: 'up' | 'down') => {
     const next = swapTask(tasks, task, direction);
     if (next === tasks) {

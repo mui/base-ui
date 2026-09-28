@@ -220,9 +220,9 @@ describe('Draggable.Target', () => {
     await flushRaf();
 
     expect(nestedStart).toHaveBeenCalledTimes(1);
-    const value = nestedStart.mock.calls[0][0];
-    expect(value.source.element).toBe(nestedSource);
-    expect(value.target.element).toBe(wrapper);
+    const eventDetails = nestedStart.mock.calls[0][0];
+    expect(eventDetails.source.element).toBe(nestedSource);
+    expect(eventDetails.target.element).toBe(wrapper);
     // The unrelated target was never in the stack, so it saw nothing.
     expect(outsideStart).not.toHaveBeenCalled();
 
@@ -258,9 +258,9 @@ describe('Draggable.Target', () => {
     await flushRaf();
 
     expect(sourceStart).toHaveBeenCalledTimes(1);
-    const [sourceValue, sourceDetails] = sourceStart.mock.calls[0];
-    expect(sourceValue.target?.element).toBe(wrapper);
-    expect(sourceValue.target).toBe(sourceDetails.location.current.targets[0]);
+    const sourceDetails = sourceStart.mock.calls[0][0];
+    expect(sourceDetails.target?.element).toBe(wrapper);
+    expect(sourceDetails.target).toBe(sourceDetails.location.current.targets[0]);
     expect(monitorStart).toHaveBeenCalledTimes(1);
     expect(monitorStart.mock.calls[0][0].target?.element).toBe(wrapper);
 
@@ -338,11 +338,13 @@ describe('Draggable.Target', () => {
           key={swapped ? 'after' : 'before'}
           data-testid="target"
           payload={{ id: swapped ? 'after' : 'before' }}
-          onDraggableEnter={(value) => {
-            log.push(`enter:${(value.target.payload as any).id}`);
-            (swapped ? enterAfter : enterBefore)(value);
+          onDraggableEnter={(eventDetails) => {
+            log.push(`enter:${(eventDetails.target.payload as any).id}`);
+            (swapped ? enterAfter : enterBefore)(eventDetails);
           }}
-          onDraggableLeave={(value) => log.push(`leave:${(value.target.payload as any).id}`)}
+          onDraggableLeave={(eventDetails) =>
+            log.push(`leave:${(eventDetails.target.payload as any).id}`)
+          }
         />
       );
     }
@@ -381,9 +383,9 @@ describe('Draggable.Target', () => {
     expect(second).not.toBe(first);
     // The next event reads the new render's params, not the previous ones.
     expect(enterAfter).toHaveBeenCalledTimes(1);
-    const value = enterAfter.mock.calls[0][0];
-    expect(value.target.element).toBe(second);
-    expect(value.target.payload).toEqual({ id: 'after' });
+    const eventDetails = enterAfter.mock.calls[0][0];
+    expect(eventDetails.target.element).toBe(second);
+    expect(eventDetails.target.payload).toEqual({ id: 'after' });
     // The old node is unmounted garbage — React never updates a detached node's
     // attributes, so only its disconnection is assertable.
     expect(first.isConnected).toBe(false);
@@ -425,7 +427,7 @@ describe('Draggable.Target', () => {
 
     expect(onDrop).not.toHaveBeenCalled();
     expect(onMoveEnd).toHaveBeenCalledTimes(1);
-    expect(onMoveEnd.mock.calls[0][1].reason).toBe('outside-release');
+    expect(onMoveEnd.mock.calls[0][0].reason).toBe('outside-release');
     expect(onMoveEnd.mock.calls[0][0].target).toBeNull();
   });
 

@@ -6,7 +6,6 @@ import { useDraggableContext } from '../DraggableContext';
 import type {
   DraggablePayload,
   BeforeMoveStartEventDetailsProperties,
-  DragSourceEventValue,
   DragStartReason,
   DropTargetChangeEventDetails,
   MoveEndEventDetails,
@@ -17,7 +16,6 @@ import type { DraggableKind, DraggablePosition } from '../DraggableProvider';
 import type {
   DraggableTargetSnapSteps,
   DraggableTargetResolutionContext,
-  DraggableTargetRecord,
 } from '../target/DraggableTarget';
 import { useRenderElement } from '../../internals/useRenderElement';
 import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
@@ -328,64 +326,43 @@ export type DraggableRootModifier = (context: DraggableRootModifierContext) => D
 export type DraggableRootModifiers =
   DraggableRootModifier | ReadonlyArray<DraggableRootModifier | false | null | undefined>;
 
-/** The first argument of `onBeforeMoveStart`: the item about to be picked up. */
-export interface DraggableRootBeforeMoveStartValue<TPayload = unknown, TDragData = unknown> {
-  /**
-   * The source being picked up. The same record is used if the drag starts.
-   * Call `updateDragData` to initialize gesture data before targets resolve and previews render.
-   * A canceled pickup does not carry its gesture data into the next attempt.
-   */
-  source: DraggableRootRecord<TPayload, TDragData>;
-}
-
 /** The event details passed to `onBeforeMoveStart`. Call `cancel()` to prevent the drag. */
-export type DraggableRootBeforeMoveStartEventDetails = BaseUIChangeEventDetails<
+export type DraggableRootBeforeMoveStartEventDetails<
+  TPayload = unknown,
+  TDragData = unknown,
+> = BaseUIChangeEventDetails<
   DragStartReason,
-  BeforeMoveStartEventDetailsProperties
+  BeforeMoveStartEventDetailsProperties<TPayload, TDragData>
 >;
 
 export type DraggableRootBeforeMoveStartEventReason =
   DraggableRootBeforeMoveStartEventDetails['reason'];
 
-export interface DraggableRootMoveStartValue<
+export type DraggableRootMoveStartEventDetails<
   TPayload = unknown,
   TDragData = unknown,
-> extends DragSourceEventValue<TPayload, TDragData> {}
-
-export type DraggableRootMoveStartEventDetails = MoveStartEventDetails;
+> = MoveStartEventDetails<TPayload, TDragData>;
 
 export type DraggableRootMoveStartEventReason = DraggableRootMoveStartEventDetails['reason'];
 
-export interface DraggableRootMoveValue<
+export type DraggableRootMoveEventDetails<
   TPayload = unknown,
   TDragData = unknown,
-> extends DragSourceEventValue<TPayload, TDragData> {}
-
-export type DraggableRootMoveEventDetails = MoveEventDetails;
+> = MoveEventDetails<TPayload, TDragData>;
 
 export type DraggableRootMoveEventReason = DraggableRootMoveEventDetails['reason'];
 
-export interface DraggableRootTargetChangeValue<
+export type DraggableRootTargetChangeEventDetails<
   TPayload = unknown,
   TDragData = unknown,
-> extends DragSourceEventValue<TPayload, TDragData> {}
-
-export type DraggableRootTargetChangeEventDetails = DropTargetChangeEventDetails;
+> = DropTargetChangeEventDetails<TPayload, TDragData>;
 
 export type DraggableRootTargetChangeEventReason = DraggableRootTargetChangeEventDetails['reason'];
 
-export interface DraggableRootMoveEndValue<
+export type DraggableRootMoveEndEventDetails<
   TPayload = unknown,
   TDragData = unknown,
-> extends DragSourceEventValue<TPayload, TDragData> {
-  /**
-   * The drop target that received the drop, or `null` when the drag was canceled or
-   * released outside any target.
-   */
-  target: DraggableTargetRecord | null;
-}
-
-export type DraggableRootMoveEndEventDetails = MoveEndEventDetails;
+> = MoveEndEventDetails<TPayload, TDragData>;
 
 /**
  * Why a drag ended. Handle unknown reasons too, since more cancel reasons may be added:
@@ -446,35 +423,30 @@ export namespace DraggableRoot {
   export type Modifiers = DraggableRootModifiers;
   export type ModifierContext = DraggableRootModifierContext;
   export type ElementReference = DraggableRootElementReference;
-  export type BeforeMoveStartValue<
+  export type BeforeMoveStartEventDetails<
     TPayload = unknown,
     TDragData = unknown,
-  > = DraggableRootBeforeMoveStartValue<TPayload, TDragData>;
-  export type BeforeMoveStartEventDetails = DraggableRootBeforeMoveStartEventDetails;
+  > = DraggableRootBeforeMoveStartEventDetails<TPayload, TDragData>;
   export type BeforeMoveStartEventReason = DraggableRootBeforeMoveStartEventReason;
-  export type MoveStartValue<TPayload = unknown, TDragData = unknown> = DraggableRootMoveStartValue<
-    TPayload,
-    TDragData
-  >;
-  export type MoveStartEventDetails = DraggableRootMoveStartEventDetails;
-  export type MoveStartEventReason = DraggableRootMoveStartEventReason;
-  export type MoveValue<TPayload = unknown, TDragData = unknown> = DraggableRootMoveValue<
-    TPayload,
-    TDragData
-  >;
-  export type MoveEventDetails = DraggableRootMoveEventDetails;
-  export type MoveEventReason = DraggableRootMoveEventReason;
-  export type TargetChangeValue<
+  export type MoveStartEventDetails<
     TPayload = unknown,
     TDragData = unknown,
-  > = DraggableRootTargetChangeValue<TPayload, TDragData>;
-  export type TargetChangeEventDetails = DraggableRootTargetChangeEventDetails;
+  > = DraggableRootMoveStartEventDetails<TPayload, TDragData>;
+  export type MoveStartEventReason = DraggableRootMoveStartEventReason;
+  export type MoveEventDetails<
+    TPayload = unknown,
+    TDragData = unknown,
+  > = DraggableRootMoveEventDetails<TPayload, TDragData>;
+  export type MoveEventReason = DraggableRootMoveEventReason;
+  export type TargetChangeEventDetails<
+    TPayload = unknown,
+    TDragData = unknown,
+  > = DraggableRootTargetChangeEventDetails<TPayload, TDragData>;
   export type TargetChangeEventReason = DraggableRootTargetChangeEventReason;
-  export type MoveEndValue<TPayload = unknown, TDragData = unknown> = DraggableRootMoveEndValue<
-    TPayload,
-    TDragData
-  >;
-  export type MoveEndEventDetails = DraggableRootMoveEndEventDetails;
+  export type MoveEndEventDetails<
+    TPayload = unknown,
+    TDragData = unknown,
+  > = DraggableRootMoveEndEventDetails<TPayload, TDragData>;
   export type MoveEndEventReason = DraggableRootMoveEndEventReason;
   export type State = DraggableRootState;
   export type Props<TPayload = undefined, TDragData = unknown> = DraggableRootProps<

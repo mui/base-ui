@@ -59,8 +59,8 @@ export function CalendarWeekView(props: { weekStartMs: number }) {
       <WeekHeader days={days} todayMs={todayMs} />
       <WeekAllDayRow days={days} events={allDayEvents} weekStartMs={weekStartMs} />
       <Draggable.Viewport
-        onDragScroll={({ direction }, eventDetails) => {
-          if (direction !== 'vertical') {
+        onDragScroll={(eventDetails) => {
+          if (eventDetails.direction !== 'vertical') {
             eventDetails.cancel();
           }
         }}
@@ -200,8 +200,8 @@ function WeekAllDayCell(props: { dayMs: number }) {
           kind={calAllDayRowKind}
           accept={CAL_DRAG_KINDS}
           payload={cellPayload}
-          onDraggableMove={({ source, target }) => {
-            const next = resolveDropPreview(source, target);
+          onDraggableMove={(eventDetails) => {
+            const next = resolveDropPreview(eventDetails.source, eventDetails.target);
             if (!next) {
               return;
             }
@@ -218,8 +218,8 @@ function WeekAllDayCell(props: { dayMs: number }) {
           }}
         />
       }
-      onMoveEnd={({ target }) => {
-        if (target !== null) {
+      onMoveEnd={(eventDetails) => {
+        if (eventDetails.target !== null) {
           const preview = consumeDropPreview();
           if (preview?.intent !== 'create') {
             return;
@@ -268,8 +268,8 @@ function WeekAllDayBar(props: { event: CalendarEvent; segment: WeekEventSegment 
       // vertical arrows do nothing (the timed grid refuses all-day drags).
 
       payload={movePayload}
-      onMoveEnd={({ target }) => {
-        if (target !== null) {
+      onMoveEnd={(eventDetails) => {
+        if (eventDetails.target !== null) {
           const preview = consumeDropPreview();
           if (preview?.intent !== 'move') {
             return;
@@ -403,8 +403,8 @@ function WeekDayColumn(props: { dayMs: number; events: CalendarEvent[] }) {
           // One day divides into `DAY_MS / snap` slots; a callback because the
           // snap setting is runtime state.
           snap={() => ({ y: DAY_MS / (snapRef.current * MINUTE_MS) })}
-          onDraggableMove={({ source, target }) => {
-            const next = resolveDropPreview(source, target);
+          onDraggableMove={(eventDetails) => {
+            const next = resolveDropPreview(eventDetails.source, eventDetails.target);
             if (!next) {
               return;
             }
@@ -422,13 +422,13 @@ function WeekDayColumn(props: { dayMs: number; events: CalendarEvent[] }) {
         />
       }
       payload={payload}
-      onMoveStart={({ source }, eventDetails) => {
+      onMoveStart={(eventDetails) => {
         const input = eventDetails.location.initial.input;
-        const rect = source.element.getBoundingClientRect();
+        const rect = eventDetails.source.element.getBoundingClientRect();
         const offsetPx = input.clientY - rect.top;
         const rawMs = dayMsRef.current + offsetPx * (HOUR_MS / hourPxRef.current);
         const snapped = snapToMinutes(rawMs, snapRef.current);
-        source.updatePayload({
+        eventDetails.source.updatePayload({
           anchorMs: Math.max(
             dayMsRef.current,
             Math.min(dayMsRef.current + DAY_MS - MINUTE_MS, snapped),
@@ -436,8 +436,8 @@ function WeekDayColumn(props: { dayMs: number; events: CalendarEvent[] }) {
           allDay: false,
         });
       }}
-      onMoveEnd={({ target }) => {
-        if (target !== null) {
+      onMoveEnd={(eventDetails) => {
+        if (eventDetails.target !== null) {
           const preview = consumeDropPreview();
           if (preview?.intent !== 'create') {
             return;
@@ -510,8 +510,8 @@ function WeekTimedEvent(props: { dayMs: number; segment: TimedSegment }) {
     <Draggable.Root
       kind={calEventMoveKind}
       payload={movePayload}
-      onMoveEnd={({ target }) => {
-        if (target !== null) {
+      onMoveEnd={(eventDetails) => {
+        if (eventDetails.target !== null) {
           const preview = consumeDropPreview();
           if (preview?.intent !== 'move') {
             return;
@@ -571,8 +571,8 @@ function WeekResizeHandle(props: { event: CalendarEvent; edge: 'start' | 'end' }
       // `tabIndex={0}` — focusable but invisible to screen readers.
 
       payload={resizePayload}
-      onMoveEnd={({ target }) => {
-        if (target !== null) {
+      onMoveEnd={(eventDetails) => {
+        if (eventDetails.target !== null) {
           const preview = consumeDropPreview();
           if (preview?.intent !== 'resize') {
             return;

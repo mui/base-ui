@@ -12,12 +12,13 @@ export default function DraggableHero() {
       <Draggable.Target
         ref={surfaceRef}
         className="relative box-border h-48 w-full overflow-hidden border border-neutral-200 bg-neutral-50 bg-[radial-gradient(var(--color-neutral-300)_1px,transparent_1px)] [background-size:20px_20px] select-none dark:border-neutral-700 dark:bg-neutral-900 dark:bg-[radial-gradient(var(--color-neutral-700)_1px,transparent_1px)]"
-        onDraggableDrop={({ target }) => {
-          const point = target.getSnappedLocalPoint({ anchor: 'source' });
-          const rect = target.element.getBoundingClientRect();
+        onDraggableDrop={(eventDetails) => {
+          const surface = eventDetails.target.element;
+          const point = eventDetails.target.getSnappedLocalPoint({ anchor: 'source' });
+          const rect = surface.getBoundingClientRect();
           setPosition({
-            x: point.x * rect.width - target.element.clientLeft,
-            y: point.y * rect.height - target.element.clientTop,
+            x: point.x * rect.width - surface.clientLeft,
+            y: point.y * rect.height - surface.clientTop,
           });
         }}
       >

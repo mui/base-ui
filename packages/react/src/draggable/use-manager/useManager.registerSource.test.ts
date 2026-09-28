@@ -4,10 +4,7 @@ import { createDndRenderer, firePointer } from '#test-utils';
 import { createElement, flushRaf, setupDragEngineTests, fireDrag } from '../../../test/dnd';
 import { dragSessionStore } from '../../utils/drag-and-drop/dragSessionStore';
 import { getRegistration } from '../../utils/drag-and-drop/draggableRegistry';
-import type {
-  DraggableRootBeforeMoveStartValue,
-  DraggableRootBeforeMoveStartEventDetails,
-} from '../root/DraggableRoot';
+import type { DraggableRootBeforeMoveStartEventDetails } from '../root/DraggableRoot';
 import { useManager } from './useManager';
 import type { DraggableManager } from '../../utils/drag-and-drop/registrationTypes';
 
@@ -156,11 +153,8 @@ describe('engine.registerSource', () => {
     const { engine } = await renderDnd();
     const el = createElement();
     const onMoveStart = vi.fn();
-    const onBeforeMoveStart = vi.fn(
-      (
-        _: DraggableRootBeforeMoveStartValue,
-        eventDetails: DraggableRootBeforeMoveStartEventDetails,
-      ) => eventDetails.cancel(),
+    const onBeforeMoveStart = vi.fn((eventDetails: DraggableRootBeforeMoveStartEventDetails) =>
+      eventDetails.cancel(),
     );
     engine.registerSource(el, {
       onBeforeMoveStart,
@@ -354,8 +348,8 @@ describe('engine.registerSource', () => {
     expect(onMove).toHaveBeenLastCalledWith(
       expect.objectContaining({
         source: expect.objectContaining({ element: el }),
+        reason: 'pointer',
       }),
-      expect.objectContaining({ reason: 'pointer' }),
     );
   });
 

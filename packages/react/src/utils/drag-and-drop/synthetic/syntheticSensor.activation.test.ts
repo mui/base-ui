@@ -122,7 +122,7 @@ describe('syntheticDrag activation', () => {
     expect(onMoveStart).toHaveBeenCalledTimes(1);
     expect(onMoveStart.mock.calls[0][0].source.element).toBe(el);
     // The drag starts at the drifted point, not the original press.
-    const startInput = onMoveStart.mock.calls[0][1].location.current.input;
+    const startInput = onMoveStart.mock.calls[0][0].location.current.input;
     expect(startInput.clientX).toBe(53);
     expect(startInput.clientY).toBe(52);
 
@@ -134,9 +134,9 @@ describe('syntheticDrag activation', () => {
 
     expect(onDrop).toHaveBeenCalledTimes(1);
     expect(onMoveEnd).toHaveBeenCalledTimes(1);
-    const [endValue, endDetails] = onMoveEnd.mock.calls[0];
+    const [endDetails] = onMoveEnd.mock.calls[0];
     expect(endDetails.reason).toBe('drop');
-    expect(endValue.target?.element).toBe(tgt);
+    expect(endDetails.target?.element).toBe(tgt);
     expect(endDetails.location.current.input.clientX).toBe(120);
     expect(endDetails.location.current.input.clientY).toBe(80);
   });

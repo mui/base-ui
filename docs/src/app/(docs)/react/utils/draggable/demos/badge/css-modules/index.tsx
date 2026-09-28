@@ -67,7 +67,7 @@ function DockSlot({
       data-empty={widget ? undefined : ''}
       accept={widgetKind}
       canDrop={() => widget === undefined}
-      onDraggableDrop={({ source }) => onMoveWidget(source.payload, id)}
+      onDraggableDrop={(eventDetails) => onMoveWidget(eventDetails.source.payload, id)}
     >
       {widget ? (
         <Widget widget={widget} onKeyDown={onWidgetKeyDown} />

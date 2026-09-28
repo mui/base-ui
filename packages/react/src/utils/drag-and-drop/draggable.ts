@@ -6,15 +6,10 @@ import type {
 } from '../../draggable/preview/DraggablePreview';
 import type {
   DraggableRootBeforeMoveStartEventDetails,
-  DraggableRootBeforeMoveStartValue,
   DraggableRootMoveEndEventDetails,
-  DraggableRootMoveEndValue,
   DraggableRootMoveEventDetails,
   DraggableRootMoveStartEventDetails,
-  DraggableRootMoveStartValue,
-  DraggableRootMoveValue,
   DraggableRootTargetChangeEventDetails,
-  DraggableRootTargetChangeValue,
   DraggableRootModifiers,
   DraggableRootActivationConfig,
 } from '../../draggable/root/DraggableRoot';
@@ -151,9 +146,9 @@ export type DraggableConfig<TPayload = undefined, TDragData = unknown> = {
   /** Whether the React layer has disabled runtime style elements. @internal */
   disableStyleElements?: boolean | undefined;
   /**
-   * The data attached to this item, available as `source.payload` in every drag event
-   * and drop target handler. Its type comes from `kind`, and it is required when the
-   * kind declares one.
+   * The data attached to this item, available as `eventDetails.source.payload` in every
+   * drag event and drop target handler. Its type comes from `kind`, and it is required
+   * when the kind declares one.
    */
   // Optional here so the requirement lives at the public boundaries:
   // `Draggable.Root.Props` re-imposes it with a conditional type, and
@@ -190,8 +185,10 @@ export type DraggableConfig<TPayload = undefined, TDragData = unknown> = {
    */
   onBeforeMoveStart?:
     | ((
-        value: DraggableRootBeforeMoveStartValue<NoInfer<TPayload>, NoInfer<TDragData>>,
-        eventDetails: DraggableRootBeforeMoveStartEventDetails,
+        eventDetails: DraggableRootBeforeMoveStartEventDetails<
+          NoInfer<TPayload>,
+          NoInfer<TDragData>
+        >,
       ) => void)
     | undefined;
   /**
@@ -246,8 +243,7 @@ export type DraggableConfig<TPayload = undefined, TDragData = unknown> = {
    */
   onMoveStart?:
     | ((
-        value: DraggableRootMoveStartValue<NoInfer<TPayload>, NoInfer<TDragData>>,
-        eventDetails: DraggableRootMoveStartEventDetails,
+        eventDetails: DraggableRootMoveStartEventDetails<NoInfer<TPayload>, NoInfer<TDragData>>,
       ) => void)
     | undefined;
   /**
@@ -256,10 +252,7 @@ export type DraggableConfig<TPayload = undefined, TDragData = unknown> = {
    * for hover feedback.
    */
   onMove?:
-    | ((
-        value: DraggableRootMoveValue<NoInfer<TPayload>, NoInfer<TDragData>>,
-        eventDetails: DraggableRootMoveEventDetails,
-      ) => void)
+    | ((eventDetails: DraggableRootMoveEventDetails<NoInfer<TPayload>, NoInfer<TDragData>>) => void)
     | undefined;
   /**
    * Event handler called when the drop targets under the pointer change, including when
@@ -268,22 +261,20 @@ export type DraggableConfig<TPayload = undefined, TDragData = unknown> = {
    */
   onTargetChange?:
     | ((
-        value: DraggableRootTargetChangeValue<NoInfer<TPayload>, NoInfer<TDragData>>,
-        eventDetails: DraggableRootTargetChangeEventDetails,
+        eventDetails: DraggableRootTargetChangeEventDetails<NoInfer<TPayload>, NoInfer<TDragData>>,
       ) => void)
     | undefined;
   /**
    * Event handler called once when the drag ends, after a drop, a release outside any
-   * target, or a cancellation. `target` is the target that received the drop, or `null`.
-   * `eventDetails.canceled` tells a cancel from a release, and `eventDetails.reason` says
-   * exactly why the drag ended.
+   * target, or a cancellation. `eventDetails.target` is the target that received the drop,
+   * or `null`. `eventDetails.canceled` tells a cancel from a release, and
+   * `eventDetails.reason` says exactly why the drag ended.
    *
    * A drag canceled during pickup fires this handler without a preceding `onMoveStart`.
    */
   onMoveEnd?:
     | ((
-        value: DraggableRootMoveEndValue<NoInfer<TPayload>, NoInfer<TDragData>>,
-        eventDetails: DraggableRootMoveEndEventDetails,
+        eventDetails: DraggableRootMoveEndEventDetails<NoInfer<TPayload>, NoInfer<TDragData>>,
       ) => void)
     | undefined;
 };

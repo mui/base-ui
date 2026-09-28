@@ -29,10 +29,10 @@ export function DragPageAutoScroll({
   });
   Draggable.useMonitor({
     accept,
-    onMoveStart: ({ source }) => {
+    onMoveStart: (eventDetails) => {
       cleanup();
       unregister.current = manager.registerViewport(
-        ownerDocument(source.element).documentElement,
+        ownerDocument(eventDetails.source.element).documentElement,
         () => ({ accept }),
       );
     },

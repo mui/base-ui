@@ -215,7 +215,7 @@ describe.skipIf(isJSDOM)('drop target resolution (real hit testing)', () => {
     expect(onDrop).not.toHaveBeenCalled();
     expect(onMoveEnd).toHaveBeenCalledTimes(1);
     expect(onMoveEnd.mock.calls[0][0].target).toBeNull();
-    expect(onMoveEnd.mock.calls[0][1].reason).toBe('outside-release');
+    expect(onMoveEnd.mock.calls[0][0].reason).toBe('outside-release');
   });
 
   /**
@@ -313,7 +313,7 @@ describe.skipIf(isJSDOM)('drop target resolution (real hit testing)', () => {
       await flushRaf();
       await flushRaf();
 
-      const { targets } = onMove.mock.calls.at(-1)![1].location.current;
+      const { targets } = onMove.mock.calls.at(-1)![0].location.current;
       expect(targets).toHaveLength(2);
       // Innermost first.
       expect(targets[0].element).toBe(inner);

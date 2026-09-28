@@ -140,6 +140,6 @@ describe('useManager', () => {
 
     expect(onMoveEnd).toHaveBeenCalledTimes(1);
     expect(onMoveEnd.mock.calls[0][0].target).toBeNull();
-    expect(onMoveEnd.mock.calls[0][1].reason).toBe('imperative-action');
+    expect(onMoveEnd.mock.calls[0][0].reason).toBe('imperative-action');
   });
 });

@@ -8,227 +8,244 @@ type TargetDragData = { entered: boolean };
 
 declare const RootBeforeMoveStart: Parameters<
   NonNullable<Draggable.Root.Props<Payload, DragData>['onBeforeMoveStart']>
->;
-expectType<Draggable.Root.BeforeMoveStartValue<Payload, DragData>, (typeof RootBeforeMoveStart)[0]>(
-  RootBeforeMoveStart[0],
+>[0];
+expectType<
+  Draggable.Root.BeforeMoveStartEventDetails<Payload, DragData>,
+  typeof RootBeforeMoveStart
+>(RootBeforeMoveStart);
+expectType<Draggable.Root.BeforeMoveStartEventReason, (typeof RootBeforeMoveStart)['reason']>(
+  RootBeforeMoveStart.reason,
 );
-expectType<Draggable.Root.BeforeMoveStartEventDetails, (typeof RootBeforeMoveStart)[1]>(
-  RootBeforeMoveStart[1],
+expectType<Draggable.Input, (typeof RootBeforeMoveStart)['input']>(RootBeforeMoveStart.input);
+expectType<Draggable.Root.Record<Payload, DragData>, (typeof RootBeforeMoveStart)['source']>(
+  RootBeforeMoveStart.source,
 );
-expectType<Draggable.Root.BeforeMoveStartEventReason, (typeof RootBeforeMoveStart)[1]['reason']>(
-  RootBeforeMoveStart[1].reason,
-);
-expectType<Draggable.Input, (typeof RootBeforeMoveStart)[1]['input']>(RootBeforeMoveStart[1].input);
-expectType<Draggable.Root.Record<Payload, DragData>, (typeof RootBeforeMoveStart)[0]['source']>(
-  RootBeforeMoveStart[0].source,
-);
+expectType<boolean, (typeof RootBeforeMoveStart)['isCanceled']>(RootBeforeMoveStart.isCanceled);
 // @ts-expect-error Targets aren't resolved before pickup.
-void RootBeforeMoveStart[0].target;
+void RootBeforeMoveStart.target;
 
 declare const RootMoveStart: Parameters<
   NonNullable<Draggable.Root.Props<Payload, DragData>['onMoveStart']>
->;
-expectType<Draggable.Root.MoveStartValue<Payload, DragData>, (typeof RootMoveStart)[0]>(
-  RootMoveStart[0],
+>[0];
+expectType<Draggable.Root.MoveStartEventDetails<Payload, DragData>, typeof RootMoveStart>(
+  RootMoveStart,
 );
-expectType<Draggable.Root.MoveStartEventDetails, (typeof RootMoveStart)[1]>(RootMoveStart[1]);
-expectType<Draggable.Root.MoveStartEventReason, (typeof RootMoveStart)[1]['reason']>(
-  RootMoveStart[1].reason,
+expectType<Draggable.Root.MoveStartEventReason, (typeof RootMoveStart)['reason']>(
+  RootMoveStart.reason,
 );
-expectType<Draggable.LocationHistory, (typeof RootMoveStart)[1]['location']>(
-  RootMoveStart[1].location,
+expectType<Draggable.LocationHistory, (typeof RootMoveStart)['location']>(RootMoveStart.location);
+expectType<Draggable.Root.Record<Payload, DragData>, (typeof RootMoveStart)['source']>(
+  RootMoveStart.source,
 );
+expectType<Draggable.Target.Record | null, (typeof RootMoveStart)['target']>(RootMoveStart.target);
 
-declare const RootMove: Parameters<NonNullable<Draggable.Root.Props<Payload, DragData>['onMove']>>;
-expectType<Draggable.Root.MoveValue<Payload, DragData>, (typeof RootMove)[0]>(RootMove[0]);
-expectType<Draggable.Root.MoveEventDetails, (typeof RootMove)[1]>(RootMove[1]);
-expectType<Draggable.Root.MoveEventReason, (typeof RootMove)[1]['reason']>(RootMove[1].reason);
-expectType<Draggable.LocationHistory, (typeof RootMove)[1]['location']>(RootMove[1].location);
+declare const RootMove: Parameters<
+  NonNullable<Draggable.Root.Props<Payload, DragData>['onMove']>
+>[0];
+expectType<Draggable.Root.MoveEventDetails<Payload, DragData>, typeof RootMove>(RootMove);
+expectType<Draggable.Root.MoveEventReason, (typeof RootMove)['reason']>(RootMove.reason);
+expectType<Draggable.LocationHistory, (typeof RootMove)['location']>(RootMove.location);
+expectType<Draggable.Root.Record<Payload, DragData>, (typeof RootMove)['source']>(RootMove.source);
+expectType<Draggable.Target.Record | null, (typeof RootMove)['target']>(RootMove.target);
 
 declare const RootTargetChange: Parameters<
   NonNullable<Draggable.Root.Props<Payload, DragData>['onTargetChange']>
->;
-expectType<Draggable.Root.TargetChangeValue<Payload, DragData>, (typeof RootTargetChange)[0]>(
-  RootTargetChange[0],
+>[0];
+expectType<Draggable.Root.TargetChangeEventDetails<Payload, DragData>, typeof RootTargetChange>(
+  RootTargetChange,
 );
-expectType<Draggable.Root.TargetChangeEventDetails, (typeof RootTargetChange)[1]>(
-  RootTargetChange[1],
+expectType<Draggable.Root.TargetChangeEventReason, (typeof RootTargetChange)['reason']>(
+  RootTargetChange.reason,
 );
-expectType<Draggable.Root.TargetChangeEventReason, (typeof RootTargetChange)[1]['reason']>(
-  RootTargetChange[1].reason,
+expectType<Draggable.Root.Record<Payload, DragData>, (typeof RootTargetChange)['source']>(
+  RootTargetChange.source,
+);
+expectType<Draggable.Target.Record | null, (typeof RootTargetChange)['target']>(
+  RootTargetChange.target,
 );
 
 declare const RootMoveEnd: Parameters<
   NonNullable<Draggable.Root.Props<Payload, DragData>['onMoveEnd']>
->;
-expectType<Draggable.Root.MoveEndValue<Payload, DragData>, (typeof RootMoveEnd)[0]>(RootMoveEnd[0]);
-expectType<Draggable.Root.MoveEndEventDetails, (typeof RootMoveEnd)[1]>(RootMoveEnd[1]);
-expectType<Draggable.Root.MoveEndEventReason, (typeof RootMoveEnd)[1]['reason']>(
-  RootMoveEnd[1].reason,
+>[0];
+expectType<Draggable.Root.MoveEndEventDetails<Payload, DragData>, typeof RootMoveEnd>(RootMoveEnd);
+expectType<Draggable.Root.MoveEndEventReason, (typeof RootMoveEnd)['reason']>(RootMoveEnd.reason);
+expectType<Draggable.Root.Record<Payload, DragData>, (typeof RootMoveEnd)['source']>(
+  RootMoveEnd.source,
 );
-expectType<Draggable.Target.Record | null, (typeof RootMoveEnd)[0]['target']>(
-  RootMoveEnd[0].target,
-);
-// @ts-expect-error Cancellation is read from `eventDetails.canceled`, not from the value.
-void RootMoveEnd[0].canceled;
-expectType<boolean, (typeof RootMoveEnd)[1]['canceled']>(RootMoveEnd[1].canceled);
+expectType<Draggable.Target.Record | null, (typeof RootMoveEnd)['target']>(RootMoveEnd.target);
+expectType<boolean, (typeof RootMoveEnd)['canceled']>(RootMoveEnd.canceled);
+// @ts-expect-error `canceled` is on `onMoveEnd` only; a move reads `reason`.
+void RootMove.canceled;
 
 declare const TargetStart: Parameters<
   NonNullable<
     Draggable.Target.Props<Payload, TargetPayload, DragData, TargetDragData>['onDraggableStart']
   >
->;
+>[0];
 expectType<
-  Draggable.Target.StartValue<Payload, TargetPayload, DragData, TargetDragData>,
-  (typeof TargetStart)[0]
->(TargetStart[0]);
-expectType<Draggable.Target.StartEventDetails, (typeof TargetStart)[1]>(TargetStart[1]);
-expectType<Draggable.Target.StartEventReason, (typeof TargetStart)[1]['reason']>(
-  TargetStart[1].reason,
+  Draggable.Target.StartEventDetails<Payload, TargetPayload, DragData, TargetDragData>,
+  typeof TargetStart
+>(TargetStart);
+expectType<Draggable.Target.StartEventReason, (typeof TargetStart)['reason']>(TargetStart.reason);
+expectType<Draggable.Root.Record<Payload, DragData>, (typeof TargetStart)['source']>(
+  TargetStart.source,
 );
-expectType<
-  Draggable.Target.Record<TargetPayload, TargetDragData>,
-  (typeof TargetStart)[0]['target']
->(TargetStart[0].target);
+expectType<Draggable.Target.Record<TargetPayload, TargetDragData>, (typeof TargetStart)['target']>(
+  TargetStart.target,
+);
 
 declare const TargetMove: Parameters<
   NonNullable<
     Draggable.Target.Props<Payload, TargetPayload, DragData, TargetDragData>['onDraggableMove']
   >
->;
+>[0];
 expectType<
-  Draggable.Target.MoveValue<Payload, TargetPayload, DragData, TargetDragData>,
-  (typeof TargetMove)[0]
->(TargetMove[0]);
-expectType<Draggable.Target.MoveEventDetails, (typeof TargetMove)[1]>(TargetMove[1]);
-expectType<Draggable.Target.MoveEventReason, (typeof TargetMove)[1]['reason']>(
-  TargetMove[1].reason,
+  Draggable.Target.MoveEventDetails<Payload, TargetPayload, DragData, TargetDragData>,
+  typeof TargetMove
+>(TargetMove);
+expectType<Draggable.Target.MoveEventReason, (typeof TargetMove)['reason']>(TargetMove.reason);
+expectType<Draggable.LocationHistory, (typeof TargetMove)['location']>(TargetMove.location);
+expectType<Draggable.Root.Record<Payload, DragData>, (typeof TargetMove)['source']>(
+  TargetMove.source,
 );
-expectType<Draggable.LocationHistory, (typeof TargetMove)[1]['location']>(TargetMove[1].location);
+expectType<Draggable.Target.Record<TargetPayload, TargetDragData>, (typeof TargetMove)['target']>(
+  TargetMove.target,
+);
 
 declare const TargetEnter: Parameters<
   NonNullable<
     Draggable.Target.Props<Payload, TargetPayload, DragData, TargetDragData>['onDraggableEnter']
   >
->;
+>[0];
 expectType<
-  Draggable.Target.EnterValue<Payload, TargetPayload, DragData, TargetDragData>,
-  (typeof TargetEnter)[0]
->(TargetEnter[0]);
-expectType<Draggable.Target.EnterEventDetails, (typeof TargetEnter)[1]>(TargetEnter[1]);
-expectType<Draggable.Target.EnterEventReason, (typeof TargetEnter)[1]['reason']>(
-  TargetEnter[1].reason,
+  Draggable.Target.EnterEventDetails<Payload, TargetPayload, DragData, TargetDragData>,
+  typeof TargetEnter
+>(TargetEnter);
+expectType<Draggable.Target.EnterEventReason, (typeof TargetEnter)['reason']>(TargetEnter.reason);
+expectType<Draggable.Target.Record<TargetPayload, TargetDragData>, (typeof TargetEnter)['target']>(
+  TargetEnter.target,
 );
 
 declare const TargetLeave: Parameters<
   NonNullable<
     Draggable.Target.Props<Payload, TargetPayload, DragData, TargetDragData>['onDraggableLeave']
   >
->;
+>[0];
 expectType<
-  Draggable.Target.LeaveValue<Payload, TargetPayload, DragData, TargetDragData>,
-  (typeof TargetLeave)[0]
->(TargetLeave[0]);
-expectType<Draggable.Target.LeaveEventDetails, (typeof TargetLeave)[1]>(TargetLeave[1]);
-expectType<Draggable.Target.LeaveEventReason, (typeof TargetLeave)[1]['reason']>(
-  TargetLeave[1].reason,
+  Draggable.Target.LeaveEventDetails<Payload, TargetPayload, DragData, TargetDragData>,
+  typeof TargetLeave
+>(TargetLeave);
+expectType<Draggable.Target.LeaveEventReason, (typeof TargetLeave)['reason']>(TargetLeave.reason);
+expectType<Draggable.Target.Record<TargetPayload, TargetDragData>, (typeof TargetLeave)['target']>(
+  TargetLeave.target,
 );
 // @ts-expect-error `canceled` is on `onMoveEnd` only; a leave reads `reason`.
-void TargetLeave[1].canceled;
+void TargetLeave.canceled;
 
 declare const TargetDrop: Parameters<
   NonNullable<
     Draggable.Target.Props<Payload, TargetPayload, DragData, TargetDragData>['onDraggableDrop']
   >
->;
+>[0];
 expectType<
-  Draggable.Target.DropValue<Payload, TargetPayload, DragData, TargetDragData>,
-  (typeof TargetDrop)[0]
->(TargetDrop[0]);
-expectType<Draggable.Target.DropEventDetails, (typeof TargetDrop)[1]>(TargetDrop[1]);
-expectType<Draggable.Target.DropEventReason, (typeof TargetDrop)[1]['reason']>(
-  TargetDrop[1].reason,
+  Draggable.Target.DropEventDetails<Payload, TargetPayload, DragData, TargetDragData>,
+  typeof TargetDrop
+>(TargetDrop);
+expectType<Draggable.Target.DropEventReason, (typeof TargetDrop)['reason']>(TargetDrop.reason);
+expectType<Draggable.Root.Record<Payload, DragData>, (typeof TargetDrop)['source']>(
+  TargetDrop.source,
+);
+expectType<Draggable.Target.Record<TargetPayload, TargetDragData>, (typeof TargetDrop)['target']>(
+  TargetDrop.target,
 );
 
 declare const CollisionProviderMoveStart: Parameters<
   NonNullable<Draggable.CollisionProvider.Props<Payload, DragData>['onMoveStart']>
->;
+>[0];
 expectType<
-  Draggable.CollisionProvider.MoveStartValue<Payload, DragData>,
-  (typeof CollisionProviderMoveStart)[0]
->(CollisionProviderMoveStart[0]);
-expectType<
-  Draggable.CollisionProvider.MoveStartEventDetails,
-  (typeof CollisionProviderMoveStart)[1]
->(CollisionProviderMoveStart[1]);
+  Draggable.CollisionProvider.MoveStartEventDetails<Payload, DragData>,
+  typeof CollisionProviderMoveStart
+>(CollisionProviderMoveStart);
 expectType<
   Draggable.CollisionProvider.MoveStartEventReason,
-  (typeof CollisionProviderMoveStart)[1]['reason']
->(CollisionProviderMoveStart[1].reason);
+  (typeof CollisionProviderMoveStart)['reason']
+>(CollisionProviderMoveStart.reason);
+expectType<Draggable.Root.Record<Payload, DragData>, (typeof CollisionProviderMoveStart)['source']>(
+  CollisionProviderMoveStart.source,
+);
+expectType<
+  Draggable.Target.Record<Payload, DragData> | null,
+  (typeof CollisionProviderMoveStart)['target']
+>(CollisionProviderMoveStart.target);
 
 declare const CollisionProviderCollisionChange: Parameters<
   NonNullable<Draggable.CollisionProvider.Props<Payload, DragData>['onCollisionChange']>
->;
-expectType<
-  Draggable.CollisionProvider.CollisionChangeValue<Payload, DragData>,
-  (typeof CollisionProviderCollisionChange)[0]
->(CollisionProviderCollisionChange[0]);
+>[0];
 expectType<
   Draggable.CollisionProvider.CollisionChangeEventDetails<Payload, DragData>,
-  (typeof CollisionProviderCollisionChange)[1]
->(CollisionProviderCollisionChange[1]);
+  typeof CollisionProviderCollisionChange
+>(CollisionProviderCollisionChange);
 expectType<
   Draggable.CollisionProvider.CollisionChangeEventReason,
-  (typeof CollisionProviderCollisionChange)[1]['reason']
->(CollisionProviderCollisionChange[1].reason);
+  (typeof CollisionProviderCollisionChange)['reason']
+>(CollisionProviderCollisionChange.reason);
+expectType<
+  Draggable.Root.Record<Payload, DragData>,
+  (typeof CollisionProviderCollisionChange)['source']
+>(CollisionProviderCollisionChange.source);
 expectType<
   Draggable.Target.Record<Payload, DragData> | null,
-  (typeof CollisionProviderCollisionChange)[0]['target']
->(CollisionProviderCollisionChange[0].target);
+  (typeof CollisionProviderCollisionChange)['target']
+>(CollisionProviderCollisionChange.target);
 expectType<
   Draggable.Target.Record<Payload, DragData> | null,
-  (typeof CollisionProviderCollisionChange)[1]['previousTarget']
->(CollisionProviderCollisionChange[1].previousTarget);
+  (typeof CollisionProviderCollisionChange)['previousTarget']
+>(CollisionProviderCollisionChange.previousTarget);
 
 declare const CollisionProviderMoveEnd: Parameters<
   NonNullable<Draggable.CollisionProvider.Props<Payload, DragData>['onMoveEnd']>
->;
-expectType<
-  Draggable.CollisionProvider.MoveEndValue<Payload, DragData>,
-  (typeof CollisionProviderMoveEnd)[0]
->(CollisionProviderMoveEnd[0]);
+>[0];
 expectType<
   Draggable.CollisionProvider.MoveEndEventDetails<Payload, DragData>,
-  (typeof CollisionProviderMoveEnd)[1]
->(CollisionProviderMoveEnd[1]);
+  typeof CollisionProviderMoveEnd
+>(CollisionProviderMoveEnd);
 expectType<
   Draggable.CollisionProvider.MoveEndEventReason,
-  (typeof CollisionProviderMoveEnd)[1]['reason']
->(CollisionProviderMoveEnd[1].reason);
+  (typeof CollisionProviderMoveEnd)['reason']
+>(CollisionProviderMoveEnd.reason);
 expectType<
   Draggable.Target.Record<Payload, DragData> | null,
-  (typeof CollisionProviderMoveEnd)[1]['previousTarget']
->(CollisionProviderMoveEnd[1].previousTarget);
-expectType<boolean, (typeof CollisionProviderMoveEnd)[1]['canceled']>(
-  CollisionProviderMoveEnd[1].canceled,
+  (typeof CollisionProviderMoveEnd)['target']
+>(CollisionProviderMoveEnd.target);
+expectType<
+  Draggable.Target.Record<Payload, DragData> | null,
+  (typeof CollisionProviderMoveEnd)['previousTarget']
+>(CollisionProviderMoveEnd.previousTarget);
+expectType<boolean, (typeof CollisionProviderMoveEnd)['canceled']>(
+  CollisionProviderMoveEnd.canceled,
 );
 // @ts-expect-error `canceled` is on `onMoveEnd` only.
-void CollisionProviderCollisionChange[1].canceled;
+void CollisionProviderCollisionChange.canceled;
 
 declare const ViewportDragScroll: Parameters<
   NonNullable<Draggable.Viewport.Props<Payload, DragData>['onDragScroll']>
->;
-expectType<Draggable.Viewport.DragScrollValue<Payload, DragData>, (typeof ViewportDragScroll)[0]>(
-  ViewportDragScroll[0],
+>[0];
+expectType<Draggable.Viewport.DragScrollEventDetails<Payload, DragData>, typeof ViewportDragScroll>(
+  ViewportDragScroll,
 );
-expectType<Draggable.Viewport.DragScrollEventDetails, (typeof ViewportDragScroll)[1]>(
-  ViewportDragScroll[1],
+expectType<Draggable.Viewport.DragScrollEventReason, (typeof ViewportDragScroll)['reason']>(
+  ViewportDragScroll.reason,
 );
-expectType<Draggable.Viewport.DragScrollEventReason, (typeof ViewportDragScroll)[1]['reason']>(
-  ViewportDragScroll[1].reason,
+expectType<Draggable.Root.Record<Payload, DragData>, (typeof ViewportDragScroll)['source']>(
+  ViewportDragScroll.source,
 );
-expectType<Draggable.Input, (typeof ViewportDragScroll)[1]['input']>(ViewportDragScroll[1].input);
-expectType<HTMLElement, (typeof ViewportDragScroll)[1]['element']>(ViewportDragScroll[1].element);
+expectType<number, (typeof ViewportDragScroll)['x']>(ViewportDragScroll.x);
+expectType<number, (typeof ViewportDragScroll)['y']>(ViewportDragScroll.y);
+expectType<Draggable.Viewport.DragScrollDirection, (typeof ViewportDragScroll)['direction']>(
+  ViewportDragScroll.direction,
+);
+expectType<Draggable.Input, (typeof ViewportDragScroll)['input']>(ViewportDragScroll.input);
+expectType<HTMLElement, (typeof ViewportDragScroll)['element']>(ViewportDragScroll.element);
 
 const preview = (parameters: Draggable.Preview.RenderParameters<Payload, DragData>) => {
   expectType<Payload, typeof parameters.source.payload>(parameters.source.payload);

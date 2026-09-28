@@ -479,9 +479,9 @@ function BoardCard({
       // back to a surface position from a fresh surface rect, so it stays correct
       // even when auto-scroll moves the board mid-drag.
       payload={card.id}
-      onMoveStart={({ source }, eventDetails) => {
-        const rect = source.element.getBoundingClientRect();
-        source.updateDragData({
+      onMoveStart={(eventDetails) => {
+        const rect = eventDetails.source.element.getBoundingClientRect();
+        eventDetails.source.updateDragData({
           id: card.id,
           grabOffsetX: eventDetails.location.initial.input.clientX - rect.left,
           grabOffsetY: eventDetails.location.initial.input.clientY - rect.top,
@@ -500,9 +500,9 @@ function BoardCard({
       modifiers={Draggable.restrictToElement(surfaceRef)}
       // Commit only a release over the surface. Escape and outside releases
       // still run the end handler but must not move the card.
-      onMoveEnd={({ source, target }, eventDetails) => {
-        if (target !== null) {
-          if (!source.dragData) {
+      onMoveEnd={(eventDetails) => {
+        if (eventDetails.target !== null) {
+          if (!eventDetails.source.dragData) {
             return;
           }
 
@@ -520,14 +520,16 @@ function BoardCard({
           const height = cardRef.current?.offsetHeight ?? CARD_MIN_HEIGHT;
           const newX =
             (eventDetails.location.current.input.clientX -
-              source.dragData.grabOffsetX -
+              eventDetails.source.dragData.grabOffsetX -
               rect.left) /
             scale;
           const newY =
-            (eventDetails.location.current.input.clientY - source.dragData.grabOffsetY - rect.top) /
+            (eventDetails.location.current.input.clientY -
+              eventDetails.source.dragData.grabOffsetY -
+              rect.top) /
             scale;
           const position = clampToSurface(newX, newY, height);
-          onMove(source.payload, Math.round(position.x), Math.round(position.y));
+          onMove(eventDetails.source.payload, Math.round(position.x), Math.round(position.y));
         }
       }}
       className={(state) =>
@@ -630,8 +632,8 @@ function PreviewReadout({ zoom }: { zoom: number }) {
 
   Draggable.useMonitor({
     accept: cardKind,
-    onMove: ({ source }) => {
-      const element = source.element;
+    onMove: (eventDetails) => {
+      const element = eventDetails.source.element;
       const doc = ownerDocument(element);
       const view = doc.defaultView;
       const preview = doc.querySelector<HTMLElement>('[data-drag-preview]');

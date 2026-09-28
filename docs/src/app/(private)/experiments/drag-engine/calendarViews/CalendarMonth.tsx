@@ -176,8 +176,8 @@ function MonthDayCell(props: { dayMs: number; monthStart: number }) {
           kind={calDayCellKind}
           accept={CAL_DRAG_KINDS}
           payload={cellPayload}
-          onDraggableMove={({ source, target }) => {
-            const next = resolveDropPreview(source, target);
+          onDraggableMove={(eventDetails) => {
+            const next = resolveDropPreview(eventDetails.source, eventDetails.target);
             if (!next) {
               return;
             }
@@ -194,8 +194,8 @@ function MonthDayCell(props: { dayMs: number; monthStart: number }) {
           }}
         />
       }
-      onMoveEnd={({ target }) => {
-        if (target !== null) {
+      onMoveEnd={(eventDetails) => {
+        if (eventDetails.target !== null) {
           const preview = consumeDropPreview();
           if (preview?.intent !== 'create') {
             return;
@@ -267,8 +267,8 @@ function MonthEventBar(props: { event: CalendarEvent; segment: WeekEventSegment 
       // preset removes the pixel-nudge fallback at the month's edges.
 
       payload={movePayload}
-      onMoveEnd={({ target }) => {
-        if (target !== null) {
+      onMoveEnd={(eventDetails) => {
+        if (eventDetails.target !== null) {
           const preview = consumeDropPreview();
           if (preview?.intent !== 'move') {
             return;
@@ -337,8 +337,8 @@ function MonthResizeHandle(props: { event: CalendarEvent; edge: 'start' | 'end' 
       // `tabIndex={0}` — focusable but invisible to screen readers.
 
       payload={resizePayload}
-      onMoveEnd={({ target }) => {
-        if (target !== null) {
+      onMoveEnd={(eventDetails) => {
+        if (eventDetails.target !== null) {
           const preview = consumeDropPreview();
           if (preview?.intent !== 'resize') {
             return;

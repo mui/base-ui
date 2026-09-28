@@ -113,7 +113,7 @@ function Puck({
       onPointerUp={() => onPhaseChange('ready')}
       onPointerCancel={() => onPhaseChange('ready')}
       onMoveStart={() => onPhaseChange('dragging')}
-      onMoveEnd={(_, eventDetails) => {
+      onMoveEnd={(eventDetails) => {
         if (eventDetails.reason !== 'drop') {
           onPhaseChange('ready');
         }

@@ -175,7 +175,7 @@ describe('Draggable.Root', () => {
     const onMoveStart = vi.fn();
     await renderDnd(
       <TestDraggable
-        options={{ onBeforeMoveStart: (_, eventDetails) => eventDetails.cancel(), onMoveStart }}
+        options={{ onBeforeMoveStart: (eventDetails) => eventDetails.cancel(), onMoveStart }}
       />,
     );
     const source = screen.getByTestId('drag');
@@ -546,7 +546,7 @@ describe('Draggable.Root', () => {
 
     expect(onDrop).toHaveBeenCalledTimes(1);
     expect(onMoveEnd).toHaveBeenCalledTimes(1);
-    expect(onMoveEnd.mock.calls[0][1].reason).toBe('drop');
+    expect(onMoveEnd.mock.calls[0][0].reason).toBe('drop');
     expect(onMoveEnd.mock.calls[0][0].target?.element).toBe(target);
   });
 
@@ -577,7 +577,7 @@ describe('Draggable.Root', () => {
     expect(dragSessionStore.getSnapshot()).toBeNull();
     expect(onMoveEnd).toHaveBeenCalledTimes(1);
     expect(onMoveEnd.mock.calls[0][0].target).toBeNull();
-    expect(onMoveEnd.mock.calls[0][1].reason).toBe('escape-key');
+    expect(onMoveEnd.mock.calls[0][0].reason).toBe('escape-key');
 
     // The engine is not wedged: a fresh draggable starts a new drag.
     await renderDnd(<TestDraggable testId="next" />);
@@ -719,7 +719,7 @@ describe('Draggable.Root', () => {
           kind={testDragKind}
           data-testid="drag"
           modifiers={Draggable.restrictToVerticalAxis}
-          onMove={(_, { location }) => {
+          onMove={({ location }) => {
             moves.push({
               x: location.current.input.clientX,
               y: location.current.input.clientY,
@@ -766,8 +766,8 @@ describe('Draggable.Root', () => {
       await flushRaf();
 
       expect(onTargetChange).toHaveBeenCalledTimes(1);
-      const [value, eventDetails] = onTargetChange.mock.calls[0];
-      expect(value.target?.element).toBe(target);
+      const eventDetails = onTargetChange.mock.calls[0][0];
+      expect(eventDetails.target?.element).toBe(target);
       expect(
         eventDetails.location.current.targets.map((record: { element: Element }) => record.element),
       ).toEqual([target]);
@@ -1661,7 +1661,7 @@ describe('Draggable.Root', () => {
             <Draggable.Root
               kind={testDragKind}
               data-testid="drag"
-              onMove={(_, { location }) => {
+              onMove={({ location }) => {
                 committedPoints.push({
                   x: location.current.input.clientX,
                   y: location.current.input.clientY,

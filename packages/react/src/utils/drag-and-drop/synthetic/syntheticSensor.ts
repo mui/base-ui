@@ -889,9 +889,9 @@ function commitActivation(): void {
         pending.activationKind,
         pending.lastNativeEvent,
         target,
-        { input: lastInput },
+        { input: lastInput, source: dragSource },
       );
-      parameters.onBeforeMoveStart({ source: dragSource }, eventDetails);
+      parameters.onBeforeMoveStart(eventDetails);
       // Imperative cancellation or blur can clear the candidate inside the callback.
       if (state.pending !== pending) {
         return;

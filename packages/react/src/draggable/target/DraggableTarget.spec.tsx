@@ -1,6 +1,9 @@
 import * as React from 'react';
 import { expectType } from '#test-utils';
-import type { DraggableTargetDropValue, DraggableTargetRecord } from '@base-ui/react/draggable';
+import type {
+  DraggableTargetDropEventDetails,
+  DraggableTargetRecord,
+} from '@base-ui/react/draggable';
 import { Draggable } from '@base-ui/react/draggable';
 
 interface CardPayload {
@@ -34,15 +37,15 @@ const detailedSlot = Draggable.createKind<{ index: number; label: string }>('det
   accept={[card, file]}
   kind={detailedSlot}
   payload={{ index: 0, label: 'Inbox' }}
-  onDraggableDrop={({ target }) => {
-    expectType<string, typeof target.payload.label>(target.payload.label);
+  onDraggableDrop={(eventDetails) => {
+    expectType<string, typeof eventDetails.target.payload.label>(eventDetails.target.payload.label);
   }}
 />;
 
 // An omitted accept matches only the nearest provider default kind.
 <Draggable.Target
-  onDraggableDrop={({ source }) => {
-    expectType<undefined, typeof source.payload>(source.payload);
+  onDraggableDrop={(eventDetails) => {
+    expectType<undefined, typeof eventDetails.source.payload>(eventDetails.source.payload);
   }}
 />;
 
@@ -55,8 +58,8 @@ function DefaultKindTarget(props: Draggable.Target.Props) {
 // nothing has been declared about what this target receives.
 <Draggable.Target
   accept={Draggable.anyKind}
-  onDraggableDrop={({ source }) => {
-    expectType<unknown, typeof source.payload>(source.payload);
+  onDraggableDrop={(eventDetails) => {
+    expectType<unknown, typeof eventDetails.source.payload>(eventDetails.source.payload);
   }}
 />;
 
@@ -64,8 +67,8 @@ function DefaultKindTarget(props: Draggable.Target.Props) {
 <Draggable.Target
   accept={Draggable.anyKind}
   payload={{ index: 0 }}
-  onDraggableDrop={({ target }) => {
-    expectType<{ index: number }, typeof target.payload>(target.payload);
+  onDraggableDrop={(eventDetails) => {
+    expectType<{ index: number }, typeof eventDetails.target.payload>(eventDetails.target.payload);
   }}
 />;
 
@@ -74,8 +77,8 @@ function DefaultKindTarget(props: Draggable.Target.Props) {
 <Draggable.Target
   accept={Draggable.anyKind}
   payload={{ over: Symbol() }}
-  onDraggableDrop={({ target }) => {
-    expectType<{ over: symbol }, typeof target.payload>(target.payload);
+  onDraggableDrop={(eventDetails) => {
+    expectType<{ over: symbol }, typeof eventDetails.target.payload>(eventDetails.target.payload);
   }}
 />;
 
@@ -83,8 +86,8 @@ function DefaultKindTarget(props: Draggable.Target.Props) {
 <Draggable.Target
   accept={Draggable.anyKind}
   payload="inbox"
-  onDraggableDrop={({ target }) => {
-    expectType<string, typeof target.payload>(target.payload);
+  onDraggableDrop={(eventDetails) => {
+    expectType<string, typeof eventDetails.target.payload>(eventDetails.target.payload);
   }}
 />;
 
@@ -92,16 +95,18 @@ const targetCommand = () => 'run';
 <Draggable.Target
   accept={Draggable.anyKind}
   payload={targetCommand}
-  onDraggableDrop={({ target }) => {
-    expectType<typeof targetCommand, typeof target.payload>(target.payload);
+  onDraggableDrop={(eventDetails) => {
+    expectType<typeof targetCommand, typeof eventDetails.target.payload>(
+      eventDetails.target.payload,
+    );
   }}
 />;
 
 // `accept` types every event that carries the source, with no type argument.
 <Draggable.Target
   accept={card}
-  onDraggableDrop={({ source }) => {
-    expectType<CardPayload, typeof source.payload>(source.payload);
+  onDraggableDrop={(eventDetails) => {
+    expectType<CardPayload, typeof eventDetails.source.payload>(eventDetails.source.payload);
   }}
 />;
 
@@ -110,9 +115,9 @@ const targetCommand = () => 'run';
 <Draggable.Target
   accept={card}
   payload={{ index: 0 }}
-  onDraggableDrop={({ source, target }) => {
-    expectType<CardPayload, typeof source.payload>(source.payload);
-    expectType<{ index: number }, typeof target.payload>(target.payload);
+  onDraggableDrop={(eventDetails) => {
+    expectType<CardPayload, typeof eventDetails.source.payload>(eventDetails.source.payload);
+    expectType<{ index: number }, typeof eventDetails.target.payload>(eventDetails.target.payload);
   }}
 />;
 
@@ -121,7 +126,8 @@ const targetCommand = () => 'run';
 // kind, not rule the others out, so a second `matches` narrows the rest.
 <Draggable.Target
   accept={[task, file]}
-  onDraggableDrop={({ source }) => {
+  onDraggableDrop={(eventDetails) => {
+    const source = eventDetails.source;
     expectType<TaskPayload | AttachmentPayload, typeof source.payload>(source.payload);
     if (file.matches(source)) {
       expectType<AttachmentPayload, typeof source.payload>(source.payload);
@@ -135,7 +141,8 @@ const targetCommand = () => 'run';
 // narrows it.
 <Draggable.Target
   accept={Draggable.anyKind}
-  onDraggableDrop={({ source }) => {
+  onDraggableDrop={(eventDetails) => {
+    const source = eventDetails.source;
     expectType<unknown, typeof source.payload>(source.payload);
     if (card.matches(source)) {
       expectType<CardPayload, typeof source.payload>(source.payload);
@@ -154,7 +161,7 @@ const targetCommand = () => 'run';
 <Draggable.Target
   accept={card}
   // @ts-expect-error a handler declaring a payload `accept` doesn't promise is rejected.
-  onDraggableDrop={(value: Draggable.Target.DropValue<TaskPayload>) => value}
+  onDraggableDrop={(eventDetails: Draggable.Target.DropEventDetails<TaskPayload>) => eventDetails}
 />;
 
 // A target's own `kind` identifies it on its records. It is checked against `payload`
@@ -181,9 +188,9 @@ if (slot.matches(untypedRecord)) {
 <Draggable.Target<CardPayload, SlotPayload>
   accept={card}
   payload={{ index: 0 }}
-  onDraggableDrop={({ source, target }) => {
-    expectType<CardPayload, typeof source.payload>(source.payload);
-    expectType<SlotPayload, typeof target.payload>(target.payload);
+  onDraggableDrop={(eventDetails) => {
+    expectType<CardPayload, typeof eventDetails.source.payload>(eventDetails.source.payload);
+    expectType<SlotPayload, typeof eventDetails.target.payload>(eventDetails.target.payload);
   }}
 />;
 
@@ -217,9 +224,11 @@ const ref: React.Ref<HTMLDivElement> = null;
   accept={card}
   onDrop={(event) => expectType<DataTransfer, typeof event.dataTransfer>(event.dataTransfer)}
   onDragOver={(event) => expectType<DataTransfer, typeof event.dataTransfer>(event.dataTransfer)}
-  onDraggableDrop={({ source }, { location }) => {
-    expectType<CardPayload, typeof source.payload>(source.payload);
-    expectType<number, typeof location.current.input.clientX>(location.current.input.clientX);
+  onDraggableDrop={(eventDetails) => {
+    expectType<CardPayload, typeof eventDetails.source.payload>(eventDetails.source.payload);
+    expectType<number, typeof eventDetails.location.current.input.clientX>(
+      eventDetails.location.current.input.clientX,
+    );
   }}
 />;
 
@@ -235,7 +244,9 @@ const ref: React.Ref<HTMLDivElement> = null;
 // without `NoInfer` on the handlers, `TTargetPayload` here would come out as
 // `{ other: boolean }` and the mismatch would be reported against `payload`
 // instead of against the handler that caused it.
-const mismatchedDrop = (value: DraggableTargetDropValue<unknown, { other: boolean }>) => value;
+const mismatchedDrop = (
+  eventDetails: DraggableTargetDropEventDetails<unknown, { other: boolean }>,
+) => eventDetails;
 <Draggable.Target
   accept={Draggable.anyKind}
   // @ts-expect-error the handler must match the payload, not redefine it.
@@ -245,16 +256,17 @@ const mismatchedDrop = (value: DraggableTargetDropValue<unknown, { other: boolea
 />;
 
 // A wider handler still accepts the inferred payload.
-const wideDrop = (value: Draggable.Target.DropValue<unknown, unknown>) => value;
+const wideDrop = (eventDetails: Draggable.Target.DropEventDetails<unknown, unknown>) =>
+  eventDetails;
 <Draggable.Target
   accept={Draggable.anyKind}
   payload="inbox"
-  onDraggableDrop={(value) => {
-    wideDrop(value);
-    expectType<string, typeof value.target.payload>(value.target.payload);
+  onDraggableDrop={(eventDetails) => {
+    wideDrop(eventDetails);
+    expectType<string, typeof eventDetails.target.payload>(eventDetails.target.payload);
   }}
-  onDraggableMove={({ target }) => {
-    expectType<string, typeof target.payload>(target.payload);
+  onDraggableMove={(eventDetails) => {
+    expectType<string, typeof eventDetails.target.payload>(eventDetails.target.payload);
   }}
 />;
 
@@ -278,7 +290,9 @@ function Slot(props: SlotProps) {
 <Slot
   accept={card}
   payload={{ index: 0 }}
-  onDraggableDrop={({ source, target }) => `${source.payload.id}:${target.payload.index}`}
+  onDraggableDrop={(eventDetails) =>
+    `${eventDetails.source.payload.id}:${eventDetails.target.payload.index}`
+  }
 />;
 
 // @ts-expect-error target stack changes are observed on a source or monitor.
@@ -290,23 +304,29 @@ const dragSlot = Draggable.createKind<SlotPayload, { entered: boolean }>('drag-s
   accept={dragCard}
   kind={dragSlot}
   payload={{ index: 0 }}
-  onDraggableEnter={({ source, target }) => {
-    expectType<{ offset: number } | undefined, typeof source.dragData>(source.dragData);
-    expectType<{ entered: boolean } | undefined, typeof target.dragData>(target.dragData);
-    target.updatePayload({ index: 1 });
-    target.updateDragData({ entered: true });
+  onDraggableEnter={(eventDetails) => {
+    expectType<{ offset: number } | undefined, typeof eventDetails.source.dragData>(
+      eventDetails.source.dragData,
+    );
+    expectType<{ entered: boolean } | undefined, typeof eventDetails.target.dragData>(
+      eventDetails.target.dragData,
+    );
+    eventDetails.target.updatePayload({ index: 1 });
+    eventDetails.target.updateDragData({ entered: true });
     // @ts-expect-error the target has its own drag data type.
-    target.updateDragData({ offset: 1 });
+    eventDetails.target.updateDragData({ offset: 1 });
     // @ts-expect-error the target keeps its payload type.
-    target.updatePayload({ id: 'a' });
+    eventDetails.target.updatePayload({ id: 'a' });
   }}
 />;
 
 const dataOnlyTarget = Draggable.createKind<undefined, number>('data-only-target');
 <Draggable.Target
   kind={dataOnlyTarget}
-  onDraggableEnter={({ target }) => {
-    expectType<number | undefined, typeof target.dragData>(target.dragData);
+  onDraggableEnter={(eventDetails) => {
+    expectType<number | undefined, typeof eventDetails.target.dragData>(
+      eventDetails.target.dragData,
+    );
   }}
 />;
 
@@ -315,14 +335,17 @@ const dragFile = Draggable.createKind<AttachmentPayload, { size: number }>('drag
   accept={[dragCard, dragFile]}
   kind={dragSlot}
   payload={{ index: 0 }}
-  onDraggableEnter={({ source, target }) => {
+  onDraggableEnter={(eventDetails) => {
+    const source = eventDetails.source;
     const data: { offset: number } | { size: number } | undefined = source.dragData;
     source.updateDragData({ offset: 1 });
     source.updateDragData({ size: 1 });
     // @ts-expect-error accepted source drag data excludes unrelated values.
     source.updateDragData({ entered: true });
     void data;
-    expectType<{ entered: boolean } | undefined, typeof target.dragData>(target.dragData);
+    expectType<{ entered: boolean } | undefined, typeof eventDetails.target.dragData>(
+      eventDetails.target.dragData,
+    );
     if (dragFile.matches(source)) {
       expectType<{ size: number } | undefined, typeof source.dragData>(source.dragData);
     }
@@ -363,7 +386,9 @@ function GenericSlot<Source, Payload>({
 <GenericSlot
   accept={wrapperTask}
   payload={{ name: 'a' }}
-  onDraggableDrop={({ source, target }) => source.payload.id + target.payload.name}
+  onDraggableDrop={(eventDetails) =>
+    eventDetails.source.payload.id + eventDetails.target.payload.name
+  }
 />;
 
 function SourceOnlySlot<Source>(
@@ -371,4 +396,7 @@ function SourceOnlySlot<Source>(
 ) {
   return <Draggable.Target {...props} />;
 }
-<SourceOnlySlot accept={wrapperTask} onDraggableDrop={({ source }) => source.payload.id} />;
+<SourceOnlySlot
+  accept={wrapperTask}
+  onDraggableDrop={(eventDetails) => eventDetails.source.payload.id}
+/>;

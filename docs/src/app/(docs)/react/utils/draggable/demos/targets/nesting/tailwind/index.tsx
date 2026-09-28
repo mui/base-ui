@@ -63,7 +63,7 @@ export default function NestedDropTargets() {
         <div className="flex min-h-9 items-start gap-2">{renderLayers('palette')}</div>
         <Draggable.Target
           accept={layerKind}
-          onDraggableDrop={({ source }) => placeLayer(source.payload, 'canvas')}
+          onDraggableDrop={(eventDetails) => placeLayer(eventDetails.source.payload, 'canvas')}
           className="relative box-border min-h-60 overflow-hidden border border-neutral-200 bg-neutral-50 bg-[radial-gradient(var(--color-neutral-300)_1px,transparent_1px)] bg-size-[20px_20px] p-3 transition-colors data-[drag-over-innermost]:border-neutral-950 data-[drag-over-innermost]:bg-neutral-100 dark:border-neutral-700 dark:bg-neutral-900 dark:bg-[radial-gradient(var(--color-neutral-700)_1px,transparent_1px)] dark:data-[drag-over-innermost]:border-white dark:data-[drag-over-innermost]:bg-neutral-800"
         >
           <span className="text-xs leading-4 font-semibold text-neutral-500 dark:text-neutral-400">
@@ -77,7 +77,7 @@ export default function NestedDropTargets() {
             // @highlight-start @focus @padding 3
             canDrop={({ source }) => source.payload === 'chart'}
             // @highlight-end
-            onDraggableDrop={({ source }) => placeLayer(source.payload, 'frame')}
+            onDraggableDrop={(eventDetails) => placeLayer(eventDetails.source.payload, 'frame')}
             className="absolute right-3 bottom-3 box-border flex h-32 w-[calc(100%-1.5rem)] flex-col gap-2 border border-dashed border-neutral-400 bg-white p-3 transition-colors data-[drag-over-innermost]:border-solid data-[drag-over-innermost]:border-neutral-950 data-[drag-over-innermost]:bg-neutral-100 sm:w-[min(55%,18rem)] dark:border-neutral-500 dark:bg-neutral-950 dark:data-[drag-over-innermost]:border-white dark:data-[drag-over-innermost]:bg-neutral-800"
           >
             <span className="text-xs leading-4 font-semibold text-neutral-500 dark:text-neutral-400">

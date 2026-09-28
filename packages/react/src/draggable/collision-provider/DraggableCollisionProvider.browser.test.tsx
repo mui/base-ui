@@ -23,7 +23,7 @@ describe.skipIf(isJSDOM)('Draggable.CollisionProvider (real hit testing)', () =>
           data-testid="source"
           activation={{ mouse: { type: 'immediate' } }}
           style={{ position: 'fixed', top: 0, left: 0, width: 100, height: 100 }}
-          onMove={(_, { location }) => {
+          onMove={({ location }) => {
             if (location.current.targets[0]?.payload === 'b') {
               targetRef.current!.style.top = '400px';
             }
@@ -53,13 +53,13 @@ describe.skipIf(isJSDOM)('Draggable.CollisionProvider (real hit testing)', () =>
     const first = changed.mock.lastCall![0];
     expect(first.target.getLocalPoint()).toEqual({ x: 0.5, y: 0.2 });
     expect(first.target.getSnappedLocalPoint().y).toBe(0.25);
-    expect(changed.mock.lastCall![1].previousTarget).toBeNull();
+    expect(changed.mock.lastCall![0].previousTarget).toBeNull();
 
     firePointer.move(source, { ...pointer, clientY: 430, timeStamp: 200 });
     await flushRaf();
     expect(changed).toHaveBeenCalledTimes(2);
     expect(changed.mock.lastCall![0].target.getLocalPoint().y).toBe(0.3);
-    expect(changed.mock.lastCall![1].previousTarget).toBe(first.target);
+    expect(changed.mock.lastCall![0].previousTarget).toBe(first.target);
 
     firePointer.up(source, { ...pointer, buttons: 0, clientY: 480, timeStamp: 300 });
     expect(ended).toHaveBeenCalledTimes(1);

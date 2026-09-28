@@ -61,7 +61,7 @@ export default function NestedDropTargets() {
         <Draggable.Target
           className={styles.Canvas}
           accept={layerKind}
-          onDraggableDrop={({ source }) => placeLayer(source.payload, 'canvas')}
+          onDraggableDrop={(eventDetails) => placeLayer(eventDetails.source.payload, 'canvas')}
         >
           <span className={styles.Label}>Canvas</span>
           <div className={styles.CanvasLayers}>{renderLayers('canvas')}</div>
@@ -71,7 +71,7 @@ export default function NestedDropTargets() {
             // @highlight-start @focus @padding 3
             canDrop={({ source }) => source.payload === 'chart'}
             // @highlight-end
-            onDraggableDrop={({ source }) => placeLayer(source.payload, 'frame')}
+            onDraggableDrop={(eventDetails) => placeLayer(eventDetails.source.payload, 'frame')}
           >
             <span className={styles.Label}>Frame (charts only)</span>
             <div className={styles.FrameLayers}>

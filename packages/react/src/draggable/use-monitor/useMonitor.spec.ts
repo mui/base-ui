@@ -23,11 +23,14 @@ declare const optionalKind: typeof card | undefined;
 function AcceptsOneKind() {
   Draggable.useMonitor({
     accept: card,
-    onMoveStart: ({ source }) => expectType<CardPayload, typeof source.payload>(source.payload),
-    onMoveEnd: ({ source, target }, { reason }) => {
-      expectType<CardPayload, typeof source.payload>(source.payload);
-      expectType<Draggable.Target.Record | null, typeof target>(target);
-      expectType<Draggable.Root.MoveEndEventReason, typeof reason>(reason);
+    onMoveStart: (eventDetails) =>
+      expectType<CardPayload, typeof eventDetails.source.payload>(eventDetails.source.payload),
+    onMoveEnd: (eventDetails) => {
+      expectType<CardPayload, typeof eventDetails.source.payload>(eventDetails.source.payload);
+      expectType<Draggable.Target.Record | null, typeof eventDetails.target>(eventDetails.target);
+      expectType<Draggable.Root.MoveEndEventReason, typeof eventDetails.reason>(
+        eventDetails.reason,
+      );
     },
   });
 }
@@ -36,7 +39,8 @@ function AcceptsOneKind() {
 function AcceptsTwoKinds() {
   Draggable.useMonitor({
     accept: [card, file],
-    onMove: ({ source }) => {
+    onMove: (eventDetails) => {
+      const source = eventDetails.source;
       expectType<CardPayload | FilePayload, typeof source.payload>(source.payload);
       if (file.matches(source)) {
         expectType<FilePayload, typeof source.payload>(source.payload);
@@ -48,10 +52,13 @@ function AcceptsTwoKinds() {
 // A monitor with no `accept` observes every drag, so its payload is `unknown`.
 function AcceptsEverything() {
   Draggable.useMonitor({
-    onMoveStart: ({ source }) => expectType<unknown, typeof source.payload>(source.payload),
+    onMoveStart: (eventDetails) =>
+      expectType<unknown, typeof eventDetails.source.payload>(eventDetails.source.payload),
   });
   // @ts-expect-error a typed monitor cannot omit its runtime filter.
-  Draggable.useMonitor<typeof card>({ onMoveEnd: ({ source }) => commit(source.payload.id) });
+  Draggable.useMonitor<typeof card>({
+    onMoveEnd: (eventDetails) => commit(eventDetails.source.payload.id),
+  });
   // @ts-expect-error a typed active-drag subscription needs its kind argument.
   Draggable.useActiveDrag<typeof card>();
   const active = Draggable.useActiveDrag(card);
@@ -69,14 +76,14 @@ function RejectsMismatchedHandler() {
   Draggable.useMonitor({
     accept: card,
     // @ts-expect-error a handler declaring a payload `accept` doesn't promise is rejected.
-    onMove: (event: { source: { payload: FilePayload } }) => event,
+    onMove: (eventDetails: { source: { payload: FilePayload } }) => eventDetails,
   });
 }
 
 // `Parameters` is keyed on the observed payload, and still forwards into the hook.
 const cardMonitor: Draggable.useMonitor.Parameters<CardPayload> = {
   accept: card,
-  onMoveEnd: ({ source, target }) => target && commit(source.payload.id),
+  onMoveEnd: (eventDetails) => eventDetails.target && commit(eventDetails.source.payload.id),
 };
 
 function ForwardsDeclaredParameters() {
@@ -101,7 +108,8 @@ export function ObservesDragData() {
   }
   Draggable.useMonitor({
     accept: [dataCard, dataFile],
-    onMove: ({ source }) => {
+    onMove: (eventDetails) => {
+      const source = eventDetails.source;
       expectType<{ offset: number } | { size: number } | undefined, typeof source.dragData>(
         source.dragData,
       );

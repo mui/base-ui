@@ -31,8 +31,8 @@ describe('engine.registerMonitor', () => {
     expect(onMoveStart).toHaveBeenCalledWith(
       expect.objectContaining({
         source: expect.objectContaining({ element: el }),
+        reason: 'pointer',
       }),
-      expect.objectContaining({ reason: 'pointer' }),
     );
   });
 
@@ -53,9 +53,9 @@ describe('engine.registerMonitor', () => {
     fireDrag.drop(target);
 
     expect(onMoveEnd).toHaveBeenCalledTimes(1);
-    const [value, details] = onMoveEnd.mock.calls[0];
+    const [details] = onMoveEnd.mock.calls[0];
     expect(details.reason).toBe('drop');
-    expect(value.target?.element).toBe(target);
+    expect(details.target?.element).toBe(target);
   });
 
   it('monitor onMoveEnd fires with no target when the drag is canceled with Escape', async () => {
@@ -71,14 +71,14 @@ describe('engine.registerMonitor', () => {
     fireDrag.dragEnd();
 
     expect(onMoveEnd).toHaveBeenCalledTimes(1);
-    const [value, details] = onMoveEnd.mock.calls[0];
+    const [details] = onMoveEnd.mock.calls[0];
     expect(details.location.current.targets).toEqual([]);
     // Ending without a drop is an Escape cancel (see `fireDrag.dragEnd`):
     // handlers read `canceled` and the null target instead of inspecting
     // `targets`.
     expect(details.reason).toBe('escape-key');
     expect(details.canceled).toBe(true);
-    expect(value.target).toBeNull();
+    expect(details.target).toBeNull();
   });
 
   it('accept filters the monitor to the kinds it declares', async () => {
@@ -103,8 +103,8 @@ describe('engine.registerMonitor', () => {
     expect(onMoveStart).toHaveBeenCalledWith(
       expect.objectContaining({
         source: expect.objectContaining({ kind: cardKind.id }),
+        reason: 'pointer',
       }),
-      expect.objectContaining({ reason: 'pointer' }),
     );
   });
 
@@ -220,7 +220,7 @@ describe('engine.registerMonitor', () => {
     expect(onTargetChange).toHaveBeenCalled();
     expect(onMove).toHaveBeenCalled();
     expect(onMoveEnd).toHaveBeenCalledTimes(1);
-    // `onDrop` firing is the committed-drop signal, so the end value needs no
+    // `onDrop` firing is the committed-drop signal, so the end details need no
     // `target` / `reason` reading to say the same thing.
     expect(onDrop).toHaveBeenCalledTimes(1);
   });

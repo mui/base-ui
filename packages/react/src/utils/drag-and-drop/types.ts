@@ -41,33 +41,6 @@ export type AcceptedDragData<TAccept> =
         : never
       : unknown;
 
-/**
- * The first argument of the drag handlers of a source, a monitor, and a collision provider:
- * the dragged item and the target it is over.
- */
-export interface DragSourceEventValue<TSourcePayload = unknown, TDragData = unknown> {
-  /** The item being dragged. */
-  source: DraggableRootRecord<TSourcePayload, TDragData>;
-  /**
-   * The drop target that would receive the drop if the drag were released now, or
-   * `null` when there is none: `eventDetails.location.current.targets[0]`.
-   */
-  target: DraggableTargetRecord | null;
-}
-
-/** The first argument of a drop target's handlers: the dragged item and this target. */
-export interface DropTargetEventValue<
-  TSourcePayload = unknown,
-  TTargetPayload = unknown,
-  TDragData = unknown,
-  TTargetDragData = unknown,
-> {
-  /** The item being dragged. */
-  source: DraggableRootRecord<TSourcePayload, TDragData>;
-  /** This drop target's own record. */
-  target: DraggableTargetRecord<TTargetPayload, TTargetDragData>;
-}
-
 /** A draggable's payload value. */
 // `NoInfer` because `kind` is what the payload type is inferred from: without it a
 // `payload` that does not match the kind would widen `TPayload` instead of being rejected.
@@ -112,35 +85,106 @@ export interface DragEventDetailsProperties {
 }
 
 /**
- * The second argument of every drag event handler: the event `reason`, the native `event`,
- * and the drag `location`. These events can't be canceled. Use `onBeforeMoveStart` to
- * prevent a drag from starting.
+ * The properties the details of a source's and a monitor's drag handlers add: the
+ * dragged item and the target it is over.
  */
-export type DragEventDetails<TReason extends string> = BaseUIGenericEventDetails<
+export interface DragSourceEventDetailsProperties<
+  TSourcePayload = unknown,
+  TDragData = unknown,
+> extends DragEventDetailsProperties {
+  /** The item being dragged. */
+  source: DraggableRootRecord<TSourcePayload, TDragData>;
+  /**
+   * The drop target that would receive the drop if the drag were released now, or
+   * `null` when there is none: `eventDetails.location.current.targets[0]`.
+   */
+  target: DraggableTargetRecord | null;
+}
+
+/** The properties the details of a drop target's handlers add: the dragged item and this target. */
+export interface DropTargetEventDetailsProperties<
+  TSourcePayload = unknown,
+  TTargetPayload = unknown,
+  TDragData = unknown,
+  TTargetDragData = unknown,
+> extends DragEventDetailsProperties {
+  /** The item being dragged. */
+  source: DraggableRootRecord<TSourcePayload, TDragData>;
+  /** This drop target's own record. */
+  target: DraggableTargetRecord<TTargetPayload, TTargetDragData>;
+}
+
+/**
+ * The details every drag handler of a source and a monitor receives: the event `reason`,
+ * the native `event`, the drag `location`, the dragged `source` and the `target` it is over.
+ * These events can't be canceled. Use `onBeforeMoveStart` to prevent a drag from starting.
+ */
+export type DragEventDetails<
+  TReason extends string,
+  TSourcePayload = unknown,
+  TDragData = unknown,
+> = BaseUIGenericEventDetails<TReason, DragSourceEventDetailsProperties<TSourcePayload, TDragData>>;
+
+/** The details a drop target's handlers receive, whose `target` is that drop target. */
+export type DropTargetEventDetails<
+  TReason extends string,
+  TSourcePayload = unknown,
+  TTargetPayload = unknown,
+  TDragData = unknown,
+  TTargetDragData = unknown,
+> = BaseUIGenericEventDetails<
   TReason,
-  DragEventDetailsProperties
+  DropTargetEventDetailsProperties<TSourcePayload, TTargetPayload, TDragData, TTargetDragData>
 >;
 
 /** The properties `onBeforeMoveStart`'s event details add to the Base UI change details. */
-export interface BeforeMoveStartEventDetailsProperties {
+export interface BeforeMoveStartEventDetailsProperties<TPayload = unknown, TDragData = unknown> {
   /** The pointer state at pickup. */
   input: DraggableInput;
+  /**
+   * The source being picked up. The same record is used if the drag starts.
+   * Call `updateDragData` to initialize gesture data before targets resolve and previews render.
+   * A canceled pickup does not carry its gesture data into the next attempt.
+   */
+  source: DraggableRootRecord<TPayload, TDragData>;
 }
 
 /** The event details passed to `onMoveStart`. */
-export type MoveStartEventDetails = DragEventDetails<DragStartReason>;
+export type MoveStartEventDetails<TSourcePayload = unknown, TDragData = unknown> = DragEventDetails<
+  DragStartReason,
+  TSourcePayload,
+  TDragData
+>;
 
 /** The event details passed to `onMove`. */
-export type MoveEventDetails = DragEventDetails<DragMoveReason>;
+export type MoveEventDetails<TSourcePayload = unknown, TDragData = unknown> = DragEventDetails<
+  DragMoveReason,
+  TSourcePayload,
+  TDragData
+>;
 
-/** The event details passed to `onTargetChange`, `onDraggableEnter` and `onDraggableLeave`. */
-export type DropTargetChangeEventDetails = DragEventDetails<DropTargetChangeReason>;
+/** The event details passed to `onTargetChange`. */
+export type DropTargetChangeEventDetails<
+  TSourcePayload = unknown,
+  TDragData = unknown,
+> = DragEventDetails<DropTargetChangeReason, TSourcePayload, TDragData>;
 
 /** The event details passed to `onDraggableDrop`. */
-export type DragDropEventDetails = DragEventDetails<typeof REASONS.drop>;
+export type DragDropEventDetails<
+  TSourcePayload = unknown,
+  TTargetPayload = unknown,
+  TDragData = unknown,
+  TTargetDragData = unknown,
+> = DropTargetEventDetails<
+  typeof REASONS.drop,
+  TSourcePayload,
+  TTargetPayload,
+  TDragData,
+  TTargetDragData
+>;
 
-/** The properties `onMoveEnd`'s event details add to the drag event details. */
-export interface MoveEndEventDetailsProperties extends DragEventDetailsProperties {
+/** The `canceled` flag the details of a drag's end add to the drag event details. */
+export interface DragEndEventDetailsProperties extends DragEventDetailsProperties {
   /**
    * Whether the drag was canceled rather than released, for example with Escape or
    * `cancelDrag()`. A release outside any drop target is not a cancel.
@@ -157,13 +201,28 @@ export interface MoveEndEventDetailsProperties extends DragEventDetailsPropertie
   canceled: boolean;
 }
 
+/** The properties `onMoveEnd`'s event details add to the drag event details. */
+export interface MoveEndEventDetailsProperties<TSourcePayload = unknown, TDragData = unknown>
+  extends
+    DragSourceEventDetailsProperties<TSourcePayload, TDragData>,
+    DragEndEventDetailsProperties {
+  /**
+   * The drop target that received the drop, or `null` when the drag was canceled or
+   * released outside any target.
+   */
+  target: DraggableTargetRecord | null;
+}
+
 /** The event details passed to `onMoveEnd`. */
-export type MoveEndEventDetails = BaseUIGenericEventDetails<
+export type MoveEndEventDetails<
+  TSourcePayload = unknown,
+  TDragData = unknown,
+> = BaseUIGenericEventDetails<
   DragEndReason,
-  MoveEndEventDetailsProperties
+  MoveEndEventDetailsProperties<TSourcePayload, TDragData>
 >;
 
-/** Maps each drag source and monitor event to the details object its handler receives second. */
+/** Maps each drag source and monitor event to the details object its handler receives. */
 export interface DraggableEventDetailsMap {
   onMoveStart: MoveStartEventDetails;
   onMove: MoveEventDetails;
@@ -171,11 +230,11 @@ export interface DraggableEventDetailsMap {
   onMoveEnd: MoveEndEventDetails;
 }
 
-/** Maps each drop target event to the details object its handler receives second. */
-export interface DropTargetEventDetailsMap {
-  onDraggableStart: MoveStartEventDetails;
-  onDraggableMove: MoveEventDetails;
-  onDraggableEnter: DropTargetChangeEventDetails;
-  onDraggableLeave: DropTargetChangeEventDetails;
-  onDraggableDrop: DragDropEventDetails;
+/** Maps each drop target event to the reasons its details can carry. */
+export interface DropTargetEventReasonMap {
+  onDraggableStart: DragStartReason;
+  onDraggableMove: DragMoveReason;
+  onDraggableEnter: DropTargetChangeReason;
+  onDraggableLeave: DropTargetChangeReason;
+  onDraggableDrop: typeof REASONS.drop;
 }

@@ -57,11 +57,8 @@ export default function SortableLive() {
   const listRef = useSortableAnimation(tasks);
   const destinationRef = React.useRef<TaskDestination | null>(null);
   const reorder = useStableCallback(
-    (
-      value: Draggable.CollisionProvider.CollisionChangeValue<string>,
-      eventDetails: Draggable.CollisionProvider.CollisionChangeEventDetails<string>,
-    ) => {
-      const next = getTaskDestination(value.target);
+    (eventDetails: Draggable.CollisionProvider.CollisionChangeEventDetails<string>) => {
+      const next = getTaskDestination(eventDetails.target);
       const previous = destinationRef.current;
       if (next) {
         const delta =
@@ -77,7 +74,7 @@ export default function SortableLive() {
         return;
       }
       destinationRef.current = next;
-      setTasks((current) => moveTask(current, value, next?.placement));
+      setTasks((current) => moveTask(current, eventDetails, next?.placement));
     },
   );
   const swap = useStableCallback((task: string, direction: 'up' | 'down') => {
@@ -98,9 +95,9 @@ export default function SortableLive() {
           destinationRef.current = null;
         }}
         onCollisionChange={reorder}
-        onMoveEnd={(value, eventDetails) => {
+        onMoveEnd={(eventDetails) => {
           if (eventDetails.reason === 'drop') {
-            reorder(value, eventDetails);
+            reorder(eventDetails);
           } else {
             setTasks(initialOrder.current);
           }

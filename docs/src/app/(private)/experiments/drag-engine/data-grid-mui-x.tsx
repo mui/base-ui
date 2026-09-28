@@ -415,9 +415,11 @@ function DataGridInner() {
           // horizontally. The viewport scrolls on both axes, so without this a
           // column dragged near the top edge would also scroll the rows away
           // under it.
-          onDragScroll={({ direction, source: dragged }, eventDetails) => {
-            const allowedDirection = rowKind.matches(dragged) ? 'vertical' : 'horizontal';
-            if (direction !== allowedDirection) {
+          onDragScroll={(eventDetails) => {
+            const allowedDirection = rowKind.matches(eventDetails.source)
+              ? 'vertical'
+              : 'horizontal';
+            if (eventDetails.direction !== allowedDirection) {
               eventDetails.cancel();
             }
           }}
@@ -438,14 +440,18 @@ function DataGridInner() {
             <div className={styles.columnSpacer} style={{ width: leadingWidth }} />
             <Draggable.CollisionProvider
               kind={columnKind}
-              onCollisionChange={({ target }) => {
-                if (target) {
-                  onColumnDragOver(target.payload, !getHorizontalCollisionAfter(target));
+              onCollisionChange={(eventDetails) => {
+                if (eventDetails.target) {
+                  onColumnDragOver(
+                    eventDetails.target.payload,
+                    !getHorizontalCollisionAfter(eventDetails.target),
+                  );
                 } else {
                   setDropIndicator(null);
                 }
               }}
-              onMoveEnd={({ source: dragged, target }) => {
+              onMoveEnd={(eventDetails) => {
+                const target = eventDetails.target;
                 if (target) {
                   setColumns((current) => {
                     const index = current.findIndex((item) => item.id === target.payload);
@@ -453,7 +459,7 @@ function DataGridInner() {
                       ? current
                       : moveToIndex(
                           current,
-                          dragged.payload,
+                          eventDetails.source.payload,
                           index + (getHorizontalCollisionAfter(target) ? 1 : 0),
                         );
                   });
@@ -478,14 +484,18 @@ function DataGridInner() {
             >
               <Draggable.CollisionProvider
                 kind={rowKind}
-                onCollisionChange={({ target }) => {
-                  if (target) {
-                    onRowDragOver(target.payload, target.getLocalPoint().y <= 0.5);
+                onCollisionChange={(eventDetails) => {
+                  if (eventDetails.target) {
+                    onRowDragOver(
+                      eventDetails.target.payload,
+                      eventDetails.target.getLocalPoint().y <= 0.5,
+                    );
                   } else {
                     setDropIndicator(null);
                   }
                 }}
-                onMoveEnd={({ source: dragged, target }) => {
+                onMoveEnd={(eventDetails) => {
+                  const target = eventDetails.target;
                   if (target) {
                     setRows((current) => {
                       const index = current.findIndex((item) => item.id === target.payload);
@@ -493,7 +503,7 @@ function DataGridInner() {
                         ? current
                         : moveToIndex(
                             current,
-                            dragged.payload,
+                            eventDetails.source.payload,
                             index + (target.getLocalPoint().y > 0.5 ? 1 : 0),
                           );
                     });

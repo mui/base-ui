@@ -41,8 +41,8 @@ describe('syntheticDrag double-click activation', () => {
 
     fireEvent.doubleClick(source, { detail: 2, button: 0, clientX: 20, clientY: 20 });
     expect(onMoveStart).toHaveBeenCalledTimes(1);
-    expect(onBeforeMoveStart.mock.calls[0][1].reason).toBe('double-click');
-    expect(onBeforeMoveStart.mock.calls[0][1].event.type).toBe('dblclick');
+    expect(onBeforeMoveStart.mock.calls[0][0].reason).toBe('double-click');
+    expect(onBeforeMoveStart.mock.calls[0][0].event.type).toBe('dblclick');
     firePointer.move(target, {
       pointerType: 'mouse',
       pointerId: 1,
@@ -52,13 +52,13 @@ describe('syntheticDrag double-click activation', () => {
       timeStamp: 20,
     });
     await flushRaf();
-    expect(onMove.mock.lastCall?.[1].location.current.input.clientX).toBe(20);
-    expect(onMove.mock.lastCall?.[1].location.current.input.clientY).toBe(80);
+    expect(onMove.mock.lastCall?.[0].location.current.input.clientX).toBe(20);
+    expect(onMove.mock.lastCall?.[0].location.current.input.clientY).toBe(80);
     firePointer.up(target, { pointerType: 'mouse', pointerId: 1, button: 0, timeStamp: 30 });
     expect(onDrop).not.toHaveBeenCalled();
     fireEvent.click(target, { detail: 1, button: 0, clientX: 90, clientY: 80 });
     expect(onDrop).toHaveBeenCalledTimes(1);
-    expect(onDrop.mock.calls[0][1].location.current.input.clientX).toBe(20);
+    expect(onDrop.mock.calls[0][0].location.current.input.clientX).toBe(20);
     expect(onClick).not.toHaveBeenCalled();
     fireEvent.click(target, { detail: 1 });
     expect(onClick).toHaveBeenCalledTimes(1);
@@ -90,7 +90,7 @@ describe('syntheticDrag double-click activation', () => {
       timeStamp: 20,
     });
     await flushRaf();
-    expect(onMove.mock.lastCall?.[1].location.current.input.clientX).toBe(90);
+    expect(onMove.mock.lastCall?.[0].location.current.input.clientX).toBe(90);
 
     const press = new PointerEvent('pointerdown', {
       pointerType: '',
@@ -174,7 +174,7 @@ describe('syntheticDrag double-click activation', () => {
     registerCleanup(() => source.removeEventListener('click', onClick));
     fireEvent.doubleClick(source, { detail: 2 });
     fireEvent.keyDown(document.body, { key: 'Escape' });
-    expect(onMoveEnd.mock.calls[0][1].reason).toBe('escape-key');
+    expect(onMoveEnd.mock.calls[0][0].reason).toBe('escape-key');
     fireEvent.click(source, { detail: 1 });
     expect(onClick).toHaveBeenCalledTimes(1);
   });
@@ -186,7 +186,7 @@ describe('syntheticDrag double-click activation', () => {
     engine.registerSource(source, {
       activation: { type: 'double-click' },
       onMoveStart,
-      onBeforeMoveStart: (_, details) => details.cancel(),
+      onBeforeMoveStart: (details) => details.cancel(),
     });
     fireEvent.doubleClick(source, { detail: 2 });
     expect(onMoveStart).not.toHaveBeenCalled();
@@ -240,7 +240,7 @@ describe('syntheticDrag double-click activation', () => {
     fireEvent.click(source, { detail: 0 });
     expect(onMoveEnd).not.toHaveBeenCalled();
     fireEvent.blur(window);
-    expect(onMoveEnd.mock.calls[0][1].reason).toBe('window-blur');
+    expect(onMoveEnd.mock.calls[0][0].reason).toBe('window-blur');
   });
   it('allows either distance pickup or double-click pickup on the same source', async () => {
     const { engine } = await renderDnd();
@@ -260,11 +260,11 @@ describe('syntheticDrag double-click activation', () => {
       clientX: 15,
       timeStamp: 20,
     });
-    expect(onBeforeMoveStart.mock.calls[0][1].reason).toBe('pointer');
+    expect(onBeforeMoveStart.mock.calls[0][0].reason).toBe('pointer');
     firePointer.up(source, { pointerType: 'mouse', pointerId: 1, timeStamp: 30 });
     fireEvent.click(source, { detail: 1 });
     fireEvent.doubleClick(source, { detail: 2 });
-    expect(onBeforeMoveStart.mock.calls[1][1].reason).toBe('double-click');
+    expect(onBeforeMoveStart.mock.calls[1][0].reason).toBe('double-click');
     fireEvent.click(source, { detail: 1 });
     expect(onMoveEnd).toHaveBeenCalledTimes(2);
   });
@@ -275,7 +275,7 @@ describe('syntheticDrag double-click activation', () => {
     const root = host.attachShadow({ mode: 'open' });
     const source = document.createElement('div');
     root.append(source);
-    const onBeforeMoveStart = vi.fn((_, details) => details.cancel());
+    const onBeforeMoveStart = vi.fn((details) => details.cancel());
     engine.registerSource(host, { activation: { type: 'double-click' }, onBeforeMoveStart });
     engine.registerSource(source, { activation: { type: 'double-click' }, onBeforeMoveStart });
     fireEvent.doubleClick(source, { detail: 2, composed: true });
@@ -316,8 +316,8 @@ describe('syntheticDrag double-click activation', () => {
       // the source, not the id.
       firePointer.down(source, { ...tap, pointerType: 'touch', pointerId: 2, timeStamp: 200 });
       expect(onMoveStart).toHaveBeenCalledTimes(1);
-      expect(onBeforeMoveStart.mock.calls[0][1].reason).toBe('double-click');
-      expect(onBeforeMoveStart.mock.calls[0][1].event.type).toBe('pointerdown');
+      expect(onBeforeMoveStart.mock.calls[0][0].reason).toBe('double-click');
+      expect(onBeforeMoveStart.mock.calls[0][0].event.type).toBe('pointerdown');
 
       firePointer.move(target, {
         pointerType: 'touch',
@@ -328,7 +328,7 @@ describe('syntheticDrag double-click activation', () => {
         timeStamp: 220,
       });
       await flushRaf();
-      expect(onMove.mock.lastCall?.[1].location.current.input.clientY).toBe(80);
+      expect(onMove.mock.lastCall?.[0].location.current.input.clientY).toBe(80);
 
       firePointer.up(target, {
         pointerType: 'touch',
@@ -340,7 +340,7 @@ describe('syntheticDrag double-click activation', () => {
       });
       expect(onDrop).toHaveBeenCalledTimes(1);
       expect(onMoveEnd).toHaveBeenCalledTimes(1);
-      expect(onMoveEnd.mock.calls[0][1].reason).toBe('drop');
+      expect(onMoveEnd.mock.calls[0][0].reason).toBe('drop');
     });
 
     it('picks up on a pen double-tap', async () => {
@@ -441,7 +441,7 @@ describe('syntheticDrag double-click activation', () => {
       firePointer.up(source, { ...tap, pointerType: 'touch', pointerId: 2, timeStamp: 530 });
       firePointer.down(source, { ...tap, pointerType: 'touch', pointerId: 3, timeStamp: 600 });
       expect(onMoveStart).toHaveBeenCalledTimes(1);
-      expect(onBeforeMoveStart.mock.calls[0][1].reason).toBe('double-click');
+      expect(onBeforeMoveStart.mock.calls[0][0].reason).toBe('double-click');
     });
 
     it('ignores a dblclick synthesized from a touch double-tap', async () => {

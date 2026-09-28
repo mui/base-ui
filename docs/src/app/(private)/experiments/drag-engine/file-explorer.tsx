@@ -104,7 +104,7 @@ function FolderTile({
         <Draggable.Target
           accept={nodeKind}
           canDrop={({ source }) => canDropInto(nodes, node.id, source.payload)}
-          onDraggableDrop={({ source }) => onMove(source.payload, node.id)}
+          onDraggableDrop={(eventDetails) => onMove(eventDetails.source.payload, node.id)}
         />
       }
       // @highlight-end
@@ -147,7 +147,7 @@ function Crumb({
     <Draggable.Target
       accept={nodeKind}
       canDrop={({ source }) => canDropInto(nodes, folder.id, source.payload)}
-      onDraggableDrop={({ source }) => onMove(source.payload, folder.id)}
+      onDraggableDrop={(eventDetails) => onMove(eventDetails.source.payload, folder.id)}
       render={
         <button
           type="button"
@@ -260,7 +260,7 @@ export default function FileExplorer() {
         <Draggable.Target
           accept={nodeKind}
           canDrop={({ source }) => canDropInto(nodes, currentFolderId, source.payload)}
-          onDraggableDrop={({ source }) => moveNode(source.payload, currentFolderId)}
+          onDraggableDrop={(eventDetails) => moveNode(eventDetails.source.payload, currentFolderId)}
           render={<Draggable.Viewport className={styles.Grid} />}
         >
           {children.map((node) =>

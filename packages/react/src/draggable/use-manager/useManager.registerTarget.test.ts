@@ -116,8 +116,8 @@ describe('engine.registerTarget', () => {
     expect(outerOnDrop).toHaveBeenCalledWith(
       expect.objectContaining({
         target: expect.objectContaining({ element: outer }),
+        reason: 'drop',
       }),
-      expect.objectContaining({ reason: 'drop' }),
     );
   });
 
@@ -127,12 +127,12 @@ describe('engine.registerTarget', () => {
     const target = createElement();
     const seen: Record<string, Event | undefined> = {};
     engine.registerSource(source, {
-      onMove: (_payload, details) => {
+      onMove: (details) => {
         seen.drag = details.event;
       },
     });
     engine.registerTarget(target, {
-      onDraggableEnter: (_payload, details) => {
+      onDraggableEnter: (details) => {
         seen.enter = details.event;
         seen.change = details.event;
       },
@@ -329,7 +329,7 @@ describe('engine.registerTarget', () => {
     engine.registerTarget(target, {
       kind: slotKind,
       accept: cardKind,
-      onDraggableEnter: ({ target }, { location }) => {
+      onDraggableEnter: ({ target, location }) => {
         observedSelfKind = target.kind;
         observedRecordKind = location.current.targets[0]?.kind;
       },
@@ -470,8 +470,8 @@ describe('engine.registerTarget', () => {
     expect(onDraggableEnter).toHaveBeenCalledWith(
       expect.objectContaining({
         target: expect.objectContaining({ element: target }),
+        reason: 'pointer',
       }),
-      expect.objectContaining({ reason: 'pointer' }),
     );
   });
 
@@ -498,8 +498,8 @@ describe('engine.registerTarget', () => {
     expect(onMove).toHaveBeenCalledWith(
       expect.objectContaining({
         target: expect.objectContaining({ element: target }),
+        reason: 'pointer',
       }),
-      expect.objectContaining({ reason: 'pointer' }),
     );
   });
 
@@ -560,7 +560,7 @@ describe('engine.registerTarget', () => {
     // the same shape on drop as on cancel: the target already out of the stack.
     // Each dispatch gets its own `location` snapshot, so reading it afterwards is safe.
     expect(onDraggableLeave).toHaveBeenCalledTimes(1);
-    expect(onDraggableLeave.mock.calls[0][1].location.current.targets).toEqual([]);
+    expect(onDraggableLeave.mock.calls[0][0].location.current.targets).toEqual([]);
   });
 
   it('fires onDrop when a drop occurs on the target', async () => {
@@ -582,9 +582,9 @@ describe('engine.registerTarget', () => {
     expect(onDrop).toHaveBeenCalledWith(
       expect.objectContaining({
         target: expect.objectContaining({ element: target }),
+        // `onDrop` only ever fires for a committed drop, so its reason is fixed.
+        reason: 'drop',
       }),
-      // `onDrop` only ever fires for a committed drop, so its reason is fixed.
-      expect.objectContaining({ reason: 'drop' }),
     );
   });
 
@@ -616,8 +616,8 @@ describe('engine.registerTarget', () => {
     expect(innerOnDrop).toHaveBeenCalledWith(
       expect.objectContaining({
         target: expect.objectContaining({ element: inner }),
+        reason: 'drop',
       }),
-      expect.objectContaining({ reason: 'drop' }),
     );
 
     // Outer is in the active stack but NOT innermost — its onDrop is skipped.
@@ -625,7 +625,7 @@ describe('engine.registerTarget', () => {
 
     // Monitors still see the full chain via location.current.targets.
     expect(monitorOnDrop).toHaveBeenCalledTimes(1);
-    const monitorDetails = monitorOnDrop.mock.calls[0]![1];
+    const monitorDetails = monitorOnDrop.mock.calls[0]![0];
     expect(monitorDetails.location.current.targets.map((t: any) => t.element)).toEqual([
       inner,
       outer,
@@ -660,8 +660,8 @@ describe('engine.registerTarget', () => {
     expect(outerOnDrop).toHaveBeenCalledWith(
       expect.objectContaining({
         target: expect.objectContaining({ element: outer }),
+        reason: 'drop',
       }),
-      expect.objectContaining({ reason: 'drop' }),
     );
   });
 
@@ -702,8 +702,7 @@ describe('engine.registerTarget', () => {
     expect(columnOnDrop).not.toHaveBeenCalled();
     // Released over no resolved target: an outside release, not a cancel.
     expect(onMoveEnd).toHaveBeenCalledWith(
-      expect.objectContaining({ target: null }),
-      expect.objectContaining({ reason: 'outside-release' }),
+      expect.objectContaining({ target: null, reason: 'outside-release' }),
     );
   });
 
@@ -923,8 +922,8 @@ describe('engine.registerTarget', () => {
     expect(outerMove).toHaveBeenCalled();
     // The outer target is told about itself, not about the innermost target that
     // leads the stack (and would receive the drop).
-    const [outerValue, outerDetails] = outerEnter.mock.calls[0];
-    expect(outerValue.target.element).toBe(outer);
+    const [outerDetails] = outerEnter.mock.calls[0];
+    expect(outerDetails.target.element).toBe(outer);
     expect(outerDetails.location.current.targets[0].element).toBe(inner);
     expect(outerMove.mock.lastCall?.[0].target.element).toBe(outer);
     expect(innerEnter.mock.calls[0][0].target.element).toBe(inner);
@@ -969,7 +968,7 @@ describe('engine.registerTarget', () => {
     }
 
     expect(onDraggableEnter).toHaveBeenCalledTimes(1);
-    const details = onDraggableEnter.mock.calls[0][1];
+    const details = onDraggableEnter.mock.calls[0][0];
     expect(details.location.current.targets[0].element).toBe(outer);
   });
 
@@ -1013,7 +1012,7 @@ describe('engine.registerTarget', () => {
 
     expect(onDragEnterInner).toHaveBeenCalledTimes(1);
     expect(onDragEnterOuter).toHaveBeenCalledTimes(1);
-    const elements = onDragEnterInner.mock.calls[0][1].location.current.targets.map(
+    const elements = onDragEnterInner.mock.calls[0][0].location.current.targets.map(
       (record: { element: Element }) => record.element,
     );
     expect(elements).toEqual([inner, outer]);
@@ -1056,7 +1055,7 @@ describe('engine.registerTarget', () => {
 
     expect(onDragEnterZone).toHaveBeenCalledTimes(1);
     expect(onDragEnterLight).toHaveBeenCalledTimes(1);
-    const elements = onDragEnterZone.mock.calls[0][1].location.current.targets.map(
+    const elements = onDragEnterZone.mock.calls[0][0].location.current.targets.map(
       (record: { element: Element }) => record.element,
     );
     expect(elements).toEqual([zone, light]);
@@ -1195,7 +1194,7 @@ describe('engine.registerTarget', () => {
       expect(onDrop).not.toHaveBeenCalled();
       expect(onMoveEnd).toHaveBeenCalledTimes(1);
       expect(onMoveEnd.mock.calls[0][0].target).toBeNull();
-      expect(onMoveEnd.mock.calls[0][1].reason).toBe('outside-release');
+      expect(onMoveEnd.mock.calls[0][0].reason).toBe('outside-release');
     } finally {
       fireDrag.dragEnd();
       consoleError.mockRestore();
@@ -1289,7 +1288,7 @@ describe('engine.registerTarget', () => {
         currentInput: { clientX: number; clientY: number };
       } | null = null;
       engine.registerSource(source, {
-        onMoveStart: (_, { location }) => {
+        onMoveStart: ({ location }) => {
           firstEvent = {
             previousInput: location.previous.input,
             initialInput: location.initial.input,
@@ -1354,7 +1353,7 @@ describe('engine.registerTarget', () => {
       const target = createElement({ top: 0, height: 400 });
       const events: MoveEventDetails[] = [];
       engine.registerSource(source, {
-        onMove: (_, eventDetails) => events.push(eventDetails),
+        onMove: (eventDetails) => events.push(eventDetails),
       });
       engine.registerTarget(target, {});
 
@@ -1390,7 +1389,7 @@ describe('engine.registerTarget', () => {
       const target = createElement({ top: 0, height: 400 });
       const samples: Array<{ previous: number; current: number }> = [];
       engine.registerSource(source, {
-        onMove: (_, { location }) => {
+        onMove: ({ location }) => {
           samples.push({
             previous: location.previous.input.clientY,
             current: location.current.input.clientY,
@@ -1587,7 +1586,7 @@ describe('engine.registerTarget', () => {
     const currentStacks: Element[][] = [];
     engine.registerSource(source, {});
     engine.registerMonitor({
-      onTargetChange: (_, { location }) => {
+      onTargetChange: ({ location }) => {
         currentStacks.push(location.current.targets.map((record) => record.element));
       },
     });

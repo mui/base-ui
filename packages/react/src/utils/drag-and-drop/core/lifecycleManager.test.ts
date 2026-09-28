@@ -12,11 +12,9 @@ import {
 } from '../../../../test/dnd';
 import { getSharedSlot } from '../sharedState';
 import type { DraggableInput } from '../../../draggable/DraggableProvider';
-import type { DraggableRootRecord } from '../../../draggable/root/DraggableRoot';
 import type { DraggableTargetRecord } from '../../../draggable/target/DraggableTarget';
 import type {
   DragDropEventDetails,
-  DragSourceEventValue,
   DropTargetChangeEventDetails,
   MoveEndEventDetails,
 } from '../types';
@@ -72,16 +70,16 @@ describe('lifecycle manager', () => {
       onForceCleanup: () => {},
     });
 
-    expect(onMoveStart.mock.calls[0][1].location.grabOffset).toEqual({ x: 12, y: 8 });
+    expect(onMoveStart.mock.calls[0][0].location.grabOffset).toEqual({ x: 12, y: 8 });
     grabOffset.x = 99;
-    onMoveStart.mock.calls[0][1].location.grabOffset.y = 99;
+    onMoveStart.mock.calls[0][0].location.grabOffset.y = 99;
     act(() => handle!.drop(makeInput(), target));
 
-    expect(onMoveEnd.mock.calls[0][1].location.grabOffset).toEqual({ x: 12, y: 8 });
-    expect(onDraggableLeave.mock.calls[0][1].location.grabOffset).toEqual({ x: 12, y: 8 });
-    expect(onMoveEnd.mock.calls[0][1].canceled).toBe(false);
+    expect(onMoveEnd.mock.calls[0][0].location.grabOffset).toEqual({ x: 12, y: 8 });
+    expect(onDraggableLeave.mock.calls[0][0].location.grabOffset).toEqual({ x: 12, y: 8 });
+    expect(onMoveEnd.mock.calls[0][0].canceled).toBe(false);
     // `canceled` belongs to `onMoveEnd` only; the terminal leave has no such flag.
-    expect(onDraggableLeave.mock.calls[0][1]).not.toHaveProperty('canceled');
+    expect(onDraggableLeave.mock.calls[0][0]).not.toHaveProperty('canceled');
     removeDropTargetRegistration(target, getTarget);
   });
 
@@ -218,8 +216,8 @@ describe('lifecycle manager', () => {
       'move failed',
     );
     expect(monitorEnd).toHaveBeenCalledTimes(1);
-    expect(monitorEnd.mock.calls[0][1].reason).toBe('handler-error');
-    expect(monitorEnd.mock.calls[0][1].canceled).toBe(true);
+    expect(monitorEnd.mock.calls[0][0].reason).toBe('handler-error');
+    expect(monitorEnd.mock.calls[0][0].canceled).toBe(true);
     removeMonitor(getMonitor);
   });
 
@@ -457,9 +455,9 @@ describe('lifecycle manager', () => {
       await flushRaf();
 
       expect(onMove).toHaveBeenCalled();
-      const value = onMove.mock.lastCall![0];
-      expect(value.source.element).toBe(el);
-      expect(value.target?.element).toBe(target);
+      const details = onMove.mock.lastCall![0];
+      expect(details.source.element).toBe(el);
+      expect(details.target?.element).toBe(target);
     });
 
     it('reports the innermost current target as `target` to source and monitor move handlers', async () => {
@@ -495,12 +493,12 @@ describe('lifecycle manager', () => {
       await flushRaf();
 
       for (const handler of Object.values(handlers)) {
-        const calls = handler.mock.calls as [DragSourceEventValue, DropTargetChangeEventDetails][];
-        expect(calls.map(([value]) => value.target?.element ?? null)).toEqual(
+        const calls = handler.mock.calls as [DropTargetChangeEventDetails][];
+        expect(calls.map(([details]) => details.target?.element ?? null)).toEqual(
           expect.arrayContaining([inner, null]),
         );
-        for (const [value, details] of calls) {
-          expect(value.target).toBe(details.location.current.targets[0] ?? null);
+        for (const [details] of calls) {
+          expect(details.target).toBe(details.location.current.targets[0] ?? null);
         }
       }
 
@@ -584,8 +582,10 @@ describe('lifecycle manager', () => {
 
       expect(onDraggableEnter).toHaveBeenCalledTimes(1);
       expect(onDraggableEnter).toHaveBeenCalledWith(
-        expect.objectContaining({ target: expect.objectContaining({ element: under }) }),
-        expect.objectContaining({ reason: 'pointer' }),
+        expect.objectContaining({
+          target: expect.objectContaining({ element: under }),
+          reason: 'pointer',
+        }),
       );
       // `onMoveStart` stays ahead of every enter, so a collection that keys off it
       // has its dragged-item set built before any target reacts.
@@ -923,7 +923,7 @@ describe('lifecycle manager', () => {
       fireDrag.drop(inner);
 
       expect(outerLeave).toHaveBeenCalledTimes(1);
-      expect(outerLeave.mock.calls[0][1].reason).toBe('drop');
+      expect(outerLeave.mock.calls[0][0].reason).toBe('drop');
       expect(dragSessionStore.getSnapshot()).toBeNull();
     });
   });
@@ -949,8 +949,8 @@ describe('lifecycle manager', () => {
       expect(onDrop).not.toHaveBeenCalled();
       expect(onMoveEnd).toHaveBeenCalledTimes(1);
       expect(onMoveEnd).toHaveBeenCalledWith(
-        expect.objectContaining({ target: null }),
         expect.objectContaining({
+          target: null,
           reason: 'escape-key',
           location: expect.objectContaining({
             current: expect.objectContaining({
@@ -984,8 +984,7 @@ describe('lifecycle manager', () => {
       expect(onDrop).not.toHaveBeenCalled();
       expect(onMoveEnd).toHaveBeenCalledTimes(1);
       expect(onMoveEnd).toHaveBeenCalledWith(
-        expect.objectContaining({ target: null }),
-        expect.objectContaining({ reason: 'outside-release', canceled: false }),
+        expect.objectContaining({ target: null, reason: 'outside-release', canceled: false }),
       );
     });
 
@@ -1023,7 +1022,7 @@ describe('lifecycle manager', () => {
       expect(targetOnDragLeave).toHaveBeenCalledTimes(1);
       expect(monitorOnDrop).toHaveBeenCalledTimes(1);
       expect(monitorOnDrop.mock.calls[0][0].target).toBeNull();
-      expect(monitorOnDrop.mock.calls[0][1].location.current.targets).toEqual([]);
+      expect(monitorOnDrop.mock.calls[0][0].location.current.targets).toEqual([]);
     });
   });
 
@@ -1050,10 +1049,10 @@ describe('lifecycle manager', () => {
       fireDrag.drop(target);
 
       expect(onDrop).toHaveBeenCalledTimes(1);
-      const [dropValue, dropDetails] = onDrop.mock.calls[0];
+      const [dropDetails] = onDrop.mock.calls[0];
       // `onDrop` names the recipient directly, so the stack only has to confirm
       // the drop resolved against the released-on target rather than a stale one.
-      expect(dropValue.target.element).toBe(target);
+      expect(dropDetails.target.element).toBe(target);
       expect(dropDetails.location.current.targets).toHaveLength(1);
       expect(dropDetails.location.current.targets[0].element).toBe(target);
     });
@@ -1087,16 +1086,11 @@ describe('lifecycle manager', () => {
       const el = createElement();
       const target = createElement();
       const events: string[] = [];
-      // Typed through the parameter list so `mock.calls[0]` keeps both arguments.
-      const onDrop = vi.fn(
-        (
-          _: { source: DraggableRootRecord; target: DraggableTargetRecord },
-          __: DragDropEventDetails,
-        ) => {
-          events.push('source-drop');
-        },
-      );
-      const onMoveEnd = vi.fn((_: DragSourceEventValue, __: MoveEndEventDetails) => {
+      // Typed through the parameter list so `mock.calls[0]` keeps its argument.
+      const onDrop = vi.fn((_: DragDropEventDetails) => {
+        events.push('source-drop');
+      });
+      const onMoveEnd = vi.fn((_: MoveEndEventDetails) => {
         events.push('source-end');
       });
 
@@ -1113,9 +1107,9 @@ describe('lifecycle manager', () => {
       // target-drop ordering is untouched.
       expect(events).toEqual(['source-drop', 'source-end', 'target-drop']);
       expect(onDrop.mock.calls[0][0].target.element).toBe(target);
-      expect(onDrop.mock.calls[0][1].reason).toBe('drop');
-      expect(onMoveEnd.mock.calls[0][1].reason).toBe('drop');
-      expect(onMoveEnd.mock.calls[0][1].canceled).toBe(false);
+      expect(onDrop.mock.calls[0][0].reason).toBe('drop');
+      expect(onMoveEnd.mock.calls[0][0].reason).toBe('drop');
+      expect(onMoveEnd.mock.calls[0][0].canceled).toBe(false);
     });
 
     it("pins the source's own onTargetChange payload and ordering", async () => {
@@ -1125,7 +1119,7 @@ describe('lifecycle manager', () => {
       const el = createElement();
       const target = createElement();
       const order: string[] = [];
-      const onTargetChange = vi.fn((_: DragSourceEventValue, __: DropTargetChangeEventDetails) => {
+      const onTargetChange = vi.fn((_: DropTargetChangeEventDetails) => {
         order.push('source');
       });
 
@@ -1141,9 +1135,9 @@ describe('lifecycle manager', () => {
       await flushRaf();
 
       expect(onTargetChange).toHaveBeenCalled();
-      const [value, details] = onTargetChange.mock.calls[0];
-      expect(value.source.element).toBe(el);
-      expect(value.target?.element).toBe(target);
+      const [details] = onTargetChange.mock.calls[0];
+      expect(details.source.element).toBe(el);
+      expect(details.target?.element).toBe(target);
       expect(details.location.current.targets[0].element).toBe(target);
       // The source hears about the change before any target does.
       expect(order[0]).toBe('source');
@@ -1154,12 +1148,12 @@ describe('lifecycle manager', () => {
       });
     });
 
-    it('every drag handler receives the details object second', async () => {
+    it('every drag handler receives the details object', async () => {
       const { engine } = await renderDnd();
       const el = createElement();
       const target = createElement();
       const reasons: Record<string, string> = {};
-      const record = (name: string) => (_: unknown, eventDetails: { reason: string }) => {
+      const record = (name: string) => (eventDetails: { reason: string }) => {
         reasons[name] = eventDetails.reason;
       };
 
@@ -1331,9 +1325,9 @@ describe('lifecycle manager', () => {
 
       expect(onMoveEnd).toHaveBeenCalledTimes(1);
       expect(onMoveEnd.mock.calls[0][0].target).toBeNull();
-      expect(onMoveEnd.mock.calls[0][1].location.current.targets).toEqual([]);
-      expect(onMoveEnd.mock.calls[0][1].reason).toBe('handler-error');
-      expect(onMoveEnd.mock.calls[0][1].canceled).toBe(true);
+      expect(onMoveEnd.mock.calls[0][0].location.current.targets).toEqual([]);
+      expect(onMoveEnd.mock.calls[0][0].reason).toBe('handler-error');
+      expect(onMoveEnd.mock.calls[0][0].canceled).toBe(true);
       expect(monitorEnd).toHaveBeenCalledTimes(1);
       expect(isActive()).toBe(false);
 
@@ -1367,9 +1361,9 @@ describe('lifecycle manager', () => {
           ).toThrow('boom from onMove');
         });
         expect(onMoveEnd).toHaveBeenCalledTimes(1);
-        expect(onMoveEnd.mock.calls[0][1].reason).toBe('handler-error');
+        expect(onMoveEnd.mock.calls[0][0].reason).toBe('handler-error');
         expect(monitorEnd).toHaveBeenCalledTimes(1);
-        expect(monitorEnd.mock.calls[0][1].reason).toBe('handler-error');
+        expect(monitorEnd.mock.calls[0][0].reason).toBe('handler-error');
         expectEngineRecovered();
         removeMonitor(getMonitor);
       },
@@ -1397,8 +1391,8 @@ describe('lifecycle manager', () => {
       expect(onDraggableEnter).toHaveBeenCalledTimes(1);
 
       expect(onDraggableLeave).toHaveBeenCalledTimes(1);
-      expect(onDraggableLeave.mock.calls[0][1].reason).toBe('handler-error');
-      expect(onDraggableLeave.mock.calls[0][1]).not.toHaveProperty('canceled');
+      expect(onDraggableLeave.mock.calls[0][0].reason).toBe('handler-error');
+      expect(onDraggableLeave.mock.calls[0][0]).not.toHaveProperty('canceled');
       expectEngineRecovered();
 
       removeDropTargetRegistration(target, getTargetParams);
@@ -1437,15 +1431,15 @@ describe('lifecycle manager', () => {
 
       const sourceOnDragEnd = vi.fn();
       const handle = startDragWithHandlers({
-        onMoveEnd: (moveValue, moveDetails) => {
+        onMoveEnd: (moveDetails) => {
           try {
-            if (moveDetails.reason === 'drop' && moveValue.target !== null) {
+            if (moveDetails.reason === 'drop' && moveDetails.target !== null) {
               (() => {
                 throw new Error('boom from source onDrop');
               })();
             }
           } finally {
-            sourceOnDragEnd(moveValue);
+            sourceOnDragEnd(moveDetails);
           }
         },
       });
@@ -1690,10 +1684,10 @@ describe('lifecycle manager', () => {
       expect(onMoveStart).toHaveBeenCalledTimes(1);
       expect(onMoveEnd).toHaveBeenCalledTimes(1);
       expect(onMoveEnd.mock.calls[0][0].target).toBeNull();
-      expect(onMoveEnd.mock.calls[0][1].reason).toBe('imperative-action');
-      expect(onMoveEnd.mock.calls[0][1].canceled).toBe(true);
+      expect(onMoveEnd.mock.calls[0][0].reason).toBe('imperative-action');
+      expect(onMoveEnd.mock.calls[0][0].canceled).toBe(true);
       expect(monitorOnDragEnd).toHaveBeenCalledTimes(1);
-      expect(monitorOnDragEnd.mock.calls[0][1].canceled).toBe(true);
+      expect(monitorOnDragEnd.mock.calls[0][0].canceled).toBe(true);
       // The drag ended before the start fan-out reached the monitors; a start
       // after the end would invert the lifecycle order.
       expect(monitorOnDragStart).not.toHaveBeenCalled();
@@ -1732,7 +1726,7 @@ describe('lifecycle manager', () => {
       expect(monitorOnDragStart).not.toHaveBeenCalled();
       expect(onMoveEnd).toHaveBeenCalledTimes(1);
       expect(onMoveEnd.mock.calls[0][0].target).toBeNull();
-      expect(onMoveEnd.mock.calls[0][1].reason).toBe('imperative-action');
+      expect(onMoveEnd.mock.calls[0][0].reason).toBe('imperative-action');
       expect(isActive()).toBe(false);
     });
 
@@ -1771,7 +1765,7 @@ describe('lifecycle manager', () => {
       expect(targetOnDragEnter).not.toHaveBeenCalled();
       expect(onMoveEnd).toHaveBeenCalledTimes(1);
       expect(onMoveEnd.mock.calls[0][0].target).toBeNull();
-      expect(onMoveEnd.mock.calls[0][1].reason).toBe('imperative-action');
+      expect(onMoveEnd.mock.calls[0][0].reason).toBe('imperative-action');
       expect(monitorOnDragEnd).toHaveBeenCalledTimes(1);
       expect(dragSessionStore.getSnapshot()).toBeNull();
       expect(isActive()).toBe(false);
@@ -1794,7 +1788,7 @@ describe('lifecycle manager', () => {
       expect(secondMonitorStart).not.toHaveBeenCalled();
       expect(onMoveEnd).toHaveBeenCalledTimes(1);
       expect(onMoveEnd.mock.calls[0][0].target).toBeNull();
-      expect(onMoveEnd.mock.calls[0][1].reason).toBe('imperative-action');
+      expect(onMoveEnd.mock.calls[0][0].reason).toBe('imperative-action');
       expect(isActive()).toBe(false);
     });
   });
@@ -1854,7 +1848,7 @@ describe('lifecycle manager', () => {
 
       expect(onMoveEnd).toHaveBeenCalledTimes(1);
       expect(onMoveEnd.mock.calls[0][0].target).toBeNull();
-      expect(onMoveEnd.mock.calls[0][1].reason).toBe('imperative-action');
+      expect(onMoveEnd.mock.calls[0][0].reason).toBe('imperative-action');
       // The cancel's terminal leave is the only change round; final resolution
       // must not dispatch a second one after teardown.
       expect(onTargetChange).toHaveBeenCalledTimes(1);
@@ -1891,7 +1885,7 @@ describe('lifecycle manager', () => {
       expect(onDragC).not.toHaveBeenCalled();
       expect(onMoveEnd).toHaveBeenCalledTimes(1);
       expect(onMoveEnd.mock.calls[0][0].target).toBeNull();
-      expect(onMoveEnd.mock.calls[0][1].reason).toBe('imperative-action');
+      expect(onMoveEnd.mock.calls[0][0].reason).toBe('imperative-action');
       expect(isActive()).toBe(false);
 
       const el2 = createElement();
@@ -1933,7 +1927,7 @@ describe('lifecycle manager', () => {
       expect(parentOnDragLeave).toHaveBeenCalledTimes(1);
       expect(onMoveEnd).toHaveBeenCalledTimes(1);
       expect(onMoveEnd.mock.calls[0][0].target).toBeNull();
-      expect(onMoveEnd.mock.calls[0][1].reason).toBe('imperative-action');
+      expect(onMoveEnd.mock.calls[0][0].reason).toBe('imperative-action');
       expect(isActive()).toBe(false);
     });
   });

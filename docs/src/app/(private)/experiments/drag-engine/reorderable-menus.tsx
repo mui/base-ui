@@ -193,9 +193,9 @@ function ReorderableItem(props: ReorderableItemProps) {
           payload={entry.id}
           modifiers={Draggable.restrictToVerticalAxis}
           onMoveStart={list.onMoveStart}
-          onMoveEnd={({ target }) => {
+          onMoveEnd={(eventDetails) => {
             try {
-              if (target !== null) {
+              if (eventDetails.target !== null) {
                 list.onDrop();
               }
             } finally {
@@ -233,21 +233,21 @@ function ReorderableMenu() {
           >
             <Draggable.CollisionProvider
               kind={menuItemKind}
-              onCollisionChange={({ source, target }, eventDetails) => {
+              onCollisionChange={(eventDetails) => {
                 if (
-                  target &&
+                  eventDetails.target &&
                   eventDetails.previousTarget &&
-                  target.payload === eventDetails.previousTarget.payload &&
-                  target.getLocalPoint().y > 0.5 ===
+                  eventDetails.target.payload === eventDetails.previousTarget.payload &&
+                  eventDetails.target.getLocalPoint().y > 0.5 ===
                     eventDetails.previousTarget.getLocalPoint().y > 0.5
                 ) {
                   return;
                 }
-                if (target) {
+                if (eventDetails.target) {
                   list.onDragOverEntry(
-                    source.payload,
-                    target.payload,
-                    target.getLocalPoint().y > 0.5,
+                    eventDetails.source.payload,
+                    eventDetails.target.payload,
+                    eventDetails.target.getLocalPoint().y > 0.5,
                   );
                 }
               }}
@@ -290,21 +290,21 @@ function ReorderableContextMenu() {
           >
             <Draggable.CollisionProvider
               kind={menuItemKind}
-              onCollisionChange={({ source, target }, eventDetails) => {
+              onCollisionChange={(eventDetails) => {
                 if (
-                  target &&
+                  eventDetails.target &&
                   eventDetails.previousTarget &&
-                  target.payload === eventDetails.previousTarget.payload &&
-                  target.getLocalPoint().y > 0.5 ===
+                  eventDetails.target.payload === eventDetails.previousTarget.payload &&
+                  eventDetails.target.getLocalPoint().y > 0.5 ===
                     eventDetails.previousTarget.getLocalPoint().y > 0.5
                 ) {
                   return;
                 }
-                if (target) {
+                if (eventDetails.target) {
                   list.onDragOverEntry(
-                    source.payload,
-                    target.payload,
-                    target.getLocalPoint().y > 0.5,
+                    eventDetails.source.payload,
+                    eventDetails.target.payload,
+                    eventDetails.target.getLocalPoint().y > 0.5,
                   );
                 }
               }}

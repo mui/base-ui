@@ -48,11 +48,11 @@ export default function CanvasPan() {
           // The camera is written straight to the DOM: Base UI looks for drop targets
           // again on the next frame, before React could re-render.
           // @highlight-start @focus
-          onDragScroll={({ x, y }, eventDetails) => {
+          onDragScroll={(eventDetails) => {
             eventDetails.cancel();
             const camera = cameraRef.current;
-            camera.x += x;
-            camera.y += y;
+            camera.x += eventDetails.x;
+            camera.y += eventDetails.y;
             contentRef.current?.style.setProperty(
               'transform',
               `translate(${-camera.x}px, ${-camera.y}px)`,
@@ -66,9 +66,10 @@ export default function CanvasPan() {
               accept={pinKind}
               className={styles.Archive}
               style={{ left: ARCHIVE.x, top: ARCHIVE.y }}
-              onDraggableDrop={({ source }) => {
-                setPins((previous) => previous.filter((pin) => pin.id !== source.payload));
-                setArchived((previous) => [...previous, source.payload]);
+              onDraggableDrop={(eventDetails) => {
+                const pinId = eventDetails.source.payload;
+                setPins((previous) => previous.filter((pin) => pin.id !== pinId));
+                setArchived((previous) => [...previous, pinId]);
               }}
             >
               Archive
@@ -84,7 +85,7 @@ export default function CanvasPan() {
                 onMoveStart={() => {
                   dragStartCameraRef.current = { ...cameraRef.current };
                 }}
-                onMoveEnd={(_, eventDetails) => {
+                onMoveEnd={(eventDetails) => {
                   if (eventDetails.reason !== 'outside-release') {
                     return;
                   }

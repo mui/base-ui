@@ -16,13 +16,7 @@ import { resetForTests as resetAutoScroller } from '../src/utils/drag-and-drop/a
 import { clearPublishedDragPreview } from '../src/utils/drag-and-drop/overlay/dragPreviewStore';
 import { runAllCleanups } from '../src/utils/drag-and-drop/utils';
 import { resetTouchTarget } from './syntheticPointer';
-import type { DraggableRootRecord } from '../src/draggable/root/DraggableRoot';
-import type { DraggableTargetRecord } from '../src/draggable/target/DraggableTarget';
-import type {
-  DragDropEventDetails,
-  DragSourceEventValue,
-  MoveEndEventDetails,
-} from '../src/utils/drag-and-drop/types';
+import type { DragDropEventDetails, MoveEndEventDetails } from '../src/utils/drag-and-drop/types';
 
 // ---------------------------------------------------------------------------
 // Fake elements
@@ -351,22 +345,21 @@ function resetDrag(): void {
 /**
  * Split `onMoveEnd` into a drop-only handler and the end handler, mirroring the
  * engine's own drop dispatch: `onDrop` runs first and only for a committed drop,
- * `onMoveEnd` always follows, even when `onDrop` throws.
+ * with the target that received it, and `onMoveEnd` always follows, even when
+ * `onDrop` throws.
  */
 export function splitEnd<TPayload = unknown>(
-  onDrop: (
-    value: { source: DraggableRootRecord<TPayload>; target: DraggableTargetRecord },
-    details: DragDropEventDetails,
-  ) => void,
-  onMoveEnd?: (value: DragSourceEventValue<TPayload>, details: MoveEndEventDetails) => void,
-): (value: DragSourceEventValue<TPayload>, details: MoveEndEventDetails) => void {
-  return (value, details) => {
+  onDrop: (eventDetails: DragDropEventDetails<TPayload>) => void,
+  onMoveEnd?: (eventDetails: MoveEndEventDetails<TPayload>) => void,
+): (eventDetails: MoveEndEventDetails<TPayload>) => void {
+  return (eventDetails) => {
     try {
-      if (details.reason === 'drop' && value.target !== null) {
-        onDrop({ source: value.source, target: value.target }, details);
+      const target = eventDetails.target;
+      if (eventDetails.reason === 'drop' && target !== null) {
+        onDrop({ ...eventDetails, target });
       }
     } finally {
-      onMoveEnd?.(value, details);
+      onMoveEnd?.(eventDetails);
     }
   };
 }

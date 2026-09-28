@@ -36,8 +36,8 @@ describe('useMonitor', () => {
     expect(onMoveStart).toHaveBeenCalledWith(
       expect.objectContaining({
         source: expect.objectContaining({ element: el }),
+        reason: 'pointer',
       }),
-      expect.objectContaining({ reason: 'pointer' }),
     );
 
     fireDrag.drop(el);

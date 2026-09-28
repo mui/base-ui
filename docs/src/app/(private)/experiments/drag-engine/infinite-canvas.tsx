@@ -99,7 +99,7 @@ function InfiniteCanvasContent() {
     }
   });
 
-  const applyScroll = useStableCallback(({ x, y }: { x: number; y: number }) => {
+  const applyScroll = useStableCallback((x: number, y: number) => {
     // `scrollBy` semantics: positive x moves the view right, so the camera —
     // which is what the content is translated by, negated — moves the same way.
     cameraRef.current = { x: cameraRef.current.x + x, y: cameraRef.current.y + y };
@@ -125,8 +125,8 @@ function InfiniteCanvasContent() {
   Draggable.useMonitor({
     accept: noteKind,
     onMove: sampleParked,
-    onTargetChange: ({ target }) => {
-      setHovered(target?.element.getAttribute('data-bin-label') ?? '—');
+    onTargetChange: (eventDetails) => {
+      setHovered(eventDetails.target?.element.getAttribute('data-bin-label') ?? '—');
     },
     onMoveEnd: () => {
       setHovered('—');
@@ -173,9 +173,9 @@ function InfiniteCanvasContent() {
 
       <Draggable.Viewport
         accept={noteKind}
-        onDragScroll={(value, eventDetails) => {
+        onDragScroll={(eventDetails) => {
           eventDetails.cancel();
-          applyScroll(value);
+          applyScroll(eventDetails.x, eventDetails.y);
           eventDetails.consume();
         }}
         className={styles.viewport}
@@ -189,9 +189,11 @@ function InfiniteCanvasContent() {
               data-bin-label={bin.label}
               className={styles.bin}
               style={{ left: bin.x, top: bin.y }}
-              onDraggableDrop={({ source }) => {
-                setLastDrop(`${source.payload} → ${bin.label}`);
-                setNotes((previous) => previous.filter((note) => note.id !== source.payload));
+              onDraggableDrop={(eventDetails) => {
+                setLastDrop(`${eventDetails.source.payload} → ${bin.label}`);
+                setNotes((previous) =>
+                  previous.filter((note) => note.id !== eventDetails.source.payload),
+                );
               }}
             >
               {bin.label}
@@ -209,7 +211,7 @@ function InfiniteCanvasContent() {
               onMoveStart={() => {
                 dragStartCameraRef.current = cameraRef.current;
               }}
-              onMoveEnd={(_, eventDetails) => {
+              onMoveEnd={(eventDetails) => {
                 // Only a release over empty canvas moves the note: a cancel leaves it,
                 // and a drop hands it to the bin.
                 if (eventDetails.reason !== 'outside-release') {

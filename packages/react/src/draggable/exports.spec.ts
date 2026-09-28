@@ -4,8 +4,10 @@ import { expectType } from '#test-utils';
 // Each namespace alias resolves to the same type as its flat export.
 declare const record: Exports.Draggable.Target.Record<{ id: string }>;
 expectType<Exports.DraggableTargetRecord<{ id: string }>, typeof record>(record);
-declare const moveEndValue: Exports.Draggable.Root.MoveEndValue<{ id: string }>;
-expectType<Exports.DraggableRootMoveEndValue<{ id: string }>, typeof moveEndValue>(moveEndValue);
+declare const moveEndDetails: Exports.Draggable.Root.MoveEndEventDetails<{ id: string }>;
+expectType<Exports.DraggableRootMoveEndEventDetails<{ id: string }>, typeof moveEndDetails>(
+  moveEndDetails,
+);
 declare const manager: Exports.UseDraggableManagerReturnValue;
 expectType<Exports.Draggable.useManager.ReturnValue, typeof manager>(manager);
 declare const acceptedKind: Exports.Draggable.AcceptedKind;
@@ -32,5 +34,9 @@ declare const handleReference: Exports.Draggable.Handle.Reference;
 expectType<Exports.DraggableHandleReference, typeof handleReference>(handleReference);
 declare const overflowMargin: Exports.Draggable.Viewport.OverflowMargin;
 expectType<Exports.DraggableViewportOverflowMargin, typeof overflowMargin>(overflowMargin);
-declare const scrollValue: Exports.Draggable.Viewport.DragScrollValue;
-expectType<Exports.DraggableViewportDragScrollValue, typeof scrollValue>(scrollValue);
+declare const scrollDetails: Exports.Draggable.Viewport.DragScrollEventDetails;
+expectType<Exports.DraggableViewportDragScrollEventDetails, typeof scrollDetails>(scrollDetails);
+declare const dropDetails: Exports.Draggable.Target.DropEventDetails<{ id: string }>;
+expectType<Exports.DraggableTargetDropEventDetails<{ id: string }>, typeof dropDetails>(
+  dropDetails,
+);

@@ -167,7 +167,7 @@ describe('syntheticDrag sensor', () => {
     penMove(60, 50); // 10px from origin — clears 5px threshold
     await flushRaf();
     expect(onMoveStart).toHaveBeenCalledTimes(1);
-    expect(onMoveStart.mock.calls[0][1].location.current.input.pointerType).toBe('pen');
+    expect(onMoveStart.mock.calls[0][0].location.current.input.pointerType).toBe('pen');
 
     penUp(60, 50);
   });
@@ -188,7 +188,7 @@ describe('syntheticDrag sensor', () => {
     penUp(120, 80);
 
     expect(onMoveEnd).toHaveBeenCalledTimes(1);
-    const details = onMoveEnd.mock.calls[0][1];
+    const details = onMoveEnd.mock.calls[0][0];
     expect(details.location.current.input.pointerType).toBe('pen');
     expect(details.location.current.input.clientX).toBe(120);
     expect(details.location.current.input.clientY).toBe(80);
@@ -291,7 +291,7 @@ describe('syntheticDrag sensor', () => {
 
     // The teardown swallowed the capture-release error and completed the drop.
     expect(onMoveEnd).toHaveBeenCalledTimes(1);
-    expect(onMoveEnd.mock.calls[0][1].reason).toBe('outside-release');
+    expect(onMoveEnd.mock.calls[0][0].reason).toBe('outside-release');
   });
 
   it('rethrows a non-DOMException from releasePointerCapture', async () => {
@@ -434,10 +434,10 @@ describe('syntheticDrag sensor', () => {
     penUp(50, 50, 7);
 
     expect(onMoveEnd).toHaveBeenCalledTimes(1);
-    expect(onMoveEnd.mock.calls[0][1].location.current.targets).toHaveLength(0);
+    expect(onMoveEnd.mock.calls[0][0].location.current.targets).toHaveLength(0);
     // A hand-off is a cancel, not a drop over nothing.
     expect(onMoveEnd.mock.calls[0][0].target).toBeNull();
-    expect(onMoveEnd.mock.calls[0][1].reason).toBe('capture-lost');
+    expect(onMoveEnd.mock.calls[0][0].reason).toBe('capture-lost');
   });
 
   it('lets pointerup win when body capture loss is delivered first', async () => {
@@ -472,7 +472,7 @@ describe('syntheticDrag sensor', () => {
     await flushRaf();
 
     expect(onMoveEnd).toHaveBeenCalledTimes(1);
-    expect(onMoveEnd.mock.calls[0][1].reason).toBe('outside-release');
+    expect(onMoveEnd.mock.calls[0][0].reason).toBe('outside-release');
   });
 
   // jsdom-only: a real browser fires `blur` on the iframe window when the frame
@@ -550,7 +550,7 @@ describe('syntheticDrag sensor', () => {
 
       expect(onIframeDragEnd).toHaveBeenCalledTimes(1);
       expect(onIframeDragEnd.mock.calls[0][0].target).toBeNull();
-      expect(onIframeDragEnd.mock.calls[0][1].reason).toBe('document-detached');
+      expect(onIframeDragEnd.mock.calls[0][0].reason).toBe('document-detached');
       expect(onMoveStart).toHaveBeenCalledTimes(1);
       expect(onMoveStart.mock.calls[0][0].source.element).toBe(topEl);
 
@@ -608,7 +608,7 @@ describe('syntheticDrag sensor', () => {
 
     expect(onMoveEnd).toHaveBeenCalledOnce();
     expect(onMoveEnd.mock.calls[0][0].target).toBeNull();
-    expect(onMoveEnd.mock.calls[0][1].reason).toBe('document-detached');
+    expect(onMoveEnd.mock.calls[0][0].reason).toBe('document-detached');
     expect(dragSessionStore.getSnapshot()).toBeNull();
   });
 
@@ -672,9 +672,9 @@ describe('syntheticDrag sensor', () => {
     // Blur ends the drag with cancel semantics: onMoveEnd fires with a cancel reason
     // and no targets.
     expect(onMoveEnd).toHaveBeenCalledTimes(1);
-    expect(onMoveEnd.mock.calls[0][1].location.current.targets).toEqual([]);
+    expect(onMoveEnd.mock.calls[0][0].location.current.targets).toEqual([]);
     expect(onMoveEnd.mock.calls[0][0].target).toBeNull();
-    expect(onMoveEnd.mock.calls[0][1].reason).toBe('window-blur');
+    expect(onMoveEnd.mock.calls[0][0].reason).toBe('window-blur');
 
     // The engine is idle again, so a fresh drag can start and drop.
     touchDown(el, 50, 50);
@@ -750,10 +750,10 @@ describe('syntheticDrag sensor', () => {
     penCancel();
 
     expect(onMoveEnd).toHaveBeenCalledTimes(1);
-    expect(onMoveEnd.mock.calls[0][1].location.current.targets).toEqual([]);
+    expect(onMoveEnd.mock.calls[0][0].location.current.targets).toEqual([]);
     // A browser cancellation is a cancel, not a drop over nothing.
     expect(onMoveEnd.mock.calls[0][0].target).toBeNull();
-    expect(onMoveEnd.mock.calls[0][1].reason).toBe('pointer-canceled');
+    expect(onMoveEnd.mock.calls[0][0].reason).toBe('pointer-canceled');
   });
 
   it('prevents contextmenu after a touch drag candidate is cancelled by the browser', async () => {
@@ -894,8 +894,8 @@ describe('syntheticDrag sensor', () => {
     penMove(60, 50); // 10px from origin — clears the 5px distance threshold
     await flushRaf();
     expect(onBeforeMoveStart).toHaveBeenCalledTimes(1);
-    const [value, eventDetails] = onBeforeMoveStart.mock.calls[0];
-    expect(value.source.element).toBe(el);
+    const [eventDetails] = onBeforeMoveStart.mock.calls[0];
+    expect(eventDetails.source.element).toBe(el);
     expect(eventDetails.reason).toBe('pointer');
     expect(eventDetails.input.pointerType).toBe('pen');
     // The input is the activation point, not the press.
@@ -917,9 +917,9 @@ describe('syntheticDrag sensor', () => {
     const initialData: unknown[] = [];
     const canceledStates: boolean[] = [];
     engine.registerSource(el, {
-      onBeforeMoveStart: ({ source }, eventDetails) => {
-        initialData.push(source.dragData);
-        source.updateDragData({ offset: 12 });
+      onBeforeMoveStart: (eventDetails) => {
+        initialData.push(eventDetails.source.dragData);
+        eventDetails.source.updateDragData({ offset: 12 });
         if (block) {
           canceledStates.push(eventDetails.isCanceled);
           eventDetails.cancel();
@@ -1454,9 +1454,9 @@ describe('syntheticDrag sensor', () => {
     dispatch(window, new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
 
     expect(onMoveEnd).toHaveBeenCalledTimes(1);
-    expect(onMoveEnd.mock.calls[0][1].location.current.targets).toEqual([]);
+    expect(onMoveEnd.mock.calls[0][0].location.current.targets).toEqual([]);
     expect(onMoveEnd.mock.calls[0][0].target).toBeNull();
-    expect(onMoveEnd.mock.calls[0][1].reason).toBe('escape-key');
+    expect(onMoveEnd.mock.calls[0][0].reason).toBe('escape-key');
   });
 
   it('Tab cancels an active synthetic drag without consuming the key', async () => {
@@ -1480,7 +1480,7 @@ describe('syntheticDrag sensor', () => {
 
     expect(onMoveEnd).toHaveBeenCalledTimes(1);
     expect(onMoveEnd.mock.calls[0][0].target).toBeNull();
-    expect(onMoveEnd.mock.calls[0][1]).toEqual(
+    expect(onMoveEnd.mock.calls[0][0]).toEqual(
       expect.objectContaining({ reason: 'tab-key', event: tab }),
     );
     expect(tab.defaultPrevented).toBe(false);
@@ -1509,8 +1509,8 @@ describe('syntheticDrag sensor', () => {
     act(() => endTheDrag(el));
 
     expect(onMoveEnd).toHaveBeenCalledTimes(1);
-    expect(onMoveEnd.mock.calls[0][1].reason).toBe(expected);
-    expect(onMoveEnd.mock.calls[0][1].canceled).toBe(true);
+    expect(onMoveEnd.mock.calls[0][0].reason).toBe(expected);
+    expect(onMoveEnd.mock.calls[0][0].canceled).toBe(true);
   });
 
   it('the Escape that cancels a drag does not reach other listeners', async () => {
@@ -1703,7 +1703,7 @@ describe('syntheticDrag sensor', () => {
     });
     expect(onMoveEnd).toHaveBeenCalledTimes(1);
     expect(onMoveEnd.mock.calls[0][0].target).toBeNull();
-    expect(onMoveEnd.mock.calls[0][1].reason).toBe('imperative-action');
+    expect(onMoveEnd.mock.calls[0][0].reason).toBe('imperative-action');
 
     // Idle: cancelling again does nothing.
     act(() => {
@@ -1782,8 +1782,8 @@ describe('syntheticDrag sensor', () => {
     touchUp(60, 60);
 
     expect(onMoveEnd).toHaveBeenCalledTimes(1);
-    expect(onMoveEnd.mock.calls[0][1].location.current.targets).toEqual([]);
-    expect(onMoveEnd.mock.calls[0][1].reason).toBe('outside-release');
+    expect(onMoveEnd.mock.calls[0][0].location.current.targets).toEqual([]);
+    expect(onMoveEnd.mock.calls[0][0].reason).toBe('outside-release');
     expect(onMoveEnd.mock.calls[0][0].target).toBeNull();
   });
 
@@ -1819,8 +1819,8 @@ describe('syntheticDrag sensor', () => {
     await flushRaf();
 
     expect(onMoveEnd).toHaveBeenCalledTimes(1);
-    const [value, details] = onMoveEnd.mock.calls[0];
-    expect(value.target).toBeNull();
+    const [details] = onMoveEnd.mock.calls[0];
+    expect(details.target).toBeNull();
     expect(details.reason).toBe('missed-release');
     // Constrained like every reported input: the axis lock pins x at the
     // activation x, so the cancel doesn't leak a raw coordinate the drag never
@@ -1845,7 +1845,7 @@ describe('syntheticDrag sensor', () => {
     expect(onMoveEnd).toHaveBeenCalledTimes(1);
     // A browser cancellation is a cancel, not a drop over nothing.
     expect(onMoveEnd.mock.calls[0][0].target).toBeNull();
-    expect(onMoveEnd.mock.calls[0][1].reason).toBe('pointer-canceled');
+    expect(onMoveEnd.mock.calls[0][0].reason).toBe('pointer-canceled');
   });
 
   it('pointercancel reports the last good input, not its own (0,0) coordinates', async () => {
@@ -1866,8 +1866,8 @@ describe('syntheticDrag sensor', () => {
     touchCancel();
 
     expect(onMoveEnd).toHaveBeenCalledTimes(1);
-    const [value, details] = onMoveEnd.mock.calls[0];
-    expect(value.target).toBeNull();
+    const [details] = onMoveEnd.mock.calls[0];
+    expect(details.target).toBeNull();
     expect(details.reason).toBe('pointer-canceled');
     expect(details.location.current.input.clientX).toBe(80);
     expect(details.location.current.input.clientY).toBe(90);
@@ -1900,7 +1900,7 @@ describe('syntheticDrag sensor', () => {
       expect(onMoveEnd).toHaveBeenCalledTimes(1);
       // Hiding the tab is a cancel, not a drop over nothing.
       expect(onMoveEnd.mock.calls[0][0].target).toBeNull();
-      expect(onMoveEnd.mock.calls[0][1]).toEqual(
+      expect(onMoveEnd.mock.calls[0][0]).toEqual(
         expect.objectContaining({ reason: 'page-hidden', event: visibilityChange }),
       );
     } finally {
@@ -1931,7 +1931,7 @@ describe('syntheticDrag sensor', () => {
     touchUp(120, 80);
 
     expect(onMoveEnd).toHaveBeenCalledTimes(1);
-    const dropDetails = onMoveEnd.mock.calls[0][1];
+    const dropDetails = onMoveEnd.mock.calls[0][0];
     expect(dropDetails.location.current.input.clientX).toBe(120);
     expect(dropDetails.location.current.input.clientY).toBe(80);
   });
@@ -1949,7 +1949,7 @@ describe('syntheticDrag sensor', () => {
     await flushRaf();
 
     expect(onMoveStart).toHaveBeenCalledTimes(1);
-    const details = onMoveStart.mock.calls[0][1];
+    const details = onMoveStart.mock.calls[0][0];
     expect(details.location.current.input.pointerType).toBe('touch');
 
     touchUp(10, 10);
@@ -1979,11 +1979,11 @@ describe('syntheticDrag sensor', () => {
     // first delivered event is the pickup-position resolve, at 10,10.)
     expect(onMove).toHaveBeenCalled();
     const sampled = ['10,10', '30,30'];
-    for (const [, details] of onMove.mock.calls) {
+    for (const [details] of onMove.mock.calls) {
       const { clientX, clientY } = details.location.current.input;
       expect(sampled).toContain(`${clientX},${clientY}`);
     }
-    const lastMonitorInput = onMove.mock.lastCall![1].location.current.input;
+    const lastMonitorInput = onMove.mock.lastCall![0].location.current.input;
     expect(lastMonitorInput.clientX).toBe(30);
     expect(lastMonitorInput.clientY).toBe(30);
 
@@ -2286,7 +2286,7 @@ describe('syntheticDrag sensor', () => {
       );
 
       expect(onMoveEnd).toHaveBeenCalledTimes(1);
-      expect(onMoveEnd.mock.calls[0][1].reason).toBe('outside-release');
+      expect(onMoveEnd.mock.calls[0][0].reason).toBe('outside-release');
     });
 
     it('a chorded primary release mid-drag drops at that position (not a cancel)', async () => {
@@ -2334,11 +2334,11 @@ describe('syntheticDrag sensor', () => {
       );
 
       expect(onMoveEnd).toHaveBeenCalledTimes(1);
-      const [value, details] = onMoveEnd.mock.calls[0];
+      const [details] = onMoveEnd.mock.calls[0];
       // Released over empty space, so the drop lands on no target (`target`
       // is `null`) — crucially not a cancel.
       expect(details.reason).toBe('outside-release');
-      expect(value.target).toBeNull();
+      expect(details.target).toBeNull();
       expect(details.location.current.input.clientX).toBe(80);
       expect(details.location.current.input.clientY).toBe(90);
 
@@ -2466,7 +2466,7 @@ describe('syntheticDrag sensor', () => {
 
     expect(onMoveStart).toHaveBeenCalledTimes(1);
     expect(onMoveEnd).toHaveBeenCalledTimes(1);
-    const dropInput = onMoveEnd.mock.calls[0][1].location.current.input;
+    const dropInput = onMoveEnd.mock.calls[0][0].location.current.input;
     expect(dropInput.clientX).toBe(50);
     expect(dropInput.clientY).toBe(50);
   });
@@ -2521,9 +2521,9 @@ describe('syntheticDrag sensor', () => {
       touchUp(-50, -50);
 
       expect(onMoveEnd).toHaveBeenCalledTimes(1);
-      const [value, details] = onMoveEnd.mock.calls[0];
+      const [details] = onMoveEnd.mock.calls[0];
       expect(details.reason).toBe('outside-release');
-      expect(value.target).toBeNull();
+      expect(details.target).toBeNull();
       expect(details.location.current.targets).toEqual([]);
     } finally {
       document.elementFromPoint = originalEFP;
@@ -2556,11 +2556,8 @@ describe('syntheticDrag sensor', () => {
     await flushRaf();
 
     expect(onMoveStart).toHaveBeenCalledTimes(1);
-    expect(onMoveStart).toHaveBeenCalledWith(
-      expect.anything(),
-      expect.objectContaining({ reason: 'pointer' }),
-    );
-    expect(onMoveStart.mock.calls[0][1].location.current.input.pointerType).toBe('mouse');
+    expect(onMoveStart).toHaveBeenCalledWith(expect.objectContaining({ reason: 'pointer' }));
+    expect(onMoveStart.mock.calls[0][0].location.current.input.pointerType).toBe('mouse');
 
     // Pointerup on the original target ends the drag via the synthetic path.
     dispatch(
@@ -2629,9 +2626,9 @@ describe('syntheticDrag sensor', () => {
 
       expect(targetOnDrop).toHaveBeenCalledTimes(1);
       expect(sourceOnDrop).toHaveBeenCalledTimes(1);
-      const [value, details] = sourceOnDrop.mock.calls[0];
+      const [details] = sourceOnDrop.mock.calls[0];
       expect(details.reason).toBe('drop');
-      expect(value.target?.element).toBe(tgt);
+      expect(details.target?.element).toBe(tgt);
       expect(details.location.current.targets).toHaveLength(1);
       expect(details.location.current.targets[0].element).toBe(tgt);
     } finally {
@@ -3187,7 +3184,7 @@ describe('syntheticDrag sensor', () => {
       engine.registerSource(el, {
         activation: { touch: { type: 'immediate' } },
         modifiers: modifier,
-        onMove: (_, eventDetails) => {
+        onMove: (eventDetails) => {
           reported.push({
             input: eventDetails.location.current.input.shiftKey,
             event: eventDetails.event.shiftKey,
@@ -3252,7 +3249,7 @@ describe('syntheticDrag sensor', () => {
       await flushRaf();
 
       expect(onTargetChange).toHaveBeenCalledOnce();
-      const eventDetails = onTargetChange.mock.calls[0][1];
+      const eventDetails = onTargetChange.mock.calls[0][0];
       expect(eventDetails.reason).toBe('modifier-key');
       expect(eventDetails.event).toBeInstanceOf(KeyboardEvent);
 
@@ -3296,7 +3293,7 @@ describe('syntheticDrag sensor', () => {
       await flushRaf();
 
       expect(onMoveStart).toHaveBeenCalledTimes(1);
-      const startInput = onMoveStart.mock.calls[0][1].location.current.input;
+      const startInput = onMoveStart.mock.calls[0][0].location.current.input;
       // The reference the page-coordinate assertion below compares against: the
       // raw events all share one page/client delta, and `remapInput` must
       // preserve it by shifting pageX exactly as far as it shifted clientX.
@@ -3311,14 +3308,14 @@ describe('syntheticDrag sensor', () => {
       await flushRaf();
 
       expect(onMove).toHaveBeenCalled();
-      for (const [, details] of onMove.mock.calls) {
+      for (const [details] of onMove.mock.calls) {
         const input = details.location.current.input;
         // The axis lock pins x at the activation x; y follows the pointer.
         expect(input.clientX).toBe(50);
         expect(input.pageX - input.clientX).toBe(pageDelta);
         expect(input.pageY - input.clientY).toBe(pageDelta);
       }
-      const lastInput = onMove.mock.lastCall![1].location.current.input;
+      const lastInput = onMove.mock.lastCall![0].location.current.input;
       expect(lastInput.clientY).toBe(130);
 
       touchUp(120, 130);
@@ -3353,7 +3350,7 @@ describe('syntheticDrag sensor', () => {
       expect(efp).toHaveBeenLastCalledWith(50, 80);
       expect(onDrop).toHaveBeenCalledTimes(1);
       expect(onMoveEnd).toHaveBeenCalledTimes(1);
-      const dropInput = onMoveEnd.mock.calls[0][1].location.current.input;
+      const dropInput = onMoveEnd.mock.calls[0][0].location.current.input;
       expect(dropInput.clientX).toBe(50);
       expect(dropInput.clientY).toBe(80);
     });
@@ -3393,7 +3390,7 @@ describe('syntheticDrag sensor', () => {
 
       // The drag proceeded, with each move committed unconstrained.
       expect(onMove).toHaveBeenCalled();
-      const lastInput = onMove.mock.lastCall![1].location.current.input;
+      const lastInput = onMove.mock.lastCall![0].location.current.input;
       expect(lastInput.clientX).toBe(80);
       expect(lastInput.clientY).toBe(90);
     });
@@ -3416,7 +3413,7 @@ describe('syntheticDrag sensor', () => {
       await flushRaf();
       expect(onMoveStart).toHaveBeenCalledTimes(1);
       // The session's first input is the (constrained) activation point.
-      expect(onMoveStart.mock.calls[0][1].location.current.input.clientX).toBe(60);
+      expect(onMoveStart.mock.calls[0][0].location.current.input.clientX).toBe(60);
 
       penMove(100, 90);
       await flushRaf();
@@ -3424,10 +3421,10 @@ describe('syntheticDrag sensor', () => {
 
       // Every move stays pinned to the activation x (60), not the press x (50).
       expect(onMove).toHaveBeenCalled();
-      for (const [, details] of onMove.mock.calls) {
+      for (const [details] of onMove.mock.calls) {
         expect(details.location.current.input.clientX).toBe(60);
       }
-      const lastInput = onMove.mock.lastCall![1].location.current.input;
+      const lastInput = onMove.mock.lastCall![0].location.current.input;
       expect(lastInput.clientY).toBe(90);
 
       penUp(100, 90);
@@ -3495,7 +3492,7 @@ describe('syntheticDrag sensor', () => {
 
       engine.registerSource(source, {
         activation: { touch: { type: 'immediate' } },
-        onMoveEnd(_event, details) {
+        onMoveEnd(details) {
           if (details.reason !== 'drop') {
             return;
           }
@@ -3934,7 +3931,7 @@ describe('syntheticDrag sensor', () => {
 
       expect(onMoveEnd).toHaveBeenCalledTimes(1);
       // jsdom cannot hit-test, so the drop resolves to no target rather than throwing.
-      expect(onMoveEnd.mock.calls[0][1].reason).toBe('outside-release');
+      expect(onMoveEnd.mock.calls[0][0].reason).toBe('outside-release');
     });
 
     it('never starts a drag when the move that would commit it omits buttons', async () => {
@@ -3965,7 +3962,7 @@ describe('syntheticDrag sensor', () => {
       pointerMove(80, 0);
       await flushRaf();
 
-      expect(onMoveEnd.mock.calls.map((call) => call[1].reason)).toEqual(['missed-release']);
+      expect(onMoveEnd.mock.calls.map((call) => call[0].reason)).toEqual(['missed-release']);
     });
 
     it('drops when a buttons: 0 move immediately precedes pointerup', async () => {
@@ -3984,7 +3981,7 @@ describe('syntheticDrag sensor', () => {
       await flushRaf();
 
       expect(onMoveEnd).toHaveBeenCalledTimes(1);
-      expect(onMoveEnd.mock.calls[0][1].reason).toBe('outside-release');
+      expect(onMoveEnd.mock.calls[0][0].reason).toBe('outside-release');
     });
 
     it('keeps dragging when a held-button move follows a transient buttons: 0 move', async () => {
@@ -4004,7 +4001,7 @@ describe('syntheticDrag sensor', () => {
       pointerUp(100);
 
       expect(onMoveEnd).toHaveBeenCalledTimes(1);
-      expect(onMoveEnd.mock.calls[0][1].reason).toBe('outside-release');
+      expect(onMoveEnd.mock.calls[0][0].reason).toBe('outside-release');
     });
   });
 });
