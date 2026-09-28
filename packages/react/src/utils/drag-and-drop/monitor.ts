@@ -82,7 +82,13 @@ function engageMonitorIfDragging(getMonitor: MonitorGetter): void {
     getMonitor,
     null,
   );
-  if (monitor !== null && matchesAccept(monitor.accept, activeSource)) {
+  // The getter may have ended the drag, or ended it and started another: only
+  // engage the monitor for the drag it was evaluated against.
+  if (
+    monitor !== null &&
+    state.activeSource === activeSource &&
+    matchesAccept(monitor.accept, activeSource)
+  ) {
     state.activeMonitors.add(getMonitor);
     rememberMatchedMonitor(getMonitor, monitor);
   }

@@ -149,6 +149,40 @@ describe('lifecycle manager', () => {
     }
   });
 
+  it('does not keep a monitor engaged by a pickup its getter canceled', () => {
+    const cardKind = createKind('card');
+    const fileKind = createKind('file');
+    const onMoveEnd = vi.fn();
+    let cancelPickup = true;
+    const getMonitor = () => {
+      if (cancelPickup) {
+        cancelPickup = false;
+        cancelDrag();
+      }
+      return { accept: cardKind, onMoveEnd };
+    };
+    addMonitor(getMonitor);
+    registerCleanup(() => removeMonitor(getMonitor));
+    const startKind = (kind: typeof cardKind) =>
+      start({
+        payload: createDragSource(createElement(), kind.id, {}, null),
+        getSourceHandlers: () => ({}),
+        initialInput: makeInput(),
+        initialTarget: null,
+        startReason: 'pointer',
+        grabOffset: { x: 0, y: 0 },
+        hitTest,
+        onForceCleanup: () => {},
+      });
+
+    startKind(cardKind);
+    expect(isActive()).toBe(false);
+
+    startKind(fileKind)!.cancel();
+
+    expect(onMoveEnd).not.toHaveBeenCalled();
+  });
+
   it('delivers recovery end to monitors even if source cleanup also throws', () => {
     vi.spyOn(console, 'error').mockImplementation(() => {});
     const monitorEnd = vi.fn();

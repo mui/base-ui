@@ -28,7 +28,7 @@ import {
   isRtlElement,
 } from './utils';
 import type { OverflowFlags } from './utils';
-import { getRawActivePointerInput, notifyExternalScroll } from './synthetic/syntheticSensor';
+import { getRawActivePointerInput, notifyExternalScroll } from './activePointer';
 import { dragSessionStore } from './dragSessionStore';
 import * as DraggablePreviewDataAttributes from '../../draggable/preview/DraggablePreviewDataAttributes';
 import { getMaxScrollOffset } from '../scrollEdges';

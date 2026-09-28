@@ -32,6 +32,7 @@ import * as dragRootLock from './dragRootLock';
 import * as dragCursor from './dragCursor';
 import { suppressNextClick } from './postDragClick';
 import { getSharedSlot } from '../sharedState';
+import { setActivePointerAccessors } from '../activePointer';
 import { refreshStaticSetups } from '../staticSetupRefresh';
 import { createEventRootBinding } from '../documentBinding';
 import type { DragEventRoot } from '../documentBinding';
@@ -76,6 +77,10 @@ const state = getSharedSlot<SyntheticDragState>('syntheticDrag', () => ({
   lastPointerDownType: null,
   cleanupContextMenuSuppression: null,
 }));
+setActivePointerAccessors({
+  getInput: getRawActivePointerInput,
+  notifyScroll: notifyExternalScroll,
+});
 const CONTEXT_MENU_SUPPRESSION_MS = 1500;
 
 /**
@@ -1418,7 +1423,7 @@ function onActiveVisibilityChange(event: Event): void {
  * again. Auto-scroll reads it to keep a modifier from parking the drag point
  * outside a scroll container the user is pushing against.
  */
-export function getRawActivePointerInput(): DraggableInput | null {
+function getRawActivePointerInput(): DraggableInput | null {
   return state.active?.lastInput ?? null;
 }
 
