@@ -1376,12 +1376,10 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
     disabledIndices: EMPTY_ARRAY,
     grid: grid ? gridNavigation : undefined,
     onNavigate(nextActiveIndex, event, source) {
-      // Retain the highlight only while actually transitioning out or closed. `inline` lists are
-      // navigable while `open` is false, and the floating store is told they are open (see the
-      // `useFloatingRootContext` call above), so they must not be vetoed here either: doing so
-      // would discard programmatic navigation while `useListNavigation` had already advanced its
-      // internal cursor, leaving the two permanently out of sync.
-      if ((!event && !open && !inline) || transitionStatus === 'ending') {
+      // Ignore automatic navigation while closed, including selected-index sync for inline lists.
+      // Allow imperative navigation for inline lists, which remain navigable while `open` is false,
+      // so their highlight stays in sync with the internal cursor advanced by `highlightItem()`.
+      if ((!event && !open && source !== 'imperative') || transitionStatus === 'ending') {
         return;
       }
 

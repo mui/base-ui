@@ -10713,6 +10713,84 @@ describe('<Combobox.Root />', () => {
     const fruits = ['Apple', 'Apricot', 'Banana', 'Grape', 'Orange'];
     const asyncFruits = ['apple', 'banana', 'cherry'];
 
+    it.each([false, true])(
+      'clears the highlight and navigation cursor when a keepMounted dialog closes (multiple=%s)',
+      async (multiple) => {
+        const onItemHighlighted = vi.fn();
+        const onValueChange = vi.fn();
+
+        function Test() {
+          const [open, setOpen] = React.useState(false);
+          return (
+            <Combobox.Root
+              inline
+              multiple={multiple}
+              items={['Apple', 'Banana']}
+              open={open}
+              onOpenChange={setOpen}
+              onItemHighlighted={onItemHighlighted}
+              onValueChange={(value) => {
+                onValueChange(value);
+                setOpen(false);
+              }}
+            >
+              <Dialog.Root open={open} onOpenChange={setOpen}>
+                <Dialog.Trigger>Choose fruit</Dialog.Trigger>
+                <Dialog.Portal keepMounted>
+                  <Dialog.Popup aria-label="Fruit chooser">
+                    <Combobox.Input />
+                    <Combobox.List>
+                      {(item: string) => (
+                        <Combobox.Item key={item} value={item}>
+                          {item}
+                        </Combobox.Item>
+                      )}
+                    </Combobox.List>
+                    <Dialog.Close>Done</Dialog.Close>
+                  </Dialog.Popup>
+                </Dialog.Portal>
+              </Dialog.Root>
+            </Combobox.Root>
+          );
+        }
+
+        const { user } = await render(<Test />);
+        const trigger = screen.getByRole('button', { name: 'Choose fruit' });
+        await user.click(trigger);
+        const input = screen.getByRole('combobox');
+        await waitFor(() => expect(input).toHaveFocus());
+        await user.keyboard('{ArrowDown}{ArrowDown}');
+        expect(screen.getByRole('option', { name: 'Banana' })).toHaveAttribute('data-highlighted');
+        onItemHighlighted.mockClear();
+
+        await user.keyboard('{Enter}');
+        await waitFor(() => expect(screen.queryByRole('dialog')).toBe(null));
+        expect(onValueChange).toHaveBeenLastCalledWith(multiple ? ['Banana'] : 'Banana');
+        expect(onItemHighlighted.mock.calls.map(([value]) => value)).toEqual([undefined]);
+
+        async function reopenAndNavigate() {
+          await user.click(trigger);
+          await waitFor(() => expect(input).toHaveFocus());
+          expect(input).not.toHaveAttribute('aria-activedescendant');
+          onValueChange.mockClear();
+          await user.keyboard('{Enter}');
+          expect(onValueChange).not.toHaveBeenCalled();
+          await user.keyboard('{ArrowDown}');
+          expect(input).toHaveAttribute(
+            'aria-activedescendant',
+            screen.getByRole('option', { name: 'Apple' }).id,
+          );
+          await user.keyboard('{ArrowUp}');
+          expect(input).not.toHaveAttribute('aria-activedescendant');
+          await user.click(screen.getByRole('button', { name: 'Done' }));
+          await waitFor(() => expect(screen.queryByRole('dialog')).toBe(null));
+        }
+
+        await reopenAndNavigate();
+        await reopenAndNavigate();
+      },
+    );
+
     function AsyncDialogCombobox() {
       const [loading, setLoading] = React.useState(true);
       const [value, setValue] = React.useState<string | null>(null);

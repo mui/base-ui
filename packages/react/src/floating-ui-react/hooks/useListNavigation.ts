@@ -412,6 +412,9 @@ export function useListNavigation(
     }
   }, [enabled, open, floatingElement, selectedIndex, onNavigate]);
 
+  // A selection change must resync a cleared cursor without refocusing an already active item.
+  const selectedIndexWhileInactive = activeIndex == null ? selectedIndex : null;
+
   // Sync `activeIndex` to be the focused item while the floating element is
   // open.
   useIsoLayoutEffect(() => {
@@ -429,7 +432,10 @@ export function useListNavigation(
     if (activeIndex == null) {
       forceSyncFocusRef.current = false;
 
-      if (selectedIndexRef.current != null) {
+      if (selectedIndexWhileInactive != null) {
+        // The selected-index sync may have been ignored by `onNavigate` while closing.
+        // Keep the cursor aligned with the cleared highlight.
+        indexRef.current = -1;
         return;
       }
 
@@ -486,7 +492,7 @@ export function useListNavigation(
     open,
     floatingElement,
     activeIndex,
-    selectedIndexRef,
+    selectedIndexWhileInactive,
     nested,
     listRef,
     orientation,
