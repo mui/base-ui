@@ -11,27 +11,27 @@ import { useExperimentSettings } from '../_components/SettingsPanel';
 import theme from './theme.module.css';
 import styles from './infinite-canvas.module.css';
 
-// An infinite canvas: the camera is a CSS `transform` on the content layer, and
-// nothing in the tree has a scroll offset. This is the case `Draggable.Viewport`
-// covers through `onDragScroll` — the engine finds the edge and reports the delta,
-// the canvas applies it to its own camera.
+// An infinite canvas. The camera is a CSS `transform` on the content layer, and
+// nothing in the tree has a scroll offset. `Draggable.Viewport` handles this case
+// through `onDragScroll`. The engine finds the edge and reports the delta, and the
+// canvas applies it to its own camera.
 //
 // The bins sit far outside the starting view, so the only way to reach one is to
-// hold the pointer at an edge and let the canvas pan. That exercises the part of
-// the contract nothing else does: after the surface moves under a pointer that is
-// standing still, the engine re-resolves what is under it. Without that the bin
-// never lights up and the drop never lands.
+// hold the pointer at an edge and let the canvas pan. No other experiment tests
+// this. When the surface moves under a pointer that is standing still, the engine
+// has to check again what is under it. Without that the bin never lights up and
+// the drop never lands.
 //
-// `Camera` is the knob worth playing with. `onDragScroll` runs inside the engine's
-// frame loop, which hit-tests on the frame after it:
+// Try the `Camera` setting. `onDragScroll` runs inside the engine's frame loop,
+// which hit-tests on the next frame:
 //
 //   ref     the callback writes `content.style.transform` itself, so the DOM is
 //           already at the new position when the engine hit-tests. This is what
-//           the API documents.
-//   state   the callback calls `setCamera`, and React commits whenever it gets
-//           to it. Usually it lands in time and this looks identical — which is
-//           the trap. The readout below reports the gap between the camera the
-//           callback has accumulated and the one the DOM is actually painting.
+//           the API docs describe.
+//   state   the callback calls `setCamera`, and React commits whenever it can.
+//           It usually lands in time and looks identical, which hides the lag.
+//           The readout below shows the gap between the camera the callback has
+//           accumulated and the one the DOM is painting.
 
 interface InfiniteCanvasSettings {
   camera: 'ref' | 'state';
@@ -84,8 +84,8 @@ function InfiniteCanvasContent() {
   const [hovered, setHovered] = React.useState<string>('—');
 
   const contentRef = React.useRef<HTMLDivElement | null>(null);
-  // The authoritative camera, updated synchronously in `onDragScroll` whatever the
-  // mode: the difference is only whether the DOM follows it in the same call.
+  // The source of truth for the camera. `onDragScroll` updates it synchronously in
+  // both modes. The only difference is whether the DOM follows in the same call.
   const cameraRef = React.useRef({ x: 0, y: 0 });
   const dragStartCameraRef = React.useRef({ x: 0, y: 0 });
   const [camera, setCamera] = React.useState({ x: 0, y: 0 });
@@ -100,8 +100,8 @@ function InfiniteCanvasContent() {
   });
 
   const applyScroll = useStableCallback((x: number, y: number) => {
-    // `scrollBy` semantics: positive x moves the view right, so the camera —
-    // which is what the content is translated by, negated — moves the same way.
+    // Same convention as `scrollBy`, so positive x moves the view right. The content
+    // is translated by the negated camera, so the camera moves the same way.
     cameraRef.current = { x: cameraRef.current.x + x, y: cameraRef.current.y + y };
     if (settings.camera === 'ref') {
       writeCamera();
@@ -110,9 +110,8 @@ function InfiniteCanvasContent() {
     }
   });
 
-  // Sample what the DOM is actually painting, so the `state` mode's lag is a
-  // number rather than a feeling. Read from the transform the browser resolved,
-  // not from the React state that asked for it.
+  // Sample what the DOM is painting so the `state` mode's lag shows up as a number.
+  // Read the transform the browser resolved, not the React state that requested it.
   const sampleParked = useStableCallback(() => {
     const content = contentRef.current;
     if (!content) {
@@ -212,14 +211,14 @@ function InfiniteCanvasContent() {
                 dragStartCameraRef.current = cameraRef.current;
               }}
               onMoveEnd={(eventDetails) => {
-                // Only a release over empty canvas moves the note: a cancel leaves it,
-                // and a drop hands it to the bin.
+                // Only a release over empty canvas moves the note. A cancel leaves it
+                // in place, and a drop hands it to the bin.
                 if (eventDetails.reason !== 'outside-release') {
                   return;
                 }
-                // The note has to end up under the pointer, and the content layer
-                // moved underneath it: a note painted at `content - camera` needs
-                // both the pointer's client delta and the camera's own.
+                // The note has to end up under the pointer, but the content layer
+                // moved under it. A note painted at `content - camera` needs both the
+                // pointer's client delta and the camera's delta.
                 const dx =
                   eventDetails.location.current.input.clientX -
                   eventDetails.location.initial.input.clientX;

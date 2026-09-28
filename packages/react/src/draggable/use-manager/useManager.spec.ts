@@ -9,8 +9,8 @@ import type {
 } from '@base-ui/react/draggable';
 import { expectType } from '#test-utils';
 
-// Type-only file: nothing here runs, so the hook is never actually called —
-// `declare` gives us its return type without tripping the rules-of-hooks lint.
+// Type-only file. Nothing here runs, so `declare` provides the hook's return type
+// without a hook call that the rules-of-hooks lint would flag.
 declare const engine: ReturnType<typeof Draggable.useManager>;
 expectType<UseDraggableManagerReturnValue, typeof engine>(engine);
 expectType<Draggable.useManager.ReturnValue, typeof engine>(engine);
@@ -39,7 +39,7 @@ engine.registerMonitor<typeof card>(() => ({}));
 // @ts-expect-error explicit accepted-kind generics cannot bypass the runtime filter.
 engine.registerViewport<typeof card>(element, () => ({}));
 
-// The imperative entry point is self-contained: it exposes the factories its
+// The imperative entry point is self-contained. It exposes the factories its
 // registration methods require, without importing a component namespace.
 const engineCard = Draggable.createKind<CardPayload>('engine-card');
 const globalItem = Draggable.createGlobalKind('app/item');
@@ -79,7 +79,7 @@ engine.registerSource(element, () => ({
   },
 }));
 
-// An explicit type argument is honoured instead of inferred.
+// An explicit type argument is used instead of the inferred one.
 engine.registerSource<CardPayload>(element, () => ({ kind: card, payload: { id: 'a' } }));
 
 declare const maybeCardPayload: CardPayload | undefined;
@@ -91,9 +91,9 @@ engine.registerSource<CardPayload>(element, () => ({ kind: card, payload: maybeC
 // @ts-expect-error the payload must match an explicit type argument.
 engine.registerSource<CardPayload>(element, () => ({ kind: card, payload: { id: 1 } }));
 
-// A handler cannot redeclare the payload type. Asserted against the parameters type
-// rather than through a call: rejecting the handler fails overload resolution, which
-// reports against the whole argument instead of the property at fault.
+// A handler cannot redeclare the payload type. This is checked on the parameters type,
+// not through a call, because a rejected handler fails overload resolution and the
+// error lands on the whole argument instead of the property.
 const wrongDrag = (eventDetails: { source: { payload: number } }) => eventDetails;
 const wrongParameters: DraggableManagerRegisterSourceParameters<CardPayload> = {
   kind: card,
@@ -282,7 +282,7 @@ engine.registerTarget<typeof mySourceKind, MyTargetPayload>(element, () => ({
 // registerMonitor / registerViewport
 // ---------------------------------------------------------------------------
 
-// A monitor observes every drag, so it takes a getter only — no element.
+// A monitor observes every drag, so it takes only a getter and no element.
 engine.registerMonitor(() => ({
   accept: card,
   onMoveStart: (eventDetails) =>

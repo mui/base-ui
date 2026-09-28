@@ -26,9 +26,8 @@ import { DraggableRootContext } from './DraggableRootContext';
 import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 
 const stateAttributesMapping: StateAttributesMapping<DraggableRootState> = {
-  // The engine owns `data-dragging`: it lands only once the preview has been built
-  // and measured, so the clone never inherits it. React writing it too would race
-  // that ordering.
+  // The engine sets `data-dragging` after it builds and measures the preview, so the
+  // clone never inherits it. Rendering it from React could land it before the clone.
   dragging: () => null,
 };
 
@@ -51,9 +50,8 @@ export const DraggableRoot = React.forwardRef(function DraggableRoot<
     className,
     render,
     style,
-    // Drag source props. Listed explicitly because whatever stays in
-    // `elementProps` is spread onto the `<div>`, where an engine parameter would
-    // land as an attribute.
+    // Drag source props. Destructured so they stay out of `elementProps`, which
+    // is spread onto the `<div>` as attributes.
     kind,
     payload,
     previewKey,
@@ -77,8 +75,8 @@ export const DraggableRoot = React.forwardRef(function DraggableRoot<
 
   const draggableContext = useDraggableContext();
 
-  // A fresh object per render is fine: the engine compares the registration field
-  // by field before re-normalizing it.
+  // The engine compares registrations field by field before re-normalizing, so a
+  // new object on every render is fine.
   const params = {
     kind: kind ?? draggableContext.defaultKind,
     payload,
@@ -94,8 +92,8 @@ export const DraggableRoot = React.forwardRef(function DraggableRoot<
     onMoveEnd,
   } as RegisterSourceParameters<TPayload, TDragData>;
 
-  // Participate in the nearest enclosing collision provider of this source's kind:
-  // nested providers of other kinds (a board of columns of cards) are walked past.
+  // Join the nearest collision provider of this source's kind. Providers of other
+  // kinds in between are skipped, as on a board whose columns contain cards.
   const enclosingCollisionContext = React.useContext(DraggableCollisionContext);
   let collisionContext = enclosingCollisionContext;
   while (collisionContext && collisionContext.kind.id !== params.kind.id) {
@@ -139,8 +137,8 @@ export const DraggableRoot = React.forwardRef(function DraggableRoot<
     () => ({
       setHandleElement,
       previewHandle,
-      // The provider seen from here is the one the engine publishes preview content
-      // through; `Draggable.Preview` compares its own nearest provider against it.
+      // The engine publishes preview content through the provider seen from here.
+      // `Draggable.Preview` compares its own nearest provider against it.
       previewContext: draggableContext,
       disabled: disabled ?? false,
     }),
@@ -157,10 +155,10 @@ export const DraggableRoot = React.forwardRef(function DraggableRoot<
   return (
     <DraggableRootContext.Provider value={contextValue}>{element}</DraggableRootContext.Provider>
   );
-  // One generic signature, like `Select.Root`: `Props` makes `payload` required for a
-  // kind that declares one, so a `kind={card}` with no payload can't leave the engine
-  // emitting `undefined` where a `Card` was promised. A generic wrapper can spread its
-  // `Props<Payload>` straight through, since the argument infers from the same alias.
+  // One generic signature, as in `Select.Root`. `Props` requires `payload` when the
+  // kind declares one, so `kind={card}` without a payload is a type error instead of
+  // an `undefined` payload at runtime. A generic wrapper can spread its
+  // `Props<Payload>` through because the argument infers from the same alias.
 }) as <TPayload = undefined, TDragData = unknown>(
   props: DraggableRootProps<TPayload, TDragData>,
 ) => React.JSX.Element;
@@ -176,17 +174,16 @@ export interface DraggableRootState {
   disabled: boolean;
 }
 
-// Every `Draggable.Root` prop, with `kind` and `payload` optional: `DraggableRootProps`
-// requires both when the kind declares a payload.
+// Every `Draggable.Root` prop, with `kind` and `payload` optional.
+// `DraggableRootProps` requires both when the kind declares a payload.
 type DraggableRootPropsBase<TPayload, TDragData = unknown> = Omit<
   BaseUIComponentProps<'div', DraggableRootState>,
   // - `children` is widened below.
   // - `draggable` would start native dragging alongside the pointer sensor.
   'children' | 'draggable'
 > &
-  // The preview is described by a `Draggable.Preview` (with or without children)
-  // rendered inside this component, and the drag handle by a `Draggable.Handle`,
-  // never from here.
+  // A `Draggable.Preview` rendered inside this component declares the preview, and a
+  // `Draggable.Handle` declares the handle. Neither is a prop.
   Omit<RegisterSourceParameters<TPayload, TDragData>, 'preview' | 'handle' | 'kind'> & {
     children?: React.ReactNode | undefined;
     /**
@@ -259,8 +256,8 @@ export interface DraggableRootRecord<TPayload = unknown, TDragData = unknown> {
 }
 
 /**
- * The element `restrictToElement` keeps the drag inside: an element, a ref to one, or a
- * function returning one. Resolved on every move, so a ref can become available during a drag.
+ * The element `restrictToElement` keeps the drag inside. Accepts an element, a ref to one,
+ * or a function returning one. It is resolved on every move, so a ref can be set during a drag.
  */
 export type DraggableRootElementReference =
   HTMLElement | { current: HTMLElement | null } | (() => HTMLElement | null | undefined);
@@ -365,8 +362,8 @@ export type DraggableRootMoveEndEventDetails<
 > = MoveEndEventDetails<TPayload, TDragData>;
 
 /**
- * Why a drag ended. Handle unknown reasons too, since more cancel reasons may be added:
- * read `eventDetails.canceled` to tell a cancel from a release.
+ * Why a drag ended. More cancel reasons may be added, so handle unknown values too.
+ * Read `eventDetails.canceled` to tell a cancel from a release.
  *
  * - `'drop'`: Released over a drop target that accepted it.
  * - `'outside-release'`: Released outside any accepting drop target.
@@ -382,10 +379,10 @@ export type DraggableRootMoveEndEventDetails<
 export type DraggableRootMoveEndEventReason = DraggableRootMoveEndEventDetails['reason'];
 
 /**
- * When a `pointerdown` becomes a drag. Discriminated on `type`:
+ * When a `pointerdown` becomes a drag, selected by `type`:
  * - `immediate`: any `pointerdown` starts the drag.
  * - `distance`: the drag starts after the pointer has moved by `distance` CSS pixels.
- * - `press-hold`: the drag starts after `delay` ms of holding still; movement
+ * - `press-hold`: the drag starts after `delay` ms of holding still. Movement
  *   larger than `tolerance` CSS pixels (default 5) cancels the gesture.
  * - `double-click`: with a mouse, the drag starts on a double-click, follows the
  *   pointer without a held button, and ends on the next primary click. With touch

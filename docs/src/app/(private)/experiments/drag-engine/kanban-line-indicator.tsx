@@ -8,12 +8,11 @@ import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import theme from './theme.module.css';
 import styles from './kanban-line-indicator.module.css';
 
-// Demonstrates a Trello-style "snap to closest position" pattern using only
-// `useMonitor`. The monitor reads the pointer on every drag event and
-// resolves two things: the horizontally-closest column, and the vertically-
-// closest insertion slot within that column. A line indicator renders at the
-// resolved slot. Drops land precisely there, even when the pointer is outside
-// every column.
+// A Trello-style "snap to the closest position" pattern built with `useMonitor`
+// only. On every drag event, the monitor reads the pointer and finds the closest
+// column horizontally, then the closest insertion slot in that column vertically.
+// A line renders at that slot and the drop lands there, even when the pointer is
+// outside every column.
 
 type ColumnId = string;
 type CardId = string;
@@ -89,10 +88,10 @@ function findClosestColumn(clientX: number, elements: Map<ColumnId, HTMLElement>
 }
 
 // Within a column, the candidate insertion slots are:
-//   index 0           — above the first card
-//   index 1..n-1      — between consecutive cards (midpoint of the gap)
-//   index n           — below the last card
-// For empty columns the only slot is the body's top edge.
+//   - index 0, above the first card
+//   - index 1 to n-1, in the middle of the gap between two cards
+//   - index n, below the last card
+// In an empty column, the only slot is the body's top edge.
 function computeSlotYs(body: HTMLElement): number[] {
   const cardEls = Array.from(
     body.querySelectorAll<HTMLElement>('[data-card]:not([data-drag-preview])'),
@@ -153,8 +152,8 @@ function KanbanSnapContent() {
   const [indicator, setIndicator] = React.useState<DropIndicator | null>(null);
 
   const columnElementsRef = React.useRef<Map<ColumnId, HTMLElement>>(new Map());
-  // The board element every card preview is constrained to: drag past its edge
-  // and the preview sticks to the edge instead of trailing off the board.
+  // Card previews stay inside this board element. Drag past its edge and the
+  // preview sticks to the edge instead of leaving the board.
   const boardRef = React.useRef<HTMLDivElement | null>(null);
 
   const registerColumnElement = useStableCallback((id: ColumnId, el: HTMLElement | null) => {
@@ -313,8 +312,8 @@ function DraggableCard({
   columnId: ColumnId;
   boundaryRef: React.RefObject<HTMLDivElement | null>;
 }) {
-  // The engine clones the card, so the preview is the card itself
-  // (`.card[data-drag-preview]` only adds a shadow), lifted from the grab point.
+  // The engine clones the card, so the preview looks like the card, lifted from
+  // the grab point. `.card[data-drag-preview]` only adds a shadow.
   const payload = React.useMemo(() => ({ id: card.id, fromColumn: columnId }), [card.id, columnId]);
   return (
     <Draggable.Root
@@ -326,8 +325,8 @@ function DraggableCard({
       className={(state) => clsx(styles.card, state.dragging && styles.cardDragging)}
     >
       {card.title}
-      {/* Constrain the preview to the board container: drag past an edge and the
-          preview pins to it instead of trailing off the board. */}
+      {/* Keep the preview inside the board container. Drag past an edge and the
+          preview sticks to it instead of leaving the board. */}
       <Draggable.Preview modifiers={Draggable.restrictToElement(boundaryRef)} />
     </Draggable.Root>
   );

@@ -11,12 +11,15 @@ const state = getSharedSlot('participantData', () => ({
   payloads: new WeakMap<object, { kind: symbol | undefined; data: ParticipantPayload }>(),
 }));
 
-/** React registrations keep the same owner when gesture setup is rebound. */
+/** Keys a registration's payload by `owner`, so it survives a rebind of the gesture setup. */
 export function setParticipantOwner(registration: object, owner: object): void {
   state.owners.set(registration, owner);
 }
 
-/** The persistent payload belongs to a registration, independently of any drag. */
+/**
+ * Returns the payload store of a registration, creating it when missing or when
+ * `kind` changed. The store belongs to the registration and outlives any one drag.
+ */
 export function getParticipantPayload(
   registration: object,
   kind: symbol | undefined,

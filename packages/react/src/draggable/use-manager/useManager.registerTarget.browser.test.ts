@@ -13,10 +13,10 @@ const cardKind = Draggable.createKind<string>('card');
  * `document.elementFromPoint`.
  *
  * Every other engine test drives drags through `fireDrag`, which stubs
- * `elementFromPoint` to return the element the test named — so the test hands
- * the engine the answer and the point→element path never runs. These dispatch
- * raw pointer events instead, leaving `elementFromPoint` unpatched and the engine
- * to hit-test the pointer for real.
+ * `elementFromPoint` to return the element the test named. The test hands the
+ * engine the answer, so the point→element path never runs. These tests dispatch
+ * raw pointer events instead and leave `elementFromPoint` unpatched, so the engine
+ * hit-tests the pointer for real.
  */
 describe.skipIf(isJSDOM)('drop target resolution (real hit testing)', () => {
   const { renderDnd } = createDndRenderer();
@@ -219,8 +219,8 @@ describe.skipIf(isJSDOM)('drop target resolution (real hit testing)', () => {
   });
 
   /**
-   * `getLocalPoint` against real geometry: the fraction only means anything if the rect it
-   * divides by is one the browser laid out. Boxes here are 100×50 at fixed viewport
+   * `getLocalPoint` against real geometry. The fraction only means something if the
+   * browser laid out the rect it divides by. Boxes here are 100×50 at fixed viewport
    * positions, so every expected fraction is arithmetic rather than a snapshot.
    */
   describe('getLocalPoint', () => {
@@ -370,8 +370,8 @@ describe.skipIf(isJSDOM)('drop target resolution (real hit testing)', () => {
       pointer('pointerdown', source, 50, 25);
       await flushRaf();
 
-      // Armed after the pickup so the preview's own measurements are not counted: this is
-      // about what resolving a target over several moves costs a caller that never asks.
+      // Armed after the pickup so the preview's own measurements are not counted. The test
+      // checks what resolving a target over several moves costs a caller that never reads it.
       const measure = vi.spyOn(target, 'getBoundingClientRect');
       pointer('pointermove', source, 20, 210);
       await flushRaf();
@@ -406,8 +406,8 @@ describe.skipIf(isJSDOM)('drop target resolution (real hit testing)', () => {
       pointer('pointerup', source, 50, 225);
       await flushRaf();
 
-      // Detached after the record was made and before it is read, which measures as all
-      // zeros: the case that would otherwise divide by zero.
+      // Detached after the record was made and before it is read, so it measures as all
+      // zeros. Without the guard, this would divide by zero.
       const { target: targetRecord } = onDrop.mock.calls[0][0];
       target.remove();
 

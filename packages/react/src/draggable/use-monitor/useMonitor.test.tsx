@@ -60,7 +60,7 @@ describe('useMonitor', () => {
 
     await rerender(<Monitor onMoveStart={secondOnDragStart} />);
 
-    // Same getters, same order: the re-render did not re-register the monitor.
+    // The getters and their order are unchanged, so the re-render didn't re-register the monitor.
     const registrationsAfter = Array.from(getMonitorRegistry());
     expect(registrationsAfter.length).toBe(registrationsBefore.length);
     registrationsBefore.forEach((getter, index) => {
@@ -79,8 +79,8 @@ describe('useMonitor', () => {
   });
 
   it('registers exactly once and fires callbacks once per event under Strict Mode', async () => {
-    // Strict Mode double-invokes the registration effect (register → cleanup →
-    // register); a leaked duplicate registration would run every callback once
+    // Strict Mode runs the registration effect twice (register, clean up,
+    // register). A leaked duplicate registration would run every callback once
     // per hold.
     const onMoveStart = vi.fn();
     const onMoveEnd = vi.fn();

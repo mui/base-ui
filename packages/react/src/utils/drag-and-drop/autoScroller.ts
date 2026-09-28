@@ -48,9 +48,9 @@ const MUTATION_OBSERVER_OPTIONS: MutationObserverInit = {
   childList: true,
   subtree: true,
 };
-// No subtree for ancestors: preview positioning and unrelated descendants must
-// not generate mutation records on every active scroll frame. Direct children
-// are observed so reparenting a container, or one of its ancestors, rebuilds
+// Ancestors are observed without `subtree`, so preview positioning and unrelated
+// descendants don't produce records on every scroll frame. `childList` still
+// catches a container, or one of its ancestors, being reparented, which rebuilds
 // the chain.
 const CHAIN_OBSERVER_OPTIONS: MutationObserverInit = {
   attributes: true,
@@ -59,17 +59,21 @@ const CHAIN_OBSERVER_OPTIONS: MutationObserverInit = {
 };
 const PREVIEW_SELECTOR = `[${DraggablePreviewDataAttributes.dragPreview}]`;
 const ELEMENT_NODE = 1;
-// Ramp the speed in over the first engaged frames rather than starting at
-// `maxSpeed`: a pointer that merely clips a container's edge on its way past
-// would otherwise lurch it, and the ramp restarts whenever the pointer leaves and
-// re-enters the zone (see `engagementStart`). The auto-scroll docs mention the
-// ramp, because a high `maxSpeed` reads as a crawl for this long and looks broken.
+// Speed ramps from 0 to `maxSpeed` over this many milliseconds, so a pointer
+// crossing a container's edge on its way elsewhere doesn't jerk it. The ramp
+// restarts each time the pointer re-enters the zone (see `engagementStart`).
+// The auto-scroll docs mention it because a high `maxSpeed` starts slow for this
+// long and can look broken.
 const RAMP_UP_DURATION = 400;
-// Cap the per-frame delta so a stalled/paused rAF (long consumer `onMove`, GC
-// pause, throttled tab) can't produce one oversized `scrollBy` on resume.
+// Caps the elapsed time a frame scrolls for, so a late frame (after a long
+// consumer `onMove`, a GC pause, or a throttled tab) can't produce one oversized
+// `scrollBy`.
 const MAX_FRAME_DELTA_MS = 64;
 
-/** A getter for a scroller's latest parameters, so `scrollLoop` reads the freshest callbacks each frame. */
+/**
+ * Returns a scroller's latest parameters. `scrollLoop` calls it every frame, so it
+ * sees the current callbacks.
+ */
 type ScrollerGetter = () => RegisterViewportParameters<any, any>;
 
 const state = getSharedSlot<AutoScrollerState>('registerViewport', () => ({
@@ -95,8 +99,8 @@ const holds = createGetterStackRegistry<HTMLElement, ScrollerGetter>({
   entries: state.scrollers,
 });
 
-// The engine-internal monitor that drives the scroll loop, installed by the
-// first viewport registration.
+// The internal monitor that drives the scroll loop. The first viewport
+// registration installs it.
 const SCROLL_MONITOR_PARAMS: RegisterMonitorParameters = {
   onMoveStart: (eventDetails) => startScrollSession(eventDetails.source, eventDetails.location),
   onMove: refreshDragInput,
@@ -105,14 +109,14 @@ const SCROLL_MONITOR_PARAMS: RegisterMonitorParameters = {
 };
 
 /**
- * Register a scroll-container getter against `element`, ref-counted per node so
- * merged refs on one element don't clobber each other and the first unmount can't
- * delete the getter the second still needs — mirroring the draggable and
- * drop-target registries. The last-pushed getter is the active one.
+ * Registers a scroll-container getter for `element`. Getters are ref-counted per
+ * node, like the draggable and drop-target registries, so when two merged refs
+ * share an element, the first to unmount can't remove the other's getter. The
+ * last pushed getter is the active one.
  *
  * The first registration installs the scroll monitor and the last one removes
- * it. The loop itself only runs between a drag's start and end, and parks
- * whenever no container is engaged.
+ * it. The loop only runs between a drag's start and end, and parks whenever no
+ * container is engaged.
  */
 export function addScrollerRegistration(
   element: HTMLElement,
@@ -120,12 +124,11 @@ export function addScrollerRegistration(
 ): () => void {
   const release = holds.hold(element, getParameters);
   invalidateScrollerOrder();
-  // Registering mid-drag has to buy a frame: the loop parks itself whenever
-  // nothing is engaged, and a container revealed under an already-stationary
-  // pointer (a panel opening at the viewport edge) produces no input of its own
-  // to wake it with — so without this it would sit still until the user moved.
-  // The input the woken frame reads is not stale: the loop only parks after a
-  // frame that saw the latest input, and any input since would have woken it.
+  // A registration during a drag wakes the loop. A container that appears under
+  // a stationary pointer, such as a panel opening at the viewport edge, sends no
+  // input, so a parked loop would stay parked until the pointer moved. The woken
+  // frame's input is current, because the loop only parks after a frame that
+  // read the latest input, and any newer input would have woken it.
   wakeScrollLoop();
   if (state.scrollMonitorGetter === null) {
     const getMonitor = () => SCROLL_MONITOR_PARAMS;
@@ -147,11 +150,12 @@ export function addScrollerRegistration(
     if (state.scrollers.size > 0) {
       return;
     }
-    // React detaches an old render node before attaching its replacement in
-    // the same commit. Defer the last release so that swap keeps the live drag
-    // input and loop; the replacement's registration cancels this retirement.
-    // Test teardown can reset the monitor before a mounted consumer's cleanup
-    // runs, and that stale cleanup must not retire the next test's monitor.
+    // React detaches an old node before attaching its replacement in the same
+    // commit. Retiring the monitor in a microtask lets that swap keep the drag
+    // input and the loop, because the replacement registers before the check.
+    // The identity check is for test teardown, which can reset the monitor
+    // before a mounted consumer's cleanup runs. That stale cleanup must not
+    // retire the next test's monitor.
     queueMicrotask(() => {
       if (state.scrollers.size === 0 && state.scrollMonitorGetter === scrollMonitor) {
         state.scrollMonitorGetter = null;
@@ -163,10 +167,10 @@ export function addScrollerRegistration(
 }
 
 /**
- * Refresh computed-style caches and wake the loop, for a restyle that can alter
- * whether a registered container scrolls or which side is its inline end. The
- * next frame re-reads both computed-style facts (see `handleObservedMutations`
- * for when this is warranted — it is the expensive answer, not the default one).
+ * Drops the computed-style caches and wakes the loop, for a restyle that can
+ * change whether a registered container scrolls or which side is its inline end.
+ * The next frame pays a style resolve per container to re-read both, so
+ * `handleObservedMutations` only calls this when a cached answer may be wrong.
  */
 function refreshAutoScroll(): void {
   resetStyleCaches();
@@ -196,38 +200,38 @@ function movesChainElement(records: MutationRecord[]): boolean {
 }
 
 /**
- * Route one batch of observed mutations to the cheapest adequate response.
+ * Picks the cheapest correct response to a batch of observed mutations.
  *
- * The registered containers, and the whole document while the loop is parked,
- * are watched as subtrees, and most of what that reports during a drag has
- * nothing to do with scroll containers: a consumer's `onMove`-driven re-render
- * restyling a drop indicator, or a virtualizer swapping rows in and out under
- * an auto-scroll. Answering each with `refreshAutoScroll` would discard the
- * per-drag style caches on practically every commit of a
- * reorder-with-auto-scroll drag.
+ * The registered containers are observed as subtrees, and so is the whole
+ * document while the loop is parked. Most records during a drag don't affect
+ * scroll containers, for example a consumer's `onMove` re-render restyling a
+ * drop indicator, or a virtualizer swapping rows during an auto-scroll. Calling
+ * `refreshAutoScroll` for each would drop the style caches on nearly every
+ * commit of a reorder drag.
  *
- * - Engine-owned preview writes change neither a container's overflow nor its
- *   scroll extent: ignored.
- * - Moving a registered container, or one of its ancestors, can change both
- *   the nesting order and what its styles resolve to: the order is rebuilt and
- *   the caches refreshed.
+ * - Preview writes by the engine change neither a container's overflow nor its
+ *   scroll extent, so they are ignored.
+ * - Moving a registered container, or one of its ancestors, can change the
+ *   nesting order and the resolved styles. The order is rebuilt and the caches
+ *   are dropped.
  * - Other content changes (`childList`) and restyles outside the observed
- *   chains can give a container something to scroll — rows appended below the
- *   fold — but not change which elements are containers or which way they
- *   scroll: the loop is woken so the next frame re-reads the scroll extents.
- * - A `class`/`style` change on a registered container or one of its
- *   ancestors (where a descendant selector can flip an overflow or a
- *   direction) is what the caches cannot survive: full refresh.
+ *   chains, such as rows appended below the fold, can give a container
+ *   something to scroll. They can't change which elements scroll or in which
+ *   direction, so the loop wakes and the next frame re-reads the scroll extents.
+ * - A `class` or `style` change on a registered container or one of its
+ *   ancestors can flip an overflow or a direction through a descendant
+ *   selector. The caches are dropped.
  *
  * A restyle that reaches a container only through `:has()` or a sibling
- * combinator is the one this routing misses until the next refresh; rare enough
- * to trade for a quiet loop.
+ * combinator is missed until the next refresh. That case is rare enough to keep
+ * the loop quiet.
  */
 function handleObservedMutations(records: MutationRecord[]): void {
   if (state.currentSource === null) {
     return;
   }
-  // Ordinary content growth preserves both style caches and the depth order.
+  // Only a moved chain element resets the depth order. Ordinary content growth
+  // keeps it and both style caches.
   if (movesChainElement(records)) {
     invalidateScrollerOrder();
     refreshAutoScroll();
@@ -259,14 +263,14 @@ function invalidateScrollerOrder(): void {
 }
 
 /**
- * Edge-tests one axis and returns the signed engagement depth in `[-1, 1]`
- * (negative toward the home edge), or `0` when the pointer sits outside both
- * edge zones or the container has no room left in that direction.
+ * Tests one axis against its edge zones. Returns the signed engagement depth in
+ * `[-1, 1]`, negative at the top or left edge, or `0` when the pointer is outside
+ * both zones or the container can't scroll further that way.
  *
- * The limit check is a thunk so an off-edge frame never pays for it: on the
- * horizontal axis it resolves the container's direction, which costs a
- * `getComputedStyle`. An edge zone is capped at a quarter of the dimension, so
- * the two zones can never overlap and the order of the tests doesn't matter.
+ * `canScroll` is a callback so a frame outside the edge zones never calls it. On
+ * the horizontal axis it resolves the container's direction, which costs a
+ * `getComputedStyle`. Each zone is at most a quarter of `size`, so the two never
+ * overlap and the test order doesn't matter.
  */
 function getEdgeScrollDepth(
   relative: number,
@@ -284,8 +288,9 @@ function getEdgeScrollDepth(
 }
 
 /**
- * A throwing callback costs the scroller this drag frame, keeping one buggy
- * scroller from aborting the shared scroll loop for every other scroller.
+ * Calls a consumer callback and returns `fallback` if it throws. A throwing
+ * scroller loses this frame instead of aborting the shared loop for every other
+ * scroller.
  */
 function safeCall<T>(
   callbackName: 'maxSpeed' | 'getParameters' | 'onDragScroll',
@@ -297,9 +302,9 @@ function safeCall<T>(
 }
 
 /**
- * A speed that isn't a non-negative finite number falls back to the default: a
- * negative one would scroll the container backwards and a `NaN` would freeze it,
- * neither with anything to diagnose.
+ * Falls back to the default unless the speed is a finite number of at least 0. A
+ * negative speed would scroll backwards and `NaN` would freeze the container,
+ * with no error to diagnose either.
  */
 function resolveMaxSpeed(
   registration: RegisterViewportParameters,
@@ -342,23 +347,21 @@ function canScrollToward(
       ? el.scrollLeft > 0
       : Math.ceil(el.scrollLeft) + el.clientWidth < el.scrollWidth;
   }
-  // In RTL containers `scrollLeft` is 0 at the (right-hand) home position and
-  // grows negative toward the end, so a naive `scrollLeft > 0` never detects a
-  // leftward scroll and `scrollLeft + clientWidth < scrollWidth` always reads as
-  // scrollable. `-el.scrollLeft` is the distance already scrolled away from the
-  // home edge: scrolling left moves away from it, so it is possible until the
-  // far extent is reached; scrolling right moves back toward it.
+  // In an RTL container `scrollLeft` is 0 at the right-hand start and goes
+  // negative toward the end. The LTR checks above would never allow a leftward
+  // scroll and would always allow a rightward one. `-el.scrollLeft` is the
+  // distance scrolled from the start. Scrolling left is possible until it
+  // reaches the maximum offset, and scrolling right while it is above 0.
   return sign < 0
     ? Math.ceil(-el.scrollLeft) < getMaxScrollOffset(el.scrollWidth, el.clientWidth)
     : Math.floor(-el.scrollLeft) > 0;
 }
 
 /**
- * Whether `<body>`'s overflow propagates to the viewport. CSS Overflow
- * propagates it only while `<html>`'s computed overflow is `visible` on both
- * axes; once the root sets any overflow of its own, `<body>` is a regular
- * element whose overflow applies to itself (the predicate `useScrollLock`'s
- * `getViewportScroller` uses).
+ * Whether `<body>`'s overflow propagates to the viewport. Per CSS Overflow, it
+ * does only while `<html>`'s computed overflow is `visible` on both axes. Once
+ * `<html>` sets an overflow, `<body>`'s overflow applies to `<body>` itself.
+ * `useScrollLock`'s `getViewportScroller` uses the same check.
  */
 function bodyPropagatesToViewport(doc: Document): boolean {
   const root = readOverflowFlags(doc.documentElement);
@@ -366,19 +369,19 @@ function bodyPropagatesToViewport(doc: Document): boolean {
 }
 
 /**
- * Resolve a registration on the document's root to the element whose scroll
- * properties move the viewport (`scrollingElement`: `documentElement` in
- * standards mode, `body` in quirks mode), or `null` for a regular overflow
- * container. A `body` registration also maps to the page scroller while
- * `<html>` leaves its overflow `visible`: whatever overflow `body` carries then
- * propagates to the viewport instead of making `body` a scroll container of
- * its own (the browser computes the other axis to `auto` when one is set, but
- * `body.scrollBy` still moves nothing), so a scroller registered on it would
- * otherwise be silently inert. Once `<html>` sets an overflow of its own,
- * `body` is a regular element: it scrolls itself when styled as an overflow
- * container and is rejected like any non-scrolling element otherwise.
- * Environments that don't implement `scrollingElement` (jsdom) fall back to
- * the standards-mode answer, the document element.
+ * Returns the element whose scroll properties move the viewport when `element`
+ * is the page root, or `null` for a regular overflow container. That element is
+ * `scrollingElement`, which is `documentElement` in standards mode and `body` in
+ * quirks mode. jsdom doesn't implement `scrollingElement`, so it falls back to
+ * `documentElement`.
+ *
+ * A `body` registration also maps to the page scroller while `<html>` keeps its
+ * overflow `visible`. `body`'s overflow then propagates to the viewport, and
+ * `body.scrollBy` moves nothing even when `body`'s computed overflow looks
+ * scrollable. Without this mapping, a scroller on `body` would silently do
+ * nothing. Once `<html>` sets its own overflow, `body` is a regular element. It
+ * scrolls itself if styled as an overflow container, and is rejected like any
+ * non-scrolling element otherwise.
  */
 function resolvePageScroller(element: HTMLElement): HTMLElement | null {
   const doc = ownerDocument(element);
@@ -390,8 +393,8 @@ function resolvePageScroller(element: HTMLElement): HTMLElement | null {
     return scrollingElement;
   }
   if (element === doc.body && bodyPropagatesToViewport(doc)) {
-    // `readPageOverflowFlags` reads a `hidden`/`clip` on `body` as "the page
-    // has been stopped on this axis".
+    // `readPageOverflowFlags` treats `hidden` or `clip` on `body` as a scroll
+    // lock on that axis.
     return scrollingElement;
   }
   return null;
@@ -400,24 +403,23 @@ function resolvePageScroller(element: HTMLElement): HTMLElement | null {
 /**
  * Whether `scrollLeft` runs right-to-left for `scrollTarget`.
  *
- * A regular overflow container decides that with its own `direction`. The page
- * scroller does not: HTML propagates `direction` from `<body>` to the viewport
- * the same way it propagates `background`, so a `<body dir="rtl">` page scrolls
- * RTL (`scrollLeft <= 0`) while `getComputedStyle(documentElement).direction` is
- * still `ltr`. Reading the root there leaves the left edge never auto-scrolling
- * and the right edge spinning against the home edge.
+ * A regular overflow container uses its own `direction`. The page scroller
+ * doesn't. HTML propagates `direction` from `<body>` to the viewport, like
+ * `background`, so a `<body dir="rtl">` page scrolls RTL (`scrollLeft <= 0`)
+ * while `getComputedStyle(documentElement).direction` is still `ltr`. Reading
+ * `<html>` would leave the left edge dead and the right edge pushing against the
+ * start.
  */
 function resolveRtl(scrollTarget: HTMLElement, isPageScroller: boolean): boolean {
-  // Always read `body` for the page scroller: an unstyled `body` inherits the
-  // root's direction, so this is right whether or not it carries one of its own.
+  // The page scroller always reads `body`. An unstyled `body` inherits the
+  // root's direction, so this is correct whether or not `body` sets its own.
   const body = isPageScroller ? (ownerDocument(scrollTarget).body as HTMLElement | null) : null;
   return readCached(state.rtlCache, body ?? scrollTarget, isRtlElement);
 }
 
-// The viewport in client coordinates. `getViewportSize` is the engine's single
-// viewport definition (scrollbar-excluding, with the detached-document/jsdom
-// fallback), so the edge zones here agree with `restrictToWindowEdges` on where
-// the edge is.
+// The viewport rect in client coordinates. `getViewportSize` excludes scrollbars
+// and has the jsdom and detached-document fallback, so these edge zones match
+// the edges `restrictToWindowEdges` uses.
 function getViewportRect(element: HTMLElement) {
   const { width, height } = getViewportSize(ownerWindow(element));
   return {
@@ -430,9 +432,9 @@ function getViewportRect(element: HTMLElement) {
   };
 }
 
-// `getComputedStyle`-derived per-element facts (overflow, `isRtl`) are stable
-// for the duration of a drag but cost a style resolve on every read; cache them
-// per drag (the loop's start and stop reset the caches).
+// Overflow and direction come from `getComputedStyle`, which costs a style
+// resolve per read, so they are cached per drag. Starting or stopping a drag
+// resets the caches, and so does an observed restyle (see `refreshAutoScroll`).
 function readCached<T>(
   cache: WeakMap<HTMLElement, T>,
   element: HTMLElement,
@@ -453,15 +455,12 @@ function readOverflowFlags(element: HTMLElement): OverflowFlags {
 }
 
 /**
- * Which axes the *viewport* scrolls on. The page is scrollable by default —
- * `<html>` is not an overflow element yet the viewport still scrolls — so this
- * asks the opposite question from {@link readOverflowFlags}: which axes has the
- * page been stopped on. `<body>` is consulted too, but only while `<html>`'s
- * overflow is `visible` on both axes: that is when `body`'s overflow propagates
- * to the viewport (see {@link bodyPropagatesToViewport}), which is what keeps a
- * `body`-based scroll lock holding during a drag. Once `<html>` sets its own
- * overflow, `body`'s value applies to `body` alone and says nothing about the
- * page.
+ * Which axes the viewport scrolls on. The viewport scrolls by default even
+ * though `<html>` is not an overflow element. So instead of asking which axes
+ * overflow, like {@link readOverflowFlags}, this asks which axes are blocked.
+ * `<body>` counts only while its overflow propagates to the viewport (see
+ * {@link bodyPropagatesToViewport}), which keeps a scroll lock on `body` in
+ * effect during a drag.
  */
 function readPageOverflowFlags(element: HTMLElement): AxisFlags {
   const doc = ownerDocument(element);
@@ -490,9 +489,8 @@ function sortAndObserveScrollers(doc: Document): HTMLElement[] {
   for (const el of state.scrollers.keys()) {
     const observed = ownerDocument(el) === doc;
     let depth = 0;
-    // Walk composed ancestors (piercing shadow boundaries) so a scroller nested
-    // inside a shadow tree sorts deeper than its light-DOM ancestors, matching
-    // the shadow-safe traversal used elsewhere in the engine.
+    // Walk composed ancestors, crossing shadow boundaries, so a scroller inside
+    // a shadow tree sorts deeper than its light-DOM ancestors.
     for (let node: Element | null = el; node !== null; node = getComposedParentElement(node)) {
       depth += 1;
       if (observed) {
@@ -509,19 +507,18 @@ function sortAndObserveScrollers(doc: Document): HTMLElement[] {
 }
 
 /**
- * One loop frame, with the frame slot released if the body throws.
+ * Runs one loop frame and clears the frame slot if the frame throws.
  *
- * `wakeScrollLoop` bails on `scrollLoopRaf !== null`, so a throw out of the
- * body — a consumer `onDragScroll`, a drop-target getter behind a re-resolution —
- * would strand this already-fired (and therefore spent) id in the slot and leave
- * auto-scroll wedged shut for the rest of the drag.
+ * `wakeScrollLoop` returns early while `scrollLoopRaf !== null`. Without the
+ * `catch`, a throw from a consumer `onDragScroll` or a drop-target getter would
+ * leave this spent id in the slot and stop auto-scroll for the rest of the drag.
  *
- * Cleared here on the way out rather than on the way in: the id has to stay set
- * *through* the body, because `wakeScrollLoop` reads it to tell "a frame is
- * already pending" from "the loop is parked". A consumer registering a scroller
- * mid-frame wakes the loop, and with the slot already nulled that wake would
- * schedule a second frame whose id the reschedule below then overwrites —
- * leaking an uncancellable frame and running the loop at double rate.
+ * The slot is cleared on the way out, not on entry. `wakeScrollLoop` reads it
+ * during the frame to tell a pending frame from a parked loop. If a consumer
+ * registered a scroller mid-frame with the slot already null, the wake would
+ * schedule a second frame. The reschedule at the end of `runScrollFrame` would
+ * then overwrite its id, leaving a frame that can't be cancelled and running the
+ * loop at double rate.
  */
 function scrollLoop(timestamp: number): void {
   try {
@@ -533,20 +530,18 @@ function scrollLoop(timestamp: number): void {
 }
 
 function runScrollFrame(timestamp: number): void {
-  // Snapshotted for the whole iteration. The loop below runs consumer-reachable
-  // callbacks (`onDragScroll`, the drop-target getters behind a re-resolution), any
-  // of which can re-entrantly end the drag and null these — and every read after
-  // that point would then dereference `null`.
+  // Read once per frame. The loop below runs consumer callbacks (`onDragScroll`,
+  // drop-target getters during a re-resolution), and any of them can end the
+  // drag and null these fields mid-frame.
   const currentInput = state.currentInput;
   const currentReportedInput = state.currentReportedInput;
   const currentSource = state.currentSource;
 
-  // A drag can end abnormally — a consumer callback throwing tears down the
-  // lifecycle via `clearActiveMonitors()` without ever dispatching `onMoveEnd` to
-  // the scroll monitor, so `stopScrollLoop` never runs and this loop keeps
-  // rescheduling itself (and scrolling) forever. Self-terminate the moment no
-  // drag session is live. The input and source checks are defensive only:
-  // `stopScrollLoop` nulls them together with the frame.
+  // A consumer callback that throws tears the lifecycle down through
+  // `clearActiveMonitors()` without sending `onMoveEnd` to the scroll monitor.
+  // `stopScrollLoop` then never runs, so the loop stops itself once no drag
+  // session is live. The input and source checks are only defensive, since
+  // `stopScrollLoop` nulls them along with the frame.
   if (currentInput === null || currentSource === null || dragSessionStore.getSnapshot() === null) {
     stopScrollLoop();
     return;
@@ -556,25 +551,24 @@ function runScrollFrame(timestamp: number): void {
   const deltaMs = Math.min(rawDeltaMs, MAX_FRAME_DELTA_MS);
   state.lastTimestamp = timestamp;
 
-  // Scrollers can be registered from another document (e.g. an iframe), but the
-  // drag input's client coordinates are only meaningful in the source's
-  // document — edge-testing a foreign scroller's frame-local rect against them
-  // could scroll the wrong document's container on a coincidental overlap.
+  // Scrollers can live in another document, such as an iframe. The drag input's
+  // client coordinates only mean something in the source's document, so testing
+  // them against another frame's rect could scroll the wrong container.
   const sourceDocument = ownerDocument(currentSource.element);
   // Nested viewports get first use of an axis.
   if (state.sortedScrollers === null) {
     state.sortedScrollers = sortAndObserveScrollers(sourceDocument);
   }
   const sortedElements = state.sortedScrollers;
-  // Each element engaged this frame, with when its engagement began. Replaces
-  // `engagementStart` at the end of the frame, so a ramp restarts once its
-  // element sits a frame out.
+  // Elements engaged this frame, mapped to when their engagement began. It
+  // replaces `engagementStart` at the end of the frame, so an element that skips
+  // a frame restarts its ramp.
   const engaged = new Map<HTMLElement, number>();
 
-  // Read every candidate before scrolling any, so the entry/exit history updates
-  // even when an inner viewport consumes both axes. Otherwise an outer viewport
-  // could retain permission after the pointer left its margin, or miss an entry
-  // while the inner viewport was scrolling.
+  // Read every candidate before scrolling any, so `overflowEligible` updates even
+  // when an inner viewport consumes both axes. Otherwise an outer viewport could
+  // keep margin scrolling after the pointer left its margin, or miss an entry
+  // while the inner one scrolled.
   const candidates: ScrollCandidate[] = [];
   for (const element of sortedElements) {
     const getParameters = holds.getActive(element);
@@ -604,8 +598,8 @@ function runScrollFrame(timestamp: number): void {
     const pageScroller = resolvePageScroller(element);
     const rect = pageScroller ? getViewportRect(element) : element.getBoundingClientRect();
     let overflowRect: ScrollCandidate['overflowRect'] = rect;
-    // The page ignores `overflowMargin`: its probe is the pointer clamped into
-    // the viewport (see below), so it never needs the entry history either.
+    // The page ignores `overflowMargin` and needs no entry history, because its
+    // probe is the pointer clamped into the viewport (see below).
     if (pageScroller === null) {
       const marginRect = expandScrollRect(rect, registration.overflowMargin);
       if (resolveProbePoint(currentInput, currentReportedInput, rect, false) !== null) {
@@ -625,13 +619,14 @@ function runScrollFrame(timestamp: number): void {
   const consumed: AxisFlags = { x: false, y: false };
   const overflowCandidates: ScrollCandidate[] = [];
 
-  // Ordinary edge scrolling gets first use of each axis. Only unclaimed axes
-  // reach the second pass, which retains inner-first order among outside probes.
+  // Probes inside a container's rect claim axes first. Candidates whose probe is
+  // only inside the margin wait for the second pass, which keeps inner-first
+  // order and can only use the axes left unclaimed.
   for (const pass of [candidates, overflowCandidates]) {
     const overflowPass = pass === overflowCandidates;
     for (const candidate of pass) {
-      // Inner-first ordering: once both axes are consumed no remaining (outer)
-      // scroller can engage, so skip their scroll callbacks.
+      // Candidates are inner-first, so once both axes are consumed no outer
+      // scroller can engage. Skip their callbacks.
       if (consumed.x && consumed.y) {
         break;
       }
@@ -642,8 +637,8 @@ function runScrollFrame(timestamp: number): void {
       }
       const scrollTarget = pageScroller ?? element;
       const isPageScroller = pageScroller !== null;
-      // Page scrolling already clamps captured pointers beyond the viewport.
-      // Element margins don't change that existing behavior.
+      // The page scroller clamps a pointer outside the viewport back into it.
+      // Element margins don't affect that.
       const probe = pageScroller
         ? {
             ...currentInput,
@@ -658,16 +653,16 @@ function runScrollFrame(timestamp: number): void {
         overflowCandidates.push(candidate);
         continue;
       }
-      // Preserve the real edge zones and cap engagement at 1 beyond an edge.
-      // The callback still receives the selected, unclamped drag coordinates.
+      // Clamp into the rect so a probe beyond an edge engages at depth 1 without
+      // moving the edge zones. The callbacks still receive the unclamped probe.
       const relative = {
         x: clamp(probe.clientX, rect.left, rect.right) - rect.left,
         y: clamp(probe.clientY, rect.top, rect.bottom) - rect.top,
       };
       const size = { x: rect.width, y: rect.height };
 
-      // A handler can implement movement on either axis, regardless of native
-      // overflow or extent. Those gates only constrain the default scroll.
+      // An `onDragScroll` handler can move either axis regardless of the native
+      // overflow or extent. Those checks only limit the default scroll.
       const onDragScroll = registration.onDragScroll;
       const nativeOverflow: AxisFlags = pageScroller
         ? readPageOverflowFlags(element)
@@ -689,19 +684,19 @@ function runScrollFrame(timestamp: number): void {
         continue;
       }
 
-      // `maxSpeed` and `onDragScroll` both get `probe` as `input`, not the raw
-      // pointer: this is the point the engine just decided this container's edge
-      // zones from, so a consumer re-deriving the same test from `input` and
-      // `element` reaches the same answer. Reporting the raw pointer would tell a
-      // consumer the drag is outside a container the engine is busy scrolling.
+      // `maxSpeed` and `onDragScroll` get `probe` as `input`, not the raw pointer.
+      // The engine tested this container's edge zones against `probe`, so a
+      // consumer repeating the test with `input` and `element` gets the same
+      // answer. The raw pointer can be outside a container the engine is
+      // scrolling.
       const feedback = { input: probe, source: currentSource, element };
 
       const depth = { x: 0, y: 0 };
       for (const axis of AXES) {
         if (overflow[axis] && !consumed[axis]) {
-          // The limit check stays behind the `hasHandler` short-circuit: on the
-          // horizontal axis it resolves the direction, so delegating must not
-          // pay its `getComputedStyle`.
+          // `hasHandler` short-circuits the limit check, which costs a
+          // `getComputedStyle` on the horizontal axis. A container with a
+          // handler never needs it.
           depth[axis] = getEdgeScrollDepth(
             relative[axis],
             size[axis],
@@ -713,15 +708,15 @@ function runScrollFrame(timestamp: number): void {
         continue;
       }
 
-      // Resolve the speed only for engaged axes, so a callback form costs
-      // nothing on the frames this element doesn't engage.
+      // Resolved only once an axis engages, so a `maxSpeed` function isn't
+      // called on frames where this element is idle.
       const maxSpeed = resolveMaxSpeed(registration, element, feedback);
       if (state.currentSource !== currentSource) {
         return;
       }
-      // A container pinned at zero speed never moves, so it must not engage
-      // either: engaging would consume both axes from the outer container and
-      // hold the loop awake for a scroll that can never happen.
+      // A container at zero speed never moves, so it doesn't engage. Engaging
+      // would take its axes from outer containers and keep the loop running for
+      // a scroll that never happens.
       if (maxSpeed === 0) {
         continue;
       }
@@ -732,19 +727,17 @@ function runScrollFrame(timestamp: number): void {
       const frameSpeed = (maxSpeed / 1000) * deltaMs * rampFactor;
 
       if (onDragScroll === undefined) {
-        // A scroll container moves every axis it engaged, having only engaged the
-        // ones it had room on. `behavior: 'instant'` so a CSS
-        // `scroll-behavior: smooth` on the container can't turn each per-frame
-        // delta into a competing smooth animation.
+        // Scroll every engaged axis. An axis only engages when it has room to
+        // move. `behavior: 'instant'` stops a CSS `scroll-behavior: smooth` from
+        // turning each frame's delta into its own smooth animation.
         scrollTarget.scrollBy({
           left: depth.x * frameSpeed,
           top: depth.y * frameSpeed,
           behavior: 'instant',
         });
-        // Consume the axis on engagement intent, not on the applied delta: on the
-        // first engaged frame `frameSpeed` is 0 (ramp-up), so keying off the
-        // delta would leave the axis unconsumed and let an outer scroller also
-        // scroll it for that frame.
+        // Consume an axis when it engages, not when its delta is nonzero. The
+        // ramp makes `frameSpeed` 0 on the first engaged frame, and an outer
+        // scroller would otherwise scroll that axis for one frame.
         consumed.x ||= depth.x !== 0;
         consumed.y ||= depth.y !== 0;
         continue;
@@ -789,23 +782,23 @@ function runScrollFrame(timestamp: number): void {
         if (shouldScroll) {
           scrollTarget.scrollBy({ left: eventDetails.x, top: eventDetails.y, behavior: 'instant' });
         }
-        // Two separate signals. `cancel()` says the handler took the axis over
-        // (a custom surface moving itself), which keeps the element engaged so
-        // its speed ramp keeps running — without that a surface with no native
-        // overflow would be dropped every frame and never receive a delta above
-        // zero. `consume()` is what withholds the axis from outer viewports; a
-        // handler parked at its own bound leaves it alone so an ancestor can
+        // `cancel()` and `consume()` mean different things. `cancel()` says the
+        // handler took over the axis, for example a custom surface moving
+        // itself. It keeps the element engaged and its ramp running. Without
+        // that, a surface with no native overflow would drop out every frame and
+        // only ever get a delta of 0. `consume()` withholds the axis from outer
+        // viewports. A handler at its own bound skips it so an ancestor can
         // scroll instead.
         handled ||= eventDetails.isCanceled || eventDetails.isConsumed || shouldScroll;
         consumed[axis] ||= eventDetails.isConsumed || shouldScroll;
       }
 
       if (!handled) {
-        // Nothing moved, so this element must not hold the loop awake: a surface
-        // parked at its own bound would otherwise burn a frame forever under a
+        // Nothing moved, so this element must not keep the loop awake.
+        // Otherwise a surface at its own bound would run a frame forever under a
         // stationary pointer. Dropping it also resets its ramp, so a callback
-        // that throws every frame can't accumulate speed and then apply it all
-        // at once when it recovers.
+        // that throws every frame can't build up speed and apply it all at once
+        // when it recovers.
         engaged.delete(element);
       }
     }
@@ -813,20 +806,20 @@ function runScrollFrame(timestamp: number): void {
 
   state.engagementStart = engaged;
   if (engaged.size > 0) {
-    // `scroll` events are not composed, so a scrolled shadow-root container never
-    // reaches the sensor's document-level listener — mark the frame dirty directly.
+    // `scroll` events are not composed, so a scroll inside a shadow root never
+    // reaches the sensor's document listener. Mark the frame dirty directly.
     notifyExternalScroll();
   } else if (state.sortedScrollers !== null) {
-    // Nothing is edge-scrolling, so the next frame would recompute the same
-    // answer. Park the loop; only new input can change which scroller engages,
-    // and that input wakes it (see `wakeScrollLoop`). A pointer resting in the
-    // middle of the page therefore costs no frames and no geometry reads.
+    // Nothing is edge-scrolling, so the next frame would compute the same
+    // result. Park the loop until new input or an observed mutation wakes it
+    // (see `wakeScrollLoop`). A pointer resting mid-page then costs no frames
+    // and no geometry reads.
     idleScrollLoop(sourceDocument);
     return;
   }
   // Reached with nothing engaged only when a callback registered or released a
-  // viewport during this frame: the held frame slot dropped that wake, so the
-  // next frame evaluates and observes the change.
+  // viewport this frame. The frame slot was still set, so that wake was dropped.
+  // Schedule the next frame to pick up the change.
   state.scrollLoopRaf = requestScrollFrame(currentSource);
 }
 
@@ -837,18 +830,18 @@ function requestScrollFrame(source: DraggableRootRecord): number {
 }
 
 /**
- * Suspend the loop until the next drag input, without dropping the drag state
+ * Suspends the loop until the next drag input, and keeps the drag state
  * `wakeScrollLoop` needs to resume.
  *
- * A parked viewport can need scrolling again without any input event: content
- * changing elsewhere on the page can move its edge zone under the stationary
- * pointer, and `chainMutationObserver` only covers the viewports' subtrees and
- * ancestor chains. So the whole document is observed while parked.
+ * A parked viewport can need scrolling without any input. Content changing
+ * elsewhere on the page can move its edge zone under a stationary pointer, and
+ * `chainMutationObserver` only covers the viewports' subtrees and ancestor
+ * chains. So the whole document is observed while parked.
  *
- * One observer per drag, connected while parked and disconnected on wake: a
- * pointer crossing the middle of the page parks and wakes the loop on every
- * frame, and constructing a fresh document-wide observer for each park was the
- * most expensive thing such a frame did.
+ * The observer is created once per drag, connected on park and disconnected on
+ * wake. A pointer crossing the middle of the page parks and wakes the loop every
+ * frame, and creating a document-wide observer on each park would dominate the
+ * cost of those frames.
  */
 function idleScrollLoop(doc: Document): void {
   state.scrollLoopRaf = null;
@@ -858,15 +851,14 @@ function idleScrollLoop(doc: Document): void {
 }
 
 /**
- * Observe the registered containers, their composed ancestors, and the page's
- * `<html>`/`<body>` (which the page scroller reads) for restyles that can change
- * a cached overflow or direction, and for moves that change the ancestors
- * themselves. The style caches only hold registered containers and
- * `<html>`/`<body>`, so where the pointer is doesn't matter.
+ * Observes the registered containers, their composed ancestors, and `<html>` and
+ * `<body>`, which the page scroller reads. A restyle there can change a cached
+ * overflow or direction, and a move can change the ancestor chain. The style
+ * caches only hold these elements, so the pointer position doesn't matter.
  *
- * The containers' subtrees are observed too, for content changes that can give
- * one something to scroll. Each container is observed directly, so one inside
- * a closed shadow root is covered as well.
+ * Container subtrees are observed too, for content changes that can give a
+ * container something to scroll. Each container is observed directly, which also
+ * covers one inside a closed shadow root.
  */
 function observeChainMutations(
   doc: Document,
@@ -911,20 +903,16 @@ function wakeScrollLoop(): void {
 }
 
 /**
- * Wake a parked loop so the next frame re-evaluates the live parameters at the
+ * Wakes a parked loop so the next frame reads the current parameters at the
  * current pointer position. React registrations call this after a parameter
  * change, because the loop may have parked while the element was disabled or
- * dynamically declined scrolling. The parameters are read through the getter
- * every frame, so nothing cached has to be dropped for a change to apply.
+ * declined to scroll. The getter is read every frame, so no cache needs
+ * clearing for the change to apply.
  * @internal
  */
 export { wakeScrollLoop as wakeAutoScroll };
 
-/**
- * The style caches are `WeakMap`s, so they are replaced rather than cleared —
- * and holding them across a drag would keep every element the last drag crossed
- * alive until the next one.
- */
+/** The style caches are `WeakMap`s, which have no `clear()`, so they are replaced. */
 function resetStyleCaches(): void {
   state.overflowCache = new WeakMap();
   state.rtlCache = new WeakMap();
@@ -933,10 +921,10 @@ function resetStyleCaches(): void {
 function stopScrollLoop(): void {
   const scrollLoopRaf = state.scrollLoopRaf;
   const scrollWindow = state.scrollWindow;
-  // Release the state before reaching into a possibly closed iframe/popout.
-  // Firefox can throw for a dead Window proxy; the callback cannot run once its
-  // realm is gone, so cancellation is best-effort while the engine state must
-  // always become reusable.
+  // Reset the state before touching a window that may belong to a closed iframe
+  // or popout. Firefox can throw on a dead Window proxy. The callback can't run
+  // once its realm is gone, so cancelling is best effort, but the state must
+  // always be reset.
   state.scrollLoopRaf = null;
   state.scrollWindow = null;
   state.currentInput = null;
@@ -958,15 +946,15 @@ function stopScrollLoop(): void {
 }
 
 /**
- * Tear the loop down between tests. `reset()` clears the active monitors without
- * dispatching `onMoveEnd`, so the scroll monitor never runs `stopScrollLoop` and
- * a still-engaged loop would keep calling `scrollBy` into the next test's
- * document — while `currentSource` pinned the previous test's detached DOM.
+ * Stops the loop between tests. `reset()` clears the active monitors without
+ * sending `onMoveEnd`, so the scroll monitor never runs `stopScrollLoop`. An
+ * engaged loop would keep calling `scrollBy` during the next test, and
+ * `currentSource` would keep the previous test's detached DOM alive.
  */
 export function resetForTests(): void {
-  // The registry is deliberately left alone: those entries are owned by the
-  // cleanups the consumer still holds, and dropping them here would unregister a
-  // scroller out from under a live test.
+  // The registry is left alone. Its entries belong to cleanups the consumer
+  // still holds, and dropping them would unregister scrollers that a running
+  // test still uses.
   stopScrollLoop();
   if (state.scrollMonitorGetter) {
     removeMonitor(state.scrollMonitorGetter);
@@ -975,24 +963,23 @@ export function resetForTests(): void {
 }
 
 /**
- * The point to measure `rect`'s edge zones from, or `null` when the candidate is
- * nowhere near either one.
+ * Returns the point to test `rect`'s edge zones against, or `null` when neither
+ * point is inside `rect`.
  *
- * Two positions describe the same frame: the physical pointer, and the
- * `modifiers`-constrained point the lifecycle reports. Neither alone is right.
- * Prefer the physical one — an axis lock pins the reported point on the row the
- * drag started from, so a container the user is genuinely pushing against would
- * never see its edge zone entered. But a *clamping* modifier
- * (`restrictToElement`) moves the physical pointer out of the very container it
- * confined the drag to, which would then silently drop out. So fall back to the
- * reported point when the raw one has left the rect, and reject the candidate
- * only when neither is inside it.
+ * Each frame has two positions, the physical pointer and the point the
+ * lifecycle reports after `modifiers`. The physical one is preferred. An axis
+ * lock pins the reported point to the row the drag started on, so a container
+ * the user pushes against would never see its edge zone entered. A clamping
+ * modifier such as `restrictToElement` has the reverse problem. The physical
+ * pointer leaves the container the drag is confined to, and that container
+ * would drop out. So the reported point is the fallback when the raw one is
+ * outside `rect`.
  *
  * When `preferReported` is set, some registered container holds the reported
- * point, and a candidate holding only the raw one is rejected: with a drag
- * clamped into list A, the physical pointer pushing past A's edge lands in the
- * neighbouring list B, and B would otherwise take the axis from A — the only
- * container the item can still be dropped in.
+ * point, and a candidate holding only the raw one is rejected. Take a drag
+ * clamped into list A. The pointer pushing past A's edge lands in list B, which
+ * would otherwise take the axis from A, the only container the item can still
+ * drop into.
  */
 function resolveProbePoint(
   raw: DraggableInput,
@@ -1012,12 +999,11 @@ function resolveProbePoint(
 }
 
 /**
- * Whether a `modifiers`-constrained reported point that differs from the
- * physical pointer sits inside any registered (non-page) container in the
- * source's document — the case where `resolveProbePoint` must prefer it. The
- * common unmodified drag has identical points and pays nothing; the page
- * scroller is left out because it never competes on geometry (its probe is the
- * raw pointer clamped into the viewport).
+ * Whether the reported point differs from the physical pointer and falls inside
+ * a candidate's rect or overflow margin. `resolveProbePoint` then prefers the
+ * reported point. An unmodified drag has identical points and returns early.
+ * The page scroller is skipped because its probe is always the raw pointer
+ * clamped into the viewport.
  */
 function reportedPointHasCandidate(
   candidates: ReadonlyArray<ScrollCandidate>,
@@ -1070,8 +1056,8 @@ interface ScrollCandidate {
   overflowRect: Pick<ScrollRect, 'top' | 'right' | 'bottom' | 'left'>;
 }
 
-// Re-seed the loop from any fresh drag input; shared by `onMove` and
-// `onTargetChange`, which need identical handling.
+// Stores fresh drag input and wakes the loop. Shared by `onMove` and
+// `onTargetChange`.
 function refreshDragInput(eventDetails: MoveEventDetails | DropTargetChangeEventDetails): void {
   if (state.currentSource === null) {
     return;
@@ -1081,17 +1067,17 @@ function refreshDragInput(eventDetails: MoveEventDetails | DropTargetChangeEvent
 }
 
 function setDragInput(location: DraggableLocationHistory, source: DraggableRootRecord): void {
-  // The physical pointer when the synthetic sensor owns the drag; the edge tests
-  // pick between it and the reported point (see `resolveProbePoint`).
+  // During a pointer drag, the physical pointer before `modifiers`. The edge
+  // tests choose between it and the reported point (see `resolveProbePoint`).
   state.currentInput = getRawActivePointerInput() ?? location.current.input;
   state.currentReportedInput = location.current.input;
   state.currentSource = source;
 }
 
 function startScrollSession(source: DraggableRootRecord, location: DraggableLocationHistory): void {
-  // A drag that ended abnormally with the loop *parked* leaves the last
-  // input/source referenced: the loop's own no-session self-termination only
-  // runs when a frame fires. Clear that state before this drag decides anything.
+  // A drag that ended abnormally while the loop was parked still references its
+  // input and source, because the loop only stops itself when a frame runs.
+  // Clear that state before this drag starts.
   stopScrollLoop();
   setDragInput(location, source);
   wakeScrollLoop();
@@ -1137,18 +1123,19 @@ interface AutoScrollerState {
   /** The `modifiers`-constrained point the lifecycle reported; see {@link resolveProbePoint}. */
   currentReportedInput: DraggableInput | null;
   /**
-   * Set while auto-scroll is armed for a drag, from the scroll monitor's
-   * `onMoveStart` to `stopScrollLoop`. Distinct from `scrollLoopRaf !== null`,
-   * which is false while the loop is merely parked between edge engagements
-   * (see `idleScrollLoop`).
+   * Set from the scroll monitor's `onMoveStart` until `stopScrollLoop`. Unlike
+   * `scrollLoopRaf`, it stays set while the loop is parked (see `idleScrollLoop`).
    */
   currentSource: DraggableRootRecord | null;
   /** When the pointer first entered each element's edge zone. */
   engagementStart: Map<HTMLElement, number>;
-  /** Viewports entered during this drag without subsequently leaving their margin. */
+  /**
+   * Viewports the drag entered and hasn't left beyond their margin since. Only
+   * these scroll from `overflowMargin`.
+   */
   overflowEligible: Set<HTMLElement>;
   /**
-   * Cached inner-first ordering of the registered viewports; `null` when stale.
+   * Cached inner-first ordering of the registered viewports, or `null` when stale.
    * Rebuilding it also rebuilds the observed chains (see `sortAndObserveScrollers`).
    */
   sortedScrollers: HTMLElement[] | null;
@@ -1172,11 +1159,11 @@ export interface RegisterViewportParameters<TSourcePayload = unknown, TDragData 
    * How far outside the container a drag can continue auto-scrolling, in CSS pixels.
    * The drag must enter the container first, and enter it again after moving beyond
    * the margin or while the container is disabled.
-   * A number applies to every edge; an object sets physical edges independently.
+   * A number applies to every edge. An object sets each physical edge separately.
    * Omitted, negative, and non-finite edge values are treated as `0`.
-   * Outside an edge, scrolling keeps its maximum engagement and existing speed ramp.
+   * Beyond an edge, scrolling runs as if at the very edge, without restarting the speed ramp.
    * Viewports containing the drag position take priority over outside margins.
-   * Does not change drop targets, layout, or document/page scrolling.
+   * Does not change drop targets, layout, or page scrolling.
    * @default 0
    */
   overflowMargin?: DraggableViewportOverflowMargin | undefined;
@@ -1208,7 +1195,8 @@ export interface RegisterViewportParameters<TSourcePayload = unknown, TDragData 
    * Call `eventDetails.cancel()` to prevent scrolling in that direction, or to apply
    * the movement yourself for an element Base UI can't scroll, such as a panned canvas.
    * After moving, call `eventDetails.consume()` to keep an ancestor viewport from
-   * scrolling on the same axis. Skip it at a bound the element can't move past.
+   * scrolling on the same axis. Don't call it at a bound the element can't move
+   * past, so an ancestor can scroll instead.
    */
   onDragScroll?:
     | ((eventDetails: DraggableViewportDragScrollEventDetails<TSourcePayload, TDragData>) => void)

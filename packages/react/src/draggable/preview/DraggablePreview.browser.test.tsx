@@ -16,20 +16,18 @@ function ThemedBadge() {
 }
 
 /**
- * The point of separating the preview's React tree from its DOM placement: a
- * preview can read the app's context *and* stay where the app's contextual CSS
- * matches it. Reading context used to cost the cascade, because the provider
- * relocated the element into a host of its own.
+ * The preview's React tree is separate from its DOM placement, so a preview can
+ * read the app's context and still sit where the app's contextual CSS matches it.
  *
- * jsdom resolves no cascade, so only a real browser can prove the CSS half.
+ * jsdom resolves no cascade, so only a real browser can test the CSS half.
  */
 describe.skipIf(isJSDOM)('Draggable.Preview (cascade)', () => {
   let style: HTMLStyleElement;
 
   beforeEach(() => {
     style = document.createElement('style');
-    // Deliberately ancestor-scoped: this is the rule shape a provider that
-    // relocated the preview would silently stop matching.
+    // Ancestor-scoped on purpose. The rule stops matching if the preview is moved
+    // out from under `.dark`.
     style.textContent = '.dark .Badge { color: rgb(0, 128, 0); }';
     document.head.appendChild(style);
   });
@@ -56,11 +54,11 @@ describe.skipIf(isJSDOM)('Draggable.Preview (cascade)', () => {
     const source = screen.getByTestId('drag');
     fireDrag.dragStart(source);
 
-    // The React half: content rendered in the provider's tree, so the theme reaches it.
+    // React half. The content renders in the provider's tree, so the theme reaches it.
     expect(screen.getByTestId('preview')).toHaveTextContent('dark');
 
-    // The CSS half: the engine's host stays in the source's own parent (through
-    // the top-layer wrapper), so the part's element still sits under `.dark` and
+    // CSS half. The engine's host stays in the source's parent, inside the
+    // top-layer wrapper, so the part's element still sits under `.dark` and
     // `.dark .Badge` applies.
     const badge = screen.getByTestId('preview').closest('.Badge') as HTMLElement;
     const host = badge.closest('[data-drag-preview]') as HTMLElement;

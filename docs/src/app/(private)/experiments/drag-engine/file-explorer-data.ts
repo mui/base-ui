@@ -63,8 +63,8 @@ export function isSelfOrInside(nodes: FileSystem, nodeId: string, folderId: stri
 }
 
 // The file-system rules, shared by the folder tiles and the breadcrumb segments.
-// 'reject' blocks the position outright and turns on `data-rejected`, while
-// `false` quietly withdraws the target, so releasing there is a no-op.
+// 'reject' blocks the position and sets `data-rejected`. `false` disables the
+// target with no feedback, so releasing there does nothing.
 export function canDropInto(
   nodes: FileSystem,
   folderId: string,

@@ -1,8 +1,8 @@
 /**
- * Shared registry of draggable elements.
+ * Registry of draggable elements.
  *
- * The pointer sensor reads from this registry so a draggable is registered once.
- * Routed through `getSharedSlot` so a doubly-bundled engine shares one map.
+ * The pointer sensor looks up the pressed draggable here at pickup. The map lives
+ * in a `getSharedSlot`, so two bundled copies of the engine share it.
  */
 
 import { isElement, isHTMLElement } from '@floating-ui/utils/dom';
@@ -13,14 +13,14 @@ import { createGetterStackRegistry } from './getterStackRegistry';
 import { getSharedSlot } from './sharedState';
 import { getComposedParentElement, resolveElementReference } from './utils';
 
-/** Getter for a single hook's latest draggable parameters, read fresh at gesture start. */
+/** Returns one registration's latest draggable parameters. Read at gesture start. */
 type DraggableGetter = () => DraggableConfig<any, any>;
 
 const holds = createGetterStackRegistry<HTMLElement, DraggableGetter>({
   entries: getSharedSlot('draggableRegistry', () => new WeakMap<HTMLElement, DraggableGetter[]>()),
 });
 
-/** Register (or re-register) `element` as a draggable with the given parameters getter. */
+/** Registers `element` as a draggable. Returns the cleanup that releases this hold. */
 export function addDraggableRegistration(
   element: HTMLElement,
   getParameters: DraggableGetter,
@@ -28,7 +28,7 @@ export function addDraggableRegistration(
   return holds.hold(element, getParameters);
 }
 
-/** The element's latest parameters getter (last hold wins), or `undefined` when unregistered. */
+/** The element's last registered parameters getter, or `undefined` when it isn't registered. */
 export function getRegistration(element: HTMLElement): DraggableGetter | undefined {
   return holds.getActive(element);
 }
@@ -36,37 +36,34 @@ export function getRegistration(element: HTMLElement): DraggableGetter | undefin
 export interface DraggablePickup {
   /** The nearest registered draggable ancestor of the event target. */
   element: HTMLElement;
-  /** The resolved event target (inside, or equal to, `element`). */
+  /** The event target as an element. It is `element` or one of its descendants. */
   target: Element;
-  /** The draggable's latest parameters, read fresh at gesture start. */
+  /** The draggable's latest parameters, read at gesture start. */
   parameters: DraggableConfig<any, any>;
   /** The configured drag handle, or `null` when the whole element is draggable. */
   dragHandle: Element | null;
 }
 
-/** Resolve the handle that owns pointer pickup. */
+/** Resolves the configured drag handle element, or `null` when there is none. */
 export function resolveDragHandle(parameters: DraggableConfig<any, any>): Element | null {
   return resolveElementReference(parameters.handle, undefined);
 }
 
 /**
- * Pointer pickup resolution. From a raw event
- * target, find the nearest registered draggable ancestor, read its latest
- * parameters, resolve the drag handle, and enforce the handle-`contains` gate.
- * Returns `null` when the gesture must not start. Callers still run their own
- * `onBeforeMoveStart` dispatch and the lifecycle's `isActive` check.
+ * Resolves the draggable a press picks up. Starting from the event target, finds
+ * the nearest registered draggable ancestor that isn't `disabled` and whose drag
+ * handle, if any, contains the target. Returns `null` when none qualifies. Callers
+ * still dispatch `onBeforeMoveStart` and check the lifecycle's `isActive`.
  */
 export function resolveDraggablePickup(rawTarget: EventTarget | null): DraggablePickup | null {
   const target = isElement(rawTarget) ? rawTarget : null;
   if (!target) {
     return null;
   }
-  // Walk the registered-draggable ancestor chain (crossing shadow boundaries).
-  // The innermost registered draggable may gate pickup on its own drag handle;
-  // if the gesture began outside that handle — or the draggable is `disabled` —
-  // fall through to an *outer* registered draggable rather than becoming
-  // drag-inert — so a nested card inside a draggable list item still starts the
-  // outer drag.
+  // Walk up the ancestors, crossing shadow boundaries. When the press began
+  // outside the innermost draggable's handle, or that draggable is `disabled`,
+  // fall through to an outer registered draggable. A nested card inside a
+  // draggable list item then still starts the outer drag.
   for (let node: Element | null = target; node !== null; node = getComposedParentElement(node)) {
     if (!isHTMLElement(node)) {
       continue;
@@ -77,14 +74,13 @@ export function resolveDraggablePickup(rawTarget: EventTarget | null): Draggable
     }
     const parameters = getParameters();
     const dragHandle = resolveDragHandle(parameters);
-    // With a configured drag handle, only pick up if the gesture began within
-    // it — so an action control elsewhere inside the draggable keeps its own
-    // behaviour. A `disabled` draggable can never start a drag, so it is
-    // skipped the same way. Otherwise continue from this element's parent.
-    // When nothing picks the press up, the sensor arms nothing for it: no
-    // contextmenu suppression, and a natively draggable descendant (`<img>`,
-    // `<a href>`) keeps its native HTML5 drag. A *dynamic* veto belongs in
-    // `onBeforeMoveStart`, dispatched at activation commit.
+    // With a drag handle, pick up only a press that began inside it, so controls
+    // elsewhere in the draggable keep their own behavior. A `disabled` draggable
+    // is skipped the same way. Otherwise continue from this element's parent.
+    // When nothing picks the press up, the sensor arms nothing for it. The
+    // context menu isn't suppressed, and a natively draggable descendant such as
+    // `<img>` or `<a href>` keeps its HTML5 drag. A veto that depends on runtime
+    // state belongs in `onBeforeMoveStart`, which runs when activation commits.
     if (!parameters.disabled && (!dragHandle || contains(dragHandle, target))) {
       return { element: node, target, parameters, dragHandle };
     }

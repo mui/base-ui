@@ -126,10 +126,9 @@ describe('dragSessionStore', () => {
     const snapshot = dragSessionStore.state!;
     const record = snapshot.location.current.targets[0];
     expect(record.element).toBe(target);
-    // A consumer mutating its snapshot's `initial` must corrupt neither the
-    // engine's bookkeeping nor later snapshots built from it. The array is
-    // typed `readonly`; the runtime clone is the guarantee for consumers that
-    // bypass the types, which is what this exercises.
+    // Mutating a snapshot's `initial` must not affect the engine's bookkeeping
+    // or later snapshots. The array is typed `readonly`, so this covers consumers
+    // that bypass the types, where only the runtime clone protects the engine.
     // @ts-expect-error -- deliberate mutation of a readonly-typed array
     snapshot.location.initial.targets.push(record);
 
@@ -162,7 +161,7 @@ describe('dragSessionStore', () => {
     await flushRaf();
     fireDrag.drop(target);
 
-    // start, target-change, teardown.
+    // Start, target change, and teardown.
     expect(seen.length).toBeGreaterThanOrEqual(3);
     expect(seen[seen.length - 1]).toBeNull();
 
@@ -188,7 +187,7 @@ describe('dragSessionStore', () => {
     const replacement = createElement();
     retargetDragSource(source, replacement);
 
-    // The object every event of this drag reports, so it is mutated, not replaced.
+    // Every event of this drag reports this object, so it is mutated, not replaced.
     expect(dragSessionStore.state!.source).toBe(sessionSource);
     expect(sessionSource.element).toBe(replacement);
     // Reactive subscribers need a new reference to re-run their selectors.

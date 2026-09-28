@@ -18,8 +18,8 @@ const INITIAL_PINS: Pin[] = [
   { id: 'research', label: 'Research', x: 190, y: 110 },
 ];
 
-// Well below the visible area, so the only way to reach it is to hold the pointer
-// at the bottom edge and let the canvas pan.
+// Well below the visible area. To reach it, hold the pointer at the bottom edge
+// and let the canvas pan.
 const ARCHIVE = { x: 60, y: 520 };
 
 const PIN_CLASS =
@@ -50,8 +50,8 @@ export default function CanvasPan() {
           ref={viewportRef}
           accept={pinKind}
           className="relative box-border h-[260px] touch-none overflow-hidden border border-neutral-200 dark:border-neutral-700"
-          // The camera is written straight to the DOM: Base UI looks for drop targets
-          // again on the next frame, before React could re-render.
+          // Write the camera straight to the DOM instead of state. Base UI looks for
+          // drop targets again on the next frame, which can run before React re-renders.
           // @highlight-start @focus
           onDragScroll={(eventDetails) => {
             eventDetails.cancel();
@@ -94,8 +94,8 @@ export default function CanvasPan() {
                   if (eventDetails.reason !== 'outside-release') {
                     return;
                   }
-                  // The pin must land under the pointer, and the canvas moved
-                  // underneath it: add the camera's own delta to the pointer's.
+                  // The canvas moved under the pointer during the drag. Add the
+                  // camera's delta to the pointer's so the pin lands under it.
                   const dx =
                     eventDetails.location.current.input.clientX -
                     eventDetails.location.initial.input.clientX;

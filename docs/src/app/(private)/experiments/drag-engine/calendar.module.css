@@ -248,7 +248,7 @@
   opacity: 0.4;
 }
 
-/* Segments of a multi-day event run edge to edge into the neighbouring day. */
+/* Segments of a multi-day event run edge to edge into the neighboring day. */
 .monthEventBar[data-continues-before='true'] {
   margin-left: 0;
   border-left: 0;

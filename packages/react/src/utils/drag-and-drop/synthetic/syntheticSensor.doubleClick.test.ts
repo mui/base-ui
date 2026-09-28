@@ -79,8 +79,8 @@ describe('syntheticDrag double-click activation', () => {
     });
 
     fireEvent.doubleClick(source, { detail: 2, button: 0, clientX: 20, clientY: 20 });
-    // An empty `pointerType` is a mouse, as it is at pickup: the session follows
-    // it, swallows its press, and drops on its click.
+    // An empty `pointerType` counts as mouse, as it does at pickup. The session
+    // follows it, swallows its press, and drops on its click.
     firePointer.move(target, {
       pointerType: '',
       pointerId: 1,
@@ -141,7 +141,7 @@ describe('syntheticDrag double-click activation', () => {
     expect(mouseDown.defaultPrevented).toBe(true);
     expect(onPress).not.toHaveBeenCalled();
 
-    // A touch press during a mouse double-click session is somebody else's.
+    // A touch press during a mouse double-click session belongs to another gesture.
     const touchPress = new PointerEvent('pointerdown', {
       pointerType: 'touch',
       button: 0,
@@ -312,8 +312,8 @@ describe('syntheticDrag double-click activation', () => {
       firePointer.up(source, { ...tap, pointerType: 'touch', pointerId: 1, timeStamp: 60 });
       expect(onMoveStart).not.toHaveBeenCalled();
 
-      // Browsers hand each touch contact a new pointerId; the pair is matched on
-      // the source, not the id.
+      // Browsers give each touch contact a new `pointerId`, so the pair is matched
+      // by source, not by id.
       firePointer.down(source, { ...tap, pointerType: 'touch', pointerId: 2, timeStamp: 200 });
       expect(onMoveStart).toHaveBeenCalledTimes(1);
       expect(onBeforeMoveStart.mock.calls[0][0].reason).toBe('double-click');
@@ -367,7 +367,7 @@ describe('syntheticDrag double-click activation', () => {
       expect(onMoveStart).not.toHaveBeenCalled();
       firePointer.up(source, { ...tap, pointerType: 'touch', pointerId: 2, timeStamp: 420 });
 
-      // Too far: the second press lands 40px from the first.
+      // Too far. The second press lands 40px from the first.
       firePointer.down(source, {
         ...tap,
         pointerType: 'touch',
@@ -431,7 +431,7 @@ describe('syntheticDrag double-click activation', () => {
         onBeforeMoveStart,
         onMoveStart,
       });
-      // Mouse keeps its default distance activation: no double-click pickup.
+      // Mouse keeps its default distance activation, so there is no double-click pickup.
       firePointer.down(source, { ...tap, pointerType: 'mouse', pointerId: 1, timeStamp: 10 });
       firePointer.up(source, { ...tap, pointerType: 'mouse', pointerId: 1, timeStamp: 30 });
       fireEvent.doubleClick(source, { detail: 2, button: 0 });
@@ -450,7 +450,7 @@ describe('syntheticDrag double-click activation', () => {
       const onMoveStart = vi.fn();
       engine.registerSource(source, { activation: { type: 'double-click' }, onMoveStart });
 
-      // Chromium: `dblclick` is a `PointerEvent` reporting the touch.
+      // Chromium fires `dblclick` as a `PointerEvent` that reports the touch.
       source.dispatchEvent(
         new PointerEvent('dblclick', { pointerType: 'touch', button: 0, detail: 2, bubbles: true }),
       );

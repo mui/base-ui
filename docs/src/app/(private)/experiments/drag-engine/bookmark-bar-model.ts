@@ -376,7 +376,7 @@ export function isSelfOrDescendant(
 }
 
 /**
- * Folders that `excludeId` can be moved into: every folder except itself and its descendants.
+ * Folders that `excludeId` can move into, meaning every folder except itself and its descendants.
  */
 export function getFolderDestinations(
   tree: BookmarkTree,

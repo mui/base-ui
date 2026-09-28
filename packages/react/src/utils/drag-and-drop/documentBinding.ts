@@ -33,8 +33,9 @@ export function createEventRootBinding(options: CreateEventRootBindingOptions): 
     () => new Set<ShadowRoot>(),
   );
   /**
-   * Events already delivered: one from inside a bound shadow root reaches that
-   * root's capture wrapper, then the bubble fallback of every bound root above it.
+   * Events already delivered. An event from inside a bound shadow root reaches
+   * that root's capture wrapper and then the bubble fallback of every bound root
+   * above it, so it must be delivered only once.
    */
   const delivered = getSharedSlot<WeakSet<Event>>(`${slot}.delivered`, () => new WeakSet<Event>());
 
@@ -46,10 +47,9 @@ export function createEventRootBinding(options: CreateEventRootBindingOptions): 
   };
 
   const crossesBoundShadowRoot = (event: Event, currentRoot: DragEventRoot): boolean => {
-    // Both window wrappers below ask this for every event of a bound type
-    // anywhere on the page, for as long as one binding exists; `composedPath()`
-    // materializes the whole ancestor chain, so don't build it unless a shadow
-    // root is bound.
+    // The window wrappers below call this for every event of a bound type on the
+    // page while any binding exists. `composedPath()` builds the whole ancestor
+    // chain, so skip it when no shadow root is bound.
     if (boundShadowRoots.size === 0) {
       return false;
     }

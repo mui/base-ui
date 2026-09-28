@@ -110,7 +110,7 @@ describe('engine.registerTarget', () => {
     fireDrag.drop(inner);
 
     // The disabled inner target never enters the stack (like `canDrop: () =>
-    // false`), so the outer accepting target is the innermost — it gets onDrop.
+    // false`), so the outer accepting target is the innermost and gets onDrop.
     expect(innerOnDrop).not.toHaveBeenCalled();
     expect(outerOnDrop).toHaveBeenCalledTimes(1);
     expect(outerOnDrop).toHaveBeenCalledWith(
@@ -138,19 +138,19 @@ describe('engine.registerTarget', () => {
     });
 
     await lift(source);
-    // Entering the target: the change round dispatches `onDraggableEnter` synchronously.
+    // Entering the target. The change round dispatches `onDraggableEnter` synchronously.
     fireDrag.dragEnter(target, { shiftKey: true, clientX: 30, clientY: 40 });
     fireDrag.dragOver(target, { shiftKey: true, clientX: 30, clientY: 40 });
     await flushRaf();
-    // A second move *within* the target, so the stack is unchanged: the change
+    // A second move within the target, so the stack is unchanged. The change
     // round above cancels the queued source `onMove`, and only a settled move
-    // like this one lets the throttled dispatch actually land.
+    // like this one lets the throttled dispatch land.
     fireDrag.dragOver(target, { shiftKey: true, clientX: 31, clientY: 41 });
     await flushRaf();
 
     // `DragEventDetails` narrows `event` to a `PointerEvent` for these reasons, so
-    // reading a modifier off it has to actually work — a fabricated placeholder
-    // would type-check and silently answer `undefined`.
+    // reading a modifier off it has to work. A fabricated placeholder would
+    // type-check and return `undefined`.
     for (const name of ['enter', 'drag'] as const) {
       expect(seen[name]).toBeInstanceOf(PointerEvent);
       expect((seen[name] as PointerEvent).shiftKey).toBe(true);
@@ -168,7 +168,7 @@ describe('engine.registerTarget', () => {
     let disabled = false;
     engine.registerSource(source, {});
     // The engine reads the getter on every resolution, so flipping `disabled`
-    // needs no re-registration — exactly how the React layer's params behave.
+    // needs no re-registration. The React layer's params work the same way.
     engine.registerTarget(target, () => ({ disabled, onDraggableEnter, onDraggableLeave }));
 
     fireDrag.dragStart(source);
@@ -180,7 +180,7 @@ describe('engine.registerTarget', () => {
     expect(onDraggableLeave).not.toHaveBeenCalled();
 
     disabled = true;
-    // Nothing re-resolves until new input arrives: the next pointer move over
+    // Nothing re-resolves until new input arrives. The next pointer move over
     // the now-disabled target drops it from the stack and delivers its leave.
     fireDrag.dragOver(target);
     await flushRaf();
@@ -255,7 +255,7 @@ describe('engine.registerTarget', () => {
     fireDrag.dragOver(target);
     await flushRaf();
 
-    // `accept` is the cheap filter that runs first: a mismatched kind never
+    // `accept` is the cheap filter that runs first. A mismatched kind never
     // reaches the predicate, so per-frame walks skip the consumer callback.
     expect(canDrop).not.toHaveBeenCalled();
     expect(onDraggableEnter).not.toHaveBeenCalled();
@@ -489,8 +489,8 @@ describe('engine.registerTarget', () => {
 
     // Both fire on the entering frame so consumers can put hover-tracking
     // logic in `onMove` and rely on it firing immediately. The engine also
-    // polls `onMove` every frame for a stationary pointer, so the exact count
-    // isn't asserted — only that it fired on entry with the right target.
+    // polls `onMove` every frame for a stationary pointer, so the test skips the
+    // exact count and only checks that it fired on entry with the right target.
     expect(onDraggableEnter).toHaveBeenCalledTimes(1);
     expect(onMove).toHaveBeenCalled();
     expect(onMove).toHaveBeenCalledWith(
@@ -555,7 +555,7 @@ describe('engine.registerTarget', () => {
     fireDrag.drop(target);
 
     // A leave handler deriving "still hovered?" from `location.current` must see
-    // the same shape on drop as on cancel: the target already out of the stack.
+    // the same shape on drop as on cancel, with the target already out of the stack.
     // Each dispatch gets its own `location` snapshot, so reading it afterwards is safe.
     expect(onDraggableLeave).toHaveBeenCalledTimes(1);
     expect(onDraggableLeave.mock.calls[0][0].location.current.targets).toEqual([]);
@@ -609,7 +609,7 @@ describe('engine.registerTarget', () => {
     await flushRaf();
     fireDrag.drop(inner);
 
-    // Inner is the innermost target — it gets onDrop.
+    // Inner is the innermost target, so it gets onDrop.
     expect(innerOnDrop).toHaveBeenCalledTimes(1);
     expect(innerOnDrop).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -618,7 +618,7 @@ describe('engine.registerTarget', () => {
       }),
     );
 
-    // Outer is in the active stack but NOT innermost — its onDrop is skipped.
+    // Outer is in the active stack but not innermost, so its onDrop is skipped.
     expect(outerOnDrop).not.toHaveBeenCalled();
 
     // Monitors still see the full chain via location.current.targets.
@@ -652,7 +652,7 @@ describe('engine.registerTarget', () => {
     fireDrag.drop(inner);
 
     // Inner rejected the drop, so it drops out of the active stack and the
-    // outer accepting target becomes the innermost — it receives onDrop.
+    // outer accepting target becomes the innermost. It receives onDrop.
     expect(innerOnDrop).not.toHaveBeenCalled();
     expect(outerOnDrop).toHaveBeenCalledTimes(1);
     expect(outerOnDrop).toHaveBeenCalledWith(
@@ -676,8 +676,8 @@ describe('engine.registerTarget', () => {
     const onMoveEnd = vi.fn();
 
     engine.registerSource(source, { onMoveEnd });
-    // The container-level rule (a capacity limit): with `false` the drop would
-    // fall through to the accepting card inside, silently defeating the limit.
+    // A container-level rule, such as a capacity limit. With `false` the drop
+    // would fall through to the accepting card inside and bypass the limit.
     engine.registerTarget(column, { canDrop: () => 'reject', onDraggableDrop: columnOnDrop });
     engine.registerTarget(card, {
       onDraggableDrop: cardOnDrop,
@@ -690,15 +690,15 @@ describe('engine.registerTarget', () => {
     fireDrag.dragOver(card);
     await flushRaf();
 
-    // The card accepted, but its rejecting ancestor vetoes the subtree: no
-    // target resolves at all.
+    // The card accepted, but its rejecting ancestor vetoes the subtree, so no
+    // target resolves.
     expect(cardOnDragEnter).not.toHaveBeenCalled();
 
     fireDrag.drop(card);
 
     expect(cardOnDrop).not.toHaveBeenCalled();
     expect(columnOnDrop).not.toHaveBeenCalled();
-    // Released over no resolved target: an outside release, not a cancel.
+    // Released over no resolved target. That is an outside release, not a cancel.
     expect(onMoveEnd).toHaveBeenCalledWith(
       expect.objectContaining({ target: null, reason: 'outside-release' }),
     );
@@ -728,8 +728,8 @@ describe('engine.registerTarget', () => {
     await flushRaf();
     fireDrag.drop(column);
 
-    // Unlike `false` (abstain), `'reject'` refuses outright: the board behind
-    // the column never becomes a target either.
+    // Unlike `false`, which abstains, `'reject'` refuses outright. The board
+    // behind the column never becomes a target either.
     expect(boardOnDragEnter).not.toHaveBeenCalled();
     expect(boardOnDrop).not.toHaveBeenCalled();
   });
@@ -792,8 +792,8 @@ describe('engine.registerTarget', () => {
     }
 
     it('quantizes getSnappedLocalPoint to the declared steps with symmetric rounding', async () => {
-      // x 125/200 = 0.625, the exact midpoint between steps 2 and 3 of 4: rounds
-      // up, never per-axis-biased. y 235 → 0.35 → nearest of 4 steps is 0.25.
+      // x is 125/200 = 0.625, the exact midpoint between steps 2 and 3 of 4, and
+      // rounds up. y is 235 → 0.35, and the nearest of 4 steps is 0.25.
       const record = await dropAt({ snap: { x: 4, y: 4 } }, 125, 235);
 
       expect(record.getSnappedLocalPoint()).toEqual({ x: 0.75, y: 0.25 });
@@ -823,7 +823,7 @@ describe('engine.registerTarget', () => {
       });
       const record = await dropAt({ snap }, 150, 235);
 
-      // Nothing has asked yet: a declared-but-unread snap costs nothing.
+      // Nothing has read the point yet, so a declared but unread snap costs nothing.
       expect(snap).not.toHaveBeenCalled();
       expect(record.getSnappedLocalPoint().y).toBe(0.25);
       expect(record.getSnappedLocalPoint({ anchor: 'source' }).y).not.toBeNaN();
@@ -836,8 +836,8 @@ describe('engine.registerTarget', () => {
     });
 
     it("anchors on the pickup grab offset with anchor: 'source'", async () => {
-      // Grabbed 30px below the source's top edge (`fireDrag`'s activation nudge
-      // only shifts x): the source anchor reports where the dragged element's
+      // Grabbed 30px below the source's top edge. `fireDrag`'s activation nudge
+      // only shifts x. The source anchor reports where the dragged element's
       // top edge sits, which is what a move commits. Snapping the pointer and
       // subtracting the grab offset afterwards would un-snap it.
       const { engine } = await renderDnd();
@@ -952,10 +952,10 @@ describe('engine.registerTarget', () => {
     fireDrag.dragStart(source);
     await flushRaf();
 
-    // Firing the drag events at `inner` never exercises the shadow walk: event
-    // retargeting resolves `event.target` to the host, which sits in the light
-    // DOM. Drive `elementFromPoint` straight to the shadow-internal element (as
-    // the direct-child test below does) so the composed climb actually runs.
+    // Firing the drag events at `inner` never exercises the shadow walk, because
+    // event retargeting resolves `event.target` to the host in the light DOM.
+    // Drive `elementFromPoint` straight to the shadow-internal element, as the
+    // direct-child test below does, so the composed climb runs.
     const originalEFP = document.elementFromPoint;
     document.elementFromPoint = () => inner;
     try {
@@ -971,9 +971,9 @@ describe('engine.registerTarget', () => {
   });
 
   it('collects ancestor drop targets when the inner target is a direct child of a shadow root', async () => {
-    // Regression: a registered drop target that is a *direct child* of a shadow
-    // root has `parentElement === null`, so the walk must cross out through the
-    // host to reach the outer target instead of stopping at the boundary.
+    // A registered drop target that is a direct child of a shadow root has
+    // `parentElement === null`, so the walk must cross out through the host to
+    // reach the outer target instead of stopping at the boundary.
     const { engine } = await renderDnd();
     const outer = createElement();
     const host = document.createElement('div');
@@ -999,9 +999,9 @@ describe('engine.registerTarget', () => {
     document.elementFromPoint = () => inner;
     try {
       // Drive a pointer move so the sensor re-resolves against the swapped
-      // `elementFromPoint`. A stationary pointer no longer re-resolves on its
-      // own (that would let a reorder under a still pointer loop), so the move
-      // is what makes the engine pick up the injected shadow target.
+      // `elementFromPoint`. A stationary pointer doesn't re-resolve on its own,
+      // since a reorder under a still pointer could loop. The move is what makes
+      // the engine pick up the injected shadow target.
       fireDrag.dragOver(source);
       await flushRaf();
     } finally {
@@ -1017,10 +1017,10 @@ describe('engine.registerTarget', () => {
   });
 
   it('collects a shadow-tree target wrapping the slot a light-DOM node is assigned to', async () => {
-    // Regression: a `closest()` walk follows the light-DOM parent chain straight
-    // through the shadow host, so when a light-DOM ancestor is also a target the
-    // shadow-tree target around the `<slot>` was skipped. The composed walk enters
-    // the assigned slot first, then climbs out through the host.
+    // A `closest()` walk follows the light-DOM parent chain straight through the
+    // shadow host, so when a light-DOM ancestor is also a target, it skips the
+    // shadow-tree target around the `<slot>`. The composed walk enters the
+    // assigned slot first, then climbs out through the host.
     const { engine } = await renderDnd();
     const light = createElement();
     const host = document.createElement('x-host');
@@ -1061,8 +1061,8 @@ describe('engine.registerTarget', () => {
 
   it('keeps non-throwing drop targets active when an ancestor target throws from a consumer callback', async () => {
     // Nest the sane (inner) target inside the buggy (ancestor) target so the
-    // walker visits both: sane first, then buggy on the climb. Buggy's
-    // `canDrop` throws — the walker should log and skip it without abandoning
+    // walker visits both, sane first, then buggy on the climb. Buggy's
+    // `canDrop` throws. The walker should log and skip it without abandoning
     // the inner target's events.
     const { engine } = await renderDnd();
     const source = createElement();
@@ -1097,19 +1097,19 @@ describe('engine.registerTarget', () => {
       // The inner target still received its event.
       expect(onDragEnterSane).toHaveBeenCalled();
     } finally {
-      // End the drag before restoring the console spy — even if an assertion
-      // above failed. Otherwise teardown un-registers the buggy target mid-drag,
-      // which re-resolves the stack and re-throws from `canDrop` after the spy is
-      // gone. `fireDrag.dragEnd()` cancels the drag, clearing the stack without
-      // re-running `canDrop`.
+      // End the drag before restoring the console spy, even if an assertion
+      // above failed. Otherwise teardown unregisters the buggy target mid-drag,
+      // which re-resolves the stack and throws from `canDrop` again after the spy
+      // is gone. `fireDrag.dragEnd()` cancels the drag and clears the stack
+      // without re-running `canDrop`.
       fireDrag.dragEnd();
       consoleError.mockRestore();
     }
   });
 
-  // The parameters *getter* itself is consumer-supplied through the imperative
-  // API. A throw there is contained like a throwing `canDrop`: logged, and the
-  // target treated as unregistered, so the drag and every sibling keep working.
+  // Consumers supply the parameters getter itself through the imperative API.
+  // A throw there is contained like a throwing `canDrop`. It is logged and the
+  // target is treated as unregistered, so the drag and every sibling keep working.
   it('keeps the drag and sibling targets working when a parameters getter throws', async () => {
     const { engine } = await renderDnd();
     const source = createElement();
@@ -1180,14 +1180,14 @@ describe('engine.registerTarget', () => {
 
     const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
     try {
-      // The getter begins throwing while the target is hovered: the drop's
+      // The getter starts throwing while the target is hovered. The drop's
       // re-resolution and the terminal dispatch to the hovered record both
-      // re-read it, and each read must be contained rather than wedge the end.
+      // read it again, and each read must be contained so the drag still ends.
       shouldThrow = true;
       fireDrag.drop(target);
 
       expect(consoleError).toHaveBeenCalled();
-      // The target resolved as inactive at release, so its onDrop is skipped —
+      // The target resolved as inactive at release, so its onDrop is skipped,
       // but the drag itself still ends cleanly.
       expect(onDrop).not.toHaveBeenCalled();
       expect(onMoveEnd).toHaveBeenCalledTimes(1);
@@ -1254,10 +1254,10 @@ describe('engine.registerTarget', () => {
       const onDrop = vi.fn();
       let cleanupTarget: () => void = () => {};
       engine.registerSource(source, {
-        // The source is told the drop landed first and tears its zones down,
-        // unregistering the very target the drop was resolved to. The engine
-        // snapshots the registration before the end dispatch, so the target's
-        // onDrop must still fire rather than silently no-op on a re-read.
+        // The source hears about the drop first and tears down its zones,
+        // unregistering the target the drop resolved to. The engine snapshots
+        // the registration before the end dispatch, so the target's onDrop must
+        // still fire instead of doing nothing on a re-read.
         onMoveEnd: () => {
           cleanupTarget();
         },
@@ -1278,8 +1278,8 @@ describe('engine.registerTarget', () => {
     it('seeds previous.input from the pickup point so the first event reads a zero delta', async () => {
       const { engine } = await renderDnd();
       const source = createElement();
-      // Captured at dispatch time (the shared `location` is mutated in place);
-      // the input objects themselves are immutable snapshots.
+      // Captured at dispatch time, since the shared `location` is mutated in place.
+      // The input objects themselves are immutable snapshots.
       let firstEvent: {
         previousInput: { clientX: number; clientY: number } | undefined;
         initialInput: { clientX: number; clientY: number };
@@ -1299,7 +1299,7 @@ describe('engine.registerTarget', () => {
       await flushRaf();
 
       // A consumer diffing `current` against `previous` on the first delivered
-      // event must read a zero delta from the pickup point — never `undefined`.
+      // event must read a zero delta from the pickup point, never `undefined`.
       expect(firstEvent).not.toBeNull();
       expect(firstEvent!.previousInput).toBeDefined();
       expect(firstEvent!.previousInput).toBe(firstEvent!.initialInput);
@@ -1310,15 +1310,15 @@ describe('engine.registerTarget', () => {
     it('keeps a registration a leave handler re-creates on the same element', async () => {
       // A target that remounts from its own `onDraggableLeave` calls `registerTarget`
       // while the retiring entry is still in the registry, so the new hold lands in
-      // it — and used to be deleted along with it, leaving a target that never
-      // resolved again.
+      // that entry. Deleting the hold along with the entry would leave a target that
+      // never resolves again.
       const { engine } = await renderDnd();
       const source = createElement();
       const target = createElement({ top: 200, height: 100 });
       const onDropAfterRemount = vi.fn();
       engine.registerSource(source, {});
 
-      // The leave this target receives *as it unregisters* is dispatched from
+      // The leave this target receives as it unregisters is dispatched from
       // inside `remove()`, while the retiring entry is still in the registry.
       const unregister = engine.registerTarget(target, {
         onDraggableLeave: () => {
@@ -1329,10 +1329,10 @@ describe('engine.registerTarget', () => {
       await lift(source);
       await dragEnter(target, { clientY: 250 });
       // Unregistering the hovered target refreshes the stack, which delivers the
-      // leave above — and that handler re-registers the very same node.
+      // leave above. That handler re-registers the same node.
       unregister();
 
-      // The re-registration survived, marker attribute and all.
+      // The re-registration survived, including the marker attribute.
       expect(target).toHaveAttribute('data-base-ui-drop-target');
 
       await dragOver(target, { clientY: 250 });
@@ -1343,9 +1343,9 @@ describe('engine.registerTarget', () => {
 
     it('hands every event its own location snapshot', async () => {
       // The engine keeps one mutable location for its own bookkeeping. Handing
-      // that object out would make a stashed event report the drag's *latest*
-      // position, and would let a handler splice the very array the fan-out is
-      // still iterating.
+      // that object out would make a stashed event report the drag's latest
+      // position, and would let a handler splice the array the fan-out is still
+      // iterating.
       const { engine } = await renderDnd();
       const source = createElement();
       const target = createElement({ top: 0, height: 400 });
@@ -1398,7 +1398,7 @@ describe('engine.registerTarget', () => {
 
       fireDrag.dragStart(source, { clientX: 0, clientY: 0 });
       await flushRaf();
-      // Enter the target first: the stack change is itself a delivered event, so
+      // Enter the target first. The stack change is itself a delivered event, so
       // measuring from here isolates movement within one target.
       fireDrag.dragOver(target, { clientX: 0, clientY: 10 });
       await flushRaf();
@@ -1410,8 +1410,8 @@ describe('engine.registerTarget', () => {
       await flushRaf();
       expect(samples.at(-1)).toEqual({ previous: 10, current: 20 });
 
-      // B and C queued before the next frame: one delivered event, whose
-      // `previous` is A rather than B.
+      // B and C are queued before the next frame, so they produce one delivered
+      // event whose `previous` is A rather than B.
       fireDrag.dragOver(target, { clientX: 0, clientY: 30 });
       fireDrag.dragOver(target, { clientX: 0, clientY: 40 });
       await flushRaf();
@@ -1431,11 +1431,11 @@ describe('engine.registerTarget', () => {
       const outerLeave = vi.fn();
       let cleanupInner: () => void = () => {};
       engine.registerSource(source, {
-        // Tearing down zones on drag end: the inner target — still under the
-        // pointer — unregisters synchronously inside the cancel's onMoveEnd.
+        // Tear down zones on drag end. The inner target, still under the
+        // pointer, unregisters synchronously inside the cancel's onMoveEnd.
         // A live `refreshDropTargets` would re-resolve the emptied stack, find
         // the outer target still under the pointer, and re-enter it mid-cancel
-        // with no balancing leave; the cancel path disarms the refresh.
+        // with no matching leave. The cancel path disarms the refresh.
         onMoveEnd: () => {
           cleanupInner();
         },
@@ -1503,13 +1503,13 @@ describe('engine.registerTarget', () => {
     await lift(source);
     await dragEnter(target, { clientY: 250 });
 
-    // The payload evolves while the pointer keeps moving *inside* the target:
-    // the stack stays element-equal, so no change dispatch runs, but every
+    // The payload changes while the pointer keeps moving inside the target.
+    // The stack stays element-equal, so no change dispatch runs, but every
     // sample re-resolves the records.
     value = 'latest';
     await dragOver(target, { clientY: 260 });
 
-    // Cancel while still hovered: the terminal leave comes from the cancel
+    // Cancel while still hovered. The terminal leave comes from the cancel
     // path's own dispatch, fed by the hovered-stack bookkeeping.
     fireDrag.dragEnd();
 
@@ -1531,7 +1531,7 @@ describe('engine.registerTarget', () => {
     await lift(source);
     await dragEnter(target, { clientY: 250 });
 
-    // The drop re-resolves the stack at the release position; the terminal
+    // The drop re-resolves the stack at the release position. The terminal
     // leave must report that resolution, not the record captured at entry.
     value = 'latest';
     fireDrag.drop(target, { clientY: 250 });
@@ -1556,8 +1556,8 @@ describe('engine.registerTarget', () => {
     await lift(source);
     await dragEnter(hovered, { clientY: 250 });
 
-    // Unregistering a target outside the hovered stack cannot change the
-    // resolved stack, so it must not re-resolve synchronously — a virtualizer
+    // Unregistering a target outside the hovered stack can't change the
+    // resolved stack, so it must not re-resolve synchronously. A virtualizer
     // commit unregistering many off-screen targets would pay O(k) walks.
     const callsBefore = canDrop.mock.calls.length;
     unregisterOther();
@@ -1567,8 +1567,8 @@ describe('engine.registerTarget', () => {
     await Promise.resolve();
     expect(canDrop.mock.calls.length).toBeGreaterThan(callsBefore);
 
-    // A *hovered* target's unregister still refreshes synchronously: its leave
-    // must dispatch while the registration is still readable.
+    // A hovered target's unregister still refreshes synchronously, because its
+    // leave must dispatch while the registration is still readable.
     expect(onDraggableLeave).not.toHaveBeenCalled();
     unregisterHovered();
     expect(onDraggableLeave).toHaveBeenCalledTimes(1);
@@ -1592,8 +1592,8 @@ describe('engine.registerTarget', () => {
     engine.registerTarget(inner, {
       onDraggableEnter: () => {
         // Runs while the [outer] → [inner, outer] fan-out is in flight, with
-        // outer in the published stack: its unregister requests a synchronous
-        // re-resolve that must wait for the round instead of re-entering it.
+        // outer in the published stack. Its unregister requests a synchronous
+        // re-resolve, which must wait for the round instead of re-entering it.
         unregisterOuter?.();
         unregisterOuter = null;
       },
@@ -1610,18 +1610,18 @@ describe('engine.registerTarget', () => {
 
     // The interrupted round still reports exactly what it delivered
     // ([inner, outer]), and the deferred re-resolve settles the stack as its
-    // own follow-up round. Re-entering mid-round instead would deliver the two
-    // rounds inverted — the stale [inner, outer] change last — leaving the
-    // engine (and every monitor) believing the unregistered outer target is
-    // still hovered.
+    // own follow-up round. Re-entering mid-round would deliver the two rounds
+    // in reverse, with the stale [inner, outer] change last. The engine and
+    // every monitor would then believe the unregistered outer target is still
+    // hovered.
     expect(currentStacks.at(-1)).toEqual([inner]);
     expect(
       dragSessionStore.getSnapshot()?.location.current.targets.map((record) => record.element),
     ).toEqual([inner]);
-    // And the outer target still gets the `onDraggableLeave` it was owed. Deferring the
-    // refresh is what makes that hard: the registry entry is deleted as the
-    // unregister returns, so by the time the queued round runs there is nothing
-    // left to dispatch through unless the retiring getter was held back.
+    // The outer target still gets the `onDraggableLeave` it was owed. The deferred
+    // refresh makes that hard, because the registry entry is deleted as the
+    // unregister returns. When the queued round runs, there is nothing left to
+    // dispatch through unless the retiring getter was held back.
     expect(outerOnDragLeave).toHaveBeenCalledTimes(1);
   });
 
@@ -1630,8 +1630,8 @@ describe('engine.registerTarget', () => {
     const target = createElement();
     const spy = vi.spyOn(console, 'warn').mockImplementation(() => {});
 
-    // `kind` is what the target *is*; reading it as `accept` compiles and then
-    // silently takes every drag on the page.
+    // `kind` is what the target is, not what it accepts. Mistaking it for `accept`
+    // compiles, and the target then takes every drag on the page.
     engine.registerTarget(target, { kind: cardKind });
 
     expect(spy).toHaveBeenCalledTimes(1);
@@ -1651,10 +1651,9 @@ describe('engine.registerTarget', () => {
     const target = createElement();
     const spy = vi.spyOn(console, 'warn').mockImplementation(() => {});
 
-    // The types require `accept`, so only plain JS (or a cast) reaches this,
-    // where the target would otherwise silently take every drag on the page.
-    // The raw registration API is used directly: the test wrapper opts
-    // accept-less fixtures into `anyDragKind` on purpose.
+    // The types require `accept`, so only plain JS or a cast reaches this. The
+    // target would then take every drag on the page. Uses the raw registration
+    // API because the test wrapper opts accept-less fixtures into `anyDragKind`.
     const cleanup = registerTargetRaw(target, () => ({}));
     registerCleanup(cleanup);
 

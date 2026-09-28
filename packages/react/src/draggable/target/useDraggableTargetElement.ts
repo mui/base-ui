@@ -17,7 +17,7 @@ import {
 } from '../../utils/drag-and-drop/dragSessionStore';
 import { matchesAccept, sameAccept } from '../../utils/drag-and-drop/dragKind';
 
-// Stable scalar selector: the per-target store already resolves the live node
+// Stable scalar selector. The per-target store already resolves the live node
 // and publishes only when this target's rendered state can change.
 function selectTargetState(
   state: number,
@@ -45,7 +45,7 @@ const untrackedTargetStateStore = new Store(0);
  * tracks whether a matching source is over it. Backs `Draggable.Target`.
  *
  * The parameters are read through a ref on every dispatch, so a re-render never
- * re-registers and the freshest callbacks always apply.
+ * re-registers and the latest callbacks always apply.
  * @internal
  */
 export function useDraggableTargetElement(
@@ -67,21 +67,21 @@ export function useDraggableTargetElement(
     registerTarget(element, getParameters),
   );
 
-  // Forward the attached node to both the engine registration and the local ref.
-  // Stable, so this merged callback is created once.
+  // Forward the attached node to the engine registration and the local ref.
+  // Created once, so the merged callback keeps a stable identity.
   const ref = useRefWithInit(() => (node: HTMLElement | null) => {
     elementRef.current = node;
     targetStateStore.setElement(node);
     registrationRef(node);
   }).current;
 
-  // A changed `disabled`, `accept`, or `canDrop` identity is re-resolved for a
-  // stationary pointer. Mutations hidden behind a stable callback are observed
-  // on the next input.
-  // Only on an actual change, compared by content so an inline `accept` array
-  // doesn't re-resolve every render: a mount-time refresh would resolve the
-  // transient state of a same-commit remount mid-registration and churn a
-  // spurious leave/enter pair.
+  // Re-resolve for a stationary pointer when `disabled`, `accept`, or `canDrop`
+  // changes identity. Changes hidden behind a stable callback show up on the next
+  // input.
+  // Refresh only on a real change. `accept` is compared by content so an inline
+  // array doesn't re-resolve every render. A refresh on mount would resolve a
+  // same-commit remount halfway through registering and fire a spurious
+  // leave/enter pair.
   const { disabled, accept, canDrop } = parameters;
   const previousRef = React.useRef({ disabled, accept, canDrop });
   useIsoLayoutEffect(() => {
@@ -95,10 +95,10 @@ export function useDraggableTargetElement(
     }
     previousRef.current = { disabled, accept, canDrop };
     // Parameter changes re-resolve from the last event target rather than
-    // hit-testing the live DOM again. An inline `canDrop` commonly changes
-    // identity after its own `onMove` updates preview state; re-hit-testing the
-    // shifted content there can enter another target, update preview state
-    // again, and create a synchronous render/refresh loop.
+    // hit-testing the live DOM again. An inline `canDrop` often changes identity
+    // after its own `onMove` updates preview state. Hit-testing the shifted content
+    // again can enter another target, update preview state again, and start a
+    // synchronous render/refresh loop.
     scheduleDropTargetParameterRefresh(elementRef.current);
   }, [disabled, accept, canDrop]);
 
@@ -126,27 +126,26 @@ export interface UseDraggableTargetElementReturnValue {
   /** Ref callback to attach to the drop target element. */
   ref: React.RefCallback<HTMLElement>;
   /**
-   * Whether a matching drag source is currently over the drop target or a nested
+   * Whether a matching drag source is over the drop target or a nested
    * descendant.
    */
   dragOver: boolean;
   /**
    * Whether the drop target is the innermost active target.
-   * A nested ancestor target has `dragOver` true but `dragOverInnermost` false
-   * while a descendant target is active.
+   * An ancestor target has `dragOver` true but `dragOverInnermost` false while a
+   * nested target is active.
    */
   dragOverInnermost: boolean;
   /**
-   * Whether this target is currently refusing the drag: its `canDrop` returned
-   * `'reject'` for the current position. Mutually exclusive with `dragOver`, since
-   * a rejecting target keeps the stack empty. Absent tracking when
-   * `trackDragOver` is `false`.
+   * Whether this target's `canDrop` returned `'reject'` for the current position.
+   * Mutually exclusive with `dragOver`, since a rejecting target keeps the stack
+   * empty. Always `false` when `trackDragOver` is `false`.
    */
   rejected: boolean;
   /**
    * Whether the drag in progress is one this target accepts, wherever the pointer
-   * currently is. `false` when no drag is running, when the target is `disabled`,
-   * and always when `trackDragOver` is `false`.
+   * is. `false` when no drag is running, when the target is `disabled`, and always
+   * when `trackDragOver` is `false`.
    */
   accepting: boolean;
 }

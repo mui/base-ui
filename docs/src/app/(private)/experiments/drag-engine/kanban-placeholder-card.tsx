@@ -8,12 +8,11 @@ import { findClosestSlot } from './kanban-placeholder-card-slots';
 import styles from './kanban-placeholder-card.module.css';
 import controlsStyles from './controls.module.css';
 
-// A "snap to closest position" Kanban board built with `useMonitor`.
-// The monitor reads the pointer on every drag event and resolves the
-// horizontally-closest column and the vertically-closest insertion slot within
-// it. An empty placeholder card renders in that slot, so the cards part to make
-// room and drops land precisely there — even when the pointer is between
-// columns.
+// A "snap to the closest position" Kanban board built with `useMonitor`. On every
+// drag event, the monitor reads the pointer and finds the closest column
+// horizontally, then the closest insertion slot in it vertically. An empty
+// placeholder card renders in that slot, so the other cards move to make room.
+// The drop lands there, even when the pointer is between columns.
 
 type ColumnId = string;
 type CardId = string;
@@ -189,7 +188,7 @@ function KanbanBoardContent() {
     },
     // The placeholder always shows the nearest slot, even when the pointer is
     // between columns or just outside the board. Commit that same slot on a real
-    // release; an Escape/blur cancellation only clears the placeholder.
+    // release. Canceling with Escape or blur only clears the placeholder.
     onMoveEnd: (eventDetails) => {
       if (!eventDetails.canceled) {
         const { clientX, clientY } = eventDetails.location.current.input;

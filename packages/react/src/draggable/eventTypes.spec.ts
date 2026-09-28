@@ -74,7 +74,7 @@ expectType<Draggable.Root.Record<Payload, DragData>, (typeof RootMoveEnd)['sourc
 );
 expectType<Draggable.Target.Record | null, (typeof RootMoveEnd)['target']>(RootMoveEnd.target);
 expectType<boolean, (typeof RootMoveEnd)['canceled']>(RootMoveEnd.canceled);
-// @ts-expect-error `canceled` is on `onMoveEnd` only; a move reads `reason`.
+// @ts-expect-error `canceled` is only on `onMoveEnd`. A move reads `reason`.
 void RootMove.canceled;
 
 declare const TargetStart: Parameters<
@@ -139,7 +139,7 @@ expectType<Draggable.Target.LeaveEventReason, (typeof TargetLeave)['reason']>(Ta
 expectType<Draggable.Target.Record<TargetPayload, TargetDragData>, (typeof TargetLeave)['target']>(
   TargetLeave.target,
 );
-// @ts-expect-error `canceled` is on `onMoveEnd` only; a leave reads `reason`.
+// @ts-expect-error `canceled` is only on `onMoveEnd`. A leave reads `reason`.
 void TargetLeave.canceled;
 
 declare const TargetDrop: Parameters<
@@ -224,7 +224,7 @@ expectType<
 expectType<boolean, (typeof CollisionProviderMoveEnd)['canceled']>(
   CollisionProviderMoveEnd.canceled,
 );
-// @ts-expect-error `canceled` is on `onMoveEnd` only.
+// @ts-expect-error `canceled` is only on `onMoveEnd`.
 void CollisionProviderCollisionChange.canceled;
 
 declare const ViewportDragScroll: Parameters<

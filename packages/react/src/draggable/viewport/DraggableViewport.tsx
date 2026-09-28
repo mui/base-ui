@@ -33,9 +33,8 @@ export const DraggableViewport = React.forwardRef(function DraggableViewport<
     className,
     render,
     style,
-    // Auto-scroll props. Listed explicitly because whatever stays in
-    // `elementProps` is spread onto the `<div>`, where an engine parameter would
-    // land as an attribute.
+    // Auto-scroll props, pulled out so they don't reach the `<div>` as
+    // attributes through `elementProps`.
     accept,
     onDragScroll,
     disabled,
@@ -45,8 +44,8 @@ export const DraggableViewport = React.forwardRef(function DraggableViewport<
     ...elementProps
   } = componentProps;
 
-  // A fresh object per render is fine: `useDraggableViewportElement` reads it
-  // through a ref and never compares it.
+  // A new object each render is fine. `useDraggableViewportElement` reads it
+  // through a stable getter and never compares the object itself.
   const params: UseDraggableViewportElementParameters<TSourcePayload, TDragData> = {
     accept,
     onDragScroll,
@@ -86,16 +85,19 @@ export interface DraggableViewportState {
   disabled: boolean;
 }
 
-// `disabled` is not redeclared here: an intersection member's JSDoc never reaches
-// the generated reference, so the description would ship nowhere. It lives on
-// `RegisterViewportParameters` instead, which this inherits.
+// `disabled` isn't redeclared here because the API reference drops JSDoc on
+// intersection members. Its description lives on `RegisterViewportParameters`,
+// which this type inherits.
 export type DraggableViewportProps<
   TSourcePayload = unknown,
   TDragData = unknown,
 > = BaseUIComponentProps<'div', DraggableViewportState> &
   RegisterViewportParameters<TSourcePayload, TDragData>;
 
-/** Outside distances in CSS pixels. Physical edges are independent of text direction. */
+/**
+ * Distances outside the container, in CSS pixels. Edges are physical and don't
+ * follow text direction.
+ */
 export type DraggableViewportOverflowMargin =
   | number
   | {
@@ -108,8 +110,9 @@ export type DraggableViewportOverflowMargin =
 /** The argument of a viewport's `maxSpeed` function, called on every scrolling frame. */
 export interface DraggableViewportMaxSpeedContext<TSourcePayload = unknown, TDragData = unknown> {
   /**
-   * The position used to determine scrolling. It may differ from the modified
-   * drag position when a modifier separates that position from the pointer.
+   * The position Base UI tested against the container's edges. It can differ
+   * from the modified drag position when a modifier moves that position away
+   * from the pointer.
    */
   input: DraggableInput;
   source: DraggableRootRecord<TSourcePayload, TDragData>;
@@ -123,9 +126,9 @@ interface DraggableViewportDragScrollEventDetailsProperties<TSourcePayload, TDra
   /** The item being dragged. */
   source: DraggableRootRecord<TSourcePayload, TDragData>;
   /**
-   * How far to move horizontally this frame, in CSS pixels, with `scrollBy`
-   * semantics: a positive value moves the view right, so the content slides left
-   * under the pointer. Apply this delta as-is, without multiplying by elapsed time.
+   * How far to move horizontally this frame, in CSS pixels. It follows `scrollBy`,
+   * so a positive value moves the view right and the content slides left.
+   * Apply it as is, without multiplying by elapsed time.
    * Always `0` when `direction` is `'vertical'`.
    */
   x: number;
@@ -137,15 +140,16 @@ interface DraggableViewportDragScrollEventDetailsProperties<TSourcePayload, TDra
   /** The axis this call is about. `onDragScroll` is called once per engaged axis. */
   direction: DraggableViewportDragScrollDirection;
   /**
-   * The position used to determine scrolling. It may differ from the modified
-   * drag position when a modifier separates that position from the pointer.
+   * The position Base UI tested against the container's edges. It can differ
+   * from the modified drag position when a modifier moves that position away
+   * from the pointer.
    */
   input: DraggableInput;
   /** The scroll container. */
   element: HTMLElement;
   /**
-   * Claims this direction, so that ancestor viewports don't scroll on the same axis.
-   * Skip it at a bound the element can't move past, so an ancestor can scroll instead.
+   * Claims this axis so ancestor viewports don't scroll on it.
+   * Don't call it at a bound the element can't move past, so an ancestor can scroll instead.
    */
   consume: () => void;
   /** Whether {@link consume} has been called. */
@@ -155,7 +159,7 @@ interface DraggableViewportDragScrollEventDetailsProperties<TSourcePayload, TDra
 /**
  * The event details passed to `onDragScroll`.
  * Call `cancel()` to prevent Base UI from scrolling the container in this direction.
- * `event` is a placeholder: the scroll loop runs from animation frames, not from a native event.
+ * `event` is a placeholder, because the scroll loop runs on animation frames rather than native events.
  */
 // An interface so the API reference prints its name instead of expanding it.
 export interface DraggableViewportDragScrollEventDetails<

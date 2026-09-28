@@ -146,7 +146,7 @@ function MonthWeekRow(props: { weekStartMs: number; monthStart: number; events: 
 }
 
 // -----------------------------------------------------------------------------
-// Day cell — drop target + draggable for create
+// Day cell: drop target and create draggable
 // -----------------------------------------------------------------------------
 
 function MonthDayCell(props: { dayMs: number; monthStart: number }) {
@@ -158,17 +158,16 @@ function MonthDayCell(props: { dayMs: number; monthStart: number }) {
   const inMonth = startOfDay(dayMs) >= monthStart && startOfDay(dayMs) < addMonths(monthStart, 1);
   const dayNum = new Date(dayMs).getDate();
 
-  // The cell is both a draggable (for create) and a drop target (for any
-  // calendar drag landing on it). The two registrations live on the same
-  // element.
+  // The cell is a draggable that creates events and a drop target for any
+  // calendar drag. Both registrations live on the same element.
   const createPayload = React.useMemo(() => ({ anchorMs: dayMs, allDay: true }), [dayMs]);
   const cellPayload = React.useMemo(() => ({ dayMs }), [dayMs]);
   return (
     <Draggable.Root
       kind={calEventCreateKind}
       payload={createPayload}
-      // Month cells accept all calendar drag kinds; `accept` declares them
-      // once and the engine filters before any callback fires.
+      // Month cells accept every calendar drag kind. `accept` lists them once and
+      // the engine filters before any callback fires.
       render={
         <Draggable.Target
           kind={calDayCellKind}
@@ -216,16 +215,16 @@ function MonthDayCell(props: { dayMs: number; monthStart: number }) {
       data-outside={inMonth ? undefined : 'true'}
     >
       <span className={styles.monthDayHeader}>{dayNum}</span>
-      {/* Nothing should follow the pointer while dragging out a new event: the day
-          cell is the drag source, and a clone of it would be an enormous preview.
-          The in-grid drop preview already shows the range being created. */}
+      {/* Nothing follows the pointer while dragging out a new event. The day cell
+          is the drag source, and a clone of it would be a huge preview. The drop
+          preview in the grid already shows the range being created. */}
       <Draggable.Preview disabled />
     </Draggable.Root>
   );
 }
 
 // -----------------------------------------------------------------------------
-// Event bar — draggable for move + contains start/end resize handles
+// Event bar: move draggable with start and end resize handles
 // -----------------------------------------------------------------------------
 
 function MonthEventBar(props: { event: CalendarEvent; segment: WeekEventSegment }) {
@@ -250,9 +249,9 @@ function MonthEventBar(props: { event: CalendarEvent; segment: WeekEventSegment 
       anchorStart: event.start,
       anchorEnd: event.end,
       allDay: event.allDay,
-      // Month view doesn't grab at a sub-day offset: drop targets always
-      // realign the move to the day cell. Using 0 keeps `resolveDropPreview`
-      // consistent without month-specific branching.
+      // Month view doesn't grab at a sub-day offset, because drop targets always
+      // align the move to the day cell. Using 0 keeps `resolveDropPreview` free of
+      // month-specific branches.
       segmentOffsetMs: 0,
     }),
     [event.id, event.start, event.end, event.allDay],
@@ -283,8 +282,8 @@ function MonthEventBar(props: { event: CalendarEvent; segment: WeekEventSegment 
       data-continues-after={segment.continuesAfter ? 'true' : undefined}
       title={`${event.title} · ${formatRange(event.start, event.end, event.allDay)}`}
     >
-      {/* Renders nothing here: the card is published to the `Draggable.Provider` and
-          shown there instead of the default clone of the bar. */}
+      {/* Renders nothing here. The card goes to the `Draggable.Provider` and shows
+          there instead of the default clone of the bar. */}
       <Draggable.Preview offset="pointer">
         <div className={styles.dragPreview}>
           <div className={styles.dragPreviewTitle}>{event.title}</div>
@@ -347,7 +346,7 @@ function MonthResizeHandle(props: { event: CalendarEvent; edge: 'start' | 'end' 
       aria-hidden="true"
     >
       {/* The source is a few pixels wide, so anchoring the info card to it would
-          strand the card at the handle's corner: hang it off the pointer instead. */}
+          leave the card at the handle's corner. Attach it to the pointer instead. */}
       <Draggable.Preview offset="pointer">
         <div className={styles.dragPreview}>
           <div className={styles.dragPreviewTitle}>{event.title}</div>

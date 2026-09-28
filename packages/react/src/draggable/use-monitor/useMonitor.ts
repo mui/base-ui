@@ -28,7 +28,7 @@ export function useMonitor<TAccept extends DraggableAccept<unknown> = DraggableK
   useIsoLayoutEffect(() => registerMonitor<TAccept>(getParameters), [getParameters]);
 }
 
-// Keyed on the observed payload rather than on an `accept` value, like the props types.
+// Keyed on the observed payload instead of an `accept` value, like the props types.
 export namespace useMonitor {
   export type Parameters<
     TSourcePayload = unknown,

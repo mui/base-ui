@@ -113,8 +113,8 @@ describe('Draggable.Target', () => {
 
   it('forwards every engine parameter to the registration', async () => {
     // The component relists each parameter by hand into a cast object, so a dropped
-    // entry is invisible to the type checker. `onDraggableStart` is absent here: it only
-    // fires for a source nested inside the target, which the next test pins.
+    // entry is invisible to the type checker. `onDraggableStart` is absent here because
+    // it only fires for a source nested inside the target. The next test covers it.
     const calls: string[] = [];
     const record = (name: string) => () => {
       calls.push(name);
@@ -180,8 +180,7 @@ describe('Draggable.Target', () => {
 
   it('receives onDraggableStart for a source nested inside it, and not for one outside', async () => {
     // A target only sees `onDraggableStart` when it is already in the stack as the
-    // drag begins, which is exactly the nested-source case. Existing coverage
-    // supplied the callback without ever pinning that it fires.
+    // drag begins, which is the nested-source case.
     const nestedStart = vi.fn();
     const outsideStart = vi.fn();
     const { engine } = await renderDnd(
@@ -212,7 +211,7 @@ describe('Draggable.Target', () => {
     });
 
     // Raw pointer events rather than `fireDrag`, which starts every drag with
-    // nothing under the pointer: precisely the state this test needs to not be in.
+    // nothing under the pointer. This test needs a target under the pickup point.
     const hitTest = vi.spyOn(document, 'elementFromPoint').mockReturnValue(nestedSource);
     registerCleanup(() => hitTest.mockRestore());
 
@@ -250,7 +249,7 @@ describe('Draggable.Target', () => {
     });
     engine.registerMonitor({ onMoveStart: monitorStart });
 
-    // Raw pointer events: `fireDrag` starts every drag with nothing under the pointer.
+    // Raw pointer events, because `fireDrag` starts every drag with nothing under the pointer.
     const hitTest = vi.spyOn(document, 'elementFromPoint').mockReturnValue(nestedSource);
     registerCleanup(() => hitTest.mockRestore());
 
@@ -269,7 +268,7 @@ describe('Draggable.Target', () => {
 
   it('fires onDraggableEnter and onDrop exactly once when mounted under Strict Mode', async () => {
     // Strict Mode double-invokes the registration effect (register → cleanup →
-    // register); a leaked duplicate hold would run the callbacks once per hold.
+    // register). A leaked duplicate hold would run the callbacks once per hold.
     const onDraggableEnter = vi.fn();
     const onDrop = vi.fn();
     const { engine } = await renderDnd(
@@ -324,9 +323,9 @@ describe('Draggable.Target', () => {
   });
 
   it('resolves the new params when a hovered target remounts with changed params in one commit', async () => {
-    // A key swap plus a param change land in the same commit: the new node
+    // A key swap and a param change land in the same commit. The new node
     // registers mid-drag, and the refresh that resolves it must read the new
-    // render's params rather than the previous ones.
+    // render's params, not the previous ones.
     const enterBefore = vi.fn();
     const enterAfter = vi.fn();
     const log: string[] = [];
@@ -385,8 +384,8 @@ describe('Draggable.Target', () => {
     const eventDetails = enterAfter.mock.calls[0][0];
     expect(eventDetails.target.element).toBe(second);
     expect(eventDetails.target.payload).toEqual({ id: 'after' });
-    // The old node is unmounted garbage — React never updates a detached node's
-    // attributes, so only its disconnection is assertable.
+    // The old node is unmounted. React never updates a detached node's attributes,
+    // so the test can only assert that it is disconnected.
     expect(first.isConnected).toBe(false);
     expect(second).toHaveAttribute('data-drag-over');
 
@@ -419,7 +418,7 @@ describe('Draggable.Target', () => {
     await flushRaf();
     expect(target).toHaveAttribute('data-drag-over');
 
-    // A virtualizer recycles the hovered row; the pointer releases where it was.
+    // A virtualizer recycles the hovered row, and the pointer releases where it was.
     await rerender(<Fixture mounted={false} />);
     await flushRaf();
     fireDrag.drop(document.body);
@@ -544,9 +543,9 @@ describe('Draggable.Target', () => {
     await flushRaf();
     expect(onDraggableEnter).toHaveBeenCalledTimes(1);
 
-    // Unmount the hovered target mid-drag (e.g. a virtualizer recycling its row).
-    // The leave must still fire even though the target's registry entry is being
-    // removed — the registration is kept until after the re-resolve for exactly this.
+    // Unmount the hovered target mid-drag, as a virtualizer recycling its row would.
+    // The leave must still fire while the target's registry entry is removed. The
+    // registration is kept until after the re-resolve for this reason.
     await rerender(<div data-testid="placeholder" />);
 
     expect(onDraggableLeave).toHaveBeenCalledTimes(1);
@@ -654,8 +653,8 @@ describe('Draggable.Target', () => {
 
   it('a hovered target disabled mid-drag leaves the stack without pointer movement, and re-enters on re-enable', async () => {
     // A `disabled` flip schedules an eager drop-target refresh from a layout
-    // effect: with a stationary pointer there is no next move to re-resolve on,
-    // so the flip itself must deliver the leave (and the re-enable the enter).
+    // effect. With a stationary pointer there is no next move to re-resolve on,
+    // so the flip itself must deliver the leave, and the re-enable the enter.
     const onDraggableEnter = vi.fn();
     const onDraggableLeave = vi.fn();
     function Fixture({ disabled }: { disabled?: boolean }) {
@@ -684,14 +683,14 @@ describe('Draggable.Target', () => {
     expect(onDraggableEnter).toHaveBeenCalledTimes(1);
     expect(target).toHaveAttribute('data-drag-over');
 
-    // Disable while hovered — no pointer event follows.
+    // Disable while hovered. No pointer event follows.
     await rerender(<Fixture disabled />);
 
     expect(onDraggableLeave).toHaveBeenCalledTimes(1);
     expect(target).not.toHaveAttribute('data-drag-over');
     expect(target).not.toHaveAttribute('data-drag-over-innermost');
 
-    // Re-enable: the pointer never left, so the eager refresh re-enters it.
+    // Re-enable. The pointer never left, so the eager refresh re-enters it.
     await rerender(<Fixture />);
 
     expect(onDraggableEnter).toHaveBeenCalledTimes(2);
@@ -701,11 +700,11 @@ describe('Draggable.Target', () => {
   });
 
   it('a hovered target whose accept narrows mid-drag leaves the stack without pointer movement', async () => {
-    // Like the `disabled` flip above: `accept` is declarative and comparable, so
+    // Like the `disabled` flip above. `accept` is declarative and comparable, so
     // narrowing it away from the live source under a stationary pointer must
-    // deliver the leave now — not advertise a valid drop until an
-    // `outside-release` at drop time. Compared by content, so the inline array
-    // identity changing every render doesn't churn the stack.
+    // deliver the leave now. Otherwise the target would advertise a valid drop
+    // until an `outside-release` at drop time. `accept` is compared by content,
+    // so a new inline array on every render doesn't churn the stack.
     const onDraggableEnter = vi.fn();
     const onDraggableLeave = vi.fn();
     function Fixture({
@@ -740,20 +739,20 @@ describe('Draggable.Target', () => {
     expect(onDraggableEnter).toHaveBeenCalledTimes(1);
     expect(target).toHaveAttribute('data-drag-over');
 
-    // A normal rerender allocates a fresh inline array with the same contents.
+    // A normal rerender allocates a new inline array with the same contents.
     // It must not churn the live target stack.
     await rerender(<Fixture accepted="both" revision={1} />);
     expect(onDraggableEnter).toHaveBeenCalledTimes(1);
     expect(onDraggableLeave).not.toHaveBeenCalled();
     expect(target).toHaveAttribute('data-drag-over');
 
-    // Narrow `accept` while hovered — no pointer event follows.
+    // Narrow `accept` while hovered. No pointer event follows.
     await rerender(<Fixture accepted="columnOnly" revision={1} />);
 
     expect(onDraggableLeave).toHaveBeenCalledTimes(1);
     expect(target).not.toHaveAttribute('data-drag-over');
 
-    // Widen it back: the pointer never left, so the eager refresh re-enters it.
+    // Widen it back. The pointer never left, so the eager refresh re-enters it.
     await rerender(<Fixture accepted="both" revision={1} />);
 
     expect(onDraggableEnter).toHaveBeenCalledTimes(2);
@@ -813,8 +812,8 @@ describe('Draggable.Target', () => {
     expect(outer).toHaveAttribute('data-drag-over-innermost');
     expect(inner).not.toHaveAttribute('data-drag-over');
 
-    // Now over the inner (nested inside outer): the outer stays `over` but is no
-    // longer the innermost active target.
+    // Now over the inner target, nested inside the outer. The outer stays `over`
+    // but is no longer the innermost active target.
     fireDrag.dragEnter(inner);
     fireDrag.dragOver(inner);
     await flushRaf();
@@ -824,8 +823,8 @@ describe('Draggable.Target', () => {
     expect(inner).toHaveAttribute('data-drag-over');
     expect(inner).toHaveAttribute('data-drag-over-innermost');
 
-    // Back out to the outer only: it regains innermost status and the inner
-    // loses its drag-over state entirely.
+    // Back out to the outer only. It becomes innermost again, and the inner
+    // loses its drag-over state.
     fireDrag.dragEnter(outer);
     fireDrag.dragOver(outer);
     await flushRaf();
@@ -863,7 +862,7 @@ describe('Draggable.Target', () => {
     expect(target).toHaveAttribute('data-drag-over');
     expect(target).toHaveAttribute('data-drag-over-innermost');
 
-    // Off the target into empty space: the drag stays live with no hovered target.
+    // Off the target into empty space. The drag stays live with no hovered target.
     fireDrag.dragLeave();
     await flushRaf();
 
@@ -871,7 +870,7 @@ describe('Draggable.Target', () => {
     expect(target).not.toHaveAttribute('data-drag-over');
     expect(target).not.toHaveAttribute('data-drag-over-innermost');
 
-    // Back onto the same target: a fresh enter, not a resumed hover.
+    // Back onto the same target. This is a new enter, not a resumed hover.
     fireDrag.dragEnter(target);
     fireDrag.dragOver(target);
     await flushRaf();
@@ -983,7 +982,7 @@ describe('Draggable.Target', () => {
     const hitTest = vi.spyOn(document, 'elementFromPoint').mockReturnValue(null);
     await rerender(<Fixture allowed={false} />);
     // A parameter-only refresh must re-resolve from the last event target. A
-    // fresh hit test can observe layout changed by an onMove state update and
+    // new hit test can observe layout changed by an onMove state update and
     // recursively enter another target during the same React commit.
     expect(hitTest).not.toHaveBeenCalled();
     expect(onDraggableLeave).toHaveBeenCalledTimes(1);
@@ -1082,9 +1081,9 @@ describe('Draggable.Target', () => {
   });
 
   it('does not re-render on drag activity when trackDragOver is false', async () => {
-    // Count renders inside each target: a function `className` runs on every
+    // Count renders inside each target. A function `className` runs on every
     // render of the Draggable.Target itself, where the drag-over subscription
-    // lives — a spy in a parent component would miss store-driven re-renders.
+    // lives. A spy in a parent component would miss store-driven re-renders.
     const trackedRenders = vi.fn(() => 'tracked');
     const untrackedRenders = vi.fn(() => 'untracked');
     const { engine } = await renderDnd(
@@ -1233,8 +1232,8 @@ describe('Draggable.Target', () => {
     await flushRaf();
     fireDrag.drop(target);
 
-    // Skipping the drag-over subscription must not skip the registration: the
-    // element is still a real drop target, it just renders no feedback.
+    // Skipping the drag-over subscription must not skip the registration. The
+    // element is still a drop target that renders no feedback.
     expect(onDrop).toHaveBeenCalledTimes(1);
     expect(target).not.toHaveAttribute('data-drag-over');
   });

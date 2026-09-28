@@ -12,14 +12,14 @@ import type {
 import type { DraggableRootModifiers } from '../../../draggable/root/DraggableRoot';
 
 /**
- * The preview one drag will use, resolved from the draggable's registration and
- * from the preview part declared inside it.
+ * The preview settings for one drag, resolved from the preview part declared
+ * inside the draggable or, without one, from its registration.
  * @internal
  */
 export interface ResolvedDragPreview {
   offset: DraggablePreviewOffset | undefined;
   modifiers: DraggableRootModifiers | undefined;
-  /** Already resolved to an element; `null` injects the preview in place. */
+  /** Already resolved to an element. `null` inserts the preview beside the source. */
   container: HTMLElement | null;
   disabled: boolean;
   /** React content for a host preview; `null` for a clone of the source. */
@@ -27,8 +27,8 @@ export interface ResolvedDragPreview {
 }
 
 /**
- * Read the drag's preview settings, once, at drag start — the engine builds the
- * preview element synchronously from here, before React can run.
+ * Read the drag's preview settings once, at drag start. The engine builds the
+ * preview element synchronously from them, before React can run.
  *
  * A declared part describes the preview completely and does not merge with the
  * registration's `preview`, which only an imperative registration can set.
@@ -56,7 +56,7 @@ export function resolveDragPreview(
  * Resolve a `DraggablePreviewOffset` (the `'source'`/`'pointer'` presets, a fixed
  * `DraggablePosition`, or a callback) into a concrete pointer-relative offset.
  *
- * Defaults to `'source'`: the preview keeps the grab point it was picked up by,
+ * Defaults to `'source'`, which keeps the grab point the preview was picked up by,
  * so a cloned preview lifts off the element without shifting.
  */
 export function resolveDragPreviewOffset(
@@ -81,16 +81,16 @@ export function resolveDragPreviewOffset(
 /**
  * Build the element that follows the pointer, unless the draggable opted out.
  *
- * A custom preview gets an empty host for React to render into; otherwise the
- * source is cloned into a sanitized preview that preserves its classes and live state.
+ * A custom preview gets an empty host for React to render into. Otherwise the
+ * source is cloned into a sanitized preview that keeps its classes and live state.
  *
  * Runs before `data-dragging` lands on the source, so the clone never inherits it
  * and the usual `[data-dragging] { opacity: .4 }` rule dims the source alone.
  *
- * `pressInput` is the original press, where `input` is the pointer state the pickup
+ * `pressInput` is the original press, and `input` is the pointer state the pickup
  * committed on. Distance activation commits on a later `pointermove`, so the
- * default `'source'` offset is measured from the press: crossing the threshold must
- * not shift the preview in the gesture's direction.
+ * default `'source'` offset is measured from the press. Otherwise crossing the
+ * threshold would shift the preview in the gesture's direction.
  */
 export function attachDragPreview(
   preview: SyntheticPreviewHandle,
@@ -115,10 +115,9 @@ export function attachDragPreview(
   // Own the element before invoking consumer code so pickup cleanup can release it.
   preview.setPreviewElement(previewElement);
 
-  // An offset callback needs the preview's rendered size, which a host doesn't have
-  // until React fills it — so leave it to the renderer, which resolves it exactly
-  // once, after the content lands. Every other form depends only on the source rect
-  // and is correct right now, including for a host.
+  // An offset callback needs the preview's rendered size, which a host only has once
+  // React fills it. The renderer resolves it once, after the content lands. Every
+  // other form depends only on the source rect, so it resolves now, even for a host.
   if (previewElement.isHost && typeof settings.offset === 'function') {
     return;
   }
@@ -126,10 +125,10 @@ export function attachDragPreview(
   preview.setPreviewOffset(
     resolveDragPreviewOffset(settings.offset, {
       container: previewElement.element,
-      // The rect the preview actually occupies: for a transformed source this is the
-      // untransformed box the clone is anchored on (see `measurePreviewSource`),
-      // not the transformed one `getBoundingClientRect` reports, so the clone lifts off
-      // exactly where the source sits.
+      // The rect the preview occupies. For a transformed source, this is the
+      // untransformed box the clone is anchored on (see `measurePreviewSource`), not
+      // the transformed one from `getBoundingClientRect`, so the clone lifts off
+      // where the source sits.
       sourceRect: previewElement.sourceRect,
       input: isSourceOffset ? pressInput : input,
     }),

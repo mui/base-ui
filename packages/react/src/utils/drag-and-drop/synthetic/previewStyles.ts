@@ -38,17 +38,16 @@ const MIN_RULE_BUDGET = 128;
 const RULES_PER_SOURCE_NODE = 64;
 
 /**
- * Snapshot only declarations whose selectors may stop matching through the
- * preview wrapper. Ordinary class rules need no computed-style copying.
+ * Snapshot only declarations whose selectors may stop matching once the clone sits
+ * in the preview wrapper. Ordinary class rules still match and need no copying.
  *
- * Selectors are matched against the *source* tree and their values read from the
- * source nodes: the clone is not yet in the DOM, and even if it were, a sibling
- * position it does not share with the source (it ends up first in the wrapper,
- * and could only be appended after every existing sibling) would resolve
- * `:nth-child`, `:first-child`, `:last-child` and combinator rules to the wrong
- * value. `sourceNodes` and `cloneNodes` are the two trees in the same order, rooted
- * at the source and its clone, so each snapshot is keyed by the clone node it is
- * later restored onto.
+ * Selectors are matched against the source tree, and values are read from the
+ * source nodes. The clone is not in the DOM yet. Once inserted, it is the first
+ * child of the wrapper rather than at the source's sibling position, so
+ * `:nth-child`, `:first-child`, `:last-child` and combinator rules would resolve
+ * to the wrong value. `sourceNodes` and `cloneNodes` list both trees in the same
+ * order, rooted at the source and its clone, so each snapshot is keyed by the
+ * clone node it is restored onto.
  */
 export function capturePreviewStyles(sourceNodes: Element[], cloneNodes: Element[]) {
   const source = sourceNodes[0];
@@ -94,8 +93,8 @@ export function capturePreviewStyles(sourceNodes: Element[], cloneNodes: Element
     try {
       readRules(sheet.cssRules);
     } catch {
-      // App styles can live on a CDN or otherwise hide their rules. Preserve
-      // computed styles when their selectors cannot be inspected.
+      // A cross-origin sheet, such as one on a CDN, hides its rules. Fall back to
+      // computed styles when selectors cannot be inspected.
       needsFullSnapshot = true;
     }
   }
@@ -159,9 +158,9 @@ export function capturePreviewStyles(sourceNodes: Element[], cloneNodes: Element
       readSheet(sheet);
     }
   }
-  // Large applications can have thousands of unrelated structural selectors.
-  // Bound their inspection and snapshot the source subtree instead. This keeps
-  // pickup work independent of the stylesheet size without caching stale CSSOM.
+  // Large apps can have thousands of unrelated structural selectors. Past the
+  // rule budget, snapshot the whole source subtree instead. Pickup cost then stays
+  // independent of stylesheet size without caching a stale CSSOM.
   if (needsFullSnapshot) {
     for (const node of sourceNodes) {
       add(node, '', win.getComputedStyle(node));
@@ -182,8 +181,8 @@ export function capturePreviewStyles(sourceNodes: Element[], cloneNodes: Element
         node,
         pseudo,
         values: Array.from(names)
-          // Preserve the engine's root layout and neutralized motion while
-          // restoring contextual styles on descendants and pseudo-elements.
+          // Skip motion and the clone root's layout, which the engine owns.
+          // Descendants and pseudo-elements get their contextual styles back.
           .filter(
             ([name]) =>
               !name.startsWith('transition') &&
@@ -231,9 +230,9 @@ export function capturePreviewStyles(sourceNodes: Element[], cloneNodes: Element
           values: values.filter(([name, value]) => computed.getPropertyValue(name) !== value),
         };
       });
-      // A broad snapshot must not overwrite styles consumers explicitly apply
-      // to previews. Compare with the marker removed before writing anything;
-      // those differences belong to the preview, not to its lost ancestry.
+      // A broad snapshot must not overwrite styles consumers apply to previews.
+      // Before writing, drop any value that changes when the marker is removed.
+      // It comes from a preview rule, not from the lost ancestry.
       if (changed.some(({ values }) => values.length > 0)) {
         const previewValues = changed.map(({ node, pseudo, values }) => {
           const computed = win.getComputedStyle(node, pseudo || null);
@@ -282,9 +281,9 @@ export function capturePreviewStyles(sourceNodes: Element[], cloneNodes: Element
         }
       }
       reconnect();
-      // An unreadable sheet can contain !important declarations too. Computed
-      // styles do not expose their priority, so elevate only restorations that
-      // still lose to a surviving declaration. Batch the reads before writes.
+      // An unreadable sheet can also hold `!important` declarations. Computed
+      // styles do not expose priority, so raise only the restorations that still
+      // lose to a surviving declaration. Reads are batched before writes.
       if (needsFullSnapshot) {
         const important = changed.flatMap(({ node, pseudo, values }) => {
           if (pseudo || !(node instanceof win.HTMLElement || node instanceof win.SVGElement)) {

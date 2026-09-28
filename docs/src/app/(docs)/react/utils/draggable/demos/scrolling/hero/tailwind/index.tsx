@@ -56,11 +56,11 @@ const INITIAL_TASKS: Record<Zone, Task[]> = {
 
 const UPCOMING = ['Renew passport', 'Cancel the trial', 'Refill the coffee', 'Label the boxes'];
 
-// Resolve the insertion slot closest to the pointer, including positions outside
-// the currently visible portion of the list.
+// Find the insertion slot closest to the pointer, including slots scrolled out
+// of view.
 function resolveDrop(container: HTMLElement, clientY: number): { index: number; slotY: number } {
-  // The dragged card's preview is a clone and carries the same `data-card`.
-  // Skip it: it follows the pointer and is not a real slot.
+  // The drag preview is a clone of the card, so it has `data-card` too. Skip it,
+  // since it follows the pointer and isn't a real slot.
   const cards = Array.from(
     container.querySelectorAll<HTMLElement>('[data-card]:not([data-drag-preview])'),
   );
@@ -120,12 +120,12 @@ function DropZone({
 }: {
   label: string;
   tasks: Task[];
-  // Left out on the plain list, so it keeps the engine's default speed.
+  // Unset on the plain list, which keeps the default auto-scroll speed.
   maxSpeed?: number;
   onInsert: (task: Task, index: number) => void;
 }) {
   const listRef = React.useRef<HTMLDivElement | null>(null);
-  // Y offset (in the list's scrolled content) of the line previewing the drop.
+  // Y offset of the drop line within the list's scrolled content.
   const [dropLineTop, setDropLineTop] = React.useState<number | null>(null);
 
   return (
@@ -176,7 +176,7 @@ export default function AutoScrollBoard() {
   // Index into `UPCOMING`, so the tray always holds another card to drag.
   const [handedOut, setHandedOut] = React.useState(0);
   const rootRef = React.useRef<HTMLDivElement | null>(null);
-  // Id of the card just dropped; scrolled back into view after the commit.
+  // Id of the card just dropped, so the effect below can scroll it into view.
   const droppedIdRef = React.useRef<string | null>(null);
 
   const pending: Task = {
@@ -193,8 +193,8 @@ export default function AutoScrollBoard() {
     setHandedOut((count) => count + 1);
   }
 
-  // The drop can land the card outside the visible window, since the list
-  // reflows around it. Reveal it so the insertion is never invisible.
+  // The list reflows around the drop, which can push the new card out of view.
+  // Scroll it back into view.
   useIsoLayoutEffect(() => {
     const id = droppedIdRef.current;
     if (id == null) {

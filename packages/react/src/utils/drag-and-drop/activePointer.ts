@@ -6,9 +6,9 @@ interface ActivePointerAccessors {
   notifyScroll(): void;
 }
 
-// Auto-scroll reads the live pointer sensor through this slot rather than
+// Auto-scroll reads the live pointer sensor through this slot instead of
 // importing it, so a chunk with only drop targets and viewports doesn't bundle
-// the pickup machinery. Shared across bundled copies, like the sensor state.
+// the pickup code. Bundled copies share the slot, like the sensor state.
 const slot = getSharedSlot<{ accessors: ActivePointerAccessors | null }>('activePointer', () => ({
   accessors: null,
 }));
@@ -17,7 +17,7 @@ export function setActivePointerAccessors(accessors: ActivePointerAccessors): vo
   slot.accessors = accessors;
 }
 
-/** The active pointer drag's physical input, before `modifiers`; `null` when none runs. */
+/** The active pointer drag's raw input, before `modifiers` apply, or `null` without one. */
 export function getRawActivePointerInput(): DraggableInput | null {
   return slot.accessors?.getInput() ?? null;
 }

@@ -41,10 +41,9 @@ function findNeutralizerSheet(root: DocumentOrShadowRoot): CSSStyleSheet | undef
 }
 
 /**
- * The top layer is the whole point of the in-place preview: it is what lets an
- * element injected deep inside a transformed, clipping ancestor still be positioned
- * against the viewport and painted above everything. jsdom implements none of it
- * (`showPopover` doesn't exist), so these have to run in a real browser.
+ * The top layer lets a preview inserted deep inside a transformed, clipping
+ * ancestor still position against the viewport and paint above everything. jsdom
+ * has no `showPopover`, so these tests run in a real browser.
  */
 describe.skipIf(isJSDOM)('createDragPreviewElement (top layer)', () => {
   let scroller: HTMLElement;
@@ -161,8 +160,9 @@ describe.skipIf(isJSDOM)('createDragPreviewElement (top layer)', () => {
     list.className = 'List';
     source.className = 'Row';
     source.style.removeProperty('background');
-    // The source is the second and last row: even, and `:last-child`. Inside the
-    // wrapper the clone is first and only, so both rules stop matching.
+    // The source is the second and last row, so it is even and `:last-child`.
+    // Inside the wrapper the clone is the first and only child, so both rules stop
+    // matching.
     const first = document.createElement('div');
     first.className = 'Row';
     first.textContent = 'Row 1';
@@ -454,8 +454,8 @@ describe.skipIf(isJSDOM)('createDragPreviewElement (top layer)', () => {
   it('promotes the preview to the top layer through an engine-owned wrapper', () => {
     const handle = createDragPreviewElement(source, null, true)!;
 
-    // The wrapper, not the preview, is the popover: the UA `[popover]` chrome
-    // lands on an element with no consumer styling contract.
+    // The wrapper is the popover, not the preview, so the UA `[popover]` chrome
+    // lands on an element with no consumer styling.
     const wrapper = handle.element.parentElement!;
     expect(wrapper.matches(':popover-open')).toBe(true);
     expect(wrapper.getAttribute('popover')).toBe('manual');
@@ -471,7 +471,7 @@ describe.skipIf(isJSDOM)('createDragPreviewElement (top layer)', () => {
     handle.element.style.translate = '300px 400px';
 
     // The ancestor translates its content by 40px. A trapped preview would land at
-    // 440; the top layer's containing block is the viewport, so it lands at 400.
+    // 440. The top layer's containing block is the viewport, so it lands at 400.
     const rect = handle.element.getBoundingClientRect();
     expect(Math.round(rect.left)).toBe(300);
     expect(Math.round(rect.top)).toBe(400);
@@ -484,9 +484,9 @@ describe.skipIf(isJSDOM)('createDragPreviewElement (top layer)', () => {
     // Outside the 200x100 clipping ancestor, but still inside the viewport.
     handle.element.style.translate = '260px 200px';
 
-    // A clipped element still reports a box, so hit-test it: only a painted element
-    // answers `elementFromPoint`. The preview is inert and `pointer-events: none` in
-    // production precisely so it *can't* be hit — lift both to probe it here.
+    // A clipped element still reports a box, so hit-test instead. Only a painted
+    // element answers `elementFromPoint`. The preview is normally inert and
+    // `pointer-events: none` so it cannot be hit. Lift both to probe it here.
     handle.element.style.pointerEvents = 'auto';
     handle.element.removeAttribute('inert');
 
@@ -505,7 +505,7 @@ describe.skipIf(isJSDOM)('createDragPreviewElement (top layer)', () => {
     const wrapper = handle.element.parentElement!;
     expect(wrapper.matches(':popover-open')).toBe(true);
 
-    // A virtualizer recycles the row: any DOM move closes an open popover, and the
+    // A virtualizer recycles the row. Any DOM move closes an open popover, and the
     // UA `[popover]:not(:popover-open)` rule would leave it `display: none`.
     list.remove();
     handle.ensureConnected();
@@ -602,18 +602,17 @@ describe.skipIf(isJSDOM)('createDragPreviewElement (top layer)', () => {
   });
 
   it('sizes the clone from the untransformed box for the individual scale property', () => {
-    // CSS Transforms 2 keeps `scale`/`rotate`/`translate` out of the computed
-    // `transform`, so a source using the hover-lift `scale: 1.5` reads as
-    // untransformed unless all four are checked.
+    // CSS Transforms 2 keeps `scale`, `rotate` and `translate` out of the computed
+    // `transform`, so a source with a hover-lift `scale: 1.5` reads as
+    // untransformed unless each property is checked.
     source.style.scale = '1.5';
 
     const handle = createDragPreviewElement(source, null, true)!;
 
-    // `scale` is not neutralized (unlike `transform`, it composes around the box's
-    // centre without displacing the anchor), so the clone re-applies it and looks
-    // exactly like the element that was grabbed. That only works because the box
-    // it applies to is the *untransformed* one — sizing from the transformed AABB
-    // would compound the scale to 2.25x.
+    // `scale` is not neutralized. Unlike `transform`, it composes around the box's
+    // center without moving the anchor, so the clone re-applies it and looks like
+    // the grabbed element. That only works because it applies to the untransformed
+    // box. Sizing from the transformed bounding box would compound it to 2.25x.
     expect(handle.element.style.width).toBe('120px');
     expect(handle.element.style.height).toBe('30px');
     expect(getComputedStyle(handle.element).scale).toBe('1.5');
@@ -671,15 +670,15 @@ describe.skipIf(isJSDOM)('createDragPreviewElement (top layer)', () => {
   });
 
   it('drops the source transition and animation so the preview tracks the pointer', () => {
-    // Every frame writes `translate`; a source transition would ease each of
-    // those writes and the preview would trail the pointer for the whole drag.
+    // Every frame writes `translate`. A source transition would ease each write,
+    // and the preview would trail the pointer for the whole drag.
     source.style.transition = 'transform 200ms ease';
     source.style.animation = 'spin 1s linear infinite';
 
     const handle = createDragPreviewElement(source, null, true)!;
 
-    // Assert the effect, not the serialization: the `animation` shorthand reads
-    // back as its longhands.
+    // Assert the effect, not the serialization, because the `animation` shorthand
+    // reads back as its longhands.
     const computed = getComputedStyle(handle.element);
     expect(computed.transitionDuration).toBe('0s');
     expect(computed.animationName).toBe('none');
@@ -689,9 +688,9 @@ describe.skipIf(isJSDOM)('createDragPreviewElement (top layer)', () => {
 
   it('lets a consumer rule keyed on the preview attribute override the neutralizer', () => {
     // The documented styling hook: `.Card[data-drag-preview] { rotate: 3deg }`.
-    // The engine neutralizes `transition` from its adopted sheet rather than
-    // inline precisely so this wins without `!important` — an inline declaration
-    // would beat any author rule at any specificity. `rotate` is never touched.
+    // The engine neutralizes `transition` from its adopted sheet, not inline, so
+    // this rule wins without `!important`. An inline declaration would beat any
+    // author rule at any specificity. `rotate` is never touched.
     const sheet = document.createElement('style');
     sheet.textContent = '.Card[data-drag-preview]{rotate:3deg;transition:box-shadow 300ms ease;}';
     document.head.appendChild(sheet);
@@ -731,9 +730,9 @@ describe.skipIf(isJSDOM)('createDragPreviewElement (top layer)', () => {
 
   it('lets cascade-layered consumer styles (Tailwind-style) style the preview', () => {
     // Tailwind v4 puts every utility in `@layer utilities`, and unlayered author
-    // styles beat layered ones at any specificity. The engine must not ship any
-    // unlayered rule that competes with the preview's visual styling: the UA
-    // popover chrome is neutralized inline on the engine-owned wrapper instead.
+    // styles beat layered ones at any specificity. The engine must not ship an
+    // unlayered rule that competes with the preview's visual styling, so it resets
+    // the UA popover chrome inline on the engine-owned wrapper instead.
     const sheet = document.createElement('style');
     sheet.textContent =
       '@layer utilities { .Card { border: 2px solid rgb(1, 2, 3); } ' +
@@ -763,8 +762,8 @@ describe.skipIf(isJSDOM)('createDragPreviewElement (top layer)', () => {
 
     const handle = createDragPreviewElement(source, null, true)!;
 
-    // `cloneNode` copies the element, not its bitmap — a chart or signature pad
-    // would otherwise drag as a blank rectangle.
+    // `cloneNode` copies the element, not its bitmap. Without a copy, a chart or
+    // signature pad would drag as a blank rectangle.
     const pixel = handle.element
       .querySelector('canvas')!
       .getContext('2d')!
@@ -783,15 +782,15 @@ describe.skipIf(isJSDOM)('createDragPreviewElement (top layer)', () => {
     source.appendChild(scrollable);
     scrollable.scrollTop = 120;
 
-    // Scroll offsets are no-ops on a detached node, so they can only be applied
-    // once the clone is inserted — and shown: writing to a `display: none`
-    // subtree clamps to 0, which is why the top-layer promotion comes first.
+    // Scroll offsets are no-ops on a detached node, so they apply only once the
+    // clone is inserted and shown. Writing to a `display: none` subtree clamps to
+    // 0, which is why the top-layer promotion comes first.
     const handle = createDragPreviewElement(source, null, true)!;
     const cloneScrollable = handle.element.querySelector('div')!;
     expect(cloneScrollable.scrollTop).toBe(120);
 
-    // A mid-drag re-home closes the popover before the offsets are re-applied;
-    // the reopen must come first or the write clamps to 0 in `display: none`.
+    // A mid-drag re-home closes the popover before the offsets are re-applied. The
+    // popover must reopen first, or the write clamps to 0 under `display: none`.
     list.remove();
     handle.ensureConnected();
     expect(handle.element.querySelector('div')!.scrollTop).toBe(120);
@@ -806,9 +805,9 @@ describe.skipIf(isJSDOM)('createDragPreviewElement (top layer)', () => {
     expect(sheet).toBeDefined();
     first.destroy();
 
-    // A theme switch that assigns a fresh `adoptedStyleSheets` array drops the
-    // engine's sheet along with everything else. The next preview must notice and
-    // adopt it again, or it would carry the source's transition.
+    // A theme switch that assigns a new `adoptedStyleSheets` array drops the
+    // engine's sheet with everything else. The next preview must adopt it again,
+    // or it would carry the source's transition.
     document.adoptedStyleSheets = [];
 
     const second = createDragPreviewElement(source, null, true)!;
@@ -822,8 +821,8 @@ describe.skipIf(isJSDOM)('createDragPreviewElement (top layer)', () => {
 
     /**
      * Press, cross the mouse activation distance, then settle back on the press
-     * point — the shape of a real pickup — and return the clone's box on the frame
-     * the drag committed, next to the source's own box as it was at the press.
+     * point, as a real pickup does. Returns the clone's box on the frame the drag
+     * committed and the source's box at the press.
      */
     async function liftAndMeasure(): Promise<{ sourceRect: DOMRect; cloneRect: DOMRect }> {
       const { engine } = await renderDnd();
@@ -860,10 +859,10 @@ describe.skipIf(isJSDOM)('createDragPreviewElement (top layer)', () => {
     });
 
     it('lifts a scaled source off exactly where it sits', async () => {
-      // The grab offset the lifecycle measures is relative to the *transformed*
-      // rect, but the clone is anchored on the untransformed box it re-applies
-      // `scale` to. Anchoring the default `'source'` offset on that same box is
-      // what keeps the clone from jumping at pickup.
+      // The lifecycle's grab offset is relative to the transformed rect, but the
+      // clone is anchored on the untransformed box it re-applies `scale` to.
+      // Anchoring the default `'source'` offset on that same box keeps the clone
+      // from jumping at pickup.
       source.style.scale = '1.2';
 
       const { sourceRect, cloneRect } = await liftAndMeasure();
@@ -910,10 +909,10 @@ describe.skipIf(isJSDOM)('createDragPreviewElement (top layer)', () => {
   it('confines the popover UA chrome to the wrapper, away from the preview', () => {
     const handle = createDragPreviewElement(source, null, true)!;
 
-    // The `[popover]` UA rule gives the open popover `margin: auto` (measured in
-    // the hundreds of pixels), a solid border, and an opaque `Canvas` background.
-    // All of it lands on the engine-owned wrapper, where the inline reset
-    // neutralizes it without touching the preview's own cascade.
+    // The `[popover]` UA rule gives the open popover `margin: auto` (hundreds of
+    // pixels here), a solid border, and an opaque `Canvas` background. All of it
+    // lands on the engine-owned wrapper, where the inline reset removes it without
+    // touching the preview's cascade.
     const wrapper = getComputedStyle(handle.element.parentElement!);
     expect(wrapper.marginTop).toBe('0px');
     expect(wrapper.borderTopWidth).toBe('0px');

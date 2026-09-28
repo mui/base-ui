@@ -21,7 +21,7 @@ expectType<DraggableKind<CardPayload>, typeof card>(card);
 expectType<DraggableKind<CardPayload>, typeof globalCard>(globalCard);
 expectType<DraggableKind<undefined>, typeof marker>(marker);
 
-// A kind with no payload type: the bare form compiles, and the engine delivers `undefined`.
+// A kind with no payload type compiles without a payload, and the engine delivers `undefined`.
 <Draggable.Root kind={marker} />;
 
 <Draggable.Root
@@ -84,7 +84,7 @@ const runCommand = () => {};
 />;
 
 // @ts-expect-error a kind that declares a payload makes `payload` required, so the
-// engine can never emit `undefined` where a `CardPayload` was promised.
+// engine never emits `undefined` in place of a `CardPayload`.
 <Draggable.Root kind={card} />;
 
 declare const maybeCardPayload: CardPayload | undefined;
@@ -108,8 +108,8 @@ const foreignCard = Draggable.createKind<{ index: number }>('card');
 // @ts-expect-error this `card` carries a different payload than the one used here.
 <Draggable.Root kind={foreignCard} payload={{ id: 'a' }} />;
 
-// `kind` is the only thing `TPayload` is inferred from: an extracted handler declaring a
-// different payload type is rejected rather than redefining it.
+// `TPayload` is inferred from `kind` only. An extracted handler with a different payload
+// type is rejected instead of redefining it.
 const mismatchedHandler = (eventDetails: MoveStartEventDetails<{ index: number }>) => eventDetails;
 // @ts-expect-error the handler must match the kind's payload, not redefine it.
 <Draggable.Root kind={card} payload={{ id: 'a' }} onMoveStart={mismatchedHandler} />;
@@ -126,8 +126,8 @@ const wideHandler = (eventDetails: MoveStartEventDetails<Record<string, unknown>
   }}
 />;
 
-// `matches` narrows a source whose payload isn't known, which is what a target or
-// monitor that accepts several kinds hands out.
+// `matches` narrows a source whose payload isn't known, as passed by a target or
+// monitor that accepts several kinds.
 declare const untypedSource: DraggableRootRecord<unknown>;
 if (card.matches(untypedSource)) {
   expectType<CardPayload, typeof untypedSource.payload>(untypedSource.payload);
@@ -141,11 +141,11 @@ if (card.matches(untypedSource)) {
   }}
 />;
 
-// `registerSource({ preview })` is the imperative escape hatch; a component describes its
+// `registerSource({ preview })` is for imperative sources. A component declares its
 // preview with a preview part, and its handle with a handle part.
-// @ts-expect-error `preview` is only a `registerSource()` option: use `Draggable.Preview`.
+// @ts-expect-error `preview` is only a `registerSource()` option. Use `Draggable.Preview`.
 <Draggable.Root kind={marker} preview={{ offset: 'pointer' }} />;
-// @ts-expect-error `handle` is only a `registerSource()` option: use `Draggable.Handle`.
+// @ts-expect-error `handle` is only a `registerSource()` option. Use `Draggable.Handle`.
 <Draggable.Root kind={marker} handle={document.body} />;
 
 // Without a kind, the preview stays payload-agnostic and narrows at the use site.
@@ -158,8 +158,8 @@ if (card.matches(untypedSource)) {
   </Draggable.Preview>
 </Draggable.Root>;
 
-// A kind is the payload-aware escape hatch. It types the callback and is also
-// checked against the active source before the callback runs.
+// Passing a kind types the callback. The kind is also checked against the active
+// source before the callback runs.
 <Draggable.Root kind={card} payload={{ id: 'a' }}>
   <Draggable.Preview kind={card}>
     {({ source }) => {
@@ -194,8 +194,8 @@ const boundaryRef: React.RefObject<HTMLDivElement | null> = { current: null };
   </Draggable.Preview>
 </Draggable.Root>;
 
-// `container` moves the preview's element only; the React tree rendering the
-// content is the provider's, so a part keeps its context wherever it is injected.
+// `container` moves only the preview's element. The provider's React tree renders
+// the content, so a part keeps its context wherever it is placed.
 <Draggable.Root kind={marker}>
   <Draggable.Preview container={boundaryRef} />
 </Draggable.Root>;
@@ -218,7 +218,7 @@ const boundaryRef: React.RefObject<HTMLDivElement | null> = { current: null };
   <Draggable.Root kind={marker} />
 </Draggable.Provider>;
 
-// Omitting children configures the clone; children select a custom preview.
+// Without children, the part configures the clone. With children, it renders a custom preview.
 <Draggable.Root kind={marker}>
   <Draggable.Preview offset={{ x: 0, y: 0 }} />
 </Draggable.Root>;
@@ -239,7 +239,7 @@ type CardProps = Draggable.Root.Props<CardPayload>;
 const cardValueProps: CardProps = { kind: card, payload: { id: 'a' } };
 expectType<CardPayload, NonNullable<typeof cardValueProps.payload>>(cardValueProps.payload!);
 
-// @ts-expect-error `Props` mirrors the component: a declared `TPayload` requires a payload.
+// @ts-expect-error like the component, `Props` requires a payload when `TPayload` is declared.
 const cardMissingProps: CardProps = { kind: card };
 
 // @ts-expect-error and it requires the kind that carries it.
@@ -263,8 +263,8 @@ function GenericCard<TPayload>(props: Draggable.Root.Props<TPayload>) {
 // @ts-expect-error the wrapper still requires the payload the kind declares.
 <GenericCard kind={card} />;
 
-// Destructuring leaves TypeScript unable to tell whether `payload` is required while
-// `TPayload` is open, so a wrapper that does it restates `kind` and `payload`.
+// After destructuring, TypeScript can't tell whether `payload` is required while
+// `TPayload` is open. A wrapper that destructures restates `kind` and `payload`.
 function GenericCardWithHandle<TPayload>({
   children,
   ...props
@@ -313,7 +313,7 @@ void GenericCardWithoutRestatement;
   }
 />;
 
-// A successful drop is a non-null `target`; `canceled` tells a cancel from an outside release.
+// A successful drop has a non-null `target`. `canceled` tells a cancel from an outside release.
 <Draggable.Root
   kind={card}
   payload={{ id: 'a' }}

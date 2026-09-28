@@ -3,10 +3,10 @@
  *
  * `createDndRenderer()` wraps the usual `createRenderer()` and adds `renderDnd`,
  * which renders the tree inside a `Draggable.Provider`, captures the drag engine,
- * and returns it alongside everything `render` returns. Tests register
- * their fixtures (drag sources, drop targets, monitors, auto-scrollers) through
- * the returned `engine` rather than the engine's internal functions — the
- * cleanups are queued automatically and drained by `setupDragEngineTests()`.
+ * and returns it alongside everything `render` returns. Tests register their
+ * fixtures, such as drag sources, drop targets, monitors, and auto-scrollers,
+ * through the returned `engine` instead of the engine's internal functions.
+ * Their cleanups are queued automatically and run by `setupDragEngineTests()`.
  */
 import * as React from 'react';
 import type { CreateRendererOptions, RenderOptions } from '@mui/internal-test-utils';
@@ -34,9 +34,9 @@ import type { RegisterTargetParameters } from '../src/utils/drag-and-drop/dropTa
 export const testDragKind = createKind<any>('base-ui-test/item');
 
 /**
- * {@link RegisterSourceParameters} loosened for fixtures: `kind` is optional and
- * defaults to {@link testDragKind}, and `payload` still infers the payload type — the
- * public type pins that to the kind, but most fixtures declare only a payload.
+ * {@link RegisterSourceParameters} loosened for fixtures. `kind` is optional and
+ * defaults to {@link testDragKind}. `payload` still infers the payload type, which the
+ * public type ties to the kind, because most fixtures declare only a payload.
  */
 type TestDraggableParameters<TPayload, TDragData = unknown> = Omit<
   RegisterSourceParameters<TPayload, TDragData>,
@@ -51,14 +51,14 @@ type TestTargetParameters<TSourcePayload, TTargetPayload, TSourceDragData, TTarg
   'kind'
 > & { kind?: DraggableKind<TTargetPayload, TTargetDragData> };
 
-/** A plain value or a getter for it — a test-only convenience (see {@link asGetter}). */
+/** A plain value or a getter for it. Test-only, {@link asGetter} turns it into a getter. */
 type MaybeGetter<T> = T | (() => T);
 
 /**
- * The drag engine as exposed to tests: identical to the public
- * getter-only {@link DraggableManager}, but each `register*` also accepts a plain
- * parameters object (wrapped into a getter by {@link asGetter}) so fixtures stay
- * terse. Production code never sees this loosened shape.
+ * The drag engine as exposed to tests. It matches the public getter-only
+ * {@link DraggableManager}, except each `register*` also accepts a plain
+ * parameters object, which {@link asGetter} wraps in a getter. Production code
+ * never sees this looser shape.
  */
 interface DndTestEngine {
   registerSource: <TPayload = undefined, TDragData = unknown>(
@@ -92,21 +92,21 @@ interface DndRenderResult extends BaseUIRenderResult {
 }
 
 /**
- * Normalize a value-or-getter parameter to a getter. The engine's registration methods are
- * getter-only (registration reads the getter on every event, so a plain snapshot
- * would freeze stale closures); the real hooks always build that getter. Tests
- * pass plain objects for brevity, so this wrapper adds them back the getter the
- * hooks would have, keeping the fixtures terse without loosening the public API.
+ * Turn a value-or-getter parameter into a getter. The engine's registration methods
+ * take only getters, which they read on every event, so a plain snapshot would keep
+ * stale closures. The real hooks always build that getter. Tests pass plain objects
+ * for brevity, and this wrapper adds the getter the hooks would build, without
+ * loosening the public API.
  */
 function asGetter<T>(parameters: MaybeGetter<T>): () => T {
   return typeof parameters === 'function' ? (parameters as () => T) : () => parameters;
 }
 
 /**
- * Wrap an engine so every registration's cleanup is queued via `registerCleanup`
- * and torn down in `setupDragEngineTests()`'s `afterEach`. Cleanups stay
- * idempotent (the engine latches on first run), so a test may still call the
- * returned cleanup early to assert deregistration.
+ * Wrap an engine so every registration's cleanup is queued with `registerCleanup`
+ * and runs in the `afterEach` of `setupDragEngineTests()`. A cleanup only runs
+ * once, so a test can still call the returned cleanup early to assert that the
+ * registration is gone.
  */
 function withAutoCleanup(engine: DraggableManager): DndTestEngine {
   return {
@@ -114,18 +114,18 @@ function withAutoCleanup(engine: DraggableManager): DndTestEngine {
       element: HTMLElement,
       parameters: MaybeGetter<TestDraggableParameters<TPayload, TDragData>>,
     ) => {
-      // The public `registerSource` is overloaded so an explicit `TPayload`
-      // requires a `payload`. Fixtures declare `TPayload` and omit the payload all
-      // the time (they assert on other things), so register through the engine's
-      // internal, payload-optional signature instead.
+      // The public `registerSource` requires a `payload` when `TPayload` is
+      // explicit. Fixtures often declare `TPayload` without a payload because they
+      // test something else, so use the engine's internal signature, where the
+      // payload is optional.
       const registerSourceInternal = engine.registerSource as InternalDragEngine['registerSource'];
       const getParameters = asGetter(parameters);
-      // `kind` is required on a real draggable; default it so only the fixtures that
-      // exercise kind matching have to declare one.
+      // `kind` is required on a real draggable. Default it so only the fixtures that
+      // test kind matching have to declare one.
       const cleanup = registerSourceInternal<TPayload, TDragData>(element, () => {
         const declared = getParameters();
         // `testDragKind` declares no drag data, so it can't satisfy an open
-        // `TDragData`: re-assert the parameter shape at the boundary.
+        // `TDragData`. Cast the parameter shape here.
         return {
           ...declared,
           kind: declared.kind ?? testDragKind,
@@ -145,9 +145,9 @@ function withAutoCleanup(engine: DraggableManager): DndTestEngine {
         TestTargetParameters<TSourcePayload, TTargetPayload, TSourceDragData, TTargetDragData>
       >,
     ) => {
-      // Same as `registerSource` above: the public signature requires a `payload`
-      // once `TTargetPayload` is declared, but fixtures declare the type and omit
-      // the payload all the time.
+      // Same as `registerSource` above. The public signature requires a `payload`
+      // once `TTargetPayload` is declared, but fixtures often declare the type
+      // without a payload.
       const registerTargetInternal = engine.registerTarget as InternalDragEngine['registerTarget'];
       const getParameters = asGetter(parameters);
       const cleanup = registerTargetInternal<
@@ -157,10 +157,10 @@ function withAutoCleanup(engine: DraggableManager): DndTestEngine {
         TTargetDragData
       >(element, () => {
         const declared = getParameters();
-        // Fixtures omit `accept` for brevity; opt them into take-everything
-        // explicitly so the accept-less dev warning stays reserved for consumer
-        // code. Left alone when `kind` is declared: the kind-without-accept
-        // warning has its own test and must keep firing.
+        // Fixtures omit `accept` for brevity, so default it to `anyDragKind` and
+        // keep the missing-`accept` dev warning for consumer code. Skip this when
+        // `kind` is declared, because the kind-without-accept warning has its own
+        // test and must still fire.
         return declared.accept === undefined && declared.kind === undefined
           ? { ...declared, accept: anyDragKind as DraggableAccept<TSourcePayload, TSourceDragData> }
           : declared;
@@ -172,8 +172,8 @@ function withAutoCleanup(engine: DraggableManager): DndTestEngine {
       element: HTMLElement,
       parameters: MaybeGetter<RegisterViewportParameters<TSourcePayload, TSourceDragData>>,
     ) => {
-      // The public signature infers the payload from `accept`; fixtures declare
-      // it and pass their kinds, so register through the payload-keyed shape.
+      // The public signature infers the payload from `accept`. Fixtures declare
+      // it and pass their kinds, so register through the payload-typed signature.
       const registerViewportInternal = engine.registerViewport as (
         element: HTMLElement,
         getParameters: () => RegisterViewportParameters<TSourcePayload, TSourceDragData>,
@@ -185,8 +185,8 @@ function withAutoCleanup(engine: DraggableManager): DndTestEngine {
     registerMonitor: <TSourcePayload = unknown, TSourceDragData = unknown>(
       parameters: MaybeGetter<RegisterMonitorParameters<TSourcePayload, TSourceDragData>>,
     ) => {
-      // The public signature infers the observed payload from `accept`; fixtures
-      // declare it and pass their kinds, so register through the payload-keyed shape.
+      // The public signature infers the observed payload from `accept`. Fixtures
+      // declare it and pass their kinds, so register through the payload-typed signature.
       const registerMonitorInternal = engine.registerMonitor as (
         getParameters: () => RegisterMonitorParameters<TSourcePayload, TSourceDragData>,
       ) => () => void;
@@ -194,7 +194,7 @@ function withAutoCleanup(engine: DraggableManager): DndTestEngine {
       registerCleanup(cleanup);
       return cleanup;
     },
-    // Nothing to queue: it registers nothing.
+    // Nothing to queue, since it registers nothing.
     cancelDrag: engine.cancelDrag,
   };
 }
@@ -206,10 +206,9 @@ function NoUi(): null {
 
 interface DndTestRenderer extends ReturnType<typeof createRenderer> {
   /**
-   * Render `ui` inside a `Draggable.Provider` and return the render result
-   * plus the `engine` itself. Call with no element to mount just
-   * the provider (for engine-level tests that need nothing rendered). An
-   * `options.wrapper`, if given, wraps *outside* the `Draggable.Provider`.
+   * Render `ui` inside a `Draggable.Provider` and return the render result plus
+   * the `engine`. Call it with no element to mount only the provider, for
+   * engine-level tests. An `options.wrapper` wraps outside the `Draggable.Provider`.
    *
    * The provider is required for drag components and hooks. Tests asserting a
    * missing-provider error should render directly instead.
@@ -219,7 +218,7 @@ interface DndTestRenderer extends ReturnType<typeof createRenderer> {
 
 /**
  * Like `createRenderer()`, plus a `renderDnd` that mounts a `Draggable.Provider` and
- * exposes the engine's drag engine. Call once per `describe`, in a file that calls
+ * exposes the drag engine. Call once per `describe`, in a file that calls
  * `setupDragEngineTests()`, which installs the drag test environment.
  */
 export function createDndRenderer(globalOptions?: CreateRendererOptions): DndTestRenderer {

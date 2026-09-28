@@ -4,8 +4,8 @@ const EMPTY = null;
 
 /**
  * A single replaceable animation-frame callback tied to one window.
- * Unlike the shared utility, this schedules work in the element's owner window,
- * so closing an iframe also stops its pending work. Cleanup tolerates a closed window.
+ * Unlike the shared `AnimationFrame`, it schedules on the element's owner window,
+ * so closing an iframe also drops its pending work. `cancel` tolerates a closed window.
  */
 export class WindowAnimationFrame {
   static cancel(id: AnimationFrameId, ownerWindow: Window) {

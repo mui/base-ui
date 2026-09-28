@@ -4,8 +4,8 @@ const EMPTY = 0 as TimeoutId;
 
 /**
  * A single replaceable timeout tied to one window.
- * Unlike the shared utility, this schedules work in the element's owner window,
- * so closing an iframe also stops its pending work. Cleanup tolerates a closed window.
+ * Unlike the shared `Timeout`, it schedules on the element's owner window, so
+ * closing an iframe also drops its pending work. `clear` tolerates a closed window.
  */
 export class WindowTimeout {
   constructor(private readonly ownerWindow: Window) {}

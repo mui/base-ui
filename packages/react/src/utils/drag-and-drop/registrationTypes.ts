@@ -6,9 +6,9 @@ import type { DraggableKind, DraggableAccept } from '../../draggable/DraggablePr
 import type { AcceptedDragPayload, AcceptedDragData, DraggablePayload } from './types';
 
 /**
- * The public parameters plus the channel through which a `Draggable.Preview` reaches
- * the engine. Consumers never write that field, which is why it is absent from
- * `RegisterSourceParameters`.
+ * The public parameters plus `getDragPreviewDeclaration`, through which a
+ * `Draggable.Preview` reaches the engine. Consumers never set that field, so
+ * `RegisterSourceParameters` omits it.
  */
 // `onGenerateDragPreview` is omitted because the engine overwrites it to publish the
 // preview it built.
@@ -50,7 +50,8 @@ export type RegisterTargetParameters<
 };
 
 /**
- * Preserves the accepted kinds while inferring callback payload types.
+ * Adds `accept`, typed as the inferred kinds so the callbacks get their payload
+ * types. It is optional when the accepted payload is `unknown`, and required otherwise.
  */
 export type DragParametersWithInferredAccept<
   TParameters,
@@ -66,7 +67,7 @@ export type DragObserverAccept<TSourcePayload, TDragData = unknown> = unknown ex
   : { accept: DraggableAccept<TSourcePayload, TDragData> };
 
 /**
- * Preserves the accepted kinds while requiring `accept`.
+ * Adds a required `accept`, typed as the inferred kinds.
  */
 export type DragParametersWithRequiredAccept<
   TParameters,
@@ -77,9 +78,9 @@ export type DragParametersWithRequiredAccept<
 };
 
 /**
- * {@link DraggableManager} with a single, payload-optional `registerSource` signature.
- * `Draggable.Root` enforces the payload requirement at its own boundary and then
- * forwards a uniform parameters object, so the overloads would only get in the way.
+ * {@link DraggableManager} with a single `registerSource` signature where `payload`
+ * is optional. `Draggable.Root` enforces the payload requirement in its own props and
+ * forwards one parameters shape, so it doesn't need the overloads.
  */
 export interface InternalDragEngine extends Omit<
   DraggableManager,

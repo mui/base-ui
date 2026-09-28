@@ -1,9 +1,8 @@
 import { INTERACTIVE_ELEMENT_SELECTOR } from '../../floating-ui-react/utils/constants';
 import { getComposedParentElement } from './utils';
 
-// The shared focus-oriented selector, plus native controls that own pointer
-// gestures but are not covered by it, and ARIA widgets that may be implemented
-// without a native focusable element.
+// Extends the shared focus selector with native controls that handle their own
+// pointer gestures, and with ARIA widgets that may lack a native focusable element.
 const DRAG_INTERACTIVE_ELEMENT_SELECTOR = [
   INTERACTIVE_ELEMENT_SELECTOR,
   'label',
@@ -26,10 +25,9 @@ const DRAG_INTERACTIVE_ELEMENT_SELECTOR = [
 ].join(',');
 
 /**
- * Whether the press landed on an interactive control nested *inside* the node the
- * gesture would pick up by — a rename input, a row's action button — rather than
- * on that node itself. `pickupNode` is excluded from the walk, so a draggable (or
- * handle) that is itself a `<button>` stays draggable.
+ * Whether the press landed on an interactive control nested inside `pickupNode`,
+ * such as a rename input or a row's action button. The walk stops before
+ * `pickupNode`, so a draggable or handle that is itself a `<button>` stays draggable.
  */
 export function hasInteractiveAncestorWithin(target: Element, pickupNode: Element): boolean {
   for (

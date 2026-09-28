@@ -53,20 +53,19 @@ export function DraggablePreview<TPayload = unknown, TDragData = unknown>(
   // Resolved per drag, not per render.
   const render = useStableCallback(
     (parameters: DraggablePreviewRenderParameters<TPayload, TDragData>) => {
-      // The settings belong to the engine, which reads them off the declaration;
-      // everything else belongs to the rendered element.
+      // The engine reads the settings from the declaration. The remaining props go
+      // to the rendered element.
       const { children, kind, offset, modifiers, disabled, container, ...componentProps } =
         getProps();
       // A typed preview must never call its render function with a payload of a
-      // different kind. This can happen only when the part is composed under the
-      // wrong root; decline the preview for that drag rather than violating the
-      // callback's public type.
+      // different kind. That only happens when the part sits under the wrong root.
+      // Decline the preview for that drag instead of breaking the callback's type.
       if (kind !== undefined && !kind.matches(parameters.source)) {
         return null;
       }
       const resolved = typeof children === 'function' ? children(parameters) : children;
-      // Declining the preview has to reach the engine as-is: it tears the host it
-      // already built back down, which rendering an empty element would not.
+      // Pass a declined preview to the engine unchanged. The engine then removes the
+      // host it already built, which an empty element would not do.
       if (resolved == null || resolved === false) {
         return resolved;
       }
@@ -103,9 +102,9 @@ export function DraggablePreview<TPayload = unknown, TDragData = unknown>(
 const EMPTY_STATE: DraggablePreviewState = EMPTY_OBJECT;
 
 /**
- * The element a `Draggable.Preview` declares. Rendered by the overlay, inside the
- * engine-owned host that follows the pointer — not where the `Draggable.Preview`
- * was written.
+ * The element a `Draggable.Preview` declares. The overlay renders it inside the
+ * engine-owned host that follows the pointer, not where the `Draggable.Preview`
+ * is written.
  */
 function PreviewElement(props: PreviewElementProps): React.ReactNode {
   const { className, style, render, ...elementProps } = props;
@@ -131,7 +130,7 @@ export interface DraggablePreviewProps
     Omit<
       BaseUIComponentProps<'div', DraggablePreviewState>,
       // - `children` is widened below.
-      // - the engine creates the element at drag start, in the overlay rather than here,
+      // - The engine creates the element at drag start, in the overlay rather than here,
       // so there is no node for a ref to point at when this component renders.
       'children' | 'ref'
     >,

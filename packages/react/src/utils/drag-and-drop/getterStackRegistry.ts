@@ -1,14 +1,14 @@
 /**
- * Shared get-or-create → push → identity-remove machinery for the engine's
- * per-element registries (draggables, drop targets, auto-scrollers).
+ * Per-element getter stacks, shared by the engine's registries of draggables,
+ * drop targets and auto-scrollers.
  *
- * Each element holds a stack of parameter getters — one per registration whose
- * ref landed on the node (merged-ref composition). Storing getters (rather than
- * snapshots) lets the React layer register once and have the engine read the
- * freshest callbacks on each dispatch; the last-pushed getter is the active one
- * (a re-registration refreshes the closures). Each hold releases *its own*
- * getter by identity, so removing a non-last hold can't strand the surviving
- * hook's getter.
+ * Each element holds a stack of parameter getters, one per registration whose
+ * ref is attached to the node, for example through merged refs. Storing getters
+ * instead of snapshots lets the React layer register once while the engine reads
+ * the latest callbacks on each dispatch. The last-pushed getter is the active one,
+ * so a re-registration takes over with fresh closures. Each hold removes its own
+ * getter by identity, so releasing an older hold can't remove the getter of a
+ * hook that is still mounted.
  */
 
 import { onceCleanup } from './utils';
@@ -24,14 +24,14 @@ export interface GetterStackRegistry<TElement, TGetter> {
   add(element: TElement, getter: TGetter): void;
   /**
    * Release one hold. Removing the last hold runs `onLastRemove`, then
-   * `beforeDelete`, and only then deletes the entry — so the getter stays
-   * readable through both callbacks.
+   * `beforeDelete`, and only then deletes the entry, so the getter stays
+   * readable in both callbacks.
    *
-   * `beforeDelete` also runs when a surviving hold is promoted to active, since
-   * the element's effective parameters change then too.
+   * `beforeDelete` also runs when removing the active hold promotes another one,
+   * because the element's effective parameters change then too.
    */
   remove(element: TElement, getter: TGetter, beforeDelete?: () => void): void;
-  /** `add` plus a latched cleanup releasing the hold. */
+  /** `add`, returning a run-once cleanup that releases the hold. */
   hold(element: TElement, getter: TGetter): () => void;
   /** The element's active (last-pushed) getter, or `undefined` when none is registered. */
   getActive(element: TElement): TGetter | undefined;
@@ -65,27 +65,26 @@ export function createGetterStackRegistry<TElement, TGetter>(options: {
     if (getters === undefined) {
       return;
     }
-    // Last hold: run the side effects while the entry is still readable (the
-    // drop-target lifecycle dispatches this target's leave events from it as it
-    // drops out of the stack — deleting first would swallow the leave), and
-    // only then remove the entry.
+    // Last hold. Run the side effects while the entry is still readable, then
+    // remove it. The drop-target lifecycle reads the entry to dispatch this
+    // target's leave events, so deleting it first would lose the leave.
     if (getters.length <= 1 && getters[0] === getter) {
       try {
         onLastRemove?.(element);
         beforeDelete?.();
       } finally {
-        // `beforeDelete` dispatches consumer callbacks, which must survive a throw:
-        // the caller's cleanup is latched to run once, so anything skipped here is
-        // skipped forever.
+        // `beforeDelete` dispatches consumer callbacks, which may throw. The
+        // caller's cleanup runs only once, so a step skipped here never runs.
         //
-        // Deleting unconditionally would take a *reentrant* re-registration with it:
-        // a target that remounts from its own leave handler calls `add()`, which
-        // finds this still-present entry and pushes onto it rather than registering
-        // afresh. Drop only the retiring getter, and when something did re-register,
-        // keep it and redo the first-add side effects `onLastRemove` just undid.
-        // This branch started with exactly one hold at index zero. Remove only
+        // A target that remounts from its own leave handler calls `add()`, which
+        // finds this entry still present and pushes onto it. Deleting the entry
+        // unconditionally would drop that re-registration. Remove only the
+        // retiring getter. If something re-registered, keep the entry and redo
+        // the first-add side effects that `onLastRemove` just undid.
+        //
+        // This branch started with exactly one hold at index 0, so remove only
         // that occurrence. A callback above may have pushed the same stable
-        // getter again, and filtering by value would delete the new hold too.
+        // getter again, and filtering by value would remove the new hold too.
         if (getters[0] === getter) {
           getters.splice(0, 1);
         }
@@ -97,17 +96,16 @@ export function createGetterStackRegistry<TElement, TGetter>(options: {
       }
       return;
     }
-    // A surviving hold remains: drop *this hold's own* getter (by identity),
-    // not the most recent one.
+    // Other holds remain. Remove this hold's own getter by identity, not the
+    // last-pushed one.
     const index = getters.lastIndexOf(getter);
     if (index !== -1) {
       const wasActive = index === getters.length - 1;
       getters.splice(index, 1);
-      // Releasing the *last-pushed* hold promotes a different getter to active,
-      // so the element's effective `accept`/`payload`/`disabled` just changed
-      // even though it stayed registered. Callers use `beforeDelete` to refresh
-      // the lifecycle; without this the stack keeps the retired hold's answers
-      // until the next input event.
+      // Removing the last-pushed hold promotes another getter, so the element's
+      // effective `accept`, `payload` or `disabled` may change while it stays
+      // registered. Callers refresh the lifecycle from `beforeDelete`. Without
+      // it, the stack would keep the removed hold's values until the next input.
       if (wasActive) {
         beforeDelete?.();
       }

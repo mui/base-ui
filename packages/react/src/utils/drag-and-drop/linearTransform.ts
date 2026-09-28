@@ -1,4 +1,4 @@
-/** The linear part of a CSS transform; translation is deliberately omitted. */
+/** The linear part of a CSS transform, without the translation. */
 export interface LinearTransform {
   a: number;
   b: number;
@@ -48,7 +48,7 @@ export function parseComputedDegrees(value: string): number | null {
   return Number.isFinite(amount) ? amount : null;
 }
 
-/** The `scale` longhand, excluding its visually irrelevant z component. */
+/** The `scale` longhand. The z component has no visible effect, so it is dropped. */
 export function parseScaleLinearTransform(scale: string): LinearTransform | null {
   if (!scale || scale === 'none') {
     return null;

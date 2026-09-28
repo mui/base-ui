@@ -11,27 +11,28 @@ import type { DraggableEventDetailsMap } from './types';
 import { getSharedSlot } from './sharedState';
 import { containConsumerError } from './utils';
 
-/** A getter for a monitor's latest parameters, read fresh on each dispatch. */
+/** Returns a monitor's latest parameters. Read on each dispatch. */
 type MonitorGetter = () => RegisterMonitorParameters<any, any>;
 
 interface MatchedMonitor {
-  /** The parameters object the getter returned, to tell a fresh one from the last. */
+  /** The object the getter returned, compared by identity to detect a new one. */
   parameters: RegisterMonitorParameters;
-  /** Its copy, so a getter that mutates one object in place can't rewrite the closure. */
+  /** A shallow copy, so a getter that mutates one object in place can't change it. */
   snapshot: RegisterMonitorParameters;
 }
 
 interface MonitorState {
-  /** The monitor registry: a getter per monitor for its latest parameters. */
+  /** The parameters getter of every registered monitor. */
   allMonitors: Set<MonitorGetter>;
-  /** Monitor getters observing the current drag (their `accept` matched). */
+  /** The getters of the monitors observing the current drag, whose `accept` matched. */
   activeMonitors: Set<MonitorGetter>;
   /** The active drag's source, so a monitor registered mid-drag can join it. */
   activeSource: DraggableRootRecord | null;
   /**
-   * The last `accept`-compatible parameters per engaged monitor, kept so a monitor
-   * whose `accept` stops matching mid-drag can still close its observation. Copied
-   * only when the getter returns a new object: this is read per monitor per event.
+   * The last parameters of each engaged monitor whose `accept` matched. A monitor
+   * whose `accept` stops matching mid-drag still gets `onMoveEnd` through them.
+   * They are copied only when the getter returns a new object, because this runs
+   * for every monitor on every event.
    */
   matchedMonitors: WeakMap<MonitorGetter, MatchedMonitor>;
 }
@@ -51,10 +52,11 @@ function rememberMatchedMonitor(getMonitor: MonitorGetter, parameters: RegisterM
 }
 
 /**
- * Evaluate a just-registered monitor against an in-progress drag so it observes
- * the remainder of the active drag (e.g. a scroll container mounting mid-drag).
- * `onMoveStart` has already fired, so it only receives subsequent events. No-op
- * when no drag is active or the monitor is already engaged.
+ * Engages a monitor in the active drag when its `accept` matches the source. Runs
+ * for every monitor at drag start, and for a monitor that registers mid-drag, such
+ * as one in a scroll container that mounts during the drag. That monitor missed
+ * `onMoveStart` and receives only the later events. Does nothing when no drag is
+ * active or the monitor is already engaged.
  */
 function engageMonitorIfDragging(getMonitor: MonitorGetter): void {
   const activeSource = state.activeSource;
@@ -63,18 +65,18 @@ function engageMonitorIfDragging(getMonitor: MonitorGetter): void {
   if (!activeSource || state.activeMonitors.has(getMonitor)) {
     return;
   }
-  // Contained like `dispatchToMonitors`: this getter is consumer code, and it
-  // runs from `start()` (aborting the drag for everyone) and from a layout effect
-  // mid-drag (propagating out of React's commit). A monitor whose getter throws
-  // simply sits this drag out.
+  // Contained like `dispatchToMonitors`, because the getter is consumer code. A
+  // throw from `start()` would abort the drag for everyone, and a throw from a
+  // mid-drag layout effect would escape React's commit. A monitor whose getter
+  // throws skips this drag.
   const monitor = containConsumerError(
     "Base UI: a drag monitor's parameters getter threw, so the monitor was skipped for this drag.",
     null,
     getMonitor,
     null,
   );
-  // The getter may have ended the drag, or ended it and started another: only
-  // engage the monitor for the drag it was evaluated against.
+  // The getter may have ended the drag, or ended it and started another. Engage
+  // the monitor only in the drag it was evaluated against.
   if (
     monitor !== null &&
     state.activeSource === activeSource &&
@@ -91,7 +93,7 @@ export function addMonitor(getMonitor: MonitorGetter): void {
   engageMonitorIfDragging(getMonitor);
 }
 
-/** Remove a monitor getter from both the registry and the active set. */
+/** Remove a monitor getter from the registry and from the current drag. */
 export function removeMonitor(getMonitor: MonitorGetter): void {
   state.allMonitors.delete(getMonitor);
   state.activeMonitors.delete(getMonitor);
@@ -99,9 +101,8 @@ export function removeMonitor(getMonitor: MonitorGetter): void {
 }
 
 export function activateMonitors(source: DraggableRootRecord): void {
-  // Remember the source before the loop: `engageMonitorIfDragging` reads it,
-  // and it is also what lets a monitor registered mid-drag be matched against
-  // the in-progress drag.
+  // Set before the loop, because `engageMonitorIfDragging` reads it. It also
+  // lets a monitor that registers later in the drag match against it.
   state.activeSource = source;
   for (const getMonitor of state.allMonitors) {
     engageMonitorIfDragging(getMonitor);
@@ -115,15 +116,14 @@ export function dispatchToMonitors<
     return;
   }
 
-  // Snapshot so a monitor engaging mid-dispatch doesn't receive the in-flight
-  // event; the `has` re-check skips monitors a handler removed under us.
+  // Iterate a copy, so a monitor that engages mid-dispatch doesn't receive the
+  // current event. The `has` check skips monitors a handler removed meanwhile.
   for (const getMonitor of [...state.activeMonitors]) {
     if (!state.activeMonitors.has(getMonitor)) {
       continue;
     }
-    // Contained per monitor, like each drop target's dispatch: a monitor is an
-    // observer, and one broken observer must not starve the rest of them or
-    // unwind the dispatch sequence that is mid-flight.
+    // Contained per monitor, like each drop target's dispatch. One throwing
+    // monitor must not stop the others or unwind the dispatch in progress.
     containConsumerError(
       'Base UI: a drag monitor threw and was skipped for this event.',
       null,
@@ -132,8 +132,8 @@ export function dispatchToMonitors<
         if (matchesAccept(monitor.accept, eventDetails.source)) {
           rememberMatchedMonitor(getMonitor, monitor);
         } else {
-          // Finish the observer that joined this drag, using its compatible closure.
-          // Other events must not reach the newly configured observer.
+          // `accept` no longer matches. Deliver only `onMoveEnd`, through the last
+          // matching parameters, so the monitor can close the drag it joined.
           if (eventName !== 'onMoveEnd') {
             return;
           }
@@ -189,7 +189,7 @@ export interface RegisterMonitorParameters<TSourcePayload = unknown, TDragData =
    * Event handler called once when the drag ends, after a drop, a release outside any
    * target, or a cancellation. `eventDetails.target` is the target that received the drop,
    * or `null`. `eventDetails.canceled` tells a cancel from a release, and
-   * `eventDetails.reason` says exactly why the drag ended.
+   * `eventDetails.reason` gives the specific cause.
    *
    * It can fire without a preceding `onMoveStart`, for example when the monitor
    * registered during the drag, so don't assume the two are paired.

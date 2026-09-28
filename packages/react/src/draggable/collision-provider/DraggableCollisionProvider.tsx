@@ -59,7 +59,7 @@ export function DraggableCollisionProvider<TPayload, TDragData = unknown>(
   const removedSource = React.useRef<DraggableRootRecord | null>(null);
   const previous = React.useRef<DraggableTargetRecord<TPayload, TDragData> | null>(null);
   // The start of a drag this group did not own, replayed to `onMoveStart` if the
-  // drag later reaches one of its participants, so the start/end pair always closes.
+  // drag later reaches one of its participants, so every `onMoveEnd` has a matching start.
   const pendingStart = React.useRef<MoveStartEventDetails<TPayload, TDragData> | null>(null);
 
   const register = useStableCallback(
@@ -70,9 +70,9 @@ export function DraggableCollisionProvider<TPayload, TDragData = unknown>(
     ) => {
       participants.set(sourceElement, (participants.get(sourceElement) ?? 0) + 1);
       participantElements.add(element);
-      // Rebuilt only when the participant or this provider's props change: the
+      // Rebuilt only when the participant or this provider's props change. The
       // engine reads the getter at least twice per frame per walked target and
-      // snapshots registrations by identity, so a fresh object per call would
+      // snapshots registrations by identity, so a new object on every call would
       // be copied every frame.
       let lastParticipant: CollisionParticipant | null = null;
       let lastConfig: DraggableCollisionProviderProps<TPayload, TDragData> | null = null;
@@ -93,7 +93,7 @@ export function DraggableCollisionProvider<TPayload, TDragData = unknown>(
             if (sourceElement === source.element || captured.has(record)) {
               return;
             }
-            // Freeze both the geometry and dynamic snap steps before source or target
+            // Freeze the geometry and the dynamic snap steps before source or target
             // callbacks can reorder items. The snapped read measures the raw point too,
             // and the readers memoize both per record.
             record.getSnappedLocalPoint();
@@ -111,9 +111,9 @@ export function DraggableCollisionProvider<TPayload, TDragData = unknown>(
       });
       return () => {
         // A source callback can unmount its row before the start monitor runs.
-        // Read from the session store: its `source` keeps the identity every event
-        // of the drag reports, while `dragSourceStore` publishes copies for
-        // reactive subscribers.
+        // Read the session store, whose `source` keeps the identity that every event
+        // of the drag reports. `dragSourceStore` publishes copies for reactive
+        // subscribers.
         const activeSource = dragSessionStore.state?.source ?? null;
         if (activeSource?.element === sourceElement) {
           removedSource.current = activeSource;
@@ -138,7 +138,7 @@ export function DraggableCollisionProvider<TPayload, TDragData = unknown>(
     target && captured.has(target) && targetKind.matches(target) ? target : null;
 
   // A drag that started elsewhere joins the group when it first reaches one of its
-  // items: its start is replayed with that item as `target`.
+  // items. Its start is replayed with that item as `target`.
   const markInvolved = (target: DraggableTargetRecord<TPayload, TDragData>) => {
     if (involvedRef.current) {
       return;
@@ -210,8 +210,9 @@ export function DraggableCollisionProvider<TPayload, TDragData = unknown>(
     if (firstParameterEffect.current) {
       firstParameterEffect.current = false;
     } else if (dragSourceStore.state && props.kind.matches(dragSourceStore.state)) {
-      // Scoped per participant: an inline `canCollide` gets a new identity on every
-      // render, and a page-wide refresh here would re-resolve every target per frame.
+      // Refresh only this group's participants. An inline `canCollide` gets a new
+      // identity on every render, and a page-wide refresh would re-resolve every
+      // target per frame.
       for (const element of participantElements) {
         scheduleDropTargetParameterRefresh(element);
       }
@@ -289,8 +290,8 @@ interface DraggableCollisionProviderEventDetailsProperties<
    *
    * In `onMoveStart`, it is `null` when the drag starts on an item of the group, and
    * the item the drag first reached when it started elsewhere. In `onMoveEnd`, a release
-   * over the dragged item itself is a drop with a `null` target: `canceled` tells it
-   * from a cancel, and `reason` (`'drop'`) from a release outside the group.
+   * over the dragged item itself is a drop with a `null` target. `canceled` tells it
+   * apart from a cancel, and `reason` (`'drop'`) from a release outside the group.
    */
   target: DraggableTargetRecord<TPayload, TDragData> | null;
 }

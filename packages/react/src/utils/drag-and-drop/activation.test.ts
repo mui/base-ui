@@ -57,11 +57,11 @@ describe('activation', () => {
 
     it('press-hold defaults tolerance to 5px when omitted', () => {
       const activation = { type: 'press-hold', delay: 250 } as const;
-      // Movement under the 5px default does not cancel the hold: still pending
-      // before the delay, activating once it elapses.
+      // Movement under the 5px default keeps the hold alive. It stays pending
+      // before the delay and activates once the delay elapses.
       expect(evaluateActivation(activation, { x: 0, y: 0 }, { x: 4, y: 0 }, 100)).toBe('pending');
       expect(evaluateActivation(activation, { x: 0, y: 0 }, { x: 4, y: 0 }, 250)).toBe('activate');
-      // Movement over the default cancels, exactly as an explicit `tolerance: 5` would.
+      // Movement over the default cancels, as an explicit `tolerance: 5` would.
       expect(evaluateActivation(activation, { x: 0, y: 0 }, { x: 6, y: 0 }, 100)).toBe('cancel');
     });
   });
@@ -108,8 +108,8 @@ describe('activation', () => {
   });
 
   it('applies the per-pointer default once across an array, only when nothing addresses the pointer', () => {
-    // Mouse is addressed by the double-click entry, so no distance default sneaks
-    // in from the touch-only entry: a plain drag must not pick the item up.
+    // The double-click entry addresses mouse, so the touch-only entry doesn't
+    // bring in the distance default. A plain drag must not pick the item up.
     expect(
       resolveActivation(
         [{ mouse: { type: 'double-click' } }, { touch: { type: 'press-hold', delay: 500 } }],
@@ -122,7 +122,7 @@ describe('activation', () => {
         'touch',
       ),
     ).toEqual([{ type: 'press-hold', delay: 500 }]);
-    // Nothing addresses pen: one default, not one per entry.
+    // No entry addresses pen, so it gets one default, not one per entry.
     expect(
       resolveActivation(
         [{ mouse: { type: 'double-click' } }, { touch: { type: 'press-hold', delay: 500 } }],
@@ -143,7 +143,7 @@ describe('activation', () => {
     expect(hasDoubleClickActivation({ type: 'double-click' }, 'mouse')).toBe(true);
     expect(hasDoubleClickActivation({ type: 'double-click' }, 'touch')).toBe(true);
     expect(hasDoubleClickActivation({ type: 'double-click' }, 'pen')).toBe(true);
-    // A per-pointer map opts each type in on its own.
+    // A per-pointer map opts in each type separately.
     expect(hasDoubleClickActivation({ touch: { type: 'double-click' } }, 'touch')).toBe(true);
     expect(hasDoubleClickActivation({ touch: { type: 'double-click' } }, 'mouse')).toBe(false);
     expect(

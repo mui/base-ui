@@ -20,8 +20,8 @@ export type DragCleanupFn = () => void;
  * The payload type declared by `accept`. An array produces a union, and an omitted
  * `accept` produces `unknown`.
  */
-// Distributive on purpose, so both the array entries and an `accept` that is itself a
-// union (a wrapper forwarding `DraggableAccept<T>`) resolve to the union of their payloads.
+// Distributive on purpose, so array entries and an `accept` that is itself a union,
+// such as a wrapper forwarding `DraggableAccept<T>`, resolve to the union of their payloads.
 export type AcceptedDragPayload<TAccept> =
   TAccept extends DraggableAcceptedKind<infer TPayload, any>
     ? TPayload
@@ -42,8 +42,8 @@ export type AcceptedDragData<TAccept> =
       : unknown;
 
 /** A draggable's payload value. */
-// `NoInfer` because `kind` is what the payload type is inferred from: without it a
-// `payload` that does not match the kind would widen `TPayload` instead of being rejected.
+// `NoInfer` because the payload type is inferred from `kind`. Without it, a `payload`
+// that doesn't match the kind would widen `TPayload` instead of being rejected.
 export type DraggablePayload<TPayload> = NoInfer<TPayload>;
 
 /**
@@ -189,13 +189,13 @@ export interface DragEndEventDetailsProperties extends DragEventDetailsPropertie
    * Whether the drag was canceled rather than released, for example with Escape or
    * `cancelDrag()`. A release outside any drop target is not a cancel.
    *
-   * Other Base UI events describe what happened through `reason` alone. A drag keeps
-   * this flag as well because cancel reasons are open-ended: more may be added, so a
-   * check against a list of them would silently miss the new ones. Read `canceled` to
-   * tell a cancel from a release, and `reason` to tell a drop (`'drop'`) from a release
-   * outside any drop target (`'outside-release'`).
+   * Other Base UI events describe what happened through `reason` alone. A drag also
+   * has this flag because more cancel reasons may be added, and a check against a
+   * fixed list of them would miss the new ones. Read `canceled` to tell a cancel from
+   * a release, and `reason` to tell a drop (`'drop'`) from a release outside any drop
+   * target (`'outside-release'`).
    *
-   * Not to be confused with `isCanceled` on the details of `onBeforeMoveStart` and
+   * This differs from `isCanceled` on the details of `onBeforeMoveStart` and
    * `onDragScroll`, which reports whether a handler called `cancel()`.
    */
   canceled: boolean;

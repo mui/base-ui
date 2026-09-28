@@ -156,8 +156,8 @@ describe('snapToGrid', () => {
     expect(result).toEqual({ x: 40, y: 47 });
   });
 
-  // The step names a distance on the surface being dragged over, so a scaled ancestor — a
-  // zoomable canvas — has to stretch it into client pixels, or the grid lands between cells.
+  // The step is a distance on the surface being dragged over. A scaled ancestor, such as a
+  // zoomable canvas, has to stretch it into client pixels, or the grid lands between cells.
   it('scales the step by the ancestor scale', () => {
     const result = snapToGrid(20)(
       makeContext({
@@ -166,7 +166,7 @@ describe('snapToGrid', () => {
         scale: { x: 0.5, y: 0.5 },
       }),
     );
-    // A 20-unit grid at 50% zoom is 10 client pixels; 22 rounds to 20.
+    // A 20-unit grid at 50% zoom is 10 client pixels, so 22 rounds to 20.
     expect(result).toEqual({ x: 20, y: 20 });
   });
 
@@ -190,8 +190,8 @@ describe('restrictToWindowEdges', () => {
   });
 
   it('prefers documentElement.clientWidth/Height over the window size when non-zero', () => {
-    // `innerWidth/innerHeight` include the scrollbar gutter; the layout viewport
-    // is what `elementFromPoint` can actually hit.
+    // `innerWidth/innerHeight` include the scrollbar gutter. `elementFromPoint`
+    // can only hit the layout viewport.
     const context = makeContext({
       point: { x: 900, y: 700 },
       ownerWindow: makeWindow(800, 600, 400, 300),
@@ -269,14 +269,14 @@ describe('restrictToElement', () => {
       previewRect: makeRect(0, 0, 200, 200),
     });
     // The max edge (rect.right − previewRect.width + offset) falls below the min
-    // edge; the point pins to rect.left + offset instead of an inverted range.
+    // edge, so the point pins to rect.left + offset instead of an inverted range.
     expect(modifier({ ...context, point: { x: 500, y: 500 } })).toEqual({ x: 110, y: 120 });
     expect(modifier({ ...context, point: { x: 130, y: 130 } })).toEqual({ x: 110, y: 120 });
   });
 
   it('passes the point through when the element reports a zero-size rect', () => {
-    // display: none or a detached element reports 0×0 at the origin; clamping to
-    // it would pin the drag to (0, 0).
+    // An element with display: none, or a detached one, reports 0×0 at the origin.
+    // Clamping to it would pin the drag to (0, 0).
     const element = document.createElement('div');
     element.getBoundingClientRect = () => makeRect(0, 0, 0, 0);
     const result = restrictToElement(element)(makeContext({ point: { x: 350, y: 50 } }));
@@ -389,7 +389,7 @@ describe('applyDragModifiers', () => {
   it('measures the preview lazily, and at most once per application', () => {
     const getPreviewRect = vi.fn(() => makeRect(0, 0, 40, 40));
 
-    // An axis lock never reads previewRect, so it must not pay for the measure.
+    // An axis lock never reads previewRect, so it must not trigger the measurement.
     applyDragModifiers(
       [restrictToVerticalAxis],
       { x: 10, y: 10 },

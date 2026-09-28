@@ -16,15 +16,15 @@ describe('useManager', () => {
   it('returns the same engine across rerenders, so registrations survive', async () => {
     // The engine is created once and reads its reactive inputs through refs. If a
     // rerender replaced it, every effect keyed on it would unregister and
-    // re-register — dropping the registration held by an in-flight drag.
+    // re-register, dropping the registration an in-flight drag holds.
     const seen: unknown[] = [];
     let registrations = 0;
 
     function Harness({ label }: { label: string }) {
       const engine = Draggable.useManager();
-      // Collected after commit, not during render: React 18's Strict Mode
-      // double-render re-runs ref initializers and discards the first pass, so
-      // a render-time push would record an instance that never mounted.
+      // Collected after commit, not during render. React 18's Strict Mode renders
+      // twice, re-runs ref initializers, and discards the first pass, so a
+      // render-time push would record an instance that never mounted.
       React.useEffect(() => {
         seen.push(engine);
       });
@@ -32,8 +32,8 @@ describe('useManager', () => {
       labelRef.current = label;
       const cleanupRef = React.useRef<(() => void) | null>(null);
       const ref = React.useCallback(
-        // Explicit null-branch cleanup rather than returning the unregister
-        // function: React 18 does not support callback-ref cleanups and warns.
+        // Clean up in the null branch instead of returning the unregister
+        // function. React 18 doesn't support callback-ref cleanups and warns.
         (node: HTMLDivElement | null) => {
           if (node) {
             registrations += 1;
@@ -46,16 +46,16 @@ describe('useManager', () => {
             cleanupRef.current = null;
           }
         },
-        // Keyed on the engine alone: the point is that its identity does not
-        // churn, so this registers exactly once across every rerender.
+        // Depends on the engine only. Its identity is stable, so this registers
+        // once across every rerender.
         [engine],
       );
       return <div ref={ref} data-testid="source" />;
     }
 
     const { rerender } = await renderDnd(<Harness label="first" />);
-    // Whatever the mount cost (Strict Mode double-invokes refs), it must not grow
-    // with rerenders — that is what a churning engine identity would cause.
+    // Strict Mode can register twice on mount, but the count must not grow with
+    // rerenders. A changing engine identity would make it grow.
     const afterMount = registrations;
 
     await rerender(<Harness label="second" />);
@@ -75,8 +75,8 @@ describe('useManager', () => {
     function Harness({ onMoveStart }: { onMoveStart: () => void }) {
       const engine = Draggable.useManager();
       const paramsRef = React.useRef({ kind: itemKind, onMoveStart });
-      // Keep the object identity stable: the imperative getter contract is
-      // value-live, so internal React registration caching must not leak here.
+      // Keep the object identity stable. The imperative getter is read on every
+      // dispatch, so caching in the React layer must not return stale values here.
       paramsRef.current.onMoveStart = onMoveStart;
       const cleanupRef = React.useRef<(() => void) | null>(null);
       const ref = React.useCallback(

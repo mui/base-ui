@@ -14,9 +14,9 @@
 }
 
 /*
- * CSS Modules demos revert Tailwind's preflight with `all: revert-layer`, which
- * also drops the page's font smoothing and renders text heavier than the
- * Tailwind variant. Restore it so both variants render text identically.
+ * CSS Modules demos revert Tailwind's preflight with `all: revert-layer`. That
+ * also drops the page's font smoothing, so text renders heavier than in the
+ * Tailwind variant. Restore it so both variants look the same.
  */
 .Root,
 .Root * {

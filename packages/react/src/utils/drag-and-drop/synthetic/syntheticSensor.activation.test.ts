@@ -96,7 +96,7 @@ describe('syntheticDrag activation', () => {
     const onMoveStart = vi.fn();
     const onMoveEnd = vi.fn();
     const onDrop = vi.fn();
-    // No `activation`: touch falls back to the default 250ms press-hold.
+    // Without `activation`, touch uses the default 250ms press-hold.
     engine.registerSource(el, { onMoveStart, onMoveEnd });
     engine.registerTarget(tgt, { onDraggableDrop: onDrop });
 
@@ -110,7 +110,7 @@ describe('syntheticDrag activation', () => {
     touchDown(el, 50, 50);
     // A drift under the 5px default tolerance keeps the hold alive.
     touchMove(53, 52);
-    // The press-hold timer activates the drag (publishing the session) during
+    // The press-hold timer activates the drag and publishes the session during
     // this wait, so wrap it in `act` to flush the overlay re-render.
     await act(async () => {
       await new Promise<void>((resolve) => {
@@ -173,8 +173,8 @@ describe('syntheticDrag activation', () => {
     });
 
     touchDown(el, 50, 50);
-    // The window blurs (app switch / soft keyboard / overlay) before the
-    // press-hold timer fires; the candidate must be abandoned.
+    // The window blurs (app switch, soft keyboard, overlay) before the
+    // press-hold timer fires, so the candidate must be abandoned.
     window.dispatchEvent(new Event('blur'));
     await new Promise<void>((resolve) => {
       setTimeout(resolve, 120);
@@ -215,7 +215,7 @@ describe('syntheticDrag activation', () => {
     });
 
     touchDown(el, 50, 50);
-    touchMove(80, 50); // 30px — well past the 5px tolerance
+    touchMove(80, 50); // 30px, well past the 5px tolerance
     await new Promise<void>((resolve) => {
       setTimeout(resolve, 120);
     });
@@ -238,7 +238,7 @@ describe('syntheticDrag activation', () => {
     await flushRaf();
     expect(onMoveStart).not.toHaveBeenCalled();
 
-    touchMove(60, 60); // ~14px — past threshold
+    touchMove(60, 60); // ~14px, past the threshold
     await flushRaf();
     expect(onMoveStart).toHaveBeenCalledTimes(1);
 
@@ -265,10 +265,10 @@ describe('syntheticDrag activation', () => {
     const { engine } = await renderDnd();
     const el = createElement();
     const onMoveStart = vi.fn();
-    // No `activation` override: mouse falls back to the default, which is a 5px
-    // distance. A stationary click must NOT start a drag — otherwise a
-    // pointerdown on a clickable child of the draggable (e.g. a Tree item's
-    // expand chevron) would be hijacked into a drag instead of toggling.
+    // No `activation` override, so mouse uses the default 5px distance. A
+    // stationary click must not start a drag. Otherwise a press on a clickable
+    // child of the draggable, such as a Tree item's expand chevron, would start a
+    // drag instead of toggling.
     engine.registerSource(el, { onMoveStart });
 
     const dispatchMouse = (type: string, x: number, y: number, buttons: number) =>
@@ -291,11 +291,11 @@ describe('syntheticDrag activation', () => {
     await flushRaf();
     expect(onMoveStart).not.toHaveBeenCalled();
 
-    dispatchMouse('pointermove', 52, 52, 1); // < 5px diagonal — still pending
+    dispatchMouse('pointermove', 52, 52, 1); // < 5px diagonal, still pending
     await flushRaf();
     expect(onMoveStart).not.toHaveBeenCalled();
 
-    dispatchMouse('pointermove', 60, 60, 1); // ~14px — past the 5px threshold
+    dispatchMouse('pointermove', 60, 60, 1); // ~14px, past the 5px threshold
     await flushRaf();
     expect(onMoveStart).toHaveBeenCalledTimes(1);
 
@@ -304,10 +304,10 @@ describe('syntheticDrag activation', () => {
 
   describe('scrollbar presses', () => {
     /**
-     * A scrollable list nested inside a draggable card — the kanban shape, where
-     * the column is the draggable and its list of cards is the scroller. A
-     * classic scrollbar is part of the list's own box and hit-tests to the list,
-     * so the press walks up to the card unless the gutter is rejected.
+     * A scrollable list nested inside a draggable card, as in a kanban board
+     * where the column is the draggable and its list of cards scrolls. A classic
+     * scrollbar is part of the list's box and hit-tests to the list, so the press
+     * walks up to the card unless the gutter is rejected.
      */
     function renderScrollableChild({
       rtl = false,
@@ -324,14 +324,13 @@ describe('syntheticDrag activation', () => {
         list.style.direction = 'rtl';
       }
       // The list's border box spans x = 0..200 with a 15px classic scrollbar, so
-      // the padding box is 185 wide and the gutter is whichever 15px strip the
-      // writing direction leaves over. jsdom does no layout, so the geometry the
-      // guard reads has to be supplied.
+      // the padding box is 185 wide and the gutter is the 15px strip on the side
+      // the writing direction picks. jsdom does no layout, so the test supplies
+      // the geometry the check reads.
       list.getBoundingClientRect = () => new DOMRect(0, 0, (200 + borderLeft) * scale, 400 * scale);
-      // `clientLeft` is the left border width *plus* the scrollbar when the
-      // scrollbar is on the left, which is what browsers report in RTL — so the
-      // padding edge, and with it the sign of a press in the gutter, follows the
-      // writing direction without anything having to special-case it.
+      // In RTL, browsers report `clientLeft` as the left border width plus the
+      // scrollbar. The padding edge, and so the sign of a press in the gutter,
+      // follows the writing direction without a special case.
       Object.defineProperty(list, 'clientLeft', { value: borderLeft + (rtl ? 15 : 0) });
       Object.defineProperty(list, 'clientTop', { value: 0 });
       Object.defineProperty(list, 'scrollHeight', { value: 1000 });
@@ -372,7 +371,7 @@ describe('syntheticDrag activation', () => {
       const onMoveStart = vi.fn();
       engine.registerSource(card, { onMoveStart });
 
-      // x=192 is past the 185px content box: the vertical scrollbar's gutter.
+      // x=192 is past the 185px content box, in the vertical scrollbar's gutter.
       dispatchOn(list, 'pointerdown', 192, 50, 1);
       await flushRaf();
       // Thumb travel. The default mouse activation is 5px, so without the guard
@@ -391,8 +390,8 @@ describe('syntheticDrag activation', () => {
       const onMoveStart = vi.fn();
       engine.registerSource(card, { onMoveStart });
 
-      // The positive control: x=100 is inside the content box, so this is an
-      // ordinary press on the draggable and must behave as one.
+      // Control case. x=100 is inside the content box, so this is an ordinary
+      // press on the draggable.
       dispatchOn(list, 'pointerdown', 100, 50, 1);
       await flushRaf();
       dispatchOn(list, 'pointermove', 100, 80, 1);
@@ -428,7 +427,7 @@ describe('syntheticDrag activation', () => {
       engine.registerSource(card, { onMoveStart });
 
       // RTL puts the vertical scrollbar on the left, so the gutter is the strip
-      // *before* the padding box rather than after it. x=8 is inside it.
+      // before the padding box. x=8 is inside it.
       dispatchOn(list, 'pointerdown', 8, 50, 1);
       await flushRaf();
       dispatchOn(list, 'pointermove', 8, 80, 1);
@@ -445,9 +444,9 @@ describe('syntheticDrag activation', () => {
       const onMoveStart = vi.fn();
       engine.registerSource(card, { onMoveStart });
 
-      // The mirror of the LTR gutter test: with the scrollbar on the left, x=192
-      // is past the padding box but is content (or the element's own border), not
-      // a gutter — rejecting it here would make a whole strip of the card undraggable.
+      // Mirror of the LTR gutter test. With the scrollbar on the left, x=192 is
+      // past the padding box but is content or border, not a gutter. Rejecting it
+      // would make a strip of the card undraggable.
       dispatchOn(list, 'pointerdown', 192, 50, 1);
       await flushRaf();
       dispatchOn(list, 'pointermove', 192, 80, 1);
@@ -464,9 +463,9 @@ describe('syntheticDrag activation', () => {
       const onMoveStart = vi.fn();
       engine.registerSource(card, { onMoveStart });
 
-      // A 2px left border on an LTR scroller: it sits before the padding box, so
-      // it measures negative — but the scrollbar is on the *right*, so this is an
-      // ordinary press on the draggable and must still pick it up.
+      // A 2px left border on an LTR scroller sits before the padding box, so it
+      // measures negative. The scrollbar is on the right, so this is an ordinary
+      // press and must still pick up the draggable.
       dispatchOn(list, 'pointerdown', 1, 50, 1);
       await flushRaf();
       dispatchOn(list, 'pointermove', 1, 80, 1);
@@ -481,8 +480,8 @@ describe('syntheticDrag activation', () => {
       const { engine } = await renderDnd();
       const card = createElement();
       const inert = document.createElement('div');
-      // No scrollable overflow, so there is no gutter and the guard's offsets would
-      // be measuring the element's borders — a border press is an ordinary press.
+      // Without scrollable overflow there is no gutter, and the check's offsets
+      // would measure the borders. A border press is an ordinary press.
       Object.defineProperty(inert, 'clientWidth', { value: 0 });
       Object.defineProperty(inert, 'clientHeight', { value: 0 });
       card.appendChild(inert);

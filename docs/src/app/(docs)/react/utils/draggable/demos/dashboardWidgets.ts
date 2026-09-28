@@ -22,7 +22,10 @@ export const INITIAL_WIDGETS: WidgetData[] = [
   { id: 'conversion', title: 'Conversion', value: '3.8%', detail: 'Up 0.4%', slot: 'center' },
 ];
 
-/** Move a widget into an empty slot; an occupied slot or unknown widget returns `current`. */
+/**
+ * Move a widget into an empty slot. Returns `current` if the slot is taken or the
+ * widget is unknown.
+ */
 export function moveWidget(current: WidgetData[], widgetId: string, slot: SlotId): WidgetData[] {
   const widget = current.find((item) => item.id === widgetId);
   if (!widget || widget.slot === slot || current.some((item) => item.slot === slot)) {
@@ -31,7 +34,7 @@ export function moveWidget(current: WidgetData[], widgetId: string, slot: SlotId
   return current.map((item) => (item.id === widgetId ? { ...item, slot } : item));
 }
 
-/** The nearest empty slot in `direction` from the widget's slot, or `undefined`. */
+/** Find the nearest empty slot in `direction` from the widget, or `undefined` if there is none. */
 export function findEmptySlot(
   current: WidgetData[],
   widgetId: string,

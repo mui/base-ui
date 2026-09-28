@@ -75,8 +75,8 @@ function NodePreview({ node }: { node: FileNode }) {
   );
 }
 
-// A folder is both a drag source and a drop target: `render` puts both roles on
-// the same element. A plain click, Space, or Enter opens it.
+// A folder is both a drag source and a drop target. `render` puts both roles on
+// the same element. A click, Space or Enter opens it.
 function FolderTile({
   node,
   nodes,
@@ -126,8 +126,8 @@ function FileTile({ node }: { node: FileNode }) {
 
 // Breadcrumb segments navigate on click and take drops, so a node can move to
 // an ancestor without leaving the current view. Every segment is a target,
-// including the current folder: the shared rules withdraw the segments a drop
-// could not change.
+// including the current folder. The shared rules disable the segments where a
+// drop would change nothing.
 function Crumb({
   folder,
   nodes,

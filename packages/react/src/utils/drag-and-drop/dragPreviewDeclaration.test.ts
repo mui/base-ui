@@ -22,13 +22,13 @@ describe('createDragPreviewHandle', () => {
     handle.declare(createDeclaration());
     const spy = vi.spyOn(console, 'warn').mockImplementation(() => {});
 
-    // Warns rather than throws, matching the duplicate-`Draggable.Handle`
-    // mistake: a wrapper composing its own preview around a consumer-passed one
-    // is plausible, and white-screening production over it is out of proportion.
+    // Warns instead of throwing, like a duplicate `Draggable.Handle`. A wrapper
+    // that composes its own preview around a consumer-passed one is a plausible
+    // mistake, and crashing the app over it is out of proportion.
     const second = createDeclaration();
     expect(() => handle.declare(second)).not.toThrow();
     expect(String(spy.mock.calls[0][0])).toMatch(/more than one preview part/);
-    // Last mounted wins, so the outcome is at least deterministic.
+    // The last one mounted wins, so the outcome is deterministic.
     expect(handle.getDeclaration()).toBe(second);
 
     spy.mockRestore();
@@ -48,9 +48,9 @@ describe('createDragPreviewHandle', () => {
 
   it('cleanup is identity-guarded, so a Strict Mode remount keeps the live declaration', () => {
     const handle = createDragPreviewHandle();
-    // Strict Mode double-invokes effects: the first part's cleanup runs *after*
-    // the remounted part has already declared. Clearing unconditionally there
-    // would drop the live declaration and leave the draggable with no preview.
+    // Strict Mode runs effects twice, and the first part's cleanup can run after
+    // the remounted part has declared. Clearing unconditionally there would drop
+    // the live declaration and leave the draggable with no preview.
     const staleCleanup = handle.declare(createDeclaration());
     staleCleanup();
 

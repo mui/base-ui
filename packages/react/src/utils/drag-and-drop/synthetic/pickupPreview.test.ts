@@ -40,8 +40,7 @@ describe('resolveDragPreviewOffset', () => {
   });
 
   it("defaults to 'source' when the offset is undefined", () => {
-    // A cloned preview has to lift off the
-    // element without shifting under the pointer.
+    // A cloned preview lifts off the element without shifting under the pointer.
     expect(resolveDragPreviewOffset(undefined, params)).toEqual({ x: 15, y: 15 });
   });
 });

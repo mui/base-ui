@@ -107,8 +107,8 @@ describe('matchesAccept', () => {
   });
 
   it('accepts every source through the catch-all sentinel', () => {
-    // The explicit opt-in that replaces the old permissive default, so a drop
-    // target taking every drag on the page is something you can grep for.
+    // Accepting every drag takes this explicit opt-in, so each drop target that
+    // does it is easy to find with a text search.
     expect(matchesAccept(anyDragKind, sourceOfKind(card.id))).toBe(true);
     expect(matchesAccept(anyDragKind, sourceOfKind(column.id))).toBe(true);
   });

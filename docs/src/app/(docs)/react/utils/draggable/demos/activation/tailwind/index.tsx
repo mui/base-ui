@@ -144,7 +144,7 @@ export default function ActivationLab() {
     waiting: mode.waitingMessage,
     dragging: hasDoubleClickActivation(mode.activation)
       ? 'Move to the target and click or release to drop. Escape cancels.'
-      : 'Activated — drag the puck to the target.',
+      : 'Activated. Drag the puck to the target.',
     dropped: 'Dropped. Reset to try again.',
   }[phase];
 

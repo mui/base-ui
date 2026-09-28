@@ -1,6 +1,6 @@
 /**
- * Drag kinds: a draggable declares the one kind it is, a drop target and a monitor the
- * kinds they accept. Each kind carries the payload type of the things it tags.
+ * Drag kinds. A draggable declares the one kind it is, and drop targets and monitors
+ * declare the kinds they accept. Each kind carries the payload type of the items it tags.
  */
 
 import { areArraysEqual } from '@base-ui/utils/areArraysEqual';
@@ -8,9 +8,9 @@ import type { DraggableAccept, DraggableKind } from '../../draggable/DraggablePr
 import type { DraggableRootRecord } from '../../draggable/root/DraggableRoot';
 import type { DraggableTargetRecord } from '../../draggable/target/DraggableTarget';
 
-/** Namespaces explicitly global identities, so a key can't collide with another `Symbol.for`. */
+/** Prefixes global kind ids, so a key can't collide with an unrelated `Symbol.for` key. */
 const KIND_ID_PREFIX = 'base-ui/drag-kind:';
-// Its own namespace, so neither public factory can mint this id whatever name/key it receives.
+// A separate namespace, so neither public factory can produce this id, whatever name or key it gets.
 const ANY_KIND_ID = Symbol.for('base-ui/drag-kind-sentinel:any');
 
 /**
@@ -31,11 +31,11 @@ export function createKind<TPayload = undefined, TDragData = unknown>(
 }
 
 /**
- * Creates a kind identified by a string key rather than by the returned object.
- * Kinds from `createKind` match only when the source and the target received the
- * same object, which code that doesn't share modules, such as a plugin loaded at
- * runtime or a second copy of a package, can't do. Two `createGlobalKind` calls
- * with the same key match each other from anywhere on the page.
+ * Creates a kind identified by a string key instead of by the returned object.
+ * Kinds from `createKind` match only when the source and the target receive the
+ * same object. Code that doesn't share modules, such as a plugin loaded at runtime
+ * or a second copy of a package, can't do that. Two `createGlobalKind` calls with
+ * the same key match each other from anywhere on the page.
  *
  * ```ts
  * const card = Draggable.createGlobalKind<Card>('myapp/card');
@@ -78,20 +78,20 @@ function makeKind<TPayload, TDragData>(
  */
 export const anyDragKind: DraggableKind<unknown> = {
   name: 'any',
-  // Interned, and matched on `.id` rather than object identity, because a doubly bundled
-  // engine (or a hot reload) has two copies of this module. An identity check across them
-  // would fail, leaving a catch-all target accepting nothing.
+  // Interned and matched on `.id` instead of object identity, because a doubly bundled
+  // engine or a hot reload has two copies of this module. An identity check across them
+  // would fail, and a catch-all target would accept nothing.
   id: ANY_KIND_ID,
-  // Never called: `matchesAccept` short-circuits on this id, and nothing declares
-  // `anyDragKind` as its `kind`. Answering `true` keeps it honest if a consumer does
-  // reach for it as a predicate.
+  // The engine never calls this, because `matchesAccept` short-circuits on the id and
+  // nothing declares `anyDragKind` as its `kind`. It answers `true` for any record in
+  // case a consumer calls it as a predicate.
   matches: ((value: unknown) => value != null) as unknown as DraggableKind<unknown>['matches'],
 } as DraggableKind<unknown>;
 
 /**
- * Tests a source against an `accept` declaration. Omitted (monitors, auto-scrollers) or
- * {@link anyDragKind} accepts any source; a kind or an array of kinds matches on the
- * source's own kind.
+ * Tests a source against an `accept` declaration. An omitted `accept`, which monitors
+ * and auto-scrollers allow, or {@link anyDragKind} accepts any source. A kind, or an
+ * array of kinds, matches the source's own kind.
  */
 export function matchesAccept(
   accept: DraggableAccept<unknown> | undefined,
@@ -108,9 +108,9 @@ export function matchesAccept(
 }
 
 /**
- * Content comparison for an `accept` value, not identity: it is commonly an
- * inline array (`accept={[card, file]}`) whose identity changes every render
- * while the kinds inside don't.
+ * Compares two `accept` values by content. An inline array such as
+ * `accept={[card, file]}` is a new object on every render, even when its kinds
+ * don't change.
  */
 export function sameAccept(
   a: DraggableAccept<unknown> | undefined,

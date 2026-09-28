@@ -419,7 +419,7 @@ describe('e2e', () => {
         return press;
       }
 
-      /** Slide the finger 200px up — the gesture that scrolls the page down — and lift. */
+      /** Slide the finger 200px up, the gesture that scrolls the page down, and lift. */
       async function swipeUp(dispatchTouch: DispatchTouch, from: TouchPoint) {
         const steps = 10;
         for (let step = 1; step <= steps; step += 1) {

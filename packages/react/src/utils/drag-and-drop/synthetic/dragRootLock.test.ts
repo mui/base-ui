@@ -36,9 +36,9 @@ describe('dragRootLock', () => {
 
   afterEach(() => {
     dragRootLock.unlock();
-    // Restore `<html>` *and* `<body>` independently of `unlock`: the lock
-    // writes to both, so a regression in the module's own restore path must fail
-    // its test rather than leak body styles into every later one.
+    // Restore `<html>` and `<body>` without relying on `unlock`. The lock writes
+    // to both, so a bug in its restore path must fail this test instead of
+    // leaking body styles into later ones.
     restoreStyles(document.documentElement, originals.html);
     restoreStyles(document.body, originals.body);
   });
@@ -91,10 +91,10 @@ describe('dragRootLock', () => {
   });
 
   it('locks and restores <html> and <body> of the source and every ancestor document', () => {
-    // iOS Safari and some Android browsers honour `touch-action` on `body`
+    // iOS Safari and some Android browsers apply `touch-action` on `body`
     // independently of `html`, and an iframe drag can still scroll its host page,
-    // so the lock covers all four roots — asserting only the source's `<html>`
-    // would stay green while touch dragging in a frame kept scrolling.
+    // so the lock covers all four roots. Checking only the source's `<html>`
+    // would pass even if a touch drag in a frame still scrolled.
     const frame = document.createElement('iframe');
     document.body.appendChild(frame);
     const innerDoc = frame.contentDocument!;
@@ -131,8 +131,8 @@ describe('dragRootLock', () => {
     try {
       const innerDoc = frame.contentDocument!;
       // A cross-origin ancestor throws a `SecurityError` on `frameElement`
-      // access; the climb must treat that as the top of the reachable chain
-      // rather than letting the throw abort the whole lock.
+      // access. The climb must stop there instead of letting the throw abort the
+      // whole lock.
       Object.defineProperty(frame.contentWindow!, 'frameElement', {
         configurable: true,
         get() {

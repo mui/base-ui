@@ -42,12 +42,12 @@ describe('Draggable.Target enum sync', () => {
     fireDrag.dragOver(inner);
     await flushRaf();
 
-    // Every accepting target is marked from the moment the drag starts, wherever
-    // the pointer is — that is what `accepting` is for.
+    // Every accepting target is marked as soon as the drag starts, wherever the
+    // pointer is.
     expect(outer).toHaveAttribute(DraggableTargetDataAttributes.accepting);
     expect(screen.getByTestId('off')).not.toHaveAttribute(DraggableTargetDataAttributes.accepting);
 
-    // Both are over; only the deepest is `dragOverInnermost`.
+    // Both are over, and only the deepest is `dragOverInnermost`.
     expect(inner).toHaveAttribute(DraggableTargetDataAttributes.dragOver);
     expect(inner).toHaveAttribute(DraggableTargetDataAttributes.dragOverInnermost);
     expect(outer).toHaveAttribute(DraggableTargetDataAttributes.dragOver);
@@ -69,7 +69,7 @@ describe('Draggable.Target enum sync', () => {
     fireDrag.drop(inner);
     await flushRaf();
 
-    // Every drag-scoped attribute clears with the drag; a regression here would
+    // Every drag-scoped attribute clears with the drag. A regression here would
     // leave targets highlighted as valid drop zones after every drop.
     expect(outer).not.toHaveAttribute(DraggableTargetDataAttributes.accepting);
     expect(inner).not.toHaveAttribute(DraggableTargetDataAttributes.accepting);

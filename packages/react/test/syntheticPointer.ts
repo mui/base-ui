@@ -1,19 +1,19 @@
 /**
  * Pointer event helpers for synthetic-drag tests.
  *
- * `pointerdown` latches its target and later helpers dispatch on that same
- * element to mimic browser routing: the events bubble up to the document and
- * window, where the engine's pending- and active-phase listeners live.
- * `setupDragEngineTests()` clears the latched target between tests.
+ * `pointerdown` remembers its target, and later helpers dispatch on that element
+ * as a browser would. The events bubble up to the document and window, where the
+ * engine's pending and active phase listeners are. `setupDragEngineTests()`
+ * clears the remembered target between tests.
  *
  * `touchUp` and `touchCancel` also dispatch the `touchend`/`touchcancel` a real
- * browser fires alongside the pointer event. The other helpers dispatch pointer
- * events only: the engine's only touch listener is the active-phase `touchmove`
- * scroll guard, which tests dispatch themselves, and pen drags ignore the
- * iPadOS-synthesised touch stream.
+ * browser fires alongside the pointer event. The other helpers dispatch only
+ * pointer events. The engine's only touch listener is the active-phase `touchmove`
+ * scroll guard, which tests dispatch themselves, and pen drags ignore the touch
+ * events iPadOS generates.
  *
  * Every dispatch is wrapped in `act` because tests mount a `Draggable.Provider`
- * that subscribes to the drag session store: a raw dispatch that starts or ends a
+ * that subscribes to the drag session store. A raw dispatch that starts or ends a
  * drag would re-render React outside `act`.
  */
 import { act } from '@mui/internal-test-utils';
@@ -70,7 +70,7 @@ function pointerMove(
     clientX: x,
     clientY: y,
     // A move during an active drag reports the held primary button, as a real
-    // browser does; the engine treats a `buttons === 0` move as a release.
+    // browser does. The engine treats a `buttons === 0` move as a release.
     buttons: 1,
     bubbles: true,
     cancelable: true,
@@ -137,7 +137,7 @@ function makeTouch(x: number, y: number, identifier = 1): Touch {
       // used by jsdom.
     }
   }
-  // jsdom/WebKit fallback: a plain object that duck-types as Touch.
+  // In jsdom and WebKit, return a plain object that duck-types as Touch.
   return base as unknown as Touch;
 }
 
@@ -160,7 +160,7 @@ export function dispatchTouchEvent(type: string, x: number, y: number): void {
     }
   }
   if (!ev) {
-    // jsdom/WebKit fallback: synthesise a bare Event with touch arrays attached.
+    // In jsdom and WebKit, build a bare Event with the touch lists attached.
     const plain = new Event(type, { bubbles: true, cancelable: true });
     Object.defineProperties(plain, {
       touches: { value: init.touches },
@@ -172,9 +172,9 @@ export function dispatchTouchEvent(type: string, x: number, y: number): void {
   dispatch(getTouchDownTarget(), ev);
 }
 
-// Real browsers fire both `pointerup` and `touchend` on finger-lift. The engine
-// terminates gestures from the pointer stream alone (it has no `touchend`
-// listener), so the `touchend` here just mirrors real event ordering.
+// Browsers fire both `pointerup` and `touchend` when a finger lifts. The engine
+// ends gestures from pointer events only and has no `touchend` listener, so this
+// `touchend` only reproduces the real event order.
 export function touchUp(x: number, y: number, pointerId = 1): void {
   pointerUp('touch', x, y, pointerId);
   dispatchTouchEvent('touchend', x, y);

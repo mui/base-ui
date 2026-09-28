@@ -3,7 +3,7 @@ import type { Draggable } from '@base-ui/react/draggable';
 
 export const INITIAL_TASKS = ['Write the spec', 'Sketch the UI', 'Set up the repo', 'Wire the API'];
 
-/** Move the dragged task next to the item under the pointer; unchanged input returns `current`. */
+/** Move the dragged task next to the item under the pointer. Returns `current` if nothing moved. */
 export function moveTask(
   current: string[],
   eventDetails: Draggable.CollisionProvider.CollisionChangeEventDetails<string>,
@@ -23,7 +23,7 @@ export function moveTask(
   return remaining.every((task, position) => task === current[position]) ? current : remaining;
 }
 
-/** Swap a task with its neighbor for the keyboard alternative. */
+/** Swap a task with its neighbor. Used for keyboard reordering. */
 export function swapTask(current: string[], task: string, direction: 'up' | 'down'): string[] {
   const index = current.indexOf(task);
   const nextIndex = index + (direction === 'up' ? -1 : 1);

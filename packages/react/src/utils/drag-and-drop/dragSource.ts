@@ -10,7 +10,11 @@ const sourcePayloads = getSharedSlot(
   () => new WeakMap<DraggableRootRecord, ParticipantPayload>(),
 );
 
-/** Create the mutable data shared by every callback in one drag. */
+/**
+ * Creates the source record that every callback of one drag shares. `payload` reads
+ * through to the registration's latest parameters, and `dragData` lives only as long
+ * as this record.
+ */
 export function createDragSource(
   element: HTMLElement,
   kind: symbol,
@@ -35,7 +39,8 @@ export function createDragSource(
     updatePayload(nextPayload) {
       readPayload();
       if (data.update(nextPayload)) {
-        // Every drag's record for this registration shares `data`; notify the active one.
+        // Every drag record of this registration shares `data`, so notify the
+        // active drag's record, even when it isn't this one.
         const activeSource = dragSessionStore.state?.source;
         if (activeSource && sourcePayloads.get(activeSource) === data) {
           notifyDragSourceUpdated(activeSource);
@@ -61,7 +66,10 @@ export function createDragSource(
   return source;
 }
 
-/** Apply committed React props without discarding updates on unrelated renders. */
+/**
+ * Syncs a committed `payload` prop into the source's payload store. A render that
+ * passes the same `payload` keeps a value set through `updatePayload()`.
+ */
 export function syncActiveDragSourcePayload(
   element: HTMLElement | null,
   kind: symbol,

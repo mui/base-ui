@@ -32,13 +32,13 @@ describe('<Draggable.Handle />', () => {
       }
 
       const { rerender } = await renderDnd(<Card withFirst />);
-      // `warn()` dedupes per message (reset before each test), so re-mounts
-      // can't inflate the count.
+      // `warn()` logs each message once, and the log resets before each test, so
+      // re-mounts can't raise the count.
       expect(warnSpy).toHaveBeenCalledTimes(1);
       expect(warnSpy.mock.calls[0][0]).toMatch(/more than one mounted Draggable\.Handle/);
 
-      // Unmounting handle A restricts pickup to the surviving handle B, not
-      // back to the whole card.
+      // After handle A unmounts, pickup is restricted to handle B instead of the
+      // whole card.
       await rerender(<Card withFirst={false} />);
       const card = screen.getByTestId('card');
       card.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
@@ -81,9 +81,9 @@ describe('<Draggable.Handle />', () => {
     await lift(handleA);
     expect(dragSessionStore.getSnapshot()?.source.element).toBe(card);
 
-    // Swapping the handle while the root is the active source must not tear the
-    // registration down under the live gesture, so the old handle keeps its
-    // styles and the drag stays live.
+    // Swapping the handle while the root is the active source must not tear down
+    // the registration during the gesture. The old handle keeps its styles and
+    // the drag continues.
     await rerender(<Card handleId="handle-b" />);
     const handleB = screen.getByTestId('handle-b');
 
@@ -95,7 +95,7 @@ describe('<Draggable.Handle />', () => {
     cancel();
     await flushRaf();
 
-    // The deferred reconcile lands once the drag ends: the new handle carries the
+    // The deferred reconcile runs once the drag ends. The new handle gets the
     // static setup and is the only pickup point.
     expect(dragSessionStore.getSnapshot()).toBeNull();
     expect(handleB.style.userSelect).toBe('none');

@@ -8,9 +8,9 @@ import { createEventRootBinding } from './documentBinding';
 setupDragEngineTests();
 
 /**
- * Mount an iframe and return its document/window. The pointer sensor binds its
- * listeners per owner document, so registering a draggable inside the iframe
- * must install (and later remove) listeners there, not on the top window.
+ * Mount an iframe and return its document and window. The pointer sensor binds
+ * its listeners per owner document, so registering a draggable inside the iframe
+ * must add and later remove listeners there, not on the top window.
  */
 function createIframeRealm(): { doc: Document; win: Window } {
   const iframe = document.createElement('iframe');
@@ -18,9 +18,9 @@ function createIframeRealm(): { doc: Document; win: Window } {
   registerCleanup(() => iframe.remove());
   const doc = iframe.contentDocument!;
   const win = iframe.contentWindow!;
-  // jsdom documents don't implement elementFromPoint; the sensor calls it on the
-  // owner document during pickup (mirrors the stub the polyfill installs on the
-  // top document).
+  // jsdom documents don't implement `elementFromPoint`, and the sensor calls it on
+  // the owner document during pickup. This mirrors the polyfill's stub on the top
+  // document.
   doc.elementFromPoint = () => null;
   return { doc, win };
 }
@@ -114,8 +114,8 @@ describe('documentBinding', () => {
     const target = document.createElement('div');
     inner.appendChild(target);
 
-    // Labels rather than the roots themselves: two ShadowRoots are structurally
-    // equal to `toEqual`, so a wrong root would still pass.
+    // Record labels, not the roots. `toEqual` treats any two ShadowRoots as equal,
+    // so a wrong root would still pass.
     const deliveries: Array<['outer' | 'inner', number]> = [];
     const binding = createEventRootBinding({
       slot: 'documentBinding.test.nested',
@@ -134,9 +134,9 @@ describe('documentBinding', () => {
 
     target.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, composed: true }));
 
-    // The outer root's capture listener sees the event first, but the path
-    // crosses the inner bound root, so it yields: the inner root delivers at
-    // capture, and the outer's bubble fallback skips the delivered event.
+    // The outer root's capture listener sees the event first but yields, since
+    // the path crosses the inner bound root. The inner root delivers at capture,
+    // and the outer's bubble fallback skips the delivered event.
     expect(deliveries).toEqual([['inner', Event.CAPTURING_PHASE]]);
 
     // A press on the inner host itself never enters the inner root, so the
@@ -238,8 +238,8 @@ describe('documentBinding', () => {
       .map(([, listener]) => listener as EventListener);
     expect(pointerListeners).toHaveLength(2);
 
-    // The window wrappers see every press on the page; with nothing bound in a
-    // shadow tree there is no path to check, so none is materialized.
+    // The window wrappers see every press on the page. With no shadow root
+    // bound, there is no path to check, so none is built.
     const event = new Event('pointerdown');
     const composedPath = vi.spyOn(event, 'composedPath');
     pointerListeners.forEach((listener) => listener(event));

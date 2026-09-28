@@ -19,8 +19,8 @@ import type {
  * Documentation: [Base UI useManager](https://base-ui.com/react/utils/draggable#usemanager)
  */
 export function useManager(): UseDraggableManagerReturnValue {
-  // The public signatures require payloads according to the caller's kind.
-  // Internal registrations accept optional payloads for component forwarding.
+  // The public signatures require a payload when the caller's kind declares one.
+  // Internal registrations keep it optional so components can forward theirs.
   return useInnerDragEngine() as DraggableManager;
 }
 
@@ -57,7 +57,7 @@ export namespace useManager {
 export interface UseDraggableManagerReturnValue extends DraggableManager {}
 
 /**
- * The options of `registerSource`: the options of `Draggable.Root`, plus `handle` and `preview`.
+ * The options of `registerSource`, which are those of `Draggable.Root` plus `handle` and `preview`.
  * `payload` is required when `TPayload` is declared.
  */
 export type DraggableManagerRegisterSourceParameters<
@@ -67,7 +67,7 @@ export type DraggableManagerRegisterSourceParameters<
   ([TPayload] extends [undefined] ? { payload?: undefined } : { payload: TPayload });
 
 /**
- * The options of `registerTarget`: the options of `Draggable.Target`.
+ * The options of `registerTarget`, which are those of `Draggable.Target`.
  * `payload` is required when `TTargetPayload` is declared.
  */
 export type DraggableManagerRegisterTargetParameters<
@@ -81,13 +81,13 @@ export type DraggableManagerRegisterTargetParameters<
 > &
   ([TTargetPayload] extends [undefined] ? { payload?: undefined } : { payload: TTargetPayload });
 
-/** The options of `registerViewport`: the options of `Draggable.Viewport`. */
+/** The options of `registerViewport`, which are those of `Draggable.Viewport`. */
 export type DraggableManagerRegisterViewportParameters<
   TSourcePayload = unknown,
   TDragData = unknown,
 > = RegisterViewportParameters<TSourcePayload, TDragData>;
 
-/** The options of `registerMonitor`: the options of `Draggable.useMonitor`. */
+/** The options of `registerMonitor`, which are those of `Draggable.useMonitor`. */
 export type DraggableManagerRegisterMonitorParameters<
   TSourcePayload = unknown,
   TDragData = unknown,

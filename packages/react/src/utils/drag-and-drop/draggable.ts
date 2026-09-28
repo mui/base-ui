@@ -31,7 +31,7 @@ const gestureSetups = getSharedSlot<WeakMap<Element, GestureSetupEntry>>(
   () => new WeakMap<Element, GestureSetupEntry>(),
 );
 
-/** The inline styles that make an element pick up pointer gestures instead of the browser. */
+/** The inline styles that stop the browser from handling pointer gestures on an element. */
 const GESTURE_STYLES = [
   { property: 'touchAction', cssName: 'touch-action', value: 'manipulation' },
   { property: 'userSelect', cssName: 'user-select', value: 'none' },
@@ -51,10 +51,9 @@ function applyGestureSetup(gestureElement: HTMLElement | null): DragCleanupFn {
   let entry = gestureSetups.get(gestureElement);
   if (!entry) {
     const gestureStyle = gestureElement.style as CSSStyleDeclaration & Record<string, string>;
-    // Read every previous value before writing any: `userSelect` and
-    // `webkitUserSelect` alias each other in some engines. Some properties are
-    // unavailable in jsdom or other engines; restore those to an empty string
-    // instead of assigning undefined.
+    // Read every previous value before writing any, because `userSelect` and
+    // `webkitUserSelect` alias each other in some engines. Properties missing in
+    // jsdom or other engines restore to an empty string instead of `undefined`.
     const saved = GESTURE_STYLES.map((declaration) => ({
       ...declaration,
       previous: gestureStyle[declaration.property] ?? '',
@@ -67,7 +66,7 @@ function applyGestureSetup(gestureElement: HTMLElement | null): DragCleanupFn {
       count: 0,
       restore() {
         for (const { property, cssName, value, previous, priority } of saved) {
-          // Left alone when a consumer wrote something else since.
+          // Skip properties a consumer has changed since.
           if (gestureStyle[property] !== value) {
             continue;
           }
@@ -100,8 +99,8 @@ export function applyDraggableStaticSetup(
 ): DragCleanupFn {
   const { element } = parameters;
   /**
-   * The node the gesture styles land on: the handle when there is one, else the
-   * element, and none while disabled.
+   * The node that gets the gesture styles. It is the handle when there is one,
+   * otherwise the element, and none while disabled.
    */
   const resolveGestureElement = (latest: Pick<DraggableConfig, 'handle' | 'disabled'>) =>
     latest.disabled
@@ -141,7 +140,7 @@ export function bindDraggableSensors(element: Element): DragCleanupFn {
 
 export type DraggableConfig<TPayload = undefined, TDragData = unknown> = {
   element: HTMLElement;
-  /** CSP nonce for the drag cursor stylesheet, wired by the React layer. @internal */
+  /** CSP nonce for the drag cursor stylesheet, set by the React layer. @internal */
   styleNonce?: string | undefined;
   /** Whether the React layer has disabled runtime style elements. @internal */
   disableStyleElements?: boolean | undefined;
@@ -151,9 +150,8 @@ export type DraggableConfig<TPayload = undefined, TDragData = unknown> = {
    * `canDrop`, and in the preview. Its type comes from `kind`, and it is required when
    * the kind declares one.
    */
-  // Optional here so the requirement lives at the public boundaries:
-  // `Draggable.Root.Props` re-imposes it with a conditional type, and
-  // `registerSource` with an overload.
+  // Optional here because the public types enforce it. `Draggable.Root.Props`
+  // uses a conditional type, and `registerSource` an overload.
   payload?: DraggablePayload<TPayload> | undefined;
   /**
    * A stable key that lets the settling preview find this item again after it remounts,
@@ -220,8 +218,8 @@ export type DraggableConfig<TPayload = undefined, TDragData = unknown> = {
    */
   preview?: DraggablePreviewParameters<NoInfer<TPayload>, NoInfer<TDragData>> | undefined;
   /**
-   * The preview part declared for this draggable, if any. Wired by the React layer;
-   * the engine reads it once at drag start, before React can run, to decide between
+   * The preview part declared for this draggable, if any. Set by the React layer.
+   * The engine reads it once at drag start, before React can run, to decide between
    * cloning the source and building a host for custom content.
    * @internal
    */

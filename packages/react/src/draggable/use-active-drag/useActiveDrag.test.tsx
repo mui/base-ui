@@ -43,8 +43,8 @@ describe('Draggable.useActiveDrag', () => {
   });
 
   it('observes the drag from outside the draggable, and resets on cancel', async () => {
-    // Any component can watch the active drag; nothing ties the hook to the
-    // element that started it.
+    // Any component can watch the active drag. The hook isn't tied to the element
+    // that started it.
     function SiblingObserver() {
       const source = Draggable.useActiveDrag(probeKind);
       return <div data-testid="watcher" data-active={source ? 'yes' : 'no'} />;
@@ -93,8 +93,8 @@ describe('Draggable.useActiveDrag', () => {
     await flushRaf();
 
     // The store published at drag start and end, but this observer's selected
-    // value stayed `null` throughout — so, with many such observers in a list,
-    // an unrelated drag costs none of them a render.
+    // value stayed `null`. With many such observers in a list, an unrelated drag
+    // re-renders none of them.
     expect(commits).toBe(commitsBeforeDrag);
   });
 

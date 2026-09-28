@@ -5,14 +5,13 @@ import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import type { DragCleanupFn } from './types';
 
 /**
- * A stable ref callback that registers the attached element and tears the
- * registration down when the node detaches or is swapped. `register` is read
- * live, so it may close over the latest props without recreating the callback.
+ * Returns a stable ref callback that registers the attached element, and
+ * unregisters it when the node detaches or is replaced. `register` is read at
+ * call time, so it can close over the latest props without recreating the callback.
  *
- * Returns `void` rather than a `React.RefCallback`, which may return a cleanup:
- * teardown is owned internally (`cleanupRef`), so calling this directly to
- * re-register discards nothing. The narrower type stays assignable wherever a
- * ref callback is expected.
+ * The callback returns `void`, not a `React.RefCallback` cleanup. It keeps its
+ * own cleanup in `cleanupRef`, so calling it directly to re-register loses
+ * nothing. The narrower type is still assignable wherever a ref callback is expected.
  */
 export function useRegistrationRef<TElement extends Element>(
   register: (element: TElement) => DragCleanupFn,
@@ -27,8 +26,8 @@ export function useRegistrationRef<TElement extends Element>(
     }
     if (element) {
       // `useStableCallback` publishes the current closure during the commit,
-      // before refs attach. Unlike a ref written during render, an abandoned or
-      // suspended render can therefore never leak its registration parameters.
+      // before refs attach. An abandoned or suspended render therefore can't leak
+      // its registration parameters, as it could with a ref written during render.
       cleanupRef.current = registerStable(element);
     }
   }).current;

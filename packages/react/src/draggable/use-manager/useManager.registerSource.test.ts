@@ -125,8 +125,8 @@ describe('engine.registerSource', () => {
   });
 
   it('deregisters on cleanup: a later gesture starts no drag', async () => {
-    // Cleanup must unregister, not just restore styles — a style-only teardown
-    // would leave the element silently draggable.
+    // Cleanup must unregister, not only restore styles. A style-only teardown
+    // would leave the element draggable.
     const { engine } = await renderDnd();
     const el = createElement();
     const onMoveStart = vi.fn();
@@ -194,7 +194,7 @@ describe('engine.registerSource', () => {
     engine.registerSource(outer, { onMoveStart: onOuterStart });
     engine.registerSource(inner, { onMoveStart: onInnerStart });
 
-    // The gesture begins on the inner element: pickup resolves the innermost
+    // The gesture begins on the inner element. Pickup resolves the innermost
     // registered ancestor, so the inner draggable claims the drag.
     fireDrag.dragStart(inner);
     await flushRaf();
@@ -206,8 +206,8 @@ describe('engine.registerSource', () => {
 
   it('a disabled nested draggable falls through to its draggable ancestor', async () => {
     const { engine } = await renderDnd();
-    // A disabled card inside a draggable list item: pressing on the card must
-    // start the outer drag, not make the region drag-inert.
+    // A disabled card inside a draggable list item. Pressing the card must start
+    // the outer drag instead of doing nothing.
     const outer = createElement();
     const inner = document.createElement('div');
     outer.appendChild(inner);
@@ -271,7 +271,7 @@ describe('engine.registerSource', () => {
     expect(onMoveStart.mock.calls[0][0].source.payload).toEqual({ key: 'value' });
   });
 
-  // A falsy static value survives instead of being replaced by a stand-in.
+  // A falsy static value is passed through as-is, not replaced with a default.
   it.each([
     ['a number', 0],
     ['an empty string', ''],
@@ -307,7 +307,7 @@ describe('engine.registerSource', () => {
     const onMoveStart = vi.fn();
     engine.registerSource(el, { onMoveStart });
 
-    // Fires within the dragStart dispatch, no frame wait.
+    // Fires during the dragStart dispatch, without waiting for a frame.
     fireDrag.dragStart(el);
     expect(onMoveStart).toHaveBeenCalledTimes(1);
   });
@@ -354,9 +354,9 @@ describe('engine.registerSource', () => {
   });
 
   it('releasing a non-last merged-ref hold keeps the surviving hook active', async () => {
-    // Two `useDraggable` hooks whose refs land on one node (merged-ref
-    // composition), registered A then B. B unmounts (e.g. a conditional wrapper)
-    // while A stays. The next drag must read A's parameters, not B's stale ones.
+    // Two registrations on one node, as with merged refs, registered A then B.
+    // B unmounts, for example inside a conditional wrapper, while A stays. The
+    // next drag must read A's parameters, not B's stale ones.
     const { engine } = await renderDnd();
     const el = createElement();
     const onDragStartA = vi.fn();
@@ -374,8 +374,8 @@ describe('engine.registerSource', () => {
   });
 
   it('throws before registering anything when the getter returns no kind', async () => {
-    // The test engine defaults `kind`; reach the real manager for the plain-JS
-    // shape the types forbid.
+    // The test engine fills in `kind`, so use the real manager to pass the
+    // untyped shape the types forbid.
     let manager: DraggableManager | null = null;
     function Capture() {
       manager = useManager();
@@ -391,7 +391,7 @@ describe('engine.registerSource', () => {
       'Base UI: registerSource() was called without a `kind`',
     );
 
-    // Nothing to clean up: no registry entry, no gesture styles.
+    // Nothing was registered and no gesture styles were applied.
     expect(getRegistration(el)).toBeUndefined();
     expect(el.style.touchAction || '').toBe('');
     expect(el.style.userSelect || '').toBe('');

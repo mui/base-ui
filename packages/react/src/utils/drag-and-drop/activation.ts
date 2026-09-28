@@ -11,17 +11,17 @@ export const DEFAULT_ACTIVATION: Record<DraggablePointerType, DraggableRootActiv
   mouse: { type: 'distance', distance: MOVEMENT_TOLERANCE_PX },
   // Distance-based so a stylus tap doesn't briefly enter a drag session.
   pen: { type: 'distance', distance: MOVEMENT_TOLERANCE_PX },
-  // Press-hold for touch (with or without a drag handle): a distance-based
-  // activation would hijack scrolls that happen to start on a handle.
+  // Press-hold even with a drag handle, because a distance activation would
+  // hijack scrolls that start on the handle.
   touch: { type: 'press-hold', delay: 250 },
 };
 
 /**
- * The press activations for `pointerType`: every entry that addresses it, minus
- * `double-click` (handled by the `dblclick` and double-tap paths). The per-pointer
- * default applies only when no entry addresses the pointer type at all, so
- * `[{ mouse: double-click }, { touch: press-hold }]` leaves mouse with the
- * double-click alone. An empty array disables pickup.
+ * The press activations for `pointerType`. These are the entries that address
+ * it, minus `double-click`, which the `dblclick` and double-tap paths handle.
+ * The per-pointer default applies only when no entry addresses the pointer type,
+ * so `[{ mouse: double-click }, { touch: press-hold }]` leaves mouse with only
+ * the double-click. An empty `config` array disables pickup.
  */
 export function resolveActivation(
   config: DraggableRootActivationConfig | readonly DraggableRootActivationConfig[] | undefined,
@@ -48,8 +48,8 @@ export function resolveActivation(
 
 /**
  * Whether `pointerType` can pick up with a double-click (mouse) or a double-tap
- * (touch, pen). A single-value `double-click` applies to every pointer type; a
- * per-pointer map opts each type in on its own.
+ * (touch, pen). An entry with `type: 'double-click'` applies to every pointer
+ * type. A per-pointer map opts in each type separately.
  */
 export function hasDoubleClickActivation(
   config: DraggableRootActivationConfig | readonly DraggableRootActivationConfig[] | undefined,
@@ -118,9 +118,9 @@ export function evaluateActivation(
 }
 
 /**
- * Evaluate every pending activation at once. Any one activating activates the
- * gesture (OR semantics); the ones that canceled are pruned, since a hold that
- * exceeded its tolerance cannot recover by moving back.
+ * Evaluate every pending activation. The gesture activates if any one of them
+ * does. Canceled ones are pruned, since a hold that exceeded its tolerance can't
+ * recover by moving back.
  */
 export function evaluateActivations(
   activations: readonly DraggableRootActivation[],

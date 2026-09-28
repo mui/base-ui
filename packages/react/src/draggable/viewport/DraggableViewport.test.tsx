@@ -25,9 +25,9 @@ type PanFn = (eventDetails: DraggableViewportDragScrollEventDetails) => void;
 
 setupDragEngineTests();
 
-// jsdom implements none of the scroll metrics the loop reads, so every scroller
-// is stubbed into a 200x100 viewport over 1000x1000 of content, scrolled
-// mid-range on both axes so every direction has room to scroll.
+// jsdom implements none of the scroll metrics the loop reads. Each scroller is
+// stubbed as a 200x100 box over 1000x1000 of content, scrolled to the middle on
+// both axes so every direction has room.
 function stubScrollMetrics(node: HTMLElement, scrollByMock?: () => void): void {
   node.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
   Object.defineProperty(node, 'scrollHeight', { configurable: true, value: 1000 });
@@ -36,8 +36,8 @@ function stubScrollMetrics(node: HTMLElement, scrollByMock?: () => void): void {
   Object.defineProperty(node, 'clientWidth', { configurable: true, value: 200 });
   Object.defineProperty(node, 'scrollTop', { configurable: true, value: 400, writable: true });
   Object.defineProperty(node, 'scrollLeft', { configurable: true, value: 400, writable: true });
-  // jsdom doesn't implement scrollBy; always install a stub so the scroll loop
-  // doesn't explode when we're not asserting on scrolls.
+  // jsdom doesn't implement `scrollBy`. Always install a stub so the loop doesn't
+  // throw in tests that don't assert on scrolling.
   node.scrollBy = scrollByMock ?? (() => {});
   node.style.overflow = 'auto';
 }
@@ -58,16 +58,16 @@ function Scroller(props: RootProps & { scrollByMock?: () => void }) {
 describe('Draggable.Viewport', () => {
   const { renderDnd } = createDndRenderer();
 
-  // Start the drag OUTSIDE the scroller's 200x100 box, so the loop only sees
-  // the scroller once a `dragOver` delivers coordinates inside it — the loop
-  // consults a scroller's callbacks whenever the pointer is inside its rect.
+  // Start the drag outside the scroller's 200x100 box. The loop calls a
+  // scroller's callbacks whenever the pointer is inside its rect, so it only
+  // sees the scroller once a `dragOver` delivers coordinates inside it.
   async function liftOutside(source: HTMLElement): Promise<void> {
     await lift(source, { clientX: 300, clientY: 300 });
   }
 
-  // Deliver pointer coordinates and let them travel the pipeline: the sensor's
-  // frame, the lifecycle's rAF-coalesced `onMove`, and the woken loop frame.
-  // `fireDrag` resolves the engine's hit test onto `target`.
+  // Delivers pointer coordinates and flushes the three frames they pass through:
+  // the sensor's frame, the lifecycle's rAF-coalesced `onMove`, and the woken
+  // loop frame. `fireDrag` resolves the engine's hit test onto `target`.
   async function dragTo(target: HTMLElement, clientX: number, clientY: number): Promise<void> {
     fireDrag.dragOver(target, { clientX, clientY });
     await flushRaf();
@@ -219,8 +219,8 @@ describe('Draggable.Viewport', () => {
     });
 
     await liftOutside(source);
-    // The center is outside every edge zone: this input parks the loop, and the
-    // park attaches the idle observer.
+    // The center is outside every edge zone, so this input parks the loop and
+    // attaches the idle observer.
     await dragTo(scroller, 100, 50);
     const afterFirstPark = constructed;
 
@@ -245,8 +245,8 @@ describe('Draggable.Viewport', () => {
     registerCleanup(() => computedStyle.mockRestore());
 
     // Rows appended below the fold can give the container room to scroll, so
-    // the next frame re-reads its geometry — but nothing about which elements
-    // scroll, or which way, can have changed, so the cached styles stand.
+    // the next frame re-reads its geometry. They can't change which elements
+    // scroll or in which direction, so the cached styles stay.
     act(() => {
       scroller.appendChild(document.createElement('div'));
     });
@@ -338,9 +338,9 @@ describe('Draggable.Viewport', () => {
   });
 
   it('scrolls the container while the pointer parks in an edge zone', async () => {
-    // Positive control for every `not.toHaveBeenCalled()` in this suite: the
-    // shared fixture at these coordinates genuinely reaches `scrollBy`, so a
-    // non-call elsewhere is the gate under test, not a dead loop.
+    // Positive control for every `not.toHaveBeenCalled()` in this suite. The
+    // shared fixture at these coordinates reaches `scrollBy`, so a missing call
+    // elsewhere comes from the check under test, not a dead loop.
     const scrollBy = vi.fn();
     const { engine } = await renderDnd(<Scroller scrollByMock={scrollBy} />);
     const source = createElement();
@@ -353,13 +353,13 @@ describe('Draggable.Viewport', () => {
     await dragTo(scroller, 100, 95);
     expect(scrollBy).toHaveBeenCalled();
 
-    // Top edge zone: scrolling up needs the mid-range `scrollTop` stub — at the
-    // jsdom default of 0 there is nothing to scroll back toward.
+    // Top edge zone. Scrolling up relies on the mid-range `scrollTop` stub,
+    // because at the jsdom default of 0 there is no room above.
     scrollBy.mockClear();
     await dragTo(scroller, 100, 5);
     expect(scrollBy).toHaveBeenCalled();
 
-    // Left edge zone: same for `scrollLeft`.
+    // Left edge zone, which relies on the `scrollLeft` stub the same way.
     scrollBy.mockClear();
     await dragTo(scroller, 10, 50);
     expect(scrollBy).toHaveBeenCalled();
@@ -390,11 +390,10 @@ describe('Draggable.Viewport', () => {
     expect(scrollBy).toHaveBeenCalled();
   });
 
-  // The scroll DELTA is `depth * frameSpeed`, and `frameSpeed` derives
-  // from the elapsed time between rAF timestamps. The jsdom rAF stub
-  // (`test/setupVitest.ts`) passes `performance.now()`, so timestamps advance
-  // there too and the nonzero-delta assertions carry meaning in both
-  // environments.
+  // The scroll delta is `depth * frameSpeed`, and `frameSpeed` comes from the
+  // time between rAF timestamps. The jsdom rAF stub (`test/setupVitest.ts`)
+  // passes `performance.now()`, so timestamps advance there too and the
+  // nonzero-delta assertions hold in both environments.
   describe('direction cancellation', () => {
     it('direction selection: "horizontal" blocks vertical scrolling but allows horizontal', async () => {
       const scrollBy = vi.fn();
@@ -415,10 +414,10 @@ describe('Draggable.Viewport', () => {
 
       await liftOutside(source);
 
-      // Pointer in BOTH right edge zone (x>150) and bottom edge zone (y>75) so
-      // the loop wants to scroll on both axes. The direction selection filter must keep
-      // horizontal and drop vertical. Drag over the scroller itself so the
-      // synthetic engine resolves the pointer coordinates onto it.
+      // The pointer is in both the right edge zone (x > 150) and the bottom edge
+      // zone (y > 75), so both axes engage. The filter must keep horizontal and
+      // drop vertical. Dragging over the scroller itself makes the synthetic
+      // engine resolve the coordinates onto it.
       await dragTo(scroller, 175, 95);
       // Let the loop accumulate frames beyond the ramp-up window.
       await act(async () => {
@@ -429,9 +428,9 @@ describe('Draggable.Viewport', () => {
 
       const lefts = scrollBy.mock.calls.map(([arg]) => arg.left ?? 0);
       const tops = scrollBy.mock.calls.map(([arg]) => arg.top ?? 0);
-      // Horizontal scroll actually happened (proves the loop engaged and the
-      // direction selection filter didn't over-block), and vertical was dropped despite
-      // the pointer sitting in the bottom edge.
+      // Horizontal scrolling happened, so the loop engaged and the filter didn't
+      // block too much. Vertical was dropped even with the pointer in the bottom
+      // edge zone.
       expect(lefts.some((left) => left !== 0)).toBe(true);
       expect(tops.every((top) => top === 0)).toBe(true);
     });
@@ -456,16 +455,16 @@ describe('Draggable.Viewport', () => {
     engine.registerSource(source, {});
     const scroller = screen.getByTestId('scroller');
 
-    // Bottom edge zone: the vertical axis is engaged and scrolls.
+    // In the bottom edge zone, the vertical axis engages and scrolls.
     await liftOutside(source);
     await dragTo(scroller, 100, 95);
     expect(vertical).toHaveBeenCalled();
     expect(scrollBy).toHaveBeenCalled();
 
-    // Swap the callback mid-drag: the loop must read the new one on its next
-    // frame, and its different answer must take effect — the pointer sits in a
-    // vertical edge only, so a horizontal-only axis stops the scrolling the
-    // first callback allowed at the very same position.
+    // Swap the callback mid-drag. The loop must read the new one on its next
+    // frame. The pointer is only in a vertical edge zone, so allowing only the
+    // horizontal axis stops the scrolling the first callback allowed at the same
+    // position.
     await rerender(
       <Scroller
         onDragScroll={(eventDetails) => {
@@ -548,7 +547,7 @@ describe('Draggable.Viewport', () => {
       expect(scrollBy).toHaveBeenCalled();
       expect(shouldScroll).toHaveBeenCalled();
 
-      // Flip `disabled` mid-drag, while the loop is engaged: scrolling must stop.
+      // Setting `disabled` mid-drag, while the loop is engaged, stops scrolling.
       await rerender(
         <Scroller
           disabled
@@ -567,15 +566,15 @@ describe('Draggable.Viewport', () => {
       await flushRaf();
       await flushRaf();
       expect(scrollBy).not.toHaveBeenCalled();
-      // Disabled short-circuits before the consumer's `shouldScroll` is consulted,
-      // including for fresh input arriving while disabled.
+      // `disabled` is checked before the consumer's `shouldScroll` is called,
+      // including for new input that arrives while disabled.
       await dragTo(el, 100, 95);
       expect(shouldScroll).not.toHaveBeenCalled();
       expect(scrollBy).not.toHaveBeenCalled();
 
-      // Re-enable, still mid-drag: the registration was suspended, not torn
-      // down and re-created. No new pointer input is sent after the render;
-      // the parameter change itself must wake the parked loop.
+      // Re-enable, still mid-drag. The registration was suspended, not torn
+      // down and re-created. No pointer input follows the render, so the
+      // parameter change itself must wake the parked loop.
       await rerender(
         <Scroller
           onDragScroll={(eventDetails) => {
@@ -631,7 +630,7 @@ describe('Draggable.Viewport', () => {
       expect.stringContaining('registered on an element that does not scroll'),
     );
 
-    // No new pointer input: the post-commit refresh must invalidate the cached
+    // No new pointer input. The post-commit refresh must drop the cached
     // `overflow: hidden` result and wake the parked loop at the same coordinates.
     await rerender(<RestyledScroller open />);
     await flushRaf();
@@ -641,8 +640,8 @@ describe('Draggable.Viewport', () => {
     expect(scrollBy).toHaveBeenCalled();
   });
 
-  // Real computed styles only: jsdom does not cascade a descendant selector from
-  // an ancestor's class onto the viewport's `overflow`.
+  // Browser only, because jsdom doesn't apply a descendant selector from an
+  // ancestor's class to the viewport's `overflow`.
   it.skipIf(isJSDOM)(
     'stops an engaged viewport when an ancestor restyle hides its overflow',
     async () => {
@@ -651,8 +650,8 @@ describe('Draggable.Viewport', () => {
         '.scroll-locked [data-testid="scroller"] { overflow: hidden !important; }';
       document.head.appendChild(style);
       registerCleanup(() => style.remove());
-      // Once hidden, the viewport is a registered element that does not scroll,
-      // which the engine reports; that warning is the expected outcome here.
+      // Once hidden, the viewport no longer scrolls, and the engine warns about
+      // it. That warning is expected here.
       const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
       registerCleanup(() => warnSpy.mockRestore());
       const scrollBy = vi.fn();
@@ -669,8 +668,8 @@ describe('Draggable.Viewport', () => {
       await dragTo(scroller, 100, 95);
       expect(scrollBy).toHaveBeenCalled();
 
-      // The ancestor's class change is caught by the chain observer, which drops
-      // the cached overflow reading, so the next frame sees `hidden` and parks.
+      // The chain observer catches the ancestor's class change and drops the
+      // cached overflow, so the next frame sees `hidden` and parks.
       await act(async () => {
         screen.getByTestId('ancestor').className = 'scroll-locked';
       });
@@ -687,8 +686,8 @@ describe('Draggable.Viewport', () => {
   );
 
   it('re-reads overflow when a scrolling container becomes hidden during a drag', async () => {
-    // Once hidden, the registered root no longer scrolls, which is what the dev
-    // warning reports.
+    // Once hidden, the registered root no longer scrolls, and the dev warning
+    // reports it.
     const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
     const scrollBy = vi.fn();
     const { engine } = await renderDnd(<Scroller scrollByMock={scrollBy} />);
@@ -782,10 +781,10 @@ describe('Draggable.Viewport', () => {
   });
 
   it('registers exactly once under Strict Mode, and unmount releases the registration', async () => {
-    // Strict Mode double-invokes the registration effect (register → cleanup →
-    // register). Two failure modes: the re-register tears the live registration
-    // down (the scroller goes dead), or a duplicate hold leaks (the scroller
-    // survives unmount). The drag after unmount pins both.
+    // Strict Mode runs the registration effect twice (register, cleanup,
+    // register). The re-register could tear the live registration down, leaving
+    // the scroller dead, or leak a duplicate hold that survives unmount. The drag
+    // after unmount covers both.
     const shouldScroll = vi.fn<ShouldScrollFn>(() => true);
     const { engine, unmount } = await renderDnd(
       <React.StrictMode>
@@ -814,7 +813,7 @@ describe('Draggable.Viewport', () => {
     shouldScroll.mockClear();
 
     // The unmounted scroller's node is detached, so route the move through the
-    // still-attached source; the loop keys on coordinates, not the hover target.
+    // source. The loop uses coordinates, not the hover target.
     await liftOutside(source);
     await dragTo(source, 100, 95);
 
@@ -851,7 +850,7 @@ describe('Draggable.Viewport', () => {
         scrollByMock={scrollBy}
       />,
     );
-    // Same DOM node — no re-registration tore it down.
+    // Same DOM node, so no re-registration tore it down.
     expect(screen.getByTestId('scroller')).toBe(el);
 
     await liftOutside(source);
@@ -859,8 +858,8 @@ describe('Draggable.Viewport', () => {
 
     expect(first).not.toHaveBeenCalled();
     expect(second).toHaveBeenCalled();
-    // The frames genuinely reached this scroller at the delivered coordinates,
-    // so the non-calls above and below are the swap and the `false` answer.
+    // The frames reached this scroller at the delivered coordinates, so the
+    // missing calls above and below come from the swap and the `false` answer.
     expect(second.mock.calls[0][0].input.clientY).toBe(95);
     expect(scrollBy).not.toHaveBeenCalled();
   });
@@ -893,8 +892,8 @@ describe('Draggable.Viewport', () => {
       expect(shouldScroll).not.toHaveBeenCalled();
       expect(scrollBy).not.toHaveBeenCalled();
 
-      // Positive control: the same fixture accepting the drag's kind engages at
-      // the very same coordinates.
+      // Positive control. The same fixture, accepting the drag's kind, engages
+      // at the same coordinates.
       await rerender(
         <Scroller
           accept={testDragKind}
@@ -922,10 +921,10 @@ describe('Draggable.Viewport', () => {
     });
 
     it('forwards maxSpeed to the engine', async () => {
-      // The viewport rebuilds the engine parameters by hand, so a prop dropped from
-      // that object still typechecks and still stays off the DOM — the sibling
-      // test above would keep passing while the container silently reverted to
-      // the default speed. The callback form proves it arrived.
+      // The viewport builds the engine parameters by hand. A prop missing from
+      // that object still typechecks and stays off the DOM, so the test above
+      // would pass while the container fell back to the default speed. The
+      // callback form proves the prop arrived.
       const maxSpeed = vi.fn<MaxSpeedFn>(() => 300);
       const scrollBy = vi.fn();
       const { engine } = await renderDnd(<Scroller maxSpeed={maxSpeed} scrollByMock={scrollBy} />);
@@ -942,8 +941,8 @@ describe('Draggable.Viewport', () => {
   });
 
   describe('pan', () => {
-    // The delegating counterpart to `Scroller`: no scroll metrics and no
-    // scrollable overflow, so it engages only because it delegates.
+    // Like `Scroller`, but with no scroll metrics and no scrollable overflow. It
+    // engages only because it has an `onDragScroll` handler.
     function Viewport(props: RootProps) {
       const ref = React.useCallback((node: HTMLDivElement | null) => {
         if (node) {
@@ -1031,8 +1030,8 @@ describe('Draggable.Viewport', () => {
       await flushRaf();
       expect(pan).not.toHaveBeenCalled();
 
-      // Same DOM node throughout: `disabled` suspends the registration rather
-      // than tearing it down and rebuilding it.
+      // Same DOM node throughout. `disabled` suspends the registration instead
+      // of tearing it down and rebuilding it.
       await rerender(
         <Viewport
           onDragScroll={(eventDetails) => {

@@ -40,9 +40,9 @@
 }
 
 /*
- * The clipping viewport: the `Draggable.Viewport` element. It has no scroll
- * offsets of its own — `overflow: hidden` only stops the content layer painting
- * outside it.
+ * The clipping viewport, which is the `Draggable.Viewport` element. It can't
+ * scroll. `overflow: hidden` only stops the content layer from painting outside
+ * it.
  */
 .viewport {
   position: relative;
@@ -57,8 +57,8 @@
 }
 
 /*
- * The camera. `applyScroll` writes this element's `transform`; the grid above
- * stays put, so the pan is visible as content moving against a fixed backdrop.
+ * The camera. `applyScroll` writes this element's `transform`. The grid above
+ * stays put, so the pan shows as content moving over a fixed backdrop.
  */
 .content {
   position: absolute;

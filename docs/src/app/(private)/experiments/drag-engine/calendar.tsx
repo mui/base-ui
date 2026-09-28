@@ -89,8 +89,8 @@ function CalendarExperimentInner() {
         .filter((event): event is CalendarEvent => event != null),
     [state],
   );
-  // Captured once so render code can compare without calling `Date.now()`
-  // (flagged impure during render). Refreshed on Today and Reset.
+  // Captured once so render code can compare dates without calling `Date.now()`,
+  // which lint flags as impure during render. Refreshed on Today and Reset.
   const [todayMs, setTodayMs] = React.useState<number>(() => Date.now());
 
   // Anchor controls which month or week we're viewing. `today` resets it.
@@ -108,10 +108,10 @@ function CalendarExperimentInner() {
     return preview;
   });
 
-  // Clear preview when a calendar drag ends so a cancelled drag doesn't leave a
-  // ghost behind. This container isn't itself a draggable, so read the active
-  // source from the provider-free `Draggable.useActiveDrag` (works outside a
-  // `Draggable.Provider`, as this component is) and check it carries a calendar kind.
+  // Clear the preview when a calendar drag ends so a canceled drag doesn't leave a
+  // ghost behind. This container isn't a draggable and sits outside a
+  // `Draggable.Provider`, so read the active source with `Draggable.useActiveDrag`,
+  // which works there, and check that it has a calendar kind.
   const dragSource = Draggable.useActiveDrag();
   const isCalendarDragging =
     dragSource != null && CAL_DRAG_KINDS.some((kind) => kind.matches(dragSource));

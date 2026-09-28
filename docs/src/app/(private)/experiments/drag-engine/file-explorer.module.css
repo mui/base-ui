@@ -180,8 +180,8 @@
     }
   }
 
-  /* The tile that would receive the drop. `data-rejected` never coexists with
-   * it, so the two rules cannot fight. */
+  /* The tile that would receive the drop. `data-rejected` never appears with
+   * it, so the two rules can't conflict. */
   &[data-drag-over-innermost] {
     border-color: oklch(14.5% 0 0deg);
     background-color: oklch(97% 0 0deg);
@@ -192,8 +192,8 @@
     }
   }
 
-  /* A folder hovered by itself or by one of its ancestors: `canDrop` returned
-   * 'reject', and the dashed border reads as not allowed. */
+  /* A folder hovered by itself or by one of its ancestors. `canDrop` returned
+   * 'reject', and the dashed border shows the drop isn't allowed. */
   &[data-rejected] {
     border-style: dashed;
     border-color: oklch(70.8% 0 0deg);

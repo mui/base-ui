@@ -1,7 +1,7 @@
 /**
  * Builds the `eventDetails` object of the drag lifecycle handlers, from `onMoveStart`
- * to `onMoveEnd`: Base UI's generic event details, carrying the drag `location`, the
- * dragged `source` and a `target`.
+ * to `onMoveEnd`. It extends Base UI's generic event details with the drag `location`,
+ * the dragged `source` and a `target`.
  */
 
 import { createGenericEventDetails } from '../../internals/createBaseUIEventDetails';
@@ -13,13 +13,13 @@ import type { DraggableTargetRecord } from '../../draggable/target/DraggableTarg
 import type { DragEndReason, DragEventDetails, MoveEndEventDetails } from './types';
 
 /**
- * The details the source and the monitors receive, with `target` the innermost drop
- * target. Each drop target receives a copy whose `target` is its own record (see
- * `dispatchToDropTarget`).
+ * Creates the details the source and the monitors receive, where `target` is the
+ * innermost drop target. Each drop target receives a copy whose `target` is its own
+ * record (see `dispatchToDropTarget`).
  *
- * `event` is the native event behind the latest input. A drag with no native event
- * behind it, such as a programmatic `cancelDrag()`, gets Base UI's placeholder event,
- * so `eventDetails.event` is never `undefined`.
+ * `event` is the native event of the latest input. Without one, as with a
+ * programmatic `cancelDrag()`, the details get Base UI's placeholder event, so
+ * `eventDetails.event` is never `undefined`.
  */
 export function createDragEventDetails<TReason extends BaseUIEventReason>(
   reason: TReason,
@@ -36,8 +36,8 @@ export function createDragEventDetails<TReason extends BaseUIEventReason>(
 }
 
 /**
- * The details of `onMoveEnd`, whose `canceled` flag is derived from the reason: every
- * reason other than a drop or a release outside any target is a cancel. `target` is the
+ * Creates the details of `onMoveEnd`. `canceled` derives from the reason, and every
+ * reason other than `'drop'` and `'outside-release'` is a cancel. `target` is the
  * drop target that received the drop, or `null`.
  */
 export function createMoveEndEventDetails(

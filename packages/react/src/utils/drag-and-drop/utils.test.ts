@@ -22,7 +22,7 @@ describe('elementFromPointIgnoring', () => {
     const spy = vi.spyOn(document, 'elementFromPoint').mockReturnValue(underlying);
 
     expect(elementFromPointIgnoring(document, 10, 20, preview, NO_SHADOW_ROOTS)).toBe(underlying);
-    // No re-hit needed: the first result already wasn't the preview.
+    // The first hit isn't the preview, so there is no second hit-test.
     expect(spy).toHaveBeenCalledTimes(1);
   });
 
@@ -32,8 +32,8 @@ describe('elementFromPointIgnoring', () => {
     const inner = document.createElement('span');
     preview.appendChild(inner);
 
-    // Preview content can set `pointer-events: auto` and swallow the hit; the
-    // engine hides it synchronously (no repaint, so no flicker) and re-resolves.
+    // Preview content can set `pointer-events: auto` and catch the hit. The
+    // engine hides the preview synchronously and hit-tests again.
     const spy = vi.spyOn(document, 'elementFromPoint').mockImplementation(() => {
       return preview.style.display === 'none' ? underlying : inner;
     });
@@ -63,12 +63,12 @@ describe('elementFromPointIgnoring', () => {
     const shadow = host.attachShadow({ mode: 'open' });
     const inner = document.createElement('div');
     shadow.appendChild(inner);
-    // jsdom's ShadowRoot has no elementFromPoint; supply the browser behavior.
+    // jsdom's ShadowRoot has no elementFromPoint, so stub the browser behavior.
     (shadow as unknown as { elementFromPoint: () => Element }).elementFromPoint = () => inner;
     vi.spyOn(document, 'elementFromPoint').mockReturnValue(host);
 
-    // A document-level hit stops at the shadow host; a drop target inside the
-    // shadow tree would never be entered without the descent.
+    // A document-level hit stops at the shadow host. Without the descent, a drop
+    // target inside the shadow tree would never be entered.
     expect(elementFromPointIgnoring(document, 10, 20, null, NO_SHADOW_ROOTS)).toBe(inner);
   });
 
@@ -130,8 +130,8 @@ describe('deepElementFromPoint', () => {
     ).toBe(leaf);
   });
 
-  // Covers the jsdom quirk where ShadowRoot lacks elementFromPoint; in a real
-  // browser the method always exists, so the premise cannot be reproduced.
+  // jsdom's ShadowRoot lacks elementFromPoint. Browsers always have it, so this
+  // case can't be reproduced there.
   it.skipIf(!isJSDOM)('stops at a host whose shadow root cannot hit-test (jsdom)', () => {
     const host = makeEl();
     host.attachShadow({ mode: 'open' });
@@ -143,8 +143,8 @@ describe('deepElementFromPoint', () => {
   it('returns null in a document that cannot hit-test at all', () => {
     // jsdom defines `elementFromPoint` on neither Document nor ShadowRoot. This
     // runs from the activation commit, outside every containment boundary and
-    // after the pending listeners are gone, so throwing here would strand the
-    // sensor and refuse every later pickup — it has to degrade to "no target".
+    // after the pending listeners are removed. Throwing here would leave the
+    // sensor stuck and refuse every later pickup, so it returns no target.
     const doc = { elementFromPoint: undefined } as unknown as Document;
 
     expect(deepElementFromPoint(doc, 10, 20, NO_SHADOW_ROOTS)).toBeNull();
@@ -171,8 +171,8 @@ describe('getElementScale', () => {
     expect(getElementScale(makeEl())).toEqual({ x: 1, y: 1 });
   });
 
-  // A computed `transform` is always a matrix, which is why that is the only form parsed —
-  // and why jsdom, which echoes the declared string, can still exercise the real path.
+  // A computed `transform` is always a matrix, so that is the only form parsed. jsdom
+  // echoes the declared string, so a declared matrix still exercises the real path.
   it('reads an ancestor matrix', () => {
     expect(getElementScale(makeNested('transform: matrix(2, 0, 0, 3, 0, 0)'))).toEqual({
       x: 2,
@@ -180,8 +180,8 @@ describe('getElementScale', () => {
     });
   });
 
-  // A rotated element's rect is its bounding box: read as a rect-to-layout ratio, the
-  // rotation would look like a large scale.
+  // A rotated element's rect is its bounding box. Read as a rect-to-layout ratio, the
+  // rotation would look like a scale.
   it('reads a rotation as no scale', () => {
     expect(getElementScale(makeNested('transform: matrix(0, 1, -1, 0, 0, 0)'))).toEqual({
       x: 1,
@@ -248,8 +248,8 @@ describe('getElementScale', () => {
     expect(getElementScale(makeNested('zoom: 2'))).toEqual({ x: 2, y: 2 });
   });
 
-  // Only a real browser resolves the shorthand forms into the matrix the walk reads, and
-  // only there does the `scale` longhand (CSS Transforms 2) have a computed value at all.
+  // Only a browser resolves transform functions such as `scale(2)` into the matrix the
+  // walk reads. jsdom also has no computed value for the `scale` longhand.
   describe.skipIf(isJSDOM)('with styles a browser has resolved', () => {
     it('reads an ancestor scale()', () => {
       expect(getElementScale(makeNested('transform: scale(2)'))).toEqual({ x: 2, y: 2 });
@@ -261,16 +261,16 @@ describe('getElementScale', () => {
       expect(scale.y).toBeCloseTo(1, 5);
     });
 
-    // Loosely, because the browser serializes the composed matrix to a few decimals and
-    // the norm of a 45° row carries that rounding through.
+    // Compared loosely, because the browser rounds the composed matrix to a few decimals
+    // and the norm of a 45° row keeps that rounding.
     it('reads the scale under a rotate()', () => {
       const scale = getElementScale(makeNested('transform: rotate(45deg) scale(2)'));
       expect(scale.x).toBeCloseTo(2, 4);
       expect(scale.y).toBeCloseTo(2, 4);
     });
 
-    // `scale`/`rotate`/`translate` do not fold into the computed `transform`, so the
-    // longhand has to be read on its own — the hover-lift pattern uses it.
+    // `scale`, `rotate`, and `translate` don't fold into the computed `transform`, so
+    // the longhand is read on its own. Hover-lift effects use it.
     it('reads the scale longhand', () => {
       expect(getElementScale(makeNested('scale: 1.5 2'))).toEqual({ x: 1.5, y: 2 });
     });
@@ -292,8 +292,8 @@ describe('getElementScale', () => {
       expect(getComputedStyle(child).rotate).toBe(expected);
     });
 
-    // A rotation cannot change a scale by itself, but it reorients which axis an
-    // ancestor's scale lands on — dropped from the matrix, these come out swapped
+    // A rotation doesn't change a scale by itself, but it changes which axis an
+    // ancestor's scale lands on. Left out of the matrix, these come out swapped
     // as 2 × 1.
     it('keeps the axes straight for a rotate longhand under a non-uniform scale', () => {
       const child = makeNested('transform: matrix(2, 0, 0, 1, 0, 0)');
@@ -314,8 +314,8 @@ describe('getElementScale', () => {
       expect(scale.y).toBeCloseTo(Math.hypot(2 * Math.sin(radians), Math.cos(radians)), 4);
     });
 
-    // An off-plane axis squashes what it paints — the same flattening the `matrix3d`
-    // branch applies.
+    // A rotation out of the screen plane squashes what the element paints. The
+    // `matrix3d` branch flattens it the same way.
     it('reads an x-axis rotate longhand as its on-screen squash', () => {
       const scale = getElementScale(makeNested('rotate: x 60deg'));
       expect(scale.x).toBeCloseTo(1, 5);
@@ -330,9 +330,9 @@ describe('getElementScale', () => {
       expect(scale.y).toBeCloseTo(1, 5);
     });
 
-    // Multiplying zooms down the chain is only right because a computed `zoom` is the
-    // element's *own* value, not the effective one — which jsdom, echoing whatever was
-    // declared, cannot tell apart. An engine reporting the effective zoom would square
+    // Multiplying zooms down the chain is correct only because a computed `zoom` is the
+    // element's own value, not the effective one. jsdom echoes the declared value, so it
+    // can't tell the two apart. An engine reporting the effective zoom would square
     // this to 36.
     it('multiplies nested zooms', () => {
       const outer = makeNested('zoom: 2');

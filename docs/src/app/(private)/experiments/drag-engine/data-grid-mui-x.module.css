@@ -37,8 +37,8 @@
   user-select: none;
 }
 
-/* Single insertion-point indicators (commit-on-drop), positioned from computed
-   gaps so they never duplicate at a shared border. */
+/* Insertion lines for commit-on-drop. They're placed from computed gaps, so
+   they never double up at a shared border. */
 .columnIndicator {
   position: absolute;
   top: 0;
@@ -61,8 +61,8 @@
 
 /* Header --------------------------------------------------------------- */
 
-/* Sticky inside the scroller: pinned vertically, scrolling horizontally with
-   the cells. Opaque so rows pass underneath it. */
+/* Sticky inside the scroller, so it pins vertically and scrolls horizontally
+   with the cells. Opaque so rows pass under it. */
 .header {
   position: sticky;
   top: 0;
@@ -78,7 +78,7 @@
   flex: 0 0 auto;
 }
 
-/* Stands in for the columns outside the window (header and rows alike). */
+/* Stands in for the columns outside the window, in the header and in rows. */
 .columnSpacer {
   flex: 0 0 auto;
 }
@@ -108,8 +108,8 @@
   cursor: grabbing;
 }
 
-/* The column preview is a clone, so it keeps this class. The engine fixes its
-   source dimensions inline; the data attribute supplies only the lifted look. */
+/* The column preview is a clone, so it keeps this class. The engine sets its
+   size inline, and the data attribute only adds the lifted look. */
 .headerCellInner[data-drag-preview] {
   border: 1px solid var(--dnd-ink);
   background: var(--dnd-surface);
@@ -120,7 +120,7 @@
 
 /* Body / rows ---------------------------------------------------------- */
 
-/* The single scroller for both axes: header + rows. */
+/* The one scroller for both axes, holding the header and the rows. */
 .viewport {
   overflow: auto;
 }
@@ -198,7 +198,7 @@
   white-space: nowrap;
 }
 
-/* The header menu remains separate from the pointer drag affordance. */
+/* The header menu stays separate from the draggable area. */
 .headerMenuButton {
   flex: none;
   display: flex;
@@ -226,8 +226,8 @@
 
 /* Column menu ---------------------------------------------------------- */
 
-/* Portaled, so it inherits nothing from the grid: the positioner carries
-   `theme.tokens` and these rules read the vars off it. */
+/* Portaled, so it inherits nothing from the grid. The positioner carries
+   `theme.tokens` and these rules read the variables from it. */
 .menuPopup {
   box-sizing: border-box;
   min-width: 11rem;

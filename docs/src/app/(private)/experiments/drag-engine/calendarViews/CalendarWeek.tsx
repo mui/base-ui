@@ -42,8 +42,8 @@ export function CalendarWeekView(props: { weekStartMs: number }) {
 
   const scrollRef = React.useRef<HTMLDivElement | null>(null);
 
-  // Scroll to ~7 AM on first mount of a week so the user lands on a useful
-  // hour rather than midnight.
+  // Scroll to about 7 AM when a week first mounts, so the user starts at a useful
+  // hour instead of midnight.
   useIsoLayoutEffect(() => {
     const el = scrollRef.current;
     if (el) {
@@ -81,7 +81,7 @@ export function CalendarWeekView(props: { weekStartMs: number }) {
 }
 
 // -----------------------------------------------------------------------------
-// Header (day labels)
+// Header with the day labels
 // -----------------------------------------------------------------------------
 
 function WeekHeader(props: { days: number[]; todayMs: number }) {
@@ -238,8 +238,8 @@ function WeekAllDayCell(props: { dayMs: number }) {
       }}
       className={styles.weekAllDayCell}
     >
-      {/* The drag source is the all-day cell itself; a clone of it would be a
-          full-width preview. The in-grid drop preview shows the range being created. */}
+      {/* The drag source is the all-day cell, so a clone would be a full-width
+          preview. The drop preview in the grid shows the range being created. */}
       <Draggable.Preview disabled />
     </Draggable.Root>
   );
@@ -263,7 +263,7 @@ function WeekAllDayBar(props: { event: CalendarEvent; segment: WeekEventSegment 
   return (
     <Draggable.Root
       kind={calEventMoveKind}
-      // An all-day bar only moves between days: the timed grid refuses all-day drags.
+      // An all-day bar only moves between days, because the timed grid refuses all-day drags.
       payload={movePayload}
       onMoveEnd={(eventDetails) => {
         if (eventDetails.target !== null) {
@@ -320,7 +320,7 @@ function WeekHourLabels() {
 }
 
 // -----------------------------------------------------------------------------
-// Day column (drop target + create draggable + renders timed events)
+// Day column: drop target, create draggable and timed events
 // -----------------------------------------------------------------------------
 
 interface TimedSegment {
@@ -367,7 +367,7 @@ function WeekDayColumn(props: { dayMs: number; events: CalendarEvent[] }) {
 
   const segments = React.useMemo(() => getDayTimedSegments(events, dayMs), [events, dayMs]);
 
-  // Compute timed drop preview for this column (if intersecting).
+  // The timed drop preview for this column, if the preview overlaps it.
   const previewBlock = React.useMemo(() => {
     if (!dropPreview || dropPreview.allDay) {
       return null;
@@ -394,11 +394,11 @@ function WeekDayColumn(props: { dayMs: number; events: CalendarEvent[] }) {
           accept={CAL_DRAG_KINDS}
           payload={columnPayload}
           canDrop={({ source }) => {
-            // Don't accept all-day-only drags here — they belong in the all-day row.
+            // All-day drags belong in the all-day row.
             return !source.payload.allDay;
           }}
-          // One day divides into `DAY_MS / snap` slots; a callback because the
-          // snap setting is runtime state.
+          // One day divides into `DAY_MS / snap` slots. It's a callback because the
+          // snap setting can change at runtime.
           snap={() => ({ y: DAY_MS / (snapRef.current * MINUTE_MS) })}
           onDraggableMove={(eventDetails) => {
             const next = resolveDropPreview(eventDetails.source, eventDetails.target);
@@ -495,9 +495,9 @@ function WeekTimedEvent(props: { dayMs: number; segment: TimedSegment }) {
       anchorStart: event.start,
       anchorEnd: event.end,
       allDay: event.allDay,
-      // The within-chip grab offset is the engine's (`anchor: 'source'`);
-      // only the segment correction travels with the drag, non-zero for a
-      // chip that renders the post-midnight part of an event.
+      // The engine handles the grab offset inside the chip through
+      // `anchor: 'source'`. Only the segment correction travels with the drag. It's
+      // non-zero for a chip that shows the part of an event after midnight.
       segmentOffsetMs: segment.visibleStart - event.start,
     }),
     [event.id, event.start, event.end, event.allDay, segment.visibleStart],

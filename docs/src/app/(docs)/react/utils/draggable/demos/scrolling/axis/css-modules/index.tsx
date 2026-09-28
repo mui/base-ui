@@ -14,8 +14,8 @@ interface Stop {
 
 const stopKind = Draggable.createKind<string>('stop');
 
-// Enough stops that the lane overflows its width and is scrollable on mount, so
-// dragging toward an edge has somewhere to scroll.
+// Enough stops for the lane to overflow on mount, so dragging toward an edge
+// has somewhere to scroll.
 const INITIAL_STOPS: Stop[] = [
   { id: 'wake', label: 'Wake up' },
   { id: 'coffee', label: 'Coffee' },
@@ -31,12 +31,11 @@ const INITIAL_STOPS: Stop[] = [
   { id: 'sleep', label: 'Sleep' },
 ];
 
-// Resolve the insertion slot closest to the pointer along the lane. Candidate
-// slots sit before the first stop, between consecutive stops (the midpoint of
-// each gap), and after the last one.
+// Find the insertion slot closest to the pointer along the lane. Slots sit
+// before the first stop, in the middle of each gap, and after the last stop.
 function resolveDropIndex(track: HTMLElement, clientX: number): number {
-  // The dragged stop's preview is a clone injected next to it, and it carries
-  // the same `data-stop`. Skip it: it follows the pointer and is not a real slot.
+  // The drag preview is a clone of the stop, so it has `data-stop` too. Skip it,
+  // since it follows the pointer and isn't a real slot.
   const stops = Array.from(
     track.querySelectorAll<HTMLElement>('[data-stop]:not([data-drag-preview])'),
   );

@@ -10,8 +10,9 @@ import type { DraggableContextValue } from '../../../draggable/DraggableContext'
 import { getActivePreviewHandle } from '../activePreview';
 import { resolveDragPreviewOffset } from '../synthetic/pickupPreview';
 
-// Stable identity so `useStore`'s selector fast path holds. The provider context
-// is passed separately and selects only the preview published from its subtree.
+// Module-level, so its identity is stable for `useStore`'s selector fast path. The
+// provider context is passed as an argument and matches only previews published
+// from its subtree.
 function selectPreviewState(
   state: DragPreviewState | null,
   context: DraggableContextValue,
@@ -22,24 +23,23 @@ function selectPreviewState(
 /**
  * Fills the active drag's preview host with the content a `Draggable.Preview` declared.
  *
- * The host is an engine-owned element, injected next to the drag source (or into
- * the configured container) and transformed each frame to follow the pointer — the
- * same treatment the default clone gets, so a custom preview inherits the app's CSS
- * the same way. React only portals content into it, which is what lets the preview
- * outlive a source the virtualizer unmounts mid-drag.
+ * The host is an engine-owned element, inserted next to the drag source (or into
+ * the configured container) and moved each frame to follow the pointer. The
+ * default clone gets the same treatment, so a custom preview picks up the app's CSS
+ * the same way. React only portals content into it, which lets the preview outlive
+ * a source that a virtualizer unmounts mid-drag.
  *
- * Selects previews published by its `Draggable.Provider`, so the content
- * renders in the same React tree while the drag itself stays global.
+ * Renders only previews published through its own `Draggable.Provider`, so the
+ * content stays in that React tree while the drag itself is global.
  */
 export function PreviewOverlayRenderer(): React.ReactNode {
   const previewContext = useDraggableContext();
   const preview = useStore(dragPreviewStore, selectPreviewState, previewContext);
 
   useIsoLayoutEffect(() => {
-    // Only an offset *callback* depends on the preview's rendered size, which the
-    // host only has now that the content is in it. Every other form was already
-    // resolved from the source rect when the engine placed the host, so re-running
-    // it here would be a no-op.
+    // Only an offset callback depends on the preview's rendered size, which the
+    // host has now that the content is in it. The engine already resolved every
+    // other form from the source rect when it placed the host.
     if (!preview || typeof preview.offset !== 'function') {
       return;
     }
@@ -55,8 +55,8 @@ export function PreviewOverlayRenderer(): React.ReactNode {
   if (!preview) {
     return null;
   }
-  // The portal keeps the content in this React tree — so it inherits the context
-  // around the `Draggable.Provider` — while the DOM node it lands in sits next
-  // to the drag source, where the app's CSS applies to it.
+  // The portal keeps the content in this React tree, so it reads the context
+  // around the `Draggable.Provider`. Its DOM node sits next to the drag source,
+  // where the app's CSS applies.
   return ReactDOM.createPortal(preview.node, preview.host);
 }

@@ -1,15 +1,14 @@
 /**
- * The engine's stateless registration primitives.
+ * The engine's stateless registration functions.
  *
- * Deliberately their own module, separate from `DragEngineImpl`: a drop target,
- * a monitor or an auto-scroller needs none of the engine's preview wiring or
- * draggable static setup. Importing them from
- * here keeps `Draggable.Target`, `Draggable.Viewport` and `useMonitor` off
- * that whole graph — the preview clone and pointer sensor — so an app that only
- * accepts drops pays for what it uses.
+ * They live apart from `DragEngineImpl` because drop targets, monitors and
+ * auto-scrollers need none of its preview wiring or draggable static setup.
+ * Importing them from here keeps the preview clone and the pointer sensor out of
+ * the bundle for `Draggable.Target`, `Draggable.Viewport` and `useMonitor`, so an
+ * app that only accepts drops doesn't pay for them.
  *
- * They carry no per-instance state, so they are plain functions rather than
- * methods; the engine simply re-exposes them.
+ * They carry no per-instance state, so they are plain functions. The engine
+ * re-exposes them as methods.
  */
 
 import { warn } from '@base-ui/utils/warn';
@@ -52,16 +51,15 @@ export function registerTarget<
   >,
 ): DragCleanupFn {
   if (process.env.NODE_ENV !== 'production') {
-    // `kind` is what this target *is*; `accept` is what it takes. Reading the
-    // first as the second is the natural misunderstanding, and it fails silently:
-    // an omitted `accept` takes every drag, so the target quietly claims drops
-    // from unrelated sources and hands their payload to handlers typed for its
-    // own. Only warn when `accept` is absent — declaring both is the normal way
-    // to give a target an identity.
-    // Swallowed, not contained: the getter is consumer-supplied and may throw,
-    // and a dev-only check must neither let that escape registration nor report
-    // it — the dispatch path already surfaces a throwing getter properly, and
-    // logging it here too would double up.
+    // `kind` is what this target is, and `accept` is what it takes. Mistaking one
+    // for the other fails silently. An omitted `accept` takes every drag, so the
+    // target claims drops from unrelated sources and passes their payloads to
+    // handlers typed for its own. Warn only when `accept` is missing, because
+    // declaring both is the normal way to give a target an identity.
+    //
+    // A throw from the consumer getter is swallowed here, not reported. This
+    // dev-only check must not let it escape registration, and the dispatch path
+    // already reports a throwing getter.
     let parameters: ReturnType<typeof getParameters> | null;
     try {
       parameters = getParameters();
@@ -69,8 +67,8 @@ export function registerTarget<
       parameters = null;
     }
     if (parameters !== null && parameters.accept === undefined) {
-      // Two messages, one gap: the types require `accept`, so reaching here means
-      // plain JS (or a cast), where the silence would otherwise be total.
+      // The types require `accept`, so this only runs for plain JS or a cast,
+      // where nothing else would flag the mistake.
       if (parameters.kind) {
         warn(
           'A Draggable.Target declares `kind` but no `accept`, so it takes every drag on the page. ' +
@@ -90,52 +88,52 @@ export function registerTarget<
     }
   }
 
-  // The getter is read on each dispatch for the freshest callbacks. Ref-counted
-  // so two hooks sharing one node (merged refs) don't clobber each other and
-  // the first unmount doesn't kill the second's registration.
+  // The engine reads the getter on each dispatch, so callbacks stay current.
+  // Registrations stack per element, so two hooks sharing one node through merged
+  // refs don't overwrite each other, and the first unmount leaves the second registered.
   addDropTargetRegistration(element, getParameters);
 
-  // A virtualizer can swap the hovered target's node mid-drag: the new node
-  // registers here while the lifecycle's stack still points at the old, detached
-  // one, so re-resolve to let this fresh target re-enter the stack.
+  // A virtualizer can replace the hovered target's node mid-drag. The new node
+  // registers here while the lifecycle's stack still holds the old, detached one,
+  // so re-resolve the stack to let the new node enter it.
   //
-  // Not gated on first registration: an element re-registering from inside its own
-  // `onDraggableLeave` keeps its existing entry, yet still needs the refresh to rejoin
-  // the stack before the next pointer update. A no-op without an active drag.
+  // This runs on every registration, not only the first. An element that
+  // re-registers from its own `onDraggableLeave` keeps its existing entry, but
+  // still needs the refresh to rejoin the stack before the next pointer update.
+  // Does nothing without an active drag.
   scheduleDropTargetParameterRefresh(undefined, true);
 
   return onceCleanup(() => {
-    // A hovered element must re-resolve *synchronously* so reactive subscribers,
-    // such as `Draggable.Target`'s `dragOver` state, observe it leaving the stack. The
-    // registry entry is deleted only after the refresh, so the lifecycle can still
-    // dispatch this target's leave events as it drops out.
+    // A hovered element re-resolves the stack synchronously, so reactive
+    // subscribers such as `Draggable.Target`'s `dragOver` state see it leave. The
+    // registry entry is deleted only after the refresh, so the lifecycle can
+    // still dispatch this target's leave events.
     //
-    // A target *not* in the stack owes no leave, and removing it cannot change the
-    // resolved stack, so its refresh coalesces into the microtask instead.
+    // A target outside the stack is owed no leave, and removing it can't change
+    // the resolved stack, so its refresh joins the queued microtask instead.
     removeDropTargetRegistration(element, getParameters, () => {
       if (!isActive()) {
         return;
       }
       const snapshot = dragSessionStore.getSnapshot();
-      // A `null` snapshot with an active drag is the `onGenerateDragPreview`
-      // window: the session hasn't published yet, so membership can't be read.
-      // Take the synchronous path with the registration held readable; the
+      // A `null` snapshot during an active drag means `onGenerateDragPreview` is
+      // running and the session isn't published yet, so membership can't be read.
+      // Take the synchronous path and keep the registration readable. The
       // lifecycle queues the refresh until `onMoveStart` has gone out, so the
       // initial stack is still published and entered as resolved, and this
-      // target leaves it (with its `onDraggableLeave`) right after.
+      // target leaves it right after with its `onDraggableLeave`.
       //
-      // Membership comes from `isHoveredDropTarget` — the lifecycle's own hover
-      // bookkeeping, not the published snapshot: a target that entered and
-      // unregistered within the same change round is already hovered but not yet
-      // published, and the coalesced path would run after its registration is
-      // gone, losing the `onDraggableLeave` it is owed.
+      // Membership comes from `isHoveredDropTarget`, the lifecycle's own hover
+      // bookkeeping, not from the published snapshot. A target that entered and
+      // unregistered in the same change round is hovered but not yet published.
+      // The coalesced path would run after its registration is gone and lose the
+      // `onDraggableLeave` it is owed.
       if (snapshot === null || isHoveredDropTarget(element)) {
-        // Held readable across the delete below. The synchronous refresh usually
-        // dispatches the leave right here, releasing it again immediately — but
-        // when this unregister comes from *inside* a consumer fan-out the refresh
-        // can only queue, and the entry would be gone by the time it drains.
-        // A no-op when a surviving hold keeps the element registered: the
-        // survivor is the one read then.
+        // Keeps the registration readable past the delete below. The synchronous
+        // refresh usually dispatches the leave right away and releases it. Inside
+        // a consumer fan-out, though, the refresh can only queue, and the entry
+        // would be gone by the time it drains. Does nothing when another hold
+        // keeps the element registered, since the lifecycle reads that one.
         retainRetiringDropTarget(element, getParameters);
         refreshDropTargets();
       } else {
@@ -145,7 +143,7 @@ export function registerTarget<
   });
 }
 
-// Keyed on the `accept` value it infers, like every other `accept`-taking API.
+// The type argument is the `accept` value, like in every other API that takes `accept`.
 export function registerViewport<TAccept extends DraggableAccept<unknown> = DraggableKind<unknown>>(
   element: HTMLElement,
   getParameters: () => DragParametersWithInferredAccept<
@@ -156,7 +154,7 @@ export function registerViewport<TAccept extends DraggableAccept<unknown> = Drag
   return addScrollerRegistration(element, getParameters);
 }
 
-// Keyed on the `accept` value it infers, like every other `accept`-taking API.
+// The type argument is the `accept` value, like in every other API that takes `accept`.
 export function registerMonitor<TAccept extends DraggableAccept<unknown> = DraggableKind<unknown>>(
   getMonitor: () => DragParametersWithInferredAccept<
     RegisterMonitorParameters<AcceptedDragPayload<TAccept>, AcceptedDragData<TAccept>>,

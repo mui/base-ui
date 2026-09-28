@@ -73,9 +73,8 @@ describe('engine.registerMonitor', () => {
     expect(onMoveEnd).toHaveBeenCalledTimes(1);
     const [details] = onMoveEnd.mock.calls[0];
     expect(details.location.current.targets).toEqual([]);
-    // Ending without a drop is an Escape cancel (see `fireDrag.dragEnd`):
-    // handlers read `canceled` and the null target instead of inspecting
-    // `targets`.
+    // `fireDrag.dragEnd` ends the drag with an Escape cancel. Handlers read
+    // `canceled` and the null target instead of inspecting `targets`.
     expect(details.reason).toBe('escape-key');
     expect(details.canceled).toBe(true);
     expect(details.target).toBeNull();
@@ -196,7 +195,7 @@ describe('engine.registerMonitor', () => {
     engine.registerSource(el, {});
     engine.registerTarget(target, {});
 
-    // Start the drag BEFORE the monitor exists — its onMoveStart has already fired.
+    // Start the drag before the monitor exists, so onMoveStart fires without it.
     fireDrag.dragStart(el);
     await flushRaf();
 
@@ -207,21 +206,21 @@ describe('engine.registerMonitor', () => {
       onMoveEnd: splitEnd(onDrop, onMoveEnd),
     });
 
-    // Subsequent events must reach the late monitor.
+    // Later events must reach the late monitor.
     fireDrag.dragEnter(target);
     await flushRaf();
     fireDrag.dragOver(target);
     await flushRaf();
     fireDrag.drop(target);
 
-    // The monitor joined after onMoveStart, so it never sees it...
+    // The monitor joined after onMoveStart, so it never sees it.
     expect(onMoveStart).not.toHaveBeenCalled();
-    // ...but it observes the remainder of the drag.
+    // It still observes the rest of the drag.
     expect(onTargetChange).toHaveBeenCalled();
     expect(onMove).toHaveBeenCalled();
     expect(onMoveEnd).toHaveBeenCalledTimes(1);
-    // `onDrop` firing is the committed-drop signal, so the end details need no
-    // `target` / `reason` reading to say the same thing.
+    // `onDrop` firing confirms a committed drop, so there is no need to also
+    // check `target` or `reason`.
     expect(onDrop).toHaveBeenCalledTimes(1);
   });
 
@@ -237,18 +236,18 @@ describe('engine.registerMonitor', () => {
     fireDrag.dragStart(cardEl);
     await flushRaf();
 
-    // Registered mid-drag with an `accept` that excludes the live source kind:
-    // it must NOT join the in-progress 'card' drag.
+    // Registered mid-drag with an `accept` that excludes the source kind, so it
+    // must not join the 'card' drag in progress.
     engine.registerMonitor({ accept: columnKind, onMoveEnd });
 
     fireDrag.drop(target);
     expect(onMoveEnd).not.toHaveBeenCalled();
   });
 
-  // The parameters *getter* itself is consumer-supplied through the imperative
-  // API, and `activateMonitors` runs it from `start()`. A throw there is
-  // contained: logged, and the monitor sits this drag out while the drag and
-  // every sibling monitor keep working.
+  // The consumer supplies the parameters getter through the imperative API, and
+  // `activateMonitors` runs it from `start()`. A throw there is caught and logged.
+  // That monitor skips this drag, while the drag and every other monitor keep
+  // working.
   it('keeps the drag and sibling monitors working when a parameters getter throws at drag start', async () => {
     const { engine } = await renderDnd();
     const el = createElement();
@@ -269,9 +268,9 @@ describe('engine.registerMonitor', () => {
       fireDrag.dragStart(el);
       await flushRaf();
 
-      // The throw was contained and logged...
+      // The throw was caught and logged.
       expect(consoleError).toHaveBeenCalled();
-      // ...and the sibling monitor still observes the drag.
+      // The other monitor still observes the drag.
       expect(onDragStartSane).toHaveBeenCalledTimes(1);
 
       fireDrag.dragEnter(target);
@@ -279,7 +278,7 @@ describe('engine.registerMonitor', () => {
       await flushRaf();
       fireDrag.drop(target);
 
-      // The drag itself was never aborted: it ends with a delivered drop.
+      // The drag was never aborted and ends with a drop.
       expect(onDrop).toHaveBeenCalledTimes(1);
       expect(onDragEndSane).toHaveBeenCalledTimes(1);
     } finally {
@@ -287,9 +286,9 @@ describe('engine.registerMonitor', () => {
     }
   });
 
-  // The mid-drag path runs the getter from `engageMonitorIfDragging`, typically
-  // inside a React layout effect: an uncontained throw there would unwind the
-  // commit, not just this monitor.
+  // A mid-drag registration runs the getter from `engageMonitorIfDragging`, usually
+  // inside a React layout effect. An uncaught throw there would abort the whole
+  // commit, not only this monitor.
   it('keeps the drag working when a getter throws at mid-drag registration', async () => {
     const { engine } = await renderDnd();
     const el = createElement();

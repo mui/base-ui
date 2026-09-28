@@ -8,9 +8,9 @@
 }
 
 /*
- * CSS Modules demos revert Tailwind's preflight with `all: revert-layer`, which
- * also drops the page's font smoothing and renders text heavier than the
- * Tailwind variant. Restore it so both variants render text identically.
+ * CSS Modules demos revert Tailwind's preflight with `all: revert-layer`. That
+ * also drops the page's font smoothing, so text renders heavier than in the
+ * Tailwind variant. Restore it so both variants look the same.
  */
 .Root,
 .Root * {
@@ -31,8 +31,8 @@
 }
 
 /*
- * The element registered with `Draggable.Viewport`: it clips the canvas but has
- * no scroll offsets of its own, so `onDragScroll` is what moves the content.
+ * The `Draggable.Viewport` element. It clips the canvas but can't scroll, so
+ * `onDragScroll` moves the content instead.
  */
 .Viewport {
   position: relative;
@@ -47,7 +47,7 @@
   }
 }
 
-/* The camera: `onDragScroll` writes this element's transform. */
+/* The camera. `onDragScroll` writes this element's transform. */
 .Content {
   position: absolute;
   inset: 0;

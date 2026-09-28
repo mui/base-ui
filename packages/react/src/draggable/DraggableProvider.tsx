@@ -76,8 +76,8 @@ export interface DraggablePosition {
 }
 
 /**
- * The pointer state and the drop targets under the pointer at one moment: the type of
- * `location.current`, `location.previous`, and `location.initial`. The `location` itself,
+ * The pointer state and the drop targets under the pointer at one moment. It is the type
+ * of `location.current`, `location.previous`, and `location.initial`. The `location` itself,
  * on the event details, is a `DraggableLocationHistory`.
  */
 export interface DraggableLocation {

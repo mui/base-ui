@@ -81,8 +81,8 @@ export const DraggableTarget = React.forwardRef(function DraggableTarget<
   } = componentProps;
 
   const context = useDraggableContext();
-  // A fresh object per render is fine: `useDraggableTargetElement` reads it through a
-  // ref and never compares it.
+  // A new object per render is fine, because `useDraggableTargetElement` reads it
+  // through a ref and never compares it.
   const params = {
     kind,
     accept: accept ?? context.defaultKind,
@@ -117,10 +117,10 @@ export const DraggableTarget = React.forwardRef(function DraggableTarget<
   });
   // Overloaded, unlike `Draggable.Root`, so a declared `TTargetPayload` can't omit `payload`
   // and leave `target.payload` typed while the engine delivers `undefined`.
-  // The fallback's target payload is `undefined`, not `unknown`: `kind` is typed from it,
-  // so a payload-carrying `kind={column}` with no `payload` is rejected here rather
-  // than compiling with `column.matches(target)` narrowing to a payload that is
-  // `undefined` at runtime.
+  // The fallback's target payload is `undefined`, not `unknown`, because `kind` is typed
+  // from it. A payload-carrying `kind={column}` with no `payload` is then rejected here.
+  // Otherwise it would compile, and `column.matches(target)` would narrow to a payload
+  // that is `undefined` at runtime.
 }) as {
   <TTargetDragData = unknown>(
     props: DraggableTargetProps<undefined, undefined, unknown, TTargetDragData>,
@@ -255,8 +255,8 @@ export type DraggableTargetProps<
     : { accept: DraggableAccept<TSourcePayload, TSourceDragData> });
 
 /**
- * Where the pointer is within a drop target, as a fraction of its size:
- * `0` at the left or top edge, `1` at the right or bottom edge.
+ * Where the pointer is within a drop target, as a fraction of its size.
+ * `0` is the left or top edge, and `1` is the right or bottom edge.
  */
 export interface DraggableTargetLocalPoint {
   x: number;
@@ -304,7 +304,7 @@ export interface DraggableTargetRecord<TTargetPayload = unknown, TDragData = unk
   updateDragData(dragData: TDragData): void;
   /**
    * Returns where the pointer is within this target, as a fraction of its size on
-   * each axis: `0` at the left or top edge, `1` at the right or bottom edge.
+   * each axis. `0` is the left or top edge, and `1` is the right or bottom edge.
    * Use it when a drop means a value spread across the target, such as a time in a day column:
    *
    * ```tsx

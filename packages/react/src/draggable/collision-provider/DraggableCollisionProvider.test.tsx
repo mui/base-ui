@@ -422,7 +422,7 @@ describe('Draggable.CollisionProvider', () => {
     const b = screen.getByTestId('b');
     b.getBoundingClientRect = () => new DOMRect(0, 100, 100, 100);
     await lift(a);
-    // Not involved yet: the start is held back rather than delivered up front.
+    // Not involved yet, so the start is held back instead of delivered up front.
     expect(targetStart).not.toHaveBeenCalled();
     await dragOver(b, { clientY: 180 });
     expect(targetStart).toHaveBeenCalledTimes(1);
@@ -512,7 +512,7 @@ describe('Draggable.CollisionProvider', () => {
     await lift(a);
     await dragOver(b, { clientY: 120 });
     expect(changed.mock.lastCall?.[0].target.getLocalPoint().y).toBe(0.2);
-    // Same pointer position, different item: what auto-scroll produces when the
+    // Same pointer position, different item. Auto-scroll produces this when the
     // list moves under a held pointer. Coordinates belong to the new item.
     await dragOver(c, { clientY: 120 });
     expect(changed.mock.lastCall?.[0].target).toMatchObject({ payload: 'c' });
@@ -637,7 +637,7 @@ describe('Draggable.CollisionProvider', () => {
           }}
         >
           {['a', 'b'].map((id) => (
-            // Inline payload objects: a new identity on every render.
+            // Inline payload objects get a new identity on every render.
             <Draggable.Root key={id} kind={objectKind} payload={{ id }} data-testid={id}>
               <Draggable.Preview disabled />
             </Draggable.Root>

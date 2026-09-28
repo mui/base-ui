@@ -7,14 +7,13 @@ import { Draggable } from '@base-ui/react/draggable';
 /**
  * Auto-scrolls the docs page while one of this example's items is dragged.
  *
- * The page cannot be a `Draggable.Viewport` (that renders an element), so it is
- * registered imperatively on `document.documentElement`. The registration is
- * created when a drag this example accepts starts, and released when it ends,
- * rather than kept for the component's lifetime: several examples share the
- * docs page, and only the most recent registration on an element applies, so
- * a permanent one from another example would take precedence. Downloaded
- * examples include this file; an app with a single list can register the page
- * once in an effect instead.
+ * The page can't be a `Draggable.Viewport` because that component renders its
+ * own element, so this registers `document.documentElement` imperatively.
+ *
+ * The registration lives only as long as a drag this example accepts. Several
+ * examples share the docs page, and only the latest registration on an element
+ * applies, so a permanent one would override the other examples. An app with a
+ * single list can register the page once in an effect instead.
  */
 export function DragPageAutoScroll({
   accept,

@@ -54,8 +54,8 @@ function DefaultKindTarget(props: Draggable.Target.Props) {
 }
 <DefaultKindTarget />;
 
-// The catch-all is the explicit opt-in, and leaves `source.payload` as `unknown` —
-// nothing has been declared about what this target receives.
+// The catch-all is the explicit opt-in. It leaves `source.payload` as `unknown`,
+// since nothing declares what this target receives.
 <Draggable.Target
   accept={Draggable.anyKind}
   onDraggableDrop={(eventDetails) => {
@@ -112,8 +112,8 @@ const targetCommand = () => 'run';
 />;
 
 // An array of kinds types the source as the union of their payloads, and each kind
-// narrows it back down. The negative branch keeps the union: `matches` can confirm a
-// kind, not rule the others out, so a second `matches` narrows the rest.
+// narrows it back down. The negative branch keeps the union, because `matches` can
+// confirm a kind but not rule the others out. A second `matches` narrows the rest.
 <Draggable.Target
   accept={[task, file]}
   onDraggableDrop={(eventDetails) => {
@@ -162,7 +162,7 @@ const targetCommand = () => 'run';
 // @ts-expect-error the kind's payload type must match this target's `payload`.
 <Draggable.Target accept={Draggable.anyKind} kind={slot} payload={{ nope: true }} />;
 
-// @ts-expect-error a payload-carrying kind can't register without a `payload`:
+// @ts-expect-error a payload-carrying kind can't register without a `payload`.
 // `slot.matches(target)` would narrow to a payload the engine delivers as `undefined`.
 <Draggable.Target accept={Draggable.anyKind} kind={slot} />;
 
@@ -230,9 +230,9 @@ const ref: React.Ref<HTMLDivElement> = null;
 />;
 
 // `payload` is the only thing `TTargetPayload` is inferred from. An inline handler is
-// context-sensitive and contributes no candidates, but an extracted one does — so
-// without `NoInfer` on the handlers, `TTargetPayload` here would come out as
-// `{ other: boolean }` and the mismatch would be reported against `payload`
+// context-sensitive and contributes no candidates, but an extracted one does.
+// Without `NoInfer` on the handlers, `TTargetPayload` here would come out as
+// `{ other: boolean }`, and the mismatch would be reported against `payload`
 // instead of against the handler that caused it.
 const mismatchedDrop = (
   eventDetails: DraggableTargetDropEventDetails<unknown, { other: boolean }>,
@@ -260,13 +260,13 @@ const wideDrop = (eventDetails: Draggable.Target.DropEventDetails<unknown, unkno
   }}
 />;
 
-// `Props` stays keyed on the payloads rather than on an `accept` value, so declaring a
-// wrapper's props reads the same as before.
+// `Props` is keyed on the payload types rather than on an `accept` value, so a wrapper
+// declares its props with two type arguments.
 type SlotProps = Draggable.Target.Props<CardPayload, SlotPayload>;
 const slotValueProps: SlotProps = { accept: card, payload: { index: 0 } };
 expectType<SlotPayload, NonNullable<typeof slotValueProps.payload>>(slotValueProps.payload!);
 
-// @ts-expect-error `Props` mirrors the component: a declared `TTargetPayload` requires a payload.
+// @ts-expect-error `Props` mirrors the component, so a declared `TTargetPayload` requires a payload.
 const slotMissingProps: SlotProps = { accept: card };
 
 // @ts-expect-error `Props` mirrors the component's required `accept` too.

@@ -28,11 +28,11 @@ const state = getSharedSlot<DragRootLockState>('dragRootLock', () => ({
 }));
 
 /**
- * Collect the `<html>`/`<body>` of `doc` and of every ancestor document up the
- * iframe chain. During an iframe touch drag the outer document can still
- * scroll/select unless its roots are locked too; a same-origin ancestor is
- * reachable via `frameElement`, and a cross-origin one throws on access — caught
- * and treated as the top of the reachable chain.
+ * Collect the `<html>` and `<body>` of `doc` and of every ancestor document up
+ * the iframe chain. During a touch drag inside an iframe, the outer document can
+ * still scroll or select text unless its roots are locked too. Same-origin
+ * ancestors are reachable through `frameElement`. A cross-origin one throws on
+ * access, so the climb stops there.
  */
 function collectLockElements(doc: Document): HTMLElement[] {
   const elements: HTMLElement[] = [];
@@ -46,7 +46,7 @@ function collectLockElements(doc: Document): HTMLElement[] {
     try {
       current = current.defaultView?.frameElement?.ownerDocument ?? null;
     } catch {
-      // Cross-origin ancestor: not reachable, stop climbing.
+      // Cross-origin ancestor. Stop climbing.
       current = null;
     }
   }
@@ -76,22 +76,22 @@ export function unlock(): void {
 
 /**
  * Freeze scrolling, selection and the callout menu on the dragged element's
- * document (and every reachable ancestor document) while a pointer drag runs.
- * The global lifecycle admits one pointer session, so the saved lock itself is
- * the single-holder latch; a repeated call must not replace its restoration data.
+ * document and every reachable ancestor document while a pointer drag runs.
+ * Only one pointer session runs at a time, so a saved lock means the lock is
+ * held. A repeated call returns early and keeps the original restoration data.
  */
 export function lock(element: Element): void {
   if (state.locked !== null) {
     return;
   }
-  // Lock both `<html>` and `<body>` on the dragged element's document and every
-  // reachable ancestor document. iOS Safari and some Android browsers honour
-  // `touch-action`/`overscroll-behavior` on `body` independently of `html`;
-  // locking only one element lets scroll still leak through during a synthetic
-  // drag, and locking only the inner document lets an iframe's host page scroll.
+  // Lock both `<html>` and `<body>`. iOS Safari and some Android browsers apply
+  // `touch-action` and `overscroll-behavior` on `body` independently of `html`,
+  // so locking only one lets scroll leak through. Locking only the inner document
+  // would let an iframe's host page scroll.
   //
-  // Read all originals before writing any: `userSelect`/`webkitUserSelect` alias
-  // each other, so interleaved save+set would capture the locked value instead.
+  // Read all original values before writing any. `userSelect` and
+  // `webkitUserSelect` alias each other, so saving and setting in one pass would
+  // capture the locked value.
   const saved = collectLockElements(ownerDocument(element)).flatMap((root) =>
     LOCKED_PROPS.map(({ style, property }) => ({
       element: root,

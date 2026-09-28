@@ -1,22 +1,20 @@
 /**
  * Swallows the compatibility `click` the browser fires after a pointer drag.
  *
- * `pointerup` is followed by `mouseup` and then `click`, and nothing about the
- * click says a drag produced it. Because the active phase redirects pointer
- * capture onto a body anchor, that click usually retargets to `<body>`, so the
- * damage lands on document-level handlers: an outside-press dismisser closes the
- * popover or menu that was open the moment any drag is released. Browsers also
- * differ on where the click surfaces — Safari and Firefox can put it back on the
- * source — so a drag can activate the very control it was picked up from.
+ * `pointerup` is followed by `mouseup` and then `click`, and the click carries
+ * no sign that a drag produced it. The active phase redirects pointer capture
+ * onto a body anchor, so the click usually retargets to `<body>` and reaches
+ * document-level handlers. An outside-press handler then closes any open popover
+ * or menu when a drag is released. Safari and Firefox can instead fire the click
+ * on the source, so a drag can activate the control it was picked up from.
  *
- * The activation docs promise the opposite ("Releasing before the threshold
- * keeps the normal click or tap"), which reads as: a completed drag is not a
- * click.
+ * The activation docs say "Releasing before the threshold keeps the normal click
+ * or tap", which implies that a completed drag is not a click.
  *
- * One shot, and self-healing: the listener removes itself on the first click, on
+ * The suppression runs once. The listener removes itself on the first click, on
  * the next `pointerdown`, or on a short timer if neither arrives (for example,
- * when a browser suppressed the click itself).
- * Leaving it armed would eat a genuine click.
+ * when the browser suppressed the click itself). Leaving it armed would eat a
+ * genuine click.
  */
 
 import { ownerWindow } from '@base-ui/utils/owner';
@@ -27,18 +25,17 @@ import { getSharedSlot } from '../sharedState';
 import type { DragCleanupFn } from '../types';
 
 /**
- * Backstop for the case where neither a compatibility click nor a further
- * gesture arrives. The click follows `pointerup` in the same task on every
- * current browser, so this only has to outlast that.
+ * Backstop for when neither a compatibility click nor a new press arrives.
+ * Current browsers fire the click in the same task as `pointerup`, so this only
+ * has to outlast that task.
  */
 const CLICK_WINDOW_MS = 300;
 
 /**
- * Absolute cap while waiting for a still-held pointer to come up. The release
- * normally arrives long before this; the cap only covers a `pointerup` the page
- * never sees at all (an OS hand-off, a window torn down mid-gesture), so the
- * suppression can't stay armed indefinitely and swallow a later keyboard-driven
- * `click`, which has no `pointerdown` to disarm it.
+ * Upper bound on waiting for a still-held pointer to come up. It only matters
+ * when the page never sees the `pointerup`, such as after an OS hand-off or a
+ * window torn down mid-gesture. Without it, the suppression could stay armed and
+ * swallow a later keyboard `click`, which has no `pointerdown` to disarm it.
  */
 const HELD_WINDOW_MS = 5000;
 
@@ -52,16 +49,15 @@ const state = getSharedSlot<PostDragClickState>('postDragClick', () => ({
 }));
 
 /**
- * Swallow the next `click` in `element`'s document. Call when a drag that
- * actually activated ends, whatever ended it.
+ * Swallow the next `click` in `element`'s window. Call it whenever an activated
+ * drag ends, whatever ended it.
  *
- * Pass the still-held `pointerId` when the gesture is torn down before its own
- * release — an Escape cancel leaves the button down, and the click only arrives
- * whenever the user eventually lets go. The backstop timer cannot start until
- * then: the user has just pressed a key mid-gesture, so they will almost
- * certainly hold longer than `CLICK_WINDOW_MS`, and a window that expired while
- * the button was still down would let the drag's own click through and activate
- * the very control the drag was picked up from.
+ * Pass `heldPointerId` when the gesture ends before its pointer is released. An
+ * Escape cancel leaves the button down, and the click only arrives when the user
+ * lets go. The backstop timer waits for that release, because a user who just
+ * pressed a key mid-gesture will likely hold longer than `CLICK_WINDOW_MS`. If
+ * the window expired first, the drag's own click would get through and activate
+ * the control the drag started on.
  */
 export function suppressNextClick(element: Element, heldPointerId?: number): void {
   // Re-arming replaces the previous window rather than stacking listeners.
@@ -70,8 +66,8 @@ export function suppressNextClick(element: Element, heldPointerId?: number): voi
   const win = ownerWindow(element);
   const timeout = new WindowTimeout(win);
 
-  // Assigned by the listener registrations below; the handlers and the timer all
-  // reach them through `disarm`, which only ever runs after that.
+  // Assigned by the registrations below. The handlers and the timer only reach
+  // them through `disarm`, which runs after that.
   let offClick: DragCleanupFn = NOOP;
   let offPointerDown: DragCleanupFn = NOOP;
   let offPointerUp: DragCleanupFn = NOOP;
@@ -87,29 +83,26 @@ export function suppressNextClick(element: Element, heldPointerId?: number): voi
     offPointerUp();
   };
 
-  // On the *window*, capturing. A consumer's outside-press dismisser is usually
-  // installed on the document long before the drag starts, so a document-level
-  // capture listener added here would run after it — too late. Window capture is
-  // the first stop in the propagation path whatever the registration order, which
-  // is the same sequencing the sensor relies on for `pointerdown`.
+  // Listen on the window in the capture phase. An outside-press handler is
+  // usually registered on the document before the drag starts, so a document
+  // capture listener added now would run after it. Window capture runs first
+  // regardless of registration order, which the sensor also relies on for
+  // `pointerdown`.
   offClick = addEventListener(
     win,
     'click',
     (event) => {
-      // Keyboard and programmatic activation (a terminal handler's `.click()`)
-      // have no pointer compatibility click to consume. Keep waiting for the
-      // drag's actual click.
+      // Keyboard and programmatic activation (a `.click()` in an end handler)
+      // aren't the drag's compatibility click. Keep waiting for that one.
       if (event.detail === 0) {
         return;
       }
-      // In the held-pointer mode the click being waited on is the held pointer's
-      // own compatibility click, and the window stays armed for seconds — long
-      // enough for a genuine interaction from *another* input to land (a mouse
-      // press while the canceled touch still rests on the screen, or a keyboard
-      // "click", which reports `pointerId` -1). A click carrying a different
-      // pointerId is not the one this window exists to eat: let it through and
-      // stay armed. A legacy `MouseEvent` click exposes no `pointerId`; swallow
-      // it as before rather than guess.
+      // In held-pointer mode, the window can stay armed for seconds, long enough
+      // for a real click from another input. Examples are a mouse press while the
+      // canceled touch still rests on the screen, or a keyboard click, which
+      // reports `pointerId` -1. Let a click with a different `pointerId` through
+      // and stay armed. A legacy `MouseEvent` click has no `pointerId`, so it is
+      // swallowed.
       const clickPointerId = (event as PointerEvent).pointerId;
       if (
         heldPointerId !== undefined &&
@@ -125,20 +118,18 @@ export function suppressNextClick(element: Element, heldPointerId?: number): voi
     { capture: true },
   );
 
-  // A new press means the drag's own compatibility click is never coming: browsers
-  // only synthesize one when the press and release share a target, so a drag
-  // released somewhere else — the normal case on a canvas — produces none at all.
-  // Any click from here on belongs to the new gesture, and swallowing it would
-  // cost the user a real interaction for up to `CLICK_WINDOW_MS`.
+  // A new press means the drag's compatibility click isn't coming. Browsers only
+  // fire one when the press and release share a target, so a drag released
+  // elsewhere, the usual case on a canvas, produces none. Any later click belongs
+  // to the new gesture and must not be swallowed.
   //
-  // `pointerdown` specifically, not `mousedown`: on touch the compatibility
+  // Disarm on `pointerdown`, not `mousedown`. On touch, the compatibility
   // sequence is `mousedown`, `mouseup`, `click`, so disarming on `mousedown`
-  // would let the very click this exists to suppress straight through.
+  // would let the drag's click through.
   //
-  // While the armed pointer is still held, a *different* pointer's press is a
-  // second finger, not a new gesture: the held finger's eventual release can
-  // still produce the compatibility click (it is the primary pointer), so the
-  // window must stay armed through it.
+  // While the armed pointer is still held, a press from a different pointer is a
+  // second finger, not a new gesture. The held finger is the primary pointer and
+  // its release can still produce the click, so stay armed.
   let heldStillDown = heldPointerId !== undefined;
   offPointerDown = addEventListener(
     win,
@@ -159,8 +150,8 @@ export function suppressNextClick(element: Element, heldPointerId?: number): voi
     return;
   }
 
-  // The gesture outlives its own teardown: hold the window open until this
-  // pointer comes up, and only then start the backstop the click has to beat.
+  // The pointer is still down after teardown. Keep the window open until it comes
+  // up, and only then start the backstop timer.
   const offUp = addEventListener(
     win,
     'pointerup',
@@ -173,8 +164,8 @@ export function suppressNextClick(element: Element, heldPointerId?: number): voi
     },
     { capture: true },
   );
-  // A canceled pointer produces no compatibility click at all, so nothing is
-  // left to suppress.
+  // A canceled pointer produces no compatibility click, so there is nothing to
+  // suppress.
   const offCancel = addEventListener(
     win,
     'pointercancel',

@@ -99,11 +99,10 @@ describe('Draggable.Preview', () => {
       source.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
       fireDrag.dragStart(source);
 
-      // The settings belong to the engine and are plucked from the spread props; a
-      // missed pluck would land `offset` or `container` here as an attribute.
+      // The settings are removed from the spread props before rendering. A missed
+      // one would show up here as an `offset` or `container` attribute.
       // Function-valued settings like `modifiers` never serialize to attributes, so
-      // their pluck is guarded by React's unknown-prop console error (which fails
-      // the test) instead.
+      // React's unknown-prop console error, which fails the test, covers them.
       const preview = screen.getByTestId('preview');
       expect(preview.hasAttribute('offset')).toBe(false);
       expect(preview.hasAttribute('container')).toBe(false);
@@ -128,8 +127,8 @@ describe('Draggable.Preview', () => {
     source.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
     fireDrag.dragStart(source);
 
-    // `disabled` means there is no preview element to inject, so resolving the
-    // reference anyway would run consumer code for nothing.
+    // With `disabled` there is no preview element to insert, so resolving the
+    // reference would run consumer code for nothing.
     expect(container).not.toHaveBeenCalled();
     expect(document.querySelector('[data-drag-preview]')).toBeNull();
   });
@@ -154,10 +153,10 @@ describe('Draggable.Preview', () => {
   });
 
   it('throws when the nearest Draggable.Provider does not wrap the Draggable.Root', () => {
-    // The engine publishes through the provider seen from the root's position; a
-    // provider mounted between the root and the part can never receive the
-    // content, and the drag would fail mid-gesture instead of at render.
-    // React 18's dev error path logs the uncaught render error via console.error.
+    // The engine publishes through the provider above the root. A provider between
+    // the root and the part never receives the content, and without the render
+    // error the drag would fail mid-gesture. React 18 in dev also logs the uncaught
+    // render error through `console.error`.
     const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
     try {
       expect(() =>
@@ -189,9 +188,9 @@ describe('Draggable.Preview', () => {
   });
 
   it('keeps the preview alive and moving after the source unmounts mid-drag', async () => {
-    // The declaration indirection exists so the preview outlives the source
-    // component: a virtualizer or a live reorder can unmount the dragged row
-    // mid-drag, and the overlay-rendered content must survive it.
+    // The part declares the preview instead of rendering it in place, so the
+    // preview outlives the source component. A virtualizer or a live reorder can
+    // unmount the dragged row mid-drag, and the overlay content must survive it.
     function Fixture(props: { withRow: boolean }) {
       return (
         <DraggableProvider>
@@ -215,9 +214,9 @@ describe('Draggable.Preview', () => {
     expect(screen.queryByTestId('drag')).toBeNull();
     expect(screen.getByText('Preview content')).toBeInTheDocument();
 
-    // The drag is still live: a further move keeps repositioning the preview.
-    // Dispatched on `document`: `fireDrag` dispatches moves on the (now detached)
-    // source, which the engine's document-level move listener can no longer hear.
+    // The drag is still live, so another move repositions the preview. The move
+    // goes to `document` because `fireDrag` dispatches on the source, which is now
+    // detached and out of reach of the engine's document-level listener.
     const host = document.querySelector('[data-drag-preview]') as HTMLElement;
     const before = host.style.translate;
     await act(async () => {
@@ -244,8 +243,8 @@ describe('Draggable.Preview', () => {
   it("drops another provider's stale preview when a drop and the next pickup share one flush", () => {
     // Every provider's overlay reads one shared store and renders only what was
     // published with its own context. The drop clears A's content and B's pickup
-    // publishes its own; when both land in the same React flush, provider A must
-    // still see the change, or its content stays on screen for B's whole drag.
+    // publishes B's. When both land in the same React flush, provider A must still
+    // see the change, or its content stays on screen for all of B's drag.
     rtlRender(
       <React.Fragment>
         <DraggableProvider>
@@ -269,9 +268,8 @@ describe('Draggable.Preview', () => {
     fireDrag.dragStart(a);
     expect(screen.getByText('Preview A')).toBeInTheDocument();
 
-    // End A and start B without an intervening commit: the nested `act` calls
-    // flush only once the outer one exits — the single flush is the whole point
-    // of the test.
+    // End A and start B without a commit in between. The nested `act` calls flush
+    // only when the outer one exits, and that single flush is what this test covers.
     act(() => {
       fireDrag.drop(a);
       fireDrag.dragStart(b);

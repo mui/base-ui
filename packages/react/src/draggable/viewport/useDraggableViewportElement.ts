@@ -10,34 +10,34 @@ import type { RegisterViewportParameters } from '../../utils/drag-and-drop/autoS
 import { useRegistrationRef } from '../../utils/drag-and-drop/useRegistrationRef';
 
 /**
- * Registers only the element the returned `ref` is attached to for auto-scroll.
+ * Registers the element the returned `ref` is attached to for auto-scroll.
  * Backs `Draggable.Viewport`. Nested containers need their own registration.
  *
- * The parameters are read through a stable getter on every frame, so a re-render never
- * re-registers and the freshest callbacks always apply.
+ * The engine reads the parameters through a stable getter every frame, so a
+ * re-render never re-registers and the latest callbacks always apply.
  * @internal
  */
 export function useDraggableViewportElement<TSourcePayload = unknown, TDragData = unknown>(
   parameters: UseDraggableViewportElementParameters<TSourcePayload, TDragData>,
 ): UseDraggableViewportElementReturnValue {
   useDraggableContext();
+  // The public `registerViewport` is typed by the `accept` value, while this
+  // internal hook is typed by the payload it promises, like the component's
+  // implementation signature. So the parameters are cast to `unknown` here.
   const getParameters = useStableCallback(() => parameters as RegisterViewportParameters<unknown>);
 
-  // Registering mid-drag arms and wakes the loop with the latest live input.
-  // The public `registerViewport` is keyed on the `accept` value; this
-  // internal layer is keyed on the payload it promises (like the component's
-  // implementation signature), so the parameters are erased to `unknown` here.
-  // `disabled` rides along in the parameters (the engine reads it every frame)
-  // rather than gating the registration, which would churn the engine's registry
-  // — and its cached depth order — on every flip of the prop.
+  // Registering during a drag starts and wakes the loop with the latest input.
+  // `disabled` is read from the parameters every frame instead of gating the
+  // registration. Gating would rebuild the engine's registry, and its cached
+  // depth order, every time the prop flips.
   const ref = useRegistrationRef<HTMLElement>((node) => registerViewport(node, getParameters));
 
-  // A live parameter change must wake a loop that parked while the element was
-  // disabled or declined scrolling. `accept`, commonly an inline array, is
-  // compared by content so a render that changes nothing wakes nothing. A wake is
-  // all a change needs: the loop reads the parameters through `getParameters`
-  // every frame, so no shared geometry/style cache has to be dropped for it to
-  // apply. The mount-time wake is a no-op: the registration already woke the loop.
+  // A parameter change during a drag wakes a loop that parked while the element
+  // was disabled or declined to scroll. `accept` is often an inline array, so it
+  // is compared by content and a render that changes nothing wakes nothing. No
+  // cache needs clearing, because the loop reads the parameters through
+  // `getParameters` every frame. The wake on mount does nothing, since the
+  // registration already woke the loop.
   const { accept, onDragScroll, disabled, maxSpeed } = parameters;
   const { top, right, bottom, left } = normalizeOverflowMargin(parameters.overflowMargin);
   const previousAcceptRef = React.useRef(accept);

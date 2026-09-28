@@ -97,8 +97,8 @@
   opacity: 0.4;
 }
 
-/* The preview is a clone of the card, so it needs no styles of its own — only the
-   shadow that sets the lifted card apart from the resting ones. */
+/* The preview is a clone of the card, so it only needs a shadow to set it apart
+   from the resting cards. */
 .card[data-drag-preview] {
   box-shadow: var(--dnd-shadow);
 }

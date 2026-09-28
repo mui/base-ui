@@ -26,7 +26,7 @@ const createdElements: HTMLElement[] = [];
 
 /**
  * Create a `<div>` appended to `document.body` with a controlled bounding rect.
- * All created elements are automatically removed by `cleanupElements()`.
+ * `cleanupElements()` removes it after the test.
  */
 export function createElement(
   rect: { top?: number; height?: number; left?: number; width?: number } = {},
@@ -53,8 +53,8 @@ function cleanupElements(): void {
 const cleanupQueue: Array<() => void> = [];
 
 /**
- * Queue a cleanup function — typically the return value of one of the engine's
- * `register*` methods — to be invoked in `afterEach`. Cleanups run LIFO.
+ * Queue a cleanup function, usually returned by one of the engine's `register*`
+ * methods, to run in `afterEach`. Cleanups run in reverse order.
  */
 export function registerCleanup(fn: () => void): void {
   cleanupQueue.push(fn);
@@ -68,14 +68,13 @@ export function registerCleanup(fn: () => void): void {
  * 3. Force-end any in-flight drag and reset the engine state machine.
  * 4. Restore the `elementFromPoint` hit-test mock.
  *
- * Every step runs even when an earlier one throws — global engine state must be
- * reset before the next test regardless — and the first failure is rethrown
- * afterwards, so a broken cleanup fails its own test instead of quietly leaking
- * behind a green suite.
+ * Every step runs even when an earlier one throws, because global engine state
+ * must be reset before the next test. The first failure is rethrown afterwards,
+ * so a broken cleanup fails its own test instead of leaking into later ones.
  */
 export function setupDragEngineTests(): void {
-  // `warn()` dedupes per message process-wide; reset it so warning-count
-  // assertions do not depend on test order or on `.only`.
+  // `warn()` logs each message once per process. Reset it so warning-count
+  // assertions don't depend on test order or on `.only`.
   beforeEach(() => {
     resetWarnings();
   });
@@ -88,19 +87,19 @@ export function setupDragEngineTests(): void {
 // Drag gestures
 // ---------------------------------------------------------------------------
 //
-// The engine only listens to pointer events and resolves drop targets via
-// `document.elementFromPoint`. `fireDrag` describes a drag in HTML5 drag-event
-// terms — start on a source, enter or hover a target, drop — and replays each
-// step as the matching mouse-pointer gesture, routing `elementFromPoint` at the
-// element the step names so the engine sees exactly the drag the test described.
+// The engine listens only to pointer events and resolves drop targets with
+// `document.elementFromPoint`. `fireDrag` describes a drag as HTML5 drag-event
+// steps: start on a source, enter or hover a target, and drop. It replays each
+// step as the matching mouse pointer gesture and points `elementFromPoint` at
+// the element the step names.
 //
-// What this cannot prove: it *pins* `elementFromPoint` to the element the test
-// named, and its drops carry no meaningful coordinates. So a drop that routes
+// This can't catch hit-testing bugs. `elementFromPoint` returns whatever element
+// the test named, and drops carry no meaningful coordinates. A drop that routes
 // correctly here can still resolve a different target in a real browser, where
-// the hit-test answers from layout. Anything whose correctness depends on real
-// geometry — nested target resolution, edge zones, collision — needs a browser
-// test (`describe.skipIf(isJSDOM)`), and a drag driven from raw pointer events
-// (see the synthetic sensor's "documented pointer-drag recipe" tests).
+// the hit-test uses layout. Nested target resolution, edge zones, collision, and
+// anything else that depends on real geometry need a browser test
+// (`describe.skipIf(isJSDOM)`) driven by raw pointer events. The synthetic
+// sensor's "documented pointer-drag recipe" tests show how.
 
 interface DragEventInput {
   clientX?: number | undefined;
@@ -125,7 +124,7 @@ const DRAG_ACTIVATION_DISTANCE_PX = 6;
 // here and propagate to the document and window, where the engine's
 // active-phase listeners live.
 let dragSource: HTMLElement | null = null;
-// What `document.elementFromPoint` resolves to — the element under the pointer.
+// The element `document.elementFromPoint` returns, standing in for the element under the pointer.
 let hitTarget: Element | null = null;
 let originalElementFromPoint: ((x: number, y: number) => Element | null) | null = null;
 
@@ -203,7 +202,7 @@ export const fireDrag = {
       dispatchPointer('pointermove', source, input, MOVING);
     });
   },
-  /** Move onto `target`; the engine resolves it on its next frame. */
+  /** Move onto `target`. The engine resolves it on its next frame. */
   dragEnter(target: Element, input?: DragEventInput): void {
     act(() => moveTo(target, input));
   },
@@ -226,7 +225,7 @@ export const fireDrag = {
       dragSource = null;
     });
   },
-  /** End the drag without a drop: the engine cancels an active drag on Escape. */
+  /** End the drag without a drop by pressing Escape, which cancels an active drag. */
   dragEnd(): void {
     act(() => {
       if (!dragSource) {
@@ -253,16 +252,16 @@ export async function flushRaf(): Promise<void> {
 // Drag sequence helpers
 // ---------------------------------------------------------------------------
 //
-// `fireDrag` steps with the engine's cadence: moves resolve on the next frame, so
-// starting, entering, and hovering flush it; dropping is synchronous.
+// `fireDrag` steps paced like the engine. Moves resolve on the next frame, so
+// starting, entering, and hovering flush it. Dropping is synchronous.
 
 /** Start a drag on an element and flush the engine's next frame. */
 export async function lift(
   element: HTMLElement,
   input?: DragEventInput & {
     /**
-     * Skip the started-drag assertion below, for a lift that deliberately must
-     * NOT start a drag (e.g. a disabled draggable).
+     * Skip the started-drag check, for a lift that must not start a drag, such
+     * as on a disabled draggable.
      */
     expectNoDrag?: boolean | undefined;
   },
@@ -270,10 +269,10 @@ export async function lift(
   const { expectNoDrag = false, ...overrides } = input ?? {};
   fireDrag.dragStart(element, overrides);
   await flushRaf();
-  // `dragStart` clears the default 5px mouse activation with a hardcoded ~6px
-  // nudge (see DRAG_ACTIVATION_DISTANCE_PX). A fixture registered with a larger
-  // custom activation distance would silently not start a drag here, making the
-  // caller's `not.toHaveBeenCalled()` assertions vacuous — fail loudly instead.
+  // `dragStart` clears the default 5px mouse activation with a fixed
+  // `DRAG_ACTIVATION_DISTANCE_PX` move. A fixture with a larger activation distance
+  // wouldn't start a drag, and the caller's `not.toHaveBeenCalled()` assertions
+  // would pass for the wrong reason. Throw instead.
   if (!expectNoDrag && !isDragActive()) {
     throw new Error(
       'lift(): no drag session started after the activation move. ' +
@@ -302,7 +301,7 @@ export function drop(element: HTMLElement, input?: DragEventInput): void {
   fireDrag.drop(element, input);
 }
 
-/** Cancel a drag (leave every target, then end it). */
+/** Cancel a drag by leaving every target, then pressing Escape. */
 export function cancel(): void {
   fireDrag.dragLeave();
   fireDrag.dragEnd();
@@ -310,9 +309,10 @@ export function cancel(): void {
 
 /** Force-end any pending drag state. Runs in `setupDragEngineTests()`'s `afterEach`. */
 function resetDrag(): void {
-  // Force-ending an active drag flips React state (isDragging, custom drag
-  // preview portals) on still-mounted consumers. Flush those updates inside
-  // `act` so teardown doesn't trip the "not wrapped in act(...)" warning.
+  // Force-ending an active drag updates React state, such as `dragging` and
+  // custom preview portals, on consumers that are still mounted. Flush those
+  // updates inside `act` so teardown doesn't trigger the "not wrapped in
+  // act(...)" warning.
   act(() => {
     reset();
     resetSyntheticSensor();
@@ -321,31 +321,31 @@ function resetDrag(): void {
     // overlay rendering the previous test's preview.
     clearPublishedDragPreview();
   });
-  // Global slots the sensors take but `reset()` doesn't own: a test that fails
-  // mid-drag would otherwise leave the document scrolling-locked, the drag cursor
-  // pinned, or a click-swallow armed into the next test.
+  // Global state the sensors set but `reset()` doesn't clear. Without this, a
+  // test that fails mid-drag would leave the next test with scrolling locked,
+  // the drag cursor set, or its first click swallowed.
   resetDragRootLock();
   resetDragCursor();
   resetPostDragClick();
   // `reset()` clears the active monitors without dispatching `onMoveEnd`, so the
-  // scroll monitor never runs its own teardown: a still-engaged loop would keep
-  // scheduling frames — and calling `scrollBy` — into the next test, while
-  // holding the previous test's detached source alive.
+  // scroll monitor never runs its own teardown. A running loop would keep
+  // scheduling frames and calling `scrollBy` in the next test, and keep the
+  // previous test's detached source in memory.
   resetAutoScroller();
-  // Clear any drop targets still registered on detached nodes so a failed/aborted
-  // test can't leak them into the next one.
+  // Clear any drop targets still registered on detached nodes, so a failed or
+  // aborted test can't leak them into the next one.
   resetDropTargets();
   restoreElementFromPoint();
   dragSource = null;
-  // Clear the synthetic-pointer helpers' latched touch target so one test's
-  // gesture can't route the next test's touch/pen dispatches.
+  // Clear the touch target the synthetic pointer helpers remember, so one test's
+  // gesture can't redirect the next test's touch and pen events.
   resetTouchTarget();
 }
 
 /**
- * Split `onMoveEnd` into a drop-only handler and the end handler, mirroring the
- * engine's own drop dispatch: `onDrop` runs first and only for a committed drop,
- * with the target that received it, and `onMoveEnd` always follows, even when
+ * Split `onMoveEnd` into a drop-only handler and the end handler, like the
+ * engine's own drop dispatch. `onDrop` runs first, only for a committed drop,
+ * with the target that received it. `onMoveEnd` always runs next, even when
  * `onDrop` throws.
  */
 export function splitEnd<TPayload = unknown>(

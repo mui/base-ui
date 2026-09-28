@@ -31,9 +31,9 @@ function createPreviewElement(
   };
 }
 
-// Teardown runs in `afterEach` rather than as trailing statements inside each
-// test, so a failed assertion can't skip the cleanup and cascade into every
-// later test (a leaked `data-dragging` on `document.body`, an undead handle).
+// Teardown runs in `afterEach`, not at the end of each test, so a failed assertion
+// cannot skip cleanup and break later tests (a leaked `data-dragging` on
+// `document.body`, a handle left alive).
 const activeHandles: Array<{ destroy(): void }> = [];
 const attachedSources: HTMLElement[] = [];
 
@@ -96,8 +96,8 @@ describe('syntheticPreview', () => {
     const source = createSource();
     const handle = createHandle(source);
 
-    // Not on creation: the preview is measured from the source first, so a
-    // `[data-dragging]` rule that resizes or hides it can't corrupt the geometry.
+    // Not on creation. The preview is measured from the source first, so a
+    // `[data-dragging]` rule that resizes or hides it cannot corrupt the geometry.
     expect(source).not.toHaveAttribute('data-dragging');
     handle.markSourceDragging();
     expect(source).toHaveAttribute('data-dragging');
@@ -454,16 +454,15 @@ describe('preview modifiers', () => {
     expect(preview.element.style.translate).toBe('100px 250px');
   });
 
-  // The scale is measured on the first frame the host is *rendered*, not the first
-  // frame outright: a consumer re-render can tear the host out momentarily (that is
-  // what `ensureConnected` exists for), and a detached or hidden element resolves no
-  // computed transforms — a measurement taken then would cache 1 for the rest of the
-  // drag.
+  // The scale is measured on the first frame the host is rendered, which is not
+  // always the first frame. A consumer re-render can tear the host out briefly (see
+  // `ensureConnected`), and a detached or hidden element resolves no computed
+  // transforms. A measurement taken then would cache 1 for the rest of the drag.
   it('waits for the preview to be rendered before measuring its scale', () => {
     const preview = createPreviewElement(50, 30);
-    // jsdom lays nothing out, so its `getClientRects` is always empty; report the box
-    // a browser would, but only once the element is connected — the detached phase
-    // below relies on the empty list either way.
+    // jsdom lays nothing out, so `getClientRects` is always empty. Report a box as a
+    // browser would, but only while the element is connected. The detached phase
+    // below relies on the empty list.
     preview.element.getClientRects = () =>
       (preview.element.isConnected ? [new DOMRect(0, 0, 50, 30)] : []) as unknown as DOMRectList;
     const seen: number[] = [];
@@ -475,7 +474,7 @@ describe('preview modifiers', () => {
     ]);
     handle.setPreviewElement(preview);
 
-    // Detached: the measurement must not run yet, and must not latch its answer.
+    // While detached, the measurement must not run or latch its answer.
     handle.update(100, 100);
     expect(seen.at(-1)).toBe(1);
 
@@ -487,10 +486,10 @@ describe('preview modifiers', () => {
     expect(seen.at(-1)).toBe(2);
   });
 
-  // Connected is not rendered: under `display: none` a browser resolves no computed
-  // transforms (`transform` reads back as `none`), so a measurement taken there would
-  // cache 1 for the rest of the drag. Only a browser can exercise this — jsdom has no
-  // rendered-ness to withhold.
+  // Connected does not mean rendered. Under `display: none`, a browser resolves no
+  // computed transforms (`transform` reads back as `none`), so a measurement there
+  // would cache 1 for the rest of the drag. Only a browser can test this, since
+  // jsdom renders nothing.
   it.skipIf(isJSDOM)('does not latch the scale while the preview host is hidden', () => {
     const preview = createPreviewElement(50, 30);
     const seen: number[] = [];
@@ -507,7 +506,7 @@ describe('preview modifiers', () => {
     parent.style.display = 'none';
     parent.appendChild(preview.element);
 
-    // Hidden: connected, but nothing is rendered to measure.
+    // Connected but hidden, so nothing is rendered to measure.
     handle.update(100, 100);
     expect(seen.at(-1)).toBe(1);
 
@@ -516,9 +515,9 @@ describe('preview modifiers', () => {
     expect(seen.at(-1)).toBe(2);
   });
 
-  // A preview modifier is the same function as a root one, so it has to see the same key
-  // state — otherwise the same modifier behaves differently depending on where it is
-  // attached, which nothing in the API would explain.
+  // A preview modifier has the same signature as a root modifier, so it must see the
+  // same key state. Otherwise one modifier would behave differently depending on
+  // where it is attached.
   it('passes the modifier keys of the update through to the modifiers', () => {
     const preview = createPreviewElement(50, 30);
     const seen: boolean[] = [];
@@ -604,8 +603,8 @@ describe('preview modifiers', () => {
     handle.update(400, 250);
     expect(preview.element.style.translate).toBe('100px 250px');
 
-    // The offset callback resolving must reset the anchor: the lock pins to the
-    // first proposal computed with the new offset, not to the stale x = 100.
+    // A resolved offset callback must reset the anchor. The lock pins to the first
+    // proposal computed with the new offset, not to the stale x = 100.
     handle.setPreviewOffset({ x: 10, y: 20 });
     expect(preview.element.style.translate).toBe('390px 230px');
 

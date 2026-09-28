@@ -32,9 +32,9 @@ afterEach(() => {
   globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
   resetBuiltError();
   resetSourceError();
-  // Drop animation frame callbacks that were scheduled but never ran (e.g. under fake timers torn
-  // down before the frame fired). The scheduler is process-global, so without this they would leak
-  // into a later test and run there against stale state.
+  // Drop animation frame callbacks that were scheduled but never ran, for example when fake timers
+  // are removed before the frame fires. The scheduler is process-global, so they would otherwise
+  // run in a later test against stale state.
   resetBuiltScheduler();
   resetSourceScheduler();
 });

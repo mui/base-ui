@@ -1447,8 +1447,8 @@ function BookmarkBar() {
     resolveFocusTarget(editorFocusIdRef.current),
   );
 
-  // Reads the whole target stack, not only the innermost `target`: a bookmark slot and
-  // a tab position can be under the pointer at once, nested in other drop targets.
+  // Reads the whole target stack, not only the innermost `target`. A bookmark slot and a
+  // tab position can both be under the pointer, nested in other drop targets.
   const syncDropIntents = useStableCallback(
     (eventDetails: Draggable.Root.TargetChangeEventDetails<AcceptedBookmarkDragPayload>) => {
       const { targets } = eventDetails.location.current;

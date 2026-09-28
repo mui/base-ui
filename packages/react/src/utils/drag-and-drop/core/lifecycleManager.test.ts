@@ -100,10 +100,10 @@ describe('lifecycle manager', () => {
   }
 
   /**
-   * Start a drag whose source handlers are `handlers`, driving the lifecycle
-   * directly (no sensor). Returns whatever `start()` returns, so a handler that
-   * throws or cancels synchronously in `start()` can be exercised — the caller
-   * wraps the `start()` call in `expect(...).toThrow()` or asserts on `null`.
+   * Start a drag with `handlers` as the source handlers, driving the lifecycle
+   * directly without a sensor. Returns what `start()` returns, so tests can cover a
+   * handler that throws or cancels synchronously in `start()`. The caller wraps the
+   * call in `expect(...).toThrow()` or asserts on `null`.
    */
   function startDragWithHandlers(
     handlers: SourceHandlers,
@@ -403,9 +403,9 @@ describe('lifecycle manager', () => {
 
   describe('event ordering', () => {
     it('fires the internal onGenerateDragPreview then onMoveStart synchronously at drag start', () => {
-      // The preview hook is engine-internal (the sensors' preview publisher —
-      // see `SourceHandlers`), so the ordering is observable only by driving
-      // the lifecycle directly.
+      // The preview hook is internal to the engine (the sensors' preview
+      // publisher, see `SourceHandlers`), so only a test driving the lifecycle
+      // directly can observe the ordering.
       const order: string[] = [];
 
       const handle = startDragWithHandlers({
@@ -430,8 +430,8 @@ describe('lifecycle manager', () => {
         onMoveEnd: () => order.push('drop'),
       });
 
-      // onMoveStart already fired during dragStart, so it precedes the cancel's
-      // onMoveEnd — a collection never sees a drop for a drag it never saw start.
+      // `onMoveStart` already fired during `dragStart`, so it precedes the cancel's
+      // `onMoveEnd`. A collection never sees a drop for a drag it didn't see start.
       fireDrag.dragStart(el);
       cancel();
 
@@ -508,8 +508,8 @@ describe('lifecycle manager', () => {
     });
 
     it('fires onMoveStart only on drop targets already under the pointer at pickup', async () => {
-      // The initial stack is resolved from the element the drag starts on, so a drop
-      // target's `onMoveStart` is not a global "a drag began" hook — that's a monitor.
+      // The initial stack resolves from the element the drag starts on, so a drop
+      // target's `onDraggableStart` isn't a global "a drag began" hook. Monitors cover that.
       await renderDnd();
       const under = createElement();
       const elsewhere = createElement();
@@ -549,10 +549,9 @@ describe('lifecycle manager', () => {
     });
 
     it('fires onDraggableEnter on the drop targets already under the pointer at pickup', async () => {
-      // The initial stack is seeded straight into the hovered bookkeeping, so no
-      // `onTargetChange` round ever diffs it into existence — yet it is
-      // published in `dropTargetElements` (`data-over` is set) and is owed a
-      // terminal `onDraggableLeave`. Without an enter of its own, the pair never opens.
+      // No `onTargetChange` round diffs the initial stack into existence, yet it
+      // is published in `dropTargetElements` (`data-over` is set) and gets a
+      // terminal `onDraggableLeave`. It needs its own enter to open that pair.
       await renderDnd();
       const under = createElement();
       const onMoveStart = vi.fn();
@@ -594,7 +593,7 @@ describe('lifecycle manager', () => {
       );
       expect(onDraggableLeave).not.toHaveBeenCalled();
 
-      // The enter is balanced exactly once by the terminal leave.
+      // The terminal leave balances the enter exactly once.
       act(() => {
         cancelDrag();
       });
@@ -606,9 +605,9 @@ describe('lifecycle manager', () => {
 
     it('owes no leave to a target whose initial enter never ran', async () => {
       // The stack is entered one record at a time, so a handler that cancels the
-      // drag from *its* enter leaves the outer targets behind it un-entered. They
-      // must not then receive a terminal `onDraggableLeave`: an enter/leave pair that
-      // opens is closed, and one that never opened stays shut.
+      // drag from its own enter leaves the outer targets un-entered. They must not
+      // receive a terminal `onDraggableLeave`, because only an enter that ran is
+      // owed a leave.
       await renderDnd();
       const outer = createElement();
       const inner = createElement();
@@ -762,9 +761,9 @@ describe('lifecycle manager', () => {
 
     it('re-hit-tests a parameter refresh whose last target was detached', async () => {
       // A parameter refresh walks up from the last resolved target instead of
-      // hit-testing. When that node has since left the DOM (a virtualizer or a
-      // live reorder swapped it), the walk finds nothing and would leave every
-      // hovered target for a pointer that never moved.
+      // hit-testing. When a virtualizer or a live reorder has removed that node
+      // from the DOM, the walk finds nothing and would leave every hovered target
+      // although the pointer never moved.
       await renderDnd();
       const target = createElement();
       const child = document.createElement('div');
@@ -833,9 +832,9 @@ describe('lifecycle manager', () => {
     it('delivers onMove once per frame when a hovered target unregisters during the change round', async () => {
       // The sensor `update` path resolves the stack (skipping the entry `onMove`,
       // since `dispatchDrag()` follows) and then dispatches `onMove`. A handler
-      // unregistering a hovered target mid-round queues a refresh that drains
-      // before `dispatchDrag()`; that drained round must skip the entry `onMove`
-      // too, or the surviving targets hear it twice in the same frame.
+      // that unregisters a hovered target mid-round queues a refresh that drains
+      // before `dispatchDrag()`. That drained round must skip the entry `onMove`
+      // too, or the remaining targets receive it twice in the same frame.
       const { engine } = await renderDnd();
       const source = createElement();
       const parent = createElement();
@@ -867,8 +866,8 @@ describe('lifecycle manager', () => {
     it('re-walks from the last target without a hit test when a hovered target unregisters', async () => {
       // A React unmount runs the unregister from the ref cleanup, inside the
       // commit and before the node leaves the DOM. An `elementFromPoint` there
-      // forces a synchronous layout flush; the walk from the last resolved
-      // target already excludes the retiring element.
+      // forces a synchronous layout, and the walk from the last resolved target
+      // already excludes the retiring element.
       const { engine } = await renderDnd();
       const source = createElement();
       const target = createElement();
@@ -898,7 +897,7 @@ describe('lifecycle manager', () => {
 
     it('delivers the outer terminal leave when the inner leave unregisters it on drop', async () => {
       // The terminal leaves go out one target at a time. After the inner one,
-      // the outer must still read as hovered: its unregister then takes the
+      // the outer must still read as hovered, so its unregister takes the
       // synchronous path that keeps its registration readable for its own leave.
       const { engine } = await renderDnd();
       const source = createElement();
@@ -975,10 +974,10 @@ describe('lifecycle manager', () => {
       fireDrag.dragStart(el);
       await flushRaf();
 
-      // Released deliberately, but over no accepting target — the third terminal
-      // outcome. Its reason is not a cancel one, which is why committing on the
-      // reason alone is wrong; a non-null `target` is what marks a drop worth
-      // committing, so `onDrop` stays silent here.
+      // A deliberate release over no accepting target, the third way a drag ends.
+      // Its reason isn't a cancel reason, so committing on the reason alone is
+      // wrong. Only a non-null `target` marks a drop to commit, so `onDrop` isn't
+      // called here.
       fireDrag.drop(el);
 
       expect(onDrop).not.toHaveBeenCalled();
@@ -1016,9 +1015,9 @@ describe('lifecycle manager', () => {
 
       expect(targetOnDrop).not.toHaveBeenCalled();
       expect(targetOnDropTargetChange).toHaveBeenCalledTimes(1);
-      // Not the discriminator: on the cancel path the terminal leave runs *before*
-      // the source's `onMoveEnd`, so it is delivered with or without the fix. The
-      // monitor dispatch below is what the containment actually buys.
+      // On the cancel path the terminal leave runs before the source's
+      // `onMoveEnd`, so this assertion passes either way. The monitor assertions
+      // below are the ones that matter.
       expect(targetOnDragLeave).toHaveBeenCalledTimes(1);
       expect(monitorOnDrop).toHaveBeenCalledTimes(1);
       expect(monitorOnDrop.mock.calls[0][0].target).toBeNull();
@@ -1069,9 +1068,9 @@ describe('lifecycle manager', () => {
         onDraggableDrop: () => events.push('drop'),
       });
 
-      // Lift and release directly on the target with no hover in between: the
-      // drop-time reconcile (fresh stack ≠ last-updated stack) owes the target
-      // an `onDraggableEnter` before the drop is delivered to it.
+      // Lift and release on the target with no hover in between. The stack
+      // resolved at drop differs from the last update, so the reconcile sends the
+      // target `onDraggableEnter` before the drop.
       fireDrag.dragStart(el);
       await flushRaf();
       fireDrag.drop(target);
@@ -1103,8 +1102,8 @@ describe('lifecycle manager', () => {
       await flushRaf();
       fireDrag.drop(target);
 
-      // Commit first, clean up second — and the existing source-end-before-
-      // target-drop ordering is untouched.
+      // The commit runs before the cleanup, and the source end still runs before
+      // the target drop.
       expect(events).toEqual(['source-drop', 'source-end', 'target-drop']);
       expect(onDrop.mock.calls[0][0].target.element).toBe(target);
       expect(onDrop.mock.calls[0][0].reason).toBe('drop');
@@ -1113,8 +1112,8 @@ describe('lifecycle manager', () => {
     });
 
     it("pins the source's own onTargetChange payload and ordering", async () => {
-      // The only test exercising the source's handler was the throw-recovery
-      // one, so deleting the source dispatch left the suite green.
+      // Covers the source's own `onTargetChange`, which otherwise only the
+      // throw-recovery test reaches.
       const { engine } = await renderDnd();
       const el = createElement();
       const target = createElement();
@@ -1177,8 +1176,8 @@ describe('lifecycle manager', () => {
       expect(reasons.start).toBe('pointer');
       expect(reasons.drag).toBe('pointer');
       expect(reasons.enter).toBe('pointer');
-      // The terminal leave is caused by the drag ending, not by an input moving,
-      // which is exactly what its reason has to say.
+      // The drag ending causes the terminal leave, not an input moving, so its
+      // reason is the end reason.
       expect(reasons.leave).toBe('drop');
     });
   });
@@ -1206,9 +1205,8 @@ describe('lifecycle manager', () => {
         reset();
       });
 
-      // The lifecycle is fully unstuck — a subsequent drag must start
-      // cleanly. Without the unified teardown, `state.isActive` would have
-      // stayed true and this second drag would silently no-op.
+      // The lifecycle is free again, so a new drag must start. Without the
+      // teardown, the lifecycle would stay active and this drag would do nothing.
       fireDrag.dragStart(el2);
       await flushRaf();
       expect(onDragStart2).toHaveBeenCalledTimes(1);
@@ -1224,15 +1222,14 @@ describe('lifecycle manager', () => {
       await flushRaf();
       expect(onMoveStart).toHaveBeenCalledTimes(1);
 
-      // No throw needed — `reset()` runs the same teardown the consumer-throw
-      // catch path takes. After it, the engine accepts a brand-new drag with
-      // no leaked state.
+      // `reset()` runs the same teardown as the consumer-throw path, so no throw
+      // is needed. After it, the engine accepts a new drag with no leftover state.
       act(() => {
         reset();
       });
 
-      // No second drag here, but verify registerMonitor doesn't see the
-      // old drag any longer: register a monitor and start a new drag.
+      // Register a monitor and start a new drag. The monitor must receive that
+      // drag's start instead of joining the old drag.
       const monitorCalls = vi.fn();
       engine.registerMonitor({ onMoveStart: monitorCalls });
       fireDrag.dragStart(el);
@@ -1260,20 +1257,20 @@ describe('lifecycle manager', () => {
         reset();
       });
 
-      // The named contract: reset() runs the sensor's force-cleanup hook (its
-      // `clearActive`) so listeners, capture and the drag-root lock are released.
+      // `reset()` runs the sensor's force-cleanup hook (its `clearActive`), so
+      // listeners, pointer capture and the drag-root lock are released.
       expect(onForceCleanup).toHaveBeenCalledTimes(1);
       expect(isActive()).toBe(false);
     });
   });
 
   describe('consumer-throw recovery', () => {
-    // The drop/cancel/update paths run consumer dispatch inside a try/catch that
-    // runs the session's full teardown before rethrowing. Without it, a thrown
-    // handler would leave `isActive` true and every later drag would silently
-    // no-op (a page-wide wedge). Driven through the lifecycle controller directly
-    // so the rethrow can be asserted synchronously (a throw through a real event
-    // listener surfaces as an unhandled error under jsdom).
+    // The drop, cancel and update paths run consumer dispatch inside a try/catch
+    // that tears the session down before rethrowing. Without it, a throwing
+    // handler would leave `isActive` true, and every later drag on the page would
+    // do nothing. These tests drive the lifecycle controller directly so the
+    // rethrow can be asserted synchronously. A throw through a real event
+    // listener surfaces as an unhandled error under jsdom.
     function startThrowingDrag(): DragSessionController {
       const handle = startDragWithHandlers({
         onMoveEnd: () => {
@@ -1286,10 +1283,10 @@ describe('lifecycle manager', () => {
       return handle!;
     }
 
-    /** After a thrown handler, the engine must be fully unstuck and re-armable. */
+    /** After a handler throws, the engine must be inactive and able to start a new drag. */
     function expectEngineRecovered(): void {
       expect(isActive()).toBe(false);
-      // A fresh drag must actually start — proves nothing leaked to wedge it.
+      // A new drag must start, which proves that no state leaked.
       const onMoveStart = vi.fn();
       const handle = startDragWithHandlers({ onMoveStart });
       expect(handle).not.toBeNull();
@@ -1316,7 +1313,7 @@ describe('lifecycle manager', () => {
       expect(handle).not.toBeNull();
 
       // A target handler throws mid-drag. The engine tears down either way, but
-      // consumer state keyed on the start/end pair must still be closed out.
+      // consumer state tied to the start and end pair must still be closed.
       act(() => {
         expect(() =>
           handle!.update(makeInput(), target, new Event('pointermove'), 'pointer'),
@@ -1445,11 +1442,11 @@ describe('lifecycle manager', () => {
       });
       expect(handle).not.toBeNull();
 
-      // Everywhere else in the engine a broken consumer costs only its own
-      // callback. The source's terminal handlers were the exception: an
-      // uncontained throw here used to skip everything below it, and
-      // `dispatchRecoveryEnd` can't make up for it once `endDispatched` is
-      // latched. The error must still surface — just last.
+      // Elsewhere in the engine, a throwing consumer loses only its own callback.
+      // The source's terminal handlers get the same treatment. An uncontained
+      // throw here would skip every later notification, and `dispatchRecoveryEnd`
+      // can't make up for that once `endDispatched` is set. The error still
+      // surfaces, but last.
       act(() => {
         expect(() => handle!.drop(makeInput(), target)).toThrow('boom from source onDrop');
       });
@@ -1545,7 +1542,7 @@ describe('lifecycle manager', () => {
       });
       engine.registerMonitor({ onMoveStart: second });
 
-      // Contained per monitor, exactly like each drop target's dispatch.
+      // Contained per monitor, like each drop target's dispatch.
       const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
       fireDrag.dragStart(el);
       await flushRaf();
@@ -1561,8 +1558,8 @@ describe('lifecycle manager', () => {
     it('a throwing onDrop on drop tears the session down (not wedged)', () => {
       const handle = startThrowingDrag();
       expect(() => handle.drop(makeInput(), null)).toThrow('boom from onDrop');
-      // The catch ran the full teardown before rethrowing, so the engine is
-      // unstuck and a fresh drag may start.
+      // The catch tore the session down before rethrowing, so a new drag can
+      // start.
       expect(isActive()).toBe(false);
     });
 
@@ -1573,10 +1570,10 @@ describe('lifecycle manager', () => {
     });
 
     it('a throwing onGenerateDragPreview (synchronous in start) tears the session down', () => {
-      // `onGenerateDragPreview` is dispatched synchronously inside `start()`,
-      // before the session ever returns a handle. A throw there leaves the engine
-      // half-built (`isActive=true`, monitors registered); the catch in `start()`
-      // must tear it all down and rethrow so `start()` throws and nothing wedges.
+      // `start()` dispatches `onGenerateDragPreview` synchronously, before it
+      // returns a handle. A throw there would leave the engine half-built, with
+      // `isActive()` true and the monitors active. The catch in `start()` must
+      // tear everything down and rethrow, so `start()` throws and later drags work.
       expect(() =>
         startDragWithHandlers({
           onGenerateDragPreview: () => {
@@ -1588,9 +1585,9 @@ describe('lifecycle manager', () => {
     });
 
     it('a throwing onMoveStart (synchronous in start) tears the session down', () => {
-      // `onMoveStart` is dispatched synchronously at the end of `start()`. A throw
-      // there tears the session down in the catch and rethrows, so `start()` throws and
-      // nothing wedges.
+      // `start()` dispatches `onMoveStart` synchronously at its end. A throw there
+      // tears the session down and rethrows, so `start()` throws and later drags
+      // work.
       expect(() =>
         startDragWithHandlers({
           onMoveStart: () => {
@@ -1688,13 +1685,13 @@ describe('lifecycle manager', () => {
       expect(onMoveEnd.mock.calls[0][0].canceled).toBe(true);
       expect(monitorOnDragEnd).toHaveBeenCalledTimes(1);
       expect(monitorOnDragEnd.mock.calls[0][0].canceled).toBe(true);
-      // The drag ended before the start fan-out reached the monitors; a start
-      // after the end would invert the lifecycle order.
+      // The drag ended before the start fan-out reached the monitors. A start
+      // after the end would reverse the lifecycle order.
       expect(monitorOnDragStart).not.toHaveBeenCalled();
       expect(isActive()).toBe(false);
 
       // The sensor released its resources through the refused-session path, so
-      // a fresh drag starts cleanly.
+      // a new drag starts.
       const el2 = createElement();
       const onDragStart2 = vi.fn();
       engine.registerSource(el2, { onMoveStart: onDragStart2 });
@@ -1704,11 +1701,11 @@ describe('lifecycle manager', () => {
     });
 
     it('cancelDrag() from the internal onGenerateDragPreview cancels before onMoveStart', async () => {
-      // The engine's own preview hook (the sensors' preview publisher, which
-      // runs the consumer's preview `render`) is dispatched synchronously inside
-      // `start()`, before the sensor records its session, so its cancel reaches
-      // the session only through the lifecycle-level fallback. The start fan-out
-      // must then be skipped and `start()` must hand back `null`.
+      // `start()` dispatches the engine's own preview hook synchronously, before
+      // the sensor records its session. That hook is the sensors' preview
+      // publisher, which runs the consumer's preview `render`. A cancel from it
+      // reaches the session only through the lifecycle-level fallback. The start
+      // fan-out must then be skipped, and `start()` must return `null`.
       const { engine } = await renderDnd();
       const onMoveStart = vi.fn();
       const onMoveEnd = vi.fn();
@@ -1734,7 +1731,7 @@ describe('lifecycle manager', () => {
       // The stack under the pickup point runs consumer resolvers inside
       // `start()`, before the sensor records its session. The lifecycle-level
       // cancel hook is armed before that resolution, so a cancel there ends the
-      // drag like a mid-drag one instead of being silently ignored.
+      // drag like a mid-drag one instead of being ignored.
       const { engine } = await renderDnd();
       const target = createElement();
       const onMoveStart = vi.fn();
@@ -1849,8 +1846,8 @@ describe('lifecycle manager', () => {
       expect(onMoveEnd).toHaveBeenCalledTimes(1);
       expect(onMoveEnd.mock.calls[0][0].target).toBeNull();
       expect(onMoveEnd.mock.calls[0][0].reason).toBe('imperative-action');
-      // The cancel's terminal leave is the only change round; final resolution
-      // must not dispatch a second one after teardown.
+      // The cancel's terminal leave is the only change round. The final
+      // resolution must not dispatch another one after teardown.
       expect(onTargetChange).toHaveBeenCalledTimes(1);
       expect(dragSessionStore.getSnapshot()).toBeNull();
     });
@@ -1875,9 +1872,9 @@ describe('lifecycle manager', () => {
       await flushRaf();
       fireDrag.dragEnter(targetA);
       await flushRaf();
-      // Moving A → C runs A's leave mid-change-dispatch; the cancel it issues
-      // must stop the fan-out so C never learns about a drag that just ended
-      // (a post-teardown enter would stick its hover state forever).
+      // Moving from A to C runs A's leave during the change dispatch. The cancel
+      // it issues must stop the fan-out, so C never hears about a drag that has
+      // ended. An enter after teardown would leave C's hover state stuck.
       fireDrag.dragEnter(targetC);
       await flushRaf();
 
@@ -1916,8 +1913,8 @@ describe('lifecycle manager', () => {
 
       fireDrag.dragStart(el);
       await flushRaf();
-      // Entering the child dispatches the synchronous entering-frame onMove to
-      // the stack innermost-first; the child's cancel must stop it there.
+      // Entering the child dispatches the entry `onDraggableMove` synchronously to
+      // the stack, innermost first. The child's cancel must stop it there.
       fireDrag.dragEnter(child);
       await flushRaf();
 

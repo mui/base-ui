@@ -3,9 +3,9 @@ import type { SyntheticPreviewHandle } from './synthetic/syntheticPreview';
 import type { ResolvedDragPreview } from './synthetic/pickupPreview';
 
 /**
- * The active drag's preview handle, so the React layer can reach the element the
- * engine built for it, along with the settings the sensor resolved it from, so
- * React never resolves them a second time.
+ * The active drag's preview handle and the settings the sensor resolved it from.
+ * The React layer reaches the engine-built element through the handle, and reuses
+ * the settings instead of resolving them again.
  */
 interface ActivePreviewSlot {
   handle: SyntheticPreviewHandle | null;
@@ -18,8 +18,9 @@ const slot = getSharedSlot<ActivePreviewSlot>('activeDragPreview', () => ({
 }));
 
 /**
- * Sensor-only: publish the active drag's preview handle and the settings behind it.
- * Released with `clearActivePreviewHandle`, whether the pickup is undone or the drag ends.
+ * Publish the active drag's preview handle and its settings. Only the sensor calls
+ * this. Released with `clearActivePreviewHandle` when the pickup is undone or the
+ * drag ends.
  */
 export function setActivePreviewHandle(
   handle: SyntheticPreviewHandle,
@@ -30,9 +31,9 @@ export function setActivePreviewHandle(
 }
 
 /**
- * Sensor-only: release `handle`, but only if it is still the published one, so a
- * sensor tearing down its own pickup can't clear a slot another one has since
- * taken over.
+ * Release `handle` if it is still the published one, so a sensor tearing down its
+ * own pickup cannot clear a slot another sensor has since taken. Only the sensor
+ * calls this.
  */
 export function clearActivePreviewHandle(handle: SyntheticPreviewHandle): void {
   if (slot.handle === handle) {
