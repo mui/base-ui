@@ -5,10 +5,12 @@ import {
   cancel,
   createElement,
   flushRaf,
+  registerCleanup,
   setupDragEngineTests,
   splitEnd,
   fireDrag,
 } from '../../../../test/dnd';
+import { getSharedSlot } from '../sharedState';
 import type { DraggableInput } from '../../../draggable/DraggableProvider';
 import type { DraggableRootRecord } from '../../../draggable/root/DraggableRoot';
 import type { DraggableTargetRecord } from '../../../draggable/target/DraggableTarget';
@@ -167,6 +169,82 @@ describe('lifecycle manager', () => {
     expect(monitorEnd.mock.calls[0][1].reason).toBe('handler-error');
     expect(monitorEnd.mock.calls[0][1].canceled).toBe(true);
     removeMonitor(getMonitor);
+  });
+
+  describe('target drag data', () => {
+    // The engine's per-target drag data cache (see `dropTarget.ts`).
+    function cachedDragData(getParameters: object): unknown {
+      return getSharedSlot<{ dragData: WeakMap<object, unknown> }>('dropTarget', () => {
+        throw new Error('The drop target state is not initialized.');
+      }).dragData.get(getParameters);
+    }
+
+    function registerDataTarget(parameters: { canDrop?: () => boolean } = {}) {
+      const element = createElement();
+      let record: DraggableTargetRecord | undefined;
+      const getParameters = () => ({
+        accept: TEST_KIND,
+        onDraggableEnter({ target }: { target: DraggableTargetRecord }) {
+          record = target;
+          target.updateDragData('data');
+        },
+        ...parameters,
+      });
+      addDropTargetRegistration(element, getParameters);
+      registerCleanup(() => removeDropTargetRegistration(element, getParameters));
+      return { element, getParameters, getRecord: () => record };
+    }
+
+    it.each([
+      [
+        'a drop',
+        (handle: DragSessionController, element: Element) => handle.drop(makeInput(), element),
+      ],
+      ['a cancel', (handle: DragSessionController) => handle.cancel()],
+    ])('releases it after %s while the target stays registered', (_, end) => {
+      const target = registerDataTarget();
+      const handle = startDragWithHandlers({}, target.element)!;
+      expect(cachedDragData(target.getParameters)).not.toBe(undefined);
+
+      end(handle, target.element);
+
+      expect(cachedDragData(target.getParameters)).toBe(undefined);
+      expect(target.getRecord()!.dragData).toBe('data');
+    });
+
+    it('releases it when a handler error tears the drag down', () => {
+      const target = registerDataTarget();
+      const handle = startDragWithHandlers(
+        {
+          onMove() {
+            throw new Error('move failed');
+          },
+        },
+        target.element,
+      )!;
+
+      expect(() =>
+        handle.update(makeInput(), target.element, new Event('pointermove'), 'pointer'),
+      ).toThrow('move failed');
+
+      expect(isActive()).toBe(false);
+      expect(cachedDragData(target.getParameters)).toBe(undefined);
+    });
+
+    it('does not cache it for a drag canceled while its targets resolve', () => {
+      const target = registerDataTarget({
+        canDrop: () => {
+          cancelDrag();
+          return true;
+        },
+      });
+      const handle = startDragWithHandlers({})!;
+
+      handle.update(makeInput(), target.element, new Event('pointermove'), 'pointer');
+
+      expect(isActive()).toBe(false);
+      expect(cachedDragData(target.getParameters)).toBe(undefined);
+    });
   });
 
   it('closes a hovered target using its previous kind-compatible callback', () => {

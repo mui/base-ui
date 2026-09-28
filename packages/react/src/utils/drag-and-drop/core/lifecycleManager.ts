@@ -29,8 +29,8 @@ import type { DraggableConfig } from '../draggable';
 import { createDragEventDetails, createMoveEndEventDetails } from '../dragEventDetails';
 import {
   captureDropTargetCollision,
+  beginDropTargetSession,
   endDropTargetSession,
-  setSessionGrabOffset,
   dispatchDropTargetChange,
   dispatchDropTargetLeave,
   dispatchToAllDropTargets,
@@ -193,7 +193,7 @@ export function start(parameters: StartParameters): DragSessionController | null
 
   // Before the initial stack resolves: records capture the grab offset at
   // creation for `getSnappedLocalPoint({ anchor: 'source' })`.
-  setSessionGrabOffset(grabOffset);
+  beginDropTargetSession(source, grabOffset);
 
   // The native event the latest sample came from, carried into `eventDetails.event`
   // for the move-derived dispatches. Seeded from the pickup so the events before
@@ -780,7 +780,6 @@ export function start(parameters: StartParameters): DragSessionController | null
       // went out (releasing the hold) or the drag is over and never will. The
       // per-target drag data goes with the drag.
       endDropTargetSession();
-      setSessionGrabOffset(null);
       setDragSession(null);
     }
   }

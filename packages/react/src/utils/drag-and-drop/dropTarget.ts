@@ -102,14 +102,19 @@ interface DropTargetState {
    * sweeps whatever a torn-down drag left behind.
    */
   retiring: Map<Element, DropTargetGetter>;
+  /** The active drag's source, set by the lifecycle for the session's duration. */
+  sessionSource: DraggableRootRecord | null;
   /**
    * The active drag's pickup grab offset: the pointer at pickup minus the source's
    * border-box origin, in client pixels, measured before any `[data-dragging]`
-   * styling applies. Written by the lifecycle for the session's duration and
-   * captured per record for `getSnappedLocalPoint({ anchor: 'source' })`.
+   * styling applies. Captured per record for `getSnappedLocalPoint({ anchor: 'source' })`.
    */
   grabOffset: { x: number; y: number } | null;
-  /** Each registration's `dragData`, replaced when the drag or its target kind changes. */
+  /**
+   * Each registration's `dragData` for the active drag, replaced when its target
+   * kind changes. Emptied when the drag ends: a mounted target keeps its getter
+   * alive, so an entry left behind would retain the finished drag's source.
+   */
   dragData: WeakMap<DropTargetGetter, TargetDragData>;
   recordRegistrations: WeakMap<DraggableTargetRecord, RecordRegistration>;
   /**
@@ -131,6 +136,7 @@ const state = getSharedSlot<DropTargetState>('dropTarget', () => ({
   shadowRootsByHost: new Map<Element, ShadowRoot>(),
   shadowRootChangeListeners: new Set<ShadowRootChangeListener>(),
   retiring: new Map<Element, DropTargetGetter>(),
+  sessionSource: null,
   grabOffset: null,
   dragData: new WeakMap<DropTargetGetter, TargetDragData>(),
   recordRegistrations: new WeakMap<DraggableTargetRecord, RecordRegistration>(),
@@ -262,14 +268,24 @@ export function retainRetiringDropTarget(element: Element, getParameters: DropTa
   }
 }
 
+/** Open a drag session before its initial stack resolves; run from the lifecycle's start. */
+export function beginDropTargetSession(
+  source: DraggableRootRecord,
+  grabOffset: { x: number; y: number },
+): void {
+  state.sessionSource = source;
+  state.grabOffset = grabOffset;
+}
+
 /**
- * Drop every retiring hold and the drag's per-target data; run from the
- * lifecycle's teardown. A mounted target keeps its getter alive, so data keyed
- * on it would otherwise retain the finished drag's source until the next one.
- * Records already handed out keep their own reference to their data.
+ * Close the session: drop every retiring hold and the drag's per-target data.
+ * Run from the lifecycle's teardown. Records already handed out keep their own
+ * reference to their data.
  */
 export function endDropTargetSession(): void {
   state.retiring.clear();
+  state.sessionSource = null;
+  state.grabOffset = null;
   state.dragData = new WeakMap<DropTargetGetter, TargetDragData>();
 }
 
@@ -317,6 +333,7 @@ export function resetForTests(): void {
   state.shadowRootsByHost.clear();
   state.shadowRootChangeListeners.clear();
   state.retiring.clear();
+  state.sessionSource = null;
   state.grabOffset = null;
   state.dragData = new WeakMap<DropTargetGetter, TargetDragData>();
   state.recordRegistrations = new WeakMap<DraggableTargetRecord, RecordRegistration>();
@@ -324,11 +341,6 @@ export function resetForTests(): void {
 }
 
 type ConsumerCallbackName = 'canDrop' | 'snap' | 'getParameters';
-
-/** Lifecycle-only writer; pass `null` on teardown. */
-export function setSessionGrabOffset(offset: { x: number; y: number } | null): void {
-  state.grabOffset = offset;
-}
 
 /**
  * A throwing callback costs the target its registration for this dispatch, so one
@@ -365,6 +377,11 @@ function getTargetDragData(
   source: DraggableRootRecord,
   kind: symbol | undefined,
 ): TargetDragData {
+  // Resolution resumed after its drag ended (a consumer canceled mid-walk):
+  // nothing may cache the finished drag's source.
+  if (source !== state.sessionSource) {
+    return { source, kind, value: undefined };
+  }
   let data = state.dragData.get(getParameters);
   if (data === undefined || data.source !== source || data.kind !== kind) {
     data = { source, kind, value: undefined };
