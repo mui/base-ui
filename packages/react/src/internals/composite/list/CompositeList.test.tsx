@@ -702,6 +702,51 @@ describe('<CompositeList />', () => {
       expect(observedRoots).toEqual([screen.getByTestId('list')]);
     });
 
+    it('keeps the observer when a re-registration leaves the order unchanged', async () => {
+      const observe = vi.spyOn(MutationObserver.prototype, 'observe');
+      const elementsRef = {
+        current: [] as Array<HTMLElement | null>,
+      };
+      const labelsRef = {
+        current: [] as Array<string | null>,
+      };
+
+      function RelabelledItem(props: { label: string; testId: string }) {
+        const { ref, index } = useCompositeListItem({ label: props.label });
+        return <div ref={ref} data-testid={props.testId} data-index={index} />;
+      }
+
+      function App(props: { label: string }) {
+        return (
+          <CompositeList elementsRef={elementsRef} labelsRef={labelsRef}>
+            <div data-testid="list">
+              <RelabelledItem testId="a" label={props.label} />
+              <RelabelledItem testId="b" label="b" />
+            </div>
+          </CompositeList>
+        );
+      }
+
+      const { setProps } = await render(<App label="before" />, { strict: false });
+      expect(labelsRef.current).toEqual(['before', 'b']);
+      expect(observe).toHaveBeenCalledTimes(1);
+
+      // A label change re-registers the item, which is a flush without a reorder.
+      await setProps({ label: 'after' });
+      expect(labelsRef.current).toEqual(['after', 'b']);
+      expect(observe).toHaveBeenCalledTimes(1);
+
+      // The retained observer still catches a later move.
+      const list = screen.getByTestId('list');
+      list.insertBefore(screen.getByTestId('b'), screen.getByTestId('a'));
+
+      await waitFor(() => {
+        expect(screen.getByTestId('b')).toHaveAttribute('data-index', '0');
+      });
+      observe.mockRestore();
+      expect(screen.getByTestId('a')).toHaveAttribute('data-index', '1');
+    });
+
     it('does not re-render an item whose index is unchanged when it has pending work', async () => {
       const renderCounts: Record<string, number> = { a: 0, b: 0 };
       const rerenderItem: Record<string, () => void> = {};
