@@ -28,8 +28,6 @@ const detailedSlot = Draggable.createKind<{ index: number; label: string }>('det
 
 // @ts-expect-error the target kind requires every payload field, even when a subset is inferred.
 <Draggable.Target accept={card} kind={detailedSlot} payload={{ index: 0 }} />;
-// @ts-expect-error a resolver must also provide the kind's complete payload.
-<Draggable.Target accept={card} kind={detailedSlot} getPayload={() => ({ index: 0 })} />;
 // @ts-expect-error heterogeneous accepted kinds do not weaken the target's own payload contract.
 <Draggable.Target accept={[card, file]} kind={detailedSlot} payload={{ index: 0 }} />;
 <Draggable.Target
@@ -198,17 +196,9 @@ declare const maybeSlotPayload: SlotPayload | undefined;
 <Draggable.Target<CardPayload, SlotPayload> accept={card} payload={undefined} />;
 // @ts-expect-error a possibly undefined target payload cannot satisfy a required payload.
 <Draggable.Target<CardPayload, SlotPayload> accept={card} payload={maybeSlotPayload} />;
-// @ts-expect-error a required target payload getter cannot be explicitly undefined.
-<Draggable.Target<CardPayload, SlotPayload> accept={card} getPayload={undefined} />;
 
 // @ts-expect-error the payload must match the explicit type argument.
 <Draggable.Target<CardPayload, SlotPayload> accept={card} payload={{ index: 'first' }} />;
-
-<Draggable.Target<CardPayload, SlotPayload>
-  // @ts-expect-error getPayload has been removed.
-  accept={card}
-  getPayload={() => ({ index: 'first' })}
-/>;
 
 <Draggable.Target
   accept={Draggable.anyKind}

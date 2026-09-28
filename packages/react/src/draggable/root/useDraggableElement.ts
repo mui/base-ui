@@ -22,7 +22,6 @@ import type { DraggableRootRecord } from './DraggableRoot';
 import {
   dragSessionStore,
   dragSourceStore,
-  isDraggingElement,
   retargetDragSource,
 } from '../../utils/drag-and-drop/dragSessionStore';
 import { useRegistrationRef } from '../../utils/drag-and-drop/useRegistrationRef';
@@ -80,16 +79,14 @@ export function useDraggableElement<TPayload = undefined, TDragData = unknown>(
   };
   const options = { parameters: internalParameters, collision: collisionOptions };
   const getOptions = useStableCallback(() => options);
-  const getParameters = () => getOptions().parameters;
-  const getCollision = () => getOptions().collision;
 
   const registrationRef = useRegistrationRef<HTMLElement>((element) => {
     const unregisterSource = registerSource<TPayload, TDragData>(
       element,
-      getParameters,
+      () => getOptions().parameters,
       payloadOwner,
     );
-    const collisionConfig = getCollision();
+    const collisionConfig = getOptions().collision;
     if (!collisionConfig?.enabled) {
       return unregisterSource;
     }
@@ -162,7 +159,7 @@ export function useDraggableElement<TPayload = undefined, TDragData = unknown>(
   // The live `handle` getter already reads `attachedHandlesRef` fresh, so skip
   // the teardown mid-drag and flush the re-registration when the drag ends.
   const reconcile = useRefWithInit(() => () => {
-    if (isDraggingElement(dragSessionStore.state, elementRef.current)) {
+    if (dragSessionStore.state?.source.element === elementRef.current) {
       pendingReconcileRef.current = true;
       return;
     }

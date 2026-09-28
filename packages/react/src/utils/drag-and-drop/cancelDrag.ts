@@ -12,7 +12,7 @@ export function cancelDrag(): void {
   cancelActivePointerDrag();
   // During the synchronous start dispatches (`onGenerateDragPreview` /
   // `onMoveStart`) the sensor has not recorded the session yet, so the call above
-  // no-op; the lifecycle-level cancel reaches the in-flight session directly.
+  // no-ops; the lifecycle-level cancel reaches the in-flight session directly.
   // It is itself a no-op once a sensor-owned cancel has torn the lifecycle down.
   cancelLifecycleDrag();
 }

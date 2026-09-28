@@ -35,10 +35,11 @@ export function createDragSource(
     updatePayload(nextPayload) {
       readPayload();
       if (data.update(nextPayload)) {
+        // Every drag's record for this registration shares `data`; notify the active one.
         const activeSource = dragSessionStore.state?.source;
-        notifyDragSourceUpdated(
-          activeSource && sourcePayloads.get(activeSource) === data ? activeSource : source,
-        );
+        if (activeSource && sourcePayloads.get(activeSource) === data) {
+          notifyDragSourceUpdated(activeSource);
+        }
       }
     },
     updateDragData(nextDragData) {

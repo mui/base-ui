@@ -805,7 +805,7 @@ describe('engine.registerTarget', () => {
     });
 
     it('leaves an axis without steps at its clamped raw fraction', async () => {
-      // The bridge resolves the named target wherever the pointer is, so a point
+      // `fireDrag` resolves the named target wherever the pointer is, so a point
       // below the target's box exercises the clamp: raw y is 1.2, snapped is 1.
       const record = await dropAt({ snap: { x: 4 } }, 150, 320);
 
@@ -839,7 +839,7 @@ describe('engine.registerTarget', () => {
     });
 
     it("anchors on the pickup grab offset with anchor: 'source'", async () => {
-      // Grabbed 30px below the source's top edge (the bridge's activation nudge
+      // Grabbed 30px below the source's top edge (`fireDrag`'s activation nudge
       // only shifts x): the source anchor reports where the dragged element's
       // top edge sits, which is what a move commits. Snapping the pointer and
       // subtracting the grab offset afterwards would un-snap it.
@@ -1103,9 +1103,8 @@ describe('engine.registerTarget', () => {
       // End the drag before restoring the console spy — even if an assertion
       // above failed. Otherwise teardown un-registers the buggy target mid-drag,
       // which re-resolves the stack and re-throws from `canDrop` after the spy is
-      // gone. Dispatch `dragend` on the source so the synthetic bridge observes it
-      // (it listens on `document`, so a `window`-targeted event would be missed)
-      // and cancels the drag, clearing the stack without re-running `canDrop`.
+      // gone. `fireDrag.dragEnd()` cancels the drag, clearing the stack without
+      // re-running `canDrop`.
       fireDrag.dragEnd();
       consoleError.mockRestore();
     }

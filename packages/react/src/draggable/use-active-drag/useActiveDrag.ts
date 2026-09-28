@@ -36,10 +36,7 @@ function selectAcceptedDragSource(
   source: DraggableRootRecord | null,
   accept: DraggableAccept<unknown> | undefined,
 ): DraggableRootRecord | null {
-  if (source === null || !matchesAccept(accept, source)) {
-    return null;
-  }
-  return source;
+  return source !== null && matchesAccept(accept, source) ? source : null;
 }
 
 // Keyed on the observed payload rather than on an `accept` value, like the props types.

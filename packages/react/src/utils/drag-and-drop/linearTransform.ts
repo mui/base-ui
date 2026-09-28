@@ -34,10 +34,8 @@ export function parseComputedLinearTransform(
     return null;
   }
   const values = match[2].split(',').map(Number);
-  const [a, b, c, d] = match[1]
-    ? [values[0], values[1], values[4], values[5]]
-    : [values[0], values[1], values[2], values[3]];
-  return [a, b, c, d].every((value) => Number.isFinite(value)) ? { a, b, c, d } : null;
+  const [a, b, c, d] = match[1] ? [values[0], values[1], values[4], values[5]] : values;
+  return [a, b, c, d].every(Number.isFinite) ? { a, b, c, d } : null;
 }
 
 /** Parse a computed CSS angle, whose canonical unit is degrees. */

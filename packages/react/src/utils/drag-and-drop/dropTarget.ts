@@ -59,14 +59,7 @@ interface RecordRegistration {
  * resolving and dispatching to targets can all differ.
  */
 interface DropTargetState {
-  /**
-   * Maps each registered target element to the stack of parameter getters held
-   * against it — one per registration whose ref landed on the node. Storing getters
-   * rather than snapshots lets the React layer register once and have the engine read
-   * the freshest callbacks on each dispatch; the last getter in the stack is the
-   * active one. Each cleanup removes *its own* getter, by identity, so releasing a
-   * non-last hold can't strand the surviving hook's callbacks.
-   */
+  /** Each registered target element's stack of parameter getters (see `getterStackRegistry`). */
   registry: Map<Element, DropTargetGetter[]>;
   /**
    * How many registered drop targets live in each shadow root, so the sensor can
@@ -332,10 +325,7 @@ export function resetForTests(): void {
   state.retainedRoots = new WeakMap<Element, ShadowRoot[]>();
   state.shadowRootsByHost.clear();
   state.shadowRootChangeListeners.clear();
-  state.retiring.clear();
-  state.sessionSource = null;
-  state.grabOffset = null;
-  state.dragData = new WeakMap<DropTargetGetter, TargetDragData>();
+  endDropTargetSession();
   state.recordRegistrations = new WeakMap<DraggableTargetRecord, RecordRegistration>();
   state.registrationSnapshots = new WeakMap<AnyDropTargetParameters, AnyDropTargetParameters>();
 }
@@ -411,10 +401,9 @@ export function syncDropTargetPayload(
 /** Internal registration hook: capture geometry before consumers can mutate the layout. */
 export const resolveCollision = Symbol.for('base-ui.resolveCollision');
 
-export interface CollisionResolutionRegistration<TPayload = unknown, TDragData = unknown> {
+export interface CollisionResolutionRegistration {
   [resolveCollision]?:
-    | ((target: DraggableTargetRecord<TPayload, TDragData>, source: DraggableRootRecord) => void)
-    | undefined;
+    ((target: DraggableTargetRecord, source: DraggableRootRecord) => void) | undefined;
 }
 
 /** Measure only the winning participant, immediately before dispatch can mutate its layout. */
@@ -449,12 +438,9 @@ function resolveDropTargetOutcome(
   // initial resolution in `start()`, tear the drag down before it began), so
   // treat a throwing getter like an unregistered target instead.
   const registration = safeCall('getParameters', element, getRegistration, null);
-  if (registration === null) {
-    return null;
-  }
   // A disabled target is not a candidate at all — like a failed `canDrop`, the
   // walk falls through to ancestor targets.
-  if (registration.disabled) {
+  if (registration === null || registration.disabled) {
     return null;
   }
   // Cheap kind filter first, before allocating the feedback object. This path
@@ -554,28 +540,19 @@ function createLocalPointReaders(
   const grabOffset = state.grabOffset;
 
   let rect: DOMRect | null = null;
-  function measureRect(): DOMRect {
-    if (rect === null) {
-      rect = element.getBoundingClientRect();
-    }
-    return rect;
-  }
-
   function localPoint(offsetX: number, offsetY: number): DraggableTargetLocalPoint {
-    const measured = measureRect();
+    rect ??= element.getBoundingClientRect();
     // Zero on an axis with no extent, which is what an empty or detached element
     // measures as, rather than dividing by it.
     return {
-      x: measured.width === 0 ? 0 : (clientX - offsetX - measured.left) / measured.width,
-      y: measured.height === 0 ? 0 : (clientY - offsetY - measured.top) / measured.height,
+      x: rect.width === 0 ? 0 : (clientX - offsetX - rect.left) / rect.width,
+      y: rect.height === 0 ? 0 : (clientY - offsetY - rect.top) / rect.height,
     };
   }
 
   let rawMemo: DraggableTargetLocalPoint | null = null;
   const getLocalPoint = (): DraggableTargetLocalPoint => {
-    if (rawMemo === null) {
-      rawMemo = localPoint(0, 0);
-    }
+    rawMemo ??= localPoint(0, 0);
     return rawMemo;
   };
 
@@ -592,10 +569,7 @@ function createLocalPointReaders(
     return steps;
   }
 
-  const snappedMemos: {
-    pointer?: DraggableTargetLocalPoint | undefined;
-    source?: DraggableTargetLocalPoint | undefined;
-  } = {};
+  const snappedMemos: Partial<Record<'pointer' | 'source', DraggableTargetLocalPoint>> = {};
   const getSnappedLocalPoint = (
     options?: DraggableTargetSnappedLocalPointOptions,
   ): DraggableTargetLocalPoint => {

@@ -1,5 +1,4 @@
 import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
-import { NOOP } from '@base-ui/utils/empty';
 import { warn } from '@base-ui/utils/warn';
 import { isElement, isShadowRoot } from '@floating-ui/utils/dom';
 import { capturePreviewStyles } from './previewStyles';
@@ -593,13 +592,12 @@ export function measurePreviewSource(source: HTMLElement): {
   // are checked. Sizing from the transformed AABB would compound the re-applied
   // `scale: 1.5` to ~2.25x.
   const win = ownerWindow(source);
-  const untransformedRect = source.getBoundingClientRect();
+  const rect = source.getBoundingClientRect();
   const sourceStyle = win.getComputedStyle(source);
   // Translation is excluded, in both spellings: it moves the box without resizing
   // it, so the rect's own dimensions are already right — and they are exact,
   // where `offsetWidth` rounds to an integer and would cost the preview its
   // subpixel size.
-  //
   const hasTransform =
     (sourceStyle.transform !== '' &&
       sourceStyle.transform !== 'none' &&
@@ -610,8 +608,8 @@ export function measurePreviewSource(source: HTMLElement): {
   const parentScale = parent ? getElementScale(parent) : { x: 1, y: 1 };
   const ownZoom = getOwnZoom(source, sourceStyle);
   const ancestorScale = { x: parentScale.x * ownZoom, y: parentScale.y * ownZoom };
-  const width = hasTransform ? source.offsetWidth * ancestorScale.x : untransformedRect.width;
-  const height = hasTransform ? source.offsetHeight * ancestorScale.y : untransformedRect.height;
+  const width = hasTransform ? source.offsetWidth * ancestorScale.x : rect.width;
+  const height = hasTransform ? source.offsetHeight * ancestorScale.y : rect.height;
   // Everything downstream — the default `'source'` offset, the `--drag-source-*`
   // variables — has to describe the same box the preview actually has, or the
   // preview is anchored against a box it doesn't own and jumps on pickup.
@@ -619,8 +617,8 @@ export function measurePreviewSource(source: HTMLElement): {
   // So the untransformed *size* has to be paired with the position obtained by
   // undoing the source's own transform around its computed transform-origin.
   const sourceRect = hasTransform
-    ? getUntransformedSourceRect(untransformedRect, width, height, sourceStyle, win, ancestorScale)
-    : untransformedRect;
+    ? getUntransformedSourceRect(rect, width, height, sourceStyle, win, ancestorScale)
+    : rect;
 
   return { sourceRect, scale: ancestorScale };
 }
@@ -690,7 +688,6 @@ export function createDragPreviewElement(
   const height = sourceRect.height / sourceScale.y;
 
   const element = clone?.element ?? doc.createElement('div');
-  const applyPostInsertion = clone?.applyPostInsertion ?? NOOP;
 
   element.setAttribute(DraggablePreviewDataAttributes.dragPreview, '');
   element.setAttribute('aria-hidden', 'true');
@@ -762,13 +759,10 @@ export function createDragPreviewElement(
     zIndex: '2147483647',
   });
   const restoredMotion = new Map<string, string>();
-  let contextualStyles: ReturnType<typeof capturePreviewStyles> | undefined;
-  if (clone) {
-    // Read from the source while the clone is still detached: it is never inserted
-    // beside the source, which would shift every sibling's `:nth-child` index and
-    // snapshot the clone at a position the source does not occupy.
-    contextualStyles = capturePreviewStyles(clone.sourceNodes, clone.nodes);
-  }
+  // Read from the source while the clone is still detached: it is never inserted
+  // beside the source, which would shift every sibling's `:nth-child` index and
+  // snapshot the clone at a position the source does not occupy.
+  const contextualStyles = clone && capturePreviewStyles(clone.sourceNodes, clone.nodes);
   wrapper.appendChild(element);
 
   /**
@@ -864,7 +858,7 @@ export function createDragPreviewElement(
     neutralizeInheritedMotion();
   }
   contextualStyles?.restore();
-  applyPostInsertion();
+  clone?.applyPostInsertion();
 
   function reconnect(): void {
     if (destroyed) {
@@ -892,7 +886,7 @@ export function createDragPreviewElement(
     // Re-appending resets descendant scroll positions to 0; restore the captured
     // offsets so an internally-scrolled preview subtree keeps its scroll after a
     // mid-drag re-home, in the same order as the initial insertion.
-    applyPostInsertion();
+    clone?.applyPostInsertion();
   }
 
   // A React commit that recycles the preview's host — a virtualizer scrolling the

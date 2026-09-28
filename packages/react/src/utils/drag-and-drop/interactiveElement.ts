@@ -1,10 +1,11 @@
 import { INTERACTIVE_ELEMENT_SELECTOR } from '../../floating-ui-react/utils/constants';
 import { getComposedParentElement } from './utils';
 
-// Native controls that own pointer gestures but are not covered by the shared
-// focus-oriented selector, plus ARIA widgets that may be implemented without a
-// native focusable element.
-const DRAG_INTERACTIVE_ADDITIONS_SELECTOR = [
+// The shared focus-oriented selector, plus native controls that own pointer
+// gestures but are not covered by it, and ARIA widgets that may be implemented
+// without a native focusable element.
+const DRAG_INTERACTIVE_ELEMENT_SELECTOR = [
+  INTERACTIVE_ELEMENT_SELECTOR,
   'label',
   'summary',
   'audio[controls]',
@@ -23,8 +24,6 @@ const DRAG_INTERACTIVE_ADDITIONS_SELECTOR = [
   '[role="tab"]',
   '[role="textbox"]',
 ].join(',');
-
-const DRAG_INTERACTIVE_ELEMENT_SELECTOR = `${INTERACTIVE_ELEMENT_SELECTOR},${DRAG_INTERACTIVE_ADDITIONS_SELECTOR}`;
 
 /**
  * Whether the press landed on an interactive control nested *inside* the node the

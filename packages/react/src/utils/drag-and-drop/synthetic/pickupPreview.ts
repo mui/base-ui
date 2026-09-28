@@ -38,21 +38,17 @@ export function resolveDragPreview(
   parameters: DraggableConfig<any, any>,
   source: HTMLElement,
 ): ResolvedDragPreview {
-  const declaration = parameters.getDragPreviewDeclaration?.() ?? null;
+  const declaration = parameters.getDragPreviewDeclaration?.();
   const settings = declaration ? declaration.getSettings() : parameters.preview;
-  const render = (declaration ? declaration.render : parameters.preview?.render) ?? null;
   const disabled = settings?.disabled ?? false;
-
-  // With no explicit container, the preview is inserted into the source's parent.
-  const container = settings?.container;
 
   return {
     offset: settings?.offset,
     modifiers: settings?.modifiers,
     // Can be a callback, so leave it uninvoked when the preview is disabled.
-    container: disabled ? null : resolveElementReference(container, source),
+    container: disabled ? null : resolveElementReference(settings?.container, source),
     disabled,
-    render,
+    render: (declaration ? declaration.render : parameters.preview?.render) ?? null,
   };
 }
 
@@ -96,7 +92,7 @@ export function resolveDragPreviewOffset(
  * default `'source'` offset is measured from the press: crossing the threshold must
  * not shift the preview in the gesture's direction.
  */
-export function attachDefaultDragPreview(
+export function attachDragPreview(
   preview: SyntheticPreviewHandle,
   element: HTMLElement,
   settings: ResolvedDragPreview,
@@ -123,12 +119,12 @@ export function attachDefaultDragPreview(
   // until React fills it — so leave it to the renderer, which resolves it exactly
   // once, after the content lands. Every other form depends only on the source rect
   // and is correct right now, including for a host.
-  let offset: DraggablePosition;
   if (previewElement.isHost && typeof settings.offset === 'function') {
-    offset = { x: 0, y: 0 };
-  } else {
-    const isSourceOffset = settings.offset === undefined || settings.offset === 'source';
-    offset = resolveDragPreviewOffset(settings.offset, {
+    return;
+  }
+  const isSourceOffset = settings.offset === undefined || settings.offset === 'source';
+  preview.setPreviewOffset(
+    resolveDragPreviewOffset(settings.offset, {
       container: previewElement.element,
       // The rect the preview actually occupies: for a transformed source this is the
       // untransformed box the clone is anchored on (see `createDragPreviewElement`),
@@ -136,7 +132,6 @@ export function attachDefaultDragPreview(
       // exactly where the source sits.
       sourceRect: previewElement.sourceRect,
       input: isSourceOffset ? pressInput : input,
-    });
-  }
-  preview.setPreviewOffset(offset);
+    }),
+  );
 }

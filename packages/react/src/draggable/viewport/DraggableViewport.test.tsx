@@ -76,8 +76,7 @@ describe('Draggable.Viewport', () => {
 
   // Deliver pointer coordinates and let them travel the pipeline: the sensor's
   // frame, the lifecycle's rAF-coalesced `onMove`, and the woken loop frame.
-  // The event must be dispatched on an element — the test bridge listens on
-  // `document` with capture, so an event fired at `window` never reaches it.
+  // `fireDrag` resolves the engine's hit test onto `target`.
   async function dragTo(target: HTMLElement, clientX: number, clientY: number): Promise<void> {
     fireDrag.dragOver(target, { clientX, clientY });
     await flushRaf();

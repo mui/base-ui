@@ -12,12 +12,11 @@ const cardKind = Draggable.createKind<string>('card');
  * End-to-end drop-target resolution against real layout and a real
  * `document.elementFromPoint`.
  *
- * Every other engine test drives drags through the native→synthetic bridge,
- * which stubs `elementFromPoint` to return the element the test named — so the
- * test hands the engine the answer and the point→element path never runs. These
- * drive raw pointer events instead, which the bridge ignores (it only patches
- * `elementFromPoint` once it sees a native `dragstart`), leaving the engine to
- * hit-test the pointer for real.
+ * Every other engine test drives drags through `fireDrag`, which stubs
+ * `elementFromPoint` to return the element the test named — so the test hands
+ * the engine the answer and the point→element path never runs. These dispatch
+ * raw pointer events instead, leaving `elementFromPoint` unpatched and the engine
+ * to hit-test the pointer for real.
  */
 describe.skipIf(isJSDOM)('drop target resolution (real hit testing)', () => {
   const { renderDnd } = createDndRenderer();

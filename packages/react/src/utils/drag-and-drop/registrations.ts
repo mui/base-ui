@@ -62,12 +62,7 @@ export function registerTarget<
     // and a dev-only check must neither let that escape registration nor report
     // it — the dispatch path already surfaces a throwing getter properly, and
     // logging it here too would double up.
-    let parameters: RegisterTargetParameters<
-      TSourcePayload,
-      TTargetPayload,
-      TDragData,
-      TTargetDragData
-    > | null = null;
+    let parameters: ReturnType<typeof getParameters> | null;
     try {
       parameters = getParameters();
     } catch {
@@ -169,8 +164,5 @@ export function registerMonitor<TAccept extends DraggableAccept<unknown> = Dragg
   >,
 ): DragCleanupFn {
   addMonitor(getMonitor);
-
-  return onceCleanup(() => {
-    removeMonitor(getMonitor);
-  });
+  return onceCleanup(() => removeMonitor(getMonitor));
 }

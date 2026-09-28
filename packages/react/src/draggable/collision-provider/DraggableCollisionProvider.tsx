@@ -81,7 +81,7 @@ export function DraggableCollisionProvider<TPayload, TDragData = unknown>(
       let lastConfig: DraggableCollisionProviderProps<TPayload, TDragData> | null = null;
       let registration:
         | (RegisterTargetParameters<TPayload, TPayload, TDragData, TDragData> &
-            CollisionResolutionRegistration<TPayload, TDragData>)
+            CollisionResolutionRegistration)
         | null = null;
       const unregister = registerTarget<TPayload, TPayload, TDragData, TDragData>(element, () => {
         const participant = getParticipant();
@@ -92,10 +92,7 @@ export function DraggableCollisionProvider<TPayload, TDragData = unknown>(
         lastParticipant = participant;
         lastConfig = config;
         registration = {
-          [resolveCollision]: (
-            record: DraggableTargetRecord<TPayload, TDragData>,
-            source: DraggableRootRecord,
-          ) => {
+          [resolveCollision]: (record, source) => {
             if (sourceElement === source.element || captured.has(record)) {
               return;
             }

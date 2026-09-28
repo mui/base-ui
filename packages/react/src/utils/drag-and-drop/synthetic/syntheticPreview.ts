@@ -74,9 +74,14 @@ export function retargetEndingPreviewSource(
   }
 }
 
+/**
+ * `modifiers` are the compiled preview-level ones, or `null` for none: they constrain
+ * where the preview is drawn without touching the drag itself.
+ */
 export function createSyntheticPreview(
   initialSourceElement: Element,
   sourceIdentity: SyntheticPreviewSourceIdentity,
+  modifiers: ReadonlyArray<DraggableRootModifier> | null,
 ): SyntheticPreviewHandle {
   // Re-pointed when a virtualizer remounts the dragged item to a fresh node, so the
   // drag-state attribute follows the live element the way `isDragging` does.
@@ -95,10 +100,6 @@ export function createSyntheticPreview(
   let lastX = 0;
   let lastY = 0;
   let hasPosition = false;
-  // Opt-in preview-level `modifiers`, compiled to a non-empty list, or
-  // `null` for none. Constrains where the preview is drawn without touching the
-  // drag itself (the root's `modifiers` does that).
-  let modifiers: ReadonlyArray<DraggableRootModifier> | null = null;
   // The preview's proposed top-left on the first frame positioned with the
   // current offset — the reference a preview-level axis lock or grid snaps
   // against. Reset whenever the offset changes (a callback offset resolving
@@ -234,7 +235,7 @@ export function createSyntheticPreview(
     setPreviewOffset(offset: DraggablePosition): void {
       // A `Draggable.Preview` whose offset is a callback can only be resolved once React
       // has rendered its content and the element has a size, which happens after
-      // the engine placed it. Re-anchor it then, without waiting for a pointer move
+      // the engine placed it. Re-anchor it then, without waiting for a pointer move.
       previewOffsetX = offset.x;
       previewOffsetY = offset.y;
       initialProposed = null;
@@ -257,9 +258,6 @@ export function createSyntheticPreview(
     },
     getPreviewOffset(): DraggablePosition {
       return { x: previewOffsetX, y: previewOffsetY };
-    },
-    setModifiers(next: ReadonlyArray<DraggableRootModifier> | null): void {
-      modifiers = next;
     },
     prepareForDrop(): void {
       preparedForDrop = true;
@@ -363,7 +361,10 @@ export interface SyntheticPreviewHandle {
   markSourceDragging(): void;
   /** Follow the drag source to a fresh node when a virtualizer remounts it mid-drag. */
   retargetSource(element: HTMLElement): void;
-  /** Re-anchor the preview once React has rendered content into it and it has a size. */
+  /**
+   * Set the offset from the preview's top-left to the cursor: at pickup, or once React
+   * has rendered content into the preview and it has a size.
+   */
   setPreviewOffset(offset: DraggablePosition): void;
   /** Destroy the preview element. */
   removePreviewElement(): void;
@@ -371,12 +372,6 @@ export interface SyntheticPreviewHandle {
   getPreviewElement(): DragPreviewElementHandle | null;
   /** The offset from the preview's top-left to the cursor (see `setPreviewOffset`). */
   getPreviewOffset(): DraggablePosition;
-  /**
-   * Install preview-level modifiers, applied to the preview's proposed
-   * position each frame. Pass `null` to remove them.
-   * See `DraggablePreviewSettings.modifiers`.
-   */
-  setModifiers(modifiers: ReadonlyArray<DraggableRootModifier> | null): void;
   /** Preserve an engine-owned clone long enough to animate it back to the source after release. */
   prepareForDrop(): void;
   destroy(): void;

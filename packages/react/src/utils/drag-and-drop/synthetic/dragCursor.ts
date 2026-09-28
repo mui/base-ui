@@ -127,12 +127,11 @@ function adoptShadowRootCursor(shadowRoot: ShadowRoot, doc: Document): DragClean
     }
     state.shadowSheets.set(shadowRoot, sheet);
   }
-  const adoptedSheet = sheet;
-  adoptStyleSheet(shadowRoot, adoptedSheet);
-  return () => unadoptStyleSheet(shadowRoot, adoptedSheet);
+  adoptStyleSheet(shadowRoot, sheet);
+  return () => unadoptStyleSheet(shadowRoot, sheet);
 }
 
-function restoreLockedRoot(): void {
+export function unlock(): void {
   state.unsubscribeShadowRoots?.();
   state.unsubscribeShadowRoots = null;
   const doc = state.lockedDocument;
@@ -181,5 +180,3 @@ export function lock(element: Element, cursor: string, options: DragCursorStyleO
   }
   state.lockedDocument = doc;
 }
-
-export { restoreLockedRoot as unlock };

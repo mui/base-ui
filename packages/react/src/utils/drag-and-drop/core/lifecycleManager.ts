@@ -55,8 +55,8 @@ interface LifecycleSession {
   cancel: () => void;
   /** See {@link refreshDropTargets}. */
   refresh: (rehitTest: boolean) => void;
-  /** Whether a changed element belongs to the current resolution walk. */
-  shouldRefresh: (elements: ReadonlySet<Element>) => boolean;
+  /** See {@link scheduleDropTargetParameterRefresh}. */
+  scheduleRefresh: (element: Element | null, rehitTest: boolean) => void;
   /** Whether an element currently holds delivered hover state. See {@link isHoveredDropTarget}. */
   isHovered: (element: Element) => boolean;
   /**
@@ -66,12 +66,6 @@ interface LifecycleSession {
   cancelArmed: boolean;
   /** Whether `refresh` is reachable: armed once the monitors are active, cleared with `cancelArmed`. */
   refreshArmed: boolean;
-  /** The parameter refresh queued in a microtask. */
-  queuedRefresh: {
-    /** `null` refreshes unconditionally; otherwise only when one of these elements is in the walk. */
-    targets: Set<Element> | null;
-    rehitTest: boolean;
-  } | null;
 }
 
 interface LifecycleState {
@@ -114,35 +108,9 @@ export function scheduleDropTargetParameterRefresh(
   rehitTest = false,
 ): void {
   const session = state.session;
-  if (!session?.refreshArmed) {
-    return;
+  if (session?.refreshArmed) {
+    session.scheduleRefresh(element ?? null, rehitTest);
   }
-  const queued = session.queuedRefresh;
-  if (queued !== null) {
-    queued.rehitTest ||= rehitTest;
-    if (element == null) {
-      queued.targets = null;
-    } else {
-      queued.targets?.add(element);
-    }
-    return;
-  }
-  const job: NonNullable<LifecycleSession['queuedRefresh']> = {
-    targets: element == null ? null : new Set([element]),
-    rehitTest,
-  };
-  session.queuedRefresh = job;
-  queueMicrotask(() => {
-    session.queuedRefresh = null;
-    // The drag may have ended, and another started, before this job runs.
-    if (
-      state.session === session &&
-      session.refreshArmed &&
-      (job.targets === null || session.shouldRefresh(job.targets))
-    ) {
-      session.refresh(job.rehitTest);
-    }
-  });
 }
 
 /**
@@ -262,12 +230,7 @@ export function start(parameters: StartParameters): DragSessionController | null
    */
   function createTerminalLeaveLocation(input: DraggableInput): DraggableLocationHistory {
     const leaveLocation = snapshotLocation();
-    return {
-      grabOffset: leaveLocation.grabOffset,
-      initial: leaveLocation.initial,
-      previous: leaveLocation.current,
-      current: { input, targets: [] },
-    };
+    return { ...leaveLocation, previous: leaveLocation.current, current: { input, targets: [] } };
   }
 
   /** The value source and monitor handlers receive: the source and the innermost target. */
@@ -328,6 +291,26 @@ export function start(parameters: StartParameters): DragSessionController | null
   // cancel from an inner target's enter produces.
   const hoveredDropTargets: DraggableTargetRecord[] = [];
 
+  // The parameter refresh queued in a microtask. `targets: null` refreshes
+  // unconditionally; otherwise only when one of these elements is in the walk.
+  let queuedRefresh: { targets: Set<Element> | null; rehitTest: boolean } | null = null;
+
+  /** Whether a changed element belongs to the current resolution walk. */
+  function walksThrough(elements: ReadonlySet<Element>): boolean {
+    // A detached hit requires a fresh hit-test, whose ancestry is not known yet.
+    if (lastTarget !== null && !lastTarget.isConnected) {
+      return true;
+    }
+    // Include disabled, abstaining, and rejecting ancestors too. Membership in
+    // the accepted stack alone cannot tell whether changed parameters matter.
+    for (let node = lastTarget; node !== null; node = getComposedParentElement(node)) {
+      if (elements.has(node)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   // Published in `state.session` below, once the controller is built.
   const session: LifecycleSession = {
     tearDown,
@@ -342,24 +325,34 @@ export function start(parameters: StartParameters): DragSessionController | null
       }
       resolveDropTargetsFromLastTarget(rehitTest, false);
     },
-    shouldRefresh(elements) {
-      // A detached hit requires a fresh hit-test, whose ancestry is not known yet.
-      if (lastTarget !== null && !lastTarget.isConnected) {
-        return true;
-      }
-      // Include disabled, abstaining, and rejecting ancestors too. Membership in
-      // the accepted stack alone cannot tell whether changed parameters matter.
-      for (let node = lastTarget; node !== null; node = getComposedParentElement(node)) {
-        if (elements.has(node)) {
-          return true;
+    scheduleRefresh(element, rehitTest) {
+      const queued = queuedRefresh;
+      if (queued !== null) {
+        queued.rehitTest ||= rehitTest;
+        if (element === null) {
+          queued.targets = null;
+        } else {
+          queued.targets?.add(element);
         }
+        return;
       }
-      return false;
+      const job = { targets: element === null ? null : new Set([element]), rehitTest };
+      queuedRefresh = job;
+      queueMicrotask(() => {
+        queuedRefresh = null;
+        // The drag may have ended before this job runs.
+        if (
+          !tornDown &&
+          session.refreshArmed &&
+          (job.targets === null || walksThrough(job.targets))
+        ) {
+          session.refresh(job.rehitTest);
+        }
+      });
     },
     isHovered: (element) => hoveredDropTargets.some((record) => record.element === element),
     cancelArmed: false,
     refreshArmed: false,
-    queuedRefresh: null,
   };
 
   /**
@@ -415,9 +408,8 @@ export function start(parameters: StartParameters): DragSessionController | null
         undefined,
       );
     }
-    const recoveryInput = location.current.input;
     location.previous = lastDispatched;
-    location.current = { input: recoveryInput, targets: [] };
+    location.current = { input: location.current.input, targets: [] };
     const endValue = createSourceValue(null);
     const endDetails = createMoveEndEventDetails('handler-error', undefined, snapshotLocation());
     containConsumerError(
@@ -431,7 +423,8 @@ export function start(parameters: StartParameters): DragSessionController | null
   }
 
   // A fresh snapshot, nested arrays included, so `useStore`'s `Object.is`
-  // comparisons see a new reference. It is built only on stack change.
+  // comparisons see a new reference. It is built only when the stack or the
+  // rejected target changes.
   function publishSession(): void {
     publishedRejectedTarget = rejectedTarget;
     setDragSession({
@@ -664,7 +657,7 @@ export function start(parameters: StartParameters): DragSessionController | null
   function updateDropTargets(
     input: DraggableInput,
     rawTarget: Element | null,
-    dragDispatchFollows = false,
+    dragDispatchFollows: boolean,
   ): void {
     lastTarget = rawTarget;
 
@@ -917,7 +910,6 @@ export function start(parameters: StartParameters): DragSessionController | null
     // stack (it would re-resolve the targets still under the pointer and
     // dispatch `onDraggableEnter` to them mid-cancel with no balancing leave).
     disarmSessionHooks();
-    const cancelInput = input ?? location.current.input;
     // Terminal-leave recipients are the targets whose hover state was actually
     // delivered. They differ from `location.current.targets` when this
     // cancel re-enters from a handler running inside a change dispatch: the
@@ -925,7 +917,7 @@ export function start(parameters: StartParameters): DragSessionController | null
     // notified — they must not receive a leave for an enter they never saw.
     const departedDropTargets = hoveredDropTargets.slice();
     location.previous = lastDispatched;
-    location.current = { input: cancelInput, targets: [] };
+    location.current = { input: input ?? location.current.input, targets: [] };
 
     // recover on throw (see dispatchDragStart)
     try {

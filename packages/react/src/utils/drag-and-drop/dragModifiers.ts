@@ -145,9 +145,7 @@ export function compileDragModifiers(
   if (!Array.isArray(modifiers)) {
     return [modifiers as DraggableRootModifier];
   }
-  const list = (
-    modifiers as ReadonlyArray<DraggableRootModifier | false | null | undefined>
-  ).filter((modifier): modifier is DraggableRootModifier => Boolean(modifier));
+  const list = modifiers.filter((modifier): modifier is DraggableRootModifier => Boolean(modifier));
   return list.length > 0 ? list : null;
 }
 
@@ -186,8 +184,7 @@ export function applyDragModifiers(
     return previewRect;
   };
   // Contained: modifiers run inside the pointer sensor's animation frame, where
-  // an uncaught throw would strand the drag. One
-  // unconstrained move beats a broken gesture.
+  // an uncaught throw would strand the drag. One unconstrained move beats a broken gesture.
   return containConsumerError(
     'Base UI: a drag "modifiers" function threw, leaving this move unconstrained.',
     options.sourceElement,
@@ -282,9 +279,9 @@ export function createDragModifiersState(
 }
 
 /**
- * Apply a session's compiled modifiers to a pointer position. The preview handle supplies the measures only some
- * modifiers read: its rect, and the offset from its top-left to the cursor, so
- * rect modifiers contain the preview rather than the bare cursor.
+ * Apply a session's compiled modifiers to a pointer position. The preview handle
+ * supplies the measures only some modifiers read: its rect, and the offset from its
+ * top-left to the cursor, so rect modifiers contain the preview rather than the bare cursor.
  * @internal
  */
 export function modifyDragPoint(

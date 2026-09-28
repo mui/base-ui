@@ -216,9 +216,8 @@ describe('Draggable.Preview', () => {
     expect(screen.getByText('Preview content')).toBeInTheDocument();
 
     // The drag is still live: a further move keeps repositioning the preview.
-    // Dispatched on `document` — the bridge's `dragover` replay targets the
-    // (now detached) source, which the engine's document-level move listener
-    // can no longer hear.
+    // Dispatched on `document`: `fireDrag` dispatches moves on the (now detached)
+    // source, which the engine's document-level move listener can no longer hear.
     const host = document.querySelector('[data-drag-preview]') as HTMLElement;
     const before = host.style.translate;
     await act(async () => {

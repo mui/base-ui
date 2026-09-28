@@ -1,8 +1,8 @@
 /**
  * Session bootstrap for the pointer sensor.
  *
- * It builds the preview, drag payload, and source-handler map from a draggable's
- * parameters and hands them to the lifecycle.
+ * It builds the preview from a draggable's parameters, takes the root lock, and
+ * starts the lifecycle with a live getter for the draggable's handlers.
  */
 
 import { ownerDocument } from '@base-ui/utils/owner';
@@ -12,7 +12,7 @@ import { getRegistration } from '../draggableRegistry';
 import { getDropTargetShadowRootsByHost } from '../dropTarget';
 import { elementFromPointIgnoring } from '../utils';
 import { clearActivePreviewHandle, setActivePreviewHandle } from '../activePreview';
-import { attachDefaultDragPreview, resolveDragPreview } from '../synthetic/pickupPreview';
+import { attachDragPreview, resolveDragPreview } from '../synthetic/pickupPreview';
 import { compileDragModifiers } from '../dragModifiers';
 import * as dragRootLock from '../synthetic/dragRootLock';
 import { createSyntheticPreview } from '../synthetic/syntheticPreview';
@@ -97,7 +97,6 @@ export function createPreviewAndStartSession(
 
   let preview: SyntheticPreviewHandle | null = null;
   let locked = false;
-  let session: DragSessionController | null = null;
 
   const undo = () => {
     if (preview) {
@@ -132,13 +131,16 @@ export function createPreviewAndStartSession(
     if (!isPickupCurrent()) {
       return null;
     }
-    preview = createSyntheticPreview(element, {
-      kind: draggableParameters.kind.id,
-      previewKey: draggableParameters.previewKey,
-      payload: draggableParameters.payload,
-    });
-    preview.setModifiers(compileDragModifiers(previewSettings.modifiers));
-    attachDefaultDragPreview(preview, element, previewSettings, initialInput, pressInput);
+    preview = createSyntheticPreview(
+      element,
+      {
+        kind: draggableParameters.kind.id,
+        previewKey: draggableParameters.previewKey,
+        payload: draggableParameters.payload,
+      },
+      compileDragModifiers(previewSettings.modifiers),
+    );
+    attachDragPreview(preview, element, previewSettings, initialInput, pressInput);
     // Only now: a `[data-dragging]` rule that resizes or hides the source would
     // otherwise corrupt the measurement the preview was just built from.
     preview.markSourceDragging();
@@ -178,7 +180,7 @@ export function createPreviewAndStartSession(
     };
 
     const sessionPreview = preview;
-    session = start({
+    const session = start({
       payload: dragSource,
       getSourceHandlers: getLatestParameters,
       initialInput,
@@ -189,16 +191,14 @@ export function createPreviewAndStartSession(
       hitTest: (clientX, clientY) => hitTestUnderPreview(element, sessionPreview, clientX, clientY),
       onForceCleanup,
     });
+    if (!session) {
+      // The lifecycle refused (a drag is already running or pickup was canceled).
+      undo();
+      return null;
+    }
+    return { session, preview: sessionPreview };
   } catch (error) {
     undo();
     throw error;
   }
-
-  if (!session) {
-    // The lifecycle refused (a drag is already running or pickup was canceled).
-    undo();
-    return null;
-  }
-
-  return { session, preview: preview! };
 }

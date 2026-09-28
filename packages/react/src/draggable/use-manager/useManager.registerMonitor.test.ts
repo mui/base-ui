@@ -73,9 +73,9 @@ describe('engine.registerMonitor', () => {
     expect(onMoveEnd).toHaveBeenCalledTimes(1);
     const [value, details] = onMoveEnd.mock.calls[0];
     expect(details.location.current.targets).toEqual([]);
-    // A `dragend` with no preceding `drop` is an Escape cancel (see the test
-    // bridge): handlers read `canceled` and the null target instead of
-    // inspecting `targets`.
+    // Ending without a drop is an Escape cancel (see `fireDrag.dragEnd`):
+    // handlers read `canceled` and the null target instead of inspecting
+    // `targets`.
     expect(details.reason).toBe('escape-key');
     expect(details.canceled).toBe(true);
     expect(value.target).toBeNull();

@@ -41,19 +41,8 @@ expectType<DraggableKind<undefined>, typeof marker>(marker);
 
 // @ts-expect-error a payload requires an explicit typed kind.
 <Draggable.Root payload={{ id: 'a' }} />;
-// @ts-expect-error a payload accessor requires an explicit typed kind.
-<Draggable.Root getPayload={() => ({ id: 'a' })} />;
 
 // The kind types every event that carries the payload, with no type argument.
-<Draggable.Root
-  kind={card}
-  payload={{ id: 'a' }}
-  onMoveStart={({ source }) => {
-    expectType<CardPayload, typeof source.payload>(source.payload);
-  }}
-/>;
-
-// A payload resolver is checked against the kind rather than inferred from.
 <Draggable.Root
   kind={card}
   payload={{ id: 'a' }}
@@ -71,16 +60,6 @@ expectType<DraggableKind<undefined>, typeof marker>(marker);
   }}
 />;
 
-// The callback sees the gesture it is deriving the payload from.
-const grabOffset = Draggable.createKind<{ x: number }>('grab-offset');
-<Draggable.Root
-  kind={grabOffset}
-  payload={{ x: 0 }}
-  onMoveStart={({ source }) => {
-    expectType<{ x: number }, typeof source.payload>(source.payload);
-  }}
-/>;
-
 // An explicit type argument still overrides inference, and the kind must agree with it.
 <Draggable.Root<CardPayload>
   kind={card}
@@ -93,7 +72,7 @@ const grabOffset = Draggable.createKind<{ x: number }>('grab-offset');
 // @ts-expect-error the kind must carry the explicit type argument's payload.
 <Draggable.Root<CardPayload> kind={text} payload={{ id: 'a' }} />;
 
-// Function-valued payloads stay data rather than being invoked as resolvers.
+// A function-valued payload is data like any other.
 const command = Draggable.createKind<() => void>('command');
 const runCommand = () => {};
 <Draggable.Root
@@ -113,14 +92,9 @@ declare const maybeCardPayload: CardPayload | undefined;
 <Draggable.Root kind={card} payload={undefined} />;
 // @ts-expect-error a possibly undefined static payload cannot satisfy a required payload.
 <Draggable.Root kind={card} payload={maybeCardPayload} />;
-// @ts-expect-error a required payload getter cannot be explicitly undefined.
-<Draggable.Root kind={card} getPayload={undefined} />;
 
 // @ts-expect-error the payload must match the kind.
 <Draggable.Root kind={card} payload={{ id: 1 }} />;
-
-// @ts-expect-error the callback's return type must match it too.
-<Draggable.Root kind={card} getPayload={() => ({ id: 1 })} />;
 
 // @ts-expect-error excess properties are still caught against the kind's payload.
 <Draggable.Root kind={card} payload={{ id: 'a', extra: 1 }} />;
@@ -260,7 +234,7 @@ const ref: React.Ref<HTMLDivElement> = null;
 // A stable preview key identifies a logical source across a remount.
 <Draggable.Root kind={marker} previewKey="card-1" />;
 
-// Static and resolved payloads use distinct fields.
+// `Props` takes the kind and the payload it declares.
 type CardProps = Draggable.Root.Props<CardPayload>;
 const cardValueProps: CardProps = { kind: card, payload: { id: 'a' } };
 expectType<CardPayload, NonNullable<typeof cardValueProps.payload>>(cardValueProps.payload!);

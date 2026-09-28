@@ -52,7 +52,7 @@ export function useDraggableTargetElement(
   parameters: UseDraggableTargetElementParameters,
 ): UseDraggableTargetElementReturnValue {
   const { trackDragOver = true, ...registrationParameters } = parameters;
-  const getParameters = useStableCallback(() => registrationParameters as RegisterTargetParameters);
+  const getParameters = useStableCallback(() => registrationParameters);
   const targetStateStore = useRefWithInit(createDragTargetStateStore).current;
   const elementRef = React.useRef<HTMLElement | null>(null);
   useIsoLayoutEffect(() => {

@@ -259,10 +259,10 @@ export async function flushRaf(): Promise<void> {
 // Drag sequence helpers
 // ---------------------------------------------------------------------------
 //
-// `fireDrag` steps with the engine's cadence: starting and hovering defer work
-// to a rAF, so they flush; entering and dropping are synchronous edges.
+// `fireDrag` steps with the engine's cadence: moves resolve on the next frame, so
+// starting, entering, and hovering flush it; dropping is synchronous.
 
-/** Start a drag on an element and flush the deferred `onMoveStart`. */
+/** Start a drag on an element and flush the engine's next frame. */
 export async function lift(
   element: HTMLElement,
   input?: DragEventInput & {

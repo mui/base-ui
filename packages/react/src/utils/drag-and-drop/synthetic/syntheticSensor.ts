@@ -76,15 +76,6 @@ const state = getSharedSlot<SyntheticDragState>('syntheticDrag', () => ({
   lastPointerDownType: null,
   cleanupContextMenuSuppression: null,
 }));
-/**
- * Events a root binding already delivered: a press inside a bound shadow root
- * reaches the listener from that root and again from the bubble fallback of
- * every bound root above it (see `createEventRootBinding`).
- */
-const handledEvents = getSharedSlot<WeakSet<Event>>(
-  'syntheticDrag.handledEvents',
-  () => new WeakSet<Event>(),
-);
 const CONTEXT_MENU_SUPPRESSION_MS = 1500;
 
 /**
@@ -197,13 +188,12 @@ function clearActive(
   releaseContextMenuSuppression: boolean = false,
   pointerAtTeardown: PointerAtTeardown = 'held',
 ): void {
-  const active = state.active;
-  if (!active) {
+  const session = state.active;
+  if (!session) {
     return;
   }
   // Null the singleton first so a throw during teardown can't leave
   // `active != null` (which would hold `dragRootLock` and no-op all future drags).
-  const session = active;
   state.active = null;
   clearActivePreviewHandle(session.preview);
 
@@ -415,10 +405,6 @@ function resolvePressPickup(event: MouseEvent): DraggablePickup | null {
 }
 
 function onPointerDown(event: Event): void {
-  if (handledEvents.has(event)) {
-    return;
-  }
-  handledEvents.add(event);
   refreshStaticSetups(getTarget(event));
   const pointerEvent = event as PointerEvent;
   const pointerType = normalizePointerType(pointerEvent.pointerType);
@@ -472,10 +458,8 @@ function onPointerDown(event: Event): void {
   // Only touch/pen long-presses can emit a stray `contextmenu` after the gesture
   // ends; arming this post-gesture safety net for mouse would suppress a
   // legitimate right-click soon after a left-click that never became a drag.
-  let contextMenuSuppression: DragCleanupFn | null = null;
-  if (pointerType !== 'mouse') {
-    contextMenuSuppression = startContextMenuSuppression(win, target);
-  }
+  const contextMenuSuppression =
+    pointerType === 'mouse' ? null : startContextMenuSuppression(win, target);
 
   // The pending phase stays scroll-friendly: a touch/pen swipe can become native
   // scroll and cancel the candidate (via `pointercancel`) before activation.
@@ -566,10 +550,6 @@ function recoverDetachedSession(event: Event): boolean {
 
 /** Double-click pickup follows the mouse until a subsequent primary click. */
 function onDoubleClick(event: Event): void {
-  if (handledEvents.has(event)) {
-    return;
-  }
-  handledEvents.add(event);
   const mouseEvent = event as MouseEvent;
   if (mouseEvent.button !== 0 || mouseEvent.detail !== 2) {
     return;
@@ -629,6 +609,7 @@ function recordTap(
 ) {
   clearLastTap();
   const win = ownerWindow(element);
+  const cleanups: DragCleanupFn[] = [];
   const tap: TapRecord = {
     element,
     pointerId: pointerEvent.pointerId,
@@ -637,33 +618,28 @@ function recordTap(
     clientY: pointerEvent.clientY,
     timeStamp: pointerEvent.timeStamp,
     released: false,
-    cleanup: NOOP,
+    cleanup: () => runAllCleanups(cleanups),
   };
-  const onUp = (event: Event) => {
-    const up = event as PointerEvent;
+  const onUp = (up: PointerEvent) => {
     if (up.pointerId !== tap.pointerId) {
       return;
     }
     tap.cleanup();
-    tap.cleanup = NOOP;
-    if (!isWithinTapTolerance(tap, up)) {
-      if (state.lastTap === tap) {
-        state.lastTap = null;
-      }
-      return;
+    if (isWithinTapTolerance(tap, up)) {
+      tap.released = true;
+    } else if (state.lastTap === tap) {
+      state.lastTap = null;
     }
-    tap.released = true;
   };
-  const onCancel = (event: Event) => {
-    if ((event as PointerEvent).pointerId === tap.pointerId && state.lastTap === tap) {
+  const onCancel = (event: PointerEvent) => {
+    if (event.pointerId === tap.pointerId && state.lastTap === tap) {
       clearLastTap();
     }
   };
-  const cleanups = [
+  cleanups.push(
     addEventListener(win, 'pointerup', onUp, { capture: true }),
     addEventListener(win, 'pointercancel', onCancel, { capture: true }),
-  ];
-  tap.cleanup = () => runAllCleanups(cleanups);
+  );
   state.lastTap = tap;
 }
 
@@ -714,8 +690,8 @@ function preventNativeDragStart(event: Event): void {
   event.preventDefault();
 }
 
-function onPendingKeyDown(event: Event): void {
-  if ((event as KeyboardEvent).key === 'Escape') {
+function onPendingKeyDown(event: KeyboardEvent): void {
+  if (event.key === 'Escape') {
     clearPending();
   }
 }
@@ -794,8 +770,7 @@ function evaluatePendingActivation(now: number): void {
   }
 }
 
-function onPendingPointerMove(event: Event): void {
-  const pointerEvent = event as PointerEvent;
+function onPendingPointerMove(pointerEvent: PointerEvent): void {
   const pending = state.pending;
   if (!pending || pointerEvent.pointerId !== pending.pointerId) {
     return;
@@ -820,8 +795,7 @@ function onPendingPointerMove(event: Event): void {
   evaluatePendingActivation(pointerEvent.timeStamp);
 }
 
-function onPendingPointerUp(event: Event): void {
-  const pointerEvent = event as PointerEvent;
+function onPendingPointerUp(pointerEvent: PointerEvent): void {
   const pending = state.pending;
   if (!pending || pointerEvent.pointerId !== pending.pointerId) {
     return;
@@ -835,8 +809,7 @@ function onPendingPointerUp(event: Event): void {
   clearPending(true);
 }
 
-function onPendingPointerCancel(event: Event): void {
-  const pointerEvent = event as PointerEvent;
+function onPendingPointerCancel(pointerEvent: PointerEvent): void {
   const pending = state.pending;
   if (!pending || pointerEvent.pointerId !== pending.pointerId) {
     return;
@@ -1087,7 +1060,7 @@ function commitActivation(): void {
       addEventListener(win, 'keydown', onActiveKeyDown, { capture: true }),
       // Paired with the keydown above only to notice a modifier key being released; the
       // drag itself has no keyup gesture.
-      addEventListener(win, 'keyup', onActiveKeyUp, { capture: true }),
+      addEventListener(win, 'keyup', syncActiveModifierKeys, { capture: true }),
       addEventListener(win, 'blur', onActiveBlur),
       addEventListener(doc, 'visibilitychange', onActiveVisibilityChange),
       addEventListener(win, 'contextmenu', preventContextMenu, { capture: true }),
@@ -1142,7 +1115,7 @@ function commitActivation(): void {
         addEventListener(win, 'click', onDoubleClickDrop, { capture: true }),
       );
     }
-    scheduleActiveFrame();
+    scheduleActiveFrame(activeRef);
   } catch (error) {
     // A throw before the handoff leaves the whole pending phase to undo, which is
     // exactly `clearPending` — including the resources the active phase would
@@ -1157,47 +1130,34 @@ function commitActivation(): void {
   }
 }
 
-function onDoubleClickPress(event: Event): void {
-  const mouseEvent = event as MouseEvent;
-  if (mouseEvent.button !== 0) {
+// `mousedown`, and a `click` that isn't a `PointerEvent`, carry no `pointerType`,
+// which normalizes to `mouse`.
+function onDoubleClickPress(event: MouseEvent): void {
+  if (event.button !== 0 || normalizePointerType((event as PointerEvent).pointerType) !== 'mouse') {
     return;
   }
-  if (
-    'pointerType' in mouseEvent &&
-    normalizePointerType((mouseEvent as PointerEvent).pointerType) !== 'mouse'
-  ) {
-    return;
-  }
-  mouseEvent.preventDefault();
-  mouseEvent.stopImmediatePropagation();
+  event.preventDefault();
+  event.stopImmediatePropagation();
 }
 
-function onDoubleClickDrop(event: Event): void {
-  const mouseEvent = event as MouseEvent;
-  if (mouseEvent.button !== 0 || mouseEvent.detail === 0) {
-    return;
-  }
+function onDoubleClickDrop(event: MouseEvent): void {
   if (
-    'pointerType' in mouseEvent &&
-    normalizePointerType((mouseEvent as PointerEvent).pointerType) !== 'mouse'
+    event.button !== 0 ||
+    event.detail === 0 ||
+    normalizePointerType((event as PointerEvent).pointerType) !== 'mouse'
   ) {
     return;
   }
   // This click completes a move; it must not also open or edit the destination.
-  mouseEvent.preventDefault();
-  mouseEvent.stopImmediatePropagation();
-  dropActiveAtPointer(mouseEvent);
+  event.preventDefault();
+  event.stopImmediatePropagation();
+  dropActiveAtPointer(event);
 }
 
-function scheduleActiveFrame(): void {
-  const active = state.active;
-  if (!active) {
-    return;
+function scheduleActiveFrame(active: ActiveSession): void {
+  if (active.rafFrame.currentId === null) {
+    active.rafFrame.request(onActiveFrame);
   }
-  if (active.rafFrame.currentId !== null) {
-    return;
-  }
-  active.rafFrame.request(onActiveFrame);
 }
 
 /**
@@ -1266,8 +1226,7 @@ function preventActiveTouchScroll(event: Event): void {
   }
 }
 
-function onActivePointerMove(event: Event): void {
-  const pointerEvent = event as PointerEvent;
+function onActivePointerMove(pointerEvent: PointerEvent): void {
   const active = state.active;
   if (
     !active ||
@@ -1316,8 +1275,7 @@ function onActivePointerMove(event: Event): void {
   }
 }
 
-function onActivePointerUp(event: Event): void {
-  const pointerEvent = event as PointerEvent;
+function onActivePointerUp(pointerEvent: PointerEvent): void {
   const active = state.active;
   if (!active || pointerEvent.pointerId !== active.pointerId) {
     return;
@@ -1351,8 +1309,7 @@ function dropActiveAtPointer(pointerEvent: PointerEvent | MouseEvent): void {
   }
 }
 
-function onActivePointerCancel(event: Event): void {
-  const pointerEvent = event as PointerEvent;
+function onActivePointerCancel(pointerEvent: PointerEvent): void {
   const active = state.active;
   if (!active || pointerEvent.pointerId !== active.pointerId) {
     return;
@@ -1362,8 +1319,7 @@ function onActivePointerCancel(event: Event): void {
   cancelActive(undefined, 'pointer-canceled', pointerEvent);
 }
 
-function onActiveLostPointerCapture(event: Event): void {
-  const pointerEvent = event as PointerEvent;
+function onActiveLostPointerCapture(pointerEvent: PointerEvent): void {
   const active = state.active;
   if (!active || pointerEvent.pointerId !== active.pointerId) {
     return;
@@ -1418,17 +1374,11 @@ function syncActiveModifierKeys(event: KeyboardEvent): void {
   active.lastNativeEvent = event;
   active.lastMoveReason = 'modifier-key';
   active.frameDirty = true;
-  scheduleActiveFrame();
+  scheduleActiveFrame(active);
 }
 
-function onActiveKeyUp(event: Event): void {
-  syncActiveModifierKeys(event as KeyboardEvent);
-}
-
-function onActiveKeyDown(event: Event): void {
-  const keyEvent = event as KeyboardEvent;
-  const active = state.active;
-  if (!active) {
+function onActiveKeyDown(keyEvent: KeyboardEvent): void {
+  if (!state.active) {
     return;
   }
   syncActiveModifierKeys(keyEvent);
@@ -1484,7 +1434,7 @@ export function notifyExternalScroll(): void {
   const active = state.active;
   if (active) {
     active.frameDirty = true;
-    scheduleActiveFrame();
+    scheduleActiveFrame(active);
   }
 }
 

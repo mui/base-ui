@@ -1,25 +1,26 @@
 import { ownerDocument } from '@base-ui/utils/owner';
 import { getSharedSlot } from '../sharedState';
 
-const LOCKED_PROPS: Array<{ style: LockedProperty; property: string; value: string }> = [
-  { style: 'touchAction', property: 'touch-action', value: 'none' },
-  { style: 'userSelect', property: 'user-select', value: 'none' },
-  { style: 'webkitUserSelect', property: '-webkit-user-select', value: 'none' },
-  { style: 'webkitTouchCallout', property: '-webkit-touch-callout', value: 'none' },
-  { style: 'overscrollBehavior', property: 'overscroll-behavior', value: 'none' },
+/** The inline styles the lock sets to `none` on every root it holds. */
+const LOCKED_PROPS = [
+  { style: 'touchAction', property: 'touch-action' },
+  { style: 'userSelect', property: 'user-select' },
+  { style: 'webkitUserSelect', property: '-webkit-user-select' },
+  { style: 'webkitTouchCallout', property: '-webkit-touch-callout' },
+  { style: 'overscrollBehavior', property: 'overscroll-behavior' },
 ];
 
-type SavedStyles = Partial<Record<LockedProperty, { value: string | undefined; priority: string }>>;
-
-interface LockedRoot {
-  /** `<html>` and `<body>`, in that order. */
-  elements: HTMLElement[];
-  /** Saved per-element styles, parallel to `elements`. */
-  saved: SavedStyles[];
+interface SavedStyle {
+  element: HTMLElement;
+  style: string;
+  property: string;
+  value: string | undefined;
+  priority: string;
 }
 
 interface DragRootLockState {
-  locked: LockedRoot | null;
+  /** The inline styles the lock overwrote, or `null` when unlocked. */
+  locked: SavedStyle[] | null;
 }
 
 const state = getSharedSlot<DragRootLockState>('dragRootLock', () => ({
@@ -42,40 +43,31 @@ function collectLockElements(doc: Document): HTMLElement[] {
     if (current.body) {
       elements.push(current.body);
     }
-    let parentDoc: Document | null = null;
     try {
-      const hostFrame: Element | null = current.defaultView?.frameElement ?? null;
-      parentDoc = hostFrame?.ownerDocument ?? null;
+      current = current.defaultView?.frameElement?.ownerDocument ?? null;
     } catch {
       // Cross-origin ancestor: not reachable, stop climbing.
-      parentDoc = null;
+      current = null;
     }
-    current = parentDoc;
   }
 
   return elements;
 }
 
-function restoreLockedStyles(): void {
+export function unlock(): void {
   const locked = state.locked;
   if (locked) {
-    for (let i = 0; i < locked.elements.length; i += 1) {
-      const el = locked.elements[i];
-      const elSaved = locked.saved[i];
-      for (const { style } of LOCKED_PROPS) {
-        const prev = elSaved[style];
-        if (prev?.value === undefined) {
-          delete (el.style as unknown as Partial<Record<string, string>>)[style];
-        } else {
-          (el.style as unknown as Record<string, string>)[style] = prev.value;
-        }
+    for (const { element, style, value } of locked) {
+      if (value === undefined) {
+        delete (element.style as unknown as Partial<Record<string, string>>)[style];
+      } else {
+        (element.style as unknown as Record<string, string>)[style] = value;
       }
-      // Restore priorities after values because prefixed aliases can reset them.
-      for (const { style, property } of LOCKED_PROPS) {
-        const prev = elSaved[style];
-        if (prev?.priority && prev.value !== undefined) {
-          el.style.setProperty(property, prev.value, prev.priority);
-        }
+    }
+    // Restore priorities after values because prefixed aliases can reset them.
+    for (const { element, property, value, priority } of locked) {
+      if (priority && value !== undefined) {
+        element.style.setProperty(property, value, priority);
       }
     }
   }
@@ -97,29 +89,20 @@ export function lock(element: Element): void {
   // `touch-action`/`overscroll-behavior` on `body` independently of `html`;
   // locking only one element lets scroll still leak through during a synthetic
   // drag, and locking only the inner document lets an iframe's host page scroll.
-  const elements = collectLockElements(ownerDocument(element));
-
+  //
   // Read all originals before writing any: `userSelect`/`webkitUserSelect` alias
   // each other, so interleaved save+set would capture the locked value instead.
-  const saved = elements.map((el) => {
-    const elSaved: SavedStyles = {};
-    for (const { style, property } of LOCKED_PROPS) {
-      elSaved[style] = {
-        value: el.style[style as keyof CSSStyleDeclaration] as string | undefined,
-        priority: el.style.getPropertyPriority(property),
-      };
-    }
-    return elSaved;
-  });
-  for (const el of elements) {
-    for (const { style, value } of LOCKED_PROPS) {
-      (el.style as unknown as Record<string, string>)[style] = value;
-    }
+  const saved = collectLockElements(ownerDocument(element)).flatMap((root) =>
+    LOCKED_PROPS.map(({ style, property }) => ({
+      element: root,
+      style,
+      property,
+      value: root.style[style as keyof CSSStyleDeclaration] as string | undefined,
+      priority: root.style.getPropertyPriority(property),
+    })),
+  );
+  for (const { element: root, style } of saved) {
+    (root.style as unknown as Record<string, string>)[style] = 'none';
   }
-  state.locked = { elements, saved };
+  state.locked = saved;
 }
-
-export { restoreLockedStyles as unlock };
-
-type LockedProperty =
-  'touchAction' | 'userSelect' | 'webkitUserSelect' | 'webkitTouchCallout' | 'overscrollBehavior';

@@ -103,7 +103,7 @@ describe('documentBinding', () => {
     },
   );
 
-  it('yields the outer bound root to an inner bound root at capture', () => {
+  it('delivers once, yielding the outer bound root to an inner bound root at capture', () => {
     const host = document.createElement('div');
     document.body.appendChild(host);
     registerCleanup(() => host.remove());
@@ -136,11 +136,14 @@ describe('documentBinding', () => {
 
     // The outer root's capture listener sees the event first, but the path
     // crosses the inner bound root, so it yields: the inner root delivers at
-    // capture, and the outer only through its bubble fallback.
-    expect(deliveries).toEqual([
-      ['inner', Event.CAPTURING_PHASE],
-      ['outer', Event.BUBBLING_PHASE],
-    ]);
+    // capture, and the outer's bubble fallback skips the delivered event.
+    expect(deliveries).toEqual([['inner', Event.CAPTURING_PHASE]]);
+
+    // A press on the inner host itself never enters the inner root, so the
+    // outer's bubble fallback is what delivers it.
+    deliveries.length = 0;
+    innerHost.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, composed: true }));
+    expect(deliveries).toEqual([['outer', Event.BUBBLING_PHASE]]);
   });
 
   it('refreshes the static setup of a draggable inside a closed shadow root', async () => {

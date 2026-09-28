@@ -14,9 +14,7 @@ import { getSharedSlot } from './sharedState';
 import { getComposedParentElement, resolveElementReference } from './utils';
 
 /** Getter for a single hook's latest draggable parameters, read fresh at gesture start. */
-type RegisteredDraggableConfig = DraggableConfig<any, any>;
-
-type DraggableGetter = () => RegisteredDraggableConfig;
+type DraggableGetter = () => DraggableConfig<any, any>;
 
 const holds = createGetterStackRegistry<HTMLElement, DraggableGetter>({
   entries: getSharedSlot('draggableRegistry', () => new WeakMap<HTMLElement, DraggableGetter[]>()),
@@ -41,13 +39,13 @@ export interface DraggablePickup {
   /** The resolved event target (inside, or equal to, `element`). */
   target: Element;
   /** The draggable's latest parameters, read fresh at gesture start. */
-  parameters: RegisteredDraggableConfig;
+  parameters: DraggableConfig<any, any>;
   /** The configured drag handle, or `null` when the whole element is draggable. */
   dragHandle: Element | null;
 }
 
 /** Resolve the handle that owns pointer pickup. */
-export function resolveDragHandle(parameters: RegisteredDraggableConfig): Element | null {
+export function resolveDragHandle(parameters: DraggableConfig<any, any>): Element | null {
   return resolveElementReference(parameters.handle, undefined);
 }
 

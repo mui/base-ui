@@ -30,12 +30,6 @@ engine.registerTarget(element, () => ({
   kind: detailedSlot,
   payload: { index: 0 },
 }));
-engine.registerTarget(element, () => ({
-  accept: card,
-  // @ts-expect-error the kind requires the complete payload.
-  kind: detailedSlot,
-  payload: { index: 0 },
-}));
 // @ts-expect-error typed monitor parameters require a runtime filter.
 const missingMonitorAccept: DraggableManagerRegisterMonitorParameters<CardPayload> = {};
 // @ts-expect-error typed viewport parameters require a runtime filter.
@@ -91,8 +85,6 @@ declare const maybeCardPayload: CardPayload | undefined;
 engine.registerSource<CardPayload>(element, () => ({ kind: card, payload: undefined }));
 // @ts-expect-error a possibly undefined static payload cannot satisfy a required payload.
 engine.registerSource<CardPayload>(element, () => ({ kind: card, payload: maybeCardPayload }));
-// @ts-expect-error a required payload getter cannot be explicitly undefined.
-engine.registerSource<CardPayload>(element, () => ({ kind: card, getPayload: undefined }));
 
 // @ts-expect-error the payload must match an explicit type argument.
 engine.registerSource<CardPayload>(element, () => ({ kind: card, payload: { id: 1 } }));
@@ -122,7 +114,7 @@ expectType<() => void, ReturnType<typeof engine.registerSource>>(
   engine.registerSource(element, () => ({ kind: marker })),
 );
 
-// An explicit `TPayload` threads through `getPayload` and every source event.
+// An explicit `TPayload` threads through `payload` and every source event.
 interface MyPayload {
   foo: string;
   count: number;
@@ -241,11 +233,6 @@ engine.registerTarget<typeof card, { slot: number }>(element, () => ({
   // @ts-expect-error a possibly undefined target payload cannot satisfy a required payload.
   payload: maybeSlotPayload,
 }));
-// @ts-expect-error a required target payload getter cannot be explicitly undefined.
-engine.registerTarget<typeof card, { slot: number }>(element, () => ({
-  accept: card,
-  getPayload: undefined,
-}));
 
 engine.registerTarget<typeof card, { slot: number }>(element, () => ({
   accept: card,
@@ -254,7 +241,7 @@ engine.registerTarget<typeof card, { slot: number }>(element, () => ({
 }));
 
 // An explicit `<typeof kind, TTargetPayload>` pair threads both payloads through every
-// target callback, and the local getter must return the declared shape.
+// target callback, and the local payload must have the declared shape.
 interface MySourcePayload {
   kind: 'card';
   id: string;

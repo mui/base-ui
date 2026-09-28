@@ -21,20 +21,6 @@ type MonitorGetter<TSourcePayload = any, TDragData = any> = () => RegisterMonito
   TDragData
 >;
 
-interface MonitorState {
-  allMonitors: Set<MonitorGetter>;
-  /** Monitor getters observing the current drag (their `accept` matched). */
-  activeMonitors: Set<MonitorGetter>;
-  /** The active drag's source, so a monitor registered mid-drag can join it. */
-  activeSource: DraggableRootRecord | null;
-}
-
-const state = getSharedSlot<MonitorState>('registerMonitor', () => ({
-  allMonitors: new Set<MonitorGetter>(),
-  activeMonitors: new Set<MonitorGetter>(),
-  activeSource: null,
-}));
-
 interface MatchedMonitor {
   /** The parameters object the getter returned, to tell a fresh one from the last. */
   parameters: RegisterMonitorParameters;
@@ -42,20 +28,31 @@ interface MatchedMonitor {
   snapshot: RegisterMonitorParameters;
 }
 
-/**
- * The last `accept`-compatible parameters per engaged monitor, kept so a monitor
- * whose `accept` stops matching mid-drag can still close its observation. Copied
- * only when the getter returns a new object: this is read per monitor per event.
- */
-const matchedMonitors = getSharedSlot(
-  'registerMonitor.matchedParameters',
-  () => new WeakMap<MonitorGetter, MatchedMonitor>(),
-);
+interface MonitorState {
+  allMonitors: Set<MonitorGetter>;
+  /** Monitor getters observing the current drag (their `accept` matched). */
+  activeMonitors: Set<MonitorGetter>;
+  /** The active drag's source, so a monitor registered mid-drag can join it. */
+  activeSource: DraggableRootRecord | null;
+  /**
+   * The last `accept`-compatible parameters per engaged monitor, kept so a monitor
+   * whose `accept` stops matching mid-drag can still close its observation. Copied
+   * only when the getter returns a new object: this is read per monitor per event.
+   */
+  matchedMonitors: WeakMap<MonitorGetter, MatchedMonitor>;
+}
+
+const state = getSharedSlot<MonitorState>('registerMonitor', () => ({
+  allMonitors: new Set<MonitorGetter>(),
+  activeMonitors: new Set<MonitorGetter>(),
+  activeSource: null,
+  matchedMonitors: new WeakMap<MonitorGetter, MatchedMonitor>(),
+}));
 
 function rememberMatchedMonitor(getMonitor: MonitorGetter, parameters: RegisterMonitorParameters) {
-  const matched = matchedMonitors.get(getMonitor);
+  const matched = state.matchedMonitors.get(getMonitor);
   if (matched === undefined || matched.parameters !== parameters) {
-    matchedMonitors.set(getMonitor, { parameters, snapshot: { ...parameters } });
+    state.matchedMonitors.set(getMonitor, { parameters, snapshot: { ...parameters } });
   }
 }
 
@@ -101,12 +98,10 @@ export function addMonitor(getMonitor: MonitorGetter): void {
 export function removeMonitor(getMonitor: MonitorGetter): void {
   state.allMonitors.delete(getMonitor);
   state.activeMonitors.delete(getMonitor);
-  matchedMonitors.delete(getMonitor);
+  state.matchedMonitors.delete(getMonitor);
 }
 
 export function activateMonitors(source: DraggableRootRecord): void {
-  // Mutate in place so a duplicate bundled copy of the engine shares the set.
-  state.activeMonitors.clear();
   // Remember the source before the loop: `engageMonitorIfDragging` reads it,
   // and it is also what lets a monitor registered mid-drag be matched against
   // the in-progress drag.
@@ -125,52 +120,39 @@ export function dispatchToMonitors<
 
   // Snapshot so a monitor engaging mid-dispatch doesn't receive the in-flight
   // event; the `has` re-check skips monitors a handler removed under us.
-  const snapshot = [...state.activeMonitors];
-  for (const getMonitor of snapshot) {
+  for (const getMonitor of [...state.activeMonitors]) {
     if (!state.activeMonitors.has(getMonitor)) {
       continue;
     }
-    dispatchToMonitor(getMonitor, eventName, value, eventDetails);
+    // Contained per monitor, like each drop target's dispatch: a monitor is an
+    // observer, and one broken observer must not starve the rest of them or
+    // unwind the dispatch sequence that is mid-flight.
+    containConsumerError(
+      'Base UI: a drag monitor threw and was skipped for this event.',
+      null,
+      () => {
+        let monitor = getMonitor();
+        if (matchesAccept(monitor.accept, value.source)) {
+          rememberMatchedMonitor(getMonitor, monitor);
+        } else {
+          // Finish the observer that joined this drag, using its compatible closure.
+          // Other events must not reach the newly configured observer.
+          if (eventName !== 'onMoveEnd') {
+            return;
+          }
+          const previous = state.matchedMonitors.get(getMonitor);
+          if (!previous) {
+            return;
+          }
+          monitor = previous.snapshot;
+        }
+        const handler = monitor[eventName] as
+          ((value: DragSourceEventValue, details: DraggableEventDetailsMap[K]) => void) | undefined;
+        handler?.(value, eventDetails);
+      },
+      undefined,
+    );
   }
-}
-
-function dispatchToMonitor<
-  K extends keyof DraggableEventDetailsMap & keyof RegisterMonitorParameters,
->(
-  getMonitor: MonitorGetter,
-  eventName: K,
-  value: DragSourceEventValue,
-  eventDetails: DraggableEventDetailsMap[K],
-): void {
-  // Contained per monitor, like each drop target's dispatch: a monitor is an
-  // observer, and one broken observer must not starve the rest of them or
-  // unwind the dispatch sequence that is mid-flight.
-  containConsumerError(
-    'Base UI: a drag monitor threw and was skipped for this event.',
-    null,
-    () => {
-      const current = getMonitor();
-      let monitor = current;
-      if (matchesAccept(current.accept, value.source)) {
-        rememberMatchedMonitor(getMonitor, current);
-      } else {
-        // Finish the observer that joined this drag, using its compatible closure.
-        // Other events must not reach the newly configured observer.
-        if (eventName !== 'onMoveEnd') {
-          return;
-        }
-        const previous = matchedMonitors.get(getMonitor);
-        if (!previous) {
-          return;
-        }
-        monitor = previous.snapshot;
-      }
-      const handler = monitor[eventName] as
-        ((value: DragSourceEventValue, details: DraggableEventDetailsMap[K]) => void) | undefined;
-      handler?.(value, eventDetails);
-    },
-    undefined,
-  );
 }
 
 export function clearActiveMonitors(): void {

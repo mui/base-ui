@@ -32,6 +32,18 @@ export function createEventRootBinding(options: CreateEventRootBindingOptions): 
     `${slot}.shadowRoots`,
     () => new Set<ShadowRoot>(),
   );
+  /**
+   * Events already delivered: one from inside a bound shadow root reaches that
+   * root's capture wrapper, then the bubble fallback of every bound root above it.
+   */
+  const delivered = getSharedSlot<WeakSet<Event>>(`${slot}.delivered`, () => new WeakSet<Event>());
+
+  const deliver = (event: Event) => {
+    if (!delivered.has(event)) {
+      delivered.add(event);
+      listeners[event.type](event);
+    }
+  };
 
   const crossesBoundShadowRoot = (event: Event, currentRoot: DragEventRoot): boolean => {
     // Both window wrappers below ask this for every event of a bound type
@@ -63,12 +75,12 @@ export function createEventRootBinding(options: CreateEventRootBindingOptions): 
     // Use fresh wrappers so deferred cleanup cannot remove a later binding.
     const onCapture = (event: Event) => {
       if (!crossesBoundShadowRoot(event, root)) {
-        listeners[event.type](event);
+        deliver(event);
       }
     };
     const onBubble = (event: Event) => {
       if (crossesBoundShadowRoot(event, root)) {
-        listeners[event.type](event);
+        deliver(event);
       }
     };
     const offs = Object.keys(listeners).flatMap((type) => [

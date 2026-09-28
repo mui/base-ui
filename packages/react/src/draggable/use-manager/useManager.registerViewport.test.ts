@@ -25,8 +25,6 @@ import type {
 
 type DragAutoScrollHandler = NonNullable<RegisterViewportParameters['onDragScroll']>;
 
-// The synthetic-drag test below leaves an active session; clear its rAF tick
-// in the extra teardown so it doesn't fire after `document` is torn down.
 setupDragEngineTests();
 
 describe('engine.registerViewport', () => {
@@ -629,9 +627,8 @@ describe('engine.registerViewport', () => {
   }
 
   // Drive the pointer into the scroller's bottom edge zone and let the loop run
-  // a few frames. Routes the move through the scroller element so the native →
-  // synthetic bridge replays it as a pointermove the engine resolves onto the
-  // scroller (a `dragOver(window)` never reaches the bridge's document listener).
+  // a few frames. Routes the move through the scroller element so `fireDrag`
+  // resolves the engine's hit test onto the scroller.
   async function driveIntoEdgeZone(source: HTMLElement, scroller: HTMLElement): Promise<void> {
     await lift(source, { clientX: 100, clientY: 10 });
     fireDrag.dragOver(scroller, { clientX: 100, clientY: 190 });
@@ -961,9 +958,9 @@ describe('engine.registerViewport', () => {
     engine.registerSource(source, {});
     engine.registerViewport(scroller, {});
 
-    // Route moves through the scroller element so the bridge replays them as
-    // pointer moves the engine resolves; each position is outside the scroller's
-    // box, so the loop's bounding-box reject fires and never scrolls.
+    // Route moves through the scroller element so `fireDrag` resolves them onto
+    // it; each position is outside the scroller's box, so the loop's bounding-box
+    // reject fires and never scrolls.
     await lift(source, { clientX: 55, clientY: 30 });
 
     // Above the scroller.
@@ -1248,8 +1245,8 @@ describe('engine.registerViewport', () => {
     // moves nothing, so model it directly: re-point the mocked
     // `elementFromPoint` at the target WITHOUT any pointer move. Every engaged
     // frame marks the sensor's frame dirty (`notifyExternalScroll`), so the
-    // re-hit-test must pick the target up and fire its enter. The bridge's
-    // pristine `elementFromPoint` is restored in the shared teardown.
+    // re-hit-test must pick the target up and fire its enter. The pristine
+    // `elementFromPoint` is restored in the shared teardown.
     document.elementFromPoint = () => target;
     await flushRaf();
     await flushRaf();
@@ -3698,7 +3695,7 @@ describe('engine.registerViewport', () => {
 
     // The claim only a real browser can settle: after a delegated frame moves the
     // surface, the engine re-resolves what is under the pointer. JSDOM can't show
-    // it — the test bridge pins `elementFromPoint`, so a transform there changes
+    // it — `fireDrag` pins `elementFromPoint`, so a transform there changes
     // nothing about which element answers.
     describe.skipIf(isJSDOM)('on a real transform surface', () => {
       it('resolves a drop target the pan brings under a stationary pointer', async () => {

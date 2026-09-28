@@ -24,8 +24,6 @@ expectType<Draggable.Root.Record<Payload, DragData>, (typeof RootBeforeMoveStart
 );
 // @ts-expect-error Targets aren't resolved before pickup.
 void RootBeforeMoveStart[0].target;
-// @ts-expect-error The pointer state moved to the event details.
-void RootBeforeMoveStart[0].input;
 
 declare const RootMoveStart: Parameters<
   NonNullable<Draggable.Root.Props<Payload, DragData>['onMoveStart']>
@@ -46,8 +44,6 @@ expectType<Draggable.Root.MoveValue<Payload, DragData>, (typeof RootMove)[0]>(Ro
 expectType<Draggable.Root.MoveEventDetails, (typeof RootMove)[1]>(RootMove[1]);
 expectType<Draggable.Root.MoveEventReason, (typeof RootMove)[1]['reason']>(RootMove[1].reason);
 expectType<Draggable.LocationHistory, (typeof RootMove)[1]['location']>(RootMove[1].location);
-// @ts-expect-error The location moved to the event details.
-void RootMove[0].location;
 
 declare const RootTargetChange: Parameters<
   NonNullable<Draggable.Root.Props<Payload, DragData>['onTargetChange']>
@@ -153,8 +149,6 @@ expectType<Draggable.Target.DropEventDetails, (typeof TargetDrop)[1]>(TargetDrop
 expectType<Draggable.Target.DropEventReason, (typeof TargetDrop)[1]['reason']>(
   TargetDrop[1].reason,
 );
-// @ts-expect-error `dropTarget` was the same record as `target`.
-void TargetDrop[0].dropTarget;
 
 declare const CollisionProviderMoveStart: Parameters<
   NonNullable<Draggable.CollisionProvider.Props<Payload, DragData>['onMoveStart']>
@@ -235,8 +229,6 @@ expectType<Draggable.Viewport.DragScrollEventReason, (typeof ViewportDragScroll)
 );
 expectType<Draggable.Input, (typeof ViewportDragScroll)[1]['input']>(ViewportDragScroll[1].input);
 expectType<HTMLElement, (typeof ViewportDragScroll)[1]['element']>(ViewportDragScroll[1].element);
-// @ts-expect-error The pointer state moved to the event details.
-void ViewportDragScroll[0].input;
 
 const preview = (parameters: Draggable.Preview.RenderParameters<Payload, DragData>) => {
   expectType<Payload, typeof parameters.source.payload>(parameters.source.payload);

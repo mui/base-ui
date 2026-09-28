@@ -238,13 +238,8 @@ function handleObservedMutations(records: MutationRecord[]): void {
     if (isPreviewMutation(record)) {
       continue;
     }
-    // The observers only report `childList` and `attributes` records, and an
-    // attribute record always targets an element.
-    if (record.type === 'childList') {
-      wake = true;
-      continue;
-    }
-    if (state.observedChainElements.has(record.target as Element)) {
+    // An attribute record always targets an element.
+    if (record.type === 'attributes' && state.observedChainElements.has(record.target as Element)) {
       refreshAutoScroll();
       return;
     }
@@ -263,10 +258,6 @@ function invalidateScrollerOrder(): void {
   state.sortedScrollers = null;
 }
 
-function getEdgeSize(dimension: number): number {
-  return Math.min(dimension * EDGE_THRESHOLD, MAX_EDGE_SIZE);
-}
-
 /**
  * Edge-tests one axis and returns the signed engagement depth in `[-1, 1]`
  * (negative toward the home edge), or `0` when the pointer sits outside both
@@ -274,16 +265,15 @@ function getEdgeSize(dimension: number): number {
  *
  * The limit check is a thunk so an off-edge frame never pays for it: on the
  * horizontal axis it resolves the container's direction, which costs a
- * `getComputedStyle`. `getEdgeSize` caps an edge zone at a quarter of the
- * dimension, so the two zones can never overlap and the order of the tests
- * doesn't matter.
+ * `getComputedStyle`. An edge zone is capped at a quarter of the dimension, so
+ * the two zones can never overlap and the order of the tests doesn't matter.
  */
 function getEdgeScrollDepth(
   relative: number,
   size: number,
   canScroll: (sign: number) => boolean,
 ): number {
-  const edge = getEdgeSize(size);
+  const edge = Math.min(size * EDGE_THRESHOLD, MAX_EDGE_SIZE);
   if (relative < edge) {
     return canScroll(-1) ? -(1 - relative / edge) : 0;
   }
@@ -408,28 +398,20 @@ function resolvePageScroller(element: HTMLElement): HTMLElement | null {
 }
 
 /**
- * The element whose `direction` decides which way `scrollLeft` runs for
- * `scrollTarget`.
+ * Whether `scrollLeft` runs right-to-left for `scrollTarget`.
  *
- * For a regular overflow container that is the container itself. For the page
- * scroller it is not: HTML propagates `direction` from `<body>` to the viewport
+ * A regular overflow container decides that with its own `direction`. The page
+ * scroller does not: HTML propagates `direction` from `<body>` to the viewport
  * the same way it propagates `background`, so a `<body dir="rtl">` page scrolls
  * RTL (`scrollLeft <= 0`) while `getComputedStyle(documentElement).direction` is
  * still `ltr`. Reading the root there leaves the left edge never auto-scrolling
  * and the right edge spinning against the home edge.
  */
-function directionSourceFor(scrollTarget: HTMLElement, isPageScroller: boolean): HTMLElement {
-  if (!isPageScroller) {
-    return scrollTarget;
-  }
+function resolveRtl(scrollTarget: HTMLElement, isPageScroller: boolean): boolean {
   // Always read `body` for the page scroller: an unstyled `body` inherits the
   // root's direction, so this is right whether or not it carries one of its own.
-  const body = ownerDocument(scrollTarget).body as HTMLElement | null;
-  return body ?? scrollTarget;
-}
-
-function resolveRtl(scrollTarget: HTMLElement, isPageScroller: boolean): boolean {
-  return readCached(state.rtlCache, directionSourceFor(scrollTarget, isPageScroller), isRtlElement);
+  const body = isPageScroller ? (ownerDocument(scrollTarget).body as HTMLElement | null) : null;
+  return readCached(state.rtlCache, body ?? scrollTarget, isRtlElement);
 }
 
 // The viewport in client coordinates. `getViewportSize` is the engine's single
@@ -551,13 +533,6 @@ function scrollLoop(timestamp: number): void {
 }
 
 function runScrollFrame(timestamp: number): void {
-  if (!state.currentInput || !state.currentSource) {
-    // Defensive only (`stopScrollLoop` nulls these together with the frame):
-    // clear the already-fired frame id so `wakeScrollLoop`'s null guard can't
-    // wedge shut if this branch is ever reached.
-    state.scrollLoopRaf = null;
-    return;
-  }
   // Snapshotted for the whole iteration. The loop below runs consumer-reachable
   // callbacks (`onDragScroll`, the drop-target getters behind a re-resolution), any
   // of which can re-entrantly end the drag and null these — and every read after
@@ -570,8 +545,9 @@ function runScrollFrame(timestamp: number): void {
   // lifecycle via `clearActiveMonitors()` without ever dispatching `onMoveEnd` to
   // the scroll monitor, so `stopScrollLoop` never runs and this loop keeps
   // rescheduling itself (and scrolling) forever. Self-terminate the moment no
-  // drag session is live.
-  if (dragSessionStore.getSnapshot() === null) {
+  // drag session is live. The input and source checks are defensive only:
+  // `stopScrollLoop` nulls them together with the frame.
+  if (currentInput === null || currentSource === null || dragSessionStore.getSnapshot() === null) {
     stopScrollLoop();
     return;
   }
@@ -626,40 +602,24 @@ function runScrollFrame(timestamp: number): void {
       continue;
     }
     const pageScroller = resolvePageScroller(element);
-    if (pageScroller !== null) {
-      // The page ignores `overflowMargin`: its probe is the pointer clamped into
-      // the viewport (see below), so it never needs the entry history either.
-      const rect = getViewportRect(element);
-      candidates.push({
-        element,
-        registration,
-        getParameters,
-        pageScroller,
-        rect,
-        overflowRect: rect,
-      });
-      continue;
+    const rect = pageScroller ? getViewportRect(element) : element.getBoundingClientRect();
+    let overflowRect: ScrollCandidate['overflowRect'] = rect;
+    // The page ignores `overflowMargin`: its probe is the pointer clamped into
+    // the viewport (see below), so it never needs the entry history either.
+    if (pageScroller === null) {
+      const marginRect = expandScrollRect(rect, registration.overflowMargin);
+      if (resolveProbePoint(currentInput, currentReportedInput, rect, false) !== null) {
+        state.overflowEligible.add(element);
+      } else if (
+        resolveProbePoint(currentInput, currentReportedInput, marginRect, false) === null
+      ) {
+        state.overflowEligible.delete(element);
+      }
+      if (state.overflowEligible.has(element)) {
+        overflowRect = marginRect;
+      }
     }
-    const rect = element.getBoundingClientRect();
-    const overflowRect = expandScrollRect(
-      rect,
-      normalizeOverflowMargin(registration.overflowMargin),
-    );
-    if (resolveProbePoint(currentInput, currentReportedInput, rect, false) !== null) {
-      state.overflowEligible.add(element);
-    } else if (
-      resolveProbePoint(currentInput, currentReportedInput, overflowRect, false) === null
-    ) {
-      state.overflowEligible.delete(element);
-    }
-    candidates.push({
-      element,
-      registration,
-      getParameters,
-      pageScroller,
-      rect,
-      overflowRect: state.overflowEligible.has(element) ? overflowRect : rect,
-    });
+    candidates.push({ element, registration, getParameters, pageScroller, rect, overflowRect });
   }
   const preferReported = reportedPointHasCandidate(candidates, currentInput, currentReportedInput);
   const consumed: AxisFlags = { x: false, y: false };
@@ -860,34 +820,40 @@ function runScrollFrame(timestamp: number): void {
     // answer. Park the loop; only new input can change which scroller engages,
     // and that input wakes it (see `wakeScrollLoop`). A pointer resting in the
     // middle of the page therefore costs no frames and no geometry reads.
-    idleScrollLoop();
+    idleScrollLoop(sourceDocument);
     return;
   }
   // Reached with nothing engaged only when a callback registered or released a
   // viewport during this frame: the held frame slot dropped that wake, so the
   // next frame evaluates and observes the change.
-  state.scrollLoopRaf = requestScrollFrame();
+  state.scrollLoopRaf = requestScrollFrame(currentSource);
 }
 
 // Schedule in the source window so popout drags are not throttled with their opener.
-function requestScrollFrame(): number | null {
-  const source = state.currentSource;
-  if (source === null) {
-    return null;
-  }
-  if (state.scrollWindow === null) {
-    state.scrollWindow = ownerWindow(source.element);
-  }
+function requestScrollFrame(source: DraggableRootRecord): number {
+  state.scrollWindow ??= ownerWindow(source.element);
   return state.scrollWindow.requestAnimationFrame(scrollLoop);
 }
 
 /**
  * Suspend the loop until the next drag input, without dropping the drag state
  * `wakeScrollLoop` needs to resume.
+ *
+ * A parked viewport can need scrolling again without any input event: content
+ * changing elsewhere on the page can move its edge zone under the stationary
+ * pointer, and `chainMutationObserver` only covers the viewports' subtrees and
+ * ancestor chains. So the whole document is observed while parked.
+ *
+ * One observer per drag, connected while parked and disconnected on wake: a
+ * pointer crossing the middle of the page parks and wakes the loop on every
+ * frame, and constructing a fresh document-wide observer for each park was the
+ * most expensive thing such a frame did.
  */
-function idleScrollLoop(): void {
+function idleScrollLoop(doc: Document): void {
   state.scrollLoopRaf = null;
-  observeIdleMutations();
+  const root = doc.documentElement;
+  state.idleMutationObserver ??= new (ownerWindow(root).MutationObserver)(handleObservedMutations);
+  state.idleMutationObserver.observe(root, MUTATION_OBSERVER_OPTIONS);
 }
 
 /**
@@ -933,28 +899,6 @@ function observeChainMutations(
   handleObservedMutations(records);
 }
 
-function observeIdleMutations(): void {
-  if (state.currentSource === null) {
-    return;
-  }
-  const doc = ownerDocument(state.currentSource.element);
-  const root = doc.documentElement;
-  if (!root) {
-    return;
-  }
-  // A parked viewport can become scrollable without an input event: a
-  // stationary pointer may trigger delayed expansion that appends rows below the
-  // fold. That produces no pointer move, scroll event, target change, or scroller
-  // registration. This observer is the wake path for that case.
-  //
-  // One instance per drag, connected while parked and disconnected on wake: a
-  // pointer crossing the middle of the page parks and wakes the loop on every
-  // frame, and constructing a fresh document-wide observer for each park was
-  // the most expensive thing such a frame did.
-  state.idleMutationObserver ??= new (ownerWindow(root).MutationObserver)(handleObservedMutations);
-  state.idleMutationObserver.observe(root, MUTATION_OBSERVER_OPTIONS);
-}
-
 /** Resume a parked loop when fresh input may have moved the pointer into an edge zone. */
 function wakeScrollLoop(): void {
   if (state.currentSource === null || state.scrollLoopRaf !== null) {
@@ -962,7 +906,7 @@ function wakeScrollLoop(): void {
   }
   state.idleMutationObserver?.disconnect();
   state.lastTimestamp = 0;
-  state.scrollLoopRaf = requestScrollFrame();
+  state.scrollLoopRaf = requestScrollFrame(state.currentSource);
 }
 
 /**
@@ -1102,7 +1046,11 @@ export function normalizeOverflowMargin(value: DraggableViewportOverflowMargin |
   };
 }
 
-function expandScrollRect(rect: ScrollRect, margin: ReturnType<typeof normalizeOverflowMargin>) {
+function expandScrollRect(
+  rect: ScrollRect,
+  overflowMargin: DraggableViewportOverflowMargin | undefined,
+) {
+  const margin = normalizeOverflowMargin(overflowMargin);
   return {
     top: rect.top - margin.top,
     right: rect.right + margin.right,
@@ -1148,8 +1096,7 @@ function startScrollSession(source: DraggableRootRecord, location: DraggableLoca
   // runs when a frame fires. Clear that state before this drag decides anything.
   stopScrollLoop();
   setDragInput(location, source);
-  state.lastTimestamp = 0;
-  state.scrollLoopRaf = requestScrollFrame();
+  wakeScrollLoop();
 }
 
 function createAutoScrollEventDetails(

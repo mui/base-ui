@@ -18,25 +18,22 @@ import { getSharedSlot } from './sharedState';
 import { getComposedParentElement } from './utils';
 import type { DragCleanupFn } from './types';
 
-interface StaticSetupRefreshState {
-  /**
-   * The refresh callbacks held against each element with a live static setup —
-   * a stack, not a single slot, because merged-ref composition can land two
-   * registrations on one node. A single slot let the second registration
-   * overwrite the first's callback, and the first cleanup then deleted the
-   * survivor's.
-   */
-  refreshes: WeakMap<Element, Array<() => void>>;
-}
-
-const state = getSharedSlot<StaticSetupRefreshState>('staticSetupRefresh', () => ({
-  refreshes: new WeakMap<Element, Array<() => void>>(),
-}));
+/**
+ * The refresh callbacks held against each element with a live static setup —
+ * a stack, not a single slot, because merged-ref composition can land two
+ * registrations on one node. A single slot let the second registration
+ * overwrite the first's callback, and the first cleanup then deleted the
+ * survivor's.
+ */
+const refreshes = getSharedSlot<WeakMap<Element, Array<() => void>>>(
+  'staticSetupRefresh.refreshes',
+  () => new WeakMap<Element, Array<() => void>>(),
+);
 
 // The same per-element hold/release the draggable, drop-target and auto-scroller
 // registries use, over this module's own backing store. `refreshStaticSetups`
-// reads the whole stack off `state.refreshes` directly, as the auto-scroller does.
-const holds = createGetterStackRegistry<Element, () => void>({ entries: state.refreshes });
+// reads the whole stack off `refreshes` directly, as the auto-scroller does.
+const holds = createGetterStackRegistry<Element, () => void>({ entries: refreshes });
 
 /**
  * Refresh the static setup of every registered draggable containing `target`,
@@ -54,10 +51,10 @@ export function refreshStaticSetups(target: EventTarget | null): void {
   // so stopping at the first match leaves an outer draggable's setup stale
   // whenever the press happens to land inside a nested one.
   for (let node: Element | null = target; node !== null; node = getComposedParentElement(node)) {
-    const refreshes = state.refreshes.get(node);
-    if (refreshes !== undefined) {
+    const stack = refreshes.get(node);
+    if (stack !== undefined) {
       // Copied: a refresh can re-register, mutating the stack under the walk.
-      for (const refresh of [...refreshes]) {
+      for (const refresh of [...stack]) {
         refresh();
       }
     }

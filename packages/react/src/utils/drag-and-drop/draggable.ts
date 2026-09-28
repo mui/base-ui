@@ -44,21 +44,12 @@ const GESTURE_STYLES = [
   { property: 'webkitTouchCallout', cssName: '-webkit-touch-callout', value: 'none' },
 ] as const;
 
-interface DraggableStaticSetupParameters {
-  element: HTMLElement;
-  handle?: DraggableHandleReference | undefined;
-  disabled?: boolean | undefined;
-}
-
 /**
- * Apply pointer gesture styles to one element. The setup is ref-counted because
- * multiple registrations can share a node.
+ * Apply pointer gesture styles to one element, or to none for `null`. The setup
+ * is ref-counted because multiple registrations can share a node.
  */
-function applyGestureSetup(
-  gestureElement: HTMLElement,
-  disabled: boolean | undefined,
-): DragCleanupFn {
-  if (disabled) {
+function applyGestureSetup(gestureElement: HTMLElement | null): DragCleanupFn {
+  if (gestureElement === null) {
     return () => {};
   }
 
@@ -110,34 +101,33 @@ function applyGestureSetup(
  * `disabled` or the resolved handle changes without re-registration.
  */
 export function applyDraggableStaticSetup(
-  parameters: DraggableStaticSetupParameters,
+  parameters: Pick<DraggableConfig, 'element' | 'handle' | 'disabled'>,
 ): DragCleanupFn {
   const { element } = parameters;
-  /** The node the gesture styles land on: the handle when there is one, else the element. */
-  const resolveGestureElement = (dragHandle: DraggableHandleReference | undefined): HTMLElement =>
-    (resolveElementReference(dragHandle, undefined) as HTMLElement | null) ?? element;
-  let appliedDisabled = Boolean(parameters.disabled);
-  let appliedElement = resolveGestureElement(parameters.handle);
-  let releaseSetup = applyGestureSetup(appliedElement, parameters.disabled);
+  /**
+   * The node the gesture styles land on: the handle when there is one, else the
+   * element, and none while disabled.
+   */
+  const resolveGestureElement = (latest: Pick<DraggableConfig, 'handle' | 'disabled'>) =>
+    latest.disabled
+      ? null
+      : ((resolveElementReference(latest.handle, undefined) as HTMLElement | null) ?? element);
+  let appliedElement = resolveGestureElement(parameters);
+  let releaseSetup = applyGestureSetup(appliedElement);
 
-  const refreshFromRegistration = () => {
+  const releaseRefresh = registerStaticSetupRefresh(element, () => {
     const getParameters = getRegistration(element);
     if (getParameters === undefined) {
       return;
     }
-    const latest = getParameters();
-    const nextDisabled = Boolean(latest.disabled);
-    const nextElement = resolveGestureElement(latest.handle);
-    if (nextDisabled === appliedDisabled && nextElement === appliedElement) {
+    const nextElement = resolveGestureElement(getParameters());
+    if (nextElement === appliedElement) {
       return;
     }
     releaseSetup();
-    appliedDisabled = nextDisabled;
     appliedElement = nextElement;
-    releaseSetup = applyGestureSetup(nextElement, latest.disabled);
-  };
-
-  const releaseRefresh = registerStaticSetupRefresh(element, refreshFromRegistration);
+    releaseSetup = applyGestureSetup(nextElement);
+  });
 
   return onceCleanup(() => {
     releaseRefresh();

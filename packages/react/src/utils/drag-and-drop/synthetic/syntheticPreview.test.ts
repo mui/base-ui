@@ -47,8 +47,11 @@ const UNMATCHED_IDENTITY = {
 };
 
 /** `createSyntheticPreview` with the handle queued for `afterEach` destruction. */
-function createHandle(source: HTMLElement): ReturnType<typeof createSyntheticPreview> {
-  const handle = createSyntheticPreview(source, UNMATCHED_IDENTITY);
+function createHandle(
+  source: HTMLElement,
+  modifiers: Parameters<typeof createSyntheticPreview>[2] = null,
+): ReturnType<typeof createSyntheticPreview> {
+  const handle = createSyntheticPreview(source, UNMATCHED_IDENTITY, modifiers);
   activeHandles.push(handle);
   return handle;
 }
@@ -79,16 +82,14 @@ afterEach(() => {
 
 describe('syntheticPreview', () => {
   it('stops positioning when a modifier destroys the preview', () => {
-    const source = createSource();
-    const handle = createHandle(source);
-    const preview = createPreviewElement(120, 30);
-    handle.setPreviewElement(preview);
-    handle.setModifiers([
+    const handle = createHandle(createSource(), [
       ({ point }) => {
         handle.destroy();
         return point;
       },
     ]);
+    const preview = createPreviewElement(120, 30);
+    handle.setPreviewElement(preview);
     expect(() => handle.update(20, 20)).not.toThrow();
     expect(preview.destroyed).toBe(true);
   });
@@ -289,7 +290,7 @@ describe('syntheticPreview', () => {
         payload: { id: 'a' },
       };
       const source = createSource();
-      const handle = createSyntheticPreview(source, identity);
+      const handle = createSyntheticPreview(source, identity, null);
       activeHandles.push(handle);
       const preview = createPreviewElement(120, 30, false);
       document.body.appendChild(preview.element);
@@ -344,11 +345,11 @@ describe('syntheticPreview', () => {
       });
       const kind = Symbol.for('untitled-card');
       const source = createSource();
-      const handle = createSyntheticPreview(source, {
-        kind,
-        previewKey: undefined,
-        payload: undefined,
-      });
+      const handle = createSyntheticPreview(
+        source,
+        { kind, previewKey: undefined, payload: undefined },
+        null,
+      );
       activeHandles.push(handle);
       const preview = createPreviewElement(120, 30, false);
       document.body.appendChild(preview.element);
@@ -423,9 +424,8 @@ describe('syntheticPreview', () => {
 
 describe('preview modifiers', () => {
   it('skips an identical translate produced by a modifier', () => {
-    const handle = createHandle(document.body);
     const preview = createPreviewElement(50, 30);
-    handle.setModifiers([restrictToVerticalAxis]);
+    const handle = createHandle(document.body, [restrictToVerticalAxis]);
     handle.setPreviewElement(preview);
     const observer = new MutationObserver(() => {});
     observer.observe(preview.element, { attributes: true, attributeFilter: ['style'] });
@@ -443,9 +443,8 @@ describe('preview modifiers', () => {
   });
 
   it('constrains the preview position, anchored at the first positioned frame', () => {
-    const handle = createHandle(document.body);
     const preview = createPreviewElement(50, 30);
-    handle.setModifiers([restrictToVerticalAxis]);
+    const handle = createHandle(document.body, [restrictToVerticalAxis]);
     handle.setPreviewElement(preview);
 
     // The first frame anchors the locked axis at x = 100.
@@ -463,7 +462,6 @@ describe('preview modifiers', () => {
   // computed transforms — a measurement taken then would cache 1 for the rest of the
   // drag.
   it('waits for the preview to be rendered before measuring its scale', () => {
-    const handle = createHandle(document.body);
     const preview = createPreviewElement(50, 30);
     // jsdom lays nothing out, so its `getClientRects` is always empty; report the box
     // a browser would, but only once the element is connected — the detached phase
@@ -471,7 +469,7 @@ describe('preview modifiers', () => {
     preview.element.getClientRects = () =>
       (preview.element.isConnected ? [new DOMRect(0, 0, 50, 30)] : []) as unknown as DOMRectList;
     const seen: number[] = [];
-    handle.setModifiers([
+    const handle = createHandle(document.body, [
       ({ point, scale }) => {
         seen.push(scale.x);
         return point;
@@ -496,10 +494,9 @@ describe('preview modifiers', () => {
   // cache 1 for the rest of the drag. Only a browser can exercise this — jsdom has no
   // rendered-ness to withhold.
   it.skipIf(isJSDOM)('does not latch the scale while the preview host is hidden', () => {
-    const handle = createHandle(document.body);
     const preview = createPreviewElement(50, 30);
     const seen: number[] = [];
-    handle.setModifiers([
+    const handle = createHandle(document.body, [
       ({ point, scale }) => {
         seen.push(scale.x);
         return point;
@@ -525,10 +522,9 @@ describe('preview modifiers', () => {
   // state — otherwise the same modifier behaves differently depending on where it is
   // attached, which nothing in the API would explain.
   it('passes the modifier keys of the update through to the modifiers', () => {
-    const handle = createHandle(document.body);
     const preview = createPreviewElement(50, 30);
     const seen: boolean[] = [];
-    handle.setModifiers([
+    const handle = createHandle(document.body, [
       ({ point, shiftKey }) => {
         seen.push(shiftKey);
         return point;
@@ -544,11 +540,13 @@ describe('preview modifiers', () => {
   });
 
   it('applies modifiers in order, so a rect clamp contains an earlier modifier', () => {
-    const handle = createHandle(document.body);
     const preview = createPreviewElement(50, 30);
     const boundary = document.createElement('div');
     boundary.getBoundingClientRect = () => new DOMRect(0, 0, 200, 200);
-    handle.setModifiers([() => ({ x: 500, y: 500 }), restrictToElement(boundary)]);
+    const handle = createHandle(document.body, [
+      () => ({ x: 500, y: 500 }),
+      restrictToElement(boundary),
+    ]);
     handle.setPreviewElement(preview);
 
     handle.update(50, 60);
@@ -558,7 +556,6 @@ describe('preview modifiers', () => {
 
   it('passes the preview-level context: point is the proposed top-left, input the cursor', () => {
     const source = createSource();
-    const handle = createHandle(source);
     const preview = createPreviewElement(50, 30);
     const contexts: Array<{
       point: DraggablePosition;
@@ -569,7 +566,7 @@ describe('preview modifiers', () => {
       sourceRect: DOMRect;
       previewRect: DOMRect | null;
     }> = [];
-    handle.setModifiers([
+    const handle = createHandle(source, [
       (context) => {
         contexts.push({
           point: { ...context.point },
@@ -601,9 +598,8 @@ describe('preview modifiers', () => {
   });
 
   it('re-anchors the modifier reference when the offset resolves mid-drag', () => {
-    const handle = createHandle(document.body);
     const preview = createPreviewElement(50, 30);
-    handle.setModifiers([restrictToVerticalAxis]);
+    const handle = createHandle(document.body, [restrictToVerticalAxis]);
     handle.setPreviewElement(preview);
 
     handle.update(100, 100);
@@ -621,9 +617,8 @@ describe('preview modifiers', () => {
 
   it('leaves the frame unconstrained when a modifier throws', () => {
     const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-    const handle = createHandle(document.body);
     const preview = createPreviewElement(50, 30);
-    handle.setModifiers([
+    const handle = createHandle(document.body, [
       () => {
         throw new Error('broken modifier');
       },
@@ -637,16 +632,5 @@ describe('preview modifiers', () => {
       expect.anything(),
       expect.any(Error),
     );
-  });
-
-  it('setModifiers(null) removes the modifiers', () => {
-    const handle = createHandle(document.body);
-    const preview = createPreviewElement(50, 30);
-    handle.setModifiers([restrictToVerticalAxis]);
-    handle.setModifiers(null);
-    handle.setPreviewElement(preview);
-    handle.update(100, 100);
-    handle.update(400, 250);
-    expect(preview.element.style.translate).toBe('400px 250px');
   });
 });

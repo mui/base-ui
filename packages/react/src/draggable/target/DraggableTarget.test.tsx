@@ -211,9 +211,8 @@ describe('Draggable.Target', () => {
       activation: { touch: { type: 'immediate' } },
     });
 
-    // Raw pointer events rather than the native→synthetic bridge: the bridge
-    // starts every drag with nothing under the pointer, which is precisely the
-    // state this test needs to not be in.
+    // Raw pointer events rather than `fireDrag`, which starts every drag with
+    // nothing under the pointer: precisely the state this test needs to not be in.
     const hitTest = vi.spyOn(document, 'elementFromPoint').mockReturnValue(nestedSource);
     registerCleanup(() => hitTest.mockRestore());
 
@@ -251,7 +250,7 @@ describe('Draggable.Target', () => {
     });
     engine.registerMonitor({ onMoveStart: monitorStart });
 
-    // Raw pointer events: the bridge starts every drag with nothing under the pointer.
+    // Raw pointer events: `fireDrag` starts every drag with nothing under the pointer.
     const hitTest = vi.spyOn(document, 'elementFromPoint').mockReturnValue(nestedSource);
     registerCleanup(() => hitTest.mockRestore());
 
@@ -362,7 +361,7 @@ describe('Draggable.Target', () => {
     expect(enterBefore).toHaveBeenCalledTimes(1);
     expect(first).toHaveAttribute('data-drag-over');
 
-    // The bridge's hit test latches the exact node the last drag event targeted,
+    // `fireDrag`'s hit test latches the exact node the last drag step named,
     // which is about to be unmounted. Re-point it at whichever node currently
     // renders the testid so the mid-drag refresh resolves the remounted element.
     const seen: Element[] = [];

@@ -31,6 +31,8 @@ interface DragSessionSlot {
   sourceVersion: number;
   targetListeners: Map<Element, Set<() => void>>;
   allTargetListeners: Set<() => void>;
+  /** The live record each published target snapshot was copied from. */
+  targetSnapshotOrigins: WeakMap<DraggableTargetRecord, DraggableTargetRecord>;
 }
 
 const slot = getSharedSlot<DragSessionSlot>('dragSessionStore', () => ({
@@ -40,6 +42,7 @@ const slot = getSharedSlot<DragSessionSlot>('dragSessionStore', () => ({
   sourceVersion: 0,
   targetListeners: new Map<Element, Set<() => void>>(),
   allTargetListeners: new Set<() => void>(),
+  targetSnapshotOrigins: new WeakMap<DraggableTargetRecord, DraggableTargetRecord>(),
 }));
 
 /**
@@ -63,11 +66,6 @@ export function notifyDragSourceUpdated(source: DraggableRootRecord): void {
   }
 }
 
-const targetSnapshotOrigins = getSharedSlot(
-  'dragSessionStore.targetSnapshotOrigins',
-  () => new WeakMap<DraggableTargetRecord, DraggableTargetRecord>(),
-);
-
 /** Publish changed target data without resolving the hover stack again. */
 export function notifyDragTargetUpdated(source: DraggableRootRecord, element: Element): void {
   const session = slot.store.state;
@@ -80,9 +78,9 @@ export function notifyDragTargetUpdated(source: DraggableRootRecord, element: El
       if (target.element !== element) {
         return target;
       }
-      const original = targetSnapshotOrigins.get(target) ?? target;
+      const original = slot.targetSnapshotOrigins.get(target) ?? target;
       const snapshot = { ...original };
-      targetSnapshotOrigins.set(snapshot, original);
+      slot.targetSnapshotOrigins.set(snapshot, original);
       return snapshot;
     });
   }
@@ -257,17 +255,6 @@ export function retargetDragSource(oldElement: Element, newElement: HTMLElement)
   // detached node.
   notifyDragSourceUpdated(source);
   getActivePreviewHandle()?.retargetSource(newElement);
-}
-
-/** Whether `element` is the active drag source. */
-export function isDraggingElement(
-  state: DragSessionState | null,
-  element: Element | null,
-): boolean {
-  if (!state || !element) {
-    return false;
-  }
-  return state.source.element === element;
 }
 
 /**

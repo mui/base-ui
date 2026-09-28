@@ -956,7 +956,7 @@ The handler also receives the drag `source`, so the allowed direction can depend
 
 ### Auto-scroll speed
 
-`maxSpeed` sets the auto-scroll speed reached at the container's edge, in pixels per second. It defaults to `900`. Scrolling accelerates as the pointer approaches the edge. Lower it for a short list or raise it for a large scroll range:
+`maxSpeed` sets the auto-scroll speed reached at the container's edge, in pixels per second. It defaults to `900`. Scrolling accelerates as the pointer approaches the edge, and ramps up from zero over the first 400 milliseconds after the pointer enters an edge zone. Lower `maxSpeed` for a short list or raise it for a large scroll range:
 
 ```tsx title="Slower in a short list"
 <Draggable.Viewport maxSpeed={300} />

@@ -100,10 +100,7 @@ export const DraggableRoot = React.forwardRef(function DraggableRoot<
   // nested providers of other kinds (a board of columns of cards) are walked past.
   const enclosingCollisionContext = React.useContext(DraggableCollisionContext);
   let collisionContext = enclosingCollisionContext;
-  while (
-    collisionContext &&
-    collisionContext.kind.id !== (kind ?? draggableContext.defaultKind).id
-  ) {
+  while (collisionContext && collisionContext.kind.id !== params.kind.id) {
     collisionContext = collisionContext.parent;
   }
   React.useEffect(() => {
