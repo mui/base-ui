@@ -33,11 +33,83 @@ import HandleTailwind from '../app/(docs)/react/utils/draggable/demos/handle/tai
 import NestingCss from '../app/(docs)/react/utils/draggable/demos/targets/nesting/css-modules';
 import NestingTailwind from '../app/(docs)/react/utils/draggable/demos/targets/nesting/tailwind';
 
+import HeroCss from '../app/(docs)/react/utils/draggable/demos/hero/css-modules';
+import HeroTailwind from '../app/(docs)/react/utils/draggable/demos/hero/tailwind';
+import CanvasCss from '../app/(docs)/react/utils/draggable/demos/scrolling/canvas/css-modules';
+import CanvasTailwind from '../app/(docs)/react/utils/draggable/demos/scrolling/canvas/tailwind';
+
 setupDragEngineTests();
 afterEach(() => vi.unstubAllGlobals());
 
 describe('draggable demos', () => {
   const { renderDnd } = createDndRenderer();
+
+  describe.each([HeroCss, HeroTailwind])('hero movement controls', (Demo) => {
+    it('moves by keyboard and click, clamps to the surface, and retains focus', async () => {
+      const { user } = await renderDnd(<Demo />);
+      const card = screen.getByText('Drag me');
+      const surface = card.parentElement!;
+      Object.defineProperties(surface, {
+        clientWidth: { value: 300 },
+        clientHeight: { value: 192 },
+      });
+      Object.defineProperties(card, { offsetWidth: { value: 128 }, offsetHeight: { value: 40 } });
+      const right = screen.getByRole('button', { name: 'Right' });
+      await user.click(right);
+      expect(card).toHaveStyle({ left: '44px', top: '24px' });
+      await user.keyboard('{Enter}');
+      expect(card).toHaveStyle({ left: '64px' });
+      expect(right).toHaveFocus();
+      await user.click(screen.getByRole('button', { name: 'Left' }));
+      await user.keyboard('{Enter}{Enter}{Enter}');
+      expect(card).toHaveStyle({ left: '0px' });
+      expect(screen.getByRole('status')).toHaveTextContent('Card position: 0, 24');
+    });
+  });
+
+  describe.each([NestingCss, NestingTailwind])('nested target controls', (Demo) => {
+    it('moves layers with persistent controls and excludes the frame for notes', async () => {
+      const { user } = await renderDnd(<Demo />);
+      const chartLocation = screen.getByRole('combobox', { name: 'Chart location' });
+      await user.selectOptions(chartLocation, 'frame');
+      expect(chartLocation).toHaveFocus();
+      expect(screen.getByText('Chart').parentElement?.parentElement).toHaveTextContent('Frame');
+      const noteLocation = screen.getByRole('combobox', { name: 'Note location' });
+      expect(within(noteLocation).queryByRole('option', { name: 'Frame' })).toBeNull();
+      await user.selectOptions(noteLocation, 'canvas');
+      expect(screen.getByRole('status')).toHaveTextContent('Chart: frame. Note: canvas.');
+      await user.selectOptions(chartLocation, 'palette');
+      expect(screen.getByRole('status')).toHaveTextContent('Chart: palette.');
+    });
+  });
+
+  describe.each([CanvasCss, CanvasTailwind])('canvas controls', (Demo) => {
+    it('moves pins, archives them, and handles the final pin without losing button focus', async () => {
+      const { user } = await renderDnd(<Demo />);
+      const pinSelector = screen.getByRole('combobox', { name: 'Pin' });
+      const kickoff = screen.getByText('Kickoff', { selector: 'div' });
+      const right = screen.getByRole('button', { name: 'Right' });
+      await user.click(right);
+      await user.keyboard('{Enter}');
+      expect(kickoff).toHaveStyle({ left: '80px', top: '40px' });
+      expect(right).toHaveFocus();
+      expect(screen.getByRole('status')).toHaveTextContent('Moved kickoff to 80, 40.');
+      await user.selectOptions(pinSelector, 'research');
+      await user.click(screen.getByRole('button', { name: 'Down' }));
+      expect(screen.getByText('Research', { selector: 'div' })).toHaveStyle({ top: '130px' });
+      const archive = screen.getByRole('button', { name: 'Archive selected pin' });
+      await user.click(archive);
+      expect(archive).toHaveFocus();
+      expect(pinSelector).toHaveValue('kickoff');
+      expect(screen.queryByText('Research', { selector: 'div' })).toBeNull();
+      await user.keyboard('{Enter}');
+      expect(screen.queryByText('Kickoff', { selector: 'div' })).toBeNull();
+      expect(pinSelector).toBeDisabled();
+      expect(archive).toBeDisabled();
+      expect(screen.getByRole('button', { name: 'Show archive' })).toHaveFocus();
+      expect(screen.getByRole('status')).toHaveTextContent('Archived kickoff.');
+    });
+  });
 
   describe('closing tabs', () => {
     function Demo() {
@@ -168,7 +240,9 @@ describe('draggable demos', () => {
       fireDrag.dragStart(note, { clientX: 10, clientY: 10 });
       fireDrag.drop(frame, { clientX: 20, clientY: 20 });
       const moved = screen.getByText('Note', { selector: ':not([data-drag-preview])' });
-      expect(moved.parentElement).toBe(screen.getByText('Canvas').nextElementSibling);
+      expect(moved.parentElement).toBe(
+        screen.getByText('Canvas', { selector: 'span' }).nextElementSibling,
+      );
       expect(frame).toHaveTextContent('Drop the chart into the frame');
       fireDrag.dragEnd();
     });

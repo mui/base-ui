@@ -32,10 +32,36 @@ const PIN_CLASS =
 export default function CanvasPan() {
   const [pins, setPins] = React.useState(INITIAL_PINS);
   const [archived, setArchived] = React.useState<string[]>([]);
+  const [selectedId, setSelectedId] = React.useState(INITIAL_PINS[0].id);
+  const [message, setMessage] = React.useState('');
+  const selectedPin = pins.find((pin) => pin.id === selectedId) ?? pins[0];
+  const showArchiveRef = React.useRef<HTMLButtonElement | null>(null);
   const viewportRef = React.useRef<HTMLDivElement | null>(null);
   const contentRef = React.useRef<HTMLDivElement | null>(null);
   const cameraRef = React.useRef({ x: 0, y: 0 });
   const dragStartCameraRef = React.useRef({ x: 0, y: 0 });
+
+  function movePin(id: string, dx: number, dy: number) {
+    const movedPin = pins.find((pin) => pin.id === id);
+    if (!movedPin) {
+      return;
+    }
+    setPins((previous) =>
+      previous.map((pin) => (pin.id === id ? { ...pin, x: pin.x + dx, y: pin.y + dy } : pin)),
+    );
+    setMessage(`Moved ${id} to ${Math.round(movedPin.x + dx)}, ${Math.round(movedPin.y + dy)}.`);
+  }
+
+  function archivePin(id: string) {
+    setPins((previous) => previous.filter((pin) => pin.id !== id));
+    setArchived((previous) => [...previous, id]);
+    setMessage(`Archived ${id}.`);
+  }
+
+  function moveCamera(x: number, y: number) {
+    cameraRef.current = { x, y };
+    contentRef.current?.style.setProperty('transform', `translate(${-x}px, ${-y}px)`);
+  }
 
   return (
     <Draggable.Provider>
@@ -46,6 +72,75 @@ export default function CanvasPan() {
           moves its own camera, and the archive scrolls into reach.
         </p>
 
+        <fieldset style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+          <legend>Move or archive a pin</legend>
+          <label>
+            Pin{' '}
+            <select
+              value={selectedPin?.id ?? ''}
+              disabled={!selectedPin}
+              onChange={(event) => setSelectedId(event.target.value)}
+            >
+              {pins.map((pin) => (
+                <option key={pin.id} value={pin.id}>
+                  {pin.label}
+                </option>
+              ))}
+              {pins.length === 0 && <option value="">No pins remaining</option>}
+            </select>
+          </label>
+          {[
+            { label: 'Left', x: -20, y: 0 },
+            { label: 'Right', x: 20, y: 0 },
+            { label: 'Up', x: 0, y: -20 },
+            { label: 'Down', x: 0, y: 20 },
+          ].map((direction) => (
+            <button
+              key={direction.label}
+              type="button"
+              style={{ border: '1px solid', padding: '0.25rem 0.5rem' }}
+              disabled={!selectedPin}
+              onClick={() => {
+                if (selectedPin) {
+                  movePin(selectedPin.id, direction.x, direction.y);
+                  moveCamera(selectedPin.x + direction.x - 40, selectedPin.y + direction.y - 40);
+                }
+              }}
+            >
+              {direction.label}
+            </button>
+          ))}
+          <button
+            type="button"
+            disabled={!selectedPin}
+            onClick={() => {
+              if (selectedPin) {
+                archivePin(selectedPin.id);
+                if (pins.length === 1) {
+                  showArchiveRef.current?.focus();
+                }
+              }
+            }}
+          >
+            Archive selected pin
+          </button>
+          <button
+            type="button"
+            disabled={!selectedPin}
+            onClick={() => selectedPin && moveCamera(selectedPin.x - 40, selectedPin.y - 40)}
+          >
+            Show selected pin
+          </button>
+          <button
+            ref={showArchiveRef}
+            type="button"
+            onClick={() => moveCamera(ARCHIVE.x - 40, ARCHIVE.y - 40)}
+          >
+            Show archive
+          </button>
+        </fieldset>
+        <p role="status">{message}</p>
+
         <Draggable.Viewport
           ref={viewportRef}
           accept={pinKind}
@@ -55,13 +150,7 @@ export default function CanvasPan() {
           // @highlight-start @focus
           onDragScroll={(eventDetails) => {
             eventDetails.cancel();
-            const camera = cameraRef.current;
-            camera.x += eventDetails.x;
-            camera.y += eventDetails.y;
-            contentRef.current?.style.setProperty(
-              'transform',
-              `translate(${-camera.x}px, ${-camera.y}px)`,
-            );
+            moveCamera(cameraRef.current.x + eventDetails.x, cameraRef.current.y + eventDetails.y);
             eventDetails.consume();
           }}
           // @highlight-end
@@ -72,9 +161,7 @@ export default function CanvasPan() {
               className="absolute box-border flex h-[90px] w-[160px] items-center justify-center border border-dashed border-neutral-400 text-[0.875rem] leading-5 text-neutral-500 data-[drag-over]:border-solid data-[drag-over]:border-neutral-950 data-[drag-over]:text-neutral-950 dark:border-neutral-500 dark:text-neutral-400 dark:data-[drag-over]:border-white dark:data-[drag-over]:text-white"
               style={{ left: ARCHIVE.x, top: ARCHIVE.y }}
               onDraggableDrop={(eventDetails) => {
-                const pinId = eventDetails.source.payload;
-                setPins((previous) => previous.filter((pin) => pin.id !== pinId));
-                setArchived((previous) => [...previous, pinId]);
+                archivePin(eventDetails.source.payload);
               }}
             >
               Archive
@@ -104,13 +191,7 @@ export default function CanvasPan() {
                     eventDetails.location.initial.input.clientY;
                   const panX = cameraRef.current.x - dragStartCameraRef.current.x;
                   const panY = cameraRef.current.y - dragStartCameraRef.current.y;
-                  setPins((previous) =>
-                    previous.map((entry) =>
-                      entry.id === pin.id
-                        ? { ...entry, x: entry.x + dx + panX, y: entry.y + dy + panY }
-                        : entry,
-                    ),
-                  );
+                  movePin(pin.id, dx + panX, dy + panY);
                 }}
               >
                 {pin.label}

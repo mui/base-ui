@@ -1233,7 +1233,7 @@ Monitors support the same handlers as `<Draggable.Root>`, except `onBeforeMoveSt
 
 Returns the page-wide drag manager. Use it to register existing DOM elements as drag sources, drop targets, or scroll containers. The hook requires a `<Draggable.Provider>` above the calling component.
 
-Every `useManager` call returns the same manager, so `cancelDrag()` ends the active drag whichever feature started it. Use distinct [kinds](#kinds-and-payloads) to keep unrelated features apart.
+Each `useManager` call returns a stable manager for that hook instance. All managers share the page's drag session, so `cancelDrag()` ends the active drag whichever feature started it. Use distinct [kinds](#kinds-and-payloads) to keep unrelated features apart.
 
 ```tsx title="Getting the manager"
 const manager = Draggable.useManager();

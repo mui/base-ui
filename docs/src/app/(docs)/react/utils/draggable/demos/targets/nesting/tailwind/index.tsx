@@ -48,6 +48,9 @@ export default function NestedDropTargets() {
   });
 
   function placeLayer(id: LayerId, location: Location) {
+    if (id === 'note' && location === 'frame') {
+      return;
+    }
     setLocations((current) => ({ ...current, [id]: location }));
   }
 
@@ -60,6 +63,24 @@ export default function NestedDropTargets() {
   return (
     <Draggable.Provider>
       <div className="flex w-full flex-col gap-3 select-none">
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem' }}>
+          {(['chart', 'note'] as const).map((id) => (
+            <label key={id}>
+              {id === 'chart' ? 'Chart location' : 'Note location'}{' '}
+              <select
+                value={locations[id]}
+                onChange={(event) => placeLayer(id, event.target.value as Location)}
+              >
+                <option value="palette">Palette</option>
+                <option value="canvas">Canvas</option>
+                {id === 'chart' && <option value="frame">Frame</option>}
+              </select>
+            </label>
+          ))}
+        </div>
+        <p role="status">
+          Chart: {locations.chart}. Note: {locations.note}.
+        </p>
         <div className="flex min-h-9 items-start gap-2">{renderLayers('palette')}</div>
         <Draggable.Target
           accept={layerKind}

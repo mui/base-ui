@@ -44,7 +44,6 @@ const MAX_EDGE_SIZE = 180;
 const DEFAULT_MAX_SPEED = 900;
 const MUTATION_OBSERVER_OPTIONS: MutationObserverInit = {
   attributes: true,
-  attributeFilter: ['class', 'style'],
   childList: true,
   subtree: true,
 };
@@ -54,7 +53,6 @@ const MUTATION_OBSERVER_OPTIONS: MutationObserverInit = {
 // the chain.
 const CHAIN_OBSERVER_OPTIONS: MutationObserverInit = {
   attributes: true,
-  attributeFilter: MUTATION_OBSERVER_OPTIONS.attributeFilter,
   childList: true,
 };
 const PREVIEW_SELECTOR = `[${DraggablePreviewDataAttributes.dragPreview}]`;
@@ -92,7 +90,7 @@ const state = getSharedSlot<AutoScrollerState>('registerViewport', () => ({
   observedChainElements: new Set<Element>(),
   idleMutationObserver: null,
   overflowCache: new WeakMap<HTMLElement, OverflowFlags>(),
-  rtlCache: new WeakMap<HTMLElement, boolean>(),
+  flowCache: new WeakMap<HTMLElement, ScrollFlow>(),
 }));
 
 const holds = createGetterStackRegistry<HTMLElement, ScrollerGetter>({
@@ -218,7 +216,7 @@ function movesChainElement(records: MutationRecord[]): boolean {
  *   chains, such as rows appended below the fold, can give a container
  *   something to scroll. They can't change which elements scroll or in which
  *   direction, so the loop wakes and the next frame re-reads the scroll extents.
- * - A `class` or `style` change on a registered container or one of its
+ * - An attribute change on a registered container or one of its
  *   ancestors can flip an overflow or a direction through a descendant
  *   selector. The caches are dropped.
  *
@@ -337,24 +335,22 @@ function canScrollToward(
   sign: number,
   isPageScroller: boolean,
 ): boolean {
-  if (axis === 'y') {
+  const body = isPageScroller ? ownerDocument(el).body : null;
+  const flow = readCached(state.flowCache, body ?? el, readScrollFlow);
+  const reversed = !isPageScroller && flow.reversedAxis === axis;
+  const negativeOrigin = flow.negativeOrigin[axis] !== reversed;
+  const offset = axis === 'x' ? el.scrollLeft : el.scrollTop;
+  const size = axis === 'x' ? el.clientWidth : el.clientHeight;
+  const scrollSize = axis === 'x' ? el.scrollWidth : el.scrollHeight;
+
+  // RTL and reversed flex flow can put the origin at the bottom or right.
+  // Offsets then run from -max to 0 rather than from 0 to max.
+  if (negativeOrigin) {
     return sign < 0
-      ? el.scrollTop > 0
-      : Math.ceil(el.scrollTop) + el.clientHeight < el.scrollHeight;
+      ? Math.ceil(-offset) < getMaxScrollOffset(scrollSize, size)
+      : Math.floor(-offset) > 0;
   }
-  if (!resolveRtl(el, isPageScroller)) {
-    return sign < 0
-      ? el.scrollLeft > 0
-      : Math.ceil(el.scrollLeft) + el.clientWidth < el.scrollWidth;
-  }
-  // In an RTL container `scrollLeft` is 0 at the right-hand start and goes
-  // negative toward the end. The LTR checks above would never allow a leftward
-  // scroll and would always allow a rightward one. `-el.scrollLeft` is the
-  // distance scrolled from the start. Scrolling left is possible until it
-  // reaches the maximum offset, and scrolling right while it is above 0.
-  return sign < 0
-    ? Math.ceil(-el.scrollLeft) < getMaxScrollOffset(el.scrollWidth, el.clientWidth)
-    : Math.floor(-el.scrollLeft) > 0;
+  return sign < 0 ? offset > 0 : Math.ceil(offset) + size < scrollSize;
 }
 
 /**
@@ -401,7 +397,7 @@ function resolvePageScroller(element: HTMLElement): HTMLElement | null {
 }
 
 /**
- * Whether `scrollLeft` runs right-to-left for `scrollTarget`.
+ * Cached flow properties used to determine the scroll origin.
  *
  * A regular overflow container uses its own `direction`. The page scroller
  * doesn't. HTML propagates `direction` from `<body>` to the viewport, like
@@ -410,11 +406,31 @@ function resolvePageScroller(element: HTMLElement): HTMLElement | null {
  * `<html>` would leave the left edge dead and the right edge pushing against the
  * start.
  */
-function resolveRtl(scrollTarget: HTMLElement, isPageScroller: boolean): boolean {
-  // The page scroller always reads `body`. An unstyled `body` inherits the
-  // root's direction, so this is correct whether or not `body` sets its own.
-  const body = isPageScroller ? (ownerDocument(scrollTarget).body as HTMLElement | null) : null;
-  return readCached(state.rtlCache, body ?? scrollTarget, isRtlElement);
+interface ScrollFlow {
+  negativeOrigin: AxisFlags;
+  reversedAxis: Axis | null;
+}
+
+function readScrollFlow(element: HTMLElement): ScrollFlow {
+  const style = ownerWindow(element).getComputedStyle(element);
+  const rtl = style.direction ? style.direction === 'rtl' : isRtlElement(element);
+  const vertical = /^(vertical|sideways)-/.test(style.writingMode);
+  const flex = style.display === 'flex' || style.display === 'inline-flex';
+  let reversedAxis: Axis | null = null;
+  if (flex) {
+    if (style.flexDirection === 'row-reverse') {
+      reversedAxis = vertical ? 'y' : 'x';
+    } else if (style.flexDirection === 'column-reverse') {
+      reversedAxis = vertical ? 'x' : 'y';
+    }
+  }
+  return {
+    negativeOrigin: {
+      x: vertical ? style.writingMode.endsWith('-rl') : rtl,
+      y: vertical && (style.writingMode === 'sideways-lr' ? !rtl : rtl),
+    },
+    reversedAxis,
+  };
 }
 
 // The viewport rect in client coordinates. `getViewportSize` excludes scrollbars
@@ -876,7 +892,7 @@ function observeChainMutations(
     // unobserved. Elements that stayed observed keep their cached measurements.
     if (!state.observedChainElements.has(element)) {
       state.overflowCache.delete(element as HTMLElement);
-      state.rtlCache.delete(element as HTMLElement);
+      state.flowCache.delete(element as HTMLElement);
     }
     observer.observe(
       element,
@@ -915,7 +931,7 @@ export { wakeScrollLoop as wakeAutoScroll };
 /** The style caches are `WeakMap`s, which have no `clear()`, so they are replaced. */
 function resetStyleCaches(): void {
   state.overflowCache = new WeakMap();
-  state.rtlCache = new WeakMap();
+  state.flowCache = new WeakMap();
 }
 
 function stopScrollLoop(): void {
@@ -1150,8 +1166,8 @@ interface AutoScrollerState {
   idleMutationObserver: MutationObserver | null;
   /** Per-drag per-axis overflow cache (see `readCached`). */
   overflowCache: WeakMap<HTMLElement, OverflowFlags>;
-  /** Per-drag `isRtl` cache (see `readCached`). */
-  rtlCache: WeakMap<HTMLElement, boolean>;
+  /** Per-drag scroll flow cache (see `readCached`). */
+  flowCache: WeakMap<HTMLElement, ScrollFlow>;
 }
 
 export interface RegisterViewportParameters<TSourcePayload = unknown, TDragData = unknown> {

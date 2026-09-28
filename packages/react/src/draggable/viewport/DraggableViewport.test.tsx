@@ -130,7 +130,6 @@ describe('Draggable.Viewport', () => {
 
     expect(observe).toHaveBeenCalledWith(scroller, {
       attributes: true,
-      attributeFilter: ['class', 'style'],
       childList: true,
       subtree: true,
     });

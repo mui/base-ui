@@ -1669,4 +1669,37 @@ describe('engine.registerTarget', () => {
 
     spy.mockRestore();
   });
+  it('refreshes callbacks in reused options before accept stops matching', async () => {
+    const { engine } = await renderDnd();
+    const source = createElement();
+    const original = vi.fn();
+    const current = vi.fn();
+    const options = { accept: cardKind, onDraggableLeave: original };
+    engine.registerSource(source, { kind: cardKind });
+    const target = createElement();
+    engine.registerTarget(target, () => options);
+
+    fireDrag.dragStart(source);
+    await flushRaf();
+    fireDrag.dragEnter(target);
+    fireDrag.dragOver(target);
+    await flushRaf();
+    fireDrag.drop(source);
+    expect(original).toHaveBeenCalledTimes(1);
+    original.mockClear();
+
+    // Keep the options identity while changing the callback for the next drag.
+    options.onDraggableLeave = current;
+    fireDrag.dragStart(source);
+    await flushRaf();
+    fireDrag.dragEnter(target);
+    fireDrag.dragOver(target);
+    await flushRaf();
+    options.accept = columnKind;
+    fireDrag.dragOver(target);
+    await flushRaf();
+
+    expect(current).toHaveBeenCalledTimes(1);
+    expect(original).not.toHaveBeenCalled();
+  });
 });

@@ -316,4 +316,29 @@ describe('engine.registerMonitor', () => {
       consoleError.mockRestore();
     }
   });
+  it('refreshes callbacks in reused options before accept stops matching', async () => {
+    const { engine } = await renderDnd();
+    const source = createElement();
+    const original = vi.fn();
+    const current = vi.fn();
+    const options = { accept: cardKind, onMoveEnd: original };
+    engine.registerSource(source, { kind: cardKind });
+    engine.registerMonitor(() => options);
+
+    fireDrag.dragStart(source);
+    await flushRaf();
+    fireDrag.drop(source);
+    expect(original).toHaveBeenCalledTimes(1);
+    original.mockClear();
+
+    // Keep the options identity while changing the callback for the next drag.
+    options.onMoveEnd = current;
+    fireDrag.dragStart(source);
+    await flushRaf();
+    options.accept = columnKind;
+    fireDrag.drop(source);
+
+    expect(current).toHaveBeenCalledTimes(1);
+    expect(original).not.toHaveBeenCalled();
+  });
 });

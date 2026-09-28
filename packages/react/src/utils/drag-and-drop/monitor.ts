@@ -1,3 +1,4 @@
+import { fastObjectShallowCompare } from '@base-ui/utils/fastObjectShallowCompare';
 import { matchesAccept } from './dragKind';
 import type { DraggableAccept } from '../../draggable/DraggableProvider';
 import type {
@@ -15,8 +16,6 @@ import { containConsumerError } from './utils';
 type MonitorGetter = () => RegisterMonitorParameters<any, any>;
 
 interface MatchedMonitor {
-  /** The object the getter returned, compared by identity to detect a new one. */
-  parameters: RegisterMonitorParameters;
   /** A shallow copy, so a getter that mutates one object in place can't change it. */
   snapshot: RegisterMonitorParameters;
 }
@@ -31,8 +30,8 @@ interface MonitorState {
   /**
    * The last parameters of each engaged monitor whose `accept` matched. A monitor
    * whose `accept` stops matching mid-drag still gets `onMoveEnd` through them.
-   * They are copied only when the getter returns a new object, because this runs
-   * for every monitor on every event.
+   * They are copied only when their fields change, including when an imperative
+   * getter mutates and returns the same object.
    */
   matchedMonitors: WeakMap<MonitorGetter, MatchedMonitor>;
 }
@@ -46,8 +45,8 @@ const state = getSharedSlot<MonitorState>('registerMonitor', () => ({
 
 function rememberMatchedMonitor(getMonitor: MonitorGetter, parameters: RegisterMonitorParameters) {
   const matched = state.matchedMonitors.get(getMonitor);
-  if (matched === undefined || matched.parameters !== parameters) {
-    state.matchedMonitors.set(getMonitor, { parameters, snapshot: { ...parameters } });
+  if (matched === undefined || !fastObjectShallowCompare(parameters, matched.snapshot)) {
+    state.matchedMonitors.set(getMonitor, { snapshot: { ...parameters } });
   }
 }
 

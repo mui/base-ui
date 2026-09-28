@@ -1,4 +1,5 @@
 import { isShadowRoot } from '@floating-ui/utils/dom';
+import { fastObjectShallowCompare } from '@base-ui/utils/fastObjectShallowCompare';
 import { clamp } from '@base-ui/utils/clamp';
 import type { DraggableAccept, DraggableKind } from '../../draggable/DraggableProvider';
 import type { DraggableRootRecord } from '../../draggable/root/DraggableRoot';
@@ -117,8 +118,8 @@ interface DropTargetState {
    * one object and mutate it in place (`() => targetOptions`), which would rewrite
    * the parameters `dispatchToDropTarget` falls back to for that record. Resolution
    * creates a record per walked target per frame, but the React layer returns the
-   * same parameters object until the target re-renders. So copy once per object
-   * and share the copy across the records resolved from it.
+   * same parameters object until the target re-renders. Share its shallow copy
+   * across records while its fields remain unchanged.
    */
   registrationSnapshots: WeakMap<AnyDropTargetParameters, AnyDropTargetParameters>;
 }
@@ -354,7 +355,7 @@ const DROP_REJECTED = Symbol('base-ui.dropTarget.rejected');
 
 function snapshotRegistration(registration: AnyDropTargetParameters): AnyDropTargetParameters {
   let snapshot = state.registrationSnapshots.get(registration);
-  if (snapshot === undefined) {
+  if (snapshot === undefined || !fastObjectShallowCompare(registration, snapshot)) {
     snapshot = { ...registration };
     state.registrationSnapshots.set(registration, snapshot);
   }
