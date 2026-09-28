@@ -4,7 +4,7 @@
  * `pointerdown` latches its target and later helpers dispatch on that same
  * element to mimic browser routing: the events bubble up to the document and
  * window, where the engine's pending- and active-phase listeners live.
- * Call `resetTouchTarget()` between tests to clear the latched target.
+ * `setupDragEngineTests()` clears the latched target between tests.
  *
  * Touch helpers dispatch both pointer events and the corresponding touch
  * events a real browser fires alongside them (the engine's only touch listener
@@ -114,7 +114,7 @@ export function touchMove(x: number, y: number, pointerId = 1): PointerEvent {
   return pointerMove('touch', x, y, pointerId);
 }
 
-export function makeTouch(x: number, y: number, identifier = 1): Touch {
+function makeTouch(x: number, y: number, identifier = 1): Touch {
   const base: Record<string, unknown> = {
     identifier,
     target: window,

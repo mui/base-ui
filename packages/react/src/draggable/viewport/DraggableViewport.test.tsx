@@ -91,7 +91,7 @@ describe('Draggable.Viewport', () => {
     },
   }));
 
-  it('wakes for changed margins, compares edges by value, and does not forward the prop', async () => {
+  it('applies a margin added mid-drag only after the drag enters, ignores unchanged edges, and does not forward the prop', async () => {
     const scrollBy = vi.fn();
     const { engine, rerender } = await renderDnd(<Scroller scrollByMock={scrollBy} />);
     const source = createElement();
@@ -286,8 +286,8 @@ describe('Draggable.Viewport', () => {
     const computedStyle = vi.spyOn(window, 'getComputedStyle');
     registerCleanup(() => computedStyle.mockRestore());
 
-    // A class on the container can flip its overflow or direction: the cached
-    // answers are dropped and the chain is walked again.
+    // A class on the container can flip its overflow or direction, so the cached
+    // answers are dropped.
     act(() => {
       scroller.classList.add('restyled');
     });

@@ -3,6 +3,7 @@ import type {
   DraggablePreviewOffset,
   DraggablePreviewOffsetParameters,
 } from '../../draggable/preview/DraggablePreview';
+import * as DraggablePreviewCssVars from '../../draggable/preview/DraggablePreviewCssVars';
 
 /**
  * Resolve a `DraggablePreviewOffset` (the `'source'`/`'pointer'` presets, a fixed
@@ -38,6 +39,6 @@ export function applySourceSizeVars(
   container: HTMLElement,
   sourceRect: Pick<DOMRect, 'width' | 'height'>,
 ): void {
-  container.style.setProperty('--drag-source-width', `${sourceRect.width}px`);
-  container.style.setProperty('--drag-source-height', `${sourceRect.height}px`);
+  container.style.setProperty(DraggablePreviewCssVars.dragSourceWidth, `${sourceRect.width}px`);
+  container.style.setProperty(DraggablePreviewCssVars.dragSourceHeight, `${sourceRect.height}px`);
 }

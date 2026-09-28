@@ -8,9 +8,8 @@ import {
   setupDragEngineTests,
 } from '../../../../test/dnd';
 import { restrictToVerticalAxis } from '../dragModifiers';
-import * as syntheticSensor from './syntheticSensor';
 
-setupDragEngineTests({ extraAfterEach: () => syntheticSensor.resetForTests() });
+setupDragEngineTests();
 
 describe('syntheticDrag double-click activation', () => {
   const { renderDnd } = createDndRenderer();
@@ -63,6 +62,57 @@ describe('syntheticDrag double-click activation', () => {
     expect(onClick).not.toHaveBeenCalled();
     fireEvent.click(target, { detail: 1 });
     expect(onClick).toHaveBeenCalledTimes(1);
+  });
+
+  it('follows and drops with a pointer that reports an empty pointerType', async () => {
+    const { engine } = await renderDnd();
+    const source = createElement();
+    const target = createElement();
+    const onMove = vi.fn();
+    const onDrop = vi.fn();
+    engine.registerSource(source, { activation: { type: 'double-click' }, onMove });
+    engine.registerTarget(target, { onDraggableDrop: onDrop });
+    const original = document.elementFromPoint;
+    document.elementFromPoint = () => target;
+    registerCleanup(() => {
+      document.elementFromPoint = original;
+    });
+
+    fireEvent.doubleClick(source, { detail: 2, button: 0, clientX: 20, clientY: 20 });
+    // An empty `pointerType` is a mouse, as it is at pickup: the session follows
+    // it, swallows its press, and drops on its click.
+    firePointer.move(target, {
+      pointerType: '',
+      pointerId: 1,
+      buttons: 0,
+      clientX: 90,
+      clientY: 80,
+      timeStamp: 20,
+    });
+    await flushRaf();
+    expect(onMove.mock.lastCall?.[1].location.current.input.clientX).toBe(90);
+
+    const press = new PointerEvent('pointerdown', {
+      pointerType: '',
+      button: 0,
+      buttons: 1,
+      bubbles: true,
+      cancelable: true,
+    });
+    target.dispatchEvent(press);
+    expect(press.defaultPrevented).toBe(true);
+
+    fireEvent(
+      target,
+      new PointerEvent('click', {
+        pointerType: '',
+        button: 0,
+        detail: 1,
+        bubbles: true,
+        cancelable: true,
+      }),
+    );
+    expect(onDrop).toHaveBeenCalledTimes(1);
   });
 
   it('cancels the press that drops so the destination is neither focused nor pressed', async () => {

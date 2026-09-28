@@ -22,19 +22,13 @@ import {
   penDown,
   penMove,
   penUp,
-  resetTouchTarget,
   touchCancel,
   touchDown,
   touchMove,
   touchUp,
 } from '../../../../test/syntheticPointer';
 
-setupDragEngineTests({
-  extraAfterEach: () => {
-    syntheticSensor.resetForTests();
-    resetTouchTarget();
-  },
-});
+setupDragEngineTests();
 
 /**
  * Dispatch `event` on `target` inside `act`. The mounted `Draggable.Provider`
@@ -2012,6 +2006,7 @@ describe('syntheticDrag sensor', () => {
           cancelable: true,
         }),
       );
+      expect(el.getAttribute('draggable')).toBe('false');
 
       // The candidate survived: clearing the distance threshold still activates.
       penMove(60, 50);
@@ -2148,6 +2143,67 @@ describe('syntheticDrag sensor', () => {
       await flushRaf();
 
       expect(onMoveEnd).toHaveBeenCalledTimes(1);
+    });
+
+    it('keeps native drag suppressed through an ignored pointerup until the drag ends', async () => {
+      const { engine } = await renderDnd();
+      const el = createElement();
+      el.setAttribute('draggable', 'true');
+      const onMoveEnd = vi.fn();
+      engine.registerSource(el, {
+        activation: { mouse: { type: 'immediate' } },
+        onMoveEnd,
+      });
+
+      dispatch(
+        el,
+        new PointerEvent('pointerdown', {
+          pointerType: 'mouse',
+          pointerId: 1,
+          clientX: 10,
+          clientY: 10,
+          button: 0,
+          buttons: 1,
+          bubbles: true,
+          cancelable: true,
+        }),
+      );
+      await flushRaf();
+      expect(el.getAttribute('draggable')).toBe('false');
+
+      // Ignored like Safari's misreported quick release: the primary is still
+      // held, so the drag stays live and must keep blocking the native drag.
+      dispatch(
+        el,
+        new PointerEvent('pointerup', {
+          pointerType: 'mouse',
+          pointerId: 1,
+          clientX: 10,
+          clientY: 10,
+          button: 2,
+          buttons: 1,
+          bubbles: true,
+          cancelable: true,
+        }),
+      );
+      expect(onMoveEnd).not.toHaveBeenCalled();
+      expect(el.getAttribute('draggable')).toBe('false');
+
+      dispatch(
+        el,
+        new PointerEvent('pointerup', {
+          pointerType: 'mouse',
+          pointerId: 1,
+          clientX: 10,
+          clientY: 10,
+          button: 0,
+          buttons: 0,
+          bubbles: true,
+          cancelable: true,
+        }),
+      );
+      expect(onMoveEnd).toHaveBeenCalledTimes(1);
+      expect(el.getAttribute('draggable')).toBe('true');
     });
 
     it('drops when pointerup misreports the released button', async () => {

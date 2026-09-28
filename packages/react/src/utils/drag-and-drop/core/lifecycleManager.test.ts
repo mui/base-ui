@@ -54,8 +54,10 @@ describe('lifecycle manager', () => {
       getSourceHandlers: () => ({ onMoveStart, onMoveEnd }),
       initialInput: makeInput(),
       initialTarget: target,
+      startReason: 'pointer',
       grabOffset,
       synthetic: { getPreviewElement: () => null },
+      onForceCleanup: () => {},
     });
 
     expect(onMoveStart.mock.calls[0][1].location.grabOffset).toEqual({ x: 12, y: 8 });
@@ -103,7 +105,10 @@ describe('lifecycle manager', () => {
       getSourceHandlers: () => handlers,
       initialInput: makeInput(),
       initialTarget,
+      startReason: 'pointer',
+      grabOffset: { x: 0, y: 0 },
       synthetic: { getPreviewElement: () => null },
+      onForceCleanup: () => {},
     });
   }
 
@@ -145,7 +150,9 @@ describe('lifecycle manager', () => {
         throw new Error('cleanup failed');
       },
     });
-    expect(() => handle!.update(makeInput(), null)).toThrow('move failed');
+    expect(() => handle!.update(makeInput(), null, new Event('pointermove'), 'pointer')).toThrow(
+      'move failed',
+    );
     expect(monitorEnd).toHaveBeenCalledTimes(1);
     expect(monitorEnd.mock.calls[0][1].reason).toBe('handler-error');
     expect(monitorEnd.mock.calls[0][1].canceled).toBe(true);
@@ -165,7 +172,7 @@ describe('lifecycle manager', () => {
     addDropTargetRegistration(target, getTarget);
     const handle = startDragWithHandlers({}, target);
     changed = true;
-    handle!.update(makeInput(), target);
+    handle!.update(makeInput(), target, new Event('pointermove'), 'pointer');
     expect(previousLeave).toHaveBeenCalledTimes(1);
     expect(newLeave).not.toHaveBeenCalled();
     handle!.cancel();
@@ -186,7 +193,7 @@ describe('lifecycle manager', () => {
     addDropTargetRegistration(target, getTarget);
     const handle = startDragWithHandlers({}, target);
     changed = true;
-    handle!.update(makeInput(), null);
+    handle!.update(makeInput(), null, new Event('pointermove'), 'pointer');
     expect(previousLeave).toHaveBeenCalledTimes(1);
     expect(previousLeave.mock.calls[0][0].target.payload).toEqual({ title: 'Original' });
     expect(newLeave).not.toHaveBeenCalled();
@@ -207,7 +214,7 @@ describe('lifecycle manager', () => {
     monitorRegistry.add(getMonitor);
     const handle = startDragWithHandlers({});
     changed = true;
-    handle!.update(makeInput(), null);
+    handle!.update(makeInput(), null, new Event('pointermove'), 'pointer');
     expect(newMove).not.toHaveBeenCalled();
     handle!.cancel();
     expect(previousEnd).toHaveBeenCalledTimes(1);
@@ -398,7 +405,10 @@ describe('lifecycle manager', () => {
           },
           // What `elementFromPoint` resolves to at pickup: the source, inside `under`.
           initialTarget: source,
+          startReason: 'pointer',
+          grabOffset: { x: 0, y: 0 },
           synthetic: { getPreviewElement: () => null },
+          onForceCleanup: () => {},
         });
       });
 
@@ -437,7 +447,10 @@ describe('lifecycle manager', () => {
           getSourceHandlers: () => ({}),
           initialInput: makeInput(),
           initialTarget: source,
+          startReason: 'pointer',
+          grabOffset: { x: 0, y: 0 },
           synthetic: { getPreviewElement: () => null },
+          onForceCleanup: () => {},
         });
       });
 
@@ -491,7 +504,10 @@ describe('lifecycle manager', () => {
           getSourceHandlers: () => ({}),
           initialInput: makeInput(),
           initialTarget: source,
+          startReason: 'pointer',
+          grabOffset: { x: 0, y: 0 },
           synthetic: { getPreviewElement: () => null },
+          onForceCleanup: () => {},
         });
       });
 
@@ -1063,9 +1079,8 @@ describe('lifecycle manager', () => {
       await flushRaf();
       expect(onDragStart1).toHaveBeenCalledTimes(1);
 
-      // Simulate the engine's recovery path: external code (e.g. the
-      // lifecycle's catch handler when a consumer throws, or the test
-      // suite's afterEach) calls `reset()` while a drag is in-flight.
+      // The test suite's afterEach calls `reset()` while a drag may still be
+      // in flight.
       act(() => {
         reset();
       });
@@ -1109,6 +1124,7 @@ describe('lifecycle manager', () => {
       const onForceCleanup = vi.fn();
       const handle = start({
         payload: createDragSource(element, TEST_KIND.id, {}, null),
+        getSourceHandlers: () => ({}),
         initialInput: {
           button: 0,
           buttons: 1,
@@ -1123,6 +1139,8 @@ describe('lifecycle manager', () => {
           metaKey: false,
         },
         initialTarget: null,
+        startReason: 'pointer',
+        grabOffset: { x: 0, y: 0 },
         synthetic: { getPreviewElement: () => null },
         onForceCleanup,
       });
@@ -1143,7 +1161,7 @@ describe('lifecycle manager', () => {
 
   describe('consumer-throw recovery', () => {
     // The drop/cancel/update paths run consumer dispatch inside a try/catch that
-    // reruns the full teardown (`reset`) before rethrowing. Without it, a thrown
+    // runs the session's full teardown before rethrowing. Without it, a thrown
     // handler would leave `isActive` true and every later drag would silently
     // no-op (a page-wide wedge). Driven through the lifecycle controller directly
     // so the rethrow can be asserted synchronously (a throw through a real event
@@ -1194,7 +1212,9 @@ describe('lifecycle manager', () => {
       // A target handler throws mid-drag. The engine tears down either way, but
       // consumer state keyed on the start/end pair must still be closed out.
       act(() => {
-        expect(() => handle!.update(makeInput(), target)).toThrow('boom from onDraggableEnter');
+        expect(() =>
+          handle!.update(makeInput(), target, new Event('pointermove'), 'pointer'),
+        ).toThrow('boom from onDraggableEnter');
       });
 
       expect(onMoveEnd).toHaveBeenCalledTimes(1);
@@ -1230,7 +1250,9 @@ describe('lifecycle manager', () => {
           onMoveEnd,
         });
         act(() => {
-          expect(() => handle!.update(makeInput(), null)).toThrow('boom from onMove');
+          expect(() =>
+            handle!.update(makeInput(), null, new Event('pointermove'), 'pointer'),
+          ).toThrow('boom from onMove');
         });
         expect(onMoveEnd).toHaveBeenCalledTimes(1);
         expect(onMoveEnd.mock.calls[0][1].reason).toBe('handler-error');
@@ -1256,7 +1278,9 @@ describe('lifecycle manager', () => {
       expect(handle).not.toBeNull();
 
       act(() => {
-        expect(() => handle!.update(makeInput(), target)).toThrow('boom from onMove');
+        expect(() =>
+          handle!.update(makeInput(), target, new Event('pointermove'), 'pointer'),
+        ).toThrow('boom from onMove');
       });
       expect(onDraggableEnter).toHaveBeenCalledTimes(1);
 
@@ -1389,7 +1413,7 @@ describe('lifecycle manager', () => {
 
       // Enter the target so it holds hover state and is owed a terminal leave.
       act(() => {
-        handle!.update(makeInput(), target);
+        handle!.update(makeInput(), target, new Event('pointermove'), 'pointer');
       });
       expect(targetOnDragLeave).not.toHaveBeenCalled();
 
@@ -1464,7 +1488,7 @@ describe('lifecycle manager', () => {
 
     it('a throwing onMoveStart (synchronous in start) tears the session down', () => {
       // `onMoveStart` is dispatched synchronously at the end of `start()`. A throw
-      // there runs `reset()` in the catch and rethrows, so `start()` throws and
+      // there tears the session down in the catch and rethrows, so `start()` throws and
       // nothing wedges.
       expect(() =>
         startDragWithHandlers({
@@ -1483,7 +1507,9 @@ describe('lifecycle manager', () => {
         },
       });
       expect(handle).not.toBeNull();
-      expect(() => handle!.update(makeInput(), null)).toThrow('boom from onMove');
+      expect(() => handle!.update(makeInput(), null, new Event('pointermove'), 'pointer')).toThrow(
+        'boom from onMove',
+      );
       expectEngineRecovered();
     });
 
@@ -1500,10 +1526,41 @@ describe('lifecycle manager', () => {
         },
       });
       expect(handle).not.toBeNull();
-      expect(() => handle!.update(makeInput(), targetEl)).toThrow('boom from onTargetChange');
+      expect(() =>
+        handle!.update(makeInput(), targetEl, new Event('pointermove'), 'pointer'),
+      ).toThrow('boom from onTargetChange');
 
       removeDropTargetRegistration(targetEl, getParameters);
       expectEngineRecovered();
+    });
+
+    it('a throw after a re-entrant cancel and restart leaves the new drag running', () => {
+      // The handler ends its own drag and starts another before throwing, so by
+      // the time the throw is recovered a different session owns the engine.
+      let second: DragSessionController | null = null;
+      const handle = startDragWithHandlers({
+        onMove: () => {
+          cancelDrag();
+          second = startDragWithHandlers({});
+          throw new Error('boom from onMove');
+        },
+      });
+      expect(handle).not.toBeNull();
+
+      act(() => {
+        expect(() =>
+          handle!.update(makeInput(), null, new Event('pointermove'), 'pointer'),
+        ).toThrow('boom from onMove');
+      });
+
+      expect(second).not.toBeNull();
+      expect(isActive()).toBe(true);
+      expect(dragSessionStore.getSnapshot()).not.toBeNull();
+
+      act(() => {
+        second!.cancel();
+      });
+      expect(canStart()).toBe(true);
     });
   });
 

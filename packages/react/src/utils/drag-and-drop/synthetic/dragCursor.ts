@@ -1,6 +1,7 @@
 import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
 import { getSharedSlot } from '../sharedState';
-import { getDropTargetShadowRoots, subscribeDropTargetShadowRoots } from '../dropTarget';
+import { trackDropTargetShadowRoots } from '../dropTarget';
+import { adoptStyleSheet, unadoptStyleSheet } from '../utils';
 import type { DragCleanupFn } from '../types';
 
 interface DragCursorState {
@@ -16,9 +17,7 @@ interface DragCursorState {
   styles: WeakMap<Document, Map<string, HTMLStyleElement>>;
   /** The cursor sheet built for each shadow root, reused across drags. */
   shadowSheets: WeakMap<ShadowRoot, CSSStyleSheet>;
-  /** The shadow roots carrying the cursor sheet for the current lock. */
-  lockedShadowRoots: Set<ShadowRoot>;
-  /** Stops tracking drop-target shadow roots that appear mid-drag; `null` when unlocked. */
+  /** Removes the cursor sheet from every drop-target shadow root; `null` when unlocked. */
   unsubscribeShadowRoots: DragCleanupFn | null;
 }
 
@@ -30,7 +29,6 @@ const state = getSharedSlot<DragCursorState>('dragCursor', () => ({
   savedStyleClass: false,
   styles: new WeakMap<Document, Map<string, HTMLStyleElement>>(),
   shadowSheets: new WeakMap<ShadowRoot, CSSStyleSheet>(),
-  lockedShadowRoots: new Set<ShadowRoot>(),
   unsubscribeShadowRoots: null,
 }));
 
@@ -113,13 +111,9 @@ function ensureStyleInjected(doc: Document, nonce: string | undefined): boolean 
  * so the same custom property drives it. Constructable sheets are exempt from
  * CSP `style-src`, so no nonce is needed; skipped where the CSSOM API is missing.
  */
-function adoptShadowRootCursor(shadowRoot: ShadowRoot, doc: Document): void {
-  if (
-    state.lockedShadowRoots.has(shadowRoot) ||
-    !('adoptedStyleSheets' in shadowRoot) ||
-    ownerDocument(shadowRoot.host) !== doc
-  ) {
-    return;
+function adoptShadowRootCursor(shadowRoot: ShadowRoot, doc: Document): DragCleanupFn | undefined {
+  if (!('adoptedStyleSheets' in shadowRoot) || ownerDocument(shadowRoot.host) !== doc) {
+    return undefined;
   }
   let sheet = state.shadowSheets.get(shadowRoot);
   if (!sheet) {
@@ -129,26 +123,13 @@ function adoptShadowRootCursor(shadowRoot: ShadowRoot, doc: Document): void {
     } catch {
       // Constructable stylesheets unsupported in this realm: the shadow tree keeps
       // its own cursor, and dragging itself keeps working.
-      return;
+      return undefined;
     }
     state.shadowSheets.set(shadowRoot, sheet);
   }
-  if (!shadowRoot.adoptedStyleSheets.includes(sheet)) {
-    shadowRoot.adoptedStyleSheets = [...shadowRoot.adoptedStyleSheets, sheet];
-  }
-  state.lockedShadowRoots.add(shadowRoot);
-}
-
-function releaseShadowRootCursor(shadowRoot: ShadowRoot): void {
-  if (!state.lockedShadowRoots.delete(shadowRoot)) {
-    return;
-  }
-  const sheet = state.shadowSheets.get(shadowRoot);
-  if (sheet && shadowRoot.adoptedStyleSheets.includes(sheet)) {
-    shadowRoot.adoptedStyleSheets = shadowRoot.adoptedStyleSheets.filter(
-      (adopted) => adopted !== sheet,
-    );
-  }
+  const adoptedSheet = sheet;
+  adoptStyleSheet(shadowRoot, adoptedSheet);
+  return () => unadoptStyleSheet(shadowRoot, adoptedSheet);
 }
 
 function applyCursorLock(
@@ -168,18 +149,11 @@ function applyCursorLock(
   root.classList.add(DRAGGING_CLASS);
   if (!options.disableStyleElements && ensureStyleInjected(doc, options.nonce)) {
     root.classList.add(STYLE_CLASS);
-    for (const shadowRoot of getDropTargetShadowRoots()) {
-      adoptShadowRootCursor(shadowRoot, doc);
-    }
     // A drop target mounting inside a new shadow root mid-drag gets the sheet too;
     // one unmounting takes it with it, so the root is left as it was found.
-    state.unsubscribeShadowRoots = subscribeDropTargetShadowRoots((shadowRoot, registered) => {
-      if (registered) {
-        adoptShadowRootCursor(shadowRoot, doc);
-      } else {
-        releaseShadowRootCursor(shadowRoot);
-      }
-    });
+    state.unsubscribeShadowRoots = trackDropTargetShadowRoots((shadowRoot) =>
+      adoptShadowRootCursor(shadowRoot, doc),
+    );
   } else {
     root.classList.remove(STYLE_CLASS);
   }
@@ -189,9 +163,6 @@ function applyCursorLock(
 function restoreLockedRoot(): void {
   state.unsubscribeShadowRoots?.();
   state.unsubscribeShadowRoots = null;
-  for (const shadowRoot of Array.from(state.lockedShadowRoots)) {
-    releaseShadowRootCursor(shadowRoot);
-  }
   const doc = state.lockedDocument;
   if (doc) {
     const root = doc.documentElement;

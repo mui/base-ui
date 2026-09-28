@@ -20,18 +20,17 @@ interface GetterStackEntries<TElement, TGetter> {
 }
 
 export interface GetterStackRegistry<TElement, TGetter> {
-  /** Push a hold onto the element's stack. Returns `true` on the element's first registration. */
-  add(element: TElement, getter: TGetter): boolean;
+  /** Push a hold onto the element's stack. */
+  add(element: TElement, getter: TGetter): void;
   /**
    * Release one hold. Removing the last hold runs `onLastRemove`, then
    * `beforeDelete`, and only then deletes the entry — so the getter stays
-   * readable through both callbacks. Returns `true` when the element was
-   * removed entirely.
+   * readable through both callbacks.
    *
    * `beforeDelete` also runs when a surviving hold is promoted to active, since
    * the element's effective parameters change then too.
    */
-  remove(element: TElement, getter: TGetter, beforeDelete?: () => void): boolean;
+  remove(element: TElement, getter: TGetter, beforeDelete?: () => void): void;
   /** `add` plus a latched cleanup releasing the hold. */
   hold(element: TElement, getter: TGetter): () => void;
   /** The element's active (last-pushed) getter, or `undefined` when none is registered. */
@@ -48,7 +47,7 @@ export function createGetterStackRegistry<TElement, TGetter>(options: {
 }): GetterStackRegistry<TElement, TGetter> {
   const { entries, onFirstAdd, onLastRemove } = options;
 
-  function add(element: TElement, getter: TGetter): boolean {
+  function add(element: TElement, getter: TGetter): void {
     let getters = entries.get(element);
     const firstRegistration = getters === undefined;
     if (getters === undefined) {
@@ -59,13 +58,12 @@ export function createGetterStackRegistry<TElement, TGetter>(options: {
     if (firstRegistration) {
       onFirstAdd?.(element);
     }
-    return firstRegistration;
   }
 
-  function remove(element: TElement, getter: TGetter, beforeDelete?: () => void): boolean {
+  function remove(element: TElement, getter: TGetter, beforeDelete?: () => void): void {
     const getters = entries.get(element);
     if (getters === undefined) {
-      return false;
+      return;
     }
     // Last hold: run the side effects while the entry is still readable (the
     // drop-target lifecycle dispatches this target's leave events from it as it
@@ -97,7 +95,7 @@ export function createGetterStackRegistry<TElement, TGetter>(options: {
           onFirstAdd?.(element);
         }
       }
-      return true;
+      return;
     }
     // A surviving hold remains: drop *this hold's own* getter (by identity),
     // not the most recent one.
@@ -114,7 +112,6 @@ export function createGetterStackRegistry<TElement, TGetter>(options: {
         beforeDelete?.();
       }
     }
-    return false;
   }
 
   return {
@@ -128,9 +125,7 @@ export function createGetterStackRegistry<TElement, TGetter>(options: {
     },
     getActive(element: TElement): TGetter | undefined {
       const getters = entries.get(element);
-      return getters === undefined || getters.length === 0
-        ? undefined
-        : getters[getters.length - 1];
+      return getters?.[getters.length - 1];
     },
   };
 }

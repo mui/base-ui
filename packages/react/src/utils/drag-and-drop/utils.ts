@@ -162,7 +162,7 @@ export function getViewportSize(win: Window): { width: number; height: number } 
 
 /**
  * Whether the client point (`x`, `y`) lies within `rect`, inclusive of all four
- * edges. Shared by pointer hit testing and auto-scroll.
+ * edges.
  */
 export function isPointInRect(
   x: number,
@@ -198,8 +198,8 @@ export function getInput(event: MouseEvent & { pointerType?: string | undefined 
 
 /**
  * Rebase a `DraggableInput` onto `point`, shifting the page coordinates by the same
- * delta. Shared by both sensor stacks so consumer predicates are asked about
- * the position the cursor would land on rather than the one it is leaving.
+ * delta. The sensor applies `modifiers` through it, so the drop hit-test and the
+ * reported input follow the constrained point rather than the raw pointer.
  */
 export function remapInput(input: DraggableInput, point: DraggablePosition): DraggableInput {
   if (point.x === input.clientX && point.y === input.clientY) {
@@ -468,4 +468,24 @@ export function getElementScale(element: HTMLElement): DraggablePosition {
     x: usableScale(Math.hypot(matrix.a, matrix.b) * zoom),
     y: usableScale(Math.hypot(matrix.c, matrix.d) * zoom),
   };
+}
+
+/** The document or shadow root whose style sheets apply to `element`. */
+export function getStyleRoot(element: Element): Document | ShadowRoot {
+  const root = element.getRootNode();
+  return isShadowRoot(root) ? root : ownerDocument(element);
+}
+
+/** Add `sheet` to `root`'s adopted style sheets unless it is already there. */
+export function adoptStyleSheet(root: DocumentOrShadowRoot, sheet: CSSStyleSheet): void {
+  if (!root.adoptedStyleSheets.includes(sheet)) {
+    root.adoptedStyleSheets = [...root.adoptedStyleSheets, sheet];
+  }
+}
+
+/** Remove `sheet` from `root`'s adopted style sheets. */
+export function unadoptStyleSheet(root: DocumentOrShadowRoot, sheet: CSSStyleSheet): void {
+  if (root.adoptedStyleSheets.includes(sheet)) {
+    root.adoptedStyleSheets = root.adoptedStyleSheets.filter((adopted) => adopted !== sheet);
+  }
 }

@@ -12,7 +12,6 @@ import {
   getElementScale,
   getViewportSize,
   resolveElementReference,
-  NO_MODIFIER_KEYS,
 } from './utils';
 import type { DragModifierKeys } from './utils';
 import type { DraggablePosition } from '../../draggable/DraggableProvider';
@@ -45,17 +44,11 @@ function clampPointToRect(
   const { previewRect, previewOffset } = context;
   const width = previewRect?.width ?? 0;
   const height = previewRect?.height ?? 0;
+  // A preview larger than the rect pins to its leading edge: `clamp` returns the
+  // lower bound when the upper one falls below it.
   return {
-    x: clamp(
-      point.x,
-      rect.left + previewOffset.x,
-      Math.max(rect.left + previewOffset.x, rect.right - width + previewOffset.x),
-    ),
-    y: clamp(
-      point.y,
-      rect.top + previewOffset.y,
-      Math.max(rect.top + previewOffset.y, rect.bottom - height + previewOffset.y),
-    ),
+    x: clamp(point.x, rect.left + previewOffset.x, rect.right - width + previewOffset.x),
+    y: clamp(point.y, rect.top + previewOffset.y, rect.bottom - height + previewOffset.y),
   };
 }
 
@@ -267,26 +260,18 @@ export function createDragModifiersState(
   declared: DraggableRootModifiers | undefined,
   sourceElement: HTMLElement,
   startPoint: DraggablePosition,
-  options: {
-    /** The pickup event's modifier keys, for the initial apply. */
-    keys?: DragModifierKeys | undefined;
-    /** Overrides how the source is measured, for a caller that already has the rect. */
-    measureSourceRect?: (() => DOMRect) | undefined;
-  } = {},
+  /** The pickup event's modifier keys, for the initial apply. */
+  keys: DragModifierKeys,
 ): DragModifiersState | null {
   const modifiers = compileDragModifiers(declared);
   if (!modifiers) {
     return null;
   }
-  const { keys = NO_MODIFIER_KEYS, measureSourceRect } = options;
-  const sourceRect = measureSourceRect
-    ? measureSourceRect()
-    : sourceElement.getBoundingClientRect();
   const state: DragModifiersState = {
     modifiers,
     initialPoint: startPoint,
     sourceElement,
-    sourceRect,
+    sourceRect: sourceElement.getBoundingClientRect(),
     scale: getElementScale(sourceElement),
   };
   // No preview exists yet at drag start; rect modifiers clamp the bare point. The keys
@@ -306,7 +291,7 @@ export function modifyDragPoint(
   state: DragModifiersState,
   point: DraggablePosition,
   preview: ModifierPreviewLike | null,
-  keys: DragModifierKeys = NO_MODIFIER_KEYS,
+  keys: DragModifierKeys,
 ): DraggablePosition {
   return applyDragModifiers(state.modifiers, point, {
     initialPoint: state.initialPoint,

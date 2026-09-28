@@ -316,8 +316,8 @@ describe('Draggable.Root', () => {
     expect(source.style.touchAction).toBe('manipulation');
     const getParameters = getRegistration(source)!;
     const firstParameters = getParameters();
-    // Repeated engine dispatches within one render reuse both normalization
-    // layers instead of rebuilding the registration object every time.
+    // Repeated engine dispatches within one render reuse the normalized
+    // registration instead of rebuilding it every time.
     expect(getParameters()).toBe(firstParameters);
 
     // Re-render with a brand-new onMoveStart function reference. The

@@ -3,7 +3,7 @@ import { createDragPreviewHandle } from './dragPreviewDeclaration';
 import type { DragPreviewDeclaration } from './dragPreviewDeclaration';
 
 function createDeclaration(): DragPreviewDeclaration {
-  return { render: () => null, createPreviewElement: () => null };
+  return { getSettings: () => ({}), render: () => null };
 }
 
 describe('createDragPreviewHandle', () => {

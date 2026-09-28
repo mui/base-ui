@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { warn } from '@base-ui/utils/warn';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import type { BaseUIComponentProps } from '../../internals/types';
 import type {
@@ -9,12 +10,10 @@ import type {
   DraggableLocationHistory,
   DraggablePosition,
 } from '../DraggableProvider';
+import { useDraggableContext } from '../DraggableContext';
+import { useDraggableRootContext } from '../root/DraggableRootContext';
 import { DraggablePreviewElement } from './DraggablePreviewElement';
-import { useDeclaredPreview } from './useDeclaredPreview';
-import {
-  createClonedDragPreviewElement,
-  createDragPreviewHostElement,
-} from '../../utils/drag-and-drop/synthetic/cloneDragPreview';
+import type { DragPreviewDeclaration } from '../../utils/drag-and-drop/dragPreviewDeclaration';
 import type { DraggableRootModifiers, DraggableRootRecord } from '../root/DraggableRoot';
 
 /**
@@ -32,6 +31,8 @@ export function DraggablePreview(props: DraggablePreviewProps): React.ReactNode;
 export function DraggablePreview<TPayload = unknown, TDragData = unknown>(
   props: DraggablePreviewProps | DraggablePreviewTypedProps<TPayload, TDragData>,
 ): React.ReactNode {
+  const rootContext = useDraggableRootContext<TPayload, TDragData>();
+  const draggableContext = useDraggableContext();
   const getProps = useStableCallback(() => props);
   const useClone = props.children == null || props.children === false;
   React.useEffect(() => {
@@ -72,11 +73,27 @@ export function DraggablePreview<TPayload = unknown, TDragData = unknown>(
     },
   );
 
-  useDeclaredPreview<TPayload, TDragData>(
-    getProps,
-    useClone ? null : render,
-    useClone ? createClonedDragPreviewElement : createDragPreviewHostElement,
-    props.disabled === true,
+  // The engine publishes content through the provider seen from the root's
+  // position, so a provider mounted between the root and this part would never
+  // receive it, and the content would miss that provider's context.
+  if (!useClone && props.disabled !== true && draggableContext !== rootContext.previewContext) {
+    throw new Error(
+      'Base UI: the <Draggable.Provider> for this preview is inside its ' +
+        '<Draggable.Root>, so the root cannot use it to render the preview. ' +
+        'Move the provider above the <Draggable.Root>. ' +
+        'See https://base-ui.com/react/utils/draggable.',
+    );
+  }
+
+  // Tell the draggable what its preview is: `render` to own the content, or `null`
+  // for a clone of the source. The settings are read through `getProps` at drag start.
+  const declaration = React.useMemo<DragPreviewDeclaration<TPayload, TDragData>>(
+    () => ({ getSettings: getProps, render: useClone ? null : render }),
+    [getProps, render, useClone],
+  );
+  useIsoLayoutEffect(
+    () => rootContext.previewHandle.declare(declaration),
+    [rootContext.previewHandle, declaration],
   );
 
   return null;
@@ -94,11 +111,6 @@ export interface DraggablePreviewProps
       'children' | 'ref'
     >,
     DraggablePreviewSettings {
-  /**
-   * Whether to show no preview. The drag still runs.
-   * @default false
-   */
-  disabled?: boolean | undefined;
   /**
    * The preview content. Omit it to clone the source instead.
    * Pass a function to build the content from the drag source when the drag starts.

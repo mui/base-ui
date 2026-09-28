@@ -1,10 +1,11 @@
 /**
  * Per-document dispatch for the draggable static-setup refresh.
  *
- * The refresh contract is documented on `DraggableManager.registerSource`: the gesture styles
- * are applied from the parameters read at registration and
- * refreshed at the next pointer press, so an imperative consumer that mutates
- * parameters in place isn't left with stale styles forever.
+ * Serves `applyDraggableStaticSetup` (`draggable.ts`): the gesture styles are
+ * applied from the parameters read at registration and refreshed from the live
+ * registration at the next pointer press, so an imperative registration whose
+ * `disabled` or `handle` changes without re-registering isn't left with stale
+ * styles forever.
  *
  * The entry point is the event the pointer sensor already watches, so one
  * capture listener per document or shadow root covers every draggable there.

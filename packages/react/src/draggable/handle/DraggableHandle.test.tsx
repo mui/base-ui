@@ -56,22 +56,6 @@ describe('<Draggable.Handle />', () => {
     }
   });
 
-  it('warns when disabled is passed to the handle', async () => {
-    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
-    try {
-      await renderDnd(
-        <Draggable.Root kind={testDragKind}>
-          <Draggable.Handle disabled={true as never}>grip</Draggable.Handle>
-        </Draggable.Root>,
-      );
-
-      expect(warnSpy).toHaveBeenCalledTimes(1);
-      expect(warnSpy.mock.calls[0][0]).toMatch(/`disabled` was passed to Draggable\.Handle/);
-    } finally {
-      warnSpy.mockRestore();
-    }
-  });
-
   it('keeps the gesture styles through a handle swap mid-drag and re-registers on the new handle', async () => {
     function Card({ handleId }: { handleId: string }) {
       return (

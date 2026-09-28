@@ -11,6 +11,7 @@ import {
   restrictToElement,
   snapToGrid,
 } from './dragModifiers';
+import { NO_MODIFIER_KEYS } from './utils';
 import type { DraggablePosition } from '../../draggable/DraggableProvider';
 import type {
   DraggableRootModifier,
@@ -435,16 +436,11 @@ describe('createDragModifiersState', () => {
   it('returns null and skips the source measure when nothing is declared', () => {
     const measure = vi.fn(() => makeRect(0, 0, 10, 10));
     const source = document.createElement('div');
+    source.getBoundingClientRect = measure;
     const start = { x: 0, y: 0 };
-    expect(
-      createDragModifiersState(undefined, source, start, { measureSourceRect: measure }),
-    ).toBeNull();
-    expect(createDragModifiersState([], source, start, { measureSourceRect: measure })).toBeNull();
-    expect(
-      createDragModifiersState([false, null], source, start, {
-        measureSourceRect: measure,
-      }),
-    ).toBeNull();
+    expect(createDragModifiersState(undefined, source, start, NO_MODIFIER_KEYS)).toBeNull();
+    expect(createDragModifiersState([], source, start, NO_MODIFIER_KEYS)).toBeNull();
+    expect(createDragModifiersState([false, null], source, start, NO_MODIFIER_KEYS)).toBeNull();
     expect(measure).not.toHaveBeenCalled();
   });
 
@@ -453,11 +449,12 @@ describe('createDragModifiersState', () => {
     boundary.getBoundingClientRect = () => makeRect(100, 100, 200, 200);
     const source = document.createElement('div');
     const measure = vi.fn(() => makeRect(40, 40, 20, 20));
+    source.getBoundingClientRect = measure;
     const state = createDragModifiersState(
       restrictToElement(boundary),
       source,
       { x: 50, y: 350 },
-      { measureSourceRect: measure },
+      NO_MODIFIER_KEYS,
     )!;
     expect(state.initialPoint).toEqual({ x: 100, y: 300 });
     expect(state.sourceElement).toBe(source);
@@ -476,11 +473,12 @@ describe('modifyDragPoint', () => {
       return context.point;
     };
     const source = document.createElement('div');
+    source.getBoundingClientRect = () => makeRect(0, 0, 20, 20);
     const state = createDragModifiersState(
       [probe, restrictToElement(boundary)],
       source,
       { x: 50, y: 50 },
-      { measureSourceRect: () => makeRect(0, 0, 20, 20) },
+      NO_MODIFIER_KEYS,
     )!;
     // State creation applies the modifiers with no preview yet.
     expect(offsets).toEqual([{ x: 0, y: 0 }]);
@@ -492,7 +490,7 @@ describe('modifyDragPoint', () => {
       getPreviewElement: () => ({ element: previewElement }),
       getPreviewOffset: () => ({ x: 5, y: 7 }),
     };
-    const result = modifyDragPoint(state, { x: 500, y: 500 }, previewLike);
+    const result = modifyDragPoint(state, { x: 500, y: 500 }, previewLike, NO_MODIFIER_KEYS);
     expect(offsets[1]).toEqual({ x: 5, y: 7 });
     // Edges shifted by the offset and inset by the preview rect:
     // max x = 200 − 50 + 5, max y = 200 − 30 + 7.
@@ -501,11 +499,12 @@ describe('modifyDragPoint', () => {
 
   it('does not measure the preview when no modifier reads its rect', () => {
     const source = document.createElement('div');
+    source.getBoundingClientRect = () => makeRect(0, 0, 20, 20);
     const state = createDragModifiersState(
       restrictToVerticalAxis,
       source,
       { x: 10, y: 10 },
-      { measureSourceRect: () => makeRect(0, 0, 20, 20) },
+      NO_MODIFIER_KEYS,
     )!;
     const previewElement = document.createElement('div');
     const getRect = vi.fn(() => makeRect(0, 0, 50, 30));
@@ -514,7 +513,7 @@ describe('modifyDragPoint', () => {
       getPreviewElement: () => ({ element: previewElement }),
       getPreviewOffset: () => ({ x: 0, y: 0 }),
     };
-    const result = modifyDragPoint(state, { x: 40, y: 60 }, previewLike);
+    const result = modifyDragPoint(state, { x: 40, y: 60 }, previewLike, NO_MODIFIER_KEYS);
     expect(result).toEqual({ x: 10, y: 60 });
     expect(getRect).not.toHaveBeenCalled();
   });

@@ -92,14 +92,14 @@ export function DraggableCollisionProvider<TPayload, TDragData = unknown>(
         registration = {
           [resolveCollision]: (
             record: DraggableTargetRecord<TPayload, TDragData>,
-            context: { source: DraggableRootRecord },
+            source: DraggableRootRecord,
           ) => {
-            if (sourceElement === context.source.element || captured.has(record)) {
+            if (sourceElement === source.element || captured.has(record)) {
               return;
             }
             // Freeze both the geometry and dynamic snap steps before source or target
-            // callbacks can reorder items. The readers memoize these values per record.
-            record.getLocalPoint();
+            // callbacks can reorder items. The snapped read measures the raw point too,
+            // and the readers memoize both per record.
             record.getSnappedLocalPoint();
             captured.add(record);
           },

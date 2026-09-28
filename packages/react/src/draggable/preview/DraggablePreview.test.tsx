@@ -103,8 +103,7 @@ describe('Draggable.Preview', () => {
       // missed pluck would land `offset` or `container` here as an attribute.
       // Function-valued settings like `modifiers` never serialize to attributes, so
       // their pluck is guarded by React's unknown-prop console error (which fails
-      // the test) and the `Required<…>`-mapped declaration in `useDeclaredPreview`
-      // instead.
+      // the test) instead.
       const preview = screen.getByTestId('preview');
       expect(preview.hasAttribute('offset')).toBe(false);
       expect(preview.hasAttribute('container')).toBe(false);
@@ -154,7 +153,7 @@ describe('Draggable.Preview', () => {
     expect(document.querySelector('[data-drag-preview]')).toBeNull();
   });
 
-  it('throws when the nearest PreviewProvider does not wrap the Draggable.Root', () => {
+  it('throws when the nearest Draggable.Provider does not wrap the Draggable.Root', () => {
     // The engine publishes through the provider seen from the root's position; a
     // provider mounted between the root and the part can never receive the
     // content, and the drag would fail mid-gesture instead of at render.
@@ -244,11 +243,10 @@ describe('Draggable.Preview', () => {
   });
 
   it("drops another provider's stale preview when a drop and the next pickup share one flush", () => {
-    // Each provider owns its own store, so a new drag can only clear the store it
-    // resolves — never the one the *previous* source published into. When the drop
-    // and the next pickup land in the same React flush, the renderer's
-    // clear-on-null effect never runs either, so without the global
-    // last-published slot provider A's content stays on screen for B's whole drag.
+    // Every provider's overlay reads one shared store and renders only what was
+    // published with its own context. The drop clears A's content and B's pickup
+    // publishes its own; when both land in the same React flush, provider A must
+    // still see the change, or its content stays on screen for B's whole drag.
     rtlRender(
       <React.Fragment>
         <DraggableProvider>

@@ -4,7 +4,7 @@ import type { DraggableLocationHistory } from '../../draggable/DraggableProvider
 import type { DraggableRootRecord } from '../../draggable/root/DraggableRoot';
 import type { DraggableTargetRecord } from '../../draggable/target/DraggableTarget';
 import { getSharedSlot } from './sharedState';
-import { retargetActivePreviewSource } from './activePreview';
+import { getActivePreviewHandle } from './activePreview';
 
 /**
  * Snapshot of the active drag, mirrored from the lifecycle for reactive
@@ -269,7 +269,7 @@ function updateDragSourceElement(oldElement: Element, newElement: HTMLElement): 
  */
 export function retargetDragSource(oldElement: Element, newElement: HTMLElement): void {
   if (updateDragSourceElement(oldElement, newElement)) {
-    retargetActivePreviewSource(newElement);
+    getActivePreviewHandle()?.retargetSource(newElement);
   }
 }
 
@@ -293,7 +293,7 @@ export function isDraggingElement(
  */
 export function cloneLocationHistory(location: DraggableLocationHistory): DraggableLocationHistory {
   return {
-    grabOffset: location.grabOffset ? { ...location.grabOffset } : undefined,
+    grabOffset: { ...location.grabOffset },
     initial: { input: location.initial.input, targets: location.initial.targets.slice() },
     current: { input: location.current.input, targets: location.current.targets.slice() },
     previous: {

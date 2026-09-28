@@ -6,16 +6,17 @@ import { Draggable } from '@base-ui/react/draggable';
 import {
   cancel,
   createElement,
+  dragEnter,
   flushRaf,
+  lift,
   registerCleanup,
   setupDragEngineTests,
 } from '../../../test/dnd';
-import { resetTouchTarget, touchDown, touchUp } from '../../../test/syntheticPointer';
+import { touchDown, touchUp } from '../../../test/syntheticPointer';
 import { dragSessionStore } from '../../utils/drag-and-drop/dragSessionStore';
+import type { DraggableTargetRecord } from './DraggableTarget';
 
-// `resetTouchTarget` per the syntheticPointer contract: the touch helpers latch
-// their dispatch target, which must not leak across tests.
-setupDragEngineTests({ extraAfterEach: resetTouchTarget });
+setupDragEngineTests();
 
 const cardKind = Draggable.createKind<{ id: string }>('card');
 const columnKind = Draggable.createKind('column');
@@ -1262,6 +1263,39 @@ describe('Draggable.Target', () => {
     fireEvent.drop(target);
 
     expect(observed).toBe('slot-1');
+  });
+
+  it('keeps its payload out of another registration on the same element', async () => {
+    const otherKind = Draggable.createKind<string>('other');
+    const { engine, rerender } = await renderDnd(
+      <Draggable.Target accept={Draggable.anyKind} data-testid="target" payload="target" />,
+    );
+    const element = screen.getByTestId('target');
+    const source = createElement();
+    engine.registerSource(source, {});
+    let current: DraggableTargetRecord<string> | undefined;
+    // Registered after the Target, so it is the element's active registration.
+    engine.registerTarget(element, {
+      accept: Draggable.anyKind,
+      kind: otherKind,
+      payload: 'other',
+      onDraggableEnter: ({ target }) => {
+        current = target;
+      },
+    });
+
+    await lift(source);
+    await dragEnter(element);
+    current!.updatePayload('override');
+    await rerender(
+      <Draggable.Target accept={Draggable.anyKind} data-testid="target" payload="changed" />,
+    );
+    cancel();
+
+    await lift(source);
+    await dragEnter(element);
+    expect(current!.payload).toBe('override');
+    cancel();
   });
 
   describe('composed onto a Draggable.Root', () => {

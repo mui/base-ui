@@ -8,9 +8,8 @@ import * as DraggableTargetDataAttributes from './DraggableTargetDataAttributes'
 
 setupDragEngineTests();
 
-// The engine writes these names as inlined string literals (`dropTarget.ts`), so
-// nothing links them to the exported constants that type the generated API
-// reference. Re-link every member here: renaming only one side fails CI.
+// Drive one drag through every target state so each exported attribute is
+// asserted against the element that carries it.
 describe('Draggable.Target enum sync', () => {
   const { renderDnd } = createDndRenderer();
 

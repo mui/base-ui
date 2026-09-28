@@ -6,8 +6,6 @@ import type {
   DraggablePreviewRenderParameters,
 } from '../../../draggable/preview/DraggablePreview';
 import type { DraggableRootModifiers } from '../../../draggable/root/DraggableRoot';
-import { createClonedDragPreviewElement, createDragPreviewHostElement } from './cloneDragPreview';
-import type { DragPreviewElementFactory } from './cloneDragPreview';
 
 /**
  * The preview one drag will use, resolved from the draggable's registration and
@@ -20,8 +18,6 @@ export interface ResolvedDragPreview<TPayload = unknown> {
   /** Already resolved to an element; `null` injects the preview in place. */
   container: HTMLElement | null;
   disabled: boolean;
-  /** Builds the element the engine moves; never read when `disabled`. */
-  createPreviewElement: DragPreviewElementFactory;
   /** React content for a host preview; `null` for a clone of the source. */
   render: ((parameters: DraggablePreviewRenderParameters<TPayload>) => React.ReactNode) | null;
 }
@@ -39,12 +35,9 @@ export function resolveDragPreview<TPayload = unknown>(
   source: HTMLElement,
 ): ResolvedDragPreview<TPayload> {
   const declaration = parameters.getDragPreviewDeclaration?.() ?? null;
-  const settings = declaration ?? parameters.preview;
-  const render = settings?.render ?? null;
+  const settings = declaration ? declaration.getSettings() : parameters.preview;
+  const render = (declaration ? declaration.render : parameters.preview?.render) ?? null;
   const disabled = settings?.disabled ?? false;
-  const createPreviewElement =
-    declaration?.createPreviewElement ??
-    (render ? createDragPreviewHostElement : createClonedDragPreviewElement);
 
   // With no explicit container, the preview is inserted into the source's parent.
   const container = settings?.container;
@@ -55,7 +48,6 @@ export function resolveDragPreview<TPayload = unknown>(
     // Can be a callback, so leave it uninvoked when the preview is disabled.
     container: disabled ? null : resolveElementReference(container, source),
     disabled,
-    createPreviewElement,
     render,
   };
 }

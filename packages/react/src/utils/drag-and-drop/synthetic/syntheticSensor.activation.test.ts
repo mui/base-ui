@@ -7,15 +7,9 @@ import {
   registerCleanup,
   setupDragEngineTests,
 } from '../../../../test/dnd';
-import * as syntheticSensor from './syntheticSensor';
-import { resetTouchTarget, touchDown, touchMove, touchUp } from '../../../../test/syntheticPointer';
+import { touchDown, touchMove, touchUp } from '../../../../test/syntheticPointer';
 
-setupDragEngineTests({
-  extraAfterEach: () => {
-    syntheticSensor.resetForTests();
-    resetTouchTarget();
-  },
-});
+setupDragEngineTests();
 
 describe('syntheticDrag activation', () => {
   const { renderDnd } = createDndRenderer();

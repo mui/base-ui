@@ -2,11 +2,7 @@ import { isShadowRoot } from '@floating-ui/utils/dom';
 import { clamp } from '@base-ui/utils/clamp';
 import { resolveCollision } from './collisionResolution';
 import type { CollisionResolutionRegistration } from './collisionResolution';
-import type {
-  DraggableInput,
-  DraggableAccept,
-  DraggableKind,
-} from '../../draggable/DraggableProvider';
+import type { DraggableAccept, DraggableKind } from '../../draggable/DraggableProvider';
 import type { DraggableRootRecord } from '../../draggable/root/DraggableRoot';
 import type {
   DraggableTargetLocalPoint,
@@ -30,9 +26,14 @@ import { matchesAccept } from './dragKind';
 import { createGetterStackRegistry } from './getterStackRegistry';
 import { getSharedSlot } from './sharedState';
 import { getComposedParentElement, safeCallConsumer } from './utils';
-import { DROP_TARGET_ATTR } from './dragAttributes';
 import { getParticipantPayload, resetParticipantPayload } from './participantData';
 import { dragSessionStore, notifyDragTargetUpdated } from './dragSessionStore';
+
+/**
+ * Marks every registered drop target, so the hit-test walk can find them with one selector.
+ * Internal, hence the `data-base-ui-` prefix: it isn't a styling hook.
+ */
+const DROP_TARGET_ATTR = 'data-base-ui-drop-target';
 
 type AnyDropTargetParameters = RegisterTargetParameters<any, any, any, any>;
 /** Getter for a single hook's latest drop-target parameters. */
@@ -150,14 +151,6 @@ function releaseShadowRoot(element: Element): void {
 }
 
 /**
- * Every shadow root containing a registered drop target, including ancestor roots. The pointer
- * sensor binds a capture-phase `scroll` listener to each at pickup.
- */
-export function getDropTargetShadowRoots(): Iterable<ShadowRoot> {
-  return state.shadowRoots.keys();
-}
-
-/**
  * Closed shadow roots indexed by host for pointer hit-testing. The index changes
  * only when the registered root set changes, so drag frames can reuse it.
  */
@@ -165,11 +158,37 @@ export function getDropTargetShadowRootsByHost(): ReadonlyMap<Element, ShadowRoo
   return state.shadowRootsByHost;
 }
 
-/** Watch roots entering and leaving the registered drop-target set. */
-export function subscribeDropTargetShadowRoots(listener: ShadowRootChangeListener): DragCleanupFn {
+/**
+ * Run `attach` on every shadow root containing a registered drop target,
+ * including ancestor roots, and on each root that joins the set later. A root's
+ * cleanup runs when it leaves the set, and the returned cleanup detaches every
+ * root still attached.
+ */
+export function trackDropTargetShadowRoots(
+  attach: (shadowRoot: ShadowRoot) => DragCleanupFn | undefined,
+): DragCleanupFn {
+  const attached = new Map<ShadowRoot, DragCleanupFn | undefined>();
+  const listener: ShadowRootChangeListener = (shadowRoot, registered) => {
+    if (registered) {
+      if (!attached.has(shadowRoot)) {
+        attached.set(shadowRoot, attach(shadowRoot));
+      }
+    } else if (attached.has(shadowRoot)) {
+      const cleanup = attached.get(shadowRoot);
+      attached.delete(shadowRoot);
+      cleanup?.();
+    }
+  };
+  for (const shadowRoot of state.shadowRoots.keys()) {
+    listener(shadowRoot, true);
+  }
   shadowRootChangeListeners.add(listener);
   return () => {
     shadowRootChangeListeners.delete(listener);
+    for (const cleanup of attached.values()) {
+      cleanup?.();
+    }
+    attached.clear();
   };
 }
 
@@ -272,7 +291,7 @@ export function removeDropTargetRegistration(
 /**
  * Clear every drop-target registration so a detached target left registered by a
  * failed or aborted test can't leak into the next one. Test-only; called from the
- * drag engine's `resetDrag()` teardown.
+ * test harness's `resetDrag()` in `test/dnd.ts`.
  */
 export function resetForTests(): void {
   for (const element of state.registry.keys()) {
@@ -286,7 +305,7 @@ export function resetForTests(): void {
   retiringRegistrations.clear();
 }
 
-type ConsumerCallbackName = 'canDrop' | 'snap' | 'getParameters' | 'collision';
+type ConsumerCallbackName = 'canDrop' | 'snap' | 'getParameters';
 
 /**
  * The active drag's pickup grab offset: the pointer at pickup minus the source's
@@ -333,10 +352,12 @@ const recordRegistrations = getSharedSlot(
 
 /**
  * The frozen copy held against each parameters object a getter has returned.
- * A record needs a copy (see `recordRegistrations`), but resolution produces a
- * record per walked target per frame, while the React layer hands back the same
- * parameters object until the target re-renders — so copy once per object and
- * share it across the records resolved from it.
+ * A record keeps a copy rather than the object itself because a getter can return
+ * one object and mutate it in place (`() => targetOptions`), which would rewrite
+ * the parameters `dispatchToDropTarget` falls back to for that record. Resolution
+ * produces a record per walked target per frame, while the React layer hands back
+ * the same parameters object until the target re-renders — so copy once per object
+ * and share it across the records resolved from it.
  */
 const registrationSnapshots = getSharedSlot(
   'dropTarget.registrationSnapshots',
@@ -355,17 +376,14 @@ function snapshotRegistration(registration: AnyDropTargetParameters): AnyDropTar
 /** Apply committed payload props, including changes between drags. */
 export function syncDropTargetPayload(
   element: Element | null,
+  getParameters: DropTargetGetter,
   kind: symbol | undefined,
   payload: unknown,
 ): void {
   if (!element) {
     return;
   }
-  const getter = getActiveRegistration(element);
-  if (!getter) {
-    return;
-  }
-  const payloadState = getParticipantPayload(getter, kind, payload);
+  const payloadState = getParticipantPayload(getParameters, kind, payload);
   const source = dragSessionStore.state?.source;
   const changed = payloadState.sync(payload);
   if (source && changed) {
@@ -373,38 +391,24 @@ export function syncDropTargetPayload(
   }
 }
 
-const collisionResolvers = new WeakMap<
-  DraggableTargetRecord,
-  NonNullable<CollisionResolutionRegistration[typeof resolveCollision]>
->();
-
 /** Measure only the winning participant, immediately before dispatch can mutate its layout. */
 export function captureDropTargetCollision(
   target: DraggableTargetRecord | undefined | null,
-  input: DraggableInput,
   source: DraggableRootRecord,
-  isDrop = false,
 ): void {
   if (!target) {
     return;
   }
-  const capture = collisionResolvers.get(target);
-  if (capture) {
-    safeCall(
-      'collision',
-      target.element,
-      () => capture(target, { element: target.element, input, source, isDrop }),
-      undefined,
-    );
-  }
+  const registration = recordRegistrations.get(target) as
+    CollisionResolutionRegistration | undefined;
+  registration?.[resolveCollision]?.(target, source);
 }
 
 /**
  * Resolve a single element against the active drag: returns a `DraggableTargetRecord`
  * when the element is registered, not `disabled`, and its `accept` and
  * `canDrop` both pass; `null` when it abstains; {@link DROP_REJECTED} when its
- * `canDrop` refuses the drop outright. Shared by the DOM walk in
- * `getDropTargetsOver` so pointer resolution uses one set of rules.
+ * `canDrop` refuses the drop outright.
  */
 function resolveDropTargetOutcome(
   element: Element,
@@ -499,10 +503,6 @@ function resolveDropTargetOutcome(
     ...createLocalPointReaders(element, fullFeedback, registration.snap),
   };
   recordRegistrations.set(record, snapshotRegistration(registration));
-  const captureCollision = (registration as CollisionResolutionRegistration)[resolveCollision];
-  if (captureCollision) {
-    collisionResolvers.set(record, captureCollision);
-  }
   return record;
 }
 
@@ -685,7 +685,7 @@ export function dispatchToDropTarget<K extends DropTargetEventName>(
   if (!getRegistration) {
     return;
   }
-  // Same containment as `resolveDropTarget`: a throwing consumer getter must
+  // Same containment as `resolveDropTargetOutcome`: a throwing consumer getter must
   // cost this target its event, not unwind the whole dispatch sequence.
   const registration = safeCall('getParameters', record.element, getRegistration, null);
   if (registration === null) {

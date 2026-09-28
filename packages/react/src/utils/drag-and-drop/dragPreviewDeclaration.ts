@@ -4,7 +4,6 @@ import type {
   DraggablePreviewSettings,
   DraggablePreviewRenderParameters,
 } from '../../draggable/preview/DraggablePreview';
-import type { DragPreviewElementFactory } from './synthetic/cloneDragPreview';
 
 /**
  * What a mounted preview part tells its draggable. The parts render nothing in
@@ -12,12 +11,9 @@ import type { DragPreviewElementFactory } from './synthetic/cloneDragPreview';
  * start and the overlay renders. That indirection is what lets the preview outlive
  * the source component when a virtualizer or a live reorder unmounts it mid-drag.
  */
-export interface DragPreviewDeclaration<
-  TPayload = unknown,
-  TDragData = unknown,
-> extends DraggablePreviewSettings {
-  /** Builds the engine-owned preview element. @internal */
-  createPreviewElement: DragPreviewElementFactory;
+export interface DragPreviewDeclaration<TPayload = unknown, TDragData = unknown> {
+  /** The part's current preview settings, read once at drag start. */
+  getSettings: () => DraggablePreviewSettings;
   /**
    * Resolves the preview content at drag start. Returning `null` or `false`
    * declines the preview for this drag.

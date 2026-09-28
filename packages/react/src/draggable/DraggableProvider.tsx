@@ -3,8 +3,9 @@
 import * as React from 'react';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { createKind } from '../utils/drag-and-drop/dragKind';
+import { PreviewOverlayRenderer } from '../utils/drag-and-drop/overlay/PreviewOverlayRenderer';
 import { DraggableContext } from './DraggableContext';
-import { DraggablePreviewProvider } from './preview-provider/DraggablePreviewProvider';
+import type { DraggableContextValue } from './DraggableContext';
 import type { DraggableRootRecord } from './root/DraggableRoot';
 import type { DraggableTargetRecord } from './target/DraggableTarget';
 
@@ -18,12 +19,14 @@ import type { DraggableTargetRecord } from './target/DraggableTarget';
  */
 export function DraggableProvider(props: DraggableProviderProps): React.ReactNode {
   const { children } = props;
-  const defaultKind = useRefWithInit(() => createKind<undefined>('default')).current;
-  const contextValue = React.useMemo(() => ({ defaultKind }), [defaultKind]);
+  const contextValue = useRefWithInit<DraggableContextValue>(() => ({
+    defaultKind: createKind<undefined>('default'),
+  })).current;
 
   return (
     <DraggableContext.Provider value={contextValue}>
-      <DraggablePreviewProvider>{children}</DraggablePreviewProvider>
+      {children}
+      <PreviewOverlayRenderer previewContext={contextValue} />
     </DraggableContext.Provider>
   );
 }
@@ -87,7 +90,7 @@ export interface DraggableLocation {
 /** Where the drag is and has been, available as `eventDetails.location` in drag handlers. */
 export interface DraggableLocationHistory {
   /** The pointer's offset from the source's top-left corner at pickup, in CSS pixels. */
-  grabOffset?: DraggablePosition | undefined;
+  grabOffset: DraggablePosition;
   /** The location where the drag started. */
   initial: DraggableLocation;
   /** The location at the moment this event fires. */
@@ -109,30 +112,8 @@ declare class DragKindPayload<TPayload, TDragData> {
  * `Draggable.createGlobalKind`. Its payload type is declared once and types
  * `source.payload` and `target.payload` everywhere the kind is used.
  */
-export interface DraggableKind<
-  in out TPayload = unknown,
-  in out TDragData = unknown,
-> extends DragKindPayload<TPayload, TDragData> {
-  /**
-   * The name or global key the kind was created with. A debugging aid only.
-   */
-  readonly name: string;
-  /**
-   * The kind's identity. Unique per `createKind` call, and shared by `createGlobalKind`
-   * calls with the same key.
-   */
-  readonly id: symbol;
-  /**
-   * Whether a drag source is of this kind. Narrows its `payload` type.
-   */
-  matches(source: DraggableRootRecord<unknown>): source is DraggableRootRecord<TPayload, TDragData>;
-  /**
-   * Whether a drop target is of this kind. Narrows its `payload` type.
-   */
-  matches(
-    target: DraggableTargetRecord<unknown>,
-  ): target is DraggableTargetRecord<TPayload, TDragData>;
-}
+export interface DraggableKind<in out TPayload = unknown, in out TDragData = unknown>
+  extends DragKindPayload<TPayload, TDragData>, DraggableAcceptedKind<TPayload, TDragData> {}
 
 /**
  * One or more kinds accepted by a drop target, viewport, or monitor.
@@ -146,7 +127,10 @@ export type DraggableAccept<TPayload, TDragData = unknown> =
 export interface DraggableAcceptedKind<TPayload = unknown, TDragData = unknown> {
   /** The name or global key the kind was created with. A debugging aid only. */
   readonly name: string;
-  /** The kind's identity. */
+  /**
+   * The kind's identity. Unique per `createKind` call, and shared by `createGlobalKind`
+   * calls with the same key.
+   */
   readonly id: symbol;
   /** Whether a drag source is of this kind. Narrows its `payload` type. */
   matches(source: DraggableRootRecord<unknown>): source is DraggableRootRecord<TPayload, TDragData>;

@@ -10,7 +10,8 @@ import type { DraggableRootModifier } from '../../../draggable/root/DraggableRoo
 import type { DragModifierKeys } from '../utils';
 import { applyDragModifiers } from '../dragModifiers';
 import { getSharedSlot } from '../sharedState';
-import { DRAGGING_ATTR, ENDING_STYLE_ATTR, SETTLING_ATTR } from '../dragAttributes';
+import * as DraggablePreviewDataAttributes from '../../../draggable/preview/DraggablePreviewDataAttributes';
+import * as DraggableRootDataAttributes from '../../../draggable/root/DraggableRootDataAttributes';
 import { getElementScale, NO_MODIFIER_KEYS } from '../utils';
 
 const ZERO_OFFSET: DraggablePosition = { x: 0, y: 0 };
@@ -191,8 +192,8 @@ export function createSyntheticPreview(
     }
 
     const previousSource = sourceElement;
-    previousSource.removeAttribute(DRAGGING_ATTR);
-    previousSource.removeAttribute(SETTLING_ATTR);
+    previousSource.removeAttribute(DraggableRootDataAttributes.dragging);
+    previousSource.removeAttribute(DraggableRootDataAttributes.settling);
     if (endingCleanup && endingPreviews.get(previousSource) === endingCleanup) {
       endingPreviews.delete(previousSource);
     }
@@ -207,9 +208,9 @@ export function createSyntheticPreview(
       }
       endingPreviews.set(sourceElement, endingCleanup);
     }
-    sourceElement.setAttribute(DRAGGING_ATTR, '');
+    sourceElement.setAttribute(DraggableRootDataAttributes.dragging, '');
     if (endingCleanup) {
-      sourceElement.setAttribute(SETTLING_ATTR, '');
+      sourceElement.setAttribute(DraggableRootDataAttributes.settling, '');
     }
   }
 
@@ -245,7 +246,7 @@ export function createSyntheticPreview(
       // Set only once the preview is built: a `[data-dragging]` rule that changes
       // the source's geometry (or hides it outright) would otherwise corrupt the
       // measurement the clone is sized from.
-      sourceElement.setAttribute(DRAGGING_ATTR, '');
+      sourceElement.setAttribute(DraggableRootDataAttributes.dragging, '');
     },
     retargetSource,
     setPreviewOffset(offset: DraggablePosition): void {
@@ -308,8 +309,8 @@ export function createSyntheticPreview(
           }
           if (endingPreviews.get(sourceElement) === cleanup) {
             endingPreviews.delete(sourceElement);
-            sourceElement.removeAttribute(DRAGGING_ATTR);
-            sourceElement.removeAttribute(SETTLING_ATTR);
+            sourceElement.removeAttribute(DraggableRootDataAttributes.dragging);
+            sourceElement.removeAttribute(DraggableRootDataAttributes.settling);
           }
           endingCleanup = null;
         };
@@ -317,7 +318,7 @@ export function createSyntheticPreview(
         endingCleanup = cleanup;
         endingPreviews.get(sourceElement)?.();
         endingPreviews.set(sourceElement, cleanup);
-        sourceElement.setAttribute(SETTLING_ATTR, '');
+        sourceElement.setAttribute(DraggableRootDataAttributes.settling, '');
         if (sourceIdentity) {
           registration = {
             identity: sourceIdentity,
@@ -329,7 +330,7 @@ export function createSyntheticPreview(
           };
           endingPreviewRegistrations.add(registration);
         }
-        element.setAttribute(ENDING_STYLE_ATTR, '');
+        element.setAttribute(DraggablePreviewDataAttributes.endingStyle, '');
         endingPreview.prepareForDrop();
 
         // Drop-handler updates scheduled later in the release event commit before
@@ -369,7 +370,7 @@ export function createSyntheticPreview(
       }
 
       endingPreview?.destroy();
-      sourceElement.removeAttribute(DRAGGING_ATTR);
+      sourceElement.removeAttribute(DraggableRootDataAttributes.dragging);
     },
   };
 }

@@ -33,7 +33,6 @@ export const DraggableViewport = React.forwardRef(function DraggableViewport<
     className,
     render,
     style,
-    children,
     // Auto-scroll props. Listed explicitly because whatever stays in
     // `elementProps` is spread onto the `<div>`, where an engine parameter would
     // land as an attribute.
@@ -63,7 +62,7 @@ export const DraggableViewport = React.forwardRef(function DraggableViewport<
   return useRenderElement('div', componentProps, {
     state,
     ref: [forwardedRef, ref],
-    props: [{ children }, elementProps],
+    props: elementProps,
   });
   // `React.forwardRef` erases the payload type argument, so the generic signature
   // is restored by hand.
@@ -125,10 +124,13 @@ export interface DraggableViewportDragScrollValue<TSourcePayload = unknown, TDra
    * How far to move horizontally this frame, in CSS pixels, with `scrollBy`
    * semantics: a positive value moves the view right, so the content slides left
    * under the pointer. Apply this delta as-is, without multiplying by elapsed time.
-   * `0` when the horizontal axis isn't engaged this frame.
+   * Always `0` when `direction` is `'vertical'`.
    */
   x: number;
-  /** How far to move vertically this frame, in CSS pixels. A positive value moves the view down. */
+  /**
+   * How far to move vertically this frame, in CSS pixels. A positive value moves the view down.
+   * Always `0` when `direction` is `'horizontal'`.
+   */
   y: number;
   /** The axis this call is about. `onDragScroll` is called once per engaged axis. */
   direction: DraggableViewportDragScrollDirection;

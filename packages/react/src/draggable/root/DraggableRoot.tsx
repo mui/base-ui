@@ -25,7 +25,6 @@ import type { BaseUIComponentProps } from '../../internals/types';
 import type { RegisterSourceParameters } from '../../utils/drag-and-drop/registrationTypes';
 import { useDraggableElement } from './useDraggableElement';
 import { DraggableRootContext } from './DraggableRootContext';
-import { useDragPreviewContext } from '../../utils/drag-and-drop/overlay/DragPreviewContext';
 import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 
 const stateAttributesMapping: StateAttributesMapping<DraggableRootState> = {
@@ -56,7 +55,6 @@ export const DraggableRoot = React.forwardRef(function DraggableRoot<
     className,
     render,
     style,
-    children,
     // Drag source props. Listed explicitly because whatever stays in
     // `elementProps` is spread onto the `<div>`, where an engine parameter would
     // land as an attribute.
@@ -81,13 +79,12 @@ export const DraggableRoot = React.forwardRef(function DraggableRoot<
     ...elementProps
   } = componentProps;
 
-  const { defaultKind } = useDraggableContext();
+  const draggableContext = useDraggableContext();
 
-  // A fresh object per render is intended: `useDraggableElement` reads it through
-  // a getter and uses its identity as the cache key for the normalized config, so
-  // memoizing it here would silently stop parameter updates.
+  // A fresh object per render is fine: the engine compares the registration field
+  // by field before re-normalizing it.
   const params = {
-    kind: kind ?? defaultKind,
+    kind: kind ?? draggableContext.defaultKind,
     payload,
     previewKey,
     disabled,
@@ -105,7 +102,10 @@ export const DraggableRoot = React.forwardRef(function DraggableRoot<
   // nested providers of other kinds (a board of columns of cards) are walked past.
   const enclosingCollisionContext = React.useContext(DraggableCollisionContext);
   let collisionContext = enclosingCollisionContext;
-  while (collisionContext && collisionContext.kind.id !== (kind ?? defaultKind).id) {
+  while (
+    collisionContext &&
+    collisionContext.kind.id !== (kind ?? draggableContext.defaultKind).id
+  ) {
     collisionContext = collisionContext.parent;
   }
   React.useEffect(() => {
@@ -142,24 +142,22 @@ export const DraggableRoot = React.forwardRef(function DraggableRoot<
     disabled: disabled ?? false,
   };
 
-  // The provider seen from here is the one the engine publishes preview content
-  // through; `Draggable.Preview` compares its own nearest provider against it.
-  const previewContext = useDragPreviewContext();
-
   const contextValue = React.useMemo(
     () => ({
       setHandleElement,
       previewHandle,
-      previewContext,
+      // The provider seen from here is the one the engine publishes preview content
+      // through; `Draggable.Preview` compares its own nearest provider against it.
+      previewContext: draggableContext,
       disabled: disabled ?? false,
     }),
-    [setHandleElement, previewHandle, previewContext, disabled],
+    [setHandleElement, previewHandle, draggableContext, disabled],
   );
 
   const element = useRenderElement('div', componentProps, {
     state,
     ref: [forwardedRef, ref],
-    props: [{ children }, elementProps],
+    props: elementProps,
     stateAttributesMapping,
   });
 

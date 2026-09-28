@@ -984,7 +984,9 @@ The default is `0`. Omitted edges, negative values, and non-finite values are tr
 <Draggable.Viewport overflowMargin={80} />
 ```
 
-Inside the viewport, the edge zones and speed stay the same. Outside an enabled edge, scrolling keeps its maximum engagement and existing speed ramp, up to `maxSpeed`. It stops beyond the margin. Updating `overflowMargin` on a mounted `Draggable.Viewport` takes effect without another pointer move.
+The margin only applies after the drag has entered the viewport. A drag that starts in the margin doesn't scroll the viewport, and a drag that moves beyond the margin has to enter the viewport again. The same goes after the viewport was `disabled` or didn't `accept` the drag.
+
+Inside the viewport, the edge zones and speed stay the same. Outside an enabled edge, scrolling keeps its maximum engagement and existing speed ramp, up to `maxSpeed`. It stops beyond the margin.
 
 Viewports containing the drag position get first use of each scrolling direction. Outside margins then compete for unclaimed directions, innermost first. Scroll limits and `onDragScroll`'s `cancel()` and `consume()` behavior still apply. Drag modifiers participate in deciding which viewport can scroll, just as they do without margins.
 

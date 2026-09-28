@@ -4,7 +4,7 @@ import type * as React from 'react';
 import { getSharedSlot } from '../sharedState';
 import type { DraggableInput } from '../../../draggable/DraggableProvider';
 import type { DraggablePreviewOffset } from '../../../draggable/preview/DraggablePreview';
-import type { DragPreviewContext } from './DragPreviewContext';
+import type { DraggableContextValue } from '../../../draggable/DraggableContext';
 
 /**
  * The active drag's custom preview content, published at drag start by the
@@ -19,7 +19,7 @@ import type { DragPreviewContext } from './DragPreviewContext';
  * builds it without React.
  */
 export interface DragPreviewState {
-  context: DragPreviewContext;
+  context: DraggableContextValue;
   node: React.ReactNode;
   host: HTMLElement;
   offset: DraggablePreviewOffset | undefined;
@@ -36,7 +36,7 @@ export const dragPreviewStore: ReadonlyStore<DragPreviewState | null> = slot.sto
 
 /** Publish `state` for the provider whose React tree should render it. */
 export function publishDragPreview(
-  context: DragPreviewContext,
+  context: DraggableContextValue,
   state: Omit<DragPreviewState, 'context'>,
 ): void {
   slot.store.setState({ ...state, context });

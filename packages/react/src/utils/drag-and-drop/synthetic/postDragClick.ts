@@ -9,8 +9,9 @@
  * differ on where the click surfaces — Safari and Firefox can put it back on the
  * source — so a drag can activate the very control it was picked up from.
  *
- * The overview docs promise the opposite ("anything short of that stays a plain
- * click or tap"), which reads as: a completed drag is not a click.
+ * The activation docs promise the opposite ("Releasing before the threshold
+ * keeps the normal click or tap"), which reads as: a completed drag is not a
+ * click.
  *
  * One shot, and self-healing: the listener removes itself on the first click, on
  * the next `pointerdown`, or on a short timer if neither arrives (for example,

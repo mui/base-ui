@@ -56,7 +56,12 @@ export function useDraggableTargetElement(
   const targetStateStore = useRefWithInit(createDragTargetStateStore).current;
   const elementRef = React.useRef<HTMLElement | null>(null);
   useIsoLayoutEffect(() => {
-    syncDropTargetPayload(elementRef.current, parameters.kind?.id, parameters.payload);
+    syncDropTargetPayload(
+      elementRef.current,
+      getParameters,
+      parameters.kind?.id,
+      parameters.payload,
+    );
   });
   const registrationRef = useRegistrationRef<HTMLElement>((element) =>
     registerTarget(element, getParameters),

@@ -1,8 +1,6 @@
 import { getSharedSlot } from './sharedState';
 import type { SyntheticPreviewHandle } from './synthetic/syntheticPreview';
-import type { DragPreviewElementHandle } from './synthetic/cloneDragPreview';
 import type { ResolvedDragPreview } from './synthetic/dragPreviewSettings';
-import type { DraggablePosition } from '../../draggable/DraggableProvider';
 
 /**
  * The active drag's preview handle, so the React layer can reach the element the
@@ -63,38 +61,11 @@ export function getActiveDragPreviewSettings(): ResolvedDragPreview<any> | null 
 }
 
 /**
- * Follow the drag source to a fresh node when a virtualizer remounts it mid-drag,
- * so `data-dragging` keeps tracking the live element the way `isDragging` does.
+ * The active drag's preview handle. The React layer reads the host from it, re-anchors
+ * the host once its content has rendered, and tears it down when the content resolves
+ * to nothing. The session store retargets it when a virtualizer remounts the source
+ * mid-drag, so `data-dragging` follows the live element. `null` when no drag is active.
  */
-export function retargetActivePreviewSource(element: HTMLElement): void {
-  slot.handle?.retargetSource(element);
-}
-
-/**
- * The host a declared preview renders its content into: an empty element the engine
- * injected next to the source (or into the configured container) and positions each
- * frame. `null` when the active drag has no custom preview — the default clone needs
- * no React involvement at all.
- */
-export function getActivePreview(): DragPreviewElementHandle | null {
-  const preview = slot.handle?.getPreviewElement() ?? null;
-  return preview?.isHost ? preview : null;
-}
-
-/**
- * Re-anchor the active preview once React has rendered into the host and it has a
- * size. Only an offset *callback* needs this — every other form is resolved from
- * the source rect alone, before React runs. A no-op when no drag is active.
- */
-export function setActivePreviewOffset(offset: DraggablePosition): void {
-  slot.handle?.setPreviewOffset(offset);
-}
-
-/**
- * Tear down the preview the sensor built for this drag. Used when a `Draggable.Preview`
- * resolves its content to `null`: the host is already in the DOM, and an empty box
- * would otherwise follow the pointer.
- */
-export function removeActivePreview(): void {
-  slot.handle?.removePreviewElement();
+export function getActivePreviewHandle(): SyntheticPreviewHandle | null {
+  return slot.handle;
 }

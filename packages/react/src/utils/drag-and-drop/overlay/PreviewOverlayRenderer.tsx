@@ -5,15 +5,15 @@ import { useStore } from '@base-ui/utils/store';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { dragPreviewStore } from './dragPreviewStore';
 import type { DragPreviewState } from './dragPreviewStore';
-import type { DragPreviewContext } from './DragPreviewContext';
-import { setActivePreviewOffset } from '../activePreview';
+import type { DraggableContextValue } from '../../../draggable/DraggableContext';
+import { getActivePreviewHandle } from '../activePreview';
 import { resolveDragPreviewOffset } from '../customDragPreview';
 
 // Stable identity so `useStore`'s selector fast path holds. The provider context
 // is passed separately and selects only the preview published from its subtree.
 function selectPreviewState(
   state: DragPreviewState | null,
-  context: DragPreviewContext,
+  context: DraggableContextValue,
 ): DragPreviewState | null {
   return state?.context === context ? state : null;
 }
@@ -31,7 +31,7 @@ function selectPreviewState(
  * renders in the same React tree while the drag itself stays global.
  */
 export function PreviewOverlayRenderer(props: {
-  previewContext: DragPreviewContext;
+  previewContext: DraggableContextValue;
 }): React.ReactNode {
   const { previewContext } = props;
   const preview = useStore(dragPreviewStore, selectPreviewState, previewContext);
@@ -50,7 +50,7 @@ export function PreviewOverlayRenderer(props: {
     if (typeof preview.offset !== 'function') {
       return;
     }
-    setActivePreviewOffset(
+    getActivePreviewHandle()?.setPreviewOffset(
       resolveDragPreviewOffset(preview.offset, {
         container: preview.host,
         sourceRect: preview.sourceRect,

@@ -98,6 +98,10 @@ export function resolveDraggablePickup(rawTarget: EventTarget | null): Draggable
     // it — so an action control elsewhere inside the draggable keeps its own
     // behaviour. A `disabled` draggable can never start a drag, so it is
     // skipped the same way. Otherwise continue from this element's parent.
+    // When nothing picks the press up, the sensor arms nothing for it: no
+    // contextmenu suppression, and a natively draggable descendant (`<img>`,
+    // `<a href>`) keeps its native HTML5 drag. A *dynamic* veto belongs in
+    // `onBeforeMoveStart`, dispatched at activation commit.
     if (!parameters.disabled && (!dragHandle || contains(dragHandle, target))) {
       return { element: node, target, parameters, dragHandle };
     }

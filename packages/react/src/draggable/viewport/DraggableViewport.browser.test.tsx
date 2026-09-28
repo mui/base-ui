@@ -103,6 +103,52 @@ describe.skipIf(isJSDOM)('Draggable viewport scrolling in the browser', () => {
     expect(viewport.scrollTop).toBe(canceledAt);
   });
 
+  it('stops margin scrolling when an ancestor restyle hides the overflow', async () => {
+    const style = document.createElement('style');
+    style.textContent = '.scroll-locked > * { overflow: hidden !important; }';
+    document.head.appendChild(style);
+    registerCleanup(() => style.remove());
+    // Once hidden, the viewport no longer scrolls, which the engine reports.
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    registerCleanup(() => warnSpy.mockRestore());
+    const { engine } = await renderDnd();
+    const source = element('position:fixed;left:300px;top:0;width:100px;height:50px');
+    const ancestor = element('');
+    const viewport = element(
+      'position:fixed;left:0;top:0;width:200px;height:200px;overflow:auto',
+      ancestor,
+    );
+    element('height:1000px', viewport);
+    engine.registerSource(source, { activation: { type: 'immediate' } });
+    engine.registerViewport(viewport, { overflowMargin: { bottom: 80 } });
+    start(source);
+    await waitFor(() => expect(viewport.scrollTop).toBeGreaterThan(0));
+    // Below the viewport, so the pointer is over neither it nor its ancestor.
+    act(() =>
+      firePointer.move(document.body, {
+        timeStamp: 200,
+        pointerId: 1,
+        pointerType: 'mouse',
+        buttons: 1,
+        clientX: 100,
+        clientY: 250,
+      }),
+    );
+    const enteredMarginAt = viewport.scrollTop;
+    await waitFor(() => expect(viewport.scrollTop).toBeGreaterThan(enteredMarginAt));
+
+    act(() => {
+      ancestor.className = 'scroll-locked';
+    });
+    await flushRaf();
+    const lockedAt = viewport.scrollTop;
+    await flushRaf();
+    await flushRaf();
+    await flushRaf();
+    expect(viewport.scrollTop).toBe(lockedAt);
+    act(() => engine.cancelDrag());
+  });
+
   it('scrolls an outer viewport containing the pointer before an inner overflow margin', async () => {
     const { engine } = await renderDnd();
     const source = element('position:fixed;left:300px;top:0;width:100px;height:50px');

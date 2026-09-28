@@ -1,7 +1,6 @@
 'use client';
 import * as React from 'react';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
-import { warn } from '@base-ui/utils/warn';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useDraggableRootContext } from '../root/DraggableRootContext';
@@ -17,26 +16,16 @@ export const DraggableHandle = React.forwardRef(function DraggableHandle(
   componentProps: DraggableHandle.Props,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
-  const { className, render, style, disabled: disabledProp, ...elementProps } = componentProps;
-  const { setHandleElement, disabled } = useDraggableRootContext();
-
-  React.useEffect(() => {
-    if (process.env.NODE_ENV !== 'production' && disabledProp !== undefined) {
-      warn(
-        '`disabled` was passed to Draggable.Handle, which has no disabled state of its own. ' +
-          'The engine reads `disabled` from Draggable.Root, so the handle would look disabled while the root stayed draggable. ' +
-          'Set `disabled` on Draggable.Root instead.',
-      );
-    }
-  }, [disabledProp]);
+  const { className, render, style, ...elementProps } = componentProps;
+  const context = useDraggableRootContext();
 
   const handleRef = useRefWithInit(() => {
     const token = {};
-    return (node: HTMLElement | null) => setHandleElement(node, token);
+    return (node: HTMLElement | null) => context.setHandleElement(node, token);
   }).current;
 
   return useRenderElement('span', componentProps, {
-    state: { disabled },
+    state: { disabled: context.disabled },
     props: [elementProps],
     ref: [forwardedRef, handleRef],
   });
@@ -49,15 +38,7 @@ export interface DraggableHandleState {
   disabled: boolean;
 }
 
-export interface DraggableHandleProps extends Omit<
-  BaseUIComponentProps<'span', DraggableHandleState>,
-  'disabled'
-> {
-  /**
-   * Not supported. A handle follows the disabled state of its `<Draggable.Root>`.
-   */
-  disabled?: never | undefined;
-}
+export interface DraggableHandleProps extends BaseUIComponentProps<'span', DraggableHandleState> {}
 
 /**
  * The element that must be pressed to start a drag, for the `handle` option of

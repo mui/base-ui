@@ -5,8 +5,15 @@ import { isElement, isShadowRoot } from '@floating-ui/utils/dom';
 import { capturePreviewStyles } from './previewStyles';
 import { applySourceSizeVars } from '../customDragPreview';
 import { getSharedSlot } from '../sharedState';
-import { DRAG_PREVIEW_ATTR, DRAGGING_ATTR } from '../dragAttributes';
-import { getComposedParentElement, getElementScale, getElementZoom } from '../utils';
+import * as DraggablePreviewDataAttributes from '../../../draggable/preview/DraggablePreviewDataAttributes';
+import * as DraggableRootDataAttributes from '../../../draggable/root/DraggableRootDataAttributes';
+import {
+  adoptStyleSheet,
+  getComposedParentElement,
+  getElementScale,
+  getElementZoom,
+  getStyleRoot,
+} from '../utils';
 import type { DraggablePosition } from '../../../draggable/DraggableProvider';
 import {
   COMPUTED_MATRIX,
@@ -60,7 +67,7 @@ const NEUTRALIZED_PROPERTIES = ['transition', 'animation', 'transform'];
  * itself, so the chrome lands on an element with no consumer styling contract
  * and is neutralized inline.
  */
-const NEUTRALIZER_CSS = `[${DRAG_PREVIEW_ATTR}]{${NEUTRALIZED_PROPERTIES.map((p) => `${p}:none`).join(';')};}`;
+const NEUTRALIZER_CSS = `[${DraggablePreviewDataAttributes.dragPreview}]{${NEUTRALIZED_PROPERTIES.map((p) => `${p}:none`).join(';')};}`;
 
 /**
  * A constructable stylesheet rather than a `<style>` element: the CSSOM path is
@@ -74,14 +81,11 @@ const neutralizerSheets = getSharedSlot(
 );
 
 function ensureNeutralizerStyles(host: PreviewHost): void {
-  const root = host.getRootNode();
   // Realm-safe `instanceof` (`isShadowRoot`): a draggable inside a shadow root that
   // lives in an iframe/popout has its own `ShadowRoot` constructor, and this realm's
   // would never match — the neutralizer sheet would then land on the iframe document
   // instead of the shadow root, leaving the preview with the source's transitions.
-  const target: DocumentOrShadowRoot = isShadowRoot(root)
-    ? root
-    : ownerDocument(isShadowRoot(host) ? host.host : host);
+  const target = isShadowRoot(host) ? host : getStyleRoot(host);
   if (!('adoptedStyleSheets' in target)) {
     return;
   }
@@ -94,9 +98,7 @@ function ensureNeutralizerStyles(host: PreviewHost): void {
   // Re-adopt rather than dedupe on the root alone: an app that assigns a fresh
   // `adoptedStyleSheets` array (a theme switch) drops the sheet, and the next
   // preview would carry the source's transitions again.
-  if (!target.adoptedStyleSheets.includes(sheet)) {
-    target.adoptedStyleSheets = [...target.adoptedStyleSheets, sheet];
-  }
+  adoptStyleSheet(target, sheet);
 }
 
 export interface DragPreviewElementHandle {
@@ -119,11 +121,6 @@ export interface DragPreviewElementHandle {
   /** Restore motion rules before the ending-style transition is measured. */
   prepareForDrop(): void;
 }
-
-export type DragPreviewElementFactory = (
-  source: HTMLElement,
-  container: HTMLElement | null,
-) => DragPreviewElementHandle | null;
 
 type PreviewHost = HTMLElement | ShadowRoot;
 
@@ -477,7 +474,7 @@ function prepareDragPreviewClone(
 
   const { applyPostInsertion } = copyLiveState(sourceNodes, cloneNodes, win);
   sanitize(element, cloneNodes, '-drag-preview');
-  element.removeAttribute(DRAGGING_ATTR);
+  element.removeAttribute(DraggableRootDataAttributes.dragging);
 
   return { element, sourceNodes, nodes: cloneNodes, applyPostInsertion };
 }
@@ -636,9 +633,9 @@ export function measurePreviewSource(source: HTMLElement): {
 }
 
 /**
- * Build the element that follows the pointer — a clone of the source, or an empty
- * host a declared preview renders its content into — and inject it next to the source
- * so inherited properties and contextual descendant selectors still apply.
+ * Build the element that follows the pointer — a clone of the source when `isClone`,
+ * or an empty host a declared preview renders its content into — and inject it next
+ * to the source so inherited properties and contextual descendant selectors still apply.
  * Clones retain computed values lost through the extra wrapper, including styles
  * from direct-child and sibling-position selectors, snapshotted from the source
  * itself. Rules keyed on `[data-drag-preview]` apply to the clone where it lives,
@@ -662,15 +659,13 @@ export function measurePreviewSource(source: HTMLElement): {
  * Returns `null` when there is nowhere to inject it (a detached or parentless
  * source); the drag then simply runs without a preview.
  */
-function createPreparedDragPreviewElement(
+export function createDragPreviewElement(
   source: HTMLElement,
-  options: {
-    container?: HTMLElement | null | undefined;
-    clone?: PreparedDragPreviewClone | undefined;
-  },
+  requestedContainer: HTMLElement | null,
+  isClone: boolean,
 ): DragPreviewElementHandle | null {
   const doc = ownerDocument(source);
-  let container = options.container ?? null;
+  let container = requestedContainer;
   // The preview is measured, styled and positioned in the source's realm — viewport
   // coordinates from one document mean nothing in another, and the neutralizer
   // sheet is adopted into the source's root. Adopting the preview into a foreign
@@ -689,6 +684,8 @@ function createPreparedDragPreviewElement(
     return null;
   }
 
+  const clone = isClone ? prepareDragPreviewClone(source, ownerWindow(source)) : undefined;
+
   // Keyed on the *host*, not the source: the preview mounts into
   // `container ?? hostOf(source)`, and with a container in a different root
   // (a shadow tree, say) adopting the sheet into the source's root leaves the
@@ -699,11 +696,10 @@ function createPreparedDragPreviewElement(
   const width = sourceRect.width / sourceScale.x;
   const height = sourceRect.height / sourceScale.y;
 
-  const isClone = options.clone !== undefined;
-  const element = options.clone?.element ?? doc.createElement('div');
-  const applyPostInsertion = options.clone?.applyPostInsertion ?? NOOP;
+  const element = clone?.element ?? doc.createElement('div');
+  const applyPostInsertion = clone?.applyPostInsertion ?? NOOP;
 
-  element.setAttribute(DRAG_PREVIEW_ATTR, '');
+  element.setAttribute(DraggablePreviewDataAttributes.dragPreview, '');
   element.setAttribute('aria-hidden', 'true');
   // A cloned `tabindex="0"` would otherwise be tabbable, and the preview must never
   // be hit-tested or reachable.
@@ -775,16 +771,11 @@ function createPreparedDragPreviewElement(
   });
   const restoredMotion = new Map<string, string>();
   let contextualStyles: ReturnType<typeof capturePreviewStyles> | undefined;
-  if (options.clone) {
+  if (clone) {
     // Read from the source while the clone is still detached: it is never inserted
     // beside the source, which would shift every sibling's `:nth-child` index and
     // snapshot the clone at a position the source does not occupy.
-    contextualStyles = capturePreviewStyles(
-      source,
-      options.clone.sourceNodes,
-      element,
-      options.clone.nodes,
-    );
+    contextualStyles = capturePreviewStyles(source, clone.sourceNodes, element, clone.nodes);
   }
   wrapper.appendChild(element);
 
@@ -946,25 +937,7 @@ function createPreparedDragPreviewElement(
       destroyed = true;
       observer.disconnect();
       contextualStyles?.destroy();
-      if (usesPopover && wrapper.isConnected) {
-        try {
-          wrapper.hidePopover();
-        } catch {
-          // Already closed by a DOM move; removing it below is enough.
-        }
-      }
       wrapper.remove();
     },
   };
 }
-
-export const createDragPreviewHostElement: DragPreviewElementFactory = (source, container) =>
-  createPreparedDragPreviewElement(source, { container });
-
-export const createClonedDragPreviewElement: DragPreviewElementFactory = (source, container) =>
-  source.isConnected
-    ? createPreparedDragPreviewElement(source, {
-        container,
-        clone: prepareDragPreviewClone(source, ownerWindow(source)),
-      })
-    : null;

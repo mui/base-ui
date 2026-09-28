@@ -9,7 +9,6 @@ import {
   registerCleanup,
   setupDragEngineTests,
 } from '../../../test/dnd';
-import { resetForTests as resetSyntheticDrag } from '../../utils/drag-and-drop/synthetic/syntheticSensor';
 import { reset } from '../../utils/drag-and-drop/core/lifecycleManager';
 import { restrictToHorizontalAxis } from '../../utils/drag-and-drop/dragModifiers';
 import { createKind } from '../../utils/drag-and-drop/dragKind';
@@ -28,7 +27,7 @@ type DragAutoScrollHandler = NonNullable<RegisterViewportParameters['onDragScrol
 
 // The synthetic-drag test below leaves an active session; clear its rAF tick
 // in the extra teardown so it doesn't fire after `document` is torn down.
-setupDragEngineTests({ extraAfterEach: resetSyntheticDrag });
+setupDragEngineTests();
 
 describe('engine.registerViewport', () => {
   const { renderDnd } = createDndRenderer();
@@ -965,8 +964,7 @@ describe('engine.registerViewport', () => {
     // The `restrictToElement` shape: the reported point is clamped into the list,
     // so pushing past its bottom leaves the *physical* pointer outside the
     // container while the drag itself stays in the bottom edge zone. Edge-testing
-    // the raw point alone would skip the container here — and the candidate chain
-    // is anchored at the clamped point, so the two halves would disagree.
+    // the raw point alone would skip the container here.
     engine.registerSource(source, {
       modifiers: ({ point }) => ({ x: point.x, y: Math.min(point.y, 190) }),
     });

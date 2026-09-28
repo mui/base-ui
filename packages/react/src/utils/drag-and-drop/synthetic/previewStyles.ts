@@ -1,7 +1,8 @@
-import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
+import { ownerWindow } from '@base-ui/utils/owner';
 import { isShadowRoot } from '@floating-ui/utils/dom';
 import { getSharedSlot } from '../sharedState';
-import { DRAG_PREVIEW_ATTR } from '../dragAttributes';
+import * as DraggablePreviewDataAttributes from '../../../draggable/preview/DraggablePreviewDataAttributes';
+import { adoptStyleSheet, getStyleRoot, unadoptStyleSheet } from '../utils';
 
 const STRUCTURAL_SELECTOR = /[>+~]|:(?:first|last|nth|only|empty|has)\b/;
 const PSEUDO_ELEMENT = /::(before|after|marker)\b/g;
@@ -202,10 +203,8 @@ export function capturePreviewStyles(
   let sheetRoot: Document | ShadowRoot | null = null;
 
   function detachSheet() {
-    if (sheetRoot) {
-      sheetRoot.adoptedStyleSheets = sheetRoot.adoptedStyleSheets.filter(
-        (value) => value !== sheet,
-      );
+    if (sheetRoot && sheet) {
+      unadoptStyleSheet(sheetRoot, sheet);
     }
   }
 
@@ -213,14 +212,12 @@ export function capturePreviewStyles(
     if (!sheet) {
       return;
     }
-    const currentRoot = clone.getRootNode();
-    const target = isShadowRoot(currentRoot) ? currentRoot : ownerDocument(clone);
-    if (sheetRoot === target && target.adoptedStyleSheets.includes(sheet)) {
-      return;
+    const target = getStyleRoot(clone);
+    if (sheetRoot !== target) {
+      detachSheet();
+      sheetRoot = target;
     }
-    detachSheet();
-    sheetRoot = target;
-    target.adoptedStyleSheets = [...target.adoptedStyleSheets, sheet];
+    adoptStyleSheet(target, sheet);
   }
 
   return {
@@ -242,16 +239,12 @@ export function capturePreviewStyles(
       // A broad snapshot must not overwrite styles consumers explicitly apply
       // to previews. Compare with the marker removed before writing anything;
       // those differences belong to the preview, not to its lost ancestry.
-      if (
-        changed.some(({ values }) => values.length > 0) &&
-        clone.hasAttribute(DRAG_PREVIEW_ATTR)
-      ) {
+      if (changed.some(({ values }) => values.length > 0)) {
         const previewValues = changed.map(({ node, pseudo, values }) => {
           const computed = win.getComputedStyle(node, pseudo || null);
           return values.map(([name]) => computed.getPropertyValue(name));
         });
-        const marker = clone.getAttribute(DRAG_PREVIEW_ATTR)!;
-        clone.removeAttribute(DRAG_PREVIEW_ATTR);
+        clone.removeAttribute(DraggablePreviewDataAttributes.dragPreview);
         try {
           changed.forEach((entry, index) => {
             const computed = win.getComputedStyle(entry.node, entry.pseudo || null);
@@ -261,7 +254,7 @@ export function capturePreviewStyles(
             );
           });
         } finally {
-          clone.setAttribute(DRAG_PREVIEW_ATTR, marker);
+          clone.setAttribute(DraggablePreviewDataAttributes.dragPreview, '');
         }
       }
       const nodeIds = new Map<Element, string>();

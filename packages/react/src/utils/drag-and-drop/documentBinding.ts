@@ -56,11 +56,10 @@ interface CreateEventRootBindingOptions {
   shadowRootsSlot: string;
   type: string;
   listener: (event: Event) => void;
-  options?: Omit<AddEventListenerOptions, 'capture'> | undefined;
 }
 
 export function createEventRootBinding(options: CreateEventRootBindingOptions): DocumentBinding {
-  const { slot, shadowRootsSlot, type, listener, options: listenerOptions } = options;
+  const { slot, shadowRootsSlot, type, listener } = options;
   const boundShadowRoots = getSharedSlot<Set<ShadowRoot>>(
     shadowRootsSlot,
     () => new Set<ShadowRoot>(),
@@ -105,11 +104,8 @@ export function createEventRootBinding(options: CreateEventRootBindingOptions): 
           listener(event);
         }
       };
-      const offCapture = addEventListener(target, type, onCapture, {
-        ...listenerOptions,
-        capture: true,
-      });
-      const offBubble = addEventListener(target, type, onBubble, listenerOptions);
+      const offCapture = addEventListener(target, type, onCapture, { capture: true });
+      const offBubble = addEventListener(target, type, onBubble);
       return () => {
         offCapture();
         offBubble();

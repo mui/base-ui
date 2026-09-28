@@ -1,8 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { installDndPolyfill } from '../../../test/dndPolyfill';
 import { applySourceSizeVars, resolveDragPreviewOffset } from './customDragPreview';
-
-installDndPolyfill();
 
 describe('resolveDragPreviewOffset', () => {
   const params = {

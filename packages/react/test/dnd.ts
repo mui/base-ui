@@ -47,7 +47,7 @@ export function createElement(
   return el;
 }
 
-export function cleanupElements(): void {
+function cleanupElements(): void {
   for (const el of createdElements) {
     el.remove();
   }
@@ -103,13 +103,12 @@ function drainCleanupQueue(): void {
  * 2. Remove every element created via `createElement()`.
  * 3. Force-end any in-flight drag and reset the engine state machine.
  * 4. Restore the `elementFromPoint` hit-test mock.
- * 5. Run an optional `extraAfterEach` for tests with bespoke teardown.
  *
  * Every step runs even when an earlier one throws — global engine state must be
  * reset before the next test regardless — and the first failure is rethrown
  * afterwards, so a broken cleanup fails its own test instead of quietly leaking.
  */
-export function setupDragEngineTests(options: { extraAfterEach?: () => void } = {}): void {
+export function setupDragEngineTests(): void {
   installDndTestEnv();
   // `warn()` dedupes per message process-wide; reset it so warning-count
   // assertions do not depend on test order or on `.only`.
@@ -132,9 +131,6 @@ export function setupDragEngineTests(options: { extraAfterEach?: () => void } = 
     run(drainCleanupQueue);
     run(cleanupElements);
     run(resetDrag);
-    if (options.extraAfterEach) {
-      run(options.extraAfterEach);
-    }
     if (failed) {
       throw firstError;
     }
@@ -311,10 +307,10 @@ function installNativeToSyntheticBridge(): void {
 /**
  * Install the DnD polyfills and the native→synthetic bridge. Idempotent.
  *
- * Called from `setupDragEngineTests()`, `createDndRenderer()`, and the drag
- * sequence helpers below, so every drag test path gets the environment before
- * it dispatches events — while suites that merely import the shared test
- * barrel keep the native `DragEvent`/`DataTransfer` and an unpatched document.
+ * Called from `setupDragEngineTests()` and `createDndRenderer()`, so every drag
+ * test path gets the environment before it dispatches events — while suites that
+ * merely import the shared test barrel keep the native `DragEvent`/`DataTransfer`
+ * and an unpatched document.
  */
 export function installDndTestEnv(): void {
   installDndPolyfill();
@@ -340,31 +336,10 @@ export async function flushRaf(): Promise<void> {
 // gestures. The cadence mirrors the engine's: `dragstart`/`dragover` defer work
 // to a rAF, so they flush; `dragenter`/`drop` are synchronous edges.
 
-interface InputOverrides {
-  altKey?: boolean | undefined;
-  ctrlKey?: boolean | undefined;
-  shiftKey?: boolean | undefined;
-  metaKey?: boolean | undefined;
-  clientX?: number | undefined;
-  clientY?: number | undefined;
-}
-
-function getDefaultInput(overrides: InputOverrides = {}): InputOverrides {
-  return {
-    altKey: false,
-    ctrlKey: false,
-    shiftKey: false,
-    metaKey: false,
-    clientX: 0,
-    clientY: 0,
-    ...overrides,
-  };
-}
-
 /** Start a drag on an element and flush the deferred `onMoveStart`. */
 export async function lift(
   element: HTMLElement,
-  input?: InputOverrides & {
+  input?: DragEventInput & {
     /**
      * Skip the started-drag assertion below, for a lift that deliberately must
      * NOT start a drag (e.g. a disabled draggable).
@@ -372,9 +347,8 @@ export async function lift(
     expectNoDrag?: boolean | undefined;
   },
 ): Promise<void> {
-  installDndTestEnv();
   const { expectNoDrag = false, ...overrides } = input ?? {};
-  fireEvent.dragStart(element, getDefaultInput(overrides));
+  fireEvent.dragStart(element, overrides);
   await flushRaf();
   // The bridge clears the default 5px mouse activation with a hardcoded ~6px
   // nudge (see DRAG_ACTIVATION_DISTANCE_PX). A fixture registered with a larger
@@ -392,34 +366,30 @@ export async function lift(
 }
 
 /** Drag onto a drop target and flush so the engine's frame resolves it. */
-export async function dragEnter(element: HTMLElement, input?: InputOverrides): Promise<void> {
-  installDndTestEnv();
-  fireEvent.dragEnter(element, getDefaultInput(input));
+export async function dragEnter(element: HTMLElement, input?: DragEventInput): Promise<void> {
+  fireEvent.dragEnter(element, input);
   await flushRaf();
 }
 
 /** Continue dragging over a drop target. */
-export async function dragOver(element: HTMLElement, input?: InputOverrides): Promise<void> {
-  installDndTestEnv();
-  fireEvent.dragOver(element, getDefaultInput(input));
+export async function dragOver(element: HTMLElement, input?: DragEventInput): Promise<void> {
+  fireEvent.dragOver(element, input);
   await flushRaf();
 }
 
 /** Drop on a target. */
-export function drop(element: HTMLElement, input?: InputOverrides): void {
-  installDndTestEnv();
-  fireEvent.drop(element, getDefaultInput(input));
+export function drop(element: HTMLElement, input?: DragEventInput): void {
+  fireEvent.drop(element, input);
 }
 
 /** Cancel a drag (leave the window, then end it). */
 export function cancel(element: HTMLElement = document.body): void {
-  installDndTestEnv();
   fireEvent.dragLeave(element);
   fireEvent.dragEnd(element);
 }
 
-/** Force-end any pending drag state. Call in `afterEach`. */
-export function resetDrag(): void {
+/** Force-end any pending drag state. Runs in `setupDragEngineTests()`'s `afterEach`. */
+function resetDrag(): void {
   // Force-ending an active drag flips React state (isDragging, custom drag
   // preview portals) on still-mounted consumers. Flush those updates inside
   // `act` so teardown doesn't trip the "not wrapped in act(...)" warning.

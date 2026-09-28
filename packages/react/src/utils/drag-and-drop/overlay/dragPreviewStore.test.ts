@@ -5,7 +5,8 @@ import {
   publishDragPreview,
 } from './dragPreviewStore';
 import type { DragPreviewState } from './dragPreviewStore';
-import type { DragPreviewContext } from './DragPreviewContext';
+import type { DraggableContextValue } from '../../../draggable/DraggableContext';
+import { createKind } from '../dragKind';
 
 function makeState(label: string): Omit<DragPreviewState, 'context'> {
   return {
@@ -29,8 +30,8 @@ function makeState(label: string): Omit<DragPreviewState, 'context'> {
   };
 }
 
-function makeContext(): DragPreviewContext {
-  return Symbol('DragPreviewContext');
+function makeContext(): DraggableContextValue {
+  return { defaultKind: createKind<undefined>('default') };
 }
 
 describe('dragPreviewStore', () => {

@@ -60,7 +60,6 @@ export const DraggableTarget = React.forwardRef(function DraggableTarget<
     className,
     render,
     style,
-    children,
     // Drop target props. Listed explicitly because whatever stays in
     // `elementProps` is spread onto the `<div>`, where an engine parameter would
     // land as an attribute.
@@ -81,12 +80,12 @@ export const DraggableTarget = React.forwardRef(function DraggableTarget<
     ...elementProps
   } = componentProps;
 
+  const context = useDraggableContext();
   // A fresh object per render is fine: `useDraggableTargetElement` reads it through a
   // ref and never compares it.
-  const { defaultKind } = useDraggableContext();
   const params = {
     kind,
-    accept: accept ?? defaultKind,
+    accept: accept ?? context.defaultKind,
     canDrop,
     disabled,
     payload,
@@ -113,7 +112,7 @@ export const DraggableTarget = React.forwardRef(function DraggableTarget<
   return useRenderElement('div', componentProps, {
     state,
     ref: [forwardedRef, ref],
-    props: [{ children }, elementProps],
+    props: elementProps,
     stateAttributesMapping,
   });
   // Overloaded, unlike `Draggable.Root`, so a declared `TTargetPayload` can't omit `payload`

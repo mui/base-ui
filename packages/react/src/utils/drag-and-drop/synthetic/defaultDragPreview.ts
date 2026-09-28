@@ -1,4 +1,5 @@
 import { resolveDragPreviewOffset } from '../customDragPreview';
+import { createDragPreviewElement } from './cloneDragPreview';
 import type { SyntheticPreviewHandle } from './syntheticPreview';
 import type { ResolvedDragPreview } from './dragPreviewSettings';
 import type { DraggableInput, DraggablePosition } from '../../../draggable/DraggableProvider';
@@ -28,7 +29,11 @@ export function attachDefaultDragPreview(
     return;
   }
 
-  const previewElement = settings.createPreviewElement(element, settings.container);
+  const previewElement = createDragPreviewElement(
+    element,
+    settings.container,
+    settings.render === null,
+  );
   if (!previewElement) {
     return;
   }
@@ -48,7 +53,7 @@ export function attachDefaultDragPreview(
     offset = resolveDragPreviewOffset(settings.offset, {
       container: previewElement.element,
       // The rect the preview actually occupies: for a transformed source this is the
-      // untransformed box the clone is anchored on (see `createPreparedDragPreviewElement`),
+      // untransformed box the clone is anchored on (see `createDragPreviewElement`),
       // not the transformed one `getBoundingClientRect` reports, so the clone lifts off
       // exactly where the source sits.
       sourceRect: previewElement.sourceRect,

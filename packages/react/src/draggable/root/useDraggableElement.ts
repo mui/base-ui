@@ -52,10 +52,6 @@ export function useDraggableElement<TPayload = undefined, TDragData = unknown>(
 ): UseDraggableElementReturnValue<TPayload, TDragData> {
   const registerSource = useRegisterSource();
   const payloadOwner = useRefWithInit(() => ({})).current;
-  const options = { parameters, collision: collisionOptions };
-  const getOptions = useStableCallback(() => options);
-  const getParameters = () => getOptions().parameters;
-  const getCollision = () => getOptions().collision;
   // The `dragging` selector reads the live element behind this ref.
   const elementRef = React.useRef<HTMLElement | null>(null);
   useIsoLayoutEffect(() => {
@@ -66,36 +62,31 @@ export function useDraggableElement<TPayload = undefined, TDragData = unknown>(
   // rest are tracked so unmounting one falls back to a survivor instead of to
   // "no handle", which would silently make the whole element draggable.
   const attachedHandlesRef = React.useRef<Array<{ token: object; node: HTMLElement }>>([]);
+  // `null` when no `Draggable.Handle` is mounted: the whole element is the handle.
+  const getAttachedHandle = useRefWithInit(
+    () => () => attachedHandlesRef.current[0]?.node ?? null,
+  ).current;
 
   // The link a `Draggable.Preview` declares into. Created once, so carrying it on
   // context never re-registers anything.
   const previewHandle = useRefWithInit(createDragPreviewHandle<TPayload, TDragData>).current;
 
-  const registrationRef = useRegistrationRef<HTMLElement>((element) => {
-    // These accessors only read stable refs, so keep one function per
-    // registration instead of rebuilding both on every engine dispatch.
-    const getAttachedHandle = () => attachedHandlesRef.current[0]?.node ?? null;
-    const getDragPreviewDeclaration = () => previewHandle.getDeclaration();
-    let lastParams: RegisterSourceParameters<TPayload, TDragData> | null = null;
-    let normalized: InternalDraggableParameters<TPayload, TDragData> | null = null;
+  // The engine compares these field by field before re-normalizing, so both
+  // accessors keep one identity for the hook's lifetime.
+  const internalParameters: InternalDraggableParameters<TPayload, TDragData> = {
+    ...parameters,
+    handle: getAttachedHandle,
+    getDragPreviewDeclaration: previewHandle.getDeclaration,
+  };
+  const options = { parameters: internalParameters, collision: collisionOptions };
+  const getOptions = useStableCallback(() => options);
+  const getParameters = () => getOptions().parameters;
+  const getCollision = () => getOptions().collision;
 
+  const registrationRef = useRegistrationRef<HTMLElement>((element) => {
     const unregisterSource = registerSource<TPayload, TDragData>(
       element,
-      () => {
-        const params = getParameters();
-        if (params === lastParams && normalized !== null) {
-          return normalized;
-        }
-        // An imperative `handle` wins; otherwise fall back to the element
-        // behind `Draggable.Handle` (`null` there means the whole element is the handle).
-        lastParams = params;
-        normalized = {
-          ...params,
-          handle: params.handle ?? getAttachedHandle,
-          getDragPreviewDeclaration,
-        };
-        return normalized;
-      },
+      getParameters,
       payloadOwner,
     );
     const collisionConfig = getCollision();
@@ -175,13 +166,22 @@ export function useDraggableElement<TPayload = undefined, TDragData = unknown>(
   // flips back to false so the swapped-in handle still receives the static setup.
   const pendingReconcileRef = React.useRef(false);
 
+  // Re-registration tears the static setup down and rebuilds it, which mid-gesture
+  // would restore `user-select`/`touch-action` and drop the iOS touchmove guard.
+  // The live `handle` getter already reads `attachedHandlesRef` fresh, so skip
+  // the teardown mid-drag and flush the re-registration when the drag ends.
+  const reconcile = useRefWithInit(() => () => {
+    if (isDraggingElement(dragSessionStore.state, elementRef.current)) {
+      pendingReconcileRef.current = true;
+      return;
+    }
+    registrationRef(elementRef.current);
+  }).current;
+
   // Re-run the draggable registration when the handle node attaches or detaches so
   // the static setup follows it.
-  const updateHandleElement = (
-    handles: Array<{ token: object; node: HTMLElement }>,
-    node: HTMLElement | null,
-    token: object,
-  ) => {
+  const setHandleElement = useRefWithInit(() => (node: HTMLElement | null, token: object) => {
+    const handles = attachedHandlesRef.current;
     const index = handles.findIndex((handle) => handle.token === token);
     if (node) {
       if (index === -1) {
@@ -202,19 +202,7 @@ export function useDraggableElement<TPayload = undefined, TDragData = unknown>(
     } else if (index !== -1) {
       handles.splice(index, 1);
     }
-    // Re-registration tears the static setup down and rebuilds it, which mid-gesture
-    // would restore `user-select`/`touch-action` and drop the iOS touchmove guard.
-    // The live `handle` closure already reads `attachedHandlesRef` fresh, so skip
-    // the teardown mid-drag and flush the re-registration when the drag ends.
-    if (isDraggingElement(dragSessionStore.state, elementRef.current)) {
-      pendingReconcileRef.current = true;
-      return;
-    }
-    registrationRef(elementRef.current);
-  };
-
-  const setHandleElement = useRefWithInit(() => (node: HTMLElement | null, token: object) => {
-    updateHandleElement(attachedHandlesRef.current, node, token);
+    reconcile();
   }).current;
 
   // Reconcile the static gesture setup when `disabled` changes without a node
@@ -228,18 +216,10 @@ export function useDraggableElement<TPayload = undefined, TDragData = unknown>(
       isFirstReconcile.current = false;
       return;
     }
-    const element = elementRef.current;
-    if (!element) {
-      return;
-    }
-    if (isDraggingElement(dragSessionStore.state, element)) {
-      pendingReconcileRef.current = true;
-      return;
-    }
-    registrationRef(element);
-    // `registrationRef` and `elementRef` are stable; only the keys below should
-    // retrigger. `collision.element` is deliberately not one of them: the resolver
-    // is commonly an inline arrow, and re-registering the source and its
+    reconcile();
+    // `reconcile` is stable; only the keys below should retrigger.
+    // `collision.element` is deliberately not one of them: the resolver is
+    // commonly an inline arrow, and re-registering the source and its
     // participant on every render would churn the hovered target mid-drag. It is
     // read once, at registration.
     // eslint-disable-next-line react-hooks/exhaustive-deps

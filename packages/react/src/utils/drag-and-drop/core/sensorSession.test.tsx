@@ -79,11 +79,15 @@ describe('sensor session startup', () => {
     expect(() =>
       createPreviewAndStartSession({
         element,
-        dragHandle: null,
         dragSource: createDragSource(element, kind.id, undefined, null),
         initialInput: getInput(new MouseEvent('pointerdown', { clientX: 10, clientY: 10 })),
         initialTarget: element,
+        startReason: 'pointer',
+        pressPoint: { x: 10, y: 10 },
         onForceCleanup: vi.fn(),
+        isPickupCurrent: () => true,
+        acquire: vi.fn(),
+        release: vi.fn(),
         draggableParameters: {
           element,
           kind,

@@ -4,6 +4,7 @@ import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { fastObjectShallowCompare } from '@base-ui/utils/fastObjectShallowCompare';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useDraggableContext } from '../../draggable/DraggableContext';
+import type { DraggableContextValue } from '../../draggable/DraggableContext';
 import { useCSPContext } from '../../internals/csp-context/CSPContext';
 import type { CSPContextValue } from '../../internals/csp-context/CSPContext';
 import { applyDraggableStaticSetup, bindDraggableSensors } from './draggable';
@@ -14,15 +15,8 @@ import { onceCleanup } from './utils';
 import { setParticipantOwner } from './participantData';
 import { cancelDrag } from './cancelDrag';
 import { isActive } from './core/lifecycleManager';
-import { clearPublishedDragPreview, publishDragPreview } from './overlay/dragPreviewStore';
-import { useDragPreviewContext } from './overlay/DragPreviewContext';
-import type { DragPreviewContext } from './overlay/DragPreviewContext';
-import { throwMissingPreviewProvider } from './overlay/missingPreviewProvider';
-import {
-  getActiveDragPreviewSettings,
-  getActivePreview,
-  removeActivePreview,
-} from './activePreview';
+import { publishDragPreview } from './overlay/dragPreviewStore';
+import { getActiveDragPreviewSettings, getActivePreviewHandle } from './activePreview';
 import { retargetEndingPreviewSource } from './synthetic/syntheticPreview';
 import type {
   InternalDragEngine,
@@ -39,7 +33,7 @@ import type { LatestGetter } from './useRegistrationRef';
  */
 export class DragEngineBase {
   constructor(
-    private readonly getPreviewContext: LatestGetter<DragPreviewContext | null>,
+    private readonly getPreviewContext: LatestGetter<DraggableContextValue>,
     private readonly getCSPContext: LatestGetter<CSPContextValue>,
   ) {}
 
@@ -65,45 +59,32 @@ export class DragEngineBase {
       );
     }
 
-    // Always defined so every drag start clears any preview the previous drag left
-    // behind. This also covers a drop and next pickup landing in one React flush.
+    // Defined for every source: whether a drag has React content to publish is
+    // only known once the sensor has resolved the preview at drag start.
     const onGenerateDragPreview: DraggableConfig<TPayload, TDragData>['onGenerateDragPreview'] = (
       payload,
     ) => {
-      // Resolve the current preview boundary when the drag starts. Always
-      // present for the React parts and hooks, which throw without a
-      // `Draggable.Provider`; `null` only when the engine is used by an
-      // integration that never renders custom previews.
-      const previewContext = this.getPreviewContext();
-      // Clear any content the previous drag left in the shared overlay store.
-      clearPublishedDragPreview();
       // Resolved by the sensor, which built the preview element from them
       // before starting the session this runs inside.
       const settings = getActiveDragPreviewSettings();
-      // Only a host has React content to publish. Bail before
-      // `getActivePreview()` below, which reports hosts alone — a clone would
-      // read as "no preview" there and get torn straight back down.
+      // Only a host has React content to publish; the engine builds and manages
+      // a clone without React.
       if (settings == null || settings.render === null || settings.disabled) {
         return;
       }
-      // Authoritative: `useDeclaredPreview` throws earlier for a part, but an
-      // imperative source's `render` only surfaces here, and either way the
-      // params getter could have grown a `render` since registration.
-      if (previewContext == null) {
-        throwMissingPreviewProvider();
-      }
-      const preview = getActivePreview();
+      const preview = getActivePreviewHandle()?.getPreviewElement() ?? null;
       const previewNode = preview ? settings.render(payload) : null;
-      if (!isActive() || getActivePreview() !== preview) {
+      const handle = getActivePreviewHandle();
+      if (!isActive() || (handle?.getPreviewElement() ?? null) !== preview) {
         return;
       }
       // Content that resolves to nothing declines the preview for this drag. Drop
       // the host the sensor built, or an empty box would follow the pointer.
       if (preview == null || previewNode == null || previewNode === false) {
-        removeActivePreview();
+        handle?.removePreviewElement();
         return;
       }
-      publishDragPreview(previewContext, {
+      publishDragPreview(this.getPreviewContext(), {
         node: previewNode,
         host: preview.element,
         offset: settings.offset,
@@ -117,11 +98,10 @@ export class DragEngineBase {
     // Most parameters flow straight through the spread; only fields needing
     // preview wiring are overridden. The lifecycle reads this getter on every
     // event, so `normalized` is rebuilt only when its inputs changed. The compare
-    // runs against a shallow copy of the parameters it was built from: React
-    // callers hand back one object per render (which short-circuits on identity),
-    // while an imperative getter may mutate and return the same object every
-    // time, where only a field-by-field compare tells a changed frame from an
-    // unchanged one — still far cheaper than rebuilding the ~20-field object.
+    // runs field by field against a shallow copy of the parameters it was built
+    // from, never on identity: an imperative getter may mutate and return the same
+    // object every time, and only the copy tells a changed frame from an unchanged
+    // one. That is still far cheaper than rebuilding the ~20-field object.
     let lastParams: InternalDraggableParameters<TPayload, TDragData> | null = null;
     let lastCSPContext: CSPContextValue | null = null;
     let normalized: DraggableConfig<TPayload, TDragData> | null = null;
@@ -187,8 +167,8 @@ export class DragEngineImpl extends DragEngineBase implements InternalDragEngine
 }
 
 /**
- * The registration function `Draggable.Root` runs, bound to the current preview
- * provider and CSP context. Stable across renders.
+ * The registration function `Draggable.Root` runs, bound to the nearest
+ * `Draggable.Provider` and CSP context. Stable across renders.
  *
  * Returns the function rather than an object with one method on it: the caller
  * needs nothing else, and reaching for {@link useInnerDragEngine} here would pull
@@ -199,15 +179,14 @@ export function useRegisterSource(): DragEngineBase['registerSource'] {
   return useDragEngineInstance(DragEngineBase).registerSource;
 }
 
-/** One engine instance per hook call, bound to the nearest preview provider and CSP context. */
+/** One engine instance per hook call, bound to the nearest `Draggable.Provider` and CSP context. */
 function useDragEngineInstance<T extends DragEngineBase>(
   Engine: new (
-    getPreviewContext: LatestGetter<DragPreviewContext | null>,
+    getPreviewContext: LatestGetter<DraggableContextValue>,
     getCSPContext: LatestGetter<CSPContextValue>,
   ) => T,
 ): T {
-  useDraggableContext();
-  const previewContext = useDragPreviewContext();
+  const previewContext = useDraggableContext();
   const cspContext = useCSPContext();
   const getPreviewContext = useStableCallback(() => previewContext);
   const getCSPContext = useStableCallback(() => cspContext);

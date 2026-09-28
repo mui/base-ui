@@ -1,12 +1,9 @@
 import { afterEach, describe, it, expect, vi } from 'vitest';
 import { isJSDOM } from '#test-utils';
-import { installDndPolyfill } from '../../../../test/dndPolyfill';
 import { createSyntheticPreview, retargetEndingPreviewSource } from './syntheticPreview';
 import { restrictToElement, restrictToVerticalAxis } from '../dragModifiers';
 import type { DraggablePosition } from '../../../draggable/DraggableProvider';
 import type { DragPreviewElementHandle } from './cloneDragPreview';
-
-installDndPolyfill();
 
 /**
  * A stand-in for the element the engine builds next to the drag source. jsdom
