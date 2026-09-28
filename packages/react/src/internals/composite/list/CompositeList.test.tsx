@@ -1177,17 +1177,25 @@ describe('<CompositeList />', () => {
   });
 
   describe('without a parent list', () => {
-    it('renders an item that is not wrapped in a list', async () => {
-      function OrphanItem() {
-        const { ref, index } = useCompositeListItem();
-        return <div ref={ref} data-testid="orphan" data-index={index} />;
+    it('keeps items that are not wrapped in a list inert', async () => {
+      function OrphanItem(props: { testId: string; guess?: boolean }) {
+        const { ref, index } = useCompositeListItem({ guess: props.guess });
+        return <div ref={ref} data-testid={props.testId} data-index={index} />;
       }
 
-      const { unmount } = await render(<OrphanItem />);
+      const { unmount } = await render(
+        <React.Fragment>
+          <OrphanItem testId="orphan" />
+          <OrphanItem testId="guessing" guess />
+          <OrphanItem testId="guessing-again" guess />
+        </React.Fragment>,
+      );
 
-      // The default context no-ops keep a stray item inert rather than throwing.
-      expect(screen.getByTestId('orphan')).toBeInTheDocument();
+      // The default context no-ops keep stray items inert rather than throwing, and guesses
+      // must not come from a counter shared by every item rendered outside a list.
       expect(screen.getByTestId('orphan')).toHaveAttribute('data-index', '-1');
+      expect(screen.getByTestId('guessing')).toHaveAttribute('data-index', '-1');
+      expect(screen.getByTestId('guessing-again')).toHaveAttribute('data-index', '-1');
       expect(() => unmount()).not.toThrow();
     });
   });

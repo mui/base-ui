@@ -30,6 +30,8 @@ interface CompositeListRegistry<Metadata> {
   listeners: Set<Function> | null;
   /** The last flushed snapshot, or `null` before the first flush. */
   items: readonly CompositeListItem<Metadata>[] | null;
+  /** The render-order index reserved for the next item that guesses. */
+  nextIndex: number;
   /** Starts dirty so the mount commit flushes the registrations collected while mounting. */
   dirty: boolean;
   observer: MutationObserver | null;
@@ -108,6 +110,7 @@ function createRegistry<Metadata>(
     registrations: null,
     listeners: null,
     items: null,
+    nextIndex: 0,
     dirty: true,
     observer: null,
     requestFlush,
@@ -130,7 +133,11 @@ function createRegistry<Metadata>(
           listeners.delete(fn);
         };
       },
-      nextIndexRef: { current: 0 },
+      guessIndex() {
+        const index = registry.nextIndex;
+        registry.nextIndex += 1;
+        return index;
+      },
     },
   };
 
@@ -205,7 +212,7 @@ function syncRefs<Metadata>(
     }
   });
 
-  registry.context.nextIndexRef.current = elements.length;
+  registry.nextIndex = elements.length;
 
   return nextMap;
 }

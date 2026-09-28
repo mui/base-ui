@@ -34,21 +34,20 @@ export function useCompositeListItem<Metadata>(
 ): UseCompositeListItemReturnValue {
   const { guess, label, metadata, textRef, index: externalIndex } = params;
 
-  const { register, unregister, subscribeMapChange, nextIndexRef } = useCompositeListContext();
+  const { register, unregister, subscribeMapChange, guessIndex } = useCompositeListContext();
 
   // Guess the index from the render order. This avoids a re-render after mount for
   // flat lists rendered in DOM order; when the guess is wrong (grouped or out-of-order
-  // rendering), the commit flush corrects it before paint.
-  const indexRef = React.useRef(-1);
+  // rendering), the commit flush corrects it before paint. Strict Mode invokes the
+  // initializer twice per render, so the guess is scoped to the render to reserve one index.
+  let guessedIndex = -1;
   const [internalIndex, setInternalIndex] = React.useState<number>(
     externalIndex == null && guess
       ? () => {
-          if (indexRef.current === -1) {
-            const newIndex = nextIndexRef.current;
-            nextIndexRef.current += 1;
-            indexRef.current = newIndex;
+          if (guessedIndex === -1) {
+            guessedIndex = guessIndex();
           }
-          return indexRef.current;
+          return guessedIndex;
         }
       : -1,
   );
