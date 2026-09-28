@@ -702,6 +702,53 @@ describe('<CompositeList />', () => {
       expect(observedRoots).toEqual([screen.getByTestId('list')]);
     });
 
+    it('does not re-render an item whose index is unchanged when it has pending work', async () => {
+      const renderCounts: Record<string, number> = { a: 0, b: 0 };
+      const rerenderItem: Record<string, () => void> = {};
+
+      const CountedItem = React.memo(function CountedItem(props: { label: string }) {
+        const { ref, index } = useCompositeListItem({ guess: true });
+        const [, rerender] = React.useReducer((count: number) => count + 1, 0);
+        rerenderItem[props.label] = rerender;
+        renderCounts[props.label] += 1;
+        return <div ref={ref} data-testid={props.label} data-index={index} />;
+      });
+
+      function App() {
+        const [items, setItems] = React.useState(['a']);
+        const elementsRef = React.useRef<Array<HTMLElement | null>>([]);
+        return (
+          <React.Fragment>
+            <button
+              type="button"
+              onClick={() => {
+                // Batched with the mount below, so the existing item renders in the same commit
+                // and its fiber still carries the update's lane when the list flushes. React
+                // cannot bail out of a same-value `setState` eagerly in that state.
+                rerenderItem.a();
+                setItems(['a', 'b']);
+              }}
+            >
+              Add item
+            </button>
+            <CompositeList elementsRef={elementsRef}>
+              {items.map((item) => (
+                <CountedItem key={item} label={item} />
+              ))}
+            </CompositeList>
+          </React.Fragment>
+        );
+      }
+
+      const { user } = await render(<App />, { strict: false });
+      expect(renderCounts.a).toBe(1);
+
+      await user.click(screen.getByRole('button', { name: 'Add item' }));
+
+      expect(screen.getByTestId('b')).toHaveAttribute('data-index', '1');
+      expect(renderCounts).toEqual({ a: 2, b: 1 });
+    });
+
     it('updates indexes when keyed groups reorder', async () => {
       function App() {
         const [reordered, setReordered] = React.useState(false);

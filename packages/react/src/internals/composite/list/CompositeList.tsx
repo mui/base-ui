@@ -26,8 +26,6 @@ interface CompositeListRegistry<Metadata> {
   onMapChange: ((newMap: Map<Element, CompositeMetadata<Metadata>>) => void) | undefined;
   /** Allocated by the first registration. */
   registrations: Map<Element, CompositeListRegistration<Metadata>> | null;
-  /** Allocated by the first subscription. */
-  listeners: Set<Function> | null;
   /** The last flushed snapshot, or `null` before the first flush. */
   items: readonly CompositeListItem<Metadata>[] | null;
   /** The render-order index reserved for the next item that guesses. */
@@ -108,7 +106,6 @@ function createRegistry<Metadata>(
     labelsRef,
     onMapChange: undefined,
     registrations: null,
-    listeners: null,
     items: null,
     nextIndex: 0,
     dirty: true,
@@ -117,21 +114,19 @@ function createRegistry<Metadata>(
     context: {
       register(node, registration) {
         registry.registrations ??= new Map();
-        registry.registrations.set(node, registration);
+        const shadowed = registry.registrations.get(node);
+        registry.registrations.set(
+          node,
+          shadowed && shadowed.setIndex !== registration.setIndex
+            ? shareIndex(shadowed, registration)
+            : registration,
+        );
         markDirty(registry);
       },
       unregister(node) {
         if (registry.registrations?.delete(node)) {
           markDirty(registry);
         }
-      },
-      subscribeMapChange(fn) {
-        registry.listeners ??= new Set();
-        const listeners = registry.listeners;
-        listeners.add(fn);
-        return () => {
-          listeners.delete(fn);
-        };
       },
       guessIndex() {
         const index = registry.nextIndex;
@@ -142,6 +137,21 @@ function createRegistry<Metadata>(
   };
 
   return registry;
+}
+
+// Nested items can attach to one DOM node. The last attached registration owns the entry,
+// but every item attached to the node still renders with the node's index.
+function shareIndex<Metadata>(
+  shadowed: CompositeListRegistration<Metadata>,
+  registration: CompositeListRegistration<Metadata>,
+): CompositeListRegistration<Metadata> {
+  return {
+    ...registration,
+    setIndex(index) {
+      shadowed.setIndex(index);
+      registration.setIndex(index);
+    },
+  };
 }
 
 // Item refs can attach without their list rendering. Request one synchronous list update
@@ -182,7 +192,12 @@ function flush<Metadata>(registry: CompositeListRegistry<Metadata>) {
     return;
   }
 
-  registry.listeners?.forEach((listener) => listener(nextMap));
+  items.forEach((item) => {
+    if (item.registration.index === null) {
+      item.registration.setIndex(item.index);
+    }
+  });
+
   registry.onMapChange?.(nextMap);
 }
 

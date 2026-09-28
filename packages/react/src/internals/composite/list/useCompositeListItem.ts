@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { useCompositeListContext } from './CompositeListContext';
 
 export interface UseCompositeListItemParameters<Metadata> {
@@ -26,6 +26,13 @@ interface UseCompositeListItemReturnValue {
   index: number;
 }
 
+interface CompositeListItemHandle {
+  element: Element | null;
+  /** The index the item renders with: the initial guess, then the last one the list delivered. */
+  index: number;
+  setIndex: (index: number) => void;
+}
+
 /**
  * Used to register a list item and its index (DOM position) in the `CompositeList`.
  */
@@ -34,7 +41,7 @@ export function useCompositeListItem<Metadata>(
 ): UseCompositeListItemReturnValue {
   const { guess, label, metadata, textRef, index: externalIndex } = params;
 
-  const { register, unregister, subscribeMapChange, guessIndex } = useCompositeListContext();
+  const { register, unregister, guessIndex } = useCompositeListContext();
 
   // Guess the index from the render order. This avoids a re-render after mount for
   // flat lists rendered in DOM order; when the guess is wrong (grouped or out-of-order
@@ -53,20 +60,18 @@ export function useCompositeListItem<Metadata>(
   );
   const index = externalIndex ?? internalIndex;
 
-  const componentRef = React.useRef<Element | null>(null);
+  const handle = useRefWithInit(() => createHandle(internalIndex, setInternalIndex)).current;
 
   // Deliberately identity-sensitive: nested items sharing one DOM node rely on ref attachment
   // order to decide which registration wins, and republishing from an effect instead would let
   // an inner item's later update silently take ownership from the outer one.
   const ref = React.useCallback(
     (node: HTMLElement | null) => {
-      const previousNode = componentRef.current;
-
-      if (previousNode) {
-        unregister(previousNode);
+      if (handle.element) {
+        unregister(handle.element);
       }
 
-      componentRef.current = node;
+      handle.element = node;
 
       if (node) {
         register(node, {
@@ -74,25 +79,31 @@ export function useCompositeListItem<Metadata>(
           index: externalIndex ?? null,
           label,
           textRef,
+          setIndex: handle.setIndex,
         });
       }
     },
-    [externalIndex, register, unregister, metadata, label, textRef],
+    [externalIndex, register, unregister, metadata, label, textRef, handle],
   );
 
-  useIsoLayoutEffect(() => {
-    if (externalIndex != null) {
-      return undefined;
-    }
-
-    return subscribeMapChange((map) => {
-      const i = componentRef.current ? map.get(componentRef.current)?.index : null;
-
-      if (i != null) {
-        setInternalIndex(i);
-      }
-    });
-  }, [externalIndex, subscribeMapChange]);
-
   return { ref, index };
+}
+
+function createHandle(
+  initialIndex: number,
+  setInternalIndex: React.Dispatch<React.SetStateAction<number>>,
+): CompositeListItemHandle {
+  const handle: CompositeListItemHandle = {
+    element: null,
+    index: initialIndex,
+    setIndex(index) {
+      // React only bails out of a same-value update eagerly when the fiber has no pending work,
+      // so an unchanged index is filtered here to spare the item a render.
+      if (handle.index !== index) {
+        handle.index = index;
+        setInternalIndex(index);
+      }
+    },
+  };
+  return handle;
 }
