@@ -1,4 +1,6 @@
+import * as React from 'react';
 import { afterEach, it, expect } from 'vitest';
+import { render } from '@testing-library/react';
 import { isJSDOM } from '#test-utils';
 import { visuallyHidden, visuallyHiddenInput } from '@base-ui/utils/visuallyHidden';
 import { getTabbableNearElement, isTabbable, tabbable } from './tabbable';
@@ -305,21 +307,19 @@ it.skipIf(isJSDOM)('keeps zero-size elements in the tab order', () => {
 });
 
 it('keeps visuallyHidden elements in the tab order', () => {
-  const button = document.createElement('button');
-
-  Object.assign(button.style, visuallyHidden);
-  document.body.append(button);
+  // Rendered through React, which turns the style's unitless lengths into pixels.
+  const button = render(React.createElement('button', { style: visuallyHidden })).container
+    .firstElementChild as HTMLButtonElement;
+  expect(button.style.width).toBe('1px');
 
   expect(isTabbable(button)).toBe(true);
   expect(tabbable(document.body)).toContain(button);
 });
 
 it('keeps visuallyHiddenInput elements in the tab order', () => {
-  const input = document.createElement('input');
-
-  input.type = 'checkbox';
-  Object.assign(input.style, visuallyHiddenInput);
-  document.body.append(input);
+  const input = render(
+    React.createElement('input', { type: 'checkbox', style: visuallyHiddenInput }),
+  ).container.firstElementChild as HTMLInputElement;
 
   expect(isTabbable(input)).toBe(true);
   expect(tabbable(document.body)).toContain(input);
