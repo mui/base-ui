@@ -4,7 +4,11 @@ import * as React from 'react';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { CompositeListContext, type CompositeListRegistration } from './CompositeListContext';
+import {
+  CompositeListContext,
+  type CompositeListContextValue,
+  type CompositeListRegistration,
+} from './CompositeListContext';
 
 export type CompositeMetadata<CustomMetadata> = {
   index: number;
@@ -17,10 +21,13 @@ interface CompositeListItem<Metadata> {
 }
 
 /**
- * Provides context for a list of items in a composite component.
+ * Tracks the items registered through the returned context and keeps `elementsRef` and
+ * `labelsRef` ordered by index. Render the value with `CompositeListContext.Provider`.
  */
-export function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
-  const { children, elementsRef, labelsRef, onMapChange: onMapChangeProp } = props;
+export function useCompositeList<Metadata>(
+  params: UseCompositeListParameters<Metadata>,
+): CompositeListContextValue<Metadata> {
+  const { elementsRef, labelsRef, onMapChange: onMapChangeProp } = params;
 
   const onMapChange = useStableCallback(onMapChangeProp);
 
@@ -206,13 +213,20 @@ export function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
     };
   });
 
-  const contextValue = React.useMemo(
+  return React.useMemo(
     () => ({ register, unregister, subscribeMapChange, nextIndexRef }),
     [register, unregister, subscribeMapChange, nextIndexRef],
   );
+}
+
+/**
+ * Provides context for a list of items in a composite component.
+ */
+export function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
+  const context = useCompositeList(props);
 
   return (
-    <CompositeListContext.Provider value={contextValue}>{children}</CompositeListContext.Provider>
+    <CompositeListContext.Provider value={context}>{props.children}</CompositeListContext.Provider>
   );
 }
 
@@ -303,8 +317,7 @@ function sortByDocumentPosition(a: Element, b: Element) {
 
 export interface CompositeListState {}
 
-export interface CompositeListProps<Metadata> {
-  children: React.ReactNode;
+export interface UseCompositeListParameters<Metadata> {
   /**
    * A ref to the list of HTML elements, ordered by their index.
    * Explicit indexes can leave empty slots in the array.
@@ -317,6 +330,10 @@ export interface CompositeListProps<Metadata> {
    */
   labelsRef?: React.RefObject<Array<string | null>> | undefined;
   onMapChange?: ((newMap: Map<Element, CompositeMetadata<Metadata>>) => void) | undefined;
+}
+
+export interface CompositeListProps<Metadata> extends UseCompositeListParameters<Metadata> {
+  children: React.ReactNode;
 }
 
 export namespace CompositeList {

@@ -3,7 +3,8 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { act, screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, mergeRefs } from '#test-utils';
-import { CompositeList } from './CompositeList';
+import { CompositeList, useCompositeList } from './CompositeList';
+import { CompositeListContext } from './CompositeListContext';
 import { useCompositeListItem } from './useCompositeListItem';
 
 describe('<CompositeList />', () => {
@@ -1134,6 +1135,44 @@ describe('<CompositeList />', () => {
       expect(screen.getByTestId('a')).toHaveAttribute('data-index', '0');
       expect(screen.getByTestId('b')).toHaveAttribute('data-index', '1');
       expect(elementsRef.current).toEqual([screen.getByTestId('a'), screen.getByTestId('b')]);
+    });
+  });
+
+  describe('useCompositeList', () => {
+    it('lets a consumer provide the context itself', async () => {
+      const elementsRef = {
+        current: [] as Array<HTMLElement | null>,
+      };
+      const onMapChange = vi.fn();
+
+      function Item(props: { label: string }) {
+        const { ref, index } = useCompositeListItem();
+        return <div ref={ref} data-testid={props.label} data-index={index} />;
+      }
+
+      function List(props: { children: React.ReactNode }) {
+        const context = useCompositeList({ elementsRef, onMapChange });
+        return (
+          <CompositeListContext.Provider value={context}>
+            {props.children}
+          </CompositeListContext.Provider>
+        );
+      }
+
+      const { unmount } = await render(
+        <List>
+          <Item label="a" />
+          <Item label="b" />
+        </List>,
+      );
+
+      expect(elementsRef.current).toEqual([screen.getByTestId('a'), screen.getByTestId('b')]);
+      expect(screen.getByTestId('b')).toHaveAttribute('data-index', '1');
+      const map = onMapChange.mock.lastCall?.[0] as Map<Element, { index: number }>;
+      expect(Array.from(map.values(), (metadata) => metadata.index)).toEqual([0, 1]);
+
+      unmount();
+      expect(elementsRef.current).toHaveLength(0);
     });
   });
 
