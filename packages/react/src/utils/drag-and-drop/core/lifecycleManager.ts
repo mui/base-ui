@@ -29,7 +29,7 @@ import type { DraggableConfig } from '../draggable';
 import { createDragEventDetails, createMoveEndEventDetails } from '../dragEventDetails';
 import {
   captureDropTargetCollision,
-  clearRetiringDropTargets,
+  endDropTargetSession,
   setSessionGrabOffset,
   dispatchDropTargetChange,
   dispatchDropTargetLeave,
@@ -777,8 +777,9 @@ export function start(parameters: StartParameters): DragSessionController | null
     } finally {
       clearActiveMonitors();
       // Whatever a hovered-then-unregistered target left behind: its leave either
-      // went out (releasing the hold) or the drag is over and never will.
-      clearRetiringDropTargets();
+      // went out (releasing the hold) or the drag is over and never will. The
+      // per-target drag data goes with the drag.
+      endDropTargetSession();
       setSessionGrabOffset(null);
       setDragSession(null);
     }

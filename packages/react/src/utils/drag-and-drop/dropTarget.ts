@@ -98,7 +98,7 @@ interface DropTargetState {
    * active hold and `dispatchToDropTarget` would have nothing to dispatch through.
    *
    * Keyed by the retiring element rather than kept per session: entries are
-   * released the moment their leave is delivered, and {@link clearRetiringDropTargets}
+   * released the moment their leave is delivered, and {@link endDropTargetSession}
    * sweeps whatever a torn-down drag left behind.
    */
   retiring: Map<Element, DropTargetGetter>;
@@ -262,9 +262,15 @@ export function retainRetiringDropTarget(element: Element, getParameters: DropTa
   }
 }
 
-/** Drop every retiring hold; run from the lifecycle's teardown. */
-export function clearRetiringDropTargets(): void {
+/**
+ * Drop every retiring hold and the drag's per-target data; run from the
+ * lifecycle's teardown. A mounted target keeps its getter alive, so data keyed
+ * on it would otherwise retain the finished drag's source until the next one.
+ * Records already handed out keep their own reference to their data.
+ */
+export function endDropTargetSession(): void {
   state.retiring.clear();
+  state.dragData = new WeakMap<DropTargetGetter, TargetDragData>();
 }
 
 /**

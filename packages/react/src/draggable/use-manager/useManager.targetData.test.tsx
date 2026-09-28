@@ -75,10 +75,14 @@ describe('drop target imperative data', () => {
     await dragEnter(target);
     expect(current!.dragData).toBe(42);
     cancel();
+    // A record from a finished drag keeps its data after the session ends.
+    const finished = current!;
+    expect(finished.dragData).toBe(42);
 
     await lift(source);
     await dragEnter(target);
     expect(current!.dragData).toBeUndefined();
+    expect(finished.dragData).toBe(42);
     cancel();
   });
 
