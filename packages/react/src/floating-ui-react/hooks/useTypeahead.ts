@@ -76,12 +76,13 @@ export function useTypeahead(store: FloatingRootContext, props: UseTypeaheadProp
     activeIndex,
     onMatch: onMatchProp,
     disabledIndices,
-    onTyping,
+    onTyping: onTypingProp,
     enabled = true,
     resetMs = 750,
     selectedIndex = null,
   } = props;
 
+  const onTyping = useStableCallback(onTypingProp);
   const open = store.useState('open');
 
   const timeout = useTimeout();
@@ -231,8 +232,9 @@ export function useTypeahead(store: FloatingRootContext, props: UseTypeaheadProp
 
     if (stringRef.current !== '') {
       stringRef.current = '';
+      onTyping?.(false);
     }
-  }, [open, selectedIndex, timeout]);
+  }, [open, selectedIndex, timeout, onTyping]);
 
   const sharedProps = React.useMemo(() => ({ onKeyDown, onBlur }), [onKeyDown, onBlur]);
 
