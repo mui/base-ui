@@ -13,7 +13,7 @@ import { DirectionProvider } from '@base-ui/react/direction-provider';
 import { Dialog } from '@base-ui/react/dialog';
 import { Menu } from '@base-ui/react/menu';
 import { ScrollArea } from '@base-ui/react/scroll-area';
-import userEvent from '@testing-library/user-event';
+import type userEvent from '@testing-library/user-event';
 import { createRenderer, isJSDOM, resetBrowserPointer, waitSingleFrame } from '#test-utils';
 
 // Mainline tests assert the non-WebKit path; MenuFilterRoot.webkit.test.tsx covers its compatibility state.

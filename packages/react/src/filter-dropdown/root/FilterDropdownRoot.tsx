@@ -12,9 +12,11 @@ import {
   FilterDropdownRootContext,
   FilterDropdownItemContext,
   FilterDropdownValueContext,
-  type FilterDropdownItemRegistration,
-  type FilterDropdownFilter,
-  type FilterDropdownRoot as FilterDropdownRootNamespace,
+} from './FilterDropdownRootContext';
+import type {
+  FilterDropdownItemRegistration,
+  FilterDropdownFilter,
+  FilterDropdownRoot as FilterDropdownRootNamespace,
 } from './FilterDropdownRootContext';
 import { FilterDropdownStore } from '../store';
 

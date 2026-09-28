@@ -1,5 +1,5 @@
 'use client';
-import * as React from 'react';
+import type * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useEnhancedClickHandler } from '@base-ui/utils/useEnhancedClickHandler';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';

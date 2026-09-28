@@ -2,7 +2,8 @@
 import * as React from 'react';
 import { useMenuFilterPopup } from './useMenuFilterPopup';
 import type { FloatingFocusManagerProps } from '../../floating-ui-react/components/FloatingFocusManager';
-import { MenuPopupPlain, type MenuPopupProps } from '../popup/MenuPopup';
+import { MenuPopupPlain } from '../popup/MenuPopup';
+import type { MenuPopupProps } from '../popup/MenuPopup';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { mergeProps } from '../../merge-props';
 import { REASONS } from '../../internals/reasons';

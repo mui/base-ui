@@ -2,7 +2,8 @@
 import * as React from 'react';
 import { useFilterDropdownGroup } from '../../filter-dropdown/group/useFilterDropdownGroup';
 import { FilterDropdownGroupContext } from '../../filter-dropdown/group/FilterDropdownGroupContext';
-import { MenuRadioGroupPlain, type MenuRadioGroupProps } from '../radio-group/MenuRadioGroup';
+import { MenuRadioGroupPlain } from '../radio-group/MenuRadioGroup';
+import type { MenuRadioGroupProps } from '../radio-group/MenuRadioGroup';
 
 /**
  * Groups related radio items in the filter menu.

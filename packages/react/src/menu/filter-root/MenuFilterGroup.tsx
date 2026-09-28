@@ -2,7 +2,8 @@
 import * as React from 'react';
 import { useFilterDropdownGroup } from '../../filter-dropdown/group/useFilterDropdownGroup';
 import { FilterDropdownGroupContext } from '../../filter-dropdown/group/FilterDropdownGroupContext';
-import { MenuGroupPlain, type MenuGroupProps } from '../group/MenuGroup';
+import { MenuGroupPlain } from '../group/MenuGroup';
+import type { MenuGroupProps } from '../group/MenuGroup';
 
 /**
  * Groups related filter menu items with a corresponding label.

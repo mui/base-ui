@@ -4,10 +4,8 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { useStore } from '@base-ui/utils/store';
-import {
-  useFilterDropdownItemContext,
-  type FilterDropdownItemContext,
-} from '../root/FilterDropdownRootContext';
+import { useFilterDropdownItemContext } from '../root/FilterDropdownRootContext';
+import type { FilterDropdownItemContext } from '../root/FilterDropdownRootContext';
 import { useFilterDropdownGroupContext } from '../group/FilterDropdownGroupContext';
 import { DETACHED_OWNER, selectors } from '../store';
 

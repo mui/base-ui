@@ -4,10 +4,8 @@ import { useStore } from '@base-ui/utils/store';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { useFilterDropdownItemContext } from '../root/FilterDropdownRootContext';
-import {
-  FilterDropdownGroupContext,
-  useFilterDropdownGroupContext,
-} from './FilterDropdownGroupContext';
+import type { FilterDropdownGroupContext } from './FilterDropdownGroupContext';
+import { useFilterDropdownGroupContext } from './FilterDropdownGroupContext';
 import type { State as StoreState } from '../store';
 import { useItemRegistry } from '../../internals/useItemRegistry';
 

@@ -1,9 +1,9 @@
 'use client';
 import * as React from 'react';
-import {
-  FilterDropdownInput,
-  type FilterDropdownInputProps,
-  type FilterDropdownInputState,
+import { FilterDropdownInput } from '../../filter-dropdown/input/FilterDropdownInput';
+import type {
+  FilterDropdownInputProps,
+  FilterDropdownInputState,
 } from '../../filter-dropdown/input/FilterDropdownInput';
 import { useFilterDropdownValueContext } from '../../filter-dropdown/root/FilterDropdownRootContext';
 import { mergeProps } from '../../merge-props';

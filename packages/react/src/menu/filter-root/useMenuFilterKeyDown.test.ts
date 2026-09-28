@@ -1,6 +1,7 @@
 import { expect, describe, it } from 'vitest';
 import type * as React from 'react';
-import { getMenuFilterKeyAction, type MenuFilterKeyAction } from './useMenuFilterKeyDown';
+import { getMenuFilterKeyAction } from './useMenuFilterKeyDown';
+import type { MenuFilterKeyAction } from './useMenuFilterKeyDown';
 
 function key(value: string, init: Partial<React.KeyboardEvent> = {}) {
   return {

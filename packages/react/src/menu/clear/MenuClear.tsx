@@ -1,9 +1,9 @@
 'use client';
 import * as React from 'react';
-import {
-  FilterDropdownClear,
-  type FilterDropdownClearProps,
-  type FilterDropdownClearState,
+import { FilterDropdownClear } from '../../filter-dropdown/clear/FilterDropdownClear';
+import type {
+  FilterDropdownClearProps,
+  FilterDropdownClearState,
 } from '../../filter-dropdown/clear/FilterDropdownClear';
 import { useMenuFilterPart } from '../filter-root/MenuFilterContext';
 

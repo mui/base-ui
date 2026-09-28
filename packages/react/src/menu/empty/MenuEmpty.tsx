@@ -1,9 +1,9 @@
 'use client';
 import * as React from 'react';
-import {
-  FilterDropdownEmpty,
-  type FilterDropdownEmptyProps,
-  type FilterDropdownEmptyState,
+import { FilterDropdownEmpty } from '../../filter-dropdown/empty/FilterDropdownEmpty';
+import type {
+  FilterDropdownEmptyProps,
+  FilterDropdownEmptyState,
 } from '../../filter-dropdown/empty/FilterDropdownEmpty';
 import { useMenuFilterPart } from '../filter-root/MenuFilterContext';
 

@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
-import { MenuRootInternal, type MenuRoot } from '../root/MenuRoot';
+import { MenuRootInternal } from '../root/MenuRoot';
+import type { MenuRoot } from '../root/MenuRoot';
 import type { MenuFilterProviderOptions } from '../filter-provider/MenuFilterProviderOptions';
 import { MenuFilterDropdown } from './MenuFilterDropdown';
 import { useMenuFilterRoot } from './useMenuFilterRoot';
