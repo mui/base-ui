@@ -6,7 +6,6 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { NOOP } from '@base-ui/utils/empty';
 import { getFilter } from '../../internals/filter';
 import { useBaseUiId } from '../../internals/useBaseUiId';
-import { getMinListIndex } from '../../floating-ui-react/utils/composite';
 import { useItemRegistry } from '../../internals/useItemRegistry';
 import {
   FilterDropdownRootContext,
@@ -86,13 +85,6 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
 
   const handleValueChange = useStableCallback(onValueChange ?? NOOP);
 
-  // Disabled items can't be the automatic highlight. With nothing rendered yet this is 0, which
-  // the list settles onto once the items register.
-  const highlightFirst = useStableCallback(() => {
-    const index = getMinListIndex(listRef);
-    setActiveIndex(index < Math.max(listRef.current.length, 1) ? index : null);
-  });
-
   const onItemsChange = useStableCallback((previousItems: readonly (HTMLElement | null)[]) => {
     const items = listRef.current;
     const activeIndex = getActiveIndex();
@@ -111,11 +103,7 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
       return;
     }
 
-    if (autoHighlightEnabled && items.length > 0) {
-      highlightFirst();
-    } else {
-      setActiveIndex(null);
-    }
+    setActiveIndex(autoHighlightEnabled && items.length > 0 ? 0 : null);
   });
 
   // React 17 resolves generated ids in an effect, so they must be read live rather than captured
@@ -147,7 +135,7 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
       // Registry updates, such as an item's text changing, keep the current highlight.
       if (autoHighlightEnabled && liveItems.size > 0) {
         if (queryChanged || getActiveIndex() == null) {
-          highlightFirst();
+          setActiveIndex(0);
         }
       } else if (filterQuery === '' && queryChanged) {
         setActiveIndex(null);
@@ -177,14 +165,14 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
       // The first filtered snapshot can land after initial keyboard navigation in React 18. It
       // has no prior result identity to invalidate, unless the controlled query itself changed.
       if (autoHighlightEnabled && nextIds.size > 0) {
-        highlightFirst();
+        setActiveIndex(0);
       } else if (currentIds !== null || queryChanged) {
         setActiveIndex(null);
       }
       resultChangedRef.current ||= currentIds !== null || nextIds.size !== liveItems.size;
       store.set('visibleItemIds', nextIds);
     } else if (autoHighlightEnabled && queryChanged && nextIds.size > 0) {
-      highlightFirst();
+      setActiveIndex(0);
     }
   }, [
     open,
@@ -197,7 +185,6 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
     store,
     setActiveIndex,
     getActiveIndex,
-    highlightFirst,
   ]);
 
   const contextValue: FilterDropdownRootContext = React.useMemo(

@@ -627,67 +627,6 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
         expect(deleteItem).toHaveAttribute('data-highlighted');
       });
 
-      it.each([true, 'always'] as const)(
-        'skips a disabled first match with autoHighlight=%s',
-        async (autoHighlight) => {
-          const { user } = await render(
-            <Menu.FilterProvider autoHighlight={autoHighlight}>
-              <Menu.Root open>
-                <Menu.Portal>
-                  <Menu.Positioner>
-                    <Menu.Popup>
-                      <Menu.Input aria-label="Filter actions" />
-                      <Menu.List>
-                        <Menu.Item disabled>Save (read-only)</Menu.Item>
-                        <Menu.Item>Save as</Menu.Item>
-                        <Menu.Item>Delete</Menu.Item>
-                      </Menu.List>
-                    </Menu.Popup>
-                  </Menu.Positioner>
-                </Menu.Portal>
-              </Menu.Root>
-            </Menu.FilterProvider>,
-          );
-
-          const input = screen.getByRole('searchbox', { name: 'Filter actions' });
-          await user.type(input, 'sav');
-
-          const saveAs = screen.getByRole('menuitem', { name: 'Save as' });
-          await waitFor(() => {
-            expect(input).toHaveAttribute('aria-activedescendant', saveAs.id);
-          });
-          expect(screen.getByRole('menuitem', { name: 'Save (read-only)' })).not.toHaveAttribute(
-            'data-highlighted',
-          );
-        },
-      );
-
-      it('highlights the first enabled item on open with autoHighlight="always"', async () => {
-        await render(
-          <Menu.FilterProvider autoHighlight="always">
-            <Menu.Root open>
-              <Menu.Portal>
-                <Menu.Positioner>
-                  <Menu.Popup>
-                    <Menu.Input aria-label="Filter actions" />
-                    <Menu.List>
-                      <Menu.Item disabled>Unavailable</Menu.Item>
-                      <Menu.Item>Rename</Menu.Item>
-                    </Menu.List>
-                  </Menu.Popup>
-                </Menu.Positioner>
-              </Menu.Portal>
-            </Menu.Root>
-          </Menu.FilterProvider>,
-        );
-
-        const input = screen.getByRole('searchbox', { name: 'Filter actions' });
-        const rename = screen.getByRole('menuitem', { name: 'Rename' });
-        await waitFor(() => {
-          expect(input).toHaveAttribute('aria-activedescendant', rename.id);
-        });
-      });
-
       it('keeps the highlight when an item\'s text changes with autoHighlight="always"', async () => {
         function Test(props: { count: number }) {
           return (
