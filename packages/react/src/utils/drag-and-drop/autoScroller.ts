@@ -82,6 +82,7 @@ const state = getSharedSlot<AutoScrollerState>('registerViewport', () => ({
   currentSource: null,
   currentDropTargetElement: null,
   engagementStart: new Map<HTMLElement, number>(),
+  overflowEligible: new Set<HTMLElement>(),
   chainAnchor: null,
   chainAnchorParent: null,
   chainSourceParent: null,
@@ -126,6 +127,7 @@ export function addScrollerRegistration(
     release();
     if (!state.scrollers.has(element)) {
       clearScrollerMutationObserver(element);
+      state.overflowEligible.delete(element);
     }
     invalidateScrollerOrder();
   };
@@ -649,21 +651,39 @@ function runScrollFrame(timestamp: number): void {
       registration.disabled ||
       !matchesAccept(registration.accept, currentSource)
     ) {
+      state.overflowEligible.delete(element);
       candidates.set(element, null);
       return null;
     }
     const pageScroller = resolvePageScroller(element);
     const rect = pageScroller ? getViewportRect(element) : element.getBoundingClientRect();
+    const overflowRect = expandScrollRect(
+      rect,
+      normalizeOverflowMargin(registration.overflowMargin),
+    );
+    if (resolveProbePoint(currentInput, currentReportedInput, rect, false) !== null) {
+      state.overflowEligible.add(element);
+    } else if (
+      resolveProbePoint(currentInput, currentReportedInput, overflowRect, false) === null
+    ) {
+      state.overflowEligible.delete(element);
+    }
     const candidate = {
       registration,
       getParameters,
       pageScroller,
       rect,
-      overflowRect: expandScrollRect(rect, normalizeOverflowMargin(registration.overflowMargin)),
+      overflowRect: state.overflowEligible.has(element) ? overflowRect : rect,
     };
     candidates.set(element, candidate);
     return candidate;
   };
+  // Update entry/exit history even when an inner viewport consumes both axes.
+  // Otherwise an outer viewport could retain permission after the pointer left
+  // its margin, or miss an entry while the inner viewport was scrolling.
+  for (const element of sortedElements) {
+    readCandidate(element);
+  }
   const preferReported = reportedPointHasCandidate(
     sortedElements,
     currentInput,
@@ -681,7 +701,7 @@ function runScrollFrame(timestamp: number): void {
     const overflowPass = elements === overflowElements;
     for (const element of elements) {
       // Inner-first ordering: once both axes are consumed no remaining (outer)
-      // scroller can engage, so skip their rect reads and consumer callbacks.
+      // scroller can engage, so skip their scroll callbacks.
       if (verticalConsumed && horizontalConsumed) {
         break;
       }
@@ -1114,6 +1134,7 @@ function startScrollLoop(): void {
   }
   state.lastTimestamp = 0;
   state.engagementStart.clear();
+  state.overflowEligible.clear();
   clearObservedChain();
   resetStyleCaches();
   state.scrollLoopRaf = requestScrollFrame();
@@ -1144,6 +1165,7 @@ function stopScrollLoop(): void {
   state.currentSource = null;
   state.currentDropTargetElement = null;
   state.engagementStart.clear();
+  state.overflowEligible.clear();
   // Scratch set from the last frame; it would otherwise pin those containers
   // until the next drag's first frame cleared it.
   state.engagedThisFrame.clear();
@@ -1447,6 +1469,8 @@ interface AutoScrollerState {
   currentDropTargetElement: Element | null;
   /** When the pointer first entered each element's edge zone. */
   engagementStart: Map<HTMLElement, number>;
+  /** Viewports entered during this drag without subsequently leaving their margin. */
+  overflowEligible: Set<HTMLElement>;
   /** The active hit/source element whose ancestors are observed for restyles. */
   chainAnchor: Element | null;
   /**

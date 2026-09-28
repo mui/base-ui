@@ -72,6 +72,76 @@ describe('engine.registerViewport', () => {
       },
     );
 
+    it.each([
+      { name: 'top', outside: [100, -60], margin: [100, -20] },
+      { name: 'bottom', outside: [100, 260], margin: [100, 220] },
+      { name: 'left', outside: [-60, 100], margin: [-20, 100] },
+      { name: 'right', outside: [260, 100], margin: [220, 100] },
+      { name: 'corner', outside: [260, 260], margin: [220, 220] },
+    ])('only continues into the $name margin from inside', async ({ outside, margin }) => {
+      const { engine } = await renderDnd();
+      const source = createElement();
+      const scroller = makeEngageableScroller();
+      const onDragScroll = vi.fn();
+      engine.registerSource(source, {});
+      engine.registerViewport(scroller, { overflowMargin: 30, onDragScroll });
+      await lift(source, { clientX: outside[0], clientY: outside[1] });
+
+      async function moveTo(point: number[]) {
+        fireEvent.dragOver(scroller, { clientX: point[0], clientY: point[1] });
+        await flushRaf();
+        await flushRaf();
+        await flushRaf();
+      }
+
+      await moveTo(margin);
+      expect(onDragScroll).not.toHaveBeenCalled();
+      await moveTo([100, 100]);
+      await moveTo(margin);
+      expect(onDragScroll).toHaveBeenCalled();
+      await moveTo(outside);
+      onDragScroll.mockClear();
+      await moveTo(margin);
+      expect(onDragScroll).not.toHaveBeenCalled();
+      await moveTo([100, 100]);
+      await moveTo(margin);
+      expect(onDragScroll).toHaveBeenCalled();
+
+      engine.cancelDrag();
+      onDragScroll.mockClear();
+      await lift(source, { clientX: margin[0], clientY: margin[1] });
+      await flushRaf();
+      await flushRaf();
+      expect(onDragScroll).not.toHaveBeenCalled();
+    });
+
+    it('tracks an outer margin while an inner viewport consumes both axes', async () => {
+      const { engine } = await renderDnd();
+      const source = createElement();
+      const outer = makeEngageableScroller();
+      const inner = makeEngageableScroller();
+      outer.appendChild(inner);
+      inner.getBoundingClientRect = () => new DOMRect(0, 0, 400, 400);
+      const onDragScroll = vi.fn();
+      engine.registerSource(source, {});
+      engine.registerViewport(outer, { overflowMargin: 30, onDragScroll });
+      const unregisterInner = engine.registerViewport(inner, {
+        onDragScroll: (_, details) => {
+          details.cancel();
+          details.consume();
+        },
+      });
+      await lift(source, { clientX: 50, clientY: 50 });
+      fireEvent.dragOver(inner, { clientX: 350, clientY: 350 });
+      await flushRaf();
+      await flushRaf();
+      unregisterInner();
+      fireEvent.dragOver(outer, { clientX: 220, clientY: 220 });
+      await flushRaf();
+      await flushRaf();
+      expect(onDragScroll).not.toHaveBeenCalled();
+    });
+
     it('caps outside engagement at the same speed as the real edge', async () => {
       const clock = installFrameClock();
       const { engine } = await renderDnd();
