@@ -668,6 +668,46 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
         expect(input).toHaveAttribute('aria-activedescendant', deleteItem.id);
       });
 
+      it('keeps the automatic highlight when typing moves it out from under the pointer', async () => {
+        const { user } = await render(
+          <Menu.FilterProvider autoHighlight>
+            <Menu.Root open>
+              <Menu.Portal>
+                <Menu.Positioner>
+                  <Menu.Popup>
+                    <Menu.Input aria-label="Filter actions" />
+                    <Menu.List>
+                      <Menu.Item>Rename</Menu.Item>
+                      <Menu.Item>Delete</Menu.Item>
+                    </Menu.List>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+          </Menu.FilterProvider>,
+        );
+
+        const input = screen.getByRole('searchbox', { name: 'Filter actions' });
+        await act(async () => {
+          input.focus();
+        });
+        await user.type(input, 'e');
+        const deleteItem = screen.getByRole('menuitem', { name: 'Delete' });
+        await user.hover(deleteItem);
+        await waitFor(() => {
+          expect(input).toHaveAttribute('aria-activedescendant', deleteItem.id);
+        });
+
+        // Only Delete matches, so it moves to the top of the list, away from the resting pointer.
+        await user.keyboard('l');
+        await waitFor(() => {
+          expect(screen.queryByRole('menuitem', { name: 'Rename' })).toBe(null);
+        });
+        fireEvent.pointerLeave(deleteItem, { pointerType: 'mouse' });
+
+        expect(input).toHaveAttribute('aria-activedescendant', deleteItem.id);
+      });
+
       it('supports a controlled query', async () => {
         function App() {
           const [query, setQuery] = React.useState('');
