@@ -32,7 +32,8 @@ export const MenuFilterList = React.forwardRef(function MenuFilterList(
 ) {
   const { store, syncHighlightedItem, orientation, loopFocus } = useMenuRootContext();
   const direction = useDirection();
-  const { onItemsChange, focusOwnerRef, keyReplayRef, triggerId } = useFilterDropdownRootContext();
+  const { onItemsChange, focusOwnerRef, keyReplayRef, triggerId, autoHighlight } =
+    useFilterDropdownRootContext();
   const { listRef } = useFilterDropdownItemContext();
   const { subscribeMapChange } = useCompositeListContext();
 
@@ -60,7 +61,15 @@ export const MenuFilterList = React.forwardRef(function MenuFilterList(
         event.stopPropagation();
         const trigger = fromNestedPopup && ownerFocused ? getNestedPopupTrigger(target) : undefined;
         if (trigger) {
-          moveHighlightFrom(store, trigger, event.key, orientation, direction === 'rtl', loopFocus);
+          moveHighlightFrom(
+            store,
+            trigger,
+            event.key,
+            orientation,
+            direction === 'rtl',
+            loopFocus,
+            !autoHighlight,
+          );
         }
       }
       return;
@@ -84,13 +93,14 @@ export const MenuFilterList = React.forwardRef(function MenuFilterList(
     handleInputKeyDown(event);
   });
 
-  // The item whose `aria-controls` popup holds `target`.
+  // The item whose `aria-controls` popup holds `target`. The popup shares the target's root,
+  // which is a shadow root when it's portaled into one.
   function getNestedPopupTrigger(target: Element) {
-    const doc = ownerDocument(target);
+    const root = target.getRootNode() as Document | ShadowRoot;
     return listRef.current.find((item): item is HTMLElement => {
       const popupId = item?.getAttribute('aria-controls');
       return (
-        popupId != null && isHTMLElement(item) && contains(doc.getElementById(popupId), target)
+        popupId != null && isHTMLElement(item) && contains(root.getElementById(popupId), target)
       );
     });
   }

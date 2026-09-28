@@ -903,6 +903,68 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
       expect(input).toHaveAttribute('aria-activedescendant', reportB.id);
       expect(onItemHighlighted).not.toHaveBeenCalled();
     });
+
+    // The query a closed popup held resets after it unmounts, outside the act scope a browser
+    // run can await, so the reopen flow is checked where that reset is synchronous.
+    it.skipIf(!isJSDOM)(
+      'keeps the highlight when an item is appended after reopening from a filtered session',
+      async () => {
+        function ReopenMenu(props: { appended: boolean }) {
+          return (
+            <Menu.FilterProvider>
+              <Menu.Root>
+                <Menu.Trigger>Actions</Menu.Trigger>
+                <Menu.Portal>
+                  <Menu.Positioner>
+                    <Menu.Popup>
+                      <Menu.Input aria-label="Filter actions" />
+                      <Menu.List>
+                        <Menu.Item>Save</Menu.Item>
+                        <Menu.Item>Save as</Menu.Item>
+                        <Menu.Item>Delete</Menu.Item>
+                        {props.appended && <Menu.Item>Recent</Menu.Item>}
+                      </Menu.List>
+                    </Menu.Popup>
+                  </Menu.Positioner>
+                </Menu.Portal>
+              </Menu.Root>
+            </Menu.FilterProvider>
+          );
+        }
+
+        const { user, setProps } = await render(<ReopenMenu appended={false} />);
+        const trigger = screen.getByRole('button', { name: 'Actions' });
+
+        await act(async () => trigger.focus());
+        await user.keyboard('[Enter]');
+        await waitFor(() => {
+          expect(screen.getByRole('searchbox', { name: 'Filter actions' })).toHaveFocus();
+        });
+        await user.keyboard('sav[Escape]');
+        await waitFor(() => {
+          expect(screen.queryByRole('searchbox', { name: 'Filter actions' })).toBe(null);
+        });
+        await waitFor(() => {
+          expect(trigger).toHaveFocus();
+        });
+
+        await user.keyboard('[Enter]');
+        const input = screen.getByRole('searchbox', { name: 'Filter actions' });
+        await waitFor(() => {
+          expect(input).toHaveFocus();
+        });
+        await user.keyboard('[ArrowDown]');
+        const saveAs = screen.getByRole('menuitem', { name: 'Save as' });
+        await waitFor(() => {
+          expect(input).toHaveAttribute('aria-activedescendant', saveAs.id);
+        });
+
+        await setProps({ appended: true });
+
+        expect(screen.getByRole('menuitem', { name: 'Recent' })).toBeVisible();
+        expect(input).toHaveAttribute('aria-activedescendant', saveAs.id);
+      },
+    );
   });
 });
 

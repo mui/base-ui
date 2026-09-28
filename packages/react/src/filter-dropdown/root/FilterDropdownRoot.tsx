@@ -39,7 +39,7 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
     autoHighlight = false,
     triggerId: externalTriggerId,
     listRef,
-    getActiveIndex = getNullIndex,
+    getActiveIndex,
     setActiveIndex = NOOP,
     inputRef: externalFocusOwnerRef,
   } = props;
@@ -71,8 +71,6 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
   const ownFocusOwnerRef = React.useRef<HTMLElement | null>(null);
   const keyReplayRef = React.useRef(false);
   const lastFilterQueryRef = React.useRef<string | null>(null);
-  // Set when a new result changes which items render, until the list reports the change.
-  const resultChangedRef = React.useRef(false);
 
   const defaultMatches = React.useMemo(() => getFilter({ locale }).contains, [locale]);
 
@@ -88,14 +86,11 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
   const onItemsChange = useStableCallback((previousItems: readonly (HTMLElement | null)[]) => {
     const items = listRef.current;
     const activeIndex = getActiveIndex();
-    const resultChanged = resultChangedRef.current;
-    resultChangedRef.current = false;
 
-    // A positional highlight must not silently move to another item. A live change that leaves
-    // the highlighted item in place keeps it, such as an item appended after it or one that
-    // renders once before the query filters it out.
+    // A positional highlight must not silently move to another item. A change that leaves the
+    // highlighted item in place keeps it, such as an item appended after it or one that renders
+    // once before the query filters it out. A query change already reset the highlight.
     if (
-      !resultChanged &&
       activeIndex != null &&
       items[activeIndex] != null &&
       items[activeIndex] === previousItems[activeIndex]
@@ -129,8 +124,6 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
     // With no query or external filtering, every registered item is visible. External filtering
     // still follows `autoHighlight`; otherwise the item set invalidates the highlight.
     if (matches === null) {
-      const previousIds = store.state.visibleItemIds;
-      resultChangedRef.current ||= previousIds !== null && previousIds.size !== liveItems.size;
       store.set('visibleItemIds', null);
       // Registry updates, such as an item's text changing, keep the current highlight.
       if (autoHighlightEnabled && liveItems.size > 0) {
@@ -169,7 +162,6 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
       } else if (currentIds !== null || queryChanged) {
         setActiveIndex(null);
       }
-      resultChangedRef.current ||= currentIds !== null || nextIds.size !== liveItems.size;
       store.set('visibleItemIds', nextIds);
     } else if (autoHighlightEnabled && queryChanged && nextIds.size > 0) {
       setActiveIndex(0);
@@ -245,10 +237,6 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
   );
 }
 
-function getNullIndex() {
-  return null;
-}
-
 export interface FilterDropdownRootProps {
   children?: React.ReactNode;
   /**
@@ -294,7 +282,7 @@ export interface FilterDropdownRootProps {
   /**
    * Reads the host's highlighted index.
    */
-  getActiveIndex?: (() => number | null) | undefined;
+  getActiveIndex: () => number | null;
   /**
    * Moves the host's highlight.
    */

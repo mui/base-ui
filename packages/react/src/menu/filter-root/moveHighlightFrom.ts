@@ -7,6 +7,8 @@ import type { MenuStore } from '../store/MenuStore';
 /**
  * Moves a menu's highlight from `item` to its neighbor in the direction of a main-orientation
  * arrow key, as the menu's own list navigation would, and returns the newly highlighted item.
+ * A menu whose navigation escapes to its input at either end doesn't wrap here: the highlight
+ * stays where it is.
  */
 export function moveHighlightFrom(
   store: MenuStore<unknown>,
@@ -15,6 +17,7 @@ export function moveHighlightFrom(
   orientation: MenuRoot.Orientation,
   rtl: boolean,
   loopFocus: boolean,
+  allowEscape: boolean,
 ): HTMLElement | undefined {
   const items = store.context.itemDomElements.current;
   const decrement =
@@ -27,6 +30,9 @@ export function moveHighlightFrom(
   });
 
   if (loopFocus && (nextIndex < 0 || nextIndex >= items.length)) {
+    if (allowEscape) {
+      return undefined;
+    }
     nextIndex = findNonDisabledListIndex(items, {
       startingIndex: decrement ? items.length : -1,
       decrement,
