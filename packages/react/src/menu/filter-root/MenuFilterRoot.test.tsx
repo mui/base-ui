@@ -627,6 +627,108 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
         expect(deleteItem).toHaveAttribute('data-highlighted');
       });
 
+      it.each([true, 'always'] as const)(
+        'skips a disabled first match with autoHighlight=%s',
+        async (autoHighlight) => {
+          const { user } = await render(
+            <Menu.FilterProvider autoHighlight={autoHighlight}>
+              <Menu.Root open>
+                <Menu.Portal>
+                  <Menu.Positioner>
+                    <Menu.Popup>
+                      <Menu.Input aria-label="Filter actions" />
+                      <Menu.List>
+                        <Menu.Item disabled>Save (read-only)</Menu.Item>
+                        <Menu.Item>Save as</Menu.Item>
+                        <Menu.Item>Delete</Menu.Item>
+                      </Menu.List>
+                    </Menu.Popup>
+                  </Menu.Positioner>
+                </Menu.Portal>
+              </Menu.Root>
+            </Menu.FilterProvider>,
+          );
+
+          const input = screen.getByRole('searchbox', { name: 'Filter actions' });
+          await user.type(input, 'sav');
+
+          const saveAs = screen.getByRole('menuitem', { name: 'Save as' });
+          await waitFor(() => {
+            expect(input).toHaveAttribute('aria-activedescendant', saveAs.id);
+          });
+          expect(screen.getByRole('menuitem', { name: 'Save (read-only)' })).not.toHaveAttribute(
+            'data-highlighted',
+          );
+        },
+      );
+
+      it('highlights the first enabled item on open with autoHighlight="always"', async () => {
+        await render(
+          <Menu.FilterProvider autoHighlight="always">
+            <Menu.Root open>
+              <Menu.Portal>
+                <Menu.Positioner>
+                  <Menu.Popup>
+                    <Menu.Input aria-label="Filter actions" />
+                    <Menu.List>
+                      <Menu.Item disabled>Unavailable</Menu.Item>
+                      <Menu.Item>Rename</Menu.Item>
+                    </Menu.List>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+          </Menu.FilterProvider>,
+        );
+
+        const input = screen.getByRole('searchbox', { name: 'Filter actions' });
+        const rename = screen.getByRole('menuitem', { name: 'Rename' });
+        await waitFor(() => {
+          expect(input).toHaveAttribute('aria-activedescendant', rename.id);
+        });
+      });
+
+      it('keeps the highlight when an item\'s text changes with autoHighlight="always"', async () => {
+        function Test(props: { count: number }) {
+          return (
+            <Menu.FilterProvider autoHighlight="always">
+              <Menu.Root open>
+                <Menu.Portal>
+                  <Menu.Positioner>
+                    <Menu.Popup>
+                      <Menu.Input aria-label="Filter actions" />
+                      <Menu.List>
+                        <Menu.Item>Inbox ({props.count})</Menu.Item>
+                        <Menu.Item>Archive</Menu.Item>
+                        <Menu.Item>Delete</Menu.Item>
+                      </Menu.List>
+                    </Menu.Popup>
+                  </Menu.Positioner>
+                </Menu.Portal>
+              </Menu.Root>
+            </Menu.FilterProvider>
+          );
+        }
+
+        const { user, setProps } = await render(<Test count={1} />);
+        const input = screen.getByRole('searchbox', { name: 'Filter actions' });
+        await act(async () => {
+          input.focus();
+        });
+        await user.keyboard('[ArrowDown][ArrowDown]');
+
+        const deleteItem = screen.getByRole('menuitem', { name: 'Delete' });
+        await waitFor(() => {
+          expect(deleteItem).toHaveAttribute('data-highlighted');
+        });
+
+        await setProps({ count: 2 });
+
+        expect(screen.getByRole('menuitem', { name: 'Inbox (2)' })).toBeVisible();
+        expect(deleteItem).toHaveAttribute('data-highlighted');
+        expect(input).toHaveAttribute('aria-activedescendant', deleteItem.id);
+      });
+
       it('supports a controlled query', async () => {
         function App() {
           const [query, setQuery] = React.useState('');
@@ -4526,6 +4628,54 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
       });
       expect(screen.getByRole('menuitem', { name: 'Rename' })).toBeVisible();
     });
+
+    it('does not highlight an item when another detached trigger receives focus', async () => {
+      const onItemHighlighted = vi.fn();
+
+      function DetachedTriggersMenu() {
+        const handle = useRefWithInit(() => Menu.createHandle()).current;
+
+        return (
+          <React.Fragment>
+            <Menu.Trigger handle={handle}>First trigger</Menu.Trigger>
+            <Menu.Trigger handle={handle}>Second trigger</Menu.Trigger>
+            <Menu.FilterProvider>
+              <Menu.Root handle={handle} onItemHighlighted={onItemHighlighted}>
+                <Menu.Portal>
+                  <Menu.Positioner>
+                    <Menu.Popup>
+                      <Menu.Input aria-label="Filter actions" />
+                      <Menu.List>
+                        <Menu.Item>Rename</Menu.Item>
+                        <Menu.Item>Delete</Menu.Item>
+                      </Menu.List>
+                    </Menu.Popup>
+                  </Menu.Positioner>
+                </Menu.Portal>
+              </Menu.Root>
+            </Menu.FilterProvider>
+          </React.Fragment>
+        );
+      }
+
+      const { user } = await render(<DetachedTriggersMenu />);
+      await user.click(screen.getByRole('button', { name: 'First trigger' }));
+      const input = await screen.findByRole('searchbox', { name: 'Filter actions' });
+      await waitFor(() => {
+        expect(input).toHaveFocus();
+      });
+      onItemHighlighted.mockClear();
+
+      await act(async () => {
+        screen.getByRole('button', { name: 'Second trigger' }).focus();
+      });
+
+      expect(input).not.toHaveAttribute('aria-activedescendant');
+      expect(screen.getByRole('menuitem', { name: 'Rename' })).not.toHaveAttribute(
+        'data-highlighted',
+      );
+      expect(onItemHighlighted).not.toHaveBeenCalled();
+    });
   });
 
   describe('consumer props', () => {
@@ -5296,5 +5446,54 @@ describe('filterable menu navigation regressions', () => {
     await user.keyboard('[ArrowDown]');
     expect(screen.getByRole('menuitem', { name: 'Match 1' })).toHaveAttribute('data-highlighted');
     expect(filter).not.toHaveBeenCalled();
+  });
+});
+
+describe('custom keyboard shortcuts in a filterable menu', () => {
+  const { render } = createRenderer();
+
+  it('moves the highlight from a shortcut bound on the input', async () => {
+    const actionsRef = React.createRef<Menu.Root.Actions>();
+
+    const { user } = await render(
+      <Menu.FilterProvider>
+        <Menu.Root open actionsRef={actionsRef}>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.Input
+                  aria-label="Filter actions"
+                  onKeyDown={(event) => {
+                    if (event.ctrlKey && event.key === 'j') {
+                      event.preventDefault();
+                      actionsRef.current?.highlightItem('next');
+                    }
+                  }}
+                />
+                <Menu.List>
+                  <Menu.Item>Rename</Menu.Item>
+                  <Menu.Item>Delete</Menu.Item>
+                </Menu.List>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>
+      </Menu.FilterProvider>,
+    );
+
+    const input = screen.getByRole('searchbox', { name: 'Filter actions' });
+    await act(async () => {
+      input.focus();
+    });
+    await user.keyboard('{Control>}j{/Control}');
+
+    await waitFor(() => {
+      expect(input).toHaveAttribute(
+        'aria-activedescendant',
+        screen.getByRole('menuitem', { name: 'Rename' }).id,
+      );
+    });
+    expect(input).toHaveFocus();
+    expect(input).toHaveValue('');
   });
 });

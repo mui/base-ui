@@ -412,3 +412,115 @@ describe('filtered submenu trigger navigation', () => {
     expect(screen.getByRole('menuitem', { name: 'Next' })).toHaveFocus();
   });
 });
+
+describe('closing a filtered submenu from the keyboard', () => {
+  const { render } = createRenderer();
+
+  it('ignores a close key that composes text in the submenu input', async () => {
+    const { user } = await render(
+      <Menu.Root defaultOpen>
+        <Menu.Trigger>Actions</Menu.Trigger>
+        <Menu.Portal>
+          <Menu.Positioner>
+            <Menu.Popup>
+              <Menu.FilterProvider>
+                <Menu.SubmenuRoot>
+                  <Menu.SubmenuTrigger openOnHover={false}>More</Menu.SubmenuTrigger>
+                  <Menu.Portal>
+                    <Menu.Positioner>
+                      <Menu.Popup>
+                        <Menu.Input aria-label="Filter child actions" />
+                        <Menu.List>
+                          <Menu.Item>Child</Menu.Item>
+                        </Menu.List>
+                      </Menu.Popup>
+                    </Menu.Positioner>
+                  </Menu.Portal>
+                </Menu.SubmenuRoot>
+              </Menu.FilterProvider>
+            </Menu.Popup>
+          </Menu.Positioner>
+        </Menu.Portal>
+      </Menu.Root>,
+    );
+
+    await act(async () => screen.getByRole('menuitem', { name: 'More' }).focus());
+    await user.keyboard('[ArrowRight]');
+    const input = await screen.findByRole('searchbox', { name: 'Filter child actions' });
+    await waitFor(() => {
+      expect(input).toHaveFocus();
+    });
+
+    // React derives SyntheticEvent.which from the native keyCode.
+    fireEvent.keyDown(input, { key: 'ArrowLeft', keyCode: 229, which: 229 });
+
+    expect(screen.getByRole('searchbox', { name: 'Filter child actions' })).toBe(input);
+  });
+
+  function Submenu(props: { filterable: boolean }) {
+    const submenu = (
+      <Menu.SubmenuRoot>
+        <Menu.SubmenuTrigger>More</Menu.SubmenuTrigger>
+        <Menu.Portal>
+          <Menu.Positioner>
+            <Menu.Popup data-testid="submenu">
+              {props.filterable && <Menu.Input aria-label="Filter child actions" />}
+              <Menu.List>
+                <Menu.Item>Child</Menu.Item>
+              </Menu.List>
+            </Menu.Popup>
+          </Menu.Positioner>
+        </Menu.Portal>
+      </Menu.SubmenuRoot>
+    );
+    return props.filterable ? <Menu.FilterProvider>{submenu}</Menu.FilterProvider> : submenu;
+  }
+
+  it.each([
+    { parentFilterable: false, submenuFilterable: true },
+    { parentFilterable: true, submenuFilterable: false },
+    { parentFilterable: true, submenuFilterable: true },
+  ])(
+    'moves a horizontal parent on when a vertical submenu closes on its main-axis key (filterable parent: $parentFilterable, filterable submenu: $submenuFilterable)',
+    async ({ parentFilterable, submenuFilterable }) => {
+      const menu = (
+        <Menu.Root orientation="horizontal">
+          <Menu.Trigger>Actions</Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                {parentFilterable && <Menu.Input aria-label="Filter actions" />}
+                <Menu.List>
+                  <Menu.Item>First</Menu.Item>
+                  <Submenu filterable={submenuFilterable} />
+                  <Menu.Item>Last</Menu.Item>
+                </Menu.List>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>
+      );
+      const { user } = await render(
+        parentFilterable ? <Menu.FilterProvider>{menu}</Menu.FilterProvider> : menu,
+      );
+
+      await act(async () => screen.getByRole('button', { name: 'Actions' }).focus());
+      await user.keyboard('[Enter]');
+      await user.keyboard('[ArrowRight]');
+      const trigger = screen.getByRole('menuitem', { name: 'More' });
+      await waitFor(() => {
+        expect(trigger).toHaveAttribute('data-highlighted');
+      });
+
+      await user.keyboard('[ArrowDown]');
+      await screen.findByTestId('submenu');
+      await user.keyboard('[ArrowLeft]');
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('submenu')).toBe(null);
+      });
+      expect(screen.getByRole('menuitem', { name: 'First' })).toHaveAttribute('data-highlighted');
+      expect(trigger).not.toHaveAttribute('data-highlighted');
+    },
+  );
+});

@@ -856,6 +856,53 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
       expect(onItemHighlighted.mock.calls.map(([item]) => item?.textContent)).toEqual([undefined]);
       expect(input).not.toHaveAttribute('aria-activedescendant');
     });
+
+    it('keeps the highlight when an item the query filters out is appended', async () => {
+      function AppendMenu(props: {
+        appended: boolean;
+        onItemHighlighted: Menu.Root.Props['onItemHighlighted'];
+      }) {
+        return (
+          <Menu.FilterProvider>
+            <Menu.Root open onItemHighlighted={props.onItemHighlighted}>
+              <Menu.Portal>
+                <Menu.Positioner>
+                  <Menu.Popup>
+                    <Menu.Input aria-label="Filter reports" />
+                    <Menu.List>
+                      <Menu.Item>Report A</Menu.Item>
+                      <Menu.Item>Report B</Menu.Item>
+                      <Menu.Item>Other</Menu.Item>
+                      {props.appended && <Menu.Item>Zebra</Menu.Item>}
+                    </Menu.List>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+          </Menu.FilterProvider>
+        );
+      }
+
+      const onItemHighlighted = vi.fn();
+      const { user, setProps } = await render(
+        <AppendMenu appended={false} onItemHighlighted={onItemHighlighted} />,
+      );
+      const input = screen.getByRole('searchbox', { name: 'Filter reports' });
+
+      await user.type(input, 'rep');
+      await user.keyboard('[ArrowDown][ArrowDown]');
+      const reportB = screen.getByRole('menuitem', { name: 'Report B' });
+      await waitFor(() => {
+        expect(input).toHaveAttribute('aria-activedescendant', reportB.id);
+      });
+      onItemHighlighted.mockClear();
+
+      await setProps({ appended: true, onItemHighlighted });
+
+      expect(screen.queryByRole('menuitem', { name: 'Zebra' })).toBe(null);
+      expect(input).toHaveAttribute('aria-activedescendant', reportB.id);
+      expect(onItemHighlighted).not.toHaveBeenCalled();
+    });
   });
 });
 

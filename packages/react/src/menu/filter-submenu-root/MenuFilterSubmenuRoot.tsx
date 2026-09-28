@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import { EMPTY_ARRAY } from '@base-ui/utils/empty';
 import { ownerDocument } from '@base-ui/utils/owner';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
@@ -22,7 +21,7 @@ import {
 import { activeElement, contains, stopEvent } from '../../floating-ui-react/utils';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
-import { findNonDisabledListIndex } from '../../floating-ui-react/utils/composite';
+import { moveHighlightFrom } from '../filter-root/moveHighlightFrom';
 import { MenuSubmenuRootContext } from '../submenu-root/MenuSubmenuRootContext';
 import type { MenuStore } from '../store/MenuStore';
 
@@ -106,6 +105,7 @@ export function MenuFilterSubmenuRoot(props: MenuFilterSubmenuRootProps): React.
     >
       <MenuFilterSubmenuNavigation
         parentStore={parentStore}
+        parentVirtualFocus={parent.virtualFocus}
         parentOrientation={parent.orientation}
         parentLoopFocus={parent.loopFocus}
         getReturnElement={() =>
@@ -125,6 +125,7 @@ export function MenuFilterSubmenuRoot(props: MenuFilterSubmenuRootProps): React.
 interface MenuFilterSubmenuNavigationProps {
   children: React.ReactNode;
   parentStore: MenuStore<unknown>;
+  parentVirtualFocus: boolean;
   parentOrientation: MenuRoot.Orientation;
   parentLoopFocus: boolean;
   onSubmenuEnter(trigger: HTMLElement): void;
@@ -136,6 +137,7 @@ function MenuFilterSubmenuNavigation(props: MenuFilterSubmenuNavigationProps) {
   const {
     children,
     parentStore,
+    parentVirtualFocus,
     parentOrientation,
     parentLoopFocus,
     onSubmenuEnter,
@@ -179,16 +181,29 @@ function MenuFilterSubmenuNavigation(props: MenuFilterSubmenuNavigationProps) {
     }
   }, [mounted, store, parentStore, handleReturnFocus]);
 
+  function moveInParent(from: HTMLElement, key: string) {
+    const item = moveHighlightFrom(
+      parentStore,
+      from,
+      key,
+      parentOrientation,
+      direction === 'rtl',
+      parentLoopFocus,
+    );
+    if (!parentVirtualFocus) {
+      item?.focus({ preventScroll: true });
+    }
+  }
+
   function close(event: React.KeyboardEvent) {
     if (!store.select('open')) {
       return;
     }
 
-    // If this close key is also the parent's navigation key, let it through so the parent
-    // navigates too. Otherwise stop propagating it.
-    if (!isMainOrientationKey(event.key, parentOrientation)) {
-      stopEvent(event);
-    }
+    // The key can reach this popup re-dispatched on its highlighted item, so it can't be left to
+    // bubble to the parent. A close key that also navigates the parent moves it from here.
+    stopEvent(event);
+    const trigger = store.select('activeTriggerElement');
 
     const eventDetails = createChangeEventDetails(REASONS.listNavigation, event.nativeEvent);
     store.setOpen(false, eventDetails);
@@ -206,39 +221,19 @@ function MenuFilterSubmenuNavigation(props: MenuFilterSubmenuNavigationProps) {
     ) {
       returnElement.focus();
     }
+
+    if (
+      !store.select('open') &&
+      isHTMLElement(trigger) &&
+      isMainOrientationKey(event.key, parentOrientation)
+    ) {
+      moveInParent(trigger, event.key);
+    }
   }
 
   const handleTriggerKeyDown = useStableCallback((event: TriggerKeyDownEvent) => {
     if (isMainOrientationKey(event.key, parentOrientation)) {
-      const items = parentStore.context.itemDomElements.current;
-      const currentIndex = items.indexOf(event.currentTarget);
-      const movesForward =
-        parentOrientation === 'vertical'
-          ? event.key === 'ArrowDown'
-          : event.key === (direction === 'rtl' ? 'ArrowLeft' : 'ArrowRight');
-      const decrement = !movesForward;
-      // Match the parent's `useListNavigation`: `aria-disabled` items stay reachable.
-      let nextIndex = findNonDisabledListIndex(items, {
-        startingIndex: currentIndex,
-        decrement,
-        disabledIndices: EMPTY_ARRAY,
-      });
-
-      if (parentLoopFocus && (nextIndex < 0 || nextIndex >= items.length)) {
-        nextIndex = findNonDisabledListIndex(items, {
-          startingIndex: decrement ? items.length : -1,
-          decrement,
-          disabledIndices: EMPTY_ARRAY,
-        });
-      }
-
-      const item = items[nextIndex];
-      if (item) {
-        parentStore.setActiveIndex(nextIndex, REASONS.keyboard);
-        item.focus({ preventScroll: true });
-        item.scrollIntoView?.({ block: 'nearest', inline: 'nearest' });
-      }
-
+      moveInParent(event.currentTarget, event.key);
       event.preventBaseUIHandler();
       stopEvent(event);
       return;
@@ -276,6 +271,10 @@ function MenuFilterSubmenuNavigation(props: MenuFilterSubmenuNavigationProps) {
   });
 
   const handlePopupKeyDown = useStableCallback((event: React.KeyboardEvent) => {
+    // A key that composes text in the input must not close the submenu.
+    if (event.which === 229) {
+      return;
+    }
     const isCloseKey = isCrossOrientationCloseKey(
       event.key,
       orientation,

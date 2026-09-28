@@ -3,6 +3,7 @@ import * as React from 'react';
 import { ownerDocument } from '@base-ui/utils/owner';
 import { contains } from '@base-ui/utils/shadowDom';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { isHTMLElement } from '@floating-ui/utils/dom';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { activeElement, getTarget } from '../../floating-ui-react/utils';
 import { FilterDropdownList } from '../../filter-dropdown/list/FilterDropdownList';
@@ -18,6 +19,8 @@ import {
   useFilterDropdownValueContext,
 } from '../../filter-dropdown/root/FilterDropdownRootContext';
 import { resolvePopupLabel } from '../../internals/resolvePopupLabel';
+import { useDirection } from '../../internals/direction-context/DirectionContext';
+import { moveHighlightFrom } from './moveHighlightFrom';
 
 /**
  * The list of a filterable menu: it takes the `menu` role while the popup is a dialog holding
@@ -27,7 +30,8 @@ export const MenuFilterList = React.forwardRef(function MenuFilterList(
   componentProps: MenuList.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { syncHighlightedItem, orientation } = useMenuRootContext();
+  const { store, syncHighlightedItem, orientation, loopFocus } = useMenuRootContext();
+  const direction = useDirection();
   const { onItemsChange, focusOwnerRef, keyReplayRef, triggerId } = useFilterDropdownRootContext();
   const { listRef } = useFilterDropdownItemContext();
   const { subscribeMapChange } = useCompositeListContext();
@@ -36,13 +40,12 @@ export const MenuFilterList = React.forwardRef(function MenuFilterList(
 
   const handleKeyDown = useStableCallback((event: React.KeyboardEvent<HTMLElement>) => {
     const owner = focusOwnerRef.current;
+    const target = getTarget(event.nativeEvent) as Element;
+    const ownerFocused = owner != null && activeElement(ownerDocument(owner)) === owner;
+    const fromNestedPopup = !contains(event.currentTarget, target);
     // Keys the input forwards to its highlighted item arrive here while the input still holds
     // focus, and a nested popup's keys bubble through this React tree from outside the list.
-    if (
-      owner == null ||
-      activeElement(ownerDocument(owner)) === owner ||
-      !contains(event.currentTarget, getTarget(event.nativeEvent) as Element)
-    ) {
+    if (owner == null || ownerFocused || fromNestedPopup) {
       if (
         event.which !== 229 &&
         !event.shiftKey &&
@@ -51,8 +54,14 @@ export const MenuFilterList = React.forwardRef(function MenuFilterList(
         !event.altKey &&
         isMainOrientationKey(event.key, orientation)
       ) {
-        // Keep main-axis keys from reaching this popup's own list navigation.
+        // Keep main-axis keys from reaching this popup's own list navigation, which lost its
+        // place while the nested popup held focus. A plain submenu that closes on the key hands
+        // focus back and lets it through, so move on from its trigger as a plain parent would.
         event.stopPropagation();
+        const trigger = fromNestedPopup && ownerFocused ? getNestedPopupTrigger(target) : undefined;
+        if (trigger) {
+          moveHighlightFrom(store, trigger, event.key, orientation, direction === 'rtl', loopFocus);
+        }
       }
       return;
     }
@@ -75,6 +84,17 @@ export const MenuFilterList = React.forwardRef(function MenuFilterList(
     handleInputKeyDown(event);
   });
 
+  // The item whose `aria-controls` popup holds `target`.
+  function getNestedPopupTrigger(target: Element) {
+    const doc = ownerDocument(target);
+    return listRef.current.find((item): item is HTMLElement => {
+      const popupId = item?.getAttribute('aria-controls');
+      return (
+        popupId != null && isHTMLElement(item) && contains(doc.getElementById(popupId), target)
+      );
+    });
+  }
+
   // `null` distinguishes the initial registration from a list emptied by filtering.
   const previousItemsRef = React.useRef<readonly (HTMLElement | null)[] | null>(null);
 
@@ -86,10 +106,10 @@ export const MenuFilterList = React.forwardRef(function MenuFilterList(
       previousItems.length !== items.length ||
       items.some((item, index) => item !== previousItems[index]);
 
-    // A positional highlight must not silently move to another action when live items are
-    // inserted, removed, or reordered, so it's invalidated before the highlight is reported.
+    // Resolved before the highlight is reported, so a positional highlight never reports the
+    // item that took its index.
     if (changed && previousItems !== null) {
-      onItemsChange(items.length > 0);
+      onItemsChange(previousItems);
     }
     previousItemsRef.current = items;
     syncHighlightedItem();

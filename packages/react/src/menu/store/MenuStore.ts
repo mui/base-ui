@@ -195,10 +195,13 @@ export class MenuStore<Payload> extends ReactStore<Readonly<State<Payload>>, Con
   }
 
   setActiveIndex(activeIndex: number | null, reason: MenuRoot.HighlightEventReason) {
-    // Only a write that changes the index is reported. Tagging a no-op would let a later
-    // registry-driven re-emit report this reason instead of `none`.
+    // Only a write that changes the index is reported. Tagging a no-op, or a write back to the
+    // reported item before the change commits, would let a later registry-driven re-emit report
+    // this reason instead of `none`.
     if (this.state.activeIndex !== activeIndex) {
-      this.context.highlightReason = reason;
+      const item =
+        activeIndex === null ? undefined : this.context.itemDomElements.current[activeIndex];
+      this.context.highlightReason = item === this.state.highlightedItem ? 'none' : reason;
     }
     this.set('activeIndex', activeIndex);
   }

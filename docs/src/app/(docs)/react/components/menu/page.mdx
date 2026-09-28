@@ -440,6 +440,8 @@ const actionsRef = React.useRef<Menu.Root.Actions>(null);
 </Menu.Root>;
 ```
 
+In a filterable menu, `<Menu.Input>` keeps focus while the action moves the highlight, and it treats modified character keys as text editing, so attach the handler to `<Menu.Input>` instead.
+
 ## API reference
 
 import { TypesMenu } from './types';

@@ -136,4 +136,50 @@ describe('filterable menu initial highlight', () => {
       screen.getByRole('menuitem', { name: 'Rename' }).id,
     );
   });
+
+  it('does not highlight an item when a controlled open follows a keyboard open', async () => {
+    function ControlledTest(props: { open: boolean | undefined }) {
+      const [open, setOpen] = React.useState(false);
+
+      return (
+        <Menu.FilterProvider>
+          <Menu.Root open={props.open ?? open} onOpenChange={setOpen}>
+            <Menu.Trigger>Actions</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.Input aria-label="Filter actions" />
+                  <Menu.List>
+                    <Menu.Item>Rename</Menu.Item>
+                    <Menu.Item>Delete</Menu.Item>
+                  </Menu.List>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </Menu.FilterProvider>
+      );
+    }
+
+    const { user, setProps } = await render(<ControlledTest open={undefined} />);
+    await act(async () => screen.getByRole('button', { name: 'Actions' }).focus());
+    await user.keyboard('[ArrowDown]');
+    const input = await screen.findByRole('searchbox', { name: 'Filter actions' });
+    await waitFor(() => {
+      expect(input).toHaveAttribute(
+        'aria-activedescendant',
+        screen.getByRole('menuitem', { name: 'Rename' }).id,
+      );
+    });
+
+    await setProps({ open: false });
+    await waitFor(() => {
+      expect(screen.queryByRole('searchbox', { name: 'Filter actions' })).toBe(null);
+    });
+    await setProps({ open: true });
+
+    const reopenedInput = await screen.findByRole('searchbox', { name: 'Filter actions' });
+    await act(() => waitSingleFrame());
+    expect(reopenedInput).not.toHaveAttribute('aria-activedescendant');
+  });
 });

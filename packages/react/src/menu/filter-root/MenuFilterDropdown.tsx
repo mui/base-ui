@@ -2,6 +2,7 @@
 import * as React from 'react';
 import { useControlled } from '@base-ui/utils/useControlled';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useMenubarContext } from '../../menubar/MenubarContext';
 import { FilterDropdownRoot } from '../../filter-dropdown/root/FilterDropdownRoot';
 import { useFilterDropdownCloseQuery } from '../../filter-dropdown/root/useFilterDropdownCloseQuery';
@@ -67,6 +68,15 @@ export function MenuFilterDropdown(props: MenuFilterDropdownProps) {
 
   const handleInputKeyDown = useMenuFilterKeyDown(value !== '');
 
+  // Only `setOpen` records a keyboard open, so a controlled close that bypasses it must not leave
+  // the next programmatic open looking like one.
+  useIsoLayoutEffect(() => {
+    if (!open) {
+      store.set('keyboardOpen', false);
+    }
+  }, [open, store]);
+
+  const getActiveIndex = useStableCallback(() => store.state.activeIndex);
   const setActiveIndex = useStableCallback((index: number | null) => {
     store.setActiveIndex(index, REASONS.none);
   });
@@ -122,6 +132,7 @@ export function MenuFilterDropdown(props: MenuFilterDropdownProps) {
         // fall back to a registered id that no element carries.
         triggerId={triggerElement ? triggerElement.id || null : triggerId}
         listRef={store.context.itemDomElements}
+        getActiveIndex={getActiveIndex}
         setActiveIndex={setActiveIndex}
         inputRef={store.context.virtualFocusRef}
       />

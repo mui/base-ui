@@ -349,7 +349,6 @@ export function useListNavigation(
   const latestOpenRef = useValueAsRef(open);
   const selectedIndexRef = useValueAsRef(selectedIndex);
   const resetOnPointerLeaveRef = useValueAsRef(resetOnPointerLeave);
-  const activeIndexRef = useValueAsRef(activeIndex);
 
   const focusFrame = useAnimationFrame();
   const waitForListPopulatedFrame = useAnimationFrame();
@@ -671,11 +670,15 @@ export function useListNavigation(
     if (isMainOrientationKey(event.key, orientation)) {
       stopEvent(event);
 
-      // Reset the index if no item is focused.
+      // Reset the index if no item is focused. Focus can also rest on a container inside the
+      // popup, such as a list that holds the `menu` role. Keys bubbling from a portaled nested
+      // popup are not in this popup's DOM, so they navigate from the current index.
+      const focusedElement = activeElement(event.currentTarget.ownerDocument);
       if (
         open &&
         !virtual &&
-        activeElement(event.currentTarget.ownerDocument) === event.currentTarget
+        contains(event.currentTarget, focusedElement) &&
+        !listRef.current.some((item) => item != null && contains(item, focusedElement))
       ) {
         indexRef.current = isMainOrientationToEndKey(event.key, orientation, rtl)
           ? minIndex
@@ -1071,14 +1074,7 @@ export function useListNavigation(
           return;
         }
 
-        if (!store.select('open')) {
-          return;
-        }
-
-        if (virtual && !isTypeableElement(event.currentTarget) && activeIndexRef.current == null) {
-          indexRef.current = getMinEnabledIndex();
-          onNavigate(event);
-        } else if (!virtual) {
+        if (store.select('open') && !virtual) {
           indexRef.current = -1;
           onNavigate(event);
         }
@@ -1102,7 +1098,6 @@ export function useListNavigation(
     rtl,
     selectedIndexRef,
     virtual,
-    activeIndexRef,
     floatingFocusElementRef,
   ]);
 

@@ -28,7 +28,8 @@ export interface FilterDropdownRootContext {
   /** Set while the list hands a key back to the input, which refocuses it mid-navigation. */
   keyReplayRef: React.RefObject<boolean>;
   setActiveIndex: (index: number | null) => void;
-  onItemsChange: (hasItems: boolean) => void;
+  /** Called with the previous items when the host's list changes after it first registered. */
+  onItemsChange: (previousItems: readonly (HTMLElement | null)[]) => void;
   onValueChange: (value: string, eventDetails: FilterDropdownRoot.ChangeEventDetails) => void;
 }
 

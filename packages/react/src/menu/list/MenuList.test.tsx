@@ -526,4 +526,35 @@ describe('<Menu.List /> in a plain menu', () => {
     expect(first).toHaveAttribute('aria-controls', list.id);
     expect(second).not.toHaveAttribute('aria-controls');
   });
+
+  it('enters the list from the end with ArrowUp after a pointer open without looping', async () => {
+    const { user } = await render(
+      <Menu.Root loopFocus={false}>
+        <Menu.Trigger>Actions</Menu.Trigger>
+        <Menu.Portal>
+          <Menu.Positioner>
+            <Menu.Popup>
+              <Menu.List data-testid="list">
+                <Menu.Item>Rename</Menu.Item>
+                <Menu.Item>Duplicate</Menu.Item>
+                <Menu.Item>Delete</Menu.Item>
+              </Menu.List>
+            </Menu.Popup>
+          </Menu.Positioner>
+        </Menu.Portal>
+      </Menu.Root>,
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Actions' }));
+    const list = await screen.findByTestId('list');
+    await waitFor(() => {
+      expect(list).toHaveFocus();
+    });
+
+    await user.keyboard('[ArrowUp]');
+
+    await waitFor(() => {
+      expect(screen.getByRole('menuitem', { name: 'Delete' })).toHaveFocus();
+    });
+  });
 });

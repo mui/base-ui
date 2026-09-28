@@ -3366,6 +3366,51 @@ describe('<Menu.Root />', () => {
       await waitFor(() => expect(screen.getByRole('menuitem', { name: 'Three' })).toHaveFocus());
     });
 
+    it('does not report an imperative reason for a later list change', async () => {
+      const onItemHighlighted = vi.fn();
+      const actionsRef = React.createRef<Menu.Root.Actions>();
+
+      function Test(props: { inserted: boolean }) {
+        return (
+          <Menu.Root open actionsRef={actionsRef} onItemHighlighted={onItemHighlighted}>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  {props.inserted && <Menu.Item>Archive</Menu.Item>}
+                  <Menu.Item>One</Menu.Item>
+                  <Menu.Item>Two</Menu.Item>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        );
+      }
+
+      const { setProps } = await render(<Test inserted={false} />);
+      act(() => actionsRef.current!.highlightItem('first'));
+      await waitFor(() => {
+        expect(onItemHighlighted).toHaveBeenLastCalledWith(
+          screen.getByRole('menuitem', { name: 'One' }),
+          expect.objectContaining({ reason: 'imperative-action' }),
+        );
+      });
+
+      // Moving away and back within one commit reports nothing.
+      onItemHighlighted.mockClear();
+      act(() => {
+        actionsRef.current!.highlightItem('next');
+        actionsRef.current!.highlightItem('previous');
+      });
+      expect(onItemHighlighted).not.toHaveBeenCalled();
+
+      await setProps({ inserted: true });
+
+      await waitFor(() => {
+        expect(onItemHighlighted).toHaveBeenCalled();
+      });
+      expect(onItemHighlighted.mock.lastCall?.[1].reason).toBe('none');
+    });
+
     it('returns focus to the popup when the highlight is cleared', async () => {
       const onClick = vi.fn();
       const onItemHighlighted = vi.fn();

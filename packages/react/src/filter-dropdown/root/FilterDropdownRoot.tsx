@@ -6,6 +6,7 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { NOOP } from '@base-ui/utils/empty';
 import { getFilter } from '../../internals/filter';
 import { useBaseUiId } from '../../internals/useBaseUiId';
+import { getMinListIndex } from '../../floating-ui-react/utils/composite';
 import { useItemRegistry } from '../../internals/useItemRegistry';
 import {
   FilterDropdownRootContext,
@@ -37,6 +38,7 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
     autoHighlight = false,
     triggerId: externalTriggerId,
     listRef,
+    getActiveIndex = getNullIndex,
     setActiveIndex = NOOP,
     inputRef: externalFocusOwnerRef,
   } = props;
@@ -68,6 +70,8 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
   const ownFocusOwnerRef = React.useRef<HTMLElement | null>(null);
   const keyReplayRef = React.useRef(false);
   const lastFilterQueryRef = React.useRef<string | null>(null);
+  // Set when a new result changes which items render, until the list reports the change.
+  const resultChangedRef = React.useRef(false);
 
   const defaultMatches = React.useMemo(() => getFilter({ locale }).contains, [locale]);
 
@@ -80,8 +84,36 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
 
   const handleValueChange = useStableCallback(onValueChange ?? NOOP);
 
-  const onItemsChange = useStableCallback((hasItems: boolean) => {
-    setActiveIndex(autoHighlightEnabled && hasItems ? 0 : null);
+  // Disabled items can't be the automatic highlight. With nothing rendered yet this is 0, which
+  // the list settles onto once the items register.
+  const highlightFirst = useStableCallback(() => {
+    const index = getMinListIndex(listRef);
+    setActiveIndex(index < Math.max(listRef.current.length, 1) ? index : null);
+  });
+
+  const onItemsChange = useStableCallback((previousItems: readonly (HTMLElement | null)[]) => {
+    const items = listRef.current;
+    const activeIndex = getActiveIndex();
+    const resultChanged = resultChangedRef.current;
+    resultChangedRef.current = false;
+
+    // A positional highlight must not silently move to another item. A live change that leaves
+    // the highlighted item in place keeps it, such as an item appended after it or one that
+    // renders once before the query filters it out.
+    if (
+      !resultChanged &&
+      activeIndex != null &&
+      items[activeIndex] != null &&
+      items[activeIndex] === previousItems[activeIndex]
+    ) {
+      return;
+    }
+
+    if (autoHighlightEnabled && items.length > 0) {
+      highlightFirst();
+    } else {
+      setActiveIndex(null);
+    }
   });
 
   // React 17 resolves generated ids in an effect, so they must be read live rather than captured
@@ -107,9 +139,14 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
     // With no query or external filtering, every registered item is visible. External filtering
     // still follows `autoHighlight`; otherwise the item set invalidates the highlight.
     if (matches === null) {
+      const previousIds = store.state.visibleItemIds;
+      resultChangedRef.current ||= previousIds !== null && previousIds.size !== liveItems.size;
       store.set('visibleItemIds', null);
+      // Registry updates, such as an item's text changing, keep the current highlight.
       if (autoHighlightEnabled && liveItems.size > 0) {
-        setActiveIndex(0);
+        if (queryChanged || getActiveIndex() == null) {
+          highlightFirst();
+        }
       } else if (filterQuery === '' && queryChanged) {
         setActiveIndex(null);
       }
@@ -138,13 +175,14 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
       // The first filtered snapshot can land after initial keyboard navigation in React 18. It
       // has no prior result identity to invalidate, unless the controlled query itself changed.
       if (autoHighlightEnabled && nextIds.size > 0) {
-        setActiveIndex(0);
+        highlightFirst();
       } else if (currentIds !== null || queryChanged) {
         setActiveIndex(null);
       }
+      resultChangedRef.current ||= currentIds !== null || nextIds.size !== liveItems.size;
       store.set('visibleItemIds', nextIds);
     } else if (autoHighlightEnabled && queryChanged && nextIds.size > 0) {
-      setActiveIndex(0);
+      highlightFirst();
     }
   }, [
     open,
@@ -156,6 +194,8 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
     autoHighlightEnabled,
     store,
     setActiveIndex,
+    getActiveIndex,
+    highlightFirst,
   ]);
 
   const contextValue: FilterDropdownRootContext = React.useMemo(
@@ -216,6 +256,10 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
   );
 }
 
+function getNullIndex() {
+  return null;
+}
+
 export interface FilterDropdownRootProps {
   children?: React.ReactNode;
   /**
@@ -258,6 +302,10 @@ export interface FilterDropdownRootProps {
    * The host's DOM-ordered list of item elements.
    */
   listRef: React.RefObject<Array<HTMLElement | null>>;
+  /**
+   * Reads the host's highlighted index.
+   */
+  getActiveIndex?: (() => number | null) | undefined;
   /**
    * Moves the host's highlight.
    */
