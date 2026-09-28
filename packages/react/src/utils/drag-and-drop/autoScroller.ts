@@ -935,8 +935,9 @@ function clearScrollerMutationObservers(): void {
 /**
  * Observe the registered containers, their composed ancestors, and the page's
  * `<html>`/`<body>` (which the page scroller reads) for restyles that can change
- * a cached overflow or direction. The style caches only hold registered
- * containers and `<html>`/`<body>`, so where the pointer is doesn't matter.
+ * a cached overflow or direction, and for moves that change the ancestors
+ * themselves. The style caches only hold registered containers and
+ * `<html>`/`<body>`, so where the pointer is doesn't matter.
  */
 function observeChainMutations(doc: Document, elements: Set<Element>): void {
   state.chainMutationObserver ??= new (ownerWindow(doc.documentElement).MutationObserver)(
@@ -953,10 +954,13 @@ function observeChainMutations(doc: Document, elements: Set<Element>): void {
       state.rtlCache.delete(element as HTMLElement);
     }
     // No subtree observation: preview positioning and unrelated descendants
-    // must not generate mutation records on every active scroll frame.
+    // must not generate mutation records on every active scroll frame. Direct
+    // children are observed so reparenting a container, or one of its
+    // ancestors, rebuilds the chain.
     observer.observe(element, {
       attributes: true,
       attributeFilter: MUTATION_OBSERVER_OPTIONS.attributeFilter,
+      childList: true,
     });
   }
   state.observedChainElements = elements;

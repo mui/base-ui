@@ -114,6 +114,46 @@ describe('engine.registerViewport', () => {
       expect(onDragScroll).not.toHaveBeenCalled();
     });
 
+    it.each([
+      { name: 'disabled', blocked: { disabled: true } },
+      {
+        name: 'rejecting the drag',
+        blocked: { accept: createKind<unknown>('base-ui-test/other') },
+      },
+    ])('requires a new entry after the viewport is $name in the margin', async ({ blocked }) => {
+      const { engine } = await renderDnd();
+      const source = createElement();
+      const scroller = makeEngageableScroller();
+      const onDragScroll = vi.fn();
+      let isBlocked = false;
+      engine.registerSource(source, {});
+      engine.registerViewport(scroller, () => ({
+        overflowMargin: 30,
+        onDragScroll,
+        ...(isBlocked ? blocked : {}),
+      }));
+      await lift(source, { clientX: 100, clientY: 100 });
+
+      async function moveTo(point: number[]) {
+        fireEvent.dragOver(scroller, { clientX: point[0], clientY: point[1] });
+        await flushRaf();
+        await flushRaf();
+        await flushRaf();
+      }
+
+      await moveTo([100, 220]);
+      expect(onDragScroll).toHaveBeenCalled();
+      isBlocked = true;
+      await moveTo([100, 220]);
+      isBlocked = false;
+      onDragScroll.mockClear();
+      await moveTo([100, 220]);
+      expect(onDragScroll).not.toHaveBeenCalled();
+      await moveTo([100, 100]);
+      await moveTo([100, 220]);
+      expect(onDragScroll).toHaveBeenCalled();
+    });
+
     it('tracks an outer margin while an inner viewport consumes both axes', async () => {
       const { engine } = await renderDnd();
       const source = createElement();
