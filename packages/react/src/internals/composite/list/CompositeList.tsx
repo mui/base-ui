@@ -2,7 +2,6 @@
 'use client';
 import * as React from 'react';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
-import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import {
   CompositeListContext,
@@ -20,6 +19,24 @@ interface CompositeListItem<Metadata> {
   registration: CompositeListRegistration<Metadata>;
 }
 
+interface CompositeListRegistry<Metadata> {
+  // Mirrored from the parameters on every commit so a flush never reads stale ones.
+  elementsRef: React.RefObject<Array<HTMLElement | null>>;
+  labelsRef: React.RefObject<Array<string | null>> | undefined;
+  onMapChange: ((newMap: Map<Element, CompositeMetadata<Metadata>>) => void) | undefined;
+  /** Allocated by the first registration. */
+  registrations: Map<Element, CompositeListRegistration<Metadata>> | null;
+  /** Allocated by the first subscription. */
+  listeners: Set<Function> | null;
+  /** The last flushed snapshot, or `null` before the first flush. */
+  items: readonly CompositeListItem<Metadata>[] | null;
+  /** Starts dirty so the mount commit flushes the registrations collected while mounting. */
+  dirty: boolean;
+  observer: MutationObserver | null;
+  requestFlush: () => void;
+  context: CompositeListContextValue<Metadata>;
+}
+
 /**
  * Tracks the items registered through the returned context and keeps `elementsRef` and
  * `labelsRef` ordered by index. Render the value with `CompositeListContext.Provider`.
@@ -27,196 +44,41 @@ interface CompositeListItem<Metadata> {
 export function useCompositeList<Metadata>(
   params: UseCompositeListParameters<Metadata>,
 ): CompositeListContextValue<Metadata> {
-  const { elementsRef, labelsRef, onMapChange: onMapChangeProp } = params;
+  const { elementsRef, labelsRef, onMapChange } = params;
 
-  const onMapChange = useStableCallback(onMapChangeProp);
+  const [, requestFlush] = React.useReducer(increment, 0);
+  const registry = useRefWithInit(() =>
+    createRegistry<Metadata>(elementsRef, labelsRef, requestFlush),
+  ).current;
 
-  const [, setMapTick] = React.useState(false);
-
-  const listeners = useRefWithInit(createListeners).current;
-  const map = useRefWithInit(createMap<Metadata>).current;
-  const nextIndexRef = React.useRef(0);
-  const isDirtyRef = React.useRef(true);
-  const itemsRef = React.useRef<readonly CompositeListItem<Metadata>[] | null>(null);
-  const mutationObserverRef = React.useRef<MutationObserver | null>(null);
-
-  // Item effects can run without their parent rendering. Schedule one synchronous
-  // parent update for the whole commit so refs are rebuilt before paint and while
-  // the originating React event is still inside `act()` in tests.
-  const scheduleMapUpdate = useStableCallback(() => {
-    if (isDirtyRef.current) {
-      return;
-    }
-
-    isDirtyRef.current = true;
-    setMapTick((tick) => !tick);
-  });
-
-  const register = useStableCallback(
-    (node: Element, registration: CompositeListRegistration<Metadata>) => {
-      map.set(node, registration);
-      scheduleMapUpdate();
-    },
-  );
-
-  const unregister = useStableCallback((node: Element) => {
-    map.delete(node);
-    scheduleMapUpdate();
-  });
-
-  const syncRefs = useStableCallback((items: readonly CompositeListItem<Metadata>[]) => {
-    const nextMap = new Map<Element, CompositeMetadata<Metadata>>();
-
-    elementsRef.current.length = 0;
-    if (labelsRef) {
-      labelsRef.current.length = 0;
-    }
-
-    items.forEach((item) => {
-      nextMap.set(item.element, {
-        ...(item.registration.metadata ?? ({} as Metadata)),
-        index: item.index,
-      });
-
-      elementsRef.current[item.index] = item.element;
-
-      if (labelsRef) {
-        labelsRef.current[item.index] =
-          item.registration.label !== undefined
-            ? item.registration.label
-            : (item.registration.textRef?.current?.textContent ?? item.element.textContent);
-      }
-    });
-
-    nextIndexRef.current = elementsRef.current.length;
-
-    return nextMap;
-  });
-
-  function observe(sortedNodes: HTMLElement[]) {
-    mutationObserverRef.current?.disconnect();
-    mutationObserverRef.current = null;
-
-    // A single item can't reorder.
-    if (typeof MutationObserver !== 'function' || sortedNodes.length < 2) {
-      return;
-    }
-
-    const mutationObserver = new MutationObserver((entries) => {
-      // Only verify the order after a move: a node that was removed and later
-      // re-added within the same batch. Additions and removals alone can't
-      // change the relative order of the remaining items, and items that mount
-      // or unmount re-sort through `register`/`unregister`.
-      if (!hasMovedNode(entries)) {
-        return;
-      }
-
-      let previousConnectedNode: Element | null = null;
-
-      // If any connected node now appears before the previous connected node,
-      // wrappers/items moved and the index map needs to be rebuilt.
-      for (const node of sortedNodes) {
-        if (!node.isConnected) {
-          continue;
-        }
-
-        if (previousConnectedNode && sortByDocumentPosition(previousConnectedNode, node) > 0) {
-          mutationObserver.disconnect();
-          scheduleMapUpdate();
-          return;
-        }
-
-        previousConnectedNode = node;
-      }
-    });
-
-    mutationObserverRef.current = mutationObserver;
-
-    // A reorder that changes item indexes must invert at least one adjacent pair
-    // from the previous sorted order. Observing each pair's common parent catches
-    // both direct item moves and ancestor wrapper moves at the boundary.
-    const roots = new Set<Element>();
-    for (let i = 1; i < sortedNodes.length; i += 1) {
-      const root = getCommonAncestor(sortedNodes[i - 1], sortedNodes[i]);
-      if (root) {
-        roots.add(root);
-      }
-    }
-
-    roots.forEach((root) => mutationObserver.observe(root, { childList: true }));
-  }
-
-  const flush = useStableCallback(() => {
-    const [items, automaticNodes] = getCompositeListSnapshot(map);
-    const nextMap = syncRefs(items);
-
-    const previousItems = itemsRef.current;
-    const changed =
-      !previousItems ||
-      previousItems.length !== items.length ||
-      items.some((item, index) => {
-        const previousItem = previousItems[index];
-        return (
-          item.index !== previousItem.index ||
-          item.element !== previousItem.element ||
-          item.registration.index !== previousItem.registration.index ||
-          item.registration.metadata !== previousItem.registration.metadata
-        );
-      });
-
-    observe(automaticNodes);
-    itemsRef.current = items;
-    isDirtyRef.current = false;
-
-    if (!changed) {
-      return;
-    }
-
-    listeners.forEach((listener) => listener(nextMap));
-    onMapChange(nextMap);
-  });
-
+  // Item refs attach before this effect runs, so flushing here rebuilds the refs before paint
+  // and while the originating React event is still inside `act()` in tests.
   useIsoLayoutEffect(() => {
-    // Re-copy the last committed snapshot when the ref objects change or Strict Mode replays
-    // effects without reattaching callback refs.
-    if (!isDirtyRef.current && itemsRef.current) {
-      syncRefs(itemsRef.current);
+    registry.onMapChange = onMapChange;
+
+    if (registry.elementsRef !== elementsRef || registry.labelsRef !== labelsRef) {
+      clearRefs(registry);
+      registry.elementsRef = elementsRef;
+      registry.labelsRef = labelsRef;
+      registry.dirty = true;
     }
 
-    return () => {
-      elementsRef.current = [];
-      if (labelsRef) {
-        labelsRef.current = [];
-      }
-    };
-  }, [elementsRef, labelsRef, syncRefs]);
-
-  useIsoLayoutEffect(() => {
-    if (isDirtyRef.current) {
-      flush();
+    if (registry.dirty) {
+      flush(registry);
     }
   });
 
   useIsoLayoutEffect(() => {
     return () => {
-      mutationObserverRef.current?.disconnect();
+      disconnectObserver(registry);
+      clearRefs(registry);
       // React 18 Strict Mode replays effects without replaying callback refs.
-      // Mark the retained map dirty so the replay rebuilds refs and observation.
-      isDirtyRef.current = true;
+      // Mark the retained registrations dirty so the replay rebuilds refs and observation.
+      registry.dirty = true;
     };
-  }, []);
+  }, [registry]);
 
-  const subscribeMapChange = useStableCallback((fn) => {
-    listeners.add(fn);
-    return () => {
-      listeners.delete(fn);
-    };
-  });
-
-  return React.useMemo(
-    () => ({ register, unregister, subscribeMapChange, nextIndexRef }),
-    [register, unregister, subscribeMapChange, nextIndexRef],
-  );
+  return registry.context;
 }
 
 /**
@@ -230,22 +92,204 @@ export function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
   );
 }
 
-function createMap<Metadata>() {
-  return new Map<Element, CompositeListRegistration<Metadata>>();
+function increment(count: number) {
+  return count + 1;
 }
 
-function createListeners() {
-  return new Set<Function>();
+function createRegistry<Metadata>(
+  elementsRef: CompositeListRegistry<Metadata>['elementsRef'],
+  labelsRef: CompositeListRegistry<Metadata>['labelsRef'],
+  requestFlush: () => void,
+): CompositeListRegistry<Metadata> {
+  const registry: CompositeListRegistry<Metadata> = {
+    elementsRef,
+    labelsRef,
+    onMapChange: undefined,
+    registrations: null,
+    listeners: null,
+    items: null,
+    dirty: true,
+    observer: null,
+    requestFlush,
+    context: {
+      register(node, registration) {
+        registry.registrations ??= new Map();
+        registry.registrations.set(node, registration);
+        markDirty(registry);
+      },
+      unregister(node) {
+        if (registry.registrations?.delete(node)) {
+          markDirty(registry);
+        }
+      },
+      subscribeMapChange(fn) {
+        registry.listeners ??= new Set();
+        const listeners = registry.listeners;
+        listeners.add(fn);
+        return () => {
+          listeners.delete(fn);
+        };
+      },
+      nextIndexRef: { current: 0 },
+    },
+  };
+
+  return registry;
+}
+
+// Item refs can attach without their list rendering. Request one synchronous list update
+// for the whole commit so the flush runs from the list's layout effect.
+function markDirty<Metadata>(registry: CompositeListRegistry<Metadata>) {
+  if (registry.dirty) {
+    return;
+  }
+
+  registry.dirty = true;
+  registry.requestFlush();
+}
+
+function flush<Metadata>(registry: CompositeListRegistry<Metadata>) {
+  registry.dirty = false;
+
+  const previousItems = registry.items;
+  const [items, automaticNodes] = getCompositeListSnapshot(registry.registrations);
+  const nextMap = syncRefs(registry, items);
+
+  const changed =
+    !previousItems ||
+    previousItems.length !== items.length ||
+    items.some((item, index) => {
+      const previousItem = previousItems[index];
+      return (
+        item.index !== previousItem.index ||
+        item.element !== previousItem.element ||
+        item.registration.index !== previousItem.registration.index ||
+        item.registration.metadata !== previousItem.registration.metadata
+      );
+    });
+
+  observe(registry, automaticNodes);
+  registry.items = items;
+
+  if (!changed) {
+    return;
+  }
+
+  registry.listeners?.forEach((listener) => listener(nextMap));
+  registry.onMapChange?.(nextMap);
+}
+
+function syncRefs<Metadata>(
+  registry: CompositeListRegistry<Metadata>,
+  items: readonly CompositeListItem<Metadata>[],
+) {
+  const nextMap = new Map<Element, CompositeMetadata<Metadata>>();
+  const elements = registry.elementsRef.current;
+  const labels = registry.labelsRef?.current;
+
+  elements.length = 0;
+  if (labels) {
+    labels.length = 0;
+  }
+
+  items.forEach((item) => {
+    nextMap.set(item.element, {
+      ...(item.registration.metadata ?? ({} as Metadata)),
+      index: item.index,
+    });
+
+    elements[item.index] = item.element;
+
+    if (labels) {
+      labels[item.index] = getLabel(item);
+    }
+  });
+
+  registry.context.nextIndexRef.current = elements.length;
+
+  return nextMap;
+}
+
+function clearRefs<Metadata>(registry: CompositeListRegistry<Metadata>) {
+  registry.elementsRef.current = [];
+  if (registry.labelsRef) {
+    registry.labelsRef.current = [];
+  }
+}
+
+function getLabel<Metadata>(item: CompositeListItem<Metadata>) {
+  const { label, textRef } = item.registration;
+  if (label !== undefined) {
+    return label;
+  }
+  return textRef?.current?.textContent ?? item.element.textContent;
+}
+
+function observe<Metadata>(registry: CompositeListRegistry<Metadata>, sortedNodes: HTMLElement[]) {
+  disconnectObserver(registry);
+
+  // A single item can't reorder.
+  if (typeof MutationObserver !== 'function' || sortedNodes.length < 2) {
+    return;
+  }
+
+  const observer = new MutationObserver((entries) => {
+    // Only verify the order after a move: a node that was removed and later
+    // re-added within the same batch. Additions and removals alone can't
+    // change the relative order of the remaining items, and items that mount
+    // or unmount re-sort through `register`/`unregister`.
+    if (!hasMovedNode(entries)) {
+      return;
+    }
+
+    let previousConnectedNode: Element | null = null;
+
+    // If any connected node now appears before the previous connected node,
+    // wrappers/items moved and the index map needs to be rebuilt.
+    for (const node of sortedNodes) {
+      if (!node.isConnected) {
+        continue;
+      }
+
+      if (previousConnectedNode && sortByDocumentPosition(previousConnectedNode, node) > 0) {
+        disconnectObserver(registry);
+        markDirty(registry);
+        return;
+      }
+
+      previousConnectedNode = node;
+    }
+  });
+
+  registry.observer = observer;
+
+  // A reorder that changes item indexes must invert at least one adjacent pair
+  // from the previous sorted order. Observing each pair's common parent catches
+  // both direct item moves and ancestor wrapper moves at the boundary.
+  const roots = new Set<Element>();
+  for (let i = 1; i < sortedNodes.length; i += 1) {
+    const root = getCommonAncestor(sortedNodes[i - 1], sortedNodes[i]);
+    if (root) {
+      roots.add(root);
+    }
+  }
+
+  roots.forEach((root) => observer.observe(root, { childList: true }));
+}
+
+function disconnectObserver<Metadata>(registry: CompositeListRegistry<Metadata>) {
+  registry.observer?.disconnect();
+  registry.observer = null;
 }
 
 function getCompositeListSnapshot<Metadata>(
-  map: Map<Element, CompositeListRegistration<Metadata>>,
+  registrations: Map<Element, CompositeListRegistration<Metadata>> | null,
 ) {
   const reservedIndices = new Set<number>();
   const items: CompositeListItem<Metadata>[] = [];
   const automaticItems: CompositeListItem<Metadata>[] = [];
 
-  map.forEach((registration, node) => {
+  registrations?.forEach((registration, node) => {
     if (!node.isConnected) {
       return;
     }
