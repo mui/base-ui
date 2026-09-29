@@ -968,6 +968,62 @@ describe('<Virtualizer /> windowing', () => {
   );
 
   it.skipIf(isJSDOM)(
+    'keeps the heights measured while scrolling across an estimate refresh',
+    async () => {
+      vi.restoreAllMocks();
+      const apiRef = React.createRef<VirtualizerHandle>();
+
+      const renderItem = (item: TestItem, index: number) => (
+        <TestListItem style={{ height: 20 + (index % 4) * 10 }}>{item.label}</TestListItem>
+      );
+
+      await render(
+        <TestVirtualizedList
+          apiRef={apiRef}
+          estimatedItemHeight={20}
+          overscanPx={0}
+          render={<div data-testid="virtualizer" style={{ height: 120, width: 200 }} />}
+          items={createItems(400)}
+        >
+          {renderItem}
+        </TestVirtualizedList>,
+      );
+      const virtualizer = screen.getByTestId('virtualizer');
+      await screen.findByText('Item 1');
+      const wait = (ms: number) =>
+        act(
+          () =>
+            new Promise((resolve) => {
+              setTimeout(resolve, ms);
+            }),
+        );
+      await wait(400);
+
+      // Scroll down in steps shorter than the rendered window, so every row on the way is
+      // mounted and measured, though none of it while the list is at rest.
+      for (let step = 1; step <= 10; step += 1) {
+        virtualizer.scrollTop = step * 400;
+        fireEvent.scroll(virtualizer);
+        // eslint-disable-next-line no-await-in-loop
+        await wait(16);
+      }
+      // The settle pass and the estimate refresh that the settled window calls for. The refresh
+      // re-estimates the rows never measured; the ones measured on the way down keep their
+      // heights, so an item with only measured rows above it keeps its place.
+      await wait(1500);
+      const metricsAtRest = apiRef.current?.getItemMetrics(50);
+      expect(metricsAtRest?.size).toBe(40);
+
+      // Back into rows measured on the way down: mounting them again measures nothing new.
+      virtualizer.scrollTop = 2000;
+      fireEvent.scroll(virtualizer);
+      await wait(600);
+
+      expect(apiRef.current?.getItemMetrics(50)).toEqual(metricsAtRest);
+    },
+  );
+
+  it.skipIf(isJSDOM)(
     'keeps the content still when the settled window mounts unmeasured rows above it',
     async () => {
       vi.restoreAllMocks();

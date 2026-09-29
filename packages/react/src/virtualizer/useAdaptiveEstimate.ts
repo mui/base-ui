@@ -31,6 +31,13 @@ interface AdaptiveEstimateInternals {
    * average, so no refinement can come from it. Cleared by the next new sample.
    */
   refinementExhaustedRef: React.RefObject<boolean>;
+  /**
+   * Whether heights cached for rows that are no longer mounted may be stale. True until the first
+   * refresh after the samples were taken afresh, since rows measured before any sample was taken
+   * may have been laid out transiently, and set again when a sampled row measures differently,
+   * which means the layout changed.
+   */
+  cachedHeightsMayBeStaleRef: React.RefObject<boolean>;
 }
 
 /**
@@ -97,6 +104,7 @@ export function useAdaptiveEstimate<RowModel>(
 
   const estimateRef = React.useRef<number | null>(null);
   const refinementExhaustedRef = React.useRef(false);
+  const cachedHeightsMayBeStaleRef = React.useRef(true);
   const measurementsRef = useRefWithInit(() => ({
     heights: new Map<React.Key, number>(),
     total: 0,
@@ -157,6 +165,7 @@ export function useAdaptiveEstimate<RowModel>(
     if (invalidated) {
       estimateRef.current = null;
       refinementExhaustedRef.current = false;
+      cachedHeightsMayBeStaleRef.current = true;
       measurementsRef.current.heights.clear();
       measurementsRef.current.total = 0;
       measuredRowsRef.current.clear();
@@ -190,6 +199,7 @@ export function useAdaptiveEstimate<RowModel>(
   const reset = useStableCallback(() => {
     estimateRef.current = null;
     refinementExhaustedRef.current = false;
+    cachedHeightsMayBeStaleRef.current = true;
     measurementsRef.current.heights.clear();
     measurementsRef.current.total = 0;
     measuredRowsRef.current.clear();
@@ -204,6 +214,7 @@ export function useAdaptiveEstimate<RowModel>(
       measurementRevision,
       measurements: measurementsRef.current,
       refinementExhaustedRef,
+      cachedHeightsMayBeStaleRef,
     }),
     [hydrationTimeout, measuredRowsRef, measurementRevision, measurementsRef],
   );
@@ -304,6 +315,7 @@ export function useAdaptiveEstimateRefresh<RowModel>(
     measurementRevision,
     measurements,
     refinementExhaustedRef,
+    cachedHeightsMayBeStaleRef,
   } = adaptive.internals;
   const { enabled, noteMeasurements } = adaptive;
   const { firstRowIndex, lastRowIndex } = renderContext;
@@ -340,6 +352,11 @@ export function useAdaptiveEstimateRefresh<RowModel>(
       if (row != null && measuredHeight != null) {
         const previousHeight = measurements.heights.get(row.id);
         if (previousHeight !== measuredHeight) {
+          // A row sampled before that measures differently now means the layout changed, so
+          // heights cached for rows no longer mounted may be stale too.
+          if (previousHeight !== undefined) {
+            cachedHeightsMayBeStaleRef.current = true;
+          }
           measurements.heights.set(row.id, measuredHeight);
           measurements.total += measuredHeight - (previousHeight ?? 0);
           // A fresh sample means the window still has something to say.
@@ -374,22 +391,30 @@ export function useAdaptiveEstimateRefresh<RowModel>(
       return;
     }
 
-    // Rows measured during a transient layout or an active gesture were deliberately excluded from
-    // the settled sample above. Do not let those stale entries continue overriding the new estimate
-    // in the collection total; they will be measured again if they re-enter the rendered window.
-    for (const [rowId] of readMeasuredHeights()) {
-      if (!measurements.heights.has(rowId)) {
-        demoteRowHeight(rowId, average);
-        // A demoted row's real height is no longer part of the geometry. Leaving it marked as
-        // measured would let a remeasurement commit that height mid-drag, moving the scrollbar
-        // under the pointer — the drag deferral trusts this set to skip already-settled rows.
-        measuredRows.delete(rowId as React.Key);
+    // Before the first sample, or once the layout has changed, a height cached for a row that is
+    // no longer mounted may have been measured under a layout that is gone, such as while a popup
+    // was still resolving its width. Such rows were not part of the settled sample above. Do not let those stale entries keep
+    // overriding the new estimate in the collection total; they will be measured again if they
+    // re-enter the rendered window. Without that evidence, the cached heights stand: rows
+    // measured while scrolling are just as real as the sample, and demoting them would move the
+    // content when they mount and measure again.
+    if (cachedHeightsMayBeStaleRef.current) {
+      cachedHeightsMayBeStaleRef.current = false;
+      for (const [rowId] of readMeasuredHeights()) {
+        if (!measurements.heights.has(rowId)) {
+          demoteRowHeight(rowId, average);
+          // A demoted row's real height is no longer part of the geometry. Leaving it marked as
+          // measured would let a remeasurement commit that height mid-drag, moving the scrollbar
+          // under the pointer — the drag deferral trusts this set to skip already-settled rows.
+          measuredRows.delete(rowId as React.Key);
+        }
       }
     }
 
     estimateRef.current = average;
     settleGeometry();
   }, [
+    cachedHeightsMayBeStaleRef,
     demoteRowHeight,
     defaultEstimatedItemHeight,
     enabled,
