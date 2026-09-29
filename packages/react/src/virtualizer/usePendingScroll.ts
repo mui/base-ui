@@ -14,6 +14,7 @@ import type { VirtualizerRow } from '../internals/virtualization/types';
 import type { VirtualizerScrollAlignment, VirtualizerScrollToIndexOptions } from './types';
 import type { AdaptiveEstimate } from './useAdaptiveEstimate';
 import type { ScrollInputEvidence } from './useScrollGesture';
+import type { ViewportController } from './viewportController';
 
 /**
  * Nearby rows do not accumulate enough estimate error to justify delaying scroll completion.
@@ -65,10 +66,8 @@ export interface PendingScroll {
   scrollToIndex: (rowIndex: number, options?: VirtualizerScrollToIndexOptions) => void;
   /** Whether a request is still outstanding. Scroll anchoring stands aside while one is. */
   isPending: () => boolean;
-  /** Whether a scroll event is an echo of a position this module wrote. */
+  /** Whether a scroll event is an echo of a position the virtualizer wrote. */
   isProgrammaticEcho: (scrollTop: number, evidence: ScrollInputEvidence) => boolean;
-  /** Records a scroll position another concern is about to write, so its event is not a takeover. */
-  noteProgrammaticScroll: (scrollTop: number) => void;
   /** Abandons the outstanding request, as user scrolling does. */
   cancel: () => void;
   /** @internal Re-applies the outstanding request. Driven by {@link usePendingScrollRetry}. */
@@ -80,8 +79,8 @@ export interface UsePendingScrollParameters<RowModel> {
   enabled: boolean;
   /** Whether a row's height has been measured, as opposed to estimated. */
   isRowMeasured: (rowId: React.Key) => boolean;
-  /** Hands a position written here to the engine, which the browser tells only a task later. */
-  onScrollApplied: (scrollTop: number) => void;
+  /** Writes the scroll positions, and hands them to the engine. */
+  viewport: ViewportController;
   /**
    * Number of items strictly before each row, for a list whose rows include group headers, or
    * `undefined` for a flat list. Distances between a request and the window are judged in items:
@@ -149,7 +148,7 @@ export function usePendingScroll<RowModel>(
     adaptive,
     enabled,
     isRowMeasured,
-    onScrollApplied,
+    viewport,
     itemCountBeforeRow,
     renderContextRef,
     getRowsParent,
@@ -177,11 +176,6 @@ export function usePendingScroll<RowModel>(
   const paddingRef = React.useRef<ScrollPaddingOverride>(EMPTY_SCROLL_PADDING_OVERRIDE);
   const requiresMeasurementRef = React.useRef(false);
   const requiresAdaptiveEstimateRef = React.useRef(false);
-  /**
-   * The last `scrollTop` this component itself wrote, so user-driven scrolling can be told apart
-   * from the scroll events of our own corrective writes.
-   */
-  const programmaticScrollTopRef = React.useRef<number | null>(null);
   /**
    * Position the scrollport should be at while the browser still refuses to scroll there. A scroll
    * container gains its scrollable overflow only on the frame after the one that mounts it, so the
@@ -238,13 +232,8 @@ export function usePendingScroll<RowModel>(
       return;
     }
 
-    programmaticScrollTopRef.current = pendingScrollTop;
-    scrollElement.scrollTo({ behavior: 'instant' as ScrollBehavior, top: pendingScrollTop });
-    const appliedScrollTop = scrollElement.scrollTop;
-
-    if (Math.abs(appliedScrollTop - pendingScrollTop) <= 1) {
+    if (viewport.write(scrollElement, pendingScrollTop, 'if-accepted')) {
       viewportScrollTopRef.current = null;
-      onScrollApplied(appliedScrollTop);
     }
   });
 
@@ -322,26 +311,16 @@ export function usePendingScroll<RowModel>(
           scrollElement.clientHeight,
         );
         const clampedScrollTop = clamp(nextScrollTop, 0, maxScrollTop);
-        programmaticScrollTopRef.current = clampedScrollTop;
-        scrollElement.scrollTo({
-          behavior: 'instant' as ScrollBehavior,
-          top: clampedScrollTop,
-        });
-        const appliedScrollTop = scrollElement.scrollTop;
-        const scrollApplied = Math.abs(appliedScrollTop - clampedScrollTop) <= 1;
-
-        if (scrollApplied) {
+        // The engine adopts an accepted position and renders the window it calls for in the
+        // commit that follows, before the browser paints that position.
+        if (viewport.write(scrollElement, clampedScrollTop, 'if-accepted')) {
           viewportScrollTopRef.current = null;
           viewportScrollFrame.cancel();
           requiresMeasurementRef.current = true;
-          // The engine adopts the written position and renders the window it calls for in the
-          // commit that follows, before the browser paints that position.
-          onScrollApplied(appliedScrollTop);
         } else {
           // A newly opened popup runs this before its scrollable overflow exists, and the browser
           // clamps the write back to the top. The destination is still known, so hold it and
           // write it again on the frame after, once the scrollport can accept it.
-          programmaticScrollTopRef.current = clampedScrollTop;
           viewportScrollTopRef.current = clampedScrollTop;
           requiresMeasurementRef.current = false;
           viewportScrollFrame.request(applyViewportScroll);
@@ -463,8 +442,8 @@ export function usePendingScroll<RowModel>(
         0,
         getMaxScrollOffset(scrollElement.scrollHeight, scrollElement.clientHeight),
       );
-      programmaticScrollTopRef.current = clampedScrollTop;
-      scrollElement.scrollTo({ behavior: 'instant' as ScrollBehavior, top: clampedScrollTop });
+      // Not windowing, the engine has no window to recompute for the position.
+      viewport.write(scrollElement, clampedScrollTop, 'never');
     },
   );
 
@@ -598,13 +577,9 @@ export function usePendingScroll<RowModel>(
 
   // Read by the other concerns' effects and handlers: these only read refs.
   const isPending = React.useCallback(() => rowIndexRef.current != null, []);
-  const noteProgrammaticScroll = useStableCallback((scrollTop: number) => {
-    programmaticScrollTopRef.current = scrollTop;
-  });
   const isProgrammaticEcho = useStableCallback(
     (scrollTop: number, evidence: ScrollInputEvidence) =>
-      (programmaticScrollTopRef.current != null &&
-        Math.abs(scrollTop - programmaticScrollTopRef.current) <= 1) ||
+      viewport.isEcho(scrollTop) ||
       // Expanding a collection can queue several corrective native scroll events while its
       // adaptive estimate settles. None of those are user takeovers unless direct input occurred.
       (requiresAdaptiveEstimateRef.current && !evidence.hasDirectInput && !evidence.isPointerDown),
@@ -615,11 +590,10 @@ export function usePendingScroll<RowModel>(
       cancel,
       isPending,
       isProgrammaticEcho,
-      noteProgrammaticScroll,
       retry,
       scrollToIndex,
     }),
-    [cancel, isPending, isProgrammaticEcho, noteProgrammaticScroll, retry, scrollToIndex],
+    [cancel, isPending, isProgrammaticEcho, retry, scrollToIndex],
   );
 }
 

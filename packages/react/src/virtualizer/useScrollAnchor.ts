@@ -8,6 +8,7 @@ import { getMaxScrollOffset } from '../utils/scrollEdges';
 import type { VirtualizerRow } from '../internals/virtualization/types';
 import type { PendingScroll } from './usePendingScroll';
 import type { ScrollGesture } from './useScrollGesture';
+import type { ViewportController } from './viewportController';
 import { getLaidOutRowElements } from './getLaidOutRowElements';
 
 import type { RowsGeometry } from './geometry';
@@ -34,8 +35,8 @@ export interface ScrollAnchorSnapshot<RowModel> {
 export interface UseScrollAnchorParameters<RowModel> {
   enabled: boolean;
   gesture: ScrollGesture;
-  /** Hands a position written here to the engine, which the browser tells only a task later. */
-  onScrollApplied: (scrollTop: number) => void;
+  /** Writes the scroll positions, and hands them to the engine. */
+  viewport: ViewportController;
   /** Commits the engine's pending geometry, recomputing every row position. */
   settleGeometry: () => void;
   /**
@@ -117,7 +118,7 @@ export function useScrollAnchor<RowModel>(
   const {
     enabled,
     gesture,
-    onScrollApplied,
+    viewport,
     pendingScroll,
     getRowsParent,
     isWindowInPlace,
@@ -211,9 +212,7 @@ export function useScrollAnchor<RowModel>(
     };
 
     if (Math.abs(nextScrollTop - scrollTop) >= getSmallestCorrection(scrollElement)) {
-      pendingScroll.noteProgrammaticScroll(nextScrollTop);
-      scrollElement.scrollTo({ behavior: 'instant' as ScrollBehavior, top: nextScrollTop });
-      onScrollApplied(nextScrollTop);
+      viewport.write(scrollElement, nextScrollTop, 'always');
     }
   });
 
@@ -340,11 +339,9 @@ export function useScrollAnchor<RowModel>(
 
         if (Math.abs(nextScrollTop - scrollTop) >= smallestCorrection) {
           scrollTop = nextScrollTop;
-          pendingScroll.noteProgrammaticScroll(nextScrollTop);
-          scrollElement.scrollTo({ behavior: 'instant' as ScrollBehavior, top: nextScrollTop });
           // The engine adopts the written position and renders the window it calls for in the
           // commit that follows, before the browser paints.
-          onScrollApplied(nextScrollTop);
+          viewport.write(scrollElement, nextScrollTop, 'always');
         }
       }
     }

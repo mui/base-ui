@@ -80,6 +80,7 @@ import type { PendingScroll } from './usePendingScroll';
 import { useScrollAnchor } from './useScrollAnchor';
 import { useScrollGesture } from './useScrollGesture';
 import { useViewportRestore } from './useViewportRestore';
+import { ViewportController } from './viewportController';
 import { VirtualizerCssVars } from './VirtualizerCssVars';
 
 interface VirtualRowProps<RowModel> {
@@ -729,6 +730,9 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
   const syncEngineWithScrollWrite = useStableCallback(() => {
     muiApiRef.current?.syncScrollPosition();
   });
+  const viewport = useRefWithInit(
+    () => new ViewportController({ syncEngine: syncEngineWithScrollWrite }),
+  ).current;
 
   const layout = useRefWithInit(
     () =>
@@ -1427,7 +1431,7 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
     // following its row by id through such a change; a flat list has no such change to follow.
     resolveRowIndex: grouped == null ? undefined : resolveRowIndexById,
     itemCountBeforeRow: grouped?.itemCountBeforeRow,
-    onScrollApplied: syncEngineWithScrollWrite,
+    viewport,
     renderContextRef,
     getRowsParent,
     isWindowInPlace,
@@ -1444,12 +1448,10 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
   pendingScrollRef.current = pendingScroll;
 
   const resetScroll = useStableCallback(() => {
-    pendingScroll.noteProgrammaticScroll(0);
-    scrollElementRef.current?.scrollTo({
-      behavior: 'instant' as ScrollBehavior,
-      top: 0,
-    });
-    syncEngineWithScrollWrite();
+    const scrollElement = scrollElementRef.current;
+    if (scrollElement != null) {
+      viewport.write(scrollElement, 0, 'always');
+    }
   });
 
   // Reported in scroll coordinates rather than the engine's: what the rows are laid out after is
@@ -1615,7 +1617,7 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
   const scrollAnchor = useScrollAnchor<VirtualizerRowModel<Value>>({
     enabled,
     gesture,
-    onScrollApplied: syncEngineWithScrollWrite,
+    viewport,
     settleGeometry,
     measureNewRows,
     pendingScroll,
