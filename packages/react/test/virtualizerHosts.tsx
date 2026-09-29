@@ -7,15 +7,17 @@ import {
   Virtualizer,
   VirtualizerHostContext,
   VirtualizerHostStateContext,
-  type VirtualizerActiveIndex,
-  type VirtualizerGroup,
-  type VirtualizerGroupHeaderMetadata,
-  type VirtualizerHandle,
-  type VirtualizerHost,
-  type VirtualizerHostState,
-  type VirtualizerItemAria,
-  type VirtualizerItemMetadata,
-  type VirtualizerItemProps,
+} from '@base-ui/react/virtualizer';
+import type {
+  VirtualizerActiveIndex,
+  VirtualizerGroup,
+  VirtualizerGroupHeaderMetadata,
+  VirtualizerHandle,
+  VirtualizerHost,
+  VirtualizerHostState,
+  VirtualizerItemAria,
+  VirtualizerItemMetadata,
+  VirtualizerItemProps,
 } from '@base-ui/react/virtualizer';
 
 /**

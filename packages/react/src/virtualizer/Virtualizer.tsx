@@ -7,16 +7,13 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { warn } from '@base-ui/utils/warn';
-import {
-  Dimensions,
-  LayoutList,
-  Virtualization,
-  useVirtualizer,
-  type HeightEntry,
-  type Row as MuiVirtualizerRow,
-  type RowEntry,
-  type RenderContext,
-  type Virtualizer as MuiVirtualizer,
+import { Dimensions, LayoutList, Virtualization, useVirtualizer } from '@mui/x-virtualizer';
+import type {
+  HeightEntry,
+  Row as MuiVirtualizerRow,
+  RowEntry,
+  RenderContext,
+  Virtualizer as MuiVirtualizer,
 } from '@mui/x-virtualizer';
 import { getMaxScrollOffset } from '../utils/scrollEdges';
 import type { StateAttributesMapping } from '../internals/getStateAttributesProps';
@@ -28,14 +25,14 @@ import {
   isObjectValue,
   useGroupedRowModels,
   useRowModels,
-  type GroupedRows,
 } from '../internals/virtualization/useRowModels';
-import {
-  isGroupHeaderRow,
-  type VirtualizerItemRowModel,
-  type VirtualizerRenderRowParameters,
-  type VirtualizerRow,
-  type VirtualizerRowModel,
+import type { GroupedRows } from '../internals/virtualization/useRowModels';
+import { isGroupHeaderRow } from '../internals/virtualization/types';
+import type {
+  VirtualizerItemRowModel,
+  VirtualizerRenderRowParameters,
+  VirtualizerRow,
+  VirtualizerRowModel,
 } from '../internals/virtualization/types';
 import type {
   VirtualizerHandle,
@@ -73,7 +70,8 @@ import {
 import { useAdaptiveEstimate, useAdaptiveEstimateRefresh } from './useAdaptiveEstimate';
 import { useEngineMode } from './useEngineMode';
 import { useItemHeightEstimate } from './useItemHeightEstimate';
-import { usePendingScroll, usePendingScrollRetry, type PendingScroll } from './usePendingScroll';
+import { usePendingScroll, usePendingScrollRetry } from './usePendingScroll';
+import type { PendingScroll } from './usePendingScroll';
 import { useScrollAnchor } from './useScrollAnchor';
 import { useScrollGesture } from './useScrollGesture';
 import { useViewportRestore } from './useViewportRestore';

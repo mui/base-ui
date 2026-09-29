@@ -194,7 +194,7 @@ function VirtualizedListbox({
   const { refs, context } = useFloating({ open, onOpenChange: setOpen });
 
   const { getReferenceProps, getFloatingProps, getItemProps } = useTestInteractions([
-    useListNavigation(context, {
+    useListNavigation(context.rootStore, {
       listRef,
       activeIndex,
       onNavigate: setActiveIndex,

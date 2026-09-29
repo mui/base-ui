@@ -8,8 +8,8 @@ import {
   TestListItem,
   TestVirtualizedList,
   createVirtualizerItems as createItems,
-  type VirtualizerTestItem as TestItem,
 } from '#test-utils';
+import type { VirtualizerTestItem as TestItem } from '#test-utils';
 import { Virtualizer } from './Virtualizer';
 
 describe('<Virtualizer /> collection', () => {

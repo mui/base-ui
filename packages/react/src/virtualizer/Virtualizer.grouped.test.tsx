@@ -9,8 +9,8 @@ import {
   TestGroupLabel,
   TestListItem,
   TestVirtualizedList,
-  type VirtualizerTestItem,
 } from '#test-utils';
+import type { VirtualizerTestItem } from '#test-utils';
 import { Virtualizer } from './Virtualizer';
 
 interface TestItem {
