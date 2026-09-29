@@ -27,6 +27,17 @@ function setScrollGeometry(clientHeight: number, scrollHeight: number) {
   };
 }
 
+/**
+ * The popup moves focus into itself on a frame after its options appear, so a key pressed as soon
+ * as they exist can still land on the body and navigate nothing. `Select.List` is rendered directly
+ * in `Select.Popup`, so the popup is the listbox's parent.
+ */
+async function waitForPopupFocus() {
+  await waitFor(() => {
+    expect(screen.getByRole('listbox').parentElement).toHaveFocus();
+  });
+}
+
 describe('<Virtualizer /> inside Select', () => {
   const { render } = createRenderer();
 
@@ -153,6 +164,7 @@ describe('<Virtualizer /> inside Select', () => {
     await waitFor(() => {
       expect(getOptions().length).not.toBe(0);
     });
+    await waitForPopupFocus();
 
     // `End` travels to the last item, which was never in the initial window.
     await user.keyboard('{End}');
@@ -178,6 +190,7 @@ describe('<Virtualizer /> inside Select', () => {
     await waitFor(() => {
       expect(getOptions().length).not.toBe(0);
     });
+    await waitForPopupFocus();
 
     await user.keyboard('{End}');
     await waitFor(() => {
@@ -252,6 +265,7 @@ describe('<Virtualizer /> inside Select', () => {
     await waitFor(() => {
       expect(getOptions().length).not.toBe(0);
     });
+    await waitForPopupFocus();
 
     await user.keyboard('{End}{Enter}');
     await waitFor(() => {
@@ -515,6 +529,7 @@ describe('<Virtualizer /> inside Select', () => {
       await waitFor(() => {
         expect(getOptions().length).not.toBe(0);
       });
+      await waitForPopupFocus();
 
       await user.keyboard('{End}');
 
