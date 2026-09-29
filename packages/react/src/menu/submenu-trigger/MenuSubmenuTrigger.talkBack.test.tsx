@@ -92,7 +92,7 @@ describe.skipIf(isJSDOM)('<Menu.SubmenuTrigger /> with TalkBack', () => {
     expect(await screen.findByTestId('submenu')).not.toBe(null);
   });
 
-  it('keeps the submenu open on a TalkBack press with `openOnHover={false}`', async () => {
+  it('does not close the submenu on the trailing click of a TalkBack press', async () => {
     const { user } = await render(<Test submenuTriggerProps={{ openOnHover: false }} />);
 
     await user.click(screen.getByRole('button', { name: 'Open menu' }));

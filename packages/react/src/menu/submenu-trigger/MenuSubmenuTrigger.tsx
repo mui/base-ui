@@ -186,7 +186,10 @@ export const MenuSubmenuTrigger = React.forwardRef(function MenuSubmenuTrigger(
   const click = useClick(floatingRootContext, {
     enabled: !disabled,
     event: 'mousedown',
-    toggle: !openOnHover,
+    // Keep toggling enabled so TalkBack users can close the submenu and reach the next parent
+    // menu item. Moving the virtual cursor outside does not close it, and moving forward again
+    // re-enters the submenu.
+    toggle: true,
     ignoreMouse: openOnHover,
     stickIfOpen: false,
   });
