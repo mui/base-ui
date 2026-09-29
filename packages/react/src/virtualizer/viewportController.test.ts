@@ -1,5 +1,5 @@
 import { expect, describe, it } from 'vitest';
-import { isRowFarFromWindow } from './usePendingScroll';
+import { isRowFarFromWindow } from './viewportController';
 
 describe('isRowFarFromWindow', () => {
   const window = { firstRowIndex: 10, lastRowIndex: 20 };

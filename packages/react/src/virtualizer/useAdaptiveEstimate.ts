@@ -291,7 +291,7 @@ export interface UseAdaptiveEstimateRefreshParameters<RowModel> {
  *
  * Re-estimating rows above the viewport shifts their positions, so the refresh commits through
  * scroll anchoring, which keeps the content in place and the window around it mounted — so this
- * must be declared after `useScrollAnchor`.
+ * must run after the viewport's commit.
  */
 export function useAdaptiveEstimateRefresh<RowModel>(
   parameters: UseAdaptiveEstimateRefreshParameters<RowModel>,
