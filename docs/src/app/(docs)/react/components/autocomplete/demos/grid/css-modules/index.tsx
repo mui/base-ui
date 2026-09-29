@@ -72,6 +72,7 @@ export default function ExampleEmojiPicker() {
                     <div className={styles.Empty}>No emojis found</div>
                   </Autocomplete.Empty>
                   <Autocomplete.List
+                    aria-label="Emoji results"
                     className={styles.List}
                     style={{ '--cols': COLUMNS } as React.CSSProperties}
                   >

@@ -1,4 +1,4 @@
-import { vi, expect } from 'vitest';
+import { vi, expect, describe, it } from 'vitest';
 /* eslint-disable testing-library/render-result-naming-convention */
 import * as React from 'react';
 import { createRenderer } from '#test-utils';
@@ -511,6 +511,101 @@ describe('useRenderElement', () => {
       expect(element?.getAttribute('data-testid')).toBe('lazy');
       expect(element?.getAttribute('data-lazy')).toBe('true');
       expect(element?.className).toContain('test-component');
+    });
+
+    // The Flight client hands a Client Component a `react.lazy` wrapper in place of a
+    // render element created in a Server Component. Skipped below React 19, whose
+    // Children.toArray() is the first to unwrap lazy elements.
+    describe.skipIf(reactMajor < 19)('lazy-wrapped render element (Flight shape)', () => {
+      function wrapLazy(
+        element: React.ReactElement,
+        init: (payload: unknown) => unknown = (payload) => payload,
+      ): React.ReactElement {
+        return {
+          $$typeof: Symbol.for('react.lazy'),
+          _payload: element,
+          _init: init,
+        } as unknown as React.ReactElement;
+      }
+
+      it('merges props with the same precedence as a plain render element', async () => {
+        const { container } = await render(
+          <TestComponent
+            active
+            data-slot="component"
+            render={wrapLazy(
+              <div className="render-class" style={{ fontSize: '16px' }} data-slot="render" />,
+            )}
+          />,
+        );
+
+        const element = container.firstElementChild as HTMLElement;
+        expect(element.getAttribute('data-slot')).toBe('render');
+        expect(element.className).toContain('render-class');
+        expect(element.className).toContain('test-component');
+        expect(element.style.fontSize).toBe('16px');
+        expect(element.style.padding).toBe('10px');
+      });
+
+      it('attaches the render element ref', async () => {
+        const renderRef = React.createRef<HTMLDivElement>();
+        const componentRef = React.createRef<HTMLDivElement>();
+
+        const { container } = await render(
+          <TestComponent ref={componentRef} render={wrapLazy(<div ref={renderRef} />)} />,
+        );
+
+        const element = container.firstElementChild;
+        expect(renderRef.current).toBe(element);
+        expect(componentRef.current).toBe(element);
+      });
+
+      it('does not unwrap a pending element when disabled', async () => {
+        const init = vi.fn(() => {
+          throw new Promise(() => {});
+        });
+
+        function DisabledLazyComponent(props: { render: React.ReactElement }) {
+          return useRenderElement('div', props, { enabled: false });
+        }
+
+        const { container } = await render(
+          <React.Suspense fallback={<div data-testid="fallback" />}>
+            <DisabledLazyComponent render={wrapLazy(<div />, init)} />
+          </React.Suspense>,
+        );
+
+        expect(container.innerHTML).toBe('');
+        expect(init).not.toHaveBeenCalled();
+      });
+
+      // `Children.toArray` drops nullish and boolean children but keeps strings and
+      // numbers, so both shapes have to survive as invalid render elements.
+      it.each([
+        ['null', null],
+        ['false', false],
+        ['the number 0', 0],
+        ['an empty string', ''],
+      ])(
+        'reports a wrapper that unwraps to %s as an invalid render element',
+        async (_, payload) => {
+          const originalEnv = process.env.NODE_ENV;
+
+          let error: Error | null = null;
+          try {
+            process.env.NODE_ENV = 'development';
+            await render(<TestComponent render={wrapLazy(payload as any)} />);
+          } catch (err) {
+            error = err as Error;
+          } finally {
+            process.env.NODE_ENV = originalEnv;
+          }
+
+          expect(error?.message).toMatch(
+            /Base UI: The `render` prop was provided an invalid React element/,
+          );
+        },
+      );
     });
 
     // React 18 also log console error, React 19 fixed that. Ignoring this test for React 18.

@@ -1,7 +1,14 @@
 import * as React from 'react';
-import { expect, vi } from 'vitest';
+import { expect, vi, describe, it } from 'vitest';
 import userEvent from '@testing-library/user-event';
-import { act, fireEvent, flushMicrotasks, screen } from '@mui/internal-test-utils';
+import {
+  act,
+  fireEvent,
+  flushMicrotasks,
+  ignoreActWarnings,
+  screen,
+  waitFor,
+} from '@mui/internal-test-utils';
 import { Menu } from '@base-ui/react/menu';
 import { Popover } from '@base-ui/react/popover';
 import { describeConformance, createRenderer, isJSDOM } from '#test-utils';
@@ -30,6 +37,49 @@ describe('<Menu.Trigger />', () => {
     } finally {
       errorSpy.mockRestore();
     }
+  });
+
+  describe.skipIf(isJSDOM)('tabbing backward from the open trigger', () => {
+    it.each([true, false])('focuses the preceding element when modal=%s', async (modal) => {
+      ignoreActWarnings();
+      const { userEvent: nativeUser } = await import('vitest/browser');
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+      await render(
+        <div>
+          <button>Before</button>
+          <Menu.Root modal={modal}>
+            <Menu.Trigger>Toggle</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.Item>Item</Menu.Item>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </div>,
+      );
+
+      const trigger = screen.getByRole('button', { name: 'Toggle' });
+      await nativeUser.click(trigger);
+      await waitFor(() => {
+        expect(screen.getByRole('menu')).toHaveFocus();
+      });
+
+      // Menu normally closes on Shift+Tab from its content. Focus the trigger while it stays open.
+      await act(async () => trigger.focus());
+      expect(trigger).toHaveAttribute('aria-expanded', 'true');
+
+      await nativeUser.tab({ shift: true });
+
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: 'Before' })).toHaveFocus();
+      });
+      await waitFor(() => {
+        expect(screen.queryByRole('menu')).toBe(null);
+      });
+    });
   });
 
   describe('prop: disabled', () => {
@@ -81,6 +131,42 @@ describe('<Menu.Trigger />', () => {
     const menuPopup = await screen.findByRole('menu', { hidden: false });
     expect(menuPopup).not.toBe(null);
     expect(menuPopup).toHaveAttribute('data-open', '');
+  });
+
+  it('removes the hover mouseup listener when unmounted before mouseup', async () => {
+    const addEventListenerSpy = vi.spyOn(document, 'addEventListener');
+    const removeEventListenerSpy = vi.spyOn(document, 'removeEventListener');
+
+    try {
+      const { user, unmount } = await render(
+        <Menu.Root>
+          <Menu.Trigger delay={0} openOnHover>
+            Open
+          </Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup />
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>,
+      );
+
+      const trigger = screen.getByRole('button', { name: 'Open' });
+      addEventListenerSpy.mockClear();
+      await user.hover(trigger);
+      await screen.findByRole('menu', { hidden: false });
+
+      const mouseUpListener = addEventListenerSpy.mock.calls.find(
+        (call) => call[0] === 'mouseup',
+      )?.[1];
+      expect(mouseUpListener).toBeTypeOf('function');
+
+      unmount();
+      expect(removeEventListenerSpy).toHaveBeenCalledWith('mouseup', mouseUpListener);
+    } finally {
+      addEventListenerSpy.mockRestore();
+      removeEventListenerSpy.mockRestore();
+    }
   });
 
   describe('keyboard navigation', () => {

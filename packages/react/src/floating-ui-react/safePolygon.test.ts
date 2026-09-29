@@ -1,4 +1,4 @@
-import { vi, expect } from 'vitest';
+import { vi, expect, describe, beforeEach, afterEach, it } from 'vitest';
 import { act } from '@mui/internal-test-utils';
 import { FloatingTreeStore } from './components/FloatingTreeStore';
 import type { HandleCloseContext } from './hooks/useHoverShared';

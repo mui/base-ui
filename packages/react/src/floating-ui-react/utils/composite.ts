@@ -4,6 +4,7 @@ import { getComputedStyle } from '@floating-ui/utils/dom';
 import type { Dimensions } from '../types';
 import { stopEvent } from './event';
 import { ARROW_DOWN, ARROW_LEFT, ARROW_RIGHT, ARROW_UP } from './constants';
+import { closest } from './element';
 
 export type DisabledIndices = ReadonlyArray<number> | ((index: number) => boolean);
 
@@ -78,8 +79,7 @@ export function getGridNavigatedIndex(
     orientation: 'horizontal' | 'vertical' | 'both';
     loopFocus: boolean;
     onLoop?:
-      | ((event: React.KeyboardEvent, prevIndex: number, nextIndex: number) => number)
-      | undefined;
+      ((event: React.KeyboardEvent, prevIndex: number, nextIndex: number) => number) | undefined;
     rtl: boolean;
     cols: number;
     disabledIndices: DisabledIndices | undefined;
@@ -118,7 +118,7 @@ export function getGridNavigatedIndex(
 
         visibleItemCount += 1;
 
-        const rowEl = el.closest('[role="row"]');
+        const rowEl = closest(el, '[role="row"]');
         if (rowEl) {
           hasRoleRow = true;
         }

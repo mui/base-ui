@@ -233,6 +233,28 @@ function App3() {
   );
 }
 
+function ReadonlyMultipleValues() {
+  const [value, setValue] = React.useState<string[]>([]);
+  const readonlyValue: readonly string[] = value;
+  const tupleValue = ['javascript', 'typescript'] as const;
+
+  return (
+    <React.Fragment>
+      <Select.Root multiple value={readonlyValue} onValueChange={setValue} />
+      <Select.Root multiple defaultValue={readonlyValue} onValueChange={setValue} />
+      <Select.Root
+        multiple
+        value={tupleValue}
+        onValueChange={(newValue) => {
+          expectType<('javascript' | 'typescript')[], typeof newValue>(newValue);
+          newValue.pop();
+        }}
+      />
+      <Select.Root multiple defaultValue={tupleValue} onValueChange={setValue} />
+    </React.Fragment>
+  );
+}
+
 mergeProps<typeof Select.Root<any>>(
   {
     value: '',

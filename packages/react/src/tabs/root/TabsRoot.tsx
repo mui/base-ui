@@ -11,10 +11,8 @@ import { TabsRootContext } from './TabsRootContext';
 import { tabsStateAttributesMapping } from './stateAttributesMapping';
 import type { TabsTab } from '../tab/TabsTab';
 import type { TabsPanel } from '../panel/TabsPanel';
-import {
-  createChangeEventDetails,
-  type BaseUIChangeEventDetails,
-} from '../../internals/createBaseUIEventDetails';
+import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 
 /**
@@ -456,15 +454,11 @@ export interface TabsRootProps extends BaseUIComponentProps<'div', TabsRootState
    * `'initial'`, `'disabled'`, or `'missing'` has no effect.
    */
   onValueChange?:
-    | ((value: TabsTab.Value, eventDetails: TabsRoot.ChangeEventDetails) => void)
-    | undefined;
+    ((value: TabsTab.Value, eventDetails: TabsRoot.ChangeEventDetails) => void) | undefined;
 }
 
 export type TabsRootChangeEventReason =
-  | typeof REASONS.none
-  | typeof REASONS.disabled
-  | typeof REASONS.missing
-  | typeof REASONS.initial;
+  typeof REASONS.none | typeof REASONS.disabled | typeof REASONS.missing | typeof REASONS.initial;
 export type TabsRootChangeEventDetails = BaseUIChangeEventDetails<
   TabsRoot.ChangeEventReason,
   { activationDirection: TabsTab.ActivationDirection }

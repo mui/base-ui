@@ -1,5 +1,6 @@
 // TODO: Remove if temporal adapters are supported
 // @ts-nocheck No types available
+import { describe } from 'vitest';
 import { DateTime, Settings } from 'luxon';
 import { describeGregorianAdapter } from '#test-utils';
 import { TemporalAdapterLuxon } from './TemporalAdapterLuxon';

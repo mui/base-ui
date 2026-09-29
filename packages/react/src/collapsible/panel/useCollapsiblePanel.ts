@@ -9,12 +9,12 @@ import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { warn } from '@base-ui/utils/warn';
 import { ownerWindow } from '@base-ui/utils/owner';
-import { HTMLProps } from '../../internals/types';
+import type { HTMLProps } from '../../internals/types';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
 import { useAnimationsFinished } from '../../internals/useAnimationsFinished';
-import { CollapsiblePanelDataAttributes } from './CollapsiblePanelDataAttributes';
+import * as CollapsiblePanelDataAttributes from './CollapsiblePanelDataAttributes';
 import type { CollapsibleRoot } from '../root/CollapsibleRoot';
 import type { TransitionStatus } from '../../internals/useTransitionStatus';
 

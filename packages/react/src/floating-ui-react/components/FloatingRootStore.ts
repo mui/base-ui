@@ -1,10 +1,10 @@
-import * as React from 'react';
+import type * as React from 'react';
 import { ReactStore } from '@base-ui/utils/store';
 import type { FloatingEvents, ContextData, ReferenceType } from '../types';
-import { type BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { createEventEmitter } from '../utils/createEventEmitter';
-import { type FloatingUIOpenChangeDetails } from '../../internals/types';
-import { type PopupTriggerMap } from '../../utils/popups';
+import type { FloatingUIOpenChangeDetails } from '../../internals/types';
+import type { PopupTriggerMap } from '../../utils/popups';
 import { isClickLikeEvent } from '../utils';
 import type { TransitionStatus } from '../../internals/useTransitionStatus';
 
@@ -23,8 +23,7 @@ export interface FloatingRootState {
 
 export interface FloatingRootStoreContext {
   onOpenChange:
-    | ((open: boolean, eventDetails: BaseUIChangeEventDetails<string>) => void)
-    | undefined;
+    ((open: boolean, eventDetails: BaseUIChangeEventDetails<string>) => void) | undefined;
   readonly dataRef: React.RefObject<ContextData>;
   readonly events: FloatingEvents;
   nested: boolean;
@@ -54,8 +53,7 @@ interface FloatingRootStoreOptions {
   syncOnly: boolean;
   nested: boolean;
   onOpenChange:
-    | ((open: boolean, eventDetails: BaseUIChangeEventDetails<string>) => void)
-    | undefined;
+    ((open: boolean, eventDetails: BaseUIChangeEventDetails<string>) => void) | undefined;
 }
 
 export class FloatingRootStore extends ReactStore<

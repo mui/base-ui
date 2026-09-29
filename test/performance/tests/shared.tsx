@@ -19,8 +19,9 @@ export function createRows(count: number, labelPrefix = 'Item'): BenchmarkRow[] 
 
 export function MountList(props: {
   rows: BenchmarkRow[];
+  style?: React.CSSProperties;
   children: (row: BenchmarkRow) => React.ReactNode;
 }) {
-  const { rows, children } = props;
-  return <div>{rows.map((row) => children(row))}</div>;
+  const { rows, style, children } = props;
+  return <div style={style}>{rows.map((row) => children(row))}</div>;
 }

@@ -10,17 +10,19 @@ import type { StateAttributesMapping } from '../../internals/getStateAttributesP
 import { NOOP } from '../../internals/noop';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
-import { getDisplacement, useSwipeDismiss, type SwipeDirection } from '../../utils/useSwipeDismiss';
+import { getDisplacement, useSwipeDismiss } from '../../utils/useSwipeDismiss';
+import type { SwipeDirection } from '../../utils/useSwipeDismiss';
 import { getElementTransform } from '../../utils/getElementTransform';
-import { DrawerPopupCssVars } from '../popup/DrawerPopupCssVars';
-import { DrawerPopupDataAttributes } from '../popup/DrawerPopupDataAttributes';
-import { DrawerBackdropCssVars } from '../backdrop/DrawerBackdropCssVars';
-import { useDrawerRootContext, type DrawerSwipeDirection } from '../root/DrawerRootContext';
+import * as DrawerPopupCssVars from '../popup/DrawerPopupCssVars';
+import * as DrawerPopupDataAttributes from '../popup/DrawerPopupDataAttributes';
+import * as DrawerBackdropCssVars from '../backdrop/DrawerBackdropCssVars';
+import { useDrawerRootContext } from '../root/DrawerRootContext';
+import type { DrawerSwipeDirection } from '../root/DrawerRootContext';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import { useTriggerRegistration } from '../../utils/popups';
 import { useDrawerProviderContext } from '../provider/DrawerProviderContext';
 import { isVirtualClick } from '../../floating-ui-react/utils/event';
-import { DrawerSwipeAreaDataAttributes } from './DrawerSwipeAreaDataAttributes';
+import * as DrawerSwipeAreaDataAttributes from './DrawerSwipeAreaDataAttributes';
 
 const DEFAULT_SWIPE_OPEN_RATIO = 0.5;
 const MIN_SWIPE_START_DISTANCE = 1;

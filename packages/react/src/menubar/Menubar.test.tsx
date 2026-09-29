@@ -1,4 +1,4 @@
-import { afterEach, expect, vi } from 'vitest';
+import { afterEach, expect, vi, describe, beforeEach, it } from 'vitest';
 import * as React from 'react';
 import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import {
@@ -80,6 +80,33 @@ describe('<Menubar />', () => {
       editTrigger,
       new PointerEvent('click', { bubbles: true, cancelable: true, pointerType: 'touch' }),
     );
+
+    await waitFor(() => {
+      expect(screen.queryByTestId('edit-menu')).toBe(null);
+    });
+  });
+
+  it('closes on a touch item click immediately after focus opens another menu', async () => {
+    const { user } = await render(<ContainedTriggerMenubar />);
+
+    await user.click(screen.getByTestId('file-trigger'));
+    await screen.findByTestId('file-menu');
+
+    // Freeze timers so the 300ms touch-click cooldown started by the focus-open is still
+    // active when the item is clicked.
+    vi.useFakeTimers();
+    try {
+      await act(async () => {
+        screen.getByTestId('edit-trigger').focus();
+      });
+
+      fireEvent(
+        screen.getByTestId('edit-item-1'),
+        new PointerEvent('click', { bubbles: true, cancelable: true, pointerType: 'touch' }),
+      );
+    } finally {
+      vi.useRealTimers();
+    }
 
     await waitFor(() => {
       expect(screen.queryByTestId('edit-menu')).toBe(null);

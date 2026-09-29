@@ -53,10 +53,7 @@ type TabsRootChangeEventReason = 'none' | 'disabled' | 'missing' | 'initial';
 
 ```typescript
 type TabsRootChangeEventDetails = (
-  | { reason: 'none' }
-  | { reason: 'disabled' }
-  | { reason: 'missing' }
-  | { reason: 'initial' }
+  { reason: 'none' } | { reason: 'disabled' } | { reason: 'missing' } | { reason: 'initial' }
 ) & {
   /** The native event associated with the custom event. */
   event: Event;

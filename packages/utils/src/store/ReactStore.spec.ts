@@ -1,5 +1,6 @@
 import { expectType } from '../testUtils';
 import { createSelector } from './createSelector';
+import type { Store } from './Store';
 import { ReactStore } from './ReactStore';
 
 interface TestState {
@@ -120,3 +121,10 @@ const mismatchedListener = (newValue: string) => {
 };
 // @ts-expect-error listener must match selector return type
 store.observe((state) => state.text.length, mismatchedListener);
+
+// Calling create() on the generic class constructs a ReactStore at runtime, but the
+// inferred instance type degrades to the base Store — a known limitation (see Store.create).
+{
+  const degraded = ReactStore.create({ count: 0 });
+  expectType<Store<{ count: number }>, typeof degraded>(degraded);
+}

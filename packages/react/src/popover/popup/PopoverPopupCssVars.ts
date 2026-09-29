@@ -1,10 +1,8 @@
-export enum PopoverPopupCssVars {
-  /**
-   * The width of the popup.
-   */
-  popupWidth = '--popup-width',
-  /**
-   * The height of the popup.
-   */
-  popupHeight = '--popup-height',
-}
+/**
+ * The width of the popup.
+ */
+export const popupWidth = '--popup-width';
+/**
+ * The height of the popup.
+ */
+export const popupHeight = '--popup-height';

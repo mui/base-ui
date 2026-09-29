@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { createRenderer } from '@mui/internal-test-utils';
-import { expect, vi } from 'vitest';
+import { expect, vi, beforeAll, beforeEach, afterAll, describe, it } from 'vitest';
 
 type IdleCallbackModule = typeof import('./useIdleCallback');
 

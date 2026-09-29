@@ -89,7 +89,7 @@ describe.skipIf(isJSDOM)('<Menu.SubmenuTrigger /> with TalkBack', () => {
     fireTalkBackPress(submenuTrigger);
 
     // The mousedown open path defers through a rAF.
-    await screen.findByTestId('submenu');
+    expect(await screen.findByTestId('submenu')).not.toBe(null);
   });
 
   it('keeps the submenu open on a TalkBack press with `openOnHover={false}`', async () => {

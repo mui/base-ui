@@ -16,7 +16,7 @@ Doesn't render its own HTML element.
 | defaultOpen             | `boolean`                                                                 | `false` | Whether the dialog is initially open. To render a controlled dialog, use the `open` prop instead.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
 | open                    | `boolean`                                                                 | -       | Whether the dialog is currently open.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
 | onOpenChange            | `((open: boolean, eventDetails: Dialog.Root.ChangeEventDetails) => void)` | -       | Event handler called when the dialog is opened or closed.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
-| actionsRef              | `React.RefObject<Dialog.Root.Actions \| null>`                            | -       | A ref to imperative actions. `unmount`: Manually unmounts the dialog.&#xA;Call this after any externally controlled closing animation finishes.`close`: Closes the dialog imperatively when called.                                                                                                                                                                                                                                                                                                                                                                                           |
+| actionsRef              | `React.RefObject<Dialog.Root.Actions \| null>`                            | -       | A ref to imperative actions. `unmount`: Ends the closing phase of the dialog after an externally controlled closing animation finishes.&#xA;Call `preventUnmountOnClose()` in `onOpenChange` first, otherwise the dialog completes closing on its own.&#xA;Whether it leaves the DOM is decided by `keepMounted` on the portal.`close`: Closes the dialog imperatively when called.                                                                                                                                                                                                           |
 | defaultTriggerId        | `string \| null`                                                          | -       | ID of the trigger that the dialog is associated with.&#xA;This is useful in conjunction with the `defaultOpen` prop to create an initially open dialog.                                                                                                                                                                                                                                                                                                                                                                                                                                       |
 | disablePointerDismissal | `boolean`                                                                 | `false` | Whether to prevent the dialog from closing on outside presses.&#xA;For non-modal dialogs, this also prevents the dialog from closing when focus moves outside of it.                                                                                                                                                                                                                                                                                                                                                                                                                          |
 | handle                  | `Dialog.Handle<Payload>`                                                  | -       | A handle to associate the dialog with a trigger.&#xA;If specified, allows external triggers to control the dialog's open state.&#xA;Can be created with the Dialog.createHandle() method.                                                                                                                                                                                                                                                                                                                                                                                                     |
@@ -76,7 +76,8 @@ type DialogRootChangeEventDetails = (
   isPropagationAllowed: boolean;
   /** The element that triggered the event, if applicable. */
   trigger: Element | undefined;
-  preventUnmountOnClose: preventUnmountOnClose;
+  /** Prevents the popup from unmounting until the `unmount` action is called. */
+  preventUnmountOnClose: () => void;
 };
 ```
 
@@ -419,12 +420,6 @@ type InteractionType = 'mouse' | 'touch' | 'pen' | 'keyboard' | '';
 
 ```typescript
 type PayloadChildRenderFunction = (arg: { payload: unknown | undefined }) => ReactNode;
-```
-
-### preventUnmountOnClose
-
-```typescript
-type preventUnmountOnClose = () => void;
 ```
 
 ## Export Groups

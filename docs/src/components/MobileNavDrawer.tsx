@@ -8,7 +8,8 @@ import type { SearchResult, Sitemap } from '@mui/internal-docs-infra/useSearch/t
 import { MagnifyingGlassIcon } from 'docs/src/icons/MagnifyingGlassIcon';
 import { MobileNavContent } from './MobileNavContent';
 import { handleModifiedEnterNavigation, searchResultToString } from './Search/searchUtils';
-import { loadSearchSitemap, type SearchSitemapLoader } from './Search/searchSitemap';
+import { loadSearchSitemap } from './Search/searchSitemap';
+import type { SearchSitemapLoader } from './Search/searchSitemap';
 import { SearchResultsList } from './Search/SearchResultsList';
 import { useDeferredSearchSitemap } from './Search/useDeferredSearchSitemap';
 import { useDeferredEmptySearchResults } from './Search/useDeferredEmptySearchResults';

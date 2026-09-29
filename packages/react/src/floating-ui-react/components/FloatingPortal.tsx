@@ -19,10 +19,8 @@ import {
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import { createAttribute } from '../utils/createAttribute';
-import {
-  useRenderElement,
-  type UseRenderElementComponentProps,
-} from '../../internals/useRenderElement';
+import { useRenderElement } from '../../internals/useRenderElement';
+import type { UseRenderElementComponentProps } from '../../internals/useRenderElement';
 import { ownerVisuallyHidden } from '../../internals/constants';
 import type { BaseUIComponentProps } from '../../internals/types';
 
@@ -53,11 +51,7 @@ const attr = createAttribute('portal');
 export interface UseFloatingPortalNodeProps {
   ref?: React.Ref<HTMLDivElement> | undefined;
   container?:
-    | HTMLElement
-    | ShadowRoot
-    | null
-    | React.RefObject<HTMLElement | ShadowRoot | null>
-    | undefined;
+    HTMLElement | ShadowRoot | null | React.RefObject<HTMLElement | ShadowRoot | null> | undefined;
   componentProps?: UseRenderElementComponentProps<any> | undefined;
   elementProps?: React.HTMLAttributes<HTMLDivElement> | undefined;
 }

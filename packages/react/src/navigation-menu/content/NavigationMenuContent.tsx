@@ -13,12 +13,14 @@ import {
   useNavigationMenuTreeContext,
 } from '../root/NavigationMenuRootContext';
 import { useNavigationMenuItemContext } from '../item/NavigationMenuItemContext';
-import { TransitionStatus, useTransitionStatus } from '../../internals/useTransitionStatus';
+import type { TransitionStatus } from '../../internals/useTransitionStatus';
+import { useTransitionStatus } from '../../internals/useTransitionStatus';
 import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
 import { transitionStatusMapping } from '../../internals/stateAttributesMapping';
-import { StateAttributesMapping } from '../../internals/getStateAttributesProps';
+import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
 import { CompositeRoot } from '../../internals/composite/root/CompositeRoot';
 import { popupStateMapping } from '../../utils/popupStateMapping';
+import * as NavigationMenuContentDataAttributes from './NavigationMenuContentDataAttributes';
 
 const stateAttributesMapping: StateAttributesMapping<NavigationMenuContentState> = {
   ...popupStateMapping,
@@ -28,7 +30,7 @@ const stateAttributesMapping: StateAttributesMapping<NavigationMenuContentState>
       return null;
     }
     return {
-      'data-activation-direction': value,
+      [NavigationMenuContentDataAttributes.activationDirection]: value,
     };
   },
 };

@@ -1,4 +1,4 @@
-import { expect, vi } from 'vitest';
+import { expect, vi, describe, it } from 'vitest';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
@@ -396,6 +396,28 @@ describe('<CheckboxGroup />', () => {
       fireEvent.click(banana);
 
       expect(group).not.toHaveAttribute('data-dirty');
+    });
+
+    it('[data-filled] follows the group value even without a matching rendered checkbox', () => {
+      render(
+        <Field.Root name="fruits">
+          <CheckboxGroup defaultValue={['cherry']}>
+            <Field.Item>
+              <Checkbox.Root value="apple" data-testid="apple" />
+            </Field.Item>
+          </CheckboxGroup>
+        </Field.Root>,
+      );
+
+      const group = screen.getByRole('group');
+      const apple = screen.getByTestId('apple');
+
+      expect(group).toHaveAttribute('data-filled', '');
+
+      fireEvent.click(apple);
+      fireEvent.click(apple);
+
+      expect(group).toHaveAttribute('data-filled', '');
     });
 
     it('keeps a required error while another required checkbox in the group is unchecked', async () => {
@@ -1902,8 +1924,7 @@ describe('<CheckboxGroup />', () => {
 
         await user.click(screen.getByText('Submit'));
 
-        expect(validate).toHaveBeenCalledOnce();
-        expect(validate).toHaveBeenCalledWith(['one'], { group: [] });
+        expect(validate).toHaveBeenCalledExactlyOnceWith(['one'], { group: [] });
       },
     );
 
@@ -1940,8 +1961,7 @@ describe('<CheckboxGroup />', () => {
 
         await user.click(screen.getByText('Submit'));
 
-        expect(validate).toHaveBeenCalledOnce();
-        expect(validate).toHaveBeenCalledWith(['one'], { group: [] });
+        expect(validate).toHaveBeenCalledExactlyOnceWith(['one'], { group: [] });
 
         await user.click(screen.getByText('Select two'));
 
@@ -1970,8 +1990,7 @@ describe('<CheckboxGroup />', () => {
 
       await user.click(screen.getByText('Select'));
 
-      expect(validate).toHaveBeenCalledOnce();
-      expect(validate).toHaveBeenCalledWith(['one'], { group: ['one'] });
+      expect(validate).toHaveBeenCalledExactlyOnceWith(['one'], { group: ['one'] });
     });
 
     it('validates an initially empty group through the imperative action', async () => {
@@ -1995,8 +2014,7 @@ describe('<CheckboxGroup />', () => {
 
       await user.click(screen.getByText('Validate'));
 
-      expect(validate).toHaveBeenCalledOnce();
-      expect(validate).toHaveBeenCalledWith([], { group: [] });
+      expect(validate).toHaveBeenCalledExactlyOnceWith([], { group: [] });
     });
 
     it('skips a disabled representative checkbox on a later focus attempt', async () => {

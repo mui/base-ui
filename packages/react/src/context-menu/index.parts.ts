@@ -3,7 +3,7 @@ export { ContextMenuTrigger as Trigger } from './trigger/ContextMenuTrigger';
 
 export { MenuBackdrop as Backdrop } from '../menu/backdrop/MenuBackdrop';
 export { MenuPortal as Portal } from '../menu/portal/MenuPortal';
-export { MenuPositioner as Positioner } from '../menu/positioner/MenuPositioner';
+export { ContextMenuPositioner as Positioner } from './positioner/ContextMenuPositioner';
 export { MenuPopup as Popup } from '../menu/popup/MenuPopup';
 export { MenuArrow as Arrow } from '../menu/arrow/MenuArrow';
 export { MenuGroup as Group } from '../menu/group/MenuGroup';
