@@ -60,8 +60,6 @@ const AXIS_SWIPE_IGNORE_SELECTORS: Record<ScrollAxis, string> = {
   horizontal: `[${BASE_UI_SWIPE_IGNORE_ATTRIBUTE}="x"]`,
   vertical: `[${BASE_UI_SWIPE_IGNORE_ATTRIBUTE}="y"]`,
 };
-// Any value other than `x`/`y`, including the bare attribute, ignores every direction.
-const SWIPE_IGNORE_ALL_SELECTOR = `${BASE_UI_SWIPE_IGNORE_SELECTOR}:not(${AXIS_SWIPE_IGNORE_SELECTORS.horizontal}):not(${AXIS_SWIPE_IGNORE_SELECTORS.vertical})`;
 
 interface TouchScrollState {
   startX: number;
@@ -997,13 +995,13 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
 
           virtualKeyboard?.onTouchStart(event);
 
-          // `x`/`y` hand touch drags along that axis to the element. On the drawer axis that
-          // ignores the swipe outright; on the cross axis the element is arbitrated like a native
-          // cross-axis scroller below.
+          // `x`/`y` hand touch drags along that axis to the element. Any value other than the
+          // cross-axis one ignores the swipe outright; a cross-axis element is arbitrated like a
+          // native cross-axis scroller below.
           if (
             closest(
               elementAtPoint,
-              `${SWIPE_IGNORE_ALL_SELECTOR},${AXIS_SWIPE_IGNORE_SELECTORS[scrollAxis]}`,
+              `${BASE_UI_SWIPE_IGNORE_SELECTOR}:not(${AXIS_SWIPE_IGNORE_SELECTORS[crossScrollAxis]})`,
             )
           ) {
             resetTouchSwipeState(true);
