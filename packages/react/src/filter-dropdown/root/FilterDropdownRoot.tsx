@@ -3,7 +3,6 @@ import * as React from 'react';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { NOOP } from '@base-ui/utils/empty';
 import { getFilter } from '../../internals/filter';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import { useItemRegistry } from '../../internals/useItemRegistry';
@@ -85,7 +84,16 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
   // The host owns the trigger. `null` and `''` both mean no element carries an id to point at.
   const triggerId = triggerIdProp || undefined;
 
-  const handleValueChange = useStableCallback(onValueChange ?? NOOP);
+  const handleValueChange = useStableCallback(
+    (nextValue: string, eventDetails: FilterDropdownRoot.ChangeEventDetails) => {
+      onValueChange?.(nextValue, eventDetails);
+      // Indexes are positional, so a kept highlight would land on whatever fills its slot.
+      // With `autoHighlight`, the filtering effect below places the highlight instead.
+      if (!eventDetails.isCanceled && !autoHighlight) {
+        setActiveIndex(null);
+      }
+    },
+  );
 
   const handleItemsChange = useStableCallback((previousItems: readonly (HTMLElement | null)[]) => {
     const items = listRef.current;

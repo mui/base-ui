@@ -449,6 +449,42 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
         );
       });
 
+      it('clears a navigated highlight when Clear is pressed', async () => {
+        const { user } = await render(
+          <Menu.FilterProvider autoHighlight>
+            <Menu.Root open>
+              <Menu.Portal>
+                <Menu.Positioner>
+                  <Menu.Popup>
+                    <Menu.Input aria-label="Filter actions" />
+                    <Menu.Clear aria-label="Clear filter" />
+                    <Menu.List>
+                      <Menu.Item>Rename</Menu.Item>
+                      <Menu.Item>Delete</Menu.Item>
+                    </Menu.List>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+          </Menu.FilterProvider>,
+        );
+
+        const input = screen.getByRole('searchbox', { name: 'Filter actions' });
+        await user.type(input, 'e');
+        await user.keyboard('[ArrowDown]');
+        const deleteItem = screen.getByRole('menuitem', { name: 'Delete' });
+        await waitFor(() => {
+          expect(deleteItem).toHaveAttribute('data-highlighted');
+        });
+
+        await user.click(screen.getByLabelText('Clear filter'));
+
+        await waitFor(() => {
+          expect(input).not.toHaveAttribute('aria-activedescendant');
+        });
+        expect(deleteItem).not.toHaveAttribute('data-highlighted');
+      });
+
       it('restores the first item when an always-highlighted query is cleared', async () => {
         const { user } = await render(
           <Menu.FilterProvider autoHighlight="always">

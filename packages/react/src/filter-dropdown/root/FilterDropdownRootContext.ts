@@ -30,6 +30,7 @@ export interface FilterDropdownRootContext {
   setActiveIndex: (index: number | null) => void;
   /** Called with the previous items when the host's list changes after it first registered. */
   onItemsChange: (previousItems: readonly (HTMLElement | null)[]) => void;
+  /** Reports a query edit and resets the highlight it invalidates. */
   onValueChange: (value: string, eventDetails: FilterDropdownRoot.ChangeEventDetails) => void;
 }
 

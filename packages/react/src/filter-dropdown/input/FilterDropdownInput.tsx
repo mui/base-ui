@@ -53,9 +53,6 @@ export const FilterDropdownInput = React.forwardRef(function FilterDropdownInput
           const reason = nextValue === '' ? REASONS.inputClear : REASONS.inputChange;
           const eventDetails = createChangeEventDetails(reason, event.nativeEvent);
           context.onValueChange(nextValue, eventDetails);
-          if (!eventDetails.isCanceled && !context.autoHighlight) {
-            context.setActiveIndex(null);
-          }
         },
         onKeyDown() {
           context.setKeyboardModality(true);
