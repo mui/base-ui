@@ -1232,156 +1232,114 @@ type AccordionPanelState = {
 
 ## Additional Types
 
-### AccordionHeaderDataAttributes.disabled
+### AccordionHeaderDataAttributes
 
-Present when the accordion item is disabled.
+Data attributes of [Header](#header).
 
 \`\`\`typescript
-type AccordionHeaderDataAttributesdisabled = 'data-disabled';
+declare namespace AccordionHeaderDataAttributes {
+  /**
+   * Indicates the index of the accordion item.
+   * @type number
+   */
+  const index: 'data-index';
+  /** Present when the accordion item is disabled. */
+  const disabled: 'data-disabled';
+  /** Present when the accordion item is open. */
+  const open: 'data-open';
+}
 \`\`\`
 
-### AccordionHeaderDataAttributes.index
+### AccordionItemDataAttributes
 
-Indicates the index of the accordion item.
+Data attributes of [Item](#item).
 
 \`\`\`typescript
-type AccordionHeaderDataAttributesindex = 'data-index';
+declare namespace AccordionItemDataAttributes {
+  /**
+   * Indicates the index of the accordion item.
+   * @type number
+   */
+  const index: 'data-index';
+  /** Present when the accordion item is disabled. */
+  const disabled: 'data-disabled';
+  /** Present when the accordion item is open. */
+  const open: 'data-open';
+}
 \`\`\`
 
-### AccordionHeaderDataAttributes.open
+### AccordionPanelCssVariables
 
-Present when the accordion item is open.
+CSS variables of [Panel](#panel).
 
 \`\`\`typescript
-type AccordionHeaderDataAttributesopen = 'data-open';
+declare namespace AccordionPanelCssVariables {
+  /**
+   * The accordion panel's height.
+   * @type number
+   */
+  const accordionPanelHeight: '--accordion-panel-height';
+  /**
+   * The accordion panel's width.
+   * @type number
+   */
+  const accordionPanelWidth: '--accordion-panel-width';
+}
 \`\`\`
 
-### AccordionItemDataAttributes.disabled
+### AccordionPanelDataAttributes
 
-Present when the accordion item is disabled.
+Data attributes of [Panel](#panel).
 
 \`\`\`typescript
-type AccordionItemDataAttributesdisabled = 'data-disabled';
+declare namespace AccordionPanelDataAttributes {
+  /**
+   * Indicates the index of the accordion item.
+   * @type number
+   */
+  const index: 'data-index';
+  /** Present when the accordion panel is open. */
+  const open: 'data-open';
+  /** Indicates the orientation of the accordion. */
+  const orientation: 'data-orientation';
+  /** Present when the accordion item is disabled. */
+  const disabled: 'data-disabled';
+  /** Present when the panel begins animating in. */
+  const startingStyle: 'data-starting-style';
+  /** Present when the panel is animating out. */
+  const endingStyle: 'data-ending-style';
+}
 \`\`\`
 
-### AccordionItemDataAttributes.index
+### AccordionRootDataAttributes
 
-Indicates the index of the accordion item.
+Data attributes of [Root](#root).
 
 \`\`\`typescript
-type AccordionItemDataAttributesindex = 'data-index';
+declare namespace AccordionRootDataAttributes {
+  /** Present when the accordion is disabled. */
+  const disabled: 'data-disabled';
+  /** Indicates the orientation of the accordion. */
+  const orientation: 'data-orientation';
+}
 \`\`\`
 
-### AccordionItemDataAttributes.open
+### AccordionTriggerDataAttributes
 
-Present when the accordion item is open.
-
-\`\`\`typescript
-type AccordionItemDataAttributesopen = 'data-open';
-\`\`\`
-
-### AccordionPanelCssVariables.accordionPanelHeight
-
-The accordion panel's height.
+Data attributes of [Trigger](#trigger).
 
 \`\`\`typescript
-type AccordionPanelCssVariablesaccordionPanelHeight = '--accordion-panel-height';
-\`\`\`
-
-### AccordionPanelCssVariables.accordionPanelWidth
-
-The accordion panel's width.
-
-\`\`\`typescript
-type AccordionPanelCssVariablesaccordionPanelWidth = '--accordion-panel-width';
-\`\`\`
-
-### AccordionPanelDataAttributes.disabled
-
-Present when the accordion item is disabled.
-
-\`\`\`typescript
-type AccordionPanelDataAttributesdisabled = 'data-disabled';
-\`\`\`
-
-### AccordionPanelDataAttributes.endingStyle
-
-Present when the panel is animating out.
-
-\`\`\`typescript
-type AccordionPanelDataAttributesendingStyle = 'data-ending-style';
-\`\`\`
-
-### AccordionPanelDataAttributes.index
-
-Indicates the index of the accordion item.
-
-\`\`\`typescript
-type AccordionPanelDataAttributesindex = 'data-index';
-\`\`\`
-
-### AccordionPanelDataAttributes.open
-
-Present when the accordion panel is open.
-
-\`\`\`typescript
-type AccordionPanelDataAttributesopen = 'data-open';
-\`\`\`
-
-### AccordionPanelDataAttributes.orientation
-
-Indicates the orientation of the accordion.
-
-\`\`\`typescript
-type AccordionPanelDataAttributesorientation = 'data-orientation';
-\`\`\`
-
-### AccordionPanelDataAttributes.startingStyle
-
-Present when the panel begins animating in.
-
-\`\`\`typescript
-type AccordionPanelDataAttributesstartingStyle = 'data-starting-style';
-\`\`\`
-
-### AccordionRootDataAttributes.disabled
-
-Present when the accordion is disabled.
-
-\`\`\`typescript
-type AccordionRootDataAttributesdisabled = 'data-disabled';
-\`\`\`
-
-### AccordionRootDataAttributes.orientation
-
-Indicates the orientation of the accordion.
-
-\`\`\`typescript
-type AccordionRootDataAttributesorientation = 'data-orientation';
-\`\`\`
-
-### AccordionTriggerDataAttributes.disabled
-
-Present when the accordion item is disabled.
-
-\`\`\`typescript
-type AccordionTriggerDataAttributesdisabled = 'data-disabled';
-\`\`\`
-
-### AccordionTriggerDataAttributes.index
-
-Indicates the index of the accordion item.
-
-\`\`\`typescript
-type AccordionTriggerDataAttributesindex = 'data-index';
-\`\`\`
-
-### AccordionTriggerDataAttributes.panelOpen
-
-Present when the accordion panel is open.
-
-\`\`\`typescript
-type AccordionTriggerDataAttributespanelOpen = 'data-panel-open';
+declare namespace AccordionTriggerDataAttributes {
+  /**
+   * Indicates the index of the accordion item.
+   * @type number
+   */
+  const index: 'data-index';
+  /** Present when the accordion panel is open. */
+  const panelOpen: 'data-panel-open';
+  /** Present when the accordion item is disabled. */
+  const disabled: 'data-disabled';
+}
 \`\`\`
 
 ### AccordionValue
@@ -1405,7 +1363,7 @@ type Orientation = 'horizontal' | 'vertical';
 - \`Accordion.Header\`: \`Accordion.Header\`, \`Accordion.Header.State\`, \`Accordion.Header.Props\`
 - \`Accordion.Trigger\`: \`Accordion.Trigger\`, \`Accordion.Trigger.State\`, \`Accordion.Trigger.Props\`
 - \`Accordion.Panel\`: \`Accordion.Panel\`, \`Accordion.Panel.State\`, \`Accordion.Panel.Props\`
-- \`Default\`: \`AccordionRootDataAttributes.disabled\`, \`AccordionRootDataAttributes.orientation\`, \`AccordionItemDataAttributes.index\`, \`AccordionItemDataAttributes.disabled\`, \`AccordionItemDataAttributes.open\`, \`AccordionHeaderDataAttributes.index\`, \`AccordionHeaderDataAttributes.disabled\`, \`AccordionHeaderDataAttributes.open\`, \`AccordionTriggerDataAttributes.index\`, \`AccordionTriggerDataAttributes.panelOpen\`, \`AccordionTriggerDataAttributes.disabled\`, \`AccordionPanelCssVariables.accordionPanelHeight\`, \`AccordionPanelCssVariables.accordionPanelWidth\`, \`AccordionPanelDataAttributes.index\`, \`AccordionPanelDataAttributes.open\`, \`AccordionPanelDataAttributes.orientation\`, \`AccordionPanelDataAttributes.disabled\`, \`AccordionPanelDataAttributes.startingStyle\`, \`AccordionPanelDataAttributes.endingStyle\`, \`AccordionValue\`, \`AccordionRootState\`, \`AccordionRootProps\`, \`AccordionRootChangeEventReason\`, \`AccordionRootChangeEventDetails\`, \`AccordionItemState\`, \`AccordionItemProps\`, \`AccordionItemChangeEventReason\`, \`AccordionItemChangeEventDetails\`, \`AccordionHeaderState\`, \`AccordionHeaderProps\`, \`AccordionTriggerState\`, \`AccordionTriggerProps\`, \`AccordionPanelState\`, \`AccordionPanelProps\`
+- \`Default\`: \`AccordionRootDataAttributes\`, \`AccordionItemDataAttributes\`, \`AccordionHeaderDataAttributes\`, \`AccordionTriggerDataAttributes\`, \`AccordionPanelCssVariables\`, \`AccordionPanelDataAttributes\`, \`AccordionValue\`, \`AccordionRootState\`, \`AccordionRootProps\`, \`AccordionRootChangeEventReason\`, \`AccordionRootChangeEventDetails\`, \`AccordionItemState\`, \`AccordionItemProps\`, \`AccordionItemChangeEventReason\`, \`AccordionItemChangeEventDetails\`, \`AccordionHeaderState\`, \`AccordionHeaderProps\`, \`AccordionTriggerState\`, \`AccordionTriggerProps\`, \`AccordionPanelState\`, \`AccordionPanelProps\`
 
 ## Canonical Types
 
