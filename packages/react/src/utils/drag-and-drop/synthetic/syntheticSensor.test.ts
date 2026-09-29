@@ -646,6 +646,8 @@ describe('syntheticDrag sensor', () => {
     // `lostpointercapture` right before the first move. The event targets the
     // original element, not the body anchor, so it must not cancel the drag.
     dispatch(src, new PointerEvent('lostpointercapture', { pointerId: 7, bubbles: true }));
+    // A real capture loss cancels on the next frame, so let that frame run.
+    await flushRaf();
     expect(onMoveEnd).not.toHaveBeenCalled();
 
     // The drag survives and drops normally over the target.
@@ -1594,6 +1596,11 @@ describe('syntheticDrag sensor', () => {
     expect(onMoveStart).not.toHaveBeenCalled();
     // Not left armed. The pending phase released the source it had reserved.
     expect(el.hasAttribute('draggable')).toBe(false);
+    // Unlike a chorded release, the OS may still deliver this press's
+    // long-press menu, so it stays suppressed.
+    const contextMenu = new Event('contextmenu', { bubbles: true, cancelable: true });
+    dispatch(el, contextMenu);
+    expect(contextMenu.defaultPrevented).toBe(true);
 
     // A later move can't resurrect it either.
     penMove(80, 50);
@@ -2474,11 +2481,13 @@ describe('syntheticDrag sensor', () => {
     const el = createElement();
     const onMoveStart = vi.fn();
     const onMoveEnd = vi.fn();
+    const onMove = vi.fn();
     engine.registerSource(el, {
       activation: { touch: { type: 'immediate' } },
       onMoveStart,
       onMoveEnd,
     });
+    engine.registerMonitor({ onMove });
 
     // First finger lands and immediately activates.
     touchDown(el, 50, 50, 1);
@@ -2508,10 +2517,16 @@ describe('syntheticDrag sensor', () => {
       pointerId: 2,
       clientX: 80,
       clientY: 80,
+      buttons: 1,
       bubbles: true,
       cancelable: true,
     });
     dispatch(getTouchDownTarget(), secondMove);
+    await flushRaf();
+    await flushRaf();
+    expect(
+      onMove.mock.calls.map(([eventDetails]) => eventDetails.location.current.input.clientX),
+    ).not.toContain(80);
 
     // Lifting the second finger must not end the drag, since its `pointerId` differs.
     const secondUp = new PointerEvent('pointerup', {
@@ -3849,18 +3864,18 @@ describe('syntheticDrag sensor', () => {
 
         vi.advanceTimersByTime(5000);
 
-        // A keyboard "click" (`detail: 0`, no `pointerId`) has no `pointerdown` to
-        // disarm the window. Only the backstop can let it through.
-        const keyboardClick = new MouseEvent('click', {
-          detail: 0,
+        // A click with no `pointerId` would be swallowed while the window is
+        // armed, and nothing disarmed it. Only the backstop can let it through.
+        const lateClick = new MouseEvent('click', {
+          detail: 1,
           bubbles: true,
           cancelable: true,
         });
         act(() => {
-          el.dispatchEvent(keyboardClick);
+          el.dispatchEvent(lateClick);
         });
         expect(onClick).toHaveBeenCalledTimes(1);
-        expect(keyboardClick.defaultPrevented).toBe(false);
+        expect(lateClick.defaultPrevented).toBe(false);
       } finally {
         vi.useRealTimers();
         touchUp(50, 50);
@@ -3915,6 +3930,7 @@ describe('syntheticDrag sensor', () => {
       const secondPointerClick = new PointerEvent('click', {
         pointerId: 2,
         pointerType: 'touch',
+        detail: 1,
         bubbles: true,
         cancelable: true,
       });

@@ -68,7 +68,7 @@ describe('syntheticDrag activation', () => {
       firePointer.up(source, { ...input, buttons: 0, timeStamp: 20 });
       firePointer.down(source, { ...input, timeStamp: 100 });
       firePointer.up(source, { ...input, buttons: 0, timeStamp: 110 });
-      fireEvent.doubleClick(source);
+      fireEvent.doubleClick(source, { detail: 2, button: 0 });
       expect(onMoveStart).not.toHaveBeenCalled();
     },
   );

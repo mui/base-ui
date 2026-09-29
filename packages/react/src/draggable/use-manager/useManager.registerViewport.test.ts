@@ -625,20 +625,20 @@ describe('engine.registerViewport', () => {
     }
   });
 
-  it('returns a cleanup function', async () => {
+  it('keeps a re-registration when a stale cleanup runs again', async () => {
     const { engine } = await renderDnd();
-    const el = createElement();
-    const cleanup = engine.registerViewport(el, {});
-    expect(typeof cleanup).toBe('function');
-    cleanup();
-  });
+    const source = createElement();
+    const scroller = makeEngageableScroller();
+    engine.registerSource(source, {});
+    // One stable getter, as a Strict Mode remount or a ref callback registers it.
+    const getParameters = () => ({});
+    const staleCleanup = engine.registerViewport(scroller, getParameters);
+    staleCleanup();
+    engine.registerViewport(scroller, getParameters);
+    staleCleanup();
 
-  it('cleanup is safe to call twice', async () => {
-    const { engine } = await renderDnd();
-    const el = createElement();
-    const cleanup = engine.registerViewport(el, {});
-    cleanup();
-    expect(() => cleanup()).not.toThrow();
+    await driveIntoEdgeZone(source, scroller);
+    expect(scroller.scrollBy).toHaveBeenCalled();
   });
 
   // A 200x200 overflow container at the origin with room to scroll down, so the

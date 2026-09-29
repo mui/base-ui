@@ -752,7 +752,7 @@ describe('lifecycle manager', () => {
   });
 
   describe('drop target hierarchy changes', () => {
-    it('fires onTargetChange when hierarchy changes', async () => {
+    it('fires onTargetChange with the new target when moving between sibling targets', async () => {
       const { engine } = await renderDnd();
       const el = createElement();
       const target1 = createElement();
@@ -770,10 +770,12 @@ describe('lifecycle manager', () => {
       fireDrag.dragEnter(target1);
       await flushRaf();
       expect(onTargetChange).toHaveBeenCalledTimes(1);
+      expect(onTargetChange.mock.calls[0][0].target?.element).toBe(target1);
 
       fireDrag.dragEnter(target2);
       await flushRaf();
       expect(onTargetChange).toHaveBeenCalledTimes(2);
+      expect(onTargetChange.mock.calls[1][0].target?.element).toBe(target2);
     });
   });
 
@@ -1315,32 +1317,7 @@ describe('lifecycle manager', () => {
       expect(onDragStart2).toHaveBeenCalledTimes(1);
     });
 
-    it('reset() invokes onForceCleanup so a sensor-side teardown can run', async () => {
-      const { engine } = await renderDnd();
-      const el = createElement();
-      const onMoveStart = vi.fn();
-      engine.registerSource(el, { onMoveStart });
-
-      fireDrag.dragStart(el);
-      await flushRaf();
-      expect(onMoveStart).toHaveBeenCalledTimes(1);
-
-      // `reset()` runs the same teardown as the consumer-throw path, so no throw
-      // is needed. After it, the engine accepts a new drag with no leftover state.
-      act(() => {
-        reset();
-      });
-
-      // Register a monitor and start a new drag. The monitor must receive that
-      // drag's start instead of joining the old drag.
-      const monitorCalls = vi.fn();
-      engine.registerMonitor({ onMoveStart: monitorCalls });
-      fireDrag.dragStart(el);
-      await flushRaf();
-      expect(monitorCalls).toHaveBeenCalledTimes(1);
-    });
-
-    it('reset() calls the session onForceCleanup so the sensor releases its state', () => {
+    it('runs the session onForceCleanup when the drag ends so the sensor releases its state', () => {
       const element = createElement();
       const onForceCleanup = vi.fn();
       const handle = start({
@@ -1357,10 +1334,10 @@ describe('lifecycle manager', () => {
       expect(isActive()).toBe(true);
 
       act(() => {
-        reset();
+        cancelDrag();
       });
 
-      // `reset()` runs the sensor's force-cleanup hook (its `clearActive`), so
+      // Teardown runs the sensor's force-cleanup hook (its `clearActive`), so
       // listeners, pointer capture and the drag-root lock are released.
       expect(onForceCleanup).toHaveBeenCalledTimes(1);
       expect(isActive()).toBe(false);

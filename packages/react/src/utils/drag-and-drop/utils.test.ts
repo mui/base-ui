@@ -373,16 +373,18 @@ describe('getElementScale', () => {
       expect(scale.y).toBeCloseTo(1, 5);
     });
 
-    it.each([
-      ['100grad', '90deg'],
-      ['1.5707963267948966rad', '90deg'],
-      ['0.25turn', '90deg'],
-    ])('receives a computed %s rotate longhand in degrees', (declared, expected) => {
-      const child = makeNested('');
-      child.style.rotate = declared;
-
-      expect(getComputedStyle(child).rotate).toBe(expected);
-    });
+    // The computed rotate is in degrees whatever unit was declared, so these
+    // read as the 90deg case below.
+    it.each(['100grad', '1.5707963267948966rad', '0.25turn'])(
+      'reads a %s rotate longhand under a non-uniform scale',
+      (declared) => {
+        const child = makeNested('transform: matrix(2, 0, 0, 1, 0, 0)');
+        child.style.rotate = declared;
+        const scale = getElementScale(child);
+        expect(scale.x).toBeCloseTo(1, 5);
+        expect(scale.y).toBeCloseTo(2, 5);
+      },
+    );
 
     // A rotation doesn't change a scale by itself, but it changes which axis an
     // ancestor's scale lands on. Left out of the matrix, these come out swapped

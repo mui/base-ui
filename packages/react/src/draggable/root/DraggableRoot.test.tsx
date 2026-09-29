@@ -541,7 +541,7 @@ describe('Draggable.Root', () => {
     expect(onMoveEnd.mock.calls[0][0].target?.element).toBe(target);
   });
 
-  it('cleanup is idempotent and survives unmount mid-drag', async () => {
+  it('survives unmount mid-drag', async () => {
     const onMoveEnd = vi.fn();
     const { unmount } = await renderDnd(<TestDraggable options={{ onMoveEnd }} />);
     const source = screen.getByTestId('drag');
@@ -550,7 +550,7 @@ describe('Draggable.Root', () => {
     fireDrag.dragStart(source);
     await flushRaf();
 
-    expect(() => unmount()).not.toThrow();
+    unmount();
     // Unmount runs the registration cleanup, which restores the gesture styles.
     // The temporary `draggable="false"` belongs to the drag session and is
     // restored when the session ends.

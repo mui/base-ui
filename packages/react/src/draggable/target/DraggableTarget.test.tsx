@@ -135,7 +135,7 @@ describe('Draggable.Target', () => {
         accept={cardKind}
         payload={{ id: 'slot-1' }}
         trackDragOver={false}
-        disabled={false}
+        disabled
         canDrop={() => true}
         snap={{ y: 4 }}
         onDraggableDrop={() => {}}
@@ -1365,7 +1365,7 @@ describe('Draggable.Target', () => {
     expect(rejectingRenders.mock.calls.length).toBe(rejectingBefore);
   });
 
-  it('does not run unrelated target selectors while the pointer moves', async () => {
+  it('does not re-render unrelated targets while the pointer moves', async () => {
     const hoveredRenders = vi.fn(() => 'hovered');
     const unrelatedRenders = vi.fn(() => 'unrelated');
     const { engine } = await renderDnd(
@@ -1389,13 +1389,15 @@ describe('Draggable.Target', () => {
 
     fireDrag.dragStart(source);
     await flushRaf();
+    const hoveredAfterStart = hoveredRenders.mock.calls.length;
     const unrelatedAfterStart = unrelatedRenders.mock.calls.length;
 
     fireDrag.dragEnter(hovered);
     fireDrag.dragOver(hovered);
     await flushRaf();
 
-    expect(hoveredRenders.mock.calls.length).toBeGreaterThan(1);
+    expect(hovered).toHaveAttribute('data-drag-over');
+    expect(hoveredRenders.mock.calls.length).toBeGreaterThan(hoveredAfterStart);
     expect(unrelatedRenders).toHaveBeenCalledTimes(unrelatedAfterStart);
   });
 

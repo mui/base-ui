@@ -88,8 +88,9 @@ describe('syntheticPreview', () => {
     ]);
     const preview = createPreviewElement(120, 30);
     handle.setPreviewElement(preview);
-    expect(() => handle.update(20, 20)).not.toThrow();
+    handle.update(20, 20);
     expect(preview.destroyed).toBe(true);
+    expect(preview.element.style.translate).toBe('');
   });
 
   it('marks the source as dragging, and clears it on destroy', () => {

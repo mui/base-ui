@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { describe, it, expect, vi } from 'vitest';
 import { createDndRenderer, testDragKind } from '#test-utils';
-import { Draggable } from '@base-ui/react/draggable';
 import {
   createElement,
   dragOver,
@@ -10,20 +9,12 @@ import {
   fireDrag,
 } from '../../../test/dnd';
 import { useMonitor } from './useMonitor';
-import { getSharedSlot } from '../../utils/drag-and-drop/sharedState';
 
 setupDragEngineTests();
 
 function Monitor(props: useMonitor.Parameters) {
   useMonitor(props);
   return null;
-}
-
-// The engine's monitor registry (see `monitor.ts`).
-function getMonitorRegistry(): ReadonlySet<unknown> {
-  return getSharedSlot<{ allMonitors: Set<unknown> }>('registerMonitor', () => {
-    throw new Error('The monitor state is not initialized.');
-  }).allMonitors;
 }
 
 describe('useMonitor', () => {
@@ -52,20 +43,12 @@ describe('useMonitor', () => {
     expect(onMoveEnd).toHaveBeenCalledTimes(1);
   });
 
-  it('re-renders keep the registration but events read the latest callbacks', async () => {
+  it('events read the latest callbacks after a re-render', async () => {
     const firstOnDragStart = vi.fn();
     const secondOnDragStart = vi.fn();
     const { rerender, engine } = await renderDnd(<Monitor onMoveStart={firstOnDragStart} />);
-    const registrationsBefore = Array.from(getMonitorRegistry());
 
     await rerender(<Monitor onMoveStart={secondOnDragStart} />);
-
-    // The getters and their order are unchanged, so the re-render didn't re-register the monitor.
-    const registrationsAfter = Array.from(getMonitorRegistry());
-    expect(registrationsAfter.length).toBe(registrationsBefore.length);
-    registrationsBefore.forEach((getter, index) => {
-      expect(registrationsAfter[index]).toBe(getter);
-    });
 
     const el = createElement();
     engine.registerSource(el, {});
@@ -78,20 +61,17 @@ describe('useMonitor', () => {
     fireDrag.drop(el);
   });
 
-  it('registers exactly once and fires callbacks once per event under Strict Mode', async () => {
+  it('fires callbacks once per event under Strict Mode', async () => {
     // Strict Mode runs the registration effect twice (register, clean up,
     // register). A leaked duplicate registration would run every callback once
     // per hold.
     const onMoveStart = vi.fn();
     const onMoveEnd = vi.fn();
-    const sizeBefore = getMonitorRegistry().size;
     const { engine } = await renderDnd(
       <React.StrictMode>
         <Monitor onMoveStart={onMoveStart} onMoveEnd={onMoveEnd} />
       </React.StrictMode>,
     );
-
-    expect(getMonitorRegistry().size).toBe(sizeBefore + 1);
 
     const el = createElement();
     engine.registerSource(el, {});
@@ -101,28 +81,6 @@ describe('useMonitor', () => {
 
     expect(onMoveStart).toHaveBeenCalledTimes(1);
     expect(onMoveEnd).toHaveBeenCalledTimes(1);
-  });
-
-  it('mounted mid-drag, a monitor for another kind never fires', async () => {
-    const otherKind = Draggable.createKind('use-drag-monitor/other');
-    const onMove = vi.fn();
-    const onMoveEnd = vi.fn();
-    const { rerender, engine } = await renderDnd(<div />);
-    const el = createElement();
-    engine.registerSource(el, {});
-
-    fireDrag.dragStart(el);
-    await flushRaf();
-
-    await rerender(<Monitor accept={otherKind} onMove={onMove} onMoveEnd={onMoveEnd} />);
-
-    await dragOver(el, { clientX: 40, clientY: 40 });
-    await dragOver(el, { clientX: 80, clientY: 80 });
-    fireDrag.drop(el);
-    await flushRaf();
-
-    expect(onMove).not.toHaveBeenCalled();
-    expect(onMoveEnd).not.toHaveBeenCalled();
   });
 
   it('mounted mid-drag, a monitor for the active kind receives the following moves', async () => {

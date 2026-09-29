@@ -6,7 +6,7 @@ import type {
 
 const MOVEMENT_TOLERANCE_PX = 5;
 
-export const DEFAULT_ACTIVATION: Record<DraggablePointerType, DraggableRootActivation> = {
+const DEFAULT_ACTIVATION: Record<DraggablePointerType, DraggableRootActivation> = {
   // Distance-based so a stationary click on a clickable child doesn't become a drag.
   mouse: { type: 'distance', distance: MOVEMENT_TOLERANCE_PX },
   // Distance-based so a stylus tap doesn't briefly enter a drag session.

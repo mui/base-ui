@@ -1,12 +1,18 @@
 import { describe, expect, it } from 'vitest';
 import {
-  DEFAULT_ACTIVATION,
   evaluateActivation,
   evaluateActivations,
   getActivationDelayMs,
   hasDoubleClickActivation,
   resolveActivation,
 } from './activation';
+
+// The documented defaults, spelled out so a changed default fails here.
+const DEFAULTS = {
+  mouse: { type: 'distance', distance: 5 },
+  pen: { type: 'distance', distance: 5 },
+  touch: { type: 'press-hold', delay: 250 },
+} as const;
 
 describe('activation', () => {
   describe('evaluateActivation', () => {
@@ -87,13 +93,13 @@ describe('activation', () => {
       expect(resolveActivation(map, 'touch')).toEqual([{ type: 'distance', distance: 15 }]);
       // A pointer type the partial map does not cover falls back to its own
       // per-type default, not to another entry of the map.
-      expect(resolveActivation(map, 'mouse')).toEqual([DEFAULT_ACTIVATION.mouse]);
+      expect(resolveActivation(map, 'mouse')).toEqual([DEFAULTS.mouse]);
     });
 
     it('falls back to defaults by pointer type', () => {
-      expect(resolveActivation(undefined, 'mouse')).toEqual([DEFAULT_ACTIVATION.mouse]);
-      expect(resolveActivation(undefined, 'pen')).toEqual([DEFAULT_ACTIVATION.pen]);
-      expect(resolveActivation(undefined, 'touch')).toEqual([DEFAULT_ACTIVATION.touch]);
+      expect(resolveActivation(undefined, 'mouse')).toEqual([DEFAULTS.mouse]);
+      expect(resolveActivation(undefined, 'pen')).toEqual([DEFAULTS.pen]);
+      expect(resolveActivation(undefined, 'touch')).toEqual([DEFAULTS.touch]);
     });
   });
   it('resolves multiple alternatives and excludes double-click from pointer presses', () => {
@@ -128,9 +134,9 @@ describe('activation', () => {
         [{ mouse: { type: 'double-click' } }, { touch: { type: 'press-hold', delay: 500 } }],
         'pen',
       ),
-    ).toEqual([DEFAULT_ACTIVATION.pen]);
+    ).toEqual([DEFAULTS.pen]);
     expect(resolveActivation([{ mouse: { type: 'distance', distance: 9 } }], 'touch')).toEqual([
-      DEFAULT_ACTIVATION.touch,
+      DEFAULTS.touch,
     ]);
     // An empty array disables pickup rather than restoring the default.
     expect(resolveActivation([], 'mouse')).toEqual([]);
@@ -164,7 +170,7 @@ describe('activation', () => {
         (type) => type !== pointerType,
       );
       for (const otherType of otherTypes) {
-        expect(resolveActivation(config, otherType)).toEqual([DEFAULT_ACTIVATION[otherType]]);
+        expect(resolveActivation(config, otherType)).toEqual([DEFAULTS[otherType]]);
       }
     },
   );

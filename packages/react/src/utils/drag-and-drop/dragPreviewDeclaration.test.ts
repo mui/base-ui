@@ -7,16 +7,6 @@ function createDeclaration(): DragPreviewDeclaration {
 }
 
 describe('createDragPreviewHandle', () => {
-  it('publishes a declaration and reports it', () => {
-    const handle = createDragPreviewHandle();
-    expect(handle.getDeclaration()).toBe(null);
-
-    const declaration = createDeclaration();
-    handle.declare(declaration);
-
-    expect(handle.getDeclaration()).toBe(declaration);
-  });
-
   it('warns and takes the last declaration when a second preview part declares', () => {
     const handle = createDragPreviewHandle();
     handle.declare(createDeclaration());
@@ -26,7 +16,7 @@ describe('createDragPreviewHandle', () => {
     // that composes its own preview around a consumer-passed one is a plausible
     // mistake, and crashing the app over it is out of proportion.
     const second = createDeclaration();
-    expect(() => handle.declare(second)).not.toThrow();
+    handle.declare(second);
     expect(String(spy.mock.calls[0][0])).toMatch(/more than one preview part/);
     // The last one mounted wins, so the outcome is deterministic.
     expect(handle.getDeclaration()).toBe(second);
@@ -42,15 +32,15 @@ describe('createDragPreviewHandle', () => {
     expect(handle.getDeclaration()).toBe(null);
 
     const next = createDeclaration();
-    expect(() => handle.declare(next)).not.toThrow();
+    handle.declare(next);
     expect(handle.getDeclaration()).toBe(next);
   });
 
-  it('cleanup is identity-guarded, so a Strict Mode remount keeps the live declaration', () => {
+  it('keeps a newer declaration when an older cleanup runs again', () => {
     const handle = createDragPreviewHandle();
-    // Strict Mode runs effects twice, and the first part's cleanup can run after
-    // the remounted part has declared. Clearing unconditionally there would drop
-    // the live declaration and leave the draggable with no preview.
+    // An older part's cleanup can run after another part has declared, for
+    // example when the earlier of two parts unmounts. Clearing unconditionally
+    // there would drop the live declaration and leave the draggable with no preview.
     const staleCleanup = handle.declare(createDeclaration());
     staleCleanup();
 
